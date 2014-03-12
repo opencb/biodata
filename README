@@ -1,0 +1,10 @@
+biodata
+=======
+
+BioData is a Java library that models biological entities and their equivalents in different file formats typically used in bioinformatics.
+
+Its aim is to keep applications as agnostic as possible from the file formats they receive as input. This way, analysis can be conducted on
+data retrieved from very different files. In the context of variant analysis, those could be the VCF and GVF formats.
+
+At the same time, information must not be lost, so the Java models are flexible enough to store any fields specific to a certain format.
+
