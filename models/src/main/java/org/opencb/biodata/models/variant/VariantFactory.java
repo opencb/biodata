@@ -1,32 +1,98 @@
 package org.opencb.biodata.models.variant;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author Alejandro Aleman Ramos <aaleman@cipf.es>
+ * @author Cristina Yenyxe Gonzalez Garcia <cyenyxe@ebi.ac.uk>
  */
 public class VariantFactory {
 
-    public static Variant createVariantFromVcf(List<String> sampleNames, String... fields) {
+    /**
+     * Creates a list of Variant objects using the fields in a record of a VCF 
+     * file. A new Variant object is created per allele, so several of them can 
+     * be created from a single line.
+     * 
+     * @param sampleNames Names of the samples in the file
+     * @param fields Contents of the line in the file
+     * @return The list of Variant objects that can be created using the fields from a VCF record
+     */
+    public static List<Variant> createVariantFromVcf(List<String> sampleNames, String... fields) {
         if (fields.length < 8) {
             throw new IllegalArgumentException("Not enough fields provided (min 8)");
         }
+        
+        List<Variant> variants = new LinkedList<>();
 
-        // TODO End must be properly calculated!
-        Variant variant = new Variant(fields[0], Integer.parseInt(fields[1]), Integer.parseInt(fields[1]),fields[3], fields[4]);
-        variant.setId(fields[2]);
-        variant.addAttribute("QUAL", fields[5]);
-        variant.addAttribute("FILTER", fields[6]);
-        parseInfo(variant, fields[7]);
+        String chromosome = fields[0];
+        int position = Integer.parseInt(fields[1]);
+        String id = fields[2];
+        String reference = fields[3].equals(".") ? "" : fields[3];
+        String alternate = fields[4].equals(".") ? "" : fields[4];
+        String[] alternateAlleles = alternate.split(",");
+        float quality = fields[5].equals(".") ? -1 : Float.parseFloat(fields[5]);
+        String filter = fields[6].equals(".") ? "" : fields[6];
+        String info = fields[7].equals(".") ? "" : fields[7];
+        
+//        // TODO End must be properly calculated!
+//        Variant variant = new Variant(fields[0], Integer.parseInt(fields[1]), Integer.parseInt(fields[1]),fields[3], fields[4]);
+//        variant.setId(fields[2]);
+//        variant.addAttribute("QUAL", fields[5]);
+//        variant.addAttribute("FILTER", fields[6]);
+//        parseInfo(variant, fields[7]);
+//
+//        if (fields.length > 8) {
+//            variant.setFormat(fields[8]);
+//            parseSampleData(variant, fields, sampleNames);
+//        }
 
-        if (fields.length > 8) {
-            variant.setFormat(fields[8]);
-            parseSampleData(variant, fields, sampleNames);
+        for (int i = 0; i < alternateAlleles.length; i++) { // TODO This index is necessary for getting the samples where the variant is present
+            String alt = alternateAlleles[i];
+            List<Variant> variantsFromAllele = null;
+            int referenceLen = reference.length();
+            int alternateLen = alt.length();
+            
+            if (referenceLen == alternateLen) {
+                variantsFromAllele = createVariantsFromSameLengthRefAlt(chromosome, position, reference, alt);
+            } else if (referenceLen == 0) {
+                Variant variant = createVariantsFromInsertionEmptyRef(chromosome, position, alt);
+                setOtherFields(variant, id, quality, filter, info);
+                variants.add(variant);
+            } else if (alternateLen == 0) {
+                Variant variant = createVariantsFromDeletionEmptyAlt(chromosome, position, reference);
+                setOtherFields(variant, id, quality, filter, info);
+                variants.add(variant);
+            } else {
+                variantsFromAllele = createVariantsFromIndelNoEmptyRefAlt(chromosome, position, reference, alt);
+            }
+            
+            if (variantsFromAllele == null || variantsFromAllele.isEmpty()) {
+                continue;
+            }
+
+//            // Fields not affected by the structure of REF and ALT fields
+//            variant.setId(id);
+//            if (quality > -1) {
+//                variant.addAttribute("QUAL", String.valueOf(quality));
+//            }
+//            if (!filter.isEmpty()) {
+//                variant.addAttribute("FILTER", filter);
+//            }
+//            if (!info.isEmpty()) {
+//                parseInfo(variant, info);
+//            }
+            
+            // TODO Set samples content
+            
+            variants.addAll(variantsFromAllele);
         }
-
-        return variant;
+        
+        return variants;
     }
 
     public static String getVcfInfo(Variant variant) {
@@ -85,11 +151,6 @@ public class VariantFactory {
     }
 
     private static void parseInfo(Variant variant, String info) {
-
-        if (info.equalsIgnoreCase(".")) {
-            return;
-        }
-
         for (String var : info.split(";")) {
             String[] splits = var.split("=");
             if (splits.length == 2) {
@@ -97,10 +158,66 @@ public class VariantFactory {
             } else {
                 variant.addAttribute(splits[0], "");
             }
-
         }
-
     }
 
+    private static List<Variant> createVariantsFromSameLengthRefAlt(String chromosome, int position, String reference, String alt) {
+        int previousIndexOfDifference = 0;
+        List<Variant> variants = new LinkedList<>();
+        
+        while (!reference.isEmpty()) {
+            int indexOfDifference = StringUtils.indexOfDifference(reference, alt);
+            if (indexOfDifference < 0) {
+                return variants;
+            }
+            
+            // The 'difference' substring stores ALL remaining characters from the first difference, 
+            // even if some of them are equal, so they must be checked
+            int i;
+            for (i = indexOfDifference; i < reference.length(); i++) {
+                if (reference.charAt(i) == alt.charAt(i)) {
+                    break;
+                }
+            }
+            
+            // Create variant
+            int start = position + previousIndexOfDifference + indexOfDifference;
+            int end = position + previousIndexOfDifference + i - 1;
+            String ref = reference.substring(indexOfDifference, i);
+            String inAlt = alt.substring(indexOfDifference, i);
+            variants.add(new Variant(chromosome, start, end, ref, inAlt));
+            
+            reference = reference.substring(i);
+            alt = alt.substring(i);
+            previousIndexOfDifference = indexOfDifference + 1;
+        }
+        
+        return variants;
+    }
 
+    private static Variant createVariantsFromInsertionEmptyRef(String chromosome, int position, String alt) {
+        return new Variant(chromosome, position-1, position + alt.length(), "", alt);
+    }
+
+    private static Variant createVariantsFromDeletionEmptyAlt(String chromosome, int position, String reference) {
+        return new Variant(chromosome, position, position + reference.length() - 1, reference, "");
+    }
+
+    private static List<Variant> createVariantsFromIndelNoEmptyRefAlt(String chromosome, int position, String reference, String alt) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private static void setOtherFields(Variant variant, String id, float quality, String filter, String info) {
+        // Fields not affected by the structure of REF and ALT fields
+        variant.setId(id);
+        if (quality > -1) {
+            variant.addAttribute("QUAL", String.valueOf(quality));
+        }
+        if (!filter.isEmpty()) {
+            variant.addAttribute("FILTER", filter);
+        }
+        if (!info.isEmpty()) {
+            parseInfo(variant, info);
+        }
+    }
 }

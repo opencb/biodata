@@ -172,6 +172,16 @@ public class Variant {
         this.id = id;
     }
 
+    public void addId(String newId) {
+        if (!this.id.contains(newId)) {
+            if (this.id.equals(".")) {
+                this.id = newId;
+            } else {
+                this.id += ";" + newId;
+            }
+        }
+    }
+
     public String getFormat() {
         return format;
     }
@@ -214,16 +224,6 @@ public class Variant {
 
     public boolean addEffect(VariantEffect e) {
         return this.effect.add(e);
-    }
-
-    public void addId(String newId) {
-        if (!this.id.contains(newId)) {
-            if (this.id.equals(".")) {
-                this.id = newId;
-            } else {
-                this.id += ";" + newId;
-            }
-        }
     }
 
     public void addAttribute(String key, String value) {
@@ -270,4 +270,43 @@ public class Variant {
                 '}';
     }
 
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 37 * hash + Objects.hashCode(this.chromosome);
+        hash = 37 * hash + this.start;
+        hash = 37 * hash + this.end;
+        hash = 37 * hash + Objects.hashCode(this.reference);
+        hash = 37 * hash + Objects.hashCode(this.alternate);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Variant other = (Variant) obj;
+        if (!Objects.equals(this.chromosome, other.chromosome)) {
+            return false;
+        }
+        if (this.start != other.start) {
+            return false;
+        }
+        if (this.end != other.end) {
+            return false;
+        }
+        if (!Objects.equals(this.reference, other.reference)) {
+            return false;
+        }
+        if (!Objects.equals(this.alternate, other.alternate)) {
+            return false;
+        }
+        return true;
+    }
+
+    
 }
