@@ -5,21 +5,85 @@ import org.opencb.biodata.models.variant.effect.VariantEffect;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
 /**
- * Created with IntelliJ IDEA.
- * User: aaleman
- * Date: 11/20/13
- * Time: 1:19 PM
- * To change this template use File | Settings | File Templates.
+ * @author Cristina Yenyxe Gonzalez Garcia <cyenyxe@ebi.ac.uk>
+ * @author Alejandro Aleman Ramos <aaleman@cipf.es>
  */
 public class Variant {
+    
+    /**
+     * Chromosome where the genomic variation occurred.
+     */
     private String chromosome;
-    private int position;
+    
+    /**
+     * Position where the genomic variation starts.
+     * <ul>
+     *  <li>SNVs have the same start and end positions</li>
+     *  <li>Insertions start in the last present position: if the first nucleotide 
+     * is inserted in position 6, the start is position 5</li>
+     *  <li>Deletions start in the first previously present position: if the first 
+     * deleted nucleotide is in position 6, the start is position 6</li>
+     * </ul>
+     */
+    private int start;
+    
+    /**
+     * Position where the genomic variation ends.
+     * <ul>
+     *  <li>SNVs have the same start and end positions</li>
+     *  <li>Insertions end in the first present position: if the last nucleotide 
+     * is inserted in position 9, the end is position 10</li>
+     *  <li>Deletions ends in the last previously present position: if the last 
+     * deleted nucleotide is in position 9, the end is position 9</li>
+     * </ul>
+     */
+    private int end;
+    
+    /**
+     * Length of the genomic variation, which depends on the variation type.
+     * <ul>
+     *  <li>SNVs have a length of 1 nucleotide</li>
+     *  <li>Indels have the length of the largest allele</li>
+     * </ul>
+     */
+    private int length;
+    
+    /**
+     * Reference allele.
+     */
     private String reference;
+    
+    /**
+     * Alternate allele.
+     */
     private String alternate;
+    
+    /**
+     * Unique identifier most commonly used for this genomic variation.
+     */
     private String id;
+    
+    /**
+     * Fields stored for each sample.
+     */
     private String format;
+    
+    /**
+     * Genotypes and other sample-related information. The keys are the names
+     * of the samples. The values are pairs (field name, field value), such as
+     * (GT, A/C).
+     */
     private Map<String, Map<String, String>> samplesData;
+    
+    /**
+     * Statistics of the genomic variation, such as its alleles/genotypes count 
+     * or its minimum allele frequency.
+     */
     private VariantStats stats;
+    
+    /**
+     * Possible effects of the genomic variation.
+     */
     private List<VariantEffect> effect;
 
     /**
@@ -28,11 +92,23 @@ public class Variant {
      */
     private Map<String, String> attributes;
 
-    public Variant(String chromosome, int position, String reference, String alternate) {
+    
+    public Variant(String chromosome, int start, int end, String reference, String alternate) {
+        if (chromosome == null || chromosome.length() == 0) {
+            throw new IllegalArgumentException("Chromosome must not be empty");
+        }
+        if (start > end) {
+            throw new IllegalArgumentException("End position must be greater than the start position");
+        }
+        
         this.chromosome = chromosome;
-        this.position = position;
-        this.reference = reference;
-        this.alternate = alternate;
+        this.start = start;
+        this.end = end;
+        this.reference = (reference != null) ? reference : "";
+        this.alternate = (alternate != null) ? alternate : "";
+        
+        this.length = Math.max(this.reference.length(), this.alternate.length());
+        
         this.samplesData = new LinkedHashMap<>();
         this.effect = new LinkedList<>();
         this.attributes = new LinkedHashMap<>();
@@ -46,12 +122,28 @@ public class Variant {
         this.chromosome = chromosome;
     }
 
-    public int getPosition() {
-        return position;
+    public int getStart() {
+        return start;
     }
 
-    public void setPosition(int position) {
-        this.position = position;
+    public void setStart(int start) {
+        this.start = start;
+    }
+
+    public int getEnd() {
+        return end;
+    }
+
+    public void setEnd(int end) {
+        this.end = end;
+    }
+
+    public int getLength() {
+        return length;
+    }
+
+    public void setLength(int length) {
+        this.length = length;
     }
 
     public String getReference() {
@@ -60,6 +152,7 @@ public class Variant {
 
     public void setReference(String reference) {
         this.reference = reference;
+        this.length = Math.max(reference.length(), alternate.length());
     }
 
     public String getAlternate() {
@@ -68,6 +161,7 @@ public class Variant {
 
     public void setAlternate(String alternate) {
         this.alternate = alternate;
+        this.length = Math.max(reference.length(), alternate.length());
     }
 
     public String getId() {
@@ -140,7 +234,7 @@ public class Variant {
         return this.attributes.get(key);
     }
 
-    public boolean containsAttribute(String key) {
+    public boolean hasAttribute(String key) {
         return this.attributes.containsKey(key);
     }
 
@@ -156,11 +250,15 @@ public class Variant {
         return this.samplesData.keySet();
     }
 
+    public boolean isIndel() {
+        return this.reference.length() != this.alternate.length();
+    }
+
     @Override
     public String toString() {
         return "Variant{" +
                 "chromosome='" + chromosome + '\'' +
-                ", position=" + position +
+                ", position=" + start + "-" + end + 
                 ", reference='" + reference + '\'' +
                 ", alternate='" + alternate + '\'' +
                 ", id='" + id + '\'' +
@@ -170,14 +268,6 @@ public class Variant {
                 ", effect=" + effect +
                 ", attributes=" + attributes +
                 '}';
-    }
-
-    public String[] getAltAlleles() {
-        return this.getAlternate().split(",");
-    }
-
-    public boolean isIndel() {
-        return (this.reference.length() > 1 || this.alternate.length() > 1) && (this.reference.length() != this.alternate.length());
     }
 
 }

@@ -14,7 +14,8 @@ public class VariantFactory {
             throw new IllegalArgumentException("Not enough fields provided (min 8)");
         }
 
-        Variant variant = new Variant(fields[0], Integer.parseInt(fields[1]), fields[3], fields[4]);
+        // TODO End must be properly calculated!
+        Variant variant = new Variant(fields[0], Integer.parseInt(fields[1]), Integer.parseInt(fields[1]),fields[3], fields[4]);
         variant.setId(fields[2]);
         variant.addAttribute("QUAL", fields[5]);
         variant.addAttribute("FILTER", fields[6]);

@@ -56,14 +56,16 @@ public class StatsCalculator {
             VariantStats vcfStat = new VariantStats();
 
             vcfStat.setChromosome(variant.getChromosome());
-            vcfStat.setPosition((long) variant.getPosition());
+            vcfStat.setPosition((long) variant.getStart());
             vcfStat.setRefAllele(variant.getReference());
             vcfStat.setId(variant.getId());
 
-            String[] altAlleles = variant.getAltAlleles();
-
-            vcfStat.setAltAlleles(altAlleles);
-            vcfStat.setNumAlleles(altAlleles.length + 1);
+//            String[] altAlleles = variant.getAltAlleles();
+//
+//            vcfStat.setAltAlleles(altAlleles);
+//            vcfStat.setNumAlleles(altAlleles.length + 1);
+            vcfStat.setAltAlleles(new String[] { variant.getAlternate() });
+            vcfStat.setNumAlleles(1);
 
             int[] allelesCount = new int[vcfStat.getNumAlleles()];
             int[] genotypesCount = new int[vcfStat.getNumAlleles() * vcfStat.getNumAlleles()];
@@ -248,55 +250,51 @@ public class StatsCalculator {
             // Transitions and transversions
 
             String ref = variant.getReference().toUpperCase();
-            for (String alt : variant.getAltAlleles()) {
-                alt = alt.toUpperCase();
+            String alt = variant.getAlternate().toUpperCase();
 
-                if (ref.length() == 1 && alt.length() == 1) {
+            if (ref.length() == 1 && alt.length() == 1) {
+                switch (ref) {
+                    case "C":
+                        if (alt.equals("T")) {
+                            transitionsCount++;
+                        } else {
+                            transversionsCount++;
+                        }
+                        break;
+                    case "T":
+                        if (alt.equals("C")) {
+                            transitionsCount++;
+                        } else {
+                            transversionsCount++;
+                        }
+                        break;
+                    case "A":
+                        if (alt.equals("G")) {
+                            transitionsCount++;
 
-                    switch (ref) {
-                        case "C":
-                            if (alt.equals("T")) {
-                                transitionsCount++;
-                            } else {
-                                transversionsCount++;
-                            }
-                            break;
-                        case "T":
-                            if (alt.equals("C")) {
-                                transitionsCount++;
-                            } else {
-                                transversionsCount++;
-                            }
-                            break;
-                        case "A":
-                            if (alt.equals("G")) {
-                                transitionsCount++;
-
-                            } else {
-                                transversionsCount++;
-                            }
-                            break;
-                        case "G":
-                            if (alt.equals("A")) {
-                                transitionsCount++;
-                            } else {
-                                transversionsCount++;
-                            }
-                            break;
-                    }
+                        } else {
+                            transversionsCount++;
+                        }
+                        break;
+                    case "G":
+                        if (alt.equals("A")) {
+                            transitionsCount++;
+                        } else {
+                            transversionsCount++;
+                        }
+                        break;
                 }
-
             }
 
             // Update variables finally used to update file_stats_t structure
             if (variant.getId() != null && !variant.getId().equals(".")) {
                 vcfStat.setSNP(true);
             }
-            if (variant.containsAttribute("FILTER") && variant.getAttribute("FILTER").toUpperCase().equals("PASS")) {
+            if (variant.hasAttribute("FILTER") && variant.getAttribute("FILTER").toUpperCase().equals("PASS")) {
                 vcfStat.setPass(true);
             }
 
-            if (variant.containsAttribute("FILTER") && !variant.getAttribute("QUAL").equals(".")) {
+            if (variant.hasAttribute("FILTER") && !variant.getAttribute("QUAL").equals(".")) {
                 float qualAux = Float.valueOf(variant.getAttribute("QUAL"));
                 if (qualAux >= 0) {
                     vcfStat.setQual(qualAux);
@@ -440,7 +438,7 @@ public class StatsCalculator {
             variantSampleGroupStats.setGroup(group);
         }
 
-        if (variantSampleGroupStats.getSampleStats().size() == 0) {
+        if (variantSampleGroupStats.getSampleStats().isEmpty()) {
             for (String groupVal : groupValues) {
                 sampleList = getSamplesValueGroup(groupVal, group, ped);
                 variantSampleStats = new VariantSampleStats(sampleList);
@@ -481,7 +479,6 @@ public class StatsCalculator {
     }
 
     private static Set<String> getGroupValues(Pedigree ped, String group) {
-
         Set<String> values = new TreeSet<>();
         Individual ind;
         for (Map.Entry<String, Individual> entry : ped.getIndividuals().entrySet()) {
@@ -494,11 +491,10 @@ public class StatsCalculator {
 
 
         }
-        return values;  //To change body of created methods use File | Settings | File Templates.
+        return values;
     }
 
     private static boolean isMendelianError(Individual ind, Genotype g, Variant variant) {
-
         Genotype gFather;
         Genotype gMother;
 
@@ -515,11 +511,7 @@ public class StatsCalculator {
             return false;
         }
 
-        if (checkMendel(variant.getChromosome(), gFather, gMother, g, ind.getSexCode()) > 0) {
-            return true;
-        }
-
-        return false;
+        return checkMendel(variant.getChromosome(), gFather, gMother, g, ind.getSexCode()) > 0;
     }
 
     private static int checkMendel(String chromosome, Genotype gFather, Genotype gMother, Genotype gInd, Sex sex) {

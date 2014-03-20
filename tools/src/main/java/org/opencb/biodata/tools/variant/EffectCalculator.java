@@ -32,14 +32,14 @@ public class EffectCalculator {
 
         StringBuilder chunkVcfRecords = new StringBuilder();
         Client client = Client.create();
-        WebResource webResource = client.resource("http://ws.bioinfo.cipf.es/cellbase/rest/latest/hsa/genomic/variant/");
+        WebResource webResource = client.resource("http://ws-beta.bioinfo.cipf.es/cellbase-staging/rest/latest/hsa/genomic/variant/");
 
-        javax.ws.rs.client.Client clientNew = ClientBuilder.newClient();
+//        javax.ws.rs.client.Client clientNew = ClientBuilder.newClient();
 //        WebTarget webTarget = clientNew.target("http://ws-beta.bioinfo.cipf.es/cellbase/rest/v3/hsapiens/feature/transcript/");
 
         for (Variant record : batch) {
             chunkVcfRecords.append(record.getChromosome()).append(":");
-            chunkVcfRecords.append(record.getPosition()).append(":");
+            chunkVcfRecords.append(record.getStart()).append(":");
             chunkVcfRecords.append(record.getReference()).append(":");
             chunkVcfRecords.append(record.getAlternate()).append(",");
         }
@@ -72,14 +72,14 @@ public class EffectCalculator {
 
         StringBuilder chunkVcfRecords = new StringBuilder();
         Client client = Client.create();
-        WebResource webResource = client.resource("http://ws.bioinfo.cipf.es/cellbase/rest/latest/hsa/genomic/variant/");
+        WebResource webResource = client.resource("http://ws-beta.bioinfo.cipf.es/cellbase-staging/rest/latest/hsa/genomic/variant/");
 
         javax.ws.rs.client.Client clientNew = ClientBuilder.newClient();
         WebTarget webTarget = clientNew.target("http://ws-beta.bioinfo.cipf.es/cellbase/rest/v3/hsapiens/feature/transcript/");
 
         for (Variant record : batch) {
             chunkVcfRecords.append(record.getChromosome()).append(":");
-            chunkVcfRecords.append(record.getPosition()).append(":");
+            chunkVcfRecords.append(record.getStart()).append(":");
             chunkVcfRecords.append(record.getReference()).append(":");
             chunkVcfRecords.append(record.getAlternate()).append(",");
         }
@@ -105,7 +105,7 @@ public class EffectCalculator {
         int se, pe;
 
         for (VariantEffect effect : batchEffect) {
-            if (effect.getAaPosition() != -1 && effect.getTranscriptId() != "" && effect.getAminoacidChange().length() == 3) {
+            if (effect.getAaPosition() != -1 && !"".equals(effect.getTranscriptId()) && effect.getAminoacidChange().length() == 3) {
 
                 String change = effect.getAminoacidChange().split("/")[1];
 
@@ -183,7 +183,7 @@ public class EffectCalculator {
             for (int i = 0; i < effects.size(); i++) {
                 effect = effects.get(i);
                 if (record.getChromosome().equals(effect.getChromosome())
-                        && record.getPosition() == effect.getPosition()
+                        && record.getStart() == effect.getPosition()
                         && record.getReference().equals(effect.getReferenceAllele())
                         && record.getAlternate().equals(effect.getAlternativeAllele())) {
                     auxEffect.add(effect);
