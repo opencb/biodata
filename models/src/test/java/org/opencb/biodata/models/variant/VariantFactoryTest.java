@@ -18,8 +18,9 @@ public class VariantFactoryTest extends TestCase {
         String[] fields = new String[] { "1", "1000", "rs123", "TCACCC", "TGACGG", ".", ".", "."};
         
         List<Variant> expResult = new LinkedList<>();
-        expResult.add(new Variant(fields[0], Integer.parseInt(fields[1]) + 1, Integer.parseInt(fields[1]) + 1, "C", "G"));
-        expResult.add(new Variant(fields[0], Integer.parseInt(fields[1]) + 4, Integer.parseInt(fields[1]) + 5, "CC", "GG"));
+//        expResult.add(new Variant(fields[0], Integer.parseInt(fields[1]) + 1, Integer.parseInt(fields[1]) + 1, "C", "G"));
+//        expResult.add(new Variant(fields[0], Integer.parseInt(fields[1]) + 4, Integer.parseInt(fields[1]) + 5, "CC", "GG"));
+        expResult.add(new Variant(fields[0], Integer.parseInt(fields[1]) + 1, Integer.parseInt(fields[1]) + 5, "CACCC", "GACGG"));
         
         List<Variant> result = VariantFactory.createVariantFromVcf(sampleNames, fields);
         assertEquals(expResult, result);
@@ -28,8 +29,9 @@ public class VariantFactoryTest extends TestCase {
         fields = new String[] { "1", "1000", "rs123", "TCACCC", "TGACGC", ".", ".", "."};
         
         expResult = new LinkedList<>();
-        expResult.add(new Variant(fields[0], Integer.parseInt(fields[1]) + 1, Integer.parseInt(fields[1]) + 1, "C", "G"));
-        expResult.add(new Variant(fields[0], Integer.parseInt(fields[1]) + 4, Integer.parseInt(fields[1]) + 4, "C", "G"));
+//        expResult.add(new Variant(fields[0], Integer.parseInt(fields[1]) + 1, Integer.parseInt(fields[1]) + 1, "C", "G"));
+//        expResult.add(new Variant(fields[0], Integer.parseInt(fields[1]) + 4, Integer.parseInt(fields[1]) + 4, "C", "G"));
+        expResult.add(new Variant(fields[0], Integer.parseInt(fields[1]) + 1, Integer.parseInt(fields[1]) + 5, "CACCC", "GACGC"));
         
         result = VariantFactory.createVariantFromVcf(sampleNames, fields);
         assertEquals(expResult, result);
@@ -70,13 +72,19 @@ public class VariantFactoryTest extends TestCase {
     
     public void testCreateVariantFromVcfCoLocatedVariants() {
         List<String> sampleNames = Arrays.asList("NA001", "NA002", "NA003");
-        String[] fields = new String[] { "1", "10040", "rs123", "TGACGTAACGATT", "T,TGACGTAACGGTT,TGACGTAATAC", ".", ".", "."};
+        String[] fields = new String[] { "1", "10040", "rs123", "TGACGTAACGATT", "T,TGACGTAACGGTT,TGACGTAATAC", ".", ".", ".", 
+                                         "0/0", "0/1", "0/2", "1/2"}; // 4 samples
+        
+        // Check proper conversion of main fields
         List<Variant> expResult = new LinkedList<>();
         expResult.add(new Variant(fields[0], 10041, 10041 + "GACGTAACGATT".length() - 1, "GACGTAACGATT", ""));
-        expResult.add(new Variant(fields[0], 10050, 10050, "A", "G"));
+        expResult.add(new Variant(fields[0], 10050, 10050 + "ATT".length() - 1, "ATT", "GTT"));
         expResult.add(new Variant(fields[0], 10048, 10048 + "CGATT".length() - 1, "CGATT", "TAC"));
         
         List<Variant> result = VariantFactory.createVariantFromVcf(sampleNames, fields);
         assertEquals(expResult, result);
+        
+        // Check proper conversion of samples
+        
     }
 }

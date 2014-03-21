@@ -101,7 +101,7 @@ public class Variant {
             throw new IllegalArgumentException("End position must be greater than the start position");
         }
         
-        this.chromosome = chromosome;
+        this.chromosome = chromosome.replaceAll("chrom|chr", "");
         this.start = start;
         this.end = end;
         this.reference = (reference != null) ? reference : "";
