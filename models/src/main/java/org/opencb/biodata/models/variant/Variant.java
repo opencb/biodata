@@ -172,15 +172,16 @@ public class Variant {
         this.id = id;
     }
 
-    public void addId(String newId) {
-        if (!this.id.contains(newId)) {
-            if (this.id.equals(".")) {
-                this.id = newId;
-            } else {
-                this.id += ";" + newId;
-            }
-        }
-    }
+    // TODO Insert in attributes?
+//    public void addId(String newId) {
+//        if (!this.id.contains(newId)) {
+//            if (this.id.equals(".")) {
+//                this.id = newId;
+//            } else {
+//                this.id += ";" + newId;
+//            }
+//        }
+//    }
 
     public String getFormat() {
         return format;

@@ -56,4 +56,27 @@ public class VariantFactoryTest extends TestCase {
         List<Variant> result = VariantFactory.createVariantFromVcf(sampleNames, fields);
         assertEquals(expResult, result);
     }
+    
+    public void testCreateVariantFromVcfIndelNotEmptyFields() {
+        List<String> sampleNames = Arrays.asList("NA001", "NA002", "NA003");
+        String[] fields = new String[] { "1", "1000", "rs123", "CGATT", "TAC", ".", ".", "."};
+        
+        List<Variant> expResult = new LinkedList<>();
+        expResult.add(new Variant(fields[0], Integer.parseInt(fields[1]), Integer.parseInt(fields[1]) + fields[3].length() - 1, fields[3], fields[4]));
+        
+        List<Variant> result = VariantFactory.createVariantFromVcf(sampleNames, fields);
+        assertEquals(expResult, result);
+    }
+    
+    public void testCreateVariantFromVcfCoLocatedVariants() {
+        List<String> sampleNames = Arrays.asList("NA001", "NA002", "NA003");
+        String[] fields = new String[] { "1", "10040", "rs123", "TGACGTAACGATT", "T,TGACGTAACGGTT,TGACGTAATAC", ".", ".", "."};
+        List<Variant> expResult = new LinkedList<>();
+        expResult.add(new Variant(fields[0], 10041, 10041 + "GACGTAACGATT".length() - 1, "GACGTAACGATT", ""));
+        expResult.add(new Variant(fields[0], 10050, 10050, "A", "G"));
+        expResult.add(new Variant(fields[0], 10048, 10048 + "CGATT".length() - 1, "CGATT", "TAC"));
+        
+        List<Variant> result = VariantFactory.createVariantFromVcf(sampleNames, fields);
+        assertEquals(expResult, result);
+    }
 }

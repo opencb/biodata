@@ -1,7 +1,5 @@
 package org.opencb.biodata.models.variant.effect;
 
-import java.util.HashSet;
-
 
 /**
  * Created with IntelliJ IDEA.
@@ -300,6 +298,38 @@ public class VariantEffect {
         this.codonChange = codonChange;
     }
 
+    public double getPolyphenScore() {
+        return polyphenScore;
+    }
+
+    public void setPolyphenScore(double polyphenScore) {
+        this.polyphenScore = polyphenScore;
+    }
+
+    public double getSiftScore() {
+        return siftScore;
+    }
+
+    public void setSiftScore(double siftScore) {
+        this.siftScore = siftScore;
+    }
+
+    public int getPolyphenEffect() {
+        return polyphenEffect;
+    }
+
+    public void setPolyphenEffect(int polyphenEffect) {
+        this.polyphenEffect = polyphenEffect;
+    }
+
+    public int getSiftEffect() {
+        return siftEffect;
+    }
+
+    public void setSiftEffect(int siftEffect) {
+        this.siftEffect = siftEffect;
+    }
+    
     @Override
     public String toString() {
         return "VariantEffect{" +
@@ -407,35 +437,4 @@ public class VariantEffect {
         return result;
     }
 
-    public double getPolyphenScore() {
-        return polyphenScore;
-    }
-
-    public void setPolyphenScore(double polyphenScore) {
-        this.polyphenScore = polyphenScore;
-    }
-
-    public double getSiftScore() {
-        return siftScore;
-    }
-
-    public void setSiftScore(double siftScore) {
-        this.siftScore = siftScore;
-    }
-
-    public int getPolyphenEffect() {
-        return polyphenEffect;
-    }
-
-    public void setPolyphenEffect(int polyphenEffect) {
-        this.polyphenEffect = polyphenEffect;
-    }
-
-    public int getSiftEffect() {
-        return siftEffect;
-    }
-
-    public void setSiftEffect(int siftEffect) {
-        this.siftEffect = siftEffect;
-    }
 }

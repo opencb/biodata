@@ -1,6 +1,5 @@
 package org.opencb.biodata.models.variant;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -39,18 +38,6 @@ public class VariantFactory {
         String filter = fields[6].equals(".") ? "" : fields[6];
         String info = fields[7].equals(".") ? "" : fields[7];
         
-//        // TODO End must be properly calculated!
-//        Variant variant = new Variant(fields[0], Integer.parseInt(fields[1]), Integer.parseInt(fields[1]),fields[3], fields[4]);
-//        variant.setId(fields[2]);
-//        variant.addAttribute("QUAL", fields[5]);
-//        variant.addAttribute("FILTER", fields[6]);
-//        parseInfo(variant, fields[7]);
-//
-//        if (fields.length > 8) {
-//            variant.setFormat(fields[8]);
-//            parseSampleData(variant, fields, sampleNames);
-//        }
-
         for (int i = 0; i < alternateAlleles.length; i++) { // TODO This index is necessary for getting the samples where the variant is present
             String alt = alternateAlleles[i];
             List<Variant> variantsFromAllele = null;
@@ -204,7 +191,27 @@ public class VariantFactory {
     }
 
     private static List<Variant> createVariantsFromIndelNoEmptyRefAlt(String chromosome, int position, String reference, String alt) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        int previousIndexOfDifference = 0;
+        List<Variant> variants = new LinkedList<>();
+        
+        int indexOfDifference = StringUtils.indexOfDifference(reference, alt);
+        if (indexOfDifference < 0) {
+            return variants;
+        } else if (indexOfDifference == 0) {
+            if (reference.length() > alt.length()) {
+                variants.add(new Variant(chromosome, position, position + reference.length() - 1, reference, alt));
+            } else {
+                variants.add(new Variant(chromosome, position-1, position + alt.length(), reference, alt));
+            }
+        } else {
+            int start = position + previousIndexOfDifference + indexOfDifference;
+            int end = position + Math.max(reference.length(), alt.length()) - 1;
+            String ref = reference.substring(indexOfDifference);
+            String inAlt = alt.substring(indexOfDifference);
+            variants.add(new Variant(chromosome, start, end, ref, inAlt));
+        }
+        
+        return variants;
     }
 
     private static void setOtherFields(Variant variant, String id, float quality, String filter, String info) {

@@ -99,7 +99,9 @@ public class VariantVcfReader implements VariantReader {
 
 
                 if (fields.length >= 8) {
-                    variant = VariantFactory.createVariantFromVcf(vcf4.getSampleNames(), fields);
+                    // TODO Must return List<Variant> !!
+//                    variant = VariantFactory.createVariantFromVcf(vcf4.getSampleNames(), fields);
+                    variant = VariantFactory.createVariantFromVcf(vcf4.getSampleNames(), fields).get(0);
                 } else {
                     throw new IOException("Not enough fields in line (min. 8): " + line);
                 }
