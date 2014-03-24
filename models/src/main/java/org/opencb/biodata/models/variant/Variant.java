@@ -10,7 +10,20 @@ import org.opencb.biodata.models.variant.stats.VariantStats;
  */
 public class Variant {
     
-    enum VariantType { SNV, SV, Indel };
+    /**
+     * Type of variation, which depends mostly on its length.
+     * <ul>
+     *  <li>SNVs involve a single nucleotide</li>
+     *  <li>Indels are insertions or deletions of less than 50 nucleotides</li>
+     *  <li>Structural variations are large changes of more than 50 nucleotides</li>
+     * </ul>
+     */
+    public enum VariantType { SNV, Indel, SV };
+    
+    /**
+     * Type of variation: single nucleotide, indel or structural variation.
+     */
+    private VariantType type;
     
     /**
      * Chromosome where the genomic variation occurred.
@@ -66,6 +79,12 @@ public class Variant {
     private String id;
     
     /**
+     * Unique identifier following the HGVS nomenclature (only genomic sequence 
+     * descriptor available for now).
+     */
+    private String hgvs;
+    
+    /**
      * Fields stored for each sample.
      */
     private String format;
@@ -107,12 +126,29 @@ public class Variant {
         this.alternate = (alternate != null) ? alternate : "";
         
         this.length = Math.max(this.reference.length(), this.alternate.length());
+        if (this.reference.length() == this.alternate.length()) {
+            this.type = VariantType.SNV;
+        } else if (this.length <= 50) {
+            this.type = VariantType.Indel;
+        } else {
+            this.type = VariantType.SV;
+        }
+        
+        this.hgvs = chromosome + ":g." + start + reference + ">" + alternate;
         
         this.samplesData = new LinkedHashMap<>();
         this.effect = new LinkedList<>();
         this.attributes = new LinkedHashMap<>();
     }
 
+    public VariantType getType() {
+        return type;
+    }
+
+    public void setType(VariantType type) {
+        this.type = type;
+    }
+    
     public String getChromosome() {
         return chromosome;
     }
@@ -190,6 +226,14 @@ public class Variant {
 //            }
 //        }
 //    }
+    
+    public String getHgvs() {
+        return hgvs;
+    }
+
+    public final void setHgvs(String hgvs) {
+        this.hgvs = hgvs;
+    }
 
     public String getFormat() {
         return format;
