@@ -10,6 +10,8 @@ import org.opencb.biodata.models.variant.stats.VariantStats;
  */
 public class Variant {
     
+    enum VariantType { SNV, SV, Indel };
+    
     /**
      * Chromosome where the genomic variation occurred.
      */
@@ -94,16 +96,13 @@ public class Variant {
 
     
     public Variant(String chromosome, int start, int end, String reference, String alternate) {
-        if (chromosome == null || chromosome.length() == 0) {
-            throw new IllegalArgumentException("Chromosome must not be empty");
-        }
         if (start > end) {
             throw new IllegalArgumentException("End position must be greater than the start position");
         }
         
-        this.chromosome = chromosome.replaceAll("chrom|chr", "");
-        this.start = start;
-        this.end = end;
+        this.setChromosome(chromosome);
+        this.setStart(start);
+        this.setEnd(end);
         this.reference = (reference != null) ? reference : "";
         this.alternate = (alternate != null) ? alternate : "";
         
@@ -118,15 +117,21 @@ public class Variant {
         return chromosome;
     }
 
-    public void setChromosome(String chromosome) {
-        this.chromosome = chromosome;
+    public final void setChromosome(String chromosome) {
+        if (chromosome == null || chromosome.length() == 0) {
+            throw new IllegalArgumentException("Chromosome must not be empty");
+        }
+        this.chromosome = chromosome.replaceAll("chrom | chrm | chr | ch", "");
     }
 
     public int getStart() {
         return start;
     }
 
-    public void setStart(int start) {
+    public final void setStart(int start) {
+        if (start < 0) {
+            throw new IllegalArgumentException("Start must be positive");
+        }
         this.start = start;
     }
 
@@ -134,7 +139,10 @@ public class Variant {
         return end;
     }
 
-    public void setEnd(int end) {
+    public final void setEnd(int end) {
+        if (end < 0) {
+            throw new IllegalArgumentException("End must be positive");
+        }
         this.end = end;
     }
 
