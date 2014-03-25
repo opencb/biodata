@@ -9,6 +9,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 import org.opencb.biodata.formats.io.FileFormatException;
 import org.opencb.biodata.formats.variant.vcf4.Vcf4;
@@ -20,11 +22,8 @@ import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFactory;
 
 /**
- * Created with IntelliJ IDEA.
- * User: aaleman
- * Date: 8/30/13
- * Time: 12:24 PM
- * To change this template use File | Settings | File Templates.
+ * @author Alejandro Aleman Ramos <aaleman@cipf.es>
+ * @author Cristina Yenyxe Gonzalez Garcia <cyenyxe@ebi.ac.uk>
  */
 public class VariantVcfReader implements VariantReader {
 
@@ -39,7 +38,6 @@ public class VariantVcfReader implements VariantReader {
 
     @Override
     public boolean open() {
-
         try {
             this.path = Paths.get(this.filename);
             Files.exists(this.path);
@@ -54,7 +52,6 @@ public class VariantVcfReader implements VariantReader {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
 
         return true;
     }
@@ -97,7 +94,6 @@ public class VariantVcfReader implements VariantReader {
                 String[] fields = line.split("\t");
                 Variant variant;
 
-
                 if (fields.length >= 8) {
                     // TODO Must return List<Variant> !!
 //                    variant = VariantFactory.createVariantFromVcf(vcf4.getSampleNames(), fields);
@@ -108,31 +104,40 @@ public class VariantVcfReader implements VariantReader {
 
                 return variant;
             }
-        } catch (
-                IOException e
-                )
-
-        {
+        } catch (IOException e) {
             e.printStackTrace();
         }
-
 
         return null;
     }
 
-
     @Override
     public List<Variant> read(int batchSize) {
         List<Variant> listRecords = new ArrayList<>(batchSize);
-        Variant variant;
-        int i = 0;
+        String line;
+        
+        for (int i = 0; i < batchSize; i++) {
+            try {
+                while ((line = reader.readLine()) != null && (line.trim().equals("") || line.startsWith("#")));
 
-        while ((i < batchSize) && (variant = this.read()) != null) {
-
-            listRecords.add(variant);
-            i++;
+                if (line == null) { // Nothing found
+                    continue;
+                }
+                
+                String[] fields = line.split("\t");
+                if (fields.length >= 8) {
+                    List<Variant> variants = VariantFactory.createVariantFromVcf(vcf4.getSampleNames(), fields);
+                    assert (variants.size() > 0);
+                    listRecords.addAll(variants);
+                } else {
+                    throw new IOException("Not enough fields in line (min. 8): " + line);
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(VariantVcfReader.class.getName()).log(Level.SEVERE, null, ex);
+            }
 
         }
+
         return listRecords;
     }
 
@@ -190,7 +195,6 @@ public class VariantVcfReader implements VariantReader {
             localBufferedReader = new BufferedReader(new FileReader(path.toFile()));
         }
 
-
         boolean header = false;
         while ((line = localBufferedReader.readLine()) != null && line.startsWith("#")) {
 
@@ -229,6 +233,5 @@ public class VariantVcfReader implements VariantReader {
         }
         localBufferedReader.close();
     }
-
 
 }

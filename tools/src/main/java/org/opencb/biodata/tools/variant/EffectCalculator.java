@@ -41,22 +41,23 @@ public class EffectCalculator {
             chunkVcfRecords.append(record.getChromosome()).append(":");
             chunkVcfRecords.append(record.getStart()).append(":");
             chunkVcfRecords.append(record.getReference()).append(":");
-            chunkVcfRecords.append(record.getAlternate()).append(",");
+            chunkVcfRecords.append(record.getAlternate().isEmpty() ? "-" : record.getAlternate()).append(",");
         }
 
         FormDataMultiPart formDataMultiPart = new FormDataMultiPart();
-        formDataMultiPart.field("variants", chunkVcfRecords.substring(0, chunkVcfRecords.length() - 1));
-
-//        Response response = webTarget.path("consequence_type").queryParam("of", "json").request(MediaType.APPLICATION_JSON_TYPE).post(Entity.entity(formDataMultiPart.toString(), MediaType.MULTIPART_FORM_DATA_TYPE));
-        String response = webResource.path("consequence_type").queryParam("of", "json").type(MediaType.MULTIPART_FORM_DATA).post(String.class, formDataMultiPart);
+        formDataMultiPart.field("variants", chunkVcfRecords.toString());
 
         // TODO aaleman: Check the new Web Service
-
         try {
-            batchEffect = mapper.readValue(response.toString(), mapper.getTypeFactory().constructCollectionType(List.class, VariantEffect.class));
+            String response = webResource.path("consequence_type").queryParam("of", "json").type(MediaType.MULTIPART_FORM_DATA).post(String.class, formDataMultiPart);
+        
+            batchEffect = mapper.readValue(response, mapper.getTypeFactory().constructCollectionType(List.class, VariantEffect.class));
         } catch (IOException e) {
             System.err.println(chunkVcfRecords.toString());
             e.printStackTrace();
+        } catch (com.sun.jersey.api.client.UniformInterfaceException ex) {
+            System.err.println(ex.getMessage());
+            ex.printStackTrace();
         }
 
         return batchEffect;
@@ -81,7 +82,7 @@ public class EffectCalculator {
             chunkVcfRecords.append(record.getChromosome()).append(":");
             chunkVcfRecords.append(record.getStart()).append(":");
             chunkVcfRecords.append(record.getReference()).append(":");
-            chunkVcfRecords.append(record.getAlternate()).append(",");
+            chunkVcfRecords.append(record.getAlternate().isEmpty() ? "-" : record.getAlternate()).append(",");
         }
 
         FormDataMultiPart formDataMultiPart = new FormDataMultiPart();
@@ -93,10 +94,13 @@ public class EffectCalculator {
         // TODO aaleman: Check the new Web Service
 
         try {
-            batchEffect = mapper.readValue(response.toString(), mapper.getTypeFactory().constructCollectionType(List.class, VariantEffect.class));
+            batchEffect = mapper.readValue(response, mapper.getTypeFactory().constructCollectionType(List.class, VariantEffect.class));
         } catch (IOException e) {
             System.err.println(chunkVcfRecords.toString());
             e.printStackTrace();
+        } catch (com.sun.jersey.api.client.UniformInterfaceException ex) {
+            System.err.println(ex.getMessage());
+            ex.printStackTrace();
         }
 
 
@@ -176,16 +180,16 @@ public class EffectCalculator {
         List<List<VariantEffect>> list = new ArrayList<>(batch.size());
         List<VariantEffect> auxEffect;
         List<VariantEffect> effects = getEffects(batch);
-        VariantEffect effect;
+        String alternate;
 
-        for (Variant record : batch) {
+        for (Variant variant : batch) {
+            alternate = variant.getAlternate().isEmpty() ? "-" : variant.getAlternate();
             auxEffect = new ArrayList<>(20);
-            for (int i = 0; i < effects.size(); i++) {
-                effect = effects.get(i);
-                if (record.getChromosome().equals(effect.getChromosome())
-                        && record.getStart() == effect.getPosition()
-                        && record.getReference().equals(effect.getReferenceAllele())
-                        && record.getAlternate().equals(effect.getAlternativeAllele())) {
+            for (VariantEffect effect : effects) {
+                if (variant.getChromosome().equals(effect.getChromosome())
+                        && variant.getStart() == effect.getPosition()
+                        && variant.getReference().equals(effect.getReferenceAllele())
+                        && alternate.equals(effect.getAlternativeAllele())) {
                     auxEffect.add(effect);
                 }
             }
