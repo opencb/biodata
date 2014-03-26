@@ -61,15 +61,15 @@ public class VariantFactory {
             
             if (!keyFields.isEmpty()) {
                 if (keyFields.size() == 1) {
+                    // One variant extracted from a VCF record -> all fields stay the same
                     VariantKeyFields vkf = keyFields.get(0);
                     Variant variant = new Variant(chromosome, vkf.start, vkf.end, vkf.reference, vkf.alternate);
                     setOtherFields(variant, id, quality, filter, info, format);
-                    // TODO Copy only the samples that correspond to each specific mutation
-//                    parseSampleData(variant, fields, sampleNames);
+                    parseSampleData(variant, fields, sampleNames);
                     variants.add(variant);
                 } else {
                     System.out.println("Multiple KeyFields");
-                    // TODO More complex calculations should be performed
+                    // TODO More than one variant extracted from a VCF record -> samples must be transformed
                     for (VariantKeyFields vkf : keyFields) {
                         Variant variant = new Variant(chromosome, vkf.start, vkf.end, vkf.reference, vkf.alternate);
                         setOtherFields(variant, id, quality, filter, info, format);

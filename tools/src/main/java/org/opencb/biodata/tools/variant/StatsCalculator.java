@@ -65,7 +65,7 @@ public class StatsCalculator {
 //            vcfStat.setAltAlleles(altAlleles);
 //            vcfStat.setNumAlleles(altAlleles.length + 1);
             vcfStat.setAltAlleles(new String[] { variant.getAlternate() });
-            vcfStat.setNumAlleles(1);
+            vcfStat.setNumAlleles(2);
 
             int[] allelesCount = new int[vcfStat.getNumAlleles()];
             int[] genotypesCount = new int[vcfStat.getNumAlleles() * vcfStat.getNumAlleles()];
@@ -290,11 +290,11 @@ public class StatsCalculator {
             if (variant.getId() != null && !variant.getId().equals(".")) {
                 vcfStat.setSNP(true);
             }
-            if (variant.hasAttribute("FILTER") && variant.getAttribute("FILTER").toUpperCase().equals("PASS")) {
+            if (variant.hasAttribute("FILTER") && "PASS".equalsIgnoreCase(variant.getAttribute("FILTER"))) {
                 vcfStat.setPass(true);
             }
 
-            if (variant.hasAttribute("FILTER") && !variant.getAttribute("QUAL").equals(".")) {
+            if (variant.hasAttribute("QUAL") && !(".").equals(variant.getAttribute("QUAL"))) {
                 float qualAux = Float.valueOf(variant.getAttribute("QUAL"));
                 if (qualAux >= 0) {
                     vcfStat.setQual(qualAux);
