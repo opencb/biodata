@@ -16,9 +16,10 @@ public class Variant {
      *  <li>SNVs involve a single nucleotide</li>
      *  <li>Indels are insertions or deletions of less than 50 nucleotides</li>
      *  <li>Structural variations are large changes of more than 50 nucleotides</li>
+     *  <li>Copy-number variations alter the number of copies of a region</li>
      * </ul>
      */
-    public enum VariantType { SNV, Indel, SV };
+    public enum VariantType { SNV, INDEL, SV, CNV };
     
     /**
      * Type of variation: single nucleotide, indel or structural variation.
@@ -79,10 +80,9 @@ public class Variant {
     private String id;
     
     /**
-     * Unique identifier following the HGVS nomenclature (only genomic sequence 
-     * descriptor available for now).
+     * Unique identifier following the HGVS nomenclature.
      */
-    private String hgvs;
+    private Map<String, List<String>> hgvs;
     
     /**
      * Fields stored for each sample.
@@ -129,12 +129,13 @@ public class Variant {
         if (this.reference.length() == this.alternate.length()) {
             this.type = VariantType.SNV;
         } else if (this.length <= 50) {
-            this.type = VariantType.Indel;
+            this.type = VariantType.INDEL;
         } else {
             this.type = VariantType.SV;
         }
         
-        this.hgvs = chromosome + ":g." + start + reference + ">" + alternate;
+        this.hgvs = new HashMap<>();
+        this.hgvs.put("genomic", Arrays.asList(chromosome + ":g." + start + reference + ">" + alternate));
         
         this.samplesData = new LinkedHashMap<>();
         this.effect = new LinkedList<>();
@@ -227,14 +228,22 @@ public class Variant {
 //        }
 //    }
     
-    public String getHgvs() {
+    public Map<String, List<String>> getHgvs() {
         return hgvs;
     }
-
-    public final void setHgvs(String hgvs) {
-        this.hgvs = hgvs;
+    
+    public List<String> getHgvs(String type) {
+        return hgvs.get(type);
     }
 
+    public boolean addHgvs(String type, String value) {
+        List<String> listByType = hgvs.get(type);
+        if (listByType == null) {
+            listByType = new ArrayList<>();
+        }
+        return listByType.add(value);
+    }
+    
     public String getFormat() {
         return format;
     }
