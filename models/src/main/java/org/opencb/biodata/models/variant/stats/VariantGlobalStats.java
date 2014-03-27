@@ -23,7 +23,6 @@ public class VariantGlobalStats {
     private float accumQuality;
 
     public VariantGlobalStats() {
-
         this.variantsCount = 0;
         this.samplesCount = 0;
         this.snpsCount = 0;
@@ -140,6 +139,10 @@ public class VariantGlobalStats {
         this.accumQuality = accumQuality;
     }
 
+    public void addVariant() {
+        this.variantsCount++;
+    }
+    
     public void addIndel() {
         this.indelsCount++;
     }

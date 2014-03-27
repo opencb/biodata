@@ -10,56 +10,56 @@ package org.opencb.biodata.models.variant.stats;
 public class VariantSingleSampleStats {
 
     private String id;
-    private int mendelianErrors;
-    private int missingGenotypes;
-    private int homozygotesNumber;
+    private int numMendelianErrors;
+    private int numMissingGenotypes;
+    private int numHomozygous;
 
 
     public VariantSingleSampleStats(String id) {
         this.id = id;
-        this.mendelianErrors = 0;
-        this.missingGenotypes = 0;
-        this.homozygotesNumber = 0;
+        this.numMendelianErrors = 0;
+        this.numMissingGenotypes = 0;
+        this.numHomozygous = 0;
     }
 
     public void incrementMendelianErrors() {
-        this.mendelianErrors++;
+        this.numMendelianErrors++;
     }
 
     public void incrementMissingGenotypes() {
-        this.missingGenotypes++;
+        this.numMissingGenotypes++;
     }
 
-    public void incrementHomozygotesNumber() {
-        this.homozygotesNumber++;
+    public void incrementHomozygous() {
+        this.numHomozygous++;
     }
 
     public String getId() {
         return id;
     }
 
-    public int getMendelianErrors() {
-        return mendelianErrors;
+    public int getNumMendelianErrors() {
+        return numMendelianErrors;
     }
 
-    public int getMissingGenotypes() {
-        return missingGenotypes;
+    public int getNumMissingGenotypes() {
+        return numMissingGenotypes;
     }
 
-    public int getHomozygotesNumber() {
-        return homozygotesNumber;
+    public int getNumHomozygous() {
+        return numHomozygous;
     }
 
     public void incrementMendelianErrors(int mendelianErrors) {
-        this.mendelianErrors += mendelianErrors;
+        this.numMendelianErrors += mendelianErrors;
     }
 
     public void incrementMissingGenotypes(int missingGenotypes) {
-        this.missingGenotypes += missingGenotypes;
+        this.numMissingGenotypes += missingGenotypes;
     }
 
     public void incrementHomozygotesNumber(int homozygotesNumber) {
-        this.homozygotesNumber += homozygotesNumber;
+        this.numHomozygous += homozygotesNumber;
 
     }
 }

@@ -30,10 +30,15 @@ public class VariantVcfReader implements VariantReader {
     private Vcf4 vcf4;
     private BufferedReader reader;
     private Path path;
+    
     private String filename;
+    private String fileId;
+    private String studyId;
 
-    public VariantVcfReader(String filename) {
-        this.filename = filename;
+    public VariantVcfReader(String fileName, String fileId, String studyId) {
+        this.filename = fileName;
+        this.fileId = fileId;
+        this.studyId = studyId;
     }
 
     @Override
@@ -97,7 +102,7 @@ public class VariantVcfReader implements VariantReader {
                 if (fields.length >= 8) {
                     // TODO Must return List<Variant> !!
 //                    variant = VariantFactory.createVariantFromVcf(vcf4.getSampleNames(), fields);
-                    variant = VariantFactory.createVariantFromVcf(vcf4.getSampleNames(), fields).get(0);
+                    variant = VariantFactory.createVariantFromVcf(filename, fileId, studyId, vcf4.getSampleNames(), fields).get(0);
                 } else {
                     throw new IOException("Not enough fields in line (min. 8): " + line);
                 }
@@ -126,7 +131,7 @@ public class VariantVcfReader implements VariantReader {
                 
                 String[] fields = line.split("\t");
                 if (fields.length >= 8) {
-                    List<Variant> variants = VariantFactory.createVariantFromVcf(vcf4.getSampleNames(), fields);
+                    List<Variant> variants = VariantFactory.createVariantFromVcf(filename, fileId, studyId, vcf4.getSampleNames(), fields);
                     assert (variants.size() > 0);
                     listRecords.addAll(variants);
                 } else {

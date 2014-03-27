@@ -1,11 +1,8 @@
 package org.opencb.biodata.models.variant.stats;
 
 /**
- * Created with IntelliJ IDEA.
- * User: aaleman
- * Date: 9/2/13
- * Time: 10:09 AM
- * To change this template use File | Settings | File Templates.
+ * @author Alejandro Aleman Ramos <aaleman@cipf.es>
+ * @author Cristina Yenyxe Gonzalez Garcia <cyenyxe@ebi.ac.uk>
  */
 public class VariantHardyWeinbergStats {
 
@@ -22,54 +19,22 @@ public class VariantHardyWeinbergStats {
     private float q;
 
     public VariantHardyWeinbergStats() {
-    }
-
-    public void incNAA() {
-        this.n_AA++;
-    }
-
-    public void incNAa() {
-        this.n_Aa++;
-    }
-
-    public void incNaa() {
-        this.n_aa++;
+        chi2 = Float.MAX_VALUE;
+        pValue = Float.MAX_VALUE;
     }
 
     public float getChi2() {
+        if (chi2 == Float.MAX_VALUE) {
+            calculate();
+        }
         return chi2;
     }
 
     public float getpValue() {
+        if (pValue == Float.MAX_VALUE) {
+            calculate();
+        }
         return pValue;
-    }
-
-    public int getN() {
-        return n;
-    }
-
-    public int getN_AA() {
-        return n_AA;
-    }
-
-    public int getN_Aa() {
-        return n_Aa;
-    }
-
-    public int getN_aa() {
-        return n_aa;
-    }
-
-    public float getE_AA() {
-        return e_AA;
-    }
-
-    public float getE_Aa() {
-        return e_Aa;
-    }
-
-    public float getE_aa() {
-        return e_aa;
     }
 
     public float getP() {
@@ -78,14 +43,6 @@ public class VariantHardyWeinbergStats {
 
     public float getQ() {
         return q;
-    }
-
-    public void setChi2(float chi2) {
-        this.chi2 = chi2;
-    }
-
-    public void setpValue(float pValue) {
-        this.pValue = pValue;
     }
 
     public void setN(int n) {
@@ -102,6 +59,18 @@ public class VariantHardyWeinbergStats {
 
     public void setN_aa(int n_aa) {
         this.n_aa = n_aa;
+    }
+
+    public void incN_AA() {
+        this.n_AA++;
+    }
+
+    public void incN_Aa() {
+        this.n_Aa++;
+    }
+
+    public void incN_aa() {
+        this.n_aa++;
     }
 
     public void setE_AA(float e_AA) {
@@ -123,4 +92,49 @@ public class VariantHardyWeinbergStats {
     public void setQ(float q) {
         this.q = q;
     }
+
+    public void calculate() {
+        this.n = this.n_AA + this.n_Aa + this.n_aa;
+
+        int n = this.n;
+        int n_AA = this.n_AA;
+        int n_Aa = this.n_Aa;
+        int n_aa = this.n_aa;
+
+        if (n > 0) {
+            float p = (float) ((2.0 * n_AA + n_Aa) / (2 * n));
+            float q = 1 - p;
+
+            this.setP(p);
+            this.setQ(q);
+
+            this.setE_AA(p * p * n);
+            this.setE_Aa(2 * p * q * n);
+            this.setE_aa(q * q * n);
+
+            if (this.e_AA == n_AA) {
+                n_AA = 1;
+                this.setE_AA(n_AA);
+            }
+
+            if (this.e_Aa == n_Aa) {
+                n_Aa = 1;
+                this.setE_Aa(n_Aa);
+            }
+
+            if (this.e_aa == n_aa) {
+                n_aa = 1;
+                this.setE_aa(n_aa);
+            }
+
+            chi2 = (n_AA - this.e_AA) * (n_AA - this.e_AA) / this.e_AA
+                    + (n_Aa - this.e_Aa) * (n_Aa - this.e_Aa) / this.e_Aa
+                    + (n_aa - this.e_aa) * (n_aa - this.e_aa) / this.e_aa;
+
+            // TODO Calculate p-value
+            // GSL call: hw->p_value = 1-gsl_cdf_chisq_P(hw->chi2,1);
+//            pValue = chiSquareTest.chiSquare(chi, 1);
+        }
+    }
+
 }

@@ -1,6 +1,6 @@
 package org.opencb.biodata.models.feature;
 
-import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Created with IntelliJ IDEA.
@@ -148,37 +148,6 @@ public class Genotype {
         this.count = count;
     }
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder(6);
-        if (allele1 != null) {
-            sb.append(allele1);
-        } else {
-            sb.append(".");
-        }
-        sb.append("/");
-
-        if (allele2 != null) {
-            sb.append(allele2);
-        } else {
-            sb.append(".");
-        }
-        sb.append(":");
-        sb.append(count);
-        return sb.toString();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof Genotype) {
-            Genotype g = (Genotype) obj;
-            return this.getAllele1() == g.getAllele1() &&
-                    this.getAllele2() == g.getAllele2();
-        } else {
-            return false;
-        }
-    }
-
     public boolean isAllele1Ref() {
         return allele1 == 0;
     }
@@ -203,4 +172,44 @@ public class Genotype {
         }
         return sb.toString();
     }
+    
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(6);
+        if (allele1 != null) {
+            sb.append(allele1);
+        } else {
+            sb.append(".");
+        }
+        sb.append("/");
+
+        if (allele2 != null) {
+            sb.append(allele2);
+        } else {
+            sb.append(".");
+        }
+        sb.append(":");
+        sb.append(count);
+        return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Genotype) {
+            Genotype g = (Genotype) obj;
+            return Objects.equals(this.getAllele1(), g.getAllele1()) &&
+                    Objects.equals(this.getAllele2(), g.getAllele2());
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 47 * hash + Objects.hashCode(this.allele1);
+        hash = 47 * hash + Objects.hashCode(this.allele2);
+        return hash;
+    }
+
 }

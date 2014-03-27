@@ -37,9 +37,9 @@ public class VariantSampleStats {
                 sampleName = entry.getKey();
                 ss = entry.getValue();
                 ssAux = this.getSamplesStats().get(sampleName);
-                ssAux.incrementMendelianErrors(ss.getMendelianErrors());
-                ssAux.incrementMissingGenotypes(ss.getMissingGenotypes());
-                ssAux.incrementHomozygotesNumber(ss.getHomozygotesNumber());
+                ssAux.incrementMendelianErrors(ss.getNumMendelianErrors());
+                ssAux.incrementMissingGenotypes(ss.getNumMissingGenotypes());
+                ssAux.incrementHomozygotesNumber(ss.getNumHomozygous());
             }
         }
     }
@@ -60,7 +60,7 @@ public class VariantSampleStats {
 
     public void incrementHomozygotesNumber(String sampleName) {
         VariantSingleSampleStats s = samplesStats.get(sampleName);
-        s.incrementHomozygotesNumber();
+        s.incrementHomozygous();
     }
 
     @Override
@@ -70,7 +70,7 @@ public class VariantSampleStats {
         sb.append(String.format("%-10s%-10s%-10s%-10s\n", "Sample", "MissGt", "Mendel Err", "Homoz Count"));
         for (Map.Entry<String, VariantSingleSampleStats> entry : samplesStats.entrySet()) {
             s = entry.getValue();
-            sb.append(String.format("%-10s%-10d%-10d%10d\n", s.getId(), s.getMissingGenotypes(), s.getMendelianErrors(), s.getHomozygotesNumber()));
+            sb.append(String.format("%-10s%-10d%-10d%10d\n", s.getId(), s.getNumMissingGenotypes(), s.getNumMendelianErrors(), s.getNumHomozygous()));
 
         }
         return sb.toString();

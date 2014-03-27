@@ -85,33 +85,39 @@ public class Variant {
     private Map<String, List<String>> hgvs;
     
     /**
-     * Fields stored for each sample.
+     * Information specific to each file the variant was read from, such as 
+     * samples or statistics.
      */
-    private String format;
+    private Map<String, ArchivedVariantFile> files;
     
-    /**
-     * Genotypes and other sample-related information. The keys are the names
-     * of the samples. The values are pairs (field name, field value), such as
-     * (GT, A/C).
-     */
-    private Map<String, Map<String, String>> samplesData;
-    
-    /**
-     * Statistics of the genomic variation, such as its alleles/genotypes count 
-     * or its minimum allele frequency.
-     */
-    private VariantStats stats;
+//    /**
+//     * Fields stored for each sample.
+//     */
+//    private String format;
+//    
+//    /**
+//     * Genotypes and other sample-related information. The keys are the names
+//     * of the samples. The values are pairs (field name, field value), such as
+//     * (GT, A/C).
+//     */
+//    private Map<String, Map<String, String>> samplesData;
+//    
+//    /**
+//     * Statistics of the genomic variation, such as its alleles/genotypes count 
+//     * or its minimum allele frequency.
+//     */
+//    private VariantStats stats;
     
     /**
      * Possible effects of the genomic variation.
      */
     private List<VariantEffect> effect;
 
-    /**
-     * Optional attributes that probably depend on the format of the file the
-     * variant was initially read.
-     */
-    private Map<String, String> attributes;
+//    /**
+//     * Optional attributes that probably depend on the format of the file the
+//     * variant was initially read.
+//     */
+//    private Map<String, String> attributes;
 
     
     public Variant(String chromosome, int start, int end, String reference, String alternate) {
@@ -137,9 +143,10 @@ public class Variant {
         this.hgvs = new HashMap<>();
         this.hgvs.put("genomic", Arrays.asList(chromosome + ":g." + start + reference + ">" + alternate));
         
-        this.samplesData = new LinkedHashMap<>();
+        this.files = new HashMap<>();
+//        this.samplesData = new LinkedHashMap<>();
         this.effect = new LinkedList<>();
-        this.attributes = new LinkedHashMap<>();
+//        this.attributes = new LinkedHashMap<>();
     }
 
     public VariantType getType() {
@@ -243,31 +250,55 @@ public class Variant {
         }
         return listByType.add(value);
     }
+
+    public Map<String, ArchivedVariantFile> getFiles() {
+        return files;
+    }
     
-    public String getFormat() {
-        return format;
+    public ArchivedVariantFile getFile(String fileId) {
+        return files.get(fileId);
     }
 
-    public void setFormat(String format) {
-        this.format = format;
+    public void setFiles(Map<String, ArchivedVariantFile> files) {
+        this.files = files;
     }
-
-    public Map<String, Map<String, String>> getSamplesData() {
-        return samplesData;
+    
+    public void addFile(ArchivedVariantFile file) {
+        this.files.put(file.getFileId(), file);
     }
+    
+//    public String getFormat() {
+//        return format;
+//    }
+//
+//    public void setFormat(String format) {
+//        this.format = format;
+//    }
+//
+//    public Map<String, Map<String, String>> getSamplesData() {
+//        return samplesData;
+//    }
+//
+//    public Map<String, String> getSampleData(String sampleName) {
+//        return samplesData.get(sampleName);
+//    }
+//
+//    public VariantStats getStats() {
+//        return stats;
+//    }
 
-    public Map<String, String> getSampleData(String sampleName) {
-        return samplesData.get(sampleName);
+    public VariantStats getStats(String fileId) {
+        ArchivedVariantFile file = files.get(fileId);
+        if (file == null) {
+            return null;
+        }
+        return file.getStats();
     }
-
-    public VariantStats getStats() {
-        return stats;
-    }
-
-    public void setStats(VariantStats stats) {
-        this.stats = stats;
-    }
-
+        
+//    public void setStats(VariantStats stats) {
+//        this.stats = stats;
+//    }
+//
     public List<VariantEffect> getEffect() {
         return effect;
     }
@@ -276,40 +307,44 @@ public class Variant {
         this.effect = effect;
     }
 
-    public Map<String, String> getAttributes() {
-        return attributes;
-    }
-
-    public void setAttributes(Map<String, String> attributes) {
-        this.attributes = attributes;
-    }
-
     public boolean addEffect(VariantEffect e) {
         return this.effect.add(e);
     }
 
-    public void addAttribute(String key, String value) {
-        this.attributes.put(key, value);
-    }
+//    public Map<String, String> getAttributes() {
+//        return attributes;
+//    }
+//
+//    public void setAttributes(Map<String, String> attributes) {
+//        this.attributes = attributes;
+//    }
+//
+//    public void addAttribute(String key, String value) {
+//        this.attributes.put(key, value);
+//    }
+//
+//    public String getAttribute(String key) {
+//        return this.attributes.get(key);
+//    }
+//
+//    public boolean hasAttribute(String key) {
+//        return this.attributes.containsKey(key);
+//    }
+//
+//    public void addSampleData(String sampleName, Map<String, String> sampleData) {
+//        this.samplesData.put(sampleName, sampleData);
+//    }
+//
+//    public String getSampleData(String sampleName, String field) {
+//        return this.samplesData.get(sampleName).get(field.toUpperCase());
+//    }
 
-    public String getAttribute(String key) {
-        return this.attributes.get(key);
-    }
-
-    public boolean hasAttribute(String key) {
-        return this.attributes.containsKey(key);
-    }
-
-    public void addSampleData(String sampleName, Map<String, String> sampleData) {
-        this.samplesData.put(sampleName, sampleData);
-    }
-
-    public String getSampleData(String sampleName, String field) {
-        return this.samplesData.get(sampleName).get(field.toUpperCase());
-    }
-
-    public Iterable<String> getSampleNames() {
-        return this.samplesData.keySet();
+    public Iterable<String> getSampleNames(String fileId) {
+        ArchivedVariantFile file = files.get(fileId);
+        if (file == null) {
+            return null;
+        }
+        return file.getSampleNames();
     }
 
     public boolean isIndel() {
@@ -324,11 +359,11 @@ public class Variant {
                 ", reference='" + reference + '\'' +
                 ", alternate='" + alternate + '\'' +
                 ", id='" + id + '\'' +
-                ", format='" + format + '\'' +
-                ", samplesData=" + samplesData +
-                ", stats=" + stats +
-                ", effect=" + effect +
-                ", attributes=" + attributes +
+//                ", format='" + format + '\'' +
+//                ", samplesData=" + samplesData +
+//                ", stats=" + stats +
+//                ", effect=" + effect +
+//                ", attributes=" + attributes +
                 '}';
     }
 

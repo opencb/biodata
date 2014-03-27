@@ -20,11 +20,15 @@ public class VariantFactory {
      * file. A new Variant object is created per allele, so several of them can 
      * be created from a single line.
      * 
+     * @param fileName The name of the file the variant was read from
+     * @param fileId The unique identifier of the file the variant was read from
+     * @param studyId The study to which the file belongs
      * @param sampleNames Names of the samples in the file
      * @param fields Contents of the line in the file
      * @return The list of Variant objects that can be created using the fields from a VCF record
      */
-    public static List<Variant> createVariantFromVcf(List<String> sampleNames, String... fields) {
+    public static List<Variant> createVariantFromVcf(String fileName, String fileId, String studyId, 
+            List<String> sampleNames, String... fields) {
         if (fields.length < 8) {
             throw new IllegalArgumentException("Not enough fields provided (min 8)");
         }
@@ -64,15 +68,17 @@ public class VariantFactory {
                     // One variant extracted from a VCF record -> all fields stay the same
                     VariantKeyFields vkf = keyFields.get(0);
                     Variant variant = new Variant(chromosome, vkf.start, vkf.end, vkf.reference, vkf.alternate);
-                    setOtherFields(variant, id, quality, filter, info, format);
-                    parseSampleData(variant, fields, sampleNames);
+                    variant.addFile(new ArchivedVariantFile(fileName, fileId, studyId));
+                    setOtherFields(variant, fileId, id, quality, filter, info, format);
+                    parseSampleData(variant, fileId, fields, sampleNames);
                     variants.add(variant);
                 } else {
                     System.out.println("Multiple KeyFields");
                     // TODO More than one variant extracted from a VCF record -> samples must be transformed
                     for (VariantKeyFields vkf : keyFields) {
                         Variant variant = new Variant(chromosome, vkf.start, vkf.end, vkf.reference, vkf.alternate);
-                        setOtherFields(variant, id, quality, filter, info, format);
+                        variant.addFile(new ArchivedVariantFile(fileName, fileId, studyId));
+                        setOtherFields(variant, fileId, id, quality, filter, info, format);
                         // TODO Copy only the samples that correspond to each specific mutation
 //                        parseSplitSampleData(variant, fields, sampleNames, alternateAlleles, i);
                         variants.add(variant);
@@ -85,10 +91,10 @@ public class VariantFactory {
         return variants;
     }
 
-    public static String getVcfInfo(Variant variant) {
+    public static String getVcfInfo(Variant variant, String fileId) {
         StringBuilder info = new StringBuilder();
 
-        for (Map.Entry<String, String> entry : variant.getAttributes().entrySet()) {
+        for (Map.Entry<String, String> entry : variant.getFile(fileId).getAttributes().entrySet()) {
             String key = entry.getKey();
             if (!key.equalsIgnoreCase("QUAL") && !key.equalsIgnoreCase("FILTER")) {
                 info.append(key);
@@ -106,15 +112,15 @@ public class VariantFactory {
         return (info.toString().length() == 0) ? "." : info.substring(0, info.length() - 1);
     }
 
-    public static String getVcfSampleRawData(Variant variant, String sampleName) {
-        if (!variant.getSamplesData().containsKey(sampleName)) {
+    public static String getVcfSampleRawData(Variant variant, String fileId, String sampleName) {
+        if (!variant.getFile(fileId).getSamplesData().containsKey(sampleName)) {
             return "";
         }
 
         StringBuilder info = new StringBuilder();
-        Map<String, String> data = variant.getSampleData(sampleName);
+        Map<String, String> data = variant.getFile(fileId).getSampleData(sampleName);
 
-        for (String formatField : variant.getFormat().split(":")) {
+        for (String formatField : variant.getFile(fileId).getFormat().split(":")) {
             info.append(data.get(formatField)).append(":");
         }
 
@@ -122,8 +128,8 @@ public class VariantFactory {
     }
 
 
-    private static void parseSampleData(Variant variant, String[] fields, List<String> sampleNames) {
-        String[] formatFields = variant.getFormat().split(":");
+    private static void parseSampleData(Variant variant, String fileId, String[] fields, List<String> sampleNames) {
+        String[] formatFields = variant.getFile(fileId).getFormat().split(":");
 
         for (int i = 9; i < fields.length; i++) {
             Map<String, String> map = new HashMap<>(5);
@@ -134,13 +140,13 @@ public class VariantFactory {
                 map.put(formatFields[j].toUpperCase(), sampleFields[j]);
             }
 
-            variant.addSampleData(sampleNames.get(i - 9), map);
+            variant.getFile(fileId).addSampleData(sampleNames.get(i - 9), map);
         }
     }
     
-    private static void parseSplitSampleData(Variant variant, String[] fields, List<String> sampleNames, 
+    private static void parseSplitSampleData(Variant variant, String fileId, String[] fields, List<String> sampleNames, 
             String[] alternateAlleles, int alleleIdx) {
-        String[] formatFields = variant.getFormat().split(":");
+        String[] formatFields = variant.getFile(fileId).getFormat().split(":");
 
         for (int i = 9; i < fields.length; i++) {
             Map<String, String> map = new HashMap<>(5);
@@ -169,17 +175,17 @@ public class VariantFactory {
                 map.put(formatField.toUpperCase(), sampleField);
             }
 
-            variant.addSampleData(sampleNames.get(i - 9), map);
+            variant.getFile(fileId).addSampleData(sampleNames.get(i - 9), map);
         }
     }
 
-    private static void parseInfo(Variant variant, String info) {
+    private static void parseInfo(Variant variant, String fileId, String info) {
         for (String var : info.split(";")) {
             String[] splits = var.split("=");
             if (splits.length == 2) {
-                variant.addAttribute(splits[0], splits[1]);
+                variant.getFile(fileId).addAttribute(splits[0], splits[1]);
             } else {
-                variant.addAttribute(splits[0], "");
+                variant.getFile(fileId).addAttribute(splits[0], "");
             }
         }
     }
@@ -250,19 +256,19 @@ public class VariantFactory {
         return variants;
     }
 
-    private static void setOtherFields(Variant variant, String id, float quality, String filter, String info, String format) {
+    private static void setOtherFields(Variant variant, String fileId, String id, float quality, String filter, String info, String format) {
         // Fields not affected by the structure of REF and ALT fields
         variant.setId(id);
         if (quality > -1) {
-            variant.addAttribute("QUAL", String.valueOf(quality));
+            variant.getFile(fileId).addAttribute("QUAL", String.valueOf(quality));
         }
         if (!filter.isEmpty()) {
-            variant.addAttribute("FILTER", filter);
+            variant.getFile(fileId).addAttribute("FILTER", filter);
         }
         if (!info.isEmpty()) {
-            parseInfo(variant, info);
+            parseInfo(variant, fileId, info);
         }
-        variant.setFormat(format);
+        variant.getFile(fileId).setFormat(format);
     }
     
     private static class VariantKeyFields {

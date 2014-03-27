@@ -6,11 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created with IntelliJ IDEA.
- * User: aaleman
- * Date: 11/11/13
- * Time: 2:28 PM
- * To change this template use File | Settings | File Templates.
+ * @author Alejandro Aleman Ramos <aaleman@cipf.es>
+ * @author Cristina Yenyxe Gonzalez Garcia <cyenyxe@ebi.ac.uk>
  */
 public class VariantStatsWrapper {
 
@@ -76,7 +73,6 @@ public class VariantStatsWrapper {
     }
 
     public void addSampleGroupStats(String group, VariantSampleGroupStats sgs) {
-
         List<VariantSampleGroupStats> list;
         System.out.println("group = " + group);
         if (!sampleGroupStats.containsKey(group)) {
@@ -94,7 +90,6 @@ public class VariantStatsWrapper {
     }
 
     public VariantGlobalStats getFinalGlobalStats() {
-
         VariantGlobalStats gsFinal = new VariantGlobalStats();
 
         for (VariantGlobalStats gs : this.variantGlobalStats) {
@@ -106,7 +101,6 @@ public class VariantStatsWrapper {
     }
 
     public VariantSampleStats getFinalSampleStats() {
-
         VariantSampleStats ssFinal = new VariantSampleStats(this.getSampleNames());
 
         String sampleName;
@@ -119,9 +113,9 @@ public class VariantStatsWrapper {
                 sampleName = entry.getKey();
                 ss = entry.getValue();
                 ssAux = ssFinal.getSamplesStats().get(sampleName);
-                ssAux.incrementMendelianErrors(ss.getMendelianErrors());
-                ssAux.incrementMissingGenotypes(ss.getMissingGenotypes());
-                ssAux.incrementHomozygotesNumber(ss.getHomozygotesNumber());
+                ssAux.incrementMendelianErrors(ss.getNumMendelianErrors());
+                ssAux.incrementMissingGenotypes(ss.getNumMissingGenotypes());
+                ssAux.incrementHomozygotesNumber(ss.getNumHomozygous());
             }
         }
 
@@ -145,9 +139,9 @@ public class VariantStatsWrapper {
                     variantSampleStatsAux = sgsFinal.getSampleStats().get(ss.getKey());
                     for (Map.Entry<String, VariantSingleSampleStats> entry : variantSampleStatsAux.getSamplesStats().entrySet()) {
                         variantSingleSampleStats = entry.getValue();
-                        variantSingleSampleStats.incrementHomozygotesNumber(ss.getValue().getSamplesStats().get(entry.getKey()).getHomozygotesNumber());
-                        variantSingleSampleStats.incrementMendelianErrors(ss.getValue().getSamplesStats().get(entry.getKey()).getMendelianErrors());
-                        variantSingleSampleStats.incrementMissingGenotypes(ss.getValue().getSamplesStats().get(entry.getKey()).getMissingGenotypes());
+                        variantSingleSampleStats.incrementHomozygotesNumber(ss.getValue().getSamplesStats().get(entry.getKey()).getNumHomozygous());
+                        variantSingleSampleStats.incrementMendelianErrors(ss.getValue().getSamplesStats().get(entry.getKey()).getNumMendelianErrors());
+                        variantSingleSampleStats.incrementMissingGenotypes(ss.getValue().getSamplesStats().get(entry.getKey()).getNumMissingGenotypes());
                     }
                 }
             }

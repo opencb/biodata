@@ -5,13 +5,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.opencb.biodata.models.feature.Genotype;
+import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.Variant.VariantType;
 
 /**
- * Created with IntelliJ IDEA.
- * User: aaleman
- * Date: 8/26/13
- * Time: 1:00 PM
- * To change this template use File | Settings | File Templates.
+ * @author Alejandro Aleman Ramos <aaleman@cipf.es>
  */
 public class VariantStats {
     private String chromosome;
@@ -42,7 +40,7 @@ public class VariantStats {
     private int transitionsCount;
     private int transversionsCount;
     private float qual;
-    private int samples;
+    private int numSamples;
     private VariantHardyWeinbergStats hw;
 
 
@@ -75,6 +73,37 @@ public class VariantStats {
         this.hw = new VariantHardyWeinbergStats();
     }
 
+    public VariantStats(Variant variant) {
+        this.chromosome = variant.getChromosome();
+        this.position = variant.getStart();
+        this.refAllele = variant.getReference();
+        this.altAlleles = new String[] { variant.getAlternate() };
+        this.numAlleles = 2;
+        this.id = variant.getId();
+        this.isIndel = variant.getType() == VariantType.INDEL;
+        this.isSNP = variant.getType() == VariantType.SNV;
+        
+        this.genotypes = new ArrayList<>((int) Math.pow(this.numAlleles, 2));
+        this.allelesCount = new int[numAlleles];
+        this.allelesFreq = new float[numAlleles];
+        this.genotypesCount = new int[(int) Math.pow(this.numAlleles, 2)];
+        this.genotypesFreq = new float[(int) Math.pow(this.numAlleles, 2)];
+        
+        this.missingAlleles = 0;
+        this.missingGenotypes = 0;
+        this.mendelianErrors = 0;
+        this.maf = 0;
+        this.mgf = 0;
+        
+        this.casesPercentDominant = 0;
+        this.controlsPercentDominant = 0;
+        this.casesPercentRecessive = 0;
+        this.controlsPercentRecessive = 0;
+        this.transitionsCount = 0;
+        this.transversionsCount = 0;
+        this.hw = new VariantHardyWeinbergStats();
+    }
+    
     public VariantStats(String chromosome, int position, String referenceAllele, String alternateAlleles, double maf,
                         double mgf, String mafAllele, String mgfGenotype, int numMissingAlleles, int numMissingGenotypes,
                         int numMendelErrors, boolean isIndel, double percentCasesDominant, double percentControlsDominant, 
@@ -203,10 +232,6 @@ public class VariantStats {
         return genotypesCount;
     }
 
-//    public boolean getIndel() {
-//        return isIndel;
-//    }
-
     public void setGenotypesCount(int[] genotypesCount) {
         this.genotypesCount = genotypesCount;
     }
@@ -311,6 +336,17 @@ public class VariantStats {
         this.genotypes = genotypes;
     }
 
+    public void addGenotype(Genotype g) {
+        int index = genotypes.indexOf(g);
+        if (index >= 0) {
+            Genotype auxG = genotypes.get(index);
+            auxG.setCount(auxG.getCount() + 1);
+        } else {
+            g.setCount(g.getCount() + 1);
+            genotypes.add(g);
+        }
+    }
+    
     public int getTransitionsCount() {
         return transitionsCount;
     }
@@ -363,12 +399,12 @@ public class VariantStats {
         this.qual = qual;
     }
 
-    public int getSamples() {
-        return samples;
+    public int getNumSamples() {
+        return numSamples;
     }
 
-    public void setSamples(int samples) {
-        this.samples = samples;
+    public void setNumSamples(int numSamples) {
+        this.numSamples = numSamples;
     }
 
     public String getId() {
@@ -378,4 +414,5 @@ public class VariantStats {
     public void setId(String id) {
         this.id = id;
     }
+    
 }
