@@ -17,12 +17,6 @@
   </properties>
   <dependencies>
     <dependency>
-        <groupId>org.opencb.biodata</groupId>
-        <artifactId>formats</artifactId>
-        <version>0.1</version>
-        <type>jar</type>
-    </dependency>
-    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>3.8.1</version>
@@ -64,7 +58,6 @@
       <groupId>org.opencb.biodata</groupId>
       <artifactId>models</artifactId>
       <version>0.1</version>
-      <type>jar</type>
     </dependency>
   </dependencies>
 </project>

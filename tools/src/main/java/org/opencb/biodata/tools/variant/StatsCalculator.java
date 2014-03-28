@@ -213,7 +213,7 @@ public class StatsCalculator {
             allelesFreq[i] = (totalAllelesCount > 0) ? vcfStat.getAllelesCount()[i] / (float) totalAllelesCount : 0;
             if (allelesFreq[i] < maf) {
                 maf = allelesFreq[i];
-                vcfStat.setMafAllele((i == 0) ? vcfStat.getRefAlleles() : vcfStat.getAltAlleles()[i - 1]);
+                vcfStat.setMafAllele((i == 0) ? vcfStat.getRefAllele() : vcfStat.getAltAlleles()[i - 1]);
             }
         }
 
@@ -233,8 +233,8 @@ public class StatsCalculator {
                 }
 
                 if (currentGtFreq < mgf) {
-                    String firstAllele = (i == 0) ? vcfStat.getRefAlleles() : vcfStat.getAltAlleles()[i - 1];
-                    String secondAllele = (j == 0) ? vcfStat.getRefAlleles() : vcfStat.getAltAlleles()[j - 1];
+                    String firstAllele = (i == 0) ? vcfStat.getRefAllele() : vcfStat.getAltAlleles()[i - 1];
+                    String secondAllele = (j == 0) ? vcfStat.getRefAllele() : vcfStat.getAltAlleles()[j - 1];
                     mgfGenotype = firstAllele + "/" + secondAllele;
                     mgf = currentGtFreq;
 

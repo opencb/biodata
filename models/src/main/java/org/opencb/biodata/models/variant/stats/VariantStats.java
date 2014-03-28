@@ -16,38 +16,49 @@ import org.opencb.biodata.models.variant.Variant.VariantType;
 /**
  * @author Alejandro Aleman Ramos <aaleman@cipf.es>
  * @author Cristina Yenyxe Gonzalez Garcia <cyenyxe@ebi.ac.uk>
+ * 
+ * @TODO Mendelian errors must be calculated
  */
 public class VariantStats {
 
+    private Variant variant;
+    
     private String chromosome;
     private long position;
     private String refAllele;
     @Deprecated
     private String[] altAlleles;
     private String altAllele;
+    @Deprecated
     private String id;
-    private String mafAllele;
-    private String mgfGenotype;
+    
     private int numAlleles;
     private int[] allelesCount;
     private int[] genotypesCount;
     private List<Genotype> genotypes;
+    private int missingAlleles;
+    private int missingGenotypes;
+    
     private float[] allelesFreq;
     private float[] genotypesFreq;
     private float maf;
     private float mgf;
-    private int missingAlleles;
-    private int missingGenotypes;
+    private String mafAllele;
+    private String mgfGenotype;
+    
     private int mendelianErrors;
     private boolean isIndel;
     private boolean isSNP;
     private boolean passedFilters;
+    
     private float casesPercentDominant;
     private float controlsPercentDominant;
     private float casesPercentRecessive;
     private float controlsPercentRecessive;
+    
     private int transitionsCount;
     private int transversionsCount;
+    
     private float qual;
     private int numSamples;
     private VariantHardyWeinbergStats hw;
@@ -83,12 +94,14 @@ public class VariantStats {
     }
 
     public VariantStats(Variant variant) {
+        this.variant = variant;
         this.chromosome = variant.getChromosome();
         this.position = variant.getStart();
         this.refAllele = variant.getReference();
         this.altAlleles = new String[] { variant.getAlternate() };
         this.altAllele = variant.getAlternate();
         this.numAlleles = 2;
+        
         this.id = variant.getId();
         this.isIndel = variant.getType() == VariantType.INDEL;
         this.isSNP = variant.getType() == VariantType.SNV;
@@ -165,7 +178,7 @@ public class VariantStats {
         this.position = position;
     }
 
-    public String getRefAlleles() {
+    public String getRefAllele() {
         return refAllele;
     }
 
@@ -186,7 +199,7 @@ public class VariantStats {
     public void setAltAllele(String altAllele) {
         this.altAllele = altAllele;
     }
-
+    
     public String getMafAllele() {
         return mafAllele;
     }
@@ -412,10 +425,11 @@ public class VariantStats {
                 + "chromosome='" + chromosome + '\''
                 + ", position=" + position
                 + ", refAllele='" + refAllele + '\''
-                + ", altAlleles=" + Arrays.toString(altAlleles)
+//                + ", altAlleles=" + Arrays.toString(altAlleles)
+                + ", altAllele='" + altAllele + '\''
                 + ", mafAllele='" + mafAllele + '\''
                 + ", mgfAllele='" + mgfGenotype + '\''
-                + ", numAlleles=" + numAlleles
+//                + ", numAlleles=" + numAlleles
                 + ", allelesCount=" + Arrays.toString(allelesCount)
                 + ", genotypesCount=" + Arrays.toString(genotypesCount)
                 + ", genotypes=" + genotypes
@@ -436,8 +450,7 @@ public class VariantStats {
                 + '}';
     }
 
-    public static VariantStats calculate(Variant variant, ArchivedVariantFile file, Pedigree pedigree) {
-        int genotypeCurrentPos;
+    public VariantStats calculate(Map<String, Map<String, String>> samplesData, Map<String, String> attributes, Pedigree pedigree) {
         int totalAllelesCount = 0;
         int totalGenotypesCount = 0;
 
@@ -446,44 +459,41 @@ public class VariantStats {
         float controlsRecessive = 0;
         float casesRecessive = 0;
 
-        VariantStats vcfStat = new VariantStats(variant);
-        vcfStat.setNumSamples(file.getSampleNames().size());
+        this.setNumSamples(samplesData.size());
 
-//                int[] allelesCount = new int[vcfStat.getNumAlleles()];
-//                int[] genotypesCount = new int[vcfStat.getNumAlleles() * vcfStat.getNumAlleles()];
-        for (Map.Entry<String, Map<String, String>> sample : file.getSamplesData().entrySet()) {
+        for (Map.Entry<String, Map<String, String>> sample : samplesData.entrySet()) {
             String sampleName = sample.getKey();
             Genotype g = new Genotype(sample.getValue().get("GT"));
-            vcfStat.addGenotype(g);
+            this.addGenotype(g);
 
             // Check missing alleles and genotypes
             switch (g.getCode()) {
                 case ALLELES_OK:
                     // Both alleles set
-                    genotypeCurrentPos = g.getAllele1() * (vcfStat.getNumAlleles()) + g.getAllele2();
+                    int genotypeCurrentPos = g.getAllele1() * (this.getNumAlleles()) + g.getAllele2();
 
-                    vcfStat.allelesCount[g.getAllele1()]++;
-                    vcfStat.allelesCount[g.getAllele2()]++;
-                    vcfStat.genotypesCount[genotypeCurrentPos]++;
+                    this.allelesCount[g.getAllele1()]++;
+                    this.allelesCount[g.getAllele2()]++;
+                    this.genotypesCount[genotypeCurrentPos]++;
 
                     totalAllelesCount += 2;
                     totalGenotypesCount++;
 
                     // Counting genotypes for Hardy-Weinberg (all phenotypes)
                     if (g.isAllele1Ref() && g.isAllele2Ref()) { // 0|0
-                        vcfStat.getHw().incN_AA();
+                        this.getHw().incN_AA();
                     } else if ((g.isAllele1Ref() && g.getAllele2() == 1) || (g.getAllele1() == 1 && g.isAllele2Ref())) {  // 0|1, 1|0
-                        vcfStat.getHw().incN_Aa();
+                        this.getHw().incN_Aa();
 
                     } else if (g.getAllele1() == 1 && g.getAllele2() == 1) {
-                        vcfStat.getHw().incN_aa();
+                        this.getHw().incN_aa();
                     }
 
                     break;
                 case HAPLOID:
                     // Haploid (chromosome X/Y)
                     try {
-                        vcfStat.allelesCount[g.getAllele1()]++;
+                        this.allelesCount[g.getAllele1()]++;
                     } catch (ArrayIndexOutOfBoundsException e) {
                         System.out.println("vcfRecord = " + variant);
                         System.out.println("g = " + g);
@@ -492,18 +502,18 @@ public class VariantStats {
                     break;
                 default:
                     // Missing genotype (one or both alleles missing)
-                    vcfStat.setMissingGenotypes(vcfStat.getMissingGenotypes() + 1);
+                    this.setMissingGenotypes(this.getMissingGenotypes() + 1);
                     if (g.getAllele1() == null) {
-                        vcfStat.setMissingAlleles(vcfStat.getMissingAlleles() + 1);
+                        this.setMissingAlleles(this.getMissingAlleles() + 1);
                     } else {
-                        vcfStat.allelesCount[g.getAllele1()]++;
+                        this.allelesCount[g.getAllele1()]++;
                         totalAllelesCount++;
                     }
 
                     if (g.getAllele2() == null) {
-                        vcfStat.setMissingAlleles(vcfStat.getMissingAlleles() + 1);
+                        this.setMissingAlleles(this.getMissingAlleles() + 1);
                     } else {
-                        vcfStat.allelesCount[g.getAllele2()]++;
+                        this.allelesCount[g.getAllele2()]++;
                         totalAllelesCount++;
                     }
                     break;
@@ -514,10 +524,9 @@ public class VariantStats {
             if (pedigree != null) {
                 if (g.getCode() == AllelesCode.ALLELES_OK || g.getCode() == AllelesCode.HAPLOID) {
                     Individual ind = pedigree.getIndividual(sampleName);
-//                            if (isMendelianError(ind, g, variant, file)) {
-//                                vcfStat.setMendelinanErrors(vcfStat.getMendelinanErrors() + 1);
-//
-//                            }
+//                    if (MendelChecker.isMendelianError(ind, g, variant.getChromosome(), file.getSamplesData())) {
+//                        this.setMendelianErrors(this.getMendelianErrors() + 1);
+//                    }
                     if (g.getCode() == AllelesCode.ALLELES_OK) {
                         // Check inheritance models
                         if (ind.getCondition() == Condition.UNAFFECTED) {
@@ -547,108 +556,97 @@ public class VariantStats {
         }  // Finish all samples loop
 
         // Calculate MAF and MGF
-        vcfStat.calculateAlleleAndGenotypeFrequencies(vcfStat, totalAllelesCount, totalGenotypesCount);
+        this.calculateAlleleAndGenotypeFrequencies(totalAllelesCount, totalGenotypesCount);
 
         // Calculate Hardy-Weinberg statistic
-        vcfStat.getHw().calculate();
+        this.getHw().calculate();
 
-        // Indels
-//        /*
-//         * 3 possibilities for being an INDEL:
-//         * - The value of the ALT field is <DEL> or <INS>
-//         * - The REF allele is not . but the ALT is
-//         * - The REF allele is . but the ALT is not
-//         * - The REF field length is different than the ALT field length
-//         */
-//        if ((!vcfStat.getRefAlleles().equals(".") && variant.getAlternate().equals(".")) ||
-//                (variant.getAlternate().equals(".") && !vcfStat.getRefAlleles().equals(".")) ||
-//                (variant.getAlternate().equals("<INS>")) ||
-//                (variant.getAlternate().equals("<DEL>")) ||
-//                variant.getReference().length() != variant.getAlternate().length()) {
-//            vcfStat.setIndel(true);
-//        } else {
-//            vcfStat.setIndel(false);
-//        }
-//
-//        if (variant.getId() != null && !variant.getId().equals(".")) {
-//            vcfStat.setSNP(true);
-//        }
-        
         // Transitions and transversions
-        vcfStat.calculateTransitionsAndTransversions(vcfStat, variant.getReference(), variant.getAlternate());
+        this.calculateTransitionsAndTransversions(variant.getReference(), variant.getAlternate());
 
         // Update variables finally used to update file_stats_t structure
-        if (file.hasAttribute("FILTER") && "PASS".equalsIgnoreCase(file.getAttribute("FILTER"))) {
-            vcfStat.setPassedFilters(true);
+        if ("PASS".equalsIgnoreCase(attributes.get("FILTER"))) {
+            this.setPassedFilters(true);
         }
 
-        if (file.hasAttribute("QUAL") && !(".").equals(file.getAttribute("QUAL"))) {
-            float qualAux = Float.valueOf(file.getAttribute("QUAL"));
+        if (attributes.containsKey("QUAL") && !(".").equals(attributes.get("QUAL"))) {
+            float qualAux = Float.valueOf(attributes.get("QUAL"));
             if (qualAux >= 0) {
-                vcfStat.setQual(qualAux);
+                this.setQual(qualAux);
             }
         }
 
         // Once all samples have been traversed, calculate % that follow inheritance model
-        controlsDominant = controlsDominant * 100 / (vcfStat.getNumSamples() - vcfStat.getMissingGenotypes());
-        casesDominant = casesDominant * 100 / (vcfStat.getNumSamples() - vcfStat.getMissingGenotypes());
-        controlsRecessive = controlsRecessive * 100 / (vcfStat.getNumSamples() - vcfStat.getMissingGenotypes());
-        casesRecessive = casesRecessive * 100 / (vcfStat.getNumSamples() - vcfStat.getMissingGenotypes());
+        controlsDominant = controlsDominant * 100 / (this.getNumSamples() - this.getMissingGenotypes());
+        casesDominant = casesDominant * 100 / (this.getNumSamples() - this.getMissingGenotypes());
+        controlsRecessive = controlsRecessive * 100 / (this.getNumSamples() - this.getMissingGenotypes());
+        casesRecessive = casesRecessive * 100 / (this.getNumSamples() - this.getMissingGenotypes());
 
-        vcfStat.setCasesPercentDominant(casesDominant);
-        vcfStat.setControlsPercentDominant(controlsDominant);
-        vcfStat.setCasesPercentRecessive(casesRecessive);
-        vcfStat.setControlsPercentRecessive(controlsRecessive);
+        this.setCasesPercentDominant(casesDominant);
+        this.setControlsPercentDominant(controlsDominant);
+        this.setCasesPercentRecessive(casesRecessive);
+        this.setControlsPercentRecessive(controlsRecessive);
 
-        return vcfStat;
+        return this;
     }
 
+    /**
+     * Calculates the statistics for some variants read from a set of files, and 
+     * optionally given pedigree information. Some statistics like inheritance 
+     * patterns can only be calculated if pedigree information is provided.
+     * 
+     * @param variants The variants whose statistics will be calculated
+     * @param ped Optional pedigree information to calculate some statistics
+     */
     public static void calculateStatsForVariantsList(List<Variant> variants, Pedigree ped) {
         for (Variant variant : variants) {
             for (ArchivedVariantFile file : variant.getFiles().values()) {
-                VariantStats vcfStat = calculate(variant, file, ped);
-                file.setStats(vcfStat); // TODO Correct?
+                VariantStats stats = new VariantStats(variant).calculate(file.getSamplesData(), file.getAttributes(), ped);
+                file.setStats(stats); // TODO Correct?
             }
         }
     }
 
-    private void calculateAlleleAndGenotypeFrequencies(VariantStats vcfStat, int totalAllelesCount, int totalGenotypesCount) {
+    private void calculateAlleleAndGenotypeFrequencies(int totalAllelesCount, int totalGenotypesCount) {
         String mgfGenotype = "";
 
         float maf = Float.MAX_VALUE;
         float mgf = Float.MAX_VALUE;
         float currentGtFreq;
 
-        float[] allelesFreq = new float[vcfStat.getNumAlleles()];
-        float[] genotypesFreq = new float[vcfStat.getNumAlleles() * vcfStat.getNumAlleles()];
+        float[] allelesFreq = new float[this.getNumAlleles()];
+        float[] genotypesFreq = new float[this.getNumAlleles() * this.getNumAlleles()];
 
         // MAF
-        for (int i = 0; i < vcfStat.getNumAlleles(); i++) {
-            allelesFreq[i] = (totalAllelesCount > 0) ? vcfStat.getAllelesCount()[i] / (float) totalAllelesCount : 0;
+        for (int i = 0; i < this.getNumAlleles(); i++) {
+            allelesFreq[i] = (totalAllelesCount > 0) ? this.getAllelesCount()[i] / (float) totalAllelesCount : 0;
             if (allelesFreq[i] < maf) {
                 maf = allelesFreq[i];
-                vcfStat.setMafAllele((i == 0) ? vcfStat.getRefAlleles() : vcfStat.getAltAlleles()[i - 1]);
+//                this.setMafAllele((i == 0) ? this.getRefAllele() : this.getAltAlleles()[i - 1]);
+                this.setMafAllele((i == 0) ? this.getRefAllele() : this.getAltAllele());
             }
         }
 
-        for (int i = 0; i < vcfStat.getNumAlleles() * vcfStat.getNumAlleles(); i++) {
-            genotypesFreq[i] = (totalGenotypesCount > 0) ? vcfStat.getGenotypesCount()[i] / (float) totalGenotypesCount : 0;
+        for (int i = 0; i < this.getNumAlleles() * this.getNumAlleles(); i++) {
+            genotypesFreq[i] = (totalGenotypesCount > 0) ? this.getGenotypesCount()[i] / (float) totalGenotypesCount : 0;
         }
 
         // MGF
-        for (int i = 0; i < vcfStat.getNumAlleles(); i++) {
-            for (int j = 0; j < vcfStat.getNumAlleles(); j++) {
-                int idx1 = i * vcfStat.getNumAlleles() + j;
+        for (int i = 0; i < this.getNumAlleles(); i++) {
+            for (int j = 0; j < this.getNumAlleles(); j++) {
+                int idx1 = i * this.getNumAlleles() + j;
                 if (i == j) {
                     currentGtFreq = genotypesFreq[idx1];
                 } else {
-                    int idx2 = j * vcfStat.getNumAlleles() + i;
+                    int idx2 = j * this.getNumAlleles() + i;
                     currentGtFreq = genotypesFreq[idx1] + genotypesFreq[idx2];
                 }
 
                 if (currentGtFreq < mgf) {
-                    String firstAllele = (i == 0) ? vcfStat.getRefAlleles() : vcfStat.getAltAlleles()[i - 1];
-                    String secondAllele = (j == 0) ? vcfStat.getRefAlleles() : vcfStat.getAltAlleles()[j - 1];
+//                    String firstAllele = (i == 0) ? this.getRefAllele() : this.getAltAlleles()[i - 1];
+//                    String secondAllele = (j == 0) ? this.getRefAllele() : this.getAltAlleles()[j - 1];
+                    String firstAllele = (i == 0) ? this.getRefAllele() : this.getAltAllele();
+                    String secondAllele = (j == 0) ? this.getRefAllele() : this.getAltAllele();
                     mgfGenotype = firstAllele + "/" + secondAllele;
                     mgf = currentGtFreq;
 
@@ -656,15 +654,15 @@ public class VariantStats {
             }
         }
 
-        vcfStat.setMaf(maf);
-        vcfStat.setMgf(mgf);
-        vcfStat.setMgfGenotype(mgfGenotype);
+        this.setMaf(maf);
+        this.setMgf(mgf);
+        this.setMgfGenotype(mgfGenotype);
 
-        vcfStat.setAllelesFreq(allelesFreq);
-        vcfStat.setGenotypesFreq(genotypesFreq);
+        this.setAllelesFreq(allelesFreq);
+        this.setGenotypesFreq(genotypesFreq);
     }
 
-    private void calculateTransitionsAndTransversions(VariantStats vcfStat, String reference, String alternate) {
+    private void calculateTransitionsAndTransversions(String reference, String alternate) {
         int numTransitions = 0, numTranversions = 0;
 
         if (reference.length() == 1 && alternate.length() == 1) {
@@ -700,8 +698,8 @@ public class VariantStats {
             }
         }
 
-        vcfStat.setTransitionsCount(numTransitions);
-        vcfStat.setTransversionsCount(numTranversions);
+        this.setTransitionsCount(numTransitions);
+        this.setTransversionsCount(numTranversions);
     }
 
 }

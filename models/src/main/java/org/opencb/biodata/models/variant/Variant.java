@@ -135,6 +135,13 @@ public class Variant {
         if (this.reference.length() == this.alternate.length()) {
             this.type = VariantType.SNV;
         } else if (this.length <= 50) {
+            /*
+            * 3 possibilities for being an INDEL:
+            * - The value of the ALT field is <DEL> or <INS>
+            * - The REF allele is not . but the ALT is
+            * - The REF allele is . but the ALT is not
+            * - The REF field length is different than the ALT field length
+            */
             this.type = VariantType.INDEL;
         } else {
             this.type = VariantType.SV;
