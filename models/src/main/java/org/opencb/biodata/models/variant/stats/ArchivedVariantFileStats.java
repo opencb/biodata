@@ -53,28 +53,7 @@ public class ArchivedVariantFileStats {
                 continue;
             }
             
-            fileStats.addVariant();
-            
-            VariantStats stats = file.getStats();
-            if (stats.isIndel()) {
-                fileStats.addIndel();
-            }
-            if (stats.isSNP()) {
-                fileStats.addSNP();
-            }
-            if (stats.isPass()) {
-                fileStats.addPass();
-            }
-            
-            if (stats.getNumAlleles() > 2) {
-                fileStats.addMultiallelic();
-            } else if (stats.getNumAlleles() > 1) {
-                fileStats.addBiallelic();
-            }
-            
-            fileStats.addTransitions(stats.getTransitionsCount());
-            fileStats.addTransversions(stats.getTransversionsCount());
-            fileStats.addAccumQuality(stats.getQual());
+            fileStats.update(file.getStats());
         }
     }
         
@@ -121,7 +100,7 @@ public class ArchivedVariantFileStats {
 //                    }
 //                }
                 
-                // Count homozygotes
+                // Count homozygous
                 if (g.getAllele1().equals(g.getAllele2())) {
                     sampleStats.incrementHomozygous();
                 }

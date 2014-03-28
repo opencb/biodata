@@ -1,13 +1,8 @@
 package org.opencb.biodata.models.variant.stats;
 
-import java.util.List;
-
 /**
- * Created with IntelliJ IDEA.
- * User: aaleman
- * Date: 8/29/13
- * Time: 11:40 AM
- * To change this template use File | Settings | File Templates.
+ * @author Alejandro Aleman Ramos <aaleman@cipf.es>
+ * @author Cristina Yenyxe Gonzalez Garcia <cyenyxe@ebi.ac.uk>
  */
 public class VariantGlobalStats {
 
@@ -18,9 +13,11 @@ public class VariantGlobalStats {
     private int passCount;
     private int transitionsCount;
     private int transversionsCount;
-    private int biallelicsCount;
-    private int multiallelicsCount;
     private float accumQuality;
+    @Deprecated
+    private int biallelicsCount;
+    @Deprecated
+    private int multiallelicsCount;
 
     public VariantGlobalStats() {
         this.variantsCount = 0;
@@ -30,33 +27,9 @@ public class VariantGlobalStats {
         this.passCount = 0;
         this.transitionsCount = 0;
         this.transversionsCount = 0;
+        this.accumQuality = 0;
         this.biallelicsCount = 0;
         this.multiallelicsCount = 0;
-        this.accumQuality = 0;
-    }
-
-    public VariantGlobalStats(List<VariantGlobalStats> variantGlobalStatsList) {
-        this();
-
-        for (VariantGlobalStats gs : variantGlobalStatsList) {
-            this.updateStats(gs.getVariantsCount(), gs.samplesCount, gs.getSnpsCount(), gs.indelsCount, gs.passCount, gs.transitionsCount, gs.transversionsCount, gs.getBiallelicsCount(), gs.getMultiallelicsCount(), gs.getAccumQuality());
-        }
-
-    }
-
-
-    public void updateStats(int variantsCount, int samplesCount, int snpsCount, int indelsCount, int passCount, int transitionsCount, int transversionsCount, int biallelicsCount, int multiallelicsCount, float accumQuality) {
-        this.variantsCount += variantsCount;
-        if (this.samplesCount == 0)
-            this.samplesCount += samplesCount;
-        this.snpsCount += snpsCount;
-        this.indelsCount += indelsCount;
-        this.passCount += passCount;
-        this.transitionsCount += transitionsCount;
-        this.transversionsCount += transversionsCount;
-        this.biallelicsCount += biallelicsCount;
-        this.multiallelicsCount += multiallelicsCount;
-        this.accumQuality += accumQuality;
     }
 
     public int getVariantsCount() {
@@ -115,22 +88,6 @@ public class VariantGlobalStats {
         this.transversionsCount = transversionsCount;
     }
 
-    public int getBiallelicsCount() {
-        return biallelicsCount;
-    }
-
-    public void setBiallelicsCount(int biallelicsCount) {
-        this.biallelicsCount = biallelicsCount;
-    }
-
-    public int getMultiallelicsCount() {
-        return multiallelicsCount;
-    }
-
-    public void setMultiallelicsCount(int multiallelicsCount) {
-        this.multiallelicsCount = multiallelicsCount;
-    }
-
     public float getAccumQuality() {
         return accumQuality;
     }
@@ -139,55 +96,79 @@ public class VariantGlobalStats {
         this.accumQuality = accumQuality;
     }
 
-    public void addVariant() {
-        this.variantsCount++;
+    @Deprecated
+    public int getBiallelicsCount() {
+        return biallelicsCount;
+    }
+
+    @Deprecated
+    public void setBiallelicsCount(int biallelicsCount) {
+        this.biallelicsCount = biallelicsCount;
+    }
+
+    @Deprecated
+    public int getMultiallelicsCount() {
+        return multiallelicsCount;
+    }
+
+    @Deprecated
+    public void setMultiallelicsCount(int multiallelicsCount) {
+        this.multiallelicsCount = multiallelicsCount;
+    }
+
+    
+    public void update(VariantStats stats) {
+        if (stats.isIndel()) {
+            indelsCount++;
+        }
+        if (stats.isSNP()) {
+            snpsCount++;
+        }
+        if (stats.hasPassedFilters()) {
+            passCount++;
+        }
+
+        if (stats.getNumAlleles() > 2) {
+            multiallelicsCount++;
+        } else if (stats.getNumAlleles() > 1) {
+            biallelicsCount++;
+        }
+
+        transitionsCount += stats.getTransitionsCount();
+        transversionsCount += stats.getTransversionsCount();
+        accumQuality += stats.getQual();
+    }
+
+    @Deprecated
+    public void updateStats(int variantsCount, int samplesCount, int snpsCount, int indelsCount, int passCount, 
+            int transitionsCount, int transversionsCount, int biallelicsCount, int multiallelicsCount, float accumQuality) {
+        this.variantsCount += variantsCount;
+        if (this.samplesCount == 0)
+            this.samplesCount += samplesCount;
+        this.snpsCount += snpsCount;
+        this.indelsCount += indelsCount;
+        this.passCount += passCount;
+        this.transitionsCount += transitionsCount;
+        this.transversionsCount += transversionsCount;
+        this.biallelicsCount += biallelicsCount;
+        this.multiallelicsCount += multiallelicsCount;
+        this.accumQuality += accumQuality;
     }
     
-    public void addIndel() {
-        this.indelsCount++;
-    }
-
-    public void addSNP() {
-        this.snpsCount++;
-    }
-
-    public void addPass() {
-        this.passCount++;
-    }
-
-    public void addTransitions(int transitionsCount) {
-        this.transitionsCount += transitionsCount;
-    }
-
-    public void addTransversions(int transversionsCount) {
-        this.transversionsCount += transversionsCount;
-    }
-
-    public void addMultiallelic() {
-        this.multiallelicsCount++;
-    }
-
-    public void addBiallelic() {
-        this.biallelicsCount++;
-    }
-
-    public void addAccumQuality(float qual) {
-        this.accumQuality += qual;
-    }
-
     @Override
     public String toString() {
-        return "VariantGlobalStats{" +
-                "variantsCount=" + variantsCount +
-                ", samplesCount=" + samplesCount +
-                ", snpsCount=" + snpsCount +
-                ", indelsCount=" + indelsCount +
-                ", passCount=" + passCount +
-                ", transitionsCount=" + transitionsCount +
-                ", transversionsCount=" + transversionsCount +
-                ", biallelicsCount=" + biallelicsCount +
-                ", multiallelicsCount=" + multiallelicsCount +
-                ", accumQuality=" + accumQuality +
-                '}';
+        return "VariantGlobalStats{"
+                + "variantsCount=" + variantsCount
+                + ", samplesCount=" + samplesCount
+                + ", snpsCount=" + snpsCount
+                + ", indelsCount=" + indelsCount
+                + ", passCount=" + passCount
+                + ", transitionsCount=" + transitionsCount
+                + ", transversionsCount=" + transversionsCount
+//                + ", biallelicsCount=" + biallelicsCount
+//                + ", multiallelicsCount=" + multiallelicsCount
+                + ", accumQuality=" + accumQuality
+                + '}';
     }
+
 }

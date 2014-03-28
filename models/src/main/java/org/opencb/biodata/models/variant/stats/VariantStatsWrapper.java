@@ -9,6 +9,7 @@ import java.util.Map;
  * @author Alejandro Aleman Ramos <aaleman@cipf.es>
  * @author Cristina Yenyxe Gonzalez Garcia <cyenyxe@ebi.ac.uk>
  */
+@Deprecated
 public class VariantStatsWrapper {
 
     private List<VariantStats> variantStats;
