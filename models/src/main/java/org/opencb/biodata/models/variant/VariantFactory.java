@@ -53,8 +53,8 @@ public class VariantFactory {
             int alternateLen = alt.length();
             
             if (referenceLen == alternateLen) {
-//                keyFields = createVariantsFromSameLengthRefAlt(position, reference, alt);
-                keyFields = createVariantsFromIndelNoEmptyRefAlt(position, reference, alt);
+                keyFields = createVariantsFromSameLengthRefAlt(position, reference, alt);
+//                keyFields = createVariantsFromIndelNoEmptyRefAlt(position, reference, alt);
             } else if (referenceLen == 0) {
                 keyFields = createVariantsFromInsertionEmptyRef(position, alt);
             } else if (alternateLen == 0) {
@@ -190,6 +190,25 @@ public class VariantFactory {
         }
     }
 
+    private static List<VariantKeyFields> createVariantsFromSameLengthRefAlt(int position, String reference, String alt) {
+        int previousIndexOfDifference = 0;
+        List<VariantKeyFields> variants = new LinkedList<>();
+        
+        int indexOfDifference = StringUtils.indexOfDifference(reference, alt);
+        if (indexOfDifference < 0) {
+            return variants;
+        } else if (indexOfDifference == 0) {
+            variants.add(new VariantKeyFields(position, position + alt.length(), reference, alt));
+        } else {
+            int start = position + previousIndexOfDifference + indexOfDifference;
+            int end = position + Math.max(reference.length(), alt.length()) - 1;
+            String ref = reference.substring(indexOfDifference);
+            String inAlt = alt.substring(indexOfDifference);
+            variants.add(new VariantKeyFields(start, end, ref, inAlt));
+        }
+        
+        return variants;
+    }
 //    private static List<VariantKeyFields> createVariantsFromSameLengthRefAlt(int position, String reference, String alt) {
 //        int previousIndexOfDifference = 0;
 //        List<VariantKeyFields> variants = new LinkedList<>();
