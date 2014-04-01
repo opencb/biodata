@@ -10,16 +10,16 @@ import java.util.List;
 public class Region {
 
     private String chromosome;
-    private long start;
-    private long end;
+    private int start;
+    private int end;
 
-    public Region(String chromosome, long start) {
+    public Region(String chromosome, int start) {
         this.chromosome = chromosome;
         this.start = start;
-        this.end = Long.MAX_VALUE;
+        this.end = Integer.MAX_VALUE;
     }
 
-    public Region(String chromosome, long start, long end) {
+    public Region(String chromosome, int start, int end) {
         this.chromosome = chromosome;
         this.start = start;
         this.end = end;
@@ -31,17 +31,17 @@ public class Region {
                 String[] fields = region.split("[:-]", -1);
                 if (fields.length == 3) {
                     this.chromosome = fields[0];
-                    this.start = Long.parseLong(fields[1]);
-                    this.end = Long.parseLong(fields[2]);
+                    this.start = Integer.parseInt(fields[1]);
+                    this.end = Integer.parseInt(fields[2]);
                 } else if (fields.length == 2) {
                     this.chromosome = fields[0];
-                    this.start = Long.parseLong(fields[1]);
-                    this.end = Long.MAX_VALUE;
+                    this.start = Integer.parseInt(fields[1]);
+                    this.end = Integer.MAX_VALUE;
                 }
             } else {
                 this.chromosome = region;
                 this.start = 0;
-                this.end = Long.MAX_VALUE;
+                this.end = Integer.MAX_VALUE;
             }
         }
     }
@@ -52,9 +52,9 @@ public class Region {
             if (regionString.indexOf(':') != -1) {
                 String[] fields = regionString.split("[:-]", -1);
                 if (fields.length == 3) {
-                    region = new Region(fields[0], Long.parseLong(fields[1]), Long.parseLong(fields[2]));
+                    region = new Region(fields[0], Integer.parseInt(fields[1]), Integer.parseInt(fields[2]));
                 } else if (fields.length == 2) {
-                    region = new Region(fields[0], Long.parseLong(fields[1]), Long.MAX_VALUE);
+                    region = new Region(fields[0], Integer.parseInt(fields[1]), Integer.MAX_VALUE);
                 }
             } else {
                 region = new Region(regionString, 0, Integer.MAX_VALUE);
@@ -93,19 +93,19 @@ public class Region {
         this.chromosome = chromosome;
     }
 
-    public long getStart() {
+    public int getStart() {
         return start;
     }
 
-    public void setStart(long start) {
+    public void setStart(int start) {
         this.start = start;
     }
 
-    public long getEnd() {
+    public int getEnd() {
         return end;
     }
 
-    public void setEnd(long end) {
+    public void setEnd(int end) {
         this.end = end;
     }
 
@@ -141,7 +141,7 @@ public class Region {
         return result;
     }
 
-    public boolean contains(String chr, long pos) {
+    public boolean contains(String chr, int pos) {
         if (this.chromosome.equals(chr) && this.start <= pos && this.end >= pos) {
             return true;
         } else {
@@ -153,9 +153,9 @@ public class Region {
     public String toString() {
         StringBuilder sb = new StringBuilder(this.chromosome);
 
-        if (this.start != 0 && this.end != Long.MAX_VALUE) {
+        if (this.start != 0 && this.end != Integer.MAX_VALUE) {
             sb.append(":").append(this.start).append("-").append(this.end);
-        } else if (this.start != 0 && this.end == Long.MAX_VALUE) {
+        } else if (this.start != 0 && this.end == Integer.MAX_VALUE) {
             sb.append(":").append(this.start);
         }
 
