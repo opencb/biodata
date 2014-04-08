@@ -48,7 +48,7 @@ public class VariantFactory {
         
         for (int i = 0; i < alternateAlleles.length; i++) { // This index is necessary for getting the samples where the mutated allele is present
             String alt = alternateAlleles[i];
-            List<VariantKeyFields> keyFields;
+            VariantKeyFields keyFields;
             int referenceLen = reference.length();
             int alternateLen = alt.length();
             
@@ -62,18 +62,14 @@ public class VariantFactory {
                 keyFields = createVariantsFromIndelNoEmptyRefAlt(position, reference, alt);
             }
             
-            assert(keyFields.size() == 1);
-            if (!keyFields.isEmpty()) {
-                VariantKeyFields vkf = keyFields.get(0);
-                Variant variant = new Variant(chromosome, vkf.start, vkf.end, vkf.reference, vkf.alternate);
+            if (keyFields != null) {
+                Variant variant = new Variant(chromosome, keyFields.start, keyFields.end, keyFields.reference, keyFields.alternate);
                 variant.addFile(new ArchivedVariantFile(fileName, fileId, studyId));
                 setOtherFields(variant, fileId, id, quality, filter, info, format);
-//                    parseSampleData(variant, fileId, fields, sampleNames);
                 // TODO Copy only the samples that correspond to each specific mutation
                 parseSplitSampleData(variant, fileId, fields, sampleNames, alternateAlleles, i+1);
                 variants.add(variant);
             }
-            
         }
         
         return variants;
@@ -115,32 +111,6 @@ public class VariantFactory {
         return info.toString().length() > 0 ? info.substring(0, info.length() - 1) : ".";
     }
 
-
-    private static void parseSampleData(Variant variant, String fileId, String[] fields, List<String> sampleNames) {
-        String[] formatFields = variant.getFile(fileId).getFormat().split(":");
-
-        for (int i = 9; i < fields.length; i++) {
-            Map<String, String> map = new HashMap<>(5);
-
-            // Fill map of a sample
-            String[] sampleFields = fields[i].split(":");
-            for (int j = 0; j < formatFields.length; j++) {
-                String formatField = formatFields[j];
-                String sampleField = sampleFields[j];
-                if (formatField.equalsIgnoreCase("GT")) {
-                    // Replace numerical indexes with the bases
-                    // TODO Could this be done with Java 8 streams? :)
-                    sampleField = sampleField.replace("0", variant.getReference());
-                    sampleField = sampleField.replace("1", variant.getAlternate());
-                }
-//                map.put(formatFields[j].toUpperCase(), sampleFields[j]);
-                map.put(formatFields[j].toUpperCase(), sampleField);
-            }
-
-            variant.getFile(fileId).addSampleData(sampleNames.get(i - 9), map);
-        }
-    }
-    
     private static void parseSplitSampleData(Variant variant, String fileId, String[] fields, List<String> sampleNames, 
             String[] alternateAlleles, int alleleIdx) {
         String[] formatFields = variant.getFile(fileId).getFormat().split(":");
@@ -219,54 +189,46 @@ public class VariantFactory {
         }
     }
 
-    private static List<VariantKeyFields> createVariantsFromSameLengthRefAlt(int position, String reference, String alt) {
-        List<VariantKeyFields> variants = new LinkedList<>();
-        
+    private static VariantKeyFields createVariantsFromSameLengthRefAlt(int position, String reference, String alt) {
         int indexOfDifference = StringUtils.indexOfDifference(reference, alt);
         if (indexOfDifference < 0) {
-            return variants;
+            return null;
         } else if (indexOfDifference == 0) {
-            variants.add(new VariantKeyFields(position, position + alt.length(), reference, alt));
+            return new VariantKeyFields(position, position + alt.length(), reference, alt);
         } else {
             int start = position + indexOfDifference;
             int end = position + Math.max(reference.length(), alt.length()) - 1;
             String ref = reference.substring(indexOfDifference);
             String inAlt = alt.substring(indexOfDifference);
-            variants.add(new VariantKeyFields(start, end, ref, inAlt));
+            return new VariantKeyFields(start, end, ref, inAlt);
         }
-        
-        return variants;
     }
 
-    private static List<VariantKeyFields> createVariantsFromInsertionEmptyRef(int position, String alt) {
-        return Arrays.asList(new VariantKeyFields(position-1, position + alt.length(), "", alt));
+    private static VariantKeyFields createVariantsFromInsertionEmptyRef(int position, String alt) {
+        return new VariantKeyFields(position-1, position + alt.length(), "", alt);
     }
 
-    private static List<VariantKeyFields> createVariantsFromDeletionEmptyAlt(int position, String reference) {
-        return Arrays.asList(new VariantKeyFields(position, position + reference.length() - 1, reference, ""));
+    private static VariantKeyFields createVariantsFromDeletionEmptyAlt(int position, String reference) {
+        return new VariantKeyFields(position, position + reference.length() - 1, reference, "");
     }
 
-    private static List<VariantKeyFields> createVariantsFromIndelNoEmptyRefAlt(int position, String reference, String alt) {
-        List<VariantKeyFields> variants = new LinkedList<>();
-        
+    private static VariantKeyFields createVariantsFromIndelNoEmptyRefAlt(int position, String reference, String alt) {
         int indexOfDifference = StringUtils.indexOfDifference(reference, alt);
         if (indexOfDifference < 0) {
-            return variants;
+            return null;
         } else if (indexOfDifference == 0) {
             if (reference.length() > alt.length()) {
-                variants.add(new VariantKeyFields(position, position + reference.length() - 1, reference, alt));
+                return new VariantKeyFields(position, position + reference.length() - 1, reference, alt);
             } else {
-                variants.add(new VariantKeyFields(position-1, position + alt.length(), reference, alt));
+                return new VariantKeyFields(position-1, position + alt.length(), reference, alt);
             }
         } else {
             int start = position + indexOfDifference;
             int end = position + Math.max(reference.length(), alt.length()) - 1;
             String ref = reference.substring(indexOfDifference);
             String inAlt = alt.substring(indexOfDifference);
-            variants.add(new VariantKeyFields(start, end, ref, inAlt));
+            return new VariantKeyFields(start, end, ref, inAlt);
         }
-        
-        return variants;
     }
 
     private static void setOtherFields(Variant variant, String fileId, String id, float quality, String filter, String info, String format) {
