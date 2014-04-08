@@ -54,7 +54,6 @@ public class VariantFactory {
             
             if (referenceLen == alternateLen) {
                 keyFields = createVariantsFromSameLengthRefAlt(position, reference, alt);
-//                keyFields = createVariantsFromIndelNoEmptyRefAlt(position, reference, alt);
             } else if (referenceLen == 0) {
                 keyFields = createVariantsFromInsertionEmptyRef(position, alt);
             } else if (alternateLen == 0) {
@@ -63,27 +62,16 @@ public class VariantFactory {
                 keyFields = createVariantsFromIndelNoEmptyRefAlt(position, reference, alt);
             }
             
+            assert(keyFields.size() == 1);
             if (!keyFields.isEmpty()) {
-                if (keyFields.size() == 1) {
-                    // One variant extracted from a VCF record -> all fields stay the same
-                    VariantKeyFields vkf = keyFields.get(0);
-                    Variant variant = new Variant(chromosome, vkf.start, vkf.end, vkf.reference, vkf.alternate);
-                    variant.addFile(new ArchivedVariantFile(fileName, fileId, studyId));
-                    setOtherFields(variant, fileId, id, quality, filter, info, format);
-                    parseSampleData(variant, fileId, fields, sampleNames);
-                    variants.add(variant);
-                } else {
-                    System.out.println("Multiple KeyFields");
-                    // TODO More than one variant extracted from a VCF record -> samples must be transformed
-                    for (VariantKeyFields vkf : keyFields) {
-                        Variant variant = new Variant(chromosome, vkf.start, vkf.end, vkf.reference, vkf.alternate);
-                        variant.addFile(new ArchivedVariantFile(fileName, fileId, studyId));
-                        setOtherFields(variant, fileId, id, quality, filter, info, format);
-                        // TODO Copy only the samples that correspond to each specific mutation
-//                        parseSplitSampleData(variant, fields, sampleNames, alternateAlleles, i);
-                        variants.add(variant);
-                    }
-                } 
+                VariantKeyFields vkf = keyFields.get(0);
+                Variant variant = new Variant(chromosome, vkf.start, vkf.end, vkf.reference, vkf.alternate);
+                variant.addFile(new ArchivedVariantFile(fileName, fileId, studyId));
+                setOtherFields(variant, fileId, id, quality, filter, info, format);
+//                    parseSampleData(variant, fileId, fields, sampleNames);
+                // TODO Copy only the samples that correspond to each specific mutation
+                parseSplitSampleData(variant, fileId, fields, sampleNames, alternateAlleles, i+1);
+                variants.add(variant);
             }
             
         }
@@ -137,7 +125,16 @@ public class VariantFactory {
             // Fill map of a sample
             String[] sampleFields = fields[i].split(":");
             for (int j = 0; j < formatFields.length; j++) {
-                map.put(formatFields[j].toUpperCase(), sampleFields[j]);
+                String formatField = formatFields[j];
+                String sampleField = sampleFields[j];
+                if (formatField.equalsIgnoreCase("GT")) {
+                    // Replace numerical indexes with the bases
+                    // TODO Could this be done with Java 8 streams? :)
+                    sampleField = sampleField.replace("0", variant.getReference());
+                    sampleField = sampleField.replace("1", variant.getAlternate());
+                }
+//                map.put(formatFields[j].toUpperCase(), sampleFields[j]);
+                map.put(formatFields[j].toUpperCase(), sampleField);
             }
 
             variant.getFile(fileId).addSampleData(sampleNames.get(i - 9), map);
@@ -152,21 +149,24 @@ public class VariantFactory {
             Map<String, String> map = new HashMap<>(5);
 
             // Fill map of a sample
+            boolean shouldAddSample = true;
             String[] sampleFields = fields[i].split(":");
+            
             for (int j = 0; j < formatFields.length; j++) {
                 String formatField = formatFields[j];
                 String sampleField = sampleFields[j];
                 if (formatField.equalsIgnoreCase("GT")) {
-                    // If current allele index is not found in the genotype,
-                    // the sample is not added to the list
-                    if (!sampleField.contains(String.valueOf(alleleIdx))) {
-                        break;
-                    }
+                    shouldAddSample = shouldAddSampleToVariant(sampleField, alleleIdx);
                     
-                    // Replace numerical indexes with the bases
-                    // TODO Could this be done with Java 8 streams? :)
-                    for (int k = 0; k < alternateAlleles.length; k++) {
-                        sampleField = sampleField.replace(String.valueOf(k), alternateAlleles[k]);
+                    if (shouldAddSample) {
+                        // Replace numerical indexes with the bases
+                        // TODO Could this be done with Java 8 streams? :)
+                        sampleField = sampleField.replace("0", variant.getReference());
+                        for (int k = 0; k < alternateAlleles.length; k++) {
+                            sampleField = sampleField.replace(String.valueOf(k+1), alternateAlleles[k]);
+                        }
+                    } else {
+                        break;
                     }
                 } else if (formatField.equalsIgnoreCase("GL")) {
                     // TODO Genotype likelihood must be distributed following similar criteria as genotypes
@@ -175,10 +175,39 @@ public class VariantFactory {
                 map.put(formatField.toUpperCase(), sampleField);
             }
 
-            variant.getFile(fileId).addSampleData(sampleNames.get(i - 9), map);
+            // If the genotype of the sample did not match the alleles of this variant, do not add it to the list
+            if (shouldAddSample) {
+                variant.getFile(fileId).addSampleData(sampleNames.get(i - 9), map);
+            }
         }
     }
 
+    /**
+     * Checks whether a sample should be included in a variant's list of samples.
+     * If current allele index is not found in the genotype and not all alleles 
+     * are references/missing, then the sample must not be included.
+     * 
+     * @param genotype The genotype
+     * @param alleleIdx The index of the allele
+     * @return If the sample should be associated to the variant
+     */
+    private static boolean shouldAddSampleToVariant(String genotype, int alleleIdx) {
+        if (!genotype.contains(String.valueOf(alleleIdx))) {
+            if(!genotype.contains("0")) {
+                return false;
+            } else { 
+                String[] alleles = genotype.split("[/|]");
+                for (String allele : alleles) {
+                    if (!allele.equals("0") && !allele.equals(".")) {
+                        return false;
+                    }
+                }
+            }
+        }
+        
+        return true;
+    }
+    
     private static void parseInfo(Variant variant, String fileId, String info) {
         for (String var : info.split(";")) {
             String[] splits = var.split("=");
@@ -191,7 +220,6 @@ public class VariantFactory {
     }
 
     private static List<VariantKeyFields> createVariantsFromSameLengthRefAlt(int position, String reference, String alt) {
-        int previousIndexOfDifference = 0;
         List<VariantKeyFields> variants = new LinkedList<>();
         
         int indexOfDifference = StringUtils.indexOfDifference(reference, alt);
@@ -200,7 +228,7 @@ public class VariantFactory {
         } else if (indexOfDifference == 0) {
             variants.add(new VariantKeyFields(position, position + alt.length(), reference, alt));
         } else {
-            int start = position + previousIndexOfDifference + indexOfDifference;
+            int start = position + indexOfDifference;
             int end = position + Math.max(reference.length(), alt.length()) - 1;
             String ref = reference.substring(indexOfDifference);
             String inAlt = alt.substring(indexOfDifference);
@@ -209,39 +237,6 @@ public class VariantFactory {
         
         return variants;
     }
-//    private static List<VariantKeyFields> createVariantsFromSameLengthRefAlt(int position, String reference, String alt) {
-//        int previousIndexOfDifference = 0;
-//        List<VariantKeyFields> variants = new LinkedList<>();
-//        
-//        while (!reference.isEmpty()) {
-//            int indexOfDifference = StringUtils.indexOfDifference(reference, alt);
-//            if (indexOfDifference < 0) {
-//                return variants;
-//            }
-//            
-//            // The 'difference' substring stores ALL remaining characters from the first difference, 
-//            // even if some of them are equal, so they must be checked
-//            int i;
-//            for (i = indexOfDifference; i < reference.length(); i++) {
-//                if (reference.charAt(i) == alt.charAt(i)) {
-//                    break;
-//                }
-//            }
-//            
-//            // Create variant
-//            int start = position + previousIndexOfDifference + indexOfDifference;
-//            int end = position + previousIndexOfDifference + i - 1;
-//            String ref = reference.substring(indexOfDifference, i);
-//            String inAlt = alt.substring(indexOfDifference, i);
-//            variants.add(new VariantKeyFields(start, end, ref, inAlt));
-//            
-//            reference = reference.substring(i);
-//            alt = alt.substring(i);
-//            previousIndexOfDifference = indexOfDifference + 1;
-//        }
-//        
-//        return variants;
-//    }
 
     private static List<VariantKeyFields> createVariantsFromInsertionEmptyRef(int position, String alt) {
         return Arrays.asList(new VariantKeyFields(position-1, position + alt.length(), "", alt));
@@ -252,7 +247,6 @@ public class VariantFactory {
     }
 
     private static List<VariantKeyFields> createVariantsFromIndelNoEmptyRefAlt(int position, String reference, String alt) {
-        int previousIndexOfDifference = 0;
         List<VariantKeyFields> variants = new LinkedList<>();
         
         int indexOfDifference = StringUtils.indexOfDifference(reference, alt);
@@ -265,7 +259,7 @@ public class VariantFactory {
                 variants.add(new VariantKeyFields(position-1, position + alt.length(), reference, alt));
             }
         } else {
-            int start = position + previousIndexOfDifference + indexOfDifference;
+            int start = position + indexOfDifference;
             int end = position + Math.max(reference.length(), alt.length()) - 1;
             String ref = reference.substring(indexOfDifference);
             String inAlt = alt.substring(indexOfDifference);
