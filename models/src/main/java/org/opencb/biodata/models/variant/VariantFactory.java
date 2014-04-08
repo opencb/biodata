@@ -1,11 +1,12 @@
 package org.opencb.biodata.models.variant;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.opencb.biodata.models.feature.AllelesCode;
+import org.opencb.biodata.models.feature.Genotype;
 
 /**
  * @author Alejandro Aleman Ramos <aaleman@cipf.es>
@@ -66,7 +67,7 @@ public class VariantFactory {
                 Variant variant = new Variant(chromosome, keyFields.start, keyFields.end, keyFields.reference, keyFields.alternate);
                 variant.addFile(new ArchivedVariantFile(fileName, fileId, studyId));
                 setOtherFields(variant, fileId, id, quality, filter, info, format);
-                // TODO Copy only the samples that correspond to each specific mutation
+                // Copy only the samples that correspond to each specific mutation
                 parseSplitSampleData(variant, fileId, fields, sampleNames, alternateAlleles, i+1);
                 variants.add(variant);
             }
@@ -121,14 +122,19 @@ public class VariantFactory {
             // Fill map of a sample
             boolean shouldAddSample = true;
             String[] sampleFields = fields[i].split(":");
+            Genotype genotype = null;
             
             for (int j = 0; j < formatFields.length; j++) {
                 String formatField = formatFields[j];
                 String sampleField = sampleFields[j];
+                
                 if (formatField.equalsIgnoreCase("GT")) {
                     shouldAddSample = shouldAddSampleToVariant(sampleField, alleleIdx);
                     
                     if (shouldAddSample) {
+                        // Save alleles just in case they are necessary for GL/PL/GP transformation
+                        genotype = new Genotype(sampleField);
+                        
                         // Replace numerical indexes with the bases
                         // TODO Could this be done with Java 8 streams? :)
                         sampleField = sampleField.replace("0", variant.getReference());
@@ -138,8 +144,28 @@ public class VariantFactory {
                     } else {
                         break;
                     }
-                } else if (formatField.equalsIgnoreCase("GL")) {
-                    // TODO Genotype likelihood must be distributed following similar criteria as genotypes
+                } else if (formatField.equalsIgnoreCase("GL") ||
+                           formatField.equalsIgnoreCase("PL") ||
+                           formatField.equalsIgnoreCase("GP")) {
+                    if (genotype != null && genotype.getCode() == AllelesCode.ALLELES_OK) { // All-alleles present and not haploid
+                        String[] likelihoods = sampleField.split(",");
+
+                        // Get alleles index to work with: if both are the same alternate,
+                        // the combinations must be run with the reference allele.
+                        // Otherwise all GL reported would be alt/alt.
+                        int allele1 = genotype.getAllele1();
+                        int allele2 = genotype.getAllele2();
+                        if (genotype.getAllele1().equals(genotype.getAllele2()) && !genotype.getAllele1().equals(0)) {
+                            allele1 = 0;
+                        }
+                        
+                        // Genotype likelihood must be distributed following similar criteria as genotypes
+                        String[] alleleLikelihoods = new String[3];
+                        alleleLikelihoods[0] = likelihoods[(int) (((float) allele1 * (allele1 + 1)) / 2) + allele1];
+                        alleleLikelihoods[1] = likelihoods[(int) (((float) allele2 * (allele2 + 1)) / 2) + allele1];
+                        alleleLikelihoods[2] = likelihoods[(int) (((float) allele2 * (allele2 + 1)) / 2) + allele2];
+                        sampleField = StringUtils.join(alleleLikelihoods, ",");
+                    }
                 }
                 
                 map.put(formatField.toUpperCase(), sampleField);

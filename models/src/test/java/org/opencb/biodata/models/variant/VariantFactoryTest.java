@@ -131,8 +131,9 @@ public class VariantFactoryTest extends TestCase {
     
     public void testCreateVariantFromVcfCoLocatedVariants_Samples() {
         List<String> sampleNames = Arrays.asList("NA001", "NA002", "NA003", "NA004", "NA005", "NA006");
-        String[] fields = new String[] { "1", "10040", "rs123", "T", "C,GC", ".", ".", ".", "GT", 
-                                         "0/0", "0/1", "0/2", "1/1", "1/2", "2/2"}; // 6 samples
+        String[] fields = new String[] { "1", "10040", "rs123", "T", "C,GC", ".", ".", ".", "GT:GL", 
+                                         "0/0:1,2,3,4,5,6,7,8,9,10", "0/1:1,2,3,4,5,6,7,8,9,10", "0/2:1,2,3,4,5,6,7,8,9,10", 
+                                         "1/1:1,2,3,4,5,6,7,8,9,10", "1/2:1,2,3,4,5,6,7,8,9,10", "2/2:1,2,3,4,5,6,7,8,9,10"}; // 6 samples
         
         // Initialize expected variants
         Variant var0 = new Variant(fields[0], 10041, 10041 + "C".length() - 1, "T", "C");
@@ -146,16 +147,22 @@ public class VariantFactoryTest extends TestCase {
         // Initialize expected samples
         Map<String, String> na001 = new HashMap<>();
         na001.put("GT", "T/T");
+        na001.put("GL", "1,1,1");
         Map<String, String> na002 = new HashMap<>();
         na002.put("GT", "T/C");
+        na002.put("GL", "1,2,3");
         Map<String, String> na003 = new HashMap<>();
         na003.put("GT", "T/GC");
+        na003.put("GL", "1,4,6");
         Map<String, String> na004 = new HashMap<>();
         na004.put("GT", "C/C");
+        na004.put("GL", "1,2,3");
         Map<String, String> na005 = new HashMap<>();
         na005.put("GT", "C/GC");
+        na005.put("GL", "3,5,6");
         Map<String, String> na006 = new HashMap<>();
         na006.put("GT", "GC/GC");
+        na006.put("GL", "1,4,6");
         
         var0.getFile(fileId).addSampleData(sampleNames.get(0), na001);
         var0.getFile(fileId).addSampleData(sampleNames.get(1), na002);
