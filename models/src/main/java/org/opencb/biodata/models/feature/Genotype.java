@@ -1,215 +1,164 @@
 package org.opencb.biodata.models.feature;
 
+import java.util.Arrays;
 import java.util.Objects;
+import org.apache.commons.lang3.StringUtils;
 
 /**
- * Created with IntelliJ IDEA.
- * User: aleman
- * Date: 8/26/13
- * Time: 6:09 PM
- * To change this template use File | Settings | File Templates.
+ * @author Alejandro Aleman Ramos <aaleman@cipf.es>
+ * @author Cristina Yenyxe Gonzalez Garcia <cyenyxe@ebi.ac.uk>
  */
 public class Genotype {
-    private Integer allele1;
-    private Integer allele2;
+    
+    private String reference;
+    private String alternate;
+    private int[] allelesIdx;
+    private boolean phased;
+    
     private AllelesCode code;
-    private Integer count;
-
+    
+    private int count;
 
     public Genotype(String genotype) {
-        parseGenotype(genotype);
-
+        this(genotype, null, null);
     }
-
+    
     public Genotype(String genotype, String ref, String alt) {
-        String[] alleles = genotype.split("/|\\|");
-        StringBuilder newGenotype = new StringBuilder();
-        if (alleles[0].equals(".")) {
-            newGenotype.append(".");
-        } else if (alleles[0].equals(ref)) {
-            newGenotype.append("0");
-        } else {
-            String[] altAlleles = alt.split(",");
-            String a = null;
-            for (int i = 0; i < altAlleles.length; i++) {
-                if (alleles[0].equals(altAlleles[i])) {
-                    a = String.valueOf(i + 1);
-                }
-            }
-            if (a != null) {
-                newGenotype.append(a);
-            } else {
-                newGenotype.append(".");
-            }
-        }
-
-        newGenotype.append("/");
-
-        if (alleles[1].equals(".")) {
-            newGenotype.append(".");
-        } else if (alleles[1].equals(ref)) {
-            newGenotype.append("0");
-        } else {
-            String[] altAlleles = alt.split(",");
-            String a = null;
-            for (int i = 0; i < altAlleles.length; i++) {
-                if (alleles[1].equals(altAlleles[i])) {
-                    a = String.valueOf(i + 1);
-                }
-            }
-            if (a != null) {
-                newGenotype.append(a);
-            } else {
-                newGenotype.append(".");
-            }
-        }
-
-        parseGenotype(newGenotype.toString());
-
+        this.reference = ref;
+        this.alternate = alt;
+        this.phased = genotype.contains("|");
+        this.count = 0;
+        parseGenotype(genotype);
     }
 
     private void parseGenotype(String genotype) {
-        this.code = null;
-        this.count = 0;
-        if (genotype.length() < 3) {
-            this.allele1 = null;
-            this.allele2 = null;
-            this.code = AllelesCode.ALL_ALLELES_MISSING;
-        } else {
-            String[] auxAlleles = genotype.split("/|\\|");
-            if (auxAlleles[0].equals(".")) {
-                this.allele1 = null;
-                this.code = AllelesCode.FIRST_ALLELE_MISSING;
+        String[] alleles = genotype.split("/|\\|", -1);
+        
+        this.code = alleles.length > 1 ? AllelesCode.ALLELES_OK : AllelesCode.HAPLOID;
+        this.allelesIdx = new int[alleles.length];
+        
+        for (int i = 0; i < alleles.length; i++) {
+            String allele = alleles[i];
+            if (allele.equals(".")) {
+                this.code = AllelesCode.ALLELES_MISSING;
+                this.allelesIdx[i] = -1;
             } else {
-                this.allele1 = Integer.valueOf(auxAlleles[0]);
-            }
-
-            if (auxAlleles.length == 1) { // Haploid
-                this.allele2 = null;
-                this.code = AllelesCode.HAPLOID;
-
-            } else {
-                if (auxAlleles[1].equals(".")) {
-                    this.allele2 = null;
-                    this.code = (this.code == AllelesCode.FIRST_ALLELE_MISSING) ? AllelesCode.ALL_ALLELES_MISSING : AllelesCode.SECOND_ALLELE_MISSING;
-                } else {
-                    this.allele2 = Integer.valueOf(auxAlleles[1]);
+                if (StringUtils.isNumeric(allele)) { // Accepts genotypes with form 0/0, 0/1, and so on
+                    this.allelesIdx[i] = Integer.parseInt(allele);
+                } else { // Accepts genotypes with form A/A, A/T, and so on
+                    if (allele.equalsIgnoreCase(reference)) {
+                        this.allelesIdx[i] = 0;
+                    } else if (allele.equalsIgnoreCase(alternate)) {
+                        this.allelesIdx[i] = 1;
+                    } else {
+                        if (allele.isEmpty()) {
+                            System.out.println("Empty allele: REF=" + reference + ",ALT=" + alternate);
+                        }
+                        this.allelesIdx[i] = 2; // TODO What happens with more than 2 alternate alleles? Difficult situation
+                    }
+                }
+                
+                if (allelesIdx[i] > 1) {
+                    this.code = AllelesCode.MULTIPLE_ALTERNATES;
                 }
             }
-
-        }
-        if (this.code == null) {
-            this.code = AllelesCode.ALLELES_OK;
-
         }
     }
 
-    public Integer getAllele1() {
-        return allele1;
+    public String getReference() {
+        return reference;
     }
 
-    public void setAllele1(Integer allele1) {
-        this.allele1 = allele1;
-        if (allele1 == null) {
-            this.setCode(AllelesCode.FIRST_ALLELE_MISSING);
-        }
-        if (allele2 == null) {
-            this.setCode(AllelesCode.ALL_ALLELES_MISSING);
-        }
+    public String getAlternate() {
+        return alternate;
     }
-
-    public Integer getAllele2() {
-        return allele2;
+    
+    public int getAllele(int i) {
+        return allelesIdx[i];
     }
-
-    public void setAllele2(Integer allele2) {
-        this.allele2 = allele2;
-        if (allele2 == null) {
-            this.setCode(AllelesCode.FIRST_ALLELE_MISSING);
-        }
-        if (allele1 == null) {
-            this.setCode(AllelesCode.ALL_ALLELES_MISSING);
-        }
+    
+    public boolean isAlleleRef(int i) {
+        return allelesIdx[i] == 0;
     }
-
+    
+    public boolean isPhased() {
+        return phased;
+    }
+    
     public AllelesCode getCode() {
         return code;
-    }
-
-    public void setCode(AllelesCode code) {
-        this.code = code;
     }
 
     public Integer getCount() {
         return count;
     }
 
-    public void setCount(Integer count) {
+    public void setCount(int count) {
         this.count = count;
     }
-
-    public boolean isAllele1Ref() {
-        return allele1 == 0;
-    }
-
-    public boolean isAllele2Ref() {
-        return allele2 == 0;
+    
+    public void incrementCount(int count) {
+        this.count += count;
     }
 
     public String getGenotype() {
-        StringBuilder sb = new StringBuilder(6);
-        if (allele1 != null) {
-            sb.append(allele1);
-        } else {
-            sb.append(".");
+        StringBuilder value = new StringBuilder(allelesIdx[0]);
+        char separator = isPhased() ? '|' : '/';
+        for (int i = 1; i < allelesIdx.length; i++) {
+            value.append(separator);
+            value.append(allelesIdx[1]);
         }
-        sb.append("/");
-
-        if (allele2 != null) {
-            sb.append(allele2);
-        } else {
-            sb.append(".");
-        }
-        return sb.toString();
+        return value.toString();
     }
     
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder(6);
-        if (allele1 != null) {
-            sb.append(allele1);
-        } else {
-            sb.append(".");
+        StringBuilder value = new StringBuilder(allelesIdx[0]);
+        char separator = isPhased() ? '|' : '/';
+        for (int i = 1; i < allelesIdx.length; i++) {
+            value.append(separator);
+            value.append(allelesIdx[1]);
         }
-        sb.append("/");
-
-        if (allele2 != null) {
-            sb.append(allele2);
-        } else {
-            sb.append(".");
-        }
-        sb.append(":");
-        sb.append(count);
-        return sb.toString();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof Genotype) {
-            Genotype g = (Genotype) obj;
-            return Objects.equals(this.getAllele1(), g.getAllele1()) &&
-                    Objects.equals(this.getAllele2(), g.getAllele2());
-        } else {
-            return false;
-        }
+        value.append(" (REF=");
+        value.append(reference);
+        value.append(", ALT=");
+        value.append(alternate);
+        value.append(")");
+        return value.toString();
     }
 
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 47 * hash + Objects.hashCode(this.allele1);
-        hash = 47 * hash + Objects.hashCode(this.allele2);
+        int hash = 7;
+        hash = 11 * hash + Objects.hashCode(this.reference);
+        hash = 11 * hash + Objects.hashCode(this.alternate);
+        hash = 11 * hash + Arrays.hashCode(this.allelesIdx);
+        hash = 11 * hash + (this.phased ? 1 : 0);
         return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Genotype other = (Genotype) obj;
+        if (!Objects.equals(this.reference, other.reference)) {
+            return false;
+        }
+        if (!Objects.equals(this.alternate, other.alternate)) {
+            return false;
+        }
+        if (!Arrays.equals(this.allelesIdx, other.allelesIdx)) {
+            return false;
+        }
+        if (this.phased != other.phased) {
+            return false;
+        }
+        return true;
     }
 
 }

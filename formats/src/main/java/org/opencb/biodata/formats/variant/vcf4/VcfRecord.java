@@ -33,14 +33,13 @@ public class VcfRecord {
      * @param info
      */
     public VcfRecord(String chromosome,
-                     Integer position,
-                     String id,
-                     String reference,
-                     String alternate,
-
-                     String quality,
-                     String filter,
-                     String info) {
+            Integer position,
+            String id,
+            String reference,
+            String alternate,
+            String quality,
+            String filter,
+            String info) {
 
         this.chromosome = parseChromosome(chromosome);
         this.position = position;
@@ -89,7 +88,6 @@ public class VcfRecord {
         this(chromosome, position, id, reference, alternate, quality, filter, info, format);
 
     }
-
 
     public VcfRecord(String[] fields, List<String> sampleNames) {
         this(fields[0], Integer.parseInt(fields[1]), fields[2], fields[3], fields[4], fields[5], fields[6], fields[7], fields[8]);
@@ -258,26 +256,20 @@ public class VcfRecord {
     }
 
     public String getValueFormatSample(String sample, String key) {
-
         if (sampleData.size() == 0) {
-
             initializeSamplesValues();
         }
 
         return sampleData.get(sample).get(key);
-
     }
 
     public Genotype getSampleGenotype(String sample) {
         Genotype g = null;
-
-
         String gtVal = getValueFormatSample(sample, "GT");
         if (gtVal != null) {
-            g = new Genotype(gtVal);
+            g = new Genotype(gtVal, reference, alternate);
         }
         return g;
-
     }
 
     public Set<String> getSampleNames() {
@@ -310,35 +302,29 @@ public class VcfRecord {
     }
 
     private void initializeSamplesValues() {
-        Map<String, String> sampleValuesMap;
         String[] fields = this.format.split(":");
 
         for (Map.Entry<String, String> entry : sampleRawData.entrySet()) {
             String sampleName = entry.getKey();
-
             String[] values = entry.getValue().split(":");
 
-            sampleValuesMap = new HashMap<>(fields.length);
+            Map<String, String> sampleValuesMap = new HashMap<>(fields.length);
 
             for (int i = 0; i < fields.length; i++) {
                 sampleValuesMap.put(fields[i], values[i]);
-
             }
 
             sampleData.put(sampleName, sampleValuesMap);
         }
 
-
     }
 
     public void addInfoField(String info) {
-
         if (this.info.equals(".")) {
             this.info = info;
         } else {
             this.info += ";" + info;
         }
-
     }
 
     public void addSnp(String snp) {
@@ -366,8 +352,9 @@ public class VcfRecord {
     }
 
     public void addEffect(VariantEffect effect) {
-        if (this.effects != null)
+        if (this.effects != null) {
             this.effects.add(effect);
+        }
     }
 
     public boolean isIndel() {
@@ -381,9 +368,7 @@ public class VcfRecord {
      * @return String without prefix
      */
     private String parseChromosome(String chromosome) {
-
         return chromosome.replaceAll("chrom|chr", "");
-
     }
 
 }

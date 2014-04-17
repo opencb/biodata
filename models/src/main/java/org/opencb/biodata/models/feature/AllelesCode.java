@@ -9,8 +9,10 @@ package org.opencb.biodata.models.feature;
  */
 public enum AllelesCode {
     ALLELES_OK,
-    FIRST_ALLELE_MISSING,
-    SECOND_ALLELE_MISSING,
-    ALL_ALLELES_MISSING,
+    ALLELES_MISSING,
+//    FIRST_ALLELE_MISSING,
+//    SECOND_ALLELE_MISSING,
+//    ALL_ALLELES_MISSING,
+    MULTIPLE_ALTERNATES,
     HAPLOID
 }

@@ -1,5 +1,6 @@
 package org.opencb.biodata.models.variant;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -47,6 +48,8 @@ public class VariantFactory {
         String info = fields[7].equals(".") ? "" : fields[7];
         String format = (fields.length <= 8 || fields[8].equals(".")) ? "" : fields[8];
         
+        List<VariantKeyFields> generatedKeyFields = new ArrayList<>();
+        
         for (int i = 0; i < alternateAlleles.length; i++) { // This index is necessary for getting the samples where the mutated allele is present
             String alt = alternateAlleles[i];
             VariantKeyFields keyFields;
@@ -63,14 +66,24 @@ public class VariantFactory {
                 keyFields = createVariantsFromIndelNoEmptyRefAlt(position, reference, alt);
             }
             
-            if (keyFields != null) {
+            // Since the reference and alternate alleles won't necessarily match 
+            // the ones read from the VCF file but they are still needed for
+            // instantiating the variants, they must be updated
+            alternateAlleles[i] = keyFields.alternate;
+            generatedKeyFields.add(keyFields);
+        }
+        
+        // Now create all the Variant objects read from the VCF record
+        for (int i = 0; i < alternateAlleles.length; i++) {
+            VariantKeyFields keyFields = generatedKeyFields.get(i);
+//            if (keyFields != null) {
                 Variant variant = new Variant(chromosome, keyFields.start, keyFields.end, keyFields.reference, keyFields.alternate);
                 variant.addFile(new ArchivedVariantFile(fileName, fileId, studyId));
                 setOtherFields(variant, fileId, id, quality, filter, info, format);
                 // Copy only the samples that correspond to each specific mutation
                 parseSplitSampleData(variant, fileId, fields, sampleNames, alternateAlleles, i+1);
                 variants.add(variant);
-            }
+//            }
         }
         
         return variants;
@@ -133,7 +146,7 @@ public class VariantFactory {
                     
                     if (shouldAddSample) {
                         // Save alleles just in case they are necessary for GL/PL/GP transformation
-                        genotype = new Genotype(sampleField);
+                        genotype = new Genotype(sampleField, variant.getReference(), variant.getAlternate());
                         
                         // Replace numerical indexes with the bases
                         // TODO Could this be done with Java 8 streams? :)
@@ -147,15 +160,18 @@ public class VariantFactory {
                 } else if (formatField.equalsIgnoreCase("GL") ||
                            formatField.equalsIgnoreCase("PL") ||
                            formatField.equalsIgnoreCase("GP")) {
-                    if (genotype != null && genotype.getCode() == AllelesCode.ALLELES_OK) { // All-alleles present and not haploid
+                    // All-alleles present and not haploid
+                    if (genotype != null && 
+                            (genotype.getCode() == AllelesCode.ALLELES_OK || 
+                             genotype.getCode() == AllelesCode.MULTIPLE_ALTERNATES)) {
                         String[] likelihoods = sampleField.split(",");
 
                         // Get alleles index to work with: if both are the same alternate,
                         // the combinations must be run with the reference allele.
                         // Otherwise all GL reported would be alt/alt.
-                        int allele1 = genotype.getAllele1();
-                        int allele2 = genotype.getAllele2();
-                        if (genotype.getAllele1().equals(genotype.getAllele2()) && !genotype.getAllele1().equals(0)) {
+                        int allele1 = genotype.getAllele(0);
+                        int allele2 = genotype.getAllele(1);
+                        if (genotype.getAllele(0) == genotype.getAllele(1) && genotype.getAllele(0) > 0) {
                             allele1 = 0;
                         }
                         

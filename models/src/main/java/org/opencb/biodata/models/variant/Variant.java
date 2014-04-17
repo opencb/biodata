@@ -354,10 +354,6 @@ public class Variant {
         return file.getSampleNames();
     }
 
-    public boolean isIndel() {
-        return this.reference.length() != this.alternate.length();
-    }
-
     @Override
     public String toString() {
         return "Variant{" +

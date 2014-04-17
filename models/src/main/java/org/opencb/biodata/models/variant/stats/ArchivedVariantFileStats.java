@@ -85,7 +85,7 @@ public class ArchivedVariantFileStats {
                     samplesStats.put(sampleName, sampleStats);
                 }
                 
-                Genotype g = new Genotype(sample.getValue().get("GT"));
+                Genotype g = new Genotype(sample.getValue().get("GT"), v.getReference(), v.getAlternate());
                 
                 // Count missing genotypes (one or both alleles missing)
                 if (g.getCode() != AllelesCode.ALLELES_OK) { 
@@ -101,7 +101,7 @@ public class ArchivedVariantFileStats {
 //                }
                 
                 // Count homozygous
-                if (g.getAllele1().equals(g.getAllele2())) {
+                if (g.getAllele(0) == g.getAllele(1)) {
                     sampleStats.incrementHomozygous();
                 }
             }

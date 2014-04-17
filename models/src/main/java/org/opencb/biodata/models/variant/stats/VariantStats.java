@@ -47,8 +47,10 @@ public class VariantStats {
     private String mgfGenotype;
     
     private int mendelianErrors;
-    private boolean isIndel;
-    private boolean isSNP;
+//    @Deprecated
+//    private boolean isIndel;
+//    @Deprecated
+//    private boolean isSNP;
     private boolean passedFilters;
     
     private float casesPercentDominant;
@@ -86,7 +88,7 @@ public class VariantStats {
         this.controlsPercentDominant = 0;
         this.casesPercentRecessive = 0;
         this.controlsPercentRecessive = 0;
-        this.isIndel = false;
+//        this.isIndel = false;
         this.genotypes = new ArrayList<>((int) Math.pow(this.numAlleles, 2));
         this.transitionsCount = 0;
         this.transversionsCount = 0;
@@ -103,8 +105,8 @@ public class VariantStats {
         this.numAlleles = 2;
         
         this.id = variant.getId();
-        this.isIndel = variant.getType() == VariantType.INDEL;
-        this.isSNP = variant.getType() == VariantType.SNV;
+//        this.isIndel = variant.getType() == VariantType.INDEL;
+//        this.isSNP = variant.getType() == VariantType.SNV;
 
         this.genotypes = new ArrayList<>((int) Math.pow(this.numAlleles, 2));
         this.allelesCount = new int[numAlleles];
@@ -153,7 +155,7 @@ public class VariantStats {
         this.missingAlleles = numMissingAlleles;
         this.missingGenotypes = numMissingGenotypes;
         this.mendelianErrors = numMendelErrors;
-        this.isIndel = isIndel;
+//        this.isIndel = isIndel;
 
         this.casesPercentDominant = (float) percentCasesDominant;
         this.controlsPercentDominant = (float) percentControlsDominant;
@@ -372,20 +374,22 @@ public class VariantStats {
     }
 
     public boolean isIndel() {
-        return isIndel;
+//        return isIndel;
+        return variant.getType() == VariantType.INDEL;
     }
 
-    public void setIndel(boolean indel) {
-        this.isIndel = indel;
-    }
+//    public void setIndel(boolean indel) {
+//        this.isIndel = indel;
+//    }
 
     public boolean isSNP() {
-        return isSNP;
+//        return isSNP;
+        return variant.getType() == VariantType.SNV;
     }
 
-    public void setSNP(boolean SNP) {
-        isSNP = SNP;
-    }
+//    public void setSNP(boolean SNP) {
+//        isSNP = SNP;
+//    }
 
     public boolean hasPassedFilters() {
         return passedFilters;
@@ -440,7 +444,7 @@ public class VariantStats {
                 + ", missingAlleles=" + missingAlleles
                 + ", missingGenotypes=" + missingGenotypes
                 + ", mendelinanErrors=" + mendelianErrors
-                + ", isIndel=" + isIndel
+//                + ", isIndel=" + isIndel
                 + ", casesPercentDominant=" + casesPercentDominant
                 + ", controlsPercentDominant=" + controlsPercentDominant
                 + ", casesPercentRecessive=" + casesPercentRecessive
@@ -463,29 +467,29 @@ public class VariantStats {
 
         for (Map.Entry<String, Map<String, String>> sample : samplesData.entrySet()) {
             String sampleName = sample.getKey();
-            Genotype g = new Genotype(sample.getValue().get("GT"));
+            Genotype g = new Genotype(sample.getValue().get("GT"), this.getRefAllele(), this.getAltAllele());
             this.addGenotype(g);
 
             // Check missing alleles and genotypes
             switch (g.getCode()) {
                 case ALLELES_OK:
                     // Both alleles set
-                    int genotypeCurrentPos = g.getAllele1() * (this.getNumAlleles()) + g.getAllele2();
+                    int genotypeCurrentPos = g.getAllele(0) * (this.getNumAlleles()) + g.getAllele(1);
 
-                    this.allelesCount[g.getAllele1()]++;
-                    this.allelesCount[g.getAllele2()]++;
+                    this.allelesCount[g.getAllele(0)]++;
+                    this.allelesCount[g.getAllele(1)]++;
                     this.genotypesCount[genotypeCurrentPos]++;
 
                     totalAllelesCount += 2;
                     totalGenotypesCount++;
 
                     // Counting genotypes for Hardy-Weinberg (all phenotypes)
-                    if (g.isAllele1Ref() && g.isAllele2Ref()) { // 0|0
+                    if (g.isAlleleRef(0) && g.isAlleleRef(1)) { // 0|0
                         this.getHw().incN_AA();
-                    } else if ((g.isAllele1Ref() && g.getAllele2() == 1) || (g.getAllele1() == 1 && g.isAllele2Ref())) {  // 0|1, 1|0
+                    } else if ((g.isAlleleRef(0) && g.getAllele(1) == 1) || (g.getAllele(0) == 1 && g.isAlleleRef(1))) {  // 0|1, 1|0
                         this.getHw().incN_Aa();
 
-                    } else if (g.getAllele1() == 1 && g.getAllele2() == 1) {
+                    } else if (g.getAllele(0) == 1 && g.getAllele(1) == 1) {
                         this.getHw().incN_aa();
                     }
 
@@ -493,27 +497,30 @@ public class VariantStats {
                 case HAPLOID:
                     // Haploid (chromosome X/Y)
                     try {
-                        this.allelesCount[g.getAllele1()]++;
+                        this.allelesCount[g.getAllele(0)]++;
                     } catch (ArrayIndexOutOfBoundsException e) {
                         System.out.println("vcfRecord = " + variant);
                         System.out.println("g = " + g);
                     }
                     totalAllelesCount++;
                     break;
+                case MULTIPLE_ALTERNATES:
+                    // Alternate with different "index" than the one that is being handled
+                    break;
                 default:
                     // Missing genotype (one or both alleles missing)
                     this.setMissingGenotypes(this.getMissingGenotypes() + 1);
-                    if (g.getAllele1() == null) {
+                    if (g.getAllele(0) < 0) {
                         this.setMissingAlleles(this.getMissingAlleles() + 1);
                     } else {
-                        this.allelesCount[g.getAllele1()]++;
+                        this.allelesCount[g.getAllele(0)]++;
                         totalAllelesCount++;
                     }
 
-                    if (g.getAllele2() == null) {
+                    if (g.getAllele(1) < 0) {
                         this.setMissingAlleles(this.getMissingAlleles() + 1);
                     } else {
-                        this.allelesCount[g.getAllele2()]++;
+                        this.allelesCount[g.getAllele(1)]++;
                         totalAllelesCount++;
                     }
                     break;
@@ -530,19 +537,19 @@ public class VariantStats {
                     if (g.getCode() == AllelesCode.ALLELES_OK) {
                         // Check inheritance models
                         if (ind.getCondition() == Condition.UNAFFECTED) {
-                            if (g.isAllele1Ref() && g.isAllele2Ref()) { // 0|0
+                            if (g.isAlleleRef(0) && g.isAlleleRef(1)) { // 0|0
                                 controlsDominant++;
                                 controlsRecessive++;
 
-                            } else if ((g.isAllele1Ref() && !g.isAllele2Ref()) || (!g.isAllele1Ref() || g.isAllele2Ref())) { // 0|1 or 1|0
+                            } else if ((g.isAlleleRef(0) && !g.isAlleleRef(1)) || (!g.isAlleleRef(0) || g.isAlleleRef(1))) { // 0|1 or 1|0
                                 controlsRecessive++;
 
                             }
                         } else if (ind.getCondition() == Condition.AFFECTED) {
-                            if (!g.isAllele1Ref() && !g.isAllele2Ref() && g.getAllele1().equals(g.getAllele2())) {// 1|1, 2|2, and so on
+                            if (!g.isAlleleRef(0) && !g.isAlleleRef(1) && g.getAllele(0) == g.getAllele(1)) {// 1|1, 2|2, and so on
                                 casesRecessive++;
                                 casesDominant++;
-                            } else if (!g.isAllele1Ref() || !g.isAllele2Ref()) { // 0|1, 1|0, 1|2, 2|1, 1|3, and so on
+                            } else if (!g.isAlleleRef(0) || !g.isAlleleRef(1)) { // 0|1, 1|0, 1|2, 2|1, 1|3, and so on
                                 casesDominant++;
 
                             }

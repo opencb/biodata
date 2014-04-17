@@ -1,5 +1,6 @@
 package org.opencb.biodata.models.variant;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;

@@ -48,22 +48,22 @@ public class StatsCalculator {
                     switch (g.getCode()) {
                         case ALLELES_OK:
                             // Both alleles set
-                            genotypeCurrentPos = g.getAllele1() * (vcfStat.getNumAlleles()) + g.getAllele2();
+                            genotypeCurrentPos = g.getAllele(0) * (vcfStat.getNumAlleles()) + g.getAllele(1);
 
-                            allelesCount[g.getAllele1()]++;
-                            allelesCount[g.getAllele2()]++;
+                            allelesCount[g.getAllele(0)]++;
+                            allelesCount[g.getAllele(1)]++;
                             genotypesCount[genotypeCurrentPos]++;
 
                             totalAllelesCount += 2;
                             totalGenotypesCount++;
 
                             // Counting genotypes for Hardy-Weinberg (all phenotypes)
-                            if (g.isAllele1Ref() && g.isAllele2Ref()) { // 0|0
+                            if (g.isAlleleRef(0) && g.isAlleleRef(1)) { // 0|0
                                 vcfStat.getHw().incN_AA();
-                            } else if ((g.isAllele1Ref() && g.getAllele2() == 1) || (g.getAllele1() == 1 && g.isAllele2Ref())) {  // 0|1, 1|0
+                            } else if ((g.isAlleleRef(0) && g.getAllele(1) == 1) || (g.getAllele(0) == 1 && g.isAlleleRef(1))) {  // 0|1, 1|0
                                 vcfStat.getHw().incN_Aa();
 
-                            } else if (g.getAllele1() == 1 && g.getAllele2() == 1) {
+                            } else if (g.getAllele(0) == 1 && g.getAllele(1) == 1) {
                                 vcfStat.getHw().incN_aa();
                             }
 
@@ -71,7 +71,7 @@ public class StatsCalculator {
                         case HAPLOID:
                             // Haploid (chromosome X/Y)
                             try {
-                                allelesCount[g.getAllele1()]++;
+                                allelesCount[g.getAllele(0)]++;
                             } catch (ArrayIndexOutOfBoundsException e) {
                                 System.out.println("vcfRecord = " + variant);
                                 System.out.println("g = " + g);
@@ -81,17 +81,17 @@ public class StatsCalculator {
                         default:
                             // Missing genotype (one or both alleles missing)
                             vcfStat.setMissingGenotypes(vcfStat.getMissingGenotypes() + 1);
-                            if (g.getAllele1() == null) {
+                            if (g.getAllele(0) < 0) {
                                 vcfStat.setMissingAlleles(vcfStat.getMissingAlleles() + 1);
                             } else {
-                                allelesCount[g.getAllele1()]++;
+                                allelesCount[g.getAllele(0)]++;
                                 totalAllelesCount++;
                             }
 
-                            if (g.getAllele2() == null) {
+                            if (g.getAllele(1) < 0) {
                                 vcfStat.setMissingAlleles(vcfStat.getMissingAlleles() + 1);
                             } else {
-                                allelesCount[g.getAllele2()]++;
+                                allelesCount[g.getAllele(1)]++;
                                 totalAllelesCount++;
                             }
                             break;
@@ -109,19 +109,19 @@ public class StatsCalculator {
                             if (g.getCode() == AllelesCode.ALLELES_OK) {
                                 // Check inheritance models
                                 if (ind.getCondition() == Condition.UNAFFECTED) {
-                                    if (g.isAllele1Ref() && g.isAllele2Ref()) { // 0|0
+                                    if (g.isAlleleRef(0) && g.isAlleleRef(1)) { // 0|0
                                         controlsDominant++;
                                         controlsRecessive++;
 
-                                    } else if ((g.isAllele1Ref() && !g.isAllele2Ref()) || (!g.isAllele1Ref() || g.isAllele2Ref())) { // 0|1 or 1|0
+                                    } else if ((g.isAlleleRef(0) && !g.isAlleleRef(1)) || (!g.isAlleleRef(0) || g.isAlleleRef(1))) { // 0|1 or 1|0
                                         controlsRecessive++;
 
                                     }
                                 } else if (ind.getCondition() == Condition.AFFECTED) {
-                                    if (!g.isAllele1Ref() && !g.isAllele2Ref() && g.getAllele1().equals(g.getAllele2())) {// 1|1, 2|2, and so on
+                                    if (!g.isAlleleRef(0) && !g.isAlleleRef(1) && g.getAllele(0) == g.getAllele(1)) {// 1|1, 2|2, and so on
                                         casesRecessive++;
                                         casesDominant++;
-                                    } else if (!g.isAllele1Ref() || !g.isAllele2Ref()) { // 0|1, 1|0, 1|2, 2|1, 1|3, and so on
+                                    } else if (!g.isAlleleRef(0) || !g.isAlleleRef(1)) { // 0|1, 1|0, 1|2, 2|1, 1|3, and so on
                                         casesDominant++;
 
                                     }
