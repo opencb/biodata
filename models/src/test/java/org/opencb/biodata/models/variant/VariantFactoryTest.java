@@ -93,6 +93,7 @@ public class VariantFactoryTest extends TestCase {
     }
     
     
+    
     public void testCreateVariant_Samples() {
         List<String> sampleNames = Arrays.asList("NA001", "NA002", "NA003", "NA004", "NA005");
         String[] fields = new String[] { "1", "10040", "rs123", "T", "C", ".", ".", ".", "GT", 
@@ -127,6 +128,67 @@ public class VariantFactoryTest extends TestCase {
         
         Variant getVar0 = result.get(0);
         assertEquals(var0.getFile(fileId).getSamplesData(), getVar0.getFile(fileId).getSamplesData());
+    }
+    
+    public void testCreateVariantFromVcfMultiallelicVariants_Samples() {
+        List<String> sampleNames = Arrays.asList("NA001", "NA002", "NA003", "NA004");
+        String[] fields = new String[] { "1", "123456", ".", "T", "C,G", "110", "PASS", ".", "GT:AD:DP:GQ:PL", 
+                                         "0/1:10,5:17:94:94,0,286", "0/2:3,8:15:43:222,0,43", 
+                                         "0/0:.:18:.:.", "0/2:7,6:13:99:162,0,180"}; // 4 samples
+        
+        // Initialize expected variants
+        Variant var0 = new Variant(fields[0], Integer.parseInt(fields[1]), Integer.parseInt(fields[1]), "G", "C");
+        ArchivedVariantFile file0 = new ArchivedVariantFile(fileName, fileId, studyId);
+        var0.addFile(file0);
+        
+        Variant var1 = new Variant(fields[0], Integer.parseInt(fields[1]), Integer.parseInt(fields[1]), "G", "T");
+        ArchivedVariantFile file1 = new ArchivedVariantFile(fileName, fileId, studyId);
+        var1.addFile(file1);
+        
+        
+        // Initialize expected samples
+        Map<String, String> na001 = new HashMap<>();
+        na001.put("GT", "T/C");
+        na001.put("AD", "10,5");
+        na001.put("DP", "17");
+        na001.put("GQ", "94");
+        na001.put("PL", "94,0,286");
+        Map<String, String> na002 = new HashMap<>();
+        na002.put("GT", "T/G");
+        na002.put("AD", "3,8");
+        na002.put("DP", "15");
+        na002.put("GQ", "43");
+        na002.put("PL", "222,0,43");
+        Map<String, String> na003 = new HashMap<>();
+        na003.put("GT", "T/T");
+        na003.put("AD", ".");
+        na003.put("DP", "18");
+        na003.put("GQ", ".");
+        na003.put("PL", ".");
+        Map<String, String> na004 = new HashMap<>();
+        na004.put("GT", "T/G");
+        na004.put("AD", "7,6");
+        na004.put("DP", "13");
+        na004.put("GQ", "99");
+        na004.put("PL", "162,0,180");
+        
+        var0.getFile(fileId).addSampleData(sampleNames.get(0), na001);
+        var0.getFile(fileId).addSampleData(sampleNames.get(2), na003);
+        
+        var1.getFile(fileId).addSampleData(sampleNames.get(1), na002);
+        var1.getFile(fileId).addSampleData(sampleNames.get(2), na003);
+        var1.getFile(fileId).addSampleData(sampleNames.get(3), na004);
+        
+        
+        // Check proper conversion of samples
+        List<Variant> result = VariantFactory.createVariantFromVcf(fileName, fileId, studyId, sampleNames, fields);
+        assertEquals(2, result.size());
+        
+        Variant getVar0 = result.get(0);
+        assertEquals(var0.getFile(fileId).getSamplesData(), getVar0.getFile(fileId).getSamplesData());
+        
+        Variant getVar1 = result.get(1);
+        assertEquals(var1.getFile(fileId).getSamplesData(), getVar1.getFile(fileId).getSamplesData());
     }
     
     public void testCreateVariantFromVcfCoLocatedVariants_Samples() {

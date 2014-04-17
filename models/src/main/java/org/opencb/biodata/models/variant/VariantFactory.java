@@ -161,26 +161,29 @@ public class VariantFactory {
                            formatField.equalsIgnoreCase("PL") ||
                            formatField.equalsIgnoreCase("GP")) {
                     // All-alleles present and not haploid
-                    if (genotype != null && 
+                    if (!sampleField.equals(".") && genotype != null && 
                             (genotype.getCode() == AllelesCode.ALLELES_OK || 
                              genotype.getCode() == AllelesCode.MULTIPLE_ALTERNATES)) {
                         String[] likelihoods = sampleField.split(",");
 
-                        // Get alleles index to work with: if both are the same alternate,
-                        // the combinations must be run with the reference allele.
-                        // Otherwise all GL reported would be alt/alt.
-                        int allele1 = genotype.getAllele(0);
-                        int allele2 = genotype.getAllele(1);
-                        if (genotype.getAllele(0) == genotype.getAllele(1) && genotype.getAllele(0) > 0) {
-                            allele1 = 0;
+                        // If only 3 likelihoods are represented, no transformation is needed
+                        if (likelihoods.length != 3) {
+                            // Get alleles index to work with: if both are the same alternate,
+                            // the combinations must be run with the reference allele.
+                            // Otherwise all GL reported would be alt/alt.
+                            int allele1 = genotype.getAllele(0);
+                            int allele2 = genotype.getAllele(1);
+                            if (genotype.getAllele(0) == genotype.getAllele(1) && genotype.getAllele(0) > 0) {
+                                allele1 = 0;
+                            }
+
+                            // Genotype likelihood must be distributed following similar criteria as genotypes
+                            String[] alleleLikelihoods = new String[3];
+                            alleleLikelihoods[0] = likelihoods[(int) (((float) allele1 * (allele1 + 1)) / 2) + allele1];
+                            alleleLikelihoods[1] = likelihoods[(int) (((float) allele2 * (allele2 + 1)) / 2) + allele1];
+                            alleleLikelihoods[2] = likelihoods[(int) (((float) allele2 * (allele2 + 1)) / 2) + allele2];
+                            sampleField = StringUtils.join(alleleLikelihoods, ",");
                         }
-                        
-                        // Genotype likelihood must be distributed following similar criteria as genotypes
-                        String[] alleleLikelihoods = new String[3];
-                        alleleLikelihoods[0] = likelihoods[(int) (((float) allele1 * (allele1 + 1)) / 2) + allele1];
-                        alleleLikelihoods[1] = likelihoods[(int) (((float) allele2 * (allele2 + 1)) / 2) + allele1];
-                        alleleLikelihoods[2] = likelihoods[(int) (((float) allele2 * (allele2 + 1)) / 2) + allele2];
-                        sampleField = StringUtils.join(alleleLikelihoods, ",");
                     }
                 }
                 
