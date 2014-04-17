@@ -13,8 +13,9 @@ import org.opencb.biodata.models.variant.stats.VariantGlobalStats;
  */
 public class VariantSource {
 
-    private String name;
+    private String filename;
     private String alias;
+    private String study;
     private String description;
     private List<String> authors;
     private List<String> samples; // names
@@ -26,9 +27,10 @@ public class VariantSource {
     // TEST
     private Map<String, Integer> consequenceTypes;
 
-    public VariantSource(String name, String alias, String description, List<String> authors, List<String> sources) {
-        this.name = name;
+    public VariantSource(String name, String alias, String study, String description, List<String> authors, List<String> sources) {
+        this.filename = name;
         this.alias = alias;
+        this.study = study;
         this.description = description;
         this.authors = authors;
         this.sources = sources;
@@ -39,12 +41,16 @@ public class VariantSource {
         this.consequenceTypes = new LinkedHashMap<>(20);
     }
 
+    public String getFilename() {
+        return filename;
+    }
+
     public String getAlias() {
         return alias;
     }
 
-    public void setAlias(String alias) {
-        this.alias = alias;
+    public String getStudy() {
+        return study;
     }
 
     public String getDescription() {
@@ -61,14 +67,6 @@ public class VariantSource {
 
     public void setSources(List<String> sources) {
         this.sources = sources;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public List<String> getSamples() {
@@ -126,7 +124,7 @@ public class VariantSource {
     @Override
     public String toString() {
         return "VariantStudy{" +
-                "name='" + name + '\'' +
+                "name='" + filename + '\'' +
                 ", alias='" + alias + '\'' +
                 ", description='" + description + '\'' +
                 ", authors=" + authors +
