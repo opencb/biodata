@@ -102,22 +102,24 @@ public class Genotype {
     }
 
     public String getGenotype() {
-        StringBuilder value = new StringBuilder(allelesIdx[0]);
+        StringBuilder value = new StringBuilder();
+        value.append(allelesIdx[0]);
         char separator = isPhased() ? '|' : '/';
         for (int i = 1; i < allelesIdx.length; i++) {
             value.append(separator);
-            value.append(allelesIdx[1]);
+            value.append(allelesIdx[i]);
         }
         return value.toString();
     }
     
     @Override
     public String toString() {
-        StringBuilder value = new StringBuilder(allelesIdx[0]);
+        StringBuilder value = new StringBuilder();
+        value.append(allelesIdx[0]);
         char separator = isPhased() ? '|' : '/';
         for (int i = 1; i < allelesIdx.length; i++) {
             value.append(separator);
-            value.append(allelesIdx[1]);
+            value.append(allelesIdx[i]);
         }
         value.append(" (REF=");
         value.append(reference);
