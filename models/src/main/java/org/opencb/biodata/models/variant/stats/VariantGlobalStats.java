@@ -102,18 +102,8 @@ public class VariantGlobalStats {
     }
 
     @Deprecated
-    public void setBiallelicsCount(int biallelicsCount) {
-        this.biallelicsCount = biallelicsCount;
-    }
-
-    @Deprecated
     public int getMultiallelicsCount() {
         return multiallelicsCount;
-    }
-
-    @Deprecated
-    public void setMultiallelicsCount(int multiallelicsCount) {
-        this.multiallelicsCount = multiallelicsCount;
     }
 
     
@@ -126,12 +116,6 @@ public class VariantGlobalStats {
         }
         if (stats.hasPassedFilters()) {
             passCount++;
-        }
-
-        if (stats.getNumAlleles() > 2) {
-            multiallelicsCount++;
-        } else if (stats.getNumAlleles() > 1) {
-            biallelicsCount++;
         }
 
         transitionsCount += stats.getTransitionsCount();
@@ -165,8 +149,6 @@ public class VariantGlobalStats {
                 + ", passCount=" + passCount
                 + ", transitionsCount=" + transitionsCount
                 + ", transversionsCount=" + transversionsCount
-//                + ", biallelicsCount=" + biallelicsCount
-//                + ", multiallelicsCount=" + multiallelicsCount
                 + ", accumQuality=" + accumQuality
                 + '}';
     }

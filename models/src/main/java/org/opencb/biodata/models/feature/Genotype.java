@@ -72,14 +72,26 @@ public class Genotype {
         return reference;
     }
 
+    void setReference(String reference) {
+        this.reference = reference;
+    }
+
     public String getAlternate() {
         return alternate;
     }
     
+    void setAlternate(String alternate) {
+        this.alternate = alternate;
+    }
+
     public int getAllele(int i) {
         return allelesIdx[i];
     }
     
+    void setAllelesIdx(int[] allelesIdx) {
+        this.allelesIdx = allelesIdx;
+    }
+
     public boolean isAlleleRef(int i) {
         return allelesIdx[i] == 0;
     }
@@ -88,8 +100,16 @@ public class Genotype {
         return phased;
     }
     
+    void setPhased(boolean phased) {
+        this.phased = phased;
+    }
+
     public AllelesCode getCode() {
         return code;
+    }
+
+    void setCode(AllelesCode code) {
+        this.code = code;
     }
 
     public Integer getCount() {
@@ -104,19 +124,7 @@ public class Genotype {
         this.count += count;
     }
 
-    public String getGenotype() {
-        StringBuilder value = new StringBuilder();
-        value.append(allelesIdx[0]);
-        char separator = isPhased() ? '|' : '/';
-        for (int i = 1; i < allelesIdx.length; i++) {
-            value.append(separator);
-            value.append(allelesIdx[i]);
-        }
-        return value.toString();
-    }
-    
-    @Override
-    public String toString() {
+    public String getGenotypeInfo() {
         StringBuilder value = new StringBuilder();
         value.append(allelesIdx[0]);
         char separator = isPhased() ? '|' : '/';
@@ -129,6 +137,18 @@ public class Genotype {
         value.append(", ALT=");
         value.append(alternate);
         value.append(")");
+        return value.toString();
+    }
+    
+    @Override
+    public String toString() {
+        StringBuilder value = new StringBuilder();
+        value.append(allelesIdx[0]);
+        char separator = isPhased() ? '|' : '/';
+        for (int i = 1; i < allelesIdx.length; i++) {
+            value.append(separator);
+            value.append(allelesIdx[i]);
+        }
         return value.toString();
     }
 

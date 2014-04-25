@@ -2,6 +2,8 @@ package org.opencb.biodata.models.variant.stats;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.opencb.biodata.models.feature.AllelesCode;
@@ -26,31 +28,24 @@ public class VariantStats {
     private String chromosome;
     private long position;
     private String refAllele;
-    @Deprecated
-    private String[] altAlleles;
     private String altAllele;
-    @Deprecated
-    private String id;
     
-    private int numAlleles;
-    private int[] allelesCount;
-    private int[] genotypesCount;
-    private List<Genotype> genotypes;
+    private int refAlleleCount;
+    private int altAlleleCount;
+    private Map<Genotype, Integer> genotypesCount;
+    
     private int missingAlleles;
     private int missingGenotypes;
     
-    private float[] allelesFreq;
-    private float[] genotypesFreq;
+    private float refAlleleFreq;
+    private float altAlleleFreq;
+    private Map<Genotype, Float> genotypesFreq;
     private float maf;
     private float mgf;
     private String mafAllele;
     private String mgfGenotype;
     
     private int mendelianErrors;
-//    @Deprecated
-//    private boolean isIndel;
-//    @Deprecated
-//    private boolean isSNP;
     private boolean passedFilters;
     
     private float casesPercentDominant;
@@ -67,29 +62,25 @@ public class VariantStats {
 
     public VariantStats() {
         this.chromosome = "";
+        this.position = (long) 0;
         this.refAllele = "";
-        this.altAlleles = null;
         this.altAllele = "";
 
         this.mafAllele = "";
         this.mgfGenotype = "";
-        this.position = (long) 0;
-        this.numAlleles = 0;
-        this.allelesCount = null;
-        this.genotypesCount = null;
+        this.refAlleleCount = this.altAlleleCount = 0;
+        this.refAlleleFreq = this.altAlleleFreq = 0.0f;
+        this.genotypesCount = new HashMap<>();
         this.missingAlleles = 0;
         this.missingGenotypes = 0;
         this.mendelianErrors = 0;
-        this.allelesFreq = null;
-        this.genotypesFreq = null;
+        this.genotypesFreq = new HashMap<>();
         this.maf = 0;
         this.mgf = 0;
         this.casesPercentDominant = 0;
         this.controlsPercentDominant = 0;
         this.casesPercentRecessive = 0;
         this.controlsPercentRecessive = 0;
-//        this.isIndel = false;
-        this.genotypes = new ArrayList<>((int) Math.pow(this.numAlleles, 2));
         this.transitionsCount = 0;
         this.transversionsCount = 0;
         this.hw = new VariantHardyWeinbergStats();
@@ -100,23 +91,18 @@ public class VariantStats {
         this.chromosome = variant.getChromosome();
         this.position = variant.getStart();
         this.refAllele = variant.getReference();
-        this.altAlleles = new String[] { variant.getAlternate() };
         this.altAllele = variant.getAlternate();
-        this.numAlleles = 2;
         
-        this.id = variant.getId();
-//        this.isIndel = variant.getType() == VariantType.INDEL;
-//        this.isSNP = variant.getType() == VariantType.SNV;
-
-        this.genotypes = new ArrayList<>((int) Math.pow(this.numAlleles, 2));
-        this.allelesCount = new int[numAlleles];
-        this.allelesFreq = new float[numAlleles];
-        this.genotypesCount = new int[(int) Math.pow(this.numAlleles, 2)];
-        this.genotypesFreq = new float[(int) Math.pow(this.numAlleles, 2)];
+        this.refAlleleCount = this.altAlleleCount = 0;
+        this.refAlleleFreq = this.altAlleleFreq = 0.0f;
+        this.genotypesCount = new HashMap<>();
+        this.genotypesFreq = new HashMap<>();
 
         this.missingAlleles = 0;
         this.missingGenotypes = 0;
         this.mendelianErrors = 0;
+        this.mafAllele = "";
+        this.mgfGenotype = "";
         this.maf = 0;
         this.mgf = 0;
 
@@ -136,16 +122,12 @@ public class VariantStats {
         this.chromosome = chromosome;
         this.position = position;
         this.refAllele = referenceAllele;
-        this.altAlleles = alternateAlleles.split(",");
         this.altAllele = alternateAlleles;
-//        this.numAlleles = 1 + this.altAlleles.length;
-        this.numAlleles = 2;
-
-        this.genotypes = new ArrayList<>((int) Math.pow(this.numAlleles, 2));
-        this.allelesCount = new int[numAlleles];
-        this.allelesFreq = new float[numAlleles];
-        this.genotypesCount = new int[(int) Math.pow(this.numAlleles, 2)];
-        this.genotypesFreq = new float[(int) Math.pow(this.numAlleles, 2)];
+        
+        this.refAlleleCount = this.altAlleleCount = 0;
+        this.refAlleleFreq = this.altAlleleFreq = 0.0f;
+        this.genotypesCount = new HashMap<>();
+        this.genotypesFreq = new HashMap<>();
 
         this.maf = (float) maf;
         this.mgf = (float) mgf;
@@ -155,7 +137,6 @@ public class VariantStats {
         this.missingAlleles = numMissingAlleles;
         this.missingGenotypes = numMissingGenotypes;
         this.mendelianErrors = numMendelErrors;
-//        this.isIndel = isIndel;
 
         this.casesPercentDominant = (float) percentCasesDominant;
         this.controlsPercentDominant = (float) percentControlsDominant;
@@ -184,22 +165,44 @@ public class VariantStats {
         return refAllele;
     }
 
-    @Deprecated
-    public String[] getAltAlleles() {
-        return altAlleles;
-    }
-
-    @Deprecated
-    public void setAltAlleles(String[] altAlleles) {
-        this.altAlleles = altAlleles;
-    }
-
     public String getAltAllele() {
         return altAllele;
     }
 
     public void setAltAllele(String altAllele) {
         this.altAllele = altAllele;
+    }
+
+    public int getRefAlleleCount() {
+        return refAlleleCount;
+    }
+
+    public void setRefAlleleCount(int refAlleleCount) {
+        this.refAlleleCount = refAlleleCount;
+    }
+
+    public int getAltAlleleCount() {
+        return altAlleleCount;
+    }
+
+    public void setAltAlleleCount(int altAlleleCount) {
+        this.altAlleleCount = altAlleleCount;
+    }
+
+    public float getRefAlleleFreq() {
+        return refAlleleFreq;
+    }
+
+    public void setRefAlleleFreq(float refAlleleFreq) {
+        this.refAlleleFreq = refAlleleFreq;
+    }
+
+    public float getAltAlleleFreq() {
+        return altAlleleFreq;
+    }
+
+    public void setAltAlleleFreq(float altAlleleFreq) {
+        this.altAlleleFreq = altAlleleFreq;
     }
     
     public String getMafAllele() {
@@ -218,43 +221,29 @@ public class VariantStats {
         this.mgfGenotype = mgfGenotype;
     }
 
-    public Integer getNumAlleles() {
-        return numAlleles;
-    }
-
-    public void setNumAlleles(int numAlleles) {
-        this.numAlleles = numAlleles;
-    }
-
-    public int[] getAllelesCount() {
-        return allelesCount;
-    }
-
-    public void setAllelesCount(int[] allelesCount) {
-        this.allelesCount = allelesCount;
-    }
-
-    public int[] getGenotypesCount() {
+    public Map<Genotype, Integer> getGenotypesCount() {
         return genotypesCount;
     }
 
-    public void setGenotypesCount(int[] genotypesCount) {
+    public void addGenotype(Genotype g) {
+        Integer count;
+        if (genotypesCount.containsKey(g)) {
+            count = genotypesCount.get(g) + 1;
+        } else {
+            count = 1;
+        }
+        genotypesCount.put(g, count);
+    }
+    
+    public void setGenotypesCount(Map<Genotype, Integer> genotypesCount) {
         this.genotypesCount = genotypesCount;
     }
 
-    public float[] getAllelesFreq() {
-        return allelesFreq;
-    }
-
-    public void setAllelesFreq(float[] allelesFreg) {
-        this.allelesFreq = allelesFreg;
-    }
-
-    public float[] getGenotypesFreq() {
+    public Map<Genotype, Float> getGenotypesFreq() {
         return genotypesFreq;
     }
 
-    public void setGenotypesFreq(float[] genotypesFreq) {
+    public void setGenotypesFreq(Map<Genotype, Float> genotypesFreq) {
         this.genotypesFreq = genotypesFreq;
     }
 
@@ -334,25 +323,6 @@ public class VariantStats {
         this.refAllele = refAllele;
     }
 
-    public List<Genotype> getGenotypes() {
-        return genotypes;
-    }
-
-    public void setGenotypes(List<Genotype> genotypes) {
-        this.genotypes = genotypes;
-    }
-
-    public void addGenotype(Genotype g) {
-        int index = genotypes.indexOf(g);
-        if (index >= 0) {
-            Genotype auxG = genotypes.get(index);
-            auxG.setCount(auxG.getCount() + 1);
-        } else {
-            g.setCount(g.getCount() + 1);
-            genotypes.add(g);
-        }
-    }
-
     public int getTransitionsCount() {
         return transitionsCount;
     }
@@ -374,22 +344,12 @@ public class VariantStats {
     }
 
     public boolean isIndel() {
-//        return isIndel;
         return variant.getType() == VariantType.INDEL;
     }
 
-//    public void setIndel(boolean indel) {
-//        this.isIndel = indel;
-//    }
-
     public boolean isSNP() {
-//        return isSNP;
         return variant.getType() == VariantType.SNV;
     }
-
-//    public void setSNP(boolean SNP) {
-//        isSNP = SNP;
-//    }
 
     public boolean hasPassedFilters() {
         return passedFilters;
@@ -415,36 +375,20 @@ public class VariantStats {
         this.numSamples = numSamples;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
     @Override
     public String toString() {
         return "VariantStats{"
                 + "chromosome='" + chromosome + '\''
                 + ", position=" + position
                 + ", refAllele='" + refAllele + '\''
-//                + ", altAlleles=" + Arrays.toString(altAlleles)
                 + ", altAllele='" + altAllele + '\''
                 + ", mafAllele='" + mafAllele + '\''
                 + ", mgfAllele='" + mgfGenotype + '\''
-//                + ", numAlleles=" + numAlleles
-                + ", allelesCount=" + Arrays.toString(allelesCount)
-                + ", genotypesCount=" + Arrays.toString(genotypesCount)
-                + ", genotypes=" + genotypes
-                + ", allelesFreq=" + Arrays.toString(allelesFreq)
-                + ", genotypesFreq=" + Arrays.toString(genotypesFreq)
                 + ", maf=" + maf
                 + ", mgf=" + mgf
                 + ", missingAlleles=" + missingAlleles
                 + ", missingGenotypes=" + missingGenotypes
                 + ", mendelinanErrors=" + mendelianErrors
-//                + ", isIndel=" + isIndel
                 + ", casesPercentDominant=" + casesPercentDominant
                 + ", controlsPercentDominant=" + controlsPercentDominant
                 + ", casesPercentRecessive=" + casesPercentRecessive
@@ -455,13 +399,11 @@ public class VariantStats {
     }
 
     public VariantStats calculate(Map<String, Map<String, String>> samplesData, Map<String, String> attributes, Pedigree pedigree) {
-        int totalAllelesCount = 0;
-        int totalGenotypesCount = 0;
+        int[] allelesCount = new int[2];
+        int totalAllelesCount = 0, totalGenotypesCount = 0;
 
-        float controlsDominant = 0;
-        float casesDominant = 0;
-        float controlsRecessive = 0;
-        float casesRecessive = 0;
+        float controlsDominant = 0, casesDominant = 0;
+        float controlsRecessive = 0, casesRecessive = 0;
 
         this.setNumSamples(samplesData.size());
 
@@ -474,11 +416,8 @@ public class VariantStats {
             switch (g.getCode()) {
                 case ALLELES_OK:
                     // Both alleles set
-                    int genotypeCurrentPos = g.getAllele(0) * (this.getNumAlleles()) + g.getAllele(1);
-
-                    this.allelesCount[g.getAllele(0)]++;
-                    this.allelesCount[g.getAllele(1)]++;
-                    this.genotypesCount[genotypeCurrentPos]++;
+                    allelesCount[g.getAllele(0)]++;
+                    allelesCount[g.getAllele(1)]++;
 
                     totalAllelesCount += 2;
                     totalGenotypesCount++;
@@ -497,7 +436,7 @@ public class VariantStats {
                 case HAPLOID:
                     // Haploid (chromosome X/Y)
                     try {
-                        this.allelesCount[g.getAllele(0)]++;
+                        allelesCount[g.getAllele(0)]++;
                     } catch (ArrayIndexOutOfBoundsException e) {
                         System.out.println("vcfRecord = " + variant);
                         System.out.println("g = " + g);
@@ -513,14 +452,14 @@ public class VariantStats {
                     if (g.getAllele(0) < 0) {
                         this.setMissingAlleles(this.getMissingAlleles() + 1);
                     } else {
-                        this.allelesCount[g.getAllele(0)]++;
+                        allelesCount[g.getAllele(0)]++;
                         totalAllelesCount++;
                     }
 
                     if (g.getAllele(1) < 0) {
                         this.setMissingAlleles(this.getMissingAlleles() + 1);
                     } else {
-                        this.allelesCount[g.getAllele(1)]++;
+                        allelesCount[g.getAllele(1)]++;
                         totalAllelesCount++;
                     }
                     break;
@@ -561,6 +500,10 @@ public class VariantStats {
             }
 
         }  // Finish all samples loop
+        
+        // Set counts for each allele
+        this.setRefAlleleCount(allelesCount[0]);
+        this.setAltAlleleCount(allelesCount[1]);
 
         // Calculate MAF and MGF
         this.calculateAlleleAndGenotypeFrequencies(totalAllelesCount, totalGenotypesCount);
@@ -615,58 +558,34 @@ public class VariantStats {
     }
 
     private void calculateAlleleAndGenotypeFrequencies(int totalAllelesCount, int totalGenotypesCount) {
-        String mgfGenotype = "";
-
-        float maf = Float.MAX_VALUE;
-        float mgf = Float.MAX_VALUE;
-        float currentGtFreq;
-
-        float[] allelesFreq = new float[this.getNumAlleles()];
-        float[] genotypesFreq = new float[this.getNumAlleles() * this.getNumAlleles()];
-
         // MAF
-        for (int i = 0; i < this.getNumAlleles(); i++) {
-            allelesFreq[i] = (totalAllelesCount > 0) ? this.getAllelesCount()[i] / (float) totalAllelesCount : 0;
-            if (allelesFreq[i] < maf) {
-                maf = allelesFreq[i];
-//                this.setMafAllele((i == 0) ? this.getRefAllele() : this.getAltAlleles()[i - 1]);
-                this.setMafAllele((i == 0) ? this.getRefAllele() : this.getAltAllele());
-            }
-        }
-
-        for (int i = 0; i < this.getNumAlleles() * this.getNumAlleles(); i++) {
-            genotypesFreq[i] = (totalGenotypesCount > 0) ? this.getGenotypesCount()[i] / (float) totalGenotypesCount : 0;
+        refAlleleFreq = (totalAllelesCount > 0) ? refAlleleCount / (float) totalAllelesCount : 0;
+        altAlleleFreq = (totalAllelesCount > 0) ? altAlleleCount / (float) totalAllelesCount : 0;
+        if (refAlleleFreq <= altAlleleFreq) {
+            this.setMaf(refAlleleFreq);
+            this.setMafAllele(refAllele);
+        } else {
+            this.setMaf(altAlleleFreq);
+            this.setMafAllele(altAllele);
         }
 
         // MGF
-        for (int i = 0; i < this.getNumAlleles(); i++) {
-            for (int j = 0; j < this.getNumAlleles(); j++) {
-                int idx1 = i * this.getNumAlleles() + j;
-                if (i == j) {
-                    currentGtFreq = genotypesFreq[idx1];
-                } else {
-                    int idx2 = j * this.getNumAlleles() + i;
-                    currentGtFreq = genotypesFreq[idx1] + genotypesFreq[idx2];
-                }
-
-                if (currentGtFreq < mgf) {
-//                    String firstAllele = (i == 0) ? this.getRefAllele() : this.getAltAlleles()[i - 1];
-//                    String secondAllele = (j == 0) ? this.getRefAllele() : this.getAltAlleles()[j - 1];
-                    String firstAllele = (i == 0) ? this.getRefAllele() : this.getAltAllele();
-                    String secondAllele = (j == 0) ? this.getRefAllele() : this.getAltAllele();
-                    mgfGenotype = firstAllele + "/" + secondAllele;
-                    mgf = currentGtFreq;
-
-                }
+        float currMgf = Float.MAX_VALUE;
+        Genotype currMgfGenotype = null;
+        for (Map.Entry<Genotype, Integer> gtCount : genotypesCount.entrySet()) {
+            float freq = (totalGenotypesCount > 0) ? gtCount.getValue() / (float) totalGenotypesCount : 0;
+            genotypesFreq.put(gtCount.getKey(), freq);
+            if (freq < currMgf) {
+                currMgf = freq;
+                currMgfGenotype = gtCount.getKey();
             }
         }
-
-        this.setMaf(maf);
-        this.setMgf(mgf);
-        this.setMgfGenotype(mgfGenotype);
-
-        this.setAllelesFreq(allelesFreq);
-        this.setGenotypesFreq(genotypesFreq);
+        
+        if (currMgfGenotype != null) {
+            this.setMgf(currMgf);
+            this.setMgfGenotype(currMgfGenotype.toString());
+        }
+        
     }
 
     private void calculateTransitionsAndTransversions(String reference, String alternate) {
