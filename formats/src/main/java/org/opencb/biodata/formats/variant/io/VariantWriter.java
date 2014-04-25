@@ -1,4 +1,4 @@
-package org.opencb.biodata.formats.variant.vcf4.io;
+package org.opencb.biodata.formats.variant.io;
 
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.commons.io.DataWriter;

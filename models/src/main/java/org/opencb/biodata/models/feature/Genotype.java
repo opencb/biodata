@@ -19,6 +19,9 @@ public class Genotype {
     
     private int count;
 
+    Genotype() {
+    }
+    
     public Genotype(String genotype) {
         this(genotype, null, null);
     }

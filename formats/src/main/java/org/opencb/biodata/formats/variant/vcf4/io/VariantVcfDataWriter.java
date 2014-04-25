@@ -1,6 +1,8 @@
 package org.opencb.biodata.formats.variant.vcf4.io;
 
 
+import org.opencb.biodata.formats.variant.io.VariantReader;
+import org.opencb.biodata.formats.variant.io.VariantWriter;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.List;

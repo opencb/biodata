@@ -1,5 +1,6 @@
 package org.opencb.biodata.formats.variant.vcf4.io;
 
+import org.opencb.biodata.formats.variant.io.VariantReader;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 
@@ -54,8 +55,9 @@ public class VariantVcfReader implements VariantReader {
                 this.reader = Files.newBufferedReader(path, Charset.defaultCharset());
             }
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ex) {
+            Logger.getLogger(VariantVcfReader.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
         }
 
         return true;
@@ -66,8 +68,9 @@ public class VariantVcfReader implements VariantReader {
 
         try {
             processHeader();
-        } catch (IOException | FileFormatException e) {
-            e.printStackTrace();
+        } catch (IOException | FileFormatException ex) {
+            Logger.getLogger(VariantVcfReader.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
         }
 
         return true;
@@ -77,8 +80,9 @@ public class VariantVcfReader implements VariantReader {
     public boolean close() {
         try {
             reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ex) {
+            Logger.getLogger(VariantVcfReader.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
         }
         return true;
     }
@@ -92,9 +96,8 @@ public class VariantVcfReader implements VariantReader {
     public Variant read() {
         String line;
         try {
-            while ((line = reader.readLine()) != null && (line.trim().equals("") || line.startsWith("#"))) {
-                ;
-            }
+            while ((line = reader.readLine()) != null && (line.trim().equals("") || line.startsWith("#")));
+            
             if (line != null) {
                 String[] fields = line.split("\t");
                 Variant variant;
@@ -109,8 +112,8 @@ public class VariantVcfReader implements VariantReader {
 
                 return variant;
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ex) {
+            Logger.getLogger(VariantVcfReader.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         return null;

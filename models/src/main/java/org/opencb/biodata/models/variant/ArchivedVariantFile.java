@@ -54,6 +54,7 @@ public class ArchivedVariantFile {
      */
     private Map<String, String> attributes;
 
+    ArchivedVariantFile() { }
     
     public ArchivedVariantFile(String fileName, String fileId, String studyId) {
         this.fileName = fileName;

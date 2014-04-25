@@ -120,6 +120,12 @@ public class Variant {
 //    private Map<String, String> attributes;
 
     
+    Variant() {
+        this.chromosome = "";
+        this.reference = "";
+        this.alternate = "";
+    }
+    
     public Variant(String chromosome, int start, int end, String reference, String alternate) {
         if (start > end) {
             throw new IllegalArgumentException("End position must be greater than the start position");
