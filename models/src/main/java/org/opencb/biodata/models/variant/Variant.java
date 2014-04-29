@@ -10,12 +10,14 @@ import org.opencb.biodata.models.variant.stats.VariantStats;
  */
 public class Variant {
     
+    public static final int SV_THRESHOLD = 50;
+    
     /**
      * Type of variation, which depends mostly on its length.
      * <ul>
      *  <li>SNVs involve a single nucleotide</li>
-     *  <li>Indels are insertions or deletions of less than 50 nucleotides</li>
-     *  <li>Structural variations are large changes of more than 50 nucleotides</li>
+     *  <li>Indels are insertions or deletions of less than SV_THRESHOLD (50) nucleotides</li>
+     *  <li>Structural variations are large changes of more than SV_THRESHOLD nucleotides</li>
      *  <li>Copy-number variations alter the number of copies of a region</li>
      * </ul>
      */
@@ -140,7 +142,7 @@ public class Variant {
         this.length = Math.max(this.reference.length(), this.alternate.length());
         if (this.reference.length() == this.alternate.length()) {
             this.type = VariantType.SNV;
-        } else if (this.length <= 50) {
+        } else if (this.length <= SV_THRESHOLD) {
             /*
             * 3 possibilities for being an INDEL:
             * - The value of the ALT field is <DEL> or <INS>

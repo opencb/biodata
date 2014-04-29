@@ -59,5 +59,15 @@
       <artifactId>models</artifactId>
       <version>0.1</version>
     </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>16.0.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opencb.commons</groupId>
+      <artifactId>commons-lib</artifactId>
+      <version>1.0.0</version>
+    </dependency>
   </dependencies>
 </project>
