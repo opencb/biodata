@@ -156,7 +156,9 @@ public class Variant {
         }
         
         this.hgvs = new HashMap<>();
-        this.hgvs.put("genomic", Arrays.asList(chromosome + ":g." + start + reference + ">" + alternate));
+        if (this.type == VariantType.SNV) { // Generate HGVS code only for SNVs
+            this.hgvs.put("genomic", Arrays.asList(chromosome + ":g." + start + reference + ">" + alternate));
+        }
         
         this.files = new HashMap<>();
 //        this.samplesData = new LinkedHashMap<>();
