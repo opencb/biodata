@@ -150,9 +150,17 @@ public class VariantFactory {
                         
                         // Replace numerical indexes with the bases
                         // TODO Could this be done with Java 8 streams? :)
-                        sampleField = sampleField.replace("0", variant.getReference());
+//                        sampleField = sampleField.replace("0", variant.getReference());
+//                        for (int k = 0; k < alternateAlleles.length; k++) {
+//                            sampleField = sampleField.replace(String.valueOf(k+1), alternateAlleles[k]);
+//                        }
+                        // Replace numerical indexes when they refer to another alternate allele
                         for (int k = 0; k < alternateAlleles.length; k++) {
-                            sampleField = sampleField.replace(String.valueOf(k+1), alternateAlleles[k]);
+                            if (k+1 != alleleIdx) {
+                                sampleField = sampleField.replace(String.valueOf(k+1), alternateAlleles[k]);
+                            } else {
+                                sampleField = sampleField.replace(String.valueOf(k+1), "1");
+                            }
                         }
                     } else {
                         break;

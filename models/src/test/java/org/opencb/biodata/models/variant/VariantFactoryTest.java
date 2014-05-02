@@ -106,15 +106,15 @@ public class VariantFactoryTest extends TestCase {
         
         // Initialize expected samples
         Map<String, String> na001 = new HashMap<>();
-        na001.put("GT", "T/T");
+        na001.put("GT", "0/0");
         Map<String, String> na002 = new HashMap<>();
-        na002.put("GT", "T/C");
+        na002.put("GT", "0/1");
         Map<String, String> na003 = new HashMap<>();
-        na003.put("GT", "T/.");
+        na003.put("GT", "0/.");
         Map<String, String> na004 = new HashMap<>();
-        na004.put("GT", "./C");
+        na004.put("GT", "./1");
         Map<String, String> na005 = new HashMap<>();
-        na005.put("GT", "C/C");
+        na005.put("GT", "1/1");
         
         var0.getFile(fileId).addSampleData(sampleNames.get(0), na001);
         var0.getFile(fileId).addSampleData(sampleNames.get(1), na002);
@@ -148,25 +148,25 @@ public class VariantFactoryTest extends TestCase {
         
         // Initialize expected samples
         Map<String, String> na001 = new HashMap<>();
-        na001.put("GT", "T/C");
+        na001.put("GT", "0/1");
         na001.put("AD", "10,5");
         na001.put("DP", "17");
         na001.put("GQ", "94");
         na001.put("PL", "94,0,286");
         Map<String, String> na002 = new HashMap<>();
-        na002.put("GT", "T/G");
+        na002.put("GT", "0/1");
         na002.put("AD", "3,8");
         na002.put("DP", "15");
         na002.put("GQ", "43");
         na002.put("PL", "222,0,43");
         Map<String, String> na003 = new HashMap<>();
-        na003.put("GT", "T/T");
+        na003.put("GT", "0/0");
         na003.put("AD", ".");
         na003.put("DP", "18");
         na003.put("GQ", ".");
         na003.put("PL", ".");
         Map<String, String> na004 = new HashMap<>();
-        na004.put("GT", "T/G");
+        na004.put("GT", "0/1");
         na004.put("AD", "7,6");
         na004.put("DP", "13");
         na004.put("GQ", "99");
@@ -208,32 +208,35 @@ public class VariantFactoryTest extends TestCase {
         
         // Initialize expected samples
         Map<String, String> na001 = new HashMap<>();
-        na001.put("GT", "T/T");
+        na001.put("GT", "0/0");
         na001.put("GL", "1,1,1");
         Map<String, String> na002 = new HashMap<>();
-        na002.put("GT", "T/C");
+        na002.put("GT", "0/1");
         na002.put("GL", "1,2,3");
         Map<String, String> na003 = new HashMap<>();
-        na003.put("GT", "T/GC");
+        na003.put("GT", "0/1");
         na003.put("GL", "1,4,6");
         Map<String, String> na004 = new HashMap<>();
-        na004.put("GT", "C/C");
+        na004.put("GT", "1/1");
         na004.put("GL", "1,2,3");
-        Map<String, String> na005 = new HashMap<>();
-        na005.put("GT", "C/GC");
-        na005.put("GL", "3,5,6");
+        Map<String, String> na005_C = new HashMap<>();
+        na005_C.put("GT", "1/GC");
+        na005_C.put("GL", "3,5,6");
+        Map<String, String> na005_GC = new HashMap<>();
+        na005_GC.put("GT", "C/1");
+        na005_GC.put("GL", "3,5,6");
         Map<String, String> na006 = new HashMap<>();
-        na006.put("GT", "GC/GC");
+        na006.put("GT", "1/1");
         na006.put("GL", "1,4,6");
         
         var0.getFile(fileId).addSampleData(sampleNames.get(0), na001);
         var0.getFile(fileId).addSampleData(sampleNames.get(1), na002);
         var0.getFile(fileId).addSampleData(sampleNames.get(3), na004);
-        var0.getFile(fileId).addSampleData(sampleNames.get(4), na005);
+        var0.getFile(fileId).addSampleData(sampleNames.get(4), na005_C);
         
         var1.getFile(fileId).addSampleData(sampleNames.get(0), na001);
         var1.getFile(fileId).addSampleData(sampleNames.get(2), na003);
-        var1.getFile(fileId).addSampleData(sampleNames.get(4), na005);
+        var1.getFile(fileId).addSampleData(sampleNames.get(4), na005_GC);
         var1.getFile(fileId).addSampleData(sampleNames.get(5), na006);
         
         // Check proper conversion of samples
