@@ -27,5 +27,48 @@ public class RegulatoryEffect {
      * List of cell types and classifications for regulatory feature
      */
     private String cellType;
+
+    public RegulatoryEffect() {
+    }
+
+    public RegulatoryEffect(String motifName, int motifPosition, boolean highInformationPosition, String cellType) {
+        this.motifName = motifName;
+        this.motifPosition = motifPosition;
+        this.highInformationPosition = highInformationPosition;
+        this.cellType = cellType;
+    }
+
+    public String getMotifName() {
+        return motifName;
+    }
+
+    public void setMotifName(String motifName) {
+        this.motifName = motifName;
+    }
+
+    public int getMotifPosition() {
+        return motifPosition;
+    }
+
+    public void setMotifPosition(int motifPosition) {
+        this.motifPosition = motifPosition;
+    }
+
+    public boolean isHighInformationPosition() {
+        return highInformationPosition;
+    }
+
+    public void setHighInformationPosition(boolean highInformationPosition) {
+        this.highInformationPosition = highInformationPosition;
+    }
+
+    public String getCellType() {
+        return cellType;
+    }
+
+    public void setCellType(String cellType) {
+        this.cellType = cellType;
+    }
+    
     
 }

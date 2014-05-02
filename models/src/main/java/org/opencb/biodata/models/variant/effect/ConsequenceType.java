@@ -12,6 +12,9 @@ import java.util.Objects;
  */
 public class ConsequenceType {
 
+    /**
+     * Alternate allele
+     */
     private String allele;
 
     /**
