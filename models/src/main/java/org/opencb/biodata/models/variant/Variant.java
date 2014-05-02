@@ -36,7 +36,7 @@ public class Variant {
     /**
      * Position where the genomic variation starts.
      * <ul>
-     *  <li>SNVs have the same start and end positions</li>
+     *  <li>SNVs have the same start and end position</li>
      *  <li>Insertions start in the last present position: if the first nucleotide 
      * is inserted in position 6, the start is position 5</li>
      *  <li>Deletions start in the first previously present position: if the first 
@@ -93,18 +93,6 @@ public class Variant {
     private Map<String, ArchivedVariantFile> files;
     
 //    /**
-//     * Fields stored for each sample.
-//     */
-//    private String format;
-//    
-//    /**
-//     * Genotypes and other sample-related information. The keys are the names
-//     * of the samples. The values are pairs (field name, field value), such as
-//     * (GT, A/C).
-//     */
-//    private Map<String, Map<String, String>> samplesData;
-//    
-//    /**
 //     * Statistics of the genomic variation, such as its alleles/genotypes count 
 //     * or its minimum allele frequency.
 //     */
@@ -114,12 +102,6 @@ public class Variant {
      * Possible effects of the genomic variation.
      */
     private List<VariantEffect> effect;
-
-//    /**
-//     * Optional attributes that probably depend on the format of the file the
-//     * variant was initially read.
-//     */
-//    private Map<String, String> attributes;
 
     
     Variant() {
@@ -161,9 +143,7 @@ public class Variant {
         }
         
         this.files = new HashMap<>();
-//        this.samplesData = new LinkedHashMap<>();
         this.effect = new LinkedList<>();
-//        this.attributes = new LinkedHashMap<>();
     }
 
     public VariantType getType() {
@@ -284,26 +264,6 @@ public class Variant {
         this.files.put(file.getFileId(), file);
     }
     
-//    public String getFormat() {
-//        return format;
-//    }
-//
-//    public void setFormat(String format) {
-//        this.format = format;
-//    }
-//
-//    public Map<String, Map<String, String>> getSamplesData() {
-//        return samplesData;
-//    }
-//
-//    public Map<String, String> getSampleData(String sampleName) {
-//        return samplesData.get(sampleName);
-//    }
-//
-//    public VariantStats getStats() {
-//        return stats;
-//    }
-
     public VariantStats getStats(String fileId) {
         ArchivedVariantFile file = files.get(fileId);
         if (file == null) {
@@ -315,7 +275,7 @@ public class Variant {
 //    public void setStats(VariantStats stats) {
 //        this.stats = stats;
 //    }
-//
+    
     public List<VariantEffect> getEffect() {
         return effect;
     }
@@ -327,35 +287,7 @@ public class Variant {
     public boolean addEffect(VariantEffect e) {
         return this.effect.add(e);
     }
-
-//    public Map<String, String> getAttributes() {
-//        return attributes;
-//    }
-//
-//    public void setAttributes(Map<String, String> attributes) {
-//        this.attributes = attributes;
-//    }
-//
-//    public void addAttribute(String key, String value) {
-//        this.attributes.put(key, value);
-//    }
-//
-//    public String getAttribute(String key) {
-//        return this.attributes.get(key);
-//    }
-//
-//    public boolean hasAttribute(String key) {
-//        return this.attributes.containsKey(key);
-//    }
-//
-//    public void addSampleData(String sampleName, Map<String, String> sampleData) {
-//        this.samplesData.put(sampleName, sampleData);
-//    }
-//
-//    public String getSampleData(String sampleName, String field) {
-//        return this.samplesData.get(sampleName).get(field.toUpperCase());
-//    }
-
+    
     public Iterable<String> getSampleNames(String fileId) {
         ArchivedVariantFile file = files.get(fileId);
         if (file == null) {
