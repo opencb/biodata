@@ -10,6 +10,7 @@ import com.google.common.base.Joiner;
 import org.opencb.biodata.models.variant.ArchivedVariantFile;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantSource;
+import org.opencb.biodata.models.variant.effect.ConsequenceType;
 import org.opencb.biodata.models.variant.effect.VariantEffect;
 import org.opencb.biodata.tools.variant.EffectCalculator;
 
@@ -47,13 +48,15 @@ public class VariantGeneNameAnnotator implements VariantAnnotator {
 
     private void annotVariantEffect(Variant variant, ArchivedVariantFile file, List<VariantEffect> batchEffect) {
         Set<String> geneNames = new HashSet<>();
+
         for (VariantEffect effect : batchEffect) {
             if (variant.getChromosome().equals(effect.getChromosome())
-                    && variant.getStart() == effect.getPosition()
-                    && variant.getReference().equals(effect.getReferenceAllele())
-                    && variant.getAlternate().equals(effect.getAlternativeAllele())) {
+                    && variant.getStart() == effect.getStart()
+                    && variant.getReference().equals(effect.getReferenceAllele())) {
 
-                geneNames.add(effect.getGeneName());
+                for (ConsequenceType ct : effect.getConsequenceTypes().values()) {
+                    geneNames.add(ct.getGeneName());
+                }
             }
         }
 
@@ -61,7 +64,6 @@ public class VariantGeneNameAnnotator implements VariantAnnotator {
 
         if (geneNames.size() > 0) {
             file.addAttribute("GeneNames", geneNamesAll);
-//            variant.addInfoField("GeneNames=" + geneNamesAll);
         }
 
     }

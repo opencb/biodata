@@ -9,6 +9,8 @@ import java.util.Set;
 import org.opencb.biodata.models.variant.ArchivedVariantFile;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantSource;
+import org.opencb.biodata.models.variant.effect.ConsequenceType;
+import org.opencb.biodata.models.variant.effect.ConsequenceTypeMappings;
 import org.opencb.biodata.models.variant.effect.VariantEffect;
 import org.opencb.biodata.tools.variant.EffectCalculator;
 
@@ -45,20 +47,23 @@ public class VariantConsequenceTypeAnnotator implements VariantAnnotator {
     }
 
     private void annotVariantEffect(Variant variant, ArchivedVariantFile file, List<VariantEffect> batchEffect) {
-        Set<String> ct = new HashSet<>();
+        Set<String> cts = new HashSet<>();
         for (VariantEffect effect : batchEffect) {
             if (variant.getChromosome().equals(effect.getChromosome())
-                    && variant.getStart() == effect.getPosition()
-                    && variant.getReference().equals(effect.getReferenceAllele())
-                    && variant.getAlternate().equals(effect.getAlternativeAllele())) {
-                ct.add(effect.getConsequenceTypeObo());
+                    && variant.getStart() == effect.getStart()
+                    && variant.getReference().equals(effect.getReferenceAllele())) {
+                
+                for (ConsequenceType ct : effect.getConsequenceTypes().values()) {
+                    for (int so : ct.getConsequenceTypes()) {
+                        cts.add(ConsequenceTypeMappings.accessionToTerm.get(so));
+                    }
+                }
             }
         }
 
-        String ct_all = Joiner.on(",").join(ct);
-        if (ct.size() > 0) {
-//            variant.addInfoField("ConsType=" + ct_all);
-            file.addAttribute("ConsType", ct_all); // TODO aaleman: Check this code
+        String ct_all = Joiner.on(",").join(cts);
+        if (cts.size() > 0) {
+            file.addAttribute("ConsType", ct_all);
         }
     }
 

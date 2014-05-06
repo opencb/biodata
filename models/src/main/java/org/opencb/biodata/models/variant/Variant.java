@@ -1,6 +1,7 @@
 package org.opencb.biodata.models.variant;
 
 import java.util.*;
+import org.opencb.biodata.models.variant.effect.ConsequenceType;
 import org.opencb.biodata.models.variant.effect.VariantEffect;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
@@ -113,7 +114,7 @@ public class Variant {
     /**
      * Possible effects of the genomic variation.
      */
-    private List<VariantEffect> effect;
+    private VariantEffect effect;
 
 //    /**
 //     * Optional attributes that probably depend on the format of the file the
@@ -162,7 +163,8 @@ public class Variant {
         
         this.files = new HashMap<>();
 //        this.samplesData = new LinkedHashMap<>();
-        this.effect = new LinkedList<>();
+//        this.effect = new LinkedList<>();
+        this.effect = new VariantEffect(this.chromosome, this.start, this.end, this.reference);
 //        this.attributes = new LinkedHashMap<>();
     }
 
@@ -315,17 +317,17 @@ public class Variant {
 //    public void setStats(VariantStats stats) {
 //        this.stats = stats;
 //    }
-//
-    public List<VariantEffect> getEffect() {
+    
+    public VariantEffect getEffect() {
         return effect;
     }
 
-    public void setEffect(List<VariantEffect> effect) {
+    public void setEffect(VariantEffect effect) {
         this.effect = effect;
     }
-
-    public boolean addEffect(VariantEffect e) {
-        return this.effect.add(e);
+    
+    public void addEffect(String allele, ConsequenceType ct) {
+        effect.addConsequenceType(allele, ct);
     }
 
 //    public Map<String, String> getAttributes() {
