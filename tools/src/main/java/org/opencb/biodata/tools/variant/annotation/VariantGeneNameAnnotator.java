@@ -54,8 +54,10 @@ public class VariantGeneNameAnnotator implements VariantAnnotator {
                     && variant.getStart() == effect.getStart()
                     && variant.getReference().equals(effect.getReferenceAllele())) {
 
-                for (ConsequenceType ct : effect.getConsequenceTypes().values()) {
-                    geneNames.add(ct.getGeneName());
+                for (List<ConsequenceType> list : effect.getConsequenceTypes().values()) {
+                    for (ConsequenceType ct : list) {
+                        geneNames.add(ct.getGeneName());
+                    }
                 }
             }
         }

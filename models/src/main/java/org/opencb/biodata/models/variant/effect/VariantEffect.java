@@ -1,6 +1,8 @@
 package org.opencb.biodata.models.variant.effect;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -18,7 +20,7 @@ public class VariantEffect {
     
     private String referenceAllele;
     
-    private Map<String, ConsequenceType> consequenceTypes;
+    private Map<String, List<ConsequenceType>> consequenceTypes;
     
     private Frequencies frequencies;
     
@@ -75,16 +77,24 @@ public class VariantEffect {
         this.referenceAllele = referenceAllele;
     }
 
-    public Map<String, ConsequenceType> getConsequenceTypes() {
+    public Map<String, List<ConsequenceType>> getConsequenceTypes() {
         return consequenceTypes;
     }
 
-    public void setConsequenceTypes(Map<String, ConsequenceType> consequenceTypes) {
+    public void setConsequenceTypes(Map<String, List<ConsequenceType>> consequenceTypes) {
         this.consequenceTypes = consequenceTypes;
     }
 
     public void addConsequenceType(String key, ConsequenceType consequenceType) {
-        consequenceTypes.put(key, consequenceType);
+        List<ConsequenceType> ct = consequenceTypes.get(key);
+        if (ct == null) {
+            ct = new ArrayList<>();
+            consequenceTypes.put(key, ct);
+        }
+        
+        ct.add(consequenceType);
+        
+//        consequenceTypes.put(key, consequenceType);
     }
     
     public Frequencies getFrequencies() {

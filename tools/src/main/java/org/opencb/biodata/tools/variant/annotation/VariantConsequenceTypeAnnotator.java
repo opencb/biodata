@@ -53,9 +53,11 @@ public class VariantConsequenceTypeAnnotator implements VariantAnnotator {
                     && variant.getStart() == effect.getStart()
                     && variant.getReference().equals(effect.getReferenceAllele())) {
                 
-                for (ConsequenceType ct : effect.getConsequenceTypes().values()) {
-                    for (int so : ct.getConsequenceTypes()) {
-                        cts.add(ConsequenceTypeMappings.accessionToTerm.get(so));
+                for (List<ConsequenceType> list : effect.getConsequenceTypes().values()) {
+                    for (ConsequenceType ct : list) {
+                        for (int so : ct.getConsequenceTypes()) {
+                            cts.add(ConsequenceTypeMappings.accessionToTerm.get(so));
+                        }
                     }
                 }
             }

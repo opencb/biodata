@@ -140,14 +140,17 @@ public class ConsequenceType {
     /**
      * Clinical significance of variant from dbSNP
      */
-    private String[] clinicalSignificance;
+    private String clinicalSignificance;
             
     /**
      * Pubmed ID(s) of publications that cite existing variant
      */
     private String[] pubmed;
 
-    public ConsequenceType() {
+    ConsequenceType() { }
+    
+    public ConsequenceType(String allele) {
+        this.allele = allele;
     }
 
     public String getAllele() {
@@ -350,11 +353,11 @@ public class ConsequenceType {
         this.variantToTranscriptDistance = variantToTranscriptDistance;
     }
 
-    public String[] getClinicalSignificance() {
+    public String getClinicalSignificance() {
         return clinicalSignificance;
     }
 
-    public void setClinicalSignificance(String[] clinicalSignificance) {
+    public void setClinicalSignificance(String clinicalSignificance) {
         this.clinicalSignificance = clinicalSignificance;
     }
 

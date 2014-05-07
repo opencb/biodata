@@ -3,8 +3,6 @@ package org.opencb.biodata.models.variant.effect;
 /**
  *
  * @author Cristina Yenyxe Gonzalez Garcia <cyenyxe@ebi.ac.uk>
- * 
- * MOTIF_SCORE_CHANGE - The difference in motif score of the reference and variant sequences for the TFBP
  */
 public class RegulatoryEffect {
     
@@ -19,6 +17,11 @@ public class RegulatoryEffect {
     private int motifPosition;
     
     /**
+     * Difference in motif score of the reference and variant sequences for the TFBP
+     */
+    private float motifScoreChange;
+    
+    /**
      * If the variant falls in a high information position of a transcription factor binding profile (TFBP)
      */
     private boolean highInformationPosition;
@@ -28,12 +31,12 @@ public class RegulatoryEffect {
      */
     private String cellType;
 
-    public RegulatoryEffect() {
-    }
+    RegulatoryEffect() { }
 
-    public RegulatoryEffect(String motifName, int motifPosition, boolean highInformationPosition, String cellType) {
+    public RegulatoryEffect(String motifName, int motifPosition, float motifScoreChange, boolean highInformationPosition, String cellType) {
         this.motifName = motifName;
         this.motifPosition = motifPosition;
+        this.motifScoreChange = motifScoreChange;
         this.highInformationPosition = highInformationPosition;
         this.cellType = cellType;
     }
@@ -52,6 +55,14 @@ public class RegulatoryEffect {
 
     public void setMotifPosition(int motifPosition) {
         this.motifPosition = motifPosition;
+    }
+
+    public float getMotifScoreChange() {
+        return motifScoreChange;
+    }
+
+    public void setMotifScoreChange(float motifScoreChange) {
+        this.motifScoreChange = motifScoreChange;
     }
 
     public boolean isHighInformationPosition() {

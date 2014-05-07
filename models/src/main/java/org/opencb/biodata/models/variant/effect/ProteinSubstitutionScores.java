@@ -6,40 +6,39 @@ package org.opencb.biodata.models.variant.effect;
  */
 public class ProteinSubstitutionScores {
     
-    public enum PolyphenEffect { DAMAGING, POSSIBLY_DAMAGING, BENING, UNKNOWN};
+    public enum PolyphenEffect { DAMAGING, POSSIBLY_DAMAGING, BENIGN, UNKNOWN};
     public enum SiftEffect { TOLERATED, DELETERIOUS };
     
-    private double polyphenScore;
+    private float polyphenScore;
     
-    private double siftScore;
+    private float siftScore;
     
     private PolyphenEffect polyphenEffect;
     
     private SiftEffect siftEffect;
 
-    public ProteinSubstitutionScores() {
-    }
+    ProteinSubstitutionScores() { }
 
-    public ProteinSubstitutionScores(double polyphenScore, double siftScore, PolyphenEffect polyphenEffect, SiftEffect siftEffect) {
+    public ProteinSubstitutionScores(float polyphenScore, float siftScore, PolyphenEffect polyphenEffect, SiftEffect siftEffect) {
         this.polyphenScore = polyphenScore;
         this.siftScore = siftScore;
         this.polyphenEffect = polyphenEffect;
         this.siftEffect = siftEffect;
     }
 
-    public double getPolyphenScore() {
+    public float getPolyphenScore() {
         return polyphenScore;
     }
 
-    public void setPolyphenScore(double polyphenScore) {
+    public void setPolyphenScore(float polyphenScore) {
         this.polyphenScore = polyphenScore;
     }
 
-    public double getSiftScore() {
+    public float getSiftScore() {
         return siftScore;
     }
 
-    public void setSiftScore(double siftScore) {
+    public void setSiftScore(float siftScore) {
         this.siftScore = siftScore;
     }
 

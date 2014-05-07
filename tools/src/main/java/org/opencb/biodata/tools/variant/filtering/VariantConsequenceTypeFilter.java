@@ -41,10 +41,12 @@ public class VariantConsequenceTypeFilter extends VariantFilter {
         while (it.hasNext()) {
             effect = it.next();
 
-            for (ConsequenceType ct : effect.getConsequenceTypes().values()) {
-                for (int so : ct.getConsequenceTypes()) {
-                    if (so == this.consequenceTypeAccession) {
-                        return true;
+            for (List<ConsequenceType> list : effect.getConsequenceTypes().values()) {
+                for (ConsequenceType ct : list) {
+                    for (int so : ct.getConsequenceTypes()) {
+                        if (so == this.consequenceTypeAccession) {
+                            return true;
+                        }
                     }
                 }
             }
