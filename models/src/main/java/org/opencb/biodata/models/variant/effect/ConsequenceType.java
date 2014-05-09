@@ -80,7 +80,7 @@ public class ConsequenceType {
     /**
      * Source and identifier of any overlapping protein domains
      */
-    private String proteinDomains;
+    private String[] proteinDomains;
     
     /**
      * Only given if the variation affects the protein-coding sequence
@@ -147,10 +147,16 @@ public class ConsequenceType {
      */
     private String[] pubmed;
 
-    ConsequenceType() { }
+    ConsequenceType() { 
+        this(null);
+    }
     
     public ConsequenceType(String allele) {
         this.allele = allele;
+        this.cDnaPosition = -1;
+        this.cdsPosition = -1;
+        this.proteinPosition = -1;
+        this.variantToTranscriptDistance = -1;
     }
 
     public String getAllele() {
@@ -257,11 +263,11 @@ public class ConsequenceType {
         this.proteinPosition = proteinPosition;
     }
 
-    public String getProteinDomains() {
+    public String[] getProteinDomains() {
         return proteinDomains;
     }
 
-    public void setProteinDomains(String proteinDomains) {
+    public void setProteinDomains(String[] proteinDomains) {
         this.proteinDomains = proteinDomains;
     }
 
