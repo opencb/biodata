@@ -1,21 +1,6 @@
-package org.opencb.biodata.formats.variant.protobuf;
+package org.opencb.biodata.models.variant.protobuf;
 
-option java_outer_classname = "VariantFieldsProtos";
-
-message VariantFileAttributes {
-    message KeyValue {
-        required string key = 1;                        /* Key of the pair */
-        required string value = 2;                      /* Value of the pair */
-    }
-
-    repeated KeyValue attrs = 1;
-}
-
-
-message VariantSample {
-    required string sample = 1;
-}
-
+option java_outer_classname = "VariantStatsProtos";
 
 message VariantStats {
     message Count {
@@ -31,8 +16,8 @@ message VariantStats {
     required int32 alt_allele_count = 2;
     repeated Count genotypes_count = 3;
 
-    required int32 ref_allele_freq = 4;
-    required int32 alt_allele_freq = 5;
+    required float ref_allele_freq = 4;
+    required float alt_allele_freq = 5;
     repeated Frequency genotypes_freq = 6;
 
     required int32 missing_alleles = 7;                 /* Number of alleles whose information is missing */
@@ -41,7 +26,7 @@ message VariantStats {
     required float maf = 9;                             /* Minimum allele frequency */
     required float mgf = 10;                            /* Minimum genotype frequency */
 
-    required int32 passed_filters = 11;
+    required bool passed_filters = 11;
     
     required float quality = 12;
     

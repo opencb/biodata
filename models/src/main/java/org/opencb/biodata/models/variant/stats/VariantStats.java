@@ -1,8 +1,5 @@
 package org.opencb.biodata.models.variant.stats;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,8 +42,11 @@ public class VariantStats {
     private String mafAllele;
     private String mgfGenotype;
     
-    private int mendelianErrors;
     private boolean passedFilters;
+    
+    private boolean pedigreeStatsAvailable;
+    
+    private int mendelianErrors;
     
     private float casesPercentDominant;
     private float controlsPercentDominant;
@@ -59,7 +59,9 @@ public class VariantStats {
     private float qual;
     private int numSamples;
     private VariantHardyWeinbergStats hw;
+    
 
+    
     public VariantStats() {
         this.chromosome = "";
         this.position = (long) 0;
@@ -359,6 +361,14 @@ public class VariantStats {
         this.passedFilters = passedFilters;
     }
 
+    public boolean isPedigreeStatsAvailable() {
+        return pedigreeStatsAvailable;
+    }
+
+    public void setPedigreeStatsAvailable(boolean pedigreeStatsAvailable) {
+        this.pedigreeStatsAvailable = pedigreeStatsAvailable;
+    }
+
     public float getQual() {
         return qual;
     }
@@ -467,7 +477,8 @@ public class VariantStats {
             }
 
             // Include statistics that depend on pedigree information
-            if (pedigree != null) {
+            pedigreeStatsAvailable = pedigree != null;
+            if (pedigreeStatsAvailable) {
                 if (g.getCode() == AllelesCode.ALLELES_OK || g.getCode() == AllelesCode.HAPLOID) {
                     Individual ind = pedigree.getIndividual(sampleName);
 //                    if (MendelChecker.isMendelianError(ind, g, variant.getChromosome(), file.getSamplesData())) {
@@ -495,9 +506,8 @@ public class VariantStats {
                         }
 
                     }
-
                 }
-            }
+            } 
 
         }  // Finish all samples loop
         
