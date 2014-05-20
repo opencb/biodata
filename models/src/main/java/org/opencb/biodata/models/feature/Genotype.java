@@ -140,6 +140,15 @@ public class Genotype {
         return value.toString();
     }
     
+    public int encode() {
+        int encoding = isPhased() ? 100 : 0;
+        for (int i = 0; i < allelesIdx.length; i++) {
+            encoding += Math.pow(10, allelesIdx.length - i - 1) * allelesIdx[i]; 
+        }
+        
+        return encoding;
+    }
+    
     @Override
     public String toString() {
         StringBuilder value = new StringBuilder();
