@@ -1,5 +1,8 @@
 package org.opencb.biodata.models.variant.stats;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 /**
  * @author Alejandro Aleman Ramos <aaleman@cipf.es>
  * @author Cristina Yenyxe Gonzalez Garcia <cyenyxe@ebi.ac.uk>
@@ -13,11 +16,13 @@ public class VariantGlobalStats {
     private int passCount;
     private int transitionsCount;
     private int transversionsCount;
-    private float accumQuality;
+    private float accumulatedQuality;
     @Deprecated
     private int biallelicsCount;
     @Deprecated
     private int multiallelicsCount;
+    
+    private Map<String, Integer> consequenceTypesCount;
 
     public VariantGlobalStats() {
         this.variantsCount = 0;
@@ -27,9 +32,10 @@ public class VariantGlobalStats {
         this.passCount = 0;
         this.transitionsCount = 0;
         this.transversionsCount = 0;
-        this.accumQuality = 0;
+        this.accumulatedQuality = 0;
         this.biallelicsCount = 0;
         this.multiallelicsCount = 0;
+        this.consequenceTypesCount = new LinkedHashMap<>(20);
     }
 
     public int getVariantsCount() {
@@ -88,26 +94,44 @@ public class VariantGlobalStats {
         this.transversionsCount = transversionsCount;
     }
 
-    public float getAccumQuality() {
-        return accumQuality;
+    public float getAccumulatedQuality() {
+        return accumulatedQuality;
     }
 
-    public void setAccumQuality(float accumQuality) {
-        this.accumQuality = accumQuality;
+    public void setAccumulatedQuality(float accumulatedQuality) {
+        this.accumulatedQuality = accumulatedQuality;
     }
 
     @Deprecated
-    public int getBiallelicsCount() {
+    int getBiallelicsCount() {
         return biallelicsCount;
     }
 
     @Deprecated
-    public int getMultiallelicsCount() {
+    int getMultiallelicsCount() {
         return multiallelicsCount;
     }
 
+    public Map<String, Integer> getConsequenceTypesCount() {
+        return consequenceTypesCount;
+    }
+
+    public void setConsequenceTypesCount(Map<String, Integer> consequenceTypesCount) {
+        this.consequenceTypesCount = consequenceTypesCount;
+    }
+    
+    public void addConsequenceTypeCount(String ct, int count) {
+        if (!consequenceTypesCount.containsKey(ct)) {
+            consequenceTypesCount.put(ct, 0);
+        } else {
+            consequenceTypesCount.put(ct, consequenceTypesCount.get(ct) + 1);
+        }
+    }
+    
     
     public void update(VariantStats stats) {
+        variantsCount++;
+        
         if (stats.isIndel()) {
             indelsCount++;
         }
@@ -118,9 +142,10 @@ public class VariantGlobalStats {
             passCount++;
         }
 
+        samplesCount = stats.getNumSamples();
         transitionsCount += stats.getTransitionsCount();
         transversionsCount += stats.getTransversionsCount();
-        accumQuality += stats.getQual();
+        accumulatedQuality += stats.getQuality();
     }
 
     @Deprecated
@@ -136,7 +161,7 @@ public class VariantGlobalStats {
         this.transversionsCount += transversionsCount;
         this.biallelicsCount += biallelicsCount;
         this.multiallelicsCount += multiallelicsCount;
-        this.accumQuality += accumQuality;
+        this.accumulatedQuality += accumQuality;
     }
     
     @Override
@@ -149,7 +174,7 @@ public class VariantGlobalStats {
                 + ", passCount=" + passCount
                 + ", transitionsCount=" + transitionsCount
                 + ", transversionsCount=" + transversionsCount
-                + ", accumQuality=" + accumQuality
+                + ", accumQuality=" + accumulatedQuality
                 + '}';
     }
 

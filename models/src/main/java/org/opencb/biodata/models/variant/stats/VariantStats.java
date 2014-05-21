@@ -56,7 +56,7 @@ public class VariantStats {
     private int transitionsCount;
     private int transversionsCount;
     
-    private float qual;
+    private float quality;
     private int numSamples;
     private VariantHardyWeinbergStats hw;
     
@@ -369,12 +369,12 @@ public class VariantStats {
         this.pedigreeStatsAvailable = pedigreeStatsAvailable;
     }
 
-    public float getQual() {
-        return qual;
+    public float getQuality() {
+        return quality;
     }
 
-    public void setQual(float qual) {
-        this.qual = qual;
+    public void setQuality(float quality) {
+        this.quality = quality;
     }
 
     public int getNumSamples() {
@@ -532,7 +532,7 @@ public class VariantStats {
         if (attributes.containsKey("QUAL") && !(".").equals(attributes.get("QUAL"))) {
             float qualAux = Float.valueOf(attributes.get("QUAL"));
             if (qualAux >= 0) {
-                this.setQual(qualAux);
+                this.setQuality(qualAux);
             }
         }
 

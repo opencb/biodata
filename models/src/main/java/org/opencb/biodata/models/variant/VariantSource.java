@@ -1,5 +1,6 @@
 package org.opencb.biodata.models.variant;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -13,68 +14,79 @@ import org.opencb.biodata.models.variant.stats.VariantGlobalStats;
  */
 public class VariantSource {
 
-    private String filename;
-    private String alias;
-    private String study;
-    private String description;
-    private List<String> authors;
-    private List<String> samples; // names
-    private Pedigree pedigree;
-    private List<String> sources;
+    private String fileName;
+    private String fileId;
+    
+    private String studyId;
+    private String studyName;
+    
+    private Map<String, Integer> samplesPosition;
+    
+    private Pedigree pedigree; // TODO Decide something about this field
+    
     private Map<String, String> metadata;
+    
     private VariantGlobalStats stats;
 
-    // TEST
-    private Map<String, Integer> consequenceTypes;
-
-    public VariantSource(String name, String alias, String study, String description, List<String> authors, List<String> sources) {
-        this.filename = name;
-        this.alias = alias;
-        this.study = study;
-        this.description = description;
-        this.authors = authors;
-        this.sources = sources;
+    
+    public VariantSource(String fileName, String fileId, String studyId, String studyName) {
+        this.fileName = fileName;
+        this.fileId = fileId;
+        this.studyId = studyId;
+        this.studyName = studyName;
+        this.samplesPosition = new LinkedHashMap<>();
         this.metadata = new HashMap<>();
-        // TODO initialize pedigree?
-
-        // TEST
-        this.consequenceTypes = new LinkedHashMap<>(20);
     }
 
-    public String getFilename() {
-        return filename;
+    public String getFileName() {
+        return fileName;
     }
 
-    public String getAlias() {
-        return alias;
+    void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 
-    public String getStudy() {
-        return study;
+    public String getFileId() {
+        return fileId;
     }
 
-    public String getDescription() {
-        return description;
+    void setFileId(String fileId) {
+        this.fileId = fileId;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public String getStudyId() {
+        return studyId;
     }
 
-    public List<String> getSources() {
-        return sources;
+    void setStudyId(String studyId) {
+        this.studyId = studyId;
     }
 
-    public void setSources(List<String> sources) {
-        this.sources = sources;
+    public String getStudyName() {
+        return studyName;
+    }
+
+    void setStudyName(String studyName) {
+        this.studyName = studyName;
+    }
+   
+    public Map<String, Integer> getSamplesPosition() {
+        return samplesPosition;
+    }
+
+    public void setSamplesPosition(Map<String, Integer> samplesPosition) {
+        this.samplesPosition = samplesPosition;
     }
 
     public List<String> getSamples() {
-        return samples;
+        return new ArrayList(samplesPosition.keySet());
     }
 
-    public void setSamples(List<String> samples) {
-        this.samples = samples;
+    public void setSamples(List<String> newSamples) {
+        int index = samplesPosition.size();
+        for (String s : newSamples) {
+            samplesPosition.put(s, index++);
+        }
     }
 
     public Pedigree getPedigree() {
@@ -93,14 +105,6 @@ public class VariantSource {
         this.stats = stats;
     }
 
-    public List<String> getAuthors() {
-        return authors;
-    }
-
-    public void setAuthors(List<String> authors) {
-        this.authors = authors;
-    }
-
     public Map<String, String> getMetadata() {
         return metadata;
     }
@@ -113,24 +117,12 @@ public class VariantSource {
         this.metadata.put(key, value);
     }
 
-    public Map<String, Integer> getConsequenceTypes() {
-        return consequenceTypes;
-    }
-
-    public void setConsequenceTypes(Map<String, Integer> consequenceTypes) {
-        this.consequenceTypes = consequenceTypes;
-    }
-
     @Override
     public String toString() {
         return "VariantStudy{" +
-                "name='" + filename + '\'' +
-                ", alias='" + alias + '\'' +
-                ", description='" + description + '\'' +
-                ", authors=" + authors +
-                ", samples=" + samples +
-                ", pedigree=" + pedigree +
-                ", sources=" + sources +
+                "name='" + fileName + '\'' +
+                ", alias='" + fileId + '\'' +
+                ", samples=" + samplesPosition +
                 ", metadata=" + metadata +
                 ", stats=" + stats +
                 '}';

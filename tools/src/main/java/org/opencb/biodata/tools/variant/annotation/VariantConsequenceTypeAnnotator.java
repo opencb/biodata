@@ -34,7 +34,7 @@ public class VariantConsequenceTypeAnnotator implements VariantAnnotator {
         List<VariantEffect> batchEffect = EffectCalculator.getEffects(batch);
 
         for (Variant variant : batch) {
-            ArchivedVariantFile file = variant.getFile(study.getAlias());
+            ArchivedVariantFile file = variant.getFile(study.getFileId());
             if (file == null) {
                 // The variant is not present in this file
                 continue;
