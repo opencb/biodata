@@ -12,6 +12,12 @@ public class cosmic {
     private String allele;
 
     /***
+     Alternate Reference
+     ***/
+    private String reference;
+
+
+    /***
      Chromosome
      ***/
     private String chr;
@@ -19,7 +25,7 @@ public class cosmic {
     /***
      Variant position
      ***/
-    private Int pos;
+    private int pos;
 
     /***
      Gene_name
@@ -147,8 +153,9 @@ public class cosmic {
      ***/
     private String Mutation_NCBI36_genome_position;
 
-    public cosmic(String allele, String chr, Int pos, String gene_name, String mutation_GRCh37_strand, String primary_site, String mutation_zygosity, String mutation_AA, String tumour_origin, String histology_subtype, String sample_source, String accession_Number, String mutation_ID, String mutation_CDS, String sample_name, String primary_histology, String mutation_GRCh37_genome_position, String mutation_Description, String genome_wide_screen, String ID_tumour, String ID_sample, String mutation_somatic_status, String site_subtype, String mutation_NCBI36_strand, String mutation_NCBI36_genome_position) {
+    public cosmic(String allele, String reference, String chr, Int pos, String gene_name, String mutation_GRCh37_strand, String primary_site, String mutation_zygosity, String mutation_AA, String tumour_origin, String histology_subtype, String sample_source, String accession_Number, String mutation_ID, String mutation_CDS, String sample_name, String primary_histology, String mutation_GRCh37_genome_position, String mutation_Description, String genome_wide_screen, String ID_tumour, String ID_sample, String mutation_somatic_status, String site_subtype, String mutation_NCBI36_strand, String mutation_NCBI36_genome_position) {
         this.allele = allele;
+        this.reference=reference
         this.chr = chr;
         this.pos = pos;
         this.Gene_name = gene_name;
@@ -184,6 +191,14 @@ public class cosmic {
         this.allele = allele;
     }
 
+    public String getReference() {
+        return reference;
+    }
+
+    public void setReference(String reference) {
+        this.reference = reference;
+    }
+
     public String getChr() {
         return chr;
     }
@@ -192,7 +207,7 @@ public class cosmic {
         this.chr = chr;
     }
 
-    public Int getPos() {
+    public int getPos() {
         return pos;
     }
 
