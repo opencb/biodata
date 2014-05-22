@@ -153,9 +153,9 @@ public class cosmic {
      ***/
     private String Mutation_NCBI36_genome_position;
 
-    public cosmic(String allele, String reference, String chr, Int pos, String gene_name, String mutation_GRCh37_strand, String primary_site, String mutation_zygosity, String mutation_AA, String tumour_origin, String histology_subtype, String sample_source, String accession_Number, String mutation_ID, String mutation_CDS, String sample_name, String primary_histology, String mutation_GRCh37_genome_position, String mutation_Description, String genome_wide_screen, String ID_tumour, String ID_sample, String mutation_somatic_status, String site_subtype, String mutation_NCBI36_strand, String mutation_NCBI36_genome_position) {
+    public cosmic(String allele, String reference, String chr, int pos, String gene_name, String mutation_GRCh37_strand, String primary_site, String mutation_zygosity, String mutation_AA, String tumour_origin, String histology_subtype, String sample_source, String accession_Number, String mutation_ID, String mutation_CDS, String sample_name, String primary_histology, String mutation_GRCh37_genome_position, String mutation_Description, String genome_wide_screen, String ID_tumour, String ID_sample, String mutation_somatic_status, String site_subtype, String mutation_NCBI36_strand, String mutation_NCBI36_genome_position) {
         this.allele = allele;
-        this.reference=reference
+        this.reference=reference;
         this.chr = chr;
         this.pos = pos;
         this.Gene_name = gene_name;
@@ -211,7 +211,7 @@ public class cosmic {
         return pos;
     }
 
-    public void setPos(Int pos) {
+    public void setPos(int pos) {
         this.pos = pos;
     }
 
