@@ -21,6 +21,7 @@ import org.opencb.biodata.formats.variant.vcf4.VcfFormatHeader;
 import org.opencb.biodata.formats.variant.vcf4.VcfInfoHeader;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFactory;
+import org.opencb.biodata.models.variant.VariantSource;
 
 /**
  * @author Alejandro Aleman Ramos <aaleman@cipf.es>
@@ -32,21 +33,20 @@ public class VariantVcfReader implements VariantReader {
     private BufferedReader reader;
     private Path path;
     
-    private String filename;
-    private String fileId;
-    private String studyId;
+    private String filePath;
+    
+    private VariantSource source;
 
-    public VariantVcfReader(String fileName, String fileId, String studyId) {
-        this.filename = fileName;
-        this.fileId = fileId;
-        this.studyId = studyId;
+    public VariantVcfReader(VariantSource source, String filePath) {
+        this.source = source;
+        this.filePath = filePath;
     }
 
     @Override
     public boolean open() {
         try {
-            this.path = Paths.get(this.filename);
-            Files.exists(this.path);
+            path = Paths.get(filePath);
+            Files.exists(path);
 
             vcf4 = new Vcf4();
             if (path.toFile().getName().endsWith(".gz")) {
@@ -65,7 +65,6 @@ public class VariantVcfReader implements VariantReader {
 
     @Override
     public boolean pre() {
-
         try {
             processHeader();
         } catch (IOException | FileFormatException ex) {
@@ -105,7 +104,9 @@ public class VariantVcfReader implements VariantReader {
                 if (fields.length >= 8) {
                     // TODO Must return List<Variant> !!
 //                    variant = VariantFactory.createVariantFromVcf(vcf4.getSampleNames(), fields);
-                    variant = VariantFactory.createVariantFromVcf(filename, fileId, studyId, vcf4.getSampleNames(), fields).get(0);
+                    variant = VariantFactory.createVariantFromVcf(
+                            source.getFileName(), source.getFileId(), source.getStudyId(), 
+                            vcf4.getSampleNames(), fields).get(0);
                 } else {
                     throw new IOException("Not enough fields in line (min. 8): " + line);
                 }
@@ -134,7 +135,9 @@ public class VariantVcfReader implements VariantReader {
                 
                 String[] fields = line.split("\t");
                 if (fields.length >= 8) {
-                    List<Variant> variants = VariantFactory.createVariantFromVcf(filename, fileId, studyId, vcf4.getSampleNames(), fields);
+                    List<Variant> variants = VariantFactory.createVariantFromVcf(
+                            source.getFileName(), source.getFileId(), source.getStudyId(), 
+                            vcf4.getSampleNames(), fields);
                     assert (variants.size() > 0);
                     listRecords.addAll(variants);
                 } else {
@@ -188,13 +191,6 @@ public class VariantVcfReader implements VariantReader {
     }
 
     private void processHeader() throws IOException, FileFormatException {
-        VcfInfoHeader vcfInfo;
-        VcfFilterHeader vcfFilter;
-        VcfFormatHeader vcfFormat;
-        List<String> headerLine;
-        String line;
-        String[] fields;
-
         BufferedReader localBufferedReader;
 
         if (Files.probeContentType(path).contains("gzip")) {
@@ -204,8 +200,9 @@ public class VariantVcfReader implements VariantReader {
         }
 
         boolean header = false;
+        String line;
+        
         while ((line = localBufferedReader.readLine()) != null && line.startsWith("#")) {
-
             if (line.startsWith("##fileformat")) {
                 if (line.split("=").length > 1) {
 
@@ -213,25 +210,27 @@ public class VariantVcfReader implements VariantReader {
                 } else {
                     throw new FileFormatException("");
                 }
+                
             } else if (line.startsWith("##INFO")) {
-
-                vcfInfo = new VcfInfoHeader(line);
+                VcfInfoHeader vcfInfo = new VcfInfoHeader(line);
                 vcf4.getInfo().put(vcfInfo.getId(), vcfInfo);
+                
             } else if (line.startsWith("##FILTER")) {
-
-                vcfFilter = new VcfFilterHeader(line);
+                VcfFilterHeader vcfFilter = new VcfFilterHeader(line);
                 vcf4.getFilter().put(vcfFilter.getId(), vcfFilter);
+                
             } else if (line.startsWith("##FORMAT")) {
-
-                vcfFormat = new VcfFormatHeader(line);
+                VcfFormatHeader vcfFormat = new VcfFormatHeader(line);
                 vcf4.getFormat().put(vcfFormat.getId(), vcfFormat);
+                
             } else if (line.startsWith("#CHROM")) {
-//                headerLine = StringUtils.toList(line.replace("#", ""), "\t");
-                headerLine = Splitter.on("\t").splitToList(line.replace("#", ""));
+//               List<String>  headerLine = StringUtils.toList(line.replace("#", ""), "\t");
+                List<String> headerLine = Splitter.on("\t").splitToList(line.replace("#", ""));
                 vcf4.setHeaderLine(headerLine);
-                header |= true;
+                header = true;
+                
             } else {
-                fields = line.replace("#", "").split("=", 2);
+                String[] fields = line.replace("#", "").split("=", 2);
                 vcf4.getMetaInformation().put(fields[0], fields[1]);
             }
         }

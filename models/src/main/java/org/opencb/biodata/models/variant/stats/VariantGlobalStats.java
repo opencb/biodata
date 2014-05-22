@@ -24,6 +24,7 @@ public class VariantGlobalStats {
     
     private Map<String, Integer> consequenceTypesCount;
 
+    
     public VariantGlobalStats() {
         this.variantsCount = 0;
         this.samplesCount = 0;

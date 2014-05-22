@@ -28,6 +28,7 @@ public class VariantSource {
     
     private VariantGlobalStats stats;
 
+    VariantSource() { }
     
     public VariantSource(String fileName, String fileId, String studyId, String studyName) {
         this.fileName = fileName;
@@ -42,7 +43,7 @@ public class VariantSource {
         return fileName;
     }
 
-    void setFileName(String fileName) {
+    public void setFileName(String fileName) {
         this.fileName = fileName;
     }
 
@@ -50,7 +51,7 @@ public class VariantSource {
         return fileId;
     }
 
-    void setFileId(String fileId) {
+    public void setFileId(String fileId) {
         this.fileId = fileId;
     }
 
@@ -58,7 +59,7 @@ public class VariantSource {
         return studyId;
     }
 
-    void setStudyId(String studyId) {
+    public void setStudyId(String studyId) {
         this.studyId = studyId;
     }
 
@@ -66,7 +67,7 @@ public class VariantSource {
         return studyName;
     }
 
-    void setStudyName(String studyName) {
+    public void setStudyName(String studyName) {
         this.studyName = studyName;
     }
    
