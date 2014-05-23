@@ -54,7 +54,9 @@ public class ArchivedVariantFile {
      */
     private Map<String, String> attributes;
 
-    ArchivedVariantFile() { }
+    ArchivedVariantFile() { 
+        this(null, null, null);
+    }
     
     public ArchivedVariantFile(String fileName, String fileId, String studyId) {
         this.fileName = fileName;
@@ -103,7 +105,11 @@ public class ArchivedVariantFile {
     }
 
     public String getSampleData(String sampleName, String field) {
-        return this.samplesData.get(sampleName).get(field.toUpperCase());
+        Map<String, String> sampleData = samplesData.get(sampleName);
+        if (sampleData == null) {
+            return null;
+        }
+        return samplesData.get(sampleName).get(field.toUpperCase());
     }
 
     public Map<String, String> getSampleData(String sampleName) {
