@@ -153,7 +153,36 @@ public class cosmic {
      ***/
     private String Mutation_NCBI36_genome_position;
 
-    public cosmic(String allele, String reference, String chr, int pos, String gene_name, String mutation_GRCh37_strand, String primary_site, String mutation_zygosity, String mutation_AA, String tumour_origin, String histology_subtype, String sample_source, String accession_Number, String mutation_ID, String mutation_CDS, String sample_name, String primary_histology, String mutation_GRCh37_genome_position, String mutation_Description, String genome_wide_screen, String ID_tumour, String ID_sample, String mutation_somatic_status, String site_subtype, String mutation_NCBI36_strand, String mutation_NCBI36_genome_position) {
+
+    /***
+     * Gene CDS length
+     */
+    private int gene_CDS_length;
+
+
+    /***
+     * HGNC ID
+     */
+    private String HGNC_id;
+
+    /***
+     * Pubmed PMID
+     */
+    private String Pubmed_PMID;
+
+
+    /***
+     * Age
+     */
+    private int age;
+
+    /***
+     * Comments
+     */
+    private String comments;
+
+
+    public cosmic(String allele, String reference, String chr, int pos, String gene_name, String mutation_GRCh37_strand, String primary_site, String mutation_zygosity, String mutation_AA, String tumour_origin, String histology_subtype, String sample_source, String accession_Number, String mutation_ID, String mutation_CDS, String sample_name, String primary_histology, String mutation_GRCh37_genome_position, String mutation_Description, String genome_wide_screen, String ID_tumour, String ID_sample, String mutation_somatic_status, String site_subtype, String mutation_NCBI36_strand, String mutation_NCBI36_genome_position, int gene_cds_length, String hgnc_id, String pubmed_pmid, int Age, String Comments) {
         this.allele = allele;
         this.reference=reference;
         this.chr = chr;
@@ -180,6 +209,13 @@ public class cosmic {
         this.Site_subtype = site_subtype;
         this.Mutation_NCBI36_strand = mutation_NCBI36_strand;
         this.Mutation_NCBI36_genome_position = mutation_NCBI36_genome_position;
+        this.gene_CDS_length=gene_cds_length;
+        this.HGNC_id=hgnc_id;
+        this.Pubmed_PMID=pubmed_pmid;
+        this.age=Age;
+        this.comments=Comments;
+
+
     }
 
 
@@ -389,6 +425,47 @@ public class cosmic {
 
     public void setMutation_NCBI36_genome_position(String mutation_NCBI36_genome_position) {
         Mutation_NCBI36_genome_position = mutation_NCBI36_genome_position;
+    }
+
+
+    public int getGene_CDS_length() {
+        return gene_CDS_length;
+    }
+
+    public void setGene_CDS_length(int gene_CDS_length) {
+        this.gene_CDS_length = gene_CDS_length;
+    }
+
+    public String getHGNC_id() {
+        return HGNC_id;
+    }
+
+    public void setHGNC_id(String HGNC_id) {
+        this.HGNC_id = HGNC_id;
+    }
+
+    public String getPubmed_PMID() {
+        return Pubmed_PMID;
+    }
+
+    public void setPubmed_PMID(String pubmed_PMID) {
+        Pubmed_PMID = pubmed_PMID;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public String getComments() {
+        return comments;
+    }
+
+    public void setComments(String comments) {
+        this.comments = comments;
     }
 }
 
