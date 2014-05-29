@@ -19,52 +19,42 @@ public class PedigreePedReader implements PedigreeReader {
 
     public PedigreePedReader(String filename) {
         this.filename = filename;
-
         ped = new Pedigree();
     }
 
     @Override
     public boolean open() {
-        boolean res = true;
-        ped = new Pedigree();
-
         try {
             reader = new BufferedReader(new FileReader(this.filename));
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            res = false;
+            return false;
         }
 
-        return res;
+        return true;
     }
 
     @Override
     public boolean close() {
-
-        boolean res = true;
-
         try {
             reader.close();
         } catch (IOException e) {
-            e.printStackTrace();
-            res = false;
+            return false;
         }
-        return res;
+        return true;
     }
 
     @Override
     public boolean pre() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean post() {
-        return false;
+        return true;
     }
 
     @Override
-    public Pedigree read() {
-
+    public List<Pedigree> read() {
         String line;
         Individual ind, father, mother;
         String[] fields;
@@ -109,7 +99,6 @@ public class PedigreePedReader implements PedigreeReader {
         }
 
         for (Map.Entry<String, Individual> entry : ped.getIndividuals().entrySet()) {
-
             ind = entry.getValue();
             father = ped.getIndividual(ind.getFatherId());
             mother = ped.getIndividual(ind.getMotherId());
@@ -124,10 +113,9 @@ public class PedigreePedReader implements PedigreeReader {
                 father.addChild(ind);
 
             }
-
-
         }
-        return ped;
+        
+        return Arrays.asList(ped);
     }
 
     @Override
@@ -136,7 +124,6 @@ public class PedigreePedReader implements PedigreeReader {
     }
 
     private void parseHeader(String lineHeader) {
-
         String header = lineHeader.substring(1, lineHeader.length());
         String[] allFields = header.split("\t");
 

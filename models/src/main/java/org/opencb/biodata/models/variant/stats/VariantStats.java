@@ -228,9 +228,13 @@ public class VariantStats {
     }
 
     public void addGenotype(Genotype g) {
+        this.addGenotype(g, 1);
+    }
+    
+    public void addGenotype(Genotype g, int addedCount) {
         Integer count;
         if (genotypesCount.containsKey(g)) {
-            count = genotypesCount.get(g) + 1;
+            count = genotypesCount.get(g) + addedCount;
         } else {
             count = 1;
         }

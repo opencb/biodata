@@ -92,26 +92,24 @@ public class VariantVcfReader implements VariantReader {
     }
 
     @Override
-    public Variant read() {
+    public List<Variant> read() {
         String line;
         try {
             while ((line = reader.readLine()) != null && (line.trim().equals("") || line.startsWith("#")));
             
             if (line != null) {
                 String[] fields = line.split("\t");
-                Variant variant;
+                List<Variant> variants;
 
                 if (fields.length >= 8) {
-                    // TODO Must return List<Variant> !!
-//                    variant = VariantFactory.createVariantFromVcf(vcf4.getSampleNames(), fields);
-                    variant = VariantFactory.createVariantFromVcf(
+                    variants = VariantFactory.createVariantFromVcf(
                             source.getFileName(), source.getFileId(), source.getStudyId(), 
-                            vcf4.getSampleNames(), fields).get(0);
+                            vcf4.getSampleNames(), fields);
                 } else {
                     throw new IOException("Not enough fields in line (min. 8): " + line);
                 }
 
-                return variant;
+                return variants;
             }
         } catch (IOException ex) {
             Logger.getLogger(VariantVcfReader.class.getName()).log(Level.SEVERE, null, ex);
@@ -123,31 +121,37 @@ public class VariantVcfReader implements VariantReader {
     @Override
     public List<Variant> read(int batchSize) {
         List<Variant> listRecords = new ArrayList<>(batchSize);
-        String line;
+//        String line;
         
-        for (int i = 0; i < batchSize; i++) {
-            try {
-                while ((line = reader.readLine()) != null && (line.trim().equals("") || line.startsWith("#")));
-
-                if (line == null) { // Nothing found
-                    continue;
-                }
-                
-                String[] fields = line.split("\t");
-                if (fields.length >= 8) {
-                    List<Variant> variants = VariantFactory.createVariantFromVcf(
-                            source.getFileName(), source.getFileId(), source.getStudyId(), 
-                            vcf4.getSampleNames(), fields);
-                    assert (variants.size() > 0);
-                    listRecords.addAll(variants);
-                } else {
-                    throw new IOException("Not enough fields in line (min. 8): " + line);
-                }
-            } catch (IOException ex) {
-                Logger.getLogger(VariantVcfReader.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
+        int i = 0;
+        List<Variant> variants = null;
+        while ((i < batchSize) && (variants = this.read()) != null) {
+            listRecords.addAll(variants);
+            i += variants.size();
         }
+//        for (int i = 0; i < batchSize; i++) {
+//            try {
+//                while ((line = reader.readLine()) != null && (line.trim().equals("") || line.startsWith("#")));
+//
+//                if (line == null) { // Nothing found
+//                    continue;
+//                }
+//                
+//                String[] fields = line.split("\t");
+//                if (fields.length >= 8) {
+//                    List<Variant> variants = VariantFactory.createVariantFromVcf(
+//                            source.getFileName(), source.getFileId(), source.getStudyId(), 
+//                            vcf4.getSampleNames(), fields);
+//                    assert (variants.size() > 0);
+//                    listRecords.addAll(variants);
+//                } else {
+//                    throw new IOException("Not enough fields in line (min. 8): " + line);
+//                }
+//            } catch (IOException ex) {
+//                Logger.getLogger(VariantVcfReader.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//
+//        }
 
         return listRecords;
     }

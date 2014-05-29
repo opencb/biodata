@@ -44,12 +44,10 @@ public class VariantSNPAnnotator implements VariantAnnotator {
                 Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE));
 
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode actualObj;
 
-        String resp = null;
         try {
-            resp = response.readEntity(String.class);
-            actualObj = mapper.readTree(resp);
+            String resp = response.readEntity(String.class);
+            JsonNode actualObj = mapper.readTree(resp);
             Iterator<JsonNode> it = actualObj.get("response").iterator();
 
             int cont = 0;

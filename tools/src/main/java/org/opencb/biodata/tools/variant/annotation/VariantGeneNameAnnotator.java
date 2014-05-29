@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.Set;
 
 import com.google.common.base.Joiner;
+import java.util.Map;
 
 import org.opencb.biodata.models.variant.ArchivedVariantFile;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.VariantSource;
 import org.opencb.biodata.models.variant.effect.VariantEffect;
 import org.opencb.biodata.tools.variant.EffectCalculator;
 
@@ -19,10 +19,14 @@ import org.opencb.biodata.tools.variant.EffectCalculator;
  */
 public class VariantGeneNameAnnotator implements VariantAnnotator {
 
-    private VariantSource study;
+    private String geneNameTag;
+    
+    public VariantGeneNameAnnotator() {
+        this("GeneNames");
+    }
 
-    public VariantGeneNameAnnotator(VariantSource study) {
-        this.study = study;
+    public VariantGeneNameAnnotator(String ctTag) {
+        this.geneNameTag = ctTag;
     }
 
     @Override
@@ -32,38 +36,26 @@ public class VariantGeneNameAnnotator implements VariantAnnotator {
 
     @Override
     public void annot(List<Variant> batch) {
-        List<VariantEffect> batchEffect = EffectCalculator.getEffects(batch);
+        EffectCalculator.setEffects(batch);
 
         for (Variant variant : batch) {
-            ArchivedVariantFile file = variant.getFile(study.getFileId());
-            if (file == null) {
-                // The variant is not present in this file
-                continue;
+            for (Map.Entry<String, ArchivedVariantFile> file : variant.getFiles().entrySet()) {
+                annotGeneName(variant, file.getValue());
             }
-
-            annotVariantEffect(variant, file, batchEffect);
         }
     }
-
-    private void annotVariantEffect(Variant variant, ArchivedVariantFile file, List<VariantEffect> batchEffect) {
+    
+    private void annotGeneName(Variant variant, ArchivedVariantFile file) {
         Set<String> geneNames = new HashSet<>();
-        for (VariantEffect effect : batchEffect) {
-            if (variant.getChromosome().equals(effect.getChromosome())
-                    && variant.getStart() == effect.getPosition()
-                    && variant.getReference().equals(effect.getReferenceAllele())
-                    && variant.getAlternate().equals(effect.getAlternativeAllele())) {
-
+        for (VariantEffect effect : variant.getEffect()) {
+            if (!effect.getGeneName().isEmpty())
                 geneNames.add(effect.getGeneName());
-            }
         }
-
-        String geneNamesAll = Joiner.on(",").join(geneNames);
 
         if (geneNames.size() > 0) {
-            file.addAttribute("GeneNames", geneNamesAll);
-//            variant.addInfoField("GeneNames=" + geneNamesAll);
+            file.addAttribute(this.geneNameTag, Joiner.on(",").join(geneNames));
         }
 
     }
-
+    
 }

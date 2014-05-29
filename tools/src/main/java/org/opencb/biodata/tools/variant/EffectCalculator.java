@@ -6,14 +6,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.multipart.FormDataMultiPart;
-
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.effect.VariantEffect;
 
@@ -32,10 +32,7 @@ public class EffectCalculator {
 
         StringBuilder chunkVcfRecords = new StringBuilder();
         Client client = Client.create();
-        WebResource webResource = client.resource("http://ws-beta.bioinfo.cipf.es/cellbase-staging/rest/latest/hsa/genomic/variant/");
-
-//        javax.ws.rs.client.Client clientNew = ClientBuilder.newClient();
-//        WebTarget webTarget = clientNew.target("http://ws-beta.bioinfo.cipf.es/cellbase/rest/v3/hsapiens/feature/transcript/");
+        WebResource webResource = client.resource("http://ws.bioinfo.cipf.es/cellbase/rest/latest/hsa/genomic/variant/");
 
         for (Variant record : batch) {
             chunkVcfRecords.append(record.getChromosome()).append(":");
@@ -47,10 +44,9 @@ public class EffectCalculator {
         FormDataMultiPart formDataMultiPart = new FormDataMultiPart();
         formDataMultiPart.field("variants", chunkVcfRecords.toString());
 
-        // TODO aaleman: Check the new Web Service
         try {
-            String response = webResource.path("consequence_type").queryParam("of", "json").type(MediaType.MULTIPART_FORM_DATA).post(String.class, formDataMultiPart);
-        
+            String response = webResource.path("consequence_type").queryParam("of", "json").type(MediaType.MULTIPART_FORM_DATA)
+                    .post(String.class, formDataMultiPart);
             batchEffect = mapper.readValue(response, mapper.getTypeFactory().constructCollectionType(List.class, VariantEffect.class));
         } catch (IOException e) {
             System.err.println(chunkVcfRecords.toString());
@@ -63,57 +59,25 @@ public class EffectCalculator {
         return batchEffect;
     }
 
-    public static List<VariantEffect> getEffectsWithPolyPhenAndSift(List<Variant> batch) {
-        ObjectMapper mapper = new ObjectMapper();
-        List<VariantEffect> batchEffect = new ArrayList<>(batch.size());
+    public static List<VariantEffect> getEffectsWithPolyphenAndSift(List<Variant> batch) {
+        List<VariantEffect> batchEffect = getEffects(batch);
+        getPolyphenSift(batchEffect);
+        return batchEffect;
+    }
 
-        if (batch.isEmpty()) {
-            return batchEffect;
+    public static void getPolyphenSift(List<VariantEffect> batchEffect) {
+        if (batchEffect.isEmpty()) {
+            return;
         }
-
-        StringBuilder chunkVcfRecords = new StringBuilder();
-        Client client = Client.create();
-        WebResource webResource = client.resource("http://ws-beta.bioinfo.cipf.es/cellbase-staging/rest/latest/hsa/genomic/variant/");
 
         javax.ws.rs.client.Client clientNew = ClientBuilder.newClient();
         WebTarget webTarget = clientNew.target("http://ws-beta.bioinfo.cipf.es/cellbase/rest/v3/hsapiens/feature/transcript/");
 
-        for (Variant record : batch) {
-            chunkVcfRecords.append(record.getChromosome()).append(":");
-            chunkVcfRecords.append(record.getStart()).append(":");
-            chunkVcfRecords.append(record.getReference()).append(":");
-            chunkVcfRecords.append(record.getAlternate().isEmpty() ? "-" : record.getAlternate()).append(",");
-        }
-
-        FormDataMultiPart formDataMultiPart = new FormDataMultiPart();
-        formDataMultiPart.field("variants", chunkVcfRecords.substring(0, chunkVcfRecords.length() - 1));
-
-//        Response response = webTarget.path("consequence_type").queryParam("of", "json").request(MediaType.APPLICATION_JSON_TYPE).post(Entity.entity(formDataMultiPart.toString(), MediaType.MULTIPART_FORM_DATA_TYPE));
-        String response = webResource.path("consequence_type").queryParam("of", "json").type(MediaType.MULTIPART_FORM_DATA).post(String.class, formDataMultiPart);
-
-        // TODO aaleman: Check the new Web Service
-
-        try {
-            batchEffect = mapper.readValue(response, mapper.getTypeFactory().constructCollectionType(List.class, VariantEffect.class));
-        } catch (IOException e) {
-            System.err.println(chunkVcfRecords.toString());
-            e.printStackTrace();
-        } catch (com.sun.jersey.api.client.UniformInterfaceException ex) {
-            System.err.println(ex.getMessage());
-            ex.printStackTrace();
-        }
-
-
-        javax.ws.rs.core.Response newResponse;
-        double ss, ps;
-        int se, pe;
-
         for (VariantEffect effect : batchEffect) {
             if (effect.getAaPosition() != -1 && !"".equals(effect.getTranscriptId()) && effect.getAminoacidChange().length() == 3) {
-
                 String change = effect.getAminoacidChange().split("/")[1];
 
-                newResponse = webTarget.path(effect.getTranscriptId()).path("function_prediction").queryParam("aaPosition", effect.getAaPosition()).queryParam("aaChange", change).
+                Response newResponse = webTarget.path(effect.getTranscriptId()).path("function_prediction").queryParam("aaPosition", effect.getAaPosition()).queryParam("aaChange", change).
                         request(MediaType.APPLICATION_JSON_TYPE).get();
 
                 ObjectMapper mapperNew = new ObjectMapper();
@@ -132,28 +96,24 @@ public class EffectCalculator {
                             while (itResults.hasNext()) {
                                 JsonNode aa = itResults.next();
 
-                                if (aa.has("aaPositions") && aa.get("aaPositions").has("" + effect.getAaPosition()) && aa.get("aaPositions").get("" + effect.getAaPosition()).has("" + change)) {
-
+                                if (aa.has("aaPositions") && aa.get("aaPositions").has("" + effect.getAaPosition()) 
+                                        && aa.get("aaPositions").get("" + effect.getAaPosition()).has("" + change)) {
                                     JsonNode val = aa.get("aaPositions").get("" + effect.getAaPosition()).get("" + change);
 
                                     if (val.has("ss") && val.has("ps") && val.has("se") && val.has("pe")) {
                                         if (!val.get("ss").isNull()) {
-                                            ss = val.get("ss").asDouble();
-                                            effect.setSiftScore(ss);
+                                            effect.setSiftScore(val.get("ss").asDouble());
                                         }
 
                                         if (!val.get("ps").isNull()) {
-                                            ps = val.get("ps").asDouble();
-                                            effect.setPolyphenScore(ps);
+                                            effect.setPolyphenScore(val.get("ps").asDouble());
                                         }
 
                                         if (!val.get("se").isNull()) {
-                                            se = val.get("se").asInt();
-                                            effect.setSiftEffect(se);
+                                            effect.setSiftEffect(val.get("se").asInt());
                                         }
                                         if (!val.get("pe").isNull()) {
-                                            pe = val.get("pe").asInt();
-                                            effect.setPolyphenEffect(pe);
+                                            effect.setPolyphenEffect(val.get("pe").asInt());
                                         }
                                     }
                                 }
@@ -172,8 +132,6 @@ public class EffectCalculator {
             }
 
         }
-
-        return batchEffect;
     }
 
     public static List<List<VariantEffect>> getEffectPerVariant(List<Variant> batch) {
@@ -196,5 +154,37 @@ public class EffectCalculator {
             list.add(auxEffect);
         }
         return list;
+    }
+
+    public static void setEffects(List<Variant> batch) {
+        setEffects(batch, false, false);
+    }
+
+    public static void setEffects(List<Variant> batch, boolean force, boolean withPolyphenSIFT) {
+        List<Variant> noEffects;
+
+        if (force) {
+            noEffects = batch;
+        } else {
+            noEffects = new ArrayList<>(batch.size());
+            for (Variant v : batch) {
+                if (v.getEffect() == null) {
+                    noEffects.add(v);
+                }
+            }
+        }
+
+        List<List<VariantEffect>> effects = getEffectPerVariant(noEffects);
+
+        if (withPolyphenSIFT) {
+            for (List<VariantEffect> list : effects) {
+                getPolyphenSift(list);
+            }
+        }
+
+        for (int i = 0; i < noEffects.size(); i++) {
+            Variant v = noEffects.get(i);
+            v.setEffect(effects.get(i));
+        }
     }
 }

@@ -5,10 +5,10 @@ import java.util.Arrays;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.opencb.biodata.models.variant.ArchivedVariantFile;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.VariantSource;
 import org.opencb.biodata.models.variant.effect.VariantEffect;
 import org.opencb.biodata.tools.variant.EffectCalculator;
 
@@ -18,10 +18,14 @@ import org.opencb.biodata.tools.variant.EffectCalculator;
  */
 public class VariantConsequenceTypeAnnotator implements VariantAnnotator {
 
-    private VariantSource study;
+    private String ctTag;
 
-    public VariantConsequenceTypeAnnotator(VariantSource study) {
-        this.study = study;
+    public VariantConsequenceTypeAnnotator() {
+        this("ConsType");
+    }
+
+    public VariantConsequenceTypeAnnotator(String ctTag) {
+        this.ctTag = ctTag;
     }
 
     @Override
@@ -31,35 +35,25 @@ public class VariantConsequenceTypeAnnotator implements VariantAnnotator {
     
     @Override
     public void annot(List<Variant> batch) {
-        List<VariantEffect> batchEffect = EffectCalculator.getEffects(batch);
+        EffectCalculator.setEffects(batch);
 
         for (Variant variant : batch) {
-            ArchivedVariantFile file = variant.getFile(study.getFileId());
-            if (file == null) {
-                // The variant is not present in this file
-                continue;
+            for (Map.Entry<String, ArchivedVariantFile> file : variant.getFiles().entrySet()) {
+                annotVariantEffect(variant, file.getValue());
             }
-            
-            annotVariantEffect(variant, file, batchEffect);
         }
     }
 
-    private void annotVariantEffect(Variant variant, ArchivedVariantFile file, List<VariantEffect> batchEffect) {
+    private void annotVariantEffect(Variant variant, ArchivedVariantFile file) {
         Set<String> ct = new HashSet<>();
-        for (VariantEffect effect : batchEffect) {
-            if (variant.getChromosome().equals(effect.getChromosome())
-                    && variant.getStart() == effect.getPosition()
-                    && variant.getReference().equals(effect.getReferenceAllele())
-                    && variant.getAlternate().equals(effect.getAlternativeAllele())) {
+        for (VariantEffect effect : variant.getEffect()) {
+            if (!effect.getConsequenceTypeObo().isEmpty())
                 ct.add(effect.getConsequenceTypeObo());
-            }
         }
 
-        String ct_all = Joiner.on(",").join(ct);
         if (ct.size() > 0) {
-//            variant.addInfoField("ConsType=" + ct_all);
-            file.addAttribute("ConsType", ct_all); // TODO aaleman: Check this code
+            file.addAttribute(this.ctTag, Joiner.on(",").join(ct));
         }
-    }
 
+    }
 }
