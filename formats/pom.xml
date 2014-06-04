@@ -59,5 +59,11 @@
       <version>0.1</version>
       <type>jar</type>
     </dependency>
+    <dependency>
+      <groupId>org.spockframework</groupId>
+      <artifactId>spock-core</artifactId>
+      <version>0.7-groovy-2.0</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 </project>
