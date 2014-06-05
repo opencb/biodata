@@ -6,16 +6,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.multipart.FormDataMultiPart;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.effect.VariantEffect;
+
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.effect.VariantEffect;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author Alejandro Aleman Ramos <aaleman@cipf.es>
@@ -96,7 +97,7 @@ public class EffectCalculator {
                             while (itResults.hasNext()) {
                                 JsonNode aa = itResults.next();
 
-                                if (aa.has("aaPositions") && aa.get("aaPositions").has("" + effect.getAaPosition()) 
+                                if (aa.has("aaPositions") && aa.get("aaPositions").has("" + effect.getAaPosition())
                                         && aa.get("aaPositions").get("" + effect.getAaPosition()).has("" + change)) {
                                     JsonNode val = aa.get("aaPositions").get("" + effect.getAaPosition()).get("" + change);
 
@@ -168,7 +169,7 @@ public class EffectCalculator {
         } else {
             noEffects = new ArrayList<>(batch.size());
             for (Variant v : batch) {
-                if (v.getEffect() == null) {
+                if (v.getEffect().size() == 0) {
                     noEffects.add(v);
                 }
             }
