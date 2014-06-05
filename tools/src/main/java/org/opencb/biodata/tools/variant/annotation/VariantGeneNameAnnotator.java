@@ -20,7 +20,7 @@ import org.opencb.biodata.tools.variant.EffectCalculator;
 public class VariantGeneNameAnnotator implements VariantAnnotator {
 
     private String geneNameTag;
-    
+
     public VariantGeneNameAnnotator() {
         this("GeneNames");
     }
@@ -44,7 +44,7 @@ public class VariantGeneNameAnnotator implements VariantAnnotator {
             }
         }
     }
-    
+
     private void annotGeneName(Variant variant, ArchivedVariantFile file) {
         Set<String> geneNames = new HashSet<>();
         for (VariantEffect effect : variant.getEffect()) {
@@ -57,5 +57,5 @@ public class VariantGeneNameAnnotator implements VariantAnnotator {
         }
 
     }
-    
+
 }
