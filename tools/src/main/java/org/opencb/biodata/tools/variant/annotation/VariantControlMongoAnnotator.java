@@ -3,12 +3,9 @@ package org.opencb.biodata.tools.variant.annotation;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Joiner;
-import java.io.IOException;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import org.opencb.biodata.models.variant.ArchivedVariantFile;
+import org.opencb.biodata.models.variant.Variant;
+
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -16,7 +13,9 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.opencb.biodata.models.variant.Variant;
+import java.io.IOException;
+import java.text.DecimalFormat;
+import java.util.*;
 
 /**
  * @author Alejandro Aleman Ramos <aaleman@cipf.es>
@@ -72,9 +71,12 @@ public class VariantControlMongoAnnotator implements VariantAnnotator {
                                     String aux = gtElem.getKey() + ":" + gtElem.getValue().asInt();
                                     gts.add(aux);
                                 }
-                                v.addAttribute(source.get("sourceId").asText() + "_maf", "" + df.format(source.get("stats").get("maf").asDouble()));
-                                v.addAttribute(source.get("sourceId").asText() + "_amaf", "" + source.get("stats").get("alleleMaf").asText());
-                                v.addAttribute(source.get("sourceId").asText() + "_gt", Joiner.on(",").join(gts));
+
+                                for (Map.Entry<String, ArchivedVariantFile> file : v.getFiles().entrySet()) {
+                                    file.getValue().addAttribute(source.get("sourceId").asText() + "_maf", "" + df.format(source.get("stats").get("maf").asDouble()));
+                                    file.getValue().addAttribute(source.get("sourceId").asText() + "_amaf", "" + source.get("stats").get("alleleMaf").asText());
+                                    file.getValue().addAttribute(source.get("sourceId").asText() + "_gt", Joiner.on(",").join(gts));
+                                }
                             }
                         }
                     }
@@ -89,5 +91,6 @@ public class VariantControlMongoAnnotator implements VariantAnnotator {
 
     @Override
     public void annot(Variant elem) {
+        annot(Arrays.asList(elem));
     }
 }
