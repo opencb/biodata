@@ -65,6 +65,7 @@ public class Hgvs {
             location.setChr(Refseq.refseqNCAccessionToChromosome(accession));
             location.setStart(start);
             location.setStop(stop);
+            location.setAccession(accession);
 
             // TODO: meter deleccion aqui, es para filtrar los cambios de tipo "insATGdelGTA"
             if (change.split("ins").length > 2) {
