@@ -1,10 +1,11 @@
 package org.opencb.biodata.models.variant.clinical;
 
 
+
 /**
  * Created by antonior on 5/22/14.
  */
-public class cosmic {
+public class Cosmic implements Comparable {
 
     /***
     Alternate Allele
@@ -172,9 +173,9 @@ public class cosmic {
 
 
     /***
-     * Age
+     * Age (may be null)
      */
-    private int age;
+    private Float age;
 
     /***
      * Comments
@@ -182,7 +183,7 @@ public class cosmic {
     private String comments;
 
 
-    public cosmic(String allele, String reference, String chr, int pos, String gene_name, String mutation_GRCh37_strand, String primary_site, String mutation_zygosity, String mutation_AA, String tumour_origin, String histology_subtype, String sample_source, String accession_Number, String mutation_ID, String mutation_CDS, String sample_name, String primary_histology, String mutation_GRCh37_genome_position, String mutation_Description, String genome_wide_screen, String ID_tumour, String ID_sample, String mutation_somatic_status, String site_subtype, String mutation_NCBI36_strand, String mutation_NCBI36_genome_position, int gene_cds_length, String hgnc_id, String pubmed_pmid, int Age, String Comments) {
+    public Cosmic(String allele, String reference, String chr, int pos, String gene_name, String mutation_GRCh37_strand, String primary_site, String mutation_zygosity, String mutation_AA, String tumour_origin, String histology_subtype, String sample_source, String accession_Number, String mutation_ID, String mutation_CDS, String sample_name, String primary_histology, String mutation_GRCh37_genome_position, String mutation_Description, String genome_wide_screen, String ID_tumour, String ID_sample, String mutation_somatic_status, String site_subtype, String mutation_NCBI36_strand, String mutation_NCBI36_genome_position, int gene_cds_length, String hgnc_id, String pubmed_pmid, Float Age, String Comments) {
         this.allele = allele;
         this.reference=reference;
         this.chr = chr;
@@ -452,11 +453,11 @@ public class cosmic {
         Pubmed_PMID = pubmed_PMID;
     }
 
-    public int getAge() {
+    public Float getAge() {
         return age;
     }
 
-    public void setAge(int age) {
+    public void setAge(Float age) {
         this.age = age;
     }
 
@@ -466,6 +467,18 @@ public class cosmic {
 
     public void setComments(String comments) {
         this.comments = comments;
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        Cosmic otherCosmic = (Cosmic)o;
+        int chr1 = Integer.parseInt(this.getChr());
+        int chr2 = Integer.parseInt(otherCosmic.getChr());
+        if (chr1 != chr2) {
+            return chr1 - chr2;
+        } else {
+            return this.getPos() - otherCosmic.getPos();
+        }
     }
 }
 

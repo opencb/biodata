@@ -25,98 +25,98 @@ public class Cadd {
     /***
      Variant position
      ***/
-    private int pos;
+    private Integer pos;
 
     /***
      Maximum ENCODE expression value
      ***/
-    private float EncExp;
+    private Float EncExp;
 
     /***
      Maximum ENCODE H3K27 acetylation level
      ***/
-    private float EncH3K27Ac;
+    private Float EncH3K27Ac;
 
     /***
      Maximum ENCODE H3K4 methylation level
      ***/
-    private float EncH3K4Me1;
+    private Float EncH3K4Me1;
 
     /***
      Maximum ENCODE H3K4 trimethylation level
      ***/
-    private float EncH3K4Me3;
+    private Float EncH3K4Me3;
 
 
     /***
      Maximum of ENCODE Nucelosome position track score
      ***/
-    private float EncNucleo;
+    private Float EncNucleo;
 
     /***
      ENCODE open chromatin code
      ***/
-    private int EncOCC;
+    private Integer EncOCC;
 
     /***
      ENCODE combined p-Value (PHRED-scale) of Faire, Dnase,polII, CTCF, Myc evidence for open chromatin
      ***/
-    private float EncOCCombPVal;
+    private Float EncOCCombPVal;
 
     /***
      p-Value (PHRED-scale) of Dnase evidence for open chromatin
      ***/
-    private float EncOCDNasePVal;
+    private Float EncOCDNasePVal;
 
     /***
      p-Value (PHRED-scale) of Faire evidence for open chromatin
      ***/
-    private float EncOCFairePVal;
+    private Float EncOCFairePVal;
 
     /***
      p-Value (PHRED-scale) of polII evidence for open chromatin
      ***/
-    private float EncOCpolIIPVal;
+    private Float EncOCpolIIPVal;
 
 
     /***
      p-Value (PHRED-scale) of CTCF evidence for open chromatin
      ***/
-    private float EncOCctcfPVal;
+    private Float EncOCctcfPVal;
 
 
     /***
      p-Value (PHRED-scale) of Myc evidence for open chromatin
      ***/
-    private float EncOCmycPVal;
+    private Float EncOCmycPVal;
 
 
     /***
      Peak signal for Dnase evidence of open chromatin
      ***/
-    private float EncOCDNaseSig;
+    private Float EncOCDNaseSig;
 
 
     /***
      Peak signal for Faire evidence of open chromatin
      ***/
-    private float EncOCFaireSig;
+    private Float EncOCFaireSig;
 
     /***
      Peak signal for polII evidence of open chromatin
      ***/
-    private float EncOCpolIISig;
+    private Float EncOCpolIISig;
 
 
     /***
      Peak signal for CTCF evidence of open chromatin
      ***/
-    private float EncOCctcfSig;
+    private Float EncOCctcfSig;
 
     /***
      Peak signal for Myc evidence of open chromatin
      ***/
-    private float EncOCmycSig;
+    private Float EncOCmycSig;
 
 
     /***
@@ -124,7 +124,7 @@ public class Cadd {
      ***/
     private List <CaddValues> valuesCadd;
 
-    public Cadd(String allele, String reference, String chr, int pos, float encExp, float encH3K27Ac, float encH3K4Me1, float encH3K4Me3, float encNucleo, int encOCC, float encOCCombPVal, float encOCDNasePVal, float encOCFairePVal, float encOCpolIIPVal, float encOCctcfPVal, float encOCmycPVal, float encOCDNaseSig, float encOCFaireSig, float encOCpolIISig, float encOCctcfSig, float encOCmycSig, List<CaddValues> valuesCadd) {
+    public Cadd(String allele, String reference, String chr, Integer pos, Float encExp, Float encH3K27Ac, Float encH3K4Me1, Float encH3K4Me3, Float encNucleo, Integer encOCC, Float encOCCombPVal, Float encOCDNasePVal, Float encOCFairePVal, Float encOCpolIIPVal, Float encOCctcfPVal, Float encOCmycPVal, Float encOCDNaseSig, Float encOCFaireSig, Float encOCpolIISig, Float encOCctcfSig, Float encOCmycSig, List<CaddValues> valuesCadd) {
         this.allele = allele;
         this.reference = reference;
         this.chr = chr;
@@ -176,147 +176,147 @@ public class Cadd {
         this.chr = chr;
     }
 
-    public int getPos() {
+    public Integer getPos() {
         return pos;
     }
 
-    public void setPos(int pos) {
+    public void setPos(Integer pos) {
         this.pos = pos;
     }
 
-    public float getEncExp() {
+    public Float getEncExp() {
         return EncExp;
     }
 
-    public void setEncExp(float encExp) {
+    public void setEncExp(Float encExp) {
         EncExp = encExp;
     }
 
-    public float getEncH3K27Ac() {
+    public Float getEncH3K27Ac() {
         return EncH3K27Ac;
     }
 
-    public void setEncH3K27Ac(float encH3K27Ac) {
+    public void setEncH3K27Ac(Float encH3K27Ac) {
         EncH3K27Ac = encH3K27Ac;
     }
 
-    public float getEncH3K4Me1() {
+    public Float getEncH3K4Me1() {
         return EncH3K4Me1;
     }
 
-    public void setEncH3K4Me1(float encH3K4Me1) {
+    public void setEncH3K4Me1(Float encH3K4Me1) {
         EncH3K4Me1 = encH3K4Me1;
     }
 
-    public float getEncH3K4Me3() {
+    public Float getEncH3K4Me3() {
         return EncH3K4Me3;
     }
 
-    public void setEncH3K4Me3(float encH3K4Me3) {
+    public void setEncH3K4Me3(Float encH3K4Me3) {
         EncH3K4Me3 = encH3K4Me3;
     }
 
-    public float getEncNucleo() {
+    public Float getEncNucleo() {
         return EncNucleo;
     }
 
-    public void setEncNucleo(float encNucleo) {
+    public void setEncNucleo(Float encNucleo) {
         EncNucleo = encNucleo;
     }
 
-    public int getEncOCC() {
+    public Integer getEncOCC() {
         return EncOCC;
     }
 
-    public void setEncOCC(int encOCC) {
+    public void setEncOCC(Integer encOCC) {
         EncOCC = encOCC;
     }
 
-    public float getEncOCCombPVal() {
+    public Float getEncOCCombPVal() {
         return EncOCCombPVal;
     }
 
-    public void setEncOCCombPVal(float encOCCombPVal) {
+    public void setEncOCCombPVal(Float encOCCombPVal) {
         EncOCCombPVal = encOCCombPVal;
     }
 
-    public float getEncOCDNasePVal() {
+    public Float getEncOCDNasePVal() {
         return EncOCDNasePVal;
     }
 
-    public void setEncOCDNasePVal(float encOCDNasePVal) {
+    public void setEncOCDNasePVal(Float encOCDNasePVal) {
         EncOCDNasePVal = encOCDNasePVal;
     }
 
-    public float getEncOCFairePVal() {
+    public Float getEncOCFairePVal() {
         return EncOCFairePVal;
     }
 
-    public void setEncOCFairePVal(float encOCFairePVal) {
+    public void setEncOCFairePVal(Float encOCFairePVal) {
         EncOCFairePVal = encOCFairePVal;
     }
 
-    public float getEncOCpolIIPVal() {
+    public Float getEncOCpolIIPVal() {
         return EncOCpolIIPVal;
     }
 
-    public void setEncOCpolIIPVal(float encOCpolIIPVal) {
+    public void setEncOCpolIIPVal(Float encOCpolIIPVal) {
         EncOCpolIIPVal = encOCpolIIPVal;
     }
 
-    public float getEncOCctcfPVal() {
+    public Float getEncOCctcfPVal() {
         return EncOCctcfPVal;
     }
 
-    public void setEncOCctcfPVal(float encOCctcfPVal) {
+    public void setEncOCctcfPVal(Float encOCctcfPVal) {
         EncOCctcfPVal = encOCctcfPVal;
     }
 
-    public float getEncOCmycPVal() {
+    public Float getEncOCmycPVal() {
         return EncOCmycPVal;
     }
 
-    public void setEncOCmycPVal(float encOCmycPVal) {
+    public void setEncOCmycPVal(Float encOCmycPVal) {
         EncOCmycPVal = encOCmycPVal;
     }
 
-    public float getEncOCDNaseSig() {
+    public Float getEncOCDNaseSig() {
         return EncOCDNaseSig;
     }
 
-    public void setEncOCDNaseSig(float encOCDNaseSig) {
+    public void setEncOCDNaseSig(Float encOCDNaseSig) {
         EncOCDNaseSig = encOCDNaseSig;
     }
 
-    public float getEncOCFaireSig() {
+    public Float getEncOCFaireSig() {
         return EncOCFaireSig;
     }
 
-    public void setEncOCFaireSig(float encOCFaireSig) {
+    public void setEncOCFaireSig(Float encOCFaireSig) {
         EncOCFaireSig = encOCFaireSig;
     }
 
-    public float getEncOCpolIISig() {
+    public Float getEncOCpolIISig() {
         return EncOCpolIISig;
     }
 
-    public void setEncOCpolIISig(float encOCpolIISig) {
+    public void setEncOCpolIISig(Float encOCpolIISig) {
         EncOCpolIISig = encOCpolIISig;
     }
 
-    public float getEncOCctcfSig() {
+    public Float getEncOCctcfSig() {
         return EncOCctcfSig;
     }
 
-    public void setEncOCctcfSig(float encOCctcfSig) {
+    public void setEncOCctcfSig(Float encOCctcfSig) {
         EncOCctcfSig = encOCctcfSig;
     }
 
-    public float getEncOCmycSig() {
+    public Float getEncOCmycSig() {
         return EncOCmycSig;
     }
 
-    public void setEncOCmycSig(float encOCmycSig) {
+    public void setEncOCmycSig(Float encOCmycSig) {
         EncOCmycSig = encOCmycSig;
     }
 
