@@ -5,9 +5,12 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.feature.AllelesCode;
 import org.opencb.biodata.models.feature.Genotype;
+import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 
 /**
  * @author Alejandro Aleman Ramos <aaleman@cipf.es>
@@ -76,14 +79,19 @@ public class VariantFactory {
         // Now create all the Variant objects read from the VCF record
         for (int i = 0; i < alternateAlleles.length; i++) {
             VariantKeyFields keyFields = generatedKeyFields.get(i);
-//            if (keyFields != null) {
-                Variant variant = new Variant(chromosome, keyFields.start, keyFields.end, keyFields.reference, keyFields.alternate);
-                variant.addFile(new ArchivedVariantFile(fileName, fileId, studyId));
-                setOtherFields(variant, fileId, id, quality, filter, info, format);
+            Variant variant = new Variant(chromosome, keyFields.start, keyFields.end, keyFields.reference, keyFields.alternate);
+            variant.addFile(new ArchivedVariantFile(fileName, fileId, studyId));
+            setOtherFields(variant, fileId, id, quality, filter, info, format);
+            
+            try {
                 // Copy only the samples that correspond to each specific mutation
                 parseSplitSampleData(variant, fileId, fields, sampleNames, alternateAlleles, i+1);
                 variants.add(variant);
-//            }
+            } catch (NonStandardCompliantSampleField ex) {
+                Logger.getLogger(VariantFactory.class.getName()).log(Level.SEVERE, 
+                        String.format("Variant %s:%d:%s>%s will not be saved\n%s", 
+                                chromosome, position, reference, alternateAlleles[i], ex.getMessage()));
+            }
         }
         
         return variants;
@@ -126,7 +134,7 @@ public class VariantFactory {
     }
 
     private static void parseSplitSampleData(Variant variant, String fileId, String[] fields, List<String> sampleNames, 
-            String[] alternateAlleles, int alleleIdx) {
+            String[] alternateAlleles, int alleleIdx) throws NonStandardCompliantSampleField {
         String[] formatFields = variant.getFile(fileId).getFormat().split(":");
 
         for (int i = 9; i < fields.length; i++) {
@@ -163,7 +171,7 @@ public class VariantFactory {
                             }
                         }
                     } else {
-                        break;
+                        break; // Do not waste time processing the rest of fields
                     }
                 } else if (formatField.equalsIgnoreCase("GL") ||
                            formatField.equalsIgnoreCase("PL") ||
@@ -175,7 +183,7 @@ public class VariantFactory {
                         String[] likelihoods = sampleField.split(",");
 
                         // If only 3 likelihoods are represented, no transformation is needed
-                        if (likelihoods.length != 3) {
+                        if (likelihoods.length > 3) {
                             // Get alleles index to work with: if both are the same alternate,
                             // the combinations must be run with the reference allele.
                             // Otherwise all GL reported would be alt/alt.
@@ -185,6 +193,13 @@ public class VariantFactory {
                                 allele1 = 0;
                             }
 
+                            // If the number of values is not enough for this GT
+                            int maxAllele = allele1 >= allele2 ? allele1 : allele2;
+                            int numValues = (int) (((float) maxAllele * (maxAllele + 1)) / 2) + maxAllele;
+                            if (likelihoods.length < numValues) {
+                                throw new NonStandardCompliantSampleField(formatField, sampleField, String.format("It must contain %d values", numValues));
+                            }
+                            
                             // Genotype likelihood must be distributed following similar criteria as genotypes
                             String[] alleleLikelihoods = new String[3];
                             alleleLikelihoods[0] = likelihoods[(int) (((float) allele1 * (allele1 + 1)) / 2) + allele1];
