@@ -236,7 +236,7 @@ public class VariantStats {
         if (genotypesCount.containsKey(g)) {
             count = genotypesCount.get(g) + addedCount;
         } else {
-            count = 1;
+            count = addedCount;
         }
         genotypesCount.put(g, count);
     }
