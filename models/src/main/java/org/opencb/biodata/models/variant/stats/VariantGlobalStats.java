@@ -17,6 +17,8 @@ public class VariantGlobalStats {
     private int transitionsCount;
     private int transversionsCount;
     private float accumulatedQuality;
+    private float meanQuality;
+    
     @Deprecated
     private int biallelicsCount;
     @Deprecated
@@ -101,6 +103,18 @@ public class VariantGlobalStats {
 
     public void setAccumulatedQuality(float accumulatedQuality) {
         this.accumulatedQuality = accumulatedQuality;
+    }
+
+    public float getMeanQuality() {
+        if (meanQuality > 0) {
+            return meanQuality;
+        } else {
+            return meanQuality = getAccumulatedQuality() / getVariantsCount();
+        }
+    }
+
+    public void setMeanQuality(float meanQuality) {
+        this.meanQuality = meanQuality;
     }
 
     @Deprecated
