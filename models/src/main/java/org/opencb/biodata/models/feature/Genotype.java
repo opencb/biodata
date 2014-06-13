@@ -33,7 +33,8 @@ public class Genotype {
         this.count = 0;
         parseGenotype(genotype);
     }
-
+    
+    
     private void parseGenotype(String genotype) {
         String[] alleles = genotype.split("/|\\|", -1);
         
@@ -141,6 +142,8 @@ public class Genotype {
     }
     
     public int encode() {
+        // TODO Change phased to positive and unphased to negative int to support genotypes with more than 2 alleles
+        // TODO Support missing genotypes
         int encoding = isPhased() ? 100 : 0;
         for (int i = 0; i < allelesIdx.length; i++) {
             encoding += Math.pow(10, allelesIdx.length - i - 1) * allelesIdx[i]; 
@@ -149,6 +152,18 @@ public class Genotype {
         return encoding;
     }
     
+    public static Genotype decode(int encoding) {
+        // TODO Support missing genotypes
+        boolean phased = encoding > 100;
+        
+        StringBuilder builder = new StringBuilder(String.valueOf(encoding));
+        for (int i = 0; i < builder.length(); i += 2) {
+            builder.insert(i + 1, phased ? "|" : "/");
+        }
+        
+        return new Genotype(builder.toString());
+    }
+
     @Override
     public String toString() {
         StringBuilder value = new StringBuilder();
