@@ -13,6 +13,7 @@ import org.opencb.biodata.models.variant.VariantSource;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -60,10 +61,12 @@ public class VariantVcfReader implements VariantReader {
                 this.reader = Files.newBufferedReader(path, Charset.defaultCharset());
             }
 
-        } catch (IOException ex) {
+        }
+        catch (IOException  ex) {
             Logger.getLogger(VariantVcfReader.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         }
+
 
         return true;
     }
@@ -71,7 +74,10 @@ public class VariantVcfReader implements VariantReader {
     @Override
     public boolean pre() {
         try {
+
             processHeader();
+            source.setSamples(vcf4.getSampleNames());
+
         } catch (IOException | FileFormatException ex) {
             Logger.getLogger(VariantVcfReader.class.getName()).log(Level.SEVERE, null, ex);
             return false;
