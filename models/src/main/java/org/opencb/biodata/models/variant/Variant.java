@@ -84,7 +84,7 @@ public class Variant {
     /**
      * Unique identifier following the HGVS nomenclature.
      */
-    private Map<String, List<String>> hgvs;
+    private Map<String, Set<String>> hgvs;
     
     /**
      * Information specific to each file the variant was read from, such as 
@@ -139,7 +139,9 @@ public class Variant {
         
         this.hgvs = new HashMap<>();
         if (this.type == VariantType.SNV) { // Generate HGVS code only for SNVs
-            this.hgvs.put("genomic", Arrays.asList(chromosome + ":g." + start + reference + ">" + alternate));
+            Set<String> hgvsCodes = new HashSet<>();
+            hgvsCodes.add(chromosome + ":g." + start + reference + ">" + alternate);
+            this.hgvs.put("genomic", hgvsCodes);
         }
         
         this.files = new HashMap<>();
@@ -232,18 +234,18 @@ public class Variant {
 //        }
 //    }
     
-    public Map<String, List<String>> getHgvs() {
+    public Map<String, Set<String>> getHgvs() {
         return hgvs;
     }
     
-    public List<String> getHgvs(String type) {
+    public Set<String> getHgvs(String type) {
         return hgvs.get(type);
     }
 
     public boolean addHgvs(String type, String value) {
-        List<String> listByType = hgvs.get(type);
+        Set<String> listByType = hgvs.get(type);
         if (listByType == null) {
-            listByType = new ArrayList<>();
+            listByType = new HashSet<>();
         }
         return listByType.add(value);
     }
