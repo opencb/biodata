@@ -63,28 +63,28 @@ public class VariantStats {
 
     
     public VariantStats() {
-        this.chromosome = "";
-        this.position = (long) 0;
-        this.refAllele = "";
-        this.altAllele = "";
+        this.chromosome = null;
+        this.position = -1;
+        this.refAllele = null;
+        this.altAllele = null;
 
-        this.mafAllele = "";
-        this.mgfGenotype = "";
-        this.refAlleleCount = this.altAlleleCount = 0;
-        this.refAlleleFreq = this.altAlleleFreq = 0.0f;
+        this.mafAllele = null;
+        this.mgfGenotype = null;
+        this.refAlleleCount = this.altAlleleCount = -1;
+        this.refAlleleFreq = this.altAlleleFreq = -1;
         this.genotypesCount = new HashMap<>();
-        this.missingAlleles = 0;
-        this.missingGenotypes = 0;
-        this.mendelianErrors = 0;
+        this.missingAlleles = -1;
+        this.missingGenotypes = -1;
+        this.mendelianErrors = -1;
         this.genotypesFreq = new HashMap<>();
-        this.maf = 0;
-        this.mgf = 0;
-        this.casesPercentDominant = 0;
-        this.controlsPercentDominant = 0;
-        this.casesPercentRecessive = 0;
-        this.controlsPercentRecessive = 0;
-        this.transitionsCount = 0;
-        this.transversionsCount = 0;
+        this.maf = -1;
+        this.mgf = -1;
+        this.casesPercentDominant = -1;
+        this.controlsPercentDominant = -1;
+        this.casesPercentRecessive = -1;
+        this.controlsPercentRecessive = -1;
+        this.transitionsCount = -1;
+        this.transversionsCount = -1;
         this.hw = new VariantHardyWeinbergStats();
     }
 
