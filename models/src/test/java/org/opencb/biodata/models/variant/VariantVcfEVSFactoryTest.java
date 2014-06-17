@@ -1,85 +1,159 @@
 package org.opencb.biodata.models.variant;
 
-import org.junit.Ignore;
 import org.junit.Test;
+import org.opencb.biodata.models.feature.Genotype;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class VariantVcfEVSFactoryTest {
 
     private VariantSource source = new VariantSource("EVS", "EVS", "EVS", "EVS");
    private VariantFactory factory = new VariantVcfEVSFactory();
 
-    @Ignore
     @Test
-    public void testCreate() throws Exception {
+    public void testCreate_AA_AC_TT_GT() throws Exception { // AA,AC,TT,GT,...
 
-        String line="1\t69428\trs140739101\tT\tG\t.\tPASS\tDBSNP=dbSNP_134;EA_AC=313,6535;AA_AC=14,3808;TAC=327,10343;MAF=4.5707,0.3663,3.0647;GTS=GG,GT,TT;EA_GTC=92,129,3203;AA_GTC=1,12,1898;GTC=93,141,5101;DP=110;GL=OR4F5;CP=1.0;CG=0.9;AA=T;CA=.;EXOME_CHIP=no;GWAS_PUBMED=.;FG=NM_001005484.1:missense;HGVS_CDNA_VAR=NM_001005484.1:c.338T>G;HGVS_PROTEIN_VAR=NM_001005484.1:p.(F113C);CDS_SIZES=NM_001005484.1:918;GS=205;PH=probably-damaging:0.999;EA_AGE=.;AA_AGE=.";
+        String line="1\t69428\trs140739101\tT\tG\t.\tPASS\tMAF=4.5707,0.3663,3.0647;GTS=GG,GT,TT;GTC=93,141,5101";
 
         List<Variant> res = factory.create(source, line);
+
+        assertTrue(res.size() == 1);
 
         Variant v = res.get(0);
         ArchivedVariantFile avf = v.getFile(source.getFileId());
 
-        System.out.println("v = " + v);
-        System.out.println(avf.getAttribute("GTS"));
-        System.out.println(avf.getAttribute("GTC"));
+        Map<Genotype, Integer> genotypes = new HashMap<>();
 
-        System.out.println("Genotypes count = " + avf.getStats().getGenotypesCount());
+        genotypes.put(new Genotype("0/0","T","G"), new Integer(5101));
+        genotypes.put(new Genotype("1/0","T","G"), new Integer(141));
+        genotypes.put(new Genotype("1/1","T","G"), new Integer(93));
 
+        assertEquals(avf.getStats().getGenotypesCount(), genotypes);
 
     }
 
-    @Ignore
     @Test
-    public void testCreate2(){ // AA, CC
-        String line="1\t156706559\trs8658\tA\tG,C\t.\tPASS\tDBSNP=dbSNP_52;EA_AC=5849,2751,0;AA_AC=3464,942,0;TAC=9313,3693,0;MAF=31.9884,21.3799,28.3946;GTS=GG,GC,GA,CC,CA,AA;EA_GTC=2013,1823,0,464,0,0;AA_GTC=1439,586,0,178,0,0;GTC=3452,2409,0,642,0,0;DP=36;GL=RRNAD1;CP=0.0;CG=-0.4;AA=C;CA=.;EXOME_CHIP=no;GWAS_PUBMED=.;FG=NM_015997.3:utr-3,NM_001142560.1:utr-3,NM_015997.3:utr-3,NM_001142560.1:utr-3;HGVS_CDNA_VAR=NM_015997.3:c.*14A>C,NM_001142560.1:c.*123A>C,NM_015997.3:c.*14A>G,NM_001142560.1:c.*123A>G;HGVS_PROTEIN_VAR=.,.,.,.;CDS_SIZES=NM_015997.3:1428,NM_001142560.1:834,NM_015997.3:1428,NM_001142560.1:834;GS=.,.,.,.;PH=.,.,.,.;EA_AGE=.;AA_AGE=.";
+    public void testCreate_A_C_T_G(){ // A,C,T,G
+
+        String line = "Y\t25375759\trs373156833\tT\tA\t.\tPASS\tMAF=0.0,0.1751,0.0409;GTS=A,T;GTC=1,2442";
         List<Variant> res = factory.create(source, line);
 
-        for(Variant v : res){
+        assertTrue(res.size() == 1);
+
+        Variant v = res.get(0);
         ArchivedVariantFile avf = v.getFile(source.getFileId());
 
-        System.out.println("v = " + v);
-        System.out.println(avf.getAttribute("GTS"));
-        System.out.println(avf.getAttribute("GTC"));
+        Map<Genotype, Integer> genotypes = new HashMap<>();
 
-        System.out.println("Genotypes count = " + avf.getStats().getGenotypesCount());
-        }
+        genotypes.put(new Genotype("0/0", "T", "A"), new Integer(2442));
+        genotypes.put(new Genotype("1/1", "T", "A"), new Integer(1));
+
+        assertEquals(avf.getStats().getGenotypesCount(), genotypes);
 
     }
 
-    @Ignore
     @Test
-    public void testCreate3(){
-        String line  ="1\t981860\t.\tGC\tGCC,G\t.\tPASS\tDBSNP=.;EA_AC=87,176,7897;AA_AC=75,129,3992;TAC=162,305,11889;MAF=3.223,4.8618,3.7795;GTS=A1A1,A1A2,A1R,A2A2,A2R,RR;EA_GTC=1,0,85,1,174,3819;AA_GTC=3,0,69,2,125,1899;GTC=4,0,154,3,299,5718;DP=15;GL=AGRN;CP=0.0;CG=-4.9;AA=.;CA=.;EXOME_CHIP=no;GWAS_PUBMED=.;FG=NM_198576.3:frameshift,NM_198576.3:frameshift;HGVS_CDNA_VAR=NM_198576.3:c.2996del1,NM_198576.3:c.2995_2996insC;HGVS_PROTEIN_VAR=NM_198576.3:p.(G1002Afs*38),NM_198576.3:p.(G1002Rfs*58);CDS_SIZES=NM_198576.3:6138,NM_198576.3:6138;GS=.,.;PH=.,.;EA_AGE=.;AA_AGE=.";
+    public void testCreate_R_RR_A1R_A1A1(){ // R, RR, A1R, A1A1
+        String line  ="X\t100117423\t.\tAG\tA\t.\tPASS\tMAF=0.0308,0.0269,0.0294;GTS=A1A1,A1R,RR,R;GTC=1,1,3947,2306;";
 
         List<Variant> res = factory.create(source, line);
 
-        for(Variant v : res){
-            ArchivedVariantFile avf = v.getFile(source.getFileId());
+        assertTrue(res.size() == 1);
 
-            System.out.println("v = " + v);
-            System.out.println(avf.getAttribute("GTS"));
-            System.out.println(avf.getAttribute("GTC"));
+        Variant v = res.get(0);
 
-            System.out.println("Genotypes count = " + avf.getStats().getGenotypesCount());
-        }
+        assertEquals(v.getReference(), "G");
+        assertEquals(v.getAlternate(), "");
+
+
+        ArchivedVariantFile avf = v.getFile(source.getFileId());
+
+        Map<Genotype, Integer> genotypes = new HashMap<>();
+
+        genotypes.put(new Genotype("1/1", "G", ""), new Integer(1));
+        genotypes.put(new Genotype("1/0", "G", ""), new Integer(1));
+        genotypes.put(new Genotype("0/0", "G", ""), new Integer(6253));
+
+        assertEquals(avf.getStats().getGenotypesCount(), genotypes);
+
     }
 
-        @Test
-        public void testCreate4() {
-            String line = "1\t6291918\trs148639379\tTA\tTAAAAA,TAA,TAAA,T\t.\tPASS\tDBSNP=dbSNP_134;EA_AC=603,913,70,792,5874;AA_AC=234,1122,546,188,2174;TAC=837,2035,616,980,8048;MAF=28.8173,49.015,35.6983;GTS=A1A1,A1A2,A1A3,A1A4,A1R,A2A2,A2A3,A2A4,A2R,A3A3,A3A4,A3R,A4A4,A4R,RR;EA_GTC=0,10,0,2,591,11,10,9,862,0,1,59,0,780,1791;AA_GTC=2,57,17,0,156,65,184,16,735,9,9,318,1,161,402;GTC=2,67,17,2,747,76,194,25,1597,9,10,377,1,941,2193;DP=22;GL=ICMT;CP=0.0;CG=0.6;AA=.;CA=.;EXOME_CHIP=no;GWAS_PUBMED=.;FG=NM_012405.3:intron,NM_012405.3:intron,NM_012405.3:intron,NM_012405.3:intron;HGVS_CDNA_VAR=NM_012405.3:c.672+43del1,NM_012405.3:c.672+43_672+44insTT,NM_012405.3:c.672+43_672+44insT,NM_012405.3:c.672+43_672+44insTTTT;HGVS_PROTEIN_VAR=.,.,.,.;CDS_SIZES=NM_012405.3:855,NM_012405.3:855,NM_012405.3:855,NM_012405.3:855;GS=.,.,.,.;PH=.,.,.,.;EA_AGE=.;AA_AGE=.";
+    @Test
+    public void testCreate_R_RR_A1A1_A1R_A1(){ // A1,A2,A3
+        String line = "X\t106362078\trs3216052\tCT\tC\t.\tPASS\tMAF=18.1215,25.2889,38.7555;GTS=A1A1,A1R,A1,RR,R;GTC=960,1298,737,1691,1570";
 
-            List<Variant> res = factory.create(source, line);
 
-            for (Variant v : res) {
-                ArchivedVariantFile avf = v.getFile(source.getFileId());
+        List<Variant> res = factory.create(source, line);
 
-                System.out.println("v = " + v);
-                System.out.println(avf.getAttribute("GTS"));
-                System.out.println(avf.getAttribute("GTC"));
+        assertTrue(res.size() == 1);
 
-                System.out.println("Genotypes count = " + avf.getStats().getGenotypesCount());
-            }
-        }
+        Variant v = res.get(0);
+
+        assertEquals(v.getReference(), "T");
+        assertEquals(v.getAlternate(), "");
+
+
+        ArchivedVariantFile avf = v.getFile(source.getFileId());
+
+        Map<Genotype, Integer> genotypes = new HashMap<>();
+
+        genotypes.put(new Genotype("1/1", "T", ""), new Integer(1697));
+        genotypes.put(new Genotype("1/0", "T", ""), new Integer(1298));
+        genotypes.put(new Genotype("0/0", "T", ""), new Integer(3261));
+
+        assertEquals(avf.getStats().getGenotypesCount(), genotypes);
+    }
+
+    @Test
+    public void testCreate_A1A1_A1A2_A2R_A2_RR_R(){// A1A2,A1A3...
+
+        String line = "X\t14039552\t.\tCA\tCAA,C\t.\tPASS\tMAF=5.3453,4.2467,4.9459;GTS=A1A1,A1A2,A1R,A1,A2A2,A2R,A2,RR,R;GTC=0,0,134,162,4,92,107,3707,2027;";
+
+        List<Variant> res = factory.create(source, line);
+
+        assertTrue(res.size() == 2);
+
+        Variant v = res.get(0);
+
+        assertEquals(v.getReference(), "");
+        assertEquals(v.getAlternate(), "A");
+
+
+        ArchivedVariantFile avf = v.getFile(source.getFileId());
+
+        Map<Genotype, Integer> genotypes = new HashMap<>();
+
+        genotypes.put(new Genotype("1/1", "", "A"), new Integer(162));
+        genotypes.put(new Genotype("1/0", "", "A"), new Integer(134));
+        genotypes.put(new Genotype("0/0", "", "A"), new Integer(5734));
+        genotypes.put(new Genotype("./.", "", "A"), new Integer(203));
+
+        assertEquals(avf.getStats().getGenotypesCount(), genotypes);
+
+
+        v = res.get(1);
+
+        assertEquals(v.getReference(), "A");
+        assertEquals(v.getAlternate(), "");
+
+
+        avf = v.getFile(source.getFileId());
+
+        genotypes = new HashMap<>();
+
+        genotypes.put(new Genotype("1/1", "A", ""), new Integer(111));
+        genotypes.put(new Genotype("1/0", "A", ""), new Integer(92));
+        genotypes.put(new Genotype("0/0", "A", ""), new Integer(5734));
+        genotypes.put(new Genotype("./.", "A", ""), new Integer(296));
+
+        assertEquals(avf.getStats().getGenotypesCount(), genotypes);
+
+
+    }
+
 }
