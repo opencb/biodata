@@ -185,11 +185,11 @@ public class VariantVcfEVSFactory extends VariantVcfFactory implements VariantFa
 
                 allele1 = allele1 > 1 ? 1 : allele1;
                 allele2 = allele2 > 1 ? 1 : allele2;
-                g = new Genotype(allele1 + "/" + allele2);
+                g = new Genotype(allele1 + "/" + allele2, variant.getReference(), variant.getAlternate());
 
                 return g;
             }else{
-                return new Genotype("./.");
+                return new Genotype("./.", variant.getReference(), variant.getAlternate());
             }
         }
 
@@ -206,7 +206,7 @@ public class VariantVcfEVSFactory extends VariantVcfFactory implements VariantFa
                 g = new Genotype(variant.getAlternate() + "/" + variant.getAlternate(), variant.getReference(), variant.getAlternate());
                 return g;
             } else {
-                return new Genotype("./.");
+                return new Genotype("./.", variant.getReference(), variant.getAlternate());
             }
         }
 
@@ -218,7 +218,7 @@ public class VariantVcfEVSFactory extends VariantVcfFactory implements VariantFa
                 g = new Genotype(variant.getAlternate() + "/" + variant.getAlternate(), variant.getReference(), variant.getAlternate());
                 return g;
             } else {
-                return new Genotype("./.");
+                return new Genotype("./.", variant.getReference(), variant.getAlternate());
             }
         }
 
@@ -229,7 +229,7 @@ public class VariantVcfEVSFactory extends VariantVcfFactory implements VariantFa
                 g = new Genotype(variant.getAlternate() + "/" + variant.getReference(), variant.getReference(), variant.getAlternate());
                 return g;
             } else {
-                return new Genotype("./.");
+                return new Genotype("./.", variant.getReference(), variant.getAlternate());
             }
         }
 

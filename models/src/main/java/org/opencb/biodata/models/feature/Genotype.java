@@ -177,6 +177,7 @@ public class Genotype {
             value.append(separator);
             value.append(allelesIdx[i]);
         }
+        value.append(" - " + reference + "_" + alternate);
         return value.toString();
     }
 
