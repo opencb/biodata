@@ -154,10 +154,14 @@ public class Genotype {
     
     public static Genotype decode(int encoding) {
         // TODO Support missing genotypes
-        boolean phased = encoding > 100;
+        boolean phased = encoding >= 100;
+        if (phased) {
+            encoding -= 100;
+        }
         
-        StringBuilder builder = new StringBuilder(String.valueOf(encoding));
-        for (int i = 0; i < builder.length(); i += 2) {
+        // TODO What to do with haploids?
+        StringBuilder builder = new StringBuilder(String.format("%02d", encoding));
+        for (int i = 0; i < builder.length() - 1; i += 2) {
             builder.insert(i + 1, phased ? "|" : "/");
         }
         
