@@ -21,11 +21,12 @@ public class VariantVcfFactory implements VariantFactory {
      * be created from a single line.
      *
      * @param source
-     * @param line   Contents of the line in the file
-     * @return The list of Variant objects that can be created using the fields from a VCF record
+     * @param line Contents of the line in the file
+     * @return The list of Variant objects that can be created using the fields
+     * from a VCF record
      */
+    @Override
     public List<Variant> create(VariantSource source, String line) throws IllegalArgumentException {
-
         String[] fields = line.split("\t");
         if (fields.length < 8) {
             throw new IllegalArgumentException("Not enough fields provided (min 8)");
@@ -91,7 +92,7 @@ public class VariantVcfFactory implements VariantFactory {
     }
 
     protected void parseSplitSampleData(Variant variant, String fileId, String[] fields, List<String> sampleNames,
-                                        String[] alternateAlleles, int alleleIdx) throws NonStandardCompliantSampleField {
+            String[] alternateAlleles, int alleleIdx) throws NonStandardCompliantSampleField {
         String[] formatFields = variant.getFile(fileId).getFormat().split(":");
 
         for (int i = 9; i < fields.length; i++) {
@@ -130,13 +131,13 @@ public class VariantVcfFactory implements VariantFactory {
                     } else {
                         break; // Do not waste time processing the rest of fields
                     }
-                } else if (formatField.equalsIgnoreCase("GL") ||
-                        formatField.equalsIgnoreCase("PL") ||
-                        formatField.equalsIgnoreCase("GP")) {
+                } else if (formatField.equalsIgnoreCase("GL")
+                        || formatField.equalsIgnoreCase("PL")
+                        || formatField.equalsIgnoreCase("GP")) {
                     // All-alleles present and not haploid
-                    if (!sampleField.equals(".") && genotype != null &&
-                            (genotype.getCode() == AllelesCode.ALLELES_OK ||
-                                    genotype.getCode() == AllelesCode.MULTIPLE_ALTERNATES)) {
+                    if (!sampleField.equals(".") && genotype != null
+                            && (genotype.getCode() == AllelesCode.ALLELES_OK
+                            || genotype.getCode() == AllelesCode.MULTIPLE_ALTERNATES)) {
                         String[] likelihoods = sampleField.split(",");
 
                         // If only 3 likelihoods are represented, no transformation is needed
@@ -178,11 +179,11 @@ public class VariantVcfFactory implements VariantFactory {
     }
 
     /**
-     * Checks whether a sample should be included in a variant's list of samples.
-     * If current allele index is not found in the genotype and not all alleles
-     * are references/missing, then the sample must not be included.
+     * Checks whether a sample should be included in a variant's list of
+     * samples. If current allele index is not found in the genotype and not all
+     * alleles are references/missing, then the sample must not be included.
      *
-     * @param genotype  The genotype
+     * @param genotype The genotype
      * @param alleleIdx The index of the allele
      * @return If the sample should be associated to the variant
      */
@@ -272,6 +273,7 @@ public class VariantVcfFactory implements VariantFactory {
     }
 
     protected class VariantKeyFields {
+
         int start, end, numAllele;
         String reference, alternate;
 
@@ -281,6 +283,7 @@ public class VariantVcfFactory implements VariantFactory {
             this.reference = reference;
             this.alternate = alternate;
         }
+
         public void setNumAllele(int numAllele) {
             this.numAllele = numAllele;
         }

@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
  * @author Alejandro Aleman Ramos <aaleman@cipf.es>
  * @author Cristina Yenyxe Gonzalez Garcia <cyenyxe@ebi.ac.uk>
  */
-public class VariantVcfEVSFactory extends VariantVcfFactory implements VariantFactory {
+public class VariantVcfEVSFactory extends VariantVcfFactory {
 
     private final Pattern singleNuc = Pattern.compile("^[ACTG]$");
     private final Pattern singleRef = Pattern.compile("^R$");
@@ -33,12 +33,11 @@ public class VariantVcfEVSFactory extends VariantVcfFactory implements VariantFa
      * be created from a single line.
      *
      * @param source
-     * @param line   Contents of the line in the file
+     * @param line Contents of the line in the file
      * @return The list of Variant objects that can be created using the fields from a VCF record
      */
     @Override
     public List<Variant> create(VariantSource source, String line) throws IllegalArgumentException {
-
         String[] fields = line.split("\t");
         if (fields.length < 8) {
             throw new IllegalArgumentException("Not enough fields provided (min 8)");
