@@ -164,7 +164,7 @@ public class Variant {
         if (chromosome == null || chromosome.length() == 0) {
             throw new IllegalArgumentException("Chromosome must not be empty");
         }
-        this.chromosome = chromosome.replaceAll("chrom | chrm | chr | ch", "");
+        this.chromosome = chromosome.replaceAll("chrom|chrm|chr|ch", "");
     }
 
     public int getStart() {
