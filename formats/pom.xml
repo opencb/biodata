@@ -49,12 +49,6 @@
                 <configuration>
                     <source>1.7</source>
                     <target>1.7</target>
-                        <excludes>
-                            <exclude>**/VariantVcfEVSReader.java</exclude>
-                        </excludes>
-                        <testExcludes>
-                            <exclude>**/VariantVcfEVSReaderTest.java</exclude>
-                        </testExcludes>
                 </configuration>
             </plugin>
         </plugins>
