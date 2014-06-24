@@ -85,8 +85,6 @@
                     <source>1.7</source>
                     <target>1.7</target>
                         <excludes>
-                            <exclude>**/VariantControlAnnotator.java</exclude>
-                            <!--<exclude>**/VariantControlMongoAnnotator.java</exclude>-->
                             <exclude>**/VariantEVSControlAnnotator.java</exclude>
                         </excludes>
                 </configuration>
