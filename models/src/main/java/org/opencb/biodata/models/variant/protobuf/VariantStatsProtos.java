@@ -142,7 +142,7 @@ public final class VariantStatsProtos {
      * <code>required float maf = 9;</code>
      *
      * <pre>
-     * Minimum allele frequency 
+     * Minor allele frequency 
      * </pre>
      */
     boolean hasMaf();
@@ -150,7 +150,7 @@ public final class VariantStatsProtos {
      * <code>required float maf = 9;</code>
      *
      * <pre>
-     * Minimum allele frequency 
+     * Minor allele frequency 
      * </pre>
      */
     float getMaf();
@@ -160,7 +160,7 @@ public final class VariantStatsProtos {
      * <code>required float mgf = 10;</code>
      *
      * <pre>
-     * Minimum genotype frequency 
+     * Minor genotype frequency 
      * </pre>
      */
     boolean hasMgf();
@@ -168,64 +168,118 @@ public final class VariantStatsProtos {
      * <code>required float mgf = 10;</code>
      *
      * <pre>
-     * Minimum genotype frequency 
+     * Minor genotype frequency 
      * </pre>
      */
     float getMgf();
 
-    // required bool passed_filters = 11;
+    // required string mafAllele = 11;
     /**
-     * <code>required bool passed_filters = 11;</code>
+     * <code>required string mafAllele = 11;</code>
+     *
+     * <pre>
+     * Allele with minor allele frequency 
+     * </pre>
+     */
+    boolean hasMafAllele();
+    /**
+     * <code>required string mafAllele = 11;</code>
+     *
+     * <pre>
+     * Allele with minor allele frequency 
+     * </pre>
+     */
+    java.lang.String getMafAllele();
+    /**
+     * <code>required string mafAllele = 11;</code>
+     *
+     * <pre>
+     * Allele with minor allele frequency 
+     * </pre>
+     */
+    com.google.protobuf.ByteString
+        getMafAlleleBytes();
+
+    // required string mgfGenotype = 12;
+    /**
+     * <code>required string mgfGenotype = 12;</code>
+     *
+     * <pre>
+     * Genotype with minor genotype frequency 
+     * </pre>
+     */
+    boolean hasMgfGenotype();
+    /**
+     * <code>required string mgfGenotype = 12;</code>
+     *
+     * <pre>
+     * Genotype with minor genotype frequency 
+     * </pre>
+     */
+    java.lang.String getMgfGenotype();
+    /**
+     * <code>required string mgfGenotype = 12;</code>
+     *
+     * <pre>
+     * Genotype with minor genotype frequency 
+     * </pre>
+     */
+    com.google.protobuf.ByteString
+        getMgfGenotypeBytes();
+
+    // required bool passed_filters = 13;
+    /**
+     * <code>required bool passed_filters = 13;</code>
      */
     boolean hasPassedFilters();
     /**
-     * <code>required bool passed_filters = 11;</code>
+     * <code>required bool passed_filters = 13;</code>
      */
     boolean getPassedFilters();
 
-    // required float quality = 12;
+    // required float quality = 14;
     /**
-     * <code>required float quality = 12;</code>
+     * <code>required float quality = 14;</code>
      */
     boolean hasQuality();
     /**
-     * <code>required float quality = 12;</code>
+     * <code>required float quality = 14;</code>
      */
     float getQuality();
 
-    // required int32 num_samples = 13;
+    // required int32 num_samples = 15;
     /**
-     * <code>required int32 num_samples = 13;</code>
+     * <code>required int32 num_samples = 15;</code>
      */
     boolean hasNumSamples();
     /**
-     * <code>required int32 num_samples = 13;</code>
+     * <code>required int32 num_samples = 15;</code>
      */
     int getNumSamples();
 
-    // required int32 transitions_count = 14;
+    // required int32 transitions_count = 16;
     /**
-     * <code>required int32 transitions_count = 14;</code>
+     * <code>required int32 transitions_count = 16;</code>
      */
     boolean hasTransitionsCount();
     /**
-     * <code>required int32 transitions_count = 14;</code>
+     * <code>required int32 transitions_count = 16;</code>
      */
     int getTransitionsCount();
 
-    // required int32 transversions_count = 15;
+    // required int32 transversions_count = 17;
     /**
-     * <code>required int32 transversions_count = 15;</code>
+     * <code>required int32 transversions_count = 17;</code>
      */
     boolean hasTransversionsCount();
     /**
-     * <code>required int32 transversions_count = 15;</code>
+     * <code>required int32 transversions_count = 17;</code>
      */
     int getTransversionsCount();
 
-    // optional int32 mendelian_errors = 16;
+    // optional int32 mendelian_errors = 18;
     /**
-     * <code>optional int32 mendelian_errors = 16;</code>
+     * <code>optional int32 mendelian_errors = 18;</code>
      *
      * <pre>
      * Number of mendelian errors found 
@@ -233,7 +287,7 @@ public final class VariantStatsProtos {
      */
     boolean hasMendelianErrors();
     /**
-     * <code>optional int32 mendelian_errors = 16;</code>
+     * <code>optional int32 mendelian_errors = 18;</code>
      *
      * <pre>
      * Number of mendelian errors found 
@@ -241,9 +295,9 @@ public final class VariantStatsProtos {
      */
     int getMendelianErrors();
 
-    // optional float cases_percent_dominant = 17;
+    // optional float cases_percent_dominant = 19;
     /**
-     * <code>optional float cases_percent_dominant = 17;</code>
+     * <code>optional float cases_percent_dominant = 19;</code>
      *
      * <pre>
      * Percentage of cases that follow a dominant inheritance pattern 
@@ -251,7 +305,7 @@ public final class VariantStatsProtos {
      */
     boolean hasCasesPercentDominant();
     /**
-     * <code>optional float cases_percent_dominant = 17;</code>
+     * <code>optional float cases_percent_dominant = 19;</code>
      *
      * <pre>
      * Percentage of cases that follow a dominant inheritance pattern 
@@ -259,9 +313,9 @@ public final class VariantStatsProtos {
      */
     float getCasesPercentDominant();
 
-    // optional float controls_percent_dominant = 18;
+    // optional float controls_percent_dominant = 20;
     /**
-     * <code>optional float controls_percent_dominant = 18;</code>
+     * <code>optional float controls_percent_dominant = 20;</code>
      *
      * <pre>
      * Percentage of controls that follow a dominant inheritance pattern 
@@ -269,7 +323,7 @@ public final class VariantStatsProtos {
      */
     boolean hasControlsPercentDominant();
     /**
-     * <code>optional float controls_percent_dominant = 18;</code>
+     * <code>optional float controls_percent_dominant = 20;</code>
      *
      * <pre>
      * Percentage of controls that follow a dominant inheritance pattern 
@@ -277,9 +331,9 @@ public final class VariantStatsProtos {
      */
     float getControlsPercentDominant();
 
-    // optional float cases_percent_recessive = 19;
+    // optional float cases_percent_recessive = 21;
     /**
-     * <code>optional float cases_percent_recessive = 19;</code>
+     * <code>optional float cases_percent_recessive = 21;</code>
      *
      * <pre>
      * Percentage of cases that follow a recessive inheritance pattern 
@@ -287,7 +341,7 @@ public final class VariantStatsProtos {
      */
     boolean hasCasesPercentRecessive();
     /**
-     * <code>optional float cases_percent_recessive = 19;</code>
+     * <code>optional float cases_percent_recessive = 21;</code>
      *
      * <pre>
      * Percentage of cases that follow a recessive inheritance pattern 
@@ -295,9 +349,9 @@ public final class VariantStatsProtos {
      */
     float getCasesPercentRecessive();
 
-    // optional float controls_percent_recessive = 20;
+    // optional float controls_percent_recessive = 22;
     /**
-     * <code>optional float controls_percent_recessive = 20;</code>
+     * <code>optional float controls_percent_recessive = 22;</code>
      *
      * <pre>
      * Percentage of controls that follow a recessive inheritance pattern 
@@ -305,7 +359,7 @@ public final class VariantStatsProtos {
      */
     boolean hasControlsPercentRecessive();
     /**
-     * <code>optional float controls_percent_recessive = 20;</code>
+     * <code>optional float controls_percent_recessive = 22;</code>
      *
      * <pre>
      * Percentage of controls that follow a recessive inheritance pattern 
@@ -313,9 +367,9 @@ public final class VariantStatsProtos {
      */
     float getControlsPercentRecessive();
 
-    // optional float hardy_weinberg = 21;
+    // optional float hardy_weinberg = 23;
     /**
-     * <code>optional float hardy_weinberg = 21;</code>
+     * <code>optional float hardy_weinberg = 23;</code>
      *
      * <pre>
      * All samples Hardy-Weinberg stats
@@ -323,7 +377,7 @@ public final class VariantStatsProtos {
      */
     boolean hasHardyWeinberg();
     /**
-     * <code>optional float hardy_weinberg = 21;</code>
+     * <code>optional float hardy_weinberg = 23;</code>
      *
      * <pre>
      * All samples Hardy-Weinberg stats
@@ -438,58 +492,68 @@ public final class VariantStatsProtos {
               mgf_ = input.readFloat();
               break;
             }
-            case 88: {
+            case 90: {
               bitField0_ |= 0x00000100;
-              passedFilters_ = input.readBool();
+              mafAllele_ = input.readBytes();
               break;
             }
-            case 101: {
+            case 98: {
               bitField0_ |= 0x00000200;
-              quality_ = input.readFloat();
+              mgfGenotype_ = input.readBytes();
               break;
             }
             case 104: {
               bitField0_ |= 0x00000400;
-              numSamples_ = input.readInt32();
+              passedFilters_ = input.readBool();
               break;
             }
-            case 112: {
+            case 117: {
               bitField0_ |= 0x00000800;
-              transitionsCount_ = input.readInt32();
+              quality_ = input.readFloat();
               break;
             }
             case 120: {
               bitField0_ |= 0x00001000;
-              transversionsCount_ = input.readInt32();
+              numSamples_ = input.readInt32();
               break;
             }
             case 128: {
               bitField0_ |= 0x00002000;
-              mendelianErrors_ = input.readInt32();
+              transitionsCount_ = input.readInt32();
               break;
             }
-            case 141: {
+            case 136: {
               bitField0_ |= 0x00004000;
-              casesPercentDominant_ = input.readFloat();
+              transversionsCount_ = input.readInt32();
               break;
             }
-            case 149: {
+            case 144: {
               bitField0_ |= 0x00008000;
-              controlsPercentDominant_ = input.readFloat();
+              mendelianErrors_ = input.readInt32();
               break;
             }
             case 157: {
               bitField0_ |= 0x00010000;
-              casesPercentRecessive_ = input.readFloat();
+              casesPercentDominant_ = input.readFloat();
               break;
             }
             case 165: {
               bitField0_ |= 0x00020000;
-              controlsPercentRecessive_ = input.readFloat();
+              controlsPercentDominant_ = input.readFloat();
               break;
             }
             case 173: {
               bitField0_ |= 0x00040000;
+              casesPercentRecessive_ = input.readFloat();
+              break;
+            }
+            case 181: {
+              bitField0_ |= 0x00080000;
+              controlsPercentRecessive_ = input.readFloat();
+              break;
+            }
+            case 189: {
+              bitField0_ |= 0x00100000;
               hardyWeinberg_ = input.readFloat();
               break;
             }
@@ -2026,7 +2090,7 @@ public final class VariantStatsProtos {
      * <code>required float maf = 9;</code>
      *
      * <pre>
-     * Minimum allele frequency 
+     * Minor allele frequency 
      * </pre>
      */
     public boolean hasMaf() {
@@ -2036,7 +2100,7 @@ public final class VariantStatsProtos {
      * <code>required float maf = 9;</code>
      *
      * <pre>
-     * Minimum allele frequency 
+     * Minor allele frequency 
      * </pre>
      */
     public float getMaf() {
@@ -2050,7 +2114,7 @@ public final class VariantStatsProtos {
      * <code>required float mgf = 10;</code>
      *
      * <pre>
-     * Minimum genotype frequency 
+     * Minor genotype frequency 
      * </pre>
      */
     public boolean hasMgf() {
@@ -2060,108 +2124,218 @@ public final class VariantStatsProtos {
      * <code>required float mgf = 10;</code>
      *
      * <pre>
-     * Minimum genotype frequency 
+     * Minor genotype frequency 
      * </pre>
      */
     public float getMgf() {
       return mgf_;
     }
 
-    // required bool passed_filters = 11;
-    public static final int PASSED_FILTERS_FIELD_NUMBER = 11;
-    private boolean passedFilters_;
+    // required string mafAllele = 11;
+    public static final int MAFALLELE_FIELD_NUMBER = 11;
+    private java.lang.Object mafAllele_;
     /**
-     * <code>required bool passed_filters = 11;</code>
+     * <code>required string mafAllele = 11;</code>
+     *
+     * <pre>
+     * Allele with minor allele frequency 
+     * </pre>
      */
-    public boolean hasPassedFilters() {
+    public boolean hasMafAllele() {
       return ((bitField0_ & 0x00000100) == 0x00000100);
     }
     /**
-     * <code>required bool passed_filters = 11;</code>
+     * <code>required string mafAllele = 11;</code>
+     *
+     * <pre>
+     * Allele with minor allele frequency 
+     * </pre>
+     */
+    public java.lang.String getMafAllele() {
+      java.lang.Object ref = mafAllele_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          mafAllele_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>required string mafAllele = 11;</code>
+     *
+     * <pre>
+     * Allele with minor allele frequency 
+     * </pre>
+     */
+    public com.google.protobuf.ByteString
+        getMafAlleleBytes() {
+      java.lang.Object ref = mafAllele_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        mafAllele_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    // required string mgfGenotype = 12;
+    public static final int MGFGENOTYPE_FIELD_NUMBER = 12;
+    private java.lang.Object mgfGenotype_;
+    /**
+     * <code>required string mgfGenotype = 12;</code>
+     *
+     * <pre>
+     * Genotype with minor genotype frequency 
+     * </pre>
+     */
+    public boolean hasMgfGenotype() {
+      return ((bitField0_ & 0x00000200) == 0x00000200);
+    }
+    /**
+     * <code>required string mgfGenotype = 12;</code>
+     *
+     * <pre>
+     * Genotype with minor genotype frequency 
+     * </pre>
+     */
+    public java.lang.String getMgfGenotype() {
+      java.lang.Object ref = mgfGenotype_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          mgfGenotype_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>required string mgfGenotype = 12;</code>
+     *
+     * <pre>
+     * Genotype with minor genotype frequency 
+     * </pre>
+     */
+    public com.google.protobuf.ByteString
+        getMgfGenotypeBytes() {
+      java.lang.Object ref = mgfGenotype_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        mgfGenotype_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    // required bool passed_filters = 13;
+    public static final int PASSED_FILTERS_FIELD_NUMBER = 13;
+    private boolean passedFilters_;
+    /**
+     * <code>required bool passed_filters = 13;</code>
+     */
+    public boolean hasPassedFilters() {
+      return ((bitField0_ & 0x00000400) == 0x00000400);
+    }
+    /**
+     * <code>required bool passed_filters = 13;</code>
      */
     public boolean getPassedFilters() {
       return passedFilters_;
     }
 
-    // required float quality = 12;
-    public static final int QUALITY_FIELD_NUMBER = 12;
+    // required float quality = 14;
+    public static final int QUALITY_FIELD_NUMBER = 14;
     private float quality_;
     /**
-     * <code>required float quality = 12;</code>
+     * <code>required float quality = 14;</code>
      */
     public boolean hasQuality() {
-      return ((bitField0_ & 0x00000200) == 0x00000200);
+      return ((bitField0_ & 0x00000800) == 0x00000800);
     }
     /**
-     * <code>required float quality = 12;</code>
+     * <code>required float quality = 14;</code>
      */
     public float getQuality() {
       return quality_;
     }
 
-    // required int32 num_samples = 13;
-    public static final int NUM_SAMPLES_FIELD_NUMBER = 13;
+    // required int32 num_samples = 15;
+    public static final int NUM_SAMPLES_FIELD_NUMBER = 15;
     private int numSamples_;
     /**
-     * <code>required int32 num_samples = 13;</code>
+     * <code>required int32 num_samples = 15;</code>
      */
     public boolean hasNumSamples() {
-      return ((bitField0_ & 0x00000400) == 0x00000400);
+      return ((bitField0_ & 0x00001000) == 0x00001000);
     }
     /**
-     * <code>required int32 num_samples = 13;</code>
+     * <code>required int32 num_samples = 15;</code>
      */
     public int getNumSamples() {
       return numSamples_;
     }
 
-    // required int32 transitions_count = 14;
-    public static final int TRANSITIONS_COUNT_FIELD_NUMBER = 14;
+    // required int32 transitions_count = 16;
+    public static final int TRANSITIONS_COUNT_FIELD_NUMBER = 16;
     private int transitionsCount_;
     /**
-     * <code>required int32 transitions_count = 14;</code>
+     * <code>required int32 transitions_count = 16;</code>
      */
     public boolean hasTransitionsCount() {
-      return ((bitField0_ & 0x00000800) == 0x00000800);
+      return ((bitField0_ & 0x00002000) == 0x00002000);
     }
     /**
-     * <code>required int32 transitions_count = 14;</code>
+     * <code>required int32 transitions_count = 16;</code>
      */
     public int getTransitionsCount() {
       return transitionsCount_;
     }
 
-    // required int32 transversions_count = 15;
-    public static final int TRANSVERSIONS_COUNT_FIELD_NUMBER = 15;
+    // required int32 transversions_count = 17;
+    public static final int TRANSVERSIONS_COUNT_FIELD_NUMBER = 17;
     private int transversionsCount_;
     /**
-     * <code>required int32 transversions_count = 15;</code>
+     * <code>required int32 transversions_count = 17;</code>
      */
     public boolean hasTransversionsCount() {
-      return ((bitField0_ & 0x00001000) == 0x00001000);
+      return ((bitField0_ & 0x00004000) == 0x00004000);
     }
     /**
-     * <code>required int32 transversions_count = 15;</code>
+     * <code>required int32 transversions_count = 17;</code>
      */
     public int getTransversionsCount() {
       return transversionsCount_;
     }
 
-    // optional int32 mendelian_errors = 16;
-    public static final int MENDELIAN_ERRORS_FIELD_NUMBER = 16;
+    // optional int32 mendelian_errors = 18;
+    public static final int MENDELIAN_ERRORS_FIELD_NUMBER = 18;
     private int mendelianErrors_;
     /**
-     * <code>optional int32 mendelian_errors = 16;</code>
+     * <code>optional int32 mendelian_errors = 18;</code>
      *
      * <pre>
      * Number of mendelian errors found 
      * </pre>
      */
     public boolean hasMendelianErrors() {
-      return ((bitField0_ & 0x00002000) == 0x00002000);
+      return ((bitField0_ & 0x00008000) == 0x00008000);
     }
     /**
-     * <code>optional int32 mendelian_errors = 16;</code>
+     * <code>optional int32 mendelian_errors = 18;</code>
      *
      * <pre>
      * Number of mendelian errors found 
@@ -2171,21 +2345,21 @@ public final class VariantStatsProtos {
       return mendelianErrors_;
     }
 
-    // optional float cases_percent_dominant = 17;
-    public static final int CASES_PERCENT_DOMINANT_FIELD_NUMBER = 17;
+    // optional float cases_percent_dominant = 19;
+    public static final int CASES_PERCENT_DOMINANT_FIELD_NUMBER = 19;
     private float casesPercentDominant_;
     /**
-     * <code>optional float cases_percent_dominant = 17;</code>
+     * <code>optional float cases_percent_dominant = 19;</code>
      *
      * <pre>
      * Percentage of cases that follow a dominant inheritance pattern 
      * </pre>
      */
     public boolean hasCasesPercentDominant() {
-      return ((bitField0_ & 0x00004000) == 0x00004000);
+      return ((bitField0_ & 0x00010000) == 0x00010000);
     }
     /**
-     * <code>optional float cases_percent_dominant = 17;</code>
+     * <code>optional float cases_percent_dominant = 19;</code>
      *
      * <pre>
      * Percentage of cases that follow a dominant inheritance pattern 
@@ -2195,21 +2369,21 @@ public final class VariantStatsProtos {
       return casesPercentDominant_;
     }
 
-    // optional float controls_percent_dominant = 18;
-    public static final int CONTROLS_PERCENT_DOMINANT_FIELD_NUMBER = 18;
+    // optional float controls_percent_dominant = 20;
+    public static final int CONTROLS_PERCENT_DOMINANT_FIELD_NUMBER = 20;
     private float controlsPercentDominant_;
     /**
-     * <code>optional float controls_percent_dominant = 18;</code>
+     * <code>optional float controls_percent_dominant = 20;</code>
      *
      * <pre>
      * Percentage of controls that follow a dominant inheritance pattern 
      * </pre>
      */
     public boolean hasControlsPercentDominant() {
-      return ((bitField0_ & 0x00008000) == 0x00008000);
+      return ((bitField0_ & 0x00020000) == 0x00020000);
     }
     /**
-     * <code>optional float controls_percent_dominant = 18;</code>
+     * <code>optional float controls_percent_dominant = 20;</code>
      *
      * <pre>
      * Percentage of controls that follow a dominant inheritance pattern 
@@ -2219,21 +2393,21 @@ public final class VariantStatsProtos {
       return controlsPercentDominant_;
     }
 
-    // optional float cases_percent_recessive = 19;
-    public static final int CASES_PERCENT_RECESSIVE_FIELD_NUMBER = 19;
+    // optional float cases_percent_recessive = 21;
+    public static final int CASES_PERCENT_RECESSIVE_FIELD_NUMBER = 21;
     private float casesPercentRecessive_;
     /**
-     * <code>optional float cases_percent_recessive = 19;</code>
+     * <code>optional float cases_percent_recessive = 21;</code>
      *
      * <pre>
      * Percentage of cases that follow a recessive inheritance pattern 
      * </pre>
      */
     public boolean hasCasesPercentRecessive() {
-      return ((bitField0_ & 0x00010000) == 0x00010000);
+      return ((bitField0_ & 0x00040000) == 0x00040000);
     }
     /**
-     * <code>optional float cases_percent_recessive = 19;</code>
+     * <code>optional float cases_percent_recessive = 21;</code>
      *
      * <pre>
      * Percentage of cases that follow a recessive inheritance pattern 
@@ -2243,21 +2417,21 @@ public final class VariantStatsProtos {
       return casesPercentRecessive_;
     }
 
-    // optional float controls_percent_recessive = 20;
-    public static final int CONTROLS_PERCENT_RECESSIVE_FIELD_NUMBER = 20;
+    // optional float controls_percent_recessive = 22;
+    public static final int CONTROLS_PERCENT_RECESSIVE_FIELD_NUMBER = 22;
     private float controlsPercentRecessive_;
     /**
-     * <code>optional float controls_percent_recessive = 20;</code>
+     * <code>optional float controls_percent_recessive = 22;</code>
      *
      * <pre>
      * Percentage of controls that follow a recessive inheritance pattern 
      * </pre>
      */
     public boolean hasControlsPercentRecessive() {
-      return ((bitField0_ & 0x00020000) == 0x00020000);
+      return ((bitField0_ & 0x00080000) == 0x00080000);
     }
     /**
-     * <code>optional float controls_percent_recessive = 20;</code>
+     * <code>optional float controls_percent_recessive = 22;</code>
      *
      * <pre>
      * Percentage of controls that follow a recessive inheritance pattern 
@@ -2267,21 +2441,21 @@ public final class VariantStatsProtos {
       return controlsPercentRecessive_;
     }
 
-    // optional float hardy_weinberg = 21;
-    public static final int HARDY_WEINBERG_FIELD_NUMBER = 21;
+    // optional float hardy_weinberg = 23;
+    public static final int HARDY_WEINBERG_FIELD_NUMBER = 23;
     private float hardyWeinberg_;
     /**
-     * <code>optional float hardy_weinberg = 21;</code>
+     * <code>optional float hardy_weinberg = 23;</code>
      *
      * <pre>
      * All samples Hardy-Weinberg stats
      * </pre>
      */
     public boolean hasHardyWeinberg() {
-      return ((bitField0_ & 0x00040000) == 0x00040000);
+      return ((bitField0_ & 0x00100000) == 0x00100000);
     }
     /**
-     * <code>optional float hardy_weinberg = 21;</code>
+     * <code>optional float hardy_weinberg = 23;</code>
      *
      * <pre>
      * All samples Hardy-Weinberg stats
@@ -2302,6 +2476,8 @@ public final class VariantStatsProtos {
       missingGenotypes_ = 0;
       maf_ = 0F;
       mgf_ = 0F;
+      mafAllele_ = "";
+      mgfGenotype_ = "";
       passedFilters_ = false;
       quality_ = 0F;
       numSamples_ = 0;
@@ -2348,6 +2524,14 @@ public final class VariantStatsProtos {
         return false;
       }
       if (!hasMgf()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasMafAllele()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasMgfGenotype()) {
         memoizedIsInitialized = 0;
         return false;
       }
@@ -2421,37 +2605,43 @@ public final class VariantStatsProtos {
         output.writeFloat(10, mgf_);
       }
       if (((bitField0_ & 0x00000100) == 0x00000100)) {
-        output.writeBool(11, passedFilters_);
+        output.writeBytes(11, getMafAlleleBytes());
       }
       if (((bitField0_ & 0x00000200) == 0x00000200)) {
-        output.writeFloat(12, quality_);
+        output.writeBytes(12, getMgfGenotypeBytes());
       }
       if (((bitField0_ & 0x00000400) == 0x00000400)) {
-        output.writeInt32(13, numSamples_);
+        output.writeBool(13, passedFilters_);
       }
       if (((bitField0_ & 0x00000800) == 0x00000800)) {
-        output.writeInt32(14, transitionsCount_);
+        output.writeFloat(14, quality_);
       }
       if (((bitField0_ & 0x00001000) == 0x00001000)) {
-        output.writeInt32(15, transversionsCount_);
+        output.writeInt32(15, numSamples_);
       }
       if (((bitField0_ & 0x00002000) == 0x00002000)) {
-        output.writeInt32(16, mendelianErrors_);
+        output.writeInt32(16, transitionsCount_);
       }
       if (((bitField0_ & 0x00004000) == 0x00004000)) {
-        output.writeFloat(17, casesPercentDominant_);
+        output.writeInt32(17, transversionsCount_);
       }
       if (((bitField0_ & 0x00008000) == 0x00008000)) {
-        output.writeFloat(18, controlsPercentDominant_);
+        output.writeInt32(18, mendelianErrors_);
       }
       if (((bitField0_ & 0x00010000) == 0x00010000)) {
-        output.writeFloat(19, casesPercentRecessive_);
+        output.writeFloat(19, casesPercentDominant_);
       }
       if (((bitField0_ & 0x00020000) == 0x00020000)) {
-        output.writeFloat(20, controlsPercentRecessive_);
+        output.writeFloat(20, controlsPercentDominant_);
       }
       if (((bitField0_ & 0x00040000) == 0x00040000)) {
-        output.writeFloat(21, hardyWeinberg_);
+        output.writeFloat(21, casesPercentRecessive_);
+      }
+      if (((bitField0_ & 0x00080000) == 0x00080000)) {
+        output.writeFloat(22, controlsPercentRecessive_);
+      }
+      if (((bitField0_ & 0x00100000) == 0x00100000)) {
+        output.writeFloat(23, hardyWeinberg_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -2504,47 +2694,55 @@ public final class VariantStatsProtos {
       }
       if (((bitField0_ & 0x00000100) == 0x00000100)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(11, passedFilters_);
+          .computeBytesSize(11, getMafAlleleBytes());
       }
       if (((bitField0_ & 0x00000200) == 0x00000200)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeFloatSize(12, quality_);
+          .computeBytesSize(12, getMgfGenotypeBytes());
       }
       if (((bitField0_ & 0x00000400) == 0x00000400)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(13, numSamples_);
+          .computeBoolSize(13, passedFilters_);
       }
       if (((bitField0_ & 0x00000800) == 0x00000800)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(14, transitionsCount_);
+          .computeFloatSize(14, quality_);
       }
       if (((bitField0_ & 0x00001000) == 0x00001000)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(15, transversionsCount_);
+          .computeInt32Size(15, numSamples_);
       }
       if (((bitField0_ & 0x00002000) == 0x00002000)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(16, mendelianErrors_);
+          .computeInt32Size(16, transitionsCount_);
       }
       if (((bitField0_ & 0x00004000) == 0x00004000)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeFloatSize(17, casesPercentDominant_);
+          .computeInt32Size(17, transversionsCount_);
       }
       if (((bitField0_ & 0x00008000) == 0x00008000)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeFloatSize(18, controlsPercentDominant_);
+          .computeInt32Size(18, mendelianErrors_);
       }
       if (((bitField0_ & 0x00010000) == 0x00010000)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeFloatSize(19, casesPercentRecessive_);
+          .computeFloatSize(19, casesPercentDominant_);
       }
       if (((bitField0_ & 0x00020000) == 0x00020000)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeFloatSize(20, controlsPercentRecessive_);
+          .computeFloatSize(20, controlsPercentDominant_);
       }
       if (((bitField0_ & 0x00040000) == 0x00040000)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeFloatSize(21, hardyWeinberg_);
+          .computeFloatSize(21, casesPercentRecessive_);
+      }
+      if (((bitField0_ & 0x00080000) == 0x00080000)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeFloatSize(22, controlsPercentRecessive_);
+      }
+      if (((bitField0_ & 0x00100000) == 0x00100000)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeFloatSize(23, hardyWeinberg_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -2692,28 +2890,32 @@ public final class VariantStatsProtos {
         bitField0_ = (bitField0_ & ~0x00000100);
         mgf_ = 0F;
         bitField0_ = (bitField0_ & ~0x00000200);
-        passedFilters_ = false;
+        mafAllele_ = "";
         bitField0_ = (bitField0_ & ~0x00000400);
-        quality_ = 0F;
+        mgfGenotype_ = "";
         bitField0_ = (bitField0_ & ~0x00000800);
-        numSamples_ = 0;
+        passedFilters_ = false;
         bitField0_ = (bitField0_ & ~0x00001000);
-        transitionsCount_ = 0;
+        quality_ = 0F;
         bitField0_ = (bitField0_ & ~0x00002000);
-        transversionsCount_ = 0;
+        numSamples_ = 0;
         bitField0_ = (bitField0_ & ~0x00004000);
-        mendelianErrors_ = 0;
+        transitionsCount_ = 0;
         bitField0_ = (bitField0_ & ~0x00008000);
-        casesPercentDominant_ = 0F;
+        transversionsCount_ = 0;
         bitField0_ = (bitField0_ & ~0x00010000);
-        controlsPercentDominant_ = 0F;
+        mendelianErrors_ = 0;
         bitField0_ = (bitField0_ & ~0x00020000);
-        casesPercentRecessive_ = 0F;
+        casesPercentDominant_ = 0F;
         bitField0_ = (bitField0_ & ~0x00040000);
-        controlsPercentRecessive_ = 0F;
+        controlsPercentDominant_ = 0F;
         bitField0_ = (bitField0_ & ~0x00080000);
-        hardyWeinberg_ = 0F;
+        casesPercentRecessive_ = 0F;
         bitField0_ = (bitField0_ & ~0x00100000);
+        controlsPercentRecessive_ = 0F;
+        bitField0_ = (bitField0_ & ~0x00200000);
+        hardyWeinberg_ = 0F;
+        bitField0_ = (bitField0_ & ~0x00400000);
         return this;
       }
 
@@ -2795,45 +2997,53 @@ public final class VariantStatsProtos {
         if (((from_bitField0_ & 0x00000400) == 0x00000400)) {
           to_bitField0_ |= 0x00000100;
         }
-        result.passedFilters_ = passedFilters_;
+        result.mafAllele_ = mafAllele_;
         if (((from_bitField0_ & 0x00000800) == 0x00000800)) {
           to_bitField0_ |= 0x00000200;
         }
-        result.quality_ = quality_;
+        result.mgfGenotype_ = mgfGenotype_;
         if (((from_bitField0_ & 0x00001000) == 0x00001000)) {
           to_bitField0_ |= 0x00000400;
         }
-        result.numSamples_ = numSamples_;
+        result.passedFilters_ = passedFilters_;
         if (((from_bitField0_ & 0x00002000) == 0x00002000)) {
           to_bitField0_ |= 0x00000800;
         }
-        result.transitionsCount_ = transitionsCount_;
+        result.quality_ = quality_;
         if (((from_bitField0_ & 0x00004000) == 0x00004000)) {
           to_bitField0_ |= 0x00001000;
         }
-        result.transversionsCount_ = transversionsCount_;
+        result.numSamples_ = numSamples_;
         if (((from_bitField0_ & 0x00008000) == 0x00008000)) {
           to_bitField0_ |= 0x00002000;
         }
-        result.mendelianErrors_ = mendelianErrors_;
+        result.transitionsCount_ = transitionsCount_;
         if (((from_bitField0_ & 0x00010000) == 0x00010000)) {
           to_bitField0_ |= 0x00004000;
         }
-        result.casesPercentDominant_ = casesPercentDominant_;
+        result.transversionsCount_ = transversionsCount_;
         if (((from_bitField0_ & 0x00020000) == 0x00020000)) {
           to_bitField0_ |= 0x00008000;
         }
-        result.controlsPercentDominant_ = controlsPercentDominant_;
+        result.mendelianErrors_ = mendelianErrors_;
         if (((from_bitField0_ & 0x00040000) == 0x00040000)) {
           to_bitField0_ |= 0x00010000;
         }
-        result.casesPercentRecessive_ = casesPercentRecessive_;
+        result.casesPercentDominant_ = casesPercentDominant_;
         if (((from_bitField0_ & 0x00080000) == 0x00080000)) {
           to_bitField0_ |= 0x00020000;
         }
-        result.controlsPercentRecessive_ = controlsPercentRecessive_;
+        result.controlsPercentDominant_ = controlsPercentDominant_;
         if (((from_bitField0_ & 0x00100000) == 0x00100000)) {
           to_bitField0_ |= 0x00040000;
+        }
+        result.casesPercentRecessive_ = casesPercentRecessive_;
+        if (((from_bitField0_ & 0x00200000) == 0x00200000)) {
+          to_bitField0_ |= 0x00080000;
+        }
+        result.controlsPercentRecessive_ = controlsPercentRecessive_;
+        if (((from_bitField0_ & 0x00400000) == 0x00400000)) {
+          to_bitField0_ |= 0x00100000;
         }
         result.hardyWeinberg_ = hardyWeinberg_;
         result.bitField0_ = to_bitField0_;
@@ -2928,6 +3138,16 @@ public final class VariantStatsProtos {
         if (other.hasMgf()) {
           setMgf(other.getMgf());
         }
+        if (other.hasMafAllele()) {
+          bitField0_ |= 0x00000400;
+          mafAllele_ = other.mafAllele_;
+          onChanged();
+        }
+        if (other.hasMgfGenotype()) {
+          bitField0_ |= 0x00000800;
+          mgfGenotype_ = other.mgfGenotype_;
+          onChanged();
+        }
         if (other.hasPassedFilters()) {
           setPassedFilters(other.getPassedFilters());
         }
@@ -2995,6 +3215,14 @@ public final class VariantStatsProtos {
           return false;
         }
         if (!hasMgf()) {
+          
+          return false;
+        }
+        if (!hasMafAllele()) {
+          
+          return false;
+        }
+        if (!hasMgfGenotype()) {
           
           return false;
         }
@@ -3768,7 +3996,7 @@ public final class VariantStatsProtos {
        * <code>required float maf = 9;</code>
        *
        * <pre>
-       * Minimum allele frequency 
+       * Minor allele frequency 
        * </pre>
        */
       public boolean hasMaf() {
@@ -3778,7 +4006,7 @@ public final class VariantStatsProtos {
        * <code>required float maf = 9;</code>
        *
        * <pre>
-       * Minimum allele frequency 
+       * Minor allele frequency 
        * </pre>
        */
       public float getMaf() {
@@ -3788,7 +4016,7 @@ public final class VariantStatsProtos {
        * <code>required float maf = 9;</code>
        *
        * <pre>
-       * Minimum allele frequency 
+       * Minor allele frequency 
        * </pre>
        */
       public Builder setMaf(float value) {
@@ -3801,7 +4029,7 @@ public final class VariantStatsProtos {
        * <code>required float maf = 9;</code>
        *
        * <pre>
-       * Minimum allele frequency 
+       * Minor allele frequency 
        * </pre>
        */
       public Builder clearMaf() {
@@ -3817,7 +4045,7 @@ public final class VariantStatsProtos {
        * <code>required float mgf = 10;</code>
        *
        * <pre>
-       * Minimum genotype frequency 
+       * Minor genotype frequency 
        * </pre>
        */
       public boolean hasMgf() {
@@ -3827,7 +4055,7 @@ public final class VariantStatsProtos {
        * <code>required float mgf = 10;</code>
        *
        * <pre>
-       * Minimum genotype frequency 
+       * Minor genotype frequency 
        * </pre>
        */
       public float getMgf() {
@@ -3837,7 +4065,7 @@ public final class VariantStatsProtos {
        * <code>required float mgf = 10;</code>
        *
        * <pre>
-       * Minimum genotype frequency 
+       * Minor genotype frequency 
        * </pre>
        */
       public Builder setMgf(float value) {
@@ -3850,7 +4078,7 @@ public final class VariantStatsProtos {
        * <code>required float mgf = 10;</code>
        *
        * <pre>
-       * Minimum genotype frequency 
+       * Minor genotype frequency 
        * </pre>
        */
       public Builder clearMgf() {
@@ -3860,185 +4088,381 @@ public final class VariantStatsProtos {
         return this;
       }
 
-      // required bool passed_filters = 11;
-      private boolean passedFilters_ ;
+      // required string mafAllele = 11;
+      private java.lang.Object mafAllele_ = "";
       /**
-       * <code>required bool passed_filters = 11;</code>
+       * <code>required string mafAllele = 11;</code>
+       *
+       * <pre>
+       * Allele with minor allele frequency 
+       * </pre>
        */
-      public boolean hasPassedFilters() {
+      public boolean hasMafAllele() {
         return ((bitField0_ & 0x00000400) == 0x00000400);
       }
       /**
-       * <code>required bool passed_filters = 11;</code>
+       * <code>required string mafAllele = 11;</code>
+       *
+       * <pre>
+       * Allele with minor allele frequency 
+       * </pre>
+       */
+      public java.lang.String getMafAllele() {
+        java.lang.Object ref = mafAllele_;
+        if (!(ref instanceof java.lang.String)) {
+          java.lang.String s = ((com.google.protobuf.ByteString) ref)
+              .toStringUtf8();
+          mafAllele_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>required string mafAllele = 11;</code>
+       *
+       * <pre>
+       * Allele with minor allele frequency 
+       * </pre>
+       */
+      public com.google.protobuf.ByteString
+          getMafAlleleBytes() {
+        java.lang.Object ref = mafAllele_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          mafAllele_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>required string mafAllele = 11;</code>
+       *
+       * <pre>
+       * Allele with minor allele frequency 
+       * </pre>
+       */
+      public Builder setMafAllele(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000400;
+        mafAllele_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string mafAllele = 11;</code>
+       *
+       * <pre>
+       * Allele with minor allele frequency 
+       * </pre>
+       */
+      public Builder clearMafAllele() {
+        bitField0_ = (bitField0_ & ~0x00000400);
+        mafAllele_ = getDefaultInstance().getMafAllele();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string mafAllele = 11;</code>
+       *
+       * <pre>
+       * Allele with minor allele frequency 
+       * </pre>
+       */
+      public Builder setMafAlleleBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000400;
+        mafAllele_ = value;
+        onChanged();
+        return this;
+      }
+
+      // required string mgfGenotype = 12;
+      private java.lang.Object mgfGenotype_ = "";
+      /**
+       * <code>required string mgfGenotype = 12;</code>
+       *
+       * <pre>
+       * Genotype with minor genotype frequency 
+       * </pre>
+       */
+      public boolean hasMgfGenotype() {
+        return ((bitField0_ & 0x00000800) == 0x00000800);
+      }
+      /**
+       * <code>required string mgfGenotype = 12;</code>
+       *
+       * <pre>
+       * Genotype with minor genotype frequency 
+       * </pre>
+       */
+      public java.lang.String getMgfGenotype() {
+        java.lang.Object ref = mgfGenotype_;
+        if (!(ref instanceof java.lang.String)) {
+          java.lang.String s = ((com.google.protobuf.ByteString) ref)
+              .toStringUtf8();
+          mgfGenotype_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>required string mgfGenotype = 12;</code>
+       *
+       * <pre>
+       * Genotype with minor genotype frequency 
+       * </pre>
+       */
+      public com.google.protobuf.ByteString
+          getMgfGenotypeBytes() {
+        java.lang.Object ref = mgfGenotype_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          mgfGenotype_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>required string mgfGenotype = 12;</code>
+       *
+       * <pre>
+       * Genotype with minor genotype frequency 
+       * </pre>
+       */
+      public Builder setMgfGenotype(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000800;
+        mgfGenotype_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string mgfGenotype = 12;</code>
+       *
+       * <pre>
+       * Genotype with minor genotype frequency 
+       * </pre>
+       */
+      public Builder clearMgfGenotype() {
+        bitField0_ = (bitField0_ & ~0x00000800);
+        mgfGenotype_ = getDefaultInstance().getMgfGenotype();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string mgfGenotype = 12;</code>
+       *
+       * <pre>
+       * Genotype with minor genotype frequency 
+       * </pre>
+       */
+      public Builder setMgfGenotypeBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000800;
+        mgfGenotype_ = value;
+        onChanged();
+        return this;
+      }
+
+      // required bool passed_filters = 13;
+      private boolean passedFilters_ ;
+      /**
+       * <code>required bool passed_filters = 13;</code>
+       */
+      public boolean hasPassedFilters() {
+        return ((bitField0_ & 0x00001000) == 0x00001000);
+      }
+      /**
+       * <code>required bool passed_filters = 13;</code>
        */
       public boolean getPassedFilters() {
         return passedFilters_;
       }
       /**
-       * <code>required bool passed_filters = 11;</code>
+       * <code>required bool passed_filters = 13;</code>
        */
       public Builder setPassedFilters(boolean value) {
-        bitField0_ |= 0x00000400;
+        bitField0_ |= 0x00001000;
         passedFilters_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>required bool passed_filters = 11;</code>
+       * <code>required bool passed_filters = 13;</code>
        */
       public Builder clearPassedFilters() {
-        bitField0_ = (bitField0_ & ~0x00000400);
+        bitField0_ = (bitField0_ & ~0x00001000);
         passedFilters_ = false;
         onChanged();
         return this;
       }
 
-      // required float quality = 12;
+      // required float quality = 14;
       private float quality_ ;
       /**
-       * <code>required float quality = 12;</code>
+       * <code>required float quality = 14;</code>
        */
       public boolean hasQuality() {
-        return ((bitField0_ & 0x00000800) == 0x00000800);
+        return ((bitField0_ & 0x00002000) == 0x00002000);
       }
       /**
-       * <code>required float quality = 12;</code>
+       * <code>required float quality = 14;</code>
        */
       public float getQuality() {
         return quality_;
       }
       /**
-       * <code>required float quality = 12;</code>
+       * <code>required float quality = 14;</code>
        */
       public Builder setQuality(float value) {
-        bitField0_ |= 0x00000800;
+        bitField0_ |= 0x00002000;
         quality_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>required float quality = 12;</code>
+       * <code>required float quality = 14;</code>
        */
       public Builder clearQuality() {
-        bitField0_ = (bitField0_ & ~0x00000800);
+        bitField0_ = (bitField0_ & ~0x00002000);
         quality_ = 0F;
         onChanged();
         return this;
       }
 
-      // required int32 num_samples = 13;
+      // required int32 num_samples = 15;
       private int numSamples_ ;
       /**
-       * <code>required int32 num_samples = 13;</code>
+       * <code>required int32 num_samples = 15;</code>
        */
       public boolean hasNumSamples() {
-        return ((bitField0_ & 0x00001000) == 0x00001000);
+        return ((bitField0_ & 0x00004000) == 0x00004000);
       }
       /**
-       * <code>required int32 num_samples = 13;</code>
+       * <code>required int32 num_samples = 15;</code>
        */
       public int getNumSamples() {
         return numSamples_;
       }
       /**
-       * <code>required int32 num_samples = 13;</code>
+       * <code>required int32 num_samples = 15;</code>
        */
       public Builder setNumSamples(int value) {
-        bitField0_ |= 0x00001000;
+        bitField0_ |= 0x00004000;
         numSamples_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>required int32 num_samples = 13;</code>
+       * <code>required int32 num_samples = 15;</code>
        */
       public Builder clearNumSamples() {
-        bitField0_ = (bitField0_ & ~0x00001000);
+        bitField0_ = (bitField0_ & ~0x00004000);
         numSamples_ = 0;
         onChanged();
         return this;
       }
 
-      // required int32 transitions_count = 14;
+      // required int32 transitions_count = 16;
       private int transitionsCount_ ;
       /**
-       * <code>required int32 transitions_count = 14;</code>
+       * <code>required int32 transitions_count = 16;</code>
        */
       public boolean hasTransitionsCount() {
-        return ((bitField0_ & 0x00002000) == 0x00002000);
+        return ((bitField0_ & 0x00008000) == 0x00008000);
       }
       /**
-       * <code>required int32 transitions_count = 14;</code>
+       * <code>required int32 transitions_count = 16;</code>
        */
       public int getTransitionsCount() {
         return transitionsCount_;
       }
       /**
-       * <code>required int32 transitions_count = 14;</code>
+       * <code>required int32 transitions_count = 16;</code>
        */
       public Builder setTransitionsCount(int value) {
-        bitField0_ |= 0x00002000;
+        bitField0_ |= 0x00008000;
         transitionsCount_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>required int32 transitions_count = 14;</code>
+       * <code>required int32 transitions_count = 16;</code>
        */
       public Builder clearTransitionsCount() {
-        bitField0_ = (bitField0_ & ~0x00002000);
+        bitField0_ = (bitField0_ & ~0x00008000);
         transitionsCount_ = 0;
         onChanged();
         return this;
       }
 
-      // required int32 transversions_count = 15;
+      // required int32 transversions_count = 17;
       private int transversionsCount_ ;
       /**
-       * <code>required int32 transversions_count = 15;</code>
+       * <code>required int32 transversions_count = 17;</code>
        */
       public boolean hasTransversionsCount() {
-        return ((bitField0_ & 0x00004000) == 0x00004000);
+        return ((bitField0_ & 0x00010000) == 0x00010000);
       }
       /**
-       * <code>required int32 transversions_count = 15;</code>
+       * <code>required int32 transversions_count = 17;</code>
        */
       public int getTransversionsCount() {
         return transversionsCount_;
       }
       /**
-       * <code>required int32 transversions_count = 15;</code>
+       * <code>required int32 transversions_count = 17;</code>
        */
       public Builder setTransversionsCount(int value) {
-        bitField0_ |= 0x00004000;
+        bitField0_ |= 0x00010000;
         transversionsCount_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>required int32 transversions_count = 15;</code>
+       * <code>required int32 transversions_count = 17;</code>
        */
       public Builder clearTransversionsCount() {
-        bitField0_ = (bitField0_ & ~0x00004000);
+        bitField0_ = (bitField0_ & ~0x00010000);
         transversionsCount_ = 0;
         onChanged();
         return this;
       }
 
-      // optional int32 mendelian_errors = 16;
+      // optional int32 mendelian_errors = 18;
       private int mendelianErrors_ ;
       /**
-       * <code>optional int32 mendelian_errors = 16;</code>
+       * <code>optional int32 mendelian_errors = 18;</code>
        *
        * <pre>
        * Number of mendelian errors found 
        * </pre>
        */
       public boolean hasMendelianErrors() {
-        return ((bitField0_ & 0x00008000) == 0x00008000);
+        return ((bitField0_ & 0x00020000) == 0x00020000);
       }
       /**
-       * <code>optional int32 mendelian_errors = 16;</code>
+       * <code>optional int32 mendelian_errors = 18;</code>
        *
        * <pre>
        * Number of mendelian errors found 
@@ -4048,46 +4472,46 @@ public final class VariantStatsProtos {
         return mendelianErrors_;
       }
       /**
-       * <code>optional int32 mendelian_errors = 16;</code>
+       * <code>optional int32 mendelian_errors = 18;</code>
        *
        * <pre>
        * Number of mendelian errors found 
        * </pre>
        */
       public Builder setMendelianErrors(int value) {
-        bitField0_ |= 0x00008000;
+        bitField0_ |= 0x00020000;
         mendelianErrors_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional int32 mendelian_errors = 16;</code>
+       * <code>optional int32 mendelian_errors = 18;</code>
        *
        * <pre>
        * Number of mendelian errors found 
        * </pre>
        */
       public Builder clearMendelianErrors() {
-        bitField0_ = (bitField0_ & ~0x00008000);
+        bitField0_ = (bitField0_ & ~0x00020000);
         mendelianErrors_ = 0;
         onChanged();
         return this;
       }
 
-      // optional float cases_percent_dominant = 17;
+      // optional float cases_percent_dominant = 19;
       private float casesPercentDominant_ ;
       /**
-       * <code>optional float cases_percent_dominant = 17;</code>
+       * <code>optional float cases_percent_dominant = 19;</code>
        *
        * <pre>
        * Percentage of cases that follow a dominant inheritance pattern 
        * </pre>
        */
       public boolean hasCasesPercentDominant() {
-        return ((bitField0_ & 0x00010000) == 0x00010000);
+        return ((bitField0_ & 0x00040000) == 0x00040000);
       }
       /**
-       * <code>optional float cases_percent_dominant = 17;</code>
+       * <code>optional float cases_percent_dominant = 19;</code>
        *
        * <pre>
        * Percentage of cases that follow a dominant inheritance pattern 
@@ -4097,46 +4521,46 @@ public final class VariantStatsProtos {
         return casesPercentDominant_;
       }
       /**
-       * <code>optional float cases_percent_dominant = 17;</code>
+       * <code>optional float cases_percent_dominant = 19;</code>
        *
        * <pre>
        * Percentage of cases that follow a dominant inheritance pattern 
        * </pre>
        */
       public Builder setCasesPercentDominant(float value) {
-        bitField0_ |= 0x00010000;
+        bitField0_ |= 0x00040000;
         casesPercentDominant_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional float cases_percent_dominant = 17;</code>
+       * <code>optional float cases_percent_dominant = 19;</code>
        *
        * <pre>
        * Percentage of cases that follow a dominant inheritance pattern 
        * </pre>
        */
       public Builder clearCasesPercentDominant() {
-        bitField0_ = (bitField0_ & ~0x00010000);
+        bitField0_ = (bitField0_ & ~0x00040000);
         casesPercentDominant_ = 0F;
         onChanged();
         return this;
       }
 
-      // optional float controls_percent_dominant = 18;
+      // optional float controls_percent_dominant = 20;
       private float controlsPercentDominant_ ;
       /**
-       * <code>optional float controls_percent_dominant = 18;</code>
+       * <code>optional float controls_percent_dominant = 20;</code>
        *
        * <pre>
        * Percentage of controls that follow a dominant inheritance pattern 
        * </pre>
        */
       public boolean hasControlsPercentDominant() {
-        return ((bitField0_ & 0x00020000) == 0x00020000);
+        return ((bitField0_ & 0x00080000) == 0x00080000);
       }
       /**
-       * <code>optional float controls_percent_dominant = 18;</code>
+       * <code>optional float controls_percent_dominant = 20;</code>
        *
        * <pre>
        * Percentage of controls that follow a dominant inheritance pattern 
@@ -4146,46 +4570,46 @@ public final class VariantStatsProtos {
         return controlsPercentDominant_;
       }
       /**
-       * <code>optional float controls_percent_dominant = 18;</code>
+       * <code>optional float controls_percent_dominant = 20;</code>
        *
        * <pre>
        * Percentage of controls that follow a dominant inheritance pattern 
        * </pre>
        */
       public Builder setControlsPercentDominant(float value) {
-        bitField0_ |= 0x00020000;
+        bitField0_ |= 0x00080000;
         controlsPercentDominant_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional float controls_percent_dominant = 18;</code>
+       * <code>optional float controls_percent_dominant = 20;</code>
        *
        * <pre>
        * Percentage of controls that follow a dominant inheritance pattern 
        * </pre>
        */
       public Builder clearControlsPercentDominant() {
-        bitField0_ = (bitField0_ & ~0x00020000);
+        bitField0_ = (bitField0_ & ~0x00080000);
         controlsPercentDominant_ = 0F;
         onChanged();
         return this;
       }
 
-      // optional float cases_percent_recessive = 19;
+      // optional float cases_percent_recessive = 21;
       private float casesPercentRecessive_ ;
       /**
-       * <code>optional float cases_percent_recessive = 19;</code>
+       * <code>optional float cases_percent_recessive = 21;</code>
        *
        * <pre>
        * Percentage of cases that follow a recessive inheritance pattern 
        * </pre>
        */
       public boolean hasCasesPercentRecessive() {
-        return ((bitField0_ & 0x00040000) == 0x00040000);
+        return ((bitField0_ & 0x00100000) == 0x00100000);
       }
       /**
-       * <code>optional float cases_percent_recessive = 19;</code>
+       * <code>optional float cases_percent_recessive = 21;</code>
        *
        * <pre>
        * Percentage of cases that follow a recessive inheritance pattern 
@@ -4195,46 +4619,46 @@ public final class VariantStatsProtos {
         return casesPercentRecessive_;
       }
       /**
-       * <code>optional float cases_percent_recessive = 19;</code>
+       * <code>optional float cases_percent_recessive = 21;</code>
        *
        * <pre>
        * Percentage of cases that follow a recessive inheritance pattern 
        * </pre>
        */
       public Builder setCasesPercentRecessive(float value) {
-        bitField0_ |= 0x00040000;
+        bitField0_ |= 0x00100000;
         casesPercentRecessive_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional float cases_percent_recessive = 19;</code>
+       * <code>optional float cases_percent_recessive = 21;</code>
        *
        * <pre>
        * Percentage of cases that follow a recessive inheritance pattern 
        * </pre>
        */
       public Builder clearCasesPercentRecessive() {
-        bitField0_ = (bitField0_ & ~0x00040000);
+        bitField0_ = (bitField0_ & ~0x00100000);
         casesPercentRecessive_ = 0F;
         onChanged();
         return this;
       }
 
-      // optional float controls_percent_recessive = 20;
+      // optional float controls_percent_recessive = 22;
       private float controlsPercentRecessive_ ;
       /**
-       * <code>optional float controls_percent_recessive = 20;</code>
+       * <code>optional float controls_percent_recessive = 22;</code>
        *
        * <pre>
        * Percentage of controls that follow a recessive inheritance pattern 
        * </pre>
        */
       public boolean hasControlsPercentRecessive() {
-        return ((bitField0_ & 0x00080000) == 0x00080000);
+        return ((bitField0_ & 0x00200000) == 0x00200000);
       }
       /**
-       * <code>optional float controls_percent_recessive = 20;</code>
+       * <code>optional float controls_percent_recessive = 22;</code>
        *
        * <pre>
        * Percentage of controls that follow a recessive inheritance pattern 
@@ -4244,46 +4668,46 @@ public final class VariantStatsProtos {
         return controlsPercentRecessive_;
       }
       /**
-       * <code>optional float controls_percent_recessive = 20;</code>
+       * <code>optional float controls_percent_recessive = 22;</code>
        *
        * <pre>
        * Percentage of controls that follow a recessive inheritance pattern 
        * </pre>
        */
       public Builder setControlsPercentRecessive(float value) {
-        bitField0_ |= 0x00080000;
+        bitField0_ |= 0x00200000;
         controlsPercentRecessive_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional float controls_percent_recessive = 20;</code>
+       * <code>optional float controls_percent_recessive = 22;</code>
        *
        * <pre>
        * Percentage of controls that follow a recessive inheritance pattern 
        * </pre>
        */
       public Builder clearControlsPercentRecessive() {
-        bitField0_ = (bitField0_ & ~0x00080000);
+        bitField0_ = (bitField0_ & ~0x00200000);
         controlsPercentRecessive_ = 0F;
         onChanged();
         return this;
       }
 
-      // optional float hardy_weinberg = 21;
+      // optional float hardy_weinberg = 23;
       private float hardyWeinberg_ ;
       /**
-       * <code>optional float hardy_weinberg = 21;</code>
+       * <code>optional float hardy_weinberg = 23;</code>
        *
        * <pre>
        * All samples Hardy-Weinberg stats
        * </pre>
        */
       public boolean hasHardyWeinberg() {
-        return ((bitField0_ & 0x00100000) == 0x00100000);
+        return ((bitField0_ & 0x00400000) == 0x00400000);
       }
       /**
-       * <code>optional float hardy_weinberg = 21;</code>
+       * <code>optional float hardy_weinberg = 23;</code>
        *
        * <pre>
        * All samples Hardy-Weinberg stats
@@ -4293,27 +4717,27 @@ public final class VariantStatsProtos {
         return hardyWeinberg_;
       }
       /**
-       * <code>optional float hardy_weinberg = 21;</code>
+       * <code>optional float hardy_weinberg = 23;</code>
        *
        * <pre>
        * All samples Hardy-Weinberg stats
        * </pre>
        */
       public Builder setHardyWeinberg(float value) {
-        bitField0_ |= 0x00100000;
+        bitField0_ |= 0x00400000;
         hardyWeinberg_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional float hardy_weinberg = 21;</code>
+       * <code>optional float hardy_weinberg = 23;</code>
        *
        * <pre>
        * All samples Hardy-Weinberg stats
        * </pre>
        */
       public Builder clearHardyWeinberg() {
-        bitField0_ = (bitField0_ & ~0x00100000);
+        bitField0_ = (bitField0_ & ~0x00400000);
         hardyWeinberg_ = 0F;
         onChanged();
         return this;
@@ -4355,7 +4779,7 @@ public final class VariantStatsProtos {
   static {
     java.lang.String[] descriptorData = {
       "\n\022VariantStats.proto\022*org.opencb.biodata" +
-      ".models.variant.protobuf\"\371\005\n\014VariantStat" +
+      ".models.variant.protobuf\"\241\006\n\014VariantStat" +
       "s\022\030\n\020ref_allele_count\030\001 \002(\005\022\030\n\020alt_allel" +
       "e_count\030\002 \002(\005\022W\n\017genotypes_count\030\003 \003(\0132>" +
       ".org.opencb.biodata.models.variant.proto" +
@@ -4365,15 +4789,16 @@ public final class VariantStatsProtos {
       "dels.variant.protobuf.VariantStats.Frequ" +
       "ency\022\027\n\017missing_alleles\030\007 \002(\005\022\031\n\021missing",
       "_genotypes\030\010 \002(\005\022\013\n\003maf\030\t \002(\002\022\013\n\003mgf\030\n \002" +
-      "(\002\022\026\n\016passed_filters\030\013 \002(\010\022\017\n\007quality\030\014 " +
-      "\002(\002\022\023\n\013num_samples\030\r \002(\005\022\031\n\021transitions_" +
-      "count\030\016 \002(\005\022\033\n\023transversions_count\030\017 \002(\005" +
-      "\022\030\n\020mendelian_errors\030\020 \001(\005\022\036\n\026cases_perc" +
-      "ent_dominant\030\021 \001(\002\022!\n\031controls_percent_d" +
-      "ominant\030\022 \001(\002\022\037\n\027cases_percent_recessive" +
-      "\030\023 \001(\002\022\"\n\032controls_percent_recessive\030\024 \001" +
-      "(\002\022\026\n\016hardy_weinberg\030\025 \001(\002\032#\n\005Count\022\013\n\003k" +
-      "ey\030\001 \002(\t\022\r\n\005count\030\002 \002(\005\032+\n\tFrequency\022\013\n\003",
+      "(\002\022\021\n\tmafAllele\030\013 \002(\t\022\023\n\013mgfGenotype\030\014 \002" +
+      "(\t\022\026\n\016passed_filters\030\r \002(\010\022\017\n\007quality\030\016 " +
+      "\002(\002\022\023\n\013num_samples\030\017 \002(\005\022\031\n\021transitions_" +
+      "count\030\020 \002(\005\022\033\n\023transversions_count\030\021 \002(\005" +
+      "\022\030\n\020mendelian_errors\030\022 \001(\005\022\036\n\026cases_perc" +
+      "ent_dominant\030\023 \001(\002\022!\n\031controls_percent_d" +
+      "ominant\030\024 \001(\002\022\037\n\027cases_percent_recessive" +
+      "\030\025 \001(\002\022\"\n\032controls_percent_recessive\030\026 \001" +
+      "(\002\022\026\n\016hardy_weinberg\030\027 \001(\002\032#\n\005Count\022\013\n\003k",
+      "ey\030\001 \002(\t\022\r\n\005count\030\002 \002(\005\032+\n\tFrequency\022\013\n\003" +
       "key\030\001 \002(\t\022\021\n\tfrequency\030\002 \002(\002B\024B\022VariantS" +
       "tatsProtos"
     };
@@ -4387,7 +4812,7 @@ public final class VariantStatsProtos {
           internal_static_org_opencb_biodata_models_variant_protobuf_VariantStats_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_org_opencb_biodata_models_variant_protobuf_VariantStats_descriptor,
-              new java.lang.String[] { "RefAlleleCount", "AltAlleleCount", "GenotypesCount", "RefAlleleFreq", "AltAlleleFreq", "GenotypesFreq", "MissingAlleles", "MissingGenotypes", "Maf", "Mgf", "PassedFilters", "Quality", "NumSamples", "TransitionsCount", "TransversionsCount", "MendelianErrors", "CasesPercentDominant", "ControlsPercentDominant", "CasesPercentRecessive", "ControlsPercentRecessive", "HardyWeinberg", });
+              new java.lang.String[] { "RefAlleleCount", "AltAlleleCount", "GenotypesCount", "RefAlleleFreq", "AltAlleleFreq", "GenotypesFreq", "MissingAlleles", "MissingGenotypes", "Maf", "Mgf", "MafAllele", "MgfGenotype", "PassedFilters", "Quality", "NumSamples", "TransitionsCount", "TransversionsCount", "MendelianErrors", "CasesPercentDominant", "ControlsPercentDominant", "CasesPercentRecessive", "ControlsPercentRecessive", "HardyWeinberg", });
           internal_static_org_opencb_biodata_models_variant_protobuf_VariantStats_Count_descriptor =
             internal_static_org_opencb_biodata_models_variant_protobuf_VariantStats_descriptor.getNestedTypes().get(0);
           internal_static_org_opencb_biodata_models_variant_protobuf_VariantStats_Count_fieldAccessorTable = new
