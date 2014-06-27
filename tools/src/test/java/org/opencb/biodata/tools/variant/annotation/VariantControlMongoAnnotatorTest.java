@@ -10,7 +10,7 @@ public class VariantControlMongoAnnotatorTest {
     public void testAnnot() throws Exception {
         Variant v = new Variant("1", 14653, 14653, "C", "T");
         VariantAnnotator va = new VariantControlMongoAnnotator();
-        ArchivedVariantFile avf = new ArchivedVariantFile("TEST", "TEST", "TEST");
+        ArchivedVariantFile avf = new ArchivedVariantFile("TEST", "TEST");
         v.addFile(avf);
         va.annot(v);
     }

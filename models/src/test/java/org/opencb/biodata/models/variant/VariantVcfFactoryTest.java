@@ -103,7 +103,7 @@ public class VariantVcfFactoryTest {
 
         // Initialize expected variants
         Variant var0 = new Variant("1", 10041, 10041 + "C".length() - 1, "T", "C");
-        ArchivedVariantFile file0 = new ArchivedVariantFile(source.getFileName(), source.getFileId(), source.getStudyId());
+        ArchivedVariantFile file0 = new ArchivedVariantFile(source.getFileId(), source.getStudyId());
         var0.addFile(file0);
 
         // Initialize expected samples
@@ -140,11 +140,11 @@ public class VariantVcfFactoryTest {
 
         // Initialize expected variants
         Variant var0 = new Variant("1", 123456, 123456, "G", "C");
-        ArchivedVariantFile file0 = new ArchivedVariantFile(source.getFileName(), source.getFileId(), source.getStudyId());
+        ArchivedVariantFile file0 = new ArchivedVariantFile(source.getFileId(), source.getStudyId());
         var0.addFile(file0);
 
         Variant var1 = new Variant("1", 123456, 123456, "G", "T");
-        ArchivedVariantFile file1 = new ArchivedVariantFile(source.getFileName(), source.getFileId(), source.getStudyId());
+        ArchivedVariantFile file1 = new ArchivedVariantFile(source.getFileId(), source.getStudyId());
         var1.addFile(file1);
 
 
@@ -201,11 +201,11 @@ public class VariantVcfFactoryTest {
 
         // Initialize expected variants
         Variant var0 = new Variant("1", 10041, 10041 + "C".length() - 1, "T", "C");
-        ArchivedVariantFile file0 = new ArchivedVariantFile(source.getFileName(), source.getFileId(), source.getStudyId());
+        ArchivedVariantFile file0 = new ArchivedVariantFile(source.getFileId(), source.getStudyId());
         var0.addFile(file0);
 
         Variant var1 = new Variant("1", 10050, 10050 + "GC".length() - 1, "T", "GC");
-        ArchivedVariantFile file1 = new ArchivedVariantFile(source.getFileName(), source.getFileId(), source.getStudyId());
+        ArchivedVariantFile file1 = new ArchivedVariantFile(source.getFileId(), source.getStudyId());
         var1.addFile(file1);
 
         // Initialize expected samples

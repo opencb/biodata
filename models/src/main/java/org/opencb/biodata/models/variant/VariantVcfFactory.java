@@ -74,7 +74,7 @@ public class VariantVcfFactory implements VariantFactory {
         for (int i = 0; i < alternateAlleles.length; i++) {
             VariantKeyFields keyFields = generatedKeyFields.get(i);
             Variant variant = new Variant(chromosome, keyFields.start, keyFields.end, keyFields.reference, keyFields.alternate);
-            variant.addFile(new ArchivedVariantFile(source.getFileName(), source.getFileId(), source.getStudyId()));
+            variant.addFile(new ArchivedVariantFile(source.getFileId(), source.getStudyId()));
             setOtherFields(variant, source, id, quality, filter, info, format, keyFields.getNumAllele(), alternateAlleles);
 
             try {

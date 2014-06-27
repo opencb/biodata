@@ -1,6 +1,5 @@
 package org.opencb.biodata.models.variant;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -14,11 +13,6 @@ import org.opencb.biodata.models.variant.stats.VariantStats;
  * @author Cristina Yenyxe Gonzalez Garcia <cyenyxe@ebi.ac.uk>
  */
 public class ArchivedVariantFile {
-    
-    /**
-     * Name of the archived file.
-     */
-    private String fileName;
     
     /**
      * Unique identifier of the archived file.
@@ -55,11 +49,10 @@ public class ArchivedVariantFile {
     private Map<String, String> attributes;
 
     ArchivedVariantFile() { 
-        this(null, null, null);
+        this(null, null);
     }
     
-    public ArchivedVariantFile(String fileName, String fileId, String studyId) {
-        this.fileName = fileName;
+    public ArchivedVariantFile(String fileId, String studyId) {
         this.fileId = fileId;
         this.studyId = studyId;
         
@@ -68,14 +61,6 @@ public class ArchivedVariantFile {
     }
 
     
-    public String getFileName() {
-        return fileName;
-    }
-
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
-
     public String getFileId() {
         return fileId;
     }
@@ -155,8 +140,12 @@ public class ArchivedVariantFile {
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 37 * hash + Objects.hashCode(this.fileId);
-        hash = 37 * hash + Objects.hashCode(this.studyId);
+        hash = 41 * hash + Objects.hashCode(this.fileId);
+        hash = 41 * hash + Objects.hashCode(this.studyId);
+        hash = 41 * hash + Objects.hashCode(this.format);
+        hash = 41 * hash + Objects.hashCode(this.samplesData);
+        hash = 41 * hash + Objects.hashCode(this.stats);
+        hash = 41 * hash + Objects.hashCode(this.attributes);
         return hash;
     }
 
@@ -175,8 +164,21 @@ public class ArchivedVariantFile {
         if (!Objects.equals(this.studyId, other.studyId)) {
             return false;
         }
+        if (!Objects.equals(this.format, other.format)) {
+            return false;
+        }
+        if (!Objects.equals(this.samplesData, other.samplesData)) {
+            return false;
+        }
+        if (!Objects.equals(this.stats, other.stats)) {
+            return false;
+        }
+        if (!Objects.equals(this.attributes, other.attributes)) {
+            return false;
+        }
         return true;
     }
 
+    
     
 }

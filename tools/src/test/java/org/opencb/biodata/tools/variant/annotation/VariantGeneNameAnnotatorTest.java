@@ -13,7 +13,7 @@ public class VariantGeneNameAnnotatorTest {
 
         Variant v = new Variant("1", 14653, 14653, "C", "T");
         VariantAnnotator va = new VariantGeneNameAnnotator();
-        ArchivedVariantFile avf = new ArchivedVariantFile("TEST", "TEST", "TEST");
+        ArchivedVariantFile avf = new ArchivedVariantFile("TEST", "TEST");
         v.addFile(avf);
         va.annot(v);
         String gn = v.getFile("TEST").getAttribute("GeneNames");
