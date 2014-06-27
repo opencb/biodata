@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.opencb.biodata.models.pedigree.Pedigree;
 import org.opencb.biodata.models.variant.stats.VariantGlobalStats;
 
@@ -128,4 +129,56 @@ public class VariantSource {
                 ", stats=" + stats +
                 '}';
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 37 * hash + Objects.hashCode(this.fileName);
+        hash = 37 * hash + Objects.hashCode(this.fileId);
+        hash = 37 * hash + Objects.hashCode(this.studyId);
+        hash = 37 * hash + Objects.hashCode(this.studyName);
+        hash = 37 * hash + Objects.hashCode(this.samplesPosition);
+        hash = 37 * hash + Objects.hashCode(this.pedigree);
+        hash = 37 * hash + Objects.hashCode(this.metadata);
+        hash = 37 * hash + Objects.hashCode(this.stats);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final VariantSource other = (VariantSource) obj;
+        if (!Objects.equals(this.fileName, other.fileName)) {
+            return false;
+        }
+        if (!Objects.equals(this.fileId, other.fileId)) {
+            return false;
+        }
+        if (!Objects.equals(this.studyId, other.studyId)) {
+            return false;
+        }
+        if (!Objects.equals(this.studyName, other.studyName)) {
+            return false;
+        }
+        if (!Objects.equals(this.samplesPosition, other.samplesPosition)) {
+            return false;
+        }
+        if (!Objects.equals(this.pedigree, other.pedigree)) {
+            return false;
+        }
+        if (!Objects.equals(this.metadata, other.metadata)) {
+            return false;
+        }
+        if (!Objects.equals(this.stats, other.stats)) {
+            return false;
+        }
+        return true;
+    }
+    
+    
 }
