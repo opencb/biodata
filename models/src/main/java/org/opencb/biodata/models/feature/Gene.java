@@ -1,5 +1,7 @@
 package org.opencb.biodata.models.feature;
 
+import java.util.Objects;
+
 public class Gene {
 
     private String id;
@@ -32,15 +34,6 @@ public class Gene {
         this.strand = strand;
         this.source = source;
         this.description = description;
-    }
-
-    @Override
-    public String toString() {
-        return "Gene [id=" + id + ", name=" + name
-                + ", biotype=" + biotype + ", status=" + status
-                + ", chromosome=" + chromosome + ", start=" + start + ", end="
-                + end + ", strand=" + strand + ", source=" + source
-                + ", description=" + description + "]";
     }
 
     public String getId() {
@@ -123,4 +116,65 @@ public class Gene {
         this.description = description;
     }
 
+    @Override
+    public String toString() {
+        return "Gene [id=" + id + ", name=" + name
+                + ", biotype=" + biotype + ", status=" + status
+                + ", chromosome=" + chromosome + ", start=" + start + ", end="
+                + end + ", strand=" + strand + ", source=" + source
+                + ", description=" + description + "]";
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 71 * hash + Objects.hashCode(this.id);
+        hash = 71 * hash + Objects.hashCode(this.name);
+        hash = 71 * hash + Objects.hashCode(this.biotype);
+        hash = 71 * hash + Objects.hashCode(this.chromosome);
+        hash = 71 * hash + this.start;
+        hash = 71 * hash + this.end;
+        hash = 71 * hash + Objects.hashCode(this.strand);
+        hash = 71 * hash + Objects.hashCode(this.source);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Gene other = (Gene) obj;
+        if (!Objects.equals(this.id, other.id)) {
+            return false;
+        }
+        if (!Objects.equals(this.name, other.name)) {
+            return false;
+        }
+        if (!Objects.equals(this.biotype, other.biotype)) {
+            return false;
+        }
+        if (!Objects.equals(this.chromosome, other.chromosome)) {
+            return false;
+        }
+        if (this.start != other.start) {
+            return false;
+        }
+        if (this.end != other.end) {
+            return false;
+        }
+        if (!Objects.equals(this.strand, other.strand)) {
+            return false;
+        }
+        if (!Objects.equals(this.source, other.source)) {
+            return false;
+        }
+        return true;
+    }
+
+    
+    
 }

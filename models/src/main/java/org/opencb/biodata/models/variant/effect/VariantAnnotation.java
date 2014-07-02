@@ -2,8 +2,11 @@ package org.opencb.biodata.models.variant.effect;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import org.opencb.biodata.models.feature.Gene;
 
 
 /**
@@ -19,6 +22,8 @@ public class VariantAnnotation {
     private int end;
     
     private String referenceAllele;
+    
+    private Set<Gene> genes;
     
     private Map<String, List<VariantEffect>> effects;
     
@@ -38,6 +43,7 @@ public class VariantAnnotation {
         this.start = start;
         this.end = end;
         this.referenceAllele = referenceAllele;
+        this.genes = new HashSet<>();
         this.effects = new HashMap<>();
         this.frequencies = new Frequencies();
         this.proteinSubstitutionScores = new ProteinSubstitutionScores();
@@ -77,6 +83,18 @@ public class VariantAnnotation {
         this.referenceAllele = referenceAllele;
     }
 
+    public Set<Gene> getGenes() {
+        return genes;
+    }
+
+    public void setGenes(Set<Gene> genes) {
+        this.genes = genes;
+    }
+
+    public void addGene(Gene gene) {
+        this.genes.add(gene);
+    }
+    
     public Map<String, List<VariantEffect>> getEffects() {
         return effects;
     }
@@ -85,7 +103,7 @@ public class VariantAnnotation {
         this.effects = effects;
     }
 
-    public void addConsequenceType(String key, VariantEffect consequenceType) {
+    public void addEffect(String key, VariantEffect consequenceType) {
         List<VariantEffect> ct = effects.get(key);
         if (ct == null) {
             ct = new ArrayList<>();

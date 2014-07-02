@@ -288,7 +288,7 @@ public class Variant {
     }
     
     public void addEffect(String allele, VariantEffect ct) {
-        annotation.addConsequenceType(allele, ct);
+        annotation.addEffect(allele, ct);
     }
     
     public Iterable<String> getSampleNames(String fileId) {
