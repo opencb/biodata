@@ -1,17 +1,14 @@
 package org.opencb.biodata.tools.variant.annotation;
 
+import com.google.common.base.Joiner;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-
-import com.google.common.base.Joiner;
-
 import org.opencb.biodata.models.variant.ArchivedVariantFile;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.VariantSource;
 import org.opencb.biodata.models.variant.effect.ConsequenceType;
-import org.opencb.biodata.models.variant.effect.VariantEffect;
 import org.opencb.biodata.tools.variant.EffectCalculator;
 
 /**
@@ -20,10 +17,14 @@ import org.opencb.biodata.tools.variant.EffectCalculator;
  */
 public class VariantGeneNameAnnotator implements VariantAnnotator {
 
-    private VariantSource study;
+    private String geneNameTag;
 
-    public VariantGeneNameAnnotator(VariantSource study) {
-        this.study = study;
+    public VariantGeneNameAnnotator() {
+        this("GeneNames");
+    }
+
+    public VariantGeneNameAnnotator(String geneNameTag) {
+        this.geneNameTag = geneNameTag;
     }
 
     @Override
@@ -33,39 +34,28 @@ public class VariantGeneNameAnnotator implements VariantAnnotator {
 
     @Override
     public void annot(List<Variant> batch) {
-        List<VariantEffect> batchEffect = EffectCalculator.getEffects(batch);
+        EffectCalculator.setEffects(batch);
 
         for (Variant variant : batch) {
-            ArchivedVariantFile file = variant.getFile(study.getAlias());
-            if (file == null) {
-                // The variant is not present in this file
-                continue;
+            for (Map.Entry<String, ArchivedVariantFile> file : variant.getFiles().entrySet()) {
+                annotGeneName(variant, file.getValue());
             }
-
-            annotVariantEffect(variant, file, batchEffect);
         }
     }
 
-    private void annotVariantEffect(Variant variant, ArchivedVariantFile file, List<VariantEffect> batchEffect) {
+    private void annotGeneName(Variant variant, ArchivedVariantFile file) {
         Set<String> geneNames = new HashSet<>();
 
-        for (VariantEffect effect : batchEffect) {
-            if (variant.getChromosome().equals(effect.getChromosome())
-                    && variant.getStart() == effect.getStart()
-                    && variant.getReference().equals(effect.getReferenceAllele())) {
-
-                for (List<ConsequenceType> list : effect.getConsequenceTypes().values()) {
-                    for (ConsequenceType ct : list) {
-                        geneNames.add(ct.getGeneName());
-                    }
+        for (List<ConsequenceType> list : variant.getEffect().getConsequenceTypes().values()) {
+            for (ConsequenceType ct : list) {
+                if (!ct.getGeneName().isEmpty()) {
+                    geneNames.add(ct.getGeneName());
                 }
             }
         }
 
-        String geneNamesAll = Joiner.on(",").join(geneNames);
-
         if (geneNames.size() > 0) {
-            file.addAttribute("GeneNames", geneNamesAll);
+            file.addAttribute(this.geneNameTag, Joiner.on(",").join(geneNames));
         }
 
     }

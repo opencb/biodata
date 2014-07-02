@@ -32,21 +32,17 @@ public class VariantVcfGzipDataWriter implements VariantWriter {
 
     @Override
     public boolean open() {
-
-        boolean res = true;
         try {
             printer = new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(this.filename))));
         } catch (IOException e) {
-            e.printStackTrace();
-            res = false;
+            return false;
         }
 
-        return res;
+        return true;
     }
 
     @Override
     public boolean close() {
-
         try {
             printer.close();
         } catch (IOException e) {
@@ -58,15 +54,12 @@ public class VariantVcfGzipDataWriter implements VariantWriter {
 
     @Override
     public boolean pre() {
-
-        boolean res = true;
         try {
             printer.append(reader.getHeader()).append("\n");
         } catch (IOException e) {
-            e.printStackTrace();
-            res = false;
+            return false;
         }
-        return res;
+        return true;
     }
 
     @Override
@@ -76,31 +69,25 @@ public class VariantVcfGzipDataWriter implements VariantWriter {
 
     @Override
     public boolean write(Variant elem) {
-        boolean res = true;
-
         try {
             printer.append(elem.toString()).append("\n");
         } catch (IOException e) {
-            e.printStackTrace();
-            res = false;
-
+            return false;
         }
-        return res;
+        
+        return true;
     }
 
     @Override
     public boolean write(List<Variant> batch) {
-
-        boolean res = true;
         try {
             for (Variant record : batch) {
                 printer.append(record.toString()).append("\n");
             }
         } catch (IOException e) {
-            e.printStackTrace();
-            res = false;
+            return false;
         }
-        return res;
+        return true;
     }
 
     @Override

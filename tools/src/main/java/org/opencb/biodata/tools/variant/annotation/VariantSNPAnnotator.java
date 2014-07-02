@@ -24,10 +24,12 @@ import java.util.logging.Logger;
  */
 public class VariantSNPAnnotator implements VariantAnnotator {
 
+    private static final String CELLBASE_URL = "http://www.ebi.ac.uk/cellbase/webservices/";
+
     private WebTarget webResource;
 
     public VariantSNPAnnotator() {
-        webResource = ClientBuilder.newClient().target("http://ws-beta.bioinfo.cipf.es/cellbase/rest/v3/hsapiens/genomic/position");
+        webResource = ClientBuilder.newClient().target(CELLBASE_URL + "/rest/v3/hsapiens/genomic/position");
     }
 
     @Override
@@ -40,16 +42,14 @@ public class VariantSNPAnnotator implements VariantAnnotator {
         Form form = new Form();
         form.param("position", positions.substring(0, positions.length() - 1));
 
-        Response response = webResource.path("snp").queryParam("of", "json").queryParam("include", "id").request().post(
+        Response response = webResource.path("snp").queryParam("include", "id").request().post(
                 Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE));
 
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode actualObj;
 
-        String resp = null;
         try {
-            resp = response.readEntity(String.class);
-            actualObj = mapper.readTree(resp);
+            String resp = response.readEntity(String.class);
+            JsonNode actualObj = mapper.readTree(resp);
             Iterator<JsonNode> it = actualObj.get("response").iterator();
 
             int cont = 0;
@@ -57,7 +57,7 @@ public class VariantSNPAnnotator implements VariantAnnotator {
                 JsonNode snp = it.next();
                 if (snp.get("numResults").asInt() > 0) {
                     Iterator<JsonNode> itResults = snp.get("result").iterator();
-                    
+
                     // TODO Accept multiple identifiers via xrefs
 //                    while (itResults.hasNext()) {
                     if (itResults.hasNext()) {

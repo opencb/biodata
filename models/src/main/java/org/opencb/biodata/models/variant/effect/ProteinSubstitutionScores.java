@@ -17,7 +17,9 @@ public class ProteinSubstitutionScores {
     
     private SiftEffect siftEffect;
 
-    ProteinSubstitutionScores() { }
+    ProteinSubstitutionScores() {
+        this(-1, -1, null, null);
+    }
 
     public ProteinSubstitutionScores(float polyphenScore, float siftScore, PolyphenEffect polyphenEffect, SiftEffect siftEffect) {
         this.polyphenScore = polyphenScore;

@@ -96,7 +96,7 @@ public class VariantStatsWrapper {
         for (VariantGlobalStats gs : this.variantGlobalStats) {
             gsFinal.updateStats(gs.getVariantsCount(), gs.getSamplesCount(),
                     gs.getSnpsCount(), gs.getIndelsCount(), gs.getPassCount(),
-                    gs.getTransitionsCount(), gs.getTransversionsCount(), gs.getBiallelicsCount(), gs.getMultiallelicsCount(), gs.getAccumQuality());
+                    gs.getTransitionsCount(), gs.getTransversionsCount(), gs.getBiallelicsCount(), gs.getMultiallelicsCount(), gs.getAccumulatedQuality());
         }
         return gsFinal;
     }

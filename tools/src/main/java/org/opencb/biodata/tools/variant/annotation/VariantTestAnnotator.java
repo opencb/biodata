@@ -20,14 +20,13 @@ public class VariantTestAnnotator implements VariantAnnotator {
     @Override
     public void annot(List<Variant> batch) {
         for (Variant vr : batch) {
-            vr.addFile(new ArchivedVariantFile(text, text, text));
+            vr.addFile(new ArchivedVariantFile(text, text));
             annot(vr);
         }
     }
 
     @Override
     public void annot(Variant elem) {
-//        elem.addInfoField("TEXT=" + text);
         elem.getFile(text).addAttribute("TEXT", text);
     }
 }

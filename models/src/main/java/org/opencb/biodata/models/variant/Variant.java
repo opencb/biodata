@@ -37,7 +37,7 @@ public class Variant {
     /**
      * Position where the genomic variation starts.
      * <ul>
-     *  <li>SNVs have the same start and end positions</li>
+     *  <li>SNVs have the same start and end position</li>
      *  <li>Insertions start in the last present position: if the first nucleotide 
      * is inserted in position 6, the start is position 5</li>
      *  <li>Deletions start in the first previously present position: if the first 
@@ -85,7 +85,7 @@ public class Variant {
     /**
      * Unique identifier following the HGVS nomenclature.
      */
-    private Map<String, List<String>> hgvs;
+    private Map<String, Set<String>> hgvs;
     
     /**
      * Information specific to each file the variant was read from, such as 
@@ -93,18 +93,6 @@ public class Variant {
      */
     private Map<String, ArchivedVariantFile> files;
     
-//    /**
-//     * Fields stored for each sample.
-//     */
-//    private String format;
-//    
-//    /**
-//     * Genotypes and other sample-related information. The keys are the names
-//     * of the samples. The values are pairs (field name, field value), such as
-//     * (GT, A/C).
-//     */
-//    private Map<String, Map<String, String>> samplesData;
-//    
 //    /**
 //     * Statistics of the genomic variation, such as its alleles/genotypes count 
 //     * or its minimum allele frequency.
@@ -115,12 +103,6 @@ public class Variant {
      * Possible effects of the genomic variation.
      */
     private VariantEffect effect;
-
-//    /**
-//     * Optional attributes that probably depend on the format of the file the
-//     * variant was initially read.
-//     */
-//    private Map<String, String> attributes;
 
     
     Variant() {
@@ -158,14 +140,13 @@ public class Variant {
         
         this.hgvs = new HashMap<>();
         if (this.type == VariantType.SNV) { // Generate HGVS code only for SNVs
-            this.hgvs.put("genomic", Arrays.asList(chromosome + ":g." + start + reference + ">" + alternate));
+            Set<String> hgvsCodes = new HashSet<>();
+            hgvsCodes.add(chromosome + ":g." + start + reference + ">" + alternate);
+            this.hgvs.put("genomic", hgvsCodes);
         }
         
         this.files = new HashMap<>();
-//        this.samplesData = new LinkedHashMap<>();
-//        this.effect = new LinkedList<>();
         this.effect = new VariantEffect(this.chromosome, this.start, this.end, this.reference);
-//        this.attributes = new LinkedHashMap<>();
     }
 
     public VariantType getType() {
@@ -184,7 +165,7 @@ public class Variant {
         if (chromosome == null || chromosome.length() == 0) {
             throw new IllegalArgumentException("Chromosome must not be empty");
         }
-        this.chromosome = chromosome.replaceAll("chrom | chrm | chr | ch", "");
+        this.chromosome = chromosome.replaceAll("chrom|chrm|chr|ch", "");
     }
 
     public int getStart() {
@@ -254,18 +235,18 @@ public class Variant {
 //        }
 //    }
     
-    public Map<String, List<String>> getHgvs() {
+    public Map<String, Set<String>> getHgvs() {
         return hgvs;
     }
     
-    public List<String> getHgvs(String type) {
+    public Set<String> getHgvs(String type) {
         return hgvs.get(type);
     }
 
     public boolean addHgvs(String type, String value) {
-        List<String> listByType = hgvs.get(type);
+        Set<String> listByType = hgvs.get(type);
         if (listByType == null) {
-            listByType = new ArrayList<>();
+            listByType = new HashSet<>();
         }
         return listByType.add(value);
     }
@@ -286,26 +267,6 @@ public class Variant {
         this.files.put(file.getFileId(), file);
     }
     
-//    public String getFormat() {
-//        return format;
-//    }
-//
-//    public void setFormat(String format) {
-//        this.format = format;
-//    }
-//
-//    public Map<String, Map<String, String>> getSamplesData() {
-//        return samplesData;
-//    }
-//
-//    public Map<String, String> getSampleData(String sampleName) {
-//        return samplesData.get(sampleName);
-//    }
-//
-//    public VariantStats getStats() {
-//        return stats;
-//    }
-
     public VariantStats getStats(String fileId) {
         ArchivedVariantFile file = files.get(fileId);
         if (file == null) {
@@ -329,35 +290,7 @@ public class Variant {
     public void addEffect(String allele, ConsequenceType ct) {
         effect.addConsequenceType(allele, ct);
     }
-
-//    public Map<String, String> getAttributes() {
-//        return attributes;
-//    }
-//
-//    public void setAttributes(Map<String, String> attributes) {
-//        this.attributes = attributes;
-//    }
-//
-//    public void addAttribute(String key, String value) {
-//        this.attributes.put(key, value);
-//    }
-//
-//    public String getAttribute(String key) {
-//        return this.attributes.get(key);
-//    }
-//
-//    public boolean hasAttribute(String key) {
-//        return this.attributes.containsKey(key);
-//    }
-//
-//    public void addSampleData(String sampleName, Map<String, String> sampleData) {
-//        this.samplesData.put(sampleName, sampleData);
-//    }
-//
-//    public String getSampleData(String sampleName, String field) {
-//        return this.samplesData.get(sampleName).get(field.toUpperCase());
-//    }
-
+    
     public Iterable<String> getSampleNames(String fileId) {
         ArchivedVariantFile file = files.get(fileId);
         if (file == null) {

@@ -100,8 +100,8 @@ public class ArchivedVariantFileStats {
 //                    }
 //                }
                 
-                // Count homozygous
-                if (g.getAllele(0) == g.getAllele(1)) {
+                // Count homozygous (not haploid)
+                if (g.getCode() != AllelesCode.HAPLOID && g.getAllele(0) == g.getAllele(1)) {
                     sampleStats.incrementHomozygous();
                 }
             }
