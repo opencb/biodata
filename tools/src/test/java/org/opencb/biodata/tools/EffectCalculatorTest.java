@@ -5,7 +5,7 @@ import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.effect.VariantEffect;
+import org.opencb.biodata.models.variant.effect.VariantAnnotation;
 import org.opencb.biodata.tools.variant.EffectCalculator;
 import org.opencb.commons.test.GenericTest;
 
@@ -24,8 +24,8 @@ public class EffectCalculatorTest extends GenericTest {
 
     @Test
     public void testGetEffects() throws Exception {
-        List<VariantEffect> effects = EffectCalculator.getEffects(variants);
-        for (VariantEffect ve : effects) {
+        List<VariantAnnotation> effects = EffectCalculator.getEffects(variants);
+        for (VariantAnnotation ve : effects) {
             System.out.println("ve = " + ve);
         }
     }
@@ -37,8 +37,8 @@ public class EffectCalculatorTest extends GenericTest {
 
     @Test
     public void testGetEffectPerVariant() throws Exception {
-        List<List<VariantEffect>> effects = EffectCalculator.getEffectPerVariant(variants);
-        for (List<VariantEffect> ve : effects) {
+        List<List<VariantAnnotation>> effects = EffectCalculator.getEffectPerVariant(variants);
+        for (List<VariantAnnotation> ve : effects) {
             System.out.println(ve);
         }
 

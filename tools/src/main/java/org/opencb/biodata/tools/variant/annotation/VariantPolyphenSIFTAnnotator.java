@@ -59,7 +59,7 @@ public class VariantPolyphenSIFTAnnotator implements VariantAnnotator {
     }
 
     private void annotPolyphen(Variant variant, ArchivedVariantFile file) {
-        ProteinSubstitutionScores scores = variant.getEffect().getProteinSubstitutionScores();
+        ProteinSubstitutionScores scores = variant.getAnnotation().getProteinSubstitutionScores();
         if (scores.getPolyphenScore() >= 0) {
             file.addAttribute(this.polyphenScoreTag, String.valueOf(scores.getPolyphenScore()));
             file.addAttribute(this.polyphenEffectTag, String.valueOf(scores.getPolyphenEffect().name()));
@@ -67,7 +67,7 @@ public class VariantPolyphenSIFTAnnotator implements VariantAnnotator {
     }
 
     private void annotSIFT(Variant variant, ArchivedVariantFile file) {
-        ProteinSubstitutionScores scores = variant.getEffect().getProteinSubstitutionScores();
+        ProteinSubstitutionScores scores = variant.getAnnotation().getProteinSubstitutionScores();
         if (scores.getSiftScore() >= 0) {
             file.addAttribute(this.siftScoreTag, String.valueOf(scores.getSiftScore()));
             file.addAttribute(this.siftEffectTag, String.valueOf(scores.getSiftEffect().name()));

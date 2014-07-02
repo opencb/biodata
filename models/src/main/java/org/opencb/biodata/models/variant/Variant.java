@@ -1,8 +1,8 @@
 package org.opencb.biodata.models.variant;
 
 import java.util.*;
-import org.opencb.biodata.models.variant.effect.ConsequenceType;
 import org.opencb.biodata.models.variant.effect.VariantEffect;
+import org.opencb.biodata.models.variant.effect.VariantAnnotation;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
 /**
@@ -100,9 +100,9 @@ public class Variant {
 //    private VariantStats stats;
     
     /**
-     * Possible effects of the genomic variation.
+     * Annotations of the genomic variation.
      */
-    private VariantEffect effect;
+    private VariantAnnotation annotation;
 
     
     Variant() {
@@ -146,7 +146,7 @@ public class Variant {
         }
         
         this.files = new HashMap<>();
-        this.effect = new VariantEffect(this.chromosome, this.start, this.end, this.reference);
+        this.annotation = new VariantAnnotation(this.chromosome, this.start, this.end, this.reference);
     }
 
     public VariantType getType() {
@@ -279,16 +279,16 @@ public class Variant {
 //        this.stats = stats;
 //    }
     
-    public VariantEffect getEffect() {
-        return effect;
+    public VariantAnnotation getAnnotation() {
+        return annotation;
     }
 
-    public void setEffect(VariantEffect effect) {
-        this.effect = effect;
+    public void setAnnotation(VariantAnnotation annotation) {
+        this.annotation = annotation;
     }
     
-    public void addEffect(String allele, ConsequenceType ct) {
-        effect.addConsequenceType(allele, ct);
+    public void addEffect(String allele, VariantEffect ct) {
+        annotation.addConsequenceType(allele, ct);
     }
     
     public Iterable<String> getSampleNames(String fileId) {
@@ -310,7 +310,7 @@ public class Variant {
 //                ", format='" + format + '\'' +
 //                ", samplesData=" + samplesData +
 //                ", stats=" + stats +
-//                ", effect=" + effect +
+//                ", annotation=" + annotation +
 //                ", attributes=" + attributes +
                 '}';
     }

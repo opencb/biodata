@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import org.opencb.biodata.models.variant.ArchivedVariantFile;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.effect.ConsequenceType;
+import org.opencb.biodata.models.variant.effect.VariantEffect;
 import org.opencb.biodata.models.variant.effect.ConsequenceTypeMappings;
 import org.opencb.biodata.tools.variant.EffectCalculator;
 
@@ -48,8 +48,8 @@ public class VariantConsequenceTypeAnnotator implements VariantAnnotator {
     private void annotVariantEffect(Variant variant, ArchivedVariantFile file) {
         Set<String> cts = new HashSet<>();
 
-        for (List<ConsequenceType> list : variant.getEffect().getConsequenceTypes().values()) {
-            for (ConsequenceType ct : list) {
+        for (List<VariantEffect> list : variant.getAnnotation().getEffects().values()) {
+            for (VariantEffect ct : list) {
                 for (int so : ct.getConsequenceTypes()) {
                     cts.add(ConsequenceTypeMappings.accessionToTerm.get(so));
                 }

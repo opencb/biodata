@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.effect.ConsequenceType;
-import org.opencb.biodata.models.variant.effect.ConsequenceTypeMappings;
 import org.opencb.biodata.models.variant.effect.VariantEffect;
+import org.opencb.biodata.models.variant.effect.ConsequenceTypeMappings;
+import org.opencb.biodata.models.variant.effect.VariantAnnotation;
 import org.opencb.biodata.tools.variant.EffectCalculator;
 
 /**
@@ -33,16 +33,16 @@ public class VariantConsequenceTypeFilter extends VariantFilter {
         List<Variant> batch = new ArrayList<>();
         batch.add(variant);
 
-        List<VariantEffect> batchEffect = EffectCalculator.getEffects(batch);
+        List<VariantAnnotation> batchEffect = EffectCalculator.getEffects(batch);
 
-        Iterator<VariantEffect> it = batchEffect.iterator();
+        Iterator<VariantAnnotation> it = batchEffect.iterator();
 
-        VariantEffect effect;
+        VariantAnnotation effect;
         while (it.hasNext()) {
             effect = it.next();
 
-            for (List<ConsequenceType> list : effect.getConsequenceTypes().values()) {
-                for (ConsequenceType ct : list) {
+            for (List<VariantEffect> list : effect.getEffects().values()) {
+                for (VariantEffect ct : list) {
                     for (int so : ct.getConsequenceTypes()) {
                         if (so == this.consequenceTypeAccession) {
                             return true;

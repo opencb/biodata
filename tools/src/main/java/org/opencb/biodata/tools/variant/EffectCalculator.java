@@ -5,7 +5,7 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.multipart.FormDataMultiPart;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.effect.VariantEffect;
+import org.opencb.biodata.models.variant.effect.VariantAnnotation;
 
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
@@ -23,9 +23,9 @@ import java.util.List;
  */
 public class EffectCalculator {
 
-    public static List<VariantEffect> getEffects(List<Variant> batch) {
+    public static List<VariantAnnotation> getEffects(List<Variant> batch) {
         ObjectMapper mapper = new ObjectMapper();
-        List<VariantEffect> batchEffect = new ArrayList<>(batch.size());
+        List<VariantAnnotation> batchEffect = new ArrayList<>(batch.size());
 
         if (batch.isEmpty()) {
             return batchEffect;
@@ -47,7 +47,7 @@ public class EffectCalculator {
 
         try {
             String response = webResource.path("consequence_type").queryParam("of", "json").type(MediaType.MULTIPART_FORM_DATA).post(String.class, formDataMultiPart);
-            batchEffect = mapper.readValue(response, mapper.getTypeFactory().constructCollectionType(List.class, VariantEffect.class));
+            batchEffect = mapper.readValue(response, mapper.getTypeFactory().constructCollectionType(List.class, VariantAnnotation.class));
         } catch (IOException e) {
             System.err.println(chunkVcfRecords.toString());
             e.printStackTrace();
@@ -59,13 +59,13 @@ public class EffectCalculator {
         return batchEffect;
     }
 
-    public static List<VariantEffect> getEffectsWithPolyphenAndSift(List<Variant> batch) {
-        List<VariantEffect> batchEffect = getEffects(batch);
+    public static List<VariantAnnotation> getEffectsWithPolyphenAndSift(List<Variant> batch) {
+        List<VariantAnnotation> batchEffect = getEffects(batch);
         getPolyphenSift(batchEffect);
         return batchEffect;
     }
 
-    public static void getPolyphenSift(List<VariantEffect> batchEffect) {
+    public static void getPolyphenSift(List<VariantAnnotation> batchEffect) {
         if (batchEffect.isEmpty()) {
             return;
         }
@@ -73,7 +73,7 @@ public class EffectCalculator {
 //        javax.ws.rs.client.Client clientNew = ClientBuilder.newClient();
 //        WebTarget webTarget = clientNew.target("http://ws-beta.bioinfo.cipf.es/cellbase/rest/v3/hsapiens/feature/transcript/");
 //
-//        for (VariantEffect effect : batchEffect) {
+//        for (VariantAnnotation effect : batchEffect) {
 //            if (effect.getAaPosition() != -1 && !"".equals(effect.getTranscriptId()) && effect.getAminoacidChange().length() == 3) {
 //                String change = effect.getAminoacidChange().split("/")[1];
 //
@@ -134,16 +134,16 @@ public class EffectCalculator {
 //        }
     }
 
-    public static List<List<VariantEffect>> getEffectPerVariant(List<Variant> batch) {
-        List<List<VariantEffect>> list = new ArrayList<>(batch.size());
-        List<VariantEffect> auxEffect;
-        List<VariantEffect> effects = getEffects(batch);
+    public static List<List<VariantAnnotation>> getEffectPerVariant(List<Variant> batch) {
+        List<List<VariantAnnotation>> list = new ArrayList<>(batch.size());
+        List<VariantAnnotation> auxEffect;
+        List<VariantAnnotation> effects = getEffects(batch);
         String alternate;
 
 //        for (Variant variant : batch) {
 //            alternate = variant.getAlternate().isEmpty() ? "-" : variant.getAlternate();
 //            auxEffect = new ArrayList<>(20);
-//            for (VariantEffect effect : effects) {
+//            for (VariantAnnotation effect : effects) {
 //                if (variant.getChromosome().equals(effect.getChromosome())
 //                        && variant.getStart() == effect.getPosition()
 //                        && variant.getReference().equals(effect.getReferenceAllele())
@@ -168,23 +168,23 @@ public class EffectCalculator {
         } else {
             noEffects = new ArrayList<>(batch.size());
             for (Variant v : batch) {
-                if (v.getEffect().getConsequenceTypes().isEmpty()) {
+                if (v.getAnnotation().getEffects().isEmpty()) {
                     noEffects.add(v);
                 }
             }
         }
 
-        List<List<VariantEffect>> effects = getEffectPerVariant(noEffects);
+        List<List<VariantAnnotation>> effects = getEffectPerVariant(noEffects);
 
         if (withPolyphenSIFT) {
-            for (List<VariantEffect> list : effects) {
+            for (List<VariantAnnotation> list : effects) {
                 getPolyphenSift(list);
             }
         }
 
         for (int i = 0; i < noEffects.size(); i++) {
             Variant v = noEffects.get(i);
-            // TODO Adapt to ConsequenceType
+            // TODO Adapt to VariantEffect
 //            v.setEffect(effects.get(i));
         }
     }
