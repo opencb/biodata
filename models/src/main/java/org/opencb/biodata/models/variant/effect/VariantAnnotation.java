@@ -139,4 +139,18 @@ public class VariantAnnotation {
         this.regulatoryEffect = regulatoryEffect;
     }
 
+    @Override
+    public String toString() {
+        return "VariantAnnotation{" +
+                "chromosome='" + chromosome + '\'' +
+                ", start=" + start +
+                ", end=" + end +
+                ", referenceAllele='" + referenceAllele + '\'' +
+                ", genes=" + genes +
+                ", effects=" + effects +
+                ", frequencies=" + frequencies +
+                ", proteinSubstitutionScores=" + proteinSubstitutionScores +
+                ", regulatoryEffect=" + regulatoryEffect +
+                '}';
+    }
 }
