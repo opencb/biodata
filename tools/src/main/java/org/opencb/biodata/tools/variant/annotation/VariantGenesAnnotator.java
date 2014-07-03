@@ -7,8 +7,8 @@ import org.opencb.biodata.models.feature.Gene;
 import org.opencb.biodata.models.variant.ArchivedVariantFile;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.effect.VariantEffect;
-import org.opencb.commons.containers.QueryResponse;
-import org.opencb.commons.containers.QueryResult;
+import org.opencb.datastore.core.QueryResponse;
+import org.opencb.datastore.core.QueryResult;
 
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
