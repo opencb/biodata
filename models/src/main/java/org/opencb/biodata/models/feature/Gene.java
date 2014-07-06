@@ -2,6 +2,7 @@ package org.opencb.biodata.models.feature;
 
 import java.util.Objects;
 
+@Deprecated
 public class Gene {
 
     private String id;
