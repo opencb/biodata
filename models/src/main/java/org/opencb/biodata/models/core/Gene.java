@@ -5,15 +5,11 @@ import java.util.List;
 
 
 public class Gene implements Serializable {
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 5804770440067183880L;
-	/**
-	 * 
-	 */
+
 	@SuppressWarnings("unused")
-	private String _id;
+//	private String _id;
 	private String id;
 	private String name;
 	private String biotype;
@@ -34,7 +30,7 @@ public class Gene implements Serializable {
 	public Gene(String id, String name, String biotype, String status, 
 			String chromosome, Integer start, Integer end, String strand, String source, String description, List<Transcript> transcripts, MiRNAGene mirna) {
 		super();
-		this._id = id;
+//		this._id = id;
 		this.id = id;
 		this.name = name;
 		this.biotype = biotype;
@@ -53,7 +49,7 @@ public class Gene implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Gene [_id=" + _id + ", id=" + id + ", name=" + name
+		return "Gene [id=" + id + ", name=" + name
 				+ ", biotype=" + biotype + ", status=" + status
 				+ ", chromosome=" + chromosome + ", start=" + start + ", end="
 				+ end + ", strand=" + strand + ", source=" + source
