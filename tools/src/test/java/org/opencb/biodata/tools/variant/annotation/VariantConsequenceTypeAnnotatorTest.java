@@ -16,7 +16,7 @@ public class VariantConsequenceTypeAnnotatorTest {
         ArchivedVariantFile avf = new ArchivedVariantFile("TEST", "TEST");
         v.addFile(avf);
         va.annot(v);
-        String gn = v.getFile("TEST").getAttribute("ConsType");
+        String gn = v.getFile("TEST", "TEST").getAttribute("ConsType");
         assertTrue(gn.contains("SNP"));
     }
 }

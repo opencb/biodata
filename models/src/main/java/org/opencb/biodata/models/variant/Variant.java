@@ -254,8 +254,8 @@ public class Variant {
         return files;
     }
     
-    public ArchivedVariantFile getFile(String fileId) {
-        return files.get(fileId);
+    public ArchivedVariantFile getFile(String fileId, String studyId) {
+        return files.get(new StringBuilder(studyId).append("_").append(fileId).toString());
     }
 
     public void setFiles(Map<String, ArchivedVariantFile> files) {
@@ -263,7 +263,7 @@ public class Variant {
     }
     
     public void addFile(ArchivedVariantFile file) {
-        this.files.put(file.getFileId(), file);
+        this.files.put(new StringBuilder(file.getStudyId()).append("_").append(file.getFileId()).toString(), file);
     }
     
     public VariantStats getStats(String fileId) {

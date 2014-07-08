@@ -25,13 +25,13 @@ public class VariantVcfEVSFactoryTest {
         assertTrue(res.size() == 1);
 
         Variant v = res.get(0);
-        ArchivedVariantFile avf = v.getFile(source.getFileId());
+        ArchivedVariantFile avf = v.getFile(source.getFileId(), source.getStudyId());
 
         Map<Genotype, Integer> genotypes = new HashMap<>();
 
-        genotypes.put(new Genotype("0/0","T","G"), new Integer(5101));
-        genotypes.put(new Genotype("1/0","T","G"), new Integer(141));
-        genotypes.put(new Genotype("1/1","T","G"), new Integer(93));
+        genotypes.put(new Genotype("0/0","T","G"), 5101);
+        genotypes.put(new Genotype("1/0","T","G"), 141);
+        genotypes.put(new Genotype("1/1","T","G"), 93);
 
         assertEquals(avf.getStats().getGenotypesCount(), genotypes);
 
@@ -46,12 +46,12 @@ public class VariantVcfEVSFactoryTest {
         assertTrue(res.size() == 1);
 
         Variant v = res.get(0);
-        ArchivedVariantFile avf = v.getFile(source.getFileId());
+        ArchivedVariantFile avf = v.getFile(source.getFileId(), source.getStudyId());
 
         Map<Genotype, Integer> genotypes = new HashMap<>();
 
-        genotypes.put(new Genotype("0/0", "T", "A"), new Integer(2442));
-        genotypes.put(new Genotype("1/1", "T", "A"), new Integer(1));
+        genotypes.put(new Genotype("0/0", "T", "A"), 2442);
+        genotypes.put(new Genotype("1/1", "T", "A"), 1);
 
         assertEquals(avf.getStats().getGenotypesCount(), genotypes);
 
@@ -71,13 +71,13 @@ public class VariantVcfEVSFactoryTest {
         assertEquals(v.getAlternate(), "");
 
 
-        ArchivedVariantFile avf = v.getFile(source.getFileId());
+        ArchivedVariantFile avf = v.getFile(source.getFileId(), source.getStudyId());
 
         Map<Genotype, Integer> genotypes = new HashMap<>();
 
-        genotypes.put(new Genotype("1/1", "G", ""), new Integer(1));
-        genotypes.put(new Genotype("1/0", "G", ""), new Integer(1));
-        genotypes.put(new Genotype("0/0", "G", ""), new Integer(6253));
+        genotypes.put(new Genotype("1/1", "G", ""), 1);
+        genotypes.put(new Genotype("1/0", "G", ""), 1);
+        genotypes.put(new Genotype("0/0", "G", ""), 6253);
 
         assertEquals(avf.getStats().getGenotypesCount(), genotypes);
 
@@ -98,13 +98,13 @@ public class VariantVcfEVSFactoryTest {
         assertEquals(v.getAlternate(), "");
 
 
-        ArchivedVariantFile avf = v.getFile(source.getFileId());
+        ArchivedVariantFile avf = v.getFile(source.getFileId(), source.getStudyId());
 
         Map<Genotype, Integer> genotypes = new HashMap<>();
 
-        genotypes.put(new Genotype("1/1", "T", ""), new Integer(1697));
-        genotypes.put(new Genotype("1/0", "T", ""), new Integer(1298));
-        genotypes.put(new Genotype("0/0", "T", ""), new Integer(3261));
+        genotypes.put(new Genotype("1/1", "T", ""), 1697);
+        genotypes.put(new Genotype("1/0", "T", ""), 1298);
+        genotypes.put(new Genotype("0/0", "T", ""), 3261);
 
         assertEquals(avf.getStats().getGenotypesCount(), genotypes);
     }
@@ -124,14 +124,14 @@ public class VariantVcfEVSFactoryTest {
         assertEquals(v.getAlternate(), "A");
 
 
-        ArchivedVariantFile avf = v.getFile(source.getFileId());
+        ArchivedVariantFile avf = v.getFile(source.getFileId(), source.getStudyId());
 
         Map<Genotype, Integer> genotypes = new HashMap<>();
 
-        genotypes.put(new Genotype("1/1", "", "A"), new Integer(162));
-        genotypes.put(new Genotype("1/0", "", "A"), new Integer(134));
-        genotypes.put(new Genotype("0/0", "", "A"), new Integer(5734));
-        genotypes.put(new Genotype("./.", "", "A"), new Integer(203));
+        genotypes.put(new Genotype("1/1", "", "A"), 162);
+        genotypes.put(new Genotype("1/0", "", "A"), 134);
+        genotypes.put(new Genotype("0/0", "", "A"), 5734);
+        genotypes.put(new Genotype("./.", "", "A"), 203);
 
         assertEquals(avf.getStats().getGenotypesCount(), genotypes);
 
@@ -142,14 +142,14 @@ public class VariantVcfEVSFactoryTest {
         assertEquals(v.getAlternate(), "");
 
 
-        avf = v.getFile(source.getFileId());
+        avf = v.getFile(source.getFileId(), source.getStudyId());
 
         genotypes = new HashMap<>();
 
-        genotypes.put(new Genotype("1/1", "A", ""), new Integer(111));
-        genotypes.put(new Genotype("1/0", "A", ""), new Integer(92));
-        genotypes.put(new Genotype("0/0", "A", ""), new Integer(5734));
-        genotypes.put(new Genotype("./.", "A", ""), new Integer(296));
+        genotypes.put(new Genotype("1/1", "A", ""), 111);
+        genotypes.put(new Genotype("1/0", "A", ""), 92);
+        genotypes.put(new Genotype("0/0", "A", ""), 5734);
+        genotypes.put(new Genotype("./.", "A", ""), 296);
 
         assertEquals(avf.getStats().getGenotypesCount(), genotypes);
 

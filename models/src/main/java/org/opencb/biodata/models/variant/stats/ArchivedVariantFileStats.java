@@ -16,16 +16,18 @@ import org.opencb.biodata.models.variant.Variant;
 public class ArchivedVariantFileStats {
 
     private final String fileId;
+    private final String studyId;
     private List<String> sampleNames;
     private VariantGlobalStats fileStats;
     private Map<String, VariantSingleSampleStats> samplesStats;
 
     
-    public ArchivedVariantFileStats(String fileId) {
+    public ArchivedVariantFileStats(String fileId, String studyId) {
         this.fileId = fileId;
+        this.studyId = studyId;
         this.sampleNames = new ArrayList<>();
-        fileStats = new VariantGlobalStats();
-        samplesStats = new LinkedHashMap<>();
+        this.fileStats = new VariantGlobalStats();
+        this.samplesStats = new LinkedHashMap<>();
     }
 
     public List<String> getSampleNames() {
@@ -47,7 +49,7 @@ public class ArchivedVariantFileStats {
 
     public void updateFileStats(List<Variant> variants) {
         for (Variant v : variants) {
-            ArchivedVariantFile file = v.getFile(fileId);
+            ArchivedVariantFile file = v.getFile(fileId, studyId);
             if (file == null) {
                 // The variant is not contained in this file
                 continue;
@@ -71,7 +73,7 @@ public class ArchivedVariantFileStats {
     
     public void updateSampleStats(List<Variant> variants, Pedigree pedigree) {
         for (Variant v : variants) {
-            ArchivedVariantFile file = v.getFile(fileId);
+            ArchivedVariantFile file = v.getFile(fileId, studyId);
             if (file == null) {
                 // The variant is not contained in this file
                 continue;

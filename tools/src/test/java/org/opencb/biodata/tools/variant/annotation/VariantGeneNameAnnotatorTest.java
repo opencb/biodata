@@ -16,7 +16,7 @@ public class VariantGeneNameAnnotatorTest {
         ArchivedVariantFile avf = new ArchivedVariantFile("TEST", "TEST");
         v.addFile(avf);
         va.annot(v);
-        String gn = v.getFile("TEST").getAttribute("GeneNames");
+        String gn = v.getFile("TEST", "TEST").getAttribute("GeneNames");
         assertEquals(gn, "WASH7P,DDX11L1");
     }
 }
