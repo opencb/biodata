@@ -13,10 +13,10 @@ public class VariantGeneNameAnnotatorTest {
 
         Variant v = new Variant("1", 14653, 14653, "C", "T");
         VariantAnnotator va = new VariantGeneNameAnnotator();
-        ArchivedVariantFile avf = new ArchivedVariantFile("TEST", "TEST", "TEST");
+        ArchivedVariantFile avf = new ArchivedVariantFile("TEST", "TEST");
         v.addFile(avf);
         va.annot(v);
-        String gn = v.getFile("TEST").getAttribute("GeneNames");
+        String gn = v.getFile("TEST", "TEST").getAttribute("GeneNames");
         assertEquals(gn, "WASH7P,DDX11L1");
     }
 }

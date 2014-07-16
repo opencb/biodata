@@ -1,14 +1,12 @@
 package org.opencb.biodata.tools.variant.annotation;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 import net.sf.samtools.util.StringUtil;
 import org.broad.tribble.readers.TabixReader;
-import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.VariantFactory;
+import org.opencb.biodata.models.feature.Genotype;
+import org.opencb.biodata.models.variant.*;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
 /**
@@ -19,12 +17,13 @@ public class VariantControlAnnotator implements VariantAnnotator {
     // private TabixReader tabix;
     private String tabixFile;
     private List<String> samples;
-    private Map<String, Integer> samplesMap;
     private Map<String, String> controlList;
     private Map<Long, Map<String, TabixReader>> multipleControlsTabix;
     private Map<Long, TabixReader> tabix;
     private String prefix;
     private boolean single;
+    private VariantSource source = new VariantSource("CONTROL","CONTROL","CONTROL","CONTROL");
+    private VariantFactory factory = new VariantVcfFactory();
 
     public VariantControlAnnotator(String infoPrefix, String control) {
 
@@ -41,18 +40,17 @@ public class VariantControlAnnotator implements VariantAnnotator {
             String[] fields = line.split("\t");
 
             samples = new ArrayList<>(fields.length - 9);
-            samplesMap = new LinkedHashMap<>(fields.length - 9);
             for (int i = 9, j = 0; i < fields.length; i++, j++) {
                 samples.add(fields[i]);
-                samplesMap.put(fields[i], j);
 
             }
 
             tabixReader.close();
-            single = true;
         } catch (IOException e) {
             e.printStackTrace();
         }
+        source.setSamples(samples);
+        single = true;
 
     }
 
@@ -74,16 +72,13 @@ public class VariantControlAnnotator implements VariantAnnotator {
                     b = false;
 
                     String line;
-                    while ((line = t.readLine()) != null && !line.startsWith("#CHROM")) {
-                    }
+                    while ((line = t.readLine()) != null && !line.startsWith("#CHROM")) {};
 
                     String[] fields = line.split("\t");
 
                     samples = new ArrayList<>(fields.length - 9);
-                    samplesMap = new LinkedHashMap<>(fields.length - 9);
                     for (int i = 9, j = 0; i < fields.length; i++, j++) {
                         samples.add(fields[i]);
-                        samplesMap.put(fields[i], j);
 
                     }
                 }
@@ -107,7 +102,7 @@ public class VariantControlAnnotator implements VariantAnnotator {
     }
 
     private void singleAnnot(List<Variant> batch) {
-        Variant tabixRecord;
+        List<Variant> listRecords;
 
         long pid = Thread.currentThread().getId();
         TabixReader currentTabix = null;
@@ -124,65 +119,75 @@ public class VariantControlAnnotator implements VariantAnnotator {
             }
         }
 
-        List<Variant> controlBatch = new ArrayList<>(batch.size());
-        List<VariantStats> statsBatch;
-        Map<Variant, Integer> map = new LinkedHashMap<>(batch.size());
 
-        int cont = 0;
         for (Variant record : batch) {
 
             if (currentTabix != null) {
                 try {
 
-                    TabixReader.Iterator it = currentTabix.query(record.getChromosome() + ":" + record.getPosition() + "-" + record.getPosition());
+                    TabixReader.Iterator it = currentTabix.query(record.getChromosome() + ":" + record.getStart() + "-" + record.getEnd());
 
                     String line;
                     while (it != null && (line = it.next()) != null) {
 
-                        String[] fields = line.split("\t");
-                        tabixRecord = VariantFactory.createVariantFromVcf(samples, fields);
+                        listRecords = factory.create(source, line);
 
-                        if (tabixRecord.getReference().equals(record.getReference()) && tabixRecord.getAlternate().equals(record.getAlternate())) {
-                            controlBatch.add(tabixRecord);
-                            map.put(record, cont++);
+                        VariantStats.calculateStatsForVariantsList(listRecords, null);
+
+                        for(Variant v : listRecords){
+                            if(v.getReference().equals(record.getReference()) && v.getAlternate().equals(record.getAlternate())){
+                                ArchivedVariantFile avf = v.getFile("CONTROL", null);
+
+                                String gt = StringUtil.join(",", joinGenotypes(avf.getStats().getGenotypesCount()));
+                                String maf = String.format("%.4f", avf.getStats().getMaf());
+                                String amaf = avf.getStats().getMafAllele();
+                                for(Map.Entry<String, ArchivedVariantFile> entry: record.getFiles().entrySet()){
+                                    entry.getValue().addAttribute(this.prefix + "_gt", gt);
+                                    entry.getValue().addAttribute(this.prefix + "_maf", maf);
+                                    entry.getValue().addAttribute(this.prefix + "_amaf", amaf);
+                                }
+                            }
                         }
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
-                } catch (ArrayIndexOutOfBoundsException e) { // If the Chr does not exist in Controls... TabixReader throws ArrayIndexOut...
+                } catch (ArrayIndexOutOfBoundsException e) {
                     continue;
                 }
             }
         }
 
-        statsBatch = StatsCalculator.variantStats(controlBatch, this.samples, null);
+    }
 
-        VariantStats statRecord;
+    private String joinGenotypes(Map<Genotype, Integer> genotypesCount) {
 
-        for (Variant record : batch) {
+        StringBuilder sb = new StringBuilder();
 
-            if (map.containsKey(record)) {
-                statRecord = statsBatch.get(map.get(record));
-//                record.addInfoField(this.prefix + "_gt=" + StringUtil.join(",", statRecord.getGenotypes()));
-//                record.addInfoField(this.prefix + "_maf=" + String.format("%.4f", statRecord.getMaf()));
-//                record.addInfoField(this.prefix + "_amaf=" + statRecord.getMafAllele());
-                record.addAttribute(this.prefix + "_gt", StringUtil.join(",", statRecord.getGenotypes()));
-                record.addAttribute(this.prefix + "_maf", String.format("%.4f", statRecord.getMaf()));
-                record.addAttribute(this.prefix + "_amaf", statRecord.getMafAllele());
+        int size = 0;
+        for(Map.Entry<Genotype,Integer> entry: genotypesCount.entrySet()){
 
+            sb.append(entry.getKey()).append(":").append(entry.getValue());
+
+            if(size + 1 < genotypesCount.size()){
+                sb.append(",");
             }
+            size++;
+
         }
+
+        return sb.toString();
     }
 
     private void multipleAnnot(List<Variant> batch) {
 
         Variant tabixRecord;
-        TabixReader currentTabix = null;
+        List<Variant> listRecords;
+
+        TabixReader currentTabix;
 
         long pid = Thread.currentThread().getId();
         Map<String, TabixReader> tabixMap;
         List<Variant> controlBatch = new ArrayList<>(batch.size());
-        List<VariantStats> statsBatch;
         Map<Variant, Integer> map = new LinkedHashMap<>(batch.size());
 
 
@@ -214,18 +219,21 @@ public class VariantControlAnnotator implements VariantAnnotator {
             if (currentTabix != null) {
                 try {
 
-                    TabixReader.Iterator it = currentTabix.query(record.getChromosome() + ":" + record.getPosition() + "-" + record.getPosition());
+                    TabixReader.Iterator it = currentTabix.query(record.getChromosome() + ":" + record.getStart() + "-" + record.getStart());
 
                     String line;
                     while (it != null && (line = it.next()) != null) {
 
-                        String[] fields = line.split("\t");
-                        tabixRecord = VariantFactory.createVariantFromVcf(samples, fields);
+                        listRecords = factory.create(source, line);
 
-                        if (tabixRecord.getReference().equals(record.getReference()) && tabixRecord.getAlternate().equals(record.getAlternate())) {
+                        if(listRecords.size() > 0){
 
-                            controlBatch.add(tabixRecord);
-                            map.put(record, cont++);
+                            tabixRecord = listRecords.get(0);
+
+                            if (tabixRecord.getReference().equals(record.getReference()) && tabixRecord.getAlternate().equals(record.getAlternate())) {
+                                controlBatch.add(tabixRecord);
+                                map.put(record, cont++);
+                            }
                         }
                     }
                 } catch (IOException e) {
@@ -238,17 +246,15 @@ public class VariantControlAnnotator implements VariantAnnotator {
 
         }
 
-        statsBatch = StatsCalculator.variantStats(controlBatch, this.samples, null);
-
-        VariantStats statRecord;
+        VariantStats.calculateStatsForVariantsList(controlBatch, null);
 
         for (Variant record : batch) {
 
             if (map.containsKey(record)) {
-                statRecord = statsBatch.get(map.get(record));
-                record.addAttribute(this.prefix + "_gt", StringUtil.join(",", statRecord.getGenotypes()));
-                record.addAttribute(this.prefix + "_maf", String.format("%.4f", statRecord.getMaf()));
-                record.addAttribute(this.prefix + "_amaf", statRecord.getMafAllele());
+                ArchivedVariantFile avf = record.getFile("CONTROL", null);
+                avf.addAttribute(this.prefix + "_gt", StringUtil.join(",", avf.getStats().getGenotypesCount()));
+                avf.addAttribute(this.prefix + "_maf", String.format("%.4f", avf.getStats().getMaf()));
+                avf.addAttribute(this.prefix + "_amaf", avf.getStats().getMafAllele());
             }
         }
 

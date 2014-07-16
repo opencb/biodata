@@ -2,6 +2,7 @@ package org.opencb.biodata.models.variant.stats;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Alejandro Aleman Ramos <aaleman@cipf.es>
@@ -191,6 +192,64 @@ public class VariantGlobalStats {
                 + ", transversionsCount=" + transversionsCount
                 + ", accumQuality=" + accumulatedQuality
                 + '}';
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 59 * hash + this.variantsCount;
+        hash = 59 * hash + this.samplesCount;
+        hash = 59 * hash + this.snpsCount;
+        hash = 59 * hash + this.indelsCount;
+        hash = 59 * hash + this.passCount;
+        hash = 59 * hash + this.transitionsCount;
+        hash = 59 * hash + this.transversionsCount;
+        hash = 59 * hash + Float.floatToIntBits(this.accumulatedQuality);
+        hash = 59 * hash + Float.floatToIntBits(this.meanQuality);
+        hash = 59 * hash + Objects.hashCode(this.consequenceTypesCount);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final VariantGlobalStats other = (VariantGlobalStats) obj;
+        if (this.variantsCount != other.variantsCount) {
+            return false;
+        }
+        if (this.samplesCount != other.samplesCount) {
+            return false;
+        }
+        if (this.snpsCount != other.snpsCount) {
+            return false;
+        }
+        if (this.indelsCount != other.indelsCount) {
+            return false;
+        }
+        if (this.passCount != other.passCount) {
+            return false;
+        }
+        if (this.transitionsCount != other.transitionsCount) {
+            return false;
+        }
+        if (this.transversionsCount != other.transversionsCount) {
+            return false;
+        }
+        if (Float.floatToIntBits(this.accumulatedQuality) != Float.floatToIntBits(other.accumulatedQuality)) {
+            return false;
+        }
+        if (Float.floatToIntBits(this.meanQuality) != Float.floatToIntBits(other.meanQuality)) {
+            return false;
+        }
+        if (!Objects.equals(this.consequenceTypesCount, other.consequenceTypesCount)) {
+            return false;
+        }
+        return true;
     }
 
 }
