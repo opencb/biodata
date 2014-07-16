@@ -1,19 +1,31 @@
-package org.opencb.biodata.models.alignment;
+package org.opencb.biodata.models.alignment.stats;
 
 /**
  *
  * @author Cristina Yenyxe Gonzalez Garcia <cgonzalez@cipf.es>
  */
-public class RegionCoverage {
-    
+public class RegionCoverage  {
+
     private short[] all;
     private short[] a;
     private short[] c;
     private short[] g;
     private short[] t;
-    
+
+    private String chromosome;
+    private long start;     //Start of the coverage
+    private long end;       //End of the coverage
+
     public RegionCoverage() { }
-    
+
+    public RegionCoverage(int length) {
+        this.a = new short[length];
+        this.c = new short[length];
+        this.g = new short[length];
+        this.t = new short[length];
+        this.all = new short[length];
+    }
+
     public RegionCoverage(short[] a, short[] c, short[] g, short[] t) {
         this.a = a;
         this.c = c;
@@ -71,6 +83,31 @@ public class RegionCoverage {
 
     public void setT(short[] t) {
         this.t = t;
+    }
+
+
+    public long getStart() {
+        return start;
+    }
+
+    public void setStart(long start) {
+        this.start = start;
+    }
+
+    public long getEnd() {
+        return end;
+    }
+
+    public void setEnd(long end) {
+        this.end = end;
+    }
+
+    public String getChromosome() {
+        return chromosome;
+    }
+
+    public void setChromosome(String chromosome) {
+        this.chromosome = chromosome;
     }
     
     

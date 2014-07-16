@@ -1,5 +1,10 @@
 package org.opencb.biodata.models.alignment;
 
+
+import org.opencb.biodata.models.alignment.stats.MeanCoverage;
+import org.opencb.biodata.models.alignment.stats.RegionCoverage;
+import org.opencb.biodata.models.feature.Region;
+
 import java.util.List;
 
 /**
@@ -7,27 +12,42 @@ import java.util.List;
  * @author Cristina Yenyxe Gonzalez Garcia <cgonzalez@cipf.es>
  */
 public class AlignmentRegion {
-    
-    private String chromosome;
-    private long start;
-    private long end;
-    
-    private List<Alignment> alignments;
-    private RegionCoverage coverage;
 
-    public AlignmentRegion() {
-    }
+    private String chromosome;
+    private long start;     //Unclipped Start of the first Alignment
+    private long end;       //Unclipped End of the last Alignment
+    private boolean overlapEnd;     //Indicates if the last alignment is overlapped with the next alignment
+
+    private List<Alignment> alignments;     //Sorted Alignments
+    private RegionCoverage coverage;
+    private List<MeanCoverage> meanCoverage;
+    private AlignmentHeader header;
 
     public AlignmentRegion(String chromosome, long start, long end) {
-        this(chromosome, start, end, null, null);
+        this(chromosome, start, end, null, null, null);
     }
 
-    public AlignmentRegion(String chromosome, long start, long end, List<Alignment> alignments, RegionCoverage coverage) {
+
+    public AlignmentRegion(List<Alignment> alignments, AlignmentHeader header) {
+        Alignment firstAlignment = alignments.get(0);
+        Alignment lastAlignment = alignments.get(alignments.size()-1);
+        //if(!firstAlignment.getChromosome().equals(lastAlignment.getChromosome())) //TODO jcoll: Limit this
+        //System.out.println("All alignments must be in the same chromosome");
+        this.chromosome = firstAlignment.getChromosome();
+        this.start = firstAlignment.getUnclippedStart();
+        this.end = lastAlignment.getUnclippedEnd();
+        this.alignments = alignments;
+        this.coverage = null;
+        this.header = header;
+    }
+
+    public AlignmentRegion(String chromosome, long start, long end, List<Alignment> alignments, RegionCoverage coverage, AlignmentHeader header) {
         this.chromosome = chromosome;
         this.start = start;
         this.end = end;
         this.alignments = alignments;
         this.coverage = coverage;
+        this.header = header;
     }
 
     public List<Alignment> getAlignments() {
@@ -69,6 +89,35 @@ public class AlignmentRegion {
     public void setStart(long start) {
         this.start = start;
     }
-    
-    
+
+
+    public boolean isOverlapEnd() {
+        return overlapEnd;
+    }
+
+    public void setOverlapEnd(boolean overlapEnd) {
+        this.overlapEnd = overlapEnd;
+    }
+
+
+    public List<MeanCoverage> getMeanCoverage() {
+        return meanCoverage;
+    }
+
+    public void setMeanCoverage(List<MeanCoverage> meanCoverage) {
+
+        this.meanCoverage = meanCoverage;
+    }
+
+    public Region getRegion(){
+        return new Region(chromosome, (int)start, (int)end);
+    }
+
+    public AlignmentHeader getHeader() {
+        return header;
+    }
+
+    public void setHeader(AlignmentHeader header) {
+        this.header = header;
+    }
 }
