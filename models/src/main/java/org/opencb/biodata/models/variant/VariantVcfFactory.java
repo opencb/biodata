@@ -249,11 +249,19 @@ public class VariantVcfFactory implements VariantFactory {
                 return new VariantKeyFields(position - 1, position + alt.length(), reference, alt);
             }
         } else {
-            int start = position + indexOfDifference;
-            int end = position + Math.max(reference.length(), alt.length()) - 1;
-            String ref = reference.substring(indexOfDifference);
-            String inAlt = alt.substring(indexOfDifference);
-            return new VariantKeyFields(start, end, ref, inAlt);
+            if (reference.length() > alt.length()) {
+                int start = position + indexOfDifference;
+                int end = position + Math.max(reference.length(), alt.length()) - 1;
+                String ref = reference.substring(indexOfDifference);
+                String inAlt = alt.substring(indexOfDifference);
+                return new VariantKeyFields(start, end, ref, inAlt);
+            } else {
+                int start = position + indexOfDifference - 1;
+                int end = position + Math.max(reference.length(), alt.length());
+                String ref = reference.substring(indexOfDifference);
+                String inAlt = alt.substring(indexOfDifference);
+                return new VariantKeyFields(start, end, ref, inAlt);
+            }
         }
     }
 

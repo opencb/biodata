@@ -15,13 +15,14 @@ public class Variant {
     /**
      * Type of variation, which depends mostly on its length.
      * <ul>
-     *  <li>SNVs involve a single nucleotide</li>
+     *  <li>SNVs involve a single nucleotide, without changes in length</li>
+     *  <li>MNVs involve multiple nucleotides, without changes in length</li>
      *  <li>Indels are insertions or deletions of less than SV_THRESHOLD (50) nucleotides</li>
      *  <li>Structural variations are large changes of more than SV_THRESHOLD nucleotides</li>
      *  <li>Copy-number variations alter the number of copies of a region</li>
      * </ul>
      */
-    public enum VariantType { SNV, INDEL, SV, CNV };
+    public enum VariantType { SNV, MNV, INDEL, SV, CNV };
     
     /**
      * Type of variation: single nucleotide, indel or structural variation.
@@ -122,20 +123,7 @@ public class Variant {
         this.alternate = (alternate != null) ? alternate : "";
         
         this.length = Math.max(this.reference.length(), this.alternate.length());
-        if (this.reference.length() == this.alternate.length()) {
-            this.type = VariantType.SNV;
-        } else if (this.length <= SV_THRESHOLD) {
-            /*
-            * 3 possibilities for being an INDEL:
-            * - The value of the ALT field is <DEL> or <INS>
-            * - The REF allele is not . but the ALT is
-            * - The REF allele is . but the ALT is not
-            * - The REF field length is different than the ALT field length
-            */
-            this.type = VariantType.INDEL;
-        } else {
-            this.type = VariantType.SV;
-        }
+        this.resetType();
         
         this.hgvs = new HashMap<>();
         if (this.type == VariantType.SNV) { // Generate HGVS code only for SNVs
@@ -154,6 +142,27 @@ public class Variant {
 
     public void setType(VariantType type) {
         this.type = type;
+    }
+    
+    private void resetType() {
+        if (this.reference.length() == this.alternate.length()) {
+            if (this.length > 1) {
+                this.type = VariantType.MNV;
+            } else {
+                this.type = VariantType.SNV;
+            }
+        } else if (this.length <= SV_THRESHOLD) {
+            /*
+            * 3 possibilities for being an INDEL:
+            * - The value of the ALT field is <DEL> or <INS>
+            * - The REF allele is not . but the ALT is
+            * - The REF allele is . but the ALT is not
+            * - The REF field length is different than the ALT field length
+            */
+            this.type = VariantType.INDEL;
+        } else {
+            this.type = VariantType.SV;
+        }
     }
     
     public String getChromosome() {
