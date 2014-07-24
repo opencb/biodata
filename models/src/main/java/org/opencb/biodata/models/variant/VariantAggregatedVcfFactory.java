@@ -25,7 +25,7 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
             variant.getFile(source.getFileId(), source.getStudyId()).addAttribute("FILTER", filter);
         }
         if (!info.isEmpty()) {
-            parseInfo(variant, source.getFileId(), source.getStudyId(), info);
+            parseInfo(variant, source.getFileId(), source.getStudyId(), info, numAllele);
         }
         variant.getFile(source.getFileId(), source.getStudyId()).setFormat(format);
 
