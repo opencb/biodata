@@ -1,5 +1,6 @@
 package org.opencb.biodata.models.variant;
 
+import java.io.IOException;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.feature.AllelesCode;
 import org.opencb.biodata.models.feature.Genotype;
@@ -286,7 +287,11 @@ public class VariantVcfFactory implements VariantFactory {
             parseInfo(variant, source.getFileId(), source.getStudyId(), info, numAllele);
         }
         variant.getFile(source.getFileId(), source.getStudyId()).setFormat(format);
-        variant.getFile(source.getFileId(), source.getStudyId()).addAttribute("src", line);
+        try {
+            variant.getFile(source.getFileId(), source.getStudyId()).addAttribute("src", new String(org.opencb.commons.utils.StringUtils.gzip(line)));
+        } catch (IOException ex) {
+            Logger.getLogger(VariantVcfFactory.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     protected class VariantKeyFields {

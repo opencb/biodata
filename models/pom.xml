@@ -50,5 +50,9 @@
         <groupId>com.google.protobuf</groupId>
         <artifactId>protobuf-java</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.opencb.commons</groupId>
+      <artifactId>commons-lib</artifactId>
+    </dependency>
   </dependencies>
 </project>
