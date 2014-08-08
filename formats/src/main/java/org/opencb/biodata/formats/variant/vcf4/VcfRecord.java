@@ -256,7 +256,7 @@ public class VcfRecord {
     }
 
     public String getValueFormatSample(String sample, String key) {
-        if (sampleData.size() == 0) {
+        if (sampleData.isEmpty()) {
             initializeSamplesValues();
         }
 
@@ -277,7 +277,7 @@ public class VcfRecord {
     }
 
     public Map<String, String> getSampleData(String sampleName) {
-        if (sampleData.size() == 0) {
+        if (sampleData.isEmpty()) {
             initializeSamplesValues();
         }
 
@@ -285,7 +285,7 @@ public class VcfRecord {
     }
 
     public Map<String, Map<String, String>> getSampleData() {
-        if (sampleData.size() == 0) {
+        if (sampleData.isEmpty()) {
             initializeSamplesValues();
         }
 
@@ -293,7 +293,6 @@ public class VcfRecord {
     }
 
     public String getSampleRawData(String sampleName) {
-
         return sampleRawData.get(sampleName);
     }
 

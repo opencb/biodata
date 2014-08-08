@@ -24,7 +24,6 @@ public class VariantVcfFactoryTest {
 
     @Test
     public void testCreateVariantFromVcfSameLengthRefAlt() {
-
         // Test when there are differences at the end of the sequence
         String line = "1\t1000\trs123\tTCACCC\tTGACGG\t.\t.\t.";
 
@@ -72,9 +71,62 @@ public class VariantVcfFactoryTest {
 
         List<Variant> expResult = new LinkedList<>();
         expResult.add(new Variant("1", 1000, 1000 + "CGATT".length() - 1, "CGATT", "TAC"));
-
         List<Variant> result = factory.create(source, line);
         assertEquals(expResult, result);
+        
+        line = "1\t1000\trs123\tAT\tA\t.\t.\t.";
+        expResult = new LinkedList<>();
+        expResult.add(new Variant("1", 1001, 1001, "T", ""));
+        result = factory.create(source, line);
+        assertEquals(expResult, result);
+        
+        line = "1\t1000\trs123\tATC\t.\t.\t.\t.";
+        expResult = new LinkedList<>();
+        expResult.add(new Variant("1", 1000, 1002, "ATC", ""));
+        result = factory.create(source, line);
+        assertEquals(expResult, result);
+        
+        line = "1\t1000\trs123\t.\tATC\t.\t.\t.";
+        expResult = new LinkedList<>();
+        expResult.add(new Variant("1", 999, 1003, "", "ATC"));
+        result = factory.create(source, line);
+        assertEquals(expResult, result);
+        
+        line = "1\t1000\trs123\tA\tATC\t.\t.\t.";
+        expResult = new LinkedList<>();
+        expResult.add(new Variant("1", 1000, 1003, "", "TC"));
+        result = factory.create(source, line);
+        assertEquals(expResult, result);
+        
+        line = "1\t1000\trs123\tAC\tACT\t.\t.\t.";
+        expResult = new LinkedList<>();
+        expResult.add(new Variant("1", 1001, 1003, "", "T"));
+        result = factory.create(source, line);
+        assertEquals(expResult, result);
+        
+        // Printing those that are not currently managed
+        line = "1\t1000\trs123\tAT\tT\t.\t.\t.";
+        result = factory.create(source, line);
+        System.out.println(Arrays.toString(result.toArray()));
+        
+        line = "1\t1000\trs123\tATC\tTC\t.\t.\t.";
+        result = factory.create(source, line);
+        System.out.println(Arrays.toString(result.toArray()));
+        
+        line = "1\t1000\trs123\tATC\tAC\t.\t.\t.";
+        result = factory.create(source, line);
+        System.out.println(Arrays.toString(result.toArray()));
+        
+        line = "1\t1000\trs123\tATC\tGC\t.\t.\t.";
+        result = factory.create(source, line);
+        System.out.println(Arrays.toString(result.toArray()));
+        
+        line = "1\t1000\trs123\tAC\tATC\t.\t.\t.";
+        result = factory.create(source, line);
+        System.out.println(Arrays.toString(result.toArray()));
+        
+        
+        
     }
 
     @Test

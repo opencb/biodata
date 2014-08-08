@@ -63,6 +63,8 @@ public class VariantVcfFactory implements VariantFactory {
                 keyFields = createVariantsFromIndelNoEmptyRefAlt(position, reference, alt);
             }
 
+            keyFields.setNumAllele(i);
+
             // Since the reference and alternate alleles won't necessarily match
             // the ones read from the VCF file but they are still needed for
             // instantiating the variants, they must be updated
@@ -204,11 +206,16 @@ public class VariantVcfFactory implements VariantFactory {
         return true;
     }
 
-    protected void parseInfo(Variant variant, String fileId, String studyId, String info) {
+    protected void parseInfo(Variant variant, String fileId, String studyId, String info, int numAllele) {
         for (String var : info.split(";")) {
             String[] splits = var.split("=");
             if (splits.length == 2) {
-                variant.getFile(fileId, studyId).addAttribute(splits[0], splits[1]);
+                if (splits[0].equals("ACC")) { // Managing accession IDs
+                    String[] ids = splits[1].split(",");
+                    variant.getFile(fileId, studyId).addAttribute(splits[0], ids[numAllele]);
+                } else {
+                    variant.getFile(fileId, studyId).addAttribute(splits[0], splits[1]);
+                }
             } else {
                 variant.getFile(fileId, studyId).addAttribute(splits[0], "");
             }
@@ -249,11 +256,19 @@ public class VariantVcfFactory implements VariantFactory {
                 return new VariantKeyFields(position - 1, position + alt.length(), reference, alt);
             }
         } else {
-            int start = position + indexOfDifference;
-            int end = position + Math.max(reference.length(), alt.length()) - 1;
-            String ref = reference.substring(indexOfDifference);
-            String inAlt = alt.substring(indexOfDifference);
-            return new VariantKeyFields(start, end, ref, inAlt);
+            if (reference.length() > alt.length()) {
+                int start = position + indexOfDifference;
+                int end = position + Math.max(reference.length(), alt.length()) - 1;
+                String ref = reference.substring(indexOfDifference);
+                String inAlt = alt.substring(indexOfDifference);
+                return new VariantKeyFields(start, end, ref, inAlt);
+            } else {
+                int start = position + indexOfDifference - 1;
+                int end = position + Math.max(reference.length(), alt.length());
+                String ref = reference.substring(indexOfDifference);
+                String inAlt = alt.substring(indexOfDifference);
+                return new VariantKeyFields(start, end, ref, inAlt);
+            }
         }
     }
 
@@ -267,7 +282,7 @@ public class VariantVcfFactory implements VariantFactory {
             variant.getFile(source.getFileId(), source.getStudyId()).addAttribute("FILTER", filter);
         }
         if (!info.isEmpty()) {
-            parseInfo(variant, source.getFileId(), source.getStudyId(), info);
+            parseInfo(variant, source.getFileId(), source.getStudyId(), info, numAllele);
         }
         variant.getFile(source.getFileId(), source.getStudyId()).setFormat(format);
     }
