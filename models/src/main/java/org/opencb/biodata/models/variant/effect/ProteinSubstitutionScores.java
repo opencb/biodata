@@ -7,7 +7,7 @@ package org.opencb.biodata.models.variant.effect;
 public class ProteinSubstitutionScores {
     
     public enum PolyphenEffect { PROBABLY_DAMAGING, POSSIBLY_DAMAGING, BENIGN, UNKNOWN};
-    public enum SiftEffect { TOLERATED, DELETERIOUS };
+    public enum SiftEffect { DELETERIOUS, TOLERATED };
     
     private float polyphenScore;
     

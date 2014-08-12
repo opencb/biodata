@@ -13,9 +13,24 @@ import java.util.Objects;
 public class VariantEffect {
 
     /**
+     * Chromosome where the variant occurred
+     */
+    private String chromosome;
+    
+    /**
+     * Genomic position
+     */
+    private int position;
+    
+    /**
+     * Reference allele
+     */
+    private String referenceAllele;
+    
+    /**
      * Alternate allele
      */
-    private String allele;
+    private String alternateAllele;
 
     /**
      * Ensembl stable ID of affected gene
@@ -148,23 +163,50 @@ public class VariantEffect {
     private String[] pubmed;
 
     VariantEffect() { 
-        this(null);
+        this(null, -1, null, null);
     }
     
-    public VariantEffect(String allele) {
-        this.allele = allele;
+    public VariantEffect(String chromosome, int position, String referenceAllele, String alternateAllele) {
+        this.chromosome = chromosome;
+        this.position = position;
+        this.referenceAllele = referenceAllele;
+        this.alternateAllele = alternateAllele;
         this.cDnaPosition = -1;
         this.cdsPosition = -1;
         this.proteinPosition = -1;
         this.variantToTranscriptDistance = -1;
     }
 
-    public String getAllele() {
-        return allele;
+    public String getChromosome() {
+        return chromosome;
     }
 
-    public void setAllele(String allele) {
-        this.allele = allele;
+    public void setChromosome(String chromosome) {
+        this.chromosome = chromosome;
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
+    }
+
+    public String getReferenceAllele() {
+        return referenceAllele;
+    }
+
+    public void setReferenceAllele(String referenceAllele) {
+        this.referenceAllele = referenceAllele;
+    }
+
+    public String getAlternateAllele() {
+        return alternateAllele;
+    }
+
+    public void setAlternateAllele(String alternateAllele) {
+        this.alternateAllele = alternateAllele;
     }
 
     public String getGeneId() {
@@ -384,7 +426,7 @@ public class VariantEffect {
             return false;
         }
         final VariantEffect other = (VariantEffect) obj;
-        if (!Objects.equals(this.allele, other.allele)) {
+        if (!Objects.equals(this.alternateAllele, other.alternateAllele)) {
             return false;
         }
         if (!Objects.equals(this.geneId, other.geneId)) {
@@ -447,7 +489,7 @@ public class VariantEffect {
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 97 * hash + Objects.hashCode(this.allele);
+        hash = 97 * hash + Objects.hashCode(this.alternateAllele);
         hash = 97 * hash + Objects.hashCode(this.geneId);
         hash = 97 * hash + Objects.hashCode(this.geneName);
         hash = 97 * hash + Objects.hashCode(this.geneNameSource);

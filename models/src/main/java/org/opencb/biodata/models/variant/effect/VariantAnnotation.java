@@ -27,7 +27,7 @@ public class VariantAnnotation {
     
     private Map<String, List<VariantEffect>> effects;
     
-    private Frequencies frequencies;
+    private Map<String, Set<Frequency>> frequencies;
     
     private ProteinSubstitutionScores proteinSubstitutionScores;
     
@@ -45,7 +45,7 @@ public class VariantAnnotation {
         this.referenceAllele = referenceAllele;
         this.genes = new HashSet<>();
         this.effects = new HashMap<>();
-        this.frequencies = new Frequencies();
+        this.frequencies = new HashMap<>();
         this.proteinSubstitutionScores = new ProteinSubstitutionScores();
         this.regulatoryEffect = new RegulatoryEffect();
     }
@@ -103,26 +103,37 @@ public class VariantAnnotation {
         this.effects = effects;
     }
 
-    public void addEffect(String key, VariantEffect consequenceType) {
+    public void addEffect(String key, VariantEffect effect) {
         List<VariantEffect> ct = effects.get(key);
         if (ct == null) {
             ct = new ArrayList<>();
             effects.put(key, ct);
         }
         
-        ct.add(consequenceType);
-        
-//        effects.put(key, consequenceType);
+        ct.add(effect);
     }
-    
-    public Frequencies getFrequencies() {
+
+    public Map<String, Set<Frequency>> getFrequencies() {
         return frequencies;
     }
 
-    public void setFrequencies(Frequencies frequencies) {
+    public Set<Frequency> getFrequenciesBySuperPopulation(String population) {
+        return frequencies.get(population);
+    }
+    
+    public void setFrequencies(Map<String, Set<Frequency>> frequencies) {
         this.frequencies = frequencies;
     }
-
+    
+    public boolean addFrequency(Frequency frequency) {
+        Set<Frequency> frequenciesBySuperPopulation = frequencies.get(frequency.getSuperPopulation());
+        if (frequenciesBySuperPopulation == null) {
+            frequenciesBySuperPopulation = new HashSet<>();
+            frequencies.put(frequency.getSuperPopulation(), frequenciesBySuperPopulation);
+        }
+        return frequenciesBySuperPopulation.add(frequency);
+    }
+    
     public ProteinSubstitutionScores getProteinSubstitutionScores() {
         return proteinSubstitutionScores;
     }

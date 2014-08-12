@@ -1,12 +1,11 @@
 package org.opencb.biodata.tools.variant.filtering;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Set;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.effect.VariantEffect;
 import org.opencb.biodata.models.variant.effect.ConsequenceTypeMappings;
-import org.opencb.biodata.models.variant.effect.VariantAnnotation;
 import org.opencb.biodata.tools.variant.EffectCalculator;
 
 /**
@@ -30,30 +29,16 @@ public class VariantConsequenceTypeFilter extends VariantFilter {
 
     @Override
     public boolean apply(Variant variant) {
-        List<Variant> batch = new ArrayList<>();
-        batch.add(variant);
+        Map<Variant, Set<VariantEffect>> batchEffect = EffectCalculator.getEffects(Arrays.asList(variant));
 
-        List<VariantAnnotation> batchEffect = EffectCalculator.getEffects(batch);
-
-        Iterator<VariantAnnotation> it = batchEffect.iterator();
-
-        VariantAnnotation effect;
-        while (it.hasNext()) {
-            effect = it.next();
-
-            for (List<VariantEffect> list : effect.getEffects().values()) {
-                for (VariantEffect ct : list) {
-                    for (int so : ct.getConsequenceTypes()) {
-                        if (so == this.consequenceTypeAccession) {
-                            return true;
-                        }
+        for (Set<VariantEffect> list : batchEffect.values()) {
+            for (VariantEffect ct : list) {
+                for (int so : ct.getConsequenceTypes()) {
+                    if (so == this.consequenceTypeAccession) {
+                        return true;
                     }
                 }
             }
-//            if (effect.getConsequenceTypeObo().equalsIgnoreCase(this.consequenceType)) {
-//                return true;
-//            }
-
         }
 
         return false;

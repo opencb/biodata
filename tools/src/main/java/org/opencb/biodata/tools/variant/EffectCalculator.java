@@ -1,34 +1,38 @@
 package org.opencb.biodata.tools.variant;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.multipart.FormDataMultiPart;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.effect.VariantAnnotation;
-
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Response;
+import org.opencb.biodata.models.variant.effect.ProteinSubstitutionScores.PolyphenEffect;
+import org.opencb.biodata.models.variant.effect.ProteinSubstitutionScores.SiftEffect;
+import org.opencb.biodata.models.variant.effect.VariantEffect;
 
 /**
  * @author Cristina Yenyxe Gonzalez Garcia <cyenyxe@ebi.ac.uk>
  * @author Alejandro Aleman Ramos <aaleman@cipf.es>
- * 
- * @todo Once fixed for the new VariantEffect hierarchy, revisit VariantGeneNameAnnotator and VariantConsequenceTypeAnnotator
  */
 public class EffectCalculator {
 
-    public static List<VariantAnnotation> getEffects(List<Variant> batch) {
-        ObjectMapper mapper = new ObjectMapper();
-        List<VariantAnnotation> batchEffect = new ArrayList<>(batch.size());
-
+    public static Map<Variant, Set<VariantEffect>> getEffects(List<Variant> batch) {
         if (batch.isEmpty()) {
-            return batchEffect;
+            return new HashMap<>(batch.size());
         }
 
         StringBuilder chunkVcfRecords = new StringBuilder();
@@ -46,8 +50,10 @@ public class EffectCalculator {
         formDataMultiPart.field("variants", chunkVcfRecords.toString());
 
         try {
+            ObjectMapper mapper = new ObjectMapper();
             String response = webResource.path("consequence_type").queryParam("of", "json").type(MediaType.MULTIPART_FORM_DATA).post(String.class, formDataMultiPart);
-            batchEffect = mapper.readValue(response, mapper.getTypeFactory().constructCollectionType(List.class, VariantAnnotation.class));
+            List<VariantEffect> batchEffect = mapper.readValue(response, mapper.getTypeFactory().constructCollectionType(List.class, VariantEffect.class));
+            return groupEffectsByVariant(batch, batchEffect);
         } catch (IOException e) {
             System.err.println(chunkVcfRecords.toString());
             e.printStackTrace();
@@ -56,104 +62,92 @@ public class EffectCalculator {
             ex.printStackTrace();
         }
 
+        return new HashMap<>(batch.size());
+    }
+
+    public static Map<Variant, Set<VariantEffect>> getEffectsWithPolyphenAndSift(List<Variant> batch) {
+        Map<Variant, Set<VariantEffect>> batchEffect = getEffects(batch);
+        for (Map.Entry<Variant, Set<VariantEffect>> effect : batchEffect.entrySet()) {
+            setPolyphenSift(effect.getKey(), effect.getValue());
+        }
+        
         return batchEffect;
     }
 
-    public static List<VariantAnnotation> getEffectsWithPolyphenAndSift(List<Variant> batch) {
-        List<VariantAnnotation> batchEffect = getEffects(batch);
-        getPolyphenSift(batchEffect);
-        return batchEffect;
-    }
-
-    public static void getPolyphenSift(List<VariantAnnotation> batchEffect) {
+    private static void setPolyphenSift(Variant variant, Set<VariantEffect> batchEffect) {
         if (batchEffect.isEmpty()) {
             return;
         }
 
-//        javax.ws.rs.client.Client clientNew = ClientBuilder.newClient();
-//        WebTarget webTarget = clientNew.target("http://ws-beta.bioinfo.cipf.es/cellbase/rest/v3/hsapiens/feature/transcript/");
-//
-//        for (VariantAnnotation effect : batchEffect) {
-//            if (effect.getAaPosition() != -1 && !"".equals(effect.getTranscriptId()) && effect.getAminoacidChange().length() == 3) {
-//                String change = effect.getAminoacidChange().split("/")[1];
-//
-//                Response newResponse = webTarget.path(effect.getTranscriptId()).path("function_prediction").queryParam("aaPosition", effect.getAaPosition()).queryParam("aaChange", change).
-//                        request(MediaType.APPLICATION_JSON_TYPE).get();
-//
-//                ObjectMapper mapperNew = new ObjectMapper();
-//                JsonNode actualObj;
-//
-//                String resp = null;
-//                try {
-//                    resp = newResponse.readEntity(String.class);
-//                    actualObj = mapperNew.readTree(resp);
-//                    Iterator<JsonNode> it = actualObj.get("response").iterator();
-//
-//                    while (it.hasNext()) {
-//                        JsonNode polyphen = it.next();
-//                        if (polyphen.get("numResults").asInt() > 0) {
-//                            Iterator<JsonNode> itResults = polyphen.get("result").iterator();
-//                            while (itResults.hasNext()) {
-//                                JsonNode aa = itResults.next();
-//
-//                                if (aa.has("aaPositions") && aa.get("aaPositions").has("" + effect.getAaPosition())
-//                                        && aa.get("aaPositions").get("" + effect.getAaPosition()).has("" + change)) {
-//                                    JsonNode val = aa.get("aaPositions").get("" + effect.getAaPosition()).get("" + change);
-//
-//                                    if (val.has("ss") && val.has("ps") && val.has("se") && val.has("pe")) {
-//                                        if (!val.get("ss").isNull()) {
-//                                            effect.setSiftScore(val.get("ss").asDouble());
-//                                        }
-//
-//                                        if (!val.get("ps").isNull()) {
-//                                            effect.setPolyphenScore(val.get("ps").asDouble());
-//                                        }
-//
-//                                        if (!val.get("se").isNull()) {
-//                                            effect.setSiftEffect(val.get("se").asInt());
-//                                        }
-//                                        if (!val.get("pe").isNull()) {
-//                                            effect.setPolyphenEffect(val.get("pe").asInt());
-//                                        }
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    }
-//
-//                } catch (JsonParseException e) {
-//                    System.err.println(resp);
-//                    e.printStackTrace();
-//
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//
-//            }
-//
-//        }
-    }
+        javax.ws.rs.client.Client clientNew = ClientBuilder.newClient();
+        WebTarget webTarget = clientNew.target("http://ws-beta.bioinfo.cipf.es/cellbase/rest/v3/hsapiens/feature/transcript/");
 
-    public static List<List<VariantAnnotation>> getEffectPerVariant(List<Variant> batch) {
-        List<List<VariantAnnotation>> list = new ArrayList<>(batch.size());
-        List<VariantAnnotation> auxEffect;
-        List<VariantAnnotation> effects = getEffects(batch);
-        String alternate;
+        for (VariantEffect effect : batchEffect) {
+            if (effect.getProteinPosition()!= -1 && !effect.getFeatureId().isEmpty() && effect.getAminoacidChange().length() == 3) {
+                String change = effect.getAminoacidChange().split("/")[1];
 
-//        for (Variant variant : batch) {
-//            alternate = variant.getAlternate().isEmpty() ? "-" : variant.getAlternate();
-//            auxEffect = new ArrayList<>(20);
-//            for (VariantAnnotation effect : effects) {
-//                if (variant.getChromosome().equals(effect.getChromosome())
-//                        && variant.getStart() == effect.getPosition()
-//                        && variant.getReference().equals(effect.getReferenceAllele())
-//                        && alternate.equals(effect.getAlternativeAllele())) {
-//                    auxEffect.add(effect);
-//                }
-//            }
-//            list.add(auxEffect);
-//        }
-        return list;
+                Response newResponse = webTarget.path(effect.getFeatureId()).path("function_prediction")
+                        .queryParam("aaPosition", effect.getProteinPosition()).queryParam("aaChange", change)
+                        .request(MediaType.APPLICATION_JSON_TYPE).get();
+
+                ObjectMapper mapperNew = new ObjectMapper();
+                JsonNode actualObj;
+
+                String resp = null;
+                try {
+                    resp = newResponse.readEntity(String.class);
+                    actualObj = mapperNew.readTree(resp);
+                    Iterator<JsonNode> it = actualObj.get("response").iterator();
+
+                    while (it.hasNext()) {
+                        JsonNode polyphenNode = it.next();
+                        if (polyphenNode.get("numResults").asInt() > 0) {
+                            Iterator<JsonNode> itResults = polyphenNode.get("result").iterator();
+                            while (itResults.hasNext()) {
+                                JsonNode aaNode = itResults.next();
+
+                                if (aaNode.has("aaPositions") && aaNode.get("aaPositions").has(String.valueOf(effect.getProteinPosition()))
+                                        && aaNode.get("aaPositions").get("" + effect.getProteinPosition()).has(change)) {
+                                    JsonNode valueNode = aaNode.get("aaPositions").get(String.valueOf(effect.getProteinPosition())).get(change);
+
+                                    if (valueNode.has("ss") && valueNode.has("ps") && valueNode.has("se") && valueNode.has("pe")) {
+                                        if (!valueNode.get("ss").isNull()) {
+                                            variant.getAnnotation().getProteinSubstitutionScores().setSiftScore((float) valueNode.get("ss").asDouble());
+                                        }
+
+                                        if (!valueNode.get("ps").isNull()) {
+                                            variant.getAnnotation().getProteinSubstitutionScores().setPolyphenScore((float) valueNode.get("ps").asDouble());
+                                        }
+
+                                        if (!valueNode.get("se").isNull()) {
+                                            int sift = valueNode.get("se").asInt();
+                                            if (sift == 0 || sift == 1) {
+                                                variant.getAnnotation().getProteinSubstitutionScores().setSiftEffect(SiftEffect.values()[sift]);
+                                            }
+                                        }
+                                        if (!valueNode.get("pe").isNull()) {
+                                            int polyphen = valueNode.get("pe").asInt();
+                                            if (polyphen >= 0 && polyphen <= 3) {
+                                                variant.getAnnotation().getProteinSubstitutionScores().setPolyphenEffect(PolyphenEffect.values()[polyphen]);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                } catch (JsonParseException e) {
+                    System.err.println(resp);
+                    e.printStackTrace();
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+        }
     }
 
     public static void setEffects(List<Variant> batch) {
@@ -174,18 +168,43 @@ public class EffectCalculator {
             }
         }
 
-        List<List<VariantAnnotation>> effects = getEffectPerVariant(noEffects);
+        Map<Variant, Set<VariantEffect>> effects = getEffects(noEffects);
 
         if (withPolyphenSIFT) {
-            for (List<VariantAnnotation> list : effects) {
-                getPolyphenSift(list);
+            for (Map.Entry<Variant, Set<VariantEffect>> effect : effects.entrySet()) {
+                setPolyphenSift(effect.getKey(), effect.getValue());
             }
         }
 
-        for (int i = 0; i < noEffects.size(); i++) {
-            Variant v = noEffects.get(i);
-            // TODO Adapt to VariantEffect
-//            v.setEffect(effects.get(i));
+        for (Map.Entry<Variant, Set<VariantEffect>> effectsPerVariant : effects.entrySet()) {
+            for (VariantEffect effect : effectsPerVariant.getValue()) {
+                effectsPerVariant.getKey().addEffect(effect.getAlternateAllele(), effect);
+            }
         }
+    }
+    
+    private static Map<Variant, Set<VariantEffect>> groupEffectsByVariant(List<Variant> batch, List<VariantEffect> effects) {
+        Map<Variant, Set<VariantEffect>> groupedEffects = new HashMap<>();
+        List<VariantEffect> auxEffects = new LinkedList<>(effects);
+        
+        for (Variant variant : batch) {
+            Set<VariantEffect> effectsByVariant = new HashSet<>();
+            Iterator<VariantEffect> effectsIterator = auxEffects.iterator();
+            
+            while(effectsIterator.hasNext()) {
+                VariantEffect effect = effectsIterator.next();
+                if (variant.getChromosome().equals(effect.getChromosome())
+                        && variant.getStart() == effect.getPosition()
+                        && variant.getReference().equals(effect.getReferenceAllele())
+                        && variant.getAlternate().equals(effect.getAlternateAllele())) {
+                    effectsByVariant.add(effect);
+                    effectsIterator.remove();
+                }
+            }
+            
+            groupedEffects.put(variant, effectsByVariant);
+        }
+        
+        return groupedEffects;
     }
 }

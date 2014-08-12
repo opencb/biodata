@@ -34,8 +34,6 @@ public class VariantGenesAnnotator implements VariantAnnotator {
 
     public VariantGenesAnnotator() {
         webResource = ClientBuilder.newClient().target(CELLBASE_URL + "/rest/v3/hsapiens/genomic/region");
-
-
     }
 
     @Override
@@ -45,7 +43,6 @@ public class VariantGenesAnnotator implements VariantAnnotator {
 
     @Override
     public void annot(List<Variant> batch) {
-
         StringBuilder positions = new StringBuilder();
         for (Variant record : batch) {
             positions.append(record.getChromosome()).append(":").append(record.getStart()).append("-").append(record.getEnd()).append(",");
@@ -56,7 +53,6 @@ public class VariantGenesAnnotator implements VariantAnnotator {
 
         // Response response = webResource.path("snp").queryParam("exclude", "transcripts,chunkIds").request().post(
         // Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE));
-
         String queryPositions = positions.substring(0, positions.length() - 1);
 
         WebTarget wt = webResource.path(queryPositions).path("gene").queryParam("exclude", "transcripts,chunkIds");
@@ -92,7 +88,6 @@ public class VariantGenesAnnotator implements VariantAnnotator {
 
     private void annotGeneName(Variant variant, ArchivedVariantFile file) {
         Set<String> geneNames = new HashSet<>();
-
 
         for (List<VariantEffect> list : variant.getAnnotation().getEffects().values()) {
             for (VariantEffect ct : list) {
