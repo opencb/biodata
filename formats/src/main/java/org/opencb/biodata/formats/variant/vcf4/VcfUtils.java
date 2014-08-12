@@ -31,8 +31,8 @@ public class VcfUtils {
         return info.toString().isEmpty() ? "." : info.toString();
     }
     
-    public static String getInfoColumn(Variant variant, String fileId) {
-        return VcfUtils.getInfoColumn(variant.getFile(fileId));
+    public static String getInfoColumn(Variant variant, String fileId, String studyId) {
+        return VcfUtils.getInfoColumn(variant.getFile(fileId, studyId));
     }
 
     public static String getJoinedSampleFields(ArchivedVariantFile file, String sampleName) {
@@ -49,8 +49,8 @@ public class VcfUtils {
         return info.toString().isEmpty() ? "." : info.toString();
     }
     
-    public static String getJoinedSampleFields(Variant variant, String fileId, String sampleName) {
-        return VcfUtils.getJoinedSampleFields(variant.getFile(fileId), sampleName);
+    public static String getJoinedSampleFields(Variant variant, ArchivedVariantFile file, String sampleName) {
+        return VcfUtils.getJoinedSampleFields(variant.getFile(file.getFileId(), file.getStudyId()), sampleName);
     }
     
 }

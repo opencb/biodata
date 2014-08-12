@@ -92,7 +92,7 @@ public class VariantVcfEVSFactory extends VariantVcfFactory {
 
             try {
                 // Copy only the samples that correspond to each specific mutation
-                parseSplitSampleData(variant, source.getFileId(), fields, source.getSamples(), alternateAlleles, i + 1);
+                parseSplitSampleData(variant, source, fields, alternateAlleles, i + 1);
                 variants.add(variant);
             } catch (NonStandardCompliantSampleField ex) {
                 Logger.getLogger(VariantFactory.class.getName()).log(Level.SEVERE,
@@ -104,26 +104,26 @@ public class VariantVcfEVSFactory extends VariantVcfFactory {
         return variants;
     }
 
+    @Override
     protected void setOtherFields(Variant variant, VariantSource source, String id, float quality, String filter, String info, String format, int numAllele, String[] alternateAlleles) {
         // Fields not affected by the structure of REF and ALT fields
         variant.setId(id);
         if (quality > -1) {
-            variant.getFile(source.getFileId()).addAttribute("QUAL", String.valueOf(quality));
+            variant.getFile(source.getFileId(), source.getStudyId()).addAttribute("QUAL", String.valueOf(quality));
         }
         if (!filter.isEmpty()) {
-            variant.getFile(source.getFileId()).addAttribute("FILTER", filter);
+            variant.getFile(source.getFileId(), source.getStudyId()).addAttribute("FILTER", filter);
         }
         if (!info.isEmpty()) {
-            parseInfo(variant, source.getFileId(), info);
+            parseInfo(variant, source.getFileId(), source.getStudyId(), info, numAllele);
         }
-        variant.getFile(source.getFileId()).setFormat(format);
+        variant.getFile(source.getFileId(), source.getStudyId()).setFormat(format);
 
         parseEVSAttributes(variant, source, numAllele, alternateAlleles);
     }
 
     private void parseEVSAttributes(Variant variant, VariantSource source, int numAllele, String[] alternateAlleles) {
-
-        ArchivedVariantFile file = variant.getFile(source.getFileId());
+        ArchivedVariantFile file = variant.getFile(source.getFileId(), source.getStudyId());
         VariantStats stats = new VariantStats(variant);
         if (file.hasAttribute("MAF")) {
             String splitsMAF[] = file.getAttribute("MAF").split(",");

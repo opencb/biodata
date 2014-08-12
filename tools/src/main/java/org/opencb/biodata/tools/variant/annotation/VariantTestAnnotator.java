@@ -27,6 +27,6 @@ public class VariantTestAnnotator implements VariantAnnotator {
 
     @Override
     public void annot(Variant elem) {
-        elem.getFile(text).addAttribute("TEXT", text);
+        elem.getFile(text, null).addAttribute("TEXT", text);
     }
 }
