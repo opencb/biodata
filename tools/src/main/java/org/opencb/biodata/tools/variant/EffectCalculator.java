@@ -1,11 +1,16 @@
 package org.opencb.biodata.tools.variant;
 
 import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.api.client.config.ClientConfig;
+import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.multipart.FormDataMultiPart;
+import com.sun.jersey.multipart.impl.MultiPartWriter;
 import org.opencb.biodata.models.variant.Variant;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
@@ -36,7 +41,9 @@ public class EffectCalculator {
         }
 
         StringBuilder chunkVcfRecords = new StringBuilder();
-        Client client = Client.create();
+        ClientConfig cc = new DefaultClientConfig();
+        cc.getClasses().add(MultiPartWriter.class);
+        Client client = Client.create(cc);
         WebResource webResource = client.resource("http://ws.bioinfo.cipf.es/cellbase/rest/latest/hsa/genomic/variant/");
 
         for (Variant record : batch) {
@@ -46,11 +53,16 @@ public class EffectCalculator {
             chunkVcfRecords.append(record.getAlternate().isEmpty() ? "-" : record.getAlternate()).append(",");
         }
 
+        ObjectMapper mapper = new ObjectMapper();
+        SimpleModule module = new SimpleModule();
+        module.addDeserializer(VariantEffect.class, new JsonEffectDeserializer());
+        mapper.registerModule(module);
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            
         FormDataMultiPart formDataMultiPart = new FormDataMultiPart();
         formDataMultiPart.field("variants", chunkVcfRecords.toString());
 
         try {
-            ObjectMapper mapper = new ObjectMapper();
             String response = webResource.path("consequence_type").queryParam("of", "json").type(MediaType.MULTIPART_FORM_DATA).post(String.class, formDataMultiPart);
             List<VariantEffect> batchEffect = mapper.readValue(response, mapper.getTypeFactory().constructCollectionType(List.class, VariantEffect.class));
             return groupEffectsByVariant(batch, batchEffect);

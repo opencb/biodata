@@ -7,6 +7,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.opencb.biodata.models.variant.ArchivedVariantFile;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.effect.VariantEffect;
@@ -51,7 +53,12 @@ public class VariantConsequenceTypeAnnotator implements VariantAnnotator {
         for (List<VariantEffect> list : variant.getAnnotation().getEffects().values()) {
             for (VariantEffect ct : list) {
                 for (int so : ct.getConsequenceTypes()) {
-                    cts.add(ConsequenceTypeMappings.accessionToTerm.get(so));
+                    String term = ConsequenceTypeMappings.accessionToTerm.get(so);
+                    if (term != null) {
+                        cts.add(term);
+                    } else {
+                        Logger.getLogger(this.getClass().getCanonicalName()).log(Level.WARNING, "Mapping not found for SO code {0}", so);
+                    }
                 }
             }
         }

@@ -6,6 +6,9 @@ import java.util.Map;
 /**
  *
  * @author Cristina Yenyxe Gonzalez Garcia <cyenyxe@ebi.ac.uk>
+ * 
+ * @todo Handle duplicated terms in termToAccession (synonymous_variant...)
+ * @todo Load using ontology file: http://song.cvs.sourceforge.net/viewvc/song/ontology/so.obo
  */
 public class ConsequenceTypeMappings {
 
@@ -32,9 +35,12 @@ public class ConsequenceTypeMappings {
         termToAccession.put("synonymous_variant", 1819);
         termToAccession.put("stop_retained_variant", 1567);
         termToAccession.put("coding_sequence_variant", 1580);
+        termToAccession.put("miRNA", 276);
+        termToAccession.put("miRNA_target_site", 934);
         termToAccession.put("mature_miRNA_variant", 1620);
         termToAccession.put("5_prime_UTR_variant", 1623);
         termToAccession.put("3_prime_UTR_variant", 1624);
+        termToAccession.put("exon_variant", 1791);
         termToAccession.put("non_coding_exon_variant", 1792);
         termToAccession.put("nc_transcript_variant", 1619);
         termToAccession.put("intron_variant", 1627);
@@ -50,6 +56,15 @@ public class ConsequenceTypeMappings {
         termToAccession.put("feature_elongation", 1907);
         termToAccession.put("feature_truncation", 1906);
         termToAccession.put("intergenic_variant", 1628);
+        termToAccession.put("lincRNA", 1463);
+        termToAccession.put("5KB_downstream_variant", 1633);
+        termToAccession.put("5KB_upstream_variant", 1635);
+        termToAccession.put("SNV", 1483);
+        termToAccession.put("SNP", 694);
+        termToAccession.put("RNA_polymerase_promoter", 1203);
+        termToAccession.put("CpG_island", 307);
+        termToAccession.put("DNAseI_hypersensitive_site", 685);
+        termToAccession.put("polypeptide_variation_site", 336);
 
         // Fill the accession to term map
         accessionToTerm.put(1893, "transcript_ablation");
@@ -66,11 +81,15 @@ public class ConsequenceTypeMappings {
         accessionToTerm.put(1630, "splice_region_variant");
         accessionToTerm.put(1626, "incomplete_terminal_codon_variant");
         accessionToTerm.put(1819, "synonymous_variant");
+        accessionToTerm.put(1588, "synonymous_variant"); // TODO How to handle duplicated terms in termToAccession
         accessionToTerm.put(1567, "stop_retained_variant");
         accessionToTerm.put(1580, "coding_sequence_variant");
+        accessionToTerm.put(276, "miRNA");
+        accessionToTerm.put(934, "miRNA_target_site");
         accessionToTerm.put(1620, "mature_miRNA_variant");
         accessionToTerm.put(1623, "5_prime_UTR_variant");
         accessionToTerm.put(1624, "3_prime_UTR_variant");
+        accessionToTerm.put(1791, "exon_variant");
         accessionToTerm.put(1792, "non_coding_exon_variant");
         accessionToTerm.put(1619, "nc_transcript_variant");
         accessionToTerm.put(1627, "intron_variant");
@@ -86,6 +105,15 @@ public class ConsequenceTypeMappings {
         accessionToTerm.put(1907, "feature_elongation");
         accessionToTerm.put(1906, "feature_truncation");
         accessionToTerm.put(1628, "intergenic_variant");
+        accessionToTerm.put(1463, "lincRNA");
+        accessionToTerm.put(1633, "5KB_downstream_variant");
+        accessionToTerm.put(1635, "5KB_upstream_variant");
+        accessionToTerm.put(1483, "SNV");
+        accessionToTerm.put(694, "SNP");
+        accessionToTerm.put(1203, "RNA_polymerase_promoter");
+        accessionToTerm.put(307, "CpG_island");
+        accessionToTerm.put(685, "DNAseI_hypersensitive_site");
+        accessionToTerm.put(336, "polypeptide_variation_site");
     }
 
 }

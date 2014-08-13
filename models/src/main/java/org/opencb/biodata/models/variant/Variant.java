@@ -265,7 +265,7 @@ public class Variant {
     }
     
     public ArchivedVariantFile getFile(String fileId, String studyId) {
-        return files.get(new StringBuilder(studyId).append("_").append(fileId).toString());
+        return files.get(composeId(studyId, fileId));
     }
 
     public void setFiles(Map<String, ArchivedVariantFile> files) {
@@ -273,11 +273,11 @@ public class Variant {
     }
     
     public void addFile(ArchivedVariantFile file) {
-        this.files.put(new StringBuilder(file.getStudyId()).append("_").append(file.getFileId()).toString(), file);
+        this.files.put(composeId(file.getStudyId(), file.getFileId()), file);
     }
     
-    public VariantStats getStats(String fileId) {
-        ArchivedVariantFile file = files.get(fileId);
+    public VariantStats getStats(String studyId, String fileId) {
+        ArchivedVariantFile file = files.get(composeId(studyId, fileId));
         if (file == null) {
             return null;
         }
@@ -300,8 +300,8 @@ public class Variant {
         annotation.addEffect(allele, ct);
     }
     
-    public Iterable<String> getSampleNames(String fileId) {
-        ArchivedVariantFile file = files.get(fileId);
+    public Iterable<String> getSampleNames(String studyId, String fileId) {
+        ArchivedVariantFile file = files.get(composeId(studyId, fileId));
         if (file == null) {
             return null;
         }
@@ -362,5 +362,8 @@ public class Variant {
         return true;
     }
 
+    private String composeId(String studyId, String fileId) {
+        return studyId + "_" + fileId;
+    }
     
 }

@@ -175,6 +175,11 @@ public class VariantEffect {
         this.cdsPosition = -1;
         this.proteinPosition = -1;
         this.variantToTranscriptDistance = -1;
+        
+        this.proteinDomains = new String[0];
+        this.structuralVariantsId = new String[0];
+        this.consequenceTypes = new int[0];
+        this.pubmed = new String[0];
     }
 
     public String getChromosome() {
