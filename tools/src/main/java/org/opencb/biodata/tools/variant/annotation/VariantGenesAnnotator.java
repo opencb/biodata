@@ -2,7 +2,23 @@ package org.opencb.biodata.tools.variant.annotation;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Joiner;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Form;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import org.opencb.biodata.models.feature.Gene;
 import org.opencb.biodata.models.variant.ArchivedVariantFile;
 import org.opencb.biodata.models.variant.Variant;
@@ -10,29 +26,24 @@ import org.opencb.biodata.models.variant.effect.VariantEffect;
 import org.opencb.datastore.core.QueryResponse;
 import org.opencb.datastore.core.QueryResult;
 
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Form;
-import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 /**
  * @author Alejandro Aleman Ramos <aaleman@cipf.es>
  * @author Cristina Yenyxe Gonzalez Garcia <cyenyxe@ebi.ac.uk>
  */
 public class VariantGenesAnnotator implements VariantAnnotator {
 
+    private String geneNameTag;
+
     private static final String CELLBASE_URL = "http://wwwdev.ebi.ac.uk/cellbase/webservices";
 
     private WebTarget webResource;
 
     public VariantGenesAnnotator() {
+        this("GeneNames");
+    }
+
+    public VariantGenesAnnotator(String geneNameTag) {
+        this.geneNameTag = geneNameTag;
         webResource = ClientBuilder.newClient().target(CELLBASE_URL + "/rest/v3/hsapiens/genomic/region");
     }
 
@@ -51,15 +62,11 @@ public class VariantGenesAnnotator implements VariantAnnotator {
         Form form = new Form();
         form.param("region", positions.substring(0, positions.length() - 1));
 
-        // Response response = webResource.path("snp").queryParam("exclude", "transcripts,chunkIds").request().post(
-        // Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE));
-        String queryPositions = positions.substring(0, positions.length() - 1);
-
-        WebTarget wt = webResource.path(queryPositions).path("gene").queryParam("exclude", "transcripts,chunkIds");
-
-        Response response = wt.request().get();
-
+        Response response = webResource.path("gene").queryParam("exclude", "transcripts,chunkIds").request()
+                .post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE));
+        
         ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         try {
             String resp = response.readEntity(String.class);
@@ -72,8 +79,11 @@ public class VariantGenesAnnotator implements VariantAnnotator {
             int i = 0;
             for (QueryResult<Gene> queryResult : qr.getResponse()) {
                 for (Gene gene : queryResult.getResult()) {
-                    Variant v = batch.get(i);
-                    v.getAnnotation().addGene(gene);
+                    Variant variant = batch.get(i);
+                    variant.getAnnotation().addGene(gene);
+                    for (Map.Entry<String, ArchivedVariantFile> file : variant.getFiles().entrySet()) {
+                        annotGeneName(variant, file.getValue());
+                    }
                 }
                 i++;
             }
@@ -98,7 +108,7 @@ public class VariantGenesAnnotator implements VariantAnnotator {
         }
 
         if (geneNames.size() > 0) {
-            // file.addAttribute(this.geneNameTag, Joiner.on(",").join(geneNames));
+             file.addAttribute(this.geneNameTag, Joiner.on(",").join(geneNames));
         }
 
     }
