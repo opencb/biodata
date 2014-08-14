@@ -141,7 +141,7 @@ public class Region {
         return result;
     }
 
-    public boolean contains(String chr, int pos) {
+    public boolean contains(String chr, long pos) {
         if (this.chromosome.equals(chr) && this.start <= pos && this.end >= pos) {
             return true;
         } else {
