@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class AlignmentRegionDataReader implements DataReader<AlignmentRegion> {
 
-    private AlignmentDataReader<Alignment> alignmentDataReader;
+    private AlignmentDataReader alignmentDataReader;
     private Alignment prevAlignment;
     private int chunkSize;  //Max number of alignments in one AlignmentRegion.
     private int maxSequenceSize; //Maximum size for the total sequence. Count from the start of the first alignment to the end of the last alignment.

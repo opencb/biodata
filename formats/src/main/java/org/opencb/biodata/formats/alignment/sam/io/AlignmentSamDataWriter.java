@@ -5,9 +5,10 @@ import net.sf.samtools.SAMFileHeader;
 import net.sf.samtools.SAMFileWriterImpl;
 import net.sf.samtools.SAMRecord;
 import net.sf.samtools.SAMTextWriter;
-import org.opencb.biodata.formats.alignment.AlignmentHelper;
+import org.opencb.biodata.formats.alignment.AlignmentConverter;
 import org.opencb.biodata.formats.alignment.io.AlignmentDataWriter;
-import org.opencb.biodata.formats.alignment.AlignmentFactory;
+import org.opencb.biodata.formats.sequence.fasta.dbadaptor.CellBaseSequenceDBAdaptor;
+import org.opencb.biodata.formats.sequence.fasta.dbadaptor.SequenceDBAdaptor;
 import org.opencb.biodata.models.alignment.Alignment;
 import org.opencb.biodata.models.alignment.AlignmentHeader;
 import org.opencb.biodata.models.alignment.exceptions.ShortReferenceSequenceException;
@@ -27,7 +28,7 @@ import org.opencb.biodata.formats.alignment.io.AlignmentDataReader;
  *
  * This class needs the SAMFileHeader to write. If it is not set, it will fail.
  */
-public class AlignmentSamDataWriter implements AlignmentDataWriter<Alignment, AlignmentHeader> {
+public class AlignmentSamDataWriter implements AlignmentDataWriter {
 
     protected SAMFileWriterImpl writer;
     private SAMFileHeader samFileHeader;
@@ -40,6 +41,7 @@ public class AlignmentSamDataWriter implements AlignmentDataWriter<Alignment, Al
     private long referenceSequenceStart = -1;
     private boolean headerWritten = false;
     private boolean validSequence = false;
+    //private SequenceDBAdaptor adaptor = new CellBaseSequenceDBAdaptor();
 
 
     public AlignmentSamDataWriter(String filename, AlignmentHeader header) {
@@ -65,6 +67,12 @@ public class AlignmentSamDataWriter implements AlignmentDataWriter<Alignment, Al
         file = path.toFile();
 
         this.writer = new SAMTextWriter(file);
+//        try {
+//            this.adaptor.open();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            return false;
+//        }
 
         return true;
     }
@@ -111,13 +119,13 @@ public class AlignmentSamDataWriter implements AlignmentDataWriter<Alignment, Al
         SAMRecord samElement = null;
 
         try {
-            samElement = AlignmentFactory.buildSAMRecord(element, samFileHeader, referenceSequence, referenceSequenceStart);
+            samElement = AlignmentConverter.buildSAMRecord(element, samFileHeader, referenceSequence, referenceSequenceStart);
         } catch (ShortReferenceSequenceException e) {
             getSequence(element.getChromosome(), element.getUnclippedStart());
         }
         if(samElement == null){
             try {
-                samElement = AlignmentFactory.buildSAMRecord(element, samFileHeader, referenceSequence, referenceSequenceStart);
+                samElement = AlignmentConverter.buildSAMRecord(element, samFileHeader, referenceSequence, referenceSequenceStart);
             } catch (ShortReferenceSequenceException e) {
                 System.out.println("[ERROR] Can't get the correct reference sequence");
                 e.printStackTrace();
@@ -134,8 +142,7 @@ public class AlignmentSamDataWriter implements AlignmentDataWriter<Alignment, Al
         referenceSequenceStart = pos<1?1:pos;
         try {
             referenceSequence = AlignmentHelper.getSequence(
-                    new Region(chromosome, (int)pos, (int)pos + maxSequenceSize)
-                    , null);
+                    new Region(chromosome, (int)pos, (int)pos + maxSequenceSize));
         } catch (IOException e) {
             System.out.println("Could not get reference sequence");
         }
@@ -152,7 +159,7 @@ public class AlignmentSamDataWriter implements AlignmentDataWriter<Alignment, Al
 
     @Override
     public boolean writeHeader(AlignmentHeader head) {
-        samFileHeader = AlignmentFactory.buildSAMFileHeader(head);
+        samFileHeader = AlignmentConverter.buildSAMFileHeader(head);
 
         writer.setSortOrder(samFileHeader.getSortOrder(), true);
         writer.setHeader(samFileHeader);

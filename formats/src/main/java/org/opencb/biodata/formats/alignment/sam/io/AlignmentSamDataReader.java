@@ -13,8 +13,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.opencb.biodata.formats.alignment.AlignmentConverter;
 import org.opencb.biodata.formats.alignment.io.AlignmentDataReader;
-import org.opencb.biodata.formats.alignment.AlignmentFactory;
 import org.opencb.biodata.models.alignment.Alignment;
 import org.opencb.biodata.models.alignment.AlignmentHeader;
 
@@ -25,7 +25,7 @@ import org.opencb.biodata.models.alignment.AlignmentHeader;
  * Time: 5:12 PM
  * To change this template use File | Settings | File Templates.
  */
-public class AlignmentSamDataReader implements AlignmentDataReader<Alignment> {
+public class AlignmentSamDataReader implements AlignmentDataReader {
 
     private final String filename;
     private final String studyName;
@@ -73,7 +73,7 @@ public class AlignmentSamDataReader implements AlignmentDataReader<Alignment> {
     @Override
     public boolean pre() {
         samHeader = reader.getFileHeader();
-        header = AlignmentFactory.buildAlignmentHeader(samHeader, studyName);
+        header = AlignmentConverter.buildAlignmentHeader(samHeader, studyName);
         return true;
     }
 
@@ -96,7 +96,7 @@ public class AlignmentSamDataReader implements AlignmentDataReader<Alignment> {
         if(iterator.hasNext()){
             record = iterator.next();
             //alignment = new Alignment(record, null);
-            alignment = AlignmentFactory.buildAlignment(record);
+            alignment = AlignmentConverter.buildAlignment(record);
             /*
             alignment = new Alignment(record.getReadName(), record.getReferenceName(), record.getAlignmentStart(), record.getAlignmentEnd(),
                 record.getUnclippedStart(), record.getUnclippedEnd(), record.getReadLength(),

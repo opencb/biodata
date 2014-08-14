@@ -17,10 +17,10 @@ import java.util.List;
  *
  */
 public class AlignmentRegionDataWriter implements DataWriter<AlignmentRegion> {
-    private AlignmentDataWriter<Alignment, AlignmentHeader> alignmentDataWriter;
+    private AlignmentDataWriter alignmentDataWriter;
 
 
-    public AlignmentRegionDataWriter(AlignmentDataWriter<Alignment, AlignmentHeader> alignmentDataWriter) {
+    public AlignmentRegionDataWriter(AlignmentDataWriter alignmentDataWriter) {
         this.alignmentDataWriter = alignmentDataWriter;
     }
 

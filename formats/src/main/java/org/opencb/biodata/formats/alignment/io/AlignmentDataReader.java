@@ -1,6 +1,7 @@
 package org.opencb.biodata.formats.alignment.io;
 
 
+import org.opencb.biodata.models.alignment.Alignment;
 import org.opencb.biodata.models.alignment.AlignmentHeader;
 import org.opencb.commons.io.DataReader;
 
@@ -11,7 +12,7 @@ import org.opencb.commons.io.DataReader;
  * Time: 5:17 PM
  * To change this template use File | Settings | File Templates.
  */
-public interface AlignmentDataReader<T> extends DataReader<T> {
+public interface AlignmentDataReader extends DataReader<Alignment> {
 
     public AlignmentHeader getHeader();
 }

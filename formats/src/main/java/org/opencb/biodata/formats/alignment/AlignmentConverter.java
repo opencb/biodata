@@ -18,7 +18,7 @@ import java.util.Map;
  * Time: 20:04
  * To change this template use File | Settings | File Templates.
  */
-public class AlignmentFactory {
+public class AlignmentConverter {
 
     public static Alignment buildAlignment(SAMRecord record){
         return buildAlignment(record, null);

@@ -1,6 +1,8 @@
 package org.opencb.biodata.formats.alignment.io;
 
 
+import org.opencb.biodata.models.alignment.Alignment;
+import org.opencb.biodata.models.alignment.AlignmentHeader;
 import org.opencb.commons.io.DataWriter;
 
 
@@ -11,8 +13,8 @@ import org.opencb.commons.io.DataWriter;
  * Time: 5:17 PM
  * To change this template use File | Settings | File Templates.
  */
-public interface AlignmentDataWriter<T, H> extends DataWriter<T> {
+public interface AlignmentDataWriter extends DataWriter<Alignment> {
 
-    boolean writeHeader(H head);
+    boolean writeHeader(AlignmentHeader head);
 
 }
