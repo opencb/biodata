@@ -2,6 +2,8 @@ package org.opencb.biodata.tools;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opencb.biodata.models.variant.Variant;
@@ -24,8 +26,8 @@ public class EffectCalculatorTest extends GenericTest {
 
     @Test
     public void testGetEffects() throws Exception {
-        List<VariantEffect> effects = EffectCalculator.getEffects(variants);
-        for (VariantEffect ve : effects) {
+        Map<Variant, Set<VariantEffect>> effects = EffectCalculator.getEffects(variants);
+        for (Set<VariantEffect> ve : effects.values()) {
             System.out.println("ve = " + ve);
         }
     }
@@ -35,12 +37,4 @@ public class EffectCalculatorTest extends GenericTest {
 
     }
 
-    @Test
-    public void testGetEffectPerVariant() throws Exception {
-        List<List<VariantEffect>> effects = EffectCalculator.getEffectPerVariant(variants);
-        for (List<VariantEffect> ve : effects) {
-            System.out.println(ve);
-        }
-
-    }
 }

@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import org.opencb.biodata.models.variant.ArchivedVariantFile;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.effect.VariantEffect;
+import org.opencb.biodata.models.variant.effect.ProteinSubstitutionScores;
 import org.opencb.biodata.tools.variant.EffectCalculator;
 
 /**
@@ -59,33 +59,18 @@ public class VariantPolyphenSIFTAnnotator implements VariantAnnotator {
     }
 
     private void annotPolyphen(Variant variant, ArchivedVariantFile file) {
-        double poly = -1;
-        int effect = 0;
-
-        for (VariantEffect ve : variant.getEffect()) {
-            if (ve.getPolyphenScore() != -1 && ve.getPolyphenScore() > poly) {
-                poly = ve.getPolyphenScore();
-                effect = ve.getPolyphenEffect();
-            }
-        }
-        if (poly >= 0) {
-            file.addAttribute(this.polyphenScoreTag, String.valueOf(poly));
-            file.addAttribute(this.polyphenEffectTag, String.valueOf(effect));
+        ProteinSubstitutionScores scores = variant.getAnnotation().getProteinSubstitutionScores();
+        if (scores.getPolyphenScore() >= 0) {
+            file.addAttribute(this.polyphenScoreTag, String.valueOf(scores.getPolyphenScore()));
+            file.addAttribute(this.polyphenEffectTag, String.valueOf(scores.getPolyphenEffect().name()));
         }
     }
 
     private void annotSIFT(Variant variant, ArchivedVariantFile file) {
-        double sift = 2;
-        int effect = 0;
-
-        for (VariantEffect ve : variant.getEffect()) {
-            if (ve.getSiftScore() != -1 && ve.getSiftScore() < sift) {
-                sift = ve.getSiftScore();
-            }
-        }
-        if (sift <= 1) {
-            file.addAttribute(this.siftScoreTag, String.valueOf(sift));
-            file.addAttribute(this.siftEffectTag, String.valueOf(effect));
+        ProteinSubstitutionScores scores = variant.getAnnotation().getProteinSubstitutionScores();
+        if (scores.getSiftScore() >= 0) {
+            file.addAttribute(this.siftScoreTag, String.valueOf(scores.getSiftScore()));
+            file.addAttribute(this.siftEffectTag, String.valueOf(scores.getSiftEffect().name()));
         }
     }
 

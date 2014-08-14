@@ -2,6 +2,7 @@ package org.opencb.biodata.models.variant;
 
 import java.util.*;
 import org.opencb.biodata.models.variant.effect.VariantEffect;
+import org.opencb.biodata.models.variant.effect.VariantAnnotation;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
 /**
@@ -100,9 +101,9 @@ public class Variant {
 //    private VariantStats stats;
     
     /**
-     * Possible effects of the genomic variation.
+     * Annotations of the genomic variation.
      */
-    private List<VariantEffect> effect;
+    private VariantAnnotation annotation;
 
     
     Variant() {
@@ -133,7 +134,7 @@ public class Variant {
         }
         
         this.files = new HashMap<>();
-        this.effect = new LinkedList<>();
+        this.annotation = new VariantAnnotation(this.chromosome, this.start, this.end, this.reference);
     }
 
     public VariantType getType() {
@@ -264,7 +265,7 @@ public class Variant {
     }
     
     public ArchivedVariantFile getFile(String fileId, String studyId) {
-        return files.get(new StringBuilder(studyId).append("_").append(fileId).toString());
+        return files.get(composeId(studyId, fileId));
     }
 
     public void setFiles(Map<String, ArchivedVariantFile> files) {
@@ -272,11 +273,11 @@ public class Variant {
     }
     
     public void addFile(ArchivedVariantFile file) {
-        this.files.put(new StringBuilder(file.getStudyId()).append("_").append(file.getFileId()).toString(), file);
+        this.files.put(composeId(file.getStudyId(), file.getFileId()), file);
     }
     
-    public VariantStats getStats(String fileId) {
-        ArchivedVariantFile file = files.get(fileId);
+    public VariantStats getStats(String studyId, String fileId) {
+        ArchivedVariantFile file = files.get(composeId(studyId, fileId));
         if (file == null) {
             return null;
         }
@@ -287,20 +288,20 @@ public class Variant {
 //        this.stats = stats;
 //    }
     
-    public List<VariantEffect> getEffect() {
-        return effect;
+    public VariantAnnotation getAnnotation() {
+        return annotation;
     }
 
-    public void setEffect(List<VariantEffect> effect) {
-        this.effect = effect;
-    }
-
-    public boolean addEffect(VariantEffect e) {
-        return this.effect.add(e);
+    public void setAnnotation(VariantAnnotation annotation) {
+        this.annotation = annotation;
     }
     
-    public Iterable<String> getSampleNames(String fileId) {
-        ArchivedVariantFile file = files.get(fileId);
+    public void addEffect(String allele, VariantEffect ct) {
+        annotation.addEffect(allele, ct);
+    }
+    
+    public Iterable<String> getSampleNames(String studyId, String fileId) {
+        ArchivedVariantFile file = files.get(composeId(studyId, fileId));
         if (file == null) {
             return null;
         }
@@ -318,7 +319,7 @@ public class Variant {
 //                ", format='" + format + '\'' +
 //                ", samplesData=" + samplesData +
 //                ", stats=" + stats +
-//                ", effect=" + effect +
+//                ", annotation=" + annotation +
 //                ", attributes=" + attributes +
                 '}';
     }
@@ -361,5 +362,8 @@ public class Variant {
         return true;
     }
 
+    private String composeId(String studyId, String fileId) {
+        return studyId + "_" + fileId;
+    }
     
 }

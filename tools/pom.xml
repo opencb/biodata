@@ -63,6 +63,11 @@
           <artifactId>formats</artifactId>
           <version>0.1</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.opencb.datastore</groupId>
+            <artifactId>datastore-core</artifactId>
+        </dependency>
         
         <!-- TEST -->
         <dependency>
@@ -87,6 +92,11 @@
                         <excludes>
                             <exclude>**/VariantEVSControlAnnotator.java</exclude>
                         </excludes>
+                        <testExcludes>
+                            <exclude>**/EffectCalculatorTest.java</exclude>
+                            <exclude>**/VariantConsequenceTypeAnnotatorTest.java</exclude>
+                            <exclude>**/VariantGeneNameAnnotatorTest.java</exclude>
+                        </testExcludes>
                 </configuration>
             </plugin>
         </plugins>

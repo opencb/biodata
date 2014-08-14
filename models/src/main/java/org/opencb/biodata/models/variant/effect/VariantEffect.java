@@ -1,101 +1,185 @@
 package org.opencb.biodata.models.variant.effect;
 
+import java.util.Arrays;
+import java.util.Objects;
 
 /**
- * Created with IntelliJ IDEA.
- * User: aaleman
- * Date: 9/10/13
- * Time: 2:38 PM
- * To change this template use File | Settings | File Templates.
+ *
+ * @author Cristina Yenyxe Gonzalez Garcia <cyenyxe@ebi.ac.uk>
+ * 
+ * @todo IND - individual name
+ * @todo ZYG - zygosity of individual genotype at this locus
  */
 public class VariantEffect {
 
+    /**
+     * Chromosome where the variant occurred
+     */
     private String chromosome;
+    
+    /**
+     * Genomic position
+     */
     private int position;
+    
+    /**
+     * Reference allele
+     */
     private String referenceAllele;
-    private String alternativeAllele;
-    private String featureId;
-    private String featureName;
-    private String featureType;
-    private String featureBiotype;
-    private String featureChromosome;
-    private int featureStart;
-    private int featureEnd;
-    private String featureStrand;
-    private String snpId;
-    private String ancestral;
-    private String alternative;
+    
+    /**
+     * Alternate allele
+     */
+    private String alternateAllele;
+
+    /**
+     * Ensembl stable ID of affected gene
+     */
     private String geneId;
-    private String transcriptId;
+    
+    /**
+     * The gene symbol
+     */
     private String geneName;
-    private String consequenceType;
-    private String consequenceTypeObo;
-    private String consequenceTypeDesc;
-    private String consequenceTypeType;
-    private int aaPosition;
+    
+    /**
+     * The gene symbol source
+     */
+    private String geneNameSource;
+    
+    /**
+     * Ensembl stable ID of feature
+     */
+    private String featureId;
+    
+    /**
+     * Type of feature, currently one of Transcript, RegulatoryFeature, MotifFeature
+     */
+    private String featureType;
+    
+    /**
+     * Biotype of transcript or gene
+     */
+    private String featureBiotype;
+    
+    /**
+     * The DNA strand (1 or -1) on which the transcript/feature lies
+     */
+    private String featureStrand;
+    
+    /**
+     * Relative position of base pair in cDNA sequence
+     */
+    private int cDnaPosition;
+    
+    /**
+     * The CCDS identifier for this transcript, where applicable
+     */
+    private String ccdsId;
+    
+    /**
+     * Relative position of base pair in coding sequence
+     */
+    private int cdsPosition;
+         
+    /**
+     * Ensembl protein identifier of the affected transcript
+     */
+    private String proteinId;
+       
+    /**
+     * Relative position of amino acid in protein
+     */
+    private int proteinPosition;
+    
+    /**
+     * Source and identifier of any overlapping protein domains
+     */
+    private String[] proteinDomains;
+    
+    /**
+     * Only given if the variation affects the protein-coding sequence
+     */
     private String aminoacidChange;
+    
+    /**
+     * The alternative codons with the variant base in upper case
+     */
     private String codonChange;
 
-    private double polyphenScore;
-    private double siftScore;
-    private int polyphenEffect;
-    private int siftEffect;
+    /**
+     * Known identifier of existing variation
+     */
+    private String variationId;
+    
+    /**
+     * IDs of overlapping structural variants
+     */
+    private String[] structuralVariantsId;
+            
+    /**
+     * Consequence type of this variation (SO code)
+     */
+    private int[] consequenceTypes;
+    
+    /**
+     * Flag indicating if the transcript is denoted as the canonical transcript for this gene
+     */
+    private boolean canonical;
+    
+    /**
+     * HGVS coding sequence name
+     */
+    private String hgvsc;
+    
+    /**
+     * HGVS protein sequence name
+     */
+    private String hgvsp;
+    
+    /**
+     * Intron number, out of total number
+     */
+    private String intronNumber;
+    
+    /**
+     * Exon number, out of total number
+     */
+    private String exonNumber;
+    
+    /**
+     * Shortest distance from variant to transcript
+     */
+    private int variantToTranscriptDistance;
+    
+    /**
+     * Clinical significance of variant from dbSNP
+     */
+    private String clinicalSignificance;
+            
+    /**
+     * Pubmed ID(s) of publications that cite existing variant
+     */
+    private String[] pubmed;
 
-
-    public VariantEffect() {
+    VariantEffect() { 
+        this(null, -1, null, null);
     }
-
-    public VariantEffect(String chromosome,
-                         int position,
-                         String referenceAllele,
-                         String alternativeAllele,
-                         String featureId,
-                         String featureName,
-                         String featureType,
-                         String featureBiotype,
-                         String featureChromosome,
-                         int featureStart,
-                         int featureEnd,
-                         String featureStrand,
-                         String snpId,
-                         String ancestral,
-                         String alternative,
-                         String geneId,
-                         String transcriptId,
-                         String geneName,
-                         String consequenceType,
-                         String consequenceTypeObo,
-                         String consequenceTypeDesc,
-                         String consequenceTypeType,
-                         int aaPosition,
-                         String aminoacidChange,
-                         String codonChange
-    ) {
+    
+    public VariantEffect(String chromosome, int position, String referenceAllele, String alternateAllele) {
         this.chromosome = chromosome;
         this.position = position;
         this.referenceAllele = referenceAllele;
-        this.alternativeAllele = alternativeAllele;
-        this.featureId = featureId;
-        this.featureName = featureName;
-        this.featureType = featureType;
-        this.featureBiotype = featureBiotype;
-        this.featureChromosome = featureChromosome;
-        this.featureStart = featureStart;
-        this.featureEnd = featureEnd;
-        this.featureStrand = featureStrand;
-        this.snpId = snpId;
-        this.ancestral = ancestral;
-        this.alternative = alternative;
-        this.geneId = geneId;
-        this.transcriptId = transcriptId;
-        this.geneName = geneName;
-        this.consequenceType = consequenceType;
-        this.consequenceTypeObo = consequenceTypeObo;
-        this.consequenceTypeDesc = consequenceTypeDesc;
-        this.consequenceTypeType = consequenceTypeType;
-        this.aaPosition = aaPosition;
-        this.aminoacidChange = aminoacidChange;
-        this.codonChange = codonChange;
+        this.alternateAllele = alternateAllele;
+        this.cDnaPosition = -1;
+        this.cdsPosition = -1;
+        this.proteinPosition = -1;
+        this.variantToTranscriptDistance = -1;
+        
+        this.proteinDomains = new String[0];
+        this.structuralVariantsId = new String[0];
+        this.consequenceTypes = new int[0];
+        this.pubmed = new String[0];
     }
 
     public String getChromosome() {
@@ -122,12 +206,36 @@ public class VariantEffect {
         this.referenceAllele = referenceAllele;
     }
 
-    public String getAlternativeAllele() {
-        return alternativeAllele;
+    public String getAlternateAllele() {
+        return alternateAllele;
     }
 
-    public void setAlternativeAllele(String alternativeAllele) {
-        this.alternativeAllele = alternativeAllele;
+    public void setAlternateAllele(String alternateAllele) {
+        this.alternateAllele = alternateAllele;
+    }
+
+    public String getGeneId() {
+        return geneId;
+    }
+
+    public void setGeneId(String geneId) {
+        this.geneId = geneId;
+    }
+
+    public String getGeneName() {
+        return geneName;
+    }
+
+    public void setGeneName(String geneName) {
+        this.geneName = geneName;
+    }
+
+    public String getGeneNameSource() {
+        return geneNameSource;
+    }
+
+    public void setGeneNameSource(String geneNameSource) {
+        this.geneNameSource = geneNameSource;
     }
 
     public String getFeatureId() {
@@ -136,14 +244,6 @@ public class VariantEffect {
 
     public void setFeatureId(String featureId) {
         this.featureId = featureId;
-    }
-
-    public String getFeatureName() {
-        return featureName;
-    }
-
-    public void setFeatureName(String featureName) {
-        this.featureName = featureName;
     }
 
     public String getFeatureType() {
@@ -162,30 +262,6 @@ public class VariantEffect {
         this.featureBiotype = featureBiotype;
     }
 
-    public String getFeatureChromosome() {
-        return featureChromosome;
-    }
-
-    public void setFeatureChromosome(String featureChromosome) {
-        this.featureChromosome = featureChromosome;
-    }
-
-    public int getFeatureStart() {
-        return featureStart;
-    }
-
-    public void setFeatureStart(int featureStart) {
-        this.featureStart = featureStart;
-    }
-
-    public int getFeatureEnd() {
-        return featureEnd;
-    }
-
-    public void setFeatureEnd(int featureEnd) {
-        this.featureEnd = featureEnd;
-    }
-
     public String getFeatureStrand() {
         return featureStrand;
     }
@@ -194,92 +270,52 @@ public class VariantEffect {
         this.featureStrand = featureStrand;
     }
 
-    public String getSnpId() {
-        return snpId;
+    public int getcDnaPosition() {
+        return cDnaPosition;
     }
 
-    public void setSnpId(String snpId) {
-        this.snpId = snpId;
+    public void setcDnaPosition(int cDnaPosition) {
+        this.cDnaPosition = cDnaPosition;
     }
 
-    public String getAncestral() {
-        return ancestral;
+    public String getCcdsId() {
+        return ccdsId;
     }
 
-    public void setAncestral(String ancestral) {
-        this.ancestral = ancestral;
+    public void setCcdsId(String ccdsId) {
+        this.ccdsId = ccdsId;
     }
 
-    public String getAlternative() {
-        return alternative;
+    public int getCdsPosition() {
+        return cdsPosition;
     }
 
-    public void setAlternative(String alternative) {
-        this.alternative = alternative;
+    public void setCdsPosition(int cdsPosition) {
+        this.cdsPosition = cdsPosition;
     }
 
-    public String getGeneId() {
-        return geneId;
+    public String getProteinId() {
+        return proteinId;
     }
 
-    public void setGeneId(String geneId) {
-        this.geneId = geneId;
+    public void setProteinId(String proteinId) {
+        this.proteinId = proteinId;
     }
 
-    public String getTranscriptId() {
-        return transcriptId;
+    public int getProteinPosition() {
+        return proteinPosition;
     }
 
-    public void setTranscriptId(String transcriptId) {
-        this.transcriptId = transcriptId;
+    public void setProteinPosition(int proteinPosition) {
+        this.proteinPosition = proteinPosition;
     }
 
-    public String getGeneName() {
-        return geneName;
+    public String[] getProteinDomains() {
+        return proteinDomains;
     }
 
-    public void setGeneName(String geneName) {
-        this.geneName = geneName;
-    }
-
-    public String getConsequenceType() {
-        return consequenceType;
-    }
-
-    public void setConsequenceType(String consequenceType) {
-        this.consequenceType = consequenceType;
-    }
-
-    public String getConsequenceTypeObo() {
-        return consequenceTypeObo;
-    }
-
-    public void setConsequenceTypeObo(String consequenceTypeObo) {
-        this.consequenceTypeObo = consequenceTypeObo;
-    }
-
-    public String getConsequenceTypeDesc() {
-        return consequenceTypeDesc;
-    }
-
-    public void setConsequenceTypeDesc(String consequenceTypeDesc) {
-        this.consequenceTypeDesc = consequenceTypeDesc;
-    }
-
-    public String getConsequenceTypeType() {
-        return consequenceTypeType;
-    }
-
-    public void setConsequenceTypeType(String consequenceTypeType) {
-        this.consequenceTypeType = consequenceTypeType;
-    }
-
-    public int getAaPosition() {
-        return aaPosition;
-    }
-
-    public void setAaPosition(int aaPosition) {
-        this.aaPosition = aaPosition;
+    public void setProteinDomains(String[] proteinDomains) {
+        this.proteinDomains = proteinDomains;
     }
 
     public String getAminoacidChange() {
@@ -298,143 +334,187 @@ public class VariantEffect {
         this.codonChange = codonChange;
     }
 
-    public double getPolyphenScore() {
-        return polyphenScore;
+    public String getVariationId() {
+        return variationId;
     }
 
-    public void setPolyphenScore(double polyphenScore) {
-        this.polyphenScore = polyphenScore;
+    public void setVariationId(String variationId) {
+        this.variationId = variationId;
     }
 
-    public double getSiftScore() {
-        return siftScore;
+    public String[] getStructuralVariantsId() {
+        return structuralVariantsId;
     }
 
-    public void setSiftScore(double siftScore) {
-        this.siftScore = siftScore;
+    public void setStructuralVariantsId(String[] structuralVariantsId) {
+        this.structuralVariantsId = structuralVariantsId;
     }
 
-    public int getPolyphenEffect() {
-        return polyphenEffect;
+    public int[] getConsequenceTypes() {
+        return consequenceTypes;
     }
 
-    public void setPolyphenEffect(int polyphenEffect) {
-        this.polyphenEffect = polyphenEffect;
+    public void setConsequenceTypes(int[] consequenceTypes) {
+        this.consequenceTypes = consequenceTypes;
     }
 
-    public int getSiftEffect() {
-        return siftEffect;
+    public boolean isCanonical() {
+        return canonical;
     }
 
-    public void setSiftEffect(int siftEffect) {
-        this.siftEffect = siftEffect;
+    public void setCanonical(boolean canonical) {
+        this.canonical = canonical;
     }
-    
+
+    public String getHgvsc() {
+        return hgvsc;
+    }
+
+    public void setHgvsc(String hgvsc) {
+        this.hgvsc = hgvsc;
+    }
+
+    public String getHgvsp() {
+        return hgvsp;
+    }
+
+    public void setHgvsp(String hgvsp) {
+        this.hgvsp = hgvsp;
+    }
+
+    public String getIntronNumber() {
+        return intronNumber;
+    }
+
+    public void setIntronNumber(String intronNumber) {
+        this.intronNumber = intronNumber;
+    }
+
+    public String getExonNumber() {
+        return exonNumber;
+    }
+
+    public void setExonNumber(String exonNumber) {
+        this.exonNumber = exonNumber;
+    }
+
+    public int getVariantToTranscriptDistance() {
+        return variantToTranscriptDistance;
+    }
+
+    public void setVariantToTranscriptDistance(int variantToTranscriptDistance) {
+        this.variantToTranscriptDistance = variantToTranscriptDistance;
+    }
+
+    public String getClinicalSignificance() {
+        return clinicalSignificance;
+    }
+
+    public void setClinicalSignificance(String clinicalSignificance) {
+        this.clinicalSignificance = clinicalSignificance;
+    }
+
+    public String[] getPubmed() {
+        return pubmed;
+    }
+
+    public void setPubmed(String[] pubmed) {
+        this.pubmed = pubmed;
+    }
+
     @Override
-    public String toString() {
-        return "VariantEffect{" +
-                "chromosome='" + chromosome + '\'' +
-                ", position=" + position +
-                ", referenceAllele='" + referenceAllele + '\'' +
-                ", alternativeAllele='" + alternativeAllele + '\'' +
-                ", featureId='" + featureId + '\'' +
-                ", featureName='" + featureName + '\'' +
-                ", featureType='" + featureType + '\'' +
-                ", featureBiotype='" + featureBiotype + '\'' +
-                ", featureChromosome='" + featureChromosome + '\'' +
-                ", featureStart=" + featureStart +
-                ", featureEnd=" + featureEnd +
-                ", featureStrand='" + featureStrand + '\'' +
-                ", snpId='" + snpId + '\'' +
-                ", ancestral='" + ancestral + '\'' +
-                ", alternative='" + alternative + '\'' +
-                ", geneId='" + geneId + '\'' +
-                ", transcriptId='" + transcriptId + '\'' +
-                ", geneName='" + geneName + '\'' +
-                ", consequenceType='" + consequenceType + '\'' +
-                ", consequenceTypeObo='" + consequenceTypeObo + '\'' +
-                ", consequenceTypeDesc='" + consequenceTypeDesc + '\'' +
-                ", consequenceTypeType='" + consequenceTypeType + '\'' +
-                ", aaPosition=" + aaPosition +
-                ", aminoacidChange='" + aminoacidChange + '\'' +
-                ", codonChange=" + codonChange +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof VariantEffect)) return false;
-
-        VariantEffect that = (VariantEffect) o;
-
-        if (aaPosition != that.aaPosition) return false;
-        if (featureEnd != that.featureEnd) return false;
-        if (featureStart != that.featureStart) return false;
-        if (position != that.position) return false;
-        if (alternative != null ? !alternative.equals(that.alternative) : that.alternative != null) return false;
-        if (alternativeAllele != null ? !alternativeAllele.equals(that.alternativeAllele) : that.alternativeAllele != null)
+    public boolean equals(Object obj) {
+        if (obj == null) {
             return false;
-        if (aminoacidChange != null ? !aminoacidChange.equals(that.aminoacidChange) : that.aminoacidChange != null)
+        }
+        if (getClass() != obj.getClass()) {
             return false;
-        if (ancestral != null ? !ancestral.equals(that.ancestral) : that.ancestral != null) return false;
-        if (chromosome != null ? !chromosome.equals(that.chromosome) : that.chromosome != null) return false;
-        if (codonChange != null ? !codonChange.equals(that.codonChange) : that.codonChange != null) return false;
-        if (consequenceType != null ? !consequenceType.equals(that.consequenceType) : that.consequenceType != null)
+        }
+        final VariantEffect other = (VariantEffect) obj;
+        if (!Objects.equals(this.alternateAllele, other.alternateAllele)) {
             return false;
-        if (consequenceTypeDesc != null ? !consequenceTypeDesc.equals(that.consequenceTypeDesc) : that.consequenceTypeDesc != null)
+        }
+        if (!Objects.equals(this.geneId, other.geneId)) {
             return false;
-        if (consequenceTypeObo != null ? !consequenceTypeObo.equals(that.consequenceTypeObo) : that.consequenceTypeObo != null)
+        }
+        if (!Objects.equals(this.geneName, other.geneName)) {
             return false;
-        if (consequenceTypeType != null ? !consequenceTypeType.equals(that.consequenceTypeType) : that.consequenceTypeType != null)
+        }
+        if (!Objects.equals(this.geneNameSource, other.geneNameSource)) {
             return false;
-        if (featureBiotype != null ? !featureBiotype.equals(that.featureBiotype) : that.featureBiotype != null)
+        }
+        if (!Objects.equals(this.featureId, other.featureId)) {
             return false;
-        if (featureChromosome != null ? !featureChromosome.equals(that.featureChromosome) : that.featureChromosome != null)
+        }
+        if (!Objects.equals(this.featureType, other.featureType)) {
             return false;
-        if (featureId != null ? !featureId.equals(that.featureId) : that.featureId != null) return false;
-        if (featureName != null ? !featureName.equals(that.featureName) : that.featureName != null) return false;
-        if (featureStrand != null ? !featureStrand.equals(that.featureStrand) : that.featureStrand != null)
+        }
+        if (!Objects.equals(this.featureBiotype, other.featureBiotype)) {
             return false;
-        if (featureType != null ? !featureType.equals(that.featureType) : that.featureType != null) return false;
-        if (geneId != null ? !geneId.equals(that.geneId) : that.geneId != null) return false;
-        if (geneName != null ? !geneName.equals(that.geneName) : that.geneName != null) return false;
-        if (referenceAllele != null ? !referenceAllele.equals(that.referenceAllele) : that.referenceAllele != null)
+        }
+        if (!Objects.equals(this.featureStrand, other.featureStrand)) {
             return false;
-        if (snpId != null ? !snpId.equals(that.snpId) : that.snpId != null) return false;
-        if (transcriptId != null ? !transcriptId.equals(that.transcriptId) : that.transcriptId != null) return false;
-
+        }
+        if (this.cDnaPosition != other.cDnaPosition) {
+            return false;
+        }
+        if (!Objects.equals(this.ccdsId, other.ccdsId)) {
+            return false;
+        }
+        if (this.cdsPosition != other.cdsPosition) {
+            return false;
+        }
+        if (!Objects.equals(this.proteinId, other.proteinId)) {
+            return false;
+        }
+        if (this.proteinPosition != other.proteinPosition) {
+            return false;
+        }
+        if (!Objects.equals(this.aminoacidChange, other.aminoacidChange)) {
+            return false;
+        }
+        if (!Objects.equals(this.codonChange, other.codonChange)) {
+            return false;
+        }
+        if (!Objects.equals(this.variationId, other.variationId)) {
+            return false;
+        }
+        if (!Arrays.equals(this.consequenceTypes, other.consequenceTypes)) {
+            return false;
+        }
+        if (!Objects.equals(this.intronNumber, other.intronNumber)) {
+            return false;
+        }
+        if (!Objects.equals(this.exonNumber, other.exonNumber)) {
+            return false;
+        }
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = chromosome != null ? chromosome.hashCode() : 0;
-        result = 31 * result + position;
-        result = 31 * result + (referenceAllele != null ? referenceAllele.hashCode() : 0);
-        result = 31 * result + (alternativeAllele != null ? alternativeAllele.hashCode() : 0);
-        result = 31 * result + (featureId != null ? featureId.hashCode() : 0);
-        result = 31 * result + (featureName != null ? featureName.hashCode() : 0);
-        result = 31 * result + (featureType != null ? featureType.hashCode() : 0);
-        result = 31 * result + (featureBiotype != null ? featureBiotype.hashCode() : 0);
-        result = 31 * result + (featureChromosome != null ? featureChromosome.hashCode() : 0);
-        result = 31 * result + featureStart;
-        result = 31 * result + featureEnd;
-        result = 31 * result + (featureStrand != null ? featureStrand.hashCode() : 0);
-        result = 31 * result + (snpId != null ? snpId.hashCode() : 0);
-        result = 31 * result + (ancestral != null ? ancestral.hashCode() : 0);
-        result = 31 * result + (alternative != null ? alternative.hashCode() : 0);
-        result = 31 * result + (geneId != null ? geneId.hashCode() : 0);
-        result = 31 * result + (transcriptId != null ? transcriptId.hashCode() : 0);
-        result = 31 * result + (geneName != null ? geneName.hashCode() : 0);
-        result = 31 * result + (consequenceType != null ? consequenceType.hashCode() : 0);
-        result = 31 * result + (consequenceTypeObo != null ? consequenceTypeObo.hashCode() : 0);
-        result = 31 * result + (consequenceTypeDesc != null ? consequenceTypeDesc.hashCode() : 0);
-        result = 31 * result + (consequenceTypeType != null ? consequenceTypeType.hashCode() : 0);
-        result = 31 * result + aaPosition;
-        result = 31 * result + (aminoacidChange != null ? aminoacidChange.hashCode() : 0);
-        result = 31 * result + (codonChange != null ? codonChange.hashCode() : 0);
-        return result;
+        int hash = 7;
+        hash = 97 * hash + Objects.hashCode(this.alternateAllele);
+        hash = 97 * hash + Objects.hashCode(this.geneId);
+        hash = 97 * hash + Objects.hashCode(this.geneName);
+        hash = 97 * hash + Objects.hashCode(this.geneNameSource);
+        hash = 97 * hash + Objects.hashCode(this.featureId);
+        hash = 97 * hash + Objects.hashCode(this.featureType);
+        hash = 97 * hash + Objects.hashCode(this.featureBiotype);
+        hash = 97 * hash + Objects.hashCode(this.featureStrand);
+        hash = 97 * hash + this.cDnaPosition;
+        hash = 97 * hash + Objects.hashCode(this.ccdsId);
+        hash = 97 * hash + this.cdsPosition;
+        hash = 97 * hash + Objects.hashCode(this.proteinId);
+        hash = 97 * hash + this.proteinPosition;
+        hash = 97 * hash + Objects.hashCode(this.aminoacidChange);
+        hash = 97 * hash + Objects.hashCode(this.codonChange);
+        hash = 97 * hash + Objects.hashCode(this.variationId);
+        hash = 97 * hash + Arrays.hashCode(this.consequenceTypes);
+        hash = 97 * hash + Objects.hashCode(this.intronNumber);
+        hash = 97 * hash + Objects.hashCode(this.exonNumber);
+        return hash;
     }
-
+    
+    
 }
