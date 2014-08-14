@@ -41,7 +41,7 @@ public class AlignmentSamDataWriter implements AlignmentDataWriter {
     private long referenceSequenceStart = -1;
     private boolean headerWritten = false;
     private boolean validSequence = false;
-    //private SequenceDBAdaptor adaptor = new CellBaseSequenceDBAdaptor();
+    private SequenceDBAdaptor adaptor = new CellBaseSequenceDBAdaptor();
 
 
     public AlignmentSamDataWriter(String filename, AlignmentHeader header) {
@@ -67,12 +67,12 @@ public class AlignmentSamDataWriter implements AlignmentDataWriter {
         file = path.toFile();
 
         this.writer = new SAMTextWriter(file);
-//        try {
-//            this.adaptor.open();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            return false;
-//        }
+        try {
+            this.adaptor.open();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
 
         return true;
     }
@@ -141,7 +141,7 @@ public class AlignmentSamDataWriter implements AlignmentDataWriter {
         validSequence = true;
         referenceSequenceStart = pos<1?1:pos;
         try {
-            referenceSequence = AlignmentHelper.getSequence(
+            referenceSequence = adaptor.getSequence(
                     new Region(chromosome, (int)pos, (int)pos + maxSequenceSize));
         } catch (IOException e) {
             System.out.println("Could not get reference sequence");

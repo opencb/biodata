@@ -413,48 +413,4 @@ public class AlignmentHelper {
         return sequence;
     }
 
-
-    
-    public static long t = 0;
-    public static long getT(){return t;}
-    public static String getSequence(Region region, QueryOptions params) throws IOException {
-        
-        long start = System.currentTimeMillis();
-        if(params == null){
-            params = new QueryOptions();
-        }
-        String cellbaseHost = params.getString("cellbasehost", "http://ws.bioinfo.cipf.es/cellbase/rest/latest");
-        String species = params.getString("species", "hsa");
-
-        
-        String urlString = cellbaseHost + "/" + species + "/genomic/region/" + region.toString() + "/sequence?of=json";
-        //System.out.println(urlString);
-
-        URL url = new URL(urlString);
-        InputStream is = url.openConnection().getInputStream();
-        BufferedReader br = new BufferedReader(new InputStreamReader(is));
-
-        ObjectMapper mapper = new ObjectMapper();
-        JsonFactory factory = mapper.getFactory();
-        JsonParser jp = factory.createParser(br);
-        JsonNode o = mapper.readTree(jp);
-
-        JsonNode seqNode = o.get(0);
-        if(seqNode == null){
-            System.out.println("Error in AlignmentHelper.getSequence Region = " + region + " : " + o.get("error").asText());
-            throw new IOException("AlignmentHelper.getSequence Region = " + region + o.get("error").asText());
-        }
-        String sequence = o.get(0).get("sequence").asText();
-        br.close();
-
-
-        if(sequence.length() == 0 && region.getEnd()-region.getStart() > 0) { //FIXME JJ: Recursive call to solve one undocumented feature of cellbase (AKA: bug)
-            return getSequence(new Region(region.getChromosome(), region.getStart(), region.getEnd() - (region.getEnd()-region.getStart())* 9 / 10), params);
-        }
-
-        long end = System.currentTimeMillis();
-        t += end-start;
-        return sequence;
-    }
-
 }

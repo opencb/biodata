@@ -1,7 +1,8 @@
 package org.opencb.biodata.formats.alignment;
 
 import net.sf.samtools.*;
-import org.opencb.biodata.formats.alignment.AlignmentHelper;
+import org.opencb.biodata.formats.sequence.fasta.dbadaptor.CellBaseSequenceDBAdaptor;
+import org.opencb.biodata.formats.sequence.fasta.dbadaptor.SequenceDBAdaptor;
 import org.opencb.biodata.models.alignment.Alignment;
 import org.opencb.biodata.models.alignment.AlignmentHeader;
 import org.opencb.biodata.models.alignment.exceptions.ShortReferenceSequenceException;
@@ -19,6 +20,17 @@ import java.util.Map;
  * To change this template use File | Settings | File Templates.
  */
 public class AlignmentConverter {
+
+    private SequenceDBAdaptor adaptor;
+
+    public AlignmentConverter() {
+        this(new CellBaseSequenceDBAdaptor());
+    }
+
+    public AlignmentConverter(SequenceDBAdaptor adaptor) {
+        this.adaptor = adaptor;
+    }
+
 
     public static Alignment buildAlignment(SAMRecord record){
         return buildAlignment(record, null);
