@@ -5,29 +5,39 @@
     <artifactId>biodata</artifactId>
     <version>0.1</version>
     <packaging>pom</packaging>
-    
-    <name>biodata</name>
+
+    <name>Biodata</name>
     <description>Biological entities and their equivalents in different file formats typically used in bioinformatics</description>
-    
+    <url>https://github.com/opencb/biodata/wiki</url>
+
     <modules>
         <module>formats</module>
         <module>models</module>
         <module>tools</module>
     </modules>
-    
-    <mailingLists>
-        <mailingList>
-            <name>OpenCB Mailing List</name>
-            <archive>https://groups.google.com/forum/#!forum/opencb</archive>
-            <post>opencb@googlegroups.com</post>
-        </mailingList>
-    </mailingLists>
+
+    <properties>
+        <compileSource>1.7</compileSource>
+    </properties>
+
+    <scm>
+        <url>https://github.com/opencb/biodata</url>
+        <connection>scm:git:git://github.com/opencb/biodata.git</connection>
+        <developerConnection>scm:git:git@github.com:opencb/biodata.git</developerConnection>
+    </scm>
+
+    <licenses>
+        <license>
+            <name>GNU GENERAL PUBLIC LICENSE Version 2</name>
+            <url>http://www.gnu.org/licenses/gpl-2.0.txt</url>
+        </license>
+    </licenses>
 
     <developers>
         <developer>
             <id>imedina</id>
             <name>Nacho</name>
-            <email>imedina@ebi.ac.uk</email>
+            <email>igmecas@gmail.com</email>
         </developer>
         <developer>
             <id>cyenyxe</id>
@@ -41,10 +51,14 @@
         </developer>
     </developers>
 
-    <scm>
-        <url>https://github.com/opencb/biodata</url>
-    </scm>
-    
+    <mailingLists>
+        <mailingList>
+            <name>OpenCB Mailing List</name>
+            <archive>https://groups.google.com/forum/#!forum/opencb</archive>
+            <post>opencb@googlegroups.com</post>
+        </mailingList>
+    </mailingLists>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -138,12 +152,85 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
+                <version>3.1</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>${compileSource}</source>
+                    <target>${compileSource}</target>
+                    <showDeprecation>true</showDeprecation>
+                    <showWarnings>true</showWarnings>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.3</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.9.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.2</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
                 </configuration>
             </plugin>
         </plugins>
     </build>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+
 </project>
