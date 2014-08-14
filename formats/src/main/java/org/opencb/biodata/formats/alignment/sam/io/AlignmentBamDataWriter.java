@@ -18,24 +18,22 @@ import org.opencb.biodata.formats.alignment.io.AlignmentDataReader;
 public class AlignmentBamDataWriter extends AlignmentSamDataWriter  {
 
 
-    public AlignmentBamDataWriter(String filename, AlignmentHeader header) {
-        super(filename, header);
+    public AlignmentBamDataWriter(Path input, AlignmentHeader header) {
+        super(input, header);
     }
 
-    public AlignmentBamDataWriter(String filename, AlignmentDataReader reader) {
-        super(filename, reader);
+    public AlignmentBamDataWriter(Path input, AlignmentDataReader reader) {
+        super(input, reader);
     }
 
     @Override
     public boolean open() {
-        Path path;
-        File file;
-        path = Paths.get(this.filename);
-        file = path.toFile();
-
-        writer = new BAMFileWriter(file);
-
-        return true;
+        if(this.input.toFile().exists()) {
+            writer = new BAMFileWriter(this.input.toFile());
+            return true;
+        } else {
+            return false;
+        }
     }
 
 }

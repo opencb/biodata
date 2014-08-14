@@ -27,7 +27,7 @@ import org.opencb.biodata.models.alignment.AlignmentHeader;
  */
 public class AlignmentSamDataReader implements AlignmentDataReader {
 
-    private final String filename;
+    private final Path input;
     private final String studyName;
     private SAMFileReader reader;
     public SAMFileHeader samHeader;
@@ -35,11 +35,11 @@ public class AlignmentSamDataReader implements AlignmentDataReader {
     private SAMRecordIterator iterator;
     private boolean enableFileSource;
 
-    public AlignmentSamDataReader(String filename, String studyName){
-        this(filename,studyName, false);
+    public AlignmentSamDataReader(Path input, String studyName){
+        this(input,studyName, false);
     }
-    public AlignmentSamDataReader(String filename, String studyName, boolean enableFileSource) {
-        this.filename = filename;
+    public AlignmentSamDataReader(Path input, String studyName, boolean enableFileSource) {
+        this.input = input;
         this.enableFileSource = enableFileSource;
         this.studyName = studyName;
     }
@@ -47,14 +47,10 @@ public class AlignmentSamDataReader implements AlignmentDataReader {
     @Override
     public boolean open() {
 
-        Path path;
-        File file;
-        path = Paths.get(this.filename);
-        if(!Files.exists(path))
+        if(!Files.exists(input))
             return false;
-        file = path.toFile();
 
-        reader = new SAMFileReader(file);
+        reader = new SAMFileReader(input.toFile());
         if(enableFileSource){
             reader.enableFileSource(true);
         }
@@ -95,18 +91,7 @@ public class AlignmentSamDataReader implements AlignmentDataReader {
         SAMRecord record = null;
         if(iterator.hasNext()){
             record = iterator.next();
-            //alignment = new Alignment(record, null);
             alignment = AlignmentConverter.buildAlignment(record);
-            /*
-            alignment = new Alignment(record.getReadName(), record.getReferenceName(), record.getAlignmentStart(), record.getAlignmentEnd(),
-                record.getUnclippedStart(), record.getUnclippedEnd(), record.getReadLength(),
-                record.getMappingQuality(), record.getBaseQualityString(),
-                record.getMateReferenceName(), record.getMateAlignmentStart(),
-                record.getInferredInsertSize(), record.getFlags(),
-                AlignmentHelper.getDifferencesFromCigar(record,null), null);
-                */
-//            Alignment alignment = new Alignment(record, null, record.getReadString());
-
         }
         return alignment;
     }

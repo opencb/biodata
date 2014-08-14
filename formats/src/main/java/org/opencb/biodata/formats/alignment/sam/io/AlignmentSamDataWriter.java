@@ -16,7 +16,6 @@ import org.opencb.biodata.models.feature.Region;
 
 import java.io.*;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import org.opencb.biodata.formats.alignment.io.AlignmentDataReader;
 
@@ -33,7 +32,7 @@ public class AlignmentSamDataWriter implements AlignmentDataWriter {
     protected SAMFileWriterImpl writer;
     private SAMFileHeader samFileHeader;
     AlignmentDataReader reader;
-    protected String filename;
+    protected Path input;
     private AlignmentHeader header;
     private int maxSequenceSize = defaultMaxSequenceSize;   // max length of the reference sequence.
     private static final int defaultMaxSequenceSize = 100000;
@@ -44,8 +43,8 @@ public class AlignmentSamDataWriter implements AlignmentDataWriter {
     private SequenceDBAdaptor adaptor = new CellBaseSequenceDBAdaptor();
 
 
-    public AlignmentSamDataWriter(String filename, AlignmentHeader header) {
-        this.filename = filename;
+    public AlignmentSamDataWriter(Path input, AlignmentHeader header) {
+        this.input = input;
         this.header = header;
         this.reader = null;
     }
@@ -53,20 +52,19 @@ public class AlignmentSamDataWriter implements AlignmentDataWriter {
 
 
 
-    public AlignmentSamDataWriter(String filename, AlignmentDataReader reader) {
+    public AlignmentSamDataWriter(Path input, AlignmentDataReader reader) {
         this.header = null;
-        this.filename = filename;
+        this.input = input;
         this.reader = reader;
     }
 
     @Override
     public boolean open() {
-        Path path;
-        File file;
-        path = Paths.get(this.filename);
-        file = path.toFile();
+        if(!input.toFile().exists()){
+            return false;
+        }
+        this.writer = new SAMTextWriter(input.toFile());
 
-        this.writer = new SAMTextWriter(file);
         try {
             this.adaptor.open();
         } catch (IOException e) {
@@ -182,12 +180,12 @@ public class AlignmentSamDataWriter implements AlignmentDataWriter {
         this.maxSequenceSize = maxSequenceSize;
     }
 
-    public String getFilename() {
-        return filename;
+    public Path getInput() {
+        return input;
     }
 
-    public void setFilename(String filename) {
-        this.filename = filename;
+    public void setInput(Path input) {
+        this.input = input;
     }
 
     public String getReferenceSequence() {
