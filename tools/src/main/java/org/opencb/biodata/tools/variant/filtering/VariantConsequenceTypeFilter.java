@@ -9,7 +9,7 @@ import org.opencb.biodata.models.variant.effect.ConsequenceTypeMappings;
 import org.opencb.biodata.tools.variant.EffectCalculator;
 
 /**
- * @author Alejandro Aleman Ramos <aaleman@cipf.es>
+ * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
  */
 public class VariantConsequenceTypeFilter extends VariantFilter {
 

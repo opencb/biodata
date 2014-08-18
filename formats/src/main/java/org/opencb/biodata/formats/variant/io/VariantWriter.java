@@ -4,7 +4,7 @@ import org.opencb.biodata.models.variant.Variant;
 import org.opencb.commons.io.DataWriter;
 
 /**
- * @author Alejandro Aleman Ramos <aaleman@cipf.es>
+ * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
  */
 public interface VariantWriter extends DataWriter<Variant> {
 

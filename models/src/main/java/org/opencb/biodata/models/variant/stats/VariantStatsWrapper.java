@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author Alejandro Aleman Ramos <aaleman@cipf.es>
- * @author Cristina Yenyxe Gonzalez Garcia <cyenyxe@ebi.ac.uk>
+ * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
+ * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
 @Deprecated
 public class VariantStatsWrapper {

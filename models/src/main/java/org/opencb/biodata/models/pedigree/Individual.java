@@ -5,7 +5,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * @author Alejandro Aleman Ramos <aaleman@cipf.es>
+ * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
  */
 public class Individual implements Comparable<Individual> {
     private String id;

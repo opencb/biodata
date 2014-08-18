@@ -9,7 +9,7 @@ import org.opencb.biodata.models.pedigree.Individual;
 import org.opencb.biodata.models.pedigree.Pedigree;
 
 /**
- * @author Alejandro Aleman Ramos <aaleman@cipf.es>
+ * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
  */
 public class PedigreePedReader implements PedigreeReader {
 

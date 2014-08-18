@@ -17,7 +17,7 @@ import org.opencb.biodata.models.feature.Region;
 import org.opencb.biodata.models.variant.Variant;
 
 /**
- * @author Alejandro Aleman Ramos <aaleman@cipf.es>
+ * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
  */
 public class VariantGeneFilter extends VariantFilter {
     private List<Region> regionList;

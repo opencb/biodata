@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  *
- * @author Cristina Yenyxe Gonzalez Garcia <cgonzalez@cipf.es>
+ * @author Cristina Yenyxe Gonzalez Garcia &lt;cgonzalez@cipf.es&gt;
  */
 public class AlignmentRegion {
 

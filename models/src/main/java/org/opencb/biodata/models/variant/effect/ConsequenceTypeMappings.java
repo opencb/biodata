@@ -5,10 +5,10 @@ import java.util.Map;
 
 /**
  *
- * @author Cristina Yenyxe Gonzalez Garcia <cyenyxe@ebi.ac.uk>
+ * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  * 
- * @todo Handle duplicated terms in termToAccession (synonymous_variant...)
- * @todo Load using ontology file: http://song.cvs.sourceforge.net/viewvc/song/ontology/so.obo
+ * TODO Handle duplicated terms in termToAccession (synonymous_variant...)
+ * TODO Load using ontology file: http://song.cvs.sourceforge.net/viewvc/song/ontology/so.obo
  */
 public class ConsequenceTypeMappings {
 

@@ -5,10 +5,10 @@ import java.util.Objects;
 
 /**
  *
- * @author Cristina Yenyxe Gonzalez Garcia <cyenyxe@ebi.ac.uk>
+ * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  * 
- * @todo IND - individual name
- * @todo ZYG - zygosity of individual genotype at this locus
+ * TODO IND - individual name
+ * TODO ZYG - zygosity of individual genotype at this locus
  */
 public class VariantEffect {
 

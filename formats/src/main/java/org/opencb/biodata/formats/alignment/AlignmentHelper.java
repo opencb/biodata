@@ -24,7 +24,7 @@ import org.opencb.commons.containers.map.QueryOptions;
 
 /**
  *
- * @author Cristina Yenyxe Gonzalez Garcia <cgonzalez@cipf.es>
+ * @author Cristina Yenyxe Gonzalez Garcia &lt;cgonzalez@cipf.es&gt;
  */
 public class AlignmentHelper {
 

@@ -9,8 +9,8 @@ import org.opencb.biodata.models.variant.effect.ProteinSubstitutionScores;
 import org.opencb.biodata.tools.variant.EffectCalculator;
 
 /**
- * @author Alejandro Aleman Ramos <aaleman@cipf.es>
- * @author Cristina Yenyxe Gonzalez Garcia <cyenyxe@ebi.ac.uk>
+ * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
+ * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
 public class VariantPolyphenSIFTAnnotator implements VariantAnnotator {
 

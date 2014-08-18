@@ -12,7 +12,7 @@ import org.opencb.biodata.tools.variant.EffectCalculator;
 import org.opencb.commons.test.GenericTest;
 
 /**
- * @author Alejandro Aleman Ramos <aaleman@cipf.es>
+ * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
  */
 public class EffectCalculatorTest extends GenericTest {
 

@@ -2,7 +2,7 @@ package org.opencb.biodata.models.alignment.stats;
 
 /**
  *
- * @author Cristina Yenyxe Gonzalez Garcia <cgonzalez@cipf.es>
+ * @author Cristina Yenyxe Gonzalez Garcia &lt;cgonzalez@cipf.es&gt;
  */
 public class RegionCoverage  {
 

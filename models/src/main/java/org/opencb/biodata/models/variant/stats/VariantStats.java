@@ -14,10 +14,10 @@ import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.Variant.VariantType;
 
 /**
- * @author Alejandro Aleman Ramos <aaleman@cipf.es>
- * @author Cristina Yenyxe Gonzalez Garcia <cyenyxe@ebi.ac.uk>
+ * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
+ * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  * 
- * @TODO Mendelian errors must be calculated
+ * TODO Mendelian errors must be calculated
  */
 public class VariantStats {
 

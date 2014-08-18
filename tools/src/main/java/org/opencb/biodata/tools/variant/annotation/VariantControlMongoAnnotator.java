@@ -18,7 +18,7 @@ import java.text.DecimalFormat;
 import java.util.*;
 
 /**
- * @author Alejandro Aleman Ramos <aaleman@cipf.es>
+ * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
  */
 public class VariantControlMongoAnnotator implements VariantAnnotator {
 

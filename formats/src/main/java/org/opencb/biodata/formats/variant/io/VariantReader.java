@@ -5,7 +5,7 @@ import org.opencb.biodata.models.variant.Variant;
 import org.opencb.commons.io.DataReader;
 
 /**
- * @author Alejandro Aleman Ramos <aaleman@cipf.es>
+ * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
  */
 public interface VariantReader extends DataReader<Variant> {
     
