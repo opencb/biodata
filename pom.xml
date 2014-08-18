@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.opencb</groupId>
+
+    <groupId>org.opencb.biodata</groupId>
     <artifactId>biodata</artifactId>
-    <version>0.1</version>
+    <version>0.2.0</version>
     <packaging>pom</packaging>
 
     <name>Biodata</name>
@@ -17,7 +18,9 @@
     </modules>
 
     <properties>
+        <biodata.version>0.2.0</biodata.version>
         <compileSource>1.7</compileSource>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <scm>
@@ -61,46 +64,52 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- Intra-module dependencies -->
             <dependency>
-              <groupId>org.opencb.commons</groupId>
-              <artifactId>commons-lib</artifactId>
-              <version>2.0.0</version>
+                <groupId>org.opencb.biodata</groupId>
+                <artifactId>formats</artifactId>
+                <version>${biodata.version}</version>
             </dependency>
             <dependency>
-              <groupId>junit</groupId>
-              <artifactId>junit</artifactId>
-              <version>4.11</version>
+                <groupId>org.opencb.biodata</groupId>
+                <artifactId>models</artifactId>
+                <version>${biodata.version}</version>
             </dependency>
             <dependency>
-              <groupId>org.utgenome.thirdparty</groupId>
-              <artifactId>picard</artifactId>
-              <version>1.86p</version>
+                <groupId>org.opencb.commons</groupId>
+                <artifactId>commons-lib</artifactId>
+                <version>2.0.0</version>
             </dependency>
             <dependency>
-              <groupId>org.apache.commons</groupId>
-              <artifactId>commons-lang3</artifactId>
-              <version>3.1</version>
+                <groupId>org.opencb.datastore</groupId>
+                <artifactId>datastore-core</artifactId>
+                <version>0.2.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.utgenome.thirdparty</groupId>
+                <artifactId>picard</artifactId>
+                <version>1.86p</version>
             </dependency>
             <dependency>
-              <groupId>com.fasterxml.jackson.core</groupId>
-              <artifactId>jackson-annotations</artifactId>
-              <version>2.3.0</version>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>3.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>2.3.0</version>
             </dependency>
             <dependency>
                 <groupId>com.google.protobuf</groupId>
                 <artifactId>protobuf-java</artifactId>
                 <version>2.5.0</version>
-                <optional>true</optional>
             </dependency>
             <dependency>
-              <groupId>com.fasterxml.jackson.core</groupId>
-              <artifactId>jackson-core</artifactId>
-              <version>2.2.2</version>
-            </dependency>
-            <dependency>
-              <groupId>com.fasterxml.jackson.core</groupId>
-              <artifactId>jackson-databind</artifactId>
-              <version>2.2.2</version>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>2.3.2</version>
             </dependency>
             <dependency>
                 <groupId>javax.ws.rs</groupId>
@@ -123,19 +132,14 @@
                 <version>1.8</version>
             </dependency>
             <dependency>
-              <groupId>com.google.guava</groupId>
-              <artifactId>guava</artifactId>
-              <version>16.0.1</version>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>16.0.1</version>
             </dependency>
             <dependency>
-              <groupId>org.slf4j</groupId>
-              <artifactId>slf4j-api</artifactId>
-              <version>1.7.5</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opencb.datastore</groupId>
-                <artifactId>datastore-core</artifactId>
-                <version>0.2.0</version>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>1.7.6</version>
             </dependency>
 
             <!-- TEST -->
@@ -149,10 +153,14 @@
                 <artifactId>jersey-media-multipart</artifactId>
                 <version>2.4</version>
             </dependency>
-
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.11</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
-  
+
     <build>
         <plugins>
             <plugin>
