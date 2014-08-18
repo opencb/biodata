@@ -208,6 +208,11 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <excludePackageNames>
+                        org.opencb.biodata.formats.protein.uniprot:org.opencb.biodata.formats.drug.drugbank
+                    </excludePackageNames>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

@@ -10,7 +10,7 @@ import org.opencb.biodata.models.variant.*;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
 /**
- * @author Alejandro Aleman Ramos <aaleman@cipf.es>
+ * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
  */
 public class VariantControlAnnotator implements VariantAnnotator {
 

@@ -19,8 +19,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * @author Alejandro Aleman Ramos <aaleman@cipf.es>
- * @author Cristina Yenyxe Gonzalez Garcia <cyenyxe@ebi.ac.uk>
+ * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
+ * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
 public class VariantSNPAnnotator implements VariantAnnotator {
 

@@ -31,8 +31,8 @@ import org.opencb.biodata.formats.variant.vcf4.VcfRecord;
 import org.opencb.commons.io.DataReader;
 
 /**
- * @author Alejandro Aleman Ramos <aaleman@cipf.es>
- * @author Cristina Yenyxe Gonzalez Garcia <cyenyxe@ebi.ac.uk>
+ * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
+ * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
 public class VcfRawReader implements DataReader<VcfRecord> {
 

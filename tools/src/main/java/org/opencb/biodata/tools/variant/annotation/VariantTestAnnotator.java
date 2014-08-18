@@ -6,8 +6,8 @@ import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.ArchivedVariantFile;
 
 /**
- * @author Alejandro Aleman Ramos <aaleman@cipf.es>
- * @author Cristina Yenyxe Gonzalez Garcia <cyenyxe@ebi.ac.uk>
+ * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
+ * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
 public class VariantTestAnnotator implements VariantAnnotator {
 

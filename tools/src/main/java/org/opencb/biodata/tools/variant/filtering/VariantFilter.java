@@ -4,7 +4,7 @@ import org.opencb.biodata.models.variant.Variant;
 import org.opencb.commons.filters.Filter;
 
 /**
- * @author Alejandro Aleman Ramos <aaleman@cipf.es>
+ * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
  */
 public abstract class VariantFilter extends Filter<Variant> {
 

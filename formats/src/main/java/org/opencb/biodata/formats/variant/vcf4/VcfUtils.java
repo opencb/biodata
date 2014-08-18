@@ -6,7 +6,7 @@ import org.opencb.biodata.models.variant.Variant;
 
 /**
  *
- * @author Cristina Yenyxe Gonzalez Garcia <cyenyxe@ebi.ac.uk>
+ * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
 public class VcfUtils {
     

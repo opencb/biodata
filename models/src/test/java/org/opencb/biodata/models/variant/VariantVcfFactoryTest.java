@@ -8,8 +8,8 @@ import java.util.*;
 import static org.junit.Assert.assertEquals;
 
 /**
- * @author Cristina Yenyxe Gonzalez Garcia <cyenyxe@ebi.ac.uk>
- * @author Alejandro Aleman Ramos <aaleman@cipf.es>
+ * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
+ * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
  */
 public class VariantVcfFactoryTest {
 

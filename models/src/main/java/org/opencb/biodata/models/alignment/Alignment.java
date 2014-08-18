@@ -8,7 +8,7 @@ import java.util.Map;
 /**
  * Information about a sequence alignment.
  * 
- * @author Cristina Yenyxe Gonzalez Garcia <cgonzalez@cipf.es>
+ * @author Cristina Yenyxe Gonzalez Garcia &lt;cgonzalez@cipf.es&gt;
  */
 public class Alignment {
     
