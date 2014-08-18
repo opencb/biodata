@@ -12,9 +12,9 @@
     <url>https://github.com/opencb/biodata/wiki</url>
 
     <modules>
-        <module>formats</module>
-        <module>models</module>
-        <module>tools</module>
+        <module>biodata-formats</module>
+        <module>biodata-models</module>
+        <module>biodata-tools</module>
     </modules>
 
     <properties>
@@ -67,12 +67,12 @@
             <!-- Intra-module dependencies -->
             <dependency>
                 <groupId>org.opencb.biodata</groupId>
-                <artifactId>formats</artifactId>
+                <artifactId>biodata-formats</artifactId>
                 <version>${biodata.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.opencb.biodata</groupId>
-                <artifactId>models</artifactId>
+                <artifactId>biodata-models</artifactId>
                 <version>${biodata.version}</version>
             </dependency>
             <dependency>
