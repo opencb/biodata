@@ -1,5 +1,6 @@
 package org.opencb.biodata.models.variant;
 
+import java.io.IOException;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.biodata.models.variant.stats.VariantStats;
@@ -119,7 +120,11 @@ public class VariantVcfEVSFactory extends VariantVcfFactory {
             parseInfo(variant, source.getFileId(), source.getStudyId(), info, numAllele);
         }
         variant.getFile(source.getFileId(), source.getStudyId()).setFormat(format);
-        variant.getFile(source.getFileId(), source.getStudyId()).addAttribute("src", line);
+        try {
+            variant.getFile(source.getFileId(), source.getStudyId()).addAttribute("src", new String(org.opencb.commons.utils.StringUtils.gzip(line)));
+        } catch (IOException ex) {
+            Logger.getLogger(VariantVcfFactory.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
         parseEVSAttributes(variant, source, numAllele, alternateAlleles);
     }

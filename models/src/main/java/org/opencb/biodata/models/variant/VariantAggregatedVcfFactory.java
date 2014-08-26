@@ -1,5 +1,8 @@
 package org.opencb.biodata.models.variant;
 
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
@@ -30,7 +33,11 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
             parseInfo(variant, source.getFileId(), source.getStudyId(), info, numAllele);
         }
         variant.getFile(source.getFileId(), source.getStudyId()).setFormat(format);
-        variant.getFile(source.getFileId(), source.getStudyId()).addAttribute("src", line);
+        try {
+            variant.getFile(source.getFileId(), source.getStudyId()).addAttribute("src", new String(org.opencb.commons.utils.StringUtils.gzip(line)));
+        } catch (IOException ex) {
+            Logger.getLogger(VariantVcfFactory.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
         addStats(variant, source, alternateAlleles);
     }
