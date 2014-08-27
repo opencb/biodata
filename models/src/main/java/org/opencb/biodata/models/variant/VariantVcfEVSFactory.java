@@ -120,11 +120,7 @@ public class VariantVcfEVSFactory extends VariantVcfFactory {
             parseInfo(variant, source.getFileId(), source.getStudyId(), info, numAllele);
         }
         variant.getFile(source.getFileId(), source.getStudyId()).setFormat(format);
-        try {
-            variant.getFile(source.getFileId(), source.getStudyId()).addAttribute("src", new String(org.opencb.commons.utils.StringUtils.gzip(line)));
-        } catch (IOException ex) {
-            Logger.getLogger(VariantVcfFactory.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        variant.getFile(source.getFileId(), source.getStudyId()).addAttribute("src", line);
         
         parseEVSAttributes(variant, source, numAllele, alternateAlleles);
     }
