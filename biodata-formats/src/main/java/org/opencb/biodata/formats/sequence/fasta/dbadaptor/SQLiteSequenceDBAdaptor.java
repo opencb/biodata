@@ -40,7 +40,7 @@ public class SQLiteSequenceDBAdaptor extends SequenceDBAdaptor {
     }
 
     /**
-     * Creates a <input>.sqlite.db.
+     * Creates a input.sqlite.db.
      *
      * @param fastaInputFile Accept formats: *.fasta, *.fasta.gz
      */
