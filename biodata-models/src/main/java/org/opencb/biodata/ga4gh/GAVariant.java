@@ -1,7 +1,7 @@
 package org.opencb.biodata.ga4gh;
 
 import java.util.Arrays;
-import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by imedina on 27/08/14.
@@ -220,4 +220,48 @@ public class GAVariant {
         this.calls = calls;
     }
 
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 59 * hash + Objects.hashCode(this.variantSetId);
+        hash = 59 * hash + Objects.hashCode(this.referenceName);
+        hash = 59 * hash + (int) (this.start ^ (this.start >>> 32));
+        hash = 59 * hash + (int) (this.end ^ (this.end >>> 32));
+        hash = 59 * hash + Objects.hashCode(this.referenceBases);
+        hash = 59 * hash + Arrays.deepHashCode(this.alternateBases);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final GAVariant other = (GAVariant) obj;
+        if (!Objects.equals(this.variantSetId, other.variantSetId)) {
+            return false;
+        }
+        if (!Objects.equals(this.referenceName, other.referenceName)) {
+            return false;
+        }
+        if (this.start != other.start) {
+            return false;
+        }
+        if (this.end != other.end) {
+            return false;
+        }
+        if (!Objects.equals(this.referenceBases, other.referenceBases)) {
+            return false;
+        }
+        if (!Arrays.deepEquals(this.alternateBases, other.alternateBases)) {
+            return false;
+        }
+        return true;
+    }
+
+    
+    
 }
