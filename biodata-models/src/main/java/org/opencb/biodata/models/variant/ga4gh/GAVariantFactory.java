@@ -25,10 +25,18 @@ public class GAVariantFactory {
             for (ArchivedVariantFile file : variant.getFiles().values()) {
                 String[] vcfLine = file.getAttribute("src").split("\t");
                 
-                GAVariant ga = new GAVariant(vcfLine[2], file.getFileId(), vcfLine[2].split(","), 0, 0, 
-                        vcfLine[0], Integer.parseInt(vcfLine[1]), Integer.parseInt(vcfLine[1]) + vcfLine[3].length(), 
-                        vcfLine[3], vcfLine[4].split(","), parseInfo(vcfLine[7].split(";")), 
-                        parseCalls(vcfLine[8].split(":"), Arrays.copyOfRange(vcfLine, 9, vcfLine.length), file.getFileId()));
+                GAVariant ga;
+                if (vcfLine.length > 8) {
+                    ga = new GAVariant(vcfLine[2], file.getFileId(), vcfLine[2].split(","), 0, 0, 
+                            vcfLine[0], Integer.parseInt(vcfLine[1]), Integer.parseInt(vcfLine[1]) + vcfLine[3].length(), 
+                            vcfLine[3], vcfLine[4].split(","), parseInfo(vcfLine[7].split(";")), 
+                            parseCalls(vcfLine[8].split(":"), Arrays.copyOfRange(vcfLine, 9, vcfLine.length), file.getFileId()));
+                } else {
+                    ga = new GAVariant(vcfLine[2], file.getFileId(), vcfLine[2].split(","), 0, 0, 
+                            vcfLine[0], Integer.parseInt(vcfLine[1]), Integer.parseInt(vcfLine[1]) + vcfLine[3].length(), 
+                            vcfLine[3], vcfLine[4].split(","), parseInfo(vcfLine[7].split(";")), null);
+                }
+                
                 gaVariants.add(ga);
             }
         }
@@ -37,18 +45,19 @@ public class GAVariantFactory {
     }
 
     private static GAKeyValue[] parseInfo(String[] infoFields) {
-        List<GAKeyValue> kvs = new LinkedList<>();
+        GAKeyValue[] kvs = new GAKeyValue[infoFields.length];
         
-        for (String subfield : infoFields) {
+        for (int i = 0; i < infoFields.length; i++) {
+            String subfield = infoFields[i];
             String[] parts = subfield.split("=");
             if (parts.length > 1) {
-                kvs.add(new GAKeyValue(parts[0], parts[1]));
+                kvs[i] = new GAKeyValue(parts[0], parts[1]);
             } else {
-                kvs.add(new GAKeyValue(parts[0], null));
+                kvs[i] = new GAKeyValue(parts[0], null);
             }
         }
         
-        return (GAKeyValue[]) Arrays.copyOf(kvs.toArray(), kvs.size());
+        return kvs;
     }
     
     private static GACall[] parseCalls(String[] formatFields, String[] samplesFields, String callSetName) {
@@ -58,7 +67,7 @@ public class GAVariantFactory {
         for (String sample : samplesFields) {
             String[] parts = sample.split(":");
             
-            String[] alleles = parts[0].split("|/");
+            String[] alleles = parts[0].split("/|\\|", -1);
             int[] genotype = new int[alleles.length];
             for (int i = 0; i < alleles.length; i++) {
                 genotype[i] = (alleles[i].equals(".")) ? -1 : Integer.parseInt(alleles[i]);
@@ -89,10 +98,11 @@ public class GAVariantFactory {
                 }
             }
             
-            calls.add(new GACall(callSetName, callSetName, genotype, sample, genotypeLikelihood, info));
+            calls.add(new GACall(callSetName, callSetName, genotype, phaseSet, genotypeLikelihood, info));
         }
         
-        return (GACall[]) Arrays.copyOf(calls.toArray(), calls.size());
+        GACall[] retCalls = new GACall[calls.size()];
+        return calls.toArray(retCalls);
     }
     
 }
