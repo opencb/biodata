@@ -1,5 +1,8 @@
 package org.opencb.biodata.models.variant;
 
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
@@ -10,12 +13,14 @@ import org.opencb.biodata.models.variant.stats.VariantStats;
 public class VariantAggregatedVcfFactory extends VariantVcfFactory {
 
     @Override
-    protected void parseSplitSampleData(Variant variant, VariantSource source, String[] fields, String[] alternateAlleles, int alleleIdx) throws NonStandardCompliantSampleField {
+    protected void parseSplitSampleData(Variant variant, VariantSource source, String[] fields, String[] alternateAlleles, int alleleIdx) 
+            throws NonStandardCompliantSampleField {
         // Nothing to do
     }
 
     @Override
-    protected void setOtherFields(Variant variant, VariantSource source, String id, float quality, String filter, String info, String format, int numAllele, String[] alternateAlleles) {
+    protected void setOtherFields(Variant variant, VariantSource source, String id, float quality, String filter, 
+            String info, String format, int numAllele, String[] alternateAlleles, String line) {
         // Fields not affected by the structure of REF and ALT fields
         variant.setId(id);
         if (quality > -1) {
@@ -28,6 +33,7 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
             parseInfo(variant, source.getFileId(), source.getStudyId(), info, numAllele);
         }
         variant.getFile(source.getFileId(), source.getStudyId()).setFormat(format);
+        variant.getFile(source.getFileId(), source.getStudyId()).addAttribute("src", line);
 
         addStats(variant, source, alternateAlleles);
     }
