@@ -28,22 +28,17 @@ public class MeanCoverage {
         this.coverage = coverage;
     }
 
-    public MeanCoverage(String name, String chromosome, int regionId, float coverage) {
-        this.name = name;
+    public MeanCoverage(int size, Region region, float coverage) {
+        this.size = size;
+        this.region = region;
         this.coverage = coverage;
-        size = 1;
-        String numerical = name;
-        switch(name.charAt(name.length() - 1)){
-            case 'M':
-                size = 1000000;
-                numerical = name.substring(0, name.length()-1);
-                break;
-            case 'K':
-                size = 1000;
-                numerical = name.substring(0, name.length()-1);
-                break;
-        }
-        size = (int) (size * Float.parseFloat(numerical));
+        this.name = sizeToNameConvert(size);
+    }
+
+    public MeanCoverage(String name, String chromosome, int regionId, float coverage) {
+        this.name = name = name.toLowerCase();
+        this.coverage = coverage;
+        this.size = nameToSizeConvert(name);
         region = new Region(chromosome, regionId*size+1, regionId*size+size);
     }
 
@@ -101,6 +96,33 @@ public class MeanCoverage {
         result = 31 * result + region.hashCode();
         result = 31 * result + (coverage != +0.0f ? Float.floatToIntBits(coverage) : 0);
         return result;
+    }
+
+    public static String sizeToNameConvert(int size){
+        String chunkId;
+        if(size%1000000 == 0 && size/1000000 != 0){
+            chunkId = size/1000000+"m";
+        } else if(size%1000 == 0 && size/1000 != 0){
+            chunkId = size/1000+"k";
+        } else {
+            chunkId = size+"";
+        }
+        return chunkId;
+    }
+    public static int nameToSizeConvert(String name){
+        int size = 1;
+        String numerical = name;
+        switch(name.charAt(name.length() - 1)){
+            case 'm':
+                size = 1000000;
+                numerical = name.substring(0, name.length()-1);
+                break;
+            case 'k':
+                size = 1000;
+                numerical = name.substring(0, name.length()-1);
+                break;
+        }
+        return (int) (size * Integer.parseInt(numerical));
     }
 
 }
