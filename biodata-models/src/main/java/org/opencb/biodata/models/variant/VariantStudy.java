@@ -8,6 +8,8 @@ import java.util.List;
  */
 public class VariantStudy {
     
+    public enum StudyType { FAMILY, TRIO, CONTROL, CASE, CASE_CONTROL, COLLECTION };
+    
     private String name;
     
     private String id;
@@ -28,7 +30,9 @@ public class VariantStudy {
     
     private String scope;
     
-    private String type;
+    private StudyType type;
+    
+    private String experimentType;
     
     private String assembly;
     
@@ -50,12 +54,13 @@ public class VariantStudy {
     }
 
     public VariantStudy(String studyName, String studyId, List<VariantSource> sources) {
-        this(studyName, studyId, sources, null, -1, null, null, null, null, null, null, null, null, null, -1, -1);
+        this(studyName, studyId, sources, null, -1, null, null, null, null, null, null, null, null, null, null, -1, -1);
     }
 
     public VariantStudy(String studyName, String studyId, List<VariantSource> sources, String description, 
-            int speciesId, String speciesCommonName, String speciesScientificName, String sourceType, String center, String material, 
-            String scope, String type, String referenceAssembly, String platform, int numVariants, int numSamples) {
+            int speciesId, String speciesCommonName, String speciesScientificName, String sourceType, String center, 
+            String material, String scope, StudyType type, String experimentType, String referenceAssembly, 
+            String platform, int numVariants, int numSamples) {
         this.name = studyName;
         this.id = studyId;
         this.description = description;
@@ -67,6 +72,7 @@ public class VariantStudy {
         this.material = material;
         this.scope = scope;
         this.type = type;
+        this.experimentType = experimentType;
         this.assembly = referenceAssembly;
         this.platform = platform;
         this.numVariants = numVariants;
@@ -154,12 +160,20 @@ public class VariantStudy {
         this.scope = scope;
     }
 
-    public String getType() {
+    public StudyType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(StudyType type) {
         this.type = type;
+    }
+
+    public String getExperimentType() {
+        return experimentType;
+    }
+
+    public void setExperimentType(String experimentType) {
+        this.experimentType = experimentType;
     }
 
     public String getAssembly() {
