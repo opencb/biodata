@@ -1,6 +1,5 @@
 package org.opencb.biodata.models.variant;
 
-import java.io.IOException;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.feature.AllelesCode;
 import org.opencb.biodata.models.feature.Genotype;
@@ -20,8 +19,12 @@ public class VariantVcfFactory implements VariantFactory {
      * Creates a list of Variant objects using the fields in a record of a VCF
      * file. A new Variant object is created per allele, so several of them can
      * be created from a single line.
+     * 
+     * Start/end coordinates assignment tries to work as similarly as possible 
+     * as Ensembl does, except for insertions, where start is greater than end: 
+     * http://www.ensembl.org/info/docs/tools/vep/vep_formats.html#vcf
      *
-     * @param source
+     * @param source Origin of the variants information
      * @param line Contents of the line in the file
      * @return The list of Variant objects that can be created using the fields
      * from a VCF record
@@ -223,15 +226,35 @@ public class VariantVcfFactory implements VariantFactory {
         }
     }
 
+    /**
+     * Calculates the start, end, reference and alternate of a SNV/MNV where the 
+     * reference and the alternate are not empty. 
+     * 
+     * This task comprises 2 steps: removing the trailing bases that are 
+     * identical in both alleles, then the leading identical bases.
+     * 
+     * @param position Input starting position
+     * @param reference Input reference allele
+     * @param alt Input alternate allele
+     * @return The new start, end, reference and alternate alleles
+     */
     protected VariantKeyFields createVariantsFromSameLengthRefAlt(int position, String reference, String alt) {
-        int indexOfDifference = StringUtils.indexOfDifference(reference, alt);
+        int indexOfDifference;
+        // Remove the trailing bases
+        String refReversed = StringUtils.reverse(reference);
+        String altReversed = StringUtils.reverse(alt);
+        indexOfDifference = StringUtils.indexOfDifference(refReversed, altReversed);
+        
+        reference = StringUtils.reverse(refReversed.substring(indexOfDifference));
+        alt = StringUtils.reverse(altReversed.substring(indexOfDifference));
+        
+        // Remove the leading bases
+        indexOfDifference = StringUtils.indexOfDifference(reference, alt);
         if (indexOfDifference < 0) {
             return null;
-        } else if (indexOfDifference == 0) {
-            return new VariantKeyFields(position, position + alt.length(), reference, alt);
         } else {
             int start = position + indexOfDifference;
-            int end = position + Math.max(reference.length(), alt.length()) - 1;
+            int end = position + reference.length() - 1;
             String ref = reference.substring(indexOfDifference);
             String inAlt = alt.substring(indexOfDifference);
             return new VariantKeyFields(start, end, ref, inAlt);
@@ -239,33 +262,55 @@ public class VariantVcfFactory implements VariantFactory {
     }
 
     protected VariantKeyFields createVariantsFromInsertionEmptyRef(int position, String alt) {
-        return new VariantKeyFields(position - 1, position + alt.length(), "", alt);
+        return new VariantKeyFields(position, position + alt.length() - 1, "", alt);
     }
 
     protected VariantKeyFields createVariantsFromDeletionEmptyAlt(int position, String reference) {
         return new VariantKeyFields(position, position + reference.length() - 1, reference, "");
     }
 
+    /**
+     * Calculates the start, end, reference and alternate of an indel where the 
+     * reference and the alternate are not empty. 
+     * 
+     * This task comprises 2 steps: removing the trailing bases that are 
+     * identical in both alleles, then the leading identical bases.
+     * 
+     * @param position Input starting position
+     * @param reference Input reference allele
+     * @param alt Input alternate allele
+     * @return The new start, end, reference and alternate alleles
+     */
     protected VariantKeyFields createVariantsFromIndelNoEmptyRefAlt(int position, String reference, String alt) {
-        int indexOfDifference = StringUtils.indexOfDifference(reference, alt);
+        int indexOfDifference;
+        // Remove the trailing bases
+        String refReversed = StringUtils.reverse(reference);
+        String altReversed = StringUtils.reverse(alt);
+        indexOfDifference = StringUtils.indexOfDifference(refReversed, altReversed);
+        
+        reference = StringUtils.reverse(refReversed.substring(indexOfDifference));
+        alt = StringUtils.reverse(altReversed.substring(indexOfDifference));
+        
+        // Remove the leading bases
+        indexOfDifference = StringUtils.indexOfDifference(reference, alt);
         if (indexOfDifference < 0) {
             return null;
         } else if (indexOfDifference == 0) {
-            if (reference.length() > alt.length()) {
+            if (reference.length() > alt.length()) { // Deletion
                 return new VariantKeyFields(position, position + reference.length() - 1, reference, alt);
-            } else {
-                return new VariantKeyFields(position - 1, position + alt.length(), reference, alt);
+            } else { // Insertion
+                return new VariantKeyFields(position, position + alt.length() - 1, reference, alt);
             }
         } else {
-            if (reference.length() > alt.length()) {
+            if (reference.length() > alt.length()) { // Deletion
                 int start = position + indexOfDifference;
-                int end = position + Math.max(reference.length(), alt.length()) - 1;
+                int end = position + reference.length() - 1;
                 String ref = reference.substring(indexOfDifference);
                 String inAlt = alt.substring(indexOfDifference);
                 return new VariantKeyFields(start, end, ref, inAlt);
-            } else {
-                int start = position + indexOfDifference - 1;
-                int end = position + Math.max(reference.length(), alt.length());
+            } else { // Insertion
+                int start = position + indexOfDifference;
+                int end = position + alt.length() - 1;
                 String ref = reference.substring(indexOfDifference);
                 String inAlt = alt.substring(indexOfDifference);
                 return new VariantKeyFields(start, end, ref, inAlt);
@@ -276,7 +321,9 @@ public class VariantVcfFactory implements VariantFactory {
     protected void setOtherFields(Variant variant, VariantSource source, String id, float quality, String filter, 
             String info, String format, int numAllele, String[] alternateAlleles, String line) {
         // Fields not affected by the structure of REF and ALT fields
-        variant.setId(id);
+        if (!id.isEmpty()) {
+            variant.setId(id);
+        }
         if (quality > -1) {
             variant.getFile(source.getFileId(), source.getStudyId()).addAttribute("QUAL", String.valueOf(quality));
         }

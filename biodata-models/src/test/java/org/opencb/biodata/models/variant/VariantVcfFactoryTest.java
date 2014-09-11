@@ -28,7 +28,7 @@ public class VariantVcfFactoryTest {
         String line = "1\t1000\trs123\tTCACCC\tTGACGG\t.\t.\t.";
 
         List<Variant> expResult = new LinkedList<>();
-        expResult.add(new Variant("1", 1000 + 1, 1000 + 5, "CACCC", "GACGG"));
+        expResult.add(new Variant("1", 1001, 1005, "CACCC", "GACGG"));
 
         List<Variant> result = factory.create(source, line);
         assertEquals(expResult, result);
@@ -37,7 +37,7 @@ public class VariantVcfFactoryTest {
         line = "1\t1000\trs123\tTCACCC\tTGACGC\t.\t.\t.";
 
         expResult = new LinkedList<>();
-        expResult.add(new Variant("1", 1000 + 1, 1000 + 5, "CACCC", "GACGC"));
+        expResult.add(new Variant("1", 1001, 1004, "CACC", "GACG"));
 
         result = factory.create(source, line);
         assertEquals(expResult, result);
@@ -48,7 +48,7 @@ public class VariantVcfFactoryTest {
         String line = "1\t1000\trs123\t.\tTGACGC\t.\t.\t.";
 
         List<Variant> expResult = new LinkedList<>();
-        expResult.add(new Variant("1", 1000 - 1, 1000 + "TGACGC".length(), "", "TGACGC"));
+        expResult.add(new Variant("1", 1000, 1000 + "TGACGC".length() - 1, "", "TGACGC"));
 
         List<Variant> result = factory.create(source, line);
         assertEquals(expResult, result);
@@ -88,45 +88,52 @@ public class VariantVcfFactoryTest {
         
         line = "1\t1000\trs123\t.\tATC\t.\t.\t.";
         expResult = new LinkedList<>();
-        expResult.add(new Variant("1", 999, 1003, "", "ATC"));
+        expResult.add(new Variant("1", 1000, 1002, "", "ATC"));
         result = factory.create(source, line);
         assertEquals(expResult, result);
         
         line = "1\t1000\trs123\tA\tATC\t.\t.\t.";
         expResult = new LinkedList<>();
-        expResult.add(new Variant("1", 1000, 1003, "", "TC"));
+        expResult.add(new Variant("1", 1001, 1002, "", "TC"));
         result = factory.create(source, line);
         assertEquals(expResult, result);
         
         line = "1\t1000\trs123\tAC\tACT\t.\t.\t.";
         expResult = new LinkedList<>();
-        expResult.add(new Variant("1", 1001, 1003, "", "T"));
+        expResult.add(new Variant("1", 1002, 1002, "", "T"));
         result = factory.create(source, line);
         assertEquals(expResult, result);
         
         // Printing those that are not currently managed
         line = "1\t1000\trs123\tAT\tT\t.\t.\t.";
+        expResult = new LinkedList<>();
+        expResult.add(new Variant("1", 1000, 1000, "A", ""));
         result = factory.create(source, line);
-        System.out.println(Arrays.toString(result.toArray()));
+        assertEquals(expResult, result);
         
         line = "1\t1000\trs123\tATC\tTC\t.\t.\t.";
+        expResult = new LinkedList<>();
+        expResult.add(new Variant("1", 1000, 1000, "A", ""));
         result = factory.create(source, line);
-        System.out.println(Arrays.toString(result.toArray()));
+        assertEquals(expResult, result);
         
         line = "1\t1000\trs123\tATC\tAC\t.\t.\t.";
+        expResult = new LinkedList<>();
+        expResult.add(new Variant("1", 1001, 1001, "T", ""));
         result = factory.create(source, line);
-        System.out.println(Arrays.toString(result.toArray()));
-        
-        line = "1\t1000\trs123\tATC\tGC\t.\t.\t.";
-        result = factory.create(source, line);
-        System.out.println(Arrays.toString(result.toArray()));
+        assertEquals(expResult, result);
         
         line = "1\t1000\trs123\tAC\tATC\t.\t.\t.";
+        expResult = new LinkedList<>();
+        expResult.add(new Variant("1", 1001, 1001, "", "T"));
         result = factory.create(source, line);
-        System.out.println(Arrays.toString(result.toArray()));
+        assertEquals(expResult, result);
         
-        
-        
+        line = "1\t1000\trs123\tATC\tGC\t.\t.\t.";
+        expResult = new LinkedList<>();
+        expResult.add(new Variant("1", 1000, 1001, "AT", "G"));
+        result = factory.create(source, line);
+        assertEquals(expResult, result);
     }
 
     @Test
@@ -138,8 +145,8 @@ public class VariantVcfFactoryTest {
 
         // Check proper conversion of main fields
         List<Variant> expResult = new LinkedList<>();
-        expResult.add(new Variant("1", 10041, 10041 + "GACGTAACGATT".length() - 1, "GACGTAACGATT", ""));
-        expResult.add(new Variant("1", 10050, 10050 + "ATT".length() - 1, "ATT", "GTT"));
+        expResult.add(new Variant("1", 10040, 10040 + "TGACGTAACGAT".length() - 1, "TGACGTAACGAT", ""));
+        expResult.add(new Variant("1", 10050, 10050 + "A".length() - 1, "A", "G"));
         expResult.add(new Variant("1", 10048, 10048 + "CGATT".length() - 1, "CGATT", "TAC"));
 
         List<Variant> result = factory.create(source, line);
