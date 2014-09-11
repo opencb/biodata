@@ -1,13 +1,9 @@
 package org.opencb.biodata.models.variant;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import org.opencb.biodata.models.pedigree.Pedigree;
 import org.opencb.biodata.models.variant.stats.VariantGlobalStats;
+
+import java.util.*;
 
 
 /**
@@ -17,20 +13,23 @@ public class VariantSource {
 
     private String fileName;
     private String fileId;
-    
+
     private String studyId;
     private String studyName;
-    
+
     private Map<String, Integer> samplesPosition;
-    
+
     private Pedigree pedigree; // TODO Decide something about this field
-    
+
     private Map<String, String> metadata;
-    
+
     private VariantGlobalStats stats;
 
-    VariantSource() { }
-    
+    private VariantStudy.StudyType type;
+
+    VariantSource() {
+    }
+
     public VariantSource(String fileName, String fileId, String studyId, String studyName) {
         this.fileName = fileName;
         this.fileId = fileId;
@@ -38,6 +37,12 @@ public class VariantSource {
         this.studyName = studyName;
         this.samplesPosition = new LinkedHashMap<>();
         this.metadata = new HashMap<>();
+        this.type = VariantStudy.StudyType.CASE_CONTROL;
+    }
+
+    public VariantSource(String fileName, String fileId, String studyId, String studyName, VariantStudy.StudyType type) {
+        this(fileName, fileId, studyId, studyName);
+        this.type = type;
     }
 
     public String getFileName() {
@@ -71,7 +76,7 @@ public class VariantSource {
     public void setStudyName(String studyName) {
         this.studyName = studyName;
     }
-   
+
     public Map<String, Integer> getSamplesPosition() {
         return samplesPosition;
     }
@@ -117,6 +122,14 @@ public class VariantSource {
 
     public void addMetadata(String key, String value) {
         this.metadata.put(key, value);
+    }
+
+    public VariantStudy.StudyType getType() {
+        return type;
+    }
+
+    public void setType(VariantStudy.StudyType type) {
+        this.type = type;
     }
 
     @Override
@@ -179,6 +192,6 @@ public class VariantSource {
         }
         return true;
     }
-    
-    
+
+
 }
