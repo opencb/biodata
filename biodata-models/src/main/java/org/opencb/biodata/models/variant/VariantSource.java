@@ -17,31 +17,34 @@ public class VariantSource {
     private String studyId;
     private String studyName;
 
+    public enum Aggregation { NONE, BASIC, EVS };
+    private Aggregation aggregation;
+
     private Map<String, Integer> samplesPosition;
 
     private Pedigree pedigree; // TODO Decide something about this field
 
     private Map<String, String> metadata;
 
-    private VariantGlobalStats stats;
-
     private VariantStudy.StudyType type;
+    
+    private VariantGlobalStats stats;
 
     VariantSource() {
     }
 
     public VariantSource(String fileName, String fileId, String studyId, String studyName) {
+        this(fileName, fileId, studyId, studyName, VariantStudy.StudyType.CASE_CONTROL, Aggregation.NONE);
+    }
+
+    public VariantSource(String fileName, String fileId, String studyId, String studyName, VariantStudy.StudyType type, Aggregation aggregation) {
         this.fileName = fileName;
         this.fileId = fileId;
         this.studyId = studyId;
         this.studyName = studyName;
+        this.aggregation = aggregation;
         this.samplesPosition = new LinkedHashMap<>();
         this.metadata = new HashMap<>();
-        this.type = VariantStudy.StudyType.CASE_CONTROL;
-    }
-
-    public VariantSource(String fileName, String fileId, String studyId, String studyName, VariantStudy.StudyType type) {
-        this(fileName, fileId, studyId, studyName);
         this.type = type;
     }
 
@@ -77,6 +80,14 @@ public class VariantSource {
         this.studyName = studyName;
     }
 
+    public Aggregation getAggregation() {
+        return aggregation;
+    }
+
+    public void setAggregation(Aggregation aggregation) {
+        this.aggregation = aggregation;
+    }
+
     public Map<String, Integer> getSamplesPosition() {
         return samplesPosition;
     }
@@ -104,14 +115,6 @@ public class VariantSource {
         this.pedigree = pedigree;
     }
 
-    public VariantGlobalStats getStats() {
-        return stats;
-    }
-
-    public void setStats(VariantGlobalStats stats) {
-        this.stats = stats;
-    }
-
     public Map<String, String> getMetadata() {
         return metadata;
     }
@@ -132,6 +135,14 @@ public class VariantSource {
         this.type = type;
     }
 
+    public VariantGlobalStats getStats() {
+        return stats;
+    }
+
+    public void setStats(VariantGlobalStats stats) {
+        this.stats = stats;
+    }
+
     @Override
     public String toString() {
         return "VariantStudy{" +
@@ -143,55 +154,6 @@ public class VariantSource {
                 '}';
     }
 
-    @Override
-    public int hashCode() {
-        int hash = 5;
-        hash = 37 * hash + Objects.hashCode(this.fileName);
-        hash = 37 * hash + Objects.hashCode(this.fileId);
-        hash = 37 * hash + Objects.hashCode(this.studyId);
-        hash = 37 * hash + Objects.hashCode(this.studyName);
-        hash = 37 * hash + Objects.hashCode(this.samplesPosition);
-        hash = 37 * hash + Objects.hashCode(this.pedigree);
-        hash = 37 * hash + Objects.hashCode(this.metadata);
-        hash = 37 * hash + Objects.hashCode(this.stats);
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final VariantSource other = (VariantSource) obj;
-        if (!Objects.equals(this.fileName, other.fileName)) {
-            return false;
-        }
-        if (!Objects.equals(this.fileId, other.fileId)) {
-            return false;
-        }
-        if (!Objects.equals(this.studyId, other.studyId)) {
-            return false;
-        }
-        if (!Objects.equals(this.studyName, other.studyName)) {
-            return false;
-        }
-        if (!Objects.equals(this.samplesPosition, other.samplesPosition)) {
-            return false;
-        }
-        if (!Objects.equals(this.pedigree, other.pedigree)) {
-            return false;
-        }
-        if (!Objects.equals(this.metadata, other.metadata)) {
-            return false;
-        }
-        if (!Objects.equals(this.stats, other.stats)) {
-            return false;
-        }
-        return true;
-    }
-
+    
 
 }
