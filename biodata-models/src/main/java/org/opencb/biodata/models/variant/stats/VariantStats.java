@@ -402,6 +402,7 @@ public class VariantStats {
         float controlsRecessive = 0, casesRecessive = 0;
 
         this.setNumSamples(samplesData.size());
+        this.setPedigreeStatsAvailable(pedigree != null);
 
         for (Map.Entry<String, Map<String, String>> sample : samplesData.entrySet()) {
             String sampleName = sample.getKey();
@@ -463,7 +464,6 @@ public class VariantStats {
             }
 
             // Include statistics that depend on pedigree information
-            pedigreeStatsAvailable = pedigree != null;
             if (pedigreeStatsAvailable) {
                 if (g.getCode() == AllelesCode.ALLELES_OK || g.getCode() == AllelesCode.HAPLOID) {
                     Individual ind = pedigree.getIndividual(sampleName);

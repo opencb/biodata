@@ -19,8 +19,12 @@ public class VariantVcfFactory implements VariantFactory {
      * Creates a list of Variant objects using the fields in a record of a VCF
      * file. A new Variant object is created per allele, so several of them can
      * be created from a single line.
+     * 
+     * Start/end coordinates assignment tries to work as similarly as possible 
+     * as Ensembl does, except for insertions, where start is greater than end: 
+     * http://www.ensembl.org/info/docs/tools/vep/vep_formats.html#vcf
      *
-     * @param source
+     * @param source Origin of the variants information
      * @param line Contents of the line in the file
      * @return The list of Variant objects that can be created using the fields
      * from a VCF record
@@ -76,12 +80,15 @@ public class VariantVcfFactory implements VariantFactory {
         for (int i = 0; i < alternateAlleles.length; i++) {
             VariantKeyFields keyFields = generatedKeyFields.get(i);
             Variant variant = new Variant(chromosome, keyFields.start, keyFields.end, keyFields.reference, keyFields.alternate);
-            variant.addFile(new ArchivedVariantFile(source.getFileId(), source.getStudyId()));
-            setOtherFields(variant, source, id, quality, filter, info, format, keyFields.getNumAllele(), alternateAlleles);
+            ArchivedVariantFile file = new ArchivedVariantFile(source.getFileId(), source.getStudyId());
+            variant.addFile(file);
 
             try {
+                file.setFormat(format);
                 // Copy only the samples that correspond to each specific mutation
                 parseSplitSampleData(variant, source, fields, alternateAlleles, i + 1);
+                // Fill the rest of fields (after samples because INFO depends on them)
+                setOtherFields(variant, source, id, quality, filter, info, format, keyFields.getNumAllele(), alternateAlleles, line);
                 variants.add(variant);
             } catch (NonStandardCompliantSampleField ex) {
                 Logger.getLogger(VariantFactory.class.getName()).log(Level.SEVERE,
@@ -91,6 +98,98 @@ public class VariantVcfFactory implements VariantFactory {
         }
 
         return variants;
+    }
+
+    /**
+     * Calculates the start, end, reference and alternate of a SNV/MNV where the 
+     * reference and the alternate are not empty. 
+     * 
+     * This task comprises 2 steps: removing the trailing bases that are 
+     * identical in both alleles, then the leading identical bases.
+     * 
+     * @param position Input starting position
+     * @param reference Input reference allele
+     * @param alt Input alternate allele
+     * @return The new start, end, reference and alternate alleles
+     */
+    protected VariantKeyFields createVariantsFromSameLengthRefAlt(int position, String reference, String alt) {
+        int indexOfDifference;
+        // Remove the trailing bases
+        String refReversed = StringUtils.reverse(reference);
+        String altReversed = StringUtils.reverse(alt);
+        indexOfDifference = StringUtils.indexOfDifference(refReversed, altReversed);
+        
+        reference = StringUtils.reverse(refReversed.substring(indexOfDifference));
+        alt = StringUtils.reverse(altReversed.substring(indexOfDifference));
+        
+        // Remove the leading bases
+        indexOfDifference = StringUtils.indexOfDifference(reference, alt);
+        if (indexOfDifference < 0) {
+            return null;
+        } else {
+            int start = position + indexOfDifference;
+            int end = position + reference.length() - 1;
+            String ref = reference.substring(indexOfDifference);
+            String inAlt = alt.substring(indexOfDifference);
+            return new VariantKeyFields(start, end, ref, inAlt);
+        }
+    }
+
+    protected VariantKeyFields createVariantsFromInsertionEmptyRef(int position, String alt) {
+        return new VariantKeyFields(position, position + alt.length() - 1, "", alt);
+    }
+
+    protected VariantKeyFields createVariantsFromDeletionEmptyAlt(int position, String reference) {
+        return new VariantKeyFields(position, position + reference.length() - 1, reference, "");
+    }
+
+    /**
+     * Calculates the start, end, reference and alternate of an indel where the 
+     * reference and the alternate are not empty. 
+     * 
+     * This task comprises 2 steps: removing the trailing bases that are 
+     * identical in both alleles, then the leading identical bases.
+     * 
+     * @param position Input starting position
+     * @param reference Input reference allele
+     * @param alt Input alternate allele
+     * @return The new start, end, reference and alternate alleles
+     */
+    protected VariantKeyFields createVariantsFromIndelNoEmptyRefAlt(int position, String reference, String alt) {
+        int indexOfDifference;
+        // Remove the trailing bases
+        String refReversed = StringUtils.reverse(reference);
+        String altReversed = StringUtils.reverse(alt);
+        indexOfDifference = StringUtils.indexOfDifference(refReversed, altReversed);
+        
+        reference = StringUtils.reverse(refReversed.substring(indexOfDifference));
+        alt = StringUtils.reverse(altReversed.substring(indexOfDifference));
+        
+        // Remove the leading bases
+        indexOfDifference = StringUtils.indexOfDifference(reference, alt);
+        if (indexOfDifference < 0) {
+            return null;
+        } else if (indexOfDifference == 0) {
+            if (reference.length() > alt.length()) { // Deletion
+                return new VariantKeyFields(position, position + reference.length() - 1, reference, alt);
+            } else { // Insertion
+                return new VariantKeyFields(position, position + alt.length() - 1, reference, alt);
+            }
+        } else {
+            if (reference.length() > alt.length()) { // Deletion
+                int start = position + indexOfDifference;
+                int end = position + reference.length() - 1;
+                String ref = reference.substring(indexOfDifference);
+                String inAlt = alt.substring(indexOfDifference);
+                return new VariantKeyFields(start, end, ref, inAlt);
+            } else { // Insertion
+                int start = position + indexOfDifference;
+                int end = position + alt.length() - 1;
+                String ref = reference.substring(indexOfDifference);
+                String inAlt = alt.substring(indexOfDifference);
+                return new VariantKeyFields(start, end, ref, inAlt);
+            }
+        }
     }
 
     protected void parseSplitSampleData(Variant variant, VariantSource source, String[] fields, 
@@ -206,75 +305,12 @@ public class VariantVcfFactory implements VariantFactory {
         return true;
     }
 
-    protected void parseInfo(Variant variant, String fileId, String studyId, String info, int numAllele) {
-        for (String var : info.split(";")) {
-            String[] splits = var.split("=");
-            if (splits.length == 2) {
-                if (splits[0].equals("ACC")) { // Managing accession IDs
-                    String[] ids = splits[1].split(",");
-                    variant.getFile(fileId, studyId).addAttribute(splits[0], ids[numAllele]);
-                } else {
-                    variant.getFile(fileId, studyId).addAttribute(splits[0], splits[1]);
-                }
-            } else {
-                variant.getFile(fileId, studyId).addAttribute(splits[0], "");
-            }
-        }
-    }
-
-    protected VariantKeyFields createVariantsFromSameLengthRefAlt(int position, String reference, String alt) {
-        int indexOfDifference = StringUtils.indexOfDifference(reference, alt);
-        if (indexOfDifference < 0) {
-            return null;
-        } else if (indexOfDifference == 0) {
-            return new VariantKeyFields(position, position + alt.length(), reference, alt);
-        } else {
-            int start = position + indexOfDifference;
-            int end = position + Math.max(reference.length(), alt.length()) - 1;
-            String ref = reference.substring(indexOfDifference);
-            String inAlt = alt.substring(indexOfDifference);
-            return new VariantKeyFields(start, end, ref, inAlt);
-        }
-    }
-
-    protected VariantKeyFields createVariantsFromInsertionEmptyRef(int position, String alt) {
-        return new VariantKeyFields(position - 1, position + alt.length(), "", alt);
-    }
-
-    protected VariantKeyFields createVariantsFromDeletionEmptyAlt(int position, String reference) {
-        return new VariantKeyFields(position, position + reference.length() - 1, reference, "");
-    }
-
-    protected VariantKeyFields createVariantsFromIndelNoEmptyRefAlt(int position, String reference, String alt) {
-        int indexOfDifference = StringUtils.indexOfDifference(reference, alt);
-        if (indexOfDifference < 0) {
-            return null;
-        } else if (indexOfDifference == 0) {
-            if (reference.length() > alt.length()) {
-                return new VariantKeyFields(position, position + reference.length() - 1, reference, alt);
-            } else {
-                return new VariantKeyFields(position - 1, position + alt.length(), reference, alt);
-            }
-        } else {
-            if (reference.length() > alt.length()) {
-                int start = position + indexOfDifference;
-                int end = position + Math.max(reference.length(), alt.length()) - 1;
-                String ref = reference.substring(indexOfDifference);
-                String inAlt = alt.substring(indexOfDifference);
-                return new VariantKeyFields(start, end, ref, inAlt);
-            } else {
-                int start = position + indexOfDifference - 1;
-                int end = position + Math.max(reference.length(), alt.length());
-                String ref = reference.substring(indexOfDifference);
-                String inAlt = alt.substring(indexOfDifference);
-                return new VariantKeyFields(start, end, ref, inAlt);
-            }
-        }
-    }
-
-    protected void setOtherFields(Variant variant, VariantSource source, String id, float quality, String filter, String info, String format, int numAllele, String[] alternateAlleles) {
+    protected void setOtherFields(Variant variant, VariantSource source, String id, float quality, String filter, 
+            String info, String format, int numAllele, String[] alternateAlleles, String line) {
         // Fields not affected by the structure of REF and ALT fields
-        variant.setId(id);
+        if (!id.isEmpty()) {
+            variant.setId(id);
+        }
         if (quality > -1) {
             variant.getFile(source.getFileId(), source.getStudyId()).addAttribute("QUAL", String.valueOf(quality));
         }
@@ -284,7 +320,70 @@ public class VariantVcfFactory implements VariantFactory {
         if (!info.isEmpty()) {
             parseInfo(variant, source.getFileId(), source.getStudyId(), info, numAllele);
         }
-        variant.getFile(source.getFileId(), source.getStudyId()).setFormat(format);
+        variant.getFile(source.getFileId(), source.getStudyId()).addAttribute("src", line);
+    }
+
+    protected void parseInfo(Variant variant, String fileId, String studyId, String info, int numAllele) {
+        ArchivedVariantFile file = variant.getFile(fileId, studyId);
+        
+        for (String var : info.split(";")) {
+            String[] splits = var.split("=");
+            if (splits.length == 2) {
+                switch (splits[0]) {
+                    case "ACC":
+                        // Managing accession ID for the allele
+                        String[] ids = splits[1].split(",");
+                        file.addAttribute(splits[0], ids[numAllele]);
+                        break;
+                    case "AC":
+                        // TODO For now, only one alternate is supported
+                        String[] counts = splits[1].split(",");
+                        file.addAttribute(splits[0], counts[numAllele]);
+                        break;
+                    case "AF":
+                        // TODO For now, only one alternate is supported
+                        String[] frequencies = splits[1].split(",");
+                        file.addAttribute(splits[0], frequencies[numAllele]);
+                        break;
+//                    case "AN":
+//                        // TODO For now, only two alleles (reference and one alternate) are supported, but this should be changed
+//                        file.addAttribute(splits[0], "2");
+//                        break;
+                    case "NS":
+                        // Count the number of samples that are associated with the allele
+                        file.addAttribute(splits[0], String.valueOf(file.getSamplesData().size()));
+                        break;
+                    case "DP":
+                        int dp = 0;
+                        for (String sampleName : file.getSampleNames()) {
+                            dp += Integer.parseInt(file.getSampleData(sampleName, "DP"));
+                        }
+                        file.addAttribute(splits[0], String.valueOf(dp));
+                        break;
+                    case "MQ":
+                    case "MQ0":
+                        int mq = 0;
+                        int mq0 = 0;
+                        for (String sampleName : file.getSampleNames()) {
+                            if (StringUtils.isNumeric(file.getSampleData(sampleName, "GQ"))) {
+                                int gq = Integer.parseInt(file.getSampleData(sampleName, "GQ"));
+                                mq += gq * gq;
+                                if (gq == 0) {
+                                    mq0++;
+                                }
+                            }
+                        }
+                        file.addAttribute("MQ", String.valueOf(mq));
+                        file.addAttribute("MQ0", String.valueOf(mq0));
+                        break;
+                    default:
+                        file.addAttribute(splits[0], splits[1]);
+                        break;
+                }
+            } else {
+                variant.getFile(fileId, studyId).addAttribute(splits[0], "");
+            }
+        }
     }
 
     protected class VariantKeyFields {

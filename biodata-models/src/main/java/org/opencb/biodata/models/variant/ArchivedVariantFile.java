@@ -144,7 +144,6 @@ public class ArchivedVariantFile {
         hash = 41 * hash + Objects.hashCode(this.studyId);
         hash = 41 * hash + Objects.hashCode(this.format);
         hash = 41 * hash + Objects.hashCode(this.samplesData);
-        hash = 41 * hash + Objects.hashCode(this.stats);
         hash = 41 * hash + Objects.hashCode(this.attributes);
         return hash;
     }
@@ -168,9 +167,6 @@ public class ArchivedVariantFile {
             return false;
         }
         if (!Objects.equals(this.samplesData, other.samplesData)) {
-            return false;
-        }
-        if (!Objects.equals(this.stats, other.stats)) {
             return false;
         }
         if (!Objects.equals(this.attributes, other.attributes)) {

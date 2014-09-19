@@ -1,5 +1,6 @@
 package org.opencb.biodata.models.variant;
 
+import java.io.IOException;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.biodata.models.variant.stats.VariantStats;
@@ -88,7 +89,7 @@ public class VariantVcfEVSFactory extends VariantVcfFactory {
             VariantKeyFields keyFields = generatedKeyFields.get(i);
             Variant variant = new Variant(chromosome, keyFields.start, keyFields.end, keyFields.reference, keyFields.alternate);
             variant.addFile(new ArchivedVariantFile(source.getFileId(), source.getStudyId()));
-            setOtherFields(variant, source, id, quality, filter, info, format, keyFields.getNumAllele(), alternateAlleles);
+            setOtherFields(variant, source, id, quality, filter, info, format, keyFields.getNumAllele(), alternateAlleles, line);
 
             try {
                 // Copy only the samples that correspond to each specific mutation
@@ -105,7 +106,8 @@ public class VariantVcfEVSFactory extends VariantVcfFactory {
     }
 
     @Override
-    protected void setOtherFields(Variant variant, VariantSource source, String id, float quality, String filter, String info, String format, int numAllele, String[] alternateAlleles) {
+    protected void setOtherFields(Variant variant, VariantSource source, String id, float quality, String filter, 
+            String info, String format, int numAllele, String[] alternateAlleles, String line) {
         // Fields not affected by the structure of REF and ALT fields
         variant.setId(id);
         if (quality > -1) {
@@ -118,7 +120,8 @@ public class VariantVcfEVSFactory extends VariantVcfFactory {
             parseInfo(variant, source.getFileId(), source.getStudyId(), info, numAllele);
         }
         variant.getFile(source.getFileId(), source.getStudyId()).setFormat(format);
-
+        variant.getFile(source.getFileId(), source.getStudyId()).addAttribute("src", line);
+        
         parseEVSAttributes(variant, source, numAllele, alternateAlleles);
     }
 
