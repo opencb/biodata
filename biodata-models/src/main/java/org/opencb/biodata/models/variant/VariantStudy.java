@@ -16,7 +16,7 @@ public class VariantStudy {
     
     private String description;
     
-    private int taxonomyId;
+    private int[] taxonomyId;
     
     private String speciesCommonName;
     
@@ -54,11 +54,11 @@ public class VariantStudy {
     }
 
     public VariantStudy(String studyName, String studyId, List<VariantSource> sources) {
-        this(studyName, studyId, sources, null, -1, null, null, null, null, null, null, null, null, null, null, -1, -1);
+        this(studyName, studyId, sources, null, null, null, null, null, null, null, null, null, null, null, null, -1, -1);
     }
 
     public VariantStudy(String studyName, String studyId, List<VariantSource> sources, String description, 
-            int speciesId, String speciesCommonName, String speciesScientificName, String sourceType, String center, 
+            int[] speciesId, String speciesCommonName, String speciesScientificName, String sourceType, String center, 
             String material, String scope, StudyType type, String experimentType, String referenceAssembly, 
             String platform, int numVariants, int numSamples) {
         this.name = studyName;
@@ -104,11 +104,11 @@ public class VariantStudy {
         this.description = description;
     }
 
-    public int getTaxonomyId() {
+    public int[] getTaxonomyId() {
         return taxonomyId;
     }
 
-    public void setTaxonomyId(int taxonomyId) {
+    public void setTaxonomyId(int[] taxonomyId) {
         this.taxonomyId = taxonomyId;
     }
 
