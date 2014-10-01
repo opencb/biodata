@@ -8,7 +8,7 @@ import java.util.List;
  */
 public class VariantStudy {
     
-    public enum StudyType { FAMILY, TRIO, CONTROL, CASE, CASE_CONTROL, COLLECTION };
+    public enum StudyType { FAMILY, TRIO, CONTROL, CASE, CASE_CONTROL, PAIRED, COLLECTION };
     
     private String name;
     
