@@ -1,4 +1,4 @@
-package org.opencb.biodata.formats.protein.uniprot;
+package org.opencb.biodata.formats.variant.clinvar;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -8,15 +8,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
-public class UniprotParser {
+public class ClinvarParser {
 
-    public final static String UNIPROT_CONTEXT_v135 = "org.opencb.biodata.formats.protein.uniprot.v135jaxb";
-    public final static String UNIPROT_CONTEXT_v140 = "org.opencb.biodata.formats.protein.uniprot.v140jaxb";
-    public final static String UNIPROT_CONTEXT_v201311 = "org.opencb.biodata.formats.protein.uniprot.v201311jaxb";
+    public final static String CLINVAR_CONTEXT_v19 = "org.opencb.biodata.formats.variant.clinvar.v19jaxb";
 
     public static void saveXMLInfo(Object obj, String filename) throws FileNotFoundException, JAXBException {
         JAXBContext jaxbContext;
-        jaxbContext = JAXBContext.newInstance(UNIPROT_CONTEXT_v201311);
+        jaxbContext = JAXBContext.newInstance(CLINVAR_CONTEXT_v19);
         Marshaller marshaller = jaxbContext.createMarshaller();
         marshaller.marshal(obj, new FileOutputStream(filename));
     }
@@ -29,7 +27,7 @@ public class UniprotParser {
      */
     public static Object loadXMLInfo(String filename) throws JAXBException {
         Object obj = null;
-        JAXBContext jaxbContext = JAXBContext.newInstance(UNIPROT_CONTEXT_v201311);
+        JAXBContext jaxbContext = JAXBContext.newInstance(CLINVAR_CONTEXT_v19);
         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
         obj = unmarshaller.unmarshal(new File(filename));
         return obj;
@@ -41,9 +39,9 @@ public class UniprotParser {
      * @throws javax.xml.bind.JAXBException
      * @throws java.io.IOException
      */
-    public static Object loadXMLInfo(String filename, String uniprotVersion) throws JAXBException {
+    public static Object loadXMLInfo(String filename, String clinvarVersion) throws JAXBException {
         Object obj = null;
-        JAXBContext jaxbContext = JAXBContext.newInstance(uniprotVersion);
+        JAXBContext jaxbContext = JAXBContext.newInstance(clinvarVersion);
         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
         obj = unmarshaller.unmarshal(new File(filename));
         return obj;
