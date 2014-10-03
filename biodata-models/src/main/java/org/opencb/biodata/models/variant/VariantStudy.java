@@ -34,6 +34,8 @@ public class VariantStudy {
     
     private String experimentType;
     
+    private String experimentTypeAbbreviation;
+    
     private String assembly;
     
     private String platform;
@@ -54,12 +56,12 @@ public class VariantStudy {
     }
 
     public VariantStudy(String studyName, String studyId, List<VariantSource> sources) {
-        this(studyName, studyId, sources, null, null, null, null, null, null, null, null, null, null, null, null, -1, -1);
+        this(studyName, studyId, sources, null, null, null, null, null, null, null, null, null, null, null, null, null, -1, -1);
     }
 
-    public VariantStudy(String studyName, String studyId, List<VariantSource> sources, String description, 
-            int[] speciesId, String speciesCommonName, String speciesScientificName, String sourceType, String center, 
-            String material, String scope, StudyType type, String experimentType, String referenceAssembly, 
+    public VariantStudy(String studyName, String studyId, List<VariantSource> sources, String description, int[] speciesId, 
+            String speciesCommonName, String speciesScientificName, String sourceType, String center, String material, 
+            String scope, StudyType type, String experimentType, String experimentTypeAbbreviation, String referenceAssembly, 
             String platform, int numVariants, int numSamples) {
         this.name = studyName;
         this.id = studyId;
@@ -73,6 +75,7 @@ public class VariantStudy {
         this.scope = scope;
         this.type = type;
         this.experimentType = experimentType;
+        this.experimentTypeAbbreviation = experimentTypeAbbreviation;
         this.assembly = referenceAssembly;
         this.platform = platform;
         this.numVariants = numVariants;
@@ -174,6 +177,14 @@ public class VariantStudy {
 
     public void setExperimentType(String experimentType) {
         this.experimentType = experimentType;
+    }
+
+    public String getExperimentTypeAbbreviation() {
+        return experimentTypeAbbreviation;
+    }
+
+    public void setExperimentTypeAbbreviation(String experimentTypeAbbreviation) {
+        this.experimentTypeAbbreviation = experimentTypeAbbreviation;
     }
 
     public String getAssembly() {
