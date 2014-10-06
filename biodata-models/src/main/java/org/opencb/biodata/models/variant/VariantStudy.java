@@ -1,6 +1,8 @@
 package org.opencb.biodata.models.variant;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -8,7 +10,44 @@ import java.util.List;
  */
 public class VariantStudy {
     
-    public enum StudyType { FAMILY, TRIO, CONTROL, CASE, CASE_CONTROL, PAIRED, COLLECTION };
+    public enum StudyType { 
+        
+        FAMILY("Family"), 
+        TRIO("Trio"), 
+        CONTROL("Control Set"), 
+        CASE("Case Set"), 
+        CASE_CONTROL("Case-Control"), 
+        PAIRED("Paired"),
+        PAIRED_TUMOR("Tumor vs. Matched-Normal"), 
+        COLLECTION("Curated Collection"),
+        TIME_SERIES("Time Series"); 
+    
+        private final String symbol;
+        
+        private StudyType(String symbol) {
+            this.symbol = symbol;
+        }
+
+        @Override
+        public String toString() {
+            return symbol;
+        }
+        
+//        abstract QueryBuilder apply(String key, Object value, QueryBuilder builder);
+        
+        // Returns Operation for string, or null if string is invalid
+        private static final Map<String, StudyType> stringToEnum = new HashMap<>();
+        static { // Initialize map from constant name to enum constant
+            for (StudyType op : values()) {
+                stringToEnum.put(op.toString(), op);
+            }
+        }
+
+        public static StudyType fromString(String symbol) {
+            return stringToEnum.get(symbol);
+        }
+    };
+    
     
     private String name;
     
@@ -171,6 +210,10 @@ public class VariantStudy {
         this.type = type;
     }
 
+    public String getTypeName() {
+        return type.symbol;
+    }
+    
     public String getExperimentType() {
         return experimentType;
     }
