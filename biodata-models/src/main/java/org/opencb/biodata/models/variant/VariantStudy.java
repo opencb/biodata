@@ -211,7 +211,7 @@ public class VariantStudy {
     }
 
     public String getTypeName() {
-        return type.symbol;
+        return type != null ? type.symbol : null;
     }
     
     public String getExperimentType() {
