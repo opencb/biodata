@@ -1,6 +1,8 @@
 package org.opencb.biodata.models.variant;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -8,7 +10,44 @@ import java.util.List;
  */
 public class VariantStudy {
     
-    public enum StudyType { FAMILY, TRIO, CONTROL, CASE, CASE_CONTROL, COLLECTION };
+    public enum StudyType { 
+        
+        FAMILY("Family"), 
+        TRIO("Trio"), 
+        CONTROL("Control Set"), 
+        CASE("Case Set"), 
+        CASE_CONTROL("Case-Control"), 
+        PAIRED("Paired"),
+        PAIRED_TUMOR("Tumor vs. Matched-Normal"), 
+        COLLECTION("Curated Collection"),
+        TIME_SERIES("Time Series"); 
+    
+        private final String symbol;
+        
+        private StudyType(String symbol) {
+            this.symbol = symbol;
+        }
+
+        @Override
+        public String toString() {
+            return symbol;
+        }
+        
+//        abstract QueryBuilder apply(String key, Object value, QueryBuilder builder);
+        
+        // Returns Operation for string, or null if string is invalid
+        private static final Map<String, StudyType> stringToEnum = new HashMap<>();
+        static { // Initialize map from constant name to enum constant
+            for (StudyType op : values()) {
+                stringToEnum.put(op.toString(), op);
+            }
+        }
+
+        public static StudyType fromString(String symbol) {
+            return stringToEnum.get(symbol);
+        }
+    };
+    
     
     private String name;
     
@@ -16,7 +55,7 @@ public class VariantStudy {
     
     private String description;
     
-    private int taxonomyId;
+    private int[] taxonomyId;
     
     private String speciesCommonName;
     
@@ -33,6 +72,8 @@ public class VariantStudy {
     private StudyType type;
     
     private String experimentType;
+    
+    private String experimentTypeAbbreviation;
     
     private String assembly;
     
@@ -54,12 +95,12 @@ public class VariantStudy {
     }
 
     public VariantStudy(String studyName, String studyId, List<VariantSource> sources) {
-        this(studyName, studyId, sources, null, -1, null, null, null, null, null, null, null, null, null, null, -1, -1);
+        this(studyName, studyId, sources, null, null, null, null, null, null, null, null, null, null, null, null, null, -1, -1);
     }
 
-    public VariantStudy(String studyName, String studyId, List<VariantSource> sources, String description, 
-            int speciesId, String speciesCommonName, String speciesScientificName, String sourceType, String center, 
-            String material, String scope, StudyType type, String experimentType, String referenceAssembly, 
+    public VariantStudy(String studyName, String studyId, List<VariantSource> sources, String description, int[] speciesId, 
+            String speciesCommonName, String speciesScientificName, String sourceType, String center, String material, 
+            String scope, StudyType type, String experimentType, String experimentTypeAbbreviation, String referenceAssembly, 
             String platform, int numVariants, int numSamples) {
         this.name = studyName;
         this.id = studyId;
@@ -73,6 +114,7 @@ public class VariantStudy {
         this.scope = scope;
         this.type = type;
         this.experimentType = experimentType;
+        this.experimentTypeAbbreviation = experimentTypeAbbreviation;
         this.assembly = referenceAssembly;
         this.platform = platform;
         this.numVariants = numVariants;
@@ -104,11 +146,11 @@ public class VariantStudy {
         this.description = description;
     }
 
-    public int getTaxonomyId() {
+    public int[] getTaxonomyId() {
         return taxonomyId;
     }
 
-    public void setTaxonomyId(int taxonomyId) {
+    public void setTaxonomyId(int[] taxonomyId) {
         this.taxonomyId = taxonomyId;
     }
 
@@ -168,12 +210,24 @@ public class VariantStudy {
         this.type = type;
     }
 
+    public String getTypeName() {
+        return type != null ? type.symbol : null;
+    }
+    
     public String getExperimentType() {
         return experimentType;
     }
 
     public void setExperimentType(String experimentType) {
         this.experimentType = experimentType;
+    }
+
+    public String getExperimentTypeAbbreviation() {
+        return experimentTypeAbbreviation;
+    }
+
+    public void setExperimentTypeAbbreviation(String experimentTypeAbbreviation) {
+        this.experimentTypeAbbreviation = experimentTypeAbbreviation;
     }
 
     public String getAssembly() {
