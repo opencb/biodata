@@ -5,7 +5,7 @@ import net.sf.picard.reference.IndexedFastaSequenceFile;
 import net.sf.picard.reference.ReferenceSequence;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.opencb.biodata.formats.feature.refseq.Refseq;
-import org.opencb.biodata.models.variant.clinical.clinvar.v1_5jaxb.SequenceLocationType;
+import org.opencb.biodata.formats.variant.clinvar.v19jaxb.SequenceLocationType;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
