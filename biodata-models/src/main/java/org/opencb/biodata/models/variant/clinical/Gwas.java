@@ -8,9 +8,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.text.ParseException;
 
-/** @author lcruz
+/** @author Luis Miguel Cruz
  *  @version 1.2.3
- *  @since April 28, 2014 */
+ *  @since October 08, 2014  */
 @JsonFilter("gwasFilter")
 public class Gwas {
     public String dateAddedToCatalog;
@@ -24,8 +24,9 @@ public class Gwas {
     public String initialSampleSize;
     public String replicationSampleSize;
     public String region;
-    public String chrId;
-    public Integer chrPos;
+    public String chromosome;
+    public Integer start;
+    public Integer end;
     public String reportedGenes;
     public String mappedGene;
     public String upstreamGeneId;
@@ -47,12 +48,8 @@ public class Gwas {
     public String percentCI;
     public String platform;
     public String cnv;
-
-    // Private fields
-    @JsonIgnore
-    public String ref;
-    @JsonIgnore
-    public String alt;
+    public String reference;
+    public String alternate;
 
     public Gwas(){
     }
@@ -70,22 +67,24 @@ public class Gwas {
         this.replicationSampleSize = values[9].trim();
         this.region = values[10].trim();
         if(!values[11].isEmpty()){
-            if(values[11].equalsIgnoreCase("23")){
-                this.chrId = "X";
-            } else if(values[11].equalsIgnoreCase("24")) {
-                this.chrId = "Y";
-            } else if(values[11].equalsIgnoreCase("25")) {
-                this.chrId = "MT";
-            } else {
-                this.chrId = values[11];
-            }
+        	if(values[11].equalsIgnoreCase("23")){
+        		this.chromosome = "X";
+        	} else if(values[11].equalsIgnoreCase("24")) {
+        		this.chromosome = "Y";	
+        	} else if(values[11].equalsIgnoreCase("25")) {
+        		this.chromosome = "MT";	
+        	} else {
+        		this.chromosome = values[11];	
+        	}
         } else {
-            this.chrId = null;
+            this.chromosome = null;
         }
         try{
-            this.chrPos = Integer.parseInt(values[12]);
+            this.start = Integer.parseInt(values[12]);
+            this.end = this.start;
         } catch (NumberFormatException e){
-            this.chrPos = null;
+            this.start = null;
+            this.end = null;
         }
         this.reportedGenes = values[13].trim();
         this.mappedGene = values[14].trim();
@@ -137,8 +136,9 @@ public class Gwas {
         result.append("\t Initial Sample Size: \t"+initialSampleSize+"\n");
         result.append("\t Replication Sample Size: \t"+replicationSampleSize+"\n");
         result.append("\t Region: \t"+region+"\n");
-        result.append("\t Chr_id: \t"+chrId+"\n");
-        result.append("\t Chr_pos: \t"+chrPos+"\n");
+        result.append("\t Chromosome_id: \t"+chromosome+"\n");
+        result.append("\t Chromosome_start: \t"+start+"\n");
+        result.append("\t Chromosome_end: \t"+end+"\n");
         result.append("\t Reported Gene(s): \t"+reportedGenes+"\n");
         result.append("\t Mapped_gene: \t"+mappedGene+"\n");
         result.append("\t Upstream_gene_id: \t"+upstreamGeneId+"\n");
@@ -254,23 +254,31 @@ public class Gwas {
         this.region = region;
     }
 
-    public String getChrId() {
-        return chrId;
-    }
+    public String getChromosome() {
+		return chromosome;
+	}
 
-    public void setChrId(String chrId) {
-        this.chrId = chrId;
-    }
+	public void setChromosome(String chromosome) {
+		this.chromosome = chromosome;
+	}
 
-    public Integer getChrPos() {
-        return chrPos;
-    }
+	public Integer getStart() {
+		return start;
+	}
 
-    public void setChrPos(Integer chrPos) {
-        this.chrPos = chrPos;
-    }
+	public void setStart(Integer start) {
+		this.start = start;
+	}
 
-    public String getReportedGenes() {
+	public Integer getEnd() {
+		return end;
+	}
+
+	public void setEnd(Integer end) {
+		this.end = end;
+	}
+
+	public String getReportedGenes() {
         return reportedGenes;
     }
 
@@ -438,19 +446,19 @@ public class Gwas {
         this.cnv = cnv;
     }
 
-    public String getRef() {
-        return ref;
-    }
+	public String getReference() {
+		return reference;
+	}
 
-    public void setRef(String ref) {
-        this.ref = ref;
-    }
+	public void setReference(String reference) {
+		this.reference = reference;
+	}
 
-    public String getAlt() {
-        return alt;
-    }
+	public String getAlternate() {
+		return alternate;
+	}
 
-    public void setAlt(String alt) {
-        this.alt = alt;
-    }
+	public void setAlternate(String alternate) {
+		this.alternate = alternate;
+	}
 }

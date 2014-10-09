@@ -1,193 +1,125 @@
 package org.opencb.biodata.models.variant.clinical;
 
-
-
 /**
- * Created by antonior on 5/22/14.
+ * @author by antonior on 5/22/14.
+ * @author Luis Miguel Cruz.
+ * @since October 08, 2014 
  */
 public class Cosmic implements Comparable {
 
-    /***
-    Alternate Allele
-     ***/
-    private String allele;
+    /** Alternate Allele */
+    private String alternate;
 
-    /***
-     Alternate Reference
-     ***/
+    /** Alternate Reference */
     private String reference;
 
+    /** Chromosome */
+    private String chromosome;
 
-    /***
-     Chromosome
-     ***/
-    private String chr;
+    /** Variant position start */
+    private int start;
+    
+    /** Variant position end */
+    private int end;
 
-    /***
-     Variant position
-     ***/
-    private int pos;
-
-    /***
-     Gene_name
-     ***/
+    /** Gene_name */
     private String Gene_name;
 
-    /***
-     Mutation GRCh37 strand
-     ***/
+    /** Mutation GRCh37 strand */
     private String Mutation_GRCh37_strand;
 
-    /***
-     Primary site
-     ***/
+    /** Primary site */
     private String Primary_site;
 
-    /***
-     Mutation zygosity
-     ***/
+    /** Mutation zygosity */
     private String Mutation_zygosity;
 
-    /***
-     Mutation AA
-     ***/
+    /** Mutation AA */
     private String Mutation_AA;
 
-
-    /***
-     Tumour origin
-     ***/
+    /** Tumour origin */
     private String Tumour_origin;
 
-
-    /***
-     Histology subtype
-     ***/
+    /** Histology subtype */
     private String Histology_subtype;
 
-
-    /***
-     Sample source
-     ***/
+    /** Sample source */
     private String Sample_source;
 
-    /***
-     Accession Number
-     ***/
+    /** Accession Number */
     private String Accession_Number;
 
-
-    /***
-     Mutation ID
-     ***/
+    /** Mutation ID */
     private String Mutation_ID;
 
-
-    /***
-     Mutation CDS
-     ***/
+    /** Mutation CDS */
     private String Mutation_CDS;
 
-
-    /***
-     Sample name
-     ***/
+    /** Sample name */
     private String Sample_name;
 
-
-    /***
-     Primary histology
-     ***/
+    /** Primary histology */
     private String Primary_histology;
 
-
-    /***
-     Mutation GRCh37 genome position
-     ***/
+    /** Mutation GRCh37 genome position */
     private String Mutation_GRCh37_genome_position;
 
-
-
-    /***
-     Mutation Description
-     ***/
+    /** Mutation Description */
     private String Mutation_Description;
 
-
-    /***
-     Genome-wide screen
-     ***/
+    /** Genome-wide screen */
     private String Genome_wide_screen;
 
-
-    /***
-     ID_tumour
-     ***/
+    /** ID_tumour */
     private String ID_tumour;
 
-
-    /***
-     ID_sample
-     ***/
+    /** ID_sample */
     private String ID_sample;
 
-
-    /***
-     Mutation somatic status
-     ***/
+    /** Mutation somatic status */
     private String Mutation_somatic_status;
 
-    /***
-     Site subtype
-     ***/
+    /** Site subtype */
     private String Site_subtype;
 
-
-    /***
-     Mutation NCBI36 strand
-     ***/
+    /** Mutation NCBI36 strand */
     private String Mutation_NCBI36_strand;
 
-
-    /***
-     Mutation NCBI36 genome position
-     ***/
+    /** Mutation NCBI36 genome position */
     private String Mutation_NCBI36_genome_position;
 
-
-    /***
-     * Gene CDS length
-     */
+    /** Gene CDS length */
     private int gene_CDS_length;
 
-
-    /***
-     * HGNC ID
-     */
+    /** HGNC ID */
     private String HGNC_id;
 
-    /***
-     * Pubmed PMID
-     */
+    /** Pubmed PMID */
     private String Pubmed_PMID;
 
-
-    /***
-     * Age (may be null)
-     */
+    /** Age (may be null) */
     private Float age;
 
-    /***
-     * Comments
-     */
+    /** Comments */
     private String comments;
 
 
-    public Cosmic(String allele, String reference, String chr, int pos, String gene_name, String mutation_GRCh37_strand, String primary_site, String mutation_zygosity, String mutation_AA, String tumour_origin, String histology_subtype, String sample_source, String accession_Number, String mutation_ID, String mutation_CDS, String sample_name, String primary_histology, String mutation_GRCh37_genome_position, String mutation_Description, String genome_wide_screen, String ID_tumour, String ID_sample, String mutation_somatic_status, String site_subtype, String mutation_NCBI36_strand, String mutation_NCBI36_genome_position, int gene_cds_length, String hgnc_id, String pubmed_pmid, Float Age, String Comments) {
-        this.allele = allele;
+    public Cosmic(String alternate, String reference, String chromosome, int start, int end,
+    				String gene_name, String mutation_GRCh37_strand, String primary_site,
+    				String mutation_zygosity, String mutation_AA, String tumour_origin,
+    				String histology_subtype, String sample_source, String accession_Number,
+    				String mutation_ID, String mutation_CDS, String sample_name,
+    				String primary_histology, String mutation_GRCh37_genome_position,
+    				String mutation_Description, String genome_wide_screen, String ID_tumour,
+    				String ID_sample, String mutation_somatic_status, String site_subtype,
+    				String mutation_NCBI36_strand, String mutation_NCBI36_genome_position,
+    				int gene_cds_length, String hgnc_id, String pubmed_pmid, Float Age,
+    				String Comments) {
+        this.alternate = alternate;
         this.reference=reference;
-        this.chr = chr;
-        this.pos = pos;
+        this.chromosome = chromosome;
+        this.start = start;
+        this.end = end;
         this.Gene_name = gene_name;
         this.Mutation_GRCh37_strand = mutation_GRCh37_strand;
         this.Primary_site = primary_site;
@@ -215,17 +147,15 @@ public class Cosmic implements Comparable {
         this.Pubmed_PMID=pubmed_pmid;
         this.age=Age;
         this.comments=Comments;
-
-
     }
 
 
-    public String getAllele() {
-        return allele;
+    public String getAlternate() {
+        return alternate;
     }
 
-    public void setAllele(String allele) {
-        this.allele = allele;
+    public void setAlternate(String alternate) {
+        this.alternate = alternate;
     }
 
     public String getReference() {
@@ -236,23 +166,31 @@ public class Cosmic implements Comparable {
         this.reference = reference;
     }
 
-    public String getChr() {
-        return chr;
+    public String getChromosome() {
+        return chromosome;
     }
 
-    public void setChr(String chr) {
-        this.chr = chr;
+    public void setChromosome(String chromosome) {
+        this.chromosome = chromosome;
     }
 
-    public int getPos() {
-        return pos;
-    }
+    public int getStart() {
+		return start;
+	}
 
-    public void setPos(int pos) {
-        this.pos = pos;
-    }
+	public void setStart(int start) {
+		this.start = start;
+	}
 
-    public String getGene_name() {
+	public int getEnd() {
+		return end;
+	}
+
+	public void setEnd(int end) {
+		this.end = end;
+	}
+
+	public String getGene_name() {
         return Gene_name;
     }
 
@@ -469,16 +407,14 @@ public class Cosmic implements Comparable {
         this.comments = comments;
     }
 
-    @Override
     public int compareTo(Object o) {
         Cosmic otherCosmic = (Cosmic)o;
-        int chr1 = Integer.parseInt(this.getChr());
-        int chr2 = Integer.parseInt(otherCosmic.getChr());
+        int chr1 = Integer.parseInt(this.getChromosome());
+        int chr2 = Integer.parseInt(otherCosmic.getChromosome());
         if (chr1 != chr2) {
             return chr1 - chr2;
         } else {
-            return this.getPos() - otherCosmic.getPos();
+            return this.getStart() - otherCosmic.getStart();
         }
     }
 }
-

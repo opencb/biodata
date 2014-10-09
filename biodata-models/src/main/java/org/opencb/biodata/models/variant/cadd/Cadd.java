@@ -2,15 +2,19 @@ package org.opencb.biodata.models.variant.CADD;
 
 import java.util.List;
 
+import org.opencb.biodata.models.variant.CADD.CaddValues;
+
 /**
- * Created by antonior on 5/22/14.
+ * @author by antonior on 5/22/14.
+ * @author Luis Miguel Cruz.
+ * @since October 08, 2014 
  */
 public class Cadd {
 
     /***
      Alternate Allele
      ***/
-    private String allele;
+    private String alternate;
 
     /***
      Reference Allele
@@ -20,12 +24,17 @@ public class Cadd {
     /***
      Chromosome
      ***/
-    private String chr;
+    private String chromosome;
 
     /***
-     Variant position
+     Variant position start
      ***/
-    private Integer pos;
+    private Integer start;
+    
+    /***
+    Variant position end
+    ***/
+   private Integer end;
 
     /***
      Maximum ENCODE expression value
@@ -124,11 +133,16 @@ public class Cadd {
      ***/
     private List <CaddValues> valuesCadd;
 
-    public Cadd(String allele, String reference, String chr, Integer pos, Float encExp, Float encH3K27Ac, Float encH3K4Me1, Float encH3K4Me3, Float encNucleo, Integer encOCC, Float encOCCombPVal, Float encOCDNasePVal, Float encOCFairePVal, Float encOCpolIIPVal, Float encOCctcfPVal, Float encOCmycPVal, Float encOCDNaseSig, Float encOCFaireSig, Float encOCpolIISig, Float encOCctcfSig, Float encOCmycSig, List<CaddValues> valuesCadd) {
-        this.allele = allele;
+    public Cadd(String alternate, String reference, String chromosome, Integer start, Integer end, Float encExp, 
+    		Float encH3K27Ac, Float encH3K4Me1, Float encH3K4Me3, Float encNucleo, Integer encOCC, Float encOCCombPVal,
+    		Float encOCDNasePVal, Float encOCFairePVal, Float encOCpolIIPVal, Float encOCctcfPVal, Float encOCmycPVal,
+    		Float encOCDNaseSig, Float encOCFaireSig, Float encOCpolIISig, Float encOCctcfSig, Float encOCmycSig,
+    		List<CaddValues> valuesCadd) {
+        this.alternate = alternate;
         this.reference = reference;
-        this.chr = chr;
-        this.pos = pos;
+        this.chromosome = chromosome;
+        this.start = start;
+        this.end = end;
         this.EncExp = encExp;
         this.EncH3K27Ac = encH3K27Ac;
         this.EncH3K4Me1 = encH3K4Me1;
@@ -152,12 +166,12 @@ public class Cadd {
     public Cadd() { }
 
 
-    public String getAllele() {
-        return allele;
+    public String getAlternate() {
+        return alternate;
     }
 
-    public void setAllele(String allele) {
-        this.allele = allele;
+    public void setAlternate(String alternate) {
+        this.alternate = alternate;
     }
 
     public String getReference() {
@@ -168,23 +182,31 @@ public class Cadd {
         this.reference = reference;
     }
 
-    public String getChr() {
-        return chr;
-    }
+    public String getChromosome() {
+		return chromosome;
+	}
 
-    public void setChr(String chr) {
-        this.chr = chr;
-    }
+	public void setChromosome(String chromosome) {
+		this.chromosome = chromosome;
+	}
 
-    public Integer getPos() {
-        return pos;
-    }
+	public Integer getStart() {
+		return start;
+	}
 
-    public void setPos(Integer pos) {
-        this.pos = pos;
-    }
+	public void setStart(Integer start) {
+		this.start = start;
+	}
 
-    public Float getEncExp() {
+	public Integer getEnd() {
+		return end;
+	}
+
+	public void setEnd(Integer end) {
+		this.end = end;
+	}
+
+	public Float getEncExp() {
         return EncExp;
     }
 
