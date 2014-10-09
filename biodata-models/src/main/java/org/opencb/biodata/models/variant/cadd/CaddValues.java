@@ -1,4 +1,4 @@
-package org.opencb.biodata.models.variant.CADD;
+package org.opencb.biodata.models.variant.cadd;
 
 /**
  * @author antonior on 5/22/14.

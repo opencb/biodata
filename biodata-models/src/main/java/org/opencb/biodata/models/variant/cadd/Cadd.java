@@ -1,8 +1,8 @@
-package org.opencb.biodata.models.variant.CADD;
+package org.opencb.biodata.models.variant.cadd;
 
 import java.util.List;
 
-import org.opencb.biodata.models.variant.CADD.CaddValues;
+import org.opencb.biodata.models.variant.cadd.CaddValues;
 
 /**
  * @author by antonior on 5/22/14.
