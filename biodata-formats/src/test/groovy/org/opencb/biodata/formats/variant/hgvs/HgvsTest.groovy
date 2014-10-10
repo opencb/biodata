@@ -56,6 +56,7 @@ class HgvsTest extends spock.lang.Specification {
         location == null
 
         where:
-        hgvs << ["NC_000019.9:g.14ins", "NC_000019.9:g.14del", "NC_000019.9:g.14dup"]
+        hgvs << ["NC_000019.9:g.14ins", "NC_000019.9:g.14del", "NC_000019.9:g.14dup",
+                "NC_000018.9:g.20573598_20573599delTAdelTA", "NC_000016.10:g.2088677_2088679delTGAinsT"]
     }
 }
