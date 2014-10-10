@@ -1,5 +1,6 @@
 package org.opencb.biodata.formats.feature.refseq
 
+import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -64,5 +65,45 @@ class RefseqTest extends Specification {
         "NC_000024.10"  || "Y"
         "NC_000024.9"   || "Y"
         "NC_012920.1"   || "MT"
+    }
+
+    @Ignore("Test used to choose one refseqNCAccessionToChromosome implementation")
+    def "performance test of Refseq.refseqNCAccessionToChromosome implementations"() {
+        given:
+        def accessionList = ["NC_000001.10", "NC_000001.11", "NC_000002.11", "NC_000002.12", "NC_000003.11",
+                            "NC_000003.12", "NC_000004.11", "NC_000004.12", "NC_000005.10", "NC_000005.9",
+                            "NC_000006.11", "NC_000006.12", "NC_000007.13", "NC_000007.14", "NC_000008.10",
+                            "NC_000008.11", "NC_000009.11", "NC_000009.12", "NC_000010.10", "NC_000010.11",
+                            "NC_000011.10", "NC_000011.9", "NC_000012.11", "NC_000012.12", "NC_000013.10",
+                            "NC_000013.11", "NC_000014.8", "NC_000014.9", "NC_000015.10", "NC_000015.9",
+                            "NC_000016.10", "NC_000016.9", "NC_000017.10", "NC_000017.11", "NC_000018.10",
+                            "NC_000018.9", "NC_000019.10", "NC_000019.9", "NC_000020.10", "NC_000020.11",
+                            "NC_000021.8", "NC_000021.9", "NC_000022.10", "NC_000022.11", "NC_000023.10",
+                            "NC_000023.11", "NC_000024.10", "NC_000024.9", "NC_012920.1"]
+        def random = new Random()
+        def iterations = 1000000
+
+        // cached version
+        def init = System.currentTimeMillis()
+        (0..iterations).each {
+            def i = random.nextInt(accessionList.size())
+            Refseq.refseqNCAccessionToChromosome(accessionList.get(i))
+        }
+        def cachedVersionElapsedTime = System.currentTimeMillis() - init
+        println "cached version elapsed time ${cachedVersionElapsedTime} ms."
+
+        // uncached version
+        init = System.currentTimeMillis()
+        (0..iterations).each {
+            def i = random.nextInt(accessionList.size())
+            Refseq.uncachedRefseqNCAccessionToChromosome(accessionList.get(i))
+        }
+        def uncachedVersionElapsedTime = System.currentTimeMillis() - init
+        println "uncached version elapsed time ${uncachedVersionElapsedTime} ms."
+
+        expect:
+        uncachedVersionElapsedTime > cachedVersionElapsedTime
+
+
     }
 }
