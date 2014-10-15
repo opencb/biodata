@@ -7,64 +7,38 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
 
 /** @author Luis Miguel Cruz
  *  @version 1.2.3
  *  @since October 08, 2014  */
 @JsonFilter("gwasFilter")
 public class Gwas {
-    public String dateAddedToCatalog;
-    public String pubmedId;
-    public String firstAuthor;
-    public String date;
-    public String journal;
-    public String link;
-    public String study;
-    public String diseaseTrait;
-    public String initialSampleSize;
-    public String replicationSampleSize;
-    public String region;
-    public String chromosome;
-    public Integer start;
-    public Integer end;
-    public String reportedGenes;
-    public String mappedGene;
-    public String upstreamGeneId;
-    public String downstreamGeneId;
-    public String snpGeneIds;
-    public String upstreamGeneDistance;
-    public String downstreamGeneDistance;
-    public String strongestSNPRiskAllele;
-    public String snps;
-    public String merged;
-    public String snpIdCurrent;
-    public String context;
-    public String intergenic;
-    public Float riskAlleleFrequency;
-    public Float pValue;
-    public Float pValueMlog;
-    public String pValueText;
-    public String orBeta;
-    public String percentCI;
-    public String platform;
-    public String cnv;
-    public String reference;
-    public String alternate;
-
-    public Gwas(){
-    }
+    private String chromosome;
+    private Integer start;
+    private Integer end;
+    private String reference;
+    private String alternate;
+    private String region;
+    private String reportedGenes;
+    private String mappedGene;
+    private String upstreamGeneId;
+    private String downstreamGeneId;
+    private String snpGeneIds;
+    private String upstreamGeneDistance;
+    private String downstreamGeneDistance;
+    private String strongestSNPRiskAllele;
+    private String snps;
+    private String merged;
+    private String snpIdCurrent;
+    private String context;
+    private String intergenic;
+    private Float riskAlleleFrequency;
+    private String cnv;
+    private List<GwasStudy> studies;
 
     public Gwas(String[] values) throws ParseException {
-        this.dateAddedToCatalog = values[0].trim();
-        this.pubmedId = values[1].trim();
-        this.firstAuthor = values[2].trim();
-        this.date = values[3].trim();
-        this.journal = values[4].trim();
-        this.link = values[5].trim();
-        this.study = values[6].trim();
-        this.diseaseTrait = values[7].trim();
-        this.initialSampleSize = values[8].trim();
-        this.replicationSampleSize = values[9].trim();
         this.region = values[10].trim();
         if(!values[11].isEmpty()){
         	if(values[11].equalsIgnoreCase("23")){
@@ -104,37 +78,17 @@ public class Gwas {
         } catch (NumberFormatException e){
             this.riskAlleleFrequency = null;
         }
-        try {
-            this.pValue = Float.parseFloat(values[27]);
-        } catch (NumberFormatException e){
-            this.pValue = null;
-        }
-        try {
-            this.pValueMlog = Float.parseFloat(values[28]);
-        } catch (NumberFormatException e){
-            this.pValueMlog = null;
-        }
-        this.pValueText = values[29].trim();
-        this.orBeta = values[30].trim();
-        this.percentCI = values[31].trim();
-        this.platform = values[32].trim();
         this.cnv = values[33].trim();
+
+        this.studies = new ArrayList<>();
+        GwasStudy study = new GwasStudy(values);
+        this.studies.add(study);
     }
 
     public String toString(){
         StringBuilder result = new StringBuilder();
 
         result.append("-------- GWAS OBJECT -------\n");
-        result.append("\t Date Added to Catalog: \t"+dateAddedToCatalog+"\n");
-        result.append("\t PUBMEDID: \t"+pubmedId+"\n");
-        result.append("\t First Author: \t"+firstAuthor+"\n");
-        result.append("\t Date: \t"+date+"\n");
-        result.append("\t Journal: \t"+journal+"\n");
-        result.append("\t Link: \t"+link+"\n");
-        result.append("\t Study: \t"+study+"\n");
-        result.append("\t Disease/Trait: \t"+diseaseTrait+"\n");
-        result.append("\t Initial Sample Size: \t"+initialSampleSize+"\n");
-        result.append("\t Replication Sample Size: \t"+replicationSampleSize+"\n");
         result.append("\t Region: \t"+region+"\n");
         result.append("\t Chromosome_id: \t"+chromosome+"\n");
         result.append("\t Chromosome_start: \t"+start+"\n");
@@ -153,12 +107,30 @@ public class Gwas {
         result.append("\t Context: \t"+context+"\n");
         result.append("\t Intergenic: \t"+intergenic+"\n");
         result.append("\t Risk Allele Frequency: \t"+riskAlleleFrequency+"\n");
-        result.append("\t p-Value: \t"+pValue+"\n");
-        result.append("\t Pvalue_mlog: \t"+pValueMlog+"\n");
-        result.append("\t p-Value (text): \t"+pValueText+"\n");
-        result.append("\t OR or beta: \t"+orBeta+"\n");
-        result.append("\t 95% CI (text): \t"+percentCI+"\n");
-        result.append("\t Platform [SNPs passing QC]: \t"+platform+"\n");
+        result.append("\t-------- STUDIES -------\n");
+        for (GwasStudy study : studies) {
+            result.append("\t\t-------- Study: -------\n");
+            result.append("\t\t Date Added to Catalog: \t"+study.dateAddedToCatalog+"\n");
+            result.append("\t\t PUBMEDID: \t"+study.pubmedId+"\n");
+            result.append("\t\t First Author: \t"+study.firstAuthor+"\n");
+            result.append("\t\t Date: \t"+study.date+"\n");
+            result.append("\t\t Journal: \t"+study.journal+"\n");
+            result.append("\t\t Link: \t"+study.link+"\n");
+            result.append("\t\t Study: \t"+study.study+"\n");
+            result.append("\t\t Disease/Trait: \t"+study.diseaseTrait+"\n");
+            result.append("\t\t Initial Sample Size: \t"+study.initialSampleSize+"\n");
+            result.append("\t\t Replication Sample Size: \t"+study.replicationSampleSize+"\n");
+            result.append("\t\t Platform [SNPs passing QC]: \t"+study.platform+"\n");
+            result.append("\t\t-------- TESTS -------\n");
+            for (GwasStudy.GwasTest test : study.tests) {
+                result.append("\t\t\t-------- Test: -------\n");
+                result.append("\t\t\t p-Value: \t"+test.pValue+"\n");
+                result.append("\t\t\t Pvalue_mlog: \t"+test.pValueMlog+"\n");
+                result.append("\t\t\t p-Value (text): \t"+test.pValueText+"\n");
+                result.append("\t\t\t OR or beta: \t"+test.orBeta+"\n");
+                result.append("\t\t\t 95% CI (text): \t"+test.percentCI+"\n");
+            }
+        }
         result.append("\t CNV: \t"+cnv+"\n");
         result.append("----------------------------\n");
 
@@ -166,85 +138,6 @@ public class Gwas {
     }
 
     // ---------------------------------- GETTERS / SETTERS ------------------------------
-    public String getDateAddedToCatalog() {
-        return dateAddedToCatalog;
-    }
-
-    public void setDateAddedToCatalog(String dateAddedToCatalog) {
-        this.dateAddedToCatalog = dateAddedToCatalog;
-    }
-
-    public String getPubmedId() {
-        return pubmedId;
-    }
-
-    public void setPubmedId(String pubmedId) {
-        this.pubmedId = pubmedId;
-    }
-
-    public String getFirstAuthor() {
-        return firstAuthor;
-    }
-
-    public void setFirstAuthor(String firstAuthor) {
-        this.firstAuthor = firstAuthor;
-    }
-
-    public String getDate() {
-        return date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
-    }
-
-    public String getJournal() {
-        return journal;
-    }
-
-    public void setJournal(String journal) {
-        this.journal = journal;
-    }
-
-    public String getLink() {
-        return link;
-    }
-
-    public void setLink(String link) {
-        this.link = link;
-    }
-
-    public String getStudy() {
-        return study;
-    }
-
-    public void setStudy(String study) {
-        this.study = study;
-    }
-
-    public String getDiseaseTrait() {
-        return diseaseTrait;
-    }
-
-    public void setDiseaseTrait(String diseaseTrait) {
-        this.diseaseTrait = diseaseTrait;
-    }
-
-    public String getInitialSampleSize() {
-        return initialSampleSize;
-    }
-
-    public void setInitialSampleSize(String initialSampleSize) {
-        this.initialSampleSize = initialSampleSize;
-    }
-
-    public String getReplicationSampleSize() {
-        return replicationSampleSize;
-    }
-
-    public void setReplicationSampleSize(String replicationSampleSize) {
-        this.replicationSampleSize = replicationSampleSize;
-    }
 
     public String getRegion() {
         return region;
@@ -390,54 +283,6 @@ public class Gwas {
         this.riskAlleleFrequency = riskAlleleFrequency;
     }
 
-    public Float getpValue() {
-        return pValue;
-    }
-
-    public void setpValue(Float pValue) {
-        this.pValue = pValue;
-    }
-
-    public Float getpValueMlog() {
-        return pValueMlog;
-    }
-
-    public void setpValueMlog(Float pValueMlog) {
-        this.pValueMlog = pValueMlog;
-    }
-
-    public String getpValueText() {
-        return pValueText;
-    }
-
-    public void setpValueText(String pValueText) {
-        this.pValueText = pValueText;
-    }
-
-    public String getOrBeta() {
-        return orBeta;
-    }
-
-    public void setOrBeta(String orBeta) {
-        this.orBeta = orBeta;
-    }
-
-    public String getPercentCI() {
-        return percentCI;
-    }
-
-    public void setPercentCI(String percentCI) {
-        this.percentCI = percentCI;
-    }
-
-    public String getPlatform() {
-        return platform;
-    }
-
-    public void setPlatform(String platform) {
-        this.platform = platform;
-    }
-
     public String getCnv() {
         return cnv;
     }
@@ -461,4 +306,200 @@ public class Gwas {
 	public void setAlternate(String alternate) {
 		this.alternate = alternate;
 	}
+
+    public void addStudies(List<GwasStudy> study) {
+        this.studies.addAll(study);
+    }
+
+    public List<GwasStudy> getStudies() {
+        return this.studies;
+    }
+
+    private class GwasStudy {
+        private String dateAddedToCatalog;
+        private String pubmedId;
+        private String firstAuthor;
+        private String date;
+        private String journal;
+        private String link;
+        private String study;
+        private String diseaseTrait;
+        private String initialSampleSize;
+        private String replicationSampleSize;
+        private String platform;
+        private List<GwasTest> tests;
+
+        private GwasStudy(String[] values) {
+            this.dateAddedToCatalog = values[0].trim();
+            this.pubmedId = values[1].trim();
+            this.firstAuthor = values[2].trim();
+            this.date = values[3].trim();
+            this.journal = values[4].trim();
+            this.link = values[5].trim();
+            this.study = values[6].trim();
+            this.diseaseTrait = values[7].trim();
+            this.initialSampleSize = values[8].trim();
+            this.replicationSampleSize = values[9].trim();
+            this.platform = values[32].trim();
+            this.tests = new ArrayList<>();
+            GwasTest test = new GwasTest(values);
+            this.tests.add(test);
+        }
+
+        public String getDateAddedToCatalog() {
+            return dateAddedToCatalog;
+        }
+
+        public void setDateAddedToCatalog(String dateAddedToCatalog) {
+            this.dateAddedToCatalog = dateAddedToCatalog;
+        }
+
+        public String getPubmedId() {
+            return pubmedId;
+        }
+
+        public void setPubmedId(String pubmedId) {
+            this.pubmedId = pubmedId;
+        }
+
+        public String getFirstAuthor() {
+            return firstAuthor;
+        }
+
+        public void setFirstAuthor(String firstAuthor) {
+            this.firstAuthor = firstAuthor;
+        }
+
+        public String getDate() {
+            return date;
+        }
+
+        public void setDate(String date) {
+            this.date = date;
+        }
+
+        public String getJournal() {
+            return journal;
+        }
+
+        public void setJournal(String journal) {
+            this.journal = journal;
+        }
+
+        public String getLink() {
+            return link;
+        }
+
+        public void setLink(String link) {
+            this.link = link;
+        }
+
+        public String getStudy() {
+            return study;
+        }
+
+        public void setStudy(String study) {
+            this.study = study;
+        }
+
+        public String getDiseaseTrait() {
+            return diseaseTrait;
+        }
+
+        public void setDiseaseTrait(String diseaseTrait) {
+            this.diseaseTrait = diseaseTrait;
+        }
+
+        public String getInitialSampleSize() {
+            return initialSampleSize;
+        }
+
+        public void setInitialSampleSize(String initialSampleSize) {
+            this.initialSampleSize = initialSampleSize;
+        }
+
+        public String getReplicationSampleSize() {
+            return replicationSampleSize;
+        }
+
+        public void setReplicationSampleSize(String replicationSampleSize) {
+            this.replicationSampleSize = replicationSampleSize;
+        }
+
+        public String getPlatform() {
+            return platform;
+        }
+
+        public void setPlatform(String platform) {
+            this.platform = platform;
+        }
+
+        private class GwasTest {
+            private Float pValue;
+            private Float pValueMlog;
+            private String pValueText;
+            private String orBeta;
+            private String percentCI;
+
+            private GwasTest(String[] values) {
+                try {
+                    this.pValue = Float.parseFloat(values[27]);
+                } catch (NumberFormatException e){
+                    this.pValue = null;
+                }
+                try {
+                    this.pValueMlog = Float.parseFloat(values[28]);
+                } catch (NumberFormatException e){
+                    this.pValueMlog = null;
+                }
+                this.pValueText = values[29].trim();
+                this.orBeta = values[30].trim();
+                this.percentCI = values[31].trim();
+            }
+
+            public Float getpValue() {
+                return pValue;
+            }
+
+            public void setpValue(Float pValue) {
+                this.pValue = pValue;
+            }
+
+            public Float getpValueMlog() {
+                return pValueMlog;
+            }
+
+            public void setpValueMlog(Float pValueMlog) {
+                this.pValueMlog = pValueMlog;
+            }
+
+            public String getpValueText() {
+                return pValueText;
+            }
+
+            public void setpValueText(String pValueText) {
+                this.pValueText = pValueText;
+            }
+
+            public String getOrBeta() {
+                return orBeta;
+            }
+
+            public void setOrBeta(String orBeta) {
+                this.orBeta = orBeta;
+            }
+
+            public String getPercentCI() {
+                return percentCI;
+            }
+
+            public void setPercentCI(String percentCI) {
+                this.percentCI = percentCI;
+            }
+
+        }
+    }
+
+
+
 }
