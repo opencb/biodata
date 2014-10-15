@@ -3,6 +3,8 @@ package org.opencb.biodata.formats.alignment.io;
 import org.opencb.biodata.models.alignment.Alignment;
 import org.opencb.biodata.models.alignment.AlignmentRegion;
 import org.opencb.commons.io.DataReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -20,6 +22,7 @@ public class AlignmentRegionDataReader implements DataReader<AlignmentRegion> {
     private Alignment prevAlignment;
     private int chunkSize;  //Max number of alignments in one AlignmentRegion.
     private int maxSequenceSize; //Maximum size for the total sequence. Count from the start of the first alignment to the end of the last alignment.
+    private Logger logger = LoggerFactory.getLogger(AlignmentRegionDataReader.class);
 
     private static final int defaultChunkSize = 200000;
     private static final int defaultMaxSequenceSize = 100000;
@@ -127,8 +130,9 @@ public class AlignmentRegionDataReader implements DataReader<AlignmentRegion> {
             //System.out.println("(alignmentList.get(alignmentList(size)-1).getEnd()) = " + (alignmentList.get(alignmentList.size()-1).getEnd()) + " start " + start + " i " + i);
             //System.out.println("(alignmentList.get(alignmentList(size)-1).getUnclippedEnd() - start) = " + (alignmentList.get(alignmentList.size()-1).getUnclippedEnd() - start));
          //}
-        System.out.println("start = " + start + ", end = " + end + ", size = " + (end - start));
-
+        //System.out.println("start = " + start + ", end = " + end + ", length = " + (end - start) + ", alignments = "  + alignmentList.size());
+        //logger.debug("start = " + start + ", end = " + end + ", length = " + (end - start) + ", alignments = "  + alignmentList.size());
+        logger.info("start = " + start + ", end = " + end + ", length = " + (end - start) + ", alignments = "  + alignmentList.size());
 
 
         AlignmentRegion alignmentRegion = new AlignmentRegion(alignmentList, alignmentDataReader.getHeader());
@@ -137,13 +141,6 @@ public class AlignmentRegionDataReader implements DataReader<AlignmentRegion> {
         alignmentRegion.setStart(start);
         alignmentRegion.setEnd(end);
 
-
-//        System.out.println("Read " + alignmentRegion.getAlignments().size() +
-//                " Start: " + alignmentRegion.getAlignments().get(0).getStart() +
-//                " End " + alignmentRegion.getAlignments().get(alignmentRegion.getAlignments().size()-1).getStart()  +
-//                " Size " +  (alignmentRegion.getAlignments().get(alignmentRegion.getAlignments().size()-1).getStart()-alignmentRegion.getAlignments().get(0).getStart() )
-//
-//        );
 
         return alignmentRegion;
     }
