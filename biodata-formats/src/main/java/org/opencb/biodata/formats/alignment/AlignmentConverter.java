@@ -6,7 +6,9 @@ import org.opencb.biodata.formats.sequence.fasta.dbadaptor.SequenceDBAdaptor;
 import org.opencb.biodata.models.alignment.Alignment;
 import org.opencb.biodata.models.alignment.AlignmentHeader;
 import org.opencb.biodata.models.alignment.exceptions.ShortReferenceSequenceException;
+import org.opencb.biodata.models.feature.Region;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -23,42 +25,68 @@ public class AlignmentConverter {
 
     private SequenceDBAdaptor adaptor;
 
-    public AlignmentConverter() {
+    public AlignmentConverter() throws IOException {
         this(new CellBaseSequenceDBAdaptor());
     }
 
-    public AlignmentConverter(SequenceDBAdaptor adaptor) {
+    public AlignmentConverter(SequenceDBAdaptor adaptor) throws IOException {
         this.adaptor = adaptor;
+        adaptor.open();
     }
 
+
+    public Alignment buildAlignment(SAMRecord record, boolean compareReference) {
+        if(compareReference) {
+            String seq;
+            try {
+                seq = adaptor.getSequence(new Region(record.getReferenceName(), record.getUnclippedStart(), record.getUnclippedEnd()));
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+            return buildAlignment(record, seq);
+        } else {
+            return buildAlignment(record);
+        }
+    }
+
+    public SAMRecord buildSAMRecord(Alignment alignment, SAMFileHeader samFileHeader) throws ShortReferenceSequenceException {
+        String seq;
+        try {
+            seq = adaptor.getSequence(new Region(alignment.getChromosome(), (int)alignment.getUnclippedStart(), (int)alignment.getUnclippedEnd()));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return buildSAMRecord(alignment, samFileHeader, seq);
+    }
+
+    /*
+     * STATIC METHODS
+     */
 
     public static Alignment buildAlignment(SAMRecord record){
         return buildAlignment(record, null);
     }
     public static Alignment buildAlignment(SAMRecord record, Map<String, Object> attributes, String referenceSequence) {
+        List<Alignment.AlignmentDifference> differences;
+        differences = AlignmentHelper.getDifferencesFromCigar(record, referenceSequence, Integer.MAX_VALUE);
+
         Alignment alignment = new Alignment(record.getReadName(), record.getReferenceName(), record.getAlignmentStart(), record.getAlignmentEnd(),
                 record.getUnclippedStart(), record.getUnclippedEnd(), record.getReadLength(),
                 record.getMappingQuality(), record.getBaseQualityString(),//.replace("\\", "\\\\").replace("\"", "\\\""),
                 record.getMateReferenceName(), record.getMateAlignmentStart(),
                 record.getInferredInsertSize(), record.getFlags(),
-                AlignmentHelper.getDifferencesFromCigar(record, referenceSequence, Integer.MAX_VALUE),
+                differences,
                 attributes);
         return alignment;
     }
     public static Alignment buildAlignment(SAMRecord record, String referenceSequence) {
-        Alignment alignment = new Alignment(record.getReadName(), record.getReferenceName(), record.getAlignmentStart(), record.getAlignmentEnd(),
-                record.getUnclippedStart(), record.getUnclippedEnd(), record.getReadLength(),
-                record.getMappingQuality(), record.getBaseQualityString(),//.replace("\\", "\\\\").replace("\"", "\\\""),
-                record.getMateReferenceName(), record.getMateAlignmentStart(),
-                record.getInferredInsertSize(), record.getFlags(),
-                AlignmentHelper.getDifferencesFromCigar(record, referenceSequence, Integer.MAX_VALUE),
-                null);
         Map<String, Object> attributes = new HashMap<>();
         for(SAMRecord.SAMTagAndValue tav : record.getAttributes()){
             attributes.put(tav.tag, tav.value);
         }
-        alignment.setAttributes(attributes);
-        return alignment;
+        return buildAlignment(record, attributes, referenceSequence);
     }
 
     public static SAMRecord buildSAMRecord(Alignment alignment, SAMFileHeader samFileHeader, String referenceSequence) throws ShortReferenceSequenceException {

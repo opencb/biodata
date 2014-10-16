@@ -13,6 +13,12 @@ public class Region {
     private int start;
     private int end;
 
+    public Region(){
+        this.chromosome = null;
+        this.start = 1;
+        this.end = Integer.MAX_VALUE;
+    }
+
     public Region(String chromosome, int start) {
         this.chromosome = chromosome;
         this.start = start;

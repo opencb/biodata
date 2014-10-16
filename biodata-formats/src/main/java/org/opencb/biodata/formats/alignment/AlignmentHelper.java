@@ -34,6 +34,8 @@ public class AlignmentHelper {
      * the reference sequence.
      *
      * TODO: Implement throw ShortReferenceSequenceException
+     * TODO: Use MD:Z:XXXX SAM reader attribute
+     * TODO: Store original CIGAR
      *
      * @param record The input cigar string
      * @param refStr reference sequence.
