@@ -88,8 +88,10 @@ public class Gwas {
         result.append("-------- GWAS OBJECT -------\n");
         result.append("\t Region: \t"+region+"\n");
         result.append("\t Chromosome_id: \t"+chromosome+"\n");
-        result.append("\t Chromosome_start: \t"+start+"\n");
-        result.append("\t Chromosome_end: \t"+end+"\n");
+        result.append("\t Start: \t"+start+"\n");
+        result.append("\t End: \t"+end+"\n");
+        result.append("\t Reference: \t"+reference+"\n");
+        result.append("\t Alternate: \t"+alternate+"\n");
         result.append("\t Reported Gene(s): \t"+reportedGenes+"\n");
         result.append("\t Mapped_gene: \t"+mappedGene+"\n");
         result.append("\t Upstream_gene_id: \t"+upstreamGeneId+"\n");
@@ -104,6 +106,7 @@ public class Gwas {
         result.append("\t Context: \t"+context+"\n");
         result.append("\t Intergenic: \t"+intergenic+"\n");
         result.append("\t Risk Allele Frequency: \t"+riskAlleleFrequency+"\n");
+        result.append("\t CNV: \t"+cnv+"\n");
         result.append("\t-------- STUDIES -------\n");
         for (GwasStudy study : studies) {
             result.append("\t\t-------- Study: -------\n");
@@ -133,7 +136,6 @@ public class Gwas {
                 }
             }
         }
-        result.append("\t CNV: \t"+cnv+"\n");
         result.append("----------------------------\n");
 
         return result.toString();
