@@ -3,8 +3,6 @@ package org.opencb.biodata.models.variant.clinical;
 /**
  * Created by lcruz on 26/05/14.
  */
-import com.fasterxml.jackson.annotation.JsonFilter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -13,7 +11,6 @@ import java.util.List;
 /** @author Luis Miguel Cruz
  *  @version 1.2.3
  *  @since October 08, 2014  */
-@JsonFilter("gwasFilter")
 public class Gwas {
     private String chromosome;
     private Integer start;
@@ -110,25 +107,30 @@ public class Gwas {
         result.append("\t-------- STUDIES -------\n");
         for (GwasStudy study : studies) {
             result.append("\t\t-------- Study: -------\n");
-            result.append("\t\t Date Added to Catalog: \t"+study.dateAddedToCatalog+"\n");
             result.append("\t\t PUBMEDID: \t"+study.pubmedId+"\n");
             result.append("\t\t First Author: \t"+study.firstAuthor+"\n");
             result.append("\t\t Date: \t"+study.date+"\n");
             result.append("\t\t Journal: \t"+study.journal+"\n");
             result.append("\t\t Link: \t"+study.link+"\n");
             result.append("\t\t Study: \t"+study.study+"\n");
-            result.append("\t\t Disease/Trait: \t"+study.diseaseTrait+"\n");
+
             result.append("\t\t Initial Sample Size: \t"+study.initialSampleSize+"\n");
             result.append("\t\t Replication Sample Size: \t"+study.replicationSampleSize+"\n");
             result.append("\t\t Platform [SNPs passing QC]: \t"+study.platform+"\n");
-            result.append("\t\t-------- TESTS -------\n");
-            for (GwasStudy.GwasTest test : study.tests) {
-                result.append("\t\t\t-------- Test: -------\n");
-                result.append("\t\t\t p-Value: \t"+test.pValue+"\n");
-                result.append("\t\t\t Pvalue_mlog: \t"+test.pValueMlog+"\n");
-                result.append("\t\t\t p-Value (text): \t"+test.pValueText+"\n");
-                result.append("\t\t\t OR or beta: \t"+test.orBeta+"\n");
-                result.append("\t\t\t 95% CI (text): \t"+test.percentCI+"\n");
+            result.append("\t\t-------- TRAITS -------\n");
+            for (GwasStudy.GwasTrait trait : study.getTraits()) {
+                result.append("\t\t\t-------- Trait: -------\n");
+                result.append("\t\t\t Disease/Trait: \t"+trait.diseaseTrait+"\n");
+                result.append("\t\t\t Date Added to Catalog: \t"+trait.dateAddedToCatalog+"\n");
+                result.append("\t\t\t-------- TESTS -------\n");
+                for (GwasStudy.GwasTrait.GwasTest test : trait.tests) {
+                    result.append("\t\t\t\t-------- Test: -------\n");
+                    result.append("\t\t\t\t p-Value: \t"+test.pValue+"\n");
+                    result.append("\t\t\t\t Pvalue_mlog: \t"+test.pValueMlog+"\n");
+                    result.append("\t\t\t\t p-Value (text): \t"+test.pValueText+"\n");
+                    result.append("\t\t\t\t OR or beta: \t"+test.orBeta+"\n");
+                    result.append("\t\t\t\t 95% CI (text): \t"+test.percentCI+"\n");
+                }
             }
         }
         result.append("\t CNV: \t"+cnv+"\n");
@@ -307,8 +309,15 @@ public class Gwas {
 		this.alternate = alternate;
 	}
 
-    public void addStudies(List<GwasStudy> study) {
-        this.studies.addAll(study);
+    public void addStudies(List<GwasStudy> studies) {
+        for (GwasStudy study : studies) {
+            if (this.studies.contains(study)) {
+                int studyIndex = this.studies.indexOf(study);
+                this.studies.get(studyIndex).addTraits(study.getTraits());
+            } else {
+                this.studies.add(study);
+            }
+        }
     }
 
     public List<GwasStudy> getStudies() {
@@ -316,42 +325,31 @@ public class Gwas {
     }
 
     private class GwasStudy {
-        private String dateAddedToCatalog;
         private String pubmedId;
         private String firstAuthor;
         private String date;
         private String journal;
         private String link;
         private String study;
-        private String diseaseTrait;
         private String initialSampleSize;
         private String replicationSampleSize;
         private String platform;
-        private List<GwasTest> tests;
+        private List<GwasTrait> traits;
 
         private GwasStudy(String[] values) {
-            this.dateAddedToCatalog = values[0].trim();
             this.pubmedId = values[1].trim();
             this.firstAuthor = values[2].trim();
             this.date = values[3].trim();
             this.journal = values[4].trim();
             this.link = values[5].trim();
             this.study = values[6].trim();
-            this.diseaseTrait = values[7].trim();
             this.initialSampleSize = values[8].trim();
             this.replicationSampleSize = values[9].trim();
             this.platform = values[32].trim();
-            this.tests = new ArrayList<>();
-            GwasTest test = new GwasTest(values);
-            this.tests.add(test);
-        }
+            this.traits = new ArrayList<>();
+            GwasTrait trait = new GwasTrait(values);
+            this.traits.add(trait);
 
-        public String getDateAddedToCatalog() {
-            return dateAddedToCatalog;
-        }
-
-        public void setDateAddedToCatalog(String dateAddedToCatalog) {
-            this.dateAddedToCatalog = dateAddedToCatalog;
         }
 
         public String getPubmedId() {
@@ -402,14 +400,6 @@ public class Gwas {
             this.study = study;
         }
 
-        public String getDiseaseTrait() {
-            return diseaseTrait;
-        }
-
-        public void setDiseaseTrait(String diseaseTrait) {
-            this.diseaseTrait = diseaseTrait;
-        }
-
         public String getInitialSampleSize() {
             return initialSampleSize;
         }
@@ -434,70 +424,151 @@ public class Gwas {
             this.platform = platform;
         }
 
-        private class GwasTest {
-            private Float pValue;
-            private Float pValueMlog;
-            private String pValueText;
-            private String orBeta;
-            private String percentCI;
-
-            private GwasTest(String[] values) {
-                try {
-                    this.pValue = Float.parseFloat(values[27]);
-                } catch (NumberFormatException e){
-                    this.pValue = null;
-                }
-                try {
-                    this.pValueMlog = Float.parseFloat(values[28]);
-                } catch (NumberFormatException e){
-                    this.pValueMlog = null;
-                }
-                this.pValueText = values[29].trim();
-                this.orBeta = values[30].trim();
-                this.percentCI = values[31].trim();
-            }
-
-            public Float getpValue() {
-                return pValue;
-            }
-
-            public void setpValue(Float pValue) {
-                this.pValue = pValue;
-            }
-
-            public Float getpValueMlog() {
-                return pValueMlog;
-            }
-
-            public void setpValueMlog(Float pValueMlog) {
-                this.pValueMlog = pValueMlog;
-            }
-
-            public String getpValueText() {
-                return pValueText;
-            }
-
-            public void setpValueText(String pValueText) {
-                this.pValueText = pValueText;
-            }
-
-            public String getOrBeta() {
-                return orBeta;
-            }
-
-            public void setOrBeta(String orBeta) {
-                this.orBeta = orBeta;
-            }
-
-            public String getPercentCI() {
-                return percentCI;
-            }
-
-            public void setPercentCI(String percentCI) {
-                this.percentCI = percentCI;
-            }
-
+        public List<GwasTrait> getTraits() {
+            return traits;
         }
+
+        public void setTraits(List<GwasTrait> traits) {
+            this.traits = traits;
+        }
+
+        public void addTraits(List<GwasTrait> traits) {
+            for (GwasTrait trait : traits) {
+                if (this.traits.contains(trait)) {
+                    int traitIndex = this.traits.indexOf(trait);
+                    this.traits.get(traitIndex).addTests(trait.getTests());
+                } else {
+                    this.traits.add(trait);
+                }
+            }
+        }
+
+        @Override
+        public boolean equals(Object study) {
+            boolean equals = false;
+            if (study instanceof GwasStudy) {
+                 equals = this.pubmedId.equals(((GwasStudy)study).getPubmedId());
+            }
+            return equals;
+        }
+
+        private class GwasTrait {
+            private String diseaseTrait;
+            private String dateAddedToCatalog;
+            private List<GwasTest> tests;
+
+            private GwasTrait(String[] values) {
+                this.diseaseTrait = values[7].trim();
+                this.dateAddedToCatalog = values[0].trim();
+                this.tests = new ArrayList<>();
+                GwasTest test = new GwasTest(values);
+                this.tests.add(test);
+            }
+
+            public String getDiseaseTrait() {
+                return diseaseTrait;
+            }
+
+            public void setDiseaseTrait(String diseaseTrait) {
+                this.diseaseTrait = diseaseTrait;
+            }
+
+
+            public String getDateAddedToCatalog() {
+                return dateAddedToCatalog;
+            }
+
+            public void setDateAddedToCatalog(String dateAddedToCatalog) {
+                this.dateAddedToCatalog = dateAddedToCatalog;
+            }
+
+            public List<GwasTest> getTests() {
+                return this.tests;
+            }
+
+            public void setTests(List<GwasTest> tests) {
+                this.tests = tests;
+            }
+
+            public void addTests(List<GwasTest> tests) {
+                this.tests.addAll(tests);
+            }
+
+            @Override
+            public boolean equals(Object o) {
+                boolean equals = false;
+                if (o instanceof GwasTrait) {
+                    equals = this.diseaseTrait.equals(((GwasTrait)o).getDiseaseTrait());
+                }
+                return equals;
+            }
+
+            private class GwasTest {
+                private Float pValue;
+                private Float pValueMlog;
+                private String pValueText;
+                private String orBeta;
+                private String percentCI;
+
+                private GwasTest(String[] values) {
+                    try {
+                        this.pValue = Float.parseFloat(values[27]);
+                    } catch (NumberFormatException e){
+                        this.pValue = null;
+                    }
+                    try {
+                        this.pValueMlog = Float.parseFloat(values[28]);
+                    } catch (NumberFormatException e){
+                        this.pValueMlog = null;
+                    }
+                    this.pValueText = values[29].trim();
+                    this.orBeta = values[30].trim();
+                    this.percentCI = values[31].trim();
+                }
+
+                public Float getpValue() {
+                    return pValue;
+                }
+
+                public void setpValue(Float pValue) {
+                    this.pValue = pValue;
+                }
+
+                public Float getpValueMlog() {
+                    return pValueMlog;
+                }
+
+                public void setpValueMlog(Float pValueMlog) {
+                    this.pValueMlog = pValueMlog;
+                }
+
+                public String getpValueText() {
+                    return pValueText;
+                }
+
+                public void setpValueText(String pValueText) {
+                    this.pValueText = pValueText;
+                }
+
+                public String getOrBeta() {
+                    return orBeta;
+                }
+
+                public void setOrBeta(String orBeta) {
+                    this.orBeta = orBeta;
+                }
+
+                public String getPercentCI() {
+                    return percentCI;
+                }
+
+                public void setPercentCI(String percentCI) {
+                    this.percentCI = percentCI;
+                }
+
+            }
+        }
+
     }
 
 
