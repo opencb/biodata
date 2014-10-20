@@ -1,5 +1,6 @@
 package org.opencb.biodata.models.feature;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -106,6 +107,7 @@ public class DisGeNet {
             this.diseaseName = diseaseName;
             this.score = score;
             this.numberOfPubmeds = numberOfPubmeds;
+            this.associationTypes = new ArrayList<>();
             this.associationTypes.add(associationTypes);
             this.sources = sources;
         }
