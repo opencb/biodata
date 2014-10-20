@@ -82,6 +82,31 @@ public class Gwas {
         this.studies.add(study);
     }
 
+    public Gwas(Gwas other) {
+        this.chromosome = other.chromosome;
+        this.start = other.start;
+        this.end = other.end;
+        this.reference = other.reference;
+        this.alternate = other.alternate;
+        this.region = other.region;
+        this.reportedGenes = other.reportedGenes;
+        this.mappedGene = other.mappedGene;
+        this.upstreamGeneId = other.upstreamGeneId;
+        this.downstreamGeneId = other.downstreamGeneId;
+        this.snpGeneIds = other.snpGeneIds;
+        this.upstreamGeneDistance = other.upstreamGeneDistance;
+        this.downstreamGeneDistance = other.downstreamGeneDistance;
+        this.strongestSNPRiskAllele = other.strongestSNPRiskAllele;
+        this.snps = other.snps;
+        this.merged = other.merged;
+        this.snpIdCurrent = other.snpIdCurrent;
+        this.context = other.context;
+        this.intergenic = other.intergenic;
+        this.riskAlleleFrequency = other.riskAlleleFrequency;
+        this.cnv = other.cnv;
+        this.studies = other.studies;
+    }
+
     public String toString(){
         StringBuilder result = new StringBuilder();
 
