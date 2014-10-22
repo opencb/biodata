@@ -35,6 +35,7 @@ public class Hgvs {
     public Hgvs(String hgvs) {
         // parse the hgvs
         String regEx = "(?<"+ACCESSION+">N\\S+):(?<"+TYPE+">\\w+).((?<"+START+">\\d*)_?(?<"+STOP+">\\d*))(?<"+CHANGE+">.+)";
+        // TODO: make pattern static to be compiled just once
         Pattern pattern = Pattern.compile(regEx);
         
         Matcher matcher = pattern.matcher(hgvs);
