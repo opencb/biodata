@@ -1,5 +1,8 @@
 package org.opencb.biodata.models.variant.clinical;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * @author by antonior on 5/22/14.
  * @author Luis Miguel Cruz.
@@ -102,54 +105,48 @@ public class Cosmic implements Comparable {
 
     /** Comments */
     private String comments;
-
-
-    public Cosmic(String alternate, String reference, String chromosome, int start, int end,
-    				String gene_name, String mutation_GRCh37_strand, String primary_site,
-    				String mutation_zygosity, String mutation_AA, String tumour_origin,
-    				String histology_subtype, String sample_source, String accession_Number,
-    				String mutation_ID, String mutation_CDS, String sample_name,
-    				String primary_histology, String mutation_GRCh37_genome_position,
-    				String mutation_Description, String genome_wide_screen, String ID_tumour,
-    				String ID_sample, String mutation_somatic_status, String site_subtype,
-    				String mutation_NCBI36_strand, String mutation_NCBI36_genome_position,
-    				int gene_cds_length, String hgnc_id, String pubmed_pmid, Float Age,
-    				String Comments) {
-        this.alternate = alternate;
-        this.reference=reference;
-        this.chromosome = chromosome;
-        this.start = start;
-        this.end = end;
-        this.Gene_name = gene_name;
-        this.Mutation_GRCh37_strand = mutation_GRCh37_strand;
-        this.Primary_site = primary_site;
-        this.Mutation_zygosity = mutation_zygosity;
-        this.Mutation_AA = mutation_AA;
-        this.Tumour_origin = tumour_origin;
-        this.Histology_subtype = histology_subtype;
-        this.Sample_source = sample_source;
-        this.Accession_Number = accession_Number;
-        this.Mutation_ID = mutation_ID;
-        this.Mutation_CDS = mutation_CDS;
-        this.Sample_name = sample_name;
-        this.Primary_histology = primary_histology;
-        this.Mutation_GRCh37_genome_position = mutation_GRCh37_genome_position;
-        this.Mutation_Description = mutation_Description;
-        this.Genome_wide_screen = genome_wide_screen;
-        this.ID_tumour = ID_tumour;
-        this.ID_sample = ID_sample;
-        this.Mutation_somatic_status = mutation_somatic_status;
-        this.Site_subtype = site_subtype;
-        this.Mutation_NCBI36_strand = mutation_NCBI36_strand;
-        this.Mutation_NCBI36_genome_position = mutation_NCBI36_genome_position;
-        this.gene_CDS_length=gene_cds_length;
-        this.HGNC_id=hgnc_id;
-        this.Pubmed_PMID=pubmed_pmid;
-        this.age=Age;
-        this.comments=Comments;
+    
+    public Cosmic(String[] fields) {
+    	this.Mutation_GRCh37_genome_position = fields[19];
+    	
+    	this.chromosome = this.Mutation_GRCh37_genome_position.split(":")[0];
+    	this.start = Integer.parseInt(this.Mutation_GRCh37_genome_position.split(":")[1].split("-")[0]);
+    	this.end = Integer.parseInt(fields[19].split(":")[1].split("-")[0]);
+    	this.Gene_name = fields[0];
+    	this.Mutation_GRCh37_strand = fields[20];
+    	this.Primary_site = fields[7];
+        this.Mutation_zygosity = fields[16];
+        this.Mutation_AA = fields[14];
+        this.Tumour_origin = fields[24];
+        this.Histology_subtype = fields[10];
+        this.Sample_source = fields[23];
+        this.Accession_Number = fields[1];
+        this.Mutation_ID = fields[12];
+        this.Mutation_CDS = fields[13];
+        this.Sample_name = fields[4];
+        this.Primary_histology = fields[9];
+        this.Mutation_Description = fields[15];
+        this.Genome_wide_screen = fields[11];
+        this.ID_tumour = fields[6];
+        this.ID_sample = fields[5];
+        this.Mutation_somatic_status = fields[21];
+        this.Site_subtype = fields[8];
+        this.Mutation_NCBI36_strand = fields[18];
+        this.Mutation_NCBI36_genome_position = fields[17];
+        this.gene_CDS_length = Integer.parseInt(fields[2]);
+        this.HGNC_id = fields[3];
+        this.Pubmed_PMID = fields[22];
+        if(fields[25] != null && !fields[25].isEmpty()){
+            this.age = Float.parseFloat(fields[25]);
+        }
+        this.comments = fields[26];
+        
+        this.calculateAltAndRef();
     }
 
-
+    
+    // ----------------------- GETTERS / SETTERS --------------------------------
+    
     public String getAlternate() {
         return alternate;
     }
@@ -366,7 +363,6 @@ public class Cosmic implements Comparable {
         Mutation_NCBI36_genome_position = mutation_NCBI36_genome_position;
     }
 
-
     public int getGene_CDS_length() {
         return gene_CDS_length;
     }
@@ -406,7 +402,10 @@ public class Cosmic implements Comparable {
     public void setComments(String comments) {
         this.comments = comments;
     }
-
+    
+    
+    // ----------------------- ADITIONAL FUNCTIONS --------------------------------
+    
     public int compareTo(Object o) {
         Cosmic otherCosmic = (Cosmic)o;
         int chr1 = Integer.parseInt(this.getChromosome());
@@ -416,5 +415,64 @@ public class Cosmic implements Comparable {
         } else {
             return this.getStart() - otherCosmic.getStart();
         }
+    }
+    
+    private void calculateAltAndRef(){
+    	if (this.Mutation_CDS.contains(">")) {
+    		// Change (one or more nucleotides). Get number of nucleotides of alternative
+    		this.alternate = this.Mutation_CDS.split(">")[1];
+            String refAux = this.Mutation_CDS.split(">")[0];
+            
+            // Although more than one nucleotide is allowed, in this version just one nucleotide change is allowed
+            Matcher matcher = Pattern.compile("((A|C|G|T)+)").matcher(refAux);
+
+            if(matcher.find()) {
+            	// Either change or deletion
+            	this.reference = matcher.group(); // Get the first group (entire pattern -> group() is equivalente to group(0)
+            }
+        } else if (this.Mutation_CDS.contains("del")) {
+            // Deletion
+            this.reference = this.Mutation_CDS.split("del")[1];
+            this.alternate = "-";
+        } else {
+            // Insertion
+            this.reference = "-";
+            this.alternate = this.Mutation_CDS.split("ins")[1];
+        }
+
+        // Check strand
+        if (this.Mutation_CDS.equals("-")) {
+       	 // Negative strand
+            if (!this.alternate.equals("-")){
+                this.alternate = getCDNA(this.alternate);
+            } if (!this.reference.equals("-")){
+                this.reference = getCDNA(this.reference);
+            }
+        }
+    }
+    
+    /**
+     * Function that converts a nucleotide string into its complementary in reverse order
+     * @param nucleotides string of nucleotides
+     * @return complementary string of nucleotides
+     */
+    private String getCDNA(String nucleotides) {
+        StringBuffer cDNA = new StringBuffer("");
+
+        // For each nucleotide, get its complement base
+        for(int i=nucleotides.length()-1; i>=0;i--) {
+            switch(nucleotides.charAt(i)){
+                case 'A': cDNA.append("T");
+                    break;
+                case 'C': cDNA.append("G");
+                    break;
+                case 'G': cDNA.append("C");
+                    break;
+                case 'T': cDNA.append("A");
+                    break;
+            }
+        }
+
+        return cDNA.toString();
     }
 }
