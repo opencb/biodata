@@ -1,8 +1,7 @@
 package org.opencb.biodata.models.variant.cadd;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import org.opencb.biodata.models.variant.cadd.CaddValues;
 
 /**
  * @author by antonior on 5/22/14.
@@ -58,7 +57,7 @@ public class Cadd {
 
 
     /***
-     Maximum of ENCODE Nucelosome position track score
+     Maximum of ENCODE Nucleosome position track score
      ***/
     private Float EncNucleo;
 
@@ -131,13 +130,12 @@ public class Cadd {
     /***
      List of pvalues, phred and genomicFeature
      ***/
-    private List <CaddValues> valuesCadd;
+    private List <CaddValues> caddValues;
 
     public Cadd(String alternate, String reference, String chromosome, Integer start, Integer end, Float encExp, 
     		Float encH3K27Ac, Float encH3K4Me1, Float encH3K4Me3, Float encNucleo, Integer encOCC, Float encOCCombPVal,
     		Float encOCDNasePVal, Float encOCFairePVal, Float encOCpolIIPVal, Float encOCctcfPVal, Float encOCmycPVal,
-    		Float encOCDNaseSig, Float encOCFaireSig, Float encOCpolIISig, Float encOCctcfSig, Float encOCmycSig,
-    		List<CaddValues> valuesCadd) {
+    		Float encOCDNaseSig, Float encOCFaireSig, Float encOCpolIISig, Float encOCctcfSig, Float encOCmycSig) {
         this.alternate = alternate;
         this.reference = reference;
         this.chromosome = chromosome;
@@ -160,7 +158,7 @@ public class Cadd {
         this.EncOCpolIISig = encOCpolIISig;
         this.EncOCctcfSig = encOCctcfSig;
         this.EncOCmycSig = encOCmycSig;
-        this.valuesCadd = valuesCadd;
+        this.caddValues = new ArrayList<>();
     }
 
     public Cadd() { }
@@ -342,11 +340,69 @@ public class Cadd {
         EncOCmycSig = encOCmycSig;
     }
 
-    public List<CaddValues> getValuesCadd() {
-        return valuesCadd;
+    public List<CaddValues> getCaddValues() {
+        return caddValues;
     }
 
-    public void setValuesCadd(List<CaddValues> valuesCadd) {
-        this.valuesCadd = valuesCadd;
+    public void setCaddValues(List<CaddValues> values) {
+        this.caddValues = values;
+    }
+
+    public void addCaddValues(float cscore, float phred, String genomicFeature) {
+        this.caddValues.add(new CaddValues(cscore, phred, genomicFeature));
+    }
+
+    /**
+     * @author antonior on 5/22/14.
+     * @author Luis Miguel Cruz.
+     * @since October 08, 2014
+     */
+    public class CaddValues {
+        /***
+         * Cadd score
+         */
+        private float cscore;
+
+        /***
+         * Cadd score PHRED scale
+         */
+        private float phred;
+
+        /***
+         * genomicFeature
+         */
+        private String genomicFeature;
+
+
+        public CaddValues(float cscore, float phred, String genomicFeature) {
+            this.cscore = cscore;
+            this.phred = phred;
+            this.genomicFeature = genomicFeature;
+        }
+
+        public float getCscore() {
+            return cscore;
+        }
+
+        public void setCscore(float cscore) {
+            this.cscore = cscore;
+        }
+
+        public float getPhred() {
+            return phred;
+        }
+
+        public void setPhred(float phred) {
+            this.phred = phred;
+        }
+
+
+        public String getGenomicFeature() {
+            return genomicFeature;
+        }
+
+        public void setGenomicFeature(String genomicFeature) {
+            this.genomicFeature = genomicFeature;
+        }
     }
 }
