@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * Created by parce on 5/26/14.
  */
-public class Refseq {
+public class RefseqUtils {
 
     public static final String REFSEQ_CHROMOSOME_ACCESION_TAG = "NC";
 
@@ -19,7 +19,7 @@ public class Refseq {
 
         String chr = accesionToChromosomesMap.get(refseqNCAccesion);
         if (chr == null) {
-            chr = Refseq.uncachedRefseqNCAccessionToChromosome(refseqNCAccesion);
+            chr = RefseqUtils.uncachedRefseqNCAccessionToChromosome(refseqNCAccesion);
             accesionToChromosomesMap.put(refseqNCAccesion, chr);
         }
         return chr;

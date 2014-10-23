@@ -12,7 +12,7 @@ class RefseqTest extends Specification {
     @Unroll
     def "Refseq NC accession #accession should be translated to chromosome #chr"() {
         expect:
-        chr == Refseq.refseqNCAccessionToChromosome(accession)
+        chr == RefseqUtils.refseqNCAccessionToChromosome(accession)
 
         where:
         accession       || chr
@@ -87,7 +87,7 @@ class RefseqTest extends Specification {
         def init = System.currentTimeMillis()
         (0..iterations).each {
             def i = random.nextInt(accessionList.size())
-            Refseq.refseqNCAccessionToChromosome(accessionList.get(i))
+            RefseqUtils.refseqNCAccessionToChromosome(accessionList.get(i))
         }
         def cachedVersionElapsedTime = System.currentTimeMillis() - init
         println "cached version elapsed time ${cachedVersionElapsedTime} ms."
@@ -96,7 +96,7 @@ class RefseqTest extends Specification {
         init = System.currentTimeMillis()
         (0..iterations).each {
             def i = random.nextInt(accessionList.size())
-            Refseq.uncachedRefseqNCAccessionToChromosome(accessionList.get(i))
+            RefseqUtils.uncachedRefseqNCAccessionToChromosome(accessionList.get(i))
         }
         def uncachedVersionElapsedTime = System.currentTimeMillis() - init
         println "uncached version elapsed time ${uncachedVersionElapsedTime} ms."

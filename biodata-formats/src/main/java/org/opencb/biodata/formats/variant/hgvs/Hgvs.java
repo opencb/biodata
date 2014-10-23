@@ -3,7 +3,7 @@ package org.opencb.biodata.formats.variant.hgvs;
 import net.sf.picard.reference.IndexedFastaSequenceFile;
 import net.sf.picard.reference.ReferenceSequence;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.opencb.biodata.formats.feature.refseq.Refseq;
+import org.opencb.biodata.formats.feature.refseq.RefseqUtils;
 import org.opencb.biodata.formats.variant.clinvar.v19jaxb.SequenceLocationType;
 
 import java.io.UnsupportedEncodingException;
@@ -60,7 +60,7 @@ public class Hgvs {
         if (type.equals(GENOMIC_HGVS_TYPE)) {
             location = new SequenceLocationType();
             // chr, start and stop
-            location.setChr(Refseq.refseqNCAccessionToChromosome(accession));
+            location.setChr(RefseqUtils.refseqNCAccessionToChromosome(accession));
             location.setStart(start);
             location.setStop(stop);
             location.setAccession(accession);
