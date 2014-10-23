@@ -10,7 +10,6 @@ import java.io.FileOutputStream;
 
 public class ClinvarParser {
 
-    public final static String CLINVAR_CONTEXT_v15 = "org.opencb.biodata.formats.variant.clinvar.v15jaxb";
     public final static String CLINVAR_CONTEXT_v19 = "org.opencb.biodata.formats.variant.clinvar.v19jaxb";
 
     public static void saveXMLInfo(Object obj, String filename) throws FileNotFoundException, JAXBException {
