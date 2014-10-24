@@ -3,8 +3,6 @@ package org.opencb.biodata.models.variant.clinical;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.opencb.biodata.models.variant.clinical.Cosmic;
-
 /**
  * @author by antonior on 5/22/14.
  * @author Luis Miguel Cruz.
@@ -137,10 +135,12 @@ public class Cosmic implements Comparable {
         this.gene_CDS_length = Integer.parseInt(fields[2]);
         this.HGNC_id = fields[3];
         this.Pubmed_PMID = fields[22];
-        if(fields[25] != null && !fields[25].isEmpty()){
+        if(fields.length >= 26 && fields[25] != null && !fields[25].isEmpty()){
             this.age = Float.parseFloat(fields[25]);
         }
-        this.comments = fields[26];
+        if(fields.length >= 27){
+        	this.comments = fields[26];
+        }
         
         this.calculateAltAndRef();
 
