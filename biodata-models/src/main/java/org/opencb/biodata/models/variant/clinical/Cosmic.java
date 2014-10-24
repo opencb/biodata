@@ -109,7 +109,6 @@ public class Cosmic implements Comparable {
     public Cosmic(String[] fields) {
     	this.Mutation_GRCh37_genome_position = fields[19];
     	
-    	this.chromosome = this.Mutation_GRCh37_genome_position.split(":")[0];
     	this.start = Integer.parseInt(this.Mutation_GRCh37_genome_position.split(":")[1].split("-")[0]);
     	this.end = Integer.parseInt(fields[19].split(":")[1].split("-")[0]);
     	this.Gene_name = fields[0];
@@ -136,12 +135,26 @@ public class Cosmic implements Comparable {
         this.gene_CDS_length = Integer.parseInt(fields[2]);
         this.HGNC_id = fields[3];
         this.Pubmed_PMID = fields[22];
-        if(fields[25] != null && !fields[25].isEmpty()){
+        if(fields.length >= 26 && fields[25] != null && !fields[25].isEmpty()){
             this.age = Float.parseFloat(fields[25]);
         }
-        this.comments = fields[26];
+        if(fields.length >= 27){
+        	this.comments = fields[26];
+        }
         
         this.calculateAltAndRef();
+
+        String selectedChromosome = this.Mutation_GRCh37_genome_position.split(":")[0];
+        if (selectedChromosome.equals("23")){
+            this.chromosome = "X";
+        } else if (selectedChromosome.equals("24")) {
+            this.chromosome = "Y";
+        } else if (selectedChromosome.equals("25")) {
+            this.chromosome = "MT";
+        } else {
+            this.chromosome = selectedChromosome;
+        }
+        this.recalculateGenomePosition();
     }
 
     
@@ -434,6 +447,11 @@ public class Cosmic implements Comparable {
             // Deletion
             this.reference = this.Mutation_CDS.split("del")[1];
             this.alternate = "-";
+        } else if (this.Mutation_CDS.contains("dup")) {
+        	/*
+        	 * TODO: The only Duplication in Cosmic V68 is a structural variation.
+        	 * we are not going to modify a variation of more than one nucleotide 
+        	 */ 
         } else {
             // Insertion
             this.reference = "-";
@@ -448,6 +466,19 @@ public class Cosmic implements Comparable {
             } if (!this.reference.equals("-")){
                 this.reference = getCDNA(this.reference);
             }
+        }
+    }
+
+    private void recalculateGenomePosition(){
+        // GRCh37 position
+        this.setMutation_GRCh37_genome_position(
+                this.getChromosome() + ":" +
+                        this.getMutation_GRCh37_genome_position().split(":")[1]);
+
+        if (!this.getMutation_NCBI36_genome_position().isEmpty()) {
+            this.setMutation_NCBI36_genome_position(
+                    this.getChromosome() + ":" +
+                            this.getMutation_NCBI36_genome_position().split(":")[1]);
         }
     }
     
