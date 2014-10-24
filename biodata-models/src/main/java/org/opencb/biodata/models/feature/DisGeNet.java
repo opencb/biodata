@@ -12,7 +12,7 @@ public class DisGeNet {
     /***
      geneID from ensembl
      ***/
-    private String gene_ensemblID;
+    private List<String> geneEnsemblID;
 
     /***
      gene HUGO symbol
@@ -29,19 +29,19 @@ public class DisGeNet {
      ***/
     private List<Disease> diseases;
 
-    public DisGeNet(String gene_ensemblID, String geneName, String geneSymbol, List<Disease> diseases) {
-        this.gene_ensemblID = gene_ensemblID;
+    public DisGeNet(List<String> geneEnsemblID, String geneName, String geneSymbol, List<Disease> diseases) {
+        this.geneEnsemblID = geneEnsemblID;
         this.geneName = geneName;
         this.geneSymbol = geneSymbol;
         this.diseases = diseases;
     }
 
-    public String getGene_ensemblID() {
-        return gene_ensemblID;
+    public List<String> getGeneEnsemblID() {
+        return geneEnsemblID;
     }
 
-    public void setGene_ensemblID(String gene_ensemblID) {
-        this.gene_ensemblID = gene_ensemblID;
+    public void setGeneEnsemblID(List<String> geneEnsemblID) {
+        this.geneEnsemblID = geneEnsemblID;
     }
 
     public String getGeneName() {
