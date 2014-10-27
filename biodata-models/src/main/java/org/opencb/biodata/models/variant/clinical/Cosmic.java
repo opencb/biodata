@@ -46,9 +46,6 @@ public class Cosmic implements Comparable {
     /** Histology subtype */
     private String Histology_subtype;
 
-    /** Sample source */
-    private String Sample_source;
-
     /** Accession Number */
     private String Accession_Number;
 
@@ -85,12 +82,6 @@ public class Cosmic implements Comparable {
     /** Site subtype */
     private String Site_subtype;
 
-    /** Mutation NCBI36 strand */
-    private String Mutation_NCBI36_strand;
-
-    /** Mutation NCBI36 genome position */
-    private String Mutation_NCBI36_genome_position;
-
     /** Gene CDS length */
     private int gene_CDS_length;
 
@@ -105,59 +96,96 @@ public class Cosmic implements Comparable {
 
     /** Comments */
     private String comments;
-    
+
+    private boolean snp;
+
+    private String fathmmPrediction;
+
+    private Integer idStudy;
+
     public Cosmic(String[] fields) {
-    	this.Mutation_GRCh37_genome_position = fields[19];
-    	
-    	this.start = Integer.parseInt(this.Mutation_GRCh37_genome_position.split(":")[1].split("-")[0]);
-    	this.end = Integer.parseInt(fields[19].split(":")[1].split("-")[0]);
+        // COSMIC file is a tab-delimited file with the following fields (columns)
+        // 0 Gene name
+        // 1 Accession Number
+        // 2 Gene CDS length
+        // 3 HGNC ID
+        // 4 Sample name
+        // 5 ID sample
+        // 6 ID tumour
+        // 7 Primary site
+        // 8 Site subtype
+        // 9 Primary histology
+        // 10 Histology subtype
+        // 11 Genome-wide screen
+        // 12 Mutation ID
+        // 13 Mutation CDS
+        // 14 Mutation AA
+        // 15 Mutation Description
+        // 16 Mutation zygosity
+        // 17 Mutation GRCh37 genome position
+        // 18 Mutation GRCh37 strand
+        // 19 Snp
+        // 20 FATHMM Prediction
+        // 21 Mutation somatic status
+        // 22 PubMed PMID
+        // 23 ID STUDY
+        // 24 Tumour origin
+        // 25 Age
+        // 26 Comments
+
     	this.Gene_name = fields[0];
-    	this.Mutation_GRCh37_strand = fields[20];
-    	this.Primary_site = fields[7];
-        this.Mutation_zygosity = fields[16];
-        this.Mutation_AA = fields[14];
-        this.Tumour_origin = fields[24];
-        this.Histology_subtype = fields[10];
-        this.Sample_source = fields[23];
         this.Accession_Number = fields[1];
-        this.Mutation_ID = fields[12];
-        this.Mutation_CDS = fields[13];
-        this.Sample_name = fields[4];
-        this.Primary_histology = fields[9];
-        this.Mutation_Description = fields[15];
-        this.Genome_wide_screen = fields[11];
-        this.ID_tumour = fields[6];
-        this.ID_sample = fields[5];
-        this.Mutation_somatic_status = fields[21];
-        this.Site_subtype = fields[8];
-        this.Mutation_NCBI36_strand = fields[18];
-        this.Mutation_NCBI36_genome_position = fields[17];
         this.gene_CDS_length = Integer.parseInt(fields[2]);
         this.HGNC_id = fields[3];
+        this.Sample_name = fields[4];
+        this.ID_sample = fields[5];
+        this.ID_tumour = fields[6];
+        this.Primary_site = fields[7];
+        this.Site_subtype = fields[8];
+        this.Primary_histology = fields[9];
+        this.Histology_subtype = fields[10];
+        this.Genome_wide_screen = fields[11];
+        this.Mutation_ID = fields[12];
+        this.Mutation_CDS = fields[13];
+        this.Mutation_AA = fields[14];
+        this.Mutation_Description = fields[15];
+        this.Mutation_zygosity = fields[16];
+        this.Mutation_GRCh37_genome_position = fields[17];
+        this.Mutation_GRCh37_strand = fields[18];
+        if(!fields[19].isEmpty() && fields[19].equalsIgnoreCase("y")){
+            this.snp = true;
+        }
+        this.fathmmPrediction = fields[20];
+        this.Mutation_somatic_status = fields[21];
         this.Pubmed_PMID = fields[22];
+        try {
+            this.idStudy = Integer.parseInt(fields[23]);
+        } catch (NumberFormatException e) {
+
+        }
+        this.Tumour_origin = fields[24];
         if(fields.length >= 26 && fields[25] != null && !fields[25].isEmpty()){
-            this.age = Float.parseFloat(fields[25]);
+            try {
+                this.age = Float.parseFloat(fields[25]);
+            } catch (NumberFormatException e) {
+
+            }
         }
         if(fields.length >= 27){
-        	this.comments = fields[26];
+            this.comments = fields[26];
         }
-        
+
+        // Calculate start and end
+        this.calculateStartAndEnd();
+
+        // Calculate reference and alternate
         this.calculateAltAndRef();
 
-        String selectedChromosome = this.Mutation_GRCh37_genome_position.split(":")[0];
-        if (selectedChromosome.equals("23")){
-            this.chromosome = "X";
-        } else if (selectedChromosome.equals("24")) {
-            this.chromosome = "Y";
-        } else if (selectedChromosome.equals("25")) {
-            this.chromosome = "MT";
-        } else {
-            this.chromosome = selectedChromosome;
-        }
+        // Calculate genome position
         this.recalculateGenomePosition();
     }
 
-    
+
     // ----------------------- GETTERS / SETTERS --------------------------------
     
     public String getAlternate() {
@@ -256,14 +284,6 @@ public class Cosmic implements Comparable {
         Histology_subtype = histology_subtype;
     }
 
-    public String getSample_source() {
-        return Sample_source;
-    }
-
-    public void setSample_source(String sample_source) {
-        Sample_source = sample_source;
-    }
-
     public String getAccession_Number() {
         return Accession_Number;
     }
@@ -360,28 +380,36 @@ public class Cosmic implements Comparable {
         Site_subtype = site_subtype;
     }
 
-    public String getMutation_NCBI36_strand() {
-        return Mutation_NCBI36_strand;
-    }
-
-    public void setMutation_NCBI36_strand(String mutation_NCBI36_strand) {
-        Mutation_NCBI36_strand = mutation_NCBI36_strand;
-    }
-
-    public String getMutation_NCBI36_genome_position() {
-        return Mutation_NCBI36_genome_position;
-    }
-
-    public void setMutation_NCBI36_genome_position(String mutation_NCBI36_genome_position) {
-        Mutation_NCBI36_genome_position = mutation_NCBI36_genome_position;
-    }
-
     public int getGene_CDS_length() {
         return gene_CDS_length;
     }
 
     public void setGene_CDS_length(int gene_CDS_length) {
         this.gene_CDS_length = gene_CDS_length;
+    }
+
+    public boolean isSnp() {
+        return snp;
+    }
+
+    public void setSnp(boolean snp) {
+        this.snp = snp;
+    }
+
+    public String getFathmmPrediction() {
+        return fathmmPrediction;
+    }
+
+    public void setFathmmPrediction(String fathmmPrediction) {
+        this.fathmmPrediction = fathmmPrediction;
+    }
+
+    public Integer getIdStudy() {
+        return idStudy;
+    }
+
+    public void setIdStudy(Integer idStudy) {
+        this.idStudy = idStudy;
     }
 
     public String getHGNC_id() {
@@ -429,6 +457,17 @@ public class Cosmic implements Comparable {
             return this.getStart() - otherCosmic.getStart();
         }
     }
+
+    private void calculateStartAndEnd() throws NumberFormatException {
+        if(this.Mutation_GRCh37_genome_position != null && !this.Mutation_GRCh37_genome_position.isEmpty()){
+            String[] position = this.Mutation_GRCh37_genome_position.split(":")[1].split("-");
+            try {
+                this.start = Integer.parseInt(position[0]);
+                this.end = Integer.parseInt(position[1]);
+            } catch (NumberFormatException e) {
+            }
+        }
+    }
     
     private void calculateAltAndRef(){
     	if (this.Mutation_CDS.contains(">")) {
@@ -452,7 +491,7 @@ public class Cosmic implements Comparable {
         	 * TODO: The only Duplication in Cosmic V68 is a structural variation.
         	 * we are not going to modify a variation of more than one nucleotide 
         	 */ 
-        } else {
+        } else if (this.Mutation_CDS.contains("ins")) {
             // Insertion
             this.reference = "-";
             this.alternate = this.Mutation_CDS.split("ins")[1];
@@ -470,16 +509,29 @@ public class Cosmic implements Comparable {
     }
 
     private void recalculateGenomePosition(){
-        // GRCh37 position
-        this.setMutation_GRCh37_genome_position(
-                this.getChromosome() + ":" +
-                        this.getMutation_GRCh37_genome_position().split(":")[1]);
+        String selectedChromosome = this.Mutation_GRCh37_genome_position.split(":")[0];
+        if(!selectedChromosome.isEmpty()){
+            if (selectedChromosome.equals("23")){
+                this.chromosome = "X";
+            } else if (selectedChromosome.equals("24")) {
+                this.chromosome = "Y";
+            } else if (selectedChromosome.equals("25")) {
+                this.chromosome = "MT";
+            } else {
+                this.chromosome = selectedChromosome;
+            }
 
-        if (!this.getMutation_NCBI36_genome_position().isEmpty()) {
+            // GRCh37 position
+            this.setMutation_GRCh37_genome_position(
+                    this.getChromosome() + ":" +
+                            this.getMutation_GRCh37_genome_position().split(":")[1]);
+        }
+
+        /*if (!this.getMutation_NCBI36_genome_position().isEmpty()) {
             this.setMutation_NCBI36_genome_position(
                     this.getChromosome() + ":" +
                             this.getMutation_NCBI36_genome_position().split(":")[1]);
-        }
+        }*/
     }
     
     /**
