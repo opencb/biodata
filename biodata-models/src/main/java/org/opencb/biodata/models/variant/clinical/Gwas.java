@@ -4,7 +4,6 @@ package org.opencb.biodata.models.variant.clinical;
  * Created by lcruz on 26/05/14.
  */
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,50 +34,9 @@ public class Gwas {
     private String cnv;
     private List<GwasStudy> studies;
 
-    public Gwas(String[] values) throws ParseException {
-        this.region = values[10].trim();
-        if(!values[11].isEmpty()){
-        	if(values[11].equalsIgnoreCase("23")){
-        		this.chromosome = "X";
-        	} else if(values[11].equalsIgnoreCase("24")) {
-        		this.chromosome = "Y";	
-        	} else if(values[11].equalsIgnoreCase("25")) {
-        		this.chromosome = "MT";	
-        	} else {
-        		this.chromosome = values[11];	
-        	}
-        } else {
-            this.chromosome = null;
-        }
-        try{
-            this.start = Integer.parseInt(values[12]);
-            this.end = this.start;
-        } catch (NumberFormatException e){
-            this.start = null;
-            this.end = null;
-        }
-        this.reportedGenes = values[13].trim();
-        this.mappedGene = values[14].trim();
-        this.upstreamGeneId = values[15].trim();
-        this.downstreamGeneId = values[16].trim();
-        this.snpGeneIds = values[17].trim();
-        this.upstreamGeneDistance = values[18].trim();
-        this.downstreamGeneDistance = values[19].trim();
-        this.strongestSNPRiskAllele = values[20].trim();
-        this.snps = values[21].trim();
-        this.merged = values[22].trim();
-        this.snpIdCurrent = values[23].trim();
-        this.context = values[24].trim();
-        this.intergenic = values[25].trim();
-        try {
-            this.riskAlleleFrequency = Float.parseFloat(values[26]);
-        } catch (NumberFormatException e){
-            this.riskAlleleFrequency = null;
-        }
-        this.cnv = values[33].trim();
-
+    public Gwas() {
         this.studies = new ArrayList<>();
-        GwasStudy study = new GwasStudy(values);
+        GwasStudy study = new GwasStudy();
         this.studies.add(study);
     }
 
@@ -351,7 +309,7 @@ public class Gwas {
         return this.studies;
     }
 
-    private class GwasStudy {
+    public class GwasStudy {
         private String pubmedId;
         private String firstAuthor;
         private String date;
@@ -363,20 +321,14 @@ public class Gwas {
         private String platform;
         private List<GwasTrait> traits;
 
-        private GwasStudy(String[] values) {
-            this.pubmedId = values[1].trim();
-            this.firstAuthor = values[2].trim();
-            this.date = values[3].trim();
-            this.journal = values[4].trim();
-            this.link = values[5].trim();
-            this.study = values[6].trim();
-            this.initialSampleSize = values[8].trim();
-            this.replicationSampleSize = values[9].trim();
-            this.platform = values[32].trim();
+        private GwasStudy() {
             this.traits = new ArrayList<>();
-            GwasTrait trait = new GwasTrait(values);
+            GwasTrait trait = new GwasTrait();
             this.traits.add(trait);
+        }
 
+        public GwasStudy getGwasStudy(){
+            return this;
         }
 
         public String getPubmedId() {
@@ -479,16 +431,14 @@ public class Gwas {
             return equals;
         }
 
-        private class GwasTrait {
+        public class GwasTrait {
             private String diseaseTrait;
             private String dateAddedToCatalog;
             private List<GwasTest> tests;
 
-            private GwasTrait(String[] values) {
-                this.diseaseTrait = values[7].trim();
-                this.dateAddedToCatalog = values[0].trim();
+            private GwasTrait() {
                 this.tests = new ArrayList<>();
-                GwasTest test = new GwasTest(values);
+                GwasTest test = new GwasTest();
                 this.tests.add(test);
             }
 
@@ -530,27 +480,14 @@ public class Gwas {
                 return equals;
             }
 
-            private class GwasTest {
+            public class GwasTest {
                 private Float pValue;
                 private Float pValueMlog;
                 private String pValueText;
                 private String orBeta;
                 private String percentCI;
 
-                private GwasTest(String[] values) {
-                    try {
-                        this.pValue = Float.parseFloat(values[27]);
-                    } catch (NumberFormatException e){
-                        this.pValue = null;
-                    }
-                    try {
-                        this.pValueMlog = Float.parseFloat(values[28]);
-                    } catch (NumberFormatException e){
-                        this.pValueMlog = null;
-                    }
-                    this.pValueText = values[29].trim();
-                    this.orBeta = values[30].trim();
-                    this.percentCI = values[31].trim();
+                private GwasTest() {
                 }
 
                 public Float getpValue() {
