@@ -36,8 +36,6 @@ public class Gwas {
 
     public Gwas() {
         this.studies = new ArrayList<>();
-        GwasStudy study = new GwasStudy();
-        this.studies.add(study);
     }
 
     public Gwas(Gwas other) {
@@ -296,12 +294,16 @@ public class Gwas {
 
     public void addStudies(List<GwasStudy> studies) {
         for (GwasStudy study : studies) {
-            if (this.studies.contains(study)) {
-                int studyIndex = this.studies.indexOf(study);
-                this.studies.get(studyIndex).addTraits(study.getTraits());
-            } else {
-                this.studies.add(study);
-            }
+            this.addStudy(study);
+        }
+    }
+
+    public void addStudy(GwasStudy study) {
+        if (this.studies.contains(study)) {
+            int studyIndex = this.studies.indexOf(study);
+            this.studies.get(studyIndex).addTraits(study.getTraits());
+        } else {
+            this.studies.add(study);
         }
     }
 
@@ -321,14 +323,8 @@ public class Gwas {
         private String platform;
         private List<GwasTrait> traits;
 
-        private GwasStudy() {
+        public GwasStudy() {
             this.traits = new ArrayList<>();
-            GwasTrait trait = new GwasTrait();
-            this.traits.add(trait);
-        }
-
-        public GwasStudy getGwasStudy(){
-            return this;
         }
 
         public String getPubmedId() {
@@ -413,12 +409,16 @@ public class Gwas {
 
         public void addTraits(List<GwasTrait> traits) {
             for (GwasTrait trait : traits) {
-                if (this.traits.contains(trait)) {
-                    int traitIndex = this.traits.indexOf(trait);
-                    this.traits.get(traitIndex).addTests(trait.getTests());
-                } else {
-                    this.traits.add(trait);
-                }
+                addTrait(trait);
+            }
+        }
+
+        public void addTrait(GwasTrait trait) {
+            if (this.traits.contains(trait)) {
+                int traitIndex = this.traits.indexOf(trait);
+                this.traits.get(traitIndex).addTests(trait.getTests());
+            } else {
+                this.traits.add(trait);
             }
         }
 
@@ -436,10 +436,8 @@ public class Gwas {
             private String dateAddedToCatalog;
             private List<GwasTest> tests;
 
-            private GwasTrait() {
+            public GwasTrait() {
                 this.tests = new ArrayList<>();
-                GwasTest test = new GwasTest();
-                this.tests.add(test);
             }
 
             public String getDiseaseTrait() {
@@ -471,6 +469,10 @@ public class Gwas {
                 this.tests.addAll(tests);
             }
 
+            public void addTest(GwasTest test) {
+                this.tests.add(test);
+            }
+
             @Override
             public boolean equals(Object o) {
                 boolean equals = false;
@@ -487,7 +489,7 @@ public class Gwas {
                 private String orBeta;
                 private String percentCI;
 
-                private GwasTest() {
+                public GwasTest() {
                 }
 
                 public Float getpValue() {
@@ -532,9 +534,5 @@ public class Gwas {
 
             }
         }
-
     }
-
-
-
 }
