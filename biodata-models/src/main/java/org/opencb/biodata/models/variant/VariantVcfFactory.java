@@ -195,6 +195,7 @@ public class VariantVcfFactory implements VariantFactory {
     protected void parseSplitSampleData(Variant variant, VariantSource source, String[] fields, 
             String[] alternateAlleles, int alleleIdx) throws NonStandardCompliantSampleField {
         String[] formatFields = variant.getFile(source.getFileId(), source.getStudyId()).getFormat().split(":");
+        List<String> samples = source.getSamples();
 
         for (int i = 9; i < fields.length; i++) {
             Map<String, String> map = new HashMap<>(5);
@@ -269,12 +270,12 @@ public class VariantVcfFactory implements VariantFactory {
                     }
                 }
 
-                map.put(formatField.toUpperCase(), sampleField);
+                map.put(formatField, sampleField);
             }
 
             // If the genotype of the sample did not match the alleles of this variant, do not add it to the list
             if (shouldAddSample) {
-                variant.getFile(source.getFileId(), source.getStudyId()).addSampleData(source.getSamples().get(i - 9), map);
+                variant.getFile(source.getFileId(), source.getStudyId()).addSampleData(samples.get(i - 9), map);
             }
         }
     }
