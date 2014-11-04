@@ -7,19 +7,23 @@ import org.opencb.biodata.formats.variant.clinvar.v19jaxb.PublicSetType;
  */
 public class ClinvarPublicSet {
     private String chromosome;
-    private long start;
-    private long end;
+    private int start;
+    private int end;
     private String reference;
     private String alternate;
     private PublicSetType clinvarSet;
 
-    public ClinvarPublicSet(String chromosome, long start, long end, String reference, String alternate, PublicSetType clinvarSet) {
+    public ClinvarPublicSet(String chromosome, int start, int end, String reference, String alternate, PublicSetType clinvarSet) {
         this.chromosome = chromosome;
         this.start = start;
         this.end = end;
         this.reference = reference;
         this.alternate = alternate;
         this.clinvarSet = clinvarSet;
+    }
+
+    public ClinvarPublicSet() {
+
     }
 
     public String getChromosome() {
@@ -30,19 +34,19 @@ public class ClinvarPublicSet {
         this.chromosome = chromosome;
     }
 
-    public long getStart() {
+    public int getStart() {
         return start;
     }
 
-    public void setStart(long start) {
+    public void setStart(int start) {
         this.start = start;
     }
 
-    public long getEnd() {
+    public int getEnd() {
         return end;
     }
 
-    public void setEnd(long end) {
+    public void setEnd(int end) {
         this.end = end;
     }
 
