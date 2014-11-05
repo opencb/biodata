@@ -1,5 +1,6 @@
 package org.opencb.biodata.models.variant.stats;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -215,12 +216,32 @@ public class VariantStats {
     
     public void addGenotype(Genotype g, int addedCount) {
         Integer count;
-        if (genotypesCount.containsKey(g)) {
-            count = genotypesCount.get(g) + addedCount;
+        Genotype normalizedGenotype = normalizeGenotypeAlleles(g);
+        if (genotypesCount.containsKey(normalizedGenotype)) {
+            count = genotypesCount.get(normalizedGenotype) + addedCount;
         } else {
             count = addedCount;
         }
-        genotypesCount.put(g, count);
+        genotypesCount.put(normalizedGenotype, count);
+    }
+    
+    private Genotype normalizeGenotypeAlleles(Genotype g) {
+        // Get alleles sorted in ascending order
+        int[] sortedAlleles = g.getNormalizedAllelesIdx();
+        
+        if (Arrays.equals(sortedAlleles, g.getAllelesIdx())) {
+            // If the alleles do not change, no need to do anything
+            return g;
+        } else {
+            // If the alleles have changed, a new genotype must be build
+            StringBuilder joinedAlleles = new StringBuilder();
+            joinedAlleles.append(sortedAlleles[0]);
+            char separator = g.isPhased() ? '|' : '/';
+            for (int i = 1; i < sortedAlleles.length; i++) {
+                joinedAlleles.append(separator).append(sortedAlleles[i]);
+            }
+            return new Genotype(joinedAlleles.toString(), g.getReference(), g.getAlternate());
+        }
     }
     
     public void setGenotypesCount(Map<Genotype, Integer> genotypesCount) {

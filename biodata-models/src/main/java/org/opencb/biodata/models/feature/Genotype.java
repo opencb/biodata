@@ -43,12 +43,14 @@ public class Genotype {
         
         for (int i = 0; i < alleles.length; i++) {
             String allele = alleles[i];
+            
             if (allele.equals(".")) {
                 this.code = AllelesCode.ALLELES_MISSING;
                 this.allelesIdx[i] = -1;
             } else {
                 if (StringUtils.isNumeric(allele)) { // Accepts genotypes with form 0/0, 0/1, and so on
                     this.allelesIdx[i] = Integer.parseInt(allele);
+                    
                 } else { // Accepts genotypes with form A/A, A/T, and so on
                     if (allele.equalsIgnoreCase(reference)) {
                         this.allelesIdx[i] = 0;
@@ -87,6 +89,16 @@ public class Genotype {
 
     public int getAllele(int i) {
         return allelesIdx[i];
+    }
+    
+    public int[] getAllelesIdx() {
+        return allelesIdx;
+    }
+    
+    public int[] getNormalizedAllelesIdx() {
+        int[] sortedAlleles = Arrays.copyOf(allelesIdx, allelesIdx.length);
+        Arrays.sort(sortedAlleles);
+        return sortedAlleles;
     }
     
     void setAllelesIdx(int[] allelesIdx) {
@@ -141,28 +153,38 @@ public class Genotype {
         return value.toString();
     }
     
+    /**
+     * Each allele is encoded as the ith-power of 10, being i the index where it is placed. Then its value 
+     * (0,1,2...) is multiplied by that power.
+     * 
+     * Two genotypes with the same alleles but different phase will have different sign. Phased genotypes
+     * have positive encoding, whereas unphased ones have negative encoding.
+     * 
+     * For instance, genotype 1/0 would be -10, 1|0 would be 10 and 2/1 would be -21.
+     * 
+     * @return A numerical encoding of the genotype
+     */
     public int encode() {
-        // TODO Change phased to positive and unphased to negative int to support genotypes with more than 2 alleles
         // TODO Support missing genotypes
-        int encoding = isPhased() ? 100 : 0;
+        int encoding = 0;
         for (int i = 0; i < allelesIdx.length; i++) {
             encoding += Math.pow(10, allelesIdx.length - i - 1) * allelesIdx[i]; 
         }
         
-        return encoding;
+        return isPhased() ? encoding : encoding * (-1);
     }
     
     public static Genotype decode(int encoding) {
         // TODO Support missing genotypes
-        boolean phased = encoding >= 100;
-        if (phased) {
-            encoding -= 100;
+        boolean unphased = encoding < 0;
+        if (unphased) {
+            encoding = Math.abs(encoding);
         }
         
         // TODO What to do with haploids?
         StringBuilder builder = new StringBuilder(String.format("%02d", encoding));
         for (int i = 0; i < builder.length() - 1; i += 2) {
-            builder.insert(i + 1, phased ? "|" : "/");
+            builder.insert(i + 1, unphased ? "/" : "|");
         }
         
         return new Genotype(builder.toString());
