@@ -7,65 +7,60 @@ import java.util.List;
  */
 public class GeneAtlas {
 
-    private String gene_id;
+    private String geneId;
 
-    private String gene_name;
+    private String geneName;
 
-    public GeneAtlas(String gene_id, String gene_name, List<tissue> tissues) {
-        this.gene_id = gene_id;
-        this.gene_name = gene_name;
+    public GeneAtlas(String geneId, String geneName, List<Tissue> tissues) {
+        this.geneId = geneId;
+        this.geneName = geneName;
         this.tissues = tissues;
     }
 
-    public List<tissue> getTissues() {
+    public List<Tissue> getTissues() {
         return tissues;
     }
 
-    public void setTissues(List<tissue> tissues) {
+    public void setTissues(List<Tissue> tissues) {
         this.tissues = tissues;
     }
 
-    public String getGene_name() {
-        return gene_name;
+    public String getGeneName() {
+        return geneName;
     }
 
-    public void setGene_name(String gene_name) {
-        this.gene_name = gene_name;
+    public void setGeneName(String geneName) {
+        this.geneName = geneName;
     }
 
-    public String getGene_id() {
-        return gene_id;
+    public String getGeneId() {
+        return geneId;
     }
 
-    public void setGene_id(String gene_id) {
-        this.gene_id = gene_id;
+    public void setGeneId(String geneId) {
+        this.geneId = geneId;
     }
 
-    private List <tissue> tissues;
+    private List <Tissue> tissues;
 
+    public static class Tissue {
 
-
-
-
-    public static class tissue{
-
-        private String tissue_name;
+        private String tissueName;
         private String experiment;
-        private Float expression_value;
+        private Float expressionValue;
 
-        public tissue(String tissue_name, String experiment, Float expression_value) {
-            this.tissue_name = tissue_name;
+        public Tissue(String tissueName, String experiment, Float expressionValue) {
+            this.tissueName = tissueName;
             this.experiment = experiment;
-            this.expression_value = expression_value;
+            this.expressionValue = expressionValue;
         }
 
-
-        public String getTissue_name() {
-            return tissue_name;
+        public String getTissueName() {
+            return tissueName;
         }
 
-        public void setTissue_name(String tissue_name) {
-            this.tissue_name = tissue_name;
+        public void setTissueName(String tissueName) {
+            this.tissueName = tissueName;
         }
 
         public String getExperiment() {
@@ -76,12 +71,12 @@ public class GeneAtlas {
             this.experiment = experiment;
         }
 
-        public Float getExpression_value() {
-            return expression_value;
+        public Float getExpressionValue() {
+            return expressionValue;
         }
 
-        public void setExpression_value(Float expression_value) {
-            this.expression_value = expression_value;
+        public void setExpressionValue(Float expressionValue) {
+            this.expressionValue = expressionValue;
         }
     }
 

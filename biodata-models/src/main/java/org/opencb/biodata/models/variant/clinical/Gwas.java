@@ -63,65 +63,6 @@ public class Gwas {
         this.studies = other.studies;
     }
 
-    public String toString(){
-        StringBuilder result = new StringBuilder();
-
-        result.append("-------- GWAS OBJECT -------\n");
-        result.append("\t Region: \t"+region+"\n");
-        result.append("\t Chromosome_id: \t"+chromosome+"\n");
-        result.append("\t Start: \t"+start+"\n");
-        result.append("\t End: \t"+end+"\n");
-        result.append("\t Reference: \t"+reference+"\n");
-        result.append("\t Alternate: \t"+alternate+"\n");
-        result.append("\t Reported Gene(s): \t"+reportedGenes+"\n");
-        result.append("\t Mapped_gene: \t"+mappedGene+"\n");
-        result.append("\t Upstream_gene_id: \t"+upstreamGeneId+"\n");
-        result.append("\t Downstream_gene_id: \t"+downstreamGeneId+"\n");
-        result.append("\t Snp_gene_ids: \t"+snpGeneIds+"\n");
-        result.append("\t Upstream_gene_distance: \t"+upstreamGeneDistance+"\n");
-        result.append("\t Downstream_gene_distance: \t"+downstreamGeneDistance+"\n");
-        result.append("\t Strongest SNP-Risk Allele: \t"+strongestSNPRiskAllele+"\n");
-        result.append("\t SNPs: \t"+snps+"\n");
-        result.append("\t Merged: \t"+merged+"\n");
-        result.append("\t Snp_id_current: \t"+snpIdCurrent+"\n");
-        result.append("\t Context: \t"+context+"\n");
-        result.append("\t Intergenic: \t"+intergenic+"\n");
-        result.append("\t Risk Allele Frequency: \t"+riskAlleleFrequency+"\n");
-        result.append("\t CNV: \t"+cnv+"\n");
-        result.append("\t-------- STUDIES -------\n");
-        for (GwasStudy study : studies) {
-            result.append("\t\t-------- Study: -------\n");
-            result.append("\t\t PUBMEDID: \t"+study.pubmedId+"\n");
-            result.append("\t\t First Author: \t"+study.firstAuthor+"\n");
-            result.append("\t\t Date: \t"+study.date+"\n");
-            result.append("\t\t Journal: \t"+study.journal+"\n");
-            result.append("\t\t Link: \t"+study.link+"\n");
-            result.append("\t\t Study: \t"+study.study+"\n");
-
-            result.append("\t\t Initial Sample Size: \t"+study.initialSampleSize+"\n");
-            result.append("\t\t Replication Sample Size: \t"+study.replicationSampleSize+"\n");
-            result.append("\t\t Platform [SNPs passing QC]: \t"+study.platform+"\n");
-            result.append("\t\t-------- TRAITS -------\n");
-            for (GwasStudy.GwasTrait trait : study.getTraits()) {
-                result.append("\t\t\t-------- Trait: -------\n");
-                result.append("\t\t\t Disease/Trait: \t"+trait.diseaseTrait+"\n");
-                result.append("\t\t\t Date Added to Catalog: \t"+trait.dateAddedToCatalog+"\n");
-                result.append("\t\t\t-------- TESTS -------\n");
-                for (GwasStudy.GwasTrait.GwasTest test : trait.tests) {
-                    result.append("\t\t\t\t-------- Test: -------\n");
-                    result.append("\t\t\t\t p-Value: \t"+test.pValue+"\n");
-                    result.append("\t\t\t\t Pvalue_mlog: \t"+test.pValueMlog+"\n");
-                    result.append("\t\t\t\t p-Value (text): \t"+test.pValueText+"\n");
-                    result.append("\t\t\t\t OR or beta: \t"+test.orBeta+"\n");
-                    result.append("\t\t\t\t 95% CI (text): \t"+test.percentCI+"\n");
-                }
-            }
-        }
-        result.append("----------------------------\n");
-
-        return result.toString();
-    }
-
     // ---------------------------------- GETTERS / SETTERS ------------------------------
 
     public String getRegion() {
@@ -311,6 +252,65 @@ public class Gwas {
         return this.studies;
     }
 
+    public String toString(){
+        StringBuilder result = new StringBuilder();
+
+        result.append("-------- GWAS OBJECT -------\n");
+        result.append("\t Region: \t"+region+"\n");
+        result.append("\t Chromosome_id: \t"+chromosome+"\n");
+        result.append("\t Start: \t"+start+"\n");
+        result.append("\t End: \t"+end+"\n");
+        result.append("\t Reference: \t"+reference+"\n");
+        result.append("\t Alternate: \t"+alternate+"\n");
+        result.append("\t Reported Gene(s): \t"+reportedGenes+"\n");
+        result.append("\t Mapped_gene: \t"+mappedGene+"\n");
+        result.append("\t Upstream_gene_id: \t"+upstreamGeneId+"\n");
+        result.append("\t Downstream_gene_id: \t"+downstreamGeneId+"\n");
+        result.append("\t Snp_gene_ids: \t"+snpGeneIds+"\n");
+        result.append("\t Upstream_gene_distance: \t"+upstreamGeneDistance+"\n");
+        result.append("\t Downstream_gene_distance: \t"+downstreamGeneDistance+"\n");
+        result.append("\t Strongest SNP-Risk Allele: \t"+strongestSNPRiskAllele+"\n");
+        result.append("\t SNPs: \t"+snps+"\n");
+        result.append("\t Merged: \t"+merged+"\n");
+        result.append("\t Snp_id_current: \t"+snpIdCurrent+"\n");
+        result.append("\t Context: \t"+context+"\n");
+        result.append("\t Intergenic: \t"+intergenic+"\n");
+        result.append("\t Risk Allele Frequency: \t"+riskAlleleFrequency+"\n");
+        result.append("\t CNV: \t"+cnv+"\n");
+        result.append("\t-------- STUDIES -------\n");
+        for (GwasStudy study : studies) {
+            result.append("\t\t-------- Study: -------\n");
+            result.append("\t\t PUBMEDID: \t"+study.pubmedId+"\n");
+            result.append("\t\t First Author: \t"+study.firstAuthor+"\n");
+            result.append("\t\t Date: \t"+study.date+"\n");
+            result.append("\t\t Journal: \t"+study.journal+"\n");
+            result.append("\t\t Link: \t"+study.link+"\n");
+            result.append("\t\t Study: \t"+study.study+"\n");
+
+            result.append("\t\t Initial Sample Size: \t"+study.initialSampleSize+"\n");
+            result.append("\t\t Replication Sample Size: \t"+study.replicationSampleSize+"\n");
+            result.append("\t\t Platform [SNPs passing QC]: \t"+study.platform+"\n");
+            result.append("\t\t-------- TRAITS -------\n");
+            for (GwasStudy.GwasTrait trait : study.getTraits()) {
+                result.append("\t\t\t-------- Trait: -------\n");
+                result.append("\t\t\t Disease/Trait: \t"+trait.diseaseTrait+"\n");
+                result.append("\t\t\t Date Added to Catalog: \t"+trait.dateAddedToCatalog+"\n");
+                result.append("\t\t\t-------- TESTS -------\n");
+                for (GwasStudy.GwasTrait.GwasTest test : trait.tests) {
+                    result.append("\t\t\t\t-------- Test: -------\n");
+                    result.append("\t\t\t\t p-Value: \t"+test.pValue+"\n");
+                    result.append("\t\t\t\t Pvalue_mlog: \t"+test.pValueMlog+"\n");
+                    result.append("\t\t\t\t p-Value (text): \t"+test.pValueText+"\n");
+                    result.append("\t\t\t\t OR or beta: \t"+test.orBeta+"\n");
+                    result.append("\t\t\t\t 95% CI (text): \t"+test.percentCI+"\n");
+                }
+            }
+        }
+        result.append("----------------------------\n");
+
+        return result.toString();
+    }
+
     public static class GwasStudy {
         private String pubmedId;
         private String firstAuthor;
@@ -431,6 +431,8 @@ public class Gwas {
             return equals;
         }
 
+        // TODO: as equals has been overriden, hashCode should be overriden too
+
         public static class GwasTrait {
             private String diseaseTrait;
             private String dateAddedToCatalog;
@@ -481,6 +483,8 @@ public class Gwas {
                 }
                 return equals;
             }
+
+            // TODO: as equals has been overriden, hashCode should be overriden too
 
             public static class GwasTest {
                 private Float pValue;

@@ -160,6 +160,4 @@ public class DisGeNet {
             sources = sources;
         }
     }
-
-
 }
