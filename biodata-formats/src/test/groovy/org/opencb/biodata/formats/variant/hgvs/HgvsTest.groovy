@@ -2,6 +2,7 @@ package org.opencb.biodata.formats.variant.hgvs
 
 import net.sf.picard.reference.FastaSequenceIndex
 import net.sf.picard.reference.IndexedFastaSequenceFile
+import org.opencb.biodata.models.variant.Variant
 import spock.lang.Unroll
 
 import java.nio.file.Paths
@@ -23,15 +24,15 @@ class HgvsTest extends spock.lang.Specification {
     }
 
     @Unroll
-    def "sequence Location of #hgvs should be #chr - #start - #reference - #alternate"() {
+    def "variant of #hgvs should be #chr:#start:#reference->#alternate"() {
         when: "obtain the hgvs location"
-        def location = new Hgvs(hgvs).getSequenceLocation(genomeSequenceFastaFile)
+        Variant variant = new Hgvs(hgvs).getVariant(genomeSequenceFastaFile)
 
         then: "validate the location chromosome, start, reference and alternate"
-        location.getChr() == chr
-        location.getStart() == start
-        location.getReferenceAllele() == reference
-        location.getAlternateAllele() == alternate
+        variant.getChromosome() == chr
+        variant.getStart() == start
+        variant.getReference() == reference
+        variant.getAlternate() == alternate
 
         where:
         hgvs                    || chr   | start  | reference | alternate
@@ -50,10 +51,10 @@ class HgvsTest extends spock.lang.Specification {
     @Unroll
     def "malformed hgvs #hgvs location should be null"() {
         when: "obtain the hgvs location"
-        def location = new Hgvs(hgvs).getSequenceLocation(genomeSequenceFastaFile)
+        def variant = new Hgvs(hgvs).getVariant(genomeSequenceFastaFile)
 
         then:
-        location == null
+        variant == null
 
         where:
         hgvs << ["NC_000019.9:g.14ins", "NC_000019.9:g.14del", "NC_000019.9:g.14dup",

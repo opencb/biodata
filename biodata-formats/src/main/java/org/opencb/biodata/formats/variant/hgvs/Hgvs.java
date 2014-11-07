@@ -4,10 +4,9 @@ import net.sf.picard.reference.IndexedFastaSequenceFile;
 import net.sf.picard.reference.ReferenceSequence;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.opencb.biodata.formats.feature.RefseqAccession;
-import org.opencb.biodata.formats.variant.clinvar.v19jaxb.SequenceLocationType;
+import org.opencb.biodata.models.variant.Variant;
 
 import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,8 +27,8 @@ public class Hgvs {
 
     private String accession;
     private String type;
-    private BigInteger start;
-    private BigInteger stop;
+    private int start;
+    private int stop;
     private String change;
 
     private static Pattern pattern;
@@ -46,9 +45,10 @@ public class Hgvs {
 
         this.accession = matcher.group(Hgvs.ACCESSION);
         this.type = matcher.group(Hgvs.TYPE);
-        this.start = new BigInteger(matcher.group(Hgvs.START));
-        if (stop != null && !"".equals(stop)) {
-            this.stop = new BigInteger(matcher.group(Hgvs.STOP));
+        this.start = Integer.parseInt(matcher.group(Hgvs.START));
+        String stopString = matcher.group(Hgvs.STOP);
+        if (stopString != null && !"".equals(stopString)) {
+            this.stop = Integer.parseInt(stopString);
         } else {
             // TODO: check that if there is no stop, then stop = start
             stop = this.start;
@@ -57,71 +57,66 @@ public class Hgvs {
         // TODO: is it necessary the unescapeXml call? Maybe this method should get an "unescaped" string
     }
 
-    public SequenceLocationType getSequenceLocation(IndexedFastaSequenceFile genomeSequenceFastaFile) {
+    public Variant getVariant(IndexedFastaSequenceFile genomeSequenceFastaFile) {
 
-        SequenceLocationType location = null;
+        Variant variant = null;
         // check that the HGVS is genomic
         if (type.equals(GENOMIC_HGVS_TYPE)) {
-            location = new SequenceLocationType();
             // chr, start and stop
-            location.setChr(new RefseqAccession(accession).getChromosome());
-            location.setStart(start);
-            location.setStop(stop);
-            location.setAccession(accession);
+            String chromosome = new RefseqAccession(accession).getChromosome();
 
             // process change to obtain reference, alternative and shift start if needed
             if (change.contains(">")) {
-                location = locationFromSNV(location);
+                variant = getVariantFromSNV(chromosome);
             } else if (change.contains("del") && change.contains("ins")) {
-                location = locationFromComplexRearrangement(location, genomeSequenceFastaFile);
+                variant = getVariantFromComplexRearrangement(chromosome, genomeSequenceFastaFile);
             } else if (change.contains("ins") || change.contains("dup")) {
-                location = locationFromInsertion(location, genomeSequenceFastaFile);
+                variant = getVariantFromInsertion(chromosome, genomeSequenceFastaFile);
             } else if (change.contains("del")) {
-                location = locationFromDeletion(location, genomeSequenceFastaFile);
+                variant = getVariantFromDeletion(chromosome, genomeSequenceFastaFile);
             } else {
-                location = null;
+                variant = null;
             }
         }
 
-        return location;
+        return variant;
     }
 
-    private SequenceLocationType locationFromComplexRearrangement(SequenceLocationType location, IndexedFastaSequenceFile genomeSequenceFastaFile) {
+    private Variant getVariantFromComplexRearrangement(String chromosome, IndexedFastaSequenceFile genomeSequenceFastaFile) {
         // TODO: implement parser for changes like "NC_000016.10:g.2088677_2088679delTGAins5"
         return null;
     }
 
-    private SequenceLocationType locationFromSNV(SequenceLocationType location) {
+    private Variant getVariantFromSNV(String chromosome) {
         String[] changeNucleotides = change.split(">");
-        location.setReferenceAllele(changeNucleotides[0]);
-        location.setAlternateAllele(changeNucleotides[1]);
-        return location;
+        Variant variant = new Variant(chromosome, start, stop, changeNucleotides[0], changeNucleotides[1]);
+        return variant;
     }
 
-    private SequenceLocationType locationFromInsertion(SequenceLocationType location, IndexedFastaSequenceFile genomeSequenceFastaFile) {
+    private Variant getVariantFromInsertion(String chromosome, IndexedFastaSequenceFile genomeSequenceFastaFile) {
+        Variant variant = null;
         try {
             String insertion = change.split("(ins)|(dup)")[1];
             String referenceString = null;
 
             if (insertion.length() == 1) {
-                referenceString = referenceStringFromSingleNucleotideInsertion(location, genomeSequenceFastaFile, insertion, referenceString);
+                referenceString = referenceStringFromSingleNucleotideInsertion(chromosome, genomeSequenceFastaFile, insertion, referenceString);
             } else {
-                referenceString = referenceStringFromSeveralNucleotideInsertion(location, genomeSequenceFastaFile, referenceString);
+                referenceString = referenceStringFromSeveralNucleotideInsertion(chromosome, genomeSequenceFastaFile, referenceString);
             }
-            location.setReferenceAllele(referenceString);
-            location.setAlternateAllele(referenceString + insertion);
+            variant = new Variant(chromosome, start, stop, referenceString, referenceString + insertion);
 //        } catch (ArrayIndexOutOfBoundsException e) {
 //            throw new ParseException("Hgvs change malformed: " + hgvsChange, hgvsChange.length());
 //        }
         } catch (Exception e) {
-            location = null;
+            variant = null;
         }
 
-        return location;
+        return variant;
     }
 
-    private String referenceStringFromSeveralNucleotideInsertion(SequenceLocationType location, IndexedFastaSequenceFile genomeSequenceFastaFile, String referenceString) throws UnsupportedEncodingException {
-        ReferenceSequence seq = genomeSequenceFastaFile.getSubsequenceAt(location.getChr(), location.getStart().longValue(), location.getStart().longValue());
+    private String referenceStringFromSeveralNucleotideInsertion(String chromosome, IndexedFastaSequenceFile genomeSequenceFastaFile, String referenceString) throws UnsupportedEncodingException {
+        ReferenceSequence seq = genomeSequenceFastaFile.getSubsequenceAt(chromosome, start, start);
         try {
             referenceString = new String(seq.getBases(), "UTF-8");
         } catch (UnsupportedEncodingException e) {
@@ -130,15 +125,15 @@ public class Hgvs {
         return referenceString;
     }
 
-    private String referenceStringFromSingleNucleotideInsertion(SequenceLocationType location, IndexedFastaSequenceFile genomeSequenceFastaFile, String insertion, String referenceString) throws UnsupportedEncodingException {
-        long sequenceStart = location.getStart().longValue()-SEQ_WINDOWS_SIZE < 1 ? 1 : location.getStart().longValue()-SEQ_WINDOWS_SIZE;
-        ReferenceSequence seq = genomeSequenceFastaFile.getSubsequenceAt(location.getChr(), sequenceStart, location.getStart().longValue());
+    private String referenceStringFromSingleNucleotideInsertion(String chromosome, IndexedFastaSequenceFile genomeSequenceFastaFile, String insertion, String referenceString) throws UnsupportedEncodingException {
+        int sequenceStart = start - SEQ_WINDOWS_SIZE < 1 ? 1 : start - SEQ_WINDOWS_SIZE;
+        ReferenceSequence seq = genomeSequenceFastaFile.getSubsequenceAt(chromosome, sequenceStart, start);
 
         try {
             char[] reference = new String(seq.getBases(), "UTF-8").toCharArray();
             int offset = distanceToPreviousNearestDifferentNucleotide(reference, insertion.charAt(0));
             referenceString = "" + reference[reference.length - (offset+1)];
-            location.setStart(location.getStart().subtract(BigInteger.valueOf(offset)));
+            start = start - offset;
 
         } catch (UnsupportedEncodingException e) {
             throw e;
@@ -148,38 +143,37 @@ public class Hgvs {
 
 
 
-    private SequenceLocationType locationFromDeletion(SequenceLocationType location, IndexedFastaSequenceFile genomeSequenceFastaFile) {
+    private Variant getVariantFromDeletion(String chromosome, IndexedFastaSequenceFile genomeSequenceFastaFile) {
+        Variant variant = null;
         try {
             String deletion = change.split("del")[1];
             if (deletion.length() == 1) {
-                location = locationFromSingleNucleotideDeletion(location, genomeSequenceFastaFile, deletion);
+                variant = getVariantFromSingleNucleotideDeletion(chromosome, genomeSequenceFastaFile, deletion);
             } else {
-                location = locationFromSeveralNucleotideDeletion(location, genomeSequenceFastaFile, deletion);
+                variant = getVariantFromSeveralNucleotideDeletion(chromosome, genomeSequenceFastaFile, deletion);
             }
         } catch (UnsupportedEncodingException e) {
-            location = null;
+            variant = null;
         } catch (ArrayIndexOutOfBoundsException e) {
             //throw new ParseException("Hgvs change malformed: " + hgvsChange, hgvsChange.length());
-            location = null;
+            variant = null;
         }
-        return location;
+        return variant;
     }
 
-    private SequenceLocationType locationFromSeveralNucleotideDeletion(SequenceLocationType location, IndexedFastaSequenceFile genomeSequenceFastaFile, String deletion) {
+    private Variant getVariantFromSeveralNucleotideDeletion(String chromosome, IndexedFastaSequenceFile genomeSequenceFastaFile, String deletion) {
         // TODO: deletion of >1 nucleotides
         return null;
     }
 
-    private SequenceLocationType locationFromSingleNucleotideDeletion(SequenceLocationType location, IndexedFastaSequenceFile genomeSequenceFastaFile, String deletion) throws UnsupportedEncodingException {
-        long sequenceStart = location.getStart().longValue()-SEQ_WINDOWS_SIZE < 1 ? 1 : location.getStart().longValue()-SEQ_WINDOWS_SIZE;
-        ReferenceSequence seq = genomeSequenceFastaFile.getSubsequenceAt(location.getChr(), sequenceStart, location.getStop().longValue());
+    private Variant getVariantFromSingleNucleotideDeletion(String chromosome, IndexedFastaSequenceFile genomeSequenceFastaFile, String deletion) throws UnsupportedEncodingException {
+        long sequenceStart = start-SEQ_WINDOWS_SIZE < 1 ? 1 : start-SEQ_WINDOWS_SIZE;
+        ReferenceSequence seq = genomeSequenceFastaFile.getSubsequenceAt(chromosome, sequenceStart, stop);
         char[] reference = new String(seq.getBases(), "UTF-8").toCharArray();
         int offset = distanceToPreviousNearestDifferentNucleotide(reference, deletion.charAt(0));
         String referenceString = "" + reference[reference.length - (offset+1)] + reference[reference.length - (offset)];
-        location.setReferenceAllele(referenceString);
-        location.setAlternateAllele(referenceString.substring(0,1));
-        location.setStart(location.getStart().subtract(BigInteger.valueOf(offset)));
-        return location;
+        Variant variant = new Variant(chromosome, start - offset, stop, referenceString, referenceString.substring(0, 1));
+        return variant;
     }
 
     private int distanceToPreviousNearestDifferentNucleotide(char[] reference, char nucleotide) {
