@@ -1,5 +1,6 @@
-package org.opencb.biodata.formats.feature.refseq
+package org.opencb.biodata.tools.feature
 
+import org.opencb.biodata.formats.feature.RefseqAccession
 import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -7,12 +8,12 @@ import spock.lang.Unroll
 /**
  * Created by parce on 5/29/14.
  */
-class RefseqTest extends Specification {
+class RefseqAccessionTest extends Specification {
 
     @Unroll
     def "Refseq NC accession #accession should be translated to chromosome #chr"() {
         expect:
-        chr == RefseqUtils.refseqNCAccessionToChromosome(accession)
+        chr == new RefseqAccession(accession).getChromosome()
 
         where:
         accession       || chr
@@ -67,6 +68,15 @@ class RefseqTest extends Specification {
         "NC_012920.1"   || "MT"
     }
 
+    @Unroll
+    def "refseq accession #accession is not a reference assembly complete genomic molecule and cannot be translated to chromosome"() {
+        expect:
+        new RefseqAccession(accession).getChromosome() == null
+
+        where:
+        accession << ["AC_89438953495", "NG_23889324", "NT_34993020", "NM_000020347823"]
+    }
+
     @Ignore("Test used to choose one refseqNCAccessionToChromosome implementation")
     def "performance test of Refseq.refseqNCAccessionToChromosome implementations"() {
         given:
@@ -87,7 +97,7 @@ class RefseqTest extends Specification {
         def init = System.currentTimeMillis()
         (0..iterations).each {
             def i = random.nextInt(accessionList.size())
-            RefseqUtils.refseqNCAccessionToChromosome(accessionList.get(i))
+            new RefseqAccession(accessionList.get(i)).getChromosome()
         }
         def cachedVersionElapsedTime = System.currentTimeMillis() - init
         println "cached version elapsed time ${cachedVersionElapsedTime} ms."
@@ -96,7 +106,7 @@ class RefseqTest extends Specification {
         init = System.currentTimeMillis()
         (0..iterations).each {
             def i = random.nextInt(accessionList.size())
-            RefseqUtils.uncachedRefseqNCAccessionToChromosome(accessionList.get(i))
+            new RefseqAccession(accessionList.get(i)).uncachedRefseqNCAccessionToChromosome()
         }
         def uncachedVersionElapsedTime = System.currentTimeMillis() - init
         println "uncached version elapsed time ${uncachedVersionElapsedTime} ms."
