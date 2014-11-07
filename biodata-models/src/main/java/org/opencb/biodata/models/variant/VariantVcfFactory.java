@@ -205,7 +205,9 @@ public class VariantVcfFactory implements VariantFactory {
             String[] sampleFields = fields[i].split(":");
             Genotype genotype = null;
 
-            for (int j = 0; j < formatFields.length; j++) {
+            // Samples may remove the trailing fields (only GT is mandatory),
+            // so the loop iterates to sampleFields.length, not formatFields.length
+            for (int j = 0; j < sampleFields.length; j++) {
                 String formatField = formatFields[j];
                 String sampleField = sampleFields[j];
 
@@ -290,19 +292,21 @@ public class VariantVcfFactory implements VariantFactory {
      * @return If the sample should be associated to the variant
      */
     private boolean shouldAddSampleToVariant(String genotype, int alleleIdx) {
-        if (!genotype.contains(String.valueOf(alleleIdx))) {
-            if (!genotype.contains("0")) {
+        if (genotype.contains(String.valueOf(alleleIdx))) {
+            return true;
+        }
+        
+        if (!genotype.contains("0") && !genotype.contains(".")) {
+            return false;
+        }
+        
+        String[] alleles = genotype.split("[/|]");
+        for (String allele : alleles) {
+            if (!allele.equals("0") && !allele.equals(".")) {
                 return false;
-            } else {
-                String[] alleles = genotype.split("[/|]");
-                for (String allele : alleles) {
-                    if (!allele.equals("0") && !allele.equals(".")) {
-                        return false;
-                    }
-                }
             }
         }
-
+        
         return true;
     }
 
@@ -357,7 +361,10 @@ public class VariantVcfFactory implements VariantFactory {
                     case "DP":
                         int dp = 0;
                         for (String sampleName : file.getSampleNames()) {
-                            dp += Integer.parseInt(file.getSampleData(sampleName, "DP"));
+                            String sampleDp = file.getSampleData(sampleName, "DP");
+                            if (StringUtils.isNumeric(sampleDp)) {
+                                dp += Integer.parseInt(sampleDp);
+                            }
                         }
                         file.addAttribute(splits[0], String.valueOf(dp));
                         break;

@@ -312,6 +312,74 @@ public class VariantVcfFactoryTest {
     }
     
     @Test
+    public void testCreateVariantWithMissingGenotypes() {
+        List<String> sampleNames = Arrays.asList("NA001", "NA002", "NA003", "NA004");
+        source.setSamples(sampleNames);
+        String line = "1\t1407616\t.\tC\tG\t43.74\tPASS\t.\tGT:AD:DP:GQ:PL\t./.:.:.:.:.\t1/1:0,2:2:6:71,6,0\t./.:.:.:.:.\t./.:.:.:.:.";
+    
+        // Initialize expected variants
+        Variant var0 = new Variant("1", 1407616, 1407616, "C", "G");
+        ArchivedVariantFile file0 = new ArchivedVariantFile(source.getFileId(), source.getStudyId());
+        var0.addFile(file0);
+        
+        // Initialize expected samples
+        Map<String, String> na001 = new HashMap<>();
+        na001.put("GT", "./.");
+        na001.put("AD", ".");
+        na001.put("DP", ".");
+        na001.put("GQ", ".");
+        na001.put("PL", ".");
+        Map<String, String> na002 = new HashMap<>();
+        na002.put("GT", "1/1");
+        na002.put("AD", "0,2");
+        na002.put("DP", "2");
+        na002.put("GQ", "6");
+        na002.put("PL", "71,6,0");
+        Map<String, String> na003 = new HashMap<>();
+        na003.put("GT", "./.");
+        na003.put("AD", ".");
+        na003.put("DP", ".");
+        na003.put("GQ", ".");
+        na003.put("PL", ".");
+        Map<String, String> na004 = new HashMap<>();
+        na004.put("GT", "./.");
+        na004.put("AD", ".");
+        na004.put("DP", ".");
+        na004.put("GQ", ".");
+        na004.put("PL", ".");
+        
+        var0.getFile(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(0), na001);
+        var0.getFile(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(1), na002);
+        var0.getFile(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(2), na003);
+        var0.getFile(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(3), na004);
+        
+        
+        // Check proper conversion of samples
+        List<Variant> result = factory.create(source, line);
+        assertEquals(4, result.size());
+
+//        Variant getVar0 = result.get(0);
+//        ArchivedVariantFile getFile0 = getVar0.getFile(source.getFileId(), source.getStudyId());
+//        assertEquals(2, Integer.parseInt(getFile0.getAttribute("NS")));
+////        assertEquals(2, Integer.parseInt(getFile0.getAttribute("AN")));
+//        assertEquals(1, Integer.parseInt(getFile0.getAttribute("AC")));
+//        assertEquals(0.125, Double.parseDouble(getFile0.getAttribute("AF")), 1e-8);
+//        assertEquals(35, Integer.parseInt(getFile0.getAttribute("DP")));
+//        assertEquals(8836, Integer.parseInt(getFile0.getAttribute("MQ")));
+//        assertEquals(0, Integer.parseInt(getFile0.getAttribute("MQ0")));
+//
+//        Variant getVar1 = result.get(1);
+//        ArchivedVariantFile getFile1 = getVar1.getFile(source.getFileId(), source.getStudyId());
+//        assertEquals(3, Integer.parseInt(getFile1.getAttribute("NS")));
+////        assertEquals(2, Integer.parseInt(getFile1.getAttribute("AN")));
+//        assertEquals(2, Integer.parseInt(getFile1.getAttribute("AC")));
+//        assertEquals(0.25, Double.parseDouble(getFile1.getAttribute("AF")), 1e-8);
+//        assertEquals(46, Integer.parseInt(getFile1.getAttribute("DP")));
+//        assertEquals(1849, Integer.parseInt(getFile1.getAttribute("MQ")));
+//        assertEquals(1, Integer.parseInt(getFile1.getAttribute("MQ0")));
+    }
+    
+    @Test
     public void testParseInfo() {
         List<String> sampleNames = Arrays.asList("NA001", "NA002", "NA003", "NA004");
         source.setSamples(sampleNames);

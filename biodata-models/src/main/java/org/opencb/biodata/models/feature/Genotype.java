@@ -138,17 +138,9 @@ public class Genotype {
     }
 
     public String getGenotypeInfo() {
-        StringBuilder value = new StringBuilder();
-        value.append(allelesIdx[0]);
-        char separator = isPhased() ? '|' : '/';
-        for (int i = 1; i < allelesIdx.length; i++) {
-            value.append(separator);
-            value.append(allelesIdx[i]);
-        }
-        value.append(" (REF=");
-        value.append(reference);
-        value.append(", ALT=");
-        value.append(alternate);
+        StringBuilder value = new StringBuilder(toString());
+        value.append(" (REF=").append(reference);
+        value.append(", ALT=").append(alternate);
         value.append(")");
         return value.toString();
     }
@@ -193,11 +185,11 @@ public class Genotype {
     @Override
     public String toString() {
         StringBuilder value = new StringBuilder();
-        value.append(allelesIdx[0]);
+        value.append(allelesIdx[0] >= 0 ? allelesIdx[0] : ".");
         char separator = isPhased() ? '|' : '/';
         for (int i = 1; i < allelesIdx.length; i++) {
             value.append(separator);
-            value.append(allelesIdx[i]);
+            value.append(allelesIdx[i] >= 0 ? allelesIdx[i] : ".");
         }
         return value.toString();
     }
