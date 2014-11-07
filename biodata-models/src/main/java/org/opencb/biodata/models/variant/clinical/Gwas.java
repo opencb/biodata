@@ -311,7 +311,7 @@ public class Gwas {
         return this.studies;
     }
 
-    public class GwasStudy {
+    public static class GwasStudy {
         private String pubmedId;
         private String firstAuthor;
         private String date;
@@ -431,7 +431,7 @@ public class Gwas {
             return equals;
         }
 
-        public class GwasTrait {
+        public static class GwasTrait {
             private String diseaseTrait;
             private String dateAddedToCatalog;
             private List<GwasTest> tests;
@@ -482,7 +482,7 @@ public class Gwas {
                 return equals;
             }
 
-            public class GwasTest {
+            public static class GwasTest {
                 private Float pValue;
                 private Float pValueMlog;
                 private String pValueText;
