@@ -24,7 +24,7 @@ public class ConservedRegionFeature {
         this.start = start;
         this.end = end;
         this.chunk = chunk;
-        sources = new LinkedList<>();
+        this.sources = new ArrayList<>();
     }
 
     public String getChromosome() {
@@ -63,29 +63,12 @@ public class ConservedRegionFeature {
         return sources;
     }
 
-    public ConservedRegionSource getSource(String type){
-        ConservedRegionSource result = new ConservedRegionSource(type);
-
-        for(ConservedRegionSource source: sources){
-            if(source.getType() != null && source.getType().equalsIgnoreCase(type)){
-                result = source;
-            }
-        }
-
-        return result;
-    }
-
     public void setSources(List<ConservedRegionSource> sources) {
         this.sources = sources;
     }
 
-    public void addSources(List<ConservedRegionSource> sources) {
-        this.sources.addAll(sources);
-    }
-
-    public void addSource(String type) {
-        ConservedRegionSource source = new ConservedRegionSource(type);
-        this.sources.add(source);
+    public void addSource(String type, List<Float> values) {
+        this.sources.add(new ConservedRegionSource(type, values));
     }
 
     public Integer compareTo(Object o) {
@@ -128,13 +111,13 @@ public class ConservedRegionFeature {
         private String type;
         private List<Float>values;
 
-        public ConservedRegionSource (String type){
-            this.type = type;
+        public ConservedRegionSource (){
             values = new LinkedList<>();
         }
 
-        public ConservedRegionSource (){
-            values = new LinkedList<>();
+        public ConservedRegionSource(String type, List<Float> values) {
+            this.type = type;
+            this.values = values;
         }
 
         public String getType() {
