@@ -1,6 +1,7 @@
 package org.opencb.biodata.models.feature;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -14,12 +15,16 @@ public class ConservedRegionFeature {
     private int chunk;
     private List<ConservedRegionSource>sources;
 
+    public ConservedRegionFeature() {
+        sources = new ArrayList<>();
+    }
+
     public ConservedRegionFeature(String chromosome, int start, int end, int chunk) {
         this.chromosome = chromosome;
         this.start = start;
         this.end = end;
         this.chunk = chunk;
-        sources = new ArrayList<>();
+        this.sources = new ArrayList<>();
     }
 
     public String getChromosome() {
@@ -62,22 +67,57 @@ public class ConservedRegionFeature {
         this.sources = sources;
     }
 
-    public void addSources(List<ConservedRegionSource> sources) {
-        for (ConservedRegionSource source : sources) {
-            this.addSource(source);
+    public void addSource(String type, List<Float> values) {
+        this.sources.add(new ConservedRegionSource(type, values));
+    }
+
+    public Integer compareTo(Object o) {
+        Integer result = null;
+        ConservedRegionFeature objC = (ConservedRegionFeature)o;
+
+        if (this.getChromosome().equalsIgnoreCase(objC.getChromosome())){
+            result = this.getStart()-objC.getStart();
         }
+
+        return result;
     }
 
-    public void addSource(ConservedRegionSource source) {
-        this.sources.add(source);
+    public String toString(){
+        StringBuilder result = new StringBuilder("{\"chunk\":\""+this.getChunk()+"\", \"chr\":\""+this.getChromosome()+"\", \"start\":\""+this.getStart()+"\", " +
+                "\"end\":\""+this.getEnd()+"\", sources[");
+
+       for(ConservedRegionSource source: this.sources){
+            result.append("{\"type\":\""+source.getType()+"\", \"values\":[");
+
+            for(Float f: source.values){
+                if(f == null){
+                    result.append("null,");
+                } else {
+                    result.append(f.toString()+",");
+                }
+            }
+
+            result.deleteCharAt(result.length()-1);
+
+            result.append("]}");
+        }
+
+        result.append("]}");
+
+        return result.toString();
     }
 
-    public class ConservedRegionSource {
+    public static class ConservedRegionSource{
         private String type;
         private List<Float>values;
 
-        public ConservedRegionSource(String type){
+        public ConservedRegionSource (){
+            values = new LinkedList<>();
+        }
+
+        public ConservedRegionSource(String type, List<Float> values) {
             this.type = type;
+            this.values = values;
         }
 
         public String getType() {
@@ -97,9 +137,7 @@ public class ConservedRegionFeature {
         }
 
         public void addValues(List<Float> values) {
-            for (Float value : values) {
-                this.addValue(value);
-            }
+            this.values.addAll(values);
         }
 
         public void addValue(Float value) {
