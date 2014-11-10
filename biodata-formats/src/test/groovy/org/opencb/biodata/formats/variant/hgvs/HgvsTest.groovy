@@ -6,6 +6,7 @@ import org.opencb.biodata.models.variant.Variant
 import spock.lang.Unroll
 
 import java.nio.file.Paths
+import java.text.ParseException
 
 /**
  * Created by parce on 5/28/14.
@@ -31,25 +32,38 @@ class HgvsTest extends spock.lang.Specification {
         then: "validate the location chromosome, start, reference and alternate"
         variant.getChromosome() == chr
         variant.getStart() == start
+        variant.getEnd() == end
         variant.getReference() == reference
         variant.getAlternate() == alternate
 
         where:
-        hgvs                    || chr   | start  | reference | alternate
-        "NC_000019.9:g.35G>A"   || "19"  | 35     | "G"       | "A"
-        "NC_000019.9:g.35insA"  || "19"  | 35     | "G"       | "GA"
-        "NC_000019.9:g.35delG"  || "19"  | 34     | "TG"      | "T"
+        hgvs                          || chr   | start  | end | reference | alternate
+        "NC_000001.9:g.35G>A"         || "1"   | 35     | 35  | "G"       | "A"
+        "NC_000014.9:g.35insA"        || "14"  | 35     | 35  | "-"       | "A"
+        "NC_000024.10:g.35delG"       || "Y"   | 35     | 35  | "G"       | "-"
+        "NC_000019.9:g.14del"         || "19"  | 14     | 14  | "C"       | "-"
         and: "one nucleotide duplication is treated like one insertion"
-        "NC_000019.9:g.14dupC"  || "19"  | 13     | "T"       | "TC"
-        and: "one nucleotide insertion in the middle of a poly-T should be shifted to the previous non-T nucleotide"
-        "NC_000019.9:g.27insT"  || "19"  | 24     | "G"       | "GT"
-        and: "one nucleotide deletion in the middle of a poly-T should be shifted to the previous non-T nucleotide"
-        "NC_000019.9:g.28delT"  || "19"  | 24     | "GT"       | "G"
-
+        "NC_000019.9:g.14dupC"        || "19"  | 14     | 14  | "-"       | "C"
+        "NC_000019.9:g.14dup"         || "19"  | 14     | 14  | "-"       | "C"
+        and: "multiple nucleotide indels"
+        "NC_000004.8:g.692_694delGAC" || "4"   | 692    | 694 | "GAC"     | "-"
+        "NC_000019.9:g.34_36del"      || "19"  | 34     | 36  | "TGC"     | "-"
     }
 
     @Unroll
-    def "malformed hgvs #hgvs location should be null"() {
+    def "malformed hgvs #hgvs location should throwns ParseException"() {
+        when: "obtain the hgvs location"
+        new Hgvs(hgvs).getVariant(genomeSequenceFastaFile)
+
+        then:
+        thrown(ParseException)
+
+        where:
+        hgvs << ["NC_000019.9:g.14ins", "NC_000018.9:g.20573598_20573599delTAdelTA"]
+    }
+
+    @Unroll
+    def "unimplemented hgvs #hgvs transformation should return null"() {
         when: "obtain the hgvs location"
         def variant = new Hgvs(hgvs).getVariant(genomeSequenceFastaFile)
 
@@ -57,7 +71,6 @@ class HgvsTest extends spock.lang.Specification {
         variant == null
 
         where:
-        hgvs << ["NC_000019.9:g.14ins", "NC_000019.9:g.14del", "NC_000019.9:g.14dup",
-                "NC_000018.9:g.20573598_20573599delTAdelTA", "NC_000016.10:g.2088677_2088679delTGAinsT"]
+        hgvs << ["NC_000016.10:g.2088677_2088679delTGAinsT"]
     }
 }
