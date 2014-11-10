@@ -1,8 +1,5 @@
 package org.opencb.biodata.models.variant.clinical;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
  * @author by antonior on 5/22/14.
  * @author Luis Miguel Cruz.

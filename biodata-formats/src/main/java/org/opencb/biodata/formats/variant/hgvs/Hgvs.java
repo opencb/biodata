@@ -32,12 +32,15 @@ public class Hgvs {
     private BigInteger stop;
     private String change;
 
-    public Hgvs(String hgvs) {
-        // parse the hgvs
+    private static Pattern pattern;
+
+    static {
         String regEx = "(?<"+ACCESSION+">N\\S+):(?<"+TYPE+">\\w+).((?<"+START+">\\d*)_?(?<"+STOP+">\\d*))(?<"+CHANGE+">.+)";
-        // TODO: make pattern static to be compiled just once
-        Pattern pattern = Pattern.compile(regEx);
-        
+        pattern = Pattern.compile(regEx);
+    }
+
+    public Hgvs(String hgvs) {
+        // parse the hgvs string
         Matcher matcher = pattern.matcher(hgvs);
         matcher.find();
 
@@ -51,6 +54,7 @@ public class Hgvs {
             stop = this.start;
         }
         this.change = StringEscapeUtils.unescapeXml(matcher.group(Hgvs.CHANGE));
+        // TODO: is it necessary the unescapeXml call? Maybe this method should get an "unescaped" string
     }
 
     public SequenceLocationType getSequenceLocation(IndexedFastaSequenceFile genomeSequenceFastaFile) {
