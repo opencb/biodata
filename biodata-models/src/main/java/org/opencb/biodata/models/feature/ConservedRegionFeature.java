@@ -1,7 +1,6 @@
 package org.opencb.biodata.models.feature;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -14,10 +13,6 @@ public class ConservedRegionFeature {
     private int end;
     private int chunk;
     private List<ConservedRegionSource>sources;
-
-    public ConservedRegionFeature() {
-        sources = new ArrayList<>();
-    }
 
     public ConservedRegionFeature(String chromosome, int start, int end, int chunk) {
         this.chromosome = chromosome;
@@ -71,49 +66,9 @@ public class ConservedRegionFeature {
         this.sources.add(new ConservedRegionSource(type, values));
     }
 
-    public Integer compareTo(Object o) {
-        Integer result = null;
-        ConservedRegionFeature objC = (ConservedRegionFeature)o;
-
-        if (this.getChromosome().equalsIgnoreCase(objC.getChromosome())){
-            result = this.getStart()-objC.getStart();
-        }
-
-        return result;
-    }
-
-    public String toString(){
-        StringBuilder result = new StringBuilder("{\"chunk\":\""+this.getChunk()+"\", \"chr\":\""+this.getChromosome()+"\", \"start\":\""+this.getStart()+"\", " +
-                "\"end\":\""+this.getEnd()+"\", sources[");
-
-       for(ConservedRegionSource source: this.sources){
-            result.append("{\"type\":\""+source.getType()+"\", \"values\":[");
-
-            for(Float f: source.values){
-                if(f == null){
-                    result.append("null,");
-                } else {
-                    result.append(f.toString()+",");
-                }
-            }
-
-            result.deleteCharAt(result.length()-1);
-
-            result.append("]}");
-        }
-
-        result.append("]}");
-
-        return result.toString();
-    }
-
     public static class ConservedRegionSource{
         private String type;
         private List<Float>values;
-
-        public ConservedRegionSource (){
-            values = new LinkedList<>();
-        }
 
         public ConservedRegionSource(String type, List<Float> values) {
             this.type = type;
@@ -134,14 +89,6 @@ public class ConservedRegionFeature {
 
         public void setValues(List<Float> values) {
             this.values = values;
-        }
-
-        public void addValues(List<Float> values) {
-            this.values.addAll(values);
-        }
-
-        public void addValue(Float value) {
-            this.values.add(value);
         }
     }
 }
