@@ -74,30 +74,30 @@ public class Gwas {
     }
 
     public String getChromosome() {
-		return chromosome;
-	}
+        return chromosome;
+    }
 
-	public void setChromosome(String chromosome) {
-		this.chromosome = chromosome;
-	}
+    public void setChromosome(String chromosome) {
+        this.chromosome = chromosome;
+    }
 
-	public Integer getStart() {
-		return start;
-	}
+    public Integer getStart() {
+        return start;
+    }
 
-	public void setStart(Integer start) {
-		this.start = start;
-	}
+    public void setStart(Integer start) {
+        this.start = start;
+    }
 
-	public Integer getEnd() {
-		return end;
-	}
+    public Integer getEnd() {
+        return end;
+    }
 
-	public void setEnd(Integer end) {
-		this.end = end;
-	}
+    public void setEnd(Integer end) {
+        this.end = end;
+    }
 
-	public String getReportedGenes() {
+    public String getReportedGenes() {
         return reportedGenes;
     }
 
@@ -217,21 +217,21 @@ public class Gwas {
         this.cnv = cnv;
     }
 
-	public String getReference() {
-		return reference;
-	}
+    public String getReference() {
+        return reference;
+    }
 
-	public void setReference(String reference) {
-		this.reference = reference;
-	}
+    public void setReference(String reference) {
+        this.reference = reference;
+    }
 
-	public String getAlternate() {
-		return alternate;
-	}
+    public String getAlternate() {
+        return alternate;
+    }
 
-	public void setAlternate(String alternate) {
-		this.alternate = alternate;
-	}
+    public void setAlternate(String alternate) {
+        this.alternate = alternate;
+    }
 
     public void addStudies(List<GwasStudy> studies) {
         for (GwasStudy study : studies) {

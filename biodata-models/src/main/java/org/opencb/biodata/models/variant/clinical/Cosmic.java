@@ -5,7 +5,7 @@ package org.opencb.biodata.models.variant.clinical;
  * @author Luis Miguel Cruz.
  * @since October 08, 2014 
  */
-public class Cosmic implements Comparable {
+public class Cosmic {
 
     /** Alternate Allele */
     private String alternate;
@@ -133,22 +133,22 @@ public class Cosmic implements Comparable {
     }
 
     public int getStart() {
-		return start;
-	}
+        return start;
+    }
 
-	public void setStart(int start) {
-		this.start = start;
-	}
+    public void setStart(int start) {
+        this.start = start;
+    }
 
-	public int getEnd() {
-		return end;
-	}
+    public int getEnd() {
+        return end;
+    }
 
-	public void setEnd(int end) {
-		this.end = end;
-	}
+    public void setEnd(int end) {
+        this.end = end;
+    }
 
-	public String getGeneName() {
+    public String getGeneName() {
         return geneName;
     }
 
@@ -362,20 +362,6 @@ public class Cosmic implements Comparable {
 
     public void setComments(String comments) {
         this.comments = comments;
-    }
-    
-    
-    // ----------------------- ADITIONAL FUNCTIONS --------------------------------
-    
-    public int compareTo(Object o) {
-        Cosmic otherCosmic = (Cosmic)o;
-        int chr1 = Integer.parseInt(this.getChromosome());
-        int chr2 = Integer.parseInt(otherCosmic.getChromosome());
-        if (chr1 != chr2) {
-            return chr1 - chr2;
-        } else {
-            return this.getStart() - otherCosmic.getStart();
-        }
     }
 
     public String getSampleSource() {

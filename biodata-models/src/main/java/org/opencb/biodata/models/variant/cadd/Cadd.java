@@ -181,30 +181,30 @@ public class Cadd {
     }
 
     public String getChromosome() {
-		return chromosome;
+        return chromosome;
 	}
 
-	public void setChromosome(String chromosome) {
-		this.chromosome = chromosome;
+    public void setChromosome(String chromosome) {
+        this.chromosome = chromosome;
 	}
 
-	public Integer getStart() {
-		return start;
+    public Integer getStart() {
+        return start;
 	}
 
-	public void setStart(Integer start) {
-		this.start = start;
+    public void setStart(Integer start) {
+        this.start = start;
 	}
 
-	public Integer getEnd() {
-		return end;
+    public Integer getEnd() {
+        return end;
 	}
 
-	public void setEnd(Integer end) {
-		this.end = end;
+    public void setEnd(Integer end) {
+        this.end = end;
 	}
 
-	public Float getEncExp() {
+    public Float getEncExp() {
         return EncExp;
     }
 

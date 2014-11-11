@@ -36,6 +36,4 @@ public class VariantTransformToEnsemblFormatTest {
         assertEquals(v1, v1_esembl_format);
 
     }
-
-
 }
