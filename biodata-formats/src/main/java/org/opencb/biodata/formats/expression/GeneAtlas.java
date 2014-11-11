@@ -1,4 +1,4 @@
-package org.opencb.biodata.models.Expresion;
+package org.opencb.biodata.formats.expression;
 
 import java.util.List;
 

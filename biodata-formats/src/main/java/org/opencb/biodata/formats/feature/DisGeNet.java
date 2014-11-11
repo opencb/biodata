@@ -1,4 +1,4 @@
-package org.opencb.biodata.models.feature;
+package org.opencb.biodata.formats.feature;
 
 import java.util.ArrayList;
 import java.util.List;

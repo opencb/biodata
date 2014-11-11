@@ -1,4 +1,4 @@
-package org.opencb.biodata.models.variant.cadd;
+package org.opencb.biodata.formats.variant;
 
 import java.util.ArrayList;
 import java.util.List;
