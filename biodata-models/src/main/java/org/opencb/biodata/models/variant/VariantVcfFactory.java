@@ -195,6 +195,7 @@ public class VariantVcfFactory implements VariantFactory {
     protected void parseSplitSampleData(Variant variant, VariantSource source, String[] fields, 
             String[] alternateAlleles, int alleleIdx) throws NonStandardCompliantSampleField {
         String[] formatFields = variant.getFile(source.getFileId(), source.getStudyId()).getFormat().split(":");
+        List<String> samples = source.getSamples();
 
         for (int i = 9; i < fields.length; i++) {
             Map<String, String> map = new HashMap<>(5);
@@ -204,7 +205,9 @@ public class VariantVcfFactory implements VariantFactory {
             String[] sampleFields = fields[i].split(":");
             Genotype genotype = null;
 
-            for (int j = 0; j < formatFields.length; j++) {
+            // Samples may remove the trailing fields (only GT is mandatory),
+            // so the loop iterates to sampleFields.length, not formatFields.length
+            for (int j = 0; j < sampleFields.length; j++) {
                 String formatField = formatFields[j];
                 String sampleField = sampleFields[j];
 
@@ -269,12 +272,12 @@ public class VariantVcfFactory implements VariantFactory {
                     }
                 }
 
-                map.put(formatField.toUpperCase(), sampleField);
+                map.put(formatField, sampleField);
             }
 
             // If the genotype of the sample did not match the alleles of this variant, do not add it to the list
             if (shouldAddSample) {
-                variant.getFile(source.getFileId(), source.getStudyId()).addSampleData(source.getSamples().get(i - 9), map);
+                variant.getFile(source.getFileId(), source.getStudyId()).addSampleData(samples.get(i - 9), map);
             }
         }
     }
@@ -289,19 +292,21 @@ public class VariantVcfFactory implements VariantFactory {
      * @return If the sample should be associated to the variant
      */
     private boolean shouldAddSampleToVariant(String genotype, int alleleIdx) {
-        if (!genotype.contains(String.valueOf(alleleIdx))) {
-            if (!genotype.contains("0")) {
+        if (genotype.contains(String.valueOf(alleleIdx))) {
+            return true;
+        }
+        
+        if (!genotype.contains("0") && !genotype.contains(".")) {
+            return false;
+        }
+        
+        String[] alleles = genotype.split("[/|]");
+        for (String allele : alleles) {
+            if (!allele.equals("0") && !allele.equals(".")) {
                 return false;
-            } else {
-                String[] alleles = genotype.split("[/|]");
-                for (String allele : alleles) {
-                    if (!allele.equals("0") && !allele.equals(".")) {
-                        return false;
-                    }
-                }
             }
         }
-
+        
         return true;
     }
 
@@ -356,7 +361,10 @@ public class VariantVcfFactory implements VariantFactory {
                     case "DP":
                         int dp = 0;
                         for (String sampleName : file.getSampleNames()) {
-                            dp += Integer.parseInt(file.getSampleData(sampleName, "DP"));
+                            String sampleDp = file.getSampleData(sampleName, "DP");
+                            if (StringUtils.isNumeric(sampleDp)) {
+                                dp += Integer.parseInt(sampleDp);
+                            }
                         }
                         file.addAttribute(splits[0], String.valueOf(dp));
                         break;
