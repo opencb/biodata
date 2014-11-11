@@ -5,13 +5,13 @@ import java.util.List;
 /**
  * Created by antonior on 10/16/14.
  */
-public class GeneAtlas {
+public class GeneExpressionAtlas {
 
     private String geneId;
     private String geneName;
     private List <Tissue> tissues;
 
-    public GeneAtlas(String geneId, String geneName, List<Tissue> tissues) {
+    public GeneExpressionAtlas(String geneId, String geneName, List<Tissue> tissues) {
         this.geneId = geneId;
         this.geneName = geneName;
         this.tissues = tissues;
