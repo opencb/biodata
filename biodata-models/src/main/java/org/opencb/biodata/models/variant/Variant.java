@@ -16,18 +16,14 @@ public class Variant {
     /**
      * Type of variation, which depends mostly on its length.
      * <ul>
-     * <li>SNVs involve a single nucleotide, without changes in length</li>
-     * <li>MNVs involve multiple nucleotides, without changes in length</li>
-     * <li>Indels are insertions or deletions of less than SV_THRESHOLD (50) nucleotides</li>
-     * <li>Structural variations are large changes of more than SV_THRESHOLD nucleotides</li>
-     * <li>Copy-number variations alter the number of copies of a region</li>
+     *  <li>SNVs involve a single nucleotide, without changes in length</li>
+     *  <li>MNVs involve multiple nucleotides, without changes in length</li>
+     *  <li>Indels are insertions or deletions of less than SV_THRESHOLD (50) nucleotides</li>
+     *  <li>Structural variations are large changes of more than SV_THRESHOLD nucleotides</li>
+     *  <li>Copy-number variations alter the number of copies of a region</li>
      * </ul>
      */
-    public enum VariantType {
-        SNV, MNV, INDEL, SV, CNV
-    }
-
-    ;
+    public enum VariantType { SNV, MNV, INDEL, SV, CNV }
 
     /**
      * Type of variation: single nucleotide, indel or structural variation.
@@ -54,10 +50,10 @@ public class Variant {
     /**
      * Position where the genomic variation ends.
      * <ul>
-     * <li>SNVs have the same start and end positions</li>
-     * <li>Insertions end in the first present position: if the last nucleotide
+     *  <li>SNVs have the same start and end positions</li>
+     *  <li>Insertions end in the first present position: if the last nucleotide
      * is inserted in position 9, the end is position 10</li>
-     * <li>Deletions ends in the last previously present position: if the last
+     *  <li>Deletions ends in the last previously present position: if the last
      * deleted nucleotide is in position 9, the end is position 9</li>
      * </ul>
      */
@@ -66,8 +62,8 @@ public class Variant {
     /**
      * Length of the genomic variation, which depends on the variation type.
      * <ul>
-     * <li>SNVs have a length of 1 nucleotide</li>
-     * <li>Indels have the length of the largest allele</li>
+     *  <li>SNVs have a length of 1 nucleotide</li>
+     *  <li>Indels have the length of the largest allele</li>
      * </ul>
      */
     private int length;
@@ -314,7 +310,7 @@ public class Variant {
         return file.getSampleNames();
     }
 
-    public void TransformToEnsemblFormat() {
+    public void transformToEnsemblFormat() {
         if (this.type == VariantType.INDEL || this.type == VariantType.SV || this.length > 1) {
             if (this.reference.charAt(0) == this.alternate.charAt(0)) {
                 this.reference = this.reference.substring(1);
