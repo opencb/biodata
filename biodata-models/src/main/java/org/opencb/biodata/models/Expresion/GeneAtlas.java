@@ -8,8 +8,8 @@ import java.util.List;
 public class GeneAtlas {
 
     private String geneId;
-
     private String geneName;
+    private List <Tissue> tissues;
 
     public GeneAtlas(String geneId, String geneName, List<Tissue> tissues) {
         this.geneId = geneId;
@@ -40,8 +40,6 @@ public class GeneAtlas {
     public void setGeneId(String geneId) {
         this.geneId = geneId;
     }
-
-    private List <Tissue> tissues;
 
     public static class Tissue {
 
