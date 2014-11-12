@@ -30,7 +30,7 @@ public class VariantVcfEVSFactoryTest {
         Map<Genotype, Integer> genotypes = new HashMap<>();
 
         genotypes.put(new Genotype("0/0","T","G"), 5101);
-        genotypes.put(new Genotype("1/0","T","G"), 141);
+        genotypes.put(new Genotype("0/1","T","G"), 141);
         genotypes.put(new Genotype("1/1","T","G"), 93);
 
         assertEquals(avf.getStats().getGenotypesCount(), genotypes);
@@ -76,7 +76,7 @@ public class VariantVcfEVSFactoryTest {
         Map<Genotype, Integer> genotypes = new HashMap<>();
 
         genotypes.put(new Genotype("1/1", "G", ""), 1);
-        genotypes.put(new Genotype("1/0", "G", ""), 1);
+        genotypes.put(new Genotype("0/1", "G", ""), 1);
         genotypes.put(new Genotype("0/0", "G", ""), 6253);
 
         assertEquals(avf.getStats().getGenotypesCount(), genotypes);
@@ -103,7 +103,7 @@ public class VariantVcfEVSFactoryTest {
         Map<Genotype, Integer> genotypes = new HashMap<>();
 
         genotypes.put(new Genotype("1/1", "T", ""), 1697);
-        genotypes.put(new Genotype("1/0", "T", ""), 1298);
+        genotypes.put(new Genotype("0/1", "T", ""), 1298);
         genotypes.put(new Genotype("0/0", "T", ""), 3261);
 
         assertEquals(avf.getStats().getGenotypesCount(), genotypes);
@@ -129,7 +129,7 @@ public class VariantVcfEVSFactoryTest {
         Map<Genotype, Integer> genotypes = new HashMap<>();
 
         genotypes.put(new Genotype("1/1", "", "A"), 162);
-        genotypes.put(new Genotype("1/0", "", "A"), 134);
+        genotypes.put(new Genotype("0/1", "", "A"), 134);
         genotypes.put(new Genotype("0/0", "", "A"), 5734);
         genotypes.put(new Genotype("./.", "", "A"), 203);
 
@@ -147,7 +147,7 @@ public class VariantVcfEVSFactoryTest {
         genotypes = new HashMap<>();
 
         genotypes.put(new Genotype("1/1", "A", ""), 111);
-        genotypes.put(new Genotype("1/0", "A", ""), 92);
+        genotypes.put(new Genotype("0/1", "A", ""), 92);
         genotypes.put(new Genotype("0/0", "A", ""), 5734);
         genotypes.put(new Genotype("./.", "A", ""), 296);
 
