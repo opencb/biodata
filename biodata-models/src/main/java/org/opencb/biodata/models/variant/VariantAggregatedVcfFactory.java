@@ -24,22 +24,22 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
         // Fields not affected by the structure of REF and ALT fields
         variant.setId(id);
         if (quality > -1) {
-            variant.getFile(source.getFileId(), source.getStudyId()).addAttribute("QUAL", String.valueOf(quality));
+            variant.getSourceEntry(source.getFileId(), source.getStudyId()).addAttribute("QUAL", String.valueOf(quality));
         }
         if (!filter.isEmpty()) {
-            variant.getFile(source.getFileId(), source.getStudyId()).addAttribute("FILTER", filter);
+            variant.getSourceEntry(source.getFileId(), source.getStudyId()).addAttribute("FILTER", filter);
         }
         if (!info.isEmpty()) {
             parseInfo(variant, source.getFileId(), source.getStudyId(), info, numAllele);
         }
-        variant.getFile(source.getFileId(), source.getStudyId()).setFormat(format);
-        variant.getFile(source.getFileId(), source.getStudyId()).addAttribute("src", line);
+        variant.getSourceEntry(source.getFileId(), source.getStudyId()).setFormat(format);
+        variant.getSourceEntry(source.getFileId(), source.getStudyId()).addAttribute("src", line);
 
         addStats(variant, source, alternateAlleles);
     }
 
     private void addStats(Variant variant, VariantSource source, String[] alternateAlleles) {
-        ArchivedVariantFile file = variant.getFile(source.getFileId(), source.getStudyId());
+        VariantSourceEntry file = variant.getSourceEntry(source.getFileId(), source.getStudyId());
 
         if (file.hasAttribute("AN") && file.hasAttribute("AC")) {
             int total = Integer.parseInt(file.getAttribute("AN"));

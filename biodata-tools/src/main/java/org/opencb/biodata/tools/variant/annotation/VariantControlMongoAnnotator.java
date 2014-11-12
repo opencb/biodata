@@ -3,7 +3,7 @@ package org.opencb.biodata.tools.variant.annotation;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Joiner;
-import org.opencb.biodata.models.variant.ArchivedVariantFile;
+import org.opencb.biodata.models.variant.VariantSourceEntry;
 import org.opencb.biodata.models.variant.Variant;
 
 import javax.ws.rs.client.Client;
@@ -72,7 +72,7 @@ public class VariantControlMongoAnnotator implements VariantAnnotator {
                                     gts.add(aux);
                                 }
 
-                                for (Map.Entry<String, ArchivedVariantFile> file : v.getFiles().entrySet()) {
+                                for (Map.Entry<String, VariantSourceEntry> file : v.getSourceEntries().entrySet()) {
                                     file.getValue().addAttribute(source.get("sourceId").asText() + "_maf", "" + df.format(source.get("stats").get("maf").asDouble()));
                                     file.getValue().addAttribute(source.get("sourceId").asText() + "_amaf", "" + source.get("stats").get("alleleMaf").asText());
                                     file.getValue().addAttribute(source.get("sourceId").asText() + "_gt", Joiner.on(",").join(gts));

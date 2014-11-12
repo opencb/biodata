@@ -162,8 +162,8 @@ public class VariantVcfFactoryTest {
 
         // Initialize expected variants
         Variant var0 = new Variant("1", 10041, 10041 + "C".length() - 1, "T", "C");
-        ArchivedVariantFile file0 = new ArchivedVariantFile(source.getFileId(), source.getStudyId());
-        var0.addFile(file0);
+        VariantSourceEntry file0 = new VariantSourceEntry(source.getFileId(), source.getStudyId());
+        var0.addSourceEntry(file0);
 
         // Initialize expected samples
         Map<String, String> na001 = new HashMap<>();
@@ -177,18 +177,18 @@ public class VariantVcfFactoryTest {
         Map<String, String> na005 = new HashMap<>();
         na005.put("GT", "1/1");
 
-        var0.getFile(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(0), na001);
-        var0.getFile(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(1), na002);
-        var0.getFile(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(2), na003);
-        var0.getFile(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(3), na004);
-        var0.getFile(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(4), na005);
+        var0.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(0), na001);
+        var0.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(1), na002);
+        var0.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(2), na003);
+        var0.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(3), na004);
+        var0.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(4), na005);
 
         // Check proper conversion of samples
         List<Variant> result = factory.create(source, line);
         assertEquals(1, result.size());
 
         Variant getVar0 = result.get(0);
-        assertEquals(var0.getFile(source.getFileId(), source.getStudyId()).getSamplesData(), getVar0.getFile(source.getFileId(), source.getStudyId()).getSamplesData());
+        assertEquals(var0.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData(), getVar0.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData());
     }
 
     @Test
@@ -199,12 +199,12 @@ public class VariantVcfFactoryTest {
 
         // Initialize expected variants
         Variant var0 = new Variant("1", 123456, 123456, "T", "C");
-        ArchivedVariantFile file0 = new ArchivedVariantFile(source.getFileId(), source.getStudyId());
-        var0.addFile(file0);
+        VariantSourceEntry file0 = new VariantSourceEntry(source.getFileId(), source.getStudyId());
+        var0.addSourceEntry(file0);
 
         Variant var1 = new Variant("1", 123456, 123456, "T", "G");
-        ArchivedVariantFile file1 = new ArchivedVariantFile(source.getFileId(), source.getStudyId());
-        var1.addFile(file1);
+        VariantSourceEntry file1 = new VariantSourceEntry(source.getFileId(), source.getStudyId());
+        var1.addSourceEntry(file1);
 
 
         // Initialize expected samples
@@ -233,12 +233,12 @@ public class VariantVcfFactoryTest {
         na004.put("GQ", "99");
         na004.put("PL", "162,0,180");
 
-        var0.getFile(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(0), na001);
-        var0.getFile(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(2), na003);
+        var0.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(0), na001);
+        var0.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(2), na003);
 
-        var1.getFile(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(1), na002);
-        var1.getFile(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(2), na003);
-        var1.getFile(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(3), na004);
+        var1.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(1), na002);
+        var1.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(2), na003);
+        var1.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(3), na004);
 
 
         // Check proper conversion of samples
@@ -246,10 +246,10 @@ public class VariantVcfFactoryTest {
         assertEquals(2, result.size());
 
         Variant getVar0 = result.get(0);
-        assertEquals(var0.getFile(source.getFileId(), source.getStudyId()).getSamplesData(), getVar0.getFile(source.getFileId(), source.getStudyId()).getSamplesData());
+        assertEquals(var0.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData(), getVar0.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData());
 
         Variant getVar1 = result.get(1);
-        assertEquals(var1.getFile(source.getFileId(), source.getStudyId()).getSamplesData(), getVar1.getFile(source.getFileId(), source.getStudyId()).getSamplesData());
+        assertEquals(var1.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData(), getVar1.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData());
     }
 
     @Test
@@ -260,12 +260,12 @@ public class VariantVcfFactoryTest {
 
         // Initialize expected variants
         Variant var0 = new Variant("1", 10041, 10041 + "C".length() - 1, "T", "C");
-        ArchivedVariantFile file0 = new ArchivedVariantFile(source.getFileId(), source.getStudyId());
-        var0.addFile(file0);
+        VariantSourceEntry file0 = new VariantSourceEntry(source.getFileId(), source.getStudyId());
+        var0.addSourceEntry(file0);
 
         Variant var1 = new Variant("1", 10050, 10050 + "GC".length() - 1, "T", "GC");
-        ArchivedVariantFile file1 = new ArchivedVariantFile(source.getFileId(), source.getStudyId());
-        var1.addFile(file1);
+        VariantSourceEntry file1 = new VariantSourceEntry(source.getFileId(), source.getStudyId());
+        var1.addSourceEntry(file1);
 
         // Initialize expected samples
         Map<String, String> na001 = new HashMap<>();
@@ -290,25 +290,25 @@ public class VariantVcfFactoryTest {
         na006.put("GT", "1/1");
         na006.put("GL", "1,4,6");
 
-        var0.getFile(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(0), na001);
-        var0.getFile(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(1), na002);
-        var0.getFile(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(3), na004);
-        var0.getFile(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(4), na005_C);
+        var0.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(0), na001);
+        var0.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(1), na002);
+        var0.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(3), na004);
+        var0.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(4), na005_C);
 
-        var1.getFile(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(0), na001);
-        var1.getFile(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(2), na003);
-        var1.getFile(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(4), na005_GC);
-        var1.getFile(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(5), na006);
+        var1.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(0), na001);
+        var1.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(2), na003);
+        var1.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(4), na005_GC);
+        var1.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(5), na006);
 
         // Check proper conversion of samples
         List<Variant> result = factory.create(source, line);
         assertEquals(2, result.size());
 
         Variant getVar0 = result.get(0);
-        assertEquals(var0.getFile(source.getFileId(), source.getStudyId()).getSamplesData(), getVar0.getFile(source.getFileId(), source.getStudyId()).getSamplesData());
+        assertEquals(var0.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData(), getVar0.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData());
 
         Variant getVar1 = result.get(1);
-        assertEquals(var1.getFile(source.getFileId(), source.getStudyId()).getSamplesData(), getVar1.getFile(source.getFileId(), source.getStudyId()).getSamplesData());
+        assertEquals(var1.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData(), getVar1.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData());
     }
     
     @Test
@@ -319,8 +319,8 @@ public class VariantVcfFactoryTest {
     
         // Initialize expected variants
         Variant var0 = new Variant("1", 1407616, 1407616, "C", "G");
-        ArchivedVariantFile file0 = new ArchivedVariantFile(source.getFileId(), source.getStudyId());
-        var0.addFile(file0);
+        VariantSourceEntry file0 = new VariantSourceEntry(source.getFileId(), source.getStudyId());
+        var0.addSourceEntry(file0);
         
         // Initialize expected samples
         Map<String, String> na001 = new HashMap<>();
@@ -348,10 +348,10 @@ public class VariantVcfFactoryTest {
         na004.put("GQ", ".");
         na004.put("PL", ".");
         
-        var0.getFile(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(0), na001);
-        var0.getFile(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(1), na002);
-        var0.getFile(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(2), na003);
-        var0.getFile(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(3), na004);
+        var0.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(0), na001);
+        var0.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(1), na002);
+        var0.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(2), na003);
+        var0.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(3), na004);
         
         
         // Check proper conversion of samples
@@ -359,7 +359,7 @@ public class VariantVcfFactoryTest {
         assertEquals(1, result.size());
 
         Variant getVar0 = result.get(0);
-        ArchivedVariantFile getFile0 = getVar0.getFile(source.getFileId(), source.getStudyId());
+        VariantSourceEntry getFile0 = getVar0.getSourceEntry(source.getFileId(), source.getStudyId());
         
         Map<String, String> na001Data = getFile0.getSampleData("NA001");
         assertEquals("./.", na001Data.get("GT"));
@@ -399,12 +399,12 @@ public class VariantVcfFactoryTest {
         
         // Initialize expected variants
         Variant var0 = new Variant("1", 123456, 123456, "T", "C");
-        ArchivedVariantFile file0 = new ArchivedVariantFile(source.getFileId(), source.getStudyId());
-        var0.addFile(file0);
+        VariantSourceEntry file0 = new VariantSourceEntry(source.getFileId(), source.getStudyId());
+        var0.addSourceEntry(file0);
 
         Variant var1 = new Variant("1", 123456, 123456, "T", "G");
-        ArchivedVariantFile file1 = new ArchivedVariantFile(source.getFileId(), source.getStudyId());
-        var1.addFile(file1);
+        VariantSourceEntry file1 = new VariantSourceEntry(source.getFileId(), source.getStudyId());
+        var1.addSourceEntry(file1);
         
         
         // Initialize expected samples
@@ -433,12 +433,12 @@ public class VariantVcfFactoryTest {
         na004.put("GQ", "99");
         na004.put("PL", "162,0,180");
 
-        var0.getFile(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(0), na001);
-        var0.getFile(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(2), na003);
+        var0.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(0), na001);
+        var0.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(2), na003);
 
-        var1.getFile(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(1), na002);
-        var1.getFile(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(2), na003);
-        var1.getFile(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(3), na004);
+        var1.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(1), na002);
+        var1.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(2), na003);
+        var1.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(3), na004);
 
 
         // Check proper conversion of samples
@@ -446,7 +446,7 @@ public class VariantVcfFactoryTest {
         assertEquals(2, result.size());
 
         Variant getVar0 = result.get(0);
-        ArchivedVariantFile getFile0 = getVar0.getFile(source.getFileId(), source.getStudyId());
+        VariantSourceEntry getFile0 = getVar0.getSourceEntry(source.getFileId(), source.getStudyId());
         assertEquals(2, Integer.parseInt(getFile0.getAttribute("NS")));
 //        assertEquals(2, Integer.parseInt(getFile0.getAttribute("AN")));
         assertEquals(1, Integer.parseInt(getFile0.getAttribute("AC")));
@@ -456,7 +456,7 @@ public class VariantVcfFactoryTest {
         assertEquals(0, Integer.parseInt(getFile0.getAttribute("MQ0")));
 
         Variant getVar1 = result.get(1);
-        ArchivedVariantFile getFile1 = getVar1.getFile(source.getFileId(), source.getStudyId());
+        VariantSourceEntry getFile1 = getVar1.getSourceEntry(source.getFileId(), source.getStudyId());
         assertEquals(3, Integer.parseInt(getFile1.getAttribute("NS")));
 //        assertEquals(2, Integer.parseInt(getFile1.getAttribute("AN")));
         assertEquals(2, Integer.parseInt(getFile1.getAttribute("AC")));

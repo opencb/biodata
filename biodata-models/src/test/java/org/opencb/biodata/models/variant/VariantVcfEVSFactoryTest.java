@@ -25,7 +25,7 @@ public class VariantVcfEVSFactoryTest {
         assertTrue(res.size() == 1);
 
         Variant v = res.get(0);
-        ArchivedVariantFile avf = v.getFile(source.getFileId(), source.getStudyId());
+        VariantSourceEntry avf = v.getSourceEntry(source.getFileId(), source.getStudyId());
 
         Map<Genotype, Integer> genotypes = new HashMap<>();
 
@@ -46,7 +46,7 @@ public class VariantVcfEVSFactoryTest {
         assertTrue(res.size() == 1);
 
         Variant v = res.get(0);
-        ArchivedVariantFile avf = v.getFile(source.getFileId(), source.getStudyId());
+        VariantSourceEntry avf = v.getSourceEntry(source.getFileId(), source.getStudyId());
 
         Map<Genotype, Integer> genotypes = new HashMap<>();
 
@@ -71,7 +71,7 @@ public class VariantVcfEVSFactoryTest {
         assertEquals(v.getAlternate(), "");
 
 
-        ArchivedVariantFile avf = v.getFile(source.getFileId(), source.getStudyId());
+        VariantSourceEntry avf = v.getSourceEntry(source.getFileId(), source.getStudyId());
 
         Map<Genotype, Integer> genotypes = new HashMap<>();
 
@@ -98,7 +98,7 @@ public class VariantVcfEVSFactoryTest {
         assertEquals(v.getAlternate(), "");
 
 
-        ArchivedVariantFile avf = v.getFile(source.getFileId(), source.getStudyId());
+        VariantSourceEntry avf = v.getSourceEntry(source.getFileId(), source.getStudyId());
 
         Map<Genotype, Integer> genotypes = new HashMap<>();
 
@@ -124,7 +124,7 @@ public class VariantVcfEVSFactoryTest {
         assertEquals(v.getAlternate(), "A");
 
 
-        ArchivedVariantFile avf = v.getFile(source.getFileId(), source.getStudyId());
+        VariantSourceEntry avf = v.getSourceEntry(source.getFileId(), source.getStudyId());
 
         Map<Genotype, Integer> genotypes = new HashMap<>();
 
@@ -142,7 +142,7 @@ public class VariantVcfEVSFactoryTest {
         assertEquals(v.getAlternate(), "");
 
 
-        avf = v.getFile(source.getFileId(), source.getStudyId());
+        avf = v.getSourceEntry(source.getFileId(), source.getStudyId());
 
         genotypes = new HashMap<>();
 

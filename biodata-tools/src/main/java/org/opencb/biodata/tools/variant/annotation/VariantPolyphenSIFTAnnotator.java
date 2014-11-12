@@ -3,7 +3,7 @@ package org.opencb.biodata.tools.variant.annotation;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import org.opencb.biodata.models.variant.ArchivedVariantFile;
+import org.opencb.biodata.models.variant.VariantSourceEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.effect.ProteinSubstitutionScores;
 import org.opencb.biodata.tools.variant.EffectCalculator;
@@ -41,14 +41,14 @@ public class VariantPolyphenSIFTAnnotator implements VariantAnnotator {
         EffectCalculator.setEffects(batch, true, true);
 
         for (Variant variant : batch) {
-            for (Map.Entry<String, ArchivedVariantFile> file : variant.getFiles().entrySet()) {
+            for (Map.Entry<String, VariantSourceEntry> file : variant.getSourceEntries().entrySet()) {
                 annotPolyphenSIFT(variant, file.getValue());
             }
         }
 
     }
 
-    private void annotPolyphenSIFT(Variant variant, ArchivedVariantFile file) {
+    private void annotPolyphenSIFT(Variant variant, VariantSourceEntry file) {
         if (!file.hasAttribute(this.polyphenScoreTag)) {
             annotPolyphen(variant, file);
         }
@@ -58,7 +58,7 @@ public class VariantPolyphenSIFTAnnotator implements VariantAnnotator {
         }
     }
 
-    private void annotPolyphen(Variant variant, ArchivedVariantFile file) {
+    private void annotPolyphen(Variant variant, VariantSourceEntry file) {
         ProteinSubstitutionScores scores = variant.getAnnotation().getProteinSubstitutionScores();
         if (scores.getPolyphenScore() >= 0) {
             file.addAttribute(this.polyphenScoreTag, String.valueOf(scores.getPolyphenScore()));
@@ -66,7 +66,7 @@ public class VariantPolyphenSIFTAnnotator implements VariantAnnotator {
         }
     }
 
-    private void annotSIFT(Variant variant, ArchivedVariantFile file) {
+    private void annotSIFT(Variant variant, VariantSourceEntry file) {
         ProteinSubstitutionScores scores = variant.getAnnotation().getProteinSubstitutionScores();
         if (scores.getSiftScore() >= 0) {
             file.addAttribute(this.siftScoreTag, String.valueOf(scores.getSiftScore()));

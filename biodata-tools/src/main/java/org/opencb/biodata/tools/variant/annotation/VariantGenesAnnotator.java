@@ -20,7 +20,7 @@ import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.opencb.biodata.models.feature.Gene;
-import org.opencb.biodata.models.variant.ArchivedVariantFile;
+import org.opencb.biodata.models.variant.VariantSourceEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.effect.VariantEffect;
 import org.opencb.datastore.core.QueryResponse;
@@ -81,7 +81,7 @@ public class VariantGenesAnnotator implements VariantAnnotator {
                 for (Gene gene : queryResult.getResult()) {
                     Variant variant = batch.get(i);
                     variant.getAnnotation().addGene(gene);
-                    for (Map.Entry<String, ArchivedVariantFile> file : variant.getFiles().entrySet()) {
+                    for (Map.Entry<String, VariantSourceEntry> file : variant.getSourceEntries().entrySet()) {
                         annotGeneName(variant, file.getValue());
                     }
                 }
@@ -96,7 +96,7 @@ public class VariantGenesAnnotator implements VariantAnnotator {
 
     }
 
-    private void annotGeneName(Variant variant, ArchivedVariantFile file) {
+    private void annotGeneName(Variant variant, VariantSourceEntry file) {
         Set<String> geneNames = new HashSet<>();
 
         for (List<VariantEffect> list : variant.getAnnotation().getEffects().values()) {

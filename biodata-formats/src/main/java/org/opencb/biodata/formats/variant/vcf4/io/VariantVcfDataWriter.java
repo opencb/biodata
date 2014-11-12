@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import org.opencb.biodata.formats.variant.io.VariantReader;
 import org.opencb.biodata.formats.variant.io.VariantWriter;
-import org.opencb.biodata.models.variant.ArchivedVariantFile;
+import org.opencb.biodata.models.variant.VariantSourceEntry;
 import org.opencb.biodata.models.variant.Variant;
 
 /**
@@ -71,7 +71,7 @@ public class VariantVcfDataWriter implements VariantWriter {
         sb.append(elem.getReference()).append("\t");
         sb.append(elem.getAlternate()).append("\t");
 
-        ArchivedVariantFile file = elem.getFiles().values().iterator().next();
+        VariantSourceEntry file = elem.getSourceEntries().values().iterator().next();
         if (file == null) {
             // There must be a file associated with this variant
             return false;
@@ -103,7 +103,7 @@ public class VariantVcfDataWriter implements VariantWriter {
         return true;
     }
 
-    private String generateSampleInfo(Variant elem, ArchivedVariantFile file, List<String> format) {
+    private String generateSampleInfo(Variant elem, VariantSourceEntry file, List<String> format) {
         StringBuilder sb = new StringBuilder();
 
         Iterator<String> sampleIt = elem.getSampleNames(file.getStudyId(), file.getFileId()).iterator();
@@ -130,7 +130,7 @@ public class VariantVcfDataWriter implements VariantWriter {
         return sb.toString();
     }
 
-    private List<String> getFormatOrder(ArchivedVariantFile file) {
+    private List<String> getFormatOrder(VariantSourceEntry file) {
         return Lists.newArrayList(file.getFormat().split(":"));
     }
 
