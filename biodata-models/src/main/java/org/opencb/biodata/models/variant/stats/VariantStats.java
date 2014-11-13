@@ -50,34 +50,30 @@ public class VariantStats {
     private float casesPercentRecessive;
     private float controlsPercentRecessive;
     
-    private boolean transition;
-    private boolean transversion;
-    
     private float quality;
     private int numSamples;
     private VariantHardyWeinbergStats hw;
 
     
     public VariantStats() {
-        this(null, -1, null, null, Variant.VariantType.SNV, -1, -1, null, null, -1, -1, -1, false, -1, -1, -1, -1);
+        this(null, -1, null, null, Variant.VariantType.SNV, -1, -1, null, null, -1, -1, -1, -1, -1, -1, -1);
     }
 
     public VariantStats(Variant variant) {
         this(null, -1, 
             variant != null ? variant.getReference() : null, 
             variant != null ? variant.getAlternate() : null, 
-            Variant.VariantType.SNV, -1, -1, null, null, -1, -1, -1, false, -1, -1, -1, -1);
+            Variant.VariantType.SNV, -1, -1, null, null, -1, -1, -1, -1, -1, -1, -1);
     }
 
     public VariantStats(String referenceAllele, String alternateAllele, Variant.VariantType type) {
-        this(null, -1, referenceAllele, alternateAllele, type, -1, -1, null, null, -1, -1, -1, false, -1, -1, -1, -1);
+        this(null, -1, referenceAllele, alternateAllele, type, -1, -1, null, null, -1, -1, -1, -1, -1, -1, -1);
     }
     
     public VariantStats(String chromosome, int position, String referenceAllele, String alternateAlleles, 
             Variant.VariantType variantType, float maf, float mgf, String mafAllele, String mgfGenotype, 
-            int numMissingAlleles, int numMissingGenotypes, int numMendelErrors, boolean isIndel, 
-            float percentCasesDominant, float percentControlsDominant,
-            float percentCasesRecessive, float percentControlsRecessive) {
+            int numMissingAlleles, int numMissingGenotypes, int numMendelErrors, float percentCasesDominant, 
+            float percentControlsDominant, float percentCasesRecessive, float percentControlsRecessive) {
         this.refAllele = referenceAllele;
         this.altAllele = alternateAlleles;
         this.variantType = variantType;
@@ -97,6 +93,8 @@ public class VariantStats {
         this.controlsPercentDominant = percentControlsDominant;
         this.casesPercentRecessive = percentCasesRecessive;
         this.controlsPercentRecessive = percentControlsRecessive;
+        
+        this.quality = -1;
 
         this.hw = new VariantHardyWeinbergStats();
     }
@@ -296,19 +294,33 @@ public class VariantStats {
     }
 
     public boolean isTransition() {
-        return transition;
-    }
-
-    public void setTransition(boolean transition) {
-        this.transition = transition;
+        switch (refAllele.toUpperCase()) {
+            case "C":
+                return altAllele.equalsIgnoreCase("T");
+            case "T":
+                return altAllele.equalsIgnoreCase("C");
+            case "A":
+                return altAllele.equalsIgnoreCase("G");
+            case "G":
+                return altAllele.equalsIgnoreCase("A");
+            default:
+                return false;
+        }
     }
 
     public boolean isTransversion() {
-        return transversion;
-    }
-
-    public void setTransversion(boolean transversion) {
-        this.transversion = transversion;
+        switch (refAllele.toUpperCase()) {
+            case "C":
+                return !altAllele.equalsIgnoreCase("T");
+            case "T":
+                return !altAllele.equalsIgnoreCase("C");
+            case "A":
+                return !altAllele.equalsIgnoreCase("G");
+            case "G":
+                return !altAllele.equalsIgnoreCase("A");
+            default:
+                return false;
+        }
     }
 
     public VariantHardyWeinbergStats getHw() {
@@ -471,9 +483,6 @@ public class VariantStats {
         // Calculate Hardy-Weinberg statistic
         this.getHw().calculate();
 
-        // Transitions and transversions
-        this.calculateTransitionsAndTransversions();//refAllele, altAllele);
-
         // Update variables finally used to update file_stats_t structure
         if ("PASS".equalsIgnoreCase(attributes.get("FILTER"))) {
             this.setPassedFilters(true);
@@ -569,41 +578,6 @@ public class VariantStats {
         if (currMgfGenotype != null) {
             this.setMgf(currMgf);
             this.setMgfGenotype(currMgfGenotype.toString());
-        }
-    }
-
-    private void calculateTransitionsAndTransversions() {
-        if (refAllele.length() == 1 && altAllele.length() == 1) {
-            switch (refAllele.toUpperCase()) {
-                case "C":
-                    if (altAllele.equalsIgnoreCase("T")) {
-                        this.setTransition(true);
-                    } else {
-                        this.setTransversion(true);
-                    }
-                    break;
-                case "T":
-                    if (altAllele.equalsIgnoreCase("C")) {
-                        this.setTransition(true);
-                    } else {
-                        this.setTransversion(true);
-                    }
-                    break;
-                case "A":
-                    if (altAllele.equalsIgnoreCase("G")) {
-                        this.setTransition(true);
-                    } else {
-                        this.setTransversion(true);
-                    }
-                    break;
-                case "G":
-                    if (altAllele.equalsIgnoreCase("A")) {
-                        this.setTransition(true);
-                    } else {
-                        this.setTransversion(true);
-                    }
-                    break;
-            }
         }
     }
 
