@@ -25,6 +25,11 @@ public class VariantSourceEntry {
     private String studyId;
     
     /**
+     * Alternate alleles that appear along with a variant alternate.
+     */
+    private String[] secondaryAlternates;
+    
+    /**
      * Fields stored for each sample.
      */
     private String format;
@@ -48,6 +53,7 @@ public class VariantSourceEntry {
      */
     private Map<String, String> attributes;
 
+    
     VariantSourceEntry() { 
         this(null, null);
     }
@@ -75,6 +81,14 @@ public class VariantSourceEntry {
 
     public void setStudyId(String studyId) {
         this.studyId = studyId;
+    }
+
+    public String[] getSecondaryAlternates() {
+        return secondaryAlternates;
+    }
+
+    public void setSecondaryAlternates(String[] secondaryAlternates) {
+        this.secondaryAlternates = secondaryAlternates;
     }
 
     public String getFormat() {
@@ -139,9 +153,10 @@ public class VariantSourceEntry {
 
     @Override
     public int hashCode() {
-        int hash = 7;
+        int hash = 5;
         hash = 41 * hash + Objects.hashCode(this.fileId);
         hash = 41 * hash + Objects.hashCode(this.studyId);
+        hash = 41 * hash + Objects.hashCode(this.secondaryAlternates);
         hash = 41 * hash + Objects.hashCode(this.format);
         hash = 41 * hash + Objects.hashCode(this.samplesData);
         hash = 41 * hash + Objects.hashCode(this.attributes);
@@ -163,6 +178,9 @@ public class VariantSourceEntry {
         if (!Objects.equals(this.studyId, other.studyId)) {
             return false;
         }
+        if (!Objects.equals(this.secondaryAlternates, other.secondaryAlternates)) {
+            return false;
+        }
         if (!Objects.equals(this.format, other.format)) {
             return false;
         }
@@ -175,6 +193,4 @@ public class VariantSourceEntry {
         return true;
     }
 
-    
-    
 }
