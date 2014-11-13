@@ -366,6 +366,11 @@ public class VariantStats {
         float controlsRecessive = 0, casesRecessive = 0;
 
         this.setNumSamples(samplesData.size());
+        this.setMissingAlleles(0);
+        this.setMissingGenotypes(0);
+        if (pedigree != null) {
+            this.setMendelianErrors(0);
+        }
 
         for (Map.Entry<String, Map<String, String>> sample : samplesData.entrySet()) {
             String sampleName = sample.getKey();
@@ -481,16 +486,18 @@ public class VariantStats {
             }
         }
 
-        // Once all samples have been traversed, calculate % that follow inheritance model
-        controlsDominant = controlsDominant * 100 / (this.getNumSamples() - this.getMissingGenotypes());
-        casesDominant = casesDominant * 100 / (this.getNumSamples() - this.getMissingGenotypes());
-        controlsRecessive = controlsRecessive * 100 / (this.getNumSamples() - this.getMissingGenotypes());
-        casesRecessive = casesRecessive * 100 / (this.getNumSamples() - this.getMissingGenotypes());
+        if (pedigree != null) {
+            // Once all samples have been traversed, calculate % that follow inheritance model
+            controlsDominant = controlsDominant * 100 / (this.getNumSamples() - this.getMissingGenotypes());
+            casesDominant = casesDominant * 100 / (this.getNumSamples() - this.getMissingGenotypes());
+            controlsRecessive = controlsRecessive * 100 / (this.getNumSamples() - this.getMissingGenotypes());
+            casesRecessive = casesRecessive * 100 / (this.getNumSamples() - this.getMissingGenotypes());
 
-        this.setCasesPercentDominant(casesDominant);
-        this.setControlsPercentDominant(controlsDominant);
-        this.setCasesPercentRecessive(casesRecessive);
-        this.setControlsPercentRecessive(controlsRecessive);
+            this.setCasesPercentDominant(casesDominant);
+            this.setControlsPercentDominant(controlsDominant);
+            this.setCasesPercentRecessive(casesRecessive);
+            this.setControlsPercentRecessive(controlsRecessive);
+        }
 
         return this;
     }
