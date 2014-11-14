@@ -215,7 +215,7 @@
                 </executions>
                 <configuration>
                     <excludePackageNames>
-                        org.opencb.biodata.formats.protein.uniprot:org.opencb.biodata.formats.drug.drugbank:org.opencb.biodata.formats.clinical.clinvar
+                        org.opencb.biodata.formats.protein.uniprot:org.opencb.biodata.formats.drug.drugbank:org.opencb.biodata.formats.variant.clinvar
                     </excludePackageNames>
                 </configuration>
             </plugin>
