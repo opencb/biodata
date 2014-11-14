@@ -11,7 +11,7 @@ import java.util.Set;
 import org.opencb.biodata.ga4gh.GACall;
 import org.opencb.biodata.ga4gh.GAKeyValue;
 import org.opencb.biodata.ga4gh.GAVariant;
-import org.opencb.biodata.models.variant.ArchivedVariantFile;
+import org.opencb.biodata.models.variant.VariantSourceEntry;
 import org.opencb.biodata.models.variant.Variant;
 
 /**
@@ -24,7 +24,7 @@ public class GAVariantFactory {
         Set<GAVariant> gaVariants = new LinkedHashSet<>();
 
         for (Variant variant : variants) {
-            for (ArchivedVariantFile file : variant.getFiles().values()) {
+            for (VariantSourceEntry file : variant.getSourceEntries().values()) {
                 String[] vcfLine = file.getAttribute("src").split("\t");
                 String id = variant.getId().isEmpty() ? vcfLine[0] + "_" + vcfLine[1] : variant.getId();
                 

@@ -9,7 +9,7 @@ import org.opencb.biodata.models.pedigree.Condition;
 import org.opencb.biodata.models.pedigree.Individual;
 import org.opencb.biodata.models.pedigree.Pedigree;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.ArchivedVariantFile;
+import org.opencb.biodata.models.variant.VariantSourceEntry;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
 /**
@@ -23,7 +23,7 @@ public class StatsCalculator {
 //        List<VariantStats> statList = new ArrayList<>(variants.size());
 //
 //        for (Variant variant : variants) {
-//            for (ArchivedVariantFile file : variant.getFiles().values()) {
+//            for (VariantSourceEntry file : variant.getFiles().values()) {
 //                int genotypeCurrentPos;
 //                int totalAllelesCount = 0;
 //                int totalGenotypesCount = 0;

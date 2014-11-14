@@ -11,7 +11,7 @@ import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.pedigree.Condition;
 import org.opencb.biodata.models.pedigree.Individual;
 import org.opencb.biodata.models.pedigree.Pedigree;
-import org.opencb.biodata.models.variant.ArchivedVariantFile;
+import org.opencb.biodata.models.variant.VariantSourceEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.Variant.VariantType;
 
@@ -569,7 +569,7 @@ public class VariantStats {
      */
     public static void calculateStatsForVariantsList(List<Variant> variants, Pedigree ped) {
         for (Variant variant : variants) {
-            for (ArchivedVariantFile file : variant.getFiles().values()) {
+            for (VariantSourceEntry file : variant.getSourceEntries().values()) {
                 VariantStats stats = new VariantStats(variant).calculate(file.getSamplesData(), file.getAttributes(), ped);
                 file.setStats(stats); // TODO Correct?
             }
