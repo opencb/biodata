@@ -4,8 +4,8 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.effect.VariantEffect;
-import org.opencb.biodata.models.variant.effect.ConsequenceTypeMappings;
+import org.opencb.biodata.models.variant.annotation.VariantEffect;
+import org.opencb.biodata.models.variant.annotation.ConsequenceTypeMappings;
 import org.opencb.biodata.tools.variant.EffectCalculator;
 
 /**

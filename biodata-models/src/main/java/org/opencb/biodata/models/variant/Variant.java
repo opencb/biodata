@@ -1,8 +1,8 @@
 package org.opencb.biodata.models.variant;
 
 import java.util.*;
-import org.opencb.biodata.models.variant.effect.VariantEffect;
-import org.opencb.biodata.models.variant.effect.VariantAnnotation;
+import org.opencb.biodata.models.variant.annotation.VariantEffect;
+import org.opencb.biodata.models.variant.annotation.VariantAnnotation;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
 /**

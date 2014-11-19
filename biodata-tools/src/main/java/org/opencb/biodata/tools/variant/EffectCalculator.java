@@ -25,9 +25,9 @@ import java.util.Set;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
-import org.opencb.biodata.models.variant.effect.ProteinSubstitutionScores.PolyphenEffect;
-import org.opencb.biodata.models.variant.effect.ProteinSubstitutionScores.SiftEffect;
-import org.opencb.biodata.models.variant.effect.VariantEffect;
+import org.opencb.biodata.models.variant.annotation.ProteinSubstitutionScores.PolyphenEffect;
+import org.opencb.biodata.models.variant.annotation.ProteinSubstitutionScores.SiftEffect;
+import org.opencb.biodata.models.variant.annotation.VariantEffect;
 
 /**
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;

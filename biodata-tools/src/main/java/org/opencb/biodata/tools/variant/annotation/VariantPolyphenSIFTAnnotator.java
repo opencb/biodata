@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import org.opencb.biodata.models.variant.VariantSourceEntry;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.effect.ProteinSubstitutionScores;
+import org.opencb.biodata.models.variant.annotation.ProteinSubstitutionScores;
 import org.opencb.biodata.tools.variant.EffectCalculator;
 
 /**

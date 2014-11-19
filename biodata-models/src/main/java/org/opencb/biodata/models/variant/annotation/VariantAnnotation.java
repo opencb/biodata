@@ -1,4 +1,4 @@
-package org.opencb.biodata.models.variant.effect;
+package org.opencb.biodata.models.variant.annotation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
