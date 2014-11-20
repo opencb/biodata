@@ -7,7 +7,9 @@ import java.util.Objects;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
 public class Frequency {
-    
+
+    private String study;
+
     private String superPopulation;
     
     private String population;
@@ -15,6 +17,13 @@ public class Frequency {
     private float frequency;
     
     Frequency() { }
+
+    public Frequency(String study, String superPopulation, String population, float frequency) {
+        this.study = study;
+        this.superPopulation = superPopulation;
+        this.population = population;
+        this.frequency = frequency;
+    }
 
     public Frequency(String superPopulation, String population, float frequency) {
         this.superPopulation = superPopulation;
@@ -46,6 +55,14 @@ public class Frequency {
         this.frequency = frequency;
     }
 
+    public String getStudy() {
+        return study;
+    }
+
+    public void setStudy(String study) {
+        this.study = study;
+    }
+
     @Override
     public int hashCode() {
         int hash = 7;
@@ -69,6 +86,10 @@ public class Frequency {
         if (!Objects.equals(this.population, other.population)) {
             return false;
         }
+        if (!Objects.equals(this.study, other.study)) {
+            return false;
+        }
+
         return true;
     }
 
