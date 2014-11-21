@@ -1,6 +1,8 @@
 package org.opencb.biodata.models.variant.stats;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -9,7 +11,7 @@ import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.pedigree.Condition;
 import org.opencb.biodata.models.pedigree.Individual;
 import org.opencb.biodata.models.pedigree.Pedigree;
-import org.opencb.biodata.models.variant.ArchivedVariantFile;
+import org.opencb.biodata.models.variant.VariantSourceEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.Variant.VariantType;
 
@@ -75,7 +77,7 @@ public class VariantStats {
         this.refAlleleCount = this.altAlleleCount = -1;
         this.refAlleleFreq = this.altAlleleFreq = -1;
         this.genotypesCount = new HashMap<>();
-        this.genotypesFreq = new HashMap<>();
+        this.genotypesFreq = new LinkedHashMap<>();
         
         this.missingAlleles = -1;
         this.missingGenotypes = -1;
@@ -215,12 +217,32 @@ public class VariantStats {
     
     public void addGenotype(Genotype g, int addedCount) {
         Integer count;
-        if (genotypesCount.containsKey(g)) {
-            count = genotypesCount.get(g) + addedCount;
+        Genotype normalizedGenotype = normalizeGenotypeAlleles(g);
+        if (genotypesCount.containsKey(normalizedGenotype)) {
+            count = genotypesCount.get(normalizedGenotype) + addedCount;
         } else {
             count = addedCount;
         }
-        genotypesCount.put(g, count);
+        genotypesCount.put(normalizedGenotype, count);
+    }
+    
+    private Genotype normalizeGenotypeAlleles(Genotype g) {
+        // Get alleles sorted in ascending order
+        int[] sortedAlleles = g.getNormalizedAllelesIdx();
+        
+        if (Arrays.equals(sortedAlleles, g.getAllelesIdx())) {
+            // If the alleles do not change, no need to do anything
+            return g;
+        } else {
+            // If the alleles have changed, a new genotype must be build
+            StringBuilder joinedAlleles = new StringBuilder();
+            joinedAlleles.append(sortedAlleles[0]);
+            char separator = g.isPhased() ? '|' : '/';
+            for (int i = 1; i < sortedAlleles.length; i++) {
+                joinedAlleles.append(separator).append(sortedAlleles[i]);
+            }
+            return new Genotype(joinedAlleles.toString(), g.getReference(), g.getAlternate());
+        }
     }
     
     public void setGenotypesCount(Map<Genotype, Integer> genotypesCount) {
@@ -502,7 +524,8 @@ public class VariantStats {
         this.setAltAlleleCount(allelesCount[1]);
 
         // Calculate MAF and MGF
-        this.calculateAlleleAndGenotypeFrequencies(totalAllelesCount, totalGenotypesCount);
+        this.calculateAlleleFrequencies(totalAllelesCount);
+        this.calculateGenotypeFrequencies(totalGenotypesCount);
 
         // Calculate Hardy-Weinberg statistic
         this.getHw().calculate();
@@ -546,14 +569,14 @@ public class VariantStats {
      */
     public static void calculateStatsForVariantsList(List<Variant> variants, Pedigree ped) {
         for (Variant variant : variants) {
-            for (ArchivedVariantFile file : variant.getFiles().values()) {
+            for (VariantSourceEntry file : variant.getSourceEntries().values()) {
                 VariantStats stats = new VariantStats(variant).calculate(file.getSamplesData(), file.getAttributes(), ped);
                 file.setStats(stats); // TODO Correct?
             }
         }
     }
 
-    private void calculateAlleleAndGenotypeFrequencies(int totalAllelesCount, int totalGenotypesCount) {
+    private void calculateAlleleFrequencies(int totalAllelesCount) {
         // MAF
         refAlleleFreq = (totalAllelesCount > 0) ? refAlleleCount / (float) totalAllelesCount : 0;
         altAlleleFreq = (totalAllelesCount > 0) ? altAlleleCount / (float) totalAllelesCount : 0;
@@ -564,13 +587,36 @@ public class VariantStats {
             this.setMaf(altAlleleFreq);
             this.setMafAllele(altAllele);
         }
+    }
 
-        // MGF
-        float currMgf = Float.MAX_VALUE;
-        Genotype currMgfGenotype = null;
+    private void calculateGenotypeFrequencies(int totalGenotypesCount) {
+        if (genotypesCount.isEmpty()) {
+            // Nothing to do here
+            return;
+        }
+        
+        // Set all combinations of genotypes to zero
+        genotypesFreq.put(new Genotype("0/0", refAllele, altAllele), 0.0f);
+        genotypesFreq.put(new Genotype("0/1", refAllele, altAllele), 0.0f);
+        genotypesFreq.put(new Genotype("1/1", refAllele, altAllele), 0.0f);
+        
+        // Insert the genotypes found in the file
         for (Map.Entry<Genotype, Integer> gtCount : genotypesCount.entrySet()) {
+            if (gtCount.getKey().getCode() == AllelesCode.ALLELES_MISSING) {
+                // Missing genotypes shouldn't have frequencies calculated
+                continue;
+            }
+            
             float freq = (totalGenotypesCount > 0) ? gtCount.getValue() / (float) totalGenotypesCount : 0;
             genotypesFreq.put(gtCount.getKey(), freq);
+        }
+        
+        // Traverse the genotypes to see which one has the MGF
+        float currMgf = Float.MAX_VALUE;
+        Genotype currMgfGenotype = null;
+        
+        for (Map.Entry<Genotype, Float> gtCount : genotypesFreq.entrySet()) {
+            float freq = gtCount.getValue();
             if (freq < currMgf) {
                 currMgf = freq;
                 currMgfGenotype = gtCount.getKey();
@@ -581,7 +627,6 @@ public class VariantStats {
             this.setMgf(currMgf);
             this.setMgfGenotype(currMgfGenotype.toString());
         }
-        
     }
 
     private void calculateTransitionsAndTransversions(String reference, String alternate) {

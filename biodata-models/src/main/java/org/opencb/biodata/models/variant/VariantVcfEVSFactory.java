@@ -1,6 +1,5 @@
 package org.opencb.biodata.models.variant;
 
-import java.io.IOException;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.biodata.models.variant.stats.VariantStats;
@@ -88,7 +87,7 @@ public class VariantVcfEVSFactory extends VariantVcfFactory {
         for (int i = 0; i < alternateAlleles.length; i++) {
             VariantKeyFields keyFields = generatedKeyFields.get(i);
             Variant variant = new Variant(chromosome, keyFields.start, keyFields.end, keyFields.reference, keyFields.alternate);
-            variant.addFile(new ArchivedVariantFile(source.getFileId(), source.getStudyId()));
+            variant.addSourceEntry(new VariantSourceEntry(source.getFileId(), source.getStudyId()));
             setOtherFields(variant, source, id, quality, filter, info, format, keyFields.getNumAllele(), alternateAlleles, line);
 
             try {
@@ -111,22 +110,22 @@ public class VariantVcfEVSFactory extends VariantVcfFactory {
         // Fields not affected by the structure of REF and ALT fields
         variant.setId(id);
         if (quality > -1) {
-            variant.getFile(source.getFileId(), source.getStudyId()).addAttribute("QUAL", String.valueOf(quality));
+            variant.getSourceEntry(source.getFileId(), source.getStudyId()).addAttribute("QUAL", String.valueOf(quality));
         }
         if (!filter.isEmpty()) {
-            variant.getFile(source.getFileId(), source.getStudyId()).addAttribute("FILTER", filter);
+            variant.getSourceEntry(source.getFileId(), source.getStudyId()).addAttribute("FILTER", filter);
         }
         if (!info.isEmpty()) {
             parseInfo(variant, source.getFileId(), source.getStudyId(), info, numAllele);
         }
-        variant.getFile(source.getFileId(), source.getStudyId()).setFormat(format);
-        variant.getFile(source.getFileId(), source.getStudyId()).addAttribute("src", line);
+        variant.getSourceEntry(source.getFileId(), source.getStudyId()).setFormat(format);
+        variant.getSourceEntry(source.getFileId(), source.getStudyId()).addAttribute("src", line);
         
         parseEVSAttributes(variant, source, numAllele, alternateAlleles);
     }
 
     private void parseEVSAttributes(Variant variant, VariantSource source, int numAllele, String[] alternateAlleles) {
-        ArchivedVariantFile file = variant.getFile(source.getFileId(), source.getStudyId());
+        VariantSourceEntry file = variant.getSourceEntry(source.getFileId(), source.getStudyId());
         VariantStats stats = new VariantStats(variant);
         if (file.hasAttribute("MAF")) {
             String splitsMAF[] = file.getAttribute("MAF").split(",");

@@ -9,10 +9,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.opencb.biodata.models.variant.ArchivedVariantFile;
+import org.opencb.biodata.models.variant.VariantSourceEntry;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.effect.VariantEffect;
-import org.opencb.biodata.models.variant.effect.ConsequenceTypeMappings;
+import org.opencb.biodata.models.variant.annotation.VariantEffect;
+import org.opencb.biodata.models.variant.annotation.ConsequenceTypeMappings;
 import org.opencb.biodata.tools.variant.EffectCalculator;
 
 /**
@@ -41,13 +41,13 @@ public class VariantConsequenceTypeAnnotator implements VariantAnnotator {
         EffectCalculator.setEffects(batch);
 
         for (Variant variant : batch) {
-            for (Map.Entry<String, ArchivedVariantFile> file : variant.getFiles().entrySet()) {
+            for (Map.Entry<String, VariantSourceEntry> file : variant.getSourceEntries().entrySet()) {
                 annotVariantEffect(variant, file.getValue());
             }
         }
     }
 
-    private void annotVariantEffect(Variant variant, ArchivedVariantFile file) {
+    private void annotVariantEffect(Variant variant, VariantSourceEntry file) {
         Set<String> cts = new HashSet<>();
 
         for (List<VariantEffect> list : variant.getAnnotation().getEffects().values()) {

@@ -136,12 +136,12 @@ public class VariantControlAnnotator implements VariantAnnotator {
 
                         for(Variant v : listRecords){
                             if(v.getReference().equals(record.getReference()) && v.getAlternate().equals(record.getAlternate())){
-                                ArchivedVariantFile avf = v.getFile("CONTROL", null);
+                                VariantSourceEntry avf = v.getSourceEntry("CONTROL", null);
 
                                 String gt = StringUtil.join(",", joinGenotypes(avf.getStats().getGenotypesCount()));
                                 String maf = String.format("%.4f", avf.getStats().getMaf());
                                 String amaf = avf.getStats().getMafAllele();
-                                for(Map.Entry<String, ArchivedVariantFile> entry: record.getFiles().entrySet()){
+                                for(Map.Entry<String, VariantSourceEntry> entry: record.getSourceEntries().entrySet()){
                                     entry.getValue().addAttribute(this.prefix + "_gt", gt);
                                     entry.getValue().addAttribute(this.prefix + "_maf", maf);
                                     entry.getValue().addAttribute(this.prefix + "_amaf", amaf);
@@ -251,7 +251,7 @@ public class VariantControlAnnotator implements VariantAnnotator {
         for (Variant record : batch) {
 
             if (map.containsKey(record)) {
-                ArchivedVariantFile avf = record.getFile("CONTROL", null);
+                VariantSourceEntry avf = record.getSourceEntry("CONTROL", null);
                 avf.addAttribute(this.prefix + "_gt", StringUtil.join(",", avf.getStats().getGenotypesCount()));
                 avf.addAttribute(this.prefix + "_maf", String.format("%.4f", avf.getStats().getMaf()));
                 avf.addAttribute(this.prefix + "_amaf", avf.getStats().getMafAllele());

@@ -7,12 +7,12 @@ import java.util.Set;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
 /** 
- * File stored in an archive of variant information. It contains information 
- * related to samples, statistics and specifics of the file format.
+ * Entry that associates a variant and a file in a variant archive. It contains 
+ * information related to samples, statistics and specifics of the file format.
  * 
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
-public class ArchivedVariantFile {
+public class VariantSourceEntry {
     
     /**
      * Unique identifier of the archived file.
@@ -48,11 +48,11 @@ public class ArchivedVariantFile {
      */
     private Map<String, String> attributes;
 
-    ArchivedVariantFile() { 
+    VariantSourceEntry() { 
         this(null, null);
     }
     
-    public ArchivedVariantFile(String fileId, String studyId) {
+    public VariantSourceEntry(String fileId, String studyId) {
         this.fileId = fileId;
         this.studyId = studyId;
         
@@ -156,7 +156,7 @@ public class ArchivedVariantFile {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final ArchivedVariantFile other = (ArchivedVariantFile) obj;
+        final VariantSourceEntry other = (VariantSourceEntry) obj;
         if (!Objects.equals(this.fileId, other.fileId)) {
             return false;
         }

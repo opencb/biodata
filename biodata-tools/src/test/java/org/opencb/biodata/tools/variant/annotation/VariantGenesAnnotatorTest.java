@@ -1,7 +1,7 @@
 package org.opencb.biodata.tools.variant.annotation;
 
 import org.junit.Test;
-import org.opencb.biodata.models.variant.ArchivedVariantFile;
+import org.opencb.biodata.models.variant.VariantSourceEntry;
 import org.opencb.biodata.models.variant.Variant;
 
 import java.util.ArrayList;
@@ -21,10 +21,10 @@ public class VariantGenesAnnotatorTest {
         variants.add(v2);
 
         VariantAnnotator va = new VariantGenesAnnotator();
-        ArchivedVariantFile avf = new ArchivedVariantFile("TEST", "TEST");
+        VariantSourceEntry avf = new VariantSourceEntry("TEST", "TEST");
 
         for (Variant v : variants) {
-            v.addFile(avf);
+            v.addSourceEntry(avf);
         }
 
         va.annot(variants);

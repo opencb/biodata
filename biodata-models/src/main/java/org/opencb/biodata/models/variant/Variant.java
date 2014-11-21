@@ -1,8 +1,8 @@
 package org.opencb.biodata.models.variant;
 
 import java.util.*;
-import org.opencb.biodata.models.variant.effect.VariantEffect;
-import org.opencb.biodata.models.variant.effect.VariantAnnotation;
+import org.opencb.biodata.models.variant.annotation.VariantEffect;
+import org.opencb.biodata.models.variant.annotation.VariantAnnotation;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
 /**
@@ -96,7 +96,7 @@ public class Variant {
      * Information specific to each file the variant was read from, such as
      * samples or statistics.
      */
-    private Map<String, ArchivedVariantFile> files;
+    private Map<String, VariantSourceEntry> sourceEntries;
 
 //    /**
 //     * Statistics of the genomic variation, such as its alleles/genotypes count 
@@ -138,8 +138,8 @@ public class Variant {
             hgvsCodes.add(chromosome + ":g." + start + reference + ">" + alternate);
             this.hgvs.put("genomic", hgvsCodes);
         }
-
-        this.files = new HashMap<>();
+        
+        this.sourceEntries = new HashMap<>();
         this.annotation = new VariantAnnotation(this.chromosome, this.start, this.end, this.reference);
     }
 
@@ -266,24 +266,26 @@ public class Variant {
         return listByType.add(value);
     }
 
-    public Map<String, ArchivedVariantFile> getFiles() {
-        return files;
+    public Map<String, VariantSourceEntry> getSourceEntries() {
+        return sourceEntries;
     }
 
-    public ArchivedVariantFile getFile(String fileId, String studyId) {
-        return files.get(composeId(studyId, fileId));
+    
+    public VariantSourceEntry getSourceEntry(String fileId, String studyId) {
+        return sourceEntries.get(composeId(studyId, fileId));
     }
 
-    public void setFiles(Map<String, ArchivedVariantFile> files) {
-        this.files = files;
+    public void setSourceEntries(Map<String, VariantSourceEntry> sourceEntries) {
+        this.sourceEntries = sourceEntries;
     }
 
-    public void addFile(ArchivedVariantFile file) {
-        this.files.put(composeId(file.getStudyId(), file.getFileId()), file);
+    
+    public void addSourceEntry(VariantSourceEntry sourceEntry) {
+        this.sourceEntries.put(composeId(sourceEntry.getStudyId(), sourceEntry.getFileId()), sourceEntry);
     }
 
     public VariantStats getStats(String studyId, String fileId) {
-        ArchivedVariantFile file = files.get(composeId(studyId, fileId));
+        VariantSourceEntry file = sourceEntries.get(composeId(studyId, fileId));
         if (file == null) {
             return null;
         }
@@ -307,7 +309,7 @@ public class Variant {
     }
 
     public Iterable<String> getSampleNames(String studyId, String fileId) {
-        ArchivedVariantFile file = files.get(composeId(studyId, fileId));
+        VariantSourceEntry file = sourceEntries.get(composeId(studyId, fileId));
         if (file == null) {
             return null;
         }

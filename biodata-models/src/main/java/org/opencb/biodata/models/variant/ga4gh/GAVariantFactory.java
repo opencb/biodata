@@ -2,14 +2,16 @@ package org.opencb.biodata.models.variant.ga4gh;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.opencb.biodata.ga4gh.GACall;
 import org.opencb.biodata.ga4gh.GAKeyValue;
 import org.opencb.biodata.ga4gh.GAVariant;
-import org.opencb.biodata.models.variant.ArchivedVariantFile;
+import org.opencb.biodata.models.variant.VariantSourceEntry;
 import org.opencb.biodata.models.variant.Variant;
 
 /**
@@ -22,17 +24,18 @@ public class GAVariantFactory {
         Set<GAVariant> gaVariants = new LinkedHashSet<>();
 
         for (Variant variant : variants) {
-            for (ArchivedVariantFile file : variant.getFiles().values()) {
+            for (VariantSourceEntry file : variant.getSourceEntries().values()) {
                 String[] vcfLine = file.getAttribute("src").split("\t");
+                String id = variant.getId().isEmpty() ? vcfLine[0] + "_" + vcfLine[1] : variant.getId();
                 
                 GAVariant ga;
                 if (vcfLine.length > 8) {
-                    ga = new GAVariant(vcfLine[2], file.getFileId(), vcfLine[2].split(","), 0, 0, 
+                    ga = new GAVariant(id, file.getFileId(), vcfLine[2].split(","), 1, System.currentTimeMillis(), 
                             vcfLine[0], Integer.parseInt(vcfLine[1]), Integer.parseInt(vcfLine[1]) + vcfLine[3].length(), 
                             vcfLine[3], vcfLine[4].split(","), parseInfo(vcfLine[7].split(";")), 
                             parseCalls(vcfLine[8].split(":"), Arrays.copyOfRange(vcfLine, 9, vcfLine.length), file.getFileId()));
                 } else {
-                    ga = new GAVariant(vcfLine[2], file.getFileId(), vcfLine[2].split(","), 0, 0, 
+                    ga = new GAVariant(id, file.getFileId(), vcfLine[2].split(","), 1, System.currentTimeMillis(), 
                             vcfLine[0], Integer.parseInt(vcfLine[1]), Integer.parseInt(vcfLine[1]) + vcfLine[3].length(), 
                             vcfLine[3], vcfLine[4].split(","), parseInfo(vcfLine[7].split(";")), null);
                 }
@@ -44,16 +47,19 @@ public class GAVariantFactory {
         return new ArrayList<>(gaVariants);
     }
 
-    private static GAKeyValue[] parseInfo(String[] infoFields) {
-        GAKeyValue[] kvs = new GAKeyValue[infoFields.length];
-        
-        for (int i = 0; i < infoFields.length; i++) {
-            String subfield = infoFields[i];
+    private static Map<String, List> parseInfo(String[] infoFields) {
+        Map<String, List> kvs = new HashMap<>();
+//        GAKeyValue[] kvs = new GAKeyValue[infoFields.length];
+//        
+//        for (int i = 0; i < infoFields.length; i++) {
+        for (String subfield : infoFields) {
             String[] parts = subfield.split("=");
             if (parts.length > 1) {
-                kvs[i] = new GAKeyValue(parts[0], parts[1]);
+//                kvs[i] = new GAKeyValue(parts[0], parts[1]);
+                kvs.put(parts[0], new ArrayList<>(Arrays.asList(parts[1].split(","))));
             } else {
-                kvs[i] = new GAKeyValue(parts[0], null);
+//                kvs[i] = new GAKeyValue(parts[0], null);
+                kvs.put(parts[0], new ArrayList<>());
             }
         }
         

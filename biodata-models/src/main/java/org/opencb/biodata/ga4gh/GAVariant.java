@@ -1,6 +1,10 @@
 package org.opencb.biodata.ga4gh;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -66,7 +70,7 @@ public class GAVariant {
      *
      * NOTE: GAKeyValue is useless as this could be replaced by a Map<String, String>
      */
-    private GAKeyValue[] info;
+    private Map<String, List> info;
 
     /**
      * The variant calls for this particular variant. Each one represents the determination of genotype with respect to this variant
@@ -76,40 +80,42 @@ public class GAVariant {
 
     public GAVariant(String id) {
         this.id = id;
+        this.names = new String[0];
+        this.alternateBases = new String[0];
+        this.info = new HashMap<>();
+        this.calls = new GACall[0];
     }
 
     public GAVariant(String id, String variantSetId, String[] names, long created, long updated, String referenceName,
-                     long start, long end, String referenceBases, String[] alternateBases, GAKeyValue[] info, GACall[] calls) {
+                     long start, long end, String referenceBases, String[] alternateBases, Map<String, List> info, GACall[] calls) {
         this.id = id;
         this.variantSetId = variantSetId;
-        this.names = names;
+        this.names = names != null ? names : new String[0];
         this.created = created;
         this.updated = updated;
         this.referenceName = referenceName;
         this.start = start;
         this.end = end;
         this.referenceBases = referenceBases;
-        this.alternateBases = alternateBases;
-        this.info = info;
-        this.calls = calls;
+        this.alternateBases = alternateBases != null ? alternateBases : new String[0];
+        this.info = info != null ? info : new HashMap<String, List>();
+        this.calls = calls != null ? calls : new GACall[0];
     }
 
     @Override
     public String toString() {
-        return "GAVariant{" +
-                "id='" + id + '\'' +
-                ", variantSetId='" + variantSetId + '\'' +
-                ", names=" + Arrays.toString(names) +
-                ", created=" + created +
-                ", updated=" + updated +
-                ", referenceName='" + referenceName + '\'' +
-                ", start=" + start +
-                ", end=" + end +
-                ", referenceBases='" + referenceBases + '\'' +
-                ", alternateBases=" + Arrays.toString(alternateBases) +
-                ", info=" + Arrays.toString(info) +
-                ", calls=" + Arrays.toString(calls) +
-                '}';
+        return "GAVariant{" + "id=" + id + 
+                ", variantSetId=" + variantSetId + 
+                ", names=" + names + 
+                ", created=" + created + 
+                ", updated=" + updated + 
+                ", referenceName=" + referenceName + 
+                ", start=" + start + 
+                ", end=" + end + 
+                ", referenceBases=" + referenceBases + 
+                ", alternateBases=" + alternateBases + 
+                ", info=" + info + 
+                ", calls=" + calls + '}';
     }
 
 
@@ -202,15 +208,13 @@ public class GAVariant {
         this.alternateBases = alternateBases;
     }
 
-
-    public GAKeyValue[] getInfo() {
+    public Map<String, List> getInfo() {
         return info;
     }
 
-    public void setInfo(GAKeyValue[] info) {
+    public void setInfo(Map<String, List> info) {
         this.info = info;
     }
-
 
     public GACall[] getCalls() {
         return calls;

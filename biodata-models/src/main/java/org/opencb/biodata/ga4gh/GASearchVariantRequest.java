@@ -59,20 +59,20 @@ public class GASearchVariantRequest {
      * The maximum number of variants to return in each response. If more variants match this request, the pageToken 
      * can be used to fetch the next page of responses.
      */
-    private int maxResults;
+    private int pageSize;
 
     
     public GASearchVariantRequest() {
         this(null, null, 0, 0, null, 10);
     }
 
-    public GASearchVariantRequest(List<String> variantSetIds, String referenceName, long start, long end, String pageToken, int maxResults) {
+    public GASearchVariantRequest(List<String> variantSetIds, String referenceName, long start, long end, String pageToken, int pageSize) {
         this.variantSetIds = variantSetIds;
         this.referenceName = referenceName;
         this.start = start;
         this.end = end;
         this.pageToken = pageToken;
-        this.maxResults = maxResults;
+        this.pageSize = pageSize;
     }
 
     public boolean validate() {
@@ -147,12 +147,12 @@ public class GASearchVariantRequest {
         this.pageToken = pageToken;
     }
 
-    public int getMaxResults() {
-        return maxResults;
+    public int getPageSize() {
+        return pageSize;
     }
 
-    public void setMaxResults(int maxResults) {
-        this.maxResults = maxResults;
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
     }
     
     
