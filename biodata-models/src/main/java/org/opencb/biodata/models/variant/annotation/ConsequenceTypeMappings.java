@@ -16,6 +16,7 @@ public class ConsequenceTypeMappings {
 
     public static final Map<Integer, String> accessionToTerm = new HashMap<>();
 
+
     static {
 
         // Fill the term to accession map
@@ -116,7 +117,7 @@ public class ConsequenceTypeMappings {
         accessionToTerm.put(336, "polypeptide_variation_site");
     }
 
-    public int getAccession(String SOName) {
-        return termToAccession.get(SOName);
-    }
+//    public int getAccession(String SOName) {
+//        return termToAccession.get(SOName);
+//    }
 }
