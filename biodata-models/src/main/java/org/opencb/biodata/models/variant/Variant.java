@@ -1,9 +1,10 @@
 package org.opencb.biodata.models.variant;
 
-import java.util.*;
-import org.opencb.biodata.models.variant.effect.VariantEffect;
-import org.opencb.biodata.models.variant.effect.VariantAnnotation;
+import org.opencb.biodata.models.variant.annotation.VariantAnnotation;
+import org.opencb.biodata.models.variant.annotation.VariantEffect;
 import org.opencb.biodata.models.variant.stats.VariantStats;
+
+import java.util.*;
 
 /**
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
@@ -93,7 +94,7 @@ public class Variant {
      * samples or statistics.
      */
     private Map<String, VariantSourceEntry> sourceEntries;
-    
+
 //    /**
 //     * Statistics of the genomic variation, such as its alleles/genotypes count 
 //     * or its minimum allele frequency.
@@ -113,7 +114,7 @@ public class Variant {
     }
     
     public Variant(String chromosome, int start, int end, String reference, String alternate) {
-        if (start > end) {
+        if (start > end && !(reference.equals("-"))) {
             throw new IllegalArgumentException("End position must be greater than the start position");
         }
         
@@ -271,7 +272,7 @@ public class Variant {
     public void setSourceEntries(Map<String, VariantSourceEntry> sourceEntries) {
         this.sourceEntries = sourceEntries;
     }
-    
+
     public void addSourceEntry(VariantSourceEntry sourceEntry) {
         this.sourceEntries.put(composeId(sourceEntry.getStudyId(), sourceEntry.getFileId()), sourceEntry);
     }
@@ -306,6 +307,30 @@ public class Variant {
             return null;
         }
         return file.getSampleNames();
+    }
+
+    public void transformToEnsemblFormat() {
+        if (type == VariantType.INDEL || type == VariantType.SV || length > 1) {
+            if (reference.charAt(0) == alternate.charAt(0)) {
+                reference = reference.substring(1);
+                alternate = alternate.substring(1);
+                start++;
+                if (reference.length() < alternate.length()) {
+                    end--;
+                }
+
+
+                if (reference.equals("")) {
+                    reference = "-";
+                }
+                if (alternate.equals("")) {
+                    alternate = "-";
+                }
+
+                length = Math.max(reference.length(), alternate.length());
+
+            }
+        }
     }
 
     @Override

@@ -7,7 +7,7 @@ import java.util.Set;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.effect.VariantEffect;
+import org.opencb.biodata.models.variant.annotation.VariantEffect;
 import org.opencb.biodata.tools.variant.EffectCalculator;
 import org.opencb.commons.test.GenericTest;
 

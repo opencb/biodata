@@ -1,4 +1,4 @@
-package org.opencb.biodata.models.variant.effect;
+package org.opencb.biodata.models.variant.annotation;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -116,4 +116,7 @@ public class ConsequenceTypeMappings {
         accessionToTerm.put(336, "polypeptide_variation_site");
     }
 
+//    public int getAccession(String SOName) {
+//        return termToAccession.get(SOName);
+//    }
 }
