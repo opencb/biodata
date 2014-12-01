@@ -167,7 +167,7 @@ public class VariantStats {
         return mgfGenotype;
     }
 
-    void setMgfGenotype(String mgfGenotype) {
+    public void setMgfGenotype(String mgfGenotype) {
         this.mgfGenotype = mgfGenotype;
     }
 
@@ -233,7 +233,7 @@ public class VariantStats {
         return mgf;
     }
 
-    void setMgf(float mgf) {
+    public void setMgf(float mgf) {
         this.mgf = mgf;
     }
 
@@ -249,7 +249,7 @@ public class VariantStats {
         return missingGenotypes;
     }
 
-    void setMissingGenotypes(int missingGenotypes) {
+    public void setMissingGenotypes(int missingGenotypes) {
         this.missingGenotypes = missingGenotypes;
     }
 
