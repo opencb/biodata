@@ -3,10 +3,10 @@ package org.opencb.biodata.models.variant.annotation;
 
 import org.opencb.biodata.models.feature.Gene;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -37,7 +37,7 @@ public class VariantAnnotation {
 
     private List<Score> proteinSubstitutionScores;
 
-    private List<PopulationFrequency> populationFrequencies;
+    private List<Frequency> populationFrequencies;
 
     private List<CaddScore> caddScores;
 
@@ -66,8 +66,129 @@ public class VariantAnnotation {
         this.alternativeAllele = alternativeAllele;
     }
 
+    public String getChromosome() {
+        return chromosome;
+    }
 
+    public void setChromosome(String chromosome) {
+        this.chromosome = chromosome;
+    }
 
+    public int getStart() {
+        return start;
+    }
+
+    public void setStart(int start) {
+        this.start = start;
+    }
+
+    public int getEnd() {
+        return end;
+    }
+
+    public void setEnd(int end) {
+        this.end = end;
+    }
+
+    public String getReferenceAllele() {
+        return referenceAllele;
+    }
+
+    public void setReferenceAllele(String referenceAllele) {
+        this.referenceAllele = referenceAllele;
+    }
+
+    public String getAlternativeAllele() {
+        return alternativeAllele;
+    }
+
+    public void setAlternativeAllele(String alternativeAllele) {
+        this.alternativeAllele = alternativeAllele;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public List<Xref> getXrefs() {
+        return xrefs;
+    }
+
+    public void setXrefs(List<Xref> xrefs) {
+        this.xrefs = xrefs;
+    }
+
+    public List<String> getHgvs() {
+        return hgvs;
+    }
+
+    public void setHgvs(List<String> hgvs) {
+        this.hgvs = hgvs;
+    }
+
+    public List<ConsequenceType> getConsequenceTypes() {
+        return consequenceTypes;
+    }
+
+    public void setConsequenceTypes(List<ConsequenceType> consequenceTypes) {
+        this.consequenceTypes = consequenceTypes;
+    }
+
+    public List<Score> getConservedRegionScores() {
+        return conservedRegionScores;
+    }
+
+    public void setConservedRegionScores(List<Score> conservedRegionScores) {
+        this.conservedRegionScores = conservedRegionScores;
+    }
+
+    public void setProteinSubstitutionScores(List<Score> proteinSubstitutionScores) {
+        this.proteinSubstitutionScores = proteinSubstitutionScores;
+    }
+
+    public List<Frequency> getPopulationFrequencies() {
+        return populationFrequencies;
+    }
+
+    public void setPopulationFrequencies(List<Frequency> populationFrequencies) {
+        this.populationFrequencies = populationFrequencies;
+    }
+
+    public List<CaddScore> getCaddScores() {
+        return caddScores;
+    }
+
+    public void setCaddScores(List<CaddScore> caddScores) {
+        this.caddScores = caddScores;
+    }
+
+    public List<ExpressionValue> getExpressionValues() {
+        return expressionValues;
+    }
+
+    public void setExpressionValues(List<ExpressionValue> expressionValues) {
+        this.expressionValues = expressionValues;
+    }
+
+    public Map<String, Object> getClinicalData() {
+        return clinicalData;
+    }
+
+    public void setClinicalData(Map<String, Object> clinicalData) {
+        this.clinicalData = clinicalData;
+    }
+
+    public Map<String, Object> getAdditionalAttributes() {
+        return additionalAttributes;
+    }
+
+    public void setAdditionalAttributes(Map<String, Object> additionalAttributes) {
+        this.additionalAttributes = additionalAttributes;
+    }
 
 //    public String getChromosome() {
 //        return chromosome;
@@ -144,6 +265,11 @@ public class VariantAnnotation {
 //        ct.add(effect);
 //    }
 //
+
+    public Map<String, Set<Frequency>> getFrequencies() {
+        return new HashMap<>(); // TODO: broken compatibility with VariantEffectConverter
+    }
+
 //    public Map<String, Set<Frequency>> getFrequencies() {
 //        return frequencies;
 //    }
@@ -177,6 +303,11 @@ public class VariantAnnotation {
 //    public void setProteinSubstitutionScores(List<Score> proteinSubstitutionScores) {
 //        this.proteinSubstitutionScores = proteinSubstitutionScores;
 //    }
+
+    public RegulatoryEffect getRegulatoryEffect() {
+        // TODO: broken compatibility with VariantEffectConverter
+        return new RegulatoryEffect();
+    }
 
 //    public RegulatoryEffect getRegulatoryEffect() {
 //        return regulatoryEffect;
