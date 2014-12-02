@@ -1,7 +1,7 @@
 package org.opencb.biodata.formats.variant.hgvs;
 
 import net.sf.picard.reference.IndexedFastaSequenceFile;
-import org.opencb.biodata.formats.feature.RefseqAccession;
+import org.opencb.biodata.formats.feature.refseq.RefseqAccession;
 import org.opencb.biodata.models.variant.Variant;
 
 import java.text.ParseException;
@@ -22,7 +22,7 @@ public class Hgvs {
     public static final String HGVS = "hgvs";
     private static final String GENOMIC_HGVS_TYPE = "g";
 
-    private String accession;
+    private RefseqAccession accession;
     private String type;
     private int start;
     private int stop;
@@ -40,7 +40,7 @@ public class Hgvs {
         Matcher matcher = pattern.matcher(hgvs);
         matcher.find();
 
-        this.accession = matcher.group(Hgvs.ACCESSION);
+        this.accession = new RefseqAccession(matcher.group(Hgvs.ACCESSION));
         this.type = matcher.group(Hgvs.TYPE);
         this.start = Integer.parseInt(matcher.group(Hgvs.START));
         String stopString = matcher.group(Hgvs.STOP);
@@ -63,7 +63,7 @@ public class Hgvs {
         // check that the HGVS is genomic
         if (type.equals(GENOMIC_HGVS_TYPE)) {
             // chr, start and stop
-            String chromosome = new RefseqAccession(accession).getChromosome();
+            String chromosome = accession.getChromosome();
 
             // process change to obtain reference, alternative and shift start if needed
             if (change.contains(">")) {
@@ -155,5 +155,9 @@ public class Hgvs {
         }
 
         return variant;
+    }
+
+    public String getAssembly() {
+        return this.accession.getAssembly();
     }
 }
