@@ -1,6 +1,6 @@
 package org.opencb.biodata.tools.feature
 
-import org.opencb.biodata.formats.feature.RefseqAccession
+import org.opencb.biodata.formats.feature.refseq.RefseqAccession
 import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Unroll

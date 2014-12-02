@@ -1,4 +1,4 @@
-package org.opencb.biodata.formats.feature;
+package org.opencb.biodata.formats.feature.refseq;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,7 +10,7 @@ public class RefseqAccession {
 
     public static final String REFSEQ_CHROMOSOME_ACCESION_TAG = "NC";
 
-    private static Map<String, String> accesionToChromosomesMap;
+    private static Map<String, String> accessionToChromosomesMap;
     private final String accession;
     private String type;
     private static final String REFERENCE_ASSEMBLY_COMPLETE_GENOMIC = "NC";
@@ -27,14 +27,14 @@ public class RefseqAccession {
     public String getChromosome() {
         String chr = null;
         if (isReferenceAssemblyCompleteGenomicMolecule()) {
-            if (accesionToChromosomesMap == null) {
-                accesionToChromosomesMap = new HashMap<>();
+            if (accessionToChromosomesMap == null) {
+                accessionToChromosomesMap = new HashMap<>();
             }
 
-            chr = accesionToChromosomesMap.get(accession);
+            chr = accessionToChromosomesMap.get(accession);
             if (chr == null) {
                 chr = uncachedRefseqNCAccessionToChromosome();
-                accesionToChromosomesMap.put(accession, chr);
+                accessionToChromosomesMap.put(accession, chr);
             }
         }
         return chr;

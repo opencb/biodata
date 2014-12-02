@@ -1,7 +1,7 @@
 package org.opencb.biodata.formats.variant.hgvs;
 
 import net.sf.picard.reference.IndexedFastaSequenceFile;
-import org.opencb.biodata.formats.feature.RefseqAccession;
+import org.opencb.biodata.formats.feature.refseq.RefseqAccession;
 import org.opencb.biodata.models.variant.Variant;
 
 import java.text.ParseException;
