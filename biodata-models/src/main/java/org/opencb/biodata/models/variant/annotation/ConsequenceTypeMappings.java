@@ -42,7 +42,7 @@ public class ConsequenceTypeMappings {
         termToAccession.put("3_prime_UTR_variant", 1624);
         termToAccession.put("exon_variant", 1791);
         termToAccession.put("non_coding_exon_variant", 1792);
-        termToAccession.put("nc_transcript_variant", 1619);
+        termToAccession.put("non_coding_transcript_variant", 1619);
         termToAccession.put("intron_variant", 1627);
         termToAccession.put("NMD_transcript_variant", 1621);
         termToAccession.put("upstream_gene_variant", 1631);
@@ -91,7 +91,7 @@ public class ConsequenceTypeMappings {
         accessionToTerm.put(1624, "3_prime_UTR_variant");
         accessionToTerm.put(1791, "exon_variant");
         accessionToTerm.put(1792, "non_coding_exon_variant");
-        accessionToTerm.put(1619, "nc_transcript_variant");
+        accessionToTerm.put(1619, "non_coding_transcript_variant");
         accessionToTerm.put(1627, "intron_variant");
         accessionToTerm.put(1621, "NMD_transcript_variant");
         accessionToTerm.put(1631, "upstream_gene_variant");
