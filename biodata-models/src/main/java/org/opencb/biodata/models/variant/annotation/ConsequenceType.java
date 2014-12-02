@@ -15,6 +15,11 @@ public class ConsequenceType {
 
 //    private static ConsequenceTypeMappings consequenceTypeMappings = new ConsequenceTypeMappings();
 
+    public ConsequenceType(String SOName) {
+        this.SOAccession = ConsequenceTypeMappings.termToAccession.get(SOName);
+        this.SOName = SOName;
+    }
+
     public ConsequenceType(String geneName, String ensemblGeneId, String ensemblTranscriptId, String SOName) {
         this.geneName = geneName;
         this.ensemblGeneId = ensemblGeneId;

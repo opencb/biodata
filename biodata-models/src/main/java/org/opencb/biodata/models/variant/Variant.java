@@ -107,10 +107,8 @@ public class Variant {
     private VariantAnnotation annotation;
 
     
-    Variant() {
-        this.chromosome = "";
-        this.reference = "";
-        this.alternate = "";
+    public Variant() {
+        this("", -1, -1, "", "");
     }
     
     public Variant(String chromosome, int start, int end, String reference, String alternate) {
@@ -118,9 +116,9 @@ public class Variant {
             throw new IllegalArgumentException("End position must be greater than the start position");
         }
         
-        this.setChromosome(chromosome);
-        this.setStart(start);
-        this.setEnd(end);
+        this.chromosome = chromosome;
+        this.start = start;
+        this.end = end;
         this.reference = (reference != null) ? reference : "";
         this.alternate = (alternate != null) ? alternate : "";
         
@@ -318,7 +316,6 @@ public class Variant {
                 if (reference.length() < alternate.length()) {
                     end--;
                 }
-
 
                 if (reference.equals("")) {
                     reference = "-";
