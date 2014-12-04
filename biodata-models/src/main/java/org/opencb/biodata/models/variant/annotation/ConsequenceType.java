@@ -7,7 +7,7 @@ public class ConsequenceType {
     private String geneName;
     private String ensemblGeneId;
     private String ensemblTranscriptId;
-    private int SOAccession;
+    private Integer SOAccession;
     private String SOName;
     private int relativePosition;
     private String codon;
@@ -33,7 +33,7 @@ public class ConsequenceType {
         this.SOName = SOName;
     }
 
-    public void setSOAccession(int SOAccession) {
+    public void setSOAccession(Integer SOAccession) {
         this.SOAccession = SOAccession;
     }
 
@@ -73,7 +73,7 @@ public class ConsequenceType {
         return ensemblTranscriptId;
     }
 
-    public int getSOAccession() {
+    public Integer getSOAccession() {
         return SOAccession;
     }
 
