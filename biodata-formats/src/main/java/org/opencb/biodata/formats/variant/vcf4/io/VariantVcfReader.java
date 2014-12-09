@@ -18,6 +18,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
@@ -73,10 +74,18 @@ public class VariantVcfReader implements VariantReader {
     @Override
     public boolean pre() {
         try {
-
             processHeader();
+            
+            // Copy all the read metadata to the VariantSource object
+            // TODO May it be that Vcf4 wasn't necessary anymore?
+            source.addMetadata("fileformat", vcf4.getFileFormat());
+            source.addMetadata("INFO", vcf4.getInfo().values());
+            source.addMetadata("FILTER", vcf4.getFilter().values());
+            source.addMetadata("FORMAT", vcf4.getFormat().values());
+            for (Map.Entry<String, String> otherMeta : vcf4.getMetaInformation().entrySet()) {
+                source.addMetadata(otherMeta.getKey(), otherMeta.getValue());
+            }
             source.setSamples(vcf4.getSampleNames());
-
         } catch (IOException | FileFormatException ex) {
             Logger.getLogger(VariantVcfReader.class.getName()).log(Level.SEVERE, null, ex);
             return false;
@@ -188,7 +197,6 @@ public class VariantVcfReader implements VariantReader {
         while ((line = localBufferedReader.readLine()) != null && line.startsWith("#")) {
             if (line.startsWith("##fileformat")) {
                 if (line.split("=").length > 1) {
-
                     vcf4.setFileFormat(line.split("=")[1].trim());
                 } else {
                     throw new FileFormatException("");
@@ -217,10 +225,12 @@ public class VariantVcfReader implements VariantReader {
                 vcf4.getMetaInformation().put(fields[0], fields[1]);
             }
         }
+        
         if (!header) {
             System.err.println("VCF Header must be provided.");
             System.exit(-1);
         }
+        
         localBufferedReader.close();
     }
 
