@@ -87,12 +87,15 @@ public class VariantVcfEVSFactory extends VariantVcfFactory {
         for (int i = 0; i < alternateAlleles.length; i++) {
             VariantKeyFields keyFields = generatedKeyFields.get(i);
             Variant variant = new Variant(chromosome, keyFields.start, keyFields.end, keyFields.reference, keyFields.alternate);
-            variant.addSourceEntry(new VariantSourceEntry(source.getFileId(), source.getStudyId()));
-            setOtherFields(variant, source, id, quality, filter, info, format, keyFields.getNumAllele(), alternateAlleles, line);
+            VariantSourceEntry file = new VariantSourceEntry(source.getFileId(), source.getStudyId());
+            String[] secondaryAlternates = getSecondaryAlternates(variant, keyFields.getNumAllele(), alternateAlleles);
+            file.setSecondaryAlternates(secondaryAlternates);
+            file.setFormat(format);
+            variant.addSourceEntry(file);
 
             try {
-                // Copy only the samples that correspond to each specific mutation
-                parseSplitSampleData(variant, source, fields, alternateAlleles, i + 1);
+                parseSplitSampleData(variant, source, fields, alternateAlleles, secondaryAlternates, i + 1);
+                setOtherFields(variant, source, id, quality, filter, info, format, keyFields.getNumAllele(), alternateAlleles, line);
                 variants.add(variant);
             } catch (NonStandardCompliantSampleField ex) {
                 Logger.getLogger(VariantFactory.class.getName()).log(Level.SEVERE,
