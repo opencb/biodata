@@ -7,13 +7,11 @@ public class ConsequenceType {
     private String geneName;
     private String ensemblGeneId;
     private String ensemblTranscriptId;
-    private int SOAccession;
+    private Integer SOAccession;
     private String SOName;
     private int relativePosition;
     private String codon;
     private String aaChange;
-
-//    private static ConsequenceTypeMappings consequenceTypeMappings = new ConsequenceTypeMappings();
 
     public ConsequenceType(String SOName) {
         this.SOAccession = ConsequenceTypeMappings.termToAccession.get(SOName);
@@ -24,7 +22,7 @@ public class ConsequenceType {
         this.geneName = geneName;
         this.ensemblGeneId = ensemblGeneId;
         this.ensemblTranscriptId = ensemblTranscriptId;
-//        this.SOAccession = consequenceTypeMappings.getAccession(SOName);
+        //this.SOAccession = consequenceTypeMappings.getAccession(SOName);
         this.SOAccession = ConsequenceTypeMappings.termToAccession.get(SOName);
         this.SOName = SOName;
     }
@@ -33,7 +31,7 @@ public class ConsequenceType {
         this.SOName = SOName;
     }
 
-    public void setSOAccession(int SOAccession) {
+    public void setSOAccession(Integer SOAccession) {
         this.SOAccession = SOAccession;
     }
 
@@ -73,7 +71,7 @@ public class ConsequenceType {
         return ensemblTranscriptId;
     }
 
-    public int getSOAccession() {
+    public Integer getSOAccession() {
         return SOAccession;
     }
 

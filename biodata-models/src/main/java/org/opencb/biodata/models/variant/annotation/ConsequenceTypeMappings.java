@@ -16,6 +16,7 @@ public class ConsequenceTypeMappings {
 
     public static final Map<Integer, String> accessionToTerm = new HashMap<>();
 
+
     static {
 
         // Fill the term to accession map
