@@ -13,8 +13,6 @@ public class ConsequenceType {
     private String codon;
     private String aaChange;
 
-//    private static ConsequenceTypeMappings consequenceTypeMappings = new ConsequenceTypeMappings();
-
     public ConsequenceType(String SOName) {
         this.SOAccession = ConsequenceTypeMappings.termToAccession.get(SOName);
         this.SOName = SOName;
@@ -24,7 +22,7 @@ public class ConsequenceType {
         this.geneName = geneName;
         this.ensemblGeneId = ensemblGeneId;
         this.ensemblTranscriptId = ensemblTranscriptId;
-//        this.SOAccession = consequenceTypeMappings.getAccession(SOName);
+        //this.SOAccession = consequenceTypeMappings.getAccession(SOName);
         this.SOAccession = ConsequenceTypeMappings.termToAccession.get(SOName);
         this.SOName = SOName;
     }
