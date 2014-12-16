@@ -51,7 +51,8 @@ public class ConsequenceType {
         this.cDnaPosition = cDnaPosition;
     }
 
-    public ConsequenceType(String geneName, String ensemblGeneId, String ensemblTranscriptId, String strand, String biotype, Integer cDnaPosition, String SOName) {
+    public ConsequenceType(String geneName, String ensemblGeneId, String ensemblTranscriptId, String strand,
+                           String biotype, Integer cDnaPosition, String SOName) {
         this.geneName = geneName;
         this.ensemblGeneId = ensemblGeneId;
         this.ensemblTranscriptId = ensemblTranscriptId;
@@ -62,6 +63,25 @@ public class ConsequenceType {
         this.biotype = biotype;
         this.cDnaPosition = cDnaPosition;
     }
+
+    public ConsequenceType(String geneName, String ensemblGeneId, String ensemblTranscriptId, String strand,
+                           String biotype, Integer cDnaPosition, Integer cdsPosition, Integer aPosition,
+                           String aChange, String codon, String SOName) {
+        this.geneName = geneName;
+        this.ensemblGeneId = ensemblGeneId;
+        this.ensemblTranscriptId = ensemblTranscriptId;
+        this.strand = strand;
+//        this.SOAccession = consequenceTypeMappings.getAccession(SOName);
+        this.SOAccession = ConsequenceTypeMappings.termToAccession.get(SOName);
+        this.SOName = SOName;
+        this.biotype = biotype;
+        this.cDnaPosition = cDnaPosition;
+        this.cdsPosition = cdsPosition;
+        this.aPosition = aPosition;
+        this.aChange = aChange;
+        this.codon = codon;
+    }
+
 
     public void setSOName(String SOName) {
         this.SOName = SOName;
