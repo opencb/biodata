@@ -59,13 +59,19 @@ public class VariantSourceEntry {
     }
     
     public VariantSourceEntry(String fileId, String studyId) {
+        this(fileId, studyId, new String[0], null);
+    }
+
+    public VariantSourceEntry(String fileId, String studyId, String[] secondaryAlternates, String format) {
         this.fileId = fileId;
         this.studyId = studyId;
+        this.secondaryAlternates = secondaryAlternates;
+        this.format = format;
         
         this.samplesData = new LinkedHashMap<>();
         this.attributes = new LinkedHashMap<>();
+        
     }
-
     
     public String getFileId() {
         return fileId;

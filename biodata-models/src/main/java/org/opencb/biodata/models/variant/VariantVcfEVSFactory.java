@@ -87,10 +87,8 @@ public class VariantVcfEVSFactory extends VariantVcfFactory {
         for (int i = 0; i < alternateAlleles.length; i++) {
             VariantKeyFields keyFields = generatedKeyFields.get(i);
             Variant variant = new Variant(chromosome, keyFields.start, keyFields.end, keyFields.reference, keyFields.alternate);
-            VariantSourceEntry file = new VariantSourceEntry(source.getFileId(), source.getStudyId());
             String[] secondaryAlternates = getSecondaryAlternates(variant, keyFields.getNumAllele(), alternateAlleles);
-            file.setSecondaryAlternates(secondaryAlternates);
-            file.setFormat(format);
+            VariantSourceEntry file = new VariantSourceEntry(source.getFileId(), source.getStudyId(), secondaryAlternates, format);
             variant.addSourceEntry(file);
 
             try {
