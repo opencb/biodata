@@ -20,7 +20,7 @@ public class GAVariantSetFactory {
         for (VariantSource source : variantSources) {
             // TODO This header should be already split
             List<GAVariantSetMetadata> setMetadata = new ArrayList<>();
-            String header = source.getMetadata().get("header");
+            String header = source.getMetadata().get("header").toString();
             
             for (String line : header.split("\n")) {
                 if (line.startsWith("#CHROM")) {

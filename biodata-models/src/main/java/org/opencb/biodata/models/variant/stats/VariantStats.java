@@ -13,7 +13,6 @@ import org.opencb.biodata.models.pedigree.Individual;
 import org.opencb.biodata.models.pedigree.Pedigree;
 import org.opencb.biodata.models.variant.VariantSourceEntry;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.Variant.VariantType;
 
 /**
  * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
@@ -23,12 +22,9 @@ import org.opencb.biodata.models.variant.Variant.VariantType;
  */
 public class VariantStats {
 
-    private Variant variant;
-    
-    private String chromosome;
-    private long position;
     private String refAllele;
     private String altAllele;
+    private Variant.VariantType variantType;
     
     private int refAlleleCount;
     private int altAlleleCount;
@@ -47,8 +43,6 @@ public class VariantStats {
     
     private boolean passedFilters;
     
-    private boolean pedigreeStatsAvailable;
-    
     private int mendelianErrors;
     
     private float casesPercentDominant;
@@ -56,114 +50,84 @@ public class VariantStats {
     private float casesPercentRecessive;
     private float controlsPercentRecessive;
     
-    private int transitionsCount;
-    private int transversionsCount;
-    
     private float quality;
     private int numSamples;
     private VariantHardyWeinbergStats hw;
 
     
     public VariantStats() {
-        this.chromosome = null;
-        this.position = -1;
-        this.refAllele = null;
-        this.altAllele = null;
-        
-        this.maf = -1;
-        this.mgf = -1;
-        this.mafAllele = null;
-        this.mgfGenotype = null;
-        this.refAlleleCount = this.altAlleleCount = -1;
-        this.refAlleleFreq = this.altAlleleFreq = -1;
-        this.genotypesCount = new HashMap<>();
-        this.genotypesFreq = new LinkedHashMap<>();
-        
-        this.missingAlleles = -1;
-        this.missingGenotypes = -1;
-        this.mendelianErrors = -1;
-        this.casesPercentDominant = -1;
-        this.controlsPercentDominant = -1;
-        this.casesPercentRecessive = -1;
-        this.controlsPercentRecessive = -1;
-        this.transitionsCount = -1;
-        this.transversionsCount = -1;
-        
-        this.hw = new VariantHardyWeinbergStats();
+        this(null, -1, null, null, Variant.VariantType.SNV, -1, -1, null, null, -1, -1, -1, -1, -1, -1, -1);
     }
 
     public VariantStats(Variant variant) {
-        this();
-        
-        if (variant != null) {
-            this.variant = variant;
-            this.chromosome = variant.getChromosome();
-            this.position = variant.getStart();
-            this.refAllele = variant.getReference();
-            this.altAllele = variant.getAlternate();
-        }
+        this(null, -1, 
+            variant != null ? variant.getReference() : null, 
+            variant != null ? variant.getAlternate() : null, 
+            Variant.VariantType.SNV, -1, -1, null, null, -1, -1, -1, -1, -1, -1, -1);
     }
 
-    public VariantStats(String chromosome, int position, String referenceAllele, String alternateAlleles, double maf,
-            double mgf, String mafAllele, String mgfGenotype, int numMissingAlleles, int numMissingGenotypes,
-            int numMendelErrors, boolean isIndel, double percentCasesDominant, double percentControlsDominant,
-            double percentCasesRecessive, double percentControlsRecessive) {
-        this();
-        
-        this.chromosome = chromosome;
-        this.position = position;
+    public VariantStats(String referenceAllele, String alternateAllele, Variant.VariantType type) {
+        this(null, -1, referenceAllele, alternateAllele, type, -1, -1, null, null, -1, -1, -1, -1, -1, -1, -1);
+    }
+    
+    public VariantStats(String chromosome, int position, String referenceAllele, String alternateAlleles, 
+            Variant.VariantType variantType, float maf, float mgf, String mafAllele, String mgfGenotype, 
+            int numMissingAlleles, int numMissingGenotypes, int numMendelErrors, float percentCasesDominant, 
+            float percentControlsDominant, float percentCasesRecessive, float percentControlsRecessive) {
         this.refAllele = referenceAllele;
         this.altAllele = alternateAlleles;
+        this.variantType = variantType;
         
-        this.maf = (float) maf;
-        this.mgf = (float) mgf;
+        this.maf = maf;
+        this.mgf = mgf;
         this.mafAllele = mafAllele;
         this.mgfGenotype = mgfGenotype;
+        this.genotypesCount = new HashMap<>();
+        this.genotypesFreq = new LinkedHashMap<>();
 
         this.missingAlleles = numMissingAlleles;
         this.missingGenotypes = numMissingGenotypes;
         this.mendelianErrors = numMendelErrors;
 
-        this.casesPercentDominant = (float) percentCasesDominant;
-        this.controlsPercentDominant = (float) percentControlsDominant;
-        this.casesPercentRecessive = (float) percentCasesRecessive;
-        this.controlsPercentRecessive = (float) percentControlsRecessive;
+        this.casesPercentDominant = percentCasesDominant;
+        this.controlsPercentDominant = percentControlsDominant;
+        this.casesPercentRecessive = percentCasesRecessive;
+        this.controlsPercentRecessive = percentControlsRecessive;
+        
+        this.quality = -1;
 
-    }
-
-    public String getChromosome() {
-        return chromosome;
-    }
-
-    public void setChromosome(String chromosome) {
-        this.chromosome = chromosome;
-    }
-
-    public Long getPosition() {
-        return position;
-    }
-
-    public void setPosition(long position) {
-        this.position = position;
+        this.hw = new VariantHardyWeinbergStats();
     }
 
     public String getRefAllele() {
         return refAllele;
     }
 
+    void setRefAllele(String refAllele) {
+        this.refAllele = refAllele;
+    }
+
     public String getAltAllele() {
         return altAllele;
     }
 
-    public void setAltAllele(String altAllele) {
+    void setAltAllele(String altAllele) {
         this.altAllele = altAllele;
+    }
+
+    public Variant.VariantType getVariantType() {
+        return variantType;
+    }
+
+    void setVariantType(Variant.VariantType variantType) {
+        this.variantType = variantType;
     }
 
     public int getRefAlleleCount() {
         return refAlleleCount;
     }
 
-    public void setRefAlleleCount(int refAlleleCount) {
+    void setRefAlleleCount(int refAlleleCount) {
         this.refAlleleCount = refAlleleCount;
     }
 
@@ -171,7 +135,7 @@ public class VariantStats {
         return altAlleleCount;
     }
 
-    public void setAltAlleleCount(int altAlleleCount) {
+    void setAltAlleleCount(int altAlleleCount) {
         this.altAlleleCount = altAlleleCount;
     }
 
@@ -179,7 +143,7 @@ public class VariantStats {
         return refAlleleFreq;
     }
 
-    public void setRefAlleleFreq(float refAlleleFreq) {
+    void setRefAlleleFreq(float refAlleleFreq) {
         this.refAlleleFreq = refAlleleFreq;
     }
 
@@ -187,7 +151,7 @@ public class VariantStats {
         return altAlleleFreq;
     }
 
-    public void setAltAlleleFreq(float altAlleleFreq) {
+    void setAltAlleleFreq(float altAlleleFreq) {
         this.altAlleleFreq = altAlleleFreq;
     }
     
@@ -245,7 +209,7 @@ public class VariantStats {
         }
     }
     
-    public void setGenotypesCount(Map<Genotype, Integer> genotypesCount) {
+    void setGenotypesCount(Map<Genotype, Integer> genotypesCount) {
         this.genotypesCount = genotypesCount;
     }
 
@@ -253,7 +217,7 @@ public class VariantStats {
         return genotypesFreq;
     }
 
-    public void setGenotypesFreq(Map<Genotype, Float> genotypesFreq) {
+    void setGenotypesFreq(Map<Genotype, Float> genotypesFreq) {
         this.genotypesFreq = genotypesFreq;
     }
 
@@ -293,7 +257,7 @@ public class VariantStats {
         return mendelianErrors;
     }
 
-    public void setMendelianErrors(int mendelianErrors) {
+    void setMendelianErrors(int mendelianErrors) {
         this.mendelianErrors = mendelianErrors;
     }
 
@@ -301,7 +265,7 @@ public class VariantStats {
         return casesPercentDominant;
     }
 
-    public void setCasesPercentDominant(float casesPercentDominant) {
+    void setCasesPercentDominant(float casesPercentDominant) {
         this.casesPercentDominant = casesPercentDominant;
     }
 
@@ -309,7 +273,7 @@ public class VariantStats {
         return controlsPercentDominant;
     }
 
-    public void setControlsPercentDominant(float controlsPercentDominant) {
+    void setControlsPercentDominant(float controlsPercentDominant) {
         this.controlsPercentDominant = controlsPercentDominant;
     }
 
@@ -317,7 +281,7 @@ public class VariantStats {
         return casesPercentRecessive;
     }
 
-    public void setCasesPercentRecessive(float casesPercentRecessive) {
+    void setCasesPercentRecessive(float casesPercentRecessive) {
         this.casesPercentRecessive = casesPercentRecessive;
     }
 
@@ -325,63 +289,57 @@ public class VariantStats {
         return controlsPercentRecessive;
     }
 
-    public void setControlsPercentRecessive(float controlsPercentRecessive) {
+    void setControlsPercentRecessive(float controlsPercentRecessive) {
         this.controlsPercentRecessive = controlsPercentRecessive;
     }
 
-    public void setRefAllele(String refAllele) {
-        this.refAllele = refAllele;
+    public boolean isTransition() {
+        switch (refAllele.toUpperCase()) {
+            case "C":
+                return altAllele.equalsIgnoreCase("T");
+            case "T":
+                return altAllele.equalsIgnoreCase("C");
+            case "A":
+                return altAllele.equalsIgnoreCase("G");
+            case "G":
+                return altAllele.equalsIgnoreCase("A");
+            default:
+                return false;
+        }
     }
 
-    public int getTransitionsCount() {
-        return transitionsCount;
-    }
-
-    public void setTransitionsCount(int transitionsCount) {
-        this.transitionsCount = transitionsCount;
-    }
-
-    public int getTransversionsCount() {
-        return transversionsCount;
-    }
-
-    public void setTransversionsCount(int transversionsCount) {
-        this.transversionsCount = transversionsCount;
+    public boolean isTransversion() {
+        switch (refAllele.toUpperCase()) {
+            case "C":
+                return !altAllele.equalsIgnoreCase("T");
+            case "T":
+                return !altAllele.equalsIgnoreCase("C");
+            case "A":
+                return !altAllele.equalsIgnoreCase("G");
+            case "G":
+                return !altAllele.equalsIgnoreCase("A");
+            default:
+                return false;
+        }
     }
 
     public VariantHardyWeinbergStats getHw() {
         return hw;
     }
 
-    public boolean isIndel() {
-        return variant.getType() == VariantType.INDEL;
-    }
-
-    public boolean isSNP() {
-        return variant.getType() == VariantType.SNV;
-    }
-
     public boolean hasPassedFilters() {
         return passedFilters;
     }
 
-    public void setPassedFilters(boolean passedFilters) {
+    void setPassedFilters(boolean passedFilters) {
         this.passedFilters = passedFilters;
-    }
-
-    public boolean isPedigreeStatsAvailable() {
-        return pedigreeStatsAvailable;
-    }
-
-    public void setPedigreeStatsAvailable(boolean pedigreeStatsAvailable) {
-        this.pedigreeStatsAvailable = pedigreeStatsAvailable;
     }
 
     public float getQuality() {
         return quality;
     }
 
-    public void setQuality(float quality) {
+    void setQuality(float quality) {
         this.quality = quality;
     }
 
@@ -389,16 +347,14 @@ public class VariantStats {
         return numSamples;
     }
 
-    public void setNumSamples(int numSamples) {
+    void setNumSamples(int numSamples) {
         this.numSamples = numSamples;
     }
 
     @Override
     public String toString() {
         return "VariantStats{"
-                + "chromosome='" + chromosome + '\''
-                + ", position=" + position
-                + ", refAllele='" + refAllele + '\''
+                + "refAllele='" + refAllele + '\''
                 + ", altAllele='" + altAllele + '\''
                 + ", mafAllele='" + mafAllele + '\''
                 + ", mgfAllele='" + mgfGenotype + '\''
@@ -411,8 +367,6 @@ public class VariantStats {
                 + ", controlsPercentDominant=" + controlsPercentDominant
                 + ", casesPercentRecessive=" + casesPercentRecessive
                 + ", controlsPercentRecessive=" + controlsPercentRecessive
-                + ", transitionsCount=" + transitionsCount
-                + ", transversionsCount=" + transversionsCount
                 + '}';
     }
 
@@ -424,7 +378,11 @@ public class VariantStats {
         float controlsRecessive = 0, casesRecessive = 0;
 
         this.setNumSamples(samplesData.size());
-        this.setPedigreeStatsAvailable(pedigree != null);
+        this.setMissingAlleles(0);
+        this.setMissingGenotypes(0);
+        if (pedigree != null) {
+            this.setMendelianErrors(0);
+        }
 
         for (Map.Entry<String, Map<String, String>> sample : samplesData.entrySet()) {
             String sampleName = sample.getKey();
@@ -454,12 +412,7 @@ public class VariantStats {
                     break;
                 case HAPLOID:
                     // Haploid (chromosome X/Y)
-                    try {
-                        allelesCount[g.getAllele(0)]++;
-                    } catch (ArrayIndexOutOfBoundsException e) {
-                        System.out.println("vcfRecord = " + variant);
-                        System.out.println("g = " + g);
-                    }
+                    allelesCount[g.getAllele(0)]++;
                     totalAllelesCount++;
                     break;
                 case MULTIPLE_ALTERNATES:
@@ -486,7 +439,7 @@ public class VariantStats {
             }
 
             // Include statistics that depend on pedigree information
-            if (pedigreeStatsAvailable) {
+            if (pedigree != null) {
                 if (g.getCode() == AllelesCode.ALLELES_OK || g.getCode() == AllelesCode.HAPLOID) {
                     Individual ind = pedigree.getIndividual(sampleName);
 //                    if (MendelChecker.isMendelianError(ind, g, variant.getChromosome(), file.getSamplesData())) {
@@ -530,9 +483,6 @@ public class VariantStats {
         // Calculate Hardy-Weinberg statistic
         this.getHw().calculate();
 
-        // Transitions and transversions
-        this.calculateTransitionsAndTransversions(variant.getReference(), variant.getAlternate());
-
         // Update variables finally used to update file_stats_t structure
         if ("PASS".equalsIgnoreCase(attributes.get("FILTER"))) {
             this.setPassedFilters(true);
@@ -545,16 +495,18 @@ public class VariantStats {
             }
         }
 
-        // Once all samples have been traversed, calculate % that follow inheritance model
-        controlsDominant = controlsDominant * 100 / (this.getNumSamples() - this.getMissingGenotypes());
-        casesDominant = casesDominant * 100 / (this.getNumSamples() - this.getMissingGenotypes());
-        controlsRecessive = controlsRecessive * 100 / (this.getNumSamples() - this.getMissingGenotypes());
-        casesRecessive = casesRecessive * 100 / (this.getNumSamples() - this.getMissingGenotypes());
+        if (pedigree != null) {
+            // Once all samples have been traversed, calculate % that follow inheritance model
+            controlsDominant = controlsDominant * 100 / (this.getNumSamples() - this.getMissingGenotypes());
+            casesDominant = casesDominant * 100 / (this.getNumSamples() - this.getMissingGenotypes());
+            controlsRecessive = controlsRecessive * 100 / (this.getNumSamples() - this.getMissingGenotypes());
+            casesRecessive = casesRecessive * 100 / (this.getNumSamples() - this.getMissingGenotypes());
 
-        this.setCasesPercentDominant(casesDominant);
-        this.setControlsPercentDominant(controlsDominant);
-        this.setCasesPercentRecessive(casesRecessive);
-        this.setControlsPercentRecessive(controlsRecessive);
+            this.setCasesPercentDominant(casesDominant);
+            this.setControlsPercentDominant(controlsDominant);
+            this.setCasesPercentRecessive(casesRecessive);
+            this.setControlsPercentRecessive(controlsRecessive);
+        }
 
         return this;
     }
@@ -629,78 +581,31 @@ public class VariantStats {
         }
     }
 
-    private void calculateTransitionsAndTransversions(String reference, String alternate) {
-        int numTransitions = 0, numTranversions = 0;
-
-        if (reference.length() == 1 && alternate.length() == 1) {
-            switch (reference.toUpperCase()) {
-                case "C":
-                    if (alternate.equalsIgnoreCase("T")) {
-                        numTransitions++;
-                    } else {
-                        numTranversions++;
-                    }
-                    break;
-                case "T":
-                    if (alternate.equalsIgnoreCase("C")) {
-                        numTransitions++;
-                    } else {
-                        numTranversions++;
-                    }
-                    break;
-                case "A":
-                    if (alternate.equalsIgnoreCase("G")) {
-                        numTransitions++;
-                    } else {
-                        numTranversions++;
-                    }
-                    break;
-                case "G":
-                    if (alternate.equalsIgnoreCase("A")) {
-                        numTransitions++;
-                    } else {
-                        numTranversions++;
-                    }
-                    break;
-            }
-        }
-
-        this.setTransitionsCount(numTransitions);
-        this.setTransversionsCount(numTranversions);
-    }
-
-    
     @Override
     public int hashCode() {
         int hash = 3;
-        hash = 13 * hash + Objects.hashCode(this.variant);
-        hash = 13 * hash + Objects.hashCode(this.chromosome);
-        hash = 13 * hash + (int) (this.position ^ (this.position >>> 32));
-        hash = 13 * hash + Objects.hashCode(this.refAllele);
-        hash = 13 * hash + Objects.hashCode(this.altAllele);
-        hash = 13 * hash + this.refAlleleCount;
-        hash = 13 * hash + this.altAlleleCount;
-        hash = 13 * hash + Objects.hashCode(this.genotypesCount);
-        hash = 13 * hash + this.missingAlleles;
-        hash = 13 * hash + this.missingGenotypes;
-        hash = 13 * hash + Float.floatToIntBits(this.refAlleleFreq);
-        hash = 13 * hash + Float.floatToIntBits(this.altAlleleFreq);
-        hash = 13 * hash + Objects.hashCode(this.genotypesFreq);
-        hash = 13 * hash + Float.floatToIntBits(this.maf);
-        hash = 13 * hash + Float.floatToIntBits(this.mgf);
-        hash = 13 * hash + Objects.hashCode(this.mafAllele);
-        hash = 13 * hash + Objects.hashCode(this.mgfGenotype);
-        hash = 13 * hash + (this.passedFilters ? 1 : 0);
-        hash = 13 * hash + (this.pedigreeStatsAvailable ? 1 : 0);
-        hash = 13 * hash + this.mendelianErrors;
-        hash = 13 * hash + Float.floatToIntBits(this.casesPercentDominant);
-        hash = 13 * hash + Float.floatToIntBits(this.controlsPercentDominant);
-        hash = 13 * hash + Float.floatToIntBits(this.casesPercentRecessive);
-        hash = 13 * hash + Float.floatToIntBits(this.controlsPercentRecessive);
-        hash = 13 * hash + this.transitionsCount;
-        hash = 13 * hash + this.transversionsCount;
-        hash = 13 * hash + Float.floatToIntBits(this.quality);
-        hash = 13 * hash + this.numSamples;
+        hash = 79 * hash + Objects.hashCode(this.refAllele);
+        hash = 79 * hash + Objects.hashCode(this.altAllele);
+        hash = 79 * hash + this.refAlleleCount;
+        hash = 79 * hash + this.altAlleleCount;
+        hash = 79 * hash + Objects.hashCode(this.genotypesCount);
+        hash = 79 * hash + this.missingAlleles;
+        hash = 79 * hash + this.missingGenotypes;
+        hash = 79 * hash + Float.floatToIntBits(this.refAlleleFreq);
+        hash = 79 * hash + Float.floatToIntBits(this.altAlleleFreq);
+        hash = 79 * hash + Objects.hashCode(this.genotypesFreq);
+        hash = 79 * hash + Float.floatToIntBits(this.maf);
+        hash = 79 * hash + Float.floatToIntBits(this.mgf);
+        hash = 79 * hash + Objects.hashCode(this.mafAllele);
+        hash = 79 * hash + Objects.hashCode(this.mgfGenotype);
+        hash = 79 * hash + (this.passedFilters ? 1 : 0);
+        hash = 79 * hash + this.mendelianErrors;
+        hash = 79 * hash + Float.floatToIntBits(this.casesPercentDominant);
+        hash = 79 * hash + Float.floatToIntBits(this.controlsPercentDominant);
+        hash = 79 * hash + Float.floatToIntBits(this.casesPercentRecessive);
+        hash = 79 * hash + Float.floatToIntBits(this.controlsPercentRecessive);
+        hash = 79 * hash + Float.floatToIntBits(this.quality);
+        hash = 79 * hash + this.numSamples;
         return hash;
     }
 
@@ -713,12 +618,6 @@ public class VariantStats {
             return false;
         }
         final VariantStats other = (VariantStats) obj;
-        if (!Objects.equals(this.chromosome, other.chromosome)) {
-            return false;
-        }
-        if (this.position != other.position) {
-            return false;
-        }
         if (!Objects.equals(this.refAllele, other.refAllele)) {
             return false;
         }
@@ -764,9 +663,6 @@ public class VariantStats {
         if (this.passedFilters != other.passedFilters) {
             return false;
         }
-        if (this.pedigreeStatsAvailable != other.pedigreeStatsAvailable) {
-            return false;
-        }
         if (this.mendelianErrors != other.mendelianErrors) {
             return false;
         }
@@ -780,12 +676,6 @@ public class VariantStats {
             return false;
         }
         if (Float.floatToIntBits(this.controlsPercentRecessive) != Float.floatToIntBits(other.controlsPercentRecessive)) {
-            return false;
-        }
-        if (this.transitionsCount != other.transitionsCount) {
-            return false;
-        }
-        if (this.transversionsCount != other.transversionsCount) {
             return false;
         }
         if (Float.floatToIntBits(this.quality) != Float.floatToIntBits(other.quality)) {

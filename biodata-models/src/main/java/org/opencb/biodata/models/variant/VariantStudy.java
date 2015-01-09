@@ -1,5 +1,6 @@
 package org.opencb.biodata.models.variant;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,6 +80,8 @@ public class VariantStudy {
     
     private String platform;
     
+    private URI url;
+            
     private int numVariants;
     
     private int numSamples;
@@ -95,13 +98,13 @@ public class VariantStudy {
     }
 
     public VariantStudy(String studyName, String studyId, List<VariantSource> sources) {
-        this(studyName, studyId, sources, null, null, null, null, null, null, null, null, null, null, null, null, null, -1, -1);
+        this(studyName, studyId, sources, null, null, null, null, null, null, null, null, null, null, null, null, null, null, -1, -1);
     }
 
     public VariantStudy(String studyName, String studyId, List<VariantSource> sources, String description, int[] speciesId, 
             String speciesCommonName, String speciesScientificName, String sourceType, String center, String material, 
             String scope, StudyType type, String experimentType, String experimentTypeAbbreviation, String referenceAssembly, 
-            String platform, int numVariants, int numSamples) {
+            String platform, URI projectUrl, int numVariants, int numSamples) {
         this.name = studyName;
         this.id = studyId;
         this.description = description;
@@ -117,6 +120,7 @@ public class VariantStudy {
         this.experimentTypeAbbreviation = experimentTypeAbbreviation;
         this.assembly = referenceAssembly;
         this.platform = platform;
+        this.url = projectUrl;
         this.numVariants = numVariants;
         this.numSamples = numSamples;
         this.sources = sources;
@@ -248,6 +252,14 @@ public class VariantStudy {
 
     public int getNumVariants() {
         return numVariants;
+    }
+
+    public URI getUrl() {
+        return url;
+    }
+
+    public void setUrl(URI url) {
+        this.url = url;
     }
 
     public void setNumVariants(int numVariants) {
