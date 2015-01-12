@@ -293,7 +293,7 @@ public class VariantAnnotation {
 
     public ProteinSubstitutionScores getProteinSubstitutionScores() {
         // TODO: broken compatibility with VariantPolyphenSIFTAnnotator
-        return new ProteinSubstitutionScores();
+        return null;
     }
 
 //    public List<Score> getProteinSubstitutionScores() {
@@ -306,7 +306,7 @@ public class VariantAnnotation {
 
     public RegulatoryEffect getRegulatoryEffect() {
         // TODO: broken compatibility with VariantEffectConverter
-        return new RegulatoryEffect();
+        return null;
     }
 
 //    public RegulatoryEffect getRegulatoryEffect() {
