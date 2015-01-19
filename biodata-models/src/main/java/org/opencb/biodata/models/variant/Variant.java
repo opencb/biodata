@@ -173,7 +173,14 @@ public class Variant {
         if (chromosome == null || chromosome.length() == 0) {
             throw new IllegalArgumentException("Chromosome must not be empty");
         }
-        this.chromosome = chromosome.replaceAll("chrom|chrm|chr|ch", "");
+        // Replace "chr" references only at the beginning of the chromosome name
+        // For instance, tomato has SL2.40ch00 and that should be kept that way
+        if (chromosome.startsWith("chrom") || chromosome.startsWith("chrm")
+                || chromosome.startsWith("chr") || chromosome.startsWith("ch")) {
+            this.chromosome = chromosome.replaceFirst("chrom|chrm|chr|ch", "");
+        } else {
+            this.chromosome = chromosome;
+        }
     }
 
     public int getStart() {

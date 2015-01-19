@@ -8,9 +8,7 @@ public class VcfInfoHeader {
     private Type type;
     private String description;
 
-    private enum Type {Integer, Float, Flag, Character, String}
-
-    ;
+    private enum Type {Integer, Float, Flag, Character, String};
 
     public VcfInfoHeader(String infoLine) {
         // ##INFO=<ID=DP,Number=1,Type=Integer,Description="Total Depth">

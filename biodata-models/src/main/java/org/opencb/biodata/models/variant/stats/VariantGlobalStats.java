@@ -12,34 +12,48 @@ public class VariantGlobalStats {
 
     private int variantsCount;
     private int samplesCount;
+    
     private int snpsCount;
     private int indelsCount;
+    private int structuralCount;
+    
     private int passCount;
+    
     private int transitionsCount;
     private int transversionsCount;
+    
     private float accumulatedQuality;
     private float meanQuality;
     
-    @Deprecated
-    private int biallelicsCount;
-    @Deprecated
-    private int multiallelicsCount;
-    
     private Map<String, Integer> consequenceTypesCount;
 
-    
     public VariantGlobalStats() {
         this.variantsCount = 0;
         this.samplesCount = 0;
         this.snpsCount = 0;
         this.indelsCount = 0;
+        this.structuralCount = 0;
         this.passCount = 0;
         this.transitionsCount = 0;
         this.transversionsCount = 0;
         this.accumulatedQuality = 0;
-        this.biallelicsCount = 0;
-        this.multiallelicsCount = 0;
         this.consequenceTypesCount = new LinkedHashMap<>(20);
+    }
+
+    public VariantGlobalStats(int variantsCount, int samplesCount, int snpsCount, int indelsCount, int structuralCount, 
+            int passCount, int transitionsCount, int transversionsCount, float accumulatedQuality, float meanQuality, 
+            Map<String, Integer> consequenceTypesCount) {
+        this.variantsCount = variantsCount;
+        this.samplesCount = samplesCount;
+        this.snpsCount = snpsCount;
+        this.indelsCount = indelsCount;
+        this.structuralCount = structuralCount;
+        this.passCount = passCount;
+        this.transitionsCount = transitionsCount;
+        this.transversionsCount = transversionsCount;
+        this.accumulatedQuality = accumulatedQuality;
+        this.meanQuality = meanQuality;
+        this.consequenceTypesCount = consequenceTypesCount;
     }
 
     public int getVariantsCount() {
@@ -72,6 +86,14 @@ public class VariantGlobalStats {
 
     public void setIndelsCount(int indelsCount) {
         this.indelsCount = indelsCount;
+    }
+
+    public int getStructuralCount() {
+        return structuralCount;
+    }
+
+    public void setStructuralCount(int structuralCount) {
+        this.structuralCount = structuralCount;
     }
 
     public int getPassCount() {
@@ -107,25 +129,14 @@ public class VariantGlobalStats {
     }
 
     public float getMeanQuality() {
-        if (meanQuality > 0) {
-            return meanQuality;
-        } else {
-            return meanQuality = getAccumulatedQuality() / getVariantsCount();
+        if (meanQuality <= 0) {
+            meanQuality = getAccumulatedQuality() / getVariantsCount();
         }
+        return meanQuality;
     }
 
     public void setMeanQuality(float meanQuality) {
         this.meanQuality = meanQuality;
-    }
-
-    @Deprecated
-    int getBiallelicsCount() {
-        return biallelicsCount;
-    }
-
-    @Deprecated
-    int getMultiallelicsCount() {
-        return multiallelicsCount;
     }
 
     public Map<String, Integer> getConsequenceTypesCount() {
@@ -148,38 +159,31 @@ public class VariantGlobalStats {
     public void update(VariantStats stats) {
         variantsCount++;
         
-        if (stats.isIndel()) {
-            indelsCount++;
+        switch (stats.getVariantType()) {
+            case SNV:
+                snpsCount++;
+                break;
+            case MNV:
+                snpsCount += stats.getRefAllele().length();
+                break;
+            case INDEL:
+                indelsCount++;
+                break;
+            default:
+                structuralCount++;
+                break;
         }
-        if (stats.isSNP()) {
-            snpsCount++;
-        }
+        
         if (stats.hasPassedFilters()) {
             passCount++;
         }
 
         samplesCount = stats.getNumSamples();
-        transitionsCount += stats.getTransitionsCount();
-        transversionsCount += stats.getTransversionsCount();
+        transitionsCount += stats.isTransition() ? 1 : 0;
+        transversionsCount += stats.isTransversion() ? 1 : 0;
         accumulatedQuality += stats.getQuality();
     }
 
-    @Deprecated
-    public void updateStats(int variantsCount, int samplesCount, int snpsCount, int indelsCount, int passCount, 
-            int transitionsCount, int transversionsCount, int biallelicsCount, int multiallelicsCount, float accumQuality) {
-        this.variantsCount += variantsCount;
-        if (this.samplesCount == 0)
-            this.samplesCount += samplesCount;
-        this.snpsCount += snpsCount;
-        this.indelsCount += indelsCount;
-        this.passCount += passCount;
-        this.transitionsCount += transitionsCount;
-        this.transversionsCount += transversionsCount;
-        this.biallelicsCount += biallelicsCount;
-        this.multiallelicsCount += multiallelicsCount;
-        this.accumulatedQuality += accumQuality;
-    }
-    
     @Override
     public String toString() {
         return "VariantGlobalStats{"
@@ -196,17 +200,18 @@ public class VariantGlobalStats {
 
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 59 * hash + this.variantsCount;
-        hash = 59 * hash + this.samplesCount;
-        hash = 59 * hash + this.snpsCount;
-        hash = 59 * hash + this.indelsCount;
-        hash = 59 * hash + this.passCount;
-        hash = 59 * hash + this.transitionsCount;
-        hash = 59 * hash + this.transversionsCount;
-        hash = 59 * hash + Float.floatToIntBits(this.accumulatedQuality);
-        hash = 59 * hash + Float.floatToIntBits(this.meanQuality);
-        hash = 59 * hash + Objects.hashCode(this.consequenceTypesCount);
+        int hash = 7;
+        hash = 19 * hash + this.variantsCount;
+        hash = 19 * hash + this.samplesCount;
+        hash = 19 * hash + this.snpsCount;
+        hash = 19 * hash + this.indelsCount;
+        hash = 19 * hash + this.structuralCount;
+        hash = 19 * hash + this.passCount;
+        hash = 19 * hash + this.transitionsCount;
+        hash = 19 * hash + this.transversionsCount;
+        hash = 19 * hash + Float.floatToIntBits(this.accumulatedQuality);
+        hash = 19 * hash + Float.floatToIntBits(this.meanQuality);
+        hash = 19 * hash + Objects.hashCode(this.consequenceTypesCount);
         return hash;
     }
 
@@ -229,6 +234,9 @@ public class VariantGlobalStats {
             return false;
         }
         if (this.indelsCount != other.indelsCount) {
+            return false;
+        }
+        if (this.structuralCount != other.structuralCount) {
             return false;
         }
         if (this.passCount != other.passCount) {

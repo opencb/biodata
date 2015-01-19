@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.*;
+import static org.junit.Assert.assertArrayEquals;
 
 import static org.junit.Assert.assertEquals;
 
@@ -195,7 +196,7 @@ public class VariantVcfFactoryTest {
     public void testCreateVariantFromVcfMultiallelicVariants_Samples() {
         List<String> sampleNames = Arrays.asList("NA001", "NA002", "NA003", "NA004");
         source.setSamples(sampleNames);
-        String line ="1\t123456\t.\tT\tC,G\t110\tPASS\t.\tGT:AD:DP:GQ:PL\t0/1:10,5:17:94:94,0,286\t0/2:3,8:15:43:222,0,43\t0/0:.:18:.:.\t0/2:7,6:13:99:162,0,180"; // 4 samples
+        String line ="1\t123456\t.\tT\tC,G\t110\tPASS\t.\tGT:AD:DP:GQ:PL\t0/1:10,5:17:94:94,0,286\t0/2:3,8:15:43:222,0,43\t0/0:.:18:.:.\t1/2:7,6:13:99:162,0,180"; // 4 samples
 
         // Initialize expected variants
         Variant var0 = new Variant("1", 123456, 123456, "T", "C");
@@ -207,49 +208,83 @@ public class VariantVcfFactoryTest {
         var1.addSourceEntry(file1);
 
 
-        // Initialize expected samples
-        Map<String, String> na001 = new HashMap<>();
-        na001.put("GT", "0/1");
-        na001.put("AD", "10,5");
-        na001.put("DP", "17");
-        na001.put("GQ", "94");
-        na001.put("PL", "94,0,286");
-        Map<String, String> na002 = new HashMap<>();
-        na002.put("GT", "0/1");
-        na002.put("AD", "3,8");
-        na002.put("DP", "15");
-        na002.put("GQ", "43");
-        na002.put("PL", "222,0,43");
-        Map<String, String> na003 = new HashMap<>();
-        na003.put("GT", "0/0");
-        na003.put("AD", ".");
-        na003.put("DP", "18");
-        na003.put("GQ", ".");
-        na003.put("PL", ".");
-        Map<String, String> na004 = new HashMap<>();
-        na004.put("GT", "0/1");
-        na004.put("AD", "7,6");
-        na004.put("DP", "13");
-        na004.put("GQ", "99");
-        na004.put("PL", "162,0,180");
+        // Initialize expected samples in variant 1 (alt allele C)
+        Map<String, String> na001_C = new HashMap<>();
+        na001_C.put("GT", "0/1");
+        na001_C.put("AD", "10,5");
+        na001_C.put("DP", "17");
+        na001_C.put("GQ", "94");
+        na001_C.put("PL", "94,0,286");
+        Map<String, String> na002_C = new HashMap<>();
+        na002_C.put("GT", "0/2");
+        na002_C.put("AD", "3,8");
+        na002_C.put("DP", "15");
+        na002_C.put("GQ", "43");
+        na002_C.put("PL", "222,0,43");
+        Map<String, String> na003_C = new HashMap<>();
+        na003_C.put("GT", "0/0");
+        na003_C.put("AD", ".");
+        na003_C.put("DP", "18");
+        na003_C.put("GQ", ".");
+        na003_C.put("PL", ".");
+        Map<String, String> na004_C = new HashMap<>();
+        na004_C.put("GT", "1/2");
+        na004_C.put("AD", "7,6");
+        na004_C.put("DP", "13");
+        na004_C.put("GQ", "99");
+        na004_C.put("PL", "162,0,180");
 
-        var0.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(0), na001);
-        var0.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(2), na003);
+        var0.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(0), na001_C);
+        var0.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(1), na002_C);
+        var0.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(2), na003_C);
+        var0.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(3), na004_C);
+        
+        // Initialize expected samples in variant 2 (alt allele G)
+        Map<String, String> na001_G = new HashMap<>();
+        na001_G.put("GT", "0/2");
+        na001_G.put("AD", "10,5");
+        na001_G.put("DP", "17");
+        na001_G.put("GQ", "94");
+        na001_G.put("PL", "94,0,286");
+        Map<String, String> na002_G = new HashMap<>();
+        na002_G.put("GT", "0/1");
+        na002_G.put("AD", "3,8");
+        na002_G.put("DP", "15");
+        na002_G.put("GQ", "43");
+        na002_G.put("PL", "222,0,43");
+        Map<String, String> na003_G = new HashMap<>();
+        na003_G.put("GT", "0/0");
+        na003_G.put("AD", ".");
+        na003_G.put("DP", "18");
+        na003_G.put("GQ", ".");
+        na003_G.put("PL", ".");
+        Map<String, String> na004_G = new HashMap<>();
+        na004_G.put("GT", "2/1");
+        na004_G.put("AD", "7,6");
+        na004_G.put("DP", "13");
+        na004_G.put("GQ", "99");
+        na004_G.put("PL", "162,0,180");
+        var1.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(0), na001_G);
+        var1.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(1), na002_G);
+        var1.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(2), na003_G);
+        var1.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(3), na004_G);
 
-        var1.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(1), na002);
-        var1.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(2), na003);
-        var1.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(3), na004);
 
-
-        // Check proper conversion of samples
+        // Check proper conversion of samples and alternate alleles
         List<Variant> result = factory.create(source, line);
         assertEquals(2, result.size());
 
         Variant getVar0 = result.get(0);
-        assertEquals(var0.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData(), getVar0.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData());
+        assertEquals(
+                var0.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData(), 
+                getVar0.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData());
+        assertArrayEquals(new String[]{ "G" }, getVar0.getSourceEntry(source.getFileId(), source.getStudyId()).getSecondaryAlternates());
 
         Variant getVar1 = result.get(1);
-        assertEquals(var1.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData(), getVar1.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData());
+        assertEquals(
+                var1.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData(), 
+                getVar1.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData());
+        assertArrayEquals(new String[]{ "C" }, getVar1.getSourceEntry(source.getFileId(), source.getStudyId()).getSecondaryAlternates());
     }
 
     @Test
@@ -267,48 +302,75 @@ public class VariantVcfFactoryTest {
         VariantSourceEntry file1 = new VariantSourceEntry(source.getFileId(), source.getStudyId());
         var1.addSourceEntry(file1);
 
-        // Initialize expected samples
-        Map<String, String> na001 = new HashMap<>();
-        na001.put("GT", "0/0");
-        na001.put("GL", "1,1,1");
-        Map<String, String> na002 = new HashMap<>();
-        na002.put("GT", "0/1");
-        na002.put("GL", "1,2,3");
-        Map<String, String> na003 = new HashMap<>();
-        na003.put("GT", "0/1");
-        na003.put("GL", "1,4,6");
-        Map<String, String> na004 = new HashMap<>();
-        na004.put("GT", "1/1");
-        na004.put("GL", "1,2,3");
+        // Initialize expected samples in variant 1 (alt allele C)
+        Map<String, String> na001_C = new HashMap<>();
+        na001_C.put("GT", "0/0");
+        na001_C.put("GL", "1,1,1");
+        Map<String, String> na002_C = new HashMap<>();
+        na002_C.put("GT", "0/1");
+        na002_C.put("GL", "1,2,3");
+        Map<String, String> na003_C = new HashMap<>();
+        na003_C.put("GT", "0/2");
+        na003_C.put("GL", "1,4,6");
+        Map<String, String> na004_C = new HashMap<>();
+        na004_C.put("GT", "1/1");
+        na004_C.put("GL", "1,2,3");
         Map<String, String> na005_C = new HashMap<>();
-        na005_C.put("GT", "1/GC");
+        na005_C.put("GT", "1/2");
         na005_C.put("GL", "3,5,6");
-        Map<String, String> na005_GC = new HashMap<>();
-        na005_GC.put("GT", "C/1");
-        na005_GC.put("GL", "3,5,6");
-        Map<String, String> na006 = new HashMap<>();
-        na006.put("GT", "1/1");
-        na006.put("GL", "1,4,6");
+        Map<String, String> na006_C = new HashMap<>();
+        na006_C.put("GT", "2/2");
+        na006_C.put("GL", "1,4,6");
 
-        var0.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(0), na001);
-        var0.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(1), na002);
-        var0.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(3), na004);
+        var0.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(0), na001_C);
+        var0.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(1), na002_C);
+        var0.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(2), na003_C);
+        var0.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(3), na004_C);
         var0.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(4), na005_C);
+        var0.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(5), na006_C);
 
-        var1.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(0), na001);
-        var1.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(2), na003);
+        // TODO Initialize expected samples in variant 2 (alt allele GC)
+        Map<String, String> na001_GC = new HashMap<>();
+        na001_GC.put("GT", "0/0");
+        na001_GC.put("GL", "1,1,1");
+        Map<String, String> na002_GC = new HashMap<>();
+        na002_GC.put("GT", "0/2");
+        na002_GC.put("GL", "1,2,3");
+        Map<String, String> na003_GC = new HashMap<>();
+        na003_GC.put("GT", "0/1");
+        na003_GC.put("GL", "1,4,6");
+        Map<String, String> na004_GC = new HashMap<>();
+        na004_GC.put("GT", "2/2");
+        na004_GC.put("GL", "1,2,3");
+        Map<String, String> na005_GC = new HashMap<>();
+        na005_GC.put("GT", "2/1");
+        na005_GC.put("GL", "3,5,6");
+        Map<String, String> na006_GC = new HashMap<>();
+        na006_GC.put("GT", "1/1");
+        na006_GC.put("GL", "1,4,6");
+        
+        var1.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(0), na001_GC);
+        var1.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(1), na002_GC);
+        var1.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(2), na003_GC);
+        var1.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(3), na004_GC);
         var1.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(4), na005_GC);
-        var1.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(5), na006);
+        var1.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(5), na006_GC);
 
         // Check proper conversion of samples
         List<Variant> result = factory.create(source, line);
         assertEquals(2, result.size());
 
         Variant getVar0 = result.get(0);
-        assertEquals(var0.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData(), getVar0.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData());
+        assertEquals(
+                var0.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData(), 
+                getVar0.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData());
+        assertArrayEquals(new String[]{ "GC" }, getVar0.getSourceEntry(source.getFileId(), source.getStudyId()).getSecondaryAlternates());
 
         Variant getVar1 = result.get(1);
-        assertEquals(var1.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData(), getVar1.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData());
+        assertEquals(
+                var1.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData(), 
+                getVar1.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData());
+        assertArrayEquals(new String[]{ "C" }, getVar1.getSourceEntry(source.getFileId(), source.getStudyId()).getSecondaryAlternates());
     }
     
     @Test
@@ -430,12 +492,15 @@ public class VariantVcfFactoryTest {
         na004.put("GT", "0/1");
         na004.put("AD", "7,6");
         na004.put("DP", "13");
-        na004.put("GQ", "99");
+        na004.put("GQ", "0");
         na004.put("PL", "162,0,180");
 
         var0.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(0), na001);
+        var0.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(1), na002);
         var0.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(2), na003);
+        var0.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(3), na004);
 
+        var1.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(0), na001);
         var1.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(1), na002);
         var1.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(2), na003);
         var1.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(3), na004);
@@ -447,22 +512,22 @@ public class VariantVcfFactoryTest {
 
         Variant getVar0 = result.get(0);
         VariantSourceEntry getFile0 = getVar0.getSourceEntry(source.getFileId(), source.getStudyId());
-        assertEquals(2, Integer.parseInt(getFile0.getAttribute("NS")));
+        assertEquals(4, Integer.parseInt(getFile0.getAttribute("NS")));
 //        assertEquals(2, Integer.parseInt(getFile0.getAttribute("AN")));
         assertEquals(1, Integer.parseInt(getFile0.getAttribute("AC")));
         assertEquals(0.125, Double.parseDouble(getFile0.getAttribute("AF")), 1e-8);
-        assertEquals(35, Integer.parseInt(getFile0.getAttribute("DP")));
-        assertEquals(8836, Integer.parseInt(getFile0.getAttribute("MQ")));
-        assertEquals(0, Integer.parseInt(getFile0.getAttribute("MQ0")));
+        assertEquals(63, Integer.parseInt(getFile0.getAttribute("DP")));
+        assertEquals(10685, Integer.parseInt(getFile0.getAttribute("MQ")));
+        assertEquals(1, Integer.parseInt(getFile0.getAttribute("MQ0")));
 
         Variant getVar1 = result.get(1);
         VariantSourceEntry getFile1 = getVar1.getSourceEntry(source.getFileId(), source.getStudyId());
-        assertEquals(3, Integer.parseInt(getFile1.getAttribute("NS")));
+        assertEquals(4, Integer.parseInt(getFile1.getAttribute("NS")));
 //        assertEquals(2, Integer.parseInt(getFile1.getAttribute("AN")));
         assertEquals(2, Integer.parseInt(getFile1.getAttribute("AC")));
         assertEquals(0.25, Double.parseDouble(getFile1.getAttribute("AF")), 1e-8);
-        assertEquals(46, Integer.parseInt(getFile1.getAttribute("DP")));
-        assertEquals(1849, Integer.parseInt(getFile1.getAttribute("MQ")));
+        assertEquals(63, Integer.parseInt(getFile1.getAttribute("DP")));
+        assertEquals(10685, Integer.parseInt(getFile1.getAttribute("MQ")));
         assertEquals(1, Integer.parseInt(getFile1.getAttribute("MQ0")));
     }
     

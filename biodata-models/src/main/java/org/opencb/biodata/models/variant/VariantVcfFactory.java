@@ -1,13 +1,13 @@
 package org.opencb.biodata.models.variant;
 
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.feature.AllelesCode;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
-
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
@@ -80,13 +80,12 @@ public class VariantVcfFactory implements VariantFactory {
         for (int i = 0; i < alternateAlleles.length; i++) {
             VariantKeyFields keyFields = generatedKeyFields.get(i);
             Variant variant = new Variant(chromosome, keyFields.start, keyFields.end, keyFields.reference, keyFields.alternate);
-            VariantSourceEntry file = new VariantSourceEntry(source.getFileId(), source.getStudyId());
+            String[] secondaryAlternates = getSecondaryAlternates(variant, keyFields.getNumAllele(), alternateAlleles);
+            VariantSourceEntry file = new VariantSourceEntry(source.getFileId(), source.getStudyId(), secondaryAlternates, format);
             variant.addSourceEntry(file);
 
             try {
-                file.setFormat(format);
-                // Copy only the samples that correspond to each specific mutation
-                parseSplitSampleData(variant, source, fields, alternateAlleles, i + 1);
+                parseSplitSampleData(variant, source, fields, alternateAlleles, secondaryAlternates, i + 1);
                 // Fill the rest of fields (after samples because INFO depends on them)
                 setOtherFields(variant, source, id, quality, filter, info, format, keyFields.getNumAllele(), alternateAlleles, line);
                 variants.add(variant);
@@ -192,8 +191,18 @@ public class VariantVcfFactory implements VariantFactory {
         }
     }
 
+    protected String[] getSecondaryAlternates(Variant variant, int numAllele, String[] alternateAlleles) {
+        String[] secondaryAlternates = new String[alternateAlleles.length-1];
+        for (int i = 0, j = 0; i < alternateAlleles.length; i++) {
+            if (i != numAllele) {
+                secondaryAlternates[j++] = alternateAlleles[i];
+            }
+        }
+        return secondaryAlternates;
+    }
+
     protected void parseSplitSampleData(Variant variant, VariantSource source, String[] fields, 
-            String[] alternateAlleles, int alleleIdx) throws NonStandardCompliantSampleField {
+            String[] alternateAlleles, String[] secondaryAlternates, int alleleIdx) throws NonStandardCompliantSampleField {
         String[] formatFields = variant.getSourceEntry(source.getFileId(), source.getStudyId()).getFormat().split(":");
         List<String> samples = source.getSamples();
 
@@ -201,7 +210,6 @@ public class VariantVcfFactory implements VariantFactory {
             Map<String, String> map = new HashMap<>(5);
 
             // Fill map of a sample
-            boolean shouldAddSample = true;
             String[] sampleFields = fields[i].split(":");
             Genotype genotype = null;
 
@@ -212,29 +220,25 @@ public class VariantVcfFactory implements VariantFactory {
                 String sampleField = sampleFields[j];
 
                 if (formatField.equalsIgnoreCase("GT")) {
-                    shouldAddSample = shouldAddSampleToVariant(sampleField, alleleIdx);
+                    // Save alleles just in case they are necessary for GL/PL/GP transformation
+                    genotype = new Genotype(sampleField, variant.getReference(), variant.getAlternate());
 
-                    if (shouldAddSample) {
-                        // Save alleles just in case they are necessary for GL/PL/GP transformation
-                        genotype = new Genotype(sampleField, variant.getReference(), variant.getAlternate());
-
-                        // Replace numerical indexes with the bases
-                        // TODO Could this be done with Java 8 streams? :)
-//                        sampleField = sampleField.replace("0", variant.getReference());
-//                        for (int k = 0; k < alternateAlleles.length; k++) {
-//                            sampleField = sampleField.replace(String.valueOf(k+1), alternateAlleles[k]);
-//                        }
-                        // Replace numerical indexes when they refer to another alternate allele
-                        for (int k = 0; k < alternateAlleles.length; k++) {
-                            if (k + 1 != alleleIdx) {
-                                sampleField = sampleField.replace(String.valueOf(k + 1), alternateAlleles[k]);
-                            } else {
-                                sampleField = sampleField.replace(String.valueOf(k + 1), "1");
-                            }
+                    StringBuilder genotypeStr = new StringBuilder();
+                    for (int allele : genotype.getAllelesIdx()) {
+                        if (allele == 0) { // Reference
+                            genotypeStr.append("0");
+                        } else if (allele == alleleIdx) { // Current alternate
+                            genotypeStr.append("1");
+                        } else if (allele < 0) { // Missing
+                            genotypeStr.append(".");
+                        } else {
+                            // Replace numerical indexes when they refer to another alternate allele
+                            genotypeStr.append(String.valueOf(ArrayUtils.indexOf(secondaryAlternates, alternateAlleles[allele-1]) + 2));
                         }
-                    } else {
-                        break; // Do not waste time processing the rest of fields
+                        genotypeStr.append(genotype.isPhased() ? "|" : "/");
                     }
+                    sampleField = genotypeStr.substring(0, genotypeStr.length()-1);
+                        
                 } else if (formatField.equalsIgnoreCase("GL")
                         || formatField.equalsIgnoreCase("PL")
                         || formatField.equalsIgnoreCase("GP")) {
@@ -275,10 +279,8 @@ public class VariantVcfFactory implements VariantFactory {
                 map.put(formatField, sampleField);
             }
 
-            // If the genotype of the sample did not match the alleles of this variant, do not add it to the list
-            if (shouldAddSample) {
-                variant.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(samples.get(i - 9), map);
-            }
+            // Add sample to the variant entry in the source file
+            variant.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(samples.get(i - 9), map);
         }
     }
 

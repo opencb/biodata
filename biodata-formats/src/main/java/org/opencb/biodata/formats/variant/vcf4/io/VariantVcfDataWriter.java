@@ -1,18 +1,17 @@
 package org.opencb.biodata.formats.variant.vcf4.io;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
+import org.opencb.biodata.formats.variant.io.VariantReader;
+import org.opencb.biodata.formats.variant.io.VariantWriter;
+import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.VariantSourceEntry;
+
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import org.opencb.biodata.formats.variant.io.VariantReader;
-import org.opencb.biodata.formats.variant.io.VariantWriter;
-import org.opencb.biodata.models.variant.VariantSourceEntry;
-import org.opencb.biodata.models.variant.Variant;
 
 /**
  * Created with IntelliJ IDEA.
@@ -67,7 +66,11 @@ public class VariantVcfDataWriter implements VariantWriter {
         StringBuilder sb = new StringBuilder();
         sb.append(elem.getChromosome()).append("\t");
         sb.append(elem.getStart()).append("\t");
-        sb.append(elem.getId()).append("\t");
+        if (elem.getId() == null) {
+            sb.append(".").append("\t");
+        } else {
+            sb.append(elem.getId()).append("\t");
+        }
         sb.append(elem.getReference()).append("\t");
         sb.append(elem.getAlternate()).append("\t");
 
@@ -76,7 +79,7 @@ public class VariantVcfDataWriter implements VariantWriter {
             // There must be a file associated with this variant
             return false;
         }
-        
+
         if (file.hasAttribute("QUAL")) {
             sb.append(file.getAttribute("QUAL"));
         } else {
@@ -141,7 +144,7 @@ public class VariantVcfDataWriter implements VariantWriter {
         while (it.hasNext()) {
             Map.Entry<String, String> entry = it.next();
 
-            if (!entry.getKey().equalsIgnoreCase("QUAL") && !entry.getKey().equalsIgnoreCase("FILTER")) {
+            if (!entry.getKey().equalsIgnoreCase("QUAL") && !entry.getKey().equalsIgnoreCase("FILTER") && !entry.getKey().equalsIgnoreCase("src")) {
                 sb.append(entry.getKey());
                 if (!"".equals(entry.getValue())) {
                     sb.append("=").append(entry.getValue());
@@ -180,4 +183,5 @@ public class VariantVcfDataWriter implements VariantWriter {
     @Override
     public void includeEffect(boolean effect) {
     }
+
 }

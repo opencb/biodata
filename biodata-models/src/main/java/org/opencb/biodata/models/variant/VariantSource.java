@@ -24,7 +24,7 @@ public class VariantSource {
 
     private Pedigree pedigree; // TODO Decide something about this field
 
-    private Map<String, String> metadata;
+    private Map<String, Object> metadata;
 
     private VariantStudy.StudyType type;
     
@@ -115,15 +115,15 @@ public class VariantSource {
         this.pedigree = pedigree;
     }
 
-    public Map<String, String> getMetadata() {
+    public Map<String, Object> getMetadata() {
         return metadata;
     }
 
-    public void setMetadata(Map<String, String> metadata) {
+    public void setMetadata(Map<String, Object> metadata) {
         this.metadata = metadata;
     }
 
-    public void addMetadata(String key, String value) {
+    public void addMetadata(String key, Object value) {
         this.metadata.put(key, value);
     }
 

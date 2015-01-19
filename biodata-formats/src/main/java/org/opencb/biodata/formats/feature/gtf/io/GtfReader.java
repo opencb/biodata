@@ -46,7 +46,7 @@ public class GtfReader {
                         v = kv[1].replace("\"", "");
                         attributes.put(k, v);
                     }else {
-                        System.out.println("Size must be 2: attr = " + attr);
+                        System.out.println("GTF attribute '"+attr+"' size must be 2. At line:\n\t"+line);
                     }
                 }
                 return new Gtf(fields[0], fields[1], fields[2], Integer.parseInt(fields[3]), Integer.parseInt(fields[4]), fields[5], fields[6], fields[7], attributes);

@@ -1,8 +1,5 @@
 package org.opencb.biodata.models.variant;
 
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
@@ -13,7 +10,8 @@ import org.opencb.biodata.models.variant.stats.VariantStats;
 public class VariantAggregatedVcfFactory extends VariantVcfFactory {
 
     @Override
-    protected void parseSplitSampleData(Variant variant, VariantSource source, String[] fields, String[] alternateAlleles, int alleleIdx) 
+    protected void parseSplitSampleData(Variant variant, VariantSource source, String[] fields, 
+            String[] alternateAlleles, String[] secondaryAlternates, int alleleIdx) 
             throws NonStandardCompliantSampleField {
         // Nothing to do
     }
