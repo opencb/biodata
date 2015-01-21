@@ -304,7 +304,7 @@ public class VariantAnnotation {
 //        this.proteinSubstitutionScores = proteinSubstitutionScores;
 //    }
 
-    public void setRegulatoryEffect() {}  // TODO: broken compatibility with VariantEffectConverter
+    public void setRegulatoryEffect(RegulatoryEffect regulatoryEffect) {}  // TODO: broken compatibility with VariantEffectConverter
 
     public RegulatoryEffect getRegulatoryEffect() {
         // TODO: broken compatibility with VariantEffectConverter
