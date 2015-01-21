@@ -3,10 +3,15 @@ package org.opencb.biodata.models.variation;
 public class PopulationFrequency {
 
 	private String pop;
-	private String refAllele;
-	private String altAllele;
-	private double refAlleleFreq;
-	private double altAlleleFreq;
+	private String superPop;
+	private String refAllele;			// TODO: remove after checking compatibility with dependencies
+	private String altAllele;			// TODO: remove after checking compatibility with dependencies
+	private double refAlleleFreq;		// TODO: remove after checking compatibility with dependencies
+	private double altAlleleFreq;		// TODO: remove after checking compatibility with dependencies
+
+
+	private double[] freqs = {-1, -1, -1, -1, -1};  // refFreq,altFreq,refRefFreq,refAltFreq,altAltFreq
+
 
 	public PopulationFrequency() {
 	}
@@ -18,6 +23,13 @@ public class PopulationFrequency {
 		this.altAllele = altAllele;
 		this.refAlleleFreq = refAlleleFreq;
 		this.altAlleleFreq = altAlleleFreq;
+	}
+
+	public PopulationFrequency(String pop, String superPop, String refAllele, String altAllele) {
+		this.pop = pop;
+		this.superPop = superPop;
+		this.refAllele = refAllele;
+		this.altAllele = altAllele;
 	}
 
 	public String getPop() {
@@ -58,6 +70,26 @@ public class PopulationFrequency {
 
 	public void setAltAlleleFreq(double altAlleleFreq) {
 		this.altAlleleFreq = altAlleleFreq;
+	}
+
+	public void setRefAllFreq(double refAlleleFreq) {			// TODO: rename to setRefAlleleFreq when possible
+		freqs[0] = refAlleleFreq;
+	}
+
+	public void setAltAllFreq(double altAlleleFreq) {			// TODO: rename to setAltAlleleFreq when possible
+		freqs[1] = altAlleleFreq;
+	}
+
+	public void setHetGenotypeFreq(double hetGenotypeFreq) {
+		freqs[3] = hetGenotypeFreq;
+	}
+
+	public void setHomRefGenotypeFreq(double homReferenceGenotypeFreq) {
+		freqs[2] = homReferenceGenotypeFreq;
+	}
+
+	public void setHomAltGenotypeFreq(double homAlternativeGenotypeFreq) {
+		freqs[4] = homAlternativeGenotypeFreq;
 	}
 
 	// private double homRefAlleleFreq;
