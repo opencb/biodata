@@ -1,5 +1,8 @@
 package org.opencb.biodata.models.variant.annotation;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by fjlopez on 19/11/14.
  */
@@ -17,6 +20,7 @@ public class ConsequenceType {
     private Integer cdsPosition;
     private Integer aPosition;
     private String aChange;
+    private List<Score> proteinSubstitutionScores = null;
 
     //    private static ConsequenceTypeMappings consequenceTypeMappings = new ConsequenceTypeMappings();
 
@@ -81,6 +85,25 @@ public class ConsequenceType {
         this.codon = codon;
     }
 
+    public ConsequenceType(String geneName, String ensemblGeneId, String ensemblTranscriptId, String strand,
+                           String biotype, Integer cDnaPosition, Integer cdsPosition, Integer aPosition,
+                           String aChange, String codon, List<Score> proteinSubstitutionScores, String SOName) {
+        this.geneName = geneName;
+        this.ensemblGeneId = ensemblGeneId;
+        this.ensemblTranscriptId = ensemblTranscriptId;
+        this.strand = strand;
+//        this.SOAccession = consequenceTypeMappings.getAccession(SOName);
+        this.SOAccession = ConsequenceTypeMappings.termToAccession.get(SOName);
+        this.SOName = SOName;
+        this.biotype = biotype;
+        this.cDnaPosition = cDnaPosition;
+        this.cdsPosition = cdsPosition;
+        this.aPosition = aPosition;
+        this.aChange = aChange;
+        this.codon = codon;
+        this.proteinSubstitutionScores = proteinSubstitutionScores;
+    }
+
 
     public void setSOName(String SOName) {
         this.SOName = SOName;
@@ -119,6 +142,15 @@ public class ConsequenceType {
     public void setaPosition(Integer aPosition) { this.aPosition = aPosition; }
 
     public void setaChange(String aChange) { this.aChange = aChange; }
+
+    public void setProteinSubstitutionScores(List<Score> proteinSubstitutionScores) { this.proteinSubstitutionScores = proteinSubstitutionScores;  }
+
+    public void addProteinSubstitutionScore(Score score) {
+        if(this.proteinSubstitutionScores==null) {
+            proteinSubstitutionScores = new ArrayList<>();
+        }
+        proteinSubstitutionScores.add(score);
+    }
 
     public String getGeneName() {
         return geneName;
@@ -196,6 +228,10 @@ public class ConsequenceType {
         } else {
             return defaultString;
         }
+    }
+
+    public List<Score> getProteinSubstitutionScores() {
+        return proteinSubstitutionScores;
     }
 
     @Override

@@ -5,38 +5,38 @@ package org.opencb.biodata.models.variant.annotation;
  */
 public class Score {
 
-    private float score;
-    private String src;
-    private String version;
+    private Double score;
+    private String source;
+    private String description;
 
-    public Score(float score, String src, String version) {
+    public Score(Double score, String source, String description) {
         this.score = score;
-        this.src = src;
-        this.version = version;
+        this.source = source;
+        this.description = description;
     }
 
-    public float getScore() {
+    public Double getScore() {
         return score;
     }
 
-    public void setScore(float score) {
+    public void setScore(Double score) {
         this.score = score;
     }
 
-    public String getSrc() {
-        return src;
+    public String getSource() {
+        return source;
     }
 
-    public void setSrc(String src) {
-        this.src = src;
+    public void setSource(String source) {
+        this.source = source;
     }
 
-    public String getVersion() {
-        return version;
+    public String getDescription() {
+        return description;
     }
 
-    public void setVersion(String version) {
-        this.version = version;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
 }

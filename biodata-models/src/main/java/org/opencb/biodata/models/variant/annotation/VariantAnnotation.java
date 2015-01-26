@@ -35,8 +35,6 @@ public class VariantAnnotation {
 
     private List<Score> conservedRegionScores;
 
-    private List<Score> proteinSubstitutionScores;
-
     private List<Frequency> populationFrequencies;
 
     private List<CaddScore> caddScores;
@@ -144,10 +142,6 @@ public class VariantAnnotation {
 
     public void setConservedRegionScores(List<Score> conservedRegionScores) {
         this.conservedRegionScores = conservedRegionScores;
-    }
-
-    public void setProteinSubstitutionScores(List<Score> proteinSubstitutionScores) {
-        this.proteinSubstitutionScores = proteinSubstitutionScores;
     }
 
     public List<Frequency> getPopulationFrequencies() {
@@ -292,17 +286,9 @@ public class VariantAnnotation {
 //    }
 
     public ProteinSubstitutionScores getProteinSubstitutionScores() {
-        // TODO: broken compatibility with VariantPolyphenSIFTAnnotator
+        // TODO: broken compatibility with VariantPolyphenSIFTAnnotator. proteinSubstitutionScores is no longer within VariantAnnotation. Remove after compatibility is solved.
         return null;
     }
-
-//    public List<Score> getProteinSubstitutionScores() {
-//        return proteinSubstitutionScores;
-//    }
-//
-//    public void setProteinSubstitutionScores(List<Score> proteinSubstitutionScores) {
-//        this.proteinSubstitutionScores = proteinSubstitutionScores;
-//    }
 
     public void setRegulatoryEffect(RegulatoryEffect regulatoryEffect) {}  // TODO: broken compatibility with VariantEffectConverter
 
