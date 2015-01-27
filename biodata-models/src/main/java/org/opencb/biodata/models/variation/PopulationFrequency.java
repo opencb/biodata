@@ -4,20 +4,20 @@ public class PopulationFrequency {
 
 	private String pop;
 	private String superPop;
-	private String refAllele;			// TODO: remove after checking compatibility with dependencies
-	private String altAllele;			// TODO: remove after checking compatibility with dependencies
-	private double refAlleleFreq;		// TODO: remove after checking compatibility with dependencies
-	private double altAlleleFreq;		// TODO: remove after checking compatibility with dependencies
-
-
-	private double[] freqs = {-1, -1, -1, -1, -1};  // refFreq,altFreq,refRefFreq,refAltFreq,altAltFreq
+	private String refAllele;
+	private String altAllele;
+	private float refAlleleFreq;
+	private float altAlleleFreq;
+	private float refHomGenotypeFreq;
+	private float hetGenotypeFreq;
+	private float altHomGenotypeFreq;
 
 
 	public PopulationFrequency() {
 	}
 
-	public PopulationFrequency(String pop, String refAllele, String altAllele, double refAlleleFreq,
-			double altAlleleFreq) {
+	public PopulationFrequency(String pop, String refAllele, String altAllele, float refAlleleFreq,
+			float altAlleleFreq) {
 		this.pop = pop;
 		this.refAllele = refAllele;
 		this.altAllele = altAllele;
@@ -60,7 +60,7 @@ public class PopulationFrequency {
 		return refAlleleFreq;
 	}
 
-	public void setRefAlleleFreq(double refAlleleFreq) {
+	public void setRefAlleleFreq(float refAlleleFreq) {
 		this.refAlleleFreq = refAlleleFreq;
 	}
 
@@ -68,33 +68,43 @@ public class PopulationFrequency {
 		return altAlleleFreq;
 	}
 
-	public double[] getFreqs() {
-		return freqs;
-	}
 
-	public void setAltAlleleFreq(double altAlleleFreq) {
+	public void setAltAlleleFreq(float altAlleleFreq) {
 		this.altAlleleFreq = altAlleleFreq;
 	}
 
-	public void setRefAllFreq(double refAlleleFreq) {			// TODO: rename to setRefAlleleFreq when possible
-		freqs[0] = refAlleleFreq;
+	public String getSuperPop() {
+		return superPop;
 	}
 
-	public void setAltAllFreq(double altAlleleFreq) {			// TODO: rename to setAltAlleleFreq when possible
-		freqs[1] = altAlleleFreq;
+	public void setSuperPop(String superPop) {
+		this.superPop = superPop;
 	}
 
-	public void setHetGenotypeFreq(double hetGenotypeFreq) {
-		freqs[3] = hetGenotypeFreq;
+	public float getRefHomGenotypeFreq() {
+		return refHomGenotypeFreq;
 	}
 
-	public void setHomRefGenotypeFreq(double homReferenceGenotypeFreq) {
-		freqs[2] = homReferenceGenotypeFreq;
+	public void setRefHomGenotypeFreq(float refHomGenotypeFreq) {
+		this.refHomGenotypeFreq = refHomGenotypeFreq;
 	}
 
-	public void setHomAltGenotypeFreq(double homAlternativeGenotypeFreq) {
-		freqs[4] = homAlternativeGenotypeFreq;
+	public float getHetGenotypeFreq() {
+		return hetGenotypeFreq;
 	}
+
+	public void setHetGenotypeFreq(float hetGenotypeFreq) {
+		this.hetGenotypeFreq = hetGenotypeFreq;
+	}
+
+	public float getAltHomGenotypeFreq() {
+		return altHomGenotypeFreq;
+	}
+
+	public void setAltHomGenotypeFreq(float altHomGenotypeFreq) {
+		this.altHomGenotypeFreq = altHomGenotypeFreq;
+	}
+
 
 	// private double homRefAlleleFreq;
 	// private double hetAlleleFreq;
