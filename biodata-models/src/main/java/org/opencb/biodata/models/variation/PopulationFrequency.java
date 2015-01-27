@@ -68,6 +68,10 @@ public class PopulationFrequency {
 		return altAlleleFreq;
 	}
 
+	public double[] getFreqs() {
+		return freqs;
+	}
+
 	public void setAltAlleleFreq(double altAlleleFreq) {
 		this.altAlleleFreq = altAlleleFreq;
 	}
