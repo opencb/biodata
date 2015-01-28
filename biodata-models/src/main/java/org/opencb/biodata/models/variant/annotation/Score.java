@@ -9,6 +9,11 @@ public class Score {
     private String source;
     private String description;
 
+    public Score(Double score, String source) {
+        this.score = score;
+        this.source = source;
+    }
+
     public Score(Double score, String source, String description) {
         this.score = score;
         this.source = source;
