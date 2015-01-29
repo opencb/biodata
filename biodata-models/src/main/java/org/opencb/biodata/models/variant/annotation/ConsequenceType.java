@@ -1,6 +1,7 @@
 package org.opencb.biodata.models.variant.annotation;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -11,79 +12,52 @@ public class ConsequenceType {
     private String geneName;
     private String ensemblGeneId;
     private String ensemblTranscriptId;
-    private Integer soAccession;
-    private String soName;
-    private Integer relativePosition;
-    private String codon;
     private String strand;
     private String biotype;
     private Integer cDnaPosition;
     private Integer cdsPosition;
     private Integer aaPosition;
     private String aaChange;
+    private String codon;
     private List<Score> proteinSubstitutionScores = null;
+    private List<ConsequenceTypeEntry> soTerms;
 
-    //    private static ConsequenceTypeMappings consequenceTypeMappings = new ConsequenceTypeMappings();
+    private Integer relativePosition;
 
-    public ConsequenceType() {
-
-    }
+    public ConsequenceType() { }
 
     public ConsequenceType(String soName) {
-        this.soAccession = ConsequenceTypeMappings.termToAccession.get(soName);
-        this.soName = soName;
+        this(Collections.singletonList(soName));
     }
 
-    public ConsequenceType(String geneName, String ensemblGeneId, String ensemblTranscriptId, String soName) {
-        this(geneName, ensemblGeneId, ensemblTranscriptId, "", "", 0, soName);
-    }
-
-    public ConsequenceType(String geneName, String ensemblGeneId, String ensemblTranscriptId, String strand,
-                           String biotype, String soName) {
-        this(geneName, ensemblGeneId, ensemblTranscriptId, strand, biotype, 0, soName);
+    public ConsequenceType(List<String> soNameList) {
+        this.soTerms = new ArrayList<>(soNameList.size());
+        for(String soName : soNameList) {
+            this.soTerms.add(new ConsequenceTypeEntry(soName));
+        }
     }
 
     public ConsequenceType(String geneName, String ensemblGeneId, String ensemblTranscriptId, String strand,
-                           String biotype, Integer cDnaPosition, String soName) {
-        this.geneName = geneName;
-        this.ensemblGeneId = ensemblGeneId;
-        this.ensemblTranscriptId = ensemblTranscriptId;
-        this.strand = strand;
-//        this.soAccession = consequenceTypeMappings.getAccession(soName);
-        this.soAccession = ConsequenceTypeMappings.termToAccession.get(soName);
-        this.soName = soName;
-        this.biotype = biotype;
-        this.cDnaPosition = cDnaPosition;
+                           String biotype, List<String> soNameList) {
+        this(geneName, ensemblGeneId, ensemblTranscriptId, strand, biotype, 0, soNameList);
+    }
+
+    public ConsequenceType(String geneName, String ensemblGeneId, String ensemblTranscriptId, String strand,
+                           String biotype, Integer cDnaPosition, List<String> soNameList) {
+        this(geneName, ensemblGeneId, ensemblTranscriptId, strand, biotype, cDnaPosition, 0, 0, "", "", null, soNameList);
     }
 
     public ConsequenceType(String geneName, String ensemblGeneId, String ensemblTranscriptId, String strand,
                            String biotype, Integer cDnaPosition, Integer cdsPosition, Integer aaPosition,
-                           String aaChange, String codon, String soName) {
+                           String aaChange, String codon, List<Score> proteinSubstitutionScores, List<String> soNameList) {
         this.geneName = geneName;
         this.ensemblGeneId = ensemblGeneId;
         this.ensemblTranscriptId = ensemblTranscriptId;
         this.strand = strand;
-//        this.soAccession = consequenceTypeMappings.getAccession(soName);
-        this.soAccession = ConsequenceTypeMappings.termToAccession.get(soName);
-        this.soName = soName;
-        this.biotype = biotype;
-        this.cDnaPosition = cDnaPosition;
-        this.cdsPosition = cdsPosition;
-        this.aaPosition = aaPosition;
-        this.aaChange = aaChange;
-        this.codon = codon;
-    }
-
-    public ConsequenceType(String geneName, String ensemblGeneId, String ensemblTranscriptId, String strand,
-                           String biotype, Integer cDnaPosition, Integer cdsPosition, Integer aaPosition,
-                           String aaChange, String codon, List<Score> proteinSubstitutionScores, String soName) {
-        this.geneName = geneName;
-        this.ensemblGeneId = ensemblGeneId;
-        this.ensemblTranscriptId = ensemblTranscriptId;
-        this.strand = strand;
-//        this.soAccession = consequenceTypeMappings.getAccession(soName);
-        this.soAccession = ConsequenceTypeMappings.termToAccession.get(soName);
-        this.soName = soName;
+        this.soTerms = new ArrayList<>(soNameList.size());
+        for(String soName : soNameList) {
+            this.soTerms.add(new ConsequenceTypeEntry(soName));
+        }
         this.biotype = biotype;
         this.cDnaPosition = cDnaPosition;
         this.cdsPosition = cdsPosition;
@@ -94,13 +68,6 @@ public class ConsequenceType {
     }
 
 
-    public void setSoName(String soName) {
-        this.soName = soName;
-    }
-
-    public void setSoAccession(Integer soAccession) {
-        this.soAccession = soAccession;
-    }
 
     public void setEnsemblTranscriptId(String ensemblTranscriptId) {
         this.ensemblTranscriptId = ensemblTranscriptId;
@@ -161,14 +128,6 @@ public class ConsequenceType {
         return ensemblTranscriptId;
     }
 
-    public Integer getSoAccession() {
-        return soAccession;
-    }
-
-    public String getSoName() {
-        return soName;
-    }
-
     public Integer getRelativePosition() {
         return relativePosition;
     }
@@ -223,6 +182,14 @@ public class ConsequenceType {
         return proteinSubstitutionScores;
     }
 
+    public List<ConsequenceTypeEntry> getSoTerms() {
+        return soTerms;
+    }
+
+    public void setSoTerms(List<ConsequenceTypeEntry> soTerms) {
+        this.soTerms = soTerms;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -230,20 +197,22 @@ public class ConsequenceType {
 
         ConsequenceType that = (ConsequenceType) o;
 
-        if (soAccession != that.soAccession) return false;
-        if (aaPosition != that.aaPosition) return false;
-        if (cDnaPosition != that.cDnaPosition) return false;
-        if (cdsPosition != that.cdsPosition) return false;
-        if (relativePosition != that.relativePosition) return false;
-        if (soName != null ? !soName.equals(that.soName) : that.soName != null) return false;
         if (aaChange != null ? !aaChange.equals(that.aaChange) : that.aaChange != null) return false;
+        if (aaPosition != null ? !aaPosition.equals(that.aaPosition) : that.aaPosition != null) return false;
         if (biotype != null ? !biotype.equals(that.biotype) : that.biotype != null) return false;
+        if (cDnaPosition != null ? !cDnaPosition.equals(that.cDnaPosition) : that.cDnaPosition != null) return false;
+        if (cdsPosition != null ? !cdsPosition.equals(that.cdsPosition) : that.cdsPosition != null) return false;
         if (codon != null ? !codon.equals(that.codon) : that.codon != null) return false;
         if (ensemblGeneId != null ? !ensemblGeneId.equals(that.ensemblGeneId) : that.ensemblGeneId != null)
             return false;
         if (ensemblTranscriptId != null ? !ensemblTranscriptId.equals(that.ensemblTranscriptId) : that.ensemblTranscriptId != null)
             return false;
         if (geneName != null ? !geneName.equals(that.geneName) : that.geneName != null) return false;
+        if (proteinSubstitutionScores != null ? !proteinSubstitutionScores.equals(that.proteinSubstitutionScores) : that.proteinSubstitutionScores != null)
+            return false;
+        if (relativePosition != null ? !relativePosition.equals(that.relativePosition) : that.relativePosition != null)
+            return false;
+        if (soTerms != null ? !soTerms.equals(that.soTerms) : that.soTerms != null) return false;
         if (strand != null ? !strand.equals(that.strand) : that.strand != null) return false;
 
         return true;
@@ -254,16 +223,48 @@ public class ConsequenceType {
         int result = geneName != null ? geneName.hashCode() : 0;
         result = 31 * result + (ensemblGeneId != null ? ensemblGeneId.hashCode() : 0);
         result = 31 * result + (ensemblTranscriptId != null ? ensemblTranscriptId.hashCode() : 0);
-        result = 31 * result + soAccession;
-        result = 31 * result + (soName != null ? soName.hashCode() : 0);
-        result = 31 * result + relativePosition;
-        result = 31 * result + (codon != null ? codon.hashCode() : 0);
         result = 31 * result + (strand != null ? strand.hashCode() : 0);
         result = 31 * result + (biotype != null ? biotype.hashCode() : 0);
-        result = 31 * result + cDnaPosition;
-        result = 31 * result + cdsPosition;
-        result = 31 * result + aaPosition;
+        result = 31 * result + (cDnaPosition != null ? cDnaPosition.hashCode() : 0);
+        result = 31 * result + (cdsPosition != null ? cdsPosition.hashCode() : 0);
+        result = 31 * result + (aaPosition != null ? aaPosition.hashCode() : 0);
         result = 31 * result + (aaChange != null ? aaChange.hashCode() : 0);
+        result = 31 * result + (codon != null ? codon.hashCode() : 0);
+        result = 31 * result + (proteinSubstitutionScores != null ? proteinSubstitutionScores.hashCode() : 0);
+        result = 31 * result + (soTerms != null ? soTerms.hashCode() : 0);
+        result = 31 * result + (relativePosition != null ? relativePosition.hashCode() : 0);
         return result;
+    }
+
+    private class ConsequenceTypeEntry {
+        private String soName;
+        private String soAccession;
+
+        public ConsequenceTypeEntry() {}
+
+        public ConsequenceTypeEntry(String soName) {
+            this(soName, ConsequenceTypeMappings.getSoAccessionString(soName));
+        }
+
+        public ConsequenceTypeEntry(String soName, String soAccession) {
+            this.soName = soName;
+            this.soAccession = soAccession;
+        }
+
+        public String getSoName() {
+            return soName;
+        }
+
+        public void setSoName(String soName) {
+            this.soName = soName;
+        }
+
+        public String getSoAccession() {
+            return soAccession;
+        }
+
+        public void setSoAccession(String soAccession) {
+            this.soAccession = soAccession;
+        }
     }
 }

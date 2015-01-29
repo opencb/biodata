@@ -1,5 +1,7 @@
 package org.opencb.biodata.models.variant.annotation;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,12 +43,10 @@ public class ConsequenceTypeMappings {
         termToAccession.put("5_prime_UTR_variant", 1623);
         termToAccession.put("3_prime_UTR_variant", 1624);
         termToAccession.put("exon_variant", 1791);
-        termToAccession.put("non_coding_exon_variant", 1792);
+        termToAccession.put("non_coding_transcript_exon_variant", 1792);
         termToAccession.put("non_coding_transcript_variant", 1619);
         termToAccession.put("intron_variant", 1627);
         termToAccession.put("NMD_transcript_variant", 1621);
-        termToAccession.put("upstream_gene_variant", 1631);
-        termToAccession.put("downstream_gene_variant", 1632);
         termToAccession.put("TFBS_ablation", 1895);
         termToAccession.put("TFBS_amplification", 1892);
         termToAccession.put("TF_binding_site_variant", 1782);
@@ -57,8 +57,10 @@ public class ConsequenceTypeMappings {
         termToAccession.put("feature_truncation", 1906);
         termToAccession.put("intergenic_variant", 1628);
         termToAccession.put("lincRNA", 1463);
-        termToAccession.put("5KB_downstream_variant", 1633);
-        termToAccession.put("5KB_upstream_variant", 1635);
+        termToAccession.put("downstream_gene_variant", 1632);
+        termToAccession.put("2KB_downstream_gene_variant", 1632);
+        termToAccession.put("upstream_gene_variant", 1631);
+        termToAccession.put("2KB_upstream_gene_variant", 1631);
         termToAccession.put("SNV", 1483);
         termToAccession.put("SNP", 694);
         termToAccession.put("RNA_polymerase_promoter", 1203);
@@ -67,56 +69,14 @@ public class ConsequenceTypeMappings {
         termToAccession.put("polypeptide_variation_site", 336);
 
         // Fill the accession to term map
-        accessionToTerm.put(1893, "transcript_ablation");
-        accessionToTerm.put(1575, "splice_donor_variant");
-        accessionToTerm.put(1574, "splice_acceptor_variant");
-        accessionToTerm.put(1587, "stop_gained");
-        accessionToTerm.put(1589, "frameshift_variant");
-        accessionToTerm.put(1578, "stop_lost");
-        accessionToTerm.put(1582, "initiator_codon_variant");
-        accessionToTerm.put(1821, "inframe_insertion");
-        accessionToTerm.put(1822, "inframe_deletion");
-        accessionToTerm.put(1583, "missense_variant");
-        accessionToTerm.put(1889, "transcript_amplification");
-        accessionToTerm.put(1630, "splice_region_variant");
-        accessionToTerm.put(1626, "incomplete_terminal_codon_variant");
-        accessionToTerm.put(1819, "synonymous_variant");
-        accessionToTerm.put(1588, "synonymous_variant"); // TODO How to handle duplicated terms in termToAccession
-        accessionToTerm.put(1567, "stop_retained_variant");
-        accessionToTerm.put(1580, "coding_sequence_variant");
-        accessionToTerm.put(276, "miRNA");
-        accessionToTerm.put(934, "miRNA_target_site");
-        accessionToTerm.put(1620, "mature_miRNA_variant");
-        accessionToTerm.put(1623, "5_prime_UTR_variant");
-        accessionToTerm.put(1624, "3_prime_UTR_variant");
-        accessionToTerm.put(1791, "exon_variant");
-        accessionToTerm.put(1792, "non_coding_exon_variant");
-        accessionToTerm.put(1619, "non_coding_transcript_variant");
-        accessionToTerm.put(1627, "intron_variant");
-        accessionToTerm.put(1621, "NMD_transcript_variant");
-        accessionToTerm.put(1631, "upstream_gene_variant");
-        accessionToTerm.put(1632, "downstream_gene_variant");
-        accessionToTerm.put(1895, "TFBS_ablation");
-        accessionToTerm.put(1892, "TFBS_amplification");
-        accessionToTerm.put(1782, "TF_binding_site_variant");
-        accessionToTerm.put(1566, "regulatory_region_variant");
-        accessionToTerm.put(1894, "regulatory_region_ablation");
-        accessionToTerm.put(1891, "regulatory_region_amplification");
-        accessionToTerm.put(1907, "feature_elongation");
-        accessionToTerm.put(1906, "feature_truncation");
-        accessionToTerm.put(1628, "intergenic_variant");
-        accessionToTerm.put(1463, "lincRNA");
-        accessionToTerm.put(1633, "5KB_downstream_variant");
-        accessionToTerm.put(1635, "5KB_upstream_variant");
-        accessionToTerm.put(1483, "SNV");
-        accessionToTerm.put(694, "SNP");
-        accessionToTerm.put(1203, "RNA_polymerase_promoter");
-        accessionToTerm.put(307, "CpG_island");
-        accessionToTerm.put(685, "DNAseI_hypersensitive_site");
-        accessionToTerm.put(336, "polypeptide_variation_site");
+        for(String key : termToAccession.keySet()) {
+            accessionToTerm.put(termToAccession.get(key), key);
+        }
+
     }
 
-//    public int getAccession(String SOName) {
-//        return termToAccession.get(SOName);
-//    }
+    public static String getSoAccessionString(String SOName) {
+        String soAccession = Integer.toString(termToAccession.get(SOName));
+        return String.format("SO:%0"+(7-soAccession.length())+"d%s", 0, soAccession);
+    }
 }
