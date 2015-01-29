@@ -40,16 +40,19 @@ public class GAVariantSetFactory {
     
     private static GAVariantSetMetadata getMetadataLine(String line) {
         GAVariantSetMetadata metadata = new GAVariantSetMetadata();
-        String[] split = line.split("<|>");
+        // Split by square brackets that are NOT between quotes
+        String[] split = line.split("(<|>)(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
         
         if (split.length > 1) { // Header entries like INFO or FORMAT
             // Remove leading ## and trailing equals symbol
             metadata.setKey(split[0].substring(2, split[0].length()-1));
+            metadata.setValue(split[1]);
             
-            String[] valueSplit = split[1].split(",");
+            // Split by commas that are NOT between quotes
+            String[] valueSplit = split[1].split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
             
             for (String pair : valueSplit) { // Key-value pairs
-                String[] pairSplit = pair.split("=");
+                String[] pairSplit = pair.split("=", 2);
                 switch (pairSplit[0]) {
                     case "ID":
                         metadata.setId(pairSplit[1]);
@@ -63,12 +66,16 @@ public class GAVariantSetFactory {
                     case "Description":
                         metadata.setDescription(pairSplit[1]);
                         break;
+                    default:
+                        metadata.addInfo(pairSplit[0], pairSplit[1]);
                 }
             }
         } else {
             // Simpler entry like "assembly=GRCh37"
-            split = line.split("=");
-            metadata.setKey(split[0]);
+            split = line.split("=", 2);
+            // Remove leading ## and trailing equals symbol
+            metadata.setKey(split[0].substring(2));
+            metadata.setId(split[0].substring(2));
             if (split.length > 1) {
                 metadata.setValue(split[1]);
             }
