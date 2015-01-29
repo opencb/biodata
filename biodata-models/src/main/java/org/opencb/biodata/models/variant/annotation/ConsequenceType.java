@@ -236,7 +236,7 @@ public class ConsequenceType {
         return result;
     }
 
-    public class ConsequenceTypeEntry {
+    static public class ConsequenceTypeEntry {
         private String soName;
         private String soAccession;
 
