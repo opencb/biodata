@@ -170,7 +170,7 @@ public class ConsequenceType {
 
     public String getAaChange() { return aaChange; }
 
-    public String getaChange(String defaultString) {
+    public String getAaChange(String defaultString) {
         if(aaChange !=null) {
             return aaChange;
         } else {
@@ -236,7 +236,7 @@ public class ConsequenceType {
         return result;
     }
 
-    private class ConsequenceTypeEntry {
+    public class ConsequenceTypeEntry {
         private String soName;
         private String soAccession;
 
