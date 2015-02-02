@@ -2,6 +2,7 @@ package org.opencb.biodata.models.variation;
 
 public class PopulationFrequency {
 
+	private String study;
 	private String pop;
 	private String superPop;
 	private String refAllele;
@@ -12,11 +13,15 @@ public class PopulationFrequency {
 	private float hetGenotypeFreq;
 	private float altHomGenotypeFreq;
 
-
 	public PopulationFrequency() {
 	}
 
 	public PopulationFrequency(String pop, String refAllele, String altAllele, float refAlleleFreq,
+			float altAlleleFreq) {
+		this(null, pop, refAllele, altAllele, refAlleleFreq, altAlleleFreq);
+	}
+
+	public PopulationFrequency(String study, String pop, String refAllele, String altAllele, float refAlleleFreq,
 			float altAlleleFreq) {
 		this.pop = pop;
 		this.refAllele = refAllele;
@@ -68,7 +73,6 @@ public class PopulationFrequency {
 		return altAlleleFreq;
 	}
 
-
 	public void setAltAlleleFreq(float altAlleleFreq) {
 		this.altAlleleFreq = altAlleleFreq;
 	}
@@ -97,17 +101,14 @@ public class PopulationFrequency {
 		this.hetGenotypeFreq = hetGenotypeFreq;
 	}
 
-	public float getAltHomGenotypeFreq() {
-		return altHomGenotypeFreq;
-	}
+	public float getAltHomGenotypeFreq() { return altHomGenotypeFreq; }
 
 	public void setAltHomGenotypeFreq(float altHomGenotypeFreq) {
 		this.altHomGenotypeFreq = altHomGenotypeFreq;
 	}
 
+	public String getStudy() { return study; }
 
-	// private double homRefAlleleFreq;
-	// private double hetAlleleFreq;
-	// private double HomAltAlleleFreq;
+	public void setStudy(String study) { this.study = study; }
 
 }

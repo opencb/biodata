@@ -10,7 +10,7 @@ public class Score {
     private String description;
 
     public Score() {}
-    
+
     public Score(Double score, String source) {
         this.score = score;
         this.source = source;

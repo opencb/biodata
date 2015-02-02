@@ -2,11 +2,9 @@ package org.opencb.biodata.models.variant.annotation;
 
 
 import org.opencb.biodata.models.feature.Gene;
+import org.opencb.biodata.models.variation.PopulationFrequency;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 /**
@@ -35,7 +33,7 @@ public class VariantAnnotation {
 
     private List<Score> conservedRegionScores;
 
-    private List<Frequency> populationFrequencies;
+    private List<PopulationFrequency> populationFrequencies = null;
 
     private List<CaddScore> caddScores;
 
@@ -144,12 +142,19 @@ public class VariantAnnotation {
         this.conservedRegionScores = conservedRegionScores;
     }
 
-    public List<Frequency> getPopulationFrequencies() {
+    public List<PopulationFrequency> getPopulationFrequencies() {
         return populationFrequencies;
     }
 
-    public void setPopulationFrequencies(List<Frequency> populationFrequencies) {
+    public void setPopulationFrequencies(List<PopulationFrequency> populationFrequencies) {
         this.populationFrequencies = populationFrequencies;
+    }
+
+    public void addPopulationFrequency(PopulationFrequency populationFrequency) {
+        if(this.populationFrequencies==null) {
+            this.populationFrequencies = new ArrayList<>();
+        }
+        this.populationFrequencies.add(populationFrequency);
     }
 
     public List<CaddScore> getCaddScores() {
