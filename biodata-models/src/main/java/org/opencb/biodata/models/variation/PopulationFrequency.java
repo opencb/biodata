@@ -18,12 +18,14 @@ public class PopulationFrequency {
 
 	public PopulationFrequency(String pop, String refAllele, String altAllele, float refAlleleFreq,
 			float altAlleleFreq) {
-		this(null, pop, refAllele, altAllele, refAlleleFreq, altAlleleFreq);
+		this(null, pop, null, refAllele, altAllele, refAlleleFreq, altAlleleFreq);
 	}
 
-	public PopulationFrequency(String study, String pop, String refAllele, String altAllele, float refAlleleFreq,
+	public PopulationFrequency(String study, String pop, String superPop, String refAllele, String altAllele, float refAlleleFreq,
 			float altAlleleFreq) {
+		this.study = study;
 		this.pop = pop;
+		this.superPop = superPop;
 		this.refAllele = refAllele;
 		this.altAllele = altAllele;
 		this.refAlleleFreq = refAlleleFreq;
