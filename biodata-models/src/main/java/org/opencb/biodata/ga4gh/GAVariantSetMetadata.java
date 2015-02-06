@@ -54,9 +54,9 @@ public class GAVariantSetMetadata {
         this.key = key;
         this.value = value;
         this.id = id;
-        this.type = type != null ? type : "UNKNOWN_TYPE";
-        this.number = number;
-        this.description = description;
+        this.type = type != null ? type : "";
+        this.number = number != null ? number : "";
+        this.description = description != null ? description : "";
         this.info = info != null ? info : new HashMap<String, String>();
     }
 
@@ -114,6 +114,10 @@ public class GAVariantSetMetadata {
 
     public void setInfo(Map<String, String> info) {
         this.info = info;
+    }
+    
+    public void addInfo(String key, String value) {
+        this.info.put(key, value);
     }
 
     @Override

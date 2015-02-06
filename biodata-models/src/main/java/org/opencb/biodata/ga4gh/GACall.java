@@ -64,8 +64,8 @@ public class GACall {
         this.callSetName = callSetName;
         this.genotype = genotype;
         this.phaseset = phaseset;
-        this.genotypeLikelihood = genotypeLikelihood;
-        this.info = info;
+        this.genotypeLikelihood = genotypeLikelihood != null ? genotypeLikelihood : new double[0];
+        this.info = info != null ? info : new GAKeyValue[0];
     }
 
     @Override
