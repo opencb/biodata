@@ -30,12 +30,12 @@ public class GAVariantFactory {
                 
                 GAVariant ga;
                 if (vcfLine.length > 8) {
-                    ga = new GAVariant(id, file.getFileId(), vcfLine[2].split(","), 1, System.currentTimeMillis(), 
+                    ga = new GAVariant(id, file.getFileId(), vcfLine[2].split(","), System.currentTimeMillis(), System.currentTimeMillis(), 
                             vcfLine[0], Integer.parseInt(vcfLine[1]), Integer.parseInt(vcfLine[1]) + vcfLine[3].length(), 
                             vcfLine[3], vcfLine[4].split(","), parseInfo(vcfLine[7].split(";")), 
                             parseCalls(vcfLine[8].split(":"), Arrays.copyOfRange(vcfLine, 9, vcfLine.length), file.getFileId()));
                 } else {
-                    ga = new GAVariant(id, file.getFileId(), vcfLine[2].split(","), 1, System.currentTimeMillis(), 
+                    ga = new GAVariant(id, file.getFileId(), vcfLine[2].split(","), System.currentTimeMillis(), System.currentTimeMillis(), 
                             vcfLine[0], Integer.parseInt(vcfLine[1]), Integer.parseInt(vcfLine[1]) + vcfLine[3].length(), 
                             vcfLine[3], vcfLine[4].split(","), parseInfo(vcfLine[7].split(";")), null);
                 }
@@ -49,16 +49,12 @@ public class GAVariantFactory {
 
     private static Map<String, List> parseInfo(String[] infoFields) {
         Map<String, List> kvs = new HashMap<>();
-//        GAKeyValue[] kvs = new GAKeyValue[infoFields.length];
-//        
-//        for (int i = 0; i < infoFields.length; i++) {
+        
         for (String subfield : infoFields) {
             String[] parts = subfield.split("=");
             if (parts.length > 1) {
-//                kvs[i] = new GAKeyValue(parts[0], parts[1]);
                 kvs.put(parts[0], new ArrayList<>(Arrays.asList(parts[1].split(","))));
             } else {
-//                kvs[i] = new GAKeyValue(parts[0], null);
                 kvs.put(parts[0], new ArrayList<>());
             }
         }

@@ -17,7 +17,8 @@ import org.opencb.biodata.models.variant.Variant;
 /**
  * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
- * 
+ * @author Jose Miguel Mut Lopez &lt;jmmut@ebi.ac.uk&gt;
+ *
  * TODO Mendelian errors must be calculated
  */
 public class VariantStats {
@@ -60,10 +61,11 @@ public class VariantStats {
     }
 
     public VariantStats(Variant variant) {
-        this(null, -1, 
-            variant != null ? variant.getReference() : null, 
-            variant != null ? variant.getAlternate() : null, 
-            Variant.VariantType.SNV, -1, -1, null, null, -1, -1, -1, -1, -1, -1, -1);
+        this(null, -1,
+                variant != null ? variant.getReference() : null,
+                variant != null ? variant.getAlternate() : null,
+                variant != null ? variant.getType() : Variant.VariantType.SNV,
+                -1, -1, null, null, -1, -1, -1, -1, -1, -1, -1);
     }
 
     public VariantStats(String referenceAllele, String alternateAllele, Variant.VariantType type) {
