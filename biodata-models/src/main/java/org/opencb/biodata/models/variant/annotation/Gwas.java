@@ -35,7 +35,7 @@ public class Gwas {
         this.traits = traits;
     }
 
-    public double getRiskAlleleFrequency() {
+    public Double getRiskAlleleFrequency() {
         return riskAlleleFrequency;
     }
 
