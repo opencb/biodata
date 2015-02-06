@@ -12,6 +12,7 @@ import org.opencb.biodata.tools.variant.EffectCalculator;
  * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
+@Deprecated
 public class VariantPolyphenSIFTAnnotator implements VariantAnnotator {
 
     private String polyphenScoreTag;

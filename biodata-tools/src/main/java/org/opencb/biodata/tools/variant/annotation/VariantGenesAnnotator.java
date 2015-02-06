@@ -30,6 +30,7 @@ import org.opencb.datastore.core.QueryResult;
  * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
+@Deprecated
 public class VariantGenesAnnotator implements VariantAnnotator {
 
     private String geneNameTag;

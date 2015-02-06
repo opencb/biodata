@@ -12,6 +12,7 @@ import org.opencb.biodata.models.variant.stats.VariantStats;
 /**
  * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
  */
+@Deprecated
 public class VariantControlAnnotator implements VariantAnnotator {
 
     // private TabixReader tabix;

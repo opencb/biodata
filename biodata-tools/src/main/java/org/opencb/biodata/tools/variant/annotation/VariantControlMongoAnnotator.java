@@ -20,6 +20,7 @@ import java.util.*;
 /**
  * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
  */
+@Deprecated
 public class VariantControlMongoAnnotator implements VariantAnnotator {
 
 

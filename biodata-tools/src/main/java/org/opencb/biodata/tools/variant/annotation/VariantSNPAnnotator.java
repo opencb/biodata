@@ -22,6 +22,7 @@ import java.util.logging.Logger;
  * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
+@Deprecated
 public class VariantSNPAnnotator implements VariantAnnotator {
 
     private static final String CELLBASE_URL = "http://www.ebi.ac.uk/cellbase/webservices/";

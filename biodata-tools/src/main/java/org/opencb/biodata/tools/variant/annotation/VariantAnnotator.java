@@ -7,6 +7,7 @@ import org.opencb.biodata.models.variant.Variant;
  * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
+@Deprecated
 public interface VariantAnnotator {
     
     public void annot(List<Variant> batch);
