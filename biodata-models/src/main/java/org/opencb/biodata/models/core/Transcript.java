@@ -3,6 +3,7 @@ package org.opencb.biodata.models.core;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 
 public class Transcript implements Serializable {
@@ -29,6 +30,7 @@ public class Transcript implements Serializable {
 	private List<Xref> xrefs;
 	private List<TranscriptTfbs> tfbs;
 	private List<Exon> exons;
+	private Set<String> annotationFlags;
 
 	public Transcript() {
 		
@@ -213,6 +215,8 @@ public class Transcript implements Serializable {
 	public void setTfbs(List<TranscriptTfbs> tfbs) {
 		this.tfbs = tfbs;
 	}
-	
-	
+
+	public Set<String> getAnnotationFlags() { return annotationFlags; }
+
+	public void setAnnotationFlags(Set<String> annotationFlags) { this.annotationFlags = annotationFlags; }
 }
