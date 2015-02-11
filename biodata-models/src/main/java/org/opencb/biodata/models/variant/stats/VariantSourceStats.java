@@ -1,9 +1,7 @@
 package org.opencb.biodata.models.variant.stats;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 import org.opencb.biodata.models.feature.AllelesCode;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.pedigree.Pedigree;
@@ -12,6 +10,7 @@ import org.opencb.biodata.models.variant.Variant;
 
 /**
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
+ * @author Jose Miguel Mut Lopez &lt;jmmut@ebi.ac.uk&gt;
  */
 public class VariantSourceStats {
 
@@ -21,7 +20,14 @@ public class VariantSourceStats {
     private VariantGlobalStats fileStats;
     private Map<String, VariantSingleSampleStats> samplesStats;
 
-    
+    VariantSourceStats() {
+        fileId = null;
+        studyId = null;
+        sampleNames = new ArrayList<>();
+        fileStats = new VariantGlobalStats();
+        samplesStats = new LinkedHashMap<>();
+    }
+
     public VariantSourceStats(String fileId, String studyId) {
         this.fileId = fileId;
         this.studyId = studyId;
@@ -109,5 +115,12 @@ public class VariantSourceStats {
             }
         }
     }
-    
+
+    public String getFileId() {
+        return fileId;
+    }
+
+    public String getStudyId() {
+        return studyId;
+    }
 }

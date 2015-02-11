@@ -14,6 +14,12 @@ public class VariantSingleSampleStats {
     private int numMissingGenotypes;
     private int numHomozygous;
 
+    VariantSingleSampleStats() {
+        this.id = null;
+        this.numMendelianErrors = 0;
+        this.numMissingGenotypes = 0;
+        this.numHomozygous = 0;
+    }
 
     public VariantSingleSampleStats(String id) {
         this.id = id;
