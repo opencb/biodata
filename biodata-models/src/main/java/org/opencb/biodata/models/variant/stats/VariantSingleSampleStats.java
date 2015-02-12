@@ -5,7 +5,8 @@ package org.opencb.biodata.models.variant.stats;
  * User: aaleman
  * Date: 8/29/13
  * Time: 10:21 AM
- * To change this template use File | Settings | File Templates.
+ *
+ * @author Jose Miguel Mut Lopez &lt;jmmut@ebi.ac.uk&gt;
  */
 public class VariantSingleSampleStats {
 
@@ -15,10 +16,7 @@ public class VariantSingleSampleStats {
     private int numHomozygous;
 
     VariantSingleSampleStats() {
-        this.id = null;
-        this.numMendelianErrors = 0;
-        this.numMissingGenotypes = 0;
-        this.numHomozygous = 0;
+        this(null);
     }
 
     public VariantSingleSampleStats(String id) {

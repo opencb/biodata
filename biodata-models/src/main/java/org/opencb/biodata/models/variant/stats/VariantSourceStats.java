@@ -21,11 +21,7 @@ public class VariantSourceStats {
     private Map<String, VariantSingleSampleStats> samplesStats;
 
     VariantSourceStats() {
-        fileId = null;
-        studyId = null;
-        sampleNames = new ArrayList<>();
-        fileStats = new VariantGlobalStats();
-        samplesStats = new LinkedHashMap<>();
+        this(null, null);
     }
 
     public VariantSourceStats(String fileId, String studyId) {
