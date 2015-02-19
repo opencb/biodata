@@ -29,7 +29,7 @@ public class VepFormatWriter implements DataWriter<VariantAnnotation> {
 
     public VepFormatWriter() {}
 
-    public VepFormatWriter(String filename, BufferedWriter bw) {
+    public VepFormatWriter(String filename) {
         this.filename = filename;
     }
 

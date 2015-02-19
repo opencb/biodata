@@ -39,12 +39,12 @@ public class ConsequenceType {
 
     public ConsequenceType(String geneName, String ensemblGeneId, String ensemblTranscriptId, String strand,
                            String biotype, List<String> soNameList) {
-        this(geneName, ensemblGeneId, ensemblTranscriptId, strand, biotype, 0, soNameList);
+        this(geneName, ensemblGeneId, ensemblTranscriptId, strand, biotype, null, soNameList);
     }
 
     public ConsequenceType(String geneName, String ensemblGeneId, String ensemblTranscriptId, String strand,
                            String biotype, Integer cDnaPosition, List<String> soNameList) {
-        this(geneName, ensemblGeneId, ensemblTranscriptId, strand, biotype, cDnaPosition, 0, 0, "", "", null, soNameList);
+        this(geneName, ensemblGeneId, ensemblTranscriptId, strand, biotype, cDnaPosition, null, null, null, null, null, soNameList);
     }
 
     public ConsequenceType(String geneName, String ensemblGeneId, String ensemblTranscriptId, String strand,
