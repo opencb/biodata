@@ -80,10 +80,9 @@ public class VepFormatWriter implements DataWriter<VariantAnnotation> {
     public boolean write(VariantAnnotation variantAnnotation) {
 
         String id;
-        if((id= variantAnnotation.getId())==null) {
-            id = "";
+        if((id=variantAnnotation.getId())==null) {
+            id = "-";
         }
-
         String alt;
         String pos;
         // Short deletion
@@ -114,14 +113,50 @@ public class VepFormatWriter implements DataWriter<VariantAnnotation> {
             if((feature=consequenceType.getEnsemblTranscriptId())==null) {
                 feature = "-";
             }
+            String featureType;
+            if((featureType=consequenceType.getBiotype())==null) {
+                featureType = "-";
+            }
             String consequences = consequenceType.getSoTerms().get(0).getSoName();
             for(int i=1; i<consequenceType.getSoTerms().size(); i++) {
                 consequences += ","+consequenceType.getSoTerms().get(i).getSoName();
             }
-            int cdnaPosition;
-
-
-            bw.write(;
+            Integer cdnaPosition;
+            String cdnaPositionString;
+            if((cdnaPosition=consequenceType.getcDnaPosition())==null) {
+                cdnaPositionString = "-";
+            } else {
+                cdnaPositionString = cdnaPosition.toString();
+            }
+            Integer cdsPosition;
+            String cdsPositionString;
+            if((cdsPosition=consequenceType.getCdsPosition())==null) {
+                cdsPositionString = "-";
+            } else {
+                cdsPositionString = cdsPosition.toString();
+            }
+            Integer aaPosition;
+            String aaPositionString;
+            if((aaPosition=consequenceType.getAaPosition())==null) {
+                aaPositionString = "-";
+            } else {
+                aaPositionString = aaPosition.toString();
+            }
+            String aaChange;
+            if((aaChange=consequenceType.getAaChange())==null) {
+                aaChange = "-";
+            }
+            String codon;
+            if((codon=consequenceType.getCodon())==null) {
+                codon = "-";
+            }
+            try {
+                bw.write(id+"\t"+variantAnnotation.getChromosome()+":"+pos+"\t"+alt+"\t"+gene+"\t"+feature+"\t"+
+                        featureType+"\t"+consequences+"\t"+cdnaPositionString+"\t"+cdsPositionString+"\t"+
+                        aaPositionString+"\t"+aaChange+"\t"+codon+"\t-\t-\n");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         return true;
