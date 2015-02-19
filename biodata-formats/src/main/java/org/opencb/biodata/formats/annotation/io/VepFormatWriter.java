@@ -62,7 +62,7 @@ public class VepFormatWriter implements DataWriter<VariantAnnotation> {
         SimpleDateFormat dateFormat = new SimpleDateFormat();
         try {
             bw.write("## VARIANT EFFECT FORMAT GENERATOR\n");
-            bw.write("## Output produced at "+dateFormat.format(date));
+            bw.write("## Output produced at "+dateFormat.format(date)+"\n");
             bw.write("#Uploaded_variation\tLocation\tAllele\tGene\tFeature Feature_type\tConsequence\tcDNA_position\tCDS_position\tProtein_position\tAmino_acids\tCodons\tExisting_variation\tExtra\n");
         } catch (IOException e) {
             e.printStackTrace();
