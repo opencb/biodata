@@ -27,6 +27,8 @@ public class Transcript implements Serializable {
 	private int cdsLength;
 	private String proteinID;
 	private String description;
+	private String proteinSequence;
+	private String cDnaSequence;
 	private List<Xref> xrefs;
 	private List<TranscriptTfbs> tfbs;
 	private List<Exon> exons;
@@ -219,4 +221,12 @@ public class Transcript implements Serializable {
 	public Set<String> getAnnotationFlags() { return annotationFlags; }
 
 	public void setAnnotationFlags(Set<String> annotationFlags) { this.annotationFlags = annotationFlags; }
+
+	public String getProteinSequence() { return proteinSequence; }
+
+	public void setProteinSequence(String proteinSequence) { this.proteinSequence = proteinSequence; }
+
+	public String getcDnaSequence() { return cDnaSequence; }
+
+	public void setcDnaSequence(String cDnaSequence) { this.cDnaSequence = cDnaSequence; }
 }
