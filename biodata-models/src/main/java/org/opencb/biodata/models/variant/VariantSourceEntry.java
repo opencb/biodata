@@ -141,6 +141,14 @@ public class VariantSourceEntry {
         this.cohortStats.put(DEFAULT_COHORT, stats);
     }
 
+    public VariantStats getCohortStats(String cohortName) {
+        return cohortStats.get(cohortName);
+    }
+
+    public void setCohortStats(String cohortName, VariantStats stats) {
+        this.cohortStats.put(cohortName, stats);
+    }
+
     public Map<String, VariantStats> getCohortStats() {
         return cohortStats;
     }
