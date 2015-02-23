@@ -11,9 +11,10 @@ import org.opencb.biodata.models.variant.stats.VariantStats;
  * information related to samples, statistics and specifics of the file format.
  * 
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
+ * @author Jose Miguel Mut Lopez &lt;jmmut@ebi.ac.uk&gt;
  */
 public class VariantSourceEntry {
-    
+
     /**
      * Unique identifier of the archived file.
      */
@@ -43,9 +44,10 @@ public class VariantSourceEntry {
     
     /**
      * Statistics of the genomic variation, such as its alleles/genotypes count 
-     * or its minimum allele frequency.
+     * or its minimum allele frequency, grouped by cohort name.
      */
-    private VariantStats stats;
+    private Map<String, VariantStats> cohortStats;
+    public static final String DEFAULT_COHORT = "all";
     
     /**
      * Optional attributes that probably depend on the format of the file the
@@ -70,7 +72,8 @@ public class VariantSourceEntry {
         
         this.samplesData = new LinkedHashMap<>();
         this.attributes = new LinkedHashMap<>();
-        
+        this.cohortStats = new LinkedHashMap<>();
+//        this.cohortStats.put(DEFAULT_COHORT, null);   // downside: serialization always puts "all":null
     }
     
     public String getFileId() {
@@ -130,11 +133,28 @@ public class VariantSourceEntry {
     }
 
     public VariantStats getStats() {
-        return stats;
+        return cohortStats.get(DEFAULT_COHORT);
     }
 
     public void setStats(VariantStats stats) {
-        this.stats = stats;
+        this.cohortStats = new LinkedHashMap<>(1);
+        this.cohortStats.put(DEFAULT_COHORT, stats);
+    }
+
+    public VariantStats getCohortStats(String cohortName) {
+        return cohortStats.get(cohortName);
+    }
+
+    public void setCohortStats(String cohortName, VariantStats stats) {
+        this.cohortStats.put(cohortName, stats);
+    }
+
+    public Map<String, VariantStats> getCohortStats() {
+        return cohortStats;
+    }
+
+    public void setCohortStats(Map<String, VariantStats> cohortStats) {
+        this.cohortStats = cohortStats;
     }
 
     public Map<String, String> getAttributes() {
