@@ -82,11 +82,15 @@ public class MiRNAGene {
 		public String miRBaseAccession;
 		public String miRBaseID;
 		public String sequence;
-		
-		public MiRNAMature(String miRBaseAccession, String miRBaseID, String sequence) {
+		public Integer cdnaStart;
+		public Integer cdnaEnd;
+
+		public MiRNAMature(String miRBaseAccession, String miRBaseID, String matureSequence) {
 			this.miRBaseAccession = miRBaseAccession;
 			this.miRBaseID = miRBaseID;
-			this.sequence = sequence;
+			this.sequence = matureSequence;
+			this.cdnaStart = MiRNAGene.this.sequence.indexOf(matureSequence)+1;
+			this.cdnaEnd = cdnaStart+matureSequence.length()-1;
 		}
 		
 		public String getMiRBaseAccession() {
