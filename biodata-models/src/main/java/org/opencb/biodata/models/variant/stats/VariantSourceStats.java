@@ -7,6 +7,8 @@ import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.pedigree.Pedigree;
 import org.opencb.biodata.models.variant.VariantSourceEntry;
 import org.opencb.biodata.models.variant.Variant;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
@@ -50,14 +52,22 @@ public class VariantSourceStats {
     }
 
     public void updateFileStats(List<Variant> variants) {
+        int incompleteVariantStats = 0;
         for (Variant v : variants) {
             VariantSourceEntry file = v.getSourceEntry(fileId, studyId);
             if (file == null) {
                 // The variant is not contained in this file
                 continue;
             }
-            
-            fileStats.update(file.getStats());
+            try {
+                fileStats.update(file.getStats());
+            } catch (NullPointerException e) {
+                incompleteVariantStats++;
+            }
+        }
+        if (incompleteVariantStats != 0) {
+            Logger logger = LoggerFactory.getLogger(VariantSourceStats.class);
+            logger.warn("{} VariantStats have needed members as null", incompleteVariantStats);
         }
     }
         
