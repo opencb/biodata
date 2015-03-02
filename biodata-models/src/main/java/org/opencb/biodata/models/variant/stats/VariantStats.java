@@ -105,7 +105,7 @@ public class VariantStats {
         return refAllele;
     }
 
-    void setRefAllele(String refAllele) {
+    public void setRefAllele(String refAllele) {
         this.refAllele = refAllele;
     }
 
@@ -113,7 +113,7 @@ public class VariantStats {
         return altAllele;
     }
 
-    void setAltAllele(String altAllele) {
+    public void setAltAllele(String altAllele) {
         this.altAllele = altAllele;
     }
 
@@ -121,7 +121,7 @@ public class VariantStats {
         return variantType;
     }
 
-    void setVariantType(Variant.VariantType variantType) {
+    public void setVariantType(Variant.VariantType variantType) {
         this.variantType = variantType;
     }
 
