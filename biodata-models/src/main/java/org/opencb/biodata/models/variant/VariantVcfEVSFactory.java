@@ -4,10 +4,7 @@ import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -28,12 +25,50 @@ public class VariantVcfEVSFactory extends VariantVcfFactory {
     private final Pattern altNumRef = Pattern.compile("^A(\\d+)R$");
 
     /**
+     * contains tag mapping for aggregation data.
+     * A valid example structure of this file is:
+     * EUR.AF=EUR_AF
+     * EUR.AC=AC_EUR
+     * EUR.AN=EUR_AN
+     * EUR.GTC=EUR_GTC
+     * ALL.AF=AF
+     * ALL.AC=TAC
+     * ALL.AN=AN
+     * ALL.GTC=GTC
+     * GROUPS_ORDER=EUR,ALL
+     * 
+     * where the right side of the '=' is how the values appear in the vcf, and left side is how it will loaded.
+     * It must be a bijection, i.e. there must not be repeated entries in any side.
+     * The part before the '.' can be any string naming the group. The part after the '.' must be one of AF, AC, AN or GTC.
+     * The special tag 'GROUPS_ORDER' can be used to specify the order of the comma separated values for populations in tags such as MAF.
+     */
+    private Properties tagMap;
+    private Map<String, String> reverseTagMap;
+
+    public VariantVcfEVSFactory() {
+        this(null);
+    }
+
+    public VariantVcfEVSFactory(Properties tagMap) {
+        this.tagMap = tagMap;
+        if (tagMap != null) {
+            this.reverseTagMap = new LinkedHashMap<>(tagMap.size());
+            for (String tag : tagMap.stringPropertyNames()) {
+                this.reverseTagMap.put(tagMap.getProperty(tag), tag);
+            }
+        } else {
+            this.reverseTagMap = null;
+        }
+    }
+
+
+    /**
      * Creates a list of Variant objects using the fields in a record of a VCF
      * file. A new Variant object is created per allele, so several of them can
      * be created from a single line.
      *
      * @param source
-     * @param line Contents of the line in the file
+     * @param line   Contents of the line in the file
      * @return The list of Variant objects that can be created using the fields from a VCF record
      */
     @Override
@@ -106,23 +141,29 @@ public class VariantVcfEVSFactory extends VariantVcfFactory {
     }
 
     @Override
-    protected void setOtherFields(Variant variant, VariantSource source, String id, float quality, String filter, 
-            String info, String format, int numAllele, String[] alternateAlleles, String line) {
+    protected void setOtherFields(Variant variant, VariantSource source, String id, float quality, String filter,
+                                  String info, String format, int numAllele, String[] alternateAlleles, String line) {
         // Fields not affected by the structure of REF and ALT fields
         variant.setId(id);
+        VariantSourceEntry sourceEntry = variant.getSourceEntry(source.getFileId(), source.getStudyId());
         if (quality > -1) {
-            variant.getSourceEntry(source.getFileId(), source.getStudyId()).addAttribute("QUAL", String.valueOf(quality));
+            sourceEntry.addAttribute("QUAL", String.valueOf(quality));
         }
         if (!filter.isEmpty()) {
-            variant.getSourceEntry(source.getFileId(), source.getStudyId()).addAttribute("FILTER", filter);
+            sourceEntry.addAttribute("FILTER", filter);
         }
         if (!info.isEmpty()) {
             parseInfo(variant, source.getFileId(), source.getStudyId(), info, numAllele);
         }
-        variant.getSourceEntry(source.getFileId(), source.getStudyId()).setFormat(format);
-        variant.getSourceEntry(source.getFileId(), source.getStudyId()).addAttribute("src", line);
-        
-        parseEVSAttributes(variant, source, numAllele, alternateAlleles);
+        sourceEntry.setFormat(format);
+        sourceEntry.addAttribute("src", line);
+
+
+        if (tagMap == null) {   // whether we can parse population stats or not
+            parseEVSAttributes(variant, source, numAllele, alternateAlleles);
+        } else {
+            parseCohortEVSInfo(variant, sourceEntry, info, numAllele, alternateAlleles);
+        }
     }
 
     private void parseEVSAttributes(Variant variant, VariantSource source, int numAllele, String[] alternateAlleles) {
@@ -183,14 +224,14 @@ public class VariantVcfEVSFactory extends VariantVcfFactory {
             int allele1 = (Arrays.asList(alternateAlleles).indexOf(ref) + 1);
             int allele2 = (Arrays.asList(alternateAlleles).indexOf(alt) + 1);
 
-            if((allele1 == 0 || allele1 == (numAllele + 1)) && (allele2== 0 || allele2 == (numAllele + 1))){
+            if ((allele1 == 0 || allele1 == (numAllele + 1)) && (allele2 == 0 || allele2 == (numAllele + 1))) {
 
                 allele1 = allele1 > 1 ? 1 : allele1;
                 allele2 = allele2 > 1 ? 1 : allele2;
                 g = new Genotype(allele1 + "/" + allele2, variant.getReference(), variant.getAlternate());
 
                 return g;
-            }else{
+            } else {
                 return new Genotype("./.", variant.getReference(), variant.getAlternate());
             }
         }
@@ -238,4 +279,78 @@ public class VariantVcfEVSFactory extends VariantVcfFactory {
         return null;
     }
 
+
+    private void parseCohortEVSInfo(Variant variant, VariantSourceEntry sourceEntry, String info
+            , int numAllele, String[] alternateAlleles) {
+        if (tagMap != null) {
+            for (String var : info.split(";")) {    // this can be cpu expensive, we are doing 'numAlleles' times the info parsing
+                String[] splitsByEqual = var.split("=");
+                if (splitsByEqual.length == 2) {
+                    String opencgaTag = reverseTagMap.get(splitsByEqual[0]);
+                    String[] values = splitsByEqual[1].split(",");
+                    if (opencgaTag != null) {
+                        String[] opencgaTagSplit = opencgaTag.split("\\."); // a literal point
+                        if (opencgaTagSplit.length == 2) {
+                            String cohort = opencgaTagSplit[0];
+                            VariantStats cohortStats = sourceEntry.getCohortStats(cohort);
+                            if (cohortStats == null) {
+                                cohortStats = new VariantStats(variant);
+                                sourceEntry.setCohortStats(cohort, cohortStats);
+                            }
+                            switch (opencgaTagSplit[1]) {
+                                case "AC":
+                                    cohortStats.setAltAlleleCount(Integer.parseInt(values[numAllele]));
+                                    cohortStats.setRefAlleleCount(Integer.parseInt(values[values.length - 1]));    // ref allele count is the last one
+                                    break;
+                                case "AF":
+                                    cohortStats.setAltAlleleFreq(Float.parseFloat(values[numAllele]));
+                                    cohortStats.setRefAlleleFreq(Float.parseFloat(values[values.length - 1]));
+                                    break;
+                                case "AN":
+                                    cohortStats.setMissingAlleles(Integer.parseInt(values[numAllele]));
+                                    break;
+                                case "GTC":
+                                    addGenotype(variant, sourceEntry, values, alternateAlleles, numAllele, cohortStats);
+                                    break;
+                            }
+                        }
+                    } else if (splitsByEqual[0].equals("MAF")) {
+                        String groups_order = tagMap.getProperty("GROUPS_ORDER");
+                        if (groups_order != null) {
+                            String[] populations = groups_order.split(",");
+                            if (populations.length == values.length) {
+                                for (int i = 0; i < values.length; i++) {   // each value has the maf of each population
+                                    float maf = Float.parseFloat(values[i]) / 100;  // from [0, 100] (%) to [0, 1]
+                                    sourceEntry.getCohortStats(populations[i]).setMaf(maf);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void addGenotype(Variant variant, VariantSourceEntry sourceEntry, String[] splitsGTC, String[] alternateAlleles
+            , int numAllele, VariantStats cohortStats) {
+        if (sourceEntry.hasAttribute("GTS")) {
+            String splitsGTS[] = sourceEntry.getAttribute("GTS").split(",");
+            if (splitsGTC.length == splitsGTS.length) {
+                for (int i = 0; i < splitsGTC.length; i++) {
+                    String gt = splitsGTS[i];
+                    int gtCount = Integer.parseInt(splitsGTC[i]);
+                    
+                    Genotype g = parseGenotype(gt, variant, numAllele, alternateAlleles);
+                    if (g != null) {
+                        cohortStats.addGenotype(g, gtCount);
+                    }
+
+                    cohortStats.setMafAllele("");
+                    cohortStats.setMissingAlleles(0);
+                }
+            }
+        }
+    }
+
 }
+
