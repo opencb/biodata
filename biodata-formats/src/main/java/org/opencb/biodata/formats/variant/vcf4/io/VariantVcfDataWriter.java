@@ -66,10 +66,15 @@ public class VariantVcfDataWriter implements VariantWriter {
         StringBuilder sb = new StringBuilder();
         sb.append(elem.getChromosome()).append("\t");
         sb.append(elem.getStart()).append("\t");
-        if (elem.getId() == null) {
+        if (elem.getIds() == null || elem.getIds().isEmpty()) {
             sb.append(".").append("\t");
         } else {
-            sb.append(elem.getId()).append("\t");
+            Iterator<String> iterator = elem.getIds().iterator();
+            sb.append(iterator.next());
+            while (iterator.hasNext()) {
+                sb.append(";").append(iterator.next());
+            }
+            sb.append("\t");
         }
         sb.append(elem.getReference()).append("\t");
         sb.append(elem.getAlternate()).append("\t");
