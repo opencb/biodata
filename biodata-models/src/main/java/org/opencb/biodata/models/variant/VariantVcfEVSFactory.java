@@ -304,51 +304,48 @@ public class VariantVcfEVSFactory extends VariantVcfFactory {
     private void parseCohortEVSInfo(Variant variant, VariantSourceEntry sourceEntry, String info
             , int numAllele, String[] alternateAlleles) {
         if (tagMap != null) {
-            for (String var : info.split(";")) {    // this can be cpu expensive, we are doing 'numAlleles' times the info parsing
-                String[] splitsByEqual = var.split("=");
-                if (splitsByEqual.length == 2) {
-                    String opencgaTag = reverseTagMap.get(splitsByEqual[0]);
-                    String[] values = splitsByEqual[1].split(",");
-                    if (opencgaTag != null) {
-                        String[] opencgaTagSplit = opencgaTag.split("\\."); // a literal point
-                        if (opencgaTagSplit.length == 2) {
-                            String cohort = opencgaTagSplit[0];
-                            VariantStats cohortStats = sourceEntry.getCohortStats(cohort);
-                            if (cohortStats == null) {
-                                cohortStats = new VariantStats(variant);
-                                sourceEntry.setCohortStats(cohort, cohortStats);
-                            }
-                            switch (opencgaTagSplit[1]) {
-                                case "AC":
-                                    cohortStats.setAltAlleleCount(Integer.parseInt(values[numAllele]));
-                                    cohortStats.setRefAlleleCount(Integer.parseInt(values[values.length - 1]));    // ref allele count is the last one
-                                    break;
-                                case "AF":
-                                    cohortStats.setAltAlleleFreq(Float.parseFloat(values[numAllele]));
-                                    cohortStats.setRefAlleleFreq(Float.parseFloat(values[values.length - 1]));
-                                    break;
-                                case "AN":
-                                    cohortStats.setMissingAlleles(Integer.parseInt(values[numAllele]));
-                                    break;
-                                case "GTC":
-                                    addGenotype(variant, sourceEntry, values, alternateAlleles, numAllele, cohortStats);
-                                    break;
-                            }
+            for (String key : sourceEntry.getAttributes().keySet()) {
+                String opencgaTag = reverseTagMap.get(key);
+                String[] values = sourceEntry.getAttribute(key).split(",");
+                if (opencgaTag != null) {
+                    String[] opencgaTagSplit = opencgaTag.split("\\."); // a literal point
+                    if (opencgaTagSplit.length == 2) {
+                        String cohort = opencgaTagSplit[0];
+                        VariantStats cohortStats = sourceEntry.getCohortStats(cohort);
+                        if (cohortStats == null) {
+                            cohortStats = new VariantStats(variant);
+                            sourceEntry.setCohortStats(cohort, cohortStats);
                         }
-                    } else if (splitsByEqual[0].equals("MAF")) {
-                        String groups_order = tagMap.getProperty("GROUPS_ORDER");
-                        if (groups_order != null) {
-                            String[] populations = groups_order.split(",");
-                            if (populations.length == values.length) {
-                                for (int i = 0; i < values.length; i++) {   // each value has the maf of each population
-                                    float maf = Float.parseFloat(values[i]) / 100;  // from [0, 100] (%) to [0, 1]
-                                    VariantStats cohortStats = sourceEntry.getCohortStats(populations[i]);
-                                    if (cohortStats == null) {
-                                        cohortStats = new VariantStats(variant);
-                                        sourceEntry.setCohortStats(populations[i], cohortStats);
-                                    }
-                                    cohortStats.setMaf(maf);
+                        switch (opencgaTagSplit[1]) {
+                            case "AC":
+                                cohortStats.setAltAlleleCount(Integer.parseInt(values[numAllele]));
+                                cohortStats.setRefAlleleCount(Integer.parseInt(values[values.length - 1]));    // ref allele count is the last one
+                                break;
+                            case "AF":
+                                cohortStats.setAltAlleleFreq(Float.parseFloat(values[numAllele]));
+                                cohortStats.setRefAlleleFreq(Float.parseFloat(values[values.length - 1]));
+                                break;
+                            case "AN":
+                                cohortStats.setMissingAlleles(Integer.parseInt(values[numAllele]));
+                                break;
+                            case "GTC":
+                                addGenotype(variant, sourceEntry, values, alternateAlleles, numAllele, cohortStats);
+                                break;
+                        }
+                    }
+                } else if (key.equals("MAF")) {
+                    String groups_order = tagMap.getProperty("GROUPS_ORDER");
+                    if (groups_order != null) {
+                        String[] populations = groups_order.split(",");
+                        if (populations.length == values.length) {
+                            for (int i = 0; i < values.length; i++) {   // each value has the maf of each population
+                                float maf = Float.parseFloat(values[i]) / 100;  // from [0, 100] (%) to [0, 1]
+                                VariantStats cohortStats = sourceEntry.getCohortStats(populations[i]);
+                                if (cohortStats == null) {
+                                    cohortStats = new VariantStats(variant);
+                                    sourceEntry.setCohortStats(populations[i], cohortStats);
                                 }
+                                cohortStats.setMaf(maf);
                             }
                         }
                     }
