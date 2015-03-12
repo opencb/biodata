@@ -1,5 +1,6 @@
 package org.opencb.biodata.models.variant;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.biodata.models.variant.stats.VariantStats;
@@ -224,16 +225,21 @@ public class VariantVcfEVSFactory extends VariantVcfFactory {
             int allele1 = (Arrays.asList(alternateAlleles).indexOf(ref) + 1);
             int allele2 = (Arrays.asList(alternateAlleles).indexOf(alt) + 1);
 
-            if ((allele1 == 0 || allele1 == (numAllele + 1)) && (allele2 == 0 || allele2 == (numAllele + 1))) {
+            int val1 = mapToMultiallelicIndex(allele1, numAllele);
+            int val2 = mapToMultiallelicIndex(allele2, numAllele);
 
-                allele1 = allele1 > 1 ? 1 : allele1;
-                allele2 = allele2 > 1 ? 1 : allele2;
-                g = new Genotype(allele1 + "/" + allele2, variant.getReference(), variant.getAlternate());
-
-                return g;
-            } else {
-                return new Genotype("./.", variant.getReference(), variant.getAlternate());
-            }
+            return new Genotype(val1 + "/" + val2, variant.getReference(), variant.getAlternate());
+            
+//            if ((allele1 == 0 || allele1 == (numAllele + 1)) && (allele2 == 0 || allele2 == (numAllele + 1))) {
+//
+//                allele1 = allele1 > 1 ? 1 : allele1;
+//                allele2 = allele2 > 1 ? 1 : allele2;
+//                g = new Genotype(allele1 + "/" + allele2, variant.getReference(), variant.getAlternate());
+//
+//                return g;
+//            } else {
+//                return new Genotype("./.", variant.getReference(), variant.getAlternate());
+//            }
         }
 
         m = refRef.matcher(gt);
@@ -245,38 +251,53 @@ public class VariantVcfEVSFactory extends VariantVcfFactory {
         m = altNum.matcher(gt);
         if (m.matches()) { // A1,A2,A3
             int val = Integer.parseInt(m.group(1));
-            if (val == numAllele + 1) {
-                g = new Genotype(variant.getAlternate() + "/" + variant.getAlternate(), variant.getReference(), variant.getAlternate());
-                return g;
-            } else {
-                return new Genotype("./.", variant.getReference(), variant.getAlternate());
-            }
+            val = mapToMultiallelicIndex(val, numAllele);
+            return new Genotype(val + "/" + val, variant.getReference(), variant.getAlternate());
         }
 
         m = altNumaltNum.matcher(gt);
         if (m.matches()) { // A1A2,A1A3...
             int val1 = Integer.parseInt(m.group(1));
             int val2 = Integer.parseInt(m.group(2));
-            if (val1 == numAllele + 1 && val2 == numAllele + 1) {
-                g = new Genotype(variant.getAlternate() + "/" + variant.getAlternate(), variant.getReference(), variant.getAlternate());
-                return g;
-            } else {
-                return new Genotype("./.", variant.getReference(), variant.getAlternate());
-            }
+            val1 = mapToMultiallelicIndex(val1, numAllele);
+            val2 = mapToMultiallelicIndex(val2, numAllele);
+            return new Genotype(val1 + "/" + val2, variant.getReference(), variant.getAlternate());
         }
 
         m = altNumRef.matcher(gt);
         if (m.matches()) { // A1R, A2R
             int val1 = Integer.parseInt(m.group(1));
-            if (val1 == numAllele + 1) {
-                g = new Genotype(variant.getAlternate() + "/" + variant.getReference(), variant.getReference(), variant.getAlternate());
-                return g;
-            } else {
-                return new Genotype("./.", variant.getReference(), variant.getAlternate());
-            }
+            val1 = mapToMultiallelicIndex(val1, numAllele);
+            return new Genotype(val1 + "/" + 0, variant.getReference(), variant.getAlternate());
         }
 
         return null;
+    }
+
+    /**
+     * In multiallelic variants, we have a list of alternates, where numAllele is the one whose variant we are parsing now.
+     * If we are parsing the first variant (numAllele == 0) A1 refers to first alternative, (i.e. alternateAlleles[0]), A2 to 
+     * second alternative (alternateAlleles[1]), and so on.
+     * However, if numAllele == 1, A1 refers to second alternate (alternateAlleles[1]), A2 to first (alternateAlleles[0]) and higher alleles remain unchanged.
+     * Moreover, if NumAllele == 2, A1 is third alternate, A2 is first alternate and A3 is second alternate.
+     * It's also assumed that A0 would be the reference, so it remains unchanged too.
+     * 
+     * This pattern of the first allele moving along (and swapping) is what describes this function. 
+     * Also, look VariantVcfFactory.getSecondaryAlternates().
+     * @param parsedAllele the value of parsed alleles. e.g. 1 if genotype was "A1" (first allele).
+     * @param numAllele current variant of the alternates.
+     * @return the correct allele index depending on numAllele.
+     */
+    private int mapToMultiallelicIndex(int parsedAllele, int numAllele) {
+        int correctedAllele = parsedAllele;
+        if (parsedAllele != 0) {
+            if (parsedAllele == numAllele + 1) {
+                correctedAllele = 1;
+            } else if (parsedAllele < numAllele + 1) {
+                correctedAllele = parsedAllele + 1;
+            }
+        }
+        return correctedAllele;
     }
 
 
@@ -321,7 +342,12 @@ public class VariantVcfEVSFactory extends VariantVcfFactory {
                             if (populations.length == values.length) {
                                 for (int i = 0; i < values.length; i++) {   // each value has the maf of each population
                                     float maf = Float.parseFloat(values[i]) / 100;  // from [0, 100] (%) to [0, 1]
-                                    sourceEntry.getCohortStats(populations[i]).setMaf(maf);
+                                    VariantStats cohortStats = sourceEntry.getCohortStats(populations[i]);
+                                    if (cohortStats == null) {
+                                        cohortStats = new VariantStats(variant);
+                                        sourceEntry.setCohortStats(populations[i], cohortStats);
+                                    }
+                                    cohortStats.setMaf(maf);
                                 }
                             }
                         }
