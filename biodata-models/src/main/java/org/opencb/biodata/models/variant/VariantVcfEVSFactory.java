@@ -179,24 +179,8 @@ public class VariantVcfEVSFactory extends VariantVcfFactory {
         }
 
         if (file.hasAttribute("GTS") && file.hasAttribute("GTC")) {
-            String splitsGTS[] = file.getAttribute("GTS").split(",");
             String splitsGTC[] = file.getAttribute("GTC").split(",");
-
-            if (splitsGTC.length == splitsGTS.length) {
-                for (int i = 0; i < splitsGTC.length; i++) {
-                    String gt = splitsGTS[i];
-                    int gtCount = Integer.parseInt(splitsGTC[i]);
-
-
-                    Genotype g = parseGenotype(gt, variant, numAllele, alternateAlleles);
-                    if (g != null) {
-                        stats.addGenotype(g, gtCount);
-                    }
-                }
-
-                stats.setMafAllele("");
-                stats.setMissingAlleles(0);
-            }
+            addGenotype(variant, file, splitsGTC, alternateAlleles, numAllele, stats);
         }
         file.setStats(stats);
     }
@@ -326,10 +310,12 @@ public class VariantVcfEVSFactory extends VariantVcfFactory {
                                 cohortStats.setRefAlleleFreq(Float.parseFloat(values[values.length - 1]));
                                 break;
                             case "AN":
-                                cohortStats.setMissingAlleles(Integer.parseInt(values[numAllele]));
+                                // TODO implement this. also, take into account that needed fields may not be processed yet
                                 break;
                             case "GTC":
                                 addGenotype(variant, sourceEntry, values, alternateAlleles, numAllele, cohortStats);
+                                break;
+                            default:
                                 break;
                         }
                     }
@@ -351,6 +337,7 @@ public class VariantVcfEVSFactory extends VariantVcfFactory {
                     }
                 }
             }
+            // TODO reprocess stats to complete inferable values. A StatsHolder may be needed to keep values not storables in VariantStats
         }
     }
 
@@ -367,9 +354,6 @@ public class VariantVcfEVSFactory extends VariantVcfFactory {
                     if (g != null) {
                         cohortStats.addGenotype(g, gtCount);
                     }
-
-                    cohortStats.setMafAllele("");
-                    cohortStats.setMissingAlleles(0);
                 }
             }
         }
