@@ -129,7 +129,7 @@ public class VariantStats {
         return refAlleleCount;
     }
 
-    void setRefAlleleCount(int refAlleleCount) {
+    public void setRefAlleleCount(int refAlleleCount) {
         this.refAlleleCount = refAlleleCount;
     }
 
@@ -137,7 +137,7 @@ public class VariantStats {
         return altAlleleCount;
     }
 
-    void setAltAlleleCount(int altAlleleCount) {
+    public void setAltAlleleCount(int altAlleleCount) {
         this.altAlleleCount = altAlleleCount;
     }
 
@@ -145,7 +145,7 @@ public class VariantStats {
         return refAlleleFreq;
     }
 
-    void setRefAlleleFreq(float refAlleleFreq) {
+    public void setRefAlleleFreq(float refAlleleFreq) {
         this.refAlleleFreq = refAlleleFreq;
     }
 
@@ -153,7 +153,7 @@ public class VariantStats {
         return altAlleleFreq;
     }
 
-    void setAltAlleleFreq(float altAlleleFreq) {
+    public void setAltAlleleFreq(float altAlleleFreq) {
         this.altAlleleFreq = altAlleleFreq;
     }
     
