@@ -531,9 +531,20 @@ public class VariantStats {
     }
 
     private void calculateAlleleFrequencies(int totalAllelesCount) {
-        // MAF
-        refAlleleFreq = (totalAllelesCount > 0) ? refAlleleCount / (float) totalAllelesCount : 0;
-        altAlleleFreq = (totalAllelesCount > 0) ? altAlleleCount / (float) totalAllelesCount : 0;
+        if (totalAllelesCount < 0) {
+            throw new IllegalArgumentException("The number of alleles must be equals or greater than zero");
+        }
+        
+        if (totalAllelesCount == 0) {
+            // Nothing to calculate here
+            this.setMaf(-1);
+            this.setMafAllele(null);
+            return;
+        }
+        
+        refAlleleFreq = refAlleleCount / (float) totalAllelesCount;
+        altAlleleFreq = altAlleleCount / (float) totalAllelesCount;
+        
         if (refAlleleFreq <= altAlleleFreq) {
             this.setMaf(refAlleleFreq);
             this.setMafAllele(refAllele);
@@ -544,8 +555,14 @@ public class VariantStats {
     }
 
     private void calculateGenotypeFrequencies(int totalGenotypesCount) {
-        if (genotypesCount.isEmpty()) {
-            // Nothing to do here
+        if (totalGenotypesCount < 0) {
+            throw new IllegalArgumentException("The number of genotypes must be equals or greater than zero");
+        }
+        
+        if (genotypesCount.isEmpty() || totalGenotypesCount == 0) {
+            // Nothing to calculate here
+            this.setMgf(-1);
+            this.setMgfGenotype(null);
             return;
         }
         
