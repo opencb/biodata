@@ -1,6 +1,5 @@
 package org.opencb.biodata.models.variant;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.biodata.models.variant.stats.VariantStats;
@@ -14,6 +13,7 @@ import java.util.regex.Pattern;
 /**
  * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
+ * @author Jose Miguel Mut Lopez &lt;jmmut@ebi.ac.uk&gt;
  */
 public class VariantVcfEVSFactory extends VariantVcfFactory {
 
@@ -163,7 +163,7 @@ public class VariantVcfEVSFactory extends VariantVcfFactory {
         if (tagMap == null) {   // whether we can parse population stats or not
             parseEVSAttributes(variant, source, numAllele, alternateAlleles);
         } else {
-            parseCohortEVSInfo(variant, sourceEntry, info, numAllele, alternateAlleles);
+            parseCohortEVSInfo(variant, sourceEntry, numAllele, alternateAlleles);
         }
     }
 
@@ -258,35 +258,9 @@ public class VariantVcfEVSFactory extends VariantVcfFactory {
         return null;
     }
 
-    /**
-     * In multiallelic variants, we have a list of alternates, where numAllele is the one whose variant we are parsing now.
-     * If we are parsing the first variant (numAllele == 0) A1 refers to first alternative, (i.e. alternateAlleles[0]), A2 to 
-     * second alternative (alternateAlleles[1]), and so on.
-     * However, if numAllele == 1, A1 refers to second alternate (alternateAlleles[1]), A2 to first (alternateAlleles[0]) and higher alleles remain unchanged.
-     * Moreover, if NumAllele == 2, A1 is third alternate, A2 is first alternate and A3 is second alternate.
-     * It's also assumed that A0 would be the reference, so it remains unchanged too.
-     * 
-     * This pattern of the first allele moving along (and swapping) is what describes this function. 
-     * Also, look VariantVcfFactory.getSecondaryAlternates().
-     * @param parsedAllele the value of parsed alleles. e.g. 1 if genotype was "A1" (first allele).
-     * @param numAllele current variant of the alternates.
-     * @return the correct allele index depending on numAllele.
-     */
-    private int mapToMultiallelicIndex(int parsedAllele, int numAllele) {
-        int correctedAllele = parsedAllele;
-        if (parsedAllele != 0) {
-            if (parsedAllele == numAllele + 1) {
-                correctedAllele = 1;
-            } else if (parsedAllele < numAllele + 1) {
-                correctedAllele = parsedAllele + 1;
-            }
-        }
-        return correctedAllele;
-    }
 
-
-    private void parseCohortEVSInfo(Variant variant, VariantSourceEntry sourceEntry, String info
-            , int numAllele, String[] alternateAlleles) {
+    private void parseCohortEVSInfo(Variant variant, VariantSourceEntry sourceEntry, 
+                                    int numAllele, String[] alternateAlleles) {
         if (tagMap != null) {
             for (String key : sourceEntry.getAttributes().keySet()) {
                 String opencgaTag = reverseTagMap.get(key);
