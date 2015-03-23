@@ -78,11 +78,11 @@ public class Variant {
      * Alternate allele.
      */
     private String alternate;
-    
+
     /**
-     * Unique identifier most commonly used for this genomic variation.
+     * Set of identifiers used for this genomic variation.
      */
-    private String id;
+    private Set<String> ids;
     
     /**
      * Unique identifier following the HGVS nomenclature.
@@ -231,12 +231,30 @@ public class Variant {
         this.length = Math.max(reference.length(), alternate.length());
     }
 
+    @Deprecated
     public String getId() {
-        return id;
+        if (ids == null) {
+            return null;
+        } else {
+            Iterator<String> iterator = ids.iterator();
+            return iterator.hasNext() ? iterator.next() : null;
+        }
     }
 
+    @Deprecated
     public void setId(String id) {
-        this.id = id;
+        if (ids == null) {
+            ids = new HashSet<>();
+        }
+        ids.add(id);
+    }
+
+    public Set<String> getIds() {
+        return ids;
+    }
+
+    public void setIds(Set<String> ids) {
+        this.ids = ids;
     }
 
     // TODO Insert in attributes?
@@ -344,7 +362,7 @@ public class Variant {
                 ", position=" + start + "-" + end + 
                 ", reference='" + reference + '\'' +
                 ", alternate='" + alternate + '\'' +
-                ", id='" + id + '\'' +
+                ", ids='" + ids + '\'' +
 //                ", format='" + format + '\'' +
 //                ", samplesData=" + samplesData +
 //                ", stats=" + stats +

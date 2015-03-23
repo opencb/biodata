@@ -41,6 +41,7 @@ public class VariantVcfFactory implements VariantFactory {
         String chromosome = fields[0];
         int position = Integer.parseInt(fields[1]);
         String id = fields[2].equals(".") ? "" : fields[2];
+        Set<String> ids = new HashSet<>(Arrays.asList(id.split(";")));
         String reference = fields[3].equals(".") ? "" : fields[3];
         String alternate = fields[4].equals(".") ? "" : fields[4];
         String[] alternateAlleles = alternate.split(",");
@@ -87,7 +88,7 @@ public class VariantVcfFactory implements VariantFactory {
             try {
                 parseSplitSampleData(variant, source, fields, alternateAlleles, secondaryAlternates, i + 1);
                 // Fill the rest of fields (after samples because INFO depends on them)
-                setOtherFields(variant, source, id, quality, filter, info, format, keyFields.getNumAllele(), alternateAlleles, line);
+                setOtherFields(variant, source, ids, quality, filter, info, format, keyFields.getNumAllele(), alternateAlleles, line);
                 variants.add(variant);
             } catch (NonStandardCompliantSampleField ex) {
                 Logger.getLogger(VariantFactory.class.getName()).log(Level.SEVERE,
@@ -312,11 +313,11 @@ public class VariantVcfFactory implements VariantFactory {
         return true;
     }
 
-    protected void setOtherFields(Variant variant, VariantSource source, String id, float quality, String filter, 
+    protected void setOtherFields(Variant variant, VariantSource source, Set<String> ids, float quality, String filter,
             String info, String format, int numAllele, String[] alternateAlleles, String line) {
         // Fields not affected by the structure of REF and ALT fields
-        if (!id.isEmpty()) {
-            variant.setId(id);
+        if (!ids.isEmpty()) {
+            variant.setIds(ids);
         }
         if (quality > -1) {
             variant.getSourceEntry(source.getFileId(), source.getStudyId()).addAttribute("QUAL", String.valueOf(quality));

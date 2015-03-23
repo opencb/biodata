@@ -84,6 +84,7 @@ public class VariantVcfEVSFactory extends VariantVcfFactory {
         String chromosome = fields[0];
         int position = Integer.parseInt(fields[1]);
         String id = fields[2].equals(".") ? "" : fields[2];
+        Set<String> ids = new HashSet<>(Arrays.asList(id.split(";")));
         String reference = fields[3].equals(".") ? "" : fields[3];
         String alternate = fields[4].equals(".") ? "" : fields[4];
         String[] alternateAlleles = alternate.split(",");
@@ -129,7 +130,7 @@ public class VariantVcfEVSFactory extends VariantVcfFactory {
 
             try {
                 parseSplitSampleData(variant, source, fields, alternateAlleles, secondaryAlternates, i + 1);
-                setOtherFields(variant, source, id, quality, filter, info, format, keyFields.getNumAllele(), alternateAlleles, line);
+                setOtherFields(variant, source, ids, quality, filter, info, format, keyFields.getNumAllele(), alternateAlleles, line);
                 variants.add(variant);
             } catch (NonStandardCompliantSampleField ex) {
                 Logger.getLogger(VariantFactory.class.getName()).log(Level.SEVERE,
@@ -142,10 +143,10 @@ public class VariantVcfEVSFactory extends VariantVcfFactory {
     }
 
     @Override
-    protected void setOtherFields(Variant variant, VariantSource source, String id, float quality, String filter,
+    protected void setOtherFields(Variant variant, VariantSource source, Set<String> ids, float quality, String filter,
                                   String info, String format, int numAllele, String[] alternateAlleles, String line) {
         // Fields not affected by the structure of REF and ALT fields
-        variant.setId(id);
+        variant.setIds(ids);
         VariantSourceEntry sourceEntry = variant.getSourceEntry(source.getFileId(), source.getStudyId());
         if (quality > -1) {
             sourceEntry.addAttribute("QUAL", String.valueOf(quality));
