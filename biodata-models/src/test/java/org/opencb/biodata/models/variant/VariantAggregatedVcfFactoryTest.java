@@ -1,5 +1,6 @@
 package org.opencb.biodata.models.variant;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.stats.VariantStats;
@@ -36,8 +37,17 @@ public class VariantAggregatedVcfFactoryTest extends GenericTest {
         VariantAggregatedVcfFactory factory = new VariantAggregatedVcfFactory();
         for (int i = 0; i < 11; i++) {
             Integer alleles[] = new Integer[2];
-            factory.getGenotype(i, alleles);
+            VariantAggregatedVcfFactory.getGenotype(i, alleles);
             System.out.println("alleles[" + i + "] = " + alleles[0] + "/" + alleles[1]);
         }
+
+        Integer alleles[] = new Integer[2];
+        VariantAggregatedVcfFactory.getGenotype(0, alleles);    // 0/0
+        assertEquals(alleles[0], alleles[1]);
+        VariantAggregatedVcfFactory.getGenotype(2, alleles);    // 1/1
+        assertEquals(alleles[0], alleles[1]);
+        VariantAggregatedVcfFactory.getGenotype(5, alleles);    // 2/2
+        assertEquals(alleles[0], alleles[1]);
+        assertEquals(alleles[0], new Integer(2));
     }
 }

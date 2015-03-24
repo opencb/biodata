@@ -34,8 +34,8 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
      * The part before the '.' can be any string naming the group. The part after the '.' must be one of AF, AC, AN or GTC.
      * The special tag 'GROUPS_ORDER' can be used to specify the order of the comma separated values for populations in tags such as MAF.
      */
-    private Properties tagMap;
-    private Map<String, String> reverseTagMap;
+    protected Properties tagMap;
+    protected Map<String, String> reverseTagMap;
 
     public VariantAggregatedVcfFactory() {
         this(null);
@@ -149,7 +149,7 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
 //        alleles[0] = alleles[1] - ((alleles[1] + 1) * (alleles[1] +2) / 2 - index);
         
         int cursor = 0;
-        final int MAX_ALLOWED_ALLELES = 500;   // should we allow more than 500 alleles?
+        final int MAX_ALLOWED_ALLELES = 100;   // should we allow more than 100 alleles?
         for (int i = 0; i < MAX_ALLOWED_ALLELES; i++) {
             for (int j = 0; j <= i; j++) {
                 if (cursor == index) {
