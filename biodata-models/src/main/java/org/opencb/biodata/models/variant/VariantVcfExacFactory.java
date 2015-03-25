@@ -57,7 +57,7 @@ public class VariantVcfExacFactory extends VariantAggregatedVcfFactory {
             if (homCounts.length == alternateAlleles.length) {
                 for (int i = 0; i < homCounts.length; i++) {
                     Integer alleles[] = new Integer[2];
-                    getHomozygousGenotype(i, alleles);
+                    getHomozygousGenotype(i+1, alleles);
                     String gt = mapToMultiallelicIndex(alleles[0], numAllele) + "/" + mapToMultiallelicIndex(alleles[1], numAllele);
                     Genotype genotype = new Genotype(gt, variant.getReference(), alternateAlleles[numAllele]);
                     stats.addGenotype(genotype, Integer.parseInt(homCounts[i]));
@@ -72,14 +72,14 @@ public class VariantVcfExacFactory extends VariantAggregatedVcfFactory {
             }
         }
 
-        if (sourceEntry.hasAttribute("AN_Adj") && sourceEntry.hasAttribute("AC_Adj")) { // inferring implicit refallele count
-            String[] acCounts = sourceEntry.getAttribute("AC_Adj").split(",");
+        if (sourceEntry.hasAttribute(AN_ADJ) && sourceEntry.hasAttribute(AC_ADJ)) { // inferring implicit refallele count
+            String[] acCounts = sourceEntry.getAttribute(AC_ADJ).split(",");
             int sum = 0;
             for (String acCount : acCounts) {
                 sum += Integer.parseInt(acCount);
             }
             
-            stats.setRefAlleleCount(Integer.parseInt(sourceEntry.getAttribute("AN_Adj")) - sum);
+            stats.setRefAlleleCount(Integer.parseInt(sourceEntry.getAttribute(AN_ADJ)) - sum);
         }
         
         if (sourceEntry.hasAttribute(AC_HOM) && sourceEntry.hasAttribute(AC_HET) && sourceEntry.hasAttribute(AN_ADJ)) {   // inferring implicit 0/0 count
@@ -88,7 +88,7 @@ public class VariantVcfExacFactory extends VariantAggregatedVcfFactory {
                 gtSum += gtCounts;
             }
             Genotype genotype = new Genotype("0/0", variant.getReference(), variant.getAlternate());
-            stats.addGenotype(genotype, gtSum - Integer.parseInt(sourceEntry.getAttribute(AN_ADJ))/2);  // assuming diploid sample! be careful if you copy this code!
+            stats.addGenotype(genotype, Integer.parseInt(sourceEntry.getAttribute(AN_ADJ))/2 - gtSum);  // assuming diploid sample! be careful if you copy this code!
 
         }
 

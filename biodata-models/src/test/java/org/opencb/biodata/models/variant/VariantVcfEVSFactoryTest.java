@@ -9,10 +9,16 @@ import java.util.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+
+/**
+ * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
+ * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
+ * @author Jose Miguel Mut Lopez &lt;jmmut@ebi.ac.uk&gt;
+ */
 public class VariantVcfEVSFactoryTest extends GenericTest {
 
     private VariantSource source = new VariantSource("EVS", "EVS", "EVS", "EVS");
-   private VariantFactory factory = new VariantVcfEVSFactory();
+    private VariantFactory factory = new VariantVcfEVSFactory();
 
     @Test
     public void testCreate_AA_AC_TT_GT() throws Exception { // AA,AC,TT,GT,...
