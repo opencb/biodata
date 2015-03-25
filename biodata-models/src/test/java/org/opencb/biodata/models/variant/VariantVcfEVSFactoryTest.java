@@ -9,7 +9,7 @@ import java.util.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class VariantVcfEVSFactoryTest extends GenericTest{
+public class VariantVcfEVSFactoryTest extends GenericTest {
 
     private VariantSource source = new VariantSource("EVS", "EVS", "EVS", "EVS");
    private VariantFactory factory = new VariantVcfEVSFactory();

@@ -64,22 +64,23 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
             String info, String format, int numAllele, String[] alternateAlleles, String line) {
         // Fields not affected by the structure of REF and ALT fields
         variant.setIds(ids);
+        VariantSourceEntry sourceEntry = variant.getSourceEntry(source.getFileId(), source.getStudyId());
         if (quality > -1) {
-            variant.getSourceEntry(source.getFileId(), source.getStudyId()).addAttribute("QUAL", String.valueOf(quality));
+            sourceEntry.addAttribute("QUAL", String.valueOf(quality));
         }
         if (!filter.isEmpty()) {
-            variant.getSourceEntry(source.getFileId(), source.getStudyId()).addAttribute("FILTER", filter);
+            sourceEntry.addAttribute("FILTER", filter);
         }
         if (!info.isEmpty()) {
             parseInfo(variant, source.getFileId(), source.getStudyId(), info, numAllele);
         }
-        variant.getSourceEntry(source.getFileId(), source.getStudyId()).setFormat(format);
-        variant.getSourceEntry(source.getFileId(), source.getStudyId()).addAttribute("src", line);
+        sourceEntry.setFormat(format);
+        sourceEntry.addAttribute("src", line);
 
         addStats(variant, source, numAllele, alternateAlleles, info);
     }
 
-    private void addStats(Variant variant, VariantSource source, int numAllele, String[] alternateAlleles, String info) {
+    protected void addStats(Variant variant, VariantSource source, int numAllele, String[] alternateAlleles, String info) {
         VariantSourceEntry file = variant.getSourceEntry(source.getFileId(), source.getStudyId());
         VariantStats vs = new VariantStats(variant);
         
