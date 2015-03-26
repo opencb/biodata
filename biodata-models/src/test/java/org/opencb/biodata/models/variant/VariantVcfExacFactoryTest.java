@@ -7,6 +7,7 @@ import org.opencb.commons.test.GenericTest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import static org.junit.Assert.*;
 
@@ -17,7 +18,7 @@ import static org.junit.Assert.*;
  */
 public class VariantVcfExacFactoryTest extends GenericTest {
 
-    private VariantSource source = new VariantSource("EVS", "EVS", "EVS", "EVS");
+    private VariantSource source = new VariantSource("Exac", "Exac", "Exac", "Exac");
     private VariantFactory factory = new VariantVcfExacFactory();
 
     @Test
@@ -105,6 +106,79 @@ public class VariantVcfExacFactoryTest extends GenericTest {
         assertEquals(genotypes, sourceEntry.getStats().getGenotypesCount());
         assertEquals(0, sourceEntry.getStats().getAltAlleleCount());
         assertEquals(79012 - 1 - 2 - 1 - 2, sourceEntry.getStats().getRefAlleleCount());
+    }
+    
+    @Test
+    public void multiallelicPopulationGenotypes() {
+        String line = "1\t13528\t.\tC\tG,T\t1771.54\tVQSRTrancheSNP99.60to99.80\tAC=21,11;AC_AFR=12,0;AC_AMR=1,0;AC_Adj=13,9;AC_EAS=0,0;AC_FIN=0,0;AC_Het=13,9,0;AC_Hom=0,0;AC_NFE=0,2;AC_OTH=0,0;AC_SAS=0,7;AF=6.036e-04,3.162e-04;AN=34792;AN_AFR=390;AN_AMR=116;AN_Adj=10426;AN_EAS=150;AN_FIN=8;AN_NFE=2614;AN_OTH=116;AN_SAS=7032;BaseQRankSum=1.23;ClippingRankSum=0.056;DP=144988;FS=0.000;GQ_MEAN=14.54;GQ_STDDEV=16.53;Het_AFR=12,0,0;Het_AMR=1,0,0;Het_EAS=0,0,0;Het_FIN=0,0,0;Het_NFE=0,2,0;Het_OTH=0,0,0;Het_SAS=0,7,0;Hom_AFR=0,0;Hom_AMR=0,0;Hom_EAS=0,0;Hom_FIN=0,0;Hom_NFE=0,0;Hom_OTH=0,0;Hom_SAS=0,0;InbreedingCoeff=0.0557;MQ=31.08;MQ0=0;MQRankSum=-5.410e-01;NCC=67387;QD=1.91;ReadPosRankSum=0.206;VQSLOD=-2.705e+00;culprit=MQ;DP_HIST=10573|1503|705|1265|2477|613|167|52|18|11|8|3|0|0|1|0|0|0|0|0,2|6|2|1|4|0|3|1|0|0|2|0|0|0|0|0|0|0|0|0,1|0|0|0|1|1|3|0|1|1|1|0|0|0|1|0|0|0|0|0;GQ_HIST=342|11195|83|56|3154|517|367|60|12|4|5|7|1373|180|15|16|1|0|1|8,0|0|1|0|1|0|3|1|0|1|2|0|1|2|0|1|1|0|1|6,0|1|0|0|1|1|0|0|1|0|0|1|1|1|1|0|0|0|0|2;CSQ=T|ENSG00000223972|ENST00000456328|Transcript|non_coding_transcript_exon_variant&non_coding_transcript_variant|776||||||2||1|DDX11L1|HGNC|37102|processed_transcript|YES||||||||3/3|||ENST00000456328.2:n.776C>T|||||||||||||||||||,G|ENSG00000223972|ENST00000456328|Transcript|non_coding_transcript_exon_variant&non_coding_transcript_variant|776||||||1||1|DDX11L1|HGNC|37102|processed_transcript|YES||||||||3/3|||ENST00000456328.2:n.776C>G|||||||||||||||||||,T|ENSG00000223972|ENST00000450305|Transcript|non_coding_transcript_exon_variant&non_coding_transcript_variant|490||||||2||1|DDX11L1|HGNC|37102|transcribed_unprocessed_pseudogene|||||||||6/6|||ENST00000450305.2:n.490C>T|||||||||||||||||||,G|ENSG00000223972|ENST00000450305|Transcript|non_coding_transcript_exon_variant&non_coding_transcript_variant|490||||||1||1|DDX11L1|HGNC|37102|transcribed_unprocessed_pseudogene|||||||||6/6|||ENST00000450305.2:n.490C>G|||||||||||||||||||,T|ENSG00000223972|ENST00000515242|Transcript|non_coding_transcript_exon_variant&non_coding_transcript_variant|769||||||2||1|DDX11L1|HGNC|37102|transcribed_unprocessed_pseudogene|||||||||3/3|||ENST00000515242.2:n.769C>T|||||||||||||||||||,G|ENSG00000223972|ENST00000515242|Transcript|non_coding_transcript_exon_variant&non_coding_transcript_variant|769||||||1||1|DDX11L1|HGNC|37102|transcribed_unprocessed_pseudogene|||||||||3/3|||ENST00000515242.2:n.769C>G|||||||||||||||||||,T|ENSG00000223972|ENST00000518655|Transcript|non_coding_transcript_exon_variant&non_coding_transcript_variant|607||||||2||1|DDX11L1|HGNC|37102|transcribed_unprocessed_pseudogene|||||||||3/4|||ENST00000518655.2:n.607C>T|||||||||||||||||||,G|ENSG00000223972|ENST00000518655|Transcript|non_coding_transcript_exon_variant&non_coding_transcript_variant|607||||||1||1|DDX11L1|HGNC|37102|transcribed_unprocessed_pseudogene|||||||||3/4|||ENST00000518655.2:n.607C>G|||||||||||||||||||,T||ENSR00000528767|RegulatoryFeature|regulatory_region_variant|||||||2||||||regulatory_region|||||||||||||||||||||||||||||||,G||ENSR00000528767|RegulatoryFeature|regulatory_region_variant|||||||1||||||regulatory_region|||||||||||||||||||||||||||||||";
+
+        Properties properties = new Properties();
+        properties.put("AFR.AC",   "AC_AFR");
+        properties.put("AFR.AN",   "AN_AFR");
+        properties.put("AFR.HET", "Het_AFR");
+        properties.put("AFR.HOM", "Hom_AFR");
+        properties.put("AMR.AC",   "AC_AMR");
+        properties.put("AMR.AN",   "AN_AMR");
+        properties.put("AMR.HET", "Het_AMR");
+        properties.put("AMR.HOM", "Hom_AMR");
+        properties.put("EAS.AC",   "AC_EAS");
+        properties.put("EAS.AN",   "AN_EAS");
+        properties.put("EAS.HET", "Het_EAS");
+        properties.put("EAS.HOM", "Hom_EAS");
+        properties.put("FIN.AC",   "AC_FIN");
+        properties.put("FIN.AN",   "AN_FIN");
+        properties.put("FIN.HET", "Het_FIN");
+        properties.put("FIN.HOM", "Hom_FIN");
+        properties.put("NFE.AC",   "AC_NFE");
+        properties.put("NFE.AN",   "AN_NFE");
+        properties.put("NFE.HET", "Het_NFE");
+        properties.put("NFE.HOM", "Hom_NFE");
+        properties.put("OTH.AC",   "AC_OTH");
+        properties.put("OTH.AN",   "AN_OTH");
+        properties.put("OTH.HET", "Het_OTH");
+        properties.put("OTH.HOM", "Hom_OTH");
+        properties.put("SAS.AC",   "AC_SAS");
+        properties.put("SAS.AN",   "AN_SAS");
+        properties.put("SAS.HET", "Het_SAS");
+        properties.put("SAS.HOM", "Hom_SAS");
+        properties.put("ALL.AC",  "AC_Adj");
+        properties.put("ALL.AN",  "AN_Adj");
+        properties.put("ALL.HET", "AC_Het");
+        properties.put("ALL.HOM", "AC_Hom");
+        VariantFactory exacFactory = new VariantVcfExacFactory(properties);
+        List<Variant> res = exacFactory.create(source, line);
+
+        assertTrue(res.size() == 2);
+
+        Variant v = res.get(0);
+        VariantSourceEntry sourceEntry = v.getSourceEntry(source.getFileId(), source.getStudyId());
+        
+        assertEquals(12, sourceEntry.getCohortStats("AFR").getAltAlleleCount());
+        Genotype genotype = new Genotype("0/1", v.getReference(), v.getAlternate());
+        assertEquals(12, (int)sourceEntry.getCohortStats("AFR").getGenotypesCount().get(genotype));
+        genotype = new Genotype("0/2", v.getReference(), v.getAlternate());
+        assertEquals(7, (int)sourceEntry.getCohortStats("SAS").getGenotypesCount().get(genotype));
+        genotype = new Genotype("1/1", v.getReference(), v.getAlternate());
+        assertEquals(0, (int)sourceEntry.getCohortStats("SAS").getGenotypesCount().get(genotype));
+        genotype = new Genotype("0/1", v.getReference(), v.getAlternate());
+        assertEquals(0, (int)sourceEntry.getCohortStats("SAS").getGenotypesCount().get(genotype));
+        assertEquals(7025, sourceEntry.getCohortStats("SAS").getRefAlleleCount());
+        assertEquals(0, sourceEntry.getCohortStats("SAS").getAltAlleleCount());
+        System.out.println("genotypes for C -> G in SAS: " + sourceEntry.getCohortStats("SAS").getGenotypesCount());
+        
+        v = res.get(1);
+        sourceEntry = v.getSourceEntry(source.getFileId(), source.getStudyId());
+        
+        assertEquals(2, sourceEntry.getCohortStats("NFE").getAltAlleleCount());
+        genotype = new Genotype("0/2", v.getReference(), v.getAlternate());
+        assertEquals(12, (int)sourceEntry.getCohortStats("AFR").getGenotypesCount().get(genotype));
+        genotype = new Genotype("0/1", v.getReference(), v.getAlternate());
+        assertEquals(7, (int)sourceEntry.getCohortStats("SAS").getGenotypesCount().get(genotype));
+        assertEquals(7025, sourceEntry.getCohortStats("SAS").getRefAlleleCount());
+        assertEquals(7, sourceEntry.getCohortStats("SAS").getAltAlleleCount());
+        genotype = new Genotype("0/0", v.getReference(), v.getAlternate());
+        assertEquals(7018/2, (int)sourceEntry.getCohortStats("SAS").getGenotypesCount().get(genotype));
+        System.out.println("genotypes for C -> T in SAS: " + sourceEntry.getCohortStats("SAS").getGenotypesCount());
     }
 
     @Test

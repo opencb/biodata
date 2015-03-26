@@ -16,6 +16,7 @@ import java.util.Set;
  */
 public class VariantAggregatedVcfFactory extends VariantVcfFactory {
 
+    // TODO add AC_NO_REF?
     /**
      * contains tag mapping for aggregation data.
      * A valid example structure of this file is:
