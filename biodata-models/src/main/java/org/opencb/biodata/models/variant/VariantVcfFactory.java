@@ -12,6 +12,7 @@ import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleFi
 /**
  * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
+ * @author Jose Miguel Mut Lopez &lt;jmmut@ebi.ac.uk&gt;
  */
 public class VariantVcfFactory implements VariantFactory {
 
@@ -416,5 +417,31 @@ public class VariantVcfFactory implements VariantFactory {
         public int getNumAllele() {
             return numAllele;
         }
+    }
+
+    /**
+     * In multiallelic variants, we have a list of alternates, where numAllele is the one whose variant we are parsing now.
+     * If we are parsing the first variant (numAllele == 0) A1 refers to first alternative, (i.e. alternateAlleles[0]), A2 to 
+     * second alternative (alternateAlleles[1]), and so on.
+     * However, if numAllele == 1, A1 refers to second alternate (alternateAlleles[1]), A2 to first (alternateAlleles[0]) and higher alleles remain unchanged.
+     * Moreover, if NumAllele == 2, A1 is third alternate, A2 is first alternate and A3 is second alternate.
+     * It's also assumed that A0 would be the reference, so it remains unchanged too.
+     *
+     * This pattern of the first allele moving along (and swapping) is what describes this function. 
+     * Also, look VariantVcfFactory.getSecondaryAlternates().
+     * @param parsedAllele the value of parsed alleles. e.g. 1 if genotype was "A1" (first allele).
+     * @param numAllele current variant of the alternates.
+     * @return the correct allele index depending on numAllele.
+     */
+    protected static int mapToMultiallelicIndex (int parsedAllele, int numAllele) {
+        int correctedAllele = parsedAllele;
+        if (parsedAllele > 0) {
+            if (parsedAllele == numAllele + 1) {
+                correctedAllele = 1;
+            } else if (parsedAllele < numAllele + 1) {
+                correctedAllele = parsedAllele + 1;
+            }
+        }
+        return correctedAllele;
     }
 }
