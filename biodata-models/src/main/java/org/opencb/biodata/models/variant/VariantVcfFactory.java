@@ -12,6 +12,7 @@ import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleFi
 /**
  * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
+ * @author Jose Miguel Mut Lopez &lt;jmmut@ebi.ac.uk&gt;
  */
 public class VariantVcfFactory implements VariantFactory {
 
@@ -434,7 +435,7 @@ public class VariantVcfFactory implements VariantFactory {
      */
     protected static int mapToMultiallelicIndex (int parsedAllele, int numAllele) {
         int correctedAllele = parsedAllele;
-        if (parsedAllele != 0) {
+        if (parsedAllele > 0) {
             if (parsedAllele == numAllele + 1) {
                 correctedAllele = 1;
             } else if (parsedAllele < numAllele + 1) {

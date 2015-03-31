@@ -31,6 +31,22 @@ public class VariantVcfEVSFactory extends VariantAggregatedVcfFactory {
         this(null);
     }
 
+    /**
+     * @param tagMap Extends the VariantAggregatedVcfFactory(Properties properties) with one extra tag: GROUPS_ORDER. Example:
+     * 
+     * EUR.AF=EUR_AF
+     * EUR.AC=AC_EUR
+     * EUR.AN=EUR_AN
+     * EUR.GTC=EUR_GTC
+     * ALL.AF=AF
+     * ALL.AC=TAC
+     * ALL.AN=AN
+     * ALL.GTC=GTC
+     * GROUPS_ORDER=EUR,ALL
+     *               
+     * The special tag 'GROUPS_ORDER' can be used to specify the order of the comma separated values for populations in tags such as MAF.
+     * 
+     */
     public VariantVcfEVSFactory(Properties tagMap) {
         super(tagMap);
     }

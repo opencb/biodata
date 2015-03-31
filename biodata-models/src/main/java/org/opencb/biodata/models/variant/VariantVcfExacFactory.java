@@ -23,20 +23,29 @@ public class VariantVcfExacFactory extends VariantAggregatedVcfFactory {
         this(null);
     }
 
+    /**
+     * @param tagMap Extends the VariantAggregatedVcfFactory(Properties properties) with two extra tags: Het and Hom. Example:
+     *
+     * SAS.AC = AC_SAS
+     * SAS.AN = AN_SAS
+     * SAS.HET=Het_SAS
+     * SAS.HOM=Hom_SAS
+     * ALL.AC =AC_Adj
+     * ALL.AN =AN_Adj
+     * ALL.HET=AC_Het
+     * ALL.HOM=AC_Hom
+     *              
+     * Het is the list of heterozygous counts as listed by VariantVcfExacFactory.getHeterozygousGenotype()
+     * Hom is the list of homozygous counts as listed by VariantVcfExacFactory.getHomozygousGenotype()
+     * 
+     */
     public VariantVcfExacFactory(Properties tagMap) {
         super(tagMap);
     }
 
+   
     @Override
-    protected void addStats(Variant variant, VariantSource source, int numAllele, String[] alternateAlleles, String info) {
-        if (tagMap == null) {
-            parseExacAttributes(variant, source, numAllele, alternateAlleles, info);
-        } else {
-            parseExacCohortAttributes(variant, source, numAllele, alternateAlleles, info);
-        }
-    }
-
-    private void parseExacAttributes(Variant variant, VariantSource source, int numAllele, String[] alternateAlleles, String info) {
+    protected void parseStats(Variant variant, VariantSource source, int numAllele, String[] alternateAlleles, String info) {
         VariantSourceEntry sourceEntry = variant.getSourceEntry(source.getFileId(), source.getStudyId());
         VariantStats stats = new VariantStats(variant);
         
@@ -70,8 +79,8 @@ public class VariantVcfExacFactory extends VariantAggregatedVcfFactory {
     }
 
 
-
-    private void parseExacCohortAttributes(Variant variant, VariantSource source, int numAllele, String[] alternateAlleles, String info) {
+    @Override
+    protected void parseCohortStats(Variant variant, VariantSource source, int numAllele, String[] alternateAlleles, String info) {
         VariantSourceEntry sourceEntry = variant.getSourceEntry(source.getFileId(), source.getStudyId());
         String[] attributes = info.split(";");
         Map<String, Integer> ans = new LinkedHashMap<>();
