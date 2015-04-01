@@ -4,10 +4,7 @@ import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,12 +14,19 @@ import java.util.regex.Pattern;
  * @author Jose Miguel Mut Lopez &lt;jmmut@ebi.ac.uk&gt;
  */
 public class VariantAggregatedVcfFactory extends VariantVcfFactory {
+
+    private final Pattern singleNuc = Pattern.compile("^[ACTG]$");
+    private final Pattern singleRef = Pattern.compile("^R$");
+    private final Pattern refAlt = Pattern.compile("^([ACTG])([ACTG])$");
+    private final Pattern refRef = Pattern.compile("^R{2}$");
+    private final Pattern altNum = Pattern.compile("^A(\\d+)$");
+    private final Pattern altNumaltNum = Pattern.compile("^A(\\d+)A(\\d+)$");
+    private final Pattern altNumRef = Pattern.compile("^A(\\d+)R$");
+
+    private final Pattern numNum = Pattern.compile("^(\\d+)[|/](\\d+)$");
     
     protected Properties tagMap;
     protected Map<String, String> reverseTagMap;
-
-    private final Pattern numNum = Pattern.compile("^(\\d+)[|/](\\d+)$");
-    private final Pattern missing = Pattern.compile("^(\\.)[|/](\\.)$");
 
     public VariantAggregatedVcfFactory() {
         this(null);
@@ -97,7 +101,7 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
             String[] assignment = attribute.split("=");
             
             if (assignment.length == 2 && (assignment[0].equals("AC") || assignment[0].equals("AN") 
-                    || assignment[0].equals("AF") || assignment[0].equals("GTC"))) {
+                    || assignment[0].equals("AF") || assignment[0].equals("GTC") || assignment[0].equals("GTS"))) {
                 stats.put(assignment[0], assignment[1]);
             }
         }
@@ -182,37 +186,45 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
         }
         if (attributes.containsKey("GTC")) {
             String[] gtcs = attributes.get("GTC").split(",");
-            for (int i = 0; i < gtcs.length; i++) {
-                String[] gtcSplit = gtcs[i].split(":");
-                Integer alleles[] = new Integer[2];
-                Integer gtc = 0;
-                String gt = null;
-                boolean parseable = true;
-                if (gtcSplit.length == 1) {
-                    getGenotype(i, alleles);
-                    gtc = Integer.parseInt(gtcs[i]);
-                    gt = mapToMultiallelicIndex(alleles[0], numAllele) + "/" + mapToMultiallelicIndex(alleles[1], numAllele);
-                } else {
-                    Matcher matcher = numNum.matcher(gtcSplit[0]);
-                    if (matcher.matches()) {
-                        alleles[0] = Integer.parseInt(matcher.group(1));
-                        alleles[1] = Integer.parseInt(matcher.group(2));
-                        gtc = Integer.parseInt(gtcSplit[1]);
+            if (attributes.containsKey("GTS")) {    // GTS contains the format like: GTS=GG,GT,TT or GTS=A1A1,A1R,RR
+                String[] gts = attributes.get("GTS").split(",");
+                for (int i = 0; i < gtcs.length; i++) {
+                    Genotype genotype = parseGenotype(gts[i], variant, numAllele, alternateAlleles);
+                    variantStats.addGenotype(genotype, Integer.parseInt(gtcs[i]));
+                }
+            } else {
+                for (int i = 0; i < gtcs.length; i++) {
+                    String[] gtcSplit = gtcs[i].split(":");
+                    Integer alleles[] = new Integer[2];
+                    Integer gtc = 0;
+                    String gt = null;
+                    boolean parseable = true;
+                    if (gtcSplit.length == 1) { // GTC=0,5,8
+                        getGenotype(i, alleles);
+                        gtc = Integer.parseInt(gtcs[i]);
                         gt = mapToMultiallelicIndex(alleles[0], numAllele) + "/" + mapToMultiallelicIndex(alleles[1], numAllele);
-                    } else {
-                        if (gtcSplit[0].equals("./.")) {
-                            alleles[0] = -1;
-                            alleles[1] = -1;
+                    } else {    // GTC=0/0:0,0/1:5,1/1:8
+                        Matcher matcher = numNum.matcher(gtcSplit[0]);
+                        if (matcher.matches()) {    
+                            alleles[0] = Integer.parseInt(matcher.group(1));
+                            alleles[1] = Integer.parseInt(matcher.group(2));
                             gtc = Integer.parseInt(gtcSplit[1]);
-                            gt = "./.";
-                        } else {
-                            parseable = false;
+                            gt = mapToMultiallelicIndex(alleles[0], numAllele) + "/" + mapToMultiallelicIndex(alleles[1], numAllele);
+                        } else {    
+                            if (gtcSplit[0].equals("./.")) {
+                                alleles[0] = -1;
+                                alleles[1] = -1;
+                                gtc = Integer.parseInt(gtcSplit[1]);
+                                gt = "./.";
+                            } else {
+                                parseable = false;
+                            }
                         }
                     }
-                }
-                if (parseable) {
-                    Genotype genotype = new Genotype(gt, variant.getReference(), alternateAlleles[numAllele]);
-                    variantStats.addGenotype(genotype, gtc);
+                    if (parseable) {
+                        Genotype genotype = new Genotype(gt, variant.getReference(), alternateAlleles[numAllele]);
+                        variantStats.addGenotype(genotype, gtc);
+                    }
                 }
             }
         }
@@ -242,5 +254,78 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
                 cursor++;
             }
         }
+    }
+
+    protected Genotype parseGenotype(String gt, Variant variant, int numAllele, String[] alternateAlleles) {
+        Genotype g;
+        Matcher m;
+
+        m = singleNuc.matcher(gt);
+
+        if (m.matches()) { // A,C,T,G
+            g = new Genotype(gt + "/" + gt, variant.getReference(), variant.getAlternate());
+            return g;
+        }
+        m = singleRef.matcher(gt);
+        if (m.matches()) { // R
+            g = new Genotype(variant.getReference() + "/" + variant.getReference(), variant.getReference(), variant.getAlternate());
+            return g;
+        }
+
+        m = refAlt.matcher(gt);
+        if (m.matches()) { // AA,AC,TT,GT,...
+            String ref = m.group(1);
+            String alt = m.group(2);
+
+            int allele1 = (Arrays.asList(alternateAlleles).indexOf(ref) + 1);
+            int allele2 = (Arrays.asList(alternateAlleles).indexOf(alt) + 1);
+
+            int val1 = mapToMultiallelicIndex(allele1, numAllele);
+            int val2 = mapToMultiallelicIndex(allele2, numAllele);
+
+            return new Genotype(val1 + "/" + val2, variant.getReference(), variant.getAlternate());
+            
+//            if ((allele1 == 0 || allele1 == (numAllele + 1)) && (allele2 == 0 || allele2 == (numAllele + 1))) {
+//
+//                allele1 = allele1 > 1 ? 1 : allele1;
+//                allele2 = allele2 > 1 ? 1 : allele2;
+//                g = new Genotype(allele1 + "/" + allele2, variant.getReference(), variant.getAlternate());
+//
+//                return g;
+//            } else {
+//                return new Genotype("./.", variant.getReference(), variant.getAlternate());
+//            }
+        }
+
+        m = refRef.matcher(gt);
+        if (m.matches()) { // RR
+            g = new Genotype(variant.getReference() + "/" + variant.getReference(), variant.getReference(), variant.getAlternate());
+            return g;
+        }
+
+        m = altNum.matcher(gt);
+        if (m.matches()) { // A1,A2,A3
+            int val = Integer.parseInt(m.group(1));
+            val = mapToMultiallelicIndex(val, numAllele);
+            return new Genotype(val + "/" + val, variant.getReference(), variant.getAlternate());
+        }
+
+        m = altNumaltNum.matcher(gt);
+        if (m.matches()) { // A1A2,A1A3...
+            int val1 = Integer.parseInt(m.group(1));
+            int val2 = Integer.parseInt(m.group(2));
+            val1 = mapToMultiallelicIndex(val1, numAllele);
+            val2 = mapToMultiallelicIndex(val2, numAllele);
+            return new Genotype(val1 + "/" + val2, variant.getReference(), variant.getAlternate());
+        }
+
+        m = altNumRef.matcher(gt);
+        if (m.matches()) { // A1R, A2R
+            int val1 = Integer.parseInt(m.group(1));
+            val1 = mapToMultiallelicIndex(val1, numAllele);
+            return new Genotype(val1 + "/" + 0, variant.getReference(), variant.getAlternate());
+        }
+
+        return null;
     }
 }
