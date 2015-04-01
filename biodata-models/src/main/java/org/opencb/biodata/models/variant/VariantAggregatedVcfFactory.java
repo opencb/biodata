@@ -106,7 +106,7 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
             }
         }
         
-        addStats(variant, numAllele, alternateAlleles, stats, vs);
+        addStats(variant, file, numAllele, alternateAlleles, stats, vs);
         
         file.setStats(vs);
     }
@@ -134,13 +134,13 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
 
         for (String cohortName : cohortStats.keySet()) {
             VariantStats vs = new VariantStats(variant);
-            addStats(variant, numAllele, alternateAlleles, cohortStats.get(cohortName), vs);
+            addStats(variant, file, numAllele, alternateAlleles, cohortStats.get(cohortName), vs);
             file.setCohortStats(cohortName, vs);
         }
         
     }
 
-    protected void addStats(Variant variant, int numAllele, String[] alternateAlleles, Map<String, String> attributes, VariantStats variantStats) {
+    protected void addStats(Variant variant, VariantSourceEntry sourceEntry, int numAllele, String[] alternateAlleles, Map<String, String> attributes, VariantStats variantStats) {
 
         if (attributes.containsKey("AN") && attributes.containsKey("AC")) {
             int total = Integer.parseInt(attributes.get("AN"));
@@ -186,12 +186,8 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
         }
         if (attributes.containsKey("GTC")) {
             String[] gtcs = attributes.get("GTC").split(",");
-            if (attributes.containsKey("GTS")) {    // GTS contains the format like: GTS=GG,GT,TT or GTS=A1A1,A1R,RR
-                String[] gts = attributes.get("GTS").split(",");
-                for (int i = 0; i < gtcs.length; i++) {
-                    Genotype genotype = parseGenotype(gts[i], variant, numAllele, alternateAlleles);
-                    variantStats.addGenotype(genotype, Integer.parseInt(gtcs[i]));
-                }
+            if (sourceEntry.hasAttribute("GTS")) {    // GTS contains the format like: GTS=GG,GT,TT or GTS=A1A1,A1R,RR
+                addGenotypeWithGTS(variant, sourceEntry, gtcs, alternateAlleles, numAllele, variantStats);
             } else {
                 for (int i = 0; i < gtcs.length; i++) {
                     String[] gtcSplit = gtcs[i].split(":");
@@ -205,13 +201,13 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
                         gt = mapToMultiallelicIndex(alleles[0], numAllele) + "/" + mapToMultiallelicIndex(alleles[1], numAllele);
                     } else {    // GTC=0/0:0,0/1:5,1/1:8
                         Matcher matcher = numNum.matcher(gtcSplit[0]);
-                        if (matcher.matches()) {    
+                        if (matcher.matches()) {    // number/number:number
                             alleles[0] = Integer.parseInt(matcher.group(1));
                             alleles[1] = Integer.parseInt(matcher.group(2));
                             gtc = Integer.parseInt(gtcSplit[1]);
                             gt = mapToMultiallelicIndex(alleles[0], numAllele) + "/" + mapToMultiallelicIndex(alleles[1], numAllele);
                         } else {    
-                            if (gtcSplit[0].equals("./.")) {
+                            if (gtcSplit[0].equals("./.")) {    // ./.:number
                                 alleles[0] = -1;
                                 alleles[1] = -1;
                                 gtc = Integer.parseInt(gtcSplit[1]);
@@ -328,4 +324,23 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
 
         return null;
     }
+
+    protected void addGenotypeWithGTS(Variant variant, VariantSourceEntry sourceEntry, String[] splitsGTC, String[] alternateAlleles
+            , int numAllele, VariantStats cohortStats) {
+        if (sourceEntry.hasAttribute("GTS")) {
+            String splitsGTS[] = sourceEntry.getAttribute("GTS").split(",");
+            if (splitsGTC.length == splitsGTS.length) {
+                for (int i = 0; i < splitsGTC.length; i++) {
+                    String gt = splitsGTS[i];
+                    int gtCount = Integer.parseInt(splitsGTC[i]);
+                    
+                    Genotype g = parseGenotype(gt, variant, numAllele, alternateAlleles);
+                    if (g != null) {
+                        cohortStats.addGenotype(g, gtCount);
+                    }
+                }
+            }
+        }
+    }
 }
+

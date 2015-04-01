@@ -1,14 +1,8 @@
 package org.opencb.biodata.models.variant;
 
-import org.opencb.biodata.models.feature.Genotype;
-import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
@@ -82,7 +76,7 @@ public class VariantVcfEVSFactory extends VariantAggregatedVcfFactory {
 
         if (file.hasAttribute("GTS") && file.hasAttribute("GTC")) {
             String splitsGTC[] = file.getAttribute("GTC").split(",");
-            addGenotype(variant, file, splitsGTC, alternateAlleles, numAllele, stats);
+            addGenotypeWithGTS(variant, file, splitsGTC, alternateAlleles, numAllele, stats);
         }
         file.setStats(stats);
     }
@@ -116,7 +110,7 @@ public class VariantVcfEVSFactory extends VariantAggregatedVcfFactory {
                                 // TODO implement this. also, take into account that needed fields may not be processed yet
                                 break;
                             case "GTC":
-                                addGenotype(variant, sourceEntry, values, alternateAlleles, numAllele, cohortStats);
+                                addGenotypeWithGTS(variant, sourceEntry, values, alternateAlleles, numAllele, cohortStats);
                                 break;
                             default:
                                 break;
@@ -141,24 +135,6 @@ public class VariantVcfEVSFactory extends VariantAggregatedVcfFactory {
                 }
             }
             // TODO reprocess stats to complete inferable values. A StatsHolder may be needed to keep values not storables in VariantStats
-        }
-    }
-
-    private void addGenotype(Variant variant, VariantSourceEntry sourceEntry, String[] splitsGTC, String[] alternateAlleles
-            , int numAllele, VariantStats cohortStats) {
-        if (sourceEntry.hasAttribute("GTS")) {
-            String splitsGTS[] = sourceEntry.getAttribute("GTS").split(",");
-            if (splitsGTC.length == splitsGTS.length) {
-                for (int i = 0; i < splitsGTC.length; i++) {
-                    String gt = splitsGTS[i];
-                    int gtCount = Integer.parseInt(splitsGTC[i]);
-                    
-                    Genotype g = parseGenotype(gt, variant, numAllele, alternateAlleles);
-                    if (g != null) {
-                        cohortStats.addGenotype(g, gtCount);
-                    }
-                }
-            }
         }
     }
 
