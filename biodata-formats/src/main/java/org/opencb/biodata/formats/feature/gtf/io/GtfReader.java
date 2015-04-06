@@ -14,7 +14,7 @@ import org.opencb.biodata.formats.io.FileFormatException;
 import org.opencb.commons.utils.FileUtils;
 
 
-public class GtfReader {
+public class GtfReader implements AutoCloseable {
 
     private BufferedReader bufferedReader;
     private File file;
