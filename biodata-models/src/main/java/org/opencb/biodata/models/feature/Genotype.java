@@ -44,7 +44,7 @@ public class Genotype {
         for (int i = 0; i < alleles.length; i++) {
             String allele = alleles[i];
             
-            if (allele.equals(".")) {
+            if (allele.equals(".") || allele.equals("-1")) {
                 this.code = AllelesCode.ALLELES_MISSING;
                 this.allelesIdx[i] = -1;
             } else {
