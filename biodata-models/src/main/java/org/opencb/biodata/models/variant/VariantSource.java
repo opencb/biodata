@@ -17,7 +17,7 @@ public class VariantSource {
     private String studyId;
     private String studyName;
 
-    public enum Aggregation { NONE, BASIC, EVS };
+    public enum Aggregation { NONE, BASIC, EVS, EXAC};
     private Aggregation aggregation;
 
     private Map<String, Integer> samplesPosition;

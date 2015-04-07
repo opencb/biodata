@@ -30,12 +30,12 @@ public class GAVariantFactory {
                 
                 GAVariant ga;
                 if (vcfLine.length > 8) {
-                    ga = new GAVariant(id, file.getFileId(), vcfLine[2].split(","), System.currentTimeMillis(), System.currentTimeMillis(), 
+                    ga = new GAVariant(id, file.getFileId(), vcfLine[2].split(";"), System.currentTimeMillis(), System.currentTimeMillis(),
                             vcfLine[0], Integer.parseInt(vcfLine[1]), Integer.parseInt(vcfLine[1]) + vcfLine[3].length(), 
-                            vcfLine[3], vcfLine[4].split(","), parseInfo(vcfLine[7].split(";")), 
+                            vcfLine[3], vcfLine[4].split(","), parseInfo(vcfLine[7].split(";")),
                             parseCalls(vcfLine[8].split(":"), Arrays.copyOfRange(vcfLine, 9, vcfLine.length), file.getFileId()));
                 } else {
-                    ga = new GAVariant(id, file.getFileId(), vcfLine[2].split(","), System.currentTimeMillis(), System.currentTimeMillis(), 
+                    ga = new GAVariant(id, file.getFileId(), vcfLine[2].split(";"), System.currentTimeMillis(), System.currentTimeMillis(),
                             vcfLine[0], Integer.parseInt(vcfLine[1]), Integer.parseInt(vcfLine[1]) + vcfLine[3].length(), 
                             vcfLine[3], vcfLine[4].split(","), parseInfo(vcfLine[7].split(";")), null);
                 }

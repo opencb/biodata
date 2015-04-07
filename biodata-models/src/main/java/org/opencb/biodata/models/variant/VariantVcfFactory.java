@@ -12,6 +12,7 @@ import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleFi
 /**
  * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
+ * @author Jose Miguel Mut Lopez &lt;jmmut@ebi.ac.uk&gt;
  */
 public class VariantVcfFactory implements VariantFactory {
 
@@ -41,6 +42,7 @@ public class VariantVcfFactory implements VariantFactory {
         String chromosome = fields[0];
         int position = Integer.parseInt(fields[1]);
         String id = fields[2].equals(".") ? "" : fields[2];
+        Set<String> ids = new HashSet<>(Arrays.asList(id.split(";")));
         String reference = fields[3].equals(".") ? "" : fields[3];
         String alternate = fields[4].equals(".") ? "" : fields[4];
         String[] alternateAlleles = alternate.split(",");
@@ -87,7 +89,7 @@ public class VariantVcfFactory implements VariantFactory {
             try {
                 parseSplitSampleData(variant, source, fields, alternateAlleles, secondaryAlternates, i + 1);
                 // Fill the rest of fields (after samples because INFO depends on them)
-                setOtherFields(variant, source, id, quality, filter, info, format, keyFields.getNumAllele(), alternateAlleles, line);
+                setOtherFields(variant, source, ids, quality, filter, info, format, keyFields.getNumAllele(), alternateAlleles, line);
                 variants.add(variant);
             } catch (NonStandardCompliantSampleField ex) {
                 Logger.getLogger(VariantFactory.class.getName()).log(Level.SEVERE,
@@ -312,11 +314,11 @@ public class VariantVcfFactory implements VariantFactory {
         return true;
     }
 
-    protected void setOtherFields(Variant variant, VariantSource source, String id, float quality, String filter, 
+    protected void setOtherFields(Variant variant, VariantSource source, Set<String> ids, float quality, String filter,
             String info, String format, int numAllele, String[] alternateAlleles, String line) {
         // Fields not affected by the structure of REF and ALT fields
-        if (!id.isEmpty()) {
-            variant.setId(id);
+        if (!ids.isEmpty()) {
+            variant.setIds(ids);
         }
         if (quality > -1) {
             variant.getSourceEntry(source.getFileId(), source.getStudyId()).addAttribute("QUAL", String.valueOf(quality));
@@ -415,5 +417,31 @@ public class VariantVcfFactory implements VariantFactory {
         public int getNumAllele() {
             return numAllele;
         }
+    }
+
+    /**
+     * In multiallelic variants, we have a list of alternates, where numAllele is the one whose variant we are parsing now.
+     * If we are parsing the first variant (numAllele == 0) A1 refers to first alternative, (i.e. alternateAlleles[0]), A2 to 
+     * second alternative (alternateAlleles[1]), and so on.
+     * However, if numAllele == 1, A1 refers to second alternate (alternateAlleles[1]), A2 to first (alternateAlleles[0]) and higher alleles remain unchanged.
+     * Moreover, if NumAllele == 2, A1 is third alternate, A2 is first alternate and A3 is second alternate.
+     * It's also assumed that A0 would be the reference, so it remains unchanged too.
+     *
+     * This pattern of the first allele moving along (and swapping) is what describes this function. 
+     * Also, look VariantVcfFactory.getSecondaryAlternates().
+     * @param parsedAllele the value of parsed alleles. e.g. 1 if genotype was "A1" (first allele).
+     * @param numAllele current variant of the alternates.
+     * @return the correct allele index depending on numAllele.
+     */
+    protected static int mapToMultiallelicIndex (int parsedAllele, int numAllele) {
+        int correctedAllele = parsedAllele;
+        if (parsedAllele > 0) {
+            if (parsedAllele == numAllele + 1) {
+                correctedAllele = 1;
+            } else if (parsedAllele < numAllele + 1) {
+                correctedAllele = parsedAllele + 1;
+            }
+        }
+        return correctedAllele;
     }
 }

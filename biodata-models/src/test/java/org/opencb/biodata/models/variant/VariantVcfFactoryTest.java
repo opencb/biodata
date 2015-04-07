@@ -11,6 +11,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
+ * @author Jose Miguel Mut Lopez &lt;jmmut@ebi.ac.uk&gt;
  */
 public class VariantVcfFactoryTest {
 
