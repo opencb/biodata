@@ -93,7 +93,6 @@ public class VepFormatWriter implements DataWriter<VariantAnnotation> {
             } else {
                 pos = Integer.toString(variantAnnotation.getStart());
             }
-            // Alternate length may be > 1 if it contains <DEL>
         } else if(variantAnnotation.getReferenceAllele().equals("-")) {
             // Short insertion
             alt = variantAnnotation.getAlternativeAllele();

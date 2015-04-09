@@ -190,6 +190,13 @@ public class ConsequenceType {
         this.soTerms = soTerms;
     }
 
+    public void setSoTermsFromSoNames(List<String> soNameList) {
+        this.soTerms = new ArrayList<>(soNameList.size());
+        for(String soName : soNameList) {
+            this.soTerms.add(new ConsequenceTypeEntry(soName));
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
