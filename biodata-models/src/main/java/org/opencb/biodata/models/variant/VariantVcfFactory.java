@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.feature.AllelesCode;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
+import org.opencb.biodata.models.variant.exceptions.NotAVariantException;
 
 /**
  * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
@@ -31,10 +32,13 @@ public class VariantVcfFactory implements VariantFactory {
      * from a VCF record
      */
     @Override
-    public List<Variant> create(VariantSource source, String line) throws IllegalArgumentException {
+    public List<Variant> create(VariantSource source, String line) throws IllegalArgumentException, NotAVariantException {
         String[] fields = line.split("\t");
         if (fields.length < 8) {
             throw new IllegalArgumentException("Not enough fields provided (min 8)");
+        }
+        if(fields[4].equals(".")) {
+            throw new NotAVariantException("Alternative allele is a '.'. This is not an actual variant but a reference position.");
         }
 
         List<Variant> variants = new LinkedList<>();
@@ -44,7 +48,8 @@ public class VariantVcfFactory implements VariantFactory {
         String id = fields[2].equals(".") ? "" : fields[2];
         Set<String> ids = new HashSet<>(Arrays.asList(id.split(";")));
         String reference = fields[3].equals(".") ? "" : fields[3];
-        String alternate = fields[4].equals(".") ? "" : fields[4];
+        String alternate = fields[4];
+//        String alternate = fields[4].equals(".") ? "" : fields[4];
         String[] alternateAlleles = alternate.split(",");
         float quality = fields[5].equals(".") ? -1 : Float.parseFloat(fields[5]);
         String filter = fields[6].equals(".") ? "" : fields[6];
