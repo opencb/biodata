@@ -9,6 +9,7 @@ import org.opencb.biodata.models.variant.VariantVcfFactory;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFactory;
 import org.opencb.biodata.models.variant.VariantSource;
+import org.opencb.biodata.models.variant.exceptions.NotAVariantException;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -116,13 +117,19 @@ public class VariantVcfReader implements VariantReader {
         try {
             while ((line = reader.readLine()) != null && (line.trim().equals("") || line.startsWith("#"))) ;
 
-            if (line != null) {
-                List<Variant> variants;
-
-                variants = factory.create(source, line);
-
-                return variants;
+            Boolean isReference=true;
+            List<Variant> variants = null;
+            // Look for a non reference position (alternative != '.')
+            while (line != null && isReference) {
+                try {
+                    variants = factory.create(source, line);
+                    isReference = false;
+                } catch (NotAVariantException e) {  // This line represents a reference position (alternative = '.')
+                    line = reader.readLine();
+                }
             }
+            return variants;
+
         } catch (IOException ex) {
             Logger.getLogger(VariantVcfReader.class.getName()).log(Level.SEVERE, null, ex);
         }
