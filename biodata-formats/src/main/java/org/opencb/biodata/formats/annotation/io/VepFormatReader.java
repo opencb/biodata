@@ -95,8 +95,18 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
                             Integer.valueOf(variantMap.get("end")), variantMap.get("reference"),
                             variantMap.get("alternative"));
                     currentVariantString = lineFields[0];  // save the strings representing coordinates and
+
+                    /**
+                     * parses extra column, creates a ConsequenceType object which is assigned to currentAnnotation and populates fields as required
+                     * true parameter indicates the function to also parse frequencies
+                     */
+                    parseExtraField(lineFields[13], true);
+                } else {
+                    /**
+                     * false indicates the function to skip frequency attributes (were already parsed the first time this variant was seen)
+                     */
+                    parseExtraField(lineFields[13], false);
                 }
-                parseExtraField(lineFields[13]);  // parses extra column, creates a ConsequenceType object which is assigned to currentAnnotation and populates fields as required
                 // Remaining fields only of interest if the feature is a transcript
                 if(lineFields[5].toLowerCase().equals("transcript")) {
                     parseRemainingFields(lineFields);
@@ -143,7 +153,7 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
                 .setSoTermsFromSoNames(Arrays.asList(lineFields[6].split(",")));
     }
 
-    private void parseExtraField(String extraField) {
+    private void parseExtraField(String extraField, Boolean parseFrequencies) {
 
         ConsequenceType consequenceType = new ConsequenceType();
         if(currentAnnotation.getPopulationFrequencies()==null) {
@@ -160,20 +170,28 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
 
             switch (keyValue[0].toLowerCase()) {
                 case "aa_maf":
-                    currentAnnotation.getPopulationFrequencies().add(parsePopulationFrequency(keyValue[1], "ESP_6500",
-                            "African_American"));
+                    if(parseFrequencies) {
+                        currentAnnotation.getPopulationFrequencies().add(parsePopulationFrequency(keyValue[1], "ESP_6500",
+                                "African_American"));
+                    }
                     break;
                 case "afr_maf":
-                    currentAnnotation.getPopulationFrequencies().add(parsePopulationFrequency(keyValue[1], "1000GENOMES",
-                            "phase_1_AFR"));
+                    if(parseFrequencies) {
+                        currentAnnotation.getPopulationFrequencies().add(parsePopulationFrequency(keyValue[1], "1000GENOMES",
+                                "phase_1_AFR"));
+                    }
                     break;
                 case "amr_maf":
-                    currentAnnotation.getPopulationFrequencies().add(parsePopulationFrequency(keyValue[1], "1000GENOMES",
-                            "phase_1_AMR"));
+                    if(parseFrequencies) {
+                        currentAnnotation.getPopulationFrequencies().add(parsePopulationFrequency(keyValue[1], "1000GENOMES",
+                                "phase_1_AMR"));
+                    }
                     break;
                 case "asn_maf":
-                    currentAnnotation.getPopulationFrequencies().add(parsePopulationFrequency(keyValue[1], "1000GENOMES",
-                            "phase_1_ASN"));
+                    if(parseFrequencies) {
+                        currentAnnotation.getPopulationFrequencies().add(parsePopulationFrequency(keyValue[1], "1000GENOMES",
+                                "phase_1_ASN"));
+                    }
                     break;
                 case "biotype":
                     consequenceType.setBiotype(keyValue[1]);
@@ -197,22 +215,28 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
 //                    variantEffect.setProteinDomains(keyValue[1].split(","));
 //                    break;
                 case "ea_maf":
-                    currentAnnotation.getPopulationFrequencies().add(parsePopulationFrequency(keyValue[1], "ESP_6500",
-                            "European_American"));
+                    if(parseFrequencies) {
+                        currentAnnotation.getPopulationFrequencies().add(parsePopulationFrequency(keyValue[1], "ESP_6500",
+                                "European_American"));
+                    }
                     break;
 //                case "ensp":
 //                    variantEffect.setProteinId(keyValue[1]);
 //                    break;
                 case "eur_maf":
-                    currentAnnotation.getPopulationFrequencies().add(parsePopulationFrequency(keyValue[1], "1000GENOMES",
-                            "phase_1_EUR"));
+                    if(parseFrequencies) {
+                        currentAnnotation.getPopulationFrequencies().add(parsePopulationFrequency(keyValue[1], "1000GENOMES",
+                                "phase_1_EUR"));
+                    }
                     break;
 //                case "exon":
 //                    variantEffect.setExonNumber(keyValue[1]);
 //                    break;
                 case "gmaf": // Format is GMAF=G:0.2640  or  GMAF=T:0.1221,-:0.0905
-                    currentAnnotation.getPopulationFrequencies().add(parsePopulationFrequency(keyValue[1], "1000GENOMES",
-                            "phase_1_ALL"));
+                    if(parseFrequencies) {
+                        currentAnnotation.getPopulationFrequencies().add(parsePopulationFrequency(keyValue[1], "1000GENOMES",
+                                "phase_1_ALL"));
+                    }
                     break;
                 case "hgvsc":
                     currentAnnotation.getHgvs().add(keyValue[1]);
