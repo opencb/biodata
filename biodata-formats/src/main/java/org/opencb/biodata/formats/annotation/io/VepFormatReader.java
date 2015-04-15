@@ -118,8 +118,19 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
                 line = reader.readLine();
             }
 
-            // Check the weird case of just one variant in the file
-            return variantAnnotationToReturn==null?Collections.singletonList(currentAnnotation):Collections.singletonList(variantAnnotationToReturn);
+            /**
+             * End of file.
+             */
+            if(line==null) {
+                // Last variant was read, no more to read. Return last read variant and leave currentAnnotation=null so that if read() is called again, null will be returned
+                if(currentAnnotation!=null) {
+                    variantAnnotationToReturn = currentAnnotation;
+                    currentAnnotation = null;
+                } else {
+                    return null;
+                }
+            }
+            return Collections.singletonList(variantAnnotationToReturn);
 
         } catch (IOException e) {
             e.printStackTrace();
