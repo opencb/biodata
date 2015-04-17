@@ -11,10 +11,11 @@ public class VepFormatReaderTest {
 
     @Test
     public void testRead() throws Exception {
-        VepFormatReader vepFormatReader = new VepFormatReader("/tmp/test.vep");
+        VepFormatReader vepFormatReader = new VepFormatReader("/home/fjlopez/EBI/eva/data/clinvar.vep");
+//        VepFormatReader vepFormatReader = new VepFormatReader("/tmp/test1.vep");
         vepFormatReader.open();
         vepFormatReader.pre();
-        List<VariantAnnotation> variantAnnotationList = vepFormatReader.read(3);
+        List<VariantAnnotation> variantAnnotationList = vepFormatReader.read(1000);
         vepFormatReader.post();
         vepFormatReader.close();
     }
