@@ -1,13 +1,16 @@
 package org.opencb.biodata.formats.annotation.io;
 
-import com.google.common.base.Predicate;
-import org.opencb.biodata.formats.variant.vcf4.*;
 import org.opencb.biodata.formats.variant.vcf4.io.VariantVcfReader;
-import org.opencb.biodata.models.variant.annotation.*;
+import org.opencb.biodata.models.variant.annotation.ConsequenceType;
+import org.opencb.biodata.models.variant.annotation.Score;
+import org.opencb.biodata.models.variant.annotation.VariantAnnotation;
 import org.opencb.biodata.models.variation.PopulationFrequency;
 import org.opencb.commons.io.DataReader;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,16 +26,10 @@ import java.util.zip.GZIPInputStream;
 public class VepFormatReader implements DataReader<VariantAnnotation> {
 
     private BufferedReader reader;
-    private List<Predicate<VcfRecord>> vcfFilters;
-    private Predicate<VcfRecord> andVcfFilters;
-    private File file;
     private Path path;
     private String filename;
     private String currentVariantString = "";
-    private String currentAlt = "";
     private VariantAnnotation currentAnnotation = null;
-
-
     public VepFormatReader(String filename) { this.filename = filename; }
 
     @Override
@@ -85,7 +82,6 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
             while ((line != null) && noNewVariantFound) {
                 ConsequenceType consequenceType = new ConsequenceType();
                 String[] lineFields = line.split("\t");
-                String alt;
                 // strings representing the current and the read are compared
                 if (!currentVariantString.equals(lineFields[0])) {
                     noNewVariantFound = (currentAnnotation==null);  // currentAnnotation==null only in the first iteration.
@@ -114,6 +110,13 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
                     if(lineFields.length>13) {
                         parseExtraField(consequenceType, lineFields[13], true);
                     }
+
+                    /**
+                     * Another line must be read if this is the first variant in the file
+                     */
+                    if(noNewVariantFound) {
+                        line = reader.readLine();
+                    }
                 } else {
                     /**
                      * Some lines do not have extra field and end with a \t: the split function above does not return that field
@@ -122,6 +125,7 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
                     if(lineFields.length>13) {
                         parseExtraField(consequenceType, lineFields[13], false);
                     }
+                    line = reader.readLine();
                 }
                 // Remaining fields only of interest if the feature is a transcript
                 if(lineFields[5].toLowerCase().equals("transcript")) {
@@ -131,7 +135,6 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
                     consequenceType.setSoTermsFromSoNames(Arrays.asList(lineFields[6].split(",")));   // fill so terms
                 }
                 currentAnnotation.getConsequenceTypes().add(consequenceType);
-                line = reader.readLine();
             }
 
             /**
