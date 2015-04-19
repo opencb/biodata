@@ -19,7 +19,7 @@ public class VepFormatReaderTest {
 //        VepFormatReader vepFormatReader = new VepFormatReader("/tmp/test1.vep");
         vepFormatReader.open();
         vepFormatReader.pre();
-        List<VariantAnnotation> variantAnnotationList = vepFormatReader.read(1000);
+        List<VariantAnnotation> variantAnnotationList = vepFormatReader.read(10000);
         vepFormatReader.post();
         vepFormatReader.close();
     }
