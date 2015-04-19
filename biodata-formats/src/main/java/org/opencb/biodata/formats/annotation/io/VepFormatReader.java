@@ -162,13 +162,13 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
         consequenceType.setEnsemblGeneId(lineFields[3]);    // fill Ensembl gene id
         consequenceType.setEnsemblTranscriptId(lineFields[4]);  // fill Ensembl transcript id
         if(!lineFields[7].equals("-")) {
-            consequenceType.setcDnaPosition(Integer.valueOf(lineFields[7]));    // fill cdna position
+            consequenceType.setcDnaPosition(Integer.valueOf(lineFields[7].split("-")[0]));    // fill cdna position
         }
         if(!lineFields[8].equals("-")) {
-            consequenceType.setCdsPosition(Integer.valueOf(lineFields[8]));  // fill cds position
+            consequenceType.setCdsPosition(Integer.valueOf(lineFields[8].split("-")[0]));  // fill cds position
         }
         if(!lineFields[9].equals("-")) {
-            consequenceType.setAaPosition(Integer.valueOf(lineFields[9]));    // fill aa position
+            consequenceType.setAaPosition(Integer.valueOf(lineFields[9].split("-")[0]));    // fill aa position
         }
         consequenceType.setAaChange(lineFields[10]);  // fill aa change
         consequenceType.setCodon(lineFields[11]); // fill codon change
