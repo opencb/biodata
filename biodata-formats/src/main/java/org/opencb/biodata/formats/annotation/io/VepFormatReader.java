@@ -371,8 +371,8 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
 
         try {
             String[] variantLocationFields = coordinatesString.split("[:-]");
-            parsedVariant.put("chromosome", variantLocationFields[0]);
-            parsedVariant.put("start", variantLocationFields[1]);
+//            parsedVariant.put("chromosome", variantLocationFields[0]);
+//            parsedVariant.put("start", variantLocationFields[1]);
             parsedVariant.put("end", (variantLocationFields.length > 2) ? variantLocationFields[2] : variantLocationFields[1]);
         } catch (ArrayIndexOutOfBoundsException e) {
             System.out.println("Unexpected format for column 2: "+coordinatesString);
@@ -388,6 +388,8 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
             String[] variantFields = variantString.split("[\\/]");
             //        String[] variantFields = variantString.split("[\\_\\/]");
             String[] leftVariantFields = variantFields[0].split("_");
+            parsedVariant.put("chromosome", leftVariantFields[0]);
+            parsedVariant.put("start", leftVariantFields[1]);
             parsedVariant.put("reference", leftVariantFields[2]);
             parsedVariant.put("alternative", variantFields[1]);
         } catch (ArrayIndexOutOfBoundsException e) {
