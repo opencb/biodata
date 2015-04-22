@@ -12,7 +12,7 @@ public class VepFormatReaderTest {
     @Test
     public void testRead() throws Exception {
 //        VepFormatReader vepFormatReader = new VepFormatReader("/home/fjlopez/EBI/eva/data/clinvar.vep");
-        VepFormatReader vepFormatReader = new VepFormatReader("/tmp/clinvar.vep");
+        VepFormatReader vepFormatReader = new VepFormatReader("/tmp/test.vep");
 //        VepFormatReader vepFormatReader = new VepFormatReader("/tmp/vep22.vep");
 //        VepFormatReader vepFormatReader = new VepFormatReader("/tmp/test.vep");
 //        VepFormatReader vepFormatReader = new VepFormatReader("/tmp/vep22.head.tsv");
