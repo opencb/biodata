@@ -67,7 +67,7 @@ public class PedigreePedReader implements PedigreeReader {
                 if (line.startsWith("#")) {
                     this.parseHeader(line);
                 } else {
-                    fields = line.split("\t");
+                    fields = line.split("\t", -1);
                     familyId = fields[0];
                     sampleId = fields[1];
                     fatherId = fields[2];
