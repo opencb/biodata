@@ -13,6 +13,7 @@ public class VariantStudy {
     
     public enum StudyType { 
         
+        COLLECTION("Collection"),
         FAMILY("Family"), 
         TRIO("Trio"), 
         CONTROL("Control Set"), 
@@ -20,8 +21,8 @@ public class VariantStudy {
         CASE_CONTROL("Case-Control"), 
         PAIRED("Paired"),
         PAIRED_TUMOR("Tumor vs. Matched-Normal"), 
-        COLLECTION("Curated Collection"),
-        TIME_SERIES("Time Series"); 
+        TIME_SERIES("Time Series"),
+        AGGREGATE("Aggregate"); 
     
         private final String symbol;
         
@@ -98,7 +99,8 @@ public class VariantStudy {
     }
 
     public VariantStudy(String studyName, String studyId, List<VariantSource> sources) {
-        this(studyName, studyId, sources, null, null, null, null, null, null, null, null, null, null, null, null, null, null, -1, -1);
+        this(studyName, studyId, sources, null, null, null, null, null, null, null, null, StudyType.COLLECTION, 
+             null, null, null, null, null, -1, -1);
     }
 
     public VariantStudy(String studyName, String studyId, List<VariantSource> sources, String description, int[] speciesId, 
