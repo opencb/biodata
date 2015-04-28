@@ -16,14 +16,18 @@
 
 package org.opencb.biodata.formats.annotation.io;
 
-import com.google.common.base.Predicate;
-import org.opencb.biodata.formats.variant.vcf4.*;
+import org.opencb.biodata.formats.protein.uniprot.v135jaxb.InteractantType;
 import org.opencb.biodata.formats.variant.vcf4.io.VariantVcfReader;
-import org.opencb.biodata.models.variant.annotation.*;
+import org.opencb.biodata.models.variant.annotation.ConsequenceType;
+import org.opencb.biodata.models.variant.annotation.Score;
+import org.opencb.biodata.models.variant.annotation.VariantAnnotation;
 import org.opencb.biodata.models.variation.PopulationFrequency;
 import org.opencb.commons.io.DataReader;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -39,16 +43,10 @@ import java.util.zip.GZIPInputStream;
 public class VepFormatReader implements DataReader<VariantAnnotation> {
 
     private BufferedReader reader;
-    private List<Predicate<VcfRecord>> vcfFilters;
-    private Predicate<VcfRecord> andVcfFilters;
-    private File file;
     private Path path;
     private String filename;
     private String currentVariantString = "";
-    private String currentAlt = "";
     private VariantAnnotation currentAnnotation = null;
-
-
     public VepFormatReader(String filename) { this.filename = filename; }
 
     @Override
@@ -99,8 +97,8 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
             while ((line = reader.readLine()) != null && (line.trim().equals("") || line.startsWith("#"))) ;
 
             while ((line != null) && noNewVariantFound) {
+                ConsequenceType consequenceType = new ConsequenceType();
                 String[] lineFields = line.split("\t");
-                String alt;
                 // strings representing the current and the read are compared
                 if (!currentVariantString.equals(lineFields[0])) {
                     noNewVariantFound = (currentAnnotation==null);  // currentAnnotation==null only in the first iteration.
@@ -110,22 +108,65 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
                             Integer.valueOf(variantMap.get("start")),
                             Integer.valueOf(variantMap.get("end")), variantMap.get("reference"),
                             variantMap.get("alternative"));
-                    currentVariantString = lineFields[0];  // save the strings representing coordinates and
+                    /**
+                     * Initialize list of consequence types
+                     */
+                    if(currentAnnotation.getConsequenceTypes()==null) {
+                        currentAnnotation.setConsequenceTypes(new ArrayList<ConsequenceType>());
+                    }
+
+                    /**
+                     * Save the string representing coordinates and
+                     */
+                    currentVariantString = lineFields[0];
+
+                    /**
+                     * parses extra column and populates fields as required. Some lines do not have extra field and end with a \t: the split function above does not return that field
+                     * true parameter indicates the function to also parse frequencies
+                     */
+                    if(lineFields.length>13) {
+                        parseExtraField(consequenceType, lineFields[13], true);
+                    }
+
+                    /**
+                     * Another line must be read if this is the first variant in the file
+                     */
+                    if(noNewVariantFound) {
+                        line = reader.readLine();
+                    }
+                } else {
+                    /**
+                     * Some lines do not have extra field and end with a \t: the split function above does not return that field
+                     * false indicates the function to skip frequency attributes (were already parsed the first time this variant was seen)
+                     */
+                    if(lineFields.length>13) {
+                        parseExtraField(consequenceType, lineFields[13], false);
+                    }
+                    line = reader.readLine();
                 }
-                parseExtraField(lineFields[13]);  // parses extra column, creates a ConsequenceType object which is assigned to currentAnnotation and populates fields as required
                 // Remaining fields only of interest if the feature is a transcript
                 if(lineFields[5].toLowerCase().equals("transcript")) {
-                    parseRemainingFields(lineFields);
+                    parseRemainingFields(consequenceType, lineFields);
                 // Otherwise just set SO terms
                 } else {
-                    currentAnnotation.getConsequenceTypes().get(currentAnnotation.getConsequenceTypes().size()-1)  // Get the last ConsequenceType object appended and fill so terms
-                            .setSoTermsFromSoNames(Arrays.asList(lineFields[6].split(",")));
+                    consequenceType.setSoTermsFromSoNames(Arrays.asList(lineFields[6].split(",")));   // fill so terms
                 }
-                line = reader.readLine();
+                currentAnnotation.getConsequenceTypes().add(consequenceType);
             }
 
-            // Check the weird case of just one variant in the file
-            return variantAnnotationToReturn==null?Collections.singletonList(currentAnnotation):Collections.singletonList(variantAnnotationToReturn);
+            /**
+             * End of file.
+             */
+            if(line==null) {
+                // Last variant was read, no more to read. Return last read variant and leave currentAnnotation=null so that if read() is called again, null will be returned
+                if(currentAnnotation!=null) {
+                    variantAnnotationToReturn = currentAnnotation;
+                    currentAnnotation = null;
+                } else {
+                    return null;
+                }
+            }
+            return Collections.singletonList(variantAnnotationToReturn);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -134,62 +175,77 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
         return null;
     }
 
-    private void parseRemainingFields(String[] lineFields) {
-        currentAnnotation.getConsequenceTypes().get(currentAnnotation.getConsequenceTypes().size()-1)  // Get the last ConsequenceType object appended and fill Ensembl gene id
-                .setEnsemblGeneId(lineFields[3]);
-        currentAnnotation.getConsequenceTypes().get(currentAnnotation.getConsequenceTypes().size()-1)  // Get the last ConsequenceType object appended and fill Ensembl transcript id
-                .setEnsemblTranscriptId(lineFields[4]);
+    private void parseRemainingFields(ConsequenceType consequenceType, String[] lineFields) {
+        consequenceType.setEnsemblGeneId(lineFields[3]);    // fill Ensembl gene id
+        consequenceType.setEnsemblTranscriptId(lineFields[4]);  // fill Ensembl transcript id
         if(!lineFields[7].equals("-")) {
-            currentAnnotation.getConsequenceTypes().get(currentAnnotation.getConsequenceTypes().size() - 1)  // Get the last ConsequenceType object appended and fill cdna position
-                    .setcDnaPosition(Integer.valueOf(lineFields[7]));
+            consequenceType.setcDnaPosition(parseStringInterval(lineFields[7]));    // fill cdna position
         }
         if(!lineFields[8].equals("-")) {
-            currentAnnotation.getConsequenceTypes().get(currentAnnotation.getConsequenceTypes().size() - 1)  // Get the last ConsequenceType object appended and fill cds position
-                    .setCdsPosition(Integer.valueOf(lineFields[8]));
+            consequenceType.setCdsPosition(parseStringInterval(lineFields[8]));  // fill cds position
         }
         if(!lineFields[9].equals("-")) {
-            currentAnnotation.getConsequenceTypes().get(currentAnnotation.getConsequenceTypes().size() - 1)  // Get the last ConsequenceType object appended and fill aa position
-                    .setAaPosition(Integer.valueOf(lineFields[9]));
+            consequenceType.setAaPosition(parseStringInterval(lineFields[9]));    // fill aa position
         }
-        currentAnnotation.getConsequenceTypes().get(currentAnnotation.getConsequenceTypes().size()-1)  // Get the last ConsequenceType object appended and fill aa change
-                .setAaChange(lineFields[10]);
-        currentAnnotation.getConsequenceTypes().get(currentAnnotation.getConsequenceTypes().size()-1)  // Get the last ConsequenceType object appended and fill codon change
-                .setCodon(lineFields[11]);
-        currentAnnotation.getConsequenceTypes().get(currentAnnotation.getConsequenceTypes().size()-1)  // Get the last ConsequenceType object appended and fill so terms
-                .setSoTermsFromSoNames(Arrays.asList(lineFields[6].split(",")));
+        consequenceType.setAaChange(lineFields[10]);  // fill aa change
+        consequenceType.setCodon(lineFields[11]); // fill codon change
+        if(!lineFields[6].equals("") && !lineFields.equals("-")) {  // VEP may leave this field empty
+            consequenceType.setSoTermsFromSoNames(Arrays.asList(lineFields[6].split(",")));    // fill so terms
+        }
     }
 
-    private void parseExtraField(String extraField) {
+    private Integer parseStringInterval(String stringInterval) {
+        String[] parts = stringInterval.split("-");
+        if(!parts[0].equals("?")) {
+            return Integer.valueOf(parts[0]);
+        } else if(parts.length>1 && !parts[1].equals("?"))  {
+            return Integer.valueOf(parts[1]);
+        } else {
+            return null;
+        }
+    }
 
-        ConsequenceType consequenceType = new ConsequenceType();
-        if(currentAnnotation.getPopulationFrequencies()==null) {
-            currentAnnotation.setPopulationFrequencies(new ArrayList<PopulationFrequency>());
-        }
-        if(currentAnnotation.getHgvs()==null) {
-            currentAnnotation.setHgvs(new ArrayList<String>());
-        }
-        if(currentAnnotation.getConsequenceTypes()==null) {
-            currentAnnotation.setConsequenceTypes(new ArrayList<ConsequenceType>());
-        }
+    private void parseExtraField(ConsequenceType consequenceType, String extraField, Boolean parseFrequencies) {
+
         for (String field : extraField.split(";")) {
             String[] keyValue = field.split("=");
 
             switch (keyValue[0].toLowerCase()) {
                 case "aa_maf":
-                    currentAnnotation.getPopulationFrequencies().add(parsePopulationFrequency(keyValue[1], "ESP_6500",
-                            "African_American"));
+                    if(parseFrequencies) {
+                        if(currentAnnotation.getPopulationFrequencies()==null) {
+                            currentAnnotation.setPopulationFrequencies(new ArrayList<PopulationFrequency>());
+                        }
+                        currentAnnotation.getPopulationFrequencies().add(parsePopulationFrequency(keyValue[1], "ESP_6500",
+                                "African_American"));
+                    }
                     break;
                 case "afr_maf":
-                    currentAnnotation.getPopulationFrequencies().add(parsePopulationFrequency(keyValue[1], "1000GENOMES",
-                            "phase_1_AFR"));
+                    if(parseFrequencies) {
+                        if(currentAnnotation.getPopulationFrequencies()==null) {
+                            currentAnnotation.setPopulationFrequencies(new ArrayList<PopulationFrequency>());
+                        }
+                        currentAnnotation.getPopulationFrequencies().add(parsePopulationFrequency(keyValue[1], "1000GENOMES",
+                                "phase_1_AFR"));
+                    }
                     break;
                 case "amr_maf":
-                    currentAnnotation.getPopulationFrequencies().add(parsePopulationFrequency(keyValue[1], "1000GENOMES",
-                            "phase_1_AMR"));
+                    if(parseFrequencies) {
+                        if(currentAnnotation.getPopulationFrequencies()==null) {
+                            currentAnnotation.setPopulationFrequencies(new ArrayList<PopulationFrequency>());
+                        }
+                        currentAnnotation.getPopulationFrequencies().add(parsePopulationFrequency(keyValue[1], "1000GENOMES",
+                                "phase_1_AMR"));
+                    }
                     break;
                 case "asn_maf":
-                    currentAnnotation.getPopulationFrequencies().add(parsePopulationFrequency(keyValue[1], "1000GENOMES",
-                            "phase_1_ASN"));
+                    if(parseFrequencies) {
+                        if(currentAnnotation.getPopulationFrequencies()==null) {
+                            currentAnnotation.setPopulationFrequencies(new ArrayList<PopulationFrequency>());
+                        }
+                        currentAnnotation.getPopulationFrequencies().add(parsePopulationFrequency(keyValue[1], "1000GENOMES",
+                                "phase_1_ASN"));
+                    }
                     break;
                 case "biotype":
                     consequenceType.setBiotype(keyValue[1]);
@@ -213,27 +269,48 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
 //                    variantEffect.setProteinDomains(keyValue[1].split(","));
 //                    break;
                 case "ea_maf":
-                    currentAnnotation.getPopulationFrequencies().add(parsePopulationFrequency(keyValue[1], "ESP_6500",
-                            "European_American"));
+                    if(parseFrequencies) {
+                        if(currentAnnotation.getPopulationFrequencies()==null) {
+                            currentAnnotation.setPopulationFrequencies(new ArrayList<PopulationFrequency>());
+                        }
+                        currentAnnotation.getPopulationFrequencies().add(parsePopulationFrequency(keyValue[1], "ESP_6500",
+                                "European_American"));
+                    }
                     break;
 //                case "ensp":
 //                    variantEffect.setProteinId(keyValue[1]);
 //                    break;
                 case "eur_maf":
-                    currentAnnotation.getPopulationFrequencies().add(parsePopulationFrequency(keyValue[1], "1000GENOMES",
-                            "phase_1_EUR"));
+                    if(parseFrequencies) {
+                        if(currentAnnotation.getPopulationFrequencies()==null) {
+                            currentAnnotation.setPopulationFrequencies(new ArrayList<PopulationFrequency>());
+                        }
+                        currentAnnotation.getPopulationFrequencies().add(parsePopulationFrequency(keyValue[1], "1000GENOMES",
+                                "phase_1_EUR"));
+                    }
                     break;
 //                case "exon":
 //                    variantEffect.setExonNumber(keyValue[1]);
 //                    break;
                 case "gmaf": // Format is GMAF=G:0.2640  or  GMAF=T:0.1221,-:0.0905
-                    currentAnnotation.getPopulationFrequencies().add(parsePopulationFrequency(keyValue[1], "1000GENOMES",
-                            "phase_1_ALL"));
+                    if(parseFrequencies) {
+                        if(currentAnnotation.getPopulationFrequencies()==null) {
+                            currentAnnotation.setPopulationFrequencies(new ArrayList<PopulationFrequency>());
+                        }
+                        currentAnnotation.getPopulationFrequencies().add(parsePopulationFrequency(keyValue[1], "1000GENOMES",
+                                "phase_1_ALL"));
+                    }
                     break;
                 case "hgvsc":
+                    if(currentAnnotation.getHgvs()==null) {
+                        currentAnnotation.setHgvs(new ArrayList<String>());
+                    }
                     currentAnnotation.getHgvs().add(keyValue[1]);
                     break;
                 case "hgvsp":
+                    if(currentAnnotation.getHgvs()==null) {
+                        currentAnnotation.setHgvs(new ArrayList<String>());
+                    }
                     currentAnnotation.getHgvs().add(keyValue[1]);
                     break;
 //                case "high_inf_pos":
@@ -277,7 +354,6 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
                     break;
             }
         }
-        currentAnnotation.getConsequenceTypes().add(consequenceType);
     }
 
     private Score parseProteinSubstitutionScore(String predictorName, String scoreString) {
@@ -285,18 +361,20 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
         return new Score(Double.valueOf(scoreFields[1]), predictorName, scoreFields[0]);
     }
 
-    private PopulationFrequency parsePopulationFrequency(String frequencyString, String study, String population) {
-        String[] parts = frequencyString.split(":");
+    private PopulationFrequency parsePopulationFrequency(String frequencyStrings, String study, String population) {
         PopulationFrequency populationFrequency = new PopulationFrequency();
         populationFrequency.setStudy(study);
         populationFrequency.setPop(population);
         populationFrequency.setSuperPop(population);
         populationFrequency.setRefAllele(currentAnnotation.getReferenceAllele());
         populationFrequency.setAltAllele(currentAnnotation.getAlternativeAllele());
-        if(parts[0].equals(currentAnnotation.getAlternativeAllele())) {
-            populationFrequency.setAltAlleleFreq(Float.valueOf(parts[1]));
-        } else {
-            populationFrequency.setRefAlleleFreq(Float.valueOf(parts[1]));
+        for(String frequencyString : frequencyStrings.split(",")) {
+            String[] parts = frequencyString.split(":");
+            if (parts[0].equals(currentAnnotation.getAlternativeAllele())) {
+                populationFrequency.setAltAlleleFreq(Float.valueOf(parts[1]));
+            } else {
+                populationFrequency.setRefAlleleFreq(Float.valueOf(parts[1]));
+            }
         }
 
         return populationFrequency;
@@ -304,19 +382,37 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
 
     private Map<String,String> parseVariant(String variantString, String coordinatesString) {
 //    private Map<String,String> parseVariant(String coordinatesString, String alternativeString) {
-        Map<String,String> parsedVariant = new HashMap<>(5);
-        String[] variantLocationFields = coordinatesString.split("[:-]");
-        parsedVariant.put("chromosome", variantLocationFields[0]);
-        parsedVariant.put("start", variantLocationFields[1]);
-        parsedVariant.put("end", (variantLocationFields.length > 2) ? variantLocationFields[2] : variantLocationFields[1]);
 
-        // Some VEP examples:
-        // 1_718787_-/T    1:718786-718787 T    ...
-        // 1_718787_T/-    1:718787        -    ...
-        // 1_718788_T/A    1:718788        A    ...
-        String[] variantFields = variantString.split("[\\_\\/]");
-        parsedVariant.put("reference", variantFields[2]);
-        parsedVariant.put("alternative", variantFields[3]);
+        Map<String, String> parsedVariant = new HashMap<>(5);
+
+        try {
+            String[] variantLocationFields = coordinatesString.split("[:-]");
+//            parsedVariant.put("chromosome", variantLocationFields[0]);
+//            parsedVariant.put("start", variantLocationFields[1]);
+            parsedVariant.put("end", (variantLocationFields.length > 2) ? variantLocationFields[2] : variantLocationFields[1]);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            System.out.println("Unexpected format for column 2: "+coordinatesString);
+            e.printStackTrace();
+            System.exit(1);
+        }
+
+        try {
+            // Some VEP examples:
+            // 1_718787_-/T    1:718786-718787 T    ...
+            // 1_718787_T/-    1:718787        -    ...
+            // 1_718788_T/A    1:718788        A    ...
+            String[] variantFields = variantString.split("[\\/]");
+            //        String[] variantFields = variantString.split("[\\_\\/]");
+            String[] leftVariantFields = variantFields[0].split("_");
+            parsedVariant.put("chromosome", leftVariantFields[0]);
+            parsedVariant.put("start", leftVariantFields[1]);
+            parsedVariant.put("reference", leftVariantFields[2]);
+            parsedVariant.put("alternative", variantFields[1]);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            System.out.println("Unexpected variant format for column 1: "+variantString);
+            e.printStackTrace();
+            System.exit(1);
+        }
 
 //        parsedVariant.put("reference", "-");
 //        if (alternativeString.equals("deletion")) {
