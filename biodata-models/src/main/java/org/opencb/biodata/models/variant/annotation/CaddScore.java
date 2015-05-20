@@ -25,6 +25,8 @@ public class CaddScore {
     private float cScore;
     private float rawScore;
 
+    CaddScore() { }
+
     public CaddScore(String transcriptId, float cScore, float rawScore) {
         this.transcriptId = transcriptId;
         this.cScore = cScore;

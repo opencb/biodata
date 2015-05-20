@@ -24,6 +24,8 @@ public class Xref {
     private String id;
     private String src;
 
+    Xref() { this("", ""); }
+
     public Xref(String id, String src) {
         this.id = id;
         this.src = src;
