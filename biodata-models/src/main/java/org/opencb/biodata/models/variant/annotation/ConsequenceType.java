@@ -35,6 +35,7 @@ public class ConsequenceType {
     private Integer aaPosition;
     private String aaChange;
     private String codon;
+    private String functionalDescription;
     private List<Score> proteinSubstitutionScores = null;
     private List<ConsequenceTypeEntry> soTerms;
 
@@ -124,6 +125,10 @@ public class ConsequenceType {
         proteinSubstitutionScores.add(score);
     }
 
+    public void setFunctionalDescription(String functionalDescription) {
+        this.functionalDescription = functionalDescription;
+    }
+
     public String getGeneName() {
         return geneName;
     }
@@ -200,6 +205,10 @@ public class ConsequenceType {
 
     public List<ConsequenceTypeEntry> getSoTerms() {
         return soTerms;
+    }
+
+    public String getFunctionalDescription() {
+        return functionalDescription;
     }
 
     public void setSoTerms(List<ConsequenceTypeEntry> soTerms) {
