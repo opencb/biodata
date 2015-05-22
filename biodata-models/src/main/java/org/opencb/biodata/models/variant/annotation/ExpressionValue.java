@@ -21,7 +21,7 @@ package org.opencb.biodata.models.variant.annotation;
  */
 public class ExpressionValue {
 
-    private enum Expression {UP, DOWN};
+    public enum Expression {UP, DOWN};
 
     private String experimentalFactor;
     private String factorValue;
@@ -32,7 +32,8 @@ public class ExpressionValue {
 
     public ExpressionValue() { }
 
-    public ExpressionValue(String experimentalFactor, String factorValue, String experimentId, String technologyPlatform, Expression expression, Float pvalue) {
+    public ExpressionValue(String experimentalFactor, String factorValue, String experimentId,
+                           String technologyPlatform, Expression expression, Float pvalue) {
         this.experimentalFactor = experimentalFactor;
         this.factorValue = factorValue;
         this.experimentId = experimentId;
