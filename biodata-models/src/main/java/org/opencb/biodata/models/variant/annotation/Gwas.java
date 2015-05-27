@@ -27,6 +27,8 @@ public class Gwas {
     private Double riskAlleleFrequency;
     private  String reportedGenes;
 
+    Gwas() { }
+
     public Gwas(String snpIdCurrent, List<String> traits, Double riskAlleleFrequency, String reportedGenes) {
         this.snpIdCurrent = snpIdCurrent;
         this.traits = traits;

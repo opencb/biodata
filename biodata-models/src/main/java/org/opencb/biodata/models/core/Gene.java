@@ -16,6 +16,8 @@
 
 package org.opencb.biodata.models.core;
 
+import org.opencb.biodata.models.variant.annotation.ExpressionValue;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -38,13 +40,15 @@ public class Gene implements Serializable {
 	private String description;
 	private List<Transcript> transcripts;
 	private MiRNAGene mirna;
+	private List<ExpressionValue> expressionValues;
 	
 	public Gene() {
 		
 	}
 
-	public Gene(String id, String name, String biotype, String status, 
-			String chromosome, Integer start, Integer end, String strand, String source, String description, List<Transcript> transcripts, MiRNAGene mirna) {
+	public Gene(String id, String name, String biotype, String status, String chromosome, Integer start, Integer end,
+				String strand, String source, String description, List<Transcript> transcripts, MiRNAGene mirna,
+				List<ExpressionValue> expressionValueList) {
 		super();
 //		this._id = id;
 		this.id = id;
@@ -59,6 +63,7 @@ public class Gene implements Serializable {
 		this.description = description;
 		this.transcripts = transcripts;
 		this.mirna = mirna;
+		this.expressionValues = expressionValueList;
 	}
 	
 	
@@ -165,8 +170,9 @@ public class Gene implements Serializable {
 		return mirna;
 	}
 
-	public void setMirna(MiRNAGene mirna) {
-		this.mirna = mirna;
-	}
-	
+	public void setMirna(MiRNAGene mirna) {	this.mirna = mirna; }
+
+	public List<ExpressionValue> getExpressionValues() { return expressionValues; }
+
+	public void setExpressionValues(List<ExpressionValue> expressionValues) { this.expressionValues = expressionValues;	}
 }

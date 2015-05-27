@@ -29,6 +29,8 @@ public class Clinvar {
     private List<String> geneName;
     private String reviewStatus;
 
+    Clinvar() { }
+
     public Clinvar(String acc, String clinicalSignificance, List<String> traits, List<String> geneName, String reviewStatus) {
         this.acc = acc;
         this.clinicalSignificance = clinicalSignificance;

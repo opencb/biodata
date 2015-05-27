@@ -53,7 +53,7 @@ public class VariantAnnotation {
 
     private List<CaddScore> caddScores;
 
-    private List<ExpressionValue> expressionValues;
+//    private List<ExpressionValue> expressionValues;
 
     private Map<String, Object> clinicalData;
 
@@ -181,13 +181,13 @@ public class VariantAnnotation {
         this.caddScores = caddScores;
     }
 
-    public List<ExpressionValue> getExpressionValues() {
-        return expressionValues;
-    }
-
-    public void setExpressionValues(List<ExpressionValue> expressionValues) {
-        this.expressionValues = expressionValues;
-    }
+//    public List<ExpressionValue> getExpressionValues() {
+//        return expressionValues;
+//    }
+//
+//    public void setExpressionValues(List<ExpressionValue> expressionValues) {
+//        this.expressionValues = expressionValues;
+//    }
 
     public Map<String, Object> getClinicalData() {
         return clinicalData;
