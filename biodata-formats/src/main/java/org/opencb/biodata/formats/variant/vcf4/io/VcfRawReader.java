@@ -257,7 +257,7 @@ public class VcfRawReader implements DataReader<VcfRecord> {
         }
         if (!header) {
             System.err.println("VCF Header must be provided.");
-            System.exit(-1);
+//            System.exit(-1);
         }
         localBufferedReader.close();
     }
