@@ -1,7 +1,6 @@
 package org.opencb.biodata.models.variant.ga4gh;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -9,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.opencb.biodata.ga4gh.GACall;
-import org.opencb.biodata.ga4gh.GAKeyValue;
 import org.opencb.biodata.ga4gh.GAVariant;
 import org.opencb.biodata.models.variant.VariantSourceEntry;
 import org.opencb.biodata.models.variant.Variant;
@@ -20,91 +18,80 @@ import org.opencb.biodata.models.variant.Variant;
  */
 public class GAVariantFactory {
 
-    public static List<GAVariant> create(List<Variant> variants) {
+    /**
+     * Given a list of variants, creates the equivalent set using the GA4GH API.
+     * 
+     * @param variants List of variants to transform
+     * @return GA4GH variants representing the same data as the internal API ones
+     */
+    public static List<GAVariant> create(List<Variant> variants){//, Map<String, List<String>> samplesPerSource) {
         Set<GAVariant> gaVariants = new LinkedHashSet<>();
 
         for (Variant variant : variants) {
+            String id = String.format("%s_%d_%s_%s", variant.getChromosome(), variant.getStart(), variant.getReference(), variant.getAlternate());
+
+            Set<String> variantIds = variant.getIds();
+            String[] names = variantIds.toArray(new String[variantIds.size()]);
+            
             for (VariantSourceEntry file : variant.getSourceEntries().values()) {
-                String[] vcfLine = file.getAttribute("src").split("\t");
-                String id = variant.getId().isEmpty() ? vcfLine[0] + "_" + vcfLine[1] : variant.getId();
+                String[] alternates = new String[file.getSecondaryAlternates().length + 1];
+                alternates[0] = variant.getAlternate();
+                System.arraycopy(file.getSecondaryAlternates(), 0, alternates, 1, file.getSecondaryAlternates().length);
                 
                 GAVariant ga;
-                if (vcfLine.length > 8) {
-                    ga = new GAVariant(id, file.getFileId(), vcfLine[2].split(";"), System.currentTimeMillis(), System.currentTimeMillis(),
-                            vcfLine[0], Integer.parseInt(vcfLine[1]), Integer.parseInt(vcfLine[1]) + vcfLine[3].length(), 
-                            vcfLine[3], vcfLine[4].split(","), parseInfo(vcfLine[7].split(";")),
-                            parseCalls(vcfLine[8].split(":"), Arrays.copyOfRange(vcfLine, 9, vcfLine.length), file.getFileId()));
+                if (file.getSamplesData().isEmpty()) {
+                    // No genotypes, simplest case
+                    ga = new GAVariant(id, file.getFileId(), names, System.currentTimeMillis(), System.currentTimeMillis(), 
+                            variant.getChromosome(), variant.getStart(), variant.getEnd(), variant.getReference(), alternates, 
+                            parseInfo(file.getAttributes()), null);
                 } else {
-                    ga = new GAVariant(id, file.getFileId(), vcfLine[2].split(";"), System.currentTimeMillis(), System.currentTimeMillis(),
-                            vcfLine[0], Integer.parseInt(vcfLine[1]), Integer.parseInt(vcfLine[1]) + vcfLine[3].length(), 
-                            vcfLine[3], vcfLine[4].split(","), parseInfo(vcfLine[7].split(";")), null);
+                    ga = new GAVariant(id, file.getFileId(), names, System.currentTimeMillis(), System.currentTimeMillis(), 
+                            variant.getChromosome(), variant.getStart(), variant.getEnd(), variant.getReference(), alternates, 
+                            parseInfo(file.getAttributes()), parseCalls(file.getSamplesData()));
                 }
                 
                 gaVariants.add(ga);
             }
         }
 
+        
         return new ArrayList<>(gaVariants);
     }
 
-    private static Map<String, List> parseInfo(String[] infoFields) {
+    private static Map<String, List> parseInfo(Map<String, String> attributes) {
         Map<String, List> kvs = new HashMap<>();
         
-        for (String subfield : infoFields) {
-            String[] parts = subfield.split("=");
-            if (parts.length > 1) {
-                kvs.put(parts[0], new ArrayList<>(Arrays.asList(parts[1].split(","))));
-            } else {
-                kvs.put(parts[0], new ArrayList<>());
-            }
+        for (Map.Entry<String, String> field : attributes.entrySet()) {
+            List<String> value = new ArrayList<>();
+            value.add(field.getValue());
+            kvs.put(field.getKey(), value);
         }
         
         return kvs;
     }
     
-    private static GACall[] parseCalls(String[] formatFields, String[] samplesFields, String callSetName) {
+    private static GACall[] parseCalls(Map<String, Map<String, String>> samples) {
         List<GACall> calls = new LinkedList<>();
-        int idxLikelihoodField = Arrays.binarySearch(formatFields, "GL");
         
-        for (String sample : samplesFields) {
-            String[] parts = sample.split(":");
+        for (Map.Entry<String, Map<String, String>> sample : samples.entrySet()) {
+            Map<String, String> attrs = sample.getValue();
             
-            String[] alleles = parts[0].split("/|\\|", -1);
+            // Transform genotype with form like 0|0 to the GA4GH style
+            String gtField = attrs.get("GT");
+            String[] alleles = gtField.split("/|\\|", -1);
             int[] genotype = new int[alleles.length];
             for (int i = 0; i < alleles.length; i++) {
                 genotype[i] = (alleles[i].equals(".")) ? -1 : Integer.parseInt(alleles[i]);
             }
             
-            String phaseSet = parts[0].contains("|") ? "phased" : null;
+            // Check whether it is phased depending on the allele separator
+            String phaseSet = gtField.contains("|") ? "phased" : "unphased";
             
-            double[] genotypeLikelihood = null;
-            if (idxLikelihoodField > -1) {
-                String[] glParts = parts[idxLikelihoodField].split(",");
-                if (glParts.length > 0) {
-                    genotypeLikelihood = new double[glParts.length];
-                    for (int i = 0; i < glParts.length; i++) {
-                        genotypeLikelihood[i] = (glParts[i].equals(".")) ? -1 : Double.parseDouble(glParts[i]);
-                    }
-                }
-            }
-            
-            // Process the rest of fields in the sample
-            // Avoid processing the GT and GL fields again
-            GAKeyValue[] info = (parts.length > 2) ? new GAKeyValue[parts.length-2] : null;
-            if (info != null) {
-                int curIdx = 0;
-                for (int i = 1; i < parts.length; i++) {
-                    if (i != idxLikelihoodField) { // Do not parse GL again
-                        info[curIdx++] = new GAKeyValue(formatFields[i], parts[i]);
-                    }
-                }
-            }
-            
-            calls.add(new GACall(callSetName, callSetName, genotype, phaseSet, genotypeLikelihood, info));
+            // Create the call object
+            calls.add(new GACall(sample.getKey(), sample.getKey(), genotype, phaseSet, null, null));
         }
         
-        GACall[] retCalls = new GACall[calls.size()];
-        return calls.toArray(retCalls);
+        return calls.toArray(new GACall[calls.size()]);
     }
     
 }
