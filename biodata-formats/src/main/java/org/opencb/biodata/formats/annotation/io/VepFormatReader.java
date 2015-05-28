@@ -393,7 +393,7 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
         } catch (ArrayIndexOutOfBoundsException e) {
             System.out.println("Unexpected format for column 2: "+coordinatesString);
             e.printStackTrace();
-            System.exit(1);
+//            System.exit(1);
         }
 
         try {
@@ -411,7 +411,7 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
         } catch (ArrayIndexOutOfBoundsException e) {
             System.out.println("Unexpected variant format for column 1: "+variantString);
             e.printStackTrace();
-            System.exit(1);
+//            System.exit(1);
         }
 
 //        parsedVariant.put("reference", "-");
