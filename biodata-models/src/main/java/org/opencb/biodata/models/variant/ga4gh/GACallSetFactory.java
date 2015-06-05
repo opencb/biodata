@@ -39,7 +39,7 @@ public class GACallSetFactory {
             List<String> callsInFile = callSetsIterator.next();
             // Add all samples in the file
             for (String callName : callsInFile) {
-                GACallSet callset = new GACallSet(fileName, callName, callName, new ArrayList<>(Arrays.asList(fileName)), 
+                GACallSet callset = new GACallSet(callName, callName, callName, new ArrayList<>(Arrays.asList(fileName)), 
                         System.currentTimeMillis(), System.currentTimeMillis(), null);
                 sets.add(callset);
             }
