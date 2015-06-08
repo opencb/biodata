@@ -53,7 +53,7 @@ public class VariantAnnotation {
 
     private List<CaddScore> caddScores;
 
-    private List<ExpressionValue> expressionValues;
+//    private List<ExpressionValue> expressionValues;
 
     private Map<String, Object> clinicalData;
 
@@ -181,13 +181,13 @@ public class VariantAnnotation {
         this.caddScores = caddScores;
     }
 
-    public List<ExpressionValue> getExpressionValues() {
-        return expressionValues;
-    }
-
-    public void setExpressionValues(List<ExpressionValue> expressionValues) {
-        this.expressionValues = expressionValues;
-    }
+//    public List<ExpressionValue> getExpressionValues() {
+//        return expressionValues;
+//    }
+//
+//    public void setExpressionValues(List<ExpressionValue> expressionValues) {
+//        this.expressionValues = expressionValues;
+//    }
 
     public Map<String, Object> getClinicalData() {
         return clinicalData;
@@ -245,18 +245,18 @@ public class VariantAnnotation {
 //        this.genes = genes;
 //    }
 
-    public void addGene(Gene gene) {
-        // TODO: broken compatibility with VariantGenesAnnotator
-    }
+//    public void addGene(Gene gene) {
+//        // TODO: broken compatibility with VariantGenesAnnotator
+//    }
 
 //    public void addGene(Gene gene) {
 //        this.genes.add(gene);
 //    }
 //
-    public Map<String, List<VariantEffect>> getEffects() {
-        // TODO: broken compatibility with VariantConsequenceTypeAnnotator
-        return new HashMap<>();
-    }
+//    public Map<String, List<VariantEffect>> getEffects() {
+//        // TODO: broken compatibility with VariantConsequenceTypeAnnotator
+//        return new HashMap<>();
+//    }
 
 //    public Map<String, List<VariantEffect>> getEffects() {
 //        return effects;
@@ -281,9 +281,9 @@ public class VariantAnnotation {
 //    }
 //
 
-    public Map<String, Set<Frequency>> getFrequencies() {
-        return new HashMap<>(); // TODO: broken compatibility with VariantEffectConverter
-    }
+//    public Map<String, Set<Frequency>> getFrequencies() {
+//        return new HashMap<>(); // TODO: broken compatibility with VariantEffectConverter
+//    }
 
 //    public Map<String, Set<Frequency>> getFrequencies() {
 //        return frequencies;
@@ -306,17 +306,17 @@ public class VariantAnnotation {
 //        return frequenciesBySuperPopulation.add(frequency);
 //    }
 
-    public ProteinSubstitutionScores getProteinSubstitutionScores() {
-        // TODO: broken compatibility with VariantPolyphenSIFTAnnotator. proteinSubstitutionScores is no longer within VariantAnnotation. Remove after compatibility is solved.
-        return null;
-    }
+//    public ProteinSubstitutionScores getProteinSubstitutionScores() {
+//        // TODO: broken compatibility with VariantPolyphenSIFTAnnotator. proteinSubstitutionScores is no longer within VariantAnnotation. Remove after compatibility is solved.
+//        return null;
+//    }
 
-    public void setRegulatoryEffect(RegulatoryEffect regulatoryEffect) {}  // TODO: broken compatibility with VariantEffectConverter
-
-    public RegulatoryEffect getRegulatoryEffect() {
-        // TODO: broken compatibility with VariantEffectConverter
-        return null;
-    }
+//    public void setRegulatoryEffect(RegulatoryEffect regulatoryEffect) {}  // TODO: broken compatibility with VariantEffectConverter
+//
+//    public RegulatoryEffect getRegulatoryEffect() {
+//        // TODO: broken compatibility with VariantEffectConverter
+//        return null;
+//    }
 
 //    public RegulatoryEffect getRegulatoryEffect() {
 //        return regulatoryEffect;

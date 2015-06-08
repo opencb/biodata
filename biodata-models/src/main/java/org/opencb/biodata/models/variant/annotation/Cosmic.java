@@ -31,7 +31,7 @@ public class Cosmic {
     private String mutationSomaticStatus;
 
 
-
+    Cosmic() { }
 
     public Cosmic(String mutationID, String primarySite, String siteSubtype, String primaryHistology, String histologySubtype, String sampleSource, String tumourOrigin, String geneName, String mutationSomaticStatus) {
         this.mutationID = mutationID;

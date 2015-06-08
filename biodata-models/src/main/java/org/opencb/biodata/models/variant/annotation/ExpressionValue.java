@@ -21,37 +21,72 @@ package org.opencb.biodata.models.variant.annotation;
  */
 public class ExpressionValue {
 
-    private String tissueName;
-    private String experiment;
-    private Float value;
+    public enum Expression {UP, DOWN};
 
-    public ExpressionValue(String tissueName, String experiment, Float value) {
-        this.tissueName = tissueName;
-        this.experiment = experiment;
-        this.value = value;
+    private String experimentalFactor;
+    private String factorValue;
+    private String experimentId;
+    private String technologyPlatform;
+    private Expression expression;
+    private Float pvalue;
+
+    public ExpressionValue() { }
+
+    public ExpressionValue(String experimentalFactor, String factorValue, String experimentId,
+                           String technologyPlatform, Expression expression, Float pvalue) {
+        this.experimentalFactor = experimentalFactor;
+        this.factorValue = factorValue;
+        this.experimentId = experimentId;
+        this.technologyPlatform = technologyPlatform;
+        this.expression = expression;
+        this.pvalue = pvalue;
     }
 
-    public String getTissueName() {
-        return tissueName;
+    public String getExperimentalFactor() {
+        return experimentalFactor;
     }
 
-    public void setTissueName(String tissueName) {
-        this.tissueName = tissueName;
+    public void setExperimentalFactor(String experimentalFactor) {
+        this.experimentalFactor = experimentalFactor;
     }
 
-    public String getExperiment() {
-        return experiment;
+    public String getFactorValue() {
+        return factorValue;
     }
 
-    public void setExperiment(String experiment) {
-        this.experiment = experiment;
+    public void setFactorValue(String factorValue) {
+        this.factorValue = factorValue;
     }
 
-    public Float getValue() {
-        return value;
+    public String getExperimentId() {
+        return experimentId;
     }
 
-    public void setValue(Float value) {
-        this.value = value;
+    public void setExperimentId(String experimentId) {
+        this.experimentId = experimentId;
+    }
+
+    public String getTechnologyPlatform() {
+        return technologyPlatform;
+    }
+
+    public void setTechnologyPlatform(String technologyPlatform) {
+        this.technologyPlatform = technologyPlatform;
+    }
+
+    public Expression getExpression() {
+        return expression;
+    }
+
+    public void setExpression(Expression expression) {
+        this.expression = expression;
+    }
+
+    public Float getPvalue() {
+        return pvalue;
+    }
+
+    public void setPvalue(Float pvalue) {
+        this.pvalue = pvalue;
     }
 }
