@@ -423,21 +423,15 @@ public class VariantStats {
                 default:
                     // Missing genotype (one or both alleles missing)
                     this.setMissingGenotypes(this.getMissingGenotypes() + 1);
-                    if (g.getAllele(0) < 0) {
-                        this.setMissingAlleles(this.getMissingAlleles() + 1);
-                    } else {
-                        allelesCount[g.getAllele(0)]++;
-                        totalAllelesCount++;
-                    }
-
-                    if (g.getAllele(1) < 0) {
-                        this.setMissingAlleles(this.getMissingAlleles() + 1);
-                    } else {
-                        allelesCount[g.getAllele(1)]++;
-                        totalAllelesCount++;
+                    for (int i = 0; i < g.getAllelesIdx().length; i++) {
+                        if (g.getAllele(i) < 0) {
+                            this.setMissingAlleles(this.getMissingAlleles() + 1);
+                        } else {
+                            allelesCount[g.getAllele(i)]++;
+                            totalAllelesCount++;
+                        }
                     }
                     break;
-
             }
 
             // Include statistics that depend on pedigree information

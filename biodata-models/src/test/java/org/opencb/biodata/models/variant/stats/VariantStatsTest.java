@@ -20,10 +20,29 @@ public class VariantStatsTest {
     private VariantSource source = new VariantSource("filename.vcf", "fileId", "studyId", "studyName");
 
     @Test
-    public void testCalculateBiallelicStats() {
+    public void testCalculateOtherStats() {
         List<String> sampleNames = Arrays.asList("NA001", "NA002", "NA003", "NA004", "NA005", "NA006");
         source.setSamples(sampleNames);
         String line = "1\t10040\trs123\tT\tC\t10.05\tHELLO\t.\tGT:GL\t"
+                + "0/0\t.\t./.\t0/0\t0/-1\t./0"; // 6 samples
+
+        // Initialize expected variants
+        List<Variant> result = new VariantVcfFactory().create(source, line);
+        assertEquals(1, result.size());
+
+        Variant variant = result.get(0);
+        VariantSourceEntry sourceEntry = variant.getSourceEntry(source.getFileId(), source.getStudyId());
+
+        VariantStats stats = new VariantStats(variant).calculate(sourceEntry.getSamplesData(), sourceEntry.getAttributes(), null);
+        assertEquals(5, stats.getMissingAlleles());
+        assertEquals(4, stats.getMissingGenotypes());
+    }
+
+    @Test
+    public void testCalculateBiallelicStats() {
+        List<String> sampleNames = Arrays.asList("NA001", "NA002", "NA003", "NA004", "NA005", "NA006");
+        source.setSamples(sampleNames);
+        String line = "1\t10040\trs123\tT\tC\t10.05\tHELLO\t.\tGT\t"
                 + "0/0:1,2,3,4,5,6,7,8,9,10\t0/1:1,2,3,4,5,6,7,8,9,10\t0/1:1,2,3,4,5,6,7,8,9,10\t"
                 + "1/1:1,2,3,4,5,6,7,8,9,10\t./.:1,2,3,4,5,6,7,8,9,10\t1/1:1,2,3,4,5,6,7,8,9,10"; // 6 samples
 

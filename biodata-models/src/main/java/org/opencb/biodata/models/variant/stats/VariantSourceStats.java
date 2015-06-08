@@ -115,7 +115,7 @@ public class VariantSourceStats {
 //                }
                 
                 // Count homozygous (not haploid)
-                if (g.getCode() != AllelesCode.HAPLOID && g.getAllele(0) == g.getAllele(1)) {
+                if (g.getAllelesIdx().length > 1 && g.getAllele(0) == g.getAllele(1)) {
                     sampleStats.incrementHomozygous();
                 }
             }
