@@ -2,6 +2,7 @@ package org.opencb.biodata.models.variant;
 
 import org.junit.Test;
 import org.opencb.biodata.models.feature.Genotype;
+import org.opencb.biodata.models.variant.stats.VariantStats;
 import org.opencb.commons.test.GenericTest;
 
 import java.util.HashMap;
@@ -37,9 +38,11 @@ public class VariantVcfExacFactoryTest extends GenericTest {
         genotypes.put(new Genotype("0/1","G","T"), 22);
         genotypes.put(new Genotype("1/1","G","T"), 0);
 
-        assertEquals(genotypes, sourceEntry.getStats().getGenotypesCount());
-        assertEquals(22, sourceEntry.getStats().getAltAlleleCount());
-        assertEquals(10890-22, sourceEntry.getStats().getRefAlleleCount());
+        VariantStats stats = sourceEntry.getStats();
+        assertEquals(genotypes, stats.getGenotypesCount());
+        assertEquals(22, stats.getAltAlleleCount());
+        assertEquals(10890 - 22, stats.getRefAlleleCount());
+        assertEquals(22.0/10890, stats.getMaf(), 0.00001);
     }
     @Test
     public void multiallelicLine () {
@@ -68,6 +71,7 @@ public class VariantVcfExacFactoryTest extends GenericTest {
         assertEquals(genotypes, sourceEntry.getStats().getGenotypesCount());
         assertEquals(3, sourceEntry.getStats().getAltAlleleCount());
         assertEquals(79012-1-2-1-2, sourceEntry.getStats().getRefAlleleCount());
+        assertEquals(0, sourceEntry.getStats().getMaf(), 0.00001);   // how can a multiallelic variant have an allele count of 0? the "Adjusted" just removed it
 
         
         genotypes.clear();
@@ -164,6 +168,9 @@ public class VariantVcfExacFactoryTest extends GenericTest {
         assertEquals(0, (int)sourceEntry.getCohortStats("SAS").getGenotypesCount().get(genotype));
         assertEquals(7025, sourceEntry.getCohortStats("SAS").getRefAlleleCount());
         assertEquals(0, sourceEntry.getCohortStats("SAS").getAltAlleleCount());
+        assertEquals(0, sourceEntry.getCohortStats("SAS").getMaf(), 0.001);
+        assertEquals(9/10426.0, sourceEntry.getCohortStats("ALL").getMaf(), 0.00001);
+
         System.out.println("genotypes for C -> G in SAS: " + sourceEntry.getCohortStats("SAS").getGenotypesCount());
         
         v = res.get(1);

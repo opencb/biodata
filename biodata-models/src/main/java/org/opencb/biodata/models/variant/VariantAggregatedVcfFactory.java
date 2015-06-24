@@ -140,7 +140,17 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
         
     }
 
-    protected void addStats(Variant variant, VariantSourceEntry sourceEntry, int numAllele, String[] alternateAlleles, Map<String, String> attributes, VariantStats variantStats) {
+    /**
+     * sets (if the map of attributes contains AF, AC, AF and GTC) alleleCount, refAlleleCount, maf, mafAllele, alleleFreq and genotypeCounts,
+     * @param variant
+     * @param sourceEntry
+     * @param numAllele
+     * @param alternateAlleles
+     * @param attributes
+     * @param variantStats
+     */
+    protected void addStats(Variant variant, VariantSourceEntry sourceEntry, int numAllele, String[] alternateAlleles,
+                            Map<String, String> attributes, VariantStats variantStats) {
 
         if (attributes.containsKey("AN") && attributes.containsKey("AC")) {
             int total = Integer.parseInt(attributes.get("AN"));
@@ -182,6 +192,24 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
             String[] afs = attributes.get("AF").split(",");
             if (afs.length == alternateAlleles.length) {
                 variantStats.setAltAlleleFreq(Float.parseFloat(afs[numAllele]));
+                if (variantStats.getMaf() == -1) {  // in case that we receive AFs but no ACs
+                    float sumFreq = 0;
+                    for (String af : afs) {
+                        sumFreq += Float.parseFloat(af);
+                    }
+                    float maf = 1 - sumFreq;
+                    String mafAllele = variantStats.getRefAllele();
+
+                    for (int i = 0; i < afs.length; i++) {
+                        float auxMaf = Float.parseFloat(afs[i]);
+                        if (auxMaf < maf) {
+                            maf = auxMaf;
+                            mafAllele = alternateAlleles[i];
+                        }
+                    }
+                    variantStats.setMaf(maf);
+                    variantStats.setMafAllele(mafAllele);
+                }
             }
         }
         if (attributes.containsKey("GTC")) {
