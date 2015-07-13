@@ -1,4 +1,22 @@
+/*
+ * Copyright 2015 OpenCB
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.opencb.biodata.models.core;
+
+import org.opencb.biodata.models.variant.annotation.ExpressionValue;
 
 import java.io.Serializable;
 import java.util.List;
@@ -22,13 +40,15 @@ public class Gene implements Serializable {
 	private String description;
 	private List<Transcript> transcripts;
 	private MiRNAGene mirna;
+	private List<ExpressionValue> expressionValues;
 	
 	public Gene() {
 		
 	}
 
-	public Gene(String id, String name, String biotype, String status, 
-			String chromosome, Integer start, Integer end, String strand, String source, String description, List<Transcript> transcripts, MiRNAGene mirna) {
+	public Gene(String id, String name, String biotype, String status, String chromosome, Integer start, Integer end,
+				String strand, String source, String description, List<Transcript> transcripts, MiRNAGene mirna,
+				List<ExpressionValue> expressionValueList) {
 		super();
 //		this._id = id;
 		this.id = id;
@@ -43,6 +63,7 @@ public class Gene implements Serializable {
 		this.description = description;
 		this.transcripts = transcripts;
 		this.mirna = mirna;
+		this.expressionValues = expressionValueList;
 	}
 	
 	
@@ -149,8 +170,9 @@ public class Gene implements Serializable {
 		return mirna;
 	}
 
-	public void setMirna(MiRNAGene mirna) {
-		this.mirna = mirna;
-	}
-	
+	public void setMirna(MiRNAGene mirna) {	this.mirna = mirna; }
+
+	public List<ExpressionValue> getExpressionValues() { return expressionValues; }
+
+	public void setExpressionValues(List<ExpressionValue> expressionValues) { this.expressionValues = expressionValues;	}
 }

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2015 OpenCB
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.opencb.biodata.models.variant;
 
 import org.junit.Ignore;
@@ -41,10 +57,9 @@ public class VariantAggregatedVcfFactoryTest extends GenericTest {
         List<Variant> variants = factory.create(source, line);
 
         VariantStats stats = variants.get(0).getSourceEntry(source.getFileId(), source.getStudyId()).getStats();
-        assertEquals(stats.getGenotypesCount().get(new Genotype("0/0", "C", "T")), new Integer(304));
-        assertEquals(stats.getGenotypesCount().get(new Genotype("0/1", "C", "T")), new Integer(163));
-        assertEquals(stats.getGenotypesCount().get(new Genotype("T/T", "C", "T")), new Integer(31));
-        
+        assertEquals(new Integer(304), stats.getGenotypesCount().get(new Genotype("0/0", "C", "T")));
+        assertEquals(new Integer(163), stats.getGenotypesCount().get(new Genotype("0/1", "C", "T")));
+        assertEquals(new Integer(31),  stats.getGenotypesCount().get(new Genotype("T/T", "C", "T")));
     }
     
     @Test
@@ -71,6 +86,18 @@ public class VariantAggregatedVcfFactoryTest extends GenericTest {
         stats = variants.get(1).getSourceEntry(source.getFileId(), source.getStudyId()).getCohortStats("ALL");
         assertEquals(new Integer(6), stats.getGenotypesCount().get(new Genotype("0/1", "G", "C")));
         
+    }
+    
+    @Test
+    public void parseWithGTS () {
+        String line = "1\t861255\t.\tA\tG\t.\tPASS\tAC=2;AF=0.0285714285714286;AN=70;GTS=GG,GA,AA;GTC=1,0,34";
+
+        List<Variant> variants = factory.create(source, line);
+
+        VariantStats stats = variants.get(0).getSourceEntry(source.getFileId(), source.getStudyId()).getStats();
+        assertEquals(new Integer(34), stats.getGenotypesCount().get(new Genotype("0/0", "A", "G")));
+        assertEquals(new Integer(0),  stats.getGenotypesCount().get(new Genotype("0/1", "A", "G")));
+        assertEquals(new Integer(1),  stats.getGenotypesCount().get(new Genotype("G/G", "A", "G")));
     }
     
     @Test

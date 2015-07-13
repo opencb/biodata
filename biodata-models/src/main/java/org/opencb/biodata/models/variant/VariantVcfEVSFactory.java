@@ -1,14 +1,24 @@
+/*
+ * Copyright 2015 OpenCB
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.opencb.biodata.models.variant;
 
-import org.opencb.biodata.models.feature.Genotype;
-import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
@@ -17,15 +27,6 @@ import java.util.regex.Pattern;
  */
 public class VariantVcfEVSFactory extends VariantAggregatedVcfFactory {
 
-    private final Pattern singleNuc = Pattern.compile("^[ACTG]$");
-    private final Pattern singleRef = Pattern.compile("^R$");
-    private final Pattern refAlt = Pattern.compile("^([ACTG])([ACTG])$");
-    private final Pattern refRef = Pattern.compile("^R{2}$");
-    private final Pattern altNum = Pattern.compile("^A(\\d+)$");
-    private final Pattern altNumaltNum = Pattern.compile("^A(\\d+)A(\\d+)$");
-    private final Pattern altNumRef = Pattern.compile("^A(\\d+)R$");
-
-   
 
     public VariantVcfEVSFactory() {
         this(null);
@@ -91,82 +92,9 @@ public class VariantVcfEVSFactory extends VariantAggregatedVcfFactory {
 
         if (file.hasAttribute("GTS") && file.hasAttribute("GTC")) {
             String splitsGTC[] = file.getAttribute("GTC").split(",");
-            addGenotype(variant, file, splitsGTC, alternateAlleles, numAllele, stats);
+            addGenotypeWithGTS(variant, file, splitsGTC, alternateAlleles, numAllele, stats);
         }
         file.setStats(stats);
-    }
-
-    private Genotype parseGenotype(String gt, Variant variant, int numAllele, String[] alternateAlleles) {
-        Genotype g;
-        Matcher m;
-
-        m = singleNuc.matcher(gt);
-
-        if (m.matches()) { // A,C,T,G
-            g = new Genotype(gt + "/" + gt, variant.getReference(), variant.getAlternate());
-            return g;
-        }
-        m = singleRef.matcher(gt);
-        if (m.matches()) { // R
-            g = new Genotype(variant.getReference() + "/" + variant.getReference(), variant.getReference(), variant.getAlternate());
-            return g;
-        }
-
-        m = refAlt.matcher(gt);
-        if (m.matches()) { // AA,AC,TT,GT,...
-            String ref = m.group(1);
-            String alt = m.group(2);
-
-            int allele1 = (Arrays.asList(alternateAlleles).indexOf(ref) + 1);
-            int allele2 = (Arrays.asList(alternateAlleles).indexOf(alt) + 1);
-
-            int val1 = mapToMultiallelicIndex(allele1, numAllele);
-            int val2 = mapToMultiallelicIndex(allele2, numAllele);
-
-            return new Genotype(val1 + "/" + val2, variant.getReference(), variant.getAlternate());
-            
-//            if ((allele1 == 0 || allele1 == (numAllele + 1)) && (allele2 == 0 || allele2 == (numAllele + 1))) {
-//
-//                allele1 = allele1 > 1 ? 1 : allele1;
-//                allele2 = allele2 > 1 ? 1 : allele2;
-//                g = new Genotype(allele1 + "/" + allele2, variant.getReference(), variant.getAlternate());
-//
-//                return g;
-//            } else {
-//                return new Genotype("./.", variant.getReference(), variant.getAlternate());
-//            }
-        }
-
-        m = refRef.matcher(gt);
-        if (m.matches()) { // RR
-            g = new Genotype(variant.getReference() + "/" + variant.getReference(), variant.getReference(), variant.getAlternate());
-            return g;
-        }
-
-        m = altNum.matcher(gt);
-        if (m.matches()) { // A1,A2,A3
-            int val = Integer.parseInt(m.group(1));
-            val = mapToMultiallelicIndex(val, numAllele);
-            return new Genotype(val + "/" + val, variant.getReference(), variant.getAlternate());
-        }
-
-        m = altNumaltNum.matcher(gt);
-        if (m.matches()) { // A1A2,A1A3...
-            int val1 = Integer.parseInt(m.group(1));
-            int val2 = Integer.parseInt(m.group(2));
-            val1 = mapToMultiallelicIndex(val1, numAllele);
-            val2 = mapToMultiallelicIndex(val2, numAllele);
-            return new Genotype(val1 + "/" + val2, variant.getReference(), variant.getAlternate());
-        }
-
-        m = altNumRef.matcher(gt);
-        if (m.matches()) { // A1R, A2R
-            int val1 = Integer.parseInt(m.group(1));
-            val1 = mapToMultiallelicIndex(val1, numAllele);
-            return new Genotype(val1 + "/" + 0, variant.getReference(), variant.getAlternate());
-        }
-
-        return null;
     }
 
 
@@ -198,7 +126,7 @@ public class VariantVcfEVSFactory extends VariantAggregatedVcfFactory {
                                 // TODO implement this. also, take into account that needed fields may not be processed yet
                                 break;
                             case "GTC":
-                                addGenotype(variant, sourceEntry, values, alternateAlleles, numAllele, cohortStats);
+                                addGenotypeWithGTS(variant, sourceEntry, values, alternateAlleles, numAllele, cohortStats);
                                 break;
                             default:
                                 break;
@@ -223,24 +151,6 @@ public class VariantVcfEVSFactory extends VariantAggregatedVcfFactory {
                 }
             }
             // TODO reprocess stats to complete inferable values. A StatsHolder may be needed to keep values not storables in VariantStats
-        }
-    }
-
-    private void addGenotype(Variant variant, VariantSourceEntry sourceEntry, String[] splitsGTC, String[] alternateAlleles
-            , int numAllele, VariantStats cohortStats) {
-        if (sourceEntry.hasAttribute("GTS")) {
-            String splitsGTS[] = sourceEntry.getAttribute("GTS").split(",");
-            if (splitsGTC.length == splitsGTS.length) {
-                for (int i = 0; i < splitsGTC.length; i++) {
-                    String gt = splitsGTS[i];
-                    int gtCount = Integer.parseInt(splitsGTC[i]);
-                    
-                    Genotype g = parseGenotype(gt, variant, numAllele, alternateAlleles);
-                    if (g != null) {
-                        cohortStats.addGenotype(g, gtCount);
-                    }
-                }
-            }
         }
     }
 
