@@ -426,7 +426,7 @@ public class Variant {
     }
 
     private String composeId(String studyId, String fileId) {
-        return studyId + "_" + fileId;
+        return studyId + (fileId == null? "" : "_" + fileId);
     }
     
 }
