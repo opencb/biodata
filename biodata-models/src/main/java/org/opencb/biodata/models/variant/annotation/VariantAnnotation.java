@@ -17,7 +17,6 @@
 package org.opencb.biodata.models.variant.annotation;
 
 
-import org.opencb.biodata.models.feature.Gene;
 import org.opencb.biodata.models.variation.PopulationFrequency;
 
 import java.util.*;
@@ -37,7 +36,7 @@ public class VariantAnnotation {
     
     private String referenceAllele;
 
-    private String alternativeAllele;
+    private String alternateAllele;
 
     private String id;
 
@@ -47,7 +46,7 @@ public class VariantAnnotation {
 
     private List<ConsequenceType> consequenceTypes;
 
-    private List<Score> conservedRegionScores;
+    private List<Score> conservationScores;
 
     private List<PopulationFrequency> populationFrequencies = null;
 
@@ -55,7 +54,7 @@ public class VariantAnnotation {
 
 //    private List<ExpressionValue> expressionValues;
 
-    private Map<String, Object> clinicalData;
+    private Map<String, Object> clinical;
 
     private Map<String, Object> additionalAttributes;
 
@@ -70,12 +69,12 @@ public class VariantAnnotation {
         this.referenceAllele = referenceAllele;
     }
 
-    public VariantAnnotation(String chromosome, int start, int end, String referenceAllele, String alternativeAllele) {
+    public VariantAnnotation(String chromosome, int start, int end, String referenceAllele, String alternateAllele) {
         this.chromosome = chromosome;
         this.start = start;
         this.end = end;
         this.referenceAllele = referenceAllele;
-        this.alternativeAllele = alternativeAllele;
+        this.alternateAllele = alternateAllele;
     }
 
     public String getChromosome() {
@@ -110,12 +109,12 @@ public class VariantAnnotation {
         this.referenceAllele = referenceAllele;
     }
 
-    public String getAlternativeAllele() {
-        return alternativeAllele;
+    public String getAlternateAllele() {
+        return alternateAllele;
     }
 
-    public void setAlternativeAllele(String alternativeAllele) {
-        this.alternativeAllele = alternativeAllele;
+    public void setAlternateAllele(String alternateAllele) {
+        this.alternateAllele = alternateAllele;
     }
 
     public String getId() {
@@ -150,12 +149,12 @@ public class VariantAnnotation {
         this.consequenceTypes = consequenceTypes;
     }
 
-    public List<Score> getConservedRegionScores() {
-        return conservedRegionScores;
+    public List<Score> getConservationScores() {
+        return conservationScores;
     }
 
-    public void setConservedRegionScores(List<Score> conservedRegionScores) {
-        this.conservedRegionScores = conservedRegionScores;
+    public void setConservationScores(List<Score> conservationScores) {
+        this.conservationScores = conservationScores;
     }
 
     public List<PopulationFrequency> getPopulationFrequencies() {
@@ -189,12 +188,12 @@ public class VariantAnnotation {
 //        this.expressionValues = expressionValues;
 //    }
 
-    public Map<String, Object> getClinicalData() {
-        return clinicalData;
+    public Map<String, Object> getClinical() {
+        return clinical;
     }
 
-    public void setClinicalData(Map<String, Object> clinicalData) {
-        this.clinicalData = clinicalData;
+    public void setClinical(Map<String, Object> clinical) {
+        this.clinical = clinical;
     }
 
     public Map<String, Object> getAdditionalAttributes() {
