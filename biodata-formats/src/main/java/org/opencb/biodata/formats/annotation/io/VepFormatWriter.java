@@ -16,24 +16,18 @@
 
 package org.opencb.biodata.formats.annotation.io;
 
-import org.apache.commons.lang.StringUtils;
 import org.opencb.biodata.models.variant.annotation.ConsequenceType;
 import org.opencb.biodata.models.variant.annotation.VariantAnnotation;
 import org.opencb.commons.io.DataWriter;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.zip.GZIPOutputStream;
 
 /**
  * Created by fjlopez on 12/02/15.
@@ -102,7 +96,7 @@ public class VepFormatWriter implements DataWriter<VariantAnnotation> {
         String alt;
         String pos;
         // Short deletion
-        if(variantAnnotation.getAlternativeAllele().equals("-")) {
+        if(variantAnnotation.getAlternateAllele().equals("-")) {
             alt = "-";
             if(variantAnnotation.getReferenceAllele().length()>1) {
                 pos = variantAnnotation.getStart() + "-" + (variantAnnotation.getStart() + variantAnnotation.getReferenceAllele().length() - 1);
@@ -111,11 +105,11 @@ public class VepFormatWriter implements DataWriter<VariantAnnotation> {
             }
         } else if(variantAnnotation.getReferenceAllele().equals("-")) {
             // Short insertion
-            alt = variantAnnotation.getAlternativeAllele();
+            alt = variantAnnotation.getAlternateAllele();
             pos = (variantAnnotation.getStart()-1) + "-" + variantAnnotation.getStart();
             // SNV
         } else {
-            alt = variantAnnotation.getAlternativeAllele();
+            alt = variantAnnotation.getAlternateAllele();
             pos = Integer.toString(variantAnnotation.getStart()-1);
         }
 

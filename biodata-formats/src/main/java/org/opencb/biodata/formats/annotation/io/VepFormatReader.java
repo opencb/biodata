@@ -16,7 +16,6 @@
 
 package org.opencb.biodata.formats.annotation.io;
 
-import org.opencb.biodata.formats.protein.uniprot.v135jaxb.InteractantType;
 import org.opencb.biodata.formats.variant.vcf4.io.VariantVcfReader;
 import org.opencb.biodata.models.variant.annotation.ConsequenceType;
 import org.opencb.biodata.models.variant.annotation.Score;
@@ -367,10 +366,10 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
         populationFrequency.setPop(population);
         populationFrequency.setSuperPop(population);
         populationFrequency.setRefAllele(currentAnnotation.getReferenceAllele());
-        populationFrequency.setAltAllele(currentAnnotation.getAlternativeAllele());
+        populationFrequency.setAltAllele(currentAnnotation.getAlternateAllele());
         for(String frequencyString : frequencyStrings.split(",")) {
             String[] parts = frequencyString.split(":");
-            if (parts[0].equals(currentAnnotation.getAlternativeAllele())) {
+            if (parts[0].equals(currentAnnotation.getAlternateAllele())) {
                 populationFrequency.setAltAlleleFreq(Float.valueOf(parts[1]));
             } else {
                 populationFrequency.setRefAlleleFreq(Float.valueOf(parts[1]));
