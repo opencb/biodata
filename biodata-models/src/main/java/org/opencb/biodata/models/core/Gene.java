@@ -68,7 +68,27 @@ public class Gene implements Serializable {
 		this.expressionValues = expressionValueList;
 		this.drugInteractions = drugInteractionList;
 	}
-	
+
+	public Gene(String id, String name, String biotype, String status, String chromosome, Integer start, Integer end,
+				String strand, String source, String description, List<Transcript> transcripts, MiRNAGene mirna,
+				List<ExpressionValue> expressionValueList) {
+		super();
+//		this._id = id;
+		this.id = id;
+		this.name = name;
+		this.biotype = biotype;
+		this.status = status;
+		this.chromosome = chromosome;
+		this.start = start;
+		this.end = end;
+		this.strand = strand;
+		this.source = source;
+		this.description = description;
+		this.transcripts = transcripts;
+		this.mirna = mirna;
+		this.expressionValues = expressionValueList;
+	}
+
 	
 
 	@Override
