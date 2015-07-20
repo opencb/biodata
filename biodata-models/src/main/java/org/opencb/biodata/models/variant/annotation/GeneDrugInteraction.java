@@ -3,21 +3,27 @@ package org.opencb.biodata.models.variant.annotation;
 /**
  * Created by fjlopez on 16/07/15.
  */
-public class DrugInteraction {
+public class GeneDrugInteraction {
 
+    private String geneName;
     private String drugName;
     private String source;
     private String studyType;
     private String type;
 
-    public DrugInteraction() {};
+    public GeneDrugInteraction() {};
 
-    public DrugInteraction(String drugName, String source, String studyType, String type) {
+    public GeneDrugInteraction(String geneName, String drugName, String source, String studyType, String type) {
+        this.geneName = geneName;
         this.drugName = drugName;
         this.source = source;
         this.studyType = studyType;
         this.type = type;
     }
+
+    public String getGeneName() { return geneName; }
+
+    public void setGeneName(String geneName) { this.geneName = geneName; }
 
     public String getDrugName() {
         return drugName;

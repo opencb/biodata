@@ -16,7 +16,7 @@
 
 package org.opencb.biodata.models.core;
 
-import org.opencb.biodata.models.variant.annotation.DrugInteraction;
+import org.opencb.biodata.models.variant.annotation.GeneDrugInteraction;
 import org.opencb.biodata.models.variant.annotation.ExpressionValue;
 
 import java.io.Serializable;
@@ -42,7 +42,7 @@ public class Gene implements Serializable {
 	private List<Transcript> transcripts;
 	private MiRNAGene mirna;
 	private List<ExpressionValue> expressionValues;
-	private List<DrugInteraction> drugInteractions;
+	private List<GeneDrugInteraction> drugInteractions;
 
 	public Gene() {
 		
@@ -50,7 +50,7 @@ public class Gene implements Serializable {
 
 	public Gene(String id, String name, String biotype, String status, String chromosome, Integer start, Integer end,
 				String strand, String source, String description, List<Transcript> transcripts, MiRNAGene mirna,
-				List<ExpressionValue> expressionValueList, List<DrugInteraction> drugInteractionList) {
+				List<ExpressionValue> expressionValueList, List<GeneDrugInteraction> drugInteractionList) {
 		super();
 //		this._id = id;
 		this.id = id;
@@ -199,7 +199,7 @@ public class Gene implements Serializable {
 
 	public void setExpressionValues(List<ExpressionValue> expressionValues) { this.expressionValues = expressionValues;	}
 
-	public List<DrugInteraction> getDrugInteractions() { return drugInteractions; }
+	public List<GeneDrugInteraction> getDrugInteractions() { return drugInteractions; }
 
-	public void setDrugInteractions(List<DrugInteraction> drugInteractions) { this.drugInteractions = drugInteractions; }
+	public void setDrugInteractions(List<GeneDrugInteraction> drugInteractions) { this.drugInteractions = drugInteractions; }
 }
