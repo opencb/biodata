@@ -53,6 +53,7 @@ public class VariantAnnotation {
     private List<CaddScore> caddScores;
 
 //    private List<ExpressionValue> expressionValues;
+    private Map<String, List<Object>> geneDrugInteraction;
 
     private Map<String, Object> clinical;
 
@@ -180,7 +181,11 @@ public class VariantAnnotation {
         this.caddScores = caddScores;
     }
 
-//    public List<ExpressionValue> getExpressionValues() {
+    public Map<String, List<Object>> getGeneDrugInteraction() { return geneDrugInteraction; }
+
+    public void setGeneDrugInteraction(Map<String, List<Object>> geneDrugInteraction) { this.geneDrugInteraction = geneDrugInteraction; }
+
+    //    public List<ExpressionValue> getExpressionValues() {
 //        return expressionValues;
 //    }
 //
