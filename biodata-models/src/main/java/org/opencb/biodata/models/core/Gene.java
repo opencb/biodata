@@ -16,6 +16,7 @@
 
 package org.opencb.biodata.models.core;
 
+import org.opencb.biodata.models.variant.annotation.GeneDrugInteraction;
 import org.opencb.biodata.models.variant.annotation.ExpressionValue;
 
 import java.io.Serializable;
@@ -41,16 +42,16 @@ public class Gene implements Serializable {
 	private List<Transcript> transcripts;
 	private MiRNAGene mirna;
 	private List<ExpressionValue> expressionValues;
-	
+	private List<GeneDrugInteraction> drugInteractions;
+
 	public Gene() {
 		
 	}
 
 	public Gene(String id, String name, String biotype, String status, String chromosome, Integer start, Integer end,
 				String strand, String source, String description, List<Transcript> transcripts, MiRNAGene mirna,
-				List<ExpressionValue> expressionValueList) {
+				List<ExpressionValue> expressionValueList, List<GeneDrugInteraction> drugInteractionList) {
 		super();
-//		this._id = id;
 		this.id = id;
 		this.name = name;
 		this.biotype = biotype;
@@ -64,8 +65,16 @@ public class Gene implements Serializable {
 		this.transcripts = transcripts;
 		this.mirna = mirna;
 		this.expressionValues = expressionValueList;
+		this.drugInteractions = drugInteractionList;
 	}
-	
+
+	public Gene(String id, String name, String biotype, String status, String chromosome, Integer start, Integer end,
+				String strand, String source, String description, List<Transcript> transcripts, MiRNAGene mirna,
+				List<ExpressionValue> expressionValueList) {
+		this(id, name, biotype, status, chromosome, start, end, strand, source, description, transcripts, mirna,
+				expressionValueList, null);
+	}
+
 	
 
 	@Override
@@ -175,4 +184,8 @@ public class Gene implements Serializable {
 	public List<ExpressionValue> getExpressionValues() { return expressionValues; }
 
 	public void setExpressionValues(List<ExpressionValue> expressionValues) { this.expressionValues = expressionValues;	}
+
+	public List<GeneDrugInteraction> getDrugInteractions() { return drugInteractions; }
+
+	public void setDrugInteractions(List<GeneDrugInteraction> drugInteractions) { this.drugInteractions = drugInteractions; }
 }
