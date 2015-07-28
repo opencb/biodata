@@ -245,4 +245,14 @@ public class Transcript implements Serializable {
 	public String getcDnaSequence() { return cDnaSequence; }
 
 	public void setcDnaSequence(String cDnaSequence) { this.cDnaSequence = cDnaSequence; }
+
+	public boolean unconfirmedStart() {
+		return (this.getAnnotationFlags()!=null &&
+				this.getAnnotationFlags().contains("cds_start_NF"));
+	}
+
+	public boolean unconfirmedEnd() {
+		return (this.getAnnotationFlags()!=null &&
+				this.getAnnotationFlags().contains("cds_end_NF"));
+	}
 }
