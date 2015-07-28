@@ -97,15 +97,20 @@ public class JsonAnnotationWriter implements DataWriter<VariantAnnotation> {
     @Override
     public boolean write(List<VariantAnnotation> list) {
 
-        for(VariantAnnotation variantAnnotation : list) {
-            write(variantAnnotation);
-        }
+        if (list != null) {
+            for(VariantAnnotation variantAnnotation : list) {
+                write(variantAnnotation);
+            }
 
-        writtenVariantAnnotations +=list.size();
-        if((writtenVariantAnnotations%2000)==0) {
-            logger.info("{} written annotations.", writtenVariantAnnotations);
-        }
+            writtenVariantAnnotations +=list.size();
+            if((writtenVariantAnnotations%2000)==0) {
+                logger.info("{} written annotations.", writtenVariantAnnotations);
+            }
 
-        return true;
+            return true;
+        } else {
+            logger.warn("JsonAnnotationWriter: list is null");
+        }
+        return false;
     }
 }
