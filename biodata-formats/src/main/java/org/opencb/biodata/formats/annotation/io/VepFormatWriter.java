@@ -1,23 +1,33 @@
+/*
+ * Copyright 2015 OpenCB
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.opencb.biodata.formats.annotation.io;
 
-import org.apache.commons.lang.StringUtils;
 import org.opencb.biodata.models.variant.annotation.ConsequenceType;
 import org.opencb.biodata.models.variant.annotation.VariantAnnotation;
 import org.opencb.commons.io.DataWriter;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.zip.GZIPOutputStream;
 
 /**
  * Created by fjlopez on 12/02/15.
@@ -86,21 +96,20 @@ public class VepFormatWriter implements DataWriter<VariantAnnotation> {
         String alt;
         String pos;
         // Short deletion
-        if(variantAnnotation.getAlternativeAllele().equals("-")) {
+        if(variantAnnotation.getAlternateAllele().equals("-")) {
             alt = "-";
             if(variantAnnotation.getReferenceAllele().length()>1) {
                 pos = variantAnnotation.getStart() + "-" + (variantAnnotation.getStart() + variantAnnotation.getReferenceAllele().length() - 1);
             } else {
                 pos = Integer.toString(variantAnnotation.getStart());
             }
-            // Alternate length may be > 1 if it contains <DEL>
         } else if(variantAnnotation.getReferenceAllele().equals("-")) {
             // Short insertion
-            alt = variantAnnotation.getAlternativeAllele();
+            alt = variantAnnotation.getAlternateAllele();
             pos = (variantAnnotation.getStart()-1) + "-" + variantAnnotation.getStart();
             // SNV
         } else {
-            alt = variantAnnotation.getAlternativeAllele();
+            alt = variantAnnotation.getAlternateAllele();
             pos = Integer.toString(variantAnnotation.getStart()-1);
         }
 

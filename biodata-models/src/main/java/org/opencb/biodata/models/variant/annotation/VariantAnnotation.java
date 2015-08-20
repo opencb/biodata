@@ -1,7 +1,22 @@
+/*
+ * Copyright 2015 OpenCB
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.opencb.biodata.models.variant.annotation;
 
 
-import org.opencb.biodata.models.feature.Gene;
 import org.opencb.biodata.models.variation.PopulationFrequency;
 
 import java.util.*;
@@ -21,7 +36,7 @@ public class VariantAnnotation {
     
     private String referenceAllele;
 
-    private String alternativeAllele;
+    private String alternateAllele;
 
     private String id;
 
@@ -31,15 +46,16 @@ public class VariantAnnotation {
 
     private List<ConsequenceType> consequenceTypes;
 
-    private List<Score> conservedRegionScores;
+    private List<Score> conservationScores;
 
     private List<PopulationFrequency> populationFrequencies = null;
 
     private List<CaddScore> caddScores;
 
-    private List<ExpressionValue> expressionValues;
+//    private List<ExpressionValue> expressionValues;
+    private Map<String, List<Object>> geneDrugInteraction;
 
-    private Map<String, Object> clinicalData;
+    private Map<String, Object> clinical;
 
     private Map<String, Object> additionalAttributes;
 
@@ -54,12 +70,12 @@ public class VariantAnnotation {
         this.referenceAllele = referenceAllele;
     }
 
-    public VariantAnnotation(String chromosome, int start, int end, String referenceAllele, String alternativeAllele) {
+    public VariantAnnotation(String chromosome, int start, int end, String referenceAllele, String alternateAllele) {
         this.chromosome = chromosome;
         this.start = start;
         this.end = end;
         this.referenceAllele = referenceAllele;
-        this.alternativeAllele = alternativeAllele;
+        this.alternateAllele = alternateAllele;
     }
 
     public String getChromosome() {
@@ -94,12 +110,12 @@ public class VariantAnnotation {
         this.referenceAllele = referenceAllele;
     }
 
-    public String getAlternativeAllele() {
-        return alternativeAllele;
+    public String getAlternateAllele() {
+        return alternateAllele;
     }
 
-    public void setAlternativeAllele(String alternativeAllele) {
-        this.alternativeAllele = alternativeAllele;
+    public void setAlternateAllele(String alternateAllele) {
+        this.alternateAllele = alternateAllele;
     }
 
     public String getId() {
@@ -134,12 +150,12 @@ public class VariantAnnotation {
         this.consequenceTypes = consequenceTypes;
     }
 
-    public List<Score> getConservedRegionScores() {
-        return conservedRegionScores;
+    public List<Score> getConservationScores() {
+        return conservationScores;
     }
 
-    public void setConservedRegionScores(List<Score> conservedRegionScores) {
-        this.conservedRegionScores = conservedRegionScores;
+    public void setConservationScores(List<Score> conservationScores) {
+        this.conservationScores = conservationScores;
     }
 
     public List<PopulationFrequency> getPopulationFrequencies() {
@@ -165,20 +181,24 @@ public class VariantAnnotation {
         this.caddScores = caddScores;
     }
 
-    public List<ExpressionValue> getExpressionValues() {
-        return expressionValues;
+    public Map<String, List<Object>> getGeneDrugInteraction() { return geneDrugInteraction; }
+
+    public void setGeneDrugInteraction(Map<String, List<Object>> geneDrugInteraction) { this.geneDrugInteraction = geneDrugInteraction; }
+
+    //    public List<ExpressionValue> getExpressionValues() {
+//        return expressionValues;
+//    }
+//
+//    public void setExpressionValues(List<ExpressionValue> expressionValues) {
+//        this.expressionValues = expressionValues;
+//    }
+
+    public Map<String, Object> getClinical() {
+        return clinical;
     }
 
-    public void setExpressionValues(List<ExpressionValue> expressionValues) {
-        this.expressionValues = expressionValues;
-    }
-
-    public Map<String, Object> getClinicalData() {
-        return clinicalData;
-    }
-
-    public void setClinicalData(Map<String, Object> clinicalData) {
-        this.clinicalData = clinicalData;
+    public void setClinical(Map<String, Object> clinical) {
+        this.clinical = clinical;
     }
 
     public Map<String, Object> getAdditionalAttributes() {
@@ -229,18 +249,18 @@ public class VariantAnnotation {
 //        this.genes = genes;
 //    }
 
-    public void addGene(Gene gene) {
-        // TODO: broken compatibility with VariantGenesAnnotator
-    }
+//    public void addGene(Gene gene) {
+//        // TODO: broken compatibility with VariantGenesAnnotator
+//    }
 
 //    public void addGene(Gene gene) {
 //        this.genes.add(gene);
 //    }
 //
-    public Map<String, List<VariantEffect>> getEffects() {
-        // TODO: broken compatibility with VariantConsequenceTypeAnnotator
-        return new HashMap<>();
-    }
+//    public Map<String, List<VariantEffect>> getEffects() {
+//        // TODO: broken compatibility with VariantConsequenceTypeAnnotator
+//        return new HashMap<>();
+//    }
 
 //    public Map<String, List<VariantEffect>> getEffects() {
 //        return effects;
@@ -265,9 +285,9 @@ public class VariantAnnotation {
 //    }
 //
 
-    public Map<String, Set<Frequency>> getFrequencies() {
-        return new HashMap<>(); // TODO: broken compatibility with VariantEffectConverter
-    }
+//    public Map<String, Set<Frequency>> getFrequencies() {
+//        return new HashMap<>(); // TODO: broken compatibility with VariantEffectConverter
+//    }
 
 //    public Map<String, Set<Frequency>> getFrequencies() {
 //        return frequencies;
@@ -290,17 +310,17 @@ public class VariantAnnotation {
 //        return frequenciesBySuperPopulation.add(frequency);
 //    }
 
-    public ProteinSubstitutionScores getProteinSubstitutionScores() {
-        // TODO: broken compatibility with VariantPolyphenSIFTAnnotator. proteinSubstitutionScores is no longer within VariantAnnotation. Remove after compatibility is solved.
-        return null;
-    }
+//    public ProteinSubstitutionScores getProteinSubstitutionScores() {
+//        // TODO: broken compatibility with VariantPolyphenSIFTAnnotator. proteinSubstitutionScores is no longer within VariantAnnotation. Remove after compatibility is solved.
+//        return null;
+//    }
 
-    public void setRegulatoryEffect(RegulatoryEffect regulatoryEffect) {}  // TODO: broken compatibility with VariantEffectConverter
-
-    public RegulatoryEffect getRegulatoryEffect() {
-        // TODO: broken compatibility with VariantEffectConverter
-        return null;
-    }
+//    public void setRegulatoryEffect(RegulatoryEffect regulatoryEffect) {}  // TODO: broken compatibility with VariantEffectConverter
+//
+//    public RegulatoryEffect getRegulatoryEffect() {
+//        // TODO: broken compatibility with VariantEffectConverter
+//        return null;
+//    }
 
 //    public RegulatoryEffect getRegulatoryEffect() {
 //        return regulatoryEffect;
