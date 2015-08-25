@@ -368,16 +368,18 @@ public class VariantVcfFactory implements VariantFactory {
                         String[] ids = splits[1].split(",");
                         file.addAttribute(splits[0], ids[numAllele]);
                         break;
-                    case "AC":
-                        // TODO For now, only one alternate is supported
-                        String[] counts = splits[1].split(",");
-                        file.addAttribute(splits[0], counts[numAllele]);
-                        break;
-                    case "AF":
-                        // TODO For now, only one alternate is supported
-                        String[] frequencies = splits[1].split(",");
-                        file.addAttribute(splits[0], frequencies[numAllele]);
-                        break;
+
+                // next is commented to store the AC, AF and AN as-is, to be able to compute stats from the DB using the attributes, and "ori" tag
+//                    case "AC":
+//                        // TODO For now, only one alternate is supported
+//                        String[] counts = splits[1].split(",");
+//                        file.addAttribute(splits[0], counts[numAllele]);
+//                        break;
+//                    case "AF":
+//                         // TODO For now, only one alternate is supported
+//                        String[] frequencies = splits[1].split(",");
+//                        file.addAttribute(splits[0], frequencies[numAllele]);
+//                        break;
 //                    case "AN":
 //                        // TODO For now, only two alleles (reference and one alternate) are supported, but this should be changed
 //                        file.addAttribute(splits[0], "2");

@@ -24,6 +24,7 @@ import org.broad.tribble.readers.TabixReader;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.*;
 import org.opencb.biodata.models.variant.stats.VariantStats;
+import org.opencb.biodata.tools.variant.stats.VariantStatsCalculator;
 
 /**
  * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
@@ -149,7 +150,7 @@ public class VariantControlAnnotator implements VariantAnnotator {
 
                         listRecords = factory.create(source, line);
 
-                        VariantStats.calculateStatsForVariantsList(listRecords, null);
+                        VariantStatsCalculator.calculateStatsForVariantsList(listRecords, null);
 
                         for(Variant v : listRecords){
                             if(v.getReference().equals(record.getReference()) && v.getAlternate().equals(record.getAlternate())){
@@ -263,7 +264,7 @@ public class VariantControlAnnotator implements VariantAnnotator {
 
         }
 
-        VariantStats.calculateStatsForVariantsList(controlBatch, null);
+        VariantStatsCalculator.calculateStatsForVariantsList(controlBatch, null);
 
         for (Variant record : batch) {
 
