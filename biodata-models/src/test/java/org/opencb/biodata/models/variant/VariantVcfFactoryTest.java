@@ -74,7 +74,7 @@ public class VariantVcfFactoryTest {
 
     @Test
     public void testCreateVariantFromVcfDeletionEmptyAlt() {
-        String line = "1\t1000\trs123\tTCACCC\t.\t.\t.\t.";
+        String line = "1\t999\trs123\tGTCACCC\tG\t.\t.\t.";
 
         List<Variant> expResult = new LinkedList<>();
         expResult.add(new Variant("1", 1000, 1000 + "TCACCC".length() - 1, "TCACCC", ""));
@@ -98,9 +98,9 @@ public class VariantVcfFactoryTest {
         result = factory.create(source, line);
         assertEquals(expResult, result);
         
-        line = "1\t1000\trs123\tATC\t.\t.\t.\t.";
+        line = "1\t1000\trs123\tGATC\tG\t.\t.\t.";
         expResult = new LinkedList<>();
-        expResult.add(new Variant("1", 1000, 1002, "ATC", ""));
+        expResult.add(new Variant("1", 1001, 1003, "ATC", ""));
         result = factory.create(source, line);
         assertEquals(expResult, result);
         

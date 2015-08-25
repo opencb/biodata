@@ -75,8 +75,9 @@ public class VariantVcfExacFactory extends VariantAggregatedVcfFactory {
             addHomozygousGenotype(variant, numAllele, alternateAlleles, stats, homCounts);
         }
 
+        String[] acCounts = null;
         if (sourceEntry.hasAttribute(AC_ADJ)) {   // alternative allele counts
-            String[] acCounts = sourceEntry.getAttribute(AC_ADJ).split(COMMA);
+            acCounts = sourceEntry.getAttribute(AC_ADJ).split(COMMA);
             if (acCounts.length == alternateAlleles.length) {
                 stats.setAltAlleleCount(Integer.parseInt(acCounts[numAllele]));
             }
@@ -89,6 +90,11 @@ public class VariantVcfExacFactory extends VariantAggregatedVcfFactory {
         if (sourceEntry.hasAttribute(AC_HOM) && sourceEntry.hasAttribute(AC_HET) && sourceEntry.hasAttribute(AN_ADJ)) {   // inferring implicit 0/0 count
             int an = Integer.parseInt(sourceEntry.getAttribute(AN_ADJ));
             addReferenceGenotype(variant, stats, an);
+        }
+
+        if (sourceEntry.hasAttribute(AC_ADJ) && sourceEntry.hasAttribute(AN_ADJ)) {
+            int an = Integer.parseInt(sourceEntry.getAttribute(AN_ADJ));
+            setMaf(an, acCounts, alternateAlleles, stats);
         }
 
         sourceEntry.setStats(stats);
@@ -138,6 +144,7 @@ public class VariantVcfExacFactory extends VariantAggregatedVcfFactory {
                 Integer alleleNumber = ans.get(cohortName);
                 addReferenceGenotype(variant, cohortStats, alleleNumber);
                 setRefAlleleCount(cohortStats, alleleNumber, acs.get(cohortName));
+                setMaf(alleleNumber, acs.get(cohortName), alternateAlleles, cohortStats);
             }
         }
     }
@@ -206,6 +213,26 @@ public class VariantVcfExacFactory extends VariantAggregatedVcfFactory {
                 Genotype genotype = new Genotype(gt, variant.getReference(), alternateAlleles[numAllele]);
                 stats.addGenotype(genotype, Integer.parseInt(homCounts[i]));
             }
+        }
+    }
+
+    private void setMaf(int totalAlleleCount, String alleleCounts[], String alternateAlleles[], VariantStats stats) {
+        if (stats.getMaf() == -1) {
+
+            int referenceCount = stats.getRefAlleleCount();
+            float maf = (float) referenceCount / totalAlleleCount;
+
+            String mafAllele = stats.getRefAllele();
+            for (int i = 0; i < alleleCounts.length; i++) {
+                float auxMaf = (float) Integer.parseInt(alleleCounts[i]) / totalAlleleCount;
+                if (auxMaf < maf) {
+                    maf = auxMaf;
+                    mafAllele = alternateAlleles[i];
+                }
+            }
+
+            stats.setMaf(maf);
+            stats.setMafAllele(mafAllele);
         }
     }
 

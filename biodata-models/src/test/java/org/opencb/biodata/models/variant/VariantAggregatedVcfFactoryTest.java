@@ -48,6 +48,7 @@ public class VariantAggregatedVcfFactoryTest extends GenericTest {
         stats = variants.get(1).getSourceEntry(source.getFileId(), source.getStudyId()).getStats();
         assertEquals(2904, stats.getRefAlleleCount());
         assertEquals(61, stats.getAltAlleleCount());
+        assertEquals(0.015827711, stats.getMaf(), 0.0001);
     }
     
     @Test
@@ -60,6 +61,7 @@ public class VariantAggregatedVcfFactoryTest extends GenericTest {
         assertEquals(new Integer(304), stats.getGenotypesCount().get(new Genotype("0/0", "C", "T")));
         assertEquals(new Integer(163), stats.getGenotypesCount().get(new Genotype("0/1", "C", "T")));
         assertEquals(new Integer(31),  stats.getGenotypesCount().get(new Genotype("T/T", "C", "T")));
+        assertEquals(0.225903614, stats.getMaf(), 0.0001);
     }
     
     @Test
@@ -77,6 +79,7 @@ public class VariantAggregatedVcfFactoryTest extends GenericTest {
         assertEquals(523, stats.getRefAlleleCount());
         assertEquals(3, stats.getAltAlleleCount());
         assertEquals(0.006, stats.getAltAlleleFreq(), 0.0001);
+        assertEquals(3.0/534, stats.getMaf(), 0.0001);
         assertEquals(new Integer(258), stats.getGenotypesCount().get(new Genotype("0/0", "G", "A")));
         assertEquals(new Integer(1), stats.getGenotypesCount().get(new Genotype("0/1", "G", "A")));
         assertEquals(new Integer(1), stats.getGenotypesCount().get(new Genotype("A/A", "G", "A")));
@@ -98,11 +101,11 @@ public class VariantAggregatedVcfFactoryTest extends GenericTest {
         assertEquals(new Integer(34), stats.getGenotypesCount().get(new Genotype("0/0", "A", "G")));
         assertEquals(new Integer(0),  stats.getGenotypesCount().get(new Genotype("0/1", "A", "G")));
         assertEquals(new Integer(1),  stats.getGenotypesCount().get(new Genotype("G/G", "A", "G")));
+        assertEquals(2.0/70, stats.getMaf(), 0.0001);
     }
     
     @Test
     public void getGenotype() {
-        VariantAggregatedVcfFactory factory = new VariantAggregatedVcfFactory();
         for (int i = 0; i < 11; i++) {
             Integer alleles[] = new Integer[2];
             VariantAggregatedVcfFactory.getGenotype(i, alleles);
