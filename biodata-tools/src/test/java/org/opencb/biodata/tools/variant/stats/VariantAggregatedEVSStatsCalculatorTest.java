@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package org.opencb.biodata.models.variant;
+package org.opencb.biodata.tools.variant.stats;
 
 import org.junit.Test;
 import org.opencb.biodata.models.feature.Genotype;
+import org.opencb.biodata.models.variant.*;
 import org.opencb.commons.test.GenericTest;
 
 import java.util.*;
@@ -31,10 +32,10 @@ import static org.junit.Assert.assertTrue;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  * @author Jose Miguel Mut Lopez &lt;jmmut@ebi.ac.uk&gt;
  */
-public class VariantVcfEVSFactoryTest extends GenericTest {
+public class VariantAggregatedEVSStatsCalculatorTest extends GenericTest {
 
     private VariantSource source = new VariantSource("EVS", "EVS", "EVS", "EVS");
-    private VariantFactory factory = new VariantVcfEVSFactory();
+    private VariantFactory factory = new VariantAggregatedVcfFactory();
 
     @Test
     public void testCreate_AA_AC_TT_GT() throws Exception { // AA,AC,TT,GT,...
@@ -196,7 +197,7 @@ public class VariantVcfEVSFactoryTest extends GenericTest {
         properties.put("ALL.AC", "TAC");
         properties.put("ALL.GTC", "ALL_GTC");
         properties.put("GROUPS_ORDER", "EA,AA,ALL");
-        VariantFactory evsFactory = new VariantVcfEVSFactory(properties);
+        VariantFactory evsFactory = new VariantAggregatedVcfFactory();
         
         List<Variant> res = evsFactory.create(source, line);
         
@@ -253,7 +254,7 @@ public class VariantVcfEVSFactoryTest extends GenericTest {
         properties.put("ALL.AC", "TAC");
         properties.put("ALL.GTC", "ALL_GTC");
         properties.put("GROUPS_ORDER", "EA,AA,ALL");
-        VariantFactory evsFactory = new VariantVcfEVSFactory(properties);
+        VariantFactory evsFactory = new VariantAggregatedVcfFactory();
 
         List<Variant> res = evsFactory.create(source, line);
 

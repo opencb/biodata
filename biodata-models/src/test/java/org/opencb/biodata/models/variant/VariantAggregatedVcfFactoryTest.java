@@ -73,7 +73,7 @@ public class VariantAggregatedVcfFactoryTest extends GenericTest {
         properties.put("ALL.AC", "AC");
         properties.put("ALL.AN", "AN");
         properties.put("ALL.AF", "AF");
-        List<Variant> variants = new VariantAggregatedVcfFactory(properties).create(source, line);
+        List<Variant> variants = new VariantAggregatedVcfFactory().create(source, line);
 
         VariantStats stats = variants.get(0).getSourceEntry(source.getFileId(), source.getStudyId()).getCohortStats("ALL");
         assertEquals(523, stats.getRefAlleleCount());
@@ -103,22 +103,5 @@ public class VariantAggregatedVcfFactoryTest extends GenericTest {
         assertEquals(new Integer(1),  stats.getGenotypesCount().get(new Genotype("G/G", "A", "G")));
         assertEquals(2.0/70, stats.getMaf(), 0.0001);
     }
-    
-    @Test
-    public void getGenotype() {
-        for (int i = 0; i < 11; i++) {
-            Integer alleles[] = new Integer[2];
-            VariantAggregatedVcfFactory.getGenotype(i, alleles);
-            System.out.println("alleles[" + i + "] = " + alleles[0] + "/" + alleles[1]);
-        }
 
-        Integer alleles[] = new Integer[2];
-        VariantAggregatedVcfFactory.getGenotype(0, alleles);    // 0/0
-        assertEquals(alleles[0], alleles[1]);
-        VariantAggregatedVcfFactory.getGenotype(2, alleles);    // 1/1
-        assertEquals(alleles[0], alleles[1]);
-        VariantAggregatedVcfFactory.getGenotype(5, alleles);    // 2/2
-        assertEquals(alleles[0], alleles[1]);
-        assertEquals(alleles[0], new Integer(2));
-    }
 }

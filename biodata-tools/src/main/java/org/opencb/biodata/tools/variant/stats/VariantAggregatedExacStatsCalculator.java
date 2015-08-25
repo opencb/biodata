@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 
-package org.opencb.biodata.models.variant;
+package org.opencb.biodata.tools.variant.stats;
 
 import org.opencb.biodata.models.feature.Genotype;
+import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.VariantSourceEntry;
+import org.opencb.biodata.models.variant.VariantVcfFactory;
 import org.opencb.biodata.models.variant.stats.VariantStats;
+import org.opencb.biodata.tools.variant.stats.VariantAggregatedStatsCalculator;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -27,14 +31,14 @@ import java.util.Properties;
  * Created by jmmut on 2015-03-25.
  * @author Jose Miguel Mut Lopez &lt;jmmut@ebi.ac.uk&gt;
  */
-public class VariantVcfExacFactory extends VariantAggregatedVcfFactory {
+public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStatsCalculator {
 
     private static final String AC_HOM = "AC_Hom";
     private static final String AC_HET = "AC_Het";
     private static final String AN_ADJ = "AN_Adj";
     private static final String AC_ADJ = "AC_Adj";
 
-    public VariantVcfExacFactory() {
+    public VariantAggregatedExacStatsCalculator() {
         this(null);
     }
 
@@ -54,7 +58,7 @@ public class VariantVcfExacFactory extends VariantAggregatedVcfFactory {
      * Hom is the list of homozygous counts as listed by VariantVcfExacFactory.getHomozygousGenotype()
      *
      */
-    public VariantVcfExacFactory(Properties tagMap) {
+    public VariantAggregatedExacStatsCalculator(Properties tagMap) {
         super(tagMap);
     }
 
@@ -186,7 +190,7 @@ public class VariantVcfExacFactory extends VariantAggregatedVcfFactory {
             for (int i = 0; i < hetCounts.length; i++) {
                 Integer alleles[] = new Integer[2];
                 getHeterozygousGenotype(i, alternateAlleles.length, alleles);
-                String gt = mapToMultiallelicIndex(alleles[0], numAllele) + "/" + mapToMultiallelicIndex(alleles[1], numAllele);
+                String gt = VariantVcfFactory.mapToMultiallelicIndex(alleles[0], numAllele) + "/" + VariantVcfFactory.mapToMultiallelicIndex(alleles[1], numAllele);
                 Genotype genotype = new Genotype(gt, variant.getReference(), alternateAlleles[numAllele]);
                 stats.addGenotype(genotype, Integer.parseInt(hetCounts[i]));
             }
@@ -207,7 +211,7 @@ public class VariantVcfExacFactory extends VariantAggregatedVcfFactory {
             for (int i = 0; i < homCounts.length; i++) {
                 Integer alleles[] = new Integer[2];
                 getHomozygousGenotype(i + 1, alleles);
-                String gt = mapToMultiallelicIndex(alleles[0], numAllele) + "/" + mapToMultiallelicIndex(alleles[1], numAllele);
+                String gt = VariantVcfFactory.mapToMultiallelicIndex(alleles[0], numAllele) + "/" + VariantVcfFactory.mapToMultiallelicIndex(alleles[1], numAllele);
                 Genotype genotype = new Genotype(gt, variant.getReference(), alternateAlleles[numAllele]);
                 stats.addGenotype(genotype, Integer.parseInt(homCounts[i]));
             }

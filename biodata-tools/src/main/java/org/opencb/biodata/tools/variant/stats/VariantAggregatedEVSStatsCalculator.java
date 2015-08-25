@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-package org.opencb.biodata.models.variant;
+package org.opencb.biodata.tools.variant.stats;
 
+import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.VariantSourceEntry;
 import org.opencb.biodata.models.variant.stats.VariantStats;
+import org.opencb.biodata.tools.variant.stats.VariantAggregatedStatsCalculator;
 
 import java.util.*;
 
@@ -25,11 +28,11 @@ import java.util.*;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  * @author Jose Miguel Mut Lopez &lt;jmmut@ebi.ac.uk&gt;
  */
-public class VariantVcfEVSFactory extends VariantAggregatedVcfFactory {
+public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsCalculator {
 
 
 
-    public VariantVcfEVSFactory() {
+    public VariantAggregatedEVSStatsCalculator() {
         this(null);
     }
 
@@ -49,7 +52,7 @@ public class VariantVcfEVSFactory extends VariantAggregatedVcfFactory {
      * The special tag 'GROUPS_ORDER' can be used to specify the order of the comma separated values for populations in tags such as MAF.
      *
      */
-    public VariantVcfEVSFactory(Properties tagMap) {
+    public VariantAggregatedEVSStatsCalculator(Properties tagMap) {
         super(tagMap);
     }
 

@@ -22,7 +22,8 @@ public class VariantAggregatedStatsCalculator {
     protected Properties tagMap;
     protected Map<String, String> reverseTagMap;
 
-    private final static String COMMA = ",";
+    protected final static String COMMA = ",";
+    protected final static String DOT = "\\.";   // a literal dot. extracted to avoid confusion and avoid using the wrong "." with split()
     private final static Pattern numNum = Pattern.compile("^(\\d+)[|/](\\d+)$");
 
     /**

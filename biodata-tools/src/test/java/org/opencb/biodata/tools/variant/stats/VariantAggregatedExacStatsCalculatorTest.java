@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package org.opencb.biodata.models.variant;
+package org.opencb.biodata.tools.variant.stats;
 
 import org.junit.Test;
 import org.opencb.biodata.models.feature.Genotype;
+import org.opencb.biodata.models.variant.*;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 import org.opencb.commons.test.GenericTest;
 
@@ -33,10 +34,10 @@ import static org.junit.Assert.*;
  *
  * @author Jose Miguel Mut Lopez &lt;jmmut@ebi.ac.uk&gt;
  */
-public class VariantVcfExacFactoryTest extends GenericTest {
+public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
 
     private VariantSource source = new VariantSource("Exac", "Exac", "Exac", "Exac");
-    private VariantFactory factory = new VariantVcfExacFactory();
+    private VariantFactory factory = new VariantAggregatedVcfFactory();
 
     @Test
     public void basicLine() {
@@ -234,7 +235,7 @@ public class VariantVcfExacFactoryTest extends GenericTest {
         properties.put("ALL.AN",  "AN_Adj");
         properties.put("ALL.HET", "AC_Het");
         properties.put("ALL.HOM", "AC_Hom");
-        VariantFactory exacFactory = new VariantVcfExacFactory(properties);
+        VariantFactory exacFactory = new VariantAggregatedVcfFactory();
         List<Variant> res = exacFactory.create(source, line);
 
         assertTrue(res.size() == 2);
@@ -280,33 +281,33 @@ public class VariantVcfExacFactoryTest extends GenericTest {
 
     @Test
     public void testGetHeterozygousGenotype() throws Exception {
-        VariantVcfExacFactory factory = new VariantVcfExacFactory();
+        VariantAggregatedVcfFactory factory = new VariantAggregatedVcfFactory();
         for (int i = 0; i < 11; i++) {
             Integer alleles[] = new Integer[2];
-            VariantVcfExacFactory.getHeterozygousGenotype(i, 4, alleles);
+            VariantAggregatedExacStatsCalculator.getHeterozygousGenotype(i, 4, alleles);
             System.out.println("alleles[" + i + "] = " + alleles[0] + "/" + alleles[1]);
         }
 
         Integer alleles[] = new Integer[2];
-        VariantVcfExacFactory.getHeterozygousGenotype(3, 3, alleles);
+        VariantAggregatedExacStatsCalculator.getHeterozygousGenotype(3, 3, alleles);
         assertEquals(alleles[0], new Integer(1));
         assertEquals(alleles[1], new Integer(2));
-        VariantVcfExacFactory.getHeterozygousGenotype(4, 4, alleles);
+        VariantAggregatedExacStatsCalculator.getHeterozygousGenotype(4, 4, alleles);
         assertEquals(alleles[0], new Integer(1));
         assertEquals(alleles[1], new Integer(2));
     }
 
     @Test
     public void testGetHomozygousGenotype() throws Exception {
-        VariantVcfExacFactory factory = new VariantVcfExacFactory();
+        VariantAggregatedVcfFactory factory = new VariantAggregatedVcfFactory();
         for (int i = 0; i < 11; i++) {
             Integer alleles[] = new Integer[2];
-            VariantVcfExacFactory.getHomozygousGenotype(i, alleles);
+            VariantAggregatedExacStatsCalculator.getHomozygousGenotype(i, alleles);
             System.out.println("alleles[" + i + "] = " + alleles[0] + "/" + alleles[1]);
         }
 
         Integer alleles[] = new Integer[2];
-        VariantVcfExacFactory.getHomozygousGenotype(3, alleles);    // 0/0
+        VariantAggregatedExacStatsCalculator.getHomozygousGenotype(3, alleles);    // 0/0
         assertEquals(alleles[0], alleles[1]);
     }
 }
