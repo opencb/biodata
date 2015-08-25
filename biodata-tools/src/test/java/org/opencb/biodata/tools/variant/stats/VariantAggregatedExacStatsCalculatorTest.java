@@ -64,6 +64,8 @@ public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
         assertTrue(res.size() == 1);
 
         Variant v = res.get(0);
+        VariantAggregatedExacStatsCalculator calculator = new VariantAggregatedExacStatsCalculator();
+        calculator.calculate(v);
         VariantSourceEntry sourceEntry = v.getSourceEntry(source.getFileId(), source.getStudyId());
 
         Map<Genotype, Integer> genotypes = new HashMap<>();
@@ -112,6 +114,8 @@ public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
         assertTrue(res.size() == 3);
 
         Variant v = res.get(0);
+        VariantAggregatedExacStatsCalculator calculator = new VariantAggregatedExacStatsCalculator();
+        calculator.calculate(res);
         VariantSourceEntry sourceEntry = v.getSourceEntry(source.getFileId(), source.getStudyId());
 
         Map<Genotype, Integer> genotypes = new HashMap<>();
@@ -241,6 +245,8 @@ public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
         assertTrue(res.size() == 2);
 
         Variant v = res.get(0);
+        VariantAggregatedExacStatsCalculator calculator = new VariantAggregatedExacStatsCalculator(properties);
+        calculator.calculate(res);
         VariantSourceEntry sourceEntry = v.getSourceEntry(source.getFileId(), source.getStudyId());
 
         // Allele and genotype counts
@@ -281,7 +287,6 @@ public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
 
     @Test
     public void testGetHeterozygousGenotype() throws Exception {
-        VariantAggregatedVcfFactory factory = new VariantAggregatedVcfFactory();
         for (int i = 0; i < 11; i++) {
             Integer alleles[] = new Integer[2];
             VariantAggregatedExacStatsCalculator.getHeterozygousGenotype(i, 4, alleles);
@@ -299,7 +304,6 @@ public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
 
     @Test
     public void testGetHomozygousGenotype() throws Exception {
-        VariantAggregatedVcfFactory factory = new VariantAggregatedVcfFactory();
         for (int i = 0; i < 11; i++) {
             Integer alleles[] = new Integer[2];
             VariantAggregatedExacStatsCalculator.getHomozygousGenotype(i, alleles);

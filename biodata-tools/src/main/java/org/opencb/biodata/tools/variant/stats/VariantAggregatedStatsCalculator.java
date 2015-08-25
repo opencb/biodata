@@ -8,6 +8,7 @@ import org.opencb.biodata.models.variant.VariantVcfFactory;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
@@ -26,6 +27,9 @@ public class VariantAggregatedStatsCalculator {
     protected final static String DOT = "\\.";   // a literal dot. extracted to avoid confusion and avoid using the wrong "." with split()
     private final static Pattern numNum = Pattern.compile("^(\\d+)[|/](\\d+)$");
 
+    public VariantAggregatedStatsCalculator() {
+        this(null);
+    }
     /**
      * @param tagMap Properties that contains case-sensitive tag mapping for aggregation data.
      * A valid example structure of this file is:
@@ -54,6 +58,22 @@ public class VariantAggregatedStatsCalculator {
         }
     }
 
+    public void calculate(List<Variant> variants) {
+        for (Variant variant : variants) {
+            calculate(variant);
+        }
+    }
+
+    public void calculate(Variant variant) {
+        for (VariantSourceEntry study : variant.getSourceEntries().values()) {
+            calculate(variant, study);
+        }
+    }
+
+    /**
+     * @param variant remains unchanged if the VariantSourceEntry is not inside
+     * @param study stats are written here
+     */
     public void calculate(Variant variant, VariantSourceEntry study) {
 //        Map<String, String> infoMap = VariantAggregatedVcfFactory.getInfoMap(info);
         Map<String, String> infoMap = study.getAttributes();

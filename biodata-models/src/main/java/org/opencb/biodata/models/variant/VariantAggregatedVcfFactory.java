@@ -66,8 +66,6 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
         addInfo(variant, sourceEntry, numAllele, infoMap);
         sourceEntry.setFormat(format);
         sourceEntry.addAttribute("src", line);
-
-        VariantSourceEntry file = variant.getSourceEntry(source.getFileId(), source.getStudyId());
     }
 
     public static Map<String, String> getInfoMap(String info) {
@@ -96,18 +94,16 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
                     String[] ids = infoValue.split(COMMA);
                     file.addAttribute(infoTag, ids[numAllele]);
                     break;
-                case "AC":
-                    // TODO For now, only one alternate is supported
-                    String[] counts = infoValue.split(COMMA);
-                    file.addAttribute(infoTag, counts[numAllele]);
-                    break;
-                case "AF":
-                    // TODO For now, only one alternate is supported
-                    String[] frequencies = infoValue.split(COMMA);
-                    file.addAttribute(infoTag, frequencies[numAllele]);
-                    break;
+                // next is commented to store the AC, AF and AN as-is, to be able to compute stats from the DB using the attributes, and "ori" tag
+//                case "AC":
+//                    String[] counts = infoValue.split(COMMA);
+//                    file.addAttribute(infoTag, counts[numAllele]);
+//                    break;
+//                case "AF":
+//                    String[] frequencies = infoValue.split(COMMA);
+//                    file.addAttribute(infoTag, frequencies[numAllele]);
+//                    break;
 //                    case "AN":
-//                        // TODO For now, only two alleles (reference and one alternate) are supported, but this should be changed
 //                        file.addAttribute(infoTag, "2");
 //                        break;
                 case "NS":

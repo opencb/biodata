@@ -47,6 +47,8 @@ public class VariantAggregatedEVSStatsCalculatorTest extends GenericTest {
         assertTrue(res.size() == 1);
 
         Variant v = res.get(0);
+        VariantAggregatedEVSStatsCalculator calculator = new VariantAggregatedEVSStatsCalculator();
+        calculator.calculate(v);
         VariantSourceEntry avf = v.getSourceEntry(source.getFileId(), source.getStudyId());
 
         Map<Genotype, Integer> genotypes = new HashMap<>();
@@ -68,6 +70,8 @@ public class VariantAggregatedEVSStatsCalculatorTest extends GenericTest {
         assertTrue(res.size() == 1);
 
         Variant v = res.get(0);
+        VariantAggregatedEVSStatsCalculator calculator = new VariantAggregatedEVSStatsCalculator();
+        calculator.calculate(v);
         VariantSourceEntry avf = v.getSourceEntry(source.getFileId(), source.getStudyId());
 
         Map<Genotype, Integer> genotypes = new HashMap<>();
@@ -88,6 +92,8 @@ public class VariantAggregatedEVSStatsCalculatorTest extends GenericTest {
         assertTrue(res.size() == 1);
 
         Variant v = res.get(0);
+        VariantAggregatedEVSStatsCalculator calculator = new VariantAggregatedEVSStatsCalculator();
+        calculator.calculate(v);
 
         assertEquals(v.getReference(), "G");
         assertEquals(v.getAlternate(), "");
@@ -115,6 +121,8 @@ public class VariantAggregatedEVSStatsCalculatorTest extends GenericTest {
         assertTrue(res.size() == 1);
 
         Variant v = res.get(0);
+        VariantAggregatedEVSStatsCalculator calculator = new VariantAggregatedEVSStatsCalculator();
+        calculator.calculate(v);
 
         assertEquals(v.getReference(), "T");
         assertEquals(v.getAlternate(), "");
@@ -141,6 +149,8 @@ public class VariantAggregatedEVSStatsCalculatorTest extends GenericTest {
         assertTrue(res.size() == 2);
 
         Variant v = res.get(0);
+        VariantAggregatedEVSStatsCalculator calculator = new VariantAggregatedEVSStatsCalculator();
+        calculator.calculate(res);
 
         assertEquals(v.getReference(), "");
         assertEquals(v.getAlternate(), "A");
@@ -200,6 +210,8 @@ public class VariantAggregatedEVSStatsCalculatorTest extends GenericTest {
         VariantFactory evsFactory = new VariantAggregatedVcfFactory();
         
         List<Variant> res = evsFactory.create(source, line);
+        VariantAggregatedEVSStatsCalculator calculator = new VariantAggregatedEVSStatsCalculator(properties);
+        calculator.calculate(res);
         
         // Allele count
         assertEquals(res.get(0).getSourceEntry("EVS", "EVS").getCohortStats("EA").getAltAlleleCount(), 1);
@@ -228,6 +240,7 @@ public class VariantAggregatedEVSStatsCalculatorTest extends GenericTest {
         line = "21\t10862547\trs373689868\tG\tA\t.\tPASS\tDBSNP=dbSNP_138;EA_AC=0,3182;AA_AC=6,1378;TAC=6,4560;MAF=0.0,0.4335,0.1314;GTS=AA,AG,GG;EA_GTC=0,0,1591;AA_GTC=0,6,686;GTC=0,6,2277;DP=93;GL=.;CP=0.0;CG=-1.5;AA=G;CA=.;EXOME_CHIP=no;GWAS_PUBMED=.;FG=intergenic;HGVS_CDNA_VAR=.;HGVS_PROTEIN_VAR=.;CDS_SIZES=.;GS=.;PH=.;EA_AGE=.;AA_AGE=.";
 
         res = evsFactory.create(source, line);
+        calculator.calculate(res);
         
         genotypes = new LinkedList<>();
         genotypes.add(new Genotype("1/1", "G", "A"));
@@ -257,6 +270,8 @@ public class VariantAggregatedEVSStatsCalculatorTest extends GenericTest {
         VariantFactory evsFactory = new VariantAggregatedVcfFactory();
 
         List<Variant> res = evsFactory.create(source, line);
+        VariantAggregatedEVSStatsCalculator calculator = new VariantAggregatedEVSStatsCalculator(properties);
+        calculator.calculate(res);
 
         // testing multiallelic AC 
         assertEquals(res.get(0).getSourceEntry("EVS", "EVS").getCohortStats("AA").getAltAlleleCount(), 172);
@@ -340,6 +355,7 @@ public class VariantAggregatedEVSStatsCalculatorTest extends GenericTest {
         line = "9\t17579190\trs4961573\tC\tG,A\t.\tPASS\tDBSNP=dbSNP_111;EA_AC=8156,0,0;AA_AC=4110,10,0;TAC=12266,10,0;MAF=0.0,0.2427,0.0815;GTS=GG,GA,GC,AA,AC,CC;EA_GTC=1,2,3,4,5,6;AA_GTC=2050,10,0,0,0,0;GTC=6128,10,0,0,0,0;DP=6;GL=SH3GL2;CP=0.0;CG=-1.8;AA=G;CA=.;EXOME_CHIP=no;GWAS_PUBMED=.;FG=NM_003026.2:utr-5,NM_003026.2:utr-5;HGVS_CDNA_VAR=NM_003026.2:c.-51C>A,NM_003026.2:c.-51C>G;HGVS_PROTEIN_VAR=.,.;CDS_SIZES=NM_003026.2:1059,NM_003026.2:1059;GS=.,.;PH=.,.;EA_AGE=.;AA_AGE=.";
 
         res = evsFactory.create(source, line);
+        calculator.calculate(res);
 
         // testing AC
         assertEquals(res.get(0).getSourceEntry("EVS", "EVS").getCohortStats("AA").getAltAlleleCount(), 4110);
