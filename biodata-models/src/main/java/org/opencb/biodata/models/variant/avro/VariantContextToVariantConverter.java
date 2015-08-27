@@ -287,7 +287,7 @@ public class VariantContextToVariantConverter {
 	public static List<CharSequence> getSecondaryAlternateAllele(
 			String secondaryAllel) {
 
-		System.out.println("get menthd");
+		
 		CharSequence secondaryAllelArray[] = null;
 		// CharSequence secondaryAllelElement = null;
 		StringBuffer secondaryAllelString = new StringBuffer();
