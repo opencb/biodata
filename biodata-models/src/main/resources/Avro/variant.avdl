@@ -4,7 +4,7 @@
  *  @author Pawan;
  */
 
-@namespace("models.variant.avro")
+@namespace("org.opencb.biodata.models.variant.avro")
 
 protocol Variant {	
 
