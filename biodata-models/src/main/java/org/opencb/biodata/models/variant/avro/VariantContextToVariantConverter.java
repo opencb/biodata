@@ -394,24 +394,24 @@ public class VariantContextToVariantConverter {
 			vcfdataFileWriter.setCodec(CodecFactory.snappyCodec());
 			vcfdataFileWriter.create(varRec.getSchema(), outputStream);
 
-			for (Variant s : vcfBean) {
-				varRec.setSVTHRESHOLD(s.getSVTHRESHOLD());
-				varRec.setVariantType(s.getVariantType());
-				varRec.setChromosome(s.getChromosome().length() == 0 ? "NotApplicable"
-						: s.getChromosome());
-				varRec.setStart(s.getStart());
-				varRec.setEnd(s.getEnd());
-				varRec.setLength(s.getLength());
-				varRec.setReference(s.getReference().length() == 0 ? "NotApplicable"
-						: s.getReference());
-				varRec.setAlternate(s.getAlternate().length() == 0 ? "NotApplicable"
-						: s.getAlternate());
-				varRec.setSourceEntries(s.getSourceEntries());
-				varRec.setAnnotation(s.getChromosome().length() == 0 ? "NotApplicable"
-						: s.getChromosome());
+			for (Variant variant : vcfBean) {
+				varRec.setSVTHRESHOLD(variant.getSVTHRESHOLD());
+				varRec.setVariantType(variant.getVariantType());
+				varRec.setChromosome(variant.getChromosome().length() == 0 ? "NotApplicable"
+						: variant.getChromosome());
+				varRec.setStart(variant.getStart());
+				varRec.setEnd(variant.getEnd());
+				varRec.setLength(variant.getLength());
+				varRec.setReference(variant.getReference().length() == 0 ? "NotApplicable"
+						: variant.getReference());
+				varRec.setAlternate(variant.getAlternate().length() == 0 ? "NotApplicable"
+						: variant.getAlternate());
+				varRec.setSourceEntries(variant.getSourceEntries());
+				varRec.setAnnotation(variant.getChromosome().length() == 0 ? "NotApplicable"
+						: variant.getChromosome());
 
-				varRec.setIds(s.getIds());
-				varRec.setHgvs(s.getHgvs());
+				varRec.setIds(variant.getIds());
+				varRec.setHgvs(variant.getHgvs());
 
 				vcfdataFileWriter.append(varRec);
 
