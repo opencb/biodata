@@ -67,6 +67,10 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
         super(cohorts);
     }
 
+    public VariantAggregatedExacStatsCalculator(Properties tagMap, Set<String> cohorts) {
+        super(tagMap, cohorts);
+    }
+    
     @Override
     protected void parseStats(Variant variant, VariantSourceEntry source, int numAllele, String[] alternateAlleles, Map<String, String> info) {
         VariantSourceEntry sourceEntry = variant.getSourceEntry(source.getFileId(), source.getStudyId());
@@ -107,7 +111,6 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
         sourceEntry.setStats(stats);
     }
 
-
     @Override
     protected void parseMappedStats(Variant variant, VariantSourceEntry sourceEntry, int numAllele, String[] alternateAlleles, Map<String, String> info) {
         Map<String, Integer> ans = new LinkedHashMap<>();
@@ -144,6 +147,63 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
                 }
             }
         }
+        for (String cohortName : sourceEntry.getCohortStats().keySet()) {
+            if (ans.containsKey(cohortName)) {
+                VariantStats cohortStats = sourceEntry.getCohortStats(cohortName);
+                Integer alleleNumber = ans.get(cohortName);
+                addReferenceGenotype(variant, cohortStats, alleleNumber);
+                setRefAlleleCount(cohortStats, alleleNumber, acs.get(cohortName));
+                setMaf(alleleNumber, acs.get(cohortName), alternateAlleles, cohortStats);
+            }
+        }
+    }
+
+    @Override
+    protected void parseCohortMappedStats(Variant variant, VariantSourceEntry sourceEntry, int numAllele, String[] alternateAlleles, Map<String, String> info) {
+
+        Map<String, Integer> ans = new LinkedHashMap<>();
+        Map<String, String[]> acs = new LinkedHashMap<>();
+        for (Map.Entry<String, String> infoElem : info.entrySet()) {
+            String[] tagSplit = infoElem.getKey().split(cohortSeparator);
+            if (tagSplit.length > 1) {
+                String cohortName = tagSplit[0];
+                if (cohorts.contains(cohortName)) {
+                    String statTag = tagSplit[1];
+                    for (int i = 2; i < tagSplit.length; i++) {
+                        statTag += cohortSeparator + tagSplit[i];
+                    }
+                    if (reverseTagMap.containsKey(statTag)) {
+                        String opencgaTag = reverseTagMap.get(statTag);
+                        String[] innerTagSplit = opencgaTag.split(DOT);
+                        String innerCohortName = cohortName + cohortSeparator + innerTagSplit[0];
+                        String statName = innerTagSplit[1];
+                        VariantStats cohortStats = sourceEntry.getCohortStats(innerCohortName);
+                        String[] values = infoElem.getValue().split(COMMA);
+                        if (cohortStats == null) {
+                            cohortStats = new VariantStats(variant);
+                            sourceEntry.setCohortStats(innerCohortName, cohortStats);
+                        }
+                        
+                        switch (statName) {
+                            case "AC":
+                                cohortStats.setAltAlleleCount(Integer.parseInt(values[numAllele]));
+                                acs.put(innerCohortName, values);
+                                break;
+                            case "AN":
+                                ans.put(innerCohortName, Integer.parseInt(values[0]));
+                                break;
+                            case "HET":
+                                addHeterozygousGenotypes(variant, numAllele, alternateAlleles, cohortStats, values);
+                                break;
+                            case "HOM":
+                                addHomozygousGenotype(variant, numAllele, alternateAlleles, cohortStats, values);
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+        
         for (String cohortName : sourceEntry.getCohortStats().keySet()) {
             if (ans.containsKey(cohortName)) {
                 VariantStats cohortStats = sourceEntry.getCohortStats(cohortName);

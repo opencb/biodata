@@ -24,7 +24,7 @@ public class VariantAggregatedStatsCalculator {
     protected final static String COMMA = ",";
     protected final static String DOT = "\\.";   // a literal dot. extracted to avoid confusion and avoid using the wrong "." with split()
     private final static Pattern numNum = Pattern.compile("^(\\d+)[|/](\\d+)$");
-    private String cohortSeparator = "_";
+    protected String cohortSeparator = "_";
     protected final List<String> statsTags = new ArrayList<>(Arrays.asList("AC", "AN", "AF", "GTC", "GTS"));
 
     public VariantAggregatedStatsCalculator() {
@@ -75,6 +75,22 @@ public class VariantAggregatedStatsCalculator {
         this.cohorts = cohorts;
     }
 
+    /**
+     * If you need both a properties and an extra separation by cohorts. The properties must not be aware of the
+     * cohorts prefixes described in the `cohorts` parameter, otherwise it would be enough using the constructor(Properties)
+     *
+     * @param cohorts
+     */
+    public VariantAggregatedStatsCalculator(Properties tagMap, Set<String> cohorts) {
+        this(tagMap);
+
+        // it doesn't make sense an empty set of cohorts, it won't parse any stats, as it will do a 0-iterations loop
+        if (cohorts != null && cohorts.isEmpty()) {
+            cohorts = null;
+        }
+        this.cohorts = cohorts;
+    }
+
 
     public void calculate(List<Variant> variants) {
         for (Variant variant : variants) {
@@ -103,7 +119,11 @@ public class VariantAggregatedStatsCalculator {
             alternateAlleles = ori[2].split(",");
         }
         if (tagMap != null) {
-            parseMappedStats(variant, study, numAllele, alternateAlleles, infoMap);
+            if (cohorts != null) {
+                parseCohortMappedStats(variant, study, numAllele, alternateAlleles, infoMap);
+            } else {
+                parseMappedStats(variant, study, numAllele, alternateAlleles, infoMap);
+            }
         } else if (cohorts != null) {
             parseCohortStats(variant, study, numAllele, alternateAlleles, infoMap);
         } else {
@@ -202,6 +222,53 @@ public class VariantAggregatedStatsCalculator {
                 }
             }
         }
+
+        for (String cohortName : cohortStats.keySet()) {
+            VariantStats vs = new VariantStats(variant);
+            calculate(variant, file, numAllele, alternateAlleles, cohortStats.get(cohortName), vs);
+            file.setCohortStats(cohortName, vs);
+        }
+    }
+    /**
+     * Looks in the info map for keys like "cohort_statsTag" where cohort must be inside this.cohorts, which is the set
+     * in the constructor VariantAggregatedStatsCalculator(Set cohorts), and statsTag is one of the custom stats that
+     * are described in the tagMap.
+     * Then calls to parseMappedStats for each cohort in this.cohorts.
+     * @param variant
+     * @param file
+     * @param numAllele
+     * @param alternateAlleles
+     * @param info Map containing the info field, but split, instead of a single string with all the tags.
+     */
+    protected void parseCohortMappedStats (Variant variant, VariantSourceEntry file, int numAllele, String[] alternateAlleles,
+                                     Map<String, String> info) {
+
+        Map<String, Map<String, String>> cohortStats = new LinkedHashMap<>();   // cohortName -> (statsName -> statsValue): EUR->(AC->3,2)
+        for (Map.Entry<String, String> entry : info.entrySet()) {
+            String[] tagSplit = entry.getKey().split(cohortSeparator);
+            if (tagSplit.length > 1) {
+                String cohortName = tagSplit[0];
+                if (cohorts.contains(cohortName)) {
+                    String statTag = tagSplit[1];
+                    for (int i = 2; i < tagSplit.length; i++) {
+                        statTag += cohortSeparator + tagSplit[i];
+                    }
+                    if (reverseTagMap.containsKey(statTag)) {
+                        String opencgaTag = reverseTagMap.get(statTag);
+                        String[] innerTagSplit = opencgaTag.split(DOT);
+                        String innerCohortName = cohortName + cohortSeparator + innerTagSplit[0];
+                        String statName = innerTagSplit[1];
+                        Map<String, String> parsedValues = cohortStats.get(innerCohortName);
+                        if (parsedValues == null) {
+                            parsedValues = new LinkedHashMap<>();
+                            cohortStats.put(innerCohortName, parsedValues);
+                        }
+                        parsedValues.put(statName, entry.getValue());
+                    }
+                }
+            }
+        }
+
 
         for (String cohortName : cohortStats.keySet()) {
             VariantStats vs = new VariantStats(variant);

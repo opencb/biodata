@@ -59,6 +59,10 @@ public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsC
     public VariantAggregatedEVSStatsCalculator(Set<String> cohorts) {
         super(cohorts);
     }
+    
+    public VariantAggregatedEVSStatsCalculator(Properties tagMap, Set<String> cohorts) {
+        super(tagMap, cohorts);
+    }
 
     @Override
     protected void parseStats(Variant variant, VariantSourceEntry file, int numAllele, String[] alternateAlleles, Map<String, String> info) {
