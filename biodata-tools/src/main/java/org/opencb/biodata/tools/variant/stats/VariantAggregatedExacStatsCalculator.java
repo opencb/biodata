@@ -26,6 +26,7 @@ import org.opencb.biodata.tools.variant.stats.VariantAggregatedStatsCalculator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * Created by jmmut on 2015-03-25.
@@ -39,7 +40,7 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
     private static final String AC_ADJ = "AC_Adj";
 
     public VariantAggregatedExacStatsCalculator() {
-        this(null);
+        super();
     }
 
     /**
@@ -62,6 +63,9 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
         super(tagMap);
     }
 
+    public VariantAggregatedExacStatsCalculator(Set<String> cohorts) {
+        super(cohorts);
+    }
 
     @Override
     protected void parseStats(Variant variant, VariantSourceEntry source, int numAllele, String[] alternateAlleles, Map<String, String> info) {
@@ -105,7 +109,7 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
 
 
     @Override
-    protected void parseCohortStats(Variant variant, VariantSourceEntry sourceEntry, int numAllele, String[] alternateAlleles, Map<String, String> info) {
+    protected void parseMappedStats(Variant variant, VariantSourceEntry sourceEntry, int numAllele, String[] alternateAlleles, Map<String, String> info) {
         Map<String, Integer> ans = new LinkedHashMap<>();
         Map<String, String[]> acs = new LinkedHashMap<>();
         for (Map.Entry<String, String> infoElem : info.entrySet()) {

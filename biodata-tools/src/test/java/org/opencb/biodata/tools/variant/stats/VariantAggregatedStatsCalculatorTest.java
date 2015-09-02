@@ -8,6 +8,8 @@ import org.opencb.biodata.models.variant.VariantSource;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 import org.opencb.commons.test.GenericTest;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 
@@ -54,6 +56,34 @@ public class VariantAggregatedStatsCalculatorTest extends GenericTest {
         assertEquals(new Integer(163), stats.getGenotypesCount().get(new Genotype("0/1", "C", "T")));
         assertEquals(new Integer(31),  stats.getGenotypesCount().get(new Genotype("T/T", "C", "T")));
         assertEquals(0.225903614, stats.getMaf(), 0.0001);
+    }
+
+    @Test
+    public void parseCohorts() {
+        String line = "1\t54722\t.\tTTC\tT,TCTC\t999\tPASS\tDP4=3122,3282,891,558;DP=22582;INDEL;IS=3,0.272727;" +
+                "VQSLOD=6.76;C1_AN=3854;C1_AC=889,61;C2_AN=2000;C2_AC=400,20;TYPE=del,ins;HWE=0;ICF=-0.155251";
+
+        List<Variant> variants = factory.create(source, line);
+        VariantAggregatedStatsCalculator calculator = new VariantAggregatedStatsCalculator(new HashSet<>(Arrays.asList("C1", "C2")));
+        calculator.calculate(variants);
+
+        VariantStats stats = variants.get(0).getSourceEntry(source.getFileId(), source.getStudyId()).getCohortStats("C1");
+        assertEquals(2904, stats.getRefAlleleCount());
+        assertEquals(889, stats.getAltAlleleCount());
+
+        stats = variants.get(1).getSourceEntry(source.getFileId(), source.getStudyId()).getCohortStats("C1");
+        assertEquals(2904, stats.getRefAlleleCount());
+        assertEquals(61, stats.getAltAlleleCount());
+        assertEquals(0.015827711, stats.getMaf(), 0.0001);
+
+        stats = variants.get(0).getSourceEntry(source.getFileId(), source.getStudyId()).getCohortStats("C2");
+        assertEquals(1580, stats.getRefAlleleCount());
+        assertEquals(400, stats.getAltAlleleCount());
+
+        stats = variants.get(1).getSourceEntry(source.getFileId(), source.getStudyId()).getCohortStats("C2");
+        assertEquals(1580, stats.getRefAlleleCount());
+        assertEquals(20, stats.getAltAlleleCount());
+        assertEquals(0.01, stats.getMaf(), 0.0001);
     }
 
     @Test

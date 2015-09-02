@@ -33,7 +33,7 @@ public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsC
 
 
     public VariantAggregatedEVSStatsCalculator() {
-        this(null);
+        super();
     }
 
     /**
@@ -56,6 +56,10 @@ public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsC
         super(tagMap);
     }
 
+    public VariantAggregatedEVSStatsCalculator(Set<String> cohorts) {
+        super(cohorts);
+    }
+
     @Override
     protected void parseStats(Variant variant, VariantSourceEntry file, int numAllele, String[] alternateAlleles, Map<String, String> info) {
         VariantStats stats = new VariantStats(variant);
@@ -75,7 +79,7 @@ public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsC
     }
 
     @Override
-    protected void parseCohortStats(Variant variant, VariantSourceEntry sourceEntry,
+    protected void parseMappedStats(Variant variant, VariantSourceEntry sourceEntry,
                                     int numAllele, String[] alternateAlleles, Map<String, String> info) {
         if (tagMap != null) {
             for (String key : info.keySet()) {
