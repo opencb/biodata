@@ -284,8 +284,8 @@ public class VariantAggregatedStatsCalculator {
         }
         if (attributes.containsKey("GTC")) {
             String[] gtcs = attributes.get("GTC").split(COMMA);
-            if (sourceEntry.hasAttribute("GTS")) {    // GTS contains the format like: GTS=GG,GT,TT or GTS=A1A1,A1R,RR
-                addGenotypeWithGTS(variant, sourceEntry, gtcs, alternateAlleles, numAllele, variantStats);
+            if (attributes.containsKey("GTS")) {    // GTS contains the format like: GTS=GG,GT,TT or GTS=A1A1,A1R,RR
+                addGenotypeWithGTS(variant, attributes, gtcs, alternateAlleles, numAllele, variantStats);
             } else {
                 for (int i = 0; i < gtcs.length; i++) {
                     String[] gtcSplit = gtcs[i].split(":");
@@ -324,10 +324,10 @@ public class VariantAggregatedStatsCalculator {
         }
     }
 
-    public static void addGenotypeWithGTS(Variant variant, VariantSourceEntry sourceEntry, String[] splitsGTC, String[] alternateAlleles
+    public static void addGenotypeWithGTS(Variant variant, Map<String, String> attributes, String[] splitsGTC, String[] alternateAlleles
             , int numAllele, VariantStats cohortStats) {
-        if (sourceEntry.hasAttribute("GTS")) {
-            String splitsGTS[] = sourceEntry.getAttribute("GTS").split(COMMA);
+        if (attributes.containsKey("GTS")) {
+            String splitsGTS[] = attributes.get("GTS").split(COMMA);
             if (splitsGTC.length == splitsGTS.length) {
                 for (int i = 0; i < splitsGTC.length; i++) {
                     String gt = splitsGTS[i];

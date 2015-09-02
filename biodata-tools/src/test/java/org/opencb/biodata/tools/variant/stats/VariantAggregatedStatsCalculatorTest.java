@@ -129,6 +129,22 @@ public class VariantAggregatedStatsCalculatorTest extends GenericTest {
         assertEquals(new Integer(1),  stats.getGenotypesCount().get(new Genotype("G/G", "A", "G")));
         assertEquals(2.0/70, stats.getMaf(), 0.0001);
     }
+
+    @Test
+    public void parseCohortWithGTS () {
+        String line = "1\t861255\t.\tA\tG\t.\tPASS\tC1_AC=2;AF=0.0285714285714286;C1_AN=70;C1_GTS=GG,GA,AA;C1_GTC=1,0,34";
+
+        List<Variant> variants = factory.create(source, line);
+        VariantAggregatedStatsCalculator calculator = new VariantAggregatedStatsCalculator(new HashSet<>(Arrays.asList("C1")));
+        calculator.calculate(variants);
+
+        VariantStats stats = variants.get(0).getSourceEntry(source.getFileId(), source.getStudyId()).getCohortStats("C1");
+        assertEquals(new Integer(34), stats.getGenotypesCount().get(new Genotype("0/0", "A", "G")));
+        assertEquals(new Integer(0),  stats.getGenotypesCount().get(new Genotype("0/1", "A", "G")));
+        assertEquals(new Integer(1),  stats.getGenotypesCount().get(new Genotype("G/G", "A", "G")));
+        assertEquals(2.0/70, stats.getMaf(), 0.0001);
+    }
+
     @Test
     public void getGenotype() {
         for (int i = 0; i < 11; i++) {
