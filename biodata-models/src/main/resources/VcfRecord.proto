@@ -1,0 +1,74 @@
+syntax = "proto3";
+package org.opencb.biodata.models.variant.protobuf;
+option java_package = "org.opencb.biodata.models.variant.protobuf";
+option java_outer_classname = "VcfSliceProtos";
+
+// FORMAT line count
+// -> vcf
+//  3798349 GT:GQ:GQX:DP:DPF:AD
+//   655098 GT:GQ:GQX:DPI:AD
+//    41131 GT:GQX:DP:DPF:AD
+// -> gvcf (134,546,758 rows):
+// 34042389 GT:GQX:DP:DPF
+//  3806983 GT:GQ:GQX:DP:DPF:AD
+//   921083 GT:GQ:GQX:DPI:AD
+//    51932 GT:GQX:DP:DPF:AD
+
+// INFO keys -> gvcf (134,546,758 rows):
+// 102952474 END BLOCKAVG_min30p3a
+//  27114260 .
+//   1545052 SNVSB SNVHPOL MQ MQRankSum BaseQRankSum ReadPosRankSum DP GQ GQX AA AF GMAF CSQT
+//   1364581 SNVSB SNVHPOL MQ MQRankSum BaseQRankSum ReadPosRankSum DP GQ GQX AA AF GMAF
+// ...
+
+// FILTER values -> gvcf (134,546,758 rows):
+// 125168031 PASS
+//   5265082 LowGQX
+//   2260276 HighDPFRatio
+//   1420115 LowGQX;HighDPFRatio
+//    383456 HighDepth
+// ...
+
+// QUAL values -> gvcf  (134,546,758 rows):
+//  130052180 .
+//      41131 0.00
+// ... The rest where float numbers with all of them being ".00"
+
+// CHROM  POS     ID      REF     ALT     QUAL    FILTER  INFO  FORMAT  [SAMPLE]
+
+
+
+// TODO what's in the case of 1/2 
+message VcfRecord {
+  int32 relative_start = 1; // 1 based 
+  int32 relative_end = 2;
+  string reference = 3; 
+  string alternative = 4;  
+  int32 quality = 5;
+  string filter_non_default = 6;
+  string id_non_default = 7;
+  
+  repeated string info_key = 8;
+  repeated string info_value = 9;
+  
+  repeated string sample_format_non_default = 10;
+  repeated string sample_values = 11;  // for one individual only
+  
+}
+
+message VcfMeta {
+  string quality_default = 1; // e.g. "."
+  string filter_default = 2; // PASS being default
+  string info_default  = 3; // DEFAULT_INFO
+  string id_default = 4; // e.g. "."
+  
+  // also add HEADER information?
+}
+
+message VcfSlice {
+  string chromosome = 1;
+  uint32 position = 2;
+  repeated VcfRecord records = 3; // List of records (lines)
+// VcfMeta metadata = 4; 
+}
+
