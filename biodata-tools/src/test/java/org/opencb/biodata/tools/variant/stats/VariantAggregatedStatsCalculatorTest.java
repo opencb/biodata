@@ -61,26 +61,30 @@ public class VariantAggregatedStatsCalculatorTest extends GenericTest {
     @Test
     public void parseCohorts() {
         String line = "1\t54722\t.\tTTC\tT,TCTC\t999\tPASS\tDP4=3122,3282,891,558;DP=22582;INDEL;IS=3,0.272727;" +
-                "VQSLOD=6.76;C1_AN=3854;C1_AC=889,61;C2_AN=2000;C2_AC=400,20;TYPE=del,ins;HWE=0;ICF=-0.155251";
+                "C1_AN=3854;C1_AC=889,61;C1_GTS=RR,A1R,A1A1,A2R,A1A2,A2A2;C1_GTC=3559,269,300,26,20,15;" +
+                "C2_AN=2000;C2_AC=400,20;C2_GTS=RR,A1R,A1A1,A2R,A1A2,A2A2;C2_GTC=1904,90,50,6,10,2;";
 
         List<Variant> variants = factory.create(source, line);
         VariantAggregatedStatsCalculator calculator = new VariantAggregatedStatsCalculator(new HashSet<>(Arrays.asList("C1", "C2")));
         calculator.calculate(variants);
 
-        VariantStats stats = variants.get(0).getSourceEntry(source.getFileId(), source.getStudyId()).getCohortStats("C1");
+        Variant v1 = variants.get(0);
+        Variant v2 = variants.get(1);
+        VariantStats stats = v1.getSourceEntry(source.getFileId(), source.getStudyId()).getCohortStats("C1");
         assertEquals(2904, stats.getRefAlleleCount());
         assertEquals(889, stats.getAltAlleleCount());
+        assertEquals(269, (int)stats.getGenotypesCount().get(new Genotype("0/1", v1.getReference(), v1.getAlternate())));
 
-        stats = variants.get(1).getSourceEntry(source.getFileId(), source.getStudyId()).getCohortStats("C1");
+        stats = v2.getSourceEntry(source.getFileId(), source.getStudyId()).getCohortStats("C1");
         assertEquals(2904, stats.getRefAlleleCount());
         assertEquals(61, stats.getAltAlleleCount());
         assertEquals(0.015827711, stats.getMaf(), 0.0001);
 
-        stats = variants.get(0).getSourceEntry(source.getFileId(), source.getStudyId()).getCohortStats("C2");
+        stats = v1.getSourceEntry(source.getFileId(), source.getStudyId()).getCohortStats("C2");
         assertEquals(1580, stats.getRefAlleleCount());
         assertEquals(400, stats.getAltAlleleCount());
 
-        stats = variants.get(1).getSourceEntry(source.getFileId(), source.getStudyId()).getCohortStats("C2");
+        stats = v2.getSourceEntry(source.getFileId(), source.getStudyId()).getCohortStats("C2");
         assertEquals(1580, stats.getRefAlleleCount());
         assertEquals(20, stats.getAltAlleleCount());
         assertEquals(0.01, stats.getMaf(), 0.0001);

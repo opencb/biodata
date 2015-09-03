@@ -18,8 +18,9 @@ import java.util.Map;
  * @author Jose Miguel Mut Lopez &lt;jmmut@ebi.ac.uk&gt;
  */
 public class VariantStatsCalculator {
-
-    public static void calculate(Map<String, Map<String, String>> samplesData, Map<String, String> attributes, Pedigree pedigree, VariantStats variantStats) {
+    
+    public static void calculate(Map<String, Map<String, String>> samplesData, Map<String, String> attributes, 
+                                 Pedigree pedigree, VariantStats variantStats) {
         int[] allelesCount = new int[2];
         int totalAllelesCount = 0, totalGenotypesCount = 0;
 

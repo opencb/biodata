@@ -307,8 +307,8 @@ public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
         
         VariantAggregatedExacStatsCalculator calculator = new VariantAggregatedExacStatsCalculator(properties, cohorts);
         calculator.calculate(res);
-        assertTrue(res.get(0).getSourceEntries().values().iterator().next().getCohortStats().size() == 4);
-        assertTrue(res.get(1).getSourceEntries().values().iterator().next().getCohortStats().size() == 4);
+        assertEquals(4, res.get(0).getSourceEntries().values().iterator().next().getCohortStats().size());
+        assertEquals(4, res.get(1).getSourceEntries().values().iterator().next().getCohortStats().size());
         
         
         // the first variant: C -> G

@@ -391,8 +391,8 @@ public class VariantAggregatedStatsCalculator {
         }
     }
 
-    public static void addGenotypeWithGTS(Variant variant, Map<String, String> attributes, String[] splitsGTC, String[] alternateAlleles
-            , int numAllele, VariantStats cohortStats) {
+    public static void addGenotypeWithGTS(Variant variant, Map<String, String> attributes, String[] splitsGTC, 
+                                          String[] alternateAlleles, int numAllele, VariantStats cohortStats) {
         if (attributes.containsKey("GTS")) {
             String splitsGTS[] = attributes.get("GTS").split(COMMA);
             if (splitsGTC.length == splitsGTS.length) {

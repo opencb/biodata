@@ -31,13 +31,13 @@ import java.util.*;
 public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsCalculator {
 
 
-
     public VariantAggregatedEVSStatsCalculator() {
         super();
     }
 
     /**
-     * @param tagMap Extends the VariantAggregatedVcfFactory(Properties properties) with one extra tag: GROUPS_ORDER. Example:
+     * @param tagMap Extends the VariantAggregatedVcfFactory(Properties properties) with one extra tag: GROUPS_ORDER. 
+     * Example:
      *
      * EUR.AF=EUR_AF
      * EUR.AC=AC_EUR
@@ -48,9 +48,9 @@ public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsC
      * ALL.AN=AN
      * ALL.GTC=GTC
      * GROUPS_ORDER=EUR,ALL
-     *
-     * The special tag 'GROUPS_ORDER' can be used to specify the order of the comma separated values for populations in tags such as MAF.
-     *
+     * 
+     *  The special tag 'GROUPS_ORDER' can be used to specify the order of the comma separated values for populations 
+     *  in tags such as MAF.
      */
     public VariantAggregatedEVSStatsCalculator(Properties tagMap) {
         super(tagMap);
@@ -59,7 +59,7 @@ public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsC
     public VariantAggregatedEVSStatsCalculator(Set<String> cohorts) {
         super(cohorts);
     }
-    
+
     public VariantAggregatedEVSStatsCalculator(Properties tagMap, Set<String> cohorts) {
         super(tagMap, cohorts);
     }
@@ -139,5 +139,95 @@ public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsC
         }
     }
 
+    @Override
+    protected void parseCohortMappedStats(Variant variant, VariantSourceEntry sourceEntry,
+                                          int numAllele, String[] alternateAlleles, Map<String, String> info) {
+        Map<String, Map<String, Map<String, String>>> cohortAttributes = new LinkedHashMap<>(cohorts.size());
+        Map<String, String> gtss = new LinkedHashMap<>(cohorts.size());
+        if (tagMap != null) {
+            for (String key : info.keySet()) {
+                String[] tagSplit = key.split(cohortSeparator);
+                if (tagSplit.length > 1) {
+                    String cohortName = tagSplit[0];
+                    if (cohorts.contains(cohortName)) {
+                        String statTag = tagSplit[1];
+                        for (int i = 2; i < tagSplit.length; i++) {
+                            statTag += cohortSeparator + tagSplit[i];
+                        }
+                        Map<String, Map<String, String>> attributes = cohortAttributes.get(cohortName);
+                        if (attributes == null) {
+                            attributes = new LinkedHashMap<>();
+                            cohortAttributes.put(cohortName, attributes);
+                        }
+
+                        String opencgaTag = reverseTagMap.get(statTag);
+                        String[] values = info.get(key).split(COMMA);
+                        if (opencgaTag != null) {
+                            String[] opencgaTagSplit = opencgaTag.split(DOT); // a literal point
+                            if (opencgaTagSplit.length == 2) {
+                                String cohort = cohortName + cohortSeparator + opencgaTagSplit[0];
+                                VariantStats cohortStats = sourceEntry.getCohortStats(cohort);
+                                
+                                if (cohortStats == null) {
+                                    cohortStats = new VariantStats(variant);
+                                    sourceEntry.setCohortStats(cohort, cohortStats);
+                                }
+                                switch (opencgaTagSplit[1]) {
+                                    case "AC":
+                                        cohortStats.setAltAlleleCount(Integer.parseInt(values[numAllele]));
+                                        cohortStats.setRefAlleleCount(Integer.parseInt(values[values.length - 1]));    // ref allele count is the last one
+                                        break;
+                                    case "AF":
+                                        cohortStats.setAltAlleleFreq(Float.parseFloat(values[numAllele]));
+                                        cohortStats.setRefAlleleFreq(Float.parseFloat(values[values.length - 1]));
+                                        break;
+                                    case "AN":
+                                        // TODO implement this. also, take into account that needed fields may not be processed yet
+                                        break;
+                                    case "GTC":
+                                        if (!attributes.containsKey(opencgaTagSplit[0])) {
+                                            attributes.put(opencgaTagSplit[0], new LinkedHashMap<String, String>());
+                                        }
+                                        attributes.get(opencgaTagSplit[0]).put("GTC", info.get(key));
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+                        } else if (statTag.equals("MAF")) {
+                            String groups_order = tagMap.getProperty("GROUPS_ORDER");
+                            if (groups_order != null) {
+                                String[] populations = groups_order.split(COMMA);
+                                if (populations.length == values.length) {
+                                    for (int i = 0; i < values.length; i++) {   // each value has the maf of each population
+                                        float maf = Float.parseFloat(values[i]) / 100;  // from [0, 100] (%) to [0, 1]
+                                        VariantStats cohortStats = sourceEntry.getCohortStats(cohortName + cohortSeparator + populations[i]);
+                                        if (cohortStats == null) {
+                                            cohortStats = new VariantStats(variant);
+                                            sourceEntry.setCohortStats(cohortName + cohortSeparator + populations[i], cohortStats);
+                                        }
+                                        cohortStats.setMaf(maf);
+                                    }
+                                }
+                            }
+                        } else if (statTag.equals("GTS")) {
+                            gtss.put(cohortName, info.get(key));
+                        }
+                    }
+                    // TODO reprocess stats to complete inferable values. A StatsHolder may be needed to keep values not storables in VariantStats
+                }
+            }
+
+        }
+        for (Map.Entry<String, Map<String, Map<String, String>>> attributesEntry : cohortAttributes.entrySet()) {
+            for (Map.Entry<String, Map<String, String>> populationAttributesEntry : attributesEntry.getValue().entrySet()) {
+                Map<String, String> attributes = new LinkedHashMap<>();
+                attributes.put("GTS", gtss.get(attributesEntry.getKey()));
+                String[] gtcs = populationAttributesEntry.getValue().get("GTC").split(COMMA);
+                VariantStats cohortStats = sourceEntry.getCohortStats(attributesEntry.getKey() + cohortSeparator + populationAttributesEntry.getKey());
+                addGenotypeWithGTS(variant, attributes, gtcs, alternateAlleles, numAllele, cohortStats);
+            }
+        }
+    }
 }
 
