@@ -18,6 +18,7 @@ package org.opencb.biodata.tools.variant.stats;
 
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantSourceEntry;
+import org.opencb.biodata.models.variant.VariantVcfFactory;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 import org.opencb.biodata.tools.variant.stats.VariantAggregatedStatsCalculator;
 
@@ -212,6 +213,10 @@ public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsC
                             }
                         } else if (statTag.equals("GTS")) {
                             gtss.put(cohortName, info.get(key));
+                        } else if (VariantVcfFactory.ORI.equals(statTag)) {
+                            String[] ori = info.get(key).split(":");
+                            alternateAlleles = ori[2].split(",");
+                            numAllele = Integer.parseInt(ori[3]);
                         }
                     }
                     // TODO reprocess stats to complete inferable values. A StatsHolder may be needed to keep values not storables in VariantStats

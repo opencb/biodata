@@ -8,10 +8,7 @@ import org.opencb.biodata.models.variant.VariantSource;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 import org.opencb.commons.test.GenericTest;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -166,4 +163,48 @@ public class VariantAggregatedStatsCalculatorTest extends GenericTest {
         assertEquals(alleles[0], alleles[1]);
         assertEquals(alleles[0], new Integer(2));
     }
+
+    @Test
+    public void getCohortNames() {
+        Map<String, String> attributes = new LinkedHashMap<>();
+        attributes.put("5_AC", "unused");
+        attributes.put("6_AF", "unused");
+        attributes.put("5_HPG_GTC", "unused");
+        attributes.put("7_AC", "unused");
+        attributes.put("5_EUR_HPG_GTC", "unused");
+        attributes.put("7_EUR_AN", "unused");
+        Properties tagmap = new Properties();
+        tagmap.put("ALL.GTC", "HPG_GTC");
+        tagmap.put("ALL.AC", "AC");
+        tagmap.put("ALL.AN", "AN");
+        tagmap.put("ALL.AF", "AF");
+        tagmap.put("EUR.GTC", "EUR_HPG_GTC");
+        tagmap.put("EUR.AC", "EUR_AC");
+        tagmap.put("EUR.AN", "EUR_AN");
+        tagmap.put("EUR.AF", "EUR_AF");
+        Set<String> cohorts = new LinkedHashSet<>();
+        cohorts.add("5");
+        cohorts.add("7");
+
+        assertEquals(new LinkedHashSet<>(Arrays.asList("5_EUR", "5_ALL", "7_EUR", "7_ALL")),
+                VariantAggregatedStatsCalculator.getCohortNames(attributes, tagmap, cohorts));
+
+        assertEquals(new LinkedHashSet<>(Arrays.asList("5", "7")),
+                VariantAggregatedStatsCalculator.getCohortNames(attributes, null, cohorts));
+
+        attributes.clear();
+        attributes.put("AC", "unused");
+        attributes.put("AF", "unused");
+        attributes.put("HPG_GTC", "unused");
+        attributes.put("AC", "unused");
+        attributes.put("EUR_HPG_GTC", "unused");
+        attributes.put("EUR_AN", "unused");
+        assertEquals(new LinkedHashSet<>(Arrays.asList("EUR", "ALL")),
+                VariantAggregatedStatsCalculator.getCohortNames(attributes, tagmap, null));
+
+        assertEquals(Collections.emptySet(),
+                VariantAggregatedStatsCalculator.getCohortNames(attributes, null, null));
+    }
+
 }
+

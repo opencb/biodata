@@ -24,7 +24,7 @@ public class VariantAggregatedStatsCalculator {
     protected final static String COMMA = ",";
     protected final static String DOT = "\\.";   // a literal dot. extracted to avoid confusion and avoid using the wrong "." with split()
     private final static Pattern numNum = Pattern.compile("^(\\d+)[|/](\\d+)$");
-    protected String cohortSeparator = "_";
+    protected final static String cohortSeparator = "_";
     protected final List<String> statsTags = new ArrayList<>(Arrays.asList("AC", "AN", "AF", "GTC", "GTS"));
 
     public VariantAggregatedStatsCalculator() {
@@ -245,14 +245,11 @@ public class VariantAggregatedStatsCalculator {
 
         Map<String, Map<String, String>> cohortStats = new LinkedHashMap<>();   // cohortName -> (statsName -> statsValue): EUR->(AC->3,2)
         for (Map.Entry<String, String> entry : info.entrySet()) {
-            String[] tagSplit = entry.getKey().split(cohortSeparator);
+            String[] tagSplit = entry.getKey().split(cohortSeparator, 2);
             if (tagSplit.length > 1) {
                 String cohortName = tagSplit[0];
                 if (cohorts.contains(cohortName)) {
                     String statTag = tagSplit[1];
-                    for (int i = 2; i < tagSplit.length; i++) {
-                        statTag += cohortSeparator + tagSplit[i];
-                    }
                     if (reverseTagMap.containsKey(statTag)) {
                         String opencgaTag = reverseTagMap.get(statTag);
                         String[] innerTagSplit = opencgaTag.split(DOT);
@@ -264,6 +261,10 @@ public class VariantAggregatedStatsCalculator {
                             cohortStats.put(innerCohortName, parsedValues);
                         }
                         parsedValues.put(statName, entry.getValue());
+                    } else if (VariantVcfFactory.ORI.equals(statTag)) {
+                        String[] ori = entry.getValue().split(":");
+                        alternateAlleles = ori[2].split(",");
+                        numAllele = Integer.parseInt(ori[3]);
                     }
                 }
             }
@@ -275,6 +276,52 @@ public class VariantAggregatedStatsCalculator {
             calculate(variant, file, numAllele, alternateAlleles, cohortStats.get(cohortName), vs);
             file.setCohortStats(cohortName, vs);
         }
+    }
+
+    /**
+     * Returns the combination of populations with cohorts
+     * @param attributes the keys are "cohort_tagMapValue"
+     * @param tagMap example: defines the populations EUR, ALL
+     * @param cohorts example: defines the cohorts file5, file7
+     * @return a Set: {file5_EUR, file5_ALL, file7_EUR, file7_ALL}
+     */
+    public static Set<String> getCohortNames(Map<String, String> attributes, Properties tagMap, Set<String> cohorts) {
+        Map<String, String> reverseTagMap;
+        Set<String> cohortNames = new LinkedHashSet<>();
+        if (tagMap == null) {
+            return cohorts == null? cohortNames : cohorts;
+        }
+
+
+        reverseTagMap = new LinkedHashMap<>(tagMap.size());
+        for (String tag : tagMap.stringPropertyNames()) {
+            reverseTagMap.put(tagMap.getProperty(tag), tag);
+        }
+
+        if (cohorts == null) {
+            for (Map.Entry<String, String> entry : attributes.entrySet()) {
+                if (reverseTagMap.containsKey(entry.getKey())) {
+                    String opencgaTag = reverseTagMap.get(entry.getKey());
+                    cohortNames.add(opencgaTag.split(DOT)[0]);
+                }
+            }
+        } else {
+            for (Map.Entry<String, String> entry : attributes.entrySet()) {
+                String[] tagSplit = entry.getKey().split(cohortSeparator, 2);
+                if (tagSplit.length > 1) {
+                    String cohortName = tagSplit[0];
+                    if (cohorts.contains(cohortName)) {
+                        String statTag = tagSplit[1];
+                        if (reverseTagMap.containsKey(statTag)) {
+                            String opencgaTag = reverseTagMap.get(statTag);
+                            String[] innerTagSplit = opencgaTag.split(DOT);
+                            cohortNames.add(cohortName + cohortSeparator + innerTagSplit[0]);
+                        }
+                    }
+                }
+            }
+        }
+        return cohortNames;
     }
 
     /**

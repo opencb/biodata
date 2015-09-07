@@ -199,6 +199,10 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
                                 addHomozygousGenotype(variant, numAllele, alternateAlleles, cohortStats, values);
                                 break;
                         }
+                    } else if (VariantVcfFactory.ORI.equals(statTag)) {
+                        String[] ori = infoElem.getValue().split(":");
+                        alternateAlleles = ori[2].split(",");
+                        numAllele = Integer.parseInt(ori[3]);
                     }
                 }
             }
