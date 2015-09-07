@@ -58,6 +58,39 @@ public class Gtf {
         return builder.toString();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Gtf)) return false;
+
+        Gtf gtf = (Gtf) o;
+
+        if (start != gtf.start) return false;
+        if (end != gtf.end) return false;
+        if (sequenceName != null ? !sequenceName.equals(gtf.sequenceName) : gtf.sequenceName != null) return false;
+        if (source != null ? !source.equals(gtf.source) : gtf.source != null) return false;
+        if (feature != null ? !feature.equals(gtf.feature) : gtf.feature != null) return false;
+        if (score != null ? !score.equals(gtf.score) : gtf.score != null) return false;
+        if (strand != null ? !strand.equals(gtf.strand) : gtf.strand != null) return false;
+        if (frame != null ? !frame.equals(gtf.frame) : gtf.frame != null) return false;
+        return !(attributes != null ? !attributes.equals(gtf.attributes) : gtf.attributes != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = sequenceName != null ? sequenceName.hashCode() : 0;
+        result = 31 * result + (source != null ? source.hashCode() : 0);
+        result = 31 * result + (feature != null ? feature.hashCode() : 0);
+        result = 31 * result + start;
+        result = 31 * result + end;
+        result = 31 * result + (score != null ? score.hashCode() : 0);
+        result = 31 * result + (strand != null ? strand.hashCode() : 0);
+        result = 31 * result + (frame != null ? frame.hashCode() : 0);
+        result = 31 * result + (attributes != null ? attributes.hashCode() : 0);
+        return result;
+    }
+
     public String getSequenceName() {
         return sequenceName;
     }
