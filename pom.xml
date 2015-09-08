@@ -35,7 +35,7 @@
 
     <properties>
         <biodata.version>0.5-SNAPSHOT</biodata.version>
-        <compileSource>1.7</compileSource>
+        <compileSource>1.8</compileSource>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
