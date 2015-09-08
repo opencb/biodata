@@ -61,7 +61,7 @@ public class VariantSourceEntry {
      * or its minimum allele frequency, grouped by cohort name.
      */
     private Map<String, VariantStats> cohortStats;
-    public static final String DEFAULT_COHORT = "all";
+    public static final String DEFAULT_COHORT = "ALL";
     
     /**
      * Optional attributes that probably depend on the format of the file the
