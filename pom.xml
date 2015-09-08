@@ -64,6 +64,26 @@
             <email>cyenyxe@ebi.ac.uk</email>
         </developer>
         <developer>
+            <id>j-coll</id>
+            <name>jacobo</name>
+            <email>jacobo167@gmail.com</email>
+        </developer>
+        <developer>
+            <id>jmmut</id>
+            <name>Josemi</name>
+            <email>jomutlo@gmail.com</email>
+        </developer>
+        <developer>
+            <id>javild</id>
+            <name>Javier</name>
+            <email>javild@gmail.com</email>
+        </developer>
+        <developer>
+            <id>pabarcgar</id>
+            <name>Pablo</name>
+            <email>pablo.arce.garcia@gmail.com</email>
+        </developer>
+        <developer>
             <id>aaleman</id>
             <name>Alejandro</name>
             <email>aaleman@cipf.es</email>
