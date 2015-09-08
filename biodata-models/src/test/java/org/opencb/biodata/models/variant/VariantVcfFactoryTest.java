@@ -18,11 +18,13 @@ package org.opencb.biodata.models.variant;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.opencb.biodata.models.variant.exceptions.NotAVariantException;
 
 import java.util.*;
 import static org.junit.Assert.assertArrayEquals;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
@@ -74,13 +76,14 @@ public class VariantVcfFactoryTest {
 
     @Test
     public void testCreateVariantFromVcfDeletionEmptyAlt() {
-        String line = "1\t999\trs123\tGTCACCC\tG\t.\t.\t.";
-
-        List<Variant> expResult = new LinkedList<>();
-        expResult.add(new Variant("1", 1000, 1000 + "TCACCC".length() - 1, "TCACCC", ""));
-
-        List<Variant> result = factory.create(source, line);
-        assertEquals(expResult, result);
+        
+        try {
+            String line = "1\t1000\trs123\tTCACCC\t.\t.\t.\t.";
+            List<Variant> result = factory.create(source, line);
+            fail();
+        } catch (NotAVariantException e) {
+            // expected exception. continue.
+        }
     }
 
     @Test
@@ -103,6 +106,14 @@ public class VariantVcfFactoryTest {
         expResult.add(new Variant("1", 1001, 1003, "ATC", ""));
         result = factory.create(source, line);
         assertEquals(expResult, result);
+        
+        try {
+            line = "1\t1000\trs123\tGATC\t.\t.\t.\t.";
+            result = factory.create(source, line);
+            fail();
+        } catch (NotAVariantException e) {
+            // expected exception. continue.
+        }
         
         line = "1\t1000\trs123\t.\tATC\t.\t.\t.";
         expResult = new LinkedList<>();

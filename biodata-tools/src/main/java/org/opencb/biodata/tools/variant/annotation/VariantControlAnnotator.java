@@ -19,8 +19,8 @@ package org.opencb.biodata.tools.variant.annotation;
 import java.io.IOException;
 import java.util.*;
 
-import net.sf.samtools.util.StringUtil;
-import org.broad.tribble.readers.TabixReader;
+import htsjdk.samtools.util.StringUtil;
+import htsjdk.tribble.readers.TabixReader;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.*;
 import org.opencb.biodata.models.variant.stats.VariantStats;

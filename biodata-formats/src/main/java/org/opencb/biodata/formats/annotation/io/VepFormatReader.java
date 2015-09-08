@@ -16,8 +16,6 @@
 
 package org.opencb.biodata.formats.annotation.io;
 
-
-import org.opencb.biodata.formats.protein.uniprot.v135jaxb.InteractantType;
 import org.opencb.biodata.formats.variant.vcf4.io.VariantVcfReader;
 import org.opencb.biodata.models.variant.annotation.ConsequenceType;
 import org.opencb.biodata.models.variant.annotation.Score;
