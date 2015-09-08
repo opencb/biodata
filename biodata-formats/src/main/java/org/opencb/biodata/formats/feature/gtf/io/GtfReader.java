@@ -34,7 +34,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-public class GtfReader {
+public class GtfReader implements AutoCloseable {
 
     private BufferedReader bufferedReader;
     private File file;

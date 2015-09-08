@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public abstract class AbstractFormatReader<T> {
+public abstract class AbstractFormatReader<T> implements AutoCloseable {
 
     protected Path path;
     protected Logger logger;
