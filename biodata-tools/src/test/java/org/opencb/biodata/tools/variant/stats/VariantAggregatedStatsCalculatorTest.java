@@ -98,7 +98,19 @@ public class VariantAggregatedStatsCalculatorTest extends GenericTest {
         assertEquals(new Integer(1),  stats.getGenotypesCount().get(new Genotype("G/G", "A", "G")));
         assertEquals(2.0/70, stats.getMaf(), 0.0001);
     }
+    
+    @Test
+    public void getCohorts() {
+        Properties properties = new Properties();
+        properties.put("EUR.GTC", "EUR_HPG_GTC");
+        properties.put("EUR.AC", "EUR_AC");
+        properties.put("EUR.AN", "EUR_AN");
+        properties.put("EUR.AF", "EUR_AF");
+        properties.put("ALL.AN", "AN");
+        properties.put("ALL.AF", "AF");
 
+        assertEquals(new LinkedHashSet<>(Arrays.asList("EUR", "ALL")), VariantAggregatedStatsCalculator.getCohorts(properties));
+    }
     @Test
     public void getGenotype() {
         for (int i = 0; i < 11; i++) {

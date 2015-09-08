@@ -281,6 +281,18 @@ public class VariantAggregatedStatsCalculator {
         }
     }
 
+    public static Set<String> getCohorts(Properties tagMap) {
+        Set<String> cohorts = null;
+        if (tagMap != null) {
+            cohorts = new LinkedHashSet<>();
+            for (String key : tagMap.stringPropertyNames()) {
+                cohorts.add(key.split(DOT)[0]);
+            }
+        }
+        
+        return cohorts;
+    }
+
     /**
      * returns in alleles[] the genotype specified in index in the sequence:
      * 0/0, 0/1, 1/1, 0/2, 1/2, 2/2, 0/3...
