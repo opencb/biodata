@@ -47,10 +47,6 @@
             <artifactId>protobuf-java</artifactId>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
@@ -59,13 +55,10 @@
             <artifactId>avro</artifactId>
             <version>1.7.7</version>
         </dependency>
-<!--
         <dependency>
-            <groupId>org.apache.avro</groupId>
-            <artifactId>avro-ipc</artifactId>
-            <version>1.7.7</version>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
         </dependency>
--->
     </dependencies>
 
 </project>

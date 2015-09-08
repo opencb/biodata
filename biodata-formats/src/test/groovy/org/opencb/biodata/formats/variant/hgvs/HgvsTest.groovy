@@ -16,8 +16,8 @@
 
 package org.opencb.biodata.formats.variant.hgvs
 
-import net.sf.picard.reference.FastaSequenceIndex
-import net.sf.picard.reference.IndexedFastaSequenceFile
+import htsjdk.samtools.reference.FastaSequenceIndex
+import htsjdk.samtools.reference.IndexedFastaSequenceFile
 import org.opencb.biodata.models.variant.Variant
 import spock.lang.Unroll
 
