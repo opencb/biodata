@@ -49,6 +49,10 @@
 			<artifactId>avro</artifactId>
 			<version>1.7.7</version>
 		</dependency>
+        <dependency>
+            <groupId>com.github.samtools</groupId>
+            <artifactId>htsjdk</artifactId>
+        </dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
