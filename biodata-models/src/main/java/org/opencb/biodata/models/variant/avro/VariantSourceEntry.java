@@ -7,14 +7,14 @@ package org.opencb.biodata.models.variant.avro;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class VariantSourceEntry extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"VariantSourceEntry\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"fileId\",\"type\":[\"null\",\"string\"]},{\"name\":\"studyId\",\"type\":[\"null\",\"string\"]},{\"name\":\"secondaryAlternates\",\"type\":[\"null\",{\"type\":\"array\",\"items\":\"string\"}],\"default\":null},{\"name\":\"format\",\"type\":\"string\"},{\"name\":\"samplesData\",\"type\":{\"type\":\"map\",\"values\":{\"type\":\"map\",\"values\":\"string\"}}},{\"name\":\"cohortStats\",\"type\":{\"type\":\"map\",\"values\":{\"type\":\"record\",\"name\":\"VariantStats\",\"fields\":[{\"name\":\"refAllele\",\"type\":[\"null\",\"string\"]},{\"name\":\"altAllele\",\"type\":[\"null\",\"string\"]},{\"name\":\"refAlleleCount\",\"type\":[\"null\",\"int\"]},{\"name\":\"altAlleleCount\",\"type\":[\"null\",\"int\"]},{\"name\":\"missingAlleles\",\"type\":[\"null\",\"int\"]},{\"name\":\"missingGenotypes\",\"type\":[\"null\",\"int\"]},{\"name\":\"refAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"altAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"maf\",\"type\":[\"null\",\"float\"]},{\"name\":\"mgf\",\"type\":[\"null\",\"float\"]},{\"name\":\"mafAllele\",\"type\":[\"null\",\"string\"]},{\"name\":\"mgfGenotype\",\"type\":[\"null\",\"string\"]},{\"name\":\"passedFilters\",\"type\":[\"null\",\"boolean\"]},{\"name\":\"mendelianErrors\",\"type\":[\"null\",\"int\"]},{\"name\":\"casesPercentDominant\",\"type\":[\"null\",\"float\"]},{\"name\":\"controlsPercentDominant\",\"type\":[\"null\",\"float\"]},{\"name\":\"casesPercentRecessive\",\"type\":[\"null\",\"float\"]},{\"name\":\"controlsPercentRecessive\",\"type\":[\"null\",\"float\"]},{\"name\":\"quality\",\"type\":[\"null\",\"float\"]},{\"name\":\"numSamples\",\"type\":[\"null\",\"int\"]},{\"name\":\"variantType\",\"type\":{\"type\":\"enum\",\"name\":\"VariantType\",\"symbols\":[\"SNP\",\"SNV\",\"MNP\",\"MNV\",\"INDEL\",\"SV\",\"CNV\"]}},{\"name\":\"hw\",\"type\":{\"type\":\"record\",\"name\":\"VariantHardyWeinbergStats\",\"fields\":[{\"name\":\"chi2\",\"type\":[\"null\",\"float\"]},{\"name\":\"pValue\",\"type\":[\"null\",\"float\"]},{\"name\":\"n\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_AA_11\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_Aa_10\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_aa_00\",\"type\":[\"null\",\"int\"]},{\"name\":\"e_AA_11\",\"type\":[\"null\",\"float\"]},{\"name\":\"e_Aa_10\",\"type\":[\"null\",\"float\"]},{\"name\":\"e_aa_00\",\"type\":[\"null\",\"float\"]},{\"name\":\"p\",\"type\":[\"null\",\"float\"]},{\"name\":\"q\",\"type\":[\"null\",\"float\"]}]}}]}}},{\"name\":\"DEFAULT_COHORT\",\"type\":\"string\",\"default\":\"all\"},{\"name\":\"attributes\",\"type\":{\"type\":\"map\",\"values\":\"string\"}}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"VariantSourceEntry\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"fileId\",\"type\":[\"null\",\"string\"]},{\"name\":\"studyId\",\"type\":[\"null\",\"string\"]},{\"name\":\"secondaryAlternates\",\"type\":[\"null\",{\"type\":\"array\",\"items\":\"string\"}],\"default\":null},{\"name\":\"format\",\"type\":\"string\"},{\"name\":\"samplesData\",\"type\":{\"type\":\"map\",\"values\":{\"type\":\"map\",\"values\":\"string\"}}},{\"name\":\"cohortStats\",\"type\":{\"type\":\"map\",\"values\":{\"type\":\"record\",\"name\":\"VariantStats\",\"fields\":[{\"name\":\"refAllele\",\"type\":[\"null\",\"string\"]},{\"name\":\"altAllele\",\"type\":[\"null\",\"string\"]},{\"name\":\"refAlleleCount\",\"type\":[\"null\",\"int\"]},{\"name\":\"altAlleleCount\",\"type\":[\"null\",\"int\"]},{\"name\":\"missingAlleles\",\"type\":[\"null\",\"int\"]},{\"name\":\"missingGenotypes\",\"type\":[\"null\",\"int\"]},{\"name\":\"refAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"altAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"maf\",\"type\":[\"null\",\"float\"]},{\"name\":\"mgf\",\"type\":[\"null\",\"float\"]},{\"name\":\"mafAllele\",\"type\":[\"null\",\"string\"]},{\"name\":\"mgfGenotype\",\"type\":[\"null\",\"string\"]},{\"name\":\"passedFilters\",\"type\":[\"null\",\"boolean\"]},{\"name\":\"mendelianErrors\",\"type\":[\"null\",\"int\"]},{\"name\":\"casesPercentDominant\",\"type\":[\"null\",\"float\"]},{\"name\":\"controlsPercentDominant\",\"type\":[\"null\",\"float\"]},{\"name\":\"casesPercentRecessive\",\"type\":[\"null\",\"float\"]},{\"name\":\"controlsPercentRecessive\",\"type\":[\"null\",\"float\"]},{\"name\":\"quality\",\"type\":[\"null\",\"float\"]},{\"name\":\"numSamples\",\"type\":[\"null\",\"int\"]},{\"name\":\"variantType\",\"type\":{\"type\":\"enum\",\"name\":\"VariantType\",\"symbols\":[\"SNP\",\"SNV\",\"MNP\",\"MNV\",\"INDEL\",\"SV\",\"CNV\"]}},{\"name\":\"hw\",\"type\":{\"type\":\"record\",\"name\":\"VariantHardyWeinbergStats\",\"fields\":[{\"name\":\"chi2\",\"type\":[\"null\",\"float\"]},{\"name\":\"pValue\",\"type\":[\"null\",\"float\"]},{\"name\":\"n\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_AA_11\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_Aa_10\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_aa_00\",\"type\":[\"null\",\"int\"]},{\"name\":\"e_AA_11\",\"type\":[\"null\",\"float\"]},{\"name\":\"e_Aa_10\",\"type\":[\"null\",\"float\"]},{\"name\":\"e_aa_00\",\"type\":[\"null\",\"float\"]},{\"name\":\"p\",\"type\":[\"null\",\"float\"]},{\"name\":\"q\",\"type\":[\"null\",\"float\"]}]}},{\"name\":\"genotypesCount\",\"type\":[\"null\",{\"type\":\"map\",\"values\":{\"type\":\"record\",\"name\":\"Genotype\",\"fields\":[{\"name\":\"reference\",\"type\":\"string\"},{\"name\":\"alternate\",\"type\":\"string\"},{\"name\":\"allelesIdx\",\"type\":{\"type\":\"array\",\"items\":\"int\"},\"default\":[]},{\"name\":\"phased\",\"type\":\"boolean\"}]}}]},{\"name\":\"genotypesFreq\",\"type\":[\"null\",{\"type\":\"map\",\"values\":\"Genotype\"}]}]}}},{\"name\":\"DEFAULT_COHORT\",\"type\":\"string\",\"default\":\"all\"},{\"name\":\"attributes\",\"type\":{\"type\":\"map\",\"values\":\"string\"}}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
   @Deprecated public CharSequence fileId;
   @Deprecated public CharSequence studyId;
   @Deprecated public java.util.List<CharSequence> secondaryAlternates;
   @Deprecated public CharSequence format;
   @Deprecated public java.util.Map<CharSequence,java.util.Map<CharSequence,CharSequence>> samplesData;
-  @Deprecated public java.util.Map<CharSequence,org.opencb.biodata.models.variant.avro.VariantStats> cohortStats;
+  @Deprecated public java.util.Map<CharSequence,VariantStats> cohortStats;
   @Deprecated public CharSequence DEFAULT_COHORT;
   @Deprecated public java.util.Map<CharSequence,CharSequence> attributes;
 
@@ -28,7 +28,7 @@ public class VariantSourceEntry extends org.apache.avro.specific.SpecificRecordB
   /**
    * All-args constructor.
    */
-  public VariantSourceEntry(CharSequence fileId, CharSequence studyId, java.util.List<CharSequence> secondaryAlternates, CharSequence format, java.util.Map<CharSequence,java.util.Map<CharSequence,CharSequence>> samplesData, java.util.Map<CharSequence,org.opencb.biodata.models.variant.avro.VariantStats> cohortStats, CharSequence DEFAULT_COHORT, java.util.Map<CharSequence,CharSequence> attributes) {
+  public VariantSourceEntry(CharSequence fileId, CharSequence studyId, java.util.List<CharSequence> secondaryAlternates, CharSequence format, java.util.Map<CharSequence,java.util.Map<CharSequence,CharSequence>> samplesData, java.util.Map<CharSequence,VariantStats> cohortStats, CharSequence DEFAULT_COHORT, java.util.Map<CharSequence,CharSequence> attributes) {
     this.fileId = fileId;
     this.studyId = studyId;
     this.secondaryAlternates = secondaryAlternates;
@@ -63,7 +63,7 @@ public class VariantSourceEntry extends org.apache.avro.specific.SpecificRecordB
     case 2: secondaryAlternates = (java.util.List<CharSequence>)value$; break;
     case 3: format = (CharSequence)value$; break;
     case 4: samplesData = (java.util.Map<CharSequence,java.util.Map<CharSequence,CharSequence>>)value$; break;
-    case 5: cohortStats = (java.util.Map<CharSequence,org.opencb.biodata.models.variant.avro.VariantStats>)value$; break;
+    case 5: cohortStats = (java.util.Map<CharSequence,VariantStats>)value$; break;
     case 6: DEFAULT_COHORT = (CharSequence)value$; break;
     case 7: attributes = (java.util.Map<CharSequence,CharSequence>)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
@@ -148,7 +148,7 @@ public class VariantSourceEntry extends org.apache.avro.specific.SpecificRecordB
   /**
    * Gets the value of the 'cohortStats' field.
    */
-  public java.util.Map<CharSequence,org.opencb.biodata.models.variant.avro.VariantStats> getCohortStats() {
+  public java.util.Map<CharSequence,VariantStats> getCohortStats() {
     return cohortStats;
   }
 
@@ -156,7 +156,7 @@ public class VariantSourceEntry extends org.apache.avro.specific.SpecificRecordB
    * Sets the value of the 'cohortStats' field.
    * @param value the value to set.
    */
-  public void setCohortStats(java.util.Map<CharSequence,org.opencb.biodata.models.variant.avro.VariantStats> value) {
+  public void setCohortStats(java.util.Map<CharSequence,VariantStats> value) {
     this.cohortStats = value;
   }
 
@@ -216,7 +216,7 @@ public class VariantSourceEntry extends org.apache.avro.specific.SpecificRecordB
     private java.util.List<CharSequence> secondaryAlternates;
     private CharSequence format;
     private java.util.Map<CharSequence,java.util.Map<CharSequence,CharSequence>> samplesData;
-    private java.util.Map<CharSequence,org.opencb.biodata.models.variant.avro.VariantStats> cohortStats;
+    private java.util.Map<CharSequence,VariantStats> cohortStats;
     private CharSequence DEFAULT_COHORT;
     private java.util.Map<CharSequence,CharSequence> attributes;
 
@@ -425,12 +425,12 @@ public class VariantSourceEntry extends org.apache.avro.specific.SpecificRecordB
     }
 
     /** Gets the value of the 'cohortStats' field */
-    public java.util.Map<CharSequence,org.opencb.biodata.models.variant.avro.VariantStats> getCohortStats() {
+    public java.util.Map<CharSequence,VariantStats> getCohortStats() {
       return cohortStats;
     }
     
     /** Sets the value of the 'cohortStats' field */
-    public Builder setCohortStats(java.util.Map<CharSequence,org.opencb.biodata.models.variant.avro.VariantStats> value) {
+    public Builder setCohortStats(java.util.Map<CharSequence,VariantStats> value) {
       validate(fields()[5], value);
       this.cohortStats = value;
       fieldSetFlags()[5] = true;
@@ -499,7 +499,7 @@ public class VariantSourceEntry extends org.apache.avro.specific.SpecificRecordB
       return this;
     }
 
-    
+    @Override
     public VariantSourceEntry build() {
       try {
         VariantSourceEntry record = new VariantSourceEntry();
@@ -508,7 +508,7 @@ public class VariantSourceEntry extends org.apache.avro.specific.SpecificRecordB
         record.secondaryAlternates = fieldSetFlags()[2] ? this.secondaryAlternates : (java.util.List<CharSequence>) defaultValue(fields()[2]);
         record.format = fieldSetFlags()[3] ? this.format : (CharSequence) defaultValue(fields()[3]);
         record.samplesData = fieldSetFlags()[4] ? this.samplesData : (java.util.Map<CharSequence,java.util.Map<CharSequence,CharSequence>>) defaultValue(fields()[4]);
-        record.cohortStats = fieldSetFlags()[5] ? this.cohortStats : (java.util.Map<CharSequence,org.opencb.biodata.models.variant.avro.VariantStats>) defaultValue(fields()[5]);
+        record.cohortStats = fieldSetFlags()[5] ? this.cohortStats : (java.util.Map<CharSequence,VariantStats>) defaultValue(fields()[5]);
         record.DEFAULT_COHORT = fieldSetFlags()[6] ? this.DEFAULT_COHORT : (CharSequence) defaultValue(fields()[6]);
         record.attributes = fieldSetFlags()[7] ? this.attributes : (java.util.Map<CharSequence,CharSequence>) defaultValue(fields()[7]);
         return record;
