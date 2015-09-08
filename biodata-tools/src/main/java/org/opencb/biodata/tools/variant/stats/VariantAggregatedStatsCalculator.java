@@ -19,7 +19,6 @@ import java.util.regex.Pattern;
 public class VariantAggregatedStatsCalculator {
     protected Properties tagMap;
     protected Map<String, String> reverseTagMap;
-    protected Set<String> cohorts;
 
     protected final static String COMMA = ",";
     protected final static String DOT = "\\.";   // a literal dot. extracted to avoid confusion and avoid using the wrong "." with split()
@@ -28,7 +27,7 @@ public class VariantAggregatedStatsCalculator {
     protected final List<String> statsTags = new ArrayList<>(Arrays.asList("AC", "AN", "AF", "GTC", "GTS"));
 
     public VariantAggregatedStatsCalculator() {
-        this((Set)null);
+        this(null);
     }
     /**
      * @param tagMap Properties that contains case-sensitive tag mapping for aggregation data.
@@ -56,41 +55,7 @@ public class VariantAggregatedStatsCalculator {
         } else {
             this.reverseTagMap = null;
         }
-        this.cohorts = null;
     }
-
-    /**
-     * The calculator will try to parse stats (from the info field) as if no tagmap was provided, only that will do it
-     * several times, one for each in `cohorts`.
-     * @param cohorts
-     */
-    public VariantAggregatedStatsCalculator(Set<String> cohorts) {
-        this.tagMap = null;
-        this.reverseTagMap = null;
-
-        // it doesn't make sense an empty set of cohorts, it won't parse any stats, as it will do a 0-iterations loop
-        if (cohorts != null && cohorts.isEmpty()) {
-            cohorts = null;
-        }
-        this.cohorts = cohorts;
-    }
-
-    /**
-     * If you need both a properties and an extra separation by cohorts. The properties must not be aware of the
-     * cohorts prefixes described in the `cohorts` parameter, otherwise it would be enough using the constructor(Properties)
-     *
-     * @param cohorts
-     */
-    public VariantAggregatedStatsCalculator(Properties tagMap, Set<String> cohorts) {
-        this(tagMap);
-
-        // it doesn't make sense an empty set of cohorts, it won't parse any stats, as it will do a 0-iterations loop
-        if (cohorts != null && cohorts.isEmpty()) {
-            cohorts = null;
-        }
-        this.cohorts = cohorts;
-    }
-
 
     public void calculate(List<Variant> variants) {
         for (Variant variant : variants) {
@@ -119,13 +84,7 @@ public class VariantAggregatedStatsCalculator {
             alternateAlleles = ori[2].split(",");
         }
         if (tagMap != null) {
-            if (cohorts != null) {
-                parseCohortMappedStats(variant, study, numAllele, alternateAlleles, infoMap);
-            } else {
-                parseMappedStats(variant, study, numAllele, alternateAlleles, infoMap);
-            }
-        } else if (cohorts != null) {
-            parseCohortStats(variant, study, numAllele, alternateAlleles, infoMap);
+            parseMappedStats(variant, study, numAllele, alternateAlleles, infoMap);
         } else {
             parseStats(variant, study, numAllele, alternateAlleles, infoMap);
         }
@@ -188,140 +147,6 @@ public class VariantAggregatedStatsCalculator {
             calculate(variant, file, numAllele, alternateAlleles, cohortStats.get(cohortName), vs);
             file.setCohortStats(cohortName, vs);
         }
-    }
-
-    /**
-     * Looks in the info map for keys like "cohort_statsTag" where cohort must be inside this.cohorts, which is the set
-     * in the constructor VariantAggregatedStatsCalculator(Set cohorts), and statsTag is one of the regular stats that
-     * would be parsed in `parseStats` as well.
-     * Then calculates stats for each cohort in this.cohorts.
-     * @param variant
-     * @param file
-     * @param numAllele
-     * @param alternateAlleles
-     * @param info Map containing the info field, but split, instead of a single string with all the tags.
-     */
-    protected void parseCohortStats (Variant variant, VariantSourceEntry file, int numAllele, String[] alternateAlleles,
-                                     Map<String, String> info) {
-
-        Map<String, Map<String, String>> cohortStats = new LinkedHashMap<>();   // cohortName -> (statsName -> statsValue): EUR->(AC->3,2)
-        for (Map.Entry<String, String> entry : info.entrySet()) {
-            String[] tagSplit = entry.getKey().split(cohortSeparator);
-            if (tagSplit.length == 2) {
-                String cohortName = tagSplit[0];
-                String statName = tagSplit[1];
-                if (cohorts.contains(cohortName)) {
-                    Map<String, String> parsedValues = cohortStats.get(cohortName);
-                    if (parsedValues == null) {
-                        parsedValues = new LinkedHashMap<>();
-                        cohortStats.put(cohortName, parsedValues);
-                    }
-                    if (statsTags.contains(statName)) {
-                        parsedValues.put(statName, entry.getValue());
-                    }
-                }
-            }
-        }
-
-        for (String cohortName : cohortStats.keySet()) {
-            VariantStats vs = new VariantStats(variant);
-            calculate(variant, file, numAllele, alternateAlleles, cohortStats.get(cohortName), vs);
-            file.setCohortStats(cohortName, vs);
-        }
-    }
-    /**
-     * Looks in the info map for keys like "cohort_statsTag" where cohort must be inside this.cohorts, which is the set
-     * in the constructor VariantAggregatedStatsCalculator(Set cohorts), and statsTag is one of the custom stats that
-     * are described in the tagMap.
-     * Then calls to parseMappedStats for each cohort in this.cohorts.
-     * @param variant
-     * @param file
-     * @param numAllele
-     * @param alternateAlleles
-     * @param info Map containing the info field, but split, instead of a single string with all the tags.
-     */
-    protected void parseCohortMappedStats (Variant variant, VariantSourceEntry file, int numAllele, String[] alternateAlleles,
-                                     Map<String, String> info) {
-
-        Map<String, Map<String, String>> cohortStats = new LinkedHashMap<>();   // cohortName -> (statsName -> statsValue): EUR->(AC->3,2)
-        for (Map.Entry<String, String> entry : info.entrySet()) {
-            String[] tagSplit = entry.getKey().split(cohortSeparator, 2);
-            if (tagSplit.length > 1) {
-                String cohortName = tagSplit[0];
-                if (cohorts.contains(cohortName)) {
-                    String statTag = tagSplit[1];
-                    if (reverseTagMap.containsKey(statTag)) {
-                        String opencgaTag = reverseTagMap.get(statTag);
-                        String[] innerTagSplit = opencgaTag.split(DOT);
-                        String innerCohortName = cohortName + cohortSeparator + innerTagSplit[0];
-                        String statName = innerTagSplit[1];
-                        Map<String, String> parsedValues = cohortStats.get(innerCohortName);
-                        if (parsedValues == null) {
-                            parsedValues = new LinkedHashMap<>();
-                            cohortStats.put(innerCohortName, parsedValues);
-                        }
-                        parsedValues.put(statName, entry.getValue());
-                    } else if (VariantVcfFactory.ORI.equals(statTag)) {
-                        String[] ori = entry.getValue().split(":");
-                        alternateAlleles = ori[2].split(",");
-                        numAllele = Integer.parseInt(ori[3]);
-                    }
-                }
-            }
-        }
-
-
-        for (String cohortName : cohortStats.keySet()) {
-            VariantStats vs = new VariantStats(variant);
-            calculate(variant, file, numAllele, alternateAlleles, cohortStats.get(cohortName), vs);
-            file.setCohortStats(cohortName, vs);
-        }
-    }
-
-    /**
-     * Returns the combination of populations with cohorts
-     * @param attributes the keys are "cohort_tagMapValue"
-     * @param tagMap example: defines the populations EUR, ALL
-     * @param cohorts example: defines the cohorts file5, file7
-     * @return a Set: {file5_EUR, file5_ALL, file7_EUR, file7_ALL}
-     */
-    public static Set<String> getCohortNames(Map<String, String> attributes, Properties tagMap, Set<String> cohorts) {
-        Map<String, String> reverseTagMap;
-        Set<String> cohortNames = new LinkedHashSet<>();
-        if (tagMap == null) {
-            return cohorts == null? cohortNames : cohorts;
-        }
-
-
-        reverseTagMap = new LinkedHashMap<>(tagMap.size());
-        for (String tag : tagMap.stringPropertyNames()) {
-            reverseTagMap.put(tagMap.getProperty(tag), tag);
-        }
-
-        if (cohorts == null) {
-            for (Map.Entry<String, String> entry : attributes.entrySet()) {
-                if (reverseTagMap.containsKey(entry.getKey())) {
-                    String opencgaTag = reverseTagMap.get(entry.getKey());
-                    cohortNames.add(opencgaTag.split(DOT)[0]);
-                }
-            }
-        } else {
-            for (Map.Entry<String, String> entry : attributes.entrySet()) {
-                String[] tagSplit = entry.getKey().split(cohortSeparator, 2);
-                if (tagSplit.length > 1) {
-                    String cohortName = tagSplit[0];
-                    if (cohorts.contains(cohortName)) {
-                        String statTag = tagSplit[1];
-                        if (reverseTagMap.containsKey(statTag)) {
-                            String opencgaTag = reverseTagMap.get(statTag);
-                            String[] innerTagSplit = opencgaTag.split(DOT);
-                            cohortNames.add(cohortName + cohortSeparator + innerTagSplit[0]);
-                        }
-                    }
-                }
-            }
-        }
-        return cohortNames;
     }
 
     /**
