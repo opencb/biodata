@@ -286,7 +286,7 @@ public class Genotype extends org.apache.avro.specific.SpecificRecordBase implem
       return this;
     }
 
-    
+    @Override
     public Genotype build() {
       try {
         Genotype record = new Genotype();

@@ -1,7 +1,7 @@
 /**
  * Variant AVDL Model
  *  @author Kalyan;
- *  @author Pawan;
+ *  @author Pawan;  models.variant.avro
  */
  
  
@@ -11,6 +11,7 @@ protocol Variant {
 
   enum VariantType {SNP, SNV, MNP, MNV, INDEL, SV, CNV}
   enum AllelesCode {ALLELES_OK, ALLELES_MISSING, MULTIPLE_ALTERNATES, HAPLOID}
+  enum Expression {UP, DOWN}
   
 	record VariantHardyWeinbergStats { 
 		union { null, float } chi2;		
@@ -72,6 +73,91 @@ protocol Variant {
 		boolean phased; 		 
 	}
 	
+/**
+ * VariantAnnotation Start 
+ */	
+	record Xref { 
+		union { null, string } id;
+		union { null, string } src; 
+	}
+	
+	record Score { 
+		union { null, double } score;
+		union { null, string } source;
+		union { null, string } description;		
+	}	
+	
+	record ConsequenceTypeEntry { 
+		union { null, string } soName;
+		union { null, string } soAccession;
+	}	
+	
+	record ExpressionValue { 
+		union { null, string } experimentalFactor;
+		union { null, string } factorValue;		
+		union { null, string } experimentId;
+		union { null, string } technologyPlatform;		
+		Expression expression;
+		union { null, float } pvalue;
+	}
+	
+	record ConsequenceType { 
+		union { null, string } geneName;
+		union { null, string } ensemblGeneId; 
+		union { null, string } ensemblTranscriptId; 
+		union { null, string } strand; 
+		union { null, string } biotype; 
+		union { null, int } cDnaPosition; 
+		union { null, int } cdsPosition; 
+		union { null, int } aaPosition; 
+		union { null, string } aaChange; 
+		union { null, string } codon; 
+		union { null, string } functionalDescription; 		
+		union { null, array<Score> } proteinSubstitutionScores;
+		union { null, array<ConsequenceTypeEntry> } soTerms;
+		union { null, array<ExpressionValue> } expressionValues;
+	}
+	
+	record PopulationFrequency { 
+		union { null, string } study;
+		union { null, string } pop;		
+		union { null, string } superPop;		
+		union { null, string } refAllele;
+		union { null, string } altAllele;		
+		union { null, float } refAlleleFreq;
+		union { null, float } altAlleleFreq;
+		union { null, float } refHomGenotypeFreq;
+		union { null, float } hetGenotypeFreq;
+		union { null, float } altHomGenotypeFreq;
+	}
+	
+	record CaddScore { 
+		union { null, string } transcriptId;
+		union { null, float } cScore;		
+		union { null, float } rawScore;	
+	}
+	
+		
+	record VariantAnnotation { 
+
+		union { null, string } chromosome;
+		union { null, int } start;    
+		union { null, int } end;
+		union { null, string } referenceAllele;
+		union { null, string } alternateAllele;
+		union { null, string } id;
+		union { null, array<Xref> } xrefs;
+		union { null, array<string> } hgvs;
+		union { null, array<ConsequenceType> } consequenceTypes;
+		union { null, array<Score> } conservationScores;
+		union { null, array<PopulationFrequency> } populationFrequencies;
+		union { null, array<CaddScore> } caddScore;
+		
+		union { null, map<array<string>> } geneDrugInteraction;
+		union { null, map<string> } clinical;
+		union { null, map<string> } additionalAttributes;
+	}	
+	
 	record Variant{
 		VariantType variantType;
 		int SV_THRESHOLD = 50;
@@ -82,7 +168,7 @@ protocol Variant {
 		string reference;
 		string alternate;		
 		map<VariantSourceEntry> sourceEntries;
-		string annotation;
+		VariantAnnotation annotation;
 		array<string> Ids = [];
 		map<array<string>> hgvs;
 	}	

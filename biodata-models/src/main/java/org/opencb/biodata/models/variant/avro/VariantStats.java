@@ -1241,7 +1241,7 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
       return this;
     }
 
-    
+    @Override
     public VariantStats build() {
       try {
         VariantStats record = new VariantStats();

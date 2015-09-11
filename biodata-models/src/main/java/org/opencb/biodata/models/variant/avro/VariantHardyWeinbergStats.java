@@ -658,7 +658,7 @@ public class VariantHardyWeinbergStats extends org.apache.avro.specific.Specific
       return this;
     }
 
-   
+    @Override
     public VariantHardyWeinbergStats build() {
       try {
         VariantHardyWeinbergStats record = new VariantHardyWeinbergStats();

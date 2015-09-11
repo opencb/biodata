@@ -499,7 +499,7 @@ public class VariantSourceEntry extends org.apache.avro.specific.SpecificRecordB
       return this;
     }
 
-    
+    @Override
     public VariantSourceEntry build() {
       try {
         VariantSourceEntry record = new VariantSourceEntry();
