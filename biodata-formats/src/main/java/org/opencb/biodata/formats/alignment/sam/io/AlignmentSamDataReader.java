@@ -16,23 +16,20 @@
 
 package org.opencb.biodata.formats.alignment.sam.io;
 
-import net.sf.samtools.SAMFileHeader;
-import net.sf.samtools.SAMFileReader;
-import net.sf.samtools.SAMRecord;
-import net.sf.samtools.SAMRecordIterator;
-
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
+import htsjdk.samtools.SAMFileHeader;
+import htsjdk.samtools.SAMFileReader;
+import htsjdk.samtools.SAMRecord;
+import htsjdk.samtools.SAMRecordIterator;
 import org.opencb.biodata.formats.alignment.AlignmentConverter;
 import org.opencb.biodata.formats.alignment.io.AlignmentDataReader;
 import org.opencb.biodata.models.alignment.Alignment;
 import org.opencb.biodata.models.alignment.AlignmentHeader;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -70,7 +67,7 @@ public class AlignmentSamDataReader implements AlignmentDataReader {
         if(enableFileSource){
             reader.enableFileSource(true);
         }
-        reader.setValidationStringency(SAMFileReader.ValidationStringency.LENIENT);
+        reader.setValidationStringency(SAMFileReader.getDefaultValidationStringency().LENIENT);
         iterator = reader.iterator();
 
         return true;
