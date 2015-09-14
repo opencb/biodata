@@ -30,13 +30,16 @@
     <artifactId>biodata-models</artifactId>
     <version>${biodata.version}</version>
 
-    <name>models</name>
-    <url>http://maven.apache.org</url>
-
     <dependencies>
         <dependency>
             <groupId>org.opencb.commons</groupId>
             <artifactId>commons-lib</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.avro</groupId>
+            <artifactId>avro</artifactId>
+            <version>1.7.7</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -49,11 +52,6 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.avro</groupId>
-            <artifactId>avro</artifactId>
-            <version>1.7.7</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
