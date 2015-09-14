@@ -30,27 +30,20 @@
     <artifactId>biodata-tools</artifactId>
     <version>${biodata.version}</version>
 
-    <name>tools</name>
-    <url>http://maven.apache.org</url>
-
     <dependencies>
-        <dependency>
-            <groupId>org.opencb.ga4gh</groupId>
-            <artifactId>ga4gh</artifactId>
-            <version>0.5.1</version>
-        </dependency>
         <dependency>
             <groupId>org.opencb.biodata</groupId>
             <artifactId>biodata-formats</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opencb.biodata</groupId>
-            <artifactId>biodata-models</artifactId>
+            <groupId>org.opencb.commons</groupId>
+            <artifactId>commons-lib</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.opencb.commons</groupId>
-            <artifactId>commons-lib</artifactId>
+            <groupId>org.opencb.ga4gh</groupId>
+            <artifactId>ga4gh</artifactId>
+            <version>0.5.1</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
