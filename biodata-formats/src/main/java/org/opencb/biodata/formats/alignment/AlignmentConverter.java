@@ -16,7 +16,7 @@
 
 package org.opencb.biodata.formats.alignment;
 
-import net.sf.samtools.*;
+import htsjdk.samtools.*;
 import org.opencb.biodata.formats.sequence.fasta.dbadaptor.CellBaseSequenceDBAdaptor;
 import org.opencb.biodata.formats.sequence.fasta.dbadaptor.SequenceDBAdaptor;
 import org.opencb.biodata.models.alignment.Alignment;

@@ -16,11 +16,7 @@
 
 package org.opencb.biodata.formats.alignment.sam.io;
 
-
-import net.sf.samtools.SAMFileHeader;
-import net.sf.samtools.SAMFileWriterImpl;
-import net.sf.samtools.SAMRecord;
-import net.sf.samtools.SAMTextWriter;
+import htsjdk.samtools.*;
 import org.opencb.biodata.formats.alignment.AlignmentConverter;
 import org.opencb.biodata.formats.alignment.io.AlignmentDataWriter;
 import org.opencb.biodata.formats.sequence.fasta.dbadaptor.CellBaseSequenceDBAdaptor;
@@ -45,7 +41,7 @@ import org.opencb.biodata.formats.alignment.io.AlignmentDataReader;
  */
 public class AlignmentSamDataWriter implements AlignmentDataWriter {
 
-    protected SAMFileWriterImpl writer;
+    protected SAMFileWriter writer;
     private SAMFileHeader samFileHeader;
     AlignmentDataReader reader;
     protected Path input;
@@ -174,9 +170,6 @@ public class AlignmentSamDataWriter implements AlignmentDataWriter {
     @Override
     public boolean writeHeader(AlignmentHeader head) {
         samFileHeader = AlignmentConverter.buildSAMFileHeader(head);
-
-        writer.setSortOrder(samFileHeader.getSortOrder(), true);
-        writer.setHeader(samFileHeader);
         return true;
     }
 

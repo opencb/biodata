@@ -16,13 +16,13 @@
 
 package org.opencb.biodata.formats.alignment.sam.io;
 
-import net.sf.samtools.BAMFileWriter;
+import htsjdk.samtools.SAMFileHeader;
+import htsjdk.samtools.SAMFileWriterFactory;
+import org.opencb.biodata.formats.alignment.AlignmentConverter;
+import org.opencb.biodata.formats.alignment.io.AlignmentDataReader;
 import org.opencb.biodata.models.alignment.AlignmentHeader;
 
-import java.io.File;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import org.opencb.biodata.formats.alignment.io.AlignmentDataReader;
 
 /**
  * Created with IntelliJ IDEA.
@@ -44,8 +44,15 @@ public class AlignmentBamDataWriter extends AlignmentSamDataWriter  {
 
     @Override
     public boolean open() {
-        if(this.input.toFile().exists()) {
-            writer = new BAMFileWriter(this.input.toFile());
+        return true;
+    }
+
+    @Override
+    public boolean pre() {
+        if (this.input.toFile().exists()) {
+            SAMFileHeader samFileHeader = AlignmentConverter.buildSAMFileHeader(reader.getHeader());
+            writer = new SAMFileWriterFactory().makeBAMWriter(samFileHeader, true, this.input.toFile());
+            super.pre();
             return true;
         } else {
             return false;
