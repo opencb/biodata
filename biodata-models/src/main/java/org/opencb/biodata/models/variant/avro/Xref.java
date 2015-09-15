@@ -10,8 +10,8 @@ package org.opencb.biodata.models.variant.avro;
 public class Xref extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
   public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"Xref\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"doc\":\"* VariantAnnotation Start\",\"fields\":[{\"name\":\"id\",\"type\":[\"null\",\"string\"]},{\"name\":\"src\",\"type\":[\"null\",\"string\"]}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
-  @Deprecated public CharSequence id;
-  @Deprecated public CharSequence src;
+  @Deprecated public java.lang.CharSequence id;
+  @Deprecated public java.lang.CharSequence src;
 
   /**
    * Default constructor.  Note that this does not initialize fields
@@ -23,14 +23,14 @@ public class Xref extends org.apache.avro.specific.SpecificRecordBase implements
   /**
    * All-args constructor.
    */
-  public Xref(CharSequence id, CharSequence src) {
+  public Xref(java.lang.CharSequence id, java.lang.CharSequence src) {
     this.id = id;
     this.src = src;
   }
 
   public org.apache.avro.Schema getSchema() { return SCHEMA$; }
   // Used by DatumWriter.  Applications should not call. 
-  public Object get(int field$) {
+  public java.lang.Object get(int field$) {
     switch (field$) {
     case 0: return id;
     case 1: return src;
@@ -39,10 +39,10 @@ public class Xref extends org.apache.avro.specific.SpecificRecordBase implements
   }
   // Used by DatumReader.  Applications should not call. 
   @SuppressWarnings(value="unchecked")
-  public void put(int field$, Object value$) {
+  public void put(int field$, java.lang.Object value$) {
     switch (field$) {
-    case 0: id = (CharSequence)value$; break;
-    case 1: src = (CharSequence)value$; break;
+    case 0: id = (java.lang.CharSequence)value$; break;
+    case 1: src = (java.lang.CharSequence)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -50,7 +50,7 @@ public class Xref extends org.apache.avro.specific.SpecificRecordBase implements
   /**
    * Gets the value of the 'id' field.
    */
-  public CharSequence getId() {
+  public java.lang.CharSequence getId() {
     return id;
   }
 
@@ -58,14 +58,14 @@ public class Xref extends org.apache.avro.specific.SpecificRecordBase implements
    * Sets the value of the 'id' field.
    * @param value the value to set.
    */
-  public void setId(CharSequence value) {
+  public void setId(java.lang.CharSequence value) {
     this.id = value;
   }
 
   /**
    * Gets the value of the 'src' field.
    */
-  public CharSequence getSrc() {
+  public java.lang.CharSequence getSrc() {
     return src;
   }
 
@@ -73,23 +73,23 @@ public class Xref extends org.apache.avro.specific.SpecificRecordBase implements
    * Sets the value of the 'src' field.
    * @param value the value to set.
    */
-  public void setSrc(CharSequence value) {
+  public void setSrc(java.lang.CharSequence value) {
     this.src = value;
   }
 
   /** Creates a new Xref RecordBuilder */
-  public static Builder newBuilder() {
-    return new Builder();
+  public static org.opencb.biodata.models.variant.avro.Xref.Builder newBuilder() {
+    return new org.opencb.biodata.models.variant.avro.Xref.Builder();
   }
   
   /** Creates a new Xref RecordBuilder by copying an existing Builder */
-  public static Builder newBuilder(Builder other) {
-    return new Builder(other);
+  public static org.opencb.biodata.models.variant.avro.Xref.Builder newBuilder(org.opencb.biodata.models.variant.avro.Xref.Builder other) {
+    return new org.opencb.biodata.models.variant.avro.Xref.Builder(other);
   }
   
   /** Creates a new Xref RecordBuilder by copying an existing Xref instance */
-  public static Builder newBuilder(Xref other) {
-    return new Builder(other);
+  public static org.opencb.biodata.models.variant.avro.Xref.Builder newBuilder(org.opencb.biodata.models.variant.avro.Xref other) {
+    return new org.opencb.biodata.models.variant.avro.Xref.Builder(other);
   }
   
   /**
@@ -98,16 +98,16 @@ public class Xref extends org.apache.avro.specific.SpecificRecordBase implements
   public static class Builder extends org.apache.avro.specific.SpecificRecordBuilderBase<Xref>
     implements org.apache.avro.data.RecordBuilder<Xref> {
 
-    private CharSequence id;
-    private CharSequence src;
+    private java.lang.CharSequence id;
+    private java.lang.CharSequence src;
 
     /** Creates a new Builder */
     private Builder() {
-      super(Xref.SCHEMA$);
+      super(org.opencb.biodata.models.variant.avro.Xref.SCHEMA$);
     }
     
     /** Creates a Builder by copying an existing Builder */
-    private Builder(Builder other) {
+    private Builder(org.opencb.biodata.models.variant.avro.Xref.Builder other) {
       super(other);
       if (isValidValue(fields()[0], other.id)) {
         this.id = data().deepCopy(fields()[0].schema(), other.id);
@@ -120,8 +120,8 @@ public class Xref extends org.apache.avro.specific.SpecificRecordBase implements
     }
     
     /** Creates a Builder by copying an existing Xref instance */
-    private Builder(Xref other) {
-            super(Xref.SCHEMA$);
+    private Builder(org.opencb.biodata.models.variant.avro.Xref other) {
+            super(org.opencb.biodata.models.variant.avro.Xref.SCHEMA$);
       if (isValidValue(fields()[0], other.id)) {
         this.id = data().deepCopy(fields()[0].schema(), other.id);
         fieldSetFlags()[0] = true;
@@ -133,12 +133,12 @@ public class Xref extends org.apache.avro.specific.SpecificRecordBase implements
     }
 
     /** Gets the value of the 'id' field */
-    public CharSequence getId() {
+    public java.lang.CharSequence getId() {
       return id;
     }
     
     /** Sets the value of the 'id' field */
-    public Builder setId(CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.Xref.Builder setId(java.lang.CharSequence value) {
       validate(fields()[0], value);
       this.id = value;
       fieldSetFlags()[0] = true;
@@ -151,19 +151,19 @@ public class Xref extends org.apache.avro.specific.SpecificRecordBase implements
     }
     
     /** Clears the value of the 'id' field */
-    public Builder clearId() {
+    public org.opencb.biodata.models.variant.avro.Xref.Builder clearId() {
       id = null;
       fieldSetFlags()[0] = false;
       return this;
     }
 
     /** Gets the value of the 'src' field */
-    public CharSequence getSrc() {
+    public java.lang.CharSequence getSrc() {
       return src;
     }
     
     /** Sets the value of the 'src' field */
-    public Builder setSrc(CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.Xref.Builder setSrc(java.lang.CharSequence value) {
       validate(fields()[1], value);
       this.src = value;
       fieldSetFlags()[1] = true;
@@ -176,7 +176,7 @@ public class Xref extends org.apache.avro.specific.SpecificRecordBase implements
     }
     
     /** Clears the value of the 'src' field */
-    public Builder clearSrc() {
+    public org.opencb.biodata.models.variant.avro.Xref.Builder clearSrc() {
       src = null;
       fieldSetFlags()[1] = false;
       return this;
@@ -186,8 +186,8 @@ public class Xref extends org.apache.avro.specific.SpecificRecordBase implements
     public Xref build() {
       try {
         Xref record = new Xref();
-        record.id = fieldSetFlags()[0] ? this.id : (CharSequence) defaultValue(fields()[0]);
-        record.src = fieldSetFlags()[1] ? this.src : (CharSequence) defaultValue(fields()[1]);
+        record.id = fieldSetFlags()[0] ? this.id : (java.lang.CharSequence) defaultValue(fields()[0]);
+        record.src = fieldSetFlags()[1] ? this.src : (java.lang.CharSequence) defaultValue(fields()[1]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);

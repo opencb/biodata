@@ -9,17 +9,17 @@ package org.opencb.biodata.models.variant.avro;
 public class VariantHardyWeinbergStats extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
   public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"VariantHardyWeinbergStats\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"chi2\",\"type\":[\"null\",\"float\"]},{\"name\":\"pValue\",\"type\":[\"null\",\"float\"]},{\"name\":\"n\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_AA_11\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_Aa_10\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_aa_00\",\"type\":[\"null\",\"int\"]},{\"name\":\"e_AA_11\",\"type\":[\"null\",\"float\"]},{\"name\":\"e_Aa_10\",\"type\":[\"null\",\"float\"]},{\"name\":\"e_aa_00\",\"type\":[\"null\",\"float\"]},{\"name\":\"p\",\"type\":[\"null\",\"float\"]},{\"name\":\"q\",\"type\":[\"null\",\"float\"]}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
-  @Deprecated public Float chi2;
-  @Deprecated public Float pValue;
-  @Deprecated public Integer n;
-  @Deprecated public Integer n_AA_11;
-  @Deprecated public Integer n_Aa_10;
-  @Deprecated public Integer n_aa_00;
-  @Deprecated public Float e_AA_11;
-  @Deprecated public Float e_Aa_10;
-  @Deprecated public Float e_aa_00;
-  @Deprecated public Float p;
-  @Deprecated public Float q;
+  @Deprecated public java.lang.Float chi2;
+  @Deprecated public java.lang.Float pValue;
+  @Deprecated public java.lang.Integer n;
+  @Deprecated public java.lang.Integer n_AA_11;
+  @Deprecated public java.lang.Integer n_Aa_10;
+  @Deprecated public java.lang.Integer n_aa_00;
+  @Deprecated public java.lang.Float e_AA_11;
+  @Deprecated public java.lang.Float e_Aa_10;
+  @Deprecated public java.lang.Float e_aa_00;
+  @Deprecated public java.lang.Float p;
+  @Deprecated public java.lang.Float q;
 
   /**
    * Default constructor.  Note that this does not initialize fields
@@ -31,7 +31,7 @@ public class VariantHardyWeinbergStats extends org.apache.avro.specific.Specific
   /**
    * All-args constructor.
    */
-  public VariantHardyWeinbergStats(Float chi2, Float pValue, Integer n, Integer n_AA_11, Integer n_Aa_10, Integer n_aa_00, Float e_AA_11, Float e_Aa_10, Float e_aa_00, Float p, Float q) {
+  public VariantHardyWeinbergStats(java.lang.Float chi2, java.lang.Float pValue, java.lang.Integer n, java.lang.Integer n_AA_11, java.lang.Integer n_Aa_10, java.lang.Integer n_aa_00, java.lang.Float e_AA_11, java.lang.Float e_Aa_10, java.lang.Float e_aa_00, java.lang.Float p, java.lang.Float q) {
     this.chi2 = chi2;
     this.pValue = pValue;
     this.n = n;
@@ -47,7 +47,7 @@ public class VariantHardyWeinbergStats extends org.apache.avro.specific.Specific
 
   public org.apache.avro.Schema getSchema() { return SCHEMA$; }
   // Used by DatumWriter.  Applications should not call. 
-  public Object get(int field$) {
+  public java.lang.Object get(int field$) {
     switch (field$) {
     case 0: return chi2;
     case 1: return pValue;
@@ -65,19 +65,19 @@ public class VariantHardyWeinbergStats extends org.apache.avro.specific.Specific
   }
   // Used by DatumReader.  Applications should not call. 
   @SuppressWarnings(value="unchecked")
-  public void put(int field$, Object value$) {
+  public void put(int field$, java.lang.Object value$) {
     switch (field$) {
-    case 0: chi2 = (Float)value$; break;
-    case 1: pValue = (Float)value$; break;
-    case 2: n = (Integer)value$; break;
-    case 3: n_AA_11 = (Integer)value$; break;
-    case 4: n_Aa_10 = (Integer)value$; break;
-    case 5: n_aa_00 = (Integer)value$; break;
-    case 6: e_AA_11 = (Float)value$; break;
-    case 7: e_Aa_10 = (Float)value$; break;
-    case 8: e_aa_00 = (Float)value$; break;
-    case 9: p = (Float)value$; break;
-    case 10: q = (Float)value$; break;
+    case 0: chi2 = (java.lang.Float)value$; break;
+    case 1: pValue = (java.lang.Float)value$; break;
+    case 2: n = (java.lang.Integer)value$; break;
+    case 3: n_AA_11 = (java.lang.Integer)value$; break;
+    case 4: n_Aa_10 = (java.lang.Integer)value$; break;
+    case 5: n_aa_00 = (java.lang.Integer)value$; break;
+    case 6: e_AA_11 = (java.lang.Float)value$; break;
+    case 7: e_Aa_10 = (java.lang.Float)value$; break;
+    case 8: e_aa_00 = (java.lang.Float)value$; break;
+    case 9: p = (java.lang.Float)value$; break;
+    case 10: q = (java.lang.Float)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -85,7 +85,7 @@ public class VariantHardyWeinbergStats extends org.apache.avro.specific.Specific
   /**
    * Gets the value of the 'chi2' field.
    */
-  public Float getChi2() {
+  public java.lang.Float getChi2() {
     return chi2;
   }
 
@@ -93,14 +93,14 @@ public class VariantHardyWeinbergStats extends org.apache.avro.specific.Specific
    * Sets the value of the 'chi2' field.
    * @param value the value to set.
    */
-  public void setChi2(Float value) {
+  public void setChi2(java.lang.Float value) {
     this.chi2 = value;
   }
 
   /**
    * Gets the value of the 'pValue' field.
    */
-  public Float getPValue() {
+  public java.lang.Float getPValue() {
     return pValue;
   }
 
@@ -108,14 +108,14 @@ public class VariantHardyWeinbergStats extends org.apache.avro.specific.Specific
    * Sets the value of the 'pValue' field.
    * @param value the value to set.
    */
-  public void setPValue(Float value) {
+  public void setPValue(java.lang.Float value) {
     this.pValue = value;
   }
 
   /**
    * Gets the value of the 'n' field.
    */
-  public Integer getN() {
+  public java.lang.Integer getN() {
     return n;
   }
 
@@ -123,14 +123,14 @@ public class VariantHardyWeinbergStats extends org.apache.avro.specific.Specific
    * Sets the value of the 'n' field.
    * @param value the value to set.
    */
-  public void setN(Integer value) {
+  public void setN(java.lang.Integer value) {
     this.n = value;
   }
 
   /**
    * Gets the value of the 'n_AA_11' field.
    */
-  public Integer getNAA11() {
+  public java.lang.Integer getNAA11() {
     return n_AA_11;
   }
 
@@ -138,14 +138,14 @@ public class VariantHardyWeinbergStats extends org.apache.avro.specific.Specific
    * Sets the value of the 'n_AA_11' field.
    * @param value the value to set.
    */
-  public void setNAA11(Integer value) {
+  public void setNAA11(java.lang.Integer value) {
     this.n_AA_11 = value;
   }
 
   /**
    * Gets the value of the 'n_Aa_10' field.
    */
-  public Integer getNAa10() {
+  public java.lang.Integer getNAa10() {
     return n_Aa_10;
   }
 
@@ -153,14 +153,14 @@ public class VariantHardyWeinbergStats extends org.apache.avro.specific.Specific
    * Sets the value of the 'n_Aa_10' field.
    * @param value the value to set.
    */
-  public void setNAa10(Integer value) {
+  public void setNAa10(java.lang.Integer value) {
     this.n_Aa_10 = value;
   }
 
   /**
    * Gets the value of the 'n_aa_00' field.
    */
-  public Integer getNAa00() {
+  public java.lang.Integer getNAa00() {
     return n_aa_00;
   }
 
@@ -168,14 +168,14 @@ public class VariantHardyWeinbergStats extends org.apache.avro.specific.Specific
    * Sets the value of the 'n_aa_00' field.
    * @param value the value to set.
    */
-  public void setNAa00(Integer value) {
+  public void setNAa00(java.lang.Integer value) {
     this.n_aa_00 = value;
   }
 
   /**
    * Gets the value of the 'e_AA_11' field.
    */
-  public Float getEAA11() {
+  public java.lang.Float getEAA11() {
     return e_AA_11;
   }
 
@@ -183,14 +183,14 @@ public class VariantHardyWeinbergStats extends org.apache.avro.specific.Specific
    * Sets the value of the 'e_AA_11' field.
    * @param value the value to set.
    */
-  public void setEAA11(Float value) {
+  public void setEAA11(java.lang.Float value) {
     this.e_AA_11 = value;
   }
 
   /**
    * Gets the value of the 'e_Aa_10' field.
    */
-  public Float getEAa10() {
+  public java.lang.Float getEAa10() {
     return e_Aa_10;
   }
 
@@ -198,14 +198,14 @@ public class VariantHardyWeinbergStats extends org.apache.avro.specific.Specific
    * Sets the value of the 'e_Aa_10' field.
    * @param value the value to set.
    */
-  public void setEAa10(Float value) {
+  public void setEAa10(java.lang.Float value) {
     this.e_Aa_10 = value;
   }
 
   /**
    * Gets the value of the 'e_aa_00' field.
    */
-  public Float getEAa00() {
+  public java.lang.Float getEAa00() {
     return e_aa_00;
   }
 
@@ -213,14 +213,14 @@ public class VariantHardyWeinbergStats extends org.apache.avro.specific.Specific
    * Sets the value of the 'e_aa_00' field.
    * @param value the value to set.
    */
-  public void setEAa00(Float value) {
+  public void setEAa00(java.lang.Float value) {
     this.e_aa_00 = value;
   }
 
   /**
    * Gets the value of the 'p' field.
    */
-  public Float getP() {
+  public java.lang.Float getP() {
     return p;
   }
 
@@ -228,14 +228,14 @@ public class VariantHardyWeinbergStats extends org.apache.avro.specific.Specific
    * Sets the value of the 'p' field.
    * @param value the value to set.
    */
-  public void setP(Float value) {
+  public void setP(java.lang.Float value) {
     this.p = value;
   }
 
   /**
    * Gets the value of the 'q' field.
    */
-  public Float getQ() {
+  public java.lang.Float getQ() {
     return q;
   }
 
@@ -243,23 +243,23 @@ public class VariantHardyWeinbergStats extends org.apache.avro.specific.Specific
    * Sets the value of the 'q' field.
    * @param value the value to set.
    */
-  public void setQ(Float value) {
+  public void setQ(java.lang.Float value) {
     this.q = value;
   }
 
   /** Creates a new VariantHardyWeinbergStats RecordBuilder */
-  public static Builder newBuilder() {
-    return new Builder();
+  public static org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats.Builder newBuilder() {
+    return new org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats.Builder();
   }
   
   /** Creates a new VariantHardyWeinbergStats RecordBuilder by copying an existing Builder */
-  public static Builder newBuilder(Builder other) {
-    return new Builder(other);
+  public static org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats.Builder newBuilder(org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats.Builder other) {
+    return new org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats.Builder(other);
   }
   
   /** Creates a new VariantHardyWeinbergStats RecordBuilder by copying an existing VariantHardyWeinbergStats instance */
-  public static Builder newBuilder(VariantHardyWeinbergStats other) {
-    return new Builder(other);
+  public static org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats.Builder newBuilder(org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats other) {
+    return new org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats.Builder(other);
   }
   
   /**
@@ -268,25 +268,25 @@ public class VariantHardyWeinbergStats extends org.apache.avro.specific.Specific
   public static class Builder extends org.apache.avro.specific.SpecificRecordBuilderBase<VariantHardyWeinbergStats>
     implements org.apache.avro.data.RecordBuilder<VariantHardyWeinbergStats> {
 
-    private Float chi2;
-    private Float pValue;
-    private Integer n;
-    private Integer n_AA_11;
-    private Integer n_Aa_10;
-    private Integer n_aa_00;
-    private Float e_AA_11;
-    private Float e_Aa_10;
-    private Float e_aa_00;
-    private Float p;
-    private Float q;
+    private java.lang.Float chi2;
+    private java.lang.Float pValue;
+    private java.lang.Integer n;
+    private java.lang.Integer n_AA_11;
+    private java.lang.Integer n_Aa_10;
+    private java.lang.Integer n_aa_00;
+    private java.lang.Float e_AA_11;
+    private java.lang.Float e_Aa_10;
+    private java.lang.Float e_aa_00;
+    private java.lang.Float p;
+    private java.lang.Float q;
 
     /** Creates a new Builder */
     private Builder() {
-      super(VariantHardyWeinbergStats.SCHEMA$);
+      super(org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats.SCHEMA$);
     }
     
     /** Creates a Builder by copying an existing Builder */
-    private Builder(Builder other) {
+    private Builder(org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats.Builder other) {
       super(other);
       if (isValidValue(fields()[0], other.chi2)) {
         this.chi2 = data().deepCopy(fields()[0].schema(), other.chi2);
@@ -335,8 +335,8 @@ public class VariantHardyWeinbergStats extends org.apache.avro.specific.Specific
     }
     
     /** Creates a Builder by copying an existing VariantHardyWeinbergStats instance */
-    private Builder(VariantHardyWeinbergStats other) {
-            super(VariantHardyWeinbergStats.SCHEMA$);
+    private Builder(org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats other) {
+            super(org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats.SCHEMA$);
       if (isValidValue(fields()[0], other.chi2)) {
         this.chi2 = data().deepCopy(fields()[0].schema(), other.chi2);
         fieldSetFlags()[0] = true;
@@ -384,12 +384,12 @@ public class VariantHardyWeinbergStats extends org.apache.avro.specific.Specific
     }
 
     /** Gets the value of the 'chi2' field */
-    public Float getChi2() {
+    public java.lang.Float getChi2() {
       return chi2;
     }
     
     /** Sets the value of the 'chi2' field */
-    public Builder setChi2(Float value) {
+    public org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats.Builder setChi2(java.lang.Float value) {
       validate(fields()[0], value);
       this.chi2 = value;
       fieldSetFlags()[0] = true;
@@ -402,19 +402,19 @@ public class VariantHardyWeinbergStats extends org.apache.avro.specific.Specific
     }
     
     /** Clears the value of the 'chi2' field */
-    public Builder clearChi2() {
+    public org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats.Builder clearChi2() {
       chi2 = null;
       fieldSetFlags()[0] = false;
       return this;
     }
 
     /** Gets the value of the 'pValue' field */
-    public Float getPValue() {
+    public java.lang.Float getPValue() {
       return pValue;
     }
     
     /** Sets the value of the 'pValue' field */
-    public Builder setPValue(Float value) {
+    public org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats.Builder setPValue(java.lang.Float value) {
       validate(fields()[1], value);
       this.pValue = value;
       fieldSetFlags()[1] = true;
@@ -427,19 +427,19 @@ public class VariantHardyWeinbergStats extends org.apache.avro.specific.Specific
     }
     
     /** Clears the value of the 'pValue' field */
-    public Builder clearPValue() {
+    public org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats.Builder clearPValue() {
       pValue = null;
       fieldSetFlags()[1] = false;
       return this;
     }
 
     /** Gets the value of the 'n' field */
-    public Integer getN() {
+    public java.lang.Integer getN() {
       return n;
     }
     
     /** Sets the value of the 'n' field */
-    public Builder setN(Integer value) {
+    public org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats.Builder setN(java.lang.Integer value) {
       validate(fields()[2], value);
       this.n = value;
       fieldSetFlags()[2] = true;
@@ -452,19 +452,19 @@ public class VariantHardyWeinbergStats extends org.apache.avro.specific.Specific
     }
     
     /** Clears the value of the 'n' field */
-    public Builder clearN() {
+    public org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats.Builder clearN() {
       n = null;
       fieldSetFlags()[2] = false;
       return this;
     }
 
     /** Gets the value of the 'n_AA_11' field */
-    public Integer getNAA11() {
+    public java.lang.Integer getNAA11() {
       return n_AA_11;
     }
     
     /** Sets the value of the 'n_AA_11' field */
-    public Builder setNAA11(Integer value) {
+    public org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats.Builder setNAA11(java.lang.Integer value) {
       validate(fields()[3], value);
       this.n_AA_11 = value;
       fieldSetFlags()[3] = true;
@@ -477,19 +477,19 @@ public class VariantHardyWeinbergStats extends org.apache.avro.specific.Specific
     }
     
     /** Clears the value of the 'n_AA_11' field */
-    public Builder clearNAA11() {
+    public org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats.Builder clearNAA11() {
       n_AA_11 = null;
       fieldSetFlags()[3] = false;
       return this;
     }
 
     /** Gets the value of the 'n_Aa_10' field */
-    public Integer getNAa10() {
+    public java.lang.Integer getNAa10() {
       return n_Aa_10;
     }
     
     /** Sets the value of the 'n_Aa_10' field */
-    public Builder setNAa10(Integer value) {
+    public org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats.Builder setNAa10(java.lang.Integer value) {
       validate(fields()[4], value);
       this.n_Aa_10 = value;
       fieldSetFlags()[4] = true;
@@ -502,19 +502,19 @@ public class VariantHardyWeinbergStats extends org.apache.avro.specific.Specific
     }
     
     /** Clears the value of the 'n_Aa_10' field */
-    public Builder clearNAa10() {
+    public org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats.Builder clearNAa10() {
       n_Aa_10 = null;
       fieldSetFlags()[4] = false;
       return this;
     }
 
     /** Gets the value of the 'n_aa_00' field */
-    public Integer getNAa00() {
+    public java.lang.Integer getNAa00() {
       return n_aa_00;
     }
     
     /** Sets the value of the 'n_aa_00' field */
-    public Builder setNAa00(Integer value) {
+    public org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats.Builder setNAa00(java.lang.Integer value) {
       validate(fields()[5], value);
       this.n_aa_00 = value;
       fieldSetFlags()[5] = true;
@@ -527,19 +527,19 @@ public class VariantHardyWeinbergStats extends org.apache.avro.specific.Specific
     }
     
     /** Clears the value of the 'n_aa_00' field */
-    public Builder clearNAa00() {
+    public org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats.Builder clearNAa00() {
       n_aa_00 = null;
       fieldSetFlags()[5] = false;
       return this;
     }
 
     /** Gets the value of the 'e_AA_11' field */
-    public Float getEAA11() {
+    public java.lang.Float getEAA11() {
       return e_AA_11;
     }
     
     /** Sets the value of the 'e_AA_11' field */
-    public Builder setEAA11(Float value) {
+    public org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats.Builder setEAA11(java.lang.Float value) {
       validate(fields()[6], value);
       this.e_AA_11 = value;
       fieldSetFlags()[6] = true;
@@ -552,19 +552,19 @@ public class VariantHardyWeinbergStats extends org.apache.avro.specific.Specific
     }
     
     /** Clears the value of the 'e_AA_11' field */
-    public Builder clearEAA11() {
+    public org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats.Builder clearEAA11() {
       e_AA_11 = null;
       fieldSetFlags()[6] = false;
       return this;
     }
 
     /** Gets the value of the 'e_Aa_10' field */
-    public Float getEAa10() {
+    public java.lang.Float getEAa10() {
       return e_Aa_10;
     }
     
     /** Sets the value of the 'e_Aa_10' field */
-    public Builder setEAa10(Float value) {
+    public org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats.Builder setEAa10(java.lang.Float value) {
       validate(fields()[7], value);
       this.e_Aa_10 = value;
       fieldSetFlags()[7] = true;
@@ -577,19 +577,19 @@ public class VariantHardyWeinbergStats extends org.apache.avro.specific.Specific
     }
     
     /** Clears the value of the 'e_Aa_10' field */
-    public Builder clearEAa10() {
+    public org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats.Builder clearEAa10() {
       e_Aa_10 = null;
       fieldSetFlags()[7] = false;
       return this;
     }
 
     /** Gets the value of the 'e_aa_00' field */
-    public Float getEAa00() {
+    public java.lang.Float getEAa00() {
       return e_aa_00;
     }
     
     /** Sets the value of the 'e_aa_00' field */
-    public Builder setEAa00(Float value) {
+    public org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats.Builder setEAa00(java.lang.Float value) {
       validate(fields()[8], value);
       this.e_aa_00 = value;
       fieldSetFlags()[8] = true;
@@ -602,19 +602,19 @@ public class VariantHardyWeinbergStats extends org.apache.avro.specific.Specific
     }
     
     /** Clears the value of the 'e_aa_00' field */
-    public Builder clearEAa00() {
+    public org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats.Builder clearEAa00() {
       e_aa_00 = null;
       fieldSetFlags()[8] = false;
       return this;
     }
 
     /** Gets the value of the 'p' field */
-    public Float getP() {
+    public java.lang.Float getP() {
       return p;
     }
     
     /** Sets the value of the 'p' field */
-    public Builder setP(Float value) {
+    public org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats.Builder setP(java.lang.Float value) {
       validate(fields()[9], value);
       this.p = value;
       fieldSetFlags()[9] = true;
@@ -627,19 +627,19 @@ public class VariantHardyWeinbergStats extends org.apache.avro.specific.Specific
     }
     
     /** Clears the value of the 'p' field */
-    public Builder clearP() {
+    public org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats.Builder clearP() {
       p = null;
       fieldSetFlags()[9] = false;
       return this;
     }
 
     /** Gets the value of the 'q' field */
-    public Float getQ() {
+    public java.lang.Float getQ() {
       return q;
     }
     
     /** Sets the value of the 'q' field */
-    public Builder setQ(Float value) {
+    public org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats.Builder setQ(java.lang.Float value) {
       validate(fields()[10], value);
       this.q = value;
       fieldSetFlags()[10] = true;
@@ -652,7 +652,7 @@ public class VariantHardyWeinbergStats extends org.apache.avro.specific.Specific
     }
     
     /** Clears the value of the 'q' field */
-    public Builder clearQ() {
+    public org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats.Builder clearQ() {
       q = null;
       fieldSetFlags()[10] = false;
       return this;
@@ -662,17 +662,17 @@ public class VariantHardyWeinbergStats extends org.apache.avro.specific.Specific
     public VariantHardyWeinbergStats build() {
       try {
         VariantHardyWeinbergStats record = new VariantHardyWeinbergStats();
-        record.chi2 = fieldSetFlags()[0] ? this.chi2 : (Float) defaultValue(fields()[0]);
-        record.pValue = fieldSetFlags()[1] ? this.pValue : (Float) defaultValue(fields()[1]);
-        record.n = fieldSetFlags()[2] ? this.n : (Integer) defaultValue(fields()[2]);
-        record.n_AA_11 = fieldSetFlags()[3] ? this.n_AA_11 : (Integer) defaultValue(fields()[3]);
-        record.n_Aa_10 = fieldSetFlags()[4] ? this.n_Aa_10 : (Integer) defaultValue(fields()[4]);
-        record.n_aa_00 = fieldSetFlags()[5] ? this.n_aa_00 : (Integer) defaultValue(fields()[5]);
-        record.e_AA_11 = fieldSetFlags()[6] ? this.e_AA_11 : (Float) defaultValue(fields()[6]);
-        record.e_Aa_10 = fieldSetFlags()[7] ? this.e_Aa_10 : (Float) defaultValue(fields()[7]);
-        record.e_aa_00 = fieldSetFlags()[8] ? this.e_aa_00 : (Float) defaultValue(fields()[8]);
-        record.p = fieldSetFlags()[9] ? this.p : (Float) defaultValue(fields()[9]);
-        record.q = fieldSetFlags()[10] ? this.q : (Float) defaultValue(fields()[10]);
+        record.chi2 = fieldSetFlags()[0] ? this.chi2 : (java.lang.Float) defaultValue(fields()[0]);
+        record.pValue = fieldSetFlags()[1] ? this.pValue : (java.lang.Float) defaultValue(fields()[1]);
+        record.n = fieldSetFlags()[2] ? this.n : (java.lang.Integer) defaultValue(fields()[2]);
+        record.n_AA_11 = fieldSetFlags()[3] ? this.n_AA_11 : (java.lang.Integer) defaultValue(fields()[3]);
+        record.n_Aa_10 = fieldSetFlags()[4] ? this.n_Aa_10 : (java.lang.Integer) defaultValue(fields()[4]);
+        record.n_aa_00 = fieldSetFlags()[5] ? this.n_aa_00 : (java.lang.Integer) defaultValue(fields()[5]);
+        record.e_AA_11 = fieldSetFlags()[6] ? this.e_AA_11 : (java.lang.Float) defaultValue(fields()[6]);
+        record.e_Aa_10 = fieldSetFlags()[7] ? this.e_Aa_10 : (java.lang.Float) defaultValue(fields()[7]);
+        record.e_aa_00 = fieldSetFlags()[8] ? this.e_aa_00 : (java.lang.Float) defaultValue(fields()[8]);
+        record.p = fieldSetFlags()[9] ? this.p : (java.lang.Float) defaultValue(fields()[9]);
+        record.q = fieldSetFlags()[10] ? this.q : (java.lang.Float) defaultValue(fields()[10]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);

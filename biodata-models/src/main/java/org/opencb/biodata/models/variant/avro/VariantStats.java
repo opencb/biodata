@@ -7,32 +7,30 @@ package org.opencb.biodata.models.variant.avro;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class VariantStats extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"VariantStats\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"refAllele\",\"type\":[\"null\",\"string\"]},{\"name\":\"altAllele\",\"type\":[\"null\",\"string\"]},{\"name\":\"refAlleleCount\",\"type\":[\"null\",\"int\"]},{\"name\":\"altAlleleCount\",\"type\":[\"null\",\"int\"]},{\"name\":\"missingAlleles\",\"type\":[\"null\",\"int\"]},{\"name\":\"missingGenotypes\",\"type\":[\"null\",\"int\"]},{\"name\":\"refAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"altAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"maf\",\"type\":[\"null\",\"float\"]},{\"name\":\"mgf\",\"type\":[\"null\",\"float\"]},{\"name\":\"mafAllele\",\"type\":[\"null\",\"string\"]},{\"name\":\"mgfGenotype\",\"type\":[\"null\",\"string\"]},{\"name\":\"passedFilters\",\"type\":[\"null\",\"boolean\"]},{\"name\":\"mendelianErrors\",\"type\":[\"null\",\"int\"]},{\"name\":\"casesPercentDominant\",\"type\":[\"null\",\"float\"]},{\"name\":\"controlsPercentDominant\",\"type\":[\"null\",\"float\"]},{\"name\":\"casesPercentRecessive\",\"type\":[\"null\",\"float\"]},{\"name\":\"controlsPercentRecessive\",\"type\":[\"null\",\"float\"]},{\"name\":\"quality\",\"type\":[\"null\",\"float\"]},{\"name\":\"numSamples\",\"type\":[\"null\",\"int\"]},{\"name\":\"variantType\",\"type\":{\"type\":\"enum\",\"name\":\"VariantType\",\"symbols\":[\"SNP\",\"SNV\",\"MNP\",\"MNV\",\"INDEL\",\"SV\",\"CNV\"]}},{\"name\":\"hw\",\"type\":{\"type\":\"record\",\"name\":\"VariantHardyWeinbergStats\",\"fields\":[{\"name\":\"chi2\",\"type\":[\"null\",\"float\"]},{\"name\":\"pValue\",\"type\":[\"null\",\"float\"]},{\"name\":\"n\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_AA_11\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_Aa_10\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_aa_00\",\"type\":[\"null\",\"int\"]},{\"name\":\"e_AA_11\",\"type\":[\"null\",\"float\"]},{\"name\":\"e_Aa_10\",\"type\":[\"null\",\"float\"]},{\"name\":\"e_aa_00\",\"type\":[\"null\",\"float\"]},{\"name\":\"p\",\"type\":[\"null\",\"float\"]},{\"name\":\"q\",\"type\":[\"null\",\"float\"]}]}},{\"name\":\"genotypesCount\",\"type\":[\"null\",{\"type\":\"map\",\"values\":{\"type\":\"record\",\"name\":\"Genotype\",\"fields\":[{\"name\":\"reference\",\"type\":\"string\"},{\"name\":\"alternate\",\"type\":\"string\"},{\"name\":\"allelesIdx\",\"type\":{\"type\":\"array\",\"items\":\"int\"},\"default\":[]},{\"name\":\"phased\",\"type\":\"boolean\"}]}}]},{\"name\":\"genotypesFreq\",\"type\":[\"null\",{\"type\":\"map\",\"values\":\"Genotype\"}]}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"VariantStats\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"refAllele\",\"type\":[\"null\",\"string\"]},{\"name\":\"altAllele\",\"type\":[\"null\",\"string\"]},{\"name\":\"refAlleleCount\",\"type\":[\"null\",\"int\"]},{\"name\":\"altAlleleCount\",\"type\":[\"null\",\"int\"]},{\"name\":\"missingAlleles\",\"type\":[\"null\",\"int\"]},{\"name\":\"missingGenotypes\",\"type\":[\"null\",\"int\"]},{\"name\":\"refAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"altAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"maf\",\"type\":[\"null\",\"float\"]},{\"name\":\"mgf\",\"type\":[\"null\",\"float\"]},{\"name\":\"mafAllele\",\"type\":[\"null\",\"string\"]},{\"name\":\"mgfGenotype\",\"type\":[\"null\",\"string\"]},{\"name\":\"passedFilters\",\"type\":[\"null\",\"boolean\"]},{\"name\":\"mendelianErrors\",\"type\":[\"null\",\"int\"]},{\"name\":\"casesPercentDominant\",\"type\":[\"null\",\"float\"]},{\"name\":\"controlsPercentDominant\",\"type\":[\"null\",\"float\"]},{\"name\":\"casesPercentRecessive\",\"type\":[\"null\",\"float\"]},{\"name\":\"controlsPercentRecessive\",\"type\":[\"null\",\"float\"]},{\"name\":\"quality\",\"type\":[\"null\",\"float\"]},{\"name\":\"numSamples\",\"type\":[\"null\",\"int\"]},{\"name\":\"variantType\",\"type\":{\"type\":\"enum\",\"name\":\"VariantType\",\"symbols\":[\"SNP\",\"SNV\",\"MNP\",\"MNV\",\"INDEL\",\"SV\",\"CNV\"]}},{\"name\":\"hw\",\"type\":{\"type\":\"record\",\"name\":\"VariantHardyWeinbergStats\",\"fields\":[{\"name\":\"chi2\",\"type\":[\"null\",\"float\"]},{\"name\":\"pValue\",\"type\":[\"null\",\"float\"]},{\"name\":\"n\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_AA_11\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_Aa_10\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_aa_00\",\"type\":[\"null\",\"int\"]},{\"name\":\"e_AA_11\",\"type\":[\"null\",\"float\"]},{\"name\":\"e_Aa_10\",\"type\":[\"null\",\"float\"]},{\"name\":\"e_aa_00\",\"type\":[\"null\",\"float\"]},{\"name\":\"p\",\"type\":[\"null\",\"float\"]},{\"name\":\"q\",\"type\":[\"null\",\"float\"]}]}}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
-  @Deprecated public CharSequence refAllele;
-  @Deprecated public CharSequence altAllele;
-  @Deprecated public Integer refAlleleCount;
-  @Deprecated public Integer altAlleleCount;
-  @Deprecated public Integer missingAlleles;
-  @Deprecated public Integer missingGenotypes;
-  @Deprecated public Float refAlleleFreq;
-  @Deprecated public Float altAlleleFreq;
-  @Deprecated public Float maf;
-  @Deprecated public Float mgf;
-  @Deprecated public CharSequence mafAllele;
-  @Deprecated public CharSequence mgfGenotype;
-  @Deprecated public Boolean passedFilters;
-  @Deprecated public Integer mendelianErrors;
-  @Deprecated public Float casesPercentDominant;
-  @Deprecated public Float controlsPercentDominant;
-  @Deprecated public Float casesPercentRecessive;
-  @Deprecated public Float controlsPercentRecessive;
-  @Deprecated public Float quality;
-  @Deprecated public Integer numSamples;
-  @Deprecated public VariantType variantType;
-  @Deprecated public VariantHardyWeinbergStats hw;
-  @Deprecated public java.util.Map<CharSequence,Genotype> genotypesCount;
-  @Deprecated public java.util.Map<CharSequence,Genotype> genotypesFreq;
+  @Deprecated public java.lang.CharSequence refAllele;
+  @Deprecated public java.lang.CharSequence altAllele;
+  @Deprecated public java.lang.Integer refAlleleCount;
+  @Deprecated public java.lang.Integer altAlleleCount;
+  @Deprecated public java.lang.Integer missingAlleles;
+  @Deprecated public java.lang.Integer missingGenotypes;
+  @Deprecated public java.lang.Float refAlleleFreq;
+  @Deprecated public java.lang.Float altAlleleFreq;
+  @Deprecated public java.lang.Float maf;
+  @Deprecated public java.lang.Float mgf;
+  @Deprecated public java.lang.CharSequence mafAllele;
+  @Deprecated public java.lang.CharSequence mgfGenotype;
+  @Deprecated public java.lang.Boolean passedFilters;
+  @Deprecated public java.lang.Integer mendelianErrors;
+  @Deprecated public java.lang.Float casesPercentDominant;
+  @Deprecated public java.lang.Float controlsPercentDominant;
+  @Deprecated public java.lang.Float casesPercentRecessive;
+  @Deprecated public java.lang.Float controlsPercentRecessive;
+  @Deprecated public java.lang.Float quality;
+  @Deprecated public java.lang.Integer numSamples;
+  @Deprecated public org.opencb.biodata.models.variant.avro.VariantType variantType;
+  @Deprecated public org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats hw;
 
   /**
    * Default constructor.  Note that this does not initialize fields
@@ -44,7 +42,7 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
   /**
    * All-args constructor.
    */
-  public VariantStats(CharSequence refAllele, CharSequence altAllele, Integer refAlleleCount, Integer altAlleleCount, Integer missingAlleles, Integer missingGenotypes, Float refAlleleFreq, Float altAlleleFreq, Float maf, Float mgf, CharSequence mafAllele, CharSequence mgfGenotype, Boolean passedFilters, Integer mendelianErrors, Float casesPercentDominant, Float controlsPercentDominant, Float casesPercentRecessive, Float controlsPercentRecessive, Float quality, Integer numSamples, VariantType variantType, VariantHardyWeinbergStats hw, java.util.Map<CharSequence,Genotype> genotypesCount, java.util.Map<CharSequence,Genotype> genotypesFreq) {
+  public VariantStats(java.lang.CharSequence refAllele, java.lang.CharSequence altAllele, java.lang.Integer refAlleleCount, java.lang.Integer altAlleleCount, java.lang.Integer missingAlleles, java.lang.Integer missingGenotypes, java.lang.Float refAlleleFreq, java.lang.Float altAlleleFreq, java.lang.Float maf, java.lang.Float mgf, java.lang.CharSequence mafAllele, java.lang.CharSequence mgfGenotype, java.lang.Boolean passedFilters, java.lang.Integer mendelianErrors, java.lang.Float casesPercentDominant, java.lang.Float controlsPercentDominant, java.lang.Float casesPercentRecessive, java.lang.Float controlsPercentRecessive, java.lang.Float quality, java.lang.Integer numSamples, org.opencb.biodata.models.variant.avro.VariantType variantType, org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats hw) {
     this.refAllele = refAllele;
     this.altAllele = altAllele;
     this.refAlleleCount = refAlleleCount;
@@ -67,13 +65,11 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     this.numSamples = numSamples;
     this.variantType = variantType;
     this.hw = hw;
-    this.genotypesCount = genotypesCount;
-    this.genotypesFreq = genotypesFreq;
   }
 
   public org.apache.avro.Schema getSchema() { return SCHEMA$; }
   // Used by DatumWriter.  Applications should not call. 
-  public Object get(int field$) {
+  public java.lang.Object get(int field$) {
     switch (field$) {
     case 0: return refAllele;
     case 1: return altAllele;
@@ -97,39 +93,35 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     case 19: return numSamples;
     case 20: return variantType;
     case 21: return hw;
-    case 22: return genotypesCount;
-    case 23: return genotypesFreq;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
   // Used by DatumReader.  Applications should not call. 
   @SuppressWarnings(value="unchecked")
-  public void put(int field$, Object value$) {
+  public void put(int field$, java.lang.Object value$) {
     switch (field$) {
-    case 0: refAllele = (CharSequence)value$; break;
-    case 1: altAllele = (CharSequence)value$; break;
-    case 2: refAlleleCount = (Integer)value$; break;
-    case 3: altAlleleCount = (Integer)value$; break;
-    case 4: missingAlleles = (Integer)value$; break;
-    case 5: missingGenotypes = (Integer)value$; break;
-    case 6: refAlleleFreq = (Float)value$; break;
-    case 7: altAlleleFreq = (Float)value$; break;
-    case 8: maf = (Float)value$; break;
-    case 9: mgf = (Float)value$; break;
-    case 10: mafAllele = (CharSequence)value$; break;
-    case 11: mgfGenotype = (CharSequence)value$; break;
-    case 12: passedFilters = (Boolean)value$; break;
-    case 13: mendelianErrors = (Integer)value$; break;
-    case 14: casesPercentDominant = (Float)value$; break;
-    case 15: controlsPercentDominant = (Float)value$; break;
-    case 16: casesPercentRecessive = (Float)value$; break;
-    case 17: controlsPercentRecessive = (Float)value$; break;
-    case 18: quality = (Float)value$; break;
-    case 19: numSamples = (Integer)value$; break;
-    case 20: variantType = (VariantType)value$; break;
-    case 21: hw = (VariantHardyWeinbergStats)value$; break;
-    case 22: genotypesCount = (java.util.Map<CharSequence,Genotype>)value$; break;
-    case 23: genotypesFreq = (java.util.Map<CharSequence,Genotype>)value$; break;
+    case 0: refAllele = (java.lang.CharSequence)value$; break;
+    case 1: altAllele = (java.lang.CharSequence)value$; break;
+    case 2: refAlleleCount = (java.lang.Integer)value$; break;
+    case 3: altAlleleCount = (java.lang.Integer)value$; break;
+    case 4: missingAlleles = (java.lang.Integer)value$; break;
+    case 5: missingGenotypes = (java.lang.Integer)value$; break;
+    case 6: refAlleleFreq = (java.lang.Float)value$; break;
+    case 7: altAlleleFreq = (java.lang.Float)value$; break;
+    case 8: maf = (java.lang.Float)value$; break;
+    case 9: mgf = (java.lang.Float)value$; break;
+    case 10: mafAllele = (java.lang.CharSequence)value$; break;
+    case 11: mgfGenotype = (java.lang.CharSequence)value$; break;
+    case 12: passedFilters = (java.lang.Boolean)value$; break;
+    case 13: mendelianErrors = (java.lang.Integer)value$; break;
+    case 14: casesPercentDominant = (java.lang.Float)value$; break;
+    case 15: controlsPercentDominant = (java.lang.Float)value$; break;
+    case 16: casesPercentRecessive = (java.lang.Float)value$; break;
+    case 17: controlsPercentRecessive = (java.lang.Float)value$; break;
+    case 18: quality = (java.lang.Float)value$; break;
+    case 19: numSamples = (java.lang.Integer)value$; break;
+    case 20: variantType = (org.opencb.biodata.models.variant.avro.VariantType)value$; break;
+    case 21: hw = (org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -137,7 +129,7 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
   /**
    * Gets the value of the 'refAllele' field.
    */
-  public CharSequence getRefAllele() {
+  public java.lang.CharSequence getRefAllele() {
     return refAllele;
   }
 
@@ -145,14 +137,14 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
    * Sets the value of the 'refAllele' field.
    * @param value the value to set.
    */
-  public void setRefAllele(CharSequence value) {
+  public void setRefAllele(java.lang.CharSequence value) {
     this.refAllele = value;
   }
 
   /**
    * Gets the value of the 'altAllele' field.
    */
-  public CharSequence getAltAllele() {
+  public java.lang.CharSequence getAltAllele() {
     return altAllele;
   }
 
@@ -160,14 +152,14 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
    * Sets the value of the 'altAllele' field.
    * @param value the value to set.
    */
-  public void setAltAllele(CharSequence value) {
+  public void setAltAllele(java.lang.CharSequence value) {
     this.altAllele = value;
   }
 
   /**
    * Gets the value of the 'refAlleleCount' field.
    */
-  public Integer getRefAlleleCount() {
+  public java.lang.Integer getRefAlleleCount() {
     return refAlleleCount;
   }
 
@@ -175,14 +167,14 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
    * Sets the value of the 'refAlleleCount' field.
    * @param value the value to set.
    */
-  public void setRefAlleleCount(Integer value) {
+  public void setRefAlleleCount(java.lang.Integer value) {
     this.refAlleleCount = value;
   }
 
   /**
    * Gets the value of the 'altAlleleCount' field.
    */
-  public Integer getAltAlleleCount() {
+  public java.lang.Integer getAltAlleleCount() {
     return altAlleleCount;
   }
 
@@ -190,14 +182,14 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
    * Sets the value of the 'altAlleleCount' field.
    * @param value the value to set.
    */
-  public void setAltAlleleCount(Integer value) {
+  public void setAltAlleleCount(java.lang.Integer value) {
     this.altAlleleCount = value;
   }
 
   /**
    * Gets the value of the 'missingAlleles' field.
    */
-  public Integer getMissingAlleles() {
+  public java.lang.Integer getMissingAlleles() {
     return missingAlleles;
   }
 
@@ -205,14 +197,14 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
    * Sets the value of the 'missingAlleles' field.
    * @param value the value to set.
    */
-  public void setMissingAlleles(Integer value) {
+  public void setMissingAlleles(java.lang.Integer value) {
     this.missingAlleles = value;
   }
 
   /**
    * Gets the value of the 'missingGenotypes' field.
    */
-  public Integer getMissingGenotypes() {
+  public java.lang.Integer getMissingGenotypes() {
     return missingGenotypes;
   }
 
@@ -220,14 +212,14 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
    * Sets the value of the 'missingGenotypes' field.
    * @param value the value to set.
    */
-  public void setMissingGenotypes(Integer value) {
+  public void setMissingGenotypes(java.lang.Integer value) {
     this.missingGenotypes = value;
   }
 
   /**
    * Gets the value of the 'refAlleleFreq' field.
    */
-  public Float getRefAlleleFreq() {
+  public java.lang.Float getRefAlleleFreq() {
     return refAlleleFreq;
   }
 
@@ -235,14 +227,14 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
    * Sets the value of the 'refAlleleFreq' field.
    * @param value the value to set.
    */
-  public void setRefAlleleFreq(Float value) {
+  public void setRefAlleleFreq(java.lang.Float value) {
     this.refAlleleFreq = value;
   }
 
   /**
    * Gets the value of the 'altAlleleFreq' field.
    */
-  public Float getAltAlleleFreq() {
+  public java.lang.Float getAltAlleleFreq() {
     return altAlleleFreq;
   }
 
@@ -250,14 +242,14 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
    * Sets the value of the 'altAlleleFreq' field.
    * @param value the value to set.
    */
-  public void setAltAlleleFreq(Float value) {
+  public void setAltAlleleFreq(java.lang.Float value) {
     this.altAlleleFreq = value;
   }
 
   /**
    * Gets the value of the 'maf' field.
    */
-  public Float getMaf() {
+  public java.lang.Float getMaf() {
     return maf;
   }
 
@@ -265,14 +257,14 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
    * Sets the value of the 'maf' field.
    * @param value the value to set.
    */
-  public void setMaf(Float value) {
+  public void setMaf(java.lang.Float value) {
     this.maf = value;
   }
 
   /**
    * Gets the value of the 'mgf' field.
    */
-  public Float getMgf() {
+  public java.lang.Float getMgf() {
     return mgf;
   }
 
@@ -280,14 +272,14 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
    * Sets the value of the 'mgf' field.
    * @param value the value to set.
    */
-  public void setMgf(Float value) {
+  public void setMgf(java.lang.Float value) {
     this.mgf = value;
   }
 
   /**
    * Gets the value of the 'mafAllele' field.
    */
-  public CharSequence getMafAllele() {
+  public java.lang.CharSequence getMafAllele() {
     return mafAllele;
   }
 
@@ -295,14 +287,14 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
    * Sets the value of the 'mafAllele' field.
    * @param value the value to set.
    */
-  public void setMafAllele(CharSequence value) {
+  public void setMafAllele(java.lang.CharSequence value) {
     this.mafAllele = value;
   }
 
   /**
    * Gets the value of the 'mgfGenotype' field.
    */
-  public CharSequence getMgfGenotype() {
+  public java.lang.CharSequence getMgfGenotype() {
     return mgfGenotype;
   }
 
@@ -310,14 +302,14 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
    * Sets the value of the 'mgfGenotype' field.
    * @param value the value to set.
    */
-  public void setMgfGenotype(CharSequence value) {
+  public void setMgfGenotype(java.lang.CharSequence value) {
     this.mgfGenotype = value;
   }
 
   /**
    * Gets the value of the 'passedFilters' field.
    */
-  public Boolean getPassedFilters() {
+  public java.lang.Boolean getPassedFilters() {
     return passedFilters;
   }
 
@@ -325,14 +317,14 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
    * Sets the value of the 'passedFilters' field.
    * @param value the value to set.
    */
-  public void setPassedFilters(Boolean value) {
+  public void setPassedFilters(java.lang.Boolean value) {
     this.passedFilters = value;
   }
 
   /**
    * Gets the value of the 'mendelianErrors' field.
    */
-  public Integer getMendelianErrors() {
+  public java.lang.Integer getMendelianErrors() {
     return mendelianErrors;
   }
 
@@ -340,14 +332,14 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
    * Sets the value of the 'mendelianErrors' field.
    * @param value the value to set.
    */
-  public void setMendelianErrors(Integer value) {
+  public void setMendelianErrors(java.lang.Integer value) {
     this.mendelianErrors = value;
   }
 
   /**
    * Gets the value of the 'casesPercentDominant' field.
    */
-  public Float getCasesPercentDominant() {
+  public java.lang.Float getCasesPercentDominant() {
     return casesPercentDominant;
   }
 
@@ -355,14 +347,14 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
    * Sets the value of the 'casesPercentDominant' field.
    * @param value the value to set.
    */
-  public void setCasesPercentDominant(Float value) {
+  public void setCasesPercentDominant(java.lang.Float value) {
     this.casesPercentDominant = value;
   }
 
   /**
    * Gets the value of the 'controlsPercentDominant' field.
    */
-  public Float getControlsPercentDominant() {
+  public java.lang.Float getControlsPercentDominant() {
     return controlsPercentDominant;
   }
 
@@ -370,14 +362,14 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
    * Sets the value of the 'controlsPercentDominant' field.
    * @param value the value to set.
    */
-  public void setControlsPercentDominant(Float value) {
+  public void setControlsPercentDominant(java.lang.Float value) {
     this.controlsPercentDominant = value;
   }
 
   /**
    * Gets the value of the 'casesPercentRecessive' field.
    */
-  public Float getCasesPercentRecessive() {
+  public java.lang.Float getCasesPercentRecessive() {
     return casesPercentRecessive;
   }
 
@@ -385,14 +377,14 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
    * Sets the value of the 'casesPercentRecessive' field.
    * @param value the value to set.
    */
-  public void setCasesPercentRecessive(Float value) {
+  public void setCasesPercentRecessive(java.lang.Float value) {
     this.casesPercentRecessive = value;
   }
 
   /**
    * Gets the value of the 'controlsPercentRecessive' field.
    */
-  public Float getControlsPercentRecessive() {
+  public java.lang.Float getControlsPercentRecessive() {
     return controlsPercentRecessive;
   }
 
@@ -400,14 +392,14 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
    * Sets the value of the 'controlsPercentRecessive' field.
    * @param value the value to set.
    */
-  public void setControlsPercentRecessive(Float value) {
+  public void setControlsPercentRecessive(java.lang.Float value) {
     this.controlsPercentRecessive = value;
   }
 
   /**
    * Gets the value of the 'quality' field.
    */
-  public Float getQuality() {
+  public java.lang.Float getQuality() {
     return quality;
   }
 
@@ -415,14 +407,14 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
    * Sets the value of the 'quality' field.
    * @param value the value to set.
    */
-  public void setQuality(Float value) {
+  public void setQuality(java.lang.Float value) {
     this.quality = value;
   }
 
   /**
    * Gets the value of the 'numSamples' field.
    */
-  public Integer getNumSamples() {
+  public java.lang.Integer getNumSamples() {
     return numSamples;
   }
 
@@ -430,14 +422,14 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
    * Sets the value of the 'numSamples' field.
    * @param value the value to set.
    */
-  public void setNumSamples(Integer value) {
+  public void setNumSamples(java.lang.Integer value) {
     this.numSamples = value;
   }
 
   /**
    * Gets the value of the 'variantType' field.
    */
-  public VariantType getVariantType() {
+  public org.opencb.biodata.models.variant.avro.VariantType getVariantType() {
     return variantType;
   }
 
@@ -445,14 +437,14 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
    * Sets the value of the 'variantType' field.
    * @param value the value to set.
    */
-  public void setVariantType(VariantType value) {
+  public void setVariantType(org.opencb.biodata.models.variant.avro.VariantType value) {
     this.variantType = value;
   }
 
   /**
    * Gets the value of the 'hw' field.
    */
-  public VariantHardyWeinbergStats getHw() {
+  public org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats getHw() {
     return hw;
   }
 
@@ -460,53 +452,23 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
    * Sets the value of the 'hw' field.
    * @param value the value to set.
    */
-  public void setHw(VariantHardyWeinbergStats value) {
+  public void setHw(org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats value) {
     this.hw = value;
   }
 
-  /**
-   * Gets the value of the 'genotypesCount' field.
-   */
-  public java.util.Map<CharSequence,Genotype> getGenotypesCount() {
-    return genotypesCount;
-  }
-
-  /**
-   * Sets the value of the 'genotypesCount' field.
-   * @param value the value to set.
-   */
-  public void setGenotypesCount(java.util.Map<CharSequence,Genotype> value) {
-    this.genotypesCount = value;
-  }
-
-  /**
-   * Gets the value of the 'genotypesFreq' field.
-   */
-  public java.util.Map<CharSequence,Genotype> getGenotypesFreq() {
-    return genotypesFreq;
-  }
-
-  /**
-   * Sets the value of the 'genotypesFreq' field.
-   * @param value the value to set.
-   */
-  public void setGenotypesFreq(java.util.Map<CharSequence,Genotype> value) {
-    this.genotypesFreq = value;
-  }
-
   /** Creates a new VariantStats RecordBuilder */
-  public static Builder newBuilder() {
-    return new Builder();
+  public static org.opencb.biodata.models.variant.avro.VariantStats.Builder newBuilder() {
+    return new org.opencb.biodata.models.variant.avro.VariantStats.Builder();
   }
   
   /** Creates a new VariantStats RecordBuilder by copying an existing Builder */
-  public static Builder newBuilder(Builder other) {
-    return new Builder(other);
+  public static org.opencb.biodata.models.variant.avro.VariantStats.Builder newBuilder(org.opencb.biodata.models.variant.avro.VariantStats.Builder other) {
+    return new org.opencb.biodata.models.variant.avro.VariantStats.Builder(other);
   }
   
   /** Creates a new VariantStats RecordBuilder by copying an existing VariantStats instance */
-  public static Builder newBuilder(VariantStats other) {
-    return new Builder(other);
+  public static org.opencb.biodata.models.variant.avro.VariantStats.Builder newBuilder(org.opencb.biodata.models.variant.avro.VariantStats other) {
+    return new org.opencb.biodata.models.variant.avro.VariantStats.Builder(other);
   }
   
   /**
@@ -515,38 +477,36 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
   public static class Builder extends org.apache.avro.specific.SpecificRecordBuilderBase<VariantStats>
     implements org.apache.avro.data.RecordBuilder<VariantStats> {
 
-    private CharSequence refAllele;
-    private CharSequence altAllele;
-    private Integer refAlleleCount;
-    private Integer altAlleleCount;
-    private Integer missingAlleles;
-    private Integer missingGenotypes;
-    private Float refAlleleFreq;
-    private Float altAlleleFreq;
-    private Float maf;
-    private Float mgf;
-    private CharSequence mafAllele;
-    private CharSequence mgfGenotype;
-    private Boolean passedFilters;
-    private Integer mendelianErrors;
-    private Float casesPercentDominant;
-    private Float controlsPercentDominant;
-    private Float casesPercentRecessive;
-    private Float controlsPercentRecessive;
-    private Float quality;
-    private Integer numSamples;
-    private VariantType variantType;
-    private VariantHardyWeinbergStats hw;
-    private java.util.Map<CharSequence,Genotype> genotypesCount;
-    private java.util.Map<CharSequence,Genotype> genotypesFreq;
+    private java.lang.CharSequence refAllele;
+    private java.lang.CharSequence altAllele;
+    private java.lang.Integer refAlleleCount;
+    private java.lang.Integer altAlleleCount;
+    private java.lang.Integer missingAlleles;
+    private java.lang.Integer missingGenotypes;
+    private java.lang.Float refAlleleFreq;
+    private java.lang.Float altAlleleFreq;
+    private java.lang.Float maf;
+    private java.lang.Float mgf;
+    private java.lang.CharSequence mafAllele;
+    private java.lang.CharSequence mgfGenotype;
+    private java.lang.Boolean passedFilters;
+    private java.lang.Integer mendelianErrors;
+    private java.lang.Float casesPercentDominant;
+    private java.lang.Float controlsPercentDominant;
+    private java.lang.Float casesPercentRecessive;
+    private java.lang.Float controlsPercentRecessive;
+    private java.lang.Float quality;
+    private java.lang.Integer numSamples;
+    private org.opencb.biodata.models.variant.avro.VariantType variantType;
+    private org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats hw;
 
     /** Creates a new Builder */
     private Builder() {
-      super(VariantStats.SCHEMA$);
+      super(org.opencb.biodata.models.variant.avro.VariantStats.SCHEMA$);
     }
     
     /** Creates a Builder by copying an existing Builder */
-    private Builder(Builder other) {
+    private Builder(org.opencb.biodata.models.variant.avro.VariantStats.Builder other) {
       super(other);
       if (isValidValue(fields()[0], other.refAllele)) {
         this.refAllele = data().deepCopy(fields()[0].schema(), other.refAllele);
@@ -636,19 +596,11 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
         this.hw = data().deepCopy(fields()[21].schema(), other.hw);
         fieldSetFlags()[21] = true;
       }
-      if (isValidValue(fields()[22], other.genotypesCount)) {
-        this.genotypesCount = data().deepCopy(fields()[22].schema(), other.genotypesCount);
-        fieldSetFlags()[22] = true;
-      }
-      if (isValidValue(fields()[23], other.genotypesFreq)) {
-        this.genotypesFreq = data().deepCopy(fields()[23].schema(), other.genotypesFreq);
-        fieldSetFlags()[23] = true;
-      }
     }
     
     /** Creates a Builder by copying an existing VariantStats instance */
-    private Builder(VariantStats other) {
-            super(VariantStats.SCHEMA$);
+    private Builder(org.opencb.biodata.models.variant.avro.VariantStats other) {
+            super(org.opencb.biodata.models.variant.avro.VariantStats.SCHEMA$);
       if (isValidValue(fields()[0], other.refAllele)) {
         this.refAllele = data().deepCopy(fields()[0].schema(), other.refAllele);
         fieldSetFlags()[0] = true;
@@ -737,23 +689,15 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
         this.hw = data().deepCopy(fields()[21].schema(), other.hw);
         fieldSetFlags()[21] = true;
       }
-      if (isValidValue(fields()[22], other.genotypesCount)) {
-        this.genotypesCount = data().deepCopy(fields()[22].schema(), other.genotypesCount);
-        fieldSetFlags()[22] = true;
-      }
-      if (isValidValue(fields()[23], other.genotypesFreq)) {
-        this.genotypesFreq = data().deepCopy(fields()[23].schema(), other.genotypesFreq);
-        fieldSetFlags()[23] = true;
-      }
     }
 
     /** Gets the value of the 'refAllele' field */
-    public CharSequence getRefAllele() {
+    public java.lang.CharSequence getRefAllele() {
       return refAllele;
     }
     
     /** Sets the value of the 'refAllele' field */
-    public Builder setRefAllele(CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder setRefAllele(java.lang.CharSequence value) {
       validate(fields()[0], value);
       this.refAllele = value;
       fieldSetFlags()[0] = true;
@@ -766,19 +710,19 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     }
     
     /** Clears the value of the 'refAllele' field */
-    public Builder clearRefAllele() {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearRefAllele() {
       refAllele = null;
       fieldSetFlags()[0] = false;
       return this;
     }
 
     /** Gets the value of the 'altAllele' field */
-    public CharSequence getAltAllele() {
+    public java.lang.CharSequence getAltAllele() {
       return altAllele;
     }
     
     /** Sets the value of the 'altAllele' field */
-    public Builder setAltAllele(CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder setAltAllele(java.lang.CharSequence value) {
       validate(fields()[1], value);
       this.altAllele = value;
       fieldSetFlags()[1] = true;
@@ -791,19 +735,19 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     }
     
     /** Clears the value of the 'altAllele' field */
-    public Builder clearAltAllele() {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearAltAllele() {
       altAllele = null;
       fieldSetFlags()[1] = false;
       return this;
     }
 
     /** Gets the value of the 'refAlleleCount' field */
-    public Integer getRefAlleleCount() {
+    public java.lang.Integer getRefAlleleCount() {
       return refAlleleCount;
     }
     
     /** Sets the value of the 'refAlleleCount' field */
-    public Builder setRefAlleleCount(Integer value) {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder setRefAlleleCount(java.lang.Integer value) {
       validate(fields()[2], value);
       this.refAlleleCount = value;
       fieldSetFlags()[2] = true;
@@ -816,19 +760,19 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     }
     
     /** Clears the value of the 'refAlleleCount' field */
-    public Builder clearRefAlleleCount() {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearRefAlleleCount() {
       refAlleleCount = null;
       fieldSetFlags()[2] = false;
       return this;
     }
 
     /** Gets the value of the 'altAlleleCount' field */
-    public Integer getAltAlleleCount() {
+    public java.lang.Integer getAltAlleleCount() {
       return altAlleleCount;
     }
     
     /** Sets the value of the 'altAlleleCount' field */
-    public Builder setAltAlleleCount(Integer value) {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder setAltAlleleCount(java.lang.Integer value) {
       validate(fields()[3], value);
       this.altAlleleCount = value;
       fieldSetFlags()[3] = true;
@@ -841,19 +785,19 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     }
     
     /** Clears the value of the 'altAlleleCount' field */
-    public Builder clearAltAlleleCount() {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearAltAlleleCount() {
       altAlleleCount = null;
       fieldSetFlags()[3] = false;
       return this;
     }
 
     /** Gets the value of the 'missingAlleles' field */
-    public Integer getMissingAlleles() {
+    public java.lang.Integer getMissingAlleles() {
       return missingAlleles;
     }
     
     /** Sets the value of the 'missingAlleles' field */
-    public Builder setMissingAlleles(Integer value) {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder setMissingAlleles(java.lang.Integer value) {
       validate(fields()[4], value);
       this.missingAlleles = value;
       fieldSetFlags()[4] = true;
@@ -866,19 +810,19 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     }
     
     /** Clears the value of the 'missingAlleles' field */
-    public Builder clearMissingAlleles() {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearMissingAlleles() {
       missingAlleles = null;
       fieldSetFlags()[4] = false;
       return this;
     }
 
     /** Gets the value of the 'missingGenotypes' field */
-    public Integer getMissingGenotypes() {
+    public java.lang.Integer getMissingGenotypes() {
       return missingGenotypes;
     }
     
     /** Sets the value of the 'missingGenotypes' field */
-    public Builder setMissingGenotypes(Integer value) {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder setMissingGenotypes(java.lang.Integer value) {
       validate(fields()[5], value);
       this.missingGenotypes = value;
       fieldSetFlags()[5] = true;
@@ -891,19 +835,19 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     }
     
     /** Clears the value of the 'missingGenotypes' field */
-    public Builder clearMissingGenotypes() {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearMissingGenotypes() {
       missingGenotypes = null;
       fieldSetFlags()[5] = false;
       return this;
     }
 
     /** Gets the value of the 'refAlleleFreq' field */
-    public Float getRefAlleleFreq() {
+    public java.lang.Float getRefAlleleFreq() {
       return refAlleleFreq;
     }
     
     /** Sets the value of the 'refAlleleFreq' field */
-    public Builder setRefAlleleFreq(Float value) {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder setRefAlleleFreq(java.lang.Float value) {
       validate(fields()[6], value);
       this.refAlleleFreq = value;
       fieldSetFlags()[6] = true;
@@ -916,19 +860,19 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     }
     
     /** Clears the value of the 'refAlleleFreq' field */
-    public Builder clearRefAlleleFreq() {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearRefAlleleFreq() {
       refAlleleFreq = null;
       fieldSetFlags()[6] = false;
       return this;
     }
 
     /** Gets the value of the 'altAlleleFreq' field */
-    public Float getAltAlleleFreq() {
+    public java.lang.Float getAltAlleleFreq() {
       return altAlleleFreq;
     }
     
     /** Sets the value of the 'altAlleleFreq' field */
-    public Builder setAltAlleleFreq(Float value) {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder setAltAlleleFreq(java.lang.Float value) {
       validate(fields()[7], value);
       this.altAlleleFreq = value;
       fieldSetFlags()[7] = true;
@@ -941,19 +885,19 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     }
     
     /** Clears the value of the 'altAlleleFreq' field */
-    public Builder clearAltAlleleFreq() {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearAltAlleleFreq() {
       altAlleleFreq = null;
       fieldSetFlags()[7] = false;
       return this;
     }
 
     /** Gets the value of the 'maf' field */
-    public Float getMaf() {
+    public java.lang.Float getMaf() {
       return maf;
     }
     
     /** Sets the value of the 'maf' field */
-    public Builder setMaf(Float value) {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder setMaf(java.lang.Float value) {
       validate(fields()[8], value);
       this.maf = value;
       fieldSetFlags()[8] = true;
@@ -966,19 +910,19 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     }
     
     /** Clears the value of the 'maf' field */
-    public Builder clearMaf() {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearMaf() {
       maf = null;
       fieldSetFlags()[8] = false;
       return this;
     }
 
     /** Gets the value of the 'mgf' field */
-    public Float getMgf() {
+    public java.lang.Float getMgf() {
       return mgf;
     }
     
     /** Sets the value of the 'mgf' field */
-    public Builder setMgf(Float value) {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder setMgf(java.lang.Float value) {
       validate(fields()[9], value);
       this.mgf = value;
       fieldSetFlags()[9] = true;
@@ -991,19 +935,19 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     }
     
     /** Clears the value of the 'mgf' field */
-    public Builder clearMgf() {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearMgf() {
       mgf = null;
       fieldSetFlags()[9] = false;
       return this;
     }
 
     /** Gets the value of the 'mafAllele' field */
-    public CharSequence getMafAllele() {
+    public java.lang.CharSequence getMafAllele() {
       return mafAllele;
     }
     
     /** Sets the value of the 'mafAllele' field */
-    public Builder setMafAllele(CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder setMafAllele(java.lang.CharSequence value) {
       validate(fields()[10], value);
       this.mafAllele = value;
       fieldSetFlags()[10] = true;
@@ -1016,19 +960,19 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     }
     
     /** Clears the value of the 'mafAllele' field */
-    public Builder clearMafAllele() {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearMafAllele() {
       mafAllele = null;
       fieldSetFlags()[10] = false;
       return this;
     }
 
     /** Gets the value of the 'mgfGenotype' field */
-    public CharSequence getMgfGenotype() {
+    public java.lang.CharSequence getMgfGenotype() {
       return mgfGenotype;
     }
     
     /** Sets the value of the 'mgfGenotype' field */
-    public Builder setMgfGenotype(CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder setMgfGenotype(java.lang.CharSequence value) {
       validate(fields()[11], value);
       this.mgfGenotype = value;
       fieldSetFlags()[11] = true;
@@ -1041,19 +985,19 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     }
     
     /** Clears the value of the 'mgfGenotype' field */
-    public Builder clearMgfGenotype() {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearMgfGenotype() {
       mgfGenotype = null;
       fieldSetFlags()[11] = false;
       return this;
     }
 
     /** Gets the value of the 'passedFilters' field */
-    public Boolean getPassedFilters() {
+    public java.lang.Boolean getPassedFilters() {
       return passedFilters;
     }
     
     /** Sets the value of the 'passedFilters' field */
-    public Builder setPassedFilters(Boolean value) {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder setPassedFilters(java.lang.Boolean value) {
       validate(fields()[12], value);
       this.passedFilters = value;
       fieldSetFlags()[12] = true;
@@ -1066,19 +1010,19 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     }
     
     /** Clears the value of the 'passedFilters' field */
-    public Builder clearPassedFilters() {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearPassedFilters() {
       passedFilters = null;
       fieldSetFlags()[12] = false;
       return this;
     }
 
     /** Gets the value of the 'mendelianErrors' field */
-    public Integer getMendelianErrors() {
+    public java.lang.Integer getMendelianErrors() {
       return mendelianErrors;
     }
     
     /** Sets the value of the 'mendelianErrors' field */
-    public Builder setMendelianErrors(Integer value) {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder setMendelianErrors(java.lang.Integer value) {
       validate(fields()[13], value);
       this.mendelianErrors = value;
       fieldSetFlags()[13] = true;
@@ -1091,19 +1035,19 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     }
     
     /** Clears the value of the 'mendelianErrors' field */
-    public Builder clearMendelianErrors() {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearMendelianErrors() {
       mendelianErrors = null;
       fieldSetFlags()[13] = false;
       return this;
     }
 
     /** Gets the value of the 'casesPercentDominant' field */
-    public Float getCasesPercentDominant() {
+    public java.lang.Float getCasesPercentDominant() {
       return casesPercentDominant;
     }
     
     /** Sets the value of the 'casesPercentDominant' field */
-    public Builder setCasesPercentDominant(Float value) {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder setCasesPercentDominant(java.lang.Float value) {
       validate(fields()[14], value);
       this.casesPercentDominant = value;
       fieldSetFlags()[14] = true;
@@ -1116,19 +1060,19 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     }
     
     /** Clears the value of the 'casesPercentDominant' field */
-    public Builder clearCasesPercentDominant() {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearCasesPercentDominant() {
       casesPercentDominant = null;
       fieldSetFlags()[14] = false;
       return this;
     }
 
     /** Gets the value of the 'controlsPercentDominant' field */
-    public Float getControlsPercentDominant() {
+    public java.lang.Float getControlsPercentDominant() {
       return controlsPercentDominant;
     }
     
     /** Sets the value of the 'controlsPercentDominant' field */
-    public Builder setControlsPercentDominant(Float value) {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder setControlsPercentDominant(java.lang.Float value) {
       validate(fields()[15], value);
       this.controlsPercentDominant = value;
       fieldSetFlags()[15] = true;
@@ -1141,19 +1085,19 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     }
     
     /** Clears the value of the 'controlsPercentDominant' field */
-    public Builder clearControlsPercentDominant() {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearControlsPercentDominant() {
       controlsPercentDominant = null;
       fieldSetFlags()[15] = false;
       return this;
     }
 
     /** Gets the value of the 'casesPercentRecessive' field */
-    public Float getCasesPercentRecessive() {
+    public java.lang.Float getCasesPercentRecessive() {
       return casesPercentRecessive;
     }
     
     /** Sets the value of the 'casesPercentRecessive' field */
-    public Builder setCasesPercentRecessive(Float value) {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder setCasesPercentRecessive(java.lang.Float value) {
       validate(fields()[16], value);
       this.casesPercentRecessive = value;
       fieldSetFlags()[16] = true;
@@ -1166,19 +1110,19 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     }
     
     /** Clears the value of the 'casesPercentRecessive' field */
-    public Builder clearCasesPercentRecessive() {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearCasesPercentRecessive() {
       casesPercentRecessive = null;
       fieldSetFlags()[16] = false;
       return this;
     }
 
     /** Gets the value of the 'controlsPercentRecessive' field */
-    public Float getControlsPercentRecessive() {
+    public java.lang.Float getControlsPercentRecessive() {
       return controlsPercentRecessive;
     }
     
     /** Sets the value of the 'controlsPercentRecessive' field */
-    public Builder setControlsPercentRecessive(Float value) {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder setControlsPercentRecessive(java.lang.Float value) {
       validate(fields()[17], value);
       this.controlsPercentRecessive = value;
       fieldSetFlags()[17] = true;
@@ -1191,19 +1135,19 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     }
     
     /** Clears the value of the 'controlsPercentRecessive' field */
-    public Builder clearControlsPercentRecessive() {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearControlsPercentRecessive() {
       controlsPercentRecessive = null;
       fieldSetFlags()[17] = false;
       return this;
     }
 
     /** Gets the value of the 'quality' field */
-    public Float getQuality() {
+    public java.lang.Float getQuality() {
       return quality;
     }
     
     /** Sets the value of the 'quality' field */
-    public Builder setQuality(Float value) {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder setQuality(java.lang.Float value) {
       validate(fields()[18], value);
       this.quality = value;
       fieldSetFlags()[18] = true;
@@ -1216,19 +1160,19 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     }
     
     /** Clears the value of the 'quality' field */
-    public Builder clearQuality() {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearQuality() {
       quality = null;
       fieldSetFlags()[18] = false;
       return this;
     }
 
     /** Gets the value of the 'numSamples' field */
-    public Integer getNumSamples() {
+    public java.lang.Integer getNumSamples() {
       return numSamples;
     }
     
     /** Sets the value of the 'numSamples' field */
-    public Builder setNumSamples(Integer value) {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder setNumSamples(java.lang.Integer value) {
       validate(fields()[19], value);
       this.numSamples = value;
       fieldSetFlags()[19] = true;
@@ -1241,19 +1185,19 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     }
     
     /** Clears the value of the 'numSamples' field */
-    public Builder clearNumSamples() {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearNumSamples() {
       numSamples = null;
       fieldSetFlags()[19] = false;
       return this;
     }
 
     /** Gets the value of the 'variantType' field */
-    public VariantType getVariantType() {
+    public org.opencb.biodata.models.variant.avro.VariantType getVariantType() {
       return variantType;
     }
     
     /** Sets the value of the 'variantType' field */
-    public Builder setVariantType(VariantType value) {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder setVariantType(org.opencb.biodata.models.variant.avro.VariantType value) {
       validate(fields()[20], value);
       this.variantType = value;
       fieldSetFlags()[20] = true;
@@ -1266,19 +1210,19 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     }
     
     /** Clears the value of the 'variantType' field */
-    public Builder clearVariantType() {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearVariantType() {
       variantType = null;
       fieldSetFlags()[20] = false;
       return this;
     }
 
     /** Gets the value of the 'hw' field */
-    public VariantHardyWeinbergStats getHw() {
+    public org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats getHw() {
       return hw;
     }
     
     /** Sets the value of the 'hw' field */
-    public Builder setHw(VariantHardyWeinbergStats value) {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder setHw(org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats value) {
       validate(fields()[21], value);
       this.hw = value;
       fieldSetFlags()[21] = true;
@@ -1291,59 +1235,9 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     }
     
     /** Clears the value of the 'hw' field */
-    public Builder clearHw() {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearHw() {
       hw = null;
       fieldSetFlags()[21] = false;
-      return this;
-    }
-
-    /** Gets the value of the 'genotypesCount' field */
-    public java.util.Map<CharSequence,Genotype> getGenotypesCount() {
-      return genotypesCount;
-    }
-    
-    /** Sets the value of the 'genotypesCount' field */
-    public Builder setGenotypesCount(java.util.Map<CharSequence,Genotype> value) {
-      validate(fields()[22], value);
-      this.genotypesCount = value;
-      fieldSetFlags()[22] = true;
-      return this; 
-    }
-    
-    /** Checks whether the 'genotypesCount' field has been set */
-    public boolean hasGenotypesCount() {
-      return fieldSetFlags()[22];
-    }
-    
-    /** Clears the value of the 'genotypesCount' field */
-    public Builder clearGenotypesCount() {
-      genotypesCount = null;
-      fieldSetFlags()[22] = false;
-      return this;
-    }
-
-    /** Gets the value of the 'genotypesFreq' field */
-    public java.util.Map<CharSequence,Genotype> getGenotypesFreq() {
-      return genotypesFreq;
-    }
-    
-    /** Sets the value of the 'genotypesFreq' field */
-    public Builder setGenotypesFreq(java.util.Map<CharSequence,Genotype> value) {
-      validate(fields()[23], value);
-      this.genotypesFreq = value;
-      fieldSetFlags()[23] = true;
-      return this; 
-    }
-    
-    /** Checks whether the 'genotypesFreq' field has been set */
-    public boolean hasGenotypesFreq() {
-      return fieldSetFlags()[23];
-    }
-    
-    /** Clears the value of the 'genotypesFreq' field */
-    public Builder clearGenotypesFreq() {
-      genotypesFreq = null;
-      fieldSetFlags()[23] = false;
       return this;
     }
 
@@ -1351,30 +1245,28 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     public VariantStats build() {
       try {
         VariantStats record = new VariantStats();
-        record.refAllele = fieldSetFlags()[0] ? this.refAllele : (CharSequence) defaultValue(fields()[0]);
-        record.altAllele = fieldSetFlags()[1] ? this.altAllele : (CharSequence) defaultValue(fields()[1]);
-        record.refAlleleCount = fieldSetFlags()[2] ? this.refAlleleCount : (Integer) defaultValue(fields()[2]);
-        record.altAlleleCount = fieldSetFlags()[3] ? this.altAlleleCount : (Integer) defaultValue(fields()[3]);
-        record.missingAlleles = fieldSetFlags()[4] ? this.missingAlleles : (Integer) defaultValue(fields()[4]);
-        record.missingGenotypes = fieldSetFlags()[5] ? this.missingGenotypes : (Integer) defaultValue(fields()[5]);
-        record.refAlleleFreq = fieldSetFlags()[6] ? this.refAlleleFreq : (Float) defaultValue(fields()[6]);
-        record.altAlleleFreq = fieldSetFlags()[7] ? this.altAlleleFreq : (Float) defaultValue(fields()[7]);
-        record.maf = fieldSetFlags()[8] ? this.maf : (Float) defaultValue(fields()[8]);
-        record.mgf = fieldSetFlags()[9] ? this.mgf : (Float) defaultValue(fields()[9]);
-        record.mafAllele = fieldSetFlags()[10] ? this.mafAllele : (CharSequence) defaultValue(fields()[10]);
-        record.mgfGenotype = fieldSetFlags()[11] ? this.mgfGenotype : (CharSequence) defaultValue(fields()[11]);
-        record.passedFilters = fieldSetFlags()[12] ? this.passedFilters : (Boolean) defaultValue(fields()[12]);
-        record.mendelianErrors = fieldSetFlags()[13] ? this.mendelianErrors : (Integer) defaultValue(fields()[13]);
-        record.casesPercentDominant = fieldSetFlags()[14] ? this.casesPercentDominant : (Float) defaultValue(fields()[14]);
-        record.controlsPercentDominant = fieldSetFlags()[15] ? this.controlsPercentDominant : (Float) defaultValue(fields()[15]);
-        record.casesPercentRecessive = fieldSetFlags()[16] ? this.casesPercentRecessive : (Float) defaultValue(fields()[16]);
-        record.controlsPercentRecessive = fieldSetFlags()[17] ? this.controlsPercentRecessive : (Float) defaultValue(fields()[17]);
-        record.quality = fieldSetFlags()[18] ? this.quality : (Float) defaultValue(fields()[18]);
-        record.numSamples = fieldSetFlags()[19] ? this.numSamples : (Integer) defaultValue(fields()[19]);
-        record.variantType = fieldSetFlags()[20] ? this.variantType : (VariantType) defaultValue(fields()[20]);
-        record.hw = fieldSetFlags()[21] ? this.hw : (VariantHardyWeinbergStats) defaultValue(fields()[21]);
-        record.genotypesCount = fieldSetFlags()[22] ? this.genotypesCount : (java.util.Map<CharSequence,Genotype>) defaultValue(fields()[22]);
-        record.genotypesFreq = fieldSetFlags()[23] ? this.genotypesFreq : (java.util.Map<CharSequence,Genotype>) defaultValue(fields()[23]);
+        record.refAllele = fieldSetFlags()[0] ? this.refAllele : (java.lang.CharSequence) defaultValue(fields()[0]);
+        record.altAllele = fieldSetFlags()[1] ? this.altAllele : (java.lang.CharSequence) defaultValue(fields()[1]);
+        record.refAlleleCount = fieldSetFlags()[2] ? this.refAlleleCount : (java.lang.Integer) defaultValue(fields()[2]);
+        record.altAlleleCount = fieldSetFlags()[3] ? this.altAlleleCount : (java.lang.Integer) defaultValue(fields()[3]);
+        record.missingAlleles = fieldSetFlags()[4] ? this.missingAlleles : (java.lang.Integer) defaultValue(fields()[4]);
+        record.missingGenotypes = fieldSetFlags()[5] ? this.missingGenotypes : (java.lang.Integer) defaultValue(fields()[5]);
+        record.refAlleleFreq = fieldSetFlags()[6] ? this.refAlleleFreq : (java.lang.Float) defaultValue(fields()[6]);
+        record.altAlleleFreq = fieldSetFlags()[7] ? this.altAlleleFreq : (java.lang.Float) defaultValue(fields()[7]);
+        record.maf = fieldSetFlags()[8] ? this.maf : (java.lang.Float) defaultValue(fields()[8]);
+        record.mgf = fieldSetFlags()[9] ? this.mgf : (java.lang.Float) defaultValue(fields()[9]);
+        record.mafAllele = fieldSetFlags()[10] ? this.mafAllele : (java.lang.CharSequence) defaultValue(fields()[10]);
+        record.mgfGenotype = fieldSetFlags()[11] ? this.mgfGenotype : (java.lang.CharSequence) defaultValue(fields()[11]);
+        record.passedFilters = fieldSetFlags()[12] ? this.passedFilters : (java.lang.Boolean) defaultValue(fields()[12]);
+        record.mendelianErrors = fieldSetFlags()[13] ? this.mendelianErrors : (java.lang.Integer) defaultValue(fields()[13]);
+        record.casesPercentDominant = fieldSetFlags()[14] ? this.casesPercentDominant : (java.lang.Float) defaultValue(fields()[14]);
+        record.controlsPercentDominant = fieldSetFlags()[15] ? this.controlsPercentDominant : (java.lang.Float) defaultValue(fields()[15]);
+        record.casesPercentRecessive = fieldSetFlags()[16] ? this.casesPercentRecessive : (java.lang.Float) defaultValue(fields()[16]);
+        record.controlsPercentRecessive = fieldSetFlags()[17] ? this.controlsPercentRecessive : (java.lang.Float) defaultValue(fields()[17]);
+        record.quality = fieldSetFlags()[18] ? this.quality : (java.lang.Float) defaultValue(fields()[18]);
+        record.numSamples = fieldSetFlags()[19] ? this.numSamples : (java.lang.Integer) defaultValue(fields()[19]);
+        record.variantType = fieldSetFlags()[20] ? this.variantType : (org.opencb.biodata.models.variant.avro.VariantType) defaultValue(fields()[20]);
+        record.hw = fieldSetFlags()[21] ? this.hw : (org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats) defaultValue(fields()[21]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);
