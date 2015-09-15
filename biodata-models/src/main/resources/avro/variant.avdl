@@ -24,14 +24,8 @@ protocol Variant {
 		union { null, float } e_Aa_10;
 		union { null, float } e_aa_00;
 		union { null, float } p;
-		union { null, float } q; 	
-	}
+		union { null, float } q; 
 	
-	record Genotype { 
-		string reference; 
-		string alternate; 	   
-		array<int> allelesIdx =[];
-		boolean phased; 		 
 	}
   	
 	record VariantStats { 	
@@ -56,7 +50,8 @@ protocol Variant {
 		union { null, float } quality;
 		union { null, int } numSamples;					
 		VariantType variantType;
-		VariantHardyWeinbergStats hw;
+		VariantHardyWeinbergStats hw;		
+	
 	}
   
 	record VariantSourceEntry {   
@@ -71,6 +66,16 @@ protocol Variant {
 	
 	}
 	
+	record Genotype { 
+		string reference; 
+		string alternate; 	   
+		array<int> allelesIdx =[];
+		boolean phased; 		 
+	}
+	
+/**
+ * VariantAnnotation Start 
+ */	
 	record Xref { 
 		union { null, string } id;
 		union { null, string } src; 
@@ -130,7 +135,8 @@ protocol Variant {
 		union { null, string } transcriptId;
 		union { null, float } cScore;		
 		union { null, float } rawScore;	
-	}	
+	}
+	
 		
 	record VariantAnnotation { 
 
@@ -165,5 +171,5 @@ protocol Variant {
 		VariantAnnotation annotation;
 		array<string> Ids = [];
 		map<array<string>> hgvs;
-	}	
+	}
 }

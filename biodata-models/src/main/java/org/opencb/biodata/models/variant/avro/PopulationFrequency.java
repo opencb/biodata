@@ -9,16 +9,16 @@ package org.opencb.biodata.models.variant.avro;
 public class PopulationFrequency extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
   public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"PopulationFrequency\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"study\",\"type\":[\"null\",\"string\"]},{\"name\":\"pop\",\"type\":[\"null\",\"string\"]},{\"name\":\"superPop\",\"type\":[\"null\",\"string\"]},{\"name\":\"refAllele\",\"type\":[\"null\",\"string\"]},{\"name\":\"altAllele\",\"type\":[\"null\",\"string\"]},{\"name\":\"refAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"altAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"refHomGenotypeFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"hetGenotypeFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"altHomGenotypeFreq\",\"type\":[\"null\",\"float\"]}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
-  @Deprecated public CharSequence study;
-  @Deprecated public CharSequence pop;
-  @Deprecated public CharSequence superPop;
-  @Deprecated public CharSequence refAllele;
-  @Deprecated public CharSequence altAllele;
-  @Deprecated public Float refAlleleFreq;
-  @Deprecated public Float altAlleleFreq;
-  @Deprecated public Float refHomGenotypeFreq;
-  @Deprecated public Float hetGenotypeFreq;
-  @Deprecated public Float altHomGenotypeFreq;
+  @Deprecated public java.lang.CharSequence study;
+  @Deprecated public java.lang.CharSequence pop;
+  @Deprecated public java.lang.CharSequence superPop;
+  @Deprecated public java.lang.CharSequence refAllele;
+  @Deprecated public java.lang.CharSequence altAllele;
+  @Deprecated public java.lang.Float refAlleleFreq;
+  @Deprecated public java.lang.Float altAlleleFreq;
+  @Deprecated public java.lang.Float refHomGenotypeFreq;
+  @Deprecated public java.lang.Float hetGenotypeFreq;
+  @Deprecated public java.lang.Float altHomGenotypeFreq;
 
   /**
    * Default constructor.  Note that this does not initialize fields
@@ -30,7 +30,7 @@ public class PopulationFrequency extends org.apache.avro.specific.SpecificRecord
   /**
    * All-args constructor.
    */
-  public PopulationFrequency(CharSequence study, CharSequence pop, CharSequence superPop, CharSequence refAllele, CharSequence altAllele, Float refAlleleFreq, Float altAlleleFreq, Float refHomGenotypeFreq, Float hetGenotypeFreq, Float altHomGenotypeFreq) {
+  public PopulationFrequency(java.lang.CharSequence study, java.lang.CharSequence pop, java.lang.CharSequence superPop, java.lang.CharSequence refAllele, java.lang.CharSequence altAllele, java.lang.Float refAlleleFreq, java.lang.Float altAlleleFreq, java.lang.Float refHomGenotypeFreq, java.lang.Float hetGenotypeFreq, java.lang.Float altHomGenotypeFreq) {
     this.study = study;
     this.pop = pop;
     this.superPop = superPop;
@@ -45,7 +45,7 @@ public class PopulationFrequency extends org.apache.avro.specific.SpecificRecord
 
   public org.apache.avro.Schema getSchema() { return SCHEMA$; }
   // Used by DatumWriter.  Applications should not call. 
-  public Object get(int field$) {
+  public java.lang.Object get(int field$) {
     switch (field$) {
     case 0: return study;
     case 1: return pop;
@@ -62,18 +62,18 @@ public class PopulationFrequency extends org.apache.avro.specific.SpecificRecord
   }
   // Used by DatumReader.  Applications should not call. 
   @SuppressWarnings(value="unchecked")
-  public void put(int field$, Object value$) {
+  public void put(int field$, java.lang.Object value$) {
     switch (field$) {
-    case 0: study = (CharSequence)value$; break;
-    case 1: pop = (CharSequence)value$; break;
-    case 2: superPop = (CharSequence)value$; break;
-    case 3: refAllele = (CharSequence)value$; break;
-    case 4: altAllele = (CharSequence)value$; break;
-    case 5: refAlleleFreq = (Float)value$; break;
-    case 6: altAlleleFreq = (Float)value$; break;
-    case 7: refHomGenotypeFreq = (Float)value$; break;
-    case 8: hetGenotypeFreq = (Float)value$; break;
-    case 9: altHomGenotypeFreq = (Float)value$; break;
+    case 0: study = (java.lang.CharSequence)value$; break;
+    case 1: pop = (java.lang.CharSequence)value$; break;
+    case 2: superPop = (java.lang.CharSequence)value$; break;
+    case 3: refAllele = (java.lang.CharSequence)value$; break;
+    case 4: altAllele = (java.lang.CharSequence)value$; break;
+    case 5: refAlleleFreq = (java.lang.Float)value$; break;
+    case 6: altAlleleFreq = (java.lang.Float)value$; break;
+    case 7: refHomGenotypeFreq = (java.lang.Float)value$; break;
+    case 8: hetGenotypeFreq = (java.lang.Float)value$; break;
+    case 9: altHomGenotypeFreq = (java.lang.Float)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -81,7 +81,7 @@ public class PopulationFrequency extends org.apache.avro.specific.SpecificRecord
   /**
    * Gets the value of the 'study' field.
    */
-  public CharSequence getStudy() {
+  public java.lang.CharSequence getStudy() {
     return study;
   }
 
@@ -89,14 +89,14 @@ public class PopulationFrequency extends org.apache.avro.specific.SpecificRecord
    * Sets the value of the 'study' field.
    * @param value the value to set.
    */
-  public void setStudy(CharSequence value) {
+  public void setStudy(java.lang.CharSequence value) {
     this.study = value;
   }
 
   /**
    * Gets the value of the 'pop' field.
    */
-  public CharSequence getPop() {
+  public java.lang.CharSequence getPop() {
     return pop;
   }
 
@@ -104,14 +104,14 @@ public class PopulationFrequency extends org.apache.avro.specific.SpecificRecord
    * Sets the value of the 'pop' field.
    * @param value the value to set.
    */
-  public void setPop(CharSequence value) {
+  public void setPop(java.lang.CharSequence value) {
     this.pop = value;
   }
 
   /**
    * Gets the value of the 'superPop' field.
    */
-  public CharSequence getSuperPop() {
+  public java.lang.CharSequence getSuperPop() {
     return superPop;
   }
 
@@ -119,14 +119,14 @@ public class PopulationFrequency extends org.apache.avro.specific.SpecificRecord
    * Sets the value of the 'superPop' field.
    * @param value the value to set.
    */
-  public void setSuperPop(CharSequence value) {
+  public void setSuperPop(java.lang.CharSequence value) {
     this.superPop = value;
   }
 
   /**
    * Gets the value of the 'refAllele' field.
    */
-  public CharSequence getRefAllele() {
+  public java.lang.CharSequence getRefAllele() {
     return refAllele;
   }
 
@@ -134,14 +134,14 @@ public class PopulationFrequency extends org.apache.avro.specific.SpecificRecord
    * Sets the value of the 'refAllele' field.
    * @param value the value to set.
    */
-  public void setRefAllele(CharSequence value) {
+  public void setRefAllele(java.lang.CharSequence value) {
     this.refAllele = value;
   }
 
   /**
    * Gets the value of the 'altAllele' field.
    */
-  public CharSequence getAltAllele() {
+  public java.lang.CharSequence getAltAllele() {
     return altAllele;
   }
 
@@ -149,14 +149,14 @@ public class PopulationFrequency extends org.apache.avro.specific.SpecificRecord
    * Sets the value of the 'altAllele' field.
    * @param value the value to set.
    */
-  public void setAltAllele(CharSequence value) {
+  public void setAltAllele(java.lang.CharSequence value) {
     this.altAllele = value;
   }
 
   /**
    * Gets the value of the 'refAlleleFreq' field.
    */
-  public Float getRefAlleleFreq() {
+  public java.lang.Float getRefAlleleFreq() {
     return refAlleleFreq;
   }
 
@@ -164,14 +164,14 @@ public class PopulationFrequency extends org.apache.avro.specific.SpecificRecord
    * Sets the value of the 'refAlleleFreq' field.
    * @param value the value to set.
    */
-  public void setRefAlleleFreq(Float value) {
+  public void setRefAlleleFreq(java.lang.Float value) {
     this.refAlleleFreq = value;
   }
 
   /**
    * Gets the value of the 'altAlleleFreq' field.
    */
-  public Float getAltAlleleFreq() {
+  public java.lang.Float getAltAlleleFreq() {
     return altAlleleFreq;
   }
 
@@ -179,14 +179,14 @@ public class PopulationFrequency extends org.apache.avro.specific.SpecificRecord
    * Sets the value of the 'altAlleleFreq' field.
    * @param value the value to set.
    */
-  public void setAltAlleleFreq(Float value) {
+  public void setAltAlleleFreq(java.lang.Float value) {
     this.altAlleleFreq = value;
   }
 
   /**
    * Gets the value of the 'refHomGenotypeFreq' field.
    */
-  public Float getRefHomGenotypeFreq() {
+  public java.lang.Float getRefHomGenotypeFreq() {
     return refHomGenotypeFreq;
   }
 
@@ -194,14 +194,14 @@ public class PopulationFrequency extends org.apache.avro.specific.SpecificRecord
    * Sets the value of the 'refHomGenotypeFreq' field.
    * @param value the value to set.
    */
-  public void setRefHomGenotypeFreq(Float value) {
+  public void setRefHomGenotypeFreq(java.lang.Float value) {
     this.refHomGenotypeFreq = value;
   }
 
   /**
    * Gets the value of the 'hetGenotypeFreq' field.
    */
-  public Float getHetGenotypeFreq() {
+  public java.lang.Float getHetGenotypeFreq() {
     return hetGenotypeFreq;
   }
 
@@ -209,14 +209,14 @@ public class PopulationFrequency extends org.apache.avro.specific.SpecificRecord
    * Sets the value of the 'hetGenotypeFreq' field.
    * @param value the value to set.
    */
-  public void setHetGenotypeFreq(Float value) {
+  public void setHetGenotypeFreq(java.lang.Float value) {
     this.hetGenotypeFreq = value;
   }
 
   /**
    * Gets the value of the 'altHomGenotypeFreq' field.
    */
-  public Float getAltHomGenotypeFreq() {
+  public java.lang.Float getAltHomGenotypeFreq() {
     return altHomGenotypeFreq;
   }
 
@@ -224,23 +224,23 @@ public class PopulationFrequency extends org.apache.avro.specific.SpecificRecord
    * Sets the value of the 'altHomGenotypeFreq' field.
    * @param value the value to set.
    */
-  public void setAltHomGenotypeFreq(Float value) {
+  public void setAltHomGenotypeFreq(java.lang.Float value) {
     this.altHomGenotypeFreq = value;
   }
 
   /** Creates a new PopulationFrequency RecordBuilder */
-  public static Builder newBuilder() {
-    return new Builder();
+  public static org.opencb.biodata.models.variant.avro.PopulationFrequency.Builder newBuilder() {
+    return new org.opencb.biodata.models.variant.avro.PopulationFrequency.Builder();
   }
   
   /** Creates a new PopulationFrequency RecordBuilder by copying an existing Builder */
-  public static Builder newBuilder(Builder other) {
-    return new Builder(other);
+  public static org.opencb.biodata.models.variant.avro.PopulationFrequency.Builder newBuilder(org.opencb.biodata.models.variant.avro.PopulationFrequency.Builder other) {
+    return new org.opencb.biodata.models.variant.avro.PopulationFrequency.Builder(other);
   }
   
   /** Creates a new PopulationFrequency RecordBuilder by copying an existing PopulationFrequency instance */
-  public static Builder newBuilder(PopulationFrequency other) {
-    return new Builder(other);
+  public static org.opencb.biodata.models.variant.avro.PopulationFrequency.Builder newBuilder(org.opencb.biodata.models.variant.avro.PopulationFrequency other) {
+    return new org.opencb.biodata.models.variant.avro.PopulationFrequency.Builder(other);
   }
   
   /**
@@ -249,24 +249,24 @@ public class PopulationFrequency extends org.apache.avro.specific.SpecificRecord
   public static class Builder extends org.apache.avro.specific.SpecificRecordBuilderBase<PopulationFrequency>
     implements org.apache.avro.data.RecordBuilder<PopulationFrequency> {
 
-    private CharSequence study;
-    private CharSequence pop;
-    private CharSequence superPop;
-    private CharSequence refAllele;
-    private CharSequence altAllele;
-    private Float refAlleleFreq;
-    private Float altAlleleFreq;
-    private Float refHomGenotypeFreq;
-    private Float hetGenotypeFreq;
-    private Float altHomGenotypeFreq;
+    private java.lang.CharSequence study;
+    private java.lang.CharSequence pop;
+    private java.lang.CharSequence superPop;
+    private java.lang.CharSequence refAllele;
+    private java.lang.CharSequence altAllele;
+    private java.lang.Float refAlleleFreq;
+    private java.lang.Float altAlleleFreq;
+    private java.lang.Float refHomGenotypeFreq;
+    private java.lang.Float hetGenotypeFreq;
+    private java.lang.Float altHomGenotypeFreq;
 
     /** Creates a new Builder */
     private Builder() {
-      super(PopulationFrequency.SCHEMA$);
+      super(org.opencb.biodata.models.variant.avro.PopulationFrequency.SCHEMA$);
     }
     
     /** Creates a Builder by copying an existing Builder */
-    private Builder(Builder other) {
+    private Builder(org.opencb.biodata.models.variant.avro.PopulationFrequency.Builder other) {
       super(other);
       if (isValidValue(fields()[0], other.study)) {
         this.study = data().deepCopy(fields()[0].schema(), other.study);
@@ -311,8 +311,8 @@ public class PopulationFrequency extends org.apache.avro.specific.SpecificRecord
     }
     
     /** Creates a Builder by copying an existing PopulationFrequency instance */
-    private Builder(PopulationFrequency other) {
-            super(PopulationFrequency.SCHEMA$);
+    private Builder(org.opencb.biodata.models.variant.avro.PopulationFrequency other) {
+            super(org.opencb.biodata.models.variant.avro.PopulationFrequency.SCHEMA$);
       if (isValidValue(fields()[0], other.study)) {
         this.study = data().deepCopy(fields()[0].schema(), other.study);
         fieldSetFlags()[0] = true;
@@ -356,12 +356,12 @@ public class PopulationFrequency extends org.apache.avro.specific.SpecificRecord
     }
 
     /** Gets the value of the 'study' field */
-    public CharSequence getStudy() {
+    public java.lang.CharSequence getStudy() {
       return study;
     }
     
     /** Sets the value of the 'study' field */
-    public Builder setStudy(CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.PopulationFrequency.Builder setStudy(java.lang.CharSequence value) {
       validate(fields()[0], value);
       this.study = value;
       fieldSetFlags()[0] = true;
@@ -374,19 +374,19 @@ public class PopulationFrequency extends org.apache.avro.specific.SpecificRecord
     }
     
     /** Clears the value of the 'study' field */
-    public Builder clearStudy() {
+    public org.opencb.biodata.models.variant.avro.PopulationFrequency.Builder clearStudy() {
       study = null;
       fieldSetFlags()[0] = false;
       return this;
     }
 
     /** Gets the value of the 'pop' field */
-    public CharSequence getPop() {
+    public java.lang.CharSequence getPop() {
       return pop;
     }
     
     /** Sets the value of the 'pop' field */
-    public Builder setPop(CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.PopulationFrequency.Builder setPop(java.lang.CharSequence value) {
       validate(fields()[1], value);
       this.pop = value;
       fieldSetFlags()[1] = true;
@@ -399,19 +399,19 @@ public class PopulationFrequency extends org.apache.avro.specific.SpecificRecord
     }
     
     /** Clears the value of the 'pop' field */
-    public Builder clearPop() {
+    public org.opencb.biodata.models.variant.avro.PopulationFrequency.Builder clearPop() {
       pop = null;
       fieldSetFlags()[1] = false;
       return this;
     }
 
     /** Gets the value of the 'superPop' field */
-    public CharSequence getSuperPop() {
+    public java.lang.CharSequence getSuperPop() {
       return superPop;
     }
     
     /** Sets the value of the 'superPop' field */
-    public Builder setSuperPop(CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.PopulationFrequency.Builder setSuperPop(java.lang.CharSequence value) {
       validate(fields()[2], value);
       this.superPop = value;
       fieldSetFlags()[2] = true;
@@ -424,19 +424,19 @@ public class PopulationFrequency extends org.apache.avro.specific.SpecificRecord
     }
     
     /** Clears the value of the 'superPop' field */
-    public Builder clearSuperPop() {
+    public org.opencb.biodata.models.variant.avro.PopulationFrequency.Builder clearSuperPop() {
       superPop = null;
       fieldSetFlags()[2] = false;
       return this;
     }
 
     /** Gets the value of the 'refAllele' field */
-    public CharSequence getRefAllele() {
+    public java.lang.CharSequence getRefAllele() {
       return refAllele;
     }
     
     /** Sets the value of the 'refAllele' field */
-    public Builder setRefAllele(CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.PopulationFrequency.Builder setRefAllele(java.lang.CharSequence value) {
       validate(fields()[3], value);
       this.refAllele = value;
       fieldSetFlags()[3] = true;
@@ -449,19 +449,19 @@ public class PopulationFrequency extends org.apache.avro.specific.SpecificRecord
     }
     
     /** Clears the value of the 'refAllele' field */
-    public Builder clearRefAllele() {
+    public org.opencb.biodata.models.variant.avro.PopulationFrequency.Builder clearRefAllele() {
       refAllele = null;
       fieldSetFlags()[3] = false;
       return this;
     }
 
     /** Gets the value of the 'altAllele' field */
-    public CharSequence getAltAllele() {
+    public java.lang.CharSequence getAltAllele() {
       return altAllele;
     }
     
     /** Sets the value of the 'altAllele' field */
-    public Builder setAltAllele(CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.PopulationFrequency.Builder setAltAllele(java.lang.CharSequence value) {
       validate(fields()[4], value);
       this.altAllele = value;
       fieldSetFlags()[4] = true;
@@ -474,19 +474,19 @@ public class PopulationFrequency extends org.apache.avro.specific.SpecificRecord
     }
     
     /** Clears the value of the 'altAllele' field */
-    public Builder clearAltAllele() {
+    public org.opencb.biodata.models.variant.avro.PopulationFrequency.Builder clearAltAllele() {
       altAllele = null;
       fieldSetFlags()[4] = false;
       return this;
     }
 
     /** Gets the value of the 'refAlleleFreq' field */
-    public Float getRefAlleleFreq() {
+    public java.lang.Float getRefAlleleFreq() {
       return refAlleleFreq;
     }
     
     /** Sets the value of the 'refAlleleFreq' field */
-    public Builder setRefAlleleFreq(Float value) {
+    public org.opencb.biodata.models.variant.avro.PopulationFrequency.Builder setRefAlleleFreq(java.lang.Float value) {
       validate(fields()[5], value);
       this.refAlleleFreq = value;
       fieldSetFlags()[5] = true;
@@ -499,19 +499,19 @@ public class PopulationFrequency extends org.apache.avro.specific.SpecificRecord
     }
     
     /** Clears the value of the 'refAlleleFreq' field */
-    public Builder clearRefAlleleFreq() {
+    public org.opencb.biodata.models.variant.avro.PopulationFrequency.Builder clearRefAlleleFreq() {
       refAlleleFreq = null;
       fieldSetFlags()[5] = false;
       return this;
     }
 
     /** Gets the value of the 'altAlleleFreq' field */
-    public Float getAltAlleleFreq() {
+    public java.lang.Float getAltAlleleFreq() {
       return altAlleleFreq;
     }
     
     /** Sets the value of the 'altAlleleFreq' field */
-    public Builder setAltAlleleFreq(Float value) {
+    public org.opencb.biodata.models.variant.avro.PopulationFrequency.Builder setAltAlleleFreq(java.lang.Float value) {
       validate(fields()[6], value);
       this.altAlleleFreq = value;
       fieldSetFlags()[6] = true;
@@ -524,19 +524,19 @@ public class PopulationFrequency extends org.apache.avro.specific.SpecificRecord
     }
     
     /** Clears the value of the 'altAlleleFreq' field */
-    public Builder clearAltAlleleFreq() {
+    public org.opencb.biodata.models.variant.avro.PopulationFrequency.Builder clearAltAlleleFreq() {
       altAlleleFreq = null;
       fieldSetFlags()[6] = false;
       return this;
     }
 
     /** Gets the value of the 'refHomGenotypeFreq' field */
-    public Float getRefHomGenotypeFreq() {
+    public java.lang.Float getRefHomGenotypeFreq() {
       return refHomGenotypeFreq;
     }
     
     /** Sets the value of the 'refHomGenotypeFreq' field */
-    public Builder setRefHomGenotypeFreq(Float value) {
+    public org.opencb.biodata.models.variant.avro.PopulationFrequency.Builder setRefHomGenotypeFreq(java.lang.Float value) {
       validate(fields()[7], value);
       this.refHomGenotypeFreq = value;
       fieldSetFlags()[7] = true;
@@ -549,19 +549,19 @@ public class PopulationFrequency extends org.apache.avro.specific.SpecificRecord
     }
     
     /** Clears the value of the 'refHomGenotypeFreq' field */
-    public Builder clearRefHomGenotypeFreq() {
+    public org.opencb.biodata.models.variant.avro.PopulationFrequency.Builder clearRefHomGenotypeFreq() {
       refHomGenotypeFreq = null;
       fieldSetFlags()[7] = false;
       return this;
     }
 
     /** Gets the value of the 'hetGenotypeFreq' field */
-    public Float getHetGenotypeFreq() {
+    public java.lang.Float getHetGenotypeFreq() {
       return hetGenotypeFreq;
     }
     
     /** Sets the value of the 'hetGenotypeFreq' field */
-    public Builder setHetGenotypeFreq(Float value) {
+    public org.opencb.biodata.models.variant.avro.PopulationFrequency.Builder setHetGenotypeFreq(java.lang.Float value) {
       validate(fields()[8], value);
       this.hetGenotypeFreq = value;
       fieldSetFlags()[8] = true;
@@ -574,19 +574,19 @@ public class PopulationFrequency extends org.apache.avro.specific.SpecificRecord
     }
     
     /** Clears the value of the 'hetGenotypeFreq' field */
-    public Builder clearHetGenotypeFreq() {
+    public org.opencb.biodata.models.variant.avro.PopulationFrequency.Builder clearHetGenotypeFreq() {
       hetGenotypeFreq = null;
       fieldSetFlags()[8] = false;
       return this;
     }
 
     /** Gets the value of the 'altHomGenotypeFreq' field */
-    public Float getAltHomGenotypeFreq() {
+    public java.lang.Float getAltHomGenotypeFreq() {
       return altHomGenotypeFreq;
     }
     
     /** Sets the value of the 'altHomGenotypeFreq' field */
-    public Builder setAltHomGenotypeFreq(Float value) {
+    public org.opencb.biodata.models.variant.avro.PopulationFrequency.Builder setAltHomGenotypeFreq(java.lang.Float value) {
       validate(fields()[9], value);
       this.altHomGenotypeFreq = value;
       fieldSetFlags()[9] = true;
@@ -599,7 +599,7 @@ public class PopulationFrequency extends org.apache.avro.specific.SpecificRecord
     }
     
     /** Clears the value of the 'altHomGenotypeFreq' field */
-    public Builder clearAltHomGenotypeFreq() {
+    public org.opencb.biodata.models.variant.avro.PopulationFrequency.Builder clearAltHomGenotypeFreq() {
       altHomGenotypeFreq = null;
       fieldSetFlags()[9] = false;
       return this;
@@ -609,16 +609,16 @@ public class PopulationFrequency extends org.apache.avro.specific.SpecificRecord
     public PopulationFrequency build() {
       try {
         PopulationFrequency record = new PopulationFrequency();
-        record.study = fieldSetFlags()[0] ? this.study : (CharSequence) defaultValue(fields()[0]);
-        record.pop = fieldSetFlags()[1] ? this.pop : (CharSequence) defaultValue(fields()[1]);
-        record.superPop = fieldSetFlags()[2] ? this.superPop : (CharSequence) defaultValue(fields()[2]);
-        record.refAllele = fieldSetFlags()[3] ? this.refAllele : (CharSequence) defaultValue(fields()[3]);
-        record.altAllele = fieldSetFlags()[4] ? this.altAllele : (CharSequence) defaultValue(fields()[4]);
-        record.refAlleleFreq = fieldSetFlags()[5] ? this.refAlleleFreq : (Float) defaultValue(fields()[5]);
-        record.altAlleleFreq = fieldSetFlags()[6] ? this.altAlleleFreq : (Float) defaultValue(fields()[6]);
-        record.refHomGenotypeFreq = fieldSetFlags()[7] ? this.refHomGenotypeFreq : (Float) defaultValue(fields()[7]);
-        record.hetGenotypeFreq = fieldSetFlags()[8] ? this.hetGenotypeFreq : (Float) defaultValue(fields()[8]);
-        record.altHomGenotypeFreq = fieldSetFlags()[9] ? this.altHomGenotypeFreq : (Float) defaultValue(fields()[9]);
+        record.study = fieldSetFlags()[0] ? this.study : (java.lang.CharSequence) defaultValue(fields()[0]);
+        record.pop = fieldSetFlags()[1] ? this.pop : (java.lang.CharSequence) defaultValue(fields()[1]);
+        record.superPop = fieldSetFlags()[2] ? this.superPop : (java.lang.CharSequence) defaultValue(fields()[2]);
+        record.refAllele = fieldSetFlags()[3] ? this.refAllele : (java.lang.CharSequence) defaultValue(fields()[3]);
+        record.altAllele = fieldSetFlags()[4] ? this.altAllele : (java.lang.CharSequence) defaultValue(fields()[4]);
+        record.refAlleleFreq = fieldSetFlags()[5] ? this.refAlleleFreq : (java.lang.Float) defaultValue(fields()[5]);
+        record.altAlleleFreq = fieldSetFlags()[6] ? this.altAlleleFreq : (java.lang.Float) defaultValue(fields()[6]);
+        record.refHomGenotypeFreq = fieldSetFlags()[7] ? this.refHomGenotypeFreq : (java.lang.Float) defaultValue(fields()[7]);
+        record.hetGenotypeFreq = fieldSetFlags()[8] ? this.hetGenotypeFreq : (java.lang.Float) defaultValue(fields()[8]);
+        record.altHomGenotypeFreq = fieldSetFlags()[9] ? this.altHomGenotypeFreq : (java.lang.Float) defaultValue(fields()[9]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);

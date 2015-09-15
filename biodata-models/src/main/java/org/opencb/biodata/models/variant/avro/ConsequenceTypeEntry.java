@@ -9,8 +9,8 @@ package org.opencb.biodata.models.variant.avro;
 public class ConsequenceTypeEntry extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
   public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"ConsequenceTypeEntry\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"soName\",\"type\":[\"null\",\"string\"]},{\"name\":\"soAccession\",\"type\":[\"null\",\"string\"]}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
-  @Deprecated public CharSequence soName;
-  @Deprecated public CharSequence soAccession;
+  @Deprecated public java.lang.CharSequence soName;
+  @Deprecated public java.lang.CharSequence soAccession;
 
   /**
    * Default constructor.  Note that this does not initialize fields
@@ -22,14 +22,14 @@ public class ConsequenceTypeEntry extends org.apache.avro.specific.SpecificRecor
   /**
    * All-args constructor.
    */
-  public ConsequenceTypeEntry(CharSequence soName, CharSequence soAccession) {
+  public ConsequenceTypeEntry(java.lang.CharSequence soName, java.lang.CharSequence soAccession) {
     this.soName = soName;
     this.soAccession = soAccession;
   }
 
   public org.apache.avro.Schema getSchema() { return SCHEMA$; }
   // Used by DatumWriter.  Applications should not call. 
-  public Object get(int field$) {
+  public java.lang.Object get(int field$) {
     switch (field$) {
     case 0: return soName;
     case 1: return soAccession;
@@ -38,10 +38,10 @@ public class ConsequenceTypeEntry extends org.apache.avro.specific.SpecificRecor
   }
   // Used by DatumReader.  Applications should not call. 
   @SuppressWarnings(value="unchecked")
-  public void put(int field$, Object value$) {
+  public void put(int field$, java.lang.Object value$) {
     switch (field$) {
-    case 0: soName = (CharSequence)value$; break;
-    case 1: soAccession = (CharSequence)value$; break;
+    case 0: soName = (java.lang.CharSequence)value$; break;
+    case 1: soAccession = (java.lang.CharSequence)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -49,7 +49,7 @@ public class ConsequenceTypeEntry extends org.apache.avro.specific.SpecificRecor
   /**
    * Gets the value of the 'soName' field.
    */
-  public CharSequence getSoName() {
+  public java.lang.CharSequence getSoName() {
     return soName;
   }
 
@@ -57,14 +57,14 @@ public class ConsequenceTypeEntry extends org.apache.avro.specific.SpecificRecor
    * Sets the value of the 'soName' field.
    * @param value the value to set.
    */
-  public void setSoName(CharSequence value) {
+  public void setSoName(java.lang.CharSequence value) {
     this.soName = value;
   }
 
   /**
    * Gets the value of the 'soAccession' field.
    */
-  public CharSequence getSoAccession() {
+  public java.lang.CharSequence getSoAccession() {
     return soAccession;
   }
 
@@ -72,23 +72,23 @@ public class ConsequenceTypeEntry extends org.apache.avro.specific.SpecificRecor
    * Sets the value of the 'soAccession' field.
    * @param value the value to set.
    */
-  public void setSoAccession(CharSequence value) {
+  public void setSoAccession(java.lang.CharSequence value) {
     this.soAccession = value;
   }
 
   /** Creates a new ConsequenceTypeEntry RecordBuilder */
-  public static Builder newBuilder() {
-    return new Builder();
+  public static org.opencb.biodata.models.variant.avro.ConsequenceTypeEntry.Builder newBuilder() {
+    return new org.opencb.biodata.models.variant.avro.ConsequenceTypeEntry.Builder();
   }
   
   /** Creates a new ConsequenceTypeEntry RecordBuilder by copying an existing Builder */
-  public static Builder newBuilder(Builder other) {
-    return new Builder(other);
+  public static org.opencb.biodata.models.variant.avro.ConsequenceTypeEntry.Builder newBuilder(org.opencb.biodata.models.variant.avro.ConsequenceTypeEntry.Builder other) {
+    return new org.opencb.biodata.models.variant.avro.ConsequenceTypeEntry.Builder(other);
   }
   
   /** Creates a new ConsequenceTypeEntry RecordBuilder by copying an existing ConsequenceTypeEntry instance */
-  public static Builder newBuilder(ConsequenceTypeEntry other) {
-    return new Builder(other);
+  public static org.opencb.biodata.models.variant.avro.ConsequenceTypeEntry.Builder newBuilder(org.opencb.biodata.models.variant.avro.ConsequenceTypeEntry other) {
+    return new org.opencb.biodata.models.variant.avro.ConsequenceTypeEntry.Builder(other);
   }
   
   /**
@@ -97,16 +97,16 @@ public class ConsequenceTypeEntry extends org.apache.avro.specific.SpecificRecor
   public static class Builder extends org.apache.avro.specific.SpecificRecordBuilderBase<ConsequenceTypeEntry>
     implements org.apache.avro.data.RecordBuilder<ConsequenceTypeEntry> {
 
-    private CharSequence soName;
-    private CharSequence soAccession;
+    private java.lang.CharSequence soName;
+    private java.lang.CharSequence soAccession;
 
     /** Creates a new Builder */
     private Builder() {
-      super(ConsequenceTypeEntry.SCHEMA$);
+      super(org.opencb.biodata.models.variant.avro.ConsequenceTypeEntry.SCHEMA$);
     }
     
     /** Creates a Builder by copying an existing Builder */
-    private Builder(Builder other) {
+    private Builder(org.opencb.biodata.models.variant.avro.ConsequenceTypeEntry.Builder other) {
       super(other);
       if (isValidValue(fields()[0], other.soName)) {
         this.soName = data().deepCopy(fields()[0].schema(), other.soName);
@@ -119,8 +119,8 @@ public class ConsequenceTypeEntry extends org.apache.avro.specific.SpecificRecor
     }
     
     /** Creates a Builder by copying an existing ConsequenceTypeEntry instance */
-    private Builder(ConsequenceTypeEntry other) {
-            super(ConsequenceTypeEntry.SCHEMA$);
+    private Builder(org.opencb.biodata.models.variant.avro.ConsequenceTypeEntry other) {
+            super(org.opencb.biodata.models.variant.avro.ConsequenceTypeEntry.SCHEMA$);
       if (isValidValue(fields()[0], other.soName)) {
         this.soName = data().deepCopy(fields()[0].schema(), other.soName);
         fieldSetFlags()[0] = true;
@@ -132,12 +132,12 @@ public class ConsequenceTypeEntry extends org.apache.avro.specific.SpecificRecor
     }
 
     /** Gets the value of the 'soName' field */
-    public CharSequence getSoName() {
+    public java.lang.CharSequence getSoName() {
       return soName;
     }
     
     /** Sets the value of the 'soName' field */
-    public Builder setSoName(CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.ConsequenceTypeEntry.Builder setSoName(java.lang.CharSequence value) {
       validate(fields()[0], value);
       this.soName = value;
       fieldSetFlags()[0] = true;
@@ -150,19 +150,19 @@ public class ConsequenceTypeEntry extends org.apache.avro.specific.SpecificRecor
     }
     
     /** Clears the value of the 'soName' field */
-    public Builder clearSoName() {
+    public org.opencb.biodata.models.variant.avro.ConsequenceTypeEntry.Builder clearSoName() {
       soName = null;
       fieldSetFlags()[0] = false;
       return this;
     }
 
     /** Gets the value of the 'soAccession' field */
-    public CharSequence getSoAccession() {
+    public java.lang.CharSequence getSoAccession() {
       return soAccession;
     }
     
     /** Sets the value of the 'soAccession' field */
-    public Builder setSoAccession(CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.ConsequenceTypeEntry.Builder setSoAccession(java.lang.CharSequence value) {
       validate(fields()[1], value);
       this.soAccession = value;
       fieldSetFlags()[1] = true;
@@ -175,7 +175,7 @@ public class ConsequenceTypeEntry extends org.apache.avro.specific.SpecificRecor
     }
     
     /** Clears the value of the 'soAccession' field */
-    public Builder clearSoAccession() {
+    public org.opencb.biodata.models.variant.avro.ConsequenceTypeEntry.Builder clearSoAccession() {
       soAccession = null;
       fieldSetFlags()[1] = false;
       return this;
@@ -185,8 +185,8 @@ public class ConsequenceTypeEntry extends org.apache.avro.specific.SpecificRecor
     public ConsequenceTypeEntry build() {
       try {
         ConsequenceTypeEntry record = new ConsequenceTypeEntry();
-        record.soName = fieldSetFlags()[0] ? this.soName : (CharSequence) defaultValue(fields()[0]);
-        record.soAccession = fieldSetFlags()[1] ? this.soAccession : (CharSequence) defaultValue(fields()[1]);
+        record.soName = fieldSetFlags()[0] ? this.soName : (java.lang.CharSequence) defaultValue(fields()[0]);
+        record.soAccession = fieldSetFlags()[1] ? this.soAccession : (java.lang.CharSequence) defaultValue(fields()[1]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);
