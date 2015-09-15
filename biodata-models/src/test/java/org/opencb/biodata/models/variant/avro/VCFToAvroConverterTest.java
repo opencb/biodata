@@ -8,7 +8,7 @@ import java.io.FileNotFoundException;
 
 public class VCFToAvroConverterTest {
 	
-	public static void main(String[] args) throws FileNotFoundException {
+	public static void main(String[] args) throws Exception {
 		
 		VariantContextToVariantConverter variants = new VariantContextToVariantConverter();
 

@@ -84,9 +84,19 @@ public class VariantContextToVariantConverter {
 		writeHtsjdkDataIntoAvro(variantList, outputAvroPath);
 	}
 
-	public Variant convert(VariantContext variantContext){
-		Variant variant = new Variant();
-		
+	public Variant convert(VariantContext variantContext) {
+		return convert(variantContext, new Variant());
+	}
+
+	/**
+	 *
+	 * @param variantContext
+	 * @param reuse 			an instance to reuse.
+	 * @return
+	 */
+	public Variant convert(VariantContext variantContext, Variant reuse) {
+		Variant variant = reuse;
+
 		/*
 		 * set reference parameter
 		 */
@@ -94,7 +104,7 @@ public class VariantContextToVariantConverter {
 		/*
 		 * set alternate parameter
 		 */
-		String alternateAllelString =variantContext	.getAlternateAlleles().toString().substring(1, variantContext.getAlternateAlleles().toString().length() - 1);
+		String alternateAllelString = variantContext.getAlternateAlleles().toString().substring(1, variantContext.getAlternateAlleles().toString().length() - 1);
 		String[] alternateAllelArray = alternateAllelString.split(",");
 		String alternate = null;
 		if (alternateAllelArray.length >= 2) {
@@ -121,7 +131,7 @@ public class VariantContextToVariantConverter {
 		List<CharSequence> ids = new ArrayList<>(idsArray.length);
 		for (String id : idsArray) {
 			//Do not need to store dot ID. It means that this variant does not have any ID
-			if(!id.equals(".")) {
+			if (!id.equals(".")) {
 				ids.add(id);
 			}
 		}
@@ -131,7 +141,7 @@ public class VariantContextToVariantConverter {
 		 */
 		variant.setLength(variantContext.getStart()
 				- variantContext.getEnd() == 0 ? 1 : variantContext
-						.getEnd() - variantContext.getStart() + 1);
+				.getEnd() - variantContext.getStart() + 1);
 		/*
 		 * set variantSourceEntry fields
 		 */
@@ -206,7 +216,7 @@ public class VariantContextToVariantConverter {
 		 */
 		Map<CharSequence, CharSequence> attributeMapNew = new HashMap<CharSequence, CharSequence>();
 		Map<String, Object> attributeMap = variantContext.getAttributes();
-		for(Map.Entry<String, Object> attr : attributeMap.entrySet()){
+		for (Map.Entry<String, Object> attr : attributeMap.entrySet()) {
 			attributeMapNew.put(attr.getKey(), attr.getValue().toString());
 		}
 		variantSourceEntry.setAttributes(attributeMapNew);
