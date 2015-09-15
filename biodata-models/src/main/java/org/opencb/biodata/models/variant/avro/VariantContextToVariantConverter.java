@@ -99,9 +99,8 @@ public class VariantContextToVariantConverter {
 
 		try {
 			while (itr.hasNext()) {
-				Variant variant = new Variant();
 				VariantContext variantContext = itr.next();					
-				variant = convert(variantContext,variant);				
+				Variant variant = convert(variantContext);				
 				variantList.add(variant);
 			}
 			/*
@@ -113,7 +112,9 @@ public class VariantContextToVariantConverter {
 		}
 	}
 
-	public Variant convert(VariantContext variantContext, Variant variant){
+	public Variant convert(VariantContext variantContext){
+		Variant variant = new Variant();
+		
 		/*
 		 * set reference parameter
 		 */
