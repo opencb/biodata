@@ -16,26 +16,12 @@
 
 package org.opencb.biodata.formats.alignment;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.util.LinkedList;
-import java.util.List;
-
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import net.sf.samtools.*;
+import htsjdk.samtools.*;
 import org.opencb.biodata.models.alignment.Alignment;
 import org.opencb.biodata.models.alignment.exceptions.ShortReferenceSequenceException;
-import org.opencb.biodata.models.feature.Region;
-import org.opencb.commons.containers.map.QueryOptions;
+
+import java.util.LinkedList;
+import java.util.List;
 
 
 /**
