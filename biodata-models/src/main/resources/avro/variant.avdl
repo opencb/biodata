@@ -7,9 +7,13 @@
  
 @namespace("org.opencb.biodata.models.variant.avro")
 
-protocol Variant {	
+protocol Variants {
 
-  enum VariantType {SNP, SNV, MNP, MNV, INDEL, SV, CNV}
+  /* TODO: Check variant types */
+  enum VariantType {SNP, SNV, MNP, MNV, INDEL, SV, CNV,
+        NO_VARIATION,
+        SYMBOLIC,
+        MIXED}
   enum AllelesCode {ALLELES_OK, ALLELES_MISSING, MULTIPLE_ALTERNATES, HAPLOID}
   enum Expression {UP, DOWN}
   
@@ -61,7 +65,6 @@ protocol Variant {
 		string format; 		
 		map<map<string>> samplesData;	
 		map<VariantStats> cohortStats;
-		string DEFAULT_COHORT = "all";  
 		map<string> attributes;
 	
 	}
@@ -159,17 +162,16 @@ protocol Variant {
 	}	
 	
 	record Variant{
-		VariantType variantType;
-		int SV_THRESHOLD = 50;
+		array<string> ids = [];
 		string chromosome;
 		int start;
 		int end;
 		int length;
 		string reference;
-		string alternate;		
+		string alternate;
+		VariantType variantType;
 		map<VariantSourceEntry> sourceEntries;
-		VariantAnnotation annotation;
-		array<string> Ids = [];
+		union {null, VariantAnnotation} annotation;
 		map<array<string>> hgvs;
 	}
 }

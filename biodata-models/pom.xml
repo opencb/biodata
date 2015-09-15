@@ -91,9 +91,10 @@
 							<goal>idl-protocol</goal>
 						</goals>
 						<configuration>
-							<sourceDirectory>${project.basedir}/src/main/avro/</sourceDirectory>
+							<fieldVisibility>private</fieldVisibility>
+							<sourceDirectory>${project.basedir}/src/main/resources/avro/</sourceDirectory>
 							<outputDirectory>${project.basedir}/src/main/java/</outputDirectory>
-							<testSourceDirectory>${project.basedir}/src/test/avro/</testSourceDirectory>
+							<testSourceDirectory>${project.basedir}/src/test/resources/avro/</testSourceDirectory>
 							<testOutputDirectory>${project.basedir}/src/test/java/</testOutputDirectory>
 						</configuration>
 					</execution>

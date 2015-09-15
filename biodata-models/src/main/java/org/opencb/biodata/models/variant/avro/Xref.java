@@ -10,8 +10,8 @@ package org.opencb.biodata.models.variant.avro;
 public class Xref extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
   public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"Xref\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"doc\":\"* VariantAnnotation Start\",\"fields\":[{\"name\":\"id\",\"type\":[\"null\",\"string\"]},{\"name\":\"src\",\"type\":[\"null\",\"string\"]}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
-  @Deprecated public java.lang.CharSequence id;
-  @Deprecated public java.lang.CharSequence src;
+   private java.lang.CharSequence id;
+   private java.lang.CharSequence src;
 
   /**
    * Default constructor.  Note that this does not initialize fields

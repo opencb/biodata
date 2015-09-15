@@ -9,9 +9,9 @@ package org.opencb.biodata.models.variant.avro;
 public class CaddScore extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
   public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"CaddScore\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"transcriptId\",\"type\":[\"null\",\"string\"]},{\"name\":\"cScore\",\"type\":[\"null\",\"float\"]},{\"name\":\"rawScore\",\"type\":[\"null\",\"float\"]}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
-  @Deprecated public java.lang.CharSequence transcriptId;
-  @Deprecated public java.lang.Float cScore;
-  @Deprecated public java.lang.Float rawScore;
+   private java.lang.CharSequence transcriptId;
+   private java.lang.Float cScore;
+   private java.lang.Float rawScore;
 
   /**
    * Default constructor.  Note that this does not initialize fields

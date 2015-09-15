@@ -9,17 +9,17 @@ package org.opencb.biodata.models.variant.avro;
 public class VariantHardyWeinbergStats extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
   public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"VariantHardyWeinbergStats\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"chi2\",\"type\":[\"null\",\"float\"]},{\"name\":\"pValue\",\"type\":[\"null\",\"float\"]},{\"name\":\"n\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_AA_11\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_Aa_10\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_aa_00\",\"type\":[\"null\",\"int\"]},{\"name\":\"e_AA_11\",\"type\":[\"null\",\"float\"]},{\"name\":\"e_Aa_10\",\"type\":[\"null\",\"float\"]},{\"name\":\"e_aa_00\",\"type\":[\"null\",\"float\"]},{\"name\":\"p\",\"type\":[\"null\",\"float\"]},{\"name\":\"q\",\"type\":[\"null\",\"float\"]}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
-  @Deprecated public java.lang.Float chi2;
-  @Deprecated public java.lang.Float pValue;
-  @Deprecated public java.lang.Integer n;
-  @Deprecated public java.lang.Integer n_AA_11;
-  @Deprecated public java.lang.Integer n_Aa_10;
-  @Deprecated public java.lang.Integer n_aa_00;
-  @Deprecated public java.lang.Float e_AA_11;
-  @Deprecated public java.lang.Float e_Aa_10;
-  @Deprecated public java.lang.Float e_aa_00;
-  @Deprecated public java.lang.Float p;
-  @Deprecated public java.lang.Float q;
+   private java.lang.Float chi2;
+   private java.lang.Float pValue;
+   private java.lang.Integer n;
+   private java.lang.Integer n_AA_11;
+   private java.lang.Integer n_Aa_10;
+   private java.lang.Integer n_aa_00;
+   private java.lang.Float e_AA_11;
+   private java.lang.Float e_Aa_10;
+   private java.lang.Float e_aa_00;
+   private java.lang.Float p;
+   private java.lang.Float q;
 
   /**
    * Default constructor.  Note that this does not initialize fields

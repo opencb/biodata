@@ -9,20 +9,20 @@ package org.opencb.biodata.models.variant.avro;
 public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
   public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"ConsequenceType\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"geneName\",\"type\":[\"null\",\"string\"]},{\"name\":\"ensemblGeneId\",\"type\":[\"null\",\"string\"]},{\"name\":\"ensemblTranscriptId\",\"type\":[\"null\",\"string\"]},{\"name\":\"strand\",\"type\":[\"null\",\"string\"]},{\"name\":\"biotype\",\"type\":[\"null\",\"string\"]},{\"name\":\"cDnaPosition\",\"type\":[\"null\",\"int\"]},{\"name\":\"cdsPosition\",\"type\":[\"null\",\"int\"]},{\"name\":\"aaPosition\",\"type\":[\"null\",\"int\"]},{\"name\":\"aaChange\",\"type\":[\"null\",\"string\"]},{\"name\":\"codon\",\"type\":[\"null\",\"string\"]},{\"name\":\"functionalDescription\",\"type\":[\"null\",\"string\"]},{\"name\":\"proteinSubstitutionScores\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Score\",\"fields\":[{\"name\":\"score\",\"type\":[\"null\",\"double\"]},{\"name\":\"source\",\"type\":[\"null\",\"string\"]},{\"name\":\"description\",\"type\":[\"null\",\"string\"]}]}}]},{\"name\":\"soTerms\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"ConsequenceTypeEntry\",\"fields\":[{\"name\":\"soName\",\"type\":[\"null\",\"string\"]},{\"name\":\"soAccession\",\"type\":[\"null\",\"string\"]}]}}]},{\"name\":\"expressionValues\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"ExpressionValue\",\"fields\":[{\"name\":\"experimentalFactor\",\"type\":[\"null\",\"string\"]},{\"name\":\"factorValue\",\"type\":[\"null\",\"string\"]},{\"name\":\"experimentId\",\"type\":[\"null\",\"string\"]},{\"name\":\"technologyPlatform\",\"type\":[\"null\",\"string\"]},{\"name\":\"expression\",\"type\":{\"type\":\"enum\",\"name\":\"Expression\",\"symbols\":[\"UP\",\"DOWN\"]}},{\"name\":\"pvalue\",\"type\":[\"null\",\"float\"]}]}}]}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
-  @Deprecated public java.lang.CharSequence geneName;
-  @Deprecated public java.lang.CharSequence ensemblGeneId;
-  @Deprecated public java.lang.CharSequence ensemblTranscriptId;
-  @Deprecated public java.lang.CharSequence strand;
-  @Deprecated public java.lang.CharSequence biotype;
-  @Deprecated public java.lang.Integer cDnaPosition;
-  @Deprecated public java.lang.Integer cdsPosition;
-  @Deprecated public java.lang.Integer aaPosition;
-  @Deprecated public java.lang.CharSequence aaChange;
-  @Deprecated public java.lang.CharSequence codon;
-  @Deprecated public java.lang.CharSequence functionalDescription;
-  @Deprecated public java.util.List<org.opencb.biodata.models.variant.avro.Score> proteinSubstitutionScores;
-  @Deprecated public java.util.List<org.opencb.biodata.models.variant.avro.ConsequenceTypeEntry> soTerms;
-  @Deprecated public java.util.List<org.opencb.biodata.models.variant.avro.ExpressionValue> expressionValues;
+   private java.lang.CharSequence geneName;
+   private java.lang.CharSequence ensemblGeneId;
+   private java.lang.CharSequence ensemblTranscriptId;
+   private java.lang.CharSequence strand;
+   private java.lang.CharSequence biotype;
+   private java.lang.Integer cDnaPosition;
+   private java.lang.Integer cdsPosition;
+   private java.lang.Integer aaPosition;
+   private java.lang.CharSequence aaChange;
+   private java.lang.CharSequence codon;
+   private java.lang.CharSequence functionalDescription;
+   private java.util.List<org.opencb.biodata.models.variant.avro.Score> proteinSubstitutionScores;
+   private java.util.List<org.opencb.biodata.models.variant.avro.ConsequenceTypeEntry> soTerms;
+   private java.util.List<org.opencb.biodata.models.variant.avro.ExpressionValue> expressionValues;
 
   /**
    * Default constructor.  Note that this does not initialize fields

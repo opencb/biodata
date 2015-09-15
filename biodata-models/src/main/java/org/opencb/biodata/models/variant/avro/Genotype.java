@@ -9,10 +9,10 @@ package org.opencb.biodata.models.variant.avro;
 public class Genotype extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
   public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"Genotype\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"reference\",\"type\":\"string\"},{\"name\":\"alternate\",\"type\":\"string\"},{\"name\":\"allelesIdx\",\"type\":{\"type\":\"array\",\"items\":\"int\"},\"default\":[]},{\"name\":\"phased\",\"type\":\"boolean\"}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
-  @Deprecated public java.lang.CharSequence reference;
-  @Deprecated public java.lang.CharSequence alternate;
-  @Deprecated public java.util.List<java.lang.Integer> allelesIdx;
-  @Deprecated public boolean phased;
+   private java.lang.CharSequence reference;
+   private java.lang.CharSequence alternate;
+   private java.util.List<java.lang.Integer> allelesIdx;
+   private boolean phased;
 
   /**
    * Default constructor.  Note that this does not initialize fields

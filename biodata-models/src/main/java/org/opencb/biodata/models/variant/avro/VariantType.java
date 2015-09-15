@@ -7,7 +7,7 @@ package org.opencb.biodata.models.variant.avro;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public enum VariantType { 
-  SNP, SNV, MNP, MNV, INDEL, SV, CNV  ;
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"enum\",\"name\":\"VariantType\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"symbols\":[\"SNP\",\"SNV\",\"MNP\",\"MNV\",\"INDEL\",\"SV\",\"CNV\"]}");
+  SNP, SNV, MNP, MNV, INDEL, SV, CNV, NO_VARIATION, SYMBOLIC, MIXED  ;
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"enum\",\"name\":\"VariantType\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"symbols\":[\"SNP\",\"SNV\",\"MNP\",\"MNV\",\"INDEL\",\"SV\",\"CNV\",\"NO_VARIATION\",\"SYMBOLIC\",\"MIXED\"]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
 }

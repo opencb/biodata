@@ -9,16 +9,16 @@ package org.opencb.biodata.models.variant.avro;
 public class PopulationFrequency extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
   public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"PopulationFrequency\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"study\",\"type\":[\"null\",\"string\"]},{\"name\":\"pop\",\"type\":[\"null\",\"string\"]},{\"name\":\"superPop\",\"type\":[\"null\",\"string\"]},{\"name\":\"refAllele\",\"type\":[\"null\",\"string\"]},{\"name\":\"altAllele\",\"type\":[\"null\",\"string\"]},{\"name\":\"refAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"altAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"refHomGenotypeFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"hetGenotypeFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"altHomGenotypeFreq\",\"type\":[\"null\",\"float\"]}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
-  @Deprecated public java.lang.CharSequence study;
-  @Deprecated public java.lang.CharSequence pop;
-  @Deprecated public java.lang.CharSequence superPop;
-  @Deprecated public java.lang.CharSequence refAllele;
-  @Deprecated public java.lang.CharSequence altAllele;
-  @Deprecated public java.lang.Float refAlleleFreq;
-  @Deprecated public java.lang.Float altAlleleFreq;
-  @Deprecated public java.lang.Float refHomGenotypeFreq;
-  @Deprecated public java.lang.Float hetGenotypeFreq;
-  @Deprecated public java.lang.Float altHomGenotypeFreq;
+   private java.lang.CharSequence study;
+   private java.lang.CharSequence pop;
+   private java.lang.CharSequence superPop;
+   private java.lang.CharSequence refAllele;
+   private java.lang.CharSequence altAllele;
+   private java.lang.Float refAlleleFreq;
+   private java.lang.Float altAlleleFreq;
+   private java.lang.Float refHomGenotypeFreq;
+   private java.lang.Float hetGenotypeFreq;
+   private java.lang.Float altHomGenotypeFreq;
 
   /**
    * Default constructor.  Note that this does not initialize fields

@@ -9,12 +9,12 @@ package org.opencb.biodata.models.variant.avro;
 public class ExpressionValue extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
   public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"ExpressionValue\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"experimentalFactor\",\"type\":[\"null\",\"string\"]},{\"name\":\"factorValue\",\"type\":[\"null\",\"string\"]},{\"name\":\"experimentId\",\"type\":[\"null\",\"string\"]},{\"name\":\"technologyPlatform\",\"type\":[\"null\",\"string\"]},{\"name\":\"expression\",\"type\":{\"type\":\"enum\",\"name\":\"Expression\",\"symbols\":[\"UP\",\"DOWN\"]}},{\"name\":\"pvalue\",\"type\":[\"null\",\"float\"]}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
-  @Deprecated public java.lang.CharSequence experimentalFactor;
-  @Deprecated public java.lang.CharSequence factorValue;
-  @Deprecated public java.lang.CharSequence experimentId;
-  @Deprecated public java.lang.CharSequence technologyPlatform;
-  @Deprecated public org.opencb.biodata.models.variant.avro.Expression expression;
-  @Deprecated public java.lang.Float pvalue;
+   private java.lang.CharSequence experimentalFactor;
+   private java.lang.CharSequence factorValue;
+   private java.lang.CharSequence experimentId;
+   private java.lang.CharSequence technologyPlatform;
+   private org.opencb.biodata.models.variant.avro.Expression expression;
+   private java.lang.Float pvalue;
 
   /**
    * Default constructor.  Note that this does not initialize fields

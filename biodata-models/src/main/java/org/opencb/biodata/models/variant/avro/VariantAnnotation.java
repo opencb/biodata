@@ -9,21 +9,21 @@ package org.opencb.biodata.models.variant.avro;
 public class VariantAnnotation extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
   public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"VariantAnnotation\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"chromosome\",\"type\":[\"null\",\"string\"]},{\"name\":\"start\",\"type\":[\"null\",\"int\"]},{\"name\":\"end\",\"type\":[\"null\",\"int\"]},{\"name\":\"referenceAllele\",\"type\":[\"null\",\"string\"]},{\"name\":\"alternateAllele\",\"type\":[\"null\",\"string\"]},{\"name\":\"id\",\"type\":[\"null\",\"string\"]},{\"name\":\"xrefs\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Xref\",\"doc\":\"* VariantAnnotation Start\",\"fields\":[{\"name\":\"id\",\"type\":[\"null\",\"string\"]},{\"name\":\"src\",\"type\":[\"null\",\"string\"]}]}}]},{\"name\":\"hgvs\",\"type\":[\"null\",{\"type\":\"array\",\"items\":\"string\"}]},{\"name\":\"consequenceTypes\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"ConsequenceType\",\"fields\":[{\"name\":\"geneName\",\"type\":[\"null\",\"string\"]},{\"name\":\"ensemblGeneId\",\"type\":[\"null\",\"string\"]},{\"name\":\"ensemblTranscriptId\",\"type\":[\"null\",\"string\"]},{\"name\":\"strand\",\"type\":[\"null\",\"string\"]},{\"name\":\"biotype\",\"type\":[\"null\",\"string\"]},{\"name\":\"cDnaPosition\",\"type\":[\"null\",\"int\"]},{\"name\":\"cdsPosition\",\"type\":[\"null\",\"int\"]},{\"name\":\"aaPosition\",\"type\":[\"null\",\"int\"]},{\"name\":\"aaChange\",\"type\":[\"null\",\"string\"]},{\"name\":\"codon\",\"type\":[\"null\",\"string\"]},{\"name\":\"functionalDescription\",\"type\":[\"null\",\"string\"]},{\"name\":\"proteinSubstitutionScores\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Score\",\"fields\":[{\"name\":\"score\",\"type\":[\"null\",\"double\"]},{\"name\":\"source\",\"type\":[\"null\",\"string\"]},{\"name\":\"description\",\"type\":[\"null\",\"string\"]}]}}]},{\"name\":\"soTerms\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"ConsequenceTypeEntry\",\"fields\":[{\"name\":\"soName\",\"type\":[\"null\",\"string\"]},{\"name\":\"soAccession\",\"type\":[\"null\",\"string\"]}]}}]},{\"name\":\"expressionValues\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"ExpressionValue\",\"fields\":[{\"name\":\"experimentalFactor\",\"type\":[\"null\",\"string\"]},{\"name\":\"factorValue\",\"type\":[\"null\",\"string\"]},{\"name\":\"experimentId\",\"type\":[\"null\",\"string\"]},{\"name\":\"technologyPlatform\",\"type\":[\"null\",\"string\"]},{\"name\":\"expression\",\"type\":{\"type\":\"enum\",\"name\":\"Expression\",\"symbols\":[\"UP\",\"DOWN\"]}},{\"name\":\"pvalue\",\"type\":[\"null\",\"float\"]}]}}]}]}}]},{\"name\":\"conservationScores\",\"type\":[\"null\",{\"type\":\"array\",\"items\":\"Score\"}]},{\"name\":\"populationFrequencies\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"PopulationFrequency\",\"fields\":[{\"name\":\"study\",\"type\":[\"null\",\"string\"]},{\"name\":\"pop\",\"type\":[\"null\",\"string\"]},{\"name\":\"superPop\",\"type\":[\"null\",\"string\"]},{\"name\":\"refAllele\",\"type\":[\"null\",\"string\"]},{\"name\":\"altAllele\",\"type\":[\"null\",\"string\"]},{\"name\":\"refAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"altAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"refHomGenotypeFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"hetGenotypeFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"altHomGenotypeFreq\",\"type\":[\"null\",\"float\"]}]}}]},{\"name\":\"caddScore\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"CaddScore\",\"fields\":[{\"name\":\"transcriptId\",\"type\":[\"null\",\"string\"]},{\"name\":\"cScore\",\"type\":[\"null\",\"float\"]},{\"name\":\"rawScore\",\"type\":[\"null\",\"float\"]}]}}]},{\"name\":\"geneDrugInteraction\",\"type\":[\"null\",{\"type\":\"map\",\"values\":{\"type\":\"array\",\"items\":\"string\"}}]},{\"name\":\"clinical\",\"type\":[\"null\",{\"type\":\"map\",\"values\":\"string\"}]},{\"name\":\"additionalAttributes\",\"type\":[\"null\",{\"type\":\"map\",\"values\":\"string\"}]}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
-  @Deprecated public java.lang.CharSequence chromosome;
-  @Deprecated public java.lang.Integer start;
-  @Deprecated public java.lang.Integer end;
-  @Deprecated public java.lang.CharSequence referenceAllele;
-  @Deprecated public java.lang.CharSequence alternateAllele;
-  @Deprecated public java.lang.CharSequence id;
-  @Deprecated public java.util.List<org.opencb.biodata.models.variant.avro.Xref> xrefs;
-  @Deprecated public java.util.List<java.lang.CharSequence> hgvs;
-  @Deprecated public java.util.List<org.opencb.biodata.models.variant.avro.ConsequenceType> consequenceTypes;
-  @Deprecated public java.util.List<org.opencb.biodata.models.variant.avro.Score> conservationScores;
-  @Deprecated public java.util.List<org.opencb.biodata.models.variant.avro.PopulationFrequency> populationFrequencies;
-  @Deprecated public java.util.List<org.opencb.biodata.models.variant.avro.CaddScore> caddScore;
-  @Deprecated public java.util.Map<java.lang.CharSequence,java.util.List<java.lang.CharSequence>> geneDrugInteraction;
-  @Deprecated public java.util.Map<java.lang.CharSequence,java.lang.CharSequence> clinical;
-  @Deprecated public java.util.Map<java.lang.CharSequence,java.lang.CharSequence> additionalAttributes;
+   private java.lang.CharSequence chromosome;
+   private java.lang.Integer start;
+   private java.lang.Integer end;
+   private java.lang.CharSequence referenceAllele;
+   private java.lang.CharSequence alternateAllele;
+   private java.lang.CharSequence id;
+   private java.util.List<org.opencb.biodata.models.variant.avro.Xref> xrefs;
+   private java.util.List<java.lang.CharSequence> hgvs;
+   private java.util.List<org.opencb.biodata.models.variant.avro.ConsequenceType> consequenceTypes;
+   private java.util.List<org.opencb.biodata.models.variant.avro.Score> conservationScores;
+   private java.util.List<org.opencb.biodata.models.variant.avro.PopulationFrequency> populationFrequencies;
+   private java.util.List<org.opencb.biodata.models.variant.avro.CaddScore> caddScore;
+   private java.util.Map<java.lang.CharSequence,java.util.List<java.lang.CharSequence>> geneDrugInteraction;
+   private java.util.Map<java.lang.CharSequence,java.lang.CharSequence> clinical;
+   private java.util.Map<java.lang.CharSequence,java.lang.CharSequence> additionalAttributes;
 
   /**
    * Default constructor.  Note that this does not initialize fields

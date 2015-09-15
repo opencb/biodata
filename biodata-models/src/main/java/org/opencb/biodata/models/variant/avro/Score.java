@@ -9,9 +9,9 @@ package org.opencb.biodata.models.variant.avro;
 public class Score extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
   public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"Score\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"score\",\"type\":[\"null\",\"double\"]},{\"name\":\"source\",\"type\":[\"null\",\"string\"]},{\"name\":\"description\",\"type\":[\"null\",\"string\"]}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
-  @Deprecated public java.lang.Double score;
-  @Deprecated public java.lang.CharSequence source;
-  @Deprecated public java.lang.CharSequence description;
+   private java.lang.Double score;
+   private java.lang.CharSequence source;
+   private java.lang.CharSequence description;
 
   /**
    * Default constructor.  Note that this does not initialize fields

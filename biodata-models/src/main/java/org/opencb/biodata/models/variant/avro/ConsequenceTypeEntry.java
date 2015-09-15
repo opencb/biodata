@@ -9,8 +9,8 @@ package org.opencb.biodata.models.variant.avro;
 public class ConsequenceTypeEntry extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
   public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"ConsequenceTypeEntry\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"soName\",\"type\":[\"null\",\"string\"]},{\"name\":\"soAccession\",\"type\":[\"null\",\"string\"]}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
-  @Deprecated public java.lang.CharSequence soName;
-  @Deprecated public java.lang.CharSequence soAccession;
+   private java.lang.CharSequence soName;
+   private java.lang.CharSequence soAccession;
 
   /**
    * Default constructor.  Note that this does not initialize fields
