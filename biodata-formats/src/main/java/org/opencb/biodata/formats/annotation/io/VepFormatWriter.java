@@ -96,20 +96,20 @@ public class VepFormatWriter implements DataWriter<VariantAnnotation> {
         String alt;
         String pos;
         // Short deletion
-        if(variantAnnotation.getAlternateAllele().equals("-")) {
+        if(variantAnnotation.getAlternate().equals("-")) {
             alt = "-";
-            if(variantAnnotation.getReferenceAllele().length()>1) {
-                pos = variantAnnotation.getStart() + "-" + (variantAnnotation.getStart() + variantAnnotation.getReferenceAllele().length() - 1);
+            if(variantAnnotation.getReference().length()>1) {
+                pos = variantAnnotation.getStart() + "-" + (variantAnnotation.getStart() + variantAnnotation.getReference().length() - 1);
             } else {
                 pos = Integer.toString(variantAnnotation.getStart());
             }
-        } else if(variantAnnotation.getReferenceAllele().equals("-")) {
+        } else if(variantAnnotation.getReference().equals("-")) {
             // Short insertion
-            alt = variantAnnotation.getAlternateAllele();
+            alt = variantAnnotation.getAlternate();
             pos = (variantAnnotation.getStart()-1) + "-" + variantAnnotation.getStart();
             // SNV
         } else {
-            alt = variantAnnotation.getAlternateAllele();
+            alt = variantAnnotation.getAlternate();
             pos = Integer.toString(variantAnnotation.getStart()-1);
         }
 
