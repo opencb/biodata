@@ -24,21 +24,21 @@ public class RegionDepth {
         this.array = (size > 0 ? new short[size] : null);
     }
 
-    public void merge(RegionDepth value) {
-        mergeChunk(value, value.chunk);
-    }
+    public String toFormat() {
+        StringBuilder res = new StringBuilder();
+        int i, pos = 0;
+        short curr = array[pos];
 
-    public void mergeChunk(RegionDepth value, long chunk) {
-
-        int start = (int) Math.max(value.position, chunk * CHUNK_SIZE);
-        int end = (int) Math.min(value.position + value.size - 1, (chunk + 1) * CHUNK_SIZE - 1);
-
-        int srcOffset = (int) value.position;
-        int destOffset = (int) (chunk * CHUNK_SIZE);
-
-        for (int i = start ; i <= end; i++) {
-            array[i - destOffset] += value.array[i - srcOffset];
+        for (i = 1; i < size; i++) {
+            if (curr != array[i]) {
+                res.append(chrom + "\t" + (position + pos) + "\t" + (position + i - 1) + "\t" + curr + "\n");
+                pos = i;
+                curr = array[i];
+            }
         }
+        //res.append(chrom + "\t" + (position + pos) + "\t" + (position + i - 1) + "\t" + curr + "\n");
+        res.append(chrom + "\t" + (position + pos) + "\t" + (position + i - 1) + "\t" + curr);
+        return res.toString();
     }
 
     public String toString() {
@@ -48,8 +48,4 @@ public class RegionDepth {
         }
         return res.toString();
     }
-
-
-
-
 }
