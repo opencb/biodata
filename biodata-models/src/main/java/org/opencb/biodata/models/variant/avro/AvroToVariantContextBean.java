@@ -1,6 +1,6 @@
 package org.opencb.biodata.models.variant.avro;
 
-
+import java.util.Set;
 
 public class AvroToVariantContextBean {
 	

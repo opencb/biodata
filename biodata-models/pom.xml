@@ -54,7 +54,94 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+			<scope>test</scope>
         </dependency>
     </dependencies>
+
+	<!--<dependencies>-->
+		<!--<dependency>-->
+			<!--<groupId>org.apache.avro</groupId>-->
+			<!--<artifactId>avro-compiler</artifactId>-->
+			<!--<version>1.7.7</version>-->
+		<!--</dependency>-->
+		<!--<dependency>-->
+			<!--<groupId>org.apache.avro</groupId>-->
+			<!--<artifactId>avro-tools</artifactId>-->
+			<!--<version>1.7.7</version>-->
+		<!--</dependency>-->
+
+
+		<!-- <dependency> <groupId>org.apache.avro</groupId> <artifactId>avro-ipc</artifactId> 
+			<version>1.7.7</version> </dependency> -->
+	<!--</dependencies>-->
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.avro</groupId>
+				<artifactId>avro-maven-plugin</artifactId>
+				<version>1.7.7</version>
+				<executions>
+					<execution>
+						<id>schemas</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>schema</goal>
+							<goal>protocol</goal>
+							<goal>idl-protocol</goal>
+						</goals>
+						<configuration>
+							<fieldVisibility>private</fieldVisibility>
+							<sourceDirectory>${project.basedir}/src/main/resources/avro/</sourceDirectory>
+							<outputDirectory>${project.basedir}/src/main/java/</outputDirectory>
+							<testSourceDirectory>${project.basedir}/src/test/resources/avro/</testSourceDirectory>
+							<testOutputDirectory>${project.basedir}/src/test/java/</testOutputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- <plugin> <groupId>org.apache.maven.plugin</groupId> <artifactId>maven-compiler-plugin</artifactId> 
+				<version>2.3.2</version> <configuration> <source>1.7.7</source> <target>1.7.7</target> 
+				</configuration> </plugin> -->
+		</plugins>
+		<pluginManagement>
+			<plugins>
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.apache.avro
+										</groupId>
+										<artifactId>
+											avro-maven-plugin
+										</artifactId>
+										<versionRange>
+											[1.7.7,)
+										</versionRange>
+										<goals>
+											<goal>protocol</goal>
+											<goal>schema</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
 
 </project>
