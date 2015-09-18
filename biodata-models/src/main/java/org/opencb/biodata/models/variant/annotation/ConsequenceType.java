@@ -38,7 +38,6 @@ public class ConsequenceType {
     private String functionalDescription;
     private List<Score> proteinSubstitutionScores = null;
     private List<ConsequenceTypeEntry> soTerms;
-    private List<ExpressionValue> expressionValues;
 
     private Integer relativePosition;
 
@@ -56,21 +55,20 @@ public class ConsequenceType {
     }
 
     public ConsequenceType(String geneName, String ensemblGeneId, String ensemblTranscriptId, String strand,
-                           String biotype, List<String> soNameList, List<ExpressionValue> expressionValues) {
-        this(geneName, ensemblGeneId, ensemblTranscriptId, strand, biotype, null, soNameList, expressionValues);
+                           String biotype, List<String> soNameList) {
+        this(geneName, ensemblGeneId, ensemblTranscriptId, strand, biotype, null, soNameList);
     }
 
     public ConsequenceType(String geneName, String ensemblGeneId, String ensemblTranscriptId, String strand,
-                           String biotype, Integer cDnaPosition, List<String> soNameList,
-                           List<ExpressionValue> expressionValues) {
+                           String biotype, Integer cDnaPosition, List<String> soNameList) {
         this(geneName, ensemblGeneId, ensemblTranscriptId, strand, biotype, cDnaPosition, null, null, null, null, null,
-                soNameList, expressionValues);
+                soNameList);
     }
 
     public ConsequenceType(String geneName, String ensemblGeneId, String ensemblTranscriptId, String strand,
                            String biotype, Integer cDnaPosition, Integer cdsPosition, Integer aaPosition,
                            String aaChange, String codon, List<Score> proteinSubstitutionScores,
-                           List<String> soNameList, List<ExpressionValue> expressionValues) {
+                           List<String> soNameList) {
         this.geneName = geneName;
         this.ensemblGeneId = ensemblGeneId;
         this.ensemblTranscriptId = ensemblTranscriptId;
@@ -86,7 +84,6 @@ public class ConsequenceType {
         this.aaChange = aaChange;
         this.codon = codon;
         this.proteinSubstitutionScores = proteinSubstitutionScores;
-        this.expressionValues = expressionValues;
     }
 
 
@@ -123,7 +120,6 @@ public class ConsequenceType {
 
     public void setProteinSubstitutionScores(List<Score> proteinSubstitutionScores) { this.proteinSubstitutionScores = proteinSubstitutionScores;  }
 
-    public void setExpressionValues(List<ExpressionValue> expressionValues) { this.expressionValues = expressionValues; }
 
     public void addProteinSubstitutionScore(Score score) {
         if(this.proteinSubstitutionScores==null) {
@@ -218,7 +214,6 @@ public class ConsequenceType {
         return functionalDescription;
     }
 
-    public List<ExpressionValue> getExpressionValues() { return expressionValues; }
 
     public void setSoTerms(List<ConsequenceTypeEntry> soTerms) {
         this.soTerms = soTerms;

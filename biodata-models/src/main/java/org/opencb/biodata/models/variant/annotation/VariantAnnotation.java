@@ -34,9 +34,9 @@ public class VariantAnnotation {
     
     private int end;
     
-    private String referenceAllele;
+    private String reference;
 
-    private String alternateAllele;
+    private String alternate;
 
     private String id;
 
@@ -46,16 +46,15 @@ public class VariantAnnotation {
 
     private List<ConsequenceType> consequenceTypes;
 
-    private List<Score> conservationScores;
+    private List<Score> conservation;
 
     private List<PopulationFrequency> populationFrequencies = null;
 
-    private List<CaddScore> caddScores;
+//    private List<CaddScore> caddScores;
 
-//    private List<ExpressionValue> expressionValues;
-    private Map<String, List<Object>> geneDrugInteraction;
-
-    private Map<String, Object> clinical;
+    private Map<String, List<ExpressionValue>> expressionValues;
+    private Map<String, List<GeneDrugInteraction>> geneDrugInteraction;
+    private VariantTraitAssociation variantTraitAssociation;
 
     private Map<String, Object> additionalAttributes;
 
@@ -63,19 +62,19 @@ public class VariantAnnotation {
         this(null, 0, 0, null);
     }
 
-    public VariantAnnotation(String chromosome, int start, int end, String referenceAllele) {
+    public VariantAnnotation(String chromosome, int start, int end, String reference) {
         this.chromosome = chromosome;
         this.start = start;
         this.end = end;
-        this.referenceAllele = referenceAllele;
+        this.reference = reference;
     }
 
-    public VariantAnnotation(String chromosome, int start, int end, String referenceAllele, String alternateAllele) {
+    public VariantAnnotation(String chromosome, int start, int end, String reference, String alternate) {
         this.chromosome = chromosome;
         this.start = start;
         this.end = end;
-        this.referenceAllele = referenceAllele;
-        this.alternateAllele = alternateAllele;
+        this.reference = reference;
+        this.alternate = alternate;
     }
 
     public String getChromosome() {
@@ -102,20 +101,20 @@ public class VariantAnnotation {
         this.end = end;
     }
 
-    public String getReferenceAllele() {
-        return referenceAllele;
+    public String getReference() {
+        return reference;
     }
 
-    public void setReferenceAllele(String referenceAllele) {
-        this.referenceAllele = referenceAllele;
+    public void setReference(String reference) {
+        this.reference = reference;
     }
 
-    public String getAlternateAllele() {
-        return alternateAllele;
+    public String getAlternate() {
+        return alternate;
     }
 
-    public void setAlternateAllele(String alternateAllele) {
-        this.alternateAllele = alternateAllele;
+    public void setAlternate(String alternate) {
+        this.alternate = alternate;
     }
 
     public String getId() {
@@ -150,12 +149,12 @@ public class VariantAnnotation {
         this.consequenceTypes = consequenceTypes;
     }
 
-    public List<Score> getConservationScores() {
-        return conservationScores;
+    public List<Score> getConservation() {
+        return conservation;
     }
 
-    public void setConservationScores(List<Score> conservationScores) {
-        this.conservationScores = conservationScores;
+    public void setConservation(List<Score> conservation) {
+        this.conservation = conservation;
     }
 
     public List<PopulationFrequency> getPopulationFrequencies() {
@@ -173,32 +172,28 @@ public class VariantAnnotation {
         this.populationFrequencies.add(populationFrequency);
     }
 
-    public List<CaddScore> getCaddScores() {
-        return caddScores;
-    }
-
-    public void setCaddScores(List<CaddScore> caddScores) {
-        this.caddScores = caddScores;
-    }
-
-    public Map<String, List<Object>> getGeneDrugInteraction() { return geneDrugInteraction; }
-
-    public void setGeneDrugInteraction(Map<String, List<Object>> geneDrugInteraction) { this.geneDrugInteraction = geneDrugInteraction; }
-
-    //    public List<ExpressionValue> getExpressionValues() {
-//        return expressionValues;
+//    public List<CaddScore> getCaddScores() {
+//        return caddScores;
 //    }
 //
-//    public void setExpressionValues(List<ExpressionValue> expressionValues) {
-//        this.expressionValues = expressionValues;
+//    public void setCaddScores(List<CaddScore> caddScores) {
+//        this.caddScores = caddScores;
 //    }
 
-    public Map<String, Object> getClinical() {
-        return clinical;
+    public Map<String, List<GeneDrugInteraction>> getGeneDrugInteraction() { return geneDrugInteraction; }
+
+    public void setGeneDrugInteraction(Map<String, List<GeneDrugInteraction>> geneDrugInteraction) { this.geneDrugInteraction = geneDrugInteraction; }
+
+    public Map<String, List<ExpressionValue>> getExpressionValues() { return expressionValues; }
+
+    public void setExpressionValues(Map<String, List<ExpressionValue>> expressionValues) { this.expressionValues = expressionValues; }
+
+    public VariantTraitAssociation getVariantTraitAssociation() {
+        return variantTraitAssociation;
     }
 
-    public void setClinical(Map<String, Object> clinical) {
-        this.clinical = clinical;
+    public void setVariantTraitAssociation(VariantTraitAssociation variantTraitAssociation) {
+        this.variantTraitAssociation = variantTraitAssociation;
     }
 
     public Map<String, Object> getAdditionalAttributes() {
@@ -233,12 +228,12 @@ public class VariantAnnotation {
 //        this.end = end;
 //    }
 //
-//    public String getReferenceAllele() {
-//        return referenceAllele;
+//    public String getReference() {
+//        return reference;
 //    }
 //
-//    public void setReferenceAllele(String referenceAllele) {
-//        this.referenceAllele = referenceAllele;
+//    public void setReference(String reference) {
+//        this.reference = reference;
 //    }
 
 //    public Set<Gene> getGenes() {
@@ -336,7 +331,7 @@ public class VariantAnnotation {
 //                "chromosome='" + chromosome + '\'' +
 //                ", start=" + start +
 //                ", end=" + end +
-//                ", referenceAllele='" + referenceAllele + '\'' +
+//                ", reference='" + reference + '\'' +
 //                ", proteinSubstitutionScores=" + proteinSubstitutionScores +
 //                '}';
 //    }

@@ -366,11 +366,11 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
         populationFrequency.setStudy(study);
         populationFrequency.setPop(population);
         populationFrequency.setSuperPop(population);
-        populationFrequency.setRefAllele(currentAnnotation.getReferenceAllele());
-        populationFrequency.setAltAllele(currentAnnotation.getAlternateAllele());
+        populationFrequency.setRefAllele(currentAnnotation.getReference());
+        populationFrequency.setAltAllele(currentAnnotation.getAlternate());
         for(String frequencyString : frequencyStrings.split(",")) {
             String[] parts = frequencyString.split(":");
-            if (parts[0].equals(currentAnnotation.getAlternateAllele())) {
+            if (parts[0].equals(currentAnnotation.getAlternate())) {
                 populationFrequency.setAltAlleleFreq(Float.valueOf(parts[1]));
             } else {
                 populationFrequency.setRefAlleleFreq(Float.valueOf(parts[1]));

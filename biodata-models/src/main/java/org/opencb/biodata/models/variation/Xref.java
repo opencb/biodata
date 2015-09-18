@@ -16,6 +16,7 @@
 
 package org.opencb.biodata.models.variation;
 
+@Deprecated
 public class Xref {
 
 	private String id; 			//1

@@ -23,6 +23,8 @@ public class ExpressionValue {
 
     public enum Expression {UP, DOWN};
 
+    private String geneId;
+    private String transcriptId;
     private String experimentalFactor;
     private String factorValue;
     private String experimentId;
@@ -32,8 +34,16 @@ public class ExpressionValue {
 
     public ExpressionValue() { }
 
+    @Deprecated
     public ExpressionValue(String experimentalFactor, String factorValue, String experimentId,
                            String technologyPlatform, Expression expression, Float pvalue) {
+        this(null, null, experimentalFactor, factorValue, experimentId, technologyPlatform, expression, pvalue);
+    }
+
+    public ExpressionValue(String geneId, String transcriptId, String experimentalFactor, String factorValue,
+                           String experimentId, String technologyPlatform, Expression expression, Float pvalue) {
+        this.geneId = geneId;
+        this.transcriptId = transcriptId;
         this.experimentalFactor = experimentalFactor;
         this.factorValue = factorValue;
         this.experimentId = experimentId;
@@ -89,4 +99,12 @@ public class ExpressionValue {
     public void setPvalue(Float pvalue) {
         this.pvalue = pvalue;
     }
+
+    public String getGeneId() { return geneId; }
+
+    public void setGeneId(String geneId) { this.geneId = geneId; }
+
+    public String getTranscriptId() { return transcriptId; }
+
+    public void setTranscriptId(String transcriptId) { this.transcriptId = transcriptId; }
 }
