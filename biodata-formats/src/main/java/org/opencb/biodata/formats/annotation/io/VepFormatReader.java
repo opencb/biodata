@@ -186,7 +186,9 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
         if(!lineFields[9].equals("-")) {
             consequenceType.setAaPosition(parseStringInterval(lineFields[9]));    // fill aa position
         }
-        consequenceType.setAaChange(lineFields[10]);  // fill aa change
+        String parts[] = lineFields[10].split("/");
+        consequenceType.setAAReference(parts[0]);  // fill aa change
+        consequenceType.setAAAlternate(parts[1]);  // fill aa change
         consequenceType.setCodon(lineFields[11]); // fill codon change
         if(!lineFields[6].equals("") && !lineFields.equals("-")) {  // VEP may leave this field empty
             consequenceType.setSoTermsFromSoNames(Arrays.asList(lineFields[6].split(",")));    // fill so terms

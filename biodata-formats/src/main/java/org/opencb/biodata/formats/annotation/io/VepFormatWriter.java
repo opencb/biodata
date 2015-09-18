@@ -146,14 +146,16 @@ public class VepFormatWriter implements DataWriter<VariantAnnotation> {
             }
             Integer aaPosition;
             String aaPositionString;
-            if((aaPosition=consequenceType.getAaPosition())==null) {
+            if((aaPosition=consequenceType.getAAPosition())==null) {
                 aaPositionString = "-";
             } else {
                 aaPositionString = aaPosition.toString();
             }
             String aaChange;
-            if((aaChange=consequenceType.getAaChange())==null) {
+            if(consequenceType.getAAAlternate()==null) {
                 aaChange = "-";
+            } else {
+                aaChange = consequenceType.getAAReference()+"/"+consequenceType.getAAAlternate();
             }
             String codon;
             if((codon=consequenceType.getCodon())==null) {

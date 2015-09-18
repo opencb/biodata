@@ -16,6 +16,8 @@
 
 package org.opencb.biodata.models.variant.annotation;
 
+import org.opencb.biodata.models.variation.ProteinVariantAnnotation;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -32,11 +34,8 @@ public class ConsequenceType {
     private String biotype;
     private Integer cDnaPosition;
     private Integer cdsPosition;
-    private Integer aaPosition;
-    private String aaChange;
     private String codon;
-    private String functionalDescription;
-    private List<Score> proteinSubstitutionScores = null;
+    private ProteinVariantAnnotation proteinVariantAnnotation;
     private List<ConsequenceTypeEntry> soTerms;
 
     private Integer relativePosition;
@@ -62,12 +61,12 @@ public class ConsequenceType {
     public ConsequenceType(String geneName, String ensemblGeneId, String ensemblTranscriptId, String strand,
                            String biotype, Integer cDnaPosition, List<String> soNameList) {
         this(geneName, ensemblGeneId, ensemblTranscriptId, strand, biotype, cDnaPosition, null, null, null, null, null,
-                soNameList);
+                null, soNameList);
     }
 
     public ConsequenceType(String geneName, String ensemblGeneId, String ensemblTranscriptId, String strand,
                            String biotype, Integer cDnaPosition, Integer cdsPosition, Integer aaPosition,
-                           String aaChange, String codon, List<Score> proteinSubstitutionScores,
+                           String aaReference, String aaAlternate, String codon, List<Score> proteinSubstitutionScores,
                            List<String> soNameList) {
         this.geneName = geneName;
         this.ensemblGeneId = ensemblGeneId;
@@ -80,10 +79,8 @@ public class ConsequenceType {
         this.biotype = biotype;
         this.cDnaPosition = cDnaPosition;
         this.cdsPosition = cdsPosition;
-        this.aaPosition = aaPosition;
-        this.aaChange = aaChange;
         this.codon = codon;
-        this.proteinSubstitutionScores = proteinSubstitutionScores;
+        this.proteinVariantAnnotation = new ProteinVariantAnnotation(aaPosition, aaReference, aaAlternate, proteinSubstitutionScores);
     }
 
 
@@ -114,22 +111,51 @@ public class ConsequenceType {
 
     public void setCdsPosition(Integer cdsPosition) { this.cdsPosition = cdsPosition; }
 
-    public void setAaPosition(Integer aaPosition) { this.aaPosition = aaPosition; }
+    public void setAaPosition(Integer aaPosition) {
+        if(proteinVariantAnnotation==null) {
+            proteinVariantAnnotation = new ProteinVariantAnnotation();
+        }
+        proteinVariantAnnotation.setPosition(aaPosition);
+    }
 
-    public void setAaChange(String aaChange) { this.aaChange = aaChange; }
+    public void setAAReference(String aaReference) {
+        if(proteinVariantAnnotation==null) {
+            proteinVariantAnnotation = new ProteinVariantAnnotation();
+        }
+        proteinVariantAnnotation.setReference(aaReference);
+    }
 
-    public void setProteinSubstitutionScores(List<Score> proteinSubstitutionScores) { this.proteinSubstitutionScores = proteinSubstitutionScores;  }
+    public void setAAAlternate(String aaAlternate) {
+        if(proteinVariantAnnotation==null) {
+            proteinVariantAnnotation = new ProteinVariantAnnotation();
+        }
+        proteinVariantAnnotation.setReference(aaAlternate);
+    }
+
+    public void setProteinSubstitutionScores(List<Score> proteinSubstitutionScores) {
+        if(proteinVariantAnnotation==null) {
+            proteinVariantAnnotation = new ProteinVariantAnnotation();
+        }
+        proteinVariantAnnotation.setProteinSubstitutionScores(proteinSubstitutionScores);
+    }
 
 
     public void addProteinSubstitutionScore(Score score) {
-        if(this.proteinSubstitutionScores==null) {
-            proteinSubstitutionScores = new ArrayList<>();
+        if(proteinVariantAnnotation==null) {
+            proteinVariantAnnotation = new ProteinVariantAnnotation();
         }
-        proteinSubstitutionScores.add(score);
+        proteinVariantAnnotation.addProteinSubstitutionScores(score);
     }
 
     public void setFunctionalDescription(String functionalDescription) {
-        this.functionalDescription = functionalDescription;
+        if(proteinVariantAnnotation==null) {
+            proteinVariantAnnotation = new ProteinVariantAnnotation();
+        }
+        proteinVariantAnnotation.setFunctionalDescription(functionalDescription);
+    }
+
+    public void setProteinVariantAnnotation(ProteinVariantAnnotation proteinVariantAnnotation) {
+        this.proteinVariantAnnotation = proteinVariantAnnotation;
     }
 
     public String getGeneName() {
@@ -190,20 +216,30 @@ public class ConsequenceType {
 
     public Integer getCdsPosition() { return cdsPosition; }
 
-    public Integer getAaPosition() { return aaPosition; }
+    public Integer getAAPosition() { return proteinVariantAnnotation.getPosition(); }
 
-    public String getAaChange() { return aaChange; }
+    public String getAAReference() { return proteinVariantAnnotation.getReference(); }
 
-    public String getAaChange(String defaultString) {
-        if(aaChange !=null) {
-            return aaChange;
+    public String getAAReference(String defaultString) {
+        if (proteinVariantAnnotation.getReference() != null) {
+            return proteinVariantAnnotation.getReference();
+        } else {
+            return defaultString;
+        }
+    }
+
+    public String getAAAlternate() { return proteinVariantAnnotation.getAlternate(); }
+
+    public String getAAAlternate(String defaultString) {
+        if (proteinVariantAnnotation.getAlternate() != null) {
+            return proteinVariantAnnotation.getAlternate();
         } else {
             return defaultString;
         }
     }
 
     public List<Score> getProteinSubstitutionScores() {
-        return proteinSubstitutionScores;
+        return proteinVariantAnnotation.getProteinSubstitutionScores();
     }
 
     public List<ConsequenceTypeEntry> getSoTerms() {
@@ -211,9 +247,12 @@ public class ConsequenceType {
     }
 
     public String getFunctionalDescription() {
-        return functionalDescription;
+        return proteinVariantAnnotation.getFunctionalDescription();
     }
 
+    public ProteinVariantAnnotation getProteinVariantAnnotation() {
+        return proteinVariantAnnotation;
+    }
 
     public void setSoTerms(List<ConsequenceTypeEntry> soTerms) {
         this.soTerms = soTerms;
@@ -229,29 +268,25 @@ public class ConsequenceType {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ConsequenceType)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
         ConsequenceType that = (ConsequenceType) o;
 
-        if (aaChange != null ? !aaChange.equals(that.aaChange) : that.aaChange != null) return false;
-        if (aaPosition != null ? !aaPosition.equals(that.aaPosition) : that.aaPosition != null) return false;
-        if (biotype != null ? !biotype.equals(that.biotype) : that.biotype != null) return false;
-        if (cDnaPosition != null ? !cDnaPosition.equals(that.cDnaPosition) : that.cDnaPosition != null) return false;
-        if (cdsPosition != null ? !cdsPosition.equals(that.cdsPosition) : that.cdsPosition != null) return false;
-        if (codon != null ? !codon.equals(that.codon) : that.codon != null) return false;
+        if (geneName != null ? !geneName.equals(that.geneName) : that.geneName != null) return false;
         if (ensemblGeneId != null ? !ensemblGeneId.equals(that.ensemblGeneId) : that.ensemblGeneId != null)
             return false;
         if (ensemblTranscriptId != null ? !ensemblTranscriptId.equals(that.ensemblTranscriptId) : that.ensemblTranscriptId != null)
             return false;
-        if (geneName != null ? !geneName.equals(that.geneName) : that.geneName != null) return false;
-        if (proteinSubstitutionScores != null ? !proteinSubstitutionScores.equals(that.proteinSubstitutionScores) : that.proteinSubstitutionScores != null)
-            return false;
-        if (relativePosition != null ? !relativePosition.equals(that.relativePosition) : that.relativePosition != null)
+        if (strand != null ? !strand.equals(that.strand) : that.strand != null) return false;
+        if (biotype != null ? !biotype.equals(that.biotype) : that.biotype != null) return false;
+        if (cDnaPosition != null ? !cDnaPosition.equals(that.cDnaPosition) : that.cDnaPosition != null) return false;
+        if (cdsPosition != null ? !cdsPosition.equals(that.cdsPosition) : that.cdsPosition != null) return false;
+        if (codon != null ? !codon.equals(that.codon) : that.codon != null) return false;
+        if (proteinVariantAnnotation != null ? !proteinVariantAnnotation.equals(that.proteinVariantAnnotation) : that.proteinVariantAnnotation != null)
             return false;
         if (soTerms != null ? !soTerms.equals(that.soTerms) : that.soTerms != null) return false;
-        if (strand != null ? !strand.equals(that.strand) : that.strand != null) return false;
+        return !(relativePosition != null ? !relativePosition.equals(that.relativePosition) : that.relativePosition != null);
 
-        return true;
     }
 
     @Override
@@ -263,10 +298,8 @@ public class ConsequenceType {
         result = 31 * result + (biotype != null ? biotype.hashCode() : 0);
         result = 31 * result + (cDnaPosition != null ? cDnaPosition.hashCode() : 0);
         result = 31 * result + (cdsPosition != null ? cdsPosition.hashCode() : 0);
-        result = 31 * result + (aaPosition != null ? aaPosition.hashCode() : 0);
-        result = 31 * result + (aaChange != null ? aaChange.hashCode() : 0);
         result = 31 * result + (codon != null ? codon.hashCode() : 0);
-        result = 31 * result + (proteinSubstitutionScores != null ? proteinSubstitutionScores.hashCode() : 0);
+        result = 31 * result + (proteinVariantAnnotation != null ? proteinVariantAnnotation.hashCode() : 0);
         result = 31 * result + (soTerms != null ? soTerms.hashCode() : 0);
         result = 31 * result + (relativePosition != null ? relativePosition.hashCode() : 0);
         return result;
