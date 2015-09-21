@@ -111,49 +111,48 @@ public class ConsequenceType {
 
     public void setCdsPosition(Integer cdsPosition) { this.cdsPosition = cdsPosition; }
 
-    public void setAaPosition(Integer aaPosition) {
-        if(proteinVariantAnnotation==null) {
-            proteinVariantAnnotation = new ProteinVariantAnnotation();
-        }
-        proteinVariantAnnotation.setPosition(aaPosition);
-    }
-
-    public void setAAReference(String aaReference) {
-        if(proteinVariantAnnotation==null) {
-            proteinVariantAnnotation = new ProteinVariantAnnotation();
-        }
-        proteinVariantAnnotation.setReference(aaReference);
-    }
-
-    public void setAAAlternate(String aaAlternate) {
-        if(proteinVariantAnnotation==null) {
-            proteinVariantAnnotation = new ProteinVariantAnnotation();
-        }
-        proteinVariantAnnotation.setAlternate(aaAlternate);
-        proteinVariantAnnotation.setAlternate(aaAlternate);
-    }
-
-    public void setProteinSubstitutionScores(List<Score> proteinSubstitutionScores) {
-        if(proteinVariantAnnotation==null) {
-            proteinVariantAnnotation = new ProteinVariantAnnotation();
-        }
-        proteinVariantAnnotation.setProteinSubstitutionScores(proteinSubstitutionScores);
-    }
-
-
-    public void addProteinSubstitutionScore(Score score) {
-        if(proteinVariantAnnotation==null) {
-            proteinVariantAnnotation = new ProteinVariantAnnotation();
-        }
-        proteinVariantAnnotation.addProteinSubstitutionScores(score);
-    }
-
-    public void setFunctionalDescription(String functionalDescription) {
-        if(proteinVariantAnnotation==null) {
-            proteinVariantAnnotation = new ProteinVariantAnnotation();
-        }
-        proteinVariantAnnotation.setFunctionalDescription(functionalDescription);
-    }
+//    public void setAaPosition(Integer aaPosition) {
+//        if(proteinVariantAnnotation==null) {
+//            proteinVariantAnnotation = new ProteinVariantAnnotation();
+//        }
+//        proteinVariantAnnotation.setPosition(aaPosition);
+//    }
+//
+//    public void setAAReference(String aaReference) {
+//        if(proteinVariantAnnotation==null) {
+//            proteinVariantAnnotation = new ProteinVariantAnnotation();
+//        }
+//        proteinVariantAnnotation.setReference(aaReference);
+//    }
+//
+//    public void setAAAlternate(String aaAlternate) {
+//        if(proteinVariantAnnotation==null) {
+//            proteinVariantAnnotation = new ProteinVariantAnnotation();
+//        }
+//        proteinVariantAnnotation.setAlternate(aaAlternate);
+//    }
+//
+//    public void setProteinSubstitutionScores(List<Score> proteinSubstitutionScores) {
+//        if(proteinVariantAnnotation==null) {
+//            proteinVariantAnnotation = new ProteinVariantAnnotation();
+//        }
+//        proteinVariantAnnotation.setProteinSubstitutionScores(proteinSubstitutionScores);
+//    }
+//
+//
+//    public void addProteinSubstitutionScore(Score score) {
+//        if(proteinVariantAnnotation==null) {
+//            proteinVariantAnnotation = new ProteinVariantAnnotation();
+//        }
+//        proteinVariantAnnotation.addProteinSubstitutionScores(score);
+//    }
+//
+//    public void setFunctionalDescription(String functionalDescription) {
+//        if(proteinVariantAnnotation==null) {
+//            proteinVariantAnnotation = new ProteinVariantAnnotation();
+//        }
+//        proteinVariantAnnotation.setFunctionalDescription(functionalDescription);
+//    }
 
     public void setProteinVariantAnnotation(ProteinVariantAnnotation proteinVariantAnnotation) {
         this.proteinVariantAnnotation = proteinVariantAnnotation;
@@ -217,39 +216,59 @@ public class ConsequenceType {
 
     public Integer getCdsPosition() { return cdsPosition; }
 
-    public Integer getAAPosition() { return proteinVariantAnnotation.getPosition(); }
-
-    public String getAAReference() { return proteinVariantAnnotation.getReference(); }
-
-    public String getAAReference(String defaultString) {
-        if (proteinVariantAnnotation.getReference() != null) {
-            return proteinVariantAnnotation.getReference();
-        } else {
-            return defaultString;
-        }
-    }
-
-    public String getAAAlternate() { return proteinVariantAnnotation.getAlternate(); }
-
-    public String getAAAlternate(String defaultString) {
-        if (proteinVariantAnnotation.getAlternate() != null) {
-            return proteinVariantAnnotation.getAlternate();
-        } else {
-            return defaultString;
-        }
-    }
-
-    public List<Score> getProteinSubstitutionScores() {
-        return proteinVariantAnnotation.getProteinSubstitutionScores();
-    }
+//    public Integer getAAPosition() {
+//        if (proteinVariantAnnotation != null) {
+//            return proteinVariantAnnotation.getPosition();
+//        }
+//        return null;
+//    }
+//
+//    public String getAAReference() {
+//        if (proteinVariantAnnotation != null) {
+//            return proteinVariantAnnotation.getReference();
+//        }
+//        return null;
+//    }
+//
+//    public String getAAReference(String defaultString) {
+//        if (proteinVariantAnnotation.getReference() != null) {
+//            return proteinVariantAnnotation.getReference();
+//        } else {
+//            return defaultString;
+//        }
+//    }
+//
+//    public String getAAAlternate() {
+//        if (proteinVariantAnnotation != null) {
+//            return proteinVariantAnnotation.getAlternate();
+//        }
+//        return null;
+//    }
+//
+//    public String getAAAlternate(String defaultString) {
+//        if (proteinVariantAnnotation.getAlternate() != null) {
+//            return proteinVariantAnnotation.getAlternate();
+//        }
+//        return defaultString;
+//    }
+//
+//    public List<Score> getProteinSubstitutionScores() {
+//        if (proteinVariantAnnotation != null) {
+//            return proteinVariantAnnotation.getProteinSubstitutionScores();
+//        }
+//        return null;
+//    }
 
     public List<ConsequenceTypeEntry> getSoTerms() {
         return soTerms;
     }
 
-    public String getFunctionalDescription() {
-        return proteinVariantAnnotation.getFunctionalDescription();
-    }
+//    public String getFunctionalDescription() {
+//        if (proteinVariantAnnotation != null) {
+//            return proteinVariantAnnotation.getFunctionalDescription();
+//        }
+//        return null;
+//    }
 
     public ProteinVariantAnnotation getProteinVariantAnnotation() {
         return proteinVariantAnnotation;

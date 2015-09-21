@@ -98,7 +98,7 @@ public class ProteinVariantAnnotation {
         this.proteinSubstitutionScores = proteinSubstitutionScores;
     }
 
-    public void addProteinSubstitutionScores(Score score) {
+    public void addProteinSubstitutionScore(Score score) {
         if (this.proteinSubstitutionScores == null) {
             proteinSubstitutionScores = new ArrayList<>();
         }
