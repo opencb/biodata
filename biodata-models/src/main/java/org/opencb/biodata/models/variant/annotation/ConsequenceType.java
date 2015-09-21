@@ -129,7 +129,8 @@ public class ConsequenceType {
         if(proteinVariantAnnotation==null) {
             proteinVariantAnnotation = new ProteinVariantAnnotation();
         }
-        proteinVariantAnnotation.setReference(aaAlternate);
+        proteinVariantAnnotation.setAlternate(aaAlternate);
+        proteinVariantAnnotation.setAlternate(aaAlternate);
     }
 
     public void setProteinSubstitutionScores(List<Score> proteinSubstitutionScores) {
