@@ -11,15 +11,15 @@ public class VariantTraitAssociation {
     private List<Gwas> gwasList;
     private List<Clinvar> clinvarList;
 
-    public List<Cosmic> getCosmicList() {
-        return cosmicList;
-    }
+    public VariantTraitAssociation() {}
 
     public VariantTraitAssociation(List<Cosmic> cosmicList, List<Gwas> gwasList, List<Clinvar> clinvarList) {
         this.cosmicList = cosmicList;
         this.gwasList = gwasList;
         this.clinvarList = clinvarList;
     }
+
+    public List<Cosmic> getCosmicList() { return cosmicList; }
 
     public void setCosmicList(List<Cosmic> cosmicList) {
         this.cosmicList = cosmicList;
