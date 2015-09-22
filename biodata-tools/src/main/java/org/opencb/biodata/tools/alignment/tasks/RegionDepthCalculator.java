@@ -13,27 +13,6 @@ import java.util.List;
  */
 public class RegionDepthCalculator {
 
-    /*
-     * compute the region size according to the cigar code
-     */
-    private int computeSizeByCigar(List<CigarUnit> cigar) {
-        int size = 0;
-        for (CigarUnit cu: cigar) {
-            switch (cu.getOperation()) {
-                case ALIGNMENT_MATCH:
-                case SEQUENCE_MATCH:
-                case SEQUENCE_MISMATCH:
-                case SKIP:
-                case DELETE:
-                    size += cu.getOperationLength();
-                    break;
-                default:
-                    break;
-            }
-        }
-        return size;
-    }
-
     private RegionDepth computeRegionDepth(LinearAlignment la, int size) {
         RegionDepth regionDepth = new RegionDepth(
                 la.getPosition().getReferenceName().toString(),
@@ -62,6 +41,27 @@ public class RegionDepthCalculator {
         }
 
         return regionDepth;
+    }
+
+    /*
+     * compute the region size according to the cigar code
+     */
+    public int computeSizeByCigar(List<CigarUnit> cigar) {
+        int size = 0;
+        for (CigarUnit cu: cigar) {
+            switch (cu.getOperation()) {
+                case ALIGNMENT_MATCH:
+                case SEQUENCE_MATCH:
+                case SEQUENCE_MISMATCH:
+                case SKIP:
+                case DELETE:
+                    size += cu.getOperationLength();
+                    break;
+                default:
+                    break;
+            }
+        }
+        return size;
     }
 
     /*

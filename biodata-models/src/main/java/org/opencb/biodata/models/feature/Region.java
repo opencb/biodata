@@ -22,6 +22,7 @@ import java.util.List;
 /**
  * @author Alejandro Aleman Ramos
  * @author Cristina Yenyxe Gonzalez Garcia
+ * @author Joaquín Tárraga Giménez
  */
 public class Region {
 
@@ -165,6 +166,14 @@ public class Region {
 
     public boolean contains(String chr, long pos) {
         if (this.chromosome.equals(chr) && this.start <= pos && this.end >= pos) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean overlaps(String chr, long start, long end) {
+        if (this.chromosome.equals(chr) && end >= this.start && start <= this.end) {
             return true;
         } else {
             return false;

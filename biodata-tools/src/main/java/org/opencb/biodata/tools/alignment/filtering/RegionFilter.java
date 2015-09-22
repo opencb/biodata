@@ -17,8 +17,8 @@
 package org.opencb.biodata.tools.alignment.filtering;
 
 
-import org.opencb.biodata.models.alignment.Alignment;
 import org.opencb.biodata.models.feature.Region;
+import org.opencb.commons.filters.Filter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,24 +26,24 @@ import java.util.List;
 /**
  * @author Joaquín Tárraga Giménez &lt;jtarraga@cipf.es&gt;
  */
-public class AlignmentRegionFilter extends AlignmentFilter {
+public class RegionFilter extends Filter<Region> {
 
     private List<Region> regionList;
 
-    public AlignmentRegionFilter(String chromosome, int start, int end) {
-        super();
+    public RegionFilter(String chromosome, int start, int end) {
+        super(0);
         regionList = new ArrayList<>();
         regionList.add(new Region(chromosome, start, end));
     }
 
-    public AlignmentRegionFilter(String chromosome, int start, int end, int priority) {
+    public RegionFilter(String chromosome, int start, int end, int priority) {
         super(priority);
         regionList = new ArrayList<>();
         regionList.add(new Region(chromosome, start, end));
 
     }
 
-    public AlignmentRegionFilter(String regions) {
+    public RegionFilter(String regions) {
         super();
         regionList = new ArrayList<>();
 
@@ -53,7 +53,7 @@ public class AlignmentRegionFilter extends AlignmentFilter {
         }
     }
 
-    public AlignmentRegionFilter(String regions, int priority) {
+    public RegionFilter(String regions, int priority) {
         super(priority);
         regionList = new ArrayList<>();
 
@@ -63,13 +63,17 @@ public class AlignmentRegionFilter extends AlignmentFilter {
         }
     }
 
-    @Override
-    public boolean apply(Alignment align) {
+    public boolean apply(String chrom, long start, long end) {
         for (Region r : regionList) {
-            if (r.contains(align.getChromosome(), align.getStart())) {
+            if (r.overlaps(chrom, start, end)) {
                 return true;
             }
         }
         return false;
+    }
+
+    @Override
+    public boolean apply(Region region) {
+        return apply(region.getChromosome(), region.getStart(), region.getEnd());
     }
 }
