@@ -17,10 +17,12 @@
 package org.opencb.biodata.formats.annotation.io;
 
 import org.opencb.biodata.formats.variant.vcf4.io.VariantVcfReader;
+import org.opencb.biodata.models.protein.ProteinFeature;
 import org.opencb.biodata.models.variant.annotation.ConsequenceType;
 import org.opencb.biodata.models.variant.annotation.Score;
 import org.opencb.biodata.models.variant.annotation.VariantAnnotation;
 import org.opencb.biodata.models.variation.PopulationFrequency;
+import org.opencb.biodata.models.variation.ProteinVariantAnnotation;
 import org.opencb.commons.io.DataReader;
 
 import java.io.BufferedReader;
@@ -177,6 +179,7 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
     private void parseRemainingFields(ConsequenceType consequenceType, String[] lineFields) {
         consequenceType.setEnsemblGeneId(lineFields[3]);    // fill Ensembl gene id
         consequenceType.setEnsemblTranscriptId(lineFields[4]);  // fill Ensembl transcript id
+        ProteinVariantAnnotation proteinVariantAnnotation = new ProteinVariantAnnotation();
         if(!lineFields[7].equals("-")) {
             consequenceType.setcDnaPosition(parseStringInterval(lineFields[7]));    // fill cdna position
         }
@@ -184,9 +187,12 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
             consequenceType.setCdsPosition(parseStringInterval(lineFields[8]));  // fill cds position
         }
         if(!lineFields[9].equals("-")) {
-            consequenceType.setAaPosition(parseStringInterval(lineFields[9]));    // fill aa position
+            proteinVariantAnnotation.setPosition(parseStringInterval(lineFields[9]));    // fill aa position
         }
-        consequenceType.setAaChange(lineFields[10]);  // fill aa change
+        String parts[] = lineFields[10].split("/");
+        proteinVariantAnnotation.setReference(parts[0]);  // fill aa change
+        proteinVariantAnnotation.setAlternate(parts[1]);  // fill aa change
+        consequenceType.setProteinVariantAnnotation(proteinVariantAnnotation);
         consequenceType.setCodon(lineFields[11]); // fill codon change
         if(!lineFields[6].equals("") && !lineFields.equals("-")) {  // VEP may leave this field empty
             consequenceType.setSoTermsFromSoNames(Arrays.asList(lineFields[6].split(",")));    // fill so terms
@@ -328,13 +334,13 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
 //                    variantAnnotation.getRegulatoryEffect().setMotifScoreChange(Float.parseFloat(keyValue[1]));
 //                    break;
                 case "polyphen": // Format is PolyPhen=possibly_damaging(0.859)
-                    consequenceType.addProteinSubstitutionScore(parseProteinSubstitutionScore("Polyphen", keyValue[1]));
+                    consequenceType.getProteinVariantAnnotation().addProteinSubstitutionScore(parseProteinSubstitutionScore("Polyphen", keyValue[1]));
                     break;
 //                case "pubmed":
 //                    variantEffect.setPubmed(keyValue[1].split(","));
 //                    break;
                 case "sift": // Format is SIFT=tolerated(0.07)
-                    consequenceType.addProteinSubstitutionScore(parseProteinSubstitutionScore("Sift", keyValue[1]));
+                    consequenceType.getProteinVariantAnnotation().addProteinSubstitutionScore(parseProteinSubstitutionScore("Sift", keyValue[1]));
                     break;
                 case "strand":
                     consequenceType.setStrand(keyValue[1].equals("1")?"+":"-");

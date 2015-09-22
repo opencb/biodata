@@ -204,6 +204,7 @@ public class VariantAnnotation {
         this.additionalAttributes = additionalAttributes;
     }
 
+
 //    public String getChromosome() {
 //        return chromosome;
 //    }

@@ -16,6 +16,7 @@
 
 package org.opencb.biodata.formats.annotation.io;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import org.opencb.biodata.models.variant.annotation.VariantAnnotation;
@@ -75,6 +76,7 @@ public class JsonAnnotationWriter implements DataWriter<VariantAnnotation> {
     @Override
     public boolean pre() {
         ObjectMapper jsonObjectMapper = new ObjectMapper();
+        jsonObjectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         jsonObjectWriter = jsonObjectMapper.writer();
         return true;
     }
