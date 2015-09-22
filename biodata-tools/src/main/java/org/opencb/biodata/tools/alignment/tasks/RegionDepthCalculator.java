@@ -14,10 +14,11 @@ import java.util.List;
 public class RegionDepthCalculator {
 
     private RegionDepth computeRegionDepth(LinearAlignment la, int size) {
-        RegionDepth regionDepth = new RegionDepth(
+        RegionDepth regionDepth;
+        regionDepth = new RegionDepth(
                 la.getPosition().getReferenceName().toString(),
-                la.getPosition().getPosition(),
-                la.getPosition().getPosition() / RegionDepth.CHUNK_SIZE,
+                la.getPosition().getPosition().intValue(),
+                la.getPosition().getPosition().intValue() / RegionDepth.CHUNK_SIZE,
                 size);
 
         // update array (counter)

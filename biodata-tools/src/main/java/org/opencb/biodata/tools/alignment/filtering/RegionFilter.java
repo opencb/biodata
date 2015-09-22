@@ -63,6 +63,10 @@ public class RegionFilter extends Filter<Region> {
         }
     }
 
+    public List<Region> getRegionList() {
+        return regionList;
+    }
+
     public boolean apply(String chrom, long start, long end) {
         for (Region r : regionList) {
             if (r.overlaps(chrom, start, end)) {
