@@ -17,7 +17,6 @@
 package org.opencb.biodata.formats.annotation.io;
 
 import org.opencb.biodata.formats.variant.vcf4.io.VariantVcfReader;
-import org.opencb.biodata.models.protein.ProteinFeature;
 import org.opencb.biodata.models.variant.annotation.ConsequenceType;
 import org.opencb.biodata.models.variant.annotation.Score;
 import org.opencb.biodata.models.variant.annotation.VariantAnnotation;
@@ -334,13 +333,13 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
 //                    variantAnnotation.getRegulatoryEffect().setMotifScoreChange(Float.parseFloat(keyValue[1]));
 //                    break;
                 case "polyphen": // Format is PolyPhen=possibly_damaging(0.859)
-                    consequenceType.getProteinVariantAnnotation().addProteinSubstitutionScore(parseProteinSubstitutionScore("Polyphen", keyValue[1]));
+                    consequenceType.getProteinVariantAnnotation().addSubstitutionScore(parseProteinSubstitutionScore("Polyphen", keyValue[1]));
                     break;
 //                case "pubmed":
 //                    variantEffect.setPubmed(keyValue[1].split(","));
 //                    break;
                 case "sift": // Format is SIFT=tolerated(0.07)
-                    consequenceType.getProteinVariantAnnotation().addProteinSubstitutionScore(parseProteinSubstitutionScore("Sift", keyValue[1]));
+                    consequenceType.getProteinVariantAnnotation().addSubstitutionScore(parseProteinSubstitutionScore("Sift", keyValue[1]));
                     break;
                 case "strand":
                     consequenceType.setStrand(keyValue[1].equals("1")?"+":"-");

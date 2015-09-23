@@ -11,43 +11,43 @@ import java.util.List;
  */
 public class ProteinVariantAnnotation {
 
-    private String uniprotProteinAccession;
+    private String accession;
     private int position;
     private String reference;
     private String alternate;
-    private String uniprotVariantId;
+    private String variantId;
     private String functionalDescription;
-    private List<Score> proteinSubstitutionScores = null;
-    private List<String> uniprotKeywords;
-    private List<ProteinFeature> proteinFeatureList;
+    private List<Score> substitutionScores = null;
+    private List<String> keywords;
+    private List<ProteinFeature> features;
 
     public ProteinVariantAnnotation() {
     }
 
-    public ProteinVariantAnnotation(int aaPosition, String aaReference, String aaAlternate,
-                                    List<Score> proteinSubstitutionScores) {
-        this(null, aaPosition, aaReference, aaAlternate, null, null, proteinSubstitutionScores, null, null);
+    public ProteinVariantAnnotation(int aaPosition, String aaReference, String aaAlternate, List<Score> substitutionScores) {
+        this(null, aaPosition, aaReference, aaAlternate, null, null, substitutionScores, null, null);
 
     }
 
-    public ProteinVariantAnnotation(String uniprotProteinAccession, int position, String reference, String alternate, String uniprotVariantId, String functionalDescription, List<Score> proteinSubstitutionScores, List<String> uniprotKeywords, List<ProteinFeature> proteinFeatureList) {
-        this.uniprotProteinAccession = uniprotProteinAccession;
+    public ProteinVariantAnnotation(String accession, int position, String reference, String alternate, String variantId,
+                                    String functionalDescription, List<Score> substitutionScores, List<String> keywords, List<ProteinFeature> features) {
+        this.accession = accession;
         this.position = position;
         this.reference = reference;
         this.alternate = alternate;
-        this.uniprotVariantId = uniprotVariantId;
+        this.variantId = variantId;
         this.functionalDescription = functionalDescription;
-        this.proteinSubstitutionScores = proteinSubstitutionScores;
-        this.uniprotKeywords = uniprotKeywords;
-        this.proteinFeatureList = proteinFeatureList;
+        this.substitutionScores = substitutionScores;
+        this.keywords = keywords;
+        this.features = features;
     }
 
-    public String getUniprotProteinAccession() {
-        return uniprotProteinAccession;
+    public String getAccession() {
+        return accession;
     }
 
-    public void setUniprotProteinAccession(String uniprotProteinAccession) {
-        this.uniprotProteinAccession = uniprotProteinAccession;
+    public void setAccession(String accession) {
+        this.accession = accession;
     }
 
     public int getPosition() {
@@ -74,12 +74,12 @@ public class ProteinVariantAnnotation {
         this.alternate = alternate;
     }
 
-    public String getUniprotVariantId() {
-        return uniprotVariantId;
+    public String getVariantId() {
+        return variantId;
     }
 
-    public void setUniprotVariantId(String uniprotVariantId) {
-        this.uniprotVariantId = uniprotVariantId;
+    public void setVariantId(String variantId) {
+        this.variantId = variantId;
     }
 
     public String getFunctionalDescription() {
@@ -90,48 +90,48 @@ public class ProteinVariantAnnotation {
         this.functionalDescription = functionalDescription;
     }
 
-    public List<Score> getProteinSubstitutionScores() {
-        return proteinSubstitutionScores;
+    public List<Score> getSubstitutionScores() {
+        return substitutionScores;
     }
 
-    public void setProteinSubstitutionScores(List<Score> proteinSubstitutionScores) {
-        this.proteinSubstitutionScores = proteinSubstitutionScores;
+    public void setSubstitutionScores(List<Score> substitutionScores) {
+        this.substitutionScores = substitutionScores;
     }
 
-    public void addProteinSubstitutionScore(Score score) {
-        if (this.proteinSubstitutionScores == null) {
-            proteinSubstitutionScores = new ArrayList<>();
+    public void addSubstitutionScore(Score score) {
+        if (this.substitutionScores == null) {
+            substitutionScores = new ArrayList<>();
         }
-        proteinSubstitutionScores.add(score);
+        substitutionScores.add(score);
     }
 
-    public List<String> getUniprotKeywords() {
-        return uniprotKeywords;
+    public List<String> getKeywords() {
+        return keywords;
     }
 
-    public void setUniprotKeywords(List<String> uniprotKeywords) {
-        this.uniprotKeywords = uniprotKeywords;
+    public void setKeywords(List<String> keywords) {
+        this.keywords = keywords;
     }
 
     public void addUniprotKeyword(String keyword) {
-        if(uniprotKeywords==null) {
-            uniprotKeywords = new ArrayList<>();
+        if (keywords == null) {
+            keywords = new ArrayList<>();
         }
-        uniprotKeywords.add(keyword);
+        keywords.add(keyword);
     }
 
-    public List<ProteinFeature> getProteinFeatureList() {
-        return proteinFeatureList;
+    public List<ProteinFeature> getFeatures() {
+        return features;
     }
 
-    public void setProteinFeatureList(List<ProteinFeature> proteinFeatureList) {
-        this.proteinFeatureList = proteinFeatureList;
+    public void setFeatures(List<ProteinFeature> features) {
+        this.features = features;
     }
 
     public void addProteinFeature(ProteinFeature proteinFeature) {
-        if(proteinFeatureList==null) {
-            proteinFeatureList = new ArrayList<>();
+        if(features ==null) {
+            features = new ArrayList<>();
         }
-        proteinFeatureList.add(proteinFeature);
+        features.add(proteinFeature);
     }
 }

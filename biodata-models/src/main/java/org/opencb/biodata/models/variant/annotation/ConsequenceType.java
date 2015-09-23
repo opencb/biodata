@@ -132,15 +132,15 @@ public class ConsequenceType {
 //        proteinVariantAnnotation.setAlternate(aaAlternate);
 //    }
 //
-//    public void setProteinSubstitutionScores(List<Score> proteinSubstitutionScores) {
+//    public void setSubstitutionScores(List<Score> proteinSubstitutionScores) {
 //        if(proteinVariantAnnotation==null) {
 //            proteinVariantAnnotation = new ProteinVariantAnnotation();
 //        }
-//        proteinVariantAnnotation.setProteinSubstitutionScores(proteinSubstitutionScores);
+//        proteinVariantAnnotation.setSubstitutionScores(proteinSubstitutionScores);
 //    }
 //
 //
-//    public void addProteinSubstitutionScore(Score score) {
+//    public void addSubstitutionScore(Score score) {
 //        if(proteinVariantAnnotation==null) {
 //            proteinVariantAnnotation = new ProteinVariantAnnotation();
 //        }
@@ -252,9 +252,9 @@ public class ConsequenceType {
 //        return defaultString;
 //    }
 //
-//    public List<Score> getProteinSubstitutionScores() {
+//    public List<Score> getSubstitutionScores() {
 //        if (proteinVariantAnnotation != null) {
-//            return proteinVariantAnnotation.getProteinSubstitutionScores();
+//            return proteinVariantAnnotation.getSubstitutionScores();
 //        }
 //        return null;
 //    }

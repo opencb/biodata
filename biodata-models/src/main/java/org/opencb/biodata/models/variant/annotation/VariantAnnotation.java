@@ -306,7 +306,7 @@ public class VariantAnnotation {
 //        return frequenciesBySuperPopulation.add(frequency);
 //    }
 
-//    public ProteinSubstitutionScores getProteinSubstitutionScores() {
+//    public ProteinSubstitutionScores getSubstitutionScores() {
 //        // TODO: broken compatibility with VariantPolyphenSIFTAnnotator. proteinSubstitutionScores is no longer within VariantAnnotation. Remove after compatibility is solved.
 //        return null;
 //    }
