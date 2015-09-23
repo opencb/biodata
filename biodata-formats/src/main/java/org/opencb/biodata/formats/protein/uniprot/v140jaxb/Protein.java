@@ -149,7 +149,7 @@ public class Protein {
      * <p/>
      * For example, to add a new item, do as follows:
      * <pre>
-     *    getAccession().add(newItem);
+     *    getUniprotAccession().add(newItem);
      * </pre>
      * <p/>
      * <p/>

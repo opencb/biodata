@@ -31,6 +31,7 @@ public class ExpressionValue {
     private String technologyPlatform;
     private Expression expression;
     private Float pvalue;
+    private String source;
 
     public ExpressionValue() { }
 

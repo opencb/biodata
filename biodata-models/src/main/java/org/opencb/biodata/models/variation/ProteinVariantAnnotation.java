@@ -11,11 +11,12 @@ import java.util.List;
  */
 public class ProteinVariantAnnotation {
 
-    private String accession;
+    private String uniprotAccession;
+    private String uniprotName;
     private int position;
     private String reference;
     private String alternate;
-    private String variantId;
+    private String uniprotVariantId;
     private String functionalDescription;
     private List<Score> substitutionScores = null;
     private List<String> keywords;
@@ -24,30 +25,42 @@ public class ProteinVariantAnnotation {
     public ProteinVariantAnnotation() {
     }
 
-    public ProteinVariantAnnotation(int aaPosition, String aaReference, String aaAlternate, List<Score> substitutionScores) {
-        this(null, aaPosition, aaReference, aaAlternate, null, null, substitutionScores, null, null);
+    public ProteinVariantAnnotation(int aaPosition, String aaReference, String aaAlternate,
+                                    List<Score> substitutionScores) {
+        this(null, null, aaPosition, aaReference, aaAlternate, null, null, substitutionScores, null, null);
 
     }
 
-    public ProteinVariantAnnotation(String accession, int position, String reference, String alternate, String variantId,
-                                    String functionalDescription, List<Score> substitutionScores, List<String> keywords, List<ProteinFeature> features) {
-        this.accession = accession;
+    public ProteinVariantAnnotation(String uniprotAccession, String uniprotName, int position, String reference,
+                                    String alternate, String uniprotVariantId, String functionalDescription,
+                                    List<Score> substitutionScores, List<String> keywords,
+                                    List<ProteinFeature> features) {
+        this.uniprotAccession = uniprotAccession;
+        this.uniprotName = uniprotName;
         this.position = position;
         this.reference = reference;
         this.alternate = alternate;
-        this.variantId = variantId;
+        this.uniprotVariantId = uniprotVariantId;
         this.functionalDescription = functionalDescription;
         this.substitutionScores = substitutionScores;
         this.keywords = keywords;
         this.features = features;
     }
 
-    public String getAccession() {
-        return accession;
+    public String getUniprotAccession() {
+        return uniprotAccession;
     }
 
-    public void setAccession(String accession) {
-        this.accession = accession;
+    public void setUniprotAccession(String uniprotAccession) {
+        this.uniprotAccession = uniprotAccession;
+    }
+
+    public String getUniprotName() {
+        return uniprotName;
+    }
+
+    public void setUniprotName(String uniprotName) {
+        this.uniprotName = uniprotName;
     }
 
     public int getPosition() {
@@ -74,12 +87,12 @@ public class ProteinVariantAnnotation {
         this.alternate = alternate;
     }
 
-    public String getVariantId() {
-        return variantId;
+    public String getUniprotVariantId() {
+        return uniprotVariantId;
     }
 
-    public void setVariantId(String variantId) {
-        this.variantId = variantId;
+    public void setUniprotVariantId(String uniprotVariantId) {
+        this.uniprotVariantId = uniprotVariantId;
     }
 
     public String getFunctionalDescription() {
