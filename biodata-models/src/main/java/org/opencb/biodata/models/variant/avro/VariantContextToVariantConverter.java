@@ -2,6 +2,7 @@ package org.opencb.biodata.models.variant.avro;
 
 
 import htsjdk.variant.variantcontext.*;
+import htsjdk.variant.vcf.VCFConstants;
 import htsjdk.variant.vcf.VCFFileReader;
 
 import java.io.BufferedWriter;
@@ -12,6 +13,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.apache.avro.file.CodecFactory;
 import org.apache.avro.file.DataFileReader;
@@ -127,7 +129,7 @@ public class VariantContextToVariantConverter {
 		/*
 		 * set id parameter
 		 */
-		String[] idsArray = variantContext.getID().split(",");
+		String[] idsArray = variantContext.getID().split(";");
 		List<CharSequence> ids = new ArrayList<>(idsArray.length);
 		for (String id : idsArray) {
 			//Do not need to store dot ID. It means that this variant does not have any ID
@@ -155,7 +157,7 @@ public class VariantContextToVariantConverter {
 		 * set secondary alternate
 		 */
 		List<CharSequence> secondaryAlternateAlleleList = new ArrayList<>();
-		if (alternateAllelString.split(";").length >= 2) {
+		if (alternateAllelString.split(",").length >= 2) {
 			secondaryAlternateAlleleList = getSecondaryAlternateAllele(alternateAllelString);
 
 		}
@@ -167,7 +169,9 @@ public class VariantContextToVariantConverter {
 		String[] str = ((LazyGenotypesContext) variantContext
 				.getGenotypes()).getUnparsedGenotypeData().toString()
 				.split("\t", 2);
-		variantSourceEntry.setFormat(str[0]);
+		String format = str[0];
+		variantSourceEntry.setFormat(format);
+		String[] formatFields = format.split(":");
 		/*
 		 * set sample data parameters Eg: GT:GQ:GQX:DP:DPF:AD
 		 * 1/1:63:29:22:7:0,22
@@ -178,8 +182,22 @@ public class VariantContextToVariantConverter {
 			htsjdk.variant.variantcontext.Genotype genotype = variantContext.getGenotype(sampleName);
 			HashMap<CharSequence, CharSequence> sampleData = new HashMap<>();
 
-			//TODO: Add rest of fields. Read from FORMAT column
-			sampleData.put("GT", genotype.getGenotypeString());
+			for (String formatField : formatFields) {
+				switch (formatField) {
+					case VCFConstants.GENOTYPE_KEY:
+						//TODO: Change from specific allele genotype to codified genotype (A/C -> 0/1)
+						sampleData.put(formatField, genotype.getGenotypeString()); break;
+					default:
+						Object attribute = genotype.getAnyAttribute(formatField);
+						if (attribute != null) {
+							if (attribute instanceof Collection) {
+								sampleData.put(formatField, ((List<Object>) attribute).stream().map(Object::toString).collect(Collectors.joining(",")));
+							} else {
+								sampleData.put(formatField, attribute.toString());
+							}
+						}
+				}
+			}
 
 			sampledataMap.put(sampleName, sampleData);
 		}
