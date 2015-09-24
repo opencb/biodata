@@ -155,7 +155,7 @@ public class VariantContextToVariantConverter {
 		 * set secondary alternate
 		 */
 		List<CharSequence> secondaryAlternateAlleleList = new ArrayList<>();
-		if (alternateAllelString.split(",").length >= 2) {
+		if (alternateAllelString.split(";").length >= 2) {
 			secondaryAlternateAlleleList = getSecondaryAlternateAllele(alternateAllelString);
 
 		}
@@ -173,22 +173,15 @@ public class VariantContextToVariantConverter {
 		 * 1/1:63:29:22:7:0,22
 		 */
 		Map<CharSequence, Map<CharSequence, CharSequence>> sampledataMap = new HashMap<CharSequence, Map<CharSequence, CharSequence>>();
-		Map<CharSequence, CharSequence> sampledata = new HashMap<CharSequence, CharSequence>();
-//		if (str[0].split(":").length == str[1].split(":").length) {
-//			sampledata = getSampleDataMap(str[0], str[1]);
-//		} else {
-//			// this case will never occur
-//			sampledata.put("error", "error"); //TODO: Throw exception
-//		}
-//		sampledataMap.put(variantContext.getSampleNames().toString(),
-//				sampledata);
+
 		for (String sampleName : variantContext.getSampleNames()) {
 			htsjdk.variant.variantcontext.Genotype genotype = variantContext.getGenotype(sampleName);
-			HashMap<String, String> sampleData = new HashMap<>();
+			HashMap<CharSequence, CharSequence> sampleData = new HashMap<>();
 
 			//TODO: Add rest of fields. Read from FORMAT column
 			sampleData.put("GT", genotype.getGenotypeString());
-			sampledataMap.put(sampleName, sampledata);
+
+			sampledataMap.put(sampleName, sampleData);
 		}
 
 
