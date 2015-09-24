@@ -347,7 +347,7 @@ public class VariantContextToVariantConverter {
 		/*
 		 * set AlternateAllele parameter
 		 */
-		variantAnnotation.setAlternateAllele(null);		
+		variantAnnotation.setAlternate(null);
 		/*
 		 * set CaddScore list type parameter
 		 */
@@ -356,8 +356,8 @@ public class VariantContextToVariantConverter {
 		/*caddScore.setCScore(null);
 		caddScore.setRawScore(null);
 		caddScore.setTranscriptId(null);*/
-		caddScoreList.add(caddScore);
-		variantAnnotation.setCaddScore(caddScoreList);		
+//		caddScoreList.add(caddScore);
+//		variantAnnotation.setCaddScore(caddScoreList);
 		/*
 		 * set Chromosome parameter
 		 */
@@ -367,7 +367,7 @@ public class VariantContextToVariantConverter {
 		 */
 		Map<CharSequence, CharSequence> clinicalMap = new HashMap<>();
 		//clinicalMap.put(null, null);
-		variantAnnotation.setClinical(clinicalMap);		
+		variantAnnotation.setVariantTraitAssociation(clinicalMap);
 		/*
 		 * set ConsequenceTypes list type parameter
 		 */
@@ -381,7 +381,7 @@ public class VariantContextToVariantConverter {
 		score.setScore(null);
 		score.setSource(null);	*/
 		conservationScoreList.add(score);
-		variantAnnotation.setConservationScores(conservationScoreList);
+		variantAnnotation.setConservation(conservationScoreList);
 
 		variantAnnotation.setEnd(0);		
 		/*
@@ -405,7 +405,7 @@ public class VariantContextToVariantConverter {
 		 */
 		variantAnnotation.setPopulationFrequencies(setPopulationFrequencyParams());
 
-		variantAnnotation.setReferenceAllele(null);
+		variantAnnotation.setReference(null);
 		variantAnnotation.setStart(0);		
 		/*
 		 * set Xref list type parameter

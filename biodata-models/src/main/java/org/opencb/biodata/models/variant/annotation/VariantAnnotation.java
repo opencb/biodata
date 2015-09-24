@@ -16,40 +16,26 @@
 
 package org.opencb.biodata.models.variant.annotation;
 
-
 import org.opencb.biodata.models.variation.PopulationFrequency;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 
-/**
- * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
- * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
- */
 public class VariantAnnotation {
 
     private String chromosome;
-    
     private int start;
-    
     private int end;
-    
     private String reference;
-
     private String alternate;
-
     private String id;
-
     private List<Xref> xrefs;
-
     private List<String> hgvs;
-
     private List<ConsequenceType> consequenceTypes;
-
     private List<Score> conservation;
-
     private List<PopulationFrequency> populationFrequencies = null;
-
 //    private List<CaddScore> caddScores;
 
     private List<ExpressionValue> expressionValues;
@@ -58,15 +44,9 @@ public class VariantAnnotation {
 
     private Map<String, Object> additionalAttributes;
 
-    public VariantAnnotation() {
-        this(null, 0, 0, null);
-    }
 
-    public VariantAnnotation(String chromosome, int start, int end, String reference) {
-        this.chromosome = chromosome;
-        this.start = start;
-        this.end = end;
-        this.reference = reference;
+    public VariantAnnotation() {
+        this(null, 0, 0, null, null);
     }
 
     public VariantAnnotation(String chromosome, int start, int end, String reference, String alternate) {
@@ -166,7 +146,7 @@ public class VariantAnnotation {
     }
 
     public void addPopulationFrequency(PopulationFrequency populationFrequency) {
-        if(this.populationFrequencies==null) {
+        if (this.populationFrequencies == null) {
             this.populationFrequencies = new ArrayList<>();
         }
         this.populationFrequencies.add(populationFrequency);
@@ -180,13 +160,21 @@ public class VariantAnnotation {
 //        this.caddScores = caddScores;
 //    }
 
-    public List<GeneDrugInteraction> getGeneDrugInteraction() { return geneDrugInteraction; }
+    public List<GeneDrugInteraction> getGeneDrugInteraction() {
+        return geneDrugInteraction;
+    }
 
-    public void setGeneDrugInteraction(List<GeneDrugInteraction> geneDrugInteraction) { this.geneDrugInteraction = geneDrugInteraction; }
+    public void setGeneDrugInteraction(List<GeneDrugInteraction> geneDrugInteraction) {
+        this.geneDrugInteraction = geneDrugInteraction;
+    }
 
-    public List<ExpressionValue> getExpressionValues() { return expressionValues; }
+    public List<ExpressionValue> getExpressionValues() {
+        return expressionValues;
+    }
 
-    public void setExpressionValues(List<ExpressionValue> expressionValues) { this.expressionValues = expressionValues; }
+    public void setExpressionValues(List<ExpressionValue> expressionValues) {
+        this.expressionValues = expressionValues;
+    }
 
     public VariantTraitAssociation getVariantTraitAssociation() {
         return variantTraitAssociation;
@@ -204,9 +192,10 @@ public class VariantAnnotation {
         this.additionalAttributes = additionalAttributes;
     }
 
-
-    public void addEffect(String key, VariantEffect effect) {
-        // TODO: compatibility is broken with Variant object. We no longer want an effects attribute in VariantAnnotation
-    }
-
 }
+//    public void addEffect(String key, VariantEffect effect) {
+//        // TODO: compatibility is broken with Variant object. We no longer want an effects attribute in VariantAnnotation
+//    }
+
+
+
