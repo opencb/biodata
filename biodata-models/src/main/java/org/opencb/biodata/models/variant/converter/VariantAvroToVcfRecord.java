@@ -40,7 +40,7 @@ import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfSample;
  * @author Matthias Haimel mh719+git@cam.ac.uk
  *
  */
-public class VariantAvroToVcfRecord {
+public class VariantAvroToVcfRecord implements Converter<Variant,VcfRecord> {
 	
 //	private static final char STRING_JOIN_SEP = '~';
 	public static final String ATTRIBUTE_SRC = "src";
@@ -98,7 +98,8 @@ public class VariantAvroToVcfRecord {
 		
 		setVcfMeta(meta);
 	}
-
+	
+	@Override
 	public VcfRecord convert(Variant variant) {
 		return convert(variant,-1);
 	}
@@ -141,6 +142,8 @@ public class VariantAvroToVcfRecord {
 		List<String> infoValues = decodeInfoValues(attr,infoKeys);
 		if( ! isInfoDefault){
 			recordBuilder.addAllInfoKey(infoKeys);
+		} else {
+		    recordBuilder.addAllInfoKey(Arrays.asList(new String[]{}));
 		}
 		recordBuilder.addAllInfoValue(infoValues);
 

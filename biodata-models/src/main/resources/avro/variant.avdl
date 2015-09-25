@@ -2,6 +2,7 @@
  * Variant AVDL Model
  *  @author Kalyan;
  *  @author Pawan;  models.variant.avro
+ *  @author Matthias Haimel;
  */
  
  @namespace("org.opencb.biodata.models.variant.avro")
@@ -89,5 +90,15 @@ protocol Variants {
 		map<VariantSourceEntry> sourceEntries;
 		union {null, VariantAnnotation} annotation;
 		map<array<string>> hgvs;
+	}
+	
+	record VariantFileMetadata{
+   string fileId;
+   string studyId;
+	 union { null, string } filename = null;
+	 union { null, string } studyName = null;
+	 array<string> samples = [];
+	 map<string> metadata;
+	
 	}
 }
