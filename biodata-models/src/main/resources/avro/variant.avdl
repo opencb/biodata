@@ -11,94 +11,103 @@ protocol Variants {
 
     import idl "variantAnnotation.avdl";
 
-  /* TODO: Check variant types */
-  enum VariantType {SNP, SNV, MNP, MNV, INDEL, SV, CNV,
+    enum VariantType {
+        SNP,
+        SNV,
+        MNP,
+        MNV,
+        INDEL,
+        SV,
+        CNV,
         NO_VARIATION,
         SYMBOLIC,
         MIXED}
-  enum AllelesCode {ALLELES_OK, ALLELES_MISSING, MULTIPLE_ALTERNATES, HAPLOID}
 
-  
-	record VariantHardyWeinbergStats { 
-		union { null, float } chi2;		
-		union { null, float } pValue;		
-		union { null, int } n;
-		union { null, int } n_AA_11;
-		union { null, int } n_Aa_10;
-		union { null, int } n_aa_00;		
-		union { null, float } e_AA_11;
-		union { null, float } e_Aa_10;
-		union { null, float } e_aa_00;
-		union { null, float } p;
-		union { null, float } q; 
-	
-	}
-  	
-	record VariantStats { 	
-		union { null, string } refAllele;
-		union { null, string } altAllele;
-		union { null, int } refAlleleCount;
-		union { null, int } altAlleleCount;
-		union { null, int } missingAlleles;		
-		union { null, int } missingGenotypes;		
-		union { null, float } refAlleleFreq;
-		union { null, float } altAlleleFreq;
-		union { null, float } maf;
-		union { null, float } mgf;		
-		union { null, string } mafAllele;
-		union { null, string } mgfGenotype;
-		union { null, boolean } passedFilters;
-		union { null, int } mendelianErrors;			
-		union { null, float } casesPercentDominant;
-		union { null, float } controlsPercentDominant;	
-		union { null, float } casesPercentRecessive;
-		union { null, float } controlsPercentRecessive;	
-		union { null, float } quality;
-		union { null, int } numSamples;					
-		VariantType variantType;
-		VariantHardyWeinbergStats hw;		
-	
-	}
-  
-	record VariantSourceEntry {   
-		union { null, string } fileId;	
-		union { null, string } studyId;	   
-		union { null, array<string> } secondaryAlternates = null;	
-		string format; 		
-		map<map<string>> samplesData;	
-		map<VariantStats> cohortStats;
-		map<string> attributes;
-	
-	}
-	
-	record Genotype { 
-		string reference; 
-		string alternate; 	   
-		array<int> allelesIdx =[];
-		boolean phased; 		 
-	}
+    enum AllelesCode {
+        ALLELES_OK,
+        ALLELES_MISSING,
+        MULTIPLE_ALTERNATES,
+        HAPLOID
+        }
 
-	record Variant{
-		array<string> ids = [];
-		string chromosome;
-		int start;
-		int end;
-		int length;
-		string reference;
-		string alternate;
-		VariantType variantType;
-		map<VariantSourceEntry> sourceEntries;
-		union {null, VariantAnnotation} annotation;
-		map<array<string>> hgvs;
-	}
-	
-	record VariantFileMetadata{
-   string fileId;
-   string studyId;
-	 union { null, string } filename = null;
-	 union { null, string } studyName = null;
-	 array<string> samples = [];
-	 map<string> metadata;
-	
-	}
+    record VariantHardyWeinbergStats {
+        union { null, float } chi2;
+        union { null, float } pValue;
+        union { null, int } n;
+        union { null, int } n_AA_11;
+        union { null, int } n_Aa_10;
+        union { null, int } n_aa_00;        
+        union { null, float } e_AA_11;
+        union { null, float } e_Aa_10;
+        union { null, float } e_aa_00;
+        union { null, float } p;
+        union { null, float } q;
+    }
+
+    record VariantStats {     
+        union { null, string } refAllele;
+        union { null, string } altAllele;
+        union { null, int } refAlleleCount;
+        union { null, int } altAlleleCount;
+        union { null, int } missingAlleles;        
+        union { null, int } missingGenotypes;        
+        union { null, float } refAlleleFreq;
+        union { null, float } altAlleleFreq;
+        union { null, float } maf;
+        union { null, float } mgf;        
+        union { null, string } mafAllele;
+        union { null, string } mgfGenotype;
+        union { null, boolean } passedFilters;
+        union { null, int } mendelianErrors;            
+        union { null, float } casesPercentDominant;
+        union { null, float } controlsPercentDominant;    
+        union { null, float } casesPercentRecessive;
+        union { null, float } controlsPercentRecessive;    
+        union { null, float } quality;
+        union { null, int } numSamples;                    
+        VariantType variantType;
+        VariantHardyWeinbergStats hw;        
+    
+    }
+  
+    record VariantSourceEntry {   
+        union { null, string } fileId;    
+        union { null, string } studyId;       
+        union { null, array<string> } secondaryAlternates = null;    
+        string format;         
+        map<map<string>> samplesData;    
+        map<VariantStats> cohortStats;
+        map<string> attributes;
+    
+    }
+    
+    record Genotype { 
+        string reference; 
+        string alternate;        
+        array<int> allelesIdx =[];
+        boolean phased;          
+    }
+
+    record Variant {
+        array<string> ids = [];
+        string chromosome;
+        int start;
+        int end;
+        int length;
+        string reference;
+        string alternate;
+        VariantType variantType;
+        map<VariantSourceEntry> studies;
+        union {null, VariantAnnotation} annotation;
+        map<array<string>> hgvs;
+    }
+    
+    record VariantFileMetadata {
+        string fileId;
+        string studyId;
+        union { null, string } filename = null;
+        union { null, string } studyName = null;
+        array<string> samples = [];
+        map<string> metadata;
+    }
 }

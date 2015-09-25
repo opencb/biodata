@@ -1,5 +1,20 @@
-package org.opencb.biodata.models.variant.avro;
+/*
+ * Copyright 2015 OpenCB
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
+package org.opencb.biodata.models.variant.avro;
 
 import htsjdk.variant.variantcontext.LazyGenotypesContext;
 import htsjdk.variant.variantcontext.VariantContext;
@@ -46,8 +61,7 @@ public class VariantContextToVariantConverter {
 	 * com.avroidl.service.IVariantHtsjdkVCFReader#readVCFFile(java.lang.String,
 	 * java.lang.String)
 	 */
-	public void readVCFFile(String vcfFilePath,
-			String outputAvroFilePath) throws IOException {
+	public void readVCFFile(String vcfFilePath, String outputAvroFilePath) throws IOException {
 
 		/*
 		 * VCF input file path
@@ -228,7 +242,7 @@ public class VariantContextToVariantConverter {
 		variantSourceEntry.setAttributes(attributeMapNew);
 		sourceEntry.put(studyId + "_" + fileId, variantSourceEntry);
 
-		variant.setSourceEntries(sourceEntry);
+		variant.setStudies(sourceEntry);
 
 		/*
 		 * set parameter for HGVS Putting hard coded values for time
@@ -636,7 +650,7 @@ public class VariantContextToVariantConverter {
 			String quality = "";
 			String sample = "";
 			String info = "";
-			for(Map.Entry<String, VariantSourceEntry> srcEntry: readAvro.getSourceEntries().entrySet()){
+			for(Map.Entry<String, VariantSourceEntry> srcEntry: readAvro.getStudies().entrySet()){
 				//get secondary alternate
 				secondaryAltList = srcEntry.getValue().getSecondaryAlternates();
 				for(String secAlt : secondaryAltList){
