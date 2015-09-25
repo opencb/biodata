@@ -7,19 +7,19 @@ package org.opencb.biodata.models.variant.avro;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"ConsequenceType\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"geneName\",\"type\":[\"null\",\"string\"]},{\"name\":\"ensemblGeneId\",\"type\":[\"null\",\"string\"]},{\"name\":\"ensemblTranscriptId\",\"type\":[\"null\",\"string\"]},{\"name\":\"strand\",\"type\":[\"null\",\"string\"]},{\"name\":\"biotype\",\"type\":[\"null\",\"string\"]},{\"name\":\"cDnaPosition\",\"type\":[\"null\",\"int\"]},{\"name\":\"cdsPosition\",\"type\":[\"null\",\"int\"]},{\"name\":\"aaPosition\",\"type\":[\"null\",\"int\"]},{\"name\":\"aaChange\",\"type\":[\"null\",\"string\"]},{\"name\":\"codon\",\"type\":[\"null\",\"string\"]},{\"name\":\"functionalDescription\",\"type\":[\"null\",\"string\"]},{\"name\":\"proteinSubstitutionScores\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Score\",\"fields\":[{\"name\":\"score\",\"type\":[\"null\",\"double\"]},{\"name\":\"source\",\"type\":[\"null\",\"string\"]},{\"name\":\"description\",\"type\":[\"null\",\"string\"]}]}}]},{\"name\":\"soTerms\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"ConsequenceTypeEntry\",\"fields\":[{\"name\":\"soName\",\"type\":[\"null\",\"string\"]},{\"name\":\"soAccession\",\"type\":[\"null\",\"string\"]}]}}]},{\"name\":\"expressionValues\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"ExpressionValue\",\"fields\":[{\"name\":\"experimentalFactor\",\"type\":[\"null\",\"string\"]},{\"name\":\"factorValue\",\"type\":[\"null\",\"string\"]},{\"name\":\"experimentId\",\"type\":[\"null\",\"string\"]},{\"name\":\"technologyPlatform\",\"type\":[\"null\",\"string\"]},{\"name\":\"expression\",\"type\":{\"type\":\"enum\",\"name\":\"Expression\",\"symbols\":[\"UP\",\"DOWN\"]}},{\"name\":\"pvalue\",\"type\":[\"null\",\"float\"]}]}}]}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"ConsequenceType\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"geneName\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"ensemblGeneId\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"ensemblTranscriptId\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"strand\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"biotype\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"cDnaPosition\",\"type\":[\"null\",\"int\"]},{\"name\":\"cdsPosition\",\"type\":[\"null\",\"int\"]},{\"name\":\"aaPosition\",\"type\":[\"null\",\"int\"]},{\"name\":\"aaChange\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"codon\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"functionalDescription\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"proteinSubstitutionScores\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Score\",\"fields\":[{\"name\":\"score\",\"type\":[\"null\",\"double\"]},{\"name\":\"source\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"description\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]}]}}]},{\"name\":\"soTerms\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"ConsequenceTypeEntry\",\"fields\":[{\"name\":\"soName\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"soAccession\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]}]}}]},{\"name\":\"expressionValues\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"ExpressionValue\",\"fields\":[{\"name\":\"experimentalFactor\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"factorValue\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"experimentId\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"technologyPlatform\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"expression\",\"type\":{\"type\":\"enum\",\"name\":\"Expression\",\"symbols\":[\"UP\",\"DOWN\"]}},{\"name\":\"pvalue\",\"type\":[\"null\",\"float\"]}]}}]}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
-   private java.lang.CharSequence geneName;
-   private java.lang.CharSequence ensemblGeneId;
-   private java.lang.CharSequence ensemblTranscriptId;
-   private java.lang.CharSequence strand;
-   private java.lang.CharSequence biotype;
+   private java.lang.String geneName;
+   private java.lang.String ensemblGeneId;
+   private java.lang.String ensemblTranscriptId;
+   private java.lang.String strand;
+   private java.lang.String biotype;
    private java.lang.Integer cDnaPosition;
    private java.lang.Integer cdsPosition;
    private java.lang.Integer aaPosition;
-   private java.lang.CharSequence aaChange;
-   private java.lang.CharSequence codon;
-   private java.lang.CharSequence functionalDescription;
+   private java.lang.String aaChange;
+   private java.lang.String codon;
+   private java.lang.String functionalDescription;
    private java.util.List<org.opencb.biodata.models.variant.avro.Score> proteinSubstitutionScores;
    private java.util.List<org.opencb.biodata.models.variant.avro.ConsequenceTypeEntry> soTerms;
    private java.util.List<org.opencb.biodata.models.variant.avro.ExpressionValue> expressionValues;
@@ -34,7 +34,7 @@ public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase
   /**
    * All-args constructor.
    */
-  public ConsequenceType(java.lang.CharSequence geneName, java.lang.CharSequence ensemblGeneId, java.lang.CharSequence ensemblTranscriptId, java.lang.CharSequence strand, java.lang.CharSequence biotype, java.lang.Integer cDnaPosition, java.lang.Integer cdsPosition, java.lang.Integer aaPosition, java.lang.CharSequence aaChange, java.lang.CharSequence codon, java.lang.CharSequence functionalDescription, java.util.List<org.opencb.biodata.models.variant.avro.Score> proteinSubstitutionScores, java.util.List<org.opencb.biodata.models.variant.avro.ConsequenceTypeEntry> soTerms, java.util.List<org.opencb.biodata.models.variant.avro.ExpressionValue> expressionValues) {
+  public ConsequenceType(java.lang.String geneName, java.lang.String ensemblGeneId, java.lang.String ensemblTranscriptId, java.lang.String strand, java.lang.String biotype, java.lang.Integer cDnaPosition, java.lang.Integer cdsPosition, java.lang.Integer aaPosition, java.lang.String aaChange, java.lang.String codon, java.lang.String functionalDescription, java.util.List<org.opencb.biodata.models.variant.avro.Score> proteinSubstitutionScores, java.util.List<org.opencb.biodata.models.variant.avro.ConsequenceTypeEntry> soTerms, java.util.List<org.opencb.biodata.models.variant.avro.ExpressionValue> expressionValues) {
     this.geneName = geneName;
     this.ensemblGeneId = ensemblGeneId;
     this.ensemblTranscriptId = ensemblTranscriptId;
@@ -76,17 +76,17 @@ public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase
   @SuppressWarnings(value="unchecked")
   public void put(int field$, java.lang.Object value$) {
     switch (field$) {
-    case 0: geneName = (java.lang.CharSequence)value$; break;
-    case 1: ensemblGeneId = (java.lang.CharSequence)value$; break;
-    case 2: ensemblTranscriptId = (java.lang.CharSequence)value$; break;
-    case 3: strand = (java.lang.CharSequence)value$; break;
-    case 4: biotype = (java.lang.CharSequence)value$; break;
+    case 0: geneName = (java.lang.String)value$; break;
+    case 1: ensemblGeneId = (java.lang.String)value$; break;
+    case 2: ensemblTranscriptId = (java.lang.String)value$; break;
+    case 3: strand = (java.lang.String)value$; break;
+    case 4: biotype = (java.lang.String)value$; break;
     case 5: cDnaPosition = (java.lang.Integer)value$; break;
     case 6: cdsPosition = (java.lang.Integer)value$; break;
     case 7: aaPosition = (java.lang.Integer)value$; break;
-    case 8: aaChange = (java.lang.CharSequence)value$; break;
-    case 9: codon = (java.lang.CharSequence)value$; break;
-    case 10: functionalDescription = (java.lang.CharSequence)value$; break;
+    case 8: aaChange = (java.lang.String)value$; break;
+    case 9: codon = (java.lang.String)value$; break;
+    case 10: functionalDescription = (java.lang.String)value$; break;
     case 11: proteinSubstitutionScores = (java.util.List<org.opencb.biodata.models.variant.avro.Score>)value$; break;
     case 12: soTerms = (java.util.List<org.opencb.biodata.models.variant.avro.ConsequenceTypeEntry>)value$; break;
     case 13: expressionValues = (java.util.List<org.opencb.biodata.models.variant.avro.ExpressionValue>)value$; break;
@@ -97,7 +97,7 @@ public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase
   /**
    * Gets the value of the 'geneName' field.
    */
-  public java.lang.CharSequence getGeneName() {
+  public java.lang.String getGeneName() {
     return geneName;
   }
 
@@ -105,14 +105,14 @@ public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase
    * Sets the value of the 'geneName' field.
    * @param value the value to set.
    */
-  public void setGeneName(java.lang.CharSequence value) {
+  public void setGeneName(java.lang.String value) {
     this.geneName = value;
   }
 
   /**
    * Gets the value of the 'ensemblGeneId' field.
    */
-  public java.lang.CharSequence getEnsemblGeneId() {
+  public java.lang.String getEnsemblGeneId() {
     return ensemblGeneId;
   }
 
@@ -120,14 +120,14 @@ public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase
    * Sets the value of the 'ensemblGeneId' field.
    * @param value the value to set.
    */
-  public void setEnsemblGeneId(java.lang.CharSequence value) {
+  public void setEnsemblGeneId(java.lang.String value) {
     this.ensemblGeneId = value;
   }
 
   /**
    * Gets the value of the 'ensemblTranscriptId' field.
    */
-  public java.lang.CharSequence getEnsemblTranscriptId() {
+  public java.lang.String getEnsemblTranscriptId() {
     return ensemblTranscriptId;
   }
 
@@ -135,14 +135,14 @@ public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase
    * Sets the value of the 'ensemblTranscriptId' field.
    * @param value the value to set.
    */
-  public void setEnsemblTranscriptId(java.lang.CharSequence value) {
+  public void setEnsemblTranscriptId(java.lang.String value) {
     this.ensemblTranscriptId = value;
   }
 
   /**
    * Gets the value of the 'strand' field.
    */
-  public java.lang.CharSequence getStrand() {
+  public java.lang.String getStrand() {
     return strand;
   }
 
@@ -150,14 +150,14 @@ public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase
    * Sets the value of the 'strand' field.
    * @param value the value to set.
    */
-  public void setStrand(java.lang.CharSequence value) {
+  public void setStrand(java.lang.String value) {
     this.strand = value;
   }
 
   /**
    * Gets the value of the 'biotype' field.
    */
-  public java.lang.CharSequence getBiotype() {
+  public java.lang.String getBiotype() {
     return biotype;
   }
 
@@ -165,7 +165,7 @@ public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase
    * Sets the value of the 'biotype' field.
    * @param value the value to set.
    */
-  public void setBiotype(java.lang.CharSequence value) {
+  public void setBiotype(java.lang.String value) {
     this.biotype = value;
   }
 
@@ -217,7 +217,7 @@ public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase
   /**
    * Gets the value of the 'aaChange' field.
    */
-  public java.lang.CharSequence getAaChange() {
+  public java.lang.String getAaChange() {
     return aaChange;
   }
 
@@ -225,14 +225,14 @@ public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase
    * Sets the value of the 'aaChange' field.
    * @param value the value to set.
    */
-  public void setAaChange(java.lang.CharSequence value) {
+  public void setAaChange(java.lang.String value) {
     this.aaChange = value;
   }
 
   /**
    * Gets the value of the 'codon' field.
    */
-  public java.lang.CharSequence getCodon() {
+  public java.lang.String getCodon() {
     return codon;
   }
 
@@ -240,14 +240,14 @@ public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase
    * Sets the value of the 'codon' field.
    * @param value the value to set.
    */
-  public void setCodon(java.lang.CharSequence value) {
+  public void setCodon(java.lang.String value) {
     this.codon = value;
   }
 
   /**
    * Gets the value of the 'functionalDescription' field.
    */
-  public java.lang.CharSequence getFunctionalDescription() {
+  public java.lang.String getFunctionalDescription() {
     return functionalDescription;
   }
 
@@ -255,7 +255,7 @@ public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase
    * Sets the value of the 'functionalDescription' field.
    * @param value the value to set.
    */
-  public void setFunctionalDescription(java.lang.CharSequence value) {
+  public void setFunctionalDescription(java.lang.String value) {
     this.functionalDescription = value;
   }
 
@@ -325,17 +325,17 @@ public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase
   public static class Builder extends org.apache.avro.specific.SpecificRecordBuilderBase<ConsequenceType>
     implements org.apache.avro.data.RecordBuilder<ConsequenceType> {
 
-    private java.lang.CharSequence geneName;
-    private java.lang.CharSequence ensemblGeneId;
-    private java.lang.CharSequence ensemblTranscriptId;
-    private java.lang.CharSequence strand;
-    private java.lang.CharSequence biotype;
+    private java.lang.String geneName;
+    private java.lang.String ensemblGeneId;
+    private java.lang.String ensemblTranscriptId;
+    private java.lang.String strand;
+    private java.lang.String biotype;
     private java.lang.Integer cDnaPosition;
     private java.lang.Integer cdsPosition;
     private java.lang.Integer aaPosition;
-    private java.lang.CharSequence aaChange;
-    private java.lang.CharSequence codon;
-    private java.lang.CharSequence functionalDescription;
+    private java.lang.String aaChange;
+    private java.lang.String codon;
+    private java.lang.String functionalDescription;
     private java.util.List<org.opencb.biodata.models.variant.avro.Score> proteinSubstitutionScores;
     private java.util.List<org.opencb.biodata.models.variant.avro.ConsequenceTypeEntry> soTerms;
     private java.util.List<org.opencb.biodata.models.variant.avro.ExpressionValue> expressionValues;
@@ -468,12 +468,12 @@ public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase
     }
 
     /** Gets the value of the 'geneName' field */
-    public java.lang.CharSequence getGeneName() {
+    public java.lang.String getGeneName() {
       return geneName;
     }
     
     /** Sets the value of the 'geneName' field */
-    public org.opencb.biodata.models.variant.avro.ConsequenceType.Builder setGeneName(java.lang.CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.ConsequenceType.Builder setGeneName(java.lang.String value) {
       validate(fields()[0], value);
       this.geneName = value;
       fieldSetFlags()[0] = true;
@@ -493,12 +493,12 @@ public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase
     }
 
     /** Gets the value of the 'ensemblGeneId' field */
-    public java.lang.CharSequence getEnsemblGeneId() {
+    public java.lang.String getEnsemblGeneId() {
       return ensemblGeneId;
     }
     
     /** Sets the value of the 'ensemblGeneId' field */
-    public org.opencb.biodata.models.variant.avro.ConsequenceType.Builder setEnsemblGeneId(java.lang.CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.ConsequenceType.Builder setEnsemblGeneId(java.lang.String value) {
       validate(fields()[1], value);
       this.ensemblGeneId = value;
       fieldSetFlags()[1] = true;
@@ -518,12 +518,12 @@ public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase
     }
 
     /** Gets the value of the 'ensemblTranscriptId' field */
-    public java.lang.CharSequence getEnsemblTranscriptId() {
+    public java.lang.String getEnsemblTranscriptId() {
       return ensemblTranscriptId;
     }
     
     /** Sets the value of the 'ensemblTranscriptId' field */
-    public org.opencb.biodata.models.variant.avro.ConsequenceType.Builder setEnsemblTranscriptId(java.lang.CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.ConsequenceType.Builder setEnsemblTranscriptId(java.lang.String value) {
       validate(fields()[2], value);
       this.ensemblTranscriptId = value;
       fieldSetFlags()[2] = true;
@@ -543,12 +543,12 @@ public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase
     }
 
     /** Gets the value of the 'strand' field */
-    public java.lang.CharSequence getStrand() {
+    public java.lang.String getStrand() {
       return strand;
     }
     
     /** Sets the value of the 'strand' field */
-    public org.opencb.biodata.models.variant.avro.ConsequenceType.Builder setStrand(java.lang.CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.ConsequenceType.Builder setStrand(java.lang.String value) {
       validate(fields()[3], value);
       this.strand = value;
       fieldSetFlags()[3] = true;
@@ -568,12 +568,12 @@ public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase
     }
 
     /** Gets the value of the 'biotype' field */
-    public java.lang.CharSequence getBiotype() {
+    public java.lang.String getBiotype() {
       return biotype;
     }
     
     /** Sets the value of the 'biotype' field */
-    public org.opencb.biodata.models.variant.avro.ConsequenceType.Builder setBiotype(java.lang.CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.ConsequenceType.Builder setBiotype(java.lang.String value) {
       validate(fields()[4], value);
       this.biotype = value;
       fieldSetFlags()[4] = true;
@@ -668,12 +668,12 @@ public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase
     }
 
     /** Gets the value of the 'aaChange' field */
-    public java.lang.CharSequence getAaChange() {
+    public java.lang.String getAaChange() {
       return aaChange;
     }
     
     /** Sets the value of the 'aaChange' field */
-    public org.opencb.biodata.models.variant.avro.ConsequenceType.Builder setAaChange(java.lang.CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.ConsequenceType.Builder setAaChange(java.lang.String value) {
       validate(fields()[8], value);
       this.aaChange = value;
       fieldSetFlags()[8] = true;
@@ -693,12 +693,12 @@ public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase
     }
 
     /** Gets the value of the 'codon' field */
-    public java.lang.CharSequence getCodon() {
+    public java.lang.String getCodon() {
       return codon;
     }
     
     /** Sets the value of the 'codon' field */
-    public org.opencb.biodata.models.variant.avro.ConsequenceType.Builder setCodon(java.lang.CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.ConsequenceType.Builder setCodon(java.lang.String value) {
       validate(fields()[9], value);
       this.codon = value;
       fieldSetFlags()[9] = true;
@@ -718,12 +718,12 @@ public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase
     }
 
     /** Gets the value of the 'functionalDescription' field */
-    public java.lang.CharSequence getFunctionalDescription() {
+    public java.lang.String getFunctionalDescription() {
       return functionalDescription;
     }
     
     /** Sets the value of the 'functionalDescription' field */
-    public org.opencb.biodata.models.variant.avro.ConsequenceType.Builder setFunctionalDescription(java.lang.CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.ConsequenceType.Builder setFunctionalDescription(java.lang.String value) {
       validate(fields()[10], value);
       this.functionalDescription = value;
       fieldSetFlags()[10] = true;
@@ -821,17 +821,17 @@ public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase
     public ConsequenceType build() {
       try {
         ConsequenceType record = new ConsequenceType();
-        record.geneName = fieldSetFlags()[0] ? this.geneName : (java.lang.CharSequence) defaultValue(fields()[0]);
-        record.ensemblGeneId = fieldSetFlags()[1] ? this.ensemblGeneId : (java.lang.CharSequence) defaultValue(fields()[1]);
-        record.ensemblTranscriptId = fieldSetFlags()[2] ? this.ensemblTranscriptId : (java.lang.CharSequence) defaultValue(fields()[2]);
-        record.strand = fieldSetFlags()[3] ? this.strand : (java.lang.CharSequence) defaultValue(fields()[3]);
-        record.biotype = fieldSetFlags()[4] ? this.biotype : (java.lang.CharSequence) defaultValue(fields()[4]);
+        record.geneName = fieldSetFlags()[0] ? this.geneName : (java.lang.String) defaultValue(fields()[0]);
+        record.ensemblGeneId = fieldSetFlags()[1] ? this.ensemblGeneId : (java.lang.String) defaultValue(fields()[1]);
+        record.ensemblTranscriptId = fieldSetFlags()[2] ? this.ensemblTranscriptId : (java.lang.String) defaultValue(fields()[2]);
+        record.strand = fieldSetFlags()[3] ? this.strand : (java.lang.String) defaultValue(fields()[3]);
+        record.biotype = fieldSetFlags()[4] ? this.biotype : (java.lang.String) defaultValue(fields()[4]);
         record.cDnaPosition = fieldSetFlags()[5] ? this.cDnaPosition : (java.lang.Integer) defaultValue(fields()[5]);
         record.cdsPosition = fieldSetFlags()[6] ? this.cdsPosition : (java.lang.Integer) defaultValue(fields()[6]);
         record.aaPosition = fieldSetFlags()[7] ? this.aaPosition : (java.lang.Integer) defaultValue(fields()[7]);
-        record.aaChange = fieldSetFlags()[8] ? this.aaChange : (java.lang.CharSequence) defaultValue(fields()[8]);
-        record.codon = fieldSetFlags()[9] ? this.codon : (java.lang.CharSequence) defaultValue(fields()[9]);
-        record.functionalDescription = fieldSetFlags()[10] ? this.functionalDescription : (java.lang.CharSequence) defaultValue(fields()[10]);
+        record.aaChange = fieldSetFlags()[8] ? this.aaChange : (java.lang.String) defaultValue(fields()[8]);
+        record.codon = fieldSetFlags()[9] ? this.codon : (java.lang.String) defaultValue(fields()[9]);
+        record.functionalDescription = fieldSetFlags()[10] ? this.functionalDescription : (java.lang.String) defaultValue(fields()[10]);
         record.proteinSubstitutionScores = fieldSetFlags()[11] ? this.proteinSubstitutionScores : (java.util.List<org.opencb.biodata.models.variant.avro.Score>) defaultValue(fields()[11]);
         record.soTerms = fieldSetFlags()[12] ? this.soTerms : (java.util.List<org.opencb.biodata.models.variant.avro.ConsequenceTypeEntry>) defaultValue(fields()[12]);
         record.expressionValues = fieldSetFlags()[13] ? this.expressionValues : (java.util.List<org.opencb.biodata.models.variant.avro.ExpressionValue>) defaultValue(fields()[13]);

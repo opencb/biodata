@@ -7,9 +7,9 @@ package org.opencb.biodata.models.variant.avro;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class CaddScore extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"CaddScore\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"transcriptId\",\"type\":[\"null\",\"string\"]},{\"name\":\"cScore\",\"type\":[\"null\",\"float\"]},{\"name\":\"rawScore\",\"type\":[\"null\",\"float\"]}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"CaddScore\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"transcriptId\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"cScore\",\"type\":[\"null\",\"float\"]},{\"name\":\"rawScore\",\"type\":[\"null\",\"float\"]}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
-   private java.lang.CharSequence transcriptId;
+   private java.lang.String transcriptId;
    private java.lang.Float cScore;
    private java.lang.Float rawScore;
 
@@ -23,7 +23,7 @@ public class CaddScore extends org.apache.avro.specific.SpecificRecordBase imple
   /**
    * All-args constructor.
    */
-  public CaddScore(java.lang.CharSequence transcriptId, java.lang.Float cScore, java.lang.Float rawScore) {
+  public CaddScore(java.lang.String transcriptId, java.lang.Float cScore, java.lang.Float rawScore) {
     this.transcriptId = transcriptId;
     this.cScore = cScore;
     this.rawScore = rawScore;
@@ -43,7 +43,7 @@ public class CaddScore extends org.apache.avro.specific.SpecificRecordBase imple
   @SuppressWarnings(value="unchecked")
   public void put(int field$, java.lang.Object value$) {
     switch (field$) {
-    case 0: transcriptId = (java.lang.CharSequence)value$; break;
+    case 0: transcriptId = (java.lang.String)value$; break;
     case 1: cScore = (java.lang.Float)value$; break;
     case 2: rawScore = (java.lang.Float)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
@@ -53,7 +53,7 @@ public class CaddScore extends org.apache.avro.specific.SpecificRecordBase imple
   /**
    * Gets the value of the 'transcriptId' field.
    */
-  public java.lang.CharSequence getTranscriptId() {
+  public java.lang.String getTranscriptId() {
     return transcriptId;
   }
 
@@ -61,7 +61,7 @@ public class CaddScore extends org.apache.avro.specific.SpecificRecordBase imple
    * Sets the value of the 'transcriptId' field.
    * @param value the value to set.
    */
-  public void setTranscriptId(java.lang.CharSequence value) {
+  public void setTranscriptId(java.lang.String value) {
     this.transcriptId = value;
   }
 
@@ -116,7 +116,7 @@ public class CaddScore extends org.apache.avro.specific.SpecificRecordBase imple
   public static class Builder extends org.apache.avro.specific.SpecificRecordBuilderBase<CaddScore>
     implements org.apache.avro.data.RecordBuilder<CaddScore> {
 
-    private java.lang.CharSequence transcriptId;
+    private java.lang.String transcriptId;
     private java.lang.Float cScore;
     private java.lang.Float rawScore;
 
@@ -160,12 +160,12 @@ public class CaddScore extends org.apache.avro.specific.SpecificRecordBase imple
     }
 
     /** Gets the value of the 'transcriptId' field */
-    public java.lang.CharSequence getTranscriptId() {
+    public java.lang.String getTranscriptId() {
       return transcriptId;
     }
     
     /** Sets the value of the 'transcriptId' field */
-    public org.opencb.biodata.models.variant.avro.CaddScore.Builder setTranscriptId(java.lang.CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.CaddScore.Builder setTranscriptId(java.lang.String value) {
       validate(fields()[0], value);
       this.transcriptId = value;
       fieldSetFlags()[0] = true;
@@ -238,7 +238,7 @@ public class CaddScore extends org.apache.avro.specific.SpecificRecordBase imple
     public CaddScore build() {
       try {
         CaddScore record = new CaddScore();
-        record.transcriptId = fieldSetFlags()[0] ? this.transcriptId : (java.lang.CharSequence) defaultValue(fields()[0]);
+        record.transcriptId = fieldSetFlags()[0] ? this.transcriptId : (java.lang.String) defaultValue(fields()[0]);
         record.cScore = fieldSetFlags()[1] ? this.cScore : (java.lang.Float) defaultValue(fields()[1]);
         record.rawScore = fieldSetFlags()[2] ? this.rawScore : (java.lang.Float) defaultValue(fields()[2]);
         return record;

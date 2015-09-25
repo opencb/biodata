@@ -7,14 +7,14 @@ package org.opencb.biodata.models.variant.avro;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"VariantFileMetadata\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"fileId\",\"type\":\"string\"},{\"name\":\"studyId\",\"type\":\"string\"},{\"name\":\"filename\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"studyName\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"samples\",\"type\":{\"type\":\"array\",\"items\":\"string\"},\"default\":[]},{\"name\":\"metadata\",\"type\":{\"type\":\"map\",\"values\":\"string\"}}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"VariantFileMetadata\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"fileId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"studyId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"filename\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}],\"default\":null},{\"name\":\"studyName\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}],\"default\":null},{\"name\":\"samples\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},\"default\":[]},{\"name\":\"metadata\",\"type\":{\"type\":\"map\",\"values\":{\"type\":\"string\",\"avro.java.string\":\"String\"},\"avro.java.string\":\"String\"}}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
-   private java.lang.CharSequence fileId;
-   private java.lang.CharSequence studyId;
-   private java.lang.CharSequence filename;
-   private java.lang.CharSequence studyName;
-   private java.util.List<java.lang.CharSequence> samples;
-   private java.util.Map<java.lang.CharSequence,java.lang.CharSequence> metadata;
+   private java.lang.String fileId;
+   private java.lang.String studyId;
+   private java.lang.String filename;
+   private java.lang.String studyName;
+   private java.util.List<java.lang.String> samples;
+   private java.util.Map<java.lang.String,java.lang.String> metadata;
 
   /**
    * Default constructor.  Note that this does not initialize fields
@@ -26,7 +26,7 @@ public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecord
   /**
    * All-args constructor.
    */
-  public VariantFileMetadata(java.lang.CharSequence fileId, java.lang.CharSequence studyId, java.lang.CharSequence filename, java.lang.CharSequence studyName, java.util.List<java.lang.CharSequence> samples, java.util.Map<java.lang.CharSequence,java.lang.CharSequence> metadata) {
+  public VariantFileMetadata(java.lang.String fileId, java.lang.String studyId, java.lang.String filename, java.lang.String studyName, java.util.List<java.lang.String> samples, java.util.Map<java.lang.String,java.lang.String> metadata) {
     this.fileId = fileId;
     this.studyId = studyId;
     this.filename = filename;
@@ -52,12 +52,12 @@ public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecord
   @SuppressWarnings(value="unchecked")
   public void put(int field$, java.lang.Object value$) {
     switch (field$) {
-    case 0: fileId = (java.lang.CharSequence)value$; break;
-    case 1: studyId = (java.lang.CharSequence)value$; break;
-    case 2: filename = (java.lang.CharSequence)value$; break;
-    case 3: studyName = (java.lang.CharSequence)value$; break;
-    case 4: samples = (java.util.List<java.lang.CharSequence>)value$; break;
-    case 5: metadata = (java.util.Map<java.lang.CharSequence,java.lang.CharSequence>)value$; break;
+    case 0: fileId = (java.lang.String)value$; break;
+    case 1: studyId = (java.lang.String)value$; break;
+    case 2: filename = (java.lang.String)value$; break;
+    case 3: studyName = (java.lang.String)value$; break;
+    case 4: samples = (java.util.List<java.lang.String>)value$; break;
+    case 5: metadata = (java.util.Map<java.lang.String,java.lang.String>)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -65,7 +65,7 @@ public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecord
   /**
    * Gets the value of the 'fileId' field.
    */
-  public java.lang.CharSequence getFileId() {
+  public java.lang.String getFileId() {
     return fileId;
   }
 
@@ -73,14 +73,14 @@ public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecord
    * Sets the value of the 'fileId' field.
    * @param value the value to set.
    */
-  public void setFileId(java.lang.CharSequence value) {
+  public void setFileId(java.lang.String value) {
     this.fileId = value;
   }
 
   /**
    * Gets the value of the 'studyId' field.
    */
-  public java.lang.CharSequence getStudyId() {
+  public java.lang.String getStudyId() {
     return studyId;
   }
 
@@ -88,14 +88,14 @@ public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecord
    * Sets the value of the 'studyId' field.
    * @param value the value to set.
    */
-  public void setStudyId(java.lang.CharSequence value) {
+  public void setStudyId(java.lang.String value) {
     this.studyId = value;
   }
 
   /**
    * Gets the value of the 'filename' field.
    */
-  public java.lang.CharSequence getFilename() {
+  public java.lang.String getFilename() {
     return filename;
   }
 
@@ -103,14 +103,14 @@ public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecord
    * Sets the value of the 'filename' field.
    * @param value the value to set.
    */
-  public void setFilename(java.lang.CharSequence value) {
+  public void setFilename(java.lang.String value) {
     this.filename = value;
   }
 
   /**
    * Gets the value of the 'studyName' field.
    */
-  public java.lang.CharSequence getStudyName() {
+  public java.lang.String getStudyName() {
     return studyName;
   }
 
@@ -118,14 +118,14 @@ public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecord
    * Sets the value of the 'studyName' field.
    * @param value the value to set.
    */
-  public void setStudyName(java.lang.CharSequence value) {
+  public void setStudyName(java.lang.String value) {
     this.studyName = value;
   }
 
   /**
    * Gets the value of the 'samples' field.
    */
-  public java.util.List<java.lang.CharSequence> getSamples() {
+  public java.util.List<java.lang.String> getSamples() {
     return samples;
   }
 
@@ -133,14 +133,14 @@ public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecord
    * Sets the value of the 'samples' field.
    * @param value the value to set.
    */
-  public void setSamples(java.util.List<java.lang.CharSequence> value) {
+  public void setSamples(java.util.List<java.lang.String> value) {
     this.samples = value;
   }
 
   /**
    * Gets the value of the 'metadata' field.
    */
-  public java.util.Map<java.lang.CharSequence,java.lang.CharSequence> getMetadata() {
+  public java.util.Map<java.lang.String,java.lang.String> getMetadata() {
     return metadata;
   }
 
@@ -148,7 +148,7 @@ public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecord
    * Sets the value of the 'metadata' field.
    * @param value the value to set.
    */
-  public void setMetadata(java.util.Map<java.lang.CharSequence,java.lang.CharSequence> value) {
+  public void setMetadata(java.util.Map<java.lang.String,java.lang.String> value) {
     this.metadata = value;
   }
 
@@ -173,12 +173,12 @@ public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecord
   public static class Builder extends org.apache.avro.specific.SpecificRecordBuilderBase<VariantFileMetadata>
     implements org.apache.avro.data.RecordBuilder<VariantFileMetadata> {
 
-    private java.lang.CharSequence fileId;
-    private java.lang.CharSequence studyId;
-    private java.lang.CharSequence filename;
-    private java.lang.CharSequence studyName;
-    private java.util.List<java.lang.CharSequence> samples;
-    private java.util.Map<java.lang.CharSequence,java.lang.CharSequence> metadata;
+    private java.lang.String fileId;
+    private java.lang.String studyId;
+    private java.lang.String filename;
+    private java.lang.String studyName;
+    private java.util.List<java.lang.String> samples;
+    private java.util.Map<java.lang.String,java.lang.String> metadata;
 
     /** Creates a new Builder */
     private Builder() {
@@ -244,12 +244,12 @@ public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecord
     }
 
     /** Gets the value of the 'fileId' field */
-    public java.lang.CharSequence getFileId() {
+    public java.lang.String getFileId() {
       return fileId;
     }
     
     /** Sets the value of the 'fileId' field */
-    public org.opencb.biodata.models.variant.avro.VariantFileMetadata.Builder setFileId(java.lang.CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.VariantFileMetadata.Builder setFileId(java.lang.String value) {
       validate(fields()[0], value);
       this.fileId = value;
       fieldSetFlags()[0] = true;
@@ -269,12 +269,12 @@ public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecord
     }
 
     /** Gets the value of the 'studyId' field */
-    public java.lang.CharSequence getStudyId() {
+    public java.lang.String getStudyId() {
       return studyId;
     }
     
     /** Sets the value of the 'studyId' field */
-    public org.opencb.biodata.models.variant.avro.VariantFileMetadata.Builder setStudyId(java.lang.CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.VariantFileMetadata.Builder setStudyId(java.lang.String value) {
       validate(fields()[1], value);
       this.studyId = value;
       fieldSetFlags()[1] = true;
@@ -294,12 +294,12 @@ public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecord
     }
 
     /** Gets the value of the 'filename' field */
-    public java.lang.CharSequence getFilename() {
+    public java.lang.String getFilename() {
       return filename;
     }
     
     /** Sets the value of the 'filename' field */
-    public org.opencb.biodata.models.variant.avro.VariantFileMetadata.Builder setFilename(java.lang.CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.VariantFileMetadata.Builder setFilename(java.lang.String value) {
       validate(fields()[2], value);
       this.filename = value;
       fieldSetFlags()[2] = true;
@@ -319,12 +319,12 @@ public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecord
     }
 
     /** Gets the value of the 'studyName' field */
-    public java.lang.CharSequence getStudyName() {
+    public java.lang.String getStudyName() {
       return studyName;
     }
     
     /** Sets the value of the 'studyName' field */
-    public org.opencb.biodata.models.variant.avro.VariantFileMetadata.Builder setStudyName(java.lang.CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.VariantFileMetadata.Builder setStudyName(java.lang.String value) {
       validate(fields()[3], value);
       this.studyName = value;
       fieldSetFlags()[3] = true;
@@ -344,12 +344,12 @@ public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecord
     }
 
     /** Gets the value of the 'samples' field */
-    public java.util.List<java.lang.CharSequence> getSamples() {
+    public java.util.List<java.lang.String> getSamples() {
       return samples;
     }
     
     /** Sets the value of the 'samples' field */
-    public org.opencb.biodata.models.variant.avro.VariantFileMetadata.Builder setSamples(java.util.List<java.lang.CharSequence> value) {
+    public org.opencb.biodata.models.variant.avro.VariantFileMetadata.Builder setSamples(java.util.List<java.lang.String> value) {
       validate(fields()[4], value);
       this.samples = value;
       fieldSetFlags()[4] = true;
@@ -369,12 +369,12 @@ public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecord
     }
 
     /** Gets the value of the 'metadata' field */
-    public java.util.Map<java.lang.CharSequence,java.lang.CharSequence> getMetadata() {
+    public java.util.Map<java.lang.String,java.lang.String> getMetadata() {
       return metadata;
     }
     
     /** Sets the value of the 'metadata' field */
-    public org.opencb.biodata.models.variant.avro.VariantFileMetadata.Builder setMetadata(java.util.Map<java.lang.CharSequence,java.lang.CharSequence> value) {
+    public org.opencb.biodata.models.variant.avro.VariantFileMetadata.Builder setMetadata(java.util.Map<java.lang.String,java.lang.String> value) {
       validate(fields()[5], value);
       this.metadata = value;
       fieldSetFlags()[5] = true;
@@ -397,12 +397,12 @@ public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecord
     public VariantFileMetadata build() {
       try {
         VariantFileMetadata record = new VariantFileMetadata();
-        record.fileId = fieldSetFlags()[0] ? this.fileId : (java.lang.CharSequence) defaultValue(fields()[0]);
-        record.studyId = fieldSetFlags()[1] ? this.studyId : (java.lang.CharSequence) defaultValue(fields()[1]);
-        record.filename = fieldSetFlags()[2] ? this.filename : (java.lang.CharSequence) defaultValue(fields()[2]);
-        record.studyName = fieldSetFlags()[3] ? this.studyName : (java.lang.CharSequence) defaultValue(fields()[3]);
-        record.samples = fieldSetFlags()[4] ? this.samples : (java.util.List<java.lang.CharSequence>) defaultValue(fields()[4]);
-        record.metadata = fieldSetFlags()[5] ? this.metadata : (java.util.Map<java.lang.CharSequence,java.lang.CharSequence>) defaultValue(fields()[5]);
+        record.fileId = fieldSetFlags()[0] ? this.fileId : (java.lang.String) defaultValue(fields()[0]);
+        record.studyId = fieldSetFlags()[1] ? this.studyId : (java.lang.String) defaultValue(fields()[1]);
+        record.filename = fieldSetFlags()[2] ? this.filename : (java.lang.String) defaultValue(fields()[2]);
+        record.studyName = fieldSetFlags()[3] ? this.studyName : (java.lang.String) defaultValue(fields()[3]);
+        record.samples = fieldSetFlags()[4] ? this.samples : (java.util.List<java.lang.String>) defaultValue(fields()[4]);
+        record.metadata = fieldSetFlags()[5] ? this.metadata : (java.util.Map<java.lang.String,java.lang.String>) defaultValue(fields()[5]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);

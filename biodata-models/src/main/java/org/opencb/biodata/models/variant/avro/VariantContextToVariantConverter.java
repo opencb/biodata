@@ -1,20 +1,10 @@
 package org.opencb.biodata.models.variant.avro;
 
 
-import htsjdk.variant.variantcontext.*;
+import htsjdk.variant.variantcontext.LazyGenotypesContext;
+import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFConstants;
 import htsjdk.variant.vcf.VCFFileReader;
-
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
-
 import org.apache.avro.file.CodecFactory;
 import org.apache.avro.file.DataFileReader;
 import org.apache.avro.file.DataFileWriter;
@@ -22,6 +12,11 @@ import org.apache.avro.io.DatumReader;
 import org.apache.avro.io.DatumWriter;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.avro.specific.SpecificDatumWriter;
+
+import java.io.*;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 
 /**
@@ -130,7 +125,7 @@ public class VariantContextToVariantConverter {
 		 * set id parameter
 		 */
 		String[] idsArray = variantContext.getID().split(";");
-		List<CharSequence> ids = new ArrayList<>(idsArray.length);
+		List<String> ids = new ArrayList<>(idsArray.length);
 		for (String id : idsArray) {
 			//Do not need to store dot ID. It means that this variant does not have any ID
 			if (!id.equals(".")) {
@@ -147,7 +142,7 @@ public class VariantContextToVariantConverter {
 		/*
 		 * set variantSourceEntry fields
 		 */
-		Map<CharSequence, VariantSourceEntry> sourceEntry = new HashMap<CharSequence, VariantSourceEntry>();
+		Map<String, VariantSourceEntry> sourceEntry = new HashMap<>();
 		VariantSourceEntry variantSourceEntry = new VariantSourceEntry();
 		// For time being setting the hard coded values for FileId and
 		// Study ID
@@ -156,7 +151,7 @@ public class VariantContextToVariantConverter {
 		/*
 		 * set secondary alternate
 		 */
-		List<CharSequence> secondaryAlternateAlleleList = new ArrayList<>();
+		List<String> secondaryAlternateAlleleList = new ArrayList<>();
 		if (alternateAllelString.split(",").length >= 2) {
 			secondaryAlternateAlleleList = getSecondaryAlternateAllele(alternateAllelString);
 
@@ -176,11 +171,11 @@ public class VariantContextToVariantConverter {
 		 * set sample data parameters Eg: GT:GQ:GQX:DP:DPF:AD
 		 * 1/1:63:29:22:7:0,22
 		 */
-		Map<CharSequence, Map<CharSequence, CharSequence>> sampledataMap = new HashMap<CharSequence, Map<CharSequence, CharSequence>>();
+		Map<String, Map<String, String>> sampledataMap = new HashMap<>();
 
 		for (String sampleName : variantContext.getSampleNames()) {
 			htsjdk.variant.variantcontext.Genotype genotype = variantContext.getGenotype(sampleName);
-			HashMap<CharSequence, CharSequence> sampleData = new HashMap<>();
+			HashMap<String, String> sampleData = new HashMap<>();
 
 			for (String formatField : formatFields) {
 				switch (formatField) {
@@ -213,7 +208,7 @@ public class VariantContextToVariantConverter {
 		 * being as these value will not be getting from HTSJDK
 		 * currently.
 		 */
-		Map<CharSequence, VariantStats> cohortStats = new HashMap<CharSequence, VariantStats>();
+		Map<String, VariantStats> cohortStats = new HashMap<>();
 		//TODO: Call to the Variant Aggregated Stats Parser
 //		cohortStats.put(
 //				"2",
@@ -225,7 +220,7 @@ public class VariantContextToVariantConverter {
 		 * set attribute fields. Putting hard coded values for time being
 		 * as these value will not be getting from HTSJDK currently.
 		 */
-		Map<CharSequence, CharSequence> attributeMapNew = new HashMap<CharSequence, CharSequence>();
+		Map<String, String> attributeMapNew = new HashMap<>();
 		Map<String, Object> attributeMap = variantContext.getAttributes();
 		for (Map.Entry<String, Object> attr : attributeMap.entrySet()) {
 			attributeMapNew.put(attr.getKey(), attr.getValue().toString());
@@ -240,9 +235,9 @@ public class VariantContextToVariantConverter {
 		 * being as these value will not be getting from HTSJDK
 		 * currently.
 		 */
-		Map<CharSequence, List<CharSequence>> hgvsMap = new HashMap<CharSequence, List<CharSequence>>();
+		Map<String, List<String>> hgvsMap = new HashMap<>();
 		//TODO: Add HGVS information
-		List<CharSequence> hgvsList = new ArrayList<CharSequence>();
+		List<String> hgvsList = new ArrayList<>();
 //		hgvsList.add("HGVS");
 //		hgvsMap.put("11", hgvsList);
 		variant.setHgvs(hgvsMap);
@@ -352,7 +347,7 @@ public class VariantContextToVariantConverter {
 		/*
 		 * set AdditionalAttributes map type parameter
 		 */
-		Map<CharSequence, CharSequence> additionalAttributesMap = new HashMap();
+		Map<String, String> additionalAttributesMap = new HashMap();
 		//additionalAttributesMap.put(null, null);
 		variantAnnotation.setAdditionalAttributes(additionalAttributesMap);		
 		/*
@@ -376,7 +371,7 @@ public class VariantContextToVariantConverter {
 		/*
 		 * set Clinical map type parameter
 		 */
-		Map<CharSequence, CharSequence> clinicalMap = new HashMap<>();
+		Map<String, String> clinicalMap = new HashMap<>();
 		//clinicalMap.put(null, null);
 		variantAnnotation.setVariantTraitAssociation(clinicalMap);
 		/*
@@ -398,15 +393,15 @@ public class VariantContextToVariantConverter {
 		/*
 		 * set GeneDrugInteraction map of list type parameter
 		 */
-		Map<CharSequence, List<CharSequence>> geneDrugInteractionMap = new HashMap<>();
-		List<CharSequence> geneDrugInteractionList = new ArrayList<>();
+		Map<String, List<String>> geneDrugInteractionMap = new HashMap<>();
+		List<String> geneDrugInteractionList = new ArrayList<>();
 		//geneDrugInteractionList.add("AAA");
 		//geneDrugInteractionMap.put("000", geneDrugInteractionList);		
 		variantAnnotation.setGeneDrugInteraction(geneDrugInteractionMap);		
 		/*
 		 * set Hgvs list type parameter
 		 */
-		List<CharSequence> hgvsList = new ArrayList<>();
+		List<String> hgvsList = new ArrayList<>();
 		//hgvsList.add(null);
 		variantAnnotation.setHgvs(hgvsList);
 
@@ -439,13 +434,13 @@ public class VariantContextToVariantConverter {
 	 * @param valueString
 	 * @return
 	 */
-	public static Map<CharSequence, CharSequence> getSampleDataMap(
+	public static Map<String, String> getSampleDataMap(
 			String keyString, String valueString) {
 
 		String keyArray[] = keyString.split(":");
 		String valueArray[] = valueString.split(":");
 
-		Map<CharSequence, CharSequence> sampleDataMap = new HashMap<CharSequence, CharSequence>();
+		Map<String, String> sampleDataMap = new HashMap<>();
 		for (int i = 0; i < keyArray.length; i++) {
 			sampleDataMap.put(keyArray[i], valueArray[i]);
 		}
@@ -481,16 +476,14 @@ public class VariantContextToVariantConverter {
 	 * @param secondaryAllele
 	 * @return secondaryAllelArrayList
 	 */
-	public static List<CharSequence> getSecondaryAlternateAllele(
-			String secondaryAllele) {
+	public static List<String> getSecondaryAlternateAllele(String secondaryAllele) {
 
-		CharSequence secondaryAllelArray[] = null;
-		StringBuffer secondaryAlleleString = new StringBuffer();
-		CharSequence secondaryAlleleArrayTemp[] = secondaryAllele.trim().split(",");
+		String secondaryAllelArray[] = null;
+		StringBuilder secondaryAlleleString = new StringBuilder();
+		String secondaryAlleleArrayTemp[] = secondaryAllele.trim().split(",");
 		if (secondaryAlleleArrayTemp.length >= 2) {
 			for (int i = 1; i < secondaryAlleleArrayTemp.length; i++) {
-				secondaryAlleleString.append(secondaryAlleleArrayTemp[i]
-						.toString().trim());
+				secondaryAlleleString.append(secondaryAlleleArrayTemp[i].trim());
 				secondaryAlleleString.append(",");
 			}
 		}
@@ -636,17 +629,17 @@ public class VariantContextToVariantConverter {
 			avroToVariantContextBean.setRef(readAvro.getReference().toString());
 
 			//get parameters from variant source entry
-			List<CharSequence> secondaryAltList = new ArrayList<CharSequence>();
+			List<String> secondaryAltList = new ArrayList<>();
 			String secondaryAlt = "";
 			String format = "";
 			String filter = "";
 			String quality = "";
 			String sample = "";
 			String info = "";
-			for(Map.Entry<CharSequence, VariantSourceEntry> srcEntry: readAvro.getSourceEntries().entrySet()){
+			for(Map.Entry<String, VariantSourceEntry> srcEntry: readAvro.getSourceEntries().entrySet()){
 				//get secondary alternate
 				secondaryAltList = srcEntry.getValue().getSecondaryAlternates();
-				for(CharSequence secAlt : secondaryAltList){
+				for(String secAlt : secondaryAltList){
 					if(secAlt.toString().equals("null")){
 						secondaryAlt = "";
 					}else{
@@ -656,7 +649,7 @@ public class VariantContextToVariantConverter {
 				//get format
 				format = srcEntry.getValue().getFormat().toString();
 				//get filter				
-				for(Entry<CharSequence, VariantStats> qual : srcEntry.getValue().getCohortStats().entrySet()){
+				for(Entry<String, VariantStats> qual : srcEntry.getValue().getCohortStats().entrySet()){
 					if(qual.getValue().getPassedFilters().toString().equals("true")){
 						filter = "Pass";
 					}else{
@@ -664,16 +657,16 @@ public class VariantContextToVariantConverter {
 					}
 				}
 				//get quality
-				for(Entry<CharSequence, VariantStats> qual : srcEntry.getValue().getCohortStats().entrySet()){
+				for(Entry<String, VariantStats> qual : srcEntry.getValue().getCohortStats().entrySet()){
 					quality = qual.getValue().getQuality().toString();
 				}
 				//get sample
-				for(Entry<CharSequence, Map<CharSequence, CharSequence>> smpl : srcEntry.getValue().getSamplesData().entrySet()){
+				for(Entry<String, Map<String, String>> smpl : srcEntry.getValue().getSamplesData().entrySet()){
 					sample = smpl.getValue().toString();
 				}
 				//get attributes
-				Map<CharSequence, CharSequence> attributeMap = srcEntry.getValue().getAttributes();
-				for(Map.Entry<CharSequence, CharSequence> attribute : attributeMap.entrySet()){
+				Map<String, String> attributeMap = srcEntry.getValue().getAttributes();
+				for(Map.Entry<String, String> attribute : attributeMap.entrySet()){
 					info += attribute.getKey()+"="+attribute.getValue()+";";
 					info=info.substring(0, info.length()-1);
 				}
@@ -703,9 +696,9 @@ public class VariantContextToVariantConverter {
 			/*
 			 * set id
 			 */
-			List<CharSequence> idList = readAvro.getIds();
+			List<String> idList = readAvro.getIds();
 			String ids = "";
-			for(CharSequence idStr : idList){
+			for(String idStr : idList){
 				ids=ids+idStr+",";
 			}
 			ids=ids.substring(0, ids.length()-1);

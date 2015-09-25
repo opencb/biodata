@@ -16,18 +16,6 @@
 
 package org.opencb.biodata.models.variant.converter;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
-
 import org.apache.commons.lang.StringUtils;
 import org.opencb.biodata.models.variant.avro.Variant;
 import org.opencb.biodata.models.variant.avro.VariantSourceEntry;
@@ -35,6 +23,14 @@ import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfMeta;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfRecord;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfRecord.Builder;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfSample;
+
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 /**
  * @author Matthias Haimel mh719+git@cam.ac.uk
@@ -113,7 +109,7 @@ public class VariantAvroToVcfRecord implements Converter<Variant,VcfRecord> {
 			.addAllIdNonDefault(decodeIds(variant.getIds())); 	
 		
 		/* Get Study (one only expected  */
-		Map<CharSequence, VariantSourceEntry> sourceEntries = variant.getSourceEntries();
+		Map<String, VariantSourceEntry> sourceEntries = variant.getSourceEntries();
 
 		if(null == sourceEntries || sourceEntries.size() == 0){
 			throw new UnsupportedOperationException(String.format("No Study found for variant: %s %s", variant.getChromosome(),variant.getStart()));
@@ -121,10 +117,10 @@ public class VariantAvroToVcfRecord implements Converter<Variant,VcfRecord> {
 		if(sourceEntries.size() > 1){
 			throw new UnsupportedOperationException(String.format("Only one Study supported - found %s studies instead!!!", sourceEntries.size()));
 		}
-		Entry<CharSequence, VariantSourceEntry> entry = sourceEntries.entrySet().iterator().next();
+		Entry<String, VariantSourceEntry> entry = sourceEntries.entrySet().iterator().next();
 		VariantSourceEntry study = entry.getValue();
 
-		Map<CharSequence, CharSequence> attr = study.getAttributes();
+		Map<String, String> attr = study.getAttributes();
 		/* Filter */
 		recordBuilder.setFilterNonDefault(decodeFilter(attr.remove(ATTRIBUTE_FILTER)));
 
@@ -188,19 +184,19 @@ public class VariantAvroToVcfRecord implements Converter<Variant,VcfRecord> {
 	}
 
 
-	private Iterable<String> decodeIds(List<CharSequence> ids) {
+	private Iterable<String> decodeIds(List<String> ids) {
 		// TODO check if "." are removed!!!
 		return ids.stream().map(x->x.toString()).collect(Collectors.toList());
 	}
 
-	private String decodeQual(CharSequence value) {
+	private String decodeQual(String value) {
 		if(null != value){
 			return value.toString();
 		}
 		return StringUtils.EMPTY;
 	}
 
-	private String decodeFilter(CharSequence filter) {
+	private String decodeFilter(String filter) {
 		if(null != filter){
 			return filter.toString();
 		}
@@ -208,7 +204,7 @@ public class VariantAvroToVcfRecord implements Converter<Variant,VcfRecord> {
 	}
 
 
-	private List<String> decodeInfoValues(Map<CharSequence, CharSequence> attr,	List<String> infoKeys) {
+	private List<String> decodeInfoValues(Map<String, String> attr,	List<String> infoKeys) {
 //		infoKeys.stream().map(x -> attr.get(x)).collect(Collectors.toList()); // not sure if order is protected
 		List<String> values = new ArrayList<String>(infoKeys.size());
 		for (String key : infoKeys){
@@ -222,7 +218,7 @@ public class VariantAvroToVcfRecord implements Converter<Variant,VcfRecord> {
 	 * @param attr {@link Map} of key-value info pairs
 	 * @return {@link List}
 	 */
-	private List<String> decodeInfoKeys(Map<CharSequence, CharSequence> attr) {
+	private List<String> decodeInfoKeys(Map<String, String> attr) {
 		// sorted key list
 		List<String> keyList = attr.keySet().stream().map(x -> x.toString()).sorted().collect(Collectors.toList());
 		return keyList;
@@ -247,17 +243,17 @@ public class VariantAvroToVcfRecord implements Converter<Variant,VcfRecord> {
 		return getDefaultFormatKeys().equals(keyList);
 	}
 	
-	public List<VcfSample> decodeSamples(List<String> formatLst, Map<CharSequence, Map<CharSequence, CharSequence>> samplesData) {
+	public List<VcfSample> decodeSamples(List<String> formatLst, Map<String, Map<String, String>> samplesData) {
 		List<String> samples = getSamples(); // samplesData.keySet()
-		List<VcfSample> ret = new ArrayList<VcfSample>(samples.size());
+		List<VcfSample> ret = new ArrayList<>(samples.size());
 		for(String s : samples){
-			Map<CharSequence, CharSequence> map = samplesData.get(s);
+			Map<String, String> map = samplesData.get(s);
 			ret.add(decodeSample(formatLst,map));
 		}
 		return ret;
 	}
 	
-	public VcfSample decodeSample(List<String> formatLst,Map<CharSequence, CharSequence> data){
+	public VcfSample decodeSample(List<String> formatLst,Map<String, String> data){
 		List<String> values = new ArrayList<String>(formatLst.size());
 		for(String f : formatLst){
 			values.add(data.getOrDefault(f, StringUtils.EMPTY).toString());

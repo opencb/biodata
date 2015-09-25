@@ -7,10 +7,10 @@ package org.opencb.biodata.models.variant.avro;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class VariantStats extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"VariantStats\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"refAllele\",\"type\":[\"null\",\"string\"]},{\"name\":\"altAllele\",\"type\":[\"null\",\"string\"]},{\"name\":\"refAlleleCount\",\"type\":[\"null\",\"int\"]},{\"name\":\"altAlleleCount\",\"type\":[\"null\",\"int\"]},{\"name\":\"missingAlleles\",\"type\":[\"null\",\"int\"]},{\"name\":\"missingGenotypes\",\"type\":[\"null\",\"int\"]},{\"name\":\"refAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"altAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"maf\",\"type\":[\"null\",\"float\"]},{\"name\":\"mgf\",\"type\":[\"null\",\"float\"]},{\"name\":\"mafAllele\",\"type\":[\"null\",\"string\"]},{\"name\":\"mgfGenotype\",\"type\":[\"null\",\"string\"]},{\"name\":\"passedFilters\",\"type\":[\"null\",\"boolean\"]},{\"name\":\"mendelianErrors\",\"type\":[\"null\",\"int\"]},{\"name\":\"casesPercentDominant\",\"type\":[\"null\",\"float\"]},{\"name\":\"controlsPercentDominant\",\"type\":[\"null\",\"float\"]},{\"name\":\"casesPercentRecessive\",\"type\":[\"null\",\"float\"]},{\"name\":\"controlsPercentRecessive\",\"type\":[\"null\",\"float\"]},{\"name\":\"quality\",\"type\":[\"null\",\"float\"]},{\"name\":\"numSamples\",\"type\":[\"null\",\"int\"]},{\"name\":\"variantType\",\"type\":{\"type\":\"enum\",\"name\":\"VariantType\",\"symbols\":[\"SNP\",\"SNV\",\"MNP\",\"MNV\",\"INDEL\",\"SV\",\"CNV\",\"NO_VARIATION\",\"SYMBOLIC\",\"MIXED\"]}},{\"name\":\"hw\",\"type\":{\"type\":\"record\",\"name\":\"VariantHardyWeinbergStats\",\"fields\":[{\"name\":\"chi2\",\"type\":[\"null\",\"float\"]},{\"name\":\"pValue\",\"type\":[\"null\",\"float\"]},{\"name\":\"n\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_AA_11\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_Aa_10\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_aa_00\",\"type\":[\"null\",\"int\"]},{\"name\":\"e_AA_11\",\"type\":[\"null\",\"float\"]},{\"name\":\"e_Aa_10\",\"type\":[\"null\",\"float\"]},{\"name\":\"e_aa_00\",\"type\":[\"null\",\"float\"]},{\"name\":\"p\",\"type\":[\"null\",\"float\"]},{\"name\":\"q\",\"type\":[\"null\",\"float\"]}]}}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"VariantStats\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"refAllele\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"altAllele\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"refAlleleCount\",\"type\":[\"null\",\"int\"]},{\"name\":\"altAlleleCount\",\"type\":[\"null\",\"int\"]},{\"name\":\"missingAlleles\",\"type\":[\"null\",\"int\"]},{\"name\":\"missingGenotypes\",\"type\":[\"null\",\"int\"]},{\"name\":\"refAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"altAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"maf\",\"type\":[\"null\",\"float\"]},{\"name\":\"mgf\",\"type\":[\"null\",\"float\"]},{\"name\":\"mafAllele\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"mgfGenotype\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"passedFilters\",\"type\":[\"null\",\"boolean\"]},{\"name\":\"mendelianErrors\",\"type\":[\"null\",\"int\"]},{\"name\":\"casesPercentDominant\",\"type\":[\"null\",\"float\"]},{\"name\":\"controlsPercentDominant\",\"type\":[\"null\",\"float\"]},{\"name\":\"casesPercentRecessive\",\"type\":[\"null\",\"float\"]},{\"name\":\"controlsPercentRecessive\",\"type\":[\"null\",\"float\"]},{\"name\":\"quality\",\"type\":[\"null\",\"float\"]},{\"name\":\"numSamples\",\"type\":[\"null\",\"int\"]},{\"name\":\"variantType\",\"type\":{\"type\":\"enum\",\"name\":\"VariantType\",\"symbols\":[\"SNP\",\"SNV\",\"MNP\",\"MNV\",\"INDEL\",\"SV\",\"CNV\",\"NO_VARIATION\",\"SYMBOLIC\",\"MIXED\"]}},{\"name\":\"hw\",\"type\":{\"type\":\"record\",\"name\":\"VariantHardyWeinbergStats\",\"fields\":[{\"name\":\"chi2\",\"type\":[\"null\",\"float\"]},{\"name\":\"pValue\",\"type\":[\"null\",\"float\"]},{\"name\":\"n\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_AA_11\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_Aa_10\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_aa_00\",\"type\":[\"null\",\"int\"]},{\"name\":\"e_AA_11\",\"type\":[\"null\",\"float\"]},{\"name\":\"e_Aa_10\",\"type\":[\"null\",\"float\"]},{\"name\":\"e_aa_00\",\"type\":[\"null\",\"float\"]},{\"name\":\"p\",\"type\":[\"null\",\"float\"]},{\"name\":\"q\",\"type\":[\"null\",\"float\"]}]}}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
-   private java.lang.CharSequence refAllele;
-   private java.lang.CharSequence altAllele;
+   private java.lang.String refAllele;
+   private java.lang.String altAllele;
    private java.lang.Integer refAlleleCount;
    private java.lang.Integer altAlleleCount;
    private java.lang.Integer missingAlleles;
@@ -19,8 +19,8 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
    private java.lang.Float altAlleleFreq;
    private java.lang.Float maf;
    private java.lang.Float mgf;
-   private java.lang.CharSequence mafAllele;
-   private java.lang.CharSequence mgfGenotype;
+   private java.lang.String mafAllele;
+   private java.lang.String mgfGenotype;
    private java.lang.Boolean passedFilters;
    private java.lang.Integer mendelianErrors;
    private java.lang.Float casesPercentDominant;
@@ -42,7 +42,7 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
   /**
    * All-args constructor.
    */
-  public VariantStats(java.lang.CharSequence refAllele, java.lang.CharSequence altAllele, java.lang.Integer refAlleleCount, java.lang.Integer altAlleleCount, java.lang.Integer missingAlleles, java.lang.Integer missingGenotypes, java.lang.Float refAlleleFreq, java.lang.Float altAlleleFreq, java.lang.Float maf, java.lang.Float mgf, java.lang.CharSequence mafAllele, java.lang.CharSequence mgfGenotype, java.lang.Boolean passedFilters, java.lang.Integer mendelianErrors, java.lang.Float casesPercentDominant, java.lang.Float controlsPercentDominant, java.lang.Float casesPercentRecessive, java.lang.Float controlsPercentRecessive, java.lang.Float quality, java.lang.Integer numSamples, org.opencb.biodata.models.variant.avro.VariantType variantType, org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats hw) {
+  public VariantStats(java.lang.String refAllele, java.lang.String altAllele, java.lang.Integer refAlleleCount, java.lang.Integer altAlleleCount, java.lang.Integer missingAlleles, java.lang.Integer missingGenotypes, java.lang.Float refAlleleFreq, java.lang.Float altAlleleFreq, java.lang.Float maf, java.lang.Float mgf, java.lang.String mafAllele, java.lang.String mgfGenotype, java.lang.Boolean passedFilters, java.lang.Integer mendelianErrors, java.lang.Float casesPercentDominant, java.lang.Float controlsPercentDominant, java.lang.Float casesPercentRecessive, java.lang.Float controlsPercentRecessive, java.lang.Float quality, java.lang.Integer numSamples, org.opencb.biodata.models.variant.avro.VariantType variantType, org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats hw) {
     this.refAllele = refAllele;
     this.altAllele = altAllele;
     this.refAlleleCount = refAlleleCount;
@@ -100,8 +100,8 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
   @SuppressWarnings(value="unchecked")
   public void put(int field$, java.lang.Object value$) {
     switch (field$) {
-    case 0: refAllele = (java.lang.CharSequence)value$; break;
-    case 1: altAllele = (java.lang.CharSequence)value$; break;
+    case 0: refAllele = (java.lang.String)value$; break;
+    case 1: altAllele = (java.lang.String)value$; break;
     case 2: refAlleleCount = (java.lang.Integer)value$; break;
     case 3: altAlleleCount = (java.lang.Integer)value$; break;
     case 4: missingAlleles = (java.lang.Integer)value$; break;
@@ -110,8 +110,8 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     case 7: altAlleleFreq = (java.lang.Float)value$; break;
     case 8: maf = (java.lang.Float)value$; break;
     case 9: mgf = (java.lang.Float)value$; break;
-    case 10: mafAllele = (java.lang.CharSequence)value$; break;
-    case 11: mgfGenotype = (java.lang.CharSequence)value$; break;
+    case 10: mafAllele = (java.lang.String)value$; break;
+    case 11: mgfGenotype = (java.lang.String)value$; break;
     case 12: passedFilters = (java.lang.Boolean)value$; break;
     case 13: mendelianErrors = (java.lang.Integer)value$; break;
     case 14: casesPercentDominant = (java.lang.Float)value$; break;
@@ -129,7 +129,7 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
   /**
    * Gets the value of the 'refAllele' field.
    */
-  public java.lang.CharSequence getRefAllele() {
+  public java.lang.String getRefAllele() {
     return refAllele;
   }
 
@@ -137,14 +137,14 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
    * Sets the value of the 'refAllele' field.
    * @param value the value to set.
    */
-  public void setRefAllele(java.lang.CharSequence value) {
+  public void setRefAllele(java.lang.String value) {
     this.refAllele = value;
   }
 
   /**
    * Gets the value of the 'altAllele' field.
    */
-  public java.lang.CharSequence getAltAllele() {
+  public java.lang.String getAltAllele() {
     return altAllele;
   }
 
@@ -152,7 +152,7 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
    * Sets the value of the 'altAllele' field.
    * @param value the value to set.
    */
-  public void setAltAllele(java.lang.CharSequence value) {
+  public void setAltAllele(java.lang.String value) {
     this.altAllele = value;
   }
 
@@ -279,7 +279,7 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
   /**
    * Gets the value of the 'mafAllele' field.
    */
-  public java.lang.CharSequence getMafAllele() {
+  public java.lang.String getMafAllele() {
     return mafAllele;
   }
 
@@ -287,14 +287,14 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
    * Sets the value of the 'mafAllele' field.
    * @param value the value to set.
    */
-  public void setMafAllele(java.lang.CharSequence value) {
+  public void setMafAllele(java.lang.String value) {
     this.mafAllele = value;
   }
 
   /**
    * Gets the value of the 'mgfGenotype' field.
    */
-  public java.lang.CharSequence getMgfGenotype() {
+  public java.lang.String getMgfGenotype() {
     return mgfGenotype;
   }
 
@@ -302,7 +302,7 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
    * Sets the value of the 'mgfGenotype' field.
    * @param value the value to set.
    */
-  public void setMgfGenotype(java.lang.CharSequence value) {
+  public void setMgfGenotype(java.lang.String value) {
     this.mgfGenotype = value;
   }
 
@@ -477,8 +477,8 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
   public static class Builder extends org.apache.avro.specific.SpecificRecordBuilderBase<VariantStats>
     implements org.apache.avro.data.RecordBuilder<VariantStats> {
 
-    private java.lang.CharSequence refAllele;
-    private java.lang.CharSequence altAllele;
+    private java.lang.String refAllele;
+    private java.lang.String altAllele;
     private java.lang.Integer refAlleleCount;
     private java.lang.Integer altAlleleCount;
     private java.lang.Integer missingAlleles;
@@ -487,8 +487,8 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     private java.lang.Float altAlleleFreq;
     private java.lang.Float maf;
     private java.lang.Float mgf;
-    private java.lang.CharSequence mafAllele;
-    private java.lang.CharSequence mgfGenotype;
+    private java.lang.String mafAllele;
+    private java.lang.String mgfGenotype;
     private java.lang.Boolean passedFilters;
     private java.lang.Integer mendelianErrors;
     private java.lang.Float casesPercentDominant;
@@ -692,12 +692,12 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     }
 
     /** Gets the value of the 'refAllele' field */
-    public java.lang.CharSequence getRefAllele() {
+    public java.lang.String getRefAllele() {
       return refAllele;
     }
     
     /** Sets the value of the 'refAllele' field */
-    public org.opencb.biodata.models.variant.avro.VariantStats.Builder setRefAllele(java.lang.CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder setRefAllele(java.lang.String value) {
       validate(fields()[0], value);
       this.refAllele = value;
       fieldSetFlags()[0] = true;
@@ -717,12 +717,12 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     }
 
     /** Gets the value of the 'altAllele' field */
-    public java.lang.CharSequence getAltAllele() {
+    public java.lang.String getAltAllele() {
       return altAllele;
     }
     
     /** Sets the value of the 'altAllele' field */
-    public org.opencb.biodata.models.variant.avro.VariantStats.Builder setAltAllele(java.lang.CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder setAltAllele(java.lang.String value) {
       validate(fields()[1], value);
       this.altAllele = value;
       fieldSetFlags()[1] = true;
@@ -942,12 +942,12 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     }
 
     /** Gets the value of the 'mafAllele' field */
-    public java.lang.CharSequence getMafAllele() {
+    public java.lang.String getMafAllele() {
       return mafAllele;
     }
     
     /** Sets the value of the 'mafAllele' field */
-    public org.opencb.biodata.models.variant.avro.VariantStats.Builder setMafAllele(java.lang.CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder setMafAllele(java.lang.String value) {
       validate(fields()[10], value);
       this.mafAllele = value;
       fieldSetFlags()[10] = true;
@@ -967,12 +967,12 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     }
 
     /** Gets the value of the 'mgfGenotype' field */
-    public java.lang.CharSequence getMgfGenotype() {
+    public java.lang.String getMgfGenotype() {
       return mgfGenotype;
     }
     
     /** Sets the value of the 'mgfGenotype' field */
-    public org.opencb.biodata.models.variant.avro.VariantStats.Builder setMgfGenotype(java.lang.CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder setMgfGenotype(java.lang.String value) {
       validate(fields()[11], value);
       this.mgfGenotype = value;
       fieldSetFlags()[11] = true;
@@ -1245,8 +1245,8 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     public VariantStats build() {
       try {
         VariantStats record = new VariantStats();
-        record.refAllele = fieldSetFlags()[0] ? this.refAllele : (java.lang.CharSequence) defaultValue(fields()[0]);
-        record.altAllele = fieldSetFlags()[1] ? this.altAllele : (java.lang.CharSequence) defaultValue(fields()[1]);
+        record.refAllele = fieldSetFlags()[0] ? this.refAllele : (java.lang.String) defaultValue(fields()[0]);
+        record.altAllele = fieldSetFlags()[1] ? this.altAllele : (java.lang.String) defaultValue(fields()[1]);
         record.refAlleleCount = fieldSetFlags()[2] ? this.refAlleleCount : (java.lang.Integer) defaultValue(fields()[2]);
         record.altAlleleCount = fieldSetFlags()[3] ? this.altAlleleCount : (java.lang.Integer) defaultValue(fields()[3]);
         record.missingAlleles = fieldSetFlags()[4] ? this.missingAlleles : (java.lang.Integer) defaultValue(fields()[4]);
@@ -1255,8 +1255,8 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
         record.altAlleleFreq = fieldSetFlags()[7] ? this.altAlleleFreq : (java.lang.Float) defaultValue(fields()[7]);
         record.maf = fieldSetFlags()[8] ? this.maf : (java.lang.Float) defaultValue(fields()[8]);
         record.mgf = fieldSetFlags()[9] ? this.mgf : (java.lang.Float) defaultValue(fields()[9]);
-        record.mafAllele = fieldSetFlags()[10] ? this.mafAllele : (java.lang.CharSequence) defaultValue(fields()[10]);
-        record.mgfGenotype = fieldSetFlags()[11] ? this.mgfGenotype : (java.lang.CharSequence) defaultValue(fields()[11]);
+        record.mafAllele = fieldSetFlags()[10] ? this.mafAllele : (java.lang.String) defaultValue(fields()[10]);
+        record.mgfGenotype = fieldSetFlags()[11] ? this.mgfGenotype : (java.lang.String) defaultValue(fields()[11]);
         record.passedFilters = fieldSetFlags()[12] ? this.passedFilters : (java.lang.Boolean) defaultValue(fields()[12]);
         record.mendelianErrors = fieldSetFlags()[13] ? this.mendelianErrors : (java.lang.Integer) defaultValue(fields()[13]);
         record.casesPercentDominant = fieldSetFlags()[14] ? this.casesPercentDominant : (java.lang.Float) defaultValue(fields()[14]);

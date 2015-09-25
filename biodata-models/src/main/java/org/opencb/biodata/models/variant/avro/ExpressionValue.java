@@ -7,12 +7,12 @@ package org.opencb.biodata.models.variant.avro;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class ExpressionValue extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"ExpressionValue\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"experimentalFactor\",\"type\":[\"null\",\"string\"]},{\"name\":\"factorValue\",\"type\":[\"null\",\"string\"]},{\"name\":\"experimentId\",\"type\":[\"null\",\"string\"]},{\"name\":\"technologyPlatform\",\"type\":[\"null\",\"string\"]},{\"name\":\"expression\",\"type\":{\"type\":\"enum\",\"name\":\"Expression\",\"symbols\":[\"UP\",\"DOWN\"]}},{\"name\":\"pvalue\",\"type\":[\"null\",\"float\"]}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"ExpressionValue\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"experimentalFactor\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"factorValue\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"experimentId\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"technologyPlatform\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"expression\",\"type\":{\"type\":\"enum\",\"name\":\"Expression\",\"symbols\":[\"UP\",\"DOWN\"]}},{\"name\":\"pvalue\",\"type\":[\"null\",\"float\"]}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
-   private java.lang.CharSequence experimentalFactor;
-   private java.lang.CharSequence factorValue;
-   private java.lang.CharSequence experimentId;
-   private java.lang.CharSequence technologyPlatform;
+   private java.lang.String experimentalFactor;
+   private java.lang.String factorValue;
+   private java.lang.String experimentId;
+   private java.lang.String technologyPlatform;
    private org.opencb.biodata.models.variant.avro.Expression expression;
    private java.lang.Float pvalue;
 
@@ -26,7 +26,7 @@ public class ExpressionValue extends org.apache.avro.specific.SpecificRecordBase
   /**
    * All-args constructor.
    */
-  public ExpressionValue(java.lang.CharSequence experimentalFactor, java.lang.CharSequence factorValue, java.lang.CharSequence experimentId, java.lang.CharSequence technologyPlatform, org.opencb.biodata.models.variant.avro.Expression expression, java.lang.Float pvalue) {
+  public ExpressionValue(java.lang.String experimentalFactor, java.lang.String factorValue, java.lang.String experimentId, java.lang.String technologyPlatform, org.opencb.biodata.models.variant.avro.Expression expression, java.lang.Float pvalue) {
     this.experimentalFactor = experimentalFactor;
     this.factorValue = factorValue;
     this.experimentId = experimentId;
@@ -52,10 +52,10 @@ public class ExpressionValue extends org.apache.avro.specific.SpecificRecordBase
   @SuppressWarnings(value="unchecked")
   public void put(int field$, java.lang.Object value$) {
     switch (field$) {
-    case 0: experimentalFactor = (java.lang.CharSequence)value$; break;
-    case 1: factorValue = (java.lang.CharSequence)value$; break;
-    case 2: experimentId = (java.lang.CharSequence)value$; break;
-    case 3: technologyPlatform = (java.lang.CharSequence)value$; break;
+    case 0: experimentalFactor = (java.lang.String)value$; break;
+    case 1: factorValue = (java.lang.String)value$; break;
+    case 2: experimentId = (java.lang.String)value$; break;
+    case 3: technologyPlatform = (java.lang.String)value$; break;
     case 4: expression = (org.opencb.biodata.models.variant.avro.Expression)value$; break;
     case 5: pvalue = (java.lang.Float)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
@@ -65,7 +65,7 @@ public class ExpressionValue extends org.apache.avro.specific.SpecificRecordBase
   /**
    * Gets the value of the 'experimentalFactor' field.
    */
-  public java.lang.CharSequence getExperimentalFactor() {
+  public java.lang.String getExperimentalFactor() {
     return experimentalFactor;
   }
 
@@ -73,14 +73,14 @@ public class ExpressionValue extends org.apache.avro.specific.SpecificRecordBase
    * Sets the value of the 'experimentalFactor' field.
    * @param value the value to set.
    */
-  public void setExperimentalFactor(java.lang.CharSequence value) {
+  public void setExperimentalFactor(java.lang.String value) {
     this.experimentalFactor = value;
   }
 
   /**
    * Gets the value of the 'factorValue' field.
    */
-  public java.lang.CharSequence getFactorValue() {
+  public java.lang.String getFactorValue() {
     return factorValue;
   }
 
@@ -88,14 +88,14 @@ public class ExpressionValue extends org.apache.avro.specific.SpecificRecordBase
    * Sets the value of the 'factorValue' field.
    * @param value the value to set.
    */
-  public void setFactorValue(java.lang.CharSequence value) {
+  public void setFactorValue(java.lang.String value) {
     this.factorValue = value;
   }
 
   /**
    * Gets the value of the 'experimentId' field.
    */
-  public java.lang.CharSequence getExperimentId() {
+  public java.lang.String getExperimentId() {
     return experimentId;
   }
 
@@ -103,14 +103,14 @@ public class ExpressionValue extends org.apache.avro.specific.SpecificRecordBase
    * Sets the value of the 'experimentId' field.
    * @param value the value to set.
    */
-  public void setExperimentId(java.lang.CharSequence value) {
+  public void setExperimentId(java.lang.String value) {
     this.experimentId = value;
   }
 
   /**
    * Gets the value of the 'technologyPlatform' field.
    */
-  public java.lang.CharSequence getTechnologyPlatform() {
+  public java.lang.String getTechnologyPlatform() {
     return technologyPlatform;
   }
 
@@ -118,7 +118,7 @@ public class ExpressionValue extends org.apache.avro.specific.SpecificRecordBase
    * Sets the value of the 'technologyPlatform' field.
    * @param value the value to set.
    */
-  public void setTechnologyPlatform(java.lang.CharSequence value) {
+  public void setTechnologyPlatform(java.lang.String value) {
     this.technologyPlatform = value;
   }
 
@@ -173,10 +173,10 @@ public class ExpressionValue extends org.apache.avro.specific.SpecificRecordBase
   public static class Builder extends org.apache.avro.specific.SpecificRecordBuilderBase<ExpressionValue>
     implements org.apache.avro.data.RecordBuilder<ExpressionValue> {
 
-    private java.lang.CharSequence experimentalFactor;
-    private java.lang.CharSequence factorValue;
-    private java.lang.CharSequence experimentId;
-    private java.lang.CharSequence technologyPlatform;
+    private java.lang.String experimentalFactor;
+    private java.lang.String factorValue;
+    private java.lang.String experimentId;
+    private java.lang.String technologyPlatform;
     private org.opencb.biodata.models.variant.avro.Expression expression;
     private java.lang.Float pvalue;
 
@@ -244,12 +244,12 @@ public class ExpressionValue extends org.apache.avro.specific.SpecificRecordBase
     }
 
     /** Gets the value of the 'experimentalFactor' field */
-    public java.lang.CharSequence getExperimentalFactor() {
+    public java.lang.String getExperimentalFactor() {
       return experimentalFactor;
     }
     
     /** Sets the value of the 'experimentalFactor' field */
-    public org.opencb.biodata.models.variant.avro.ExpressionValue.Builder setExperimentalFactor(java.lang.CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.ExpressionValue.Builder setExperimentalFactor(java.lang.String value) {
       validate(fields()[0], value);
       this.experimentalFactor = value;
       fieldSetFlags()[0] = true;
@@ -269,12 +269,12 @@ public class ExpressionValue extends org.apache.avro.specific.SpecificRecordBase
     }
 
     /** Gets the value of the 'factorValue' field */
-    public java.lang.CharSequence getFactorValue() {
+    public java.lang.String getFactorValue() {
       return factorValue;
     }
     
     /** Sets the value of the 'factorValue' field */
-    public org.opencb.biodata.models.variant.avro.ExpressionValue.Builder setFactorValue(java.lang.CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.ExpressionValue.Builder setFactorValue(java.lang.String value) {
       validate(fields()[1], value);
       this.factorValue = value;
       fieldSetFlags()[1] = true;
@@ -294,12 +294,12 @@ public class ExpressionValue extends org.apache.avro.specific.SpecificRecordBase
     }
 
     /** Gets the value of the 'experimentId' field */
-    public java.lang.CharSequence getExperimentId() {
+    public java.lang.String getExperimentId() {
       return experimentId;
     }
     
     /** Sets the value of the 'experimentId' field */
-    public org.opencb.biodata.models.variant.avro.ExpressionValue.Builder setExperimentId(java.lang.CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.ExpressionValue.Builder setExperimentId(java.lang.String value) {
       validate(fields()[2], value);
       this.experimentId = value;
       fieldSetFlags()[2] = true;
@@ -319,12 +319,12 @@ public class ExpressionValue extends org.apache.avro.specific.SpecificRecordBase
     }
 
     /** Gets the value of the 'technologyPlatform' field */
-    public java.lang.CharSequence getTechnologyPlatform() {
+    public java.lang.String getTechnologyPlatform() {
       return technologyPlatform;
     }
     
     /** Sets the value of the 'technologyPlatform' field */
-    public org.opencb.biodata.models.variant.avro.ExpressionValue.Builder setTechnologyPlatform(java.lang.CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.ExpressionValue.Builder setTechnologyPlatform(java.lang.String value) {
       validate(fields()[3], value);
       this.technologyPlatform = value;
       fieldSetFlags()[3] = true;
@@ -397,10 +397,10 @@ public class ExpressionValue extends org.apache.avro.specific.SpecificRecordBase
     public ExpressionValue build() {
       try {
         ExpressionValue record = new ExpressionValue();
-        record.experimentalFactor = fieldSetFlags()[0] ? this.experimentalFactor : (java.lang.CharSequence) defaultValue(fields()[0]);
-        record.factorValue = fieldSetFlags()[1] ? this.factorValue : (java.lang.CharSequence) defaultValue(fields()[1]);
-        record.experimentId = fieldSetFlags()[2] ? this.experimentId : (java.lang.CharSequence) defaultValue(fields()[2]);
-        record.technologyPlatform = fieldSetFlags()[3] ? this.technologyPlatform : (java.lang.CharSequence) defaultValue(fields()[3]);
+        record.experimentalFactor = fieldSetFlags()[0] ? this.experimentalFactor : (java.lang.String) defaultValue(fields()[0]);
+        record.factorValue = fieldSetFlags()[1] ? this.factorValue : (java.lang.String) defaultValue(fields()[1]);
+        record.experimentId = fieldSetFlags()[2] ? this.experimentId : (java.lang.String) defaultValue(fields()[2]);
+        record.technologyPlatform = fieldSetFlags()[3] ? this.technologyPlatform : (java.lang.String) defaultValue(fields()[3]);
         record.expression = fieldSetFlags()[4] ? this.expression : (org.opencb.biodata.models.variant.avro.Expression) defaultValue(fields()[4]);
         record.pvalue = fieldSetFlags()[5] ? this.pvalue : (java.lang.Float) defaultValue(fields()[5]);
         return record;

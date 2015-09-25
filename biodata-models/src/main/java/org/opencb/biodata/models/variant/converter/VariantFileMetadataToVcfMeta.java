@@ -46,15 +46,15 @@ public class VariantFileMetadataToVcfMeta implements Converter<VariantFileMetada
 
     private Map<String, String> getMap(VariantFileMetadata from) {
         Map<String, String> smap = new HashMap<String, String>();
-        Map<CharSequence, CharSequence> map = from.getMetadata();
+        Map<String, String> map = from.getMetadata();
         if(null != map){
             map.forEach((a,b) -> smap.put(a.toString(),b.toString()));
         }
         return smap;
     }
 
-    private Iterable<String> convert(Iterable<CharSequence> c){
-        List<String> lst = new ArrayList<String>();
+    private Iterable<String> convert(Iterable<String> c){
+        List<String> lst = new ArrayList<>();
         for(CharSequence cs : c){
             lst.add(cs.toString());
         }

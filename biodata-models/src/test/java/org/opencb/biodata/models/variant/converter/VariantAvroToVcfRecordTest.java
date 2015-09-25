@@ -35,7 +35,12 @@ public class VariantAvroToVcfRecordTest {
 		List<String> sampleList = Arrays.asList("Sample_03","Sample_01");
 
 		// Variant
-		String chr = "4"; int start = 1234565; int end = start+3; List<CharSequence> ids = Arrays.asList("id123","id432");String ref = "X"; String alt = "A";
+		String chr = "4";
+		int start = 1234565;
+		int end = start+3;
+		List<String> ids = Arrays.asList("id123","id432");
+		String ref = "X";
+		String alt = "A";
 		Variant v = createVariant(chr, start, end, ids,ref,alt);
 		
 		
@@ -50,11 +55,11 @@ public class VariantAvroToVcfRecordTest {
 						VariantAvroToVcfRecord.ATTRIBUTE_ORI+":ori-stuff",
 						VariantAvroToVcfRecord.ATTRIBUTE_QUAL+":"+qual,
 						VariantAvroToVcfRecord.ATTRIBUTE_FILTER+":"+filter));
-		study.setSamplesData(new HashMap<CharSequence, Map<CharSequence,CharSequence>>());
+		study.setSamplesData(new HashMap<String, Map<String,String>>());
 		study.getSamplesData().put(sampleList.get(0), buildMap("EF:ef","AB:sample_03"));
 		study.getSamplesData().put(sampleList.get(1), buildMap("EF:ef","AB:sample_01","CD:cd"));
 		
-		Map<CharSequence, VariantSourceEntry> studyMap = new HashMap<CharSequence, VariantSourceEntry>();
+		Map<String, VariantSourceEntry> studyMap = new HashMap<>();
 		studyMap.put("1", study );		
 		v.setSourceEntries(studyMap);		
 		
@@ -89,14 +94,14 @@ public class VariantAvroToVcfRecordTest {
 		
 	}
 
-	private Map<CharSequence, CharSequence> buildMap(String ... entries) {
-		Map<CharSequence, CharSequence> m = new HashMap<CharSequence, CharSequence>();
+	private Map<String, String> buildMap(String ... entries) {
+		Map<String, String> m = new HashMap<>();
 		Arrays.asList(entries).forEach(x -> m.put(x.split(":")[0], x.split(":")[1]));
 		return m;
 	}
 
 	private Variant createVariant(String chr, int start, int end,
-			List<CharSequence> ids, String ref, String alt) {
+			List<String> ids, String ref, String alt) {
 		Variant v = new Variant();
 		v.setReference(chr);
 		v.setStart(start);
@@ -149,7 +154,7 @@ public class VariantAvroToVcfRecordTest {
 	@Test
 	public void testDecodeSample() {
 		VariantAvroToVcfRecord con = new VariantAvroToVcfRecord();
-		Map<CharSequence, CharSequence> data = new HashMap<CharSequence, CharSequence>();
+		Map<String, String> data = new HashMap<>();
 		
 		data.put("A", "a");
 		assertEquals(

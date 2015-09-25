@@ -7,22 +7,22 @@ package org.opencb.biodata.models.variant.avro;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class VariantAnnotation extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"VariantAnnotation\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"chromosome\",\"type\":[\"null\",\"string\"]},{\"name\":\"start\",\"type\":[\"null\",\"int\"]},{\"name\":\"end\",\"type\":[\"null\",\"int\"]},{\"name\":\"reference\",\"type\":[\"null\",\"string\"]},{\"name\":\"alternate\",\"type\":[\"null\",\"string\"]},{\"name\":\"id\",\"type\":[\"null\",\"string\"]},{\"name\":\"xrefs\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Xref\",\"fields\":[{\"name\":\"id\",\"type\":[\"null\",\"string\"]},{\"name\":\"src\",\"type\":[\"null\",\"string\"]}]}}]},{\"name\":\"hgvs\",\"type\":[\"null\",{\"type\":\"array\",\"items\":\"string\"}]},{\"name\":\"consequenceTypes\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"ConsequenceType\",\"fields\":[{\"name\":\"geneName\",\"type\":[\"null\",\"string\"]},{\"name\":\"ensemblGeneId\",\"type\":[\"null\",\"string\"]},{\"name\":\"ensemblTranscriptId\",\"type\":[\"null\",\"string\"]},{\"name\":\"strand\",\"type\":[\"null\",\"string\"]},{\"name\":\"biotype\",\"type\":[\"null\",\"string\"]},{\"name\":\"cDnaPosition\",\"type\":[\"null\",\"int\"]},{\"name\":\"cdsPosition\",\"type\":[\"null\",\"int\"]},{\"name\":\"aaPosition\",\"type\":[\"null\",\"int\"]},{\"name\":\"aaChange\",\"type\":[\"null\",\"string\"]},{\"name\":\"codon\",\"type\":[\"null\",\"string\"]},{\"name\":\"functionalDescription\",\"type\":[\"null\",\"string\"]},{\"name\":\"proteinSubstitutionScores\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Score\",\"fields\":[{\"name\":\"score\",\"type\":[\"null\",\"double\"]},{\"name\":\"source\",\"type\":[\"null\",\"string\"]},{\"name\":\"description\",\"type\":[\"null\",\"string\"]}]}}]},{\"name\":\"soTerms\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"ConsequenceTypeEntry\",\"fields\":[{\"name\":\"soName\",\"type\":[\"null\",\"string\"]},{\"name\":\"soAccession\",\"type\":[\"null\",\"string\"]}]}}]},{\"name\":\"expressionValues\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"ExpressionValue\",\"fields\":[{\"name\":\"experimentalFactor\",\"type\":[\"null\",\"string\"]},{\"name\":\"factorValue\",\"type\":[\"null\",\"string\"]},{\"name\":\"experimentId\",\"type\":[\"null\",\"string\"]},{\"name\":\"technologyPlatform\",\"type\":[\"null\",\"string\"]},{\"name\":\"expression\",\"type\":{\"type\":\"enum\",\"name\":\"Expression\",\"symbols\":[\"UP\",\"DOWN\"]}},{\"name\":\"pvalue\",\"type\":[\"null\",\"float\"]}]}}]}]}}]},{\"name\":\"conservation\",\"type\":[\"null\",{\"type\":\"array\",\"items\":\"Score\"}]},{\"name\":\"populationFrequencies\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"PopulationFrequency\",\"fields\":[{\"name\":\"study\",\"type\":[\"null\",\"string\"]},{\"name\":\"pop\",\"type\":[\"null\",\"string\"]},{\"name\":\"superPop\",\"type\":[\"null\",\"string\"]},{\"name\":\"refAllele\",\"type\":[\"null\",\"string\"]},{\"name\":\"altAllele\",\"type\":[\"null\",\"string\"]},{\"name\":\"refAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"altAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"refHomGenotypeFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"hetGenotypeFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"altHomGenotypeFreq\",\"type\":[\"null\",\"float\"]}]}}]},{\"name\":\"geneDrugInteraction\",\"type\":[\"null\",{\"type\":\"map\",\"values\":{\"type\":\"array\",\"items\":\"string\"}}]},{\"name\":\"variantTraitAssociation\",\"type\":[\"null\",{\"type\":\"map\",\"values\":\"string\"}]},{\"name\":\"additionalAttributes\",\"type\":[\"null\",{\"type\":\"map\",\"values\":\"string\"}]}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"VariantAnnotation\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"chromosome\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"start\",\"type\":[\"null\",\"int\"]},{\"name\":\"end\",\"type\":[\"null\",\"int\"]},{\"name\":\"reference\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"alternate\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"id\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"xrefs\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Xref\",\"fields\":[{\"name\":\"id\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"src\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]}]}}]},{\"name\":\"hgvs\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]},{\"name\":\"consequenceTypes\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"ConsequenceType\",\"fields\":[{\"name\":\"geneName\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"ensemblGeneId\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"ensemblTranscriptId\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"strand\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"biotype\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"cDnaPosition\",\"type\":[\"null\",\"int\"]},{\"name\":\"cdsPosition\",\"type\":[\"null\",\"int\"]},{\"name\":\"aaPosition\",\"type\":[\"null\",\"int\"]},{\"name\":\"aaChange\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"codon\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"functionalDescription\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"proteinSubstitutionScores\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Score\",\"fields\":[{\"name\":\"score\",\"type\":[\"null\",\"double\"]},{\"name\":\"source\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"description\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]}]}}]},{\"name\":\"soTerms\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"ConsequenceTypeEntry\",\"fields\":[{\"name\":\"soName\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"soAccession\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]}]}}]},{\"name\":\"expressionValues\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"ExpressionValue\",\"fields\":[{\"name\":\"experimentalFactor\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"factorValue\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"experimentId\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"technologyPlatform\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"expression\",\"type\":{\"type\":\"enum\",\"name\":\"Expression\",\"symbols\":[\"UP\",\"DOWN\"]}},{\"name\":\"pvalue\",\"type\":[\"null\",\"float\"]}]}}]}]}}]},{\"name\":\"conservation\",\"type\":[\"null\",{\"type\":\"array\",\"items\":\"Score\"}]},{\"name\":\"populationFrequencies\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"PopulationFrequency\",\"fields\":[{\"name\":\"study\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"pop\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"superPop\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"refAllele\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"altAllele\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"refAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"altAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"refHomGenotypeFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"hetGenotypeFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"altHomGenotypeFreq\",\"type\":[\"null\",\"float\"]}]}}]},{\"name\":\"geneDrugInteraction\",\"type\":[\"null\",{\"type\":\"map\",\"values\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},\"avro.java.string\":\"String\"}]},{\"name\":\"variantTraitAssociation\",\"type\":[\"null\",{\"type\":\"map\",\"values\":{\"type\":\"string\",\"avro.java.string\":\"String\"},\"avro.java.string\":\"String\"}]},{\"name\":\"additionalAttributes\",\"type\":[\"null\",{\"type\":\"map\",\"values\":{\"type\":\"string\",\"avro.java.string\":\"String\"},\"avro.java.string\":\"String\"}]}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
-   private java.lang.CharSequence chromosome;
+   private java.lang.String chromosome;
    private java.lang.Integer start;
    private java.lang.Integer end;
-   private java.lang.CharSequence reference;
-   private java.lang.CharSequence alternate;
-   private java.lang.CharSequence id;
+   private java.lang.String reference;
+   private java.lang.String alternate;
+   private java.lang.String id;
    private java.util.List<org.opencb.biodata.models.variant.avro.Xref> xrefs;
-   private java.util.List<java.lang.CharSequence> hgvs;
+   private java.util.List<java.lang.String> hgvs;
    private java.util.List<org.opencb.biodata.models.variant.avro.ConsequenceType> consequenceTypes;
    private java.util.List<org.opencb.biodata.models.variant.avro.Score> conservation;
    private java.util.List<org.opencb.biodata.models.variant.avro.PopulationFrequency> populationFrequencies;
-   private java.util.Map<java.lang.CharSequence,java.util.List<java.lang.CharSequence>> geneDrugInteraction;
-   private java.util.Map<java.lang.CharSequence,java.lang.CharSequence> variantTraitAssociation;
-   private java.util.Map<java.lang.CharSequence,java.lang.CharSequence> additionalAttributes;
+   private java.util.Map<java.lang.String,java.util.List<java.lang.String>> geneDrugInteraction;
+   private java.util.Map<java.lang.String,java.lang.String> variantTraitAssociation;
+   private java.util.Map<java.lang.String,java.lang.String> additionalAttributes;
 
   /**
    * Default constructor.  Note that this does not initialize fields
@@ -34,7 +34,7 @@ public class VariantAnnotation extends org.apache.avro.specific.SpecificRecordBa
   /**
    * All-args constructor.
    */
-  public VariantAnnotation(java.lang.CharSequence chromosome, java.lang.Integer start, java.lang.Integer end, java.lang.CharSequence reference, java.lang.CharSequence alternate, java.lang.CharSequence id, java.util.List<org.opencb.biodata.models.variant.avro.Xref> xrefs, java.util.List<java.lang.CharSequence> hgvs, java.util.List<org.opencb.biodata.models.variant.avro.ConsequenceType> consequenceTypes, java.util.List<org.opencb.biodata.models.variant.avro.Score> conservation, java.util.List<org.opencb.biodata.models.variant.avro.PopulationFrequency> populationFrequencies, java.util.Map<java.lang.CharSequence,java.util.List<java.lang.CharSequence>> geneDrugInteraction, java.util.Map<java.lang.CharSequence,java.lang.CharSequence> variantTraitAssociation, java.util.Map<java.lang.CharSequence,java.lang.CharSequence> additionalAttributes) {
+  public VariantAnnotation(java.lang.String chromosome, java.lang.Integer start, java.lang.Integer end, java.lang.String reference, java.lang.String alternate, java.lang.String id, java.util.List<org.opencb.biodata.models.variant.avro.Xref> xrefs, java.util.List<java.lang.String> hgvs, java.util.List<org.opencb.biodata.models.variant.avro.ConsequenceType> consequenceTypes, java.util.List<org.opencb.biodata.models.variant.avro.Score> conservation, java.util.List<org.opencb.biodata.models.variant.avro.PopulationFrequency> populationFrequencies, java.util.Map<java.lang.String,java.util.List<java.lang.String>> geneDrugInteraction, java.util.Map<java.lang.String,java.lang.String> variantTraitAssociation, java.util.Map<java.lang.String,java.lang.String> additionalAttributes) {
     this.chromosome = chromosome;
     this.start = start;
     this.end = end;
@@ -76,20 +76,20 @@ public class VariantAnnotation extends org.apache.avro.specific.SpecificRecordBa
   @SuppressWarnings(value="unchecked")
   public void put(int field$, java.lang.Object value$) {
     switch (field$) {
-    case 0: chromosome = (java.lang.CharSequence)value$; break;
+    case 0: chromosome = (java.lang.String)value$; break;
     case 1: start = (java.lang.Integer)value$; break;
     case 2: end = (java.lang.Integer)value$; break;
-    case 3: reference = (java.lang.CharSequence)value$; break;
-    case 4: alternate = (java.lang.CharSequence)value$; break;
-    case 5: id = (java.lang.CharSequence)value$; break;
+    case 3: reference = (java.lang.String)value$; break;
+    case 4: alternate = (java.lang.String)value$; break;
+    case 5: id = (java.lang.String)value$; break;
     case 6: xrefs = (java.util.List<org.opencb.biodata.models.variant.avro.Xref>)value$; break;
-    case 7: hgvs = (java.util.List<java.lang.CharSequence>)value$; break;
+    case 7: hgvs = (java.util.List<java.lang.String>)value$; break;
     case 8: consequenceTypes = (java.util.List<org.opencb.biodata.models.variant.avro.ConsequenceType>)value$; break;
     case 9: conservation = (java.util.List<org.opencb.biodata.models.variant.avro.Score>)value$; break;
     case 10: populationFrequencies = (java.util.List<org.opencb.biodata.models.variant.avro.PopulationFrequency>)value$; break;
-    case 11: geneDrugInteraction = (java.util.Map<java.lang.CharSequence,java.util.List<java.lang.CharSequence>>)value$; break;
-    case 12: variantTraitAssociation = (java.util.Map<java.lang.CharSequence,java.lang.CharSequence>)value$; break;
-    case 13: additionalAttributes = (java.util.Map<java.lang.CharSequence,java.lang.CharSequence>)value$; break;
+    case 11: geneDrugInteraction = (java.util.Map<java.lang.String,java.util.List<java.lang.String>>)value$; break;
+    case 12: variantTraitAssociation = (java.util.Map<java.lang.String,java.lang.String>)value$; break;
+    case 13: additionalAttributes = (java.util.Map<java.lang.String,java.lang.String>)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -97,7 +97,7 @@ public class VariantAnnotation extends org.apache.avro.specific.SpecificRecordBa
   /**
    * Gets the value of the 'chromosome' field.
    */
-  public java.lang.CharSequence getChromosome() {
+  public java.lang.String getChromosome() {
     return chromosome;
   }
 
@@ -105,7 +105,7 @@ public class VariantAnnotation extends org.apache.avro.specific.SpecificRecordBa
    * Sets the value of the 'chromosome' field.
    * @param value the value to set.
    */
-  public void setChromosome(java.lang.CharSequence value) {
+  public void setChromosome(java.lang.String value) {
     this.chromosome = value;
   }
 
@@ -142,7 +142,7 @@ public class VariantAnnotation extends org.apache.avro.specific.SpecificRecordBa
   /**
    * Gets the value of the 'reference' field.
    */
-  public java.lang.CharSequence getReference() {
+  public java.lang.String getReference() {
     return reference;
   }
 
@@ -150,14 +150,14 @@ public class VariantAnnotation extends org.apache.avro.specific.SpecificRecordBa
    * Sets the value of the 'reference' field.
    * @param value the value to set.
    */
-  public void setReference(java.lang.CharSequence value) {
+  public void setReference(java.lang.String value) {
     this.reference = value;
   }
 
   /**
    * Gets the value of the 'alternate' field.
    */
-  public java.lang.CharSequence getAlternate() {
+  public java.lang.String getAlternate() {
     return alternate;
   }
 
@@ -165,14 +165,14 @@ public class VariantAnnotation extends org.apache.avro.specific.SpecificRecordBa
    * Sets the value of the 'alternate' field.
    * @param value the value to set.
    */
-  public void setAlternate(java.lang.CharSequence value) {
+  public void setAlternate(java.lang.String value) {
     this.alternate = value;
   }
 
   /**
    * Gets the value of the 'id' field.
    */
-  public java.lang.CharSequence getId() {
+  public java.lang.String getId() {
     return id;
   }
 
@@ -180,7 +180,7 @@ public class VariantAnnotation extends org.apache.avro.specific.SpecificRecordBa
    * Sets the value of the 'id' field.
    * @param value the value to set.
    */
-  public void setId(java.lang.CharSequence value) {
+  public void setId(java.lang.String value) {
     this.id = value;
   }
 
@@ -202,7 +202,7 @@ public class VariantAnnotation extends org.apache.avro.specific.SpecificRecordBa
   /**
    * Gets the value of the 'hgvs' field.
    */
-  public java.util.List<java.lang.CharSequence> getHgvs() {
+  public java.util.List<java.lang.String> getHgvs() {
     return hgvs;
   }
 
@@ -210,7 +210,7 @@ public class VariantAnnotation extends org.apache.avro.specific.SpecificRecordBa
    * Sets the value of the 'hgvs' field.
    * @param value the value to set.
    */
-  public void setHgvs(java.util.List<java.lang.CharSequence> value) {
+  public void setHgvs(java.util.List<java.lang.String> value) {
     this.hgvs = value;
   }
 
@@ -262,7 +262,7 @@ public class VariantAnnotation extends org.apache.avro.specific.SpecificRecordBa
   /**
    * Gets the value of the 'geneDrugInteraction' field.
    */
-  public java.util.Map<java.lang.CharSequence,java.util.List<java.lang.CharSequence>> getGeneDrugInteraction() {
+  public java.util.Map<java.lang.String,java.util.List<java.lang.String>> getGeneDrugInteraction() {
     return geneDrugInteraction;
   }
 
@@ -270,14 +270,14 @@ public class VariantAnnotation extends org.apache.avro.specific.SpecificRecordBa
    * Sets the value of the 'geneDrugInteraction' field.
    * @param value the value to set.
    */
-  public void setGeneDrugInteraction(java.util.Map<java.lang.CharSequence,java.util.List<java.lang.CharSequence>> value) {
+  public void setGeneDrugInteraction(java.util.Map<java.lang.String,java.util.List<java.lang.String>> value) {
     this.geneDrugInteraction = value;
   }
 
   /**
    * Gets the value of the 'variantTraitAssociation' field.
    */
-  public java.util.Map<java.lang.CharSequence,java.lang.CharSequence> getVariantTraitAssociation() {
+  public java.util.Map<java.lang.String,java.lang.String> getVariantTraitAssociation() {
     return variantTraitAssociation;
   }
 
@@ -285,14 +285,14 @@ public class VariantAnnotation extends org.apache.avro.specific.SpecificRecordBa
    * Sets the value of the 'variantTraitAssociation' field.
    * @param value the value to set.
    */
-  public void setVariantTraitAssociation(java.util.Map<java.lang.CharSequence,java.lang.CharSequence> value) {
+  public void setVariantTraitAssociation(java.util.Map<java.lang.String,java.lang.String> value) {
     this.variantTraitAssociation = value;
   }
 
   /**
    * Gets the value of the 'additionalAttributes' field.
    */
-  public java.util.Map<java.lang.CharSequence,java.lang.CharSequence> getAdditionalAttributes() {
+  public java.util.Map<java.lang.String,java.lang.String> getAdditionalAttributes() {
     return additionalAttributes;
   }
 
@@ -300,7 +300,7 @@ public class VariantAnnotation extends org.apache.avro.specific.SpecificRecordBa
    * Sets the value of the 'additionalAttributes' field.
    * @param value the value to set.
    */
-  public void setAdditionalAttributes(java.util.Map<java.lang.CharSequence,java.lang.CharSequence> value) {
+  public void setAdditionalAttributes(java.util.Map<java.lang.String,java.lang.String> value) {
     this.additionalAttributes = value;
   }
 
@@ -325,20 +325,20 @@ public class VariantAnnotation extends org.apache.avro.specific.SpecificRecordBa
   public static class Builder extends org.apache.avro.specific.SpecificRecordBuilderBase<VariantAnnotation>
     implements org.apache.avro.data.RecordBuilder<VariantAnnotation> {
 
-    private java.lang.CharSequence chromosome;
+    private java.lang.String chromosome;
     private java.lang.Integer start;
     private java.lang.Integer end;
-    private java.lang.CharSequence reference;
-    private java.lang.CharSequence alternate;
-    private java.lang.CharSequence id;
+    private java.lang.String reference;
+    private java.lang.String alternate;
+    private java.lang.String id;
     private java.util.List<org.opencb.biodata.models.variant.avro.Xref> xrefs;
-    private java.util.List<java.lang.CharSequence> hgvs;
+    private java.util.List<java.lang.String> hgvs;
     private java.util.List<org.opencb.biodata.models.variant.avro.ConsequenceType> consequenceTypes;
     private java.util.List<org.opencb.biodata.models.variant.avro.Score> conservation;
     private java.util.List<org.opencb.biodata.models.variant.avro.PopulationFrequency> populationFrequencies;
-    private java.util.Map<java.lang.CharSequence,java.util.List<java.lang.CharSequence>> geneDrugInteraction;
-    private java.util.Map<java.lang.CharSequence,java.lang.CharSequence> variantTraitAssociation;
-    private java.util.Map<java.lang.CharSequence,java.lang.CharSequence> additionalAttributes;
+    private java.util.Map<java.lang.String,java.util.List<java.lang.String>> geneDrugInteraction;
+    private java.util.Map<java.lang.String,java.lang.String> variantTraitAssociation;
+    private java.util.Map<java.lang.String,java.lang.String> additionalAttributes;
 
     /** Creates a new Builder */
     private Builder() {
@@ -468,12 +468,12 @@ public class VariantAnnotation extends org.apache.avro.specific.SpecificRecordBa
     }
 
     /** Gets the value of the 'chromosome' field */
-    public java.lang.CharSequence getChromosome() {
+    public java.lang.String getChromosome() {
       return chromosome;
     }
     
     /** Sets the value of the 'chromosome' field */
-    public org.opencb.biodata.models.variant.avro.VariantAnnotation.Builder setChromosome(java.lang.CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.VariantAnnotation.Builder setChromosome(java.lang.String value) {
       validate(fields()[0], value);
       this.chromosome = value;
       fieldSetFlags()[0] = true;
@@ -543,12 +543,12 @@ public class VariantAnnotation extends org.apache.avro.specific.SpecificRecordBa
     }
 
     /** Gets the value of the 'reference' field */
-    public java.lang.CharSequence getReference() {
+    public java.lang.String getReference() {
       return reference;
     }
     
     /** Sets the value of the 'reference' field */
-    public org.opencb.biodata.models.variant.avro.VariantAnnotation.Builder setReference(java.lang.CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.VariantAnnotation.Builder setReference(java.lang.String value) {
       validate(fields()[3], value);
       this.reference = value;
       fieldSetFlags()[3] = true;
@@ -568,12 +568,12 @@ public class VariantAnnotation extends org.apache.avro.specific.SpecificRecordBa
     }
 
     /** Gets the value of the 'alternate' field */
-    public java.lang.CharSequence getAlternate() {
+    public java.lang.String getAlternate() {
       return alternate;
     }
     
     /** Sets the value of the 'alternate' field */
-    public org.opencb.biodata.models.variant.avro.VariantAnnotation.Builder setAlternate(java.lang.CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.VariantAnnotation.Builder setAlternate(java.lang.String value) {
       validate(fields()[4], value);
       this.alternate = value;
       fieldSetFlags()[4] = true;
@@ -593,12 +593,12 @@ public class VariantAnnotation extends org.apache.avro.specific.SpecificRecordBa
     }
 
     /** Gets the value of the 'id' field */
-    public java.lang.CharSequence getId() {
+    public java.lang.String getId() {
       return id;
     }
     
     /** Sets the value of the 'id' field */
-    public org.opencb.biodata.models.variant.avro.VariantAnnotation.Builder setId(java.lang.CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.VariantAnnotation.Builder setId(java.lang.String value) {
       validate(fields()[5], value);
       this.id = value;
       fieldSetFlags()[5] = true;
@@ -643,12 +643,12 @@ public class VariantAnnotation extends org.apache.avro.specific.SpecificRecordBa
     }
 
     /** Gets the value of the 'hgvs' field */
-    public java.util.List<java.lang.CharSequence> getHgvs() {
+    public java.util.List<java.lang.String> getHgvs() {
       return hgvs;
     }
     
     /** Sets the value of the 'hgvs' field */
-    public org.opencb.biodata.models.variant.avro.VariantAnnotation.Builder setHgvs(java.util.List<java.lang.CharSequence> value) {
+    public org.opencb.biodata.models.variant.avro.VariantAnnotation.Builder setHgvs(java.util.List<java.lang.String> value) {
       validate(fields()[7], value);
       this.hgvs = value;
       fieldSetFlags()[7] = true;
@@ -743,12 +743,12 @@ public class VariantAnnotation extends org.apache.avro.specific.SpecificRecordBa
     }
 
     /** Gets the value of the 'geneDrugInteraction' field */
-    public java.util.Map<java.lang.CharSequence,java.util.List<java.lang.CharSequence>> getGeneDrugInteraction() {
+    public java.util.Map<java.lang.String,java.util.List<java.lang.String>> getGeneDrugInteraction() {
       return geneDrugInteraction;
     }
     
     /** Sets the value of the 'geneDrugInteraction' field */
-    public org.opencb.biodata.models.variant.avro.VariantAnnotation.Builder setGeneDrugInteraction(java.util.Map<java.lang.CharSequence,java.util.List<java.lang.CharSequence>> value) {
+    public org.opencb.biodata.models.variant.avro.VariantAnnotation.Builder setGeneDrugInteraction(java.util.Map<java.lang.String,java.util.List<java.lang.String>> value) {
       validate(fields()[11], value);
       this.geneDrugInteraction = value;
       fieldSetFlags()[11] = true;
@@ -768,12 +768,12 @@ public class VariantAnnotation extends org.apache.avro.specific.SpecificRecordBa
     }
 
     /** Gets the value of the 'variantTraitAssociation' field */
-    public java.util.Map<java.lang.CharSequence,java.lang.CharSequence> getVariantTraitAssociation() {
+    public java.util.Map<java.lang.String,java.lang.String> getVariantTraitAssociation() {
       return variantTraitAssociation;
     }
     
     /** Sets the value of the 'variantTraitAssociation' field */
-    public org.opencb.biodata.models.variant.avro.VariantAnnotation.Builder setVariantTraitAssociation(java.util.Map<java.lang.CharSequence,java.lang.CharSequence> value) {
+    public org.opencb.biodata.models.variant.avro.VariantAnnotation.Builder setVariantTraitAssociation(java.util.Map<java.lang.String,java.lang.String> value) {
       validate(fields()[12], value);
       this.variantTraitAssociation = value;
       fieldSetFlags()[12] = true;
@@ -793,12 +793,12 @@ public class VariantAnnotation extends org.apache.avro.specific.SpecificRecordBa
     }
 
     /** Gets the value of the 'additionalAttributes' field */
-    public java.util.Map<java.lang.CharSequence,java.lang.CharSequence> getAdditionalAttributes() {
+    public java.util.Map<java.lang.String,java.lang.String> getAdditionalAttributes() {
       return additionalAttributes;
     }
     
     /** Sets the value of the 'additionalAttributes' field */
-    public org.opencb.biodata.models.variant.avro.VariantAnnotation.Builder setAdditionalAttributes(java.util.Map<java.lang.CharSequence,java.lang.CharSequence> value) {
+    public org.opencb.biodata.models.variant.avro.VariantAnnotation.Builder setAdditionalAttributes(java.util.Map<java.lang.String,java.lang.String> value) {
       validate(fields()[13], value);
       this.additionalAttributes = value;
       fieldSetFlags()[13] = true;
@@ -821,20 +821,20 @@ public class VariantAnnotation extends org.apache.avro.specific.SpecificRecordBa
     public VariantAnnotation build() {
       try {
         VariantAnnotation record = new VariantAnnotation();
-        record.chromosome = fieldSetFlags()[0] ? this.chromosome : (java.lang.CharSequence) defaultValue(fields()[0]);
+        record.chromosome = fieldSetFlags()[0] ? this.chromosome : (java.lang.String) defaultValue(fields()[0]);
         record.start = fieldSetFlags()[1] ? this.start : (java.lang.Integer) defaultValue(fields()[1]);
         record.end = fieldSetFlags()[2] ? this.end : (java.lang.Integer) defaultValue(fields()[2]);
-        record.reference = fieldSetFlags()[3] ? this.reference : (java.lang.CharSequence) defaultValue(fields()[3]);
-        record.alternate = fieldSetFlags()[4] ? this.alternate : (java.lang.CharSequence) defaultValue(fields()[4]);
-        record.id = fieldSetFlags()[5] ? this.id : (java.lang.CharSequence) defaultValue(fields()[5]);
+        record.reference = fieldSetFlags()[3] ? this.reference : (java.lang.String) defaultValue(fields()[3]);
+        record.alternate = fieldSetFlags()[4] ? this.alternate : (java.lang.String) defaultValue(fields()[4]);
+        record.id = fieldSetFlags()[5] ? this.id : (java.lang.String) defaultValue(fields()[5]);
         record.xrefs = fieldSetFlags()[6] ? this.xrefs : (java.util.List<org.opencb.biodata.models.variant.avro.Xref>) defaultValue(fields()[6]);
-        record.hgvs = fieldSetFlags()[7] ? this.hgvs : (java.util.List<java.lang.CharSequence>) defaultValue(fields()[7]);
+        record.hgvs = fieldSetFlags()[7] ? this.hgvs : (java.util.List<java.lang.String>) defaultValue(fields()[7]);
         record.consequenceTypes = fieldSetFlags()[8] ? this.consequenceTypes : (java.util.List<org.opencb.biodata.models.variant.avro.ConsequenceType>) defaultValue(fields()[8]);
         record.conservation = fieldSetFlags()[9] ? this.conservation : (java.util.List<org.opencb.biodata.models.variant.avro.Score>) defaultValue(fields()[9]);
         record.populationFrequencies = fieldSetFlags()[10] ? this.populationFrequencies : (java.util.List<org.opencb.biodata.models.variant.avro.PopulationFrequency>) defaultValue(fields()[10]);
-        record.geneDrugInteraction = fieldSetFlags()[11] ? this.geneDrugInteraction : (java.util.Map<java.lang.CharSequence,java.util.List<java.lang.CharSequence>>) defaultValue(fields()[11]);
-        record.variantTraitAssociation = fieldSetFlags()[12] ? this.variantTraitAssociation : (java.util.Map<java.lang.CharSequence,java.lang.CharSequence>) defaultValue(fields()[12]);
-        record.additionalAttributes = fieldSetFlags()[13] ? this.additionalAttributes : (java.util.Map<java.lang.CharSequence,java.lang.CharSequence>) defaultValue(fields()[13]);
+        record.geneDrugInteraction = fieldSetFlags()[11] ? this.geneDrugInteraction : (java.util.Map<java.lang.String,java.util.List<java.lang.String>>) defaultValue(fields()[11]);
+        record.variantTraitAssociation = fieldSetFlags()[12] ? this.variantTraitAssociation : (java.util.Map<java.lang.String,java.lang.String>) defaultValue(fields()[12]);
+        record.additionalAttributes = fieldSetFlags()[13] ? this.additionalAttributes : (java.util.Map<java.lang.String,java.lang.String>) defaultValue(fields()[13]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);

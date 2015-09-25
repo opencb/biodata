@@ -7,10 +7,10 @@ package org.opencb.biodata.models.variant.avro;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class ConsequenceTypeEntry extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"ConsequenceTypeEntry\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"soName\",\"type\":[\"null\",\"string\"]},{\"name\":\"soAccession\",\"type\":[\"null\",\"string\"]}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"ConsequenceTypeEntry\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"soName\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"soAccession\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
-   private java.lang.CharSequence soName;
-   private java.lang.CharSequence soAccession;
+   private java.lang.String soName;
+   private java.lang.String soAccession;
 
   /**
    * Default constructor.  Note that this does not initialize fields
@@ -22,7 +22,7 @@ public class ConsequenceTypeEntry extends org.apache.avro.specific.SpecificRecor
   /**
    * All-args constructor.
    */
-  public ConsequenceTypeEntry(java.lang.CharSequence soName, java.lang.CharSequence soAccession) {
+  public ConsequenceTypeEntry(java.lang.String soName, java.lang.String soAccession) {
     this.soName = soName;
     this.soAccession = soAccession;
   }
@@ -40,8 +40,8 @@ public class ConsequenceTypeEntry extends org.apache.avro.specific.SpecificRecor
   @SuppressWarnings(value="unchecked")
   public void put(int field$, java.lang.Object value$) {
     switch (field$) {
-    case 0: soName = (java.lang.CharSequence)value$; break;
-    case 1: soAccession = (java.lang.CharSequence)value$; break;
+    case 0: soName = (java.lang.String)value$; break;
+    case 1: soAccession = (java.lang.String)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -49,7 +49,7 @@ public class ConsequenceTypeEntry extends org.apache.avro.specific.SpecificRecor
   /**
    * Gets the value of the 'soName' field.
    */
-  public java.lang.CharSequence getSoName() {
+  public java.lang.String getSoName() {
     return soName;
   }
 
@@ -57,14 +57,14 @@ public class ConsequenceTypeEntry extends org.apache.avro.specific.SpecificRecor
    * Sets the value of the 'soName' field.
    * @param value the value to set.
    */
-  public void setSoName(java.lang.CharSequence value) {
+  public void setSoName(java.lang.String value) {
     this.soName = value;
   }
 
   /**
    * Gets the value of the 'soAccession' field.
    */
-  public java.lang.CharSequence getSoAccession() {
+  public java.lang.String getSoAccession() {
     return soAccession;
   }
 
@@ -72,7 +72,7 @@ public class ConsequenceTypeEntry extends org.apache.avro.specific.SpecificRecor
    * Sets the value of the 'soAccession' field.
    * @param value the value to set.
    */
-  public void setSoAccession(java.lang.CharSequence value) {
+  public void setSoAccession(java.lang.String value) {
     this.soAccession = value;
   }
 
@@ -97,8 +97,8 @@ public class ConsequenceTypeEntry extends org.apache.avro.specific.SpecificRecor
   public static class Builder extends org.apache.avro.specific.SpecificRecordBuilderBase<ConsequenceTypeEntry>
     implements org.apache.avro.data.RecordBuilder<ConsequenceTypeEntry> {
 
-    private java.lang.CharSequence soName;
-    private java.lang.CharSequence soAccession;
+    private java.lang.String soName;
+    private java.lang.String soAccession;
 
     /** Creates a new Builder */
     private Builder() {
@@ -132,12 +132,12 @@ public class ConsequenceTypeEntry extends org.apache.avro.specific.SpecificRecor
     }
 
     /** Gets the value of the 'soName' field */
-    public java.lang.CharSequence getSoName() {
+    public java.lang.String getSoName() {
       return soName;
     }
     
     /** Sets the value of the 'soName' field */
-    public org.opencb.biodata.models.variant.avro.ConsequenceTypeEntry.Builder setSoName(java.lang.CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.ConsequenceTypeEntry.Builder setSoName(java.lang.String value) {
       validate(fields()[0], value);
       this.soName = value;
       fieldSetFlags()[0] = true;
@@ -157,12 +157,12 @@ public class ConsequenceTypeEntry extends org.apache.avro.specific.SpecificRecor
     }
 
     /** Gets the value of the 'soAccession' field */
-    public java.lang.CharSequence getSoAccession() {
+    public java.lang.String getSoAccession() {
       return soAccession;
     }
     
     /** Sets the value of the 'soAccession' field */
-    public org.opencb.biodata.models.variant.avro.ConsequenceTypeEntry.Builder setSoAccession(java.lang.CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.ConsequenceTypeEntry.Builder setSoAccession(java.lang.String value) {
       validate(fields()[1], value);
       this.soAccession = value;
       fieldSetFlags()[1] = true;
@@ -185,8 +185,8 @@ public class ConsequenceTypeEntry extends org.apache.avro.specific.SpecificRecor
     public ConsequenceTypeEntry build() {
       try {
         ConsequenceTypeEntry record = new ConsequenceTypeEntry();
-        record.soName = fieldSetFlags()[0] ? this.soName : (java.lang.CharSequence) defaultValue(fields()[0]);
-        record.soAccession = fieldSetFlags()[1] ? this.soAccession : (java.lang.CharSequence) defaultValue(fields()[1]);
+        record.soName = fieldSetFlags()[0] ? this.soName : (java.lang.String) defaultValue(fields()[0]);
+        record.soAccession = fieldSetFlags()[1] ? this.soAccession : (java.lang.String) defaultValue(fields()[1]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);
