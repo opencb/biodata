@@ -3,9 +3,9 @@
  *  @author Kalyan;
  *  @author Pawan;
  *  @author Matthias Haimel;
- */
+*/
  
- @namespace("org.opencb.biodata.models.variant.avro")
+@namespace("org.opencb.biodata.models.variant.avro")
 
 protocol Variants {
 
@@ -66,8 +66,7 @@ protocol Variants {
         union { null, float } quality;
         union { null, int } numSamples;                    
         VariantType variantType;
-        VariantHardyWeinbergStats hw;        
-    
+        VariantHardyWeinbergStats hw;
     }
   
     record VariantSourceEntry {   
@@ -77,9 +76,8 @@ protocol Variants {
         string format;         
         //map<map<string>> samplesData;
         array<array<string>> samplesData;
-        map<VariantStats> cohortStats;
+        map<VariantStats> stats;
         map<string> attributes;
-    
     }
     
     record Genotype { 
@@ -90,23 +88,23 @@ protocol Variants {
     }
 
     record Variant {
-        array<string> ids = [];
         string chromosome;
         int start;
         int end;
-        int length;
         string reference;
         string alternate;
-        VariantType variantType;
-        map<VariantSourceEntry> studies;
-        union {null, VariantAnnotation} annotation;
+        array<string> ids = [];
+        int length;
+        VariantType type;
         map<array<string>> hgvs;
+        array<VariantSourceEntry> studies;
+        union {null, VariantAnnotation} annotation;
     }
     
     record VariantFileMetadata {
         string fileId;
         string studyId;
-        union { null, string } filename = null;
+        union { null, string } fileName = null;
         union { null, string } studyName = null;
         array<string> samples = [];
         map<string> metadata;

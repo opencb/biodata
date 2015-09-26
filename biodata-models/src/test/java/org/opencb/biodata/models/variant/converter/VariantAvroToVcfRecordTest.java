@@ -1,23 +1,17 @@
 package org.opencb.biodata.models.variant.converter;
 
-import static org.junit.Assert.*;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.opencb.biodata.models.variant.avro.Variant;
 import org.opencb.biodata.models.variant.avro.VariantSourceEntry;
-import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfMeta;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfMeta.Builder;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfRecord;
+
+import java.util.*;
+
+import static org.junit.Assert.*;
 
 public class VariantAvroToVcfRecordTest {
 
@@ -62,9 +56,9 @@ public class VariantAvroToVcfRecordTest {
         study.getSamplesData().add(Arrays.asList("ab1", "ef1", "cd1"));
         study.getSamplesData().add(Arrays.asList("ab2", "ef2", "cd2"));
 
-        Map<String, VariantSourceEntry> studyMap = new HashMap<>();
-        studyMap.put("1", study );
-        v.setStudies(studyMap);
+//        Map<String, VariantSourceEntry> studyMap = new HashMap<>();
+//        studyMap.put("1", study );
+        v.setStudies(Arrays.asList(study));
 
         // META
         Builder mbuild = VcfMeta.newBuilder().addAllFormatDefault(Arrays.asList(format.split(":")))

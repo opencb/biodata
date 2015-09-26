@@ -7,11 +7,11 @@ package org.opencb.biodata.models.variant.avro;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"VariantFileMetadata\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"fileId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"studyId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"filename\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}],\"default\":null},{\"name\":\"studyName\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}],\"default\":null},{\"name\":\"samples\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},\"default\":[]},{\"name\":\"metadata\",\"type\":{\"type\":\"map\",\"values\":{\"type\":\"string\",\"avro.java.string\":\"String\"},\"avro.java.string\":\"String\"}}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"VariantFileMetadata\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"fileId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"studyId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"fileName\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}],\"default\":null},{\"name\":\"studyName\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}],\"default\":null},{\"name\":\"samples\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},\"default\":[]},{\"name\":\"metadata\",\"type\":{\"type\":\"map\",\"values\":{\"type\":\"string\",\"avro.java.string\":\"String\"},\"avro.java.string\":\"String\"}}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
    private java.lang.String fileId;
    private java.lang.String studyId;
-   private java.lang.String filename;
+   private java.lang.String fileName;
    private java.lang.String studyName;
    private java.util.List<java.lang.String> samples;
    private java.util.Map<java.lang.String,java.lang.String> metadata;
@@ -26,10 +26,10 @@ public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecord
   /**
    * All-args constructor.
    */
-  public VariantFileMetadata(java.lang.String fileId, java.lang.String studyId, java.lang.String filename, java.lang.String studyName, java.util.List<java.lang.String> samples, java.util.Map<java.lang.String,java.lang.String> metadata) {
+  public VariantFileMetadata(java.lang.String fileId, java.lang.String studyId, java.lang.String fileName, java.lang.String studyName, java.util.List<java.lang.String> samples, java.util.Map<java.lang.String,java.lang.String> metadata) {
     this.fileId = fileId;
     this.studyId = studyId;
-    this.filename = filename;
+    this.fileName = fileName;
     this.studyName = studyName;
     this.samples = samples;
     this.metadata = metadata;
@@ -41,7 +41,7 @@ public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecord
     switch (field$) {
     case 0: return fileId;
     case 1: return studyId;
-    case 2: return filename;
+    case 2: return fileName;
     case 3: return studyName;
     case 4: return samples;
     case 5: return metadata;
@@ -54,7 +54,7 @@ public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecord
     switch (field$) {
     case 0: fileId = (java.lang.String)value$; break;
     case 1: studyId = (java.lang.String)value$; break;
-    case 2: filename = (java.lang.String)value$; break;
+    case 2: fileName = (java.lang.String)value$; break;
     case 3: studyName = (java.lang.String)value$; break;
     case 4: samples = (java.util.List<java.lang.String>)value$; break;
     case 5: metadata = (java.util.Map<java.lang.String,java.lang.String>)value$; break;
@@ -93,18 +93,18 @@ public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecord
   }
 
   /**
-   * Gets the value of the 'filename' field.
+   * Gets the value of the 'fileName' field.
    */
-  public java.lang.String getFilename() {
-    return filename;
+  public java.lang.String getFileName() {
+    return fileName;
   }
 
   /**
-   * Sets the value of the 'filename' field.
+   * Sets the value of the 'fileName' field.
    * @param value the value to set.
    */
-  public void setFilename(java.lang.String value) {
-    this.filename = value;
+  public void setFileName(java.lang.String value) {
+    this.fileName = value;
   }
 
   /**
@@ -175,7 +175,7 @@ public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecord
 
     private java.lang.String fileId;
     private java.lang.String studyId;
-    private java.lang.String filename;
+    private java.lang.String fileName;
     private java.lang.String studyName;
     private java.util.List<java.lang.String> samples;
     private java.util.Map<java.lang.String,java.lang.String> metadata;
@@ -196,8 +196,8 @@ public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecord
         this.studyId = data().deepCopy(fields()[1].schema(), other.studyId);
         fieldSetFlags()[1] = true;
       }
-      if (isValidValue(fields()[2], other.filename)) {
-        this.filename = data().deepCopy(fields()[2].schema(), other.filename);
+      if (isValidValue(fields()[2], other.fileName)) {
+        this.fileName = data().deepCopy(fields()[2].schema(), other.fileName);
         fieldSetFlags()[2] = true;
       }
       if (isValidValue(fields()[3], other.studyName)) {
@@ -225,8 +225,8 @@ public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecord
         this.studyId = data().deepCopy(fields()[1].schema(), other.studyId);
         fieldSetFlags()[1] = true;
       }
-      if (isValidValue(fields()[2], other.filename)) {
-        this.filename = data().deepCopy(fields()[2].schema(), other.filename);
+      if (isValidValue(fields()[2], other.fileName)) {
+        this.fileName = data().deepCopy(fields()[2].schema(), other.fileName);
         fieldSetFlags()[2] = true;
       }
       if (isValidValue(fields()[3], other.studyName)) {
@@ -293,27 +293,27 @@ public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecord
       return this;
     }
 
-    /** Gets the value of the 'filename' field */
-    public java.lang.String getFilename() {
-      return filename;
+    /** Gets the value of the 'fileName' field */
+    public java.lang.String getFileName() {
+      return fileName;
     }
     
-    /** Sets the value of the 'filename' field */
-    public org.opencb.biodata.models.variant.avro.VariantFileMetadata.Builder setFilename(java.lang.String value) {
+    /** Sets the value of the 'fileName' field */
+    public org.opencb.biodata.models.variant.avro.VariantFileMetadata.Builder setFileName(java.lang.String value) {
       validate(fields()[2], value);
-      this.filename = value;
+      this.fileName = value;
       fieldSetFlags()[2] = true;
       return this; 
     }
     
-    /** Checks whether the 'filename' field has been set */
-    public boolean hasFilename() {
+    /** Checks whether the 'fileName' field has been set */
+    public boolean hasFileName() {
       return fieldSetFlags()[2];
     }
     
-    /** Clears the value of the 'filename' field */
-    public org.opencb.biodata.models.variant.avro.VariantFileMetadata.Builder clearFilename() {
-      filename = null;
+    /** Clears the value of the 'fileName' field */
+    public org.opencb.biodata.models.variant.avro.VariantFileMetadata.Builder clearFileName() {
+      fileName = null;
       fieldSetFlags()[2] = false;
       return this;
     }
@@ -399,7 +399,7 @@ public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecord
         VariantFileMetadata record = new VariantFileMetadata();
         record.fileId = fieldSetFlags()[0] ? this.fileId : (java.lang.String) defaultValue(fields()[0]);
         record.studyId = fieldSetFlags()[1] ? this.studyId : (java.lang.String) defaultValue(fields()[1]);
-        record.filename = fieldSetFlags()[2] ? this.filename : (java.lang.String) defaultValue(fields()[2]);
+        record.fileName = fieldSetFlags()[2] ? this.fileName : (java.lang.String) defaultValue(fields()[2]);
         record.studyName = fieldSetFlags()[3] ? this.studyName : (java.lang.String) defaultValue(fields()[3]);
         record.samples = fieldSetFlags()[4] ? this.samples : (java.util.List<java.lang.String>) defaultValue(fields()[4]);
         record.metadata = fieldSetFlags()[5] ? this.metadata : (java.util.Map<java.lang.String,java.lang.String>) defaultValue(fields()[5]);

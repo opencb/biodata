@@ -16,7 +16,7 @@
 
 package org.opencb.biodata.models.variant.converter;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.variant.avro.Variant;
 import org.opencb.biodata.models.variant.avro.VariantSourceEntry;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfMeta;
@@ -25,7 +25,6 @@ import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfRecord.Build
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfSample;
 
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -109,7 +108,8 @@ public class VariantAvroToVcfRecord implements Converter<Variant,VcfRecord> {
                 .addAllIdNonDefault(decodeIds(variant.getIds()));
 		
 		/* Get Study (one only expected  */
-        Map<String, VariantSourceEntry> sourceEntries = variant.getStudies();
+//        Map<String, VariantSourceEntry> sourceEntries = variant.getStudies();
+        List<VariantSourceEntry> sourceEntries = variant.getStudies();
 
         if(null == sourceEntries || sourceEntries.size() == 0){
             throw new UnsupportedOperationException(String.format("No Study found for variant: %s %s", variant.getChromosome(),variant.getStart()));
@@ -117,8 +117,9 @@ public class VariantAvroToVcfRecord implements Converter<Variant,VcfRecord> {
         if(sourceEntries.size() > 1){
             throw new UnsupportedOperationException(String.format("Only one Study supported - found %s studies instead!!!", sourceEntries.size()));
         }
-        Entry<String, VariantSourceEntry> entry = sourceEntries.entrySet().iterator().next();
-        VariantSourceEntry study = entry.getValue();
+//        Entry<String, VariantSourceEntry> entry = sourceEntries.entrySet().iterator().next();
+//        VariantSourceEntry study = entry.getValue();
+        VariantSourceEntry study = sourceEntries.get(0);
 
         Map<String, String> attr = study.getAttributes();
 		/* Filter */

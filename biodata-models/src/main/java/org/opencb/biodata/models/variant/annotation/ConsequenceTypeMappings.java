@@ -16,8 +16,6 @@
 
 package org.opencb.biodata.models.variant.annotation;
 
-import org.apache.commons.lang.StringUtils;
-
 import java.util.HashMap;
 import java.util.Map;
 

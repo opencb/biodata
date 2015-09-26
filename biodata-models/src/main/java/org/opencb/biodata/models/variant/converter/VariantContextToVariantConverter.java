@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.opencb.biodata.models.variant.avro;
+package org.opencb.biodata.models.variant.converter;
 
 import htsjdk.variant.variantcontext.LazyGenotypesContext;
 import htsjdk.variant.variantcontext.VariantContext;
@@ -27,8 +27,11 @@ import org.apache.avro.io.DatumReader;
 import org.apache.avro.io.DatumWriter;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.avro.specific.SpecificDatumWriter;
+import org.opencb.biodata.models.variant.avro.*;
+import org.opencb.commons.utils.FileUtils;
 
 import java.io.*;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
@@ -43,17 +46,15 @@ public class VariantContextToVariantConverter {
     private final String studyId;
     private final String fileId;
 
-
-    @Deprecated
     public VariantContextToVariantConverter(){
-        this.studyId = "1000g";
-        this.fileId = "chr22";
+        this("", "");
     }
 
-    public VariantContextToVariantConverter(String studyId,String fileId) {
+    public VariantContextToVariantConverter(String studyId, String fileId) {
         this.studyId = studyId;
         this.fileId = fileId;
     }
+
     /*
      * (non-Javadoc)
      *
@@ -61,38 +62,23 @@ public class VariantContextToVariantConverter {
      * com.avroidl.service.IVariantHtsjdkVCFReader#readVCFFile(java.lang.String,
      * java.lang.String)
      */
-    public void readVCFFile(String vcfFilePath, String outputAvroFilePath) throws IOException {
+    public void readVCFFile(Path vcfFilePath, Path outputAvroFilePath) throws IOException {
+        FileUtils.checkFile(vcfFilePath);
+        FileUtils.checkDirectory(outputAvroFilePath.getParent(), true);
 
-		/*
-		 * VCF input file path
-		 */
-        String vcfPath = vcfFilePath;
-
-		/*
-		 * Avro output file path 
-		 */
-        String outputAvroPath = outputAvroFilePath;
-
-		/*
-		 * Create VCFFileReader object 
-		 */
-        @SuppressWarnings("resource")
-        VCFFileReader vcfFileReader = new VCFFileReader(new File(vcfPath), false);
+        List<Variant> variantList = new ArrayList<>();
+        VCFFileReader vcfFileReader = new VCFFileReader(vcfFilePath.toFile(), false);
         Iterator<VariantContext> itr = vcfFileReader.iterator();
-		/*
-		 * List for variant
-		 */
-        List<Variant> variantList = new ArrayList<Variant>();
-
         while (itr.hasNext()) {
             VariantContext variantContext = itr.next();
             Variant variant = convert(variantContext);
             variantList.add(variant);
         }
+
 		/*
 		 * method writeHtsjdkDataIntoAvro to write VCF data into AVRO format
 		 */
-        writeHtsjdkDataIntoAvro(variantList, outputAvroPath);
+        writeHtsjdkDataIntoAvro(variantList, outputAvroFilePath.toAbsolutePath().toString());
     }
 
     public Variant convert(VariantContext variantContext) {
@@ -102,11 +88,15 @@ public class VariantContextToVariantConverter {
     /**
      *
      * @param variantContext
-     * @param reuse 			an instance to reuse.
+     * @param reuse an instance to reuse.
      * @return
      */
     public Variant convert(VariantContext variantContext, Variant reuse) {
         Variant variant = reuse;
+
+        variant.setChromosome(variantContext.getContig());
+        variant.setStart(variantContext.getStart());
+        variant.setEnd(variantContext.getEnd());
 
 		/*
 		 * set reference parameter
@@ -127,14 +117,8 @@ public class VariantContextToVariantConverter {
 		/*
 		 * set variant type parameter
 		 */
-        variant.setVariantType(getEnumFromString(org.opencb.biodata.models.variant.avro.VariantType.class, variantContext
-                .getType().toString()));
-		/*
-		 * set chromosome, start and end type parameter
-		 */
-        variant.setChromosome(variantContext.getContig());
-        variant.setStart(variantContext.getStart());
-        variant.setEnd(variantContext.getEnd());
+        variant.setType(getEnumFromString(org.opencb.biodata.models.variant.avro.VariantType.class, variantContext.getType().toString()));
+
 		/*
 		 * set id parameter
 		 */
@@ -147,16 +131,19 @@ public class VariantContextToVariantConverter {
             }
         }
         variant.setIds(ids);
-		/*
+
+        /*
 		 * set length parameter
 		 */
-        variant.setLength(variantContext.getStart()
-                - variantContext.getEnd() == 0 ? 1 : variantContext
-                .getEnd() - variantContext.getStart() + 1);
-		/*
+        variant.setLength(variantContext.getStart() == variantContext.getEnd()
+                ? 1
+                : variantContext.getEnd() - variantContext.getStart() + 1);
+
+        /*
 		 * set variantSourceEntry fields
 		 */
-        Map<String, VariantSourceEntry> sourceEntry = new HashMap<>();
+//        Map<String, VariantSourceEntry> sourceEntry = new HashMap<>();
+        List<VariantSourceEntry> sourceEntry = new ArrayList<>();
         VariantSourceEntry variantSourceEntry = new VariantSourceEntry();
         // For time being setting the hard coded values for FileId and
         // Study ID
@@ -237,7 +224,7 @@ public class VariantContextToVariantConverter {
 //				setVariantStatsParams(
 //						setVariantHardyWeinbergStatsParams(),
 //						variantContext));
-        variantSourceEntry.setCohortStats(cohortStats);
+        variantSourceEntry.setStats(cohortStats);
 		/*
 		 * set attribute fields. Putting hard coded values for time being
 		 * as these value will not be getting from HTSJDK currently.
@@ -248,7 +235,8 @@ public class VariantContextToVariantConverter {
             attributeMapNew.put(attr.getKey(), attr.getValue().toString());
         }
         variantSourceEntry.setAttributes(attributeMapNew);
-        sourceEntry.put(studyId + "_" + fileId, variantSourceEntry);
+//        sourceEntry.put(studyId + "_" + fileId, variantSourceEntry);
+        sourceEntry.add(variantSourceEntry);
 
         variant.setStudies(sourceEntry);
 
@@ -579,20 +567,15 @@ public class VariantContextToVariantConverter {
      * @param outputAvroFilePath
      * @throws FileNotFoundException
      */
-    public void writeHtsjdkDataIntoAvro(List<Variant> vcfBean,
-                                        String outputAvroFilePath) throws IOException {
+    public void writeHtsjdkDataIntoAvro(List<Variant> vcfBean, String outputAvroFilePath) throws IOException {
 
         if (outputAvroFilePath.isEmpty()) {
-            throw new FileNotFoundException(
-                    "Output file path is empty or null...");
+            throw new FileNotFoundException("Output file path is empty or null...");
         }
 
-        FileOutputStream outputStream = new FileOutputStream(
-                outputAvroFilePath);
-        DatumWriter<Variant> vcfDatumWriter = new SpecificDatumWriter<Variant>(
-                Variant.class);
-        DataFileWriter<Variant> vcfdataFileWriter = new DataFileWriter<Variant>(
-                vcfDatumWriter);
+        FileOutputStream outputStream = new FileOutputStream(outputAvroFilePath);
+        DatumWriter<Variant> vcfDatumWriter = new SpecificDatumWriter<>(Variant.class);
+        DataFileWriter<Variant> vcfdataFileWriter = new DataFileWriter<>(vcfDatumWriter);
 
         Variant variant =  new Variant();
         vcfdataFileWriter.setCodec(CodecFactory.snappyCodec());
@@ -604,7 +587,6 @@ public class VariantContextToVariantConverter {
         vcfdataFileWriter.flush();
         vcfdataFileWriter.close();
         outputStream.close();
-
     }
 
 
@@ -658,9 +640,11 @@ public class VariantContextToVariantConverter {
             String quality = "";
             String sample = "";
             String info = "";
-            for(Map.Entry<String, VariantSourceEntry> srcEntry: readAvro.getStudies().entrySet()){
+//            for(Map.Entry<String, VariantSourceEntry> srcEntry: readAvro.getStudies().entrySet()){
+            for(VariantSourceEntry srcEntry: readAvro.getStudies()){
                 //get secondary alternate
-                secondaryAltList = srcEntry.getValue().getSecondaryAlternates();
+//                secondaryAltList = srcEntry.getValue().getSecondaryAlternates();
+                secondaryAltList = srcEntry.getSecondaryAlternates();
                 for(String secAlt : secondaryAltList){
                     if(secAlt.toString().equals("null")){
                         secondaryAlt = "";
@@ -669,9 +653,11 @@ public class VariantContextToVariantConverter {
                     }
                 }
                 //get format
-                format = srcEntry.getValue().getFormat().toString();
+//                format = srcEntry.getValue().getFormat().toString();
+                format = srcEntry.getFormat().toString();
                 //get filter
-                for(Entry<String, VariantStats> qual : srcEntry.getValue().getCohortStats().entrySet()){
+//                for(Entry<String, VariantStats> qual : srcEntry.getValue().getCohortStats().entrySet()){
+                for(Entry<String, VariantStats> qual : srcEntry.getStats().entrySet()){
                     if(qual.getValue().getPassedFilters().toString().equals("true")){
                         filter = "Pass";
                     }else{
@@ -679,7 +665,8 @@ public class VariantContextToVariantConverter {
                     }
                 }
                 //get quality
-                for(Entry<String, VariantStats> qual : srcEntry.getValue().getCohortStats().entrySet()){
+//                for(Entry<String, VariantStats> qual : srcEntry.getValue().getCohortStats().entrySet()){
+                for(Entry<String, VariantStats> qual : srcEntry.getStats().entrySet()){
                     quality = qual.getValue().getQuality().toString();
                 }
                 // TODO this code needs to be rethink
@@ -688,7 +675,8 @@ public class VariantContextToVariantConverter {
 //                    sample = smpl.getValue().toString();
 //                }
                 //get attributes
-                Map<String, String> attributeMap = srcEntry.getValue().getAttributes();
+//                Map<String, String> attributeMap = srcEntry.getValue().getAttributes();
+                Map<String, String> attributeMap = srcEntry.getAttributes();
                 for(Map.Entry<String, String> attribute : attributeMap.entrySet()){
                     info += attribute.getKey()+"="+attribute.getValue()+";";
                     info=info.substring(0, info.length()-1);
