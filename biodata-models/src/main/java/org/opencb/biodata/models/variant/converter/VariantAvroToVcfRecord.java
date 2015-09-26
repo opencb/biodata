@@ -148,7 +148,7 @@ public class VariantAvroToVcfRecord implements Converter<Variant,VcfRecord> {
         if( ! isDefaultFormat(formatLst)){
             recordBuilder.addAllSampleFormatNonDefault(formatLst); // maybe empty if default
         }
-        recordBuilder.addAllSamples(decodeSamples(formatLst,study.getSamplesData()));
+        recordBuilder.addAllSamples(decodeSamples(formatLst, study.getSamplesData()));
 
         // TODO check all worked
         return recordBuilder.build();
@@ -243,18 +243,23 @@ public class VariantAvroToVcfRecord implements Converter<Variant,VcfRecord> {
         return getDefaultFormatKeys().equals(keyList);
     }
 
-    public List<VcfSample> decodeSamples(List<String> formatLst, Map<String, Map<String, String>> samplesData) {
+    public List<VcfSample> decodeSamples(List<String> formatLst, List<List<String>> samplesData) {
         List<String> samples = getSamples(); // samplesData.keySet()
         List<VcfSample> ret = new ArrayList<>(samples.size());
-        for(String s : samples){
-            Map<String, String> map = samplesData.get(s);
-            ret.add(decodeSample(formatLst,map));
+//        for(String s : samples){
+//            Map<String, String> map = samplesData.get(s);
+//            ret.add(decodeSample(formatLst,map));
+//        }
+        for (int i = 0; i < samples.size(); i++) {
+            // samplesData should have fields in the same order than formatLst
+            ret.add(VcfSample.newBuilder().addAllSampleValues(samplesData.get(i)).build());
         }
+
         return ret;
     }
 
-    public VcfSample decodeSample(List<String> formatLst,Map<String, String> data){
-        List<String> values = new ArrayList<String>(formatLst.size());
+    public VcfSample decodeSample(List<String> formatLst, Map<String, String> data){
+        List<String> values = new ArrayList<>(formatLst.size());
         for (String f : formatLst) {
             values.add(data.getOrDefault(f, StringUtils.EMPTY).toString());
         }

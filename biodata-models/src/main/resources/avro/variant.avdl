@@ -71,11 +71,12 @@ protocol Variants {
     }
   
     record VariantSourceEntry {   
-        union { null, string } fileId;    
-        union { null, string } studyId;       
-        union { null, array<string> } secondaryAlternates = null;    
+        union { null, string } studyId;
+        union { null, string } fileId;
+        union { null, array<string> } secondaryAlternates = null;
         string format;         
-        map<map<string>> samplesData;    
+        //map<map<string>> samplesData;
+        array<array<string>> samplesData;
         map<VariantStats> cohortStats;
         map<string> attributes;
     

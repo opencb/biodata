@@ -55,9 +55,12 @@ public class VariantAvroToVcfRecordTest {
                         VariantAvroToVcfRecord.ATTRIBUTE_ORI+":ori-stuff",
                         VariantAvroToVcfRecord.ATTRIBUTE_QUAL+":"+qual,
                         VariantAvroToVcfRecord.ATTRIBUTE_FILTER+":"+filter));
-        study.setSamplesData(new HashMap<String, Map<String,String>>());
-        study.getSamplesData().put(sampleList.get(0), buildMap("EF:ef","AB:sample_03"));
-        study.getSamplesData().put(sampleList.get(1), buildMap("EF:ef","AB:sample_01","CD:cd"));
+//        study.setSamplesData(new HashMap<String, Map<String,String>>());
+//        study.getSamplesData().put(sampleList.get(0), buildMap("EF:ef","AB:sample_03"));
+//        study.getSamplesData().put(sampleList.get(1), buildMap("EF:ef","AB:sample_01","CD:cd"));
+        study.setSamplesData(new ArrayList<>());
+        study.getSamplesData().add(Arrays.asList("ab1", "ef1", "cd1"));
+        study.getSamplesData().add(Arrays.asList("ab2", "ef2", "cd2"));
 
         Map<String, VariantSourceEntry> studyMap = new HashMap<>();
         studyMap.put("1", study );
@@ -79,8 +82,8 @@ public class VariantAvroToVcfRecordTest {
         assertEquals(65,rec.getRelativeStart());
         assertEquals(65+3,rec.getRelativeEnd());
         assertEquals(sampleList.size(), rec.getSamplesList().size());
-        assertEquals(Arrays.asList("sample_01","ef","cd"), new ArrayList<CharSequence>(rec.getSamples(1).getSampleValuesList()));
-        assertEquals(Arrays.asList("sample_03","ef",""), new ArrayList<CharSequence>(rec.getSamples(0).getSampleValuesList()));
+        assertEquals(Arrays.asList("ab2", "ef2", "cd2"), new ArrayList<CharSequence>(rec.getSamples(1).getSampleValuesList()));
+        assertEquals(Arrays.asList("ab1", "ef1", "cd1"), new ArrayList<CharSequence>(rec.getSamples(0).getSampleValuesList()));
         assertEquals(qual, rec.getQuality());
         assertEquals(Arrays.asList("A","X"), new ArrayList<String>(rec.getInfoKeyList()));
         assertEquals(filter, rec.getFilterNonDefault());
