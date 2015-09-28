@@ -96,8 +96,8 @@ public class VariantContextToVariantConverter {
         Variant variant = reuse;
 
         variant.setChromosome(variantContext.getContig());
-        variant.setStart((long) variantContext.getStart());
-        variant.setEnd((long) variantContext.getEnd());
+        variant.setStart(variantContext.getStart());
+        variant.setEnd(variantContext.getEnd());
 
         /*
          * set reference parameter

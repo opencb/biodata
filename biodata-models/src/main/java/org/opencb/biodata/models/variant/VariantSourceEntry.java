@@ -85,13 +85,14 @@ public class VariantSourceEntry extends org.opencb.biodata.models.variant.avro.V
     }
 
     public VariantSourceEntry(String fileId, String studyId) {
-        this(fileId, studyId, new String[0], null);
+        this(fileId, studyId, new String[0], (List<String>) null);
     }
 
     public VariantSourceEntry(String fileId, String studyId, String[] secondaryAlternates, String format) {
-        super(fileId, studyId, Arrays.asList(secondaryAlternates), Arrays.asList(format.split(":")), new LinkedList<List<String>>(), new LinkedHashMap<String, org.opencb.biodata.models.variant.avro.VariantStats>(), new LinkedHashMap<>());
-
-//        this.cohortStats.put(DEFAULT_COHORT, null);   // downside: serialization always puts "all":null
+        this(fileId, studyId, secondaryAlternates, format == null? null : Arrays.asList(format.split(":")));
+    }
+    public VariantSourceEntry(String fileId, String studyId, String[] secondaryAlternates, List<String> format) {
+        super(studyId, fileId, Arrays.asList(secondaryAlternates), format, new LinkedList<>(), new LinkedHashMap<>(), new LinkedHashMap<>());
     }
     
 //    public String getFileId() {
@@ -114,6 +115,18 @@ public class VariantSourceEntry extends org.opencb.biodata.models.variant.avro.V
 //        return secondaryAlternates;
 //    }
 
+    public void setSamplePositions(Map<String, Integer> samplePositions) {
+        this.samplePositions = samplePositions;
+    }
+
+//    public void setSamplePositions(List<String> samplePositions) {
+//        this.samplePositions = new HashMap<>(samplePositions.size());
+//        int position = 0;
+//        for (String sample : samplePositions) {
+//            this.samplePositions.put(sample, position++);
+//        }
+//    }
+
     @Deprecated
     public void setSecondaryAlternates(String[] secondaryAlternates) {
         super.setSecondaryAlternates(Arrays.asList(secondaryAlternates));
@@ -121,7 +134,7 @@ public class VariantSourceEntry extends org.opencb.biodata.models.variant.avro.V
 
     @Deprecated
     public String getFormat() {
-        return getFormatList().stream().collect(Collectors.joining(","));
+        return getFormatList().stream().collect(Collectors.joining(":"));
     }
 
     /**
@@ -244,7 +257,7 @@ public class VariantSourceEntry extends org.opencb.biodata.models.variant.avro.V
 
     public Map<String, VariantStats> getCohortStats() {
 //        return cohortStats; //TODO
-        return null;
+        return Collections.emptyMap();
     }
 
     public void setCohortStats(Map<String, VariantStats> cohortStats) {

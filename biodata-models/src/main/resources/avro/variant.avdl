@@ -114,7 +114,7 @@ protocol Variants {
          * deleted nucleotide is in position 6, the start is position 6</li>
          * </ul>
          */
-        long start;
+        int start;
 
         /**
          * Position where the genomic variation ends.
@@ -126,7 +126,7 @@ protocol Variants {
          * deleted nucleotide is in position 9, the end is position 9</li>
          * </ul>
          */
-        long end;
+        int end;
 
         /**
          * Reference allele.

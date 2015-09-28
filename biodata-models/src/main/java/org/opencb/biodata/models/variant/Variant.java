@@ -129,7 +129,7 @@ public class Variant extends VariantAvro {
         this("", -1, -1, "", "");
     }
 
-    public Variant(String chromosome, long start, long end, String reference, String alternate) {
+    public Variant(String chromosome, int start, int end, String reference, String alternate) {
         super(chromosome,
                 start,
                 end,
@@ -206,7 +206,7 @@ public class Variant extends VariantAvro {
     }
 
     @Override
-    public final void setStart(Long start) {
+    public final void setStart(Integer start) {
         if (start < 0) {
             throw new IllegalArgumentException("Start must be positive");
         }
@@ -214,7 +214,7 @@ public class Variant extends VariantAvro {
     }
 
     @Override
-    public final void setEnd(Long end) {
+    public final void setEnd(Integer end) {
         if (end < 0) {
             throw new IllegalArgumentException("End must be positive");
         }
@@ -289,14 +289,18 @@ public class Variant extends VariantAvro {
     public VariantSourceEntry getSourceEntry(String fileId, String studyId) {
         List<org.opencb.biodata.models.variant.avro.VariantSourceEntry> studies = super.getStudies();
         if (studies != null) {
+            int position = 0;
             for (org.opencb.biodata.models.variant.avro.VariantSourceEntry sourceEntry : studies) {
                 if (sourceEntry.getStudyId().equals(studyId) && Objects.equals(sourceEntry.getFileId(), fileId)) {
                     if (sourceEntry instanceof VariantSourceEntry) {
                         return ((VariantSourceEntry) sourceEntry);
                     } else {
-                        return new VariantSourceEntry(sourceEntry);
+                        VariantSourceEntry entry = new VariantSourceEntry(sourceEntry);
+                        super.getStudies().set(position, entry);
+                        return entry;
                     }
                 }
+                position++;
             }
         }
         return null;
@@ -380,6 +384,10 @@ public class Variant extends VariantAvro {
                 ", type=" + getType() +
                 ", hgvs=" + getHgvs() +
                 '}';
+    }
+
+    public String toJson() {
+        return super.toString();
     }
 
     @Override

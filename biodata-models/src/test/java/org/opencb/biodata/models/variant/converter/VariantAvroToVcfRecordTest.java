@@ -101,7 +101,7 @@ public class VariantAvroToVcfRecordTest {
         return m;
     }
 
-    private VariantAvro createVariant(String chr, long start, long end,
+    private VariantAvro createVariant(String chr, int start, int end,
                                   List<String> ids, String ref, String alt) {
         VariantAvro v = new VariantAvro();
         v.setReference(chr);
