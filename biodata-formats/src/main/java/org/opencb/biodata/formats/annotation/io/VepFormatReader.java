@@ -32,6 +32,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.ParseException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -395,9 +396,7 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
 //            parsedVariant.put("start", variantLocationFields[1]);
             parsedVariant.put("end", (variantLocationFields.length > 2) ? variantLocationFields[2] : variantLocationFields[1]);
         } catch (ArrayIndexOutOfBoundsException e) {
-            System.out.println("Unexpected format for column 2: "+coordinatesString);
-            e.printStackTrace();
-//            System.exit(1);
+            throw new IllegalArgumentException("Unexpected format for column 2: "+coordinatesString);
         }
 
         try {
@@ -413,9 +412,7 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
             parsedVariant.put("reference", leftVariantFields[2]);
             parsedVariant.put("alternative", variantFields[1]);
         } catch (ArrayIndexOutOfBoundsException e) {
-            System.out.println("Unexpected variant format for column 1: "+variantString);
-            e.printStackTrace();
-//            System.exit(1);
+            throw new IllegalArgumentException("Unexpected variant format for column 1: "+variantString);
         }
 
 //        parsedVariant.put("reference", "-");

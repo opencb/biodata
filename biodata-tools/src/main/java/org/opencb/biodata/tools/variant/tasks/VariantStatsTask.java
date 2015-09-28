@@ -23,8 +23,11 @@ import org.opencb.biodata.models.variant.VariantSourceEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantSource;
 import org.opencb.biodata.models.variant.stats.VariantSourceStats;
-import org.opencb.biodata.models.variant.stats.VariantAggregatedStats;
 import org.opencb.biodata.models.variant.stats.VariantStats;
+import org.opencb.biodata.tools.variant.stats.VariantAggregatedEVSStatsCalculator;
+import org.opencb.biodata.tools.variant.stats.VariantAggregatedExacStatsCalculator;
+import org.opencb.biodata.tools.variant.stats.VariantAggregatedStatsCalculator;
+import org.opencb.biodata.tools.variant.stats.VariantStatsCalculator;
 import org.opencb.commons.run.Task;
 
 /**
@@ -56,19 +59,22 @@ public class VariantStatsTask extends Task<Variant> {
 //        VariantStats.calculateStatsForVariantsList(batch, source.getPedigree());
         for (Variant variant : batch) {
             for (VariantSourceEntry file : variant.getSourceEntries().values()) {
-                VariantStats variantStats = null;
+                VariantStats variantStats = new VariantStats(variant);
+                file.setStats(variantStats);
                 switch (source.getAggregation()) {
                     case NONE:
-                        variantStats = new VariantStats(variant);
+                        VariantStatsCalculator.calculate(file.getSamplesData(), file.getAttributes(), source.getPedigree(), variantStats);
                         break;
                     case BASIC:
-                        variantStats = new VariantAggregatedStats(variant);
+                        new VariantAggregatedStatsCalculator().calculate(variant, file);
                         break;
                     case EVS:
-                        // TODO Should create an object!
+                        new VariantAggregatedEVSStatsCalculator().calculate(variant, file);
+                        break;
+                    case EXAC:
+                        new VariantAggregatedExacStatsCalculator().calculate(variant, file);
                         break;
                 }
-                file.setStats(variantStats.calculate(file.getSamplesData(), file.getAttributes(), source.getPedigree()));
             }
         }
         

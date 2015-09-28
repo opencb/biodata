@@ -19,6 +19,7 @@ package org.opencb.biodata.formats.variant.vcf4.io;
 import org.junit.Test;
 import org.opencb.biodata.formats.variant.io.VariantReader;
 import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.VariantAggregatedVcfFactory;
 import org.opencb.biodata.models.variant.VariantSource;
 import org.opencb.biodata.models.variant.VariantVcfFactory;
 
@@ -28,7 +29,6 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import org.opencb.biodata.models.variant.VariantVcfEVSFactory;
 
 public class VariantVcfReaderTest {
 
@@ -63,7 +63,7 @@ public class VariantVcfReaderTest {
         String inputFile = getClass().getResource("/evs.vcf.gz").getFile();
         VariantSource source = new VariantSource(inputFile, "evs", "evs", "Exome Variant Server");
         
-        VariantReader reader = new VariantVcfReader(source, inputFile, new VariantVcfEVSFactory());
+        VariantReader reader = new VariantVcfReader(source, inputFile, new VariantAggregatedVcfFactory());
 
         List<Variant> variants;
 

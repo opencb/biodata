@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.opencb.biodata.models.variant.stats;
+package org.opencb.biodata.tools.variant.stats;
 
 import java.util.Arrays;
 import java.util.List;
@@ -27,12 +27,13 @@ import org.opencb.biodata.models.variant.VariantSource;
 import org.opencb.biodata.models.variant.VariantSourceEntry;
 import org.opencb.biodata.models.variant.VariantVcfFactory;
 import org.opencb.biodata.models.variant.avro.VariantType;
+import org.opencb.biodata.models.variant.stats.VariantStats;
 
 /**
  *
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
-public class VariantStatsTest {
+public class VariantStatsCalculatorTest {
     
     private VariantSource source = new VariantSource("filename.vcf", "fileId", "studyId", "studyName");
 
@@ -51,7 +52,8 @@ public class VariantStatsTest {
         Variant variant = result.get(0);
         VariantSourceEntry sourceEntry = variant.getSourceEntry(source.getFileId(), source.getStudyId());
         
-        VariantStats biallelicStats = new VariantStats(result.get(0)).calculate(sourceEntry.getSamplesData(), sourceEntry.getAttributes(), null);
+        VariantStats biallelicStats = new VariantStats(result.get(0));
+        VariantStatsCalculator.calculate(sourceEntry.getSamplesData(), sourceEntry.getAttributes(), null, biallelicStats);
         
         assertEquals("T", biallelicStats.getRefAllele());
         assertEquals("C", biallelicStats.getAltAllele());
@@ -106,7 +108,8 @@ public class VariantStatsTest {
         // Test first variant (alt allele C)
         Variant variant_C = result.get(0);
         VariantSourceEntry sourceEntry_C = variant_C.getSourceEntry(source.getFileId(), source.getStudyId());
-        VariantStats multiallelicStats_C = new VariantStats(result.get(0)).calculate(sourceEntry_C.getSamplesData(), sourceEntry_C.getAttributes(), null);;
+        VariantStats multiallelicStats_C = new VariantStats(result.get(0));
+        VariantStatsCalculator.calculate(sourceEntry_C.getSamplesData(), sourceEntry_C.getAttributes(), null, multiallelicStats_C);
         
         assertEquals("T", multiallelicStats_C.getRefAllele());
         assertEquals("A", multiallelicStats_C.getAltAllele());
@@ -147,7 +150,8 @@ public class VariantStatsTest {
         // Test second variant (alt allele GC)
         Variant variant_GC = result.get(1);
         VariantSourceEntry sourceEntry_GC = variant_GC.getSourceEntry(source.getFileId(), source.getStudyId());
-        VariantStats multiallelicStats_GC = new VariantStats(result.get(1)).calculate(sourceEntry_GC.getSamplesData(), sourceEntry_GC.getAttributes(), null);;
+        VariantStats multiallelicStats_GC = new VariantStats(result.get(1));
+        VariantStatsCalculator.calculate(sourceEntry_GC.getSamplesData(), sourceEntry_GC.getAttributes(), null, multiallelicStats_GC);
         
     }
     

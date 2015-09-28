@@ -528,8 +528,8 @@ public class VariantVcfFactoryTest {
         VariantSourceEntry getFile0 = getVar0.getSourceEntry(source.getFileId(), source.getStudyId());
         assertEquals(4, Integer.parseInt(getFile0.getAttribute("NS")));
 //        assertEquals(2, Integer.parseInt(getFile0.getAttribute("AN")));
-        assertEquals(1, Integer.parseInt(getFile0.getAttribute("AC")));
-        assertEquals(0.125, Double.parseDouble(getFile0.getAttribute("AF")), 1e-8);
+        assertEquals(1, Integer.parseInt(getFile0.getAttribute("AC").split(",")[0]));
+        assertEquals(0.125, Double.parseDouble(getFile0.getAttribute("AF").split(",")[0]), 1e-8);
         assertEquals(63, Integer.parseInt(getFile0.getAttribute("DP")));
         assertEquals(10685, Integer.parseInt(getFile0.getAttribute("MQ")));
         assertEquals(1, Integer.parseInt(getFile0.getAttribute("MQ0")));
@@ -538,8 +538,8 @@ public class VariantVcfFactoryTest {
         VariantSourceEntry getFile1 = getVar1.getSourceEntry(source.getFileId(), source.getStudyId());
         assertEquals(4, Integer.parseInt(getFile1.getAttribute("NS")));
 //        assertEquals(2, Integer.parseInt(getFile1.getAttribute("AN")));
-        assertEquals(2, Integer.parseInt(getFile1.getAttribute("AC")));
-        assertEquals(0.25, Double.parseDouble(getFile1.getAttribute("AF")), 1e-8);
+        assertEquals(2, Integer.parseInt(getFile1.getAttribute("AC").split(",")[1]));
+        assertEquals(0.25, Double.parseDouble(getFile1.getAttribute("AF").split(",")[1]), 1e-8);
         assertEquals(63, Integer.parseInt(getFile1.getAttribute("DP")));
         assertEquals(10685, Integer.parseInt(getFile1.getAttribute("MQ")));
         assertEquals(1, Integer.parseInt(getFile1.getAttribute("MQ0")));
