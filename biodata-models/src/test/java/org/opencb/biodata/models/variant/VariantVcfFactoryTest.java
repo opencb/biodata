@@ -292,13 +292,13 @@ public class VariantVcfFactoryTest {
         assertEquals(
                 var0.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData(),
                 getVar0.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData());
-        assertArrayEquals(new String[]{ "G" }, getVar0.getSourceEntry(source.getFileId(), source.getStudyId()).getSecondaryAlternates());
+        assertEquals(Collections.singletonList("G"), getVar0.getSourceEntry(source.getFileId(), source.getStudyId()).getSecondaryAlternates());
 
         Variant getVar1 = result.get(1);
         assertEquals(
                 var1.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData(),
                 getVar1.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData());
-        assertArrayEquals(new String[]{ "C" }, getVar1.getSourceEntry(source.getFileId(), source.getStudyId()).getSecondaryAlternates());
+        assertEquals(Collections.singletonList("C"), getVar1.getSourceEntry(source.getFileId(), source.getStudyId()).getSecondaryAlternates());
     }
 
     @Test
@@ -378,13 +378,13 @@ public class VariantVcfFactoryTest {
         assertEquals(
                 var0.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData(),
                 getVar0.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData());
-        assertArrayEquals(new String[]{ "GC" }, getVar0.getSourceEntry(source.getFileId(), source.getStudyId()).getSecondaryAlternates());
+        assertEquals(Collections.singletonList("GC"), getVar0.getSourceEntry(source.getFileId(), source.getStudyId()).getSecondaryAlternates());
 
         Variant getVar1 = result.get(1);
         assertEquals(
                 var1.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData(),
                 getVar1.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData());
-        assertArrayEquals(new String[]{ "C" }, getVar1.getSourceEntry(source.getFileId(), source.getStudyId()).getSecondaryAlternates());
+        assertEquals(Collections.singletonList("C"), getVar1.getSourceEntry(source.getFileId(), source.getStudyId()).getSecondaryAlternates());
     }
 
     @Test

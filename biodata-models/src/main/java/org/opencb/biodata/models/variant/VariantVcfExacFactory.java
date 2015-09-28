@@ -91,7 +91,7 @@ public class VariantVcfExacFactory extends VariantAggregatedVcfFactory {
             addReferenceGenotype(variant, stats, an);
         }
 
-        sourceEntry.setStats(stats);
+        sourceEntry.setCohortStats(VariantSourceEntry.DEFAULT_COHORT, stats);
     }
 
 

@@ -5,9 +5,17 @@
  */
 package org.opencb.biodata.models.variant.avro;  
 @SuppressWarnings("all")
+/** * Type of variation, which depends mostly on its length.
+     * <ul>
+     * <li>SNVs involve a single nucleotide, without changes in length</li>
+     * <li>MNVs involve multiple nucleotides, without changes in length</li>
+     * <li>Indels are insertions or deletions of less than SV_THRESHOLD (50) nucleotides</li>
+     * <li>Structural variations are large changes of more than SV_THRESHOLD nucleotides</li>
+     * <li>Copy-number variations alter the number of copies of a region</li>
+     * </ul> */
 @org.apache.avro.specific.AvroGenerated
 public enum VariantType { 
   SNP, SNV, MNP, MNV, INDEL, SV, CNV, NO_VARIATION, SYMBOLIC, MIXED  ;
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"enum\",\"name\":\"VariantType\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"symbols\":[\"SNP\",\"SNV\",\"MNP\",\"MNV\",\"INDEL\",\"SV\",\"CNV\",\"NO_VARIATION\",\"SYMBOLIC\",\"MIXED\"]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"enum\",\"name\":\"VariantType\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"doc\":\"* Type of variation, which depends mostly on its length.\\r\\n     * <ul>\\r\\n     * <li>SNVs involve a single nucleotide, without changes in length</li>\\r\\n     * <li>MNVs involve multiple nucleotides, without changes in length</li>\\r\\n     * <li>Indels are insertions or deletions of less than SV_THRESHOLD (50) nucleotides</li>\\r\\n     * <li>Structural variations are large changes of more than SV_THRESHOLD nucleotides</li>\\r\\n     * <li>Copy-number variations alter the number of copies of a region</li>\\r\\n     * </ul>\",\"symbols\":[\"SNP\",\"SNV\",\"MNP\",\"MNV\",\"INDEL\",\"SV\",\"CNV\",\"NO_VARIATION\",\"SYMBOLIC\",\"MIXED\"]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
 }

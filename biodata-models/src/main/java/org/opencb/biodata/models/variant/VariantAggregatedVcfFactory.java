@@ -83,7 +83,7 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
     }
 
     @Override
-    protected void setOtherFields(Variant variant, VariantSource source, Set<String> ids, float quality, String filter,
+    protected void setOtherFields(Variant variant, VariantSource source, List<String> ids, float quality, String filter,
             String info, String format, int numAllele, String[] alternateAlleles, String line) {
         // Fields not affected by the structure of REF and ALT fields
         variant.setIds(ids);
@@ -124,7 +124,7 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
         
         addStats(variant, file, numAllele, alternateAlleles, stats, vs);
         
-        file.setStats(vs);
+        file.setCohortStats(VariantSourceEntry.DEFAULT_COHORT, vs);
     }
     
     protected void parseCohortStats (Variant variant, VariantSource source, int numAllele, String[] alternateAlleles, String info) {

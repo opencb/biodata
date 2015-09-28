@@ -62,7 +62,7 @@ public class VariantVcfFactory implements VariantFactory {
         String chromosome = fields[0];
         int position = Integer.parseInt(fields[1]);
         String id = fields[2].equals(".") ? "" : fields[2];
-        Set<String> ids = new HashSet<>(Arrays.asList(id.split(";")));
+        List<String> ids = Arrays.asList(id.split(";"));
         String reference = fields[3].equals(".") ? "" : fields[3];
         String alternate = fields[4];
 //        String alternate = fields[4].equals(".") ? "" : fields[4];
@@ -336,7 +336,7 @@ public class VariantVcfFactory implements VariantFactory {
         return true;
     }
 
-    protected void setOtherFields(Variant variant, VariantSource source, Set<String> ids, float quality, String filter,
+    protected void setOtherFields(Variant variant, VariantSource source, List<String> ids, float quality, String filter,
             String info, String format, int numAllele, String[] alternateAlleles, String line) {
         // Fields not affected by the structure of REF and ALT fields
         if (!ids.isEmpty()) {

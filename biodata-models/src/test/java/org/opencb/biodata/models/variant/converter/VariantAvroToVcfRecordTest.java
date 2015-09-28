@@ -4,7 +4,7 @@ import htsjdk.variant.vcf.VCFConstants;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.opencb.biodata.models.variant.avro.Variant;
+import org.opencb.biodata.models.variant.avro.VariantAvro;
 import org.opencb.biodata.models.variant.avro.VariantSourceEntry;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfMeta;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfMeta.Builder;
@@ -36,7 +36,7 @@ public class VariantAvroToVcfRecordTest {
         List<String> ids = Arrays.asList("id123","id432");
         String ref = "X";
         String alt = "A";
-        Variant v = createVariant(chr, start, end, ids,ref,alt);
+        VariantAvro v = createVariant(chr, start, end, ids,ref,alt);
 
 
         String file_name = "file_123";
@@ -45,7 +45,7 @@ public class VariantAvroToVcfRecordTest {
         String filter = "PASS;low30";
         VariantSourceEntry study = new VariantSourceEntry();
         study.setFileId(file_name);
-        study.setFormat(Arrays.asList(format.split(VCFConstants.FORMAT_FIELD_SEPARATOR)));
+        study.setFormatList(Arrays.asList(format.split(VCFConstants.FORMAT_FIELD_SEPARATOR)));
         study.setAttributes(
                 buildMap(
                         "X:x", "A:ab",
@@ -56,9 +56,9 @@ public class VariantAvroToVcfRecordTest {
 //        study.setSamplesData(new HashMap<String, Map<String,String>>());
 //        study.getSamplesData().put(sampleList.get(0), buildMap("EF:ef","AB:sample_03"));
 //        study.getSamplesData().put(sampleList.get(1), buildMap("EF:ef","AB:sample_01","CD:cd"));
-        study.setSamplesData(new ArrayList<>());
-        study.getSamplesData().add(Arrays.asList("ab1", "ef1", "cd1"));
-        study.getSamplesData().add(Arrays.asList("ab2", "ef2", "cd2"));
+        study.setSamplesDataList(new ArrayList<>());
+        study.getSamplesDataList().add(Arrays.asList("ab1", "ef1", "cd1"));
+        study.getSamplesDataList().add(Arrays.asList("ab2", "ef2", "cd2"));
 
 //        Map<String, VariantSourceEntry> studyMap = new HashMap<>();
 //        studyMap.put("1", study );
@@ -101,9 +101,9 @@ public class VariantAvroToVcfRecordTest {
         return m;
     }
 
-    private Variant createVariant(String chr, long start, long end,
+    private VariantAvro createVariant(String chr, long start, long end,
                                   List<String> ids, String ref, String alt) {
-        Variant v = new Variant();
+        VariantAvro v = new VariantAvro();
         v.setReference(chr);
         v.setStart(start);
         v.setEnd(end);

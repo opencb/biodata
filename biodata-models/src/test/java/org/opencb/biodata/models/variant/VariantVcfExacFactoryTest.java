@@ -53,9 +53,9 @@ public class VariantVcfExacFactoryTest extends GenericTest {
         genotypes.put(new Genotype("0/1","G","T"), 22);
         genotypes.put(new Genotype("1/1","G","T"), 0);
 
-        assertEquals(genotypes, sourceEntry.getStats().getGenotypesCount());
-        assertEquals(22, sourceEntry.getStats().getAltAlleleCount());
-        assertEquals(10890-22, sourceEntry.getStats().getRefAlleleCount());
+        assertEquals(genotypes, sourceEntry.getStats(VariantSourceEntry.DEFAULT_COHORT).getGenotypesCount());
+        assertEquals(22, sourceEntry.getStats(VariantSourceEntry.DEFAULT_COHORT).getAltAlleleCount());
+        assertEquals(10890-22, sourceEntry.getStats(VariantSourceEntry.DEFAULT_COHORT).getRefAlleleCount());
     }
     @Test
     public void multiallelicLine () {
@@ -81,9 +81,9 @@ public class VariantVcfExacFactoryTest extends GenericTest {
         genotypes.put(new Genotype("2/3","G","T"), 0);
         genotypes.put(new Genotype("3/3","G","T"), 0);
 
-        assertEquals(genotypes, sourceEntry.getStats().getGenotypesCount());
-        assertEquals(3, sourceEntry.getStats().getAltAlleleCount());
-        assertEquals(79012-1-2-1-2, sourceEntry.getStats().getRefAlleleCount());
+        assertEquals(genotypes, sourceEntry.getStats(VariantSourceEntry.DEFAULT_COHORT).getGenotypesCount());
+        assertEquals(3, sourceEntry.getStats(VariantSourceEntry.DEFAULT_COHORT).getAltAlleleCount());
+        assertEquals(79012-1-2-1-2, sourceEntry.getStats(VariantSourceEntry.DEFAULT_COHORT).getRefAlleleCount());
 
         
         genotypes.clear();
@@ -100,9 +100,9 @@ public class VariantVcfExacFactoryTest extends GenericTest {
 
         sourceEntry = res.get(1).getSourceEntry(source.getFileId(), source.getStudyId());
         
-        assertEquals(genotypes, sourceEntry.getStats().getGenotypesCount());
-        assertEquals(3, sourceEntry.getStats().getAltAlleleCount());
-        assertEquals(79012 - 1 - 2 - 1 - 2, sourceEntry.getStats().getRefAlleleCount());
+        assertEquals(genotypes, sourceEntry.getStats(VariantSourceEntry.DEFAULT_COHORT).getGenotypesCount());
+        assertEquals(3, sourceEntry.getStats(VariantSourceEntry.DEFAULT_COHORT).getAltAlleleCount());
+        assertEquals(79012 - 1 - 2 - 1 - 2, sourceEntry.getStats(VariantSourceEntry.DEFAULT_COHORT).getRefAlleleCount());
         
         
         genotypes.clear();
@@ -119,9 +119,9 @@ public class VariantVcfExacFactoryTest extends GenericTest {
 
         sourceEntry = res.get(2).getSourceEntry(source.getFileId(), source.getStudyId());
         
-        assertEquals(genotypes, sourceEntry.getStats().getGenotypesCount());
-        assertEquals(0, sourceEntry.getStats().getAltAlleleCount());
-        assertEquals(79012 - 1 - 2 - 1 - 2, sourceEntry.getStats().getRefAlleleCount());
+        assertEquals(genotypes, sourceEntry.getStats(VariantSourceEntry.DEFAULT_COHORT).getGenotypesCount());
+        assertEquals(0, sourceEntry.getStats(VariantSourceEntry.DEFAULT_COHORT).getAltAlleleCount());
+        assertEquals(79012 - 1 - 2 - 1 - 2, sourceEntry.getStats(VariantSourceEntry.DEFAULT_COHORT).getRefAlleleCount());
     }
     
     @Test

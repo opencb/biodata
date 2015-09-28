@@ -11,6 +11,16 @@ protocol Variants {
 
     import idl "variantAnnotation.avdl";
 
+    /**
+     * Type of variation, which depends mostly on its length.
+     * <ul>
+     * <li>SNVs involve a single nucleotide, without changes in length</li>
+     * <li>MNVs involve multiple nucleotides, without changes in length</li>
+     * <li>Indels are insertions or deletions of less than SV_THRESHOLD (50) nucleotides</li>
+     * <li>Structural variations are large changes of more than SV_THRESHOLD nucleotides</li>
+     * <li>Copy-number variations alter the number of copies of a region</li>
+     * </ul>
+     */
     enum VariantType {
         SNP,
         SNV,
@@ -74,9 +84,9 @@ protocol Variants {
         union { null, string } studyId;
         union { null, string } fileId;
         union { null, array<string> } secondaryAlternates = null;
-        array<string> format;
+        array<string> formatList;
         //map<map<string>> samplesData;
-        array<array<string>> samplesData;
+        array<array<string>> samplesDataList;
         map<VariantStats> stats;
         map<string> attributes;
     }
@@ -88,17 +98,79 @@ protocol Variants {
         boolean phased;
     }
 
-    record Variant {
+    record VariantAvro {
+        /**
+         * Chromosome where the genomic variation occurred.
+         */
         string chromosome;
+
+        /**
+         * Position where the genomic variation starts.
+         * <ul>
+         * <li>SNVs have the same start and end position</li>
+         * <li>Insertions start in the last present position: if the first nucleotide
+         * is inserted in position 6, the start is position 5</li>
+         * <li>Deletions start in the first previously present position: if the first
+         * deleted nucleotide is in position 6, the start is position 6</li>
+         * </ul>
+         */
         long start;
+
+        /**
+         * Position where the genomic variation ends.
+         * <ul>
+         * <li>SNVs have the same start and end positions</li>
+         * <li>Insertions end in the first present position: if the last nucleotide
+         * is inserted in position 9, the end is position 10</li>
+         * <li>Deletions ends in the last previously present position: if the last
+         * deleted nucleotide is in position 9, the end is position 9</li>
+         * </ul>
+         */
         long end;
+
+        /**
+         * Reference allele.
+         */
         string reference;
+
+        /**
+         * Alternate allele.
+         */
         string alternate;
+
+        /**
+         * Set of identifiers used for this genomic variation.
+         */
         array<string> ids = [];
+
+        /**
+         * Length of the genomic variation, which depends on the variation type.
+         * <ul>
+         * <li>SNVs have a length of 1 nucleotide</li>
+         * <li>Indels have the length of the largest allele</li>
+         * </ul>
+         */
         int length;
+
+        /**
+         * Type of variation: single nucleotide, indel or structural variation.
+         */
         VariantType type;
+
+        /**
+         * Unique identifier following the HGVS nomenclature.
+         */
         map<array<string>> hgvs;
+
+        /**
+         * Information specific to each study the variant was read from, such as
+         * samples or statistics.
+         */
         array<VariantSourceEntry> studies;
+
+        /**
+         * Annotations of the genomic variation.
+         */
         union {null, VariantAnnotation} annotation;
     }
 

@@ -46,13 +46,13 @@ public class GAVariantFactory {
         for (Variant variant : variants) {
             String id = String.format("%s_%d_%s_%s", variant.getChromosome(), variant.getStart(), variant.getReference(), variant.getAlternate());
 
-            Set<String> variantIds = variant.getIds();
+            List<String> variantIds = variant.getIds();
             String[] names = variantIds.toArray(new String[variantIds.size()]);
             
             for (VariantSourceEntry file : variant.getSourceEntries().values()) {
-                String[] alternates = new String[file.getSecondaryAlternates().length + 1];
+                String[] alternates = new String[file.getSecondaryAlternates().size() + 1];
                 alternates[0] = variant.getAlternate();
-                System.arraycopy(file.getSecondaryAlternates(), 0, alternates, 1, file.getSecondaryAlternates().length);
+                System.arraycopy(file.getSecondaryAlternates(), 0, alternates, 1, file.getSecondaryAlternates().size());
                 
                 GAVariant ga;
                 if (file.getSamplesData().isEmpty()) {

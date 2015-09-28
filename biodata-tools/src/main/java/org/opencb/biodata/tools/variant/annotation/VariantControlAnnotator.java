@@ -155,9 +155,9 @@ public class VariantControlAnnotator implements VariantAnnotator {
                             if(v.getReference().equals(record.getReference()) && v.getAlternate().equals(record.getAlternate())){
                                 VariantSourceEntry avf = v.getSourceEntry("CONTROL", null);
 
-                                String gt = StringUtil.join(",", joinGenotypes(avf.getStats().getGenotypesCount()));
-                                String maf = String.format("%.4f", avf.getStats().getMaf());
-                                String amaf = avf.getStats().getMafAllele();
+                                String gt = StringUtil.join(",", joinGenotypes(avf.getStats(VariantSourceEntry.DEFAULT_COHORT).getGenotypesCount()));
+                                String maf = String.format("%.4f", avf.getStats(VariantSourceEntry.DEFAULT_COHORT).getMaf());
+                                String amaf = avf.getStats(VariantSourceEntry.DEFAULT_COHORT).getMafAllele();
                                 for(Map.Entry<String, VariantSourceEntry> entry: record.getSourceEntries().entrySet()){
                                     entry.getValue().addAttribute(this.prefix + "_gt", gt);
                                     entry.getValue().addAttribute(this.prefix + "_maf", maf);
@@ -269,9 +269,9 @@ public class VariantControlAnnotator implements VariantAnnotator {
 
             if (map.containsKey(record)) {
                 VariantSourceEntry avf = record.getSourceEntry("CONTROL", null);
-                avf.addAttribute(this.prefix + "_gt", StringUtil.join(",", avf.getStats().getGenotypesCount()));
-                avf.addAttribute(this.prefix + "_maf", String.format("%.4f", avf.getStats().getMaf()));
-                avf.addAttribute(this.prefix + "_amaf", avf.getStats().getMafAllele());
+                avf.addAttribute(this.prefix + "_gt", StringUtil.join(",", avf.getStats(VariantSourceEntry.DEFAULT_COHORT).getGenotypesCount()));
+                avf.addAttribute(this.prefix + "_maf", String.format("%.4f", avf.getStats(VariantSourceEntry.DEFAULT_COHORT).getMaf()));
+                avf.addAttribute(this.prefix + "_amaf", avf.getStats(VariantSourceEntry.DEFAULT_COHORT).getMafAllele());
             }
         }
 

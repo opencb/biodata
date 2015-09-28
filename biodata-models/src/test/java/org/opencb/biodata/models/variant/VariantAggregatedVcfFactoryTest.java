@@ -41,11 +41,11 @@ public class VariantAggregatedVcfFactoryTest extends GenericTest {
 
         List<Variant> variants = factory.create(source, line);
         
-        VariantStats stats = variants.get(0).getSourceEntry(source.getFileId(), source.getStudyId()).getStats();
+        VariantStats stats = variants.get(0).getSourceEntry(source.getFileId(), source.getStudyId()).getStats(VariantSourceEntry.DEFAULT_COHORT);
         assertEquals(2904, stats.getRefAlleleCount());
         assertEquals(889, stats.getAltAlleleCount());
         
-        stats = variants.get(1).getSourceEntry(source.getFileId(), source.getStudyId()).getStats();
+        stats = variants.get(1).getSourceEntry(source.getFileId(), source.getStudyId()).getStats(VariantSourceEntry.DEFAULT_COHORT);
         assertEquals(2904, stats.getRefAlleleCount());
         assertEquals(61, stats.getAltAlleleCount());
     }
@@ -56,7 +56,7 @@ public class VariantAggregatedVcfFactoryTest extends GenericTest {
 
         List<Variant> variants = factory.create(source, line);
 
-        VariantStats stats = variants.get(0).getSourceEntry(source.getFileId(), source.getStudyId()).getStats();
+        VariantStats stats = variants.get(0).getSourceEntry(source.getFileId(), source.getStudyId()).getStats(VariantSourceEntry.DEFAULT_COHORT);
         assertEquals(new Integer(304), stats.getGenotypesCount().get(new Genotype("0/0", "C", "T")));
         assertEquals(new Integer(163), stats.getGenotypesCount().get(new Genotype("0/1", "C", "T")));
         assertEquals(new Integer(31),  stats.getGenotypesCount().get(new Genotype("T/T", "C", "T")));
@@ -94,7 +94,7 @@ public class VariantAggregatedVcfFactoryTest extends GenericTest {
 
         List<Variant> variants = factory.create(source, line);
 
-        VariantStats stats = variants.get(0).getSourceEntry(source.getFileId(), source.getStudyId()).getStats();
+        VariantStats stats = variants.get(0).getSourceEntry(source.getFileId(), source.getStudyId()).getStats(VariantSourceEntry.DEFAULT_COHORT);
         assertEquals(new Integer(34), stats.getGenotypesCount().get(new Genotype("0/0", "A", "G")));
         assertEquals(new Integer(0),  stats.getGenotypesCount().get(new Genotype("0/1", "A", "G")));
         assertEquals(new Integer(1),  stats.getGenotypesCount().get(new Genotype("G/G", "A", "G")));

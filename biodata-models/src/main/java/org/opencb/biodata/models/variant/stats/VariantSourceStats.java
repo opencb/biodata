@@ -76,7 +76,7 @@ public class VariantSourceStats {
                 continue;
             }
             try {
-                fileStats.update(file.getStats());
+                fileStats.update(file.getCohortStats(VariantSourceEntry.DEFAULT_COHORT));
             } catch (NullPointerException e) {
                 incompleteVariantStats++;
             }

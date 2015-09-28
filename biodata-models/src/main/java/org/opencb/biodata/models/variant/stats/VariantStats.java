@@ -29,6 +29,7 @@ import org.opencb.biodata.models.pedigree.Individual;
 import org.opencb.biodata.models.pedigree.Pedigree;
 import org.opencb.biodata.models.variant.VariantSourceEntry;
 import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.avro.VariantType;
 
 /**
  * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
@@ -41,7 +42,7 @@ public class VariantStats {
 
     private String refAllele;
     private String altAllele;
-    private Variant.VariantType variantType;
+    private VariantType variantType;
     
     private int refAlleleCount;
     private int altAlleleCount;
@@ -73,23 +74,23 @@ public class VariantStats {
 
     
     public VariantStats() {
-        this(null, -1, null, null, Variant.VariantType.SNV, -1, -1, null, null, -1, -1, -1, -1, -1, -1, -1);
+        this(null, -1, null, null, VariantType.SNV, -1, -1, null, null, -1, -1, -1, -1, -1, -1, -1);
     }
 
     public VariantStats(Variant variant) {
         this(null, -1,
                 variant != null ? variant.getReference() : null,
                 variant != null ? variant.getAlternate() : null,
-                variant != null ? variant.getType() : Variant.VariantType.SNV,
+                variant != null ? variant.getType() : VariantType.SNV,
                 -1, -1, null, null, -1, -1, -1, -1, -1, -1, -1);
     }
 
-    public VariantStats(String referenceAllele, String alternateAllele, Variant.VariantType type) {
+    public VariantStats(String referenceAllele, String alternateAllele, VariantType type) {
         this(null, -1, referenceAllele, alternateAllele, type, -1, -1, null, null, -1, -1, -1, -1, -1, -1, -1);
     }
     
     public VariantStats(String chromosome, int position, String referenceAllele, String alternateAlleles, 
-            Variant.VariantType variantType, float maf, float mgf, String mafAllele, String mgfGenotype, 
+            VariantType variantType, float maf, float mgf, String mafAllele, String mgfGenotype,
             int numMissingAlleles, int numMissingGenotypes, int numMendelErrors, float percentCasesDominant, 
             float percentControlsDominant, float percentCasesRecessive, float percentControlsRecessive) {
         this.refAllele = referenceAllele;
@@ -133,11 +134,11 @@ public class VariantStats {
         this.altAllele = altAllele;
     }
 
-    public Variant.VariantType getVariantType() {
+    public VariantType getVariantType() {
         return variantType;
     }
 
-    public void setVariantType(Variant.VariantType variantType) {
+    public void setVariantType(VariantType variantType) {
         this.variantType = variantType;
     }
 
@@ -541,7 +542,7 @@ public class VariantStats {
         for (Variant variant : variants) {
             for (VariantSourceEntry file : variant.getSourceEntries().values()) {
                 VariantStats stats = new VariantStats(variant).calculate(file.getSamplesData(), file.getAttributes(), ped);
-                file.setStats(stats); // TODO Correct?
+                file.setCohortStats(VariantSourceEntry.DEFAULT_COHORT, stats); // TODO Correct?
             }
         }
     }

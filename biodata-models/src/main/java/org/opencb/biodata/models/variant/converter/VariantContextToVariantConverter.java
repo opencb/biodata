@@ -16,7 +16,7 @@
 
 package org.opencb.biodata.models.variant.converter;
 
-import htsjdk.variant.variantcontext.*;
+import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFConstants;
 import htsjdk.variant.vcf.VCFFileReader;
 import org.apache.avro.file.CodecFactory;
@@ -26,6 +26,8 @@ import org.apache.avro.io.DatumReader;
 import org.apache.avro.io.DatumWriter;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.avro.specific.SpecificDatumWriter;
+import org.opencb.biodata.models.variant.Variant;
+//import org.opencb.biodata.models.variant.VariantSourceEntry;
 import org.opencb.biodata.models.variant.avro.*;
 import org.opencb.commons.utils.FileUtils;
 
@@ -142,12 +144,12 @@ public class VariantContextToVariantConverter {
          * set variantSourceEntry fields
          */
 //        Map<String, VariantSourceEntry> sourceEntry = new HashMap<>();
-        List<VariantSourceEntry> sourceEntry = new ArrayList<>();
+        List<VariantSourceEntry> sourceEntries = new ArrayList<>();
         VariantSourceEntry variantSourceEntry = new VariantSourceEntry();
         // For time being setting the hard coded values for FileId and
         // Study ID
-        variantSourceEntry.setFileId(fileId);
-        variantSourceEntry.setStudyId(studyId);
+//        variantSourceEntry.setFileId(fileId);
+//        variantSourceEntry.setStudyId(studyId);
         /*
          * set secondary alternate
          */
@@ -165,36 +167,27 @@ public class VariantContextToVariantConverter {
         List<String> formatFields = new ArrayList<>(10);
         if (variantContext.getGenotypes().size() > 1) {
             htsjdk.variant.variantcontext.Genotype gt = variantContext.getGenotypes().get(0);
-//            StringBuilder formatBuilder = new StringBuilder();
 
-//            formatBuilder.append(VCFConstants.GENOTYPE_KEY);     //GT Field is mandatory and MUST be the first one
+            //GT Field is mandatory and MUST be the first one
             formatFields.add(VCFConstants.GENOTYPE_KEY);
 
             if (gt.hasGQ()) {
-//                formatBuilder.append(VCFConstants.FORMAT_FIELD_SEPARATOR + VCFConstants.GENOTYPE_QUALITY_KEY);
                 formatFields.add(VCFConstants.GENOTYPE_QUALITY_KEY);
             }
             if (gt.hasAD()) {
-//                formatBuilder.append(VCFConstants.FORMAT_FIELD_SEPARATOR + VCFConstants.GENOTYPE_ALLELE_DEPTHS);
                 formatFields.add(VCFConstants.GENOTYPE_ALLELE_DEPTHS);
             }
             if (gt.hasDP()) {
-//                formatBuilder.append(VCFConstants.FORMAT_FIELD_SEPARATOR + VCFConstants.DEPTH_KEY);
                 formatFields.add(VCFConstants.DEPTH_KEY);
             }
             if (gt.hasPL()) {
-//                formatBuilder.append(VCFConstants.FORMAT_FIELD_SEPARATOR + VCFConstants.GENOTYPE_PL_KEY);
                 formatFields.add(VCFConstants.GENOTYPE_PL_KEY);
             }
             for (String key : gt.getExtendedAttributes().keySet()) {
-//                formatBuilder.append(VCFConstants.FORMAT_FIELD_SEPARATOR).append(key);
                 formatFields.add(key);
             }
-//            format = formatBuilder.toString();
-        } else {
-//            format = "";
         }
-        variantSourceEntry.setFormat(formatFields);
+        variantSourceEntry.setFormatList(formatFields);
 
 //        String[] str = ((LazyGenotypesContext) variantContext
 //                .getGenotypes()).getUnparsedGenotypeData().toString()
@@ -246,7 +239,7 @@ public class VariantContextToVariantConverter {
 
 
 //        variantSourceEntry.setSamplesData(sampledataMap);
-        variantSourceEntry.setSamplesData(sampleDataList);
+        variantSourceEntry.setSamplesDataList(sampleDataList);
         /*
          * set default cohort
          */
@@ -275,9 +268,9 @@ public class VariantContextToVariantConverter {
         }
         variantSourceEntry.setAttributes(attributeMapNew);
 //        sourceEntry.put(studyId + "_" + fileId, variantSourceEntry);
-        sourceEntry.add(variantSourceEntry);
+        sourceEntries.add(variantSourceEntry);
 
-        variant.setStudies(sourceEntry);
+        variant.setStudies(sourceEntries);
 
         /*
          * set parameter for HGVS Putting hard coded values for time
@@ -613,8 +606,8 @@ public class VariantContextToVariantConverter {
         }
 
         FileOutputStream outputStream = new FileOutputStream(outputAvroFilePath);
-        DatumWriter<Variant> vcfDatumWriter = new SpecificDatumWriter<>(Variant.class);
-        DataFileWriter<Variant> vcfdataFileWriter = new DataFileWriter<>(vcfDatumWriter);
+        DatumWriter<VariantAvro> vcfDatumWriter = new SpecificDatumWriter<>(VariantAvro.class);
+        DataFileWriter<VariantAvro> vcfdataFileWriter = new DataFileWriter<>(vcfDatumWriter);
 
         Variant variant =  new Variant();
         vcfdataFileWriter.setCodec(CodecFactory.snappyCodec());
@@ -693,7 +686,7 @@ public class VariantContextToVariantConverter {
                 }
                 //get format
 //                format = srcEntry.getValue().getFormat().toString();
-                format = srcEntry.getFormat().stream().collect(Collectors.joining(VCFConstants.FORMAT_FIELD_SEPARATOR));
+                format = srcEntry.getFormatList().stream().collect(Collectors.joining(VCFConstants.FORMAT_FIELD_SEPARATOR));
                 //get filter
 //                for(Entry<String, VariantStats> qual : srcEntry.getValue().getCohortStats().entrySet()){
                 for(Entry<String, VariantStats> qual : srcEntry.getStats().entrySet()){

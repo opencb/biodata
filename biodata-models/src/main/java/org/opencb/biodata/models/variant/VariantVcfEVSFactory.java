@@ -54,7 +54,7 @@ public class VariantVcfEVSFactory extends VariantAggregatedVcfFactory {
     
 
     @Override
-    protected void setOtherFields(Variant variant, VariantSource source, Set<String> ids, float quality, String filter,
+    protected void setOtherFields(Variant variant, VariantSource source, List<String> ids, float quality, String filter,
                                   String info, String format, int numAllele, String[] alternateAlleles, String line) {
         // Fields not affected by the structure of REF and ALT fields
         variant.setIds(ids);
@@ -94,7 +94,7 @@ public class VariantVcfEVSFactory extends VariantAggregatedVcfFactory {
             String splitsGTC[] = file.getAttribute("GTC").split(",");
             addGenotypeWithGTS(variant, file, splitsGTC, alternateAlleles, numAllele, stats);
         }
-        file.setStats(stats);
+        file.setCohortStats(VariantSourceEntry.DEFAULT_COHORT, stats);
     }
 
 

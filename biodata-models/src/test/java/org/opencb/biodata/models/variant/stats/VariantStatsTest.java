@@ -26,6 +26,7 @@ import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantSource;
 import org.opencb.biodata.models.variant.VariantSourceEntry;
 import org.opencb.biodata.models.variant.VariantVcfFactory;
+import org.opencb.biodata.models.variant.avro.VariantType;
 
 /**
  *
@@ -54,7 +55,7 @@ public class VariantStatsTest {
         
         assertEquals("T", biallelicStats.getRefAllele());
         assertEquals("C", biallelicStats.getAltAllele());
-        assertEquals(Variant.VariantType.SNV, biallelicStats.getVariantType());
+        assertEquals(VariantType.SNV, biallelicStats.getVariantType());
         
         assertEquals(4, biallelicStats.getRefAlleleCount());
         assertEquals(6, biallelicStats.getAltAlleleCount());
@@ -109,7 +110,7 @@ public class VariantStatsTest {
         
         assertEquals("T", multiallelicStats_C.getRefAllele());
         assertEquals("A", multiallelicStats_C.getAltAllele());
-        assertEquals(Variant.VariantType.SNV, multiallelicStats_C.getVariantType());
+        assertEquals(VariantType.SNV, multiallelicStats_C.getVariantType());
         
 //        assertEquals(3, multiallelicStats_C.getRefAlleleCount());
 //        assertEquals(4, multiallelicStats_C.getAltAlleleCount());

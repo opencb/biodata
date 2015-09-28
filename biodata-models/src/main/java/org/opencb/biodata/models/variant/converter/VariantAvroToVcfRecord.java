@@ -17,7 +17,7 @@
 package org.opencb.biodata.models.variant.converter;
 
 import org.apache.commons.lang3.StringUtils;
-import org.opencb.biodata.models.variant.avro.Variant;
+import org.opencb.biodata.models.variant.avro.VariantAvro;
 import org.opencb.biodata.models.variant.avro.VariantSourceEntry;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfMeta;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfRecord;
@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
  * @author Matthias Haimel mh719+git@cam.ac.uk
  *
  */
-public class VariantAvroToVcfRecord implements Converter<Variant,VcfRecord> {
+public class VariantAvroToVcfRecord implements Converter<VariantAvro,VcfRecord> {
 
     //	private static final char STRING_JOIN_SEP = '~';
     public static final String ATTRIBUTE_SRC = "src";
@@ -95,14 +95,14 @@ public class VariantAvroToVcfRecord implements Converter<Variant,VcfRecord> {
     }
 
     @Override
-    public VcfRecord convert(Variant variant) {
+    public VcfRecord convert(VariantAvro variant) {
         return convert(variant,-1);
     }
 
-    public VcfRecord convert(Variant variant, int chunkSize) {
+    public VcfRecord convert(VariantAvro variant, int chunkSize) {
         Builder recordBuilder = VcfRecord.newBuilder()
-                .setRelativeStart(getSliceOffset(variant.getStart().intValue(),chunkSize))
-                .setRelativeEnd(getSliceOffset(variant.getEnd().intValue(),chunkSize))
+                .setRelativeStart(getSliceOffset(variant.getStart().intValue(), chunkSize))
+                .setRelativeEnd(getSliceOffset(variant.getEnd().intValue(), chunkSize))
                 .setReference(variant.getReference().toString())
                 .setAlternate(variant.getAlternate().toString())
                 .addAllIdNonDefault(decodeIds(variant.getIds()));
@@ -145,11 +145,11 @@ public class VariantAvroToVcfRecord implements Converter<Variant,VcfRecord> {
         recordBuilder.addAllInfoValue(infoValues);
 
 		/* FORMAT */
-        List<String> formatLst = decodeFormat(study.getFormat().toString()); // FORMAT column
+        List<String> formatLst = decodeFormat(study.getFormatList().stream().collect(Collectors.joining(","))); // FORMAT column
         if( ! isDefaultFormat(formatLst)){
             recordBuilder.addAllSampleFormatNonDefault(formatLst); // maybe empty if default
         }
-        recordBuilder.addAllSamples(decodeSamples(formatLst, study.getSamplesData()));
+        recordBuilder.addAllSamples(decodeSamples(formatLst, study.getSamplesDataList()));
 
         // TODO check all worked
         return recordBuilder.build();

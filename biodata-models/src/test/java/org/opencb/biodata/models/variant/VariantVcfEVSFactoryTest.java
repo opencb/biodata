@@ -54,7 +54,7 @@ public class VariantVcfEVSFactoryTest extends GenericTest {
         genotypes.put(new Genotype("0/1","T","G"), 141);
         genotypes.put(new Genotype("1/1","T","G"), 93);
 
-        assertEquals(avf.getStats().getGenotypesCount(), genotypes);
+        assertEquals(avf.getStats(VariantSourceEntry.DEFAULT_COHORT).getGenotypesCount(), genotypes);
 
     }
 
@@ -74,7 +74,7 @@ public class VariantVcfEVSFactoryTest extends GenericTest {
         genotypes.put(new Genotype("0/0", "T", "A"), 2442);
         genotypes.put(new Genotype("1/1", "T", "A"), 1);
 
-        assertEquals(avf.getStats().getGenotypesCount(), genotypes);
+        assertEquals(avf.getStats(VariantSourceEntry.DEFAULT_COHORT).getGenotypesCount(), genotypes);
 
     }
 
@@ -100,7 +100,7 @@ public class VariantVcfEVSFactoryTest extends GenericTest {
         genotypes.put(new Genotype("0/1", "G", ""), 1);
         genotypes.put(new Genotype("0/0", "G", ""), 6253);
 
-        assertEquals(avf.getStats().getGenotypesCount(), genotypes);
+        assertEquals(avf.getStats(VariantSourceEntry.DEFAULT_COHORT).getGenotypesCount(), genotypes);
 
     }
 
@@ -127,7 +127,7 @@ public class VariantVcfEVSFactoryTest extends GenericTest {
         genotypes.put(new Genotype("0/1", "T", ""), 1298);
         genotypes.put(new Genotype("0/0", "T", ""), 3261);
 
-        assertEquals(avf.getStats().getGenotypesCount(), genotypes);
+        assertEquals(avf.getStats(VariantSourceEntry.DEFAULT_COHORT).getGenotypesCount(), genotypes);
     }
 
     @Test
@@ -156,7 +156,7 @@ public class VariantVcfEVSFactoryTest extends GenericTest {
         genotypes.put(new Genotype("2/2", "", "A"), 111);
         genotypes.put(new Genotype("0/2", "", "A"), 92);
 
-        assertEquals(avf.getStats().getGenotypesCount(), genotypes);
+        assertEquals(avf.getStats(VariantSourceEntry.DEFAULT_COHORT).getGenotypesCount(), genotypes);
 
 
         v = res.get(1);
@@ -176,7 +176,7 @@ public class VariantVcfEVSFactoryTest extends GenericTest {
         genotypes.put(new Genotype("2/2", "A", ""), 162);
         genotypes.put(new Genotype("0/2", "A", ""), 134);
 
-        assertEquals(avf.getStats().getGenotypesCount(), genotypes);
+        assertEquals(avf.getStats(VariantSourceEntry.DEFAULT_COHORT).getGenotypesCount(), genotypes);
 
 
     }
