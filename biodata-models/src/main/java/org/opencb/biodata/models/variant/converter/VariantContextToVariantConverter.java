@@ -16,8 +16,7 @@
 
 package org.opencb.biodata.models.variant.converter;
 
-import htsjdk.variant.variantcontext.LazyGenotypesContext;
-import htsjdk.variant.variantcontext.VariantContext;
+import htsjdk.variant.variantcontext.*;
 import htsjdk.variant.vcf.VCFConstants;
 import htsjdk.variant.vcf.VCFFileReader;
 import org.apache.avro.file.CodecFactory;
@@ -75,9 +74,9 @@ public class VariantContextToVariantConverter {
             variantList.add(variant);
         }
 
-		/*
-		 * method writeHtsjdkDataIntoAvro to write VCF data into AVRO format
-		 */
+        /*
+         * method writeHtsjdkDataIntoAvro to write VCF data into AVRO format
+         */
         writeHtsjdkDataIntoAvro(variantList, outputAvroFilePath.toAbsolutePath().toString());
     }
 
@@ -95,16 +94,16 @@ public class VariantContextToVariantConverter {
         Variant variant = reuse;
 
         variant.setChromosome(variantContext.getContig());
-        variant.setStart(variantContext.getStart());
-        variant.setEnd(variantContext.getEnd());
+        variant.setStart((long) variantContext.getStart());
+        variant.setEnd((long) variantContext.getEnd());
 
-		/*
-		 * set reference parameter
-		 */
+        /*
+         * set reference parameter
+         */
         variant.setReference(variantContext.getReference().getDisplayString());
-		/*
-		 * set alternate parameter
-		 */
+        /*
+         * set alternate parameter
+         */
         String alternateAllelString = variantContext.getAlternateAlleles().toString().substring(1, variantContext.getAlternateAlleles().toString().length() - 1);
         String[] alternateAllelArray = alternateAllelString.split(",");
         String alternate = null;
@@ -114,15 +113,15 @@ public class VariantContextToVariantConverter {
             alternate = alternateAllelString;
         }
         variant.setAlternate(alternate);
-		/*
-		 * set variant type parameter
-		 */
+        /*
+         * set variant type parameter
+         */
         variant.setType(getEnumFromString(org.opencb.biodata.models.variant.avro.VariantType.class, variantContext.getType().toString()));
 
-		/*
-		 * set id parameter
-		 */
-        String[] idsArray = variantContext.getID().split(";");
+        /*
+         * set id parameter
+         */
+        String[] idsArray = variantContext.getID().split(VCFConstants.ID_FIELD_SEPARATOR);
         List<String> ids = new ArrayList<>(idsArray.length);
         for (String id : idsArray) {
             //Do not need to store dot ID. It means that this variant does not have any ID
@@ -133,15 +132,15 @@ public class VariantContextToVariantConverter {
         variant.setIds(ids);
 
         /*
-		 * set length parameter
-		 */
+         * set length parameter
+         */
         variant.setLength(variantContext.getStart() == variantContext.getEnd()
                 ? 1
                 : variantContext.getEnd() - variantContext.getStart() + 1);
 
         /*
-		 * set variantSourceEntry fields
-		 */
+         * set variantSourceEntry fields
+         */
 //        Map<String, VariantSourceEntry> sourceEntry = new HashMap<>();
         List<VariantSourceEntry> sourceEntry = new ArrayList<>();
         VariantSourceEntry variantSourceEntry = new VariantSourceEntry();
@@ -149,86 +148,126 @@ public class VariantContextToVariantConverter {
         // Study ID
         variantSourceEntry.setFileId(fileId);
         variantSourceEntry.setStudyId(studyId);
-		/*
-		 * set secondary alternate
-		 */
+        /*
+         * set secondary alternate
+         */
         List<String> secondaryAlternateAlleleList = new ArrayList<>();
         if (alternateAllelString.split(",").length >= 2) {
             secondaryAlternateAlleleList = getSecondaryAlternateAllele(alternateAllelString);
 
         }
         variantSourceEntry.setSecondaryAlternates(secondaryAlternateAlleleList);
-		/*
-		 * set variant format
-		 */
-        //FIXME
-        String[] str = ((LazyGenotypesContext) variantContext
-                .getGenotypes()).getUnparsedGenotypeData().toString()
-                .split("\t", 2);
-        String format = str[0];
-        variantSourceEntry.setFormat(format);
-        String[] formatFields = format.split(":");
-		/*
-		 * set sample data parameters Eg: GT:GQ:GQX:DP:DPF:AD
-		 * 1/1:63:29:22:7:0,22
-		 */
+        /*
+         * set variant format
+         */
+        //FIXME: This code is not respecting the original format order
+//        String format;
+        List<String> formatFields = new ArrayList<>(10);
+        if (variantContext.getGenotypes().size() > 1) {
+            htsjdk.variant.variantcontext.Genotype gt = variantContext.getGenotypes().get(0);
+//            StringBuilder formatBuilder = new StringBuilder();
+
+//            formatBuilder.append(VCFConstants.GENOTYPE_KEY);     //GT Field is mandatory and MUST be the first one
+            formatFields.add(VCFConstants.GENOTYPE_KEY);
+
+            if (gt.hasGQ()) {
+//                formatBuilder.append(VCFConstants.FORMAT_FIELD_SEPARATOR + VCFConstants.GENOTYPE_QUALITY_KEY);
+                formatFields.add(VCFConstants.GENOTYPE_QUALITY_KEY);
+            }
+            if (gt.hasAD()) {
+//                formatBuilder.append(VCFConstants.FORMAT_FIELD_SEPARATOR + VCFConstants.GENOTYPE_ALLELE_DEPTHS);
+                formatFields.add(VCFConstants.GENOTYPE_ALLELE_DEPTHS);
+            }
+            if (gt.hasDP()) {
+//                formatBuilder.append(VCFConstants.FORMAT_FIELD_SEPARATOR + VCFConstants.DEPTH_KEY);
+                formatFields.add(VCFConstants.DEPTH_KEY);
+            }
+            if (gt.hasPL()) {
+//                formatBuilder.append(VCFConstants.FORMAT_FIELD_SEPARATOR + VCFConstants.GENOTYPE_PL_KEY);
+                formatFields.add(VCFConstants.GENOTYPE_PL_KEY);
+            }
+            for (String key : gt.getExtendedAttributes().keySet()) {
+//                formatBuilder.append(VCFConstants.FORMAT_FIELD_SEPARATOR).append(key);
+                formatFields.add(key);
+            }
+//            format = formatBuilder.toString();
+        } else {
+//            format = "";
+        }
+        variantSourceEntry.setFormat(formatFields);
+
+//        String[] str = ((LazyGenotypesContext) variantContext
+//                .getGenotypes()).getUnparsedGenotypeData().toString()
+//                .split("\t", 2);
+//        String format = str[0];
+//        variantSourceEntry.setFormat(format);
+//        String[] formatFields = format.split(":");
+        /*
+         * set sample data parameters Eg: GT:GQ:GQX:DP:DPF:AD
+         * 1/1:63:29:22:7:0,22
+         */
 //        Map<String, Map<String, String>> sampledataMap = new HashMap<>();
         List<List<String>> sampleDataList = new ArrayList<>(variantContext.getSampleNames().size());
 
         for (String sampleName : variantContext.getSampleNames()) {
             htsjdk.variant.variantcontext.Genotype genotype = variantContext.getGenotype(sampleName);
-            HashMap<String, String> sampleData = new HashMap<>();
+//            HashMap<String, String> sampleData = new HashMap<>();
+            List<String> sampleList = new ArrayList<>(formatFields.size());
 
             for (String formatField : formatFields) {
+                final String value;
                 switch (formatField) {
                     case VCFConstants.GENOTYPE_KEY:
                         //TODO: Change from specific allele genotype to codified genotype (A/C -> 0/1)
-                        sampleData.put(formatField, genotype.getGenotypeString());
+                        value = genotype.getGenotypeString();
                         break;
                     default:
                         Object attribute = genotype.getAnyAttribute(formatField);
                         if (attribute != null) {
                             if (attribute instanceof Collection) {
-                                sampleData.put(formatField, ((List<Object>) attribute).stream().map(Object::toString).collect(Collectors.joining(",")));
+                                value = ((List<Object>) attribute).stream().map(Object::toString).collect(Collectors.joining(","));
                             } else {
-                                sampleData.put(formatField, attribute.toString());
+                                value = attribute.toString();
                             }
+                        } else {
+                            //TODO: Can hts return null fields?
+                            value = ".";
+                            System.err.println("Null value");
                         }
+                        break;
                 }
+//                sampleData.put(formatField, value);
+                sampleList.add(value);
             }
 
 //            sampledataMap.put(sampleName, sampleData);
-            List<String> sampleList = new ArrayList<>(formatFields.length);
-            for (String formatField : formatFields) {
-                sampleList.add(sampleData.get(formatField));
-            }
             sampleDataList.add(sampleList);
         }
 
 
 //        variantSourceEntry.setSamplesData(sampledataMap);
         variantSourceEntry.setSamplesData(sampleDataList);
-		/*
-		 * set default cohort
-		 */
+        /*
+         * set default cohort
+         */
 
-		/*
-		 * set cohortStats fields. Putting hard coded values for time
-		 * being as these value will not be getting from HTSJDK
-		 * currently.
-		 */
+        /*
+         * set cohortStats fields. Putting hard coded values for time
+         * being as these value will not be getting from HTSJDK
+         * currently.
+         */
         Map<String, VariantStats> cohortStats = new HashMap<>();
         //TODO: Call to the Variant Aggregated Stats Parser
-//		cohortStats.put(
-//				"2",
-//				setVariantStatsParams(
-//						setVariantHardyWeinbergStatsParams(),
-//						variantContext));
+//        cohortStats.put(
+//                "2",
+//                setVariantStatsParams(
+//                        setVariantHardyWeinbergStatsParams(),
+//                        variantContext));
         variantSourceEntry.setStats(cohortStats);
-		/*
-		 * set attribute fields. Putting hard coded values for time being
-		 * as these value will not be getting from HTSJDK currently.
-		 */
+        /*
+         * set attribute fields. Putting hard coded values for time being
+         * as these value will not be getting from HTSJDK currently.
+         */
         Map<String, String> attributeMapNew = new HashMap<>();
         Map<String, Object> attributeMap = variantContext.getAttributes();
         for (Map.Entry<String, Object> attr : attributeMap.entrySet()) {
@@ -240,23 +279,23 @@ public class VariantContextToVariantConverter {
 
         variant.setStudies(sourceEntry);
 
-		/*
-		 * set parameter for HGVS Putting hard coded values for time
-		 * being as these value will not be getting from HTSJDK
-		 * currently.
-		 */
+        /*
+         * set parameter for HGVS Putting hard coded values for time
+         * being as these value will not be getting from HTSJDK
+         * currently.
+         */
         Map<String, List<String>> hgvsMap = new HashMap<>();
         //TODO: Add HGVS information
         List<String> hgvsList = new ArrayList<>();
-//		hgvsList.add("HGVS");
-//		hgvsMap.put("11", hgvsList);
+//        hgvsList.add("HGVS");
+//        hgvsMap.put("11", hgvsList);
         variant.setHgvs(hgvsMap);
 
-		/*
-		 * set VariantAnnotation parameters
-		 */
+        /*
+         * set VariantAnnotation parameters
+         */
         //TODO: Read annotation from info column
-//		variant.setAnnotation(setVaraintAnnotationParams());
+//        variant.setAnnotation(setVaraintAnnotationParams());
         return variant;
 
 
@@ -278,27 +317,27 @@ public class VariantContextToVariantConverter {
         consequenceType.setCodon(null);
         consequenceType.setEnsemblGeneId(null);
         consequenceType.setEnsemblTranscriptId(null);
-		/*
-		 * set ExpressionValues list type parameter
-		 */
+        /*
+         * set ExpressionValues list type parameter
+         */
         List<ExpressionValue> expressionValueList = new ArrayList<>();
         ExpressionValue expressionValue = new ExpressionValue();
         expressionValue.setExpression(getEnumFromString(
                 org.opencb.biodata.models.variant.avro.Expression.class, "UP"));
-		/*expressionValue.setExperimentalFactor(null);
-		expressionValue.setExperimentId(null);
-		expressionValue.setExpression(null);
-		expressionValue.setFactorValue(null);
-		expressionValue.setPvalue(null);
-		expressionValue.setTechnologyPlatform(null);*/
+        /*expressionValue.setExperimentalFactor(null);
+        expressionValue.setExperimentId(null);
+        expressionValue.setExpression(null);
+        expressionValue.setFactorValue(null);
+        expressionValue.setPvalue(null);
+        expressionValue.setTechnologyPlatform(null);*/
         expressionValueList.add(expressionValue);
         consequenceType.setExpressionValues(expressionValueList);
 
         consequenceType.setFunctionalDescription(null);
         consequenceType.setGeneName(null);
-		/*
-		 * set ProteinSubstitutionScores list type parameter
-		 */
+        /*
+         * set ProteinSubstitutionScores list type parameter
+         */
         List<Score> proteinSubstitutionScoreList = new ArrayList<>();
         Score score = new Score();
         score.setDescription(null);
@@ -306,9 +345,9 @@ public class VariantContextToVariantConverter {
         score.setSource(null);
         proteinSubstitutionScoreList.add(score);
         consequenceType.setProteinSubstitutionScores(proteinSubstitutionScoreList);
-		/*
-		 * set SoTerms list type parameter
-		 */
+        /*
+         * set SoTerms list type parameter
+         */
         List<ConsequenceTypeEntry> consequenceTypeEntryList = new ArrayList<>();
         ConsequenceTypeEntry consequenceTypeEntry = new ConsequenceTypeEntry();
         consequenceTypeEntry.setSoAccession(null);
@@ -317,9 +356,9 @@ public class VariantContextToVariantConverter {
         consequenceType.setSoTerms(consequenceTypeEntryList);
 
         consequenceType.setStrand(null);
-		/*
-		 * Add consequenceType final bean to list
-		 */
+        /*
+         * Add consequenceType final bean to list
+         */
         consequenceTypeList.add(consequenceType);
         return consequenceTypeList;
     }
@@ -354,87 +393,87 @@ public class VariantContextToVariantConverter {
      */
     public VariantAnnotation setVaraintAnnotationParams(){
         VariantAnnotation variantAnnotation = new VariantAnnotation();
-		/*
-		 * set AdditionalAttributes map type parameter
-		 */
+        /*
+         * set AdditionalAttributes map type parameter
+         */
         Map<String, String> additionalAttributesMap = new HashMap();
         //additionalAttributesMap.put(null, null);
         variantAnnotation.setAdditionalAttributes(additionalAttributesMap);
-		/*
-		 * set AlternateAllele parameter
-		 */
+        /*
+         * set AlternateAllele parameter
+         */
         variantAnnotation.setAlternate(null);
-		/*
-		 * set CaddScore list type parameter
-		 */
+        /*
+         * set CaddScore list type parameter
+         */
         List<CaddScore> caddScoreList = new ArrayList<>();
         CaddScore caddScore = new CaddScore();
-		/*caddScore.setCScore(null);
-		caddScore.setRawScore(null);
-		caddScore.setTranscriptId(null);*/
-//		caddScoreList.add(caddScore);
-//		variantAnnotation.setCaddScore(caddScoreList);
-		/*
-		 * set Chromosome parameter
-		 */
+        /*caddScore.setCScore(null);
+        caddScore.setRawScore(null);
+        caddScore.setTranscriptId(null);*/
+//        caddScoreList.add(caddScore);
+//        variantAnnotation.setCaddScore(caddScoreList);
+        /*
+         * set Chromosome parameter
+         */
         variantAnnotation.setChromosome(null);
-		/*
-		 * set Clinical map type parameter
-		 */
+        /*
+         * set Clinical map type parameter
+         */
         Map<String, String> clinicalMap = new HashMap<>();
         //clinicalMap.put(null, null);
         variantAnnotation.setVariantTraitAssociation(clinicalMap);
-		/*
-		 * set ConsequenceTypes list type parameter
-		 */
+        /*
+         * set ConsequenceTypes list type parameter
+         */
         variantAnnotation.setConsequenceTypes(setConsequenceTypeParams());
-		/*
-		 * set ConservationScores list type parameter
-		 */
+        /*
+         * set ConservationScores list type parameter
+         */
         List<Score> conservationScoreList = new ArrayList<>();
         Score score = new Score();
-		/*score.setDescription(null);
-		score.setScore(null);
-		score.setSource(null);	*/
+        /*score.setDescription(null);
+        score.setScore(null);
+        score.setSource(null);    */
         conservationScoreList.add(score);
         variantAnnotation.setConservation(conservationScoreList);
 
         variantAnnotation.setEnd(0);
-		/*
-		 * set GeneDrugInteraction map of list type parameter
-		 */
+        /*
+         * set GeneDrugInteraction map of list type parameter
+         */
         Map<String, List<String>> geneDrugInteractionMap = new HashMap<>();
         List<String> geneDrugInteractionList = new ArrayList<>();
         //geneDrugInteractionList.add("AAA");
         //geneDrugInteractionMap.put("000", geneDrugInteractionList);
         variantAnnotation.setGeneDrugInteraction(geneDrugInteractionMap);
-		/*
-		 * set Hgvs list type parameter
-		 */
+        /*
+         * set Hgvs list type parameter
+         */
         List<String> hgvsList = new ArrayList<>();
         //hgvsList.add(null);
         variantAnnotation.setHgvs(hgvsList);
 
         variantAnnotation.setId(null);
-		/*
-		 * set PopulationFrequencies list type parameter
-		 */
+        /*
+         * set PopulationFrequencies list type parameter
+         */
         variantAnnotation.setPopulationFrequencies(setPopulationFrequencyParams());
 
         variantAnnotation.setReference(null);
         variantAnnotation.setStart(0);
-		/*
-		 * set Xref list type parameter
-		 */
+        /*
+         * set Xref list type parameter
+         */
         List<Xref> xrefsList = new ArrayList<>();
         Xref xref = new Xref();
-		/*xref.setId(null);
-		xref.setSrc(null);*/
+        /*xref.setId(null);
+        xref.setSrc(null);*/
         xrefsList.add(xref);
         variantAnnotation.setXrefs(xrefsList);
-		/*
-		 * return variantAnnotation bean
-		 */
+        /*
+         * return variantAnnotation bean
+         */
         return variantAnnotation;
     }
 
@@ -596,9 +635,9 @@ public class VariantContextToVariantConverter {
      * @throws IOException
      */
     public void convertToVariantContext(String avroFilePath, String contextFilePath) throws IOException{
-		/*
-		 * Read avro file and set value to the bean
-		 */
+        /*
+         * Read avro file and set value to the bean
+         */
         DatumReader<Variant> variantDatumReader = new SpecificDatumReader<Variant>(Variant.class);
         DataFileReader<Variant> variantDataFileReader = new DataFileReader<Variant>(new File(avroFilePath), variantDatumReader);
         Variant readAvro = null;
@@ -611,26 +650,26 @@ public class VariantContextToVariantConverter {
             AvroToVariantContextBean avroToVariantContextBean = new AvroToVariantContextBean();
             readAvro = variantDataFileReader.next(readAvro);
 
-			/*
-			 * Set chromosome
-			 */
-            avroToVariantContextBean.setChrom(readAvro.getChromosome().toString());
-			/*
-			 * Set position
-			 */
-            int pos= readAvro.getStart();
+            /*
+             * Set chromosome
+             */
+            avroToVariantContextBean.setChrom(readAvro.getChromosome());
+            /*
+             * Set position
+             */
+            int pos = readAvro.getStart().intValue();
             int position = 0;
-            if ((readAvro.getLength()) == 1){
+            if ((readAvro.getLength()) == 1) {
                 position = pos;
                 avroToVariantContextBean.setPos(position);
-            }else {
-                position = pos-1;
+            } else {
+                position = pos - 1;
                 avroToVariantContextBean.setPos(position);
             }
-			/*
-			 * Set reference 
-			 */
-            avroToVariantContextBean.setRef(readAvro.getReference().toString());
+            /*
+             * Set reference
+             */
+            avroToVariantContextBean.setRef(readAvro.getReference());
 
             //get parameters from variant source entry
             List<String> secondaryAltList = new ArrayList<>();
@@ -646,21 +685,21 @@ public class VariantContextToVariantConverter {
 //                secondaryAltList = srcEntry.getValue().getSecondaryAlternates();
                 secondaryAltList = srcEntry.getSecondaryAlternates();
                 for(String secAlt : secondaryAltList){
-                    if(secAlt.toString().equals("null")){
+                    if(secAlt.equals("null")){
                         secondaryAlt = "";
                     }else{
-                        secondaryAlt = secAlt.toString();
+                        secondaryAlt = secAlt;
                     }
                 }
                 //get format
 //                format = srcEntry.getValue().getFormat().toString();
-                format = srcEntry.getFormat().toString();
+                format = srcEntry.getFormat().stream().collect(Collectors.joining(VCFConstants.FORMAT_FIELD_SEPARATOR));
                 //get filter
 //                for(Entry<String, VariantStats> qual : srcEntry.getValue().getCohortStats().entrySet()){
                 for(Entry<String, VariantStats> qual : srcEntry.getStats().entrySet()){
                     if(qual.getValue().getPassedFilters().toString().equals("true")){
                         filter = "Pass";
-                    }else{
+                    } else {
                         filter = "Fail";
                     }
                 }
@@ -682,31 +721,31 @@ public class VariantContextToVariantConverter {
                     info=info.substring(0, info.length()-1);
                 }
             }
-			/*
-			 * Set alternate
-			 */
-            String alternate = readAvro.getAlternate().toString()+","+ secondaryAlt;
+            /*
+             * Set alternate
+             */
+            String alternate = readAvro.getAlternate() + "," + secondaryAlt;
             alternate=alternate.substring(0, alternate.length()-1);
             avroToVariantContextBean.setAlt(alternate);
-			/*
-			 * set format
-			 */
+            /*
+             * set format
+             */
             avroToVariantContextBean.setFormat(format);
-			/*
-			 * set filter
-			 */
+            /*
+             * set filter
+             */
             avroToVariantContextBean.setFilter(filter);
-			/*
-			 * set quality
-			 */
+            /*
+             * set quality
+             */
             avroToVariantContextBean.setQual(quality);
-			/*
-			 * set sample
-			 */
+            /*
+             * set sample
+             */
             avroToVariantContextBean.setSample1(sample);
-			/*
-			 * set id
-			 */
+            /*
+             * set id
+             */
             List<String> idList = readAvro.getIds();
             String ids = "";
             for(String idStr : idList){
@@ -714,16 +753,16 @@ public class VariantContextToVariantConverter {
             }
             ids=ids.substring(0, ids.length()-1);
             avroToVariantContextBean.setId(ids);
-			/*
-			 * set info
-			 */
+            /*
+             * set info
+             */
             avroToVariantContextBean.setInfo(info);
 
-			/*System.out.println(avroToVariantContextBean.getChrom() +"  "+ avroToVariantContextBean.getPos() +"  "+ avroToVariantContextBean.getId() 
-					+"  "+ avroToVariantContextBean.getRef() +"  "+ avroToVariantContextBean.getAlt() +"  "+ avroToVariantContextBean.getQual() 
-					 +"  "+ avroToVariantContextBean.getFilter() +"  "+ avroToVariantContextBean.getInfo() 
-					 +" "+ avroToVariantContextBean.getFormat() +"  "+ avroToVariantContextBean.getSample1() 
-					 );*/
+            /*System.out.println(avroToVariantContextBean.getChrom() +"  "+ avroToVariantContextBean.getPos() +"  "+ avroToVariantContextBean.getId()
+                    +"  "+ avroToVariantContextBean.getRef() +"  "+ avroToVariantContextBean.getAlt() +"  "+ avroToVariantContextBean.getQual()
+                     +"  "+ avroToVariantContextBean.getFilter() +"  "+ avroToVariantContextBean.getInfo()
+                     +" "+ avroToVariantContextBean.getFormat() +"  "+ avroToVariantContextBean.getSample1()
+                     );*/
 
             bw.write(avroToVariantContextBean.getChrom() +"\t"+ avroToVariantContextBean.getPos() +"\t"+ avroToVariantContextBean.getId()
                     +"\t"+ avroToVariantContextBean.getRef() +"\t"+ avroToVariantContextBean.getAlt() +"\t"+ avroToVariantContextBean.getQual()

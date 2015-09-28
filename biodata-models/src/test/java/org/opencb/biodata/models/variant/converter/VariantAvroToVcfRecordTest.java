@@ -1,5 +1,6 @@
 package org.opencb.biodata.models.variant.converter;
 
+import htsjdk.variant.vcf.VCFConstants;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,17 +39,20 @@ public class VariantAvroToVcfRecordTest {
         Variant v = createVariant(chr, start, end, ids,ref,alt);
 
 
-        String file_name = "file_123";String format = "AB:EF:CD";String qual = "321";String filter = "PASS;low30";
+        String file_name = "file_123";
+        String format = "AB:EF:CD";
+        String qual = "321";
+        String filter = "PASS;low30";
         VariantSourceEntry study = new VariantSourceEntry();
         study.setFileId(file_name);
-        study.setFormat(format);
+        study.setFormat(Arrays.asList(format.split(VCFConstants.FORMAT_FIELD_SEPARATOR)));
         study.setAttributes(
                 buildMap(
-                        "X:x","A:ab",
-                        VariantAvroToVcfRecord.ATTRIBUTE_SRC+":src-stuff",
-                        VariantAvroToVcfRecord.ATTRIBUTE_ORI+":ori-stuff",
-                        VariantAvroToVcfRecord.ATTRIBUTE_QUAL+":"+qual,
-                        VariantAvroToVcfRecord.ATTRIBUTE_FILTER+":"+filter));
+                        "X:x", "A:ab",
+                        VariantAvroToVcfRecord.ATTRIBUTE_SRC + ":src-stuff",
+                        VariantAvroToVcfRecord.ATTRIBUTE_ORI + ":ori-stuff",
+                        VariantAvroToVcfRecord.ATTRIBUTE_QUAL + ":" + qual,
+                        VariantAvroToVcfRecord.ATTRIBUTE_FILTER + ":" + filter));
 //        study.setSamplesData(new HashMap<String, Map<String,String>>());
 //        study.getSamplesData().put(sampleList.get(0), buildMap("EF:ef","AB:sample_03"));
 //        study.getSamplesData().put(sampleList.get(1), buildMap("EF:ef","AB:sample_01","CD:cd"));
@@ -97,7 +101,7 @@ public class VariantAvroToVcfRecordTest {
         return m;
     }
 
-    private Variant createVariant(String chr, int start, int end,
+    private Variant createVariant(String chr, long start, long end,
                                   List<String> ids, String ref, String alt) {
         Variant v = new Variant();
         v.setReference(chr);
