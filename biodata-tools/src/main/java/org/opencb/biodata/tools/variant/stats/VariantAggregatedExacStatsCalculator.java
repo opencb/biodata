@@ -14,29 +14,33 @@
  * limitations under the License.
  */
 
-package org.opencb.biodata.models.variant;
+package org.opencb.biodata.tools.variant.stats;
 
 import org.opencb.biodata.models.feature.Genotype;
+import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.VariantSourceEntry;
+import org.opencb.biodata.models.variant.VariantVcfFactory;
 import org.opencb.biodata.models.variant.stats.VariantStats;
+import org.opencb.biodata.tools.variant.stats.VariantAggregatedStatsCalculator;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * Created by jmmut on 2015-03-25.
  * @author Jose Miguel Mut Lopez &lt;jmmut@ebi.ac.uk&gt;
  */
-public class VariantVcfExacFactory extends VariantAggregatedVcfFactory {
+public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStatsCalculator {
 
     private static final String AC_HOM = "AC_Hom";
     private static final String AC_HET = "AC_Het";
     private static final String AN_ADJ = "AN_Adj";
     private static final String AC_ADJ = "AC_Adj";
-    private static final String COMMA = ",";
 
-    public VariantVcfExacFactory() {
-        this(null);
+    public VariantAggregatedExacStatsCalculator() {
+        super();
     }
 
     /**
@@ -50,85 +54,88 @@ public class VariantVcfExacFactory extends VariantAggregatedVcfFactory {
      * ALL.AN =AN_Adj
      * ALL.HET=AC_Het
      * ALL.HOM=AC_Hom
-     *              
+     *
      * Het is the list of heterozygous counts as listed by VariantVcfExacFactory.getHeterozygousGenotype()
      * Hom is the list of homozygous counts as listed by VariantVcfExacFactory.getHomozygousGenotype()
-     * 
+     *
      */
-    public VariantVcfExacFactory(Properties tagMap) {
+    public VariantAggregatedExacStatsCalculator(Properties tagMap) {
         super(tagMap);
     }
 
-   
     @Override
-    protected void parseStats(Variant variant, VariantSource source, int numAllele, String[] alternateAlleles, String info) {
+    protected void parseStats(Variant variant, VariantSourceEntry source, int numAllele, String[] alternateAlleles, Map<String, String> info) {
         VariantSourceEntry sourceEntry = variant.getSourceEntry(source.getFileId(), source.getStudyId());
         VariantStats stats = new VariantStats(variant);
-        
-        if (sourceEntry.hasAttribute(AC_HET)) {   // heterozygous genotype count
-            String[] hetCounts = sourceEntry.getAttribute(AC_HET).split(COMMA);
+
+        if (info.containsKey(AC_HET)) {   // heterozygous genotype count
+            String[] hetCounts = info.get(AC_HET).split(COMMA);
             addHeterozygousGenotypes(variant, numAllele, alternateAlleles, stats, hetCounts);
         }
 
-        if (sourceEntry.hasAttribute(AC_HOM)) {   // homozygous genotype count
-            String[] homCounts = sourceEntry.getAttribute(AC_HOM).split(COMMA);
+        if (info.containsKey(AC_HOM)) {   // homozygous genotype count
+            String[] homCounts = info.get(AC_HOM).split(COMMA);
             addHomozygousGenotype(variant, numAllele, alternateAlleles, stats, homCounts);
         }
 
-        if (sourceEntry.hasAttribute(AC_ADJ)) {   // alternative allele counts
-            String[] acCounts = sourceEntry.getAttribute(AC_ADJ).split(COMMA);
+        String[] acCounts = null;
+        if (info.containsKey(AC_ADJ)) {   // alternative allele counts
+            acCounts = info.get(AC_ADJ).split(COMMA);
             if (acCounts.length == alternateAlleles.length) {
                 stats.setAltAlleleCount(Integer.parseInt(acCounts[numAllele]));
             }
         }
 
-        if (sourceEntry.hasAttribute(AN_ADJ) && sourceEntry.hasAttribute(AC_ADJ)) { // inferring implicit refallele count
-            setRefAlleleCount(stats, Integer.parseInt(sourceEntry.getAttribute(AN_ADJ)), sourceEntry.getAttribute(AC_ADJ).split(COMMA));
+        if (info.containsKey(AN_ADJ) && info.containsKey(AC_ADJ)) { // inferring implicit refallele count
+            setRefAlleleCount(stats, Integer.parseInt(info.get(AN_ADJ)), info.get(AC_ADJ).split(COMMA));
         }
-        
-        if (sourceEntry.hasAttribute(AC_HOM) && sourceEntry.hasAttribute(AC_HET) && sourceEntry.hasAttribute(AN_ADJ)) {   // inferring implicit 0/0 count
-            int an = Integer.parseInt(sourceEntry.getAttribute(AN_ADJ));
+
+        if (info.containsKey(AC_HOM) && info.containsKey(AC_HET) && info.containsKey(AN_ADJ)) {   // inferring implicit 0/0 count
+            int an = Integer.parseInt(info.get(AN_ADJ));
             addReferenceGenotype(variant, stats, an);
+        }
+
+        if (info.containsKey(AC_ADJ) && info.containsKey(AN_ADJ)) {
+            int an = Integer.parseInt(info.get(AN_ADJ));
+            setMaf(an, acCounts, alternateAlleles, stats);
         }
 
         sourceEntry.setStats(stats);
     }
 
-
     @Override
-    protected void parseCohortStats(Variant variant, VariantSource source, int numAllele, String[] alternateAlleles, String info) {
-        VariantSourceEntry sourceEntry = variant.getSourceEntry(source.getFileId(), source.getStudyId());
-        String[] attributes = info.split(";");
+    protected void parseMappedStats(Variant variant, VariantSourceEntry sourceEntry, int numAllele, String[] alternateAlleles, Map<String, String> info) {
         Map<String, Integer> ans = new LinkedHashMap<>();
         Map<String, String[]> acs = new LinkedHashMap<>();
-        for (String attribute : attributes) {
-            String[] equalSplit = attribute.split("=");
-            if (equalSplit.length == 2) {
-                String mappedTag = reverseTagMap.get(equalSplit[0]);
-                String[] values = equalSplit[1].split(COMMA);
-                if (mappedTag != null) {
-                    String[] opencgaTagSplit = mappedTag.split("\\.");   // a literal dot
-                    String cohortName = opencgaTagSplit[0];
-                    VariantStats cohortStats = sourceEntry.getCohortStats(cohortName);
-                    if (cohortStats == null) {
-                        cohortStats = new VariantStats(variant);
-                        sourceEntry.setCohortStats(cohortName, cohortStats);
-                    }
-                    switch (opencgaTagSplit[1]) {
-                        case "AC":
-                            cohortStats.setAltAlleleCount(Integer.parseInt(values[numAllele]));
-                            acs.put(cohortName, values);
-                            break;
-                        case "AN":
-                            ans.put(cohortName, Integer.parseInt(values[0]));
-                            break;
-                        case "HET":
-                            addHeterozygousGenotypes(variant, numAllele, alternateAlleles, cohortStats, values);
-                            break;
-                        case "HOM":
-                            addHomozygousGenotype(variant, numAllele, alternateAlleles, cohortStats, values);
-                            break;
-                    }
+        for (Map.Entry<String, String> infoElem : info.entrySet()) {
+
+            String infoTag = infoElem.getKey();
+            String infoValue = infoElem.getValue();
+
+            String mappedTag = reverseTagMap.get(infoTag);
+            String[] values = infoValue.split(COMMA);
+            if (mappedTag != null) {
+                String[] opencgaTagSplit = mappedTag.split(DOT);
+                String cohortName = opencgaTagSplit[0];
+                VariantStats cohortStats = sourceEntry.getCohortStats(cohortName);
+                if (cohortStats == null) {
+                    cohortStats = new VariantStats(variant);
+                    sourceEntry.setCohortStats(cohortName, cohortStats);
+                }
+                switch (opencgaTagSplit[1]) {
+                    case "AC":
+                        cohortStats.setAltAlleleCount(Integer.parseInt(values[numAllele]));
+                        acs.put(cohortName, values);
+                        break;
+                    case "AN":
+                        ans.put(cohortName, Integer.parseInt(values[0]));
+                        break;
+                    case "HET":
+                        addHeterozygousGenotypes(variant, numAllele, alternateAlleles, cohortStats, values);
+                        break;
+                    case "HOM":
+                        addHomozygousGenotype(variant, numAllele, alternateAlleles, cohortStats, values);
+                        break;
                 }
             }
         }
@@ -138,6 +145,7 @@ public class VariantVcfExacFactory extends VariantAggregatedVcfFactory {
                 Integer alleleNumber = ans.get(cohortName);
                 addReferenceGenotype(variant, cohortStats, alleleNumber);
                 setRefAlleleCount(cohortStats, alleleNumber, acs.get(cohortName));
+                setMaf(alleleNumber, acs.get(cohortName), alternateAlleles, cohortStats);
             }
         }
     }
@@ -149,7 +157,7 @@ public class VariantVcfExacFactory extends VariantAggregatedVcfFactory {
         }
         stats.setRefAlleleCount(alleleNumber - sum);
     }
-    
+
     /**
      * Infers the 0/0 genotype count, given that: sum(Heterozygous) + sum(Homozygous) + sum(Reference) = alleleNumber/2
      * @param variant to retrieve the alleles to construct the genotype
@@ -162,7 +170,7 @@ public class VariantVcfExacFactory extends VariantAggregatedVcfFactory {
             gtSum += gtCounts;
         }
         Genotype genotype = new Genotype("0/0", variant.getReference(), variant.getAlternate());
-        stats.addGenotype(genotype, alleleNumber/2 - gtSum);  // assuming diploid sample! be careful if you copy this code!
+        stats.addGenotype(genotype, alleleNumber / 2 - gtSum);  // assuming diploid sample! be careful if you copy this code!
     }
 
     /**
@@ -170,18 +178,18 @@ public class VariantVcfExacFactory extends VariantAggregatedVcfFactory {
      * 0/1, 0/2, 0/3, 0/4... 1/2, 1/3, 1/4... 2/3, 2/4... 3/4...
      * for a given amount n of alleles, the number of combinations is (latex): \sum_{i=1}^n( \sum_{j=i}^n( 1 ) ), which resolved is n*(n+1)/2
      * @param variant to retrieve the alleles to construct the genotype
-     * @param numAllele 
+     * @param numAllele
      * @param alternateAlleles
      * @param stats where to add the genotypes count
      * @param hetCounts parsed string
      */
     private static void addHeterozygousGenotypes(Variant variant, int numAllele, String[] alternateAlleles, VariantStats stats, String[] hetCounts) {
-        
+
         if (hetCounts.length == alternateAlleles.length * (alternateAlleles.length + 1) / 2) {
             for (int i = 0; i < hetCounts.length; i++) {
                 Integer alleles[] = new Integer[2];
                 getHeterozygousGenotype(i, alternateAlleles.length, alleles);
-                String gt = mapToMultiallelicIndex(alleles[0], numAllele) + "/" + mapToMultiallelicIndex(alleles[1], numAllele);
+                String gt = VariantVcfFactory.mapToMultiallelicIndex(alleles[0], numAllele) + "/" + VariantVcfFactory.mapToMultiallelicIndex(alleles[1], numAllele);
                 Genotype genotype = new Genotype(gt, variant.getReference(), alternateAlleles[numAllele]);
                 stats.addGenotype(genotype, Integer.parseInt(hetCounts[i]));
             }
@@ -201,11 +209,31 @@ public class VariantVcfExacFactory extends VariantAggregatedVcfFactory {
         if (homCounts.length == alternateAlleles.length) {
             for (int i = 0; i < homCounts.length; i++) {
                 Integer alleles[] = new Integer[2];
-                getHomozygousGenotype(i+1, alleles);
-                String gt = mapToMultiallelicIndex(alleles[0], numAllele) + "/" + mapToMultiallelicIndex(alleles[1], numAllele);
+                getHomozygousGenotype(i + 1, alleles);
+                String gt = VariantVcfFactory.mapToMultiallelicIndex(alleles[0], numAllele) + "/" + VariantVcfFactory.mapToMultiallelicIndex(alleles[1], numAllele);
                 Genotype genotype = new Genotype(gt, variant.getReference(), alternateAlleles[numAllele]);
                 stats.addGenotype(genotype, Integer.parseInt(homCounts[i]));
             }
+        }
+    }
+
+    private void setMaf(int totalAlleleCount, String alleleCounts[], String alternateAlleles[], VariantStats stats) {
+        if (stats.getMaf() == -1) {
+
+            int referenceCount = stats.getRefAlleleCount();
+            float maf = (float) referenceCount / totalAlleleCount;
+
+            String mafAllele = stats.getRefAllele();
+            for (int i = 0; i < alleleCounts.length; i++) {
+                float auxMaf = (float) Integer.parseInt(alleleCounts[i]) / totalAlleleCount;
+                if (auxMaf < maf) {
+                    maf = auxMaf;
+                    mafAllele = alternateAlleles[i];
+                }
+            }
+
+            stats.setMaf(maf);
+            stats.setMafAllele(mafAllele);
         }
     }
 
@@ -236,7 +264,7 @@ public class VariantVcfExacFactory extends VariantAggregatedVcfFactory {
             }
         }
     }
-    
+
     /**
      * returns in alleles[] the homozygous genotype specified in index in the sequence:
      * 0/0, 1/1, 2/2, 3/3

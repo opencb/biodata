@@ -33,7 +33,9 @@ public class VariantSource {
     private String studyId;
     private String studyName;
 
-    public enum Aggregation { NONE, BASIC, EVS, EXAC};
+    public enum Aggregation { NONE, BASIC, EVS, EXAC;
+        public static boolean isAggregated(Aggregation agg) {return !NONE.equals(agg);}
+    }
     private Aggregation aggregation;
 
     private Map<String, Integer> samplesPosition;

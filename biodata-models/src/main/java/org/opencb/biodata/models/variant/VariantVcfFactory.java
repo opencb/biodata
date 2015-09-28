@@ -33,6 +33,8 @@ import org.opencb.biodata.models.variant.exceptions.NotAVariantException;
  */
 public class VariantVcfFactory implements VariantFactory {
 
+    public static final String ORI = "ori";
+
     /**
      * Creates a list of Variant objects using the fields in a record of a VCF
      * file. A new Variant object is created per allele, so several of them can
@@ -111,7 +113,7 @@ public class VariantVcfFactory implements VariantFactory {
                 parseSplitSampleData(variant, source, fields, alternateAlleles, secondaryAlternates, i + 1);
                 // Fill the rest of fields (after samples because INFO depends on them)
                 setOtherFields(variant, source, ids, quality, filter, info, format, keyFields.getNumAllele(), alternateAlleles, line);
-                file.addAttribute("ori", fields[1] + ":" + fields[3] + ":" + fields[4] + ":" + i);
+                file.addAttribute(ORI, fields[1] + ":" + fields[3] + ":" + fields[4] + ":" + i);
                 variants.add(variant);
             } catch (NonStandardCompliantSampleField ex) {
                 Logger.getLogger(VariantFactory.class.getName()).log(Level.SEVERE,
@@ -366,16 +368,18 @@ public class VariantVcfFactory implements VariantFactory {
                         String[] ids = splits[1].split(",");
                         file.addAttribute(splits[0], ids[numAllele]);
                         break;
-                    case "AC":
-                        // TODO For now, only one alternate is supported
-                        String[] counts = splits[1].split(",");
-                        file.addAttribute(splits[0], counts[numAllele]);
-                        break;
-                    case "AF":
-                        // TODO For now, only one alternate is supported
-                        String[] frequencies = splits[1].split(",");
-                        file.addAttribute(splits[0], frequencies[numAllele]);
-                        break;
+
+                // next is commented to store the AC, AF and AN as-is, to be able to compute stats from the DB using the attributes, and "ori" tag
+//                    case "AC":
+//                        // TODO For now, only one alternate is supported
+//                        String[] counts = splits[1].split(",");
+//                        file.addAttribute(splits[0], counts[numAllele]);
+//                        break;
+//                    case "AF":
+//                         // TODO For now, only one alternate is supported
+//                        String[] frequencies = splits[1].split(",");
+//                        file.addAttribute(splits[0], frequencies[numAllele]);
+//                        break;
 //                    case "AN":
 //                        // TODO For now, only two alleles (reference and one alternate) are supported, but this should be changed
 //                        file.addAttribute(splits[0], "2");
@@ -455,7 +459,7 @@ public class VariantVcfFactory implements VariantFactory {
      * @param numAllele current variant of the alternates.
      * @return the correct allele index depending on numAllele.
      */
-    protected static int mapToMultiallelicIndex (int parsedAllele, int numAllele) {
+    public static int mapToMultiallelicIndex (int parsedAllele, int numAllele) {
         int correctedAllele = parsedAllele;
         if (parsedAllele > 0) {
             if (parsedAllele == numAllele + 1) {
