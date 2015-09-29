@@ -38,43 +38,54 @@ import org.opencb.biodata.models.variant.avro.VariantType;
  *
  * TODO Mendelian errors must be calculated
  */
-public class VariantStats {
-
-    private String refAllele;
-    private String altAllele;
-    private VariantType variantType;
-    
-    private int refAlleleCount;
-    private int altAlleleCount;
-    private Map<Genotype, Integer> genotypesCount;
-    
-    private int missingAlleles;
-    private int missingGenotypes;
-    
-    private float refAlleleFreq;
-    private float altAlleleFreq;
-    private Map<Genotype, Float> genotypesFreq;
-    private float maf;
-    private float mgf;
-    private String mafAllele;
-    private String mgfGenotype;
-    
-    private boolean passedFilters;
-    
-    private int mendelianErrors;
-    
-    private float casesPercentDominant;
-    private float controlsPercentDominant;
-    private float casesPercentRecessive;
-    private float controlsPercentRecessive;
-    
-    private float quality;
-    private int numSamples;
-    private VariantHardyWeinbergStats hw;
+public class VariantStats extends org.opencb.biodata.models.variant.avro.VariantStats {
+//
+//    private String refAllele;
+//    private String altAllele;
+//    private VariantType variantType;
+//
+//    private int refAlleleCount;
+//    private int altAlleleCount;
+//    private Map<Genotype, Integer> genotypesCount;
+//
+//    private int missingAlleles;
+//    private int missingGenotypes;
+//
+//    private float refAlleleFreq;
+//    private float altAlleleFreq;
+//    private Map<Genotype, Float> genotypesFreq;
+//    private float maf;
+//    private float mgf;
+//    private String mafAllele;
+//    private String mgfGenotype;
+//
+//    private boolean passedFilters;
+//
+//    private int mendelianErrors;
+//
+//    private float casesPercentDominant;
+//    private float controlsPercentDominant;
+//    private float casesPercentRecessive;
+//    private float controlsPercentRecessive;
+//
+//    private float quality;
+//    private int numSamples;
+//    private VariantHardyWeinbergStats hw;
 
     
     public VariantStats() {
         this(null, -1, null, null, VariantType.SNV, -1, -1, null, null, -1, -1, -1, -1, -1, -1, -1);
+    }
+
+    public VariantStats(org.opencb.biodata.models.variant.avro.VariantStats other) {
+        super(other.getRefAllele(), other.getAltAllele(),
+                other.getRefAlleleCount(), other.getAltAlleleCount(),
+                other.getGenotypesCount(), other.getGenotypesFreq(),
+                other.getMissingAlleles(), other.getMissingGenotypes(),
+                other.getRefAlleleFreq(), other.getAltAlleleFreq(), other.getMaf(), other.getMgf(), other.getMafAllele(), other.getMgfGenotype(),
+                other.getPassedFilters(), other.getMendelianErrors(),
+                other.getCasesPercentDominant(), other.getControlsPercentDominant(), other.getCasesPercentRecessive(), other.getControlsPercentRecessive(),
+                other.getQuality(), other.getNumSamples(), other.getVariantType(), other.getHw());
     }
 
     public VariantStats(Variant variant) {
@@ -93,120 +104,35 @@ public class VariantStats {
             VariantType variantType, float maf, float mgf, String mafAllele, String mgfGenotype,
             int numMissingAlleles, int numMissingGenotypes, int numMendelErrors, float percentCasesDominant, 
             float percentControlsDominant, float percentCasesRecessive, float percentControlsRecessive) {
-        this.refAllele = referenceAllele;
-        this.altAllele = alternateAlleles;
-        this.variantType = variantType;
-        
-        this.maf = maf;
-        this.mgf = mgf;
-        this.mafAllele = mafAllele;
-        this.mgfGenotype = mgfGenotype;
-        this.genotypesCount = new HashMap<>();
-        this.genotypesFreq = new LinkedHashMap<>();
+        super(referenceAllele, alternateAlleles,
+                -1, -1,
+                new HashMap<>(), new HashMap<>(),
+                numMissingAlleles, numMissingGenotypes,
+                -1F, -1F, maf, mgf, mafAllele, mgfGenotype,
+                false, -1,
+                percentCasesDominant, percentControlsDominant, percentCasesRecessive, percentControlsRecessive,
+                -1F, -1, variantType, null);
 
-        this.missingAlleles = numMissingAlleles;
-        this.missingGenotypes = numMissingGenotypes;
-        this.mendelianErrors = numMendelErrors;
-
-        this.casesPercentDominant = percentCasesDominant;
-        this.controlsPercentDominant = percentControlsDominant;
-        this.casesPercentRecessive = percentCasesRecessive;
-        this.controlsPercentRecessive = percentControlsRecessive;
-        
-        this.quality = -1;
-
-        this.hw = new VariantHardyWeinbergStats();
-    }
-
-    public String getRefAllele() {
-        return refAllele;
-    }
-
-    public void setRefAllele(String refAllele) {
-        this.refAllele = refAllele;
-    }
-
-    public String getAltAllele() {
-        return altAllele;
-    }
-
-    public void setAltAllele(String altAllele) {
-        this.altAllele = altAllele;
-    }
-
-    public VariantType getVariantType() {
-        return variantType;
-    }
-
-    public void setVariantType(VariantType variantType) {
-        this.variantType = variantType;
-    }
-
-    public int getRefAlleleCount() {
-        return refAlleleCount;
-    }
-
-    public void setRefAlleleCount(int refAlleleCount) {
-        this.refAlleleCount = refAlleleCount;
-    }
-
-    public int getAltAlleleCount() {
-        return altAlleleCount;
-    }
-
-    public void setAltAlleleCount(int altAlleleCount) {
-        this.altAlleleCount = altAlleleCount;
-    }
-
-    public float getRefAlleleFreq() {
-        return refAlleleFreq;
-    }
-
-    public void setRefAlleleFreq(float refAlleleFreq) {
-        this.refAlleleFreq = refAlleleFreq;
-    }
-
-    public float getAltAlleleFreq() {
-        return altAlleleFreq;
-    }
-
-    public void setAltAlleleFreq(float altAlleleFreq) {
-        this.altAlleleFreq = altAlleleFreq;
-    }
-    
-    public String getMafAllele() {
-        return mafAllele;
-    }
-
-    public void setMafAllele(String mafAllele) {
-        this.mafAllele = mafAllele;
-    }
-
-    public String getMgfGenotype() {
-        return mgfGenotype;
-    }
-
-    public void setMgfGenotype(String mgfGenotype) {
-        this.mgfGenotype = mgfGenotype;
-    }
-
-    public Map<Genotype, Integer> getGenotypesCount() {
-        return genotypesCount;
+//        this.hw = new VariantHardyWeinbergStats();
     }
 
     public void addGenotype(Genotype g) {
         this.addGenotype(g, 1);
     }
-    
+
     public void addGenotype(Genotype g, int addedCount) {
+        String normalizedGenotype = normalizeGenotypeAlleles(g).toString();
+        addGenotype(normalizedGenotype, addedCount);
+    }
+
+    public void addGenotype(String normalizedGenotype, int addedCount) {
         Integer count;
-        Genotype normalizedGenotype = normalizeGenotypeAlleles(g);
-        if (genotypesCount.containsKey(normalizedGenotype)) {
-            count = genotypesCount.get(normalizedGenotype) + addedCount;
+        if (getGenotypesCount().containsKey(normalizedGenotype)) {
+            count = getGenotypesCount().get(normalizedGenotype) + addedCount;
         } else {
             count = addedCount;
         }
-        genotypesCount.put(normalizedGenotype, count);
+        getGenotypesCount().put(normalizedGenotype, count);
     }
     
     private Genotype normalizeGenotypeAlleles(Genotype g) {
@@ -228,271 +154,75 @@ public class VariantStats {
         }
     }
     
-    void setGenotypesCount(Map<Genotype, Integer> genotypesCount) {
-        this.genotypesCount = genotypesCount;
-    }
-
-    public Map<Genotype, Float> getGenotypesFreq() {
-        return genotypesFreq;
-    }
-
-    void setGenotypesFreq(Map<Genotype, Float> genotypesFreq) {
-        this.genotypesFreq = genotypesFreq;
-    }
-
-    public float getMaf() {
-        return maf;
-    }
-
-    public void setMaf(float maf) {
-        this.maf = maf;
-    }
-
-    public float getMgf() {
-        return mgf;
-    }
-
-    public void setMgf(float mgf) {
-        this.mgf = mgf;
-    }
-
-    public int getMissingAlleles() {
-        return missingAlleles;
-    }
-
-    public void setMissingAlleles(int missingAlleles) {
-        this.missingAlleles = missingAlleles;
-    }
-
-    public int getMissingGenotypes() {
-        return missingGenotypes;
-    }
-
-    public void setMissingGenotypes(int missingGenotypes) {
-        this.missingGenotypes = missingGenotypes;
-    }
-
-    public int getMendelianErrors() {
-        return mendelianErrors;
-    }
-
-    public void setMendelianErrors(int mendelianErrors) {
-        this.mendelianErrors = mendelianErrors;
-    }
-
-    public float getCasesPercentDominant() {
-        return casesPercentDominant;
-    }
-
-    public void setCasesPercentDominant(float casesPercentDominant) {
-        this.casesPercentDominant = casesPercentDominant;
-    }
-
-    public float getControlsPercentDominant() {
-        return controlsPercentDominant;
-    }
-
-    public void setControlsPercentDominant(float controlsPercentDominant) {
-        this.controlsPercentDominant = controlsPercentDominant;
-    }
-
-    public float getCasesPercentRecessive() {
-        return casesPercentRecessive;
-    }
-
-    public void setCasesPercentRecessive(float casesPercentRecessive) {
-        this.casesPercentRecessive = casesPercentRecessive;
-    }
-
-    public float getControlsPercentRecessive() {
-        return controlsPercentRecessive;
-    }
-
-    public void setControlsPercentRecessive(float controlsPercentRecessive) {
-        this.controlsPercentRecessive = controlsPercentRecessive;
-    }
+//    void setGenotypesCount(Map<Genotype, Integer> genotypesCount) {
+//        this.genotypesCount = genotypesCount;
+//    }
+//
+//    public Map<Genotype, Float> getGenotypesFreq() {
+//        return genotypesFreq;
+//    }
+//
+//    void setGenotypesFreq(Map<Genotype, Float> genotypesFreq) {
+//        this.genotypesFreq = genotypesFreq;
+//    }
 
     public boolean isTransition() {
-        switch (refAllele.toUpperCase()) {
+        switch (getRefAllele().toUpperCase()) {
             case "C":
-                return altAllele.equalsIgnoreCase("T");
+                return getAltAllele().equalsIgnoreCase("T");
             case "T":
-                return altAllele.equalsIgnoreCase("C");
+                return getAltAllele().equalsIgnoreCase("C");
             case "A":
-                return altAllele.equalsIgnoreCase("G");
+                return getAltAllele().equalsIgnoreCase("G");
             case "G":
-                return altAllele.equalsIgnoreCase("A");
+                return getAltAllele().equalsIgnoreCase("A");
             default:
                 return false;
         }
     }
 
     public boolean isTransversion() {
-        switch (refAllele.toUpperCase()) {
+        switch (getRefAllele().toUpperCase()) {
             case "C":
-                return !altAllele.equalsIgnoreCase("T");
+                return !getAltAllele().equalsIgnoreCase("T");
             case "T":
-                return !altAllele.equalsIgnoreCase("C");
+                return !getAltAllele().equalsIgnoreCase("C");
             case "A":
-                return !altAllele.equalsIgnoreCase("G");
+                return !getAltAllele().equalsIgnoreCase("G");
             case "G":
-                return !altAllele.equalsIgnoreCase("A");
+                return !getAltAllele().equalsIgnoreCase("A");
             default:
                 return false;
         }
     }
 
-    public VariantHardyWeinbergStats getHw() {
-        return hw;
-    }
+//    public VariantHardyWeinbergStats getHw() {
+//        return hw;
+//    }
 
     public boolean hasPassedFilters() {
-        return passedFilters;
+        return super.getPassedFilters();
     }
 
-    public void setPassedFilters(boolean passedFilters) {
-        this.passedFilters = passedFilters;
-    }
 
-    public float getQuality() {
-        return quality;
-    }
-
-    public void setQuality(float quality) {
-        this.quality = quality;
-    }
-
-    public int getNumSamples() {
-        return numSamples;
-    }
-
-    public void setNumSamples(int numSamples) {
-        this.numSamples = numSamples;
-    }
 
     @Override
     public String toString() {
         return "VariantStats{"
-                + "refAllele='" + refAllele + '\''
-                + ", altAllele='" + altAllele + '\''
-                + ", mafAllele='" + mafAllele + '\''
-                + ", mgfAllele='" + mgfGenotype + '\''
-                + ", maf=" + maf
-                + ", mgf=" + mgf
-                + ", missingAlleles=" + missingAlleles
-                + ", missingGenotypes=" + missingGenotypes
-                + ", mendelinanErrors=" + mendelianErrors
-                + ", casesPercentDominant=" + casesPercentDominant
-                + ", controlsPercentDominant=" + controlsPercentDominant
-                + ", casesPercentRecessive=" + casesPercentRecessive
-                + ", controlsPercentRecessive=" + controlsPercentRecessive
+                + "refAllele='" + getRefAllele() + '\''
+                + ", altAllele='" + getAltAllele() + '\''
+                + ", mafAllele='" + getMafAllele() + '\''
+                + ", mgfAllele='" + getMgfGenotype() + '\''
+                + ", maf=" + getMaf()
+                + ", mgf=" + getMgf()
+                + ", missingAlleles=" + getMissingAlleles()
+                + ", missingGenotypes=" + getMissingGenotypes()
+                + ", mendelinanErrors=" + getMendelianErrors()
+                + ", casesPercentDominant=" + getCasesPercentDominant()
+                + ", controlsPercentDominant=" + getControlsPercentDominant()
+                + ", casesPercentRecessive=" + getCasesPercentRecessive()
+                + ", controlsPercentRecessive=" + getControlsPercentRecessive()
                 + '}';
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 3;
-        hash = 79 * hash + Objects.hashCode(this.refAllele);
-        hash = 79 * hash + Objects.hashCode(this.altAllele);
-        hash = 79 * hash + this.refAlleleCount;
-        hash = 79 * hash + this.altAlleleCount;
-        hash = 79 * hash + Objects.hashCode(this.genotypesCount);
-        hash = 79 * hash + this.missingAlleles;
-        hash = 79 * hash + this.missingGenotypes;
-        hash = 79 * hash + Float.floatToIntBits(this.refAlleleFreq);
-        hash = 79 * hash + Float.floatToIntBits(this.altAlleleFreq);
-        hash = 79 * hash + Objects.hashCode(this.genotypesFreq);
-        hash = 79 * hash + Float.floatToIntBits(this.maf);
-        hash = 79 * hash + Float.floatToIntBits(this.mgf);
-        hash = 79 * hash + Objects.hashCode(this.mafAllele);
-        hash = 79 * hash + Objects.hashCode(this.mgfGenotype);
-        hash = 79 * hash + (this.passedFilters ? 1 : 0);
-        hash = 79 * hash + this.mendelianErrors;
-        hash = 79 * hash + Float.floatToIntBits(this.casesPercentDominant);
-        hash = 79 * hash + Float.floatToIntBits(this.controlsPercentDominant);
-        hash = 79 * hash + Float.floatToIntBits(this.casesPercentRecessive);
-        hash = 79 * hash + Float.floatToIntBits(this.controlsPercentRecessive);
-        hash = 79 * hash + Float.floatToIntBits(this.quality);
-        hash = 79 * hash + this.numSamples;
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final VariantStats other = (VariantStats) obj;
-        if (!Objects.equals(this.refAllele, other.refAllele)) {
-            return false;
-        }
-        if (!Objects.equals(this.altAllele, other.altAllele)) {
-            return false;
-        }
-        if (this.refAlleleCount != other.refAlleleCount) {
-            return false;
-        }
-        if (this.altAlleleCount != other.altAlleleCount) {
-            return false;
-        }
-        if (!Objects.equals(this.genotypesCount, other.genotypesCount)) {
-            return false;
-        }
-        if (this.missingAlleles != other.missingAlleles) {
-            return false;
-        }
-        if (this.missingGenotypes != other.missingGenotypes) {
-            return false;
-        }
-        if (Float.floatToIntBits(this.refAlleleFreq) != Float.floatToIntBits(other.refAlleleFreq)) {
-            return false;
-        }
-        if (Float.floatToIntBits(this.altAlleleFreq) != Float.floatToIntBits(other.altAlleleFreq)) {
-            return false;
-        }
-        if (!Objects.equals(this.genotypesFreq, other.genotypesFreq)) {
-            return false;
-        }
-        if (Float.floatToIntBits(this.maf) != Float.floatToIntBits(other.maf)) {
-            return false;
-        }
-        if (Float.floatToIntBits(this.mgf) != Float.floatToIntBits(other.mgf)) {
-            return false;
-        }
-        if (!Objects.equals(this.mafAllele, other.mafAllele)) {
-            return false;
-        }
-        if (!Objects.equals(this.mgfGenotype, other.mgfGenotype)) {
-            return false;
-        }
-        if (this.passedFilters != other.passedFilters) {
-            return false;
-        }
-        if (this.mendelianErrors != other.mendelianErrors) {
-            return false;
-        }
-        if (Float.floatToIntBits(this.casesPercentDominant) != Float.floatToIntBits(other.casesPercentDominant)) {
-            return false;
-        }
-        if (Float.floatToIntBits(this.controlsPercentDominant) != Float.floatToIntBits(other.controlsPercentDominant)) {
-            return false;
-        }
-        if (Float.floatToIntBits(this.casesPercentRecessive) != Float.floatToIntBits(other.casesPercentRecessive)) {
-            return false;
-        }
-        if (Float.floatToIntBits(this.controlsPercentRecessive) != Float.floatToIntBits(other.controlsPercentRecessive)) {
-            return false;
-        }
-        if (Float.floatToIntBits(this.quality) != Float.floatToIntBits(other.quality)) {
-            return false;
-        }
-        if (this.numSamples != other.numSamples) {
-            return false;
-        }
-        return true;
     }
     
 

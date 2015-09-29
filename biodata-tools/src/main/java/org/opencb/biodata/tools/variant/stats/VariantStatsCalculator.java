@@ -50,14 +50,15 @@ public class VariantStatsCalculator {
                     totalGenotypesCount++;
 
                     // Counting genotypes for Hardy-Weinberg (all phenotypes)
-                    if (g.isAlleleRef(0) && g.isAlleleRef(1)) { // 0|0
-                        variantStats.getHw().incN_AA();
-                    } else if ((g.isAlleleRef(0) && g.getAllele(1) == 1) || (g.getAllele(0) == 1 && g.isAlleleRef(1))) {  // 0|1, 1|0
-                        variantStats.getHw().incN_Aa();
-
-                    } else if (g.getAllele(0) == 1 && g.getAllele(1) == 1) {
-                        variantStats.getHw().incN_aa();
-                    }
+                    //FIXME//FIXME//FIXME//FIXME
+//                    if (g.isAlleleRef(0) && g.isAlleleRef(1)) { // 0|0
+//                        variantStats.getHw().incN_AA();
+//                    } else if ((g.isAlleleRef(0) && g.getAllele(1) == 1) || (g.getAllele(0) == 1 && g.isAlleleRef(1))) {  // 0|1, 1|0
+//                        variantStats.getHw().incN_Aa();
+//
+//                    } else if (g.getAllele(0) == 1 && g.getAllele(1) == 1) {
+//                        variantStats.getHw().incN_aa();
+//                    }
 
                     break;
                 case HAPLOID:
@@ -130,8 +131,8 @@ public class VariantStatsCalculator {
         calculateAlleleFrequencies(totalAllelesCount, variantStats);
         calculateGenotypeFrequencies(totalGenotypesCount, variantStats);
 
-        // Calculate Hardy-Weinberg statistic
-        variantStats.getHw().calculate();
+        // Calculate Hardy-Weinberg statistic       //FIXME
+//        variantStats.getHw().calculate();
 
         // Update variables finally used to update file_stats_t structure
         if ("PASS".equalsIgnoreCase(attributes.get("FILTER"))) {
@@ -184,7 +185,7 @@ public class VariantStatsCalculator {
 
         if (totalAllelesCount == 0) {
             // Nothing to calculate here
-            variantStats.setMaf(-1);
+            variantStats.setMaf((float) -1);
             variantStats.setMafAllele(null);
             return;
         }
@@ -208,20 +209,21 @@ public class VariantStatsCalculator {
 
         if (variantStats.getGenotypesCount().isEmpty() || totalGenotypesCount == 0) {
             // Nothing to calculate here
-            variantStats.setMgf(-1);
+            variantStats.setMgf((float) -1);
             variantStats.setMgfGenotype(null);
             return;
         }
 
         // Set all combinations of genotypes to zero
-        Map<Genotype, Float> genotypesFreq = variantStats.getGenotypesFreq();
-        genotypesFreq.put(new Genotype("0/0", variantStats.getRefAllele(), variantStats.getAltAllele()), 0.0f);
-        genotypesFreq.put(new Genotype("0/1", variantStats.getRefAllele(), variantStats.getAltAllele()), 0.0f);
-        genotypesFreq.put(new Genotype("1/1", variantStats.getRefAllele(), variantStats.getAltAllele()), 0.0f);
+        Map<String, Float> genotypesFreq = variantStats.getGenotypesFreq();
+        genotypesFreq.put("0/0", 0.0f);
+        genotypesFreq.put("0/1", 0.0f);
+        genotypesFreq.put("1/1", 0.0f);
 
         // Insert the genotypes found in the file
-        for (Map.Entry<Genotype, Integer> gtCount : variantStats.getGenotypesCount().entrySet()) {
-            if (gtCount.getKey().getCode() == AllelesCode.ALLELES_MISSING) {
+        for (Map.Entry<String, Integer> gtCount : variantStats.getGenotypesCount().entrySet()) {
+            Genotype genotype = new Genotype(gtCount.getKey());
+            if (genotype.getCode() == AllelesCode.ALLELES_MISSING) {
                 // Missing genotypes shouldn't have frequencies calculated
                 continue;
             }
@@ -232,9 +234,9 @@ public class VariantStatsCalculator {
 
         // Traverse the genotypes to see which one has the MGF
         float currMgf = Float.MAX_VALUE;
-        Genotype currMgfGenotype = null;
+        String currMgfGenotype = null;
 
-        for (Map.Entry<Genotype, Float> gtCount : genotypesFreq.entrySet()) {
+        for (Map.Entry<String, Float> gtCount : genotypesFreq.entrySet()) {
             float freq = gtCount.getValue();
             if (freq < currMgf) {
                 currMgf = freq;
@@ -244,7 +246,7 @@ public class VariantStatsCalculator {
 
         if (currMgfGenotype != null) {
             variantStats.setMgf(currMgf);
-            variantStats.setMgfGenotype(currMgfGenotype.toString());
+            variantStats.setMgfGenotype(currMgfGenotype);
         }
     }
 

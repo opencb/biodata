@@ -108,6 +108,7 @@ public class VariantVcfFactory implements VariantFactory {
             String[] secondaryAlternates = getSecondaryAlternates(variant, keyFields.getNumAllele(), alternateAlleles);
             VariantSourceEntry file = new VariantSourceEntry(source.getFileId(), source.getStudyId(), secondaryAlternates, format);
             variant.addSourceEntry(file);
+            file.setSamplePositions(source.getSamplesPosition());
 
             try {
                 parseSplitSampleData(variant, source, fields, alternateAlleles, secondaryAlternates, i + 1);

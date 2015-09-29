@@ -59,13 +59,13 @@ public class VariantStatsCalculatorTest {
         assertEquals("C", biallelicStats.getAltAllele());
         assertEquals(VariantType.SNV, biallelicStats.getVariantType());
         
-        assertEquals(4, biallelicStats.getRefAlleleCount());
-        assertEquals(6, biallelicStats.getAltAlleleCount());
+        assertEquals(4, biallelicStats.getRefAlleleCount().longValue());
+        assertEquals(6, biallelicStats.getAltAlleleCount().longValue());
         
 //    private Map<Genotype, Integer> genotypesCount;
     
-        assertEquals(2, biallelicStats.getMissingAlleles());
-        assertEquals(1, biallelicStats.getMissingGenotypes());
+        assertEquals(2, biallelicStats.getMissingAlleles().longValue());
+        assertEquals(1, biallelicStats.getMissingGenotypes().longValue());
     
         assertEquals(0.4, biallelicStats.getRefAlleleFreq(), 1e-6);
         assertEquals(0.6, biallelicStats.getAltAlleleFreq(), 1e-6);
@@ -78,7 +78,7 @@ public class VariantStatsCalculatorTest {
         
         assertFalse(biallelicStats.hasPassedFilters());
     
-        assertEquals(-1, biallelicStats.getMendelianErrors());
+        assertEquals(-1, biallelicStats.getMendelianErrors().longValue());
         assertEquals(-1, biallelicStats.getCasesPercentDominant(), 1e-6);
         assertEquals(-1, biallelicStats.getControlsPercentDominant(), 1e-6);
         assertEquals(-1, biallelicStats.getCasesPercentRecessive(), 1e-6);
@@ -88,7 +88,7 @@ public class VariantStatsCalculatorTest {
         assertFalse(biallelicStats.isTransversion());
         
         assertEquals(10.05, biallelicStats.getQuality(), 1e-6);
-        assertEquals(6, biallelicStats.getNumSamples());
+        assertEquals(6, biallelicStats.getNumSamples().longValue());
     
 //    private VariantHardyWeinbergStats hw;
     }
@@ -134,7 +134,7 @@ public class VariantStatsCalculatorTest {
         
         assertTrue(multiallelicStats_C.hasPassedFilters());
     
-        assertEquals(-1, multiallelicStats_C.getMendelianErrors());
+        assertEquals(Integer.valueOf(-1), multiallelicStats_C.getMendelianErrors());
         assertEquals(-1, multiallelicStats_C.getCasesPercentDominant(), 1e-6);
         assertEquals(-1, multiallelicStats_C.getControlsPercentDominant(), 1e-6);
         assertEquals(-1, multiallelicStats_C.getCasesPercentRecessive(), 1e-6);
