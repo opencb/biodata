@@ -87,7 +87,6 @@ protocol Variants {
         union { null, string } fileId;
         union { null, array<string> } secondaryAlternates = null;
         array<string> formatList;
-        //map<map<string>> samplesData;
         array<array<string>> samplesDataList;
         map<VariantStats> stats;
         map<string> attributes;
@@ -107,7 +106,7 @@ protocol Variants {
         string chromosome;
 
         /**
-         * Position where the genomic variation starts.
+         * Normalized position where the genomic variation starts.
          * <ul>
          * <li>SNVs have the same start and end position</li>
          * <li>Insertions start in the last present position: if the first nucleotide
@@ -119,7 +118,7 @@ protocol Variants {
         int start;
 
         /**
-         * Position where the genomic variation ends.
+         * Normalized position where the genomic variation ends.
          * <ul>
          * <li>SNVs have the same start and end positions</li>
          * <li>Insertions end in the first present position: if the last nucleotide
@@ -162,7 +161,7 @@ protocol Variants {
         /**
          * Unique identifier following the HGVS nomenclature.
          */
-        map<array<string>> hgvs;
+        union { null, map<array<string>> } hgvs;
 
         /**
          * Information specific to each study the variant was read from, such as
@@ -173,7 +172,7 @@ protocol Variants {
         /**
          * Annotations of the genomic variation.
          */
-        union {null, VariantAnnotation} annotation;
+        union { null, VariantAnnotation } annotation;
     }
 
     record VariantFileMetadata {
