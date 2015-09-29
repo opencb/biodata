@@ -189,7 +189,7 @@ public class VariantContextToVariantConverter {
                 formatFields.add(key);
             }
         }
-        variantSourceEntry.setFormatList(formatFields);
+        variantSourceEntry.setFormat(formatFields);
 
 //        String[] str = ((LazyGenotypesContext) variantContext
 //                .getGenotypes()).getUnparsedGenotypeData().toString()
@@ -241,7 +241,7 @@ public class VariantContextToVariantConverter {
 
 
 //        variantSourceEntry.setSamplesData(sampledataMap);
-        variantSourceEntry.setSamplesDataList(sampleDataList);
+        variantSourceEntry.setSamplesData(sampleDataList);
         /*
          * set default cohort
          */
@@ -688,7 +688,7 @@ public class VariantContextToVariantConverter {
                 }
                 //get format
 //                format = srcEntry.getValue().getFormat().toString();
-                format = srcEntry.getFormatList().stream().collect(Collectors.joining(VCFConstants.FORMAT_FIELD_SEPARATOR));
+                format = srcEntry.getFormat().stream().collect(Collectors.joining(VCFConstants.FORMAT_FIELD_SEPARATOR));
                 //get filter
 //                for(Entry<String, VariantStats> qual : srcEntry.getValue().getCohortStats().entrySet()){
                 for(Entry<String, VariantStats> qual : srcEntry.getStats().entrySet()){
@@ -705,7 +705,7 @@ public class VariantContextToVariantConverter {
                 }
                 // TODO this code needs to be rethink
                 //get sample
-//                for(Entry<String, Map<String, String>> smpl : srcEntry.getValue().getSamplesData().entrySet()){
+//                for(Entry<String, Map<String, String>> smpl : srcEntry.getValue().getSamplesDataAsMap().entrySet()){
 //                    sample = smpl.getValue().toString();
 //                }
                 //get attributes

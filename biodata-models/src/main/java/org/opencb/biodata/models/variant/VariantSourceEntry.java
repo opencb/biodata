@@ -97,9 +97,9 @@ public class VariantSourceEntry {
 
     public void setSamplePositions(Map<String, Integer> samplePositions) {
         this.samplePositions = samplePositions;
-        if (getSamplesDataList() == null || getSamplesDataList().isEmpty()) {
+        if (getSamplesData() == null || getSamplesData().isEmpty()) {
             for (int size = samplePositions.size(); size > 0; size--) {
-                getSamplesDataList().add(null);
+                getSamplesData().add(null);
             }
         }
     }
@@ -122,23 +122,23 @@ public class VariantSourceEntry {
 //    }
 
     @Deprecated
-    public String getFormat() {
-        return getFormatList().stream().collect(Collectors.joining(":"));
+    public String getFormatAsString() {
+        return getFormat().stream().collect(Collectors.joining(":"));
     }
 
-    public void setFormat(String format) {
-        setFormatList(Arrays.asList(format.split(":")));
+    public void setFormatAsString(String format) {
+        setFormat(Arrays.asList(format.split(":")));
     }
 
     /**
      * Do not modify this list
      * @return
      */
-    public List<String> getFormatList() {
+    public List<String> getFormat() {
         return Collections.unmodifiableList(impl.getFormat());
     }
 
-    public void setFormatList(List<String> value) {
+    public void setFormat(List<String> value) {
         formatPosition = null;
         impl.setFormat(value);
     }
@@ -147,14 +147,23 @@ public class VariantSourceEntry {
         if (formatPosition == null) {
             formatPosition = new HashMap<>();
             int pos = 0;
-            for (String format : getFormatList()) {
+            for (String format : getFormat()) {
                 formatPosition.put(format, pos++);
             }
         }
         return formatPosition;
     }
 
-    public Map<String, Map<String, String>> getSamplesData() {
+    public List<List<String>> getSamplesData() {
+        return impl.getSamplesData();
+    }
+
+    public void setSamplesData(List<List<String>> value) {
+        impl.setSamplesData(value);
+    }
+
+    @Deprecated
+    public Map<String, Map<String, String>> getSamplesDataAsMap() {
         requireSamplePositions();
 
         Map<String, Map<String, String>> samplesDataMap = new HashMap<>();
@@ -162,7 +171,7 @@ public class VariantSourceEntry {
             samplesDataMap.put(entry.getKey(), getSampleData(entry.getKey()));
         }
 
-        return samplesDataMap;
+        return Collections.unmodifiableMap(samplesDataMap);
     }
 
     public String getSampleData(String sampleName, String field) {
@@ -180,28 +189,28 @@ public class VariantSourceEntry {
         requireSamplePositions();
         if (samplePositions.containsKey(sampleName)) {
             HashMap<String, String> sampleDataMap = new HashMap<>();
-            Iterator<String> iterator = getFormatList().iterator();
+            Iterator<String> iterator = getFormat().iterator();
             List<String> sampleDataList = impl.getSamplesData().get(samplePositions.get(sampleName));
             for (String data : sampleDataList) {
                 sampleDataMap.put(iterator.next(), data);
             }
 
-            return sampleDataMap;
+            return Collections.unmodifiableMap(sampleDataMap);
         }
         return null;
     }
 
     public void addSampleData(String sampleName, Map<String, String> sampleData) {
-        List<List<String>> samplesDataList = getSamplesDataList();
+        List<List<String>> samplesDataList = getSamplesData();
         if (samplePositions == null && samplesDataList.isEmpty()) {
             samplePositions = new LinkedHashMap<>();
         }
-        List<String> sampleDataList = new ArrayList<>(getFormatList().size());
-        for (String field : getFormatList()) {
+        List<String> sampleDataList = new ArrayList<>(getFormat().size());
+        for (String field : getFormat()) {
             sampleDataList.add(sampleData.get(field));
         }
         if (sampleData.size() != sampleDataList.size()) {
-            List<String> extraFields = sampleData.keySet().stream().filter(f -> getFormatList().contains(f)).collect(Collectors.toList());
+            List<String> extraFields = sampleData.keySet().stream().filter(f -> getFormat().contains(f)).collect(Collectors.toList());
             throw new IllegalArgumentException("Some sample data fields were not in the format field: " + extraFields);
         }
         if (samplePositions != null) {
@@ -322,19 +331,30 @@ public class VariantSourceEntry {
         impl.setSecondaryAlternates(value);
     }
 
-    public List<List<String>> getSamplesDataList() {
-        return impl.getSamplesData();
-    }
-
-    public void setSamplesDataList(List<List<String>> value) {
-        impl.setSamplesData(value);
-    }
-
     public Map<String, String> getAttributes() {
         return impl.getAttributes();
     }
 
     public void setAttributes(Map<String, String> value) {
         impl.setAttributes(value);
+    }
+
+    @Override
+    public String toString() {
+        return impl.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        return impl.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof VariantSourceEntry) {
+            return impl.equals(((VariantSourceEntry) obj).getImpl());
+        } else {
+            return false;
+        }
     }
 }

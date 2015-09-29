@@ -93,7 +93,7 @@ public class VariantStatsCalculator {
             if (pedigree != null) {
                 if (g.getCode() == AllelesCode.ALLELES_OK || g.getCode() == AllelesCode.HAPLOID) {
                     Individual ind = pedigree.getIndividual(sampleName);
-//                    if (MendelChecker.isMendelianError(ind, g, variant.getChromosome(), file.getSamplesData())) {
+//                    if (MendelChecker.isMendelianError(ind, g, variant.getChromosome(), file.getSamplesDataAsMap())) {
 //                        this.setMendelianErrors(this.getMendelianErrors() + 1);
 //                    }
                     if (g.getCode() == AllelesCode.ALLELES_OK) {
@@ -172,7 +172,7 @@ public class VariantStatsCalculator {
         for (Variant variant : variants) {
             for (VariantSourceEntry file : variant.getSourceEntries().values()) {
                 VariantStats stats = new VariantStats(variant);
-                calculate(file.getSamplesData(), file.getAttributes(), ped, stats);
+                calculate(file.getSamplesDataAsMap(), file.getAttributes(), ped, stats);
                 file.setStats(stats); // TODO Correct?
             }
         }

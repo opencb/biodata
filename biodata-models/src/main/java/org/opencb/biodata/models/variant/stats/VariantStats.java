@@ -370,23 +370,23 @@ public class VariantStats {
     }
 
 
+    @Override
     public String toString() {
-        return "VariantStats{"
-                + "refAllele='" + getRefAllele() + '\''
-                + ", altAllele='" + getAltAllele() + '\''
-                + ", mafAllele='" + getMafAllele() + '\''
-                + ", mgfAllele='" + getMgfGenotype() + '\''
-                + ", maf=" + getMaf()
-                + ", mgf=" + getMgf()
-                + ", missingAlleles=" + getMissingAlleles()
-                + ", missingGenotypes=" + getMissingGenotypes()
-                + ", mendelinanErrors=" + getMendelianErrors()
-                + ", casesPercentDominant=" + getCasesPercentDominant()
-                + ", controlsPercentDominant=" + getControlsPercentDominant()
-                + ", casesPercentRecessive=" + getCasesPercentRecessive()
-                + ", controlsPercentRecessive=" + getControlsPercentRecessive()
-                + '}';
+        return impl.toString();
     }
 
+    @Override
+    public int hashCode() {
+        return impl.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof VariantStats) {
+            return impl.equals(((VariantStats) obj).getImpl());
+        } else {
+            return false;
+        }
+    }
 
 }

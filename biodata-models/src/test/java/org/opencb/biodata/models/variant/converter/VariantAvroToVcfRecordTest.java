@@ -54,8 +54,8 @@ public class VariantAvroToVcfRecordTest {
                         VariantAvroToVcfRecord.ATTRIBUTE_QUAL + ":" + qual,
                         VariantAvroToVcfRecord.ATTRIBUTE_FILTER + ":" + filter));
 //        study.setSamplesData(new HashMap<String, Map<String,String>>());
-//        study.getSamplesData().put(sampleList.get(0), buildMap("EF:ef","AB:sample_03"));
-//        study.getSamplesData().put(sampleList.get(1), buildMap("EF:ef","AB:sample_01","CD:cd"));
+//        study.getSamplesDataAsMap().put(sampleList.get(0), buildMap("EF:ef","AB:sample_03"));
+//        study.getSamplesDataAsMap().put(sampleList.get(1), buildMap("EF:ef","AB:sample_01","CD:cd"));
         study.setSamplesData(new ArrayList<>());
         study.getSamplesData().add(Arrays.asList("ab1", "ef1", "cd1"));
         study.getSamplesData().add(Arrays.asList("ab2", "ef2", "cd2"));

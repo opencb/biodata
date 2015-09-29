@@ -107,7 +107,7 @@ public class VariantSourceStats {
                 continue;
             }
             
-            for (Map.Entry<String, Map<String, String>> sample : file.getSamplesData().entrySet()) {
+            for (Map.Entry<String, Map<String, String>> sample : file.getSamplesDataAsMap().entrySet()) {
                 String sampleName = sample.getKey();
                 VariantSingleSampleStats sampleStats = samplesStats.get(sampleName);
                 if (sampleStats == null) {

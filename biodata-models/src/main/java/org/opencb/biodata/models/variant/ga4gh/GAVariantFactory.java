@@ -55,7 +55,7 @@ public class GAVariantFactory {
                 System.arraycopy(file.getSecondaryAlternates(), 0, alternates, 1, file.getSecondaryAlternates().size());
                 
                 GAVariant ga;
-                if (file.getSamplesData().isEmpty()) {
+                if (file.getSamplesDataAsMap().isEmpty()) {
                     // No genotypes, simplest case
                     ga = new GAVariant(id, file.getFileId(), names, System.currentTimeMillis(), System.currentTimeMillis(), 
                             variant.getChromosome(), variant.getStart(), variant.getEnd(), variant.getReference(), alternates, 
@@ -63,7 +63,7 @@ public class GAVariantFactory {
                 } else {
                     ga = new GAVariant(id, file.getFileId(), names, System.currentTimeMillis(), System.currentTimeMillis(), 
                             variant.getChromosome(), variant.getStart(), variant.getEnd(), variant.getReference(), alternates, 
-                            parseInfo(file.getAttributes()), parseCalls(file.getSamplesData()));
+                            parseInfo(file.getAttributes()), parseCalls(file.getSamplesDataAsMap()));
                 }
                 
                 gaVariants.add(ga);

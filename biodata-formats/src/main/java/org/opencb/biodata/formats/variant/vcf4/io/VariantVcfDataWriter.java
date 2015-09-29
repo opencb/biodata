@@ -155,7 +155,7 @@ public class VariantVcfDataWriter implements VariantWriter {
     }
 
     private List<String> getFormatOrder(VariantSourceEntry file) {
-        return Lists.newArrayList(file.getFormat().split(":"));
+        return Lists.newArrayList(file.getFormatAsString().split(":"));
     }
 
     private String generateInfo(Map<String, String> attributes) {

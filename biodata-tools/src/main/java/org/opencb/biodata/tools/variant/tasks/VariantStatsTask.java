@@ -63,7 +63,7 @@ public class VariantStatsTask extends Task<Variant> {
                 file.setStats(variantStats);
                 switch (source.getAggregation()) {
                     case NONE:
-                        VariantStatsCalculator.calculate(file.getSamplesData(), file.getAttributes(), source.getPedigree(), variantStats);
+                        VariantStatsCalculator.calculate(file.getSamplesDataAsMap(), file.getAttributes(), source.getPedigree(), variantStats);
                         break;
                     case BASIC:
                         new VariantAggregatedStatsCalculator().calculate(variant, file);

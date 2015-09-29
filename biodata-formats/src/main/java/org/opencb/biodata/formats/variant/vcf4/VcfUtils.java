@@ -58,7 +58,7 @@ public class VcfUtils {
         }
 
         StringBuilder info = new StringBuilder();
-        for (String formatField : file.getFormat().split(":")) {
+        for (String formatField : file.getFormatAsString().split(":")) {
             info.append(data.get(formatField)).append(":");
         }
 

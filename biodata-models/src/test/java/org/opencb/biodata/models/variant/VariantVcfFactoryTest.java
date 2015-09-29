@@ -203,7 +203,7 @@ public class VariantVcfFactoryTest {
         assertEquals(1, result.size());
 
         Variant getVar0 = result.get(0);
-        assertEquals(var0.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData(), getVar0.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData());
+        assertEquals(var0.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesDataAsMap(), getVar0.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesDataAsMap());
     }
 
     @Test
@@ -290,14 +290,14 @@ public class VariantVcfFactoryTest {
 
         Variant getVar0 = result.get(0);
         assertEquals(
-                var0.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData(),
-                getVar0.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData());
+                var0.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesDataAsMap(),
+                getVar0.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesDataAsMap());
         assertEquals(Collections.singletonList("G"), getVar0.getSourceEntry(source.getFileId(), source.getStudyId()).getSecondaryAlternates());
 
         Variant getVar1 = result.get(1);
         assertEquals(
-                var1.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData(),
-                getVar1.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData());
+                var1.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesDataAsMap(),
+                getVar1.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesDataAsMap());
         assertEquals(Collections.singletonList("C"), getVar1.getSourceEntry(source.getFileId(), source.getStudyId()).getSecondaryAlternates());
     }
 
@@ -376,14 +376,14 @@ public class VariantVcfFactoryTest {
 
         Variant getVar0 = result.get(0);
         assertEquals(
-                var0.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData(),
-                getVar0.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData());
+                var0.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesDataAsMap(),
+                getVar0.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesDataAsMap());
         assertEquals(Collections.singletonList("GC"), getVar0.getSourceEntry(source.getFileId(), source.getStudyId()).getSecondaryAlternates());
 
         Variant getVar1 = result.get(1);
         assertEquals(
-                var1.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData(),
-                getVar1.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData());
+                var1.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesDataAsMap(),
+                getVar1.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesDataAsMap());
         assertEquals(Collections.singletonList("C"), getVar1.getSourceEntry(source.getFileId(), source.getStudyId()).getSecondaryAlternates());
     }
 

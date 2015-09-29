@@ -233,7 +233,11 @@ public class Variant {
         if (listByType == null) {
             listByType = new LinkedList<>();
         }
-        return listByType.add(value);
+        if (!listByType.contains(value)) {
+            return listByType.add(value);
+        } else {
+            return false; //Collection has not changed
+        }
     }
 
     public List<VariantSourceEntry> getStudies() {
@@ -373,10 +377,10 @@ public class Variant {
 
         Variant variant = (Variant) o;
 
-        if (getStart() != variant.getStart()) {
+        if (!Objects.equals(getStart(), variant.getStart())) {
             return false;
         }
-        if (getEnd() != variant.getEnd()) {
+        if (!Objects.equals(getEnd(), variant.getEnd())) {
             return false;
         }
         if (getChromosome() != null ? !getChromosome().equals(variant.getChromosome()) : variant.getChromosome() != null) {
