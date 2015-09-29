@@ -215,15 +215,14 @@ public class VariantStatsCalculator {
         }
 
         // Set all combinations of genotypes to zero
-        Map<String, Float> genotypesFreq = variantStats.getGenotypesFreq();
-        genotypesFreq.put("0/0", 0.0f);
-        genotypesFreq.put("0/1", 0.0f);
-        genotypesFreq.put("1/1", 0.0f);
+        Map<Genotype, Float> genotypesFreq = variantStats.getGenotypesFreq();
+        genotypesFreq.put(new Genotype("0/0", variantStats.getRefAllele(), variantStats.getAltAllele()), 0.0f);
+        genotypesFreq.put(new Genotype("0/1", variantStats.getRefAllele(), variantStats.getAltAllele()), 0.0f);
+        genotypesFreq.put(new Genotype("1/1", variantStats.getRefAllele(), variantStats.getAltAllele()), 0.0f);
 
         // Insert the genotypes found in the file
-        for (Map.Entry<String, Integer> gtCount : variantStats.getGenotypesCount().entrySet()) {
-            Genotype genotype = new Genotype(gtCount.getKey());
-            if (genotype.getCode() == AllelesCode.ALLELES_MISSING) {
+        for (Map.Entry<Genotype, Integer> gtCount : variantStats.getGenotypesCount().entrySet()) {
+            if (gtCount.getKey().getCode() == AllelesCode.ALLELES_MISSING) {
                 // Missing genotypes shouldn't have frequencies calculated
                 continue;
             }
@@ -234,9 +233,9 @@ public class VariantStatsCalculator {
 
         // Traverse the genotypes to see which one has the MGF
         float currMgf = Float.MAX_VALUE;
-        String currMgfGenotype = null;
+        Genotype currMgfGenotype = null;
 
-        for (Map.Entry<String, Float> gtCount : genotypesFreq.entrySet()) {
+        for (Map.Entry<Genotype, Float> gtCount : genotypesFreq.entrySet()) {
             float freq = gtCount.getValue();
             if (freq < currMgf) {
                 currMgf = freq;
@@ -246,7 +245,7 @@ public class VariantStatsCalculator {
 
         if (currMgfGenotype != null) {
             variantStats.setMgf(currMgf);
-            variantStats.setMgfGenotype(currMgfGenotype);
+            variantStats.setMgfGenotype(currMgfGenotype.toString());
         }
     }
 

@@ -50,9 +50,9 @@ public class VariantAggregatedStatsCalculatorTest extends GenericTest {
         calculator.calculate(variants);
 
         VariantStats stats = variants.get(0).getSourceEntry(source.getFileId(), source.getStudyId()).getStats(VariantSourceEntry.DEFAULT_COHORT);
-        assertEquals(new Integer(304), stats.getGenotypesCount().get(new Genotype("0/0", "C", "T").toString()));
-        assertEquals(new Integer(163), stats.getGenotypesCount().get(new Genotype("0/1", "C", "T").toString()));
-        assertEquals(new Integer(31),  stats.getGenotypesCount().get(new Genotype("T/T", "C", "T").toString()));
+        assertEquals(new Integer(304), stats.getGenotypesCount().get(new Genotype("0/0", "C", "T")));
+        assertEquals(new Integer(163), stats.getGenotypesCount().get(new Genotype("0/1", "C", "T")));
+        assertEquals(new Integer(31),  stats.getGenotypesCount().get(new Genotype("T/T", "C", "T")));
         assertEquals(0.225903614, stats.getMaf(), 0.0001);
     }
 
@@ -74,14 +74,14 @@ public class VariantAggregatedStatsCalculatorTest extends GenericTest {
         assertEquals(Integer.valueOf(3), stats.getAltAlleleCount());
         assertEquals(0.006, stats.getAltAlleleFreq(), 0.0001);
         assertEquals(3.0/534, stats.getMaf(), 0.0001);
-        assertEquals(Integer.valueOf(258), stats.getGenotypesCount().get(new Genotype("0/0", "G", "A").toString()));
-        assertEquals(Integer.valueOf(1), stats.getGenotypesCount().get(new Genotype("0/1", "G", "A").toString()));
-        assertEquals(Integer.valueOf(1), stats.getGenotypesCount().get(new Genotype("A/A", "G", "A").toString()));
-        assertEquals(Integer.valueOf(6), stats.getGenotypesCount().get(new Genotype("0/2", "G", "A").toString()));
-        assertEquals(Integer.valueOf(0), stats.getGenotypesCount().get(new Genotype("./.", "G", "A").toString()));
+        assertEquals(Integer.valueOf(258), stats.getGenotypesCount().get(new Genotype("0/0", "G", "A")));
+        assertEquals(Integer.valueOf(1), stats.getGenotypesCount().get(new Genotype("0/1", "G", "A")));
+        assertEquals(Integer.valueOf(1), stats.getGenotypesCount().get(new Genotype("A/A", "G", "A")));
+        assertEquals(Integer.valueOf(6), stats.getGenotypesCount().get(new Genotype("0/2", "G", "A")));
+        assertEquals(Integer.valueOf(0), stats.getGenotypesCount().get(new Genotype("./.", "G", "A")));
 
         stats = variants.get(1).getSourceEntry(source.getFileId(), source.getStudyId()).getCohortStats("ALL");
-        assertEquals(Integer.valueOf(6), stats.getGenotypesCount().get(new Genotype("0/1", "G", "C").toString()));
+        assertEquals(Integer.valueOf(6), stats.getGenotypesCount().get(new Genotype("0/1", "G", "C")));
 
     }
 
@@ -94,9 +94,9 @@ public class VariantAggregatedStatsCalculatorTest extends GenericTest {
         calculator.calculate(variants);
 
         VariantStats stats = variants.get(0).getSourceEntry(source.getFileId(), source.getStudyId()).getStats(VariantSourceEntry.DEFAULT_COHORT);
-        assertEquals(new Integer(34), stats.getGenotypesCount().get(new Genotype("0/0", "A", "G").toString()));
-        assertEquals(new Integer(0),  stats.getGenotypesCount().get(new Genotype("0/1", "A", "G").toString()));
-        assertEquals(new Integer(1),  stats.getGenotypesCount().get(new Genotype("G/G", "A", "G").toString()));
+        assertEquals(new Integer(34), stats.getGenotypesCount().get(new Genotype("0/0", "A", "G")));
+        assertEquals(new Integer(0),  stats.getGenotypesCount().get(new Genotype("0/1", "A", "G")));
+        assertEquals(new Integer(1),  stats.getGenotypesCount().get(new Genotype("G/G", "A", "G")));
         assertEquals(2.0/70, stats.getMaf(), 0.0001);
     }
     

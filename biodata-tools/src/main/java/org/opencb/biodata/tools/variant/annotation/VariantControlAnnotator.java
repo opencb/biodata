@@ -177,12 +177,12 @@ public class VariantControlAnnotator implements VariantAnnotator {
 
     }
 
-    private String joinGenotypes(Map<String, Integer> genotypesCount) {
+    private String joinGenotypes(Map<Genotype, Integer> genotypesCount) {
 
         StringBuilder sb = new StringBuilder();
 
         int size = 0;
-        for (Map.Entry<String, Integer> entry : genotypesCount.entrySet()) {
+        for (Map.Entry<Genotype, Integer> entry : genotypesCount.entrySet()) {
 
             sb.append(entry.getKey()).append(":").append(entry.getValue());
 

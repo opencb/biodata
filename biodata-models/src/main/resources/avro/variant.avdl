@@ -60,8 +60,8 @@ protocol Variants {
         union { null, string } altAllele;
         union { null, int } refAlleleCount;
         union { null, int } altAlleleCount;
-        map<int> genotypesCount;
-        map<float> genotypesFreq;
+        @java-key-class("org.opencb.biodata.models.feature.Genotype") map<int> genotypesCount;
+        @java-key-class("org.opencb.biodata.models.feature.Genotype") map<float> genotypesFreq;
         union { null, int } missingAlleles;
         union { null, int } missingGenotypes;
         union { null, float } refAlleleFreq;

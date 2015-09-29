@@ -7,14 +7,14 @@ package org.opencb.biodata.models.variant.avro;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class VariantStats extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"VariantStats\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"refAllele\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"altAllele\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"refAlleleCount\",\"type\":[\"null\",\"int\"]},{\"name\":\"altAlleleCount\",\"type\":[\"null\",\"int\"]},{\"name\":\"genotypesCount\",\"type\":{\"type\":\"map\",\"values\":\"int\",\"avro.java.string\":\"String\"}},{\"name\":\"genotypesFreq\",\"type\":{\"type\":\"map\",\"values\":\"float\",\"avro.java.string\":\"String\"}},{\"name\":\"missingAlleles\",\"type\":[\"null\",\"int\"]},{\"name\":\"missingGenotypes\",\"type\":[\"null\",\"int\"]},{\"name\":\"refAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"altAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"maf\",\"type\":[\"null\",\"float\"]},{\"name\":\"mgf\",\"type\":[\"null\",\"float\"]},{\"name\":\"mafAllele\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"mgfGenotype\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"passedFilters\",\"type\":[\"null\",\"boolean\"]},{\"name\":\"mendelianErrors\",\"type\":[\"null\",\"int\"]},{\"name\":\"casesPercentDominant\",\"type\":[\"null\",\"float\"]},{\"name\":\"controlsPercentDominant\",\"type\":[\"null\",\"float\"]},{\"name\":\"casesPercentRecessive\",\"type\":[\"null\",\"float\"]},{\"name\":\"controlsPercentRecessive\",\"type\":[\"null\",\"float\"]},{\"name\":\"quality\",\"type\":[\"null\",\"float\"]},{\"name\":\"numSamples\",\"type\":[\"null\",\"int\"]},{\"name\":\"variantType\",\"type\":{\"type\":\"enum\",\"name\":\"VariantType\",\"doc\":\"* Type of variation, which depends mostly on its length.\\r\\n     * <ul>\\r\\n     * <li>SNVs involve a single nucleotide, without changes in length</li>\\r\\n     * <li>MNVs involve multiple nucleotides, without changes in length</li>\\r\\n     * <li>Indels are insertions or deletions of less than SV_THRESHOLD (50) nucleotides</li>\\r\\n     * <li>Structural variations are large changes of more than SV_THRESHOLD nucleotides</li>\\r\\n     * <li>Copy-number variations alter the number of copies of a region</li>\\r\\n     * </ul>\",\"symbols\":[\"SNP\",\"SNV\",\"MNP\",\"MNV\",\"INDEL\",\"SV\",\"CNV\",\"NO_VARIATION\",\"SYMBOLIC\",\"MIXED\"]}},{\"name\":\"hw\",\"type\":{\"type\":\"record\",\"name\":\"VariantHardyWeinbergStats\",\"fields\":[{\"name\":\"chi2\",\"type\":[\"null\",\"float\"]},{\"name\":\"pValue\",\"type\":[\"null\",\"float\"]},{\"name\":\"n\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_AA_11\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_Aa_10\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_aa_00\",\"type\":[\"null\",\"int\"]},{\"name\":\"e_AA_11\",\"type\":[\"null\",\"float\"]},{\"name\":\"e_Aa_10\",\"type\":[\"null\",\"float\"]},{\"name\":\"e_aa_00\",\"type\":[\"null\",\"float\"]},{\"name\":\"p\",\"type\":[\"null\",\"float\"]},{\"name\":\"q\",\"type\":[\"null\",\"float\"]}]}}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"VariantStats\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"refAllele\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"altAllele\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"refAlleleCount\",\"type\":[\"null\",\"int\"]},{\"name\":\"altAlleleCount\",\"type\":[\"null\",\"int\"]},{\"name\":\"genotypesCount\",\"type\":{\"type\":\"map\",\"values\":\"int\",\"avro.java.string\":\"String\",\"java-key-class\":\"org.opencb.biodata.models.feature.Genotype\"}},{\"name\":\"genotypesFreq\",\"type\":{\"type\":\"map\",\"values\":\"float\",\"avro.java.string\":\"String\",\"java-key-class\":\"org.opencb.biodata.models.feature.Genotype\"}},{\"name\":\"missingAlleles\",\"type\":[\"null\",\"int\"]},{\"name\":\"missingGenotypes\",\"type\":[\"null\",\"int\"]},{\"name\":\"refAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"altAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"maf\",\"type\":[\"null\",\"float\"]},{\"name\":\"mgf\",\"type\":[\"null\",\"float\"]},{\"name\":\"mafAllele\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"mgfGenotype\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"passedFilters\",\"type\":[\"null\",\"boolean\"]},{\"name\":\"mendelianErrors\",\"type\":[\"null\",\"int\"]},{\"name\":\"casesPercentDominant\",\"type\":[\"null\",\"float\"]},{\"name\":\"controlsPercentDominant\",\"type\":[\"null\",\"float\"]},{\"name\":\"casesPercentRecessive\",\"type\":[\"null\",\"float\"]},{\"name\":\"controlsPercentRecessive\",\"type\":[\"null\",\"float\"]},{\"name\":\"quality\",\"type\":[\"null\",\"float\"]},{\"name\":\"numSamples\",\"type\":[\"null\",\"int\"]},{\"name\":\"variantType\",\"type\":{\"type\":\"enum\",\"name\":\"VariantType\",\"doc\":\"* Type of variation, which depends mostly on its length.\\r\\n     * <ul>\\r\\n     * <li>SNVs involve a single nucleotide, without changes in length</li>\\r\\n     * <li>MNVs involve multiple nucleotides, without changes in length</li>\\r\\n     * <li>Indels are insertions or deletions of less than SV_THRESHOLD (50) nucleotides</li>\\r\\n     * <li>Structural variations are large changes of more than SV_THRESHOLD nucleotides</li>\\r\\n     * <li>Copy-number variations alter the number of copies of a region</li>\\r\\n     * </ul>\",\"symbols\":[\"SNP\",\"SNV\",\"MNP\",\"MNV\",\"INDEL\",\"SV\",\"CNV\",\"NO_VARIATION\",\"SYMBOLIC\",\"MIXED\"]}},{\"name\":\"hw\",\"type\":{\"type\":\"record\",\"name\":\"VariantHardyWeinbergStats\",\"fields\":[{\"name\":\"chi2\",\"type\":[\"null\",\"float\"]},{\"name\":\"pValue\",\"type\":[\"null\",\"float\"]},{\"name\":\"n\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_AA_11\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_Aa_10\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_aa_00\",\"type\":[\"null\",\"int\"]},{\"name\":\"e_AA_11\",\"type\":[\"null\",\"float\"]},{\"name\":\"e_Aa_10\",\"type\":[\"null\",\"float\"]},{\"name\":\"e_aa_00\",\"type\":[\"null\",\"float\"]},{\"name\":\"p\",\"type\":[\"null\",\"float\"]},{\"name\":\"q\",\"type\":[\"null\",\"float\"]}]}}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
    private java.lang.String refAllele;
    private java.lang.String altAllele;
    private java.lang.Integer refAlleleCount;
    private java.lang.Integer altAlleleCount;
-   private java.util.Map<java.lang.String,java.lang.Integer> genotypesCount;
-   private java.util.Map<java.lang.String,java.lang.Float> genotypesFreq;
+   private java.util.Map<org.opencb.biodata.models.feature.Genotype,java.lang.Integer> genotypesCount;
+   private java.util.Map<org.opencb.biodata.models.feature.Genotype,java.lang.Float> genotypesFreq;
    private java.lang.Integer missingAlleles;
    private java.lang.Integer missingGenotypes;
    private java.lang.Float refAlleleFreq;
@@ -44,7 +44,7 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
   /**
    * All-args constructor.
    */
-  public VariantStats(java.lang.String refAllele, java.lang.String altAllele, java.lang.Integer refAlleleCount, java.lang.Integer altAlleleCount, java.util.Map<java.lang.String,java.lang.Integer> genotypesCount, java.util.Map<java.lang.String,java.lang.Float> genotypesFreq, java.lang.Integer missingAlleles, java.lang.Integer missingGenotypes, java.lang.Float refAlleleFreq, java.lang.Float altAlleleFreq, java.lang.Float maf, java.lang.Float mgf, java.lang.String mafAllele, java.lang.String mgfGenotype, java.lang.Boolean passedFilters, java.lang.Integer mendelianErrors, java.lang.Float casesPercentDominant, java.lang.Float controlsPercentDominant, java.lang.Float casesPercentRecessive, java.lang.Float controlsPercentRecessive, java.lang.Float quality, java.lang.Integer numSamples, org.opencb.biodata.models.variant.avro.VariantType variantType, org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats hw) {
+  public VariantStats(java.lang.String refAllele, java.lang.String altAllele, java.lang.Integer refAlleleCount, java.lang.Integer altAlleleCount, java.util.Map<org.opencb.biodata.models.feature.Genotype,java.lang.Integer> genotypesCount, java.util.Map<org.opencb.biodata.models.feature.Genotype,java.lang.Float> genotypesFreq, java.lang.Integer missingAlleles, java.lang.Integer missingGenotypes, java.lang.Float refAlleleFreq, java.lang.Float altAlleleFreq, java.lang.Float maf, java.lang.Float mgf, java.lang.String mafAllele, java.lang.String mgfGenotype, java.lang.Boolean passedFilters, java.lang.Integer mendelianErrors, java.lang.Float casesPercentDominant, java.lang.Float controlsPercentDominant, java.lang.Float casesPercentRecessive, java.lang.Float controlsPercentRecessive, java.lang.Float quality, java.lang.Integer numSamples, org.opencb.biodata.models.variant.avro.VariantType variantType, org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats hw) {
     this.refAllele = refAllele;
     this.altAllele = altAllele;
     this.refAlleleCount = refAlleleCount;
@@ -110,8 +110,8 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     case 1: altAllele = (java.lang.String)value$; break;
     case 2: refAlleleCount = (java.lang.Integer)value$; break;
     case 3: altAlleleCount = (java.lang.Integer)value$; break;
-    case 4: genotypesCount = (java.util.Map<java.lang.String,java.lang.Integer>)value$; break;
-    case 5: genotypesFreq = (java.util.Map<java.lang.String,java.lang.Float>)value$; break;
+    case 4: genotypesCount = (java.util.Map<org.opencb.biodata.models.feature.Genotype,java.lang.Integer>)value$; break;
+    case 5: genotypesFreq = (java.util.Map<org.opencb.biodata.models.feature.Genotype,java.lang.Float>)value$; break;
     case 6: missingAlleles = (java.lang.Integer)value$; break;
     case 7: missingGenotypes = (java.lang.Integer)value$; break;
     case 8: refAlleleFreq = (java.lang.Float)value$; break;
@@ -197,7 +197,7 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
   /**
    * Gets the value of the 'genotypesCount' field.
    */
-  public java.util.Map<java.lang.String,java.lang.Integer> getGenotypesCount() {
+  public java.util.Map<org.opencb.biodata.models.feature.Genotype,java.lang.Integer> getGenotypesCount() {
     return genotypesCount;
   }
 
@@ -205,14 +205,14 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
    * Sets the value of the 'genotypesCount' field.
    * @param value the value to set.
    */
-  public void setGenotypesCount(java.util.Map<java.lang.String,java.lang.Integer> value) {
+  public void setGenotypesCount(java.util.Map<org.opencb.biodata.models.feature.Genotype,java.lang.Integer> value) {
     this.genotypesCount = value;
   }
 
   /**
    * Gets the value of the 'genotypesFreq' field.
    */
-  public java.util.Map<java.lang.String,java.lang.Float> getGenotypesFreq() {
+  public java.util.Map<org.opencb.biodata.models.feature.Genotype,java.lang.Float> getGenotypesFreq() {
     return genotypesFreq;
   }
 
@@ -220,7 +220,7 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
    * Sets the value of the 'genotypesFreq' field.
    * @param value the value to set.
    */
-  public void setGenotypesFreq(java.util.Map<java.lang.String,java.lang.Float> value) {
+  public void setGenotypesFreq(java.util.Map<org.opencb.biodata.models.feature.Genotype,java.lang.Float> value) {
     this.genotypesFreq = value;
   }
 
@@ -519,8 +519,8 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     private java.lang.String altAllele;
     private java.lang.Integer refAlleleCount;
     private java.lang.Integer altAlleleCount;
-    private java.util.Map<java.lang.String,java.lang.Integer> genotypesCount;
-    private java.util.Map<java.lang.String,java.lang.Float> genotypesFreq;
+    private java.util.Map<org.opencb.biodata.models.feature.Genotype,java.lang.Integer> genotypesCount;
+    private java.util.Map<org.opencb.biodata.models.feature.Genotype,java.lang.Float> genotypesFreq;
     private java.lang.Integer missingAlleles;
     private java.lang.Integer missingGenotypes;
     private java.lang.Float refAlleleFreq;
@@ -848,12 +848,12 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     }
 
     /** Gets the value of the 'genotypesCount' field */
-    public java.util.Map<java.lang.String,java.lang.Integer> getGenotypesCount() {
+    public java.util.Map<org.opencb.biodata.models.feature.Genotype,java.lang.Integer> getGenotypesCount() {
       return genotypesCount;
     }
     
     /** Sets the value of the 'genotypesCount' field */
-    public org.opencb.biodata.models.variant.avro.VariantStats.Builder setGenotypesCount(java.util.Map<java.lang.String,java.lang.Integer> value) {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder setGenotypesCount(java.util.Map<org.opencb.biodata.models.feature.Genotype,java.lang.Integer> value) {
       validate(fields()[4], value);
       this.genotypesCount = value;
       fieldSetFlags()[4] = true;
@@ -873,12 +873,12 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     }
 
     /** Gets the value of the 'genotypesFreq' field */
-    public java.util.Map<java.lang.String,java.lang.Float> getGenotypesFreq() {
+    public java.util.Map<org.opencb.biodata.models.feature.Genotype,java.lang.Float> getGenotypesFreq() {
       return genotypesFreq;
     }
     
     /** Sets the value of the 'genotypesFreq' field */
-    public org.opencb.biodata.models.variant.avro.VariantStats.Builder setGenotypesFreq(java.util.Map<java.lang.String,java.lang.Float> value) {
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder setGenotypesFreq(java.util.Map<org.opencb.biodata.models.feature.Genotype,java.lang.Float> value) {
       validate(fields()[5], value);
       this.genotypesFreq = value;
       fieldSetFlags()[5] = true;
@@ -1355,8 +1355,8 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
         record.altAllele = fieldSetFlags()[1] ? this.altAllele : (java.lang.String) defaultValue(fields()[1]);
         record.refAlleleCount = fieldSetFlags()[2] ? this.refAlleleCount : (java.lang.Integer) defaultValue(fields()[2]);
         record.altAlleleCount = fieldSetFlags()[3] ? this.altAlleleCount : (java.lang.Integer) defaultValue(fields()[3]);
-        record.genotypesCount = fieldSetFlags()[4] ? this.genotypesCount : (java.util.Map<java.lang.String,java.lang.Integer>) defaultValue(fields()[4]);
-        record.genotypesFreq = fieldSetFlags()[5] ? this.genotypesFreq : (java.util.Map<java.lang.String,java.lang.Float>) defaultValue(fields()[5]);
+        record.genotypesCount = fieldSetFlags()[4] ? this.genotypesCount : (java.util.Map<org.opencb.biodata.models.feature.Genotype,java.lang.Integer>) defaultValue(fields()[4]);
+        record.genotypesFreq = fieldSetFlags()[5] ? this.genotypesFreq : (java.util.Map<org.opencb.biodata.models.feature.Genotype,java.lang.Float>) defaultValue(fields()[5]);
         record.missingAlleles = fieldSetFlags()[6] ? this.missingAlleles : (java.lang.Integer) defaultValue(fields()[6]);
         record.missingGenotypes = fieldSetFlags()[7] ? this.missingGenotypes : (java.lang.Integer) defaultValue(fields()[7]);
         record.refAlleleFreq = fieldSetFlags()[8] ? this.refAlleleFreq : (java.lang.Float) defaultValue(fields()[8]);

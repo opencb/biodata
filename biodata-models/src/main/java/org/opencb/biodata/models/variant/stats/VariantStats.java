@@ -18,16 +18,8 @@ package org.opencb.biodata.models.variant.stats;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import org.opencb.biodata.models.feature.AllelesCode;
+
 import org.opencb.biodata.models.feature.Genotype;
-import org.opencb.biodata.models.pedigree.Condition;
-import org.opencb.biodata.models.pedigree.Individual;
-import org.opencb.biodata.models.pedigree.Pedigree;
-import org.opencb.biodata.models.variant.VariantSourceEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.VariantType;
 
@@ -121,11 +113,7 @@ public class VariantStats extends org.opencb.biodata.models.variant.avro.Variant
     }
 
     public void addGenotype(Genotype g, int addedCount) {
-        String normalizedGenotype = normalizeGenotypeAlleles(g).toString();
-        addGenotype(normalizedGenotype, addedCount);
-    }
-
-    public void addGenotype(String normalizedGenotype, int addedCount) {
+        Genotype normalizedGenotype = normalizeGenotypeAlleles(g);
         Integer count;
         if (getGenotypesCount().containsKey(normalizedGenotype)) {
             count = getGenotypesCount().get(normalizedGenotype) + addedCount;
@@ -134,7 +122,7 @@ public class VariantStats extends org.opencb.biodata.models.variant.avro.Variant
         }
         getGenotypesCount().put(normalizedGenotype, count);
     }
-    
+
     private Genotype normalizeGenotypeAlleles(Genotype g) {
         // Get alleles sorted in ascending order
         int[] sortedAlleles = g.getNormalizedAllelesIdx();
