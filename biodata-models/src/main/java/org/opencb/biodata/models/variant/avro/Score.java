@@ -7,10 +7,10 @@ package org.opencb.biodata.models.variant.avro;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class Score extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"Score\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"score\",\"type\":[\"null\",\"double\"]},{\"name\":\"source\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"description\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"Score\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"source\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"score\",\"type\":\"double\"},{\"name\":\"description\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
-   private java.lang.Double score;
    private java.lang.String source;
+   private double score;
    private java.lang.String description;
 
   /**
@@ -23,9 +23,9 @@ public class Score extends org.apache.avro.specific.SpecificRecordBase implement
   /**
    * All-args constructor.
    */
-  public Score(java.lang.Double score, java.lang.String source, java.lang.String description) {
-    this.score = score;
+  public Score(java.lang.String source, java.lang.Double score, java.lang.String description) {
     this.source = source;
+    this.score = score;
     this.description = description;
   }
 
@@ -33,8 +33,8 @@ public class Score extends org.apache.avro.specific.SpecificRecordBase implement
   // Used by DatumWriter.  Applications should not call. 
   public java.lang.Object get(int field$) {
     switch (field$) {
-    case 0: return score;
-    case 1: return source;
+    case 0: return source;
+    case 1: return score;
     case 2: return description;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
@@ -43,26 +43,11 @@ public class Score extends org.apache.avro.specific.SpecificRecordBase implement
   @SuppressWarnings(value="unchecked")
   public void put(int field$, java.lang.Object value$) {
     switch (field$) {
-    case 0: score = (java.lang.Double)value$; break;
-    case 1: source = (java.lang.String)value$; break;
+    case 0: source = (java.lang.String)value$; break;
+    case 1: score = (java.lang.Double)value$; break;
     case 2: description = (java.lang.String)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
-  }
-
-  /**
-   * Gets the value of the 'score' field.
-   */
-  public java.lang.Double getScore() {
-    return score;
-  }
-
-  /**
-   * Sets the value of the 'score' field.
-   * @param value the value to set.
-   */
-  public void setScore(java.lang.Double value) {
-    this.score = value;
   }
 
   /**
@@ -78,6 +63,21 @@ public class Score extends org.apache.avro.specific.SpecificRecordBase implement
    */
   public void setSource(java.lang.String value) {
     this.source = value;
+  }
+
+  /**
+   * Gets the value of the 'score' field.
+   */
+  public java.lang.Double getScore() {
+    return score;
+  }
+
+  /**
+   * Sets the value of the 'score' field.
+   * @param value the value to set.
+   */
+  public void setScore(java.lang.Double value) {
+    this.score = value;
   }
 
   /**
@@ -116,8 +116,8 @@ public class Score extends org.apache.avro.specific.SpecificRecordBase implement
   public static class Builder extends org.apache.avro.specific.SpecificRecordBuilderBase<Score>
     implements org.apache.avro.data.RecordBuilder<Score> {
 
-    private java.lang.Double score;
     private java.lang.String source;
+    private double score;
     private java.lang.String description;
 
     /** Creates a new Builder */
@@ -128,12 +128,12 @@ public class Score extends org.apache.avro.specific.SpecificRecordBase implement
     /** Creates a Builder by copying an existing Builder */
     private Builder(org.opencb.biodata.models.variant.avro.Score.Builder other) {
       super(other);
-      if (isValidValue(fields()[0], other.score)) {
-        this.score = data().deepCopy(fields()[0].schema(), other.score);
+      if (isValidValue(fields()[0], other.source)) {
+        this.source = data().deepCopy(fields()[0].schema(), other.source);
         fieldSetFlags()[0] = true;
       }
-      if (isValidValue(fields()[1], other.source)) {
-        this.source = data().deepCopy(fields()[1].schema(), other.source);
+      if (isValidValue(fields()[1], other.score)) {
+        this.score = data().deepCopy(fields()[1].schema(), other.score);
         fieldSetFlags()[1] = true;
       }
       if (isValidValue(fields()[2], other.description)) {
@@ -145,43 +145,18 @@ public class Score extends org.apache.avro.specific.SpecificRecordBase implement
     /** Creates a Builder by copying an existing Score instance */
     private Builder(org.opencb.biodata.models.variant.avro.Score other) {
             super(org.opencb.biodata.models.variant.avro.Score.SCHEMA$);
-      if (isValidValue(fields()[0], other.score)) {
-        this.score = data().deepCopy(fields()[0].schema(), other.score);
+      if (isValidValue(fields()[0], other.source)) {
+        this.source = data().deepCopy(fields()[0].schema(), other.source);
         fieldSetFlags()[0] = true;
       }
-      if (isValidValue(fields()[1], other.source)) {
-        this.source = data().deepCopy(fields()[1].schema(), other.source);
+      if (isValidValue(fields()[1], other.score)) {
+        this.score = data().deepCopy(fields()[1].schema(), other.score);
         fieldSetFlags()[1] = true;
       }
       if (isValidValue(fields()[2], other.description)) {
         this.description = data().deepCopy(fields()[2].schema(), other.description);
         fieldSetFlags()[2] = true;
       }
-    }
-
-    /** Gets the value of the 'score' field */
-    public java.lang.Double getScore() {
-      return score;
-    }
-    
-    /** Sets the value of the 'score' field */
-    public org.opencb.biodata.models.variant.avro.Score.Builder setScore(java.lang.Double value) {
-      validate(fields()[0], value);
-      this.score = value;
-      fieldSetFlags()[0] = true;
-      return this; 
-    }
-    
-    /** Checks whether the 'score' field has been set */
-    public boolean hasScore() {
-      return fieldSetFlags()[0];
-    }
-    
-    /** Clears the value of the 'score' field */
-    public org.opencb.biodata.models.variant.avro.Score.Builder clearScore() {
-      score = null;
-      fieldSetFlags()[0] = false;
-      return this;
     }
 
     /** Gets the value of the 'source' field */
@@ -191,20 +166,44 @@ public class Score extends org.apache.avro.specific.SpecificRecordBase implement
     
     /** Sets the value of the 'source' field */
     public org.opencb.biodata.models.variant.avro.Score.Builder setSource(java.lang.String value) {
-      validate(fields()[1], value);
+      validate(fields()[0], value);
       this.source = value;
-      fieldSetFlags()[1] = true;
+      fieldSetFlags()[0] = true;
       return this; 
     }
     
     /** Checks whether the 'source' field has been set */
     public boolean hasSource() {
-      return fieldSetFlags()[1];
+      return fieldSetFlags()[0];
     }
     
     /** Clears the value of the 'source' field */
     public org.opencb.biodata.models.variant.avro.Score.Builder clearSource() {
       source = null;
+      fieldSetFlags()[0] = false;
+      return this;
+    }
+
+    /** Gets the value of the 'score' field */
+    public java.lang.Double getScore() {
+      return score;
+    }
+    
+    /** Sets the value of the 'score' field */
+    public org.opencb.biodata.models.variant.avro.Score.Builder setScore(double value) {
+      validate(fields()[1], value);
+      this.score = value;
+      fieldSetFlags()[1] = true;
+      return this; 
+    }
+    
+    /** Checks whether the 'score' field has been set */
+    public boolean hasScore() {
+      return fieldSetFlags()[1];
+    }
+    
+    /** Clears the value of the 'score' field */
+    public org.opencb.biodata.models.variant.avro.Score.Builder clearScore() {
       fieldSetFlags()[1] = false;
       return this;
     }
@@ -238,8 +237,8 @@ public class Score extends org.apache.avro.specific.SpecificRecordBase implement
     public Score build() {
       try {
         Score record = new Score();
-        record.score = fieldSetFlags()[0] ? this.score : (java.lang.Double) defaultValue(fields()[0]);
-        record.source = fieldSetFlags()[1] ? this.source : (java.lang.String) defaultValue(fields()[1]);
+        record.source = fieldSetFlags()[0] ? this.source : (java.lang.String) defaultValue(fields()[0]);
+        record.score = fieldSetFlags()[1] ? this.score : (java.lang.Double) defaultValue(fields()[1]);
         record.description = fieldSetFlags()[2] ? this.description : (java.lang.String) defaultValue(fields()[2]);
         return record;
       } catch (Exception e) {
