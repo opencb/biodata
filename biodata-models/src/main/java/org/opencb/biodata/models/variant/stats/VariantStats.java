@@ -18,20 +18,24 @@ package org.opencb.biodata.models.variant.stats;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.avro.VariantType;
+import org.opencb.biodata.models.variant.avro.*;
+import org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats;
 
 /**
  * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  * @author Jose Miguel Mut Lopez &lt;jmmut@ebi.ac.uk&gt;
- *
- * TODO Mendelian errors must be calculated
+ *         <p>
+ *         TODO Mendelian errors must be calculated
  */
-public class VariantStats extends org.opencb.biodata.models.variant.avro.VariantStats {
-//
+public class VariantStats {
+
+    private final org.opencb.biodata.models.variant.avro.VariantStats impl;
+
 //    private String refAllele;
 //    private String altAllele;
 //    private VariantType variantType;
@@ -64,20 +68,13 @@ public class VariantStats extends org.opencb.biodata.models.variant.avro.Variant
 //    private int numSamples;
 //    private VariantHardyWeinbergStats hw;
 
-    
+
     public VariantStats() {
         this(null, -1, null, null, VariantType.SNV, -1, -1, null, null, -1, -1, -1, -1, -1, -1, -1);
     }
 
     public VariantStats(org.opencb.biodata.models.variant.avro.VariantStats other) {
-        super(other.getRefAllele(), other.getAltAllele(),
-                other.getRefAlleleCount(), other.getAltAlleleCount(),
-                other.getGenotypesCount(), other.getGenotypesFreq(),
-                other.getMissingAlleles(), other.getMissingGenotypes(),
-                other.getRefAlleleFreq(), other.getAltAlleleFreq(), other.getMaf(), other.getMgf(), other.getMafAllele(), other.getMgfGenotype(),
-                other.getPassedFilters(), other.getMendelianErrors(),
-                other.getCasesPercentDominant(), other.getControlsPercentDominant(), other.getCasesPercentRecessive(), other.getControlsPercentRecessive(),
-                other.getQuality(), other.getNumSamples(), other.getVariantType(), other.getHw());
+        impl = other;
     }
 
     public VariantStats(Variant variant) {
@@ -91,12 +88,12 @@ public class VariantStats extends org.opencb.biodata.models.variant.avro.Variant
     public VariantStats(String referenceAllele, String alternateAllele, VariantType type) {
         this(null, -1, referenceAllele, alternateAllele, type, -1, -1, null, null, -1, -1, -1, -1, -1, -1, -1);
     }
-    
-    public VariantStats(String chromosome, int position, String referenceAllele, String alternateAlleles, 
-            VariantType variantType, float maf, float mgf, String mafAllele, String mgfGenotype,
-            int numMissingAlleles, int numMissingGenotypes, int numMendelErrors, float percentCasesDominant, 
-            float percentControlsDominant, float percentCasesRecessive, float percentControlsRecessive) {
-        super(referenceAllele, alternateAlleles,
+
+    public VariantStats(String chromosome, int position, String referenceAllele, String alternateAlleles,
+                        VariantType variantType, float maf, float mgf, String mafAllele, String mgfGenotype,
+                        int numMissingAlleles, int numMissingGenotypes, int numMendelErrors, float percentCasesDominant,
+                        float percentControlsDominant, float percentCasesRecessive, float percentControlsRecessive) {
+        impl = new org.opencb.biodata.models.variant.avro.VariantStats(referenceAllele, alternateAlleles,
                 -1, -1,
                 new HashMap<>(), new HashMap<>(),
                 numMissingAlleles, numMissingGenotypes,
@@ -106,6 +103,206 @@ public class VariantStats extends org.opencb.biodata.models.variant.avro.Variant
                 -1F, -1, variantType, null);
 
 //        this.hw = new VariantHardyWeinbergStats();
+    }
+
+    public org.opencb.biodata.models.variant.avro.VariantStats getImpl() {
+        return impl;
+    }
+
+    public String getRefAllele() {
+        return impl.getRefAllele();
+    }
+
+    public void setRefAllele(String value) {
+        impl.setRefAllele(value);
+    }
+
+    public String getAltAllele() {
+        return impl.getAltAllele();
+    }
+
+    public void setAltAllele(String value) {
+        impl.setAltAllele(value);
+    }
+
+    public Integer getRefAlleleCount() {
+        return impl.getRefAlleleCount();
+    }
+
+    public void setRefAlleleCount(Integer value) {
+        impl.setRefAlleleCount(value);
+    }
+
+    public Integer getAltAlleleCount() {
+        return impl.getAltAlleleCount();
+    }
+
+    public void setAltAlleleCount(Integer value) {
+        impl.setAltAlleleCount(value);
+    }
+
+    public Map<Genotype, Integer> getGenotypesCount() {
+        return impl.getGenotypesCount();
+    }
+
+    public void setGenotypesCount(Map<Genotype, Integer> value) {
+        impl.setGenotypesCount(value);
+    }
+
+    public Map<Genotype, Float> getGenotypesFreq() {
+        return impl.getGenotypesFreq();
+    }
+
+    public void setGenotypesFreq(Map<Genotype, Float> value) {
+        impl.setGenotypesFreq(value);
+    }
+
+    public Integer getMissingAlleles() {
+        return impl.getMissingAlleles();
+    }
+
+    public void setMissingAlleles(Integer value) {
+        impl.setMissingAlleles(value);
+    }
+
+    public Integer getMissingGenotypes() {
+        return impl.getMissingGenotypes();
+    }
+
+    public void setMissingGenotypes(Integer value) {
+        impl.setMissingGenotypes(value);
+    }
+
+    public Float getRefAlleleFreq() {
+        return impl.getRefAlleleFreq();
+    }
+
+    public void setRefAlleleFreq(Float value) {
+        impl.setRefAlleleFreq(value);
+    }
+
+    public Float getAltAlleleFreq() {
+        return impl.getAltAlleleFreq();
+    }
+
+    public void setAltAlleleFreq(Float value) {
+        impl.setAltAlleleFreq(value);
+    }
+
+    public Float getMaf() {
+        return impl.getMaf();
+    }
+
+    public void setMaf(Float value) {
+        impl.setMaf(value);
+    }
+
+    public Float getMgf() {
+        return impl.getMgf();
+    }
+
+    public void setMgf(Float value) {
+        impl.setMgf(value);
+    }
+
+    public String getMafAllele() {
+        return impl.getMafAllele();
+    }
+
+    public void setMafAllele(String value) {
+        impl.setMafAllele(value);
+    }
+
+    public String getMgfGenotype() {
+        return impl.getMgfGenotype();
+    }
+
+    public void setMgfGenotype(String value) {
+        impl.setMgfGenotype(value);
+    }
+
+    public Boolean getPassedFilters() {
+        return impl.getPassedFilters();
+    }
+
+    public boolean hasPassedFilters() {
+        return impl.getPassedFilters();
+    }
+
+    public void setPassedFilters(Boolean value) {
+        impl.setPassedFilters(value);
+    }
+
+    public Integer getMendelianErrors() {
+        return impl.getMendelianErrors();
+    }
+
+    public void setMendelianErrors(Integer value) {
+        impl.setMendelianErrors(value);
+    }
+
+    public Float getCasesPercentDominant() {
+        return impl.getCasesPercentDominant();
+    }
+
+    public void setCasesPercentDominant(Float value) {
+        impl.setCasesPercentDominant(value);
+    }
+
+    public Float getControlsPercentDominant() {
+        return impl.getControlsPercentDominant();
+    }
+
+    public void setControlsPercentDominant(Float value) {
+        impl.setControlsPercentDominant(value);
+    }
+
+    public Float getCasesPercentRecessive() {
+        return impl.getCasesPercentRecessive();
+    }
+
+    public void setCasesPercentRecessive(Float value) {
+        impl.setCasesPercentRecessive(value);
+    }
+
+    public Float getControlsPercentRecessive() {
+        return impl.getControlsPercentRecessive();
+    }
+
+    public void setControlsPercentRecessive(Float value) {
+        impl.setControlsPercentRecessive(value);
+    }
+
+    public Float getQuality() {
+        return impl.getQuality();
+    }
+
+    public void setQuality(Float value) {
+        impl.setQuality(value);
+    }
+
+    public Integer getNumSamples() {
+        return impl.getNumSamples();
+    }
+
+    public void setNumSamples(Integer value) {
+        impl.setNumSamples(value);
+    }
+
+    public VariantType getVariantType() {
+        return impl.getVariantType();
+    }
+
+    public void setVariantType(VariantType value) {
+        impl.setVariantType(value);
+    }
+
+    public VariantHardyWeinbergStats getHw() {
+        return impl.getHw();
+    }
+
+    public void setHw(VariantHardyWeinbergStats value) {
+        impl.setHw(value);
     }
 
     public void addGenotype(Genotype g) {
@@ -126,7 +323,7 @@ public class VariantStats extends org.opencb.biodata.models.variant.avro.Variant
     private Genotype normalizeGenotypeAlleles(Genotype g) {
         // Get alleles sorted in ascending order
         int[] sortedAlleles = g.getNormalizedAllelesIdx();
-        
+
         if (Arrays.equals(sortedAlleles, g.getAllelesIdx())) {
             // If the alleles do not change, no need to do anything
             return g;
@@ -141,18 +338,6 @@ public class VariantStats extends org.opencb.biodata.models.variant.avro.Variant
             return new Genotype(joinedAlleles.toString(), g.getReference(), g.getAlternate());
         }
     }
-    
-//    void setGenotypesCount(Map<Genotype, Integer> genotypesCount) {
-//        this.genotypesCount = genotypesCount;
-//    }
-//
-//    public Map<Genotype, Float> getGenotypesFreq() {
-//        return genotypesFreq;
-//    }
-//
-//    void setGenotypesFreq(Map<Genotype, Float> genotypesFreq) {
-//        this.genotypesFreq = genotypesFreq;
-//    }
 
     public boolean isTransition() {
         switch (getRefAllele().toUpperCase()) {
@@ -184,17 +369,7 @@ public class VariantStats extends org.opencb.biodata.models.variant.avro.Variant
         }
     }
 
-//    public VariantHardyWeinbergStats getHw() {
-//        return hw;
-//    }
 
-    public boolean hasPassedFilters() {
-        return super.getPassedFilters();
-    }
-
-
-
-    @Override
     public String toString() {
         return "VariantStats{"
                 + "refAllele='" + getRefAllele() + '\''
@@ -212,6 +387,6 @@ public class VariantStats extends org.opencb.biodata.models.variant.avro.Variant
                 + ", controlsPercentRecessive=" + getControlsPercentRecessive()
                 + '}';
     }
-    
+
 
 }

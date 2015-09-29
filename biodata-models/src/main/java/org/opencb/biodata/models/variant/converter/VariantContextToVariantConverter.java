@@ -27,7 +27,9 @@ import org.apache.avro.io.DatumWriter;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.avro.specific.SpecificDatumWriter;
 import org.opencb.biodata.models.variant.Variant;
-//import org.opencb.biodata.models.variant.VariantSourceEntry;
+import org.opencb.biodata.models.variant.VariantSourceEntry;
+import org.opencb.biodata.models.variant.stats.VariantStats;
+import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.avro.*;
 import org.opencb.commons.utils.FileUtils;
 
@@ -118,7 +120,7 @@ public class VariantContextToVariantConverter {
         /*
          * set variant type parameter
          */
-        variant.setType(getEnumFromString(org.opencb.biodata.models.variant.avro.VariantType.class, variantContext.getType().toString()));
+        variant.setType(getEnumFromString(VariantType.class, variantContext.getType().toString()));
 
         /*
          * set id parameter
@@ -568,7 +570,7 @@ public class VariantContextToVariantConverter {
         variantStats.setRefAlleleFreq(2f);
         variantStats.setHw(variantHardyWeinbergStats);
         variantStats.setVariantType(getEnumFromString(
-                org.opencb.biodata.models.variant.avro.VariantType.class, variantContext.getType()
+                VariantType.class, variantContext.getType()
                         .toString()));
 
         return variantStats;
@@ -611,10 +613,10 @@ public class VariantContextToVariantConverter {
 
         Variant variant =  new Variant();
         vcfdataFileWriter.setCodec(CodecFactory.snappyCodec());
-        vcfdataFileWriter.create(variant.getSchema(), outputStream);
+        vcfdataFileWriter.create(variant.getImpl().getSchema(), outputStream);
 
         for (Variant variantAvro : vcfBean) {
-            vcfdataFileWriter.append(variantAvro);
+            vcfdataFileWriter.append(variantAvro.getImpl());
         }
         vcfdataFileWriter.flush();
         vcfdataFileWriter.close();

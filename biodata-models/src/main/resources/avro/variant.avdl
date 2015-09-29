@@ -86,9 +86,9 @@ protocol Variants {
         union { null, string } studyId;
         union { null, string } fileId;
         union { null, array<string> } secondaryAlternates = null;
-        array<string> formatList;
+        array<string> format;
         //map<map<string>> samplesData;
-        array<array<string>> samplesDataList;
+        array<array<string>> samplesData;
         map<VariantStats> stats;
         map<string> attributes;
     }

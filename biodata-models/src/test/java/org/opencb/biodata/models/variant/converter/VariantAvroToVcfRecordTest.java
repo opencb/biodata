@@ -45,7 +45,7 @@ public class VariantAvroToVcfRecordTest {
         String filter = "PASS;low30";
         VariantSourceEntry study = new VariantSourceEntry();
         study.setFileId(file_name);
-        study.setFormatList(Arrays.asList(format.split(VCFConstants.FORMAT_FIELD_SEPARATOR)));
+        study.setFormat(Arrays.asList(format.split(VCFConstants.FORMAT_FIELD_SEPARATOR)));
         study.setAttributes(
                 buildMap(
                         "X:x", "A:ab",
@@ -56,9 +56,9 @@ public class VariantAvroToVcfRecordTest {
 //        study.setSamplesData(new HashMap<String, Map<String,String>>());
 //        study.getSamplesData().put(sampleList.get(0), buildMap("EF:ef","AB:sample_03"));
 //        study.getSamplesData().put(sampleList.get(1), buildMap("EF:ef","AB:sample_01","CD:cd"));
-        study.setSamplesDataList(new ArrayList<>());
-        study.getSamplesDataList().add(Arrays.asList("ab1", "ef1", "cd1"));
-        study.getSamplesDataList().add(Arrays.asList("ab2", "ef2", "cd2"));
+        study.setSamplesData(new ArrayList<>());
+        study.getSamplesData().add(Arrays.asList("ab1", "ef1", "cd1"));
+        study.getSamplesData().add(Arrays.asList("ab2", "ef2", "cd2"));
 
 //        Map<String, VariantSourceEntry> studyMap = new HashMap<>();
 //        studyMap.put("1", study );

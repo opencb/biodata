@@ -28,9 +28,12 @@ import org.opencb.biodata.models.variant.stats.VariantStats;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  * @author Jose Miguel Mut Lopez &lt;jmmut@ebi.ac.uk&gt;
  */
-public class VariantSourceEntry extends org.opencb.biodata.models.variant.avro.VariantSourceEntry {
+public class VariantSourceEntry {
 
     private Map<String, Integer> samplePositions = null;
+    private Map<String, Integer> formatPosition = null;
+    private Map<String, VariantStats> cohortStats = null;
+    private final org.opencb.biodata.models.variant.avro.VariantSourceEntry impl;
 
     /**
      * Unique identifier of the archived file.
@@ -72,16 +75,13 @@ public class VariantSourceEntry extends org.opencb.biodata.models.variant.avro.V
      */
 //    private Map<String, String> attributes;
 
-    private Map<String, Integer> formatPosition;
 
     public VariantSourceEntry() {
         this(null, null);
     }
     
     public VariantSourceEntry(org.opencb.biodata.models.variant.avro.VariantSourceEntry other) {
-        super(other.getStudyId(), other.getFileId(), other.getSecondaryAlternates(),
-                other.getFormatList(), other.getSamplesDataList(), other.getStats(), other.getAttributes());
-
+        impl = other;
     }
 
     public VariantSourceEntry(String fileId, String studyId) {
@@ -89,31 +89,11 @@ public class VariantSourceEntry extends org.opencb.biodata.models.variant.avro.V
     }
 
     public VariantSourceEntry(String fileId, String studyId, String[] secondaryAlternates, String format) {
-        this(fileId, studyId, secondaryAlternates, format == null? null : Arrays.asList(format.split(":")));
+        this(fileId, studyId, secondaryAlternates, format == null ? null : Arrays.asList(format.split(":")));
     }
     public VariantSourceEntry(String fileId, String studyId, String[] secondaryAlternates, List<String> format) {
-        super(studyId, fileId, Arrays.asList(secondaryAlternates), format, new LinkedList<>(), new LinkedHashMap<>(), new LinkedHashMap<>());
+        this.impl = new org.opencb.biodata.models.variant.avro.VariantSourceEntry(studyId, fileId, Arrays.asList(secondaryAlternates), format, new LinkedList<>(), new LinkedHashMap<>(), new LinkedHashMap<>());
     }
-    
-//    public String getFileId() {
-//        return fileId;
-//    }
-
-//    public void setFileId(String fileId) {
-//        this.fileId = fileId;
-//    }
-
-//    public String getStudyId() {
-//        return studyId;
-//    }
-
-//    public void setStudyId(String studyId) {
-//        this.studyId = studyId;
-//    }
-
-//    public String[] getSecondaryAlternates() {
-//        return secondaryAlternates;
-//    }
 
     public void setSamplePositions(Map<String, Integer> samplePositions) {
         this.samplePositions = samplePositions;
@@ -124,6 +104,10 @@ public class VariantSourceEntry extends org.opencb.biodata.models.variant.avro.V
         }
     }
 
+    public org.opencb.biodata.models.variant.avro.VariantSourceEntry getImpl() {
+        return impl;
+    }
+
 //    public void setSamplePositions(List<String> samplePositions) {
 //        this.samplePositions = new HashMap<>(samplePositions.size());
 //        int position = 0;
@@ -131,11 +115,11 @@ public class VariantSourceEntry extends org.opencb.biodata.models.variant.avro.V
 //            this.samplePositions.put(sample, position++);
 //        }
 //    }
-
-    @Deprecated
-    public void setSecondaryAlternates(String[] secondaryAlternates) {
-        super.setSecondaryAlternates(Arrays.asList(secondaryAlternates));
-    }
+//
+//    @Deprecated
+//    public void setSecondaryAlternates(String[] secondaryAlternates) {
+//        impl.setSecondaryAlternates(Arrays.asList(secondaryAlternates));
+//    }
 
     @Deprecated
     public String getFormat() {
@@ -150,15 +134,13 @@ public class VariantSourceEntry extends org.opencb.biodata.models.variant.avro.V
      * Do not modify this list
      * @return
      */
-    @Override
     public List<String> getFormatList() {
-        return Collections.unmodifiableList(super.getFormatList());
+        return Collections.unmodifiableList(impl.getFormat());
     }
 
-    @Override
     public void setFormatList(List<String> value) {
         formatPosition = null;
-        super.setFormatList(value);
+        impl.setFormat(value);
     }
 
     public Map<String, Integer> getFormatPositions() {
@@ -188,7 +170,7 @@ public class VariantSourceEntry extends org.opencb.biodata.models.variant.avro.V
         if (samplePositions.containsKey(sampleName)) {
             Map<String, Integer> formatPositions = getFormatPositions();
             if (formatPositions.containsKey(field)) {
-                return super.getSamplesDataList().get(samplePositions.get(sampleName)).get(formatPositions.get(field));
+                return impl.getSamplesData().get(samplePositions.get(sampleName)).get(formatPositions.get(field));
             }
         }
         return null;
@@ -199,7 +181,7 @@ public class VariantSourceEntry extends org.opencb.biodata.models.variant.avro.V
         if (samplePositions.containsKey(sampleName)) {
             HashMap<String, String> sampleDataMap = new HashMap<>();
             Iterator<String> iterator = getFormatList().iterator();
-            List<String> sampleDataList = super.getSamplesDataList().get(samplePositions.get(sampleName));
+            List<String> sampleDataList = impl.getSamplesData().get(samplePositions.get(sampleName));
             for (String data : sampleDataList) {
                 sampleDataMap.put(iterator.next(), data);
             }
@@ -244,56 +226,58 @@ public class VariantSourceEntry extends org.opencb.biodata.models.variant.avro.V
         return samplePositions.keySet();
     }
 
-//    public VariantStats getStats() {
-//        return cohortStats.get(DEFAULT_COHORT);
-//    }
-//
+
+    public Map<String, VariantStats> getStats() {
+        resetStatsMap();
+        return Collections.unmodifiableMap(cohortStats);
+    }
+
+    private void resetStatsMap() {
+        if (cohortStats == null) {
+            cohortStats = new HashMap<>();
+            impl.getStats().forEach((k, v) -> cohortStats.put(k, new VariantStats(v)));
+        }
+    }
+
+    public void setStats(Map<String, VariantStats> stats) {
+        this.cohortStats = stats;
+        impl.setStats(new HashMap<>(stats.size()));
+        stats.forEach((k, v) -> impl.getStats().put(k, v.getImpl()));
+    }
+
     public void setStats(VariantStats stats) {
-        getStats().put(DEFAULT_COHORT, stats);
+        setStats(DEFAULT_COHORT, stats);
     }
 
     public void setStats(String cohortName, VariantStats stats) {
-        getStats().put(cohortName, stats);
+        resetStatsMap();
+        cohortStats.put(cohortName, stats);
+        impl.getStats().put(cohortName, stats.getImpl());
     }
 
     public VariantStats getStats(String cohortName) {
-        if (!getStats().containsKey(cohortName)) {
-            return null;
-        }
-        org.opencb.biodata.models.variant.avro.VariantStats variantStats = getStats().get(cohortName);
-        if (variantStats instanceof VariantStats) {
-            return ((VariantStats) variantStats);
-        } else {
-            VariantStats value = new VariantStats(variantStats);
-            getStats().put(cohortName, value);
-            return value;
-        }
+        resetStatsMap();
+        return cohortStats.get(cohortName);
     }
+
+    @Deprecated
     public VariantStats getCohortStats(String cohortName) {
         return getStats(cohortName);
     }
 
+    @Deprecated
     public void setCohortStats(String cohortName, VariantStats stats) {
         setStats(cohortName, stats);
     }
 
+    @Deprecated
     public Map<String, VariantStats> getCohortStats() {
-        Map<String, VariantStats> cohortStats = new HashMap<>();
-        for (Map.Entry<String, org.opencb.biodata.models.variant.avro.VariantStats> entry : getStats().entrySet()) {
-            org.opencb.biodata.models.variant.avro.VariantStats variantStats = entry.getValue();
-            if ((variantStats instanceof VariantStats)) {
-                cohortStats.put(entry.getKey(), ((VariantStats) variantStats));
-            } else {
-                VariantStats value = new VariantStats(variantStats);
-                getStats().put(entry.getKey(), value);
-                cohortStats.put(entry.getKey(), value);
-            }
-        }
-        return cohortStats;
+        return getStats();
     }
 
+    @Deprecated
     public void setCohortStats(Map<String, VariantStats> cohortStats) {
-        setStats(new HashMap<>(cohortStats));
+        setStats(cohortStats);
     }
 
     public String getAttribute(String key) {
@@ -310,7 +294,47 @@ public class VariantSourceEntry extends org.opencb.biodata.models.variant.avro.V
 
     private void requireSamplePositions() {
         if (samplePositions == null) {
-            throw new IllegalArgumentException(""); //TODO Unknown sample positions!
+            throw new IllegalArgumentException("Require sample positions array to use this method!"); //TODO Unknown sample positions!
         }
+    }
+
+    public String getStudyId() {
+        return impl.getStudyId();
+    }
+
+    public void setStudyId(String value) {
+        impl.setStudyId(value);
+    }
+
+    public String getFileId() {
+        return impl.getFileId();
+    }
+
+    public void setFileId(String value) {
+        impl.setFileId(value);
+    }
+
+    public List<String> getSecondaryAlternates() {
+        return impl.getSecondaryAlternates();
+    }
+
+    public void setSecondaryAlternates(List<String> value) {
+        impl.setSecondaryAlternates(value);
+    }
+
+    public List<List<String>> getSamplesDataList() {
+        return impl.getSamplesData();
+    }
+
+    public void setSamplesDataList(List<List<String>> value) {
+        impl.setSamplesData(value);
+    }
+
+    public Map<String, String> getAttributes() {
+        return impl.getAttributes();
+    }
+
+    public void setAttributes(Map<String, String> value) {
+        impl.setAttributes(value);
     }
 }

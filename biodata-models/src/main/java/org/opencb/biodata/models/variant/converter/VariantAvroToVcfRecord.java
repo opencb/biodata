@@ -145,11 +145,11 @@ public class VariantAvroToVcfRecord implements Converter<VariantAvro,VcfRecord> 
         recordBuilder.addAllInfoValue(infoValues);
 
 		/* FORMAT */
-        List<String> formatLst = decodeFormat(study.getFormatList().stream().collect(Collectors.joining(","))); // FORMAT column
+        List<String> formatLst = decodeFormat(study.getFormat().stream().collect(Collectors.joining(","))); // FORMAT column
         if( ! isDefaultFormat(formatLst)){
             recordBuilder.addAllSampleFormatNonDefault(formatLst); // maybe empty if default
         }
-        recordBuilder.addAllSamples(decodeSamples(formatLst, study.getSamplesDataList()));
+        recordBuilder.addAllSamples(decodeSamples(formatLst, study.getSamplesData()));
 
         // TODO check all worked
         return recordBuilder.build();

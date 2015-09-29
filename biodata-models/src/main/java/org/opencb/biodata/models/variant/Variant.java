@@ -16,6 +16,7 @@
 
 package org.opencb.biodata.models.variant;
 
+import org.opencb.biodata.models.variant.avro.VariantAnnotation;
 import org.opencb.biodata.models.variant.avro.VariantAvro;
 import org.opencb.biodata.models.variant.avro.VariantType;
 
@@ -26,111 +27,23 @@ import java.util.stream.Collectors;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
  */
-public class Variant extends VariantAvro {
+public class Variant {
+
+    private final VariantAvro impl;
 
     public static final int SV_THRESHOLD = 50;
-
-    /**
-     * Type of variation, which depends mostly on its length.
-     * <ul>
-     * <li>SNVs involve a single nucleotide, without changes in length</li>
-     * <li>MNVs involve multiple nucleotides, without changes in length</li>
-     * <li>Indels are insertions or deletions of less than SV_THRESHOLD (50) nucleotides</li>
-     * <li>Structural variations are large changes of more than SV_THRESHOLD nucleotides</li>
-     * <li>Copy-number variations alter the number of copies of a region</li>
-     * </ul>
-     */
-//    public enum VariantType {
-//        SNV, MNV, INDEL, SV, CNV
-//    }
-
-    /**
-     * Chromosome where the genomic variation occurred.
-     */
-//    private String chromosome;
-
-    /**
-     * Position where the genomic variation starts.
-     * <ul>
-     * <li>SNVs have the same start and end position</li>
-     * <li>Insertions start in the last present position: if the first nucleotide
-     * is inserted in position 6, the start is position 5</li>
-     * <li>Deletions start in the first previously present position: if the first
-     * deleted nucleotide is in position 6, the start is position 6</li>
-     * </ul>
-     */
-//    private int start;
-
-    /**
-     * Position where the genomic variation ends.
-     * <ul>
-     * <li>SNVs have the same start and end positions</li>
-     * <li>Insertions end in the first present position: if the last nucleotide
-     * is inserted in position 9, the end is position 10</li>
-     * <li>Deletions ends in the last previously present position: if the last
-     * deleted nucleotide is in position 9, the end is position 9</li>
-     * </ul>
-     */
-//    private int end;
-
-    /**
-     * Length of the genomic variation, which depends on the variation type.
-     * <ul>
-     * <li>SNVs have a length of 1 nucleotide</li>
-     * <li>Indels have the length of the largest allele</li>
-     * </ul>
-     */
-//    private int length;
-
-    /**
-     * Reference allele.
-     */
-//    private String reference;
-
-    /**
-     * Alternate allele.
-     */
-//    private String alternate;
-
-    /**
-     * Set of identifiers used for this genomic variation.
-     */
-//    private Set<String> ids;
-
-    /**
-     * Type of variation: single nucleotide, indel or structural variation.
-     */
-//    private VariantType type;
-
-    /**
-     * Unique identifier following the HGVS nomenclature.
-     */
-//    private Map<String, Set<String>> hgvs;
-
-    /**
-     * Information specific to each file the variant was read from, such as
-     * samples or statistics.
-     */
-//    private Map<String, VariantSourceEntry> sourceEntries;
-
-//    /**
-//     * Statistics of the genomic variation, such as its alleles/genotypes count 
-//     * or its minimum allele frequency.
-//     */
-//    private VariantStats stats;
-
-    /**
-     * Annotations of the genomic variation.
-     */
-//    private VariantAnnotation annotation;
-
+    private Map<String, VariantSourceEntry> sourceEntries = null;
 
     public Variant() {
         this("", -1, -1, "", "");
     }
 
+    public Variant(VariantAvro avro) {
+        impl = avro;
+    }
+
     public Variant(String chromosome, int start, int end, String reference, String alternate) {
-        super(chromosome,
+        impl = new VariantAvro(chromosome,
                 start,
                 end,
                 (reference != null) ? reference : "",
@@ -151,10 +64,11 @@ public class Variant extends VariantAvro {
         if (this.getType() == VariantType.SNV) { // Generate HGVS code only for SNVs
             List<String> hgvsCodes = new LinkedList<>();
             hgvsCodes.add(chromosome + ":g." + start + reference + ">" + alternate);
-            super.getHgvs().put("genomic", hgvsCodes);
+            impl.getHgvs().put("genomic", hgvsCodes);
         }
 
 //        this.annotation = new VariantAnnotation(this.chromosome, this.start, this.end, this.reference, this.alternate);
+        sourceEntries = new HashMap<>();
     }
 
 //    public VariantType getType() {
@@ -190,7 +104,11 @@ public class Variant extends VariantAvro {
 //        return chromosome;
 //    }
 
-    @Override
+
+    public VariantAvro getImpl() {
+        return impl;
+    }
+
     public final void setChromosome(String chromosome) {
         if (chromosome == null || chromosome.length() == 0) {
             throw new IllegalArgumentException("Chromosome must not be empty");
@@ -199,37 +117,33 @@ public class Variant extends VariantAvro {
         // For instance, tomato has SL2.40ch00 and that should be kept that way
         if (chromosome.startsWith("chrom") || chromosome.startsWith("chrm")
                 || chromosome.startsWith("chr") || chromosome.startsWith("ch")) {
-            super.setChromosome(chromosome.replaceFirst("chrom|chrm|chr|ch", ""));
+            impl.setChromosome(chromosome.replaceFirst("chrom|chrm|chr|ch", ""));
         } else {
-            super.setChromosome(chromosome);
+            impl.setChromosome(chromosome);
         }
     }
 
-    @Override
     public final void setStart(Integer start) {
         if (start < 0) {
             throw new IllegalArgumentException("Start must be positive");
         }
-        super.setStart(start);
+        impl.setStart(start);
     }
 
-    @Override
     public final void setEnd(Integer end) {
         if (end < 0) {
             throw new IllegalArgumentException("End must be positive");
         }
-        super.setEnd(end);
+        impl.setEnd(end);
     }
 
-    @Override
     public void setReference(String reference) {
-        super.setReference(reference);
+        impl.setReference(reference);
         resetLength();
     }
 
-    @Override
     public void setAlternate(String alternate) {
-        super.setAlternate(alternate);
+        impl.setAlternate(alternate);
         resetLength();
     }
 
@@ -239,32 +153,80 @@ public class Variant extends VariantAvro {
 
     @Deprecated
     public String getId() {
-        if (super.getIds() == null) {
+        if (impl.getIds() == null) {
             return null;
         } else {
-            return super.getIds().stream().collect(Collectors.joining(";"));
+            return impl.getIds().stream().collect(Collectors.joining(";"));
         }
     }
 
     @Deprecated
     public void setId(String id) {
-        if (super.getIds() == null) {
-            super.setIds(new LinkedList<>());
+        if (impl.getIds() == null) {
+            impl.setIds(new LinkedList<>());
         }
-        super.getIds().add(id);
+        impl.getIds().add(id);
     }
 
+    public String getChromosome() {
+        return impl.getChromosome();
+    }
 
-    // TODO Insert in attributes?
-//    public void addId(String newId) {
-//        if (!this.id.contains(newId)) {
-//            if (this.id.equals(".")) {
-//                this.id = newId;
-//            } else {
-//                this.id += ";" + newId;
-//            }
-//        }
-//    }
+    public Integer getStart() {
+        return impl.getStart();
+    }
+
+    public Integer getEnd() {
+        return impl.getEnd();
+    }
+
+    public String getReference() {
+        return impl.getReference();
+    }
+
+    public String getAlternate() {
+        return impl.getAlternate();
+    }
+
+    public List<String> getIds() {
+        return impl.getIds();
+    }
+
+    public void setIds(List<String> value) {
+        impl.setIds(value);
+    }
+
+    public void setLength(Integer value) {
+        impl.setLength(value);
+    }
+
+    public Integer getLength() {
+        return impl.getLength();
+    }
+
+    public VariantType getType() {
+        return impl.getType();
+    }
+
+    public void setType(VariantType value) {
+        impl.setType(value);
+    }
+
+    public Map<String, List<String>> getHgvs() {
+        return impl.getHgvs();
+    }
+
+    public void setHgvs(Map<String, List<String>> value) {
+        impl.setHgvs(value);
+    }
+
+    public VariantAnnotation getAnnotation() {
+        return impl.getAnnotation();
+    }
+
+    public void setAnnotation(VariantAnnotation value) {
+        impl.setAnnotation(value);
+    }
 
     public boolean addHgvs(String type, String value) {
         List<String> listByType = getHgvs().get(type);
@@ -274,46 +236,58 @@ public class Variant extends VariantAvro {
         return listByType.add(value);
     }
 
-    public Map<String, VariantSourceEntry> getSourceEntries() {
-        HashMap<String, VariantSourceEntry> sourceEntries = new HashMap<>();
-        for (org.opencb.biodata.models.variant.avro.VariantSourceEntry sourceEntry : getStudies()) {
-            if (sourceEntry instanceof VariantSourceEntry) {
-                sourceEntries.put(composeId(sourceEntry.getStudyId(), sourceEntry.getFileId()), (VariantSourceEntry) sourceEntry);
-            } else {
-                sourceEntries.put(composeId(sourceEntry.getStudyId(), sourceEntry.getFileId()), new VariantSourceEntry(sourceEntry));
-            }
-        }
-        return sourceEntries;
+    public List<VariantSourceEntry> getStudies() {
+        return Collections.unmodifiableList(new ArrayList<>(getSourceEntries().values()));
     }
 
-    public VariantSourceEntry getSourceEntry(String fileId, String studyId) {
-        List<org.opencb.biodata.models.variant.avro.VariantSourceEntry> studies = super.getStudies();
-        if (studies != null) {
-            int position = 0;
-            for (org.opencb.biodata.models.variant.avro.VariantSourceEntry sourceEntry : studies) {
-                if (sourceEntry.getStudyId().equals(studyId) && Objects.equals(sourceEntry.getFileId(), fileId)) {
-                    if (sourceEntry instanceof VariantSourceEntry) {
-                        return ((VariantSourceEntry) sourceEntry);
-                    } else {
-                        VariantSourceEntry entry = new VariantSourceEntry(sourceEntry);
-                        super.getStudies().set(position, entry);
-                        return entry;
-                    }
+    public void setStudies(List<VariantSourceEntry> studies) {
+        sourceEntries = new HashMap<>(studies.size());
+        impl.setStudies(new ArrayList<>(studies.size()));
+        for (VariantSourceEntry study : studies) {
+            impl.getStudies().add(study.getImpl());
+            sourceEntries.put(composeId(study.getStudyId(), study.getFileId()), study);
+        }
+    }
+
+    public Map<String, VariantSourceEntry> getSourceEntries() {
+        if (impl.getStudies() != null) {
+            if (sourceEntries == null) {
+                sourceEntries = new HashMap<>();
+                for (org.opencb.biodata.models.variant.avro.VariantSourceEntry sourceEntry : impl.getStudies()) {
+                    sourceEntries.put(composeId(sourceEntry.getStudyId(), sourceEntry.getFileId()), new VariantSourceEntry(sourceEntry));
                 }
-                position++;
             }
+            return Collections.unmodifiableMap(sourceEntries);
+        }
+        return null;
+    }
+
+    public VariantSourceEntry getSourceEntry(String studyId) {
+        return getSourceEntry(null, studyId);
+    }
+
+    @Deprecated
+    public VariantSourceEntry getSourceEntry(String fileId, String studyId) {
+        if (impl.getStudies() != null) {
+            return getSourceEntries().get(composeId(studyId, fileId));
         }
         return null;
     }
 
     public void setSourceEntries(Map<String, VariantSourceEntry> sourceEntries) {
+        this.sourceEntries = sourceEntries;
+        impl.setStudies(new ArrayList<>(sourceEntries.size()));
         for (VariantSourceEntry sourceEntry : sourceEntries.values()) {
-            getStudies().add(sourceEntry);
+            impl.getStudies().add(sourceEntry.getImpl());
         }
     }
 
     public void addSourceEntry(VariantSourceEntry sourceEntry) {
-        getStudies().add(sourceEntry);
+        if (sourceEntries == null) {
+            sourceEntries = new HashMap<>();
+        }
+        this.sourceEntries.put(composeId(sourceEntry.getStudyId(), sourceEntry.getFileId()), sourceEntry);
+        impl.getStudies().add(sourceEntry.getImpl());
     }
 //
 //    public VariantStats getStats(String studyId, String fileId) {
@@ -372,7 +346,6 @@ public class Variant extends VariantAvro {
     }
 
 
-    @Override
     public String toString() {
         return "Variant{" +
                 "chromosome='" + getChromosome() + '\'' +
@@ -387,10 +360,9 @@ public class Variant extends VariantAvro {
     }
 
     public String toJson() {
-        return super.toString();
+        return impl.toString();
     }
 
-    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -421,8 +393,7 @@ public class Variant extends VariantAvro {
     }
 
 
-//    @Override
-//    public int hashCode() {
+//    //    public int hashCode() {
 //        int result = getChromosome() != null ? getChromosome().hashCode() : 0;
 //        result = 31 * result + getStart();
 //        result = 31 * result + getEnd();
