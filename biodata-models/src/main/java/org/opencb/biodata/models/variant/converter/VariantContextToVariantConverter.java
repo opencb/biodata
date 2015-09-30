@@ -16,6 +16,7 @@
 
 package org.opencb.biodata.models.variant.converter;
 
+import htsjdk.variant.variantcontext.Allele;
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFConstants;
 import htsjdk.variant.vcf.VCFFileReader;
@@ -26,6 +27,7 @@ import org.apache.avro.io.DatumReader;
 import org.apache.avro.io.DatumWriter;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.avro.specific.SpecificDatumWriter;
+import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantSourceEntry;
 import org.opencb.biodata.models.variant.stats.VariantStats;
@@ -101,71 +103,68 @@ public class VariantContextToVariantConverter {
         variant.setStart(variantContext.getStart());
         variant.setEnd(variantContext.getEnd());
 
-        /*
-         * set reference parameter
-         */
+        // Setting reference and alternate alleles
         variant.setReference(variantContext.getReference().getDisplayString());
-        /*
-         * set alternate parameter
-         */
-        String alternateAllelString = variantContext.getAlternateAlleles().toString().substring(1, variantContext.getAlternateAlleles().toString().length() - 1);
-        String[] alternateAllelArray = alternateAllelString.split(",");
-        String alternate = null;
-        if (alternateAllelArray.length >= 2) {
-            alternate = getAlternateAllele(alternateAllelString);
+        List<Allele> alternateAlleleList = variantContext.getAlternateAlleles();
+        if (alternateAlleleList != null && !alternateAlleleList.isEmpty()) {
+            variant.setAlternate(alternateAlleleList.get(0).toString());
         } else {
-            alternate = alternateAllelString;
+            variant.setAlternate("");
         }
-        variant.setAlternate(alternate);
-        /*
-         * set variant type parameter
-         */
-        variant.setType(getEnumFromString(VariantType.class, variantContext.getType().toString()));
 
-        /*
-         * set id parameter
-         */
+        //Do not need to store dot ID. It means that this variant does not have any ID
         String[] idsArray = variantContext.getID().split(VCFConstants.ID_FIELD_SEPARATOR);
         List<String> ids = new ArrayList<>(idsArray.length);
         for (String id : idsArray) {
-            //Do not need to store dot ID. It means that this variant does not have any ID
             if (!id.equals(".")) {
                 ids.add(id);
             }
         }
         variant.setIds(ids);
 
-        /*
-         * set length parameter
-         */
-        variant.setLength(variantContext.getStart() == variantContext.getEnd()
-                ? 1
-                : variantContext.getEnd() - variantContext.getStart() + 1);
+        // TODO length needs to be properly calculated
+        variant.setLength(variantContext.getEnd() - variantContext.getStart() + 1);
 
-        /*
-         * set variantSourceEntry fields
-         */
-//        Map<String, VariantSourceEntry> sourceEntry = new HashMap<>();
-        List<VariantSourceEntry> sourceEntries = new ArrayList<>();
+        variant.setType(getEnumFromString(VariantType.class, variantContext.getType().toString()));
+
+        // set parameter for HGVS hard coded values for time being as these value will not be getting from HTSJDK currently.
+        // TODO: Add HGVS information
+        Map<String, List<String>> hgvsMap = new HashMap<>();
+        variant.setHgvs(hgvsMap);
+
+
+        // set variantSourceEntry fields
+        List<VariantSourceEntry> studies = new ArrayList<>();
         VariantSourceEntry variantSourceEntry = new VariantSourceEntry();
-        // For time being setting the hard coded values for FileId and
-        // Study ID
-        variantSourceEntry.setFileId(fileId);
-        variantSourceEntry.setStudyId(studyId);
-        /*
-         * set secondary alternate
-         */
-        List<String> secondaryAlternateAlleleList = new ArrayList<>();
-        if (alternateAllelString.split(",").length >= 2) {
-            secondaryAlternateAlleleList = getSecondaryAlternateAllele(alternateAllelString);
 
+        // For time being setting the hard coded values for FileId and Study ID
+        variantSourceEntry.setStudyId(studyId);
+
+
+        FileEntry fileEntry = new FileEntry();
+        fileEntry.setFileId(fileId);
+        fileEntry.setCall(variantContext.getStart()
+                + ":" + variantContext.getReference()
+                + ":" + StringUtils.join(variantContext.getAlternateAlleles(), ","));
+        Map<String, String> attributes = new HashMap<>();
+        for (String key : variantContext.getAttributes().keySet()) {
+            attributes.put(key, variantContext.getAttributeAsString(key, ""));
         }
-        variantSourceEntry.setSecondaryAlternates(secondaryAlternateAlleleList);
-        /*
-         * set variant format
-         */
-        //FIXME: This code is not respecting the original format order
-//        String format;
+        fileEntry.setAttributes(attributes);
+        variantSourceEntry.setFiles(Collections.singletonList(fileEntry));
+
+
+        // We need to convert Allele object to String
+        // We skip the first alternate allele since these are the secondaries
+        List<String> secondaryAlternateList = new ArrayList<>();
+        for (int i = 1; i < variantContext.getAlternateAlleles().size(); i++) {
+            secondaryAlternateList.add(variantContext.getAlternateAlleles().get(i).toString());
+        }
+        variantSourceEntry.setSecondaryAlternates(secondaryAlternateList);
+
+
+        // set variant format
+        // FIXME: This code is not respecting the original format order
         List<String> formatFields = new ArrayList<>(10);
         if (variantContext.getGenotypes().size() > 1) {
             htsjdk.variant.variantcontext.Genotype gt = variantContext.getGenotypes().get(0);
@@ -185,28 +184,18 @@ public class VariantContextToVariantConverter {
             if (gt.hasPL()) {
                 formatFields.add(VCFConstants.GENOTYPE_PL_KEY);
             }
+
             for (String key : gt.getExtendedAttributes().keySet()) {
                 formatFields.add(key);
             }
         }
         variantSourceEntry.setFormat(formatFields);
 
-//        String[] str = ((LazyGenotypesContext) variantContext
-//                .getGenotypes()).getUnparsedGenotypeData().toString()
-//                .split("\t", 2);
-//        String format = str[0];
-//        variantSourceEntry.setFormat(format);
-//        String[] formatFields = format.split(":");
-        /*
-         * set sample data parameters Eg: GT:GQ:GQX:DP:DPF:AD
-         * 1/1:63:29:22:7:0,22
-         */
-//        Map<String, Map<String, String>> sampledataMap = new HashMap<>();
-        List<List<String>> sampleDataList = new ArrayList<>(variantContext.getSampleNames().size());
 
+        // set sample data parameters Eg: GT:GQ:GQX:DP:DPF:AD 1/1:63:29:22:7:0,22
+        List<List<String>> sampleDataList = new ArrayList<>(variantContext.getSampleNames().size());
         for (String sampleName : variantContext.getSampleNames()) {
             htsjdk.variant.variantcontext.Genotype genotype = variantContext.getGenotype(sampleName);
-//            HashMap<String, String> sampleData = new HashMap<>();
             List<String> sampleList = new ArrayList<>(formatFields.size());
 
             for (String formatField : formatFields) {
@@ -231,70 +220,39 @@ public class VariantContextToVariantConverter {
                         }
                         break;
                 }
-//                sampleData.put(formatField, value);
                 sampleList.add(value);
             }
-
-//            sampledataMap.put(sampleName, sampleData);
             sampleDataList.add(sampleList);
         }
-
-
-//        variantSourceEntry.setSamplesData(sampledataMap);
         variantSourceEntry.setSamplesData(sampleDataList);
-        /*
-         * set default cohort
-         */
+
 
         /*
-         * set cohortStats fields. Putting hard coded values for time
+         * set stats fields. Putting hard coded values for time
          * being as these value will not be getting from HTSJDK
          * currently.
          */
-        Map<String, VariantStats> cohortStats = new HashMap<>();
+        Map<String, VariantStats> stats = new HashMap<>();
         //TODO: Call to the Variant Aggregated Stats Parser
-//        cohortStats.put(
+//        stats.put(
 //                "2",
 //                setVariantStatsParams(
 //                        setVariantHardyWeinbergStatsParams(),
 //                        variantContext));
-        variantSourceEntry.setStats(cohortStats);
-        /*
-         * set attribute fields. Putting hard coded values for time being
-         * as these value will not be getting from HTSJDK currently.
-         */
-        Map<String, String> attributeMapNew = new HashMap<>();
-        Map<String, Object> attributeMap = variantContext.getAttributes();
-        for (Map.Entry<String, Object> attr : attributeMap.entrySet()) {
-            attributeMapNew.put(attr.getKey(), attr.getValue().toString());
-        }
-        variantSourceEntry.setAttributes(attributeMapNew);
-//        sourceEntry.put(studyId + "_" + fileId, variantSourceEntry);
-        sourceEntries.add(variantSourceEntry);
+        variantSourceEntry.setStats(stats);
 
-        variant.setStudies(sourceEntries);
+        studies.add(variantSourceEntry);
+        variant.setStudies(studies);
 
-        /*
-         * set parameter for HGVS Putting hard coded values for time
-         * being as these value will not be getting from HTSJDK
-         * currently.
-         */
-        Map<String, List<String>> hgvsMap = new HashMap<>();
-        //TODO: Add HGVS information
-        List<String> hgvsList = new ArrayList<>();
-//        hgvsList.add("HGVS");
-//        hgvsMap.put("11", hgvsList);
-        variant.setHgvs(hgvsMap);
 
-        /*
-         * set VariantAnnotation parameters
-         */
-        //TODO: Read annotation from info column
-//        variant.setAnnotation(setVaraintAnnotationParams());
+        // set VariantAnnotation parameters
+        // TODO: Read annotation from info column
+//        variant.setAnnotation(setVariantAnnotationParams());
+
+
         return variant;
-
-
     }
+
     /**
      * method to set Consequence Type Parameters
      * @return consequenceTypeList
@@ -492,29 +450,6 @@ public class VariantContextToVariantConverter {
         return sampleDataMap;
     }
 
-    /**
-     * method to get alternate allele
-     * @return alternateAlleleString
-     */
-    public static String getAlternateAllele(String alternateAllele) {
-        //System.out.print("insdie method " + alternateAllele);
-
-
-        StringBuffer secondaryAllelString = new StringBuffer();
-        String secondaryAllelArrayTemp[] = alternateAllele.trim().split(",");
-        if (secondaryAllelArrayTemp.length > 1) {
-            for (int i = 0; i < secondaryAllelArrayTemp.length; i++) {
-                if (i == 0) {
-                    secondaryAllelString.append(secondaryAllelArrayTemp[i]
-                            .toString().trim());
-                    break;
-
-                }
-            }
-        }
-        //System.out.println(secondaryAllelString.toString());
-        return secondaryAllelString.toString().trim();
-    }
 
     /**
      * method to get secondary allele
@@ -776,10 +711,8 @@ public class VariantContextToVariantConverter {
      * @param string
      * @return
      */
-    public static <VariantType extends Enum<VariantType>> VariantType getEnumFromString(
-            Class<VariantType> variantType, String string) {
+    public static <E extends Enum<E>> E getEnumFromString(Class<E> variantType, String string) {
         if (variantType != null && string != null) {
-
             try {
                 return Enum.valueOf(variantType, string.trim().toUpperCase());
             } catch (IllegalArgumentException e) {
