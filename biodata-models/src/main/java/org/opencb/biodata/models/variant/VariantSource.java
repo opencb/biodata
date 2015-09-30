@@ -115,13 +115,27 @@ public class VariantSource {
     }
 
     public List<String> getSamples() {
-        return new ArrayList(samplesPosition.keySet());
+        String[] samples = new String[samplesPosition.size()];
+        for (Map.Entry<String, Integer> entry : samplesPosition.entrySet()) {
+            samples[entry.getValue()] = entry.getKey();
+        }
+        return Arrays.asList(samples);
     }
 
     public void setSamples(List<String> newSamples) {
-        int index = samplesPosition.size();
+        samplesPosition = new HashMap<>();
+        int index = 0;
         for (String s : newSamples) {
             samplesPosition.put(s, index++);
+        }
+    }
+
+    public void addSamples(List<String> newSamples) {
+        int index = samplesPosition.size();
+        for (String s : newSamples) {
+            if (!samplesPosition.containsKey(s)) {
+                samplesPosition.put(s, index++);
+            }
         }
     }
 

@@ -203,7 +203,7 @@ public class VariantVcfFactoryTest {
         assertEquals(1, result.size());
 
         Variant getVar0 = result.get(0);
-        assertEquals(var0.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesDataAsMap(), getVar0.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesDataAsMap());
+        assertEquals(var0.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData(), getVar0.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesData());
     }
 
     @Test
