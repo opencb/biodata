@@ -82,14 +82,19 @@ protocol Variants {
         VariantHardyWeinbergStats hw;
     }
 
+    record FileEntry {
+        string fileId;
+        string call;
+        map<string> attributes;
+    }
+
     record VariantSourceEntry {
         union { null, string } studyId;
-        union { null, string } fileId;
+        array<FileEntry> files = [];
         union { null, array<string> } secondaryAlternates = null;
         array<string> format;
         array<array<string>> samplesData;
         map<VariantStats> stats;
-        map<string> attributes;
     }
 
     record Genotype {

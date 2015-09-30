@@ -19,6 +19,7 @@ package org.opencb.biodata.models.variant;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
 /** 
@@ -91,8 +92,12 @@ public class VariantSourceEntry {
     public VariantSourceEntry(String fileId, String studyId, String[] secondaryAlternates, String format) {
         this(fileId, studyId, secondaryAlternates, format == null ? null : Arrays.asList(format.split(":")));
     }
+
+    @Deprecated
     public VariantSourceEntry(String fileId, String studyId, String[] secondaryAlternates, List<String> format) {
-        this.impl = new org.opencb.biodata.models.variant.avro.VariantSourceEntry(studyId, fileId, Arrays.asList(secondaryAlternates), format, new LinkedList<>(), new LinkedHashMap<>(), new LinkedHashMap<>());
+        this.impl = new org.opencb.biodata.models.variant.avro.VariantSourceEntry(studyId,
+                new LinkedList<>(), Arrays.asList(secondaryAlternates), format, new LinkedList<>(), new LinkedHashMap<>());
+        setFileId(fileId);
     }
 
     public void setSamplePositions(Map<String, Integer> samplePositions) {
@@ -135,7 +140,7 @@ public class VariantSourceEntry {
      * @return
      */
     public List<String> getFormat() {
-        return Collections.unmodifiableList(impl.getFormat());
+        return impl.getFormat() == null? null : Collections.unmodifiableList(impl.getFormat());
     }
 
     public void setFormat(List<String> value) {
@@ -204,6 +209,9 @@ public class VariantSourceEntry {
         List<List<String>> samplesDataList = getSamplesData();
         if (samplePositions == null && samplesDataList.isEmpty()) {
             samplePositions = new LinkedHashMap<>();
+        }
+        if (getFormat() == null) {
+            setFormat(new ArrayList<>(sampleData.keySet()));
         }
         List<String> sampleDataList = new ArrayList<>(getFormat().size());
         for (String field : getFormat()) {
@@ -293,10 +301,16 @@ public class VariantSourceEntry {
         return getAttributes().get(key);
     }
 
+    @Deprecated
     public void addAttribute(String key, String value) {
         getAttributes().put(key, value);
     }
 
+    public void addAttribute(String fileId, String key, String value) {
+        getFile(fileId).getAttributes().put(key, value);
+    }
+
+    @Deprecated
     public boolean hasAttribute(String key) {
         return getAttributes().containsKey(key);
     }
@@ -315,12 +329,35 @@ public class VariantSourceEntry {
         impl.setStudyId(value);
     }
 
-    public String getFileId() {
-        return impl.getFileId();
+    public List<FileEntry> getFiles() {
+        return impl.getFiles();
     }
 
-    public void setFileId(String value) {
-        impl.setFileId(value);
+    public void setFiles(List<FileEntry> files) {
+        impl.setFiles(files);
+    }
+
+    public FileEntry getFile(String fileId) {
+        for (FileEntry fileEntry : impl.getFiles()) {
+            if (fileEntry.getFileId().equals(fileId)) {
+                return fileEntry;
+            }
+        }
+        return null;
+    }
+
+    @Deprecated
+    public String getFileId() {
+        return !impl.getFiles().isEmpty() ? impl.getFiles().get(0).getFileId() : null;
+    }
+
+    @Deprecated
+    public void setFileId(String fileId) {
+        if (impl.getFiles().isEmpty()) {
+            impl.getFiles().add(new FileEntry(fileId, "", new HashMap<>()));
+        } else {
+            impl.getFiles().get(0).setFileId(fileId);
+        }
     }
 
     public List<String> getSecondaryAlternates() {
@@ -331,12 +368,28 @@ public class VariantSourceEntry {
         impl.setSecondaryAlternates(value);
     }
 
+    @Deprecated
     public Map<String, String> getAttributes() {
-        return impl.getAttributes();
+        return !impl.getFiles().isEmpty() ? impl.getFiles().get(0).getAttributes() : null;
     }
 
-    public void setAttributes(Map<String, String> value) {
-        impl.setAttributes(value);
+    public Map<String, String> getAllAttributes() {
+        Map<String, String> attributes = new HashMap<>();
+        impl.getFiles().stream().forEach(fileEntry ->
+                attributes.putAll(fileEntry.getAttributes().entrySet().stream()
+                        .collect(Collectors.toMap(entry -> fileEntry.getFileId() + "_" + entry.getKey(), Map.Entry::getValue))
+                )
+        );
+        return Collections.unmodifiableMap(attributes);
+    }
+
+    @Deprecated
+    public void setAttributes(Map<String, String> attributes) {
+        if (impl.getFiles().isEmpty()) {
+            impl.getFiles().add(new FileEntry("", attributes.getOrDefault(VariantVcfFactory.ORI, ""), attributes));
+        } else {
+            impl.getFiles().get(0).setAttributes(attributes);
+        }
     }
 
     @Override

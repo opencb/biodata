@@ -4,8 +4,8 @@ import htsjdk.variant.vcf.VCFConstants;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.opencb.biodata.models.variant.avro.VariantAvro;
-import org.opencb.biodata.models.variant.avro.VariantSourceEntry;
+import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.VariantSourceEntry;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfMeta;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfMeta.Builder;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfRecord;
@@ -36,7 +36,7 @@ public class VariantAvroToVcfRecordTest {
         List<String> ids = Arrays.asList("id123","id432");
         String ref = "X";
         String alt = "A";
-        VariantAvro v = createVariant(chr, start, end, ids,ref,alt);
+        Variant v = createVariant(chr, start, end, ids,ref,alt);
 
 
         String file_name = "file_123";
@@ -101,15 +101,10 @@ public class VariantAvroToVcfRecordTest {
         return m;
     }
 
-    private VariantAvro createVariant(String chr, int start, int end,
+    private Variant createVariant(String chr, int start, int end,
                                   List<String> ids, String ref, String alt) {
-        VariantAvro v = new VariantAvro();
-        v.setReference(chr);
-        v.setStart(start);
-        v.setEnd(end);
+        Variant v = new Variant(chr, start, end, ref, alt);
         v.setIds(ids);
-        v.setReference(ref);
-        v.setAlternate(alt);
         return v;
     }
 
