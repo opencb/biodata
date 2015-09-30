@@ -7,7 +7,7 @@ package org.opencb.biodata.models.variant.avro;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class ProteinVariantAnnotation extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"ProteinVariantAnnotation\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"uniprotAccession\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"uniprotName\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"position\",\"type\":\"int\"},{\"name\":\"reference\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"alternate\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"uniprotVariantId\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"functionalDescription\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"substitutionScores\",\"type\":[\"null\",{\"type\":\"record\",\"name\":\"Score\",\"fields\":[{\"name\":\"source\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"score\",\"type\":\"double\"},{\"name\":\"description\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]}]}]},{\"name\":\"keywords\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"ProteinVariantAnnotation\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"uniprotAccession\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"uniprotName\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"position\",\"type\":\"int\"},{\"name\":\"reference\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"alternate\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"uniprotVariantId\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"functionalDescription\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"substitutionScores\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Score\",\"fields\":[{\"name\":\"score\",\"type\":\"double\"},{\"name\":\"source\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"description\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]}]}}]},{\"name\":\"keywords\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]},{\"name\":\"features\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"ProteinFeature\",\"fields\":[{\"name\":\"id\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"start\",\"type\":\"int\"},{\"name\":\"end\",\"type\":\"int\"},{\"name\":\"type\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"description\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]}]}}]}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
    private java.lang.String uniprotAccession;
    private java.lang.String uniprotName;
@@ -16,8 +16,9 @@ public class ProteinVariantAnnotation extends org.apache.avro.specific.SpecificR
    private java.lang.String alternate;
    private java.lang.String uniprotVariantId;
    private java.lang.String functionalDescription;
-   private org.opencb.biodata.models.variant.avro.Score substitutionScores;
+   private java.util.List<org.opencb.biodata.models.variant.avro.Score> substitutionScores;
    private java.util.List<java.lang.String> keywords;
+   private java.util.List<org.opencb.biodata.models.variant.avro.ProteinFeature> features;
 
   /**
    * Default constructor.  Note that this does not initialize fields
@@ -29,7 +30,7 @@ public class ProteinVariantAnnotation extends org.apache.avro.specific.SpecificR
   /**
    * All-args constructor.
    */
-  public ProteinVariantAnnotation(java.lang.String uniprotAccession, java.lang.String uniprotName, java.lang.Integer position, java.lang.String reference, java.lang.String alternate, java.lang.String uniprotVariantId, java.lang.String functionalDescription, org.opencb.biodata.models.variant.avro.Score substitutionScores, java.util.List<java.lang.String> keywords) {
+  public ProteinVariantAnnotation(java.lang.String uniprotAccession, java.lang.String uniprotName, java.lang.Integer position, java.lang.String reference, java.lang.String alternate, java.lang.String uniprotVariantId, java.lang.String functionalDescription, java.util.List<org.opencb.biodata.models.variant.avro.Score> substitutionScores, java.util.List<java.lang.String> keywords, java.util.List<org.opencb.biodata.models.variant.avro.ProteinFeature> features) {
     this.uniprotAccession = uniprotAccession;
     this.uniprotName = uniprotName;
     this.position = position;
@@ -39,6 +40,7 @@ public class ProteinVariantAnnotation extends org.apache.avro.specific.SpecificR
     this.functionalDescription = functionalDescription;
     this.substitutionScores = substitutionScores;
     this.keywords = keywords;
+    this.features = features;
   }
 
   public org.apache.avro.Schema getSchema() { return SCHEMA$; }
@@ -54,6 +56,7 @@ public class ProteinVariantAnnotation extends org.apache.avro.specific.SpecificR
     case 6: return functionalDescription;
     case 7: return substitutionScores;
     case 8: return keywords;
+    case 9: return features;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -68,8 +71,9 @@ public class ProteinVariantAnnotation extends org.apache.avro.specific.SpecificR
     case 4: alternate = (java.lang.String)value$; break;
     case 5: uniprotVariantId = (java.lang.String)value$; break;
     case 6: functionalDescription = (java.lang.String)value$; break;
-    case 7: substitutionScores = (org.opencb.biodata.models.variant.avro.Score)value$; break;
+    case 7: substitutionScores = (java.util.List<org.opencb.biodata.models.variant.avro.Score>)value$; break;
     case 8: keywords = (java.util.List<java.lang.String>)value$; break;
+    case 9: features = (java.util.List<org.opencb.biodata.models.variant.avro.ProteinFeature>)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -182,7 +186,7 @@ public class ProteinVariantAnnotation extends org.apache.avro.specific.SpecificR
   /**
    * Gets the value of the 'substitutionScores' field.
    */
-  public org.opencb.biodata.models.variant.avro.Score getSubstitutionScores() {
+  public java.util.List<org.opencb.biodata.models.variant.avro.Score> getSubstitutionScores() {
     return substitutionScores;
   }
 
@@ -190,7 +194,7 @@ public class ProteinVariantAnnotation extends org.apache.avro.specific.SpecificR
    * Sets the value of the 'substitutionScores' field.
    * @param value the value to set.
    */
-  public void setSubstitutionScores(org.opencb.biodata.models.variant.avro.Score value) {
+  public void setSubstitutionScores(java.util.List<org.opencb.biodata.models.variant.avro.Score> value) {
     this.substitutionScores = value;
   }
 
@@ -207,6 +211,21 @@ public class ProteinVariantAnnotation extends org.apache.avro.specific.SpecificR
    */
   public void setKeywords(java.util.List<java.lang.String> value) {
     this.keywords = value;
+  }
+
+  /**
+   * Gets the value of the 'features' field.
+   */
+  public java.util.List<org.opencb.biodata.models.variant.avro.ProteinFeature> getFeatures() {
+    return features;
+  }
+
+  /**
+   * Sets the value of the 'features' field.
+   * @param value the value to set.
+   */
+  public void setFeatures(java.util.List<org.opencb.biodata.models.variant.avro.ProteinFeature> value) {
+    this.features = value;
   }
 
   /** Creates a new ProteinVariantAnnotation RecordBuilder */
@@ -237,8 +256,9 @@ public class ProteinVariantAnnotation extends org.apache.avro.specific.SpecificR
     private java.lang.String alternate;
     private java.lang.String uniprotVariantId;
     private java.lang.String functionalDescription;
-    private org.opencb.biodata.models.variant.avro.Score substitutionScores;
+    private java.util.List<org.opencb.biodata.models.variant.avro.Score> substitutionScores;
     private java.util.List<java.lang.String> keywords;
+    private java.util.List<org.opencb.biodata.models.variant.avro.ProteinFeature> features;
 
     /** Creates a new Builder */
     private Builder() {
@@ -284,6 +304,10 @@ public class ProteinVariantAnnotation extends org.apache.avro.specific.SpecificR
         this.keywords = data().deepCopy(fields()[8].schema(), other.keywords);
         fieldSetFlags()[8] = true;
       }
+      if (isValidValue(fields()[9], other.features)) {
+        this.features = data().deepCopy(fields()[9].schema(), other.features);
+        fieldSetFlags()[9] = true;
+      }
     }
     
     /** Creates a Builder by copying an existing ProteinVariantAnnotation instance */
@@ -324,6 +348,10 @@ public class ProteinVariantAnnotation extends org.apache.avro.specific.SpecificR
       if (isValidValue(fields()[8], other.keywords)) {
         this.keywords = data().deepCopy(fields()[8].schema(), other.keywords);
         fieldSetFlags()[8] = true;
+      }
+      if (isValidValue(fields()[9], other.features)) {
+        this.features = data().deepCopy(fields()[9].schema(), other.features);
+        fieldSetFlags()[9] = true;
       }
     }
 
@@ -502,12 +530,12 @@ public class ProteinVariantAnnotation extends org.apache.avro.specific.SpecificR
     }
 
     /** Gets the value of the 'substitutionScores' field */
-    public org.opencb.biodata.models.variant.avro.Score getSubstitutionScores() {
+    public java.util.List<org.opencb.biodata.models.variant.avro.Score> getSubstitutionScores() {
       return substitutionScores;
     }
     
     /** Sets the value of the 'substitutionScores' field */
-    public org.opencb.biodata.models.variant.avro.ProteinVariantAnnotation.Builder setSubstitutionScores(org.opencb.biodata.models.variant.avro.Score value) {
+    public org.opencb.biodata.models.variant.avro.ProteinVariantAnnotation.Builder setSubstitutionScores(java.util.List<org.opencb.biodata.models.variant.avro.Score> value) {
       validate(fields()[7], value);
       this.substitutionScores = value;
       fieldSetFlags()[7] = true;
@@ -551,6 +579,31 @@ public class ProteinVariantAnnotation extends org.apache.avro.specific.SpecificR
       return this;
     }
 
+    /** Gets the value of the 'features' field */
+    public java.util.List<org.opencb.biodata.models.variant.avro.ProteinFeature> getFeatures() {
+      return features;
+    }
+    
+    /** Sets the value of the 'features' field */
+    public org.opencb.biodata.models.variant.avro.ProteinVariantAnnotation.Builder setFeatures(java.util.List<org.opencb.biodata.models.variant.avro.ProteinFeature> value) {
+      validate(fields()[9], value);
+      this.features = value;
+      fieldSetFlags()[9] = true;
+      return this; 
+    }
+    
+    /** Checks whether the 'features' field has been set */
+    public boolean hasFeatures() {
+      return fieldSetFlags()[9];
+    }
+    
+    /** Clears the value of the 'features' field */
+    public org.opencb.biodata.models.variant.avro.ProteinVariantAnnotation.Builder clearFeatures() {
+      features = null;
+      fieldSetFlags()[9] = false;
+      return this;
+    }
+
     @Override
     public ProteinVariantAnnotation build() {
       try {
@@ -562,8 +615,9 @@ public class ProteinVariantAnnotation extends org.apache.avro.specific.SpecificR
         record.alternate = fieldSetFlags()[4] ? this.alternate : (java.lang.String) defaultValue(fields()[4]);
         record.uniprotVariantId = fieldSetFlags()[5] ? this.uniprotVariantId : (java.lang.String) defaultValue(fields()[5]);
         record.functionalDescription = fieldSetFlags()[6] ? this.functionalDescription : (java.lang.String) defaultValue(fields()[6]);
-        record.substitutionScores = fieldSetFlags()[7] ? this.substitutionScores : (org.opencb.biodata.models.variant.avro.Score) defaultValue(fields()[7]);
+        record.substitutionScores = fieldSetFlags()[7] ? this.substitutionScores : (java.util.List<org.opencb.biodata.models.variant.avro.Score>) defaultValue(fields()[7]);
         record.keywords = fieldSetFlags()[8] ? this.keywords : (java.util.List<java.lang.String>) defaultValue(fields()[8]);
+        record.features = fieldSetFlags()[9] ? this.features : (java.util.List<org.opencb.biodata.models.variant.avro.ProteinFeature>) defaultValue(fields()[9]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);

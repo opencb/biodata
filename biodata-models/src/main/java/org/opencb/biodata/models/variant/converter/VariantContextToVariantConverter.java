@@ -303,52 +303,51 @@ public class VariantContextToVariantConverter {
 
         List<ConsequenceType> consequenceTypeList = new ArrayList<>();
         ConsequenceType consequenceType = new ConsequenceType();
-
-        consequenceType.setAaChange(null);
-        consequenceType.setAaPosition(null);
+        consequenceType.setGeneName(null);
+        consequenceType.setEnsemblGeneId(null);
+        consequenceType.setEnsemblTranscriptId(null);
+        consequenceType.setStrand(null);
         consequenceType.setBiotype(null);
         consequenceType.setCDnaPosition(null);
         consequenceType.setCdsPosition(null);
         consequenceType.setCodon(null);
-        consequenceType.setEnsemblGeneId(null);
-        consequenceType.setEnsemblTranscriptId(null);
+
         /*
          * set ExpressionValues list type parameter
          */
-        List<ExpressionValue> expressionValueList = new ArrayList<>();
-        ExpressionValue expressionValue = new ExpressionValue();
-        expressionValue.setExpression(getEnumFromString(
-                org.opencb.biodata.models.variant.avro.Expression.class, "UP"));
+//        List<ExpressionValue> expressionValueList = new ArrayList<>();
+//        ExpressionValue expressionValue = new ExpressionValue();
+//        expressionValue.setExpression(getEnumFromString(org.opencb.biodata.models.variant.avro.ExpressionCall.class, "UP"));
         /*expressionValue.setExperimentalFactor(null);
         expressionValue.setExperimentId(null);
         expressionValue.setExpression(null);
         expressionValue.setFactorValue(null);
         expressionValue.setPvalue(null);
         expressionValue.setTechnologyPlatform(null);*/
-        expressionValueList.add(expressionValue);
-        consequenceType.setExpressionValues(expressionValueList);
+//        expressionValueList.add(expressionValue);
+//        consequenceType.setExpressionValues(expressionValueList);
 
-        consequenceType.setFunctionalDescription(null);
-        consequenceType.setGeneName(null);
         /*
          * set ProteinSubstitutionScores list type parameter
          */
-        List<Score> proteinSubstitutionScoreList = new ArrayList<>();
-        Score score = new Score();
-        score.setDescription(null);
-        score.setScore(null);
-        score.setSource(null);
-        proteinSubstitutionScoreList.add(score);
-        consequenceType.setProteinSubstitutionScores(proteinSubstitutionScoreList);
+//        List<Score> proteinSubstitutionScoreList = new ArrayList<>();
+//        Score score = new Score(null, null, null);
+//        proteinSubstitutionScoreList.add(score);
+
+
+        ProteinVariantAnnotation proteinVariantAnnotation = new ProteinVariantAnnotation();
+        proteinVariantAnnotation.setSubstitutionScores(Arrays.asList());
+        consequenceType.setProteinVariantAnnotation(proteinVariantAnnotation);
+
         /*
          * set SoTerms list type parameter
          */
-        List<ConsequenceTypeEntry> consequenceTypeEntryList = new ArrayList<>();
-        ConsequenceTypeEntry consequenceTypeEntry = new ConsequenceTypeEntry();
-        consequenceTypeEntry.setSoAccession(null);
-        consequenceTypeEntry.setSoName(null);
-        consequenceTypeEntryList.add(consequenceTypeEntry);
-        consequenceType.setSoTerms(consequenceTypeEntryList);
+        List<SequenceOntologyTerm> sequenceOntologyTerms = new ArrayList<>();
+        SequenceOntologyTerm sequenceOntologyTerm = new SequenceOntologyTerm();
+        sequenceOntologyTerm.setAccession(null);
+        sequenceOntologyTerm.setName(null);
+        sequenceOntologyTerms.add(sequenceOntologyTerm);
+        consequenceType.setSequenceOntologyTerms(sequenceOntologyTerms);
 
         consequenceType.setStrand(null);
         /*
@@ -370,12 +369,12 @@ public class VariantContextToVariantConverter {
         populationFrequency.setAltAlleleFreq(null);
         populationFrequency.setAltHomGenotypeFreq(null);
         populationFrequency.setHetGenotypeFreq(null);
-        populationFrequency.setPop(null);
+        populationFrequency.setPopulation(null);
         populationFrequency.setRefAllele(null);
         populationFrequency.setRefAlleleFreq(null);
         populationFrequency.setRefHomGenotypeFreq(null);
         populationFrequency.setStudy(null);
-        populationFrequency.setSuperPop(null);
+        populationFrequency.setSuperPopulation(null);
 
         populationFrequencyList.add(populationFrequency);
         return populationFrequencyList;
@@ -401,8 +400,8 @@ public class VariantContextToVariantConverter {
         /*
          * set CaddScore list type parameter
          */
-        List<CaddScore> caddScoreList = new ArrayList<>();
-        CaddScore caddScore = new CaddScore();
+//        List<CaddScore> caddScoreList = new ArrayList<>();
+//        CaddScore caddScore = new CaddScore();
         /*caddScore.setCScore(null);
         caddScore.setRawScore(null);
         caddScore.setTranscriptId(null);*/
@@ -412,12 +411,12 @@ public class VariantContextToVariantConverter {
          * set Chromosome parameter
          */
         variantAnnotation.setChromosome(null);
+
         /*
          * set Clinical map type parameter
          */
-        Map<String, String> clinicalMap = new HashMap<>();
-        //clinicalMap.put(null, null);
-        variantAnnotation.setVariantTraitAssociation(clinicalMap);
+        variantAnnotation.setVariantTraitAssociation(new VariantTraitAssociation(Arrays.asList(), Arrays.asList(),Arrays.asList()));
+
         /*
          * set ConsequenceTypes list type parameter
          */
@@ -437,11 +436,13 @@ public class VariantContextToVariantConverter {
         /*
          * set GeneDrugInteraction map of list type parameter
          */
-        Map<String, List<String>> geneDrugInteractionMap = new HashMap<>();
-        List<String> geneDrugInteractionList = new ArrayList<>();
+//        Map<String, List<String>> geneDrugInteractionMap = new HashMap<>();
+        List<GeneDrugInteraction> geneDrugInteractionList = new ArrayList<>();
+//        List<String> geneDrugInteractionList = new ArrayList<>();
         //geneDrugInteractionList.add("AAA");
         //geneDrugInteractionMap.put("000", geneDrugInteractionList);
-        variantAnnotation.setGeneDrugInteraction(geneDrugInteractionMap);
+        variantAnnotation.setGeneDrugInteraction(geneDrugInteractionList);
+
         /*
          * set Hgvs list type parameter
          */
