@@ -258,7 +258,7 @@ public class Variant {
             if (sourceEntries == null) {
                 sourceEntries = new HashMap<>();
                 for (org.opencb.biodata.models.variant.avro.VariantSourceEntry sourceEntry : impl.getStudies()) {
-                    sourceEntries.put(composeId(sourceEntry.getStudyId(), sourceEntry.getFileId()), new VariantSourceEntry(sourceEntry));
+                    sourceEntries.put(composeId(sourceEntry.getStudyId(), sourceEntry.getFiles().isEmpty()? null : sourceEntry.getFiles().get(0).getFileId()), new VariantSourceEntry(sourceEntry));
                 }
             }
             return Collections.unmodifiableMap(sourceEntries);
@@ -406,6 +406,10 @@ public class Variant {
 //        result = 31 * result + (getType() != null ? getType().hashCode() : 0);
 //        return result;
 //    }
+
+    private String composeId(String studyId) {
+        return composeId(studyId, null);
+    }
 
     private String composeId(String studyId, String fileId) {
         return studyId + (fileId == null ? "" : "_" + fileId);

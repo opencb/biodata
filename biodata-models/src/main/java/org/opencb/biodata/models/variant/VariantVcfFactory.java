@@ -108,7 +108,7 @@ public class VariantVcfFactory implements VariantFactory {
             String[] secondaryAlternates = getSecondaryAlternates(variant, keyFields.getNumAllele(), alternateAlleles);
             VariantSourceEntry file = new VariantSourceEntry(source.getFileId(), source.getStudyId(), secondaryAlternates, format);
             variant.addSourceEntry(file);
-            file.setSamplePositions(source.getSamplesPosition());
+            file.setSamplesPosition(source.getSamplesPosition());
 
             try {
                 parseSplitSampleData(variant, source, fields, alternateAlleles, secondaryAlternates, i + 1);
@@ -234,7 +234,7 @@ public class VariantVcfFactory implements VariantFactory {
         List<String> samples = source.getSamples();
 
         for (int i = 9; i < fields.length; i++) {
-            Map<String, String> map = new HashMap<>(5);
+            List<String> list = new ArrayList<>(5);
 
             // Fill map of a sample
             String[] sampleFields = fields[i].split(":");
@@ -303,11 +303,11 @@ public class VariantVcfFactory implements VariantFactory {
                     }
                 }
 
-                map.put(formatField, sampleField);
+                list.add(sampleField);
             }
 
             // Add sample to the variant entry in the source file
-            variant.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(samples.get(i - 9), map);
+            variant.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(samples.get(i - 9), list);
         }
     }
 
@@ -387,7 +387,7 @@ public class VariantVcfFactory implements VariantFactory {
 //                        break;
                     case "NS":
                         // Count the number of samples that are associated with the allele
-                        file.addAttribute(splits[0], String.valueOf(file.getSamplesDataAsMap().size()));
+                        file.addAttribute(splits[0], String.valueOf(file.getSamplesData().size()));
                         break;
                     case "DP":
                         int dp = 0;

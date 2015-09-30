@@ -56,15 +56,15 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
         variant.setIds(ids);
         VariantSourceEntry sourceEntry = variant.getSourceEntry(source.getFileId(), source.getStudyId());
         if (quality > -1) {
-            sourceEntry.addAttribute("QUAL", String.valueOf(quality));
+            sourceEntry.addAttribute(source.getFileId(), "QUAL", String.valueOf(quality));
         }
         if (!filter.isEmpty()) {
-            sourceEntry.addAttribute("FILTER", filter);
+            sourceEntry.addAttribute(source.getFileId(), "FILTER", filter);
         }
         Map<String, String> infoMap = getInfoMap(info);
         addInfo(variant, sourceEntry, numAllele, infoMap);
         sourceEntry.setFormatAsString(format);
-        sourceEntry.addAttribute("src", line);
+        sourceEntry.addAttribute(source.getFileId(), "src", line);
     }
 
     public static Map<String, String> getInfoMap(String info) {
@@ -107,7 +107,7 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
 //                        break;
                 case "NS":
                     // Count the number of samples that are associated with the allele
-                    file.addAttribute(infoTag, String.valueOf(file.getSamplesDataAsMap().size()));
+                    file.addAttribute(infoTag, String.valueOf(file.getSamplesData().size()));
                     break;
                 case "DP":
                     int dp = 0;

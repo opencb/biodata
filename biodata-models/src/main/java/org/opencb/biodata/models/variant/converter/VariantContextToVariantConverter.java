@@ -150,8 +150,8 @@ public class VariantContextToVariantConverter {
         VariantSourceEntry variantSourceEntry = new VariantSourceEntry();
         // For time being setting the hard coded values for FileId and
         // Study ID
-//        variantSourceEntry.setFileId(fileId);
-//        variantSourceEntry.setStudyId(studyId);
+        variantSourceEntry.setFileId(fileId);
+        variantSourceEntry.setStudyId(studyId);
         /*
          * set secondary alternate
          */

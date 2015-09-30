@@ -7,15 +7,14 @@ package org.opencb.biodata.models.variant.avro;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class VariantSourceEntry extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"VariantSourceEntry\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"studyId\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"fileId\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"secondaryAlternates\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}],\"default\":null},{\"name\":\"format\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"samplesData\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}}},{\"name\":\"stats\",\"type\":{\"type\":\"map\",\"values\":{\"type\":\"record\",\"name\":\"VariantStats\",\"fields\":[{\"name\":\"refAllele\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"altAllele\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"refAlleleCount\",\"type\":[\"null\",\"int\"]},{\"name\":\"altAlleleCount\",\"type\":[\"null\",\"int\"]},{\"name\":\"genotypesCount\",\"type\":{\"type\":\"map\",\"values\":\"int\",\"avro.java.string\":\"String\",\"java-key-class\":\"org.opencb.biodata.models.feature.Genotype\"}},{\"name\":\"genotypesFreq\",\"type\":{\"type\":\"map\",\"values\":\"float\",\"avro.java.string\":\"String\",\"java-key-class\":\"org.opencb.biodata.models.feature.Genotype\"}},{\"name\":\"missingAlleles\",\"type\":[\"null\",\"int\"]},{\"name\":\"missingGenotypes\",\"type\":[\"null\",\"int\"]},{\"name\":\"refAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"altAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"maf\",\"type\":[\"null\",\"float\"]},{\"name\":\"mgf\",\"type\":[\"null\",\"float\"]},{\"name\":\"mafAllele\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"mgfGenotype\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"passedFilters\",\"type\":[\"null\",\"boolean\"]},{\"name\":\"mendelianErrors\",\"type\":[\"null\",\"int\"]},{\"name\":\"casesPercentDominant\",\"type\":[\"null\",\"float\"]},{\"name\":\"controlsPercentDominant\",\"type\":[\"null\",\"float\"]},{\"name\":\"casesPercentRecessive\",\"type\":[\"null\",\"float\"]},{\"name\":\"controlsPercentRecessive\",\"type\":[\"null\",\"float\"]},{\"name\":\"quality\",\"type\":[\"null\",\"float\"]},{\"name\":\"numSamples\",\"type\":[\"null\",\"int\"]},{\"name\":\"variantType\",\"type\":{\"type\":\"enum\",\"name\":\"VariantType\",\"doc\":\"* Type of variation, which depends mostly on its length.\\r\\n     * <ul>\\r\\n     * <li>SNVs involve a single nucleotide, without changes in length</li>\\r\\n     * <li>MNVs involve multiple nucleotides, without changes in length</li>\\r\\n     * <li>Indels are insertions or deletions of less than SV_THRESHOLD (50) nucleotides</li>\\r\\n     * <li>Structural variations are large changes of more than SV_THRESHOLD nucleotides</li>\\r\\n     * <li>Copy-number variations alter the number of copies of a region</li>\\r\\n     * </ul>\",\"symbols\":[\"SNP\",\"SNV\",\"MNP\",\"MNV\",\"INDEL\",\"SV\",\"CNV\",\"NO_VARIATION\",\"SYMBOLIC\",\"MIXED\"]}},{\"name\":\"hw\",\"type\":{\"type\":\"record\",\"name\":\"VariantHardyWeinbergStats\",\"fields\":[{\"name\":\"chi2\",\"type\":[\"null\",\"float\"]},{\"name\":\"pValue\",\"type\":[\"null\",\"float\"]},{\"name\":\"n\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_AA_11\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_Aa_10\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_aa_00\",\"type\":[\"null\",\"int\"]},{\"name\":\"e_AA_11\",\"type\":[\"null\",\"float\"]},{\"name\":\"e_Aa_10\",\"type\":[\"null\",\"float\"]},{\"name\":\"e_aa_00\",\"type\":[\"null\",\"float\"]},{\"name\":\"p\",\"type\":[\"null\",\"float\"]},{\"name\":\"q\",\"type\":[\"null\",\"float\"]}]}}]},\"avro.java.string\":\"String\"}},{\"name\":\"attributes\",\"type\":{\"type\":\"map\",\"values\":{\"type\":\"string\",\"avro.java.string\":\"String\"},\"avro.java.string\":\"String\"}}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"VariantSourceEntry\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"studyId\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"files\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"FileEntry\",\"fields\":[{\"name\":\"fileId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"call\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"attributes\",\"type\":{\"type\":\"map\",\"values\":{\"type\":\"string\",\"avro.java.string\":\"String\"},\"avro.java.string\":\"String\"}}]}},\"default\":[]},{\"name\":\"secondaryAlternates\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}],\"default\":null},{\"name\":\"format\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"samplesData\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}}},{\"name\":\"stats\",\"type\":{\"type\":\"map\",\"values\":{\"type\":\"record\",\"name\":\"VariantStats\",\"fields\":[{\"name\":\"refAllele\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"altAllele\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"refAlleleCount\",\"type\":[\"null\",\"int\"]},{\"name\":\"altAlleleCount\",\"type\":[\"null\",\"int\"]},{\"name\":\"genotypesCount\",\"type\":{\"type\":\"map\",\"values\":\"int\",\"avro.java.string\":\"String\",\"java-key-class\":\"org.opencb.biodata.models.feature.Genotype\"}},{\"name\":\"genotypesFreq\",\"type\":{\"type\":\"map\",\"values\":\"float\",\"avro.java.string\":\"String\",\"java-key-class\":\"org.opencb.biodata.models.feature.Genotype\"}},{\"name\":\"missingAlleles\",\"type\":[\"null\",\"int\"]},{\"name\":\"missingGenotypes\",\"type\":[\"null\",\"int\"]},{\"name\":\"refAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"altAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"maf\",\"type\":[\"null\",\"float\"]},{\"name\":\"mgf\",\"type\":[\"null\",\"float\"]},{\"name\":\"mafAllele\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"mgfGenotype\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"passedFilters\",\"type\":[\"null\",\"boolean\"]},{\"name\":\"mendelianErrors\",\"type\":[\"null\",\"int\"]},{\"name\":\"casesPercentDominant\",\"type\":[\"null\",\"float\"]},{\"name\":\"controlsPercentDominant\",\"type\":[\"null\",\"float\"]},{\"name\":\"casesPercentRecessive\",\"type\":[\"null\",\"float\"]},{\"name\":\"controlsPercentRecessive\",\"type\":[\"null\",\"float\"]},{\"name\":\"quality\",\"type\":[\"null\",\"float\"]},{\"name\":\"numSamples\",\"type\":[\"null\",\"int\"]},{\"name\":\"variantType\",\"type\":{\"type\":\"enum\",\"name\":\"VariantType\",\"doc\":\"* Type of variation, which depends mostly on its length.\\r\\n     * <ul>\\r\\n     * <li>SNVs involve a single nucleotide, without changes in length</li>\\r\\n     * <li>MNVs involve multiple nucleotides, without changes in length</li>\\r\\n     * <li>Indels are insertions or deletions of less than SV_THRESHOLD (50) nucleotides</li>\\r\\n     * <li>Structural variations are large changes of more than SV_THRESHOLD nucleotides</li>\\r\\n     * <li>Copy-number variations alter the number of copies of a region</li>\\r\\n     * </ul>\",\"symbols\":[\"SNP\",\"SNV\",\"MNP\",\"MNV\",\"INDEL\",\"SV\",\"CNV\",\"NO_VARIATION\",\"SYMBOLIC\",\"MIXED\"]}},{\"name\":\"hw\",\"type\":{\"type\":\"record\",\"name\":\"VariantHardyWeinbergStats\",\"fields\":[{\"name\":\"chi2\",\"type\":[\"null\",\"float\"]},{\"name\":\"pValue\",\"type\":[\"null\",\"float\"]},{\"name\":\"n\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_AA_11\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_Aa_10\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_aa_00\",\"type\":[\"null\",\"int\"]},{\"name\":\"e_AA_11\",\"type\":[\"null\",\"float\"]},{\"name\":\"e_Aa_10\",\"type\":[\"null\",\"float\"]},{\"name\":\"e_aa_00\",\"type\":[\"null\",\"float\"]},{\"name\":\"p\",\"type\":[\"null\",\"float\"]},{\"name\":\"q\",\"type\":[\"null\",\"float\"]}]}}]},\"avro.java.string\":\"String\"}}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
    private java.lang.String studyId;
-   private java.lang.String fileId;
+   private java.util.List<org.opencb.biodata.models.variant.avro.FileEntry> files;
    private java.util.List<java.lang.String> secondaryAlternates;
    private java.util.List<java.lang.String> format;
    private java.util.List<java.util.List<java.lang.String>> samplesData;
    private java.util.Map<java.lang.String,org.opencb.biodata.models.variant.avro.VariantStats> stats;
-   private java.util.Map<java.lang.String,java.lang.String> attributes;
 
   /**
    * Default constructor.  Note that this does not initialize fields
@@ -27,14 +26,13 @@ public class VariantSourceEntry extends org.apache.avro.specific.SpecificRecordB
   /**
    * All-args constructor.
    */
-  public VariantSourceEntry(java.lang.String studyId, java.lang.String fileId, java.util.List<java.lang.String> secondaryAlternates, java.util.List<java.lang.String> format, java.util.List<java.util.List<java.lang.String>> samplesData, java.util.Map<java.lang.String,org.opencb.biodata.models.variant.avro.VariantStats> stats, java.util.Map<java.lang.String,java.lang.String> attributes) {
+  public VariantSourceEntry(java.lang.String studyId, java.util.List<org.opencb.biodata.models.variant.avro.FileEntry> files, java.util.List<java.lang.String> secondaryAlternates, java.util.List<java.lang.String> format, java.util.List<java.util.List<java.lang.String>> samplesData, java.util.Map<java.lang.String,org.opencb.biodata.models.variant.avro.VariantStats> stats) {
     this.studyId = studyId;
-    this.fileId = fileId;
+    this.files = files;
     this.secondaryAlternates = secondaryAlternates;
     this.format = format;
     this.samplesData = samplesData;
     this.stats = stats;
-    this.attributes = attributes;
   }
 
   public org.apache.avro.Schema getSchema() { return SCHEMA$; }
@@ -42,12 +40,11 @@ public class VariantSourceEntry extends org.apache.avro.specific.SpecificRecordB
   public java.lang.Object get(int field$) {
     switch (field$) {
     case 0: return studyId;
-    case 1: return fileId;
+    case 1: return files;
     case 2: return secondaryAlternates;
     case 3: return format;
     case 4: return samplesData;
     case 5: return stats;
-    case 6: return attributes;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -56,12 +53,11 @@ public class VariantSourceEntry extends org.apache.avro.specific.SpecificRecordB
   public void put(int field$, java.lang.Object value$) {
     switch (field$) {
     case 0: studyId = (java.lang.String)value$; break;
-    case 1: fileId = (java.lang.String)value$; break;
+    case 1: files = (java.util.List<org.opencb.biodata.models.variant.avro.FileEntry>)value$; break;
     case 2: secondaryAlternates = (java.util.List<java.lang.String>)value$; break;
     case 3: format = (java.util.List<java.lang.String>)value$; break;
     case 4: samplesData = (java.util.List<java.util.List<java.lang.String>>)value$; break;
     case 5: stats = (java.util.Map<java.lang.String,org.opencb.biodata.models.variant.avro.VariantStats>)value$; break;
-    case 6: attributes = (java.util.Map<java.lang.String,java.lang.String>)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -82,18 +78,18 @@ public class VariantSourceEntry extends org.apache.avro.specific.SpecificRecordB
   }
 
   /**
-   * Gets the value of the 'fileId' field.
+   * Gets the value of the 'files' field.
    */
-  public java.lang.String getFileId() {
-    return fileId;
+  public java.util.List<org.opencb.biodata.models.variant.avro.FileEntry> getFiles() {
+    return files;
   }
 
   /**
-   * Sets the value of the 'fileId' field.
+   * Sets the value of the 'files' field.
    * @param value the value to set.
    */
-  public void setFileId(java.lang.String value) {
-    this.fileId = value;
+  public void setFiles(java.util.List<org.opencb.biodata.models.variant.avro.FileEntry> value) {
+    this.files = value;
   }
 
   /**
@@ -156,21 +152,6 @@ public class VariantSourceEntry extends org.apache.avro.specific.SpecificRecordB
     this.stats = value;
   }
 
-  /**
-   * Gets the value of the 'attributes' field.
-   */
-  public java.util.Map<java.lang.String,java.lang.String> getAttributes() {
-    return attributes;
-  }
-
-  /**
-   * Sets the value of the 'attributes' field.
-   * @param value the value to set.
-   */
-  public void setAttributes(java.util.Map<java.lang.String,java.lang.String> value) {
-    this.attributes = value;
-  }
-
   /** Creates a new VariantSourceEntry RecordBuilder */
   public static org.opencb.biodata.models.variant.avro.VariantSourceEntry.Builder newBuilder() {
     return new org.opencb.biodata.models.variant.avro.VariantSourceEntry.Builder();
@@ -193,12 +174,11 @@ public class VariantSourceEntry extends org.apache.avro.specific.SpecificRecordB
     implements org.apache.avro.data.RecordBuilder<VariantSourceEntry> {
 
     private java.lang.String studyId;
-    private java.lang.String fileId;
+    private java.util.List<org.opencb.biodata.models.variant.avro.FileEntry> files;
     private java.util.List<java.lang.String> secondaryAlternates;
     private java.util.List<java.lang.String> format;
     private java.util.List<java.util.List<java.lang.String>> samplesData;
     private java.util.Map<java.lang.String,org.opencb.biodata.models.variant.avro.VariantStats> stats;
-    private java.util.Map<java.lang.String,java.lang.String> attributes;
 
     /** Creates a new Builder */
     private Builder() {
@@ -212,8 +192,8 @@ public class VariantSourceEntry extends org.apache.avro.specific.SpecificRecordB
         this.studyId = data().deepCopy(fields()[0].schema(), other.studyId);
         fieldSetFlags()[0] = true;
       }
-      if (isValidValue(fields()[1], other.fileId)) {
-        this.fileId = data().deepCopy(fields()[1].schema(), other.fileId);
+      if (isValidValue(fields()[1], other.files)) {
+        this.files = data().deepCopy(fields()[1].schema(), other.files);
         fieldSetFlags()[1] = true;
       }
       if (isValidValue(fields()[2], other.secondaryAlternates)) {
@@ -231,10 +211,6 @@ public class VariantSourceEntry extends org.apache.avro.specific.SpecificRecordB
       if (isValidValue(fields()[5], other.stats)) {
         this.stats = data().deepCopy(fields()[5].schema(), other.stats);
         fieldSetFlags()[5] = true;
-      }
-      if (isValidValue(fields()[6], other.attributes)) {
-        this.attributes = data().deepCopy(fields()[6].schema(), other.attributes);
-        fieldSetFlags()[6] = true;
       }
     }
     
@@ -245,8 +221,8 @@ public class VariantSourceEntry extends org.apache.avro.specific.SpecificRecordB
         this.studyId = data().deepCopy(fields()[0].schema(), other.studyId);
         fieldSetFlags()[0] = true;
       }
-      if (isValidValue(fields()[1], other.fileId)) {
-        this.fileId = data().deepCopy(fields()[1].schema(), other.fileId);
+      if (isValidValue(fields()[1], other.files)) {
+        this.files = data().deepCopy(fields()[1].schema(), other.files);
         fieldSetFlags()[1] = true;
       }
       if (isValidValue(fields()[2], other.secondaryAlternates)) {
@@ -264,10 +240,6 @@ public class VariantSourceEntry extends org.apache.avro.specific.SpecificRecordB
       if (isValidValue(fields()[5], other.stats)) {
         this.stats = data().deepCopy(fields()[5].schema(), other.stats);
         fieldSetFlags()[5] = true;
-      }
-      if (isValidValue(fields()[6], other.attributes)) {
-        this.attributes = data().deepCopy(fields()[6].schema(), other.attributes);
-        fieldSetFlags()[6] = true;
       }
     }
 
@@ -296,27 +268,27 @@ public class VariantSourceEntry extends org.apache.avro.specific.SpecificRecordB
       return this;
     }
 
-    /** Gets the value of the 'fileId' field */
-    public java.lang.String getFileId() {
-      return fileId;
+    /** Gets the value of the 'files' field */
+    public java.util.List<org.opencb.biodata.models.variant.avro.FileEntry> getFiles() {
+      return files;
     }
     
-    /** Sets the value of the 'fileId' field */
-    public org.opencb.biodata.models.variant.avro.VariantSourceEntry.Builder setFileId(java.lang.String value) {
+    /** Sets the value of the 'files' field */
+    public org.opencb.biodata.models.variant.avro.VariantSourceEntry.Builder setFiles(java.util.List<org.opencb.biodata.models.variant.avro.FileEntry> value) {
       validate(fields()[1], value);
-      this.fileId = value;
+      this.files = value;
       fieldSetFlags()[1] = true;
       return this; 
     }
     
-    /** Checks whether the 'fileId' field has been set */
-    public boolean hasFileId() {
+    /** Checks whether the 'files' field has been set */
+    public boolean hasFiles() {
       return fieldSetFlags()[1];
     }
     
-    /** Clears the value of the 'fileId' field */
-    public org.opencb.biodata.models.variant.avro.VariantSourceEntry.Builder clearFileId() {
-      fileId = null;
+    /** Clears the value of the 'files' field */
+    public org.opencb.biodata.models.variant.avro.VariantSourceEntry.Builder clearFiles() {
+      files = null;
       fieldSetFlags()[1] = false;
       return this;
     }
@@ -421,42 +393,16 @@ public class VariantSourceEntry extends org.apache.avro.specific.SpecificRecordB
       return this;
     }
 
-    /** Gets the value of the 'attributes' field */
-    public java.util.Map<java.lang.String,java.lang.String> getAttributes() {
-      return attributes;
-    }
-    
-    /** Sets the value of the 'attributes' field */
-    public org.opencb.biodata.models.variant.avro.VariantSourceEntry.Builder setAttributes(java.util.Map<java.lang.String,java.lang.String> value) {
-      validate(fields()[6], value);
-      this.attributes = value;
-      fieldSetFlags()[6] = true;
-      return this; 
-    }
-    
-    /** Checks whether the 'attributes' field has been set */
-    public boolean hasAttributes() {
-      return fieldSetFlags()[6];
-    }
-    
-    /** Clears the value of the 'attributes' field */
-    public org.opencb.biodata.models.variant.avro.VariantSourceEntry.Builder clearAttributes() {
-      attributes = null;
-      fieldSetFlags()[6] = false;
-      return this;
-    }
-
     @Override
     public VariantSourceEntry build() {
       try {
         VariantSourceEntry record = new VariantSourceEntry();
         record.studyId = fieldSetFlags()[0] ? this.studyId : (java.lang.String) defaultValue(fields()[0]);
-        record.fileId = fieldSetFlags()[1] ? this.fileId : (java.lang.String) defaultValue(fields()[1]);
+        record.files = fieldSetFlags()[1] ? this.files : (java.util.List<org.opencb.biodata.models.variant.avro.FileEntry>) defaultValue(fields()[1]);
         record.secondaryAlternates = fieldSetFlags()[2] ? this.secondaryAlternates : (java.util.List<java.lang.String>) defaultValue(fields()[2]);
         record.format = fieldSetFlags()[3] ? this.format : (java.util.List<java.lang.String>) defaultValue(fields()[3]);
         record.samplesData = fieldSetFlags()[4] ? this.samplesData : (java.util.List<java.util.List<java.lang.String>>) defaultValue(fields()[4]);
         record.stats = fieldSetFlags()[5] ? this.stats : (java.util.Map<java.lang.String,org.opencb.biodata.models.variant.avro.VariantStats>) defaultValue(fields()[5]);
-        record.attributes = fieldSetFlags()[6] ? this.attributes : (java.util.Map<java.lang.String,java.lang.String>) defaultValue(fields()[6]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);

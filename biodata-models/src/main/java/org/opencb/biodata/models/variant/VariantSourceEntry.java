@@ -19,6 +19,7 @@ package org.opencb.biodata.models.variant;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
 /** 
@@ -30,7 +31,7 @@ import org.opencb.biodata.models.variant.stats.VariantStats;
  */
 public class VariantSourceEntry {
 
-    private Map<String, Integer> samplePositions = null;
+    private LinkedHashMap<String, Integer> samplesPosition = null;
     private Map<String, Integer> formatPosition = null;
     private Map<String, VariantStats> cohortStats = null;
     private final org.opencb.biodata.models.variant.avro.VariantSourceEntry impl;
@@ -91,14 +92,29 @@ public class VariantSourceEntry {
     public VariantSourceEntry(String fileId, String studyId, String[] secondaryAlternates, String format) {
         this(fileId, studyId, secondaryAlternates, format == null ? null : Arrays.asList(format.split(":")));
     }
+
+    @Deprecated
     public VariantSourceEntry(String fileId, String studyId, String[] secondaryAlternates, List<String> format) {
-        this.impl = new org.opencb.biodata.models.variant.avro.VariantSourceEntry(studyId, fileId, Arrays.asList(secondaryAlternates), format, new LinkedList<>(), new LinkedHashMap<>(), new LinkedHashMap<>());
+        this.impl = new org.opencb.biodata.models.variant.avro.VariantSourceEntry(studyId,
+                new LinkedList<>(), Arrays.asList(secondaryAlternates), format, new LinkedList<>(), new LinkedHashMap<>());
+        setFileId(fileId);
     }
 
-    public void setSamplePositions(Map<String, Integer> samplePositions) {
-        this.samplePositions = samplePositions;
+    public void setSamplesPosition(Map<String, Integer> samplesPosition) {
+        if (samplesPosition instanceof LinkedHashMap) {
+            this.samplesPosition = ((LinkedHashMap) samplesPosition);
+        } else {
+            this.samplesPosition = new LinkedHashMap<>();
+            String[] samples = new String[samplesPosition.size()];
+            for (Map.Entry<String, Integer> entry : samplesPosition.entrySet()) {
+                samples[entry.getValue()] = entry.getKey();
+            }
+            for (int i = 0; i < samples.length; i++) {
+                this.samplesPosition.put(samples[i], i);
+            }
+        }
         if (getSamplesData() == null || getSamplesData().isEmpty()) {
-            for (int size = samplePositions.size(); size > 0; size--) {
+            for (int size = samplesPosition.size(); size > 0; size--) {
                 getSamplesData().add(null);
             }
         }
@@ -135,7 +151,7 @@ public class VariantSourceEntry {
      * @return
      */
     public List<String> getFormat() {
-        return Collections.unmodifiableList(impl.getFormat());
+        return impl.getFormat() == null? null : Collections.unmodifiableList(impl.getFormat());
     }
 
     public void setFormat(List<String> value) {
@@ -167,7 +183,7 @@ public class VariantSourceEntry {
         requireSamplePositions();
 
         Map<String, Map<String, String>> samplesDataMap = new HashMap<>();
-        for (Map.Entry<String, Integer> entry : samplePositions.entrySet()) {
+        for (Map.Entry<String, Integer> entry : samplesPosition.entrySet()) {
             samplesDataMap.put(entry.getKey(), getSampleData(entry.getKey()));
         }
 
@@ -176,10 +192,10 @@ public class VariantSourceEntry {
 
     public String getSampleData(String sampleName, String field) {
         requireSamplePositions();
-        if (samplePositions.containsKey(sampleName)) {
+        if (samplesPosition.containsKey(sampleName)) {
             Map<String, Integer> formatPositions = getFormatPositions();
             if (formatPositions.containsKey(field)) {
-                return impl.getSamplesData().get(samplePositions.get(sampleName)).get(formatPositions.get(field));
+                return impl.getSamplesData().get(samplesPosition.get(sampleName)).get(formatPositions.get(field));
             }
         }
         return null;
@@ -187,10 +203,10 @@ public class VariantSourceEntry {
 
     public Map<String, String> getSampleData(String sampleName) {
         requireSamplePositions();
-        if (samplePositions.containsKey(sampleName)) {
+        if (samplesPosition.containsKey(sampleName)) {
             HashMap<String, String> sampleDataMap = new HashMap<>();
             Iterator<String> iterator = getFormat().iterator();
-            List<String> sampleDataList = impl.getSamplesData().get(samplePositions.get(sampleName));
+            List<String> sampleDataList = impl.getSamplesData().get(samplesPosition.get(sampleName));
             for (String data : sampleDataList) {
                 sampleDataMap.put(iterator.next(), data);
             }
@@ -201,9 +217,8 @@ public class VariantSourceEntry {
     }
 
     public void addSampleData(String sampleName, Map<String, String> sampleData) {
-        List<List<String>> samplesDataList = getSamplesData();
-        if (samplePositions == null && samplesDataList.isEmpty()) {
-            samplePositions = new LinkedHashMap<>();
+        if (getFormat() == null) {
+            setFormat(new ArrayList<>(sampleData.keySet()));
         }
         List<String> sampleDataList = new ArrayList<>(getFormat().size());
         for (String field : getFormat()) {
@@ -213,16 +228,24 @@ public class VariantSourceEntry {
             List<String> extraFields = sampleData.keySet().stream().filter(f -> getFormat().contains(f)).collect(Collectors.toList());
             throw new IllegalArgumentException("Some sample data fields were not in the format field: " + extraFields);
         }
-        if (samplePositions != null) {
-            if (samplePositions.containsKey(sampleName)) {
-                int position = samplePositions.get(sampleName);
+        addSampleData(sampleName, sampleDataList);
+    }
+
+    public void addSampleData(String sampleName, List<String> sampleDataList) {
+        List<List<String>> samplesDataList = impl.getSamplesData();
+        if (samplesPosition == null && samplesDataList.isEmpty()) {
+            samplesPosition = new LinkedHashMap<>();
+        }
+        if (samplesPosition != null) {
+            if (samplesPosition.containsKey(sampleName)) {
+                int position = samplesPosition.get(sampleName);
                 while (samplesDataList.size() <= position) {
                     samplesDataList.add(null);
                 }
                 samplesDataList.set(position, sampleDataList);
             } else {
-                int position = samplePositions.size();
-                samplePositions.put(sampleName, position);
+                int position = samplesPosition.size();
+                samplesPosition.put(sampleName, position);
                 samplesDataList.add(sampleDataList);
             }
         } else {
@@ -232,7 +255,12 @@ public class VariantSourceEntry {
 
     public Set<String> getSampleNames() {
         requireSamplePositions();
-        return samplePositions.keySet();
+        return samplesPosition.keySet();
+    }
+
+    public List<String> getOrderedSampleNames() {
+        requireSamplePositions();
+        return new ArrayList<>(samplesPosition.keySet());
     }
 
 
@@ -293,16 +321,22 @@ public class VariantSourceEntry {
         return getAttributes().get(key);
     }
 
+    @Deprecated
     public void addAttribute(String key, String value) {
         getAttributes().put(key, value);
     }
 
+    public void addAttribute(String fileId, String key, String value) {
+        getFile(fileId).getAttributes().put(key, value);
+    }
+
+    @Deprecated
     public boolean hasAttribute(String key) {
         return getAttributes().containsKey(key);
     }
 
     private void requireSamplePositions() {
-        if (samplePositions == null) {
+        if (samplesPosition == null) {
             throw new IllegalArgumentException("Require sample positions array to use this method!"); //TODO Unknown sample positions!
         }
     }
@@ -315,12 +349,35 @@ public class VariantSourceEntry {
         impl.setStudyId(value);
     }
 
-    public String getFileId() {
-        return impl.getFileId();
+    public List<FileEntry> getFiles() {
+        return impl.getFiles();
     }
 
-    public void setFileId(String value) {
-        impl.setFileId(value);
+    public void setFiles(List<FileEntry> files) {
+        impl.setFiles(files);
+    }
+
+    public FileEntry getFile(String fileId) {
+        for (FileEntry fileEntry : impl.getFiles()) {
+            if (fileEntry.getFileId().equals(fileId)) {
+                return fileEntry;
+            }
+        }
+        return null;
+    }
+
+    @Deprecated
+    public String getFileId() {
+        return !impl.getFiles().isEmpty() ? impl.getFiles().get(0).getFileId() : null;
+    }
+
+    @Deprecated
+    public void setFileId(String fileId) {
+        if (impl.getFiles().isEmpty()) {
+            impl.getFiles().add(new FileEntry(fileId, "", new HashMap<>()));
+        } else {
+            impl.getFiles().get(0).setFileId(fileId);
+        }
     }
 
     public List<String> getSecondaryAlternates() {
@@ -331,12 +388,28 @@ public class VariantSourceEntry {
         impl.setSecondaryAlternates(value);
     }
 
+    @Deprecated
     public Map<String, String> getAttributes() {
-        return impl.getAttributes();
+        return !impl.getFiles().isEmpty() ? impl.getFiles().get(0).getAttributes() : null;
     }
 
-    public void setAttributes(Map<String, String> value) {
-        impl.setAttributes(value);
+    public Map<String, String> getAllAttributes() {
+        Map<String, String> attributes = new HashMap<>();
+        impl.getFiles().stream().forEach(fileEntry ->
+                attributes.putAll(fileEntry.getAttributes().entrySet().stream()
+                        .collect(Collectors.toMap(entry -> fileEntry.getFileId() + "_" + entry.getKey(), Map.Entry::getValue))
+                )
+        );
+        return Collections.unmodifiableMap(attributes);
+    }
+
+    @Deprecated
+    public void setAttributes(Map<String, String> attributes) {
+        if (impl.getFiles().isEmpty()) {
+            impl.getFiles().add(new FileEntry("", attributes.getOrDefault(VariantVcfFactory.ORI, ""), attributes));
+        } else {
+            impl.getFiles().get(0).setAttributes(attributes);
+        }
     }
 
     @Override
