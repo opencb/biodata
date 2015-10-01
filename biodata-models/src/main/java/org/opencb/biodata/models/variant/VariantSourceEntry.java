@@ -100,10 +100,15 @@ public class VariantSourceEntry {
         setFileId(fileId);
     }
 
+    public LinkedHashMap<String, Integer> getSamplesPosition() {
+        return samplesPosition;
+    }
+
     public void setSamplesPosition(Map<String, Integer> samplesPosition) {
         if (samplesPosition instanceof LinkedHashMap) {
             this.samplesPosition = ((LinkedHashMap) samplesPosition);
         } else {
+            //Sort samples position
             this.samplesPosition = new LinkedHashMap<>();
             String[] samples = new String[samplesPosition.size()];
             for (Map.Entry<String, Integer> entry : samplesPosition.entrySet()) {
