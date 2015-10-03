@@ -42,6 +42,8 @@ public class VariantTraitAssociation {
     }
 
     public int size() {
-        return cosmicList.size()+gwasList.size()+clinvarList.size();
+        return (cosmicList != null? cosmicList.size() : 0)
+                + (gwasList != null? gwasList.size() : 0)
+                + (clinvarList != null? clinvarList.size() : 0);
     }
 }
