@@ -17,7 +17,7 @@
 package org.opencb.biodata.tools.alignment.filtering;
 
 
-import org.opencb.biodata.models.feature.Region;
+import org.opencb.biodata.models.core.Region;
 import org.opencb.commons.filters.Filter;
 
 import java.util.ArrayList;
@@ -67,7 +67,7 @@ public class RegionFilter extends Filter<Region> {
         return regionList;
     }
 
-    public boolean apply(String chrom, long start, long end) {
+    public boolean apply(String chrom, int start, int end) {
         for (Region r : regionList) {
             if (r.overlaps(chrom, start, end)) {
                 return true;

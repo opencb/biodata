@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package org.opencb.biodata.models.feature;
+package org.opencb.biodata.models.core;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author Alejandro Aleman Ramos
+ * @author Ignacio Medina
  * @author Cristina Yenyxe Gonzalez Garcia
  * @author Joaquín Tárraga Giménez
  */
@@ -30,16 +30,12 @@ public class Region {
     private int start;
     private int end;
 
-    public Region(){
-        this.chromosome = null;
-        this.start = 1;
-        this.end = Integer.MAX_VALUE;
+    public Region() {
+        this(null, 0, Integer.MAX_VALUE);
     }
 
     public Region(String chromosome, int start) {
-        this.chromosome = chromosome;
-        this.start = start;
-        this.end = Integer.MAX_VALUE;
+        this(chromosome, start, Integer.MAX_VALUE);
     }
 
     public Region(String chromosome, int start, int end) {
@@ -49,8 +45,9 @@ public class Region {
     }
 
     public Region(String region) {
-        if (region != null && !region.equals("")) {
-            if (region.indexOf(':') != -1) {
+        if (region != null && !region.isEmpty()) {
+            // now we use contains instead of (region.indexOf(':') != -1)
+            if (region.contains(":")) {
                 String[] fields = region.split("[:-]", -1);
                 if (fields.length == 3) {
                     this.chromosome = fields[0];
@@ -71,8 +68,8 @@ public class Region {
 
     public static Region parseRegion(String regionString) {
         Region region = null;
-        if (regionString != null && !regionString.equals("")) {
-            if (regionString.indexOf(':') != -1) {
+        if (regionString != null && !regionString.isEmpty()) {
+            if (regionString.contains(":")) {
                 String[] fields = regionString.split("[:-]", -1);
                 if (fields.length == 3) {
                     region = new Region(fields[0], Integer.parseInt(fields[1]), Integer.parseInt(fields[2]));
@@ -88,12 +85,12 @@ public class Region {
 
     public static List<Region> parseRegions(String regionsString) {
         List<Region> regions = null;
-        if (regionsString != null && !regionsString.equals("")) {
+        if (regionsString != null && !regionsString.isEmpty()) {
             String[] regionItems = regionsString.split(",");
             regions = new ArrayList<>(regionItems.length);
             String[] fields;
             for (String regionString : regionItems) {
-                if (regionString.indexOf(':') != -1) {
+                if (regionString.contains(":")) {
                     fields = regionString.split("[:-]", -1);
                     if (fields.length == 3) {
                         regions.add(new Region(fields[0], Integer.parseInt(fields[1]), Integer.parseInt(fields[2])));
@@ -107,6 +104,58 @@ public class Region {
         }
         return regions;
     }
+
+
+    public boolean contains(String chromosome, int position) {
+        return (this.chromosome.equals(chromosome) && this.start <= position && this.end >= position);
+    }
+
+    public boolean overlaps(String chromosome, int start, int end) {
+        return (this.chromosome.equals(chromosome) && end >= this.start && start <= this.end);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(this.chromosome);
+        if (this.start != 0 && this.end != Integer.MAX_VALUE) {
+            sb.append(":").append(this.start).append("-").append(this.end);
+        } else {
+            if (this.start != 0 && this.end == Integer.MAX_VALUE) {
+                sb.append(":").append(this.start);
+            }
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Region)) {
+            return false;
+        }
+
+        Region region = (Region) o;
+
+        if (getStart() != region.getStart()) {
+            return false;
+        }
+        if (getEnd() != region.getEnd()) {
+            return false;
+        }
+        return !(getChromosome() != null ? !getChromosome().equals(region.getChromosome()) : region.getChromosome() != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getChromosome() != null ? getChromosome().hashCode() : 0;
+        result = 31 * result + getStart();
+        result = 31 * result + getEnd();
+        return result;
+    }
+
 
     public String getChromosome() {
         return chromosome;
@@ -132,64 +181,4 @@ public class Region {
         this.end = end;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        Region region = (Region) o;
-
-        if (end != region.end) {
-            return false;
-        }
-        if (start != region.start) {
-            return false;
-        }
-        if (!chromosome.equals(region.chromosome)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = chromosome.hashCode();
-        result = 31 * result + (int) (start ^ (start >>> 32));
-        result = 31 * result + (int) (end ^ (end >>> 32));
-        return result;
-    }
-
-    public boolean contains(String chr, long pos) {
-        if (this.chromosome.equals(chr) && this.start <= pos && this.end >= pos) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public boolean overlaps(String chr, long start, long end) {
-        if (this.chromosome.equals(chr) && end >= this.start && start <= this.end) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder(this.chromosome);
-
-        if (this.start != 0 && this.end != Integer.MAX_VALUE) {
-            sb.append(":").append(this.start).append("-").append(this.end);
-        } else if (this.start != 0 && this.end == Integer.MAX_VALUE) {
-            sb.append(":").append(this.start);
-        }
-
-        return sb.toString();
-    }
 }
