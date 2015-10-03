@@ -24,18 +24,18 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
+ * @author Jacobo Coll;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
- * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
  */
 public class Variant {
 
     private final VariantAvro impl;
-
-    public static final int SV_THRESHOLD = 50;
     private Map<String, VariantSourceEntry> sourceEntries = null;
 
+    public static final int SV_THRESHOLD = 50;
+
     public Variant() {
-        this("", -1, -1, "", "");
+        this("", -1, -1, "", "", "");
     }
 
     public Variant(VariantAvro avro) {
@@ -43,11 +43,16 @@ public class Variant {
     }
 
     public Variant(String chromosome, int start, int end, String reference, String alternate) {
+        this(chromosome, start, end, reference, alternate, "+");
+    }
+
+    public Variant(String chromosome, int start, int end, String reference, String alternate, String strand) {
         impl = new VariantAvro(chromosome,
                 start,
                 end,
                 (reference != null) ? reference : "",
                 (alternate != null) ? alternate : "",
+                strand,
                 new LinkedList<>(),
                 0,
                 null,
@@ -71,14 +76,6 @@ public class Variant {
         sourceEntries = new HashMap<>();
     }
 
-//    public VariantType getType() {
-//        return type;
-//    }
-
-//    public void setType(VariantType type) {
-//        this.type = type;
-//    }
-
     private void resetType() {
         if (getReference().length() == getAlternate().length()) {
             if (getLength() > 1) {
@@ -86,7 +83,8 @@ public class Variant {
             } else {
                 setType(VariantType.SNV);
             }
-        } else if (getLength() <= SV_THRESHOLD) {
+        } else {
+            if (getLength() <= SV_THRESHOLD) {
             /*
             * 3 possibilities for being an INDEL:
             * - The value of the ALT field is <DEL> or <INS>
@@ -94,16 +92,12 @@ public class Variant {
             * - The REF allele is . but the ALT is not
             * - The REF field length is different than the ALT field length
             */
-            setType(VariantType.INDEL);
-        } else {
-            setType(VariantType.SV);
+                setType(VariantType.INDEL);
+            } else {
+                setType(VariantType.SV);
+            }
         }
     }
-
-//    public String getChromosome() {
-//        return chromosome;
-//    }
-
 
     public VariantAvro getImpl() {
         return impl;
@@ -196,12 +190,12 @@ public class Variant {
         impl.setIds(value);
     }
 
-    public void setLength(Integer value) {
-        impl.setLength(value);
-    }
-
     public Integer getLength() {
         return impl.getLength();
+    }
+
+    public void setLength(Integer value) {
+        impl.setLength(value);
     }
 
     public VariantType getType() {
@@ -411,6 +405,7 @@ public class Variant {
         return composeId(studyId, null);
     }
 
+    @Deprecated
     private String composeId(String studyId, String fileId) {
         return studyId + (fileId == null ? "" : "_" + fileId);
     }

@@ -7,7 +7,7 @@ package org.opencb.biodata.models.variant.avro;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class VariantAvro extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"VariantAvro\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"chromosome\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"},\"doc\":\"* Chromosome where the genomic variation occurred.\"},{\"name\":\"start\",\"type\":\"int\",\"doc\":\"* Normalized position where the genomic variation starts.\\r\\n         * <ul>\\r\\n         * <li>SNVs have the same start and end position</li>\\r\\n         * <li>Insertions start in the last present position: if the first nucleotide\\r\\n         * is inserted in position 6, the start is position 5</li>\\r\\n         * <li>Deletions start in the first previously present position: if the first\\r\\n         * deleted nucleotide is in position 6, the start is position 6</li>\\r\\n         * </ul>\"},{\"name\":\"end\",\"type\":\"int\",\"doc\":\"* Normalized position where the genomic variation ends.\\r\\n         * <ul>\\r\\n         * <li>SNVs have the same start and end positions</li>\\r\\n         * <li>Insertions end in the first present position: if the last nucleotide\\r\\n         * is inserted in position 9, the end is position 10</li>\\r\\n         * <li>Deletions ends in the last previously present position: if the last\\r\\n         * deleted nucleotide is in position 9, the end is position 9</li>\\r\\n         * </ul>\"},{\"name\":\"reference\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"},\"doc\":\"* Reference allele.\"},{\"name\":\"alternate\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"},\"doc\":\"* Alternate allele.\"},{\"name\":\"ids\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},\"doc\":\"* Set of identifiers used for this genomic variation.\",\"default\":[]},{\"name\":\"length\",\"type\":\"int\",\"doc\":\"* Length of the genomic variation, which depends on the variation type.\\r\\n         * <ul>\\r\\n         * <li>SNVs have a length of 1 nucleotide</li>\\r\\n         * <li>Indels have the length of the largest allele</li>\\r\\n         * </ul>\"},{\"name\":\"type\",\"type\":{\"type\":\"enum\",\"name\":\"VariantType\",\"doc\":\"* Type of variation, which depends mostly on its length.\\r\\n     * <ul>\\r\\n     * <li>SNVs involve a single nucleotide, without changes in length</li>\\r\\n     * <li>MNVs involve multiple nucleotides, without changes in length</li>\\r\\n     * <li>Indels are insertions or deletions of less than SV_THRESHOLD (50) nucleotides</li>\\r\\n     * <li>Structural variations are large changes of more than SV_THRESHOLD nucleotides</li>\\r\\n     * <li>Copy-number variations alter the number of copies of a region</li>\\r\\n     * </ul>\",\"symbols\":[\"SNP\",\"SNV\",\"MNP\",\"MNV\",\"INDEL\",\"SV\",\"CNV\",\"NO_VARIATION\",\"SYMBOLIC\",\"MIXED\"]},\"doc\":\"* Type of variation: single nucleotide, indel or structural variation.\"},{\"name\":\"hgvs\",\"type\":[\"null\",{\"type\":\"map\",\"values\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},\"avro.java.string\":\"String\"}],\"doc\":\"* Unique identifier following the HGVS nomenclature.\"},{\"name\":\"studies\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"VariantSourceEntry\",\"fields\":[{\"name\":\"studyId\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"files\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"FileEntry\",\"fields\":[{\"name\":\"fileId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"call\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"attributes\",\"type\":{\"type\":\"map\",\"values\":{\"type\":\"string\",\"avro.java.string\":\"String\"},\"avro.java.string\":\"String\"}}]}},\"default\":[]},{\"name\":\"secondaryAlternates\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}],\"default\":null},{\"name\":\"format\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"samplesData\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}}},{\"name\":\"stats\",\"type\":{\"type\":\"map\",\"values\":{\"type\":\"record\",\"name\":\"VariantStats\",\"fields\":[{\"name\":\"refAllele\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"altAllele\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"refAlleleCount\",\"type\":[\"null\",\"int\"]},{\"name\":\"altAlleleCount\",\"type\":[\"null\",\"int\"]},{\"name\":\"genotypesCount\",\"type\":{\"type\":\"map\",\"values\":\"int\",\"avro.java.string\":\"String\",\"java-key-class\":\"org.opencb.biodata.models.feature.Genotype\"}},{\"name\":\"genotypesFreq\",\"type\":{\"type\":\"map\",\"values\":\"float\",\"avro.java.string\":\"String\",\"java-key-class\":\"org.opencb.biodata.models.feature.Genotype\"}},{\"name\":\"missingAlleles\",\"type\":[\"null\",\"int\"]},{\"name\":\"missingGenotypes\",\"type\":[\"null\",\"int\"]},{\"name\":\"refAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"altAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"maf\",\"type\":[\"null\",\"float\"]},{\"name\":\"mgf\",\"type\":[\"null\",\"float\"]},{\"name\":\"mafAllele\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"mgfGenotype\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"passedFilters\",\"type\":[\"null\",\"boolean\"]},{\"name\":\"mendelianErrors\",\"type\":[\"null\",\"int\"]},{\"name\":\"casesPercentDominant\",\"type\":[\"null\",\"float\"]},{\"name\":\"controlsPercentDominant\",\"type\":[\"null\",\"float\"]},{\"name\":\"casesPercentRecessive\",\"type\":[\"null\",\"float\"]},{\"name\":\"controlsPercentRecessive\",\"type\":[\"null\",\"float\"]},{\"name\":\"quality\",\"type\":[\"null\",\"float\"]},{\"name\":\"numSamples\",\"type\":[\"null\",\"int\"]},{\"name\":\"variantType\",\"type\":\"VariantType\"},{\"name\":\"hw\",\"type\":{\"type\":\"record\",\"name\":\"VariantHardyWeinbergStats\",\"fields\":[{\"name\":\"chi2\",\"type\":[\"null\",\"float\"]},{\"name\":\"pValue\",\"type\":[\"null\",\"float\"]},{\"name\":\"n\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_AA_11\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_Aa_10\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_aa_00\",\"type\":[\"null\",\"int\"]},{\"name\":\"e_AA_11\",\"type\":[\"null\",\"float\"]},{\"name\":\"e_Aa_10\",\"type\":[\"null\",\"float\"]},{\"name\":\"e_aa_00\",\"type\":[\"null\",\"float\"]},{\"name\":\"p\",\"type\":[\"null\",\"float\"]},{\"name\":\"q\",\"type\":[\"null\",\"float\"]}]}}]},\"avro.java.string\":\"String\"}}]}},\"doc\":\"* Information specific to each study the variant was read from, such as\\r\\n         * samples or statistics.\"},{\"name\":\"annotation\",\"type\":[\"null\",{\"type\":\"record\",\"name\":\"VariantAnnotation\",\"fields\":[{\"name\":\"chromosome\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"start\",\"type\":\"int\"},{\"name\":\"end\",\"type\":\"int\"},{\"name\":\"reference\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"alternate\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"id\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"xrefs\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Xref\",\"fields\":[{\"name\":\"id\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"src\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]}]}}],\"default\":[]},{\"name\":\"hgvs\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]},{\"name\":\"consequenceTypes\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"ConsequenceType\",\"fields\":[{\"name\":\"geneName\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"ensemblGeneId\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"ensemblTranscriptId\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"strand\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"biotype\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"cDnaPosition\",\"type\":[\"null\",\"int\"]},{\"name\":\"cdsPosition\",\"type\":[\"null\",\"int\"]},{\"name\":\"codon\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"proteinVariantAnnotation\",\"type\":[\"null\",{\"type\":\"record\",\"name\":\"ProteinVariantAnnotation\",\"fields\":[{\"name\":\"uniprotAccession\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"uniprotName\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"position\",\"type\":\"int\"},{\"name\":\"reference\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"alternate\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"uniprotVariantId\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"functionalDescription\",\"type\":[\"null\",{\"type\":\"string\",","\"avro.java.string\":\"String\"}]},{\"name\":\"substitutionScores\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Score\",\"fields\":[{\"name\":\"score\",\"type\":\"double\"},{\"name\":\"source\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"description\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]}]}}]},{\"name\":\"keywords\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]},{\"name\":\"features\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"ProteinFeature\",\"fields\":[{\"name\":\"id\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"start\",\"type\":\"int\"},{\"name\":\"end\",\"type\":\"int\"},{\"name\":\"type\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"description\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]}]}}]}]}]},{\"name\":\"sequenceOntologyTerms\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"SequenceOntologyTerm\",\"fields\":[{\"name\":\"accession\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"name\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}}}]}},\"default\":[]},{\"name\":\"populationFrequencies\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"PopulationFrequency\",\"fields\":[{\"name\":\"study\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"population\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"superPopulation\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"refAllele\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"altAllele\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"refAlleleFreq\",\"type\":\"float\"},{\"name\":\"altAlleleFreq\",\"type\":\"float\"},{\"name\":\"refHomGenotypeFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"hetGenotypeFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"altHomGenotypeFreq\",\"type\":[\"null\",\"float\"]}]}}]},{\"name\":\"conservation\",\"type\":[\"null\",{\"type\":\"array\",\"items\":\"Score\"}]},{\"name\":\"expression\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Expression\",\"fields\":[{\"name\":\"experimentalFactor\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"factorValue\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"experimentId\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"technologyPlatform\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"expression\",\"type\":[\"null\",{\"type\":\"enum\",\"name\":\"ExpressionCall\",\"symbols\":[\"UP\",\"DOWN\"]}]},{\"name\":\"pvalue\",\"type\":[\"null\",\"float\"]}]}}]},{\"name\":\"geneDrugInteraction\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"GeneDrugInteraction\",\"fields\":[{\"name\":\"geneName\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"drugName\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"source\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"studyType\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"type\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]}]}}]},{\"name\":\"variantTraitAssociation\",\"type\":[\"null\",{\"type\":\"record\",\"name\":\"VariantTraitAssociation\",\"fields\":[{\"name\":\"clinvar\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"ClinVar\",\"fields\":[{\"name\":\"accession\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"clinicalSignificance\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"traits\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"geneNames\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"reviewStatus\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}}]},{\"name\":\"cosmic\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Gwas\",\"fields\":[{\"name\":\"snpIdCurrent\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"traits\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"riskAlleleFrequency\",\"type\":{\"type\":\"array\",\"items\":\"double\"}},{\"name\":\"reportedGenes\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}}]},{\"name\":\"hwas\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Cosmic\",\"fields\":[{\"name\":\"mutationID\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"primarySite\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"siteSubtype\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"primaryHistology\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"histologySubtype\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"sampleSource\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"tumourOrigin\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"geneName\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"mutationSomaticStatus\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}}]}]}]},{\"name\":\"additionalAttributes\",\"type\":[\"null\",{\"type\":\"map\",\"values\":{\"type\":\"string\",\"avro.java.string\":\"String\"},\"avro.java.string\":\"String\"}]}]}],\"doc\":\"* Annotations of the genomic variation.\"}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"VariantAvro\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"chromosome\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"},\"doc\":\"* Chromosome where the genomic variation occurred.\"},{\"name\":\"start\",\"type\":\"int\",\"doc\":\"* Normalized position where the genomic variation starts.\\r\\n         * <ul>\\r\\n         * <li>SNVs have the same start and end position</li>\\r\\n         * <li>Insertions start in the last present position: if the first nucleotide\\r\\n         * is inserted in position 6, the start is position 5</li>\\r\\n         * <li>Deletions start in the first previously present position: if the first\\r\\n         * deleted nucleotide is in position 6, the start is position 6</li>\\r\\n         * </ul>\"},{\"name\":\"end\",\"type\":\"int\",\"doc\":\"* Normalized position where the genomic variation ends.\\r\\n         * <ul>\\r\\n         * <li>SNVs have the same start and end positions</li>\\r\\n         * <li>Insertions end in the first present position: if the last nucleotide\\r\\n         * is inserted in position 9, the end is position 10</li>\\r\\n         * <li>Deletions ends in the last previously present position: if the last\\r\\n         * deleted nucleotide is in position 9, the end is position 9</li>\\r\\n         * </ul>\"},{\"name\":\"reference\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"},\"doc\":\"* Reference allele.\"},{\"name\":\"alternate\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"},\"doc\":\"* Alternate allele.\"},{\"name\":\"strand\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"},\"doc\":\"* Reference strand for this variant\"},{\"name\":\"ids\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},\"doc\":\"* Set of identifiers used for this genomic variation.\",\"default\":[]},{\"name\":\"length\",\"type\":\"int\",\"doc\":\"* Length of the genomic variation, which depends on the variation type.\\r\\n         * <ul>\\r\\n         * <li>SNVs have a length of 1 nucleotide</li>\\r\\n         * <li>Indels have the length of the largest allele</li>\\r\\n         * </ul>\"},{\"name\":\"type\",\"type\":{\"type\":\"enum\",\"name\":\"VariantType\",\"doc\":\"* Type of variation, which depends mostly on its length.\\r\\n     * <ul>\\r\\n     * <li>SNVs involve a single nucleotide, without changes in length</li>\\r\\n     * <li>MNVs involve multiple nucleotides, without changes in length</li>\\r\\n     * <li>Indels are insertions or deletions of less than SV_THRESHOLD (50) nucleotides</li>\\r\\n     * <li>Structural variations are large changes of more than SV_THRESHOLD nucleotides</li>\\r\\n     * <li>Copy-number variations alter the number of copies of a region</li>\\r\\n     * </ul>\",\"symbols\":[\"SNP\",\"SNV\",\"MNP\",\"MNV\",\"INDEL\",\"SV\",\"CNV\",\"NO_VARIATION\",\"SYMBOLIC\",\"MIXED\"]},\"doc\":\"* Type of variation: single nucleotide, indel or structural variation.\"},{\"name\":\"hgvs\",\"type\":[\"null\",{\"type\":\"map\",\"values\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},\"avro.java.string\":\"String\"}],\"doc\":\"* Unique identifier following the HGVS nomenclature.\"},{\"name\":\"studies\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"VariantSourceEntry\",\"fields\":[{\"name\":\"studyId\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"files\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"FileEntry\",\"fields\":[{\"name\":\"fileId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"call\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"attributes\",\"type\":{\"type\":\"map\",\"values\":{\"type\":\"string\",\"avro.java.string\":\"String\"},\"avro.java.string\":\"String\"}}]}},\"default\":[]},{\"name\":\"secondaryAlternates\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}],\"default\":null},{\"name\":\"format\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"samplesData\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}}},{\"name\":\"stats\",\"type\":{\"type\":\"map\",\"values\":{\"type\":\"record\",\"name\":\"VariantStats\",\"fields\":[{\"name\":\"refAllele\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"altAllele\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"refAlleleCount\",\"type\":[\"null\",\"int\"]},{\"name\":\"altAlleleCount\",\"type\":[\"null\",\"int\"]},{\"name\":\"genotypesCount\",\"type\":{\"type\":\"map\",\"values\":\"int\",\"avro.java.string\":\"String\",\"java-key-class\":\"org.opencb.biodata.models.feature.Genotype\"}},{\"name\":\"genotypesFreq\",\"type\":{\"type\":\"map\",\"values\":\"float\",\"avro.java.string\":\"String\",\"java-key-class\":\"org.opencb.biodata.models.feature.Genotype\"}},{\"name\":\"missingAlleles\",\"type\":[\"null\",\"int\"]},{\"name\":\"missingGenotypes\",\"type\":[\"null\",\"int\"]},{\"name\":\"refAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"altAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"maf\",\"type\":[\"null\",\"float\"]},{\"name\":\"mgf\",\"type\":[\"null\",\"float\"]},{\"name\":\"mafAllele\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"mgfGenotype\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"passedFilters\",\"type\":[\"null\",\"boolean\"]},{\"name\":\"mendelianErrors\",\"type\":[\"null\",\"int\"]},{\"name\":\"casesPercentDominant\",\"type\":[\"null\",\"float\"]},{\"name\":\"controlsPercentDominant\",\"type\":[\"null\",\"float\"]},{\"name\":\"casesPercentRecessive\",\"type\":[\"null\",\"float\"]},{\"name\":\"controlsPercentRecessive\",\"type\":[\"null\",\"float\"]},{\"name\":\"quality\",\"type\":[\"null\",\"float\"]},{\"name\":\"numSamples\",\"type\":[\"null\",\"int\"]},{\"name\":\"variantType\",\"type\":\"VariantType\"},{\"name\":\"hw\",\"type\":{\"type\":\"record\",\"name\":\"VariantHardyWeinbergStats\",\"fields\":[{\"name\":\"chi2\",\"type\":[\"null\",\"float\"]},{\"name\":\"pValue\",\"type\":[\"null\",\"float\"]},{\"name\":\"n\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_AA_11\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_Aa_10\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_aa_00\",\"type\":[\"null\",\"int\"]},{\"name\":\"e_AA_11\",\"type\":[\"null\",\"float\"]},{\"name\":\"e_Aa_10\",\"type\":[\"null\",\"float\"]},{\"name\":\"e_aa_00\",\"type\":[\"null\",\"float\"]},{\"name\":\"p\",\"type\":[\"null\",\"float\"]},{\"name\":\"q\",\"type\":[\"null\",\"float\"]}]}}]},\"avro.java.string\":\"String\"}}]}},\"doc\":\"* Information specific to each study the variant was read from, such as\\r\\n         * samples or statistics.\"},{\"name\":\"annotation\",\"type\":[\"null\",{\"type\":\"record\",\"name\":\"VariantAnnotation\",\"fields\":[{\"name\":\"chromosome\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"start\",\"type\":\"int\"},{\"name\":\"end\",\"type\":\"int\"},{\"name\":\"reference\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"alternate\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"id\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"xrefs\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Xref\",\"fields\":[{\"name\":\"id\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"src\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]}]}}],\"default\":[]},{\"name\":\"hgvs\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]},{\"name\":\"consequenceTypes\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"ConsequenceType\",\"fields\":[{\"name\":\"geneName\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"ensemblGeneId\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"ensemblTranscriptId\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"strand\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"biotype\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"cDnaPosition\",\"type\":[\"null\",\"int\"]},{\"name\":\"cdsPosition\",\"type\":[\"null\",\"int\"]},{\"name\":\"codon\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"proteinVariantAnnotation\",\"type\":[\"null\",{\"type\":\"record\",\"name\":\"ProteinVariantAnnotation\",\"fields\":[{\"name\":\"uniprotAccession\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"uniprotName\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"position\",\"type\":\"int\"},{\"name\":\"reference\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"alternate\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"uniprotVariantId\",\"type\":[\"nul","l\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"functionalDescription\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"substitutionScores\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Score\",\"fields\":[{\"name\":\"score\",\"type\":\"double\"},{\"name\":\"source\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"description\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]}]}}]},{\"name\":\"keywords\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]},{\"name\":\"features\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"ProteinFeature\",\"fields\":[{\"name\":\"id\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"start\",\"type\":\"int\"},{\"name\":\"end\",\"type\":\"int\"},{\"name\":\"type\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"description\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]}]}}]}]}]},{\"name\":\"sequenceOntologyTerms\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"SequenceOntologyTerm\",\"fields\":[{\"name\":\"accession\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"name\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}}}]}},\"default\":[]},{\"name\":\"populationFrequencies\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"PopulationFrequency\",\"fields\":[{\"name\":\"study\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"population\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"superPopulation\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"refAllele\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"altAllele\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"refAlleleFreq\",\"type\":\"float\"},{\"name\":\"altAlleleFreq\",\"type\":\"float\"},{\"name\":\"refHomGenotypeFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"hetGenotypeFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"altHomGenotypeFreq\",\"type\":[\"null\",\"float\"]}]}}]},{\"name\":\"conservation\",\"type\":[\"null\",{\"type\":\"array\",\"items\":\"Score\"}]},{\"name\":\"expression\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Expression\",\"fields\":[{\"name\":\"experimentalFactor\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"factorValue\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"experimentId\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"technologyPlatform\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"expression\",\"type\":[\"null\",{\"type\":\"enum\",\"name\":\"ExpressionCall\",\"symbols\":[\"UP\",\"DOWN\"]}]},{\"name\":\"pvalue\",\"type\":[\"null\",\"float\"]}]}}]},{\"name\":\"geneDrugInteraction\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"GeneDrugInteraction\",\"fields\":[{\"name\":\"geneName\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"drugName\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"source\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"studyType\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"type\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]}]}}]},{\"name\":\"variantTraitAssociation\",\"type\":[\"null\",{\"type\":\"record\",\"name\":\"VariantTraitAssociation\",\"fields\":[{\"name\":\"clinvar\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"ClinVar\",\"fields\":[{\"name\":\"accession\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"clinicalSignificance\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"traits\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"geneNames\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"reviewStatus\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}}]},{\"name\":\"cosmic\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Gwas\",\"fields\":[{\"name\":\"snpIdCurrent\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"traits\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"riskAlleleFrequency\",\"type\":{\"type\":\"array\",\"items\":\"double\"}},{\"name\":\"reportedGenes\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}}]},{\"name\":\"hwas\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Cosmic\",\"fields\":[{\"name\":\"mutationID\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"primarySite\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"siteSubtype\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"primaryHistology\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"histologySubtype\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"sampleSource\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"tumourOrigin\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"geneName\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"mutationSomaticStatus\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}}]}]}]},{\"name\":\"additionalAttributes\",\"type\":[\"null\",{\"type\":\"map\",\"values\":{\"type\":\"string\",\"avro.java.string\":\"String\"},\"avro.java.string\":\"String\"}]}]}],\"doc\":\"* Annotations of the genomic variation.\"}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
   /** * Chromosome where the genomic variation occurred. */
    private java.lang.String chromosome;
@@ -33,6 +33,8 @@ public class VariantAvro extends org.apache.avro.specific.SpecificRecordBase imp
    private java.lang.String reference;
   /** * Alternate allele. */
    private java.lang.String alternate;
+  /** * Reference strand for this variant */
+   private java.lang.String strand;
   /** * Set of identifiers used for this genomic variation. */
    private java.util.List<java.lang.String> ids;
   /** * Length of the genomic variation, which depends on the variation type.
@@ -61,12 +63,13 @@ public class VariantAvro extends org.apache.avro.specific.SpecificRecordBase imp
   /**
    * All-args constructor.
    */
-  public VariantAvro(java.lang.String chromosome, java.lang.Integer start, java.lang.Integer end, java.lang.String reference, java.lang.String alternate, java.util.List<java.lang.String> ids, java.lang.Integer length, org.opencb.biodata.models.variant.avro.VariantType type, java.util.Map<java.lang.String,java.util.List<java.lang.String>> hgvs, java.util.List<org.opencb.biodata.models.variant.avro.VariantSourceEntry> studies, org.opencb.biodata.models.variant.avro.VariantAnnotation annotation) {
+  public VariantAvro(java.lang.String chromosome, java.lang.Integer start, java.lang.Integer end, java.lang.String reference, java.lang.String alternate, java.lang.String strand, java.util.List<java.lang.String> ids, java.lang.Integer length, org.opencb.biodata.models.variant.avro.VariantType type, java.util.Map<java.lang.String,java.util.List<java.lang.String>> hgvs, java.util.List<org.opencb.biodata.models.variant.avro.VariantSourceEntry> studies, org.opencb.biodata.models.variant.avro.VariantAnnotation annotation) {
     this.chromosome = chromosome;
     this.start = start;
     this.end = end;
     this.reference = reference;
     this.alternate = alternate;
+    this.strand = strand;
     this.ids = ids;
     this.length = length;
     this.type = type;
@@ -84,12 +87,13 @@ public class VariantAvro extends org.apache.avro.specific.SpecificRecordBase imp
     case 2: return end;
     case 3: return reference;
     case 4: return alternate;
-    case 5: return ids;
-    case 6: return length;
-    case 7: return type;
-    case 8: return hgvs;
-    case 9: return studies;
-    case 10: return annotation;
+    case 5: return strand;
+    case 6: return ids;
+    case 7: return length;
+    case 8: return type;
+    case 9: return hgvs;
+    case 10: return studies;
+    case 11: return annotation;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -102,12 +106,13 @@ public class VariantAvro extends org.apache.avro.specific.SpecificRecordBase imp
     case 2: end = (java.lang.Integer)value$; break;
     case 3: reference = (java.lang.String)value$; break;
     case 4: alternate = (java.lang.String)value$; break;
-    case 5: ids = (java.util.List<java.lang.String>)value$; break;
-    case 6: length = (java.lang.Integer)value$; break;
-    case 7: type = (org.opencb.biodata.models.variant.avro.VariantType)value$; break;
-    case 8: hgvs = (java.util.Map<java.lang.String,java.util.List<java.lang.String>>)value$; break;
-    case 9: studies = (java.util.List<org.opencb.biodata.models.variant.avro.VariantSourceEntry>)value$; break;
-    case 10: annotation = (org.opencb.biodata.models.variant.avro.VariantAnnotation)value$; break;
+    case 5: strand = (java.lang.String)value$; break;
+    case 6: ids = (java.util.List<java.lang.String>)value$; break;
+    case 7: length = (java.lang.Integer)value$; break;
+    case 8: type = (org.opencb.biodata.models.variant.avro.VariantType)value$; break;
+    case 9: hgvs = (java.util.Map<java.lang.String,java.util.List<java.lang.String>>)value$; break;
+    case 10: studies = (java.util.List<org.opencb.biodata.models.variant.avro.VariantSourceEntry>)value$; break;
+    case 11: annotation = (org.opencb.biodata.models.variant.avro.VariantAnnotation)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -213,6 +218,21 @@ public class VariantAvro extends org.apache.avro.specific.SpecificRecordBase imp
    */
   public void setAlternate(java.lang.String value) {
     this.alternate = value;
+  }
+
+  /**
+   * Gets the value of the 'strand' field.
+   * * Reference strand for this variant   */
+  public java.lang.String getStrand() {
+    return strand;
+  }
+
+  /**
+   * Sets the value of the 'strand' field.
+   * * Reference strand for this variant   * @param value the value to set.
+   */
+  public void setStrand(java.lang.String value) {
+    this.strand = value;
   }
 
   /**
@@ -341,6 +361,7 @@ public class VariantAvro extends org.apache.avro.specific.SpecificRecordBase imp
     private int end;
     private java.lang.String reference;
     private java.lang.String alternate;
+    private java.lang.String strand;
     private java.util.List<java.lang.String> ids;
     private int length;
     private org.opencb.biodata.models.variant.avro.VariantType type;
@@ -376,29 +397,33 @@ public class VariantAvro extends org.apache.avro.specific.SpecificRecordBase imp
         this.alternate = data().deepCopy(fields()[4].schema(), other.alternate);
         fieldSetFlags()[4] = true;
       }
-      if (isValidValue(fields()[5], other.ids)) {
-        this.ids = data().deepCopy(fields()[5].schema(), other.ids);
+      if (isValidValue(fields()[5], other.strand)) {
+        this.strand = data().deepCopy(fields()[5].schema(), other.strand);
         fieldSetFlags()[5] = true;
       }
-      if (isValidValue(fields()[6], other.length)) {
-        this.length = data().deepCopy(fields()[6].schema(), other.length);
+      if (isValidValue(fields()[6], other.ids)) {
+        this.ids = data().deepCopy(fields()[6].schema(), other.ids);
         fieldSetFlags()[6] = true;
       }
-      if (isValidValue(fields()[7], other.type)) {
-        this.type = data().deepCopy(fields()[7].schema(), other.type);
+      if (isValidValue(fields()[7], other.length)) {
+        this.length = data().deepCopy(fields()[7].schema(), other.length);
         fieldSetFlags()[7] = true;
       }
-      if (isValidValue(fields()[8], other.hgvs)) {
-        this.hgvs = data().deepCopy(fields()[8].schema(), other.hgvs);
+      if (isValidValue(fields()[8], other.type)) {
+        this.type = data().deepCopy(fields()[8].schema(), other.type);
         fieldSetFlags()[8] = true;
       }
-      if (isValidValue(fields()[9], other.studies)) {
-        this.studies = data().deepCopy(fields()[9].schema(), other.studies);
+      if (isValidValue(fields()[9], other.hgvs)) {
+        this.hgvs = data().deepCopy(fields()[9].schema(), other.hgvs);
         fieldSetFlags()[9] = true;
       }
-      if (isValidValue(fields()[10], other.annotation)) {
-        this.annotation = data().deepCopy(fields()[10].schema(), other.annotation);
+      if (isValidValue(fields()[10], other.studies)) {
+        this.studies = data().deepCopy(fields()[10].schema(), other.studies);
         fieldSetFlags()[10] = true;
+      }
+      if (isValidValue(fields()[11], other.annotation)) {
+        this.annotation = data().deepCopy(fields()[11].schema(), other.annotation);
+        fieldSetFlags()[11] = true;
       }
     }
     
@@ -425,29 +450,33 @@ public class VariantAvro extends org.apache.avro.specific.SpecificRecordBase imp
         this.alternate = data().deepCopy(fields()[4].schema(), other.alternate);
         fieldSetFlags()[4] = true;
       }
-      if (isValidValue(fields()[5], other.ids)) {
-        this.ids = data().deepCopy(fields()[5].schema(), other.ids);
+      if (isValidValue(fields()[5], other.strand)) {
+        this.strand = data().deepCopy(fields()[5].schema(), other.strand);
         fieldSetFlags()[5] = true;
       }
-      if (isValidValue(fields()[6], other.length)) {
-        this.length = data().deepCopy(fields()[6].schema(), other.length);
+      if (isValidValue(fields()[6], other.ids)) {
+        this.ids = data().deepCopy(fields()[6].schema(), other.ids);
         fieldSetFlags()[6] = true;
       }
-      if (isValidValue(fields()[7], other.type)) {
-        this.type = data().deepCopy(fields()[7].schema(), other.type);
+      if (isValidValue(fields()[7], other.length)) {
+        this.length = data().deepCopy(fields()[7].schema(), other.length);
         fieldSetFlags()[7] = true;
       }
-      if (isValidValue(fields()[8], other.hgvs)) {
-        this.hgvs = data().deepCopy(fields()[8].schema(), other.hgvs);
+      if (isValidValue(fields()[8], other.type)) {
+        this.type = data().deepCopy(fields()[8].schema(), other.type);
         fieldSetFlags()[8] = true;
       }
-      if (isValidValue(fields()[9], other.studies)) {
-        this.studies = data().deepCopy(fields()[9].schema(), other.studies);
+      if (isValidValue(fields()[9], other.hgvs)) {
+        this.hgvs = data().deepCopy(fields()[9].schema(), other.hgvs);
         fieldSetFlags()[9] = true;
       }
-      if (isValidValue(fields()[10], other.annotation)) {
-        this.annotation = data().deepCopy(fields()[10].schema(), other.annotation);
+      if (isValidValue(fields()[10], other.studies)) {
+        this.studies = data().deepCopy(fields()[10].schema(), other.studies);
         fieldSetFlags()[10] = true;
+      }
+      if (isValidValue(fields()[11], other.annotation)) {
+        this.annotation = data().deepCopy(fields()[11].schema(), other.annotation);
+        fieldSetFlags()[11] = true;
       }
     }
 
@@ -574,6 +603,31 @@ public class VariantAvro extends org.apache.avro.specific.SpecificRecordBase imp
       return this;
     }
 
+    /** Gets the value of the 'strand' field */
+    public java.lang.String getStrand() {
+      return strand;
+    }
+    
+    /** Sets the value of the 'strand' field */
+    public org.opencb.biodata.models.variant.avro.VariantAvro.Builder setStrand(java.lang.String value) {
+      validate(fields()[5], value);
+      this.strand = value;
+      fieldSetFlags()[5] = true;
+      return this; 
+    }
+    
+    /** Checks whether the 'strand' field has been set */
+    public boolean hasStrand() {
+      return fieldSetFlags()[5];
+    }
+    
+    /** Clears the value of the 'strand' field */
+    public org.opencb.biodata.models.variant.avro.VariantAvro.Builder clearStrand() {
+      strand = null;
+      fieldSetFlags()[5] = false;
+      return this;
+    }
+
     /** Gets the value of the 'ids' field */
     public java.util.List<java.lang.String> getIds() {
       return ids;
@@ -581,21 +635,21 @@ public class VariantAvro extends org.apache.avro.specific.SpecificRecordBase imp
     
     /** Sets the value of the 'ids' field */
     public org.opencb.biodata.models.variant.avro.VariantAvro.Builder setIds(java.util.List<java.lang.String> value) {
-      validate(fields()[5], value);
+      validate(fields()[6], value);
       this.ids = value;
-      fieldSetFlags()[5] = true;
+      fieldSetFlags()[6] = true;
       return this; 
     }
     
     /** Checks whether the 'ids' field has been set */
     public boolean hasIds() {
-      return fieldSetFlags()[5];
+      return fieldSetFlags()[6];
     }
     
     /** Clears the value of the 'ids' field */
     public org.opencb.biodata.models.variant.avro.VariantAvro.Builder clearIds() {
       ids = null;
-      fieldSetFlags()[5] = false;
+      fieldSetFlags()[6] = false;
       return this;
     }
 
@@ -606,20 +660,20 @@ public class VariantAvro extends org.apache.avro.specific.SpecificRecordBase imp
     
     /** Sets the value of the 'length' field */
     public org.opencb.biodata.models.variant.avro.VariantAvro.Builder setLength(int value) {
-      validate(fields()[6], value);
+      validate(fields()[7], value);
       this.length = value;
-      fieldSetFlags()[6] = true;
+      fieldSetFlags()[7] = true;
       return this; 
     }
     
     /** Checks whether the 'length' field has been set */
     public boolean hasLength() {
-      return fieldSetFlags()[6];
+      return fieldSetFlags()[7];
     }
     
     /** Clears the value of the 'length' field */
     public org.opencb.biodata.models.variant.avro.VariantAvro.Builder clearLength() {
-      fieldSetFlags()[6] = false;
+      fieldSetFlags()[7] = false;
       return this;
     }
 
@@ -630,21 +684,21 @@ public class VariantAvro extends org.apache.avro.specific.SpecificRecordBase imp
     
     /** Sets the value of the 'type' field */
     public org.opencb.biodata.models.variant.avro.VariantAvro.Builder setType(org.opencb.biodata.models.variant.avro.VariantType value) {
-      validate(fields()[7], value);
+      validate(fields()[8], value);
       this.type = value;
-      fieldSetFlags()[7] = true;
+      fieldSetFlags()[8] = true;
       return this; 
     }
     
     /** Checks whether the 'type' field has been set */
     public boolean hasType() {
-      return fieldSetFlags()[7];
+      return fieldSetFlags()[8];
     }
     
     /** Clears the value of the 'type' field */
     public org.opencb.biodata.models.variant.avro.VariantAvro.Builder clearType() {
       type = null;
-      fieldSetFlags()[7] = false;
+      fieldSetFlags()[8] = false;
       return this;
     }
 
@@ -655,21 +709,21 @@ public class VariantAvro extends org.apache.avro.specific.SpecificRecordBase imp
     
     /** Sets the value of the 'hgvs' field */
     public org.opencb.biodata.models.variant.avro.VariantAvro.Builder setHgvs(java.util.Map<java.lang.String,java.util.List<java.lang.String>> value) {
-      validate(fields()[8], value);
+      validate(fields()[9], value);
       this.hgvs = value;
-      fieldSetFlags()[8] = true;
+      fieldSetFlags()[9] = true;
       return this; 
     }
     
     /** Checks whether the 'hgvs' field has been set */
     public boolean hasHgvs() {
-      return fieldSetFlags()[8];
+      return fieldSetFlags()[9];
     }
     
     /** Clears the value of the 'hgvs' field */
     public org.opencb.biodata.models.variant.avro.VariantAvro.Builder clearHgvs() {
       hgvs = null;
-      fieldSetFlags()[8] = false;
+      fieldSetFlags()[9] = false;
       return this;
     }
 
@@ -680,21 +734,21 @@ public class VariantAvro extends org.apache.avro.specific.SpecificRecordBase imp
     
     /** Sets the value of the 'studies' field */
     public org.opencb.biodata.models.variant.avro.VariantAvro.Builder setStudies(java.util.List<org.opencb.biodata.models.variant.avro.VariantSourceEntry> value) {
-      validate(fields()[9], value);
+      validate(fields()[10], value);
       this.studies = value;
-      fieldSetFlags()[9] = true;
+      fieldSetFlags()[10] = true;
       return this; 
     }
     
     /** Checks whether the 'studies' field has been set */
     public boolean hasStudies() {
-      return fieldSetFlags()[9];
+      return fieldSetFlags()[10];
     }
     
     /** Clears the value of the 'studies' field */
     public org.opencb.biodata.models.variant.avro.VariantAvro.Builder clearStudies() {
       studies = null;
-      fieldSetFlags()[9] = false;
+      fieldSetFlags()[10] = false;
       return this;
     }
 
@@ -705,21 +759,21 @@ public class VariantAvro extends org.apache.avro.specific.SpecificRecordBase imp
     
     /** Sets the value of the 'annotation' field */
     public org.opencb.biodata.models.variant.avro.VariantAvro.Builder setAnnotation(org.opencb.biodata.models.variant.avro.VariantAnnotation value) {
-      validate(fields()[10], value);
+      validate(fields()[11], value);
       this.annotation = value;
-      fieldSetFlags()[10] = true;
+      fieldSetFlags()[11] = true;
       return this; 
     }
     
     /** Checks whether the 'annotation' field has been set */
     public boolean hasAnnotation() {
-      return fieldSetFlags()[10];
+      return fieldSetFlags()[11];
     }
     
     /** Clears the value of the 'annotation' field */
     public org.opencb.biodata.models.variant.avro.VariantAvro.Builder clearAnnotation() {
       annotation = null;
-      fieldSetFlags()[10] = false;
+      fieldSetFlags()[11] = false;
       return this;
     }
 
@@ -732,12 +786,13 @@ public class VariantAvro extends org.apache.avro.specific.SpecificRecordBase imp
         record.end = fieldSetFlags()[2] ? this.end : (java.lang.Integer) defaultValue(fields()[2]);
         record.reference = fieldSetFlags()[3] ? this.reference : (java.lang.String) defaultValue(fields()[3]);
         record.alternate = fieldSetFlags()[4] ? this.alternate : (java.lang.String) defaultValue(fields()[4]);
-        record.ids = fieldSetFlags()[5] ? this.ids : (java.util.List<java.lang.String>) defaultValue(fields()[5]);
-        record.length = fieldSetFlags()[6] ? this.length : (java.lang.Integer) defaultValue(fields()[6]);
-        record.type = fieldSetFlags()[7] ? this.type : (org.opencb.biodata.models.variant.avro.VariantType) defaultValue(fields()[7]);
-        record.hgvs = fieldSetFlags()[8] ? this.hgvs : (java.util.Map<java.lang.String,java.util.List<java.lang.String>>) defaultValue(fields()[8]);
-        record.studies = fieldSetFlags()[9] ? this.studies : (java.util.List<org.opencb.biodata.models.variant.avro.VariantSourceEntry>) defaultValue(fields()[9]);
-        record.annotation = fieldSetFlags()[10] ? this.annotation : (org.opencb.biodata.models.variant.avro.VariantAnnotation) defaultValue(fields()[10]);
+        record.strand = fieldSetFlags()[5] ? this.strand : (java.lang.String) defaultValue(fields()[5]);
+        record.ids = fieldSetFlags()[6] ? this.ids : (java.util.List<java.lang.String>) defaultValue(fields()[6]);
+        record.length = fieldSetFlags()[7] ? this.length : (java.lang.Integer) defaultValue(fields()[7]);
+        record.type = fieldSetFlags()[8] ? this.type : (org.opencb.biodata.models.variant.avro.VariantType) defaultValue(fields()[8]);
+        record.hgvs = fieldSetFlags()[9] ? this.hgvs : (java.util.Map<java.lang.String,java.util.List<java.lang.String>>) defaultValue(fields()[9]);
+        record.studies = fieldSetFlags()[10] ? this.studies : (java.util.List<org.opencb.biodata.models.variant.avro.VariantSourceEntry>) defaultValue(fields()[10]);
+        record.annotation = fieldSetFlags()[11] ? this.annotation : (org.opencb.biodata.models.variant.avro.VariantAnnotation) defaultValue(fields()[11]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);

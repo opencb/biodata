@@ -145,6 +145,11 @@ protocol Variants {
         string alternate;
 
         /**
+         * Reference strand for this variant
+         */
+        string strand;
+
+        /**
          * Set of identifiers used for this genomic variation.
          */
         array<string> ids = [];
