@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.opencb.biodata.models.variant.converter;
+package org.opencb.biodata.tools.variant.converter;
 
 import org.junit.Rule;
 import org.junit.Test;

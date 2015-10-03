@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opencb.biodata.models.variant.converter;
+package org.opencb.biodata.tools.variant.converter;
 
 /**
  * @author Matthias Haimel mh719+git@cam.ac.uk

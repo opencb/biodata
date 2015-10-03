@@ -1,4 +1,4 @@
-package org.opencb.biodata.models.variant.converter;
+package org.opencb.biodata.tools.variant.converter;
 
 import htsjdk.variant.vcf.VCFConstants;
 import org.junit.After;
