@@ -16,7 +16,7 @@
 
 package org.opencb.biodata.models.alignment.stats;
 
-import org.opencb.biodata.models.feature.Region;
+import org.opencb.biodata.models.core.Region;
 
 /**
  * Created with IntelliJ IDEA.

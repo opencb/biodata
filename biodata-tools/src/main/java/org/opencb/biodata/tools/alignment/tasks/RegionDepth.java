@@ -1,6 +1,6 @@
 package org.opencb.biodata.tools.alignment.tasks;
 
-import org.opencb.biodata.models.feature.Region;
+import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.tools.alignment.filtering.RegionFilter;
 
 import java.util.List;

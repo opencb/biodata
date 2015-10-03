@@ -19,7 +19,7 @@ package org.opencb.biodata.tools.variant.filtering;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.opencb.biodata.models.feature.Region;
+import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.models.variant.Variant;
 
 /**
