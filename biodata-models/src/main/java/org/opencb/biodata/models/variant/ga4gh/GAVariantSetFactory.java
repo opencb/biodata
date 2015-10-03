@@ -16,13 +16,14 @@
 
 package org.opencb.biodata.models.variant.ga4gh;
 
+import org.ga4gh.models.VariantSet;
+import org.ga4gh.models.VariantSetMetadata;
+import org.opencb.biodata.models.variant.VariantSource;
+
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import org.opencb.biodata.ga4gh.GAVariantSet;
-import org.opencb.biodata.ga4gh.GAVariantSetMetadata;
-import org.opencb.biodata.models.variant.VariantSource;
 
 /**
  *
@@ -30,43 +31,43 @@ import org.opencb.biodata.models.variant.VariantSource;
  */
 public class GAVariantSetFactory {
     
-    public static List<GAVariantSet> create(List<VariantSource> variantSources) {
-        Set<GAVariantSet> gaVariantSets = new LinkedHashSet<>();
-        
+    public static List<VariantSet> create(List<VariantSource> variantSources) {
+        Set<VariantSet> gaVariantSets = new LinkedHashSet<>();
+
         for (VariantSource source : variantSources) {
             // TODO This header should be already split
-            List<GAVariantSetMetadata> setMetadata = new ArrayList<>();
+            List<VariantSetMetadata> setMetadata = new ArrayList<>();
             String header = source.getMetadata().get("header").toString();
-            
+
             for (String line : header.split("\n")) {
                 if (line.startsWith("#CHROM")) {
                     continue;
                 }
-                
-                GAVariantSetMetadata metadata = getMetadataLine(line);
+
+                VariantSetMetadata metadata = getMetadataLine(line);
                 setMetadata.add(metadata);
             }
-            
-            GAVariantSet variantSet = new GAVariantSet(source.getFileId(), source.getStudyId(), setMetadata);
+
+            VariantSet variantSet = new VariantSet(source.getFileId(), source.getStudyId(), "", setMetadata);
             gaVariantSets.add(variantSet);
         }
-        
+
         return new ArrayList<>(gaVariantSets);
     }
-    
-    private static GAVariantSetMetadata getMetadataLine(String line) {
-        GAVariantSetMetadata metadata = new GAVariantSetMetadata();
+
+    private static VariantSetMetadata getMetadataLine(String line) {
+        VariantSetMetadata metadata = new VariantSetMetadata();
         // Split by square brackets that are NOT between quotes
         String[] split = line.split("(<|>)(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
-        
+
         if (split.length > 1) { // Header entries like INFO or FORMAT
             // Remove leading ## and trailing equals symbol
             metadata.setKey(split[0].substring(2, split[0].length()-1));
             metadata.setValue(split[1]);
-            
+
             // Split by commas that are NOT between quotes
             String[] valueSplit = split[1].split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
-            
+
             for (String pair : valueSplit) { // Key-value pairs
                 String[] pairSplit = pair.split("=", 2);
                 switch (pairSplit[0]) {
@@ -83,7 +84,7 @@ public class GAVariantSetFactory {
                         metadata.setDescription(pairSplit[1]);
                         break;
                     default:
-                        metadata.addInfo(pairSplit[0], pairSplit[1]);
+//                        metadata.addInfo(pairSplit[0], pairSplit[1]);
                 }
             }
         } else {
@@ -96,7 +97,7 @@ public class GAVariantSetFactory {
                 metadata.setValue(split[1]);
             }
         }
-        
+
         return metadata;
     }
 }

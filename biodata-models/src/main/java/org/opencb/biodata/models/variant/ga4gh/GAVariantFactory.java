@@ -16,17 +16,11 @@
 
 package org.opencb.biodata.models.variant.ga4gh;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import org.opencb.biodata.ga4gh.GACall;
-import org.opencb.biodata.ga4gh.GAVariant;
+import org.ga4gh.models.Call;
+import org.ga4gh.models.Variant;
 import org.opencb.biodata.models.variant.VariantSourceEntry;
-import org.opencb.biodata.models.variant.Variant;
+
+import java.util.*;
 
 /**
  *
@@ -40,58 +34,58 @@ public class GAVariantFactory {
      * @param variants List of variants to transform
      * @return GA4GH variants representing the same data as the internal API ones
      */
-    public static List<GAVariant> create(List<Variant> variants){//, Map<String, List<String>> samplesPerSource) {
-        Set<GAVariant> gaVariants = new LinkedHashSet<>();
+    public static List<Variant> create(List<org.opencb.biodata.models.variant.Variant> variants){//, Map<String, List<String>> samplesPerSource) {
+        Set<Variant> gaVariants = new LinkedHashSet<>();
 
-        for (Variant variant : variants) {
+        for (org.opencb.biodata.models.variant.Variant variant : variants) {
             String id = String.format("%s_%d_%s_%s", variant.getChromosome(), variant.getStart(), variant.getReference(), variant.getAlternate());
 
             List<String> variantIds = variant.getIds();
             String[] names = variantIds.toArray(new String[variantIds.size()]);
-            
+
             for (VariantSourceEntry file : variant.getSourceEntries().values()) {
                 String[] alternates = new String[file.getSecondaryAlternates().size() + 1];
                 alternates[0] = variant.getAlternate();
                 System.arraycopy(file.getSecondaryAlternates(), 0, alternates, 1, file.getSecondaryAlternates().size());
-                
-                GAVariant ga;
+
+                Variant ga = null;
                 if (file.getSamplesDataAsMap().isEmpty()) {
                     // No genotypes, simplest case
-                    ga = new GAVariant(id, file.getFileId(), names, System.currentTimeMillis(), System.currentTimeMillis(), 
-                            variant.getChromosome(), variant.getStart(), variant.getEnd(), variant.getReference(), alternates, 
-                            parseInfo(file.getAttributes()), null);
+//                    ga = new Variant(id, file.getFileId(), names, System.currentTimeMillis(), System.currentTimeMillis(),
+//                            variant.getChromosome(), variant.getStart(), variant.getEnd(), variant.getReference(), alternates,
+//                            parseInfo(file.getAttributes()), null);
                 } else {
-                    ga = new GAVariant(id, file.getFileId(), names, System.currentTimeMillis(), System.currentTimeMillis(), 
-                            variant.getChromosome(), variant.getStart(), variant.getEnd(), variant.getReference(), alternates, 
-                            parseInfo(file.getAttributes()), parseCalls(file.getSamplesDataAsMap()));
+//                    ga = new Variant(id, file.getFileId(), names, System.currentTimeMillis(), System.currentTimeMillis(),
+//                            variant.getChromosome(), variant.getStart(), variant.getEnd(), variant.getReference(), alternates,
+//                            parseInfo(file.getAttributes()), parseCalls(file.getSamplesDataAsMap()));
                 }
-                
+
                 gaVariants.add(ga);
             }
         }
 
-        
+
         return new ArrayList<>(gaVariants);
     }
 
     private static Map<String, List> parseInfo(Map<String, String> attributes) {
         Map<String, List> kvs = new HashMap<>();
-        
+
         for (Map.Entry<String, String> field : attributes.entrySet()) {
             List<String> value = new ArrayList<>();
             value.add(field.getValue());
             kvs.put(field.getKey(), value);
         }
-        
+
         return kvs;
     }
-    
-    private static GACall[] parseCalls(Map<String, Map<String, String>> samples) {
-        List<GACall> calls = new LinkedList<>();
-        
+
+    private static Call[] parseCalls(Map<String, Map<String, String>> samples) {
+        List<Call> calls = new LinkedList<>();
+
         for (Map.Entry<String, Map<String, String>> sample : samples.entrySet()) {
             Map<String, String> attrs = sample.getValue();
-            
+
             // Transform genotype with form like 0|0 to the GA4GH style
             String gtField = attrs.get("GT");
             String[] alleles = gtField.split("/|\\|", -1);
@@ -99,15 +93,15 @@ public class GAVariantFactory {
             for (int i = 0; i < alleles.length; i++) {
                 genotype[i] = (alleles[i].equals(".")) ? -1 : Integer.parseInt(alleles[i]);
             }
-            
+
             // Check whether it is phased depending on the allele separator
             String phaseSet = gtField.contains("|") ? "phased" : "unphased";
-            
+
             // Create the call object
-            calls.add(new GACall(sample.getKey(), sample.getKey(), genotype, phaseSet, null, null));
+//            calls.add(new Call(sample.getKey(), sample.getKey(), genotype, phaseSet, null, null));
         }
-        
-        return calls.toArray(new GACall[calls.size()]);
+
+        return calls.toArray(new Call[calls.size()]);
     }
-    
+
 }

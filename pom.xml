@@ -117,6 +117,11 @@
                 <artifactId>commons-lib</artifactId>
                 <version>${commons.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.opencb.ga4gh</groupId>
+                <artifactId>ga4gh</artifactId>
+                <version>0.5.1</version>
+            </dependency>
 
             <dependency>
                 <groupId>com.github.samtools</groupId>
