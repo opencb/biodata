@@ -182,6 +182,14 @@ public class Variant {
         return impl.getAlternate();
     }
 
+    public String getStrand() {
+        return impl.getStrand();
+    }
+
+    public void setStrand(String strand) {
+        impl.setStrand(strand);
+    }
+
     public List<String> getIds() {
         return impl.getIds();
     }

@@ -147,7 +147,7 @@ protocol Variants {
         /**
          * Reference strand for this variant
          */
-        string strand;
+        union { null, string } strand;
 
         /**
          * Set of identifiers used for this genomic variation.

@@ -34,8 +34,8 @@ protocol VariantAnnotations {
 
     record VariantTraitAssociation {
         union { null, array<ClinVar> } clinvar;
-        union { null, array<Gwas> } cosmic;
-        union { null, array<Cosmic> } hwas;
+        union { null, array<Gwas> } gwas;
+        union { null, array<Cosmic> } cosmic;
     }
 
     record GeneDrugInteraction {
@@ -126,7 +126,7 @@ protocol VariantAnnotations {
         string reference;
         string alternate;
         union { null, string } id;
-        union { null, array<Xref> } xrefs = [];
+        union { null, array<Xref> } xrefs;
         union { null, array<string> } hgvs;
         array<ConsequenceType> consequenceTypes = [];
         union { null, array<PopulationFrequency> } populationFrequencies;
