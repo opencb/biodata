@@ -7,11 +7,11 @@ package org.opencb.biodata.models.variant.avro;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class VariantTraitAssociation extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"VariantTraitAssociation\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"clinvar\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"ClinVar\",\"fields\":[{\"name\":\"accession\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"clinicalSignificance\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"traits\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"geneNames\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"reviewStatus\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}}]},{\"name\":\"cosmic\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Gwas\",\"fields\":[{\"name\":\"snpIdCurrent\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"traits\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"riskAlleleFrequency\",\"type\":{\"type\":\"array\",\"items\":\"double\"}},{\"name\":\"reportedGenes\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}}]},{\"name\":\"hwas\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Cosmic\",\"fields\":[{\"name\":\"mutationID\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"primarySite\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"siteSubtype\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"primaryHistology\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"histologySubtype\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"sampleSource\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"tumourOrigin\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"geneName\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"mutationSomaticStatus\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}}]}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"VariantTraitAssociation\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"clinvar\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"ClinVar\",\"fields\":[{\"name\":\"accession\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"clinicalSignificance\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"traits\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"geneNames\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"reviewStatus\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}}]},{\"name\":\"gwas\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Gwas\",\"fields\":[{\"name\":\"snpIdCurrent\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"traits\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"riskAlleleFrequency\",\"type\":{\"type\":\"array\",\"items\":\"double\"}},{\"name\":\"reportedGenes\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}}]},{\"name\":\"cosmic\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Cosmic\",\"fields\":[{\"name\":\"mutationID\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"primarySite\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"siteSubtype\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"primaryHistology\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"histologySubtype\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"sampleSource\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"tumourOrigin\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"geneName\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"mutationSomaticStatus\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}}]}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
    private java.util.List<org.opencb.biodata.models.variant.avro.ClinVar> clinvar;
-   private java.util.List<org.opencb.biodata.models.variant.avro.Gwas> cosmic;
-   private java.util.List<org.opencb.biodata.models.variant.avro.Cosmic> hwas;
+   private java.util.List<org.opencb.biodata.models.variant.avro.Gwas> gwas;
+   private java.util.List<org.opencb.biodata.models.variant.avro.Cosmic> cosmic;
 
   /**
    * Default constructor.  Note that this does not initialize fields
@@ -23,10 +23,10 @@ public class VariantTraitAssociation extends org.apache.avro.specific.SpecificRe
   /**
    * All-args constructor.
    */
-  public VariantTraitAssociation(java.util.List<org.opencb.biodata.models.variant.avro.ClinVar> clinvar, java.util.List<org.opencb.biodata.models.variant.avro.Gwas> cosmic, java.util.List<org.opencb.biodata.models.variant.avro.Cosmic> hwas) {
+  public VariantTraitAssociation(java.util.List<org.opencb.biodata.models.variant.avro.ClinVar> clinvar, java.util.List<org.opencb.biodata.models.variant.avro.Gwas> gwas, java.util.List<org.opencb.biodata.models.variant.avro.Cosmic> cosmic) {
     this.clinvar = clinvar;
+    this.gwas = gwas;
     this.cosmic = cosmic;
-    this.hwas = hwas;
   }
 
   public org.apache.avro.Schema getSchema() { return SCHEMA$; }
@@ -34,8 +34,8 @@ public class VariantTraitAssociation extends org.apache.avro.specific.SpecificRe
   public java.lang.Object get(int field$) {
     switch (field$) {
     case 0: return clinvar;
-    case 1: return cosmic;
-    case 2: return hwas;
+    case 1: return gwas;
+    case 2: return cosmic;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -44,8 +44,8 @@ public class VariantTraitAssociation extends org.apache.avro.specific.SpecificRe
   public void put(int field$, java.lang.Object value$) {
     switch (field$) {
     case 0: clinvar = (java.util.List<org.opencb.biodata.models.variant.avro.ClinVar>)value$; break;
-    case 1: cosmic = (java.util.List<org.opencb.biodata.models.variant.avro.Gwas>)value$; break;
-    case 2: hwas = (java.util.List<org.opencb.biodata.models.variant.avro.Cosmic>)value$; break;
+    case 1: gwas = (java.util.List<org.opencb.biodata.models.variant.avro.Gwas>)value$; break;
+    case 2: cosmic = (java.util.List<org.opencb.biodata.models.variant.avro.Cosmic>)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -66,9 +66,24 @@ public class VariantTraitAssociation extends org.apache.avro.specific.SpecificRe
   }
 
   /**
+   * Gets the value of the 'gwas' field.
+   */
+  public java.util.List<org.opencb.biodata.models.variant.avro.Gwas> getGwas() {
+    return gwas;
+  }
+
+  /**
+   * Sets the value of the 'gwas' field.
+   * @param value the value to set.
+   */
+  public void setGwas(java.util.List<org.opencb.biodata.models.variant.avro.Gwas> value) {
+    this.gwas = value;
+  }
+
+  /**
    * Gets the value of the 'cosmic' field.
    */
-  public java.util.List<org.opencb.biodata.models.variant.avro.Gwas> getCosmic() {
+  public java.util.List<org.opencb.biodata.models.variant.avro.Cosmic> getCosmic() {
     return cosmic;
   }
 
@@ -76,23 +91,8 @@ public class VariantTraitAssociation extends org.apache.avro.specific.SpecificRe
    * Sets the value of the 'cosmic' field.
    * @param value the value to set.
    */
-  public void setCosmic(java.util.List<org.opencb.biodata.models.variant.avro.Gwas> value) {
+  public void setCosmic(java.util.List<org.opencb.biodata.models.variant.avro.Cosmic> value) {
     this.cosmic = value;
-  }
-
-  /**
-   * Gets the value of the 'hwas' field.
-   */
-  public java.util.List<org.opencb.biodata.models.variant.avro.Cosmic> getHwas() {
-    return hwas;
-  }
-
-  /**
-   * Sets the value of the 'hwas' field.
-   * @param value the value to set.
-   */
-  public void setHwas(java.util.List<org.opencb.biodata.models.variant.avro.Cosmic> value) {
-    this.hwas = value;
   }
 
   /** Creates a new VariantTraitAssociation RecordBuilder */
@@ -117,8 +117,8 @@ public class VariantTraitAssociation extends org.apache.avro.specific.SpecificRe
     implements org.apache.avro.data.RecordBuilder<VariantTraitAssociation> {
 
     private java.util.List<org.opencb.biodata.models.variant.avro.ClinVar> clinvar;
-    private java.util.List<org.opencb.biodata.models.variant.avro.Gwas> cosmic;
-    private java.util.List<org.opencb.biodata.models.variant.avro.Cosmic> hwas;
+    private java.util.List<org.opencb.biodata.models.variant.avro.Gwas> gwas;
+    private java.util.List<org.opencb.biodata.models.variant.avro.Cosmic> cosmic;
 
     /** Creates a new Builder */
     private Builder() {
@@ -132,12 +132,12 @@ public class VariantTraitAssociation extends org.apache.avro.specific.SpecificRe
         this.clinvar = data().deepCopy(fields()[0].schema(), other.clinvar);
         fieldSetFlags()[0] = true;
       }
-      if (isValidValue(fields()[1], other.cosmic)) {
-        this.cosmic = data().deepCopy(fields()[1].schema(), other.cosmic);
+      if (isValidValue(fields()[1], other.gwas)) {
+        this.gwas = data().deepCopy(fields()[1].schema(), other.gwas);
         fieldSetFlags()[1] = true;
       }
-      if (isValidValue(fields()[2], other.hwas)) {
-        this.hwas = data().deepCopy(fields()[2].schema(), other.hwas);
+      if (isValidValue(fields()[2], other.cosmic)) {
+        this.cosmic = data().deepCopy(fields()[2].schema(), other.cosmic);
         fieldSetFlags()[2] = true;
       }
     }
@@ -149,12 +149,12 @@ public class VariantTraitAssociation extends org.apache.avro.specific.SpecificRe
         this.clinvar = data().deepCopy(fields()[0].schema(), other.clinvar);
         fieldSetFlags()[0] = true;
       }
-      if (isValidValue(fields()[1], other.cosmic)) {
-        this.cosmic = data().deepCopy(fields()[1].schema(), other.cosmic);
+      if (isValidValue(fields()[1], other.gwas)) {
+        this.gwas = data().deepCopy(fields()[1].schema(), other.gwas);
         fieldSetFlags()[1] = true;
       }
-      if (isValidValue(fields()[2], other.hwas)) {
-        this.hwas = data().deepCopy(fields()[2].schema(), other.hwas);
+      if (isValidValue(fields()[2], other.cosmic)) {
+        this.cosmic = data().deepCopy(fields()[2].schema(), other.cosmic);
         fieldSetFlags()[2] = true;
       }
     }
@@ -184,52 +184,52 @@ public class VariantTraitAssociation extends org.apache.avro.specific.SpecificRe
       return this;
     }
 
+    /** Gets the value of the 'gwas' field */
+    public java.util.List<org.opencb.biodata.models.variant.avro.Gwas> getGwas() {
+      return gwas;
+    }
+    
+    /** Sets the value of the 'gwas' field */
+    public org.opencb.biodata.models.variant.avro.VariantTraitAssociation.Builder setGwas(java.util.List<org.opencb.biodata.models.variant.avro.Gwas> value) {
+      validate(fields()[1], value);
+      this.gwas = value;
+      fieldSetFlags()[1] = true;
+      return this; 
+    }
+    
+    /** Checks whether the 'gwas' field has been set */
+    public boolean hasGwas() {
+      return fieldSetFlags()[1];
+    }
+    
+    /** Clears the value of the 'gwas' field */
+    public org.opencb.biodata.models.variant.avro.VariantTraitAssociation.Builder clearGwas() {
+      gwas = null;
+      fieldSetFlags()[1] = false;
+      return this;
+    }
+
     /** Gets the value of the 'cosmic' field */
-    public java.util.List<org.opencb.biodata.models.variant.avro.Gwas> getCosmic() {
+    public java.util.List<org.opencb.biodata.models.variant.avro.Cosmic> getCosmic() {
       return cosmic;
     }
     
     /** Sets the value of the 'cosmic' field */
-    public org.opencb.biodata.models.variant.avro.VariantTraitAssociation.Builder setCosmic(java.util.List<org.opencb.biodata.models.variant.avro.Gwas> value) {
-      validate(fields()[1], value);
+    public org.opencb.biodata.models.variant.avro.VariantTraitAssociation.Builder setCosmic(java.util.List<org.opencb.biodata.models.variant.avro.Cosmic> value) {
+      validate(fields()[2], value);
       this.cosmic = value;
-      fieldSetFlags()[1] = true;
+      fieldSetFlags()[2] = true;
       return this; 
     }
     
     /** Checks whether the 'cosmic' field has been set */
     public boolean hasCosmic() {
-      return fieldSetFlags()[1];
+      return fieldSetFlags()[2];
     }
     
     /** Clears the value of the 'cosmic' field */
     public org.opencb.biodata.models.variant.avro.VariantTraitAssociation.Builder clearCosmic() {
       cosmic = null;
-      fieldSetFlags()[1] = false;
-      return this;
-    }
-
-    /** Gets the value of the 'hwas' field */
-    public java.util.List<org.opencb.biodata.models.variant.avro.Cosmic> getHwas() {
-      return hwas;
-    }
-    
-    /** Sets the value of the 'hwas' field */
-    public org.opencb.biodata.models.variant.avro.VariantTraitAssociation.Builder setHwas(java.util.List<org.opencb.biodata.models.variant.avro.Cosmic> value) {
-      validate(fields()[2], value);
-      this.hwas = value;
-      fieldSetFlags()[2] = true;
-      return this; 
-    }
-    
-    /** Checks whether the 'hwas' field has been set */
-    public boolean hasHwas() {
-      return fieldSetFlags()[2];
-    }
-    
-    /** Clears the value of the 'hwas' field */
-    public org.opencb.biodata.models.variant.avro.VariantTraitAssociation.Builder clearHwas() {
-      hwas = null;
       fieldSetFlags()[2] = false;
       return this;
     }
@@ -239,8 +239,8 @@ public class VariantTraitAssociation extends org.apache.avro.specific.SpecificRe
       try {
         VariantTraitAssociation record = new VariantTraitAssociation();
         record.clinvar = fieldSetFlags()[0] ? this.clinvar : (java.util.List<org.opencb.biodata.models.variant.avro.ClinVar>) defaultValue(fields()[0]);
-        record.cosmic = fieldSetFlags()[1] ? this.cosmic : (java.util.List<org.opencb.biodata.models.variant.avro.Gwas>) defaultValue(fields()[1]);
-        record.hwas = fieldSetFlags()[2] ? this.hwas : (java.util.List<org.opencb.biodata.models.variant.avro.Cosmic>) defaultValue(fields()[2]);
+        record.gwas = fieldSetFlags()[1] ? this.gwas : (java.util.List<org.opencb.biodata.models.variant.avro.Gwas>) defaultValue(fields()[1]);
+        record.cosmic = fieldSetFlags()[2] ? this.cosmic : (java.util.List<org.opencb.biodata.models.variant.avro.Cosmic>) defaultValue(fields()[2]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);
