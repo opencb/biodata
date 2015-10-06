@@ -49,10 +49,10 @@ public class VariantAvroToVcfRecordTest {
         study.setAttributes(
                 buildMap(
                         "X:x", "A:ab",
-                        VariantAvroToVcfRecord.ATTRIBUTE_SRC + ":src-stuff",
-                        VariantAvroToVcfRecord.ATTRIBUTE_ORI + ":ori-stuff",
-                        VariantAvroToVcfRecord.ATTRIBUTE_QUAL + ":" + qual,
-                        VariantAvroToVcfRecord.ATTRIBUTE_FILTER + ":" + filter));
+                        VariantToProtoVcfRecord.ATTRIBUTE_SRC + ":src-stuff",
+                        VariantToProtoVcfRecord.ATTRIBUTE_ORI + ":ori-stuff",
+                        VariantToProtoVcfRecord.ATTRIBUTE_QUAL + ":" + qual,
+                        VariantToProtoVcfRecord.ATTRIBUTE_FILTER + ":" + filter));
 //        study.setSamplesData(new HashMap<String, Map<String,String>>());
 //        study.getSamplesDataAsMap().put(sampleList.get(0), buildMap("EF:ef","AB:sample_03"));
 //        study.getSamplesDataAsMap().put(sampleList.get(1), buildMap("EF:ef","AB:sample_01","CD:cd"));
@@ -70,7 +70,7 @@ public class VariantAvroToVcfRecordTest {
         mbuild.setStudyId("1").setFileId(file_name);
 
         // Converter
-        VariantAvroToVcfRecord con = new VariantAvroToVcfRecord();
+        VariantToProtoVcfRecord con = new VariantToProtoVcfRecord();
         con.updateVcfMeta(mbuild.build());
         VcfRecord rec = con.convert(v, 100);
 
@@ -110,7 +110,7 @@ public class VariantAvroToVcfRecordTest {
 
     @Test
     public void testGetSlicePosition() {
-        VariantAvroToVcfRecord con = new VariantAvroToVcfRecord();
+        VariantToProtoVcfRecord con = new VariantToProtoVcfRecord();
         assertEquals("Issues with ignoring chunks <= 0", 100, con.getSlicePosition(100, 0));
         assertEquals("Issues with ignoring chunks <= 0", 100, con.getSlicePosition(100, -1));
         assertEquals("Issues with slice conversion", 10, con.getSlicePosition(100, 10));
@@ -121,7 +121,7 @@ public class VariantAvroToVcfRecordTest {
 
     @Test
     public void testGetSliceOffset() {
-        VariantAvroToVcfRecord con = new VariantAvroToVcfRecord();
+        VariantToProtoVcfRecord con = new VariantToProtoVcfRecord();
         assertEquals("Issues with ignoring chunks <= 0", 100, con.getSliceOffset(100, 0));
         assertEquals("Issues with ignoring chunks <= 0", 100, con.getSliceOffset(100, -1));
         assertEquals("Issues with slice conversion", 0, con.getSliceOffset(100, 10));
@@ -133,7 +133,7 @@ public class VariantAvroToVcfRecordTest {
     @Test
     public void testIsDefaultFormat() {
         String format = "AB:CD:EF";
-        VariantAvroToVcfRecord con = new VariantAvroToVcfRecord();
+        VariantToProtoVcfRecord con = new VariantToProtoVcfRecord();
 
         List<String> flist = Arrays.asList("AB","CD","EF");
         List<String> wrongList = new ArrayList<String>(flist);
@@ -149,7 +149,7 @@ public class VariantAvroToVcfRecordTest {
 
     @Test
     public void testDecodeSample() {
-        VariantAvroToVcfRecord con = new VariantAvroToVcfRecord();
+        VariantToProtoVcfRecord con = new VariantToProtoVcfRecord();
         Map<String, String> data = new HashMap<>();
 
         data.put("A", "a");
@@ -174,7 +174,7 @@ public class VariantAvroToVcfRecordTest {
 
     @Test
     public void testGetSamples() {
-        VariantAvroToVcfRecord con = new VariantAvroToVcfRecord();
+        VariantToProtoVcfRecord con = new VariantToProtoVcfRecord();
 
         Iterable<String> slist = Arrays.asList("S1","S2","S5","S3");
         VcfMeta meta = VcfMeta.newBuilder().addAllSamples(slist ).build();

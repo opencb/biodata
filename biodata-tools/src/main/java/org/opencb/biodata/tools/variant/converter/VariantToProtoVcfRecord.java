@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 /**
  * @author Matthias Haimel mh719+git@cam.ac.uk
  */
-public class VariantAvroToVcfRecord implements Converter<Variant, VcfRecord> {
+public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
 
     //	private static final char STRING_JOIN_SEP = '~';
     public static final String ATTRIBUTE_SRC = "src";
@@ -57,7 +57,7 @@ public class VariantAvroToVcfRecord implements Converter<Variant, VcfRecord> {
     /**
      *
      */
-    public VariantAvroToVcfRecord() {
+    public VariantToProtoVcfRecord() {
         // to nothing
     }
 
