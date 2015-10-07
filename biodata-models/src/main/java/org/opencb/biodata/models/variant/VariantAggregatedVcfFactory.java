@@ -44,7 +44,7 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
 
     @Override
     protected void parseSplitSampleData(VariantSourceEntry variant, VariantSource source, String[] fields,
-                                        String[] alternateAlleles, VariantNormalizer.VariantKeyFields variantKeyFields)
+                                        String reference, String[] alternateAlleles, VariantNormalizer.VariantKeyFields variantKeyFields)
             throws NonStandardCompliantSampleField {
         // Nothing to do
         variant.setSamplesPosition(Collections.emptyMap());

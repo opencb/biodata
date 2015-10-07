@@ -94,7 +94,7 @@ public class VariantVcfFactory implements VariantFactory {
             variant.addSourceEntry(entry);
 
             try {
-                parseSplitSampleData(entry, source, fields, alternateAlleles, keyFields);
+                parseSplitSampleData(entry, source, fields, reference, alternateAlleles, keyFields);
                 // Fill the rest of fields (after samples because INFO depends on them)
                 setOtherFields(variant, source, ids, quality, filter, info, format, keyFields.getNumAllele(), alternateAlleles, line);
                 entry.addAttribute(ORI, fields[1] + ":" + fields[3] + ":" + fields[4] + ":" + keyFields.getNumAllele());
@@ -121,7 +121,7 @@ public class VariantVcfFactory implements VariantFactory {
     }
 
     protected void parseSplitSampleData(VariantSourceEntry entry, VariantSource source, String[] fields,
-                                        String[] alternateAlleles, VariantKeyFields variantKeyFields) throws NonStandardCompliantSampleField {
+                                        String reference, String[] alternateAlleles, VariantKeyFields variantKeyFields) throws NonStandardCompliantSampleField {
 //        List<String> formatFields = variant.getSourceEntry(source.getFileId(), source.getStudyId()).getFormat();
 
         if (fields.length < 9) {
@@ -136,7 +136,7 @@ public class VariantVcfFactory implements VariantFactory {
             samplesData.set(i - 9, Arrays.asList(fields[i].split(":")));
         }
 
-        samplesData = variantNormalizer.normalizeSamplesData(variantKeyFields, samplesData, formatFields, Arrays.asList(alternateAlleles), null);
+        samplesData = variantNormalizer.normalizeSamplesData(variantKeyFields, samplesData, formatFields, reference, Arrays.asList(alternateAlleles), null);
 
         // Add samples data to the variant entry in the source file
         entry.setSamplesData(samplesData);

@@ -33,19 +33,23 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         List<Variant> normalizedVariants = new ArrayList<>(batch.size());
 
         for (Variant variant : batch) {
+            String reference = variant.getReference();  //Save original values, as they can be changed
+            String alternate = variant.getAlternate();
+            Integer start = variant.getStart();
+
             if (variant.getStudies().isEmpty()) {
-                VariantKeyFields keyFields = normalize(variant.getStart(), variant.getReference(), variant.getAlternate());
+                VariantKeyFields keyFields = normalize(start, reference, alternate);
                 Variant normalizedVariant = newVariant(variant, keyFields);
                 normalizedVariants.add(normalizedVariant);
             } else {
                 for (VariantSourceEntry entry : variant.getStudies()) {
                     List<String> alternates = new ArrayList<>(1 + entry.getSecondaryAlternates().size());
-                    alternates.add(variant.getAlternate());
+                    alternates.add(alternate);
                     alternates.addAll(entry.getSecondaryAlternates());
 
-                    List<VariantKeyFields> keyFieldsList = normalize(variant.getStart(), variant.getReference(), alternates);
+                    List<VariantKeyFields> keyFieldsList = normalize(start, reference, alternates);
                     for (VariantKeyFields keyFields : keyFieldsList) {
-                        String call = variant.getStart() + ":" + variant.getReference() + ":" + alternates.stream().collect(Collectors.joining(",")) + ":" + keyFields.getNumAllele();
+                        String call = start + ":" + reference + ":" + alternates.stream().collect(Collectors.joining(",")) + ":" + keyFields.getNumAllele();
 
                         final Variant normalizedVariant;
                         final VariantSourceEntry normalizedEntry;
@@ -80,7 +84,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                         //Set normalized secondary alternates
                         normalizedEntry.setSecondaryAlternates(getSecondaryAlternates(keyFields.getAlternate(), alternates));
                         //Set normalized samples data
-                        normalizedEntry.setSamplesData(normalizeSamplesData(keyFields, entry.getSamplesData(), entry.getFormat(), alternates, samplesData));
+                        normalizedEntry.setSamplesData(normalizeSamplesData(keyFields, entry.getSamplesData(), entry.getFormat(), reference, alternates, samplesData));
 
                         normalizedVariants.add(normalizedVariant);
                     }
@@ -213,12 +217,12 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
     }
 
     public List<List<String>> normalizeSamplesData(VariantKeyFields variantKeyFields, final List<List<String>> samplesData, List<String> format,
-                                                   List<String> alternateAlleles) throws NonStandardCompliantSampleField {
-        return normalizeSamplesData(variantKeyFields, samplesData, format, alternateAlleles, null);
+                                                   String reference, List<String> alternateAlleles) throws NonStandardCompliantSampleField {
+        return normalizeSamplesData(variantKeyFields, samplesData, format, reference, alternateAlleles, null);
     }
 
     public List<List<String>> normalizeSamplesData(VariantKeyFields variantKeyFields, final List<List<String>> samplesData, List<String> format,
-                                                   List<String> alternateAlleles, List<List<String>> reuseSampleData)
+                                                   String reference, List<String> alternateAlleles, List<List<String>> reuseSampleData)
             throws NonStandardCompliantSampleField {
 
         List<List<String>> newSampleData;
@@ -253,8 +257,8 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
                 if (formatField.equalsIgnoreCase("GT")) {
                     // Save alleles just in case they are necessary for GL/PL/GP transformation
-                    // Use the original alternate (the first one) to create the genotype.
-                    genotype = new Genotype(sampleField, variantKeyFields.getReference(), alternateAlleles.get(0));
+                    // Use the original alternates to create the genotype.
+                    genotype = new Genotype(sampleField, variantKeyFields.getReference(), alternateAlleles);
 
                     StringBuilder genotypeStr = new StringBuilder();
 

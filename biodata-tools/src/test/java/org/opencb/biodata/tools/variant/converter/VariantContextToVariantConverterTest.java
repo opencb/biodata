@@ -64,6 +64,9 @@ public class VariantContextToVariantConverterTest {
         File folder = Paths.get("/tmp").toFile();
         Path inputPath = Paths.get(getClass().getResource("/CEU-1409-01_5000.vcf.gz").toURI());
         Path outputPath = folder.toPath().resolve("CEU-1409-01_5000.vcf.gz.avro");
+        if (outputPath.toFile().exists()) {
+            outputPath.toFile().delete();
+        }
 
         //Reader
         VCFFileReader reader = new VCFFileReader(inputPath.toFile(), false);
