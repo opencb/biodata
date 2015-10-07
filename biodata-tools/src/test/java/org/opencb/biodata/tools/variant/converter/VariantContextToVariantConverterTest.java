@@ -16,17 +16,14 @@
 
 package org.opencb.biodata.tools.variant.converter;
 
-import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.variant.variantcontext.LazyGenotypesContext;
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFFileReader;
-import org.apache.avro.file.CodecFactory;
 import org.apache.avro.file.DataFileReader;
 import org.apache.avro.file.DataFileWriter;
 import org.apache.avro.io.DatumWriter;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.avro.specific.SpecificDatumWriter;
-import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -44,6 +41,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * Created by imedina on 27/09/15.
  */
@@ -57,21 +56,15 @@ public class VariantContextToVariantConverterTest {
         Path inputPath = Paths.get(getClass().getResource("/CEU-1409-01_5000.vcf.gz").toURI());
         File folder = temporaryFolder.newFolder();
         Path outPath = Paths.get(folder.getPath()).resolve("CEU-1409-01_5000.vcf.gz.avro");
-        writeFile(inputPath, outPath);
+        writeFile(inputPath, outPath, false);
     }
 
-    private long writeFile(Path inputPath, Path outPath) throws IOException {
-        // Write file
-        VariantContextToVariantConverter variantContextToVariantConverter = new VariantContextToVariantConverter("", "CEU-1409-01_5000.vcf.gz");
-        variantContextToVariantConverter.setCodec(CodecFactory.nullCodec()); // Avoid codec issues
-        return variantContextToVariantConverter.readVCFFile(inputPath, outPath);
-    }
 
     private long readFile(Path outPath) throws IOException {
         // And read file again
-        SpecificDatumReader<VariantAvro> reader = new SpecificDatumReader<VariantAvro>(VariantAvro.class);
+        SpecificDatumReader<VariantAvro> reader = new SpecificDatumReader<>(VariantAvro.class);
         long cnt = 0;
-        try(DataFileReader<VariantAvro> in = new DataFileReader<VariantAvro>(outPath.toFile(), reader);){
+        try(DataFileReader<VariantAvro> in = new DataFileReader<>(outPath.toFile(), reader);){
             for(VariantAvro v : in){
                 Variant var = new Variant(v);
                 cnt += 1;
@@ -87,17 +80,26 @@ public class VariantContextToVariantConverterTest {
         File folder = temporaryFolder.newFolder();
         Path outPath = Paths.get(folder.getPath()).resolve("CEU-1409-01_5000.vcf.gz.avro");
 
-        long cnt = writeFile(inputPath, outPath);
+        long cnt = writeFile(inputPath, outPath, false);
         long readCnt = readFile(outPath);
-        Assert.assertEquals(cnt, readCnt);
+        assertEquals(4929, readCnt);
+        assertEquals(cnt, readCnt);
     }
 
     @Test
     public void testReadAndNormalizeVCFFile() throws Exception {
-//        File folder = temporaryFolder.newFolder();
-        File folder = Paths.get("/tmp").toFile();
         Path inputPath = Paths.get(getClass().getResource("/CEU-1409-01_5000.vcf.gz").toURI());
+
+        File folder = Paths.get("/tmp").toFile();
         Path outputPath = folder.toPath().resolve("CEU-1409-01_5000.vcf.gz.avro");
+
+        long count = writeFile(inputPath, outputPath, true);
+        assertEquals(4931, count);
+        assertEquals(4931, readFile(outputPath));
+    }
+
+    private long writeFile(Path inputPath, Path outputPath, boolean normalize) throws Exception {
+//        File folder = temporaryFolder.newFolder();
         if (outputPath.toFile().exists()) {
             outputPath.toFile().delete();
         }
@@ -116,6 +118,7 @@ public class VariantContextToVariantConverterTest {
         DataFileWriter<VariantAvro> writer = new DataFileWriter<>(vcfDatumWriter);
         writer.create(VariantAvro.getClassSchema(), outputStream);
 
+        final int[] writenVariants = {0};
 
         ParallelTaskRunner<VariantContext, Variant> ptr = new ParallelTaskRunner<>(
                 batchSize -> {
@@ -129,12 +132,11 @@ public class VariantContextToVariantConverterTest {
                     }
                     return batch;
                 },
-                batch -> {
-                    return normalizer.apply(converter.apply(batch));
-                },
+                normalize ? batch -> normalizer.apply(converter.apply(batch)) : batch -> converter.apply(batch),
                 batch -> {
                     try {
                         for (Variant variant : batch) {
+                            writenVariants[0]++;
                             writer.append(variant.getImpl());
                         }
                     } catch (IOException e) {
@@ -150,5 +152,6 @@ public class VariantContextToVariantConverterTest {
         reader.close();
         writer.close();
 
+        return writenVariants[0];
     }
 }
