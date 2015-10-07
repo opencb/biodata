@@ -20,9 +20,13 @@ import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.variant.variantcontext.LazyGenotypesContext;
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFFileReader;
+import org.apache.avro.file.CodecFactory;
+import org.apache.avro.file.DataFileReader;
 import org.apache.avro.file.DataFileWriter;
 import org.apache.avro.io.DatumWriter;
+import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.avro.specific.SpecificDatumWriter;
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -52,10 +56,40 @@ public class VariantContextToVariantConverterTest {
     public void testReadVCFFile() throws Exception {
         Path inputPath = Paths.get(getClass().getResource("/CEU-1409-01_5000.vcf.gz").toURI());
         File folder = temporaryFolder.newFolder();
+        Path outPath = Paths.get(folder.getPath()).resolve("CEU-1409-01_5000.vcf.gz.avro");
+        writeFile(inputPath, outPath);
+    }
 
+    private long writeFile(Path inputPath, Path outPath) throws IOException {
+        // Write file
         VariantContextToVariantConverter variantContextToVariantConverter = new VariantContextToVariantConverter("", "CEU-1409-01_5000.vcf.gz");
-        variantContextToVariantConverter.readVCFFile(inputPath, Paths.get("/tmp/").resolve("CEU-1409-01_5000.vcf.gz.avro"));
-        System.out.println(folder.getPath());
+        variantContextToVariantConverter.setCodec(CodecFactory.nullCodec()); // Avoid codec issues
+        return variantContextToVariantConverter.readVCFFile(inputPath, outPath);
+    }
+
+    private long readFile(Path outPath) throws IOException {
+        // And read file again
+        SpecificDatumReader<VariantAvro> reader = new SpecificDatumReader<VariantAvro>(VariantAvro.class);
+        long cnt = 0;
+        try(DataFileReader<VariantAvro> in = new DataFileReader<VariantAvro>(outPath.toFile(), reader);){
+            for(VariantAvro v : in){
+                Variant var = new Variant(v);
+                cnt += 1;
+                List<String> ids = var.getIds();
+            }
+        };
+        return cnt;
+    }
+
+    @Test
+    public void testRoundTrip() throws Exception {
+        Path inputPath = Paths.get(getClass().getResource("/CEU-1409-01_5000.vcf.gz").toURI());
+        File folder = temporaryFolder.newFolder();
+        Path outPath = Paths.get(folder.getPath()).resolve("CEU-1409-01_5000.vcf.gz.avro");
+
+        long cnt = writeFile(inputPath, outPath);
+        long readCnt = readFile(outPath);
+        Assert.assertEquals(cnt, readCnt);
     }
 
     @Test

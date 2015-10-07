@@ -20,6 +20,25 @@ import htsjdk.variant.variantcontext.Allele;
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFConstants;
 import htsjdk.variant.vcf.VCFFileReader;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
+
 import org.apache.avro.file.CodecFactory;
 import org.apache.avro.file.DataFileReader;
 import org.apache.avro.file.DataFileWriter;
@@ -30,17 +49,23 @@ import org.apache.avro.specific.SpecificDatumWriter;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantSourceEntry;
-import org.opencb.biodata.models.variant.stats.VariantStats;
+import org.opencb.biodata.models.variant.avro.ConsequenceType;
+import org.opencb.biodata.models.variant.avro.FileEntry;
+import org.opencb.biodata.models.variant.avro.GeneDrugInteraction;
+import org.opencb.biodata.models.variant.avro.PopulationFrequency;
+import org.opencb.biodata.models.variant.avro.ProteinVariantAnnotation;
+import org.opencb.biodata.models.variant.avro.Score;
+import org.opencb.biodata.models.variant.avro.SequenceOntologyTerm;
+import org.opencb.biodata.models.variant.avro.VariantAnnotation;
+import org.opencb.biodata.models.variant.avro.VariantAvro;
+import org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats;
+import org.opencb.biodata.models.variant.avro.VariantTraitAssociation;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.avro.*;
 import org.opencb.commons.run.ParallelTaskRunner;
+import org.opencb.biodata.models.variant.avro.Xref;
+import org.opencb.biodata.models.variant.stats.VariantStats;
 import org.opencb.commons.utils.FileUtils;
-
-import java.io.*;
-import java.nio.file.Path;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 
 /**
@@ -51,6 +76,8 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
 
     private final String studyId;
     private final String fileId;
+    @Deprecated
+    private CodecFactory compression_codec = CodecFactory.snappyCodec();
 
     public VariantContextToVariantConverter(){
         this("", "");
@@ -468,7 +495,7 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
      * java.lang.String)
      */
     @Deprecated
-    public void readVCFFile(Path vcfFilePath, Path outputAvroFilePath) throws IOException {
+    public long readVCFFile(Path vcfFilePath, Path outputAvroFilePath) throws IOException {
         FileUtils.checkFile(vcfFilePath);
         FileUtils.checkDirectory(outputAvroFilePath.getParent(), true);
 
@@ -485,6 +512,7 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
          * method writeHtsjdkDataIntoAvro to write VCF data into AVRO format
          */
         writeHtsjdkDataIntoAvro(variantList, outputAvroFilePath.toAbsolutePath().toString());
+        return (long) variantList.size();
     }
 
     /**
@@ -505,7 +533,7 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         DataFileWriter<VariantAvro> vcfdataFileWriter = new DataFileWriter<>(vcfDatumWriter);
 
         Variant variant =  new Variant();
-        vcfdataFileWriter.setCodec(CodecFactory.snappyCodec());
+        vcfdataFileWriter.setCodec(compression_codec);
         vcfdataFileWriter.create(variant.getImpl().getSchema(), outputStream);
 
         for (Variant variantAvro : vcfBean) {
@@ -516,6 +544,11 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         outputStream.close();
     }
 
+    @Deprecated
+    public void setCodec(CodecFactory codec) {
+        this.compression_codec = codec;
+    }
+    
     /**
      * @param variantType
      * @param string
