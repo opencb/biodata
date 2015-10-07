@@ -47,6 +47,7 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
                                         String[] alternateAlleles, VariantNormalizer.VariantKeyFields variantKeyFields)
             throws NonStandardCompliantSampleField {
         // Nothing to do
+        variant.setSamplesPosition(Collections.emptyMap());
     }
 
     @Override

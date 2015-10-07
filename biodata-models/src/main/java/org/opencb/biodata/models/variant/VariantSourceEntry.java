@@ -108,6 +108,10 @@ public class VariantSourceEntry {
     }
 
     public void setSamplesPosition(Map<String, Integer> samplesPosition) {
+        if (samplesPosition == null) {
+            this.samplesPosition = null;
+            return;
+        }
         if (samplesPosition instanceof LinkedHashMap) {
             this.samplesPosition = ((LinkedHashMap) samplesPosition);
         } else {

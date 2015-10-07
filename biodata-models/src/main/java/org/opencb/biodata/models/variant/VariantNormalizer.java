@@ -1,6 +1,5 @@
 package org.opencb.biodata.models.variant;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.feature.AllelesCode;
 import org.opencb.biodata.models.feature.Genotype;
@@ -19,51 +18,81 @@ import java.util.stream.Collectors;
 public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Variant> {
 
 
+    private final boolean reuseVariants = true;
+
     @Override
     public List<Variant> apply(List<Variant> batch) {
         try {
-            return normalize(batch);
+            return normalize(batch, reuseVariants);
         } catch (NonStandardCompliantSampleField e) {
             throw new RuntimeException(e);
         }
     }
 
-    public List<Variant> normalize(List<Variant> batch) throws NonStandardCompliantSampleField {
+    public List<Variant> normalize(List<Variant> batch, boolean reuse) throws NonStandardCompliantSampleField {
         List<Variant> normalizedVariants = new ArrayList<>(batch.size());
 
         for (Variant variant : batch) {
-            for (VariantSourceEntry entry : variant.getStudies()) {
-                List<String> alternates = new ArrayList<>(1 + entry.getSecondaryAlternates().size());
-                alternates.add(variant.getAlternate());
-                alternates.addAll(entry.getSecondaryAlternates());
+            if (variant.getStudies().isEmpty()) {
+                VariantKeyFields keyFields = normalize(variant.getStart(), variant.getReference(), variant.getAlternate());
+                Variant normalizedVariant = newVariant(variant, keyFields);
+                normalizedVariants.add(normalizedVariant);
+            } else {
+                for (VariantSourceEntry entry : variant.getStudies()) {
+                    List<String> alternates = new ArrayList<>(1 + entry.getSecondaryAlternates().size());
+                    alternates.add(variant.getAlternate());
+                    alternates.addAll(entry.getSecondaryAlternates());
 
-                List<VariantKeyFields> keyFieldsList = normalize(variant.getStart(), variant.getReference(), alternates);
-                for (VariantKeyFields keyFields : keyFieldsList) {
-                    Variant normalizedVariant = new Variant(variant.getChromosome(), keyFields.getStart(), keyFields.getEnd(), keyFields.getReference(), keyFields.getAlternate());
-                    normalizedVariants.add(normalizedVariant);
+                    List<VariantKeyFields> keyFieldsList = normalize(variant.getStart(), variant.getReference(), alternates);
+                    for (VariantKeyFields keyFields : keyFieldsList) {
+                        String call = variant.getStart() + ":" + variant.getReference() + ":" + alternates.stream().collect(Collectors.joining(",")) + ":" + keyFields.getNumAllele();
 
-                    VariantSourceEntry normalizedEntry = new VariantSourceEntry();
-                    normalizedEntry.setStudyId(entry.getStudyId());
-                    normalizedEntry.setSamplesPosition(entry.getSamplesPosition());
-//                    normalizedEntry.setSecondaryAlternates(); //TODO: Set secondary alternates
-                    normalizedEntry.setFormat(entry.getFormat());
+                        final Variant normalizedVariant;
+                        final VariantSourceEntry normalizedEntry;
+                        final List<List<String>> samplesData;
+                        if (reuse && keyFieldsList.size() == 1) {   //Only reuse for non multiallelic variants
+                            //Reuse variant. Set new fields.
+                            normalizedVariant = variant;
+                            variant.setStart(keyFields.getStart());
+                            variant.setEnd(keyFields.getEnd());
+                            variant.setReference(keyFields.getReference());
+                            variant.setAlternate(keyFields.getAlternate());
+                            normalizedEntry = entry;
+                            entry.getFiles().forEach(fileEntry -> fileEntry.setCall(call)); //TODO: Check file attributes
+                            samplesData = entry.getSamplesData();
+                        } else {
+                            normalizedVariant = newVariant(variant, keyFields);
 
-                    List<FileEntry> files = new ArrayList<>(entry.getFiles().size());
-                    String call = variant.getStart() + ":" + variant.getReference() + ":" + alternates.stream().collect(Collectors.joining(",")) + ":" + keyFields.getNumAllele();
-                    for (FileEntry file : entry.getFiles()) {
-                        files.add(new FileEntry(file.getFileId(), call, file.getAttributes())); //TODO: Check attributes
+                            normalizedEntry = new VariantSourceEntry();
+                            normalizedEntry.setStudyId(entry.getStudyId());
+                            normalizedEntry.setSamplesPosition(entry.getSamplesPosition());
+                            normalizedEntry.setFormat(entry.getFormat());
+
+                            List<FileEntry> files = new ArrayList<>(entry.getFiles().size());
+                            for (FileEntry file : entry.getFiles()) {
+                                files.add(new FileEntry(file.getFileId(), call, file.getAttributes())); //TODO: Check file attributes
+                            }
+                            normalizedEntry.setFiles(files);
+                            normalizedVariant.addSourceEntry(normalizedEntry);
+                            samplesData = newSamplesData(entry.getSamplesData().size(), entry.getFormat().size());
+                        }
+
+                        //Set normalized secondary alternates
+                        normalizedEntry.setSecondaryAlternates(getSecondaryAlternates(keyFields.getAlternate(), alternates));
+                        //Set normalized samples data
+                        normalizedEntry.setSamplesData(normalizeSamplesData(keyFields, entry.getSamplesData(), entry.getFormat(), alternates, samplesData));
+
+                        normalizedVariants.add(normalizedVariant);
                     }
-                    normalizedEntry.setFiles(files);
-
-                    normalizedEntry.setSamplesData(normalizeSamplesData(keyFields, entry.getSamplesData(), entry.getFormat(), alternates));
-
-                    normalizedVariant.addSourceEntry(normalizedEntry);
-                    normalizedVariants.add(normalizedVariant);
                 }
             }
         }
 
         return normalizedVariants;
+    }
+
+    public VariantKeyFields normalize(int position, String reference, String alternate) {
+        return normalize(position, reference, Collections.singletonList(alternate)).get(0);
     }
 
     public List<VariantKeyFields> normalize(int position, String reference, List<String> alternates) {
@@ -90,7 +119,6 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         }
         return list;
     }
-
 
     /**
      * Calculates the start, end, reference and alternate of a SNV/MNV where the
@@ -195,10 +223,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
         List<List<String>> newSampleData;
         if (reuseSampleData == null) {
-            newSampleData = new ArrayList<>(samplesData.size());
-            for (int i = 0; i < samplesData.size(); i++) {
-                newSampleData.add(Arrays.asList(new String[format.size()]));
-            }
+            newSampleData = newSamplesData(samplesData.size(), format.size());
         } else {
             newSampleData = reuseSampleData;
         }
@@ -228,19 +253,25 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
                 if (formatField.equalsIgnoreCase("GT")) {
                     // Save alleles just in case they are necessary for GL/PL/GP transformation
-                    genotype = new Genotype(sampleField, variantKeyFields.getReference(), variantKeyFields.getAlternate());
+                    // Use the original alternate (the first one) to create the genotype.
+                    genotype = new Genotype(sampleField, variantKeyFields.getReference(), alternateAlleles.get(0));
 
                     StringBuilder genotypeStr = new StringBuilder();
-                    for (int allele : genotype.getAllelesIdx()) {
+
+                    int[] allelesIdx = genotype.getAllelesIdx();
+                    for (int i = 0; i < allelesIdx.length; i++) {
+                        int allele = allelesIdx[i];
                         if (allele < 0) { // Missing
                             genotypeStr.append(".");
                         } else {
                             // Replace numerical indexes when they refer to another alternate allele
                             genotypeStr.append(secondaryAlternatesMap[allele]);
                         }
-                        genotypeStr.append(genotype.isPhased() ? "|" : "/");
+                        if (i < allelesIdx.length - 1) {
+                            genotypeStr.append(genotype.isPhased() ? "|" : "/");
+                        }
                     }
-                    sampleField = genotypeStr.substring(0, genotypeStr.length() - 1);
+                    sampleField = genotypeStr.toString();
 
                 } else if (formatField.equalsIgnoreCase("GL")
                         || formatField.equalsIgnoreCase("PL")
@@ -280,6 +311,39 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                 }
                 newSampleData.get(sampleIdx).set(formatFieldIdx, sampleField);
             }
+        }
+        return newSampleData;
+    }
+
+
+    private Variant newVariant(Variant variant, VariantKeyFields keyFields) {
+        Variant normalizedVariant = new Variant(variant.getChromosome(), keyFields.getStart(), keyFields.getEnd(), keyFields.getReference(), keyFields.getAlternate());
+        normalizedVariant.setIds(variant.getIds());
+        normalizedVariant.setStrand(variant.getStrand());
+        normalizedVariant.setAnnotation(variant.getAnnotation());
+        return normalizedVariant;
+    }
+
+    private List<String> getSecondaryAlternates(String alternate, List<String> alternates) {
+        List<String> secondaryAlternates;
+        if (alternates.size() == 1) {
+            secondaryAlternates = Collections.emptyList();
+        } else {
+            secondaryAlternates = new ArrayList<>(alternates.size() - 1);
+            for (String secondaryAlternate : alternates) {
+                if (!secondaryAlternate.equals(alternate)) {
+                    secondaryAlternates.add(secondaryAlternate);
+                }
+            }
+        }
+        return secondaryAlternates;
+    }
+
+    private List<List<String>> newSamplesData(int samplesSize, int formatSize) {
+        List<List<String>> newSampleData;
+        newSampleData = new ArrayList<>(samplesSize);
+        for (int i = 0; i < samplesSize; i++) {
+            newSampleData.add(Arrays.asList(new String[formatSize]));
         }
         return newSampleData;
     }
