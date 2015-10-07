@@ -69,12 +69,7 @@ public class Variant {
 
         this.resetLength();
         this.resetType();
-
-        if (this.getType() == VariantType.SNV) { // Generate HGVS code only for SNVs
-            List<String> hgvsCodes = new LinkedList<>();
-            hgvsCodes.add(chromosome + ":g." + start + reference + ">" + alternate);
-            impl.getHgvs().put("genomic", hgvsCodes);
-        }
+        this.resetHGVS();
 
 //        this.annotation = new VariantAnnotation(this.chromosome, this.start, this.end, this.reference, this.alternate);
         sourceEntries = new HashMap<>();
@@ -103,6 +98,17 @@ public class Variant {
         }
     }
 
+    private void resetLength() {
+        setLength(Math.max(getReference().length(), getAlternate().length()));
+    }
+
+    public void resetHGVS() {
+        if (this.getType() == VariantType.SNV || this.getType() == VariantType.SNP) { // Generate HGVS code only for SNVs
+            List<String> hgvsCodes = new LinkedList<>();
+            hgvsCodes.add(getChromosome() + ":g." + getStart() + getReference() + ">" + getAlternate());
+            impl.getHgvs().put("genomic", hgvsCodes);
+        }
+    }
     public VariantAvro getImpl() {
         return impl;
     }
@@ -143,10 +149,6 @@ public class Variant {
     public void setAlternate(String alternate) {
         impl.setAlternate(alternate);
         resetLength();
-    }
-
-    protected void resetLength() {
-        setLength(Math.max(getReference().length(), getAlternate().length()));
     }
 
     @Deprecated

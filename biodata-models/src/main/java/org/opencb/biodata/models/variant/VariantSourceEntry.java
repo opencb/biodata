@@ -93,10 +93,13 @@ public class VariantSourceEntry {
         this(fileId, studyId, secondaryAlternates, format == null ? null : Arrays.asList(format.split(":")));
     }
 
-    @Deprecated
     public VariantSourceEntry(String fileId, String studyId, String[] secondaryAlternates, List<String> format) {
+        this(fileId, studyId, Arrays.asList(secondaryAlternates), format);
+    }
+
+    public VariantSourceEntry(String fileId, String studyId, List<String> secondaryAlternates, List<String> format) {
         this.impl = new org.opencb.biodata.models.variant.avro.VariantSourceEntry(studyId,
-                new LinkedList<>(), Arrays.asList(secondaryAlternates), format, new LinkedList<>(), new LinkedHashMap<>());
+                new LinkedList<>(), secondaryAlternates, format, new LinkedList<>(), new LinkedHashMap<>());
         setFileId(fileId);
     }
 
@@ -105,6 +108,10 @@ public class VariantSourceEntry {
     }
 
     public void setSamplesPosition(Map<String, Integer> samplesPosition) {
+        if (samplesPosition == null) {
+            this.samplesPosition = null;
+            return;
+        }
         if (samplesPosition instanceof LinkedHashMap) {
             this.samplesPosition = ((LinkedHashMap) samplesPosition);
         } else {
