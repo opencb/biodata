@@ -42,6 +42,10 @@ public class Variant {
         impl = avro;
     }
 
+    public Variant(String chromosome, int position, String reference, String alternate) {
+        this(chromosome, position, position, reference, alternate, "+");
+    }
+
     public Variant(String chromosome, int start, int end, String reference, String alternate) {
         this(chromosome, start, end, reference, alternate, "+");
     }

@@ -18,6 +18,7 @@ package org.opencb.biodata.models.core;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * @author Ignacio Medina
@@ -29,6 +30,8 @@ public class Region {
     private String chromosome;
     private int start;
     private int end;
+
+    private static final Pattern regionPattern = Pattern.compile("[:-]");
 
     public Region() {
         this(null, 0, Integer.MAX_VALUE);
@@ -48,15 +51,17 @@ public class Region {
         if (region != null && !region.isEmpty()) {
             // now we use contains instead of (region.indexOf(':') != -1)
             if (region.contains(":")) {
-                String[] fields = region.split("[:-]", -1);
+                String[] fields = regionPattern.split(region, -1);
                 if (fields.length == 3) {
                     this.chromosome = fields[0];
                     this.start = Integer.parseInt(fields[1]);
                     this.end = Integer.parseInt(fields[2]);
-                } else if (fields.length == 2) {
-                    this.chromosome = fields[0];
-                    this.start = Integer.parseInt(fields[1]);
-                    this.end = Integer.MAX_VALUE;
+                } else {
+                    if (fields.length == 2) {
+                        this.chromosome = fields[0];
+                        this.start = Integer.parseInt(fields[1]);
+                        this.end = Integer.MAX_VALUE;
+                    }
                 }
             } else {
                 this.chromosome = region;
@@ -67,20 +72,7 @@ public class Region {
     }
 
     public static Region parseRegion(String regionString) {
-        Region region = null;
-        if (regionString != null && !regionString.isEmpty()) {
-            if (regionString.contains(":")) {
-                String[] fields = regionString.split("[:-]", -1);
-                if (fields.length == 3) {
-                    region = new Region(fields[0], Integer.parseInt(fields[1]), Integer.parseInt(fields[2]));
-                } else if (fields.length == 2) {
-                    region = new Region(fields[0], Integer.parseInt(fields[1]), Integer.MAX_VALUE);
-                }
-            } else {
-                region = new Region(regionString, 0, Integer.MAX_VALUE);
-            }
-        }
-        return region;
+        return new Region(regionString);
     }
 
     public static List<Region> parseRegions(String regionsString) {
@@ -88,18 +80,8 @@ public class Region {
         if (regionsString != null && !regionsString.isEmpty()) {
             String[] regionItems = regionsString.split(",");
             regions = new ArrayList<>(regionItems.length);
-            String[] fields;
             for (String regionString : regionItems) {
-                if (regionString.contains(":")) {
-                    fields = regionString.split("[:-]", -1);
-                    if (fields.length == 3) {
-                        regions.add(new Region(fields[0], Integer.parseInt(fields[1]), Integer.parseInt(fields[2])));
-                    } else {
-                        regions.add(null);
-                    }
-                } else {
-                    regions.add(new Region(regionString, 0, Integer.MAX_VALUE));
-                }
+                regions.add(new Region(regionString));
             }
         }
         return regions;
