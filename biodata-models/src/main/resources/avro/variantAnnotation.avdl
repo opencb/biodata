@@ -47,6 +47,8 @@ protocol VariantAnnotations {
     }
 
     record Expression {
+        union { null, string } geneName;
+        union { null, string } transcriptId;
         union { null, string } experimentalFactor;
         union { null, string } factorValue;        
         union { null, string } experimentId;
