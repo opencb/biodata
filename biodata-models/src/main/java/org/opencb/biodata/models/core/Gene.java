@@ -16,8 +16,8 @@
 
 package org.opencb.biodata.models.core;
 
-import org.opencb.biodata.models.variant.annotation.GeneDrugInteraction;
-import org.opencb.biodata.models.variant.annotation.ExpressionValue;
+import org.opencb.biodata.models.variant.avro.Expression;
+import org.opencb.biodata.models.variant.avro.GeneDrugInteraction;
 
 import java.io.Serializable;
 import java.util.List;
@@ -41,7 +41,7 @@ public class Gene implements Serializable {
 	private String description;
 	private List<Transcript> transcripts;
 	private MiRNAGene mirna;
-	private List<ExpressionValue> expressionValues;
+	private List<Expression> expressionValues;
 	private List<GeneDrugInteraction> drugInteractions;
 
 	public Gene() {
@@ -50,7 +50,7 @@ public class Gene implements Serializable {
 
 	public Gene(String id, String name, String biotype, String status, String chromosome, Integer start, Integer end,
 				String strand, String source, String description, List<Transcript> transcripts, MiRNAGene mirna,
-				List<ExpressionValue> expressionValueList, List<GeneDrugInteraction> drugInteractionList) {
+				List<Expression> expressionValueList, List<GeneDrugInteraction> drugInteractionList) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -70,7 +70,7 @@ public class Gene implements Serializable {
 
 	public Gene(String id, String name, String biotype, String status, String chromosome, Integer start, Integer end,
 				String strand, String source, String description, List<Transcript> transcripts, MiRNAGene mirna,
-				List<ExpressionValue> expressionValueList) {
+				List<Expression> expressionValueList) {
 		this(id, name, biotype, status, chromosome, start, end, strand, source, description, transcripts, mirna,
 				expressionValueList, null);
 	}
@@ -181,9 +181,9 @@ public class Gene implements Serializable {
 
 	public void setMirna(MiRNAGene mirna) {	this.mirna = mirna; }
 
-	public List<ExpressionValue> getExpressionValues() { return expressionValues; }
+	public List<Expression> getExpressionValues() { return expressionValues; }
 
-	public void setExpressionValues(List<ExpressionValue> expressionValues) { this.expressionValues = expressionValues;	}
+	public void setExpressionValues(List<Expression> expressionValues) { this.expressionValues = expressionValues;	}
 
 	public List<GeneDrugInteraction> getDrugInteractions() { return drugInteractions; }
 

@@ -19,7 +19,7 @@ package org.opencb.biodata.formats.annotation.io;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import org.opencb.biodata.models.variant.annotation.VariantAnnotation;
+import org.opencb.biodata.models.variant.avro.VariantAnnotation;
 import org.opencb.commons.io.DataWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

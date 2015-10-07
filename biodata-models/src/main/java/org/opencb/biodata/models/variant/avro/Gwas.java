@@ -7,11 +7,11 @@ package org.opencb.biodata.models.variant.avro;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class Gwas extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"Gwas\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"snpIdCurrent\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"traits\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"riskAlleleFrequency\",\"type\":{\"type\":\"array\",\"items\":\"double\"}},{\"name\":\"reportedGenes\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"Gwas\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"snpIdCurrent\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"traits\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},{\"name\":\"riskAlleleFrequency\",\"type\":\"double\"},{\"name\":\"reportedGenes\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
    private java.lang.String snpIdCurrent;
    private java.util.List<java.lang.String> traits;
-   private java.util.List<java.lang.Double> riskAlleleFrequency;
+   private double riskAlleleFrequency;
    private java.lang.String reportedGenes;
 
   /**
@@ -24,7 +24,7 @@ public class Gwas extends org.apache.avro.specific.SpecificRecordBase implements
   /**
    * All-args constructor.
    */
-  public Gwas(java.lang.String snpIdCurrent, java.util.List<java.lang.String> traits, java.util.List<java.lang.Double> riskAlleleFrequency, java.lang.String reportedGenes) {
+  public Gwas(java.lang.String snpIdCurrent, java.util.List<java.lang.String> traits, java.lang.Double riskAlleleFrequency, java.lang.String reportedGenes) {
     this.snpIdCurrent = snpIdCurrent;
     this.traits = traits;
     this.riskAlleleFrequency = riskAlleleFrequency;
@@ -48,7 +48,7 @@ public class Gwas extends org.apache.avro.specific.SpecificRecordBase implements
     switch (field$) {
     case 0: snpIdCurrent = (java.lang.String)value$; break;
     case 1: traits = (java.util.List<java.lang.String>)value$; break;
-    case 2: riskAlleleFrequency = (java.util.List<java.lang.Double>)value$; break;
+    case 2: riskAlleleFrequency = (java.lang.Double)value$; break;
     case 3: reportedGenes = (java.lang.String)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
@@ -87,7 +87,7 @@ public class Gwas extends org.apache.avro.specific.SpecificRecordBase implements
   /**
    * Gets the value of the 'riskAlleleFrequency' field.
    */
-  public java.util.List<java.lang.Double> getRiskAlleleFrequency() {
+  public java.lang.Double getRiskAlleleFrequency() {
     return riskAlleleFrequency;
   }
 
@@ -95,7 +95,7 @@ public class Gwas extends org.apache.avro.specific.SpecificRecordBase implements
    * Sets the value of the 'riskAlleleFrequency' field.
    * @param value the value to set.
    */
-  public void setRiskAlleleFrequency(java.util.List<java.lang.Double> value) {
+  public void setRiskAlleleFrequency(java.lang.Double value) {
     this.riskAlleleFrequency = value;
   }
 
@@ -137,7 +137,7 @@ public class Gwas extends org.apache.avro.specific.SpecificRecordBase implements
 
     private java.lang.String snpIdCurrent;
     private java.util.List<java.lang.String> traits;
-    private java.util.List<java.lang.Double> riskAlleleFrequency;
+    private double riskAlleleFrequency;
     private java.lang.String reportedGenes;
 
     /** Creates a new Builder */
@@ -238,12 +238,12 @@ public class Gwas extends org.apache.avro.specific.SpecificRecordBase implements
     }
 
     /** Gets the value of the 'riskAlleleFrequency' field */
-    public java.util.List<java.lang.Double> getRiskAlleleFrequency() {
+    public java.lang.Double getRiskAlleleFrequency() {
       return riskAlleleFrequency;
     }
     
     /** Sets the value of the 'riskAlleleFrequency' field */
-    public org.opencb.biodata.models.variant.avro.Gwas.Builder setRiskAlleleFrequency(java.util.List<java.lang.Double> value) {
+    public org.opencb.biodata.models.variant.avro.Gwas.Builder setRiskAlleleFrequency(double value) {
       validate(fields()[2], value);
       this.riskAlleleFrequency = value;
       fieldSetFlags()[2] = true;
@@ -257,7 +257,6 @@ public class Gwas extends org.apache.avro.specific.SpecificRecordBase implements
     
     /** Clears the value of the 'riskAlleleFrequency' field */
     public org.opencb.biodata.models.variant.avro.Gwas.Builder clearRiskAlleleFrequency() {
-      riskAlleleFrequency = null;
       fieldSetFlags()[2] = false;
       return this;
     }
@@ -293,7 +292,7 @@ public class Gwas extends org.apache.avro.specific.SpecificRecordBase implements
         Gwas record = new Gwas();
         record.snpIdCurrent = fieldSetFlags()[0] ? this.snpIdCurrent : (java.lang.String) defaultValue(fields()[0]);
         record.traits = fieldSetFlags()[1] ? this.traits : (java.util.List<java.lang.String>) defaultValue(fields()[1]);
-        record.riskAlleleFrequency = fieldSetFlags()[2] ? this.riskAlleleFrequency : (java.util.List<java.lang.Double>) defaultValue(fields()[2]);
+        record.riskAlleleFrequency = fieldSetFlags()[2] ? this.riskAlleleFrequency : (java.lang.Double) defaultValue(fields()[2]);
         record.reportedGenes = fieldSetFlags()[3] ? this.reportedGenes : (java.lang.String) defaultValue(fields()[3]);
         return record;
       } catch (Exception e) {

@@ -16,7 +16,7 @@ protocol VariantAnnotations {
     record Gwas {
         string snpIdCurrent;
         array<string> traits;
-        array<double> riskAlleleFrequency;
+        double riskAlleleFrequency;
         string reportedGenes;
     }
 
