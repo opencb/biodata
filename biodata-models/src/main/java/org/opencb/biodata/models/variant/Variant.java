@@ -42,6 +42,32 @@ public class Variant {
         impl = avro;
     }
 
+    /**
+     *
+     * @param variantString
+     */
+    public Variant(String variantString) {
+        impl = new VariantAvro();
+        if (variantString != null && !variantString.isEmpty()) {
+            String[] fields = variantString.split(":", -1);
+            if (fields.length == 3) {
+                impl.setChromosome(fields[0]);
+                impl.setStart(Integer.parseInt(fields[1]));
+                impl.setReference("");
+                impl.setAlternate(fields[2]);
+            } else {
+                if (fields.length == 4) {
+                    impl.setChromosome(fields[0]);
+                    impl.setStart(Integer.parseInt(fields[1]));
+                    impl.setReference(fields[2]);
+                    impl.setAlternate(fields[3]);
+                } else {
+                    throw new IllegalArgumentException("Variant needs 3 or 4 fields separated by ':'");
+                }
+            }
+        }
+    }
+
     public Variant(String chromosome, int position, String reference, String alternate) {
         this(chromosome, position, position, reference, alternate, "+");
     }
@@ -422,6 +448,22 @@ public class Variant {
     @Deprecated
     private String composeId(String studyId, String fileId) {
         return studyId + (fileId == null ? "" : "_" + fileId);
+    }
+
+    public static Variant parseVariant(String variantString) {
+        return new Variant(variantString);
+    }
+
+    public static List<Variant> parseVariants(String variantsString) {
+        List<Variant> variants = null;
+        if(variantsString != null && !variantsString.isEmpty()) {
+            String[] variantItems = variantsString.split(",");
+            variants = new ArrayList<>(variantItems.length);
+            for(String variantString: variantItems) {
+                variants.add(new Variant(variantString));
+            }
+        }
+        return variants;
     }
 
 }
