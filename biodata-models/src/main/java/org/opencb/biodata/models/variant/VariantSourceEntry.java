@@ -85,6 +85,10 @@ public class VariantSourceEntry {
         impl = other;
     }
 
+    public VariantSourceEntry(String studyId) {
+        this(null, studyId, new String[0], (List<String>) null);
+    }
+
     public VariantSourceEntry(String fileId, String studyId) {
         this(fileId, studyId, new String[0], (List<String>) null);
     }
@@ -100,7 +104,9 @@ public class VariantSourceEntry {
     public VariantSourceEntry(String fileId, String studyId, List<String> secondaryAlternates, List<String> format) {
         this.impl = new org.opencb.biodata.models.variant.avro.VariantSourceEntry(studyId,
                 new LinkedList<>(), secondaryAlternates, format, new LinkedList<>(), new LinkedHashMap<>());
-        setFileId(fileId);
+        if (fileId != null) {
+            setFileId(fileId);
+        }
     }
 
     public LinkedHashMap<String, Integer> getSamplesPosition() {
@@ -418,7 +424,7 @@ public class VariantSourceEntry {
     @Deprecated
     public void setAttributes(Map<String, String> attributes) {
         if (impl.getFiles().isEmpty()) {
-            impl.getFiles().add(new FileEntry("", attributes.getOrDefault(VariantVcfFactory.ORI, ""), attributes));
+            impl.getFiles().add(new FileEntry("", null, attributes));
         } else {
             impl.getFiles().get(0).setAttributes(attributes);
         }

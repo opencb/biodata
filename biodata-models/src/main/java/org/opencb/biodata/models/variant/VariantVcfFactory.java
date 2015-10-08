@@ -33,6 +33,7 @@ import static org.opencb.biodata.models.variant.VariantNormalizer.*;
  */
 public class VariantVcfFactory implements VariantFactory {
 
+    @Deprecated
     public static final String ORI = "ori";
     private final VariantNormalizer variantNormalizer = new VariantNormalizer();
 
@@ -97,7 +98,7 @@ public class VariantVcfFactory implements VariantFactory {
                 parseSplitSampleData(entry, source, fields, reference, alternateAlleles, keyFields);
                 // Fill the rest of fields (after samples because INFO depends on them)
                 setOtherFields(variant, source, ids, quality, filter, info, format, keyFields.getNumAllele(), alternateAlleles, line);
-                entry.addAttribute(ORI, fields[1] + ":" + fields[3] + ":" + fields[4] + ":" + keyFields.getNumAllele());
+                entry.getFile(source.getFileId()).setCall(fields[1] + ":" + fields[3] + ":" + fields[4] + ":" + keyFields.getNumAllele());
                 variants.add(variant);
             } catch (NonStandardCompliantSampleField ex) {
                 Logger.getLogger(VariantFactory.class.getName()).log(Level.SEVERE,
@@ -126,6 +127,7 @@ public class VariantVcfFactory implements VariantFactory {
 
         if (fields.length < 9) {
             entry.setSamplesData(Collections.emptyList());
+            entry.setSamplesPosition(Collections.emptyMap());
             return;
         }
         List<String> formatFields = Arrays.asList(fields[8].split(":"));
