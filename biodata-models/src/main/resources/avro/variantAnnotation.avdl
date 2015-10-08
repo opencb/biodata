@@ -21,7 +21,7 @@ protocol VariantAnnotations {
     }
 
     record Cosmic {
-        string mutationID;
+        string mutationId;
         string primarySite;
         string siteSubtype;
         string primaryHistology;
@@ -118,7 +118,7 @@ protocol VariantAnnotations {
 
     record Xref {
         union { null, string } id;
-        union { null, string } src;
+        union { null, string } source;
     }
 
     record VariantAnnotation {

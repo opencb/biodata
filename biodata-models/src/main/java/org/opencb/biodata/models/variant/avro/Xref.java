@@ -7,10 +7,10 @@ package org.opencb.biodata.models.variant.avro;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class Xref extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"Xref\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"id\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"src\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"Xref\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"id\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"source\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
    private java.lang.String id;
-   private java.lang.String src;
+   private java.lang.String source;
 
   /**
    * Default constructor.  Note that this does not initialize fields
@@ -22,9 +22,9 @@ public class Xref extends org.apache.avro.specific.SpecificRecordBase implements
   /**
    * All-args constructor.
    */
-  public Xref(java.lang.String id, java.lang.String src) {
+  public Xref(java.lang.String id, java.lang.String source) {
     this.id = id;
-    this.src = src;
+    this.source = source;
   }
 
   public org.apache.avro.Schema getSchema() { return SCHEMA$; }
@@ -32,7 +32,7 @@ public class Xref extends org.apache.avro.specific.SpecificRecordBase implements
   public java.lang.Object get(int field$) {
     switch (field$) {
     case 0: return id;
-    case 1: return src;
+    case 1: return source;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -41,7 +41,7 @@ public class Xref extends org.apache.avro.specific.SpecificRecordBase implements
   public void put(int field$, java.lang.Object value$) {
     switch (field$) {
     case 0: id = (java.lang.String)value$; break;
-    case 1: src = (java.lang.String)value$; break;
+    case 1: source = (java.lang.String)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -62,18 +62,18 @@ public class Xref extends org.apache.avro.specific.SpecificRecordBase implements
   }
 
   /**
-   * Gets the value of the 'src' field.
+   * Gets the value of the 'source' field.
    */
-  public java.lang.String getSrc() {
-    return src;
+  public java.lang.String getSource() {
+    return source;
   }
 
   /**
-   * Sets the value of the 'src' field.
+   * Sets the value of the 'source' field.
    * @param value the value to set.
    */
-  public void setSrc(java.lang.String value) {
-    this.src = value;
+  public void setSource(java.lang.String value) {
+    this.source = value;
   }
 
   /** Creates a new Xref RecordBuilder */
@@ -98,7 +98,7 @@ public class Xref extends org.apache.avro.specific.SpecificRecordBase implements
     implements org.apache.avro.data.RecordBuilder<Xref> {
 
     private java.lang.String id;
-    private java.lang.String src;
+    private java.lang.String source;
 
     /** Creates a new Builder */
     private Builder() {
@@ -112,8 +112,8 @@ public class Xref extends org.apache.avro.specific.SpecificRecordBase implements
         this.id = data().deepCopy(fields()[0].schema(), other.id);
         fieldSetFlags()[0] = true;
       }
-      if (isValidValue(fields()[1], other.src)) {
-        this.src = data().deepCopy(fields()[1].schema(), other.src);
+      if (isValidValue(fields()[1], other.source)) {
+        this.source = data().deepCopy(fields()[1].schema(), other.source);
         fieldSetFlags()[1] = true;
       }
     }
@@ -125,8 +125,8 @@ public class Xref extends org.apache.avro.specific.SpecificRecordBase implements
         this.id = data().deepCopy(fields()[0].schema(), other.id);
         fieldSetFlags()[0] = true;
       }
-      if (isValidValue(fields()[1], other.src)) {
-        this.src = data().deepCopy(fields()[1].schema(), other.src);
+      if (isValidValue(fields()[1], other.source)) {
+        this.source = data().deepCopy(fields()[1].schema(), other.source);
         fieldSetFlags()[1] = true;
       }
     }
@@ -156,27 +156,27 @@ public class Xref extends org.apache.avro.specific.SpecificRecordBase implements
       return this;
     }
 
-    /** Gets the value of the 'src' field */
-    public java.lang.String getSrc() {
-      return src;
+    /** Gets the value of the 'source' field */
+    public java.lang.String getSource() {
+      return source;
     }
     
-    /** Sets the value of the 'src' field */
-    public org.opencb.biodata.models.variant.avro.Xref.Builder setSrc(java.lang.String value) {
+    /** Sets the value of the 'source' field */
+    public org.opencb.biodata.models.variant.avro.Xref.Builder setSource(java.lang.String value) {
       validate(fields()[1], value);
-      this.src = value;
+      this.source = value;
       fieldSetFlags()[1] = true;
       return this; 
     }
     
-    /** Checks whether the 'src' field has been set */
-    public boolean hasSrc() {
+    /** Checks whether the 'source' field has been set */
+    public boolean hasSource() {
       return fieldSetFlags()[1];
     }
     
-    /** Clears the value of the 'src' field */
-    public org.opencb.biodata.models.variant.avro.Xref.Builder clearSrc() {
-      src = null;
+    /** Clears the value of the 'source' field */
+    public org.opencb.biodata.models.variant.avro.Xref.Builder clearSource() {
+      source = null;
       fieldSetFlags()[1] = false;
       return this;
     }
@@ -186,7 +186,7 @@ public class Xref extends org.apache.avro.specific.SpecificRecordBase implements
       try {
         Xref record = new Xref();
         record.id = fieldSetFlags()[0] ? this.id : (java.lang.String) defaultValue(fields()[0]);
-        record.src = fieldSetFlags()[1] ? this.src : (java.lang.String) defaultValue(fields()[1]);
+        record.source = fieldSetFlags()[1] ? this.source : (java.lang.String) defaultValue(fields()[1]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);
