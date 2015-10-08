@@ -7,9 +7,9 @@ package org.opencb.biodata.models.variant.avro;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class Cosmic extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"Cosmic\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"mutationID\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"primarySite\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"siteSubtype\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"primaryHistology\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"histologySubtype\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"sampleSource\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"tumourOrigin\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"geneName\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"mutationSomaticStatus\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"Cosmic\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"mutationId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"primarySite\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"siteSubtype\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"primaryHistology\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"histologySubtype\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"sampleSource\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"tumourOrigin\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"geneName\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"mutationSomaticStatus\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
-   private java.lang.String mutationID;
+   private java.lang.String mutationId;
    private java.lang.String primarySite;
    private java.lang.String siteSubtype;
    private java.lang.String primaryHistology;
@@ -29,8 +29,8 @@ public class Cosmic extends org.apache.avro.specific.SpecificRecordBase implemen
   /**
    * All-args constructor.
    */
-  public Cosmic(java.lang.String mutationID, java.lang.String primarySite, java.lang.String siteSubtype, java.lang.String primaryHistology, java.lang.String histologySubtype, java.lang.String sampleSource, java.lang.String tumourOrigin, java.lang.String geneName, java.lang.String mutationSomaticStatus) {
-    this.mutationID = mutationID;
+  public Cosmic(java.lang.String mutationId, java.lang.String primarySite, java.lang.String siteSubtype, java.lang.String primaryHistology, java.lang.String histologySubtype, java.lang.String sampleSource, java.lang.String tumourOrigin, java.lang.String geneName, java.lang.String mutationSomaticStatus) {
+    this.mutationId = mutationId;
     this.primarySite = primarySite;
     this.siteSubtype = siteSubtype;
     this.primaryHistology = primaryHistology;
@@ -45,7 +45,7 @@ public class Cosmic extends org.apache.avro.specific.SpecificRecordBase implemen
   // Used by DatumWriter.  Applications should not call. 
   public java.lang.Object get(int field$) {
     switch (field$) {
-    case 0: return mutationID;
+    case 0: return mutationId;
     case 1: return primarySite;
     case 2: return siteSubtype;
     case 3: return primaryHistology;
@@ -61,7 +61,7 @@ public class Cosmic extends org.apache.avro.specific.SpecificRecordBase implemen
   @SuppressWarnings(value="unchecked")
   public void put(int field$, java.lang.Object value$) {
     switch (field$) {
-    case 0: mutationID = (java.lang.String)value$; break;
+    case 0: mutationId = (java.lang.String)value$; break;
     case 1: primarySite = (java.lang.String)value$; break;
     case 2: siteSubtype = (java.lang.String)value$; break;
     case 3: primaryHistology = (java.lang.String)value$; break;
@@ -75,18 +75,18 @@ public class Cosmic extends org.apache.avro.specific.SpecificRecordBase implemen
   }
 
   /**
-   * Gets the value of the 'mutationID' field.
+   * Gets the value of the 'mutationId' field.
    */
-  public java.lang.String getMutationID() {
-    return mutationID;
+  public java.lang.String getMutationId() {
+    return mutationId;
   }
 
   /**
-   * Sets the value of the 'mutationID' field.
+   * Sets the value of the 'mutationId' field.
    * @param value the value to set.
    */
-  public void setMutationID(java.lang.String value) {
-    this.mutationID = value;
+  public void setMutationId(java.lang.String value) {
+    this.mutationId = value;
   }
 
   /**
@@ -230,7 +230,7 @@ public class Cosmic extends org.apache.avro.specific.SpecificRecordBase implemen
   public static class Builder extends org.apache.avro.specific.SpecificRecordBuilderBase<Cosmic>
     implements org.apache.avro.data.RecordBuilder<Cosmic> {
 
-    private java.lang.String mutationID;
+    private java.lang.String mutationId;
     private java.lang.String primarySite;
     private java.lang.String siteSubtype;
     private java.lang.String primaryHistology;
@@ -248,8 +248,8 @@ public class Cosmic extends org.apache.avro.specific.SpecificRecordBase implemen
     /** Creates a Builder by copying an existing Builder */
     private Builder(org.opencb.biodata.models.variant.avro.Cosmic.Builder other) {
       super(other);
-      if (isValidValue(fields()[0], other.mutationID)) {
-        this.mutationID = data().deepCopy(fields()[0].schema(), other.mutationID);
+      if (isValidValue(fields()[0], other.mutationId)) {
+        this.mutationId = data().deepCopy(fields()[0].schema(), other.mutationId);
         fieldSetFlags()[0] = true;
       }
       if (isValidValue(fields()[1], other.primarySite)) {
@@ -289,8 +289,8 @@ public class Cosmic extends org.apache.avro.specific.SpecificRecordBase implemen
     /** Creates a Builder by copying an existing Cosmic instance */
     private Builder(org.opencb.biodata.models.variant.avro.Cosmic other) {
             super(org.opencb.biodata.models.variant.avro.Cosmic.SCHEMA$);
-      if (isValidValue(fields()[0], other.mutationID)) {
-        this.mutationID = data().deepCopy(fields()[0].schema(), other.mutationID);
+      if (isValidValue(fields()[0], other.mutationId)) {
+        this.mutationId = data().deepCopy(fields()[0].schema(), other.mutationId);
         fieldSetFlags()[0] = true;
       }
       if (isValidValue(fields()[1], other.primarySite)) {
@@ -327,27 +327,27 @@ public class Cosmic extends org.apache.avro.specific.SpecificRecordBase implemen
       }
     }
 
-    /** Gets the value of the 'mutationID' field */
-    public java.lang.String getMutationID() {
-      return mutationID;
+    /** Gets the value of the 'mutationId' field */
+    public java.lang.String getMutationId() {
+      return mutationId;
     }
     
-    /** Sets the value of the 'mutationID' field */
-    public org.opencb.biodata.models.variant.avro.Cosmic.Builder setMutationID(java.lang.String value) {
+    /** Sets the value of the 'mutationId' field */
+    public org.opencb.biodata.models.variant.avro.Cosmic.Builder setMutationId(java.lang.String value) {
       validate(fields()[0], value);
-      this.mutationID = value;
+      this.mutationId = value;
       fieldSetFlags()[0] = true;
       return this; 
     }
     
-    /** Checks whether the 'mutationID' field has been set */
-    public boolean hasMutationID() {
+    /** Checks whether the 'mutationId' field has been set */
+    public boolean hasMutationId() {
       return fieldSetFlags()[0];
     }
     
-    /** Clears the value of the 'mutationID' field */
-    public org.opencb.biodata.models.variant.avro.Cosmic.Builder clearMutationID() {
-      mutationID = null;
+    /** Clears the value of the 'mutationId' field */
+    public org.opencb.biodata.models.variant.avro.Cosmic.Builder clearMutationId() {
+      mutationId = null;
       fieldSetFlags()[0] = false;
       return this;
     }
@@ -556,7 +556,7 @@ public class Cosmic extends org.apache.avro.specific.SpecificRecordBase implemen
     public Cosmic build() {
       try {
         Cosmic record = new Cosmic();
-        record.mutationID = fieldSetFlags()[0] ? this.mutationID : (java.lang.String) defaultValue(fields()[0]);
+        record.mutationId = fieldSetFlags()[0] ? this.mutationId : (java.lang.String) defaultValue(fields()[0]);
         record.primarySite = fieldSetFlags()[1] ? this.primarySite : (java.lang.String) defaultValue(fields()[1]);
         record.siteSubtype = fieldSetFlags()[2] ? this.siteSubtype : (java.lang.String) defaultValue(fields()[2]);
         record.primaryHistology = fieldSetFlags()[3] ? this.primaryHistology : (java.lang.String) defaultValue(fields()[3]);

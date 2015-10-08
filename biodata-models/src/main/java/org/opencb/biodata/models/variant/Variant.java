@@ -384,17 +384,13 @@ public class Variant {
     }
 
 
+    @Override
     public String toString() {
-        return "Variant{" +
-                "chromosome='" + getChromosome() + '\'' +
-                ", start=" + getStart() +
-                ", end=" + getEnd() +
-                ", reference='" + getReference() + '\'' +
-                ", alternate='" + getAlternate() + '\'' +
-                ", ids=" + getIds() +
-                ", type=" + getType() +
-                ", hgvs=" + getHgvs() +
-                '}';
+        if(this.getReference() == null) {
+            return getChromosome() + ":" + getStart() + ":" + getAlternate();
+        }else {
+            return getChromosome() + ":" + getStart() + ":" + getReference() + ":" + getAlternate();
+        }
     }
 
     public String toJson() {

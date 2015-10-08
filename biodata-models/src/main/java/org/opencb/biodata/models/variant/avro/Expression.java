@@ -7,8 +7,10 @@ package org.opencb.biodata.models.variant.avro;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class Expression extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"Expression\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"experimentalFactor\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"factorValue\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"experimentId\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"technologyPlatform\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"expression\",\"type\":[\"null\",{\"type\":\"enum\",\"name\":\"ExpressionCall\",\"symbols\":[\"UP\",\"DOWN\"]}]},{\"name\":\"pvalue\",\"type\":[\"null\",\"float\"]}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"Expression\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"geneName\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"transcriptId\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"experimentalFactor\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"factorValue\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"experimentId\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"technologyPlatform\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"expression\",\"type\":[\"null\",{\"type\":\"enum\",\"name\":\"ExpressionCall\",\"symbols\":[\"UP\",\"DOWN\"]}]},{\"name\":\"pvalue\",\"type\":[\"null\",\"float\"]}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
+   private java.lang.String geneName;
+   private java.lang.String transcriptId;
    private java.lang.String experimentalFactor;
    private java.lang.String factorValue;
    private java.lang.String experimentId;
@@ -26,7 +28,9 @@ public class Expression extends org.apache.avro.specific.SpecificRecordBase impl
   /**
    * All-args constructor.
    */
-  public Expression(java.lang.String experimentalFactor, java.lang.String factorValue, java.lang.String experimentId, java.lang.String technologyPlatform, org.opencb.biodata.models.variant.avro.ExpressionCall expression, java.lang.Float pvalue) {
+  public Expression(java.lang.String geneName, java.lang.String transcriptId, java.lang.String experimentalFactor, java.lang.String factorValue, java.lang.String experimentId, java.lang.String technologyPlatform, org.opencb.biodata.models.variant.avro.ExpressionCall expression, java.lang.Float pvalue) {
+    this.geneName = geneName;
+    this.transcriptId = transcriptId;
     this.experimentalFactor = experimentalFactor;
     this.factorValue = factorValue;
     this.experimentId = experimentId;
@@ -39,12 +43,14 @@ public class Expression extends org.apache.avro.specific.SpecificRecordBase impl
   // Used by DatumWriter.  Applications should not call. 
   public java.lang.Object get(int field$) {
     switch (field$) {
-    case 0: return experimentalFactor;
-    case 1: return factorValue;
-    case 2: return experimentId;
-    case 3: return technologyPlatform;
-    case 4: return expression;
-    case 5: return pvalue;
+    case 0: return geneName;
+    case 1: return transcriptId;
+    case 2: return experimentalFactor;
+    case 3: return factorValue;
+    case 4: return experimentId;
+    case 5: return technologyPlatform;
+    case 6: return expression;
+    case 7: return pvalue;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -52,14 +58,46 @@ public class Expression extends org.apache.avro.specific.SpecificRecordBase impl
   @SuppressWarnings(value="unchecked")
   public void put(int field$, java.lang.Object value$) {
     switch (field$) {
-    case 0: experimentalFactor = (java.lang.String)value$; break;
-    case 1: factorValue = (java.lang.String)value$; break;
-    case 2: experimentId = (java.lang.String)value$; break;
-    case 3: technologyPlatform = (java.lang.String)value$; break;
-    case 4: expression = (org.opencb.biodata.models.variant.avro.ExpressionCall)value$; break;
-    case 5: pvalue = (java.lang.Float)value$; break;
+    case 0: geneName = (java.lang.String)value$; break;
+    case 1: transcriptId = (java.lang.String)value$; break;
+    case 2: experimentalFactor = (java.lang.String)value$; break;
+    case 3: factorValue = (java.lang.String)value$; break;
+    case 4: experimentId = (java.lang.String)value$; break;
+    case 5: technologyPlatform = (java.lang.String)value$; break;
+    case 6: expression = (org.opencb.biodata.models.variant.avro.ExpressionCall)value$; break;
+    case 7: pvalue = (java.lang.Float)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
+  }
+
+  /**
+   * Gets the value of the 'geneName' field.
+   */
+  public java.lang.String getGeneName() {
+    return geneName;
+  }
+
+  /**
+   * Sets the value of the 'geneName' field.
+   * @param value the value to set.
+   */
+  public void setGeneName(java.lang.String value) {
+    this.geneName = value;
+  }
+
+  /**
+   * Gets the value of the 'transcriptId' field.
+   */
+  public java.lang.String getTranscriptId() {
+    return transcriptId;
+  }
+
+  /**
+   * Sets the value of the 'transcriptId' field.
+   * @param value the value to set.
+   */
+  public void setTranscriptId(java.lang.String value) {
+    this.transcriptId = value;
   }
 
   /**
@@ -173,6 +211,8 @@ public class Expression extends org.apache.avro.specific.SpecificRecordBase impl
   public static class Builder extends org.apache.avro.specific.SpecificRecordBuilderBase<Expression>
     implements org.apache.avro.data.RecordBuilder<Expression> {
 
+    private java.lang.String geneName;
+    private java.lang.String transcriptId;
     private java.lang.String experimentalFactor;
     private java.lang.String factorValue;
     private java.lang.String experimentId;
@@ -188,59 +228,125 @@ public class Expression extends org.apache.avro.specific.SpecificRecordBase impl
     /** Creates a Builder by copying an existing Builder */
     private Builder(org.opencb.biodata.models.variant.avro.Expression.Builder other) {
       super(other);
-      if (isValidValue(fields()[0], other.experimentalFactor)) {
-        this.experimentalFactor = data().deepCopy(fields()[0].schema(), other.experimentalFactor);
+      if (isValidValue(fields()[0], other.geneName)) {
+        this.geneName = data().deepCopy(fields()[0].schema(), other.geneName);
         fieldSetFlags()[0] = true;
       }
-      if (isValidValue(fields()[1], other.factorValue)) {
-        this.factorValue = data().deepCopy(fields()[1].schema(), other.factorValue);
+      if (isValidValue(fields()[1], other.transcriptId)) {
+        this.transcriptId = data().deepCopy(fields()[1].schema(), other.transcriptId);
         fieldSetFlags()[1] = true;
       }
-      if (isValidValue(fields()[2], other.experimentId)) {
-        this.experimentId = data().deepCopy(fields()[2].schema(), other.experimentId);
+      if (isValidValue(fields()[2], other.experimentalFactor)) {
+        this.experimentalFactor = data().deepCopy(fields()[2].schema(), other.experimentalFactor);
         fieldSetFlags()[2] = true;
       }
-      if (isValidValue(fields()[3], other.technologyPlatform)) {
-        this.technologyPlatform = data().deepCopy(fields()[3].schema(), other.technologyPlatform);
+      if (isValidValue(fields()[3], other.factorValue)) {
+        this.factorValue = data().deepCopy(fields()[3].schema(), other.factorValue);
         fieldSetFlags()[3] = true;
       }
-      if (isValidValue(fields()[4], other.expression)) {
-        this.expression = data().deepCopy(fields()[4].schema(), other.expression);
+      if (isValidValue(fields()[4], other.experimentId)) {
+        this.experimentId = data().deepCopy(fields()[4].schema(), other.experimentId);
         fieldSetFlags()[4] = true;
       }
-      if (isValidValue(fields()[5], other.pvalue)) {
-        this.pvalue = data().deepCopy(fields()[5].schema(), other.pvalue);
+      if (isValidValue(fields()[5], other.technologyPlatform)) {
+        this.technologyPlatform = data().deepCopy(fields()[5].schema(), other.technologyPlatform);
         fieldSetFlags()[5] = true;
+      }
+      if (isValidValue(fields()[6], other.expression)) {
+        this.expression = data().deepCopy(fields()[6].schema(), other.expression);
+        fieldSetFlags()[6] = true;
+      }
+      if (isValidValue(fields()[7], other.pvalue)) {
+        this.pvalue = data().deepCopy(fields()[7].schema(), other.pvalue);
+        fieldSetFlags()[7] = true;
       }
     }
     
     /** Creates a Builder by copying an existing Expression instance */
     private Builder(org.opencb.biodata.models.variant.avro.Expression other) {
             super(org.opencb.biodata.models.variant.avro.Expression.SCHEMA$);
-      if (isValidValue(fields()[0], other.experimentalFactor)) {
-        this.experimentalFactor = data().deepCopy(fields()[0].schema(), other.experimentalFactor);
+      if (isValidValue(fields()[0], other.geneName)) {
+        this.geneName = data().deepCopy(fields()[0].schema(), other.geneName);
         fieldSetFlags()[0] = true;
       }
-      if (isValidValue(fields()[1], other.factorValue)) {
-        this.factorValue = data().deepCopy(fields()[1].schema(), other.factorValue);
+      if (isValidValue(fields()[1], other.transcriptId)) {
+        this.transcriptId = data().deepCopy(fields()[1].schema(), other.transcriptId);
         fieldSetFlags()[1] = true;
       }
-      if (isValidValue(fields()[2], other.experimentId)) {
-        this.experimentId = data().deepCopy(fields()[2].schema(), other.experimentId);
+      if (isValidValue(fields()[2], other.experimentalFactor)) {
+        this.experimentalFactor = data().deepCopy(fields()[2].schema(), other.experimentalFactor);
         fieldSetFlags()[2] = true;
       }
-      if (isValidValue(fields()[3], other.technologyPlatform)) {
-        this.technologyPlatform = data().deepCopy(fields()[3].schema(), other.technologyPlatform);
+      if (isValidValue(fields()[3], other.factorValue)) {
+        this.factorValue = data().deepCopy(fields()[3].schema(), other.factorValue);
         fieldSetFlags()[3] = true;
       }
-      if (isValidValue(fields()[4], other.expression)) {
-        this.expression = data().deepCopy(fields()[4].schema(), other.expression);
+      if (isValidValue(fields()[4], other.experimentId)) {
+        this.experimentId = data().deepCopy(fields()[4].schema(), other.experimentId);
         fieldSetFlags()[4] = true;
       }
-      if (isValidValue(fields()[5], other.pvalue)) {
-        this.pvalue = data().deepCopy(fields()[5].schema(), other.pvalue);
+      if (isValidValue(fields()[5], other.technologyPlatform)) {
+        this.technologyPlatform = data().deepCopy(fields()[5].schema(), other.technologyPlatform);
         fieldSetFlags()[5] = true;
       }
+      if (isValidValue(fields()[6], other.expression)) {
+        this.expression = data().deepCopy(fields()[6].schema(), other.expression);
+        fieldSetFlags()[6] = true;
+      }
+      if (isValidValue(fields()[7], other.pvalue)) {
+        this.pvalue = data().deepCopy(fields()[7].schema(), other.pvalue);
+        fieldSetFlags()[7] = true;
+      }
+    }
+
+    /** Gets the value of the 'geneName' field */
+    public java.lang.String getGeneName() {
+      return geneName;
+    }
+    
+    /** Sets the value of the 'geneName' field */
+    public org.opencb.biodata.models.variant.avro.Expression.Builder setGeneName(java.lang.String value) {
+      validate(fields()[0], value);
+      this.geneName = value;
+      fieldSetFlags()[0] = true;
+      return this; 
+    }
+    
+    /** Checks whether the 'geneName' field has been set */
+    public boolean hasGeneName() {
+      return fieldSetFlags()[0];
+    }
+    
+    /** Clears the value of the 'geneName' field */
+    public org.opencb.biodata.models.variant.avro.Expression.Builder clearGeneName() {
+      geneName = null;
+      fieldSetFlags()[0] = false;
+      return this;
+    }
+
+    /** Gets the value of the 'transcriptId' field */
+    public java.lang.String getTranscriptId() {
+      return transcriptId;
+    }
+    
+    /** Sets the value of the 'transcriptId' field */
+    public org.opencb.biodata.models.variant.avro.Expression.Builder setTranscriptId(java.lang.String value) {
+      validate(fields()[1], value);
+      this.transcriptId = value;
+      fieldSetFlags()[1] = true;
+      return this; 
+    }
+    
+    /** Checks whether the 'transcriptId' field has been set */
+    public boolean hasTranscriptId() {
+      return fieldSetFlags()[1];
+    }
+    
+    /** Clears the value of the 'transcriptId' field */
+    public org.opencb.biodata.models.variant.avro.Expression.Builder clearTranscriptId() {
+      transcriptId = null;
+      fieldSetFlags()[1] = false;
+      return this;
     }
 
     /** Gets the value of the 'experimentalFactor' field */
@@ -250,21 +356,21 @@ public class Expression extends org.apache.avro.specific.SpecificRecordBase impl
     
     /** Sets the value of the 'experimentalFactor' field */
     public org.opencb.biodata.models.variant.avro.Expression.Builder setExperimentalFactor(java.lang.String value) {
-      validate(fields()[0], value);
+      validate(fields()[2], value);
       this.experimentalFactor = value;
-      fieldSetFlags()[0] = true;
+      fieldSetFlags()[2] = true;
       return this; 
     }
     
     /** Checks whether the 'experimentalFactor' field has been set */
     public boolean hasExperimentalFactor() {
-      return fieldSetFlags()[0];
+      return fieldSetFlags()[2];
     }
     
     /** Clears the value of the 'experimentalFactor' field */
     public org.opencb.biodata.models.variant.avro.Expression.Builder clearExperimentalFactor() {
       experimentalFactor = null;
-      fieldSetFlags()[0] = false;
+      fieldSetFlags()[2] = false;
       return this;
     }
 
@@ -275,21 +381,21 @@ public class Expression extends org.apache.avro.specific.SpecificRecordBase impl
     
     /** Sets the value of the 'factorValue' field */
     public org.opencb.biodata.models.variant.avro.Expression.Builder setFactorValue(java.lang.String value) {
-      validate(fields()[1], value);
+      validate(fields()[3], value);
       this.factorValue = value;
-      fieldSetFlags()[1] = true;
+      fieldSetFlags()[3] = true;
       return this; 
     }
     
     /** Checks whether the 'factorValue' field has been set */
     public boolean hasFactorValue() {
-      return fieldSetFlags()[1];
+      return fieldSetFlags()[3];
     }
     
     /** Clears the value of the 'factorValue' field */
     public org.opencb.biodata.models.variant.avro.Expression.Builder clearFactorValue() {
       factorValue = null;
-      fieldSetFlags()[1] = false;
+      fieldSetFlags()[3] = false;
       return this;
     }
 
@@ -300,21 +406,21 @@ public class Expression extends org.apache.avro.specific.SpecificRecordBase impl
     
     /** Sets the value of the 'experimentId' field */
     public org.opencb.biodata.models.variant.avro.Expression.Builder setExperimentId(java.lang.String value) {
-      validate(fields()[2], value);
+      validate(fields()[4], value);
       this.experimentId = value;
-      fieldSetFlags()[2] = true;
+      fieldSetFlags()[4] = true;
       return this; 
     }
     
     /** Checks whether the 'experimentId' field has been set */
     public boolean hasExperimentId() {
-      return fieldSetFlags()[2];
+      return fieldSetFlags()[4];
     }
     
     /** Clears the value of the 'experimentId' field */
     public org.opencb.biodata.models.variant.avro.Expression.Builder clearExperimentId() {
       experimentId = null;
-      fieldSetFlags()[2] = false;
+      fieldSetFlags()[4] = false;
       return this;
     }
 
@@ -325,21 +431,21 @@ public class Expression extends org.apache.avro.specific.SpecificRecordBase impl
     
     /** Sets the value of the 'technologyPlatform' field */
     public org.opencb.biodata.models.variant.avro.Expression.Builder setTechnologyPlatform(java.lang.String value) {
-      validate(fields()[3], value);
+      validate(fields()[5], value);
       this.technologyPlatform = value;
-      fieldSetFlags()[3] = true;
+      fieldSetFlags()[5] = true;
       return this; 
     }
     
     /** Checks whether the 'technologyPlatform' field has been set */
     public boolean hasTechnologyPlatform() {
-      return fieldSetFlags()[3];
+      return fieldSetFlags()[5];
     }
     
     /** Clears the value of the 'technologyPlatform' field */
     public org.opencb.biodata.models.variant.avro.Expression.Builder clearTechnologyPlatform() {
       technologyPlatform = null;
-      fieldSetFlags()[3] = false;
+      fieldSetFlags()[5] = false;
       return this;
     }
 
@@ -350,21 +456,21 @@ public class Expression extends org.apache.avro.specific.SpecificRecordBase impl
     
     /** Sets the value of the 'expression' field */
     public org.opencb.biodata.models.variant.avro.Expression.Builder setExpression(org.opencb.biodata.models.variant.avro.ExpressionCall value) {
-      validate(fields()[4], value);
+      validate(fields()[6], value);
       this.expression = value;
-      fieldSetFlags()[4] = true;
+      fieldSetFlags()[6] = true;
       return this; 
     }
     
     /** Checks whether the 'expression' field has been set */
     public boolean hasExpression() {
-      return fieldSetFlags()[4];
+      return fieldSetFlags()[6];
     }
     
     /** Clears the value of the 'expression' field */
     public org.opencb.biodata.models.variant.avro.Expression.Builder clearExpression() {
       expression = null;
-      fieldSetFlags()[4] = false;
+      fieldSetFlags()[6] = false;
       return this;
     }
 
@@ -375,21 +481,21 @@ public class Expression extends org.apache.avro.specific.SpecificRecordBase impl
     
     /** Sets the value of the 'pvalue' field */
     public org.opencb.biodata.models.variant.avro.Expression.Builder setPvalue(java.lang.Float value) {
-      validate(fields()[5], value);
+      validate(fields()[7], value);
       this.pvalue = value;
-      fieldSetFlags()[5] = true;
+      fieldSetFlags()[7] = true;
       return this; 
     }
     
     /** Checks whether the 'pvalue' field has been set */
     public boolean hasPvalue() {
-      return fieldSetFlags()[5];
+      return fieldSetFlags()[7];
     }
     
     /** Clears the value of the 'pvalue' field */
     public org.opencb.biodata.models.variant.avro.Expression.Builder clearPvalue() {
       pvalue = null;
-      fieldSetFlags()[5] = false;
+      fieldSetFlags()[7] = false;
       return this;
     }
 
@@ -397,12 +503,14 @@ public class Expression extends org.apache.avro.specific.SpecificRecordBase impl
     public Expression build() {
       try {
         Expression record = new Expression();
-        record.experimentalFactor = fieldSetFlags()[0] ? this.experimentalFactor : (java.lang.String) defaultValue(fields()[0]);
-        record.factorValue = fieldSetFlags()[1] ? this.factorValue : (java.lang.String) defaultValue(fields()[1]);
-        record.experimentId = fieldSetFlags()[2] ? this.experimentId : (java.lang.String) defaultValue(fields()[2]);
-        record.technologyPlatform = fieldSetFlags()[3] ? this.technologyPlatform : (java.lang.String) defaultValue(fields()[3]);
-        record.expression = fieldSetFlags()[4] ? this.expression : (org.opencb.biodata.models.variant.avro.ExpressionCall) defaultValue(fields()[4]);
-        record.pvalue = fieldSetFlags()[5] ? this.pvalue : (java.lang.Float) defaultValue(fields()[5]);
+        record.geneName = fieldSetFlags()[0] ? this.geneName : (java.lang.String) defaultValue(fields()[0]);
+        record.transcriptId = fieldSetFlags()[1] ? this.transcriptId : (java.lang.String) defaultValue(fields()[1]);
+        record.experimentalFactor = fieldSetFlags()[2] ? this.experimentalFactor : (java.lang.String) defaultValue(fields()[2]);
+        record.factorValue = fieldSetFlags()[3] ? this.factorValue : (java.lang.String) defaultValue(fields()[3]);
+        record.experimentId = fieldSetFlags()[4] ? this.experimentId : (java.lang.String) defaultValue(fields()[4]);
+        record.technologyPlatform = fieldSetFlags()[5] ? this.technologyPlatform : (java.lang.String) defaultValue(fields()[5]);
+        record.expression = fieldSetFlags()[6] ? this.expression : (org.opencb.biodata.models.variant.avro.ExpressionCall) defaultValue(fields()[6]);
+        record.pvalue = fieldSetFlags()[7] ? this.pvalue : (java.lang.Float) defaultValue(fields()[7]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);

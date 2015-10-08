@@ -16,12 +16,12 @@ protocol VariantAnnotations {
     record Gwas {
         string snpIdCurrent;
         array<string> traits;
-        array<double> riskAlleleFrequency;
+        double riskAlleleFrequency;
         string reportedGenes;
     }
 
     record Cosmic {
-        string mutationID;
+        string mutationId;
         string primarySite;
         string siteSubtype;
         string primaryHistology;
@@ -47,6 +47,8 @@ protocol VariantAnnotations {
     }
 
     record Expression {
+        union { null, string } geneName;
+        union { null, string } transcriptId;
         union { null, string } experimentalFactor;
         union { null, string } factorValue;        
         union { null, string } experimentId;
@@ -116,7 +118,7 @@ protocol VariantAnnotations {
 
     record Xref {
         union { null, string } id;
-        union { null, string } src;
+        union { null, string } source;
     }
 
     record VariantAnnotation {
