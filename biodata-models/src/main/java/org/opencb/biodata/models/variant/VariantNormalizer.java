@@ -6,6 +6,8 @@ import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.commons.run.ParallelTaskRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -17,6 +19,7 @@ import java.util.stream.Collectors;
  */
 public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Variant> {
 
+    protected Logger logger = LoggerFactory.getLogger(this.getClass().toString());
 
     private final boolean reuseVariants = true;
 
@@ -84,7 +87,12 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                         //Set normalized secondary alternates
                         normalizedEntry.setSecondaryAlternates(getSecondaryAlternates(keyFields.getAlternate(), alternates));
                         //Set normalized samples data
-                        normalizedEntry.setSamplesData(normalizeSamplesData(keyFields, entry.getSamplesData(), entry.getFormat(), reference, alternates, samplesData));
+                        try {
+                            normalizedEntry.setSamplesData(normalizeSamplesData(keyFields, entry.getSamplesData(), entry.getFormat(), reference, alternates, samplesData));
+                        } catch (Exception e) {
+                            logger.warn("Error parsing variant " + call + ", numAllele " + keyFields.getNumAllele());
+//                            throw e;
+                        }
 
                         normalizedVariants.add(normalizedVariant);
                     }
@@ -258,7 +266,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                 if (formatField.equalsIgnoreCase("GT")) {
                     // Save alleles just in case they are necessary for GL/PL/GP transformation
                     // Use the original alternates to create the genotype.
-                    genotype = new Genotype(sampleField, variantKeyFields.getReference(), alternateAlleles);
+                    genotype = new Genotype(sampleField, reference, alternateAlleles);
 
                     StringBuilder genotypeStr = new StringBuilder();
 

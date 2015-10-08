@@ -283,7 +283,7 @@ public class Variant {
         impl.setStudies(new ArrayList<>(studies.size()));
         for (VariantSourceEntry study : studies) {
             impl.getStudies().add(study.getImpl());
-            sourceEntries.put(composeId(study.getStudyId(), study.getFileId()), study);
+            sourceEntries.put(composeId(study.getStudyId()), study);
         }
     }
 
@@ -292,7 +292,7 @@ public class Variant {
             if (sourceEntries == null) {
                 sourceEntries = new HashMap<>();
                 for (org.opencb.biodata.models.variant.avro.VariantSourceEntry sourceEntry : impl.getStudies()) {
-                    sourceEntries.put(composeId(sourceEntry.getStudyId(), sourceEntry.getFiles().isEmpty()? null : sourceEntry.getFiles().get(0).getFileId()), new VariantSourceEntry(sourceEntry));
+                    sourceEntries.put(composeId(sourceEntry.getStudyId()), new VariantSourceEntry(sourceEntry));
                 }
             }
             return Collections.unmodifiableMap(sourceEntries);
@@ -307,7 +307,7 @@ public class Variant {
     @Deprecated
     public VariantSourceEntry getSourceEntry(String fileId, String studyId) {
         if (impl.getStudies() != null) {
-            return getSourceEntries().get(composeId(studyId, fileId));
+            return getSourceEntries().get(composeId(studyId));
         }
         return null;
     }
@@ -324,7 +324,7 @@ public class Variant {
         if (sourceEntries == null) {
             sourceEntries = new HashMap<>();
         }
-        this.sourceEntries.put(composeId(sourceEntry.getStudyId(), sourceEntry.getFileId()), sourceEntry);
+        this.sourceEntries.put(composeId(sourceEntry.getStudyId()), sourceEntry);
         impl.getStudies().add(sourceEntry.getImpl());
     }
 //
@@ -443,7 +443,7 @@ public class Variant {
 
     @Deprecated
     private String composeId(String studyId, String fileId) {
-        return studyId + (fileId == null ? "" : "_" + fileId);
+        return studyId;
     }
 
     public static Variant parseVariant(String variantString) {

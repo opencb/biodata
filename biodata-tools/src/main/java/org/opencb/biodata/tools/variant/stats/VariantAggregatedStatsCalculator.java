@@ -5,6 +5,7 @@ import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantAggregatedVcfFactory;
 import org.opencb.biodata.models.variant.VariantSourceEntry;
 import org.opencb.biodata.models.variant.VariantVcfFactory;
+import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
 import java.util.*;
@@ -75,11 +76,12 @@ public class VariantAggregatedStatsCalculator {
      */
     public void calculate(Variant variant, VariantSourceEntry study) {
 //        Map<String, String> infoMap = VariantAggregatedVcfFactory.getInfoMap(info);
-        Map<String, String> infoMap = study.getAttributes();
+        FileEntry fileEntry = study.getFiles().get(0);
+        Map<String, String> infoMap = fileEntry.getAttributes();
         int numAllele = 0;
         String[] alternateAlleles = {variant.getAlternate()};
-        if (infoMap.containsKey(VariantVcfFactory.ORI)) {
-            String[] ori = infoMap.get(VariantVcfFactory.ORI).split(":");
+        if (fileEntry.getCall() != null && !fileEntry.getCall().isEmpty()) {
+            String[] ori = fileEntry.getCall().split(":");
             numAllele = Integer.parseInt(ori[3]);
             alternateAlleles = ori[2].split(",");
         }
