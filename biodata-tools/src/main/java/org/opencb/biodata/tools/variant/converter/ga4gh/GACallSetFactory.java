@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.opencb.biodata.models.variant.ga4gh;
+package org.opencb.biodata.tools.variant.converter.ga4gh;
 
 import org.ga4gh.models.CallSet;
 

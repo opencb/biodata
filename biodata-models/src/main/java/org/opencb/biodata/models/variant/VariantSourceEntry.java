@@ -335,6 +335,7 @@ public class VariantSourceEntry {
         setStats(cohortStats);
     }
 
+    @Deprecated
     public String getAttribute(String key) {
         return getAttributes().get(key);
     }
