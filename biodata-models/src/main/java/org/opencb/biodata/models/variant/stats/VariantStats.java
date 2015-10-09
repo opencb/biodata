@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.*;
@@ -32,42 +33,10 @@ import org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats;
  *         <p>
  *         TODO Mendelian errors must be calculated
  */
+@JsonIgnoreProperties({"impl", "transversion", "transition"})
 public class VariantStats {
 
     private final org.opencb.biodata.models.variant.avro.VariantStats impl;
-
-//    private String refAllele;
-//    private String altAllele;
-//    private VariantType variantType;
-//
-//    private int refAlleleCount;
-//    private int altAlleleCount;
-//    private Map<Genotype, Integer> genotypesCount;
-//
-//    private int missingAlleles;
-//    private int missingGenotypes;
-//
-//    private float refAlleleFreq;
-//    private float altAlleleFreq;
-//    private Map<Genotype, Float> genotypesFreq;
-//    private float maf;
-//    private float mgf;
-//    private String mafAllele;
-//    private String mgfGenotype;
-//
-//    private boolean passedFilters;
-//
-//    private int mendelianErrors;
-//
-//    private float casesPercentDominant;
-//    private float controlsPercentDominant;
-//    private float casesPercentRecessive;
-//    private float controlsPercentRecessive;
-//
-//    private float quality;
-//    private int numSamples;
-//    private VariantHardyWeinbergStats hw;
-
 
     public VariantStats() {
         this(null, -1, null, null, VariantType.SNV, -1, -1, null, null, -1, -1, -1, -1, -1, -1, -1);
