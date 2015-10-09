@@ -16,6 +16,7 @@
 
 package org.opencb.biodata.models.variant;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.opencb.biodata.models.variant.avro.VariantAnnotation;
 import org.opencb.biodata.models.variant.avro.VariantAvro;
 import org.opencb.biodata.models.variant.avro.VariantType;
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
  * @author Jacobo Coll;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
+@JsonIgnoreProperties({"impl", "id", "sourceEntries"})
 public class Variant {
 
     private final VariantAvro impl;
@@ -358,7 +360,7 @@ public class Variant {
         if (file == null) {
             return null;
         }
-        return file.getSampleNames();
+        return file.getSamplesName();
     }
 
     public void transformToEnsemblFormat() {
@@ -386,10 +388,10 @@ public class Variant {
 
     @Override
     public String toString() {
-        if(this.getReference() == null) {
-            return getChromosome() + ":" + getStart() + ":" + getAlternate();
-        }else {
-            return getChromosome() + ":" + getStart() + ":" + getReference() + ":" + getAlternate();
+        if (this.getReference() == null) {
+            return getChromosome() + ":" + getStart() + ":" + (getAlternate().isEmpty() ? "-" : getAlternate());
+        } else {
+            return getChromosome() + ":" + getStart() + ":" + (getReference().isEmpty() ? "-" : getReference()) + ":" + (getAlternate().isEmpty() ? "-" : getAlternate());
         }
     }
 

@@ -19,6 +19,7 @@ package org.opencb.biodata.models.variant;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
@@ -29,6 +30,7 @@ import org.opencb.biodata.models.variant.stats.VariantStats;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  * @author Jose Miguel Mut Lopez &lt;jmmut@ebi.ac.uk&gt;
  */
+@JsonIgnoreProperties({"impl", "samplesDataAsMap", "samplesPosition", "samplesName", "orderedSamplesName", "formatAsString", "formatPositions", "fileId", "attributes", "allAttributes", "cohortStats"})
 public class VariantSourceEntry {
 
     private LinkedHashMap<String, Integer> samplesPosition = null;
@@ -198,7 +200,7 @@ public class VariantSourceEntry {
 
     @Deprecated
     public Map<String, Map<String, String>> getSamplesDataAsMap() {
-        requireSamplePositions();
+        requireSamplesPosition();
 
         Map<String, Map<String, String>> samplesDataMap = new HashMap<>();
         for (Map.Entry<String, Integer> entry : samplesPosition.entrySet()) {
@@ -209,7 +211,7 @@ public class VariantSourceEntry {
     }
 
     public String getSampleData(String sampleName, String field) {
-        requireSamplePositions();
+        requireSamplesPosition();
         if (samplesPosition.containsKey(sampleName)) {
             Map<String, Integer> formatPositions = getFormatPositions();
             if (formatPositions.containsKey(field)) {
@@ -220,7 +222,7 @@ public class VariantSourceEntry {
     }
 
     public Map<String, String> getSampleData(String sampleName) {
-        requireSamplePositions();
+        requireSamplesPosition();
         if (samplesPosition.containsKey(sampleName)) {
             HashMap<String, String> sampleDataMap = new HashMap<>();
             Iterator<String> iterator = getFormat().iterator();
@@ -271,13 +273,13 @@ public class VariantSourceEntry {
         }
     }
 
-    public Set<String> getSampleNames() {
-        requireSamplePositions();
+    public Set<String> getSamplesName() {
+        requireSamplesPosition();
         return samplesPosition.keySet();
     }
 
-    public List<String> getOrderedSampleNames() {
-        requireSamplePositions();
+    public List<String> getOrderedSamplesName() {
+        requireSamplesPosition();
         return new ArrayList<>(samplesPosition.keySet());
     }
 
@@ -335,6 +337,7 @@ public class VariantSourceEntry {
         setStats(cohortStats);
     }
 
+    @Deprecated
     public String getAttribute(String key) {
         return getAttributes().get(key);
     }
@@ -353,9 +356,9 @@ public class VariantSourceEntry {
         return getAttributes().containsKey(key);
     }
 
-    private void requireSamplePositions() {
+    private void requireSamplesPosition() {
         if (samplesPosition == null) {
-            throw new IllegalArgumentException("Require sample positions array to use this method!"); //TODO Unknown sample positions!
+            throw new IllegalArgumentException("Require sample positions array to use this method!");
         }
     }
 
