@@ -17,6 +17,7 @@
 package org.opencb.biodata.formats.annotation.io;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import org.opencb.biodata.models.variant.avro.VariantAnnotation;
@@ -36,11 +37,12 @@ import java.util.List;
  */
 public class JsonAnnotationWriter implements DataWriter<VariantAnnotation> {
 
-    String filename;
-    BufferedWriter bw;
-    private ObjectWriter jsonObjectWriter;
+    private String filename;
+    private BufferedWriter bw;
     private int writtenVariantAnnotations = 0;
     private Logger logger;
+
+    private ObjectWriter jsonObjectWriter;
 
     public JsonAnnotationWriter() {
         this(null);
@@ -77,6 +79,7 @@ public class JsonAnnotationWriter implements DataWriter<VariantAnnotation> {
     public boolean pre() {
         ObjectMapper jsonObjectMapper = new ObjectMapper();
         jsonObjectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        jsonObjectMapper.configure(MapperFeature.REQUIRE_SETTERS_FOR_GETTERS, true);
         jsonObjectWriter = jsonObjectMapper.writer();
         return true;
     }
@@ -105,7 +108,7 @@ public class JsonAnnotationWriter implements DataWriter<VariantAnnotation> {
             }
 
             writtenVariantAnnotations +=list.size();
-            if((writtenVariantAnnotations%2000)==0) {
+            if ((writtenVariantAnnotations % 2000) == 0) {
                 logger.info("{} written annotations.", writtenVariantAnnotations);
             }
 
