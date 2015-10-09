@@ -49,32 +49,32 @@ message VariantHardyWeinbergStats {
     float q = 11;
 }
 
-//message VariantStats {
-//union { null, string } refAllele;
-//union { null, string } altAllele;
-//union { null, int } refAlleleCount;
-//union { null, int } altAlleleCount;
-//@java-key-class("org.opencb.biodata.models.feature.Genotype") map<int> genotypesCount;
-//@java-key-class("org.opencb.biodata.models.feature.Genotype") map<float> genotypesFreq;
-//union { null, int } missingAlleles;
-//union { null, int } missingGenotypes;
-//union { null, float } refAlleleFreq;
-//union { null, float } altAlleleFreq;
-//union { null, float } maf;
-//union { null, float } mgf;
-//union { null, string } mafAllele;
-//union { null, string } mgfGenotype;
-//union { null, boolean } passedFilters;
-//union { null, int } mendelianErrors;
-//union { null, float } casesPercentDominant;
-//union { null, float } controlsPercentDominant;
-//union { null, float } casesPercentRecessive;
-//union { null, float } controlsPercentRecessive;
-//union { null, float } quality;
-//union { null, int } numSamples;
-//VariantType variantType;
-//VariantHardyWeinbergStats hw;
-//}
+message VariantStats {
+    string refAllele = 1;
+    string altAllele = 2;
+    int32 refAlleleCount = 3;
+    int32 altAlleleCount = 4;
+    map<string, int32> genotypesCount = 5;
+    map<string, float> genotypesFreq = 6;
+    int32 missingAlleles = 7;
+    int32 missingGenotypes = 8;
+    float refAlleleFreq = 9;
+    float altAlleleFreq = 10;
+    float maf = 11;
+    float mgf = 12;
+    string mafAllele = 13;
+    string mgfGenotype = 14;
+    bool  passedFilters = 15;
+    int32 mendelianErrors = 16;
+    float casesPercentDominant = 17;
+    float controlsPercentDominant = 18;
+    float casesPercentRecessive = 19;
+    float controlsPercentRecessive = 20;
+    float quality = 21;
+    int32 numSamples = 22;
+    VariantType variantType = 23;
+    VariantHardyWeinbergStats hw = 24;
+}
 
 message FileEntry {
     string fileId = 1;
@@ -91,7 +91,7 @@ message VariantSourceEntry {
     repeated string secondaryAlternates = 3;
     repeated string format = 4;
     repeated SamplesDataInfoEntry samplesData = 5;
-//    map<string, VariantStats> stats = 6;
+    map<string, VariantStats> stats = 6;
 }
 
 message Genotype {
