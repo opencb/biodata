@@ -125,7 +125,9 @@ public class GAVariantFactory {
                     Genotype genotype = new Genotype(sampleData);
                     List<Integer> allelesIdx = new ArrayList<>(genotype.getAllelesIdx().length);
                     for (int alleleIdx : genotype.getAllelesIdx()) {
-                        allelesIdx.add(alleleIdx);
+                        if (alleleIdx >= 0) {
+                            allelesIdx.add(alleleIdx);
+                        }
                     }
                     call.setGenotype(allelesIdx);
 
