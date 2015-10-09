@@ -41,7 +41,7 @@ public class GAVariantFactory {
         List<Variant> gaVariants = new ArrayList<>(variants.size());
 
         for (org.opencb.biodata.models.variant.Variant variant : variants) {
-            String id = String.format("%s:%d:%s:%s", variant.getChromosome(), variant.getStart(), variant.getReference(), variant.getAlternate());
+            String id = variant.toString();
 
             List<CharSequence> variantIds = new ArrayList<>(variant.getIds());
 
@@ -108,7 +108,7 @@ public class GAVariantFactory {
     private List<Call> parseCalls(CharSequence variantId, VariantSourceEntry study) {
         List<Call> calls = new LinkedList<>();
 
-        for (String sample : study.getOrderedSampleNames()) {
+        for (String sample : study.getOrderedSamplesName()) {
 
             // Create empty call object
             Call call = new Call();

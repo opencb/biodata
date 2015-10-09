@@ -112,7 +112,7 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
                     break;
                 case "DP":
                     int dp = 0;
-                    for (String sampleName : file.getSampleNames()) {
+                    for (String sampleName : file.getSamplesName()) {
                         String sampleDp = file.getSampleData(sampleName, "DP");
                         if (StringUtils.isNumeric(sampleDp)) {
                             dp += Integer.parseInt(sampleDp);
@@ -124,7 +124,7 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
                 case "MQ0":
                     int mq = 0;
                     int mq0 = 0;
-                    for (String sampleName : file.getSampleNames()) {
+                    for (String sampleName : file.getSamplesName()) {
                         if (StringUtils.isNumeric(file.getSampleData(sampleName, "GQ"))) {
                             int gq = Integer.parseInt(file.getSampleData(sampleName, "GQ"));
                             mq += gq * gq;
