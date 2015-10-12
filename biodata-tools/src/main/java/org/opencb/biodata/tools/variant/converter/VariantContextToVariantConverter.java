@@ -21,7 +21,9 @@ import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.VariantFactory;
 import org.opencb.biodata.models.variant.VariantSourceEntry;
+import org.opencb.biodata.models.variant.VariantVcfFactory;
 import org.opencb.biodata.models.variant.avro.*;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
@@ -107,6 +109,18 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         for (String key : variantContext.getAttributes().keySet()) {
             attributes.put(key, variantContext.getAttributeAsString(key, ""));
         }
+
+        // QUAL
+        attributes.put(VariantVcfFactory.QUAL, Double.toString(variantContext.getPhredScaledQual()));
+
+        // FILTER
+        Set<String> filter = variantContext.getFilters();
+        if (filter.isEmpty()) {
+            attributes.put(VariantVcfFactory.FILTER, VCFConstants.PASSES_FILTERS_v4);
+        } else {
+            attributes.put(VariantVcfFactory.FILTER, StringUtils.join(filter, VCFConstants.FILTER_CODE_SEPARATOR));
+        }
+
         fileEntry.setAttributes(attributes);
         variantSourceEntry.setFiles(Collections.singletonList(fileEntry));
 

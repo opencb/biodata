@@ -35,6 +35,11 @@ public class VariantVcfFactory implements VariantFactory {
 
     @Deprecated
     public static final String ORI = "ori";
+
+    public static final String QUAL = "QUAL";
+    public static final String FILTER = "FILTER";
+    public static final String SRC = "src";
+
     private final VariantNormalizer variantNormalizer = new VariantNormalizer();
 
     /**
@@ -179,15 +184,15 @@ public class VariantVcfFactory implements VariantFactory {
             variant.setIds(ids);
         }
         if (quality > -1) {
-            variant.getSourceEntry(source.getFileId(), source.getStudyId()).addAttribute("QUAL", String.valueOf(quality));
+            variant.getSourceEntry(source.getFileId(), source.getStudyId()).addAttribute(QUAL, String.valueOf(quality));
         }
         if (!filter.isEmpty()) {
-            variant.getSourceEntry(source.getFileId(), source.getStudyId()).addAttribute("FILTER", filter);
+            variant.getSourceEntry(source.getFileId(), source.getStudyId()).addAttribute(FILTER, filter);
         }
         if (!info.isEmpty()) {
             parseInfo(variant, source.getFileId(), source.getStudyId(), info, numAllele);
         }
-        variant.getSourceEntry(source.getFileId(), source.getStudyId()).addAttribute("src", line);
+        variant.getSourceEntry(source.getFileId(), source.getStudyId()).addAttribute(SRC, line);
     }
 
     protected void parseInfo(Variant variant, String fileId, String studyId, String info, int numAllele) {
