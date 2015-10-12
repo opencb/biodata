@@ -59,8 +59,10 @@ public class GAVariantFactory {
                 //VariableSet should be the study, the file, or be provided?
                 String variantSetId = study.getStudyId();
 
-                Variant ga = new Variant(id, variantSetId, variantIds, time, time,
-                        variant.getChromosome(), Long.valueOf(variant.getStart()), Long.valueOf(variant.getEnd()),
+
+                Variant ga = new Variant(id, variantSetId, variantIds, time, time, variant.getChromosome(),
+                        Long.valueOf(to0BasedStart(variant.getStart())), // Ga4gh uses 0-based positions.
+                        Long.valueOf(variant.getEnd()),                  // 0-based end does not change
                         variant.getReference(), alternates, alleleIds, parseInfo(study.getFiles()), parseCalls(null, study));
 
                 gaVariants.add(ga);
@@ -70,6 +72,23 @@ public class GAVariantFactory {
 
         return gaVariants;
     }
+
+    /**
+     *
+     * 0-based -> [start,end)
+     * 1-based -> [start,end]
+     *
+     * a b c d e f
+     * 0 1 2 3 4 5  <- 0-based from B to E : [1, 5)
+     * 1 2 3 4 5 6  <- 1-based from B to E : [2, 5]
+     *
+     * @param start
+     * @return
+     */
+    private Integer to0BasedStart(Integer start) {
+        return start - 1;
+    }
+
 
     private Map<CharSequence, List<CharSequence>> parseInfo(List<FileEntry> files) {
         Map<CharSequence, List<CharSequence>> parsedInfo = new HashMap<>();
