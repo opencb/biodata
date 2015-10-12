@@ -49,7 +49,7 @@ public class VariantContextToVariantProtoConverter implements Converter<VariantC
 
     @Override
     public VariantProto.Variant convert(VariantContext variantContext) {
-        return convert(variantContext, VariantProto.Variant.getDefaultInstance());
+        return convert(variantContext, VariantProto.Variant.newBuilder().build());
     }
 
     /**
@@ -108,7 +108,8 @@ public class VariantContextToVariantProtoConverter implements Converter<VariantC
             attributes.put(key, variantContext.getAttributeAsString(key, ""));
         }
         fileEntry.putAllAttributes(attributes);
-        variantSourceEntry.setFiles(0, fileEntry.build());
+        variantSourceEntry.addAllFiles(Arrays.asList(fileEntry.build()));
+//        variantSourceEntry.setFiles(0, fileEntry);
 
 
         // We need to convert Allele object to String
