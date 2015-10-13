@@ -6,7 +6,7 @@ import org.opencb.biodata.models.pedigree.Condition;
 import org.opencb.biodata.models.pedigree.Individual;
 import org.opencb.biodata.models.pedigree.Pedigree;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.VariantSourceEntry;
+import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
 import java.util.List;
@@ -170,10 +170,10 @@ public class VariantStatsCalculator {
      */
     public static void calculateStatsForVariantsList(List<Variant> variants, Pedigree ped) {
         for (Variant variant : variants) {
-            for (VariantSourceEntry file : variant.getSourceEntries().values()) {
+            for (StudyEntry file : variant.getSourceEntries().values()) {
                 VariantStats stats = new VariantStats(variant);
                 calculate(file.getSamplesDataAsMap(), file.getAttributes(), ped, stats);
-                file.setStats(stats); // TODO Correct?
+                file.setStats(StudyEntry.DEFAULT_COHORT, stats);
             }
         }
     }

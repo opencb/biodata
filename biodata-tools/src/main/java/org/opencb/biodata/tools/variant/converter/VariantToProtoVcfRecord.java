@@ -18,7 +18,7 @@ package org.opencb.biodata.tools.variant.converter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.VariantSourceEntry;
+import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfMeta;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfRecord;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfRecord.Builder;
@@ -108,7 +108,7 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
 
 		/* Get Study (one only expected  */
 //        Map<String, VariantSourceEntry> sourceEntries = variant.getStudies();
-        List<VariantSourceEntry> sourceEntries = variant.getStudies();
+        List<StudyEntry> sourceEntries = variant.getStudies();
 
         if (null == sourceEntries || sourceEntries.size() == 0) {
             throw new UnsupportedOperationException(String.format("No Study found for variant: %s %s", variant.getChromosome(), variant.getStart()));
@@ -118,7 +118,7 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
         }
 //        Entry<String, VariantSourceEntry> entry = sourceEntries.entrySet().iterator().next();
 //        VariantSourceEntry study = entry.getValue();
-        VariantSourceEntry study = sourceEntries.get(0);
+        StudyEntry study = sourceEntries.get(0);
 
         Map<String, String> attr = study.getAttributes();
 		/* Filter */

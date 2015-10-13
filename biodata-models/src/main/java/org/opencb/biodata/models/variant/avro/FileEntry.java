@@ -7,10 +7,16 @@ package org.opencb.biodata.models.variant.avro;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class FileEntry extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"FileEntry\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"fileId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"call\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"attributes\",\"type\":{\"type\":\"map\",\"values\":{\"type\":\"string\",\"avro.java.string\":\"String\"},\"avro.java.string\":\"String\"}}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"FileEntry\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"fileId\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}],\"doc\":\"* Unique identifier of the source file.\"},{\"name\":\"call\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}],\"doc\":\"* Original call position for the variant, if the file was normalized.\\n         *\\n         * {position}:{reference}:{alternate}(,{other_alternate})*:{allele_index}\"},{\"name\":\"attributes\",\"type\":{\"type\":\"map\",\"values\":{\"type\":\"string\",\"avro.java.string\":\"String\"},\"avro.java.string\":\"String\"},\"doc\":\"* Optional attributes that probably depend on the format of the file the\\n         * variant was initially read from.\"}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
+  /** * Unique identifier of the source file. */
    private java.lang.String fileId;
+  /** * Original call position for the variant, if the file was normalized.
+         *
+         * {position}:{reference}:{alternate}(,{other_alternate})*:{allele_index} */
    private java.lang.String call;
+  /** * Optional attributes that probably depend on the format of the file the
+         * variant was initially read from. */
    private java.util.Map<java.lang.String,java.lang.String> attributes;
 
   /**
@@ -52,14 +58,14 @@ public class FileEntry extends org.apache.avro.specific.SpecificRecordBase imple
 
   /**
    * Gets the value of the 'fileId' field.
-   */
+   * * Unique identifier of the source file.   */
   public java.lang.String getFileId() {
     return fileId;
   }
 
   /**
    * Sets the value of the 'fileId' field.
-   * @param value the value to set.
+   * * Unique identifier of the source file.   * @param value the value to set.
    */
   public void setFileId(java.lang.String value) {
     this.fileId = value;
@@ -67,14 +73,18 @@ public class FileEntry extends org.apache.avro.specific.SpecificRecordBase imple
 
   /**
    * Gets the value of the 'call' field.
-   */
+   * * Original call position for the variant, if the file was normalized.
+         *
+         * {position}:{reference}:{alternate}(,{other_alternate})*:{allele_index}   */
   public java.lang.String getCall() {
     return call;
   }
 
   /**
    * Sets the value of the 'call' field.
-   * @param value the value to set.
+   * * Original call position for the variant, if the file was normalized.
+         *
+         * {position}:{reference}:{alternate}(,{other_alternate})*:{allele_index}   * @param value the value to set.
    */
   public void setCall(java.lang.String value) {
     this.call = value;
@@ -82,14 +92,16 @@ public class FileEntry extends org.apache.avro.specific.SpecificRecordBase imple
 
   /**
    * Gets the value of the 'attributes' field.
-   */
+   * * Optional attributes that probably depend on the format of the file the
+         * variant was initially read from.   */
   public java.util.Map<java.lang.String,java.lang.String> getAttributes() {
     return attributes;
   }
 
   /**
    * Sets the value of the 'attributes' field.
-   * @param value the value to set.
+   * * Optional attributes that probably depend on the format of the file the
+         * variant was initially read from.   * @param value the value to set.
    */
   public void setAttributes(java.util.Map<java.lang.String,java.lang.String> value) {
     this.attributes = value;

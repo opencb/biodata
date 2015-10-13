@@ -24,7 +24,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantSource;
-import org.opencb.biodata.models.variant.VariantSourceEntry;
+import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.VariantVcfFactory;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.stats.VariantStats;
@@ -50,7 +50,7 @@ public class VariantStatsCalculatorTest {
         assertEquals(1, result.size());
         
         Variant variant = result.get(0);
-        VariantSourceEntry sourceEntry = variant.getSourceEntry(source.getFileId(), source.getStudyId());
+        StudyEntry sourceEntry = variant.getSourceEntry(source.getFileId(), source.getStudyId());
         
         VariantStats biallelicStats = new VariantStats(result.get(0));
         VariantStatsCalculator.calculate(sourceEntry.getSamplesDataAsMap(), sourceEntry.getAttributes(), null, biallelicStats);
@@ -107,7 +107,7 @@ public class VariantStatsCalculatorTest {
         
         // Test first variant (alt allele C)
         Variant variant_C = result.get(0);
-        VariantSourceEntry sourceEntry_C = variant_C.getSourceEntry(source.getFileId(), source.getStudyId());
+        StudyEntry sourceEntry_C = variant_C.getSourceEntry(source.getFileId(), source.getStudyId());
         VariantStats multiallelicStats_C = new VariantStats(result.get(0));
         VariantStatsCalculator.calculate(sourceEntry_C.getSamplesDataAsMap(), sourceEntry_C.getAttributes(), null, multiallelicStats_C);
         
@@ -149,7 +149,7 @@ public class VariantStatsCalculatorTest {
         
         // Test second variant (alt allele GC)
         Variant variant_GC = result.get(1);
-        VariantSourceEntry sourceEntry_GC = variant_GC.getSourceEntry(source.getFileId(), source.getStudyId());
+        StudyEntry sourceEntry_GC = variant_GC.getSourceEntry(source.getFileId(), source.getStudyId());
         VariantStats multiallelicStats_GC = new VariantStats(result.get(1));
         VariantStatsCalculator.calculate(sourceEntry_GC.getSamplesDataAsMap(), sourceEntry_GC.getAttributes(), null, multiallelicStats_GC);
         

@@ -18,7 +18,7 @@ package org.opencb.biodata.tools.variant.simulator;
 
 import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.VariantSourceEntry;
+import org.opencb.biodata.models.variant.StudyEntry;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -96,7 +96,7 @@ public class VariantSimulator {
 
         String variantType = null;
         String strand = null;
-        List<VariantSourceEntry> variantSourceEntry =new ArrayList<>();
+        List<StudyEntry> studyEntry =new ArrayList<>();
 
         chromosome = genChromose(0 , 23);
         start = start();
@@ -109,7 +109,7 @@ public class VariantSimulator {
         alternateAllele = getAlternate("BACD");
         variantType = getVariantType();
         strand = genID();
-        variantSourceEntry = getStudies(100);
+        studyEntry = getStudies(100);
         Variant variant = new Variant();
 
         return variant;
@@ -160,22 +160,22 @@ public class VariantSimulator {
         return variants.get(randomNumber);
     }
 
-    public List<VariantSourceEntry> getStudies(int n) {
+    public List<StudyEntry> getStudies(int n) {
         int studyID = 2;
         int fieldID = 3;
         Variant variant = new Variant();
-        List<VariantSourceEntry> variantSourceEntryList=new ArrayList<>();
-        VariantSourceEntry variantSourceEntry=new VariantSourceEntry();
-        variantSourceEntry.setStudyId(Integer.toString(studyID));
-        variantSourceEntry.setFileId(Integer.toString(fieldID));
-        variantSourceEntry.setFormat(getFormat());
+        List<StudyEntry> studyEntryList =new ArrayList<>();
+        StudyEntry studyEntry =new StudyEntry();
+        studyEntry.setStudyId(Integer.toString(studyID));
+        studyEntry.setFileId(Integer.toString(fieldID));
+        studyEntry.setFormat(getFormat());
         List<List<String>> sampleList = new ArrayList<>(getFormat().size());
         for (int i=0; i < n; i++) {
             sampleList.add(getRandomample());
         }
-        variantSourceEntry.setSamplesData(sampleList);
-        variantSourceEntryList.add(variantSourceEntry);
-        return variantSourceEntryList;
+        studyEntry.setSamplesData(sampleList);
+        studyEntryList.add(studyEntry);
+        return studyEntryList;
     }
 
     private List<String> getRandomample() {

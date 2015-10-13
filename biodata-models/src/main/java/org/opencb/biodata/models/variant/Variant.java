@@ -28,11 +28,11 @@ import java.util.stream.Collectors;
  * @author Jacobo Coll;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
-@JsonIgnoreProperties({"impl", "id", "sourceEntries"})
+@JsonIgnoreProperties({"impl", "id", "sourceEntries", "studiesMap"})
 public class Variant {
 
     private final VariantAvro impl;
-    private Map<String, VariantSourceEntry> sourceEntries = null;
+    private Map<String, StudyEntry> studyEntries = null;
 
     public static final int SV_THRESHOLD = 50;
 
@@ -100,7 +100,7 @@ public class Variant {
         this.resetHGVS();
 
 //        this.annotation = new VariantAnnotation(this.chromosome, this.start, this.end, this.reference, this.alternate);
-        sourceEntries = new HashMap<>();
+        studyEntries = new HashMap<>();
     }
 
     private void resetType() {
@@ -276,87 +276,64 @@ public class Variant {
         }
     }
 
-    public List<VariantSourceEntry> getStudies() {
-        return Collections.unmodifiableList(new ArrayList<>(getSourceEntries().values()));
+    public List<StudyEntry> getStudies() {
+        return Collections.unmodifiableList(new ArrayList<>(getStudiesMap().values()));
     }
 
-    public void setStudies(List<VariantSourceEntry> studies) {
-        sourceEntries = new HashMap<>(studies.size());
+    public void setStudies(List<StudyEntry> studies) {
+        studyEntries = new HashMap<>(studies.size());
         impl.setStudies(new ArrayList<>(studies.size()));
-        for (VariantSourceEntry study : studies) {
+        for (StudyEntry study : studies) {
             impl.getStudies().add(study.getImpl());
-            sourceEntries.put(composeId(study.getStudyId()), study);
+            studyEntries.put(composeId(study.getStudyId()), study);
         }
-    }
-
-    public Map<String, VariantSourceEntry> getSourceEntries() {
-        if (impl.getStudies() != null) {
-            if (sourceEntries == null) {
-                sourceEntries = new HashMap<>();
-                for (org.opencb.biodata.models.variant.avro.VariantSourceEntry sourceEntry : impl.getStudies()) {
-                    sourceEntries.put(composeId(sourceEntry.getStudyId()), new VariantSourceEntry(sourceEntry));
-                }
-            }
-            return Collections.unmodifiableMap(sourceEntries);
-        }
-        return null;
-    }
-
-    public VariantSourceEntry getSourceEntry(String studyId) {
-        return getSourceEntry(null, studyId);
     }
 
     @Deprecated
-    public VariantSourceEntry getSourceEntry(String fileId, String studyId) {
+    public Map<String, StudyEntry> getSourceEntries() {
+        return getStudiesMap();
+    }
+
+    public Map<String, StudyEntry> getStudiesMap() {
         if (impl.getStudies() != null) {
-            return getSourceEntries().get(composeId(studyId));
+            if (studyEntries == null) {
+                studyEntries = new HashMap<>();
+                for (org.opencb.biodata.models.variant.avro.StudyEntry sourceEntry : impl.getStudies()) {
+                    studyEntries.put(composeId(sourceEntry.getStudyId()), new StudyEntry(sourceEntry));
+                }
+            }
+            return Collections.unmodifiableMap(studyEntries);
         }
         return null;
     }
 
-    public void setSourceEntries(Map<String, VariantSourceEntry> sourceEntries) {
-        this.sourceEntries = sourceEntries;
-        impl.setStudies(new ArrayList<>(sourceEntries.size()));
-        for (VariantSourceEntry sourceEntry : sourceEntries.values()) {
-            impl.getStudies().add(sourceEntry.getImpl());
-        }
+    @Deprecated
+    public StudyEntry getSourceEntry(String studyId) {
+        return getStudy(studyId);
     }
 
-    public void addSourceEntry(VariantSourceEntry sourceEntry) {
-        if (sourceEntries == null) {
-            sourceEntries = new HashMap<>();
+    @Deprecated
+    public StudyEntry getSourceEntry(String fileId, String studyId) {
+        return getStudy(studyId);
+    }
+
+    public StudyEntry getStudy(String studyId) {
+        if (impl.getStudies() != null) {
+            return getStudiesMap().get(composeId(studyId));
         }
-        this.sourceEntries.put(composeId(sourceEntry.getStudyId()), sourceEntry);
+        return null;
+    }
+
+    public void addStudyEntry(StudyEntry sourceEntry) {
+        if (studyEntries == null) {
+            studyEntries = new HashMap<>();
+        }
+        this.studyEntries.put(composeId(sourceEntry.getStudyId()), sourceEntry);
         impl.getStudies().add(sourceEntry.getImpl());
     }
-//
-//    public VariantStats getStats(String studyId, String fileId) {
-//        VariantSourceEntry file = getSourceEntry(studyId, fileId);
-//        if (file == null) {
-//            return null;
-//        }
-//        return file.getStats();
-//    }
-
-//    public void setStats(VariantStats stats) {
-//        this.stats = stats;
-//    }
-
-//    public VariantAnnotation getAnnotation() {
-//        return annotation;
-//    }
-
-//    public void setAnnotation(VariantAnnotation annotation) {
-//        this.annotation = annotation;
-//    }
-
-//    @Deprecated
-//    public void addEffect(String allele, VariantEffect ct) {
-////        annotation.addEffect(allele, ct);
-//    }
 
     public Iterable<String> getSampleNames(String studyId, String fileId) {
-        VariantSourceEntry file = getSourceEntry(studyId, fileId);
+        StudyEntry file = getSourceEntry(studyId, fileId);
         if (file == null) {
             return null;
         }

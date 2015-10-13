@@ -96,8 +96,8 @@ public class VariantVcfFactory implements VariantFactory {
             VariantKeyFields keyFields = generatedKeyFields.get(i);
             Variant variant = new Variant(chromosome, keyFields.getStart(), keyFields.getEnd(), keyFields.getReference(), keyFields.getAlternate());
             String[] secondaryAlternates = getSecondaryAlternates(variant, keyFields.getNumAllele(), alternateAlleles);
-            VariantSourceEntry entry = new VariantSourceEntry(source.getFileId(), source.getStudyId(), secondaryAlternates, Arrays.asList(format.split(":")));
-            variant.addSourceEntry(entry);
+            StudyEntry entry = new StudyEntry(source.getFileId(), source.getStudyId(), secondaryAlternates, Arrays.asList(format.split(":")));
+            variant.addStudyEntry(entry);
 
             try {
                 parseSplitSampleData(entry, source, fields, reference, alternateAlleles, keyFields);
@@ -126,7 +126,7 @@ public class VariantVcfFactory implements VariantFactory {
         return secondaryAlternates;
     }
 
-    protected void parseSplitSampleData(VariantSourceEntry entry, VariantSource source, String[] fields,
+    protected void parseSplitSampleData(StudyEntry entry, VariantSource source, String[] fields,
                                         String reference, String[] alternateAlleles, VariantKeyFields variantKeyFields) throws NonStandardCompliantSampleField {
 //        List<String> formatFields = variant.getSourceEntry(source.getFileId(), source.getStudyId()).getFormat();
 
@@ -196,7 +196,7 @@ public class VariantVcfFactory implements VariantFactory {
     }
 
     protected void parseInfo(Variant variant, String fileId, String studyId, String info, int numAllele) {
-        VariantSourceEntry file = variant.getSourceEntry(fileId, studyId);
+        StudyEntry file = variant.getSourceEntry(fileId, studyId);
         
         for (String var : info.split(";")) {
             String[] splits = var.split("=");

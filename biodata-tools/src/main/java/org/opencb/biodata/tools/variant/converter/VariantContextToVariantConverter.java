@@ -21,8 +21,7 @@ import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.VariantFactory;
-import org.opencb.biodata.models.variant.VariantSourceEntry;
+import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.VariantVcfFactory;
 import org.opencb.biodata.models.variant.avro.*;
 import org.opencb.biodata.models.variant.stats.VariantStats;
@@ -93,11 +92,11 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         variant.resetHGVS();
 
         // set variantSourceEntry fields
-        List<VariantSourceEntry> studies = new ArrayList<>();
-        VariantSourceEntry variantSourceEntry = new VariantSourceEntry();
+        List<StudyEntry> studies = new ArrayList<>();
+        StudyEntry studyEntry = new StudyEntry();
 
         // For time being setting the hard coded values for FileId and Study ID
-        variantSourceEntry.setStudyId(studyId);
+        studyEntry.setStudyId(studyId);
 
 
         FileEntry fileEntry = new FileEntry();
@@ -122,7 +121,7 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         }
 
         fileEntry.setAttributes(attributes);
-        variantSourceEntry.setFiles(Collections.singletonList(fileEntry));
+        studyEntry.setFiles(Collections.singletonList(fileEntry));
 
 
         // We need to convert Allele object to String
@@ -131,7 +130,7 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         for (int i = 1; i < variantContext.getAlternateAlleles().size(); i++) {
             secondaryAlternateList.add(variantContext.getAlternateAlleles().get(i).toString());
         }
-        variantSourceEntry.setSecondaryAlternates(secondaryAlternateList);
+        studyEntry.setSecondaryAlternates(secondaryAlternateList);
 
 
         // set variant format
@@ -160,7 +159,7 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
                 formatFields.add(key);
             }
         }
-        variantSourceEntry.setFormat(formatFields);
+        studyEntry.setFormat(formatFields);
 
 
         // set sample data parameters Eg: GT:GQ:GQX:DP:DPF:AD 1/1:63:29:22:7:0,22
@@ -195,7 +194,7 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
             }
             sampleDataList.add(sampleList);
         }
-        variantSourceEntry.setSamplesData(sampleDataList);
+        studyEntry.setSamplesData(sampleDataList);
 
 
         /*
@@ -210,9 +209,9 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
 //                setVariantStatsParams(
 //                        setVariantHardyWeinbergStatsParams(),
 //                        variantContext));
-        variantSourceEntry.setStats(stats);
+        studyEntry.setStats(stats);
 
-        studies.add(variantSourceEntry);
+        studies.add(studyEntry);
         variant.setStudies(studies);
 
 

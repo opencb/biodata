@@ -5,7 +5,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.VariantSourceEntry;
+import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfMeta;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfMeta.Builder;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfRecord;
@@ -43,7 +43,7 @@ public class VariantAvroToVcfRecordTest {
         String format = "AB:EF:CD";
         String qual = "321";
         String filter = "PASS;low30";
-        VariantSourceEntry study = new VariantSourceEntry();
+        StudyEntry study = new StudyEntry();
         study.setFileId(file_name);
         study.setFormat(Arrays.asList(format.split(VCFConstants.FORMAT_FIELD_SEPARATOR)));
         study.setAttributes(

@@ -21,7 +21,7 @@ import java.util.*;
 import org.opencb.biodata.models.feature.AllelesCode;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.pedigree.Pedigree;
-import org.opencb.biodata.models.variant.VariantSourceEntry;
+import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,13 +70,13 @@ public class VariantSourceStats {
     public void updateFileStats(List<Variant> variants) {
         int incompleteVariantStats = 0;
         for (Variant v : variants) {
-            VariantSourceEntry file = v.getSourceEntry(fileId, studyId);
+            StudyEntry file = v.getSourceEntry(fileId, studyId);
             if (file == null) {
                 // The variant is not contained in this file
                 continue;
             }
             try {
-                fileStats.update(file.getCohortStats(VariantSourceEntry.DEFAULT_COHORT));
+                fileStats.update(file.getCohortStats(StudyEntry.DEFAULT_COHORT));
             } catch (NullPointerException e) {
                 incompleteVariantStats++;
             }
@@ -101,7 +101,7 @@ public class VariantSourceStats {
     
     public void updateSampleStats(List<Variant> variants, Pedigree pedigree) {
         for (Variant v : variants) {
-            VariantSourceEntry file = v.getSourceEntry(fileId, studyId);
+            StudyEntry file = v.getSourceEntry(fileId, studyId);
             if (file == null) {
                 // The variant is not contained in this file
                 continue;

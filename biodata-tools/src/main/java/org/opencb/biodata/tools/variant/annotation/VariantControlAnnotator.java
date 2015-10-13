@@ -23,7 +23,6 @@ import htsjdk.samtools.util.StringUtil;
 import htsjdk.tribble.readers.TabixReader;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.*;
-import org.opencb.biodata.models.variant.stats.VariantStats;
 import org.opencb.biodata.tools.variant.stats.VariantStatsCalculator;
 
 /**
@@ -154,12 +153,12 @@ public class VariantControlAnnotator implements VariantAnnotator {
 
                         for(Variant v : listRecords){
                             if(v.getReference().equals(record.getReference()) && v.getAlternate().equals(record.getAlternate())){
-                                VariantSourceEntry avf = v.getSourceEntry("CONTROL", null);
+                                StudyEntry avf = v.getSourceEntry("CONTROL", null);
 
-                                String gt = StringUtil.join(",", joinGenotypes(avf.getStats(VariantSourceEntry.DEFAULT_COHORT).getGenotypesCount()));
-                                String maf = String.format("%.4f", avf.getStats(VariantSourceEntry.DEFAULT_COHORT).getMaf());
-                                String amaf = avf.getStats(VariantSourceEntry.DEFAULT_COHORT).getMafAllele();
-                                for(Map.Entry<String, VariantSourceEntry> entry: record.getSourceEntries().entrySet()){
+                                String gt = StringUtil.join(",", joinGenotypes(avf.getStats(StudyEntry.DEFAULT_COHORT).getGenotypesCount()));
+                                String maf = String.format("%.4f", avf.getStats(StudyEntry.DEFAULT_COHORT).getMaf());
+                                String amaf = avf.getStats(StudyEntry.DEFAULT_COHORT).getMafAllele();
+                                for(Map.Entry<String, StudyEntry> entry: record.getSourceEntries().entrySet()){
                                     entry.getValue().addAttribute(this.prefix + "_gt", gt);
                                     entry.getValue().addAttribute(this.prefix + "_maf", maf);
                                     entry.getValue().addAttribute(this.prefix + "_amaf", amaf);
@@ -269,10 +268,10 @@ public class VariantControlAnnotator implements VariantAnnotator {
         for (Variant record : batch) {
 
             if (map.containsKey(record)) {
-                VariantSourceEntry avf = record.getSourceEntry("CONTROL", null);
-                avf.addAttribute(this.prefix + "_gt", StringUtil.join(",", avf.getStats(VariantSourceEntry.DEFAULT_COHORT).getGenotypesCount()));
-                avf.addAttribute(this.prefix + "_maf", String.format("%.4f", avf.getStats(VariantSourceEntry.DEFAULT_COHORT).getMaf()));
-                avf.addAttribute(this.prefix + "_amaf", avf.getStats(VariantSourceEntry.DEFAULT_COHORT).getMafAllele());
+                StudyEntry avf = record.getSourceEntry("CONTROL", null);
+                avf.addAttribute(this.prefix + "_gt", StringUtil.join(",", avf.getStats(StudyEntry.DEFAULT_COHORT).getGenotypesCount()));
+                avf.addAttribute(this.prefix + "_maf", String.format("%.4f", avf.getStats(StudyEntry.DEFAULT_COHORT).getMaf()));
+                avf.addAttribute(this.prefix + "_amaf", avf.getStats(StudyEntry.DEFAULT_COHORT).getMafAllele());
             }
         }
 

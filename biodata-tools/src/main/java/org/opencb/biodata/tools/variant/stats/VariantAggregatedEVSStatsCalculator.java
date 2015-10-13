@@ -17,10 +17,8 @@
 package org.opencb.biodata.tools.variant.stats;
 
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.VariantSourceEntry;
-import org.opencb.biodata.models.variant.VariantVcfFactory;
+import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.stats.VariantStats;
-import org.opencb.biodata.tools.variant.stats.VariantAggregatedStatsCalculator;
 
 import java.util.*;
 
@@ -58,7 +56,7 @@ public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsC
     }
 
     @Override
-    protected void parseStats(Variant variant, VariantSourceEntry file, int numAllele, String[] alternateAlleles, Map<String, String> info) {
+    protected void parseStats(Variant variant, StudyEntry file, int numAllele, String[] alternateAlleles, Map<String, String> info) {
         VariantStats stats = new VariantStats(variant);
         if (info.containsKey("MAF")) {
             String splitsMAF[] = info.get("MAF").split(",");
@@ -72,11 +70,11 @@ public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsC
             String splitsGTC[] = info.get("GTC").split(",");
             addGenotypeWithGTS(variant, file.getAttributes(), splitsGTC, alternateAlleles, numAllele, stats);
         }
-        file.setCohortStats(VariantSourceEntry.DEFAULT_COHORT, stats);
+        file.setStats(StudyEntry.DEFAULT_COHORT, stats);
     }
 
     @Override
-    protected void parseMappedStats(Variant variant, VariantSourceEntry sourceEntry,
+    protected void parseMappedStats(Variant variant, StudyEntry sourceEntry,
                                     int numAllele, String[] alternateAlleles, Map<String, String> info) {
         if (tagMap != null) {
             for (String key : info.keySet()) {

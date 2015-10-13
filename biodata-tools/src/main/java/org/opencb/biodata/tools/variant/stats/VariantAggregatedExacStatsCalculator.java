@@ -18,15 +18,13 @@ package org.opencb.biodata.tools.variant.stats;
 
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.VariantSourceEntry;
+import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.VariantVcfFactory;
 import org.opencb.biodata.models.variant.stats.VariantStats;
-import org.opencb.biodata.tools.variant.stats.VariantAggregatedStatsCalculator;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 /**
  * Created by jmmut on 2015-03-25.
@@ -64,8 +62,8 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
     }
 
     @Override
-    protected void parseStats(Variant variant, VariantSourceEntry source, int numAllele, String[] alternateAlleles, Map<String, String> info) {
-        VariantSourceEntry sourceEntry = variant.getSourceEntry(source.getFileId(), source.getStudyId());
+    protected void parseStats(Variant variant, StudyEntry source, int numAllele, String[] alternateAlleles, Map<String, String> info) {
+        StudyEntry sourceEntry = variant.getSourceEntry(source.getFileId(), source.getStudyId());
         VariantStats stats = new VariantStats(variant);
 
         if (info.containsKey(AC_HET)) {   // heterozygous genotype count
@@ -100,11 +98,11 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
             setMaf(an, acCounts, alternateAlleles, stats);
         }
 
-        sourceEntry.setCohortStats(VariantSourceEntry.DEFAULT_COHORT, stats);
+        sourceEntry.setStats(StudyEntry.DEFAULT_COHORT, stats);
     }
 
     @Override
-    protected void parseMappedStats(Variant variant, VariantSourceEntry sourceEntry, int numAllele, String[] alternateAlleles, Map<String, String> info) {
+    protected void parseMappedStats(Variant variant, StudyEntry sourceEntry, int numAllele, String[] alternateAlleles, Map<String, String> info) {
         Map<String, Integer> ans = new LinkedHashMap<>();
         Map<String, String[]> acs = new LinkedHashMap<>();
         for (Map.Entry<String, String> infoElem : info.entrySet()) {
@@ -139,9 +137,9 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
                 }
             }
         }
-        for (String cohortName : sourceEntry.getCohortStats().keySet()) {
+        for (String cohortName : sourceEntry.getStats().keySet()) {
             if (ans.containsKey(cohortName)) {
-                VariantStats cohortStats = sourceEntry.getCohortStats(cohortName);
+                VariantStats cohortStats = sourceEntry.getStats(cohortName);
                 Integer alleleNumber = ans.get(cohortName);
                 addReferenceGenotype(variant, cohortStats, alleleNumber);
                 setRefAlleleCount(cohortStats, alleleNumber, acs.get(cohortName));

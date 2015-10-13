@@ -43,7 +43,7 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
 
 
     @Override
-    protected void parseSplitSampleData(VariantSourceEntry variant, VariantSource source, String[] fields,
+    protected void parseSplitSampleData(StudyEntry variant, VariantSource source, String[] fields,
                                         String reference, String[] alternateAlleles, VariantNormalizer.VariantKeyFields variantKeyFields)
             throws NonStandardCompliantSampleField {
         // Nothing to do
@@ -55,7 +55,7 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
                                   String info, String format, int numAllele, String[] alternateAlleles, String line) {
         // Fields not affected by the structure of REF and ALT fields
         variant.setIds(ids);
-        VariantSourceEntry sourceEntry = variant.getSourceEntry(source.getFileId(), source.getStudyId());
+        StudyEntry sourceEntry = variant.getSourceEntry(source.getFileId(), source.getStudyId());
         if (quality > -1) {
             sourceEntry.addAttribute(source.getFileId(), "QUAL", String.valueOf(quality));
         }
@@ -82,7 +82,7 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
         return map;
     }
 
-    protected void addInfo(Variant variant, VariantSourceEntry file, int numAllele, Map<String, String> info) {
+    protected void addInfo(Variant variant, StudyEntry file, int numAllele, Map<String, String> info) {
         for (Map.Entry<String, String> infoElement : info.entrySet()) {
 
             String infoTag = infoElement.getKey();
@@ -144,7 +144,7 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
     }
 
 
-    protected void addAttributes(Variant variant, VariantSourceEntry sourceEntry, int numAllele, String[] alternateAlleles,
+    protected void addAttributes(Variant variant, StudyEntry sourceEntry, int numAllele, String[] alternateAlleles,
                                  Map<String, String> infoMap) {
 
     }

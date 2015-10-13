@@ -83,17 +83,57 @@ protocol Variants {
     }
 
     record FileEntry {
-        string fileId;
-        string call;
+        /**
+         * Unique identifier of the source file.
+         */
+        union { null, string } fileId;
+
+        /**
+         * Original call position for the variant, if the file was normalized.
+         *
+         * {position}:{reference}:{alternate}(,{other_alternate})*:{allele_index}
+         */
+        union { null, string } call;
+
+        /**
+         * Optional attributes that probably depend on the format of the file the
+         * variant was initially read from.
+         */
         map<string> attributes;
     }
 
-    record VariantSourceEntry {
+    record StudyEntry {
+        /**
+         * Unique identifier of the study.
+         */
         union { null, string } studyId;
+
+        /**
+         * List of files from the study where the variant was present.
+         */
         array<FileEntry> files = [];
+
+        /**
+         * Alternate alleles that appear along with a variant alternate.
+         */
         union { null, array<string> } secondaryAlternates = null;
+
+        /**
+         * Fields stored for each sample.
+         */
         array<string> format;
+
+        /**
+         * Genotypes and other sample-related information. Each position is related
+         * with one sample. The content are lists of values in the same order than the
+         * format array. The length of this lists must be the same as the format field.
+         */
         array<array<string>> samplesData;
+
+        /**
+         * Statistics of the genomic variation, such as its alleles/genotypes count
+         * or its minimum allele frequency, grouped by cohort name.
+         */
         map<VariantStats> stats;
     }
 
@@ -177,7 +217,7 @@ protocol Variants {
          * Information specific to each study the variant was read from, such as
          * samples or statistics.
          */
-        array<VariantSourceEntry> studies;
+        array<StudyEntry> studies;
 
         /**
          * Annotations of the genomic variation.

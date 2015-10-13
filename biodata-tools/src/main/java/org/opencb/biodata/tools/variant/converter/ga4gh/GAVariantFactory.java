@@ -19,7 +19,7 @@ package org.opencb.biodata.tools.variant.converter.ga4gh;
 import org.ga4gh.models.Call;
 import org.ga4gh.models.Variant;
 import org.opencb.biodata.models.feature.Genotype;
-import org.opencb.biodata.models.variant.VariantSourceEntry;
+import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 
 import java.util.*;
@@ -45,7 +45,7 @@ public class GAVariantFactory {
 
             List<CharSequence> variantIds = new ArrayList<>(variant.getIds());
 
-            for (VariantSourceEntry study : variant.getStudies()) {
+            for (StudyEntry study : variant.getStudies()) {
                 List<CharSequence> alternates = new ArrayList<>(study.getSecondaryAlternates().size() + 1);
                 alternates.add(variant.getAlternate());
                 alternates.addAll(study.getSecondaryAlternates());
@@ -124,7 +124,7 @@ public class GAVariantFactory {
      * @param study
      * @return
      */
-    private List<Call> parseCalls(CharSequence variantId, VariantSourceEntry study) {
+    private List<Call> parseCalls(CharSequence variantId, StudyEntry study) {
         List<Call> calls = new LinkedList<>();
 
         for (String sample : study.getOrderedSamplesName()) {

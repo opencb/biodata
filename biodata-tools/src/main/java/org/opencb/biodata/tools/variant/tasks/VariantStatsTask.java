@@ -19,7 +19,7 @@ package org.opencb.biodata.tools.variant.tasks;
 import java.io.IOException;
 import java.util.List;
 import org.opencb.biodata.formats.variant.io.VariantReader;
-import org.opencb.biodata.models.variant.VariantSourceEntry;
+import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantSource;
 import org.opencb.biodata.models.variant.stats.VariantSourceStats;
@@ -58,9 +58,9 @@ public class VariantStatsTask extends Task<Variant> {
     public boolean apply(List<Variant> batch) throws IOException {
 //        VariantStats.calculateStatsForVariantsList(batch, source.getPedigree());
         for (Variant variant : batch) {
-            for (VariantSourceEntry file : variant.getSourceEntries().values()) {
+            for (StudyEntry file : variant.getSourceEntries().values()) {
                 VariantStats variantStats = new VariantStats(variant);
-                file.setStats(variantStats);
+                file.setStats(StudyEntry.DEFAULT_COHORT, variantStats);
                 switch (source.getAggregation()) {
                     case NONE:
                         VariantStatsCalculator.calculate(file.getSamplesDataAsMap(), file.getAttributes(), source.getPedigree(), variantStats);

@@ -45,7 +45,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                 Variant normalizedVariant = newVariant(variant, keyFields);
                 normalizedVariants.add(normalizedVariant);
             } else {
-                for (VariantSourceEntry entry : variant.getStudies()) {
+                for (StudyEntry entry : variant.getStudies()) {
                     List<String> alternates = new ArrayList<>(1 + entry.getSecondaryAlternates().size());
                     alternates.add(alternate);
                     alternates.addAll(entry.getSecondaryAlternates());
@@ -55,7 +55,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                         String call = start + ":" + reference + ":" + alternates.stream().collect(Collectors.joining(",")) + ":" + keyFields.getNumAllele();
 
                         final Variant normalizedVariant;
-                        final VariantSourceEntry normalizedEntry;
+                        final StudyEntry normalizedEntry;
                         final List<List<String>> samplesData;
                         if (reuse && keyFieldsList.size() == 1) {   //Only reuse for non multiallelic variants
                             //Reuse variant. Set new fields.
@@ -70,7 +70,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                         } else {
                             normalizedVariant = newVariant(variant, keyFields);
 
-                            normalizedEntry = new VariantSourceEntry();
+                            normalizedEntry = new StudyEntry();
                             normalizedEntry.setStudyId(entry.getStudyId());
                             normalizedEntry.setSamplesPosition(entry.getSamplesPosition());
                             normalizedEntry.setFormat(entry.getFormat());
@@ -80,7 +80,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                                 files.add(new FileEntry(file.getFileId(), call, file.getAttributes())); //TODO: Check file attributes
                             }
                             normalizedEntry.setFiles(files);
-                            normalizedVariant.addSourceEntry(normalizedEntry);
+                            normalizedVariant.addStudyEntry(normalizedEntry);
                             samplesData = newSamplesData(entry.getSamplesData().size(), entry.getFormat().size());
                         }
 

@@ -31,80 +31,40 @@ import org.opencb.biodata.models.variant.stats.VariantStats;
  * @author Jose Miguel Mut Lopez &lt;jmmut@ebi.ac.uk&gt;
  */
 @JsonIgnoreProperties({"impl", "samplesDataAsMap", "samplesPosition", "samplesName", "orderedSamplesName", "formatAsString", "formatPositions", "fileId", "attributes", "allAttributes", "cohortStats"})
-public class VariantSourceEntry {
+public class StudyEntry {
 
     private LinkedHashMap<String, Integer> samplesPosition = null;
     private Map<String, Integer> formatPosition = null;
     private Map<String, VariantStats> cohortStats = null;
-    private final org.opencb.biodata.models.variant.avro.VariantSourceEntry impl;
-
-    /**
-     * Unique identifier of the archived file.
-     */
-//    private String fileId;
-    
-    /**
-     * Unique identifier of the study containing the archived file.
-     */
-//    private String studyId;
-    
-    /**
-     * Alternate alleles that appear along with a variant alternate.
-     */
-//    private String[] secondaryAlternates;
-    
-    /**
-     * Fields stored for each sample.
-     */
-//    private String format;
-    
-    /**
-     * Genotypes and other sample-related information. The keys are the names
-     * of the samples. The values are pairs (field name, field value), such as
-     * (GT, A/C).
-     */
-//    private Map<String, Map<String, String>> samplesData;
-    
-    /**
-     * Statistics of the genomic variation, such as its alleles/genotypes count 
-     * or its minimum allele frequency, grouped by cohort name.
-     */
-//    private Map<String, VariantStats> cohortStats;
+    private final org.opencb.biodata.models.variant.avro.StudyEntry impl;
     public static final String DEFAULT_COHORT = "ALL";
-    
-    /**
-     * Optional attributes that probably depend on the format of the file the
-     * variant was initially read from.
-     */
-//    private Map<String, String> attributes;
 
-
-    public VariantSourceEntry() {
+    public StudyEntry() {
         this(null, null);
     }
     
-    public VariantSourceEntry(org.opencb.biodata.models.variant.avro.VariantSourceEntry other) {
+    public StudyEntry(org.opencb.biodata.models.variant.avro.StudyEntry other) {
         impl = other;
     }
 
-    public VariantSourceEntry(String studyId) {
+    public StudyEntry(String studyId) {
         this(null, studyId, new String[0], (List<String>) null);
     }
 
-    public VariantSourceEntry(String fileId, String studyId) {
+    public StudyEntry(String fileId, String studyId) {
         this(fileId, studyId, new String[0], (List<String>) null);
     }
 
-    public VariantSourceEntry(String fileId, String studyId, String[] secondaryAlternates, String format) {
+    public StudyEntry(String fileId, String studyId, String[] secondaryAlternates, String format) {
         this(fileId, studyId, secondaryAlternates, format == null ? null : Arrays.asList(format.split(":")));
     }
 
-    public VariantSourceEntry(String fileId, String studyId, String[] secondaryAlternates, List<String> format) {
+    public StudyEntry(String fileId, String studyId, String[] secondaryAlternates, List<String> format) {
         this(fileId, studyId, Arrays.asList(secondaryAlternates), format);
     }
 
-    public VariantSourceEntry(String fileId, String studyId, List<String> secondaryAlternates, List<String> format) {
-        this.impl = new org.opencb.biodata.models.variant.avro.VariantSourceEntry(studyId,
+    public StudyEntry(String fileId, String studyId, List<String> secondaryAlternates, List<String> format) {
+        this.impl = new org.opencb.biodata.models.variant.avro.StudyEntry(studyId,
                 new LinkedList<>(), secondaryAlternates, format, new LinkedList<>(), new LinkedHashMap<>());
         if (fileId != null) {
             setFileId(fileId);
@@ -121,17 +81,14 @@ public class VariantSourceEntry {
             return;
         }
         if (samplesPosition instanceof LinkedHashMap) {
-            this.samplesPosition = ((LinkedHashMap) samplesPosition);
+            if (isSamplesPositionMapSorted(samplesPosition)) {
+                this.samplesPosition = ((LinkedHashMap) samplesPosition);
+            } else {
+                this.samplesPosition = sortSamplesPositionMap(samplesPosition);
+            }
         } else {
             //Sort samples position
-            this.samplesPosition = new LinkedHashMap<>();
-            String[] samples = new String[samplesPosition.size()];
-            for (Map.Entry<String, Integer> entry : samplesPosition.entrySet()) {
-                samples[entry.getValue()] = entry.getKey();
-            }
-            for (int i = 0; i < samples.length; i++) {
-                this.samplesPosition.put(samples[i], i);
-            }
+            this.samplesPosition = sortSamplesPositionMap(samplesPosition);
         }
         if (getSamplesData() == null || getSamplesData().isEmpty()) {
             for (int size = samplesPosition.size(); size > 0; size--) {
@@ -140,7 +97,30 @@ public class VariantSourceEntry {
         }
     }
 
-    public org.opencb.biodata.models.variant.avro.VariantSourceEntry getImpl() {
+    private static boolean isSamplesPositionMapSorted(Map<String, Integer> samplesPosition) {
+        int idx = 0;
+        for (Map.Entry<String, Integer> entry : samplesPosition.entrySet()) {
+            if (entry.getValue() != idx) {
+                break;
+            }
+            idx++;
+        }
+        return idx == samplesPosition.size();
+    }
+
+    private LinkedHashMap<String, Integer> sortSamplesPositionMap(Map<String, Integer> samplesPosition) {
+        LinkedHashMap<String, Integer> map = new LinkedHashMap<>();
+        String[] samples = new String[samplesPosition.size()];
+        for (Map.Entry<String, Integer> entry : samplesPosition.entrySet()) {
+            samples[entry.getValue()] = entry.getKey();
+        }
+        for (int i = 0; i < samples.length; i++) {
+            map.put(samples[i], i);
+        }
+        return map;
+    }
+
+    public org.opencb.biodata.models.variant.avro.StudyEntry getImpl() {
         return impl;
     }
 
@@ -302,10 +282,6 @@ public class VariantSourceEntry {
         stats.forEach((k, v) -> impl.getStats().put(k, v.getImpl()));
     }
 
-    public void setStats(VariantStats stats) {
-        setStats(DEFAULT_COHORT, stats);
-    }
-
     public void setStats(String cohortName, VariantStats stats) {
         resetStatsMap();
         cohortStats.put(cohortName, stats);
@@ -445,8 +421,8 @@ public class VariantSourceEntry {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof VariantSourceEntry) {
-            return impl.equals(((VariantSourceEntry) obj).getImpl());
+        if (obj instanceof StudyEntry) {
+            return impl.equals(((StudyEntry) obj).getImpl());
         } else {
             return false;
         }
