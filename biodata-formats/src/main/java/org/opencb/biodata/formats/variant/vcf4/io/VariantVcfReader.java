@@ -54,6 +54,7 @@ public class VariantVcfReader implements VariantReader {
 
     private VariantSource source;
     private VariantFactory factory;
+    private VcfHeaderFactory heaederFactory;
 
     public VariantVcfReader(VariantSource source, String filePath) {
         this(source, filePath, new VariantVcfFactory());
@@ -174,35 +175,7 @@ public class VariantVcfReader implements VariantReader {
 
     @Override
     public String getHeader() {
-        StringBuilder header = new StringBuilder();
-        header.append("##fileformat=").append(vcf4.getFileFormat()).append("\n");
-
-        Iterator<String> iter = vcf4.getMetaInformation().keySet().iterator();
-        String headerKey;
-        while (iter.hasNext()) {
-            headerKey = iter.next();
-            header.append("##").append(headerKey).append("=").append(vcf4.getMetaInformation().get(headerKey)).append("\n");
-        }
-
-        for (VcfAlternateHeader vcfAlternate : vcf4.getAlternate().values()) {
-            header.append(vcfAlternate.toString()).append("\n");
-        }
-
-        for (VcfFilterHeader vcfFilter : vcf4.getFilter().values()) {
-            header.append(vcfFilter.toString()).append("\n");
-        }
-
-        for (VcfInfoHeader vcfInfo : vcf4.getInfo().values()) {
-            header.append(vcfInfo.toString()).append("\n");
-        }
-
-        for (VcfFormatHeader vcfFormat : vcf4.getFormat().values()) {
-            header.append(vcfFormat.toString()).append("\n");
-        }
-
-        header.append("#").append(Joiner.on("\t").join(vcf4.getHeaderLine())).append("\n");
-
-        return header.toString();
+        return heaederFactory.toText(vcf4);
     }
 
     private void processHeader() throws IOException, FileFormatException {
@@ -214,47 +187,15 @@ public class VariantVcfReader implements VariantReader {
             localBufferedReader = new BufferedReader(new FileReader(path.toFile()));
         }
 
-        boolean header = false;
-        String line;
-
-        while ((line = localBufferedReader.readLine()) != null && line.startsWith("#")) {
-            if (line.startsWith("##fileformat")) {
-                if (line.split("=").length > 1) {
-                    vcf4.setFileFormat(line.split("=")[1].trim());
-                } else {
-                    throw new FileFormatException("");
-                }
-
-            } else if (line.startsWith("##INFO")) {
-                VcfInfoHeader vcfInfo = new VcfInfoHeader(line);
-                vcf4.getInfo().put(vcfInfo.getId(), vcfInfo);
-
-            } else if (line.startsWith("##FILTER")) {
-                VcfFilterHeader vcfFilter = new VcfFilterHeader(line);
-                vcf4.getFilter().put(vcfFilter.getId(), vcfFilter);
-
-            } else if (line.startsWith("##FORMAT")) {
-                VcfFormatHeader vcfFormat = new VcfFormatHeader(line);
-                vcf4.getFormat().put(vcfFormat.getId(), vcfFormat);
-
-            } else if (line.startsWith("#CHROM")) {
-//               List<String>  headerLine = StringUtils.toList(line.replace("#", ""), "\t");
-                List<String> headerLine = Splitter.on("\t").splitToList(line.replace("#", ""));
-                vcf4.setHeaderLine(headerLine);
-                header = true;
-
-            } else {
-                String[] fields = line.replace("#", "").split("=", 2);
-                vcf4.getMetaInformation().put(fields[0], fields[1]);
-            }
-        }
+        vcf4 = heaederFactory.parseHeader(localBufferedReader);
         
-        if (!header) {
+        if (vcf4 == null) {
             System.err.println("VCF Header must be provided.");
 //            System.exit(-1);
         }
         
         localBufferedReader.close();
     }
+
 
 }

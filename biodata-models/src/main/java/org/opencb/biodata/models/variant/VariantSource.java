@@ -19,6 +19,7 @@ package org.opencb.biodata.models.variant;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.opencb.biodata.models.pedigree.Pedigree;
 import org.opencb.biodata.models.variant.avro.VariantFileMetadata;
+import org.opencb.biodata.models.variant.avro.VcfHeader;
 import org.opencb.biodata.models.variant.stats.VariantGlobalStats;
 
 import java.util.*;
@@ -185,8 +186,17 @@ public class VariantSource {
 //        this.stats = stats;
     }
 
-    public String toJson() {
-        return impl.toString();
+    public VcfHeader getHeader() {
+        Object o = impl.getMetadata().get("header");
+        if (o instanceof VcfHeader) {
+            return (VcfHeader) o;
+        } else {
+            return null;
+        }
+    }
+
+    public void setHeader(VcfHeader value) {
+        impl.getMetadata().put("header", value);
     }
 
     @Override

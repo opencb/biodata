@@ -7,10 +7,10 @@ package org.opencb.biodata.models.variant.avro;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class VcfHeader extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"VcfHeader\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"fileFormat\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"info\",\"type\":{\"type\":\"map\",\"values\":{\"type\":\"array\",\"items\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},{\"type\":\"map\",\"values\":{\"type\":\"string\",\"avro.java.string\":\"String\"},\"avro.java.string\":\"String\"}]},\"avro.java.string\":\"String\"}}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"VcfHeader\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"fileFormat\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"meta\",\"type\":{\"type\":\"map\",\"values\":{\"type\":\"array\",\"items\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},{\"type\":\"map\",\"values\":{\"type\":\"string\",\"avro.java.string\":\"String\"},\"avro.java.string\":\"String\"}]},\"avro.java.string\":\"String\"}}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
    private java.lang.String fileFormat;
-   private java.util.Map<java.lang.String,java.util.List<java.lang.Object>> info;
+   private java.util.Map<java.lang.String,java.util.List<java.lang.Object>> meta;
 
   /**
    * Default constructor.  Note that this does not initialize fields
@@ -22,9 +22,9 @@ public class VcfHeader extends org.apache.avro.specific.SpecificRecordBase imple
   /**
    * All-args constructor.
    */
-  public VcfHeader(java.lang.String fileFormat, java.util.Map<java.lang.String,java.util.List<java.lang.Object>> info) {
+  public VcfHeader(java.lang.String fileFormat, java.util.Map<java.lang.String,java.util.List<java.lang.Object>> meta) {
     this.fileFormat = fileFormat;
-    this.info = info;
+    this.meta = meta;
   }
 
   public org.apache.avro.Schema getSchema() { return SCHEMA$; }
@@ -32,7 +32,7 @@ public class VcfHeader extends org.apache.avro.specific.SpecificRecordBase imple
   public java.lang.Object get(int field$) {
     switch (field$) {
     case 0: return fileFormat;
-    case 1: return info;
+    case 1: return meta;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -41,7 +41,7 @@ public class VcfHeader extends org.apache.avro.specific.SpecificRecordBase imple
   public void put(int field$, java.lang.Object value$) {
     switch (field$) {
     case 0: fileFormat = (java.lang.String)value$; break;
-    case 1: info = (java.util.Map<java.lang.String,java.util.List<java.lang.Object>>)value$; break;
+    case 1: meta = (java.util.Map<java.lang.String,java.util.List<java.lang.Object>>)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -62,18 +62,18 @@ public class VcfHeader extends org.apache.avro.specific.SpecificRecordBase imple
   }
 
   /**
-   * Gets the value of the 'info' field.
+   * Gets the value of the 'meta' field.
    */
-  public java.util.Map<java.lang.String,java.util.List<java.lang.Object>> getInfo() {
-    return info;
+  public java.util.Map<java.lang.String,java.util.List<java.lang.Object>> getMeta() {
+    return meta;
   }
 
   /**
-   * Sets the value of the 'info' field.
+   * Sets the value of the 'meta' field.
    * @param value the value to set.
    */
-  public void setInfo(java.util.Map<java.lang.String,java.util.List<java.lang.Object>> value) {
-    this.info = value;
+  public void setMeta(java.util.Map<java.lang.String,java.util.List<java.lang.Object>> value) {
+    this.meta = value;
   }
 
   /** Creates a new VcfHeader RecordBuilder */
@@ -98,7 +98,7 @@ public class VcfHeader extends org.apache.avro.specific.SpecificRecordBase imple
     implements org.apache.avro.data.RecordBuilder<VcfHeader> {
 
     private java.lang.String fileFormat;
-    private java.util.Map<java.lang.String,java.util.List<java.lang.Object>> info;
+    private java.util.Map<java.lang.String,java.util.List<java.lang.Object>> meta;
 
     /** Creates a new Builder */
     private Builder() {
@@ -112,8 +112,8 @@ public class VcfHeader extends org.apache.avro.specific.SpecificRecordBase imple
         this.fileFormat = data().deepCopy(fields()[0].schema(), other.fileFormat);
         fieldSetFlags()[0] = true;
       }
-      if (isValidValue(fields()[1], other.info)) {
-        this.info = data().deepCopy(fields()[1].schema(), other.info);
+      if (isValidValue(fields()[1], other.meta)) {
+        this.meta = data().deepCopy(fields()[1].schema(), other.meta);
         fieldSetFlags()[1] = true;
       }
     }
@@ -125,8 +125,8 @@ public class VcfHeader extends org.apache.avro.specific.SpecificRecordBase imple
         this.fileFormat = data().deepCopy(fields()[0].schema(), other.fileFormat);
         fieldSetFlags()[0] = true;
       }
-      if (isValidValue(fields()[1], other.info)) {
-        this.info = data().deepCopy(fields()[1].schema(), other.info);
+      if (isValidValue(fields()[1], other.meta)) {
+        this.meta = data().deepCopy(fields()[1].schema(), other.meta);
         fieldSetFlags()[1] = true;
       }
     }
@@ -156,27 +156,27 @@ public class VcfHeader extends org.apache.avro.specific.SpecificRecordBase imple
       return this;
     }
 
-    /** Gets the value of the 'info' field */
-    public java.util.Map<java.lang.String,java.util.List<java.lang.Object>> getInfo() {
-      return info;
+    /** Gets the value of the 'meta' field */
+    public java.util.Map<java.lang.String,java.util.List<java.lang.Object>> getMeta() {
+      return meta;
     }
     
-    /** Sets the value of the 'info' field */
-    public org.opencb.biodata.models.variant.avro.VcfHeader.Builder setInfo(java.util.Map<java.lang.String,java.util.List<java.lang.Object>> value) {
+    /** Sets the value of the 'meta' field */
+    public org.opencb.biodata.models.variant.avro.VcfHeader.Builder setMeta(java.util.Map<java.lang.String,java.util.List<java.lang.Object>> value) {
       validate(fields()[1], value);
-      this.info = value;
+      this.meta = value;
       fieldSetFlags()[1] = true;
       return this; 
     }
     
-    /** Checks whether the 'info' field has been set */
-    public boolean hasInfo() {
+    /** Checks whether the 'meta' field has been set */
+    public boolean hasMeta() {
       return fieldSetFlags()[1];
     }
     
-    /** Clears the value of the 'info' field */
-    public org.opencb.biodata.models.variant.avro.VcfHeader.Builder clearInfo() {
-      info = null;
+    /** Clears the value of the 'meta' field */
+    public org.opencb.biodata.models.variant.avro.VcfHeader.Builder clearMeta() {
+      meta = null;
       fieldSetFlags()[1] = false;
       return this;
     }
@@ -186,7 +186,7 @@ public class VcfHeader extends org.apache.avro.specific.SpecificRecordBase imple
       try {
         VcfHeader record = new VcfHeader();
         record.fileFormat = fieldSetFlags()[0] ? this.fileFormat : (java.lang.String) defaultValue(fields()[0]);
-        record.info = fieldSetFlags()[1] ? this.info : (java.util.Map<java.lang.String,java.util.List<java.lang.Object>>) defaultValue(fields()[1]);
+        record.meta = fieldSetFlags()[1] ? this.meta : (java.util.Map<java.lang.String,java.util.List<java.lang.Object>>) defaultValue(fields()[1]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);

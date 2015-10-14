@@ -234,7 +234,7 @@ protocol Variants {
 
     record VcfHeader {
         string fileFormat;
-        map<array<union { string, map<string> }>> info;
+        map<array<union { string, map<string> }>> meta;
     }
 
     record VariantFileMetadata {
@@ -252,9 +252,7 @@ protocol Variants {
 
         //VariantFileStats
 
-        map<union { string, VcfHeader}> metadata;
-
-        //VcfHeader header;
+        map<union {string, VcfHeader}> metadata;
     }
 
 }

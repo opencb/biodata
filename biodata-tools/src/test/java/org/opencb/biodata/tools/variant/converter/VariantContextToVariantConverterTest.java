@@ -19,6 +19,7 @@ package org.opencb.biodata.tools.variant.converter;
 import htsjdk.variant.variantcontext.LazyGenotypesContext;
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFFileReader;
+import htsjdk.variant.vcf.VCFHeader;
 import org.apache.avro.file.DataFileReader;
 import org.apache.avro.file.DataFileWriter;
 import org.apache.avro.io.DatumWriter;
@@ -29,7 +30,10 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantNormalizer;
+import org.opencb.biodata.models.variant.avro.Aggregation;
 import org.opencb.biodata.models.variant.avro.VariantAvro;
+import org.opencb.biodata.models.variant.avro.VariantFileMetadata;
+import org.opencb.biodata.models.variant.avro.VcfHeader;
 import org.opencb.commons.run.ParallelTaskRunner;
 
 import java.io.File;
@@ -38,6 +42,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -103,13 +108,23 @@ public class VariantContextToVariantConverterTest {
         if (outputPath.toFile().exists()) {
             outputPath.toFile().delete();
         }
+        Path metaOutputPath = Paths.get(outputPath.toAbsolutePath().toString().replace(".avro", ".meta.avro"));
+        if (metaOutputPath.toFile().exists()) {
+            metaOutputPath.toFile().delete();
+        }
+
+        String studyId = "1";
+        String fileId = "2";
+        String studyName = "1000g";
+        String fileName = "CEU-1409-01_5000";
 
         //Reader
         VCFFileReader reader = new VCFFileReader(inputPath.toFile(), false);
         final Iterator<VariantContext> iterator = reader.iterator();
+        VCFHeader fileHeader = reader.getFileHeader();
 
         //Task
-        VariantContextToVariantConverter converter = new VariantContextToVariantConverter("1000g", "CEU-1409-01_5000");
+        VariantContextToVariantConverter converter = new VariantContextToVariantConverter(studyId, fileId);
         VariantNormalizer normalizer = new VariantNormalizer();
 
         //Writer
@@ -151,6 +166,20 @@ public class VariantContextToVariantConverterTest {
 
         reader.close();
         writer.close();
+
+        VcfHeader avroHeader = new VCFHeaderToAvroVcfHeaderConverter().convert(fileHeader);
+        VariantFileMetadata fileMetadata = new VariantFileMetadata(
+                fileId, studyId, fileName, studyName, fileHeader.getSampleNamesInOrder(),
+                Aggregation.NONE, new HashMap<>());
+        fileMetadata.getMetadata().put("header", avroHeader);
+        System.out.println(fileMetadata.toString());
+        FileOutputStream metaOutputStream = new FileOutputStream(metaOutputPath.toFile());
+        DatumWriter<VariantFileMetadata> fileMetaDatumWriter = new SpecificDatumWriter<>(VariantFileMetadata.class);
+        DataFileWriter<VariantFileMetadata> fileMetaWriter = new DataFileWriter<>(fileMetaDatumWriter);
+        fileMetaWriter.create(VariantFileMetadata.getClassSchema(), metaOutputStream);
+        fileMetaWriter.append(fileMetadata);
+        fileMetaWriter.close();
+
 
         return writenVariants[0];
     }
