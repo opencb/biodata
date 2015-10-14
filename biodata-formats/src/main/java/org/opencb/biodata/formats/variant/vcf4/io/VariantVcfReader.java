@@ -54,7 +54,7 @@ public class VariantVcfReader implements VariantReader {
 
     private VariantSource source;
     private VariantFactory factory;
-    private VcfHeaderFactory heaederFactory;
+    private VcfHeaderFactory heaederFactory = new VcfHeaderFactory();
 
     public VariantVcfReader(VariantSource source, String filePath) {
         this(source, filePath, new VariantVcfFactory());

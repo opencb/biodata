@@ -170,8 +170,7 @@ public class VariantContextToVariantConverterTest {
         VcfHeader avroHeader = new VCFHeaderToAvroVcfHeaderConverter().convert(fileHeader);
         VariantFileMetadata fileMetadata = new VariantFileMetadata(
                 fileId, studyId, fileName, studyName, fileHeader.getSampleNamesInOrder(),
-                Aggregation.NONE, new HashMap<>());
-        fileMetadata.getMetadata().put("header", avroHeader);
+                Aggregation.NONE, new HashMap<>(), avroHeader);
         System.out.println(fileMetadata.toString());
         FileOutputStream metaOutputStream = new FileOutputStream(metaOutputPath.toFile());
         DatumWriter<VariantFileMetadata> fileMetaDatumWriter = new SpecificDatumWriter<>(VariantFileMetadata.class);

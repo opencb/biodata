@@ -7,7 +7,7 @@ package org.opencb.biodata.models.variant.avro;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"VariantFileMetadata\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"fileId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"studyId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"fileName\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}],\"default\":null},{\"name\":\"studyName\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}],\"default\":null},{\"name\":\"samples\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},\"default\":[]},{\"name\":\"aggregation\",\"type\":{\"type\":\"enum\",\"name\":\"Aggregation\",\"symbols\":[\"NONE\",\"BASIC\",\"EVS\",\"EXAC\"]}},{\"name\":\"metadata\",\"type\":{\"type\":\"map\",\"values\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},{\"type\":\"record\",\"name\":\"VcfHeader\",\"fields\":[{\"name\":\"fileFormat\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"meta\",\"type\":{\"type\":\"map\",\"values\":{\"type\":\"array\",\"items\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},{\"type\":\"map\",\"values\":{\"type\":\"string\",\"avro.java.string\":\"String\"},\"avro.java.string\":\"String\"}]},\"avro.java.string\":\"String\"}}]}],\"avro.java.string\":\"String\"}}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"VariantFileMetadata\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"fileId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"studyId\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"fileName\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}],\"default\":null},{\"name\":\"studyName\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}],\"default\":null},{\"name\":\"samples\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},\"default\":[]},{\"name\":\"aggregation\",\"type\":{\"type\":\"enum\",\"name\":\"Aggregation\",\"symbols\":[\"NONE\",\"BASIC\",\"EVS\",\"EXAC\"]}},{\"name\":\"metadata\",\"type\":{\"type\":\"map\",\"values\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},{\"type\":\"record\",\"name\":\"VcfHeader\",\"fields\":[{\"name\":\"fileFormat\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"meta\",\"type\":{\"type\":\"map\",\"values\":{\"type\":\"array\",\"items\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},{\"type\":\"map\",\"values\":{\"type\":\"string\",\"avro.java.string\":\"String\"},\"avro.java.string\":\"String\"}]},\"avro.java.string\":\"String\"}}]}],\"avro.java.string\":\"String\"}},{\"name\":\"header\",\"type\":[\"null\",\"VcfHeader\"]}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
    private java.lang.String fileId;
    private java.lang.String studyId;
@@ -16,6 +16,7 @@ public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecord
    private java.util.List<java.lang.String> samples;
    private org.opencb.biodata.models.variant.avro.Aggregation aggregation;
    private java.util.Map<java.lang.String,java.lang.Object> metadata;
+   private org.opencb.biodata.models.variant.avro.VcfHeader header;
 
   /**
    * Default constructor.  Note that this does not initialize fields
@@ -27,7 +28,7 @@ public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecord
   /**
    * All-args constructor.
    */
-  public VariantFileMetadata(java.lang.String fileId, java.lang.String studyId, java.lang.String fileName, java.lang.String studyName, java.util.List<java.lang.String> samples, org.opencb.biodata.models.variant.avro.Aggregation aggregation, java.util.Map<java.lang.String,java.lang.Object> metadata) {
+  public VariantFileMetadata(java.lang.String fileId, java.lang.String studyId, java.lang.String fileName, java.lang.String studyName, java.util.List<java.lang.String> samples, org.opencb.biodata.models.variant.avro.Aggregation aggregation, java.util.Map<java.lang.String,java.lang.Object> metadata, org.opencb.biodata.models.variant.avro.VcfHeader header) {
     this.fileId = fileId;
     this.studyId = studyId;
     this.fileName = fileName;
@@ -35,6 +36,7 @@ public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecord
     this.samples = samples;
     this.aggregation = aggregation;
     this.metadata = metadata;
+    this.header = header;
   }
 
   public org.apache.avro.Schema getSchema() { return SCHEMA$; }
@@ -48,6 +50,7 @@ public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecord
     case 4: return samples;
     case 5: return aggregation;
     case 6: return metadata;
+    case 7: return header;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -62,6 +65,7 @@ public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecord
     case 4: samples = (java.util.List<java.lang.String>)value$; break;
     case 5: aggregation = (org.opencb.biodata.models.variant.avro.Aggregation)value$; break;
     case 6: metadata = (java.util.Map<java.lang.String,java.lang.Object>)value$; break;
+    case 7: header = (org.opencb.biodata.models.variant.avro.VcfHeader)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -171,6 +175,21 @@ public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecord
     this.metadata = value;
   }
 
+  /**
+   * Gets the value of the 'header' field.
+   */
+  public org.opencb.biodata.models.variant.avro.VcfHeader getHeader() {
+    return header;
+  }
+
+  /**
+   * Sets the value of the 'header' field.
+   * @param value the value to set.
+   */
+  public void setHeader(org.opencb.biodata.models.variant.avro.VcfHeader value) {
+    this.header = value;
+  }
+
   /** Creates a new VariantFileMetadata RecordBuilder */
   public static org.opencb.biodata.models.variant.avro.VariantFileMetadata.Builder newBuilder() {
     return new org.opencb.biodata.models.variant.avro.VariantFileMetadata.Builder();
@@ -199,6 +218,7 @@ public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecord
     private java.util.List<java.lang.String> samples;
     private org.opencb.biodata.models.variant.avro.Aggregation aggregation;
     private java.util.Map<java.lang.String,java.lang.Object> metadata;
+    private org.opencb.biodata.models.variant.avro.VcfHeader header;
 
     /** Creates a new Builder */
     private Builder() {
@@ -236,6 +256,10 @@ public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecord
         this.metadata = data().deepCopy(fields()[6].schema(), other.metadata);
         fieldSetFlags()[6] = true;
       }
+      if (isValidValue(fields()[7], other.header)) {
+        this.header = data().deepCopy(fields()[7].schema(), other.header);
+        fieldSetFlags()[7] = true;
+      }
     }
     
     /** Creates a Builder by copying an existing VariantFileMetadata instance */
@@ -268,6 +292,10 @@ public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecord
       if (isValidValue(fields()[6], other.metadata)) {
         this.metadata = data().deepCopy(fields()[6].schema(), other.metadata);
         fieldSetFlags()[6] = true;
+      }
+      if (isValidValue(fields()[7], other.header)) {
+        this.header = data().deepCopy(fields()[7].schema(), other.header);
+        fieldSetFlags()[7] = true;
       }
     }
 
@@ -446,6 +474,31 @@ public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecord
       return this;
     }
 
+    /** Gets the value of the 'header' field */
+    public org.opencb.biodata.models.variant.avro.VcfHeader getHeader() {
+      return header;
+    }
+    
+    /** Sets the value of the 'header' field */
+    public org.opencb.biodata.models.variant.avro.VariantFileMetadata.Builder setHeader(org.opencb.biodata.models.variant.avro.VcfHeader value) {
+      validate(fields()[7], value);
+      this.header = value;
+      fieldSetFlags()[7] = true;
+      return this; 
+    }
+    
+    /** Checks whether the 'header' field has been set */
+    public boolean hasHeader() {
+      return fieldSetFlags()[7];
+    }
+    
+    /** Clears the value of the 'header' field */
+    public org.opencb.biodata.models.variant.avro.VariantFileMetadata.Builder clearHeader() {
+      header = null;
+      fieldSetFlags()[7] = false;
+      return this;
+    }
+
     @Override
     public VariantFileMetadata build() {
       try {
@@ -457,6 +510,7 @@ public class VariantFileMetadata extends org.apache.avro.specific.SpecificRecord
         record.samples = fieldSetFlags()[4] ? this.samples : (java.util.List<java.lang.String>) defaultValue(fields()[4]);
         record.aggregation = fieldSetFlags()[5] ? this.aggregation : (org.opencb.biodata.models.variant.avro.Aggregation) defaultValue(fields()[5]);
         record.metadata = fieldSetFlags()[6] ? this.metadata : (java.util.Map<java.lang.String,java.lang.Object>) defaultValue(fields()[6]);
+        record.header = fieldSetFlags()[7] ? this.header : (org.opencb.biodata.models.variant.avro.VcfHeader) defaultValue(fields()[7]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);

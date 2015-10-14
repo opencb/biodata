@@ -253,6 +253,8 @@ protocol Variants {
         //VariantFileStats
 
         map<union {string, VcfHeader}> metadata;
+
+        union {null, VcfHeader} header;
     }
 
 }
