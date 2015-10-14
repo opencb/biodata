@@ -317,7 +317,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                             alleleLikelihoods[0] = likelihoods[(int) (((float) allele1 * (allele1 + 1)) / 2) + allele1];
                             alleleLikelihoods[1] = likelihoods[(int) (((float) allele2 * (allele2 + 1)) / 2) + allele1];
                             alleleLikelihoods[2] = likelihoods[(int) (((float) allele2 * (allele2 + 1)) / 2) + allele2];
-                            sampleField = StringUtils.join(alleleLikelihoods, ",");
+                            sampleField = String.join(",", alleleLikelihoods);
                         }
                     }
                 }

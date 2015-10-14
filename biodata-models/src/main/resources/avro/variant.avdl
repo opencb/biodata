@@ -225,12 +225,36 @@ protocol Variants {
         union { null, VariantAnnotation } annotation;
     }
 
+    enum Aggregation {
+        NONE,
+        BASIC,
+        EVS,
+        EXAC
+    }
+
+    record VcfHeader {
+        string fileFormat;
+        map<array<union { string, map<string> }>> info;
+    }
+
     record VariantFileMetadata {
         string fileId;
+
         string studyId;
+
         union { null, string } fileName = null;
+
         union { null, string } studyName = null;
+
         array<string> samples = [];
-        map<string> metadata;
+
+        Aggregation aggregation;
+
+        //VariantFileStats
+
+        map<union { string, VcfHeader}> metadata;
+
+        //VcfHeader header;
     }
+
 }
