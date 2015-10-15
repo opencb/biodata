@@ -55,6 +55,7 @@ public class VariantVcfReader implements VariantReader {
     private VariantSource source;
     private VariantFactory factory;
     private VcfHeaderFactory heaederFactory = new VcfHeaderFactory();
+    private String header;
 
     public VariantVcfReader(VariantSource source, String filePath) {
         this(source, filePath, new VariantVcfFactory());
@@ -96,13 +97,18 @@ public class VariantVcfReader implements VariantReader {
             
             // Copy all the read metadata to the VariantSource object
             // TODO May it be that Vcf4 wasn't necessary anymore?
-            source.addMetadata("fileformat", vcf4.getFileFormat());
-            source.addMetadata("INFO", vcf4.getInfo().values());
-            source.addMetadata("FILTER", vcf4.getFilter().values());
-            source.addMetadata("FORMAT", vcf4.getFormat().values());
-            for (Map.Entry<String, String> otherMeta : vcf4.getMetaInformation().entrySet()) {
-                source.addMetadata(otherMeta.getKey(), otherMeta.getValue());
-            }
+
+            // This Vcf4 object is not necessary anymore. Do not include it's information.
+            // The header parser contains bugs and misses information.
+            // Use htsjdk parser instead
+
+//            source.addMetadata("fileformat", vcf4.getFileFormat());
+//            source.addMetadata("INFO", vcf4.getInfo().values());
+//            source.addMetadata("FILTER", vcf4.getFilter().values());
+//            source.addMetadata("FORMAT", vcf4.getFormat().values());
+//            for (Map.Entry<String, String> otherMeta : vcf4.getMetaInformation().entrySet()) {
+//                source.addMetadata(otherMeta.getKey(), otherMeta.getValue());
+//            }
             source.setSamples(vcf4.getSampleNames());
         } catch (IOException | FileFormatException ex) {
             Logger.getLogger(VariantVcfReader.class.getName()).log(Level.SEVERE, null, ex);
@@ -175,7 +181,7 @@ public class VariantVcfReader implements VariantReader {
 
     @Override
     public String getHeader() {
-        return heaederFactory.toText(vcf4);
+        return header;
     }
 
     private void processHeader() throws IOException, FileFormatException {
@@ -187,14 +193,22 @@ public class VariantVcfReader implements VariantReader {
             localBufferedReader = new BufferedReader(new FileReader(path.toFile()));
         }
 
-        vcf4 = heaederFactory.parseHeader(localBufferedReader);
+        StringBuilder buffer = new StringBuilder();
+        String line;
+        while ((line = localBufferedReader.readLine()) != null && line.startsWith("#")) {
+            buffer.append(line).append('\n');
+        }
+
+        localBufferedReader.close();
+
+        header = buffer.toString();
+        vcf4 = heaederFactory.parseHeader(new BufferedReader(new StringReader(header)));
         
         if (vcf4 == null) {
             System.err.println("VCF Header must be provided.");
 //            System.exit(-1);
         }
-        
-        localBufferedReader.close();
+
     }
 
 

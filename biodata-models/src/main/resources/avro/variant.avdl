@@ -234,6 +234,7 @@ protocol Variants {
 
     record VcfHeader {
         string fileFormat;
+      //map<union { string, array<map<string> }>> meta; ??
         map<array<union { string, map<string> }>> meta;
     }
 

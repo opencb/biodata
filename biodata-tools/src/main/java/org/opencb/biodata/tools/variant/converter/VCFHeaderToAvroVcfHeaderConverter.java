@@ -24,8 +24,8 @@ public class VCFHeaderToAvroVcfHeaderConverter implements Converter<VCFHeader, V
         avroVcfHeader.setMeta(meta);
 
         for (VCFHeaderLine line : header.getMetaDataInInputOrder()) {
-            Map<String, String> map = new HashMap<>();
-            Object value = map;
+//            Map<String, String> map = new HashMap<>();
+//            Object value = map;
             if (line.getKey().equalsIgnoreCase("fileFormat")) {
                 avroVcfHeader.setFileFormat(line.getValue());
                 continue;
@@ -62,6 +62,7 @@ public class VCFHeaderToAvroVcfHeaderConverter implements Converter<VCFHeader, V
 //                value = line.getValue();
 //            }
 
+            Object value;
             if (line.getValue().isEmpty()) {
                 value = VCFHeaderLineTranslator.parseLine(VCFHeaderVersion.VCF4_2, line.toString(), null);
             } else {
