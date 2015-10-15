@@ -28,7 +28,7 @@ import java.util.*;
 /**
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
-@JsonIgnoreProperties({"impl", "samplesPosition"})
+@JsonIgnoreProperties({"impl", "samplesPosition", "type", "stats"})
 public class VariantSource {
 
     private final VariantFileMetadata impl;
@@ -122,15 +122,18 @@ public class VariantSource {
         updateSamplesPosition();
     }
 
-    private void updateSamplesPosition() {
-        List<String> samples = getSamples();
-        if (samples == null) {
-            samplesPosition = null;
-        } else {
-            samplesPosition = new LinkedHashMap<>(samples.size());
-            int idx = 0;
-            for (String sample : samples) {
-                samplesPosition.put(sample, idx++);
+    private synchronized void updateSamplesPosition() {
+        if (samplesPosition == null) {
+            List<String> samples = getSamples();
+            if (samples == null) {
+                samplesPosition = null;
+            } else {
+                LinkedHashMap<String, Integer> newSamplesPosition = new LinkedHashMap<>(samples.size());
+                int idx = 0;
+                for (String sample : samples) {
+                    newSamplesPosition.put(sample, idx++);
+                }
+                samplesPosition = newSamplesPosition;
             }
         }
     }
