@@ -22,16 +22,20 @@ protocol Variants {
      * </ul>
      */
     enum VariantType {
-        SNP,
-        SNV,
-        MNP,
-        MNV,
-        INDEL,
-        SV,
-        CNV,
-        NO_VARIATION,
-        SYMBOLIC,
-        MIXED
+        SNV,            // SO:0001483
+        SNP,            // SO:0000694
+        MNV,            // SO:0002007
+        MNP,            // SO:0001013
+        INDEL,          // SO:1000032
+        SV,             // SO:0001537
+        INSERTION,      // SO:0000667
+        DELETION,       // SO:0000159
+        TRANSLOCATION,  // SO:0000199
+        INVERSION,      // SO:1000036
+        CNV,            // SO:0001019
+        NO_VARIATION,   // Defined in HTSJDK
+        SYMBOLIC,       // Defined in HTSJDK
+        MIXED           // Defined in HTSJDK
     }
 
     enum AllelesCode {
@@ -225,6 +229,7 @@ protocol Variants {
         union { null, VariantAnnotation } annotation;
     }
 
+    // delete
     enum Aggregation {
         NONE,
         BASIC,
@@ -250,6 +255,7 @@ protocol Variants {
         array<string> samples = [];
 
         Aggregation aggregation;
+        //string aggregation;
 
         //VariantFileStats
 

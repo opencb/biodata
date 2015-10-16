@@ -85,9 +85,36 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         }
         variant.setIds(ids);
 
+
         variant.setLength(Math.max(variant.getReference().length(), variant.getAlternate().length()));
 
-        variant.setType(getEnumFromString(VariantType.class, variantContext.getType().toString()));
+        // TODO Nacho please add CNV when symbolic
+//        variant.setType(getEnumFromString(VariantType.class, variantContext.getType().toString()));
+        VariantType variantType = getEnumFromString(VariantType.class, variantContext.getType().toString());
+        switch (variantType) {
+            case SNP:
+                if (variant.getIds().isEmpty()) {
+                    variant.setType(VariantType.SNV);
+                } else {
+                    variant.setType(VariantType.SNP);
+                }
+                break;
+            case INDEL:
+                if (variant.getLength() > Variant.SV_THRESHOLD) {
+                    if (variant.getReference().isEmpty()) {
+                        variant.setType(VariantType.INSERTION);
+                    } else if (variant.getAlternate().isEmpty()) {
+                        variant.setType(VariantType.DELETION);
+                    } else {
+                        variant.setType(VariantType.SV);
+                    }
+                } else {
+                    variant.setType(VariantType.INDEL);
+                }
+                break;
+            default:
+                variant.setType(variantType);
+        }
 
         variant.resetHGVS();
 
@@ -264,7 +291,7 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
 
 
         ProteinVariantAnnotation proteinVariantAnnotation = new ProteinVariantAnnotation();
-        proteinVariantAnnotation.setSubstitutionScores(Arrays.asList());
+        proteinVariantAnnotation.setSubstitutionScores(Collections.emptyList());
         consequenceType.setProteinVariantAnnotation(proteinVariantAnnotation);
 
         /*
