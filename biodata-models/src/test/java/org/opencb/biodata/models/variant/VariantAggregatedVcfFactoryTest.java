@@ -22,6 +22,7 @@ import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 import org.opencb.commons.test.GenericTest;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -43,7 +44,13 @@ public class VariantAggregatedVcfFactoryTest extends GenericTest {
         List<Variant> variants = factory.create(source, line);
 
         assertEquals(1, variants.size());
-        assertEquals(new Variant("1", 1001, 1005, "CACCC", "GACGG"), variants.get(0));
+        Variant variant = variants.get(0);
+        variant.setStudies(Collections.<StudyEntry>emptyList());
+
+        Variant expected = new Variant("1", 1001, 1005, "CACCC", "GACGG");
+        expected.setIds(Collections.singletonList("rs123"));
+
+        assertEquals(expected, variant);
 
     }
 

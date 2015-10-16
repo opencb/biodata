@@ -53,7 +53,7 @@ public class VariantSource {
 
     public VariantSource(String fileName, String fileId, String studyId, String studyName, VariantStudy.StudyType type, Aggregation aggregation) {
         impl = new VariantFileMetadata(fileId, studyId, fileName, studyName, new LinkedList<>(),
-                org.opencb.biodata.models.variant.avro.Aggregation.NONE, new HashMap<>(), null);
+                org.opencb.biodata.models.variant.avro.Aggregation.NONE, null, new HashMap<>(), null);
         samplesPosition = null;
     }
 
@@ -103,7 +103,7 @@ public class VariantSource {
         if (samplesPosition == null) {
             updateSamplesPosition();
         }
-        return samplesPosition;
+        return Collections.unmodifiableMap(samplesPosition);
     }
 
     public void setSamplesPosition(Map<String, Integer> samplesPosition) {
@@ -173,20 +173,22 @@ public class VariantSource {
         this.getMetadata().put(key, value);
     }
 
+    @Deprecated
     public VariantStudy.StudyType getType() {
         return null;
     }
 
+    @Deprecated
     public void setType(VariantStudy.StudyType type) {
 //        this.type = type;
     }
 
     public VariantGlobalStats getStats() {
-        return null;
+        return new VariantGlobalStats(impl.getStats());
     }
 
     public void setStats(VariantGlobalStats stats) {
-//        this.stats = stats;
+        impl.setStats(stats == null? null : stats.getImpl());
     }
 
     public VcfHeader getHeader() {

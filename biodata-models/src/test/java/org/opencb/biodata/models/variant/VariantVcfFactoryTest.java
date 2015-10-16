@@ -23,10 +23,8 @@ import org.junit.rules.ExpectedException;
 import org.opencb.biodata.models.variant.exceptions.NotAVariantException;
 
 import java.util.*;
-import static org.junit.Assert.assertArrayEquals;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 /**
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
@@ -50,32 +48,35 @@ public class VariantVcfFactoryTest {
     @Test
     public void testCreateVariantFromVcfSameLengthRefAlt() {
         // Test when there are differences at the end of the sequence
-        String line = "1\t1000\trs123\tTCACCC\tTGACGG\t.\t.\t.";
+        String line = "1\t1000\t.\tTCACCC\tTGACGG\t.\t.\t.";
 
         List<Variant> expResult = new LinkedList<>();
         expResult.add(new Variant("1", 1001, 1005, "CACCC", "GACGG"));
 
         List<Variant> result = factory.create(source, line);
+        result.stream().forEach(variant -> variant.setStudies(Collections.<StudyEntry>emptyList()));
         assertEquals(expResult, result);
 
         // Test when there are not differences at the end of the sequence
-        line = "1\t1000\trs123\tTCACCC\tTGACGC\t.\t.\t.";
+        line = "1\t1000\t.\tTCACCC\tTGACGC\t.\t.\t.";
 
         expResult = new LinkedList<>();
         expResult.add(new Variant("1", 1001, 1004, "CACC", "GACG"));
 
         result = factory.create(source, line);
+        result.stream().forEach(variant -> variant.setStudies(Collections.<StudyEntry>emptyList()));
         assertEquals(expResult, result);
     }
 
     @Test
     public void testCreateVariantFromVcfInsertionEmptyRef() {
-        String line = "1\t1000\trs123\t.\tTGACGC\t.\t.\t.";
+        String line = "1\t1000\t.\t.\tTGACGC\t.\t.\t.";
 
         List<Variant> expResult = new LinkedList<>();
         expResult.add(new Variant("1", 1000, 1000 + "TGACGC".length() - 1, "", "TGACGC"));
 
         List<Variant> result = factory.create(source, line);
+        result.stream().forEach(variant -> variant.setStudies(Collections.<StudyEntry>emptyList()));
         assertEquals(expResult, result);
     }
 
@@ -88,66 +89,76 @@ public class VariantVcfFactoryTest {
 
     @Test
     public void testCreateVariantFromVcfIndelNotEmptyFields() {
-        String line = "1\t1000\trs123\tCGATT\tTAC\t.\t.\t.";
+        String line = "1\t1000\t.\tCGATT\tTAC\t.\t.\t.";
 
         List<Variant> expResult = new LinkedList<>();
         expResult.add(new Variant("1", 1000, 1000 + "CGATT".length() - 1, "CGATT", "TAC"));
         List<Variant> result = factory.create(source, line);
+        result.stream().forEach(variant -> variant.setStudies(Collections.<StudyEntry>emptyList()));
         assertEquals(expResult, result);
 
-        line = "1\t1000\trs123\tAT\tA\t.\t.\t.";
+        line = "1\t1000\t.\tAT\tA\t.\t.\t.";
         expResult = new LinkedList<>();
         expResult.add(new Variant("1", 1001, 1001, "T", ""));
         result = factory.create(source, line);
+        result.stream().forEach(variant -> variant.setStudies(Collections.<StudyEntry>emptyList()));
         assertEquals(expResult, result);
 
-        line = "1\t1000\trs123\t.\tATC\t.\t.\t.";
+        line = "1\t1000\t.\t.\tATC\t.\t.\t.";
         expResult = new LinkedList<>();
         expResult.add(new Variant("1", 1000, 1002, "", "ATC"));
         result = factory.create(source, line);
+        result.stream().forEach(variant -> variant.setStudies(Collections.<StudyEntry>emptyList()));
         assertEquals(expResult, result);
 
-        line = "1\t1000\trs123\tA\tATC\t.\t.\t.";
+        line = "1\t1000\t.\tA\tATC\t.\t.\t.";
         expResult = new LinkedList<>();
         expResult.add(new Variant("1", 1001, 1002, "", "TC"));
         result = factory.create(source, line);
+        result.stream().forEach(variant -> variant.setStudies(Collections.<StudyEntry>emptyList()));
         assertEquals(expResult, result);
 
-        line = "1\t1000\trs123\tAC\tACT\t.\t.\t.";
+        line = "1\t1000\t.\tAC\tACT\t.\t.\t.";
         expResult = new LinkedList<>();
         expResult.add(new Variant("1", 1002, 1002, "", "T"));
         result = factory.create(source, line);
+        result.stream().forEach(variant -> variant.setStudies(Collections.<StudyEntry>emptyList()));
         assertEquals(expResult, result);
 
         // Printing those that are not currently managed
-        line = "1\t1000\trs123\tAT\tT\t.\t.\t.";
+        line = "1\t1000\t.\tAT\tT\t.\t.\t.";
         expResult = new LinkedList<>();
         expResult.add(new Variant("1", 1000, 1000, "A", ""));
         result = factory.create(source, line);
+        result.stream().forEach(variant -> variant.setStudies(Collections.<StudyEntry>emptyList()));
         assertEquals(expResult, result);
 
-        line = "1\t1000\trs123\tATC\tTC\t.\t.\t.";
+        line = "1\t1000\t.\tATC\tTC\t.\t.\t.";
         expResult = new LinkedList<>();
         expResult.add(new Variant("1", 1000, 1000, "A", ""));
         result = factory.create(source, line);
+        result.stream().forEach(variant -> variant.setStudies(Collections.<StudyEntry>emptyList()));
         assertEquals(expResult, result);
 
-        line = "1\t1000\trs123\tATC\tAC\t.\t.\t.";
+        line = "1\t1000\t.\tATC\tAC\t.\t.\t.";
         expResult = new LinkedList<>();
         expResult.add(new Variant("1", 1001, 1001, "T", ""));
         result = factory.create(source, line);
+        result.stream().forEach(variant -> variant.setStudies(Collections.<StudyEntry>emptyList()));
         assertEquals(expResult, result);
 
-        line = "1\t1000\trs123\tAC\tATC\t.\t.\t.";
+        line = "1\t1000\t.\tAC\tATC\t.\t.\t.";
         expResult = new LinkedList<>();
         expResult.add(new Variant("1", 1001, 1001, "", "T"));
         result = factory.create(source, line);
+        result.stream().forEach(variant -> variant.setStudies(Collections.<StudyEntry>emptyList()));
         assertEquals(expResult, result);
 
-        line = "1\t1000\trs123\tATC\tGC\t.\t.\t.";
+        line = "1\t1000\t.\tATC\tGC\t.\t.\t.";
         expResult = new LinkedList<>();
         expResult.add(new Variant("1", 1000, 1001, "AT", "G"));
         result = factory.create(source, line);
+        result.stream().forEach(variant -> variant.setStudies(Collections.<StudyEntry>emptyList()));
         assertEquals(expResult, result);
     }
 
@@ -156,7 +167,7 @@ public class VariantVcfFactoryTest {
         List<String> sampleNames = Arrays.asList("NA001", "NA002", "NA003", "NA004");
         source.setSamples(sampleNames);
 
-        String line = "1\t10040\trs123\tTGACGTAACGATT\tT,TGACGTAACGGTT,TGACGTAATAC\t.\t.\t.\tGT\t0/0\t0/1\t0/2\t1/2"; // 4 samples
+        String line = "1\t10040\t.\tTGACGTAACGATT\tT,TGACGTAACGGTT,TGACGTAATAC\t.\t.\t.\tGT\t0/0\t0/1\t0/2\t1/2"; // 4 samples
 
         // Check proper conversion of main fields
         List<Variant> expResult = new LinkedList<>();
@@ -165,6 +176,7 @@ public class VariantVcfFactoryTest {
         expResult.add(new Variant("1", 10048, 10048 + "CGATT".length() - 1, "CGATT", "TAC"));
 
         List<Variant> result = factory.create(source, line);
+        result.stream().forEach(variant -> variant.setStudies(Collections.<StudyEntry>emptyList()));
         assertEquals(expResult, result);
     }
 

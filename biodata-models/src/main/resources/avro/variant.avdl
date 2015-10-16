@@ -82,6 +82,30 @@ protocol Variants {
         VariantHardyWeinbergStats hw;
     }
 
+    record VariantGlobalStats {
+
+        int variantsCount;
+
+        int samplesCount;
+
+        int snpsCount;
+
+        int indelsCount;
+
+        int structuralCount;
+
+        int passCount;
+
+        int transitionsCount;
+
+        int transversionsCount;
+
+        double meanQuality;
+
+        map<int> consequenceTypesCount;
+
+    }
+
     record FileEntry {
         /**
          * Unique identifier of the source file.
@@ -251,7 +275,7 @@ protocol Variants {
 
         Aggregation aggregation;
 
-        //VariantFileStats
+        union {null, VariantGlobalStats } stats;
 
         map<union {string, VcfHeader}> metadata;
 

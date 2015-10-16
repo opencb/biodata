@@ -70,8 +70,8 @@ public class VariantVcfFactory implements VariantFactory {
 
         String chromosome = fields[0];
         int position = Integer.parseInt(fields[1]);
-        String id = fields[2].equals(".") ? "" : fields[2];
-        List<String> ids = Arrays.asList(id.split(";"));
+        String id = fields[2].equals(".") ? null : fields[2];
+        List<String> ids = id == null? Collections.emptyList() : Arrays.asList(id.split(";"));
         String reference = fields[3].equals(".") ? "" : fields[3];
         String alternate = fields[4];
 //        String alternate = fields[4].equals(".") ? "" : fields[4];

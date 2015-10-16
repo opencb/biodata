@@ -376,7 +376,7 @@ public class Variant {
         return impl.toString();
     }
 
-    public boolean equals(Object o) {
+    public boolean sameGenomicVariant(Object o) {
         if (this == o) {
             return true;
         }
@@ -403,6 +403,22 @@ public class Variant {
         }
         return getType() == variant.getType();
 
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Variant)) return false;
+
+        Variant variant = (Variant) o;
+
+        return !(impl != null ? !impl.equals(variant.impl) : variant.impl != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return impl != null ? impl.hashCode() : 0;
     }
 
 
