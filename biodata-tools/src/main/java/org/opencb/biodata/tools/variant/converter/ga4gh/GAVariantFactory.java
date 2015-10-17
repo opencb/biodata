@@ -43,10 +43,10 @@ public class GAVariantFactory {
         for (org.opencb.biodata.models.variant.Variant variant : variants) {
             String id = variant.toString();
 
-            List<CharSequence> variantIds = new ArrayList<>(variant.getIds());
+            List<String> variantIds = new ArrayList<>(variant.getIds());
 
             for (StudyEntry study : variant.getStudies()) {
-                List<CharSequence> alternates = new ArrayList<>(study.getSecondaryAlternates().size() + 1);
+                List<String> alternates = new ArrayList<>(study.getSecondaryAlternates().size() + 1);
                 alternates.add(variant.getAlternate());
                 alternates.addAll(study.getSecondaryAlternates());
 
@@ -54,7 +54,7 @@ public class GAVariantFactory {
                 Long time = System.currentTimeMillis();
 
                 //Only required for "graph" mode
-                List<CharSequence> alleleIds = null;
+                List<String> alleleIds = null;
 
                 //VariableSet should be the study, the file, or be provided?
                 String variantSetId = study.getStudyId();
@@ -90,11 +90,11 @@ public class GAVariantFactory {
     }
 
 
-    private Map<CharSequence, List<CharSequence>> parseInfo(List<FileEntry> files) {
-        Map<CharSequence, List<CharSequence>> parsedInfo = new HashMap<>();
+    private Map<String, List<String>> parseInfo(List<FileEntry> files) {
+        Map<String, List<String>> parsedInfo = new HashMap<>();
 
-        List<CharSequence> fileIds = new ArrayList<>(files.size());
-        List<CharSequence> ori = new ArrayList<>(files.size());
+        List<String> fileIds = new ArrayList<>(files.size());
+        List<String> ori = new ArrayList<>(files.size());
         parsedInfo.put("FID", fileIds);
         parsedInfo.put("ORI", ori);
         int fileIdx = 0;
@@ -103,7 +103,7 @@ public class GAVariantFactory {
             ori.add(file.getCall());
             Map<String, String> attributes = file.getAttributes();
             for (Map.Entry<String, String> field : attributes.entrySet()) {
-                List<CharSequence> value;
+                List<String> value;
                 if (parsedInfo.containsKey(field.getKey())) {
                     value = parsedInfo.get(field.getKey());
                 } else {
@@ -124,7 +124,7 @@ public class GAVariantFactory {
      * @param study
      * @return
      */
-    private List<Call> parseCalls(CharSequence variantId, StudyEntry study) {
+    private List<Call> parseCalls(String variantId, StudyEntry study) {
         List<Call> calls = new LinkedList<>();
 
         for (String sample : study.getOrderedSamplesName()) {
@@ -134,7 +134,7 @@ public class GAVariantFactory {
             call.setCallSetId(sample);
             call.setCallSetName(null);
             call.setVariantId(variantId);
-            Map<CharSequence, List<CharSequence>> info = new HashMap<>();
+            Map<String, List<String>> info = new HashMap<>();
             call.setInfo(info);
 
             for (String formatField : study.getFormat()) {
