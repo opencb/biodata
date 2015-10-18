@@ -55,6 +55,9 @@ public class AlignmentFileReader implements AlignmentDataReader, Iterable<Alignm
         if (samReader == null) {
             open();
         }
+        if (samRecordIterator == null) {
+            samRecordIterator = samReader.iterator();
+        }
         return samRecordIterator;
     }
 
