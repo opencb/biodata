@@ -38,6 +38,7 @@ import java.util.List;
  * Time: 5:12 PM
  * To change this template use File | Settings | File Templates.
  */
+@Deprecated
 public class AlignmentSamDataReader implements AlignmentDataReader {
 
     private final Path input;
