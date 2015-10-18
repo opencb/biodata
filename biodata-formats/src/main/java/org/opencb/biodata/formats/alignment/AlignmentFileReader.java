@@ -17,10 +17,10 @@
 package org.opencb.biodata.formats.alignment;
 
 import htsjdk.samtools.*;
-import org.opencb.biodata.formats.alignment.AlignmentConverter;
+import org.opencb.biodata.formats.alignment.io.AlignmentDataReader;
 import org.opencb.biodata.models.alignment.Alignment;
+import org.opencb.biodata.models.alignment.AlignmentHeader;
 import org.opencb.biodata.models.core.Region;
-import org.opencb.commons.io.DataReader;
 import org.opencb.commons.utils.FileUtils;
 
 import java.io.IOException;
@@ -33,11 +33,12 @@ import java.util.function.Consumer;
 /**
  * Created by imedina on 18/10/15.
  */
-public class AlignmentFileReader implements DataReader<Alignment>, Iterable<Alignment> {
+public class AlignmentFileReader implements AlignmentDataReader, Iterable<Alignment> {
 
     private Path input;
 
     private SamReader samReader;
+    private SAMFileHeader samFileHeader;
     private SAMRecordIterator samRecordIterator;
 
     public AlignmentFileReader(Path input) throws IOException {
@@ -62,10 +63,16 @@ public class AlignmentFileReader implements DataReader<Alignment>, Iterable<Alig
         SamReaderFactory srf = SamReaderFactory.make();
         srf.validationStringency(ValidationStringency.LENIENT);
         samReader = srf.open(SamInputResource.of(input.toFile()));
+        samFileHeader = samReader.getFileHeader();
         samRecordIterator = samReader.iterator();
         return samReader != null;
     }
 
+
+    @Override
+    public AlignmentHeader getHeader() {
+        return AlignmentConverter.buildAlignmentHeader(samFileHeader, "");
+    }
 
     public AlignmentFileReaderIterator query(String chromosome, int start, int end, boolean contained) {
         SAMRecordIterator queryIterator = samReader.query(chromosome, start, end, contained);
@@ -108,7 +115,6 @@ public class AlignmentFileReader implements DataReader<Alignment>, Iterable<Alig
         AlignmentFileReaderIterator alignmentFileReaderIterator = new AlignmentFileReaderIterator(nativeIterator());
         return alignmentFileReaderIterator;
     }
-
 
     @Override
     public boolean close() {
