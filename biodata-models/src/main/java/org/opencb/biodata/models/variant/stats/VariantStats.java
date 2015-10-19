@@ -309,30 +309,38 @@ public class VariantStats {
     }
 
     public boolean isTransition() {
-        switch (getRefAllele().toUpperCase()) {
+        return isTransition(getRefAllele(), getAltAllele());
+    }
+
+    public boolean isTransversion() {
+        return isTransversion(getRefAllele(), getAltAllele());
+    }
+
+    public static boolean isTransition(String refAllele, String altAllele) {
+        switch (refAllele.toUpperCase()) {
             case "C":
-                return getAltAllele().equalsIgnoreCase("T");
+                return altAllele.equalsIgnoreCase("T");
             case "T":
-                return getAltAllele().equalsIgnoreCase("C");
+                return altAllele.equalsIgnoreCase("C");
             case "A":
-                return getAltAllele().equalsIgnoreCase("G");
+                return altAllele.equalsIgnoreCase("G");
             case "G":
-                return getAltAllele().equalsIgnoreCase("A");
+                return altAllele.equalsIgnoreCase("A");
             default:
                 return false;
         }
     }
 
-    public boolean isTransversion() {
-        switch (getRefAllele().toUpperCase()) {
+    public static boolean isTransversion(String refAllele, String altAllele) {
+        switch (refAllele.toUpperCase()) {
             case "C":
-                return !getAltAllele().equalsIgnoreCase("T");
+                return !altAllele.equalsIgnoreCase("T");
             case "T":
-                return !getAltAllele().equalsIgnoreCase("C");
+                return !altAllele.equalsIgnoreCase("C");
             case "A":
-                return !getAltAllele().equalsIgnoreCase("G");
+                return !altAllele.equalsIgnoreCase("G");
             case "G":
-                return !getAltAllele().equalsIgnoreCase("A");
+                return !altAllele.equalsIgnoreCase("A");
             default:
                 return false;
         }

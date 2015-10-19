@@ -16,7 +16,7 @@
 
 package org.opencb.biodata.models.variant.stats;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -169,11 +169,11 @@ public class VariantGlobalStats {
             getConsequenceTypesCount().put(ct, getConsequenceTypesCount().get(ct) + 1);
         }
     }
-    
-    
+
+
     public void update(VariantStats stats) {
         setVariantsCount(getVariantsCount() + 1);
-        
+
         switch (stats.getVariantType()) {
             case SNV:
                 setSnpsCount(getSnpsCount() + 1);
@@ -188,7 +188,7 @@ public class VariantGlobalStats {
                 setStructuralCount(getStructuralCount() + 1);
                 break;
         }
-        
+
         if (stats.hasPassedFilters()) {
             setPassCount(getPassCount() + 1);
         }

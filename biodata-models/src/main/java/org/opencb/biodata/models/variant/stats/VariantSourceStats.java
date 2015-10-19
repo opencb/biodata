@@ -70,13 +70,13 @@ public class VariantSourceStats {
     public void updateFileStats(List<Variant> variants) {
         int incompleteVariantStats = 0;
         for (Variant v : variants) {
-            StudyEntry file = v.getSourceEntry(fileId, studyId);
+            StudyEntry file = v.getStudy(studyId);
             if (file == null) {
                 // The variant is not contained in this file
                 continue;
             }
             try {
-                fileStats.update(file.getCohortStats(StudyEntry.DEFAULT_COHORT));
+                fileStats.update(file.getStats(StudyEntry.DEFAULT_COHORT));
             } catch (NullPointerException e) {
                 incompleteVariantStats++;
             }

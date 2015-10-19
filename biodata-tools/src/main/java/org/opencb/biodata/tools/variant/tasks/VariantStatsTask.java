@@ -18,6 +18,8 @@ package org.opencb.biodata.tools.variant.tasks;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+
 import org.opencb.biodata.formats.variant.io.VariantReader;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
@@ -36,9 +38,16 @@ import org.opencb.commons.run.Task;
  */
 public class VariantStatsTask extends Task<Variant> {
 
+    @Deprecated
     private VariantReader reader;
     private VariantSource source;
     private VariantSourceStats stats;
+
+    public VariantStatsTask(VariantSource study) {
+        super();
+        this.source = study;
+        stats = new VariantSourceStats(study.getFileId(), study.getStudyId());
+    }
 
     public VariantStatsTask(VariantReader reader, VariantSource study) {
         super();
@@ -55,24 +64,25 @@ public class VariantStatsTask extends Task<Variant> {
     }
 
     @Override
-    public boolean apply(List<Variant> batch) throws IOException {
+    public boolean apply(List<Variant> batch) {
 //        VariantStats.calculateStatsForVariantsList(batch, source.getPedigree());
         for (Variant variant : batch) {
-            for (StudyEntry file : variant.getSourceEntries().values()) {
+            for (StudyEntry study : variant.getSourceEntries().values()) {
                 VariantStats variantStats = new VariantStats(variant);
-                file.setStats(StudyEntry.DEFAULT_COHORT, variantStats);
+                study.setStats(StudyEntry.DEFAULT_COHORT, variantStats);
+                Map<String, String> attributes = study.getFile(source.getFileId()).getAttributes();
                 switch (source.getAggregation()) {
                     case NONE:
-                        VariantStatsCalculator.calculate(file.getSamplesDataAsMap(), file.getAttributes(), source.getPedigree(), variantStats);
+                        VariantStatsCalculator.calculate(study.getSamplesDataAsMap(), attributes, source.getPedigree(), variantStats);
                         break;
                     case BASIC:
-                        new VariantAggregatedStatsCalculator().calculate(variant, file);
+                        new VariantAggregatedStatsCalculator().calculate(variant, study);
                         break;
                     case EVS:
-                        new VariantAggregatedEVSStatsCalculator().calculate(variant, file);
+                        new VariantAggregatedEVSStatsCalculator().calculate(variant, study);
                         break;
                     case EXAC:
-                        new VariantAggregatedExacStatsCalculator().calculate(variant, file);
+                        new VariantAggregatedExacStatsCalculator().calculate(variant, study);
                         break;
                 }
             }

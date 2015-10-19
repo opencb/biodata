@@ -28,7 +28,7 @@ import java.util.*;
 /**
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
-@JsonIgnoreProperties({"impl", "samplesPosition", "type", "stats"})
+@JsonIgnoreProperties({"impl", "samplesPosition", "type"})
 public class VariantSource {
 
     private final VariantFileMetadata impl;

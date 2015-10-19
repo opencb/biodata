@@ -1,0 +1,102 @@
+package org.opencb.biodata.tools.variant.stats;
+
+import org.opencb.biodata.models.variant.StudyEntry;
+import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.VariantSource;
+import org.opencb.biodata.models.variant.VariantVcfFactory;
+import org.opencb.biodata.models.variant.avro.FileEntry;
+import org.opencb.biodata.models.variant.stats.VariantGlobalStats;
+import org.opencb.biodata.models.variant.stats.VariantStats;
+import org.opencb.commons.run.Task;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Created on 19/10/15
+ *
+ * @author Jacobo Coll &lt;jacobo167@gmail.com&gt;
+ */
+public class VariantGlobalStatsCalculator extends Task<Variant> {
+
+    private final VariantSource source;
+    private VariantGlobalStats globalStats;
+    private static Logger logger = LoggerFactory.getLogger(VariantGlobalStatsCalculator.class);
+
+    public VariantGlobalStatsCalculator(VariantSource source) {
+        this.source = source;
+    }
+
+    @Override
+    public boolean pre() {
+        globalStats = new VariantGlobalStats();
+        globalStats.setSamplesCount(source.getSamples().size());
+        return true;
+    }
+
+    @Override
+    public boolean apply(List<Variant> batch) {
+
+        for (Variant variant : batch) {
+            updateGlobalStats(variant);
+        }
+        return true;
+    }
+
+    public synchronized void updateGlobalStats(Variant variant) {
+        updateGlobalStats(variant, globalStats, source);
+    }
+
+    public static void updateGlobalStats(Variant variant, VariantGlobalStats globalStats, VariantSource source) {
+        globalStats.setVariantsCount(globalStats.getVariantsCount() + 1);
+        StudyEntry study = variant.getStudy(source.getStudyId());
+        FileEntry file = study.getFile(source.getFileId());
+        if (file == null) {
+            logger.warn("File \"{}\" not found in variant {}. Skip variant");
+            return;
+        }
+        Map<String, String> attributes = file.getAttributes();
+
+
+        switch (variant.getType()) {
+            case SNV:
+            case SNP:
+                globalStats.setSnpsCount(globalStats.getSnpsCount() + 1);
+                break;
+            case MNV:
+            case MNP:
+                globalStats.setSnpsCount(globalStats.getSnpsCount() + variant.getReference().length());
+                break;
+            case INDEL:
+                globalStats.setIndelsCount(globalStats.getIndelsCount() + 1);
+                break;
+            default:
+            case SV:
+                globalStats.setStructuralCount(globalStats.getStructuralCount() + 1);
+                break;
+        }
+        if ("PASS".equalsIgnoreCase(attributes.get(VariantVcfFactory.FILTER))) {
+            globalStats.setPassCount(globalStats.getPassCount() + 1);
+        }
+
+        float qual = 0;
+        if (attributes.containsKey(VariantVcfFactory.QUAL) && !(".").equals(attributes.get(VariantVcfFactory.QUAL))) {
+            qual = Float.valueOf(attributes.get(VariantVcfFactory.QUAL));
+        }
+
+
+        globalStats.setTransitionsCount(globalStats.getTransitionsCount() + (VariantStats.isTransition(variant.getReference(), variant.getAlternate()) ? 1 : 0));
+        globalStats.setTransversionsCount(globalStats.getTransversionsCount() + (VariantStats.isTransversion(variant.getReference(), variant.getAlternate()) ? 1 : 0));
+        globalStats.setAccumulatedQuality(globalStats.getAccumulatedQuality() + qual);
+    }
+
+    @Override
+    public boolean post() {
+        globalStats.setMeanQuality(globalStats.getAccumulatedQuality() / globalStats.getVariantsCount());
+        source.setStats(globalStats);
+        return true;
+    }
+}
