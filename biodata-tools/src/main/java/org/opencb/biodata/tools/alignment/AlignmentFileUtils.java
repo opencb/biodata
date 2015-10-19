@@ -55,36 +55,31 @@ public class AlignmentFileUtils {
      */
     public static Path createIndex(Path input, Path outputIndex) throws IOException {
         FileUtils.checkFile(input);
-        FileUtils.checkDirectory(outputIndex.getParent(), true);
+        FileUtils.checkDirectory(outputIndex.toAbsolutePath().getParent(), true);
 
         SamReaderFactory srf = SamReaderFactory.make();
         srf.validationStringency(ValidationStringency.LENIENT);
-        SamReader reader = srf.open(SamInputResource.of(input.toFile()));
+        try (SamReader reader = srf.open(SamInputResource.of(input.toFile()))) {
 
-        // Files need to be sorted by coordinates to crete the index
-        SAMFileHeader.SortOrder sortOrder = reader.getFileHeader().getSortOrder();
-        if (!sortOrder.equals(SAMFileHeader.SortOrder.coordinate)) {
-            // we need to close the reader before throwing the exception
-            reader.close();
-            throw new IOException("Expected sorted file. File '" + input.toString()
-                    + "' is not sorted by coordinates (" + sortOrder.name() + ")");
-        }
+            // Files need to be sorted by coordinates to crete the index
+            SAMFileHeader.SortOrder sortOrder = reader.getFileHeader().getSortOrder();
+            if (!sortOrder.equals(SAMFileHeader.SortOrder.coordinate)) {
+                throw new IOException("Expected sorted file. File '" + input.toString()
+                        + "' is not sorted by coordinates (" + sortOrder.name() + ")");
+            }
 
-        if (reader.type().equals(SamReader.Type.BAM_TYPE)) {
-            BAMIndexer.createIndex(reader, outputIndex.toFile(), Log.getInstance(AlignmentFileUtils.class));
-        } else {
-            if (reader.type().equals(SamReader.Type.CRAM_TYPE)) {
-                // TODO This really needs to be tested!
-                SeekableStream streamFor = SeekableStreamFactory.getInstance().getStreamFor(input.toString());
-                CRAMIndexer.createIndex(streamFor, outputIndex.toFile(), Log.getInstance(AlignmentFileUtils.class));
+            if (reader.type().equals(SamReader.Type.BAM_TYPE)) {
+                BAMIndexer.createIndex(reader, outputIndex.toFile(), Log.getInstance(AlignmentFileUtils.class));
             } else {
-                // we need to close the reader before throwing the exception
-                reader.close();
-                throw new IOException("This is not a BAM or CRAM file. SAM files cannot be indexed");
+                if (reader.type().equals(SamReader.Type.CRAM_TYPE)) {
+                    // TODO This really needs to be tested!
+                    SeekableStream streamFor = SeekableStreamFactory.getInstance().getStreamFor(input.toString());
+                    CRAMIndexer.createIndex(streamFor, outputIndex.toFile(), Log.getInstance(AlignmentFileUtils.class));
+                } else {
+                    throw new IOException("This is not a BAM or CRAM file. SAM files cannot be indexed");
+                }
             }
         }
-
-        reader.close();
         return outputIndex;
     }
 
@@ -105,18 +100,18 @@ public class AlignmentFileUtils {
 
         SamReaderFactory srf = SamReaderFactory.make();
         srf.validationStringency(ValidationStringency.LENIENT);
-        SamReader reader = srf.open(SamInputResource.of(input.toFile()));
+        List<SAMRecord> results;
+        try (SamReader reader = srf.open(SamInputResource.of(input.toFile()))) {
 
-        // no more than 10,000 records can be returned
-        maxNumberRecords = (maxNumberRecords > 0 && maxNumberRecords <= 10000) ? maxNumberRecords : 10000;
-        List<SAMRecord> results = new ArrayList<>(maxNumberRecords);
-        SAMRecordIterator samRecordIterator = reader.query(chromosome, start, end, contained);
-        while (samRecordIterator.hasNext()) {
-            results.add(samRecordIterator.next());
+            // no more than 10,000 records can be returned
+            maxNumberRecords = (maxNumberRecords > 0 && maxNumberRecords <= 10000) ? maxNumberRecords : 10000;
+            results = new ArrayList<>(maxNumberRecords);
+            SAMRecordIterator samRecordIterator = reader.query(chromosome, start, end, contained);
+            while (samRecordIterator.hasNext()) {
+                results.add(samRecordIterator.next());
+            }
+            samRecordIterator.close();
         }
-        samRecordIterator.close();
-
-        reader.close();
         return results;
     }
 

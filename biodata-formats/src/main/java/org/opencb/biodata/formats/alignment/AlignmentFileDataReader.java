@@ -26,14 +26,12 @@ import org.opencb.commons.utils.FileUtils;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.function.Consumer;
 
 /**
  * Created by imedina on 18/10/15.
  */
-public class AlignmentFileReader implements AlignmentDataReader, Iterable<Alignment> {
+public class AlignmentFileDataReader implements AlignmentDataReader, Iterable<Alignment> {
 
     private Path input;
 
@@ -41,7 +39,7 @@ public class AlignmentFileReader implements AlignmentDataReader, Iterable<Alignm
     private SAMFileHeader samFileHeader;
     private SAMRecordIterator samRecordIterator;
 
-    public AlignmentFileReader(Path input) throws IOException {
+    public AlignmentFileDataReader(Path input) throws IOException {
         this.input = input;
 
         init();
@@ -77,16 +75,16 @@ public class AlignmentFileReader implements AlignmentDataReader, Iterable<Alignm
         return AlignmentConverter.buildAlignmentHeader(samFileHeader, "");
     }
 
-    public AlignmentFileReaderIterator query(String chromosome, int start, int end, boolean contained) {
+    public AlignmentFileDataReaderIterator query(String chromosome, int start, int end, boolean contained) {
         SAMRecordIterator queryIterator = samReader.query(chromosome, start, end, contained);
-        return new AlignmentFileReaderIterator(queryIterator);
+        return new AlignmentFileDataReaderIterator(queryIterator);
     }
 
-    public AlignmentFileReaderIterator query(Region region, boolean contained) {
+    public AlignmentFileDataReaderIterator query(Region region, boolean contained) {
         return query(region.getChromosome(), region.getStart(), region.getEnd(), contained);
     }
 
-    public AlignmentFileReaderIterator query(List<Region> regions, boolean contained) {
+    public AlignmentFileDataReaderIterator query(List<Region> regions, boolean contained) {
         QueryInterval[] queryIntervals = new QueryInterval[regions.size()];
         int referenceIndex;
         SAMFileHeader samFileHeader = samReader.getFileHeader();
@@ -95,12 +93,7 @@ public class AlignmentFileReader implements AlignmentDataReader, Iterable<Alignm
             queryIntervals[i] = new QueryInterval(referenceIndex, regions.get(i).getStart(), regions.get(i).getEnd());
         }
         SAMRecordIterator queryIterator = samReader.query(queryIntervals, contained);
-        return new AlignmentFileReaderIterator(queryIterator);
-    }
-
-    @Override
-    public List<Alignment> read() {
-        return read(1);
+        return new AlignmentFileDataReaderIterator(queryIterator);
     }
 
     @Override
@@ -114,9 +107,9 @@ public class AlignmentFileReader implements AlignmentDataReader, Iterable<Alignm
     }
 
     @Override
-    public AlignmentFileReaderIterator iterator() {
-        AlignmentFileReaderIterator alignmentFileReaderIterator = new AlignmentFileReaderIterator(nativeIterator());
-        return alignmentFileReaderIterator;
+    public AlignmentFileDataReaderIterator iterator() {
+        AlignmentFileDataReaderIterator alignmentFileDataReaderIterator = new AlignmentFileDataReaderIterator(nativeIterator());
+        return alignmentFileDataReaderIterator;
     }
 
     @Override
@@ -137,43 +130,4 @@ public class AlignmentFileReader implements AlignmentDataReader, Iterable<Alignm
         return false;
     }
 
-
-    /**
-     * This class provides a GA4GH Alignment iterator of BAM files
-     */
-    public class AlignmentFileReaderIterator implements Iterator<Alignment> {
-
-        private SAMRecordIterator samRecordIterator;
-
-        public AlignmentFileReaderIterator(SAMRecordIterator samRecordIterator) {
-            this.samRecordIterator = samRecordIterator;
-        }
-
-        @Override
-        public boolean hasNext() {
-            return samRecordIterator.hasNext();
-        }
-
-        @Override
-        public Alignment next() {
-            SAMRecord samRecord = samRecordIterator.next();
-            Alignment alignment = AlignmentConverter.buildAlignment(samRecord);
-            return alignment;
-        }
-
-        @Override
-        public void remove() {
-            samRecordIterator.remove();
-        }
-
-        @Override
-        public void forEachRemaining(Consumer<? super Alignment> action) {
-            // TODO converto action to SAMRecord
-//            samRecordIterator.forEachRemaining((Consumer<? super SAMRecord>) action);
-        }
-
-        public SAMRecordIterator getSamRecordIterator() {
-            return samRecordIterator;
-        }
-    }
 }
