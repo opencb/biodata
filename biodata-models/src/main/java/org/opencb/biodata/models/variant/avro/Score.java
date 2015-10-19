@@ -7,9 +7,9 @@ package org.opencb.biodata.models.variant.avro;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class Score extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"Score\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"score\",\"type\":[\"null\",\"double\"]},{\"name\":\"source\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"description\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"Score\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"score\",\"type\":\"double\"},{\"name\":\"source\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"description\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
-   private java.lang.Double score;
+   private double score;
    private java.lang.String source;
    private java.lang.String description;
 
@@ -116,7 +116,7 @@ public class Score extends org.apache.avro.specific.SpecificRecordBase implement
   public static class Builder extends org.apache.avro.specific.SpecificRecordBuilderBase<Score>
     implements org.apache.avro.data.RecordBuilder<Score> {
 
-    private java.lang.Double score;
+    private double score;
     private java.lang.String source;
     private java.lang.String description;
 
@@ -165,7 +165,7 @@ public class Score extends org.apache.avro.specific.SpecificRecordBase implement
     }
     
     /** Sets the value of the 'score' field */
-    public org.opencb.biodata.models.variant.avro.Score.Builder setScore(java.lang.Double value) {
+    public org.opencb.biodata.models.variant.avro.Score.Builder setScore(double value) {
       validate(fields()[0], value);
       this.score = value;
       fieldSetFlags()[0] = true;
@@ -179,7 +179,6 @@ public class Score extends org.apache.avro.specific.SpecificRecordBase implement
     
     /** Clears the value of the 'score' field */
     public org.opencb.biodata.models.variant.avro.Score.Builder clearScore() {
-      score = null;
       fieldSetFlags()[0] = false;
       return this;
     }

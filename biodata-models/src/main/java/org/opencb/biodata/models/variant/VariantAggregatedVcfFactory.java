@@ -18,7 +18,6 @@ package org.opencb.biodata.models.variant;
 
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
-import org.opencb.biodata.models.variant.stats.VariantStats;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -44,28 +43,29 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
 
 
     @Override
-    protected void parseSplitSampleData(Variant variant, VariantSource source, String[] fields,
-                                        String[] alternateAlleles, String[] secondaryAlternates, int alleleIdx)
+    protected void parseSplitSampleData(StudyEntry variant, VariantSource source, String[] fields,
+                                        String reference, String[] alternateAlleles, VariantNormalizer.VariantKeyFields variantKeyFields)
             throws NonStandardCompliantSampleField {
         // Nothing to do
+        variant.setSamplesPosition(Collections.emptyMap());
     }
 
     @Override
-    protected void setOtherFields(Variant variant, VariantSource source, Set<String> ids, float quality, String filter,
+    protected void setOtherFields(Variant variant, VariantSource source, List<String> ids, float quality, String filter,
                                   String info, String format, int numAllele, String[] alternateAlleles, String line) {
         // Fields not affected by the structure of REF and ALT fields
         variant.setIds(ids);
-        VariantSourceEntry sourceEntry = variant.getSourceEntry(source.getFileId(), source.getStudyId());
+        StudyEntry sourceEntry = variant.getSourceEntry(source.getFileId(), source.getStudyId());
         if (quality > -1) {
-            sourceEntry.addAttribute("QUAL", String.valueOf(quality));
+            sourceEntry.addAttribute(source.getFileId(), "QUAL", String.valueOf(quality));
         }
         if (!filter.isEmpty()) {
-            sourceEntry.addAttribute("FILTER", filter);
+            sourceEntry.addAttribute(source.getFileId(), "FILTER", filter);
         }
         Map<String, String> infoMap = getInfoMap(info);
         addInfo(variant, sourceEntry, numAllele, infoMap);
-        sourceEntry.setFormat(format);
-        sourceEntry.addAttribute("src", line);
+        sourceEntry.setFormatAsString(format);
+        sourceEntry.addAttribute(source.getFileId(), "src", line);
     }
 
     public static Map<String, String> getInfoMap(String info) {
@@ -82,7 +82,7 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
         return map;
     }
 
-    protected void addInfo(Variant variant, VariantSourceEntry file, int numAllele, Map<String, String> info) {
+    protected void addInfo(Variant variant, StudyEntry file, int numAllele, Map<String, String> info) {
         for (Map.Entry<String, String> infoElement : info.entrySet()) {
 
             String infoTag = infoElement.getKey();
@@ -112,7 +112,7 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
                     break;
                 case "DP":
                     int dp = 0;
-                    for (String sampleName : file.getSampleNames()) {
+                    for (String sampleName : file.getSamplesName()) {
                         String sampleDp = file.getSampleData(sampleName, "DP");
                         if (StringUtils.isNumeric(sampleDp)) {
                             dp += Integer.parseInt(sampleDp);
@@ -124,7 +124,7 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
                 case "MQ0":
                     int mq = 0;
                     int mq0 = 0;
-                    for (String sampleName : file.getSampleNames()) {
+                    for (String sampleName : file.getSamplesName()) {
                         if (StringUtils.isNumeric(file.getSampleData(sampleName, "GQ"))) {
                             int gq = Integer.parseInt(file.getSampleData(sampleName, "GQ"));
                             mq += gq * gq;
@@ -144,7 +144,7 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
     }
 
 
-    protected void addAttributes(Variant variant, VariantSourceEntry sourceEntry, int numAllele, String[] alternateAlleles,
+    protected void addAttributes(Variant variant, StudyEntry sourceEntry, int numAllele, String[] alternateAlleles,
                                  Map<String, String> infoMap) {
 
     }

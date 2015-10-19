@@ -7,12 +7,14 @@ package org.opencb.biodata.models.variant.avro;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class VariantStats extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"VariantStats\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"refAllele\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"altAllele\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"refAlleleCount\",\"type\":[\"null\",\"int\"]},{\"name\":\"altAlleleCount\",\"type\":[\"null\",\"int\"]},{\"name\":\"missingAlleles\",\"type\":[\"null\",\"int\"]},{\"name\":\"missingGenotypes\",\"type\":[\"null\",\"int\"]},{\"name\":\"refAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"altAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"maf\",\"type\":[\"null\",\"float\"]},{\"name\":\"mgf\",\"type\":[\"null\",\"float\"]},{\"name\":\"mafAllele\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"mgfGenotype\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"passedFilters\",\"type\":[\"null\",\"boolean\"]},{\"name\":\"mendelianErrors\",\"type\":[\"null\",\"int\"]},{\"name\":\"casesPercentDominant\",\"type\":[\"null\",\"float\"]},{\"name\":\"controlsPercentDominant\",\"type\":[\"null\",\"float\"]},{\"name\":\"casesPercentRecessive\",\"type\":[\"null\",\"float\"]},{\"name\":\"controlsPercentRecessive\",\"type\":[\"null\",\"float\"]},{\"name\":\"quality\",\"type\":[\"null\",\"float\"]},{\"name\":\"numSamples\",\"type\":[\"null\",\"int\"]},{\"name\":\"variantType\",\"type\":{\"type\":\"enum\",\"name\":\"VariantType\",\"symbols\":[\"SNP\",\"SNV\",\"MNP\",\"MNV\",\"INDEL\",\"SV\",\"CNV\",\"NO_VARIATION\",\"SYMBOLIC\",\"MIXED\"]}},{\"name\":\"hw\",\"type\":{\"type\":\"record\",\"name\":\"VariantHardyWeinbergStats\",\"fields\":[{\"name\":\"chi2\",\"type\":[\"null\",\"float\"]},{\"name\":\"pValue\",\"type\":[\"null\",\"float\"]},{\"name\":\"n\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_AA_11\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_Aa_10\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_aa_00\",\"type\":[\"null\",\"int\"]},{\"name\":\"e_AA_11\",\"type\":[\"null\",\"float\"]},{\"name\":\"e_Aa_10\",\"type\":[\"null\",\"float\"]},{\"name\":\"e_aa_00\",\"type\":[\"null\",\"float\"]},{\"name\":\"p\",\"type\":[\"null\",\"float\"]},{\"name\":\"q\",\"type\":[\"null\",\"float\"]}]}}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"VariantStats\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"refAllele\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"altAllele\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"refAlleleCount\",\"type\":[\"null\",\"int\"]},{\"name\":\"altAlleleCount\",\"type\":[\"null\",\"int\"]},{\"name\":\"genotypesCount\",\"type\":{\"type\":\"map\",\"values\":\"int\",\"avro.java.string\":\"String\",\"java-key-class\":\"org.opencb.biodata.models.feature.Genotype\"}},{\"name\":\"genotypesFreq\",\"type\":{\"type\":\"map\",\"values\":\"float\",\"avro.java.string\":\"String\",\"java-key-class\":\"org.opencb.biodata.models.feature.Genotype\"}},{\"name\":\"missingAlleles\",\"type\":[\"null\",\"int\"]},{\"name\":\"missingGenotypes\",\"type\":[\"null\",\"int\"]},{\"name\":\"refAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"altAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"maf\",\"type\":[\"null\",\"float\"]},{\"name\":\"mgf\",\"type\":[\"null\",\"float\"]},{\"name\":\"mafAllele\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"mgfGenotype\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"passedFilters\",\"type\":[\"null\",\"boolean\"]},{\"name\":\"mendelianErrors\",\"type\":[\"null\",\"int\"]},{\"name\":\"casesPercentDominant\",\"type\":[\"null\",\"float\"]},{\"name\":\"controlsPercentDominant\",\"type\":[\"null\",\"float\"]},{\"name\":\"casesPercentRecessive\",\"type\":[\"null\",\"float\"]},{\"name\":\"controlsPercentRecessive\",\"type\":[\"null\",\"float\"]},{\"name\":\"quality\",\"type\":[\"null\",\"float\"]},{\"name\":\"numSamples\",\"type\":[\"null\",\"int\"]},{\"name\":\"variantType\",\"type\":{\"type\":\"enum\",\"name\":\"VariantType\",\"doc\":\"* Type of variation, which depends mostly on its length.\\n     * <ul>\\n     * <li>SNVs involve a single nucleotide, without changes in length</li>\\n     * <li>MNVs involve multiple nucleotides, without changes in length</li>\\n     * <li>Indels are insertions or deletions of less than SV_THRESHOLD (50) nucleotides</li>\\n     * <li>Structural variations are large changes of more than SV_THRESHOLD nucleotides</li>\\n     * <li>Copy-number variations alter the number of copies of a region</li>\\n     * </ul>\",\"symbols\":[\"SNV\",\"SNP\",\"MNV\",\"MNP\",\"INDEL\",\"SV\",\"INSERTION\",\"DELETION\",\"TRANSLOCATION\",\"INVERSION\",\"CNV\",\"NO_VARIATION\",\"SYMBOLIC\",\"MIXED\"]}},{\"name\":\"hw\",\"type\":{\"type\":\"record\",\"name\":\"VariantHardyWeinbergStats\",\"fields\":[{\"name\":\"chi2\",\"type\":[\"null\",\"float\"]},{\"name\":\"pValue\",\"type\":[\"null\",\"float\"]},{\"name\":\"n\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_AA_11\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_Aa_10\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_aa_00\",\"type\":[\"null\",\"int\"]},{\"name\":\"e_AA_11\",\"type\":[\"null\",\"float\"]},{\"name\":\"e_Aa_10\",\"type\":[\"null\",\"float\"]},{\"name\":\"e_aa_00\",\"type\":[\"null\",\"float\"]},{\"name\":\"p\",\"type\":[\"null\",\"float\"]},{\"name\":\"q\",\"type\":[\"null\",\"float\"]}]}}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
    private java.lang.String refAllele;
    private java.lang.String altAllele;
    private java.lang.Integer refAlleleCount;
    private java.lang.Integer altAlleleCount;
+   private java.util.Map<org.opencb.biodata.models.feature.Genotype,java.lang.Integer> genotypesCount;
+   private java.util.Map<org.opencb.biodata.models.feature.Genotype,java.lang.Float> genotypesFreq;
    private java.lang.Integer missingAlleles;
    private java.lang.Integer missingGenotypes;
    private java.lang.Float refAlleleFreq;
@@ -42,11 +44,13 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
   /**
    * All-args constructor.
    */
-  public VariantStats(java.lang.String refAllele, java.lang.String altAllele, java.lang.Integer refAlleleCount, java.lang.Integer altAlleleCount, java.lang.Integer missingAlleles, java.lang.Integer missingGenotypes, java.lang.Float refAlleleFreq, java.lang.Float altAlleleFreq, java.lang.Float maf, java.lang.Float mgf, java.lang.String mafAllele, java.lang.String mgfGenotype, java.lang.Boolean passedFilters, java.lang.Integer mendelianErrors, java.lang.Float casesPercentDominant, java.lang.Float controlsPercentDominant, java.lang.Float casesPercentRecessive, java.lang.Float controlsPercentRecessive, java.lang.Float quality, java.lang.Integer numSamples, org.opencb.biodata.models.variant.avro.VariantType variantType, org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats hw) {
+  public VariantStats(java.lang.String refAllele, java.lang.String altAllele, java.lang.Integer refAlleleCount, java.lang.Integer altAlleleCount, java.util.Map<org.opencb.biodata.models.feature.Genotype,java.lang.Integer> genotypesCount, java.util.Map<org.opencb.biodata.models.feature.Genotype,java.lang.Float> genotypesFreq, java.lang.Integer missingAlleles, java.lang.Integer missingGenotypes, java.lang.Float refAlleleFreq, java.lang.Float altAlleleFreq, java.lang.Float maf, java.lang.Float mgf, java.lang.String mafAllele, java.lang.String mgfGenotype, java.lang.Boolean passedFilters, java.lang.Integer mendelianErrors, java.lang.Float casesPercentDominant, java.lang.Float controlsPercentDominant, java.lang.Float casesPercentRecessive, java.lang.Float controlsPercentRecessive, java.lang.Float quality, java.lang.Integer numSamples, org.opencb.biodata.models.variant.avro.VariantType variantType, org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats hw) {
     this.refAllele = refAllele;
     this.altAllele = altAllele;
     this.refAlleleCount = refAlleleCount;
     this.altAlleleCount = altAlleleCount;
+    this.genotypesCount = genotypesCount;
+    this.genotypesFreq = genotypesFreq;
     this.missingAlleles = missingAlleles;
     this.missingGenotypes = missingGenotypes;
     this.refAlleleFreq = refAlleleFreq;
@@ -75,24 +79,26 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     case 1: return altAllele;
     case 2: return refAlleleCount;
     case 3: return altAlleleCount;
-    case 4: return missingAlleles;
-    case 5: return missingGenotypes;
-    case 6: return refAlleleFreq;
-    case 7: return altAlleleFreq;
-    case 8: return maf;
-    case 9: return mgf;
-    case 10: return mafAllele;
-    case 11: return mgfGenotype;
-    case 12: return passedFilters;
-    case 13: return mendelianErrors;
-    case 14: return casesPercentDominant;
-    case 15: return controlsPercentDominant;
-    case 16: return casesPercentRecessive;
-    case 17: return controlsPercentRecessive;
-    case 18: return quality;
-    case 19: return numSamples;
-    case 20: return variantType;
-    case 21: return hw;
+    case 4: return genotypesCount;
+    case 5: return genotypesFreq;
+    case 6: return missingAlleles;
+    case 7: return missingGenotypes;
+    case 8: return refAlleleFreq;
+    case 9: return altAlleleFreq;
+    case 10: return maf;
+    case 11: return mgf;
+    case 12: return mafAllele;
+    case 13: return mgfGenotype;
+    case 14: return passedFilters;
+    case 15: return mendelianErrors;
+    case 16: return casesPercentDominant;
+    case 17: return controlsPercentDominant;
+    case 18: return casesPercentRecessive;
+    case 19: return controlsPercentRecessive;
+    case 20: return quality;
+    case 21: return numSamples;
+    case 22: return variantType;
+    case 23: return hw;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -104,24 +110,26 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     case 1: altAllele = (java.lang.String)value$; break;
     case 2: refAlleleCount = (java.lang.Integer)value$; break;
     case 3: altAlleleCount = (java.lang.Integer)value$; break;
-    case 4: missingAlleles = (java.lang.Integer)value$; break;
-    case 5: missingGenotypes = (java.lang.Integer)value$; break;
-    case 6: refAlleleFreq = (java.lang.Float)value$; break;
-    case 7: altAlleleFreq = (java.lang.Float)value$; break;
-    case 8: maf = (java.lang.Float)value$; break;
-    case 9: mgf = (java.lang.Float)value$; break;
-    case 10: mafAllele = (java.lang.String)value$; break;
-    case 11: mgfGenotype = (java.lang.String)value$; break;
-    case 12: passedFilters = (java.lang.Boolean)value$; break;
-    case 13: mendelianErrors = (java.lang.Integer)value$; break;
-    case 14: casesPercentDominant = (java.lang.Float)value$; break;
-    case 15: controlsPercentDominant = (java.lang.Float)value$; break;
-    case 16: casesPercentRecessive = (java.lang.Float)value$; break;
-    case 17: controlsPercentRecessive = (java.lang.Float)value$; break;
-    case 18: quality = (java.lang.Float)value$; break;
-    case 19: numSamples = (java.lang.Integer)value$; break;
-    case 20: variantType = (org.opencb.biodata.models.variant.avro.VariantType)value$; break;
-    case 21: hw = (org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats)value$; break;
+    case 4: genotypesCount = (java.util.Map<org.opencb.biodata.models.feature.Genotype,java.lang.Integer>)value$; break;
+    case 5: genotypesFreq = (java.util.Map<org.opencb.biodata.models.feature.Genotype,java.lang.Float>)value$; break;
+    case 6: missingAlleles = (java.lang.Integer)value$; break;
+    case 7: missingGenotypes = (java.lang.Integer)value$; break;
+    case 8: refAlleleFreq = (java.lang.Float)value$; break;
+    case 9: altAlleleFreq = (java.lang.Float)value$; break;
+    case 10: maf = (java.lang.Float)value$; break;
+    case 11: mgf = (java.lang.Float)value$; break;
+    case 12: mafAllele = (java.lang.String)value$; break;
+    case 13: mgfGenotype = (java.lang.String)value$; break;
+    case 14: passedFilters = (java.lang.Boolean)value$; break;
+    case 15: mendelianErrors = (java.lang.Integer)value$; break;
+    case 16: casesPercentDominant = (java.lang.Float)value$; break;
+    case 17: controlsPercentDominant = (java.lang.Float)value$; break;
+    case 18: casesPercentRecessive = (java.lang.Float)value$; break;
+    case 19: controlsPercentRecessive = (java.lang.Float)value$; break;
+    case 20: quality = (java.lang.Float)value$; break;
+    case 21: numSamples = (java.lang.Integer)value$; break;
+    case 22: variantType = (org.opencb.biodata.models.variant.avro.VariantType)value$; break;
+    case 23: hw = (org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -184,6 +192,36 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
    */
   public void setAltAlleleCount(java.lang.Integer value) {
     this.altAlleleCount = value;
+  }
+
+  /**
+   * Gets the value of the 'genotypesCount' field.
+   */
+  public java.util.Map<org.opencb.biodata.models.feature.Genotype,java.lang.Integer> getGenotypesCount() {
+    return genotypesCount;
+  }
+
+  /**
+   * Sets the value of the 'genotypesCount' field.
+   * @param value the value to set.
+   */
+  public void setGenotypesCount(java.util.Map<org.opencb.biodata.models.feature.Genotype,java.lang.Integer> value) {
+    this.genotypesCount = value;
+  }
+
+  /**
+   * Gets the value of the 'genotypesFreq' field.
+   */
+  public java.util.Map<org.opencb.biodata.models.feature.Genotype,java.lang.Float> getGenotypesFreq() {
+    return genotypesFreq;
+  }
+
+  /**
+   * Sets the value of the 'genotypesFreq' field.
+   * @param value the value to set.
+   */
+  public void setGenotypesFreq(java.util.Map<org.opencb.biodata.models.feature.Genotype,java.lang.Float> value) {
+    this.genotypesFreq = value;
   }
 
   /**
@@ -481,6 +519,8 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     private java.lang.String altAllele;
     private java.lang.Integer refAlleleCount;
     private java.lang.Integer altAlleleCount;
+    private java.util.Map<org.opencb.biodata.models.feature.Genotype,java.lang.Integer> genotypesCount;
+    private java.util.Map<org.opencb.biodata.models.feature.Genotype,java.lang.Float> genotypesFreq;
     private java.lang.Integer missingAlleles;
     private java.lang.Integer missingGenotypes;
     private java.lang.Float refAlleleFreq;
@@ -524,77 +564,85 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
         this.altAlleleCount = data().deepCopy(fields()[3].schema(), other.altAlleleCount);
         fieldSetFlags()[3] = true;
       }
-      if (isValidValue(fields()[4], other.missingAlleles)) {
-        this.missingAlleles = data().deepCopy(fields()[4].schema(), other.missingAlleles);
+      if (isValidValue(fields()[4], other.genotypesCount)) {
+        this.genotypesCount = data().deepCopy(fields()[4].schema(), other.genotypesCount);
         fieldSetFlags()[4] = true;
       }
-      if (isValidValue(fields()[5], other.missingGenotypes)) {
-        this.missingGenotypes = data().deepCopy(fields()[5].schema(), other.missingGenotypes);
+      if (isValidValue(fields()[5], other.genotypesFreq)) {
+        this.genotypesFreq = data().deepCopy(fields()[5].schema(), other.genotypesFreq);
         fieldSetFlags()[5] = true;
       }
-      if (isValidValue(fields()[6], other.refAlleleFreq)) {
-        this.refAlleleFreq = data().deepCopy(fields()[6].schema(), other.refAlleleFreq);
+      if (isValidValue(fields()[6], other.missingAlleles)) {
+        this.missingAlleles = data().deepCopy(fields()[6].schema(), other.missingAlleles);
         fieldSetFlags()[6] = true;
       }
-      if (isValidValue(fields()[7], other.altAlleleFreq)) {
-        this.altAlleleFreq = data().deepCopy(fields()[7].schema(), other.altAlleleFreq);
+      if (isValidValue(fields()[7], other.missingGenotypes)) {
+        this.missingGenotypes = data().deepCopy(fields()[7].schema(), other.missingGenotypes);
         fieldSetFlags()[7] = true;
       }
-      if (isValidValue(fields()[8], other.maf)) {
-        this.maf = data().deepCopy(fields()[8].schema(), other.maf);
+      if (isValidValue(fields()[8], other.refAlleleFreq)) {
+        this.refAlleleFreq = data().deepCopy(fields()[8].schema(), other.refAlleleFreq);
         fieldSetFlags()[8] = true;
       }
-      if (isValidValue(fields()[9], other.mgf)) {
-        this.mgf = data().deepCopy(fields()[9].schema(), other.mgf);
+      if (isValidValue(fields()[9], other.altAlleleFreq)) {
+        this.altAlleleFreq = data().deepCopy(fields()[9].schema(), other.altAlleleFreq);
         fieldSetFlags()[9] = true;
       }
-      if (isValidValue(fields()[10], other.mafAllele)) {
-        this.mafAllele = data().deepCopy(fields()[10].schema(), other.mafAllele);
+      if (isValidValue(fields()[10], other.maf)) {
+        this.maf = data().deepCopy(fields()[10].schema(), other.maf);
         fieldSetFlags()[10] = true;
       }
-      if (isValidValue(fields()[11], other.mgfGenotype)) {
-        this.mgfGenotype = data().deepCopy(fields()[11].schema(), other.mgfGenotype);
+      if (isValidValue(fields()[11], other.mgf)) {
+        this.mgf = data().deepCopy(fields()[11].schema(), other.mgf);
         fieldSetFlags()[11] = true;
       }
-      if (isValidValue(fields()[12], other.passedFilters)) {
-        this.passedFilters = data().deepCopy(fields()[12].schema(), other.passedFilters);
+      if (isValidValue(fields()[12], other.mafAllele)) {
+        this.mafAllele = data().deepCopy(fields()[12].schema(), other.mafAllele);
         fieldSetFlags()[12] = true;
       }
-      if (isValidValue(fields()[13], other.mendelianErrors)) {
-        this.mendelianErrors = data().deepCopy(fields()[13].schema(), other.mendelianErrors);
+      if (isValidValue(fields()[13], other.mgfGenotype)) {
+        this.mgfGenotype = data().deepCopy(fields()[13].schema(), other.mgfGenotype);
         fieldSetFlags()[13] = true;
       }
-      if (isValidValue(fields()[14], other.casesPercentDominant)) {
-        this.casesPercentDominant = data().deepCopy(fields()[14].schema(), other.casesPercentDominant);
+      if (isValidValue(fields()[14], other.passedFilters)) {
+        this.passedFilters = data().deepCopy(fields()[14].schema(), other.passedFilters);
         fieldSetFlags()[14] = true;
       }
-      if (isValidValue(fields()[15], other.controlsPercentDominant)) {
-        this.controlsPercentDominant = data().deepCopy(fields()[15].schema(), other.controlsPercentDominant);
+      if (isValidValue(fields()[15], other.mendelianErrors)) {
+        this.mendelianErrors = data().deepCopy(fields()[15].schema(), other.mendelianErrors);
         fieldSetFlags()[15] = true;
       }
-      if (isValidValue(fields()[16], other.casesPercentRecessive)) {
-        this.casesPercentRecessive = data().deepCopy(fields()[16].schema(), other.casesPercentRecessive);
+      if (isValidValue(fields()[16], other.casesPercentDominant)) {
+        this.casesPercentDominant = data().deepCopy(fields()[16].schema(), other.casesPercentDominant);
         fieldSetFlags()[16] = true;
       }
-      if (isValidValue(fields()[17], other.controlsPercentRecessive)) {
-        this.controlsPercentRecessive = data().deepCopy(fields()[17].schema(), other.controlsPercentRecessive);
+      if (isValidValue(fields()[17], other.controlsPercentDominant)) {
+        this.controlsPercentDominant = data().deepCopy(fields()[17].schema(), other.controlsPercentDominant);
         fieldSetFlags()[17] = true;
       }
-      if (isValidValue(fields()[18], other.quality)) {
-        this.quality = data().deepCopy(fields()[18].schema(), other.quality);
+      if (isValidValue(fields()[18], other.casesPercentRecessive)) {
+        this.casesPercentRecessive = data().deepCopy(fields()[18].schema(), other.casesPercentRecessive);
         fieldSetFlags()[18] = true;
       }
-      if (isValidValue(fields()[19], other.numSamples)) {
-        this.numSamples = data().deepCopy(fields()[19].schema(), other.numSamples);
+      if (isValidValue(fields()[19], other.controlsPercentRecessive)) {
+        this.controlsPercentRecessive = data().deepCopy(fields()[19].schema(), other.controlsPercentRecessive);
         fieldSetFlags()[19] = true;
       }
-      if (isValidValue(fields()[20], other.variantType)) {
-        this.variantType = data().deepCopy(fields()[20].schema(), other.variantType);
+      if (isValidValue(fields()[20], other.quality)) {
+        this.quality = data().deepCopy(fields()[20].schema(), other.quality);
         fieldSetFlags()[20] = true;
       }
-      if (isValidValue(fields()[21], other.hw)) {
-        this.hw = data().deepCopy(fields()[21].schema(), other.hw);
+      if (isValidValue(fields()[21], other.numSamples)) {
+        this.numSamples = data().deepCopy(fields()[21].schema(), other.numSamples);
         fieldSetFlags()[21] = true;
+      }
+      if (isValidValue(fields()[22], other.variantType)) {
+        this.variantType = data().deepCopy(fields()[22].schema(), other.variantType);
+        fieldSetFlags()[22] = true;
+      }
+      if (isValidValue(fields()[23], other.hw)) {
+        this.hw = data().deepCopy(fields()[23].schema(), other.hw);
+        fieldSetFlags()[23] = true;
       }
     }
     
@@ -617,77 +665,85 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
         this.altAlleleCount = data().deepCopy(fields()[3].schema(), other.altAlleleCount);
         fieldSetFlags()[3] = true;
       }
-      if (isValidValue(fields()[4], other.missingAlleles)) {
-        this.missingAlleles = data().deepCopy(fields()[4].schema(), other.missingAlleles);
+      if (isValidValue(fields()[4], other.genotypesCount)) {
+        this.genotypesCount = data().deepCopy(fields()[4].schema(), other.genotypesCount);
         fieldSetFlags()[4] = true;
       }
-      if (isValidValue(fields()[5], other.missingGenotypes)) {
-        this.missingGenotypes = data().deepCopy(fields()[5].schema(), other.missingGenotypes);
+      if (isValidValue(fields()[5], other.genotypesFreq)) {
+        this.genotypesFreq = data().deepCopy(fields()[5].schema(), other.genotypesFreq);
         fieldSetFlags()[5] = true;
       }
-      if (isValidValue(fields()[6], other.refAlleleFreq)) {
-        this.refAlleleFreq = data().deepCopy(fields()[6].schema(), other.refAlleleFreq);
+      if (isValidValue(fields()[6], other.missingAlleles)) {
+        this.missingAlleles = data().deepCopy(fields()[6].schema(), other.missingAlleles);
         fieldSetFlags()[6] = true;
       }
-      if (isValidValue(fields()[7], other.altAlleleFreq)) {
-        this.altAlleleFreq = data().deepCopy(fields()[7].schema(), other.altAlleleFreq);
+      if (isValidValue(fields()[7], other.missingGenotypes)) {
+        this.missingGenotypes = data().deepCopy(fields()[7].schema(), other.missingGenotypes);
         fieldSetFlags()[7] = true;
       }
-      if (isValidValue(fields()[8], other.maf)) {
-        this.maf = data().deepCopy(fields()[8].schema(), other.maf);
+      if (isValidValue(fields()[8], other.refAlleleFreq)) {
+        this.refAlleleFreq = data().deepCopy(fields()[8].schema(), other.refAlleleFreq);
         fieldSetFlags()[8] = true;
       }
-      if (isValidValue(fields()[9], other.mgf)) {
-        this.mgf = data().deepCopy(fields()[9].schema(), other.mgf);
+      if (isValidValue(fields()[9], other.altAlleleFreq)) {
+        this.altAlleleFreq = data().deepCopy(fields()[9].schema(), other.altAlleleFreq);
         fieldSetFlags()[9] = true;
       }
-      if (isValidValue(fields()[10], other.mafAllele)) {
-        this.mafAllele = data().deepCopy(fields()[10].schema(), other.mafAllele);
+      if (isValidValue(fields()[10], other.maf)) {
+        this.maf = data().deepCopy(fields()[10].schema(), other.maf);
         fieldSetFlags()[10] = true;
       }
-      if (isValidValue(fields()[11], other.mgfGenotype)) {
-        this.mgfGenotype = data().deepCopy(fields()[11].schema(), other.mgfGenotype);
+      if (isValidValue(fields()[11], other.mgf)) {
+        this.mgf = data().deepCopy(fields()[11].schema(), other.mgf);
         fieldSetFlags()[11] = true;
       }
-      if (isValidValue(fields()[12], other.passedFilters)) {
-        this.passedFilters = data().deepCopy(fields()[12].schema(), other.passedFilters);
+      if (isValidValue(fields()[12], other.mafAllele)) {
+        this.mafAllele = data().deepCopy(fields()[12].schema(), other.mafAllele);
         fieldSetFlags()[12] = true;
       }
-      if (isValidValue(fields()[13], other.mendelianErrors)) {
-        this.mendelianErrors = data().deepCopy(fields()[13].schema(), other.mendelianErrors);
+      if (isValidValue(fields()[13], other.mgfGenotype)) {
+        this.mgfGenotype = data().deepCopy(fields()[13].schema(), other.mgfGenotype);
         fieldSetFlags()[13] = true;
       }
-      if (isValidValue(fields()[14], other.casesPercentDominant)) {
-        this.casesPercentDominant = data().deepCopy(fields()[14].schema(), other.casesPercentDominant);
+      if (isValidValue(fields()[14], other.passedFilters)) {
+        this.passedFilters = data().deepCopy(fields()[14].schema(), other.passedFilters);
         fieldSetFlags()[14] = true;
       }
-      if (isValidValue(fields()[15], other.controlsPercentDominant)) {
-        this.controlsPercentDominant = data().deepCopy(fields()[15].schema(), other.controlsPercentDominant);
+      if (isValidValue(fields()[15], other.mendelianErrors)) {
+        this.mendelianErrors = data().deepCopy(fields()[15].schema(), other.mendelianErrors);
         fieldSetFlags()[15] = true;
       }
-      if (isValidValue(fields()[16], other.casesPercentRecessive)) {
-        this.casesPercentRecessive = data().deepCopy(fields()[16].schema(), other.casesPercentRecessive);
+      if (isValidValue(fields()[16], other.casesPercentDominant)) {
+        this.casesPercentDominant = data().deepCopy(fields()[16].schema(), other.casesPercentDominant);
         fieldSetFlags()[16] = true;
       }
-      if (isValidValue(fields()[17], other.controlsPercentRecessive)) {
-        this.controlsPercentRecessive = data().deepCopy(fields()[17].schema(), other.controlsPercentRecessive);
+      if (isValidValue(fields()[17], other.controlsPercentDominant)) {
+        this.controlsPercentDominant = data().deepCopy(fields()[17].schema(), other.controlsPercentDominant);
         fieldSetFlags()[17] = true;
       }
-      if (isValidValue(fields()[18], other.quality)) {
-        this.quality = data().deepCopy(fields()[18].schema(), other.quality);
+      if (isValidValue(fields()[18], other.casesPercentRecessive)) {
+        this.casesPercentRecessive = data().deepCopy(fields()[18].schema(), other.casesPercentRecessive);
         fieldSetFlags()[18] = true;
       }
-      if (isValidValue(fields()[19], other.numSamples)) {
-        this.numSamples = data().deepCopy(fields()[19].schema(), other.numSamples);
+      if (isValidValue(fields()[19], other.controlsPercentRecessive)) {
+        this.controlsPercentRecessive = data().deepCopy(fields()[19].schema(), other.controlsPercentRecessive);
         fieldSetFlags()[19] = true;
       }
-      if (isValidValue(fields()[20], other.variantType)) {
-        this.variantType = data().deepCopy(fields()[20].schema(), other.variantType);
+      if (isValidValue(fields()[20], other.quality)) {
+        this.quality = data().deepCopy(fields()[20].schema(), other.quality);
         fieldSetFlags()[20] = true;
       }
-      if (isValidValue(fields()[21], other.hw)) {
-        this.hw = data().deepCopy(fields()[21].schema(), other.hw);
+      if (isValidValue(fields()[21], other.numSamples)) {
+        this.numSamples = data().deepCopy(fields()[21].schema(), other.numSamples);
         fieldSetFlags()[21] = true;
+      }
+      if (isValidValue(fields()[22], other.variantType)) {
+        this.variantType = data().deepCopy(fields()[22].schema(), other.variantType);
+        fieldSetFlags()[22] = true;
+      }
+      if (isValidValue(fields()[23], other.hw)) {
+        this.hw = data().deepCopy(fields()[23].schema(), other.hw);
+        fieldSetFlags()[23] = true;
       }
     }
 
@@ -791,6 +847,56 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
       return this;
     }
 
+    /** Gets the value of the 'genotypesCount' field */
+    public java.util.Map<org.opencb.biodata.models.feature.Genotype,java.lang.Integer> getGenotypesCount() {
+      return genotypesCount;
+    }
+    
+    /** Sets the value of the 'genotypesCount' field */
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder setGenotypesCount(java.util.Map<org.opencb.biodata.models.feature.Genotype,java.lang.Integer> value) {
+      validate(fields()[4], value);
+      this.genotypesCount = value;
+      fieldSetFlags()[4] = true;
+      return this; 
+    }
+    
+    /** Checks whether the 'genotypesCount' field has been set */
+    public boolean hasGenotypesCount() {
+      return fieldSetFlags()[4];
+    }
+    
+    /** Clears the value of the 'genotypesCount' field */
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearGenotypesCount() {
+      genotypesCount = null;
+      fieldSetFlags()[4] = false;
+      return this;
+    }
+
+    /** Gets the value of the 'genotypesFreq' field */
+    public java.util.Map<org.opencb.biodata.models.feature.Genotype,java.lang.Float> getGenotypesFreq() {
+      return genotypesFreq;
+    }
+    
+    /** Sets the value of the 'genotypesFreq' field */
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder setGenotypesFreq(java.util.Map<org.opencb.biodata.models.feature.Genotype,java.lang.Float> value) {
+      validate(fields()[5], value);
+      this.genotypesFreq = value;
+      fieldSetFlags()[5] = true;
+      return this; 
+    }
+    
+    /** Checks whether the 'genotypesFreq' field has been set */
+    public boolean hasGenotypesFreq() {
+      return fieldSetFlags()[5];
+    }
+    
+    /** Clears the value of the 'genotypesFreq' field */
+    public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearGenotypesFreq() {
+      genotypesFreq = null;
+      fieldSetFlags()[5] = false;
+      return this;
+    }
+
     /** Gets the value of the 'missingAlleles' field */
     public java.lang.Integer getMissingAlleles() {
       return missingAlleles;
@@ -798,21 +904,21 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     
     /** Sets the value of the 'missingAlleles' field */
     public org.opencb.biodata.models.variant.avro.VariantStats.Builder setMissingAlleles(java.lang.Integer value) {
-      validate(fields()[4], value);
+      validate(fields()[6], value);
       this.missingAlleles = value;
-      fieldSetFlags()[4] = true;
+      fieldSetFlags()[6] = true;
       return this; 
     }
     
     /** Checks whether the 'missingAlleles' field has been set */
     public boolean hasMissingAlleles() {
-      return fieldSetFlags()[4];
+      return fieldSetFlags()[6];
     }
     
     /** Clears the value of the 'missingAlleles' field */
     public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearMissingAlleles() {
       missingAlleles = null;
-      fieldSetFlags()[4] = false;
+      fieldSetFlags()[6] = false;
       return this;
     }
 
@@ -823,21 +929,21 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     
     /** Sets the value of the 'missingGenotypes' field */
     public org.opencb.biodata.models.variant.avro.VariantStats.Builder setMissingGenotypes(java.lang.Integer value) {
-      validate(fields()[5], value);
+      validate(fields()[7], value);
       this.missingGenotypes = value;
-      fieldSetFlags()[5] = true;
+      fieldSetFlags()[7] = true;
       return this; 
     }
     
     /** Checks whether the 'missingGenotypes' field has been set */
     public boolean hasMissingGenotypes() {
-      return fieldSetFlags()[5];
+      return fieldSetFlags()[7];
     }
     
     /** Clears the value of the 'missingGenotypes' field */
     public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearMissingGenotypes() {
       missingGenotypes = null;
-      fieldSetFlags()[5] = false;
+      fieldSetFlags()[7] = false;
       return this;
     }
 
@@ -848,21 +954,21 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     
     /** Sets the value of the 'refAlleleFreq' field */
     public org.opencb.biodata.models.variant.avro.VariantStats.Builder setRefAlleleFreq(java.lang.Float value) {
-      validate(fields()[6], value);
+      validate(fields()[8], value);
       this.refAlleleFreq = value;
-      fieldSetFlags()[6] = true;
+      fieldSetFlags()[8] = true;
       return this; 
     }
     
     /** Checks whether the 'refAlleleFreq' field has been set */
     public boolean hasRefAlleleFreq() {
-      return fieldSetFlags()[6];
+      return fieldSetFlags()[8];
     }
     
     /** Clears the value of the 'refAlleleFreq' field */
     public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearRefAlleleFreq() {
       refAlleleFreq = null;
-      fieldSetFlags()[6] = false;
+      fieldSetFlags()[8] = false;
       return this;
     }
 
@@ -873,21 +979,21 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     
     /** Sets the value of the 'altAlleleFreq' field */
     public org.opencb.biodata.models.variant.avro.VariantStats.Builder setAltAlleleFreq(java.lang.Float value) {
-      validate(fields()[7], value);
+      validate(fields()[9], value);
       this.altAlleleFreq = value;
-      fieldSetFlags()[7] = true;
+      fieldSetFlags()[9] = true;
       return this; 
     }
     
     /** Checks whether the 'altAlleleFreq' field has been set */
     public boolean hasAltAlleleFreq() {
-      return fieldSetFlags()[7];
+      return fieldSetFlags()[9];
     }
     
     /** Clears the value of the 'altAlleleFreq' field */
     public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearAltAlleleFreq() {
       altAlleleFreq = null;
-      fieldSetFlags()[7] = false;
+      fieldSetFlags()[9] = false;
       return this;
     }
 
@@ -898,21 +1004,21 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     
     /** Sets the value of the 'maf' field */
     public org.opencb.biodata.models.variant.avro.VariantStats.Builder setMaf(java.lang.Float value) {
-      validate(fields()[8], value);
+      validate(fields()[10], value);
       this.maf = value;
-      fieldSetFlags()[8] = true;
+      fieldSetFlags()[10] = true;
       return this; 
     }
     
     /** Checks whether the 'maf' field has been set */
     public boolean hasMaf() {
-      return fieldSetFlags()[8];
+      return fieldSetFlags()[10];
     }
     
     /** Clears the value of the 'maf' field */
     public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearMaf() {
       maf = null;
-      fieldSetFlags()[8] = false;
+      fieldSetFlags()[10] = false;
       return this;
     }
 
@@ -923,21 +1029,21 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     
     /** Sets the value of the 'mgf' field */
     public org.opencb.biodata.models.variant.avro.VariantStats.Builder setMgf(java.lang.Float value) {
-      validate(fields()[9], value);
+      validate(fields()[11], value);
       this.mgf = value;
-      fieldSetFlags()[9] = true;
+      fieldSetFlags()[11] = true;
       return this; 
     }
     
     /** Checks whether the 'mgf' field has been set */
     public boolean hasMgf() {
-      return fieldSetFlags()[9];
+      return fieldSetFlags()[11];
     }
     
     /** Clears the value of the 'mgf' field */
     public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearMgf() {
       mgf = null;
-      fieldSetFlags()[9] = false;
+      fieldSetFlags()[11] = false;
       return this;
     }
 
@@ -948,21 +1054,21 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     
     /** Sets the value of the 'mafAllele' field */
     public org.opencb.biodata.models.variant.avro.VariantStats.Builder setMafAllele(java.lang.String value) {
-      validate(fields()[10], value);
+      validate(fields()[12], value);
       this.mafAllele = value;
-      fieldSetFlags()[10] = true;
+      fieldSetFlags()[12] = true;
       return this; 
     }
     
     /** Checks whether the 'mafAllele' field has been set */
     public boolean hasMafAllele() {
-      return fieldSetFlags()[10];
+      return fieldSetFlags()[12];
     }
     
     /** Clears the value of the 'mafAllele' field */
     public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearMafAllele() {
       mafAllele = null;
-      fieldSetFlags()[10] = false;
+      fieldSetFlags()[12] = false;
       return this;
     }
 
@@ -973,21 +1079,21 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     
     /** Sets the value of the 'mgfGenotype' field */
     public org.opencb.biodata.models.variant.avro.VariantStats.Builder setMgfGenotype(java.lang.String value) {
-      validate(fields()[11], value);
+      validate(fields()[13], value);
       this.mgfGenotype = value;
-      fieldSetFlags()[11] = true;
+      fieldSetFlags()[13] = true;
       return this; 
     }
     
     /** Checks whether the 'mgfGenotype' field has been set */
     public boolean hasMgfGenotype() {
-      return fieldSetFlags()[11];
+      return fieldSetFlags()[13];
     }
     
     /** Clears the value of the 'mgfGenotype' field */
     public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearMgfGenotype() {
       mgfGenotype = null;
-      fieldSetFlags()[11] = false;
+      fieldSetFlags()[13] = false;
       return this;
     }
 
@@ -998,21 +1104,21 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     
     /** Sets the value of the 'passedFilters' field */
     public org.opencb.biodata.models.variant.avro.VariantStats.Builder setPassedFilters(java.lang.Boolean value) {
-      validate(fields()[12], value);
+      validate(fields()[14], value);
       this.passedFilters = value;
-      fieldSetFlags()[12] = true;
+      fieldSetFlags()[14] = true;
       return this; 
     }
     
     /** Checks whether the 'passedFilters' field has been set */
     public boolean hasPassedFilters() {
-      return fieldSetFlags()[12];
+      return fieldSetFlags()[14];
     }
     
     /** Clears the value of the 'passedFilters' field */
     public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearPassedFilters() {
       passedFilters = null;
-      fieldSetFlags()[12] = false;
+      fieldSetFlags()[14] = false;
       return this;
     }
 
@@ -1023,21 +1129,21 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     
     /** Sets the value of the 'mendelianErrors' field */
     public org.opencb.biodata.models.variant.avro.VariantStats.Builder setMendelianErrors(java.lang.Integer value) {
-      validate(fields()[13], value);
+      validate(fields()[15], value);
       this.mendelianErrors = value;
-      fieldSetFlags()[13] = true;
+      fieldSetFlags()[15] = true;
       return this; 
     }
     
     /** Checks whether the 'mendelianErrors' field has been set */
     public boolean hasMendelianErrors() {
-      return fieldSetFlags()[13];
+      return fieldSetFlags()[15];
     }
     
     /** Clears the value of the 'mendelianErrors' field */
     public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearMendelianErrors() {
       mendelianErrors = null;
-      fieldSetFlags()[13] = false;
+      fieldSetFlags()[15] = false;
       return this;
     }
 
@@ -1048,21 +1154,21 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     
     /** Sets the value of the 'casesPercentDominant' field */
     public org.opencb.biodata.models.variant.avro.VariantStats.Builder setCasesPercentDominant(java.lang.Float value) {
-      validate(fields()[14], value);
+      validate(fields()[16], value);
       this.casesPercentDominant = value;
-      fieldSetFlags()[14] = true;
+      fieldSetFlags()[16] = true;
       return this; 
     }
     
     /** Checks whether the 'casesPercentDominant' field has been set */
     public boolean hasCasesPercentDominant() {
-      return fieldSetFlags()[14];
+      return fieldSetFlags()[16];
     }
     
     /** Clears the value of the 'casesPercentDominant' field */
     public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearCasesPercentDominant() {
       casesPercentDominant = null;
-      fieldSetFlags()[14] = false;
+      fieldSetFlags()[16] = false;
       return this;
     }
 
@@ -1073,21 +1179,21 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     
     /** Sets the value of the 'controlsPercentDominant' field */
     public org.opencb.biodata.models.variant.avro.VariantStats.Builder setControlsPercentDominant(java.lang.Float value) {
-      validate(fields()[15], value);
+      validate(fields()[17], value);
       this.controlsPercentDominant = value;
-      fieldSetFlags()[15] = true;
+      fieldSetFlags()[17] = true;
       return this; 
     }
     
     /** Checks whether the 'controlsPercentDominant' field has been set */
     public boolean hasControlsPercentDominant() {
-      return fieldSetFlags()[15];
+      return fieldSetFlags()[17];
     }
     
     /** Clears the value of the 'controlsPercentDominant' field */
     public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearControlsPercentDominant() {
       controlsPercentDominant = null;
-      fieldSetFlags()[15] = false;
+      fieldSetFlags()[17] = false;
       return this;
     }
 
@@ -1098,21 +1204,21 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     
     /** Sets the value of the 'casesPercentRecessive' field */
     public org.opencb.biodata.models.variant.avro.VariantStats.Builder setCasesPercentRecessive(java.lang.Float value) {
-      validate(fields()[16], value);
+      validate(fields()[18], value);
       this.casesPercentRecessive = value;
-      fieldSetFlags()[16] = true;
+      fieldSetFlags()[18] = true;
       return this; 
     }
     
     /** Checks whether the 'casesPercentRecessive' field has been set */
     public boolean hasCasesPercentRecessive() {
-      return fieldSetFlags()[16];
+      return fieldSetFlags()[18];
     }
     
     /** Clears the value of the 'casesPercentRecessive' field */
     public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearCasesPercentRecessive() {
       casesPercentRecessive = null;
-      fieldSetFlags()[16] = false;
+      fieldSetFlags()[18] = false;
       return this;
     }
 
@@ -1123,21 +1229,21 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     
     /** Sets the value of the 'controlsPercentRecessive' field */
     public org.opencb.biodata.models.variant.avro.VariantStats.Builder setControlsPercentRecessive(java.lang.Float value) {
-      validate(fields()[17], value);
+      validate(fields()[19], value);
       this.controlsPercentRecessive = value;
-      fieldSetFlags()[17] = true;
+      fieldSetFlags()[19] = true;
       return this; 
     }
     
     /** Checks whether the 'controlsPercentRecessive' field has been set */
     public boolean hasControlsPercentRecessive() {
-      return fieldSetFlags()[17];
+      return fieldSetFlags()[19];
     }
     
     /** Clears the value of the 'controlsPercentRecessive' field */
     public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearControlsPercentRecessive() {
       controlsPercentRecessive = null;
-      fieldSetFlags()[17] = false;
+      fieldSetFlags()[19] = false;
       return this;
     }
 
@@ -1148,21 +1254,21 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     
     /** Sets the value of the 'quality' field */
     public org.opencb.biodata.models.variant.avro.VariantStats.Builder setQuality(java.lang.Float value) {
-      validate(fields()[18], value);
+      validate(fields()[20], value);
       this.quality = value;
-      fieldSetFlags()[18] = true;
+      fieldSetFlags()[20] = true;
       return this; 
     }
     
     /** Checks whether the 'quality' field has been set */
     public boolean hasQuality() {
-      return fieldSetFlags()[18];
+      return fieldSetFlags()[20];
     }
     
     /** Clears the value of the 'quality' field */
     public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearQuality() {
       quality = null;
-      fieldSetFlags()[18] = false;
+      fieldSetFlags()[20] = false;
       return this;
     }
 
@@ -1173,21 +1279,21 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     
     /** Sets the value of the 'numSamples' field */
     public org.opencb.biodata.models.variant.avro.VariantStats.Builder setNumSamples(java.lang.Integer value) {
-      validate(fields()[19], value);
+      validate(fields()[21], value);
       this.numSamples = value;
-      fieldSetFlags()[19] = true;
+      fieldSetFlags()[21] = true;
       return this; 
     }
     
     /** Checks whether the 'numSamples' field has been set */
     public boolean hasNumSamples() {
-      return fieldSetFlags()[19];
+      return fieldSetFlags()[21];
     }
     
     /** Clears the value of the 'numSamples' field */
     public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearNumSamples() {
       numSamples = null;
-      fieldSetFlags()[19] = false;
+      fieldSetFlags()[21] = false;
       return this;
     }
 
@@ -1198,21 +1304,21 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     
     /** Sets the value of the 'variantType' field */
     public org.opencb.biodata.models.variant.avro.VariantStats.Builder setVariantType(org.opencb.biodata.models.variant.avro.VariantType value) {
-      validate(fields()[20], value);
+      validate(fields()[22], value);
       this.variantType = value;
-      fieldSetFlags()[20] = true;
+      fieldSetFlags()[22] = true;
       return this; 
     }
     
     /** Checks whether the 'variantType' field has been set */
     public boolean hasVariantType() {
-      return fieldSetFlags()[20];
+      return fieldSetFlags()[22];
     }
     
     /** Clears the value of the 'variantType' field */
     public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearVariantType() {
       variantType = null;
-      fieldSetFlags()[20] = false;
+      fieldSetFlags()[22] = false;
       return this;
     }
 
@@ -1223,21 +1329,21 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
     
     /** Sets the value of the 'hw' field */
     public org.opencb.biodata.models.variant.avro.VariantStats.Builder setHw(org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats value) {
-      validate(fields()[21], value);
+      validate(fields()[23], value);
       this.hw = value;
-      fieldSetFlags()[21] = true;
+      fieldSetFlags()[23] = true;
       return this; 
     }
     
     /** Checks whether the 'hw' field has been set */
     public boolean hasHw() {
-      return fieldSetFlags()[21];
+      return fieldSetFlags()[23];
     }
     
     /** Clears the value of the 'hw' field */
     public org.opencb.biodata.models.variant.avro.VariantStats.Builder clearHw() {
       hw = null;
-      fieldSetFlags()[21] = false;
+      fieldSetFlags()[23] = false;
       return this;
     }
 
@@ -1249,24 +1355,26 @@ public class VariantStats extends org.apache.avro.specific.SpecificRecordBase im
         record.altAllele = fieldSetFlags()[1] ? this.altAllele : (java.lang.String) defaultValue(fields()[1]);
         record.refAlleleCount = fieldSetFlags()[2] ? this.refAlleleCount : (java.lang.Integer) defaultValue(fields()[2]);
         record.altAlleleCount = fieldSetFlags()[3] ? this.altAlleleCount : (java.lang.Integer) defaultValue(fields()[3]);
-        record.missingAlleles = fieldSetFlags()[4] ? this.missingAlleles : (java.lang.Integer) defaultValue(fields()[4]);
-        record.missingGenotypes = fieldSetFlags()[5] ? this.missingGenotypes : (java.lang.Integer) defaultValue(fields()[5]);
-        record.refAlleleFreq = fieldSetFlags()[6] ? this.refAlleleFreq : (java.lang.Float) defaultValue(fields()[6]);
-        record.altAlleleFreq = fieldSetFlags()[7] ? this.altAlleleFreq : (java.lang.Float) defaultValue(fields()[7]);
-        record.maf = fieldSetFlags()[8] ? this.maf : (java.lang.Float) defaultValue(fields()[8]);
-        record.mgf = fieldSetFlags()[9] ? this.mgf : (java.lang.Float) defaultValue(fields()[9]);
-        record.mafAllele = fieldSetFlags()[10] ? this.mafAllele : (java.lang.String) defaultValue(fields()[10]);
-        record.mgfGenotype = fieldSetFlags()[11] ? this.mgfGenotype : (java.lang.String) defaultValue(fields()[11]);
-        record.passedFilters = fieldSetFlags()[12] ? this.passedFilters : (java.lang.Boolean) defaultValue(fields()[12]);
-        record.mendelianErrors = fieldSetFlags()[13] ? this.mendelianErrors : (java.lang.Integer) defaultValue(fields()[13]);
-        record.casesPercentDominant = fieldSetFlags()[14] ? this.casesPercentDominant : (java.lang.Float) defaultValue(fields()[14]);
-        record.controlsPercentDominant = fieldSetFlags()[15] ? this.controlsPercentDominant : (java.lang.Float) defaultValue(fields()[15]);
-        record.casesPercentRecessive = fieldSetFlags()[16] ? this.casesPercentRecessive : (java.lang.Float) defaultValue(fields()[16]);
-        record.controlsPercentRecessive = fieldSetFlags()[17] ? this.controlsPercentRecessive : (java.lang.Float) defaultValue(fields()[17]);
-        record.quality = fieldSetFlags()[18] ? this.quality : (java.lang.Float) defaultValue(fields()[18]);
-        record.numSamples = fieldSetFlags()[19] ? this.numSamples : (java.lang.Integer) defaultValue(fields()[19]);
-        record.variantType = fieldSetFlags()[20] ? this.variantType : (org.opencb.biodata.models.variant.avro.VariantType) defaultValue(fields()[20]);
-        record.hw = fieldSetFlags()[21] ? this.hw : (org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats) defaultValue(fields()[21]);
+        record.genotypesCount = fieldSetFlags()[4] ? this.genotypesCount : (java.util.Map<org.opencb.biodata.models.feature.Genotype,java.lang.Integer>) defaultValue(fields()[4]);
+        record.genotypesFreq = fieldSetFlags()[5] ? this.genotypesFreq : (java.util.Map<org.opencb.biodata.models.feature.Genotype,java.lang.Float>) defaultValue(fields()[5]);
+        record.missingAlleles = fieldSetFlags()[6] ? this.missingAlleles : (java.lang.Integer) defaultValue(fields()[6]);
+        record.missingGenotypes = fieldSetFlags()[7] ? this.missingGenotypes : (java.lang.Integer) defaultValue(fields()[7]);
+        record.refAlleleFreq = fieldSetFlags()[8] ? this.refAlleleFreq : (java.lang.Float) defaultValue(fields()[8]);
+        record.altAlleleFreq = fieldSetFlags()[9] ? this.altAlleleFreq : (java.lang.Float) defaultValue(fields()[9]);
+        record.maf = fieldSetFlags()[10] ? this.maf : (java.lang.Float) defaultValue(fields()[10]);
+        record.mgf = fieldSetFlags()[11] ? this.mgf : (java.lang.Float) defaultValue(fields()[11]);
+        record.mafAllele = fieldSetFlags()[12] ? this.mafAllele : (java.lang.String) defaultValue(fields()[12]);
+        record.mgfGenotype = fieldSetFlags()[13] ? this.mgfGenotype : (java.lang.String) defaultValue(fields()[13]);
+        record.passedFilters = fieldSetFlags()[14] ? this.passedFilters : (java.lang.Boolean) defaultValue(fields()[14]);
+        record.mendelianErrors = fieldSetFlags()[15] ? this.mendelianErrors : (java.lang.Integer) defaultValue(fields()[15]);
+        record.casesPercentDominant = fieldSetFlags()[16] ? this.casesPercentDominant : (java.lang.Float) defaultValue(fields()[16]);
+        record.controlsPercentDominant = fieldSetFlags()[17] ? this.controlsPercentDominant : (java.lang.Float) defaultValue(fields()[17]);
+        record.casesPercentRecessive = fieldSetFlags()[18] ? this.casesPercentRecessive : (java.lang.Float) defaultValue(fields()[18]);
+        record.controlsPercentRecessive = fieldSetFlags()[19] ? this.controlsPercentRecessive : (java.lang.Float) defaultValue(fields()[19]);
+        record.quality = fieldSetFlags()[20] ? this.quality : (java.lang.Float) defaultValue(fields()[20]);
+        record.numSamples = fieldSetFlags()[21] ? this.numSamples : (java.lang.Integer) defaultValue(fields()[21]);
+        record.variantType = fieldSetFlags()[22] ? this.variantType : (org.opencb.biodata.models.variant.avro.VariantType) defaultValue(fields()[22]);
+        record.hw = fieldSetFlags()[23] ? this.hw : (org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats) defaultValue(fields()[23]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);

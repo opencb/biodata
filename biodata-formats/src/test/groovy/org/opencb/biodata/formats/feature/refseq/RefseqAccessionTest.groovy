@@ -33,7 +33,7 @@ class RefseqAccessionTest extends Specification {
         assembly == refseq.getAssembly()
 
         where:
-        getUniprotAccession       || chr  | assembly
+        accession       || chr  | assembly
         "NC_000001.10"  || "1"  | RefseqAccession.ASSEMBLY_37
         "NC_000001.11"  || "1"  | RefseqAccession.ASSEMBLY_38
         "NC_000002.11"  || "2"  | RefseqAccession.ASSEMBLY_37
@@ -91,7 +91,7 @@ class RefseqAccessionTest extends Specification {
         new RefseqAccession(accession).getChromosome() == null
 
         where:
-        getUniprotAccession << ["AC_89438953495", "NG_23889324", "NT_34993020", "NM_000020347823"]
+        accession << ["AC_89438953495", "NG_23889324", "NT_34993020", "NM_000020347823"]
     }
 
     @Ignore("Test used to choose one refseqNCAccessionToChromosome implementation")

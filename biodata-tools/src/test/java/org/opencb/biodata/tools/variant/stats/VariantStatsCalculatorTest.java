@@ -24,8 +24,9 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantSource;
-import org.opencb.biodata.models.variant.VariantSourceEntry;
+import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.VariantVcfFactory;
+import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
 /**
@@ -49,22 +50,22 @@ public class VariantStatsCalculatorTest {
         assertEquals(1, result.size());
         
         Variant variant = result.get(0);
-        VariantSourceEntry sourceEntry = variant.getSourceEntry(source.getFileId(), source.getStudyId());
+        StudyEntry sourceEntry = variant.getSourceEntry(source.getFileId(), source.getStudyId());
         
         VariantStats biallelicStats = new VariantStats(result.get(0));
-        VariantStatsCalculator.calculate(sourceEntry.getSamplesData(), sourceEntry.getAttributes(), null, biallelicStats);
+        VariantStatsCalculator.calculate(sourceEntry.getSamplesDataAsMap(), sourceEntry.getAttributes(), null, biallelicStats);
         
         assertEquals("T", biallelicStats.getRefAllele());
         assertEquals("C", biallelicStats.getAltAllele());
-        assertEquals(Variant.VariantType.SNV, biallelicStats.getVariantType());
+        assertEquals(VariantType.SNV, biallelicStats.getVariantType());
         
-        assertEquals(4, biallelicStats.getRefAlleleCount());
-        assertEquals(6, biallelicStats.getAltAlleleCount());
+        assertEquals(4, biallelicStats.getRefAlleleCount().longValue());
+        assertEquals(6, biallelicStats.getAltAlleleCount().longValue());
         
 //    private Map<Genotype, Integer> genotypesCount;
     
-        assertEquals(2, biallelicStats.getMissingAlleles());
-        assertEquals(1, biallelicStats.getMissingGenotypes());
+        assertEquals(2, biallelicStats.getMissingAlleles().longValue());
+        assertEquals(1, biallelicStats.getMissingGenotypes().longValue());
     
         assertEquals(0.4, biallelicStats.getRefAlleleFreq(), 1e-6);
         assertEquals(0.6, biallelicStats.getAltAlleleFreq(), 1e-6);
@@ -77,7 +78,7 @@ public class VariantStatsCalculatorTest {
         
         assertFalse(biallelicStats.hasPassedFilters());
     
-        assertEquals(-1, biallelicStats.getMendelianErrors());
+        assertEquals(-1, biallelicStats.getMendelianErrors().longValue());
         assertEquals(-1, biallelicStats.getCasesPercentDominant(), 1e-6);
         assertEquals(-1, biallelicStats.getControlsPercentDominant(), 1e-6);
         assertEquals(-1, biallelicStats.getCasesPercentRecessive(), 1e-6);
@@ -87,7 +88,7 @@ public class VariantStatsCalculatorTest {
         assertFalse(biallelicStats.isTransversion());
         
         assertEquals(10.05, biallelicStats.getQuality(), 1e-6);
-        assertEquals(6, biallelicStats.getNumSamples());
+        assertEquals(6, biallelicStats.getNumSamples().longValue());
     
 //    private VariantHardyWeinbergStats hw;
     }
@@ -106,13 +107,13 @@ public class VariantStatsCalculatorTest {
         
         // Test first variant (alt allele C)
         Variant variant_C = result.get(0);
-        VariantSourceEntry sourceEntry_C = variant_C.getSourceEntry(source.getFileId(), source.getStudyId());
+        StudyEntry sourceEntry_C = variant_C.getSourceEntry(source.getFileId(), source.getStudyId());
         VariantStats multiallelicStats_C = new VariantStats(result.get(0));
-        VariantStatsCalculator.calculate(sourceEntry_C.getSamplesData(), sourceEntry_C.getAttributes(), null, multiallelicStats_C);
+        VariantStatsCalculator.calculate(sourceEntry_C.getSamplesDataAsMap(), sourceEntry_C.getAttributes(), null, multiallelicStats_C);
         
         assertEquals("T", multiallelicStats_C.getRefAllele());
         assertEquals("A", multiallelicStats_C.getAltAllele());
-        assertEquals(Variant.VariantType.SNV, multiallelicStats_C.getVariantType());
+        assertEquals(VariantType.SNV, multiallelicStats_C.getVariantType());
         
 //        assertEquals(3, multiallelicStats_C.getRefAlleleCount());
 //        assertEquals(4, multiallelicStats_C.getAltAlleleCount());
@@ -133,7 +134,7 @@ public class VariantStatsCalculatorTest {
         
         assertTrue(multiallelicStats_C.hasPassedFilters());
     
-        assertEquals(-1, multiallelicStats_C.getMendelianErrors());
+        assertEquals(Integer.valueOf(-1), multiallelicStats_C.getMendelianErrors());
         assertEquals(-1, multiallelicStats_C.getCasesPercentDominant(), 1e-6);
         assertEquals(-1, multiallelicStats_C.getControlsPercentDominant(), 1e-6);
         assertEquals(-1, multiallelicStats_C.getCasesPercentRecessive(), 1e-6);
@@ -148,9 +149,9 @@ public class VariantStatsCalculatorTest {
         
         // Test second variant (alt allele GC)
         Variant variant_GC = result.get(1);
-        VariantSourceEntry sourceEntry_GC = variant_GC.getSourceEntry(source.getFileId(), source.getStudyId());
+        StudyEntry sourceEntry_GC = variant_GC.getSourceEntry(source.getFileId(), source.getStudyId());
         VariantStats multiallelicStats_GC = new VariantStats(result.get(1));
-        VariantStatsCalculator.calculate(sourceEntry_GC.getSamplesData(), sourceEntry_GC.getAttributes(), null, multiallelicStats_GC);
+        VariantStatsCalculator.calculate(sourceEntry_GC.getSamplesDataAsMap(), sourceEntry_GC.getAttributes(), null, multiallelicStats_GC);
         
     }
     

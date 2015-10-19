@@ -17,7 +17,12 @@
 package org.opencb.biodata.models.feature;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -27,32 +32,36 @@ import org.apache.commons.lang3.StringUtils;
 public class Genotype {
     
     private String reference;
-    private String alternate;
+    private List<String> alternates;
     private int[] allelesIdx;
     private boolean phased;
     
     private AllelesCode code;
     
     private int count;
+    protected static final Pattern genotypePattern = Pattern.compile("/|\\|");
 
     Genotype() {
     }
     
     public Genotype(String genotype) {
-        this(genotype, null, null);
+        this(genotype, null, Collections.emptyList());
     }
     
     public Genotype(String genotype, String ref, String alt) {
+        this(genotype, ref, Collections.singletonList(alt));
+    }
+
+    public Genotype(String genotype, String ref, List<String> alternates) {
         this.reference = ref;
-        this.alternate = alt;
+        this.alternates = alternates;
         this.phased = genotype.contains("|");
         this.count = 0;
         parseGenotype(genotype);
     }
-    
-    
+
     private void parseGenotype(String genotype) {
-        String[] alleles = genotype.split("/|\\|", -1);
+        String[] alleles = genotypePattern.split(genotype, -1);
         
         this.code = alleles.length > 1 ? AllelesCode.ALLELES_OK : AllelesCode.HAPLOID;
         this.allelesIdx = new int[alleles.length];
@@ -70,13 +79,21 @@ public class Genotype {
                 } else { // Accepts genotypes with form A/A, A/T, and so on
                     if (allele.equalsIgnoreCase(reference)) {
                         this.allelesIdx[i] = 0;
-                    } else if (allele.equalsIgnoreCase(alternate)) {
-                        this.allelesIdx[i] = 1;
                     } else {
                         if (allele.isEmpty()) {
-                            System.out.println("Empty allele: REF=" + reference + ",ALT=" + alternate);
+                            throw new IllegalArgumentException("Empty allele: REF=" + reference + ",ALT=" + alternates.stream().collect(Collectors.joining(",")));
                         }
-                        this.allelesIdx[i] = 2; // TODO What happens with more than 2 alternate alleles? Difficult situation
+                        int alleleIdx = 1;
+                        for (String alternate : alternates) {
+                            if (allele.equalsIgnoreCase(alternate)) {
+                                this.allelesIdx[i] = alleleIdx;
+                                break;
+                            }
+                            alleleIdx++;
+                        }
+                        if (alleleIdx > alternates.size()) {
+                            throw new IllegalArgumentException("Unknown allele \"" + allele + "\". REF=" + reference + ",ALT=" + alternates.stream().collect(Collectors.joining(",")));
+                        }
                     }
                 }
                 
@@ -96,11 +113,20 @@ public class Genotype {
     }
 
     public String getAlternate() {
-        return alternate;
+        return alternates == null || alternates.isEmpty() ? null : alternates.get(0);
     }
-    
+
     void setAlternate(String alternate) {
-        this.alternate = alternate;
+        this.alternates = Collections.singletonList(alternate);
+    }
+
+    public List<String> getAlternates() {
+        return alternates;
+    }
+
+    public Genotype setAlternates(List<String> alternates) {
+        this.alternates = alternates;
+        return this;
     }
 
     public int getAllele(int i) {
@@ -156,7 +182,7 @@ public class Genotype {
     public String getGenotypeInfo() {
         StringBuilder value = new StringBuilder(toString());
         value.append(" (REF=").append(reference);
-        value.append(", ALT=").append(alternate);
+        value.append(", ALT=").append(alternates.stream().collect(Collectors.joining(",")));
         value.append(")");
         return value.toString();
     }
@@ -212,36 +238,28 @@ public class Genotype {
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 11 * hash + Objects.hashCode(this.reference);
-        hash = 11 * hash + Objects.hashCode(this.alternate);
-        hash = 11 * hash + Arrays.hashCode(this.allelesIdx);
-        hash = 11 * hash + (this.phased ? 1 : 0);
-        return hash;
+        int result = reference != null ? reference.hashCode() : 0;
+        result = 31 * result + (alternates != null ? alternates.hashCode() : 0);
+        result = 31 * result + (allelesIdx != null ? Arrays.hashCode(allelesIdx) : 0);
+        result = 31 * result + (phased ? 1 : 0);
+        result = 31 * result + (code != null ? code.hashCode() : 0);
+        result = 31 * result + count;
+        return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final Genotype other = (Genotype) obj;
-        if (!Objects.equals(this.reference, other.reference)) {
-            return false;
-        }
-        if (!Objects.equals(this.alternate, other.alternate)) {
-            return false;
-        }
-        if (!Arrays.equals(this.allelesIdx, other.allelesIdx)) {
-            return false;
-        }
-        if (this.phased != other.phased) {
-            return false;
-        }
-        return true;
-    }
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Genotype)) return false;
 
+        Genotype genotype = (Genotype) o;
+
+        if (phased != genotype.phased) return false;
+        if (count != genotype.count) return false;
+        if (reference != null ? !reference.equals(genotype.reference) : genotype.reference != null) return false;
+        if (alternates != null ? !alternates.equals(genotype.alternates) : genotype.alternates != null) return false;
+        if (!Arrays.equals(allelesIdx, genotype.allelesIdx)) return false;
+        return code == genotype.code;
+
+    }
 }

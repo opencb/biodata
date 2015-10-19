@@ -3,8 +3,9 @@ package org.opencb.biodata.tools.variant.stats;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantAggregatedVcfFactory;
-import org.opencb.biodata.models.variant.VariantSourceEntry;
+import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.VariantVcfFactory;
+import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
 import java.util.*;
@@ -64,7 +65,7 @@ public class VariantAggregatedStatsCalculator {
     }
 
     public void calculate(Variant variant) {
-        for (VariantSourceEntry study : variant.getSourceEntries().values()) {
+        for (StudyEntry study : variant.getSourceEntries().values()) {
             calculate(variant, study);
         }
     }
@@ -73,13 +74,14 @@ public class VariantAggregatedStatsCalculator {
      * @param variant remains unchanged if the VariantSourceEntry is not inside
      * @param study stats are written here
      */
-    public void calculate(Variant variant, VariantSourceEntry study) {
+    public void calculate(Variant variant, StudyEntry study) {
 //        Map<String, String> infoMap = VariantAggregatedVcfFactory.getInfoMap(info);
-        Map<String, String> infoMap = study.getAttributes();
+        FileEntry fileEntry = study.getFiles().get(0);
+        Map<String, String> infoMap = fileEntry.getAttributes();
         int numAllele = 0;
         String[] alternateAlleles = {variant.getAlternate()};
-        if (infoMap.containsKey(VariantVcfFactory.ORI)) {
-            String[] ori = infoMap.get(VariantVcfFactory.ORI).split(":");
+        if (fileEntry.getCall() != null && !fileEntry.getCall().isEmpty()) {
+            String[] ori = fileEntry.getCall().split(":");
             numAllele = Integer.parseInt(ori[3]);
             alternateAlleles = ori[2].split(",");
         }
@@ -98,7 +100,7 @@ public class VariantAggregatedStatsCalculator {
      * @param alternateAlleles
      * @param info
      */
-    protected void parseStats(Variant variant, VariantSourceEntry file, int numAllele, String[] alternateAlleles, Map<String, String> info) {
+    protected void parseStats(Variant variant, StudyEntry file, int numAllele, String[] alternateAlleles, Map<String, String> info) {
         VariantStats vs = new VariantStats(variant);
         Map<String, String> stats = new LinkedHashMap<>();
         for (Map.Entry<String, String> entry : info.entrySet()) {
@@ -113,7 +115,7 @@ public class VariantAggregatedStatsCalculator {
 
         calculate(variant, file, numAllele, alternateAlleles, stats, vs);
 
-        file.setStats(vs);
+        file.setStats(StudyEntry.DEFAULT_COHORT, vs);
     }
 
     /**
@@ -125,7 +127,7 @@ public class VariantAggregatedStatsCalculator {
      * @param alternateAlleles
      * @param info
      */
-    protected void parseMappedStats (Variant variant, VariantSourceEntry file, int numAllele, String[] alternateAlleles, Map<String, String> info) {
+    protected void parseMappedStats (Variant variant, StudyEntry file, int numAllele, String[] alternateAlleles, Map<String, String> info) {
         Map<String, Map<String, String>> cohortStats = new LinkedHashMap<>();   // cohortName -> (statsName -> statsValue): EUR->(AC->3,2)
         for (Map.Entry<String, String> entry : info.entrySet()) {
             if (reverseTagMap.containsKey(entry.getKey())) {
@@ -158,7 +160,7 @@ public class VariantAggregatedStatsCalculator {
      * @param attributes
      * @param variantStats results are returned by reference here
      */
-    protected void calculate(Variant variant, VariantSourceEntry sourceEntry, int numAllele, String[] alternateAlleles,
+    protected void calculate(Variant variant, StudyEntry sourceEntry, int numAllele, String[] alternateAlleles,
                              Map<String, String> attributes, VariantStats variantStats) {
 
         if (attributes.containsKey("AN") && attributes.containsKey("AC")) {

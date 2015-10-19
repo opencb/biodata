@@ -63,7 +63,7 @@ public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
         Variant v = res.get(0);
         VariantAggregatedExacStatsCalculator calculator = new VariantAggregatedExacStatsCalculator();
         calculator.calculate(v);
-        VariantSourceEntry sourceEntry = v.getSourceEntry(source.getFileId(), source.getStudyId());
+        StudyEntry sourceEntry = v.getSourceEntry(source.getFileId(), source.getStudyId());
 
         Map<Genotype, Integer> genotypes = new HashMap<>();
 
@@ -71,10 +71,10 @@ public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
         genotypes.put(new Genotype("0/1", "G", "T"), 22);
         genotypes.put(new Genotype("1/1", "G", "T"), 0);
 
-        VariantStats stats = sourceEntry.getStats();
+        VariantStats stats = sourceEntry.getStats(StudyEntry.DEFAULT_COHORT);
         assertEquals(genotypes, stats.getGenotypesCount());
-        assertEquals(22, stats.getAltAlleleCount());
-        assertEquals(10890 - 22, stats.getRefAlleleCount());
+        assertEquals(22, stats.getAltAlleleCount().longValue());
+        assertEquals(10890 - 22, stats.getRefAlleleCount().longValue());
         assertEquals(22.0 / 10890, stats.getMaf(), 0.00001);
     }
 
@@ -113,7 +113,7 @@ public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
         Variant v = res.get(0);
         VariantAggregatedExacStatsCalculator calculator = new VariantAggregatedExacStatsCalculator();
         calculator.calculate(res);
-        VariantSourceEntry sourceEntry = v.getSourceEntry(source.getFileId(), source.getStudyId());
+        StudyEntry sourceEntry = v.getSourceEntry(source.getFileId(), source.getStudyId());
 
         Map<Genotype, Integer> genotypes = new HashMap<>();
 
@@ -128,10 +128,10 @@ public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
         genotypes.put(new Genotype("2/3", "G", "T"), 0);
         genotypes.put(new Genotype("3/3", "G", "T"), 0);
 
-        assertEquals(genotypes, sourceEntry.getStats().getGenotypesCount());
-        assertEquals(3, sourceEntry.getStats().getAltAlleleCount());
-        assertEquals(79012 - 1 - 2 - 1 - 2, sourceEntry.getStats().getRefAlleleCount());
-        assertEquals(0, sourceEntry.getStats().getMaf(), 0.00001);   // how can a multiallelic variant have an allele count of 0? the "Adjusted" just removed it
+        assertEquals(genotypes, sourceEntry.getStats(StudyEntry.DEFAULT_COHORT).getGenotypesCount());
+        assertEquals(3, sourceEntry.getStats(StudyEntry.DEFAULT_COHORT).getAltAlleleCount().longValue());
+        assertEquals(79012 - 1 - 2 - 1 - 2, sourceEntry.getStats(StudyEntry.DEFAULT_COHORT).getRefAlleleCount().longValue());
+        assertEquals(0, sourceEntry.getStats(StudyEntry.DEFAULT_COHORT).getMaf(), 0.00001);   // how can a multiallelic variant have an allele count of 0? the "Adjusted" just removed it
 
         genotypes.clear();
         genotypes.put(new Genotype("0/0", "G", "A"), (79012 - 4 * 2) / 2);    // AN - alleles_in_gt_0/1: how many ref alleles there are in the genotype 0/0, as there are no 1/1
@@ -147,9 +147,9 @@ public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
 
         sourceEntry = res.get(1).getSourceEntry(source.getFileId(), source.getStudyId());
 
-        assertEquals(genotypes, sourceEntry.getStats().getGenotypesCount());
-        assertEquals(3, sourceEntry.getStats().getAltAlleleCount());
-        assertEquals(79012 - 1 - 2 - 1 - 2, sourceEntry.getStats().getRefAlleleCount());
+        assertEquals(genotypes, sourceEntry.getStats(StudyEntry.DEFAULT_COHORT).getGenotypesCount());
+        assertEquals(3, sourceEntry.getStats(StudyEntry.DEFAULT_COHORT).getAltAlleleCount().longValue());
+        assertEquals(79012 - 1 - 2 - 1 - 2, sourceEntry.getStats(StudyEntry.DEFAULT_COHORT).getRefAlleleCount().longValue());
 
         genotypes.clear();
         genotypes.put(new Genotype("0/0", "G", "C"), (79012 - 4 * 2) / 2);    // AN - alleles_in_gt_0/1: how many ref alleles there are in the genotype 0/0, as there are no 1/1
@@ -165,9 +165,9 @@ public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
 
         sourceEntry = res.get(2).getSourceEntry(source.getFileId(), source.getStudyId());
 
-        assertEquals(genotypes, sourceEntry.getStats().getGenotypesCount());
-        assertEquals(0, sourceEntry.getStats().getAltAlleleCount());
-        assertEquals(79012 - 1 - 2 - 1 - 2, sourceEntry.getStats().getRefAlleleCount());
+        assertEquals(genotypes, sourceEntry.getStats(StudyEntry.DEFAULT_COHORT).getGenotypesCount());
+        assertEquals(0, sourceEntry.getStats(StudyEntry.DEFAULT_COHORT).getAltAlleleCount().longValue());
+        assertEquals(79012 - 1 - 2 - 1 - 2, sourceEntry.getStats(StudyEntry.DEFAULT_COHORT).getRefAlleleCount().longValue());
     }
 
     @Test
@@ -244,10 +244,10 @@ public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
         Variant v = res.get(0);
         VariantAggregatedExacStatsCalculator calculator = new VariantAggregatedExacStatsCalculator(properties);
         calculator.calculate(res);
-        VariantSourceEntry sourceEntry = v.getSourceEntry(source.getFileId(), source.getStudyId());
+        StudyEntry sourceEntry = v.getSourceEntry(source.getFileId(), source.getStudyId());
 
         // Allele and genotype counts
-        assertEquals(12, sourceEntry.getCohortStats("AFR").getAltAlleleCount());
+        assertEquals(12, sourceEntry.getCohortStats("AFR").getAltAlleleCount().longValue());
         Genotype genotype = new Genotype("0/1", v.getReference(), v.getAlternate());
         assertEquals(12, (int) sourceEntry.getCohortStats("AFR").getGenotypesCount().get(genotype));
         genotype = new Genotype("0/2", v.getReference(), v.getAlternate());
@@ -256,8 +256,8 @@ public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
         assertEquals(0, (int) sourceEntry.getCohortStats("SAS").getGenotypesCount().get(genotype));
         genotype = new Genotype("0/1", v.getReference(), v.getAlternate());
         assertEquals(0, (int) sourceEntry.getCohortStats("SAS").getGenotypesCount().get(genotype));
-        assertEquals(7025, sourceEntry.getCohortStats("SAS").getRefAlleleCount());
-        assertEquals(0, sourceEntry.getCohortStats("SAS").getAltAlleleCount());
+        assertEquals(7025, sourceEntry.getCohortStats("SAS").getRefAlleleCount().longValue());
+        assertEquals(0, sourceEntry.getCohortStats("SAS").getAltAlleleCount().longValue());
         
         // Minor allele frequencies
         assertEquals(9 / 10426.0, sourceEntry.getCohortStats("ALL").getMaf(), 0.00001);
@@ -270,13 +270,13 @@ public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
         v = res.get(1);
         sourceEntry = v.getSourceEntry(source.getFileId(), source.getStudyId());
 
-        assertEquals(2, sourceEntry.getCohortStats("NFE").getAltAlleleCount());
+        assertEquals(2, sourceEntry.getCohortStats("NFE").getAltAlleleCount().longValue());
         genotype = new Genotype("0/2", v.getReference(), v.getAlternate());
         assertEquals(12, (int) sourceEntry.getCohortStats("AFR").getGenotypesCount().get(genotype));
         genotype = new Genotype("0/1", v.getReference(), v.getAlternate());
         assertEquals(7, (int) sourceEntry.getCohortStats("SAS").getGenotypesCount().get(genotype));
-        assertEquals(7025, sourceEntry.getCohortStats("SAS").getRefAlleleCount());
-        assertEquals(7, sourceEntry.getCohortStats("SAS").getAltAlleleCount());
+        assertEquals(7025, sourceEntry.getCohortStats("SAS").getRefAlleleCount().longValue());
+        assertEquals(7, sourceEntry.getCohortStats("SAS").getAltAlleleCount().longValue());
         genotype = new Genotype("0/0", v.getReference(), v.getAlternate());
         assertEquals(7018 / 2, (int) sourceEntry.getCohortStats("SAS").getGenotypesCount().get(genotype));
         System.out.println("genotypes for C -> T in SAS: " + sourceEntry.getCohortStats("SAS").getGenotypesCount());

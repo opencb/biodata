@@ -6,7 +6,7 @@ import org.opencb.biodata.models.pedigree.Condition;
 import org.opencb.biodata.models.pedigree.Individual;
 import org.opencb.biodata.models.pedigree.Pedigree;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.VariantSourceEntry;
+import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
 import java.util.List;
@@ -50,14 +50,15 @@ public class VariantStatsCalculator {
                     totalGenotypesCount++;
 
                     // Counting genotypes for Hardy-Weinberg (all phenotypes)
-                    if (g.isAlleleRef(0) && g.isAlleleRef(1)) { // 0|0
-                        variantStats.getHw().incN_AA();
-                    } else if ((g.isAlleleRef(0) && g.getAllele(1) == 1) || (g.getAllele(0) == 1 && g.isAlleleRef(1))) {  // 0|1, 1|0
-                        variantStats.getHw().incN_Aa();
-
-                    } else if (g.getAllele(0) == 1 && g.getAllele(1) == 1) {
-                        variantStats.getHw().incN_aa();
-                    }
+                    //FIXME//FIXME//FIXME//FIXME
+//                    if (g.isAlleleRef(0) && g.isAlleleRef(1)) { // 0|0
+//                        variantStats.getHw().incN_AA();
+//                    } else if ((g.isAlleleRef(0) && g.getAllele(1) == 1) || (g.getAllele(0) == 1 && g.isAlleleRef(1))) {  // 0|1, 1|0
+//                        variantStats.getHw().incN_Aa();
+//
+//                    } else if (g.getAllele(0) == 1 && g.getAllele(1) == 1) {
+//                        variantStats.getHw().incN_aa();
+//                    }
 
                     break;
                 case HAPLOID:
@@ -92,7 +93,7 @@ public class VariantStatsCalculator {
             if (pedigree != null) {
                 if (g.getCode() == AllelesCode.ALLELES_OK || g.getCode() == AllelesCode.HAPLOID) {
                     Individual ind = pedigree.getIndividual(sampleName);
-//                    if (MendelChecker.isMendelianError(ind, g, variant.getChromosome(), file.getSamplesData())) {
+//                    if (MendelChecker.isMendelianError(ind, g, variant.getChromosome(), file.getSamplesDataAsMap())) {
 //                        this.setMendelianErrors(this.getMendelianErrors() + 1);
 //                    }
                     if (g.getCode() == AllelesCode.ALLELES_OK) {
@@ -130,8 +131,8 @@ public class VariantStatsCalculator {
         calculateAlleleFrequencies(totalAllelesCount, variantStats);
         calculateGenotypeFrequencies(totalGenotypesCount, variantStats);
 
-        // Calculate Hardy-Weinberg statistic
-        variantStats.getHw().calculate();
+        // Calculate Hardy-Weinberg statistic       //FIXME
+//        variantStats.getHw().calculate();
 
         // Update variables finally used to update file_stats_t structure
         if ("PASS".equalsIgnoreCase(attributes.get("FILTER"))) {
@@ -169,10 +170,10 @@ public class VariantStatsCalculator {
      */
     public static void calculateStatsForVariantsList(List<Variant> variants, Pedigree ped) {
         for (Variant variant : variants) {
-            for (VariantSourceEntry file : variant.getSourceEntries().values()) {
+            for (StudyEntry file : variant.getSourceEntries().values()) {
                 VariantStats stats = new VariantStats(variant);
-                calculate(file.getSamplesData(), file.getAttributes(), ped, stats);
-                file.setStats(stats); // TODO Correct?
+                calculate(file.getSamplesDataAsMap(), file.getAttributes(), ped, stats);
+                file.setStats(StudyEntry.DEFAULT_COHORT, stats);
             }
         }
     }
@@ -184,7 +185,7 @@ public class VariantStatsCalculator {
 
         if (totalAllelesCount == 0) {
             // Nothing to calculate here
-            variantStats.setMaf(-1);
+            variantStats.setMaf((float) -1);
             variantStats.setMafAllele(null);
             return;
         }
@@ -208,7 +209,7 @@ public class VariantStatsCalculator {
 
         if (variantStats.getGenotypesCount().isEmpty() || totalGenotypesCount == 0) {
             // Nothing to calculate here
-            variantStats.setMgf(-1);
+            variantStats.setMgf((float) -1);
             variantStats.setMgfGenotype(null);
             return;
         }
