@@ -263,7 +263,7 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         consequenceType.setEnsemblTranscriptId(null);
         consequenceType.setStrand(null);
         consequenceType.setBiotype(null);
-        consequenceType.setCDnaPosition(null);
+        consequenceType.setCdnaPosition(null);
         consequenceType.setCdsPosition(null);
         consequenceType.setCodon(null);
 
