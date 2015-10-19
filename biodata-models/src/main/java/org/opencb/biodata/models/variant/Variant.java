@@ -55,12 +55,14 @@ public class Variant {
             if (fields.length == 3) {
                 impl.setChromosome(fields[0]);
                 impl.setStart(Integer.parseInt(fields[1]));
+                impl.setEnd(Integer.parseInt(fields[1]));
                 impl.setReference("");
                 impl.setAlternate(fields[2]);
             } else {
                 if (fields.length == 4) {
                     impl.setChromosome(fields[0]);
                     impl.setStart(Integer.parseInt(fields[1]));
+                    impl.setEnd(Integer.parseInt(fields[1]));
                     impl.setReference(fields[2]);
                     impl.setAlternate(fields[3]);
                 } else {
