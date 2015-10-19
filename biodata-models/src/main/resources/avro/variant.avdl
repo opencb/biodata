@@ -88,15 +88,9 @@ protocol Variants {
 
     record VariantGlobalStats {
 
-        int variantsCount;
+        int numRecords;
 
         int samplesCount;
-
-        int snpsCount;
-
-        int indelsCount;
-
-        int structuralCount;
 
         int passCount;
 
@@ -105,6 +99,10 @@ protocol Variants {
         int transversionsCount;
 
         double meanQuality;
+
+        map<int> variantTypeCounts;
+
+        map<int> chromosomeCounts;
 
         map<int> consequenceTypesCount;
 

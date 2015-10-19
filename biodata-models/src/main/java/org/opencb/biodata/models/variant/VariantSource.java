@@ -38,10 +38,6 @@ public class VariantSource {
         public static boolean isAggregated(Aggregation agg) {return !NONE.equals(agg);}
     }
 
-//    private Pedigree pedigree; // TODO Decide something about this field
-//    private VariantStudy.StudyType type;
-//    private VariantGlobalStats stats;
-
     VariantSource() {
         impl = new VariantFileMetadata();
         samplesPosition = null;
@@ -184,11 +180,11 @@ public class VariantSource {
     }
 
     public VariantGlobalStats getStats() {
-        return new VariantGlobalStats(impl.getStats());
+        return impl.getStats() == null ? null : new VariantGlobalStats(impl.getStats());
     }
 
     public void setStats(VariantGlobalStats stats) {
-        impl.setStats(stats == null? null : stats.getImpl());
+        impl.setStats(stats == null ? null : stats.getImpl());
     }
 
     public VcfHeader getHeader() {

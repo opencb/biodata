@@ -7,17 +7,16 @@ package org.opencb.biodata.models.variant.avro;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class VariantGlobalStats extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"VariantGlobalStats\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"variantsCount\",\"type\":\"int\"},{\"name\":\"samplesCount\",\"type\":\"int\"},{\"name\":\"snpsCount\",\"type\":\"int\"},{\"name\":\"indelsCount\",\"type\":\"int\"},{\"name\":\"structuralCount\",\"type\":\"int\"},{\"name\":\"passCount\",\"type\":\"int\"},{\"name\":\"transitionsCount\",\"type\":\"int\"},{\"name\":\"transversionsCount\",\"type\":\"int\"},{\"name\":\"meanQuality\",\"type\":\"double\"},{\"name\":\"consequenceTypesCount\",\"type\":{\"type\":\"map\",\"values\":\"int\",\"avro.java.string\":\"String\"}}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"VariantGlobalStats\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"numRecords\",\"type\":\"int\"},{\"name\":\"samplesCount\",\"type\":\"int\"},{\"name\":\"passCount\",\"type\":\"int\"},{\"name\":\"transitionsCount\",\"type\":\"int\"},{\"name\":\"transversionsCount\",\"type\":\"int\"},{\"name\":\"meanQuality\",\"type\":\"double\"},{\"name\":\"variantTypeCounts\",\"type\":{\"type\":\"map\",\"values\":\"int\",\"avro.java.string\":\"String\"}},{\"name\":\"chromosomeCounts\",\"type\":{\"type\":\"map\",\"values\":\"int\",\"avro.java.string\":\"String\"}},{\"name\":\"consequenceTypesCount\",\"type\":{\"type\":\"map\",\"values\":\"int\",\"avro.java.string\":\"String\"}}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
-   private int variantsCount;
+   private int numRecords;
    private int samplesCount;
-   private int snpsCount;
-   private int indelsCount;
-   private int structuralCount;
    private int passCount;
    private int transitionsCount;
    private int transversionsCount;
    private double meanQuality;
+   private java.util.Map<java.lang.String,java.lang.Integer> variantTypeCounts;
+   private java.util.Map<java.lang.String,java.lang.Integer> chromosomeCounts;
    private java.util.Map<java.lang.String,java.lang.Integer> consequenceTypesCount;
 
   /**
@@ -30,16 +29,15 @@ public class VariantGlobalStats extends org.apache.avro.specific.SpecificRecordB
   /**
    * All-args constructor.
    */
-  public VariantGlobalStats(java.lang.Integer variantsCount, java.lang.Integer samplesCount, java.lang.Integer snpsCount, java.lang.Integer indelsCount, java.lang.Integer structuralCount, java.lang.Integer passCount, java.lang.Integer transitionsCount, java.lang.Integer transversionsCount, java.lang.Double meanQuality, java.util.Map<java.lang.String,java.lang.Integer> consequenceTypesCount) {
-    this.variantsCount = variantsCount;
+  public VariantGlobalStats(java.lang.Integer numRecords, java.lang.Integer samplesCount, java.lang.Integer passCount, java.lang.Integer transitionsCount, java.lang.Integer transversionsCount, java.lang.Double meanQuality, java.util.Map<java.lang.String,java.lang.Integer> variantTypeCounts, java.util.Map<java.lang.String,java.lang.Integer> chromosomeCounts, java.util.Map<java.lang.String,java.lang.Integer> consequenceTypesCount) {
+    this.numRecords = numRecords;
     this.samplesCount = samplesCount;
-    this.snpsCount = snpsCount;
-    this.indelsCount = indelsCount;
-    this.structuralCount = structuralCount;
     this.passCount = passCount;
     this.transitionsCount = transitionsCount;
     this.transversionsCount = transversionsCount;
     this.meanQuality = meanQuality;
+    this.variantTypeCounts = variantTypeCounts;
+    this.chromosomeCounts = chromosomeCounts;
     this.consequenceTypesCount = consequenceTypesCount;
   }
 
@@ -47,16 +45,15 @@ public class VariantGlobalStats extends org.apache.avro.specific.SpecificRecordB
   // Used by DatumWriter.  Applications should not call. 
   public java.lang.Object get(int field$) {
     switch (field$) {
-    case 0: return variantsCount;
+    case 0: return numRecords;
     case 1: return samplesCount;
-    case 2: return snpsCount;
-    case 3: return indelsCount;
-    case 4: return structuralCount;
-    case 5: return passCount;
-    case 6: return transitionsCount;
-    case 7: return transversionsCount;
-    case 8: return meanQuality;
-    case 9: return consequenceTypesCount;
+    case 2: return passCount;
+    case 3: return transitionsCount;
+    case 4: return transversionsCount;
+    case 5: return meanQuality;
+    case 6: return variantTypeCounts;
+    case 7: return chromosomeCounts;
+    case 8: return consequenceTypesCount;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -64,33 +61,32 @@ public class VariantGlobalStats extends org.apache.avro.specific.SpecificRecordB
   @SuppressWarnings(value="unchecked")
   public void put(int field$, java.lang.Object value$) {
     switch (field$) {
-    case 0: variantsCount = (java.lang.Integer)value$; break;
+    case 0: numRecords = (java.lang.Integer)value$; break;
     case 1: samplesCount = (java.lang.Integer)value$; break;
-    case 2: snpsCount = (java.lang.Integer)value$; break;
-    case 3: indelsCount = (java.lang.Integer)value$; break;
-    case 4: structuralCount = (java.lang.Integer)value$; break;
-    case 5: passCount = (java.lang.Integer)value$; break;
-    case 6: transitionsCount = (java.lang.Integer)value$; break;
-    case 7: transversionsCount = (java.lang.Integer)value$; break;
-    case 8: meanQuality = (java.lang.Double)value$; break;
-    case 9: consequenceTypesCount = (java.util.Map<java.lang.String,java.lang.Integer>)value$; break;
+    case 2: passCount = (java.lang.Integer)value$; break;
+    case 3: transitionsCount = (java.lang.Integer)value$; break;
+    case 4: transversionsCount = (java.lang.Integer)value$; break;
+    case 5: meanQuality = (java.lang.Double)value$; break;
+    case 6: variantTypeCounts = (java.util.Map<java.lang.String,java.lang.Integer>)value$; break;
+    case 7: chromosomeCounts = (java.util.Map<java.lang.String,java.lang.Integer>)value$; break;
+    case 8: consequenceTypesCount = (java.util.Map<java.lang.String,java.lang.Integer>)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
 
   /**
-   * Gets the value of the 'variantsCount' field.
+   * Gets the value of the 'numRecords' field.
    */
-  public java.lang.Integer getVariantsCount() {
-    return variantsCount;
+  public java.lang.Integer getNumRecords() {
+    return numRecords;
   }
 
   /**
-   * Sets the value of the 'variantsCount' field.
+   * Sets the value of the 'numRecords' field.
    * @param value the value to set.
    */
-  public void setVariantsCount(java.lang.Integer value) {
-    this.variantsCount = value;
+  public void setNumRecords(java.lang.Integer value) {
+    this.numRecords = value;
   }
 
   /**
@@ -106,51 +102,6 @@ public class VariantGlobalStats extends org.apache.avro.specific.SpecificRecordB
    */
   public void setSamplesCount(java.lang.Integer value) {
     this.samplesCount = value;
-  }
-
-  /**
-   * Gets the value of the 'snpsCount' field.
-   */
-  public java.lang.Integer getSnpsCount() {
-    return snpsCount;
-  }
-
-  /**
-   * Sets the value of the 'snpsCount' field.
-   * @param value the value to set.
-   */
-  public void setSnpsCount(java.lang.Integer value) {
-    this.snpsCount = value;
-  }
-
-  /**
-   * Gets the value of the 'indelsCount' field.
-   */
-  public java.lang.Integer getIndelsCount() {
-    return indelsCount;
-  }
-
-  /**
-   * Sets the value of the 'indelsCount' field.
-   * @param value the value to set.
-   */
-  public void setIndelsCount(java.lang.Integer value) {
-    this.indelsCount = value;
-  }
-
-  /**
-   * Gets the value of the 'structuralCount' field.
-   */
-  public java.lang.Integer getStructuralCount() {
-    return structuralCount;
-  }
-
-  /**
-   * Sets the value of the 'structuralCount' field.
-   * @param value the value to set.
-   */
-  public void setStructuralCount(java.lang.Integer value) {
-    this.structuralCount = value;
   }
 
   /**
@@ -214,6 +165,36 @@ public class VariantGlobalStats extends org.apache.avro.specific.SpecificRecordB
   }
 
   /**
+   * Gets the value of the 'variantTypeCounts' field.
+   */
+  public java.util.Map<java.lang.String,java.lang.Integer> getVariantTypeCounts() {
+    return variantTypeCounts;
+  }
+
+  /**
+   * Sets the value of the 'variantTypeCounts' field.
+   * @param value the value to set.
+   */
+  public void setVariantTypeCounts(java.util.Map<java.lang.String,java.lang.Integer> value) {
+    this.variantTypeCounts = value;
+  }
+
+  /**
+   * Gets the value of the 'chromosomeCounts' field.
+   */
+  public java.util.Map<java.lang.String,java.lang.Integer> getChromosomeCounts() {
+    return chromosomeCounts;
+  }
+
+  /**
+   * Sets the value of the 'chromosomeCounts' field.
+   * @param value the value to set.
+   */
+  public void setChromosomeCounts(java.util.Map<java.lang.String,java.lang.Integer> value) {
+    this.chromosomeCounts = value;
+  }
+
+  /**
    * Gets the value of the 'consequenceTypesCount' field.
    */
   public java.util.Map<java.lang.String,java.lang.Integer> getConsequenceTypesCount() {
@@ -249,15 +230,14 @@ public class VariantGlobalStats extends org.apache.avro.specific.SpecificRecordB
   public static class Builder extends org.apache.avro.specific.SpecificRecordBuilderBase<VariantGlobalStats>
     implements org.apache.avro.data.RecordBuilder<VariantGlobalStats> {
 
-    private int variantsCount;
+    private int numRecords;
     private int samplesCount;
-    private int snpsCount;
-    private int indelsCount;
-    private int structuralCount;
     private int passCount;
     private int transitionsCount;
     private int transversionsCount;
     private double meanQuality;
+    private java.util.Map<java.lang.String,java.lang.Integer> variantTypeCounts;
+    private java.util.Map<java.lang.String,java.lang.Integer> chromosomeCounts;
     private java.util.Map<java.lang.String,java.lang.Integer> consequenceTypesCount;
 
     /** Creates a new Builder */
@@ -268,113 +248,105 @@ public class VariantGlobalStats extends org.apache.avro.specific.SpecificRecordB
     /** Creates a Builder by copying an existing Builder */
     private Builder(org.opencb.biodata.models.variant.avro.VariantGlobalStats.Builder other) {
       super(other);
-      if (isValidValue(fields()[0], other.variantsCount)) {
-        this.variantsCount = data().deepCopy(fields()[0].schema(), other.variantsCount);
+      if (isValidValue(fields()[0], other.numRecords)) {
+        this.numRecords = data().deepCopy(fields()[0].schema(), other.numRecords);
         fieldSetFlags()[0] = true;
       }
       if (isValidValue(fields()[1], other.samplesCount)) {
         this.samplesCount = data().deepCopy(fields()[1].schema(), other.samplesCount);
         fieldSetFlags()[1] = true;
       }
-      if (isValidValue(fields()[2], other.snpsCount)) {
-        this.snpsCount = data().deepCopy(fields()[2].schema(), other.snpsCount);
+      if (isValidValue(fields()[2], other.passCount)) {
+        this.passCount = data().deepCopy(fields()[2].schema(), other.passCount);
         fieldSetFlags()[2] = true;
       }
-      if (isValidValue(fields()[3], other.indelsCount)) {
-        this.indelsCount = data().deepCopy(fields()[3].schema(), other.indelsCount);
+      if (isValidValue(fields()[3], other.transitionsCount)) {
+        this.transitionsCount = data().deepCopy(fields()[3].schema(), other.transitionsCount);
         fieldSetFlags()[3] = true;
       }
-      if (isValidValue(fields()[4], other.structuralCount)) {
-        this.structuralCount = data().deepCopy(fields()[4].schema(), other.structuralCount);
+      if (isValidValue(fields()[4], other.transversionsCount)) {
+        this.transversionsCount = data().deepCopy(fields()[4].schema(), other.transversionsCount);
         fieldSetFlags()[4] = true;
       }
-      if (isValidValue(fields()[5], other.passCount)) {
-        this.passCount = data().deepCopy(fields()[5].schema(), other.passCount);
+      if (isValidValue(fields()[5], other.meanQuality)) {
+        this.meanQuality = data().deepCopy(fields()[5].schema(), other.meanQuality);
         fieldSetFlags()[5] = true;
       }
-      if (isValidValue(fields()[6], other.transitionsCount)) {
-        this.transitionsCount = data().deepCopy(fields()[6].schema(), other.transitionsCount);
+      if (isValidValue(fields()[6], other.variantTypeCounts)) {
+        this.variantTypeCounts = data().deepCopy(fields()[6].schema(), other.variantTypeCounts);
         fieldSetFlags()[6] = true;
       }
-      if (isValidValue(fields()[7], other.transversionsCount)) {
-        this.transversionsCount = data().deepCopy(fields()[7].schema(), other.transversionsCount);
+      if (isValidValue(fields()[7], other.chromosomeCounts)) {
+        this.chromosomeCounts = data().deepCopy(fields()[7].schema(), other.chromosomeCounts);
         fieldSetFlags()[7] = true;
       }
-      if (isValidValue(fields()[8], other.meanQuality)) {
-        this.meanQuality = data().deepCopy(fields()[8].schema(), other.meanQuality);
+      if (isValidValue(fields()[8], other.consequenceTypesCount)) {
+        this.consequenceTypesCount = data().deepCopy(fields()[8].schema(), other.consequenceTypesCount);
         fieldSetFlags()[8] = true;
-      }
-      if (isValidValue(fields()[9], other.consequenceTypesCount)) {
-        this.consequenceTypesCount = data().deepCopy(fields()[9].schema(), other.consequenceTypesCount);
-        fieldSetFlags()[9] = true;
       }
     }
     
     /** Creates a Builder by copying an existing VariantGlobalStats instance */
     private Builder(org.opencb.biodata.models.variant.avro.VariantGlobalStats other) {
             super(org.opencb.biodata.models.variant.avro.VariantGlobalStats.SCHEMA$);
-      if (isValidValue(fields()[0], other.variantsCount)) {
-        this.variantsCount = data().deepCopy(fields()[0].schema(), other.variantsCount);
+      if (isValidValue(fields()[0], other.numRecords)) {
+        this.numRecords = data().deepCopy(fields()[0].schema(), other.numRecords);
         fieldSetFlags()[0] = true;
       }
       if (isValidValue(fields()[1], other.samplesCount)) {
         this.samplesCount = data().deepCopy(fields()[1].schema(), other.samplesCount);
         fieldSetFlags()[1] = true;
       }
-      if (isValidValue(fields()[2], other.snpsCount)) {
-        this.snpsCount = data().deepCopy(fields()[2].schema(), other.snpsCount);
+      if (isValidValue(fields()[2], other.passCount)) {
+        this.passCount = data().deepCopy(fields()[2].schema(), other.passCount);
         fieldSetFlags()[2] = true;
       }
-      if (isValidValue(fields()[3], other.indelsCount)) {
-        this.indelsCount = data().deepCopy(fields()[3].schema(), other.indelsCount);
+      if (isValidValue(fields()[3], other.transitionsCount)) {
+        this.transitionsCount = data().deepCopy(fields()[3].schema(), other.transitionsCount);
         fieldSetFlags()[3] = true;
       }
-      if (isValidValue(fields()[4], other.structuralCount)) {
-        this.structuralCount = data().deepCopy(fields()[4].schema(), other.structuralCount);
+      if (isValidValue(fields()[4], other.transversionsCount)) {
+        this.transversionsCount = data().deepCopy(fields()[4].schema(), other.transversionsCount);
         fieldSetFlags()[4] = true;
       }
-      if (isValidValue(fields()[5], other.passCount)) {
-        this.passCount = data().deepCopy(fields()[5].schema(), other.passCount);
+      if (isValidValue(fields()[5], other.meanQuality)) {
+        this.meanQuality = data().deepCopy(fields()[5].schema(), other.meanQuality);
         fieldSetFlags()[5] = true;
       }
-      if (isValidValue(fields()[6], other.transitionsCount)) {
-        this.transitionsCount = data().deepCopy(fields()[6].schema(), other.transitionsCount);
+      if (isValidValue(fields()[6], other.variantTypeCounts)) {
+        this.variantTypeCounts = data().deepCopy(fields()[6].schema(), other.variantTypeCounts);
         fieldSetFlags()[6] = true;
       }
-      if (isValidValue(fields()[7], other.transversionsCount)) {
-        this.transversionsCount = data().deepCopy(fields()[7].schema(), other.transversionsCount);
+      if (isValidValue(fields()[7], other.chromosomeCounts)) {
+        this.chromosomeCounts = data().deepCopy(fields()[7].schema(), other.chromosomeCounts);
         fieldSetFlags()[7] = true;
       }
-      if (isValidValue(fields()[8], other.meanQuality)) {
-        this.meanQuality = data().deepCopy(fields()[8].schema(), other.meanQuality);
+      if (isValidValue(fields()[8], other.consequenceTypesCount)) {
+        this.consequenceTypesCount = data().deepCopy(fields()[8].schema(), other.consequenceTypesCount);
         fieldSetFlags()[8] = true;
-      }
-      if (isValidValue(fields()[9], other.consequenceTypesCount)) {
-        this.consequenceTypesCount = data().deepCopy(fields()[9].schema(), other.consequenceTypesCount);
-        fieldSetFlags()[9] = true;
       }
     }
 
-    /** Gets the value of the 'variantsCount' field */
-    public java.lang.Integer getVariantsCount() {
-      return variantsCount;
+    /** Gets the value of the 'numRecords' field */
+    public java.lang.Integer getNumRecords() {
+      return numRecords;
     }
     
-    /** Sets the value of the 'variantsCount' field */
-    public org.opencb.biodata.models.variant.avro.VariantGlobalStats.Builder setVariantsCount(int value) {
+    /** Sets the value of the 'numRecords' field */
+    public org.opencb.biodata.models.variant.avro.VariantGlobalStats.Builder setNumRecords(int value) {
       validate(fields()[0], value);
-      this.variantsCount = value;
+      this.numRecords = value;
       fieldSetFlags()[0] = true;
       return this; 
     }
     
-    /** Checks whether the 'variantsCount' field has been set */
-    public boolean hasVariantsCount() {
+    /** Checks whether the 'numRecords' field has been set */
+    public boolean hasNumRecords() {
       return fieldSetFlags()[0];
     }
     
-    /** Clears the value of the 'variantsCount' field */
-    public org.opencb.biodata.models.variant.avro.VariantGlobalStats.Builder clearVariantsCount() {
+    /** Clears the value of the 'numRecords' field */
+    public org.opencb.biodata.models.variant.avro.VariantGlobalStats.Builder clearNumRecords() {
       fieldSetFlags()[0] = false;
       return this;
     }
@@ -403,78 +375,6 @@ public class VariantGlobalStats extends org.apache.avro.specific.SpecificRecordB
       return this;
     }
 
-    /** Gets the value of the 'snpsCount' field */
-    public java.lang.Integer getSnpsCount() {
-      return snpsCount;
-    }
-    
-    /** Sets the value of the 'snpsCount' field */
-    public org.opencb.biodata.models.variant.avro.VariantGlobalStats.Builder setSnpsCount(int value) {
-      validate(fields()[2], value);
-      this.snpsCount = value;
-      fieldSetFlags()[2] = true;
-      return this; 
-    }
-    
-    /** Checks whether the 'snpsCount' field has been set */
-    public boolean hasSnpsCount() {
-      return fieldSetFlags()[2];
-    }
-    
-    /** Clears the value of the 'snpsCount' field */
-    public org.opencb.biodata.models.variant.avro.VariantGlobalStats.Builder clearSnpsCount() {
-      fieldSetFlags()[2] = false;
-      return this;
-    }
-
-    /** Gets the value of the 'indelsCount' field */
-    public java.lang.Integer getIndelsCount() {
-      return indelsCount;
-    }
-    
-    /** Sets the value of the 'indelsCount' field */
-    public org.opencb.biodata.models.variant.avro.VariantGlobalStats.Builder setIndelsCount(int value) {
-      validate(fields()[3], value);
-      this.indelsCount = value;
-      fieldSetFlags()[3] = true;
-      return this; 
-    }
-    
-    /** Checks whether the 'indelsCount' field has been set */
-    public boolean hasIndelsCount() {
-      return fieldSetFlags()[3];
-    }
-    
-    /** Clears the value of the 'indelsCount' field */
-    public org.opencb.biodata.models.variant.avro.VariantGlobalStats.Builder clearIndelsCount() {
-      fieldSetFlags()[3] = false;
-      return this;
-    }
-
-    /** Gets the value of the 'structuralCount' field */
-    public java.lang.Integer getStructuralCount() {
-      return structuralCount;
-    }
-    
-    /** Sets the value of the 'structuralCount' field */
-    public org.opencb.biodata.models.variant.avro.VariantGlobalStats.Builder setStructuralCount(int value) {
-      validate(fields()[4], value);
-      this.structuralCount = value;
-      fieldSetFlags()[4] = true;
-      return this; 
-    }
-    
-    /** Checks whether the 'structuralCount' field has been set */
-    public boolean hasStructuralCount() {
-      return fieldSetFlags()[4];
-    }
-    
-    /** Clears the value of the 'structuralCount' field */
-    public org.opencb.biodata.models.variant.avro.VariantGlobalStats.Builder clearStructuralCount() {
-      fieldSetFlags()[4] = false;
-      return this;
-    }
-
     /** Gets the value of the 'passCount' field */
     public java.lang.Integer getPassCount() {
       return passCount;
@@ -482,20 +382,20 @@ public class VariantGlobalStats extends org.apache.avro.specific.SpecificRecordB
     
     /** Sets the value of the 'passCount' field */
     public org.opencb.biodata.models.variant.avro.VariantGlobalStats.Builder setPassCount(int value) {
-      validate(fields()[5], value);
+      validate(fields()[2], value);
       this.passCount = value;
-      fieldSetFlags()[5] = true;
+      fieldSetFlags()[2] = true;
       return this; 
     }
     
     /** Checks whether the 'passCount' field has been set */
     public boolean hasPassCount() {
-      return fieldSetFlags()[5];
+      return fieldSetFlags()[2];
     }
     
     /** Clears the value of the 'passCount' field */
     public org.opencb.biodata.models.variant.avro.VariantGlobalStats.Builder clearPassCount() {
-      fieldSetFlags()[5] = false;
+      fieldSetFlags()[2] = false;
       return this;
     }
 
@@ -506,20 +406,20 @@ public class VariantGlobalStats extends org.apache.avro.specific.SpecificRecordB
     
     /** Sets the value of the 'transitionsCount' field */
     public org.opencb.biodata.models.variant.avro.VariantGlobalStats.Builder setTransitionsCount(int value) {
-      validate(fields()[6], value);
+      validate(fields()[3], value);
       this.transitionsCount = value;
-      fieldSetFlags()[6] = true;
+      fieldSetFlags()[3] = true;
       return this; 
     }
     
     /** Checks whether the 'transitionsCount' field has been set */
     public boolean hasTransitionsCount() {
-      return fieldSetFlags()[6];
+      return fieldSetFlags()[3];
     }
     
     /** Clears the value of the 'transitionsCount' field */
     public org.opencb.biodata.models.variant.avro.VariantGlobalStats.Builder clearTransitionsCount() {
-      fieldSetFlags()[6] = false;
+      fieldSetFlags()[3] = false;
       return this;
     }
 
@@ -530,20 +430,20 @@ public class VariantGlobalStats extends org.apache.avro.specific.SpecificRecordB
     
     /** Sets the value of the 'transversionsCount' field */
     public org.opencb.biodata.models.variant.avro.VariantGlobalStats.Builder setTransversionsCount(int value) {
-      validate(fields()[7], value);
+      validate(fields()[4], value);
       this.transversionsCount = value;
-      fieldSetFlags()[7] = true;
+      fieldSetFlags()[4] = true;
       return this; 
     }
     
     /** Checks whether the 'transversionsCount' field has been set */
     public boolean hasTransversionsCount() {
-      return fieldSetFlags()[7];
+      return fieldSetFlags()[4];
     }
     
     /** Clears the value of the 'transversionsCount' field */
     public org.opencb.biodata.models.variant.avro.VariantGlobalStats.Builder clearTransversionsCount() {
-      fieldSetFlags()[7] = false;
+      fieldSetFlags()[4] = false;
       return this;
     }
 
@@ -554,20 +454,70 @@ public class VariantGlobalStats extends org.apache.avro.specific.SpecificRecordB
     
     /** Sets the value of the 'meanQuality' field */
     public org.opencb.biodata.models.variant.avro.VariantGlobalStats.Builder setMeanQuality(double value) {
-      validate(fields()[8], value);
+      validate(fields()[5], value);
       this.meanQuality = value;
-      fieldSetFlags()[8] = true;
+      fieldSetFlags()[5] = true;
       return this; 
     }
     
     /** Checks whether the 'meanQuality' field has been set */
     public boolean hasMeanQuality() {
-      return fieldSetFlags()[8];
+      return fieldSetFlags()[5];
     }
     
     /** Clears the value of the 'meanQuality' field */
     public org.opencb.biodata.models.variant.avro.VariantGlobalStats.Builder clearMeanQuality() {
-      fieldSetFlags()[8] = false;
+      fieldSetFlags()[5] = false;
+      return this;
+    }
+
+    /** Gets the value of the 'variantTypeCounts' field */
+    public java.util.Map<java.lang.String,java.lang.Integer> getVariantTypeCounts() {
+      return variantTypeCounts;
+    }
+    
+    /** Sets the value of the 'variantTypeCounts' field */
+    public org.opencb.biodata.models.variant.avro.VariantGlobalStats.Builder setVariantTypeCounts(java.util.Map<java.lang.String,java.lang.Integer> value) {
+      validate(fields()[6], value);
+      this.variantTypeCounts = value;
+      fieldSetFlags()[6] = true;
+      return this; 
+    }
+    
+    /** Checks whether the 'variantTypeCounts' field has been set */
+    public boolean hasVariantTypeCounts() {
+      return fieldSetFlags()[6];
+    }
+    
+    /** Clears the value of the 'variantTypeCounts' field */
+    public org.opencb.biodata.models.variant.avro.VariantGlobalStats.Builder clearVariantTypeCounts() {
+      variantTypeCounts = null;
+      fieldSetFlags()[6] = false;
+      return this;
+    }
+
+    /** Gets the value of the 'chromosomeCounts' field */
+    public java.util.Map<java.lang.String,java.lang.Integer> getChromosomeCounts() {
+      return chromosomeCounts;
+    }
+    
+    /** Sets the value of the 'chromosomeCounts' field */
+    public org.opencb.biodata.models.variant.avro.VariantGlobalStats.Builder setChromosomeCounts(java.util.Map<java.lang.String,java.lang.Integer> value) {
+      validate(fields()[7], value);
+      this.chromosomeCounts = value;
+      fieldSetFlags()[7] = true;
+      return this; 
+    }
+    
+    /** Checks whether the 'chromosomeCounts' field has been set */
+    public boolean hasChromosomeCounts() {
+      return fieldSetFlags()[7];
+    }
+    
+    /** Clears the value of the 'chromosomeCounts' field */
+    public org.opencb.biodata.models.variant.avro.VariantGlobalStats.Builder clearChromosomeCounts() {
+      chromosomeCounts = null;
+      fieldSetFlags()[7] = false;
       return this;
     }
 
@@ -578,21 +528,21 @@ public class VariantGlobalStats extends org.apache.avro.specific.SpecificRecordB
     
     /** Sets the value of the 'consequenceTypesCount' field */
     public org.opencb.biodata.models.variant.avro.VariantGlobalStats.Builder setConsequenceTypesCount(java.util.Map<java.lang.String,java.lang.Integer> value) {
-      validate(fields()[9], value);
+      validate(fields()[8], value);
       this.consequenceTypesCount = value;
-      fieldSetFlags()[9] = true;
+      fieldSetFlags()[8] = true;
       return this; 
     }
     
     /** Checks whether the 'consequenceTypesCount' field has been set */
     public boolean hasConsequenceTypesCount() {
-      return fieldSetFlags()[9];
+      return fieldSetFlags()[8];
     }
     
     /** Clears the value of the 'consequenceTypesCount' field */
     public org.opencb.biodata.models.variant.avro.VariantGlobalStats.Builder clearConsequenceTypesCount() {
       consequenceTypesCount = null;
-      fieldSetFlags()[9] = false;
+      fieldSetFlags()[8] = false;
       return this;
     }
 
@@ -600,16 +550,15 @@ public class VariantGlobalStats extends org.apache.avro.specific.SpecificRecordB
     public VariantGlobalStats build() {
       try {
         VariantGlobalStats record = new VariantGlobalStats();
-        record.variantsCount = fieldSetFlags()[0] ? this.variantsCount : (java.lang.Integer) defaultValue(fields()[0]);
+        record.numRecords = fieldSetFlags()[0] ? this.numRecords : (java.lang.Integer) defaultValue(fields()[0]);
         record.samplesCount = fieldSetFlags()[1] ? this.samplesCount : (java.lang.Integer) defaultValue(fields()[1]);
-        record.snpsCount = fieldSetFlags()[2] ? this.snpsCount : (java.lang.Integer) defaultValue(fields()[2]);
-        record.indelsCount = fieldSetFlags()[3] ? this.indelsCount : (java.lang.Integer) defaultValue(fields()[3]);
-        record.structuralCount = fieldSetFlags()[4] ? this.structuralCount : (java.lang.Integer) defaultValue(fields()[4]);
-        record.passCount = fieldSetFlags()[5] ? this.passCount : (java.lang.Integer) defaultValue(fields()[5]);
-        record.transitionsCount = fieldSetFlags()[6] ? this.transitionsCount : (java.lang.Integer) defaultValue(fields()[6]);
-        record.transversionsCount = fieldSetFlags()[7] ? this.transversionsCount : (java.lang.Integer) defaultValue(fields()[7]);
-        record.meanQuality = fieldSetFlags()[8] ? this.meanQuality : (java.lang.Double) defaultValue(fields()[8]);
-        record.consequenceTypesCount = fieldSetFlags()[9] ? this.consequenceTypesCount : (java.util.Map<java.lang.String,java.lang.Integer>) defaultValue(fields()[9]);
+        record.passCount = fieldSetFlags()[2] ? this.passCount : (java.lang.Integer) defaultValue(fields()[2]);
+        record.transitionsCount = fieldSetFlags()[3] ? this.transitionsCount : (java.lang.Integer) defaultValue(fields()[3]);
+        record.transversionsCount = fieldSetFlags()[4] ? this.transversionsCount : (java.lang.Integer) defaultValue(fields()[4]);
+        record.meanQuality = fieldSetFlags()[5] ? this.meanQuality : (java.lang.Double) defaultValue(fields()[5]);
+        record.variantTypeCounts = fieldSetFlags()[6] ? this.variantTypeCounts : (java.util.Map<java.lang.String,java.lang.Integer>) defaultValue(fields()[6]);
+        record.chromosomeCounts = fieldSetFlags()[7] ? this.chromosomeCounts : (java.util.Map<java.lang.String,java.lang.Integer>) defaultValue(fields()[7]);
+        record.consequenceTypesCount = fieldSetFlags()[8] ? this.consequenceTypesCount : (java.util.Map<java.lang.String,java.lang.Integer>) defaultValue(fields()[8]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);
