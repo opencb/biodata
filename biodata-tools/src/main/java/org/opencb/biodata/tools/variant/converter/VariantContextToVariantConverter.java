@@ -169,7 +169,7 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         // set variant format
         // FIXME: This code is not respecting the original format order
         List<String> formatFields = new ArrayList<>(10);
-        if (variantContext.getGenotypes().size() > 1) {
+        if (!variantContext.getGenotypes().isEmpty()) {
             htsjdk.variant.variantcontext.Genotype gt = variantContext.getGenotypes().get(0);
 
             //GT Field is mandatory and MUST be the first one
