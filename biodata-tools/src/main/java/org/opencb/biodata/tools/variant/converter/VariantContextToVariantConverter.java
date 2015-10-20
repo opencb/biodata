@@ -200,7 +200,11 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
                 switch (formatField) {
                     case VCFConstants.GENOTYPE_KEY:
                         //TODO: Change from specific allele genotype to codified genotype (A/C -> 0/1)
-                        value = genotype.getGenotypeString();
+                        if (variantType.equals(VariantType.SYMBOLIC)) {
+                            value = genotype.getGenotypeString(false).replaceAll("\\*", "");
+                        } else {
+                            value = genotype.getGenotypeString(true);
+                        }
                         break;
                     default:
                         Object attribute = genotype.getAnyAttribute(formatField);

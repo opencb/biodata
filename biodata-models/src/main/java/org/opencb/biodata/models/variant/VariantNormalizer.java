@@ -88,13 +88,14 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                         normalizedEntry.setSecondaryAlternates(getSecondaryAlternates(keyFields.getAlternate(), alternates));
                         //Set normalized samples data
                         try {
-                            normalizedEntry.setSamplesData(normalizeSamplesData(keyFields, entry.getSamplesData(), entry.getFormat(), reference, alternates, samplesData));
+                            List<List<String>> normalizedSamplesData = normalizeSamplesData(keyFields,
+                                    entry.getSamplesData(), entry.getFormat(), reference, alternates, samplesData);
+                            normalizedEntry.setSamplesData(normalizedSamplesData);
+                            normalizedVariants.add(normalizedVariant);
                         } catch (Exception e) {
-                            logger.warn("Error parsing variant " + call + ", numAllele " + keyFields.getNumAllele());
-//                            throw e;
+                            logger.warn("Error parsing variant " + call + ", numAllele " + keyFields.getNumAllele(), e);
+                            throw e;
                         }
-
-                        normalizedVariants.add(normalizedVariant);
                     }
                 }
             }

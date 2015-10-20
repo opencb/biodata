@@ -81,7 +81,7 @@ public class Genotype {
                         this.allelesIdx[i] = 0;
                     } else {
                         if (allele.isEmpty()) {
-                            throw new IllegalArgumentException("Empty allele: REF=" + reference + ",ALT=" + alternates.stream().collect(Collectors.joining(",")));
+                            throw new IllegalArgumentException("Unable to parse genotype \'" + genotype + "\'. Empty allele: REF=" + reference + ",ALT=" + alternates.stream().collect(Collectors.joining(",")));
                         }
                         int alleleIdx = 1;
                         for (String alternate : alternates) {
@@ -92,7 +92,7 @@ public class Genotype {
                             alleleIdx++;
                         }
                         if (alleleIdx > alternates.size()) {
-                            throw new IllegalArgumentException("Unknown allele \"" + allele + "\". REF=" + reference + ",ALT=" + alternates.stream().collect(Collectors.joining(",")));
+                            throw new IllegalArgumentException("Unable to parse genotype \'" + genotype + "'. Unknown allele \"" + allele + "\". REF=" + reference + ",ALT=" + alternates.stream().collect(Collectors.joining(",")));
                         }
                     }
                 }
