@@ -20,6 +20,7 @@ import htsjdk.variant.variantcontext.Allele;
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFConstants;
 import org.apache.commons.lang3.StringUtils;
+import org.opencb.biodata.formats.variant.annotation.VepParser;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.VariantVcfFactory;
@@ -39,6 +40,8 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
     private final String studyId;
     private final String fileId;
 
+    private List<String> consequenceTypeFields;
+
     public VariantContextToVariantConverter(){
         this("", "");
     }
@@ -46,6 +49,9 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
     public VariantContextToVariantConverter(String studyId, String fileId) {
         this.studyId = studyId;
         this.fileId = fileId;
+
+        // TODO this must be parsed from VCF header
+        consequenceTypeFields = Arrays.asList();
     }
 
     @Override
@@ -248,11 +254,11 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         studies.add(studyEntry);
         variant.setStudies(studies);
 
-
         // set VariantAnnotation parameters
         // TODO: Read annotation from info column
-//        variant.setAnnotation(setVariantAnnotationParams());
-
+        if (consequenceTypeFields != null && !consequenceTypeFields.isEmpty()) {
+            variant.setAnnotation(VepParser.parseInfoCsq(consequenceTypeFields, variantContext.getAttributes().get("CSQ").toString()));
+        }
 
         return variant;
     }

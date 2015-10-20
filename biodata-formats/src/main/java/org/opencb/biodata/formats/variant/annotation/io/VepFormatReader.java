@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.opencb.biodata.formats.annotation.io;
+package org.opencb.biodata.formats.variant.annotation.io;
 
 import org.opencb.biodata.formats.variant.vcf4.io.VariantVcfReader;
 import org.opencb.biodata.models.variant.annotation.ConsequenceType;

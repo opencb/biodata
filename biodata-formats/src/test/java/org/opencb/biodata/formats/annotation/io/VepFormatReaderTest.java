@@ -18,11 +18,10 @@ package org.opencb.biodata.formats.annotation.io;
 
 import org.junit.Ignore;
 import org.junit.Test;
+import org.opencb.biodata.formats.variant.annotation.io.VepFormatReader;
 import org.opencb.biodata.models.variant.annotation.VariantAnnotation;
 
 import java.util.List;
-
-import static org.junit.Assert.*;
 
 public class VepFormatReaderTest {
 
