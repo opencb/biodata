@@ -81,7 +81,7 @@ public class Variant {
     }
 
     public Variant(String chromosome, int start, int end, String reference, String alternate, String strand) {
-        impl = new VariantAvro(chromosome,
+        impl = new VariantAvro("",
                 start,
                 end,
                 (reference != null) ? reference : "",
@@ -96,6 +96,8 @@ public class Variant {
         if (start > end && !(reference.equals("-"))) {
             throw new IllegalArgumentException("End position must be greater than the start position");
         }
+
+        this.setChromosome(chromosome);
 
         this.resetLength();
         this.resetType();
