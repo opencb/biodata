@@ -260,11 +260,12 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         for (int sampleIdx = 0; sampleIdx < samplesData.size(); sampleIdx++) {
             List<String> sampleData = samplesData.get(sampleIdx);
 
-            if (sampleData.size() == 1 && sampleData.get(0).equals(".")) {
-                newSampleData.get(sampleIdx).set(0, "./.");
-                System.out.println("Format data equals '.'");
-                continue;
-            }
+            // TODO we could check that format and sampleData sizes are equals
+//            if (sampleData.size() == 1 && sampleData.get(0).equals(".")) {
+//                newSampleData.get(sampleIdx).set(0, "./.");
+//                System.out.println("Format data equals '.'");
+//                continue;
+//            }
 
             for (int formatFieldIdx = 0; formatFieldIdx < format.size(); formatFieldIdx++) {
                 String formatField = format.get(formatFieldIdx);
