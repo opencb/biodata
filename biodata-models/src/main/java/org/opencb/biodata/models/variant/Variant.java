@@ -37,7 +37,7 @@ public class Variant {
     public static final int SV_THRESHOLD = 50;
 
     public Variant() {
-        this("", -1, -1, "", "", "");
+        impl = new VariantAvro("", -1, -1, "", "", "+", new LinkedList<>(), 0, null, new HashMap<>(), new LinkedList<>(), null);
     }
 
     public Variant(VariantAvro avro) {
@@ -53,18 +53,18 @@ public class Variant {
         if (variantString != null && !variantString.isEmpty()) {
             String[] fields = variantString.split(":", -1);
             if (fields.length == 3) {
-                impl.setChromosome(fields[0]);
-                impl.setStart(Integer.parseInt(fields[1]));
-                impl.setEnd(Integer.parseInt(fields[1]));
-                impl.setReference("");
-                impl.setAlternate(fields[2]);
+                setChromosome(fields[0]);
+                setStart(Integer.parseInt(fields[1]));
+                setEnd(Integer.parseInt(fields[1]));
+                setReference("");
+                setAlternate(fields[2]);
             } else {
                 if (fields.length == 4) {
-                    impl.setChromosome(fields[0]);
-                    impl.setStart(Integer.parseInt(fields[1]));
-                    impl.setEnd(Integer.parseInt(fields[1]));
-                    impl.setReference(fields[2]);
-                    impl.setAlternate(fields[3]);
+                    setChromosome(fields[0]);
+                    setStart(Integer.parseInt(fields[1]));
+                    setEnd(Integer.parseInt(fields[1]));
+                    setReference(fields[2]);
+                    setAlternate(fields[3]);
                 } else {
                     throw new IllegalArgumentException("Variant needs 3 or 4 fields separated by ':'");
                 }
