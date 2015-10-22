@@ -37,6 +37,7 @@ import java.util.List;
  */
 public class JsonAnnotationWriter implements DataWriter<VariantAnnotation> {
 
+    public static final int LOG_BATCH_SIZE = 2000;
     private String filename;
     private BufferedWriter bw;
     private int writtenVariantAnnotations = 0;
@@ -107,8 +108,11 @@ public class JsonAnnotationWriter implements DataWriter<VariantAnnotation> {
                 write(variantAnnotation);
             }
 
+            int previousBatch = writtenVariantAnnotations / LOG_BATCH_SIZE;
             writtenVariantAnnotations +=list.size();
-            if ((writtenVariantAnnotations % 2000) == 0) {
+            int newBatch = writtenVariantAnnotations / LOG_BATCH_SIZE;
+
+            if (newBatch != previousBatch) {
                 logger.info("{} written annotations.", writtenVariantAnnotations);
             }
 
