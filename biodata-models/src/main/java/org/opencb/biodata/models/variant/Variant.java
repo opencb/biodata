@@ -131,7 +131,13 @@ public class Variant {
     }
 
     private void resetLength() {
-        setLength(Math.max(getReference().length(), getAlternate().length()));
+        if(getReference()==null) {
+            setLength(getAlternate().length());
+        } else if(getAlternate()==null) {
+            setLength(getReference().length());
+        } else {
+            setLength(Math.max(getReference().length(), getAlternate().length()));
+        }
     }
 
     public void resetHGVS() {
