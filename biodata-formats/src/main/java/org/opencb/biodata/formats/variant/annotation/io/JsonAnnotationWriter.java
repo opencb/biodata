@@ -27,10 +27,12 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.zip.GZIPOutputStream;
 
 /**
  * Created by fjlopez on 01/04/15.
@@ -57,7 +59,12 @@ public class JsonAnnotationWriter implements DataWriter<VariantAnnotation> {
     @Override
     public boolean open() {
         try {
-            bw = Files.newBufferedWriter(Paths.get(filename), Charset.defaultCharset());
+            OutputStream os = Files.newOutputStream(Paths.get(filename));
+            if (filename.endsWith(".gz") || filename.endsWith(".gzip")) {
+                os = new GZIPOutputStream(os);
+            }
+            bw = new BufferedWriter(new OutputStreamWriter(os));
+
         } catch (IOException e) {
             e.printStackTrace();
             return false;
