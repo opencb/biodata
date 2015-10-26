@@ -247,7 +247,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         int alleleIdx = 1;
         secondaryAlternatesMap[0] = "0";     // Set the reference id
         for (String alternateAllele : alternateAlleles) {
-            if (alternateAllele.equals(variantKeyFields.alternate)) {
+            if (variantKeyFields.getNumAllele() == alleleIdx - 1) {
                 secondaryAlternatesMap[alleleIdx] = "1";    //The first alternate
             } else {    //Secondary alternates will start at position 2, and increase sequentially
                 secondaryAlternatesMap[alleleIdx] = Integer.toString(secondaryReferencesIdx);
@@ -428,6 +428,43 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             this.alternate = alternate;
             return this;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof VariantKeyFields)) return false;
+
+            VariantKeyFields that = (VariantKeyFields) o;
+
+            if (start != that.start) return false;
+            if (end != that.end) return false;
+            if (numAllele != that.numAllele) return false;
+            if (reference != null ? !reference.equals(that.reference) : that.reference != null) return false;
+            return !(alternate != null ? !alternate.equals(that.alternate) : that.alternate != null);
+
+        }
+
+        @Override
+        public int hashCode() {
+            int result = start;
+            result = 31 * result + end;
+            result = 31 * result + numAllele;
+            result = 31 * result + (reference != null ? reference.hashCode() : 0);
+            result = 31 * result + (alternate != null ? alternate.hashCode() : 0);
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "VariantKeyFields{" +
+                    "start=" + start +
+                    ", end=" + end +
+                    ", numAllele=" + numAllele +
+                    ", reference='" + reference + '\'' +
+                    ", alternate='" + alternate + '\'' +
+                    '}';
+        }
+
 
     }
 
