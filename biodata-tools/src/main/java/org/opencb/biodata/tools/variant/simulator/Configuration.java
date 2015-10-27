@@ -1,24 +1,13 @@
-/*
- * Copyright 2015 OpenCB
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.opencb.biodata.tools.variant.simulator;
 
-import org.opencb.biodata.models.core.Region;
-
+/**
+ * Created by kalyanreddyemani on 09/10/15.
+ */
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import org.opencb.biodata.models.core.Region;
 
 /**
  * Created by imedina on 08/10/15.
@@ -27,43 +16,60 @@ public class Configuration {
 
     private int numSamples;
     private List<Region> regions;
-    private float[] genotypeProbabilities;
-
-
+    private Map<String,Float> genotypeProbabilities;
     private String[] genotypeValues;
 
     public Configuration() {
+        regions = new ArrayList<>();
         for (int i = 0; i <= 22; i++) {
-            regions.add(new Region("" + i, 1));
+            Region region = new Region("" + i, 1);
+            regions.add(region);
+
         }
         regions.add(new Region("X", 1));
         regions.add(new Region("Y", 1));
 
+        /*genotypeProbabilities = new HashMap<String, Float>();
+        genotypeProbabilities.put("0/0",0.7f);
+        genotypeProbabilities.put("0/1",0.2f);
+        genotypeProbabilities.put("1/1",0.09f);
+        genotypeProbabilities.put("./.",0.01f);*/
 
+        genotypeProbabilities = Configuration.this.getGenotypeProbabilities();
         // 0/0, 0/1, 1/1, ./.
-        genotypeProbabilities = new float[]{0.7f, 0.2f, 0.09f, 0.01f};
-
+        //genotypeProbabilities = new float[]{0.7f, 0.2f, 0.09f, 0.01f};
         init();
     }
 
-    public Configuration(List<Region> regions, float[] genotypeProbabilities) {
+    /**
+     * @param regions
+     * @param genotypeProbabilities
+     */
+    public Configuration(List<Region> regions, Map<String, Float> genotypeProbabilities) {
         this.regions = regions;
         this.genotypeProbabilities = genotypeProbabilities;
-
         init();
     }
 
     private void init () {
-        initGenotypeProbablities();
-        // ...
-
+        String [] genotypeProbablitiesArryay = initGenotypeProbablities(1000);
     }
 
-    private void initGenotypeProbablities() {
+    /**
+     * @param genotypeRowCount
+     * @return genotypeValues
+     */
+    private String[] initGenotypeProbablities(int genotypeRowCount) {
         genotypeValues = new String[1000];
-//        for () {
-//
-//        }
+
+        int arryaIndex = 0;
+        for(Map.Entry<String, Float> genotypeProbabilitiesMapValue: genotypeProbabilities.entrySet()){
+            for(int j = 0; j < (Math.round(genotypeProbabilitiesMapValue.getValue() * genotypeRowCount)); j++){
+                genotypeValues[j + arryaIndex] = genotypeProbabilitiesMapValue.getKey();
+            }
+            arryaIndex = arryaIndex + (Math.round(genotypeProbabilitiesMapValue.getValue() * genotypeRowCount));
+        }
+        return genotypeValues;
     }
 
     public int getNumSamples() {
@@ -82,13 +88,13 @@ public class Configuration {
         this.regions = regions;
     }
 
-    public float[] getGenotypeProbabilities() {
+    public Map<String, Float> getGenotypeProbabilities() {
         return genotypeProbabilities;
     }
 
-    public void setGenotypeProbabilities(float[] genotypeProbabilities) {
+    public void setGenotypeProbabilities(Map<String,Float> genotypeProbabilities) {
         this.genotypeProbabilities = genotypeProbabilities;
-        initGenotypeProbablities();
+        initGenotypeProbablities(1000);
     }
 
     public String[] getGenotypeValues() {
