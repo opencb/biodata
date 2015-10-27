@@ -57,14 +57,14 @@ public class Variant {
                 setStart(Integer.parseInt(fields[1]));
                 setEnd(Integer.parseInt(fields[1]));
                 setReference("");
-                setAlternate(fields[2]);
+                setAlternate(fields[2].equals("-") ? "" : fields[2]);
             } else {
                 if (fields.length == 4) {
                     setChromosome(fields[0]);
                     setStart(Integer.parseInt(fields[1]));
                     setEnd(Integer.parseInt(fields[1]));
-                    setReference(fields[2]);
-                    setAlternate(fields[3]);
+                    setReference(fields[2].equals("-") ? "" : fields[2]);
+                    setAlternate(fields[3].equals("-") ? "" : fields[3]);
                 } else {
                     throw new IllegalArgumentException("Variant needs 3 or 4 fields separated by ':'");
                 }
@@ -131,7 +131,13 @@ public class Variant {
     }
 
     private void resetLength() {
-        setLength(Math.max(getReference().length(), getAlternate().length()));
+        if(getReference()==null) {
+            setLength(getAlternate().length());
+        } else if(getAlternate()==null) {
+            setLength(getReference().length());
+        } else {
+            setLength(Math.max(getReference().length(), getAlternate().length()));
+        }
     }
 
     public void resetHGVS() {
