@@ -139,7 +139,13 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
                 + ":" + StringUtils.join(variantContext.getAlternateAlleles(), ","));
         Map<String, String> attributes = new HashMap<>();
         for (String key : variantContext.getAttributes().keySet()) {
-            attributes.put(key, variantContext.getAttributeAsString(key, ""));
+            // Do not use "getAttributeAsString" for lists.
+            // It will add brackets surrounding the values
+            if (variantContext.getAttribute(key, "") instanceof List) {
+                attributes.put(key, StringUtils.join(variantContext.getAttributeAsList(key), VCFConstants.INFO_FIELD_ARRAY_SEPARATOR));
+            } else {
+                attributes.put(key, variantContext.getAttributeAsString(key, ""));
+            }
         }
 
         // QUAL
