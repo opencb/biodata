@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 package org.opencb.biodata.tools.variant.simulator;
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
 
 import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.VariantType;
+
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.util.*;
 
 /**
  * Created by imedina on 08/10/15.
@@ -35,52 +31,61 @@ import org.opencb.biodata.models.variant.avro.VariantType;
  */
 public class VariantSimulator {
 
-    private Configuration configuration;
-    private Random rand;
     private String referenceAllele = null;
     private String alternateAllele = null;
 
+    private VariantSimulatorConfiguration variantSimulatorConfiguration;
+
+    private Random rand;
+
+    public static final int DEFAULT_NUM_SAMPLES = 10;
+    public static final String[] ALLELE_BASES = {"A", "C", "G", "T"};
+
+    // Default configuration values are used
     public VariantSimulator() {
-        this(new Configuration());
+        this(new VariantSimulatorConfiguration());
     }
 
-    public VariantSimulator(Configuration configuration) {
-        this.configuration = configuration;
+    public VariantSimulator(VariantSimulatorConfiguration variantSimulatorConfiguration) {
+        this.variantSimulatorConfiguration = variantSimulatorConfiguration;
         rand = new Random();
     }
 
+
     public Variant simulate() {
-        return _create(10, configuration.getRegions());
+        return _create(DEFAULT_NUM_SAMPLES, variantSimulatorConfiguration.getRegions());
     }
 
     /**
-     * @param batchSize
+     * @param numVariants
      * @return variants
      */
-    public List<Variant> simulate(int batchSize) {
-        List<Variant> variants = new ArrayList<>(batchSize);
+    public List<Variant> simulate(int numVariants) {
+        List<Variant> variants = new ArrayList<>(numVariants);
+        Set<Variant> createdVariants = new HashSet<>(numVariants);
         Variant variant;
-        for (int i=0; i < batchSize; i++) {
-            variant = _create(10, configuration.getRegions());
+        // TODO we need to control that there now variants in the same chromosome and start
+        for (int i = 0; i < numVariants; i++) {
+            variant = _create(DEFAULT_NUM_SAMPLES, variantSimulatorConfiguration.getRegions());
             variants.add(variant);
         }
         return variants;
     }
 
     /**
-     * @param batchSize
+     * @param numVariants
      * @param numSamples
      * @param regions
      * @return variants
      */
-    public List<Variant> simulate(int batchSize, int numSamples, List<Region> regions) {
-        batchSize = Math.max(batchSize, 1);
-        numSamples = (numSamples <= 0) ? configuration.getNumSamples() : numSamples;
-        regions = (regions == null || regions.isEmpty()) ? configuration.getRegions() : regions;
+    public List<Variant> simulate(int numVariants, int numSamples, List<Region> regions) {
+        numVariants = Math.max(numVariants, 1);
+        numSamples = (numSamples <= 0) ? variantSimulatorConfiguration.getNumSamples() : numSamples;
+        regions = (regions == null || regions.isEmpty()) ? variantSimulatorConfiguration.getRegions() : regions;
 
-        List<Variant> variants = new ArrayList<>(batchSize);
+        List<Variant> variants = new ArrayList<>(numVariants);
         Variant variant;
-        for (int i=0; i < batchSize; i++) {
+        for (int i=0; i < numVariants; i++) {
             variant = _create(numSamples, regions);
             variants.add(variant);
         }
@@ -100,18 +105,17 @@ public class VariantSimulator {
             throw new IllegalArgumentException();
         }
 
-        String id = null;
-        String variantType = null;
+        String id;
+        String variantType;
         String strand = "+";
-        List<StudyEntry> studyEntry = new ArrayList<>();
         id = genId();
-        String[] refAlt = generateReferenceAlternate();
+        String[] refAlt = createIndelAlleles();
         referenceAllele = refAlt[0];
         alternateAllele = refAlt[1];
         variantType = getVariantType();
 
         //get number of sample
-        studyEntry = getStudies(100);
+        List<StudyEntry> studyEntryList = getStudies(100);
 
         //TODO will be used in future
         /*Map<String, List<String>> hgvsMap = new HashMap<>();
@@ -119,10 +123,20 @@ public class VariantSimulator {
 
         Variant variant = new Variant();
         //set Chromosome, start and end in mapper
+
+        // Selecting a region
+        int regionIndex = rand.nextInt(regions.size());
+        Region region = regions.get(regionIndex);
+        int start = rand.nextInt(region.getEnd());
+        variant.setChromosome(region.getChromosome());
+        variant.setStart(start);
+        // calculate this after Alleles
+        variant.setEnd(start);
+
         variant.setReference(referenceAllele);
         variant.setAlternate(alternateAllele);
         variant.setId(id);
-        variant.setStudies(studyEntry);        
+        variant.setStudies(studyEntryList);
         variant.setStrand(strand);
         variant.setType(VariantType.valueOf(variantType));
         variant.setAnnotation(null);
@@ -130,18 +144,10 @@ public class VariantSimulator {
         return variant;
     }
 
-    /*public String genChromose(int min, int max) {
-        int randomNum = rand.nextInt((max - min) + 1) + min;
-        return Integer.toString(randomNum);
+    public String createRandomChromosome(List<Region> regions) {
+        int i = rand.nextInt(regions.size());
+        return regions.get(i).getChromosome();
     }
-    public int start() {
-        int n = 100000 + rand.nextInt(900000);
-        return n;
-    }
-    public int end() {
-        int n = 100000 + rand.nextInt(900000);
-        return n;
-    }*/
 
     /**
      * @return id
@@ -159,7 +165,7 @@ public class VariantSimulator {
             id = "rs" + Integer.toString(n);
         } else {
             id = "null";
-        }        
+        }
         return id;
     }
 
@@ -177,36 +183,51 @@ public class VariantSimulator {
     /**
      * @return
      */
-    public String[] generateReferenceAlternate() {
 
-        String[] refAltArray = new String[10];
-        String[] refAlt = {"A", "C", "G", "T"};
+    private String[] createSnvAlleles() {
+        int randomRef;
+        int randomAlt;
+        do {
+            randomRef = rand.nextInt(ALLELE_BASES.length);
+            randomAlt = rand.nextInt(ALLELE_BASES.length);
+        } while (randomRef == randomAlt);
+
+        String[] refAltArray = new String[2];
+        refAltArray[0] = ALLELE_BASES[randomRef];
+        refAltArray[1] = ALLELE_BASES[randomAlt];
+
+        return refAltArray;
+    }
+
+    public String[] createIndelAlleles() {
+
+        String[] refAltArray = new String[2];
 
         DecimalFormat df = new DecimalFormat("#.##");
         df.setRoundingMode(RoundingMode.CEILING);
         double randomDouble = rand.nextDouble();
 
         String refAltProbabilities = df.format(randomDouble);
-        String randomRef = (refAlt[rand.nextInt(refAlt.length)]);
-        String randomAlt = (refAlt[rand.nextInt(refAlt.length)]);
+        String randomRef = ALLELE_BASES[rand.nextInt(ALLELE_BASES.length)];
+        String randomAlt = ALLELE_BASES[rand.nextInt(ALLELE_BASES.length)];
 
-        if (refAltProbabilities.equals("0.5")){
+        if (refAltProbabilities.equals("0.5")) {
             refAltArray[0] = randomRef;
             refAltArray[1] = randomAlt;
         } else if (refAltProbabilities.equals("0.3")) {
-            refAltArray[0] = randomRef + refAlt[rand.nextInt(refAlt.length)];
-            refAltArray[1] = randomAlt + refAlt[rand.nextInt(refAlt.length)];
+            refAltArray[0] = randomRef + ALLELE_BASES[rand.nextInt(ALLELE_BASES.length)];
+            refAltArray[1] = randomAlt + ALLELE_BASES[rand.nextInt(ALLELE_BASES.length)];
         } else if (refAltProbabilities.equals("0.2")) {
-            refAltArray[0] = randomRef + refAlt[rand.nextInt(refAlt.length)] + refAlt[rand.nextInt(refAlt.length)]
-                    + refAlt[rand.nextInt(refAlt.length)] + refAlt[rand.nextInt(refAlt.length)];
-            refAltArray[1] = randomAlt + refAlt[rand.nextInt(refAlt.length)] + refAlt[rand.nextInt(refAlt.length)];
+            refAltArray[0] = randomRef + ALLELE_BASES[rand.nextInt(ALLELE_BASES.length)] + ALLELE_BASES[rand.nextInt(ALLELE_BASES.length)]
+                    + ALLELE_BASES[rand.nextInt(ALLELE_BASES.length)] + ALLELE_BASES[rand.nextInt(ALLELE_BASES.length)];
+            refAltArray[1] = randomAlt + ALLELE_BASES[rand.nextInt(ALLELE_BASES.length)] + ALLELE_BASES[rand.nextInt(ALLELE_BASES.length)];
         } else if (refAltProbabilities.equals("0.1")) {
             refAltArray[0] = randomRef;
-            refAltArray[1] = randomAlt + refAlt[rand.nextInt(refAlt.length)] + refAlt[rand.nextInt(refAlt.length)]
-                    + refAlt[rand.nextInt(refAlt.length)] + refAlt[rand.nextInt(refAlt.length)] + refAlt[rand.nextInt(refAlt.length)];
+            refAltArray[1] = randomAlt + ALLELE_BASES[rand.nextInt(ALLELE_BASES.length)] + ALLELE_BASES[rand.nextInt(ALLELE_BASES.length)]
+                    + ALLELE_BASES[rand.nextInt(ALLELE_BASES.length)] + ALLELE_BASES[rand.nextInt(ALLELE_BASES.length)] + ALLELE_BASES[rand.nextInt(ALLELE_BASES.length)];
         } else if (refAltProbabilities.equals("0.9")) {
             refAltArray[0] = "-";
-            refAltArray[1] = randomAlt ;
+            refAltArray[1] = randomAlt;
         } else {
             refAltArray[0] = randomRef;
             refAltArray[1] = randomAlt;
@@ -218,7 +239,7 @@ public class VariantSimulator {
      * @return type
      */
     public String getVariantType() {
-        List<String> variants = new LinkedList<String>();
+        List<String> variants = new LinkedList<>();
         variants.add("SNP");
         variants.add("MNP");
         variants.add("MNV");
@@ -233,7 +254,7 @@ public class VariantSimulator {
         String type = null;
 
         if (referenceAllele.length() == 1 && alternateAllele.length() > 1) {
-            type = variants.get(9);            
+            type = variants.get(9);
         } else if (!referenceAllele.equals("-") && referenceAllele.length() == 1) {
             if (alternateAllele.length() == 1) {
                 type = variants.get(3);
@@ -264,7 +285,7 @@ public class VariantSimulator {
         StudyEntry studyEntry = new StudyEntry();
         studyEntry.setStudyId(Integer.toString(studyID));
         studyEntry.setFileId(Integer.toString(fieldID));
-        Map<String, String> attributes = genAttributes(); 
+        Map<String, String> attributes = genAttributes();
         studyEntry.setAttributes(attributes);
         studyEntry.setFormat(getFormat());
         List<List<String>> sampleList = new ArrayList<>(getFormat().size());
@@ -287,7 +308,7 @@ public class VariantSimulator {
 
         // Nacho example
         int genotypeIndex = rand.nextInt(1000);
-        String genotype = configuration.getGenotypeValues()[genotypeIndex];
+        String genotype = variantSimulatorConfiguration.getGenotypeValues()[genotypeIndex];
 
         //sample.add(gtValue1 + "/" + gtValue2);
         sample.add(genotype);
@@ -314,7 +335,7 @@ public class VariantSimulator {
      */
     public Map<String, String> genAttributes() {
 
-        Map<String, String> attributeMap = new HashMap<>(); 
+        Map<String, String> attributeMap = new HashMap<>();
 
         int acLength = alternateAllele.length();
         //int afLength = alternateAllele.length();
