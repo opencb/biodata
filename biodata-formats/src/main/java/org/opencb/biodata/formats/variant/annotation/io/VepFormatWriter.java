@@ -16,8 +16,11 @@
 
 package org.opencb.biodata.formats.variant.annotation.io;
 
-import org.opencb.biodata.models.variant.annotation.ConsequenceType;
-import org.opencb.biodata.models.variant.annotation.VariantAnnotation;
+//import org.opencb.biodata.models.variant.annotation.ConsequenceType;
+//import org.opencb.biodata.models.variant.annotation.VariantAnnotation;
+import org.opencb.biodata.models.variant.avro.ConsequenceType;
+import org.opencb.biodata.models.variant.avro.VariantAnnotation;
+
 import org.opencb.commons.io.DataWriter;
 
 import java.io.BufferedWriter;
@@ -126,13 +129,13 @@ public class VepFormatWriter implements DataWriter<VariantAnnotation> {
             if((featureType=consequenceType.getBiotype())==null) {
                 featureType = "-";
             }
-            String consequences = consequenceType.getSoTerms().get(0).getSoName();
-            for(int i=1; i<consequenceType.getSoTerms().size(); i++) {
-                consequences += ","+consequenceType.getSoTerms().get(i).getSoName();
+            String consequences = consequenceType.getSequenceOntologyTerms().get(0).getName();
+            for(int i=1; i<consequenceType.getSequenceOntologyTerms().size(); i++) {
+                consequences += ","+consequenceType.getSequenceOntologyTerms().get(i).getName();
             }
             Integer cdnaPosition;
             String cdnaPositionString;
-            if((cdnaPosition=consequenceType.getcDnaPosition())==null) {
+            if((cdnaPosition=consequenceType.getCdnaPosition())==null) {
                 cdnaPositionString = "-";
             } else {
                 cdnaPositionString = cdnaPosition.toString();
