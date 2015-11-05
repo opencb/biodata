@@ -6,6 +6,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.StudyEntry;
+import org.opencb.biodata.models.variant.VariantFactory;
+import org.opencb.biodata.models.variant.VariantVcfFactory;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfMeta;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfMeta.Builder;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfRecord;
@@ -49,10 +51,9 @@ public class VariantAvroToVcfRecordTest {
         study.setAttributes(
                 buildMap(
                         "X:x", "A:ab",
-                        VariantToProtoVcfRecord.ATTRIBUTE_SRC + ":src-stuff",
-                        VariantToProtoVcfRecord.ATTRIBUTE_ORI + ":ori-stuff",
-                        VariantToProtoVcfRecord.ATTRIBUTE_QUAL + ":" + qual,
-                        VariantToProtoVcfRecord.ATTRIBUTE_FILTER + ":" + filter));
+                        VariantVcfFactory.SRC + ":src-stuff",
+                        VariantVcfFactory.QUAL + ":" + qual,
+                        VariantVcfFactory.FILTER + ":" + filter));
 //        study.setSamplesData(new HashMap<String, Map<String,String>>());
 //        study.getSamplesDataAsMap().put(sampleList.get(0), buildMap("EF:ef","AB:sample_03"));
 //        study.getSamplesDataAsMap().put(sampleList.get(1), buildMap("EF:ef","AB:sample_01","CD:cd"));
@@ -88,6 +89,7 @@ public class VariantAvroToVcfRecordTest {
 
         // change default FILTER
         mbuild.setFilterDefault(filter);
+        con.updateVcfMeta(mbuild.build());
         rec = con.convert(v, 100);
         assertEquals("", rec.getFilterNonDefault());
 
