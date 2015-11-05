@@ -19,25 +19,33 @@ package org.opencb.biodata.formats.annotation.io;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.opencb.biodata.formats.variant.annotation.io.VepFormatReader;
-import org.opencb.biodata.models.variant.annotation.VariantAnnotation;
+import org.opencb.biodata.models.variant.avro.VariantAnnotation;
+//import org.opencb.biodata.models.variant.annotation.VariantAnnotation;
 
 import java.util.List;
+import static org.junit.Assert.assertEquals;
 
 public class VepFormatReaderTest {
 
     @Test
     @Ignore
     public void testRead() throws Exception {
-//        VepFormatReader vepFormatReader = new VepFormatReader("/home/fjlopez/EBI/eva/data/clinvar.vep");
-        VepFormatReader vepFormatReader = new VepFormatReader("/tmp/test.vep");
-//        VepFormatReader vepFormatReader = new VepFormatReader("/tmp/vep22.vep");
-//        VepFormatReader vepFormatReader = new VepFormatReader("/tmp/test.vep");
-//        VepFormatReader vepFormatReader = new VepFormatReader("/tmp/vep22.head.tsv");
-//        VepFormatReader vepFormatReader = new VepFormatReader("/tmp/test1.vep");
+        VepFormatReader vepFormatReader = new VepFormatReader(getClass().getResource("/clinvar-test.vep").getFile());
         vepFormatReader.open();
         vepFormatReader.pre();
         List<VariantAnnotation> variantAnnotationList = vepFormatReader.read(10000);
         vepFormatReader.post();
         vepFormatReader.close();
+        assertEquals(variantAnnotationList.size(), 1);
+        assertEquals(variantAnnotationList.get(0).getConsequenceTypes().size(), 7);
+        assertEquals(variantAnnotationList.get(0).getConsequenceTypes().get(0).getGeneName(),
+                "CTA-134P22.2");
+        assertEquals(variantAnnotationList.get(0).getPopulationFrequencies().size(), 7);
+        assertEquals(variantAnnotationList.get(0).getPopulationFrequencies().get(3).getPopulation(),
+                "phase_1_ASN");
+        assertEquals(variantAnnotationList.get(0).getHgvs().size(), 7);
+        assertEquals(variantAnnotationList.get(0).getHgvs().get(6), "ENSP00000357103.2:p.Gly44Asp");
+
+
     }
 }

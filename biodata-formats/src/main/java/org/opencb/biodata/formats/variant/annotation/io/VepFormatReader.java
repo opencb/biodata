@@ -17,11 +17,14 @@
 package org.opencb.biodata.formats.variant.annotation.io;
 
 import org.opencb.biodata.formats.variant.vcf4.io.VariantVcfReader;
-import org.opencb.biodata.models.variant.annotation.ConsequenceType;
-import org.opencb.biodata.models.variant.annotation.Score;
-import org.opencb.biodata.models.variant.annotation.VariantAnnotation;
-import org.opencb.biodata.models.variation.PopulationFrequency;
-import org.opencb.biodata.models.variation.ProteinVariantAnnotation;
+//import org.opencb.biodata.models.variant.annotation.ConsequenceType;
+//import org.opencb.biodata.models.variant.annotation.Score;
+//import org.opencb.biodata.models.variant.annotation.VariantAnnotation;
+import org.opencb.biodata.models.variant.annotation.ConsequenceTypeMappings;
+import org.opencb.biodata.models.variant.annotation.ProteinSubstitutionScores;
+import org.opencb.biodata.models.variant.avro.*;
+//import org.opencb.biodata.models.variation.PopulationFrequency;
+//import org.opencb.biodata.models.variation.ProteinVariantAnnotation;
 import org.opencb.commons.io.DataReader;
 
 import java.io.BufferedReader;
@@ -105,10 +108,17 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
                     noNewVariantFound = (currentAnnotation==null);  // currentAnnotation==null only in the first iteration.
                     variantAnnotationToReturn = currentAnnotation;
                     Map<String,String> variantMap = parseVariant(lineFields[0], lineFields[1]);  // coordinates and alternative are only parsed once
-                    currentAnnotation = new VariantAnnotation(variantMap.get("chromosome"),
-                            Integer.valueOf(variantMap.get("start")),
-                            Integer.valueOf(variantMap.get("end")), variantMap.get("reference"),
-                            variantMap.get("alternative"));
+                    currentAnnotation = new VariantAnnotation();
+                    currentAnnotation.setChromosome(variantMap.get("chromosome"));
+                    currentAnnotation.setStart(Integer.valueOf(variantMap.get("start")));
+                    currentAnnotation.setEnd(Integer.valueOf(variantMap.get("end")));
+                    currentAnnotation.setReference(variantMap.get("reference"));
+                    currentAnnotation.setAlternate(variantMap.get("alternative"));
+
+//                    currentAnnotation = new VariantAnnotation(variantMap.get("chromosome"),
+//                            Integer.valueOf(variantMap.get("start")),
+//                            Integer.valueOf(variantMap.get("end")), variantMap.get("reference"),
+//                            variantMap.get("alternative"));
                     /**
                      * Initialize list of consequence types
                      */
@@ -150,7 +160,9 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
                     parseRemainingFields(consequenceType, lineFields);
                 // Otherwise just set SO terms
                 } else {
-                    consequenceType.setSoTermsFromSoNames(Arrays.asList(lineFields[6].split(",")));   // fill so terms
+                    consequenceType.setSequenceOntologyTerms(
+                            getSequenceOntologyTerms(Arrays.asList(lineFields[6].split(","))));   // fill so terms
+//                    consequenceType.setSoTermsFromSoNames(Arrays.asList(lineFields[6].split(",")));   // fill so terms
                 }
                 currentAnnotation.getConsequenceTypes().add(consequenceType);
             }
@@ -176,12 +188,24 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
         return null;
     }
 
+    protected List<SequenceOntologyTerm> getSequenceOntologyTerms(List<String> SoNames) {
+        List<SequenceOntologyTerm> sequenceOntologyTerms = new ArrayList<>(SoNames.size());
+        for (String name : SoNames) {
+            sequenceOntologyTerms.add(newSequenceOntologyTerm(name));
+        }
+        return sequenceOntologyTerms;
+    }
+
+    private SequenceOntologyTerm newSequenceOntologyTerm(String name) {
+        return new SequenceOntologyTerm(ConsequenceTypeMappings.getSoAccessionString(name), name);
+    }
+
     private void parseRemainingFields(ConsequenceType consequenceType, String[] lineFields) {
         consequenceType.setEnsemblGeneId(lineFields[3]);    // fill Ensembl gene id
         consequenceType.setEnsemblTranscriptId(lineFields[4]);  // fill Ensembl transcript id
         ProteinVariantAnnotation proteinVariantAnnotation = new ProteinVariantAnnotation();
         if(!lineFields[7].equals("-")) {
-            consequenceType.setcDnaPosition(parseStringInterval(lineFields[7]));    // fill cdna position
+            consequenceType.setCdnaPosition(parseStringInterval(lineFields[7]));    // fill cdna position
         }
         if(!lineFields[8].equals("-")) {
             consequenceType.setCdsPosition(parseStringInterval(lineFields[8]));  // fill cds position
@@ -189,13 +213,17 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
         if(!lineFields[9].equals("-")) {
             proteinVariantAnnotation.setPosition(parseStringInterval(lineFields[9]));    // fill aa position
         }
-        String parts[] = lineFields[10].split("/");
-        proteinVariantAnnotation.setReference(parts[0]);  // fill aa change
-        proteinVariantAnnotation.setAlternate(parts[1]);  // fill aa change
+        if(!lineFields[10].equals("-")) {
+            String parts[] = lineFields[10].split("/");
+            proteinVariantAnnotation.setReference(parts[0]);  // fill aa change
+            proteinVariantAnnotation.setAlternate(parts[1]);  // fill aa change
+        }
         consequenceType.setProteinVariantAnnotation(proteinVariantAnnotation);
         consequenceType.setCodon(lineFields[11]); // fill codon change
         if(!lineFields[6].equals("") && !lineFields.equals("-")) {  // VEP may leave this field empty
-            consequenceType.setSoTermsFromSoNames(Arrays.asList(lineFields[6].split(",")));    // fill so terms
+            consequenceType.setSequenceOntologyTerms(
+                    getSequenceOntologyTerms(Arrays.asList(lineFields[6].split(","))));   // fill so terms
+//            consequenceType.setSoTermsFromSoNames(Arrays.asList(lineFields[6].split(",")));    // fill so terms
         }
     }
 
@@ -255,24 +283,6 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
                 case "biotype":
                     consequenceType.setBiotype(keyValue[1]);
                     break;
-//                case "canonical":
-//                    variantEffect.setCanonical(keyValue[1].equalsIgnoreCase("YES") || keyValue[1].equalsIgnoreCase("Y"));
-//                    break;
-//                case "ccds":
-//                    variantEffect.setCcdsId(keyValue[1]);
-//                    break;
-//                case "cell_type":
-//                    variantAnnotation.getRegulatoryEffect().setCellType(keyValue[1]);
-//                    break;
-//                case "clin_sig":
-//                    variantEffect.setClinicalSignificance(keyValue[1]);
-//                    break;
-//                case "distance":
-//                    variantEffect.setVariantToTranscriptDistance(Integer.parseInt(keyValue[1]));
-//                    break;
-//                case "domains":
-//                    variantEffect.setProteinDomains(keyValue[1].split(","));
-//                    break;
                 case "ea_maf":
                     if(parseFrequencies) {
                         if(currentAnnotation.getPopulationFrequencies()==null) {
@@ -282,9 +292,6 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
                                 "European_American"));
                     }
                     break;
-//                case "ensp":
-//                    variantEffect.setProteinId(keyValue[1]);
-//                    break;
                 case "eur_maf":
                     if(parseFrequencies) {
                         if(currentAnnotation.getPopulationFrequencies()==null) {
@@ -294,9 +301,6 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
                                 "phase_1_EUR"));
                     }
                     break;
-//                case "exon":
-//                    variantEffect.setExonNumber(keyValue[1]);
-//                    break;
                 case "gmaf": // Format is GMAF=G:0.2640  or  GMAF=T:0.1221,-:0.0905
                     if(parseFrequencies) {
                         if(currentAnnotation.getPopulationFrequencies()==null) {
@@ -318,47 +322,37 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
                     }
                     currentAnnotation.getHgvs().add(keyValue[1]);
                     break;
-//                case "high_inf_pos":
-//                    variantAnnotation.getRegulatoryEffect().setHighInformationPosition(keyValue[1].equalsIgnoreCase("YES") || keyValue[1].equalsIgnoreCase("Y"));
-//                    break;
-//                case "intron":
-//                    variantEffect.setIntronNumber(keyValue[1]);
-//                    break;
-//                case "motif_name":
-//                    variantAnnotation.getRegulatoryEffect().setMotifName(keyValue[1]);
-//                    break;
-//                case "motif_pos":
-//                    variantAnnotation.getRegulatoryEffect().setMotifPosition(Integer.parseInt(keyValue[1]));
-//                    break;
-//                case "motif_score_change":
-//                    variantAnnotation.getRegulatoryEffect().setMotifScoreChange(Float.parseFloat(keyValue[1]));
-//                    break;
                 case "polyphen": // Format is PolyPhen=possibly_damaging(0.859)
-                    consequenceType.getProteinVariantAnnotation().addSubstitutionScore(parseProteinSubstitutionScore("Polyphen", keyValue[1]));
+                    addProteinSubstitutionScore(consequenceType, parseProteinSubstitutionScore("Polyphen", keyValue[1]));
                     break;
-//                case "pubmed":
-//                    variantEffect.setPubmed(keyValue[1].split(","));
-//                    break;
                 case "sift": // Format is SIFT=tolerated(0.07)
-                    consequenceType.getProteinVariantAnnotation().addSubstitutionScore(parseProteinSubstitutionScore("Sift", keyValue[1]));
+                    addProteinSubstitutionScore(consequenceType, parseProteinSubstitutionScore("Sift", keyValue[1]));
                     break;
                 case "strand":
                     consequenceType.setStrand(keyValue[1].equals("1")?"+":"-");
                     break;
-//                case "sv":
-//                    variantEffect.setStructuralVariantsId(keyValue[1].split(","));
-//                    break;
                 case "symbol":
                     consequenceType.setGeneName(keyValue[1]);
                     break;
-//                case "symbol_source":
-//                    variantEffect.setGeneNameSource(keyValue[1]);
-//                    break;
                 default:
                     // ALLELE_NUM, FREQS, IND, ZYG
                     break;
             }
         }
+    }
+
+    private void addProteinSubstitutionScore(ConsequenceType consequenceType, Score score) {
+        ProteinVariantAnnotation proteinVariantAnnotation = consequenceType.getProteinVariantAnnotation();
+        List<Score> proteinSubstitionScores;
+        if(proteinVariantAnnotation==null) {
+            proteinVariantAnnotation = new ProteinVariantAnnotation();
+            consequenceType.setProteinVariantAnnotation(proteinVariantAnnotation);
+            proteinSubstitionScores = new ArrayList<>();
+            proteinVariantAnnotation.setSubstitutionScores(proteinSubstitionScores);
+        } else {
+            proteinSubstitionScores = proteinVariantAnnotation.getSubstitutionScores();
+        }
+        proteinSubstitionScores.add(score);
     }
 
     private Score parseProteinSubstitutionScore(String predictorName, String scoreString) {
@@ -369,8 +363,8 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
     private PopulationFrequency parsePopulationFrequency(String frequencyStrings, String study, String population) {
         PopulationFrequency populationFrequency = new PopulationFrequency();
         populationFrequency.setStudy(study);
-        populationFrequency.setPop(population);
-        populationFrequency.setSuperPop(population);
+        populationFrequency.setPopulation(population);
+        populationFrequency.setSuperPopulation(population);
         populationFrequency.setRefAllele(currentAnnotation.getReference());
         populationFrequency.setAltAllele(currentAnnotation.getAlternate());
         for(String frequencyString : frequencyStrings.split(",")) {
@@ -414,13 +408,6 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new IllegalArgumentException("Unexpected variant format for column 1: "+variantString);
         }
-
-//        parsedVariant.put("reference", "-");
-//        if (alternativeString.equals("deletion")) {
-//            parsedVariant.put("alternative", "-");
-//        } else {
-//            parsedVariant.put("alternative", alternativeString);
-//        }
 
         return parsedVariant;
     }
