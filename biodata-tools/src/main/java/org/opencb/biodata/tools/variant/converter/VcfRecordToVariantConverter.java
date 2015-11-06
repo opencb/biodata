@@ -33,9 +33,9 @@ public class VcfRecordToVariantConverter implements Converter<VcfSliceProtos.Vcf
 
 
     public Variant convert(VcfSliceProtos.VcfRecord vcfRecord, String chromosome, int slicePosition) {
-        Variant variant = new Variant(chromosome, slicePosition + vcfRecord.getRelativeStart(),
-                slicePosition + vcfRecord.getRelativeEnd(),
-                vcfRecord.getReference(), vcfRecord.getAlternate());
+        int start = slicePosition + vcfRecord.getRelativeStart();
+        int end = vcfRecord.getRelativeEnd() != 0 ? slicePosition + vcfRecord.getRelativeEnd() : start;
+        Variant variant = new Variant(chromosome, start, end, vcfRecord.getReference(), vcfRecord.getAlternate());
 
         variant.setIds(vcfRecord.getIdNonDefaultList());
 

@@ -114,11 +114,13 @@ public class VariantAvroToVcfRecordTest {
     public void testGetSlicePosition() {
         VariantToProtoVcfRecord con = new VariantToProtoVcfRecord();
         assertEquals("Issues with ignoring chunks <= 0", 100, con.getSlicePosition(100, 0));
-        assertEquals("Issues with ignoring chunks <= 0", 100, con.getSlicePosition(100, -1));
-        assertEquals("Issues with slice conversion", 10, con.getSlicePosition(100, 10));
-        assertEquals("Issues with slice conversion", 1, con.getSlicePosition(100, 100));
+        assertEquals("Issues with ignoring chunks <= 0", 101, con.getSlicePosition(101, -1));
+        assertEquals("Issues with slice conversion", 100, con.getSlicePosition(100, 10));
+        assertEquals("Issues with slice conversion", 100, con.getSlicePosition(109, 10));
+        assertEquals("Issues with slice conversion", 100, con.getSlicePosition(100, 100));
+        assertEquals("Issues with slice conversion", 0, con.getSlicePosition(99, 100));
         assertEquals("Issues with slice conversion", 0, con.getSlicePosition(100, 1000));
-        assertEquals("Issues with slice conversion", 12, con.getSlicePosition(1234, 100));
+        assertEquals("Issues with slice conversion", 1200, con.getSlicePosition(1234, 100));
     }
 
     @Test
@@ -134,17 +136,14 @@ public class VariantAvroToVcfRecordTest {
 
     @Test
     public void testIsDefaultFormat() {
-        String format = "AB:CD:EF";
         VariantToProtoVcfRecord con = new VariantToProtoVcfRecord();
 
         List<String> flist = Arrays.asList("AB","CD","EF");
         List<String> wrongList = new ArrayList<String>(flist);
         Collections.reverse(wrongList);
         con.updateVcfMeta(VcfMeta.newBuilder().addAllFormatDefault(flist).build());
-        List<String> decode = con.decodeFormat(format);
         assertTrue("Format is default ",con.isDefaultFormat(flist));
         assertFalse("Format is default ",con.isDefaultFormat(wrongList));
-        assertEquals("Format decoded", flist,decode);
 //		assertEquals("Issues with Format",flist, con.getDefaultFormatKeys());
 
     }
