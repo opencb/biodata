@@ -1,175 +1,289 @@
 /**
  * Variant AVDL Model
  *  @author Kalyan;
- *  @author Pawan;  models.variant.avro
+ *  @author Pawan;
+ *  @author Matthias Haimel;
  */
- 
- 
+
 @namespace("org.opencb.biodata.models.variant.avro")
 
-protocol Variant {	
+protocol Variants {
 
-  enum VariantType {SNP, SNV, MNP, MNV, INDEL, SV, CNV}
-  enum AllelesCode {ALLELES_OK, ALLELES_MISSING, MULTIPLE_ALTERNATES, HAPLOID}
-  enum Expression {UP, DOWN}
-  
-	record VariantHardyWeinbergStats { 
-		union { null, float } chi2;		
-		union { null, float } pValue;		
-		union { null, int } n;
-		union { null, int } n_AA_11;
-		union { null, int } n_Aa_10;
-		union { null, int } n_aa_00;		
-		union { null, float } e_AA_11;
-		union { null, float } e_Aa_10;
-		union { null, float } e_aa_00;
-		union { null, float } p;
-		union { null, float } q; 
-	
-	}
-  	
-	record VariantStats { 	
-		union { null, string } refAllele;
-		union { null, string } altAllele;
-		union { null, int } refAlleleCount;
-		union { null, int } altAlleleCount;
-		union { null, int } missingAlleles;		
-		union { null, int } missingGenotypes;		
-		union { null, float } refAlleleFreq;
-		union { null, float } altAlleleFreq;
-		union { null, float } maf;
-		union { null, float } mgf;		
-		union { null, string } mafAllele;
-		union { null, string } mgfGenotype;
-		union { null, boolean } passedFilters;
-		union { null, int } mendelianErrors;			
-		union { null, float } casesPercentDominant;
-		union { null, float } controlsPercentDominant;	
-		union { null, float } casesPercentRecessive;
-		union { null, float } controlsPercentRecessive;	
-		union { null, float } quality;
-		union { null, int } numSamples;					
-		VariantType variantType;
-		VariantHardyWeinbergStats hw;		
-	
-	}
-  
-	record VariantSourceEntry {   
-		union { null, string } fileId;	
-		union { null, string } studyId;	   
-		union { null, array<string> } secondaryAlternates = null;	
-		string format; 		
-		map<map<string>> samplesData;	
-		map<VariantStats> cohortStats;
-		string DEFAULT_COHORT = "all";  
-		map<string> attributes;
-	
-	}
-	
-	record Genotype { 
-		string reference; 
-		string alternate; 	   
-		array<int> allelesIdx =[];
-		boolean phased; 		 
-	}
-	
-/**
- * VariantAnnotation Start 
- */	
-	record Xref { 
-		union { null, string } id;
-		union { null, string } src; 
-	}
-	
-	record Score { 
-		union { null, double } score;
-		union { null, string } source;
-		union { null, string } description;		
-	}	
-	
-	record ConsequenceTypeEntry { 
-		union { null, string } soName;
-		union { null, string } soAccession;
-	}	
-	
-	record ExpressionValue { 
-		union { null, string } experimentalFactor;
-		union { null, string } factorValue;		
-		union { null, string } experimentId;
-		union { null, string } technologyPlatform;		
-		Expression expression;
-		union { null, float } pvalue;
-	}
-	
-	record ConsequenceType { 
-		union { null, string } geneName;
-		union { null, string } ensemblGeneId; 
-		union { null, string } ensemblTranscriptId; 
-		union { null, string } strand; 
-		union { null, string } biotype; 
-		union { null, int } cDnaPosition; 
-		union { null, int } cdsPosition; 
-		union { null, int } aaPosition; 
-		union { null, string } aaChange; 
-		union { null, string } codon; 
-		union { null, string } functionalDescription; 		
-		union { null, array<Score> } proteinSubstitutionScores;
-		union { null, array<ConsequenceTypeEntry> } soTerms;
-		union { null, array<ExpressionValue> } expressionValues;
-	}
-	
-	record PopulationFrequency { 
-		union { null, string } study;
-		union { null, string } pop;		
-		union { null, string } superPop;		
-		union { null, string } refAllele;
-		union { null, string } altAllele;		
-		union { null, float } refAlleleFreq;
-		union { null, float } altAlleleFreq;
-		union { null, float } refHomGenotypeFreq;
-		union { null, float } hetGenotypeFreq;
-		union { null, float } altHomGenotypeFreq;
-	}
-	
-	record CaddScore { 
-		union { null, string } transcriptId;
-		union { null, float } cScore;		
-		union { null, float } rawScore;	
-	}
-	
-		
-	record VariantAnnotation { 
+    import idl "variantAnnotation.avdl";
 
-		union { null, string } chromosome;
-		union { null, int } start;    
-		union { null, int } end;
-		union { null, string } referenceAllele;
-		union { null, string } alternateAllele;
-		union { null, string } id;
-		union { null, array<Xref> } xrefs;
-		union { null, array<string> } hgvs;
-		union { null, array<ConsequenceType> } consequenceTypes;
-		union { null, array<Score> } conservationScores;
-		union { null, array<PopulationFrequency> } populationFrequencies;
-		union { null, array<CaddScore> } caddScore;
-		
-		union { null, map<array<string>> } geneDrugInteraction;
-		union { null, map<string> } clinical;
-		union { null, map<string> } additionalAttributes;
-	}	
-	
-	record Variant{
-		VariantType variantType;
-		int SV_THRESHOLD = 50;
-		string chromosome;
-		int start;
-		int end;
-		int length;
-		string reference;
-		string alternate;		
-		map<VariantSourceEntry> sourceEntries;
-		VariantAnnotation annotation;
-		array<string> Ids = [];
-		map<array<string>> hgvs;
-	}
+    /**
+     * Type of variation, which depends mostly on its length.
+     * <ul>
+     * <li>SNVs involve a single nucleotide, without changes in length</li>
+     * <li>MNVs involve multiple nucleotides, without changes in length</li>
+     * <li>Indels are insertions or deletions of less than SV_THRESHOLD (50) nucleotides</li>
+     * <li>Structural variations are large changes of more than SV_THRESHOLD nucleotides</li>
+     * <li>Copy-number variations alter the number of copies of a region</li>
+     * </ul>
+     */
+    enum VariantType {
+        SNV,            // SO:0001483
+        SNP,            // SO:0000694
+        MNV,            // SO:0002007
+        MNP,            // SO:0001013
+        INDEL,          // SO:1000032
+        SV,             // SO:0001537
+        INSERTION,      // SO:0000667
+        DELETION,       // SO:0000159
+        TRANSLOCATION,  // SO:0000199
+        INVERSION,      // SO:1000036
+        CNV,            // SO:0001019
+        NO_VARIATION,   // Defined in HTSJDK
+        SYMBOLIC,       // Defined in HTSJDK
+        MIXED           // Defined in HTSJDK
+    }
+
+    enum AllelesCode {
+        ALLELES_OK,
+        ALLELES_MISSING,
+        MULTIPLE_ALTERNATES,
+        HAPLOID
+    }
+
+    record VariantHardyWeinbergStats {
+        union { null, float } chi2;
+        union { null, float } pValue;
+        union { null, int } n;
+        union { null, int } n_AA_11;
+        union { null, int } n_Aa_10;
+        union { null, int } n_aa_00;
+        union { null, float } e_AA_11;
+        union { null, float } e_Aa_10;
+        union { null, float } e_aa_00;
+        union { null, float } p;
+        union { null, float } q;
+    }
+
+    record VariantStats {
+        union { null, string } refAllele;
+        union { null, string } altAllele;
+        union { null, int } refAlleleCount;
+        union { null, int } altAlleleCount;
+        @java-key-class("org.opencb.biodata.models.feature.Genotype") map<int> genotypesCount;
+        @java-key-class("org.opencb.biodata.models.feature.Genotype") map<float> genotypesFreq;
+        union { null, int } missingAlleles;
+        union { null, int } missingGenotypes;
+        union { null, float } refAlleleFreq;
+        union { null, float } altAlleleFreq;
+        union { null, float } maf;
+        union { null, float } mgf;
+        union { null, string } mafAllele;
+        union { null, string } mgfGenotype;
+        union { null, boolean } passedFilters;
+        union { null, int } mendelianErrors;
+        union { null, float } casesPercentDominant;
+        union { null, float } controlsPercentDominant;
+        union { null, float } casesPercentRecessive;
+        union { null, float } controlsPercentRecessive;
+        union { null, float } quality;
+        union { null, int } numSamples;
+        VariantType variantType;
+        VariantHardyWeinbergStats hw;
+    }
+
+    record VariantGlobalStats {
+
+        int numRecords;
+
+        int samplesCount;
+
+        int passCount;
+
+        int transitionsCount;
+
+        int transversionsCount;
+
+        double meanQuality;
+
+        map<int> variantTypeCounts;
+
+        map<int> chromosomeCounts;
+
+        map<int> consequenceTypesCount;
+
+    }
+
+    record FileEntry {
+        /**
+         * Unique identifier of the source file.
+         */
+        union { null, string } fileId;
+
+        /**
+         * Original call position for the variant, if the file was normalized.
+         *
+         * {position}:{reference}:{alternate}(,{other_alternate})*:{allele_index}
+         */
+        union { null, string } call;
+
+        /**
+         * Optional attributes that probably depend on the format of the file the
+         * variant was initially read from.
+         */
+        map<string> attributes;
+    }
+
+    record StudyEntry {
+        /**
+         * Unique identifier of the study.
+         */
+        union { null, string } studyId;
+
+        /**
+         * List of files from the study where the variant was present.
+         */
+        array<FileEntry> files = [];
+
+        /**
+         * Alternate alleles that appear along with a variant alternate.
+         */
+        union { null, array<string> } secondaryAlternates = null;
+
+        /**
+         * Fields stored for each sample.
+         */
+        array<string> format;
+
+        /**
+         * Genotypes and other sample-related information. Each position is related
+         * with one sample. The content are lists of values in the same order than the
+         * format array. The length of this lists must be the same as the format field.
+         */
+        array<array<string>> samplesData;
+
+        /**
+         * Statistics of the genomic variation, such as its alleles/genotypes count
+         * or its minimum allele frequency, grouped by cohort name.
+         */
+        map<VariantStats> stats;
+    }
+
+    record Genotype {
+        string reference;
+        string alternate;
+        array<int> allelesIdx =[];
+        boolean phased;
+    }
+
+    record VariantAvro {
+        /**
+         * Chromosome where the genomic variation occurred.
+         */
+        string chromosome;
+
+        /**
+         * Normalized position where the genomic variation starts.
+         * <ul>
+         * <li>SNVs have the same start and end position</li>
+         * <li>Insertions start in the last present position: if the first nucleotide
+         * is inserted in position 6, the start is position 5</li>
+         * <li>Deletions start in the first previously present position: if the first
+         * deleted nucleotide is in position 6, the start is position 6</li>
+         * </ul>
+         */
+        int start;
+
+        /**
+         * Normalized position where the genomic variation ends.
+         * <ul>
+         * <li>SNVs have the same start and end positions</li>
+         * <li>Insertions end in the first present position: if the last nucleotide
+         * is inserted in position 9, the end is position 10</li>
+         * <li>Deletions ends in the last previously present position: if the last
+         * deleted nucleotide is in position 9, the end is position 9</li>
+         * </ul>
+         */
+        int end;
+
+        /**
+         * Reference allele.
+         */
+        string reference;
+
+        /**
+         * Alternate allele.
+         */
+        string alternate;
+
+        /**
+         * Reference strand for this variant
+         */
+        union { null, string } strand;
+
+        /**
+         * Set of identifiers used for this genomic variation.
+         */
+        array<string> ids = [];
+
+        /**
+         * Length of the genomic variation, which depends on the variation type.
+         * <ul>
+         * <li>SNVs have a length of 1 nucleotide</li>
+         * <li>Indels have the length of the largest allele</li>
+         * </ul>
+         */
+        int length;
+
+        /**
+         * Type of variation: single nucleotide, indel or structural variation.
+         */
+        VariantType type;
+
+        /**
+         * Unique identifier following the HGVS nomenclature.
+         */
+        union { null, map<array<string>> } hgvs;
+
+        /**
+         * Information specific to each study the variant was read from, such as
+         * samples or statistics.
+         */
+        array<StudyEntry> studies;
+
+        /**
+         * Annotations of the genomic variation.
+         */
+        union { null, VariantAnnotation } annotation;
+    }
+
+    // delete
+    enum Aggregation {
+        NONE,
+        BASIC,
+        EVS,
+        EXAC
+    }
+
+    record VcfHeader {
+        string fileFormat;
+      //map<union { string, array<map<string> }>> meta; ??
+        map<array<union { string, map<string> }>> meta;
+    }
+
+    record VariantFileMetadata {
+        string fileId;
+
+        string studyId;
+
+        union { null, string } fileName = null;
+
+        union { null, string } studyName = null;
+
+        array<string> samples = [];
+
+        Aggregation aggregation;
+        //string aggregation;
+
+        union {null, VariantGlobalStats } stats;
+
+        map<union {string, VcfHeader}> metadata;
+
+        union {null, VcfHeader} header;
+    }
+
 }

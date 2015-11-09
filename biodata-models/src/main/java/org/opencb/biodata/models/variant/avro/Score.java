@@ -7,11 +7,11 @@ package org.opencb.biodata.models.variant.avro;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class Score extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"Score\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"score\",\"type\":[\"null\",\"double\"]},{\"name\":\"source\",\"type\":[\"null\",\"string\"]},{\"name\":\"description\",\"type\":[\"null\",\"string\"]}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"Score\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"score\",\"type\":\"double\"},{\"name\":\"source\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"description\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
-  @Deprecated public java.lang.Double score;
-  @Deprecated public java.lang.CharSequence source;
-  @Deprecated public java.lang.CharSequence description;
+   private double score;
+   private java.lang.String source;
+   private java.lang.String description;
 
   /**
    * Default constructor.  Note that this does not initialize fields
@@ -23,7 +23,7 @@ public class Score extends org.apache.avro.specific.SpecificRecordBase implement
   /**
    * All-args constructor.
    */
-  public Score(java.lang.Double score, java.lang.CharSequence source, java.lang.CharSequence description) {
+  public Score(java.lang.Double score, java.lang.String source, java.lang.String description) {
     this.score = score;
     this.source = source;
     this.description = description;
@@ -44,8 +44,8 @@ public class Score extends org.apache.avro.specific.SpecificRecordBase implement
   public void put(int field$, java.lang.Object value$) {
     switch (field$) {
     case 0: score = (java.lang.Double)value$; break;
-    case 1: source = (java.lang.CharSequence)value$; break;
-    case 2: description = (java.lang.CharSequence)value$; break;
+    case 1: source = (java.lang.String)value$; break;
+    case 2: description = (java.lang.String)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -68,7 +68,7 @@ public class Score extends org.apache.avro.specific.SpecificRecordBase implement
   /**
    * Gets the value of the 'source' field.
    */
-  public java.lang.CharSequence getSource() {
+  public java.lang.String getSource() {
     return source;
   }
 
@@ -76,14 +76,14 @@ public class Score extends org.apache.avro.specific.SpecificRecordBase implement
    * Sets the value of the 'source' field.
    * @param value the value to set.
    */
-  public void setSource(java.lang.CharSequence value) {
+  public void setSource(java.lang.String value) {
     this.source = value;
   }
 
   /**
    * Gets the value of the 'description' field.
    */
-  public java.lang.CharSequence getDescription() {
+  public java.lang.String getDescription() {
     return description;
   }
 
@@ -91,7 +91,7 @@ public class Score extends org.apache.avro.specific.SpecificRecordBase implement
    * Sets the value of the 'description' field.
    * @param value the value to set.
    */
-  public void setDescription(java.lang.CharSequence value) {
+  public void setDescription(java.lang.String value) {
     this.description = value;
   }
 
@@ -116,9 +116,9 @@ public class Score extends org.apache.avro.specific.SpecificRecordBase implement
   public static class Builder extends org.apache.avro.specific.SpecificRecordBuilderBase<Score>
     implements org.apache.avro.data.RecordBuilder<Score> {
 
-    private java.lang.Double score;
-    private java.lang.CharSequence source;
-    private java.lang.CharSequence description;
+    private double score;
+    private java.lang.String source;
+    private java.lang.String description;
 
     /** Creates a new Builder */
     private Builder() {
@@ -165,7 +165,7 @@ public class Score extends org.apache.avro.specific.SpecificRecordBase implement
     }
     
     /** Sets the value of the 'score' field */
-    public org.opencb.biodata.models.variant.avro.Score.Builder setScore(java.lang.Double value) {
+    public org.opencb.biodata.models.variant.avro.Score.Builder setScore(double value) {
       validate(fields()[0], value);
       this.score = value;
       fieldSetFlags()[0] = true;
@@ -179,18 +179,17 @@ public class Score extends org.apache.avro.specific.SpecificRecordBase implement
     
     /** Clears the value of the 'score' field */
     public org.opencb.biodata.models.variant.avro.Score.Builder clearScore() {
-      score = null;
       fieldSetFlags()[0] = false;
       return this;
     }
 
     /** Gets the value of the 'source' field */
-    public java.lang.CharSequence getSource() {
+    public java.lang.String getSource() {
       return source;
     }
     
     /** Sets the value of the 'source' field */
-    public org.opencb.biodata.models.variant.avro.Score.Builder setSource(java.lang.CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.Score.Builder setSource(java.lang.String value) {
       validate(fields()[1], value);
       this.source = value;
       fieldSetFlags()[1] = true;
@@ -210,12 +209,12 @@ public class Score extends org.apache.avro.specific.SpecificRecordBase implement
     }
 
     /** Gets the value of the 'description' field */
-    public java.lang.CharSequence getDescription() {
+    public java.lang.String getDescription() {
       return description;
     }
     
     /** Sets the value of the 'description' field */
-    public org.opencb.biodata.models.variant.avro.Score.Builder setDescription(java.lang.CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.Score.Builder setDescription(java.lang.String value) {
       validate(fields()[2], value);
       this.description = value;
       fieldSetFlags()[2] = true;
@@ -239,8 +238,8 @@ public class Score extends org.apache.avro.specific.SpecificRecordBase implement
       try {
         Score record = new Score();
         record.score = fieldSetFlags()[0] ? this.score : (java.lang.Double) defaultValue(fields()[0]);
-        record.source = fieldSetFlags()[1] ? this.source : (java.lang.CharSequence) defaultValue(fields()[1]);
-        record.description = fieldSetFlags()[2] ? this.description : (java.lang.CharSequence) defaultValue(fields()[2]);
+        record.source = fieldSetFlags()[1] ? this.source : (java.lang.String) defaultValue(fields()[1]);
+        record.description = fieldSetFlags()[2] ? this.description : (java.lang.String) defaultValue(fields()[2]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);

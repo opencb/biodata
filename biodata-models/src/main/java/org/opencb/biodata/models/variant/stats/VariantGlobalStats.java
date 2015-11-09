@@ -16,6 +16,10 @@
 
 package org.opencb.biodata.models.variant.stats;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.opencb.biodata.models.variant.avro.VariantType;
+
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -24,256 +28,255 @@ import java.util.Objects;
  * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
+@JsonIgnoreProperties({"impl", "accumulatedQuality", "variantsCount", "snpsCount", "indelsCount", "structuralCount"})
 public class VariantGlobalStats {
 
-    private int variantsCount;
-    private int samplesCount;
-    
-    private int snpsCount;
-    private int indelsCount;
-    private int structuralCount;
-    
-    private int passCount;
-    
-    private int transitionsCount;
-    private int transversionsCount;
-    
-    private float accumulatedQuality;
-    private float meanQuality;
-    
-    private Map<String, Integer> consequenceTypesCount;
+    private final org.opencb.biodata.models.variant.avro.VariantGlobalStats impl;
+    private double accumulatedQuality;
+
+    public VariantGlobalStats(org.opencb.biodata.models.variant.avro.VariantGlobalStats impl) {
+        this.impl = impl;
+    }
 
     public VariantGlobalStats() {
-        this.variantsCount = 0;
-        this.samplesCount = 0;
-        this.snpsCount = 0;
-        this.indelsCount = 0;
-        this.structuralCount = 0;
-        this.passCount = 0;
-        this.transitionsCount = 0;
-        this.transversionsCount = 0;
-        this.accumulatedQuality = 0;
-        this.consequenceTypesCount = new LinkedHashMap<>(20);
+        this.impl = new org.opencb.biodata.models.variant.avro.VariantGlobalStats();
+        this.setVariantTypeCounts(new HashMap<>());
+        this.setChromosomeCounts(new HashMap<>());
+        this.setNumRecords(0);
+        this.setSamplesCount(0);
+        this.setSnpsCount(0);
+        this.setIndelsCount(0);
+        this.setStructuralCount(0);
+        this.setPassCount(0);
+        this.setTransitionsCount(0);
+        this.setTransversionsCount(0);
+        this.setAccumulatedQuality(0);
+        this.setConsequenceTypesCount(new LinkedHashMap<>(20));
     }
 
-    public VariantGlobalStats(int variantsCount, int samplesCount, int snpsCount, int indelsCount, int structuralCount, 
-            int passCount, int transitionsCount, int transversionsCount, float accumulatedQuality, float meanQuality, 
+    public VariantGlobalStats(int numRecords, int samplesCount, int snpsCount, int indelsCount, int structuralCount,
+            int passCount, int transitionsCount, int transversionsCount, float accumulatedQuality, double meanQuality,
             Map<String, Integer> consequenceTypesCount) {
-        this.variantsCount = variantsCount;
-        this.samplesCount = samplesCount;
-        this.snpsCount = snpsCount;
-        this.indelsCount = indelsCount;
-        this.structuralCount = structuralCount;
-        this.passCount = passCount;
-        this.transitionsCount = transitionsCount;
-        this.transversionsCount = transversionsCount;
-        this.accumulatedQuality = accumulatedQuality;
-        this.meanQuality = meanQuality;
-        this.consequenceTypesCount = consequenceTypesCount;
+        this.impl = new org.opencb.biodata.models.variant.avro.VariantGlobalStats();
+        this.setVariantTypeCounts(new HashMap<>());
+        this.setChromosomeCounts(new HashMap<>());
+        this.setNumRecords(numRecords);
+        this.setSamplesCount(samplesCount);
+        this.setSnpsCount(snpsCount);
+        this.setIndelsCount(indelsCount);
+        this.setStructuralCount(structuralCount);
+        this.setPassCount(passCount);
+        this.setTransitionsCount(transitionsCount);
+        this.setTransversionsCount(transversionsCount);
+        this.setAccumulatedQuality(accumulatedQuality);
+        this.setMeanQuality(meanQuality);
+        this.setConsequenceTypesCount(consequenceTypesCount);
     }
 
+    public org.opencb.biodata.models.variant.avro.VariantGlobalStats getImpl() {
+        return impl;
+    }
+
+    @Deprecated
     public int getVariantsCount() {
-        return variantsCount;
+        return getNumRecords();
     }
 
+    @Deprecated
     public void setVariantsCount(int variantsCount) {
-        this.variantsCount = variantsCount;
+        this.impl.setNumRecords(variantsCount);
+    }
+
+    public int getNumRecords() {
+        return impl.getNumRecords() == null ? 0 : impl.getNumRecords();
+    }
+
+    public void setNumRecords(Integer numRecords) {
+        this.impl.setNumRecords(numRecords);
     }
 
     public int getSamplesCount() {
-        return samplesCount;
+        return impl.getSamplesCount();
     }
 
     public void setSamplesCount(int samplesCount) {
-        this.samplesCount = samplesCount;
+        this.impl.setSamplesCount(samplesCount);
     }
 
     public int getSnpsCount() {
-        return snpsCount;
+        return getVariantTypeCount(VariantType.SNP);
     }
 
     public void setSnpsCount(int snpsCount) {
-        this.snpsCount = snpsCount;
+        setVariantTypeCount(VariantType.SNP, snpsCount);
     }
 
     public int getIndelsCount() {
-        return indelsCount;
+        return getVariantTypeCount(VariantType.INDEL);
     }
 
     public void setIndelsCount(int indelsCount) {
-        this.indelsCount = indelsCount;
+        setVariantTypeCount(VariantType.INDEL, indelsCount);
     }
 
     public int getStructuralCount() {
-        return structuralCount;
+        return getVariantTypeCount(VariantType.SV);
     }
 
     public void setStructuralCount(int structuralCount) {
-        this.structuralCount = structuralCount;
+        setVariantTypeCount(VariantType.SV, structuralCount);
+    }
+
+    public Map<String, Integer> getVariantTypeCounts() {
+        return impl.getVariantTypeCounts();
+    }
+
+    public void setVariantTypeCounts(Map<String, Integer> count) {
+        impl.setVariantTypeCounts(count);
+    }
+
+    public int getVariantTypeCount(VariantType key) {
+        return impl.getVariantTypeCounts().getOrDefault(key.toString(), 0);
+    }
+
+    public void setVariantTypeCount(VariantType key, int count) {
+        impl.getVariantTypeCounts().put(key.toString(), count);
+    }
+
+    public void addVariantTypeCount(VariantType key, int count) {
+        impl.getVariantTypeCounts().put(key.toString(), getVariantTypeCount(key) + count);
+    }
+
+    public Map<String, Integer> getChromosomeCounts() {
+        return impl.getChromosomeCounts();
+    }
+
+    public void setChromosomeCounts(Map<String, Integer> counts) {
+        impl.setChromosomeCounts(counts);
+    }
+
+    private int getChromosomeCount(String chromosome) {
+        return impl.getChromosomeCounts().getOrDefault(chromosome, 0);
+    }
+
+    public void setChromosomeCount(String chromosome, int count) {
+        impl.getChromosomeCounts().put(chromosome, count);
+    }
+
+    public void addChromosomeCount(String chromosome, int count) {
+        impl.getChromosomeCounts().put(chromosome, getChromosomeCount(chromosome) + count);
     }
 
     public int getPassCount() {
-        return passCount;
+        return impl.getPassCount();
     }
 
     public void setPassCount(int passCount) {
-        this.passCount = passCount;
+        this.impl.setPassCount(passCount);
     }
 
     public int getTransitionsCount() {
-        return transitionsCount;
+        return impl.getTransitionsCount();
     }
 
     public void setTransitionsCount(int transitionsCount) {
-        this.transitionsCount = transitionsCount;
+        this.impl.setTransitionsCount(transitionsCount);
     }
 
     public int getTransversionsCount() {
-        return transversionsCount;
+        return impl.getTransversionsCount();
     }
 
     public void setTransversionsCount(int transversionsCount) {
-        this.transversionsCount = transversionsCount;
+        this.impl.setTransversionsCount(transversionsCount);
     }
 
-    public float getAccumulatedQuality() {
+    public double getAccumulatedQuality() {
         return accumulatedQuality;
     }
 
-    public void setAccumulatedQuality(float accumulatedQuality) {
+    public void setAccumulatedQuality(double accumulatedQuality) {
         this.accumulatedQuality = accumulatedQuality;
     }
 
-    public float getMeanQuality() {
-        if (meanQuality <= 0) {
-            meanQuality = getAccumulatedQuality() / getVariantsCount();
+    public Double getMeanQuality() {
+        if (impl.getMeanQuality() <= 0) {
+            impl.setMeanQuality(getAccumulatedQuality() / getVariantsCount());
         }
-        return meanQuality;
+        return impl.getMeanQuality();
     }
 
-    public void setMeanQuality(float meanQuality) {
-        this.meanQuality = meanQuality;
+    public void setMeanQuality(Double meanQuality) {
+        this.impl.setMeanQuality(meanQuality);
     }
 
     public Map<String, Integer> getConsequenceTypesCount() {
-        return consequenceTypesCount;
+        return impl.getConsequenceTypesCount();
     }
 
     public void setConsequenceTypesCount(Map<String, Integer> consequenceTypesCount) {
-        this.consequenceTypesCount = consequenceTypesCount;
+        this.impl.setConsequenceTypesCount(consequenceTypesCount);
     }
     
     public void addConsequenceTypeCount(String ct, int count) {
-        if (!consequenceTypesCount.containsKey(ct)) {
-            consequenceTypesCount.put(ct, 0);
+        if (!getConsequenceTypesCount().containsKey(ct)) {
+            getConsequenceTypesCount().put(ct, 0);
         } else {
-            consequenceTypesCount.put(ct, consequenceTypesCount.get(ct) + 1);
+            getConsequenceTypesCount().put(ct, getConsequenceTypesCount().get(ct) + 1);
         }
     }
-    
-    
+
+
+    @Deprecated
     public void update(VariantStats stats) {
-        variantsCount++;
-        
-        switch (stats.getVariantType()) {
-            case SNV:
-                snpsCount++;
-                break;
-            case MNV:
-                snpsCount += stats.getRefAllele().length();
-                break;
-            case INDEL:
-                indelsCount++;
-                break;
-            default:
-                structuralCount++;
-                break;
-        }
-        
+        setNumRecords(getNumRecords() + 1);
+
+        addVariantTypeCount(stats.getVariantType(), 1);
+
         if (stats.hasPassedFilters()) {
-            passCount++;
+            setPassCount(getPassCount() + 1);
         }
 
-        samplesCount = stats.getNumSamples();
-        transitionsCount += stats.isTransition() ? 1 : 0;
-        transversionsCount += stats.isTransversion() ? 1 : 0;
-        accumulatedQuality += stats.getQuality();
+        setSamplesCount(stats.getNumSamples());
+        setTransitionsCount(getTransitionsCount() + (stats.isTransition() ? 1 : 0));
+        setTransversionsCount(getTransversionsCount() + (stats.isTransversion() ? 1 : 0));
+        setAccumulatedQuality(getAccumulatedQuality() + stats.getQuality());
     }
 
     @Override
     public String toString() {
         return "VariantGlobalStats{"
-                + "variantsCount=" + variantsCount
-                + ", samplesCount=" + samplesCount
-                + ", snpsCount=" + snpsCount
-                + ", indelsCount=" + indelsCount
-                + ", passCount=" + passCount
-                + ", transitionsCount=" + transitionsCount
-                + ", transversionsCount=" + transversionsCount
-                + ", accumQuality=" + accumulatedQuality
+                + "variantsCount=" + getVariantsCount()
+                + ", samplesCount=" + getSamplesCount()
+                + ", snpsCount=" + getSnpsCount()
+                + ", indelsCount=" + getIndelsCount()
+                + ", passCount=" + getPassCount()
+                + ", transitionsCount=" + getTransitionsCount()
+                + ", transversionsCount=" + getTransversionsCount()
+                + ", accumQuality=" + getAccumulatedQuality()
                 + '}';
     }
 
     @Override
-    public int hashCode() {
-        int hash = 7;
-        hash = 19 * hash + this.variantsCount;
-        hash = 19 * hash + this.samplesCount;
-        hash = 19 * hash + this.snpsCount;
-        hash = 19 * hash + this.indelsCount;
-        hash = 19 * hash + this.structuralCount;
-        hash = 19 * hash + this.passCount;
-        hash = 19 * hash + this.transitionsCount;
-        hash = 19 * hash + this.transversionsCount;
-        hash = 19 * hash + Float.floatToIntBits(this.accumulatedQuality);
-        hash = 19 * hash + Float.floatToIntBits(this.meanQuality);
-        hash = 19 * hash + Objects.hashCode(this.consequenceTypesCount);
-        return hash;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof VariantGlobalStats)) return false;
+
+        VariantGlobalStats that = (VariantGlobalStats) o;
+
+        if (Double.compare(that.accumulatedQuality, accumulatedQuality) != 0) return false;
+        return !(impl != null ? !impl.equals(that.impl) : that.impl != null);
+
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final VariantGlobalStats other = (VariantGlobalStats) obj;
-        if (this.variantsCount != other.variantsCount) {
-            return false;
-        }
-        if (this.samplesCount != other.samplesCount) {
-            return false;
-        }
-        if (this.snpsCount != other.snpsCount) {
-            return false;
-        }
-        if (this.indelsCount != other.indelsCount) {
-            return false;
-        }
-        if (this.structuralCount != other.structuralCount) {
-            return false;
-        }
-        if (this.passCount != other.passCount) {
-            return false;
-        }
-        if (this.transitionsCount != other.transitionsCount) {
-            return false;
-        }
-        if (this.transversionsCount != other.transversionsCount) {
-            return false;
-        }
-        if (Float.floatToIntBits(this.accumulatedQuality) != Float.floatToIntBits(other.accumulatedQuality)) {
-            return false;
-        }
-        if (Float.floatToIntBits(this.meanQuality) != Float.floatToIntBits(other.meanQuality)) {
-            return false;
-        }
-        if (!Objects.equals(this.consequenceTypesCount, other.consequenceTypesCount)) {
-            return false;
-        }
-        return true;
+    public int hashCode() {
+        int result;
+        long temp;
+        result = impl != null ? impl.hashCode() : 0;
+        temp = Double.doubleToLongBits(accumulatedQuality);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
     }
 
 }

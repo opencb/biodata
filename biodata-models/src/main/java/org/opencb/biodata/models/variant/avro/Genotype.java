@@ -7,12 +7,12 @@ package org.opencb.biodata.models.variant.avro;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class Genotype extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"Genotype\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"reference\",\"type\":\"string\"},{\"name\":\"alternate\",\"type\":\"string\"},{\"name\":\"allelesIdx\",\"type\":{\"type\":\"array\",\"items\":\"int\"},\"default\":[]},{\"name\":\"phased\",\"type\":\"boolean\"}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"Genotype\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"reference\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"alternate\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"allelesIdx\",\"type\":{\"type\":\"array\",\"items\":\"int\"},\"default\":[]},{\"name\":\"phased\",\"type\":\"boolean\"}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
-  @Deprecated public java.lang.CharSequence reference;
-  @Deprecated public java.lang.CharSequence alternate;
-  @Deprecated public java.util.List<java.lang.Integer> allelesIdx;
-  @Deprecated public boolean phased;
+   private java.lang.String reference;
+   private java.lang.String alternate;
+   private java.util.List<java.lang.Integer> allelesIdx;
+   private boolean phased;
 
   /**
    * Default constructor.  Note that this does not initialize fields
@@ -24,7 +24,7 @@ public class Genotype extends org.apache.avro.specific.SpecificRecordBase implem
   /**
    * All-args constructor.
    */
-  public Genotype(java.lang.CharSequence reference, java.lang.CharSequence alternate, java.util.List<java.lang.Integer> allelesIdx, java.lang.Boolean phased) {
+  public Genotype(java.lang.String reference, java.lang.String alternate, java.util.List<java.lang.Integer> allelesIdx, java.lang.Boolean phased) {
     this.reference = reference;
     this.alternate = alternate;
     this.allelesIdx = allelesIdx;
@@ -46,8 +46,8 @@ public class Genotype extends org.apache.avro.specific.SpecificRecordBase implem
   @SuppressWarnings(value="unchecked")
   public void put(int field$, java.lang.Object value$) {
     switch (field$) {
-    case 0: reference = (java.lang.CharSequence)value$; break;
-    case 1: alternate = (java.lang.CharSequence)value$; break;
+    case 0: reference = (java.lang.String)value$; break;
+    case 1: alternate = (java.lang.String)value$; break;
     case 2: allelesIdx = (java.util.List<java.lang.Integer>)value$; break;
     case 3: phased = (java.lang.Boolean)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
@@ -57,7 +57,7 @@ public class Genotype extends org.apache.avro.specific.SpecificRecordBase implem
   /**
    * Gets the value of the 'reference' field.
    */
-  public java.lang.CharSequence getReference() {
+  public java.lang.String getReference() {
     return reference;
   }
 
@@ -65,14 +65,14 @@ public class Genotype extends org.apache.avro.specific.SpecificRecordBase implem
    * Sets the value of the 'reference' field.
    * @param value the value to set.
    */
-  public void setReference(java.lang.CharSequence value) {
+  public void setReference(java.lang.String value) {
     this.reference = value;
   }
 
   /**
    * Gets the value of the 'alternate' field.
    */
-  public java.lang.CharSequence getAlternate() {
+  public java.lang.String getAlternate() {
     return alternate;
   }
 
@@ -80,7 +80,7 @@ public class Genotype extends org.apache.avro.specific.SpecificRecordBase implem
    * Sets the value of the 'alternate' field.
    * @param value the value to set.
    */
-  public void setAlternate(java.lang.CharSequence value) {
+  public void setAlternate(java.lang.String value) {
     this.alternate = value;
   }
 
@@ -135,8 +135,8 @@ public class Genotype extends org.apache.avro.specific.SpecificRecordBase implem
   public static class Builder extends org.apache.avro.specific.SpecificRecordBuilderBase<Genotype>
     implements org.apache.avro.data.RecordBuilder<Genotype> {
 
-    private java.lang.CharSequence reference;
-    private java.lang.CharSequence alternate;
+    private java.lang.String reference;
+    private java.lang.String alternate;
     private java.util.List<java.lang.Integer> allelesIdx;
     private boolean phased;
 
@@ -188,12 +188,12 @@ public class Genotype extends org.apache.avro.specific.SpecificRecordBase implem
     }
 
     /** Gets the value of the 'reference' field */
-    public java.lang.CharSequence getReference() {
+    public java.lang.String getReference() {
       return reference;
     }
     
     /** Sets the value of the 'reference' field */
-    public org.opencb.biodata.models.variant.avro.Genotype.Builder setReference(java.lang.CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.Genotype.Builder setReference(java.lang.String value) {
       validate(fields()[0], value);
       this.reference = value;
       fieldSetFlags()[0] = true;
@@ -213,12 +213,12 @@ public class Genotype extends org.apache.avro.specific.SpecificRecordBase implem
     }
 
     /** Gets the value of the 'alternate' field */
-    public java.lang.CharSequence getAlternate() {
+    public java.lang.String getAlternate() {
       return alternate;
     }
     
     /** Sets the value of the 'alternate' field */
-    public org.opencb.biodata.models.variant.avro.Genotype.Builder setAlternate(java.lang.CharSequence value) {
+    public org.opencb.biodata.models.variant.avro.Genotype.Builder setAlternate(java.lang.String value) {
       validate(fields()[1], value);
       this.alternate = value;
       fieldSetFlags()[1] = true;
@@ -290,8 +290,8 @@ public class Genotype extends org.apache.avro.specific.SpecificRecordBase implem
     public Genotype build() {
       try {
         Genotype record = new Genotype();
-        record.reference = fieldSetFlags()[0] ? this.reference : (java.lang.CharSequence) defaultValue(fields()[0]);
-        record.alternate = fieldSetFlags()[1] ? this.alternate : (java.lang.CharSequence) defaultValue(fields()[1]);
+        record.reference = fieldSetFlags()[0] ? this.reference : (java.lang.String) defaultValue(fields()[0]);
+        record.alternate = fieldSetFlags()[1] ? this.alternate : (java.lang.String) defaultValue(fields()[1]);
         record.allelesIdx = fieldSetFlags()[2] ? this.allelesIdx : (java.util.List<java.lang.Integer>) defaultValue(fields()[2]);
         record.phased = fieldSetFlags()[3] ? this.phased : (java.lang.Boolean) defaultValue(fields()[3]);
         return record;

@@ -24,7 +24,7 @@ import org.opencb.biodata.formats.sequence.fasta.dbadaptor.SequenceDBAdaptor;
 import org.opencb.biodata.models.alignment.Alignment;
 import org.opencb.biodata.models.alignment.AlignmentHeader;
 import org.opencb.biodata.models.alignment.exceptions.ShortReferenceSequenceException;
-import org.opencb.biodata.models.feature.Region;
+import org.opencb.biodata.models.core.Region;
 
 import java.io.*;
 import java.nio.file.Path;

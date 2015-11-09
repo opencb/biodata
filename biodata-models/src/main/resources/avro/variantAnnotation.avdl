@@ -1,0 +1,142 @@
+
+@namespace("org.opencb.biodata.models.variant.avro")
+
+protocol VariantAnnotations {
+
+    enum ExpressionCall {UP, DOWN}
+
+    record ClinVar {
+        string accession;
+        string clinicalSignificance;
+        array<string> traits;
+        array<string> geneNames;
+        string reviewStatus;
+    }
+
+    record Gwas {
+        string snpIdCurrent;
+        array<string> traits;
+        double riskAlleleFrequency;
+        string reportedGenes;
+    }
+
+    record Cosmic {
+        string mutationId;
+        string primarySite;
+        string siteSubtype;
+        string primaryHistology;
+        string histologySubtype;
+        string sampleSource;
+        string tumourOrigin;
+        string geneName;
+        string mutationSomaticStatus;
+    }
+
+    record VariantTraitAssociation {
+        union { null, array<ClinVar> } clinvar;
+        union { null, array<Gwas> } gwas;
+        union { null, array<Cosmic> } cosmic;
+    }
+
+    record GeneDrugInteraction {
+        union { null, string } geneName;
+        union { null, string } drugName;
+        union { null, string } source;
+        union { null, string } studyType;
+        union { null, string } type;
+    }
+
+    record Expression {
+        union { null, string } geneName;
+        union { null, string } transcriptId;
+        union { null, string } experimentalFactor;
+        union { null, string } factorValue;        
+        union { null, string } experimentId;
+        union { null, string } technologyPlatform;        
+        union { null, ExpressionCall} expression;
+        union { null, float } pvalue;
+    }
+
+    record PopulationFrequency {
+        string study;
+        string population;
+        union { null, string } superPopulation;
+        string refAllele;
+        string altAllele;
+        float refAlleleFreq;
+        float altAlleleFreq;
+        union { null, float } refHomGenotypeFreq;
+        union { null, float } hetGenotypeFreq;
+        union { null, float } altHomGenotypeFreq;
+    }
+
+    record SequenceOntologyTerm {
+        string accession;
+        string name;
+    }
+
+    record ProteinFeature {
+        union { null, string } id;
+        int start;
+        int end;
+        string type;
+        union { null, string } description;
+    }
+
+    record Score {
+        double score;
+        string source;
+        union { null, string } description;
+    }
+
+    record ProteinVariantAnnotation {
+        string uniprotAccession;
+        string uniprotName;
+        int position;
+        //string aaChange;
+        string reference;
+        string alternate;
+        union { null, string } uniprotVariantId;
+        union { null, string } functionalDescription;
+        union { null, array<Score> } substitutionScores;
+        union { null, array<string> } keywords;
+        union { null, array<ProteinFeature> } features;
+    }
+
+    record ConsequenceType {
+        union { null, string } geneName;
+        union { null, string } ensemblGeneId;
+        union { null, string } ensemblTranscriptId;
+        union { null, string } strand;
+        union { null, string } biotype;
+        union { null, int } cdnaPosition;
+        union { null, int } cdsPosition;
+        union { null, string } codon;
+        union { null, ProteinVariantAnnotation } proteinVariantAnnotation;
+        array<SequenceOntologyTerm> sequenceOntologyTerms;
+    }
+
+    record Xref {
+        union { null, string } id;
+        union { null, string } source;
+    }
+
+    record VariantAnnotation {
+        string chromosome;
+        int start;
+        int end;
+        string reference;
+        string alternate;
+        union { null, string } id;
+        union { null, array<Xref> } xrefs;
+        union { null, array<string> } hgvs;
+        array<ConsequenceType> consequenceTypes = [];
+        union { null, array<PopulationFrequency> } populationFrequencies;
+        union { null, array<Score> } conservation;
+        union { null, array<Expression> } expression;
+        union { null, array<GeneDrugInteraction> } geneDrugInteraction;
+        union { null, VariantTraitAssociation } variantTraitAssociation;
+        union { null, map<string> } additionalAttributes;
+    }
+
+}

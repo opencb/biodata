@@ -18,13 +18,18 @@ package org.opencb.biodata.tools.variant.tasks;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+
 import org.opencb.biodata.formats.variant.io.VariantReader;
-import org.opencb.biodata.models.variant.VariantSourceEntry;
+import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantSource;
 import org.opencb.biodata.models.variant.stats.VariantSourceStats;
-import org.opencb.biodata.models.variant.stats.VariantAggregatedStats;
 import org.opencb.biodata.models.variant.stats.VariantStats;
+import org.opencb.biodata.tools.variant.stats.VariantAggregatedEVSStatsCalculator;
+import org.opencb.biodata.tools.variant.stats.VariantAggregatedExacStatsCalculator;
+import org.opencb.biodata.tools.variant.stats.VariantAggregatedStatsCalculator;
+import org.opencb.biodata.tools.variant.stats.VariantStatsCalculator;
 import org.opencb.commons.run.Task;
 
 /**
@@ -33,9 +38,16 @@ import org.opencb.commons.run.Task;
  */
 public class VariantStatsTask extends Task<Variant> {
 
+    @Deprecated
     private VariantReader reader;
     private VariantSource source;
     private VariantSourceStats stats;
+
+    public VariantStatsTask(VariantSource study) {
+        super();
+        this.source = study;
+        stats = new VariantSourceStats(study.getFileId(), study.getStudyId());
+    }
 
     public VariantStatsTask(VariantReader reader, VariantSource study) {
         super();
@@ -52,23 +64,27 @@ public class VariantStatsTask extends Task<Variant> {
     }
 
     @Override
-    public boolean apply(List<Variant> batch) throws IOException {
+    public boolean apply(List<Variant> batch) {
 //        VariantStats.calculateStatsForVariantsList(batch, source.getPedigree());
         for (Variant variant : batch) {
-            for (VariantSourceEntry file : variant.getSourceEntries().values()) {
-                VariantStats variantStats = null;
+            for (StudyEntry study : variant.getSourceEntries().values()) {
+                VariantStats variantStats = new VariantStats(variant);
+                study.setStats(StudyEntry.DEFAULT_COHORT, variantStats);
+                Map<String, String> attributes = study.getFile(source.getFileId()).getAttributes();
                 switch (source.getAggregation()) {
                     case NONE:
-                        variantStats = new VariantStats(variant);
+                        VariantStatsCalculator.calculate(study.getSamplesDataAsMap(), attributes, source.getPedigree(), variantStats);
                         break;
                     case BASIC:
-                        variantStats = new VariantAggregatedStats(variant);
+                        new VariantAggregatedStatsCalculator().calculate(variant, study);
                         break;
                     case EVS:
-                        // TODO Should create an object!
+                        new VariantAggregatedEVSStatsCalculator().calculate(variant, study);
+                        break;
+                    case EXAC:
+                        new VariantAggregatedExacStatsCalculator().calculate(variant, study);
                         break;
                 }
-                file.setStats(variantStats.calculate(file.getSamplesData(), file.getAttributes(), source.getPedigree()));
             }
         }
         

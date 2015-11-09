@@ -16,66 +16,45 @@
 
 package org.opencb.biodata.models.variant.annotation;
 
-
 import org.opencb.biodata.models.variation.PopulationFrequency;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
-
-/**
- * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
- * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
- */
+@Deprecated
 public class VariantAnnotation {
 
     private String chromosome;
-    
     private int start;
-    
     private int end;
-    
-    private String referenceAllele;
-
-    private String alternateAllele;
-
+    private String reference;
+    private String alternate;
     private String id;
-
     private List<Xref> xrefs;
-
     private List<String> hgvs;
-
     private List<ConsequenceType> consequenceTypes;
-
-    private List<Score> conservationScores;
-
+    private List<Score> conservation;
     private List<PopulationFrequency> populationFrequencies = null;
+//    private List<CaddScore> caddScores;
 
-    private List<CaddScore> caddScores;
-
-//    private List<ExpressionValue> expressionValues;
-    private Map<String, List<Object>> geneDrugInteraction;
-
-    private Map<String, Object> clinical;
+    private List<ExpressionValue> expressionValues;
+    private List<GeneDrugInteraction> geneDrugInteraction;
+    private VariantTraitAssociation variantTraitAssociation;
 
     private Map<String, Object> additionalAttributes;
 
+
     public VariantAnnotation() {
-        this(null, 0, 0, null);
+        this(null, 0, 0, null, null);
     }
 
-    public VariantAnnotation(String chromosome, int start, int end, String referenceAllele) {
+    public VariantAnnotation(String chromosome, int start, int end, String reference, String alternate) {
         this.chromosome = chromosome;
         this.start = start;
         this.end = end;
-        this.referenceAllele = referenceAllele;
-    }
-
-    public VariantAnnotation(String chromosome, int start, int end, String referenceAllele, String alternateAllele) {
-        this.chromosome = chromosome;
-        this.start = start;
-        this.end = end;
-        this.referenceAllele = referenceAllele;
-        this.alternateAllele = alternateAllele;
+        this.reference = reference;
+        this.alternate = alternate;
     }
 
     public String getChromosome() {
@@ -102,20 +81,20 @@ public class VariantAnnotation {
         this.end = end;
     }
 
-    public String getReferenceAllele() {
-        return referenceAllele;
+    public String getReference() {
+        return reference;
     }
 
-    public void setReferenceAllele(String referenceAllele) {
-        this.referenceAllele = referenceAllele;
+    public void setReference(String reference) {
+        this.reference = reference;
     }
 
-    public String getAlternateAllele() {
-        return alternateAllele;
+    public String getAlternate() {
+        return alternate;
     }
 
-    public void setAlternateAllele(String alternateAllele) {
-        this.alternateAllele = alternateAllele;
+    public void setAlternate(String alternate) {
+        this.alternate = alternate;
     }
 
     public String getId() {
@@ -150,12 +129,12 @@ public class VariantAnnotation {
         this.consequenceTypes = consequenceTypes;
     }
 
-    public List<Score> getConservationScores() {
-        return conservationScores;
+    public List<Score> getConservation() {
+        return conservation;
     }
 
-    public void setConservationScores(List<Score> conservationScores) {
-        this.conservationScores = conservationScores;
+    public void setConservation(List<Score> conservation) {
+        this.conservation = conservation;
     }
 
     public List<PopulationFrequency> getPopulationFrequencies() {
@@ -167,38 +146,42 @@ public class VariantAnnotation {
     }
 
     public void addPopulationFrequency(PopulationFrequency populationFrequency) {
-        if(this.populationFrequencies==null) {
+        if (this.populationFrequencies == null) {
             this.populationFrequencies = new ArrayList<>();
         }
         this.populationFrequencies.add(populationFrequency);
     }
 
-    public List<CaddScore> getCaddScores() {
-        return caddScores;
-    }
-
-    public void setCaddScores(List<CaddScore> caddScores) {
-        this.caddScores = caddScores;
-    }
-
-    public Map<String, List<Object>> getGeneDrugInteraction() { return geneDrugInteraction; }
-
-    public void setGeneDrugInteraction(Map<String, List<Object>> geneDrugInteraction) { this.geneDrugInteraction = geneDrugInteraction; }
-
-    //    public List<ExpressionValue> getExpressionValues() {
-//        return expressionValues;
+//    public List<CaddScore> getCaddScores() {
+//        return caddScores;
 //    }
 //
-//    public void setExpressionValues(List<ExpressionValue> expressionValues) {
-//        this.expressionValues = expressionValues;
+//    public void setCaddScores(List<CaddScore> caddScores) {
+//        this.caddScores = caddScores;
 //    }
 
-    public Map<String, Object> getClinical() {
-        return clinical;
+    public List<GeneDrugInteraction> getGeneDrugInteraction() {
+        return geneDrugInteraction;
     }
 
-    public void setClinical(Map<String, Object> clinical) {
-        this.clinical = clinical;
+    public void setGeneDrugInteraction(List<GeneDrugInteraction> geneDrugInteraction) {
+        this.geneDrugInteraction = geneDrugInteraction;
+    }
+
+    public List<ExpressionValue> getExpressionValues() {
+        return expressionValues;
+    }
+
+    public void setExpressionValues(List<ExpressionValue> expressionValues) {
+        this.expressionValues = expressionValues;
+    }
+
+    public VariantTraitAssociation getVariantTraitAssociation() {
+        return variantTraitAssociation;
+    }
+
+    public void setVariantTraitAssociation(VariantTraitAssociation variantTraitAssociation) {
+        this.variantTraitAssociation = variantTraitAssociation;
     }
 
     public Map<String, Object> getAdditionalAttributes() {
@@ -209,135 +192,10 @@ public class VariantAnnotation {
         this.additionalAttributes = additionalAttributes;
     }
 
-//    public String getChromosome() {
-//        return chromosome;
-//    }
-//
-//    public void setChromosome(String chromosome) {
-//        this.chromosome = chromosome;
-//    }
-//
-//    public int getStart() {
-//        return start;
-//    }
-//
-//    public void setStart(int start) {
-//        this.start = start;
-//    }
-//
-//    public int getEnd() {
-//        return end;
-//    }
-//
-//    public void setEnd(int end) {
-//        this.end = end;
-//    }
-//
-//    public String getReferenceAllele() {
-//        return referenceAllele;
-//    }
-//
-//    public void setReferenceAllele(String referenceAllele) {
-//        this.referenceAllele = referenceAllele;
-//    }
-
-//    public Set<Gene> getGenes() {
-//        return genes;
-//    }
-
-//    public void setGenes(Set<Gene> genes) {
-//        this.genes = genes;
-//    }
-
-//    public void addGene(Gene gene) {
-//        // TODO: broken compatibility with VariantGenesAnnotator
-//    }
-
-//    public void addGene(Gene gene) {
-//        this.genes.add(gene);
-//    }
-//
-//    public Map<String, List<VariantEffect>> getEffects() {
-//        // TODO: broken compatibility with VariantConsequenceTypeAnnotator
-//        return new HashMap<>();
-//    }
-
-//    public Map<String, List<VariantEffect>> getEffects() {
-//        return effects;
-//    }
-//
-//    public void setEffects(Map<String, List<VariantEffect>> effects) {
-//        this.effects = effects;
-//    }
-//
-    public void addEffect(String key, VariantEffect effect) {
-        // TODO: compatibility is broken with Variant object. We no longer want an effects attribute in VariantAnnotation
-    }
-
-//    public void addEffect(String key, VariantEffect effect) {
-//        List<VariantEffect> ct = effects.get(key);
-//        if (ct == null) {
-//            ct = new ArrayList<>();
-//            effects.put(key, ct);
-//        }
-//
-//        ct.add(effect);
-//    }
-//
-
-//    public Map<String, Set<Frequency>> getFrequencies() {
-//        return new HashMap<>(); // TODO: broken compatibility with VariantEffectConverter
-//    }
-
-//    public Map<String, Set<Frequency>> getFrequencies() {
-//        return frequencies;
-//    }
-//
-//    public Set<Frequency> getFrequenciesBySuperPopulation(String population) {
-//        return frequencies.get(population);
-//    }
-//
-//    public void setFrequencies(Map<String, Set<Frequency>> frequencies) {
-//        this.frequencies = frequencies;
-//    }
-//
-//    public boolean addFrequency(Frequency frequency) {
-//        Set<Frequency> frequenciesBySuperPopulation = frequencies.get(frequency.getSuperPopulation());
-//        if (frequenciesBySuperPopulation == null) {
-//            frequenciesBySuperPopulation = new HashSet<>();
-//            frequencies.put(frequency.getSuperPopulation(), frequenciesBySuperPopulation);
-//        }
-//        return frequenciesBySuperPopulation.add(frequency);
-//    }
-
-//    public ProteinSubstitutionScores getProteinSubstitutionScores() {
-//        // TODO: broken compatibility with VariantPolyphenSIFTAnnotator. proteinSubstitutionScores is no longer within VariantAnnotation. Remove after compatibility is solved.
-//        return null;
-//    }
-
-//    public void setRegulatoryEffect(RegulatoryEffect regulatoryEffect) {}  // TODO: broken compatibility with VariantEffectConverter
-//
-//    public RegulatoryEffect getRegulatoryEffect() {
-//        // TODO: broken compatibility with VariantEffectConverter
-//        return null;
-//    }
-
-//    public RegulatoryEffect getRegulatoryEffect() {
-//        return regulatoryEffect;
-//    }
-
-//    public void setRegulatoryEffect(RegulatoryEffect regulatoryEffect) {
-//        this.regulatoryEffect = regulatoryEffect;
-//    }
-
-//    @Override
-//    public String toString() {
-//        return "VariantAnnotation{" +
-//                "chromosome='" + chromosome + '\'' +
-//                ", start=" + start +
-//                ", end=" + end +
-//                ", referenceAllele='" + referenceAllele + '\'' +
-//                ", proteinSubstitutionScores=" + proteinSubstitutionScores +
-//                '}';
-//    }
 }
+//    public void addEffect(String key, VariantEffect effect) {
+//        // TODO: compatibility is broken with Variant object. We no longer want an effects attribute in VariantAnnotation
+//    }
+
+
+

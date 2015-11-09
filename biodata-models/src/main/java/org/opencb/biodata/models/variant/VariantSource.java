@@ -16,7 +16,10 @@
 
 package org.opencb.biodata.models.variant;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.opencb.biodata.models.pedigree.Pedigree;
+import org.opencb.biodata.models.variant.avro.VariantFileMetadata;
+import org.opencb.biodata.models.variant.avro.VcfHeader;
 import org.opencb.biodata.models.variant.stats.VariantGlobalStats;
 
 import java.util.*;
@@ -25,28 +28,19 @@ import java.util.*;
 /**
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
+@JsonIgnoreProperties({"impl", "samplesPosition", "type"})
 public class VariantSource {
 
-    private String fileName;
-    private String fileId;
+    private final VariantFileMetadata impl;
+    private LinkedHashMap<String, Integer> samplesPosition;
 
-    private String studyId;
-    private String studyName;
-
-    public enum Aggregation { NONE, BASIC, EVS, EXAC};
-    private Aggregation aggregation;
-
-    private Map<String, Integer> samplesPosition;
-
-    private Pedigree pedigree; // TODO Decide something about this field
-
-    private Map<String, Object> metadata;
-
-    private VariantStudy.StudyType type;
-    
-    private VariantGlobalStats stats;
+    public enum Aggregation { NONE, BASIC, EVS, EXAC;
+        public static boolean isAggregated(Aggregation agg) {return !NONE.equals(agg);}
+    }
 
     VariantSource() {
+        impl = new VariantFileMetadata();
+        samplesPosition = null;
     }
 
     public VariantSource(String fileName, String fileId, String studyId, String studyName) {
@@ -54,122 +48,181 @@ public class VariantSource {
     }
 
     public VariantSource(String fileName, String fileId, String studyId, String studyName, VariantStudy.StudyType type, Aggregation aggregation) {
-        this.fileName = fileName;
-        this.fileId = fileId;
-        this.studyId = studyId;
-        this.studyName = studyName;
-        this.aggregation = aggregation;
-        this.samplesPosition = new LinkedHashMap<>();
-        this.metadata = new HashMap<>();
-        this.type = type;
+        impl = new VariantFileMetadata(fileId, studyId, fileName, studyName, new LinkedList<>(),
+                org.opencb.biodata.models.variant.avro.Aggregation.NONE, null, new HashMap<>(), null);
+        samplesPosition = null;
     }
 
     public String getFileName() {
-        return fileName;
+        return impl.getFileName();
     }
 
     public void setFileName(String fileName) {
-        this.fileName = fileName;
+        this.impl.setFileName(fileName);
     }
 
     public String getFileId() {
-        return fileId;
+        return impl.getFileId();
     }
 
     public void setFileId(String fileId) {
-        this.fileId = fileId;
+        this.impl.setFileId(fileId);
     }
 
     public String getStudyId() {
-        return studyId;
+        return impl.getStudyId();
     }
 
     public void setStudyId(String studyId) {
-        this.studyId = studyId;
+        this.impl.setStudyId(studyId);
     }
 
     public String getStudyName() {
-        return studyName;
+        return impl.getStudyName();
     }
 
     public void setStudyName(String studyName) {
-        this.studyName = studyName;
+        this.impl.setStudyName(studyName);
     }
 
     public Aggregation getAggregation() {
-        return aggregation;
+        return impl.getAggregation() == null ? null
+                : Aggregation.valueOf(impl.getAggregation().toString());
     }
 
     public void setAggregation(Aggregation aggregation) {
-        this.aggregation = aggregation;
+        impl.setAggregation(aggregation == null ? null
+                : org.opencb.biodata.models.variant.avro.Aggregation.valueOf(aggregation.toString()));
     }
 
     public Map<String, Integer> getSamplesPosition() {
-        return samplesPosition;
+        if (samplesPosition == null) {
+            updateSamplesPosition();
+        }
+        return Collections.unmodifiableMap(samplesPosition);
     }
 
     public void setSamplesPosition(Map<String, Integer> samplesPosition) {
-        this.samplesPosition = samplesPosition;
+        if (samplesPosition == null) {
+            setSamples(null);
+        } else {
+            ArrayList<String> samples = new ArrayList<>(samplesPosition.size());
+            for (int i = 0; i < samplesPosition.size(); i++) {
+                samples.add(null);    //Populate empty array
+            }
+            for (Map.Entry<String, Integer> entry : samplesPosition.entrySet()) {
+                samples.set(entry.getValue(), entry.getKey());
+            }
+            setSamples(samples);
+        }
+        updateSamplesPosition();
     }
 
-    public List<String> getSamples() {
-        return new ArrayList(samplesPosition.keySet());
-    }
-
-    public void setSamples(List<String> newSamples) {
-        int index = samplesPosition.size();
-        for (String s : newSamples) {
-            samplesPosition.put(s, index++);
+    private synchronized void updateSamplesPosition() {
+        if (samplesPosition == null) {
+            List<String> samples = getSamples();
+            if (samples == null) {
+                samplesPosition = null;
+            } else {
+                LinkedHashMap<String, Integer> newSamplesPosition = new LinkedHashMap<>(samples.size());
+                int idx = 0;
+                for (String sample : samples) {
+                    newSamplesPosition.put(sample, idx++);
+                }
+                samplesPosition = newSamplesPosition;
+            }
         }
     }
 
-    public Pedigree getPedigree() {
-        return pedigree;
+    public List<String> getSamples() {
+        return impl.getSamples() == null ? null : Collections.unmodifiableList(impl.getSamples());
     }
 
+    public void setSamples(List<String> samples) {
+        impl.setSamples(samples);
+        samplesPosition = null;
+    }
+
+    public void addSamples(List<String> newSamples) {
+        impl.getSamples().addAll(newSamples);
+        samplesPosition = null;
+    }
+
+    @Deprecated
+    public Pedigree getPedigree() {
+        return null;
+    }
+
+    @Deprecated
     public void setPedigree(Pedigree pedigree) {
-        this.pedigree = pedigree;
     }
 
     public Map<String, Object> getMetadata() {
-        return metadata;
+        return impl.getMetadata();
     }
 
     public void setMetadata(Map<String, Object> metadata) {
-        this.metadata = metadata;
+        this.impl.setMetadata(metadata);
     }
 
     public void addMetadata(String key, Object value) {
-        this.metadata.put(key, value);
+        this.getMetadata().put(key, value);
     }
 
+    @Deprecated
     public VariantStudy.StudyType getType() {
-        return type;
+        return null;
     }
 
+    @Deprecated
     public void setType(VariantStudy.StudyType type) {
-        this.type = type;
+//        this.type = type;
     }
 
     public VariantGlobalStats getStats() {
-        return stats;
+        return impl.getStats() == null ? null : new VariantGlobalStats(impl.getStats());
     }
 
     public void setStats(VariantGlobalStats stats) {
-        this.stats = stats;
+        impl.setStats(stats == null ? null : stats.getImpl());
+    }
+
+    public VcfHeader getHeader() {
+        return impl.getHeader();
+    }
+
+    public void setHeader(VcfHeader value) {
+        impl.setHeader(value);
+    }
+
+    public VariantFileMetadata getImpl() {
+        return impl;
     }
 
     @Override
     public String toString() {
         return "VariantStudy{" +
-                "name='" + fileName + '\'' +
-                ", alias='" + fileId + '\'' +
-                ", samples=" + samplesPosition +
-                ", metadata=" + metadata +
-                ", stats=" + stats +
+                "fileName='" + getFileName() + '\'' +
+                ", fleId='" + getFileId() + '\'' +
+                ", samples=" + getSamples() +
+                ", metadata=" + getMetadata() +
+//                ", stats=" + stats +
                 '}';
     }
 
-    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof VariantSource)) return false;
 
+        VariantSource that = (VariantSource) o;
+
+        return !(impl != null ? !impl.equals(that.impl) : that.impl != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return impl != null ? impl.hashCode() : 0;
+    }
 }

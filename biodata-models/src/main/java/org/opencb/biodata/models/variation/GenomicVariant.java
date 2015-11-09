@@ -19,6 +19,7 @@ package org.opencb.biodata.models.variation;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 public class GenomicVariant {
 
 	private String chromosome;
