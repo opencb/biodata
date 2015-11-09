@@ -16,6 +16,8 @@
 
 package org.opencb.biodata.models.variant.annotation;
 
+import org.opencb.biodata.models.variant.annotation.exceptions.SOTermNotAvailableException;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -89,8 +91,12 @@ public class ConsequenceTypeMappings {
 
     }
 
-    public static String getSoAccessionString(String SOName) {
-        String soAccession = Integer.toString(termToAccession.get(SOName));
-        return String.format("SO:%0"+(7-soAccession.length())+"d%s", 0, soAccession);
+    public static String getSoAccessionString(String SOName) throws SOTermNotAvailableException {
+        if (termToAccession.get(SOName) == null) {
+            throw new SOTermNotAvailableException(SOName);
+        }else {
+            String soAccession = Integer.toString(termToAccession.get(SOName));
+            return String.format("SO:%0" + (7 - soAccession.length()) + "d%s", 0, soAccession);
+        }
     }
 }
