@@ -18,6 +18,7 @@ package org.opencb.biodata.formats.variant.vcf4.io;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+
 import org.opencb.biodata.formats.io.FileFormatException;
 import org.opencb.biodata.formats.variant.io.VariantReader;
 import org.opencb.biodata.formats.variant.vcf4.*;
@@ -187,7 +188,8 @@ public class VariantVcfReader implements VariantReader {
     private void processHeader() throws IOException, FileFormatException {
         BufferedReader localBufferedReader;
 
-        if (Files.probeContentType(path).contains("gzip") || path.toString().endsWith(".gz")) {
+        String contentProbe = Files.probeContentType(path);
+        if ((null != contentProbe && contentProbe.contains("gzip")) || path.toString().endsWith(".gz")) {
             localBufferedReader = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(path.toFile()))));
         } else {
             localBufferedReader = new BufferedReader(new FileReader(path.toFile()));

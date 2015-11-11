@@ -150,11 +150,20 @@ public class Genotype {
     public boolean isAlleleRef(int i) {
         return allelesIdx[i] == 0;
     }
-    
+
+    public boolean isAllelesRefs(){
+        int len = allelesIdx.length;
+        for(int i = 0; i < len; ++i){
+            if(! isAlleleRef(i))
+                return false;
+        }
+        return true;
+    }
+
     public boolean isPhased() {
         return phased;
     }
-    
+
     void setPhased(boolean phased) {
         this.phased = phased;
     }

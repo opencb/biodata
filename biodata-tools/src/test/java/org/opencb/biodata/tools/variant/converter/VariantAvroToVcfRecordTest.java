@@ -1,20 +1,28 @@
 package org.opencb.biodata.tools.variant.converter;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 import htsjdk.variant.vcf.VCFConstants;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.StudyEntry;
-import org.opencb.biodata.models.variant.VariantFactory;
+import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantVcfFactory;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfMeta;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfMeta.Builder;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfRecord;
-
-import java.util.*;
-
-import static org.junit.Assert.*;
 
 public class VariantAvroToVcfRecordTest {
 
@@ -77,7 +85,7 @@ public class VariantAvroToVcfRecordTest {
 
         assertArrayEquals(rec.getIdNonDefaultList().toArray(), ids.toArray());
         assertEquals(ref, rec.getReference());
-        assertEquals(alt, rec.getAlternate());
+        assertEquals(alt, rec.getAlternate(0));
         assertEquals(65,rec.getRelativeStart());
         assertEquals(65+3,rec.getRelativeEnd());
         assertEquals(sampleList.size(), rec.getSamplesList().size());

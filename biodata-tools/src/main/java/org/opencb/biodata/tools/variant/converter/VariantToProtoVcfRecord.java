@@ -107,7 +107,7 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
                 // Do not use getSliceOffset independently
                 .setRelativeStart(variant.getStart() - slicePosition)
                 .setReference(variant.getReference())
-                .setAlternate(variant.getAlternate())
+                .addAlternate(variant.getAlternate())
                 .addAllIdNonDefault(decodeIds(variant.getIds()));
 
         //Set end only if is different to the start position

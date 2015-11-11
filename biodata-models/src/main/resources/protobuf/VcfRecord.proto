@@ -7,7 +7,7 @@ option java_outer_classname = "VcfSliceProtos";
 
 
 message VcfSample {
-  repeated string sample_values = 1;  // for one individual only
+  repeated string sample_values = 1;
 }
 
 // TODO what's in the case of 1/2 
@@ -15,7 +15,7 @@ message VcfRecord {
   uint32 relative_start = 1; // 1 based 
   uint32 relative_end = 2;
   string reference = 3; 
-  string alternate = 4;  
+  repeated string alternate = 4;
   string quality = 5;
   string filter_non_default = 6;
   repeated string id_non_default = 7;
@@ -24,7 +24,7 @@ message VcfRecord {
   repeated string info_value = 9;
   
   repeated string sample_format_non_default = 10;
-  repeated VcfSample samples = 11;  // for one individual only
+  repeated VcfSample samples = 11;
   
 }
 
