@@ -105,7 +105,7 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
                 .setRelativeStart(getSliceOffset(variant.getStart(), chunkSize))
                 .setRelativeEnd(getSliceOffset(variant.getEnd(), chunkSize))
                 .setReference(variant.getReference())
-                .setAlternate(variant.getAlternate())
+                .addAlternate(variant.getAlternate())
                 .addAllIdNonDefault(decodeIds(variant.getIds()));
 
 		/* Get Study (one only expected  */
