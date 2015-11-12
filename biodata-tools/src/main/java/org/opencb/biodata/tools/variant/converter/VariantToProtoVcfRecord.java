@@ -101,12 +101,19 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
     }
 
     public VcfRecord convert(Variant variant, int chunkSize) {
+        int slicePosition = getSlicePosition(variant.getStart(), chunkSize);
         Builder recordBuilder = VcfRecord.newBuilder()
-                .setRelativeStart(getSliceOffset(variant.getStart(), chunkSize))
-                .setRelativeEnd(getSliceOffset(variant.getEnd(), chunkSize))
+                // Warning: start and end can be at different chunks.
+                // Do not use getSliceOffset independently
+                .setRelativeStart(variant.getStart() - slicePosition)
                 .setReference(variant.getReference())
-                .setAlternate(variant.getAlternate())
+                .addAlternate(variant.getAlternate())
                 .addAllIdNonDefault(decodeIds(variant.getIds()));
+
+        //Set end only if is different to the start position
+        if (!Objects.equals(variant.getEnd(), variant.getStart())) {
+            recordBuilder.setRelativeEnd(variant.getEnd() - slicePosition);
+        }
 
 		/* Get Study (one only expected  */
         List<StudyEntry> studies = variant.getStudies();
@@ -172,9 +179,9 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
      * @param chunkSize chunk size
      * @return slice calculated using position and chunk size
      */
-    public long getSlicePosition(long position, int chunkSize) {
+    public int getSlicePosition(int position, int chunkSize) {
         return chunkSize > 0
-                ? position / (long) chunkSize
+                ? position - (position % chunkSize)
                 : position;
     }
 
@@ -244,16 +251,6 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
         return this.getDefaultInfoKeys().equals(keyList);
 //		String str = StringUtils.join(keyList,STRING_JOIN_SEP);
 //		return StringUtils.equals(str, getDefaultInfoKeys());
-    }
-
-    /**
-     * Creates a List of strings in the original order from the FORMAT string provided; Split the string by ":"
-     *
-     * @param format Format string with the keys separated by ":"
-     * @return {@link List}
-     */
-    public List<String> decodeFormat(String format) {
-        return Arrays.asList(format.split(":"));
     }
 
     public boolean isDefaultFormat(List<String> keyList) {
