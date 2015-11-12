@@ -105,6 +105,22 @@
                     </execution>
                 </executions>
             </plugin>
+            <!--<plugin>-->
+                <!--<groupId>com.google.protobuf.tools</groupId>-->
+                <!--<artifactId>maven-protoc-plugin</artifactId>-->
+                <!--<version>0.4.3</version>-->
+                <!--<configuration>-->
+                    <!--<protocExecutable>/usr/bin/protoc</protocExecutable>-->
+                <!--</configuration>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<goals>-->
+                            <!--<goal>compile</goal>-->
+                            <!--<goal>test-compile</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
         </plugins>
         <pluginManagement>
             <plugins>
