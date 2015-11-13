@@ -27,6 +27,49 @@ import java.util.List;
 public class GeneAnnotation {
 
     private List<Expression> expressionValues;
+    private List<Disease> diseases;
     private List<GeneDrugInteraction> drugInteractions;
 
+    public GeneAnnotation() {
+    }
+
+    public GeneAnnotation(List<Expression> expressionValues, List<Disease> diseases, List<GeneDrugInteraction> drugInteractions) {
+        this.expressionValues = expressionValues;
+        this.diseases = diseases;
+        this.drugInteractions = drugInteractions;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("GeneAnnotation{");
+        sb.append("expressionValues=").append(expressionValues);
+        sb.append(", diseases=").append(diseases);
+        sb.append(", drugInteractions=").append(drugInteractions);
+        sb.append('}');
+        return sb.toString();
+    }
+
+    public List<Expression> getExpressionValues() {
+        return expressionValues;
+    }
+
+    public void setExpressionValues(List<Expression> expressionValues) {
+        this.expressionValues = expressionValues;
+    }
+
+    public List<Disease> getDiseases() {
+        return diseases;
+    }
+
+    public void setDiseases(List<Disease> diseases) {
+        this.diseases = diseases;
+    }
+
+    public List<GeneDrugInteraction> getDrugInteractions() {
+        return drugInteractions;
+    }
+
+    public void setDrugInteractions(List<GeneDrugInteraction> drugInteractions) {
+        this.drugInteractions = drugInteractions;
+    }
 }
