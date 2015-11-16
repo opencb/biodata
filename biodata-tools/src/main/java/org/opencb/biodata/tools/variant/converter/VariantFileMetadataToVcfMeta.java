@@ -18,6 +18,7 @@ import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfMeta.Builder
  * @author Matthias Haimel mh719+git@cam.ac.uk
  *
  */
+@Deprecated
 public class VariantFileMetadataToVcfMeta implements Converter<VariantFileMetadata, VcfMeta> {
 
     @Override

@@ -17,19 +17,17 @@
 package org.opencb.biodata.tools.variant.converter;
 
 import org.apache.commons.lang3.StringUtils;
-import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.StudyEntry;
+import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.VariantSource;
 import org.opencb.biodata.models.variant.VariantVcfFactory;
 import org.opencb.biodata.models.variant.avro.FileEntry;
-import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfMeta;
+import org.opencb.biodata.models.variant.protobuf.VcfMeta;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfRecord;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfRecord.Builder;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfSample;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -42,15 +40,15 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
 //	public static final String ILLUMINA_GVCF_BLOCK_END = "END";
 
 
-    private final AtomicReference<VcfMeta> meta = new AtomicReference<VcfMeta>();
+    private final AtomicReference<VcfMeta> meta = new AtomicReference<>();
 
 
-    private final Map<String, Integer> sample_to_index = new HashMap<String, Integer>();
-    private final List<String> samples = new ArrayList<String>();
-    private final AtomicReference<String> defaultFilterKeys = new AtomicReference<String>();
+    private Map<String, Integer> samplesPosition = new HashMap<>();
+    private List<String> samples = new ArrayList<>();
+    private final AtomicReference<String> defaultFilterKeys = new AtomicReference<>();
     //	private final AtomicReference<String> defaultInfoKeys = new AtomicReference<String>();
-    private final List<String> defaultInfoKeys = new ArrayList<String>();
-    private final List<String> defaultFormatKeys = new ArrayList<String>();
+    private final List<String> defaultInfoKeys = new ArrayList<>();
+    private final List<String> defaultFormatKeys = new ArrayList<>();
     private final Set<String> ignoredKeys = new HashSet<>();
 
     /**
@@ -64,25 +62,14 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
     }
 
     private void init(VcfMeta meta) {
-        int sampleSize = meta.getSamplesCount();
-        sample_to_index.clear();
-        samples.clear();
-        ArrayList<String> lst = new ArrayList<String>(sampleSize);
 
         // add values
-        for (int i = 0; i < sampleSize; ++i) {
-            String sample = meta.getSamples(i);
-            if (sample_to_index.containsKey(sample)) {
-                throw new IllegalStateException(String.format("Duplicated sample '%s' found!!!", sample));
-            }
-            sample_to_index.put(sample, i);
-            lst.add(sample);
-        }
+        samplesPosition = meta.getVariantSource().getSamplesPosition();
+        samples = meta.getVariantSource().getSamples();
 
-        ArrayList<String> infoKeys = new ArrayList<String>(meta.getInfoDefaultList());
+        ArrayList<String> infoKeys = new ArrayList<String>(meta.getInfoDefault());
         Collections.sort(infoKeys); // INFO keys only to be sorted
 
-        samples.addAll(lst);
         defaultFilterKeys.set(meta.getFilterDefault());
 
 //		defaultInfoKeys.set(StringUtils.join(infoKeys, STRING_JOIN_SEP));
@@ -90,7 +77,7 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
         defaultInfoKeys.addAll(infoKeys);
 
         defaultFormatKeys.clear();
-        defaultFormatKeys.addAll(meta.getFormatDefaultList());
+        defaultFormatKeys.addAll(meta.getFormatDefault());
 
         setVcfMeta(meta);
     }
@@ -101,7 +88,7 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
     }
 
     public VcfRecord convert(Variant variant, int chunkSize) {
-        int slicePosition = getSlicePosition(variant.getStart(), chunkSize);
+        int slicePosition = chunkSize > 0 ? getSlicePosition(variant.getStart(), chunkSize) : 0;
         Builder recordBuilder = VcfRecord.newBuilder()
                 // Warning: start and end can be at different chunks.
                 // Do not use getSliceOffset independently
@@ -170,6 +157,10 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
 
     public void updateVcfMeta(VcfMeta meta) {
         this.init(meta);
+    }
+
+    public void updateVcfMeta(VariantSource source) {
+        this.init(new VcfMeta(source));
     }
 
     /**

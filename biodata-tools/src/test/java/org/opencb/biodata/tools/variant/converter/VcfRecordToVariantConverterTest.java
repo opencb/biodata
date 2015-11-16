@@ -4,13 +4,19 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.VariantSource;
 import org.opencb.biodata.models.variant.VariantVcfFactory;
 import org.opencb.biodata.models.variant.avro.FileEntry;
+import org.opencb.biodata.models.variant.protobuf.VcfMeta;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 /**
  * Created on 05/11/15
@@ -20,23 +26,17 @@ import static org.junit.Assert.*;
 public class VcfRecordToVariantConverterTest {
 
     private VcfRecordToVariantConverter converter;
-    private VcfSliceProtos.VcfMeta meta;
+    private VcfMeta meta;
 
     @Before
     public void setUp() throws Exception {
-        meta = VcfSliceProtos.VcfMeta.newBuilder()
-                .setFileId("chr1")
-                .setStudyId("study1")
-                .addFormatDefault("GT")
-                .addFormatDefault("DP")
-                .setFilterDefault("PASS")
-                .setIdDefault(".")
-                .addSamples("sample1")
-                .addSamples("sample2")
-                .addSamples("sample3")
-                .addSamples("sample4")
-                .addInfoDefault("Key")
-                .build();
+        meta = new VcfMeta(new VariantSource("1", "chr1", "study1", "5"));
+
+        meta.getVariantSource().setSamples(Arrays.asList("sample1", "sample2", "sample3", "sample4"));
+        meta.setFormatDefault(Arrays.asList("GT", "DP"));
+        meta.setInfoDefault(Collections.singletonList("Key"));
+        meta.setFilterDefault("PASS");
+        meta.setIdDefault(".");
         converter = new VcfRecordToVariantConverter(meta);
 
     }
@@ -99,10 +99,11 @@ public class VcfRecordToVariantConverterTest {
         studyEntry.setFiles(Collections.singletonList(new FileEntry("chr1", null, attributes)));
         variant.setStudies(Collections.singletonList(studyEntry));
 
-        VcfSliceProtos.VcfRecord vcfRecord = toProto.convert(variant);
+        VcfSliceProtos.VcfRecord vcfRecord = toProto.convert(variant, 100);
         assertEquals(0, vcfRecord.getSampleFormatNonDefaultCount());
         assertEquals("", vcfRecord.getFilterNonDefault());
         assertEquals(0, vcfRecord.getInfoKeyCount());
+        assertEquals(5, vcfRecord.getRelativeStart());
         Variant convertedVariant = converter.convert(vcfRecord, "1", 0);
 
         assertEquals(variant, convertedVariant);

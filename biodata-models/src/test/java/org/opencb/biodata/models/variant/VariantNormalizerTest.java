@@ -27,7 +27,7 @@ public class VariantNormalizerTest extends GenericTest {
 
     @Test
     public void testNormalizedSamplesDataSame() throws NonStandardCompliantSampleField {
-        // AC -> AA  === C -> A
+        // C -> A  === C -> A
         testSampleNormalization(100, "C", "A", 100, "C", "A");
     }
 
@@ -56,6 +56,18 @@ public class VariantNormalizerTest extends GenericTest {
     }
 
     @Test
+    public void testNormalizeSamplesDataAmbiguousDeletion() throws NonStandardCompliantSampleField {
+        // AAA -> A  === AA -> .
+        testSampleNormalization(100, "AAA", "A", 100, 101, "AA", "");
+    }
+
+    @Test
+    public void testNormalizeSamplesDataIndel() throws NonStandardCompliantSampleField {
+        // AAA -> A  === AA -> .
+        testSampleNormalization(100, "ATC", "ACCC", 101, 102, "T", "CC");
+    }
+
+    @Test
     public void testNormalizeSamplesDataRightInsertion() throws NonStandardCompliantSampleField {
         // C -> AC  === . -> A
         testSampleNormalization(100, "C", "AC", 100, "", "A");
@@ -64,10 +76,8 @@ public class VariantNormalizerTest extends GenericTest {
     @Test
     public void testNormalizeSamplesDataLeftInsertion() throws NonStandardCompliantSampleField {
         // C -> CA  === . -> A
-        testSampleNormalization(100, "C", "AC", 100, "", "A");
+        testSampleNormalization(100, "C", "CA", 101, "", "A");
     }
-
-
 
 
     private void testSampleNormalization(int position, String ref, String alt,

@@ -69,13 +69,13 @@ public class VariantContextToVariantConverterTest {
         // And read file again
         SpecificDatumReader<VariantAvro> reader = new SpecificDatumReader<>(VariantAvro.class);
         long cnt = 0;
-        try(DataFileReader<VariantAvro> in = new DataFileReader<>(outPath.toFile(), reader);){
-            for(VariantAvro v : in){
+        try (DataFileReader<VariantAvro> in = new DataFileReader<>(outPath.toFile(), reader);) {
+            for (VariantAvro v : in) {
                 Variant var = new Variant(v);
                 cnt += 1;
                 List<String> ids = var.getIds();
             }
-        };
+        }
         return cnt;
     }
 

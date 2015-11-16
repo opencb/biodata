@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
+
 import htsjdk.variant.vcf.VCFConstants;
 
 import java.util.ArrayList;
@@ -19,9 +20,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.VariantSource;
 import org.opencb.biodata.models.variant.VariantVcfFactory;
-import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfMeta;
-import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfMeta.Builder;
+import org.opencb.biodata.models.variant.protobuf.VcfMeta;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfRecord;
 
 public class VariantAvroToVcfRecordTest {
@@ -37,24 +38,24 @@ public class VariantAvroToVcfRecordTest {
     @Test
     public void testConvertVariantInt() {
 
-        List<String> sampleList = Arrays.asList("Sample_03","Sample_01");
+        List<String> sampleList = Arrays.asList("Sample_03", "Sample_01");
 
         // Variant
         String chr = "4";
         int start = 1234565;
-        int end = start+3;
-        List<String> ids = Arrays.asList("id123","id432");
+        int end = start + 3;
+        List<String> ids = Arrays.asList("id123", "id432");
         String ref = "X";
         String alt = "A";
-        Variant v = createVariant(chr, start, end, ids,ref,alt);
+        Variant v = createVariant(chr, start, end, ids, ref, alt);
 
 
-        String file_name = "file_123";
+        String fileName = "file_123";
         String format = "AB:EF:CD";
         String qual = "321";
         String filter = "PASS;low30";
         StudyEntry study = new StudyEntry();
-        study.setFileId(file_name);
+        study.setFileId(fileName);
         study.setFormat(Arrays.asList(format.split(VCFConstants.FORMAT_FIELD_SEPARATOR)));
         study.setAttributes(
                 buildMap(
@@ -71,41 +72,40 @@ public class VariantAvroToVcfRecordTest {
 
 //        Map<String, VariantSourceEntry> studyMap = new HashMap<>();
 //        studyMap.put("1", study );
-        v.setStudies(Arrays.asList(study));
+        v.setStudies(Collections.singletonList(study));
 
         // META
-        Builder mbuild = VcfMeta.newBuilder().addAllFormatDefault(Arrays.asList(format.split(":")))
-                .addAllInfoDefault(Arrays.asList("X","AB")).addAllSamples(sampleList);
-        mbuild.setStudyId("1").setFileId(file_name);
+        VcfMeta meta = new VcfMeta(new VariantSource(fileName, fileName, "2", "study"));
+        meta.setFormatDefault(Arrays.asList(format.split(":")));
+        meta.setInfoDefault(Arrays.asList("X", "AB"));
 
         // Converter
         VariantToProtoVcfRecord con = new VariantToProtoVcfRecord();
-        con.updateVcfMeta(mbuild.build());
+        con.updateVcfMeta(meta);
         VcfRecord rec = con.convert(v, 100);
 
         assertArrayEquals(rec.getIdNonDefaultList().toArray(), ids.toArray());
         assertEquals(ref, rec.getReference());
         assertEquals(alt, rec.getAlternate(0));
-        assertEquals(65,rec.getRelativeStart());
-        assertEquals(65+3,rec.getRelativeEnd());
+        assertEquals(65, rec.getRelativeStart());
+        assertEquals(65 + 3, rec.getRelativeEnd());
         assertEquals(sampleList.size(), rec.getSamplesList().size());
         assertEquals(Arrays.asList("ab2", "ef2", "cd2"), new ArrayList<CharSequence>(rec.getSamples(1).getSampleValuesList()));
         assertEquals(Arrays.asList("ab1", "ef1", "cd1"), new ArrayList<CharSequence>(rec.getSamples(0).getSampleValuesList()));
         assertEquals(qual, rec.getQuality());
-        assertEquals(Arrays.asList("A","X"), new ArrayList<String>(rec.getInfoKeyList()));
+        assertEquals(Arrays.asList("A", "X"), new ArrayList<>(rec.getInfoKeyList()));
         assertEquals(filter, rec.getFilterNonDefault());
 
         // change default FILTER
-        mbuild.setFilterDefault(filter);
-        con.updateVcfMeta(mbuild.build());
+        meta.setFilterDefault(filter);
+        con.updateVcfMeta(meta);
         rec = con.convert(v, 100);
         assertEquals("", rec.getFilterNonDefault());
 
 
-
     }
 
-    private Map<String, String> buildMap(String ... entries) {
+    private Map<String, String> buildMap(String... entries) {
         Map<String, String> m = new HashMap<>();
         Arrays.asList(entries).forEach(x -> m.put(x.split(":")[0], x.split(":")[1]));
         return m;
@@ -144,15 +144,18 @@ public class VariantAvroToVcfRecordTest {
 
     @Test
     public void testIsDefaultFormat() {
-        VariantToProtoVcfRecord con = new VariantToProtoVcfRecord();
+        VariantToProtoVcfRecord converter = new VariantToProtoVcfRecord();
 
-        List<String> flist = Arrays.asList("AB","CD","EF");
-        List<String> wrongList = new ArrayList<String>(flist);
+        List<String> formatList = Arrays.asList("AB", "CD", "EF");
+        List<String> wrongList = new ArrayList<>(formatList);
         Collections.reverse(wrongList);
-        con.updateVcfMeta(VcfMeta.newBuilder().addAllFormatDefault(flist).build());
-        assertTrue("Format is default ",con.isDefaultFormat(flist));
-        assertFalse("Format is default ",con.isDefaultFormat(wrongList));
-//		assertEquals("Issues with Format",flist, con.getDefaultFormatKeys());
+
+        VcfMeta meta = new VcfMeta(new VariantSource("", "", "", ""));
+        meta.setFormatDefault(formatList);
+        converter.updateVcfMeta(meta);
+        assertTrue("Format is default ", converter.isDefaultFormat(formatList));
+        assertFalse("Format is default ", converter.isDefaultFormat(wrongList));
+//		assertEquals("Issues with Format",formatList, converter.getDefaultFormatKeys());
 
     }
 
@@ -163,21 +166,21 @@ public class VariantAvroToVcfRecordTest {
 
         data.put("A", "a");
         assertEquals(
-                new ArrayList<String>(con.decodeSample(Arrays.asList("A","B"), data).getSampleValuesList()),
-                Arrays.asList("a",""));
+                new ArrayList<>(con.decodeSample(Arrays.asList("A", "B"), data).getSampleValuesList()),
+                Arrays.asList("a", ""));
         assertNotEquals(
-                new ArrayList<String>(con.decodeSample(Arrays.asList("A","B"), data).getSampleValuesList()),
-                Arrays.asList("a"));
+                new ArrayList<>(con.decodeSample(Arrays.asList("A", "B"), data).getSampleValuesList()),
+                Collections.singletonList("a"));
 
-        data.put("B","b");
+        data.put("B", "b");
         assertEquals(
-                new ArrayList<String>(con.decodeSample(Arrays.asList("A","B"), data).getSampleValuesList()),
-                Arrays.asList("a","b"));
+                new ArrayList<>(con.decodeSample(Arrays.asList("A", "B"), data).getSampleValuesList()),
+                Arrays.asList("a", "b"));
 
-        data.put("C","c");
+        data.put("C", "c");
         assertEquals(
-                new ArrayList<String>(con.decodeSample(Arrays.asList("A","B"), data).getSampleValuesList()),
-                Arrays.asList("a","b"));
+                new ArrayList<>(con.decodeSample(Arrays.asList("A", "B"), data).getSampleValuesList()),
+                Arrays.asList("a", "b"));
 
     }
 
@@ -185,12 +188,13 @@ public class VariantAvroToVcfRecordTest {
     public void testGetSamples() {
         VariantToProtoVcfRecord con = new VariantToProtoVcfRecord();
 
-        Iterable<String> slist = Arrays.asList("S1","S2","S5","S3");
-        VcfMeta meta = VcfMeta.newBuilder().addAllSamples(slist ).build();
+        List<String> samplesList = Arrays.asList("S1", "S2", "S5", "S3");
+        VcfMeta meta = new VcfMeta(new VariantSource("", "", "", ""));
+        meta.getVariantSource().setSamples(samplesList);
         con.updateVcfMeta(meta);
 
         List<String> samples = con.getSamples();
-        assertEquals(slist, samples);
+        assertEquals(samplesList, samples);
     }
 
 }

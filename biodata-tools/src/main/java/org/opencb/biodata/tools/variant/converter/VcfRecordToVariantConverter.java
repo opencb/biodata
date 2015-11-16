@@ -2,8 +2,10 @@ package org.opencb.biodata.tools.variant.converter;
 
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.VariantSource;
 import org.opencb.biodata.models.variant.VariantVcfFactory;
 import org.opencb.biodata.models.variant.avro.FileEntry;
+import org.opencb.biodata.models.variant.protobuf.VcfMeta;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
 
 import java.util.*;
@@ -15,13 +17,18 @@ import java.util.*;
  */
 public class VcfRecordToVariantConverter implements Converter<VcfSliceProtos.VcfRecord, Variant> {
 
-    private final VcfSliceProtos.VcfMeta meta;
+    //    private final VcfSliceProtos.VcfMeta meta;
+    private final VcfMeta meta;
     private final LinkedHashMap<String, Integer> samplePosition;
 
-    public VcfRecordToVariantConverter(VcfSliceProtos.VcfMeta meta) {
+    public VcfRecordToVariantConverter(VariantSource meta) {
+        this(new VcfMeta(meta));
+    }
+
+    public VcfRecordToVariantConverter(VcfMeta meta) {
         this.meta = meta;
-        samplePosition = new LinkedHashMap<>(meta.getSamplesCount());
-        for (String sample : meta.getSamplesList()) {
+        samplePosition = new LinkedHashMap<>(meta.getVariantSource().getSamples().size());
+        for (String sample : meta.getVariantSource().getSamples()) {
             samplePosition.put(sample, samplePosition.size());
         }
     }
@@ -42,11 +49,11 @@ public class VcfRecordToVariantConverter implements Converter<VcfSliceProtos.Vcf
         variant.setIds(vcfRecord.getIdNonDefaultList());
 
         FileEntry fileEntry = new FileEntry();
-        fileEntry.setFileId(meta.getFileId());
+        fileEntry.setFileId(meta.getVariantSource().getFileId());
         fileEntry.setAttributes(getFileAttributes(vcfRecord));
         //fileEntry.setCall(""); //TODO
 
-        StudyEntry studyEntry = new StudyEntry(meta.getStudyId());
+        StudyEntry studyEntry = new StudyEntry(meta.getVariantSource().getStudyId());
         studyEntry.setFiles(Collections.singletonList(fileEntry));
         studyEntry.setFormat(getFormat(vcfRecord));
         studyEntry.setSamplesData(getSamplesData(vcfRecord));
@@ -69,10 +76,10 @@ public class VcfRecordToVariantConverter implements Converter<VcfSliceProtos.Vcf
         Map<String, String> attributes = new HashMap<>(vcfRecord.getInfoKeyCount());
         Iterator<String> keyIterator;
         if (vcfRecord.getInfoKeyCount() != vcfRecord.getInfoValueCount()) {
-            if (meta.getInfoDefaultCount() != vcfRecord.getInfoValueCount()) {
+            if (meta.getInfoDefault().size() != vcfRecord.getInfoValueCount()) {
                 throw new UnsupportedOperationException("Number of info keys and info values mismatch");
             }
-            keyIterator = meta.getInfoDefaultList().iterator();
+            keyIterator = meta.getInfoDefault().iterator();
         } else {
             keyIterator = vcfRecord.getInfoKeyList().iterator();
         }
@@ -96,7 +103,7 @@ public class VcfRecordToVariantConverter implements Converter<VcfSliceProtos.Vcf
     private List<String> getFormat(VcfSliceProtos.VcfRecord vcfRecord) {
         List<String> formatList = vcfRecord.getSampleFormatNonDefaultList();
         if (formatList.isEmpty()) {
-            formatList = meta.getFormatDefaultList();
+            formatList = meta.getFormatDefault();
         }
         return formatList;
     }
