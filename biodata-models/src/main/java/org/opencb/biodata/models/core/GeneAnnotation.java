@@ -18,6 +18,7 @@ package org.opencb.biodata.models.core;
 
 import org.opencb.biodata.models.variant.avro.Expression;
 import org.opencb.biodata.models.variant.avro.GeneDrugInteraction;
+import org.opencb.biodata.models.variant.avro.GeneTraitAssociation;
 
 import java.util.List;
 
@@ -27,13 +28,13 @@ import java.util.List;
 public class GeneAnnotation {
 
     private List<Expression> expression;
-    private List<Disease> diseases;
+    private List<GeneTraitAssociation> diseases;
     private List<GeneDrugInteraction> drugs;
 
     public GeneAnnotation() {
     }
 
-    public GeneAnnotation(List<Expression> expression, List<Disease> diseases, List<GeneDrugInteraction> drugs) {
+    public GeneAnnotation(List<Expression> expression, List<GeneTraitAssociation> diseases, List<GeneDrugInteraction> drugs) {
         this.expression = expression;
         this.diseases = diseases;
         this.drugs = drugs;
@@ -57,11 +58,11 @@ public class GeneAnnotation {
         this.expression = expression;
     }
 
-    public List<Disease> getDiseases() {
+    public List<GeneTraitAssociation> getDiseases() {
         return diseases;
     }
 
-    public void setDiseases(List<Disease> diseases) {
+    public void setDiseases(List<GeneTraitAssociation> diseases) {
         this.diseases = diseases;
     }
 

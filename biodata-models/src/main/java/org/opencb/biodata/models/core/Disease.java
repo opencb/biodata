@@ -23,6 +23,7 @@ import java.util.Set;
 /**
  * Created by fjlopez on 20/05/15.
  */
+@Deprecated
 public class Disease {
 
     private String id;
