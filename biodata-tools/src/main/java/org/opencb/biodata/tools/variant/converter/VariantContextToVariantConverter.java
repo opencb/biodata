@@ -364,7 +364,7 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         /*
          * set AdditionalAttributes map type parameter
          */
-        Map<String, String> additionalAttributesMap = new HashMap();
+        Map<String, Object> additionalAttributesMap = new HashMap();
         //additionalAttributesMap.put(null, null);
         variantAnnotation.setAdditionalAttributes(additionalAttributesMap);
         /*
