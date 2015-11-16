@@ -136,6 +136,7 @@ protocol VariantAnnotations {
         union { null, array<Expression> } expression;
         union { null, array<GeneDrugInteraction> } geneDrugInteraction;
         union { null, VariantTraitAssociation } variantTraitAssociation;
+        union { null, array<Score> } variantFunctionalScore;
         union { null, map<string> } additionalAttributes;
     }
 
