@@ -299,7 +299,7 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         expressionValue.setPvalue(null);
         expressionValue.setTechnologyPlatform(null);*/
 //        expressionValueList.add(expressionValue);
-//        consequenceType.setExpressionValues(expressionValueList);
+//        consequenceType.setExpression(expressionValueList);
 
         /*
          * set ProteinSubstitutionScores list type parameter

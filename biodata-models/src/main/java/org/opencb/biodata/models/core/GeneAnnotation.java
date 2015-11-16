@@ -26,35 +26,35 @@ import java.util.List;
  */
 public class GeneAnnotation {
 
-    private List<Expression> expressionValues;
+    private List<Expression> expression;
     private List<Disease> diseases;
-    private List<GeneDrugInteraction> drugInteractions;
+    private List<GeneDrugInteraction> drugs;
 
     public GeneAnnotation() {
     }
 
-    public GeneAnnotation(List<Expression> expressionValues, List<Disease> diseases, List<GeneDrugInteraction> drugInteractions) {
-        this.expressionValues = expressionValues;
+    public GeneAnnotation(List<Expression> expression, List<Disease> diseases, List<GeneDrugInteraction> drugs) {
+        this.expression = expression;
         this.diseases = diseases;
-        this.drugInteractions = drugInteractions;
+        this.drugs = drugs;
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("GeneAnnotation{");
-        sb.append("expressionValues=").append(expressionValues);
+        sb.append("expression=").append(expression);
         sb.append(", diseases=").append(diseases);
-        sb.append(", drugInteractions=").append(drugInteractions);
+        sb.append(", drugs=").append(drugs);
         sb.append('}');
         return sb.toString();
     }
 
-    public List<Expression> getExpressionValues() {
-        return expressionValues;
+    public List<Expression> getExpression() {
+        return expression;
     }
 
-    public void setExpressionValues(List<Expression> expressionValues) {
-        this.expressionValues = expressionValues;
+    public void setExpression(List<Expression> expression) {
+        this.expression = expression;
     }
 
     public List<Disease> getDiseases() {
@@ -65,11 +65,11 @@ public class GeneAnnotation {
         this.diseases = diseases;
     }
 
-    public List<GeneDrugInteraction> getDrugInteractions() {
-        return drugInteractions;
+    public List<GeneDrugInteraction> getDrugs() {
+        return drugs;
     }
 
-    public void setDrugInteractions(List<GeneDrugInteraction> drugInteractions) {
-        this.drugInteractions = drugInteractions;
+    public void setDrugs(List<GeneDrugInteraction> drugs) {
+        this.drugs = drugs;
     }
 }
