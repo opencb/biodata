@@ -2,7 +2,7 @@ syntax = "proto3";
 package org.opencb.biodata.models.variant.protobuf;
 option java_package = "org.opencb.biodata.models.variant.protobuf";
 option java_outer_classname = "VcfSliceProtos";
-
+import "variant.proto";
 // CHROM  POS     ID      REF     ALT     QUAL    FILTER  INFO  FORMAT  [SAMPLE]
 
 
@@ -17,6 +17,10 @@ message VcfRecord {
   string reference = 3; 
   repeated string alternate = 4;
   string quality = 5;
+
+  VariantType type = 12;
+  string call = 13;
+
   string filter_non_default = 6;
   repeated string id_non_default = 7;
   
@@ -25,22 +29,6 @@ message VcfRecord {
   
   repeated string sample_format_non_default = 10;
   repeated VcfSample samples = 11;
-  
-}
-
-
-message VcfMeta {
-  string quality_default = 1; // e.g. "."
-  string filter_default = 2; // PASS being default
-  repeated string info_default  = 3; // DEFAULT_INFO
-  repeated string format_default = 4; // GT:GQ:GQX:DP:DPF:AD being default
-  string id_default = 5; // e.g. "."
-  
-  // also add HEADER information?
-  repeated string samples = 6; // list of samples at specific index
-  
-  string file_id = 7;
-  string study_id = 8;
   
 }
 

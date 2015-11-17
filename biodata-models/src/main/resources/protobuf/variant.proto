@@ -16,16 +16,21 @@ import "variantAnnotation.proto";
  * </ul>
  */
 enum VariantType {
-    SNP = 0;
-    SNV = 1;
-    MNP = 2;
-    MNV = 3;
-    INDEL = 4;
-    SV = 5;
-    CNV = 6;
-    NO_VARIATION = 7;
-    SYMBOLIC = 8;
-    MIXED = 9;
+    SNP            = 0;  // SO:0000694
+    SNV            = 1;  // SO:0001483
+    MNP            = 2;  // SO:0001013
+    MNV            = 3;  // SO:0002007
+    INDEL          = 4;  // SO:1000032
+    SV             = 5;  // SO:0001537
+    CNV            = 6;  // SO:0001019
+    NO_VARIATION   = 7;  // Defined in HTSJDK
+    SYMBOLIC       = 8;  // Defined in HTSJDK
+    MIXED          = 9;  // Defined in HTSJDK
+
+    INSERTION      = 10;  // SO:0000667
+    DELETION       = 11;  // SO:0000159
+    TRANSLOCATION  = 12;  // SO:0000199
+    INVERSION      = 13;  // SO:1000036
 }
 
 enum AllelesCode {

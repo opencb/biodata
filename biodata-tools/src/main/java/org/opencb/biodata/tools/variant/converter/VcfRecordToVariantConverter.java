@@ -5,6 +5,8 @@ import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantSource;
 import org.opencb.biodata.models.variant.VariantVcfFactory;
 import org.opencb.biodata.models.variant.avro.FileEntry;
+import org.opencb.biodata.models.variant.avro.VariantType;
+import org.opencb.biodata.models.variant.protobuf.VariantProto;
 import org.opencb.biodata.models.variant.protobuf.VcfMeta;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
 
@@ -46,6 +48,7 @@ public class VcfRecordToVariantConverter implements Converter<VcfSliceProtos.Vcf
         List<String> alts = vcfRecord.getAlternateList();
         Variant variant = new Variant(chromosome, start, end, vcfRecord.getReference(), alts.get(0));
 
+        variant.setType(getVariantType(vcfRecord.getType()));
         variant.setIds(vcfRecord.getIdNonDefaultList());
 
         FileEntry fileEntry = new FileEntry();
@@ -106,6 +109,29 @@ public class VcfRecordToVariantConverter implements Converter<VcfSliceProtos.Vcf
             formatList = meta.getFormatDefault();
         }
         return formatList;
+    }
+
+    public static VariantType getVariantType(VariantProto.VariantType type) {
+        if (type == null) {
+            return null;
+        }
+        switch (type) {
+            case SNV: return VariantType.SNV;
+            case SNP: return VariantType.SNP;
+            case MNV: return VariantType.MNV;
+            case MNP: return VariantType.MNP;
+            case INDEL: return VariantType.INDEL;
+            case SV: return VariantType.SV;
+            case INSERTION: return VariantType.INSERTION;
+            case DELETION: return VariantType.DELETION;
+            case TRANSLOCATION: return VariantType.TRANSLOCATION;
+            case INVERSION: return VariantType.INVERSION;
+            case CNV: return VariantType.CNV;
+            case NO_VARIATION: return VariantType.NO_VARIATION;
+            case SYMBOLIC: return VariantType.SYMBOLIC;
+            case MIXED: return VariantType.MIXED;
+            default: return VariantType.valueOf(type.name());
+        }
     }
 
 }
