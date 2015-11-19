@@ -144,11 +144,11 @@ protocol VariantAnnotations {
         array<ConsequenceType> consequenceTypes = [];
         union { null, array<PopulationFrequency> } populationFrequencies;
         union { null, array<Score> } conservation;
-        union { null, array<Expression> } expression;
+        union { null, array<Expression> } geneExpression;
         union { null, array<GeneTraitAssociation> } geneTraitAssociation;
         union { null, array<GeneDrugInteraction> } geneDrugInteraction;
         union { null, VariantTraitAssociation } variantTraitAssociation;
-        union { null, array<Score> } variantFunctionalScore;
+        union { null, array<Score> } functionalScore;
         union { null, map<union { int, float, double, string, map<union { int, float, double, string }> }> } additionalAttributes;
     }
 
