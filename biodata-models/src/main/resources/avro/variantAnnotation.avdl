@@ -120,6 +120,7 @@ protocol VariantAnnotations {
         union { null, string } ensemblTranscriptId;
         union { null, string } strand;
         union { null, string } biotype;
+        union { null, array<string> } transcriptAnnotationFlags;
         union { null, int } cdnaPosition;
         union { null, int } cdsPosition;
         union { null, string } codon;

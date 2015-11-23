@@ -7,13 +7,14 @@ package org.opencb.biodata.models.variant.avro;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"ConsequenceType\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"geneName\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"ensemblGeneId\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"ensemblTranscriptId\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"strand\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"biotype\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"cdnaPosition\",\"type\":[\"null\",\"int\"]},{\"name\":\"cdsPosition\",\"type\":[\"null\",\"int\"]},{\"name\":\"codon\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"proteinVariantAnnotation\",\"type\":[\"null\",{\"type\":\"record\",\"name\":\"ProteinVariantAnnotation\",\"fields\":[{\"name\":\"uniprotAccession\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"uniprotName\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"position\",\"type\":\"int\"},{\"name\":\"reference\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"alternate\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"uniprotVariantId\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"functionalDescription\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"substitutionScores\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Score\",\"fields\":[{\"name\":\"score\",\"type\":\"double\"},{\"name\":\"source\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"description\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]}]}}]},{\"name\":\"keywords\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]},{\"name\":\"features\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"ProteinFeature\",\"fields\":[{\"name\":\"id\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"start\",\"type\":\"int\"},{\"name\":\"end\",\"type\":\"int\"},{\"name\":\"type\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"description\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]}]}}]}]}]},{\"name\":\"sequenceOntologyTerms\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"SequenceOntologyTerm\",\"fields\":[{\"name\":\"accession\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"name\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}}}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"ConsequenceType\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"geneName\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"ensemblGeneId\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"ensemblTranscriptId\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"strand\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"biotype\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"transcriptAnnotationFlags\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]},{\"name\":\"cdnaPosition\",\"type\":[\"null\",\"int\"]},{\"name\":\"cdsPosition\",\"type\":[\"null\",\"int\"]},{\"name\":\"codon\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"proteinVariantAnnotation\",\"type\":[\"null\",{\"type\":\"record\",\"name\":\"ProteinVariantAnnotation\",\"fields\":[{\"name\":\"uniprotAccession\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"uniprotName\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"position\",\"type\":\"int\"},{\"name\":\"reference\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"alternate\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"uniprotVariantId\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"functionalDescription\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"substitutionScores\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Score\",\"fields\":[{\"name\":\"score\",\"type\":\"double\"},{\"name\":\"source\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"description\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]}]}}]},{\"name\":\"keywords\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]},{\"name\":\"features\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"ProteinFeature\",\"fields\":[{\"name\":\"id\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"start\",\"type\":\"int\"},{\"name\":\"end\",\"type\":\"int\"},{\"name\":\"type\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"description\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]}]}}]}]}]},{\"name\":\"sequenceOntologyTerms\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"SequenceOntologyTerm\",\"fields\":[{\"name\":\"accession\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},{\"name\":\"name\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}}}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
    private java.lang.String geneName;
    private java.lang.String ensemblGeneId;
    private java.lang.String ensemblTranscriptId;
    private java.lang.String strand;
    private java.lang.String biotype;
+   private java.util.List<java.lang.String> transcriptAnnotationFlags;
    private java.lang.Integer cdnaPosition;
    private java.lang.Integer cdsPosition;
    private java.lang.String codon;
@@ -30,12 +31,13 @@ public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase
   /**
    * All-args constructor.
    */
-  public ConsequenceType(java.lang.String geneName, java.lang.String ensemblGeneId, java.lang.String ensemblTranscriptId, java.lang.String strand, java.lang.String biotype, java.lang.Integer cdnaPosition, java.lang.Integer cdsPosition, java.lang.String codon, org.opencb.biodata.models.variant.avro.ProteinVariantAnnotation proteinVariantAnnotation, java.util.List<org.opencb.biodata.models.variant.avro.SequenceOntologyTerm> sequenceOntologyTerms) {
+  public ConsequenceType(java.lang.String geneName, java.lang.String ensemblGeneId, java.lang.String ensemblTranscriptId, java.lang.String strand, java.lang.String biotype, java.util.List<java.lang.String> transcriptAnnotationFlags, java.lang.Integer cdnaPosition, java.lang.Integer cdsPosition, java.lang.String codon, org.opencb.biodata.models.variant.avro.ProteinVariantAnnotation proteinVariantAnnotation, java.util.List<org.opencb.biodata.models.variant.avro.SequenceOntologyTerm> sequenceOntologyTerms) {
     this.geneName = geneName;
     this.ensemblGeneId = ensemblGeneId;
     this.ensemblTranscriptId = ensemblTranscriptId;
     this.strand = strand;
     this.biotype = biotype;
+    this.transcriptAnnotationFlags = transcriptAnnotationFlags;
     this.cdnaPosition = cdnaPosition;
     this.cdsPosition = cdsPosition;
     this.codon = codon;
@@ -52,11 +54,12 @@ public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase
     case 2: return ensemblTranscriptId;
     case 3: return strand;
     case 4: return biotype;
-    case 5: return cdnaPosition;
-    case 6: return cdsPosition;
-    case 7: return codon;
-    case 8: return proteinVariantAnnotation;
-    case 9: return sequenceOntologyTerms;
+    case 5: return transcriptAnnotationFlags;
+    case 6: return cdnaPosition;
+    case 7: return cdsPosition;
+    case 8: return codon;
+    case 9: return proteinVariantAnnotation;
+    case 10: return sequenceOntologyTerms;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -69,11 +72,12 @@ public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase
     case 2: ensemblTranscriptId = (java.lang.String)value$; break;
     case 3: strand = (java.lang.String)value$; break;
     case 4: biotype = (java.lang.String)value$; break;
-    case 5: cdnaPosition = (java.lang.Integer)value$; break;
-    case 6: cdsPosition = (java.lang.Integer)value$; break;
-    case 7: codon = (java.lang.String)value$; break;
-    case 8: proteinVariantAnnotation = (org.opencb.biodata.models.variant.avro.ProteinVariantAnnotation)value$; break;
-    case 9: sequenceOntologyTerms = (java.util.List<org.opencb.biodata.models.variant.avro.SequenceOntologyTerm>)value$; break;
+    case 5: transcriptAnnotationFlags = (java.util.List<java.lang.String>)value$; break;
+    case 6: cdnaPosition = (java.lang.Integer)value$; break;
+    case 7: cdsPosition = (java.lang.Integer)value$; break;
+    case 8: codon = (java.lang.String)value$; break;
+    case 9: proteinVariantAnnotation = (org.opencb.biodata.models.variant.avro.ProteinVariantAnnotation)value$; break;
+    case 10: sequenceOntologyTerms = (java.util.List<org.opencb.biodata.models.variant.avro.SequenceOntologyTerm>)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -151,6 +155,21 @@ public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase
    */
   public void setBiotype(java.lang.String value) {
     this.biotype = value;
+  }
+
+  /**
+   * Gets the value of the 'transcriptAnnotationFlags' field.
+   */
+  public java.util.List<java.lang.String> getTranscriptAnnotationFlags() {
+    return transcriptAnnotationFlags;
+  }
+
+  /**
+   * Sets the value of the 'transcriptAnnotationFlags' field.
+   * @param value the value to set.
+   */
+  public void setTranscriptAnnotationFlags(java.util.List<java.lang.String> value) {
+    this.transcriptAnnotationFlags = value;
   }
 
   /**
@@ -254,6 +273,7 @@ public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase
     private java.lang.String ensemblTranscriptId;
     private java.lang.String strand;
     private java.lang.String biotype;
+    private java.util.List<java.lang.String> transcriptAnnotationFlags;
     private java.lang.Integer cdnaPosition;
     private java.lang.Integer cdsPosition;
     private java.lang.String codon;
@@ -288,25 +308,29 @@ public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase
         this.biotype = data().deepCopy(fields()[4].schema(), other.biotype);
         fieldSetFlags()[4] = true;
       }
-      if (isValidValue(fields()[5], other.cdnaPosition)) {
-        this.cdnaPosition = data().deepCopy(fields()[5].schema(), other.cdnaPosition);
+      if (isValidValue(fields()[5], other.transcriptAnnotationFlags)) {
+        this.transcriptAnnotationFlags = data().deepCopy(fields()[5].schema(), other.transcriptAnnotationFlags);
         fieldSetFlags()[5] = true;
       }
-      if (isValidValue(fields()[6], other.cdsPosition)) {
-        this.cdsPosition = data().deepCopy(fields()[6].schema(), other.cdsPosition);
+      if (isValidValue(fields()[6], other.cdnaPosition)) {
+        this.cdnaPosition = data().deepCopy(fields()[6].schema(), other.cdnaPosition);
         fieldSetFlags()[6] = true;
       }
-      if (isValidValue(fields()[7], other.codon)) {
-        this.codon = data().deepCopy(fields()[7].schema(), other.codon);
+      if (isValidValue(fields()[7], other.cdsPosition)) {
+        this.cdsPosition = data().deepCopy(fields()[7].schema(), other.cdsPosition);
         fieldSetFlags()[7] = true;
       }
-      if (isValidValue(fields()[8], other.proteinVariantAnnotation)) {
-        this.proteinVariantAnnotation = data().deepCopy(fields()[8].schema(), other.proteinVariantAnnotation);
+      if (isValidValue(fields()[8], other.codon)) {
+        this.codon = data().deepCopy(fields()[8].schema(), other.codon);
         fieldSetFlags()[8] = true;
       }
-      if (isValidValue(fields()[9], other.sequenceOntologyTerms)) {
-        this.sequenceOntologyTerms = data().deepCopy(fields()[9].schema(), other.sequenceOntologyTerms);
+      if (isValidValue(fields()[9], other.proteinVariantAnnotation)) {
+        this.proteinVariantAnnotation = data().deepCopy(fields()[9].schema(), other.proteinVariantAnnotation);
         fieldSetFlags()[9] = true;
+      }
+      if (isValidValue(fields()[10], other.sequenceOntologyTerms)) {
+        this.sequenceOntologyTerms = data().deepCopy(fields()[10].schema(), other.sequenceOntologyTerms);
+        fieldSetFlags()[10] = true;
       }
     }
     
@@ -333,25 +357,29 @@ public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase
         this.biotype = data().deepCopy(fields()[4].schema(), other.biotype);
         fieldSetFlags()[4] = true;
       }
-      if (isValidValue(fields()[5], other.cdnaPosition)) {
-        this.cdnaPosition = data().deepCopy(fields()[5].schema(), other.cdnaPosition);
+      if (isValidValue(fields()[5], other.transcriptAnnotationFlags)) {
+        this.transcriptAnnotationFlags = data().deepCopy(fields()[5].schema(), other.transcriptAnnotationFlags);
         fieldSetFlags()[5] = true;
       }
-      if (isValidValue(fields()[6], other.cdsPosition)) {
-        this.cdsPosition = data().deepCopy(fields()[6].schema(), other.cdsPosition);
+      if (isValidValue(fields()[6], other.cdnaPosition)) {
+        this.cdnaPosition = data().deepCopy(fields()[6].schema(), other.cdnaPosition);
         fieldSetFlags()[6] = true;
       }
-      if (isValidValue(fields()[7], other.codon)) {
-        this.codon = data().deepCopy(fields()[7].schema(), other.codon);
+      if (isValidValue(fields()[7], other.cdsPosition)) {
+        this.cdsPosition = data().deepCopy(fields()[7].schema(), other.cdsPosition);
         fieldSetFlags()[7] = true;
       }
-      if (isValidValue(fields()[8], other.proteinVariantAnnotation)) {
-        this.proteinVariantAnnotation = data().deepCopy(fields()[8].schema(), other.proteinVariantAnnotation);
+      if (isValidValue(fields()[8], other.codon)) {
+        this.codon = data().deepCopy(fields()[8].schema(), other.codon);
         fieldSetFlags()[8] = true;
       }
-      if (isValidValue(fields()[9], other.sequenceOntologyTerms)) {
-        this.sequenceOntologyTerms = data().deepCopy(fields()[9].schema(), other.sequenceOntologyTerms);
+      if (isValidValue(fields()[9], other.proteinVariantAnnotation)) {
+        this.proteinVariantAnnotation = data().deepCopy(fields()[9].schema(), other.proteinVariantAnnotation);
         fieldSetFlags()[9] = true;
+      }
+      if (isValidValue(fields()[10], other.sequenceOntologyTerms)) {
+        this.sequenceOntologyTerms = data().deepCopy(fields()[10].schema(), other.sequenceOntologyTerms);
+        fieldSetFlags()[10] = true;
       }
     }
 
@@ -480,6 +508,31 @@ public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase
       return this;
     }
 
+    /** Gets the value of the 'transcriptAnnotationFlags' field */
+    public java.util.List<java.lang.String> getTranscriptAnnotationFlags() {
+      return transcriptAnnotationFlags;
+    }
+    
+    /** Sets the value of the 'transcriptAnnotationFlags' field */
+    public org.opencb.biodata.models.variant.avro.ConsequenceType.Builder setTranscriptAnnotationFlags(java.util.List<java.lang.String> value) {
+      validate(fields()[5], value);
+      this.transcriptAnnotationFlags = value;
+      fieldSetFlags()[5] = true;
+      return this; 
+    }
+    
+    /** Checks whether the 'transcriptAnnotationFlags' field has been set */
+    public boolean hasTranscriptAnnotationFlags() {
+      return fieldSetFlags()[5];
+    }
+    
+    /** Clears the value of the 'transcriptAnnotationFlags' field */
+    public org.opencb.biodata.models.variant.avro.ConsequenceType.Builder clearTranscriptAnnotationFlags() {
+      transcriptAnnotationFlags = null;
+      fieldSetFlags()[5] = false;
+      return this;
+    }
+
     /** Gets the value of the 'cdnaPosition' field */
     public java.lang.Integer getCdnaPosition() {
       return cdnaPosition;
@@ -487,21 +540,21 @@ public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase
     
     /** Sets the value of the 'cdnaPosition' field */
     public org.opencb.biodata.models.variant.avro.ConsequenceType.Builder setCdnaPosition(java.lang.Integer value) {
-      validate(fields()[5], value);
+      validate(fields()[6], value);
       this.cdnaPosition = value;
-      fieldSetFlags()[5] = true;
+      fieldSetFlags()[6] = true;
       return this; 
     }
     
     /** Checks whether the 'cdnaPosition' field has been set */
     public boolean hasCdnaPosition() {
-      return fieldSetFlags()[5];
+      return fieldSetFlags()[6];
     }
     
     /** Clears the value of the 'cdnaPosition' field */
     public org.opencb.biodata.models.variant.avro.ConsequenceType.Builder clearCdnaPosition() {
       cdnaPosition = null;
-      fieldSetFlags()[5] = false;
+      fieldSetFlags()[6] = false;
       return this;
     }
 
@@ -512,21 +565,21 @@ public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase
     
     /** Sets the value of the 'cdsPosition' field */
     public org.opencb.biodata.models.variant.avro.ConsequenceType.Builder setCdsPosition(java.lang.Integer value) {
-      validate(fields()[6], value);
+      validate(fields()[7], value);
       this.cdsPosition = value;
-      fieldSetFlags()[6] = true;
+      fieldSetFlags()[7] = true;
       return this; 
     }
     
     /** Checks whether the 'cdsPosition' field has been set */
     public boolean hasCdsPosition() {
-      return fieldSetFlags()[6];
+      return fieldSetFlags()[7];
     }
     
     /** Clears the value of the 'cdsPosition' field */
     public org.opencb.biodata.models.variant.avro.ConsequenceType.Builder clearCdsPosition() {
       cdsPosition = null;
-      fieldSetFlags()[6] = false;
+      fieldSetFlags()[7] = false;
       return this;
     }
 
@@ -537,21 +590,21 @@ public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase
     
     /** Sets the value of the 'codon' field */
     public org.opencb.biodata.models.variant.avro.ConsequenceType.Builder setCodon(java.lang.String value) {
-      validate(fields()[7], value);
+      validate(fields()[8], value);
       this.codon = value;
-      fieldSetFlags()[7] = true;
+      fieldSetFlags()[8] = true;
       return this; 
     }
     
     /** Checks whether the 'codon' field has been set */
     public boolean hasCodon() {
-      return fieldSetFlags()[7];
+      return fieldSetFlags()[8];
     }
     
     /** Clears the value of the 'codon' field */
     public org.opencb.biodata.models.variant.avro.ConsequenceType.Builder clearCodon() {
       codon = null;
-      fieldSetFlags()[7] = false;
+      fieldSetFlags()[8] = false;
       return this;
     }
 
@@ -562,21 +615,21 @@ public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase
     
     /** Sets the value of the 'proteinVariantAnnotation' field */
     public org.opencb.biodata.models.variant.avro.ConsequenceType.Builder setProteinVariantAnnotation(org.opencb.biodata.models.variant.avro.ProteinVariantAnnotation value) {
-      validate(fields()[8], value);
+      validate(fields()[9], value);
       this.proteinVariantAnnotation = value;
-      fieldSetFlags()[8] = true;
+      fieldSetFlags()[9] = true;
       return this; 
     }
     
     /** Checks whether the 'proteinVariantAnnotation' field has been set */
     public boolean hasProteinVariantAnnotation() {
-      return fieldSetFlags()[8];
+      return fieldSetFlags()[9];
     }
     
     /** Clears the value of the 'proteinVariantAnnotation' field */
     public org.opencb.biodata.models.variant.avro.ConsequenceType.Builder clearProteinVariantAnnotation() {
       proteinVariantAnnotation = null;
-      fieldSetFlags()[8] = false;
+      fieldSetFlags()[9] = false;
       return this;
     }
 
@@ -587,21 +640,21 @@ public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase
     
     /** Sets the value of the 'sequenceOntologyTerms' field */
     public org.opencb.biodata.models.variant.avro.ConsequenceType.Builder setSequenceOntologyTerms(java.util.List<org.opencb.biodata.models.variant.avro.SequenceOntologyTerm> value) {
-      validate(fields()[9], value);
+      validate(fields()[10], value);
       this.sequenceOntologyTerms = value;
-      fieldSetFlags()[9] = true;
+      fieldSetFlags()[10] = true;
       return this; 
     }
     
     /** Checks whether the 'sequenceOntologyTerms' field has been set */
     public boolean hasSequenceOntologyTerms() {
-      return fieldSetFlags()[9];
+      return fieldSetFlags()[10];
     }
     
     /** Clears the value of the 'sequenceOntologyTerms' field */
     public org.opencb.biodata.models.variant.avro.ConsequenceType.Builder clearSequenceOntologyTerms() {
       sequenceOntologyTerms = null;
-      fieldSetFlags()[9] = false;
+      fieldSetFlags()[10] = false;
       return this;
     }
 
@@ -614,11 +667,12 @@ public class ConsequenceType extends org.apache.avro.specific.SpecificRecordBase
         record.ensemblTranscriptId = fieldSetFlags()[2] ? this.ensemblTranscriptId : (java.lang.String) defaultValue(fields()[2]);
         record.strand = fieldSetFlags()[3] ? this.strand : (java.lang.String) defaultValue(fields()[3]);
         record.biotype = fieldSetFlags()[4] ? this.biotype : (java.lang.String) defaultValue(fields()[4]);
-        record.cdnaPosition = fieldSetFlags()[5] ? this.cdnaPosition : (java.lang.Integer) defaultValue(fields()[5]);
-        record.cdsPosition = fieldSetFlags()[6] ? this.cdsPosition : (java.lang.Integer) defaultValue(fields()[6]);
-        record.codon = fieldSetFlags()[7] ? this.codon : (java.lang.String) defaultValue(fields()[7]);
-        record.proteinVariantAnnotation = fieldSetFlags()[8] ? this.proteinVariantAnnotation : (org.opencb.biodata.models.variant.avro.ProteinVariantAnnotation) defaultValue(fields()[8]);
-        record.sequenceOntologyTerms = fieldSetFlags()[9] ? this.sequenceOntologyTerms : (java.util.List<org.opencb.biodata.models.variant.avro.SequenceOntologyTerm>) defaultValue(fields()[9]);
+        record.transcriptAnnotationFlags = fieldSetFlags()[5] ? this.transcriptAnnotationFlags : (java.util.List<java.lang.String>) defaultValue(fields()[5]);
+        record.cdnaPosition = fieldSetFlags()[6] ? this.cdnaPosition : (java.lang.Integer) defaultValue(fields()[6]);
+        record.cdsPosition = fieldSetFlags()[7] ? this.cdsPosition : (java.lang.Integer) defaultValue(fields()[7]);
+        record.codon = fieldSetFlags()[8] ? this.codon : (java.lang.String) defaultValue(fields()[8]);
+        record.proteinVariantAnnotation = fieldSetFlags()[9] ? this.proteinVariantAnnotation : (org.opencb.biodata.models.variant.avro.ProteinVariantAnnotation) defaultValue(fields()[9]);
+        record.sequenceOntologyTerms = fieldSetFlags()[10] ? this.sequenceOntologyTerms : (java.util.List<org.opencb.biodata.models.variant.avro.SequenceOntologyTerm>) defaultValue(fields()[10]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);
