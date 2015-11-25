@@ -1,3 +1,19 @@
+/*
+ * Copyright 2015 OpenCB
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.opencb.biodata.models.variant.annotation;
 
 import java.util.ArrayList;
@@ -19,8 +35,10 @@ public class ConsequenceType {
     private Integer aaPosition;
     private String aaChange;
     private String codon;
+    private String functionalDescription;
     private List<Score> proteinSubstitutionScores = null;
     private List<ConsequenceTypeEntry> soTerms;
+    private List<ExpressionValue> expressionValues;
 
     private Integer relativePosition;
 
@@ -38,18 +56,21 @@ public class ConsequenceType {
     }
 
     public ConsequenceType(String geneName, String ensemblGeneId, String ensemblTranscriptId, String strand,
-                           String biotype, List<String> soNameList) {
-        this(geneName, ensemblGeneId, ensemblTranscriptId, strand, biotype, null, soNameList);
+                           String biotype, List<String> soNameList, List<ExpressionValue> expressionValues) {
+        this(geneName, ensemblGeneId, ensemblTranscriptId, strand, biotype, null, soNameList, expressionValues);
     }
 
     public ConsequenceType(String geneName, String ensemblGeneId, String ensemblTranscriptId, String strand,
-                           String biotype, Integer cDnaPosition, List<String> soNameList) {
-        this(geneName, ensemblGeneId, ensemblTranscriptId, strand, biotype, cDnaPosition, null, null, null, null, null, soNameList);
+                           String biotype, Integer cDnaPosition, List<String> soNameList,
+                           List<ExpressionValue> expressionValues) {
+        this(geneName, ensemblGeneId, ensemblTranscriptId, strand, biotype, cDnaPosition, null, null, null, null, null,
+                soNameList, expressionValues);
     }
 
     public ConsequenceType(String geneName, String ensemblGeneId, String ensemblTranscriptId, String strand,
                            String biotype, Integer cDnaPosition, Integer cdsPosition, Integer aaPosition,
-                           String aaChange, String codon, List<Score> proteinSubstitutionScores, List<String> soNameList) {
+                           String aaChange, String codon, List<Score> proteinSubstitutionScores,
+                           List<String> soNameList, List<ExpressionValue> expressionValues) {
         this.geneName = geneName;
         this.ensemblGeneId = ensemblGeneId;
         this.ensemblTranscriptId = ensemblTranscriptId;
@@ -65,6 +86,7 @@ public class ConsequenceType {
         this.aaChange = aaChange;
         this.codon = codon;
         this.proteinSubstitutionScores = proteinSubstitutionScores;
+        this.expressionValues = expressionValues;
     }
 
 
@@ -101,11 +123,17 @@ public class ConsequenceType {
 
     public void setProteinSubstitutionScores(List<Score> proteinSubstitutionScores) { this.proteinSubstitutionScores = proteinSubstitutionScores;  }
 
+    public void setExpressionValues(List<ExpressionValue> expressionValues) { this.expressionValues = expressionValues; }
+
     public void addProteinSubstitutionScore(Score score) {
         if(this.proteinSubstitutionScores==null) {
             proteinSubstitutionScores = new ArrayList<>();
         }
         proteinSubstitutionScores.add(score);
+    }
+
+    public void setFunctionalDescription(String functionalDescription) {
+        this.functionalDescription = functionalDescription;
     }
 
     public String getGeneName() {
@@ -185,6 +213,12 @@ public class ConsequenceType {
     public List<ConsequenceTypeEntry> getSoTerms() {
         return soTerms;
     }
+
+    public String getFunctionalDescription() {
+        return functionalDescription;
+    }
+
+    public List<ExpressionValue> getExpressionValues() { return expressionValues; }
 
     public void setSoTerms(List<ConsequenceTypeEntry> soTerms) {
         this.soTerms = soTerms;
@@ -273,5 +307,7 @@ public class ConsequenceType {
         public void setSoAccession(String soAccession) {
             this.soAccession = soAccession;
         }
+
+
     }
 }

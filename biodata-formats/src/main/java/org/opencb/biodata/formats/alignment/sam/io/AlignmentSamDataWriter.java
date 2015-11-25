@@ -1,10 +1,22 @@
+/*
+ * Copyright 2015 OpenCB
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.opencb.biodata.formats.alignment.sam.io;
 
-
-import net.sf.samtools.SAMFileHeader;
-import net.sf.samtools.SAMFileWriterImpl;
-import net.sf.samtools.SAMRecord;
-import net.sf.samtools.SAMTextWriter;
+import htsjdk.samtools.*;
 import org.opencb.biodata.formats.alignment.AlignmentConverter;
 import org.opencb.biodata.formats.alignment.io.AlignmentDataWriter;
 import org.opencb.biodata.formats.sequence.fasta.dbadaptor.CellBaseSequenceDBAdaptor;
@@ -29,7 +41,7 @@ import org.opencb.biodata.formats.alignment.io.AlignmentDataReader;
  */
 public class AlignmentSamDataWriter implements AlignmentDataWriter {
 
-    protected SAMFileWriterImpl writer;
+    protected SAMFileWriter writer;
     private SAMFileHeader samFileHeader;
     AlignmentDataReader reader;
     protected Path input;
@@ -158,9 +170,6 @@ public class AlignmentSamDataWriter implements AlignmentDataWriter {
     @Override
     public boolean writeHeader(AlignmentHeader head) {
         samFileHeader = AlignmentConverter.buildSAMFileHeader(head);
-
-        writer.setSortOrder(samFileHeader.getSortOrder(), true);
-        writer.setHeader(samFileHeader);
         return true;
     }
 
