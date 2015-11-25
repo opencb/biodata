@@ -1,5 +1,6 @@
 package org.opencb.biodata.formats.annotation.io;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.opencb.biodata.formats.protein.uniprot.v135jaxb.InteractantType;
 import org.opencb.biodata.formats.variant.vcf4.io.VariantVcfReader;
 import org.opencb.biodata.models.variant.annotation.ConsequenceType;
@@ -388,9 +389,16 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
             String[] variantFields = variantString.split("[\\/]");
             //        String[] variantFields = variantString.split("[\\_\\/]");
             String[] leftVariantFields = variantFields[0].split("_");
-            parsedVariant.put("chromosome", leftVariantFields[0]);
-            parsedVariant.put("start", leftVariantFields[1]);
-            parsedVariant.put("reference", leftVariantFields[2]);
+
+            // Chr id containing _
+            if(leftVariantFields.length>3) {
+                parsedVariant.put("chromosome",
+                        String.join("_", (String[]) ArrayUtils.subarray(leftVariantFields, 0, leftVariantFields.length - 2)));
+            } else {
+                parsedVariant.put("chromosome", leftVariantFields[0]);
+            }
+            parsedVariant.put("start", leftVariantFields[leftVariantFields.length-2]);
+            parsedVariant.put("reference", leftVariantFields[leftVariantFields.length-1]);
             parsedVariant.put("alternative", variantFields[1]);
         } catch (ArrayIndexOutOfBoundsException e) {
             System.out.println("Unexpected variant format for column 1: "+variantString);
