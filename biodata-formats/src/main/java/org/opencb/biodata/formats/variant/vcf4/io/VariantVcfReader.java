@@ -19,6 +19,10 @@ package org.opencb.biodata.formats.variant.vcf4.io;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 
+import htsjdk.variant.variantcontext.LazyGenotypesContext;
+import htsjdk.variant.variantcontext.VariantContext;
+import htsjdk.variant.vcf.VCFFileReader;
+import htsjdk.variant.vcf.VCFHeader;
 import org.opencb.biodata.formats.io.FileFormatException;
 import org.opencb.biodata.formats.variant.io.VariantReader;
 import org.opencb.biodata.formats.variant.vcf4.*;
@@ -27,6 +31,7 @@ import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFactory;
 import org.opencb.biodata.models.variant.VariantSource;
 import org.opencb.biodata.models.variant.exceptions.NotAVariantException;
+import org.opencb.biodata.
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -47,86 +52,42 @@ import java.util.zip.GZIPInputStream;
  */
 public class VariantVcfReader implements VariantReader {
 
-    private Vcf4 vcf4;
-    private BufferedReader reader;
+    private VCFFileReader reader;
+    Iterator<VariantContext> iterator;
     private Path path;
 
+    private VariantContextToVariantConverter converter;
     private String filePath;
 
-    private VariantSource source;
-    private VariantFactory factory;
-    private VcfHeaderFactory heaederFactory = new VcfHeaderFactory();
-    private String header;
+    private VCFHeader header;
 
-    public VariantVcfReader(VariantSource source, String filePath) {
-        this(source, filePath, new VariantVcfFactory());
-    }
-
-    public VariantVcfReader(VariantSource source, String filePath, VariantFactory factory) {
-        this.source = source;
+    public VariantVcfReader(String studyId, String fileId, String filePath) {
         this.filePath = filePath;
-        this.factory = factory;
+        converter = new VariantContextToVariantConverter(studyId, fileId);
     }
 
     @Override
     public boolean open() {
-        try {
-            path = Paths.get(filePath);
-            Files.exists(path);
+        path = Paths.get(filePath);
+        Files.exists(path);
 
-            vcf4 = new Vcf4();
-            if (path.toFile().getName().endsWith(".gz")) {
-                this.reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(path.toFile()))));
-            } else {
-                this.reader = Files.newBufferedReader(path, Charset.defaultCharset());
-            }
-
-        }
-        catch (IOException  ex) {
-            Logger.getLogger(VariantVcfReader.class.getName()).log(Level.SEVERE, null, ex);
-            return false;
-        }
-
+        this.reader = new VCFFileReader(path.toFile(), false);
+        this.iterator = reader.iterator();
 
         return true;
     }
 
     @Override
     public boolean pre() {
-        try {
-            processHeader();
-            
-            // Copy all the read metadata to the VariantSource object
-            // TODO May it be that Vcf4 wasn't necessary anymore?
-
-            // This Vcf4 object is not necessary anymore. Do not include it's information.
-            // The header parser contains bugs and misses information.
-            // Use htsjdk parser instead
-
-//            source.addMetadata("fileformat", vcf4.getFileFormat());
-//            source.addMetadata("INFO", vcf4.getInfo().values());
-//            source.addMetadata("FILTER", vcf4.getFilter().values());
-//            source.addMetadata("FORMAT", vcf4.getFormat().values());
-//            for (Map.Entry<String, String> otherMeta : vcf4.getMetaInformation().entrySet()) {
-//                source.addMetadata(otherMeta.getKey(), otherMeta.getValue());
-//            }
-            source.setSamples(vcf4.getSampleNames());
-        } catch (IOException | FileFormatException ex) {
-            Logger.getLogger(VariantVcfReader.class.getName()).log(Level.SEVERE, null, ex);
-            return false;
-        }
+        this.header = reader.getFileHeader();
 
         return true;
     }
 
     @Override
     public boolean close() {
-        try {
-            reader.close();
-        } catch (IOException ex) {
-            Logger.getLogger(VariantVcfReader.class.getName()).log(Level.SEVERE, null, ex);
-            return false;
-        }
+        reader.close();
+
         return true;
     }
 
@@ -137,6 +98,17 @@ public class VariantVcfReader implements VariantReader {
 
     @Override
     public List<Variant> read() {
+        VariantContext variantContext = iterator.next();
+        if (variantContext.getGenotypes().isLazyWithData()) {
+            ((LazyGenotypesContext) variantContext.getGenotypes()).decode();
+        }
+        return converter.apply(variantContext);
+
+
+
+
+
+
         String line;
         try {
             while ((line = reader.readLine()) != null && (line.trim().equals("") || line.startsWith("#"))) ;
@@ -184,34 +156,5 @@ public class VariantVcfReader implements VariantReader {
     public String getHeader() {
         return header;
     }
-
-    private void processHeader() throws IOException, FileFormatException {
-        BufferedReader localBufferedReader;
-
-        String contentProbe = Files.probeContentType(path);
-        if ((null != contentProbe && contentProbe.contains("gzip")) || path.toString().endsWith(".gz")) {
-            localBufferedReader = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(path.toFile()))));
-        } else {
-            localBufferedReader = new BufferedReader(new FileReader(path.toFile()));
-        }
-
-        StringBuilder buffer = new StringBuilder();
-        String line;
-        while ((line = localBufferedReader.readLine()) != null && line.startsWith("#")) {
-            buffer.append(line).append('\n');
-        }
-
-        localBufferedReader.close();
-
-        header = buffer.toString();
-        vcf4 = heaederFactory.parseHeader(new BufferedReader(new StringReader(header)));
-        
-        if (vcf4 == null) {
-            System.err.println("VCF Header must be provided.");
-//            System.exit(-1);
-        }
-
-    }
-
 
 }
