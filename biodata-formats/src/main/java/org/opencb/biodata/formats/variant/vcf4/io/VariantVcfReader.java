@@ -31,7 +31,6 @@ import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFactory;
 import org.opencb.biodata.models.variant.VariantSource;
 import org.opencb.biodata.models.variant.exceptions.NotAVariantException;
-import org.opencb.biodata.
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -52,42 +51,86 @@ import java.util.zip.GZIPInputStream;
  */
 public class VariantVcfReader implements VariantReader {
 
-    private VCFFileReader reader;
-    Iterator<VariantContext> iterator;
+    private Vcf4 vcf4;
+    private BufferedReader reader;
     private Path path;
 
-    private VariantContextToVariantConverter converter;
     private String filePath;
 
-    private VCFHeader header;
+    private VariantSource source;
+    private VariantFactory factory;
+    private VcfHeaderFactory heaederFactory = new VcfHeaderFactory();
+    private String header;
 
-    public VariantVcfReader(String studyId, String fileId, String filePath) {
+    public VariantVcfReader(VariantSource source, String filePath) {
+        this(source, filePath, new VariantVcfFactory());
+    }
+
+    public VariantVcfReader(VariantSource source, String filePath, VariantFactory factory) {
+        this.source = source;
         this.filePath = filePath;
-        converter = new VariantContextToVariantConverter(studyId, fileId);
+        this.factory = factory;
     }
 
     @Override
     public boolean open() {
-        path = Paths.get(filePath);
-        Files.exists(path);
+        try {
+            path = Paths.get(filePath);
+            Files.exists(path);
 
-        this.reader = new VCFFileReader(path.toFile(), false);
-        this.iterator = reader.iterator();
+            vcf4 = new Vcf4();
+            if (path.toFile().getName().endsWith(".gz")) {
+                this.reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(path.toFile()))));
+            } else {
+                this.reader = Files.newBufferedReader(path, Charset.defaultCharset());
+            }
+
+        }
+        catch (IOException  ex) {
+            Logger.getLogger(VariantVcfReader.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
+
 
         return true;
     }
 
     @Override
     public boolean pre() {
-        this.header = reader.getFileHeader();
+        try {
+            processHeader();
+
+            // Copy all the read metadata to the VariantSource object
+            // TODO May it be that Vcf4 wasn't necessary anymore?
+
+            // This Vcf4 object is not necessary anymore. Do not include it's information.
+            // The header parser contains bugs and misses information.
+            // Use htsjdk parser instead
+
+//            source.addMetadata("fileformat", vcf4.getFileFormat());
+//            source.addMetadata("INFO", vcf4.getInfo().values());
+//            source.addMetadata("FILTER", vcf4.getFilter().values());
+//            source.addMetadata("FORMAT", vcf4.getFormat().values());
+//            for (Map.Entry<String, String> otherMeta : vcf4.getMetaInformation().entrySet()) {
+//                source.addMetadata(otherMeta.getKey(), otherMeta.getValue());
+//            }
+            source.setSamples(vcf4.getSampleNames());
+        } catch (IOException | FileFormatException ex) {
+            Logger.getLogger(VariantVcfReader.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
 
         return true;
     }
 
     @Override
     public boolean close() {
-        reader.close();
-
+        try {
+            reader.close();
+        } catch (IOException ex) {
+            Logger.getLogger(VariantVcfReader.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
         return true;
     }
 
@@ -98,17 +141,6 @@ public class VariantVcfReader implements VariantReader {
 
     @Override
     public List<Variant> read() {
-        VariantContext variantContext = iterator.next();
-        if (variantContext.getGenotypes().isLazyWithData()) {
-            ((LazyGenotypesContext) variantContext.getGenotypes()).decode();
-        }
-        return converter.apply(variantContext);
-
-
-
-
-
-
         String line;
         try {
             while ((line = reader.readLine()) != null && (line.trim().equals("") || line.startsWith("#"))) ;
@@ -156,5 +188,139 @@ public class VariantVcfReader implements VariantReader {
     public String getHeader() {
         return header;
     }
+
+    private void processHeader() throws IOException, FileFormatException {
+        BufferedReader localBufferedReader;
+
+        String contentProbe = Files.probeContentType(path);
+        if ((null != contentProbe && contentProbe.contains("gzip")) || path.toString().endsWith(".gz")) {
+            localBufferedReader = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(path.toFile()))));
+        } else {
+            localBufferedReader = new BufferedReader(new FileReader(path.toFile()));
+        }
+
+        StringBuilder buffer = new StringBuilder();
+        String line;
+        while ((line = localBufferedReader.readLine()) != null && line.startsWith("#")) {
+            buffer.append(line).append('\n');
+        }
+
+        localBufferedReader.close();
+
+        header = buffer.toString();
+        vcf4 = heaederFactory.parseHeader(new BufferedReader(new StringReader(header)));
+
+        if (vcf4 == null) {
+            System.err.println("VCF Header must be provided.");
+//            System.exit(-1);
+        }
+
+    }
+
+
+//    private VCFFileReader reader;
+//    Iterator<VariantContext> iterator;
+//    private Path path;
+//
+//    private VariantContextToVariantConverter converter;
+//    private String filePath;
+//
+//    private VCFHeader header;
+//
+//    public VariantVcfReader(String studyId, String fileId, String filePath) {
+//        this.filePath = filePath;
+//        converter = new VariantContextToVariantConverter(studyId, fileId);
+//    }
+//
+//    @Override
+//    public boolean open() {
+//        path = Paths.get(filePath);
+//        Files.exists(path);
+//
+//        this.reader = new VCFFileReader(path.toFile(), false);
+//        this.iterator = reader.iterator();
+//
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean pre() {
+//        this.header = reader.getFileHeader();
+//
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean close() {
+//        reader.close();
+//
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean post() {
+//        return true;
+//    }
+//
+//    @Override
+//    public List<Variant> read() {
+//        VariantContext variantContext = iterator.next();
+//        if (variantContext.getGenotypes().isLazyWithData()) {
+//            ((LazyGenotypesContext) variantContext.getGenotypes()).decode();
+//        }
+//        return converter.apply(variantContext);
+//
+//
+//
+//
+//
+//
+//        String line;
+//        try {
+//            while ((line = reader.readLine()) != null && (line.trim().equals("") || line.startsWith("#"))) ;
+//
+//            Boolean isReference=true;
+//            List<Variant> variants = null;
+//            // Look for a non reference position (alternative != '.')
+//            while (line != null && isReference) {
+//                try {
+//                    variants = factory.create(source, line);
+//                    isReference = false;
+//                } catch (NotAVariantException e) {  // This line represents a reference position (alternative = '.')
+//                    line = reader.readLine();
+//                }
+//            }
+//            return variants;
+//
+//        } catch (IOException ex) {
+//            Logger.getLogger(VariantVcfReader.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//
+//        return null;
+//    }
+//
+//    @Override
+//    public List<Variant> read(int batchSize) {
+//        List<Variant> listRecords = new ArrayList<>(batchSize);
+//
+//        int i = 0;
+//        List<Variant> variants;
+//        while ((i < batchSize) && (variants = this.read()) != null) {
+//            listRecords.addAll(variants);
+//            i += variants.size();
+//        }
+//
+//        return listRecords;
+//    }
+//
+//    @Override
+//    public List<String> getSampleNames() {
+//        return this.vcf4.getSampleNames();
+//    }
+//
+//    @Override
+//    public String getHeader() {
+//        return header;
+//    }
 
 }

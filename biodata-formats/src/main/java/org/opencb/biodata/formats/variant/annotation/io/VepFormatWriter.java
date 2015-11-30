@@ -36,7 +36,7 @@ import java.util.List;
 /**
  * Created by fjlopez on 12/02/15.
  */
-public class VepFormatWriter implements DataWriter<VariantAnnotation> {
+public class VepFormatWriter implements DataWriter<Variant> {
 
     String filename;
     BufferedWriter bw;
@@ -87,102 +87,6 @@ public class VepFormatWriter implements DataWriter<VariantAnnotation> {
 
     @Override
     public boolean post() {
-        return true;
-    }
-
-    @Override
-    public boolean write(VariantAnnotation variantAnnotation) {
-
-        String id;
-        if((id=variantAnnotation.getId())==null) {
-            id = "-";
-        }
-        String alt;
-        String pos;
-        // Short deletion
-        if(variantAnnotation.getAlternate().equals("-")) {
-            alt = "-";
-            if(variantAnnotation.getReference().length()>1) {
-                pos = variantAnnotation.getStart() + "-" + (variantAnnotation.getStart() + variantAnnotation.getReference().length() - 1);
-            } else {
-                pos = Integer.toString(variantAnnotation.getStart());
-            }
-        } else if(variantAnnotation.getReference().equals("-")) {
-            // Short insertion
-            alt = variantAnnotation.getAlternate();
-            pos = (variantAnnotation.getStart()-1) + "-" + variantAnnotation.getStart();
-            // SNV
-        } else {
-            alt = variantAnnotation.getAlternate();
-            pos = Integer.toString(variantAnnotation.getStart()-1);
-        }
-
-        for(ConsequenceType consequenceType : variantAnnotation.getConsequenceTypes()) {
-            String gene;
-            if((gene=consequenceType.getEnsemblGeneId())==null) {
-                gene = "-";
-            }
-            String feature;
-            if((feature=consequenceType.getEnsemblTranscriptId())==null) {
-                feature = "-";
-            }
-            String featureType;
-            if((featureType=consequenceType.getBiotype())==null) {
-                featureType = "-";
-            }
-            String consequences = consequenceType.getSequenceOntologyTerms().get(0).getName();
-            for(int i=1; i<consequenceType.getSequenceOntologyTerms().size(); i++) {
-                consequences += ","+consequenceType.getSequenceOntologyTerms().get(i).getName();
-            }
-            Integer cdnaPosition;
-            String cdnaPositionString;
-            if((cdnaPosition=consequenceType.getCdnaPosition())==null) {
-                cdnaPositionString = "-";
-            } else {
-                cdnaPositionString = cdnaPosition.toString();
-            }
-            Integer cdsPosition;
-            String cdsPositionString;
-            if((cdsPosition=consequenceType.getCdsPosition())==null) {
-                cdsPositionString = "-";
-            } else {
-                cdsPositionString = cdsPosition.toString();
-            }
-            Integer aaPosition;
-            String aaPositionString;
-            if((aaPosition=consequenceType.getProteinVariantAnnotation().getPosition())==null) {
-                aaPositionString = "-";
-            } else {
-                aaPositionString = aaPosition.toString();
-            }
-            String aaChange;
-            if(consequenceType.getProteinVariantAnnotation().getAlternate()==null) {
-                aaChange = "-";
-            } else {
-                aaChange = consequenceType.getProteinVariantAnnotation().getReference()+"/"+consequenceType.getProteinVariantAnnotation().getAlternate();
-            }
-            String codon;
-            if((codon=consequenceType.getCodon())==null) {
-                codon = "-";
-            }
-            try {
-                bw.write(id+"\t"+variantAnnotation.getChromosome()+":"+pos+"\t"+alt+"\t"+gene+"\t"+feature+"\t"+
-                        featureType+"\t"+consequences+"\t"+cdnaPositionString+"\t"+cdsPositionString+"\t"+
-                        aaPositionString+"\t"+aaChange+"\t"+codon+"\t-\t-\n");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return true;
-    }
-
-    @Override
-    public boolean write(List<VariantAnnotation> list) {
-
-        for(VariantAnnotation variantAnnotation : list) {
-            write(variantAnnotation);
-        }
         return true;
     }
 
@@ -271,6 +175,15 @@ public class VepFormatWriter implements DataWriter<VariantAnnotation> {
             }
         }
 
+        return true;
+    }
+
+    @Override
+    public boolean write(List<Variant> list) {
+
+        for(Variant variant : list) {
+            write(variant);
+        }
         return true;
     }
 
