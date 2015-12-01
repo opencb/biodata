@@ -136,8 +136,8 @@ message VariantAnnotation {
     repeated ConsequenceType consequence_types = 9;
     repeated PopulationFrequency population_frequencies = 10;
     repeated Score conservation = 11;
-    repeated Expression expression = 12;
+    repeated Expression gene_expression = 12;
     repeated GeneDrugInteraction gene_drug_interaction = 13;
-    VariantTraitAssociation variant_trait_association = 14;
+    VariantTraitAssociation trait_association = 14;
     map<string, string> additional_attributes = 15;
 }

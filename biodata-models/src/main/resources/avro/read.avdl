@@ -1,7 +1,6 @@
 
 @namespace("org.opencb.biodata.models.sequence")
 
-
 protocol Reads {
 
     record Read {

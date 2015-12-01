@@ -43,6 +43,11 @@ public class VariantSource {
         samplesPosition = null;
     }
 
+    public VariantSource(VariantFileMetadata variantFileMetadata) {
+        impl = variantFileMetadata;
+        samplesPosition = null;
+    }
+
     public VariantSource(String fileName, String fileId, String studyId, String studyName) {
         this(fileName, fileId, studyId, studyName, VariantStudy.StudyType.CASE_CONTROL, Aggregation.NONE);
     }

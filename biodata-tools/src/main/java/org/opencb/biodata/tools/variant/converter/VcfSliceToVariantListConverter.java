@@ -1,6 +1,8 @@
 package org.opencb.biodata.tools.variant.converter;
 
 import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.VariantSource;
+import org.opencb.biodata.models.variant.protobuf.VcfMeta;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
 
 import java.util.ArrayList;
@@ -15,8 +17,12 @@ public class VcfSliceToVariantListConverter implements Converter<VcfSliceProtos.
 
     private final VcfRecordToVariantConverter recordConverter;
 
-    public VcfSliceToVariantListConverter(VcfSliceProtos.VcfMeta meta) {
+    public VcfSliceToVariantListConverter(VcfMeta meta) {
         this.recordConverter = new VcfRecordToVariantConverter(meta);
+    }
+
+    public VcfSliceToVariantListConverter(VariantSource source) {
+        this.recordConverter = new VcfRecordToVariantConverter(new VcfMeta(source));
     }
 
     @Override

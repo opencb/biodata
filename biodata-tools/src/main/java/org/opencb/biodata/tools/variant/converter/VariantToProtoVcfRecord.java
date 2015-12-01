@@ -17,19 +17,19 @@
 package org.opencb.biodata.tools.variant.converter;
 
 import org.apache.commons.lang3.StringUtils;
-import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.StudyEntry;
+import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.VariantSource;
 import org.opencb.biodata.models.variant.VariantVcfFactory;
 import org.opencb.biodata.models.variant.avro.FileEntry;
-import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfMeta;
+import org.opencb.biodata.models.variant.avro.VariantType;
+import org.opencb.biodata.models.variant.protobuf.VariantProto;
+import org.opencb.biodata.models.variant.protobuf.VcfMeta;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfRecord;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfRecord.Builder;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfSample;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -42,15 +42,15 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
 //	public static final String ILLUMINA_GVCF_BLOCK_END = "END";
 
 
-    private final AtomicReference<VcfMeta> meta = new AtomicReference<VcfMeta>();
+    private final AtomicReference<VcfMeta> meta = new AtomicReference<>();
 
 
-    private final Map<String, Integer> sample_to_index = new HashMap<String, Integer>();
-    private final List<String> samples = new ArrayList<String>();
-    private final AtomicReference<String> defaultFilterKeys = new AtomicReference<String>();
+    private Map<String, Integer> samplesPosition = new HashMap<>();
+    private List<String> samples = new ArrayList<>();
+    private final AtomicReference<String> defaultFilterKeys = new AtomicReference<>();
     //	private final AtomicReference<String> defaultInfoKeys = new AtomicReference<String>();
-    private final List<String> defaultInfoKeys = new ArrayList<String>();
-    private final List<String> defaultFormatKeys = new ArrayList<String>();
+    private final List<String> defaultInfoKeys = new ArrayList<>();
+    private final List<String> defaultFormatKeys = new ArrayList<>();
     private final Set<String> ignoredKeys = new HashSet<>();
 
     /**
@@ -64,25 +64,14 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
     }
 
     private void init(VcfMeta meta) {
-        int sampleSize = meta.getSamplesCount();
-        sample_to_index.clear();
-        samples.clear();
-        ArrayList<String> lst = new ArrayList<String>(sampleSize);
 
         // add values
-        for (int i = 0; i < sampleSize; ++i) {
-            String sample = meta.getSamples(i);
-            if (sample_to_index.containsKey(sample)) {
-                throw new IllegalStateException(String.format("Duplicated sample '%s' found!!!", sample));
-            }
-            sample_to_index.put(sample, i);
-            lst.add(sample);
-        }
+        samplesPosition = meta.getVariantSource().getSamplesPosition();
+        samples = meta.getVariantSource().getSamples();
 
-        ArrayList<String> infoKeys = new ArrayList<String>(meta.getInfoDefaultList());
+        ArrayList<String> infoKeys = new ArrayList<String>(meta.getInfoDefault());
         Collections.sort(infoKeys); // INFO keys only to be sorted
 
-        samples.addAll(lst);
         defaultFilterKeys.set(meta.getFilterDefault());
 
 //		defaultInfoKeys.set(StringUtils.join(infoKeys, STRING_JOIN_SEP));
@@ -90,7 +79,7 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
         defaultInfoKeys.addAll(infoKeys);
 
         defaultFormatKeys.clear();
-        defaultFormatKeys.addAll(meta.getFormatDefaultList());
+        defaultFormatKeys.addAll(meta.getFormatDefault());
 
         setVcfMeta(meta);
     }
@@ -101,12 +90,19 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
     }
 
     public VcfRecord convert(Variant variant, int chunkSize) {
+        int slicePosition = chunkSize > 0 ? getSlicePosition(variant.getStart(), chunkSize) : 0;
         Builder recordBuilder = VcfRecord.newBuilder()
-                .setRelativeStart(getSliceOffset(variant.getStart(), chunkSize))
-                .setRelativeEnd(getSliceOffset(variant.getEnd(), chunkSize))
+                // Warning: start and end can be at different chunks.
+                // Do not use getSliceOffset independently
+                .setRelativeStart(variant.getStart() - slicePosition)
                 .setReference(variant.getReference())
-                .setAlternate(variant.getAlternate())
+                .addAlternate(variant.getAlternate())
                 .addAllIdNonDefault(decodeIds(variant.getIds()));
+
+        //Set end only if is different to the start position
+        if (!Objects.equals(variant.getEnd(), variant.getStart())) {
+            recordBuilder.setRelativeEnd(variant.getEnd() - slicePosition);
+        }
 
 		/* Get Study (one only expected  */
         List<StudyEntry> studies = variant.getStudies();
@@ -128,6 +124,8 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
         }
         FileEntry file = study.getFiles().get(0);
         Map<String, String> attr = Collections.unmodifiableMap(file.getAttributes());   //DO NOT MODIFY
+
+        recordBuilder.setCall(file.getCall());
 
 		/* Filter */
         String filter = decodeFilter(attr.get(VariantVcfFactory.FILTER));
@@ -156,6 +154,9 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
         }
         recordBuilder.addAllSamples(decodeSamples(study.getSamplesData()));
 
+        /* TYPE */
+        recordBuilder.setType(getProtoVariantType(variant.getType()));
+
         // TODO check all worked
         return recordBuilder.build();
     }
@@ -165,6 +166,10 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
         this.init(meta);
     }
 
+    public void updateVcfMeta(VariantSource source) {
+        this.init(new VcfMeta(source));
+    }
+
     /**
      * Calculate Slice given a position and a chunk size &gt; 0; if chunk size &lt;= 0, returns position
      *
@@ -172,9 +177,9 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
      * @param chunkSize chunk size
      * @return slice calculated using position and chunk size
      */
-    public long getSlicePosition(long position, int chunkSize) {
+    public int getSlicePosition(int position, int chunkSize) {
         return chunkSize > 0
-                ? position / (long) chunkSize
+                ? position - (position % chunkSize)
                 : position;
     }
 
@@ -246,16 +251,6 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
 //		return StringUtils.equals(str, getDefaultInfoKeys());
     }
 
-    /**
-     * Creates a List of strings in the original order from the FORMAT string provided; Split the string by ":"
-     *
-     * @param format Format string with the keys separated by ":"
-     * @return {@link List}
-     */
-    public List<String> decodeFormat(String format) {
-        return Arrays.asList(format.split(":"));
-    }
-
     public boolean isDefaultFormat(List<String> keyList) {
         return getDefaultFormatKeys().equals(keyList);
     }
@@ -319,6 +314,29 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
     public void setDefaultFormatKeys(List<String> keys) {
         defaultFormatKeys.clear();
         defaultFormatKeys.addAll(keys);
+    }
+
+    public static VariantProto.VariantType getProtoVariantType(VariantType type) {
+        if (type == null) {
+            return null;
+        }
+        switch (type) {
+            case SNV: return VariantProto.VariantType.SNV;
+            case SNP: return VariantProto.VariantType.SNP;
+            case MNV: return VariantProto.VariantType.MNV;
+            case MNP: return VariantProto.VariantType.MNP;
+            case INDEL: return VariantProto.VariantType.INDEL;
+            case SV: return VariantProto.VariantType.SV;
+            case INSERTION: return VariantProto.VariantType.INSERTION;
+            case DELETION: return VariantProto.VariantType.DELETION;
+            case TRANSLOCATION: return VariantProto.VariantType.TRANSLOCATION;
+            case INVERSION: return VariantProto.VariantType.INVERSION;
+            case CNV: return VariantProto.VariantType.CNV;
+            case NO_VARIATION: return VariantProto.VariantType.NO_VARIATION;
+            case SYMBOLIC: return VariantProto.VariantType.SYMBOLIC;
+            case MIXED: return VariantProto.VariantType.MIXED;
+            default: return VariantProto.VariantType.valueOf(type.name());
+        }
     }
 
 }

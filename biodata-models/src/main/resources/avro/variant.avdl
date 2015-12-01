@@ -1,9 +1,3 @@
-/**
- * Variant AVDL Model
- *  @author Kalyan;
- *  @author Pawan;
- *  @author Matthias Haimel;
- */
 
 @namespace("org.opencb.biodata.models.variant.avro")
 

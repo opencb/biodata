@@ -27,87 +27,231 @@ public final class VariantProto {
       implements com.google.protobuf.ProtocolMessageEnum {
     /**
      * <code>SNP = 0;</code>
+     *
+     * <pre>
+     * SO:0000694
+     * </pre>
      */
     SNP(0, 0),
     /**
      * <code>SNV = 1;</code>
+     *
+     * <pre>
+     * SO:0001483
+     * </pre>
      */
     SNV(1, 1),
     /**
      * <code>MNP = 2;</code>
+     *
+     * <pre>
+     * SO:0001013
+     * </pre>
      */
     MNP(2, 2),
     /**
      * <code>MNV = 3;</code>
+     *
+     * <pre>
+     * SO:0002007
+     * </pre>
      */
     MNV(3, 3),
     /**
      * <code>INDEL = 4;</code>
+     *
+     * <pre>
+     * SO:1000032
+     * </pre>
      */
     INDEL(4, 4),
     /**
      * <code>SV = 5;</code>
+     *
+     * <pre>
+     * SO:0001537
+     * </pre>
      */
     SV(5, 5),
     /**
      * <code>CNV = 6;</code>
+     *
+     * <pre>
+     * SO:0001019
+     * </pre>
      */
     CNV(6, 6),
     /**
      * <code>NO_VARIATION = 7;</code>
+     *
+     * <pre>
+     * Defined in HTSJDK
+     * </pre>
      */
     NO_VARIATION(7, 7),
     /**
      * <code>SYMBOLIC = 8;</code>
+     *
+     * <pre>
+     * Defined in HTSJDK
+     * </pre>
      */
     SYMBOLIC(8, 8),
     /**
      * <code>MIXED = 9;</code>
+     *
+     * <pre>
+     * Defined in HTSJDK
+     * </pre>
      */
     MIXED(9, 9),
+    /**
+     * <code>INSERTION = 10;</code>
+     *
+     * <pre>
+     * SO:0000667
+     * </pre>
+     */
+    INSERTION(10, 10),
+    /**
+     * <code>DELETION = 11;</code>
+     *
+     * <pre>
+     * SO:0000159
+     * </pre>
+     */
+    DELETION(11, 11),
+    /**
+     * <code>TRANSLOCATION = 12;</code>
+     *
+     * <pre>
+     * SO:0000199
+     * </pre>
+     */
+    TRANSLOCATION(12, 12),
+    /**
+     * <code>INVERSION = 13;</code>
+     *
+     * <pre>
+     * SO:1000036
+     * </pre>
+     */
+    INVERSION(13, 13),
     UNRECOGNIZED(-1, -1),
     ;
 
     /**
      * <code>SNP = 0;</code>
+     *
+     * <pre>
+     * SO:0000694
+     * </pre>
      */
     public static final int SNP_VALUE = 0;
     /**
      * <code>SNV = 1;</code>
+     *
+     * <pre>
+     * SO:0001483
+     * </pre>
      */
     public static final int SNV_VALUE = 1;
     /**
      * <code>MNP = 2;</code>
+     *
+     * <pre>
+     * SO:0001013
+     * </pre>
      */
     public static final int MNP_VALUE = 2;
     /**
      * <code>MNV = 3;</code>
+     *
+     * <pre>
+     * SO:0002007
+     * </pre>
      */
     public static final int MNV_VALUE = 3;
     /**
      * <code>INDEL = 4;</code>
+     *
+     * <pre>
+     * SO:1000032
+     * </pre>
      */
     public static final int INDEL_VALUE = 4;
     /**
      * <code>SV = 5;</code>
+     *
+     * <pre>
+     * SO:0001537
+     * </pre>
      */
     public static final int SV_VALUE = 5;
     /**
      * <code>CNV = 6;</code>
+     *
+     * <pre>
+     * SO:0001019
+     * </pre>
      */
     public static final int CNV_VALUE = 6;
     /**
      * <code>NO_VARIATION = 7;</code>
+     *
+     * <pre>
+     * Defined in HTSJDK
+     * </pre>
      */
     public static final int NO_VARIATION_VALUE = 7;
     /**
      * <code>SYMBOLIC = 8;</code>
+     *
+     * <pre>
+     * Defined in HTSJDK
+     * </pre>
      */
     public static final int SYMBOLIC_VALUE = 8;
     /**
      * <code>MIXED = 9;</code>
+     *
+     * <pre>
+     * Defined in HTSJDK
+     * </pre>
      */
     public static final int MIXED_VALUE = 9;
+    /**
+     * <code>INSERTION = 10;</code>
+     *
+     * <pre>
+     * SO:0000667
+     * </pre>
+     */
+    public static final int INSERTION_VALUE = 10;
+    /**
+     * <code>DELETION = 11;</code>
+     *
+     * <pre>
+     * SO:0000159
+     * </pre>
+     */
+    public static final int DELETION_VALUE = 11;
+    /**
+     * <code>TRANSLOCATION = 12;</code>
+     *
+     * <pre>
+     * SO:0000199
+     * </pre>
+     */
+    public static final int TRANSLOCATION_VALUE = 12;
+    /**
+     * <code>INVERSION = 13;</code>
+     *
+     * <pre>
+     * SO:1000036
+     * </pre>
+     */
+    public static final int INVERSION_VALUE = 13;
 
 
     public final int getNumber() {
@@ -130,6 +274,10 @@ public final class VariantProto {
         case 7: return NO_VARIATION;
         case 8: return SYMBOLIC;
         case 9: return MIXED;
+        case 10: return INSERTION;
+        case 11: return DELETION;
+        case 12: return TRANSLOCATION;
+        case 13: return INVERSION;
         default: return null;
       }
     }
@@ -11904,12 +12052,14 @@ public final class VariantProto {
       "rg.opencb.biodata.models.variant.protobu" +
       "f.VariantFileMetadata.MetadataEntry\032/\n\rM",
       "etadataEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t" +
-      ":\0028\001*x\n\013VariantType\022\007\n\003SNP\020\000\022\007\n\003SNV\020\001\022\007\n" +
-      "\003MNP\020\002\022\007\n\003MNV\020\003\022\t\n\005INDEL\020\004\022\006\n\002SV\020\005\022\007\n\003CN" +
-      "V\020\006\022\020\n\014NO_VARIATION\020\007\022\014\n\010SYMBOLIC\020\010\022\t\n\005M" +
-      "IXED\020\t*X\n\013AllelesCode\022\016\n\nALLELES_OK\020\000\022\023\n" +
-      "\017ALLELES_MISSING\020\001\022\027\n\023MULTIPLE_ALTERNATE" +
-      "S\020\002\022\013\n\007HAPLOID\020\003B\016B\014VariantProtob\006proto3"
+      ":\0028\001*\267\001\n\013VariantType\022\007\n\003SNP\020\000\022\007\n\003SNV\020\001\022\007" +
+      "\n\003MNP\020\002\022\007\n\003MNV\020\003\022\t\n\005INDEL\020\004\022\006\n\002SV\020\005\022\007\n\003C" +
+      "NV\020\006\022\020\n\014NO_VARIATION\020\007\022\014\n\010SYMBOLIC\020\010\022\t\n\005" +
+      "MIXED\020\t\022\r\n\tINSERTION\020\n\022\014\n\010DELETION\020\013\022\021\n\r" +
+      "TRANSLOCATION\020\014\022\r\n\tINVERSION\020\r*X\n\013Allele" +
+      "sCode\022\016\n\nALLELES_OK\020\000\022\023\n\017ALLELES_MISSING" +
+      "\020\001\022\027\n\023MULTIPLE_ALTERNATES\020\002\022\013\n\007HAPLOID\020\003" +
+      "B\016B\014VariantProtob\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
