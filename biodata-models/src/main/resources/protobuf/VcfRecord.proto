@@ -1,0 +1,41 @@
+syntax = "proto3";
+package org.opencb.biodata.models.variant.protobuf;
+option java_package = "org.opencb.biodata.models.variant.protobuf";
+option java_outer_classname = "VcfSliceProtos";
+import "variant.proto";
+// CHROM  POS     ID      REF     ALT     QUAL    FILTER  INFO  FORMAT  [SAMPLE]
+
+
+message VcfSample {
+  repeated string sample_values = 1;
+}
+
+// TODO what's in the case of 1/2 
+message VcfRecord {
+  uint32 relative_start = 1; // 1 based 
+  uint32 relative_end = 2;
+  string reference = 3; 
+  repeated string alternate = 4;
+  string quality = 5;
+
+  VariantType type = 12;
+  string call = 13;
+
+  string filter_non_default = 6;
+  repeated string id_non_default = 7;
+  
+  repeated string info_key = 8;
+  repeated string info_value = 9;
+  
+  repeated string sample_format_non_default = 10;
+  repeated VcfSample samples = 11;
+  
+}
+
+message VcfSlice {
+  string chromosome = 1;
+  uint32 position = 2;
+  repeated VcfRecord records = 3; // List of records (lines)
+// VcfMeta metadata = 4; 
+}
+

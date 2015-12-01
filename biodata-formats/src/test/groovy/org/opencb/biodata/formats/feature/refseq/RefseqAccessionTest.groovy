@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package org.opencb.biodata.tools.feature.refseq
+package org.opencb.biodata.formats.feature.refseq
 
-import org.opencb.biodata.formats.feature.refseq.RefseqAccession
 import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Unroll

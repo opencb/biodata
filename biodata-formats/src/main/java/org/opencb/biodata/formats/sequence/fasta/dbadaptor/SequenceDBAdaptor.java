@@ -16,10 +16,8 @@
 
 package org.opencb.biodata.formats.sequence.fasta.dbadaptor;
 
-import org.opencb.biodata.models.feature.Region;
-import org.opencb.commons.containers.map.QueryOptions;
+import org.opencb.biodata.models.core.Region;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Path;
 

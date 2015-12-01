@@ -1,0 +1,17 @@
+
+@namespace("org.opencb.biodata.models.sequence")
+
+protocol Reads {
+
+    record Read {
+      /** The read ID. */
+      string id;
+
+      /** The full read sequence. */
+      string sequence;
+
+      /** The full read quality. */
+      string quality;
+    }
+
+}

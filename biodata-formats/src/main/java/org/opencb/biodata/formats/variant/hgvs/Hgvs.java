@@ -16,7 +16,7 @@
 
 package org.opencb.biodata.formats.variant.hgvs;
 
-import net.sf.picard.reference.IndexedFastaSequenceFile;
+import htsjdk.samtools.reference.IndexedFastaSequenceFile;
 import org.opencb.biodata.formats.feature.refseq.RefseqAccession;
 import org.opencb.biodata.models.variant.Variant;
 

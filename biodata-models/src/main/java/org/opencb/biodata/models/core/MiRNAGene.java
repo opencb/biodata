@@ -26,7 +26,9 @@ public class MiRNAGene {
 	public String sequence;
 	public List<String> alias;
 	public List<MiRNAMature> matures;
-	
+
+	public MiRNAGene() {}
+
 	public MiRNAGene(String miRBaseAccession, String miRBaseID, String status,
 			String sequence, List<String> alias, List<MiRNAMature> matures) {
 		this.miRBaseAccession = miRBaseAccession;
@@ -37,8 +39,8 @@ public class MiRNAGene {
 		this.matures = matures;
 	}
 
-	public void addMiRNAMature(String miRBaseAccession, String miRBaseID, String sequence) {
-		matures.add(new MiRNAMature(miRBaseAccession, miRBaseID, sequence));
+	public void addMiRNAMature(String miRBaseAccession, String miRBaseID, String sequence, int cdnaStart, int cdnaEnd) {
+		matures.add(new MiRNAMature(miRBaseAccession, miRBaseID, sequence, cdnaStart, cdnaEnd));
 	}
 	
 	public String getMiRBaseAccession() {
@@ -94,21 +96,32 @@ public class MiRNAGene {
 		this.matures = matures;
 	}
 
-	public class MiRNAMature {
+	public static class MiRNAMature {
 		public String miRBaseAccession;
 		public String miRBaseID;
 		public String sequence;
 		public Integer cdnaStart;
 		public Integer cdnaEnd;
 
-		public MiRNAMature(String miRBaseAccession, String miRBaseID, String matureSequence) {
+		public MiRNAMature() {}
+
+//		public MiRNAMature(String miRBaseAccession, String miRBaseID, String matureSequence) {
+//			this.miRBaseAccession = miRBaseAccession;
+//			this.miRBaseID = miRBaseID;
+//			this.sequence = matureSequence;
+////			this.cdnaStart = 234234;
+////			this.cdnaStart = MiRNAGene.this.getSequence().indexOf(matureSequence)+1;
+////			this.cdnaEnd = cdnaStart+matureSequence.length()-1;
+//		}
+
+		public MiRNAMature(String miRBaseAccession, String miRBaseID, String sequence, int cdnaStart, int cdnaEnd) {
 			this.miRBaseAccession = miRBaseAccession;
 			this.miRBaseID = miRBaseID;
-			this.sequence = matureSequence;
-			this.cdnaStart = MiRNAGene.this.sequence.indexOf(matureSequence)+1;
-			this.cdnaEnd = cdnaStart+matureSequence.length()-1;
+			this.sequence = sequence;
+			this.cdnaStart = cdnaStart;
+			this.cdnaEnd = cdnaEnd;
 		}
-		
+
 		public String getMiRBaseAccession() {
 			return miRBaseAccession;
 		}
@@ -129,6 +142,13 @@ public class MiRNAGene {
 		public void setSequence(String sequence) {
 			this.sequence = sequence;
 		}
-		
+
+		public Integer getCdnaStart() { return cdnaStart; }
+
+		public void setCdnaStart(Integer cdnaStart) { this.cdnaStart = cdnaStart; }
+
+		public Integer getCdnaEnd() { return cdnaEnd; }
+
+		public void setCdnaEnd(Integer cdnaEnd) { this.cdnaEnd = cdnaEnd; }
 	}
 }

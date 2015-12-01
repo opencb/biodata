@@ -20,7 +20,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.opencb.biodata.models.feature.Region;
+import org.opencb.biodata.models.core.Region;
 
 import java.io.*;
 import java.net.URL;

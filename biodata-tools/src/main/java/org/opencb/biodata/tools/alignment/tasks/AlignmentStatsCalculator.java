@@ -26,7 +26,7 @@ public class AlignmentStatsCalculator {
 
             // num. mismatches
             if (ra.getInfo() != null) {
-                List<CharSequence> values = ra.getInfo().get("NM");
+                List<String> values = ra.getInfo().get("NM");
                 if (values != null) {
                     stats.NM = Integer.parseInt(values.get(1).toString());
                 }

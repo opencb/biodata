@@ -19,12 +19,12 @@ package org.opencb.biodata.models.variant;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.lang3.ArrayUtils;
+
 import org.apache.commons.lang3.StringUtils;
-import org.opencb.biodata.models.feature.AllelesCode;
-import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.biodata.models.variant.exceptions.NotAVariantException;
+
+import static org.opencb.biodata.models.variant.VariantNormalizer.*;
 
 /**
  * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
@@ -32,6 +32,15 @@ import org.opencb.biodata.models.variant.exceptions.NotAVariantException;
  * @author Jose Miguel Mut Lopez &lt;jmmut@ebi.ac.uk&gt;
  */
 public class VariantVcfFactory implements VariantFactory {
+
+    @Deprecated
+    public static final String ORI = "ori";
+
+    public static final String QUAL = "QUAL";
+    public static final String FILTER = "FILTER";
+    public static final String SRC = "src";
+
+    private final VariantNormalizer variantNormalizer = new VariantNormalizer();
 
     /**
      * Creates a list of Variant objects using the fields in a record of a VCF
@@ -61,8 +70,8 @@ public class VariantVcfFactory implements VariantFactory {
 
         String chromosome = fields[0];
         int position = Integer.parseInt(fields[1]);
-        String id = fields[2].equals(".") ? "" : fields[2];
-        Set<String> ids = new HashSet<>(Arrays.asList(id.split(";")));
+        String id = fields[2].equals(".") ? null : fields[2];
+        List<String> ids = id == null? Collections.emptyList() : Arrays.asList(id.split(";"));
         String reference = fields[3].equals(".") ? "" : fields[3];
         String alternate = fields[4];
 //        String alternate = fields[4].equals(".") ? "" : fields[4];
@@ -72,46 +81,29 @@ public class VariantVcfFactory implements VariantFactory {
         String info = fields[7].equals(".") ? "" : fields[7];
         String format = (fields.length <= 8 || fields[8].equals(".")) ? "" : fields[8];
 
-        List<VariantKeyFields> generatedKeyFields = new ArrayList<>();
+        List<VariantKeyFields> generatedKeyFields = variantNormalizer.normalize(position, reference, Arrays.asList(alternateAlleles));
 
-        for (int i = 0; i < alternateAlleles.length; i++) { // This index is necessary for getting the samples where the mutated allele is present
-            String alt = alternateAlleles[i];
-            VariantKeyFields keyFields;
-            int referenceLen = reference.length();
-            int alternateLen = alt.length();
-
-            if (referenceLen == alternateLen) {
-                keyFields = createVariantsFromSameLengthRefAlt(position, reference, alt);
-            } else if (referenceLen == 0) {
-                keyFields = createVariantsFromInsertionEmptyRef(position, alt);
-            } else if (alternateLen == 0) {
-                keyFields = createVariantsFromDeletionEmptyAlt(position, reference);
-            } else {
-                keyFields = createVariantsFromIndelNoEmptyRefAlt(position, reference, alt);
-            }
-
-            keyFields.setNumAllele(i);
+        for (int i = 0; i < generatedKeyFields.size(); i++) {
 
             // Since the reference and alternate alleles won't necessarily match
             // the ones read from the VCF file but they are still needed for
             // instantiating the variants, they must be updated
-            alternateAlleles[i] = keyFields.alternate;
-            generatedKeyFields.add(keyFields);
+            alternateAlleles[i] = generatedKeyFields.get(i).getAlternate();
         }
 
         // Now create all the Variant objects read from the VCF record
         for (int i = 0; i < alternateAlleles.length; i++) {
             VariantKeyFields keyFields = generatedKeyFields.get(i);
-            Variant variant = new Variant(chromosome, keyFields.start, keyFields.end, keyFields.reference, keyFields.alternate);
+            Variant variant = new Variant(chromosome, keyFields.getStart(), keyFields.getEnd(), keyFields.getReference(), keyFields.getAlternate());
             String[] secondaryAlternates = getSecondaryAlternates(variant, keyFields.getNumAllele(), alternateAlleles);
-            VariantSourceEntry file = new VariantSourceEntry(source.getFileId(), source.getStudyId(), secondaryAlternates, format);
-            variant.addSourceEntry(file);
+            StudyEntry entry = new StudyEntry(source.getFileId(), source.getStudyId(), secondaryAlternates, Arrays.asList(format.split(":")));
+            variant.addStudyEntry(entry);
 
             try {
-                parseSplitSampleData(variant, source, fields, alternateAlleles, secondaryAlternates, i + 1);
+                parseSplitSampleData(entry, source, fields, reference, alternateAlleles, keyFields);
                 // Fill the rest of fields (after samples because INFO depends on them)
                 setOtherFields(variant, source, ids, quality, filter, info, format, keyFields.getNumAllele(), alternateAlleles, line);
-                file.addAttribute("ori", fields[1] + ":" + fields[3] + ":" + fields[4] + ":" + i);
+                entry.getFile(source.getFileId()).setCall(fields[1] + ":" + fields[3] + ":" + fields[4] + ":" + keyFields.getNumAllele());
                 variants.add(variant);
             } catch (NonStandardCompliantSampleField ex) {
                 Logger.getLogger(VariantFactory.class.getName()).log(Level.SEVERE,
@@ -123,97 +115,6 @@ public class VariantVcfFactory implements VariantFactory {
         return variants;
     }
 
-    /**
-     * Calculates the start, end, reference and alternate of a SNV/MNV where the 
-     * reference and the alternate are not empty. 
-     * 
-     * This task comprises 2 steps: removing the trailing bases that are 
-     * identical in both alleles, then the leading identical bases.
-     * 
-     * @param position Input starting position
-     * @param reference Input reference allele
-     * @param alt Input alternate allele
-     * @return The new start, end, reference and alternate alleles
-     */
-    protected VariantKeyFields createVariantsFromSameLengthRefAlt(int position, String reference, String alt) {
-        int indexOfDifference;
-        // Remove the trailing bases
-        String refReversed = StringUtils.reverse(reference);
-        String altReversed = StringUtils.reverse(alt);
-        indexOfDifference = StringUtils.indexOfDifference(refReversed, altReversed);
-        
-        reference = StringUtils.reverse(refReversed.substring(indexOfDifference));
-        alt = StringUtils.reverse(altReversed.substring(indexOfDifference));
-        
-        // Remove the leading bases
-        indexOfDifference = StringUtils.indexOfDifference(reference, alt);
-        if (indexOfDifference < 0) {
-            return null;
-        } else {
-            int start = position + indexOfDifference;
-            int end = position + reference.length() - 1;
-            String ref = reference.substring(indexOfDifference);
-            String inAlt = alt.substring(indexOfDifference);
-            return new VariantKeyFields(start, end, ref, inAlt);
-        }
-    }
-
-    protected VariantKeyFields createVariantsFromInsertionEmptyRef(int position, String alt) {
-        return new VariantKeyFields(position, position + alt.length() - 1, "", alt);
-    }
-
-    protected VariantKeyFields createVariantsFromDeletionEmptyAlt(int position, String reference) {
-        return new VariantKeyFields(position, position + reference.length() - 1, reference, "");
-    }
-
-    /**
-     * Calculates the start, end, reference and alternate of an indel where the 
-     * reference and the alternate are not empty. 
-     * 
-     * This task comprises 2 steps: removing the trailing bases that are 
-     * identical in both alleles, then the leading identical bases.
-     * 
-     * @param position Input starting position
-     * @param reference Input reference allele
-     * @param alt Input alternate allele
-     * @return The new start, end, reference and alternate alleles
-     */
-    protected VariantKeyFields createVariantsFromIndelNoEmptyRefAlt(int position, String reference, String alt) {
-        int indexOfDifference;
-        // Remove the trailing bases
-        String refReversed = StringUtils.reverse(reference);
-        String altReversed = StringUtils.reverse(alt);
-        indexOfDifference = StringUtils.indexOfDifference(refReversed, altReversed);
-        
-        reference = StringUtils.reverse(refReversed.substring(indexOfDifference));
-        alt = StringUtils.reverse(altReversed.substring(indexOfDifference));
-        
-        // Remove the leading bases
-        indexOfDifference = StringUtils.indexOfDifference(reference, alt);
-        if (indexOfDifference < 0) {
-            return null;
-        } else if (indexOfDifference == 0) {
-            if (reference.length() > alt.length()) { // Deletion
-                return new VariantKeyFields(position, position + reference.length() - 1, reference, alt);
-            } else { // Insertion
-                return new VariantKeyFields(position, position + alt.length() - 1, reference, alt);
-            }
-        } else {
-            if (reference.length() > alt.length()) { // Deletion
-                int start = position + indexOfDifference;
-                int end = position + reference.length() - 1;
-                String ref = reference.substring(indexOfDifference);
-                String inAlt = alt.substring(indexOfDifference);
-                return new VariantKeyFields(start, end, ref, inAlt);
-            } else { // Insertion
-                int start = position + indexOfDifference;
-                int end = position + alt.length() - 1;
-                String ref = reference.substring(indexOfDifference);
-                String inAlt = alt.substring(indexOfDifference);
-                return new VariantKeyFields(start, end, ref, inAlt);
-            }
-        }
-    }
 
     protected String[] getSecondaryAlternates(Variant variant, int numAllele, String[] alternateAlleles) {
         String[] secondaryAlternates = new String[alternateAlleles.length-1];
@@ -225,87 +126,36 @@ public class VariantVcfFactory implements VariantFactory {
         return secondaryAlternates;
     }
 
-    protected void parseSplitSampleData(Variant variant, VariantSource source, String[] fields, 
-            String[] alternateAlleles, String[] secondaryAlternates, int alleleIdx) throws NonStandardCompliantSampleField {
-        String[] formatFields = variant.getSourceEntry(source.getFileId(), source.getStudyId()).getFormat().split(":");
-        List<String> samples = source.getSamples();
+    protected void parseSplitSampleData(StudyEntry entry, VariantSource source, String[] fields,
+                                        String reference, String[] alternateAlleles, VariantKeyFields variantKeyFields) throws NonStandardCompliantSampleField {
+//        List<String> formatFields = variant.getSourceEntry(source.getFileId(), source.getStudyId()).getFormat();
 
-        for (int i = 9; i < fields.length; i++) {
-            Map<String, String> map = new HashMap<>(5);
-
-            // Fill map of a sample
-            String[] sampleFields = fields[i].split(":");
-            Genotype genotype = null;
-
-            // Samples may remove the trailing fields (only GT is mandatory),
-            // so the loop iterates to sampleFields.length, not formatFields.length
-            for (int j = 0; j < sampleFields.length; j++) {
-                String formatField = formatFields[j];
-                String sampleField = sampleFields[j];
-
-                if (formatField.equalsIgnoreCase("GT")) {
-                    // Save alleles just in case they are necessary for GL/PL/GP transformation
-                    genotype = new Genotype(sampleField, variant.getReference(), variant.getAlternate());
-
-                    StringBuilder genotypeStr = new StringBuilder();
-                    for (int allele : genotype.getAllelesIdx()) {
-                        if (allele == 0) { // Reference
-                            genotypeStr.append("0");
-                        } else if (allele == alleleIdx) { // Current alternate
-                            genotypeStr.append("1");
-                        } else if (allele < 0) { // Missing
-                            genotypeStr.append(".");
-                        } else {
-                            // Replace numerical indexes when they refer to another alternate allele
-                            genotypeStr.append(String.valueOf(ArrayUtils.indexOf(secondaryAlternates, alternateAlleles[allele-1]) + 2));
-                        }
-                        genotypeStr.append(genotype.isPhased() ? "|" : "/");
-                    }
-                    sampleField = genotypeStr.substring(0, genotypeStr.length()-1);
-                        
-                } else if (formatField.equalsIgnoreCase("GL")
-                        || formatField.equalsIgnoreCase("PL")
-                        || formatField.equalsIgnoreCase("GP")) {
-                    // All-alleles present and not haploid
-                    if (!sampleField.equals(".") && genotype != null
-                            && (genotype.getCode() == AllelesCode.ALLELES_OK
-                            || genotype.getCode() == AllelesCode.MULTIPLE_ALTERNATES)) {
-                        String[] likelihoods = sampleField.split(",");
-
-                        // If only 3 likelihoods are represented, no transformation is needed
-                        if (likelihoods.length > 3) {
-                            // Get alleles index to work with: if both are the same alternate,
-                            // the combinations must be run with the reference allele.
-                            // Otherwise all GL reported would be alt/alt.
-                            int allele1 = genotype.getAllele(0);
-                            int allele2 = genotype.getAllele(1);
-                            if (genotype.getAllele(0) == genotype.getAllele(1) && genotype.getAllele(0) > 0) {
-                                allele1 = 0;
-                            }
-
-                            // If the number of values is not enough for this GT
-                            int maxAllele = allele1 >= allele2 ? allele1 : allele2;
-                            int numValues = (int) (((float) maxAllele * (maxAllele + 1)) / 2) + maxAllele;
-                            if (likelihoods.length < numValues) {
-                                throw new NonStandardCompliantSampleField(formatField, sampleField, String.format("It must contain %d values", numValues));
-                            }
-
-                            // Genotype likelihood must be distributed following similar criteria as genotypes
-                            String[] alleleLikelihoods = new String[3];
-                            alleleLikelihoods[0] = likelihoods[(int) (((float) allele1 * (allele1 + 1)) / 2) + allele1];
-                            alleleLikelihoods[1] = likelihoods[(int) (((float) allele2 * (allele2 + 1)) / 2) + allele1];
-                            alleleLikelihoods[2] = likelihoods[(int) (((float) allele2 * (allele2 + 1)) / 2) + allele2];
-                            sampleField = StringUtils.join(alleleLikelihoods, ",");
-                        }
-                    }
-                }
-
-                map.put(formatField, sampleField);
-            }
-
-            // Add sample to the variant entry in the source file
-            variant.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(samples.get(i - 9), map);
+        if (fields.length < 9) {
+            entry.setSamplesData(Collections.emptyList());
+            entry.setSamplesPosition(Collections.emptyMap());
+            return;
         }
+        List<String> formatFields = Arrays.asList(fields[8].split(":"));
+        entry.setSamplesPosition(source.getSamplesPosition());
+
+        List<List<String>> samplesData = Arrays.asList(new List[fields.length - 9]);
+        for (int i = 9; i < fields.length; i++) {
+            List<String> data = Arrays.asList(fields[i].split(":"));
+            if (data.size() < formatFields.size()) {
+                List<String> correctSizeData = new ArrayList<>(formatFields.size());
+                correctSizeData.addAll(data);
+                while (correctSizeData.size() < formatFields.size()) {
+                    correctSizeData.add(".");
+                }
+                data = correctSizeData;
+            }
+            samplesData.set(i - 9, data);
+        }
+
+        samplesData = variantNormalizer.normalizeSamplesData(variantKeyFields, samplesData, formatFields, reference, Arrays.asList(alternateAlleles), null);
+
+        // Add samples data to the variant entry in the source file
+        entry.setSamplesData(samplesData);
     }
 
     /**
@@ -336,26 +186,26 @@ public class VariantVcfFactory implements VariantFactory {
         return true;
     }
 
-    protected void setOtherFields(Variant variant, VariantSource source, Set<String> ids, float quality, String filter,
+    protected void setOtherFields(Variant variant, VariantSource source, List<String> ids, float quality, String filter,
             String info, String format, int numAllele, String[] alternateAlleles, String line) {
         // Fields not affected by the structure of REF and ALT fields
         if (!ids.isEmpty()) {
             variant.setIds(ids);
         }
         if (quality > -1) {
-            variant.getSourceEntry(source.getFileId(), source.getStudyId()).addAttribute("QUAL", String.valueOf(quality));
+            variant.getSourceEntry(source.getFileId(), source.getStudyId()).addAttribute(QUAL, String.valueOf(quality));
         }
         if (!filter.isEmpty()) {
-            variant.getSourceEntry(source.getFileId(), source.getStudyId()).addAttribute("FILTER", filter);
+            variant.getSourceEntry(source.getFileId(), source.getStudyId()).addAttribute(FILTER, filter);
         }
         if (!info.isEmpty()) {
             parseInfo(variant, source.getFileId(), source.getStudyId(), info, numAllele);
         }
-        variant.getSourceEntry(source.getFileId(), source.getStudyId()).addAttribute("src", line);
+        variant.getSourceEntry(source.getFileId(), source.getStudyId()).addAttribute(SRC, line);
     }
 
     protected void parseInfo(Variant variant, String fileId, String studyId, String info, int numAllele) {
-        VariantSourceEntry file = variant.getSourceEntry(fileId, studyId);
+        StudyEntry file = variant.getSourceEntry(fileId, studyId);
         
         for (String var : info.split(";")) {
             String[] splits = var.split("=");
@@ -366,16 +216,18 @@ public class VariantVcfFactory implements VariantFactory {
                         String[] ids = splits[1].split(",");
                         file.addAttribute(splits[0], ids[numAllele]);
                         break;
-                    case "AC":
-                        // TODO For now, only one alternate is supported
-                        String[] counts = splits[1].split(",");
-                        file.addAttribute(splits[0], counts[numAllele]);
-                        break;
-                    case "AF":
-                        // TODO For now, only one alternate is supported
-                        String[] frequencies = splits[1].split(",");
-                        file.addAttribute(splits[0], frequencies[numAllele]);
-                        break;
+
+                // next is commented to store the AC, AF and AN as-is, to be able to compute stats from the DB using the attributes, and "ori" tag
+//                    case "AC":
+//                        // TODO For now, only one alternate is supported
+//                        String[] counts = splits[1].split(",");
+//                        file.addAttribute(splits[0], counts[numAllele]);
+//                        break;
+//                    case "AF":
+//                         // TODO For now, only one alternate is supported
+//                        String[] frequencies = splits[1].split(",");
+//                        file.addAttribute(splits[0], frequencies[numAllele]);
+//                        break;
 //                    case "AN":
 //                        // TODO For now, only two alleles (reference and one alternate) are supported, but this should be changed
 //                        file.addAttribute(splits[0], "2");
@@ -386,7 +238,7 @@ public class VariantVcfFactory implements VariantFactory {
                         break;
                     case "DP":
                         int dp = 0;
-                        for (String sampleName : file.getSampleNames()) {
+                        for (String sampleName : file.getSamplesName()) {
                             String sampleDp = file.getSampleData(sampleName, "DP");
                             if (StringUtils.isNumeric(sampleDp)) {
                                 dp += Integer.parseInt(sampleDp);
@@ -398,7 +250,7 @@ public class VariantVcfFactory implements VariantFactory {
                     case "MQ0":
                         int mq = 0;
                         int mq0 = 0;
-                        for (String sampleName : file.getSampleNames()) {
+                        for (String sampleName : file.getSamplesName()) {
                             if (StringUtils.isNumeric(file.getSampleData(sampleName, "GQ"))) {
                                 int gq = Integer.parseInt(file.getSampleData(sampleName, "GQ"));
                                 mq += gq * gq;
@@ -420,27 +272,6 @@ public class VariantVcfFactory implements VariantFactory {
         }
     }
 
-    protected class VariantKeyFields {
-
-        int start, end, numAllele;
-        String reference, alternate;
-
-        public VariantKeyFields(int start, int end, String reference, String alternate) {
-            this.start = start;
-            this.end = end;
-            this.reference = reference;
-            this.alternate = alternate;
-        }
-
-        public void setNumAllele(int numAllele) {
-            this.numAllele = numAllele;
-        }
-
-        public int getNumAllele() {
-            return numAllele;
-        }
-    }
-
     /**
      * In multiallelic variants, we have a list of alternates, where numAllele is the one whose variant we are parsing now.
      * If we are parsing the first variant (numAllele == 0) A1 refers to first alternative, (i.e. alternateAlleles[0]), A2 to 
@@ -455,7 +286,7 @@ public class VariantVcfFactory implements VariantFactory {
      * @param numAllele current variant of the alternates.
      * @return the correct allele index depending on numAllele.
      */
-    protected static int mapToMultiallelicIndex (int parsedAllele, int numAllele) {
+    public static int mapToMultiallelicIndex (int parsedAllele, int numAllele) {
         int correctedAllele = parsedAllele;
         if (parsedAllele > 0) {
             if (parsedAllele == numAllele + 1) {
