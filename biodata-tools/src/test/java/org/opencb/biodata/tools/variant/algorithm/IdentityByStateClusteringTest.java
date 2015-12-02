@@ -7,12 +7,11 @@ import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantSource;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 import static org.junit.Assert.*;
 
@@ -22,6 +21,40 @@ import static org.junit.Assert.*;
  * @author Jose Miguel Mut Lopez &lt;jmmut@ebi.ac.uk&gt;
  */
 public class IdentityByStateClusteringTest {
+
+    @Test
+    public void testWrite() throws Exception {
+        String fileName = "ibs.vcf";
+        VariantSource source = new VariantSource(fileName, "fid", "sid", "studyName");
+        String line;
+
+        VariantVcfReader variantReader = new VariantVcfReader(source, IdentityByStateClusteringTest.class.getClassLoader().getResource(source.getFileName()).getPath());
+        variantReader.open();
+        variantReader.pre();
+        List<Variant> variants = variantReader.read(50);
+        variantReader.post();
+        variantReader.close();
+
+        IdentityByStateClustering ibsc = new IdentityByStateClustering();
+        List<String> samples = new ArrayList<>(variants.get(0).getStudy(source.getStudyId()).getSamplesName());
+        List<IdentityByState> ibses = ibsc.countIBS(variants, samples);
+
+//        OutputStream outputStream = new FileOutputStream("/tmp/test.genome");
+        OutputStream outputStream = new ByteArrayOutputStream();
+//        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(buffer); 
+
+        ibsc.write(outputStream, ibses, samples);
+        outputStream.close();
+
+        System.out.print(outputStream.toString());
+                
+//        InputStream inputStream = IdentityByStateClusteringTest.class.getClassLoader().getResourceAsStream("ibs.genome");
+//        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+//
+//        reader.readLine();  // ignore header
+//
+//        assertIBS(ibsc, ibses, reader);
+    }
 
     @Ignore
     @Test

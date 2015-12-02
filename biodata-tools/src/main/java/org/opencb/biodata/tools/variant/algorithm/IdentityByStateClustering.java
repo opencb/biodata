@@ -32,7 +32,7 @@ import java.util.*;
  * - samples.size() > 1 && samples.size() < 10000
  * - only one study
  * - only 2 alleles per genotype
- * 
+ *
  * @author Jose Miguel Mut Lopez &lt;jmmut@ebi.ac.uk&gt;
  */
 public class IdentityByStateClustering {
@@ -75,20 +75,18 @@ public class IdentityByStateClustering {
             counts.add(new IdentityByState());
         }
 
-        for (; iterator.hasNext(); ) {
+        while (iterator.hasNext()) {
             Variant variant = iterator.next();
-            for (int i = 1; i < samples.size(); i++) {
-                for (int j = 0; j < i; j++) {
-                    StudyEntry studyEntry = variant.getStudies().get(studyIndex);
-                    String gtI = studyEntry.getSampleData(samples.get(i), "GT");
-                    String gtJ = studyEntry.getSampleData(samples.get(j), "GT");
-                    Genotype genotypeI = new Genotype(gtI);
-                    Genotype genotypeJ = new Genotype(gtJ);
+            forEachPair(samples, (int i, int j, int compoundIndex) -> {
+                StudyEntry studyEntry = variant.getStudies().get(studyIndex);
+                String gtI = studyEntry.getSampleData(samples.get(i), "GT");
+                String gtJ = studyEntry.getSampleData(samples.get(j), "GT");
+                Genotype genotypeI = new Genotype(gtI);
+                Genotype genotypeJ = new Genotype(gtJ);
 
-                    int whichIBS = countSharedAlleles(allelesCount, genotypeI, genotypeJ);
-                    counts.get(getCompoundIndex(j, i)).ibs[whichIBS]++;
-                }
-            }
+                int whichIBS = countSharedAlleles(allelesCount, genotypeI, genotypeJ);
+                counts.get(compoundIndex).ibs[whichIBS]++;
+            });
         }
         return counts;
     }
@@ -222,5 +220,35 @@ public class IdentityByStateClustering {
     public int getFirstSampleIndex(int compoundIndex, int secondSampleIndex) {
         return compoundIndex - (secondSampleIndex * secondSampleIndex - secondSampleIndex) / 2;
     }
-    
+
+    @FunctionalInterface
+    interface SamplePairConsumer<E extends Exception> { void apply(int sampleI, int sampleJ, int compoundIndex) throws E; }
+
+    public <E extends Exception> void forEachPair(List<String> samples, SamplePairConsumer<E> loopBody) throws E {
+        int compound = 0;
+        for (int i = 1; i < samples.size(); i++) {
+            for (int j = 0; j < i; j++) {
+                loopBody.apply(j, i, compound);
+                compound++;
+            }
+        }
+    }
+
+    public void write(OutputStream outputStream, List<IdentityByState> ibsList, List<String> samples) throws IOException {
+        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+        outputStreamWriter.write("IID1\tIID2\tDST\tZ0\tZ1\tZ2\n");
+        forEachPair(samples,  (int firstSampleIndex, int secondSampleIndex, int compoundIndex) -> {
+            outputStreamWriter.write(samples.get(firstSampleIndex));
+            outputStreamWriter.write("\t");
+            outputStreamWriter.write(samples.get(secondSampleIndex));
+            outputStreamWriter.write("\t");
+            outputStreamWriter.write(String.valueOf(getDistance(ibsList.get(compoundIndex))));
+            for (int i = 0; i < 3; i++) {
+                outputStreamWriter.write("\t");
+                outputStreamWriter.write(String.valueOf(ibsList.get(compoundIndex).ibs[i]));
+            }
+            outputStreamWriter.write("\n");
+        });
+        outputStreamWriter.flush();
+    }
 }
