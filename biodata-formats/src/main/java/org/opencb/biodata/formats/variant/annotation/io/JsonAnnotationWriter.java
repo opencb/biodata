@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.VariantAnnotation;
 import org.opencb.commons.io.DataWriter;
 import org.slf4j.Logger;
@@ -37,7 +38,7 @@ import java.util.zip.GZIPOutputStream;
 /**
  * Created by fjlopez on 01/04/15.
  */
-public class JsonAnnotationWriter implements DataWriter<VariantAnnotation> {
+public class JsonAnnotationWriter implements DataWriter<Variant> {
 
     public static final int LOG_BATCH_SIZE = 2000;
     private String filename;
@@ -98,9 +99,9 @@ public class JsonAnnotationWriter implements DataWriter<VariantAnnotation> {
     }
 
     @Override
-    public boolean write(VariantAnnotation variantAnnotation) {
+    public boolean write(Variant variant) {
         try {
-            bw.write(jsonObjectWriter.writeValueAsString(variantAnnotation)+"\n");
+            bw.write(jsonObjectWriter.writeValueAsString(variant)+"\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -108,11 +109,11 @@ public class JsonAnnotationWriter implements DataWriter<VariantAnnotation> {
     }
 
     @Override
-    public boolean write(List<VariantAnnotation> list) {
+    public boolean write(List<Variant> list) {
 
         if (list != null) {
-            for(VariantAnnotation variantAnnotation : list) {
-                write(variantAnnotation);
+            for(Variant variant : list) {
+                write(variant);
             }
 
             int previousBatch = writtenVariantAnnotations / LOG_BATCH_SIZE;

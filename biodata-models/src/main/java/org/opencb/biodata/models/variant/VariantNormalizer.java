@@ -21,7 +21,13 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass().toString());
 
-    private final boolean reuseVariants = true;
+    private boolean reuseVariants = true;
+
+    public VariantNormalizer() {}
+
+    public VariantNormalizer(boolean reuseVariants) {
+        this.reuseVariants = reuseVariants;
+    }
 
     @Override
     public List<Variant> apply(List<Variant> batch) {
@@ -40,7 +46,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             String alternate = variant.getAlternate();
             Integer start = variant.getStart();
 
-            if (variant.getStudies().isEmpty()) {
+            if (variant.getStudies() == null || variant.getStudies().isEmpty()) {
                 VariantKeyFields keyFields = normalize(start, reference, alternate);
                 Variant normalizedVariant = newVariant(variant, keyFields);
                 normalizedVariants.add(normalizedVariant);
