@@ -287,7 +287,7 @@ public class Variant {
     }
 
     public List<StudyEntry> getStudies() {
-        return Collections.unmodifiableList(new ArrayList<>(getStudiesMap().values()));
+        return getStudiesMap() == null ? null : Collections.unmodifiableList(new ArrayList<>(getStudiesMap().values()));
     }
 
     public void setStudies(List<StudyEntry> studies) {
