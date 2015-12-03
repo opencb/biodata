@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.feature.AllelesCode;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.avro.FileEntry;
+import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.commons.run.ParallelTaskRunner;
 import org.slf4j.Logger;
@@ -36,6 +37,11 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         List<Variant> normalizedVariants = new ArrayList<>(batch.size());
 
         for (Variant variant : batch) {
+            if (!isNormalizable(variant)) {
+                normalizedVariants.add(variant);
+                continue;
+            }
+
             String reference = variant.getReference();  //Save original values, as they can be changed
             String alternate = variant.getAlternate();
             Integer start = variant.getStart();
@@ -131,6 +137,14 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             list.add(keyFields);
         }
         return list;
+    }
+
+    /**
+     * Non normalizable variants
+     * TODO: Add {@link VariantType#SYMBOLIC} variants?
+     */
+    private boolean isNormalizable(Variant variant) {
+        return !variant.getType().equals(VariantType.NO_VARIATION);
     }
 
     /**
