@@ -2,6 +2,7 @@ package org.opencb.biodata.models.variant;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.commons.test.GenericTest;
 
@@ -77,6 +78,16 @@ public class VariantNormalizerTest extends GenericTest {
     public void testNormalizeSamplesDataLeftInsertion() throws NonStandardCompliantSampleField {
         // C -> CA  === . -> A
         testSampleNormalization(100, "C", "CA", 101, "", "A");
+    }
+
+    @Test
+    public void testNormalizeNoVariation() throws NonStandardCompliantSampleField {
+        Variant variant = new Variant("2", 10, 1000, "A", "");
+        variant.setType(VariantType.NO_VARIATION);
+
+        Variant normalizedVariant = normalizer.normalize(Collections.singletonList(variant), false).get(0);
+        assertEquals(variant, normalizedVariant);
+
     }
 
 

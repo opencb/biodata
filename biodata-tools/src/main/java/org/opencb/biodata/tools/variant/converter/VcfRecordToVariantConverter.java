@@ -54,7 +54,7 @@ public class VcfRecordToVariantConverter implements Converter<VcfSliceProtos.Vcf
         FileEntry fileEntry = new FileEntry();
         fileEntry.setFileId(meta.getVariantSource().getFileId());
         fileEntry.setAttributes(getFileAttributes(vcfRecord));
-        //fileEntry.setCall(""); //TODO
+        fileEntry.setCall(vcfRecord.getCall());
 
         StudyEntry studyEntry = new StudyEntry(meta.getVariantSource().getStudyId());
         studyEntry.setFiles(Collections.singletonList(fileEntry));
