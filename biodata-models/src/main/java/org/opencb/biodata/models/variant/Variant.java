@@ -70,6 +70,7 @@ public class Variant {
                 }
             }
         }
+        resetType();
     }
 
     public Variant(String chromosome, int position, String reference, String alternate) {
