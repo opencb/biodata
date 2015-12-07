@@ -62,8 +62,7 @@ public class VcfRecordToVariantConverterTest {
         attributes.put("Key1", "V1");
         attributes.put("Key2", "V2");
 
-//        studyEntry.setFiles(Collections.singletonList(new FileEntry("chr1", "5:A:C:0", attributes)));
-        studyEntry.setFiles(Collections.singletonList(new FileEntry("chr1", null, attributes)));
+        studyEntry.setFiles(Collections.singletonList(new FileEntry("chr1", "5:A:C:0", attributes)));
         variant.setStudies(Collections.singletonList(studyEntry));
 
         VcfSliceProtos.VcfRecord vcfRecord = toProto.convert(variant);
@@ -95,8 +94,7 @@ public class VcfRecordToVariantConverterTest {
         attributes.put(VariantVcfFactory.QUAL, "57");
         attributes.put("Key", "Value");
 
-//        studyEntry.setFiles(Collections.singletonList(new FileEntry("chr1", "5:A:C:0", attributes)));
-        studyEntry.setFiles(Collections.singletonList(new FileEntry("chr1", null, attributes)));
+        studyEntry.setFiles(Collections.singletonList(new FileEntry("chr1", "5:A:C:0", attributes)));
         variant.setStudies(Collections.singletonList(studyEntry));
 
         VcfSliceProtos.VcfRecord vcfRecord = toProto.convert(variant, 100);
