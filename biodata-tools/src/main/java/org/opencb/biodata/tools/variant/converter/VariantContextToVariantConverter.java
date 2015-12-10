@@ -26,9 +26,13 @@ import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.VariantVcfFactory;
 import org.opencb.biodata.models.variant.avro.*;
 import org.opencb.biodata.models.variant.stats.VariantStats;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static org.opencb.biodata.models.variant.StudyEntry.isSamplesPositionMapSorted;
 
 
 /**
@@ -39,19 +43,43 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
 
     private final String studyId;
     private final String fileId;
+    private LinkedHashMap<String, Integer> samplesPosition;
 
     private List<String> consequenceTypeFields;
+    protected Logger logger = LoggerFactory.getLogger(this.getClass().toString());
 
-    public VariantContextToVariantConverter(){
-        this("", "");
+
+    VariantContextToVariantConverter(){
+        this("", "", null);
     }
 
+    @Deprecated
     public VariantContextToVariantConverter(String studyId, String fileId) {
+        this(studyId, fileId, null);
+    }
+
+    public VariantContextToVariantConverter(String studyId, String fileId, List<String> samples) {
         this.studyId = studyId;
         this.fileId = fileId;
 
         // TODO this must be parsed from VCF header
         consequenceTypeFields = Arrays.asList();
+
+        samplesPosition = createSamplesPositionMap(samples);
+
+    }
+
+    private static LinkedHashMap<String, Integer> createSamplesPositionMap(List<String> samples) {
+        if (samples == null) {
+            return null;
+        }
+        LinkedHashMap<String, Integer> samplesPosition = new LinkedHashMap<>();
+        int position = 0;
+        for (String sample : samples) {
+            samplesPosition.put(sample, position++);
+        }
+        isSamplesPositionMapSorted(samplesPosition);
+        return samplesPosition;
     }
 
     @Override
@@ -202,8 +230,12 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
 
 
         // set sample data parameters Eg: GT:GQ:GQX:DP:DPF:AD 1/1:63:29:22:7:0,22
-        List<List<String>> sampleDataList = new ArrayList<>(variantContext.getSampleNames().size());
-        for (String sampleName : variantContext.getSampleNames()) {
+        if (samplesPosition == null) {
+            logger.warn("Using alphabetical order for samples position!");
+            samplesPosition = createSamplesPositionMap(variantContext.getSampleNamesOrderedByName());
+        }
+        List<List<String>> sampleDataList = new ArrayList<>(samplesPosition.size());
+        for (String sampleName : samplesPosition.keySet()) {
             htsjdk.variant.variantcontext.Genotype genotype = variantContext.getGenotype(sampleName);
             List<String> sampleList = new ArrayList<>(formatFields.size());
 
@@ -241,6 +273,7 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
             sampleDataList.add(sampleList);
         }
         studyEntry.setSamplesData(sampleDataList);
+        studyEntry.setSamplesPosition(samplesPosition);
 
 
         /*

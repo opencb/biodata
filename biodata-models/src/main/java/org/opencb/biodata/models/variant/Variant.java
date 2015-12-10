@@ -70,6 +70,7 @@ public class Variant {
                 }
             }
         }
+        resetType();
     }
 
     public Variant(String chromosome, int position, String reference, String alternate) {
@@ -287,7 +288,7 @@ public class Variant {
     }
 
     public List<StudyEntry> getStudies() {
-        return Collections.unmodifiableList(new ArrayList<>(getStudiesMap().values()));
+        return getStudiesMap() == null ? null : Collections.unmodifiableList(new ArrayList<>(getStudiesMap().values()));
     }
 
     public void setStudies(List<StudyEntry> studies) {

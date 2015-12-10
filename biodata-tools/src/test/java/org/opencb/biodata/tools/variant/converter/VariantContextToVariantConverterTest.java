@@ -18,8 +18,10 @@ package org.opencb.biodata.tools.variant.converter;
 
 import htsjdk.variant.variantcontext.LazyGenotypesContext;
 import htsjdk.variant.variantcontext.VariantContext;
+import htsjdk.variant.vcf.VCFCodec;
 import htsjdk.variant.vcf.VCFFileReader;
 import htsjdk.variant.vcf.VCFHeader;
+import htsjdk.variant.vcf.VCFHeaderVersion;
 import org.apache.avro.file.DataFileReader;
 import org.apache.avro.file.DataFileWriter;
 import org.apache.avro.io.DatumWriter;
@@ -28,6 +30,7 @@ import org.apache.avro.specific.SpecificDatumWriter;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.opencb.biodata.formats.variant.vcf4.FullVcfCodec;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantNormalizer;
 import org.opencb.biodata.models.variant.avro.Aggregation;
@@ -41,12 +44,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+import java.util.function.Consumer;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 /**
  * Created by imedina on 27/09/15.
@@ -64,6 +66,48 @@ public class VariantContextToVariantConverterTest {
         writeFile(inputPath, outPath, false);
     }
 
+    @Test
+    public void testConvertVariant() throws Exception {
+        VCFCodec vcfCodec = new FullVcfCodec();
+        List<String> sampleNames = Arrays.asList("HG04584", "HG03234", "HG05023");
+        vcfCodec.setVCFHeader(new VCFHeader(Collections.emptySet(), sampleNames), VCFHeaderVersion.VCF4_1);
+        String vcfLine = "22\t16050984\trs188945759\tC\tG\t100\tPASS\t" +
+                "ERATE=0.0004;AN=2184;THETA=0.0266;VT=SNP;AA=.;LDAF=0.0028;AC=5;RSQ=0.7453;" +
+                "SNPSOURCE=LOWCOV;AVGPOST=0.9984;AF=0.0023;AFR_AF=0.01;ACC=esa00000L019V9WM\t" +
+                "GT:DS:GL\t0|0:0.000:-0.01,-1.84,-5.00\t1/1:0.000:-0.05,-0.95,-5.00\t0|1:0.000:-0.02,-1.45,-5.00";
+
+        String studyId = "1";
+        Consumer<Variant> checkVariant = (variant) -> {
+            assertEquals("rs188945759", variant.getIds().get(0));
+            assertEquals(1, variant.getIds().size());
+
+            assertEquals("C|C", variant.getStudy(studyId).getSampleData(sampleNames.get(0), "GT"));
+            assertEquals("G/G", variant.getStudy(studyId).getSampleData(sampleNames.get(1), "GT"));
+            assertEquals("C|G", variant.getStudy(studyId).getSampleData(sampleNames.get(2), "GT"));
+
+            assertEquals("0.000", variant.getStudy(studyId).getSampleData(sampleNames.get(0), "DS"));
+            assertEquals("0.000", variant.getStudy(studyId).getSampleData(sampleNames.get(1), "DS"));
+            assertEquals("0.000", variant.getStudy(studyId).getSampleData(sampleNames.get(2), "DS"));
+
+            assertEquals("-0.01,-1.84,-5.00", variant.getStudy(studyId).getSampleData(sampleNames.get(0), "GL"));
+            assertEquals("-0.05,-0.95,-5.00", variant.getStudy(studyId).getSampleData(sampleNames.get(1), "GL"));
+            assertEquals("-0.02,-1.45,-5.00", variant.getStudy(studyId).getSampleData(sampleNames.get(2), "GL"));
+        };
+        VariantContext variantContext = vcfCodec.decode(vcfLine);
+
+        VariantContextToVariantConverter converter = new VariantContextToVariantConverter(studyId, studyId);
+        Variant variant = converter.convert(variantContext);
+        assertEquals(Arrays.asList(sampleNames.get(1), sampleNames.get(0), sampleNames.get(2)),
+                new LinkedList<>(variant.getStudy(studyId).getSamplesPosition().keySet()));
+        checkVariant.accept(variant);
+
+        converter = new VariantContextToVariantConverter(studyId, studyId, sampleNames);
+        variant = converter.convert(variantContext);
+        assertEquals(sampleNames, new LinkedList<>(variant.getStudy(studyId).getSamplesPosition().keySet()));
+        checkVariant.accept(variant);
+
+        assertSame(variant.getStudy(studyId).getSamplesPosition(), converter.convert(variantContext).getStudy(studyId).getSamplesPosition());
+    }
 
     private long readFile(Path outPath) throws IOException {
         // And read file again

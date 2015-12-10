@@ -18,6 +18,7 @@ package org.opencb.biodata.formats.variant.annotation.io;
 
 //import org.opencb.biodata.models.variant.annotation.ConsequenceType;
 //import org.opencb.biodata.models.variant.annotation.VariantAnnotation;
+import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.ConsequenceType;
 import org.opencb.biodata.models.variant.avro.VariantAnnotation;
 
@@ -35,7 +36,7 @@ import java.util.List;
 /**
  * Created by fjlopez on 12/02/15.
  */
-public class VepFormatWriter implements DataWriter<VariantAnnotation> {
+public class VepFormatWriter implements DataWriter<Variant> {
 
     String filename;
     BufferedWriter bw;
@@ -90,8 +91,9 @@ public class VepFormatWriter implements DataWriter<VariantAnnotation> {
     }
 
     @Override
-    public boolean write(VariantAnnotation variantAnnotation) {
+    public boolean write(Variant variant) {
 
+        VariantAnnotation variantAnnotation = variant.getAnnotation();
         String id;
         if((id=variantAnnotation.getId())==null) {
             id = "-";
@@ -177,11 +179,12 @@ public class VepFormatWriter implements DataWriter<VariantAnnotation> {
     }
 
     @Override
-    public boolean write(List<VariantAnnotation> list) {
+    public boolean write(List<Variant> list) {
 
-        for(VariantAnnotation variantAnnotation : list) {
-            write(variantAnnotation);
+        for(Variant variant : list) {
+            write(variant);
         }
         return true;
     }
+
 }

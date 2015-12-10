@@ -19,6 +19,10 @@ package org.opencb.biodata.formats.variant.vcf4.io;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 
+import htsjdk.variant.variantcontext.LazyGenotypesContext;
+import htsjdk.variant.variantcontext.VariantContext;
+import htsjdk.variant.vcf.VCFFileReader;
+import htsjdk.variant.vcf.VCFHeader;
 import org.opencb.biodata.formats.io.FileFormatException;
 import org.opencb.biodata.formats.variant.io.VariantReader;
 import org.opencb.biodata.formats.variant.vcf4.*;
@@ -95,7 +99,7 @@ public class VariantVcfReader implements VariantReader {
     public boolean pre() {
         try {
             processHeader();
-            
+
             // Copy all the read metadata to the VariantSource object
             // TODO May it be that Vcf4 wasn't necessary anymore?
 
@@ -205,13 +209,11 @@ public class VariantVcfReader implements VariantReader {
 
         header = buffer.toString();
         vcf4 = heaederFactory.parseHeader(new BufferedReader(new StringReader(header)));
-        
+
         if (vcf4 == null) {
             System.err.println("VCF Header must be provided.");
 //            System.exit(-1);
         }
 
     }
-
-
 }

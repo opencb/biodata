@@ -216,8 +216,10 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
         }
         if(!lineFields[10].equals("-")) {
             String parts[] = lineFields[10].split("/");
-            proteinVariantAnnotation.setReference(parts[0]);  // fill aa change
-            proteinVariantAnnotation.setAlternate(parts[1]);  // fill aa change
+            if(parts.length == 2) {
+                proteinVariantAnnotation.setReference(parts[0]);  // fill aa change
+                proteinVariantAnnotation.setAlternate(parts[1]);  // fill aa change
+            }
         }
         consequenceType.setProteinVariantAnnotation(proteinVariantAnnotation);
         consequenceType.setCodon(lineFields[11]); // fill codon change
