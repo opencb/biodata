@@ -37,6 +37,8 @@ import java.util.*;
  */
 public class IdentityByStateClustering {
 
+    public static final int MAX_SAMPLES_ALLOWED = 10000;
+
     /**
      * @return an array of IBS of length: (samples.size()*(samples.size() -1))/2
      * which is samples.size() choose 2
@@ -60,13 +62,11 @@ public class IdentityByStateClustering {
     public List<IdentityByState> countIBS(Iterator<Variant> iterator, List<String> samples) {
 
         // assumptions
-        if (samples.size() < 1 || samples.size() > 10000) {
+        if (samples.size() < 1 || samples.size() > MAX_SAMPLES_ALLOWED) {
             throw new IllegalArgumentException("samples.size() is " + samples.size()
-                    + " and it should be between 1 and 10000");
+                    + " and it should be between 1 and" + MAX_SAMPLES_ALLOWED);
         }
         final int studyIndex = 0;
-        final int allelesCount = 2;
-
 
         // loops
         List<IdentityByState> counts = new ArrayList<>(getAmountOfPairs(samples.size()));
@@ -84,7 +84,7 @@ public class IdentityByStateClustering {
                 Genotype genotypeI = new Genotype(gtI);
                 Genotype genotypeJ = new Genotype(gtJ);
 
-                int whichIBS = countSharedAlleles(allelesCount, genotypeI, genotypeJ);
+                int whichIBS = countSharedAlleles(genotypeI.getAllelesIdx().length, genotypeI, genotypeJ);
                 counts.get(compoundIndex).ibs[whichIBS]++;
             });
         }
@@ -130,7 +130,8 @@ public class IdentityByStateClustering {
     /**
      * Distance in genotype space. 
      * As it is categorical, currently it is just computed as a ratio between shared genotypes and total genotypes.
-     * Could also be euclidian distance with formula
+     * Could also be euclidian distance with formula (taken from plink):
+     * sqrt((IBSg.z1*0.5 + IBSg.z2*2)/(IBSg.z0+IBSg.z1+IBSg.z2*2));
      * @param counts
      * @return
      */
