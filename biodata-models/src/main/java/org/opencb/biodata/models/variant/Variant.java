@@ -132,9 +132,9 @@ public class Variant {
     }
 
     private void resetLength() {
-        if(getReference()==null) {
-            setLength(getAlternate().length());
-        } else if(getAlternate()==null) {
+        if (getReference() == null) {
+            setLength(getAlternate() == null? 0 : getAlternate().length());
+        } else if (getAlternate() == null) {
             setLength(getReference().length());
         } else {
             setLength(Math.max(getReference().length(), getAlternate().length()));

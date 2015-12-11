@@ -21,6 +21,7 @@ import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.formats.variant.annotation.VepParser;
+import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.VariantVcfFactory;
@@ -106,6 +107,7 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         if (alternateAlleleList != null && !alternateAlleleList.isEmpty()) {
             variant.setAlternate(alternateAlleleList.get(0).toString());
         } else {
+            alternateAlleleList = Collections.emptyList();
             variant.setAlternate("");
         }
 
@@ -164,7 +166,7 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         fileEntry.setFileId(fileId);
         fileEntry.setCall(variantContext.getStart()
                 + ":" + variantContext.getReference()
-                + ":" + StringUtils.join(variantContext.getAlternateAlleles(), ","));
+                + ":" + StringUtils.join(alternateAlleleList, ","));
         Map<String, String> attributes = new HashMap<>();
         for (String key : variantContext.getAttributes().keySet()) {
             // Do not use "getAttributeAsString" for lists.
@@ -193,9 +195,15 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
 
         // We need to convert Allele object to String
         // We skip the first alternate allele since these are the secondaries
-        List<String> secondaryAlternateList = new ArrayList<>();
-        for (int i = 1; i < variantContext.getAlternateAlleles().size(); i++) {
-            secondaryAlternateList.add(variantContext.getAlternateAlleles().get(i).toString());
+        List<String> secondaryAlternateList = new ArrayList<>(Math.max(alternateAlleleList.size() - 1, 0));
+        List<String> alternates = new ArrayList<>(alternateAlleleList.size());
+        if (alternateAlleleList.size() > 0) {
+            alternates.add(alternateAlleleList.get(0).toString());
+        }
+        for (int i = 1; i < alternateAlleleList.size(); i++) {
+            String allele = alternateAlleleList.get(i).toString();
+            alternates.add(allele);
+            secondaryAlternateList.add(allele);
         }
         studyEntry.setSecondaryAlternates(secondaryAlternateList);
 
@@ -229,7 +237,6 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         studyEntry.setFormat(formatFields);
 
 
-        // set sample data parameters Eg: GT:GQ:GQX:DP:DPF:AD 1/1:63:29:22:7:0,22
         if (samplesPosition == null) {
             logger.warn("Using alphabetical order for samples position!");
             samplesPosition = createSamplesPositionMap(variantContext.getSampleNamesOrderedByName());
@@ -243,7 +250,6 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
                 final String value;
                 switch (formatField) {
                     case VCFConstants.GENOTYPE_KEY:
-                        //TODO: Change from specific allele genotype to codified genotype (A/C -> 0/1)
                         String genotypeValue;
                         if (variantType.equals(VariantType.SYMBOLIC)) {
                             genotypeValue = genotype.getGenotypeString(false).replaceAll("\\*", "");
@@ -251,7 +257,11 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
                             genotypeValue = genotype.getGenotypeString(true);
                         }
                         // sometimes (FreeBayes) a single '.' is written for some samples
-                        value = genotypeValue.equals(".") ? "./." : genotypeValue;
+                        if (genotypeValue.equals(".")) {
+                            value = "./.";
+                        } else {
+                            value = new Genotype(genotypeValue, variant.getReference(), alternates).toString();
+                        }
                         break;
                     default:
                         Object attribute = genotype.getAnyAttribute(formatField);
