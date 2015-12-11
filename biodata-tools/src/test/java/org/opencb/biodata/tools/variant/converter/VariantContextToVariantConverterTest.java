@@ -81,9 +81,9 @@ public class VariantContextToVariantConverterTest {
             assertEquals("rs188945759", variant.getIds().get(0));
             assertEquals(1, variant.getIds().size());
 
-            assertEquals("C|C", variant.getStudy(studyId).getSampleData(sampleNames.get(0), "GT"));
-            assertEquals("G/G", variant.getStudy(studyId).getSampleData(sampleNames.get(1), "GT"));
-            assertEquals("C|G", variant.getStudy(studyId).getSampleData(sampleNames.get(2), "GT"));
+            assertEquals("0|0", variant.getStudy(studyId).getSampleData(sampleNames.get(0), "GT"));
+            assertEquals("1/1", variant.getStudy(studyId).getSampleData(sampleNames.get(1), "GT"));
+            assertEquals("0|1", variant.getStudy(studyId).getSampleData(sampleNames.get(2), "GT"));
 
             assertEquals("0.000", variant.getStudy(studyId).getSampleData(sampleNames.get(0), "DS"));
             assertEquals("0.000", variant.getStudy(studyId).getSampleData(sampleNames.get(1), "DS"));
