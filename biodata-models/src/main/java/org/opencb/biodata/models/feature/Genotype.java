@@ -2,6 +2,8 @@ package org.opencb.biodata.models.feature;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.regex.Pattern;
+
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -18,6 +20,8 @@ public class Genotype {
     private AllelesCode code;
     
     private int count;
+    protected static final Pattern genotypePattern = Pattern.compile("/|\\|");
+
 
     Genotype() {
     }
@@ -36,8 +40,8 @@ public class Genotype {
     
     
     private void parseGenotype(String genotype) {
-        String[] alleles = genotype.split("/|\\|", -1);
-        
+        String[] alleles = genotypePattern.split(genotype, -1);
+
         this.code = alleles.length > 1 ? AllelesCode.ALLELES_OK : AllelesCode.HAPLOID;
         this.allelesIdx = new int[alleles.length];
         

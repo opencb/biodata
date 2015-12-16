@@ -37,9 +37,6 @@ public class VariantVcfFactory implements VariantFactory {
         if (fields.length < 8) {
             throw new IllegalArgumentException("Not enough fields provided (min 8)");
         }
-        if(fields[4].equals(".")) {
-            throw new NotAVariantException("Alternative allele is a '.'. This is not an actual variant but a reference position.");
-        }
 
         List<Variant> variants = new LinkedList<>();
 
@@ -49,6 +46,10 @@ public class VariantVcfFactory implements VariantFactory {
         Set<String> ids = new HashSet<>(Arrays.asList(id.split(";")));
         String reference = fields[3].equals(".") ? "" : fields[3];
         String alternate = fields[4];
+        if(fields[4].equals(".")) {
+            throw new NotAVariantException("Alternative allele is a '.'. This is not an actual variant but a reference position. Variant found as: "
+                    + chromosome + ":" + position + ":" + reference + ">" + alternate);
+        }
 //        String alternate = fields[4].equals(".") ? "" : fields[4];
         String[] alternateAlleles = alternate.split(",");
         float quality = fields[5].equals(".") ? -1 : Float.parseFloat(fields[5]);
