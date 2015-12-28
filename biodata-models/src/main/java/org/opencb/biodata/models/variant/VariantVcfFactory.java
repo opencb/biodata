@@ -140,7 +140,16 @@ public class VariantVcfFactory implements VariantFactory {
 
         List<List<String>> samplesData = Arrays.asList(new List[fields.length - 9]);
         for (int i = 9; i < fields.length; i++) {
-            samplesData.set(i - 9, Arrays.asList(fields[i].split(":")));
+            List<String> data = Arrays.asList(fields[i].split(":"));
+            if (data.size() < formatFields.size()) {
+                List<String> correctSizeData = new ArrayList<>(formatFields.size());
+                correctSizeData.addAll(data);
+                while (correctSizeData.size() < formatFields.size()) {
+                    correctSizeData.add(".");
+                }
+                data = correctSizeData;
+            }
+            samplesData.set(i - 9, data);
         }
 
         samplesData = variantNormalizer.normalizeSamplesData(variantKeyFields, samplesData, formatFields, reference, Arrays.asList(alternateAlleles), null);

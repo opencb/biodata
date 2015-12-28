@@ -57,6 +57,17 @@ protocol VariantAnnotations {
         union { null, float } pvalue;
     }
 
+    record GeneTraitAssociation {
+        string id;
+        string name;
+        union { null, string } hpo;
+        union { null, float } score;
+        union { null, int } numberOfPubmeds;
+        union { null, array<string> } associationTypes;
+        union { null, array<string> } sources;
+        string source;
+    }
+
     record PopulationFrequency {
         string study;
         string population;
@@ -109,6 +120,7 @@ protocol VariantAnnotations {
         union { null, string } ensemblTranscriptId;
         union { null, string } strand;
         union { null, string } biotype;
+        union { null, array<string> } transcriptAnnotationFlags;
         union { null, int } cdnaPosition;
         union { null, int } cdsPosition;
         union { null, string } codon;
@@ -133,10 +145,12 @@ protocol VariantAnnotations {
         array<ConsequenceType> consequenceTypes = [];
         union { null, array<PopulationFrequency> } populationFrequencies;
         union { null, array<Score> } conservation;
-        union { null, array<Expression> } expression;
+        union { null, array<Expression> } geneExpression;
+        union { null, array<GeneTraitAssociation> } geneTraitAssociation;
         union { null, array<GeneDrugInteraction> } geneDrugInteraction;
         union { null, VariantTraitAssociation } variantTraitAssociation;
-        union { null, map<string> } additionalAttributes;
+        union { null, array<Score> } functionalScore;
+        union { null, map<union { int, float, double, string, map<union { int, float, double, string }> }> } additionalAttributes;
     }
 
 }

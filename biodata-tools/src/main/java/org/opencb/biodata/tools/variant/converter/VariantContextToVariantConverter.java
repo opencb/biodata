@@ -20,14 +20,20 @@ import htsjdk.variant.variantcontext.Allele;
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFConstants;
 import org.apache.commons.lang3.StringUtils;
+import org.opencb.biodata.formats.variant.annotation.VepParser;
+import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.VariantVcfFactory;
 import org.opencb.biodata.models.variant.avro.*;
 import org.opencb.biodata.models.variant.stats.VariantStats;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static org.opencb.biodata.models.variant.StudyEntry.isSamplesPositionMapSorted;
 
 
 /**
@@ -38,14 +44,43 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
 
     private final String studyId;
     private final String fileId;
+    private LinkedHashMap<String, Integer> samplesPosition;
 
-    public VariantContextToVariantConverter(){
-        this("", "");
+    private List<String> consequenceTypeFields;
+    protected Logger logger = LoggerFactory.getLogger(this.getClass().toString());
+
+
+    VariantContextToVariantConverter(){
+        this("", "", null);
     }
 
+    @Deprecated
     public VariantContextToVariantConverter(String studyId, String fileId) {
+        this(studyId, fileId, null);
+    }
+
+    public VariantContextToVariantConverter(String studyId, String fileId, List<String> samples) {
         this.studyId = studyId;
         this.fileId = fileId;
+
+        // TODO this must be parsed from VCF header
+        consequenceTypeFields = Arrays.asList();
+
+        samplesPosition = createSamplesPositionMap(samples);
+
+    }
+
+    private static LinkedHashMap<String, Integer> createSamplesPositionMap(List<String> samples) {
+        if (samples == null) {
+            return null;
+        }
+        LinkedHashMap<String, Integer> samplesPosition = new LinkedHashMap<>();
+        int position = 0;
+        for (String sample : samples) {
+            samplesPosition.put(sample, position++);
+        }
+        isSamplesPositionMapSorted(samplesPosition);
+        return samplesPosition;
     }
 
     @Override
@@ -72,6 +107,7 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         if (alternateAlleleList != null && !alternateAlleleList.isEmpty()) {
             variant.setAlternate(alternateAlleleList.get(0).toString());
         } else {
+            alternateAlleleList = Collections.emptyList();
             variant.setAlternate("");
         }
 
@@ -130,10 +166,16 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         fileEntry.setFileId(fileId);
         fileEntry.setCall(variantContext.getStart()
                 + ":" + variantContext.getReference()
-                + ":" + StringUtils.join(variantContext.getAlternateAlleles(), ","));
+                + ":" + StringUtils.join(alternateAlleleList, ","));
         Map<String, String> attributes = new HashMap<>();
         for (String key : variantContext.getAttributes().keySet()) {
-            attributes.put(key, variantContext.getAttributeAsString(key, ""));
+            // Do not use "getAttributeAsString" for lists.
+            // It will add brackets surrounding the values
+            if (variantContext.getAttribute(key, "") instanceof List) {
+                attributes.put(key, StringUtils.join(variantContext.getAttributeAsList(key), VCFConstants.INFO_FIELD_ARRAY_SEPARATOR));
+            } else {
+                attributes.put(key, variantContext.getAttributeAsString(key, ""));
+            }
         }
 
         // QUAL
@@ -153,9 +195,15 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
 
         // We need to convert Allele object to String
         // We skip the first alternate allele since these are the secondaries
-        List<String> secondaryAlternateList = new ArrayList<>();
-        for (int i = 1; i < variantContext.getAlternateAlleles().size(); i++) {
-            secondaryAlternateList.add(variantContext.getAlternateAlleles().get(i).toString());
+        List<String> secondaryAlternateList = new ArrayList<>(Math.max(alternateAlleleList.size() - 1, 0));
+        List<String> alternates = new ArrayList<>(alternateAlleleList.size());
+        if (alternateAlleleList.size() > 0) {
+            alternates.add(alternateAlleleList.get(0).toString());
+        }
+        for (int i = 1; i < alternateAlleleList.size(); i++) {
+            String allele = alternateAlleleList.get(i).toString();
+            alternates.add(allele);
+            secondaryAlternateList.add(allele);
         }
         studyEntry.setSecondaryAlternates(secondaryAlternateList);
 
@@ -163,7 +211,7 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         // set variant format
         // FIXME: This code is not respecting the original format order
         List<String> formatFields = new ArrayList<>(10);
-        if (variantContext.getGenotypes().size() > 1) {
+        if (!variantContext.getGenotypes().isEmpty()) {
             htsjdk.variant.variantcontext.Genotype gt = variantContext.getGenotypes().get(0);
 
             //GT Field is mandatory and MUST be the first one
@@ -189,9 +237,12 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         studyEntry.setFormat(formatFields);
 
 
-        // set sample data parameters Eg: GT:GQ:GQX:DP:DPF:AD 1/1:63:29:22:7:0,22
-        List<List<String>> sampleDataList = new ArrayList<>(variantContext.getSampleNames().size());
-        for (String sampleName : variantContext.getSampleNames()) {
+        if (samplesPosition == null) {
+            logger.warn("Using alphabetical order for samples position!");
+            samplesPosition = createSamplesPositionMap(variantContext.getSampleNamesOrderedByName());
+        }
+        List<List<String>> sampleDataList = new ArrayList<>(samplesPosition.size());
+        for (String sampleName : samplesPosition.keySet()) {
             htsjdk.variant.variantcontext.Genotype genotype = variantContext.getGenotype(sampleName);
             List<String> sampleList = new ArrayList<>(formatFields.size());
 
@@ -199,8 +250,18 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
                 final String value;
                 switch (formatField) {
                     case VCFConstants.GENOTYPE_KEY:
-                        //TODO: Change from specific allele genotype to codified genotype (A/C -> 0/1)
-                        value = genotype.getGenotypeString();
+                        String genotypeValue;
+                        if (variantType.equals(VariantType.SYMBOLIC)) {
+                            genotypeValue = genotype.getGenotypeString(false).replaceAll("\\*", "");
+                        } else {
+                            genotypeValue = genotype.getGenotypeString(true);
+                        }
+                        // sometimes (FreeBayes) a single '.' is written for some samples
+                        if (genotypeValue.equals(".")) {
+                            value = "./.";
+                        } else {
+                            value = new Genotype(genotypeValue, variant.getReference(), alternates).toString();
+                        }
                         break;
                     default:
                         Object attribute = genotype.getAnyAttribute(formatField);
@@ -222,6 +283,7 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
             sampleDataList.add(sampleList);
         }
         studyEntry.setSamplesData(sampleDataList);
+        studyEntry.setSamplesPosition(samplesPosition);
 
 
         /*
@@ -241,11 +303,11 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         studies.add(studyEntry);
         variant.setStudies(studies);
 
-
         // set VariantAnnotation parameters
         // TODO: Read annotation from info column
-//        variant.setAnnotation(setVariantAnnotationParams());
-
+        if (consequenceTypeFields != null && !consequenceTypeFields.isEmpty()) {
+            variant.setAnnotation(VepParser.parseInfoCsq(consequenceTypeFields, variantContext.getAttributes().get("CSQ").toString()));
+        }
 
         return variant;
     }
@@ -280,7 +342,7 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         expressionValue.setPvalue(null);
         expressionValue.setTechnologyPlatform(null);*/
 //        expressionValueList.add(expressionValue);
-//        consequenceType.setExpressionValues(expressionValueList);
+//        consequenceType.setExpression(expressionValueList);
 
         /*
          * set ProteinSubstitutionScores list type parameter
@@ -345,7 +407,7 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         /*
          * set AdditionalAttributes map type parameter
          */
-        Map<String, String> additionalAttributesMap = new HashMap();
+        Map<String, Object> additionalAttributesMap = new HashMap();
         //additionalAttributesMap.put(null, null);
         variantAnnotation.setAdditionalAttributes(additionalAttributesMap);
         /*

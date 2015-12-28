@@ -25,7 +25,7 @@ import java.util.Set;
 public class Transcript implements Serializable {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 2069002722080532350L;
 	private String id;

@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.feature.AllelesCode;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.avro.FileEntry;
+import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.commons.run.ParallelTaskRunner;
 import org.slf4j.Logger;
@@ -21,7 +22,13 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass().toString());
 
-    private final boolean reuseVariants = true;
+    private boolean reuseVariants = true;
+
+    public VariantNormalizer() {}
+
+    public VariantNormalizer(boolean reuseVariants) {
+        this.reuseVariants = reuseVariants;
+    }
 
     @Override
     public List<Variant> apply(List<Variant> batch) {
@@ -36,11 +43,16 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         List<Variant> normalizedVariants = new ArrayList<>(batch.size());
 
         for (Variant variant : batch) {
+            if (!isNormalizable(variant)) {
+                normalizedVariants.add(variant);
+                continue;
+            }
+
             String reference = variant.getReference();  //Save original values, as they can be changed
             String alternate = variant.getAlternate();
             Integer start = variant.getStart();
 
-            if (variant.getStudies().isEmpty()) {
+            if (variant.getStudies() == null || variant.getStudies().isEmpty()) {
                 VariantKeyFields keyFields = normalize(start, reference, alternate);
                 Variant normalizedVariant = newVariant(variant, keyFields);
                 normalizedVariants.add(normalizedVariant);
@@ -88,13 +100,14 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                         normalizedEntry.setSecondaryAlternates(getSecondaryAlternates(keyFields.getAlternate(), alternates));
                         //Set normalized samples data
                         try {
-                            normalizedEntry.setSamplesData(normalizeSamplesData(keyFields, entry.getSamplesData(), entry.getFormat(), reference, alternates, samplesData));
+                            List<List<String>> normalizedSamplesData = normalizeSamplesData(keyFields,
+                                    entry.getSamplesData(), entry.getFormat(), reference, alternates, samplesData);
+                            normalizedEntry.setSamplesData(normalizedSamplesData);
+                            normalizedVariants.add(normalizedVariant);
                         } catch (Exception e) {
-                            logger.warn("Error parsing variant " + call + ", numAllele " + keyFields.getNumAllele());
-//                            throw e;
+                            logger.warn("Error parsing variant " + call + ", numAllele " + keyFields.getNumAllele(), e);
+                            throw e;
                         }
-
-                        normalizedVariants.add(normalizedVariant);
                     }
                 }
             }
@@ -130,6 +143,14 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             list.add(keyFields);
         }
         return list;
+    }
+
+    /**
+     * Non normalizable variants
+     * TODO: Add {@link VariantType#SYMBOLIC} variants?
+     */
+    private boolean isNormalizable(Variant variant) {
+        return !variant.getType().equals(VariantType.NO_VARIATION);
     }
 
     /**
@@ -246,7 +267,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         int alleleIdx = 1;
         secondaryAlternatesMap[0] = "0";     // Set the reference id
         for (String alternateAllele : alternateAlleles) {
-            if (alternateAllele.equals(variantKeyFields.alternate)) {
+            if (variantKeyFields.getNumAllele() == alleleIdx - 1) {
                 secondaryAlternatesMap[alleleIdx] = "1";    //The first alternate
             } else {    //Secondary alternates will start at position 2, and increase sequentially
                 secondaryAlternatesMap[alleleIdx] = Integer.toString(secondaryReferencesIdx);
@@ -256,10 +277,17 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         }
 
 
-        for (int sampleIdx = 0, samplesDataSize = samplesData.size(); sampleIdx < samplesDataSize; sampleIdx++) {
+        for (int sampleIdx = 0; sampleIdx < samplesData.size(); sampleIdx++) {
             List<String> sampleData = samplesData.get(sampleIdx);
 
-            for (int formatFieldIdx = 0, formatSize = format.size(); formatFieldIdx < formatSize; formatFieldIdx++) {
+            // TODO we could check that format and sampleData sizes are equals
+//            if (sampleData.size() == 1 && sampleData.get(0).equals(".")) {
+//                newSampleData.get(sampleIdx).set(0, "./.");
+//                System.out.println("Format data equals '.'");
+//                continue;
+//            }
+
+            for (int formatFieldIdx = 0; formatFieldIdx < format.size(); formatFieldIdx++) {
                 String formatField = format.get(formatFieldIdx);
                 String sampleField = sampleData.get(formatFieldIdx);
 
@@ -420,6 +448,43 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             this.alternate = alternate;
             return this;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof VariantKeyFields)) return false;
+
+            VariantKeyFields that = (VariantKeyFields) o;
+
+            if (start != that.start) return false;
+            if (end != that.end) return false;
+            if (numAllele != that.numAllele) return false;
+            if (reference != null ? !reference.equals(that.reference) : that.reference != null) return false;
+            return !(alternate != null ? !alternate.equals(that.alternate) : that.alternate != null);
+
+        }
+
+        @Override
+        public int hashCode() {
+            int result = start;
+            result = 31 * result + end;
+            result = 31 * result + numAllele;
+            result = 31 * result + (reference != null ? reference.hashCode() : 0);
+            result = 31 * result + (alternate != null ? alternate.hashCode() : 0);
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "VariantKeyFields{" +
+                    "start=" + start +
+                    ", end=" + end +
+                    ", numAllele=" + numAllele +
+                    ", reference='" + reference + '\'' +
+                    ", alternate='" + alternate + '\'' +
+                    '}';
+        }
+
 
     }
 

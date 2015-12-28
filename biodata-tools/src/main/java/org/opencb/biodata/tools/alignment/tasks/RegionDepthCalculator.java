@@ -45,6 +45,7 @@ public class RegionDepthCalculator {
     }
 
     /*
+<<<<<<< HEAD
      * compute the region size according to the cigar code
      */
     public int computeSizeByCigar(List<CigarUnit> cigar) {
@@ -66,6 +67,8 @@ public class RegionDepthCalculator {
     }
 
     /*
+=======
+>>>>>>> hotfix/0.4
 
      */
     public RegionDepth compute(ReadAlignment ra) {

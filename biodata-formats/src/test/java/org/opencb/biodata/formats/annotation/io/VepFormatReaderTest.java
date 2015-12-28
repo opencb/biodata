@@ -18,27 +18,51 @@ package org.opencb.biodata.formats.annotation.io;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.opencb.biodata.models.variant.annotation.VariantAnnotation;
+import org.opencb.biodata.formats.variant.annotation.io.VepFormatReader;
+import org.opencb.biodata.models.variant.avro.VariantAnnotation;
+//import org.opencb.biodata.models.variant.annotation.VariantAnnotation;
 
 import java.util.List;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class VepFormatReaderTest {
 
     @Test
     @Ignore
     public void testRead() throws Exception {
-//        VepFormatReader vepFormatReader = new VepFormatReader("/home/fjlopez/EBI/eva/data/clinvar.vep");
-        VepFormatReader vepFormatReader = new VepFormatReader("/tmp/test.vep");
-//        VepFormatReader vepFormatReader = new VepFormatReader("/tmp/vep22.vep");
-//        VepFormatReader vepFormatReader = new VepFormatReader("/tmp/test.vep");
-//        VepFormatReader vepFormatReader = new VepFormatReader("/tmp/vep22.head.tsv");
-//        VepFormatReader vepFormatReader = new VepFormatReader("/tmp/test1.vep");
+        VepFormatReader vepFormatReader = new VepFormatReader(getClass().getResource("/vepoutputtest.tsv.gz").getFile());
         vepFormatReader.open();
         vepFormatReader.pre();
         List<VariantAnnotation> variantAnnotationList = vepFormatReader.read(10000);
+        assertEquals(variantAnnotationList.size(),3);
+        assertEquals(variantAnnotationList.get(0).getChromosome(), "1");
+        assertEquals(variantAnnotationList.get(0).getStart(), Integer.valueOf(628314));
+        assertEquals(variantAnnotationList.get(0).getEnd(), Integer.valueOf(628332));
+        assertEquals(variantAnnotationList.get(0).getReference(), "CAGGTGACACTGGGGACAC");
+        assertEquals(variantAnnotationList.get(0).getAlternate(), "-");
+        assertEquals(variantAnnotationList.get(0).getConsequenceTypes().size(), 1);
+        assertEquals(variantAnnotationList.get(0).getConsequenceTypes().get(0).getSequenceOntologyTerms().size(), 1);
+        assertEquals(variantAnnotationList.get(0).getConsequenceTypes().get(0).getSequenceOntologyTerms().get(0).getName(), "intron_variant");
+
+        assertEquals(variantAnnotationList.get(1).getChromosome(), "LGE22C19W28_E50C23");
+        assertEquals(variantAnnotationList.get(1).getStart(), Integer.valueOf(351697));
+        assertEquals(variantAnnotationList.get(1).getEnd(), Integer.valueOf(351697));
+        assertEquals(variantAnnotationList.get(1).getReference(), "-");
+        assertEquals(variantAnnotationList.get(1).getAlternate(), "AT");
+        assertEquals(variantAnnotationList.get(1).getConsequenceTypes().size(), 1);
+        assertEquals(variantAnnotationList.get(1).getConsequenceTypes().get(0).getSequenceOntologyTerms().size(), 1);
+        assertEquals(variantAnnotationList.get(1).getConsequenceTypes().get(0).getSequenceOntologyTerms().get(0).getName(), "intergenic_variant");
+
+        assertEquals(variantAnnotationList.get(2).getChromosome(), "10");
+        assertEquals(variantAnnotationList.get(2).getStart(), Integer.valueOf(43615594));
+        assertEquals(variantAnnotationList.get(2).getEnd(), Integer.valueOf(43615594));
+        assertEquals(variantAnnotationList.get(2).getReference(), "G");
+        assertEquals(variantAnnotationList.get(2).getAlternate(), "A");
+        assertEquals(variantAnnotationList.get(2).getConsequenceTypes().size(), 1);
+        assertEquals(variantAnnotationList.get(2).getConsequenceTypes().get(0).getSequenceOntologyTerms().size(), 1);
+        assertEquals(variantAnnotationList.get(2).getConsequenceTypes().get(0).getSequenceOntologyTerms().get(0).getName(), "synonymous_variant");
         vepFormatReader.post();
         vepFormatReader.close();
+
     }
 }

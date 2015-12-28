@@ -17,7 +17,9 @@
 package org.opencb.biodata.models.variant.stats;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.opencb.biodata.models.variant.avro.VariantType;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -26,7 +28,7 @@ import java.util.Objects;
  * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
-@JsonIgnoreProperties({"impl", "accumulatedQuality"})
+@JsonIgnoreProperties({"impl", "accumulatedQuality", "variantsCount", "snpsCount", "indelsCount", "structuralCount"})
 public class VariantGlobalStats {
 
     private final org.opencb.biodata.models.variant.avro.VariantGlobalStats impl;
@@ -38,7 +40,9 @@ public class VariantGlobalStats {
 
     public VariantGlobalStats() {
         this.impl = new org.opencb.biodata.models.variant.avro.VariantGlobalStats();
-        this.setVariantsCount(0);
+        this.setVariantTypeCounts(new HashMap<>());
+        this.setChromosomeCounts(new HashMap<>());
+        this.setNumRecords(0);
         this.setSamplesCount(0);
         this.setSnpsCount(0);
         this.setIndelsCount(0);
@@ -50,11 +54,13 @@ public class VariantGlobalStats {
         this.setConsequenceTypesCount(new LinkedHashMap<>(20));
     }
 
-    public VariantGlobalStats(int variantsCount, int samplesCount, int snpsCount, int indelsCount, int structuralCount, 
+    public VariantGlobalStats(int numRecords, int samplesCount, int snpsCount, int indelsCount, int structuralCount,
             int passCount, int transitionsCount, int transversionsCount, float accumulatedQuality, double meanQuality,
             Map<String, Integer> consequenceTypesCount) {
         this.impl = new org.opencb.biodata.models.variant.avro.VariantGlobalStats();
-        this.setVariantsCount(variantsCount);
+        this.setVariantTypeCounts(new HashMap<>());
+        this.setChromosomeCounts(new HashMap<>());
+        this.setNumRecords(numRecords);
         this.setSamplesCount(samplesCount);
         this.setSnpsCount(snpsCount);
         this.setIndelsCount(indelsCount);
@@ -71,12 +77,22 @@ public class VariantGlobalStats {
         return impl;
     }
 
+    @Deprecated
     public int getVariantsCount() {
-        return impl.getVariantsCount();
+        return getNumRecords();
     }
 
+    @Deprecated
     public void setVariantsCount(int variantsCount) {
-        this.impl.setVariantsCount(variantsCount);
+        this.impl.setNumRecords(variantsCount);
+    }
+
+    public int getNumRecords() {
+        return impl.getNumRecords() == null ? 0 : impl.getNumRecords();
+    }
+
+    public void setNumRecords(Integer numRecords) {
+        this.impl.setNumRecords(numRecords);
     }
 
     public int getSamplesCount() {
@@ -88,27 +104,67 @@ public class VariantGlobalStats {
     }
 
     public int getSnpsCount() {
-        return impl.getSnpsCount();
+        return getVariantTypeCount(VariantType.SNP);
     }
 
     public void setSnpsCount(int snpsCount) {
-        this.impl.setSnpsCount(snpsCount);
+        setVariantTypeCount(VariantType.SNP, snpsCount);
     }
 
     public int getIndelsCount() {
-        return impl.getIndelsCount();
+        return getVariantTypeCount(VariantType.INDEL);
     }
 
     public void setIndelsCount(int indelsCount) {
-        this.impl.setIndelsCount(indelsCount);
+        setVariantTypeCount(VariantType.INDEL, indelsCount);
     }
 
     public int getStructuralCount() {
-        return impl.getStructuralCount();
+        return getVariantTypeCount(VariantType.SV);
     }
 
     public void setStructuralCount(int structuralCount) {
-        this.impl.setStructuralCount(structuralCount);
+        setVariantTypeCount(VariantType.SV, structuralCount);
+    }
+
+    public Map<String, Integer> getVariantTypeCounts() {
+        return impl.getVariantTypeCounts();
+    }
+
+    public void setVariantTypeCounts(Map<String, Integer> count) {
+        impl.setVariantTypeCounts(count);
+    }
+
+    public int getVariantTypeCount(VariantType key) {
+        return impl.getVariantTypeCounts().getOrDefault(key.toString(), 0);
+    }
+
+    public void setVariantTypeCount(VariantType key, int count) {
+        impl.getVariantTypeCounts().put(key.toString(), count);
+    }
+
+    public void addVariantTypeCount(VariantType key, int count) {
+        impl.getVariantTypeCounts().put(key.toString(), getVariantTypeCount(key) + count);
+    }
+
+    public Map<String, Integer> getChromosomeCounts() {
+        return impl.getChromosomeCounts();
+    }
+
+    public void setChromosomeCounts(Map<String, Integer> counts) {
+        impl.setChromosomeCounts(counts);
+    }
+
+    private int getChromosomeCount(String chromosome) {
+        return impl.getChromosomeCounts().getOrDefault(chromosome, 0);
+    }
+
+    public void setChromosomeCount(String chromosome, int count) {
+        impl.getChromosomeCounts().put(chromosome, count);
+    }
+
+    public void addChromosomeCount(String chromosome, int count) {
+        impl.getChromosomeCounts().put(chromosome, getChromosomeCount(chromosome) + count);
     }
 
     public int getPassCount() {
@@ -171,23 +227,11 @@ public class VariantGlobalStats {
     }
 
 
+    @Deprecated
     public void update(VariantStats stats) {
-        setVariantsCount(getVariantsCount() + 1);
+        setNumRecords(getNumRecords() + 1);
 
-        switch (stats.getVariantType()) {
-            case SNV:
-                setSnpsCount(getSnpsCount() + 1);
-                break;
-            case MNV:
-                setSnpsCount(getSnpsCount() + stats.getRefAllele().length());
-                break;
-            case INDEL:
-                setIndelsCount(getIndelsCount() + 1);
-                break;
-            default:
-                setStructuralCount(getStructuralCount() + 1);
-                break;
-        }
+        addVariantTypeCount(stats.getVariantType(), 1);
 
         if (stats.hasPassedFilters()) {
             setPassCount(getPassCount() + 1);

@@ -81,8 +81,8 @@ public class StudyEntry {
             return;
         }
         if (samplesPosition instanceof LinkedHashMap) {
-            if (isSamplesPositionMapSorted(samplesPosition)) {
-                this.samplesPosition = ((LinkedHashMap) samplesPosition);
+            if (isSamplesPositionMapSorted((LinkedHashMap<String, Integer>) samplesPosition)) {
+                this.samplesPosition = ((LinkedHashMap<String, Integer>) samplesPosition);
             } else {
                 this.samplesPosition = sortSamplesPositionMap(samplesPosition);
             }
@@ -97,7 +97,7 @@ public class StudyEntry {
         }
     }
 
-    private static boolean isSamplesPositionMapSorted(Map<String, Integer> samplesPosition) {
+    public static boolean isSamplesPositionMapSorted(LinkedHashMap<String, Integer> samplesPosition) {
         int idx = 0;
         for (Map.Entry<String, Integer> entry : samplesPosition.entrySet()) {
             if (entry.getValue() != idx) {
@@ -108,7 +108,7 @@ public class StudyEntry {
         return idx == samplesPosition.size();
     }
 
-    private LinkedHashMap<String, Integer> sortSamplesPositionMap(Map<String, Integer> samplesPosition) {
+    public static LinkedHashMap<String, Integer> sortSamplesPositionMap(Map<String, Integer> samplesPosition) {
         LinkedHashMap<String, Integer> map = new LinkedHashMap<>();
         String[] samples = new String[samplesPosition.size()];
         for (Map.Entry<String, Integer> entry : samplesPosition.entrySet()) {

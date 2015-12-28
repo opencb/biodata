@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 
-package org.opencb.biodata.formats.annotation.io;
+package org.opencb.biodata.formats.variant.annotation.io;
 
-import org.opencb.biodata.models.variant.annotation.ConsequenceType;
-import org.opencb.biodata.models.variant.annotation.VariantAnnotation;
+//import org.opencb.biodata.models.variant.annotation.ConsequenceType;
+//import org.opencb.biodata.models.variant.annotation.VariantAnnotation;
+import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.avro.ConsequenceType;
+import org.opencb.biodata.models.variant.avro.VariantAnnotation;
+
 import org.opencb.commons.io.DataWriter;
 
 import java.io.BufferedWriter;
@@ -32,7 +36,7 @@ import java.util.List;
 /**
  * Created by fjlopez on 12/02/15.
  */
-public class VepFormatWriter implements DataWriter<VariantAnnotation> {
+public class VepFormatWriter implements DataWriter<Variant> {
 
     String filename;
     BufferedWriter bw;
@@ -87,8 +91,9 @@ public class VepFormatWriter implements DataWriter<VariantAnnotation> {
     }
 
     @Override
-    public boolean write(VariantAnnotation variantAnnotation) {
+    public boolean write(Variant variant) {
 
+        VariantAnnotation variantAnnotation = variant.getAnnotation();
         String id;
         if((id=variantAnnotation.getId())==null) {
             id = "-";
@@ -126,13 +131,13 @@ public class VepFormatWriter implements DataWriter<VariantAnnotation> {
             if((featureType=consequenceType.getBiotype())==null) {
                 featureType = "-";
             }
-            String consequences = consequenceType.getSoTerms().get(0).getSoName();
-            for(int i=1; i<consequenceType.getSoTerms().size(); i++) {
-                consequences += ","+consequenceType.getSoTerms().get(i).getSoName();
+            String consequences = consequenceType.getSequenceOntologyTerms().get(0).getName();
+            for(int i=1; i<consequenceType.getSequenceOntologyTerms().size(); i++) {
+                consequences += ","+consequenceType.getSequenceOntologyTerms().get(i).getName();
             }
             Integer cdnaPosition;
             String cdnaPositionString;
-            if((cdnaPosition=consequenceType.getcDnaPosition())==null) {
+            if((cdnaPosition=consequenceType.getCdnaPosition())==null) {
                 cdnaPositionString = "-";
             } else {
                 cdnaPositionString = cdnaPosition.toString();
@@ -174,11 +179,12 @@ public class VepFormatWriter implements DataWriter<VariantAnnotation> {
     }
 
     @Override
-    public boolean write(List<VariantAnnotation> list) {
+    public boolean write(List<Variant> list) {
 
-        for(VariantAnnotation variantAnnotation : list) {
-            write(variantAnnotation);
+        for(Variant variant : list) {
+            write(variant);
         }
         return true;
     }
+
 }

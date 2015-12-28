@@ -51,7 +51,7 @@ public class VariantGlobalStatsCalculator extends Task<Variant> {
     }
 
     public static void updateGlobalStats(Variant variant, VariantGlobalStats globalStats, VariantSource source) {
-        globalStats.setVariantsCount(globalStats.getVariantsCount() + 1);
+        globalStats.setNumRecords(globalStats.getNumRecords() + 1);
         StudyEntry study = variant.getStudy(source.getStudyId());
         FileEntry file = study.getFile(source.getFileId());
         if (file == null) {
@@ -60,24 +60,10 @@ public class VariantGlobalStatsCalculator extends Task<Variant> {
         }
         Map<String, String> attributes = file.getAttributes();
 
+        globalStats.addChromosomeCount(variant.getChromosome(), 1);
 
-        switch (variant.getType()) {
-            case SNV:
-            case SNP:
-                globalStats.setSnpsCount(globalStats.getSnpsCount() + 1);
-                break;
-            case MNV:
-            case MNP:
-                globalStats.setSnpsCount(globalStats.getSnpsCount() + variant.getReference().length());
-                break;
-            case INDEL:
-                globalStats.setIndelsCount(globalStats.getIndelsCount() + 1);
-                break;
-            default:
-            case SV:
-                globalStats.setStructuralCount(globalStats.getStructuralCount() + 1);
-                break;
-        }
+        globalStats.addVariantTypeCount(variant.getType(), 1);
+
         if ("PASS".equalsIgnoreCase(attributes.get(VariantVcfFactory.FILTER))) {
             globalStats.setPassCount(globalStats.getPassCount() + 1);
         }
