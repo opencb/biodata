@@ -51,9 +51,10 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             String reference = variant.getReference();  //Save original values, as they can be changed
             String alternate = variant.getAlternate();
             Integer start = variant.getStart();
+            String chromosome = variant.getChromosome();
 
             if (variant.getStudies() == null || variant.getStudies().isEmpty()) {
-                VariantKeyFields keyFields = normalize(start, reference, alternate);
+                VariantKeyFields keyFields = normalize(chromosome, start, reference, alternate);
                 Variant normalizedVariant = newVariant(variant, keyFields);
                 normalizedVariants.add(normalizedVariant);
             } else {
@@ -62,7 +63,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                     alternates.add(alternate);
                     alternates.addAll(entry.getSecondaryAlternates());
 
-                    List<VariantKeyFields> keyFieldsList = normalize(start, reference, alternates);
+                    List<VariantKeyFields> keyFieldsList = normalize(chromosome, start, reference, alternates);
                     for (VariantKeyFields keyFields : keyFieldsList) {
                         String call = start + ":" + reference + ":" + alternates.stream().collect(Collectors.joining(",")) + ":" + keyFields.getNumAllele();
 
@@ -116,11 +117,11 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         return normalizedVariants;
     }
 
-    public VariantKeyFields normalize(int position, String reference, String alternate) {
-        return normalize(position, reference, Collections.singletonList(alternate)).get(0);
+    public VariantKeyFields normalize(String chromosome, int position, String reference, String alternate) {
+        return normalize(chromosome, position, reference, Collections.singletonList(alternate)).get(0);
     }
 
-    public List<VariantKeyFields> normalize(int position, String reference, List<String> alternates) {
+    public List<VariantKeyFields> normalize(String chromosome, int position, String reference, List<String> alternates) {
         List<VariantKeyFields> list = new ArrayList<>(alternates.size());
         int numAllelesIdx = 0; // This index is necessary for getting the samples where the mutated allele is present
         for (Iterator<String> iterator = alternates.iterator(); iterator.hasNext(); numAllelesIdx++) {
@@ -139,10 +140,22 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                 keyFields = createVariantsFromIndelNoEmptyRefAlt(position, reference, currentAlternate);
             }
 
-            keyFields.numAllele = numAllelesIdx;
-            list.add(keyFields);
+            if(keyFields.getReference().length()>1 && keyFields.getAlternate().length()>1) {
+                for(VariantKeyFields keyFields1 : decomposeSingleVariants(keyFields)) {
+                    keyFields1.numAllele = numAllelesIdx;
+                    keyFields1.phaseSet = chromosome+":"+position+":"+reference+":"+currentAlternate
+                    list.add(keyFields1);
+                }
+            } else {
+                keyFields.numAllele = numAllelesIdx;
+                list.add(keyFields);
+            }
         }
         return list;
+    }
+
+    private VariantKeyFields decomposeSingleVariants(VariantKeyFields keyFields) {
+
     }
 
     /**
