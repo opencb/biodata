@@ -29,55 +29,55 @@ public class VariantNormalizerTest extends GenericTest {
     @Test
     public void testNormalizedSamplesDataSame() throws NonStandardCompliantSampleField {
         // C -> A  === C -> A
-        testSampleNormalization(100, "C", "A", 100, "C", "A");
+        testSampleNormalization("1", 100, "C", "A", 100, "C", "A");
     }
 
     @Test
     public void testNormalizeSamplesData1() throws NonStandardCompliantSampleField {
         // AC -> AA  === C -> A
-        testSampleNormalization(100, "AC", "AA", 101, "C", "A");
+        testSampleNormalization("1", 100, "AC", "AA", 101, "C", "A");
     }
 
     @Test
     public void testNormalizeSamplesData2() throws NonStandardCompliantSampleField {
         // CA -> AA  === C -> A
-        testSampleNormalization(100, "CA", "AA", 100, "C", "A");
+        testSampleNormalization("1", 100, "CA", "AA", 100, "C", "A");
     }
 
     @Test
     public void testNormalizeSamplesDataLeftDeletion() throws NonStandardCompliantSampleField {
         // AC -> C  === A -> .
-        testSampleNormalization(100, "AC", "C", 100, "A", "");
+        testSampleNormalization("1", 100, "AC", "C", 100, "A", "");
     }
 
     @Test
     public void testNormalizeSamplesDataRightDeletion() throws NonStandardCompliantSampleField {
         // CA -> C  === A -> .
-        testSampleNormalization(100, "CA", "C", 101, "A", "");
+        testSampleNormalization("1", 100, "CA", "C", 101, "A", "");
     }
 
     @Test
     public void testNormalizeSamplesDataAmbiguousDeletion() throws NonStandardCompliantSampleField {
         // AAA -> A  === AA -> .
-        testSampleNormalization(100, "AAA", "A", 100, 101, "AA", "");
+        testSampleNormalization("1", 100, "AAA", "A", 100, 101, "AA", "");
     }
 
     @Test
     public void testNormalizeSamplesDataIndel() throws NonStandardCompliantSampleField {
         // AAA -> A  === AA -> .
-        testSampleNormalization(100, "ATC", "ACCC", 101, 102, "T", "CC");
+        testSampleNormalization("1", 100, "ATC", "ACCC", 101, 102, "T", "CC");
     }
 
     @Test
     public void testNormalizeSamplesDataRightInsertion() throws NonStandardCompliantSampleField {
         // C -> AC  === . -> A
-        testSampleNormalization(100, "C", "AC", 100, "", "A");
+        testSampleNormalization("1", 100, "C", "AC", 100, "", "A");
     }
 
     @Test
     public void testNormalizeSamplesDataLeftInsertion() throws NonStandardCompliantSampleField {
         // C -> CA  === . -> A
-        testSampleNormalization(100, "C", "CA", 101, "", "A");
+        testSampleNormalization("1", 100, "C", "CA", 101, "", "A");
     }
 
     @Test
@@ -91,13 +91,13 @@ public class VariantNormalizerTest extends GenericTest {
     }
 
 
-    private void testSampleNormalization(int position, String ref, String alt,
+    private void testSampleNormalization(String chromosome, int position, String ref, String alt,
                                          int normPos, String normRef, String normAlt)
             throws NonStandardCompliantSampleField {
-        testSampleNormalization(position, ref, alt, normPos, normPos, normRef, normAlt);
+        testSampleNormalization(chromosome, position, ref, alt, normPos, normPos, normRef, normAlt);
     }
 
-    private void testSampleNormalization(int position, String ref, String alt,
+    private void testSampleNormalization(String chromosome, int position, String ref, String alt,
                                          int normStart, int normEnd, String normRef, String normAlt)
             throws NonStandardCompliantSampleField {
         List<List<String>> samplesData = Arrays.asList(
@@ -111,7 +111,7 @@ public class VariantNormalizerTest extends GenericTest {
                 Collections.singletonList("1" + "/" + "1")
         );
 
-        VariantNormalizer.VariantKeyFields keyFields = normalizer.normalize(position, ref, alt);
+        VariantNormalizer.VariantKeyFields keyFields = normalizer.normalize(chromosome, position, ref, alt);
         assertEquals(new VariantNormalizer.VariantKeyFields(normStart, normEnd, normRef, normAlt), keyFields);
         samplesData = normalizer.normalizeSamplesData(keyFields, samplesData, Collections.singletonList("GT"), ref,
                 Collections.singletonList(alt));

@@ -154,6 +154,11 @@
                 <version>1.7.12</version>
             </dependency>
             <dependency>
+                <groupId>org.biojava</groupId>
+                <artifactId>biojava-alignment</artifactId>
+                <version>4.1.0</version>
+            </dependency>
+            <dependency>
                 <groupId>org.spockframework</groupId>
                 <artifactId>spock-core</artifactId>
                 <version>0.7-groovy-2.0</version>

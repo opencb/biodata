@@ -1,6 +1,15 @@
 package org.opencb.biodata.models.variant;
 
 import org.apache.commons.lang3.StringUtils;
+import org.biojava.nbio.alignment.Alignments;
+import org.biojava.nbio.alignment.SimpleGapPenalty;
+import org.biojava.nbio.alignment.SubstitutionMatrixHelper;
+import org.biojava.nbio.alignment.template.AlignedSequence;
+import org.biojava.nbio.alignment.template.SequencePair;
+import org.biojava.nbio.alignment.template.SubstitutionMatrix;
+import org.biojava.nbio.core.sequence.DNASequence;
+import org.biojava.nbio.core.sequence.compound.AmbiguityDNACompoundSet;
+import org.biojava.nbio.core.sequence.compound.NucleotideCompound;
 import org.opencb.biodata.models.feature.AllelesCode;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.avro.FileEntry;
@@ -141,9 +150,9 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             }
 
             if(keyFields.getReference().length()>1 && keyFields.getAlternate().length()>1) {
-                for(VariantKeyFields keyFields1 : decomposeSingleVariants(keyFields)) {
+                for(VariantKeyFields keyFields1 : decomposeMVNSingleVariants(keyFields)) {
                     keyFields1.numAllele = numAllelesIdx;
-                    keyFields1.phaseSet = chromosome+":"+position+":"+reference+":"+currentAlternate
+                    keyFields1.phaseSet = chromosome+":"+position+":"+reference+":"+currentAlternate;
                     list.add(keyFields1);
                 }
             } else {
@@ -154,8 +163,77 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         return list;
     }
 
-    private VariantKeyFields decomposeSingleVariants(VariantKeyFields keyFields) {
+    private List<VariantKeyFields> decomposeMVNSingleVariants(VariantKeyFields keyFields) {
+        SequencePair<DNASequence, NucleotideCompound> sequenceAlignment = getPairwiseAlignment(keyFields.getReference(),
+                keyFields.getAlternate());
+        return decomposeAlignmentSingleVariants(sequenceAlignment, keyFields.getStart());
+    }
 
+    private List<VariantKeyFields> decomposeAlignmentSingleVariants(
+            SequencePair<DNASequence, NucleotideCompound> sequenceAlignment, int genomicStart) {
+
+        String reference = sequenceAlignment.getTarget().getSequenceAsString();
+        String alternate = sequenceAlignment.getQuery().getSequenceAsString();
+        List<VariantKeyFields> keyFieldsList = new ArrayList<>();
+        VariantKeyFields keyFields = null;
+        char previousReferenceChar = 0;
+        char previousAlternateChar = 0;
+        // Assume that as a result of the alignment "reference" and "alternate" Strings are of the same length
+        for (int i = 0; i < reference.length(); i++) {
+            char referenceChar = reference.charAt(i);
+            char alternateChar = alternate.charAt(i);
+            if (referenceChar == '-') {
+                // Assume there cannot be a '-' at the reference and alternate aligned sequences at the same position
+                if (alternateChar == '-') {
+                    logger.error("Unhandled case found after pairwise alignment of MNVs. Alignment result: "+reference+
+                    "/"+alternate);
+                }
+                // Current character is a continuation of an insertion
+                if (previousReferenceChar == '-') {
+                    keyFields.setAlternate(keyFields.getAlternate() + alternateChar);
+                // New insertion found, create new keyFields
+                } else {
+                    keyFields = new VariantKeyFields(
+                            genomicStart+i, genomicStart+i+1, "", String.valueOf(alternateChar));
+                    keyFieldsList.add(keyFields);
+                }
+            } else if (alternateChar == '-') {
+                // Current character is a continuation of a deletion
+                if (previousAlternateChar == '-') {
+                    keyFields.setReference(keyFields.getReference() + referenceChar);
+                    keyFields.setEnd(keyFields.getEnd()+1);
+                // New deletion found, create new keyFields
+                } else {
+                    keyFields = new VariantKeyFields(
+                            genomicStart+i, genomicStart+i, String.valueOf(referenceChar), "");
+                    keyFieldsList.add(keyFields);
+                }
+            }
+            previousReferenceChar = referenceChar;
+            previousAlternateChar = alternateChar;
+        }
+
+        return keyFieldsList;
+    }
+
+    private SequencePair<DNASequence, NucleotideCompound> getPairwiseAlignment(String seq1, String seq2) {
+        DNASequence target = null;
+        DNASequence query = null;
+        try {
+            target = new DNASequence(seq1, AmbiguityDNACompoundSet.getDNACompoundSet());
+            query = new DNASequence(seq2, AmbiguityDNACompoundSet.getDNACompoundSet());
+        } catch (Exception e) {
+            logger.error("Error when creating DNASequence objects for "+seq1+" and "+seq2+" prior to pairwise " +
+                    "sequence alignment", e);
+        }
+        SubstitutionMatrix<NucleotideCompound> substitutionMatrix = SubstitutionMatrixHelper.getNuc4_4();
+        SimpleGapPenalty gapP = new SimpleGapPenalty();
+        gapP.setOpenPenalty((short)5);
+        gapP.setExtensionPenalty((short)2);
+        SequencePair<DNASequence, NucleotideCompound> psa = Alignments.getPairwiseAlignment(query, target,
+                Alignments.PairwiseSequenceAlignerType.GLOBAL, gapP, substitutionMatrix);
+
+        return psa;
     }
 
     /**
@@ -407,6 +485,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         private int start;
         private int end;
         private int numAllele;
+        private String phaseSet;
         private String reference;
         private String alternate;
 
@@ -441,6 +520,13 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
         public VariantKeyFields setNumAllele(int numAllele) {
             this.numAllele = numAllele;
+            return this;
+        }
+
+        public String getPhaseSet() { return phaseSet; }
+
+        public VariantKeyFields setPhaseSet(String phaseSet) {
+            this.phaseSet = phaseSet;
             return this;
         }
 

@@ -21,6 +21,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.lang3.StringUtils;
+import org.biojava.nbio.core.exceptions.CompoundNotFoundException;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.biodata.models.variant.exceptions.NotAVariantException;
 
@@ -81,7 +82,8 @@ public class VariantVcfFactory implements VariantFactory {
         String info = fields[7].equals(".") ? "" : fields[7];
         String format = (fields.length <= 8 || fields[8].equals(".")) ? "" : fields[8];
 
-        List<VariantKeyFields> generatedKeyFields = variantNormalizer.normalize(position, reference, Arrays.asList(alternateAlleles));
+        List<VariantKeyFields> generatedKeyFields = variantNormalizer.normalize(
+                chromosome, position, reference, Arrays.asList(alternateAlleles));
 
         for (int i = 0; i < generatedKeyFields.size(); i++) {
 
