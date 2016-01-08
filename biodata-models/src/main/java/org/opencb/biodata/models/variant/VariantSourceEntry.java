@@ -1,5 +1,6 @@
 package org.opencb.biodata.models.variant;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -204,7 +205,7 @@ public class VariantSourceEntry {
         if (!Objects.equals(this.studyId, other.studyId)) {
             return false;
         }
-        if (!Objects.equals(this.secondaryAlternates, other.secondaryAlternates)) {
+        if (!Arrays.equals(this.secondaryAlternates, other.secondaryAlternates)) {
             return false;
         }
         if (!Objects.equals(this.format, other.format)) {
@@ -217,6 +218,14 @@ public class VariantSourceEntry {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "VariantSourceEntry{" + "fileId=" + fileId + ", studyId=" + studyId 
+                + ", secondaryAlternates=" + secondaryAlternates + ", format=" + format 
+                + ", samplesData=" + samplesData + ", cohortStats=" + cohortStats 
+                + ", attributes=" + attributes + '}';
     }
 
 }
