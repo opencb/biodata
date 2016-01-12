@@ -80,6 +80,13 @@
     <!--</dependencies>-->
 
     <build>
+        <extensions>
+            <extension>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>1.4.0.Final</version>
+            </extension>
+        </extensions>
         <plugins>
             <plugin>
                 <groupId>org.apache.avro</groupId>
@@ -110,13 +117,44 @@
                 <!--<artifactId>maven-protoc-plugin</artifactId>-->
                 <!--<version>0.4.3</version>-->
                 <!--<configuration>-->
-                    <!--<protocExecutable>/usr/bin/protoc</protocExecutable>-->
+                    <!--&lt;!&ndash;-->
+                      <!--The version of protoc must match protobuf-java. If you don't depend on-->
+                      <!--protobuf-java directly, you will be transitively depending on the-->
+                      <!--protobuf-java version that grpc depends on.-->
+                    <!--&ndash;&gt;-->
+                    <!--<protocArtifact>com.google.protobuf:protoc:3.0.0-beta-1:exe:${os.detected.classifier}</protocArtifact>-->
+                    <!--<pluginId>grpc-java</pluginId>-->
+                    <!--<pluginArtifact>io.grpc:protoc-gen-grpc-java:0.9.0:exe:${os.detected.classifier}</pluginArtifact>-->
+                    <!--<protoSourceRoot>src/main/resources/protobuf</protoSourceRoot>-->
+                    <!--<clearOutputDirectory>true</clearOutputDirectory>-->
                 <!--</configuration>-->
                 <!--<executions>-->
                     <!--<execution>-->
                         <!--<goals>-->
                             <!--<goal>compile</goal>-->
-                            <!--<goal>test-compile</goal>-->
+                            <!--<goal>compile-custom</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
+            <!--<plugin>-->
+                <!--<artifactId>maven-antrun-plugin</artifactId>-->
+                <!--<version>1.8</version>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<id>install-app</id>-->
+                        <!--<phase>install</phase>-->
+                        <!--<configuration>-->
+                            <!--<target>-->
+                                <!--<echo>Moving protobuf generated classes</echo>-->
+                                <!--<exec executable="mv">-->
+                                    <!--<arg value="target/generated-sources/protobuf/java"/>-->
+                                    <!--<arg value="/tmp/"/>-->
+                                <!--</exec>-->
+                            <!--</target>-->
+                        <!--</configuration>-->
+                        <!--<goals>-->
+                            <!--<goal>run</goal>-->
                         <!--</goals>-->
                     <!--</execution>-->
                 <!--</executions>-->

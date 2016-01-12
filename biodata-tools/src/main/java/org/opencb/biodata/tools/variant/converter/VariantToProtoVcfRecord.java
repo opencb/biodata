@@ -86,11 +86,13 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
 
     @Override
     public VcfRecord convert(Variant variant) {
-        return convert(variant, -1);
+        return convertUsingSliceposition(variant, 0);
+    }
+    public VcfRecord convert(Variant variant, int chunkSize) {
+        return convertUsingSliceposition(variant, chunkSize > 0 ? getSlicePosition(variant.getStart(), chunkSize) : 0);
     }
 
-    public VcfRecord convert(Variant variant, int chunkSize) {
-        int slicePosition = chunkSize > 0 ? getSlicePosition(variant.getStart(), chunkSize) : 0;
+    public VcfRecord convertUsingSliceposition(Variant variant, int slicePosition) {
         Builder recordBuilder = VcfRecord.newBuilder()
                 // Warning: start and end can be at different chunks.
                 // Do not use getSliceOffset independently
