@@ -7,14 +7,14 @@ package org.opencb.biodata.models.variant.avro;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class StudyEntry extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"StudyEntry\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"studyId\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}],\"doc\":\"* Unique identifier of the study.\"},{\"name\":\"files\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"FileEntry\",\"fields\":[{\"name\":\"fileId\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}],\"doc\":\"* Unique identifier of the source file.\"},{\"name\":\"call\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}],\"doc\":\"* Original call position for the variant, if the file was normalized.\\n         *\\n         * {position}:{reference}:{alternate}(,{other_alternate})*:{allele_index}\"},{\"name\":\"attributes\",\"type\":{\"type\":\"map\",\"values\":{\"type\":\"string\",\"avro.java.string\":\"String\"},\"avro.java.string\":\"String\"},\"doc\":\"* Optional attributes that probably depend on the format of the file the\\n         * variant was initially read from.\"}]}},\"doc\":\"* List of files from the study where the variant was present.\",\"default\":[]},{\"name\":\"secondaryAlternates\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}],\"doc\":\"* Alternate alleles that appear along with a variant alternate.\",\"default\":null},{\"name\":\"format\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},\"doc\":\"* Fields stored for each sample.\"},{\"name\":\"samplesData\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},\"doc\":\"* Genotypes and other sample-related information. Each position is related\\n         * with one sample. The content are lists of values in the same order than the\\n         * format array. The length of this lists must be the same as the format field.\"},{\"name\":\"stats\",\"type\":{\"type\":\"map\",\"values\":{\"type\":\"record\",\"name\":\"VariantStats\",\"fields\":[{\"name\":\"refAllele\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"altAllele\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"refAlleleCount\",\"type\":[\"null\",\"int\"]},{\"name\":\"altAlleleCount\",\"type\":[\"null\",\"int\"]},{\"name\":\"genotypesCount\",\"type\":{\"type\":\"map\",\"values\":\"int\",\"avro.java.string\":\"String\",\"java-key-class\":\"org.opencb.biodata.models.feature.Genotype\"}},{\"name\":\"genotypesFreq\",\"type\":{\"type\":\"map\",\"values\":\"float\",\"avro.java.string\":\"String\",\"java-key-class\":\"org.opencb.biodata.models.feature.Genotype\"}},{\"name\":\"missingAlleles\",\"type\":[\"null\",\"int\"]},{\"name\":\"missingGenotypes\",\"type\":[\"null\",\"int\"]},{\"name\":\"refAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"altAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"maf\",\"type\":[\"null\",\"float\"]},{\"name\":\"mgf\",\"type\":[\"null\",\"float\"]},{\"name\":\"mafAllele\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"mgfGenotype\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"passedFilters\",\"type\":[\"null\",\"boolean\"]},{\"name\":\"mendelianErrors\",\"type\":[\"null\",\"int\"]},{\"name\":\"casesPercentDominant\",\"type\":[\"null\",\"float\"]},{\"name\":\"controlsPercentDominant\",\"type\":[\"null\",\"float\"]},{\"name\":\"casesPercentRecessive\",\"type\":[\"null\",\"float\"]},{\"name\":\"controlsPercentRecessive\",\"type\":[\"null\",\"float\"]},{\"name\":\"quality\",\"type\":[\"null\",\"float\"]},{\"name\":\"numSamples\",\"type\":[\"null\",\"int\"]},{\"name\":\"variantType\",\"type\":{\"type\":\"enum\",\"name\":\"VariantType\",\"doc\":\"* Type of variation, which depends mostly on its length.\\n     * <ul>\\n     * <li>SNVs involve a single nucleotide, without changes in length</li>\\n     * <li>MNVs involve multiple nucleotides, without changes in length</li>\\n     * <li>Indels are insertions or deletions of less than SV_THRESHOLD (50) nucleotides</li>\\n     * <li>Structural variations are large changes of more than SV_THRESHOLD nucleotides</li>\\n     * <li>Copy-number variations alter the number of copies of a region</li>\\n     * </ul>\",\"symbols\":[\"SNV\",\"SNP\",\"MNV\",\"MNP\",\"INDEL\",\"SV\",\"INSERTION\",\"DELETION\",\"TRANSLOCATION\",\"INVERSION\",\"CNV\",\"NO_VARIATION\",\"SYMBOLIC\",\"MIXED\"]}},{\"name\":\"hw\",\"type\":{\"type\":\"record\",\"name\":\"VariantHardyWeinbergStats\",\"fields\":[{\"name\":\"chi2\",\"type\":[\"null\",\"float\"]},{\"name\":\"pValue\",\"type\":[\"null\",\"float\"]},{\"name\":\"n\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_AA_11\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_Aa_10\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_aa_00\",\"type\":[\"null\",\"int\"]},{\"name\":\"e_AA_11\",\"type\":[\"null\",\"float\"]},{\"name\":\"e_Aa_10\",\"type\":[\"null\",\"float\"]},{\"name\":\"e_aa_00\",\"type\":[\"null\",\"float\"]},{\"name\":\"p\",\"type\":[\"null\",\"float\"]},{\"name\":\"q\",\"type\":[\"null\",\"float\"]}]}}]},\"avro.java.string\":\"String\"},\"doc\":\"* Statistics of the genomic variation, such as its alleles/genotypes count\\n         * or its minimum allele frequency, grouped by cohort name.\"}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"StudyEntry\",\"namespace\":\"org.opencb.biodata.models.variant.avro\",\"fields\":[{\"name\":\"studyId\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}],\"doc\":\"* Unique identifier of the study.\"},{\"name\":\"files\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"FileEntry\",\"fields\":[{\"name\":\"fileId\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}],\"doc\":\"* Unique identifier of the source file.\"},{\"name\":\"call\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}],\"doc\":\"* Original call position for the variant, if the file was normalized.\\n         *\\n         * {position}:{reference}:{alternate}(,{other_alternate})*:{allele_index}\"},{\"name\":\"attributes\",\"type\":{\"type\":\"map\",\"values\":{\"type\":\"string\",\"avro.java.string\":\"String\"},\"avro.java.string\":\"String\"},\"doc\":\"* Optional attributes that probably depend on the format of the file the\\n         * variant was initially read from.\"}]}},\"doc\":\"* List of files from the study where the variant was present.\",\"default\":[]},{\"name\":\"secondaryAlternateCoordinates\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Allele\",\"fields\":[{\"name\":\"chromosome\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"position\",\"type\":[\"null\",\"int\"]},{\"name\":\"reference\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"alternate\",\"type\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}]}}],\"doc\":\"* Alternate alleles that appear along with a variant alternate.\",\"default\":null},{\"name\":\"format\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}},\"doc\":\"* Fields stored for each sample.\"},{\"name\":\"samplesData\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}},\"doc\":\"* Genotypes and other sample-related information. Each position is related\\n         * with one sample. The content are lists of values in the same order than the\\n         * format array. The length of this lists must be the same as the format field.\"},{\"name\":\"stats\",\"type\":{\"type\":\"map\",\"values\":{\"type\":\"record\",\"name\":\"VariantStats\",\"fields\":[{\"name\":\"refAllele\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"altAllele\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"refAlleleCount\",\"type\":[\"null\",\"int\"]},{\"name\":\"altAlleleCount\",\"type\":[\"null\",\"int\"]},{\"name\":\"genotypesCount\",\"type\":{\"type\":\"map\",\"values\":\"int\",\"avro.java.string\":\"String\",\"java-key-class\":\"org.opencb.biodata.models.feature.Genotype\"}},{\"name\":\"genotypesFreq\",\"type\":{\"type\":\"map\",\"values\":\"float\",\"avro.java.string\":\"String\",\"java-key-class\":\"org.opencb.biodata.models.feature.Genotype\"}},{\"name\":\"missingAlleles\",\"type\":[\"null\",\"int\"]},{\"name\":\"missingGenotypes\",\"type\":[\"null\",\"int\"]},{\"name\":\"refAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"altAlleleFreq\",\"type\":[\"null\",\"float\"]},{\"name\":\"maf\",\"type\":[\"null\",\"float\"]},{\"name\":\"mgf\",\"type\":[\"null\",\"float\"]},{\"name\":\"mafAllele\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"mgfGenotype\",\"type\":[\"null\",{\"type\":\"string\",\"avro.java.string\":\"String\"}]},{\"name\":\"passedFilters\",\"type\":[\"null\",\"boolean\"]},{\"name\":\"mendelianErrors\",\"type\":[\"null\",\"int\"]},{\"name\":\"casesPercentDominant\",\"type\":[\"null\",\"float\"]},{\"name\":\"controlsPercentDominant\",\"type\":[\"null\",\"float\"]},{\"name\":\"casesPercentRecessive\",\"type\":[\"null\",\"float\"]},{\"name\":\"controlsPercentRecessive\",\"type\":[\"null\",\"float\"]},{\"name\":\"quality\",\"type\":[\"null\",\"float\"]},{\"name\":\"numSamples\",\"type\":[\"null\",\"int\"]},{\"name\":\"variantType\",\"type\":{\"type\":\"enum\",\"name\":\"VariantType\",\"doc\":\"* Type of variation, which depends mostly on its length.\\n     * <ul>\\n     * <li>SNVs involve a single nucleotide, without changes in length</li>\\n     * <li>MNVs involve multiple nucleotides, without changes in length</li>\\n     * <li>Indels are insertions or deletions of less than SV_THRESHOLD (50) nucleotides</li>\\n     * <li>Structural variations are large changes of more than SV_THRESHOLD nucleotides</li>\\n     * <li>Copy-number variations alter the number of copies of a region</li>\\n     * </ul>\",\"symbols\":[\"SNV\",\"SNP\",\"MNV\",\"MNP\",\"INDEL\",\"SV\",\"INSERTION\",\"DELETION\",\"TRANSLOCATION\",\"INVERSION\",\"CNV\",\"NO_VARIATION\",\"SYMBOLIC\",\"MIXED\"]}},{\"name\":\"hw\",\"type\":{\"type\":\"record\",\"name\":\"VariantHardyWeinbergStats\",\"fields\":[{\"name\":\"chi2\",\"type\":[\"null\",\"float\"]},{\"name\":\"pValue\",\"type\":[\"null\",\"float\"]},{\"name\":\"n\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_AA_11\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_Aa_10\",\"type\":[\"null\",\"int\"]},{\"name\":\"n_aa_00\",\"type\":[\"null\",\"int\"]},{\"name\":\"e_AA_11\",\"type\":[\"null\",\"float\"]},{\"name\":\"e_Aa_10\",\"type\":[\"null\",\"float\"]},{\"name\":\"e_aa_00\",\"type\":[\"null\",\"float\"]},{\"name\":\"p\",\"type\":[\"null\",\"float\"]},{\"name\":\"q\",\"type\":[\"null\",\"float\"]}]}}]},\"avro.java.string\":\"String\"},\"doc\":\"* Statistics of the genomic variation, such as its alleles/genotypes count\\n         * or its minimum allele frequency, grouped by cohort name.\"}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
   /** * Unique identifier of the study. */
    private java.lang.String studyId;
   /** * List of files from the study where the variant was present. */
    private java.util.List<org.opencb.biodata.models.variant.avro.FileEntry> files;
   /** * Alternate alleles that appear along with a variant alternate. */
-   private java.util.List<java.lang.String> secondaryAlternates;
+   private java.util.List<org.opencb.biodata.models.variant.avro.Allele> secondaryAlternateCoordinates;
   /** * Fields stored for each sample. */
    private java.util.List<java.lang.String> format;
   /** * Genotypes and other sample-related information. Each position is related
@@ -35,10 +35,10 @@ public class StudyEntry extends org.apache.avro.specific.SpecificRecordBase impl
   /**
    * All-args constructor.
    */
-  public StudyEntry(java.lang.String studyId, java.util.List<org.opencb.biodata.models.variant.avro.FileEntry> files, java.util.List<java.lang.String> secondaryAlternates, java.util.List<java.lang.String> format, java.util.List<java.util.List<java.lang.String>> samplesData, java.util.Map<java.lang.String,org.opencb.biodata.models.variant.avro.VariantStats> stats) {
+  public StudyEntry(java.lang.String studyId, java.util.List<org.opencb.biodata.models.variant.avro.FileEntry> files, java.util.List<org.opencb.biodata.models.variant.avro.Allele> secondaryAlternateCoordinates, java.util.List<java.lang.String> format, java.util.List<java.util.List<java.lang.String>> samplesData, java.util.Map<java.lang.String,org.opencb.biodata.models.variant.avro.VariantStats> stats) {
     this.studyId = studyId;
     this.files = files;
-    this.secondaryAlternates = secondaryAlternates;
+    this.secondaryAlternateCoordinates = secondaryAlternateCoordinates;
     this.format = format;
     this.samplesData = samplesData;
     this.stats = stats;
@@ -50,7 +50,7 @@ public class StudyEntry extends org.apache.avro.specific.SpecificRecordBase impl
     switch (field$) {
     case 0: return studyId;
     case 1: return files;
-    case 2: return secondaryAlternates;
+    case 2: return secondaryAlternateCoordinates;
     case 3: return format;
     case 4: return samplesData;
     case 5: return stats;
@@ -63,7 +63,7 @@ public class StudyEntry extends org.apache.avro.specific.SpecificRecordBase impl
     switch (field$) {
     case 0: studyId = (java.lang.String)value$; break;
     case 1: files = (java.util.List<org.opencb.biodata.models.variant.avro.FileEntry>)value$; break;
-    case 2: secondaryAlternates = (java.util.List<java.lang.String>)value$; break;
+    case 2: secondaryAlternateCoordinates = (java.util.List<org.opencb.biodata.models.variant.avro.Allele>)value$; break;
     case 3: format = (java.util.List<java.lang.String>)value$; break;
     case 4: samplesData = (java.util.List<java.util.List<java.lang.String>>)value$; break;
     case 5: stats = (java.util.Map<java.lang.String,org.opencb.biodata.models.variant.avro.VariantStats>)value$; break;
@@ -102,18 +102,18 @@ public class StudyEntry extends org.apache.avro.specific.SpecificRecordBase impl
   }
 
   /**
-   * Gets the value of the 'secondaryAlternates' field.
+   * Gets the value of the 'secondaryAlternateCoordinates' field.
    * * Alternate alleles that appear along with a variant alternate.   */
-  public java.util.List<java.lang.String> getSecondaryAlternates() {
-    return secondaryAlternates;
+  public java.util.List<org.opencb.biodata.models.variant.avro.Allele> getSecondaryAlternateCoordinates() {
+    return secondaryAlternateCoordinates;
   }
 
   /**
-   * Sets the value of the 'secondaryAlternates' field.
+   * Sets the value of the 'secondaryAlternateCoordinates' field.
    * * Alternate alleles that appear along with a variant alternate.   * @param value the value to set.
    */
-  public void setSecondaryAlternates(java.util.List<java.lang.String> value) {
-    this.secondaryAlternates = value;
+  public void setSecondaryAlternateCoordinates(java.util.List<org.opencb.biodata.models.variant.avro.Allele> value) {
+    this.secondaryAlternateCoordinates = value;
   }
 
   /**
@@ -190,7 +190,7 @@ public class StudyEntry extends org.apache.avro.specific.SpecificRecordBase impl
 
     private java.lang.String studyId;
     private java.util.List<org.opencb.biodata.models.variant.avro.FileEntry> files;
-    private java.util.List<java.lang.String> secondaryAlternates;
+    private java.util.List<org.opencb.biodata.models.variant.avro.Allele> secondaryAlternateCoordinates;
     private java.util.List<java.lang.String> format;
     private java.util.List<java.util.List<java.lang.String>> samplesData;
     private java.util.Map<java.lang.String,org.opencb.biodata.models.variant.avro.VariantStats> stats;
@@ -211,8 +211,8 @@ public class StudyEntry extends org.apache.avro.specific.SpecificRecordBase impl
         this.files = data().deepCopy(fields()[1].schema(), other.files);
         fieldSetFlags()[1] = true;
       }
-      if (isValidValue(fields()[2], other.secondaryAlternates)) {
-        this.secondaryAlternates = data().deepCopy(fields()[2].schema(), other.secondaryAlternates);
+      if (isValidValue(fields()[2], other.secondaryAlternateCoordinates)) {
+        this.secondaryAlternateCoordinates = data().deepCopy(fields()[2].schema(), other.secondaryAlternateCoordinates);
         fieldSetFlags()[2] = true;
       }
       if (isValidValue(fields()[3], other.format)) {
@@ -240,8 +240,8 @@ public class StudyEntry extends org.apache.avro.specific.SpecificRecordBase impl
         this.files = data().deepCopy(fields()[1].schema(), other.files);
         fieldSetFlags()[1] = true;
       }
-      if (isValidValue(fields()[2], other.secondaryAlternates)) {
-        this.secondaryAlternates = data().deepCopy(fields()[2].schema(), other.secondaryAlternates);
+      if (isValidValue(fields()[2], other.secondaryAlternateCoordinates)) {
+        this.secondaryAlternateCoordinates = data().deepCopy(fields()[2].schema(), other.secondaryAlternateCoordinates);
         fieldSetFlags()[2] = true;
       }
       if (isValidValue(fields()[3], other.format)) {
@@ -308,27 +308,27 @@ public class StudyEntry extends org.apache.avro.specific.SpecificRecordBase impl
       return this;
     }
 
-    /** Gets the value of the 'secondaryAlternates' field */
-    public java.util.List<java.lang.String> getSecondaryAlternates() {
-      return secondaryAlternates;
+    /** Gets the value of the 'secondaryAlternateCoordinates' field */
+    public java.util.List<org.opencb.biodata.models.variant.avro.Allele> getSecondaryAlternateCoordinates() {
+      return secondaryAlternateCoordinates;
     }
     
-    /** Sets the value of the 'secondaryAlternates' field */
-    public org.opencb.biodata.models.variant.avro.StudyEntry.Builder setSecondaryAlternates(java.util.List<java.lang.String> value) {
+    /** Sets the value of the 'secondaryAlternateCoordinates' field */
+    public org.opencb.biodata.models.variant.avro.StudyEntry.Builder setSecondaryAlternateCoordinates(java.util.List<org.opencb.biodata.models.variant.avro.Allele> value) {
       validate(fields()[2], value);
-      this.secondaryAlternates = value;
+      this.secondaryAlternateCoordinates = value;
       fieldSetFlags()[2] = true;
       return this; 
     }
     
-    /** Checks whether the 'secondaryAlternates' field has been set */
-    public boolean hasSecondaryAlternates() {
+    /** Checks whether the 'secondaryAlternateCoordinates' field has been set */
+    public boolean hasSecondaryAlternateCoordinates() {
       return fieldSetFlags()[2];
     }
     
-    /** Clears the value of the 'secondaryAlternates' field */
-    public org.opencb.biodata.models.variant.avro.StudyEntry.Builder clearSecondaryAlternates() {
-      secondaryAlternates = null;
+    /** Clears the value of the 'secondaryAlternateCoordinates' field */
+    public org.opencb.biodata.models.variant.avro.StudyEntry.Builder clearSecondaryAlternateCoordinates() {
+      secondaryAlternateCoordinates = null;
       fieldSetFlags()[2] = false;
       return this;
     }
@@ -414,7 +414,7 @@ public class StudyEntry extends org.apache.avro.specific.SpecificRecordBase impl
         StudyEntry record = new StudyEntry();
         record.studyId = fieldSetFlags()[0] ? this.studyId : (java.lang.String) defaultValue(fields()[0]);
         record.files = fieldSetFlags()[1] ? this.files : (java.util.List<org.opencb.biodata.models.variant.avro.FileEntry>) defaultValue(fields()[1]);
-        record.secondaryAlternates = fieldSetFlags()[2] ? this.secondaryAlternates : (java.util.List<java.lang.String>) defaultValue(fields()[2]);
+        record.secondaryAlternateCoordinates = fieldSetFlags()[2] ? this.secondaryAlternateCoordinates : (java.util.List<org.opencb.biodata.models.variant.avro.Allele>) defaultValue(fields()[2]);
         record.format = fieldSetFlags()[3] ? this.format : (java.util.List<java.lang.String>) defaultValue(fields()[3]);
         record.samplesData = fieldSetFlags()[4] ? this.samplesData : (java.util.List<java.util.List<java.lang.String>>) defaultValue(fields()[4]);
         record.stats = fieldSetFlags()[5] ? this.stats : (java.util.Map<java.lang.String,org.opencb.biodata.models.variant.avro.VariantStats>) defaultValue(fields()[5]);

@@ -335,12 +335,12 @@ public class Variant {
         return null;
     }
 
-    public void addStudyEntry(StudyEntry sourceEntry) {
+    public void addStudyEntry(StudyEntry studyEntry) {
         if (studyEntries == null) {
             studyEntries = new HashMap<>();
         }
-        this.studyEntries.put(composeId(sourceEntry.getStudyId()), sourceEntry);
-        impl.getStudies().add(sourceEntry.getImpl());
+        this.studyEntries.put(composeId(studyEntry.getStudyId()), studyEntry);
+        impl.getStudies().add(studyEntry.getImpl());
     }
 
     public Iterable<String> getSampleNames(String studyId, String fileId) {

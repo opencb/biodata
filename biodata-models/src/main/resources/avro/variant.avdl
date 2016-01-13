@@ -122,6 +122,18 @@ protocol Variants {
         map<string> attributes;
     }
 
+    record Allele {
+
+        union { null, string } chromosome;
+
+        union { null, int } position;
+
+        union { null, string } reference;
+
+        string alternate;
+
+    }
+
     record StudyEntry {
         /**
          * Unique identifier of the study.
@@ -136,7 +148,8 @@ protocol Variants {
         /**
          * Alternate alleles that appear along with a variant alternate.
          */
-        union { null, array<string> } secondaryAlternates = null;
+        //union { null, array<string> } secondaryAlternates = null;
+        union { null, array<Allele> } secondaryAlternateCoordinates = null;
 
         /**
          * Fields stored for each sample.
