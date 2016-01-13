@@ -63,9 +63,18 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             String chromosome = variant.getChromosome();
 
             if (variant.getStudies() == null || variant.getStudies().isEmpty()) {
-                VariantKeyFields keyFields = normalize(chromosome, start, reference, alternate);
-                Variant normalizedVariant = newVariant(variant, keyFields);
-                normalizedVariants.add(normalizedVariant);
+                List<VariantKeyFields> keyFieldsList = normalize(
+                        chromosome, start, reference, Collections.singletonList(alternate));
+                for(VariantKeyFields keyFields : keyFieldsList) {
+                    Variant normalizedVariant = newVariant(variant, keyFields);
+                    if(keyFields.getPhaseSet()!=null) {
+                        StudyEntry studyEntry = new StudyEntry();
+                        studyEntry.setSamplesData(
+                                Collections.singletonList(Collections.singletonList(keyFields.getPhaseSet())));
+                        studyEntry.setFormat(Collections.singletonList("PS"));
+                    }
+                    normalizedVariants.add(normalizedVariant);
+                }
             } else {
                 for (StudyEntry entry : variant.getStudies()) {
                     List<String> alternates = new ArrayList<>(1 + entry.getSecondaryAlternates().size());
@@ -113,6 +122,9 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                             List<List<String>> normalizedSamplesData = normalizeSamplesData(keyFields,
                                     entry.getSamplesData(), entry.getFormat(), reference, alternates, samplesData);
                             normalizedEntry.setSamplesData(normalizedSamplesData);
+                            if (keyFields.getPhaseSet() != null) {
+                                normalizedEntry.getFormat().add("PS");
+                            }
                             normalizedVariants.add(normalizedVariant);
                         } catch (Exception e) {
                             logger.warn("Error parsing variant " + call + ", numAllele " + keyFields.getNumAllele(), e);
@@ -441,6 +453,10 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                     }
                 }
                 newSampleData.get(sampleIdx).set(formatFieldIdx, sampleField);
+                if (variantKeyFields.getPhaseSet() != null) {
+                    newSampleData.get(sampleIdx).add(variantKeyFields.getPhaseSet());
+                }
+
             }
         }
         return newSampleData;
