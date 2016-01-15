@@ -72,6 +72,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                         studyEntry.setSamplesData(
                                 Collections.singletonList(Collections.singletonList(keyFields.getPhaseSet())));
                         studyEntry.setFormat(Collections.singletonList("PS"));
+                        normalizedVariant.setStudies(Collections.singletonList(studyEntry));
                     }
                     normalizedVariants.add(normalizedVariant);
                 }
