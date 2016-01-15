@@ -2,7 +2,7 @@ package org.opencb.biodata.models.variant;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.opencb.biodata.models.variant.avro.Allele;
+import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.commons.test.GenericTest;
@@ -173,8 +173,8 @@ public class VariantNormalizerTest extends GenericTest {
             assertEquals(expected.getAlternate(), v.getAlternate());
             assertEquals(expected.getReference(), v.getReference());
             assertEquals(expected.getNumAllele(), i);
-            for (Allele allele : v.getStudy(studyId).getSecondaryAlternateCoordinates()) {
-                assertNotNull(allele);
+            for (AlternateCoordinate alternate : v.getStudy(studyId).getSecondaryAlternates()) {
+                assertNotNull(alternate);
             }
         }
 

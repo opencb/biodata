@@ -21,7 +21,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.lang3.StringUtils;
-import org.opencb.biodata.models.variant.avro.Allele;
+import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.biodata.models.variant.exceptions.NotAVariantException;
 
@@ -97,9 +97,9 @@ public class VariantVcfFactory implements VariantFactory {
             VariantKeyFields keyFields = generatedKeyFields.get(i);
             Variant variant = new Variant(chromosome, keyFields.getStart(), keyFields.getEnd(), keyFields.getReference(), keyFields.getAlternate());
 //            String[] secondaryAlternates = getSecondaryAlternates(variant, keyFields.getNumAllele(), alternateAlleles);
-            List<Allele> secondaryAlternatesMap = variantNormalizer.getSecondaryAlternatesMap(keyFields, generatedKeyFields);
+            List<AlternateCoordinate> secondaryAlternatesMap = variantNormalizer.getSecondaryAlternatesMap(keyFields, generatedKeyFields);
             StudyEntry entry = new StudyEntry(source.getFileId(), source.getStudyId(), Collections.emptyList(), Arrays.asList(format.split(":")));
-            entry.setSecondaryAlternateCoordinates(secondaryAlternatesMap);
+            entry.setSecondaryAlternates(secondaryAlternatesMap);
             variant.addStudyEntry(entry);
 
             try {

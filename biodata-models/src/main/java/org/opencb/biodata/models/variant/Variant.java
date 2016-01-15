@@ -109,14 +109,17 @@ public class Variant {
     }
 
     private void resetType() {
-        if (getReference().length() == getAlternate().length()) {
-            if (getLength() > 1) {
-                setType(VariantType.MNV);
+        setType(inferType(getReference(), getAlternate(), getLength()));
+    }
+    public static VariantType inferType(String reference, String alternate, Integer length) {
+        if (reference.length() == alternate.length()) {
+            if (length > 1) {
+                return VariantType.MNV;
             } else {
-                setType(VariantType.SNV);
+                return VariantType.SNV;
             }
         } else {
-            if (getLength() <= SV_THRESHOLD) {
+            if (length <= SV_THRESHOLD) {
             /*
             * 3 possibilities for being an INDEL:
             * - The value of the ALT field is <DEL> or <INS>
@@ -124,9 +127,9 @@ public class Variant {
             * - The REF allele is . but the ALT is not
             * - The REF field length is different than the ALT field length
             */
-                setType(VariantType.INDEL);
+                return VariantType.INDEL;
             } else {
-                setType(VariantType.SV);
+                return VariantType.SV;
             }
         }
     }

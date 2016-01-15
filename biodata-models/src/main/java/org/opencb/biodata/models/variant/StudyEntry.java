@@ -20,7 +20,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.opencb.biodata.models.variant.avro.Allele;
+import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
@@ -32,7 +32,7 @@ import org.opencb.biodata.models.variant.stats.VariantStats;
  * @author Jose Miguel Mut Lopez &lt;jmmut@ebi.ac.uk&gt;
  */
 @JsonIgnoreProperties({"impl", "samplesDataAsMap", "samplesPosition", "samplesName", "orderedSamplesName", "formatAsString",
-        "formatPositions", "fileId", "attributes", "allAttributes", "cohortStats", "secondaryAlternates"})
+        "formatPositions", "fileId", "attributes", "allAttributes", "cohortStats", "secondaryAlternatesAlleles"})
 public class StudyEntry {
 
     private LinkedHashMap<String, Integer> samplesPosition = null;
@@ -68,7 +68,7 @@ public class StudyEntry {
     public StudyEntry(String fileId, String studyId, List<String> secondaryAlternates, List<String> format) {
         this.impl = new org.opencb.biodata.models.variant.avro.StudyEntry(studyId,
                 new LinkedList<>(), null, format, new LinkedList<>(), new LinkedHashMap<>());
-        setSecondaryAlternates(secondaryAlternates);
+        setSecondaryAlternatesAlleles(secondaryAlternates);
         if (fileId != null) {
             setFileId(fileId);
         }
@@ -381,31 +381,31 @@ public class StudyEntry {
     }
 
     @Deprecated
-    public List<String> getSecondaryAlternates() {
-        return impl.getSecondaryAlternateCoordinates() == null
+    public List<String> getSecondaryAlternatesAlleles() {
+        return impl.getSecondaryAlternates() == null
                 ? null
-                : Collections.unmodifiableList(impl.getSecondaryAlternateCoordinates().stream()
-                .map(Allele::getAlternate).collect(Collectors.toList()));
+                : Collections.unmodifiableList(impl.getSecondaryAlternates().stream()
+                .map(AlternateCoordinate::getAlternate).collect(Collectors.toList()));
     }
 
     @Deprecated
-    public void setSecondaryAlternates(List<String> value) {
-        List<Allele> secondaryAlternatesMap = null;
+    public void setSecondaryAlternatesAlleles(List<String> value) {
+        List<AlternateCoordinate> secondaryAlternatesMap = null;
         if (value != null) {
             secondaryAlternatesMap = new ArrayList<>(value.size());
             for (String secondaryAlternate : value) {
-                secondaryAlternatesMap.add(new Allele(null, null, null, secondaryAlternate));
+                secondaryAlternatesMap.add(new AlternateCoordinate(null, null, null, null, secondaryAlternate, null));
             }
         }
-        impl.setSecondaryAlternateCoordinates(secondaryAlternatesMap);
+        impl.setSecondaryAlternates(secondaryAlternatesMap);
     }
 
-    public List<Allele> getSecondaryAlternateCoordinates() {
-        return impl.getSecondaryAlternateCoordinates();
+    public List<AlternateCoordinate> getSecondaryAlternates() {
+        return impl.getSecondaryAlternates();
     }
 
-    public void setSecondaryAlternateCoordinates(List<Allele> value) {
-        impl.setSecondaryAlternateCoordinates(value);
+    public void setSecondaryAlternates(List<AlternateCoordinate> value) {
+        impl.setSecondaryAlternates(value);
     }
 
     @Deprecated

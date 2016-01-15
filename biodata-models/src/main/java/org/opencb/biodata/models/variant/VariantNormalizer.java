@@ -3,7 +3,7 @@ package org.opencb.biodata.models.variant;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.feature.AllelesCode;
 import org.opencb.biodata.models.feature.Genotype;
-import org.opencb.biodata.models.variant.avro.Allele;
+import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
@@ -83,9 +83,9 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                 normalizedVariants.add(normalizedVariant);
             } else {
                 for (StudyEntry entry : variant.getStudies()) {
-                    List<String> alternates = new ArrayList<>(1 + entry.getSecondaryAlternates().size());
+                    List<String> alternates = new ArrayList<>(1 + entry.getSecondaryAlternatesAlleles().size());
                     alternates.add(alternate);
-                    alternates.addAll(entry.getSecondaryAlternates());
+                    alternates.addAll(entry.getSecondaryAlternatesAlleles());
 
                     List<VariantKeyFields> keyFieldsList = normalize(start, reference, alternates);
                     for (VariantKeyFields keyFields : keyFieldsList) {
@@ -122,8 +122,8 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                         }
 
                         //Set normalized secondary alternates
-                        normalizedEntry.setSecondaryAlternateCoordinates(getSecondaryAlternatesMap(keyFields, keyFieldsList));
-//                        normalizedEntry.setSecondaryAlternates(getSecondaryAlternates(keyFields.getAlternate(), alternates));
+                        normalizedEntry.setSecondaryAlternates(getSecondaryAlternatesMap(keyFields, keyFieldsList));
+
                         //Set normalized samples data
                         try {
                             List<List<String>> normalizedSamplesData = normalizeSamplesData(keyFields,
@@ -395,22 +395,25 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         return normalizedVariant;
     }
 
-    public List<Allele> getSecondaryAlternatesMap(VariantKeyFields alternate, List<VariantKeyFields> alternates) {
-        List<Allele> secondaryAlternates;
+    public List<AlternateCoordinate> getSecondaryAlternatesMap(VariantKeyFields alternate, List<VariantKeyFields> alternates) {
+        List<AlternateCoordinate> secondaryAlternates;
         if (alternates.size() == 1) {
             secondaryAlternates = Collections.emptyList();
         } else {
             secondaryAlternates = new ArrayList<>(alternates.size() - 1);
             for (VariantKeyFields keyFields : alternates) {
                 if (!keyFields.getAlternate().equals(alternate.getAlternate())) {
-                    secondaryAlternates.add(new Allele(
+                    secondaryAlternates.add(new AlternateCoordinate(
                             // Chromosome is always the same, do not set
                             null,
                             //Set position only if is different from the original one
                             alternate.getStart() == keyFields.getStart() ? null : keyFields.getStart(),
+                            alternate.getEnd() == keyFields.getEnd() ? null : keyFields.getEnd(),
                             //Set reference only if is different from the original one
-                            alternate.getReference().equals(keyFields.getReference())? null : keyFields.getReference(),
-                            keyFields.getAlternate()));
+                            alternate.getReference().equals(keyFields.getReference()) ? null : keyFields.getReference(),
+                            keyFields.getAlternate(),
+                            Variant.inferType(keyFields.getReference(), keyFields.getAlternate(), keyFields.getEnd() - keyFields.getStart() + 1)
+                    ));
                 }
             }
         }
