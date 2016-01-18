@@ -21,6 +21,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.lang3.StringUtils;
+import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.biodata.models.variant.exceptions.NotAVariantException;
 
@@ -95,8 +96,10 @@ public class VariantVcfFactory implements VariantFactory {
         for (int i = 0; i < alternateAlleles.length; i++) {
             VariantKeyFields keyFields = generatedKeyFields.get(i);
             Variant variant = new Variant(chromosome, keyFields.getStart(), keyFields.getEnd(), keyFields.getReference(), keyFields.getAlternate());
-            String[] secondaryAlternates = getSecondaryAlternates(variant, keyFields.getNumAllele(), alternateAlleles);
-            StudyEntry entry = new StudyEntry(source.getFileId(), source.getStudyId(), secondaryAlternates, Arrays.asList(format.split(":")));
+//            String[] secondaryAlternates = getSecondaryAlternates(variant, keyFields.getNumAllele(), alternateAlleles);
+            List<AlternateCoordinate> secondaryAlternatesMap = variantNormalizer.getSecondaryAlternatesMap(keyFields, generatedKeyFields);
+            StudyEntry entry = new StudyEntry(source.getFileId(), source.getStudyId(), Collections.emptyList(), Arrays.asList(format.split(":")));
+            entry.setSecondaryAlternates(secondaryAlternatesMap);
             variant.addStudyEntry(entry);
 
             try {
@@ -113,17 +116,6 @@ public class VariantVcfFactory implements VariantFactory {
         }
 
         return variants;
-    }
-
-
-    protected String[] getSecondaryAlternates(Variant variant, int numAllele, String[] alternateAlleles) {
-        String[] secondaryAlternates = new String[alternateAlleles.length-1];
-        for (int i = 0, j = 0; i < alternateAlleles.length; i++) {
-            if (i != numAllele) {
-                secondaryAlternates[j++] = alternateAlleles[i];
-            }
-        }
-        return secondaryAlternates;
     }
 
     protected void parseSplitSampleData(StudyEntry entry, VariantSource source, String[] fields,

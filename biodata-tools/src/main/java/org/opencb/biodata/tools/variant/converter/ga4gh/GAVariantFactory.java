@@ -46,9 +46,9 @@ public class GAVariantFactory {
             List<String> variantIds = new ArrayList<>(variant.getIds());
 
             for (StudyEntry study : variant.getStudies()) {
-                List<String> alternates = new ArrayList<>(study.getSecondaryAlternates().size() + 1);
+                List<String> alternates = new ArrayList<>(study.getSecondaryAlternatesAlleles().size() + 1);
                 alternates.add(variant.getAlternate());
-                alternates.addAll(study.getSecondaryAlternates());
+                alternates.addAll(study.getSecondaryAlternatesAlleles());
 
                 //Optional
                 Long time = System.currentTimeMillis();
