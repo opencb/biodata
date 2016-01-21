@@ -62,7 +62,7 @@ public class VcfRecordToVariantConverter implements Converter<VcfSliceProtos.Vcf
         studyEntry.setSamplesData(getSamplesData(vcfRecord));
         studyEntry.setSamplesPosition(samplePosition);
         if (alts.size() > 1) { // TODO check
-            studyEntry.setSecondaryAlternates(alts.subList(1, alts.size()));
+            studyEntry.setSecondaryAlternatesAlleles(alts.subList(1, alts.size()));
         }
         variant.addStudyEntry(studyEntry);
 

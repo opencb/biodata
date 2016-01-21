@@ -304,13 +304,13 @@ public class VariantVcfFactoryTest {
         assertEquals(
                 var0.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesDataAsMap(),
                 getVar0.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesDataAsMap());
-        assertEquals(Collections.singletonList("G"), getVar0.getSourceEntry(source.getFileId(), source.getStudyId()).getSecondaryAlternates());
+        assertEquals(Collections.singletonList("G"), getVar0.getSourceEntry(source.getFileId(), source.getStudyId()).getSecondaryAlternatesAlleles());
 
         Variant getVar1 = result.get(1);
         assertEquals(
                 var1.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesDataAsMap(),
                 getVar1.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesDataAsMap());
-        assertEquals(Collections.singletonList("C"), getVar1.getSourceEntry(source.getFileId(), source.getStudyId()).getSecondaryAlternates());
+        assertEquals(Collections.singletonList("C"), getVar1.getSourceEntry(source.getFileId(), source.getStudyId()).getSecondaryAlternatesAlleles());
     }
 
     @Test
@@ -390,13 +390,13 @@ public class VariantVcfFactoryTest {
         assertEquals(
                 var0.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesDataAsMap(),
                 getVar0.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesDataAsMap());
-        assertEquals(Collections.singletonList("GC"), getVar0.getSourceEntry(source.getFileId(), source.getStudyId()).getSecondaryAlternates());
+        assertEquals(Collections.singletonList("GC"), getVar0.getSourceEntry(source.getFileId(), source.getStudyId()).getSecondaryAlternatesAlleles());
 
         Variant getVar1 = result.get(1);
         assertEquals(
                 var1.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesDataAsMap(),
                 getVar1.getSourceEntry(source.getFileId(), source.getStudyId()).getSamplesDataAsMap());
-        assertEquals(Collections.singletonList("C"), getVar1.getSourceEntry(source.getFileId(), source.getStudyId()).getSecondaryAlternates());
+        assertEquals(Collections.singletonList("C"), getVar1.getSourceEntry(source.getFileId(), source.getStudyId()).getSecondaryAlternatesAlleles());
     }
 
     @Test

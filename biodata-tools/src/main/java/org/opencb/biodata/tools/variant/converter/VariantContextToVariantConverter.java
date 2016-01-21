@@ -205,7 +205,7 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
             alternates.add(allele);
             secondaryAlternateList.add(allele);
         }
-        studyEntry.setSecondaryAlternates(secondaryAlternateList);
+        studyEntry.setSecondaryAlternatesAlleles(secondaryAlternateList);
 
 
         // set variant format

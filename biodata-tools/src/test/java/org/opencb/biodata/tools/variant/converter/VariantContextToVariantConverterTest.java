@@ -177,7 +177,7 @@ public class VariantContextToVariantConverterTest {
         DataFileWriter<VariantAvro> writer = new DataFileWriter<>(vcfDatumWriter);
         writer.create(VariantAvro.getClassSchema(), outputStream);
 
-        final int[] writenVariants = {0};
+        final int[] writtenVariants = {0};
 
         ParallelTaskRunner<VariantContext, Variant> ptr = new ParallelTaskRunner<>(
                 batchSize -> {
@@ -195,7 +195,7 @@ public class VariantContextToVariantConverterTest {
                 batch -> {
                     try {
                         for (Variant variant : batch) {
-                            writenVariants[0]++;
+                            writtenVariants[0]++;
                             writer.append(variant.getImpl());
                         }
                     } catch (IOException e) {
@@ -224,6 +224,6 @@ public class VariantContextToVariantConverterTest {
         fileMetaWriter.close();
 
 
-        return writenVariants[0];
+        return writtenVariants[0];
     }
 }
