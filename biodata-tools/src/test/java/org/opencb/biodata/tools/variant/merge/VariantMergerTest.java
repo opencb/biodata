@@ -8,7 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
+import org.apache.commons.lang.math.IntRange;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,6 +43,11 @@ public class VariantMergerTest {
                 Arrays.asList("0/1")));
         assertEquals(Arrays.asList(lst("0/1"),lst("0/1")),
                 VARIANT_MERGER.getStudy(var).getSamplesData());
+        
+        String[] samples = new String[]{"S01","S02"};
+        Map<String, Integer> collect = IntStream.range(0, 2).mapToObj(i -> i).collect(Collectors.toMap(i -> (String) samples[i], i-> i));
+        assertEquals(collect,
+                VARIANT_MERGER.getStudy(var).getSamplesPosition());
 
         VARIANT_MERGER.merge(var, generateVariant("1",10,"A","T",VariantType.SNV, 
                 Arrays.asList("S03"), 
