@@ -33,6 +33,10 @@
     <dependencies>
         <dependency>
             <groupId>org.opencb.biodata</groupId>
+            <artifactId>biodata-models</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opencb.biodata</groupId>
             <artifactId>biodata-formats</artifactId>
         </dependency>
         <dependency>
@@ -51,6 +55,11 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.rocksdb</groupId>
+            <artifactId>rocksdbjni</artifactId>
+            <version>4.1.0</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

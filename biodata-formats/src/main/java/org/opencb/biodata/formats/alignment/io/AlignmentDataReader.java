@@ -30,5 +30,5 @@ import org.opencb.commons.io.DataReader;
  */
 public interface AlignmentDataReader extends DataReader<Alignment> {
 
-    public AlignmentHeader getHeader();
+    AlignmentHeader getHeader();
 }
