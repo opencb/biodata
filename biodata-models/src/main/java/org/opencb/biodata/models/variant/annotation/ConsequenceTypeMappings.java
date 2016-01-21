@@ -83,6 +83,8 @@ public class ConsequenceTypeMappings {
         termToAccession.put("CpG_island", 307);
         termToAccession.put("DNAseI_hypersensitive_site", 685);
         termToAccession.put("polypeptide_variation_site", 336);
+        termToAccession.put("protein_altering_variant", 1818);
+        termToAccession.put("start_lost", 2012);
 
         // Fill the accession to term map
         for(String key : termToAccession.keySet()) {
