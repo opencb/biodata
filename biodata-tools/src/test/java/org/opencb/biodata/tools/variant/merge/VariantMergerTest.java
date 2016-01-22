@@ -14,6 +14,7 @@ import org.apache.commons.lang.math.IntRange;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.FileEntry;
@@ -29,7 +30,7 @@ public class VariantMergerTest {
     public void setUp() throws Exception {
         var = generateVariant("1",10,"A","T",VariantType.SNV, 
                 Arrays.asList("S01"), 
-                Arrays.asList("0/1"));
+                Arrays.asList(Genotype.HET_REF));
     }
 
     @After
@@ -64,9 +65,9 @@ public class VariantMergerTest {
         assertEquals(Arrays.asList(lst("0/1"),lst("0/0")),
                 VARIANT_MERGER.getStudy(var).getSamplesData());
     }
-    
+
     @Test
-    public void testMergeDifferentComplex() {        
+    public void testMergeDifferentComplex() {
         VARIANT_MERGER.merge(var, generateVariant("1",10,"A","G",VariantType.SNV, 
                 Arrays.asList("S02"), 
                 Arrays.asList("0/1")));
@@ -74,6 +75,14 @@ public class VariantMergerTest {
         assertEquals(1, se.getSecondaryAlternates().size());
         assertEquals(Arrays.asList(lst("0/1"),lst("0/2")),
                 se.getSamplesData());
+    }
+
+    @Test
+    public void testMergeSameSample() { // TODO check if this can happen and result is correct !!!
+        VARIANT_MERGER.merge(var, generateVariant("1", 9, "AAA", "-", VariantType.INDEL, Arrays.asList("S01"), Arrays.asList("0/1")));
+        StudyEntry se = VARIANT_MERGER.getStudy(var);
+        assertEquals(1, se.getSecondaryAlternates().size());
+        assertEquals(Arrays.asList(lst("1/2")), se.getSamplesData());
     }
 
     private List<String> lst(String str) {
@@ -93,7 +102,8 @@ public class VariantMergerTest {
 
     private Variant generateVariant(String chr, int pos, String ref, String alt, VariantType vt, 
             List<String> sampleIds, List<String> sampleGt) {
-        Variant var = new Variant(chr,pos,ref,alt);
+        int end = pos + ref.length() ;
+        Variant var = new Variant(chr,pos,end,ref,alt);
         var.setType(vt);
         StudyEntry se = new StudyEntry(STUDY_ID);
         se.setFiles(Collections.singletonList(new FileEntry("", "", Collections.emptyMap())));

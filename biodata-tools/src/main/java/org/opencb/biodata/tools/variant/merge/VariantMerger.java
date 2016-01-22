@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.StringUtils;
+import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
@@ -23,7 +24,6 @@ import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
  */
 public class VariantMerger {
 
-    private static final String HOM_REF = "0/0";
     private static final String GT_KEY = "GT";
 
     /**
@@ -62,8 +62,8 @@ public class VariantMerger {
         List<Integer> secIdx = buildSecIndex(se,buildSecAltList(other));
         // Translate from e.g. 1 -> 2 which would end up as 0/1 0/2
         int newSecGtOffset = 2; // 2 -> 0 Ref, 1 Alt, 2+ secAlt
-        Map<String, String> otherToCurrent = IntStream.range(0, secIdx.size()).mapToObj(i -> i)
-                .collect(Collectors.toMap(i -> Integer.toString(i + 1), i -> Integer.toString( secIdx.get(i) + newSecGtOffset)));
+        Map<Integer, Integer> otherToCurrent = IntStream.range(0, secIdx.size()).mapToObj(i -> i)
+                .collect(Collectors.toMap(i -> i + 1, i ->  secIdx.get(i) + newSecGtOffset));
         sampleToGt.entrySet().stream()
             .forEach(e -> se.addSampleData(e.getKey(),Collections.singletonList(updateGT(e.getValue(),otherToCurrent))));
     }
@@ -74,9 +74,13 @@ public class VariantMerger {
      * @param mapping Mapping from old to new allele index
      * @return Updated GT
      */
-    private String updateGT(String gt, Map<String, String> mapping) {
-        String ngt = Arrays.stream(gt.split("/")).map(s -> mapping.containsKey(s)?mapping.get(s):s).collect(Collectors.joining("/"));
-        return ngt;
+    private String updateGT(String gt, Map<Integer, Integer> mapping) {
+        Genotype gto = new Genotype(gt);
+        int[] idx = gto.getAllelesIdx();
+        int len = idx.length;
+        IntStream.range(0, len).boxed().filter(i -> mapping.containsKey(idx[i])).forEach(i -> gto.updateAlleleIdx(i, mapping.get(idx[i])));
+//        String ngt = Arrays.stream(gt.split("/")).map(s -> mapping.containsKey(s)?mapping.get(s):s).collect(Collectors.joining("/"));
+        return gto.toGenotypeString();
     }
 
     /**
@@ -145,6 +149,7 @@ public class VariantMerger {
 
     static boolean onSameVariant (Variant a, Variant b){
         return onSameStartPosition(a, b) 
+                && a.getEnd().equals(b.getEnd())
                 && StringUtils.equals(a.getReference(), b.getReference())
                 && StringUtils.equals(a.getAlternate(), b.getAlternate());
     }
