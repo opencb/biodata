@@ -25,6 +25,7 @@ import htsjdk.variant.vcf.VCFConstants;
 import htsjdk.variant.vcf.VCFHeader;
 import htsjdk.variant.vcf.VCFHeaderVersion;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -33,7 +34,7 @@ import java.util.List;
  * @author mh719
  *
  */
-public class FullVcfCodec extends VCFCodec {
+public class FullVcfCodec extends VCFCodec implements Serializable {
 
     private final String[] INT_DECODE_ARRAY = new String[10000];
 

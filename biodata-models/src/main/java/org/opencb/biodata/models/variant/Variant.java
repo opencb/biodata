@@ -22,6 +22,7 @@ import org.opencb.biodata.models.variant.avro.VariantAvro;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.protobuf.VariantProto;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,7 +31,7 @@ import java.util.stream.Collectors;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
 @JsonIgnoreProperties({"impl", "id", "sourceEntries", "studiesMap"})
-public class Variant {
+public class Variant implements Serializable {
 
     private final VariantAvro impl;
     private Map<String, StudyEntry> studyEntries = null;

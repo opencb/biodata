@@ -16,6 +16,7 @@
 
 package org.opencb.biodata.models.variant;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -33,7 +34,7 @@ import org.opencb.biodata.models.variant.stats.VariantStats;
  */
 @JsonIgnoreProperties({"impl", "samplesDataAsMap", "samplesPosition", "samplesName", "orderedSamplesName", "formatAsString",
         "formatPositions", "fileId", "attributes", "allAttributes", "cohortStats", "secondaryAlternatesAlleles"})
-public class StudyEntry {
+public class StudyEntry implements Serializable {
 
     private LinkedHashMap<String, Integer> samplesPosition = null;
     private Map<String, Integer> formatPosition = null;
