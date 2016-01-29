@@ -39,7 +39,7 @@ public class FastaIndexManager {
     private Options options;
     private RocksDB rocksDB;
 
-    private boolean connected;
+    private boolean connected = false;
 
     private int CHUNK_SIZE = 2000;
     private String chunkIdSuffix = CHUNK_SIZE / 1000 + "k";
@@ -140,6 +140,7 @@ public class FastaIndexManager {
                 }
             }
         }
+        connected = true;
         bufferedReader.close();
     }
 
@@ -181,5 +182,10 @@ public class FastaIndexManager {
         if (options != null) {
             options.dispose();
         }
+        connected = false;
+    }
+
+    public boolean isConnected() {
+        return connected;
     }
 }
