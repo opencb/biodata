@@ -332,25 +332,33 @@ public class Variant {
         return file.getSampleNames();
     }
 
+    /**
+     * see http://www.ensembl.org/info/docs/tools/vep/vep_formats.html
+     */
     public void transformToEnsemblFormat() {
         if (type == VariantType.INDEL || type == VariantType.SV || length > 1) {
-            if (reference.charAt(0) == alternate.charAt(0)) {
+            if (!reference.isEmpty() && !alternate.isEmpty() && reference.charAt(0) == alternate.charAt(0)) {
                 reference = reference.substring(1);
                 alternate = alternate.substring(1);
                 start++;
-                if (reference.length() < alternate.length()) {
-                    end--;
-                }
+            }
 
-                if (reference.equals("")) {
-                    reference = "-";
-                }
-                if (alternate.equals("")) {
-                    alternate = "-";
-                }
+            // opencb sets: end = start + max(referenceAllele.length, alternateAllele.length) -1
+            // ensembl sets: end = start + reference.length -1
+            end = start + reference.length() -1;    // -1 because the range is inclusive: [start, end]
 
-                length = Math.max(reference.length(), alternate.length());
+            if (reference.length() < alternate.length()) {  // insertion
+                // and ensembl in insertions sets: start = end+1
+                start = end + 1;
+            }
 
+            length = reference.length();
+
+            if (reference.equals("")) {
+                reference = "-";
+            }
+            if (alternate.equals("")) {
+                alternate = "-";
             }
         }
     }

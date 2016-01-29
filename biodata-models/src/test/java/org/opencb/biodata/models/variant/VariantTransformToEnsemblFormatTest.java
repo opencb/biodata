@@ -35,4 +35,79 @@ public class VariantTransformToEnsemblFormatTest {
         assertEquals(v1, v1_esembl_format);
 
     }
+
+    @Test
+    public void testTransformToEnsemblFormatIns_A_AC_normalized() throws Exception {
+
+        String insertion = "8\t12601\t12600\t-/C\t+\n";
+        String serializedInsertion;
+
+        VariantVcfFactory variantVcfFactory = new VariantVcfFactory();
+        VariantSource source = new VariantSource("filename", "fid", "sid", "sname");
+        String vcfline = "8\t12600\t.\tA\tAC\t.\t.\t.";
+        Variant v = variantVcfFactory.create(source, vcfline).get(0);
+        v.transformToEnsemblFormat();
+        serializedInsertion = formatAsEnsembl(v);
+
+        assertEquals(insertion, serializedInsertion);
+
+    }
+
+    @Test
+    public void testTransformToEnsemblFormatIns_A_ACT_normalized() throws Exception {
+
+        String insertion = "8\t12601\t12600\t-/CT\t+\n";
+        String serializedInsertion;
+
+        VariantVcfFactory variantVcfFactory = new VariantVcfFactory();
+        VariantSource source = new VariantSource("filename", "fid", "sid", "sname");
+        String vcfline = "8\t12600\t.\tA\tACT\t.\t.\t.";
+        Variant v = variantVcfFactory.create(source, vcfline).get(0);
+        v.transformToEnsemblFormat();
+        serializedInsertion = formatAsEnsembl(v);
+
+        assertEquals(insertion, serializedInsertion);
+
+    }
+
+    @Test
+    public void testTransformToEnsemblFormatIns_AG_ACT_normalized() throws Exception {
+
+        String insertion = "8\t12602\t12601\tG/CT\t+\n";
+        String serializedInsertion;
+
+        VariantVcfFactory variantVcfFactory = new VariantVcfFactory();
+        VariantSource source = new VariantSource("filename", "fid", "sid", "sname");
+        String vcfline = "8\t12600\t.\tAG\tACT\t.\t.\t.";
+        Variant v = variantVcfFactory.create(source, vcfline).get(0);
+        v.transformToEnsemblFormat();
+        serializedInsertion = formatAsEnsembl(v);
+
+        assertEquals(insertion, serializedInsertion);
+    }
+
+    @Test
+    public void testTransformToEnsemblFormatDel_TAGC_T_normalized() throws Exception {
+
+        String insertion = "8\t12601\t12603\tAGC/-\t+\n";
+        String serializedInsertion;
+
+        VariantVcfFactory variantVcfFactory = new VariantVcfFactory();
+        VariantSource source = new VariantSource("filename", "fid", "sid", "sname");
+        String vcfline = "8\t12600\t.\tTAGC\tT\t.\t.\t.";
+        Variant v = variantVcfFactory.create(source, vcfline).get(0);
+        v.transformToEnsemblFormat();
+        serializedInsertion = formatAsEnsembl(v);
+
+        assertEquals(insertion, serializedInsertion);
+    }
+
+    private String formatAsEnsembl(Variant v) {
+        return String.format("%s\t%s\t%s\t%s/%s\t+\n",
+                v.getChromosome(),
+                v.getStart(),
+                v.getEnd(),
+                v.getReference(),
+                v.getAlternate());
+    }
 }
