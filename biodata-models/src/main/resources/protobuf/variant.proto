@@ -87,13 +87,37 @@ message FileEntry {
     map<string, string> attributes = 3;
 }
 
+message AlternateCoordinate {
+    string chromosome = 1;
+    int32 start = 2;
+    int32 end = 3;
+
+    /**
+     * Reference allele.
+     */
+    string reference = 4;
+
+    /**
+     * Alternate allele.
+     */
+    string alternate = 5;
+
+    /**
+     * Type of variation: single nucleotide, indel or structural variation.
+     */
+    VariantType type = 6;
+}
+
 message VariantSourceEntry {
     message SamplesDataInfoEntry {
         repeated string info = 1;
     }
     string studyId = 1;
     repeated FileEntry files = 2;
-    repeated string secondaryAlternates = 3;
+    /**
+     * Alternate alleles that appear along with a variant alternate.
+     */
+    repeated AlternateCoordinate secondaryAlternates = 3;
     repeated string format = 4;
     repeated SamplesDataInfoEntry samplesData = 5;
     map<string, VariantStats> stats = 6;
@@ -101,9 +125,10 @@ message VariantSourceEntry {
 
 message Genotype {
     string reference = 1;
-    string alternate = 2;
+    repeated string alternates = 2;
     repeated int32 allelesIdx = 3;
     bool phased = 4;
+    AllelesCode code = 5;
 }
 
 message Variant {

@@ -28,9 +28,11 @@ public class VariantMergerTest {
 
     @Before
     public void setUp() throws Exception {
-        var = generateVariant("1",10,"A","T",VariantType.SNV, 
+        Variant tempate = generateVariant("1",10,"A","T",VariantType.SNV, 
                 Arrays.asList("S01"), 
                 Arrays.asList(Genotype.HET_REF));
+        var = VARIANT_MERGER.createFromTemplate(tempate);
+        VARIANT_MERGER.merge(var, tempate);
     }
 
     @After
@@ -43,7 +45,7 @@ public class VariantMergerTest {
                 Arrays.asList("S02"), 
                 Arrays.asList("0/1")));
         assertEquals(Arrays.asList(lst("0/1"),lst("0/1")),
-                VARIANT_MERGER.getStudy(var).getSamplesData());
+                onlyField(VARIANT_MERGER.getStudy(var).getSamplesData(),0));
         
         String[] samples = new String[]{"S01","S02"};
         Map<String, Integer> collect = IntStream.range(0, 2).mapToObj(i -> i).collect(Collectors.toMap(i -> (String) samples[i], i-> i));
@@ -54,16 +56,20 @@ public class VariantMergerTest {
                 Arrays.asList("S03"), 
                 Arrays.asList("0/0")));
         assertEquals(Arrays.asList(lst("0/1"),lst("0/1"),lst("0/0")),
-                VARIANT_MERGER.getStudy(var).getSamplesData());
+                onlyField(VARIANT_MERGER.getStudy(var).getSamplesData(),0));
     }
     
+    private List<List<String>> onlyField(List<List<String>> samplesData, int i) {
+        return samplesData.stream().map(e -> Arrays.asList(e.get(i))).collect(Collectors.toList());
+    }
+
     @Test
     public void testMergeDifferentSimple() {        
         VARIANT_MERGER.merge(var, generateVariant("1",10,"A","G",VariantType.SNV, 
                 Arrays.asList("S02"), 
                 Arrays.asList("0/0")));
         assertEquals(Arrays.asList(lst("0/1"),lst("0/0")),
-                VARIANT_MERGER.getStudy(var).getSamplesData());
+                onlyField(VARIANT_MERGER.getStudy(var).getSamplesData(),0));
     }
 
     @Test
@@ -74,14 +80,15 @@ public class VariantMergerTest {
         StudyEntry se = VARIANT_MERGER.getStudy(var);
         assertEquals(1, se.getSecondaryAlternates().size());
         assertEquals(Arrays.asList(lst("0/1"),lst("0/2")),
-                se.getSamplesData());
+                onlyField(se.getSamplesData(), 0));
     }
 
-    @Test
+    @Test(expected=IllegalStateException.class)
     public void testMergeSameSample() { // TODO check if this can happen and result is correct !!!
         VARIANT_MERGER.merge(var, generateVariant("1", 9, "AAA", "-", VariantType.INDEL, Arrays.asList("S01"), Arrays.asList("0/1")));
         StudyEntry se = VARIANT_MERGER.getStudy(var);
         assertEquals(1, se.getSecondaryAlternates().size());
+        // TODO not sure 1/2 is correct if the same individual has a variant with 0/1 and another variant with 0/2 overlapping each other
         assertEquals(Arrays.asList(lst("1/2")), se.getSamplesData());
     }
 

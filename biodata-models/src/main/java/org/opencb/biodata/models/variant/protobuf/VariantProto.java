@@ -4485,6 +4485,1063 @@ public final class VariantProto {
 
   }
 
+  public interface AlternateCoordinateOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:org.opencb.biodata.models.variant.protobuf.AlternateCoordinate)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>optional string chromosome = 1;</code>
+     */
+    java.lang.String getChromosome();
+    /**
+     * <code>optional string chromosome = 1;</code>
+     */
+    com.google.protobuf.ByteString
+        getChromosomeBytes();
+
+    /**
+     * <code>optional int32 start = 2;</code>
+     */
+    int getStart();
+
+    /**
+     * <code>optional int32 end = 3;</code>
+     */
+    int getEnd();
+
+    /**
+     * <code>optional string reference = 4;</code>
+     *
+     * <pre>
+     **
+     * Reference allele.
+     * </pre>
+     */
+    java.lang.String getReference();
+    /**
+     * <code>optional string reference = 4;</code>
+     *
+     * <pre>
+     **
+     * Reference allele.
+     * </pre>
+     */
+    com.google.protobuf.ByteString
+        getReferenceBytes();
+
+    /**
+     * <code>optional string alternate = 5;</code>
+     *
+     * <pre>
+     **
+     * Alternate allele.
+     * </pre>
+     */
+    java.lang.String getAlternate();
+    /**
+     * <code>optional string alternate = 5;</code>
+     *
+     * <pre>
+     **
+     * Alternate allele.
+     * </pre>
+     */
+    com.google.protobuf.ByteString
+        getAlternateBytes();
+
+    /**
+     * <code>optional .org.opencb.biodata.models.variant.protobuf.VariantType type = 6;</code>
+     *
+     * <pre>
+     **
+     * Type of variation: single nucleotide, indel or structural variation.
+     * </pre>
+     */
+    int getTypeValue();
+    /**
+     * <code>optional .org.opencb.biodata.models.variant.protobuf.VariantType type = 6;</code>
+     *
+     * <pre>
+     **
+     * Type of variation: single nucleotide, indel or structural variation.
+     * </pre>
+     */
+    org.opencb.biodata.models.variant.protobuf.VariantProto.VariantType getType();
+  }
+  /**
+   * Protobuf type {@code org.opencb.biodata.models.variant.protobuf.AlternateCoordinate}
+   */
+  public  static final class AlternateCoordinate extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:org.opencb.biodata.models.variant.protobuf.AlternateCoordinate)
+      AlternateCoordinateOrBuilder {
+    // Use AlternateCoordinate.newBuilder() to construct.
+    private AlternateCoordinate(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+    }
+    private AlternateCoordinate() {
+      chromosome_ = "";
+      start_ = 0;
+      end_ = 0;
+      reference_ = "";
+      alternate_ = "";
+      type_ = 0;
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
+    }
+    private AlternateCoordinate(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
+      int mutable_bitField0_ = 0;
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!input.skipField(tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              String s = input.readStringRequireUtf8();
+
+              chromosome_ = s;
+              break;
+            }
+            case 16: {
+
+              start_ = input.readInt32();
+              break;
+            }
+            case 24: {
+
+              end_ = input.readInt32();
+              break;
+            }
+            case 34: {
+              String s = input.readStringRequireUtf8();
+
+              reference_ = s;
+              break;
+            }
+            case 42: {
+              String s = input.readStringRequireUtf8();
+
+              alternate_ = s;
+              break;
+            }
+            case 48: {
+              int rawValue = input.readEnum();
+
+              type_ = rawValue;
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw new RuntimeException(e.setUnfinishedMessage(this));
+      } catch (java.io.IOException e) {
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
+      } finally {
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.opencb.biodata.models.variant.protobuf.VariantProto.internal_static_org_opencb_biodata_models_variant_protobuf_AlternateCoordinate_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.opencb.biodata.models.variant.protobuf.VariantProto.internal_static_org_opencb_biodata_models_variant_protobuf_AlternateCoordinate_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate.class, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate.Builder.class);
+    }
+
+    public static final int CHROMOSOME_FIELD_NUMBER = 1;
+    private volatile java.lang.Object chromosome_;
+    /**
+     * <code>optional string chromosome = 1;</code>
+     */
+    public java.lang.String getChromosome() {
+      java.lang.Object ref = chromosome_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        chromosome_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>optional string chromosome = 1;</code>
+     */
+    public com.google.protobuf.ByteString
+        getChromosomeBytes() {
+      java.lang.Object ref = chromosome_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        chromosome_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int START_FIELD_NUMBER = 2;
+    private int start_;
+    /**
+     * <code>optional int32 start = 2;</code>
+     */
+    public int getStart() {
+      return start_;
+    }
+
+    public static final int END_FIELD_NUMBER = 3;
+    private int end_;
+    /**
+     * <code>optional int32 end = 3;</code>
+     */
+    public int getEnd() {
+      return end_;
+    }
+
+    public static final int REFERENCE_FIELD_NUMBER = 4;
+    private volatile java.lang.Object reference_;
+    /**
+     * <code>optional string reference = 4;</code>
+     *
+     * <pre>
+     **
+     * Reference allele.
+     * </pre>
+     */
+    public java.lang.String getReference() {
+      java.lang.Object ref = reference_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        reference_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>optional string reference = 4;</code>
+     *
+     * <pre>
+     **
+     * Reference allele.
+     * </pre>
+     */
+    public com.google.protobuf.ByteString
+        getReferenceBytes() {
+      java.lang.Object ref = reference_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        reference_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int ALTERNATE_FIELD_NUMBER = 5;
+    private volatile java.lang.Object alternate_;
+    /**
+     * <code>optional string alternate = 5;</code>
+     *
+     * <pre>
+     **
+     * Alternate allele.
+     * </pre>
+     */
+    public java.lang.String getAlternate() {
+      java.lang.Object ref = alternate_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        alternate_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>optional string alternate = 5;</code>
+     *
+     * <pre>
+     **
+     * Alternate allele.
+     * </pre>
+     */
+    public com.google.protobuf.ByteString
+        getAlternateBytes() {
+      java.lang.Object ref = alternate_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        alternate_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int TYPE_FIELD_NUMBER = 6;
+    private int type_;
+    /**
+     * <code>optional .org.opencb.biodata.models.variant.protobuf.VariantType type = 6;</code>
+     *
+     * <pre>
+     **
+     * Type of variation: single nucleotide, indel or structural variation.
+     * </pre>
+     */
+    public int getTypeValue() {
+      return type_;
+    }
+    /**
+     * <code>optional .org.opencb.biodata.models.variant.protobuf.VariantType type = 6;</code>
+     *
+     * <pre>
+     **
+     * Type of variation: single nucleotide, indel or structural variation.
+     * </pre>
+     */
+    public org.opencb.biodata.models.variant.protobuf.VariantProto.VariantType getType() {
+      org.opencb.biodata.models.variant.protobuf.VariantProto.VariantType result = org.opencb.biodata.models.variant.protobuf.VariantProto.VariantType.valueOf(type_);
+      return result == null ? org.opencb.biodata.models.variant.protobuf.VariantProto.VariantType.UNRECOGNIZED : result;
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (!getChromosomeBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 1, chromosome_);
+      }
+      if (start_ != 0) {
+        output.writeInt32(2, start_);
+      }
+      if (end_ != 0) {
+        output.writeInt32(3, end_);
+      }
+      if (!getReferenceBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 4, reference_);
+      }
+      if (!getAlternateBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 5, alternate_);
+      }
+      if (type_ != org.opencb.biodata.models.variant.protobuf.VariantProto.VariantType.SNP.getNumber()) {
+        output.writeEnum(6, type_);
+      }
+    }
+
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (!getChromosomeBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(1, chromosome_);
+      }
+      if (start_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(2, start_);
+      }
+      if (end_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(3, end_);
+      }
+      if (!getReferenceBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(4, reference_);
+      }
+      if (!getAlternateBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(5, alternate_);
+      }
+      if (type_ != org.opencb.biodata.models.variant.protobuf.VariantProto.VariantType.SNP.getNumber()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeEnumSize(6, type_);
+      }
+      memoizedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    public static org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code org.opencb.biodata.models.variant.protobuf.AlternateCoordinate}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:org.opencb.biodata.models.variant.protobuf.AlternateCoordinate)
+        org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinateOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.opencb.biodata.models.variant.protobuf.VariantProto.internal_static_org_opencb_biodata_models_variant_protobuf_AlternateCoordinate_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.opencb.biodata.models.variant.protobuf.VariantProto.internal_static_org_opencb_biodata_models_variant_protobuf_AlternateCoordinate_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate.class, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate.Builder.class);
+      }
+
+      // Construct using org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        chromosome_ = "";
+
+        start_ = 0;
+
+        end_ = 0;
+
+        reference_ = "";
+
+        alternate_ = "";
+
+        type_ = 0;
+
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.opencb.biodata.models.variant.protobuf.VariantProto.internal_static_org_opencb_biodata_models_variant_protobuf_AlternateCoordinate_descriptor;
+      }
+
+      public org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate getDefaultInstanceForType() {
+        return org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate.getDefaultInstance();
+      }
+
+      public org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate build() {
+        org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate buildPartial() {
+        org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate result = new org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate(this);
+        result.chromosome_ = chromosome_;
+        result.start_ = start_;
+        result.end_ = end_;
+        result.reference_ = reference_;
+        result.alternate_ = alternate_;
+        result.type_ = type_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate) {
+          return mergeFrom((org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate other) {
+        if (other == org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate.getDefaultInstance()) return this;
+        if (!other.getChromosome().isEmpty()) {
+          chromosome_ = other.chromosome_;
+          onChanged();
+        }
+        if (other.getStart() != 0) {
+          setStart(other.getStart());
+        }
+        if (other.getEnd() != 0) {
+          setEnd(other.getEnd());
+        }
+        if (!other.getReference().isEmpty()) {
+          reference_ = other.reference_;
+          onChanged();
+        }
+        if (!other.getAlternate().isEmpty()) {
+          alternate_ = other.alternate_;
+          onChanged();
+        }
+        if (other.type_ != 0) {
+          setTypeValue(other.getTypeValue());
+        }
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+
+      private java.lang.Object chromosome_ = "";
+      /**
+       * <code>optional string chromosome = 1;</code>
+       */
+      public java.lang.String getChromosome() {
+        java.lang.Object ref = chromosome_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          chromosome_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string chromosome = 1;</code>
+       */
+      public com.google.protobuf.ByteString
+          getChromosomeBytes() {
+        java.lang.Object ref = chromosome_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          chromosome_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string chromosome = 1;</code>
+       */
+      public Builder setChromosome(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        chromosome_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string chromosome = 1;</code>
+       */
+      public Builder clearChromosome() {
+        
+        chromosome_ = getDefaultInstance().getChromosome();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string chromosome = 1;</code>
+       */
+      public Builder setChromosomeBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        chromosome_ = value;
+        onChanged();
+        return this;
+      }
+
+      private int start_ ;
+      /**
+       * <code>optional int32 start = 2;</code>
+       */
+      public int getStart() {
+        return start_;
+      }
+      /**
+       * <code>optional int32 start = 2;</code>
+       */
+      public Builder setStart(int value) {
+        
+        start_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int32 start = 2;</code>
+       */
+      public Builder clearStart() {
+        
+        start_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private int end_ ;
+      /**
+       * <code>optional int32 end = 3;</code>
+       */
+      public int getEnd() {
+        return end_;
+      }
+      /**
+       * <code>optional int32 end = 3;</code>
+       */
+      public Builder setEnd(int value) {
+        
+        end_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int32 end = 3;</code>
+       */
+      public Builder clearEnd() {
+        
+        end_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object reference_ = "";
+      /**
+       * <code>optional string reference = 4;</code>
+       *
+       * <pre>
+       **
+       * Reference allele.
+       * </pre>
+       */
+      public java.lang.String getReference() {
+        java.lang.Object ref = reference_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          reference_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string reference = 4;</code>
+       *
+       * <pre>
+       **
+       * Reference allele.
+       * </pre>
+       */
+      public com.google.protobuf.ByteString
+          getReferenceBytes() {
+        java.lang.Object ref = reference_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          reference_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string reference = 4;</code>
+       *
+       * <pre>
+       **
+       * Reference allele.
+       * </pre>
+       */
+      public Builder setReference(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        reference_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string reference = 4;</code>
+       *
+       * <pre>
+       **
+       * Reference allele.
+       * </pre>
+       */
+      public Builder clearReference() {
+        
+        reference_ = getDefaultInstance().getReference();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string reference = 4;</code>
+       *
+       * <pre>
+       **
+       * Reference allele.
+       * </pre>
+       */
+      public Builder setReferenceBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        reference_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object alternate_ = "";
+      /**
+       * <code>optional string alternate = 5;</code>
+       *
+       * <pre>
+       **
+       * Alternate allele.
+       * </pre>
+       */
+      public java.lang.String getAlternate() {
+        java.lang.Object ref = alternate_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          alternate_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string alternate = 5;</code>
+       *
+       * <pre>
+       **
+       * Alternate allele.
+       * </pre>
+       */
+      public com.google.protobuf.ByteString
+          getAlternateBytes() {
+        java.lang.Object ref = alternate_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          alternate_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string alternate = 5;</code>
+       *
+       * <pre>
+       **
+       * Alternate allele.
+       * </pre>
+       */
+      public Builder setAlternate(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        alternate_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string alternate = 5;</code>
+       *
+       * <pre>
+       **
+       * Alternate allele.
+       * </pre>
+       */
+      public Builder clearAlternate() {
+        
+        alternate_ = getDefaultInstance().getAlternate();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string alternate = 5;</code>
+       *
+       * <pre>
+       **
+       * Alternate allele.
+       * </pre>
+       */
+      public Builder setAlternateBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        alternate_ = value;
+        onChanged();
+        return this;
+      }
+
+      private int type_ = 0;
+      /**
+       * <code>optional .org.opencb.biodata.models.variant.protobuf.VariantType type = 6;</code>
+       *
+       * <pre>
+       **
+       * Type of variation: single nucleotide, indel or structural variation.
+       * </pre>
+       */
+      public int getTypeValue() {
+        return type_;
+      }
+      /**
+       * <code>optional .org.opencb.biodata.models.variant.protobuf.VariantType type = 6;</code>
+       *
+       * <pre>
+       **
+       * Type of variation: single nucleotide, indel or structural variation.
+       * </pre>
+       */
+      public Builder setTypeValue(int value) {
+        type_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional .org.opencb.biodata.models.variant.protobuf.VariantType type = 6;</code>
+       *
+       * <pre>
+       **
+       * Type of variation: single nucleotide, indel or structural variation.
+       * </pre>
+       */
+      public org.opencb.biodata.models.variant.protobuf.VariantProto.VariantType getType() {
+        org.opencb.biodata.models.variant.protobuf.VariantProto.VariantType result = org.opencb.biodata.models.variant.protobuf.VariantProto.VariantType.valueOf(type_);
+        return result == null ? org.opencb.biodata.models.variant.protobuf.VariantProto.VariantType.UNRECOGNIZED : result;
+      }
+      /**
+       * <code>optional .org.opencb.biodata.models.variant.protobuf.VariantType type = 6;</code>
+       *
+       * <pre>
+       **
+       * Type of variation: single nucleotide, indel or structural variation.
+       * </pre>
+       */
+      public Builder setType(org.opencb.biodata.models.variant.protobuf.VariantProto.VariantType value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        
+        type_ = value.getNumber();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional .org.opencb.biodata.models.variant.protobuf.VariantType type = 6;</code>
+       *
+       * <pre>
+       **
+       * Type of variation: single nucleotide, indel or structural variation.
+       * </pre>
+       */
+      public Builder clearType() {
+        
+        type_ = 0;
+        onChanged();
+        return this;
+      }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:org.opencb.biodata.models.variant.protobuf.AlternateCoordinate)
+    }
+
+    // @@protoc_insertion_point(class_scope:org.opencb.biodata.models.variant.protobuf.AlternateCoordinate)
+    private static final org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate();
+    }
+
+    public static org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<AlternateCoordinate>
+        PARSER = new com.google.protobuf.AbstractParser<AlternateCoordinate>() {
+      public AlternateCoordinate parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new AlternateCoordinate(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    public static com.google.protobuf.Parser<AlternateCoordinate> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<AlternateCoordinate> getParserForType() {
+      return PARSER;
+    }
+
+    public org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
   public interface VariantSourceEntryOrBuilder extends
       // @@protoc_insertion_point(interface_extends:org.opencb.biodata.models.variant.protobuf.VariantSourceEntry)
       com.google.protobuf.MessageOrBuilder {
@@ -4524,23 +5581,53 @@ public final class VariantProto {
         int index);
 
     /**
-     * <code>repeated string secondaryAlternates = 3;</code>
+     * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 3;</code>
+     *
+     * <pre>
+     **
+     * Alternate alleles that appear along with a variant alternate.
+     * </pre>
      */
-    com.google.protobuf.ProtocolStringList
+    java.util.List<org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate> 
         getSecondaryAlternatesList();
     /**
-     * <code>repeated string secondaryAlternates = 3;</code>
+     * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 3;</code>
+     *
+     * <pre>
+     **
+     * Alternate alleles that appear along with a variant alternate.
+     * </pre>
+     */
+    org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate getSecondaryAlternates(int index);
+    /**
+     * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 3;</code>
+     *
+     * <pre>
+     **
+     * Alternate alleles that appear along with a variant alternate.
+     * </pre>
      */
     int getSecondaryAlternatesCount();
     /**
-     * <code>repeated string secondaryAlternates = 3;</code>
+     * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 3;</code>
+     *
+     * <pre>
+     **
+     * Alternate alleles that appear along with a variant alternate.
+     * </pre>
      */
-    java.lang.String getSecondaryAlternates(int index);
+    java.util.List<? extends org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinateOrBuilder> 
+        getSecondaryAlternatesOrBuilderList();
     /**
-     * <code>repeated string secondaryAlternates = 3;</code>
+     * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 3;</code>
+     *
+     * <pre>
+     **
+     * Alternate alleles that appear along with a variant alternate.
+     * </pre>
      */
-    com.google.protobuf.ByteString
-        getSecondaryAlternatesBytes(int index);
+    org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinateOrBuilder getSecondaryAlternatesOrBuilder(
+        int index);
 
     /**
      * <code>repeated string format = 4;</code>
@@ -4605,7 +5692,7 @@ public final class VariantProto {
     private VariantSourceEntry() {
       studyId_ = "";
       files_ = java.util.Collections.emptyList();
-      secondaryAlternates_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      secondaryAlternates_ = java.util.Collections.emptyList();
       format_ = com.google.protobuf.LazyStringArrayList.EMPTY;
       samplesData_ = java.util.Collections.emptyList();
     }
@@ -4649,12 +5736,11 @@ public final class VariantProto {
               break;
             }
             case 26: {
-              String s = input.readStringRequireUtf8();
               if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
-                secondaryAlternates_ = new com.google.protobuf.LazyStringArrayList();
+                secondaryAlternates_ = new java.util.ArrayList<org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate>();
                 mutable_bitField0_ |= 0x00000004;
               }
-              secondaryAlternates_.add(s);
+              secondaryAlternates_.add(input.readMessage(org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate.parser(), extensionRegistry));
               break;
             }
             case 34: {
@@ -4699,7 +5785,7 @@ public final class VariantProto {
           files_ = java.util.Collections.unmodifiableList(files_);
         }
         if (((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
-          secondaryAlternates_ = secondaryAlternates_.getUnmodifiableView();
+          secondaryAlternates_ = java.util.Collections.unmodifiableList(secondaryAlternates_);
         }
         if (((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
           format_ = format_.getUnmodifiableView();
@@ -5305,32 +6391,63 @@ public final class VariantProto {
     }
 
     public static final int SECONDARYALTERNATES_FIELD_NUMBER = 3;
-    private com.google.protobuf.LazyStringList secondaryAlternates_;
+    private java.util.List<org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate> secondaryAlternates_;
     /**
-     * <code>repeated string secondaryAlternates = 3;</code>
+     * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 3;</code>
+     *
+     * <pre>
+     **
+     * Alternate alleles that appear along with a variant alternate.
+     * </pre>
      */
-    public com.google.protobuf.ProtocolStringList
-        getSecondaryAlternatesList() {
+    public java.util.List<org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate> getSecondaryAlternatesList() {
       return secondaryAlternates_;
     }
     /**
-     * <code>repeated string secondaryAlternates = 3;</code>
+     * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 3;</code>
+     *
+     * <pre>
+     **
+     * Alternate alleles that appear along with a variant alternate.
+     * </pre>
+     */
+    public java.util.List<? extends org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinateOrBuilder> 
+        getSecondaryAlternatesOrBuilderList() {
+      return secondaryAlternates_;
+    }
+    /**
+     * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 3;</code>
+     *
+     * <pre>
+     **
+     * Alternate alleles that appear along with a variant alternate.
+     * </pre>
      */
     public int getSecondaryAlternatesCount() {
       return secondaryAlternates_.size();
     }
     /**
-     * <code>repeated string secondaryAlternates = 3;</code>
+     * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 3;</code>
+     *
+     * <pre>
+     **
+     * Alternate alleles that appear along with a variant alternate.
+     * </pre>
      */
-    public java.lang.String getSecondaryAlternates(int index) {
+    public org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate getSecondaryAlternates(int index) {
       return secondaryAlternates_.get(index);
     }
     /**
-     * <code>repeated string secondaryAlternates = 3;</code>
+     * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 3;</code>
+     *
+     * <pre>
+     **
+     * Alternate alleles that appear along with a variant alternate.
+     * </pre>
      */
-    public com.google.protobuf.ByteString
-        getSecondaryAlternatesBytes(int index) {
-      return secondaryAlternates_.getByteString(index);
+    public org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinateOrBuilder getSecondaryAlternatesOrBuilder(
+        int index) {
+      return secondaryAlternates_.get(index);
     }
 
     public static final int FORMAT_FIELD_NUMBER = 4;
@@ -5446,7 +6563,7 @@ public final class VariantProto {
         output.writeMessage(2, files_.get(i));
       }
       for (int i = 0; i < secondaryAlternates_.size(); i++) {
-        com.google.protobuf.GeneratedMessage.writeString(output, 3, secondaryAlternates_.getRaw(i));
+        output.writeMessage(3, secondaryAlternates_.get(i));
       }
       for (int i = 0; i < format_.size(); i++) {
         com.google.protobuf.GeneratedMessage.writeString(output, 4, format_.getRaw(i));
@@ -5477,13 +6594,9 @@ public final class VariantProto {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(2, files_.get(i));
       }
-      {
-        int dataSize = 0;
-        for (int i = 0; i < secondaryAlternates_.size(); i++) {
-          dataSize += computeStringSizeNoTag(secondaryAlternates_.getRaw(i));
-        }
-        size += dataSize;
-        size += 1 * getSecondaryAlternatesList().size();
+      for (int i = 0; i < secondaryAlternates_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(3, secondaryAlternates_.get(i));
       }
       {
         int dataSize = 0;
@@ -5637,6 +6750,7 @@ public final class VariantProto {
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
           getFilesFieldBuilder();
+          getSecondaryAlternatesFieldBuilder();
           getSamplesDataFieldBuilder();
         }
       }
@@ -5650,8 +6764,12 @@ public final class VariantProto {
         } else {
           filesBuilder_.clear();
         }
-        secondaryAlternates_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00000004);
+        if (secondaryAlternatesBuilder_ == null) {
+          secondaryAlternates_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000004);
+        } else {
+          secondaryAlternatesBuilder_.clear();
+        }
         format_ = com.google.protobuf.LazyStringArrayList.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000008);
         if (samplesDataBuilder_ == null) {
@@ -5695,11 +6813,15 @@ public final class VariantProto {
         } else {
           result.files_ = filesBuilder_.build();
         }
-        if (((bitField0_ & 0x00000004) == 0x00000004)) {
-          secondaryAlternates_ = secondaryAlternates_.getUnmodifiableView();
-          bitField0_ = (bitField0_ & ~0x00000004);
+        if (secondaryAlternatesBuilder_ == null) {
+          if (((bitField0_ & 0x00000004) == 0x00000004)) {
+            secondaryAlternates_ = java.util.Collections.unmodifiableList(secondaryAlternates_);
+            bitField0_ = (bitField0_ & ~0x00000004);
+          }
+          result.secondaryAlternates_ = secondaryAlternates_;
+        } else {
+          result.secondaryAlternates_ = secondaryAlternatesBuilder_.build();
         }
-        result.secondaryAlternates_ = secondaryAlternates_;
         if (((bitField0_ & 0x00000008) == 0x00000008)) {
           format_ = format_.getUnmodifiableView();
           bitField0_ = (bitField0_ & ~0x00000008);
@@ -5762,15 +6884,31 @@ public final class VariantProto {
             }
           }
         }
-        if (!other.secondaryAlternates_.isEmpty()) {
-          if (secondaryAlternates_.isEmpty()) {
-            secondaryAlternates_ = other.secondaryAlternates_;
-            bitField0_ = (bitField0_ & ~0x00000004);
-          } else {
-            ensureSecondaryAlternatesIsMutable();
-            secondaryAlternates_.addAll(other.secondaryAlternates_);
+        if (secondaryAlternatesBuilder_ == null) {
+          if (!other.secondaryAlternates_.isEmpty()) {
+            if (secondaryAlternates_.isEmpty()) {
+              secondaryAlternates_ = other.secondaryAlternates_;
+              bitField0_ = (bitField0_ & ~0x00000004);
+            } else {
+              ensureSecondaryAlternatesIsMutable();
+              secondaryAlternates_.addAll(other.secondaryAlternates_);
+            }
+            onChanged();
           }
-          onChanged();
+        } else {
+          if (!other.secondaryAlternates_.isEmpty()) {
+            if (secondaryAlternatesBuilder_.isEmpty()) {
+              secondaryAlternatesBuilder_.dispose();
+              secondaryAlternatesBuilder_ = null;
+              secondaryAlternates_ = other.secondaryAlternates_;
+              bitField0_ = (bitField0_ & ~0x00000004);
+              secondaryAlternatesBuilder_ = 
+                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                   getSecondaryAlternatesFieldBuilder() : null;
+            } else {
+              secondaryAlternatesBuilder_.addAllMessages(other.secondaryAlternates_);
+            }
+          }
         }
         if (!other.format_.isEmpty()) {
           if (format_.isEmpty()) {
@@ -6146,98 +7284,334 @@ public final class VariantProto {
         return filesBuilder_;
       }
 
-      private com.google.protobuf.LazyStringList secondaryAlternates_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      private java.util.List<org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate> secondaryAlternates_ =
+        java.util.Collections.emptyList();
       private void ensureSecondaryAlternatesIsMutable() {
         if (!((bitField0_ & 0x00000004) == 0x00000004)) {
-          secondaryAlternates_ = new com.google.protobuf.LazyStringArrayList(secondaryAlternates_);
+          secondaryAlternates_ = new java.util.ArrayList<org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate>(secondaryAlternates_);
           bitField0_ |= 0x00000004;
          }
       }
+
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate.Builder, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinateOrBuilder> secondaryAlternatesBuilder_;
+
       /**
-       * <code>repeated string secondaryAlternates = 3;</code>
+       * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 3;</code>
+       *
+       * <pre>
+       **
+       * Alternate alleles that appear along with a variant alternate.
+       * </pre>
        */
-      public com.google.protobuf.ProtocolStringList
-          getSecondaryAlternatesList() {
-        return secondaryAlternates_.getUnmodifiableView();
+      public java.util.List<org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate> getSecondaryAlternatesList() {
+        if (secondaryAlternatesBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(secondaryAlternates_);
+        } else {
+          return secondaryAlternatesBuilder_.getMessageList();
+        }
       }
       /**
-       * <code>repeated string secondaryAlternates = 3;</code>
+       * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 3;</code>
+       *
+       * <pre>
+       **
+       * Alternate alleles that appear along with a variant alternate.
+       * </pre>
        */
       public int getSecondaryAlternatesCount() {
-        return secondaryAlternates_.size();
+        if (secondaryAlternatesBuilder_ == null) {
+          return secondaryAlternates_.size();
+        } else {
+          return secondaryAlternatesBuilder_.getCount();
+        }
       }
       /**
-       * <code>repeated string secondaryAlternates = 3;</code>
+       * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 3;</code>
+       *
+       * <pre>
+       **
+       * Alternate alleles that appear along with a variant alternate.
+       * </pre>
        */
-      public java.lang.String getSecondaryAlternates(int index) {
-        return secondaryAlternates_.get(index);
+      public org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate getSecondaryAlternates(int index) {
+        if (secondaryAlternatesBuilder_ == null) {
+          return secondaryAlternates_.get(index);
+        } else {
+          return secondaryAlternatesBuilder_.getMessage(index);
+        }
       }
       /**
-       * <code>repeated string secondaryAlternates = 3;</code>
-       */
-      public com.google.protobuf.ByteString
-          getSecondaryAlternatesBytes(int index) {
-        return secondaryAlternates_.getByteString(index);
-      }
-      /**
-       * <code>repeated string secondaryAlternates = 3;</code>
+       * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 3;</code>
+       *
+       * <pre>
+       **
+       * Alternate alleles that appear along with a variant alternate.
+       * </pre>
        */
       public Builder setSecondaryAlternates(
-          int index, java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  ensureSecondaryAlternatesIsMutable();
-        secondaryAlternates_.set(index, value);
-        onChanged();
+          int index, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate value) {
+        if (secondaryAlternatesBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureSecondaryAlternatesIsMutable();
+          secondaryAlternates_.set(index, value);
+          onChanged();
+        } else {
+          secondaryAlternatesBuilder_.setMessage(index, value);
+        }
         return this;
       }
       /**
-       * <code>repeated string secondaryAlternates = 3;</code>
+       * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 3;</code>
+       *
+       * <pre>
+       **
+       * Alternate alleles that appear along with a variant alternate.
+       * </pre>
+       */
+      public Builder setSecondaryAlternates(
+          int index, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate.Builder builderForValue) {
+        if (secondaryAlternatesBuilder_ == null) {
+          ensureSecondaryAlternatesIsMutable();
+          secondaryAlternates_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          secondaryAlternatesBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 3;</code>
+       *
+       * <pre>
+       **
+       * Alternate alleles that appear along with a variant alternate.
+       * </pre>
+       */
+      public Builder addSecondaryAlternates(org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate value) {
+        if (secondaryAlternatesBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureSecondaryAlternatesIsMutable();
+          secondaryAlternates_.add(value);
+          onChanged();
+        } else {
+          secondaryAlternatesBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 3;</code>
+       *
+       * <pre>
+       **
+       * Alternate alleles that appear along with a variant alternate.
+       * </pre>
        */
       public Builder addSecondaryAlternates(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  ensureSecondaryAlternatesIsMutable();
-        secondaryAlternates_.add(value);
-        onChanged();
+          int index, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate value) {
+        if (secondaryAlternatesBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureSecondaryAlternatesIsMutable();
+          secondaryAlternates_.add(index, value);
+          onChanged();
+        } else {
+          secondaryAlternatesBuilder_.addMessage(index, value);
+        }
         return this;
       }
       /**
-       * <code>repeated string secondaryAlternates = 3;</code>
+       * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 3;</code>
+       *
+       * <pre>
+       **
+       * Alternate alleles that appear along with a variant alternate.
+       * </pre>
+       */
+      public Builder addSecondaryAlternates(
+          org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate.Builder builderForValue) {
+        if (secondaryAlternatesBuilder_ == null) {
+          ensureSecondaryAlternatesIsMutable();
+          secondaryAlternates_.add(builderForValue.build());
+          onChanged();
+        } else {
+          secondaryAlternatesBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 3;</code>
+       *
+       * <pre>
+       **
+       * Alternate alleles that appear along with a variant alternate.
+       * </pre>
+       */
+      public Builder addSecondaryAlternates(
+          int index, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate.Builder builderForValue) {
+        if (secondaryAlternatesBuilder_ == null) {
+          ensureSecondaryAlternatesIsMutable();
+          secondaryAlternates_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          secondaryAlternatesBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 3;</code>
+       *
+       * <pre>
+       **
+       * Alternate alleles that appear along with a variant alternate.
+       * </pre>
        */
       public Builder addAllSecondaryAlternates(
-          java.lang.Iterable<java.lang.String> values) {
-        ensureSecondaryAlternatesIsMutable();
-        com.google.protobuf.AbstractMessageLite.Builder.addAll(
-            values, secondaryAlternates_);
-        onChanged();
+          java.lang.Iterable<? extends org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate> values) {
+        if (secondaryAlternatesBuilder_ == null) {
+          ensureSecondaryAlternatesIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, secondaryAlternates_);
+          onChanged();
+        } else {
+          secondaryAlternatesBuilder_.addAllMessages(values);
+        }
         return this;
       }
       /**
-       * <code>repeated string secondaryAlternates = 3;</code>
+       * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 3;</code>
+       *
+       * <pre>
+       **
+       * Alternate alleles that appear along with a variant alternate.
+       * </pre>
        */
       public Builder clearSecondaryAlternates() {
-        secondaryAlternates_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00000004);
-        onChanged();
+        if (secondaryAlternatesBuilder_ == null) {
+          secondaryAlternates_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000004);
+          onChanged();
+        } else {
+          secondaryAlternatesBuilder_.clear();
+        }
         return this;
       }
       /**
-       * <code>repeated string secondaryAlternates = 3;</code>
+       * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 3;</code>
+       *
+       * <pre>
+       **
+       * Alternate alleles that appear along with a variant alternate.
+       * </pre>
        */
-      public Builder addSecondaryAlternatesBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-        ensureSecondaryAlternatesIsMutable();
-        secondaryAlternates_.add(value);
-        onChanged();
+      public Builder removeSecondaryAlternates(int index) {
+        if (secondaryAlternatesBuilder_ == null) {
+          ensureSecondaryAlternatesIsMutable();
+          secondaryAlternates_.remove(index);
+          onChanged();
+        } else {
+          secondaryAlternatesBuilder_.remove(index);
+        }
         return this;
+      }
+      /**
+       * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 3;</code>
+       *
+       * <pre>
+       **
+       * Alternate alleles that appear along with a variant alternate.
+       * </pre>
+       */
+      public org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate.Builder getSecondaryAlternatesBuilder(
+          int index) {
+        return getSecondaryAlternatesFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 3;</code>
+       *
+       * <pre>
+       **
+       * Alternate alleles that appear along with a variant alternate.
+       * </pre>
+       */
+      public org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinateOrBuilder getSecondaryAlternatesOrBuilder(
+          int index) {
+        if (secondaryAlternatesBuilder_ == null) {
+          return secondaryAlternates_.get(index);  } else {
+          return secondaryAlternatesBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 3;</code>
+       *
+       * <pre>
+       **
+       * Alternate alleles that appear along with a variant alternate.
+       * </pre>
+       */
+      public java.util.List<? extends org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinateOrBuilder> 
+           getSecondaryAlternatesOrBuilderList() {
+        if (secondaryAlternatesBuilder_ != null) {
+          return secondaryAlternatesBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(secondaryAlternates_);
+        }
+      }
+      /**
+       * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 3;</code>
+       *
+       * <pre>
+       **
+       * Alternate alleles that appear along with a variant alternate.
+       * </pre>
+       */
+      public org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate.Builder addSecondaryAlternatesBuilder() {
+        return getSecondaryAlternatesFieldBuilder().addBuilder(
+            org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 3;</code>
+       *
+       * <pre>
+       **
+       * Alternate alleles that appear along with a variant alternate.
+       * </pre>
+       */
+      public org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate.Builder addSecondaryAlternatesBuilder(
+          int index) {
+        return getSecondaryAlternatesFieldBuilder().addBuilder(
+            index, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 3;</code>
+       *
+       * <pre>
+       **
+       * Alternate alleles that appear along with a variant alternate.
+       * </pre>
+       */
+      public java.util.List<org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate.Builder> 
+           getSecondaryAlternatesBuilderList() {
+        return getSecondaryAlternatesFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate.Builder, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinateOrBuilder> 
+          getSecondaryAlternatesFieldBuilder() {
+        if (secondaryAlternatesBuilder_ == null) {
+          secondaryAlternatesBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate.Builder, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinateOrBuilder>(
+                  secondaryAlternates_,
+                  ((bitField0_ & 0x00000004) == 0x00000004),
+                  getParentForChildren(),
+                  isClean());
+          secondaryAlternates_ = null;
+        }
+        return secondaryAlternatesBuilder_;
       }
 
       private com.google.protobuf.LazyStringList format_ = com.google.protobuf.LazyStringArrayList.EMPTY;
@@ -6690,14 +8064,23 @@ public final class VariantProto {
         getReferenceBytes();
 
     /**
-     * <code>optional string alternate = 2;</code>
+     * <code>repeated string alternates = 2;</code>
      */
-    java.lang.String getAlternate();
+    com.google.protobuf.ProtocolStringList
+        getAlternatesList();
     /**
-     * <code>optional string alternate = 2;</code>
+     * <code>repeated string alternates = 2;</code>
+     */
+    int getAlternatesCount();
+    /**
+     * <code>repeated string alternates = 2;</code>
+     */
+    java.lang.String getAlternates(int index);
+    /**
+     * <code>repeated string alternates = 2;</code>
      */
     com.google.protobuf.ByteString
-        getAlternateBytes();
+        getAlternatesBytes(int index);
 
     /**
      * <code>repeated int32 allelesIdx = 3;</code>
@@ -6716,6 +8099,15 @@ public final class VariantProto {
      * <code>optional bool phased = 4;</code>
      */
     boolean getPhased();
+
+    /**
+     * <code>optional .org.opencb.biodata.models.variant.protobuf.AllelesCode code = 5;</code>
+     */
+    int getCodeValue();
+    /**
+     * <code>optional .org.opencb.biodata.models.variant.protobuf.AllelesCode code = 5;</code>
+     */
+    org.opencb.biodata.models.variant.protobuf.VariantProto.AllelesCode getCode();
   }
   /**
    * Protobuf type {@code org.opencb.biodata.models.variant.protobuf.Genotype}
@@ -6730,9 +8122,10 @@ public final class VariantProto {
     }
     private Genotype() {
       reference_ = "";
-      alternate_ = "";
+      alternates_ = com.google.protobuf.LazyStringArrayList.EMPTY;
       allelesIdx_ = java.util.Collections.emptyList();
       phased_ = false;
+      code_ = 0;
     }
 
     @java.lang.Override
@@ -6767,8 +8160,11 @@ public final class VariantProto {
             }
             case 18: {
               String s = input.readStringRequireUtf8();
-
-              alternate_ = s;
+              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+                alternates_ = new com.google.protobuf.LazyStringArrayList();
+                mutable_bitField0_ |= 0x00000002;
+              }
+              alternates_.add(s);
               break;
             }
             case 24: {
@@ -6797,6 +8193,12 @@ public final class VariantProto {
               phased_ = input.readBool();
               break;
             }
+            case 40: {
+              int rawValue = input.readEnum();
+
+              code_ = rawValue;
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -6806,6 +8208,9 @@ public final class VariantProto {
             new com.google.protobuf.InvalidProtocolBufferException(
                 e.getMessage()).setUnfinishedMessage(this));
       } finally {
+        if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+          alternates_ = alternates_.getUnmodifiableView();
+        }
         if (((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
           allelesIdx_ = java.util.Collections.unmodifiableList(allelesIdx_);
         }
@@ -6859,38 +8264,33 @@ public final class VariantProto {
       }
     }
 
-    public static final int ALTERNATE_FIELD_NUMBER = 2;
-    private volatile java.lang.Object alternate_;
+    public static final int ALTERNATES_FIELD_NUMBER = 2;
+    private com.google.protobuf.LazyStringList alternates_;
     /**
-     * <code>optional string alternate = 2;</code>
+     * <code>repeated string alternates = 2;</code>
      */
-    public java.lang.String getAlternate() {
-      java.lang.Object ref = alternate_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        alternate_ = s;
-        return s;
-      }
+    public com.google.protobuf.ProtocolStringList
+        getAlternatesList() {
+      return alternates_;
     }
     /**
-     * <code>optional string alternate = 2;</code>
+     * <code>repeated string alternates = 2;</code>
+     */
+    public int getAlternatesCount() {
+      return alternates_.size();
+    }
+    /**
+     * <code>repeated string alternates = 2;</code>
+     */
+    public java.lang.String getAlternates(int index) {
+      return alternates_.get(index);
+    }
+    /**
+     * <code>repeated string alternates = 2;</code>
      */
     public com.google.protobuf.ByteString
-        getAlternateBytes() {
-      java.lang.Object ref = alternate_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        alternate_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
+        getAlternatesBytes(int index) {
+      return alternates_.getByteString(index);
     }
 
     public static final int ALLELESIDX_FIELD_NUMBER = 3;
@@ -6925,6 +8325,22 @@ public final class VariantProto {
       return phased_;
     }
 
+    public static final int CODE_FIELD_NUMBER = 5;
+    private int code_;
+    /**
+     * <code>optional .org.opencb.biodata.models.variant.protobuf.AllelesCode code = 5;</code>
+     */
+    public int getCodeValue() {
+      return code_;
+    }
+    /**
+     * <code>optional .org.opencb.biodata.models.variant.protobuf.AllelesCode code = 5;</code>
+     */
+    public org.opencb.biodata.models.variant.protobuf.VariantProto.AllelesCode getCode() {
+      org.opencb.biodata.models.variant.protobuf.VariantProto.AllelesCode result = org.opencb.biodata.models.variant.protobuf.VariantProto.AllelesCode.valueOf(code_);
+      return result == null ? org.opencb.biodata.models.variant.protobuf.VariantProto.AllelesCode.UNRECOGNIZED : result;
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -6941,8 +8357,8 @@ public final class VariantProto {
       if (!getReferenceBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessage.writeString(output, 1, reference_);
       }
-      if (!getAlternateBytes().isEmpty()) {
-        com.google.protobuf.GeneratedMessage.writeString(output, 2, alternate_);
+      for (int i = 0; i < alternates_.size(); i++) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 2, alternates_.getRaw(i));
       }
       if (getAllelesIdxList().size() > 0) {
         output.writeRawVarint32(26);
@@ -6954,6 +8370,9 @@ public final class VariantProto {
       if (phased_ != false) {
         output.writeBool(4, phased_);
       }
+      if (code_ != org.opencb.biodata.models.variant.protobuf.VariantProto.AllelesCode.ALLELES_OK.getNumber()) {
+        output.writeEnum(5, code_);
+      }
     }
 
     public int getSerializedSize() {
@@ -6964,8 +8383,13 @@ public final class VariantProto {
       if (!getReferenceBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessage.computeStringSize(1, reference_);
       }
-      if (!getAlternateBytes().isEmpty()) {
-        size += com.google.protobuf.GeneratedMessage.computeStringSize(2, alternate_);
+      {
+        int dataSize = 0;
+        for (int i = 0; i < alternates_.size(); i++) {
+          dataSize += computeStringSizeNoTag(alternates_.getRaw(i));
+        }
+        size += dataSize;
+        size += 1 * getAlternatesList().size();
       }
       {
         int dataSize = 0;
@@ -6984,6 +8408,10 @@ public final class VariantProto {
       if (phased_ != false) {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(4, phased_);
+      }
+      if (code_ != org.opencb.biodata.models.variant.protobuf.VariantProto.AllelesCode.ALLELES_OK.getNumber()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeEnumSize(5, code_);
       }
       memoizedSize = size;
       return size;
@@ -7098,11 +8526,13 @@ public final class VariantProto {
         super.clear();
         reference_ = "";
 
-        alternate_ = "";
-
+        alternates_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000002);
         allelesIdx_ = java.util.Collections.emptyList();
         bitField0_ = (bitField0_ & ~0x00000004);
         phased_ = false;
+
+        code_ = 0;
 
         return this;
       }
@@ -7129,13 +8559,18 @@ public final class VariantProto {
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
         result.reference_ = reference_;
-        result.alternate_ = alternate_;
+        if (((bitField0_ & 0x00000002) == 0x00000002)) {
+          alternates_ = alternates_.getUnmodifiableView();
+          bitField0_ = (bitField0_ & ~0x00000002);
+        }
+        result.alternates_ = alternates_;
         if (((bitField0_ & 0x00000004) == 0x00000004)) {
           allelesIdx_ = java.util.Collections.unmodifiableList(allelesIdx_);
           bitField0_ = (bitField0_ & ~0x00000004);
         }
         result.allelesIdx_ = allelesIdx_;
         result.phased_ = phased_;
+        result.code_ = code_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -7156,8 +8591,14 @@ public final class VariantProto {
           reference_ = other.reference_;
           onChanged();
         }
-        if (!other.getAlternate().isEmpty()) {
-          alternate_ = other.alternate_;
+        if (!other.alternates_.isEmpty()) {
+          if (alternates_.isEmpty()) {
+            alternates_ = other.alternates_;
+            bitField0_ = (bitField0_ & ~0x00000002);
+          } else {
+            ensureAlternatesIsMutable();
+            alternates_.addAll(other.alternates_);
+          }
           onChanged();
         }
         if (!other.allelesIdx_.isEmpty()) {
@@ -7172,6 +8613,9 @@ public final class VariantProto {
         }
         if (other.getPhased() != false) {
           setPhased(other.getPhased());
+        }
+        if (other.code_ != 0) {
+          setCodeValue(other.getCodeValue());
         }
         onChanged();
         return this;
@@ -7269,71 +8713,96 @@ public final class VariantProto {
         return this;
       }
 
-      private java.lang.Object alternate_ = "";
-      /**
-       * <code>optional string alternate = 2;</code>
-       */
-      public java.lang.String getAlternate() {
-        java.lang.Object ref = alternate_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          alternate_ = s;
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
+      private com.google.protobuf.LazyStringList alternates_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      private void ensureAlternatesIsMutable() {
+        if (!((bitField0_ & 0x00000002) == 0x00000002)) {
+          alternates_ = new com.google.protobuf.LazyStringArrayList(alternates_);
+          bitField0_ |= 0x00000002;
+         }
       }
       /**
-       * <code>optional string alternate = 2;</code>
+       * <code>repeated string alternates = 2;</code>
+       */
+      public com.google.protobuf.ProtocolStringList
+          getAlternatesList() {
+        return alternates_.getUnmodifiableView();
+      }
+      /**
+       * <code>repeated string alternates = 2;</code>
+       */
+      public int getAlternatesCount() {
+        return alternates_.size();
+      }
+      /**
+       * <code>repeated string alternates = 2;</code>
+       */
+      public java.lang.String getAlternates(int index) {
+        return alternates_.get(index);
+      }
+      /**
+       * <code>repeated string alternates = 2;</code>
        */
       public com.google.protobuf.ByteString
-          getAlternateBytes() {
-        java.lang.Object ref = alternate_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          alternate_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
+          getAlternatesBytes(int index) {
+        return alternates_.getByteString(index);
       }
       /**
-       * <code>optional string alternate = 2;</code>
+       * <code>repeated string alternates = 2;</code>
        */
-      public Builder setAlternate(
+      public Builder setAlternates(
+          int index, java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureAlternatesIsMutable();
+        alternates_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string alternates = 2;</code>
+       */
+      public Builder addAlternates(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  
-        alternate_ = value;
+  ensureAlternatesIsMutable();
+        alternates_.add(value);
         onChanged();
         return this;
       }
       /**
-       * <code>optional string alternate = 2;</code>
+       * <code>repeated string alternates = 2;</code>
        */
-      public Builder clearAlternate() {
-        
-        alternate_ = getDefaultInstance().getAlternate();
+      public Builder addAllAlternates(
+          java.lang.Iterable<java.lang.String> values) {
+        ensureAlternatesIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, alternates_);
         onChanged();
         return this;
       }
       /**
-       * <code>optional string alternate = 2;</code>
+       * <code>repeated string alternates = 2;</code>
        */
-      public Builder setAlternateBytes(
+      public Builder clearAlternates() {
+        alternates_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000002);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string alternates = 2;</code>
+       */
+      public Builder addAlternatesBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
   checkByteStringIsUtf8(value);
-        
-        alternate_ = value;
+        ensureAlternatesIsMutable();
+        alternates_.add(value);
         onChanged();
         return this;
       }
@@ -7426,6 +8895,50 @@ public final class VariantProto {
       public Builder clearPhased() {
         
         phased_ = false;
+        onChanged();
+        return this;
+      }
+
+      private int code_ = 0;
+      /**
+       * <code>optional .org.opencb.biodata.models.variant.protobuf.AllelesCode code = 5;</code>
+       */
+      public int getCodeValue() {
+        return code_;
+      }
+      /**
+       * <code>optional .org.opencb.biodata.models.variant.protobuf.AllelesCode code = 5;</code>
+       */
+      public Builder setCodeValue(int value) {
+        code_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional .org.opencb.biodata.models.variant.protobuf.AllelesCode code = 5;</code>
+       */
+      public org.opencb.biodata.models.variant.protobuf.VariantProto.AllelesCode getCode() {
+        org.opencb.biodata.models.variant.protobuf.VariantProto.AllelesCode result = org.opencb.biodata.models.variant.protobuf.VariantProto.AllelesCode.valueOf(code_);
+        return result == null ? org.opencb.biodata.models.variant.protobuf.VariantProto.AllelesCode.UNRECOGNIZED : result;
+      }
+      /**
+       * <code>optional .org.opencb.biodata.models.variant.protobuf.AllelesCode code = 5;</code>
+       */
+      public Builder setCode(org.opencb.biodata.models.variant.protobuf.VariantProto.AllelesCode value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        
+        code_ = value.getNumber();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional .org.opencb.biodata.models.variant.protobuf.AllelesCode code = 5;</code>
+       */
+      public Builder clearCode() {
+        
+        code_ = 0;
         onChanged();
         return this;
       }
@@ -11928,6 +13441,11 @@ public final class VariantProto {
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_org_opencb_biodata_models_variant_protobuf_FileEntry_AttributesEntry_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_org_opencb_biodata_models_variant_protobuf_AlternateCoordinate_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_org_opencb_biodata_models_variant_protobuf_AlternateCoordinate_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_org_opencb_biodata_models_variant_protobuf_VariantSourceEntry_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -12016,50 +13534,58 @@ public final class VariantProto {
       "ributes\030\003 \003(\0132E.org.opencb.biodata.model" +
       "s.variant.protobuf.FileEntry.AttributesE" +
       "ntry\0321\n\017AttributesEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005" +
-      "value\030\002 \001(\t:\0028\001\"\352\003\n\022VariantSourceEntry\022\017" +
-      "\n\007studyId\030\001 \001(\t\022D\n\005files\030\002 \003(\01325.org.ope" +
-      "ncb.biodata.models.variant.protobuf.File" +
-      "Entry\022\033\n\023secondaryAlternates\030\003 \003(\t\022\016\n\006fo" +
-      "rmat\030\004 \003(\t\022h\n\013samplesData\030\005 \003(\0132S.org.op",
-      "encb.biodata.models.variant.protobuf.Var" +
-      "iantSourceEntry.SamplesDataInfoEntry\022X\n\005" +
-      "stats\030\006 \003(\0132I.org.opencb.biodata.models." +
-      "variant.protobuf.VariantSourceEntry.Stat" +
-      "sEntry\032$\n\024SamplesDataInfoEntry\022\014\n\004info\030\001" +
-      " \003(\t\032f\n\nStatsEntry\022\013\n\003key\030\001 \001(\t\022G\n\005value" +
-      "\030\002 \001(\01328.org.opencb.biodata.models.varia" +
-      "nt.protobuf.VariantStats:\0028\001\"T\n\010Genotype" +
-      "\022\021\n\treference\030\001 \001(\t\022\021\n\talternate\030\002 \001(\t\022\022" +
-      "\n\nallelesIdx\030\003 \003(\005\022\016\n\006phased\030\004 \001(\010\"\316\004\n\007V",
-      "ariant\022\022\n\nchromosome\030\001 \001(\t\022\r\n\005start\030\002 \001(" +
-      "\005\022\013\n\003end\030\003 \001(\005\022\021\n\treference\030\004 \001(\t\022\021\n\talt" +
-      "ernate\030\005 \001(\t\022\016\n\006strand\030\006 \001(\t\022\013\n\003ids\030\007 \003(" +
-      "\t\022\016\n\006length\030\010 \001(\005\022E\n\004type\030\t \001(\01627.org.op" +
-      "encb.biodata.models.variant.protobuf.Var" +
-      "iantType\022M\n\005hgvss\030\n \003(\0132>.org.opencb.bio" +
-      "data.models.variant.protobuf.Variant.Hgv" +
-      "ssEntry\022O\n\007studies\030\013 \003(\0132>.org.opencb.bi" +
-      "odata.models.variant.protobuf.VariantSou" +
-      "rceEntry\022Q\n\nannotation\030\014 \001(\0132=.org.openc",
-      "b.biodata.models.variant.protobuf.Varian" +
-      "tAnnotation\032\031\n\tHgvsEntry\022\014\n\004info\030\001 \003(\t\032k" +
-      "\n\nHgvssEntry\022\013\n\003key\030\001 \001(\t\022L\n\005value\030\002 \001(\013" +
-      "2=.org.opencb.biodata.models.variant.pro" +
-      "tobuf.Variant.HgvsEntry:\0028\001\"\376\001\n\023VariantF" +
-      "ileMetadata\022\016\n\006fileId\030\001 \001(\t\022\017\n\007studyId\030\002" +
-      " \001(\t\022\020\n\010fileName\030\003 \001(\t\022\021\n\tstudyName\030\004 \001(" +
-      "\t\022\017\n\007samples\030\005 \003(\t\022_\n\010metadata\030\006 \003(\0132M.o" +
-      "rg.opencb.biodata.models.variant.protobu" +
-      "f.VariantFileMetadata.MetadataEntry\032/\n\rM",
-      "etadataEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t" +
-      ":\0028\001*\267\001\n\013VariantType\022\007\n\003SNP\020\000\022\007\n\003SNV\020\001\022\007" +
-      "\n\003MNP\020\002\022\007\n\003MNV\020\003\022\t\n\005INDEL\020\004\022\006\n\002SV\020\005\022\007\n\003C" +
-      "NV\020\006\022\020\n\014NO_VARIATION\020\007\022\014\n\010SYMBOLIC\020\010\022\t\n\005" +
-      "MIXED\020\t\022\r\n\tINSERTION\020\n\022\014\n\010DELETION\020\013\022\021\n\r" +
-      "TRANSLOCATION\020\014\022\r\n\tINVERSION\020\r*X\n\013Allele" +
-      "sCode\022\016\n\nALLELES_OK\020\000\022\023\n\017ALLELES_MISSING" +
-      "\020\001\022\027\n\023MULTIPLE_ALTERNATES\020\002\022\013\n\007HAPLOID\020\003" +
-      "B\016B\014VariantProtob\006proto3"
+      "value\030\002 \001(\t:\0028\001\"\262\001\n\023AlternateCoordinate\022" +
+      "\022\n\nchromosome\030\001 \001(\t\022\r\n\005start\030\002 \001(\005\022\013\n\003en" +
+      "d\030\003 \001(\005\022\021\n\treference\030\004 \001(\t\022\021\n\talternate\030" +
+      "\005 \001(\t\022E\n\004type\030\006 \001(\01627.org.opencb.biodata" +
+      ".models.variant.protobuf.VariantType\"\253\004\n",
+      "\022VariantSourceEntry\022\017\n\007studyId\030\001 \001(\t\022D\n\005" +
+      "files\030\002 \003(\01325.org.opencb.biodata.models." +
+      "variant.protobuf.FileEntry\022\\\n\023secondaryA" +
+      "lternates\030\003 \003(\0132?.org.opencb.biodata.mod" +
+      "els.variant.protobuf.AlternateCoordinate" +
+      "\022\016\n\006format\030\004 \003(\t\022h\n\013samplesData\030\005 \003(\0132S." +
+      "org.opencb.biodata.models.variant.protob" +
+      "uf.VariantSourceEntry.SamplesDataInfoEnt" +
+      "ry\022X\n\005stats\030\006 \003(\0132I.org.opencb.biodata.m" +
+      "odels.variant.protobuf.VariantSourceEntr",
+      "y.StatsEntry\032$\n\024SamplesDataInfoEntry\022\014\n\004" +
+      "info\030\001 \003(\t\032f\n\nStatsEntry\022\013\n\003key\030\001 \001(\t\022G\n" +
+      "\005value\030\002 \001(\01328.org.opencb.biodata.models" +
+      ".variant.protobuf.VariantStats:\0028\001\"\234\001\n\010G" +
+      "enotype\022\021\n\treference\030\001 \001(\t\022\022\n\nalternates" +
+      "\030\002 \003(\t\022\022\n\nallelesIdx\030\003 \003(\005\022\016\n\006phased\030\004 \001" +
+      "(\010\022E\n\004code\030\005 \001(\01627.org.opencb.biodata.mo" +
+      "dels.variant.protobuf.AllelesCode\"\316\004\n\007Va" +
+      "riant\022\022\n\nchromosome\030\001 \001(\t\022\r\n\005start\030\002 \001(\005" +
+      "\022\013\n\003end\030\003 \001(\005\022\021\n\treference\030\004 \001(\t\022\021\n\talte",
+      "rnate\030\005 \001(\t\022\016\n\006strand\030\006 \001(\t\022\013\n\003ids\030\007 \003(\t" +
+      "\022\016\n\006length\030\010 \001(\005\022E\n\004type\030\t \001(\01627.org.ope" +
+      "ncb.biodata.models.variant.protobuf.Vari" +
+      "antType\022M\n\005hgvss\030\n \003(\0132>.org.opencb.biod" +
+      "ata.models.variant.protobuf.Variant.Hgvs" +
+      "sEntry\022O\n\007studies\030\013 \003(\0132>.org.opencb.bio" +
+      "data.models.variant.protobuf.VariantSour" +
+      "ceEntry\022Q\n\nannotation\030\014 \001(\0132=.org.opencb" +
+      ".biodata.models.variant.protobuf.Variant" +
+      "Annotation\032\031\n\tHgvsEntry\022\014\n\004info\030\001 \003(\t\032k\n",
+      "\nHgvssEntry\022\013\n\003key\030\001 \001(\t\022L\n\005value\030\002 \001(\0132" +
+      "=.org.opencb.biodata.models.variant.prot" +
+      "obuf.Variant.HgvsEntry:\0028\001\"\376\001\n\023VariantFi" +
+      "leMetadata\022\016\n\006fileId\030\001 \001(\t\022\017\n\007studyId\030\002 " +
+      "\001(\t\022\020\n\010fileName\030\003 \001(\t\022\021\n\tstudyName\030\004 \001(\t" +
+      "\022\017\n\007samples\030\005 \003(\t\022_\n\010metadata\030\006 \003(\0132M.or" +
+      "g.opencb.biodata.models.variant.protobuf" +
+      ".VariantFileMetadata.MetadataEntry\032/\n\rMe" +
+      "tadataEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:" +
+      "\0028\001*\267\001\n\013VariantType\022\007\n\003SNP\020\000\022\007\n\003SNV\020\001\022\007\n",
+      "\003MNP\020\002\022\007\n\003MNV\020\003\022\t\n\005INDEL\020\004\022\006\n\002SV\020\005\022\007\n\003CN" +
+      "V\020\006\022\020\n\014NO_VARIATION\020\007\022\014\n\010SYMBOLIC\020\010\022\t\n\005M" +
+      "IXED\020\t\022\r\n\tINSERTION\020\n\022\014\n\010DELETION\020\013\022\021\n\rT" +
+      "RANSLOCATION\020\014\022\r\n\tINVERSION\020\r*X\n\013Alleles" +
+      "Code\022\016\n\nALLELES_OK\020\000\022\023\n\017ALLELES_MISSING\020" +
+      "\001\022\027\n\023MULTIPLE_ALTERNATES\020\002\022\013\n\007HAPLOID\020\003B" +
+      "\016B\014VariantProtob\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -12110,8 +13636,14 @@ public final class VariantProto {
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_org_opencb_biodata_models_variant_protobuf_FileEntry_AttributesEntry_descriptor,
         new java.lang.String[] { "Key", "Value", });
-    internal_static_org_opencb_biodata_models_variant_protobuf_VariantSourceEntry_descriptor =
+    internal_static_org_opencb_biodata_models_variant_protobuf_AlternateCoordinate_descriptor =
       getDescriptor().getMessageTypes().get(3);
+    internal_static_org_opencb_biodata_models_variant_protobuf_AlternateCoordinate_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_org_opencb_biodata_models_variant_protobuf_AlternateCoordinate_descriptor,
+        new java.lang.String[] { "Chromosome", "Start", "End", "Reference", "Alternate", "Type", });
+    internal_static_org_opencb_biodata_models_variant_protobuf_VariantSourceEntry_descriptor =
+      getDescriptor().getMessageTypes().get(4);
     internal_static_org_opencb_biodata_models_variant_protobuf_VariantSourceEntry_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_org_opencb_biodata_models_variant_protobuf_VariantSourceEntry_descriptor,
@@ -12129,13 +13661,13 @@ public final class VariantProto {
         internal_static_org_opencb_biodata_models_variant_protobuf_VariantSourceEntry_StatsEntry_descriptor,
         new java.lang.String[] { "Key", "Value", });
     internal_static_org_opencb_biodata_models_variant_protobuf_Genotype_descriptor =
-      getDescriptor().getMessageTypes().get(4);
+      getDescriptor().getMessageTypes().get(5);
     internal_static_org_opencb_biodata_models_variant_protobuf_Genotype_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_org_opencb_biodata_models_variant_protobuf_Genotype_descriptor,
-        new java.lang.String[] { "Reference", "Alternate", "AllelesIdx", "Phased", });
+        new java.lang.String[] { "Reference", "Alternates", "AllelesIdx", "Phased", "Code", });
     internal_static_org_opencb_biodata_models_variant_protobuf_Variant_descriptor =
-      getDescriptor().getMessageTypes().get(5);
+      getDescriptor().getMessageTypes().get(6);
     internal_static_org_opencb_biodata_models_variant_protobuf_Variant_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_org_opencb_biodata_models_variant_protobuf_Variant_descriptor,
@@ -12153,7 +13685,7 @@ public final class VariantProto {
         internal_static_org_opencb_biodata_models_variant_protobuf_Variant_HgvssEntry_descriptor,
         new java.lang.String[] { "Key", "Value", });
     internal_static_org_opencb_biodata_models_variant_protobuf_VariantFileMetadata_descriptor =
-      getDescriptor().getMessageTypes().get(6);
+      getDescriptor().getMessageTypes().get(7);
     internal_static_org_opencb_biodata_models_variant_protobuf_VariantFileMetadata_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_org_opencb_biodata_models_variant_protobuf_VariantFileMetadata_descriptor,

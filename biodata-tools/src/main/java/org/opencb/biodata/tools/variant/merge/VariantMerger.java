@@ -7,8 +7,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -17,6 +19,7 @@ import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
+import org.opencb.biodata.models.variant.avro.FileEntry;
 
 /**
  * @author Matthias Haimel mh719+git@cam.ac.uk
@@ -24,13 +27,51 @@ import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
  */
 public class VariantMerger {
 
-    private static final String GT_KEY = "GT";
+    private static final String VCF_FILTER = "FILTER";
+    public static final String GT_KEY = "GT";
+    public static final String PASS_KEY = "PASS";
+//    public static final String CALL_KEY = "CALL";
 
     /**
      * 
      */
     public VariantMerger() {
         // TODO Auto-generated constructor stub
+    }
+
+    /**
+     * Create and returns a new Variant using the target as a 
+     * position template ONLY and merges the provided variants
+     * for this position. <b> The target is not present in the 
+     * merged output!!!</b>
+     * 
+     * @param template Template for position and study only
+     * @param load Variants to merge for position
+     * @return Variant new Variant object with merged information
+     */
+    public Variant mergeNew(Variant template,Collection<Variant> load){
+        Variant current = createFromTemplate(template);
+        merge(current,load);
+        return current;
+    }
+
+    /**
+     * Create an empty Variant (position, ref, alt) from a template with basic Study information without samples.
+     * @param target Variant to take as a template
+     * @return Variant filled with chromosome, start, end, ref, alt, study ID and format set to GT only, BUT no samples.
+     */
+    public Variant createFromTemplate(Variant target) {
+        Variant var = new Variant(target.getChromosome(), target.getStart(), target.getEnd(), target.getReference(), target.getAlternate());
+        var.setType(target.getType());
+        for(StudyEntry tse : target.getStudies()){
+            StudyEntry se = new StudyEntry(tse.getStudyId());
+            se.setFiles(Collections.singletonList(new FileEntry("", "", Collections.emptyMap())));
+            se.setFormat(Arrays.asList(new String[]{GT_KEY,PASS_KEY}));
+            se.setSamplesPosition(new HashMap<String, Integer>());
+            se.setSamplesData(new ArrayList<List<String>>());
+            var.addStudyEntry(se);
+        }
+        return var;
     }
 
     public void merge(Variant current, Collection<Variant> load){
@@ -58,14 +99,20 @@ public class VariantMerger {
      */
     void mergeOverlappingVariant(Variant current, Variant other) {
         Map<String, String> sampleToGt = sampleToGt(other);
+        Map<String, String> sampleToFilter = sampleToAttribute(other,VCF_FILTER);
         StudyEntry se = getStudy(current);
+        Set<String> duplicates = se.getSamplesName().stream().filter(s -> sampleToGt.containsKey(s)).collect(Collectors.toSet());
+        if(!duplicates.isEmpty()){
+            throw new IllegalStateException(String.format("Duplicated entries - issue with merge: %s", StringUtils.join(duplicates,", ")));
+        }
+        // Secondary index: translate from e.g. 0/1 to 0/2
         List<Integer> secIdx = buildSecIndex(se,buildSecAltList(other));
-        // Translate from e.g. 1 -> 2 which would end up as 0/1 0/2
         int newSecGtOffset = 2; // 2 -> 0 Ref, 1 Alt, 2+ secAlt
         Map<Integer, Integer> otherToCurrent = IntStream.range(0, secIdx.size()).mapToObj(i -> i)
                 .collect(Collectors.toMap(i -> i + 1, i ->  secIdx.get(i) + newSecGtOffset));
         sampleToGt.entrySet().stream()
-            .forEach(e -> se.addSampleData(e.getKey(),Collections.singletonList(updateGT(e.getValue(),otherToCurrent))));
+            .forEach(e -> se.addSampleData(e.getKey(),
+                    Arrays.asList(updateGT(e.getValue(),otherToCurrent),sampleToFilter.getOrDefault(e, "-"))));
     }
 
     /**
@@ -79,7 +126,6 @@ public class VariantMerger {
         int[] idx = gto.getAllelesIdx();
         int len = idx.length;
         IntStream.range(0, len).boxed().filter(i -> mapping.containsKey(idx[i])).forEach(i -> gto.updateAlleleIdx(i, mapping.get(idx[i])));
-//        String ngt = Arrays.stream(gt.split("/")).map(s -> mapping.containsKey(s)?mapping.get(s):s).collect(Collectors.joining("/"));
         return gto.toGenotypeString();
     }
 
@@ -116,15 +162,25 @@ public class VariantMerger {
      */
     void mergeSameVariant(Variant current, Variant same){
         Map<String, String> sampleToGt = sampleToGt(same);
+        Map<String, String> sampleToFilter = sampleToAttribute(same,VCF_FILTER);
         StudyEntry se = getStudy(current);
+        Set<String> duplicates = se.getSamplesName().stream().filter(s -> sampleToGt.containsKey(s)).collect(Collectors.toSet());
+        if(!duplicates.isEmpty()){
+            throw new IllegalStateException(String.format("Duplicated entries - issue with merge: %s", StringUtils.join(duplicates,", ")));
+        }
         // Add GT data for each sample to current Variant
-        sampleToGt.entrySet().forEach(e -> se.addSampleData(e.getKey(), Collections.singletonList(e.getValue())));
+        sampleToGt.entrySet().forEach(e -> se.addSampleData(e.getKey(), Arrays.asList(e.getValue(),sampleToFilter.getOrDefault(e, "-"))));
     }
 
+    private Map<String,String> sampleToAttribute(Variant var, String key){
+        StudyEntry se = getStudy(var);
+        return se.getSamplesName().stream()
+                .filter(e -> StringUtils.isNotBlank(se.getSampleData(e, key))) // check for NULL or empty string
+                .collect(Collectors.toMap(e -> e, e -> se.getSampleData(e,key)));
+    }
+    
     private Map<String, String> sampleToGt(Variant load) {
-        StudyEntry se = getStudy(load);
-        Map<String, String> mapgt = se.getSamplesName().stream().collect(Collectors.toMap(e -> e, e -> se.getSampleData(e, GT_KEY)));
-        return mapgt;
+        return sampleToAttribute(load, GT_KEY);
     }
 
     StudyEntry getStudy(Variant load) {
@@ -154,4 +210,7 @@ public class VariantMerger {
                 && StringUtils.equals(a.getAlternate(), b.getAlternate());
     }
 
+    public static boolean isSameVariant(Variant a, Variant b){
+        return onSameVariant(a, b);
+    }
 }

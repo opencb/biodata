@@ -19,11 +19,14 @@ package org.opencb.biodata.tools.variant.converter;
 import htsjdk.variant.variantcontext.Allele;
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFConstants;
+
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.variant.protobuf.VariantAnnotationProto;
 import org.opencb.biodata.models.variant.protobuf.VariantAnnotationProto.ConsequenceType;
 import org.opencb.biodata.models.variant.protobuf.VariantAnnotationProto.ProteinVariantAnnotation;
 import org.opencb.biodata.models.variant.protobuf.VariantProto;
+import org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate;
+import org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate.Builder;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -114,12 +117,14 @@ public class VariantContextToVariantProtoConverter implements Converter<VariantC
 
         // We need to convert Allele object to String
         // We skip the first alternate allele since these are the secondaries
-        List<String> secondaryAlternateList = new ArrayList<>();
+        List<AlternateCoordinate> secondaryAlternateList = new ArrayList<AlternateCoordinate>();
         for (int i = 1; i < variantContext.getAlternateAlleles().size(); i++) {
-            secondaryAlternateList.add(variantContext.getAlternateAlleles().get(i).toString());
+            Allele allele = variantContext.getAlternateAlleles().get(i);
+            AlternateCoordinate.Builder altBuilder = AlternateCoordinate.newBuilder().setAlternate(allele.toString());
+            AlternateCoordinate alt = altBuilder.build();
+            secondaryAlternateList.add(alt);
         }
         variantSourceEntry.addAllSecondaryAlternates(secondaryAlternateList);
-
 
         // set variant format
         // FIXME: This code is not respecting the original format order

@@ -16,13 +16,16 @@
 
 package org.opencb.biodata.models.feature;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype.Builder;
 
 /**
  * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
@@ -63,6 +66,14 @@ public class Genotype {
         this.phased = genotype.contains("|");
         this.count = 0;
         parseGenotype(genotype);
+    }
+
+    public Genotype(org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype gt){
+        this.allelesIdx = ArrayUtils.toPrimitive(gt.getAllelesIdxList().toArray(new Integer[0]));
+        this.reference = gt.getReference();
+        this.alternates = new ArrayList<String>(gt.getAlternatesList());
+        this.phased = gt.getPhased();
+        this.code = AllelesCode.valueOf(gt.getCode().name());
     }
 
     private void parseGenotype(String genotype) {
@@ -282,6 +293,14 @@ public class Genotype {
         if (alternates != null ? !alternates.equals(genotype.alternates) : genotype.alternates != null) return false;
         if (!Arrays.equals(allelesIdx, genotype.allelesIdx)) return false;
         return code == genotype.code;
+    }
 
+    public org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype toProtobuf(){
+        Builder pb = org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype.newBuilder();
+        pb.addAllAllelesIdx(Arrays.asList(ArrayUtils.toObject(this.allelesIdx)));
+        pb.addAllAlternates(this.alternates);
+        pb.setPhased(this.phased);
+        pb.setCode(org.opencb.biodata.models.variant.protobuf.VariantProto.AllelesCode.valueOf(this.code.name()));
+        return pb.build();
     }
 }
