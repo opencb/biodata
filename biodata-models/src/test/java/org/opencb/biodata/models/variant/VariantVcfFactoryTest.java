@@ -531,5 +531,35 @@ public class VariantVcfFactoryTest {
         assertEquals(10685, Integer.parseInt(getFile1.getAttribute("MQ")));
         assertEquals(1, Integer.parseInt(getFile1.getAttribute("MQ0")));
     }
-    
+
+    @Test
+    public void testVariantIds() {
+
+        // test that an ID is properly handled
+        String line = "1\t1000\trs123\tC\tT\t.\t.\t.";
+        List<Variant> expResult = new LinkedList<>();
+        expResult.add(new Variant("1", 1000, 1000, "C", "T"));
+        expResult.get(0).setIds(Collections.singleton("rs123"));
+        List<Variant> result = factory.create(source, line);
+        assertEquals(expResult, result);
+        assertEquals(expResult.get(0).getIds(), result.get(0).getIds());
+
+        // test that the ';' is used as the ID separator (as of VCF 4.2)
+        line = "1\t1000\trs123;rs456\tC\tT\t.\t.\t.";
+        expResult = new LinkedList<>();
+        expResult.add(new Variant("1", 1000, 1000, "C", "T"));
+        expResult.get(0).setIds(new HashSet<>(Arrays.asList("rs123", "rs456")));
+        result = factory.create(source, line);
+        assertEquals(expResult, result);
+        assertEquals(expResult.get(0).getIds(), result.get(0).getIds());
+
+        // test that a missing ID ('.') is not added to the IDs set
+        line = "1\t1000\t.\tC\tT\t.\t.\t.";
+        expResult = new LinkedList<>();
+        expResult.add(new Variant("1", 1000, 1000, "C", "T"));
+        expResult.get(0).setIds(Collections.<String>emptySet());    // note!: we store a "." as an empty set, not a set with an empty string
+        result = factory.create(source, line);
+        assertEquals(expResult, result);
+        assertEquals(expResult.get(0).getIds().size(), result.get(0).getIds().size());
+    }
 }
