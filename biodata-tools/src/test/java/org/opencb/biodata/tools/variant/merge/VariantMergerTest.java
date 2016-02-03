@@ -17,6 +17,7 @@ import org.junit.Test;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.VariantType;
 
@@ -80,6 +81,52 @@ public class VariantMergerTest {
         StudyEntry se = VARIANT_MERGER.getStudy(var);
         assertEquals(1, se.getSecondaryAlternates().size());
         assertEquals(Arrays.asList(lst("0/1"),lst("0/2")),
+                onlyField(se.getSamplesData(), 0));
+    }
+
+    @Test
+    public void testMergeMonoAllelic() {
+        VARIANT_MERGER.merge(var, generateVariant("1",10,"A","G",VariantType.SNV, 
+                Arrays.asList("S02"), 
+                Arrays.asList("1")));
+        StudyEntry se = VARIANT_MERGER.getStudy(var);
+        assertEquals(1, se.getSecondaryAlternates().size());
+        assertEquals(Arrays.asList(lst("0/1"),lst("2")),
+                onlyField(se.getSamplesData(), 0));
+    }
+
+    @Test
+    public void testMergeWithSecondary() {
+        Variant variant = generateVariant("1",10,"A","G",VariantType.SNV, 
+                Arrays.asList("S02"), 
+                Arrays.asList("1/2"));
+        variant.getStudies().get(0).setSecondaryAlternates(Arrays.asList(new AlternateCoordinate("1", 10, 11, "A", "C", VariantType.SNV)));
+        VARIANT_MERGER.merge(var, variant);
+        StudyEntry se = VARIANT_MERGER.getStudy(var);
+        assertEquals(2, se.getSecondaryAlternates().size());
+        assertEquals(Arrays.asList(lst("0/1"),lst("2/3")),
+                onlyField(se.getSamplesData(), 0));
+    }
+
+    @Test
+    public void testMergeMonoAllelicSameAlt() {
+        VARIANT_MERGER.merge(var, generateVariant("1",10,"A","T",VariantType.SNV, 
+                Arrays.asList("S02"), 
+                Arrays.asList("1")));
+        StudyEntry se = VARIANT_MERGER.getStudy(var);
+        assertEquals(0, se.getSecondaryAlternates().size());
+        assertEquals(Arrays.asList(lst("0/1"),lst("1")),
+                onlyField(se.getSamplesData(), 0));
+    }
+
+    @Test
+    public void testMergeMonoAllelicNocall() {
+        VARIANT_MERGER.merge(var, generateVariant("1",10,"A","G",VariantType.SNV, 
+                Arrays.asList("S02"), 
+                Arrays.asList("./1")));
+        StudyEntry se = VARIANT_MERGER.getStudy(var);
+        assertEquals(1, se.getSecondaryAlternates().size());
+        assertEquals(Arrays.asList(lst("0/1"),lst("./2")),
                 onlyField(se.getSamplesData(), 0));
     }
 

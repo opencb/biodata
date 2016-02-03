@@ -10,14 +10,6 @@ import "variant.proto";
 ** Mapping a ComplexGenotype to an individual (sample index)
 **/
 message ComplexVariant {
-    map<int32, ComplexGenotype> sampleToComplexGenotype = 1;
-}
-
-/** 
-** Genotype for one individual, which is more complex than
-** hom_ref, het_var, hom_var and no-call.
-**/
-message ComplexGenotype {
-    Genotype genotype = 1;
-    map<int32,AlternateCoordinate> secondaryAlternates= 2;
+    repeated AlternateCoordinate secondaryAlternates = 1;
+    map<int32, Genotype> sampleToGenotype = 2;
 }

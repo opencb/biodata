@@ -13,10 +13,34 @@ public final class VariantAnalysisProtos {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>map&lt;int32, .org.opencb.biodata.models.variant.protobuf.ComplexGenotype&gt; sampleToComplexGenotype = 1;</code>
+     * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 1;</code>
      */
-    java.util.Map<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype>
-    getSampleToComplexGenotype();
+    java.util.List<org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate> 
+        getSecondaryAlternatesList();
+    /**
+     * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 1;</code>
+     */
+    org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate getSecondaryAlternates(int index);
+    /**
+     * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 1;</code>
+     */
+    int getSecondaryAlternatesCount();
+    /**
+     * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 1;</code>
+     */
+    java.util.List<? extends org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinateOrBuilder> 
+        getSecondaryAlternatesOrBuilderList();
+    /**
+     * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 1;</code>
+     */
+    org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinateOrBuilder getSecondaryAlternatesOrBuilder(
+        int index);
+
+    /**
+     * <code>map&lt;int32, .org.opencb.biodata.models.variant.protobuf.Genotype&gt; sampleToGenotype = 2;</code>
+     */
+    java.util.Map<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype>
+    getSampleToGenotype();
   }
   /**
    * Protobuf type {@code org.opencb.biodata.models.variant.protobuf.ComplexVariant}
@@ -35,6 +59,7 @@ public final class VariantAnalysisProtos {
       super(builder);
     }
     private ComplexVariant() {
+      secondaryAlternates_ = java.util.Collections.emptyList();
     }
 
     @java.lang.Override
@@ -63,14 +88,22 @@ public final class VariantAnalysisProtos {
             }
             case 10: {
               if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
-                sampleToComplexGenotype_ = com.google.protobuf.MapField.newMapField(
-                    SampleToComplexGenotypeDefaultEntryHolder.defaultEntry);
+                secondaryAlternates_ = new java.util.ArrayList<org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate>();
                 mutable_bitField0_ |= 0x00000001;
               }
-              com.google.protobuf.MapEntry<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype>
-              sampleToComplexGenotype = input.readMessage(
-                  SampleToComplexGenotypeDefaultEntryHolder.defaultEntry.getParserForType(), extensionRegistry);
-              sampleToComplexGenotype_.getMutableMap().put(sampleToComplexGenotype.getKey(), sampleToComplexGenotype.getValue());
+              secondaryAlternates_.add(input.readMessage(org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate.parser(), extensionRegistry));
+              break;
+            }
+            case 18: {
+              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+                sampleToGenotype_ = com.google.protobuf.MapField.newMapField(
+                    SampleToGenotypeDefaultEntryHolder.defaultEntry);
+                mutable_bitField0_ |= 0x00000002;
+              }
+              com.google.protobuf.MapEntry<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype>
+              sampleToGenotype = input.readMessage(
+                  SampleToGenotypeDefaultEntryHolder.defaultEntry.getParserForType(), extensionRegistry);
+              sampleToGenotype_.getMutableMap().put(sampleToGenotype.getKey(), sampleToGenotype.getValue());
               break;
             }
           }
@@ -82,6 +115,9 @@ public final class VariantAnalysisProtos {
             new com.google.protobuf.InvalidProtocolBufferException(
                 e.getMessage()).setUnfinishedMessage(this));
       } finally {
+        if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+          secondaryAlternates_ = java.util.Collections.unmodifiableList(secondaryAlternates_);
+        }
         makeExtensionsImmutable();
       }
     }
@@ -94,8 +130,8 @@ public final class VariantAnalysisProtos {
     protected com.google.protobuf.MapField internalGetMapField(
         int number) {
       switch (number) {
-        case 1:
-          return internalGetSampleToComplexGenotype();
+        case 2:
+          return internalGetSampleToGenotype();
         default:
           throw new RuntimeException(
               "Invalid map field number: " + number);
@@ -108,34 +144,69 @@ public final class VariantAnalysisProtos {
               org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexVariant.class, org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexVariant.Builder.class);
     }
 
-    public static final int SAMPLETOCOMPLEXGENOTYPE_FIELD_NUMBER = 1;
-    private static final class SampleToComplexGenotypeDefaultEntryHolder {
+    public static final int SECONDARYALTERNATES_FIELD_NUMBER = 1;
+    private java.util.List<org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate> secondaryAlternates_;
+    /**
+     * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 1;</code>
+     */
+    public java.util.List<org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate> getSecondaryAlternatesList() {
+      return secondaryAlternates_;
+    }
+    /**
+     * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 1;</code>
+     */
+    public java.util.List<? extends org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinateOrBuilder> 
+        getSecondaryAlternatesOrBuilderList() {
+      return secondaryAlternates_;
+    }
+    /**
+     * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 1;</code>
+     */
+    public int getSecondaryAlternatesCount() {
+      return secondaryAlternates_.size();
+    }
+    /**
+     * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 1;</code>
+     */
+    public org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate getSecondaryAlternates(int index) {
+      return secondaryAlternates_.get(index);
+    }
+    /**
+     * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 1;</code>
+     */
+    public org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinateOrBuilder getSecondaryAlternatesOrBuilder(
+        int index) {
+      return secondaryAlternates_.get(index);
+    }
+
+    public static final int SAMPLETOGENOTYPE_FIELD_NUMBER = 2;
+    private static final class SampleToGenotypeDefaultEntryHolder {
       static final com.google.protobuf.MapEntry<
-          java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype> defaultEntry =
+          java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype> defaultEntry =
               com.google.protobuf.MapEntry
-              .<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype>newDefaultInstance(
-                  org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.internal_static_org_opencb_biodata_models_variant_protobuf_ComplexVariant_SampleToComplexGenotypeEntry_descriptor, 
+              .<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype>newDefaultInstance(
+                  org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.internal_static_org_opencb_biodata_models_variant_protobuf_ComplexVariant_SampleToGenotypeEntry_descriptor, 
                   com.google.protobuf.WireFormat.FieldType.INT32,
                   0,
                   com.google.protobuf.WireFormat.FieldType.MESSAGE,
-                  org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype.getDefaultInstance());
+                  org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype.getDefaultInstance());
     }
     private com.google.protobuf.MapField<
-        java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype> sampleToComplexGenotype_;
-    private com.google.protobuf.MapField<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype>
-    internalGetSampleToComplexGenotype() {
-      if (sampleToComplexGenotype_ == null) {
+        java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype> sampleToGenotype_;
+    private com.google.protobuf.MapField<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype>
+    internalGetSampleToGenotype() {
+      if (sampleToGenotype_ == null) {
         return com.google.protobuf.MapField.emptyMapField(
-            SampleToComplexGenotypeDefaultEntryHolder.defaultEntry);
+            SampleToGenotypeDefaultEntryHolder.defaultEntry);
      }
-      return sampleToComplexGenotype_;
+      return sampleToGenotype_;
     }
     /**
-     * <code>map&lt;int32, .org.opencb.biodata.models.variant.protobuf.ComplexGenotype&gt; sampleToComplexGenotype = 1;</code>
+     * <code>map&lt;int32, .org.opencb.biodata.models.variant.protobuf.Genotype&gt; sampleToGenotype = 2;</code>
      */
 
-    public java.util.Map<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype> getSampleToComplexGenotype() {
-      return internalGetSampleToComplexGenotype().getMap();
+    public java.util.Map<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype> getSampleToGenotype() {
+      return internalGetSampleToGenotype().getMap();
     }
 
     private byte memoizedIsInitialized = -1;
@@ -150,14 +221,17 @@ public final class VariantAnalysisProtos {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      for (java.util.Map.Entry<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype> entry
-           : internalGetSampleToComplexGenotype().getMap().entrySet()) {
-        com.google.protobuf.MapEntry<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype>
-        sampleToComplexGenotype = SampleToComplexGenotypeDefaultEntryHolder.defaultEntry.newBuilderForType()
+      for (int i = 0; i < secondaryAlternates_.size(); i++) {
+        output.writeMessage(1, secondaryAlternates_.get(i));
+      }
+      for (java.util.Map.Entry<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype> entry
+           : internalGetSampleToGenotype().getMap().entrySet()) {
+        com.google.protobuf.MapEntry<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype>
+        sampleToGenotype = SampleToGenotypeDefaultEntryHolder.defaultEntry.newBuilderForType()
             .setKey(entry.getKey())
             .setValue(entry.getValue())
             .build();
-        output.writeMessage(1, sampleToComplexGenotype);
+        output.writeMessage(2, sampleToGenotype);
       }
     }
 
@@ -166,15 +240,19 @@ public final class VariantAnalysisProtos {
       if (size != -1) return size;
 
       size = 0;
-      for (java.util.Map.Entry<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype> entry
-           : internalGetSampleToComplexGenotype().getMap().entrySet()) {
-        com.google.protobuf.MapEntry<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype>
-        sampleToComplexGenotype = SampleToComplexGenotypeDefaultEntryHolder.defaultEntry.newBuilderForType()
+      for (int i = 0; i < secondaryAlternates_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, secondaryAlternates_.get(i));
+      }
+      for (java.util.Map.Entry<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype> entry
+           : internalGetSampleToGenotype().getMap().entrySet()) {
+        com.google.protobuf.MapEntry<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype>
+        sampleToGenotype = SampleToGenotypeDefaultEntryHolder.defaultEntry.newBuilderForType()
             .setKey(entry.getKey())
             .setValue(entry.getValue())
             .build();
         size += com.google.protobuf.CodedOutputStream
-            .computeMessageSize(1, sampleToComplexGenotype);
+            .computeMessageSize(2, sampleToGenotype);
       }
       memoizedSize = size;
       return size;
@@ -273,8 +351,8 @@ public final class VariantAnalysisProtos {
       protected com.google.protobuf.MapField internalGetMapField(
           int number) {
         switch (number) {
-          case 1:
-            return internalGetSampleToComplexGenotype();
+          case 2:
+            return internalGetSampleToGenotype();
           default:
             throw new RuntimeException(
                 "Invalid map field number: " + number);
@@ -284,8 +362,8 @@ public final class VariantAnalysisProtos {
       protected com.google.protobuf.MapField internalGetMutableMapField(
           int number) {
         switch (number) {
-          case 1:
-            return internalGetMutableSampleToComplexGenotype();
+          case 2:
+            return internalGetMutableSampleToGenotype();
           default:
             throw new RuntimeException(
                 "Invalid map field number: " + number);
@@ -310,11 +388,18 @@ public final class VariantAnalysisProtos {
       }
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getSecondaryAlternatesFieldBuilder();
         }
       }
       public Builder clear() {
         super.clear();
-        internalGetMutableSampleToComplexGenotype().clear();
+        if (secondaryAlternatesBuilder_ == null) {
+          secondaryAlternates_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+        } else {
+          secondaryAlternatesBuilder_.clear();
+        }
+        internalGetMutableSampleToGenotype().clear();
         return this;
       }
 
@@ -338,8 +423,17 @@ public final class VariantAnalysisProtos {
       public org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexVariant buildPartial() {
         org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexVariant result = new org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexVariant(this);
         int from_bitField0_ = bitField0_;
-        result.sampleToComplexGenotype_ = internalGetSampleToComplexGenotype();
-        result.sampleToComplexGenotype_.makeImmutable();
+        if (secondaryAlternatesBuilder_ == null) {
+          if (((bitField0_ & 0x00000001) == 0x00000001)) {
+            secondaryAlternates_ = java.util.Collections.unmodifiableList(secondaryAlternates_);
+            bitField0_ = (bitField0_ & ~0x00000001);
+          }
+          result.secondaryAlternates_ = secondaryAlternates_;
+        } else {
+          result.secondaryAlternates_ = secondaryAlternatesBuilder_.build();
+        }
+        result.sampleToGenotype_ = internalGetSampleToGenotype();
+        result.sampleToGenotype_.makeImmutable();
         onBuilt();
         return result;
       }
@@ -355,8 +449,34 @@ public final class VariantAnalysisProtos {
 
       public Builder mergeFrom(org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexVariant other) {
         if (other == org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexVariant.getDefaultInstance()) return this;
-        internalGetMutableSampleToComplexGenotype().mergeFrom(
-            other.internalGetSampleToComplexGenotype());
+        if (secondaryAlternatesBuilder_ == null) {
+          if (!other.secondaryAlternates_.isEmpty()) {
+            if (secondaryAlternates_.isEmpty()) {
+              secondaryAlternates_ = other.secondaryAlternates_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+            } else {
+              ensureSecondaryAlternatesIsMutable();
+              secondaryAlternates_.addAll(other.secondaryAlternates_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.secondaryAlternates_.isEmpty()) {
+            if (secondaryAlternatesBuilder_.isEmpty()) {
+              secondaryAlternatesBuilder_.dispose();
+              secondaryAlternatesBuilder_ = null;
+              secondaryAlternates_ = other.secondaryAlternates_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+              secondaryAlternatesBuilder_ = 
+                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                   getSecondaryAlternatesFieldBuilder() : null;
+            } else {
+              secondaryAlternatesBuilder_.addAllMessages(other.secondaryAlternates_);
+            }
+          }
+        }
+        internalGetMutableSampleToGenotype().mergeFrom(
+            other.internalGetSampleToGenotype());
         onChanged();
         return this;
       }
@@ -384,47 +504,287 @@ public final class VariantAnalysisProtos {
       }
       private int bitField0_;
 
+      private java.util.List<org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate> secondaryAlternates_ =
+        java.util.Collections.emptyList();
+      private void ensureSecondaryAlternatesIsMutable() {
+        if (!((bitField0_ & 0x00000001) == 0x00000001)) {
+          secondaryAlternates_ = new java.util.ArrayList<org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate>(secondaryAlternates_);
+          bitField0_ |= 0x00000001;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate.Builder, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinateOrBuilder> secondaryAlternatesBuilder_;
+
+      /**
+       * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 1;</code>
+       */
+      public java.util.List<org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate> getSecondaryAlternatesList() {
+        if (secondaryAlternatesBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(secondaryAlternates_);
+        } else {
+          return secondaryAlternatesBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 1;</code>
+       */
+      public int getSecondaryAlternatesCount() {
+        if (secondaryAlternatesBuilder_ == null) {
+          return secondaryAlternates_.size();
+        } else {
+          return secondaryAlternatesBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 1;</code>
+       */
+      public org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate getSecondaryAlternates(int index) {
+        if (secondaryAlternatesBuilder_ == null) {
+          return secondaryAlternates_.get(index);
+        } else {
+          return secondaryAlternatesBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 1;</code>
+       */
+      public Builder setSecondaryAlternates(
+          int index, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate value) {
+        if (secondaryAlternatesBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureSecondaryAlternatesIsMutable();
+          secondaryAlternates_.set(index, value);
+          onChanged();
+        } else {
+          secondaryAlternatesBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 1;</code>
+       */
+      public Builder setSecondaryAlternates(
+          int index, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate.Builder builderForValue) {
+        if (secondaryAlternatesBuilder_ == null) {
+          ensureSecondaryAlternatesIsMutable();
+          secondaryAlternates_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          secondaryAlternatesBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 1;</code>
+       */
+      public Builder addSecondaryAlternates(org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate value) {
+        if (secondaryAlternatesBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureSecondaryAlternatesIsMutable();
+          secondaryAlternates_.add(value);
+          onChanged();
+        } else {
+          secondaryAlternatesBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 1;</code>
+       */
+      public Builder addSecondaryAlternates(
+          int index, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate value) {
+        if (secondaryAlternatesBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureSecondaryAlternatesIsMutable();
+          secondaryAlternates_.add(index, value);
+          onChanged();
+        } else {
+          secondaryAlternatesBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 1;</code>
+       */
+      public Builder addSecondaryAlternates(
+          org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate.Builder builderForValue) {
+        if (secondaryAlternatesBuilder_ == null) {
+          ensureSecondaryAlternatesIsMutable();
+          secondaryAlternates_.add(builderForValue.build());
+          onChanged();
+        } else {
+          secondaryAlternatesBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 1;</code>
+       */
+      public Builder addSecondaryAlternates(
+          int index, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate.Builder builderForValue) {
+        if (secondaryAlternatesBuilder_ == null) {
+          ensureSecondaryAlternatesIsMutable();
+          secondaryAlternates_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          secondaryAlternatesBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 1;</code>
+       */
+      public Builder addAllSecondaryAlternates(
+          java.lang.Iterable<? extends org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate> values) {
+        if (secondaryAlternatesBuilder_ == null) {
+          ensureSecondaryAlternatesIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, secondaryAlternates_);
+          onChanged();
+        } else {
+          secondaryAlternatesBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 1;</code>
+       */
+      public Builder clearSecondaryAlternates() {
+        if (secondaryAlternatesBuilder_ == null) {
+          secondaryAlternates_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+          onChanged();
+        } else {
+          secondaryAlternatesBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 1;</code>
+       */
+      public Builder removeSecondaryAlternates(int index) {
+        if (secondaryAlternatesBuilder_ == null) {
+          ensureSecondaryAlternatesIsMutable();
+          secondaryAlternates_.remove(index);
+          onChanged();
+        } else {
+          secondaryAlternatesBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 1;</code>
+       */
+      public org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate.Builder getSecondaryAlternatesBuilder(
+          int index) {
+        return getSecondaryAlternatesFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 1;</code>
+       */
+      public org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinateOrBuilder getSecondaryAlternatesOrBuilder(
+          int index) {
+        if (secondaryAlternatesBuilder_ == null) {
+          return secondaryAlternates_.get(index);  } else {
+          return secondaryAlternatesBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 1;</code>
+       */
+      public java.util.List<? extends org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinateOrBuilder> 
+           getSecondaryAlternatesOrBuilderList() {
+        if (secondaryAlternatesBuilder_ != null) {
+          return secondaryAlternatesBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(secondaryAlternates_);
+        }
+      }
+      /**
+       * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 1;</code>
+       */
+      public org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate.Builder addSecondaryAlternatesBuilder() {
+        return getSecondaryAlternatesFieldBuilder().addBuilder(
+            org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 1;</code>
+       */
+      public org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate.Builder addSecondaryAlternatesBuilder(
+          int index) {
+        return getSecondaryAlternatesFieldBuilder().addBuilder(
+            index, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate secondaryAlternates = 1;</code>
+       */
+      public java.util.List<org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate.Builder> 
+           getSecondaryAlternatesBuilderList() {
+        return getSecondaryAlternatesFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate.Builder, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinateOrBuilder> 
+          getSecondaryAlternatesFieldBuilder() {
+        if (secondaryAlternatesBuilder_ == null) {
+          secondaryAlternatesBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate.Builder, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinateOrBuilder>(
+                  secondaryAlternates_,
+                  ((bitField0_ & 0x00000001) == 0x00000001),
+                  getParentForChildren(),
+                  isClean());
+          secondaryAlternates_ = null;
+        }
+        return secondaryAlternatesBuilder_;
+      }
+
       private com.google.protobuf.MapField<
-          java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype> sampleToComplexGenotype_;
-      private com.google.protobuf.MapField<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype>
-      internalGetSampleToComplexGenotype() {
-        if (sampleToComplexGenotype_ == null) {
+          java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype> sampleToGenotype_;
+      private com.google.protobuf.MapField<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype>
+      internalGetSampleToGenotype() {
+        if (sampleToGenotype_ == null) {
           return com.google.protobuf.MapField.emptyMapField(
-              SampleToComplexGenotypeDefaultEntryHolder.defaultEntry);
+              SampleToGenotypeDefaultEntryHolder.defaultEntry);
        }
-        return sampleToComplexGenotype_;
+        return sampleToGenotype_;
       }
-      private com.google.protobuf.MapField<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype>
-      internalGetMutableSampleToComplexGenotype() {
+      private com.google.protobuf.MapField<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype>
+      internalGetMutableSampleToGenotype() {
         onChanged();;
-        if (sampleToComplexGenotype_ == null) {
-          sampleToComplexGenotype_ = com.google.protobuf.MapField.newMapField(
-              SampleToComplexGenotypeDefaultEntryHolder.defaultEntry);
+        if (sampleToGenotype_ == null) {
+          sampleToGenotype_ = com.google.protobuf.MapField.newMapField(
+              SampleToGenotypeDefaultEntryHolder.defaultEntry);
         }
-        if (!sampleToComplexGenotype_.isMutable()) {
-          sampleToComplexGenotype_ = sampleToComplexGenotype_.copy();
+        if (!sampleToGenotype_.isMutable()) {
+          sampleToGenotype_ = sampleToGenotype_.copy();
         }
-        return sampleToComplexGenotype_;
+        return sampleToGenotype_;
       }
       /**
-       * <code>map&lt;int32, .org.opencb.biodata.models.variant.protobuf.ComplexGenotype&gt; sampleToComplexGenotype = 1;</code>
+       * <code>map&lt;int32, .org.opencb.biodata.models.variant.protobuf.Genotype&gt; sampleToGenotype = 2;</code>
        */
-      public java.util.Map<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype> getSampleToComplexGenotype() {
-        return internalGetSampleToComplexGenotype().getMap();
+      public java.util.Map<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype> getSampleToGenotype() {
+        return internalGetSampleToGenotype().getMap();
       }
       /**
-       * <code>map&lt;int32, .org.opencb.biodata.models.variant.protobuf.ComplexGenotype&gt; sampleToComplexGenotype = 1;</code>
+       * <code>map&lt;int32, .org.opencb.biodata.models.variant.protobuf.Genotype&gt; sampleToGenotype = 2;</code>
        */
-      public java.util.Map<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype>
-      getMutableSampleToComplexGenotype() {
-        return internalGetMutableSampleToComplexGenotype().getMutableMap();
+      public java.util.Map<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype>
+      getMutableSampleToGenotype() {
+        return internalGetMutableSampleToGenotype().getMutableMap();
       }
       /**
-       * <code>map&lt;int32, .org.opencb.biodata.models.variant.protobuf.ComplexGenotype&gt; sampleToComplexGenotype = 1;</code>
+       * <code>map&lt;int32, .org.opencb.biodata.models.variant.protobuf.Genotype&gt; sampleToGenotype = 2;</code>
        */
-      public Builder putAllSampleToComplexGenotype(
-          java.util.Map<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype> values) {
-        getMutableSampleToComplexGenotype().putAll(values);
+      public Builder putAllSampleToGenotype(
+          java.util.Map<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype> values) {
+        getMutableSampleToGenotype().putAll(values);
         return this;
       }
       public final Builder setUnknownFields(
@@ -485,693 +845,16 @@ public final class VariantAnalysisProtos {
 
   }
 
-  public interface ComplexGenotypeOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:org.opencb.biodata.models.variant.protobuf.ComplexGenotype)
-      com.google.protobuf.MessageOrBuilder {
-
-    /**
-     * <code>optional .org.opencb.biodata.models.variant.protobuf.Genotype genotype = 1;</code>
-     */
-    boolean hasGenotype();
-    /**
-     * <code>optional .org.opencb.biodata.models.variant.protobuf.Genotype genotype = 1;</code>
-     */
-    org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype getGenotype();
-    /**
-     * <code>optional .org.opencb.biodata.models.variant.protobuf.Genotype genotype = 1;</code>
-     */
-    org.opencb.biodata.models.variant.protobuf.VariantProto.GenotypeOrBuilder getGenotypeOrBuilder();
-
-    /**
-     * <code>map&lt;int32, .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate&gt; secondaryAlternates = 2;</code>
-     */
-    java.util.Map<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate>
-    getSecondaryAlternates();
-  }
-  /**
-   * Protobuf type {@code org.opencb.biodata.models.variant.protobuf.ComplexGenotype}
-   *
-   * <pre>
-   ** 
-   ** Genotype for one individual, which is more complex than
-   ** hom_ref, het_var, hom_var and no-call.
-   * </pre>
-   */
-  public  static final class ComplexGenotype extends
-      com.google.protobuf.GeneratedMessage implements
-      // @@protoc_insertion_point(message_implements:org.opencb.biodata.models.variant.protobuf.ComplexGenotype)
-      ComplexGenotypeOrBuilder {
-    // Use ComplexGenotype.newBuilder() to construct.
-    private ComplexGenotype(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
-      super(builder);
-    }
-    private ComplexGenotype() {
-    }
-
-    @java.lang.Override
-    public final com.google.protobuf.UnknownFieldSet
-    getUnknownFields() {
-      return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
-    }
-    private ComplexGenotype(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
-      this();
-      int mutable_bitField0_ = 0;
-      try {
-        boolean done = false;
-        while (!done) {
-          int tag = input.readTag();
-          switch (tag) {
-            case 0:
-              done = true;
-              break;
-            default: {
-              if (!input.skipField(tag)) {
-                done = true;
-              }
-              break;
-            }
-            case 10: {
-              org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype.Builder subBuilder = null;
-              if (genotype_ != null) {
-                subBuilder = genotype_.toBuilder();
-              }
-              genotype_ = input.readMessage(org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype.parser(), extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom(genotype_);
-                genotype_ = subBuilder.buildPartial();
-              }
-
-              break;
-            }
-            case 18: {
-              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
-                secondaryAlternates_ = com.google.protobuf.MapField.newMapField(
-                    SecondaryAlternatesDefaultEntryHolder.defaultEntry);
-                mutable_bitField0_ |= 0x00000002;
-              }
-              com.google.protobuf.MapEntry<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate>
-              secondaryAlternates = input.readMessage(
-                  SecondaryAlternatesDefaultEntryHolder.defaultEntry.getParserForType(), extensionRegistry);
-              secondaryAlternates_.getMutableMap().put(secondaryAlternates.getKey(), secondaryAlternates.getValue());
-              break;
-            }
-          }
-        }
-      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw new RuntimeException(e.setUnfinishedMessage(this));
-      } catch (java.io.IOException e) {
-        throw new RuntimeException(
-            new com.google.protobuf.InvalidProtocolBufferException(
-                e.getMessage()).setUnfinishedMessage(this));
-      } finally {
-        makeExtensionsImmutable();
-      }
-    }
-    public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
-      return org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.internal_static_org_opencb_biodata_models_variant_protobuf_ComplexGenotype_descriptor;
-    }
-
-    @SuppressWarnings({"rawtypes"})
-    protected com.google.protobuf.MapField internalGetMapField(
-        int number) {
-      switch (number) {
-        case 2:
-          return internalGetSecondaryAlternates();
-        default:
-          throw new RuntimeException(
-              "Invalid map field number: " + number);
-      }
-    }
-    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-      return org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.internal_static_org_opencb_biodata_models_variant_protobuf_ComplexGenotype_fieldAccessorTable
-          .ensureFieldAccessorsInitialized(
-              org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype.class, org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype.Builder.class);
-    }
-
-    private int bitField0_;
-    public static final int GENOTYPE_FIELD_NUMBER = 1;
-    private org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype genotype_;
-    /**
-     * <code>optional .org.opencb.biodata.models.variant.protobuf.Genotype genotype = 1;</code>
-     */
-    public boolean hasGenotype() {
-      return genotype_ != null;
-    }
-    /**
-     * <code>optional .org.opencb.biodata.models.variant.protobuf.Genotype genotype = 1;</code>
-     */
-    public org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype getGenotype() {
-      return genotype_ == null ? org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype.getDefaultInstance() : genotype_;
-    }
-    /**
-     * <code>optional .org.opencb.biodata.models.variant.protobuf.Genotype genotype = 1;</code>
-     */
-    public org.opencb.biodata.models.variant.protobuf.VariantProto.GenotypeOrBuilder getGenotypeOrBuilder() {
-      return getGenotype();
-    }
-
-    public static final int SECONDARYALTERNATES_FIELD_NUMBER = 2;
-    private static final class SecondaryAlternatesDefaultEntryHolder {
-      static final com.google.protobuf.MapEntry<
-          java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate> defaultEntry =
-              com.google.protobuf.MapEntry
-              .<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate>newDefaultInstance(
-                  org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.internal_static_org_opencb_biodata_models_variant_protobuf_ComplexGenotype_SecondaryAlternatesEntry_descriptor, 
-                  com.google.protobuf.WireFormat.FieldType.INT32,
-                  0,
-                  com.google.protobuf.WireFormat.FieldType.MESSAGE,
-                  org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate.getDefaultInstance());
-    }
-    private com.google.protobuf.MapField<
-        java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate> secondaryAlternates_;
-    private com.google.protobuf.MapField<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate>
-    internalGetSecondaryAlternates() {
-      if (secondaryAlternates_ == null) {
-        return com.google.protobuf.MapField.emptyMapField(
-            SecondaryAlternatesDefaultEntryHolder.defaultEntry);
-     }
-      return secondaryAlternates_;
-    }
-    /**
-     * <code>map&lt;int32, .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate&gt; secondaryAlternates = 2;</code>
-     */
-
-    public java.util.Map<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate> getSecondaryAlternates() {
-      return internalGetSecondaryAlternates().getMap();
-    }
-
-    private byte memoizedIsInitialized = -1;
-    public final boolean isInitialized() {
-      byte isInitialized = memoizedIsInitialized;
-      if (isInitialized == 1) return true;
-      if (isInitialized == 0) return false;
-
-      memoizedIsInitialized = 1;
-      return true;
-    }
-
-    public void writeTo(com.google.protobuf.CodedOutputStream output)
-                        throws java.io.IOException {
-      if (genotype_ != null) {
-        output.writeMessage(1, getGenotype());
-      }
-      for (java.util.Map.Entry<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate> entry
-           : internalGetSecondaryAlternates().getMap().entrySet()) {
-        com.google.protobuf.MapEntry<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate>
-        secondaryAlternates = SecondaryAlternatesDefaultEntryHolder.defaultEntry.newBuilderForType()
-            .setKey(entry.getKey())
-            .setValue(entry.getValue())
-            .build();
-        output.writeMessage(2, secondaryAlternates);
-      }
-    }
-
-    public int getSerializedSize() {
-      int size = memoizedSize;
-      if (size != -1) return size;
-
-      size = 0;
-      if (genotype_ != null) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(1, getGenotype());
-      }
-      for (java.util.Map.Entry<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate> entry
-           : internalGetSecondaryAlternates().getMap().entrySet()) {
-        com.google.protobuf.MapEntry<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate>
-        secondaryAlternates = SecondaryAlternatesDefaultEntryHolder.defaultEntry.newBuilderForType()
-            .setKey(entry.getKey())
-            .setValue(entry.getValue())
-            .build();
-        size += com.google.protobuf.CodedOutputStream
-            .computeMessageSize(2, secondaryAlternates);
-      }
-      memoizedSize = size;
-      return size;
-    }
-
-    private static final long serialVersionUID = 0L;
-    public static org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return PARSER.parseFrom(input);
-    }
-    public static org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
-    }
-    public static org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input);
-    }
-    public static org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input, extensionRegistry);
-    }
-    public static org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return PARSER.parseFrom(input);
-    }
-    public static org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
-    }
-
-    public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder() {
-      return DEFAULT_INSTANCE.toBuilder();
-    }
-    public static Builder newBuilder(org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype prototype) {
-      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
-    }
-    public Builder toBuilder() {
-      return this == DEFAULT_INSTANCE
-          ? new Builder() : new Builder().mergeFrom(this);
-    }
-
-    @java.lang.Override
-    protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
-      Builder builder = new Builder(parent);
-      return builder;
-    }
-    /**
-     * Protobuf type {@code org.opencb.biodata.models.variant.protobuf.ComplexGenotype}
-     *
-     * <pre>
-     ** 
-     ** Genotype for one individual, which is more complex than
-     ** hom_ref, het_var, hom_var and no-call.
-     * </pre>
-     */
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:org.opencb.biodata.models.variant.protobuf.ComplexGenotype)
-        org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotypeOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.internal_static_org_opencb_biodata_models_variant_protobuf_ComplexGenotype_descriptor;
-      }
-
-      @SuppressWarnings({"rawtypes"})
-      protected com.google.protobuf.MapField internalGetMapField(
-          int number) {
-        switch (number) {
-          case 2:
-            return internalGetSecondaryAlternates();
-          default:
-            throw new RuntimeException(
-                "Invalid map field number: " + number);
-        }
-      }
-      @SuppressWarnings({"rawtypes"})
-      protected com.google.protobuf.MapField internalGetMutableMapField(
-          int number) {
-        switch (number) {
-          case 2:
-            return internalGetMutableSecondaryAlternates();
-          default:
-            throw new RuntimeException(
-                "Invalid map field number: " + number);
-        }
-      }
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.internal_static_org_opencb_biodata_models_variant_protobuf_ComplexGenotype_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(
-                org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype.class, org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype.Builder.class);
-      }
-
-      // Construct using org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
-      }
-
-      private Builder(
-          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
-        super(parent);
-        maybeForceBuilderInitialization();
-      }
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-        }
-      }
-      public Builder clear() {
-        super.clear();
-        if (genotypeBuilder_ == null) {
-          genotype_ = null;
-        } else {
-          genotype_ = null;
-          genotypeBuilder_ = null;
-        }
-        internalGetMutableSecondaryAlternates().clear();
-        return this;
-      }
-
-      public com.google.protobuf.Descriptors.Descriptor
-          getDescriptorForType() {
-        return org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.internal_static_org_opencb_biodata_models_variant_protobuf_ComplexGenotype_descriptor;
-      }
-
-      public org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype getDefaultInstanceForType() {
-        return org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype.getDefaultInstance();
-      }
-
-      public org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype build() {
-        org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype result = buildPartial();
-        if (!result.isInitialized()) {
-          throw newUninitializedMessageException(result);
-        }
-        return result;
-      }
-
-      public org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype buildPartial() {
-        org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype result = new org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype(this);
-        int from_bitField0_ = bitField0_;
-        int to_bitField0_ = 0;
-        if (genotypeBuilder_ == null) {
-          result.genotype_ = genotype_;
-        } else {
-          result.genotype_ = genotypeBuilder_.build();
-        }
-        result.secondaryAlternates_ = internalGetSecondaryAlternates();
-        result.secondaryAlternates_.makeImmutable();
-        result.bitField0_ = to_bitField0_;
-        onBuilt();
-        return result;
-      }
-
-      public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype) {
-          return mergeFrom((org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype)other);
-        } else {
-          super.mergeFrom(other);
-          return this;
-        }
-      }
-
-      public Builder mergeFrom(org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype other) {
-        if (other == org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype.getDefaultInstance()) return this;
-        if (other.hasGenotype()) {
-          mergeGenotype(other.getGenotype());
-        }
-        internalGetMutableSecondaryAlternates().mergeFrom(
-            other.internalGetSecondaryAlternates());
-        onChanged();
-        return this;
-      }
-
-      public final boolean isInitialized() {
-        return true;
-      }
-
-      public Builder mergeFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype parsedMessage = null;
-        try {
-          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
-        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype) e.getUnfinishedMessage();
-          throw e;
-        } finally {
-          if (parsedMessage != null) {
-            mergeFrom(parsedMessage);
-          }
-        }
-        return this;
-      }
-      private int bitField0_;
-
-      private org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype genotype_ = null;
-      private com.google.protobuf.SingleFieldBuilder<
-          org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype, org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype.Builder, org.opencb.biodata.models.variant.protobuf.VariantProto.GenotypeOrBuilder> genotypeBuilder_;
-      /**
-       * <code>optional .org.opencb.biodata.models.variant.protobuf.Genotype genotype = 1;</code>
-       */
-      public boolean hasGenotype() {
-        return genotypeBuilder_ != null || genotype_ != null;
-      }
-      /**
-       * <code>optional .org.opencb.biodata.models.variant.protobuf.Genotype genotype = 1;</code>
-       */
-      public org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype getGenotype() {
-        if (genotypeBuilder_ == null) {
-          return genotype_ == null ? org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype.getDefaultInstance() : genotype_;
-        } else {
-          return genotypeBuilder_.getMessage();
-        }
-      }
-      /**
-       * <code>optional .org.opencb.biodata.models.variant.protobuf.Genotype genotype = 1;</code>
-       */
-      public Builder setGenotype(org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype value) {
-        if (genotypeBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          genotype_ = value;
-          onChanged();
-        } else {
-          genotypeBuilder_.setMessage(value);
-        }
-
-        return this;
-      }
-      /**
-       * <code>optional .org.opencb.biodata.models.variant.protobuf.Genotype genotype = 1;</code>
-       */
-      public Builder setGenotype(
-          org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype.Builder builderForValue) {
-        if (genotypeBuilder_ == null) {
-          genotype_ = builderForValue.build();
-          onChanged();
-        } else {
-          genotypeBuilder_.setMessage(builderForValue.build());
-        }
-
-        return this;
-      }
-      /**
-       * <code>optional .org.opencb.biodata.models.variant.protobuf.Genotype genotype = 1;</code>
-       */
-      public Builder mergeGenotype(org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype value) {
-        if (genotypeBuilder_ == null) {
-          if (genotype_ != null) {
-            genotype_ =
-              org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype.newBuilder(genotype_).mergeFrom(value).buildPartial();
-          } else {
-            genotype_ = value;
-          }
-          onChanged();
-        } else {
-          genotypeBuilder_.mergeFrom(value);
-        }
-
-        return this;
-      }
-      /**
-       * <code>optional .org.opencb.biodata.models.variant.protobuf.Genotype genotype = 1;</code>
-       */
-      public Builder clearGenotype() {
-        if (genotypeBuilder_ == null) {
-          genotype_ = null;
-          onChanged();
-        } else {
-          genotype_ = null;
-          genotypeBuilder_ = null;
-        }
-
-        return this;
-      }
-      /**
-       * <code>optional .org.opencb.biodata.models.variant.protobuf.Genotype genotype = 1;</code>
-       */
-      public org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype.Builder getGenotypeBuilder() {
-        
-        onChanged();
-        return getGenotypeFieldBuilder().getBuilder();
-      }
-      /**
-       * <code>optional .org.opencb.biodata.models.variant.protobuf.Genotype genotype = 1;</code>
-       */
-      public org.opencb.biodata.models.variant.protobuf.VariantProto.GenotypeOrBuilder getGenotypeOrBuilder() {
-        if (genotypeBuilder_ != null) {
-          return genotypeBuilder_.getMessageOrBuilder();
-        } else {
-          return genotype_ == null ?
-              org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype.getDefaultInstance() : genotype_;
-        }
-      }
-      /**
-       * <code>optional .org.opencb.biodata.models.variant.protobuf.Genotype genotype = 1;</code>
-       */
-      private com.google.protobuf.SingleFieldBuilder<
-          org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype, org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype.Builder, org.opencb.biodata.models.variant.protobuf.VariantProto.GenotypeOrBuilder> 
-          getGenotypeFieldBuilder() {
-        if (genotypeBuilder_ == null) {
-          genotypeBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-              org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype, org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype.Builder, org.opencb.biodata.models.variant.protobuf.VariantProto.GenotypeOrBuilder>(
-                  getGenotype(),
-                  getParentForChildren(),
-                  isClean());
-          genotype_ = null;
-        }
-        return genotypeBuilder_;
-      }
-
-      private com.google.protobuf.MapField<
-          java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate> secondaryAlternates_;
-      private com.google.protobuf.MapField<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate>
-      internalGetSecondaryAlternates() {
-        if (secondaryAlternates_ == null) {
-          return com.google.protobuf.MapField.emptyMapField(
-              SecondaryAlternatesDefaultEntryHolder.defaultEntry);
-       }
-        return secondaryAlternates_;
-      }
-      private com.google.protobuf.MapField<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate>
-      internalGetMutableSecondaryAlternates() {
-        onChanged();;
-        if (secondaryAlternates_ == null) {
-          secondaryAlternates_ = com.google.protobuf.MapField.newMapField(
-              SecondaryAlternatesDefaultEntryHolder.defaultEntry);
-        }
-        if (!secondaryAlternates_.isMutable()) {
-          secondaryAlternates_ = secondaryAlternates_.copy();
-        }
-        return secondaryAlternates_;
-      }
-      /**
-       * <code>map&lt;int32, .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate&gt; secondaryAlternates = 2;</code>
-       */
-      public java.util.Map<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate> getSecondaryAlternates() {
-        return internalGetSecondaryAlternates().getMap();
-      }
-      /**
-       * <code>map&lt;int32, .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate&gt; secondaryAlternates = 2;</code>
-       */
-      public java.util.Map<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate>
-      getMutableSecondaryAlternates() {
-        return internalGetMutableSecondaryAlternates().getMutableMap();
-      }
-      /**
-       * <code>map&lt;int32, .org.opencb.biodata.models.variant.protobuf.AlternateCoordinate&gt; secondaryAlternates = 2;</code>
-       */
-      public Builder putAllSecondaryAlternates(
-          java.util.Map<java.lang.Integer, org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate> values) {
-        getMutableSecondaryAlternates().putAll(values);
-        return this;
-      }
-      public final Builder setUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return this;
-      }
-
-      public final Builder mergeUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return this;
-      }
-
-
-      // @@protoc_insertion_point(builder_scope:org.opencb.biodata.models.variant.protobuf.ComplexGenotype)
-    }
-
-    // @@protoc_insertion_point(class_scope:org.opencb.biodata.models.variant.protobuf.ComplexGenotype)
-    private static final org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype DEFAULT_INSTANCE;
-    static {
-      DEFAULT_INSTANCE = new org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype();
-    }
-
-    public static org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype getDefaultInstance() {
-      return DEFAULT_INSTANCE;
-    }
-
-    private static final com.google.protobuf.Parser<ComplexGenotype>
-        PARSER = new com.google.protobuf.AbstractParser<ComplexGenotype>() {
-      public ComplexGenotype parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        try {
-          return new ComplexGenotype(input, extensionRegistry);
-        } catch (RuntimeException e) {
-          if (e.getCause() instanceof
-              com.google.protobuf.InvalidProtocolBufferException) {
-            throw (com.google.protobuf.InvalidProtocolBufferException)
-                e.getCause();
-          }
-          throw e;
-        }
-      }
-    };
-
-    public static com.google.protobuf.Parser<ComplexGenotype> parser() {
-      return PARSER;
-    }
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<ComplexGenotype> getParserForType() {
-      return PARSER;
-    }
-
-    public org.opencb.biodata.models.variant.protobuf.VariantAnalysisProtos.ComplexGenotype getDefaultInstanceForType() {
-      return DEFAULT_INSTANCE;
-    }
-
-  }
-
   private static com.google.protobuf.Descriptors.Descriptor
     internal_static_org_opencb_biodata_models_variant_protobuf_ComplexVariant_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_org_opencb_biodata_models_variant_protobuf_ComplexVariant_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
-    internal_static_org_opencb_biodata_models_variant_protobuf_ComplexVariant_SampleToComplexGenotypeEntry_descriptor;
+    internal_static_org_opencb_biodata_models_variant_protobuf_ComplexVariant_SampleToGenotypeEntry_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_org_opencb_biodata_models_variant_protobuf_ComplexVariant_SampleToComplexGenotypeEntry_fieldAccessorTable;
-  private static com.google.protobuf.Descriptors.Descriptor
-    internal_static_org_opencb_biodata_models_variant_protobuf_ComplexGenotype_descriptor;
-  private static
-    com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_org_opencb_biodata_models_variant_protobuf_ComplexGenotype_fieldAccessorTable;
-  private static com.google.protobuf.Descriptors.Descriptor
-    internal_static_org_opencb_biodata_models_variant_protobuf_ComplexGenotype_SecondaryAlternatesEntry_descriptor;
-  private static
-    com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_org_opencb_biodata_models_variant_protobuf_ComplexGenotype_SecondaryAlternatesEntry_fieldAccessorTable;
+      internal_static_org_opencb_biodata_models_variant_protobuf_ComplexVariant_SampleToGenotypeEntry_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -1183,23 +866,17 @@ public final class VariantAnalysisProtos {
     java.lang.String[] descriptorData = {
       "\n\025VariantAnalysis.proto\022*org.opencb.biod" +
       "ata.models.variant.protobuf\032\rvariant.pro" +
-      "to\"\207\002\n\016ComplexVariant\022x\n\027sampleToComplex" +
-      "Genotype\030\001 \003(\0132W.org.opencb.biodata.mode" +
-      "ls.variant.protobuf.ComplexVariant.Sampl" +
-      "eToComplexGenotypeEntry\032{\n\034SampleToCompl" +
-      "exGenotypeEntry\022\013\n\003key\030\001 \001(\005\022J\n\005value\030\002 " +
-      "\001(\0132;.org.opencb.biodata.models.variant." +
-      "protobuf.ComplexGenotype:\0028\001\"\311\002\n\017Complex" +
-      "Genotype\022F\n\010genotype\030\001 \001(\01324.org.opencb.",
-      "biodata.models.variant.protobuf.Genotype" +
-      "\022q\n\023secondaryAlternates\030\002 \003(\0132T.org.open" +
-      "cb.biodata.models.variant.protobuf.Compl" +
-      "exGenotype.SecondaryAlternatesEntry\032{\n\030S" +
-      "econdaryAlternatesEntry\022\013\n\003key\030\001 \001(\005\022N\n\005" +
-      "value\030\002 \001(\0132?.org.opencb.biodata.models." +
-      "variant.protobuf.AlternateCoordinate:\0028\001" +
-      "BC\n*org.opencb.biodata.models.variant.pr" +
-      "otobufB\025VariantAnalysisProtosb\006proto3"
+      "to\"\311\002\n\016ComplexVariant\022\\\n\023secondaryAltern" +
+      "ates\030\001 \003(\0132?.org.opencb.biodata.models.v" +
+      "ariant.protobuf.AlternateCoordinate\022j\n\020s" +
+      "ampleToGenotype\030\002 \003(\0132P.org.opencb.bioda" +
+      "ta.models.variant.protobuf.ComplexVarian" +
+      "t.SampleToGenotypeEntry\032m\n\025SampleToGenot" +
+      "ypeEntry\022\013\n\003key\030\001 \001(\005\022C\n\005value\030\002 \001(\01324.o" +
+      "rg.opencb.biodata.models.variant.protobu",
+      "f.Genotype:\0028\001BC\n*org.opencb.biodata.mod" +
+      "els.variant.protobufB\025VariantAnalysisPro" +
+      "tosb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -1219,24 +896,12 @@ public final class VariantAnalysisProtos {
     internal_static_org_opencb_biodata_models_variant_protobuf_ComplexVariant_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_org_opencb_biodata_models_variant_protobuf_ComplexVariant_descriptor,
-        new java.lang.String[] { "SampleToComplexGenotype", });
-    internal_static_org_opencb_biodata_models_variant_protobuf_ComplexVariant_SampleToComplexGenotypeEntry_descriptor =
+        new java.lang.String[] { "SecondaryAlternates", "SampleToGenotype", });
+    internal_static_org_opencb_biodata_models_variant_protobuf_ComplexVariant_SampleToGenotypeEntry_descriptor =
       internal_static_org_opencb_biodata_models_variant_protobuf_ComplexVariant_descriptor.getNestedTypes().get(0);
-    internal_static_org_opencb_biodata_models_variant_protobuf_ComplexVariant_SampleToComplexGenotypeEntry_fieldAccessorTable = new
+    internal_static_org_opencb_biodata_models_variant_protobuf_ComplexVariant_SampleToGenotypeEntry_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_org_opencb_biodata_models_variant_protobuf_ComplexVariant_SampleToComplexGenotypeEntry_descriptor,
-        new java.lang.String[] { "Key", "Value", });
-    internal_static_org_opencb_biodata_models_variant_protobuf_ComplexGenotype_descriptor =
-      getDescriptor().getMessageTypes().get(1);
-    internal_static_org_opencb_biodata_models_variant_protobuf_ComplexGenotype_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_org_opencb_biodata_models_variant_protobuf_ComplexGenotype_descriptor,
-        new java.lang.String[] { "Genotype", "SecondaryAlternates", });
-    internal_static_org_opencb_biodata_models_variant_protobuf_ComplexGenotype_SecondaryAlternatesEntry_descriptor =
-      internal_static_org_opencb_biodata_models_variant_protobuf_ComplexGenotype_descriptor.getNestedTypes().get(0);
-    internal_static_org_opencb_biodata_models_variant_protobuf_ComplexGenotype_SecondaryAlternatesEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_org_opencb_biodata_models_variant_protobuf_ComplexGenotype_SecondaryAlternatesEntry_descriptor,
+        internal_static_org_opencb_biodata_models_variant_protobuf_ComplexVariant_SampleToGenotypeEntry_descriptor,
         new java.lang.String[] { "Key", "Value", });
     org.opencb.biodata.models.variant.protobuf.VariantProto.getDescriptor();
   }
