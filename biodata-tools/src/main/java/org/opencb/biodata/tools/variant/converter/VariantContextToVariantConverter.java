@@ -392,7 +392,7 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         populationFrequency.setRefAlleleFreq(null);
         populationFrequency.setRefHomGenotypeFreq(null);
         populationFrequency.setStudy(null);
-        populationFrequency.setSuperPopulation(null);
+//        populationFrequency.setSuperPopulation(null);
 
         populationFrequencyList.add(populationFrequency);
         return populationFrequencyList;
@@ -450,7 +450,7 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         conservationScoreList.add(score);
         variantAnnotation.setConservation(conservationScoreList);
 
-        variantAnnotation.setEnd(0);
+//        variantAnnotation.setEnd(0);
         /*
          * set GeneDrugInteraction map of list type parameter
          */
