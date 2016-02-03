@@ -133,11 +133,11 @@ protocol VariantAnnotations {
     }
 
     record VariantAnnotation {
-        string { null, string } chromosome;
-        int { null, int } start;
-        string { null, string } reference;
-        string { null, string } alternate;
-        string { null, string } ancestralAllele;
+        union { null, string } chromosome;
+        union { null, int } start;
+        union { null, string } reference;
+        union { null, string } alternate;
+        union { null, string } ancestralAllele;
         union { null, string } id;
         union { null, array<Xref> } xrefs;
         union { null, array<string> } hgvs;
