@@ -533,7 +533,9 @@ public class VariantVcfFactoryTest {
     }
 
     @Test
-    public void testCreateVariantWithEmptyIds() {
+    public void testVariantIds() {
+
+        // test that an ID is properly handled
         String line = "1\t1000\trs123\tC\tT\t.\t.\t.";
         List<Variant> expResult = new LinkedList<>();
         expResult.add(new Variant("1", 1000, 1000, "C", "T"));
@@ -542,6 +544,7 @@ public class VariantVcfFactoryTest {
         assertEquals(expResult, result);
         assertEquals(expResult.get(0).getIds(), result.get(0).getIds());
 
+        // test that the ';' is used as the ID separator (as of VCF 4.2)
         line = "1\t1000\trs123;rs456\tC\tT\t.\t.\t.";
         expResult = new LinkedList<>();
         expResult.add(new Variant("1", 1000, 1000, "C", "T"));
@@ -550,7 +553,7 @@ public class VariantVcfFactoryTest {
         assertEquals(expResult, result);
         assertEquals(expResult.get(0).getIds(), result.get(0).getIds());
 
-
+        // test that a missing ID ('.') is not added to the IDs set
         line = "1\t1000\t.\tC\tT\t.\t.\t.";
         expResult = new LinkedList<>();
         expResult.add(new Variant("1", 1000, 1000, "C", "T"));
