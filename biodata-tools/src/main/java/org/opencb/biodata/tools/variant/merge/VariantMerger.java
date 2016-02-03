@@ -86,7 +86,7 @@ public class VariantMerger {
     void merge(Variant current, Variant load){
         if(onSameVariant(current, load)){
             mergeSameVariant(current, load);
-        } else if (onOverlappingPosition(current, load)){
+        } else if (current.overlapWith(load, true)){
             mergeOverlappingVariant(current,load);
         } 
         // else ignore
@@ -193,19 +193,9 @@ public class VariantMerger {
             throw new IllegalArgumentException("Variant GT is not on first position, but found " + gt + " instead !!!");
         }
     }
-    
-    static boolean onOverlappingPosition(Variant a, Variant b){
-        return a.getStart() <= b.getEnd() && a.getEnd() >= b.getStart();
-    }
-    
-    static boolean onSameStartPosition (Variant a, Variant b){
-        return StringUtils.equals(a.getChromosome(), b.getChromosome()) 
-                && a.getStart().equals(b.getStart());
-    }
 
     static boolean onSameVariant (Variant a, Variant b){
-        return onSameStartPosition(a, b) 
-                && a.getEnd().equals(b.getEnd())
+        return a.onSameRegion(b)
                 && StringUtils.equals(a.getReference(), b.getReference())
                 && StringUtils.equals(a.getAlternate(), b.getAlternate());
     }

@@ -17,6 +17,8 @@
 package org.opencb.biodata.models.variant;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.variant.avro.VariantAnnotation;
 import org.opencb.biodata.models.variant.avro.VariantAvro;
 import org.opencb.biodata.models.variant.avro.VariantType;
@@ -473,5 +475,27 @@ public class Variant implements Serializable {
         return variants;
     }
 
+    public boolean overlapWith(Variant other, boolean inclusive){
+        if(! StringUtils.equals(this.getChromosome(), other.getChromosome()))
+            return false; // Different Chromosome
+        if(inclusive) // a.getStart() <= b.getEnd() && a.getEnd() >= b.getStart();
+            return this.getStart() <= other.getEnd() && this.getEnd() >= other.getStart() ;
+        else
+            return this.getStart() < other.getEnd() && this.getEnd() > other.getStart();
+    }
+
+    public boolean onSameStartPosition (Variant other){
+        return StringUtils.equals(this.getChromosome(), other.getChromosome()) 
+                && this.getStart().equals(other.getStart());
+    }
+
+    /**
+     * Check if Variant covers the same region (chromosome, start, end)
+     * @param other Variant to check against
+     * @return True if chromosome, start and end are the same
+     */
+    public boolean onSameRegion (Variant other){
+        return onSameStartPosition(other) && this.getEnd().equals(other.getEnd());
+    }
 }
 
