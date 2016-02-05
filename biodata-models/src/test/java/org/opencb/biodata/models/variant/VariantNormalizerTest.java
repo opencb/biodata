@@ -8,6 +8,7 @@ import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleFi
 import org.opencb.commons.test.GenericTest;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -162,7 +163,11 @@ public class VariantNormalizerTest extends GenericTest {
 
         Variant variant = new Variant("1", position, ref, altsList.get(0));
         String studyId = "2";
-        StudyEntry studyEntry = new StudyEntry("1", studyId, altsList.subList(1, altsList.size()), Collections.singletonList("GT"));
+        StudyEntry studyEntry = new StudyEntry(studyId, altsList.subList(1, altsList.size())
+                .stream()
+                .map(s -> new AlternateCoordinate(null, null, null, null, s, variant.getType()))
+                .collect(Collectors.toList()), Collections.singletonList("GT"));
+        studyEntry.setFileId("1");
         variant.addStudyEntry(studyEntry);
         List<Variant> variants = normalizer.normalize(Collections.singletonList(variant), false);
 
