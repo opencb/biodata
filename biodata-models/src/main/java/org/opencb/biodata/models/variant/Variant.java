@@ -333,9 +333,23 @@ public class Variant {
     }
 
     /**
+     * Copies the current variant and returns the copy in Ensembl format.
+     * see http://www.ensembl.org/info/docs/tools/vep/vep_formats.html
+     *
+     * This variant remains unchanged, but the copy is a shallow copy, so any changes to the copy will affect the
+     * original as well.
+     * @return a modified copy
+     */
+    public Variant copyInEnsemblFormat() {
+        Variant variant = this.clone();
+        variant.transformToEnsemblFormat();
+        return variant;
+    }
+
+    /**
      * see http://www.ensembl.org/info/docs/tools/vep/vep_formats.html
      */
-    public void transformToEnsemblFormat() {
+    private void transformToEnsemblFormat() {
         if (type == VariantType.INDEL || type == VariantType.SV || length > 1) {
             if (!reference.isEmpty() && !alternate.isEmpty() && reference.charAt(0) == alternate.charAt(0)) {
                 reference = reference.substring(1);
@@ -415,6 +429,21 @@ public class Variant {
             return false;
         }
         return true;
+    }
+
+    /**
+     * As the clone in the classes Map, Set and VariantAnnotation doesn't exist, this is a shallow clone.
+     * @return a shallow copy of this variant.
+     */
+    public Variant clone() {
+        Variant variant = new Variant(chromosome, start, end, reference, alternate);
+        variant.setAnnotation(this.getAnnotation());
+        variant.setIds(this.getIds());
+        variant.setSourceEntries(this.getSourceEntries());
+        variant.setType(this.getType());
+        variant.hgvs = variant.getHgvs();
+        variant.setLength(this.getLength());
+        return variant;
     }
 
     private String composeId(String studyId, String fileId) {
