@@ -1,6 +1,8 @@
 package org.opencb.biodata.tools.variant.merge;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -10,7 +12,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.apache.commons.lang.math.IntRange;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -146,8 +147,8 @@ public class VariantMergerTest {
     
     @Test
     public void sameStartPosition(){
-        assertTrue(VariantMerger.onSameStartPosition(generateVariant("1", 10, "A", "T", VariantType.SNV), generateVariant("1", 10, "A", "T", VariantType.SNV)));
-        assertFalse(VariantMerger.onSameStartPosition(generateVariant("1", 10, "A", "T", VariantType.SNV), generateVariant("1", 11, "A", "T", VariantType.SNV)));
+        assertTrue(generateVariant("1", 10, "A", "T", VariantType.SNV).onSameStartPosition(generateVariant("1", 10, "A", "T", VariantType.SNV)));
+        assertFalse(generateVariant("1", 10, "A", "T", VariantType.SNV).onSameStartPosition(generateVariant("1", 11, "A", "T", VariantType.SNV)));
     }
 
     private Variant generateVariant(String chr, int pos, String ref, String alt, VariantType vt) {
