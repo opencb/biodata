@@ -37,9 +37,9 @@ public class TranscriptVariation {
 	private String hgvsTranscript;
 	private String hgvsProtein;
 	private String polyphenPrediction;
-	private float polyphenScore;
+	private Float polyphenScore;
 	private String siftPrediction;
-	private float siftScore;
+	private Float siftScore;
 	
 	public TranscriptVariation(String transcriptId, String alleleString,
 			String somatic, List<String> consequenceTypes, int cdsStart,
@@ -47,8 +47,8 @@ public class TranscriptVariation {
 			int translationEnd, int distanceToTranscript,
 			String codonAlleleString, String peptideAlleleString,
 			String hgvsGenomic, String hgvsTranscript, String hgvsProtein,
-			String polyphenPrediction, float polyphenScore,
-			String siftPrediction, float siftScore) {
+			String polyphenPrediction, Float polyphenScore,
+			String siftPrediction, Float siftScore) {
 		this.transcriptId = transcriptId;
 		this.alleleString = alleleString;
 		this.somatic = somatic;
@@ -174,10 +174,10 @@ public class TranscriptVariation {
 	public void setPolyphenPrediction(String polyphenPrediction) {
 		this.polyphenPrediction = polyphenPrediction;
 	}
-	public float getPolyphenScore() {
+	public Float getPolyphenScore() {
 		return polyphenScore;
 	}
-	public void setPolyphenScore(float polyphenScore) {
+	public void setPolyphenScore(Float polyphenScore) {
 		this.polyphenScore = polyphenScore;
 	}
 	public String getSiftPrediction() {
@@ -186,10 +186,10 @@ public class TranscriptVariation {
 	public void setSiftPrediction(String siftPrediction) {
 		this.siftPrediction = siftPrediction;
 	}
-	public float getSiftScore() {
+	public Float getSiftScore() {
 		return siftScore;
 	}
-	public void setSiftScore(float siftScore) {
+	public void setSiftScore(Float siftScore) {
 		this.siftScore = siftScore;
 	}
 

@@ -16,6 +16,7 @@
 
 package org.opencb.biodata.models.variant;
 
+import java.io.Serializable;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
@@ -25,7 +26,7 @@ import java.util.Map;
  *
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
-public class VariantStudy {
+public class VariantStudy implements Serializable {
     
     public enum StudyType { 
         

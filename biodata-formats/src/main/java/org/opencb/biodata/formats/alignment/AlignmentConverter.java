@@ -86,7 +86,7 @@ public class AlignmentConverter {
     }
     public static Alignment buildAlignment(SAMRecord record, Map<String, Object> attributes, String referenceSequence) {
         List<Alignment.AlignmentDifference> differences;
-        differences = AlignmentHelper.getDifferencesFromCigar(record, referenceSequence, Integer.MAX_VALUE);
+        differences = AlignmentUtils.getDifferencesFromCigar(record, referenceSequence, Integer.MAX_VALUE);
 
         Alignment alignment = new Alignment(record.getReadName(), record.getReferenceName(), record.getAlignmentStart(), record.getAlignmentEnd(),
                 record.getUnclippedStart(), record.getUnclippedEnd(), record.getReadLength(),
@@ -123,7 +123,7 @@ public class AlignmentConverter {
         samRecord.setInferredInsertSize(alignment.getInferredInsertSize());
 
         Cigar cigar = new Cigar();
-        byte[] readSequence = AlignmentHelper.getSequenceFromDifferences(
+        byte[] readSequence = AlignmentUtils.getSequenceFromDifferences(
                 alignment.getDifferences(),
                 alignment.getLength(),
                 referenceSequence,

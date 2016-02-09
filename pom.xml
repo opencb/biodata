@@ -35,7 +35,7 @@
 
     <properties>
         <biodata.version>0.6.0-SNAPSHOT</biodata.version>
-        <commons.version>3.1.0-SNAPSHOT</commons.version>
+        <commons.version>3.2.0-SNAPSHOT</commons.version>
         <compileSource>1.8</compileSource>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>

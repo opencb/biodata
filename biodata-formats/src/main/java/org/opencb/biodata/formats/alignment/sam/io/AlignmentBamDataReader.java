@@ -25,6 +25,7 @@ import java.nio.file.Path;
  * Time: 7:29 PM
  * To change this template use File | Settings | File Templates.
  */
+@Deprecated
 public class AlignmentBamDataReader extends AlignmentSamDataReader {
     public AlignmentBamDataReader(Path input, String studyName) {
         super(input, studyName);

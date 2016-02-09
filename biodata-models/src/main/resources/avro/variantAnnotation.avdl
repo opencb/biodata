@@ -71,7 +71,6 @@ protocol VariantAnnotations {
     record PopulationFrequency {
         string study;
         string population;
-        union { null, string } superPopulation;
         string refAllele;
         string altAllele;
         float refAlleleFreq;
@@ -134,16 +133,19 @@ protocol VariantAnnotations {
     }
 
     record VariantAnnotation {
-        string chromosome;
-        int start;
-        int end;
-        string reference;
-        string alternate;
+        union { null, string } chromosome;
+        union { null, int } start;
+        union { null, string } reference;
+        union { null, string } alternate;
+        union { null, string } ancestralAllele;
         union { null, string } id;
         union { null, array<Xref> } xrefs;
         union { null, array<string> } hgvs;
+        union { null, string } displayConsequenceType;
         array<ConsequenceType> consequenceTypes = [];
         union { null, array<PopulationFrequency> } populationFrequencies;
+        union { null, string } minorAllele;
+        union { null, float } minorAlleleFreq;
         union { null, array<Score> } conservation;
         union { null, array<Expression> } geneExpression;
         union { null, array<GeneTraitAssociation> } geneTraitAssociation;

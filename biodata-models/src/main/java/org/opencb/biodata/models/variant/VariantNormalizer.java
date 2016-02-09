@@ -4,7 +4,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.biojava.nbio.alignment.Alignments;
 import org.biojava.nbio.alignment.SimpleGapPenalty;
 import org.biojava.nbio.alignment.SubstitutionMatrixHelper;
-import org.biojava.nbio.alignment.template.AlignedSequence;
 import org.biojava.nbio.alignment.template.SequencePair;
 import org.biojava.nbio.alignment.template.SubstitutionMatrix;
 import org.biojava.nbio.core.sequence.DNASequence;
@@ -12,6 +11,7 @@ import org.biojava.nbio.core.sequence.compound.AmbiguityDNACompoundSet;
 import org.biojava.nbio.core.sequence.compound.NucleotideCompound;
 import org.opencb.biodata.models.feature.AllelesCode;
 import org.opencb.biodata.models.feature.Genotype;
+import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
@@ -32,11 +32,35 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
     protected Logger logger = LoggerFactory.getLogger(this.getClass().toString());
 
     private boolean reuseVariants = true;
+    private boolean normalizeAlleles = false;
 
     public VariantNormalizer() {}
 
     public VariantNormalizer(boolean reuseVariants) {
         this.reuseVariants = reuseVariants;
+    }
+
+    public VariantNormalizer(boolean reuseVariants, boolean normalizeAlleles) {
+        this.reuseVariants = reuseVariants;
+        this.normalizeAlleles = normalizeAlleles;
+    }
+
+    public boolean isReuseVariants() {
+        return reuseVariants;
+    }
+
+    public VariantNormalizer setReuseVariants(boolean reuseVariants) {
+        this.reuseVariants = reuseVariants;
+        return this;
+    }
+
+    public boolean isNormalizeAlleles() {
+        return normalizeAlleles;
+    }
+
+    public VariantNormalizer setNormalizeAlleles(boolean normalizeAlleles) {
+        this.normalizeAlleles = normalizeAlleles;
+        return this;
     }
 
     @Override
@@ -78,9 +102,9 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                 }
             } else {
                 for (StudyEntry entry : variant.getStudies()) {
-                    List<String> alternates = new ArrayList<>(1 + entry.getSecondaryAlternates().size());
+                    List<String> alternates = new ArrayList<>(1 + entry.getSecondaryAlternatesAlleles().size());
                     alternates.add(alternate);
-                    alternates.addAll(entry.getSecondaryAlternates());
+                    alternates.addAll(entry.getSecondaryAlternatesAlleles());
 
                     List<VariantKeyFields> keyFieldsList = normalize(chromosome, start, reference, alternates);
                     for (VariantKeyFields keyFields : keyFieldsList) {
@@ -117,7 +141,8 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                         }
 
                         //Set normalized secondary alternates
-                        normalizedEntry.setSecondaryAlternates(getSecondaryAlternates(keyFields.getAlternate(), alternates));
+                        normalizedEntry.setSecondaryAlternates(getSecondaryAlternatesMap(keyFields, keyFieldsList));
+
                         //Set normalized samples data
                         try {
                             List<List<String>> normalizedSamplesData = normalizeSamplesData(keyFields,
@@ -402,7 +427,12 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
                     StringBuilder genotypeStr = new StringBuilder();
 
-                    int[] allelesIdx = genotype.getAllelesIdx();
+                    int[] allelesIdx;
+                    if (normalizeAlleles && !genotype.isPhased()) {
+                        allelesIdx = genotype.getNormalizedAllelesIdx();
+                    } else {
+                        allelesIdx = genotype.getAllelesIdx();
+                    }
                     for (int i = 0; i < allelesIdx.length; i++) {
                         int allele = allelesIdx[i];
                         if (allele < 0) { // Missing
@@ -472,15 +502,25 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         return normalizedVariant;
     }
 
-    private List<String> getSecondaryAlternates(String alternate, List<String> alternates) {
-        List<String> secondaryAlternates;
+    public List<AlternateCoordinate> getSecondaryAlternatesMap(VariantKeyFields alternate, List<VariantKeyFields> alternates) {
+        List<AlternateCoordinate> secondaryAlternates;
         if (alternates.size() == 1) {
             secondaryAlternates = Collections.emptyList();
         } else {
             secondaryAlternates = new ArrayList<>(alternates.size() - 1);
-            for (String secondaryAlternate : alternates) {
-                if (!secondaryAlternate.equals(alternate)) {
-                    secondaryAlternates.add(secondaryAlternate);
+            for (VariantKeyFields keyFields : alternates) {
+                if (!keyFields.getAlternate().equals(alternate.getAlternate())) {
+                    secondaryAlternates.add(new AlternateCoordinate(
+                            // Chromosome is always the same, do not set
+                            null,
+                            //Set position only if is different from the original one
+                            alternate.getStart() == keyFields.getStart() ? null : keyFields.getStart(),
+                            alternate.getEnd() == keyFields.getEnd() ? null : keyFields.getEnd(),
+                            //Set reference only if is different from the original one
+                            alternate.getReference().equals(keyFields.getReference()) ? null : keyFields.getReference(),
+                            keyFields.getAlternate(),
+                            Variant.inferType(keyFields.getReference(), keyFields.getAlternate(), keyFields.getEnd() - keyFields.getStart() + 1)
+                    ));
                 }
             }
         }
@@ -505,6 +545,14 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         private String phaseSet;
         private String reference;
         private String alternate;
+
+        public VariantKeyFields(int start, int end, int numAllele, String reference, String alternate) {
+            this.start = start;
+            this.end = end;
+            this.numAllele = numAllele;
+            this.reference = reference;
+            this.alternate = alternate;
+        }
 
         public VariantKeyFields(int start, int end, String reference, String alternate) {
             this.start = start;

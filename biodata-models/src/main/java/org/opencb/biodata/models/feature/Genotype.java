@@ -16,21 +16,29 @@
 
 package org.opencb.biodata.models.feature;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype.Builder;
 
 /**
  * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
+ * @author Matthias Haimel &lt;mh719--git@cam.ac.uk&gt;
  */
 public class Genotype {
-    
+
+    public static final String NOCALL = ".";
+    public static final String HOM_REF = "0/0";
+    public static final String HET_REF = "0/1";
+    public static final String HOM_VAR = "1/1";
+
     private String reference;
     private List<String> alternates;
     private int[] allelesIdx;
@@ -58,6 +66,14 @@ public class Genotype {
         this.phased = genotype.contains("|");
         this.count = 0;
         parseGenotype(genotype);
+    }
+
+    public Genotype(org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype gt){
+        this.allelesIdx = ArrayUtils.toPrimitive(gt.getAllelesIdxList().toArray(new Integer[0]));
+        this.reference = gt.getReference();
+        this.alternates = new ArrayList<String>(gt.getAlternatesList());
+        this.phased = gt.getPhased();
+        this.code = AllelesCode.valueOf(gt.getCode().name());
     }
 
     private void parseGenotype(String genotype) {
@@ -136,7 +152,11 @@ public class Genotype {
     public int[] getAllelesIdx() {
         return allelesIdx;
     }
-    
+
+    public void updateAlleleIdx(int idx, int allele){
+        this.allelesIdx[idx] = allele;
+    }
+
     public int[] getNormalizedAllelesIdx() {
         int[] sortedAlleles = Arrays.copyOf(allelesIdx, allelesIdx.length);
         Arrays.sort(sortedAlleles);
@@ -233,8 +253,7 @@ public class Genotype {
         return new Genotype(builder.toString());
     }
 
-    @Override
-    public String toString() {
+    public String toGenotypeString() {
         StringBuilder value = new StringBuilder();
         value.append(allelesIdx[0] >= 0 ? allelesIdx[0] : ".");
         char separator = isPhased() ? '|' : '/';
@@ -243,6 +262,11 @@ public class Genotype {
             value.append(allelesIdx[i] >= 0 ? allelesIdx[i] : ".");
         }
         return value.toString();
+    }
+
+    @Override
+    public String toString() {
+        return toGenotypeString();
     }
 
     @Override
@@ -269,6 +293,14 @@ public class Genotype {
         if (alternates != null ? !alternates.equals(genotype.alternates) : genotype.alternates != null) return false;
         if (!Arrays.equals(allelesIdx, genotype.allelesIdx)) return false;
         return code == genotype.code;
+    }
 
+    public org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype toProtobuf(){
+        Builder pb = org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype.newBuilder();
+        pb.addAllAllelesIdx(Arrays.asList(ArrayUtils.toObject(this.allelesIdx)));
+        pb.addAllAlternates(this.alternates);
+        pb.setPhased(this.phased);
+        pb.setCode(org.opencb.biodata.models.variant.protobuf.VariantProto.AllelesCode.valueOf(this.code.name()));
+        return pb.build();
     }
 }
