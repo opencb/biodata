@@ -61,14 +61,14 @@ public class Variant implements Serializable {
                 setStart(Integer.parseInt(fields[1]));
                 setEnd(Integer.parseInt(fields[1]));
                 setReference("");
-                setAlternate(fields[2].equals("-") ? "" : fields[2]);
+                setAlternate(checkEmptySequence(fields[2]));
             } else {
                 if (fields.length == 4) {
                     setChromosome(fields[0]);
                     setStart(Integer.parseInt(fields[1]));
                     setEnd(Integer.parseInt(fields[1]));
-                    setReference(fields[2].equals("-") ? "" : fields[2]);
-                    setAlternate(fields[3].equals("-") ? "" : fields[3]);
+                    setReference(checkEmptySequence(fields[2]));
+                    setAlternate(checkEmptySequence(fields[3]));
                 } else {
                     throw new IllegalArgumentException("Variant needs 3 or 4 fields separated by ':'");
                 }
@@ -89,8 +89,8 @@ public class Variant implements Serializable {
         impl = new VariantAvro("",
                 start,
                 end,
-                (reference != null) ? reference : "",
-                (alternate != null) ? alternate : "",
+                checkEmptySequence(reference),
+                checkEmptySequence(alternate),
                 strand,
                 new LinkedList<>(),
                 0,
@@ -110,6 +110,10 @@ public class Variant implements Serializable {
 
 //        this.annotation = new VariantAnnotation(this.chromosome, this.start, this.end, this.reference, this.alternate);
         studyEntries = new HashMap<>();
+    }
+
+    private String checkEmptySequence(String sequence) {
+        return (sequence != null && !sequence.equals("-")) ? sequence : "";
     }
 
     private void resetType() {

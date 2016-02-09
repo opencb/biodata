@@ -112,7 +112,7 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
                     currentAnnotation = new VariantAnnotation();
                     currentAnnotation.setChromosome(variantMap.get("chromosome"));
                     currentAnnotation.setStart(Integer.valueOf(variantMap.get("start")));
-                    currentAnnotation.setEnd(Integer.valueOf(variantMap.get("end")));
+//                    currentAnnotation.setEnd(Integer.valueOf(variantMap.get("end")));
                     currentAnnotation.setReference(variantMap.get("reference"));
                     currentAnnotation.setAlternate(variantMap.get("alternative"));
 
@@ -367,7 +367,7 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
         PopulationFrequency populationFrequency = new PopulationFrequency();
         populationFrequency.setStudy(study);
         populationFrequency.setPopulation(population);
-        populationFrequency.setSuperPopulation(population);
+//        populationFrequency.setSuperPopulation(population);
         populationFrequency.setRefAllele(currentAnnotation.getReference());
         populationFrequency.setAltAllele(currentAnnotation.getAlternate());
         for(String frequencyString : frequencyStrings.split(",")) {

@@ -4,6 +4,7 @@ import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantSource;
 import org.opencb.biodata.models.variant.VariantVcfFactory;
+import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.protobuf.VariantProto;
@@ -62,7 +63,11 @@ public class VcfRecordToVariantConverter implements Converter<VcfSliceProtos.Vcf
         studyEntry.setSamplesData(getSamplesData(vcfRecord));
         studyEntry.setSamplesPosition(samplePosition);
         if (alts.size() > 1) { // TODO check
-            studyEntry.setSecondaryAlternatesAlleles(alts.subList(1, alts.size()));
+            List<AlternateCoordinate> alternateCoordinates = new ArrayList<>(alts.size() - 1);
+            for (int i = 1; i < alts.size(); i++) {
+                alternateCoordinates.add(new AlternateCoordinate(null, null, null, null, alts.get(i), variant.getType()));
+            }
+            studyEntry.setSecondaryAlternates(alternateCoordinates);
         }
         variant.addStudyEntry(studyEntry);
 

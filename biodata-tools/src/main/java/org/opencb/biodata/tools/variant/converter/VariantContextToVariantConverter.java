@@ -196,7 +196,7 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
 
         // We need to convert Allele object to String
         // We skip the first alternate allele since these are the secondaries
-        List<String> secondaryAlternateList = new ArrayList<>(Math.max(alternateAlleleList.size() - 1, 0));
+        List<AlternateCoordinate> secondaryAlternateList = new ArrayList<>(Math.max(alternateAlleleList.size() - 1, 0));
         List<String> alternates = new ArrayList<>(alternateAlleleList.size());
         if (alternateAlleleList.size() > 0) {
             alternates.add(alternateAlleleList.get(0).toString());
@@ -204,9 +204,9 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         for (int i = 1; i < alternateAlleleList.size(); i++) {
             String allele = alternateAlleleList.get(i).toString();
             alternates.add(allele);
-            secondaryAlternateList.add(allele);
+            secondaryAlternateList.add(new AlternateCoordinate(null, null, null, null, allele, variantType));
         }
-        studyEntry.setSecondaryAlternatesAlleles(secondaryAlternateList);
+        studyEntry.setSecondaryAlternates(secondaryAlternateList);
 
 
         // set variant format
@@ -392,7 +392,7 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         populationFrequency.setRefAlleleFreq(null);
         populationFrequency.setRefHomGenotypeFreq(null);
         populationFrequency.setStudy(null);
-        populationFrequency.setSuperPopulation(null);
+//        populationFrequency.setSuperPopulation(null);
 
         populationFrequencyList.add(populationFrequency);
         return populationFrequencyList;
@@ -450,7 +450,7 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         conservationScoreList.add(score);
         variantAnnotation.setConservation(conservationScoreList);
 
-        variantAnnotation.setEnd(0);
+//        variantAnnotation.setEnd(0);
         /*
          * set GeneDrugInteraction map of list type parameter
          */
