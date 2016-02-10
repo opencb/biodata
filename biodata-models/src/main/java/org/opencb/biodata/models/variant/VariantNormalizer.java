@@ -207,8 +207,8 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         return decomposeAlignmentSingleVariants(sequenceAlignment, keyFields.getStart());
     }
 
-    private List<VariantKeyFields> decomposeAlignmentSingleVariants(
-            SequencePair<DNASequence, NucleotideCompound> sequenceAlignment, int genomicStart) {
+    private List<VariantKeyFields> decomposeAlignmentSingleVariants(SequencePair<DNASequence, NucleotideCompound> sequenceAlignment,
+                                                                    int genomicStart) {
 
         String reference = sequenceAlignment.getTarget().getSequenceAsString();
         String alternate = sequenceAlignment.getQuery().getSequenceAsString();
@@ -220,21 +220,23 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         for (int i = 0; i < reference.length(); i++) {
             char referenceChar = reference.charAt(i);
             char alternateChar = alternate.charAt(i);
+            // Insertion
             if (referenceChar == '-') {
                 // Assume there cannot be a '-' at the reference and alternate aligned sequences at the same position
                 if (alternateChar == '-') {
-                    logger.error("Unhandled case found after pairwise alignment of MNVs. Alignment result: "+reference+
-                    "/"+alternate);
+                    logger.error("Unhandled case found after pairwise alignment of MNVs. Alignment result: "
+                            + reference + "/" + alternate);
                 }
                 // Current character is a continuation of an insertion
                 if (previousReferenceChar == '-') {
                     keyFields.setAlternate(keyFields.getAlternate() + alternateChar);
                 // New insertion found, create new keyFields
                 } else {
-                    keyFields = new VariantKeyFields(
-                            genomicStart+i, genomicStart+i+1, "", String.valueOf(alternateChar));
+                    keyFields = new VariantKeyFields(genomicStart + i, genomicStart + i, "",
+                            String.valueOf(alternateChar));
                     keyFieldsList.add(keyFields);
                 }
+            // Deletion
             } else if (alternateChar == '-') {
                 // Current character is a continuation of a deletion
                 if (previousAlternateChar == '-') {
@@ -242,10 +244,15 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                     keyFields.setEnd(keyFields.getEnd()+1);
                 // New deletion found, create new keyFields
                 } else {
-                    keyFields = new VariantKeyFields(
-                            genomicStart+i, genomicStart+i, String.valueOf(referenceChar), "");
+                    keyFields = new VariantKeyFields(genomicStart + i, genomicStart + i, String.valueOf(referenceChar),
+                            "");
                     keyFieldsList.add(keyFields);
                 }
+            // SNV
+            } else if (referenceChar != alternateChar) {
+                keyFields = new VariantKeyFields(genomicStart + i, genomicStart + i, String.valueOf(referenceChar),
+                        String.valueOf(alternateChar));
+                keyFieldsList.add(keyFields);
             }
             previousReferenceChar = referenceChar;
             previousAlternateChar = alternateChar;
