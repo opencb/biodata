@@ -185,6 +185,17 @@ public class StudyEntry implements Serializable {
         impl.setFormat(value);
     }
 
+    public void addFormat(String value) {
+        formatPosition = null;
+        if (impl.getFormat() == null) {
+            impl.setFormat(new LinkedList<>());
+        }
+        List<String> format = new ArrayList<>(impl.getFormat().size());
+        format.addAll(impl.getFormat());
+        format.add(value);
+        impl.setFormat(format);
+    }
+
     public Map<String, Integer> getFormatPositions() {
         if (formatPosition == null) {
             formatPosition = new HashMap<>();
@@ -276,6 +287,26 @@ public class StudyEntry implements Serializable {
             }
         } else {
             samplesDataList.add(sampleDataList);
+        }
+    }
+
+    public void addSampleData(String sampleName, String format, String value) {
+        requireSamplesPosition();
+        Integer formatIdx = getFormatPositions().get(format);
+        Integer samplePosition = getSamplesPosition().get(sampleName);
+
+        if (formatIdx != null && samplePosition != null) {
+            List<String> sampleData = getSamplesData().get(samplePosition);
+            if (sampleData.size() < formatIdx) {
+                sampleData.set(formatIdx, value);
+            } else {
+                List<String> modifiableSampleData = new ArrayList<>(getFormat().size());
+                modifiableSampleData.addAll(sampleData);
+                modifiableSampleData.add(value);
+                addSampleData(sampleName, modifiableSampleData);
+            }
+        } else {
+            throw new IndexOutOfBoundsException();
         }
     }
 

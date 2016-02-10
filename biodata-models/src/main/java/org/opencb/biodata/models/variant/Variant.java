@@ -59,14 +59,12 @@ public class Variant implements Serializable {
             if (fields.length == 3) {
                 setChromosome(fields[0]);
                 setStart(Integer.parseInt(fields[1]));
-                setEnd(Integer.parseInt(fields[1]));
                 setReference("");
                 setAlternate(checkEmptySequence(fields[2]));
             } else {
                 if (fields.length == 4) {
                     setChromosome(fields[0]);
                     setStart(Integer.parseInt(fields[1]));
-                    setEnd(Integer.parseInt(fields[1]));
                     setReference(checkEmptySequence(fields[2]));
                     setAlternate(checkEmptySequence(fields[3]));
                 } else {
@@ -75,6 +73,7 @@ public class Variant implements Serializable {
             }
         }
         resetType();
+        setEnd(getStart() + getLength() - 1);
     }
 
     public Variant(String chromosome, int position, String reference, String alternate) {
@@ -349,6 +348,9 @@ public class Variant implements Serializable {
     public void addStudyEntry(StudyEntry studyEntry) {
         if (studyEntries == null) {
             studyEntries = new HashMap<>();
+        }
+        if (impl.getStudies() == null) {
+            impl.setStudies(new ArrayList<>());
         }
         this.studyEntries.put(composeId(studyEntry.getStudyId()), studyEntry);
         impl.getStudies().add(studyEntry.getImpl());

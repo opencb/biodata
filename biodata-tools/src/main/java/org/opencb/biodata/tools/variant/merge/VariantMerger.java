@@ -3,14 +3,7 @@
  */
 package org.opencb.biodata.tools.variant.merge;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -18,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.VariantVcfFactory;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 
@@ -27,9 +21,9 @@ import org.opencb.biodata.models.variant.avro.FileEntry;
  */
 public class VariantMerger {
 
-    private static final String VCF_FILTER = "FILTER";
+    private static final String VCF_FILTER = VariantVcfFactory.FILTER;
     public static final String GT_KEY = "GT";
-    public static final String PASS_KEY = "PASS";
+//    public static final String PASS_KEY = "PASS";
 //    public static final String CALL_KEY = "CALL";
 
     /**
@@ -40,11 +34,11 @@ public class VariantMerger {
     }
 
     /**
-     * Create and returns a new Variant using the target as a 
+     * Create and returns a new Variant using the target as a
      * position template ONLY and merges the provided variants
-     * for this position. <b> The target is not present in the 
+     * for this position. <b> The target is not present in the
      * merged output!!!</b>
-     * 
+     *
      * @param template Template for position and study only
      * @param load Variants to merge for position
      * @return Variant new Variant object with merged information
@@ -66,7 +60,7 @@ public class VariantMerger {
         for(StudyEntry tse : target.getStudies()){
             StudyEntry se = new StudyEntry(tse.getStudyId());
             se.setFiles(Collections.singletonList(new FileEntry("", "", new HashMap<>())));
-            se.setFormat(Arrays.asList(new String[]{GT_KEY,PASS_KEY}));
+            se.setFormat(Arrays.asList(GT_KEY, VCF_FILTER));
             se.setSamplesPosition(new HashMap<String, Integer>());
             se.setSamplesData(new ArrayList<List<String>>());
             var.addStudyEntry(se);
@@ -74,24 +68,27 @@ public class VariantMerger {
         return var;
     }
 
-    public void merge(Variant current, Collection<Variant> load){
+    public Variant merge(Variant current, Collection<Variant> load){
         // Validate variant information
         ensureGtFormat(current);
         if (getStudy(current).getFormat() == null || getStudy(current).getFormat().isEmpty()) {
             throw new IllegalArgumentException("Format of sample data is empty!!!!!!");
         }
-        if (! StringUtils.equals(GT_KEY, getStudy(current).getFormat().get(0))) {
+        if (!StringUtils.equals(GT_KEY, getStudy(current).getFormat().get(0))) {
             throw new IllegalArgumentException("GT data is expected in first column!!!");
         }
         load.stream().forEach(v -> ensureGtFormat(v)); // ensure the GT is on the first position in FORMAT
         load.stream().forEach(v -> merge(current,v)); // Merge Each variant
+        return current;
     }
-    void merge(Variant current, Variant load){
+
+    Variant merge(Variant current, Variant load){
         if(onSameVariant(current, load)){
             mergeSameVariant(current, load);
         } else if (current.overlapWith(load, true)){
             mergeOverlappingVariant(current,load);
-        } 
+        }
+        return current;
         // else ignore
     }
 
@@ -120,12 +117,15 @@ public class VariantMerger {
     /**
      * 
      * @param current
-     * @param load
+     * @param other
      */
     void mergeOverlappingVariant(Variant current, Variant other) {
         Map<String, String> sampleToGt = sampleToGt(other);
         Map<String, String> sampleToFilter = sampleToAttribute(other, VCF_FILTER);
         StudyEntry se = getStudy(current);
+
+        ensureFormat(se, VCF_FILTER, "-");
+
         Set<String> duplicates = se.getSamplesName().stream().filter(s -> sampleToGt.containsKey(s)).collect(Collectors.toSet());
         if (!duplicates.isEmpty()) {
             throw new IllegalStateException(String.format("Duplicated entries - issue with merge: %s; current: %s; other: %s;",
@@ -140,9 +140,11 @@ public class VariantMerger {
         // StudyEntry.addSampleData(StudyEntry.java:253)
         List<List<String>> sd = se.getSamplesData().stream().map(l -> new ArrayList<>(l)).collect(Collectors.toList());
         se.setSamplesData(sd);
-        sampleToGt.entrySet().stream()
-            .forEach(e -> se.addSampleData(e.getKey(),
-                    Arrays.asList(updateGT(e.getValue(), otherToCurrent), sampleToFilter.getOrDefault(e, "-"))));
+
+        for (Map.Entry<String, String> e : sampleToGt.entrySet()) {
+            List<String> sampleDataList = Arrays.asList(updateGT(e.getValue(), otherToCurrent), sampleToFilter.getOrDefault(e, "-"));
+            se.addSampleData(e.getKey(), sampleDataList);
+        }
     }
 
     /**
@@ -194,6 +196,9 @@ public class VariantMerger {
         Map<String, String> sampleToGt = sampleToGt(same);
         Map<String, String> sampleToFilter = sampleToAttribute(same,VCF_FILTER);
         StudyEntry se = getStudy(current);
+
+        ensureFormat(se, VCF_FILTER, "-");
+
         Set<String> duplicates = se.getSamplesName().stream().filter(s -> sampleToGt.containsKey(s)).collect(Collectors.toSet());
         if(!duplicates.isEmpty()){
             throw new IllegalStateException(String.format("Duplicated entries - issue with merge: %s", StringUtils.join(duplicates,", ")));
@@ -223,6 +228,21 @@ public class VariantMerger {
         String gt = getStudy(v).getFormat().get(0);
         if(!StringUtils.equals(gt, GT_KEY)){
             throw new IllegalArgumentException("Variant GT is not on first position, but found " + gt + " instead !!!");
+        }
+    }
+
+    /**
+     * Ensures that all the samples contains the required format value.
+     * @param studyEntry
+     * @param formatValue
+     * @param defaultValue
+     */
+    private void ensureFormat(StudyEntry studyEntry, String formatValue, String defaultValue) {
+        if (!studyEntry.getFormat().contains(formatValue)) {
+            studyEntry.addFormat(formatValue);
+            for (String sampleName : studyEntry.getOrderedSamplesName()) {
+                studyEntry.addSampleData(sampleName, VCF_FILTER, defaultValue);
+            }
         }
     }
 
