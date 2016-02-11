@@ -269,12 +269,11 @@ public class VariantMergerTest {
 
     @Test
     public void testMergeSnpBlock() {
-        Variant v = generateVariant("1:10:A:T", "S01", "0/0");
+        Variant v = generateVariant("1:10:A:", "S01", "0/0");
         v.setType(VariantType.NO_VARIATION);
         v.setEnd(100);
 
-        checkMergeVariantsNoSecondaries(generateVariant("1:10:A:T", "S02", "0/1"), v, "0/0");
-
+        checkMergeVariants(generateVariant("1:10:A:T", "S02", "0/1"), v, Collections.emptyList(), "0/0");
     }
 
     @Test

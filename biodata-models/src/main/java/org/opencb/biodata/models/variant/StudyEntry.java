@@ -18,6 +18,7 @@ package org.opencb.biodata.models.variant;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -269,25 +270,42 @@ public class StudyEntry implements Serializable {
     }
 
     public void addSampleData(String sampleName, List<String> sampleDataList) {
-        List<List<String>> samplesDataList = impl.getSamplesData();
-        if (samplesPosition == null && samplesDataList.isEmpty()) {
+        if (samplesPosition == null && impl.getSamplesData().isEmpty()) {
             samplesPosition = new LinkedHashMap<>();
         }
         if (samplesPosition != null) {
             if (samplesPosition.containsKey(sampleName)) {
                 int position = samplesPosition.get(sampleName);
-                while (samplesDataList.size() <= position) {
-                    samplesDataList.add(null);
+                while (impl.getSamplesData().size() <= position) {
+                    actOnSamplesDataList((l) -> l.add(null));
                 }
-                samplesDataList.set(position, sampleDataList);
+                actOnSamplesDataList((l) -> l.set(position, sampleDataList));
             } else {
                 int position = samplesPosition.size();
                 samplesPosition.put(sampleName, position);
-                samplesDataList.add(sampleDataList);
+                actOnSamplesDataList((l) -> l.add(sampleDataList));
             }
         } else {
-            samplesDataList.add(sampleDataList);
+            actOnSamplesDataList((l) -> l.add(sampleDataList));
         }
+    }
+
+    /**
+     * Acts on the SamplesDataList. If the action throws an UnsupportedOperationException, the list is copied
+     * into a modifiable list (ArrayList) and the action is executed again.
+     *
+     * @param action Action to execute
+     */
+    private void actOnSamplesDataList(Consumer<List<List<String>>> action) {
+        List<List<String>> samplesDataList = impl.getSamplesData();
+        try {
+            action.accept(samplesDataList);
+        } catch (UnsupportedOperationException e) {
+            samplesDataList = new ArrayList<>(samplesDataList);
+            impl.setSamplesData(samplesDataList);
+            action.accept(samplesDataList);
+        }
+
     }
 
     public void addSampleData(String sampleName, String format, String value) {
