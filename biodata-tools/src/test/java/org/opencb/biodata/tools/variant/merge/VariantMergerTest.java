@@ -1,14 +1,5 @@
 package org.opencb.biodata.tools.variant.merge;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.util.*;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -20,6 +11,12 @@ import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.VariantType;
+
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static org.junit.Assert.*;
 
 @SuppressWarnings("Duplicates")
 public class VariantMergerTest {
@@ -115,10 +112,41 @@ public class VariantMergerTest {
     public void testMergeSame_2SNV() {
         checkSameNoSecondaries("1:10:A:T");
         checkSameNoSecondaries("1:10:AT:TA");
-        checkMergeVariants(
+        checkMergeVariantsNoSecondaries(
                 generateVariant("1:10:A:T", "S1", "0/0", "S2", "0/0"),
                 generateVariant("1:10:A:T", "S03", "0/1", "S04", "1/1", "S05", "1/1", "S06", "1/1"),
                 "0/1", "1/1", "1/1", "1/1");
+    }
+
+
+    @Test
+    public void testMergeSameWithSameAlternates_2SNV() {
+        Variant var1 = generateVariant("1:10:A:T", "S1", "0/0", "S2", "0/0");
+        Variant var2 = generateVariant("1:10:A:T", "S03", "0/1", "S04", "1/1", "S05", "1/1", "S06", "1/1");
+        AlternateCoordinate alternate = new AlternateCoordinate("1", 10, 10, "A", "G", VariantType.SNV);
+        var1.getStudy(STUDY_ID).getSecondaryAlternates().add(alternate);
+        var2.getStudy(STUDY_ID).getSecondaryAlternates().add(alternate);
+        checkMergeVariants(var1, var2, Arrays.asList("1:10:A:G"), "0/1", "1/1", "1/1", "1/1");
+    }
+
+    @Test
+    public void testMergeSameWithDifferentAlternates_2SNV() {
+        Variant var1 = generateVariant("1:10:A:T", "S1", "0/0", "S2", "0/0");
+        Variant var2 = generateVariant("1:10:A:T", "S03", "0/1", "S04", "1/1", "S05", "1/1", "S06", "1/1");
+        var1.getStudy(STUDY_ID).getSecondaryAlternates().add(new AlternateCoordinate("1", 10, 10, "A", "G", VariantType.SNV));
+        var2.getStudy(STUDY_ID).getSecondaryAlternates().add(new AlternateCoordinate("1", 10, 10, "A", "C", VariantType.SNV));
+        checkMergeVariants(var1, var2, Arrays.asList("1:10:A:G", "1:10:A:C"), "0/1", "1/1", "1/1", "1/1");
+    }
+
+    @Test
+    public void testMergeSameWithSameUnorderedAlternates_2SNV() {
+        Variant var1 = generateVariant("1:10:A:T", "S1", "1/2", "S2", "2/3");
+        Variant var2 = generateVariant("1:10:A:T", "S03", "0/1", "S04", "1/1", "S05", "0/2", "S06", "0/3");
+        var1.getStudy(STUDY_ID).getSecondaryAlternates().add(new AlternateCoordinate("1", 10, 10, "A", "G", VariantType.SNV));
+        var1.getStudy(STUDY_ID).getSecondaryAlternates().add(new AlternateCoordinate("1", 10, 10, "A", "C", VariantType.SNV));
+        var2.getStudy(STUDY_ID).getSecondaryAlternates().add(new AlternateCoordinate("1", 10, 10, "A", "C", VariantType.SNV));
+        var2.getStudy(STUDY_ID).getSecondaryAlternates().add(new AlternateCoordinate("1", 10, 10, "A", "G", VariantType.SNV));
+        checkMergeVariants(var1, var2, Arrays.asList("1:10:A:G", "1:10:A:C"), "0/1", "1/1", "0/3", "0/2");
     }
 
     @Test
@@ -188,7 +216,7 @@ public class VariantMergerTest {
         Variant var1 = generateVariant("1:10:A:T", "S01", "0/1");
         Variant var2 = generateVariant("1:10:A:G", "S02", "1/2");
         var2.getStudy(STUDY_ID).getSecondaryAlternates().add(new AlternateCoordinate("1", 10, 10, "A", "C", VariantType.SNV));
-        checkMergeVariants(var1, var2, "2/3");
+        checkMergeVariants(var1, var2, Arrays.asList("1:10:A:G", "1:10:A:C"), "2/3");
     }
 
     @Test
@@ -196,7 +224,7 @@ public class VariantMergerTest {
         Variant var1 = generateVariant("1:10:A:T", "S01", "1/2");
         var1.getStudy(STUDY_ID).getSecondaryAlternates().add(new AlternateCoordinate("1", 10, 10, "A", "C", VariantType.SNV));
         Variant var2 = generateVariant("1:10:A:G", "S02", "0/1");
-        checkMergeVariants(var1, var2, "0/3");
+        checkMergeVariants(var1, var2, Arrays.asList("1:10:A:C", "1:10:A:G"), "0/3");
     }
 
     @Test
@@ -204,7 +232,7 @@ public class VariantMergerTest {
         Variant var1 = generateVariant("1:10:A:T", "S01", "0/1");
         Variant var2 = generateVariant("1:10:A:G", "S02", "1/2");
         var2.getStudy(STUDY_ID).getSecondaryAlternates().add(new AlternateCoordinate("1", 10, 10, "A", "T", VariantType.SNV));
-        checkMergeVariants(var1, var2, "2/1");
+        checkMergeVariants(var1, var2, Arrays.asList("1:10:A:G"), "2/1");
     }
 
     @Test
@@ -212,7 +240,7 @@ public class VariantMergerTest {
         Variant var1 = generateVariant("1:10:A:G", "S01", "1/2", "S02", "2/1");
         var1.getStudy(STUDY_ID).getSecondaryAlternates().add(new AlternateCoordinate("1", 10, 10, "A", "T", VariantType.SNV));
         Variant var2 = generateVariant("1:10:A:T", "S03", "0/1", "S04", "1/1", "S05", "0/0");
-        checkMergeVariants(var1, var2, "0/2", "2/2", "0/0");
+        checkMergeVariants(var1, var2, Arrays.asList("1:10:A:T"), "0/2", "2/2", "0/0");
     }
 
     @Test
@@ -245,7 +273,7 @@ public class VariantMergerTest {
         v.setType(VariantType.NO_VARIATION);
         v.setEnd(100);
 
-        checkMergeVariants(generateVariant("1:10:A:T", "S02", "0/1"), v, "0/0");
+        checkMergeVariantsNoSecondaries(generateVariant("1:10:A:T", "S02", "0/1"), v, "0/0");
 
     }
 
@@ -305,13 +333,24 @@ public class VariantMergerTest {
     }
 
     public Variant checkMergeVariants(String varstr1, String varstr2, String gt1, String gt2, String gt2Merged) {
-        return checkMergeVariants(
-                () -> generateVariant(varstr1, "S01", gt1),
-                () -> generateVariant(varstr2, "S02", gt2), gt2Merged);
+        return checkMergeVariantsNoSecondaries(
+                generateVariant(varstr1, "S01", gt1),
+                generateVariant(varstr2, "S02", gt2), gt2Merged);
     }
 
-    public Variant checkMergeVariants(Supplier<Variant> var1Supplier, Supplier<Variant> var2Supplier, String gt2Merged) {
-        return checkMergeVariants(var1Supplier.get(), var2Supplier.get(), gt2Merged);
+    public Variant checkMergeVariantsNoSecondaries(Variant var1, Variant var2, String ...expectedVar2Gts) {
+        assertTrue(var1.getStudy(STUDY_ID).getSecondaryAlternates().isEmpty());
+        assertTrue(var2.getStudy(STUDY_ID).getSecondaryAlternates().isEmpty());
+
+        String vars1 = var1.toString();
+        String vars2 = var2.toString();
+        if (vars1.equals(vars2)) {
+            //Same Variant
+            return checkMergeVariants(var1, var2, Collections.emptyList(), expectedVar2Gts);
+        } else {
+            //Overlapped variants
+            return checkMergeVariants(var1, var2, Collections.singletonList(vars2), expectedVar2Gts);
+        }
     }
 
     /**
@@ -320,56 +359,38 @@ public class VariantMergerTest {
      *
      * @param var1  First variant to be merged
      * @param var2  Second variant to be merged
-     * @param gt2Merged Expected genotypes of the first variant
+     * @param expectedVar2Gts Expected genotypes of the second variant
      * @return  The merged variant, for additional checks
      */
-    public Variant checkMergeVariants(Variant var1, Variant var2, String ...gt2Merged) {
+    public Variant checkMergeVariants(Variant var1, Variant var2, List<String> expectedSecondaryAlternates, String ...expectedVar2Gts) {
+        List<AlternateCoordinate> expectedAlternatesList = new LinkedList<>();
+        for (String expectedAlternate : expectedSecondaryAlternates) {
+            Variant other = new Variant(expectedAlternate);
+            AlternateCoordinate alternate = new AlternateCoordinate(other.getChromosome(), other.getStart(), other.getEnd(),
+                    other.getReference(), other.getAlternate(), other.getType());
+            if (!expectedAlternatesList.contains(alternate)) {
+                expectedAlternatesList.add(alternate);
+            }
+        }
+
         ArrayList<String> samples = new ArrayList<>();
         samples.addAll(var1.getStudy(STUDY_ID).getOrderedSamplesName());
         samples.addAll(var2.getStudy(STUDY_ID).getOrderedSamplesName());
 
         List<String> gtsVar1 = var1.getStudy(STUDY_ID).getSamplesData().stream().map(strings -> strings.get(0)).collect(Collectors.toList());
 
-        ArrayList<AlternateCoordinate> alternates1 = new ArrayList<>(var1.getStudy(STUDY_ID).getSecondaryAlternates());
-        ArrayList<AlternateCoordinate> alternates2 = new ArrayList<>(var2.getStudy(STUDY_ID).getSecondaryAlternates());
-
         Variant mergeVar = VARIANT_MERGER.merge(var1, var2);
-
+        System.out.println("mergeVar.toJson() = " + mergeVar.toJson());
         StudyEntry se = mergeVar.getStudy(STUDY_ID);
         assertEquals(samples, se.getOrderedSamplesName());
         for (int i = 0; i < gtsVar1.size(); i++) {
             assertEquals(gtsVar1.get(i), se.getSampleData(samples.get(i), "GT"));
         }
-        for (int i = 0; i < gt2Merged.length; i++) {
-            assertEquals(gt2Merged[i], se.getSampleData(samples.get(gtsVar1.size()+ i), "GT"));
+        for (int i = 0; i < expectedVar2Gts.length; i++) {
+            assertEquals(expectedVar2Gts[i], se.getSampleData(samples.get(gtsVar1.size() + i), "GT"));
         }
 
-        int numAlternates = alternates1.size();
-        for (AlternateCoordinate alternate2 : alternates2) {
-            if (!alternates1.contains(alternate2)) {
-                numAlternates++;
-            }
-        }
-
-        if (var1.toString().equals(var2.toString())) {
-            assertEquals(numAlternates, se.getSecondaryAlternates().size());
-        } else {
-            AlternateCoordinate newAlternate = new AlternateCoordinate(
-                    var2.getChromosome(),
-                    var2.getStart(),
-                    var2.getEnd(),
-                    var2.getReference(),
-                    var2.getAlternate(),
-                    var2.getType());
-            if (!alternates1.contains(newAlternate) && !alternates2.contains(newAlternate)) {
-                numAlternates++;
-            }
-
-            assertEquals(numAlternates, se.getSecondaryAlternates().size());
-            assertTrue(se.getSecondaryAlternates().contains(newAlternate));
-            assertTrue(se.getSecondaryAlternates().containsAll(alternates1));
-            assertTrue(se.getSecondaryAlternates().containsAll(alternates2));
-        }
+        assertEquals(expectedAlternatesList, se.getSecondaryAlternates());
 
         return mergeVar;
     }
