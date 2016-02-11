@@ -65,7 +65,7 @@ public class VariantMerger {
         var.setType(target.getType());
         for(StudyEntry tse : target.getStudies()){
             StudyEntry se = new StudyEntry(tse.getStudyId());
-            se.setFiles(Collections.singletonList(new FileEntry("", "", Collections.emptyMap())));
+            se.setFiles(Collections.singletonList(new FileEntry("", "", new HashMap<>())));
             se.setFormat(Arrays.asList(new String[]{GT_KEY,PASS_KEY}));
             se.setSamplesPosition(new HashMap<String, Integer>());
             se.setSamplesData(new ArrayList<List<String>>());
@@ -77,8 +77,11 @@ public class VariantMerger {
     public void merge(Variant current, Collection<Variant> load){
         // Validate variant information
         ensureGtFormat(current);
-        if(getStudy(current).getFormat().size() > 1){
-            throw new IllegalArgumentException("Variant from Analysis talbe only supports GT data!!!");
+        if (getStudy(current).getFormat() == null || getStudy(current).getFormat().isEmpty()) {
+            throw new IllegalArgumentException("Format of sample data is empty!!!!!!");
+        }
+        if (! StringUtils.equals(GT_KEY, getStudy(current).getFormat().get(0))) {
+            throw new IllegalArgumentException("GT data is expected in first column!!!");
         }
         load.stream().forEach(v -> ensureGtFormat(v)); // ensure the GT is on the first position in FORMAT
         load.stream().forEach(v -> merge(current,v)); // Merge Each variant
@@ -92,6 +95,28 @@ public class VariantMerger {
         // else ignore
     }
 
+    private String variantToString(Variant v) {
+        StringBuilder sb = new StringBuilder(v.getChromosome());
+        sb.append(":").append(v.getStart()).append("-").append(v.getEnd());
+        sb.append(v.getReference().isEmpty() ? "-" : v.getReference());
+        sb.append(":").append(v.getAlternate().isEmpty() ? "-" : v.getAlternate()).append("[");
+        StudyEntry se = v.getStudies().get(0);
+        List<List<String>> sd = se.getSamplesData();
+        for(String sn : se.getSamplesName()){
+            Integer pos = se.getSamplesPosition().get(sn);
+            if(pos >= sd.size()){
+                sb.append(sn).append(":S;");
+            } else if(null == sd.get(pos) || sd.get(pos).size() < 1) {
+                sb.append(sn).append(":G;");
+            } else{
+                String gt = sd.get(pos).get(0); // GT
+                sb.append(sn).append(":").append(gt).append(";");
+            }
+        }
+        sb.append("]");
+        return sb.toString();
+    }
+
     /**
      * 
      * @param current
@@ -99,20 +124,25 @@ public class VariantMerger {
      */
     void mergeOverlappingVariant(Variant current, Variant other) {
         Map<String, String> sampleToGt = sampleToGt(other);
-        Map<String, String> sampleToFilter = sampleToAttribute(other,VCF_FILTER);
+        Map<String, String> sampleToFilter = sampleToAttribute(other, VCF_FILTER);
         StudyEntry se = getStudy(current);
         Set<String> duplicates = se.getSamplesName().stream().filter(s -> sampleToGt.containsKey(s)).collect(Collectors.toSet());
-        if(!duplicates.isEmpty()){
-            throw new IllegalStateException(String.format("Duplicated entries - issue with merge: %s", StringUtils.join(duplicates,", ")));
+        if (!duplicates.isEmpty()) {
+            throw new IllegalStateException(String.format("Duplicated entries - issue with merge: %s; current: %s; other: %s;",
+                    StringUtils.join(duplicates, ", "), variantToString(current), variantToString(other)));
         }
         // Secondary index: translate from e.g. 0/1 to 0/2
-        List<Integer> secIdx = buildSecIndex(se,buildSecAltList(other));
+        List<Integer> secIdx = buildSecIndex(se, buildSecAltList(other));
         int newSecGtOffset = 2; // 2 -> 0 Ref, 1 Alt, 2+ secAlt
         Map<Integer, Integer> otherToCurrent = IntStream.range(0, secIdx.size()).mapToObj(i -> i)
-                .collect(Collectors.toMap(i -> i + 1, i ->  secIdx.get(i) + newSecGtOffset));
+                .collect(Collectors.toMap(i -> i + 1, i -> secIdx.get(i) + newSecGtOffset));
+        // fix issue with UnsupportedOperationException during calling
+        // StudyEntry.addSampleData(StudyEntry.java:253)
+        List<List<String>> sd = se.getSamplesData().stream().map(l -> new ArrayList<>(l)).collect(Collectors.toList());
+        se.setSamplesData(sd);
         sampleToGt.entrySet().stream()
             .forEach(e -> se.addSampleData(e.getKey(),
-                    Arrays.asList(updateGT(e.getValue(),otherToCurrent),sampleToFilter.getOrDefault(e, "-"))));
+                    Arrays.asList(updateGT(e.getValue(), otherToCurrent), sampleToFilter.getOrDefault(e, "-"))));
     }
 
     /**
@@ -168,6 +198,8 @@ public class VariantMerger {
         if(!duplicates.isEmpty()){
             throw new IllegalStateException(String.format("Duplicated entries - issue with merge: %s", StringUtils.join(duplicates,", ")));
         }
+        List<List<String>> sd = se.getSamplesData().stream().map(l -> new ArrayList<>(l)).collect(Collectors.toList());
+        se.setSamplesData(sd); // fix for AbstractList exception
         // Add GT data for each sample to current Variant
         sampleToGt.entrySet().forEach(e -> se.addSampleData(e.getKey(), Arrays.asList(e.getValue(),sampleToFilter.getOrDefault(e, "-"))));
     }
