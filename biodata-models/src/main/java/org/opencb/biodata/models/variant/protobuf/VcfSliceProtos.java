@@ -557,14 +557,9 @@ public final class VcfSliceProtos {
         getAlternateBytes(int index);
 
     /**
-     * <code>optional string quality = 5;</code>
+     * <code>optional float quality = 5;</code>
      */
-    java.lang.String getQuality();
-    /**
-     * <code>optional string quality = 5;</code>
-     */
-    com.google.protobuf.ByteString
-        getQualityBytes();
+    float getQuality();
 
     /**
      * <code>optional .org.opencb.biodata.models.variant.protobuf.VariantType type = 12;</code>
@@ -715,7 +710,7 @@ public final class VcfSliceProtos {
       relativeEnd_ = 0;
       reference_ = "";
       alternate_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-      quality_ = "";
+      quality_ = 0F;
       type_ = 0;
       call_ = "";
       filterNonDefault_ = "";
@@ -775,10 +770,9 @@ public final class VcfSliceProtos {
               alternate_.add(s);
               break;
             }
-            case 42: {
-              String s = input.readStringRequireUtf8();
+            case 45: {
 
-              quality_ = s;
+              quality_ = input.readFloat();
               break;
             }
             case 50: {
@@ -972,37 +966,12 @@ public final class VcfSliceProtos {
     }
 
     public static final int QUALITY_FIELD_NUMBER = 5;
-    private volatile java.lang.Object quality_;
+    private float quality_;
     /**
-     * <code>optional string quality = 5;</code>
+     * <code>optional float quality = 5;</code>
      */
-    public java.lang.String getQuality() {
-      java.lang.Object ref = quality_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        quality_ = s;
-        return s;
-      }
-    }
-    /**
-     * <code>optional string quality = 5;</code>
-     */
-    public com.google.protobuf.ByteString
-        getQualityBytes() {
-      java.lang.Object ref = quality_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        quality_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
+    public float getQuality() {
+      return quality_;
     }
 
     public static final int TYPE_FIELD_NUMBER = 12;
@@ -1264,8 +1233,8 @@ public final class VcfSliceProtos {
       for (int i = 0; i < alternate_.size(); i++) {
         com.google.protobuf.GeneratedMessage.writeString(output, 4, alternate_.getRaw(i));
       }
-      if (!getQualityBytes().isEmpty()) {
-        com.google.protobuf.GeneratedMessage.writeString(output, 5, quality_);
+      if (quality_ != 0F) {
+        output.writeFloat(5, quality_);
       }
       if (!getFilterNonDefaultBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessage.writeString(output, 6, filterNonDefault_);
@@ -1317,8 +1286,9 @@ public final class VcfSliceProtos {
         size += dataSize;
         size += 1 * getAlternateList().size();
       }
-      if (!getQualityBytes().isEmpty()) {
-        size += com.google.protobuf.GeneratedMessage.computeStringSize(5, quality_);
+      if (quality_ != 0F) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeFloatSize(5, quality_);
       }
       if (!getFilterNonDefaultBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessage.computeStringSize(6, filterNonDefault_);
@@ -1490,7 +1460,7 @@ public final class VcfSliceProtos {
 
         alternate_ = com.google.protobuf.LazyStringArrayList.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000008);
-        quality_ = "";
+        quality_ = 0F;
 
         type_ = 0;
 
@@ -1613,9 +1583,8 @@ public final class VcfSliceProtos {
           }
           onChanged();
         }
-        if (!other.getQuality().isEmpty()) {
-          quality_ = other.quality_;
-          onChanged();
+        if (other.getQuality() != 0F) {
+          setQuality(other.getQuality());
         }
         if (other.type_ != 0) {
           setTypeValue(other.getTypeValue());
@@ -1948,71 +1917,28 @@ public final class VcfSliceProtos {
         return this;
       }
 
-      private java.lang.Object quality_ = "";
+      private float quality_ ;
       /**
-       * <code>optional string quality = 5;</code>
+       * <code>optional float quality = 5;</code>
        */
-      public java.lang.String getQuality() {
-        java.lang.Object ref = quality_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          quality_ = s;
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
+      public float getQuality() {
+        return quality_;
       }
       /**
-       * <code>optional string quality = 5;</code>
+       * <code>optional float quality = 5;</code>
        */
-      public com.google.protobuf.ByteString
-          getQualityBytes() {
-        java.lang.Object ref = quality_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          quality_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>optional string quality = 5;</code>
-       */
-      public Builder setQuality(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  
+      public Builder setQuality(float value) {
+        
         quality_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string quality = 5;</code>
+       * <code>optional float quality = 5;</code>
        */
       public Builder clearQuality() {
         
-        quality_ = getDefaultInstance().getQuality();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string quality = 5;</code>
-       */
-      public Builder setQualityBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-        
-        quality_ = value;
+        quality_ = 0F;
         onChanged();
         return this;
       }
@@ -3886,7 +3812,7 @@ public final class VcfSliceProtos {
       "VcfSample\022\025\n\rsample_values\030\001 \003(\t\"\212\003\n\tVcf" +
       "Record\022\026\n\016relative_start\030\001 \001(\r\022\024\n\014relati" +
       "ve_end\030\002 \001(\r\022\021\n\treference\030\003 \001(\t\022\021\n\talter" +
-      "nate\030\004 \003(\t\022\017\n\007quality\030\005 \001(\t\022E\n\004type\030\014 \001(" +
+      "nate\030\004 \003(\t\022\017\n\007quality\030\005 \001(\002\022E\n\004type\030\014 \001(" +
       "\01627.org.opencb.biodata.models.variant.pr" +
       "otobuf.VariantType\022\014\n\004call\030\r \001(\t\022\032\n\022filt" +
       "er_non_default\030\006 \001(\t\022\026\n\016id_non_default\030\007" +

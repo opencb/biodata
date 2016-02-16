@@ -136,7 +136,7 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
         }
 
 		/* QUAL */
-        recordBuilder.setQuality(decodeQual(attr.get(VariantVcfFactory.QUAL)));
+        recordBuilder.setQuality(getQuality(attr.get(VariantVcfFactory.QUAL)));
 
 		/* INFO */
         List<String> infoKeys = decodeInfoKeys(attr);
@@ -204,11 +204,23 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
         return ids.stream().map(x -> x.toString()).collect(Collectors.toList());
     }
 
-    private String decodeQual(String value) {
-        if (null != value) {
-            return value.toString();
+    /**
+     * Encodes the {@link String} value of the Quality into a float.
+     *
+     * See {@link VcfRecordToVariantConverter#getQuality(float)}
+     * Increments one to the quality value. 0 means missing or unknown.
+     *
+     * @param value String quality value
+     * @return Quality
+     */
+    static float getQuality(String value) {
+        final float qual;
+        if (StringUtils.isNotEmpty(value) && !value.equals(".")) {
+            qual = Float.parseFloat(value);
+        } else {
+            qual = -1;
         }
-        return StringUtils.EMPTY;
+        return qual + 1;
     }
 
     private String decodeFilter(String filter) {

@@ -25,7 +25,7 @@ import org.opencb.biodata.models.variant.VariantVcfFactory;
 import org.opencb.biodata.models.variant.protobuf.VcfMeta;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfRecord;
 
-public class VariantAvroToVcfRecordTest {
+public class VariantToVcfRecordTest {
 
     @Before
     public void setUp() throws Exception {
@@ -52,7 +52,7 @@ public class VariantAvroToVcfRecordTest {
 
         String fileName = "file_123";
         String format = "AB:EF:CD";
-        String qual = "321";
+        String qual = "321.12";
         String filter = "PASS;low30";
         StudyEntry study = new StudyEntry();
         study.setFileId(fileName);
@@ -92,7 +92,7 @@ public class VariantAvroToVcfRecordTest {
         assertEquals(sampleList.size(), rec.getSamplesList().size());
         assertEquals(Arrays.asList("ab2", "ef2", "cd2"), new ArrayList<CharSequence>(rec.getSamples(1).getSampleValuesList()));
         assertEquals(Arrays.asList("ab1", "ef1", "cd1"), new ArrayList<CharSequence>(rec.getSamples(0).getSampleValuesList()));
-        assertEquals(qual, rec.getQuality());
+        assertEquals(Float.parseFloat(qual), rec.getQuality(), 0);
         assertEquals(Arrays.asList("A", "X"), new ArrayList<>(rec.getInfoKeyList()));
         assertEquals(filter, rec.getFilterNonDefault());
 
@@ -197,4 +197,19 @@ public class VariantAvroToVcfRecordTest {
         assertEquals(samplesList, samples);
     }
 
+    @Test
+    public void testEncodeQuality() throws Exception {
+        testEncodeDecodeQuality("10.0", 11f, "10.0");
+        testEncodeDecodeQuality("10.0", 11f, "10.000");
+        testEncodeDecodeQuality("10.0", 11f, "10");
+        testEncodeDecodeQuality("10.01", 11.01f, "10.01");
+        testEncodeDecodeQuality(null, 0f, ".");
+        testEncodeDecodeQuality(null, 0f, null);
+    }
+
+    private void testEncodeDecodeQuality(String expected, float expectedFloat, String value) {
+        float quality = VariantToProtoVcfRecord.getQuality(value);
+        assertEquals(expectedFloat, quality, 0.0001);
+        assertEquals(expected, VcfRecordToVariantConverter.getQuality(quality));
+    }
 }

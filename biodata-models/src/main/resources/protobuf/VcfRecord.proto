@@ -16,7 +16,7 @@ message VcfRecord {
   uint32 relative_end = 2;
   string reference = 3; 
   repeated string alternate = 4;
-  string quality = 5;
+  float quality = 5;
 
   VariantType type = 12;
   string call = 13;
@@ -36,6 +36,11 @@ message VcfSlice {
   string chromosome = 1;
   uint32 position = 2;
   repeated VcfRecord records = 3; // List of records (lines)
-// VcfMeta metadata = 4; 
+// VcfMeta metadata = 4;
+
+//  repeated string info_keys = 5;
+//  repeated string filters = 6;
+//  uint32 default_format = 7;
+
 }
 

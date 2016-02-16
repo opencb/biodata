@@ -41,7 +41,6 @@ public class VcfRecordToVariantConverter implements Converter<VcfSliceProtos.Vcf
         return convert(vcfRecord, "0", 0);
     }
 
-
     public Variant convert(VcfSliceProtos.VcfRecord vcfRecord, String chromosome, int slicePosition) {
         int start = slicePosition + vcfRecord.getRelativeStart();
         int end = vcfRecord.getRelativeEnd() != 0 ? slicePosition + vcfRecord.getRelativeEnd() : start;
@@ -95,9 +94,34 @@ public class VcfRecordToVariantConverter implements Converter<VcfSliceProtos.Vcf
         while (keyIterator.hasNext()) {
             attributes.put(keyIterator.next(), valueIterator.next());
         }
-        attributes.put(VariantVcfFactory.QUAL, vcfRecord.getQuality());
+
+        attributes.put(VariantVcfFactory.QUAL, getQuality(vcfRecord));
         attributes.put(VariantVcfFactory.FILTER, getFilter(vcfRecord));
         return attributes;
+    }
+
+    private String getQuality(VcfSliceProtos.VcfRecord vcfRecord) {
+        float quality = vcfRecord.getQuality();
+        return getQuality(quality);
+    }
+
+    /**
+     * Decodes the Quality float value.
+     *
+     * See {@link VariantToProtoVcfRecord#getQuality(String)}
+     * Decrements one to the quality value.
+     * 0 means missing or unknown, and will return null.
+     *
+     * @param quality String quality value
+     * @return Quality string
+     */
+    static String getQuality(float quality) {
+        quality -= 1;
+        if (quality == -1) {
+            return null;    //Quality missing
+        } else {
+            return Float.toString(quality);
+        }
     }
 
     private String getFilter(VcfSliceProtos.VcfRecord vcfRecord) {
