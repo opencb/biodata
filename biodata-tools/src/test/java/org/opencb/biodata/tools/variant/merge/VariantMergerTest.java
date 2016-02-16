@@ -8,6 +8,7 @@ import org.junit.rules.ExpectedException;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.VariantVcfFactory;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.VariantType;
@@ -220,6 +221,24 @@ public class VariantMergerTest {
     }
 
     @Test
+    public void testMergeWithSecondaryWithOtherFields_2SNP_2() {
+        Variant var1 = generateVariantWithFormat("1:10:A:T", "GT:FILTER", "S01", "0/1", "PASS");
+        System.out.println("var1.toJson() = " + var1.toJson());
+        Variant var2 = generateVariantWithFormat("1:10:A:G", "GT:FILTER", "S02", "1/2", "noPASS");
+        var2.getStudy(STUDY_ID).getSecondaryAlternates().add(new AlternateCoordinate("1", 10, 10, "A", "C", VariantType.SNV));
+        checkMergeVariants(var1, var2, Arrays.asList("1:10:A:G", "1:10:A:C"), "2/3");
+    }
+
+    @Test
+    public void testMergeWithSecondaryWithFileAttributes_2SNP_2() {
+        Variant var1 = generateVariantWithFormat("1:10:A:T", "GT", "S01", "0/1");
+        System.out.println("var1.toJson() = " + var1.toJson());
+        Variant var2 = generateVariantWithFormat("1:10:A:G", "GT", "S02", "1/2");
+        var2.getStudy(STUDY_ID).getSecondaryAlternates().add(new AlternateCoordinate("1", 10, 10, "A", "C", VariantType.SNV));
+        checkMergeVariants(var1, var2, Arrays.asList("1:10:A:G", "1:10:A:C"), "2/3");
+    }
+
+    @Test
     public void testMergeWithSecondary_2SNP_3() {
         Variant var1 = generateVariant("1:10:A:T", "S01", "1/2");
         var1.getStudy(STUDY_ID).getSecondaryAlternates().add(new AlternateCoordinate("1", 10, 10, "A", "C", VariantType.SNV));
@@ -400,7 +419,33 @@ public class VariantMergerTest {
 
     private Variant generateVariant(String chr, int pos, String ref, String alt, VariantType vt,
                                     List<String> sampleIds, List<String> sampleGt) {
-        return generateVariant(new Variant(chr, pos, pos + Math.max(ref.length(), alt.length()) - 1, ref, alt), vt, sampleIds, sampleGt);
+        return generateVariant(new Variant(chr, pos, pos + Math.max(ref.length(), alt.length()) - 1, ref, alt), vt, Collections.singletonList("GT"), sampleIds, sampleGt.stream().map(s -> Collections.singletonList(s))
+                .collect(Collectors.toList()), Collections.emptyMap());
+    }
+
+    private Variant generateVariantWithFormat(String var, String format, String... samplesDataArray) {
+        return generateVariantWithFormat(var, format, "PASS", 100, samplesDataArray);
+    }
+    private Variant generateVariantWithFormat(String var, String format, String filter, Integer qual, String... samplesDataArray) {
+        Variant variant = new Variant(var);
+
+        Map<String, String> attributes = new HashMap<>();
+        attributes.put(VariantVcfFactory.FILTER, filter);
+        attributes.put(VariantVcfFactory.QUAL, qual.toString());
+
+        List<List<String>> samplesData = new LinkedList<>();
+        String[] formats = format.split(":");
+        List<String> samplesName = new LinkedList<>();
+        for (int i = 0; i < samplesDataArray.length; i = i + formats.length + 1) {
+            String sampleName = samplesDataArray[i];
+            samplesName.add(sampleName);
+            List<String> sampleData = new LinkedList<>();
+            for (int j = 0; j < formats.length; j++) {
+                sampleData.add(samplesDataArray[i + j + 1]);
+            }
+            samplesData.add(sampleData);
+        }
+        return generateVariant(variant, variant.getType(), Arrays.asList(formats), samplesName, samplesData, attributes);
     }
 
     private Variant generateVariant(String var, String... samplesData) {
@@ -411,29 +456,23 @@ public class VariantMergerTest {
             sampleIds.add(samplesData[i]);
             sampleGt.add(samplesData[i+1]);
         }
-        return generateVariant(variant, variant.getType(), sampleIds, sampleGt);
-    }
-
-    private Variant generateVariant(String var, List<String> sampleIds, List<String> sampleGt) {
-        Variant variant = new Variant(var);
-        return generateVariant(variant, variant.getType(), sampleIds, sampleGt);
+        return generateVariant(variant, variant.getType(), Collections.singletonList("GT"), sampleIds, sampleGt.stream().map(s -> Collections.singletonList(s))
+                .collect(Collectors.toList()), Collections.emptyMap());
     }
 
     private Variant generateVariant(Variant variant, VariantType vt,
-                                    List<String> sampleIds, List<String> sampleGt) {
+                                    List<String> format, List<String> sampleIds, List<List<String>> samplesData, Map<String, String> fileAttributes) {
         Variant var = variant;
         var.setType(vt);
         StudyEntry se = new StudyEntry(STUDY_ID);
-        se.setFiles(Collections.singletonList(new FileEntry("", "", Collections.emptyMap())));
-        se.setFormat(Collections.singletonList("GT"));
+        se.setFiles(Collections.singletonList(new FileEntry("", "", fileAttributes)));
+        se.setFormat(format);
         Map<String, Integer> sp = new HashMap<String, Integer>();
         for(int i = 0; i < sampleIds.size(); ++i){
             sp.put(sampleIds.get(i), i);
         }
         se.setSamplesPosition(sp);
-        List<List<String>> gt = sampleGt.stream().map(s -> Collections.singletonList(s))
-                .collect(Collectors.toList());
-        se.setSamplesData(gt);
+        se.setSamplesData(samplesData);
         var.addStudyEntry(se );
         return var;
     }
