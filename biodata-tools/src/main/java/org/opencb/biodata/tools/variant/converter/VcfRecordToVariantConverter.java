@@ -2,13 +2,11 @@ package org.opencb.biodata.tools.variant.converter;
 
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.VariantSource;
 import org.opencb.biodata.models.variant.VariantVcfFactory;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.protobuf.VariantProto;
-import org.opencb.biodata.models.variant.protobuf.VcfMeta;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
 
 import java.util.*;
@@ -21,19 +19,32 @@ import java.util.*;
 public class VcfRecordToVariantConverter implements Converter<VcfSliceProtos.VcfRecord, Variant> {
 
     //    private final VcfSliceProtos.VcfMeta meta;
-    private final VcfMeta meta;
+//    private final VcfMeta meta;
+//    private final VcfSliceProtos.VcfSlice slice;
+
     private final LinkedHashMap<String, Integer> samplePosition;
 
-    public VcfRecordToVariantConverter(VariantSource meta) {
-        this(new VcfMeta(meta));
+    private VcfSliceProtos.Fields fields;
+    private final String fileId;
+    private final String studyId;
+
+
+
+    public VcfRecordToVariantConverter(VcfSliceProtos.Fields fields, Map<String, Integer> samplePosition, String fileId, String studyId) {
+        this(fields, StudyEntry.sortSamplesPositionMap(samplePosition), fileId, studyId);
+    }
+    public VcfRecordToVariantConverter(LinkedHashMap<String, Integer> samplePosition, String fileId, String studyId) {
+        this(null, samplePosition, fileId, studyId);
     }
 
-    public VcfRecordToVariantConverter(VcfMeta meta) {
-        this.meta = meta;
-        samplePosition = new LinkedHashMap<>(meta.getVariantSource().getSamples().size());
-        for (String sample : meta.getVariantSource().getSamples()) {
-            samplePosition.put(sample, samplePosition.size());
-        }
+    public VcfRecordToVariantConverter(VcfSliceProtos.Fields fields, LinkedHashMap<String, Integer> samplePosition, String fileId, String studyId) {
+
+        this.samplePosition = samplePosition;
+
+        this.fields = fields;
+        this.fileId = fileId;
+        this.studyId = studyId;
+
     }
 
     @Override
@@ -52,11 +63,11 @@ public class VcfRecordToVariantConverter implements Converter<VcfSliceProtos.Vcf
         variant.setIds(vcfRecord.getIdNonDefaultList());
 
         FileEntry fileEntry = new FileEntry();
-        fileEntry.setFileId(meta.getVariantSource().getFileId());
+        fileEntry.setFileId(fileId);
         fileEntry.setAttributes(getFileAttributes(vcfRecord));
         fileEntry.setCall(vcfRecord.getCall());
 
-        StudyEntry studyEntry = new StudyEntry(meta.getVariantSource().getStudyId());
+        StudyEntry studyEntry = new StudyEntry(studyId);
         studyEntry.setFiles(Collections.singletonList(fileEntry));
         studyEntry.setFormat(getFormat(vcfRecord));
         studyEntry.setSamplesData(getSamplesData(vcfRecord));
@@ -80,19 +91,20 @@ public class VcfRecordToVariantConverter implements Converter<VcfSliceProtos.Vcf
     }
 
     private Map<String, String> getFileAttributes(VcfSliceProtos.VcfRecord vcfRecord) {
-        Map<String, String> attributes = new HashMap<>(vcfRecord.getInfoKeyCount());
-        Iterator<String> keyIterator;
-        if (vcfRecord.getInfoKeyCount() != vcfRecord.getInfoValueCount()) {
-            if (meta.getInfoDefault().size() != vcfRecord.getInfoValueCount()) {
+        Map<String, String> attributes = new HashMap<>(vcfRecord.getInfoKeyIndexCount());
+        Iterator<Integer> keyIdxIterator;
+        if (vcfRecord.getInfoKeyIndexCount() != vcfRecord.getInfoValueCount()) {
+            if (fields.getDefaultInfoKeysCount() != vcfRecord.getInfoValueCount()) {
                 throw new UnsupportedOperationException("Number of info keys and info values mismatch");
             }
-            keyIterator = meta.getInfoDefault().iterator();
+            keyIdxIterator = fields.getDefaultInfoKeysList().iterator();
         } else {
-            keyIterator = vcfRecord.getInfoKeyList().iterator();
+            keyIdxIterator = vcfRecord.getInfoKeyIndexList().iterator();
         }
         Iterator<String> valueIterator = vcfRecord.getInfoValueList().iterator();
-        while (keyIterator.hasNext()) {
-            attributes.put(keyIterator.next(), valueIterator.next());
+
+        while (keyIdxIterator.hasNext()) {
+            attributes.put(fields.getInfoKeys(keyIdxIterator.next()), valueIterator.next());
         }
 
         attributes.put(VariantVcfFactory.QUAL, getQuality(vcfRecord));
@@ -108,7 +120,7 @@ public class VcfRecordToVariantConverter implements Converter<VcfSliceProtos.Vcf
     /**
      * Decodes the Quality float value.
      *
-     * See {@link VariantToProtoVcfRecord#getQuality(String)}
+     * See {@link VariantToProtoVcfRecord#encodeQuality(String)}
      * Decrements one to the quality value.
      * 0 means missing or unknown, and will return null.
      *
@@ -120,24 +132,22 @@ public class VcfRecordToVariantConverter implements Converter<VcfSliceProtos.Vcf
         if (quality == -1) {
             return null;    //Quality missing
         } else {
-            return Float.toString(quality);
+            String q = Float.toString(quality);
+            if (q.endsWith(".0")){
+                return q.substring(0, q.lastIndexOf("."));
+            } else {
+                return q;
+            }
         }
     }
 
     private String getFilter(VcfSliceProtos.VcfRecord vcfRecord) {
-        if (vcfRecord.getFilterNonDefault() == null || vcfRecord.getFilterNonDefault().isEmpty()) {
-            return meta.getFilterDefault();
-        } else {
-            return vcfRecord.getFilterNonDefault();
-        }
+        return fields.getFilters(vcfRecord.getFilterIndex());
     }
 
     private List<String> getFormat(VcfSliceProtos.VcfRecord vcfRecord) {
-        List<String> formatList = vcfRecord.getSampleFormatNonDefaultList();
-        if (formatList.isEmpty()) {
-            formatList = meta.getFormatDefault();
-        }
-        return formatList;
+        String format = fields.getFormats(vcfRecord.getFormatIndex());
+        return Arrays.asList(format.split(":"));
     }
 
     public static VariantType getVariantType(VariantProto.VariantType type) {
@@ -163,4 +173,12 @@ public class VcfRecordToVariantConverter implements Converter<VcfSliceProtos.Vcf
         }
     }
 
+    public VcfSliceProtos.Fields getFields() {
+        return fields;
+    }
+
+    public VcfRecordToVariantConverter setFields(VcfSliceProtos.Fields fields) {
+        this.fields = fields;
+        return this;
+    }
 }

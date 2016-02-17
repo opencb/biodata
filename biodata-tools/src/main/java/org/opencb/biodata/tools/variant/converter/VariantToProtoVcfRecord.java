@@ -16,21 +16,20 @@
 
 package org.opencb.biodata.tools.variant.converter;
 
+import com.google.protobuf.ProtocolStringList;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.VariantSource;
 import org.opencb.biodata.models.variant.VariantVcfFactory;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.protobuf.VariantProto;
-import org.opencb.biodata.models.variant.protobuf.VcfMeta;
+import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfRecord;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfRecord.Builder;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfSample;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 /**
@@ -38,56 +37,51 @@ import java.util.stream.Collectors;
  */
 public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
 
-    //	private static final char STRING_JOIN_SEP = '~';
-//	public static final String ILLUMINA_GVCF_BLOCK_END = "END";
+    private VcfSliceProtos.Fields fields;
 
+    private final Map<String, Integer> formatIndexMap = new HashMap<>();
+    private final Map<String, Integer> filterIndexMap = new HashMap<>();
+    private final Map<String, Integer> infoKeyIndexMap = new HashMap<>();
 
-    private final AtomicReference<VcfMeta> meta = new AtomicReference<>();
+    private static final Set<String> IGNORED_KEYS = new HashSet<>();
 
-
-    private Map<String, Integer> samplesPosition = new HashMap<>();
-    private List<String> samples = new ArrayList<>();
-    private final AtomicReference<String> defaultFilterKeys = new AtomicReference<>();
-    //	private final AtomicReference<String> defaultInfoKeys = new AtomicReference<String>();
-    private final List<String> defaultInfoKeys = new ArrayList<>();
-    private final List<String> defaultFormatKeys = new ArrayList<>();
-    private final Set<String> ignoredKeys = new HashSet<>();
+    static {
+        IGNORED_KEYS.add(VariantVcfFactory.FILTER);
+        IGNORED_KEYS.add(VariantVcfFactory.QUAL);
+        IGNORED_KEYS.add(VariantVcfFactory.SRC);
+    }
 
     /**
      *
      */
     public VariantToProtoVcfRecord() {
         // do nothing
-        ignoredKeys.add(VariantVcfFactory.FILTER);
-        ignoredKeys.add(VariantVcfFactory.QUAL);
-        ignoredKeys.add(VariantVcfFactory.SRC);
     }
 
-    private void init(VcfMeta meta) {
+    private void init(VcfSliceProtos.Fields fields) {
 
-        // add values
-        samplesPosition = meta.getVariantSource().getSamplesPosition();
-        samples = meta.getVariantSource().getSamples();
+        this.fields = fields;
 
-        ArrayList<String> infoKeys = new ArrayList<String>(meta.getInfoDefault());
-        Collections.sort(infoKeys); // INFO keys only to be sorted
+        listToMap(fields.getInfoKeysList(), this.infoKeyIndexMap);
+        listToMap(fields.getFiltersList(), this.filterIndexMap);
+        listToMap(fields.getFormatsList(), this.formatIndexMap);
 
-        defaultFilterKeys.set(meta.getFilterDefault());
+    }
 
-//		defaultInfoKeys.set(StringUtils.join(infoKeys, STRING_JOIN_SEP));
-        defaultInfoKeys.clear();
-        defaultInfoKeys.addAll(infoKeys);
-
-        defaultFormatKeys.clear();
-        defaultFormatKeys.addAll(meta.getFormatDefault());
-
-        setVcfMeta(meta);
+    private Map<String, Integer> listToMap(ProtocolStringList list, Map<String, Integer> map) {
+        map.clear();
+        int i = 0;
+        for (String key : list) {
+            map.put(key, i++);
+        }
+        return map;
     }
 
     @Override
     public VcfRecord convert(Variant variant) {
         return convertUsingSliceposition(variant, 0);
     }
+
     public VcfRecord convert(Variant variant, int chunkSize) {
         return convertUsingSliceposition(variant, chunkSize > 0 ? getSlicePosition(variant.getStart(), chunkSize) : 0);
     }
@@ -99,7 +93,7 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
                 .setRelativeStart(variant.getStart() - slicePosition)
                 .setReference(variant.getReference())
                 .addAlternate(variant.getAlternate())
-                .addAllIdNonDefault(decodeIds(variant.getIds()));
+                .addAllIdNonDefault(encodeIds(variant.getIds()));
 
         //Set end only if is different to the start position
         if (!Objects.equals(variant.getEnd(), variant.getStart())) {
@@ -130,30 +124,18 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
         recordBuilder.setCall(file.getCall());
 
 		/* Filter */
-        String filter = decodeFilter(attr.get(VariantVcfFactory.FILTER));
-        if (filter != null) {
-            recordBuilder.setFilterNonDefault(filter);
-        }
+        int filter = encodeFilter(attr.get(VariantVcfFactory.FILTER));
+        recordBuilder.setFilterIndex(filter);
 
 		/* QUAL */
-        recordBuilder.setQuality(getQuality(attr.get(VariantVcfFactory.QUAL)));
+        recordBuilder.setQuality(encodeQuality(attr.get(VariantVcfFactory.QUAL)));
 
 		/* INFO */
-        List<String> infoKeys = decodeInfoKeys(attr);
-        boolean isInfoDefault = isDefaultInfoKeys(infoKeys);
-        List<String> infoValues = decodeInfoValues(attr, infoKeys);
-        if (!isInfoDefault) {
-            recordBuilder.addAllInfoKey(infoKeys);
-        } else {
-            recordBuilder.addAllInfoKey(Arrays.asList(new String[]{}));
-        }
-        recordBuilder.addAllInfoValue(infoValues);
+        setInfoKeyValues(recordBuilder, attr);
 
 		/* FORMAT */
-        List<String> formatLst = study.getFormat();
-        if (!isDefaultFormat(formatLst)) {
-            recordBuilder.addAllSampleFormatNonDefault(formatLst); // maybe empty if default
-        }
+        setFormat(recordBuilder, study);
+
         recordBuilder.addAllSamples(decodeSamples(study.getSamplesData()));
 
         /* TYPE */
@@ -163,13 +145,30 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
         return recordBuilder.build();
     }
 
+    private void setInfoKeyValues(Builder recordBuilder, Map<String, String> attr) {
+        List<Integer> infoKeys = encodeInfoKeys(attr.keySet());
+        List<String> infoValues = encodeInfoValues(attr, infoKeys);
 
-    public void updateVcfMeta(VcfMeta meta) {
-        this.init(meta);
+        if (!isDefaultInfoKeys(infoKeys)) {
+            recordBuilder.addAllInfoKeyIndex(infoKeys);
+        } else {
+            recordBuilder.addAllInfoKeyIndex(Collections.emptyList());
+        }
+        recordBuilder.addAllInfoValue(infoValues);
     }
 
-    public void updateVcfMeta(VariantSource source) {
-        this.init(new VcfMeta(source));
+    private void setFormat(Builder recordBuilder, StudyEntry study) {
+        List<String> formatLst = study.getFormat();
+        String format = String.join(":", formatLst);
+        Integer formatIndex = formatIndexMap.get(format);
+        if (formatIndex == null || formatIndex < 0) {
+            throw new IllegalArgumentException("Unknown format " + format);
+        }
+        recordBuilder.setFormatIndex(formatIndex);
+    }
+
+    public void updateMeta(VcfSliceProtos.Fields fields) {
+        this.init(fields);
     }
 
     /**
@@ -179,7 +178,7 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
      * @param chunkSize chunk size
      * @return slice calculated using position and chunk size
      */
-    public int getSlicePosition(int position, int chunkSize) {
+    public static int getSlicePosition(int position, int chunkSize) {
         return chunkSize > 0
                 ? position - (position % chunkSize)
                 : position;
@@ -192,16 +191,16 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
      * @param chunkSize chunk size
      * @return offset calculated to the slice start position
      */
-    public int getSliceOffset(int position, int chunkSize) {
+    public static int getSliceOffset(int position, int chunkSize) {
         return chunkSize > 0
                 ? position % chunkSize
                 : position;
     }
 
 
-    private Iterable<String> decodeIds(List<String> ids) {
+    private Iterable<String> encodeIds(List<String> ids) {
         // TODO check if "." are removed!!!
-        return ids.stream().map(x -> x.toString()).collect(Collectors.toList());
+        return ids == null ? Collections.emptyList() : ids.stream().map(String::toString).collect(Collectors.toList());
     }
 
     /**
@@ -213,7 +212,7 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
      * @param value String quality value
      * @return Quality
      */
-    static float getQuality(String value) {
+    static float encodeQuality(String value) {
         final float qual;
         if (StringUtils.isNotEmpty(value) && !value.equals(".")) {
             qual = Float.parseFloat(value);
@@ -223,23 +222,25 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
         return qual + 1;
     }
 
-    private String decodeFilter(String filter) {
+    private int encodeFilter(String filter) {
+        Integer index;
         if (null != filter) {
-            if (filter.equals(meta.get().getFilterDefault())) {
-                return null;
-            } else {
-                return filter;
-            }
+            index = filterIndexMap.get(filter);
+        } else {
+            index = filterIndexMap.get(".");
         }
-        return StringUtils.EMPTY;
+        if (index == null || index < 0) {
+            throw new IllegalArgumentException("Unknown filter " + filter);
+        }
+        return index;
     }
 
 
-    private List<String> decodeInfoValues(Map<String, String> attr, List<String> infoKeys) {
+    private List<String> encodeInfoValues(Map<String, String> attr, List<Integer> infoKeys) {
 //		infoKeys.stream().map(x -> attr.get(x)).collect(Collectors.toList()); // not sure if order is protected
         List<String> values = new ArrayList<>(infoKeys.size());
-        for (String key : infoKeys) {
-            values.add(attr.get(key));
+        for (Integer key : infoKeys) {
+            values.add(attr.get(fields.getInfoKeysList().get(key)));
         }
         return values;
     }
@@ -247,26 +248,36 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
     /**
      * Creates a sorted list of strings from the INFO KEYs
      *
-     * @param attr {@link Map} of key-value info pairs
      * @return {@link List}
+     * @param keys
      */
-    private List<String> decodeInfoKeys(Map<String, String> attr) {
+    private List<Integer> encodeInfoKeys(Collection<String> keys) {
         // sorted key list
-        List<String> keyList = attr.keySet().stream()
-                .map(String::toString)
-                .filter(s -> !ignoredKeys.contains(s))
-                .sorted().collect(Collectors.toList());
-        return keyList;
+        List<Integer> idxKeys = new ArrayList<>(keys.size());
+        for (String key : keys) {
+            if (!IGNORED_KEYS.contains(key)) {
+                Integer idx = infoKeyIndexMap.get(key);
+                if (idx != null) {
+                    idxKeys.add(idx);
+                } else {
+                    throw new IllegalArgumentException("Unknown key value " + key);
+                }
+            }
+        }
+        idxKeys.sort(Integer::compareTo);
+        return idxKeys;
     }
 
-    private boolean isDefaultInfoKeys(List<String> keyList) {
-        return this.getDefaultInfoKeys().equals(keyList);
-//		String str = StringUtils.join(keyList,STRING_JOIN_SEP);
-//		return StringUtils.equals(str, getDefaultInfoKeys());
+    private boolean isDefaultInfoKeys(List<Integer> keyList) {
+        return fields.getDefaultInfoKeysList().equals(keyList);
     }
 
-    public boolean isDefaultFormat(List<String> keyList) {
-        return getDefaultFormatKeys().equals(keyList);
+    public boolean isDefaultFormat(List<String> format) {
+        return isDefaultFormat(String.join(":", format));
+    }
+
+    public boolean isDefaultFormat(String format) {
+        return fields.getFormats(0).equals(format);
     }
 
     public List<VcfSample> decodeSamples(List<List<String>> samplesData) {
@@ -285,49 +296,6 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
             values.add(data.getOrDefault(f, StringUtils.EMPTY).toString());
         }
         return VcfSample.newBuilder().addAllSampleValues(values).build();
-    }
-
-    private void setVcfMeta(VcfMeta meta) {
-        this.meta.set(meta);
-    }
-
-    public VcfMeta getVcfMeta() {
-        return meta.get();
-    }
-
-    public List<String> getSamples() {
-        return samples;
-    }
-
-    public void setSamples(List<String> samples) {
-        this.samples.clear();
-        this.samples.addAll(samples);
-    }
-
-    public String getDefaultFilterKeys() {
-        return defaultFilterKeys.get();
-    }
-
-    public void setDefaultFilterKeys(String value) {
-        defaultFilterKeys.set(value);
-    }
-
-    public List<String> getDefaultInfoKeys() {
-        return defaultInfoKeys;
-    }
-
-    public void setDefaultInfoKeys(List<String> keys) {
-        defaultInfoKeys.clear();
-        defaultInfoKeys.addAll(keys);
-    }
-
-    public List<String> getDefaultFormatKeys() {
-        return defaultFormatKeys;
-    }
-
-    public void setDefaultFormatKeys(List<String> keys) {
-        defaultFormatKeys.clear();
-        defaultFormatKeys.addAll(keys);
     }
 
     public static VariantProto.VariantType getProtoVariantType(VariantType type) {

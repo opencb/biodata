@@ -164,9 +164,8 @@ public class StudyEntry implements Serializable {
 //        impl.setSecondaryAlternates(Arrays.asList(secondaryAlternates));
 //    }
 
-    @Deprecated
     public String getFormatAsString() {
-        return getFormat().stream().collect(Collectors.joining(":"));
+        return impl.getFormat() == null ? null : String.join(":", impl.getFormat());
     }
 
     public void setFormatAsString(String format) {

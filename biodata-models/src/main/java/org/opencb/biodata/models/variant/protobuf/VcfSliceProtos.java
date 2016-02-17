@@ -581,14 +581,9 @@ public final class VcfSliceProtos {
         getCallBytes();
 
     /**
-     * <code>optional string filter_non_default = 6;</code>
+     * <code>optional uint32 filter_index = 6;</code>
      */
-    java.lang.String getFilterNonDefault();
-    /**
-     * <code>optional string filter_non_default = 6;</code>
-     */
-    com.google.protobuf.ByteString
-        getFilterNonDefaultBytes();
+    int getFilterIndex();
 
     /**
      * <code>repeated string id_non_default = 7;</code>
@@ -610,23 +605,17 @@ public final class VcfSliceProtos {
         getIdNonDefaultBytes(int index);
 
     /**
-     * <code>repeated string info_key = 8;</code>
+     * <code>repeated uint32 info_key_index = 8 [packed = true];</code>
      */
-    com.google.protobuf.ProtocolStringList
-        getInfoKeyList();
+    java.util.List<java.lang.Integer> getInfoKeyIndexList();
     /**
-     * <code>repeated string info_key = 8;</code>
+     * <code>repeated uint32 info_key_index = 8 [packed = true];</code>
      */
-    int getInfoKeyCount();
+    int getInfoKeyIndexCount();
     /**
-     * <code>repeated string info_key = 8;</code>
+     * <code>repeated uint32 info_key_index = 8 [packed = true];</code>
      */
-    java.lang.String getInfoKey(int index);
-    /**
-     * <code>repeated string info_key = 8;</code>
-     */
-    com.google.protobuf.ByteString
-        getInfoKeyBytes(int index);
+    int getInfoKeyIndex(int index);
 
     /**
      * <code>repeated string info_value = 9;</code>
@@ -648,23 +637,9 @@ public final class VcfSliceProtos {
         getInfoValueBytes(int index);
 
     /**
-     * <code>repeated string sample_format_non_default = 10;</code>
+     * <code>optional uint32 formatIndex = 10;</code>
      */
-    com.google.protobuf.ProtocolStringList
-        getSampleFormatNonDefaultList();
-    /**
-     * <code>repeated string sample_format_non_default = 10;</code>
-     */
-    int getSampleFormatNonDefaultCount();
-    /**
-     * <code>repeated string sample_format_non_default = 10;</code>
-     */
-    java.lang.String getSampleFormatNonDefault(int index);
-    /**
-     * <code>repeated string sample_format_non_default = 10;</code>
-     */
-    com.google.protobuf.ByteString
-        getSampleFormatNonDefaultBytes(int index);
+    int getFormatIndex();
 
     /**
      * <code>repeated .org.opencb.biodata.models.variant.protobuf.VcfSample samples = 11;</code>
@@ -713,11 +688,11 @@ public final class VcfSliceProtos {
       quality_ = 0F;
       type_ = 0;
       call_ = "";
-      filterNonDefault_ = "";
+      filterIndex_ = 0;
       idNonDefault_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-      infoKey_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      infoKeyIndex_ = java.util.Collections.emptyList();
       infoValue_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-      sampleFormatNonDefault_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      formatIndex_ = 0;
       samples_ = java.util.Collections.emptyList();
     }
 
@@ -775,10 +750,9 @@ public final class VcfSliceProtos {
               quality_ = input.readFloat();
               break;
             }
-            case 50: {
-              String s = input.readStringRequireUtf8();
+            case 48: {
 
-              filterNonDefault_ = s;
+              filterIndex_ = input.readUInt32();
               break;
             }
             case 58: {
@@ -790,13 +764,25 @@ public final class VcfSliceProtos {
               idNonDefault_.add(s);
               break;
             }
-            case 66: {
-              String s = input.readStringRequireUtf8();
+            case 64: {
               if (!((mutable_bitField0_ & 0x00000200) == 0x00000200)) {
-                infoKey_ = new com.google.protobuf.LazyStringArrayList();
+                infoKeyIndex_ = new java.util.ArrayList<java.lang.Integer>();
                 mutable_bitField0_ |= 0x00000200;
               }
-              infoKey_.add(s);
+              infoKeyIndex_.add(input.readUInt32());
+              break;
+            }
+            case 66: {
+              int length = input.readRawVarint32();
+              int limit = input.pushLimit(length);
+              if (!((mutable_bitField0_ & 0x00000200) == 0x00000200) && input.getBytesUntilLimit() > 0) {
+                infoKeyIndex_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000200;
+              }
+              while (input.getBytesUntilLimit() > 0) {
+                infoKeyIndex_.add(input.readUInt32());
+              }
+              input.popLimit(limit);
               break;
             }
             case 74: {
@@ -808,13 +794,9 @@ public final class VcfSliceProtos {
               infoValue_.add(s);
               break;
             }
-            case 82: {
-              String s = input.readStringRequireUtf8();
-              if (!((mutable_bitField0_ & 0x00000800) == 0x00000800)) {
-                sampleFormatNonDefault_ = new com.google.protobuf.LazyStringArrayList();
-                mutable_bitField0_ |= 0x00000800;
-              }
-              sampleFormatNonDefault_.add(s);
+            case 80: {
+
+              formatIndex_ = input.readUInt32();
               break;
             }
             case 90: {
@@ -853,13 +835,10 @@ public final class VcfSliceProtos {
           idNonDefault_ = idNonDefault_.getUnmodifiableView();
         }
         if (((mutable_bitField0_ & 0x00000200) == 0x00000200)) {
-          infoKey_ = infoKey_.getUnmodifiableView();
+          infoKeyIndex_ = java.util.Collections.unmodifiableList(infoKeyIndex_);
         }
         if (((mutable_bitField0_ & 0x00000400) == 0x00000400)) {
           infoValue_ = infoValue_.getUnmodifiableView();
-        }
-        if (((mutable_bitField0_ & 0x00000800) == 0x00000800)) {
-          sampleFormatNonDefault_ = sampleFormatNonDefault_.getUnmodifiableView();
         }
         if (((mutable_bitField0_ & 0x00001000) == 0x00001000)) {
           samples_ = java.util.Collections.unmodifiableList(samples_);
@@ -1024,38 +1003,13 @@ public final class VcfSliceProtos {
       }
     }
 
-    public static final int FILTER_NON_DEFAULT_FIELD_NUMBER = 6;
-    private volatile java.lang.Object filterNonDefault_;
+    public static final int FILTER_INDEX_FIELD_NUMBER = 6;
+    private int filterIndex_;
     /**
-     * <code>optional string filter_non_default = 6;</code>
+     * <code>optional uint32 filter_index = 6;</code>
      */
-    public java.lang.String getFilterNonDefault() {
-      java.lang.Object ref = filterNonDefault_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        filterNonDefault_ = s;
-        return s;
-      }
-    }
-    /**
-     * <code>optional string filter_non_default = 6;</code>
-     */
-    public com.google.protobuf.ByteString
-        getFilterNonDefaultBytes() {
-      java.lang.Object ref = filterNonDefault_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        filterNonDefault_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
+    public int getFilterIndex() {
+      return filterIndex_;
     }
 
     public static final int ID_NON_DEFAULT_FIELD_NUMBER = 7;
@@ -1087,34 +1041,28 @@ public final class VcfSliceProtos {
       return idNonDefault_.getByteString(index);
     }
 
-    public static final int INFO_KEY_FIELD_NUMBER = 8;
-    private com.google.protobuf.LazyStringList infoKey_;
+    public static final int INFO_KEY_INDEX_FIELD_NUMBER = 8;
+    private java.util.List<java.lang.Integer> infoKeyIndex_;
     /**
-     * <code>repeated string info_key = 8;</code>
+     * <code>repeated uint32 info_key_index = 8 [packed = true];</code>
      */
-    public com.google.protobuf.ProtocolStringList
-        getInfoKeyList() {
-      return infoKey_;
+    public java.util.List<java.lang.Integer>
+        getInfoKeyIndexList() {
+      return infoKeyIndex_;
     }
     /**
-     * <code>repeated string info_key = 8;</code>
+     * <code>repeated uint32 info_key_index = 8 [packed = true];</code>
      */
-    public int getInfoKeyCount() {
-      return infoKey_.size();
+    public int getInfoKeyIndexCount() {
+      return infoKeyIndex_.size();
     }
     /**
-     * <code>repeated string info_key = 8;</code>
+     * <code>repeated uint32 info_key_index = 8 [packed = true];</code>
      */
-    public java.lang.String getInfoKey(int index) {
-      return infoKey_.get(index);
+    public int getInfoKeyIndex(int index) {
+      return infoKeyIndex_.get(index);
     }
-    /**
-     * <code>repeated string info_key = 8;</code>
-     */
-    public com.google.protobuf.ByteString
-        getInfoKeyBytes(int index) {
-      return infoKey_.getByteString(index);
-    }
+    private int infoKeyIndexMemoizedSerializedSize = -1;
 
     public static final int INFO_VALUE_FIELD_NUMBER = 9;
     private com.google.protobuf.LazyStringList infoValue_;
@@ -1145,33 +1093,13 @@ public final class VcfSliceProtos {
       return infoValue_.getByteString(index);
     }
 
-    public static final int SAMPLE_FORMAT_NON_DEFAULT_FIELD_NUMBER = 10;
-    private com.google.protobuf.LazyStringList sampleFormatNonDefault_;
+    public static final int FORMATINDEX_FIELD_NUMBER = 10;
+    private int formatIndex_;
     /**
-     * <code>repeated string sample_format_non_default = 10;</code>
+     * <code>optional uint32 formatIndex = 10;</code>
      */
-    public com.google.protobuf.ProtocolStringList
-        getSampleFormatNonDefaultList() {
-      return sampleFormatNonDefault_;
-    }
-    /**
-     * <code>repeated string sample_format_non_default = 10;</code>
-     */
-    public int getSampleFormatNonDefaultCount() {
-      return sampleFormatNonDefault_.size();
-    }
-    /**
-     * <code>repeated string sample_format_non_default = 10;</code>
-     */
-    public java.lang.String getSampleFormatNonDefault(int index) {
-      return sampleFormatNonDefault_.get(index);
-    }
-    /**
-     * <code>repeated string sample_format_non_default = 10;</code>
-     */
-    public com.google.protobuf.ByteString
-        getSampleFormatNonDefaultBytes(int index) {
-      return sampleFormatNonDefault_.getByteString(index);
+    public int getFormatIndex() {
+      return formatIndex_;
     }
 
     public static final int SAMPLES_FIELD_NUMBER = 11;
@@ -1221,6 +1149,7 @@ public final class VcfSliceProtos {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
+      getSerializedSize();
       if (relativeStart_ != 0) {
         output.writeUInt32(1, relativeStart_);
       }
@@ -1236,20 +1165,24 @@ public final class VcfSliceProtos {
       if (quality_ != 0F) {
         output.writeFloat(5, quality_);
       }
-      if (!getFilterNonDefaultBytes().isEmpty()) {
-        com.google.protobuf.GeneratedMessage.writeString(output, 6, filterNonDefault_);
+      if (filterIndex_ != 0) {
+        output.writeUInt32(6, filterIndex_);
       }
       for (int i = 0; i < idNonDefault_.size(); i++) {
         com.google.protobuf.GeneratedMessage.writeString(output, 7, idNonDefault_.getRaw(i));
       }
-      for (int i = 0; i < infoKey_.size(); i++) {
-        com.google.protobuf.GeneratedMessage.writeString(output, 8, infoKey_.getRaw(i));
+      if (getInfoKeyIndexList().size() > 0) {
+        output.writeRawVarint32(66);
+        output.writeRawVarint32(infoKeyIndexMemoizedSerializedSize);
+      }
+      for (int i = 0; i < infoKeyIndex_.size(); i++) {
+        output.writeUInt32NoTag(infoKeyIndex_.get(i));
       }
       for (int i = 0; i < infoValue_.size(); i++) {
         com.google.protobuf.GeneratedMessage.writeString(output, 9, infoValue_.getRaw(i));
       }
-      for (int i = 0; i < sampleFormatNonDefault_.size(); i++) {
-        com.google.protobuf.GeneratedMessage.writeString(output, 10, sampleFormatNonDefault_.getRaw(i));
+      if (formatIndex_ != 0) {
+        output.writeUInt32(10, formatIndex_);
       }
       for (int i = 0; i < samples_.size(); i++) {
         output.writeMessage(11, samples_.get(i));
@@ -1290,8 +1223,9 @@ public final class VcfSliceProtos {
         size += com.google.protobuf.CodedOutputStream
           .computeFloatSize(5, quality_);
       }
-      if (!getFilterNonDefaultBytes().isEmpty()) {
-        size += com.google.protobuf.GeneratedMessage.computeStringSize(6, filterNonDefault_);
+      if (filterIndex_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeUInt32Size(6, filterIndex_);
       }
       {
         int dataSize = 0;
@@ -1303,11 +1237,17 @@ public final class VcfSliceProtos {
       }
       {
         int dataSize = 0;
-        for (int i = 0; i < infoKey_.size(); i++) {
-          dataSize += computeStringSizeNoTag(infoKey_.getRaw(i));
+        for (int i = 0; i < infoKeyIndex_.size(); i++) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeUInt32SizeNoTag(infoKeyIndex_.get(i));
         }
         size += dataSize;
-        size += 1 * getInfoKeyList().size();
+        if (!getInfoKeyIndexList().isEmpty()) {
+          size += 1;
+          size += com.google.protobuf.CodedOutputStream
+              .computeInt32SizeNoTag(dataSize);
+        }
+        infoKeyIndexMemoizedSerializedSize = dataSize;
       }
       {
         int dataSize = 0;
@@ -1317,13 +1257,9 @@ public final class VcfSliceProtos {
         size += dataSize;
         size += 1 * getInfoValueList().size();
       }
-      {
-        int dataSize = 0;
-        for (int i = 0; i < sampleFormatNonDefault_.size(); i++) {
-          dataSize += computeStringSizeNoTag(sampleFormatNonDefault_.getRaw(i));
-        }
-        size += dataSize;
-        size += 1 * getSampleFormatNonDefaultList().size();
+      if (formatIndex_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeUInt32Size(10, formatIndex_);
       }
       for (int i = 0; i < samples_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
@@ -1466,16 +1402,16 @@ public final class VcfSliceProtos {
 
         call_ = "";
 
-        filterNonDefault_ = "";
+        filterIndex_ = 0;
 
         idNonDefault_ = com.google.protobuf.LazyStringArrayList.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000100);
-        infoKey_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        infoKeyIndex_ = java.util.Collections.emptyList();
         bitField0_ = (bitField0_ & ~0x00000200);
         infoValue_ = com.google.protobuf.LazyStringArrayList.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000400);
-        sampleFormatNonDefault_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00000800);
+        formatIndex_ = 0;
+
         if (samplesBuilder_ == null) {
           samples_ = java.util.Collections.emptyList();
           bitField0_ = (bitField0_ & ~0x00001000);
@@ -1517,27 +1453,23 @@ public final class VcfSliceProtos {
         result.quality_ = quality_;
         result.type_ = type_;
         result.call_ = call_;
-        result.filterNonDefault_ = filterNonDefault_;
+        result.filterIndex_ = filterIndex_;
         if (((bitField0_ & 0x00000100) == 0x00000100)) {
           idNonDefault_ = idNonDefault_.getUnmodifiableView();
           bitField0_ = (bitField0_ & ~0x00000100);
         }
         result.idNonDefault_ = idNonDefault_;
         if (((bitField0_ & 0x00000200) == 0x00000200)) {
-          infoKey_ = infoKey_.getUnmodifiableView();
+          infoKeyIndex_ = java.util.Collections.unmodifiableList(infoKeyIndex_);
           bitField0_ = (bitField0_ & ~0x00000200);
         }
-        result.infoKey_ = infoKey_;
+        result.infoKeyIndex_ = infoKeyIndex_;
         if (((bitField0_ & 0x00000400) == 0x00000400)) {
           infoValue_ = infoValue_.getUnmodifiableView();
           bitField0_ = (bitField0_ & ~0x00000400);
         }
         result.infoValue_ = infoValue_;
-        if (((bitField0_ & 0x00000800) == 0x00000800)) {
-          sampleFormatNonDefault_ = sampleFormatNonDefault_.getUnmodifiableView();
-          bitField0_ = (bitField0_ & ~0x00000800);
-        }
-        result.sampleFormatNonDefault_ = sampleFormatNonDefault_;
+        result.formatIndex_ = formatIndex_;
         if (samplesBuilder_ == null) {
           if (((bitField0_ & 0x00001000) == 0x00001000)) {
             samples_ = java.util.Collections.unmodifiableList(samples_);
@@ -1593,9 +1525,8 @@ public final class VcfSliceProtos {
           call_ = other.call_;
           onChanged();
         }
-        if (!other.getFilterNonDefault().isEmpty()) {
-          filterNonDefault_ = other.filterNonDefault_;
-          onChanged();
+        if (other.getFilterIndex() != 0) {
+          setFilterIndex(other.getFilterIndex());
         }
         if (!other.idNonDefault_.isEmpty()) {
           if (idNonDefault_.isEmpty()) {
@@ -1607,13 +1538,13 @@ public final class VcfSliceProtos {
           }
           onChanged();
         }
-        if (!other.infoKey_.isEmpty()) {
-          if (infoKey_.isEmpty()) {
-            infoKey_ = other.infoKey_;
+        if (!other.infoKeyIndex_.isEmpty()) {
+          if (infoKeyIndex_.isEmpty()) {
+            infoKeyIndex_ = other.infoKeyIndex_;
             bitField0_ = (bitField0_ & ~0x00000200);
           } else {
-            ensureInfoKeyIsMutable();
-            infoKey_.addAll(other.infoKey_);
+            ensureInfoKeyIndexIsMutable();
+            infoKeyIndex_.addAll(other.infoKeyIndex_);
           }
           onChanged();
         }
@@ -1627,15 +1558,8 @@ public final class VcfSliceProtos {
           }
           onChanged();
         }
-        if (!other.sampleFormatNonDefault_.isEmpty()) {
-          if (sampleFormatNonDefault_.isEmpty()) {
-            sampleFormatNonDefault_ = other.sampleFormatNonDefault_;
-            bitField0_ = (bitField0_ & ~0x00000800);
-          } else {
-            ensureSampleFormatNonDefaultIsMutable();
-            sampleFormatNonDefault_.addAll(other.sampleFormatNonDefault_);
-          }
-          onChanged();
+        if (other.getFormatIndex() != 0) {
+          setFormatIndex(other.getFormatIndex());
         }
         if (samplesBuilder_ == null) {
           if (!other.samples_.isEmpty()) {
@@ -2056,71 +1980,28 @@ public final class VcfSliceProtos {
         return this;
       }
 
-      private java.lang.Object filterNonDefault_ = "";
+      private int filterIndex_ ;
       /**
-       * <code>optional string filter_non_default = 6;</code>
+       * <code>optional uint32 filter_index = 6;</code>
        */
-      public java.lang.String getFilterNonDefault() {
-        java.lang.Object ref = filterNonDefault_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          filterNonDefault_ = s;
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
+      public int getFilterIndex() {
+        return filterIndex_;
       }
       /**
-       * <code>optional string filter_non_default = 6;</code>
+       * <code>optional uint32 filter_index = 6;</code>
        */
-      public com.google.protobuf.ByteString
-          getFilterNonDefaultBytes() {
-        java.lang.Object ref = filterNonDefault_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          filterNonDefault_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>optional string filter_non_default = 6;</code>
-       */
-      public Builder setFilterNonDefault(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  
-        filterNonDefault_ = value;
+      public Builder setFilterIndex(int value) {
+        
+        filterIndex_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string filter_non_default = 6;</code>
+       * <code>optional uint32 filter_index = 6;</code>
        */
-      public Builder clearFilterNonDefault() {
+      public Builder clearFilterIndex() {
         
-        filterNonDefault_ = getDefaultInstance().getFilterNonDefault();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string filter_non_default = 6;</code>
-       */
-      public Builder setFilterNonDefaultBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-        
-        filterNonDefault_ = value;
+        filterIndex_ = 0;
         onChanged();
         return this;
       }
@@ -2219,96 +2100,68 @@ public final class VcfSliceProtos {
         return this;
       }
 
-      private com.google.protobuf.LazyStringList infoKey_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-      private void ensureInfoKeyIsMutable() {
+      private java.util.List<java.lang.Integer> infoKeyIndex_ = java.util.Collections.emptyList();
+      private void ensureInfoKeyIndexIsMutable() {
         if (!((bitField0_ & 0x00000200) == 0x00000200)) {
-          infoKey_ = new com.google.protobuf.LazyStringArrayList(infoKey_);
+          infoKeyIndex_ = new java.util.ArrayList<java.lang.Integer>(infoKeyIndex_);
           bitField0_ |= 0x00000200;
          }
       }
       /**
-       * <code>repeated string info_key = 8;</code>
+       * <code>repeated uint32 info_key_index = 8 [packed = true];</code>
        */
-      public com.google.protobuf.ProtocolStringList
-          getInfoKeyList() {
-        return infoKey_.getUnmodifiableView();
+      public java.util.List<java.lang.Integer>
+          getInfoKeyIndexList() {
+        return java.util.Collections.unmodifiableList(infoKeyIndex_);
       }
       /**
-       * <code>repeated string info_key = 8;</code>
+       * <code>repeated uint32 info_key_index = 8 [packed = true];</code>
        */
-      public int getInfoKeyCount() {
-        return infoKey_.size();
+      public int getInfoKeyIndexCount() {
+        return infoKeyIndex_.size();
       }
       /**
-       * <code>repeated string info_key = 8;</code>
+       * <code>repeated uint32 info_key_index = 8 [packed = true];</code>
        */
-      public java.lang.String getInfoKey(int index) {
-        return infoKey_.get(index);
+      public int getInfoKeyIndex(int index) {
+        return infoKeyIndex_.get(index);
       }
       /**
-       * <code>repeated string info_key = 8;</code>
+       * <code>repeated uint32 info_key_index = 8 [packed = true];</code>
        */
-      public com.google.protobuf.ByteString
-          getInfoKeyBytes(int index) {
-        return infoKey_.getByteString(index);
-      }
-      /**
-       * <code>repeated string info_key = 8;</code>
-       */
-      public Builder setInfoKey(
-          int index, java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  ensureInfoKeyIsMutable();
-        infoKey_.set(index, value);
+      public Builder setInfoKeyIndex(
+          int index, int value) {
+        ensureInfoKeyIndexIsMutable();
+        infoKeyIndex_.set(index, value);
         onChanged();
         return this;
       }
       /**
-       * <code>repeated string info_key = 8;</code>
+       * <code>repeated uint32 info_key_index = 8 [packed = true];</code>
        */
-      public Builder addInfoKey(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  ensureInfoKeyIsMutable();
-        infoKey_.add(value);
+      public Builder addInfoKeyIndex(int value) {
+        ensureInfoKeyIndexIsMutable();
+        infoKeyIndex_.add(value);
         onChanged();
         return this;
       }
       /**
-       * <code>repeated string info_key = 8;</code>
+       * <code>repeated uint32 info_key_index = 8 [packed = true];</code>
        */
-      public Builder addAllInfoKey(
-          java.lang.Iterable<java.lang.String> values) {
-        ensureInfoKeyIsMutable();
+      public Builder addAllInfoKeyIndex(
+          java.lang.Iterable<? extends java.lang.Integer> values) {
+        ensureInfoKeyIndexIsMutable();
         com.google.protobuf.AbstractMessageLite.Builder.addAll(
-            values, infoKey_);
+            values, infoKeyIndex_);
         onChanged();
         return this;
       }
       /**
-       * <code>repeated string info_key = 8;</code>
+       * <code>repeated uint32 info_key_index = 8 [packed = true];</code>
        */
-      public Builder clearInfoKey() {
-        infoKey_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      public Builder clearInfoKeyIndex() {
+        infoKeyIndex_ = java.util.Collections.emptyList();
         bitField0_ = (bitField0_ & ~0x00000200);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated string info_key = 8;</code>
-       */
-      public Builder addInfoKeyBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-        ensureInfoKeyIsMutable();
-        infoKey_.add(value);
         onChanged();
         return this;
       }
@@ -2407,96 +2260,28 @@ public final class VcfSliceProtos {
         return this;
       }
 
-      private com.google.protobuf.LazyStringList sampleFormatNonDefault_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-      private void ensureSampleFormatNonDefaultIsMutable() {
-        if (!((bitField0_ & 0x00000800) == 0x00000800)) {
-          sampleFormatNonDefault_ = new com.google.protobuf.LazyStringArrayList(sampleFormatNonDefault_);
-          bitField0_ |= 0x00000800;
-         }
+      private int formatIndex_ ;
+      /**
+       * <code>optional uint32 formatIndex = 10;</code>
+       */
+      public int getFormatIndex() {
+        return formatIndex_;
       }
       /**
-       * <code>repeated string sample_format_non_default = 10;</code>
+       * <code>optional uint32 formatIndex = 10;</code>
        */
-      public com.google.protobuf.ProtocolStringList
-          getSampleFormatNonDefaultList() {
-        return sampleFormatNonDefault_.getUnmodifiableView();
-      }
-      /**
-       * <code>repeated string sample_format_non_default = 10;</code>
-       */
-      public int getSampleFormatNonDefaultCount() {
-        return sampleFormatNonDefault_.size();
-      }
-      /**
-       * <code>repeated string sample_format_non_default = 10;</code>
-       */
-      public java.lang.String getSampleFormatNonDefault(int index) {
-        return sampleFormatNonDefault_.get(index);
-      }
-      /**
-       * <code>repeated string sample_format_non_default = 10;</code>
-       */
-      public com.google.protobuf.ByteString
-          getSampleFormatNonDefaultBytes(int index) {
-        return sampleFormatNonDefault_.getByteString(index);
-      }
-      /**
-       * <code>repeated string sample_format_non_default = 10;</code>
-       */
-      public Builder setSampleFormatNonDefault(
-          int index, java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  ensureSampleFormatNonDefaultIsMutable();
-        sampleFormatNonDefault_.set(index, value);
+      public Builder setFormatIndex(int value) {
+        
+        formatIndex_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>repeated string sample_format_non_default = 10;</code>
+       * <code>optional uint32 formatIndex = 10;</code>
        */
-      public Builder addSampleFormatNonDefault(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  ensureSampleFormatNonDefaultIsMutable();
-        sampleFormatNonDefault_.add(value);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated string sample_format_non_default = 10;</code>
-       */
-      public Builder addAllSampleFormatNonDefault(
-          java.lang.Iterable<java.lang.String> values) {
-        ensureSampleFormatNonDefaultIsMutable();
-        com.google.protobuf.AbstractMessageLite.Builder.addAll(
-            values, sampleFormatNonDefault_);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated string sample_format_non_default = 10;</code>
-       */
-      public Builder clearSampleFormatNonDefault() {
-        sampleFormatNonDefault_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00000800);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated string sample_format_non_default = 10;</code>
-       */
-      public Builder addSampleFormatNonDefaultBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-        ensureSampleFormatNonDefaultIsMutable();
-        sampleFormatNonDefault_.add(value);
+      public Builder clearFormatIndex() {
+        
+        formatIndex_ = 0;
         onChanged();
         return this;
       }
@@ -2798,6 +2583,1209 @@ public final class VcfSliceProtos {
 
   }
 
+  public interface FieldsOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:org.opencb.biodata.models.variant.protobuf.Fields)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>repeated string info_keys = 1;</code>
+     */
+    com.google.protobuf.ProtocolStringList
+        getInfoKeysList();
+    /**
+     * <code>repeated string info_keys = 1;</code>
+     */
+    int getInfoKeysCount();
+    /**
+     * <code>repeated string info_keys = 1;</code>
+     */
+    java.lang.String getInfoKeys(int index);
+    /**
+     * <code>repeated string info_keys = 1;</code>
+     */
+    com.google.protobuf.ByteString
+        getInfoKeysBytes(int index);
+
+    /**
+     * <code>repeated uint32 default_info_keys = 2;</code>
+     */
+    java.util.List<java.lang.Integer> getDefaultInfoKeysList();
+    /**
+     * <code>repeated uint32 default_info_keys = 2;</code>
+     */
+    int getDefaultInfoKeysCount();
+    /**
+     * <code>repeated uint32 default_info_keys = 2;</code>
+     */
+    int getDefaultInfoKeys(int index);
+
+    /**
+     * <code>repeated string filters = 3;</code>
+     *
+     * <pre>
+     * Possible filter compositions. Delimited by ';'
+     * Where the first filter is the default one
+     * </pre>
+     */
+    com.google.protobuf.ProtocolStringList
+        getFiltersList();
+    /**
+     * <code>repeated string filters = 3;</code>
+     *
+     * <pre>
+     * Possible filter compositions. Delimited by ';'
+     * Where the first filter is the default one
+     * </pre>
+     */
+    int getFiltersCount();
+    /**
+     * <code>repeated string filters = 3;</code>
+     *
+     * <pre>
+     * Possible filter compositions. Delimited by ';'
+     * Where the first filter is the default one
+     * </pre>
+     */
+    java.lang.String getFilters(int index);
+    /**
+     * <code>repeated string filters = 3;</code>
+     *
+     * <pre>
+     * Possible filter compositions. Delimited by ';'
+     * Where the first filter is the default one
+     * </pre>
+     */
+    com.google.protobuf.ByteString
+        getFiltersBytes(int index);
+
+    /**
+     * <code>repeated string formats = 5;</code>
+     *
+     * <pre>
+     * Possible formats compositions. Delimited by ':'
+     * Where the first format is the default one
+     * </pre>
+     */
+    com.google.protobuf.ProtocolStringList
+        getFormatsList();
+    /**
+     * <code>repeated string formats = 5;</code>
+     *
+     * <pre>
+     * Possible formats compositions. Delimited by ':'
+     * Where the first format is the default one
+     * </pre>
+     */
+    int getFormatsCount();
+    /**
+     * <code>repeated string formats = 5;</code>
+     *
+     * <pre>
+     * Possible formats compositions. Delimited by ':'
+     * Where the first format is the default one
+     * </pre>
+     */
+    java.lang.String getFormats(int index);
+    /**
+     * <code>repeated string formats = 5;</code>
+     *
+     * <pre>
+     * Possible formats compositions. Delimited by ':'
+     * Where the first format is the default one
+     * </pre>
+     */
+    com.google.protobuf.ByteString
+        getFormatsBytes(int index);
+  }
+  /**
+   * Protobuf type {@code org.opencb.biodata.models.variant.protobuf.Fields}
+   */
+  public  static final class Fields extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:org.opencb.biodata.models.variant.protobuf.Fields)
+      FieldsOrBuilder {
+    // Use Fields.newBuilder() to construct.
+    private Fields(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+    }
+    private Fields() {
+      infoKeys_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      defaultInfoKeys_ = java.util.Collections.emptyList();
+      filters_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      formats_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
+    }
+    private Fields(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry) {
+      this();
+      int mutable_bitField0_ = 0;
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!input.skipField(tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              String s = input.readStringRequireUtf8();
+              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+                infoKeys_ = new com.google.protobuf.LazyStringArrayList();
+                mutable_bitField0_ |= 0x00000001;
+              }
+              infoKeys_.add(s);
+              break;
+            }
+            case 16: {
+              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+                defaultInfoKeys_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000002;
+              }
+              defaultInfoKeys_.add(input.readUInt32());
+              break;
+            }
+            case 18: {
+              int length = input.readRawVarint32();
+              int limit = input.pushLimit(length);
+              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002) && input.getBytesUntilLimit() > 0) {
+                defaultInfoKeys_ = new java.util.ArrayList<java.lang.Integer>();
+                mutable_bitField0_ |= 0x00000002;
+              }
+              while (input.getBytesUntilLimit() > 0) {
+                defaultInfoKeys_.add(input.readUInt32());
+              }
+              input.popLimit(limit);
+              break;
+            }
+            case 26: {
+              String s = input.readStringRequireUtf8();
+              if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
+                filters_ = new com.google.protobuf.LazyStringArrayList();
+                mutable_bitField0_ |= 0x00000004;
+              }
+              filters_.add(s);
+              break;
+            }
+            case 42: {
+              String s = input.readStringRequireUtf8();
+              if (!((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
+                formats_ = new com.google.protobuf.LazyStringArrayList();
+                mutable_bitField0_ |= 0x00000008;
+              }
+              formats_.add(s);
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw new RuntimeException(e.setUnfinishedMessage(this));
+      } catch (java.io.IOException e) {
+        throw new RuntimeException(
+            new com.google.protobuf.InvalidProtocolBufferException(
+                e.getMessage()).setUnfinishedMessage(this));
+      } finally {
+        if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+          infoKeys_ = infoKeys_.getUnmodifiableView();
+        }
+        if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+          defaultInfoKeys_ = java.util.Collections.unmodifiableList(defaultInfoKeys_);
+        }
+        if (((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
+          filters_ = filters_.getUnmodifiableView();
+        }
+        if (((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
+          formats_ = formats_.getUnmodifiableView();
+        }
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.internal_static_org_opencb_biodata_models_variant_protobuf_Fields_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.internal_static_org_opencb_biodata_models_variant_protobuf_Fields_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields.class, org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields.Builder.class);
+    }
+
+    public static final int INFO_KEYS_FIELD_NUMBER = 1;
+    private com.google.protobuf.LazyStringList infoKeys_;
+    /**
+     * <code>repeated string info_keys = 1;</code>
+     */
+    public com.google.protobuf.ProtocolStringList
+        getInfoKeysList() {
+      return infoKeys_;
+    }
+    /**
+     * <code>repeated string info_keys = 1;</code>
+     */
+    public int getInfoKeysCount() {
+      return infoKeys_.size();
+    }
+    /**
+     * <code>repeated string info_keys = 1;</code>
+     */
+    public java.lang.String getInfoKeys(int index) {
+      return infoKeys_.get(index);
+    }
+    /**
+     * <code>repeated string info_keys = 1;</code>
+     */
+    public com.google.protobuf.ByteString
+        getInfoKeysBytes(int index) {
+      return infoKeys_.getByteString(index);
+    }
+
+    public static final int DEFAULT_INFO_KEYS_FIELD_NUMBER = 2;
+    private java.util.List<java.lang.Integer> defaultInfoKeys_;
+    /**
+     * <code>repeated uint32 default_info_keys = 2;</code>
+     */
+    public java.util.List<java.lang.Integer>
+        getDefaultInfoKeysList() {
+      return defaultInfoKeys_;
+    }
+    /**
+     * <code>repeated uint32 default_info_keys = 2;</code>
+     */
+    public int getDefaultInfoKeysCount() {
+      return defaultInfoKeys_.size();
+    }
+    /**
+     * <code>repeated uint32 default_info_keys = 2;</code>
+     */
+    public int getDefaultInfoKeys(int index) {
+      return defaultInfoKeys_.get(index);
+    }
+    private int defaultInfoKeysMemoizedSerializedSize = -1;
+
+    public static final int FILTERS_FIELD_NUMBER = 3;
+    private com.google.protobuf.LazyStringList filters_;
+    /**
+     * <code>repeated string filters = 3;</code>
+     *
+     * <pre>
+     * Possible filter compositions. Delimited by ';'
+     * Where the first filter is the default one
+     * </pre>
+     */
+    public com.google.protobuf.ProtocolStringList
+        getFiltersList() {
+      return filters_;
+    }
+    /**
+     * <code>repeated string filters = 3;</code>
+     *
+     * <pre>
+     * Possible filter compositions. Delimited by ';'
+     * Where the first filter is the default one
+     * </pre>
+     */
+    public int getFiltersCount() {
+      return filters_.size();
+    }
+    /**
+     * <code>repeated string filters = 3;</code>
+     *
+     * <pre>
+     * Possible filter compositions. Delimited by ';'
+     * Where the first filter is the default one
+     * </pre>
+     */
+    public java.lang.String getFilters(int index) {
+      return filters_.get(index);
+    }
+    /**
+     * <code>repeated string filters = 3;</code>
+     *
+     * <pre>
+     * Possible filter compositions. Delimited by ';'
+     * Where the first filter is the default one
+     * </pre>
+     */
+    public com.google.protobuf.ByteString
+        getFiltersBytes(int index) {
+      return filters_.getByteString(index);
+    }
+
+    public static final int FORMATS_FIELD_NUMBER = 5;
+    private com.google.protobuf.LazyStringList formats_;
+    /**
+     * <code>repeated string formats = 5;</code>
+     *
+     * <pre>
+     * Possible formats compositions. Delimited by ':'
+     * Where the first format is the default one
+     * </pre>
+     */
+    public com.google.protobuf.ProtocolStringList
+        getFormatsList() {
+      return formats_;
+    }
+    /**
+     * <code>repeated string formats = 5;</code>
+     *
+     * <pre>
+     * Possible formats compositions. Delimited by ':'
+     * Where the first format is the default one
+     * </pre>
+     */
+    public int getFormatsCount() {
+      return formats_.size();
+    }
+    /**
+     * <code>repeated string formats = 5;</code>
+     *
+     * <pre>
+     * Possible formats compositions. Delimited by ':'
+     * Where the first format is the default one
+     * </pre>
+     */
+    public java.lang.String getFormats(int index) {
+      return formats_.get(index);
+    }
+    /**
+     * <code>repeated string formats = 5;</code>
+     *
+     * <pre>
+     * Possible formats compositions. Delimited by ':'
+     * Where the first format is the default one
+     * </pre>
+     */
+    public com.google.protobuf.ByteString
+        getFormatsBytes(int index) {
+      return formats_.getByteString(index);
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      for (int i = 0; i < infoKeys_.size(); i++) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 1, infoKeys_.getRaw(i));
+      }
+      if (getDefaultInfoKeysList().size() > 0) {
+        output.writeRawVarint32(18);
+        output.writeRawVarint32(defaultInfoKeysMemoizedSerializedSize);
+      }
+      for (int i = 0; i < defaultInfoKeys_.size(); i++) {
+        output.writeUInt32NoTag(defaultInfoKeys_.get(i));
+      }
+      for (int i = 0; i < filters_.size(); i++) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 3, filters_.getRaw(i));
+      }
+      for (int i = 0; i < formats_.size(); i++) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 5, formats_.getRaw(i));
+      }
+    }
+
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      {
+        int dataSize = 0;
+        for (int i = 0; i < infoKeys_.size(); i++) {
+          dataSize += computeStringSizeNoTag(infoKeys_.getRaw(i));
+        }
+        size += dataSize;
+        size += 1 * getInfoKeysList().size();
+      }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < defaultInfoKeys_.size(); i++) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeUInt32SizeNoTag(defaultInfoKeys_.get(i));
+        }
+        size += dataSize;
+        if (!getDefaultInfoKeysList().isEmpty()) {
+          size += 1;
+          size += com.google.protobuf.CodedOutputStream
+              .computeInt32SizeNoTag(dataSize);
+        }
+        defaultInfoKeysMemoizedSerializedSize = dataSize;
+      }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < filters_.size(); i++) {
+          dataSize += computeStringSizeNoTag(filters_.getRaw(i));
+        }
+        size += dataSize;
+        size += 1 * getFiltersList().size();
+      }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < formats_.size(); i++) {
+          dataSize += computeStringSizeNoTag(formats_.getRaw(i));
+        }
+        size += dataSize;
+        size += 1 * getFormatsList().size();
+      }
+      memoizedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    public static org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code org.opencb.biodata.models.variant.protobuf.Fields}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:org.opencb.biodata.models.variant.protobuf.Fields)
+        org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.FieldsOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.internal_static_org_opencb_biodata_models_variant_protobuf_Fields_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.internal_static_org_opencb_biodata_models_variant_protobuf_Fields_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields.class, org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields.Builder.class);
+      }
+
+      // Construct using org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        infoKeys_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000001);
+        defaultInfoKeys_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000002);
+        filters_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000004);
+        formats_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000008);
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.internal_static_org_opencb_biodata_models_variant_protobuf_Fields_descriptor;
+      }
+
+      public org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields getDefaultInstanceForType() {
+        return org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields.getDefaultInstance();
+      }
+
+      public org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields build() {
+        org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields buildPartial() {
+        org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields result = new org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields(this);
+        int from_bitField0_ = bitField0_;
+        if (((bitField0_ & 0x00000001) == 0x00000001)) {
+          infoKeys_ = infoKeys_.getUnmodifiableView();
+          bitField0_ = (bitField0_ & ~0x00000001);
+        }
+        result.infoKeys_ = infoKeys_;
+        if (((bitField0_ & 0x00000002) == 0x00000002)) {
+          defaultInfoKeys_ = java.util.Collections.unmodifiableList(defaultInfoKeys_);
+          bitField0_ = (bitField0_ & ~0x00000002);
+        }
+        result.defaultInfoKeys_ = defaultInfoKeys_;
+        if (((bitField0_ & 0x00000004) == 0x00000004)) {
+          filters_ = filters_.getUnmodifiableView();
+          bitField0_ = (bitField0_ & ~0x00000004);
+        }
+        result.filters_ = filters_;
+        if (((bitField0_ & 0x00000008) == 0x00000008)) {
+          formats_ = formats_.getUnmodifiableView();
+          bitField0_ = (bitField0_ & ~0x00000008);
+        }
+        result.formats_ = formats_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields) {
+          return mergeFrom((org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields other) {
+        if (other == org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields.getDefaultInstance()) return this;
+        if (!other.infoKeys_.isEmpty()) {
+          if (infoKeys_.isEmpty()) {
+            infoKeys_ = other.infoKeys_;
+            bitField0_ = (bitField0_ & ~0x00000001);
+          } else {
+            ensureInfoKeysIsMutable();
+            infoKeys_.addAll(other.infoKeys_);
+          }
+          onChanged();
+        }
+        if (!other.defaultInfoKeys_.isEmpty()) {
+          if (defaultInfoKeys_.isEmpty()) {
+            defaultInfoKeys_ = other.defaultInfoKeys_;
+            bitField0_ = (bitField0_ & ~0x00000002);
+          } else {
+            ensureDefaultInfoKeysIsMutable();
+            defaultInfoKeys_.addAll(other.defaultInfoKeys_);
+          }
+          onChanged();
+        }
+        if (!other.filters_.isEmpty()) {
+          if (filters_.isEmpty()) {
+            filters_ = other.filters_;
+            bitField0_ = (bitField0_ & ~0x00000004);
+          } else {
+            ensureFiltersIsMutable();
+            filters_.addAll(other.filters_);
+          }
+          onChanged();
+        }
+        if (!other.formats_.isEmpty()) {
+          if (formats_.isEmpty()) {
+            formats_ = other.formats_;
+            bitField0_ = (bitField0_ & ~0x00000008);
+          } else {
+            ensureFormatsIsMutable();
+            formats_.addAll(other.formats_);
+          }
+          onChanged();
+        }
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private com.google.protobuf.LazyStringList infoKeys_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      private void ensureInfoKeysIsMutable() {
+        if (!((bitField0_ & 0x00000001) == 0x00000001)) {
+          infoKeys_ = new com.google.protobuf.LazyStringArrayList(infoKeys_);
+          bitField0_ |= 0x00000001;
+         }
+      }
+      /**
+       * <code>repeated string info_keys = 1;</code>
+       */
+      public com.google.protobuf.ProtocolStringList
+          getInfoKeysList() {
+        return infoKeys_.getUnmodifiableView();
+      }
+      /**
+       * <code>repeated string info_keys = 1;</code>
+       */
+      public int getInfoKeysCount() {
+        return infoKeys_.size();
+      }
+      /**
+       * <code>repeated string info_keys = 1;</code>
+       */
+      public java.lang.String getInfoKeys(int index) {
+        return infoKeys_.get(index);
+      }
+      /**
+       * <code>repeated string info_keys = 1;</code>
+       */
+      public com.google.protobuf.ByteString
+          getInfoKeysBytes(int index) {
+        return infoKeys_.getByteString(index);
+      }
+      /**
+       * <code>repeated string info_keys = 1;</code>
+       */
+      public Builder setInfoKeys(
+          int index, java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureInfoKeysIsMutable();
+        infoKeys_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string info_keys = 1;</code>
+       */
+      public Builder addInfoKeys(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureInfoKeysIsMutable();
+        infoKeys_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string info_keys = 1;</code>
+       */
+      public Builder addAllInfoKeys(
+          java.lang.Iterable<java.lang.String> values) {
+        ensureInfoKeysIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, infoKeys_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string info_keys = 1;</code>
+       */
+      public Builder clearInfoKeys() {
+        infoKeys_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000001);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string info_keys = 1;</code>
+       */
+      public Builder addInfoKeysBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        ensureInfoKeysIsMutable();
+        infoKeys_.add(value);
+        onChanged();
+        return this;
+      }
+
+      private java.util.List<java.lang.Integer> defaultInfoKeys_ = java.util.Collections.emptyList();
+      private void ensureDefaultInfoKeysIsMutable() {
+        if (!((bitField0_ & 0x00000002) == 0x00000002)) {
+          defaultInfoKeys_ = new java.util.ArrayList<java.lang.Integer>(defaultInfoKeys_);
+          bitField0_ |= 0x00000002;
+         }
+      }
+      /**
+       * <code>repeated uint32 default_info_keys = 2;</code>
+       */
+      public java.util.List<java.lang.Integer>
+          getDefaultInfoKeysList() {
+        return java.util.Collections.unmodifiableList(defaultInfoKeys_);
+      }
+      /**
+       * <code>repeated uint32 default_info_keys = 2;</code>
+       */
+      public int getDefaultInfoKeysCount() {
+        return defaultInfoKeys_.size();
+      }
+      /**
+       * <code>repeated uint32 default_info_keys = 2;</code>
+       */
+      public int getDefaultInfoKeys(int index) {
+        return defaultInfoKeys_.get(index);
+      }
+      /**
+       * <code>repeated uint32 default_info_keys = 2;</code>
+       */
+      public Builder setDefaultInfoKeys(
+          int index, int value) {
+        ensureDefaultInfoKeysIsMutable();
+        defaultInfoKeys_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated uint32 default_info_keys = 2;</code>
+       */
+      public Builder addDefaultInfoKeys(int value) {
+        ensureDefaultInfoKeysIsMutable();
+        defaultInfoKeys_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated uint32 default_info_keys = 2;</code>
+       */
+      public Builder addAllDefaultInfoKeys(
+          java.lang.Iterable<? extends java.lang.Integer> values) {
+        ensureDefaultInfoKeysIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, defaultInfoKeys_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated uint32 default_info_keys = 2;</code>
+       */
+      public Builder clearDefaultInfoKeys() {
+        defaultInfoKeys_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000002);
+        onChanged();
+        return this;
+      }
+
+      private com.google.protobuf.LazyStringList filters_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      private void ensureFiltersIsMutable() {
+        if (!((bitField0_ & 0x00000004) == 0x00000004)) {
+          filters_ = new com.google.protobuf.LazyStringArrayList(filters_);
+          bitField0_ |= 0x00000004;
+         }
+      }
+      /**
+       * <code>repeated string filters = 3;</code>
+       *
+       * <pre>
+       * Possible filter compositions. Delimited by ';'
+       * Where the first filter is the default one
+       * </pre>
+       */
+      public com.google.protobuf.ProtocolStringList
+          getFiltersList() {
+        return filters_.getUnmodifiableView();
+      }
+      /**
+       * <code>repeated string filters = 3;</code>
+       *
+       * <pre>
+       * Possible filter compositions. Delimited by ';'
+       * Where the first filter is the default one
+       * </pre>
+       */
+      public int getFiltersCount() {
+        return filters_.size();
+      }
+      /**
+       * <code>repeated string filters = 3;</code>
+       *
+       * <pre>
+       * Possible filter compositions. Delimited by ';'
+       * Where the first filter is the default one
+       * </pre>
+       */
+      public java.lang.String getFilters(int index) {
+        return filters_.get(index);
+      }
+      /**
+       * <code>repeated string filters = 3;</code>
+       *
+       * <pre>
+       * Possible filter compositions. Delimited by ';'
+       * Where the first filter is the default one
+       * </pre>
+       */
+      public com.google.protobuf.ByteString
+          getFiltersBytes(int index) {
+        return filters_.getByteString(index);
+      }
+      /**
+       * <code>repeated string filters = 3;</code>
+       *
+       * <pre>
+       * Possible filter compositions. Delimited by ';'
+       * Where the first filter is the default one
+       * </pre>
+       */
+      public Builder setFilters(
+          int index, java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureFiltersIsMutable();
+        filters_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string filters = 3;</code>
+       *
+       * <pre>
+       * Possible filter compositions. Delimited by ';'
+       * Where the first filter is the default one
+       * </pre>
+       */
+      public Builder addFilters(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureFiltersIsMutable();
+        filters_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string filters = 3;</code>
+       *
+       * <pre>
+       * Possible filter compositions. Delimited by ';'
+       * Where the first filter is the default one
+       * </pre>
+       */
+      public Builder addAllFilters(
+          java.lang.Iterable<java.lang.String> values) {
+        ensureFiltersIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, filters_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string filters = 3;</code>
+       *
+       * <pre>
+       * Possible filter compositions. Delimited by ';'
+       * Where the first filter is the default one
+       * </pre>
+       */
+      public Builder clearFilters() {
+        filters_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000004);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string filters = 3;</code>
+       *
+       * <pre>
+       * Possible filter compositions. Delimited by ';'
+       * Where the first filter is the default one
+       * </pre>
+       */
+      public Builder addFiltersBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        ensureFiltersIsMutable();
+        filters_.add(value);
+        onChanged();
+        return this;
+      }
+
+      private com.google.protobuf.LazyStringList formats_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      private void ensureFormatsIsMutable() {
+        if (!((bitField0_ & 0x00000008) == 0x00000008)) {
+          formats_ = new com.google.protobuf.LazyStringArrayList(formats_);
+          bitField0_ |= 0x00000008;
+         }
+      }
+      /**
+       * <code>repeated string formats = 5;</code>
+       *
+       * <pre>
+       * Possible formats compositions. Delimited by ':'
+       * Where the first format is the default one
+       * </pre>
+       */
+      public com.google.protobuf.ProtocolStringList
+          getFormatsList() {
+        return formats_.getUnmodifiableView();
+      }
+      /**
+       * <code>repeated string formats = 5;</code>
+       *
+       * <pre>
+       * Possible formats compositions. Delimited by ':'
+       * Where the first format is the default one
+       * </pre>
+       */
+      public int getFormatsCount() {
+        return formats_.size();
+      }
+      /**
+       * <code>repeated string formats = 5;</code>
+       *
+       * <pre>
+       * Possible formats compositions. Delimited by ':'
+       * Where the first format is the default one
+       * </pre>
+       */
+      public java.lang.String getFormats(int index) {
+        return formats_.get(index);
+      }
+      /**
+       * <code>repeated string formats = 5;</code>
+       *
+       * <pre>
+       * Possible formats compositions. Delimited by ':'
+       * Where the first format is the default one
+       * </pre>
+       */
+      public com.google.protobuf.ByteString
+          getFormatsBytes(int index) {
+        return formats_.getByteString(index);
+      }
+      /**
+       * <code>repeated string formats = 5;</code>
+       *
+       * <pre>
+       * Possible formats compositions. Delimited by ':'
+       * Where the first format is the default one
+       * </pre>
+       */
+      public Builder setFormats(
+          int index, java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureFormatsIsMutable();
+        formats_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string formats = 5;</code>
+       *
+       * <pre>
+       * Possible formats compositions. Delimited by ':'
+       * Where the first format is the default one
+       * </pre>
+       */
+      public Builder addFormats(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureFormatsIsMutable();
+        formats_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string formats = 5;</code>
+       *
+       * <pre>
+       * Possible formats compositions. Delimited by ':'
+       * Where the first format is the default one
+       * </pre>
+       */
+      public Builder addAllFormats(
+          java.lang.Iterable<java.lang.String> values) {
+        ensureFormatsIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, formats_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string formats = 5;</code>
+       *
+       * <pre>
+       * Possible formats compositions. Delimited by ':'
+       * Where the first format is the default one
+       * </pre>
+       */
+      public Builder clearFormats() {
+        formats_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000008);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string formats = 5;</code>
+       *
+       * <pre>
+       * Possible formats compositions. Delimited by ':'
+       * Where the first format is the default one
+       * </pre>
+       */
+      public Builder addFormatsBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        ensureFormatsIsMutable();
+        formats_.add(value);
+        onChanged();
+        return this;
+      }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:org.opencb.biodata.models.variant.protobuf.Fields)
+    }
+
+    // @@protoc_insertion_point(class_scope:org.opencb.biodata.models.variant.protobuf.Fields)
+    private static final org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields();
+    }
+
+    public static org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<Fields>
+        PARSER = new com.google.protobuf.AbstractParser<Fields>() {
+      public Fields parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        try {
+          return new Fields(input, extensionRegistry);
+        } catch (RuntimeException e) {
+          if (e.getCause() instanceof
+              com.google.protobuf.InvalidProtocolBufferException) {
+            throw (com.google.protobuf.InvalidProtocolBufferException)
+                e.getCause();
+          }
+          throw e;
+        }
+      }
+    };
+
+    public static com.google.protobuf.Parser<Fields> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Fields> getParserForType() {
+      return PARSER;
+    }
+
+    public org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
   public interface VcfSliceOrBuilder extends
       // @@protoc_insertion_point(interface_extends:org.opencb.biodata.models.variant.protobuf.VcfSlice)
       com.google.protobuf.MessageOrBuilder {
@@ -2860,6 +3848,19 @@ public final class VcfSliceProtos {
      */
     org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfRecordOrBuilder getRecordsOrBuilder(
         int index);
+
+    /**
+     * <code>optional .org.opencb.biodata.models.variant.protobuf.Fields fields = 4;</code>
+     */
+    boolean hasFields();
+    /**
+     * <code>optional .org.opencb.biodata.models.variant.protobuf.Fields fields = 4;</code>
+     */
+    org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields getFields();
+    /**
+     * <code>optional .org.opencb.biodata.models.variant.protobuf.Fields fields = 4;</code>
+     */
+    org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.FieldsOrBuilder getFieldsOrBuilder();
   }
   /**
    * Protobuf type {@code org.opencb.biodata.models.variant.protobuf.VcfSlice}
@@ -2919,6 +3920,19 @@ public final class VcfSliceProtos {
                 mutable_bitField0_ |= 0x00000004;
               }
               records_.add(input.readMessage(org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfRecord.parser(), extensionRegistry));
+              break;
+            }
+            case 34: {
+              org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields.Builder subBuilder = null;
+              if (fields_ != null) {
+                subBuilder = fields_.toBuilder();
+              }
+              fields_ = input.readMessage(org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields.parser(), extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(fields_);
+                fields_ = subBuilder.buildPartial();
+              }
+
               break;
             }
           }
@@ -3047,6 +4061,27 @@ public final class VcfSliceProtos {
       return records_.get(index);
     }
 
+    public static final int FIELDS_FIELD_NUMBER = 4;
+    private org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields fields_;
+    /**
+     * <code>optional .org.opencb.biodata.models.variant.protobuf.Fields fields = 4;</code>
+     */
+    public boolean hasFields() {
+      return fields_ != null;
+    }
+    /**
+     * <code>optional .org.opencb.biodata.models.variant.protobuf.Fields fields = 4;</code>
+     */
+    public org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields getFields() {
+      return fields_ == null ? org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields.getDefaultInstance() : fields_;
+    }
+    /**
+     * <code>optional .org.opencb.biodata.models.variant.protobuf.Fields fields = 4;</code>
+     */
+    public org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.FieldsOrBuilder getFieldsOrBuilder() {
+      return getFields();
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -3068,6 +4103,9 @@ public final class VcfSliceProtos {
       for (int i = 0; i < records_.size(); i++) {
         output.writeMessage(3, records_.get(i));
       }
+      if (fields_ != null) {
+        output.writeMessage(4, getFields());
+      }
     }
 
     public int getSerializedSize() {
@@ -3085,6 +4123,10 @@ public final class VcfSliceProtos {
       for (int i = 0; i < records_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(3, records_.get(i));
+      }
+      if (fields_ != null) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(4, getFields());
       }
       memoizedSize = size;
       return size;
@@ -3208,6 +4250,12 @@ public final class VcfSliceProtos {
         } else {
           recordsBuilder_.clear();
         }
+        if (fieldsBuilder_ == null) {
+          fields_ = null;
+        } else {
+          fields_ = null;
+          fieldsBuilder_ = null;
+        }
         return this;
       }
 
@@ -3242,6 +4290,11 @@ public final class VcfSliceProtos {
           result.records_ = records_;
         } else {
           result.records_ = recordsBuilder_.build();
+        }
+        if (fieldsBuilder_ == null) {
+          result.fields_ = fields_;
+        } else {
+          result.fields_ = fieldsBuilder_.build();
         }
         result.bitField0_ = to_bitField0_;
         onBuilt();
@@ -3291,6 +4344,9 @@ public final class VcfSliceProtos {
               recordsBuilder_.addAllMessages(other.records_);
             }
           }
+        }
+        if (other.hasFields()) {
+          mergeFields(other.getFields());
         }
         onChanged();
         return this;
@@ -3725,6 +4781,123 @@ public final class VcfSliceProtos {
         }
         return recordsBuilder_;
       }
+
+      private org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields fields_ = null;
+      private com.google.protobuf.SingleFieldBuilder<
+          org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields, org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields.Builder, org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.FieldsOrBuilder> fieldsBuilder_;
+      /**
+       * <code>optional .org.opencb.biodata.models.variant.protobuf.Fields fields = 4;</code>
+       */
+      public boolean hasFields() {
+        return fieldsBuilder_ != null || fields_ != null;
+      }
+      /**
+       * <code>optional .org.opencb.biodata.models.variant.protobuf.Fields fields = 4;</code>
+       */
+      public org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields getFields() {
+        if (fieldsBuilder_ == null) {
+          return fields_ == null ? org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields.getDefaultInstance() : fields_;
+        } else {
+          return fieldsBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .org.opencb.biodata.models.variant.protobuf.Fields fields = 4;</code>
+       */
+      public Builder setFields(org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields value) {
+        if (fieldsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          fields_ = value;
+          onChanged();
+        } else {
+          fieldsBuilder_.setMessage(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>optional .org.opencb.biodata.models.variant.protobuf.Fields fields = 4;</code>
+       */
+      public Builder setFields(
+          org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields.Builder builderForValue) {
+        if (fieldsBuilder_ == null) {
+          fields_ = builderForValue.build();
+          onChanged();
+        } else {
+          fieldsBuilder_.setMessage(builderForValue.build());
+        }
+
+        return this;
+      }
+      /**
+       * <code>optional .org.opencb.biodata.models.variant.protobuf.Fields fields = 4;</code>
+       */
+      public Builder mergeFields(org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields value) {
+        if (fieldsBuilder_ == null) {
+          if (fields_ != null) {
+            fields_ =
+              org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields.newBuilder(fields_).mergeFrom(value).buildPartial();
+          } else {
+            fields_ = value;
+          }
+          onChanged();
+        } else {
+          fieldsBuilder_.mergeFrom(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>optional .org.opencb.biodata.models.variant.protobuf.Fields fields = 4;</code>
+       */
+      public Builder clearFields() {
+        if (fieldsBuilder_ == null) {
+          fields_ = null;
+          onChanged();
+        } else {
+          fields_ = null;
+          fieldsBuilder_ = null;
+        }
+
+        return this;
+      }
+      /**
+       * <code>optional .org.opencb.biodata.models.variant.protobuf.Fields fields = 4;</code>
+       */
+      public org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields.Builder getFieldsBuilder() {
+        
+        onChanged();
+        return getFieldsFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .org.opencb.biodata.models.variant.protobuf.Fields fields = 4;</code>
+       */
+      public org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.FieldsOrBuilder getFieldsOrBuilder() {
+        if (fieldsBuilder_ != null) {
+          return fieldsBuilder_.getMessageOrBuilder();
+        } else {
+          return fields_ == null ?
+              org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields.getDefaultInstance() : fields_;
+        }
+      }
+      /**
+       * <code>optional .org.opencb.biodata.models.variant.protobuf.Fields fields = 4;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields, org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields.Builder, org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.FieldsOrBuilder> 
+          getFieldsFieldBuilder() {
+        if (fieldsBuilder_ == null) {
+          fieldsBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields, org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.Fields.Builder, org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.FieldsOrBuilder>(
+                  getFields(),
+                  getParentForChildren(),
+                  isClean());
+          fields_ = null;
+        }
+        return fieldsBuilder_;
+      }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return this;
@@ -3794,6 +4967,11 @@ public final class VcfSliceProtos {
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_org_opencb_biodata_models_variant_protobuf_VcfRecord_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
+    internal_static_org_opencb_biodata_models_variant_protobuf_Fields_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_org_opencb_biodata_models_variant_protobuf_Fields_fieldAccessorTable;
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_org_opencb_biodata_models_variant_protobuf_VcfSlice_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -3809,22 +4987,26 @@ public final class VcfSliceProtos {
     java.lang.String[] descriptorData = {
       "\n\017VcfRecord.proto\022*org.opencb.biodata.mo" +
       "dels.variant.protobuf\032\rvariant.proto\"\"\n\t" +
-      "VcfSample\022\025\n\rsample_values\030\001 \003(\t\"\212\003\n\tVcf" +
+      "VcfSample\022\025\n\rsample_values\030\001 \003(\t\"\200\003\n\tVcf" +
       "Record\022\026\n\016relative_start\030\001 \001(\r\022\024\n\014relati" +
       "ve_end\030\002 \001(\r\022\021\n\treference\030\003 \001(\t\022\021\n\talter" +
       "nate\030\004 \003(\t\022\017\n\007quality\030\005 \001(\002\022E\n\004type\030\014 \001(" +
       "\01627.org.opencb.biodata.models.variant.pr" +
-      "otobuf.VariantType\022\014\n\004call\030\r \001(\t\022\032\n\022filt" +
-      "er_non_default\030\006 \001(\t\022\026\n\016id_non_default\030\007" +
-      " \003(\t\022\020\n\010info_key\030\010 \003(\t\022\022\n\ninfo_value\030\t \003",
-      "(\t\022!\n\031sample_format_non_default\030\n \003(\t\022F\n" +
-      "\007samples\030\013 \003(\01325.org.opencb.biodata.mode" +
-      "ls.variant.protobuf.VcfSample\"x\n\010VcfSlic" +
-      "e\022\022\n\nchromosome\030\001 \001(\t\022\020\n\010position\030\002 \001(\r\022" +
-      "F\n\007records\030\003 \003(\01325.org.opencb.biodata.mo" +
-      "dels.variant.protobuf.VcfRecordB<\n*org.o" +
-      "pencb.biodata.models.variant.protobufB\016V" +
-      "cfSliceProtosb\006proto3"
+      "otobuf.VariantType\022\014\n\004call\030\r \001(\t\022\024\n\014filt" +
+      "er_index\030\006 \001(\r\022\026\n\016id_non_default\030\007 \003(\t\022\032" +
+      "\n\016info_key_index\030\010 \003(\rB\002\020\001\022\022\n\ninfo_value",
+      "\030\t \003(\t\022\023\n\013formatIndex\030\n \001(\r\022F\n\007samples\030\013" +
+      " \003(\01325.org.opencb.biodata.models.variant" +
+      ".protobuf.VcfSample\"X\n\006Fields\022\021\n\tinfo_ke" +
+      "ys\030\001 \003(\t\022\031\n\021default_info_keys\030\002 \003(\r\022\017\n\007f" +
+      "ilters\030\003 \003(\t\022\017\n\007formats\030\005 \003(\t\"\274\001\n\010VcfSli" +
+      "ce\022\022\n\nchromosome\030\001 \001(\t\022\020\n\010position\030\002 \001(\r" +
+      "\022F\n\007records\030\003 \003(\01325.org.opencb.biodata.m" +
+      "odels.variant.protobuf.VcfRecord\022B\n\006fiel" +
+      "ds\030\004 \001(\01322.org.opencb.biodata.models.var" +
+      "iant.protobuf.FieldsB<\n*org.opencb.bioda",
+      "ta.models.variant.protobufB\016VcfSliceProt" +
+      "osb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -3850,13 +5032,19 @@ public final class VcfSliceProtos {
     internal_static_org_opencb_biodata_models_variant_protobuf_VcfRecord_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_org_opencb_biodata_models_variant_protobuf_VcfRecord_descriptor,
-        new java.lang.String[] { "RelativeStart", "RelativeEnd", "Reference", "Alternate", "Quality", "Type", "Call", "FilterNonDefault", "IdNonDefault", "InfoKey", "InfoValue", "SampleFormatNonDefault", "Samples", });
-    internal_static_org_opencb_biodata_models_variant_protobuf_VcfSlice_descriptor =
+        new java.lang.String[] { "RelativeStart", "RelativeEnd", "Reference", "Alternate", "Quality", "Type", "Call", "FilterIndex", "IdNonDefault", "InfoKeyIndex", "InfoValue", "FormatIndex", "Samples", });
+    internal_static_org_opencb_biodata_models_variant_protobuf_Fields_descriptor =
       getDescriptor().getMessageTypes().get(2);
+    internal_static_org_opencb_biodata_models_variant_protobuf_Fields_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_org_opencb_biodata_models_variant_protobuf_Fields_descriptor,
+        new java.lang.String[] { "InfoKeys", "DefaultInfoKeys", "Filters", "Formats", });
+    internal_static_org_opencb_biodata_models_variant_protobuf_VcfSlice_descriptor =
+      getDescriptor().getMessageTypes().get(3);
     internal_static_org_opencb_biodata_models_variant_protobuf_VcfSlice_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_org_opencb_biodata_models_variant_protobuf_VcfSlice_descriptor,
-        new java.lang.String[] { "Chromosome", "Position", "Records", });
+        new java.lang.String[] { "Chromosome", "Position", "Records", "Fields", });
     org.opencb.biodata.models.variant.protobuf.VariantProto.getDescriptor();
   }
 

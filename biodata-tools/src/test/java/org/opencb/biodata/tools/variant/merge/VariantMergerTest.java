@@ -423,15 +423,20 @@ public class VariantMergerTest {
                 .collect(Collectors.toList()), Collections.emptyMap());
     }
 
-    private Variant generateVariantWithFormat(String var, String format, String... samplesDataArray) {
-        return generateVariantWithFormat(var, format, "PASS", 100, samplesDataArray);
+    public static Variant generateVariantWithFormat(String var, String format, String... samplesDataArray) {
+        return generateVariantWithFormat(var, "PASS", 100f, format, samplesDataArray);
     }
-    private Variant generateVariantWithFormat(String var, String format, String filter, Integer qual, String... samplesDataArray) {
+
+    public static Variant generateVariantWithFormat(String var, String filter, Float qual, String format, String... samplesDataArray) {
+        return generateVariantWithFormat(var, filter, qual, Collections.emptyMap(), format, samplesDataArray);
+    }
+
+    public static Variant generateVariantWithFormat(String var, String filter, Float qual, Map<String, String> attributes, String format, String... samplesDataArray) {
         Variant variant = new Variant(var);
 
-        Map<String, String> attributes = new HashMap<>();
+        attributes = new HashMap<>(attributes);
         attributes.put(VariantVcfFactory.FILTER, filter);
-        attributes.put(VariantVcfFactory.QUAL, qual.toString());
+        attributes.put(VariantVcfFactory.QUAL, qual == null ? "." : qual.toString());
 
         List<List<String>> samplesData = new LinkedList<>();
         String[] formats = format.split(":");
@@ -448,7 +453,7 @@ public class VariantMergerTest {
         return generateVariant(variant, variant.getType(), Arrays.asList(formats), samplesName, samplesData, attributes);
     }
 
-    private Variant generateVariant(String var, String... samplesData) {
+    public static Variant generateVariant(String var, String... samplesData) {
         Variant variant = new Variant(var);
         List<String> sampleIds = new ArrayList<>(samplesData.length / 2);
         List<String> sampleGt = new ArrayList<>(samplesData.length / 2);
@@ -460,7 +465,7 @@ public class VariantMergerTest {
                 .collect(Collectors.toList()), Collections.emptyMap());
     }
 
-    private Variant generateVariant(Variant variant, VariantType vt,
+    public static Variant generateVariant(Variant variant, VariantType vt,
                                     List<String> format, List<String> sampleIds, List<List<String>> samplesData, Map<String, String> fileAttributes) {
         Variant var = variant;
         var.setType(vt);
