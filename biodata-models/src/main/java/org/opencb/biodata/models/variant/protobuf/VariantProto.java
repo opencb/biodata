@@ -26,69 +26,70 @@ public final class VariantProto {
   public enum VariantType
       implements com.google.protobuf.ProtocolMessageEnum {
     /**
-     * <code>SNP = 0;</code>
+     * <code>NO_VARIATION = 0;</code>
+     *
+     * <pre>
+     * As the NO_VARIATION is the most common value on gVCFs, being the first value,
+     * protobuf will use this as default value and save some space.
+     * </pre>
+     */
+    NO_VARIATION(0, 0),
+    /**
+     * <code>SNP = 1;</code>
      *
      * <pre>
      * SO:0000694
      * </pre>
      */
-    SNP(0, 0),
+    SNP(1, 1),
     /**
-     * <code>SNV = 1;</code>
+     * <code>SNV = 2;</code>
      *
      * <pre>
      * SO:0001483
      * </pre>
      */
-    SNV(1, 1),
+    SNV(2, 2),
     /**
-     * <code>MNP = 2;</code>
+     * <code>MNP = 3;</code>
      *
      * <pre>
      * SO:0001013
      * </pre>
      */
-    MNP(2, 2),
+    MNP(3, 3),
     /**
-     * <code>MNV = 3;</code>
+     * <code>MNV = 4;</code>
      *
      * <pre>
      * SO:0002007
      * </pre>
      */
-    MNV(3, 3),
+    MNV(4, 4),
     /**
-     * <code>INDEL = 4;</code>
+     * <code>INDEL = 5;</code>
      *
      * <pre>
      * SO:1000032
      * </pre>
      */
-    INDEL(4, 4),
+    INDEL(5, 5),
     /**
-     * <code>SV = 5;</code>
+     * <code>SV = 6;</code>
      *
      * <pre>
      * SO:0001537
      * </pre>
      */
-    SV(5, 5),
+    SV(6, 6),
     /**
-     * <code>CNV = 6;</code>
+     * <code>CNV = 7;</code>
      *
      * <pre>
      * SO:0001019
      * </pre>
      */
-    CNV(6, 6),
-    /**
-     * <code>NO_VARIATION = 7;</code>
-     *
-     * <pre>
-     * Defined in HTSJDK
-     * </pre>
-     */
-    NO_VARIATION(7, 7),
+    CNV(7, 7),
     /**
      * <code>SYMBOLIC = 8;</code>
      *
@@ -141,69 +142,70 @@ public final class VariantProto {
     ;
 
     /**
-     * <code>SNP = 0;</code>
+     * <code>NO_VARIATION = 0;</code>
+     *
+     * <pre>
+     * As the NO_VARIATION is the most common value on gVCFs, being the first value,
+     * protobuf will use this as default value and save some space.
+     * </pre>
+     */
+    public static final int NO_VARIATION_VALUE = 0;
+    /**
+     * <code>SNP = 1;</code>
      *
      * <pre>
      * SO:0000694
      * </pre>
      */
-    public static final int SNP_VALUE = 0;
+    public static final int SNP_VALUE = 1;
     /**
-     * <code>SNV = 1;</code>
+     * <code>SNV = 2;</code>
      *
      * <pre>
      * SO:0001483
      * </pre>
      */
-    public static final int SNV_VALUE = 1;
+    public static final int SNV_VALUE = 2;
     /**
-     * <code>MNP = 2;</code>
+     * <code>MNP = 3;</code>
      *
      * <pre>
      * SO:0001013
      * </pre>
      */
-    public static final int MNP_VALUE = 2;
+    public static final int MNP_VALUE = 3;
     /**
-     * <code>MNV = 3;</code>
+     * <code>MNV = 4;</code>
      *
      * <pre>
      * SO:0002007
      * </pre>
      */
-    public static final int MNV_VALUE = 3;
+    public static final int MNV_VALUE = 4;
     /**
-     * <code>INDEL = 4;</code>
+     * <code>INDEL = 5;</code>
      *
      * <pre>
      * SO:1000032
      * </pre>
      */
-    public static final int INDEL_VALUE = 4;
+    public static final int INDEL_VALUE = 5;
     /**
-     * <code>SV = 5;</code>
+     * <code>SV = 6;</code>
      *
      * <pre>
      * SO:0001537
      * </pre>
      */
-    public static final int SV_VALUE = 5;
+    public static final int SV_VALUE = 6;
     /**
-     * <code>CNV = 6;</code>
+     * <code>CNV = 7;</code>
      *
      * <pre>
      * SO:0001019
      * </pre>
      */
-    public static final int CNV_VALUE = 6;
-    /**
-     * <code>NO_VARIATION = 7;</code>
-     *
-     * <pre>
-     * Defined in HTSJDK
-     * </pre>
-     */
-    public static final int NO_VARIATION_VALUE = 7;
+    public static final int CNV_VALUE = 7;
     /**
      * <code>SYMBOLIC = 8;</code>
      *
@@ -264,14 +266,14 @@ public final class VariantProto {
 
     public static VariantType valueOf(int value) {
       switch (value) {
-        case 0: return SNP;
-        case 1: return SNV;
-        case 2: return MNP;
-        case 3: return MNV;
-        case 4: return INDEL;
-        case 5: return SV;
-        case 6: return CNV;
-        case 7: return NO_VARIATION;
+        case 0: return NO_VARIATION;
+        case 1: return SNP;
+        case 2: return SNV;
+        case 3: return MNP;
+        case 4: return MNV;
+        case 5: return INDEL;
+        case 6: return SV;
+        case 7: return CNV;
         case 8: return SYMBOLIC;
         case 9: return MIXED;
         case 10: return INSERTION;
@@ -2276,7 +2278,7 @@ public final class VariantProto {
       if (numSamples_ != 0) {
         output.writeInt32(22, numSamples_);
       }
-      if (variantType_ != org.opencb.biodata.models.variant.protobuf.VariantProto.VariantType.SNP.getNumber()) {
+      if (variantType_ != org.opencb.biodata.models.variant.protobuf.VariantProto.VariantType.NO_VARIATION.getNumber()) {
         output.writeEnum(23, variantType_);
       }
       if (hw_ != null) {
@@ -2385,7 +2387,7 @@ public final class VariantProto {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(22, numSamples_);
       }
-      if (variantType_ != org.opencb.biodata.models.variant.protobuf.VariantProto.VariantType.SNP.getNumber()) {
+      if (variantType_ != org.opencb.biodata.models.variant.protobuf.VariantProto.VariantType.NO_VARIATION.getNumber()) {
         size += com.google.protobuf.CodedOutputStream
           .computeEnumSize(23, variantType_);
       }
@@ -4863,7 +4865,7 @@ public final class VariantProto {
       if (!getAlternateBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessage.writeString(output, 5, alternate_);
       }
-      if (type_ != org.opencb.biodata.models.variant.protobuf.VariantProto.VariantType.SNP.getNumber()) {
+      if (type_ != org.opencb.biodata.models.variant.protobuf.VariantProto.VariantType.NO_VARIATION.getNumber()) {
         output.writeEnum(6, type_);
       }
     }
@@ -4890,7 +4892,7 @@ public final class VariantProto {
       if (!getAlternateBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessage.computeStringSize(5, alternate_);
       }
-      if (type_ != org.opencb.biodata.models.variant.protobuf.VariantProto.VariantType.SNP.getNumber()) {
+      if (type_ != org.opencb.biodata.models.variant.protobuf.VariantProto.VariantType.NO_VARIATION.getNumber()) {
         size += com.google.protobuf.CodedOutputStream
           .computeEnumSize(6, type_);
       }
@@ -10444,7 +10446,7 @@ public final class VariantProto {
       if (length_ != 0) {
         output.writeInt32(8, length_);
       }
-      if (type_ != org.opencb.biodata.models.variant.protobuf.VariantProto.VariantType.SNP.getNumber()) {
+      if (type_ != org.opencb.biodata.models.variant.protobuf.VariantProto.VariantType.NO_VARIATION.getNumber()) {
         output.writeEnum(9, type_);
       }
       for (java.util.Map.Entry<java.lang.String, org.opencb.biodata.models.variant.protobuf.VariantProto.Variant.HgvsEntry> entry
@@ -10501,7 +10503,7 @@ public final class VariantProto {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(8, length_);
       }
-      if (type_ != org.opencb.biodata.models.variant.protobuf.VariantProto.VariantType.SNP.getNumber()) {
+      if (type_ != org.opencb.biodata.models.variant.protobuf.VariantProto.VariantType.NO_VARIATION.getNumber()) {
         size += com.google.protobuf.CodedOutputStream
           .computeEnumSize(9, type_);
       }
@@ -13578,9 +13580,9 @@ public final class VariantProto {
       "g.opencb.biodata.models.variant.protobuf" +
       ".VariantFileMetadata.MetadataEntry\032/\n\rMe" +
       "tadataEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:" +
-      "\0028\001*\267\001\n\013VariantType\022\007\n\003SNP\020\000\022\007\n\003SNV\020\001\022\007\n",
-      "\003MNP\020\002\022\007\n\003MNV\020\003\022\t\n\005INDEL\020\004\022\006\n\002SV\020\005\022\007\n\003CN" +
-      "V\020\006\022\020\n\014NO_VARIATION\020\007\022\014\n\010SYMBOLIC\020\010\022\t\n\005M" +
+      "\0028\001*\267\001\n\013VariantType\022\020\n\014NO_VARIATION\020\000\022\007\n",
+      "\003SNP\020\001\022\007\n\003SNV\020\002\022\007\n\003MNP\020\003\022\007\n\003MNV\020\004\022\t\n\005IND" +
+      "EL\020\005\022\006\n\002SV\020\006\022\007\n\003CNV\020\007\022\014\n\010SYMBOLIC\020\010\022\t\n\005M" +
       "IXED\020\t\022\r\n\tINSERTION\020\n\022\014\n\010DELETION\020\013\022\021\n\rT" +
       "RANSLOCATION\020\014\022\r\n\tINVERSION\020\r*X\n\013Alleles" +
       "Code\022\016\n\nALLELES_OK\020\000\022\023\n\017ALLELES_MISSING\020" +

@@ -1,6 +1,6 @@
 package org.opencb.biodata.tools.variant.converter;
 
-import com.google.common.base.Function;
+import com.google.protobuf.ProtocolStringList;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantVcfFactory;
@@ -8,6 +8,8 @@ import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
 
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * Created on 17/02/16
@@ -65,6 +67,7 @@ public class VariantToVcfSliceConverter implements Converter<List<Variant>, VcfS
         Map<String, Integer> filters = new HashMap<>();
         Map<String, Integer> keys = new HashMap<>();
         Map<String, Integer> formats = new HashMap<>();
+        Map<List<String>, Integer> keySets = new HashMap<>();
 
         for (Variant variant : variants) {
             for (StudyEntry studyEntry : variant.getStudies()) {
@@ -74,6 +77,8 @@ public class VariantToVcfSliceConverter implements Converter<List<Variant>, VcfS
 
                 for (FileEntry fileEntry : studyEntry.getFiles()) {
                     Map<String, String> attributes = fileEntry.getAttributes();
+                    List<String> keySet = attributes.keySet().stream().sorted().collect(Collectors.toList());
+                    keySets.put(keySet, keySets.getOrDefault(keySet, 0) + 1);
 
                     for (Map.Entry<String, String> entry : attributes.entrySet()) {
                         String key = entry.getKey();
@@ -85,9 +90,8 @@ public class VariantToVcfSliceConverter implements Converter<List<Variant>, VcfS
                                 }
                                 break;
                             case VariantVcfFactory.QUAL:
-                                // Ignore
-                                break;
                             case VariantVcfFactory.SRC:
+                            case "END":
                                 // Ignore
                                 break;
                             default:
@@ -103,12 +107,35 @@ public class VariantToVcfSliceConverter implements Converter<List<Variant>, VcfS
         addDefaultValues(keys, fieldsBuilder::addInfoKeys);
         addDefaultValues(formats, fieldsBuilder::addFormats);
 
+        //Determine most common infoKeys list
+        List<String> keySet = null;
+        int max = 0;
+        for (Map.Entry<List<String>, Integer> entry : keySets.entrySet()) {
+            if (entry.getValue() > max) {
+                max = entry.getValue();
+                keySet = entry.getKey();
+            }
+        }
+        //If any, translate into IDs, sort and add to the builder.
+        if (keySet != null) {
+            ProtocolStringList keysList = fieldsBuilder.getInfoKeysList();
+            List<Integer> defaultKeySet = new ArrayList<>(keySet.size());
+            for (String key : keySet) {
+                int indexOf = keysList.indexOf(key);
+                if (indexOf >= 0) {
+                    defaultKeySet.add(indexOf);
+                }
+            }
+            defaultKeySet.sort(Integer::compareTo);
+            fieldsBuilder.addAllDefaultInfoKeys(defaultKeySet);
+        }
+
         return fieldsBuilder;
     }
 
-    private static void addDefaultValues(Map<String, Integer> map, Function<String, VcfSliceProtos.Fields.Builder> function) {
+    private static void addDefaultValues(Map<String, Integer> map, Consumer<String> consumer) {
         map.entrySet().stream()
                 .sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue())) // Reverse order!!
-                .forEach(e -> function.apply(e.getKey()));
+                .forEach(e -> consumer.accept(e.getKey()));
     }
 }

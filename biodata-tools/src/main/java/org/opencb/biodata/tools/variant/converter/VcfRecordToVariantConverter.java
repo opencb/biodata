@@ -18,13 +18,9 @@ import java.util.*;
  */
 public class VcfRecordToVariantConverter implements Converter<VcfSliceProtos.VcfRecord, Variant> {
 
-    //    private final VcfSliceProtos.VcfMeta meta;
-//    private final VcfMeta meta;
-//    private final VcfSliceProtos.VcfSlice slice;
+    private VcfSliceProtos.Fields fields;
 
     private final LinkedHashMap<String, Integer> samplePosition;
-
-    private VcfSliceProtos.Fields fields;
     private final String fileId;
     private final String studyId;
 
@@ -33,6 +29,7 @@ public class VcfRecordToVariantConverter implements Converter<VcfSliceProtos.Vcf
     public VcfRecordToVariantConverter(VcfSliceProtos.Fields fields, Map<String, Integer> samplePosition, String fileId, String studyId) {
         this(fields, StudyEntry.sortSamplesPositionMap(samplePosition), fileId, studyId);
     }
+
     public VcfRecordToVariantConverter(LinkedHashMap<String, Integer> samplePosition, String fileId, String studyId) {
         this(null, samplePosition, fileId, studyId);
     }
@@ -64,8 +61,12 @@ public class VcfRecordToVariantConverter implements Converter<VcfSliceProtos.Vcf
 
         FileEntry fileEntry = new FileEntry();
         fileEntry.setFileId(fileId);
-        fileEntry.setAttributes(getFileAttributes(vcfRecord));
+        Map<String, String> attributes = getFileAttributes(vcfRecord);
+        fileEntry.setAttributes(attributes);
         fileEntry.setCall(vcfRecord.getCall());
+        if (vcfRecord.getType().equals(VariantProto.VariantType.NO_VARIATION)) {
+            attributes.put("END", Integer.toString(end));
+        }
 
         StudyEntry studyEntry = new StudyEntry(studyId);
         studyEntry.setFiles(Collections.singletonList(fileEntry));

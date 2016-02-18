@@ -13,9 +13,11 @@ message VcfSample {
 // TODO what's in the case of 1/2 
 message VcfRecord {
   // 1 based
-  // May contain negative values. Is not likely
+  // May contain negative values but it's not likely
   int32 relative_start = 1;
-  uint32 relative_end = 2;
+  // May contain negative values but it's not likely
+  int32 relative_end = 2;
+
   string reference = 3; 
   repeated string alternate = 4;
   float quality = 5;
@@ -31,7 +33,7 @@ message VcfRecord {
   
   uint32 formatIndex = 10;
   repeated VcfSample samples = 11;
-  
+
 }
 
 message Fields {

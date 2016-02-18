@@ -16,14 +16,17 @@ import "variantAnnotation.proto";
  * </ul>
  */
 enum VariantType {
-    SNP            = 0;  // SO:0000694
-    SNV            = 1;  // SO:0001483
-    MNP            = 2;  // SO:0001013
-    MNV            = 3;  // SO:0002007
-    INDEL          = 4;  // SO:1000032
-    SV             = 5;  // SO:0001537
-    CNV            = 6;  // SO:0001019
-    NO_VARIATION   = 7;  // Defined in HTSJDK
+    // As the NO_VARIATION is the most common value on gVCFs, being the first value,
+    // protobuf will use this as default value and save some space.
+    NO_VARIATION   = 0;  // Defined in HTSJDK
+
+    SNP            = 1;  // SO:0000694
+    SNV            = 2;  // SO:0001483
+    MNP            = 3;  // SO:0001013
+    MNV            = 4;  // SO:0002007
+    INDEL          = 5;  // SO:1000032
+    SV             = 6;  // SO:0001537
+    CNV            = 7;  // SO:0001019
     SYMBOLIC       = 8;  // Defined in HTSJDK
     MIXED          = 9;  // Defined in HTSJDK
 

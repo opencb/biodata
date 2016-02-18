@@ -165,9 +165,7 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
 
         FileEntry fileEntry = new FileEntry();
         fileEntry.setFileId(fileId);
-        fileEntry.setCall(variantContext.getStart()
-                + ":" + variantContext.getReference()
-                + ":" + StringUtils.join(alternateAlleleList, ","));
+        fileEntry.setCall("");
         Map<String, String> attributes = new HashMap<>();
         for (String key : variantContext.getAttributes().keySet()) {
             // Do not use "getAttributeAsString" for lists.

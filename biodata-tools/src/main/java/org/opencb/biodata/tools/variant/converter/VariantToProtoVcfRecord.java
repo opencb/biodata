@@ -46,9 +46,10 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
     private static final Set<String> IGNORED_KEYS = new HashSet<>();
 
     static {
-        IGNORED_KEYS.add(VariantVcfFactory.FILTER);
-        IGNORED_KEYS.add(VariantVcfFactory.QUAL);
-        IGNORED_KEYS.add(VariantVcfFactory.SRC);
+        IGNORED_KEYS.add(VariantVcfFactory.FILTER); // Save FILTER on VcfRecord specific field
+        IGNORED_KEYS.add(VariantVcfFactory.QUAL);   // Save QUAL on VcfRecord specific field
+        IGNORED_KEYS.add("END");                    // Save END on VcfRecord specific field
+        IGNORED_KEYS.add(VariantVcfFactory.SRC);    // Never save SRC
     }
 
     /**

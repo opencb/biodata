@@ -514,16 +514,21 @@ public final class VcfSliceProtos {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>optional uint32 relative_start = 1;</code>
+     * <code>optional int32 relative_start = 1;</code>
      *
      * <pre>
-     * 1 based 
+     * 1 based
+     * May contain negative values but it's not likely
      * </pre>
      */
     int getRelativeStart();
 
     /**
-     * <code>optional uint32 relative_end = 2;</code>
+     * <code>optional int32 relative_end = 2;</code>
+     *
+     * <pre>
+     * May contain negative values but it's not likely
+     * </pre>
      */
     int getRelativeEnd();
 
@@ -722,12 +727,12 @@ public final class VcfSliceProtos {
             }
             case 8: {
 
-              relativeStart_ = input.readUInt32();
+              relativeStart_ = input.readInt32();
               break;
             }
             case 16: {
 
-              relativeEnd_ = input.readUInt32();
+              relativeEnd_ = input.readInt32();
               break;
             }
             case 26: {
@@ -862,10 +867,11 @@ public final class VcfSliceProtos {
     public static final int RELATIVE_START_FIELD_NUMBER = 1;
     private int relativeStart_;
     /**
-     * <code>optional uint32 relative_start = 1;</code>
+     * <code>optional int32 relative_start = 1;</code>
      *
      * <pre>
-     * 1 based 
+     * 1 based
+     * May contain negative values but it's not likely
      * </pre>
      */
     public int getRelativeStart() {
@@ -875,7 +881,11 @@ public final class VcfSliceProtos {
     public static final int RELATIVE_END_FIELD_NUMBER = 2;
     private int relativeEnd_;
     /**
-     * <code>optional uint32 relative_end = 2;</code>
+     * <code>optional int32 relative_end = 2;</code>
+     *
+     * <pre>
+     * May contain negative values but it's not likely
+     * </pre>
      */
     public int getRelativeEnd() {
       return relativeEnd_;
@@ -1151,10 +1161,10 @@ public final class VcfSliceProtos {
                         throws java.io.IOException {
       getSerializedSize();
       if (relativeStart_ != 0) {
-        output.writeUInt32(1, relativeStart_);
+        output.writeInt32(1, relativeStart_);
       }
       if (relativeEnd_ != 0) {
-        output.writeUInt32(2, relativeEnd_);
+        output.writeInt32(2, relativeEnd_);
       }
       if (!getReferenceBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessage.writeString(output, 3, reference_);
@@ -1187,7 +1197,7 @@ public final class VcfSliceProtos {
       for (int i = 0; i < samples_.size(); i++) {
         output.writeMessage(11, samples_.get(i));
       }
-      if (type_ != org.opencb.biodata.models.variant.protobuf.VariantProto.VariantType.SNP.getNumber()) {
+      if (type_ != org.opencb.biodata.models.variant.protobuf.VariantProto.VariantType.NO_VARIATION.getNumber()) {
         output.writeEnum(12, type_);
       }
       if (!getCallBytes().isEmpty()) {
@@ -1202,11 +1212,11 @@ public final class VcfSliceProtos {
       size = 0;
       if (relativeStart_ != 0) {
         size += com.google.protobuf.CodedOutputStream
-          .computeUInt32Size(1, relativeStart_);
+          .computeInt32Size(1, relativeStart_);
       }
       if (relativeEnd_ != 0) {
         size += com.google.protobuf.CodedOutputStream
-          .computeUInt32Size(2, relativeEnd_);
+          .computeInt32Size(2, relativeEnd_);
       }
       if (!getReferenceBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessage.computeStringSize(3, reference_);
@@ -1265,7 +1275,7 @@ public final class VcfSliceProtos {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(11, samples_.get(i));
       }
-      if (type_ != org.opencb.biodata.models.variant.protobuf.VariantProto.VariantType.SNP.getNumber()) {
+      if (type_ != org.opencb.biodata.models.variant.protobuf.VariantProto.VariantType.NO_VARIATION.getNumber()) {
         size += com.google.protobuf.CodedOutputStream
           .computeEnumSize(12, type_);
       }
@@ -1616,20 +1626,22 @@ public final class VcfSliceProtos {
 
       private int relativeStart_ ;
       /**
-       * <code>optional uint32 relative_start = 1;</code>
+       * <code>optional int32 relative_start = 1;</code>
        *
        * <pre>
-       * 1 based 
+       * 1 based
+       * May contain negative values but it's not likely
        * </pre>
        */
       public int getRelativeStart() {
         return relativeStart_;
       }
       /**
-       * <code>optional uint32 relative_start = 1;</code>
+       * <code>optional int32 relative_start = 1;</code>
        *
        * <pre>
-       * 1 based 
+       * 1 based
+       * May contain negative values but it's not likely
        * </pre>
        */
       public Builder setRelativeStart(int value) {
@@ -1639,10 +1651,11 @@ public final class VcfSliceProtos {
         return this;
       }
       /**
-       * <code>optional uint32 relative_start = 1;</code>
+       * <code>optional int32 relative_start = 1;</code>
        *
        * <pre>
-       * 1 based 
+       * 1 based
+       * May contain negative values but it's not likely
        * </pre>
        */
       public Builder clearRelativeStart() {
@@ -1654,13 +1667,21 @@ public final class VcfSliceProtos {
 
       private int relativeEnd_ ;
       /**
-       * <code>optional uint32 relative_end = 2;</code>
+       * <code>optional int32 relative_end = 2;</code>
+       *
+       * <pre>
+       * May contain negative values but it's not likely
+       * </pre>
        */
       public int getRelativeEnd() {
         return relativeEnd_;
       }
       /**
-       * <code>optional uint32 relative_end = 2;</code>
+       * <code>optional int32 relative_end = 2;</code>
+       *
+       * <pre>
+       * May contain negative values but it's not likely
+       * </pre>
        */
       public Builder setRelativeEnd(int value) {
         
@@ -1669,7 +1690,11 @@ public final class VcfSliceProtos {
         return this;
       }
       /**
-       * <code>optional uint32 relative_end = 2;</code>
+       * <code>optional int32 relative_end = 2;</code>
+       *
+       * <pre>
+       * May contain negative values but it's not likely
+       * </pre>
        */
       public Builder clearRelativeEnd() {
         
@@ -4988,8 +5013,8 @@ public final class VcfSliceProtos {
       "\n\017VcfRecord.proto\022*org.opencb.biodata.mo" +
       "dels.variant.protobuf\032\rvariant.proto\"\"\n\t" +
       "VcfSample\022\025\n\rsample_values\030\001 \003(\t\"\200\003\n\tVcf" +
-      "Record\022\026\n\016relative_start\030\001 \001(\r\022\024\n\014relati" +
-      "ve_end\030\002 \001(\r\022\021\n\treference\030\003 \001(\t\022\021\n\talter" +
+      "Record\022\026\n\016relative_start\030\001 \001(\005\022\024\n\014relati" +
+      "ve_end\030\002 \001(\005\022\021\n\treference\030\003 \001(\t\022\021\n\talter" +
       "nate\030\004 \003(\t\022\017\n\007quality\030\005 \001(\002\022E\n\004type\030\014 \001(" +
       "\01627.org.opencb.biodata.models.variant.pr" +
       "otobuf.VariantType\022\014\n\004call\030\r \001(\t\022\024\n\014filt" +
