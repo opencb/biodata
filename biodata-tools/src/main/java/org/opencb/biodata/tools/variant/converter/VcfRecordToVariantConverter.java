@@ -51,7 +51,7 @@ public class VcfRecordToVariantConverter implements Converter<VcfSliceProtos.Vcf
 
     public Variant convert(VcfSliceProtos.VcfRecord vcfRecord, String chromosome, int slicePosition) {
         int start = slicePosition + vcfRecord.getRelativeStart();
-        int end = vcfRecord.getRelativeEnd() != 0 ? slicePosition + vcfRecord.getRelativeEnd() : start;
+        int end = getRealEnd(slicePosition, start, vcfRecord.getRelativeEnd());
 
         List<String> alts = vcfRecord.getAlternateList();
         Variant variant = new Variant(chromosome, start, end, vcfRecord.getReference(), alts.get(0));
@@ -83,6 +83,23 @@ public class VcfRecordToVariantConverter implements Converter<VcfSliceProtos.Vcf
         variant.addStudyEntry(studyEntry);
 
         return variant;
+    }
+
+    private int getRealEnd(int slicePosition, int start, int relativeEnd) {
+        final int end;
+        if (relativeEnd == 0) {
+            end = start;
+        } else {
+            if (relativeEnd < 0) {
+                // Negative values are stored with one position less.
+                // Restore the position adding one.
+                end = slicePosition + relativeEnd + 1;
+            } else {
+                //Positive values are right
+                end = slicePosition + relativeEnd;
+            }
+        }
+        return end;
     }
 
     private List<List<String>> getSamplesData(VcfSliceProtos.VcfRecord vcfRecord) {

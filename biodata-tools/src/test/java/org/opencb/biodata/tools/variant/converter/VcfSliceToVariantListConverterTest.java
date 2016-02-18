@@ -26,24 +26,27 @@ public class VcfSliceToVariantListConverterTest {
     @Before
     public void setUp() throws Exception {
         variants = Arrays.asList(
-                VariantMergerTest.generateVariantWithFormat("1:100:A:C", "PASS", 102f,
-                        toMap("K4", "V1", "K2", "V2"), "GT:X", "S1", "0/0", "1"),
-                VariantMergerTest.generateVariantWithFormat("1:101:A:C", "PASS", 12f,
+                VariantMergerTest.generateVariantWithFormat("1:980:A:", "PASS", 102f,
+                        toMap("K4", "V1", "K2", "V2", "END", "1000"), "GT:X", "S1", "0/0", "1"),
+                VariantMergerTest.generateVariantWithFormat("1:1000:A:C", "PASS", 12f,
                         toMap("K3", "V1", "K4", "V2"), "GT:X", "S1", "0/0", "1"),
-                VariantMergerTest.generateVariantWithFormat("1:102:A:C", "PASS:LowGQX", 102f,
+                VariantMergerTest.generateVariantWithFormat("1:1002:A:C", "PASS:LowGQX", 102f,
                         toMap("K5", "V1", "K2", "V2"), "GT:X", "S1", "0/0", "1"),
-                VariantMergerTest.generateVariantWithFormat("1:103:A:C", "PASS", 0f,
+                VariantMergerTest.generateVariantWithFormat("1:1003:A:C", "PASS", 0f,
                         toMap("K3", "V1", "K2", "V2"), "GT:T", "S1", "0/0", "1"),
-                VariantMergerTest.generateVariantWithFormat("1:104:A:C", "LowGQX", null,
+                VariantMergerTest.generateVariantWithFormat("1:1004:A:C", "LowGQX", null,
                         toMap("K2", "V1", "K3", "V2"), "GT:X", "S1", "0/0", "1"),
-                VariantMergerTest.generateVariantWithFormat("1:105:A:C", "PASS", 102f,
+                VariantMergerTest.generateVariantWithFormat("1:1005:A:C", "PASS", 102f,
                         toMap("K3", "V1", "K2", "V2"), "GT:X", "S1", "0/0", "1"),
-                VariantMergerTest.generateVariantWithFormat("1:106:A:", "PASS:LowGQX", 102f,
-                        toMap("K1", "V1", "K5", "V2", "END", "110"), "GT:T", "S1", "0/0", "1")
+                VariantMergerTest.generateVariantWithFormat("1:1006:A:", "PASS:LowGQX", 102f,
+                        toMap("K1", "V1", "K5", "V2", "END", "1100"), "GT:T", "S1", "0/0", "1")
         );
-        variants.get(6).setType(VariantType.NO_VARIATION);
-        variants.get(6).setEnd(110);
         variants.get(5).getStudy("").getFile("").getAttributes().put(VariantVcfFactory.QUAL, ".");
+        variants.get(6).setType(VariantType.NO_VARIATION);
+        variants.get(6).setEnd(1100);
+
+        variants.get(0).setType(VariantType.NO_VARIATION);
+        variants.get(0).setEnd(1000);
     }
 
     @Test
@@ -62,7 +65,7 @@ public class VcfSliceToVariantListConverterTest {
     public void testConvertVariants() {
 //        VcfSliceToVariantListConverter converter = new VcfSliceToVariantListConverter();
         VariantToVcfSliceConverter converter = new VariantToVcfSliceConverter();
-        VcfSliceProtos.VcfSlice slice = converter.convert(variants);
+        VcfSliceProtos.VcfSlice slice = converter.convert(variants, 1000);
 
         LinkedHashMap<String, Integer> samplesPosition = variants.get(0).getStudies().get(0).getSamplesPosition();
         VcfSliceToVariantListConverter vcfSliceToVariantListConverter = new VcfSliceToVariantListConverter(samplesPosition, "", "");
@@ -74,7 +77,9 @@ public class VcfSliceToVariantListConverterTest {
         }
 
         assertEquals(VariantType.NO_VARIATION, convert.get(6).getType());
-        assertEquals(110, convert.get(6).getEnd().intValue());
+        assertEquals(1000, convert.get(0).getEnd().intValue());
+        assertEquals(1000, convert.get(1).getEnd().intValue());
+        assertEquals(1100, convert.get(6).getEnd().intValue());
         assertEquals("0", convert.get(3).getStudy("").getFile("").getAttributes().get(VariantVcfFactory.QUAL));
         assertEquals(null, convert.get(4).getStudy("").getFile("").getAttributes().get(VariantVcfFactory.QUAL));
         assertEquals(null, convert.get(5).getStudy("").getFile("").getAttributes().get(VariantVcfFactory.QUAL));

@@ -80,26 +80,34 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
 
     @Override
     public VcfRecord convert(Variant variant) {
-        return convertUsingSliceposition(variant, 0);
+        return convertUsingSlicePosition(variant, 0);
     }
 
     public VcfRecord convert(Variant variant, int chunkSize) {
-        return convertUsingSliceposition(variant, chunkSize > 0 ? getSlicePosition(variant.getStart(), chunkSize) : 0);
+        return convertUsingSlicePosition(variant, chunkSize > 0 ? getSlicePosition(variant.getStart(), chunkSize) : 0);
     }
 
-    public VcfRecord convertUsingSliceposition(Variant variant, int slicePosition) {
+    public VcfRecord convertUsingSlicePosition(Variant variant, int slicePosition) {
+        int relativeStart = variant.getStart() - slicePosition;
+        int relativeEnd = variant.getEnd() - slicePosition;
         Builder recordBuilder = VcfRecord.newBuilder()
                 // Warning: start and end can be at different chunks.
                 // Do not use getSliceOffset independently
-                .setRelativeStart(variant.getStart() - slicePosition)
+                .setRelativeStart(relativeStart)
                 .setReference(variant.getReference())
                 .addAlternate(variant.getAlternate())
                 .addAllIdNonDefault(encodeIds(variant.getIds()));
 
         //Set end only if is different to the start position
-        if (!Objects.equals(variant.getEnd(), variant.getStart())) {
-            recordBuilder.setRelativeEnd(variant.getEnd() - slicePosition);
-        }
+        if (relativeEnd != relativeStart) {
+            // If relativeEnd is 0, relativeStart is used instead.
+            // So, real 0 values must be used saved in a different way.
+            // Subtract one to all the relativeEnd lessOrEqual to 0.
+            if (relativeEnd <= 0) {
+                relativeEnd--;
+            }
+            recordBuilder.setRelativeEnd(relativeEnd);
+        } // else { relativeEnd = 0 }
 
 		/* Get Study (one only expected  */
         List<StudyEntry> studies = variant.getStudies();

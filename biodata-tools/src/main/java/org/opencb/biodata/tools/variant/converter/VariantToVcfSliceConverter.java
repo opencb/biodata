@@ -46,7 +46,7 @@ public class VariantToVcfSliceConverter implements Converter<List<Variant>, VcfS
         converter.updateMeta(fields);
         List<VcfSliceProtos.VcfRecord> vcfRecords = new ArrayList<>(variants.size());
         for (Variant variant : variants) {
-            vcfRecords.add(converter.convertUsingSliceposition(variant, slicePosition));
+            vcfRecords.add(converter.convertUsingSlicePosition(variant, slicePosition));
         }
 
 
