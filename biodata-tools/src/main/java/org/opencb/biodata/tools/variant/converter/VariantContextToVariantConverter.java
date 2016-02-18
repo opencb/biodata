@@ -178,7 +178,9 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         }
 
         // QUAL
-        attributes.put(VariantVcfFactory.QUAL, Double.toString(variantContext.getPhredScaledQual()));
+        if (variantContext.getLog10PError() != VariantContext.NO_LOG10_PERROR) {
+            attributes.put(VariantVcfFactory.QUAL, Double.toString(variantContext.getPhredScaledQual()));
+        }
 
         // FILTER
         Set<String> filter = variantContext.getFilters();

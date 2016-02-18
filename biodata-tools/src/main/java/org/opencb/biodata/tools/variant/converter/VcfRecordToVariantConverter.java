@@ -54,7 +54,7 @@ public class VcfRecordToVariantConverter implements Converter<VcfSliceProtos.Vcf
         int end = getRealEnd(slicePosition, start, vcfRecord.getRelativeEnd());
 
         List<String> alts = vcfRecord.getAlternateList();
-        Variant variant = new Variant(chromosome, start, end, vcfRecord.getReference(), alts.get(0));
+        Variant variant = new Variant(chromosome, start, end, vcfRecord.getReference(), alts.isEmpty() ? "" : alts.get(0));
 
         variant.setType(getVariantType(vcfRecord.getType()));
         variant.setIds(vcfRecord.getIdNonDefaultList());

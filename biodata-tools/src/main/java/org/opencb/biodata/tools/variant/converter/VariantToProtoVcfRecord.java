@@ -96,9 +96,14 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
                 // Warning: start and end can be at different chunks.
                 // Do not use getSliceOffset independently
                 .setRelativeStart(relativeStart)
-                .setReference(variant.getReference())
-                .addAlternate(variant.getAlternate())
                 .addAllIdNonDefault(encodeIds(variant.getIds()));
+
+        if (!variant.getReference().isEmpty()) {
+            recordBuilder.setReference(variant.getReference());
+        }
+        if (!variant.getAlternate().isEmpty()) {
+            recordBuilder.addAlternate(variant.getAlternate());
+        }
 
         //Set end only if is different to the start position
         if (relativeEnd != relativeStart) {
@@ -251,7 +256,9 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
 //		infoKeys.stream().map(x -> attr.get(x)).collect(Collectors.toList()); // not sure if order is protected
         List<String> values = new ArrayList<>(infoKeys.size());
         for (Integer key : infoKeys) {
-            values.add(attr.get(fields.getInfoKeysList().get(key)));
+            String value = attr.get(fields.getInfoKeysList().get(key));
+            //Null values are not accepted in proto
+            values.add(value == null ? "" : value);
         }
         return values;
     }
