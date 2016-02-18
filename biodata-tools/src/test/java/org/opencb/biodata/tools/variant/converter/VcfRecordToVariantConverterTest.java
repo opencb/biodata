@@ -51,6 +51,10 @@ public class VcfRecordToVariantConverterTest {
                 .addInfoKeys("Key1")
                 .addInfoKeys("Key2")
                 .addDefaultInfoKeys(0)
+                .addGts("0|0")
+                .addGts("0|1")
+                .addGts("1|0")
+                .addGts("1|1")
                 .build();
 
         converter = new VcfRecordToVariantConverter(fields, samplePositions, meta.getVariantSource().getFileId(), meta.getVariantSource().getStudyId());

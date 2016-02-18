@@ -1,5 +1,6 @@
 package org.opencb.biodata.tools.variant.converter;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import org.junit.Before;
 import org.junit.Test;
 import org.opencb.biodata.models.variant.Variant;
@@ -37,7 +38,7 @@ public class VcfSliceToVariantListConverterTest {
                 VariantMergerTest.generateVariantWithFormat("1:1004:A:C", "LowGQX", null,
                         toMap("K2", "V1", "K3", "V2"), "GT:X", "S1", "0/0", "1"),
                 VariantMergerTest.generateVariantWithFormat("1:1005:A:C", "PASS", 102f,
-                        toMap("K3", "V1", "K2", "V2"), "GT:X", "S1", "0/0", "1"),
+                        toMap("K3", "V1", "K2", "V2"), "GT:X", "S1", "0/1", "1"),
                 VariantMergerTest.generateVariantWithFormat("1:1006:A:", "PASS:LowGQX", 102f,
                         toMap("K1", "V1", "K5", "V2", "END", "1100"), "GT:T", "S1", "0/0", "1")
         );
@@ -58,14 +59,17 @@ public class VcfSliceToVariantListConverterTest {
         assertEquals(Arrays.asList("GT:X", "GT:T"), fields.getFormatsList());
         assertEquals(Arrays.asList("K2", "K3", "K4", "K5", "K1"), fields.getInfoKeysList());
         assertEquals(Arrays.asList(0, 1), fields.getDefaultInfoKeysList());
+        assertEquals(Arrays.asList("0/0", "0/1"), fields.getGtsList());
 
     }
 
     @Test
-    public void testConvertVariants() {
+    public void testConvertVariants() throws InvalidProtocolBufferException {
 //        VcfSliceToVariantListConverter converter = new VcfSliceToVariantListConverter();
         VariantToVcfSliceConverter converter = new VariantToVcfSliceConverter();
         VcfSliceProtos.VcfSlice slice = converter.convert(variants, 1000);
+
+        slice = VcfSliceProtos.VcfSlice.parseFrom(slice.toByteArray());
 
         LinkedHashMap<String, Integer> samplesPosition = variants.get(0).getStudies().get(0).getSamplesPosition();
         VcfSliceToVariantListConverter vcfSliceToVariantListConverter = new VcfSliceToVariantListConverter(samplesPosition, "", "");

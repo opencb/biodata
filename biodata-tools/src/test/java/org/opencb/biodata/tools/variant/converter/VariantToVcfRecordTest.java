@@ -8,12 +8,7 @@ import static org.junit.Assert.assertTrue;
 
 import htsjdk.variant.vcf.VCFConstants;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.junit.After;
 import org.junit.Before;
@@ -166,25 +161,25 @@ public class VariantToVcfRecordTest {
     @Test
     public void testDecodeSample() {
         VariantToProtoVcfRecord con = new VariantToProtoVcfRecord();
-        Map<String, String> data = new HashMap<>();
+        List<List<String>> data = new LinkedList<>();
 
-        data.put("A", "a");
+        data.add(Arrays.asList("a"));
+        Map<String, Integer> formatPositions = new HashMap<>();
+        formatPositions.put("A", 0);
+        formatPositions.put("B", 1);
         assertEquals(
-                new ArrayList<>(con.decodeSample(Arrays.asList("A", "B"), data).getSampleValuesList()),
-                Arrays.asList("a", ""));
-        assertNotEquals(
-                new ArrayList<>(con.decodeSample(Arrays.asList("A", "B"), data).getSampleValuesList()),
-                Collections.singletonList("a"));
+                new ArrayList<>(con.encodeSamples(formatPositions, data).get(0).getSampleValuesList()),
+                Arrays.asList("a"));
 
-        data.put("B", "b");
+        data.set(0, Arrays.asList("a", "b"));
         assertEquals(
-                new ArrayList<>(con.decodeSample(Arrays.asList("A", "B"), data).getSampleValuesList()),
+                new ArrayList<>(con.encodeSamples(formatPositions, data).get(0).getSampleValuesList()),
                 Arrays.asList("a", "b"));
 
-        data.put("C", "c");
+        data.set(0, Arrays.asList("a", "b", "c"));
         assertEquals(
-                new ArrayList<>(con.decodeSample(Arrays.asList("A", "B"), data).getSampleValuesList()),
-                Arrays.asList("a", "b"));
+                new ArrayList<>(con.encodeSamples(formatPositions, data).get(0).getSampleValuesList()),
+                Arrays.asList("a", "b", "c"));
 
     }
 

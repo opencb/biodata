@@ -30,6 +30,15 @@ public final class VcfSliceProtos {
      */
     com.google.protobuf.ByteString
         getSampleValuesBytes(int index);
+
+    /**
+     * <code>optional uint32 gt_index = 2;</code>
+     *
+     * <pre>
+     * GT is mandatory. Saving it separately can create a map of genotypes in Fields
+     * </pre>
+     */
+    int getGtIndex();
   }
   /**
    * Protobuf type {@code org.opencb.biodata.models.variant.protobuf.VcfSample}
@@ -44,6 +53,7 @@ public final class VcfSliceProtos {
     }
     private VcfSample() {
       sampleValues_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      gtIndex_ = 0;
     }
 
     @java.lang.Override
@@ -79,6 +89,11 @@ public final class VcfSliceProtos {
               sampleValues_.add(s);
               break;
             }
+            case 16: {
+
+              gtIndex_ = input.readUInt32();
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -106,6 +121,7 @@ public final class VcfSliceProtos {
               org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfSample.class, org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfSample.Builder.class);
     }
 
+    private int bitField0_;
     public static final int SAMPLE_VALUES_FIELD_NUMBER = 1;
     private com.google.protobuf.LazyStringList sampleValues_;
     /**
@@ -135,6 +151,19 @@ public final class VcfSliceProtos {
       return sampleValues_.getByteString(index);
     }
 
+    public static final int GT_INDEX_FIELD_NUMBER = 2;
+    private int gtIndex_;
+    /**
+     * <code>optional uint32 gt_index = 2;</code>
+     *
+     * <pre>
+     * GT is mandatory. Saving it separately can create a map of genotypes in Fields
+     * </pre>
+     */
+    public int getGtIndex() {
+      return gtIndex_;
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -150,6 +179,9 @@ public final class VcfSliceProtos {
       for (int i = 0; i < sampleValues_.size(); i++) {
         com.google.protobuf.GeneratedMessage.writeString(output, 1, sampleValues_.getRaw(i));
       }
+      if (gtIndex_ != 0) {
+        output.writeUInt32(2, gtIndex_);
+      }
     }
 
     public int getSerializedSize() {
@@ -164,6 +196,10 @@ public final class VcfSliceProtos {
         }
         size += dataSize;
         size += 1 * getSampleValuesList().size();
+      }
+      if (gtIndex_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeUInt32Size(2, gtIndex_);
       }
       memoizedSize = size;
       return size;
@@ -278,6 +314,8 @@ public final class VcfSliceProtos {
         super.clear();
         sampleValues_ = com.google.protobuf.LazyStringArrayList.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000001);
+        gtIndex_ = 0;
+
         return this;
       }
 
@@ -301,11 +339,14 @@ public final class VcfSliceProtos {
       public org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfSample buildPartial() {
         org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfSample result = new org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfSample(this);
         int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
         if (((bitField0_ & 0x00000001) == 0x00000001)) {
           sampleValues_ = sampleValues_.getUnmodifiableView();
           bitField0_ = (bitField0_ & ~0x00000001);
         }
         result.sampleValues_ = sampleValues_;
+        result.gtIndex_ = gtIndex_;
+        result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
@@ -330,6 +371,9 @@ public final class VcfSliceProtos {
             sampleValues_.addAll(other.sampleValues_);
           }
           onChanged();
+        }
+        if (other.getGtIndex() != 0) {
+          setGtIndex(other.getGtIndex());
         }
         onChanged();
         return this;
@@ -448,6 +492,44 @@ public final class VcfSliceProtos {
   checkByteStringIsUtf8(value);
         ensureSampleValuesIsMutable();
         sampleValues_.add(value);
+        onChanged();
+        return this;
+      }
+
+      private int gtIndex_ ;
+      /**
+       * <code>optional uint32 gt_index = 2;</code>
+       *
+       * <pre>
+       * GT is mandatory. Saving it separately can create a map of genotypes in Fields
+       * </pre>
+       */
+      public int getGtIndex() {
+        return gtIndex_;
+      }
+      /**
+       * <code>optional uint32 gt_index = 2;</code>
+       *
+       * <pre>
+       * GT is mandatory. Saving it separately can create a map of genotypes in Fields
+       * </pre>
+       */
+      public Builder setGtIndex(int value) {
+        
+        gtIndex_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional uint32 gt_index = 2;</code>
+       *
+       * <pre>
+       * GT is mandatory. Saving it separately can create a map of genotypes in Fields
+       * </pre>
+       */
+      public Builder clearGtIndex() {
+        
+        gtIndex_ = 0;
         onChanged();
         return this;
       }
@@ -2721,6 +2803,45 @@ public final class VcfSliceProtos {
      */
     com.google.protobuf.ByteString
         getFormatsBytes(int index);
+
+    /**
+     * <code>repeated string gts = 6;</code>
+     *
+     * <pre>
+     * Possible genotypes seen on the slice.
+     * Where the first GT is the default one
+     * </pre>
+     */
+    com.google.protobuf.ProtocolStringList
+        getGtsList();
+    /**
+     * <code>repeated string gts = 6;</code>
+     *
+     * <pre>
+     * Possible genotypes seen on the slice.
+     * Where the first GT is the default one
+     * </pre>
+     */
+    int getGtsCount();
+    /**
+     * <code>repeated string gts = 6;</code>
+     *
+     * <pre>
+     * Possible genotypes seen on the slice.
+     * Where the first GT is the default one
+     * </pre>
+     */
+    java.lang.String getGts(int index);
+    /**
+     * <code>repeated string gts = 6;</code>
+     *
+     * <pre>
+     * Possible genotypes seen on the slice.
+     * Where the first GT is the default one
+     * </pre>
+     */
+    com.google.protobuf.ByteString
+        getGtsBytes(int index);
   }
   /**
    * Protobuf type {@code org.opencb.biodata.models.variant.protobuf.Fields}
@@ -2738,6 +2859,7 @@ public final class VcfSliceProtos {
       defaultInfoKeys_ = java.util.Collections.emptyList();
       filters_ = com.google.protobuf.LazyStringArrayList.EMPTY;
       formats_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      gts_ = com.google.protobuf.LazyStringArrayList.EMPTY;
     }
 
     @java.lang.Override
@@ -2812,6 +2934,15 @@ public final class VcfSliceProtos {
               formats_.add(s);
               break;
             }
+            case 50: {
+              String s = input.readStringRequireUtf8();
+              if (!((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
+                gts_ = new com.google.protobuf.LazyStringArrayList();
+                mutable_bitField0_ |= 0x00000010;
+              }
+              gts_.add(s);
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -2832,6 +2963,9 @@ public final class VcfSliceProtos {
         }
         if (((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
           formats_ = formats_.getUnmodifiableView();
+        }
+        if (((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
+          gts_ = gts_.getUnmodifiableView();
         }
         makeExtensionsImmutable();
       }
@@ -2998,6 +3132,55 @@ public final class VcfSliceProtos {
       return formats_.getByteString(index);
     }
 
+    public static final int GTS_FIELD_NUMBER = 6;
+    private com.google.protobuf.LazyStringList gts_;
+    /**
+     * <code>repeated string gts = 6;</code>
+     *
+     * <pre>
+     * Possible genotypes seen on the slice.
+     * Where the first GT is the default one
+     * </pre>
+     */
+    public com.google.protobuf.ProtocolStringList
+        getGtsList() {
+      return gts_;
+    }
+    /**
+     * <code>repeated string gts = 6;</code>
+     *
+     * <pre>
+     * Possible genotypes seen on the slice.
+     * Where the first GT is the default one
+     * </pre>
+     */
+    public int getGtsCount() {
+      return gts_.size();
+    }
+    /**
+     * <code>repeated string gts = 6;</code>
+     *
+     * <pre>
+     * Possible genotypes seen on the slice.
+     * Where the first GT is the default one
+     * </pre>
+     */
+    public java.lang.String getGts(int index) {
+      return gts_.get(index);
+    }
+    /**
+     * <code>repeated string gts = 6;</code>
+     *
+     * <pre>
+     * Possible genotypes seen on the slice.
+     * Where the first GT is the default one
+     * </pre>
+     */
+    public com.google.protobuf.ByteString
+        getGtsBytes(int index) {
+      return gts_.getByteString(index);
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -3026,6 +3209,9 @@ public final class VcfSliceProtos {
       }
       for (int i = 0; i < formats_.size(); i++) {
         com.google.protobuf.GeneratedMessage.writeString(output, 5, formats_.getRaw(i));
+      }
+      for (int i = 0; i < gts_.size(); i++) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 6, gts_.getRaw(i));
       }
     }
 
@@ -3071,6 +3257,14 @@ public final class VcfSliceProtos {
         }
         size += dataSize;
         size += 1 * getFormatsList().size();
+      }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < gts_.size(); i++) {
+          dataSize += computeStringSizeNoTag(gts_.getRaw(i));
+        }
+        size += dataSize;
+        size += 1 * getGtsList().size();
       }
       memoizedSize = size;
       return size;
@@ -3191,6 +3385,8 @@ public final class VcfSliceProtos {
         bitField0_ = (bitField0_ & ~0x00000004);
         formats_ = com.google.protobuf.LazyStringArrayList.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000008);
+        gts_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000010);
         return this;
       }
 
@@ -3234,6 +3430,11 @@ public final class VcfSliceProtos {
           bitField0_ = (bitField0_ & ~0x00000008);
         }
         result.formats_ = formats_;
+        if (((bitField0_ & 0x00000010) == 0x00000010)) {
+          gts_ = gts_.getUnmodifiableView();
+          bitField0_ = (bitField0_ & ~0x00000010);
+        }
+        result.gts_ = gts_;
         onBuilt();
         return result;
       }
@@ -3286,6 +3487,16 @@ public final class VcfSliceProtos {
           } else {
             ensureFormatsIsMutable();
             formats_.addAll(other.formats_);
+          }
+          onChanged();
+        }
+        if (!other.gts_.isEmpty()) {
+          if (gts_.isEmpty()) {
+            gts_ = other.gts_;
+            bitField0_ = (bitField0_ & ~0x00000010);
+          } else {
+            ensureGtsIsMutable();
+            gts_.addAll(other.gts_);
           }
           onChanged();
         }
@@ -3750,6 +3961,145 @@ public final class VcfSliceProtos {
   checkByteStringIsUtf8(value);
         ensureFormatsIsMutable();
         formats_.add(value);
+        onChanged();
+        return this;
+      }
+
+      private com.google.protobuf.LazyStringList gts_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      private void ensureGtsIsMutable() {
+        if (!((bitField0_ & 0x00000010) == 0x00000010)) {
+          gts_ = new com.google.protobuf.LazyStringArrayList(gts_);
+          bitField0_ |= 0x00000010;
+         }
+      }
+      /**
+       * <code>repeated string gts = 6;</code>
+       *
+       * <pre>
+       * Possible genotypes seen on the slice.
+       * Where the first GT is the default one
+       * </pre>
+       */
+      public com.google.protobuf.ProtocolStringList
+          getGtsList() {
+        return gts_.getUnmodifiableView();
+      }
+      /**
+       * <code>repeated string gts = 6;</code>
+       *
+       * <pre>
+       * Possible genotypes seen on the slice.
+       * Where the first GT is the default one
+       * </pre>
+       */
+      public int getGtsCount() {
+        return gts_.size();
+      }
+      /**
+       * <code>repeated string gts = 6;</code>
+       *
+       * <pre>
+       * Possible genotypes seen on the slice.
+       * Where the first GT is the default one
+       * </pre>
+       */
+      public java.lang.String getGts(int index) {
+        return gts_.get(index);
+      }
+      /**
+       * <code>repeated string gts = 6;</code>
+       *
+       * <pre>
+       * Possible genotypes seen on the slice.
+       * Where the first GT is the default one
+       * </pre>
+       */
+      public com.google.protobuf.ByteString
+          getGtsBytes(int index) {
+        return gts_.getByteString(index);
+      }
+      /**
+       * <code>repeated string gts = 6;</code>
+       *
+       * <pre>
+       * Possible genotypes seen on the slice.
+       * Where the first GT is the default one
+       * </pre>
+       */
+      public Builder setGts(
+          int index, java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureGtsIsMutable();
+        gts_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string gts = 6;</code>
+       *
+       * <pre>
+       * Possible genotypes seen on the slice.
+       * Where the first GT is the default one
+       * </pre>
+       */
+      public Builder addGts(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureGtsIsMutable();
+        gts_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string gts = 6;</code>
+       *
+       * <pre>
+       * Possible genotypes seen on the slice.
+       * Where the first GT is the default one
+       * </pre>
+       */
+      public Builder addAllGts(
+          java.lang.Iterable<java.lang.String> values) {
+        ensureGtsIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, gts_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string gts = 6;</code>
+       *
+       * <pre>
+       * Possible genotypes seen on the slice.
+       * Where the first GT is the default one
+       * </pre>
+       */
+      public Builder clearGts() {
+        gts_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000010);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string gts = 6;</code>
+       *
+       * <pre>
+       * Possible genotypes seen on the slice.
+       * Where the first GT is the default one
+       * </pre>
+       */
+      public Builder addGtsBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        ensureGtsIsMutable();
+        gts_.add(value);
         onChanged();
         return this;
       }
@@ -5011,27 +5361,28 @@ public final class VcfSliceProtos {
   static {
     java.lang.String[] descriptorData = {
       "\n\017VcfRecord.proto\022*org.opencb.biodata.mo" +
-      "dels.variant.protobuf\032\rvariant.proto\"\"\n\t" +
-      "VcfSample\022\025\n\rsample_values\030\001 \003(\t\"\200\003\n\tVcf" +
-      "Record\022\026\n\016relative_start\030\001 \001(\005\022\024\n\014relati" +
-      "ve_end\030\002 \001(\005\022\021\n\treference\030\003 \001(\t\022\021\n\talter" +
-      "nate\030\004 \003(\t\022\017\n\007quality\030\005 \001(\002\022E\n\004type\030\014 \001(" +
-      "\01627.org.opencb.biodata.models.variant.pr" +
-      "otobuf.VariantType\022\014\n\004call\030\r \001(\t\022\024\n\014filt" +
-      "er_index\030\006 \001(\r\022\026\n\016id_non_default\030\007 \003(\t\022\032" +
-      "\n\016info_key_index\030\010 \003(\rB\002\020\001\022\022\n\ninfo_value",
-      "\030\t \003(\t\022\023\n\013formatIndex\030\n \001(\r\022F\n\007samples\030\013" +
-      " \003(\01325.org.opencb.biodata.models.variant" +
-      ".protobuf.VcfSample\"X\n\006Fields\022\021\n\tinfo_ke" +
-      "ys\030\001 \003(\t\022\031\n\021default_info_keys\030\002 \003(\r\022\017\n\007f" +
-      "ilters\030\003 \003(\t\022\017\n\007formats\030\005 \003(\t\"\274\001\n\010VcfSli" +
-      "ce\022\022\n\nchromosome\030\001 \001(\t\022\020\n\010position\030\002 \001(\r" +
-      "\022F\n\007records\030\003 \003(\01325.org.opencb.biodata.m" +
-      "odels.variant.protobuf.VcfRecord\022B\n\006fiel" +
-      "ds\030\004 \001(\01322.org.opencb.biodata.models.var" +
-      "iant.protobuf.FieldsB<\n*org.opencb.bioda",
-      "ta.models.variant.protobufB\016VcfSliceProt" +
-      "osb\006proto3"
+      "dels.variant.protobuf\032\rvariant.proto\"4\n\t" +
+      "VcfSample\022\025\n\rsample_values\030\001 \003(\t\022\020\n\010gt_i" +
+      "ndex\030\002 \001(\r\"\200\003\n\tVcfRecord\022\026\n\016relative_sta" +
+      "rt\030\001 \001(\005\022\024\n\014relative_end\030\002 \001(\005\022\021\n\trefere" +
+      "nce\030\003 \001(\t\022\021\n\talternate\030\004 \003(\t\022\017\n\007quality\030" +
+      "\005 \001(\002\022E\n\004type\030\014 \001(\01627.org.opencb.biodata" +
+      ".models.variant.protobuf.VariantType\022\014\n\004" +
+      "call\030\r \001(\t\022\024\n\014filter_index\030\006 \001(\r\022\026\n\016id_n" +
+      "on_default\030\007 \003(\t\022\032\n\016info_key_index\030\010 \003(\r",
+      "B\002\020\001\022\022\n\ninfo_value\030\t \003(\t\022\023\n\013formatIndex\030" +
+      "\n \001(\r\022F\n\007samples\030\013 \003(\01325.org.opencb.biod" +
+      "ata.models.variant.protobuf.VcfSample\"e\n" +
+      "\006Fields\022\021\n\tinfo_keys\030\001 \003(\t\022\031\n\021default_in" +
+      "fo_keys\030\002 \003(\r\022\017\n\007filters\030\003 \003(\t\022\017\n\007format" +
+      "s\030\005 \003(\t\022\013\n\003gts\030\006 \003(\t\"\274\001\n\010VcfSlice\022\022\n\nchr" +
+      "omosome\030\001 \001(\t\022\020\n\010position\030\002 \001(\r\022F\n\007recor" +
+      "ds\030\003 \003(\01325.org.opencb.biodata.models.var" +
+      "iant.protobuf.VcfRecord\022B\n\006fields\030\004 \001(\0132" +
+      "2.org.opencb.biodata.models.variant.prot",
+      "obuf.FieldsB<\n*org.opencb.biodata.models" +
+      ".variant.protobufB\016VcfSliceProtosb\006proto" +
+      "3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -5051,7 +5402,7 @@ public final class VcfSliceProtos {
     internal_static_org_opencb_biodata_models_variant_protobuf_VcfSample_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_org_opencb_biodata_models_variant_protobuf_VcfSample_descriptor,
-        new java.lang.String[] { "SampleValues", });
+        new java.lang.String[] { "SampleValues", "GtIndex", });
     internal_static_org_opencb_biodata_models_variant_protobuf_VcfRecord_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_org_opencb_biodata_models_variant_protobuf_VcfRecord_fieldAccessorTable = new
@@ -5063,7 +5414,7 @@ public final class VcfSliceProtos {
     internal_static_org_opencb_biodata_models_variant_protobuf_Fields_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_org_opencb_biodata_models_variant_protobuf_Fields_descriptor,
-        new java.lang.String[] { "InfoKeys", "DefaultInfoKeys", "Filters", "Formats", });
+        new java.lang.String[] { "InfoKeys", "DefaultInfoKeys", "Filters", "Formats", "Gts", });
     internal_static_org_opencb_biodata_models_variant_protobuf_VcfSlice_descriptor =
       getDescriptor().getMessageTypes().get(3);
     internal_static_org_opencb_biodata_models_variant_protobuf_VcfSlice_fieldAccessorTable = new

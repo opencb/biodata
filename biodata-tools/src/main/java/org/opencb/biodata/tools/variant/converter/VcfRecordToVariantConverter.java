@@ -71,7 +71,7 @@ public class VcfRecordToVariantConverter implements Converter<VcfSliceProtos.Vcf
         StudyEntry studyEntry = new StudyEntry(studyId);
         studyEntry.setFiles(Collections.singletonList(fileEntry));
         studyEntry.setFormat(getFormat(vcfRecord));
-        studyEntry.setSamplesData(getSamplesData(vcfRecord));
+        studyEntry.setSamplesData(getSamplesData(vcfRecord, studyEntry.getFormatPositions()));
         studyEntry.setSamplesPosition(samplePosition);
         if (alts.size() > 1) { // TODO check
             List<AlternateCoordinate> alternateCoordinates = new ArrayList<>(alts.size() - 1);
@@ -102,9 +102,25 @@ public class VcfRecordToVariantConverter implements Converter<VcfSliceProtos.Vcf
         return end;
     }
 
-    private List<List<String>> getSamplesData(VcfSliceProtos.VcfRecord vcfRecord) {
+    private List<List<String>> getSamplesData(VcfSliceProtos.VcfRecord vcfRecord, Map<String, Integer> formatPositions) {
         List<List<String>> samplesData = new ArrayList<>(vcfRecord.getSamplesCount());
-        vcfRecord.getSamplesList().forEach(vcfSample -> samplesData.add(vcfSample.getSampleValuesList()));
+        Integer gtPosition = formatPositions.get("GT");
+        if (gtPosition == null) {
+            for (VcfSliceProtos.VcfSample vcfSample : vcfRecord.getSamplesList()) {
+                samplesData.add(vcfSample.getSampleValuesList());
+            }
+        } else {
+            if (gtPosition != 0) {
+                throw new IllegalArgumentException("GT must be in the first position or missing");
+            }
+            for (VcfSliceProtos.VcfSample vcfSample : vcfRecord.getSamplesList()) {
+                List<String> data = new ArrayList<>(formatPositions.size());
+                data.add(fields.getGts(vcfSample.getGtIndex()));
+                data.addAll(vcfSample.getSampleValuesList());
+                samplesData.add(data);
+            }
+        }
+
         return samplesData;
     }
 

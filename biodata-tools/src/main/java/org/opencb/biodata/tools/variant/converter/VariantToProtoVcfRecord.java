@@ -42,6 +42,7 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
     private final Map<String, Integer> formatIndexMap = new HashMap<>();
     private final Map<String, Integer> filterIndexMap = new HashMap<>();
     private final Map<String, Integer> infoKeyIndexMap = new HashMap<>();
+    private final Map<String, Integer> gtIndexMap = new HashMap<>();
 
     private static final Set<String> IGNORED_KEYS = new HashSet<>();
 
@@ -66,6 +67,7 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
         listToMap(fields.getInfoKeysList(), this.infoKeyIndexMap);
         listToMap(fields.getFiltersList(), this.filterIndexMap);
         listToMap(fields.getFormatsList(), this.formatIndexMap);
+        listToMap(fields.getGtsList(), this.gtIndexMap);
 
     }
 
@@ -145,7 +147,7 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
 		/* FORMAT */
         setFormat(recordBuilder, study);
 
-        recordBuilder.addAllSamples(decodeSamples(study.getSamplesData()));
+        recordBuilder.addAllSamples(encodeSamples(study.getFormatPositions(), study.getSamplesData()));
 
         /* TYPE */
         recordBuilder.setType(getProtoVariantType(variant.getType()));
@@ -289,23 +291,29 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
         return fields.getFormats(0).equals(format);
     }
 
-    public List<VcfSample> decodeSamples(List<List<String>> samplesData) {
+    public List<VcfSample> encodeSamples(Map<String, Integer> formatPositions, List<List<String>> samplesData) {
         List<VcfSample> ret = new ArrayList<>(samplesData.size());
-        for (List<String> sampleData : samplesData) {
-            // samplesData should have fields in the same order than formatLst
-            ret.add(VcfSample.newBuilder().addAllSampleValues(sampleData).build());
+        Integer gtPosition = formatPositions.get("GT");
+        // samplesData should have fields in the same order than formatLst
+        if (gtPosition == null) {
+            for (List<String> sampleData : samplesData) {
+                ret.add(VcfSample.newBuilder().addAllSampleValues(sampleData).build());
+            }
+        } else {
+            if (gtPosition != 0) {
+                throw new IllegalArgumentException("GT must be in the first position or missing");
+            }
+            for (List<String> sampleData : samplesData) {
+                String gt = sampleData.get(gtPosition);
+                int gtIndex = gtIndexMap.get(gt);
+                ret.add(VcfSample.newBuilder().setGtIndex(gtIndex)
+                        .addAllSampleValues(sampleData.subList(1, sampleData.size())).build());
+            }
         }
 
         return ret;
     }
 
-    public VcfSample decodeSample(List<String> formatLst, Map<String, String> data) {
-        List<String> values = new ArrayList<>(formatLst.size());
-        for (String f : formatLst) {
-            values.add(data.getOrDefault(f, StringUtils.EMPTY).toString());
-        }
-        return VcfSample.newBuilder().addAllSampleValues(values).build();
-    }
 
     public static VariantProto.VariantType getProtoVariantType(VariantType type) {
         if (type == null) {

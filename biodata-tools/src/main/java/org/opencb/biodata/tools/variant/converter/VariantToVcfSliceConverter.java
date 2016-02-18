@@ -68,6 +68,7 @@ public class VariantToVcfSliceConverter implements Converter<List<Variant>, VcfS
         Map<String, Integer> keys = new HashMap<>();
         Map<String, Integer> formats = new HashMap<>();
         Map<List<String>, Integer> keySets = new HashMap<>();
+        Map<String, Integer> gts = new HashMap<>();
 
         for (Variant variant : variants) {
             for (StudyEntry studyEntry : variant.getStudies()) {
@@ -100,12 +101,22 @@ public class VariantToVcfSliceConverter implements Converter<List<Variant>, VcfS
                         }
                     }
                 }
+
+                Integer gtPosition = studyEntry.getFormatPositions().get("GT");
+                if (gtPosition != null) {
+                    for (List<String> sampleData : studyEntry.getSamplesData()) {
+                        String gt = sampleData.get(gtPosition);
+                        gts.put(gt, gts.getOrDefault(gt, 0) + 1);
+                    }
+                }
+
             }
         }
 
         addDefaultValues(filters, fieldsBuilder::addFilters);
         addDefaultValues(keys, fieldsBuilder::addInfoKeys);
         addDefaultValues(formats, fieldsBuilder::addFormats);
+        addDefaultValues(gts, fieldsBuilder::addGts);
 
         //Determine most common infoKeys list
         List<String> keySet = null;
