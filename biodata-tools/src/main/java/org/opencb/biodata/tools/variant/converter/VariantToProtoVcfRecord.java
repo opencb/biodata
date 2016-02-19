@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantVcfFactory;
+import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.protobuf.VariantProto;
@@ -91,30 +92,15 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
 
     public VcfRecord convertUsingSlicePosition(Variant variant, int slicePosition) {
         int relativeStart = variant.getStart() - slicePosition;
-        int relativeEnd = variant.getEnd() - slicePosition;
         Builder recordBuilder = VcfRecord.newBuilder()
                 // Warning: start and end can be at different chunks.
                 // Do not use getSliceOffset independently
                 .setRelativeStart(relativeStart)
+                .setReference(variant.getReference())
+                .setAlternate(variant.getAlternate())
                 .addAllIdNonDefault(encodeIds(variant.getIds()));
 
-        if (!variant.getReference().isEmpty()) {
-            recordBuilder.setReference(variant.getReference());
-        }
-        if (!variant.getAlternate().isEmpty()) {
-            recordBuilder.addAlternate(variant.getAlternate());
-        }
-
-        //Set end only if is different to the start position
-        if (relativeEnd != relativeStart) {
-            // If relativeEnd is 0, relativeStart is used instead.
-            // So, real 0 values must be used saved in a different way.
-            // Subtract one to all the relativeEnd lessOrEqual to 0.
-            if (relativeEnd <= 0) {
-                relativeEnd--;
-            }
-            recordBuilder.setRelativeEnd(relativeEnd);
-        } // else { relativeEnd = 0 }
+        recordBuilder.setRelativeEnd(getRelativeEnd(variant.getStart(), variant.getEnd(), slicePosition));
 
 		/* Get Study (one only expected  */
         List<StudyEntry> studies = variant.getStudies();
@@ -134,6 +120,22 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
         if (study.getFiles().size() > 1) {
             throw new UnsupportedOperationException(String.format("Only one File supported - found %s studies instead!!!", study.getFiles().size()));
         }
+
+        List<AlternateCoordinate> secondaryAlternates = study.getSecondaryAlternates();
+        if (secondaryAlternates != null) {
+            for (AlternateCoordinate alternate : secondaryAlternates) {
+                recordBuilder.addSecondaryAlternates(VariantProto.AlternateCoordinate
+                        .newBuilder()
+                        .setChromosome(alternate.getChromosome() != null? alternate.getChromosome() : "")
+                        .setStart(alternate.getStart() != null? alternate.getStart() : 0)
+                        .setEnd(alternate.getEnd() != null? alternate.getEnd() : 0)
+                        .setReference(alternate.getReference())
+                        .setAlternate(alternate.getAlternate())
+                        .setType(getProtoVariantType(alternate.getType()))
+                        .build());
+            }
+        }
+
         FileEntry file = study.getFiles().get(0);
         Map<String, String> attr = Collections.unmodifiableMap(file.getAttributes());   //DO NOT MODIFY
 
@@ -159,6 +161,21 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
 
         // TODO check all worked
         return recordBuilder.build();
+    }
+
+    private int getRelativeEnd(Integer start, Integer end, int slicePosition) {
+        int relativeEnd = 0;
+        //Set end only if is different to the start position
+        if (!end.equals(start)) {
+            relativeEnd = end - slicePosition;
+            // If relativeEnd is 0, relativeStart is used instead.
+            // So, real 0 values must be used saved in a different way.
+            // Subtract one to all the relativeEnd lessOrEqual to 0.
+            if (relativeEnd <= 0) {
+                relativeEnd--;
+            }
+        } // else { relativeEnd = 0 }
+        return relativeEnd;
     }
 
     private void setInfoKeyValues(Builder recordBuilder, Map<String, String> attr) {

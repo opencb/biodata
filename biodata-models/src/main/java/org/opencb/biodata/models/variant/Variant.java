@@ -155,6 +155,9 @@ public class Variant implements Serializable {
         if (this.getType() == VariantType.SNV || this.getType() == VariantType.SNP) { // Generate HGVS code only for SNVs
             List<String> hgvsCodes = new LinkedList<>();
             hgvsCodes.add(getChromosome() + ":g." + getStart() + getReference() + ">" + getAlternate());
+            if (impl.getHgvs() == null) {
+                impl.setHgvs(new HashMap<>());
+            }
             impl.getHgvs().put("genomic", hgvsCodes);
         }
     }

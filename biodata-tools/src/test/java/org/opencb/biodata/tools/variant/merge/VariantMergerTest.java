@@ -8,10 +8,12 @@ import org.junit.rules.ExpectedException;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.VariantNormalizer;
 import org.opencb.biodata.models.variant.VariantVcfFactory;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.VariantType;
+import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -432,11 +434,31 @@ public class VariantMergerTest {
     }
 
     public static Variant generateVariantWithFormat(String var, String filter, Float qual, Map<String, String> attributes, String format, String... samplesDataArray) {
+
+        List<String> secAlts = Collections.emptyList();
+        if (var.contains(",")) {
+            String[] split = var.split(",");
+            var = split[0];
+            secAlts = Arrays.asList(split).subList(1, split.length);
+        }
         Variant variant = new Variant(var);
+        variant.setIds(Collections.emptyList());
+        variant.setStrand("+");
+        variant.setHgvs(new HashMap<>());
+        variant.resetHGVS();
 
         attributes = new HashMap<>(attributes);
         attributes.put(VariantVcfFactory.FILTER, filter);
-        attributes.put(VariantVcfFactory.QUAL, qual == null ? "." : qual.toString());
+        String qualStr;
+        if (qual == null) {
+            qualStr = ".";
+        } else {
+            qualStr = qual.toString();
+            if (qualStr.endsWith(".0")) {
+                qualStr = qualStr.substring(0, qualStr.lastIndexOf(".0"));
+            }
+        }
+        attributes.put(VariantVcfFactory.QUAL, qualStr);
 
         List<List<String>> samplesData = new LinkedList<>();
         String[] formats = format.split(":");
@@ -450,7 +472,23 @@ public class VariantMergerTest {
             }
             samplesData.add(sampleData);
         }
-        return generateVariant(variant, variant.getType(), Arrays.asList(formats), samplesName, samplesData, attributes);
+        variant = generateVariant(variant, variant.getType(), Arrays.asList(formats), samplesName, samplesData, attributes);
+
+        if (!secAlts.isEmpty()) {
+            ArrayList<AlternateCoordinate> secondaryAlternates = new ArrayList<>(secAlts.size());
+            for (String secAlt : secAlts) {
+                secondaryAlternates.add(new AlternateCoordinate(variant.getChromosome(), variant.getStart(), variant.getEnd(),
+                        variant.getReference(), secAlt, variant.getType()));
+            }
+            variant.getStudies().get(0).setSecondaryAlternates(secondaryAlternates);
+            VariantNormalizer normalizer = new VariantNormalizer();
+            try {
+                variant = normalizer.normalize(Collections.singletonList(variant), true).get(0);
+            } catch (NonStandardCompliantSampleField e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return variant;
     }
 
     public static Variant generateVariant(String var, String... samplesData) {

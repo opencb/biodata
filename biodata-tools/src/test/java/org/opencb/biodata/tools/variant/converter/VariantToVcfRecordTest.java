@@ -89,7 +89,7 @@ public class VariantToVcfRecordTest {
 
         assertArrayEquals(rec.getIdNonDefaultList().toArray(), ids.toArray());
         assertEquals(ref, rec.getReference());
-        assertEquals(alt, rec.getAlternate(0));
+        assertEquals(alt, rec.getAlternate());
         assertEquals(65, rec.getRelativeStart());
         assertEquals(65 + 3, rec.getRelativeEnd());
         assertEquals(sampleList.size(), rec.getSamplesList().size());

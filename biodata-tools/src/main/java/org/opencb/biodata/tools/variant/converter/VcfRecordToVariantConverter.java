@@ -53,8 +53,7 @@ public class VcfRecordToVariantConverter implements Converter<VcfSliceProtos.Vcf
         int start = slicePosition + vcfRecord.getRelativeStart();
         int end = getRealEnd(slicePosition, start, vcfRecord.getRelativeEnd());
 
-        List<String> alts = vcfRecord.getAlternateList();
-        Variant variant = new Variant(chromosome, start, end, vcfRecord.getReference(), alts.isEmpty() ? "" : alts.get(0));
+        Variant variant = new Variant(chromosome, start, end, vcfRecord.getReference(), vcfRecord.getAlternate());
 
         variant.setType(getVariantType(vcfRecord.getType()));
         variant.setIds(vcfRecord.getIdNonDefaultList());
@@ -73,13 +72,8 @@ public class VcfRecordToVariantConverter implements Converter<VcfSliceProtos.Vcf
         studyEntry.setFormat(getFormat(vcfRecord));
         studyEntry.setSamplesData(getSamplesData(vcfRecord, studyEntry.getFormatPositions()));
         studyEntry.setSamplesPosition(samplePosition);
-        if (alts.size() > 1) { // TODO check
-            List<AlternateCoordinate> alternateCoordinates = new ArrayList<>(alts.size() - 1);
-            for (int i = 1; i < alts.size(); i++) {
-                alternateCoordinates.add(new AlternateCoordinate(null, null, null, null, alts.get(i), variant.getType()));
-            }
-            studyEntry.setSecondaryAlternates(alternateCoordinates);
-        }
+        List<VariantProto.AlternateCoordinate> alts = vcfRecord.getSecondaryAlternatesList();
+        studyEntry.setSecondaryAlternates(getAlternateCoordinates(alts));
         variant.addStudyEntry(studyEntry);
 
         return variant;
@@ -205,6 +199,23 @@ public class VcfRecordToVariantConverter implements Converter<VcfSliceProtos.Vcf
             case MIXED: return VariantType.MIXED;
             default: return VariantType.valueOf(type.name());
         }
+    }
+
+    private List<AlternateCoordinate> getAlternateCoordinates(List<VariantProto.AlternateCoordinate> alts) {
+        List<AlternateCoordinate> alternateCoordinates = new ArrayList<>(alts.size());
+        if (!alts.isEmpty()) {
+            for (VariantProto.AlternateCoordinate alt : alts) {
+                AlternateCoordinate alternateCoordinate = new AlternateCoordinate(
+                        alt.getChromosome().isEmpty() ? null : alt.getChromosome(),
+                        alt.getStart() == 0? null : alt.getStart(),
+                        alt.getEnd() == 0? null : alt.getEnd(),
+                        alt.getReference(),
+                        alt.getAlternate(),
+                        getVariantType(alt.getType()));
+                alternateCoordinates.add(alternateCoordinate);
+            }
+        }
+        return alternateCoordinates;
     }
 
     public VcfSliceProtos.Fields getFields() {

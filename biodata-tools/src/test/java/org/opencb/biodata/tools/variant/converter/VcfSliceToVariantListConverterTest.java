@@ -40,7 +40,11 @@ public class VcfSliceToVariantListConverterTest {
                 VariantMergerTest.generateVariantWithFormat("1:1005:A:C", "PASS", 102f,
                         toMap("K3", "V1", "K2", "V2"), "GT:X", "S1", "0/1", "1"),
                 VariantMergerTest.generateVariantWithFormat("1:1006:A:", "PASS:LowGQX", 102f,
-                        toMap("K1", "V1", "K5", "V2", "END", "1100"), "GT:T", "S1", "0/0", "1")
+                        toMap("K1", "V1", "K5", "V2", "END", "1100"), "GT:T", "S1", "0/0", "1"),
+                VariantMergerTest.generateVariantWithFormat("1:1106:T:C,TT", "PASS:LowGQX", 102f,
+                        toMap("K2", "V1", "K3", "V2"), "GT:T", "S1", "0/0", "1"),
+                VariantMergerTest.generateVariantWithFormat("1:1106:T:TT,C", "PASS:LowGQX", 102f,
+                        toMap("K2", "V1", "K3", "V2"), "GT:T", "S1", "0/0", "1")
         );
         variants.get(5).getStudy("").getFile("").getAttributes().put(VariantVcfFactory.QUAL, ".");
         variants.get(6).setType(VariantType.NO_VARIATION);
