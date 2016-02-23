@@ -165,9 +165,7 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
 
         FileEntry fileEntry = new FileEntry();
         fileEntry.setFileId(fileId);
-        fileEntry.setCall(variantContext.getStart()
-                + ":" + variantContext.getReference()
-                + ":" + StringUtils.join(alternateAlleleList, ","));
+        fileEntry.setCall("");
         Map<String, String> attributes = new HashMap<>();
         for (String key : variantContext.getAttributes().keySet()) {
             // Do not use "getAttributeAsString" for lists.
@@ -180,7 +178,9 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         }
 
         // QUAL
-        attributes.put(VariantVcfFactory.QUAL, Double.toString(variantContext.getPhredScaledQual()));
+        if (variantContext.getLog10PError() != VariantContext.NO_LOG10_PERROR) {
+            attributes.put(VariantVcfFactory.QUAL, Double.toString(variantContext.getPhredScaledQual()));
+        }
 
         // FILTER
         Set<String> filter = variantContext.getFilters();

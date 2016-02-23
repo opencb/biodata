@@ -107,6 +107,10 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                     alternates.addAll(entry.getSecondaryAlternatesAlleles());
 
                     List<VariantKeyFields> keyFieldsList = normalize(chromosome, start, reference, alternates);
+                    boolean sameVariant = keyFieldsList.size() == 1
+                            && keyFieldsList.get(0).getStart() == start
+                            && keyFieldsList.get(0).getReference().equals(reference)
+                            && keyFieldsList.get(0).getAlternate().equals(alternate);
                     for (VariantKeyFields keyFields : keyFieldsList) {
                         String call = start + ":" + reference + ":" + alternates.stream().collect(Collectors.joining(",")) + ":" + keyFields.getNumAllele();
 
@@ -121,7 +125,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                             variant.setReference(keyFields.getReference());
                             variant.setAlternate(keyFields.getAlternate());
                             normalizedEntry = entry;
-                            entry.getFiles().forEach(fileEntry -> fileEntry.setCall(call)); //TODO: Check file attributes
+                            entry.getFiles().forEach(fileEntry -> fileEntry.setCall(sameVariant ? "" : call)); //TODO: Check file attributes
                             samplesData = entry.getSamplesData();
                         } else {
                             normalizedVariant = newVariant(variant, keyFields);
@@ -133,7 +137,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
                             List<FileEntry> files = new ArrayList<>(entry.getFiles().size());
                             for (FileEntry file : entry.getFiles()) {
-                                files.add(new FileEntry(file.getFileId(), call, file.getAttributes())); //TODO: Check file attributes
+                                files.add(new FileEntry(file.getFileId(), sameVariant ? "" : call, file.getAttributes())); //TODO: Check file attributes
                             }
                             normalizedEntry.setFiles(files);
                             normalizedVariant.addStudyEntry(normalizedEntry);

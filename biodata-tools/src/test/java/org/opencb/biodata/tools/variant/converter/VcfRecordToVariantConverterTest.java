@@ -10,10 +10,7 @@ import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.protobuf.VcfMeta;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -27,6 +24,7 @@ public class VcfRecordToVariantConverterTest {
 
     private VcfRecordToVariantConverter converter;
     private VcfMeta meta;
+    private VcfSliceProtos.Fields fields;
 
     @Before
     public void setUp() throws Exception {
@@ -37,7 +35,29 @@ public class VcfRecordToVariantConverterTest {
         meta.setInfoDefault(Collections.singletonList("Key"));
         meta.setFilterDefault("PASS");
         meta.setIdDefault(".");
-        converter = new VcfRecordToVariantConverter(meta);
+
+        LinkedHashMap<String, Integer> samplePositions = new LinkedHashMap<>();
+        samplePositions.put("sample1", 0);
+        samplePositions.put("sample2", 1);
+        samplePositions.put("sample3", 2);
+        samplePositions.put("sample4", 3);
+
+        fields = VcfSliceProtos.Fields.newBuilder()
+                .addFormats("GT:DP")
+                .addFormats("GT")
+                .addFilters("PASS")
+                .addFilters("nopass")
+                .addInfoKeys("Key")
+                .addInfoKeys("Key1")
+                .addInfoKeys("Key2")
+                .addDefaultInfoKeys(0)
+                .addGts("0|0")
+                .addGts("0|1")
+                .addGts("1|0")
+                .addGts("1|1")
+                .build();
+
+        converter = new VcfRecordToVariantConverter(fields, samplePositions, meta.getVariantSource().getFileId(), meta.getVariantSource().getStudyId());
 
     }
 
@@ -45,12 +65,12 @@ public class VcfRecordToVariantConverterTest {
     public void testConvert() throws Exception {
 
         VariantToProtoVcfRecord toProto = new VariantToProtoVcfRecord();
-        toProto.updateVcfMeta(meta);
+        toProto.updateMeta(fields);
 
         Variant variant = new Variant("1", 5000, "A", "C");
         StudyEntry studyEntry = new StudyEntry();
         studyEntry.setFormat(Collections.singletonList("GT"));
-        studyEntry.setStudyId("study1");
+        studyEntry.setStudyId(meta.getVariantSource().getStudyId());
         studyEntry.setSamplesData(Arrays.asList(
                 Arrays.asList("0|0"),
                 Arrays.asList("0|1"),
@@ -62,13 +82,13 @@ public class VcfRecordToVariantConverterTest {
         attributes.put("Key1", "V1");
         attributes.put("Key2", "V2");
 
-        studyEntry.setFiles(Collections.singletonList(new FileEntry("chr1", "5:A:C:0", attributes)));
+        studyEntry.setFiles(Collections.singletonList(new FileEntry(meta.getVariantSource().getFileId(), "5:A:C:0", attributes)));
         variant.setStudies(Collections.singletonList(studyEntry));
 
         VcfSliceProtos.VcfRecord vcfRecord = toProto.convert(variant);
-        assertNotEquals(0, vcfRecord.getSampleFormatNonDefaultCount());
-        assertNotEquals("", vcfRecord.getFilterNonDefault());
-        assertEquals(2, vcfRecord.getInfoKeyCount());
+        assertNotEquals(0, vcfRecord.getFormatIndex());
+        assertNotEquals("", vcfRecord.getFilterIndex());
+        assertEquals(2, vcfRecord.getInfoKeyIndexCount());
         Variant convertedVariant = converter.convert(vcfRecord, "1", 0);
 
         assertEquals(variant, convertedVariant);
@@ -78,7 +98,7 @@ public class VcfRecordToVariantConverterTest {
     public void testConvertDefaultValues() throws Exception {
 
         VariantToProtoVcfRecord toProto = new VariantToProtoVcfRecord();
-        toProto.updateVcfMeta(meta);
+        toProto.updateMeta(fields);
 
         Variant variant = new Variant("1", 5, "A", "C");
         StudyEntry studyEntry = new StudyEntry();
@@ -98,9 +118,9 @@ public class VcfRecordToVariantConverterTest {
         variant.setStudies(Collections.singletonList(studyEntry));
 
         VcfSliceProtos.VcfRecord vcfRecord = toProto.convert(variant, 100);
-        assertEquals(0, vcfRecord.getSampleFormatNonDefaultCount());
-        assertEquals("", vcfRecord.getFilterNonDefault());
-        assertEquals(0, vcfRecord.getInfoKeyCount());
+        assertEquals(0, vcfRecord.getFormatIndex());
+        assertEquals(0, vcfRecord.getFilterIndex());
+        assertEquals(0, vcfRecord.getInfoKeyIndexCount());
         assertEquals(5, vcfRecord.getRelativeStart());
         Variant convertedVariant = converter.convert(vcfRecord, "1", 0);
 
