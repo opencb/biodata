@@ -96,6 +96,10 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                         studyEntry.setSamplesData(
                                 Collections.singletonList(Collections.singletonList(keyFields.getPhaseSet())));
                         studyEntry.setFormat(Collections.singletonList("PS"));
+                        // Use mnv string as file Id so that it can be later identified. It is also used
+                        // as the genotype call since we don't have an actual call and to avoid confusion
+                        String mnvId = chromosome + ":" + start + ":" + reference + ":" + alternate;
+                        studyEntry.setFiles(Collections.singletonList(new FileEntry(mnvId, mnvId, null)));
                         normalizedVariant.setStudies(Collections.singletonList(studyEntry));
                     }
                     normalizedVariants.add(normalizedVariant);
@@ -154,6 +158,15 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                             normalizedEntry.setSamplesData(normalizedSamplesData);
                             if (keyFields.getPhaseSet() != null) {
                                 normalizedEntry.getFormat().add("PS");
+                                // If no files are provided one must be created to ensure genotype calls are the same
+                                // for all mnv-phased variants
+                                if (normalizedEntry.getFiles().size() == 0) {
+                                    // Use mnv string as file Id so that it can be later identified. It is also used
+                                    // as the genotype call since we don't have an actual call and to avoid confusion
+                                    String mnvId = chromosome + ":" + keyFields.getStart() + ":"
+                                            + keyFields.getReference() + ":" + keyFields.getAlternate();
+                                    normalizedEntry.setFiles(Collections.singletonList(new FileEntry(mnvId, mnvId, null)));
+                                }
                             }
                             normalizedVariants.add(normalizedVariant);
                         } catch (Exception e) {
