@@ -8,6 +8,7 @@ import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleFi
 import org.opencb.commons.test.GenericTest;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
@@ -118,6 +119,15 @@ public class VariantNormalizerTest extends GenericTest {
                 new VariantNormalizer.VariantKeyFields(101, 104, 1, "", "CCTT")));
     }
 
+    @Test
+    public void testNormalizeMultiAllelicMultipleDeletionsAndInsertions() throws NonStandardCompliantSampleField {
+        testSampleNormalization(681, "TACACACACAC", "TACACACACACAC,TACAC,TACACAC,TACACACAC,TAC", Arrays.asList(
+                new VariantNormalizer.VariantKeyFields(682, 683, 0, "", "AC"),
+                new VariantNormalizer.VariantKeyFields(682, 687, 1, "ACACAC", ""),
+                new VariantNormalizer.VariantKeyFields(682, 685, 2, "ACAC", ""),
+                new VariantNormalizer.VariantKeyFields(682, 683, 3, "AC", ""),
+                new VariantNormalizer.VariantKeyFields(682, 689, 4, "ACACACAC", "")));
+    }
 
     private void testSampleNormalization(int position, String ref, String alt,
                                          int normPos, String normRef, String normAlt)
@@ -181,6 +191,7 @@ public class VariantNormalizerTest extends GenericTest {
             for (AlternateCoordinate alternate : v.getStudy(studyId).getSecondaryAlternates()) {
                 assertNotNull(alternate);
             }
+            assertEquals(expectedKeyFieldsList.size() - 1, v.getStudy(studyId).getSecondaryAlternates().size());
         }
 
         List<VariantNormalizer.VariantKeyFields> keyFieldsList = normalizer.normalize(position, ref, altsList);
