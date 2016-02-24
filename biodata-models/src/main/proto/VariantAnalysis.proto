@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package org.opencb.biodata.models.variant.protobuf;
+option java_package = "org.opencb.biodata.models.variant.protobuf";
+option java_outer_classname = "VariantAnalysisProtos";
+
+import "variant.proto";
+
+/**
+** Mapping a ComplexGenotype to an individual (sample index)
+**/
+message ComplexVariant {
+    repeated AlternateCoordinate secondaryAlternates = 1;
+    map<int32, Genotype> sampleToGenotype = 2;
+}
