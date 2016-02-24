@@ -3,39 +3,66 @@ package org.opencb.biodata.models.variant.protobuf;
 option java_package = "org.opencb.biodata.models.variant.protobuf";
 option java_outer_classname = "VcfSliceProtos";
 import "variant.proto";
-// CHROM  POS     ID      REF     ALT     QUAL    FILTER  INFO  FORMAT  [SAMPLE]
-
 
 message VcfSample {
   repeated string sample_values = 1;
+
+  // GT is mandatory. Saving it separately can create a map of genotypes in Fields
+  uint32 gt_index = 2;
 }
 
-// TODO what's in the case of 1/2 
 message VcfRecord {
-  uint32 relative_start = 1; // 1 based 
-  uint32 relative_end = 2;
+  // 1 based
+  // May contain negative values but it's not likely
+  int32 relative_start = 1;
+  // May contain negative values but it's not likely
+  int32 relative_end = 2;
+
   string reference = 3; 
-  repeated string alternate = 4;
-  string quality = 5;
+  string alternate = 4;
+  float quality = 5;
 
   VariantType type = 12;
   string call = 13;
 
-  string filter_non_default = 6;
+  uint32 filter_index = 6;
   repeated string id_non_default = 7;
-  
-  repeated string info_key = 8;
+
+  repeated uint32 info_key_index = 8 [packed=true];
   repeated string info_value = 9;
   
-  repeated string sample_format_non_default = 10;
+  uint32 formatIndex = 10;
   repeated VcfSample samples = 11;
-  
+
+  repeated AlternateCoordinate secondaryAlternates = 14;
+
+}
+
+message Fields {
+  repeated string info_keys = 1;
+  repeated uint32 default_info_keys = 2;
+
+  // Possible filter compositions. Delimited by ';'
+  // Where the first filter is the default one
+  repeated string filters = 3;
+
+  // Possible formats compositions. Delimited by ':'
+  // Where the first format is the default one
+  repeated string formats = 5;
+
+  // Possible genotypes seen on the slice.
+  // Where the first GT is the default one
+  repeated string gts = 6;
+
 }
 
 message VcfSlice {
   string chromosome = 1;
   uint32 position = 2;
   repeated VcfRecord records = 3; // List of records (lines)
-// VcfMeta metadata = 4; 
+// VcfMeta metadata = 4;
+
+  Fields fields = 4;
+
 }
 

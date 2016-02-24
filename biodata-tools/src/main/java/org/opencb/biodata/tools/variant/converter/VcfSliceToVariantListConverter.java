@@ -1,12 +1,15 @@
 package org.opencb.biodata.tools.variant.converter;
 
+import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantSource;
 import org.opencb.biodata.models.variant.protobuf.VcfMeta;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created on 05/11/15
@@ -15,18 +18,36 @@ import java.util.List;
  */
 public class VcfSliceToVariantListConverter implements Converter<VcfSliceProtos.VcfSlice, List<Variant>> {
 
-    private final VcfRecordToVariantConverter recordConverter;
+    private VcfMeta meta;
+    private LinkedHashMap<String, Integer> samplesPosition;
+    private String fileId;
+    private String studyId;
 
     public VcfSliceToVariantListConverter(VcfMeta meta) {
-        this.recordConverter = new VcfRecordToVariantConverter(meta);
+        this.meta = meta;
+        samplesPosition = StudyEntry.sortSamplesPositionMap(meta.getVariantSource().getSamplesPosition());
+        fileId = meta.getVariantSource().getFileId();
+        studyId = meta.getVariantSource().getStudyId();
     }
 
     public VcfSliceToVariantListConverter(VariantSource source) {
-        this.recordConverter = new VcfRecordToVariantConverter(new VcfMeta(source));
+        meta = new VcfMeta(source);
+        samplesPosition = StudyEntry.sortSamplesPositionMap(meta.getVariantSource().getSamplesPosition());
+        fileId = meta.getVariantSource().getFileId();
+        studyId = meta.getVariantSource().getStudyId();
+    }
+
+    public VcfSliceToVariantListConverter(Map<String, Integer> samplesPosition, String fileId, String studyId) {
+        this.samplesPosition = StudyEntry.sortSamplesPositionMap(samplesPosition);
+        this.fileId = fileId;
+        this.studyId = studyId;
     }
 
     @Override
     public List<Variant> convert(VcfSliceProtos.VcfSlice vcfSlice) {
+
+        VcfRecordToVariantConverter recordConverter = new VcfRecordToVariantConverter(vcfSlice.getFields(),
+                samplesPosition, fileId, studyId);
 
         List<Variant> variants = new ArrayList<>(vcfSlice.getRecordsCount());
         for (VcfSliceProtos.VcfRecord vcfRecord : vcfSlice.getRecordsList()) {
@@ -35,4 +56,5 @@ public class VcfSliceToVariantListConverter implements Converter<VcfSliceProtos.
 
         return variants;
     }
+
 }
