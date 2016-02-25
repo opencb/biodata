@@ -106,7 +106,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                 }
             } else {
                 for (StudyEntry entry : variant.getStudies()) {
-                    List<String> alternates = new ArrayList<>(1 + entry.getSecondaryAlternatesAlleles().size());
+                    List<String> alternates = new ArrayList<>(1 + entry.getSecondaryAlternates().size());
                     alternates.add(alternate);
                     alternates.addAll(entry.getSecondaryAlternatesAlleles());
 
@@ -533,7 +533,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         } else {
             secondaryAlternates = new ArrayList<>(alternates.size() - 1);
             for (VariantKeyFields keyFields : alternates) {
-                if (!keyFields.getAlternate().equals(alternate.getAlternate())) {
+                if (!keyFields.equals(alternate)) {
                     secondaryAlternates.add(new AlternateCoordinate(
                             // Chromosome is always the same, do not set
                             null,

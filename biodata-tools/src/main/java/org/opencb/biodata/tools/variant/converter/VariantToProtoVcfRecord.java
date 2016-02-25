@@ -129,8 +129,8 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
                         .setChromosome(alternate.getChromosome() != null? alternate.getChromosome() : "")
                         .setStart(alternate.getStart() != null? alternate.getStart() : 0)
                         .setEnd(alternate.getEnd() != null? alternate.getEnd() : 0)
-                        .setReference(alternate.getReference())
-                        .setAlternate(alternate.getAlternate())
+                        .setReference(alternate.getReference() != null? alternate.getReference() : "")
+                        .setAlternate(alternate.getAlternate() != null? alternate.getAlternate() : "")
                         .setType(getProtoVariantType(alternate.getType()))
                         .build());
             }
@@ -139,7 +139,11 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
         FileEntry file = study.getFiles().get(0);
         Map<String, String> attr = Collections.unmodifiableMap(file.getAttributes());   //DO NOT MODIFY
 
-        recordBuilder.setCall(file.getCall());
+        if ( !variant.getType().equals(VariantType.NO_VARIATION)
+                && file.getCall() != null && !file.getCall().isEmpty()
+                && !file.getCall().equals(variant.toString() + ":0" ) ) {
+            recordBuilder.setCall(file.getCall());
+        }
 
 		/* Filter */
         int filter = encodeFilter(attr.get(VariantVcfFactory.FILTER));
