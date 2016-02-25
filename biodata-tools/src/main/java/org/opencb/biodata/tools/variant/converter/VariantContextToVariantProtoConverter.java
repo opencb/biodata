@@ -26,7 +26,6 @@ import org.opencb.biodata.models.variant.protobuf.VariantAnnotationProto.Consequ
 import org.opencb.biodata.models.variant.protobuf.VariantAnnotationProto.ProteinVariantAnnotation;
 import org.opencb.biodata.models.variant.protobuf.VariantProto;
 import org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate;
-import org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate.Builder;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -342,7 +341,7 @@ public class VariantContextToVariantProtoConverter implements Converter<VariantC
         variantTraitAssociation.addAllClinvar(Arrays.asList());
         variantTraitAssociation.addAllCosmic(Arrays.asList());
         variantTraitAssociation.addAllGwas(Arrays.asList());
-        variantAnnotation.setVariantTraitAssociation(variantTraitAssociation);
+        variantAnnotation.setTraitAssociation(variantTraitAssociation);
 
         /*
          * set ConsequenceTypes list type parameter

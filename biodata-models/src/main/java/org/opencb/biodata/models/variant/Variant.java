@@ -22,7 +22,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.variant.avro.VariantAnnotation;
 import org.opencb.biodata.models.variant.avro.VariantAvro;
 import org.opencb.biodata.models.variant.avro.VariantType;
-import org.opencb.biodata.models.variant.protobuf.VariantProto;
 
 import java.io.Serializable;
 import java.util.*;
