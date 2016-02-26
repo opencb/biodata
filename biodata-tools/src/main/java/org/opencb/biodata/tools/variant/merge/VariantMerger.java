@@ -22,7 +22,7 @@ import org.opencb.biodata.models.variant.avro.VariantType;
  */
 public class VariantMerger {
 
-    private static final String VCF_FILTER = VariantVcfFactory.FILTER;
+    public static final String VCF_FILTER = VariantVcfFactory.FILTER;
     public static final String GT_KEY = "GT";
     public static final String PASS_KEY = "PASS";
 //    public static final String CALL_KEY = "CALL";
@@ -102,11 +102,11 @@ public class VariantMerger {
         List<List<String>> sd = se.getSamplesData();
         for(String sn : se.getSamplesName()){
             Integer pos = se.getSamplesPosition().get(sn);
-            if(pos >= sd.size()){
+            if (pos >= sd.size()) {
                 sb.append(sn).append(":S;");
-            } else if(null == sd.get(pos) || sd.get(pos).size() < 1) {
+            } else if (null == sd.get(pos) || sd.get(pos).size() < 1) {
                 sb.append(sn).append(":G;");
-            } else{
+            } else {
                 String gt = sd.get(pos).get(0); // GT
                 sb.append(sn).append(":").append(gt).append(";");
             }
@@ -236,15 +236,23 @@ public class VariantMerger {
         }
     }
 
-    private Map<String,String> sampleToAttribute(Variant var, String key){
+    private Map<String, String> sampleToAttribute(Variant var, String key){
+        StudyEntry se = getStudy(var);
+        String value = se.getFiles().get(0).getAttributes().getOrDefault(key, "");
+        if (StringUtils.isBlank(value)) {
+            return Collections.emptyMap();
+        }
+        return se.getSamplesName().stream().collect(Collectors.toMap(e -> e, e -> value));
+    }
+    
+    private Map<String, String> sampleToSampleData(Variant var, String key){
         StudyEntry se = getStudy(var);
         return se.getSamplesName().stream()
                 .filter(e -> StringUtils.isNotBlank(se.getSampleData(e, key))) // check for NULL or empty string
-                .collect(Collectors.toMap(e -> e, e -> se.getSampleData(e,key)));
+                .collect(Collectors.toMap(e -> e, e -> se.getSampleData(e, key)));
     }
-    
     private Map<String, String> sampleToGt(Variant load) {
-        return sampleToAttribute(load, GT_KEY);
+        return sampleToSampleData(load, GT_KEY);
     }
 
     StudyEntry getStudy(Variant load) {
