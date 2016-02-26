@@ -505,5 +505,27 @@ public class Variant implements Serializable {
     public boolean onSameRegion (Variant other){
         return onSameStartPosition(other) && this.getEnd().equals(other.getEnd());
     }
+
+    /**
+     * Return all VariantTypes subtypes given a VariantType.
+     * {@link VariantType} represents a hierarchical structure where SNV includes all SNP, MNV includes MNP
+     * and SV includes  INSERTION, DELETION, TRANSLOCATION, INVERSION and CNV
+     *
+     * @param variantType   Variant Type
+     * @return  Set of subtypes
+     */
+    public static Set<VariantType> subTypes(VariantType variantType) {
+        if(variantType.equals(VariantType.SNV)) {
+            return Collections.singleton(VariantType.SNP);
+        } else if (variantType.equals(VariantType.MNV)) {
+            return Collections.singleton(VariantType.MNP);
+        } else if (variantType.equals(VariantType.SV)) {
+            return EnumSet.of(VariantType.INSERTION, VariantType.DELETION,
+                    VariantType.TRANSLOCATION, VariantType.INVERSION, VariantType.CNV);
+        } else {
+            return Collections.emptySet();
+        }
+    }
+
 }
 

@@ -106,7 +106,13 @@ public class VariantVcfFactory implements VariantFactory {
                 parseSplitSampleData(entry, source, fields, reference, alternateAlleles, keyFields);
                 // Fill the rest of fields (after samples because INFO depends on them)
                 setOtherFields(variant, source, ids, quality, filter, info, format, keyFields.getNumAllele(), alternateAlleles, line);
-                entry.getFile(source.getFileId()).setCall(fields[1] + ":" + fields[3] + ":" + fields[4] + ":" + keyFields.getNumAllele());
+                if (alternateAlleles.length > 1
+                        || keyFields.getStart() != variant.getStart()
+                        || keyFields.getEnd() != variant.getEnd()
+                        || !Objects.equals(keyFields.getAlternate(), variant.getAlternate())
+                        || !Objects.equals(keyFields.getReference(), variant.getReference())) {
+                    entry.getFile(source.getFileId()).setCall(fields[1] + ":" + fields[3] + ":" + fields[4] + ":" + keyFields.getNumAllele());
+                }
                 variants.add(variant);
             } catch (NonStandardCompliantSampleField ex) {
                 Logger.getLogger(VariantFactory.class.getName()).log(Level.SEVERE,
