@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package protobuf.core;
+
+option java_package = "org.opencb.biodata.models.core.protobuf";
+option java_outer_classname = "RegulatoryRegionModel";
+option java_generate_equals_and_hash = true;
+//option java_multiple_files = true;
+
+message RegulatoryRegion {
+    string id = 1;
+    string chromosome = 2;
+    string source = 3;
+    string feature_type = 4;
+    int32 start = 5;
+    int32 end = 6;
+    string score = 7;
+    string strand = 8;
+    string frame = 9;
+    string item_r_g_b = 10;
+    string name = 11;
+    string feature_class = 12;
+    string alias = 13;
+    repeated string cell_types = 14;
+    string matrix = 15;
+}

@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package protobuf.variant.service;
+
+option java_package = "org.opencb.biodata.models.variant.protobuf.service";
+option java_outer_classname = "VariantServiceModel";
+
+import "protobuf/variant/variant.proto";
+import "protobuf/common/service_types.proto";
+
+service VariantService {
+
+    rpc count(Request) returns (LongResponse) {}
+
+    rpc distinct(Request) returns (StringArrayResponse) {}
+
+    rpc first(Request) returns (Variant) {}
+
+    rpc next(Request) returns (Variant) {}
+
+    rpc get(Request) returns (stream Variant) {}
+
+    rpc groupBy(Request) returns (GroupResponse) {}
+
+}

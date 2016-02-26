@@ -52,6 +52,11 @@
             <artifactId>protobuf-java</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-all</artifactId>
+            <version>0.13.1</version>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
@@ -136,28 +141,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--<plugin>-->
-                <!--<artifactId>maven-antrun-plugin</artifactId>-->
-                <!--<version>1.8</version>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<id>install-app</id>-->
-                        <!--<phase>install</phase>-->
-                        <!--<configuration>-->
-                            <!--<target>-->
-                                <!--<echo>Moving protobuf generated classes</echo>-->
-                                <!--<exec executable="mv">-->
-                                    <!--<arg value="target/generated-sources/protobuf/java"/>-->
-                                    <!--<arg value="/tmp/"/>-->
-                                <!--</exec>-->
-                            <!--</target>-->
-                        <!--</configuration>-->
-                        <!--<goals>-->
-                            <!--<goal>run</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-            <!--</plugin>-->
         </plugins>
         <pluginManagement>
             <plugins>

@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package protobuf.core.service;
+
+option java_package = "org.opencb.biodata.models.core.protobuf.service";
+option java_outer_classname = "TranscriptServiceModel";
+
+import "protobuf/core/transcript.proto";
+import "protobuf/common/service_types.proto";
+
+service TranscriptService {
+
+    rpc count(Request) returns (LongResponse) {}
+
+    rpc distinct(Request) returns (StringArrayResponse) {}
+
+    rpc first(Request) returns (Transcript) {}
+
+    rpc next(Request) returns (Transcript) {}
+
+    rpc get(Request) returns (stream Transcript) {}
+
+    rpc groupBy(Request) returns (GroupResponse) {}
+
+}

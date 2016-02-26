@@ -1,7 +1,11 @@
 syntax = "proto3";
 
-package org.opencb.biodata.models.core.protobuf;
+package protobuf.core;
+
+option java_package = "org.opencb.biodata.models.core.protobuf";
 option java_outer_classname = "TranscriptModel";
+option java_generate_equals_and_hash = true;
+//option java_multiple_files = true;
 
 message Xref {
 	string id = 1;
