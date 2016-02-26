@@ -157,19 +157,13 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                             try {
                                 if (keyFields.getPhaseSet() != null) {
                                     normalizedEntry.addFormat("PS");
-                                    // Use mnv string as file Id so that it can be later identified. It is also used
-                                    // as the genotype call since we don't have an actual call and to avoid confusion
-                                    String mnvId = chromosome + ":" + keyFields.getStart() + ":"
-                                            + keyFields.getReference() + ":" + keyFields.getAlternate();
                                     // If no files are provided one must be created to ensure genotype calls are the same
                                     // for all mnv-phased variants
                                     if (normalizedEntry.getFiles().size() == 0) {
-                                        normalizedEntry.setFiles(Collections.singletonList(new FileEntry(mnvId, mnvId, null)));
-                                    }
-                                    // If no sample data are provided one must be created to ensure a place were to set
-                                    // the correct phaseset - phaseset will be set below by "normalizeSamplesData"
-                                    if (entry.getSamplesData().size() == 0) {
-                                        entry.addSampleData(mnvId, Collections.singletonList(keyFields.getPhaseSet()));
+                                        // Use mnv string as file Id so that it can be later identified.
+                                        String mnvId = chromosome + ":" + keyFields.getStart() + ":"
+                                                + keyFields.getReference() + ":" + keyFields.getAlternate();
+                                        normalizedEntry.setFiles(Collections.singletonList(new FileEntry(mnvId, call, null)));
                                     }
                                 }
                                 List<List<String>> normalizedSamplesData = normalizeSamplesData(keyFields,
@@ -439,88 +433,93 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             alleleIdx++;
         }
 
+        // Normalizing an mnv and no sample data was provided in the original variant - need to create sample data to
+        // indicate the phase set
+        if (variantKeyFields.getPhaseSet() != null && samplesData.size() == 0) {
+            newSampleData.add(Collections.singletonList(variantKeyFields.getPhaseSet()));
+        } else {
+            for (int sampleIdx = 0; sampleIdx < samplesData.size(); sampleIdx++) {
+                List<String> sampleData = samplesData.get(sampleIdx);
 
-        for (int sampleIdx = 0; sampleIdx < samplesData.size(); sampleIdx++) {
-            List<String> sampleData = samplesData.get(sampleIdx);
+                // TODO we could check that format and sampleData sizes are equals
+                //            if (sampleData.size() == 1 && sampleData.get(0).equals(".")) {
+                //                newSampleData.get(sampleIdx).set(0, "./.");
+                //                System.out.println("Format data equals '.'");
+                //                continue;
+                //            }
 
-            // TODO we could check that format and sampleData sizes are equals
-//            if (sampleData.size() == 1 && sampleData.get(0).equals(".")) {
-//                newSampleData.get(sampleIdx).set(0, "./.");
-//                System.out.println("Format data equals '.'");
-//                continue;
-//            }
+                for (int formatFieldIdx = 0; formatFieldIdx < format.size(); formatFieldIdx++) {
+                    String formatField = format.get(formatFieldIdx);
+                    String sampleField = sampleData.get(formatFieldIdx);
 
-            for (int formatFieldIdx = 0; formatFieldIdx < format.size(); formatFieldIdx++) {
-                String formatField = format.get(formatFieldIdx);
-                String sampleField = sampleData.get(formatFieldIdx);
+                    if (formatField.equalsIgnoreCase("GT")) {
+                        // Save alleles just in case they are necessary for GL/PL/GP transformation
+                        // Use the original alternates to create the genotype.
+                        genotype = new Genotype(sampleField, reference, alternateAlleles);
 
-                if (formatField.equalsIgnoreCase("GT")) {
-                    // Save alleles just in case they are necessary for GL/PL/GP transformation
-                    // Use the original alternates to create the genotype.
-                    genotype = new Genotype(sampleField, reference, alternateAlleles);
+                        StringBuilder genotypeStr = new StringBuilder();
 
-                    StringBuilder genotypeStr = new StringBuilder();
-
-                    int[] allelesIdx;
-                    if (normalizeAlleles && !genotype.isPhased()) {
-                        allelesIdx = genotype.getNormalizedAllelesIdx();
-                    } else {
-                        allelesIdx = genotype.getAllelesIdx();
-                    }
-                    for (int i = 0; i < allelesIdx.length; i++) {
-                        int allele = allelesIdx[i];
-                        if (allele < 0) { // Missing
-                            genotypeStr.append(".");
+                        int[] allelesIdx;
+                        if (normalizeAlleles && !genotype.isPhased()) {
+                            allelesIdx = genotype.getNormalizedAllelesIdx();
                         } else {
-                            // Replace numerical indexes when they refer to another alternate allele
-                            genotypeStr.append(secondaryAlternatesMap[allele]);
+                            allelesIdx = genotype.getAllelesIdx();
                         }
-                        if (i < allelesIdx.length - 1) {
-                            genotypeStr.append(genotype.isPhased() ? "|" : "/");
+                        for (int i = 0; i < allelesIdx.length; i++) {
+                            int allele = allelesIdx[i];
+                            if (allele < 0) { // Missing
+                                genotypeStr.append(".");
+                            } else {
+                                // Replace numerical indexes when they refer to another alternate allele
+                                genotypeStr.append(secondaryAlternatesMap[allele]);
+                            }
+                            if (i < allelesIdx.length - 1) {
+                                genotypeStr.append(genotype.isPhased() ? "|" : "/");
+                            }
+                        }
+                        sampleField = genotypeStr.toString();
+
+                    } else if (formatField.equalsIgnoreCase("GL")
+                            || formatField.equalsIgnoreCase("PL")
+                            || formatField.equalsIgnoreCase("GP")) {
+                        // All-alleles present and not haploid
+                        if (!sampleField.equals(".") && genotype != null
+                                && (genotype.getCode() == AllelesCode.ALLELES_OK
+                                || genotype.getCode() == AllelesCode.MULTIPLE_ALTERNATES)) {
+                            String[] likelihoods = sampleField.split(",");
+
+                            // If only 3 likelihoods are represented, no transformation is needed
+                            if (likelihoods.length > 3) {
+                                // Get alleles index to work with: if both are the same alternate,
+                                // the combinations must be run with the reference allele.
+                                // Otherwise all GL reported would be alt/alt.
+                                int allele1 = genotype.getAllele(0);
+                                int allele2 = genotype.getAllele(1);
+                                if (genotype.getAllele(0) == genotype.getAllele(1) && genotype.getAllele(0) > 0) {
+                                    allele1 = 0;
+                                }
+
+                                // If the number of values is not enough for this GT
+                                int maxAllele = allele1 >= allele2 ? allele1 : allele2;
+                                int numValues = (int) (((float) maxAllele * (maxAllele + 1)) / 2) + maxAllele;
+                                if (likelihoods.length < numValues) {
+                                    throw new NonStandardCompliantSampleField(formatField, sampleField, String.format("It must contain %d values", numValues));
+                                }
+
+                                // Genotype likelihood must be distributed following similar criteria as genotypes
+                                String[] alleleLikelihoods = new String[3];
+                                alleleLikelihoods[0] = likelihoods[(int) (((float) allele1 * (allele1 + 1)) / 2) + allele1];
+                                alleleLikelihoods[1] = likelihoods[(int) (((float) allele2 * (allele2 + 1)) / 2) + allele1];
+                                alleleLikelihoods[2] = likelihoods[(int) (((float) allele2 * (allele2 + 1)) / 2) + allele2];
+                                sampleField = String.join(",", alleleLikelihoods);
+                            }
                         }
                     }
-                    sampleField = genotypeStr.toString();
-
-                } else if (formatField.equalsIgnoreCase("GL")
-                        || formatField.equalsIgnoreCase("PL")
-                        || formatField.equalsIgnoreCase("GP")) {
-                    // All-alleles present and not haploid
-                    if (!sampleField.equals(".") && genotype != null
-                            && (genotype.getCode() == AllelesCode.ALLELES_OK
-                            || genotype.getCode() == AllelesCode.MULTIPLE_ALTERNATES)) {
-                        String[] likelihoods = sampleField.split(",");
-
-                        // If only 3 likelihoods are represented, no transformation is needed
-                        if (likelihoods.length > 3) {
-                            // Get alleles index to work with: if both are the same alternate,
-                            // the combinations must be run with the reference allele.
-                            // Otherwise all GL reported would be alt/alt.
-                            int allele1 = genotype.getAllele(0);
-                            int allele2 = genotype.getAllele(1);
-                            if (genotype.getAllele(0) == genotype.getAllele(1) && genotype.getAllele(0) > 0) {
-                                allele1 = 0;
-                            }
-
-                            // If the number of values is not enough for this GT
-                            int maxAllele = allele1 >= allele2 ? allele1 : allele2;
-                            int numValues = (int) (((float) maxAllele * (maxAllele + 1)) / 2) + maxAllele;
-                            if (likelihoods.length < numValues) {
-                                throw new NonStandardCompliantSampleField(formatField, sampleField, String.format("It must contain %d values", numValues));
-                            }
-
-                            // Genotype likelihood must be distributed following similar criteria as genotypes
-                            String[] alleleLikelihoods = new String[3];
-                            alleleLikelihoods[0] = likelihoods[(int) (((float) allele1 * (allele1 + 1)) / 2) + allele1];
-                            alleleLikelihoods[1] = likelihoods[(int) (((float) allele2 * (allele2 + 1)) / 2) + allele1];
-                            alleleLikelihoods[2] = likelihoods[(int) (((float) allele2 * (allele2 + 1)) / 2) + allele2];
-                            sampleField = String.join(",", alleleLikelihoods);
-                        }
-                    }
+                    newSampleData.get(sampleIdx).set(formatFieldIdx, sampleField);
                 }
-                newSampleData.get(sampleIdx).set(formatFieldIdx, sampleField);
-            }
-            if (variantKeyFields.getPhaseSet() != null) {
-                newSampleData.get(sampleIdx).add(variantKeyFields.getPhaseSet());
+                if (variantKeyFields.getPhaseSet() != null) {
+                    newSampleData.get(sampleIdx).add(variantKeyFields.getPhaseSet());
+                }
             }
         }
         return newSampleData;
