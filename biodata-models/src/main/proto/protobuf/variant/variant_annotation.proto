@@ -1,7 +1,11 @@
 syntax = "proto3";
 
-package org.opencb.biodata.models.variant.protobuf;
+package protobuf.variant;
+
+option java_package = "org.opencb.biodata.models.variant.protobuf";
 option java_outer_classname = "VariantAnnotationProto";
+option java_generate_equals_and_hash = true;
+//option java_multiple_files = true;
 
 enum ExpressionCall {
     DOWN = 0;

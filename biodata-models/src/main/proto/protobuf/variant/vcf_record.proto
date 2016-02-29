@@ -1,8 +1,13 @@
 syntax = "proto3";
-package org.opencb.biodata.models.variant.protobuf;
+
+package protobuf.variant;
+
 option java_package = "org.opencb.biodata.models.variant.protobuf";
 option java_outer_classname = "VcfSliceProtos";
-import "variant.proto";
+option java_generate_equals_and_hash = true;
+//option java_multiple_files = true;
+
+import "protobuf/variant/variant.proto";
 
 message VcfSample {
   repeated string sample_values = 1;

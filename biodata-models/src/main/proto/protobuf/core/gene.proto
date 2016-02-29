@@ -1,9 +1,13 @@
 syntax = "proto3";
 
-package org.opencb.biodata.models.core.protobuf;
-option java_outer_classname = "GeneModel";
+package protobuf.core;
 
-import "transcript.proto";
+option java_package = "org.opencb.biodata.models.core.protobuf";
+option java_outer_classname = "GeneModel";
+option java_generate_equals_and_hash = true;
+//option java_multiple_files = true;
+
+import "protobuf/core/transcript.proto";
 
 enum ExpressionCall {
     DOWN = 0;
