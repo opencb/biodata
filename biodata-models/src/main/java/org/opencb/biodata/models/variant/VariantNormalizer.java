@@ -1,6 +1,5 @@
 package org.opencb.biodata.models.variant;
 
-import org.apache.commons.jexl2.UnifiedJEXL;
 import org.apache.commons.lang3.StringUtils;
 import org.biojava.nbio.alignment.Alignments;
 import org.biojava.nbio.alignment.SimpleGapPenalty;
@@ -34,6 +33,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
     private boolean reuseVariants = true;
     private boolean normalizeAlleles = false;
+    private boolean decomposeMNVs = false;
 
     public VariantNormalizer() {}
 
@@ -44,6 +44,12 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
     public VariantNormalizer(boolean reuseVariants, boolean normalizeAlleles) {
         this.reuseVariants = reuseVariants;
         this.normalizeAlleles = normalizeAlleles;
+    }
+
+    public VariantNormalizer(boolean reuseVariants, boolean normalizeAlleles, boolean decomposeMNVs) {
+        this.reuseVariants = reuseVariants;
+        this.normalizeAlleles = normalizeAlleles;
+        this.decomposeMNVs = decomposeMNVs;
     }
 
     public boolean isReuseVariants() {
@@ -208,8 +214,11 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                 keyFields = createVariantsFromIndelNoEmptyRefAlt(position, reference, currentAlternate);
             }
 
-            if(keyFields.getReference().length()>1 && keyFields.getAlternate().length()>1) {
-                for(VariantKeyFields keyFields1 : decomposeMVNSingleVariants(keyFields)) {
+            if (decomposeMNVs && ((keyFields.getReference().length()>1 && keyFields.getAlternate().length()>1)
+                || (((keyFields.getReference().length()>1 && keyFields.getAlternate().length()>0) // To deal with cases such as A>GT
+                    || (keyFields.getAlternate().length()>1 && keyFields.getReference().length()>0))
+                        && keyFields.getReference().charAt(0) != keyFields.getAlternate().charAt(0)))){
+                for(VariantKeyFields keyFields1 : decomposeMNVSingleVariants(keyFields)) {
                     keyFields1.numAllele = numAllelesIdx;
                     keyFields1.phaseSet = chromosome+":"+position+":"+reference+":"+currentAlternate;
                     list.add(keyFields1);
@@ -222,7 +231,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         return list;
     }
 
-    private List<VariantKeyFields> decomposeMVNSingleVariants(VariantKeyFields keyFields) {
+    private List<VariantKeyFields> decomposeMNVSingleVariants(VariantKeyFields keyFields) {
         SequencePair<DNASequence, NucleotideCompound> sequenceAlignment = getPairwiseAlignment(keyFields.getReference(),
                 keyFields.getAlternate());
         return decomposeAlignmentSingleVariants(sequenceAlignment, keyFields.getStart());
