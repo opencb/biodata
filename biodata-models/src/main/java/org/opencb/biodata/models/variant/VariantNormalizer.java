@@ -83,108 +83,104 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         List<Variant> normalizedVariants = new ArrayList<>(batch.size());
 
         for (Variant variant : batch) {
-            try {
-                if (!isNormalizable(variant)) {
-                    normalizedVariants.add(variant);
-                    continue;
+            if (!isNormalizable(variant)) {
+                normalizedVariants.add(variant);
+                continue;
+            }
+
+            String reference = variant.getReference();  //Save original values, as they can be changed
+            String alternate = variant.getAlternate();
+            Integer start = variant.getStart();
+            String chromosome = variant.getChromosome();
+
+            if (variant.getStudies() == null || variant.getStudies().isEmpty()) {
+                List<VariantKeyFields> keyFieldsList = normalize(
+                        chromosome, start, reference, Collections.singletonList(alternate));
+                for (VariantKeyFields keyFields : keyFieldsList) {
+                    Variant normalizedVariant = newVariant(variant, keyFields);
+                    if (keyFields.getPhaseSet() != null) {
+                        StudyEntry studyEntry = new StudyEntry();
+                        studyEntry.setSamplesData(
+                                Collections.singletonList(Collections.singletonList(keyFields.getPhaseSet())));
+                        studyEntry.setFormat(Collections.singletonList("PS"));
+                        // Use mnv string as file Id so that it can be later identified. It is also used
+                        // as the genotype call since we don't have an actual call and to avoid confusion
+                        String mnvId = chromosome + ":" + start + ":" + reference + ":" + alternate;
+                        studyEntry.setFiles(Collections.singletonList(new FileEntry(mnvId, mnvId, null)));
+                        normalizedVariant.setStudies(Collections.singletonList(studyEntry));
+                    }
+                    normalizedVariants.add(normalizedVariant);
                 }
+            } else {
+                for (StudyEntry entry : variant.getStudies()) {
+                    List<String> alternates = new ArrayList<>(1 + entry.getSecondaryAlternates().size());
+                    alternates.add(alternate);
+                    alternates.addAll(entry.getSecondaryAlternatesAlleles());
 
-                String reference = variant.getReference();  //Save original values, as they can be changed
-                String alternate = variant.getAlternate();
-                Integer start = variant.getStart();
-                String chromosome = variant.getChromosome();
-
-                if (variant.getStudies() == null || variant.getStudies().isEmpty()) {
-                    List<VariantKeyFields> keyFieldsList = normalize(
-                            chromosome, start, reference, Collections.singletonList(alternate));
+                    List<VariantKeyFields> keyFieldsList = normalize(chromosome, start, reference, alternates);
+                    boolean sameVariant = keyFieldsList.size() == 1
+                            && keyFieldsList.get(0).getStart() == start
+                            && keyFieldsList.get(0).getReference().equals(reference)
+                            && keyFieldsList.get(0).getAlternate().equals(alternate);
                     for (VariantKeyFields keyFields : keyFieldsList) {
-                        Variant normalizedVariant = newVariant(variant, keyFields);
-                        if (keyFields.getPhaseSet() != null) {
-                            StudyEntry studyEntry = new StudyEntry();
-                            studyEntry.setSamplesData(
-                                    Collections.singletonList(Collections.singletonList(keyFields.getPhaseSet())));
-                            studyEntry.setFormat(Collections.singletonList("PS"));
-                            // Use mnv string as file Id so that it can be later identified. It is also used
-                            // as the genotype call since we don't have an actual call and to avoid confusion
-                            String mnvId = chromosome + ":" + start + ":" + reference + ":" + alternate;
-                            studyEntry.setFiles(Collections.singletonList(new FileEntry(mnvId, mnvId, null)));
-                            normalizedVariant.setStudies(Collections.singletonList(studyEntry));
+                        String call = start + ":" + reference + ":" + alternates.stream().collect(Collectors.joining(",")) + ":" + keyFields.getNumAllele();
+
+                        final Variant normalizedVariant;
+                        final StudyEntry normalizedEntry;
+                        final List<List<String>> samplesData;
+                        if (reuse && keyFieldsList.size() == 1) {   //Only reuse for non multiallelic variants
+                            //Reuse variant. Set new fields.
+                            normalizedVariant = variant;
+                            variant.setStart(keyFields.getStart());
+                            variant.setEnd(keyFields.getEnd());
+                            variant.setReference(keyFields.getReference());
+                            variant.setAlternate(keyFields.getAlternate());
+                            normalizedEntry = entry;
+                            entry.getFiles().forEach(fileEntry -> fileEntry.setCall(sameVariant ? "" : call)); //TODO: Check file attributes
+                            samplesData = entry.getSamplesData();
+                        } else {
+                            normalizedVariant = newVariant(variant, keyFields);
+
+                            normalizedEntry = new StudyEntry();
+                            normalizedEntry.setStudyId(entry.getStudyId());
+                            normalizedEntry.setSamplesPosition(entry.getSamplesPosition());
+                            normalizedEntry.setFormat(entry.getFormat());
+
+                            List<FileEntry> files = new ArrayList<>(entry.getFiles().size());
+                            for (FileEntry file : entry.getFiles()) {
+                                files.add(new FileEntry(file.getFileId(), sameVariant ? "" : call, file.getAttributes())); //TODO: Check file attributes
+                            }
+                            normalizedEntry.setFiles(files);
+                            normalizedVariant.addStudyEntry(normalizedEntry);
+                            samplesData = newSamplesData(entry.getSamplesData().size(), entry.getFormat().size());
                         }
-                        normalizedVariants.add(normalizedVariant);
-                    }
-                } else {
-                    for (StudyEntry entry : variant.getStudies()) {
-                        List<String> alternates = new ArrayList<>(1 + entry.getSecondaryAlternates().size());
-                        alternates.add(alternate);
-                        alternates.addAll(entry.getSecondaryAlternatesAlleles());
 
-                        List<VariantKeyFields> keyFieldsList = normalize(chromosome, start, reference, alternates);
-                        boolean sameVariant = keyFieldsList.size() == 1
-                                && keyFieldsList.get(0).getStart() == start
-                                && keyFieldsList.get(0).getReference().equals(reference)
-                                && keyFieldsList.get(0).getAlternate().equals(alternate);
-                        for (VariantKeyFields keyFields : keyFieldsList) {
-                            String call = start + ":" + reference + ":" + alternates.stream().collect(Collectors.joining(",")) + ":" + keyFields.getNumAllele();
+                        //Set normalized secondary alternates
+                        normalizedEntry.setSecondaryAlternates(getSecondaryAlternatesMap(keyFields, keyFieldsList));
 
-                            final Variant normalizedVariant;
-                            final StudyEntry normalizedEntry;
-                            final List<List<String>> samplesData;
-                            if (reuse && keyFieldsList.size() == 1) {   //Only reuse for non multiallelic variants
-                                //Reuse variant. Set new fields.
-                                normalizedVariant = variant;
-                                variant.setStart(keyFields.getStart());
-                                variant.setEnd(keyFields.getEnd());
-                                variant.setReference(keyFields.getReference());
-                                variant.setAlternate(keyFields.getAlternate());
-                                normalizedEntry = entry;
-                                entry.getFiles().forEach(fileEntry -> fileEntry.setCall(sameVariant ? "" : call)); //TODO: Check file attributes
-                                samplesData = entry.getSamplesData();
-                            } else {
-                                normalizedVariant = newVariant(variant, keyFields);
-
-                                normalizedEntry = new StudyEntry();
-                                normalizedEntry.setStudyId(entry.getStudyId());
-                                normalizedEntry.setSamplesPosition(entry.getSamplesPosition());
-                                normalizedEntry.setFormat(entry.getFormat());
-
-                                List<FileEntry> files = new ArrayList<>(entry.getFiles().size());
-                                for (FileEntry file : entry.getFiles()) {
-                                    files.add(new FileEntry(file.getFileId(), sameVariant ? "" : call, file.getAttributes())); //TODO: Check file attributes
+                        //Set normalized samples data
+                        try {
+                            if (keyFields.getPhaseSet() != null) {
+                                normalizedEntry.addFormat("PS");
+                                // If no files are provided one must be created to ensure genotype calls are the same
+                                // for all mnv-phased variants
+                                if (normalizedEntry.getFiles().size() == 0) {
+                                    // Use mnv string as file Id so that it can be later identified.
+                                    String mnvId = chromosome + ":" + keyFields.getStart() + ":"
+                                            + keyFields.getReference() + ":" + keyFields.getAlternate();
+                                    normalizedEntry.setFiles(Collections.singletonList(new FileEntry(mnvId, call, null)));
                                 }
-                                normalizedEntry.setFiles(files);
-                                normalizedVariant.addStudyEntry(normalizedEntry);
-                                samplesData = newSamplesData(entry.getSamplesData().size(), entry.getFormat().size());
                             }
-
-                            //Set normalized secondary alternates
-                            normalizedEntry.setSecondaryAlternates(getSecondaryAlternatesMap(keyFields, keyFieldsList));
-
-                            //Set normalized samples data
-                            try {
-                                if (keyFields.getPhaseSet() != null) {
-                                    normalizedEntry.addFormat("PS");
-                                    // If no files are provided one must be created to ensure genotype calls are the same
-                                    // for all mnv-phased variants
-                                    if (normalizedEntry.getFiles().size() == 0) {
-                                        // Use mnv string as file Id so that it can be later identified.
-                                        String mnvId = chromosome + ":" + keyFields.getStart() + ":"
-                                                + keyFields.getReference() + ":" + keyFields.getAlternate();
-                                        normalizedEntry.setFiles(Collections.singletonList(new FileEntry(mnvId, call, null)));
-                                    }
-                                }
-                                List<List<String>> normalizedSamplesData = normalizeSamplesData(keyFields,
-                                        entry.getSamplesData(), entry.getFormat(), reference, alternates, samplesData);
-                                normalizedEntry.setSamplesData(normalizedSamplesData);
-                                normalizedVariants.add(normalizedVariant);
-                            } catch (Exception e) {
-                                logger.warn("Error parsing variant " + call + ", numAllele " + keyFields.getNumAllele(), e);
-                                throw e;
-                            }
+                            List<List<String>> normalizedSamplesData = normalizeSamplesData(keyFields,
+                                    entry.getSamplesData(), entry.getFormat(), reference, alternates, samplesData);
+                            normalizedEntry.setSamplesData(normalizedSamplesData);
+                            normalizedVariants.add(normalizedVariant);
+                        } catch (Exception e) {
+                            logger.warn("Error parsing variant " + call + ", numAllele " + keyFields.getNumAllele(), e);
+                            throw e;
                         }
                     }
                 }
-            } catch (Exception e) {
-                int a = 1;
             }
         }
 
