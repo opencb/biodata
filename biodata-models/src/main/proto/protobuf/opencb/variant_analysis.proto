@@ -1,10 +1,11 @@
 syntax = "proto3";
 
-package org.opencb.biodata.models.variant.protobuf;
+package protobuf.opencb;
+
 option java_package = "org.opencb.biodata.models.variant.protobuf";
 option java_outer_classname = "VariantAnalysisProtos";
 
-import "variant.proto";
+import "protobuf/opencb/variant.proto";
 
 /**
 ** Mapping a ComplexGenotype to an individual (sample index)

@@ -21,6 +21,7 @@ import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFConstants;
 
 import org.apache.commons.lang3.StringUtils;
+import org.opencb.biodata.models.core.protobuf.CommonModel;
 import org.opencb.biodata.models.variant.protobuf.VariantAnnotationProto;
 import org.opencb.biodata.models.variant.protobuf.VariantAnnotationProto.ConsequenceType;
 import org.opencb.biodata.models.variant.protobuf.VariantAnnotationProto.ProteinVariantAnnotation;
@@ -363,7 +364,7 @@ public class VariantContextToVariantProtoConverter implements Converter<VariantC
          * set GeneDrugInteraction map of list type parameter
          */
 //        Map<String, List<String>> geneDrugInteractionMap = new HashMap<>();
-        List<VariantAnnotationProto.GeneDrugInteraction> geneDrugInteractionList = new ArrayList<>();
+        List<CommonModel.GeneDrugInteraction> geneDrugInteractionList = new ArrayList<>();
 //        List<String> geneDrugInteractionList = new ArrayList<>();
         //geneDrugInteractionList.add("AAA");
         //geneDrugInteractionMap.put("000", geneDrugInteractionList);
@@ -387,8 +388,8 @@ public class VariantContextToVariantProtoConverter implements Converter<VariantC
         /*
          * set Xref list type parameter
          */
-        List<VariantAnnotationProto.Xref> xrefsList = new ArrayList<>();
-        VariantAnnotationProto.Xref.Builder xref = VariantAnnotationProto.Xref.newBuilder();
+        List<VariantAnnotationProto.VariantAnnotation.Xref> xrefsList = new ArrayList<>();
+        VariantAnnotationProto.VariantAnnotation.Xref.Builder xref = VariantAnnotationProto.VariantAnnotation.Xref.newBuilder();
         /*xref.setId(null);
         xref.setSrc(null);*/
         xrefsList.add(xref.build());

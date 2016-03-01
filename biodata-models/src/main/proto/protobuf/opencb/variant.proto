@@ -1,13 +1,13 @@
 syntax = "proto3";
 
-package protobuf.variant;
+package protobuf.opencb;
 
 option java_package = "org.opencb.biodata.models.variant.protobuf";
 option java_outer_classname = "VariantProto";
 option java_generate_equals_and_hash = true;
 //option java_multiple_files = true;
 
-import "protobuf/variant/variant_annotation.proto";
+import "protobuf/opencb/variant_annotation.proto";
 
 /**
  * Type of variation, which depends mostly on its length.

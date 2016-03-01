@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package protobuf.core;
+package protobuf.opencb;
 
 option java_package = "org.opencb.biodata.models.core.protobuf";
 option java_outer_classname = "RegulatoryRegionModel";

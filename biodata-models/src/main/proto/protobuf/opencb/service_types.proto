@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package protobuf;
+package protobuf.opencb;
 
 option java_package = "org.opencb.biodata.models.common.protobuf.service";
 option java_outer_classname = "ServiceTypesModel";

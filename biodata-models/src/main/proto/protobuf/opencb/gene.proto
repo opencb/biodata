@@ -1,33 +1,15 @@
 syntax = "proto3";
 
-package org.opencb.biodata.models.core.protobuf;
+package protobuf.opencb;
+
+option java_package = "org.opencb.biodata.models.core.protobuf";
 option java_outer_classname = "GeneModel";
+option java_generate_equals_and_hash = true;
+//option java_multiple_files = true;
 
-import "transcript.proto";
+import "protobuf/opencb/common.proto";
+import "protobuf/opencb/transcript.proto";
 
-enum ExpressionCall {
-    DOWN = 0;
-    UP = 1;
-}
-
-message Expression {
-    string gene_name = 1;
-    string transcript_id = 2;
-    string experimental_factor = 3;
-    string factor_value = 4;
-    string experiment_id = 5;
-    string technology_platform = 6;
-    ExpressionCall expression = 7;
-    float pvalue = 8;
-}
-
-message GeneDrugInteraction {
-    string gene_name = 1;
-    string drug_name = 2;
-    string source = 3;
-    string study_type = 4;
-    string type = 5;
-}
 
 message MiRNAGene {
     string miRBase_accession = 1;
