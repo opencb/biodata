@@ -178,9 +178,9 @@ public class VariantContextToVariantProtoConverter implements Converter<VariantC
                                 value = attribute.toString();
                             }
                         } else {
-                            //TODO: Can hts return null fields?
+                            //Can hts return null fields?
+                            //ABSOLUTELY, for missing values
                             value = ".";
-                            System.err.println("Null value");
                         }
                         break;
                 }
