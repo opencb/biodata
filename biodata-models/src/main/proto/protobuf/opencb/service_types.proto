@@ -5,21 +5,9 @@ package protobuf.opencb;
 option java_package = "org.opencb.biodata.models.common.protobuf.service";
 option java_outer_classname = "ServiceTypesModel";
 
-message Request {
-    string storageEngine = 1;
-    string database = 2;
+message BasicRequest {
     map<string, string> query = 3;
     map<string, string> options = 4;
-}
-
-message AuthRequest {
-    string storageEngine = 1;
-    string database = 2;
-    string user = 3;
-    string password = 4;
-    string ip = 5;
-    map<string, string> query = 6;
-    map<string, string> options = 7;
 }
 
 message Response {
