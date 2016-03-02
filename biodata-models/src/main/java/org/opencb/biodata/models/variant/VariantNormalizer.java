@@ -65,6 +65,15 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         return normalizeAlleles;
     }
 
+    public boolean isDecomposeMNVs() {
+        return decomposeMNVs;
+    }
+
+    public VariantNormalizer setDecomposeMNVs(boolean decomposeMNVs) {
+        this.decomposeMNVs = decomposeMNVs;
+        return this;
+    }
+
     public VariantNormalizer setNormalizeAlleles(boolean normalizeAlleles) {
         this.normalizeAlleles = normalizeAlleles;
         return this;
@@ -97,6 +106,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                 List<VariantKeyFields> keyFieldsList = normalize(
                         chromosome, start, reference, Collections.singletonList(alternate));
                 for (VariantKeyFields keyFields : keyFieldsList) {
+                    String call = start + ":" + reference + ":" + alternate + ":" + keyFields.getNumAllele();
                     Variant normalizedVariant = newVariant(variant, keyFields);
                     if (keyFields.getPhaseSet() != null) {
                         StudyEntry studyEntry = new StudyEntry();
@@ -105,8 +115,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                         studyEntry.setFormat(Collections.singletonList("PS"));
                         // Use mnv string as file Id so that it can be later identified. It is also used
                         // as the genotype call since we don't have an actual call and to avoid confusion
-                        String mnvId = chromosome + ":" + start + ":" + reference + ":" + alternate;
-                        studyEntry.setFiles(Collections.singletonList(new FileEntry(mnvId, mnvId, null)));
+                        studyEntry.setFiles(Collections.singletonList(new FileEntry(keyFields.getPhaseSet(), call, null)));
                         normalizedVariant.setStudies(Collections.singletonList(studyEntry));
                     }
                     normalizedVariants.add(normalizedVariant);
@@ -123,7 +132,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                             && keyFieldsList.get(0).getReference().equals(reference)
                             && keyFieldsList.get(0).getAlternate().equals(alternate);
                     for (VariantKeyFields keyFields : keyFieldsList) {
-                        String call = start + ":" + reference + ":" + alternates.stream().collect(Collectors.joining(",")) + ":" + keyFields.getNumAllele();
+                        String call = start + ":" + reference + ":" + String.join(",", alternates) + ":" + keyFields.getNumAllele();
 
                         final Variant normalizedVariant;
                         final StudyEntry normalizedEntry;
@@ -156,25 +165,28 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                         }
 
                         //Set normalized secondary alternates
-                        normalizedEntry.setSecondaryAlternates(getSecondaryAlternatesMap(keyFields, keyFieldsList));
+                        normalizedEntry.setSecondaryAlternates(getSecondaryAlternatesMap(chromosome, keyFields, keyFieldsList));
 
                         //Set normalized samples data
                         try {
+                            List<String> format = entry.getFormat();
                             if (keyFields.getPhaseSet() != null) {
-                                normalizedEntry.addFormat("PS");
+                                if (!normalizedEntry.getFormatPositions().containsKey("PS")) {
+                                    normalizedEntry.addFormat("PS");
+                                    format = new ArrayList<>(normalizedEntry.getFormat());
+                                }
                                 // If no files are provided one must be created to ensure genotype calls are the same
                                 // for all mnv-phased variants
                                 if (normalizedEntry.getFiles().size() == 0) {
                                     // Use mnv string as file Id so that it can be later identified.
-                                    String mnvId = chromosome + ":" + keyFields.getStart() + ":"
-                                            + keyFields.getReference() + ":" + keyFields.getAlternate();
-                                    normalizedEntry.setFiles(Collections.singletonList(new FileEntry(mnvId, call, null)));
+                                    normalizedEntry.setFiles(Collections.singletonList(new FileEntry(keyFields.getPhaseSet(), call, null)));
                                 }
                             }
                             List<List<String>> normalizedSamplesData = normalizeSamplesData(keyFields,
-                                    entry.getSamplesData(), entry.getFormat(), reference, alternates, samplesData);
+                                    entry.getSamplesData(), format, reference, alternates, samplesData);
                             normalizedEntry.setSamplesData(normalizedSamplesData);
                             normalizedVariants.add(normalizedVariant);
+
                         } catch (Exception e) {
                             logger.warn("Error parsing variant " + call + ", numAllele " + keyFields.getNumAllele(), e);
                             throw e;
@@ -210,13 +222,16 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                 keyFields = createVariantsFromIndelNoEmptyRefAlt(position, reference, currentAlternate);
             }
 
-            if (decomposeMNVs && ((keyFields.getReference().length()>1 && keyFields.getAlternate().length()>1)
-                || (((keyFields.getReference().length()>1 && keyFields.getAlternate().length()>0) // To deal with cases such as A>GT
-                    || (keyFields.getAlternate().length()>1 && keyFields.getReference().length()>0))
-                        && keyFields.getReference().charAt(0) != keyFields.getAlternate().charAt(0)))){
-                for(VariantKeyFields keyFields1 : decomposeMNVSingleVariants(keyFields)) {
+            if (decomposeMNVs
+                    && ((keyFields.getReference().length() > 1 && keyFields.getAlternate().length() > 1)
+                       || ((
+                              (keyFields.getReference().length() > 1 && keyFields.getAlternate().length() == 1) // To deal with cases such as A>GT
+                           || (keyFields.getAlternate().length() > 1 && keyFields.getReference().length() == 1)
+                            // After left and right trimming, first character of reference and alternate must be different.
+                        ) /*&& keyFields.getReference().charAt(0) != keyFields.getAlternate().charAt(0)*/ ))) {
+                for (VariantKeyFields keyFields1 : decomposeMNVSingleVariants(keyFields)) {
                     keyFields1.numAllele = numAllelesIdx;
-                    keyFields1.phaseSet = chromosome+":"+position+":"+reference+":"+currentAlternate;
+                    keyFields1.phaseSet = chromosome + ":" + position + ":" + reference + ":" + currentAlternate;
                     list.add(keyFields1);
                 }
             } else {
@@ -441,7 +456,19 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         // Normalizing an mnv and no sample data was provided in the original variant - need to create sample data to
         // indicate the phase set
         if (variantKeyFields.getPhaseSet() != null && samplesData.size() == 0) {
-            newSampleData.add(Collections.singletonList(variantKeyFields.getPhaseSet()));
+            if (format.equals(Collections.singletonList("PS"))) {
+                newSampleData.add(Collections.singletonList(variantKeyFields.getPhaseSet()));
+            } else {
+                List<String> sampleData = new ArrayList<>(format.size());
+                for (String f : format) {
+                    if (f.equals("PS")) {
+                        sampleData.add(variantKeyFields.getPhaseSet());
+                    } else {
+                        sampleData.add("");
+                    }
+                }
+                newSampleData.add(sampleData);
+            }
         } else {
             for (int sampleIdx = 0; sampleIdx < samplesData.size(); sampleIdx++) {
                 List<String> sampleData = samplesData.get(sampleIdx);
@@ -455,7 +482,11 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
                 for (int formatFieldIdx = 0; formatFieldIdx < format.size(); formatFieldIdx++) {
                     String formatField = format.get(formatFieldIdx);
-                    String sampleField = sampleData.get(formatFieldIdx);
+                    // It may happen that the Format contains other fields that were not in the original format,
+                    // or that some sampleData array is smaller than the format list.
+                    // If the variant was a splitted MNV, a new field 'PS' is added to the format (if missing), so it may
+                    // not be in the original sampleData.
+                    String sampleField = sampleData.size() > formatFieldIdx ? sampleData.get(formatFieldIdx) : "";
 
                     if (formatField.equalsIgnoreCase("GT")) {
                         // Save alleles just in case they are necessary for GL/PL/GP transformation
@@ -519,11 +550,23 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                                 sampleField = String.join(",", alleleLikelihoods);
                             }
                         }
+                    } else if (formatField.equals("PS")) {
+                        if (variantKeyFields.getPhaseSet() != null) {
+                            sampleField = variantKeyFields.getPhaseSet();
+                        }
                     }
-                    newSampleData.get(sampleIdx).set(formatFieldIdx, sampleField);
-                }
-                if (variantKeyFields.getPhaseSet() != null) {
-                    newSampleData.get(sampleIdx).add(variantKeyFields.getPhaseSet());
+                    List<String> data = newSampleData.get(sampleIdx);
+                    if (data.size() > formatFieldIdx) {
+                        data.set(formatFieldIdx, sampleField);
+                    } else {
+                        try {
+                            data.add(sampleField);
+                        } catch (UnsupportedOperationException e ) {
+                            data = new ArrayList<>(data);
+                            data.add(sampleField);
+                            newSampleData.set(sampleIdx, data);
+                        }
+                    }
                 }
             }
         }
@@ -539,11 +582,22 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         return normalizedVariant;
     }
 
-    public List<AlternateCoordinate> getSecondaryAlternatesMap(VariantKeyFields alternate, List<VariantKeyFields> alternates) {
+    public List<AlternateCoordinate> getSecondaryAlternatesMap(String chromosome, VariantKeyFields alternate, List<VariantKeyFields> alternates) {
         List<AlternateCoordinate> secondaryAlternates;
-        if (alternates.size() == 1 || alternate.getPhaseSet() != null) {
+        if (alternates.size() == 1) {
+            secondaryAlternates = Collections.emptyList();
+        } else if (alternate.getPhaseSet() != null) {
+            for (VariantKeyFields variantKeyFields : alternates) {
+                if (variantKeyFields.getNumAllele() > 0) {
+                    throw new IllegalStateException("Unable to resolve multiallelic with MNV variants -> "
+                            + alternates.stream()
+                            .map((v) -> chromosome + ":" + v.toString())
+                            .collect(Collectors.joining(" , ")));
+                }
+            }
             secondaryAlternates = Collections.emptyList();
         } else {
+
             secondaryAlternates = new ArrayList<>(alternates.size() - 1);
             for (VariantKeyFields keyFields : alternates) {
                 if (!keyFields.equals(alternate)) {
@@ -677,13 +731,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
         @Override
         public String toString() {
-            return "VariantKeyFields{" +
-                    "start=" + start +
-                    ", end=" + end +
-                    ", numAllele=" + numAllele +
-                    ", reference='" + reference + '\'' +
-                    ", alternate='" + alternate + '\'' +
-                    '}';
+            return start + ":" + reference + ":" + alternate + ":" + numAllele + (phaseSet == null ? "" : ("(ps:" + phaseSet + ")"));
         }
 
 

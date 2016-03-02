@@ -16,8 +16,6 @@
 
 package org.opencb.biodata.models.variant;
 
-import org.biojava.nbio.core.exceptions.CompoundNotFoundException;
-
 import java.util.List;
 
 /**

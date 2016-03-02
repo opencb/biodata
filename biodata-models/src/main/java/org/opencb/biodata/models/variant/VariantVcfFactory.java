@@ -98,7 +98,7 @@ public class VariantVcfFactory implements VariantFactory {
             VariantKeyFields keyFields = generatedKeyFields.get(i);
             Variant variant = new Variant(chromosome, keyFields.getStart(), keyFields.getEnd(), keyFields.getReference(), keyFields.getAlternate());
 //            String[] secondaryAlternates = getSecondaryAlternates(variant, keyFields.getNumAllele(), alternateAlleles);
-            List<AlternateCoordinate> secondaryAlternatesMap = variantNormalizer.getSecondaryAlternatesMap(keyFields, generatedKeyFields);
+            List<AlternateCoordinate> secondaryAlternatesMap = variantNormalizer.getSecondaryAlternatesMap(chromosome, keyFields, generatedKeyFields);
             StudyEntry entry = new StudyEntry(source.getStudyId(), secondaryAlternatesMap, Arrays.asList(format.split(":")));
             entry.setFileId(source.getFileId());
             variant.addStudyEntry(entry);
