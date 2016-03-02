@@ -16,16 +16,16 @@
 
 package org.opencb.biodata.models.variant;
 
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.biodata.models.variant.exceptions.NotAVariantException;
 
-import static org.opencb.biodata.models.variant.VariantNormalizer.*;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static org.opencb.biodata.models.variant.VariantNormalizer.VariantKeyFields;
 
 /**
  * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
@@ -82,7 +82,8 @@ public class VariantVcfFactory implements VariantFactory {
         String info = fields[7].equals(".") ? "" : fields[7];
         String format = (fields.length <= 8 || fields[8].equals(".")) ? "" : fields[8];
 
-        List<VariantKeyFields> generatedKeyFields = variantNormalizer.normalize(position, reference, Arrays.asList(alternateAlleles));
+        List<VariantKeyFields> generatedKeyFields = variantNormalizer.normalize(
+                chromosome, position, reference, Arrays.asList(alternateAlleles));
 
         for (int i = 0; i < generatedKeyFields.size(); i++) {
 
@@ -97,7 +98,7 @@ public class VariantVcfFactory implements VariantFactory {
             VariantKeyFields keyFields = generatedKeyFields.get(i);
             Variant variant = new Variant(chromosome, keyFields.getStart(), keyFields.getEnd(), keyFields.getReference(), keyFields.getAlternate());
 //            String[] secondaryAlternates = getSecondaryAlternates(variant, keyFields.getNumAllele(), alternateAlleles);
-            List<AlternateCoordinate> secondaryAlternatesMap = variantNormalizer.getSecondaryAlternatesMap(keyFields, generatedKeyFields);
+            List<AlternateCoordinate> secondaryAlternatesMap = variantNormalizer.getSecondaryAlternatesMap(chromosome, keyFields, generatedKeyFields);
             StudyEntry entry = new StudyEntry(source.getStudyId(), secondaryAlternatesMap, Arrays.asList(format.split(":")));
             entry.setFileId(source.getFileId());
             variant.addStudyEntry(entry);
