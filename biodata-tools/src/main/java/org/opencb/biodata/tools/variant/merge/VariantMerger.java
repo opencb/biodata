@@ -24,7 +24,7 @@ public class VariantMerger {
 
     public static final String VCF_FILTER = VariantVcfFactory.FILTER;
     public static final String GT_KEY = "GT";
-    public static final String PASS_KEY = "PASS";
+    public static final String PASS_VALUE = "PASS";
 //    public static final String CALL_KEY = "CALL";
 
     /**
