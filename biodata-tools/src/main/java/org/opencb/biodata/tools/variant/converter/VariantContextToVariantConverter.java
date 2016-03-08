@@ -183,11 +183,18 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         }
 
         // FILTER
-        Set<String> filter = variantContext.getFilters();
-        if (filter.isEmpty()) {
+        Set<String> filter = variantContext.getFiltersMaybeNull();
+        if (filter == null) {
+            attributes.put(VariantVcfFactory.FILTER, VCFConstants.UNFILTERED);
+        } else if (filter.isEmpty()) {
             attributes.put(VariantVcfFactory.FILTER, VCFConstants.PASSES_FILTERS_v4);
         } else {
-            attributes.put(VariantVcfFactory.FILTER, StringUtils.join(filter, VCFConstants.FILTER_CODE_SEPARATOR));
+            if (filter.size() == 1) {
+                attributes.put(VariantVcfFactory.FILTER, filter.iterator().next());
+            } else {
+                attributes.put(VariantVcfFactory.FILTER, filter
+                        .stream().sorted().collect(Collectors.joining(VCFConstants.FILTER_CODE_SEPARATOR)));
+            }
         }
 
         fileEntry.setAttributes(attributes);

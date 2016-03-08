@@ -33,6 +33,7 @@ import org.junit.rules.TemporaryFolder;
 import org.opencb.biodata.formats.variant.vcf4.FullVcfCodec;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantNormalizer;
+import org.opencb.biodata.models.variant.VariantVcfFactory;
 import org.opencb.biodata.models.variant.avro.Aggregation;
 import org.opencb.biodata.models.variant.avro.VariantAvro;
 import org.opencb.biodata.models.variant.avro.VariantFileMetadata;
@@ -92,6 +93,8 @@ public class VariantContextToVariantConverterTest {
             assertEquals("-0.01,-1.84,-5.00", variant.getStudy(studyId).getSampleData(sampleNames.get(0), "GL"));
             assertEquals("-0.05,-0.95,-5.00", variant.getStudy(studyId).getSampleData(sampleNames.get(1), "GL"));
             assertEquals("-0.02,-1.45,-5.00", variant.getStudy(studyId).getSampleData(sampleNames.get(2), "GL"));
+
+            assertEquals("PASS", variant.getStudy(studyId).getFile(studyId).getAttributes().get(VariantVcfFactory.FILTER));
         };
         VariantContext variantContext = vcfCodec.decode(vcfLine);
 
@@ -107,6 +110,21 @@ public class VariantContextToVariantConverterTest {
         checkVariant.accept(variant);
 
         assertSame(variant.getStudy(studyId).getSamplesPosition(), converter.convert(variantContext).getStudy(studyId).getSamplesPosition());
+    }
+
+    @Test
+    public void testConvertVariantFilterNull() throws Exception {
+        VCFCodec vcfCodec = new FullVcfCodec();
+        vcfCodec.setVCFHeader(new VCFHeader(Collections.emptySet(), Collections.emptyList()), VCFHeaderVersion.VCF4_1);
+        String vcfLine = "22\t16050984\trs188945759\tC\tG\t100\t.\t.";
+        VariantContext variantContext = vcfCodec.decode(vcfLine);
+        String studyId = "1";
+
+        VariantContextToVariantConverter converter = new VariantContextToVariantConverter(studyId, studyId, Collections.emptyList());
+        Variant variant = converter.convert(variantContext);
+
+        assertEquals(".", variant.getStudy(studyId).getFile(studyId).getAttributes().get(VariantVcfFactory.FILTER));
+
     }
 
     private long readFile(Path outPath) throws IOException {
