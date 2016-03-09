@@ -34,6 +34,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
     private boolean reuseVariants = true;
     private boolean normalizeAlleles = false;
     private boolean decomposeMNVs = false;
+    private boolean generateReferenceBlocks = false;
 
     public VariantNormalizer() {}
 
@@ -79,6 +80,15 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         return this;
     }
 
+    public boolean isGenerateReferenceBlocks() {
+        return generateReferenceBlocks;
+    }
+
+    public VariantNormalizer setGenerateReferenceBlocks(boolean generateReferenceBlocks) {
+        this.generateReferenceBlocks = generateReferenceBlocks;
+        return this;
+    }
+
     @Override
     public List<Variant> apply(List<Variant> batch) {
         try {
@@ -103,8 +113,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             String chromosome = variant.getChromosome();
 
             if (variant.getStudies() == null || variant.getStudies().isEmpty()) {
-                List<VariantKeyFields> keyFieldsList = normalize(
-                        chromosome, start, reference, Collections.singletonList(alternate));
+                List<VariantKeyFields> keyFieldsList = normalize(chromosome, start, reference, alternate);
                 for (VariantKeyFields keyFields : keyFieldsList) {
                     String call = start + ":" + reference + ":" + alternate + ":" + keyFields.getNumAllele();
                     Variant normalizedVariant = newVariant(variant, keyFields);
@@ -157,11 +166,17 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
                             List<FileEntry> files = new ArrayList<>(entry.getFiles().size());
                             for (FileEntry file : entry.getFiles()) {
-                                files.add(new FileEntry(file.getFileId(), sameVariant ? "" : call, file.getAttributes())); //TODO: Check file attributes
+                                HashMap<String, String> attributes = new HashMap<>(file.getAttributes()); //TODO: Check file attributes
+                                files.add(new FileEntry(file.getFileId(), sameVariant ? "" : call, attributes));
                             }
                             normalizedEntry.setFiles(files);
                             normalizedVariant.addStudyEntry(normalizedEntry);
                             samplesData = newSamplesData(entry.getSamplesData().size(), entry.getFormat().size());
+                        }
+
+                        if (keyFields.isReferenceBlock()) {
+                            normalizedVariant.setType(VariantType.NO_VARIATION);
+                            normalizedEntry.getFiles().forEach(fileEntry -> fileEntry.getAttributes().put("END", Integer.toString(keyFields.getEnd())));
                         }
 
                         //Set normalized secondary alternates
@@ -199,8 +214,8 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         return normalizedVariants;
     }
 
-    public VariantKeyFields normalize(String chromosome, int position, String reference, String alternate) {
-        return normalize(chromosome, position, reference, Collections.singletonList(alternate)).get(0);
+    public List<VariantKeyFields> normalize(String chromosome, int position, String reference, String alternate) {
+        return normalize(chromosome, position, reference, Collections.singletonList(alternate));
     }
 
     public List<VariantKeyFields> normalize(String chromosome, int position, String reference, List<String> alternates) {
@@ -208,37 +223,131 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         int numAllelesIdx = 0; // This index is necessary for getting the samples where the mutated allele is present
         for (Iterator<String> iterator = alternates.iterator(); iterator.hasNext(); numAllelesIdx++) {
             String currentAlternate = iterator.next();
-            VariantKeyFields keyFields;
+            List<VariantKeyFields> keyFieldsList;
             int referenceLen = reference.length();
             int alternateLen = currentAlternate.length();
 
             if (referenceLen == alternateLen) {
-                keyFields = createVariantsFromSameLengthRefAlt(position, reference, currentAlternate);
+                keyFieldsList = createVariantsFromNoEmptyRefAlt(position, reference, currentAlternate);
             } else if (referenceLen == 0) {
-                keyFields = createVariantsFromInsertionEmptyRef(position, currentAlternate);
+                keyFieldsList = Collections.singletonList(createVariantsFromInsertionEmptyRef(position, currentAlternate));
             } else if (alternateLen == 0) {
-                keyFields = createVariantsFromDeletionEmptyAlt(position, reference);
+                keyFieldsList = Collections.singletonList(createVariantsFromDeletionEmptyAlt(position, reference));
             } else {
-                keyFields = createVariantsFromIndelNoEmptyRefAlt(position, reference, currentAlternate);
+                keyFieldsList = createVariantsFromNoEmptyRefAlt(position, reference, currentAlternate);
             }
 
-            if (decomposeMNVs
-                    && ((keyFields.getReference().length() > 1 && keyFields.getAlternate().length() > 1)
-                       || ((
-                              (keyFields.getReference().length() > 1 && keyFields.getAlternate().length() == 1) // To deal with cases such as A>GT
-                           || (keyFields.getAlternate().length() > 1 && keyFields.getReference().length() == 1)
-                            // After left and right trimming, first character of reference and alternate must be different.
-                        ) /*&& keyFields.getReference().charAt(0) != keyFields.getAlternate().charAt(0)*/ ))) {
-                for (VariantKeyFields keyFields1 : decomposeMNVSingleVariants(keyFields)) {
-                    keyFields1.numAllele = numAllelesIdx;
-                    keyFields1.phaseSet = chromosome + ":" + position + ":" + reference + ":" + currentAlternate;
-                    list.add(keyFields1);
+
+            for (VariantKeyFields keyFields : keyFieldsList) {
+                if (decomposeMNVs
+                        && ((keyFields.getReference().length() > 1 && keyFields.getAlternate().length() > 1)
+                        || ((
+                        (keyFields.getReference().length() > 1 && keyFields.getAlternate().length() == 1) // To deal with cases such as A>GT
+                                || (keyFields.getAlternate().length() > 1 && keyFields.getReference().length() == 1)
+                        // After left and right trimming, first character of reference and alternate must be different.
+                ) /*&& keyFieldsList.getReference().charAt(0) != keyFieldsList.getAlternate().charAt(0)*/))) {
+                    for (VariantKeyFields keyFields1 : decomposeMNVSingleVariants(keyFields)) {
+                        keyFields1.numAllele = numAllelesIdx;
+                        keyFields1.phaseSet = chromosome + ":" + position + ":" + reference + ":" + currentAlternate;
+                        list.add(keyFields1);
+                    }
+                } else {
+                    keyFields.numAllele = numAllelesIdx;
+                    list.add(keyFields);
                 }
-            } else {
-                keyFields.numAllele = numAllelesIdx;
-                list.add(keyFields);
             }
         }
+
+        if (generateReferenceBlocks) {
+            // Have to remove overlapped reference blocks.
+            for (int i = 0; i < list.size(); i++) {
+                //Don't use iterators to avoid concurrent modification exceptions
+                VariantKeyFields current = list.get(i);
+                if (current.isReferenceBlock()) {
+                    VariantKeyFields newSlice = null;
+                    for (VariantKeyFields aux : list) {
+                        if (aux == current) {
+                            // Skip self
+                            continue;
+                        } else {
+                            if (aux.getStart() <= current.getStart() && aux.getReferenceEnd() >= current.getEnd()) {
+                                /* 1)
+                                 *     |----|   <- current
+                                 *  |--------|  <- aux
+                                 */
+                                list.remove(i--);
+                                break;
+                            } else if (aux.getStart() <= current.getStart() && current.getStart() <= aux.getReferenceEnd()) {
+                                /* 2)
+                                 *     |----|   <- current
+                                 *  |-----|     <- aux
+                                 */
+                                if (aux.isReferenceBlock()) {
+                                    //Merge reference blocks
+                                    aux.setEnd(current.getEnd());
+                                    list.remove(i--);
+                                    break;
+                                } else {
+                                    current.setStart(aux.getReferenceEnd() + 1);
+                                    // Have to find the correct current reference from the original reference
+                                    current.setReference(reference.substring(current.getStart() - position, current.getStart() - position + 1));
+                                }
+                            } else if (aux.getReferenceEnd() >= current.getEnd() && aux.getStart() <= current.getEnd()) {
+                                /* 3)
+                                 *   |-----|    <- current
+                                 *     |-----|  <- aux
+                                 */
+                                if (aux.isReferenceBlock()) {
+                                    //Merge reference blocks
+                                    aux.setStart(current.getStart());
+                                    aux.setReference(current.getReference());
+                                    list.remove(i--);
+                                    break;
+                                } else {
+                                    current.setEnd(aux.getStart() - 1);
+                                }
+                            } else if (aux.getStart() <= current.getEnd() && aux.getReferenceEnd() > current.getStart()) {
+                                /* 4) As first case, but upside down
+                                 *  |-------|  <- current
+                                 *    |--|     <- aux
+                                 */
+                                if (!aux.isReferenceBlock()) {
+                                    /* Split the current block into 2 blocks
+                                     *  |-|  |--|  <- current + newSlip
+                                     *    |--|     <- aux
+                                     */
+                                    int blockStart = aux.getReferenceEnd() + 1;
+                                    int blockEnd = current.getEnd();
+                                    if (blockEnd >= blockStart) {
+                                        // Have to find the correct current reference from the original reference
+                                        String blockRef = reference.substring(blockStart - position, blockStart - position + 1);
+                                        if (newSlice != null) {
+                                            throw new IllegalStateException();
+                                        }
+                                        newSlice = new VariantKeyFields(blockStart,  blockEnd, 0, blockRef, "", true);
+                                    }
+
+                                    current.setEnd(aux.getStart() - 1);
+                                    if (current.getEnd() < current.getStart()) {
+                                        list.remove(i--);
+                                        break;
+                                    }
+                                } // else, will be fixed later
+
+                            }   /* else, nothing to do
+                                 * 5)
+                                 *  |--|       <- current
+                                 *       |--|  <- aux
+                                 */
+                        }
+                    }
+                    if (newSlice != null) {
+                        list.add(newSlice);
+                    }
+                }
+            }
+        }
+
         return list;
     }
 
@@ -309,7 +418,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             target = new DNASequence(seq1, AmbiguityDNACompoundSet.getDNACompoundSet());
             query = new DNASequence(seq2, AmbiguityDNACompoundSet.getDNACompoundSet());
         } catch (Exception e) {
-            logger.error("Error when creating DNASequence objects for "+seq1+" and "+seq2+" prior to pairwise " +
+            logger.error("Error when creating DNASequence objects for " + seq1 + " and " + seq2 + " prior to pairwise " +
                     "sequence alignment", e);
         }
         SubstitutionMatrix<NucleotideCompound> substitutionMatrix = SubstitutionMatrixHelper.getNuc4_4();
@@ -330,41 +439,6 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         return !variant.getType().equals(VariantType.NO_VARIATION);
     }
 
-    /**
-     * Calculates the start, end, reference and alternate of a SNV/MNV where the
-     * reference and the alternate are not empty.
-     *
-     * This task comprises 2 steps: removing the trailing bases that are
-     * identical in both alleles, then the leading identical bases.
-     *
-     * @param position Input starting position
-     * @param reference Input reference allele
-     * @param alt Input alternate allele
-     * @return The new start, end, reference and alternate alleles
-     */
-    protected VariantKeyFields createVariantsFromSameLengthRefAlt(int position, String reference, String alt) {
-        int indexOfDifference;
-        // Remove the trailing bases
-        String refReversed = StringUtils.reverse(reference);
-        String altReversed = StringUtils.reverse(alt);
-        indexOfDifference = StringUtils.indexOfDifference(refReversed, altReversed);
-
-        reference = StringUtils.reverse(refReversed.substring(indexOfDifference));
-        alt = StringUtils.reverse(altReversed.substring(indexOfDifference));
-
-        // Remove the leading bases
-        indexOfDifference = StringUtils.indexOfDifference(reference, alt);
-        if (indexOfDifference < 0) {
-            return null;
-        } else {
-            int start = position + indexOfDifference;
-            int end = position + reference.length() - 1;
-            String ref = reference.substring(indexOfDifference);
-            String inAlt = alt.substring(indexOfDifference);
-            return new VariantKeyFields(start, end, ref, inAlt);
-        }
-    }
-
     protected VariantKeyFields createVariantsFromInsertionEmptyRef(int position, String alt) {
         return new VariantKeyFields(position, position + alt.length() - 1, "", alt);
     }
@@ -374,7 +448,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
     }
 
     /**
-     * Calculates the start, end, reference and alternate of an indel where the
+     * Calculates the start, end, reference and alternate of an SNV/MNV/INDEL where the
      * reference and the alternate are not empty.
      *
      * This task comprises 2 steps: removing the trailing bases that are
@@ -385,41 +459,129 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
      * @param alt Input alternate allele
      * @return The new start, end, reference and alternate alleles
      */
-    protected VariantKeyFields createVariantsFromIndelNoEmptyRefAlt(int position, String reference, String alt) {
+    protected List<VariantKeyFields> createVariantsFromNoEmptyRefAlt(int position, String reference, String alt) {
         int indexOfDifference;
         // Remove the trailing bases
-        String refReversed = StringUtils.reverse(reference);
-        String altReversed = StringUtils.reverse(alt);
-        indexOfDifference = StringUtils.indexOfDifference(refReversed, altReversed);
+        indexOfDifference = reverseIndexOfDifference(reference, alt);
 
-        reference = StringUtils.reverse(refReversed.substring(indexOfDifference));
-        alt = StringUtils.reverse(altReversed.substring(indexOfDifference));
+        VariantKeyFields startReferenceBlock = null;
+        final VariantKeyFields keyFields;
+        VariantKeyFields endReferenceBlock = null;
+
+        if (generateReferenceBlocks) {
+            if (indexOfDifference > 0) {
+                //Generate a reference block from the trailing bases
+                String blockRef = reference.substring(reference.length() - indexOfDifference, reference.length() - indexOfDifference + 1);
+                int blockStart = position + reference.length() - indexOfDifference;
+                int blockEnd = position + reference.length() - 1;   // Base-1 ending
+                endReferenceBlock = new VariantKeyFields(blockStart, blockEnd, blockRef, "")
+                        .setReferenceBlock(true);
+//                System.out.println("END referenceBlock = " + endReferenceBlock);
+            } else if (indexOfDifference < 0) {
+                //Reference and alternate are equals! Generate a single reference block
+                String blockRef = reference.substring(0, 1);
+                int blockStart = position;
+                int blockEnd = position + reference.length() - 1;   // Base-1 ending
+                VariantKeyFields referenceBlock = new VariantKeyFields(blockStart, blockEnd, blockRef, "")
+                        .setReferenceBlock(true);
+//                System.out.println("ALL referenceBlock = " + referenceBlock);
+                return Collections.singletonList(referenceBlock);
+            }
+        }
+
+
+        reference = reference.substring(0, reference.length() - indexOfDifference);
+        alt = alt.substring(0, alt.length() - indexOfDifference);
 
         // Remove the leading bases
         indexOfDifference = StringUtils.indexOfDifference(reference, alt);
         if (indexOfDifference < 0) {
-            return null;
+            //There reference and the alternate are the same
+            return Collections.emptyList();
         } else if (indexOfDifference == 0) {
             if (reference.length() > alt.length()) { // Deletion
-                return new VariantKeyFields(position, position + reference.length() - 1, reference, alt);
+                keyFields = new VariantKeyFields(position, position + reference.length() - 1, reference, alt);
             } else { // Insertion
-                return new VariantKeyFields(position, position + alt.length() - 1, reference, alt);
+                keyFields = new VariantKeyFields(position, position + alt.length() - 1, reference, alt);
             }
         } else {
-            if (reference.length() > alt.length()) { // Deletion
-                int start = position + indexOfDifference;
-                int end = position + reference.length() - 1;
-                String ref = reference.substring(indexOfDifference);
-                String inAlt = alt.substring(indexOfDifference);
-                return new VariantKeyFields(start, end, ref, inAlt);
-            } else { // Insertion
-                int start = position + indexOfDifference;
-                int end = position + alt.length() - 1;
-                String ref = reference.substring(indexOfDifference);
-                String inAlt = alt.substring(indexOfDifference);
-                return new VariantKeyFields(start, end, ref, inAlt);
+            if (generateReferenceBlocks) {
+                String blockRef = reference.substring(0, 1);
+                int blockStart = position;
+                int blockEnd = position + indexOfDifference - 1;   // Base-1 ending
+                startReferenceBlock = new VariantKeyFields(blockStart, blockEnd, blockRef, "")
+                        .setReferenceBlock(true);
+//                System.out.println("START referenceBlock = " + startReferenceBlock);
+            }
+
+            int start = position + indexOfDifference;
+            String ref = reference.substring(indexOfDifference);
+            String inAlt = alt.substring(indexOfDifference);
+            int end = reference.length() > alt.length()
+                    ? position + reference.length() - 1
+                    : position + alt.length() - 1;
+            keyFields = new VariantKeyFields(start, end, ref, inAlt);
+        }
+
+        if (!generateReferenceBlocks) {
+            return Collections.singletonList(keyFields);
+        } else {
+            List<VariantKeyFields> list = new ArrayList<>(1 + (startReferenceBlock == null ? 0 : 1) + (endReferenceBlock == null ? 0 : 1));
+            if (startReferenceBlock != null) {
+                list.add(startReferenceBlock);
+            }
+            list.add(keyFields);
+            if (endReferenceBlock != null) {
+                list.add(endReferenceBlock);
+            }
+            return list;
+        }
+    }
+
+    /**
+     * <p>Compares two CharSequences, and returns the index beginning from the behind,
+     * at which the CharSequences begin to differ.</p>
+     *
+     * Based on {@link StringUtils#indexOfDifference}
+     *
+     * <p>For example,
+     * {@code reverseIndexOfDifference("you are a machine", "i have one machine") -> 8}</p>
+     *
+     * <pre>
+     * reverseIndexOfDifference(null, null) = -1
+     * reverseIndexOfDifference("", "") = -1
+     * reverseIndexOfDifference("", "abc") = 0
+     * reverseIndexOfDifference("abc", "") = 0
+     * reverseIndexOfDifference("abc", "abc") = -1
+     * reverseIndexOfDifference("ab", "xyzab") = 2
+     * reverseIndexOfDifference("abcde", "xyzab") = 2
+     * reverseIndexOfDifference("abcde", "xyz") = 0
+     * </pre>
+     *
+     * @param cs1  the first CharSequence, may be null
+     * @param cs2  the second CharSequence, may be null
+     * @return the index from behind where cs1 and cs2 begin to differ; -1 if they are equal
+     */
+    public static int reverseIndexOfDifference(final CharSequence cs1, final CharSequence cs2) {
+        if (cs1 == cs2) {
+            return StringUtils.INDEX_NOT_FOUND;
+        }
+        if (cs1 == null || cs2 == null) {
+            return 0;
+        }
+        int i;
+        int cs1Length = cs1.length();
+        int cs2Length = cs2.length();
+
+        for (i = 0; i < cs1Length && i < cs2Length; ++i) {
+            if (cs1.charAt(cs1Length - i - 1) != cs2.charAt(cs2Length - i - 1)) {
+                break;
             }
         }
+        if (i < cs2Length || i < cs1Length) {
+            return i;
+        }
+        return StringUtils.INDEX_NOT_FOUND;
     }
 
     public List<List<String>> normalizeSamplesData(VariantKeyFields variantKeyFields, final List<List<String>> samplesData, List<String> format,
@@ -438,7 +600,6 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             newSampleData = reuseSampleData;
         }
 
-        Genotype genotype = null;
         String[] secondaryAlternatesMap = new String[1 + alternateAlleles.size()];  //reference + alternates
         int secondaryReferencesIdx = 2;
         int alleleIdx = 1;
@@ -480,6 +641,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                 //                continue;
                 //            }
 
+                Genotype genotype = null;
                 for (int formatFieldIdx = 0; formatFieldIdx < format.size(); formatFieldIdx++) {
                     String formatField = format.get(formatFieldIdx);
                     // It may happen that the Format contains other fields that were not in the original format,
@@ -506,8 +668,12 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                             if (allele < 0) { // Missing
                                 genotypeStr.append(".");
                             } else {
-                                // Replace numerical indexes when they refer to another alternate allele
-                                genotypeStr.append(secondaryAlternatesMap[allele]);
+                                if (variantKeyFields.isReferenceBlock()) {
+                                    genotypeStr.append(0);
+                                } else {
+                                    // Replace numerical indexes when they refer to another alternate allele
+                                    genotypeStr.append(secondaryAlternatesMap[allele]);
+                                }
                             }
                             if (i < allelesIdx.length - 1) {
                                 genotypeStr.append(genotype.isPhased() ? "|" : "/");
@@ -584,7 +750,9 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
     public List<AlternateCoordinate> getSecondaryAlternatesMap(String chromosome, VariantKeyFields alternate, List<VariantKeyFields> alternates) {
         List<AlternateCoordinate> secondaryAlternates;
-        if (alternates.size() == 1) {
+        if (alternates.size() == 1 || alternate.isReferenceBlock()) {
+            // If there is only one alternate, there are no secondary alternates
+            // Reference blocks do not have secondary alternates
             secondaryAlternates = Collections.emptyList();
         } else if (alternate.getPhaseSet() != null) {
             for (VariantKeyFields variantKeyFields : alternates) {
@@ -600,6 +768,9 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
             secondaryAlternates = new ArrayList<>(alternates.size() - 1);
             for (VariantKeyFields keyFields : alternates) {
+                if (keyFields.isReferenceBlock()) {
+                    continue;
+                }
                 if (!keyFields.equals(alternate)) {
                     secondaryAlternates.add(new AlternateCoordinate(
                             // Chromosome is always the same, do not set
@@ -637,20 +808,25 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         private String reference;
         private String alternate;
 
+        boolean referenceBlock;
+
+        public VariantKeyFields(int start, int end, String reference, String alternate) {
+            this(start, end, 0, reference, alternate, false);
+        }
+
         public VariantKeyFields(int start, int end, int numAllele, String reference, String alternate) {
+            this(start, end, numAllele, reference, alternate, false);
+        }
+
+        public VariantKeyFields(int start, int end, int numAllele, String reference, String alternate, boolean referenceBlock) {
             this.start = start;
             this.end = end;
             this.numAllele = numAllele;
             this.reference = reference;
             this.alternate = alternate;
+            this.referenceBlock = referenceBlock;
         }
 
-        public VariantKeyFields(int start, int end, String reference, String alternate) {
-            this.start = start;
-            this.end = end;
-            this.reference = reference;
-            this.alternate = alternate;
-        }
 
         public int getStart() {
             return start;
@@ -663,6 +839,10 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
         public int getEnd() {
             return end;
+        }
+
+        public int getReferenceEnd() {
+            return start + reference.length() - 1;
         }
 
         public VariantKeyFields setEnd(int end) {
@@ -704,6 +884,15 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             return this;
         }
 
+        public boolean isReferenceBlock() {
+            return referenceBlock;
+        }
+
+        public VariantKeyFields setReferenceBlock(boolean referenceBlock) {
+            this.referenceBlock = referenceBlock;
+            return this;
+        }
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
@@ -731,7 +920,9 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
         @Override
         public String toString() {
-            return start + ":" + reference + ":" + alternate + ":" + numAllele + (phaseSet == null ? "" : ("(ps:" + phaseSet + ")"));
+            return start + ":" + reference + ":" + alternate + ":" + numAllele
+                    + (phaseSet == null ? "" : ("(ps:" + phaseSet + ")"))
+                    + (referenceBlock ? ("(END=" + end + ")") : "");
         }
 
 
