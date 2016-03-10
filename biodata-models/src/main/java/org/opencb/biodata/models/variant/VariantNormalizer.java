@@ -227,18 +227,17 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             int referenceLen = reference.length();
             int alternateLen = currentAlternate.length();
 
-            if (referenceLen == alternateLen) {
-                keyFieldsList = createVariantsFromNoEmptyRefAlt(position, reference, currentAlternate);
-            } else if (referenceLen == 0) {
-                keyFieldsList = Collections.singletonList(createVariantsFromInsertionEmptyRef(position, currentAlternate));
+            VariantKeyFields keyFields;
+            if (referenceLen == 0) {
+                keyFields = createVariantsFromInsertionEmptyRef(position, currentAlternate);
             } else if (alternateLen == 0) {
-                keyFieldsList = Collections.singletonList(createVariantsFromDeletionEmptyAlt(position, reference));
+                keyFields = createVariantsFromDeletionEmptyAlt(position, reference);
             } else {
-                keyFieldsList = createVariantsFromNoEmptyRefAlt(position, reference, currentAlternate);
+                keyFields = createVariantsFromNoEmptyRefAlt(position, reference, currentAlternate);
             }
 
 
-            for (VariantKeyFields keyFields : keyFieldsList) {
+            if (keyFields != null) {
                 if (decomposeMNVs
                         && ((keyFields.getReference().length() > 1 && keyFields.getAlternate().length() > 1)
                         || ((
@@ -259,95 +258,110 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         }
 
         if (generateReferenceBlocks) {
-            // Have to remove overlapped reference blocks.
-            for (int i = 0; i < list.size(); i++) {
-                //Don't use iterators to avoid concurrent modification exceptions
-                VariantKeyFields current = list.get(i);
-                if (current.isReferenceBlock()) {
-                    VariantKeyFields newSlice = null;
-                    for (VariantKeyFields aux : list) {
-                        if (aux == current) {
-                            // Skip self
-                            continue;
-                        } else {
-                            if (aux.getStart() <= current.getStart() && aux.getReferenceEnd() >= current.getEnd()) {
-                                /* 1)
-                                 *     |----|   <- current
-                                 *  |--------|  <- aux
-                                 */
+            list = generateReferenceBlocks(list, position, reference);
+        }
+
+        list.sort((o1, o2) -> Integer.compare(o1.getStart(), o2.getStart()));
+        return list;
+    }
+
+    private List<VariantKeyFields> generateReferenceBlocks(List<VariantKeyFields> list, int position, String reference) {
+
+        // Skip for simple SNV
+        if (list.size() == 1 && list.get(0).getStart() == position && list.get(0).getReference().equals(reference)) {
+            return list;
+        }
+
+        // Create a reference block for all the positions.
+        list.add(new VariantKeyFields(position, position + reference.length() - 1, 0, reference.substring(0, 1), "", true));
+
+        // Have to remove overlapped reference blocks.
+        for (int i = 0; i < list.size(); i++) {
+            //Don't use iterators to avoid concurrent modification exceptions
+            VariantKeyFields current = list.get(i);
+            if (current.isReferenceBlock()) {
+                VariantKeyFields newSlice = null;
+                for (VariantKeyFields aux : list) {
+                    if (aux == current) {
+                        // Skip self
+                        continue;
+                    } else {
+                        if (aux.getStart() <= current.getStart() && aux.getReferenceEnd() >= current.getEnd()) {
+                            /* 1)
+                             *     |----|   <- current
+                             *  |--------|  <- aux
+                             */
+                            list.remove(i--);
+                            break;
+                        } else if (aux.getStart() <= current.getStart() && current.getStart() <= aux.getReferenceEnd()) {
+                            /* 2)
+                             *     |----|   <- current
+                             *  |-----|     <- aux
+                             */
+                            if (aux.isReferenceBlock()) {
+                                //Merge reference blocks
+                                aux.setEnd(current.getEnd());
                                 list.remove(i--);
                                 break;
-                            } else if (aux.getStart() <= current.getStart() && current.getStart() <= aux.getReferenceEnd()) {
-                                /* 2)
-                                 *     |----|   <- current
-                                 *  |-----|     <- aux
-                                 */
-                                if (aux.isReferenceBlock()) {
-                                    //Merge reference blocks
-                                    aux.setEnd(current.getEnd());
-                                    list.remove(i--);
-                                    break;
-                                } else {
-                                    current.setStart(aux.getReferenceEnd() + 1);
-                                    // Have to find the correct current reference from the original reference
-                                    current.setReference(reference.substring(current.getStart() - position, current.getStart() - position + 1));
-                                }
-                            } else if (aux.getReferenceEnd() >= current.getEnd() && aux.getStart() <= current.getEnd()) {
-                                /* 3)
-                                 *   |-----|    <- current
-                                 *     |-----|  <- aux
-                                 */
-                                if (aux.isReferenceBlock()) {
-                                    //Merge reference blocks
-                                    aux.setStart(current.getStart());
-                                    aux.setReference(current.getReference());
-                                    list.remove(i--);
-                                    break;
-                                } else {
-                                    current.setEnd(aux.getStart() - 1);
-                                }
-                            } else if (aux.getStart() <= current.getEnd() && aux.getReferenceEnd() > current.getStart()) {
-                                /* 4) As first case, but upside down
-                                 *  |-------|  <- current
+                            } else {
+                                current.setStart(aux.getReferenceEnd() + 1);
+                                // Have to find the correct current reference from the original reference
+                                current.setReference(reference.substring(current.getStart() - position, current.getStart() - position + 1));
+                            }
+                        } else if (aux.getReferenceEnd() >= current.getEnd() && aux.getStart() <= current.getEnd()) {
+                            /* 3)
+                             *   |-----|    <- current
+                             *     |-----|  <- aux
+                             */
+                            if (aux.isReferenceBlock()) {
+                                //Merge reference blocks
+                                aux.setStart(current.getStart());
+                                aux.setReference(current.getReference());
+                                list.remove(i--);
+                                break;
+                            } else {
+                                current.setEnd(aux.getStart() - 1);
+                            }
+                        } else if (aux.getStart() <= current.getEnd() && aux.getReferenceEnd() > current.getStart()) {
+                            /* 4) As first case, but upside down
+                             *  |-------|  <- current
+                             *    |--|     <- aux
+                             */
+                            if (!aux.isReferenceBlock()) {
+                                /* Split the current block into 2 blocks
+                                 *  |-|  |--|  <- current + newSlip
                                  *    |--|     <- aux
                                  */
-                                if (!aux.isReferenceBlock()) {
-                                    /* Split the current block into 2 blocks
-                                     *  |-|  |--|  <- current + newSlip
-                                     *    |--|     <- aux
-                                     */
-                                    int blockStart = aux.getReferenceEnd() + 1;
-                                    int blockEnd = current.getEnd();
-                                    if (blockEnd >= blockStart) {
-                                        // Have to find the correct current reference from the original reference
-                                        String blockRef = reference.substring(blockStart - position, blockStart - position + 1);
-                                        if (newSlice != null) {
-                                            throw new IllegalStateException();
-                                        }
-                                        newSlice = new VariantKeyFields(blockStart,  blockEnd, 0, blockRef, "", true);
+                                int blockStart = aux.getReferenceEnd() + 1;
+                                int blockEnd = current.getEnd();
+                                if (blockEnd >= blockStart) {
+                                    // Have to find the correct current reference from the original reference
+                                    String blockRef = reference.substring(blockStart - position, blockStart - position + 1);
+                                    if (newSlice != null) {
+                                        throw new IllegalStateException();
                                     }
+                                    newSlice = new VariantKeyFields(blockStart,  blockEnd, 0, blockRef, "", true);
+                                }
 
-                                    current.setEnd(aux.getStart() - 1);
-                                    if (current.getEnd() < current.getStart()) {
-                                        list.remove(i--);
-                                        break;
-                                    }
-                                } // else, will be fixed later
+                                current.setEnd(aux.getStart() - 1);
+                                if (current.getEnd() < current.getStart()) {
+                                    list.remove(i--);
+                                    break;
+                                }
+                            } // else, will be fixed later
 
-                            }   /* else, nothing to do
-                                 * 5)
-                                 *  |--|       <- current
-                                 *       |--|  <- aux
-                                 */
-                        }
+                        }   /* else, nothing to do
+                             * 5)
+                             *  |--|       <- current
+                             *       |--|  <- aux
+                             */
                     }
-                    if (newSlice != null) {
-                        list.add(newSlice);
-                    }
+                }
+                if (newSlice != null) {
+                    list.add(newSlice);
                 }
             }
         }
-
         return list;
     }
 
@@ -459,35 +473,33 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
      * @param alt Input alternate allele
      * @return The new start, end, reference and alternate alleles
      */
-    protected List<VariantKeyFields> createVariantsFromNoEmptyRefAlt(int position, String reference, String alt) {
+    protected VariantKeyFields createVariantsFromNoEmptyRefAlt(int position, String reference, String alt) {
         int indexOfDifference;
         // Remove the trailing bases
         indexOfDifference = reverseIndexOfDifference(reference, alt);
 
-        VariantKeyFields startReferenceBlock = null;
+//        VariantKeyFields startReferenceBlock = null;
         final VariantKeyFields keyFields;
-        VariantKeyFields endReferenceBlock = null;
+//        VariantKeyFields endReferenceBlock = null;
 
-        if (generateReferenceBlocks) {
-            if (indexOfDifference > 0) {
-                //Generate a reference block from the trailing bases
-                String blockRef = reference.substring(reference.length() - indexOfDifference, reference.length() - indexOfDifference + 1);
-                int blockStart = position + reference.length() - indexOfDifference;
-                int blockEnd = position + reference.length() - 1;   // Base-1 ending
-                endReferenceBlock = new VariantKeyFields(blockStart, blockEnd, blockRef, "")
-                        .setReferenceBlock(true);
-//                System.out.println("END referenceBlock = " + endReferenceBlock);
-            } else if (indexOfDifference < 0) {
-                //Reference and alternate are equals! Generate a single reference block
-                String blockRef = reference.substring(0, 1);
-                int blockStart = position;
-                int blockEnd = position + reference.length() - 1;   // Base-1 ending
-                VariantKeyFields referenceBlock = new VariantKeyFields(blockStart, blockEnd, blockRef, "")
-                        .setReferenceBlock(true);
-//                System.out.println("ALL referenceBlock = " + referenceBlock);
-                return Collections.singletonList(referenceBlock);
-            }
-        }
+//        if (generateReferenceBlocks) {
+//            if (indexOfDifference > 0) {
+//                //Generate a reference block from the trailing bases
+//                String blockRef = reference.substring(reference.length() - indexOfDifference, reference.length() - indexOfDifference + 1);
+//                int blockStart = position + reference.length() - indexOfDifference;
+//                int blockEnd = position + reference.length() - 1;   // Base-1 ending
+//                endReferenceBlock = new VariantKeyFields(blockStart, blockEnd, blockRef, "")
+//                        .setReferenceBlock(true);
+//            } else if (indexOfDifference < 0) {
+//                //Reference and alternate are equals! Generate a single reference block
+//                String blockRef = reference.substring(0, 1);
+//                int blockStart = position;
+//                int blockEnd = position + reference.length() - 1;   // Base-1 ending
+//                VariantKeyFields referenceBlock = new VariantKeyFields(blockStart, blockEnd, blockRef, "")
+//                        .setReferenceBlock(true);
+//                return Collections.singletonList(referenceBlock);
+//            }
+//        }
 
 
         reference = reference.substring(0, reference.length() - indexOfDifference);
@@ -497,7 +509,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         indexOfDifference = StringUtils.indexOfDifference(reference, alt);
         if (indexOfDifference < 0) {
             //There reference and the alternate are the same
-            return Collections.emptyList();
+            return null;
         } else if (indexOfDifference == 0) {
             if (reference.length() > alt.length()) { // Deletion
                 keyFields = new VariantKeyFields(position, position + reference.length() - 1, reference, alt);
@@ -505,14 +517,13 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                 keyFields = new VariantKeyFields(position, position + alt.length() - 1, reference, alt);
             }
         } else {
-            if (generateReferenceBlocks) {
-                String blockRef = reference.substring(0, 1);
-                int blockStart = position;
-                int blockEnd = position + indexOfDifference - 1;   // Base-1 ending
-                startReferenceBlock = new VariantKeyFields(blockStart, blockEnd, blockRef, "")
-                        .setReferenceBlock(true);
-//                System.out.println("START referenceBlock = " + startReferenceBlock);
-            }
+//            if (generateReferenceBlocks) {
+//                String blockRef = reference.substring(0, 1);
+//                int blockStart = position;
+//                int blockEnd = position + indexOfDifference - 1;   // Base-1 ending
+//                startReferenceBlock = new VariantKeyFields(blockStart, blockEnd, blockRef, "")
+//                        .setReferenceBlock(true);
+//            }
 
             int start = position + indexOfDifference;
             String ref = reference.substring(indexOfDifference);
@@ -523,19 +534,20 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             keyFields = new VariantKeyFields(start, end, ref, inAlt);
         }
 
-        if (!generateReferenceBlocks) {
-            return Collections.singletonList(keyFields);
-        } else {
-            List<VariantKeyFields> list = new ArrayList<>(1 + (startReferenceBlock == null ? 0 : 1) + (endReferenceBlock == null ? 0 : 1));
-            if (startReferenceBlock != null) {
-                list.add(startReferenceBlock);
-            }
-            list.add(keyFields);
-            if (endReferenceBlock != null) {
-                list.add(endReferenceBlock);
-            }
-            return list;
-        }
+//        if (!generateReferenceBlocks) {
+//            return Collections.singletonList(keyFields);
+//        } else {
+//            List<VariantKeyFields> list = new ArrayList<>(1 + (startReferenceBlock == null ? 0 : 1) + (endReferenceBlock == null ? 0 : 1));
+//            if (startReferenceBlock != null) {
+//                list.add(startReferenceBlock);
+//            }
+//            list.add(keyFields);
+//            if (endReferenceBlock != null) {
+//                list.add(endReferenceBlock);
+//            }
+//            return list;
+//        }
+        return keyFields;
     }
 
     /**
