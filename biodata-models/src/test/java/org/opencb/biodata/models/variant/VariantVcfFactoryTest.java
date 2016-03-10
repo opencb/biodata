@@ -172,8 +172,8 @@ public class VariantVcfFactoryTest {
         // Check proper conversion of main fields
         List<Variant> expResult = new LinkedList<>();
         expResult.add(new Variant("1", 10040, 10040 + "TGACGTAACGAT".length() - 1, "TGACGTAACGAT", ""));
-        expResult.add(new Variant("1", 10050, 10050 + "A".length() - 1, "A", "G"));
         expResult.add(new Variant("1", 10048, 10048 + "CGATT".length() - 1, "CGATT", "TAC"));
+        expResult.add(new Variant("1", 10050, 10050 + "A".length() - 1, "A", "G"));
 
         List<Variant> result = factory.create(source, line);
         result.stream().forEach(variant -> variant.setStudies(Collections.<StudyEntry>emptyList()));

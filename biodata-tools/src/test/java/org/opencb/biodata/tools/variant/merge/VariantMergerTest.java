@@ -224,9 +224,9 @@ public class VariantMergerTest {
 
     @Test
     public void testMergeWithSecondaryWithOtherFields_2SNP_2() {
-        Variant var1 = generateVariantWithFormat("1:10:A:T", "GT:FILTER", "S01", "0/1", "PASS");
+        Variant var1 = generateVariantWithFormat("1:10:A:T", "GT:FT", "S01", "0/1", "PASS");
         System.out.println("var1.toJson() = " + var1.toJson());
-        Variant var2 = generateVariantWithFormat("1:10:A:G", "GT:FILTER", "S02", "1/2", "noPASS");
+        Variant var2 = generateVariantWithFormat("1:10:A:G", "GT:FT", "S02", "1/2", "noPASS");
         var2.getStudy(STUDY_ID).getSecondaryAlternates().add(new AlternateCoordinate("1", 10, 10, "A", "C", VariantType.SNV));
         checkMergeVariants(var1, var2, Arrays.asList("1:10:A:G", "1:10:A:C"), "2/3");
     }

@@ -7,6 +7,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import htsjdk.variant.vcf.VCFConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.StudyEntry;
@@ -22,10 +23,16 @@ import org.opencb.biodata.models.variant.avro.VariantType;
  */
 public class VariantMerger {
 
-    public static final String VCF_FILTER = VariantVcfFactory.FILTER;
+    @Deprecated
+    public static final String VCF_FILTER = VCFConstants.GENOTYPE_FILTER_KEY;
+
+    public static final String GENOTYPE_FILTER_KEY = VCFConstants.GENOTYPE_FILTER_KEY;
+
+    //    public static final String VCF_FILTER = "FILTER";
     public static final String GT_KEY = "GT";
     public static final String PASS_VALUE = "PASS";
-//    public static final String CALL_KEY = "CALL";
+    public static final String DEFAULT_FILTER_VALUE = ".";
+    //    public static final String CALL_KEY = "CALL";
 
     /**
      * 
@@ -61,7 +68,7 @@ public class VariantMerger {
         for(StudyEntry tse : target.getStudies()){
             StudyEntry se = new StudyEntry(tse.getStudyId());
             se.setFiles(Collections.singletonList(new FileEntry("", "", new HashMap<>())));
-            se.setFormat(Arrays.asList(GT_KEY, VCF_FILTER));
+            se.setFormat(Arrays.asList(GT_KEY, GENOTYPE_FILTER_KEY));
             se.setSamplesPosition(new HashMap<String, Integer>());
             se.setSamplesData(new ArrayList<List<String>>());
             var.addStudyEntry(se);
@@ -122,10 +129,10 @@ public class VariantMerger {
      */
     void mergeOverlappingVariant(Variant current, Variant other) {
         Map<String, String> sampleToGt = sampleToGt(other);
-        Map<String, String> sampleToFilter = sampleToAttribute(other, VCF_FILTER);
+        Map<String, String> sampleToFilter = sampleToAttribute(other, VariantVcfFactory.FILTER);
         StudyEntry se = getStudy(current);
 
-        ensureFormat(se, VCF_FILTER, "-");
+        ensureFormat(se, GENOTYPE_FILTER_KEY, DEFAULT_FILTER_VALUE);
 
         Set<String> duplicates = se.getSamplesName().stream().filter(s -> sampleToGt.containsKey(s)).collect(Collectors.toSet());
         if (!duplicates.isEmpty()) {
@@ -138,7 +145,7 @@ public class VariantMerger {
 
         // Add GT data for each sample to current Variant
         for (String sampleName : getStudy(other).getOrderedSamplesName()) {
-            List<String> sampleDataList = Arrays.asList(updateGT(sampleToGt.get(sampleName), secIdx), sampleToFilter.getOrDefault(sampleName, "-"));
+            List<String> sampleDataList = Arrays.asList(updateGT(sampleToGt.get(sampleName), secIdx), sampleToFilter.getOrDefault(sampleName, DEFAULT_FILTER_VALUE));
             se.addSampleData(sampleName, sampleDataList);
         }
     }
@@ -172,10 +179,19 @@ public class VariantMerger {
         List<Integer> idx = new ArrayList<>(secondaryAlternates.size() + otherAlternates.size());
         idx.add(0); // The reference is the same
         for (AlternateCoordinate alternateCoordinate : otherAlternates) {
-            int indexOf = secondaryAlternates.indexOf(alternateCoordinate);
+//            int indexOf = secondaryAlternates.indexOf(alternateCoordinate);
+            int indexOf = -1;
+            int counter = 0;
+            for (AlternateCoordinate s : secondaryAlternates) {
+                if (equals(variant, alternateCoordinate, s)) {
+                    indexOf = counter;
+                    break;
+                }
+                counter++;
+            }
             if (indexOf >= 0) {
                 idx.add(indexOf + 2);
-            } else if (alternateCoordinate.equals(mainAlternate)) {
+            } else if (equals(variant, alternateCoordinate, mainAlternate)) {
                 idx.add(1);
             } else {
                 idx.add(secondaryAlternates.size() + 2);
@@ -183,6 +199,32 @@ public class VariantMerger {
             }
         }
         return idx;
+    }
+
+    private boolean equals(Variant variant, AlternateCoordinate alt1, AlternateCoordinate alt2) {
+        return getEnd(alt2, variant).equals(getEnd(alt1, variant))
+                && getReference(alt2, variant).equals(getReference(alt1, variant))
+                && getAlternate(alt2, variant).equals(getAlternate(alt1, variant));
+    }
+
+    private String getChromosome(AlternateCoordinate s, Variant v) {
+        return s.getChromosome() != null ? s.getChromosome() : v.getChromosome();
+    }
+
+    private String getReference(AlternateCoordinate s, Variant v) {
+        return s.getReference() != null ? s.getReference() : v.getReference();
+    }
+
+    private String getAlternate(AlternateCoordinate s, Variant v) {
+        return s.getAlternate() != null ? s.getAlternate() : v.getAlternate();
+    }
+
+    private Integer getStart(AlternateCoordinate s, Variant v) {
+        return s.getStart() != null ? s.getStart() : v.getStart();
+    }
+
+    private Integer getEnd(AlternateCoordinate s, Variant v) {
+        return s.getEnd() != null ? s.getEnd() : v.getEnd();
     }
 
     /**
@@ -215,10 +257,10 @@ public class VariantMerger {
      */
     void mergeSameVariant(Variant current, Variant same){
         Map<String, String> sampleToGt = sampleToGt(same);
-        Map<String, String> sampleToFilter = sampleToAttribute(same,VCF_FILTER);
+        Map<String, String> sampleToFilter = sampleToAttribute(same, VariantVcfFactory.FILTER);
         StudyEntry se = getStudy(current);
 
-        ensureFormat(se, VCF_FILTER, "-");
+        ensureFormat(se, GENOTYPE_FILTER_KEY, DEFAULT_FILTER_VALUE);
 
         Set<String> duplicates = se.getSamplesName().stream().filter(s -> sampleToGt.containsKey(s)).collect(Collectors.toSet());
         if(!duplicates.isEmpty()){
@@ -230,8 +272,8 @@ public class VariantMerger {
 
         // Add GT data for each sample to current Variant
         for (String sampleName : getStudy(same).getOrderedSamplesName()) {
-//            List<String> sampleData = Arrays.asList(sampleToGt.get(sampleName), sampleToFilter.getOrDefault(sampleName, "-"));
-            List<String> sampleData = Arrays.asList(updateGT(sampleToGt.get(sampleName), secIdx), sampleToFilter.getOrDefault(sampleName, "-"));
+//            List<String> sampleData = Arrays.asList(sampleToGt.get(sampleName), sampleToFilter.getOrDefault(sampleName, DEFAULT_FILTER_VALUE));
+            List<String> sampleData = Arrays.asList(updateGT(sampleToGt.get(sampleName), secIdx), sampleToFilter.getOrDefault(sampleName, DEFAULT_FILTER_VALUE));
             se.addSampleData(sampleName, sampleData);
         }
     }
@@ -276,7 +318,7 @@ public class VariantMerger {
         if (!studyEntry.getFormat().contains(formatValue)) {
             studyEntry.addFormat(formatValue);
             for (String sampleName : studyEntry.getOrderedSamplesName()) {
-                studyEntry.addSampleData(sampleName, VCF_FILTER, defaultValue);
+                studyEntry.addSampleData(sampleName, GENOTYPE_FILTER_KEY, defaultValue);
             }
         }
     }
