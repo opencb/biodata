@@ -18,6 +18,7 @@ package org.opencb.biodata.models.variant;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import htsjdk.variant.variantcontext.Allele;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.variant.avro.VariantAnnotation;
 import org.opencb.biodata.models.variant.avro.VariantAvro;
@@ -118,24 +119,28 @@ public class Variant implements Serializable {
         setType(inferType(getReference(), getAlternate(), getLength()));
     }
     public static VariantType inferType(String reference, String alternate, Integer length) {
-        if (reference.length() == alternate.length()) {
-            if (length > 1) {
-                return VariantType.MNV;
-            } else {
-                return VariantType.SNV;
-            }
+        if (Allele.wouldBeSymbolicAllele(alternate.getBytes()) || Allele.wouldBeSymbolicAllele(reference.getBytes())) {
+            return VariantType.SYMBOLIC;
         } else {
-            if (length <= SV_THRESHOLD) {
-            /*
-            * 3 possibilities for being an INDEL:
-            * - The value of the ALT field is <DEL> or <INS>
-            * - The REF allele is not . but the ALT is
-            * - The REF allele is . but the ALT is not
-            * - The REF field length is different than the ALT field length
-            */
-                return VariantType.INDEL;
+            if (reference.length() == alternate.length()) {
+                if (length > 1) {
+                    return VariantType.MNV;
+                } else {
+                    return VariantType.SNV;
+                }
             } else {
-                return VariantType.SV;
+                if (length <= SV_THRESHOLD) {
+                /*
+                * 3 possibilities for being an INDEL:
+                * - The value of the ALT field is <DEL> or <INS>
+                * - The REF allele is not . but the ALT is
+                * - The REF allele is . but the ALT is not
+                * - The REF field length is different than the ALT field length
+                */
+                    return VariantType.INDEL;
+                } else {
+                    return VariantType.SV;
+                }
             }
         }
     }

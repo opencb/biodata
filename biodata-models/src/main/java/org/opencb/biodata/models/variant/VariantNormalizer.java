@@ -450,7 +450,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
      * TODO: Add {@link VariantType#SYMBOLIC} variants?
      */
     private boolean isNormalizable(Variant variant) {
-        return !variant.getType().equals(VariantType.NO_VARIATION);
+        return !variant.getType().equals(VariantType.NO_VARIATION) && !variant.getType().equals(VariantType.SYMBOLIC);
     }
 
     protected VariantKeyFields createVariantsFromInsertionEmptyRef(int position, String alt) {
