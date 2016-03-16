@@ -128,28 +128,18 @@ public class VariantContextToVariantProtoConverter implements Converter<VariantC
 
         // set variant format
         // FIXME: This code is not respecting the original format order
-        List<String> formatFields = new ArrayList<>(10);
+        LinkedList<String> formatFields = new LinkedList<>();
         if (variantContext.getGenotypes().size() > 1) {
             htsjdk.variant.variantcontext.Genotype gt = variantContext.getGenotypes().get(0);
 
-            //GT Field is mandatory and MUST be the first one
-            formatFields.add(VCFConstants.GENOTYPE_KEY);
-
-            if (gt.hasGQ()) {
-                formatFields.add(VCFConstants.GENOTYPE_QUALITY_KEY);
-            }
-            if (gt.hasAD()) {
-                formatFields.add(VCFConstants.GENOTYPE_ALLELE_DEPTHS);
-            }
-            if (gt.hasDP()) {
-                formatFields.add(VCFConstants.DEPTH_KEY);
-            }
-            if (gt.hasPL()) {
-                formatFields.add(VCFConstants.GENOTYPE_PL_KEY);
-            }
-
+            //FullVCFCodec saves ALL the format fields in the ExtendedAttributes map.
             for (String key : gt.getExtendedAttributes().keySet()) {
-                formatFields.add(key);
+                if (key.equals(VCFConstants.GENOTYPE_KEY)) {
+                    //GT must be the first one
+                    formatFields.add(0, key);
+                } else {
+                    formatFields.add(key);
+                }
             }
         }
         variantSourceEntry.addAllFormat(formatFields);

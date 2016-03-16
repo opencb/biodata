@@ -95,6 +95,7 @@ public class VariantContextToVariantConverterTest {
             assertEquals("-0.02,-1.45,-5.00", variant.getStudy(studyId).getSampleData(sampleNames.get(2), "GL"));
 
             assertEquals("PASS", variant.getStudy(studyId).getFile(studyId).getAttributes().get(VariantVcfFactory.FILTER));
+            assertEquals(new HashSet<>(Arrays.asList("GT", "DS", "GL")), new HashSet<>(variant.getStudy(studyId).getFormat()));
         };
         VariantContext variantContext = vcfCodec.decode(vcfLine);
 
@@ -124,6 +125,22 @@ public class VariantContextToVariantConverterTest {
         Variant variant = converter.convert(variantContext);
 
         assertEquals(".", variant.getStudy(studyId).getFile(studyId).getAttributes().get(VariantVcfFactory.FILTER));
+
+    }
+
+    @Test
+    public void testConvertVariantCorrectFormat() throws Exception {
+        VCFCodec vcfCodec = new FullVcfCodec();
+        List<String> sampleNames = Arrays.asList("HG04584", "HG03234", "HG05023");
+        vcfCodec.setVCFHeader(new VCFHeader(Collections.emptySet(), sampleNames), VCFHeaderVersion.VCF4_1);
+        String vcfLine = "22\t16050984\trs188945759\tC\tG\t100\t.\t.\tGT:AD\t0/0:.\t0/1:10\t1/1:20";
+        VariantContext variantContext = vcfCodec.decode(vcfLine);
+        String studyId = "1";
+
+        VariantContextToVariantConverter converter = new VariantContextToVariantConverter(studyId, studyId, Collections.emptyList());
+        Variant variant = converter.convert(variantContext);
+
+        assertEquals("GT:AD", variant.getStudy(studyId).getFormatAsString());
 
     }
 

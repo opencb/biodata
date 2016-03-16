@@ -110,6 +110,7 @@ public class FullVcfCodec extends VCFCodec implements Serializable {
             if (!genotypeKeys.isEmpty()) {
                 gb.maxAttributes(genotypeKeys.size() - 1);
 
+
                 for (int i = 0; i < genotypeKeys.size(); i++) {
                     final String gtKey = genotypeKeys.get(i);
                     boolean missing = i >= genotypeValues.size();
@@ -117,17 +118,23 @@ public class FullVcfCodec extends VCFCodec implements Serializable {
                     // todo -- all of these on the fly parsing of the missing value should be static constants
                     if (gtKey.equals(VCFConstants.GENOTYPE_KEY)) {
                         genotypeAlleleLocation = i;
+                        // opencb modification: add ALL the fields to the attributes. null for missing values!
+                        gb.attribute(gtKey, genotypeValues.get(i));
                     } else if (missing) {
-                        Void emptyStatement;
                         // if its truly missing (there no provided value) skip adding it to the attributes
+                        // opencb modification: add ALL the fields to the attributes. null for missing values!
+                        gb.attribute(gtKey, null);
                     } else if (gtKey.equals(VCFConstants.GENOTYPE_FILTER_KEY)) {
                         final List<String> filters = parseFilters(getCachedString(genotypeValues.get(i)));
                         if (filters != null) {
                             gb.filters(filters);
                         }
+                        // opencb modification: add ALL the fields to the attributes. null for missing values!
+                        gb.attribute(gtKey, filters);
                     } else if (genotypeValues.get(i).equals(VCFConstants.MISSING_VALUE_v4)) {
                         // don't add missing values to the map
-                        Void emptyStatement;
+                        // opencb modification: add ALL the fields to the attributes. null for missing values!
+                        gb.attribute(gtKey, null);
                     } else {
                         if (gtKey.equals(VCFConstants.GENOTYPE_QUALITY_KEY)) {
                             if (genotypeValues.get(i).equals(VCFConstants.MISSING_GENOTYPE_QUALITY_v3)) {
@@ -141,14 +148,11 @@ public class FullVcfCodec extends VCFCodec implements Serializable {
                             gb.PL(decodeInts(genotypeValues.get(i)));
                         } else if (gtKey.equals(VCFConstants.GENOTYPE_LIKELIHOODS_KEY)) {
                             gb.PL(GenotypeLikelihoods.fromGLField(genotypeValues.get(i)).getAsPLs());
-                            GenotypeLikelihoods glField = GenotypeLikelihoods.fromGLField(genotypeValues.get(i));
-                            gb.PL(glField.getAsPLs());
-                            gb.attribute(gtKey, genotypeValues.get(i));
                         } else if (gtKey.equals(VCFConstants.DEPTH_KEY)) {
                             gb.DP(Integer.valueOf(genotypeValues.get(i)));
-                        } else {
-                            gb.attribute(gtKey, genotypeValues.get(i));
                         }
+                        // opencb modification: add ALL the fields to the attributes. null for missing values!
+                        gb.attribute(gtKey, genotypeValues.get(i));
                     }
                 }
             }
