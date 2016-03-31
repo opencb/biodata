@@ -1,6 +1,7 @@
 package org.opencb.biodata.models.variant.annotation;
 
 import org.apache.commons.lang.StringUtils;
+import org.opencb.biodata.models.variant.annotation.exceptions.SOTermNotAvailableException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -67,6 +68,8 @@ public class ConsequenceTypeMappings {
         termToAccession.put("CpG_island", 307);
         termToAccession.put("DNAseI_hypersensitive_site", 685);
         termToAccession.put("polypeptide_variation_site", 336);
+        termToAccession.put("protein_altering_variant", 1818);
+        termToAccession.put("start_lost", 2012);
 
         // Fill the accession to term map
         for(String key : termToAccession.keySet()) {
@@ -76,7 +79,11 @@ public class ConsequenceTypeMappings {
     }
 
     public static String getSoAccessionString(String SOName) {
-        String soAccession = Integer.toString(termToAccession.get(SOName));
-        return String.format("SO:%0"+(7-soAccession.length())+"d%s", 0, soAccession);
+        if (termToAccession.get(SOName) == null) {
+            throw new SOTermNotAvailableException(SOName);
+        }else {
+            String soAccession = Integer.toString(termToAccession.get(SOName));
+            return String.format("SO:%0" + (7 - soAccession.length()) + "d%s", 0, soAccession);
+        }
     }
 }
