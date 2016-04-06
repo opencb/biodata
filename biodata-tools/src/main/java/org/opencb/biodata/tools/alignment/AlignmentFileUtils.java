@@ -57,7 +57,7 @@ public class AlignmentFileUtils {
         FileUtils.checkFile(input);
         FileUtils.checkDirectory(outputIndex.toAbsolutePath().getParent(), true);
 
-        SamReaderFactory srf = SamReaderFactory.make();
+        SamReaderFactory srf = SamReaderFactory.make().enable(SamReaderFactory.Option.INCLUDE_SOURCE_IN_RECORDS);
         srf.validationStringency(ValidationStringency.LENIENT);
         try (SamReader reader = srf.open(SamInputResource.of(input.toFile()))) {
 
