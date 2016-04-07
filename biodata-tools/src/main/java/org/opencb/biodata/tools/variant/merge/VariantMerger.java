@@ -82,10 +82,7 @@ public class VariantMerger {
         if (getStudy(current).getFormat() == null || getStudy(current).getFormat().isEmpty()) {
             throw new IllegalArgumentException("Format of sample data is empty!!!!!!");
         }
-        if (!StringUtils.equals(GT_KEY, getStudy(current).getFormat().get(0))) {
-            throw new IllegalArgumentException("GT data is expected in first column!!!");
-        }
-        load.stream().forEach(v -> ensureGtFormat(v)); // ensure the GT is on the first position in FORMAT
+//        load.stream().forEach(v -> ensureGtFormat(v)); // ensure the GT is on the first position in FORMAT
         load.stream().forEach(v -> merge(current,v)); // Merge Each variant
         return current;
     }
