@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import htsjdk.variant.vcf.VCFConstants;
+
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.StudyEntry;
@@ -269,8 +270,12 @@ public class VariantMerger {
 
         // Add GT data for each sample to current Variant
         for (String sampleName : getStudy(same).getOrderedSamplesName()) {
-//            List<String> sampleData = Arrays.asList(sampleToGt.get(sampleName), sampleToFilter.getOrDefault(sampleName, DEFAULT_FILTER_VALUE));
-            List<String> sampleData = Arrays.asList(updateGT(sampleToGt.get(sampleName), secIdx), sampleToFilter.getOrDefault(sampleName, DEFAULT_FILTER_VALUE));
+            String gt = sampleToGt.get(sampleName);
+            if (StringUtils.isBlank(gt)) {
+                throw new IllegalStateException(String.format("No GT found for sample %s in \nVariant: %s\nIndex:%s", sampleName,
+                        same.getImpl(), sampleToGt));
+            }
+            List<String> sampleData = Arrays.asList(updateGT(gt, secIdx), sampleToFilter.getOrDefault(sampleName, DEFAULT_FILTER_VALUE));
             se.addSampleData(sampleName, sampleData);
         }
     }
