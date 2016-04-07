@@ -304,7 +304,7 @@ public class VariantMerger {
     private void ensureGtFormat(Variant v){
         String gt = getStudy(v).getFormat().get(0);
         if(!StringUtils.equals(gt, GT_KEY)){
-            throw new IllegalArgumentException("Variant GT is not on first position, but found " + gt + " instead !!!");
+            throw new IllegalArgumentException("Variant GT is not on first position, but found " + gt + " instead !!! " + v.getImpl());
         }
     }
 
