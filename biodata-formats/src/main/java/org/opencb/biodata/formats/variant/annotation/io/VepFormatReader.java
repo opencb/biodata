@@ -17,6 +17,7 @@
 package org.opencb.biodata.formats.variant.annotation.io;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.opencb.biodata.formats.variant.vcf4.io.VariantVcfReader;
 //import org.opencb.biodata.models.variant.annotation.ConsequenceType;
 //import org.opencb.biodata.models.variant.annotation.Score;
@@ -108,18 +109,20 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
                 if (!currentVariantString.equals(lineFields[0])) {
                     noNewVariantFound = (currentAnnotation==null);  // currentAnnotation==null only in the first iteration.
                     variantAnnotationToReturn = currentAnnotation;
-                    Map<String,String> variantMap = parseVariant(lineFields[0], lineFields[1]);  // coordinates and alternative are only parsed once
+                    Map<String,String> variantMap = parseVariant(lineFields[0], lineFields[1], lineFields[2]);  // coordinates and alternative are only parsed once
                     currentAnnotation = new VariantAnnotation();
                     currentAnnotation.setChromosome(variantMap.get("chromosome"));
                     currentAnnotation.setStart(Integer.valueOf(variantMap.get("start")));
-//                    currentAnnotation.setEnd(Integer.valueOf(variantMap.get("end")));
                     currentAnnotation.setReference(variantMap.get("reference"));
                     currentAnnotation.setAlternate(variantMap.get("alternative"));
 
-//                    currentAnnotation = new VariantAnnotation(variantMap.get("chromosome"),
-//                            Integer.valueOf(variantMap.get("start")),
-//                            Integer.valueOf(variantMap.get("end")), variantMap.get("reference"),
-//                            variantMap.get("alternative"));
+                    /**
+                     * Set rs id
+                     */
+                    if (!lineFields[12].isEmpty() && !lineFields[12].equals("-")) {
+                        currentAnnotation.setId(lineFields[12]);
+                    }
+
                     /**
                      * Initialize list of consequence types
                      */
@@ -382,27 +385,51 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
         return populationFrequency;
     }
 
-    private Map<String,String> parseVariant(String variantString, String coordinatesString) {
-//    private Map<String,String> parseVariant(String coordinatesString, String alternativeString) {
-
+    private Map<String,String> parseVariant(String variantString, String coordinatesString, String alternate) {
         Map<String, String> parsedVariant = new HashMap<>(5);
-
+        String[] variantLocationFields;
         try {
-            String[] variantLocationFields = coordinatesString.split("[:-]");
-//            parsedVariant.put("chromosome", variantLocationFields[0]);
-//            parsedVariant.put("start", variantLocationFields[1]);
+            variantLocationFields = coordinatesString.split("[:-]");
             parsedVariant.put("end", (variantLocationFields.length > 2) ? variantLocationFields[2] : variantLocationFields[1]);
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new IllegalArgumentException("Unexpected format for column 2: "+coordinatesString);
         }
+        if (variantString.startsWith("rs")) {
+            parseVariantFromOtherFields(parsedVariant, variantLocationFields, alternate);
+        } else {
+            parseVariantFromIdField(parsedVariant, variantString);
+        }
 
+        return parsedVariant;
+    }
+
+    private void parseVariantFromOtherFields(Map<String, String> parsedVariant, String[] variantLocationFields, String alternate) {
+        parsedVariant.put("chromosome", variantLocationFields[0]);
+        parsedVariant.put("alternative", alternate);
+        // Deletion
+        if (alternate.equals("-")) {
+            parsedVariant.put("start", variantLocationFields[1]);
+            // Reference sequence does not appear in VEP file - fill with Ns
+            parsedVariant.put("reference", StringUtils.repeat("N", Integer.valueOf(parsedVariant.get("end"))
+                    - Integer.valueOf(parsedVariant.get("start")) + 1));
+        // Insertion
+        } else if (variantLocationFields.length > 2) {
+            parsedVariant.put("start", variantLocationFields[2]);
+            parsedVariant.put("reference", "-");
+        // SNV. Reference nucleotide does not appear in VEP file - fill with N
+        } else {
+            parsedVariant.put("start", variantLocationFields[1]);
+            parsedVariant.put("reference", "N");
+        }
+    }
+
+    private void parseVariantFromIdField(Map<String, String> parsedVariant, String variantString) {
         try {
             // Some VEP examples:
             // 1_718787_-/T    1:718786-718787 T    ...
             // 1_718787_T/-    1:718787        -    ...
             // 1_718788_T/A    1:718788        A    ...
             String[] variantFields = variantString.split("[\\/]");
-            //        String[] variantFields = variantString.split("[\\_\\/]");
             String[] leftVariantFields = variantFields[0].split("_");
 
             // Chr id containing _
@@ -418,8 +445,6 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new IllegalArgumentException("Unexpected variant format for column 1: "+variantString);
         }
-
-        return parsedVariant;
     }
 
     @Override

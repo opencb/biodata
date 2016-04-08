@@ -28,16 +28,14 @@ import static org.junit.Assert.assertEquals;
 public class VepFormatReaderTest {
 
     @Test
-    @Ignore
     public void testRead() throws Exception {
         VepFormatReader vepFormatReader = new VepFormatReader(getClass().getResource("/vepoutputtest.tsv.gz").getFile());
         vepFormatReader.open();
         vepFormatReader.pre();
         List<VariantAnnotation> variantAnnotationList = vepFormatReader.read(10000);
-        assertEquals(variantAnnotationList.size(),3);
+        assertEquals(variantAnnotationList.size(),6);
         assertEquals(variantAnnotationList.get(0).getChromosome(), "1");
         assertEquals(variantAnnotationList.get(0).getStart(), Integer.valueOf(628314));
-//        assertEquals(variantAnnotationList.get(0).getEnd(), Integer.valueOf(628332));
         assertEquals(variantAnnotationList.get(0).getReference(), "CAGGTGACACTGGGGACAC");
         assertEquals(variantAnnotationList.get(0).getAlternate(), "-");
         assertEquals(variantAnnotationList.get(0).getConsequenceTypes().size(), 1);
@@ -46,7 +44,6 @@ public class VepFormatReaderTest {
 
         assertEquals(variantAnnotationList.get(1).getChromosome(), "LGE22C19W28_E50C23");
         assertEquals(variantAnnotationList.get(1).getStart(), Integer.valueOf(351697));
-//        assertEquals(variantAnnotationList.get(1).getEnd(), Integer.valueOf(351697));
         assertEquals(variantAnnotationList.get(1).getReference(), "-");
         assertEquals(variantAnnotationList.get(1).getAlternate(), "AT");
         assertEquals(variantAnnotationList.get(1).getConsequenceTypes().size(), 1);
@@ -55,12 +52,39 @@ public class VepFormatReaderTest {
 
         assertEquals(variantAnnotationList.get(2).getChromosome(), "10");
         assertEquals(variantAnnotationList.get(2).getStart(), Integer.valueOf(43615594));
-//        assertEquals(variantAnnotationList.get(2).getEnd(), Integer.valueOf(43615594));
         assertEquals(variantAnnotationList.get(2).getReference(), "G");
         assertEquals(variantAnnotationList.get(2).getAlternate(), "A");
         assertEquals(variantAnnotationList.get(2).getConsequenceTypes().size(), 1);
         assertEquals(variantAnnotationList.get(2).getConsequenceTypes().get(0).getSequenceOntologyTerms().size(), 1);
         assertEquals(variantAnnotationList.get(2).getConsequenceTypes().get(0).getSequenceOntologyTerms().get(0).getName(), "synonymous_variant");
+
+        assertEquals(variantAnnotationList.get(3).getChromosome(), "21");
+        assertEquals(variantAnnotationList.get(3).getStart(), Integer.valueOf(9411239));
+        assertEquals(variantAnnotationList.get(3).getReference(), "N");
+        assertEquals(variantAnnotationList.get(3).getAlternate(), "A");
+        assertEquals(variantAnnotationList.get(3).getId(), "rs559462325");
+        assertEquals(variantAnnotationList.get(3).getConsequenceTypes().size(), 1);
+        assertEquals(variantAnnotationList.get(3).getConsequenceTypes().get(0).getSequenceOntologyTerms().size(), 1);
+        assertEquals(variantAnnotationList.get(3).getConsequenceTypes().get(0).getSequenceOntologyTerms().get(0).getName(), "intergenic_variant");
+
+        assertEquals(variantAnnotationList.get(4).getChromosome(), "21");
+        assertEquals(variantAnnotationList.get(4).getStart(), Integer.valueOf(9412077));
+        assertEquals(variantAnnotationList.get(4).getReference(), "NN");
+        assertEquals(variantAnnotationList.get(4).getAlternate(), "-");
+        assertEquals(variantAnnotationList.get(4).getId(), "rs374249157");
+        assertEquals(variantAnnotationList.get(4).getConsequenceTypes().size(), 1);
+        assertEquals(variantAnnotationList.get(4).getConsequenceTypes().get(0).getSequenceOntologyTerms().size(), 1);
+        assertEquals(variantAnnotationList.get(4).getConsequenceTypes().get(0).getSequenceOntologyTerms().get(0).getName(), "intergenic_variant");
+
+        assertEquals(variantAnnotationList.get(5).getChromosome(), "21");
+        assertEquals(variantAnnotationList.get(5).getStart(), Integer.valueOf(26192725));
+        assertEquals(variantAnnotationList.get(5).getReference(), "-");
+        assertEquals(variantAnnotationList.get(5).getAlternate(), "AAGAAAATTAATTTCTGTTGTCTGAAGTTG");
+        assertEquals(variantAnnotationList.get(5).getId(), "rs557738790");
+        assertEquals(variantAnnotationList.get(5).getConsequenceTypes().size(), 1);
+        assertEquals(variantAnnotationList.get(5).getConsequenceTypes().get(0).getSequenceOntologyTerms().size(), 1);
+        assertEquals(variantAnnotationList.get(5).getConsequenceTypes().get(0).getSequenceOntologyTerms().get(0).getName(), "intergenic_variant");
+
         vepFormatReader.post();
         vepFormatReader.close();
 
