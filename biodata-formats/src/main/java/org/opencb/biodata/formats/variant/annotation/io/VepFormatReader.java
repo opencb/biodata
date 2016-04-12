@@ -385,7 +385,7 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
         return populationFrequency;
     }
 
-    private Map<String,String> parseVariant(String variantString, String coordinatesString, String alternate) {
+    private Map<String,String> parseVariant(String variantIdString, String coordinatesString, String alternate) {
         Map<String, String> parsedVariant = new HashMap<>(5);
         String[] variantLocationFields;
         try {
@@ -394,10 +394,18 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new IllegalArgumentException("Unexpected format for column 2: "+coordinatesString);
         }
-        if (variantString.startsWith("rs")) {
+
+        // Some VEP examples:
+        // 1_718787_-/T    1:718786-718787 T    ...
+        // 1_718787_T/-    1:718787        -    ...
+        // 1_718788_T/A    1:718788        A    ...
+        // rs559462325     21:9411239      A    ...
+        // rs557738790     21:26192724-26192725    AAGAAAATTAATTTCTGTTGTCTGAAGTTG   ...
+        String[] variantIdFields = variantIdString.split("[\\/]");
+        if (variantIdFields.length < 2) {
             parseVariantFromOtherFields(parsedVariant, variantLocationFields, alternate);
         } else {
-            parseVariantFromIdField(parsedVariant, variantString);
+            parseVariantFromIdField(parsedVariant, variantIdFields);
         }
 
         return parsedVariant;
@@ -423,14 +431,13 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
         }
     }
 
-    private void parseVariantFromIdField(Map<String, String> parsedVariant, String variantString) {
+    private void parseVariantFromIdField(Map<String, String> parsedVariant, String[] variantIdFields) {
         try {
             // Some VEP examples:
             // 1_718787_-/T    1:718786-718787 T    ...
             // 1_718787_T/-    1:718787        -    ...
             // 1_718788_T/A    1:718788        A    ...
-            String[] variantFields = variantString.split("[\\/]");
-            String[] leftVariantFields = variantFields[0].split("_");
+            String[] leftVariantFields = variantIdFields[0].split("_");
 
             // Chr id containing _
             if(leftVariantFields.length>3) {
@@ -441,9 +448,9 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
             }
             parsedVariant.put("start", leftVariantFields[leftVariantFields.length-2]);
             parsedVariant.put("reference", leftVariantFields[leftVariantFields.length-1]);
-            parsedVariant.put("alternative", variantFields[1]);
+            parsedVariant.put("alternative", variantIdFields[1]);
         } catch (ArrayIndexOutOfBoundsException e) {
-            throw new IllegalArgumentException("Unexpected variant format for column 1: "+variantString);
+            throw new IllegalArgumentException("Unexpected variant format for column 1: "+variantIdFields.toString());
         }
     }
 
