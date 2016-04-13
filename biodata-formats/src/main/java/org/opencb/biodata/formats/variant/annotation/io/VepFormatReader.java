@@ -421,8 +421,8 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
             parsedVariant.put("reference", StringUtils.repeat("N", Integer.valueOf(parsedVariant.get("end"))
                     - Integer.valueOf(parsedVariant.get("start")) + 1));
         // Insertion
-        } else if (variantLocationFields.length > 2) {
-            parsedVariant.put("start", variantLocationFields[2]);
+        } else if (variantLocationFields.length > 2 || alternate.length() > 1) {
+            parsedVariant.put("start", variantLocationFields[variantLocationFields.length == 3 ? 2 : 1]);
             parsedVariant.put("reference", "-");
         // SNV. Reference nucleotide does not appear in VEP file - fill with N
         } else {
