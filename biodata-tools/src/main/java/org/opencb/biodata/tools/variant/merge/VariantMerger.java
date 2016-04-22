@@ -1,11 +1,7 @@
 /**
- * 
+ *
  */
 package org.opencb.biodata.tools.variant.merge;
-
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import htsjdk.variant.vcf.VCFConstants;
 import org.apache.commons.lang3.StringUtils;
@@ -16,6 +12,10 @@ import org.opencb.biodata.models.variant.VariantVcfFactory;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.VariantType;
+
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * @author Matthias Haimel mh719+git@cam.ac.uk
@@ -35,7 +35,7 @@ public class VariantMerger {
     //    public static final String CALL_KEY = "CALL";
 
     /**
-     * 
+     *
      */
     public VariantMerger() {
         // TODO Auto-generated constructor stub
@@ -123,7 +123,7 @@ public class VariantMerger {
     }
 
     /**
-     * 
+     *
      * @param current
      * @param other
      */
@@ -148,6 +148,8 @@ public class VariantMerger {
             List<String> sampleDataList = Arrays.asList(updateGT(sampleToGt.get(sampleName), secIdx), sampleToFilter.getOrDefault(sampleName, DEFAULT_FILTER_VALUE));
             se.addSampleData(sampleName, sampleDataList);
         }
+
+        mergeFiles(other, se);
     }
 
     /**
@@ -247,7 +249,7 @@ public class VariantMerger {
 
     public static AlternateCoordinate getMainAlternate(Variant other) {
         return new AlternateCoordinate(other.getChromosome(), other.getStart(), other.getEnd(),
-                    other.getReference(), other.getAlternate(), other.getType());
+                other.getReference(), other.getAlternate(), other.getType());
     }
 
     /**
@@ -276,9 +278,21 @@ public class VariantMerger {
             List<String> sampleData = Arrays.asList(updateGT(sampleToGt.get(sampleName), secIdx), sampleToFilter.getOrDefault(sampleName, DEFAULT_FILTER_VALUE));
             se.addSampleData(sampleName, sampleData);
         }
+
+        mergeFiles(same, se);
     }
 
-    private Map<String, String> sampleToAttribute(Variant var, String key){
+    private void mergeFiles(Variant same, StudyEntry se) {
+        try {
+            se.getFiles().addAll(getStudy(same).getFiles());
+        } catch (UnsupportedOperationException e) {
+            // If the files list was unmodifiable, clone the list and add.
+            se.setFiles(new LinkedList<>(se.getFiles()));
+            se.getFiles().addAll(getStudy(same).getFiles());
+        }
+    }
+
+    private Map<String, String> sampleToAttribute(Variant var, String key) {
         StudyEntry se = getStudy(var);
         String value = se.getFiles().get(0).getAttributes().getOrDefault(key, "");
         if (StringUtils.isBlank(value)) {
@@ -286,7 +300,7 @@ public class VariantMerger {
         }
         return se.getSamplesName().stream().collect(Collectors.toMap(e -> e, e -> value));
     }
-    
+
     private Map<String, String> sampleToSampleData(Variant var, String key){
         StudyEntry se = getStudy(var);
         return se.getSamplesName().stream()
@@ -301,9 +315,9 @@ public class VariantMerger {
         return load.getStudies().get(0);
     }
 
-    private void ensureGtFormat(Variant v){
+    private void ensureGtFormat(Variant v) {
         String gt = getStudy(v).getFormat().get(0);
-        if(!StringUtils.equals(gt, GT_KEY)){
+        if (!StringUtils.equals(gt, GT_KEY)) {
             throw new IllegalArgumentException("Variant GT is not on first position, but found " + gt + " instead !!!");
         }
     }
@@ -317,8 +331,10 @@ public class VariantMerger {
     private void ensureFormat(StudyEntry studyEntry, String formatValue, String defaultValue) {
         if (!studyEntry.getFormat().contains(formatValue)) {
             studyEntry.addFormat(formatValue);
-            for (String sampleName : studyEntry.getOrderedSamplesName()) {
-                studyEntry.addSampleData(sampleName, GENOTYPE_FILTER_KEY, defaultValue);
+            if (studyEntry.getSamplesData() != null && !studyEntry.getSamplesData().isEmpty()) {
+                for (String sampleName : studyEntry.getOrderedSamplesName()) {
+                    studyEntry.addSampleData(sampleName, GENOTYPE_FILTER_KEY, defaultValue);
+                }
             }
         }
     }

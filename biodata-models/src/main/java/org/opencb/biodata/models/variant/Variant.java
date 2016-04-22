@@ -78,6 +78,7 @@ public class Variant implements Serializable {
 
     public Variant(String chromosome, int position, String reference, String alternate) {
         this(chromosome, position, position, reference, alternate, "+");
+        setEnd(getStart() + getLength() - 1);
     }
 
     public Variant(String chromosome, int start, int end, String reference, String alternate) {
