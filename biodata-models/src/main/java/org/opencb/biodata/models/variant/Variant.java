@@ -489,13 +489,24 @@ public class Variant implements Serializable {
         return variants;
     }
 
-    public boolean overlapWith(Variant other, boolean inclusive){
-        if(! StringUtils.equals(this.getChromosome(), other.getChromosome()))
+    public boolean overlapWith(Variant other, boolean inclusive) {
+        if (!StringUtils.equals(this.getChromosome(), other.getChromosome())) {
             return false; // Different Chromosome
-        if(inclusive) // a.getStart() <= b.getEnd() && a.getEnd() >= b.getStart();
-            return this.getStart() <= other.getEnd() && this.getEnd() >= other.getStart() ;
-        else
+        } else if (inclusive) {
+            return this.getStart() <= other.getEnd() && this.getEnd() >= other.getStart();
+        } else {
             return this.getStart() < other.getEnd() && this.getEnd() > other.getStart();
+        }
+    }
+
+    public boolean overlapWith(String chromosome, int start, int end, boolean inclusive) {
+        if (!StringUtils.equals(this.getChromosome(), chromosome)) {
+            return false; // Different Chromosome
+        } else if (inclusive) {
+            return this.getStart() <= end && this.getEnd() >= start;
+        } else {
+            return this.getStart() < end && this.getEnd() > start;
+        }
     }
 
     public boolean onSameStartPosition (Variant other){

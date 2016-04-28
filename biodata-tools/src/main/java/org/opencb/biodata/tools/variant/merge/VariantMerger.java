@@ -29,7 +29,7 @@ public class VariantMerger {
     public static final String GENOTYPE_FILTER_KEY = VCFConstants.GENOTYPE_FILTER_KEY;
 
     //    public static final String VCF_FILTER = "FILTER";
-    public static final String GT_KEY = "GT";
+    public static final String GT_KEY = VCFConstants.GENOTYPE_KEY;
     public static final String PASS_VALUE = "PASS";
     public static final String DEFAULT_FILTER_VALUE = ".";
     //    public static final String CALL_KEY = "CALL";
@@ -146,7 +146,7 @@ public class VariantMerger {
             se.addSampleData(sampleName, sampleDataList);
         }
 
-        mergeFiles(other, se);
+        mergeFiles(current, other);
     }
 
     /**
@@ -276,16 +276,25 @@ public class VariantMerger {
             se.addSampleData(sampleName, sampleData);
         }
 
-        mergeFiles(same, se);
+        mergeFiles(current, same);
     }
 
-    private void mergeFiles(Variant same, StudyEntry se) {
+    private void mergeFiles(Variant current, Variant other) {
+        List<FileEntry> files = getStudy(other).getFiles().stream().map(fileEntry -> FileEntry.newBuilder(fileEntry).build()).collect(Collectors.toList());
+        if (!current.toString().equals(other.toString())) {
+            for (FileEntry file : files) {
+                if (file.getCall() == null || file.getCall().isEmpty()) {
+                    file.setCall(other.getStart() + ":" + other.getReference() + ":" + other.getAlternate() + ":0");
+                }
+            }
+        }
+        StudyEntry study = getStudy(current);
         try {
-            se.getFiles().addAll(getStudy(same).getFiles());
+            study.getFiles().addAll(files);
         } catch (UnsupportedOperationException e) {
             // If the files list was unmodifiable, clone the list and add.
-            se.setFiles(new LinkedList<>(se.getFiles()));
-            se.getFiles().addAll(getStudy(same).getFiles());
+            study.setFiles(new LinkedList<>(study.getFiles()));
+            study.getFiles().addAll(files);
         }
     }
 
