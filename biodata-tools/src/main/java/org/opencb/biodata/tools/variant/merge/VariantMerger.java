@@ -78,7 +78,7 @@ public class VariantMerger {
 
     public Variant merge(Variant current, Collection<Variant> load){
         // Validate variant information
-        ensureGtFormat(current);
+//        ensureGtFormat(current);
         if (getStudy(current).getFormat() == null || getStudy(current).getFormat().isEmpty()) {
             throw new IllegalArgumentException("Format of sample data is empty!!!!!!");
         }
@@ -88,13 +88,10 @@ public class VariantMerger {
     }
 
     Variant merge(Variant current, Variant load){
-        if(onSameVariant(current, load)){
-            mergeSameVariant(current, load);
-        } else if (current.overlapWith(load, true)){
-            mergeOverlappingVariant(current,load);
-        }
+        if (current.overlapWith(load, true)){
+            mergeVariants(current,load);
+        } // else ignore
         return current;
-        // else ignore
     }
 
     private String variantToString(Variant v) {
@@ -120,18 +117,33 @@ public class VariantMerger {
     }
 
     /**
-     *
-     * @param current
-     * @param other
+     * Add GT data from variant passing {{@link #onSameVariant(Variant, Variant)}
+     * @param current Variant to merge into
+     * @param other Variant to extract information and update the current variant with
      */
-    void mergeOverlappingVariant(Variant current, Variant other) {
-        Map<String, String> sampleToGt = sampleToGt(other);
-        Map<String, String> sampleToFilter = sampleToAttribute(other, VariantVcfFactory.FILTER);
-        StudyEntry se = getStudy(current);
+    void mergeVariants(Variant current, Variant other) {
+        StudyEntry currentStudy = getStudy(current);
+        StudyEntry otherStudy = getStudy(other);
+        Map<String, String> sampleToGt;
+        if (currentStudy.getFormat().contains(GT_KEY)) {
+            sampleToGt = sampleToGt(other);
+        } else {
+            sampleToGt = null;
+        }
+        Map<String, String> sampleToFilter;
+        if (otherStudy.getFormat().contains(GENOTYPE_FILTER_KEY)) {
+            sampleToFilter = sampleToSampleData(other, GENOTYPE_FILTER_KEY);
+        } else {
+            sampleToFilter = sampleToAttribute(other, VariantVcfFactory.FILTER);
+        }
 
-        ensureFormat(se, GENOTYPE_FILTER_KEY, DEFAULT_FILTER_VALUE);
+        String defaultFilterValue = currentStudy.getFiles().isEmpty() ? DEFAULT_FILTER_VALUE
+                : currentStudy.getFiles().get(0).getAttributes().getOrDefault(VariantVcfFactory.FILTER, DEFAULT_FILTER_VALUE);
+        ensureFormat(currentStudy, GENOTYPE_FILTER_KEY, defaultFilterValue);
 
-        Set<String> duplicates = se.getSamplesName().stream().filter(s -> sampleToGt.containsKey(s)).collect(Collectors.toSet());
+        Set<String> duplicates = currentStudy.getSamplesName().stream()
+                .filter(s -> otherStudy.getSamplesName().contains(s))
+                .collect(Collectors.toSet());
         if (!duplicates.isEmpty()) {
             throw new IllegalStateException(String.format("Duplicated entries - issue with merge: %s; current: %s; other: %s;",
                     StringUtils.join(duplicates, ", "), variantToString(current), variantToString(other)));
@@ -141,14 +153,28 @@ public class VariantMerger {
         List<Integer> secIdx = mergeSecondaryAlternates(current, otherSecondaryAlternates);
 
         // Add GT data for each sample to current Variant
-        for (String sampleName : getStudy(other).getOrderedSamplesName()) {
-            List<String> sampleDataList = Arrays.asList(updateGT(sampleToGt.get(sampleName), secIdx), sampleToFilter.getOrDefault(sampleName, DEFAULT_FILTER_VALUE));
-            se.addSampleData(sampleName, sampleDataList);
+        for (String sampleName : otherStudy.getOrderedSamplesName()) {
+            List<String> sampleDataList = new LinkedList<>();
+            for (String format : currentStudy.getFormat()) {
+                switch (format) {
+                    case GT_KEY:
+                        sampleDataList.add(updateGT(sampleToGt.get(sampleName), secIdx));
+                        break;
+                    case GENOTYPE_FILTER_KEY:
+                        sampleDataList.add(sampleToFilter.getOrDefault(sampleName, DEFAULT_FILTER_VALUE));
+                        break;
+                    default:
+                        String value = otherStudy.getSampleData(sampleName, format);
+                        sampleDataList.add(value == null ? "" : value);
+//                        sampleDataList.add(value);
+                        break;
+                }
+            }
+            currentStudy.addSampleData(sampleName, sampleDataList);
         }
 
         mergeFiles(current, other);
     }
-
     /**
      * Map from a GT e.g. 1/2 to 4/5 using the provided mapping file. If no mapping is found, the same Allele is used.
      * @param gt Current GT
@@ -244,39 +270,9 @@ public class VariantMerger {
         return alternates;
     }
 
-    public static AlternateCoordinate getMainAlternate(Variant other) {
-        return new AlternateCoordinate(other.getChromosome(), other.getStart(), other.getEnd(),
-                other.getReference(), other.getAlternate(), other.getType());
-    }
-
-    /**
-     * Add GT data from variant passing {{@link #onSameVariant(Variant, Variant)}
-     * @param current Variant to merge into
-     * @param same Variant to extract information and update the current variant with
-     */
-    void mergeSameVariant(Variant current, Variant same){
-        Map<String, String> sampleToGt = sampleToGt(same);
-        Map<String, String> sampleToFilter = sampleToAttribute(same, VariantVcfFactory.FILTER);
-        StudyEntry se = getStudy(current);
-
-        ensureFormat(se, GENOTYPE_FILTER_KEY, DEFAULT_FILTER_VALUE);
-
-        Set<String> duplicates = se.getSamplesName().stream().filter(s -> sampleToGt.containsKey(s)).collect(Collectors.toSet());
-        if(!duplicates.isEmpty()){
-            throw new IllegalStateException(String.format("Duplicated entries - issue with merge: %s", StringUtils.join(duplicates,", ")));
-        }
-
-        List<AlternateCoordinate> otherSecondaryAlternates = buildAltList(same);
-        List<Integer> secIdx = mergeSecondaryAlternates(current, otherSecondaryAlternates);
-
-        // Add GT data for each sample to current Variant
-        for (String sampleName : getStudy(same).getOrderedSamplesName()) {
-//            List<String> sampleData = Arrays.asList(sampleToGt.get(sampleName), sampleToFilter.getOrDefault(sampleName, DEFAULT_FILTER_VALUE));
-            List<String> sampleData = Arrays.asList(updateGT(sampleToGt.get(sampleName), secIdx), sampleToFilter.getOrDefault(sampleName, DEFAULT_FILTER_VALUE));
-            se.addSampleData(sampleName, sampleData);
-        }
-
-        mergeFiles(current, same);
+    public static AlternateCoordinate getMainAlternate(Variant variant) {
+        return new AlternateCoordinate(variant.getChromosome(), variant.getStart(), variant.getEnd(),
+                variant.getReference(), variant.getAlternate(), variant.getType());
     }
 
     private void mergeFiles(Variant current, Variant other) {
@@ -307,25 +303,19 @@ public class VariantMerger {
         return se.getSamplesName().stream().collect(Collectors.toMap(e -> e, e -> value));
     }
 
+    private Map<String, String> sampleToGt(Variant load) {
+        return sampleToSampleData(load, GT_KEY);
+    }
+
     private Map<String, String> sampleToSampleData(Variant var, String key){
         StudyEntry se = getStudy(var);
         return se.getSamplesName().stream()
                 .filter(e -> StringUtils.isNotBlank(se.getSampleData(e, key))) // check for NULL or empty string
                 .collect(Collectors.toMap(e -> e, e -> se.getSampleData(e, key)));
     }
-    private Map<String, String> sampleToGt(Variant load) {
-        return sampleToSampleData(load, GT_KEY);
-    }
 
-    StudyEntry getStudy(Variant load) {
-        return load.getStudies().get(0);
-    }
-
-    private void ensureGtFormat(Variant v) {
-        String gt = getStudy(v).getFormat().get(0);
-        if (!StringUtils.equals(gt, GT_KEY)) {
-            throw new IllegalArgumentException("Variant GT is not on first position, but found " + gt + " instead !!! " + v.getImpl());
-        }
+    StudyEntry getStudy(Variant variant) {
+        return variant.getStudies().get(0);
     }
 
     /**
@@ -345,13 +335,4 @@ public class VariantMerger {
         }
     }
 
-    static boolean onSameVariant (Variant a, Variant b){
-        return a.onSameRegion(b)
-                && StringUtils.equals(a.getReference(), b.getReference())
-                && StringUtils.equals(a.getAlternate(), b.getAlternate());
-    }
-
-    public static boolean isSameVariant(Variant a, Variant b){
-        return onSameVariant(a, b);
-    }
 }

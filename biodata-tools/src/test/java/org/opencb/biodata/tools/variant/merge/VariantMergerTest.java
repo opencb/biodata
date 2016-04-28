@@ -241,6 +241,46 @@ public class VariantMergerTest {
     }
 
     @Test
+    public void testMergeWithSecondaryWithOtherFormats() {
+        Variant var1 = generateVariantWithFormat("1:10:A:T", "GT:DP", "S01", "0/1", "4");
+        System.out.println("var1.toJson() = " + var1.toJson());
+        Variant var2 = generateVariantWithFormat("1:10:A:G", "GT:DP", "S02", "1/2", "5");
+        var2.getStudy(STUDY_ID).getSecondaryAlternates().add(new AlternateCoordinate("1", 10, 10, "A", "C", VariantType.SNV));
+        Variant mergedVariant = checkMergeVariants(var1, var2, Arrays.asList("1:10:A:G", "1:10:A:C"), "2/3");
+        StudyEntry studyEntry = mergedVariant.getStudies().get(0);
+        assertEquals("GT:DP:FT", studyEntry.getFormatAsString());
+        assertEquals("4", studyEntry.getSampleData("S01", "DP"));
+        assertEquals("5", studyEntry.getSampleData("S02", "DP"));
+    }
+
+    @Test
+    public void testMergeWithSecondaryWithOtherFormatsMissing() {
+        Variant var1 = generateVariantWithFormat("1:10:A:T", "PASS1", 100F, "GT:DP", "S01", "0/1", "4");
+        Variant var2 = generateVariantWithFormat("1:10:A:G", "PASS2", 100F, "GT:GQ", "S02", "1/2", "0.2");
+        var2.getStudy(STUDY_ID).getSecondaryAlternates().add(new AlternateCoordinate("1", 10, 10, "A", "C", VariantType.SNV));
+        Variant mergedVariant = checkMergeVariants(var1, var2, Arrays.asList("1:10:A:G", "1:10:A:C"), "2/3");
+        StudyEntry studyEntry = mergedVariant.getStudies().get(0);
+        assertEquals("GT:DP:FT", studyEntry.getFormatAsString());
+        assertEquals("4", studyEntry.getSampleData("S01", "DP"));
+        assertEquals("PASS1", studyEntry.getSampleData("S01", "FT"));
+        assertEquals("", studyEntry.getSampleData("S02", "DP"));
+        assertEquals("PASS2", studyEntry.getSampleData("S02", "FT"));
+    }
+    @Test
+    public void testMergeWithSecondaryWithOtherFormatsAndFT() {
+        Variant var1 = generateVariantWithFormat("1:10:A:T", "PASS1", 100F, "GT:DP:FT", "S01", "0/1", "4", "MyFilter1");
+        Variant var2 = generateVariantWithFormat("1:10:A:G", "PASS2", 100F, "GT:DP:FT", "S02", "1/2", "5", "MyFilter2");
+        var2.getStudy(STUDY_ID).getSecondaryAlternates().add(new AlternateCoordinate("1", 10, 10, "A", "C", VariantType.SNV));
+        Variant mergedVariant = checkMergeVariants(var1, var2, Arrays.asList("1:10:A:G", "1:10:A:C"), "2/3");
+        StudyEntry studyEntry = mergedVariant.getStudies().get(0);
+        assertEquals("GT:DP:FT", studyEntry.getFormatAsString());
+        assertEquals("4", studyEntry.getSampleData("S01", "DP"));
+        assertEquals("MyFilter1", studyEntry.getSampleData("S01", "FT"));
+        assertEquals("5", studyEntry.getSampleData("S02", "DP"));
+        assertEquals("MyFilter2", studyEntry.getSampleData("S02", "FT"));
+    }
+
+    @Test
     public void testMergeWithSecondary_2SNP_3() {
         Variant var1 = generateVariant("1:10:A:T", "S01", "1/2");
         var1.getStudy(STUDY_ID).getSecondaryAlternates().add(new AlternateCoordinate("1", 10, 10, "A", "C", VariantType.SNV));
