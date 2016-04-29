@@ -4,6 +4,7 @@
 package org.opencb.biodata.tools.variant.merge;
 
 import htsjdk.variant.vcf.VCFConstants;
+
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.StudyEntry;
@@ -117,7 +118,7 @@ public class VariantMerger {
     }
 
     /**
-     * Add GT data from variant passing {{@link #onSameVariant(Variant, Variant)}
+     *
      * @param current Variant to merge into
      * @param other Variant to extract information and update the current variant with
      */
@@ -158,7 +159,12 @@ public class VariantMerger {
             for (String format : currentStudy.getFormat()) {
                 switch (format) {
                     case GT_KEY:
-                        sampleDataList.add(updateGT(sampleToGt.get(sampleName), secIdx));
+                        String gt = sampleToGt.get(sampleName);
+                        if (StringUtils.isBlank(gt)) {
+                            throw new IllegalStateException(String.format("No GT found for sample %s in \nVariant: %s\nIndex:%s",
+                                    sampleName, other.getImpl(), sampleToGt));
+                        }
+                        sampleDataList.add(updateGT(gt, secIdx));
                         break;
                     case GENOTYPE_FILTER_KEY:
                         sampleDataList.add(sampleToFilter.getOrDefault(sampleName, DEFAULT_FILTER_VALUE));
