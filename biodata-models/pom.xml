@@ -119,10 +119,8 @@
                         <configuration>
                             <fieldVisibility>private</fieldVisibility>
                             <stringType>String</stringType>
-                            <sourceDirectory>${project.basedir}/src/main/resources/avro/</sourceDirectory>
-                            <outputDirectory>${project.basedir}/src/main/java/</outputDirectory>
-                            <testSourceDirectory>${project.basedir}/src/test/resources/avro/</testSourceDirectory>
-                            <testOutputDirectory>${project.basedir}/src/test/java/</testOutputDirectory>
+                            <sourceDirectory>${project.basedir}/src/main/avro/</sourceDirectory>
+                            <testSourceDirectory>${project.basedir}/src/test/avro/</testSourceDirectory>
                         </configuration>
                     </execution>
                 </executions>
