@@ -181,6 +181,17 @@ protocol Variants {
     }
 
     record VariantAvro {
+
+        /**
+         * The variant ID.
+         */
+        union { null, string } id;
+
+        /**
+         * Other names used for this genomic variation.
+         */
+        array<string> names = [];
+
         /**
          * Chromosome where the genomic variation occurred.
          */
@@ -224,11 +235,6 @@ protocol Variants {
          * Reference strand for this variant
          */
         union { null, string } strand;
-
-        /**
-         * Set of identifiers used for this genomic variation.
-         */
-        array<string> ids = [];
 
         /**
          * Length of the genomic variation, which depends on the variation type.

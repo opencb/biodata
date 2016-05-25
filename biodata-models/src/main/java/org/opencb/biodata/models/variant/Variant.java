@@ -17,7 +17,6 @@
 package org.opencb.biodata.models.variant;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import htsjdk.variant.variantcontext.Allele;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.variant.avro.VariantAnnotation;
@@ -26,13 +25,12 @@ import org.opencb.biodata.models.variant.avro.VariantType;
 
 import java.io.Serializable;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author Jacobo Coll;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
-@JsonIgnoreProperties({"impl", "id", "sourceEntries", "studiesMap"})
+@JsonIgnoreProperties({"impl", "ids", "sourceEntries", "studiesMap"})
 public class Variant implements Serializable {
 
     private final VariantAvro impl;
@@ -41,10 +39,11 @@ public class Variant implements Serializable {
     public static final int SV_THRESHOLD = 50;
 
     public Variant() {
-        impl = new VariantAvro("", -1, -1, "", "", "+", new LinkedList<>(), 0, null, new HashMap<>(), new LinkedList<>(), null);
+        impl = new VariantAvro(null, new LinkedList<>(), "", -1, -1, "", "", "+", 0, null, new HashMap<>(), new LinkedList<>(), null);
     }
 
     public Variant(VariantAvro avro) {
+        Objects.requireNonNull(avro);
         impl = avro;
     }
 
@@ -86,13 +85,15 @@ public class Variant implements Serializable {
     }
 
     public Variant(String chromosome, int start, int end, String reference, String alternate, String strand) {
-        impl = new VariantAvro("",
+        impl = new VariantAvro(
+                null,
+                new LinkedList<>(),
+                "",
                 start,
                 end,
                 checkEmptySequence(reference),
                 checkEmptySequence(alternate),
                 strand,
-                new LinkedList<>(),
                 0,
                 null,
                 new HashMap<>(),
@@ -208,21 +209,12 @@ public class Variant implements Serializable {
         resetLength();
     }
 
-    @Deprecated
     public String getId() {
-        if (impl.getIds() == null) {
-            return null;
-        } else {
-            return impl.getIds().stream().collect(Collectors.joining(";"));
-        }
+        return impl.getId();
     }
 
-    @Deprecated
     public void setId(String id) {
-        if (impl.getIds() == null) {
-            impl.setIds(new LinkedList<>());
-        }
-        impl.getIds().add(id);
+        impl.setId(id);
     }
 
     public String getChromosome() {
@@ -253,12 +245,39 @@ public class Variant implements Serializable {
         impl.setStrand(strand);
     }
 
+    @Deprecated
     public List<String> getIds() {
-        return impl.getIds();
+        if (StringUtils.isNotEmpty(impl.getId())) {
+            if (impl.getNames() != null) {
+                List<String> ids = new ArrayList<>(1 + impl.getNames().size());
+                ids.add(impl.getId());
+                ids.addAll(impl.getNames());
+                return ids;
+            } else {
+                return Collections.singletonList(impl.getId());
+            }
+        } else {
+            return impl.getNames();
+        }
     }
 
-    public void setIds(List<String> value) {
-        impl.setIds(value);
+    @Deprecated
+    public void setIds(List<String> ids) {
+        if (ids == null || ids.isEmpty()) {
+            impl.setId(null);
+            impl.setNames(Collections.emptyList());
+        } else {
+            impl.setId(ids.get(0));
+            impl.setNames(ids.subList(1, ids.size()));
+        }
+    }
+
+    public List<String> getNames() {
+        return impl.getNames();
+    }
+
+    public void setNames(List<String> names) {
+        impl.setNames(names);
     }
 
     public Integer getLength() {

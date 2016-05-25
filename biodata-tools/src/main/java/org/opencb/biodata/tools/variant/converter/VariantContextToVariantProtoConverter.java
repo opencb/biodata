@@ -85,7 +85,11 @@ public class VariantContextToVariantProtoConverter implements Converter<VariantC
                 ids.add(id);
             }
         }
-        variant.addAllIds(ids);
+
+        if (!ids.isEmpty()) {
+            variant.setId(ids.get(0));
+            variant.addAllNames(ids.subList(1, ids.size()));
+        }
 
         variant.setLength(Math.max(variant.getReference().length(), variant.getAlternate().length()));
 

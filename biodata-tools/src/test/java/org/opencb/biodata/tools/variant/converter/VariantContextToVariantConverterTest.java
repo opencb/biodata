@@ -79,8 +79,9 @@ public class VariantContextToVariantConverterTest {
 
         String studyId = "1";
         Consumer<Variant> checkVariant = (variant) -> {
-            assertEquals("rs188945759", variant.getIds().get(0));
+            assertEquals("rs188945759", variant.getId());
             assertEquals(1, variant.getIds().size());
+            assertEquals(0, variant.getNames().size());
 
             assertEquals("0|0", variant.getStudy(studyId).getSampleData(sampleNames.get(0), "GT"));
             assertEquals("1/1", variant.getStudy(studyId).getSampleData(sampleNames.get(1), "GT"));
