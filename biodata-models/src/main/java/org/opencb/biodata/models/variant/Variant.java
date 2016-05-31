@@ -33,10 +33,13 @@ import java.util.*;
 @JsonIgnoreProperties({"impl", "ids", "sourceEntries", "studiesMap"})
 public class Variant implements Serializable {
 
+    public static final EnumSet<VariantType> SV_SUBTYPES = EnumSet.of(VariantType.INSERTION, VariantType.DELETION,
+            VariantType.TRANSLOCATION, VariantType.INVERSION, VariantType.CNV);
     private final VariantAvro impl;
     private Map<String, StudyEntry> studyEntries = null;
 
     public static final int SV_THRESHOLD = 50;
+    public static final String CNVSTR = "<CNV>";
 
     public Variant() {
         impl = new VariantAvro(null, new LinkedList<>(), "", -1, -1, "", "", "+", 0, null, new HashMap<>(), new LinkedList<>(), null);
@@ -57,9 +60,18 @@ public class Variant implements Serializable {
             String[] fields = variantString.split(":", -1);
             if (fields.length == 3) {
                 setChromosome(fields[0]);
-                setStart(Integer.parseInt(fields[1]));
-                setReference("");
                 setAlternate(checkEmptySequence(fields[2]));
+                String[] coordinatesParts = fields[1].split("-");
+                // Structural variant needs start-end coords
+                if (coordinatesParts.length == 2) {
+                    setStart(Integer.parseInt(coordinatesParts[0]));
+                    setEnd(Integer.parseInt(coordinatesParts[1]));
+                // Short variant, no reference specified
+                } else {
+                    setStart(Integer.parseInt(fields[1]));
+                    setReference("");
+                    setEnd(getStart() + getLength() - 1);
+                }
             } else {
                 if (fields.length == 4) {
                     setChromosome(fields[0]);
@@ -69,10 +81,11 @@ public class Variant implements Serializable {
                 } else {
                     throw new IllegalArgumentException("Variant needs 3 or 4 fields separated by ':'");
                 }
+                setEnd(getStart() + getLength() - 1);
             }
         }
         resetType();
-        setEnd(getStart() + getLength() - 1);
+        resetLength();
     }
 
     public Variant(String chromosome, int position, String reference, String alternate) {
@@ -122,7 +135,11 @@ public class Variant implements Serializable {
     }
     public static VariantType inferType(String reference, String alternate, Integer length) {
         if (Allele.wouldBeSymbolicAllele(alternate.getBytes()) || Allele.wouldBeSymbolicAllele(reference.getBytes())) {
-            return VariantType.SYMBOLIC;
+            if (alternate.equals(CNVSTR)) {
+                return VariantType.CNV;
+            } else {
+                return VariantType.SYMBOLIC;
+            }
         } else {
             if (reference.length() == alternate.length()) {
                 if (length > 1) {
@@ -147,14 +164,20 @@ public class Variant implements Serializable {
         }
     }
 
-    private void resetLength() {
+    public void resetLength() {
+        final int length;
         if (getReference() == null) {
-            setLength(getAlternate() == null? 0 : getAlternate().length());
+            if (getAlternate().equals(CNVSTR)){
+                length = getEnd() - getStart() + 1;
+            } else {
+                length = getAlternate() == null ? 0 : getAlternate().length();
+            }
         } else if (getAlternate() == null) {
-            setLength(getReference().length());
+            length = getReference().length();
         } else {
-            setLength(Math.max(getReference().length(), getAlternate().length()));
+            length = Math.max(getReference().length(), getAlternate().length());
         }
+        setLength(length);
     }
 
     public void resetHGVS() {
@@ -201,12 +224,12 @@ public class Variant implements Serializable {
 
     public void setReference(String reference) {
         impl.setReference(reference);
-        resetLength();
+//        resetLength();
     }
 
     public void setAlternate(String alternate) {
         impl.setAlternate(alternate);
-        resetLength();
+//        resetLength();
     }
 
     public String getId() {
@@ -556,8 +579,7 @@ public class Variant implements Serializable {
         } else if (variantType.equals(VariantType.MNV)) {
             return Collections.singleton(VariantType.MNP);
         } else if (variantType.equals(VariantType.SV)) {
-            return EnumSet.of(VariantType.INSERTION, VariantType.DELETION,
-                    VariantType.TRANSLOCATION, VariantType.INVERSION, VariantType.CNV);
+            return  SV_SUBTYPES;
         } else {
             return Collections.emptySet();
         }
