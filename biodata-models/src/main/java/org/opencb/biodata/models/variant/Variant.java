@@ -66,10 +66,12 @@ public class Variant implements Serializable {
                 if (coordinatesParts.length == 2) {
                     setStart(Integer.parseInt(coordinatesParts[0]));
                     setEnd(Integer.parseInt(coordinatesParts[1]));
+                    setLength(inferLengthSV(getAlternate(), getStart(), getEnd()));
                 // Short variant, no reference specified
                 } else {
                     setStart(Integer.parseInt(fields[1]));
                     setReference("");
+                    setLength(inferLengthShortVariant(getReference(), getAlternate()));
                     setEnd(getStart() + getLength() - 1);
                 }
             } else {
@@ -81,11 +83,11 @@ public class Variant implements Serializable {
                 } else {
                     throw new IllegalArgumentException("Variant needs 3 or 4 fields separated by ':'");
                 }
+                setLength(inferLengthShortVariant(getReference(), getAlternate()));
                 setEnd(getStart() + getLength() - 1);
             }
         }
         resetType();
-        resetLength();
     }
 
     public Variant(String chromosome, int position, String reference, String alternate) {
@@ -113,7 +115,8 @@ public class Variant implements Serializable {
                 new LinkedList<>(),
                 null);
         if (start > end && !(reference.equals("-"))) {
-            throw new IllegalArgumentException("End position must be greater than the start position");
+            throw new IllegalArgumentException("End position must be greater than the start position for variant: "
+                    + chromosome + ":" + start + "-" + end + ":" + reference + ":" + alternate);
         }
 
         this.setChromosome(chromosome);
@@ -165,20 +168,39 @@ public class Variant implements Serializable {
     }
 
     public void resetLength() {
-        final int length;
-        if (getReference() == null) {
-            if (getAlternate().equals(CNVSTR)){
-                length = getEnd() - getStart() + 1;
-            } else {
-                length = getAlternate() == null ? 0 : getAlternate().length();
-            }
-        } else if (getAlternate() == null) {
-            length = getReference().length();
-        } else {
-            length = Math.max(getReference().length(), getAlternate().length());
-        }
-        setLength(length);
+        setLength(inferLength(getReference(), getAlternate(), getStart(), getEnd()));
     }
+
+    private static int inferLength(String reference, String alternate, int start, int end) {
+        final int length;
+        if (reference == null) {
+            length = inferLengthSV(alternate, start, end);
+        } else {
+            length = inferLengthShortVariant(reference, alternate);
+        }
+        return length;
+    }
+
+    private static int inferLengthShortVariant(String reference, String alternate) {
+        final int length;
+        if (alternate == null) {
+            length = reference.length();
+        } else {
+            length = Math.max(reference.length(), alternate.length());
+        }
+        return length;
+    }
+
+    private static int inferLengthSV(String alternate, int start, int end) {
+        int length;
+        if (CNVSTR.equals(alternate)){
+            length = end - start + 1;
+        } else {
+            length = alternate == null ? 0 : alternate.length();
+        }
+        return length;
+    }
+
 
     public void resetHGVS() {
         if (this.getType() == VariantType.SNV || this.getType() == VariantType.SNP) { // Generate HGVS code only for SNVs
