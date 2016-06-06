@@ -57,7 +57,7 @@ public class VariantAggregatedEVSStatsCalculatorTest extends GenericTest {
         genotypes.put(new Genotype("0/1", "T", "G"), 141);
         genotypes.put(new Genotype("1/1", "T", "G"), 93);
 
-        assertEquals(avf.getStats(StudyEntry.DEFAULT_COHORT).getGenotypesCount(), genotypes);
+        assertEquals(genotypes, avf.getStats(StudyEntry.DEFAULT_COHORT).getGenotypesCount());
 
     }
 
@@ -79,7 +79,7 @@ public class VariantAggregatedEVSStatsCalculatorTest extends GenericTest {
         genotypes.put(new Genotype("0/0", "T", "A"), 2442);
         genotypes.put(new Genotype("1/1", "T", "A"), 1);
 
-        assertEquals(avf.getStats(StudyEntry.DEFAULT_COHORT).getGenotypesCount(), genotypes);
+        assertEquals(genotypes, avf.getStats(StudyEntry.DEFAULT_COHORT).getGenotypesCount());
 
     }
 

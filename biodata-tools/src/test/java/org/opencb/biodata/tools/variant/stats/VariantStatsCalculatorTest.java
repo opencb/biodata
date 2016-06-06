@@ -53,7 +53,7 @@ public class VariantStatsCalculatorTest {
         StudyEntry sourceEntry = variant.getSourceEntry(source.getFileId(), source.getStudyId());
         
         VariantStats biallelicStats = new VariantStats(result.get(0));
-        VariantStatsCalculator.calculate(sourceEntry.getSamplesDataAsMap(), sourceEntry.getAttributes(), null, biallelicStats);
+        VariantStatsCalculator.calculate(sourceEntry, sourceEntry.getAttributes(), null, biallelicStats);
         
         assertEquals("T", biallelicStats.getRefAllele());
         assertEquals("C", biallelicStats.getAltAllele());
@@ -109,7 +109,7 @@ public class VariantStatsCalculatorTest {
         Variant variant_C = result.get(0);
         StudyEntry sourceEntry_C = variant_C.getSourceEntry(source.getFileId(), source.getStudyId());
         VariantStats multiallelicStats_C = new VariantStats(result.get(0));
-        VariantStatsCalculator.calculate(sourceEntry_C.getSamplesDataAsMap(), sourceEntry_C.getAttributes(), null, multiallelicStats_C);
+        VariantStatsCalculator.calculate(sourceEntry_C, sourceEntry_C.getAttributes(), null, multiallelicStats_C);
         
         assertEquals("T", multiallelicStats_C.getRefAllele());
         assertEquals("A", multiallelicStats_C.getAltAllele());
@@ -151,7 +151,7 @@ public class VariantStatsCalculatorTest {
         Variant variant_GC = result.get(1);
         StudyEntry sourceEntry_GC = variant_GC.getSourceEntry(source.getFileId(), source.getStudyId());
         VariantStats multiallelicStats_GC = new VariantStats(result.get(1));
-        VariantStatsCalculator.calculate(sourceEntry_GC.getSamplesDataAsMap(), sourceEntry_GC.getAttributes(), null, multiallelicStats_GC);
+        VariantStatsCalculator.calculate(sourceEntry_GC, sourceEntry_GC.getAttributes(), null, multiallelicStats_GC);
         
     }
     

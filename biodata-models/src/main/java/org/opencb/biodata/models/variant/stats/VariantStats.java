@@ -279,14 +279,23 @@ public class VariantStats {
     }
 
     public void addGenotype(Genotype g, int addedCount) {
-        Genotype normalizedGenotype = normalizeGenotypeAlleles(g);
-        Integer count;
-        if (getGenotypesCount().containsKey(normalizedGenotype)) {
-            count = getGenotypesCount().get(normalizedGenotype) + addedCount;
-        } else {
-            count = addedCount;
+        addGenotype(g, addedCount, true);
+    }
+
+    public void addGenotype(Genotype g, int addedCount, boolean normalize) {
+//        Genotype normalizedGenotype = normalizeGenotypeAlleles(g);
+//        Integer count;
+        if (normalize) {
+            g = normalizeGenotypeAlleles(g);
         }
-        getGenotypesCount().put(normalizedGenotype, count);
+        Map<Genotype, Integer> map = getGenotypesCount();
+        map.put(g, map.getOrDefault(g, 0) + addedCount);
+//        if (map.containsKey(normalizedGenotype)) {
+//            count = map.get(normalizedGenotype) + addedCount;
+//        } else {
+//            count = addedCount;
+//        }
+//        map.put(normalizedGenotype, count);
     }
 
     private Genotype normalizeGenotypeAlleles(Genotype g) {
