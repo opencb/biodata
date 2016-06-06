@@ -184,9 +184,14 @@ message Variant {
     string strand = 6;
 
     /**
-     * Set of identifiers used for this genomic variation.
+     * The variant ID.
      */
-    repeated string ids = 7;
+    string id = 13;
+
+    /**
+     * Other names used for this genomic variation.
+     */
+    repeated string names = 7;
 
     /**
      * Length of the genomic variation, which depends on the variation type.

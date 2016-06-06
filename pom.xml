@@ -20,7 +20,7 @@
 
     <groupId>org.opencb.biodata</groupId>
     <artifactId>biodata</artifactId>
-    <version>0.6.0</version>
+    <version>0.7.0</version>
     <packaging>pom</packaging>
 
     <name>Biodata</name>
@@ -34,7 +34,7 @@
     </modules>
 
     <properties>
-        <biodata.version>0.6.0</biodata.version>
+        <biodata.version>0.7.0</biodata.version>
         <commons.version>3.2.0</commons.version>
         <compileSource>1.8</compileSource>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

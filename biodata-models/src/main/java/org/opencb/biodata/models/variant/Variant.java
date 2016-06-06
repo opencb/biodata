@@ -17,7 +17,6 @@
 package org.opencb.biodata.models.variant;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import htsjdk.variant.variantcontext.Allele;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.variant.avro.VariantAnnotation;
@@ -26,25 +25,28 @@ import org.opencb.biodata.models.variant.avro.VariantType;
 
 import java.io.Serializable;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author Jacobo Coll;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
-@JsonIgnoreProperties({"impl", "id", "sourceEntries", "studiesMap"})
+@JsonIgnoreProperties({"impl", "ids", "sourceEntries", "studiesMap"})
 public class Variant implements Serializable {
 
+    public static final EnumSet<VariantType> SV_SUBTYPES = EnumSet.of(VariantType.INSERTION, VariantType.DELETION,
+            VariantType.TRANSLOCATION, VariantType.INVERSION, VariantType.CNV);
     private final VariantAvro impl;
     private Map<String, StudyEntry> studyEntries = null;
 
     public static final int SV_THRESHOLD = 50;
+    public static final String CNVSTR = "<CNV>";
 
     public Variant() {
-        impl = new VariantAvro("", -1, -1, "", "", "+", new LinkedList<>(), 0, null, new HashMap<>(), new LinkedList<>(), null);
+        impl = new VariantAvro(null, new LinkedList<>(), "", -1, -1, "", "", "+", 0, null, new HashMap<>(), new LinkedList<>(), null);
     }
 
     public Variant(VariantAvro avro) {
+        Objects.requireNonNull(avro);
         impl = avro;
     }
 
@@ -58,9 +60,20 @@ public class Variant implements Serializable {
             String[] fields = variantString.split(":", -1);
             if (fields.length == 3) {
                 setChromosome(fields[0]);
-                setStart(Integer.parseInt(fields[1]));
-                setReference("");
                 setAlternate(checkEmptySequence(fields[2]));
+                String[] coordinatesParts = fields[1].split("-");
+                // Structural variant needs start-end coords
+                if (coordinatesParts.length == 2) {
+                    setStart(Integer.parseInt(coordinatesParts[0]));
+                    setEnd(Integer.parseInt(coordinatesParts[1]));
+                    setLength(inferLengthSV(getAlternate(), getStart(), getEnd()));
+                // Short variant, no reference specified
+                } else {
+                    setStart(Integer.parseInt(fields[1]));
+                    setReference("");
+                    setLength(inferLengthShortVariant(getReference(), getAlternate()));
+                    setEnd(getStart() + getLength() - 1);
+                }
             } else {
                 if (fields.length == 4) {
                     setChromosome(fields[0]);
@@ -70,14 +83,16 @@ public class Variant implements Serializable {
                 } else {
                     throw new IllegalArgumentException("Variant needs 3 or 4 fields separated by ':'");
                 }
+                setLength(inferLengthShortVariant(getReference(), getAlternate()));
+                setEnd(getStart() + getLength() - 1);
             }
         }
         resetType();
-        setEnd(getStart() + getLength() - 1);
     }
 
     public Variant(String chromosome, int position, String reference, String alternate) {
         this(chromosome, position, position, reference, alternate, "+");
+        setEnd(getStart() + getLength() - 1);
     }
 
     public Variant(String chromosome, int start, int end, String reference, String alternate) {
@@ -85,27 +100,30 @@ public class Variant implements Serializable {
     }
 
     public Variant(String chromosome, int start, int end, String reference, String alternate, String strand) {
-        impl = new VariantAvro("",
+        impl = new VariantAvro(
+                null,
+                new LinkedList<>(),
+                "",
                 start,
                 end,
                 checkEmptySequence(reference),
                 checkEmptySequence(alternate),
                 strand,
-                new LinkedList<>(),
                 0,
                 null,
                 new HashMap<>(),
                 new LinkedList<>(),
                 null);
         if (start > end && !(reference.equals("-"))) {
-            throw new IllegalArgumentException("End position must be greater than the start position");
+            throw new IllegalArgumentException("End position must be greater than the start position for variant: "
+                    + chromosome + ":" + start + "-" + end + ":" + reference + ":" + alternate);
         }
 
         this.setChromosome(chromosome);
 
         this.resetLength();
         this.resetType();
-        this.resetHGVS();
+//        this.resetHGVS();
 
 //        this.annotation = new VariantAnnotation(this.chromosome, this.start, this.end, this.reference, this.alternate);
         studyEntries = new HashMap<>();
@@ -120,7 +138,11 @@ public class Variant implements Serializable {
     }
     public static VariantType inferType(String reference, String alternate, Integer length) {
         if (Allele.wouldBeSymbolicAllele(alternate.getBytes()) || Allele.wouldBeSymbolicAllele(reference.getBytes())) {
-            return VariantType.SYMBOLIC;
+            if (alternate.equals(CNVSTR)) {
+                return VariantType.CNV;
+            } else {
+                return VariantType.SYMBOLIC;
+            }
         } else {
             if (reference.length() == alternate.length()) {
                 if (length > 1) {
@@ -145,26 +167,51 @@ public class Variant implements Serializable {
         }
     }
 
-    private void resetLength() {
-        if (getReference() == null) {
-            setLength(getAlternate() == null? 0 : getAlternate().length());
-        } else if (getAlternate() == null) {
-            setLength(getReference().length());
-        } else {
-            setLength(Math.max(getReference().length(), getAlternate().length()));
-        }
+    public void resetLength() {
+        setLength(inferLength(getReference(), getAlternate(), getStart(), getEnd()));
     }
 
-    public void resetHGVS() {
-        if (this.getType() == VariantType.SNV || this.getType() == VariantType.SNP) { // Generate HGVS code only for SNVs
-            List<String> hgvsCodes = new LinkedList<>();
-            hgvsCodes.add(getChromosome() + ":g." + getStart() + getReference() + ">" + getAlternate());
-            if (impl.getHgvs() == null) {
-                impl.setHgvs(new HashMap<>());
-            }
-            impl.getHgvs().put("genomic", hgvsCodes);
+    private static int inferLength(String reference, String alternate, int start, int end) {
+        final int length;
+        if (reference == null) {
+            length = inferLengthSV(alternate, start, end);
+        } else {
+            length = inferLengthShortVariant(reference, alternate);
         }
+        return length;
     }
+
+    private static int inferLengthShortVariant(String reference, String alternate) {
+        final int length;
+        if (alternate == null) {
+            length = reference.length();
+        } else {
+            length = Math.max(reference.length(), alternate.length());
+        }
+        return length;
+    }
+
+    private static int inferLengthSV(String alternate, int start, int end) {
+        int length;
+        if (CNVSTR.equals(alternate)){
+            length = end - start + 1;
+        } else {
+            length = alternate == null ? 0 : alternate.length();
+        }
+        return length;
+    }
+
+//    public void resetHGVS() {
+//        if (this.getType() == VariantType.SNV || this.getType() == VariantType.SNP) { // Generate HGVS code only for SNVs
+//            List<String> hgvsCodes = new LinkedList<>();
+//            hgvsCodes.add(getChromosome() + ":g." + getStart() + getReference() + ">" + getAlternate());
+//            if (impl.getHgvs() == null) {
+//                impl.setHgvs(new HashMap<>());
+//            }
+//            impl.getHgvs().put("genomic", hgvsCodes);
+//        }
+//    }
+
     public VariantAvro getImpl() {
         return impl;
     }
@@ -199,29 +246,20 @@ public class Variant implements Serializable {
 
     public void setReference(String reference) {
         impl.setReference(reference);
-        resetLength();
+//        resetLength();
     }
 
     public void setAlternate(String alternate) {
         impl.setAlternate(alternate);
-        resetLength();
+//        resetLength();
     }
 
-    @Deprecated
     public String getId() {
-        if (impl.getIds() == null) {
-            return null;
-        } else {
-            return impl.getIds().stream().collect(Collectors.joining(";"));
-        }
+        return impl.getId();
     }
 
-    @Deprecated
     public void setId(String id) {
-        if (impl.getIds() == null) {
-            impl.setIds(new LinkedList<>());
-        }
-        impl.getIds().add(id);
+        impl.setId(id);
     }
 
     public String getChromosome() {
@@ -252,12 +290,39 @@ public class Variant implements Serializable {
         impl.setStrand(strand);
     }
 
+    @Deprecated
     public List<String> getIds() {
-        return impl.getIds();
+        if (StringUtils.isNotEmpty(impl.getId())) {
+            if (impl.getNames() != null) {
+                List<String> ids = new ArrayList<>(1 + impl.getNames().size());
+                ids.add(impl.getId());
+                ids.addAll(impl.getNames());
+                return ids;
+            } else {
+                return Collections.singletonList(impl.getId());
+            }
+        } else {
+            return impl.getNames();
+        }
     }
 
-    public void setIds(List<String> value) {
-        impl.setIds(value);
+    @Deprecated
+    public void setIds(List<String> ids) {
+        if (ids == null || ids.isEmpty()) {
+            impl.setId(null);
+            impl.setNames(Collections.emptyList());
+        } else {
+            impl.setId(ids.get(0));
+            impl.setNames(ids.subList(1, ids.size()));
+        }
+    }
+
+    public List<String> getNames() {
+        return impl.getNames();
+    }
+
+    public void setNames(List<String> names) {
+        impl.setNames(names);
     }
 
     public Integer getLength() {
@@ -488,13 +553,24 @@ public class Variant implements Serializable {
         return variants;
     }
 
-    public boolean overlapWith(Variant other, boolean inclusive){
-        if(! StringUtils.equals(this.getChromosome(), other.getChromosome()))
+    public boolean overlapWith(Variant other, boolean inclusive) {
+        if (!StringUtils.equals(this.getChromosome(), other.getChromosome())) {
             return false; // Different Chromosome
-        if(inclusive) // a.getStart() <= b.getEnd() && a.getEnd() >= b.getStart();
-            return this.getStart() <= other.getEnd() && this.getEnd() >= other.getStart() ;
-        else
+        } else if (inclusive) {
+            return this.getStart() <= other.getEnd() && this.getEnd() >= other.getStart();
+        } else {
             return this.getStart() < other.getEnd() && this.getEnd() > other.getStart();
+        }
+    }
+
+    public boolean overlapWith(String chromosome, int start, int end, boolean inclusive) {
+        if (!StringUtils.equals(this.getChromosome(), chromosome)) {
+            return false; // Different Chromosome
+        } else if (inclusive) {
+            return this.getStart() <= end && this.getEnd() >= start;
+        } else {
+            return this.getStart() < end && this.getEnd() > start;
+        }
     }
 
     public boolean onSameStartPosition (Variant other){
@@ -525,8 +601,7 @@ public class Variant implements Serializable {
         } else if (variantType.equals(VariantType.MNV)) {
             return Collections.singleton(VariantType.MNP);
         } else if (variantType.equals(VariantType.SV)) {
-            return EnumSet.of(VariantType.INSERTION, VariantType.DELETION,
-                    VariantType.TRANSLOCATION, VariantType.INVERSION, VariantType.CNV);
+            return  SV_SUBTYPES;
         } else {
             return Collections.emptySet();
         }

@@ -123,37 +123,40 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         variant.setIds(ids);
 
 
-        variant.setLength(Math.max(variant.getReference().length(), variant.getAlternate().length()));
+        variant.resetLength();
+//        variant.setLength(Math.max(variant.getReference().length(), variant.getAlternate().length()));
 
         // TODO Nacho please add CNV when symbolic
+        variant.setType(Variant.inferType(variant.getReference(), variant.getAlternate(), variant.getLength()));
 //        variant.setType(getEnumFromString(VariantType.class, variantContext.getType().toString()));
-        VariantType variantType = getEnumFromString(VariantType.class, variantContext.getType().toString());
-        switch (variantType) {
-            case SNP:
-                if (variant.getIds().isEmpty()) {
-                    variant.setType(VariantType.SNV);
-                } else {
-                    variant.setType(VariantType.SNP);
-                }
-                break;
-            case INDEL:
-                if (variant.getLength() > Variant.SV_THRESHOLD) {
-                    if (variant.getReference().isEmpty()) {
-                        variant.setType(VariantType.INSERTION);
-                    } else if (variant.getAlternate().isEmpty()) {
-                        variant.setType(VariantType.DELETION);
-                    } else {
-                        variant.setType(VariantType.SV);
-                    }
-                } else {
-                    variant.setType(VariantType.INDEL);
-                }
-                break;
-            default:
-                variant.setType(variantType);
-        }
 
-        variant.resetHGVS();
+//        VariantType variantType = getEnumFromString(VariantType.class, variantContext.getType().toString());
+//        switch (variantType) {
+//            case SNP:
+//                if (variant.getIds().isEmpty()) {
+//                    variant.setType(VariantType.SNV);
+//                } else {
+//                    variant.setType(VariantType.SNP);
+//                }
+//                break;
+//            case INDEL:
+//                if (variant.getLength() > Variant.SV_THRESHOLD) {
+//                    if (variant.getReference().isEmpty()) {
+//                        variant.setType(VariantType.INSERTION);
+//                    } else if (variant.getAlternate().isEmpty()) {
+//                        variant.setType(VariantType.DELETION);
+//                    } else {
+//                        variant.setType(VariantType.SV);
+//                    }
+//                } else {
+//                    variant.setType(VariantType.INDEL);
+//                }
+//                break;
+//            default:
+//                variant.setType(variantType);
+//        }
+
+//        variant.resetHGVS();
 
         // set variantSourceEntry fields
         List<StudyEntry> studies = new ArrayList<>();
@@ -211,7 +214,8 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         for (int i = 1; i < alternateAlleleList.size(); i++) {
             String allele = alternateAlleleList.get(i).toString();
             alternates.add(allele);
-            secondaryAlternateList.add(new AlternateCoordinate(null, null, null, null, allele, variantType));
+            secondaryAlternateList.add(new AlternateCoordinate(null, null, null, null, allele, variant.getType()));
+//            secondaryAlternateList.add(new AlternateCoordinate(null, null, null, null, allele, variantType));
         }
         studyEntry.setSecondaryAlternates(secondaryAlternateList);
 
@@ -249,7 +253,8 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
                 switch (formatField) {
                     case VCFConstants.GENOTYPE_KEY:
                         String genotypeValue;
-                        if (variantType.equals(VariantType.SYMBOLIC)) {
+//                        if (variantType.equals(VariantType.SYMBOLIC)) {
+                        if (variant.getType().equals(VariantType.SYMBOLIC) || variant.getType().equals(VariantType.CNV)) {
                             genotypeValue = genotype.getGenotypeString(false).replaceAll("\\*", "");
                         } else {
                             genotypeValue = genotype.getGenotypeString(true);
