@@ -156,7 +156,7 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
 //                variant.setType(variantType);
 //        }
 
-        variant.resetHGVS();
+//        variant.resetHGVS();
 
         // set variantSourceEntry fields
         List<StudyEntry> studies = new ArrayList<>();

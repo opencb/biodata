@@ -123,7 +123,7 @@ public class Variant implements Serializable {
 
         this.resetLength();
         this.resetType();
-        this.resetHGVS();
+//        this.resetHGVS();
 
 //        this.annotation = new VariantAnnotation(this.chromosome, this.start, this.end, this.reference, this.alternate);
         studyEntries = new HashMap<>();
@@ -201,17 +201,17 @@ public class Variant implements Serializable {
         return length;
     }
 
+//    public void resetHGVS() {
+//        if (this.getType() == VariantType.SNV || this.getType() == VariantType.SNP) { // Generate HGVS code only for SNVs
+//            List<String> hgvsCodes = new LinkedList<>();
+//            hgvsCodes.add(getChromosome() + ":g." + getStart() + getReference() + ">" + getAlternate());
+//            if (impl.getHgvs() == null) {
+//                impl.setHgvs(new HashMap<>());
+//            }
+//            impl.getHgvs().put("genomic", hgvsCodes);
+//        }
+//    }
 
-    public void resetHGVS() {
-        if (this.getType() == VariantType.SNV || this.getType() == VariantType.SNP) { // Generate HGVS code only for SNVs
-            List<String> hgvsCodes = new LinkedList<>();
-            hgvsCodes.add(getChromosome() + ":g." + getStart() + getReference() + ">" + getAlternate());
-            if (impl.getHgvs() == null) {
-                impl.setHgvs(new HashMap<>());
-            }
-            impl.getHgvs().put("genomic", hgvsCodes);
-        }
-    }
     public VariantAvro getImpl() {
         return impl;
     }

@@ -485,7 +485,7 @@ public class VariantMergerTest {
         variant.setIds(Collections.emptyList());
         variant.setStrand("+");
         variant.setHgvs(new HashMap<>());
-        variant.resetHGVS();
+//        variant.resetHGVS();
 
         attributes = new HashMap<>(attributes);
         attributes.put(VariantVcfFactory.FILTER, filter);
