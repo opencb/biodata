@@ -307,9 +307,9 @@ public class VariantContextToVariantProtoConverter implements Converter<VariantC
         /*
          * set AdditionalAttributes map type parameter
          */
-        Map<String, String> additionalAttributesMap = new HashMap();
         //additionalAttributesMap.put(null, null);
-        variantAnnotation.putAllAdditionalAttributes(additionalAttributesMap);
+        HashMap<String, VariantAnnotationProto.VariantAnnotation.AdditionalAttribute> map = new HashMap<>();
+        variantAnnotation.putAllAdditionalAttributes(map);
         /*
          * set AlternateAllele parameter
          */

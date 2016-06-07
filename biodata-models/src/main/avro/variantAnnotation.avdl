@@ -152,7 +152,7 @@ protocol VariantAnnotations {
         union { null, array<GeneDrugInteraction> } geneDrugInteraction;
         union { null, VariantTraitAssociation } variantTraitAssociation;
         union { null, array<Score> } functionalScore;
-        union { null, map<union { int, float, double, string, map<union { int, float, double, string }> }> } additionalAttributes;
+        union { null, map<map<string>> } additionalAttributes;
     }
 
 }

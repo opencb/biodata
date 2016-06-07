@@ -122,5 +122,9 @@ message VariantAnnotation {
     repeated Expression gene_expression = 12;
     repeated GeneDrugInteraction gene_drug_interaction = 13;
     VariantTraitAssociation trait_association = 14;
-    map<string, string> additional_attributes = 15;
+
+    message AdditionalAttribute {
+        map<string, string> attribute = 1;
+    }
+    map<string, AdditionalAttribute> additional_attributes = 15;
 }
