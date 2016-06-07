@@ -180,6 +180,27 @@ protocol Variants {
         boolean phased;
     }
 
+//    /**
+//     * Confidence interval around a position for imprecise variants
+//     */
+//    record ConfidenceInterval {
+//       int right;
+////       int behind;
+//       int left;
+////       int forward;
+//    }
+
+    record StructuralVariation {
+        int ciStartLeft = 0;
+        int ciStartRight = 0;
+        int ciEndLeft = 0;
+        int ciEndRight = 0;
+        /**
+         * Number of copies for CNV variants.
+         */
+        union {null, int} copyNumber;
+    }
+
     record VariantAvro {
 
         /**
@@ -235,6 +256,11 @@ protocol Variants {
          * Reference strand for this variant
          */
         union { null, string } strand;
+
+        /**
+         * Information regarding Structural Variants
+         */
+        union { null, StructuralVariation } sv;
 
         /**
          * Length of the genomic variation, which depends on the variation type.

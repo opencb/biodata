@@ -19,6 +19,7 @@ package org.opencb.biodata.models.variant;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import htsjdk.variant.variantcontext.Allele;
 import org.apache.commons.lang3.StringUtils;
+import org.opencb.biodata.models.variant.avro.StructuralVariation;
 import org.opencb.biodata.models.variant.avro.VariantAnnotation;
 import org.opencb.biodata.models.variant.avro.VariantAvro;
 import org.opencb.biodata.models.variant.avro.VariantType;
@@ -42,7 +43,7 @@ public class Variant implements Serializable {
     public static final String CNVSTR = "<CNV>";
 
     public Variant() {
-        impl = new VariantAvro(null, new LinkedList<>(), "", -1, -1, "", "", "+", 0, null, new HashMap<>(), new LinkedList<>(), null);
+        impl = new VariantAvro(null, new LinkedList<>(), "", -1, -1, "", "", "+", null, 0, null, new HashMap<>(), new LinkedList<>(), null);
     }
 
     public Variant(VariantAvro avro) {
@@ -109,6 +110,7 @@ public class Variant implements Serializable {
                 checkEmptySequence(reference),
                 checkEmptySequence(alternate),
                 strand,
+                null,
                 0,
                 null,
                 new HashMap<>(),
@@ -288,6 +290,14 @@ public class Variant implements Serializable {
 
     public void setStrand(String strand) {
         impl.setStrand(strand);
+    }
+
+    public StructuralVariation getSv() {
+        return impl.getSv();
+    }
+
+    public void setSv(StructuralVariation sv) {
+        impl.setSv(sv);
     }
 
     @Deprecated
