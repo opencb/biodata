@@ -255,12 +255,12 @@ protocol Variants {
         /**
          * Reference strand for this variant
          */
-        union { null, string } strand;
+        union { null, string } strand = null;
 
         /**
          * Information regarding Structural Variants
          */
-        union { null, StructuralVariation } sv;
+        union { null, StructuralVariation } sv = null;
 
         /**
          * Length of the genomic variation, which depends on the variation type.
@@ -279,7 +279,7 @@ protocol Variants {
         /**
          * Unique identifier following the HGVS nomenclature.
          */
-        union { null, map<array<string>> } hgvs;
+        union { null, map<array<string>> } hgvs = null;
 
         /**
          * Information specific to each study the variant was read from, such as
@@ -290,7 +290,7 @@ protocol Variants {
         /**
          * Annotations of the genomic variation.
          */
-        union { null, VariantAnnotation } annotation;
+        union { null, VariantAnnotation } annotation = null;
     }
 
     // delete
