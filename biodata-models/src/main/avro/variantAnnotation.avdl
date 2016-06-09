@@ -132,6 +132,10 @@ protocol VariantAnnotations {
         union { null, string } source;
     }
 
+    record AdditionalAttribute {
+        map<string> attribute;
+    }
+
     record VariantAnnotation {
         union { null, string } chromosome;
         union { null, int } start;
@@ -152,7 +156,7 @@ protocol VariantAnnotations {
         union { null, array<GeneDrugInteraction> } geneDrugInteraction;
         union { null, VariantTraitAssociation } variantTraitAssociation;
         union { null, array<Score> } functionalScore;
-        union { null, map<map<string>> } additionalAttributes;
+        union { null, map<AdditionalAttribute> } additionalAttributes = null;
     }
 
 }
