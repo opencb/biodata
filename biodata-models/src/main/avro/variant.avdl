@@ -76,8 +76,8 @@ protocol Variants {
         union { null, float } controlsPercentRecessive;
         union { null, float } quality;
         union { null, int } numSamples;
-        VariantType variantType;
-        VariantHardyWeinbergStats hw;
+        union { null, VariantType} variantType = null;
+        union { null, VariantHardyWeinbergStats} hw = null;
     }
 
     record VariantGlobalStats {

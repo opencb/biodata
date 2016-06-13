@@ -100,8 +100,8 @@ protocol VariantAnnotations {
     }
 
     record ProteinVariantAnnotation {
-        string uniprotAccession;
-        string uniprotName;
+        union { null, string } uniprotAccession = null;
+        union { null, string } uniprotName = null;
         int position;
         //string aaChange;
         string reference;
