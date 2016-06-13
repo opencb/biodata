@@ -71,17 +71,20 @@ public class VariantStatsPopulationFrequencyExporter implements DataWriter<Varia
             for (Map.Entry<String, VariantStats> cohortEntry : studyEntry.getStats().entrySet()) {
                 String studyId = studyEntry.getStudyId();
                 studyId = studyId.substring(studyId.lastIndexOf(":") + 1);
-                frequencies.add(converter.convert(studyId,
+                PopulationFrequency populationFrequency = converter.convert(studyId,
                         cohortEntry.getKey(),
-                        cohortEntry.getValue(), variant.getReference(), variant.getAlternate()));
+                        cohortEntry.getValue(), variant.getReference(), variant.getAlternate());
+                if (populationFrequency.getAltAlleleFreq() > 0 && !populationFrequency.getAltAlleleFreq().isNaN()) {
+                    frequencies.add(populationFrequency);
+                }
             }
         }
-        Variant cellbaseVar = new Variant(variant.toString());
+        Variant newVar = new Variant(variant.toString());
         VariantAnnotation annotation = new VariantAnnotation();
         annotation.setPopulationFrequencies(frequencies);
-        cellbaseVar.setAnnotation(annotation);
+        newVar.setAnnotation(annotation);
         try {
-            objectWriter.writeValue(outputStream, cellbaseVar);
+            objectWriter.writeValue(outputStream, newVar);
             outputStream.write('\n');
         } catch (IOException e) {
             throw new UncheckedIOException(e);
