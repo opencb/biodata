@@ -40,7 +40,7 @@ public class Variant implements Serializable {
     private Map<String, StudyEntry> studyEntries = null;
 
     public static final int SV_THRESHOLD = 50;
-    public static final String CNVSTR = "<CNV>";
+    public static final String CNVSTR = "<CNV";
 
     public Variant() {
         impl = new VariantAvro(null, new LinkedList<>(), "", -1, -1, "", "", "+", null, 0, null, new HashMap<>(), new LinkedList<>(), null);
@@ -65,6 +65,7 @@ public class Variant implements Serializable {
                 String[] coordinatesParts = fields[1].split("-");
                 // Structural variant needs start-end coords
                 if (coordinatesParts.length == 2) {
+                    setReference("N");
                     setStart(Integer.parseInt(coordinatesParts[0]));
                     setEnd(Integer.parseInt(coordinatesParts[1]));
                     setLength(inferLengthSV(getAlternate(), getStart(), getEnd()));
@@ -78,14 +79,23 @@ public class Variant implements Serializable {
             } else {
                 if (fields.length == 4) {
                     setChromosome(fields[0]);
-                    setStart(Integer.parseInt(fields[1]));
-                    setReference(checkEmptySequence(fields[2]));
                     setAlternate(checkEmptySequence(fields[3]));
+                    String[] coordinatesParts = fields[1].split("-");
+                    // Structural variant needs start-end coords
+                    if (coordinatesParts.length == 2) {
+                        setReference(checkEmptySequence(fields[2]));
+                        setStart(Integer.parseInt(coordinatesParts[0]));
+                        setEnd(Integer.parseInt(coordinatesParts[1]));
+                        setLength(inferLengthSV(getAlternate(), getStart(), getEnd()));
+                    } else {
+                        setStart(Integer.parseInt(fields[1]));
+                        setReference(checkEmptySequence(fields[2]));
+                        setLength(inferLengthShortVariant(getReference(), getAlternate()));
+                        setEnd(getStart() + getLength() - 1);
+                    }
                 } else {
                     throw new IllegalArgumentException("Variant needs 3 or 4 fields separated by ':'");
                 }
-                setLength(inferLengthShortVariant(getReference(), getAlternate()));
-                setEnd(getStart() + getLength() - 1);
             }
         }
         resetType();
@@ -140,7 +150,7 @@ public class Variant implements Serializable {
     }
     public static VariantType inferType(String reference, String alternate, Integer length) {
         if (Allele.wouldBeSymbolicAllele(alternate.getBytes()) || Allele.wouldBeSymbolicAllele(reference.getBytes())) {
-            if (alternate.equals(CNVSTR)) {
+            if (alternate.startsWith(CNVSTR)) {
                 return VariantType.CNV;
             } else {
                 return VariantType.SYMBOLIC;
@@ -195,7 +205,7 @@ public class Variant implements Serializable {
 
     private static int inferLengthSV(String alternate, int start, int end) {
         int length;
-        if (CNVSTR.equals(alternate)){
+        if (alternate.startsWith(CNVSTR)) {
             length = end - start + 1;
         } else {
             length = alternate == null ? 0 : alternate.length();
