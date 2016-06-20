@@ -40,7 +40,7 @@ public class Variant implements Serializable {
     private Map<String, StudyEntry> studyEntries = null;
 
     public static final int SV_THRESHOLD = 50;
-    public static final String CNVSTR = "<CNV";
+    public static final String CNVSTR = "<CN";
 
     public Variant() {
         impl = new VariantAvro(null, new LinkedList<>(), "", -1, -1, "", "", "+", null, 0, null, new HashMap<>(), new LinkedList<>(), null);
@@ -99,6 +99,12 @@ public class Variant implements Serializable {
             }
         }
         resetType();
+
+        if (VariantType.CNV.equals(getType())) {
+            setSv(new StructuralVariation(this.getStart(), this.getStart(), this.getEnd(), this.getEnd(),
+                    getCopyNumberFromStr(this.getAlternate())));
+
+        }
     }
 
     public Variant(String chromosome, int position, String reference, String alternate) {
@@ -135,10 +141,21 @@ public class Variant implements Serializable {
 
         this.resetLength();
         this.resetType();
+
+        if (VariantType.CNV.equals(getType())) {
+            setSv(new StructuralVariation(this.getStart(), this.getStart(), this.getEnd(), this.getEnd(),
+                    getCopyNumberFromStr(this.getAlternate())));
+
+        }
+
 //        this.resetHGVS();
 
 //        this.annotation = new VariantAnnotation(this.chromosome, this.start, this.end, this.reference, this.alternate);
         studyEntries = new HashMap<>();
+    }
+
+    private Integer getCopyNumberFromStr(String cnvStr) {
+        return Integer.valueOf(cnvStr.split("<CNV")[1].split(">")[0]);
     }
 
     private String checkEmptySequence(String sequence) {
@@ -183,7 +200,7 @@ public class Variant implements Serializable {
         setLength(inferLength(getReference(), getAlternate(), getStart(), getEnd()));
     }
 
-    private static int inferLength(String reference, String alternate, int start, int end) {
+    public static int inferLength(String reference, String alternate, int start, int end) {
         final int length;
         if (reference == null) {
             length = inferLengthSV(alternate, start, end);
