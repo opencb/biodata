@@ -65,7 +65,7 @@ public class VariantAggregatedStatsCalculator {
     }
 
     public void calculate(Variant variant) {
-        for (StudyEntry study : variant.getSourceEntries().values()) {
+        for (StudyEntry study : variant.getStudies()) {
             calculate(variant, study);
         }
     }
@@ -76,6 +76,9 @@ public class VariantAggregatedStatsCalculator {
      */
     public void calculate(Variant variant, StudyEntry study) {
 //        Map<String, String> infoMap = VariantAggregatedVcfFactory.getInfoMap(info);
+        if (study.getFiles().isEmpty()) {
+            return;
+        }
         FileEntry fileEntry = study.getFiles().get(0);
         Map<String, String> infoMap = fileEntry.getAttributes();
         int numAllele = 0;
