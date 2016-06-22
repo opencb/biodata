@@ -170,6 +170,7 @@ public class VariantMerger {
                         sampleDataList.add(sampleToFilter.getOrDefault(sampleName, DEFAULT_FILTER_VALUE));
                         break;
                     default:
+                        // FIXME: Normalize information when merging data from different variants.
                         String value = otherStudy.getSampleData(sampleName, format);
                         sampleDataList.add(value == null ? "" : value);
 //                        sampleDataList.add(value);

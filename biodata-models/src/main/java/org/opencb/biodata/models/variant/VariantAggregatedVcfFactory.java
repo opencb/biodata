@@ -150,19 +150,21 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
     }
 
 
-    public static Genotype parseGenotype(String gt, Variant variant, int numAllele, String[] alternateAlleles) {
+    public static Genotype parseGenotype(String gt, int numAllele, String reference, String[] alternateAlleles) {
         Genotype g;
         Matcher m;
 
+        List<String> alternates = Arrays.asList(alternateAlleles);
+//        String alternates = variant.getAlternate();
         m = singleNuc.matcher(gt);
 
         if (m.matches()) { // A,C,T,G
-            g = new Genotype(gt + "/" + gt, variant.getReference(), variant.getAlternate());
+            g = new Genotype(gt, reference, alternates);
             return g;
         }
         m = singleRef.matcher(gt);
         if (m.matches()) { // R
-            g = new Genotype(variant.getReference() + "/" + variant.getReference(), variant.getReference(), variant.getAlternate());
+            g = new Genotype("0", reference, alternates);
             return g;
         }
 
@@ -171,13 +173,13 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
             String ref = m.group(1);
             String alt = m.group(2);
 
-            int allele1 = (Arrays.asList(alternateAlleles).indexOf(ref) + 1);
-            int allele2 = (Arrays.asList(alternateAlleles).indexOf(alt) + 1);
+            int allele1 = (alternates.indexOf(ref) + 1);
+            int allele2 = (alternates.indexOf(alt) + 1);
 
             int val1 = mapToMultiallelicIndex(allele1, numAllele);
             int val2 = mapToMultiallelicIndex(allele2, numAllele);
 
-            return new Genotype(val1 + "/" + val2, variant.getReference(), variant.getAlternate());
+            return new Genotype(val1 + "/" + val2, reference, alternates);
 
 //            if ((allele1 == 0 || allele1 == (numAllele + 1)) && (allele2 == 0 || allele2 == (numAllele + 1))) {
 //
@@ -193,7 +195,7 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
 
         m = refRef.matcher(gt);
         if (m.matches()) { // RR
-            g = new Genotype(variant.getReference() + "/" + variant.getReference(), variant.getReference(), variant.getAlternate());
+            g = new Genotype(reference + "/" + reference, reference, alternates);
             return g;
         }
 
@@ -201,7 +203,7 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
         if (m.matches()) { // A1,A2,A3
             int val = Integer.parseInt(m.group(1));
             val = mapToMultiallelicIndex(val, numAllele);
-            return new Genotype(val + "/" + val, variant.getReference(), variant.getAlternate());
+            return new Genotype(Integer.toString(val), reference, alternates);
         }
 
         m = altNumaltNum.matcher(gt);
@@ -210,14 +212,14 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
             int val2 = Integer.parseInt(m.group(2));
             val1 = mapToMultiallelicIndex(val1, numAllele);
             val2 = mapToMultiallelicIndex(val2, numAllele);
-            return new Genotype(val1 + "/" + val2, variant.getReference(), variant.getAlternate());
+            return new Genotype(val1 + "/" + val2, reference, alternates);
         }
 
         m = altNumRef.matcher(gt);
         if (m.matches()) { // A1R, A2R
             int val1 = Integer.parseInt(m.group(1));
             val1 = mapToMultiallelicIndex(val1, numAllele);
-            return new Genotype(val1 + "/" + 0, variant.getReference(), variant.getAlternate());
+            return new Genotype(val1 + "/" + 0, reference, alternates);
         }
 
         return null;

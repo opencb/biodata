@@ -109,6 +109,7 @@ public class VariantAggregatedStatsCalculatorTest extends GenericTest {
         properties.put("EUR.AF", "EUR_AF");
         properties.put("ALL.AN", "AN");
         properties.put("ALL.AF", "AF");
+        properties.put(VariantAggregatedEVSStatsCalculator.GROUPS_ORDER, "EUR,ALL");
 
         assertEquals(new LinkedHashSet<>(Arrays.asList("EUR", "ALL")), VariantAggregatedStatsCalculator.getCohorts(properties));
     }

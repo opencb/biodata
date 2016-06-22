@@ -313,7 +313,7 @@ public class VariantStats {
             for (int i = 1; i < sortedAlleles.length; i++) {
                 joinedAlleles.append(separator).append(sortedAlleles[i]);
             }
-            return new Genotype(joinedAlleles.toString(), g.getReference(), g.getAlternate());
+            return new Genotype(joinedAlleles.toString(), g.getReference(), g.getAlternates());
         }
     }
 

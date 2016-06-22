@@ -57,7 +57,7 @@ public class Genotype {
     }
     
     public Genotype(String genotype, String ref, String alt) {
-        this(genotype, ref, Collections.singletonList(alt));
+        this(genotype, ref, Arrays.asList(alt.split(",")));
     }
 
     public Genotype(String genotype, String ref, List<String> alternates) {

@@ -79,16 +79,21 @@ public class VariantAggregatedStatsCalculator {
         FileEntry fileEntry = study.getFiles().get(0);
         Map<String, String> infoMap = fileEntry.getAttributes();
         int numAllele = 0;
-        String[] alternateAlleles = {variant.getAlternate()};
+        String reference;
+        String[] alternateAlleles;
         if (fileEntry.getCall() != null && !fileEntry.getCall().isEmpty()) {
             String[] ori = fileEntry.getCall().split(":");
             numAllele = Integer.parseInt(ori[3]);
             alternateAlleles = ori[2].split(",");
+            reference = ori[1];
+        } else {
+            reference = variant.getReference();
+            alternateAlleles = new String[]{variant.getAlternate()};
         }
         if (tagMap != null) {
-            parseMappedStats(variant, study, numAllele, alternateAlleles, infoMap);
+            parseMappedStats(variant, study, numAllele, reference, alternateAlleles, infoMap);
         } else {
-            parseStats(variant, study, numAllele, alternateAlleles, infoMap);
+            parseStats(variant, study, numAllele, reference, alternateAlleles, infoMap);
         }
     }
 
@@ -97,10 +102,11 @@ public class VariantAggregatedStatsCalculator {
      * @param variant
      * @param file
      * @param numAllele
+     * @param reference
      * @param alternateAlleles
      * @param info
      */
-    protected void parseStats(Variant variant, StudyEntry file, int numAllele, String[] alternateAlleles, Map<String, String> info) {
+    protected void parseStats(Variant variant, StudyEntry file, int numAllele, String reference, String[] alternateAlleles, Map<String, String> info) {
         VariantStats vs = new VariantStats(variant);
         Map<String, String> stats = new LinkedHashMap<>();
         for (Map.Entry<String, String> entry : info.entrySet()) {
@@ -113,7 +119,7 @@ public class VariantAggregatedStatsCalculator {
             }
         }
 
-        calculate(variant, file, numAllele, alternateAlleles, stats, vs);
+        calculate(variant, file, numAllele, reference, alternateAlleles, stats, vs);
 
         file.setStats(StudyEntry.DEFAULT_COHORT, vs);
     }
@@ -124,10 +130,11 @@ public class VariantAggregatedStatsCalculator {
      * @param variant
      * @param file
      * @param numAllele
+     * @param reference
      * @param alternateAlleles
      * @param info
      */
-    protected void parseMappedStats (Variant variant, StudyEntry file, int numAllele, String[] alternateAlleles, Map<String, String> info) {
+    protected void parseMappedStats(Variant variant, StudyEntry file, int numAllele, String reference, String[] alternateAlleles, Map<String, String> info) {
         Map<String, Map<String, String>> cohortStats = new LinkedHashMap<>();   // cohortName -> (statsName -> statsValue): EUR->(AC->3,2)
         for (Map.Entry<String, String> entry : info.entrySet()) {
             if (reverseTagMap.containsKey(entry.getKey())) {
@@ -146,7 +153,7 @@ public class VariantAggregatedStatsCalculator {
 
         for (String cohortName : cohortStats.keySet()) {
             VariantStats vs = new VariantStats(variant);
-            calculate(variant, file, numAllele, alternateAlleles, cohortStats.get(cohortName), vs);
+            calculate(variant, file, numAllele, reference, alternateAlleles, cohortStats.get(cohortName), vs);
             file.setCohortStats(cohortName, vs);
         }
     }
@@ -156,11 +163,12 @@ public class VariantAggregatedStatsCalculator {
      * @param variant
      * @param sourceEntry
      * @param numAllele
+     * @param reference
      * @param alternateAlleles
      * @param attributes
      * @param variantStats results are returned by reference here
      */
-    protected void calculate(Variant variant, StudyEntry sourceEntry, int numAllele, String[] alternateAlleles,
+    protected void calculate(Variant variant, StudyEntry sourceEntry, int numAllele, String reference, String[] alternateAlleles,
                              Map<String, String> attributes, VariantStats variantStats) {
 
         if (attributes.containsKey("AN") && attributes.containsKey("AC")) {
@@ -226,7 +234,7 @@ public class VariantAggregatedStatsCalculator {
         if (attributes.containsKey("GTC")) {
             String[] gtcs = attributes.get("GTC").split(COMMA);
             if (attributes.containsKey("GTS")) {    // GTS contains the format like: GTS=GG,GT,TT or GTS=A1A1,A1R,RR
-                addGenotypeWithGTS(variant, attributes, gtcs, alternateAlleles, numAllele, variantStats);
+                addGenotypeWithGTS(attributes, gtcs, reference, alternateAlleles, numAllele, variantStats);
             } else {
                 for (int i = 0; i < gtcs.length; i++) {
                     String[] gtcSplit = gtcs[i].split(":");
@@ -265,8 +273,8 @@ public class VariantAggregatedStatsCalculator {
         }
     }
 
-    public static void addGenotypeWithGTS(Variant variant, Map<String, String> attributes, String[] splitsGTC, 
-                                          String[] alternateAlleles, int numAllele, VariantStats cohortStats) {
+    public static void addGenotypeWithGTS(Map<String, String> attributes, String[] splitsGTC,
+                                          String reference, String[] alternateAlleles, int numAllele, VariantStats cohortStats) {
         if (attributes.containsKey("GTS")) {
             String splitsGTS[] = attributes.get("GTS").split(COMMA);
             if (splitsGTC.length == splitsGTS.length) {
@@ -274,7 +282,7 @@ public class VariantAggregatedStatsCalculator {
                     String gt = splitsGTS[i];
                     int gtCount = Integer.parseInt(splitsGTC[i]);
 
-                    Genotype g = VariantAggregatedVcfFactory.parseGenotype(gt, variant, numAllele, alternateAlleles);
+                    Genotype g = VariantAggregatedVcfFactory.parseGenotype(gt, numAllele, reference, alternateAlleles);
                     if (g != null) {
                         cohortStats.addGenotype(g, gtCount);
                     }
@@ -288,7 +296,10 @@ public class VariantAggregatedStatsCalculator {
         if (tagMap != null) {
             cohorts = new LinkedHashSet<>();
             for (String key : tagMap.stringPropertyNames()) {
-                cohorts.add(key.split(DOT)[0]);
+                int index = key.indexOf(".");
+                if (index >= 0) {
+                    cohorts.add(key.substring(0, index));
+                }
             }
         }
         
