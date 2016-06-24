@@ -29,13 +29,14 @@ import java.util.*;
  */
 public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsCalculator {
 
+    public static final String GROUPS_ORDER = "GROUPS_ORDER";
 
     public VariantAggregatedEVSStatsCalculator() {
         super();
     }
 
     /**
-     * @param tagMap Extends the VariantAggregatedVcfFactory(Properties properties) with one extra tag: GROUPS_ORDER. 
+     * @param tagMap Extends the VariantAggregatedVcfFactory(Properties properties) with one extra tag: {@link #GROUPS_ORDER}.
      * Example:
      *
      * EUR.AF=EUR_AF
@@ -56,7 +57,7 @@ public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsC
     }
 
     @Override
-    protected void parseStats(Variant variant, StudyEntry file, int numAllele, String[] alternateAlleles, Map<String, String> info) {
+    protected void parseStats(Variant variant, StudyEntry file, int numAllele, String reference, String[] alternateAlleles, Map<String, String> info) {
         VariantStats stats = new VariantStats(variant);
         if (info.containsKey("MAF")) {
             String splitsMAF[] = info.get("MAF").split(",");
@@ -68,14 +69,14 @@ public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsC
 
         if (info.containsKey("GTS") && info.containsKey("GTC")) {
             String splitsGTC[] = info.get("GTC").split(",");
-            addGenotypeWithGTS(variant, file.getAttributes(), splitsGTC, alternateAlleles, numAllele, stats);
+            addGenotypeWithGTS(file.getAttributes(), splitsGTC, reference, alternateAlleles, numAllele, stats);
         }
         file.setStats(StudyEntry.DEFAULT_COHORT, stats);
     }
 
     @Override
     protected void parseMappedStats(Variant variant, StudyEntry sourceEntry,
-                                    int numAllele, String[] alternateAlleles, Map<String, String> info) {
+                                    int numAllele, String reference, String[] alternateAlleles, Map<String, String> info) {
         if (tagMap != null) {
             for (String key : info.keySet()) {
                 String opencgaTag = reverseTagMap.get(key);
@@ -84,10 +85,10 @@ public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsC
                     String[] opencgaTagSplit = opencgaTag.split(DOT); // a literal point
                     if (opencgaTagSplit.length == 2) {
                         String cohort = opencgaTagSplit[0];
-                        VariantStats cohortStats = sourceEntry.getCohortStats(cohort);
+                        VariantStats cohortStats = sourceEntry.getStats(cohort);
                         if (cohortStats == null) {
                             cohortStats = new VariantStats(variant);
-                            sourceEntry.setCohortStats(cohort, cohortStats);
+                            sourceEntry.setStats(cohort, cohortStats);
                         }
                         switch (opencgaTagSplit[1]) {
                             case "AC":
@@ -102,14 +103,14 @@ public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsC
                                 // TODO implement this. also, take into account that needed fields may not be processed yet
                                 break;
                             case "GTC":
-                                addGenotypeWithGTS(variant, sourceEntry.getAttributes(), values, alternateAlleles, numAllele, cohortStats);
+                                addGenotypeWithGTS(sourceEntry.getAttributes(), values, reference, alternateAlleles, numAllele, cohortStats);
                                 break;
                             default:
                                 break;
                         }
                     }
                 } else if (key.equals("MAF")) {
-                    String groups_order = tagMap.getProperty("GROUPS_ORDER");
+                    String groups_order = tagMap.getProperty(VariantAggregatedEVSStatsCalculator.GROUPS_ORDER);
                     if (groups_order != null) {
                         String[] populations = groups_order.split(COMMA);
                         if (populations.length == values.length) {

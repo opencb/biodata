@@ -170,6 +170,7 @@ public class Variant implements Serializable {
     private void resetType() {
         setType(inferType(getReference(), getAlternate(), getLength()));
     }
+
     public static VariantType inferType(String reference, String alternate, Integer length) {
         if (Allele.wouldBeSymbolicAllele(alternate.getBytes()) || Allele.wouldBeSymbolicAllele(reference.getBytes())) {
             if (alternate.startsWith(CNVSTR)) {
@@ -177,6 +178,8 @@ public class Variant implements Serializable {
             } else {
                 return VariantType.SYMBOLIC;
             }
+        } else if (alternate.equals(Allele.NO_CALL_STRING)) {
+            return VariantType.NO_VARIATION;
         } else {
             if (reference.length() == alternate.length()) {
                 if (length > 1) {
