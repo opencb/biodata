@@ -155,7 +155,12 @@ public class Variant implements Serializable {
     }
 
     private Integer getCopyNumberFromStr(String cnvStr) {
-        return Integer.valueOf(cnvStr.split(CNVSTR)[1].split(">")[0]);
+        String copyNumberString = cnvStr.split(CNVSTR)[1].split(">")[0];
+        if (StringUtils.isNumeric(copyNumberString)) {
+            return Integer.valueOf(copyNumberString);
+        } else {
+            return null;
+        }
     }
 
     private String checkEmptySequence(String sequence) {

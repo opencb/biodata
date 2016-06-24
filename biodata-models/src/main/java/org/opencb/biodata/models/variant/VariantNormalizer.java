@@ -41,8 +41,8 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
     private static final Set<String> VALID_NTS = new HashSet(Arrays.asList("A", "C", "G", "T", "N"));
     private static final String CNVSTRINGPATTERN = "<CN[0-9]+>";
     private static final String COPY_NUMBER_TAG = "CN";
-    private static final String CIPOS_STRING = "_CIPOS";
-    private static final String CIEND_STRING = "_CIEND";
+    private static final String CIPOS_STRING = "CIPOS";
+    private static final String CIEND_STRING = "CIEND";
 
     public VariantNormalizer() {}
 
@@ -249,13 +249,18 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         return normalizedVariants;
     }
 
-    private int getCopyNumberFromAlternate(String alternate) {
-        return Integer.parseInt(alternate.split("<CN")[1].split(">")[0]);
+    private Integer getCopyNumberFromAlternate(String alternate) {
+        String copyNumberString = alternate.split("<CN")[1].split(">")[0];
+        if (StringUtils.isNumeric(copyNumberString)) {
+            return Integer.valueOf(copyNumberString);
+        } else {
+            return null;
+        }
     }
 
     private int[] getImpreciseStart(Variant variant) {
-        if (variant.getStudies().get(0).getAllAttributes().containsKey(CIPOS_STRING)) {
-            String[] parts = variant.getStudies().get(0).getAllAttributes().get(CIPOS_STRING).split(",");
+        if (variant.getStudies().get(0).getFiles().get(0).getAttributes().containsKey(CIPOS_STRING)) {
+            String[] parts = variant.getStudies().get(0).getFiles().get(0).getAttributes().get(CIPOS_STRING).split(",");
             return new int[]{variant.getStart() + Integer.parseInt(parts[0]),
                     variant.getStart() + Integer.parseInt(parts[1])};
         } else {
@@ -264,8 +269,8 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
     }
 
     private int[] getImpreciseEnd(Variant variant) {
-        if (variant.getStudies().get(0).getAllAttributes().containsKey(CIEND_STRING)) {
-            String[] parts = variant.getStudies().get(0).getAllAttributes().get(CIEND_STRING).split(",");
+        if (variant.getStudies().get(0).getFiles().get(0).getAttributes().containsKey(CIEND_STRING)) {
+            String[] parts = variant.getStudies().get(0).getFiles().get(0).getAttributes().get(CIEND_STRING).split(",");
             return new int[]{variant.getEnd() + Integer.parseInt(parts[0]),
                     variant.getEnd() + Integer.parseInt(parts[1])};
         } else {
@@ -294,7 +299,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
             // Alternate must be of the form <CNxxx>, being xxx the number of copies
             if (!newAlternate.matches(CNVSTRINGPATTERN)) {
-                if (copyNumber != null) {
+                if (copyNumber != null && !copyNumber.isEmpty()) {
                     newAlternate = "<CN" + copyNumber + ">";
                 } else {
                     newAlternate = "<CNV>";

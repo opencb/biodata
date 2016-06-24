@@ -5,6 +5,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
+import org.opencb.biodata.models.variant.avro.StructuralVariation;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.commons.test.GenericTest;
@@ -405,12 +406,59 @@ public class VariantNormalizerTest extends GenericTest {
 
     }
 
+    @Test
+    public void testCNVsNormalization() {
+        try {
+
+            Variant variant = newVariant(100, 200, "C", Collections.singletonList("<CN0>"), "2");
+            variant.getStudies().get(0).getFile("1").getAttributes().put("CIEND", "-50,11");
+            variant.getStudies().get(0).getFile("1").getAttributes().put("CIPOS", "-14,50");
+            variant.getStudies().get(0).addSampleData("HG00096", Arrays.asList("0|0"));
+            List<Variant> normalizedVariantList = normalizer.normalize(Collections.singletonList(variant), true);
+            assertEquals(normalizedVariantList.size(), 1);
+            assertEquals(normalizedVariantList.get(0).getSv(), new StructuralVariation(86, 150, 150, 211, 0));
+
+            variant = newVariant(100, 200, "C", Arrays.asList("<CN0>", "<CN2>", "<CN3>", "<CN4>"), "2");
+            variant.getStudies().get(0).addSampleData("HG00096", Arrays.asList("0|1"));
+            variant.getStudies().get(0).addSampleData("HG00097", Arrays.asList("0|2"));
+            variant.getStudies().get(0).addSampleData("HG00098", Arrays.asList("0|3"));
+            variant.getStudies().get(0).addSampleData("HG00099", Arrays.asList("0|4"));
+            normalizedVariantList = normalizer.normalize(Collections.singletonList(variant), true);
+            assertEquals(normalizedVariantList.size(), 4);
+            assertEquals(normalizedVariantList.get(0).getSv(), new StructuralVariation(100, 100, 200, 200, 0));
+            assertEquals(normalizedVariantList.get(1).getSv(), new StructuralVariation(100, 100, 200, 200, 2));
+            assertEquals(normalizedVariantList.get(2).getSv(), new StructuralVariation(100, 100, 200, 200, 3));
+            assertEquals(normalizedVariantList.get(3).getSv(), new StructuralVariation(100, 100, 200, 200, 4));
+
+            variant = newVariant(100, 200, "C", Arrays.asList("<CNV>"), "2");
+            variant.getStudies().get(0).addFormat("CN");
+            variant.getStudies().get(0).addSampleData("HG00096", Arrays.asList("0|1","3"));
+            normalizedVariantList = normalizer.normalize(Collections.singletonList(variant), true);
+            assertEquals(normalizedVariantList.size(), 1);
+            assertEquals(normalizedVariantList.get(0).getSv(), new StructuralVariation(100, 100, 200, 200, 3));
+
+        } catch (NonStandardCompliantSampleField nonStandardCompliantSampleField) {
+            nonStandardCompliantSampleField.printStackTrace();
+        }
+    }
+
     private Variant newVariant(int position, String ref, String altsCsv) {
-        return newVariant(position, ref, Arrays.asList(altsCsv.split(",")), "2");
+        return newVariant(position, position, ref, Arrays.asList(altsCsv.split(",")), "2");
     }
 
     private Variant newVariant(int position, String ref, List<String> altsList, String studyId) {
-        Variant variant = new Variant("1", position, ref, altsList.get(0));
+        return newVariant(position, position, ref, altsList, studyId);
+    }
+
+    private Variant newVariant(int position, int end, String ref, List<String> altsList, String studyId) {
+        Variant variant;
+        // Different constructor calls since the one that does not include the "end" sets the variant.end by making an
+        // inference of the variant length
+        if (position == end) {
+            variant = new Variant("1", position, ref, altsList.get(0));
+        } else {
+            variant = new Variant("1", position, end, ref, altsList.get(0));
+        }
         StudyEntry studyEntry = new StudyEntry(studyId, altsList.subList(1, altsList.size())
                 .stream()
                 .map(s -> new AlternateCoordinate(null, null, null, null, s, variant.getType()))
