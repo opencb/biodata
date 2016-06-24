@@ -127,7 +127,14 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
 //        variant.setLength(Math.max(variant.getReference().length(), variant.getAlternate().length()));
 
         // TODO Nacho please add CNV when symbolic
-        variant.setType(Variant.inferType(variant.getReference(), variant.getAlternate(), variant.getLength()));
+
+        final VariantType type;
+        if (!variantContext.getType().equals(VariantContext.Type.NO_VARIATION)) {
+            type = Variant.inferType(variant.getReference(), variant.getAlternate(), variant.getLength());
+        } else {
+            type = VariantType.NO_VARIATION;
+        }
+        variant.setType(type);
 //        variant.setType(getEnumFromString(VariantType.class, variantContext.getType().toString()));
 
 //        VariantType variantType = getEnumFromString(VariantType.class, variantContext.getType().toString());
