@@ -11,10 +11,12 @@ import org.biojava.nbio.core.sequence.compound.AmbiguityDNACompoundSet;
 import org.biojava.nbio.core.sequence.compound.NucleotideCompound;
 import org.opencb.biodata.models.feature.AllelesCode;
 import org.opencb.biodata.models.feature.Genotype;
+import org.opencb.biodata.models.pathway.Interaction;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
+import org.opencb.biodata.models.variant.avro.StructuralVariation;
 import org.opencb.commons.run.ParallelTaskRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +37,12 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
     private boolean normalizeAlleles = false;
     private boolean decomposeMNVs = false;
     private boolean generateReferenceBlocks = false;
+
+    private static final Set<String> VALID_NTS = new HashSet(Arrays.asList("A", "C", "G", "T", "N"));
+    private static final String CNVSTRINGPATTERN = "<CN[0-9]+>";
+    private static final String COPY_NUMBER_TAG = "CN";
+    private static final String CIPOS_STRING = "CIPOS";
+    private static final String CIEND_STRING = "CIEND";
 
     public VariantNormalizer() {}
 
@@ -106,14 +114,19 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                 normalizedVariants.add(variant);
                 continue;
             }
-
             String reference = variant.getReference();  //Save original values, as they can be changed
             String alternate = variant.getAlternate();
             Integer start = variant.getStart();
+            Integer end = variant.getEnd();
             String chromosome = variant.getChromosome();
 
             if (variant.getStudies() == null || variant.getStudies().isEmpty()) {
-                List<VariantKeyFields> keyFieldsList = normalize(chromosome, start, reference, alternate);
+                List<VariantKeyFields> keyFieldsList;
+                if (VariantType.CNV.equals(variant.getType())) {
+                    keyFieldsList = normalizeCNV(start, end, reference, alternate, null);
+                } else {
+                    keyFieldsList = normalize(chromosome, start, reference, alternate);
+                }
                 for (VariantKeyFields keyFields : keyFieldsList) {
                     String call = start + ":" + reference + ":" + alternate + ":" + keyFields.getNumAllele();
                     Variant normalizedVariant = newVariant(variant, keyFields);
@@ -135,7 +148,17 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                     alternates.add(alternate);
                     alternates.addAll(entry.getSecondaryAlternatesAlleles());
 
-                    List<VariantKeyFields> keyFieldsList = normalize(chromosome, start, reference, alternates);
+                    // FIXME: assumes there wont be multinucleotide positions with CNVs and short variants mixed
+                    List<VariantKeyFields> keyFieldsList;
+                    String copyNumberString = null;
+                    if (VariantType.CNV.equals(variant.getType())) {
+                        String sampleName = variant.getStudies().get(0).getSamplesName().iterator().next();
+                        copyNumberString = variant.getStudies().get(0).getSampleData(sampleName).get(COPY_NUMBER_TAG);
+                        keyFieldsList = normalizeCNV(start, end, reference, alternates, copyNumberString);
+                    } else {
+                        keyFieldsList = normalize(chromosome, start, reference, alternates);
+
+                    }
                     boolean sameVariant = keyFieldsList.size() == 1
                             && keyFieldsList.get(0).getStart() == start
                             && keyFieldsList.get(0).getReference().equals(reference)
@@ -153,6 +176,18 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                             variant.setEnd(keyFields.getEnd());
                             variant.setReference(keyFields.getReference());
                             variant.setAlternate(keyFields.getAlternate());
+                            // Variant is being reused, must ensure the SV field si appropriately created
+                            if (VariantType.CNV.equals(variant.getType())) {
+                                int[] impreciseStart = getImpreciseStart(variant);
+                                int[] impreciseEnd = getImpreciseEnd(variant);
+                               variant.setSv(new StructuralVariation(impreciseStart[0], impreciseStart[1],
+                                       impreciseEnd[0], impreciseEnd[1],
+                                       copyNumberString != null ? Integer.valueOf(copyNumberString)      // Assuming if copy number
+                                               : getCopyNumberFromAlternate(keyFields.getAlternate()))); // is not provided in the
+                                                                                                         // info field, it shall be
+                                                                                                         // indicated as part of the
+                                                                                                         // alternate allele string
+                            }
                             normalizedEntry = entry;
                             entry.getFiles().forEach(fileEntry -> fileEntry.setCall(sameVariant ? "" : call)); //TODO: Check file attributes
                             samplesData = entry.getSamplesData();
@@ -214,6 +249,69 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         return normalizedVariants;
     }
 
+    private Integer getCopyNumberFromAlternate(String alternate) {
+        String copyNumberString = alternate.split("<CN")[1].split(">")[0];
+        if (StringUtils.isNumeric(copyNumberString)) {
+            return Integer.valueOf(copyNumberString);
+        } else {
+            return null;
+        }
+    }
+
+    private int[] getImpreciseStart(Variant variant) {
+        if (variant.getStudies().get(0).getFiles().get(0).getAttributes().containsKey(CIPOS_STRING)) {
+            String[] parts = variant.getStudies().get(0).getFiles().get(0).getAttributes().get(CIPOS_STRING).split(",");
+            return new int[]{variant.getStart() + Integer.parseInt(parts[0]),
+                    variant.getStart() + Integer.parseInt(parts[1])};
+        } else {
+            return new int[]{variant.getStart(), variant.getStart()};
+        }
+    }
+
+    private int[] getImpreciseEnd(Variant variant) {
+        if (variant.getStudies().get(0).getFiles().get(0).getAttributes().containsKey(CIEND_STRING)) {
+            String[] parts = variant.getStudies().get(0).getFiles().get(0).getAttributes().get(CIEND_STRING).split(",");
+            return new int[]{variant.getEnd() + Integer.parseInt(parts[0]),
+                    variant.getEnd() + Integer.parseInt(parts[1])};
+        } else {
+            return new int[]{variant.getEnd(), variant.getEnd()};
+        }
+    }
+
+    public List<VariantKeyFields> normalizeCNV(Integer start, Integer end, String reference, String alternate,
+                                               String copyNumber) {
+        return normalizeCNV(start, end, reference, Collections.singletonList(alternate), copyNumber);
+    }
+
+    public List<VariantKeyFields> normalizeCNV(Integer start, Integer end, String reference, List<String> alternates,
+                                               String copyNumber) {
+        List<VariantKeyFields> list = new ArrayList<>(alternates.size());
+
+        String newReference = reference;
+        // Reference for CNVs must contain just one nucleotide - set to N if it's something different
+        if (reference.length() != 1 || !VALID_NTS.contains(reference)) {
+            newReference = "N";
+        }
+
+        int numAllelesIdx = 0; // This index is necessary for getting the samples where the mutated allele is present
+        for (Iterator<String> iterator = alternates.iterator(); iterator.hasNext(); numAllelesIdx++) {
+            String newAlternate = iterator.next();
+
+            // Alternate must be of the form <CNxxx>, being xxx the number of copies
+            if (!newAlternate.matches(CNVSTRINGPATTERN)) {
+                if (copyNumber != null && !copyNumber.isEmpty()) {
+                    newAlternate = "<CN" + copyNumber + ">";
+                } else {
+                    newAlternate = "<CNV>";
+                }
+            }
+            list.add(new VariantKeyFields(start, end, newReference, newAlternate));
+        }
+
+        return list;
+    }
+
+
     public List<VariantKeyFields> normalize(String chromosome, int position, String reference, String alternate) {
         return normalize(chromosome, position, reference, Collections.singletonList(alternate));
     }
@@ -223,7 +321,6 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         int numAllelesIdx = 0; // This index is necessary for getting the samples where the mutated allele is present
         for (Iterator<String> iterator = alternates.iterator(); iterator.hasNext(); numAllelesIdx++) {
             String currentAlternate = iterator.next();
-            List<VariantKeyFields> keyFieldsList;
             int referenceLen = reference.length();
             int alternateLen = currentAlternate.length();
 
@@ -235,8 +332,6 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             } else {
                 keyFields = createVariantsFromNoEmptyRefAlt(position, reference, currentAlternate);
             }
-
-
             if (keyFields != null) {
                 if (decomposeMNVs
                         && ((keyFields.getReference().length() > 1 && keyFields.getAlternate().length() > 1)
@@ -450,8 +545,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
      * TODO: Add {@link VariantType#SYMBOLIC} variants?
      */
     private boolean isNormalizable(Variant variant) {
-        return !variant.getType().equals(VariantType.NO_VARIATION) && !variant.getType().equals(VariantType.SYMBOLIC)
-                && !variant.getType().equals(VariantType.CNV);
+        return !variant.getType().equals(VariantType.NO_VARIATION) && !variant.getType().equals(VariantType.SYMBOLIC);
     }
 
     protected VariantKeyFields createVariantsFromInsertionEmptyRef(int position, String alt) {
@@ -758,6 +852,20 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         normalizedVariant.setIds(variant.getIds());
         normalizedVariant.setStrand(variant.getStrand());
         normalizedVariant.setAnnotation(variant.getAnnotation());
+        if (variant.getStudies() != null && !variant.getStudies().isEmpty()) {
+            if (variant.getStudies().get(0).getAllAttributes().containsKey(CIPOS_STRING)) {
+                int[] impreciseStart = getImpreciseStart(variant);
+                normalizedVariant.getSv().setCiStartLeft(impreciseStart[0]);
+                normalizedVariant.getSv().setCiStartLeft(impreciseStart[1]);
+            }
+            if (variant.getStudies().get(0).getAllAttributes().containsKey(CIEND_STRING)) {
+                int[] impreciseEnd = getImpreciseEnd(variant);
+                normalizedVariant.getSv().setCiEndLeft(impreciseEnd[0]);
+                normalizedVariant.getSv().setCiEndLeft(impreciseEnd[1]);
+            }
+
+        }
+
         return normalizedVariant;
     }
 
