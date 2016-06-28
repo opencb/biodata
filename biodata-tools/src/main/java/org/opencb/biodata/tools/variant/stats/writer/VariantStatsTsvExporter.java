@@ -10,6 +10,7 @@ import org.opencb.commons.io.DataWriter;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.text.DecimalFormat;
 import java.util.Iterator;
 import java.util.List;
 
@@ -31,6 +32,10 @@ import java.util.List;
  */
 public class VariantStatsTsvExporter implements DataWriter<Variant> {
 
+    private static final String TAB = "\t";
+    private static final String MISSING_NUMBER = ".";
+    private static final String MISSING_ALLELE = "-";
+    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.######");
     private PrintStream dataOutputStream;
     private final String study;
     private final boolean closeStream;
@@ -71,13 +76,13 @@ public class VariantStatsTsvExporter implements DataWriter<Variant> {
         dataOutputStream.print("#CHR\tPOS\tREF\tALT\t");
         for (Iterator<String> cohortIterator = cohorts.iterator(); cohortIterator.hasNext(); ) {
             String cohort = cohortIterator.next();
-            dataOutputStream.print(cohort + "_" + VCFConstants.ALLELE_NUMBER_KEY + "\t"
-                    + cohort + "_" + VCFConstants.ALLELE_COUNT_KEY + "\t"
-                    + cohort + "_" + VCFConstants.ALLELE_FREQUENCY_KEY + "\t"
-                    + cohort + "_" + "HET" + "\t"
+            dataOutputStream.print(cohort + "_" + VCFConstants.ALLELE_NUMBER_KEY + TAB
+                    + cohort + "_" + VCFConstants.ALLELE_COUNT_KEY + TAB
+                    + cohort + "_" + VCFConstants.ALLELE_FREQUENCY_KEY + TAB
+                    + cohort + "_" + "HET" + TAB
                     + cohort + "_" + "HOM");
             if (cohortIterator.hasNext()) {
-                dataOutputStream.print("\t");
+                dataOutputStream.print(TAB);
             } else {
                 dataOutputStream.print("\n");
             }
@@ -117,13 +122,21 @@ public class VariantStatsTsvExporter implements DataWriter<Variant> {
         }
 
         dataOutputStream.print(variant.getChromosome());
-        dataOutputStream.print("\t");
+        dataOutputStream.print(TAB);
         dataOutputStream.print(variant.getStart());
-        dataOutputStream.print("\t");
-        dataOutputStream.print(variant.getReference());
-        dataOutputStream.print("\t");
-        dataOutputStream.print(variant.getAlternate());
-        dataOutputStream.print("\t");
+        dataOutputStream.print(TAB);
+        if (variant.getReference().isEmpty()) {
+            dataOutputStream.print(MISSING_ALLELE);
+        } else {
+            dataOutputStream.print(variant.getReference());
+        }
+        dataOutputStream.print(TAB);
+        if (variant.getAlternate().isEmpty()) {
+            dataOutputStream.print(MISSING_ALLELE);
+        } else {
+            dataOutputStream.print(variant.getAlternate());
+        }
+        dataOutputStream.print(TAB);
         for (Iterator<String> cohortIterator = cohorts.iterator(); cohortIterator.hasNext(); ) {
             String cohort = cohortIterator.next();
             VariantStats stats = studyEntry.getStats(cohort);
@@ -131,21 +144,40 @@ public class VariantStatsTsvExporter implements DataWriter<Variant> {
                 dataOutputStream.print(".\t.\t.\t.\t.");
             } else {
 
-                dataOutputStream.print((stats.getAltAlleleCount() + stats.getRefAlleleCount()) + "\t"
-                        + stats.getAltAlleleCount() + "\t"
-                        + stats.getAltAlleleFreq() + "\t");
+                int an = stats.getAltAlleleCount() + stats.getRefAlleleCount();
+                Integer ac = stats.getAltAlleleCount();
+                Float af = stats.getAltAlleleFreq();
+
+                if (an >= 0) {
+                    dataOutputStream.print(an);
+                } else {
+                    dataOutputStream.print(MISSING_NUMBER);
+                }
+                dataOutputStream.print(TAB);
+                if (ac >= 0) {
+                    dataOutputStream.print(ac);
+                } else {
+                    dataOutputStream.print(MISSING_NUMBER);
+                }
+                dataOutputStream.print(TAB);
+                if (af >= 0) {
+                    dataOutputStream.print(DECIMAL_FORMAT.format(af));
+                } else {
+                    dataOutputStream.print(MISSING_NUMBER);
+                }
+                dataOutputStream.print(TAB);
 
 
                 if (stats.getGenotypesFreq() != null && !stats.getGenotypesFreq().isEmpty()) {
                     PopulationFrequency frequency = converter.convert("", "", stats, "", "");
-                    dataOutputStream.print(frequency.getHetGenotypeFreq() + "\t" + frequency.getAltHomGenotypeFreq());
+                    dataOutputStream.print(frequency.getHetGenotypeFreq() + TAB + frequency.getAltHomGenotypeFreq());
                 } else {
                     dataOutputStream.print(".\t.");
                 }
 
             }
             if (cohortIterator.hasNext()) {
-                dataOutputStream.print("\t");
+                dataOutputStream.print(TAB);
             } else {
                 dataOutputStream.print("\n");
             }
