@@ -95,6 +95,7 @@ public class JsonAnnotationWriter implements DataWriter<Variant> {
 
     @Override
     public boolean post() {
+        logger.info("{} written annotations.", writtenVariantAnnotations);
         return true;
     }
 
