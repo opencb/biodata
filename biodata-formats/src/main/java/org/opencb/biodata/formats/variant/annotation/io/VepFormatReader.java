@@ -53,6 +53,9 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
     private String filename;
     private String currentVariantString = "";
     private VariantAnnotation currentAnnotation = null;
+
+    private static final String CNV_PATTERN = "CN([0123456789]+)";
+
     public VepFormatReader(String filename) { this.filename = filename; }
 
     @Override
@@ -420,14 +423,22 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
             // Reference sequence does not appear in VEP file - fill with Ns
             parsedVariant.put("reference", StringUtils.repeat("N", Integer.valueOf(parsedVariant.get("end"))
                     - Integer.valueOf(parsedVariant.get("start")) + 1));
+            parsedVariant.put("alternative", alternate);
+        // CNV
+        } else if (alternate.matches(CNV_PATTERN)) {
+            parsedVariant.put("start", variantLocationFields[1]);
+            parsedVariant.put("reference", "N");
+            parsedVariant.put("alternative", "<" + alternate + ">");
         // Insertion
         } else if (variantLocationFields.length > 2 || alternate.length() > 1) {
             parsedVariant.put("start", variantLocationFields[variantLocationFields.length == 3 ? 2 : 1]);
             parsedVariant.put("reference", "-");
+            parsedVariant.put("alternative", alternate);
         // SNV. Reference nucleotide does not appear in VEP file - fill with N
         } else {
             parsedVariant.put("start", variantLocationFields[1]);
             parsedVariant.put("reference", "N");
+            parsedVariant.put("alternative", alternate);
         }
     }
 

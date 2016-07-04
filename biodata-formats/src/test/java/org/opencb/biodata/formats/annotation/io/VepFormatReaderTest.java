@@ -33,7 +33,7 @@ public class VepFormatReaderTest {
         vepFormatReader.open();
         vepFormatReader.pre();
         List<VariantAnnotation> variantAnnotationList = vepFormatReader.read(10000);
-        assertEquals(variantAnnotationList.size(),7);
+        assertEquals(variantAnnotationList.size(),8);
         assertEquals(variantAnnotationList.get(0).getChromosome(), "1");
         assertEquals(variantAnnotationList.get(0).getStart(), Integer.valueOf(628314));
         assertEquals(variantAnnotationList.get(0).getReference(), "CAGGTGACACTGGGGACAC");
@@ -93,6 +93,14 @@ public class VepFormatReaderTest {
         assertEquals(variantAnnotationList.get(6).getConsequenceTypes().size(), 1);
         assertEquals(variantAnnotationList.get(6).getConsequenceTypes().get(0).getSequenceOntologyTerms().size(), 1);
         assertEquals(variantAnnotationList.get(6).getConsequenceTypes().get(0).getSequenceOntologyTerms().get(0).getName(), "intergenic_variant");
+
+        assertEquals(variantAnnotationList.get(7).getChromosome(), "22");
+        assertEquals(variantAnnotationList.get(7).getStart(), Integer.valueOf(16533237));
+        assertEquals(variantAnnotationList.get(7).getReference(), "N");
+        assertEquals(variantAnnotationList.get(7).getAlternate(), "<CN0>");
+        assertEquals(variantAnnotationList.get(7).getConsequenceTypes().size(), 1);
+        assertEquals(variantAnnotationList.get(7).getConsequenceTypes().get(0).getSequenceOntologyTerms().size(), 1);
+        assertEquals(variantAnnotationList.get(7).getConsequenceTypes().get(0).getSequenceOntologyTerms().get(0).getName(), "regulatory_region_variant");
 
         vepFormatReader.post();
         vepFormatReader.close();
