@@ -47,7 +47,6 @@ public class VariantStatsPopulationFrequencyExporter implements DataWriter<Varia
     public boolean pre() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 
         objectMapper.configure(MapperFeature.REQUIRE_SETTERS_FOR_GETTERS, true);
         objectWriter = objectMapper.writerFor(Variant.class);
@@ -74,6 +73,7 @@ public class VariantStatsPopulationFrequencyExporter implements DataWriter<Varia
                 PopulationFrequency populationFrequency = converter.convert(studyId,
                         cohortEntry.getKey(),
                         cohortEntry.getValue(), variant.getReference(), variant.getAlternate());
+                // Write only frequencies non zero
                 if (populationFrequency.getAltAlleleFreq() > 0 && !populationFrequency.getAltAlleleFreq().isNaN()) {
                     frequencies.add(populationFrequency);
                 }
