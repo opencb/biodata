@@ -30,5 +30,6 @@ public enum AllelesCode {
 //    SECOND_ALLELE_MISSING,
 //    ALL_ALLELES_MISSING,
     MULTIPLE_ALTERNATES,
-    HAPLOID
+    /** @deprecated Ask for ploidy or use {@link Genotype#isHaploid()} */
+    @Deprecated HAPLOID
 }

@@ -60,11 +60,11 @@ public class VariantStatsCalculator {
             // Check missing alleles and genotypes
             switch (g.getCode()) {
                 case ALLELES_OK:
-                    // Both alleles set
-                    allelesCount[g.getAllele(0)]++;
-                    allelesCount[g.getAllele(1)]++;
+                    for (int i = 0; i < g.getPloidy(); i++) {
+                        allelesCount[g.getAllele(i)]++;
+                    }
 
-                    totalAllelesCount += 2;
+                    totalAllelesCount += g.getPloidy();
                     totalGenotypesCount++;
 
                     // Counting genotypes for Hardy-Weinberg (all phenotypes)
@@ -78,11 +78,6 @@ public class VariantStatsCalculator {
 //                        variantStats.getHw().incN_aa();
 //                    }
 
-                    break;
-                case HAPLOID:
-                    // Haploid (chromosome X/Y)
-                    allelesCount[g.getAllele(0)]++;
-                    totalAllelesCount++;
                     break;
                 case MULTIPLE_ALTERNATES:
                     // Alternate with different "index" than the one that is being handled
@@ -109,7 +104,7 @@ public class VariantStatsCalculator {
 
             // Include statistics that depend on pedigree information
             if (pedigree != null) {
-                if (g.getCode() == AllelesCode.ALLELES_OK || g.getCode() == AllelesCode.HAPLOID) {
+                if (g.getCode() == AllelesCode.ALLELES_OK) {
                     Individual ind = pedigree.getIndividual(sampleName);
 //                    if (MendelChecker.isMendelianError(ind, g, variant.getChromosome(), file.getSamplesDataAsMap())) {
 //                        this.setMendelianErrors(this.getMendelianErrors() + 1);

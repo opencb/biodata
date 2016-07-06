@@ -99,7 +99,7 @@ public class Genotype {
 
 
         allelesLength = alleles.size();
-        this.code = allelesLength > 1 ? AllelesCode.ALLELES_OK : AllelesCode.HAPLOID;
+        this.code = AllelesCode.ALLELES_OK;
         this.allelesIdx = new int[allelesLength];
 
         for (int i = 0, allelesSize = allelesLength; i < allelesSize; i++) {
@@ -174,6 +174,14 @@ public class Genotype {
     
     public int[] getAllelesIdx() {
         return allelesIdx;
+    }
+
+    public int getPloidy() {
+        return allelesIdx.length;
+    }
+
+    public boolean isHaploid() {
+        return getPloidy() == 1;
     }
 
     public void updateAlleleIdx(int idx, int allele){
