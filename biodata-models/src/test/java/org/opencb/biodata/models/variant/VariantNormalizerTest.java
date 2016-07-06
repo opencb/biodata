@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertFalse;
+import static org.opencb.biodata.models.variant.VariantTestUtils.generateVariantWithFormat;
 
 /**
  * Created on 26/10/15
@@ -247,6 +248,22 @@ public class VariantNormalizerTest extends GenericTest {
                 Arrays.asList(
                         new VariantNormalizer.VariantKeyFields(681, 681, "T", ""),
                         new VariantNormalizer.VariantKeyFields(690, 691, "A", "")));
+    }
+
+    @Test
+    public void testNormalizeMultiAllelicPL() throws NonStandardCompliantSampleField {
+        Variant variant = generateVariantWithFormat("X:100:A:T", "GT:GL", "S01", "0/0", "1,2,3", "S02", "0", "1,2");
+        Variant variant2 = generateVariantWithFormat("X:100:A:T,C", "GT:GL", "S01", "0/0", "1,2,3,4,5,6", "S02", "A", "1,2,3");
+
+        List<Variant> normalize1 = normalizer.normalize(Collections.singletonList(variant), false);
+        assertEquals(normalize1.get(0).getStudies().get(0).getSampleData("S01", "GL"), "1,2,3");
+        assertEquals(normalize1.get(0).getStudies().get(0).getSampleData("S02", "GL"), "1,2");
+
+        List<Variant> normalize2 = normalizer.normalize(Collections.singletonList(variant2), false);
+//        assertEquals(normalize2.get(0).getStudies().get(0).getSampleData("S01", "GL"), "1,2,3,4,5,6");
+//        assertEquals(normalize2.get(1).getStudies().get(0).getSampleData("S01", "GL"), "1,4,5,2,6,3");
+        assertEquals(normalize2.get(0).getStudies().get(0).getSampleData("S02", "GL"), "1,2,3");
+        assertEquals(normalize2.get(1).getStudies().get(0).getSampleData("S02", "GL"), "1,3,2");
     }
 
     private void testSampleNormalization(String chromosome, int position, String ref, String alt,

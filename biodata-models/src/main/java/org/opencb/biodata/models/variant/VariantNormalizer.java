@@ -11,7 +11,6 @@ import org.biojava.nbio.core.sequence.compound.AmbiguityDNACompoundSet;
 import org.biojava.nbio.core.sequence.compound.NucleotideCompound;
 import org.opencb.biodata.models.feature.AllelesCode;
 import org.opencb.biodata.models.feature.Genotype;
-import org.opencb.biodata.models.pathway.Interaction;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.VariantType;
@@ -708,14 +707,18 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         }
 
         String[] secondaryAlternatesMap = new String[1 + alternateAlleles.size()];  //reference + alternates
+        int[] secondaryAlternatesIdxMap = new int[1 + alternateAlleles.size()];  //reference + alternates
         int secondaryReferencesIdx = 2;
         int alleleIdx = 1;
         secondaryAlternatesMap[0] = "0";     // Set the reference id
+        secondaryAlternatesIdxMap[0] = 0;
         for (String alternateAllele : alternateAlleles) {
             if (variantKeyFields.getNumAllele() == alleleIdx - 1) {
                 secondaryAlternatesMap[alleleIdx] = "1";    //The first alternate
+                secondaryAlternatesIdxMap[alleleIdx] = 1;
             } else {    //Secondary alternates will start at position 2, and increase sequentially
                 secondaryAlternatesMap[alleleIdx] = Integer.toString(secondaryReferencesIdx);
+                secondaryAlternatesIdxMap[alleleIdx] = secondaryReferencesIdx;
                 secondaryReferencesIdx++;
             }
             alleleIdx++;
@@ -797,30 +800,47 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                                 || genotype.getCode() == AllelesCode.MULTIPLE_ALTERNATES)) {
                             String[] likelihoods = sampleField.split(",");
 
-                            // If only 3 likelihoods are represented, no transformation is needed
-                            if (likelihoods.length > 3) {
-                                // Get alleles index to work with: if both are the same alternate,
-                                // the combinations must be run with the reference allele.
-                                // Otherwise all GL reported would be alt/alt.
-                                int allele1 = genotype.getAllele(0);
-                                int allele2 = genotype.getAllele(1);
-                                if (genotype.getAllele(0) == genotype.getAllele(1) && genotype.getAllele(0) > 0) {
-                                    allele1 = 0;
-                                }
+                            int ploidy = genotype.getPloidy();
 
-                                // If the number of values is not enough for this GT
-                                int maxAllele = allele1 >= allele2 ? allele1 : allele2;
-                                int numValues = (int) (((float) maxAllele * (maxAllele + 1)) / 2) + maxAllele;
-                                if (likelihoods.length < numValues) {
-                                    throw new NonStandardCompliantSampleField(formatField, sampleField, String.format("It must contain %d values", numValues));
+                            if (ploidy == 1) {
+                                if (likelihoods.length > 2) {
+                                    StringBuilder sb = new StringBuilder();
+                                    sb.append(likelihoods[0]);
+                                    for (int i = 1; i < secondaryAlternatesIdxMap.length; i++) {
+                                        sb.append(",");
+                                        sb.append(likelihoods[secondaryAlternatesIdxMap[i]]);
+                                    }
+                                    sampleField = sb.toString();
                                 }
+                            } else if (ploidy == 2) {
+                                // TODO: Check correct!
+                                // If only 3 likelihoods are represented, no transformation is needed
+                                if (likelihoods.length > 3) {
+                                    // Get alleles index to work with: if both are the same alternate,
+                                    // the combinations must be run with the reference allele.
+                                    // Otherwise all GL reported would be alt/alt.
+                                    int allele1 = genotype.getAllele(0);
+                                    int allele2 = genotype.getAllele(1);
+                                    if (allele1 == allele2 && allele1 > 0) {
+                                        allele1 = 0;
+                                    }
 
-                                // Genotype likelihood must be distributed following similar criteria as genotypes
-                                String[] alleleLikelihoods = new String[3];
-                                alleleLikelihoods[0] = likelihoods[(int) (((float) allele1 * (allele1 + 1)) / 2) + allele1];
-                                alleleLikelihoods[1] = likelihoods[(int) (((float) allele2 * (allele2 + 1)) / 2) + allele1];
-                                alleleLikelihoods[2] = likelihoods[(int) (((float) allele2 * (allele2 + 1)) / 2) + allele2];
-                                sampleField = String.join(",", alleleLikelihoods);
+                                    // If the number of values is not enough for this GT
+                                    int maxAllele = allele1 >= allele2 ? allele1 : allele2;
+                                    int numValues = (int) (((float) maxAllele * (maxAllele + 1)) / 2) + maxAllele;
+                                    if (likelihoods.length < numValues) {
+                                        throw new NonStandardCompliantSampleField(formatField, sampleField, String.format("It must contain %d values", numValues));
+                                    }
+
+                                    // Genotype likelihood must be distributed following similar criteria as genotypes
+                                    String[] alleleLikelihoods = new String[3];
+                                    alleleLikelihoods[0] = likelihoods[(int) (((float) allele1 * (allele1 + 1)) / 2) + allele1];
+                                    alleleLikelihoods[1] = likelihoods[(int) (((float) allele2 * (allele2 + 1)) / 2) + allele1];
+                                    alleleLikelihoods[2] = likelihoods[(int) (((float) allele2 * (allele2 + 1)) / 2) + allele2];
+                                    sampleField = String.join(",", alleleLikelihoods);
+                                }
+                            } else {
+                                logger.warn("Do not normalize field " + formatField + " with ploidy = " + ploidy);
                             }
                         }
                     } else if (formatField.equals("PS")) {
