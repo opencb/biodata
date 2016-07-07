@@ -13,6 +13,7 @@ import org.opencb.commons.test.GenericTest;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
@@ -256,14 +257,26 @@ public class VariantNormalizerTest extends GenericTest {
         Variant variant2 = generateVariantWithFormat("X:100:A:T,C", "GT:GL", "S01", "0/0", "1,2,3,4,5,6", "S02", "A", "1,2,3");
 
         List<Variant> normalize1 = normalizer.normalize(Collections.singletonList(variant), false);
-        assertEquals(normalize1.get(0).getStudies().get(0).getSampleData("S01", "GL"), "1,2,3");
-        assertEquals(normalize1.get(0).getStudies().get(0).getSampleData("S02", "GL"), "1,2");
+        assertEquals("1,2,3", normalize1.get(0).getStudies().get(0).getSampleData("S01", "GL"));
+        assertEquals("1,2", normalize1.get(0).getStudies().get(0).getSampleData("S02", "GL"));
 
         List<Variant> normalize2 = normalizer.normalize(Collections.singletonList(variant2), false);
-//        assertEquals(normalize2.get(0).getStudies().get(0).getSampleData("S01", "GL"), "1,2,3,4,5,6");
-//        assertEquals(normalize2.get(1).getStudies().get(0).getSampleData("S01", "GL"), "1,4,5,2,6,3");
-        assertEquals(normalize2.get(0).getStudies().get(0).getSampleData("S02", "GL"), "1,2,3");
-        assertEquals(normalize2.get(1).getStudies().get(0).getSampleData("S02", "GL"), "1,3,2");
+        assertEquals("1,2,3,4,5,6", normalize2.get(0).getStudies().get(0).getSampleData("S01", "GL"));
+        assertEquals("1,4,6,2,5,3", normalize2.get(1).getStudies().get(0).getSampleData("S01", "GL"));
+        assertEquals("1,2,3", normalize2.get(0).getStudies().get(0).getSampleData("S02", "GL"));
+        assertEquals("1,3,2", normalize2.get(1).getStudies().get(0).getSampleData("S02", "GL"));
+
+        Variant variant3 = generateVariantWithFormat("X:100:A:T,C,G", "GT:GL", "S01", "0/0", "1,2,3,4,5,6,7,8,9,10", "S02", "A", "1,2,3,4");
+        Map<String, Variant> normalize3 = normalizer.normalize(Collections.singletonList(variant3), false)
+                .stream().collect(Collectors.toMap(Variant::getAlternate, v -> v));
+
+        assertEquals("1,2,3,4,5,6,7,8,9,10", normalize3.get("T").getStudies().get(0).getSampleData("S01", "GL"));
+        assertEquals("1,4,6,2,5,3,7,9,8,10", normalize3.get("C").getStudies().get(0).getSampleData("S01", "GL"));
+        assertEquals("1,7,10,2,8,3,4,9,5,6", normalize3.get("G").getStudies().get(0).getSampleData("S01", "GL"));
+        assertEquals("1,2,3,4", normalize3.get("T").getStudies().get(0).getSampleData("S02", "GL"));
+        assertEquals("1,3,2,4", normalize3.get("C").getStudies().get(0).getSampleData("S02", "GL"));
+        assertEquals("1,3,4,2", normalize3.get("G").getStudies().get(0).getSampleData("S02", "GL"));
+
     }
 
     private void testSampleNormalization(String chromosome, int position, String ref, String alt,

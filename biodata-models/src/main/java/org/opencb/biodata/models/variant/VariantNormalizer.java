@@ -1,5 +1,6 @@
 package org.opencb.biodata.models.variant;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.biojava.nbio.alignment.Alignments;
 import org.biojava.nbio.alignment.SimpleGapPenalty;
@@ -21,6 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -36,9 +39,11 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
     private boolean normalizeAlleles = false;
     private boolean decomposeMNVs = false;
     private boolean generateReferenceBlocks = false;
+    private Map<Integer, int[]> genotypeReorderMapCache = new ConcurrentHashMap<>();
 
-    private static final Set<String> VALID_NTS = new HashSet(Arrays.asList("A", "C", "G", "T", "N"));
+    private static final Set<String> VALID_NTS = new HashSet<>(Arrays.asList("A", "C", "G", "T", "N"));
     private static final String CNVSTRINGPATTERN = "<CN[0-9]+>";
+    private static final Pattern CNVPATTERN = Pattern.compile(CNVSTRINGPATTERN);
     private static final String COPY_NUMBER_TAG = "CN";
     private static final String CIPOS_STRING = "CIPOS";
     private static final String CIEND_STRING = "CIEND";
@@ -297,7 +302,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             String newAlternate = iterator.next();
 
             // Alternate must be of the form <CNxxx>, being xxx the number of copies
-            if (!newAlternate.matches(CNVSTRINGPATTERN)) {
+            if (!CNVPATTERN.matcher(newAlternate).matches()) {
                 if (copyNumber != null && !copyNumber.isEmpty()) {
                     newAlternate = "<CN" + copyNumber + ">";
                 } else {
@@ -794,7 +799,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                     } else if (formatField.equalsIgnoreCase("GL")
                             || formatField.equalsIgnoreCase("PL")
                             || formatField.equalsIgnoreCase("GP")) {
-                        // All-alleles present and not haploid
+                        // All-alleles present
                         if (!sampleField.equals(".") && genotype != null
                                 && (genotype.getCode() == AllelesCode.ALLELES_OK
                                 || genotype.getCode() == AllelesCode.MULTIPLE_ALTERNATES)) {
@@ -813,31 +818,19 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                                     sampleField = sb.toString();
                                 }
                             } else if (ploidy == 2) {
-                                // TODO: Check correct!
                                 // If only 3 likelihoods are represented, no transformation is needed
                                 if (likelihoods.length > 3) {
-                                    // Get alleles index to work with: if both are the same alternate,
-                                    // the combinations must be run with the reference allele.
-                                    // Otherwise all GL reported would be alt/alt.
-                                    int allele1 = genotype.getAllele(0);
-                                    int allele2 = genotype.getAllele(1);
-                                    if (allele1 == allele2 && allele1 > 0) {
-                                        allele1 = 0;
+                                    int[] gtOrderMap = getGenotypesReorderingMap(variantKeyFields.getNumAllele(), secondaryAlternatesIdxMap);
+                                    if (likelihoods.length != gtOrderMap.length) {
+                                        throw new NonStandardCompliantSampleField(formatField, sampleField,
+                                                "It must contain " + gtOrderMap.length + " values");
                                     }
 
-                                    // If the number of values is not enough for this GT
-                                    int maxAllele = allele1 >= allele2 ? allele1 : allele2;
-                                    int numValues = (int) (((float) maxAllele * (maxAllele + 1)) / 2) + maxAllele;
-                                    if (likelihoods.length < numValues) {
-                                        throw new NonStandardCompliantSampleField(formatField, sampleField, String.format("It must contain %d values", numValues));
+                                    StringBuilder sb = new StringBuilder(likelihoods[0]);
+                                    for (int i = 1; i < likelihoods.length; i++) {
+                                        sb.append(",").append(likelihoods[gtOrderMap[i]]);
                                     }
-
-                                    // Genotype likelihood must be distributed following similar criteria as genotypes
-                                    String[] alleleLikelihoods = new String[3];
-                                    alleleLikelihoods[0] = likelihoods[(int) (((float) allele1 * (allele1 + 1)) / 2) + allele1];
-                                    alleleLikelihoods[1] = likelihoods[(int) (((float) allele2 * (allele2 + 1)) / 2) + allele1];
-                                    alleleLikelihoods[2] = likelihoods[(int) (((float) allele2 * (allele2 + 1)) / 2) + allele2];
-                                    sampleField = String.join(",", alleleLikelihoods);
+                                    sampleField = sb.toString();
                                 }
                             } else {
                                 logger.warn("Do not normalize field " + formatField + " with ploidy = " + ploidy);
@@ -864,6 +857,68 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             }
         }
         return newSampleData;
+    }
+
+    /**
+     * Gets an array for reordening the positions of a format field with Number=G and ploidy=2.
+     *
+     * In those fields where there is a value per genotype, if we change the order of the alleles,
+     * the order of the genotypes will also change.
+     *
+     * The genotypes ordering is defined in the Vcf spec : https://samtools.github.io/hts-specs/VCFv4.3.pdf as "Genotype Ordering"
+     * Given a number of alleles N and a ploidy of P, the order algorithm is:
+     *   for (a_p = 0; a_p < N: a_p++)
+     *      for (a_p-1 = 0; a_p-1 <= a_p: a_p-1++)
+     *          ...
+     *              for (a_1 = 0; a_1 <= a_2: a_1++)
+     *                  print(a_1, a_2, ..., a_p)
+     *
+     * i.e:
+     *  N=2,P=2:  00,01,11,02,12,22
+     *  N=3,P=2:  00,01,11,02,12,22,03,13,23,33
+     *
+     *  With P=2, given a genotype a/b, where a<b, its position is b(b+a)/2+a
+     *
+     *  For each genotype, map the alleles using the alleleMap, and calculate
+     *  the position of the new mapped genotype in the original order.
+     *
+     * int posInReorderedList;
+     * int posInOriginalList = map[posInReorderedList];
+     *
+     * @param numAllele Num allele that defines the alleleMap.
+     * @param alleleMap Allele map
+     * @return          Map between the position in the new reordered list and the original one.
+     * TODO: Allow ploidy>2
+     */
+    private int[] getGenotypesReorderingMap(int numAllele, int[] alleleMap) {
+        int numAlleles = alleleMap.length;
+        // int ploidy = 2;
+        int key = numAllele * 100 + numAlleles;
+        int[] map = genotypeReorderMapCache.get(key);
+        if (map != null) {
+            return map;
+        } else {
+            ArrayList<Integer> mapList = new ArrayList<>();
+            for (int originalA2 = 0; originalA2 < alleleMap.length; originalA2++) {
+                int newA2 = ArrayUtils.indexOf(alleleMap, originalA2);
+                for (int originalA1 = 0; originalA1 <= originalA2; originalA1++) {
+                    int newA1 = ArrayUtils.indexOf(alleleMap, originalA1);
+                    if (newA1 <= newA2) {
+                        mapList.add((newA2 * (newA2 + 1) / 2 + newA1));
+                    } else {
+                        mapList.add((newA1 * (newA1 + 1) / 2 + newA2));
+                    }
+                }
+            }
+
+            map = new int[mapList.size()];
+            for (int i = 0; i < mapList.size(); i++) {
+                map[i] = mapList.get(i);
+            }
+
+            genotypeReorderMapCache.put(key, map);
+            return map;
+        }
     }
 
 
