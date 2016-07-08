@@ -16,20 +16,13 @@
 
 package org.opencb.biodata.formats.variant.vcf4.io;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-
-import htsjdk.variant.variantcontext.LazyGenotypesContext;
-import htsjdk.variant.variantcontext.VariantContext;
-import htsjdk.variant.vcf.VCFFileReader;
-import htsjdk.variant.vcf.VCFHeader;
 import org.opencb.biodata.formats.io.FileFormatException;
 import org.opencb.biodata.formats.variant.io.VariantReader;
-import org.opencb.biodata.formats.variant.vcf4.*;
-import org.opencb.biodata.models.variant.VariantVcfFactory;
+import org.opencb.biodata.formats.variant.vcf4.Vcf4;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFactory;
 import org.opencb.biodata.models.variant.VariantSource;
+import org.opencb.biodata.models.variant.VariantVcfFactory;
 import org.opencb.biodata.models.variant.exceptions.NotAVariantException;
 
 import java.io.*;
@@ -38,9 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
