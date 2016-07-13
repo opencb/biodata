@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SequenceWriter;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.PopulationFrequency;
@@ -32,10 +33,9 @@ import java.util.Map;
  */
 public class VariantStatsPopulationFrequencyExporter implements DataWriter<Variant> {
 
-
-    private ObjectWriter objectWriter;
     private OutputStream outputStream;
     private final VariantStatsToPopulationFrequencyConverter converter;
+    private SequenceWriter sequenceWriter;
 
     public VariantStatsPopulationFrequencyExporter(OutputStream outputStream) {
         this.outputStream = outputStream;
@@ -47,10 +47,14 @@ public class VariantStatsPopulationFrequencyExporter implements DataWriter<Varia
     public boolean pre() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 
         objectMapper.configure(MapperFeature.REQUIRE_SETTERS_FOR_GETTERS, true);
-        objectWriter = objectMapper.writerFor(Variant.class);
+        ObjectWriter objectWriter = objectMapper.writerFor(Variant.class);
+        try {
+            sequenceWriter = objectWriter.writeValues(outputStream);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
 
         return true;
     }
@@ -74,6 +78,7 @@ public class VariantStatsPopulationFrequencyExporter implements DataWriter<Varia
                 PopulationFrequency populationFrequency = converter.convert(studyId,
                         cohortEntry.getKey(),
                         cohortEntry.getValue(), variant.getReference(), variant.getAlternate());
+                // Write only frequencies non zero
                 if (populationFrequency.getAltAlleleFreq() > 0 && !populationFrequency.getAltAlleleFreq().isNaN()) {
                     frequencies.add(populationFrequency);
                 }
@@ -84,7 +89,7 @@ public class VariantStatsPopulationFrequencyExporter implements DataWriter<Varia
         annotation.setPopulationFrequencies(frequencies);
         newVar.setAnnotation(annotation);
         try {
-            objectWriter.writeValue(outputStream, newVar);
+            sequenceWriter.write(newVar);
             outputStream.write('\n');
         } catch (IOException e) {
             throw new UncheckedIOException(e);
