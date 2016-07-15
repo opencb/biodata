@@ -82,24 +82,20 @@ public class VariantStatsCalculator {
                 case MULTIPLE_ALTERNATES:
                     // Alternate with different "index" than the one that is being handled
                     break;
-                default:
+                case ALLELES_MISSING:
                     // Missing genotype (one or both alleles missing)
                     variantStats.setMissingGenotypes(variantStats.getMissingGenotypes() + 1);
-                    if (g.getAllele(0) < 0) {
-                        variantStats.setMissingAlleles(variantStats.getMissingAlleles() + 1);
-                    } else {
-                        allelesCount[g.getAllele(0)]++;
-                        totalAllelesCount++;
-                    }
-
-                    if (g.getAllele(1) < 0) {
-                        variantStats.setMissingAlleles(variantStats.getMissingAlleles() + 1);
-                    } else {
-                        allelesCount[g.getAllele(1)]++;
-                        totalAllelesCount++;
+                    for (int i = 0; i < g.getPloidy(); i++) {
+                        if (g.getAllele(i) < 0) {
+                            variantStats.setMissingAlleles(variantStats.getMissingAlleles() + 1);
+                        } else {
+                            allelesCount[g.getAllele(i)]++;
+                            totalAllelesCount++;
+                        }
                     }
                     break;
-
+                default:
+                    throw new IllegalArgumentException("Unknown allele code " + g.getCode());
             }
 
             // Include statistics that depend on pedigree information
