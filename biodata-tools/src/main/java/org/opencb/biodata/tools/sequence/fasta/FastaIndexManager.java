@@ -106,42 +106,51 @@ public class FastaIndexManager {
                 // New sequence has been found and we must insert it into RocksDB.
                 // Note that the first time there is no sequence. Only HAP sequences are excluded.
                 if (sequenceStringBuilder.length() > 0) {
-                    int chunk = 0;
-                    int start = 1;
-                    if (sequenceStringBuilder.length() < CHUNK_SIZE) {
-                        String key = sequenceName + "_" + chunk; // + "_" + chunkIdSuffix;
-                        rocksDB.put(key.getBytes(), sequenceStringBuilder.toString().getBytes());
-                        // Sequence to store is larger than CHUNK_SIZE
-                    } else {
-                        int sequenceLength = sequenceStringBuilder.length();
-
-                        while (start < sequenceLength) {
-                            String key = sequenceName + "_" + chunk; // + "_" + chunkIdSuffix;
-                            if (start == 1) {   // First chunk of the chromosome
-                                rocksDB.put(key.getBytes(), sequenceStringBuilder.substring(start - 1, CHUNK_SIZE - 1).getBytes());
-
-                                start += CHUNK_SIZE - 1;
-                            } else {    // Regular chunk
-                                if ((start + CHUNK_SIZE) < sequenceLength) {
-                                    rocksDB.put(key.getBytes(), sequenceStringBuilder.substring(start - 1, start + CHUNK_SIZE - 1).getBytes());
-
-                                    start += CHUNK_SIZE;
-                                } else {    // Last chunk of the chromosome
-                                    rocksDB.put(key.getBytes(), sequenceStringBuilder.substring(start - 1, sequenceLength).getBytes());
-                                    start = sequenceLength;
-                                }
-                            }
-                            chunk++;
-                        }
-                    }
+                    splitSequenceInsertDB(sequenceName, sequenceStringBuilder);
                     // initialize data structures
                     sequenceName = line.split(" ")[0].replace(">", "");
                     sequenceStringBuilder.delete(0, sequenceStringBuilder.length());
                 }
             }
         }
+
+        // Last sequence is not yet inserted
+        if (sequenceStringBuilder.length() > 0) {
+            splitSequenceInsertDB(sequenceName, sequenceStringBuilder);
+        }
+
         connected = true;
         bufferedReader.close();
+    }
+
+    private void splitSequenceInsertDB(String sequenceName, StringBuilder sequenceStringBuilder) throws RocksDBException {
+        int chunk = 0;
+        int start = 1;
+        if (sequenceStringBuilder.length() < CHUNK_SIZE) {
+            String key = sequenceName + "_" + chunk; // + "_" + chunkIdSuffix;
+            rocksDB.put(key.getBytes(), sequenceStringBuilder.toString().getBytes());
+            // Sequence to store is larger than CHUNK_SIZE
+        } else {
+            int sequenceLength = sequenceStringBuilder.length();
+
+            while (start < sequenceLength) {
+                String key = sequenceName + "_" + chunk; // + "_" + chunkIdSuffix;
+                if (start == 1) {   // First chunk of the chromosome
+                    rocksDB.put(key.getBytes(), sequenceStringBuilder.substring(start - 1, CHUNK_SIZE - 1).getBytes());
+                    start += CHUNK_SIZE - 1;
+                } else {    // Regular chunk
+                    if ((start + CHUNK_SIZE) < sequenceLength) {
+                        rocksDB.put(key.getBytes(), sequenceStringBuilder.substring(start - 1, start + CHUNK_SIZE - 1).getBytes());
+
+                        start += CHUNK_SIZE;
+                    } else {    // Last chunk of the chromosome
+                        rocksDB.put(key.getBytes(), sequenceStringBuilder.substring(start - 1, sequenceLength).getBytes());
+                        start = sequenceLength;
+                    }
+                }
+                chunk++;
+            }
+        }
     }
 
     public String query(String chromosome, int start, int end) throws RocksDBException {
