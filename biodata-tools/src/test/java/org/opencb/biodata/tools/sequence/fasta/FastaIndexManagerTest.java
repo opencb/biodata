@@ -61,7 +61,10 @@ public class FastaIndexManagerTest {
     public void testQuery() throws Exception {
 //        Path inputPath = Paths.get(getClass().getResource("/homo_sapiens_grch37_small.fa.gz").toURI());
         FastaIndexManager fastaIndexManager = new FastaIndexManager(rocksdb.toPath(), true);
-        String query = fastaIndexManager.query("1", 11821, 11829);
+        String query = fastaIndexManager.query("GL000207.1", 4252, 4262);
+        assertEquals("Error querying the sequence", "CTGGTGGGATC", query);
+
+        query = fastaIndexManager.query("1", 11821, 11829);
         assertEquals("Error querying the sequence", "TTTAAACGA", query);
 
         query = fastaIndexManager.query("1", 1, 1999);
