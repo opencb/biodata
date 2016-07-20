@@ -114,7 +114,7 @@ public class JsonAnnotationWriter implements DataWriter<Variant> {
     public boolean write(Variant variant) {
         try {
             bw.write(jsonObjectWriter.writeValueAsString(variant)+"\n");
-            writtenVariantAnnotations++;
+//            writtenVariantAnnotations++;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -130,7 +130,7 @@ public class JsonAnnotationWriter implements DataWriter<Variant> {
             }
 
             int previousBatch = writtenVariantAnnotations / LOG_BATCH_SIZE;
-//            writtenVariantAnnotations +=list.size();
+            writtenVariantAnnotations +=list.size();
             int newBatch = writtenVariantAnnotations / LOG_BATCH_SIZE;
 
             if (newBatch != previousBatch) {
