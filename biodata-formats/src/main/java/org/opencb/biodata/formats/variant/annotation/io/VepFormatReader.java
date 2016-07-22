@@ -109,7 +109,7 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
                 ConsequenceType consequenceType = new ConsequenceType();
                 String[] lineFields = line.split("\t");
                 // strings representing the current and the read are compared
-                if (!currentVariantString.equals(lineFields[0])) {
+                if (!currentVariantString.equals(lineFields[0] + ":" + lineFields[1] + ":" + lineFields[2])) {
                     noNewVariantFound = (currentAnnotation==null);  // currentAnnotation==null only in the first iteration.
                     variantAnnotationToReturn = currentAnnotation;
                     Map<String,String> variantMap = parseVariant(lineFields[0], lineFields[1], lineFields[2]);  // coordinates and alternative are only parsed once
@@ -136,7 +136,7 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
                     /**
                      * Save the string representing coordinates and
                      */
-                    currentVariantString = lineFields[0];
+                    currentVariantString = lineFields[0] + ":" + lineFields[1] + ":" + lineFields[2];
 
                     /**
                      * parses extra column and populates fields as required. Some lines do not have extra field and end with a \t: the split function above does not return that field
