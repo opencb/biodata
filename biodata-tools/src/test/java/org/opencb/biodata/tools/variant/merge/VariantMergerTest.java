@@ -108,6 +108,42 @@ public class VariantMergerTest {
     }
 
     @Test
+    public void testMergeIndel() {
+        Variant v1 = VariantTestUtils.generateVariant("1:10:ATGTA:-", "S1", "0/1");
+        Variant v2 = VariantTestUtils.generateVariant("1:10:A:T", "S2", "0/1");
+        Variant v3 = VariantTestUtils.generateVariant("1:12:T:A", "S2", "0/1");
+
+
+        Variant mergeVar = VARIANT_MERGER.merge(v1, v2);
+        System.out.println("mergeVar2 = " + mergeVar);
+        Variant mergeVar2 = VARIANT_MERGER.merge(mergeVar, v3);
+        System.out.println("mergeVar2 = " + mergeVar2);
+
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testMergeIndelDuplicates() {
+        Variant v1 = VariantTestUtils.generateVariant("1:10:ATGTA:-", "S1", "0/1");
+        Variant v2 = VariantTestUtils.generateVariant("1:10:A:T", "S2", "0/1");
+        Variant v3 = VariantTestUtils.generateVariant("1:10:A:T", "S2", "0/1");
+        Variant mergeVar = VARIANT_MERGER.merge(v1, v2);
+        System.out.println("mergeVar2 = " + mergeVar);
+        Variant mergeVar2 = VARIANT_MERGER.merge(mergeVar, v3);
+        System.out.println("mergeVar2 = " + mergeVar2);
+    }
+
+    @Test()
+    public void testMergeIndelOverlap() {
+        Variant v1 = VariantTestUtils.generateVariant("1:10:ATGTA:-", "S1", "0/1");
+        Variant v2 = VariantTestUtils.generateVariant("1:10:AT:-", "S2", "0/1");
+        Variant v3 = VariantTestUtils.generateVariant("1:11:T:A", "S2", "0/1");
+        Variant mergeVar = VARIANT_MERGER.merge(v1, v2);
+        System.out.println("mergeVar2 = " + mergeVar);
+        Variant mergeVar2 = VARIANT_MERGER.merge(mergeVar, v3);
+        System.out.println("mergeVar2 = " + mergeVar2);
+    }
+
+    @Test
     public void testMergeSame_2SNV() {
         checkSameNoSecondaries("1:10:A:T");
         checkSameNoSecondaries("1:10:AT:TA");

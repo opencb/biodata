@@ -142,13 +142,7 @@ public class VariantMerger {
                 : currentStudy.getFiles().get(0).getAttributes().getOrDefault(VariantVcfFactory.FILTER, DEFAULT_FILTER_VALUE);
         ensureFormat(currentStudy, GENOTYPE_FILTER_KEY, defaultFilterValue);
 
-        Set<String> duplicates = currentStudy.getSamplesName().stream()
-                .filter(s -> otherStudy.getSamplesName().contains(s))
-                .collect(Collectors.toSet());
-        if (!duplicates.isEmpty()) {
-            throw new IllegalStateException(String.format("Duplicated entries - issue with merge: %s; current: %s; other: %s;",
-                    StringUtils.join(duplicates, ", "), variantToString(current), variantToString(other)));
-        }
+        checkForDuplicates(current, other, currentStudy, otherStudy);
         // Secondary index: translate from e.g. 0/1 to 0/2
         List<AlternateCoordinate> otherSecondaryAlternates = buildAltList(other);
         List<Integer> secIdx = mergeSecondaryAlternates(current, otherSecondaryAlternates);
@@ -182,6 +176,38 @@ public class VariantMerger {
 
         mergeFiles(current, other);
     }
+
+    private void checkForDuplicates(Variant current, Variant other, StudyEntry currentStudy, StudyEntry otherStudy) {
+        if (isSameVariant(current, other)) {
+            Set<String> duplicates = currentStudy.getSamplesName().stream()
+                    .filter(s -> otherStudy.getSamplesName().contains(s))
+                    .collect(Collectors.toSet());
+            if (!duplicates.isEmpty()) {
+                throw new IllegalStateException(String.format("Duplicated entries - issue with merge: %s; current: %s; other: %s;",
+
+                        StringUtils.join(duplicates, ", "), variantToString(current), variantToString(other)));
+            }
+        } else {
+            List<AlternateCoordinate> currSecAlts = getStudy(current).getSecondaryAlternates();
+            Map<String, String> currSampleToGts = sampleToGt(current);
+            for (int i = 0; i < currSecAlts.size(); i++) {
+                // check same secondary hits
+                AlternateCoordinate currSec = currSecAlts.get(i);
+                if (isSameVariant(other, currSec) ) {
+                    int gtIdx = i+2;
+                    for (Map.Entry<String, String> sgte : currSampleToGts.entrySet()) {
+                        if (StringUtils.contains(sgte.getValue(), Integer.toString(gtIdx))){ // contains Alternate
+                            if (otherStudy.getSamplesName().contains(sgte.getKey())) { // contains same individual
+                                throw new IllegalStateException(String.format("Duplicated entries - issue with merge: %s; current: %s; other: %s;",
+                                        StringUtils.join(sgte.getKey(), ", "), variantToString(current), variantToString(other)));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * Map from a GT e.g. 1/2 to 4/5 using the provided mapping file. If no mapping is found, the same Allele is used.
      * @param gt Current GT
@@ -342,4 +368,31 @@ public class VariantMerger {
         }
     }
 
+    static boolean onSameVariant (Variant a, Variant b){
+        return a.onSameRegion(b)
+                && StringUtils.equals(a.getReference(), b.getReference())
+                && StringUtils.equals(a.getAlternate(), b.getAlternate());
+    }
+
+    public static boolean isSameVariant(Variant a, Variant b){
+        return onSameVariant(a, b);
+    }
+
+    public static boolean isSameVariant(Variant a, AlternateCoordinate b){
+        return StringUtils.equals(a.getChromosome(), b.getChromosome())
+                && a.getStart().equals(b.getStart())
+                && a.getEnd().equals(b.getEnd())
+                && StringUtils.equals(a.getReference(), b.getReference())
+                && StringUtils.equals(a.getAlternate(), b.getAlternate());
+    }
+
+    public boolean overlapWith(Variant a, AlternateCoordinate b, boolean inclusive) {
+        if (!StringUtils.equals(a.getChromosome(), b.getChromosome())) {
+            return false; // Different Chromosome
+        } else if (inclusive) {
+            return a.getStart() <= b.getEnd() && a.getEnd() >= b.getStart();
+        } else {
+            return a.getStart() < b.getEnd() && a.getEnd() > b.getStart();
+        }
+    }
 }
