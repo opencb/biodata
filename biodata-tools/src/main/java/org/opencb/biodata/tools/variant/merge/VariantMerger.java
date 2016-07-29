@@ -161,7 +161,10 @@ public class VariantMerger {
                         }
                         String updatedGt = updateGT(gt, secIdx);
                         if (alreadyInStudy) {
-                            updatedGt = currentStudy.getSampleData(sampleName, GT_KEY) + "," + updatedGt;
+                            String currGT = currentStudy.getSampleData(sampleName, GT_KEY);
+                            Set<String> gtlst = new HashSet<>(Arrays.asList(currGT.split(",")));
+                            gtlst.add(updatedGt);
+                            updatedGt = StringUtils.join(gtlst, ',');
                         }
                         sampleDataList.add(updatedGt);
                         break;

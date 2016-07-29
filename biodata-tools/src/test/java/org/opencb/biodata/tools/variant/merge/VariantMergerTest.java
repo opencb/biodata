@@ -108,6 +108,35 @@ public class VariantMergerTest {
         }
     }
 
+
+    @Test
+    public void testMergeReference() {
+        Variant v1 = new Variant("1:10:ATGTA:-");
+        v1 = VariantTestUtils.generateVariant(v1, v1.getType(),
+                Arrays.asList(VCFConstants.GENOTYPE_KEY, VCFConstants.GENOTYPE_FILTER_KEY),
+                Arrays.asList("S1"), Collections.singletonList(Arrays.asList("0/1","PASS")), Collections.emptyMap());
+
+        Variant v2 = new Variant("1:10:A:.");
+        v2 = VariantTestUtils.generateVariant(v2, v2.getType(),
+                Arrays.asList(VCFConstants.GENOTYPE_KEY, VCFConstants.GENOTYPE_FILTER_KEY),
+                Arrays.asList("S2"), Collections.singletonList(Arrays.asList("0/0","PASS")), Collections.emptyMap());
+
+        Variant v3 = new Variant("1:12:T:.");
+        v3 = VariantTestUtils.generateVariant(v3, v3.getType(),
+                Arrays.asList(VCFConstants.GENOTYPE_KEY, VCFConstants.GENOTYPE_FILTER_KEY),
+                Arrays.asList("S2"), Collections.singletonList(Arrays.asList("0/0","XXX")), Collections.emptyMap());
+
+        Variant mergeVar = VARIANT_MERGER.merge(v1, v2);
+        System.out.println("mergeVar2 = " + mergeVar.toJson());
+        assertEquals(0, mergeVar.getStudies().get(0).getSecondaryAlternates().size());
+        assertEquals("0/0", mergeVar.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_KEY));
+        assertEquals("PASS", mergeVar.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_FILTER_KEY));
+        Variant mergeVar2 = VARIANT_MERGER.merge(mergeVar, v3);
+        System.out.println("mergeVar2 = " + mergeVar2.toJson());
+        assertEquals("0/0", mergeVar2.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_KEY));
+        assertEquals("PASS", mergeVar.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_FILTER_KEY));
+    }
+
     @Test
     public void testMergeIndel() {
         Variant v1 = new Variant("1:10:ATGTA:-");
@@ -127,10 +156,12 @@ public class VariantMergerTest {
 
         Variant mergeVar = VARIANT_MERGER.merge(v1, v2);
         System.out.println("mergeVar2 = " + mergeVar.toJson());
+        assertEquals(1, mergeVar.getStudies().get(0).getSecondaryAlternates().size());
         assertEquals("2/2", mergeVar.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_KEY));
         assertEquals("PASS", mergeVar.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_FILTER_KEY));
         Variant mergeVar2 = VARIANT_MERGER.merge(mergeVar, v3);
         System.out.println("mergeVar2 = " + mergeVar2.toJson());
+        assertEquals(2, mergeVar.getStudies().get(0).getSecondaryAlternates().size());
         assertEquals("2/2,0/3", mergeVar2.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_KEY));
         assertEquals("PASS", mergeVar.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_FILTER_KEY));
     }
