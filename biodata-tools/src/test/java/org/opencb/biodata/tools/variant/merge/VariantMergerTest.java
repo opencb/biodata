@@ -1,5 +1,6 @@
 package org.opencb.biodata.tools.variant.merge;
 
+import htsjdk.variant.vcf.VCFConstants;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -109,16 +110,29 @@ public class VariantMergerTest {
 
     @Test
     public void testMergeIndel() {
-        Variant v1 = VariantTestUtils.generateVariant("1:10:ATGTA:-", "S1", "0/1");
-        Variant v2 = VariantTestUtils.generateVariant("1:10:A:T", "S2", "0/1");
-        Variant v3 = VariantTestUtils.generateVariant("1:12:T:A", "S2", "0/1");
+        Variant v1 = new Variant("1:10:ATGTA:-");
+        v1 = VariantTestUtils.generateVariant(v1, v1.getType(),
+                Arrays.asList(VCFConstants.GENOTYPE_KEY, VCFConstants.GENOTYPE_FILTER_KEY),
+                Arrays.asList("S1"), Collections.singletonList(Arrays.asList("0/1","PASS")), Collections.emptyMap());
 
+        Variant v2 = new Variant("1:10:A:T");
+        v2 = VariantTestUtils.generateVariant(v2, v2.getType(),
+                Arrays.asList(VCFConstants.GENOTYPE_KEY, VCFConstants.GENOTYPE_FILTER_KEY),
+                Arrays.asList("S2"), Collections.singletonList(Arrays.asList("1/1","PASS")), Collections.emptyMap());
+
+        Variant v3 = new Variant("1:12:T:A");
+        v3 = VariantTestUtils.generateVariant(v3, v3.getType(),
+                Arrays.asList(VCFConstants.GENOTYPE_KEY, VCFConstants.GENOTYPE_FILTER_KEY),
+                Arrays.asList("S2"), Collections.singletonList(Arrays.asList("0/1","XXX")), Collections.emptyMap());
 
         Variant mergeVar = VARIANT_MERGER.merge(v1, v2);
-        System.out.println("mergeVar2 = " + mergeVar);
+        System.out.println("mergeVar2 = " + mergeVar.toJson());
+        assertEquals("2/2", mergeVar.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_KEY));
+        assertEquals("PASS", mergeVar.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_FILTER_KEY));
         Variant mergeVar2 = VARIANT_MERGER.merge(mergeVar, v3);
-        System.out.println("mergeVar2 = " + mergeVar2);
-
+        System.out.println("mergeVar2 = " + mergeVar2.toJson());
+        assertEquals("2/2,0/3", mergeVar2.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_KEY));
+        assertEquals("PASS", mergeVar.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_FILTER_KEY));
     }
 
     @Test(expected = IllegalStateException.class)

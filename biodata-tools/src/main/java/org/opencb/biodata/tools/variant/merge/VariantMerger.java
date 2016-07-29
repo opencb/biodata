@@ -149,6 +149,7 @@ public class VariantMerger {
 
         // Add GT data for each sample to current Variant
         for (String sampleName : otherStudy.getOrderedSamplesName()) {
+            boolean alreadyInStudy = currentStudy.getSamplesName().contains(sampleName);
             List<String> sampleDataList = new LinkedList<>();
             for (String format : currentStudy.getFormat()) {
                 switch (format) {
@@ -158,10 +159,19 @@ public class VariantMerger {
                             throw new IllegalStateException(String.format("No GT found for sample %s in \nVariant: %s\nIndex:%s",
                                     sampleName, other.getImpl(), sampleToGt));
                         }
-                        sampleDataList.add(updateGT(gt, secIdx));
+                        String updatedGt = updateGT(gt, secIdx);
+                        if (alreadyInStudy) {
+                            updatedGt = currentStudy.getSampleData(sampleName, GT_KEY) + "," + updatedGt;
+                        }
+                        sampleDataList.add(updatedGt);
                         break;
                     case GENOTYPE_FILTER_KEY:
-                        sampleDataList.add(sampleToFilter.getOrDefault(sampleName, DEFAULT_FILTER_VALUE));
+                        String filter = sampleToFilter.getOrDefault(sampleName, DEFAULT_FILTER_VALUE);
+                        if (alreadyInStudy) {
+                            // TODO decide if using the first set filter is the correct way
+                            filter = currentStudy.getSampleData(sampleName, GENOTYPE_FILTER_KEY);
+                        }
+                        sampleDataList.add(filter);
                         break;
                     default:
                         // FIXME: Normalize information when merging data from different variants.
