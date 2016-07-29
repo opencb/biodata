@@ -1,5 +1,6 @@
 package org.opencb.biodata.tools.variant;
 
+import htsjdk.tribble.TribbleException;
 import htsjdk.tribble.readers.LineIterator;
 import htsjdk.tribble.readers.LineIteratorImpl;
 import htsjdk.tribble.readers.LineReader;
@@ -12,14 +13,15 @@ import org.opencb.biodata.models.variant.VariantNormalizer;
 import org.opencb.biodata.models.variant.VariantSource;
 import org.opencb.biodata.tools.variant.converter.VCFHeaderToAvroVcfHeaderConverter;
 import org.opencb.biodata.tools.variant.converter.VariantContextToVariantConverter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * Reads a VCF file using the library HTSJDK.
@@ -28,9 +30,11 @@ import java.util.List;
  *
  * Created on 16/05/16.
  *
- * @author Jacobo Coll &lt;jacobo167@gmail.com&gt;
+ * @author Jacobo Coll &lt;jVariantVcfHtsjdkReaderacobo167@gmail.com&gt;
  */
 public class VariantVcfHtsjdkReader implements VariantReader {
+
+    private final Logger logger = LoggerFactory.getLogger(VariantVcfHtsjdkReader.class);
 
     private final VariantSource source;
     private final InputStream inputStream;
@@ -40,6 +44,7 @@ public class VariantVcfHtsjdkReader implements VariantReader {
     private VariantContextToVariantConverter converter;
     private LineIterator lineIterator;
     private List<String> headerLines;
+    private Set<BiConsumer<String, RuntimeException>> malformHandlerSet = new HashSet<>();
 
     public VariantVcfHtsjdkReader(InputStream inputStream, VariantSource source) {
         this(inputStream, source, null);
@@ -49,6 +54,11 @@ public class VariantVcfHtsjdkReader implements VariantReader {
         this.source = source;
         this.inputStream = inputStream;
         this.normalizer = normalizer;
+    }
+
+    public VariantVcfHtsjdkReader registerMalformatedVcfHandler(BiConsumer<String, RuntimeException> handler) {
+        this.malformHandlerSet.add(handler);
+        return this;
     }
 
     @Override
@@ -101,7 +111,15 @@ public class VariantVcfHtsjdkReader implements VariantReader {
             if (line.startsWith("#") || line.trim().isEmpty()) {
                 continue;
             }
-            variantContexts.add(codec.decode(line));
+            try {
+                variantContexts.add(codec.decode(line));
+            } catch (TribbleException e) {
+                if (e.getMessage().startsWith("The provided VCF file is malformed at approximately line number")) {
+                    logMalformatedLine(line, e);
+                } else {
+                    throw e;
+                }
+            }
         }
 
         List<Variant> variants = converter.apply(variantContexts);
@@ -111,6 +129,13 @@ public class VariantVcfHtsjdkReader implements VariantReader {
         }
 
         return variants;
+    }
+
+    private void logMalformatedLine(String line, RuntimeException error) {
+        logger.warn(error.getMessage());
+        for (BiConsumer<String, RuntimeException> consumer : this.malformHandlerSet) {
+            consumer.accept(line, error);
+        }
     }
 
     @Override

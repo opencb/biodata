@@ -5,8 +5,11 @@ import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantSource;
 import org.opencb.biodata.models.variant.VariantStudy;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -42,5 +45,34 @@ public class VariantVcfHtsjdkReaderTest {
         assertEquals(3, i);
         reader.post();
         reader.close();
+    }
+
+    /**
+     * Illumina produces variant calls, which are invalid for htsjdk. Make sure these are logged.
+     * @throws Exception
+     */
+    @Test
+    public void readInvalidFormat() throws Exception {
+        String malformatedLine = "1\t1000000\t.\tTTTCCA\tTTTCCA\t100\tPASS\tAC=1\tGT\t0/1";
+        String vcf = "##fileformat=VCFv4.1\n"
+                + "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\ts0\n"
+                + malformatedLine;
+        VariantSource source = new VariantSource("test.vcf", "2", "1", "myStudy", VariantStudy.StudyType.CASE_CONTROL,
+                VariantSource.Aggregation.NONE);
+        VariantVcfHtsjdkReader reader = new VariantVcfHtsjdkReader(new ByteArrayInputStream(vcf.getBytes()), source);
+        final List<String> malformated = new ArrayList<>();
+        reader.registerMalformatedVcfHandler((a,b) -> malformated.add(a));
+        reader.open();
+        reader.pre();
+        List<Variant> read = null;
+        do{
+            read = reader.read();
+            System.out.println(read);
+        } while(!read.isEmpty());
+        reader.post();
+        reader.close();
+
+        assertEquals(1, malformated.size());
+        assertEquals(malformatedLine, malformated.get(0));
     }
 }
