@@ -334,4 +334,16 @@ public class Genotype {
         pb.setCode(org.opencb.biodata.models.variant.protobuf.VariantProto.AllelesCode.valueOf(this.code.name()));
         return pb.build();
     }
+
+    public static List<Genotype> parse(String currGT) {
+        if (StringUtils.isBlank(currGT))
+            return Collections.emptyList();
+        String[] gtArr = currGT.split(",");
+        ArrayList<Genotype> gts = new ArrayList<>(gtArr.length);
+        for (int i = 0; i < gtArr.length; i++) {
+            Genotype gtObject = new Genotype(gtArr[i]);
+            gts.add(gtObject);
+        }
+        return gts;
+    }
 }
