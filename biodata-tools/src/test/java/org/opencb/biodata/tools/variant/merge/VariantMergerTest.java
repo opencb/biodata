@@ -1,5 +1,6 @@
 package org.opencb.biodata.tools.variant.merge;
 
+import htsjdk.variant.vcf.VCFConstants;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -8,9 +9,11 @@ import org.junit.rules.ExpectedException;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.VariantNormalizer;
 import org.opencb.biodata.models.variant.VariantTestUtils;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.VariantType;
+import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -105,6 +108,58 @@ public class VariantMergerTest {
         for (List<String> sampleData : se.getSamplesData()) {
             assertEquals(se.getFormat().size(), sampleData.size());
         }
+    }
+
+    @Test
+    public void testMergeIndelOverlapping() throws NonStandardCompliantSampleField {
+        Variant v1 = new Variant("1:10:TACACACACAC:TACACAC");
+        v1 = VariantTestUtils.generateVariant(v1, v1.getType(),
+                Arrays.asList(VCFConstants.GENOTYPE_KEY, VCFConstants.GENOTYPE_FILTER_KEY),
+                Arrays.asList("S1"), Collections.singletonList(Arrays.asList("1/2","PASS")), Collections.emptyMap());
+        v1.getStudies().get(0).getSecondaryAlternates().add(new AlternateCoordinate("1",10,21,"TACACACACAC", "T", VariantType.INDEL));
+
+        Variant v2 = new Variant("1:11:A:.");
+        v2 = VariantTestUtils.generateVariant(v2, v2.getType(),
+                Arrays.asList(VCFConstants.GENOTYPE_KEY, VCFConstants.GENOTYPE_FILTER_KEY),
+                Arrays.asList("S2"), Collections.singletonList(Arrays.asList("0/0","PASS")), Collections.emptyMap());
+
+        System.out.println(v1.toJson());
+        List<Variant> variants = new VariantNormalizer().normalize(Collections.singletonList(v1), false);
+
+        variants.stream().forEach(v -> System.out.println("v.toJson() = " + v.toJson()));
+
+        Variant mergeVar = VARIANT_MERGER.merge(v2, variants);
+
+        System.out.println("mergeVar = " + mergeVar.toJson());
+    }
+
+
+    @Test
+    public void testMergeReference() {
+        Variant v1 = new Variant("1:10:ATGTA:-");
+        v1 = VariantTestUtils.generateVariant(v1, v1.getType(),
+                Arrays.asList(VCFConstants.GENOTYPE_KEY, VCFConstants.GENOTYPE_FILTER_KEY),
+                Arrays.asList("S1"), Collections.singletonList(Arrays.asList("0/1","PASS")), Collections.emptyMap());
+
+        Variant v2 = new Variant("1:10:A:.");
+        v2 = VariantTestUtils.generateVariant(v2, v2.getType(),
+                Arrays.asList(VCFConstants.GENOTYPE_KEY, VCFConstants.GENOTYPE_FILTER_KEY),
+                Arrays.asList("S2"), Collections.singletonList(Arrays.asList("0/0","PASS")), Collections.emptyMap());
+
+        Variant v3 = new Variant("1:12:T:.");
+        v3 = VariantTestUtils.generateVariant(v3, v3.getType(),
+                Arrays.asList(VCFConstants.GENOTYPE_KEY, VCFConstants.GENOTYPE_FILTER_KEY),
+                Arrays.asList("S2"), Collections.singletonList(Arrays.asList("./.","XXX")), Collections.emptyMap());
+
+        Variant mergeVar = VARIANT_MERGER.merge(v1, v2);
+        System.out.println("mergeVar2 = " + mergeVar.toJson());
+        assertEquals(0, mergeVar.getStudies().get(0).getSecondaryAlternates().size());
+        assertEquals("0/0", mergeVar.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_KEY));
+        assertEquals("PASS", mergeVar.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_FILTER_KEY));
+        Variant mergeVar2 = VARIANT_MERGER.merge(mergeVar, v3);
+        System.out.println("mergeVar2 = " + mergeVar2.toJson());
+        assertEquals("0/0,./.", mergeVar2.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_KEY));
+        assertEquals("PASS", mergeVar.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_FILTER_KEY));
     }
 
     @Test
