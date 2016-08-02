@@ -216,10 +216,10 @@ public class VariantMergerTest {
         checkOverlapNoSecondaries("1:10::AT", "1:10::GGG");
     }
 
-    @Test
-    public void testMergeOverlap_2IN_2() {
-        checkOverlapNoSecondaries("1:9::ATGG", "1:11::GGG");
-    }
+//    @Test
+//    public void testMergeOverlap_2IN_2() {
+//        checkOverlapNoSecondaries("1:9::ATGG", "1:11::GGG");
+//    }
 
     @Test
     public void testMergeOverlap_SNP_DEL() {
@@ -487,4 +487,35 @@ public class VariantMergerTest {
         return mergeVar;
     }
 
+    @Test
+    public void overlapsWith() throws Exception {
+        overlaps("2:100:C:A");
+        overlaps("2:100:CC:AA");
+        overlaps("2:100:C:AA");
+        overlaps("2:100:CC:A");
+        overlaps("2:100::A");
+        overlaps("2:100::A", "2:100::CTTNNN");
+        overlaps("2:100::A", "2:100:C:A");
+        overlaps("2:100:C:A", "2:100::A");
+        notOverlaps("2:100::A", "2:101:A:C");
+        notOverlaps("2:100::A", "2:99:A:C");
+
+    }
+
+    public void overlaps(String variant) {
+        overlaps(variant, variant);
+    }
+
+    public void overlaps(String variant, String otherVariant) {
+        System.out.printf("%s %15s\n", variant, otherVariant);
+        assertTrue("Variant '" + variant + "' should overlap with '" + otherVariant + "'",
+                new Variant(variant).overlapWith(new Variant(otherVariant), true));
+
+    }
+
+    public void notOverlaps(String variant, String otherVariant) {
+        assertFalse("Variant '" + variant + "' should not overlap with '" + otherVariant + "'",
+                new Variant(variant).overlapWith(new Variant(otherVariant), true));
+
+    }
 }

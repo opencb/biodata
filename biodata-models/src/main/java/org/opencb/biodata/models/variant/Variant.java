@@ -31,7 +31,7 @@ import java.util.*;
  * @author Jacobo Coll;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
-@JsonIgnoreProperties({"impl", "ids", "sourceEntries", "studiesMap"})
+@JsonIgnoreProperties({"impl", "ids", "sourceEntries", "studiesMap", "lengthReference", "lengthAlternate"})
 public class Variant implements Serializable {
 
     public static final EnumSet<VariantType> SV_SUBTYPES = EnumSet.of(VariantType.INSERTION, VariantType.DELETION,
@@ -52,19 +52,23 @@ public class Variant implements Serializable {
     }
 
     /**
+     * Creates a variant parsing a string.
      *
-     * @param variantString
+     * Format : (chr):(start)[-(end)][:(ref)]:(alt)
+     *
+     * @param variantString Variant string
+     * @throws IllegalArgumentException if the variant does not match with the pattern
      */
     public Variant(String variantString) {
-        impl = new VariantAvro();
+        this();
         if (variantString != null && !variantString.isEmpty()) {
             String[] fields = variantString.split(":", -1);
             if (fields.length == 3) {
                 setChromosome(fields[0]);
                 setAlternate(checkEmptySequence(fields[2]));
-                String[] coordinatesParts = fields[1].split("-");
                 // Structural variant needs start-end coords
-                if (coordinatesParts.length == 2) {
+                if (fields[1].contains("-")) {
+                    String[] coordinatesParts = fields[1].split("-");
                     setReference("N");
                     setStart(Integer.parseInt(coordinatesParts[0]));
                     setEnd(Integer.parseInt(coordinatesParts[1]));
@@ -74,15 +78,15 @@ public class Variant implements Serializable {
                     setStart(Integer.parseInt(fields[1]));
                     setReference("");
                     setLength(inferLengthShortVariant(getReference(), getAlternate()));
-                    setEnd(getStart() + getLength() - 1);
+                    setEnd(getStart() + getLengthReference() - 1);
                 }
             } else {
                 if (fields.length == 4) {
                     setChromosome(fields[0]);
                     setAlternate(checkEmptySequence(fields[3]));
-                    String[] coordinatesParts = fields[1].split("-");
                     // Structural variant needs start-end coords
-                    if (coordinatesParts.length == 2) {
+                    if (fields[1].contains("-")) {
+                        String[] coordinatesParts = fields[1].split("-");
                         setReference(checkEmptySequence(fields[2]));
                         setStart(Integer.parseInt(coordinatesParts[0]));
                         setEnd(Integer.parseInt(coordinatesParts[1]));
@@ -91,10 +95,11 @@ public class Variant implements Serializable {
                         setStart(Integer.parseInt(fields[1]));
                         setReference(checkEmptySequence(fields[2]));
                         setLength(inferLengthShortVariant(getReference(), getAlternate()));
-                        setEnd(getStart() + getLength() - 1);
+                        setEnd(getStart() + getLengthReference() - 1);
                     }
                 } else {
-                    throw new IllegalArgumentException("Variant needs 3 or 4 fields separated by ':'");
+                    throw new IllegalArgumentException("Variant " + variantString + " needs 3 or 4 fields separated by ':'. "
+                            + "Format: \"(chr):(start)[-(end)][:(ref)]:(alt)\"");
                 }
             }
         }
@@ -109,7 +114,7 @@ public class Variant implements Serializable {
 
     public Variant(String chromosome, int position, String reference, String alternate) {
         this(chromosome, position, position, reference, alternate, "+");
-        setEnd(getStart() + getLength() - 1);
+        setEnd(getStart() + getLengthReference() - 1);
     }
 
     public Variant(String chromosome, int start, int end, String reference, String alternate) {
@@ -132,7 +137,7 @@ public class Variant implements Serializable {
                 new HashMap<>(),
                 new LinkedList<>(),
                 null);
-        if (start > end && !(reference.equals("-"))) {
+        if (start > end && !(reference.equals("-") || reference.isEmpty())) {
             throw new IllegalArgumentException("End position must be greater than the start position for variant: "
                     + chromosome + ":" + start + "-" + end + ":" + reference + ":" + alternate);
         }
@@ -230,7 +235,7 @@ public class Variant implements Serializable {
 
     private static int inferLengthSV(String alternate, int start, int end) {
         int length;
-        if (alternate.startsWith(CNVSTR)) {
+        if (StringUtils.startsWith(alternate, CNVSTR)) {
             length = end - start + 1;
         } else {
             length = alternate == null ? 0 : alternate.length();
@@ -372,6 +377,18 @@ public class Variant implements Serializable {
 
     public Integer getLength() {
         return impl.getLength();
+    }
+
+    public Integer getLengthReference() {
+        if (EnumSet.of(VariantType.NO_VARIATION, VariantType.CNV, VariantType.SV, VariantType.SYMBOLIC).contains(getType())) {
+            return getLength();
+        } else {
+            return getReference().length();
+        }
+    }
+
+    public Integer getLengthAlternate() {
+        return getAlternate().length();
     }
 
     public void setLength(Integer value) {
@@ -599,22 +616,26 @@ public class Variant implements Serializable {
     }
 
     public boolean overlapWith(Variant other, boolean inclusive) {
-        if (!StringUtils.equals(this.getChromosome(), other.getChromosome())) {
-            return false; // Different Chromosome
-        } else if (inclusive) {
-            return this.getStart() <= other.getEnd() && this.getEnd() >= other.getStart();
-        } else {
-            return this.getStart() < other.getEnd() && this.getEnd() > other.getStart();
-        }
+        return overlapWith(other.getChromosome(), other.getStart(), other.getEnd(), inclusive);
     }
 
     public boolean overlapWith(String chromosome, int start, int end, boolean inclusive) {
         if (!StringUtils.equals(this.getChromosome(), chromosome)) {
             return false; // Different Chromosome
-        } else if (inclusive) {
-            return this.getStart() <= end && this.getEnd() >= start;
         } else {
-            return this.getStart() < end && this.getEnd() > start;
+            int thisStart = this.getStart();
+            int thisEnd = this.getEnd();
+            if (thisStart > thisEnd) {
+                thisEnd = thisStart;
+            }
+            if (start > end) {
+                end = start;
+            }
+            if (inclusive) {
+                return thisStart <= end && thisEnd >= start;
+            } else {
+                return thisStart < end && thisEnd > start;
+            }
         }
     }
 

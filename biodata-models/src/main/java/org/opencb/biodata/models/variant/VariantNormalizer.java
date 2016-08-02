@@ -553,7 +553,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
     }
 
     protected VariantKeyFields createVariantsFromInsertionEmptyRef(int position, String alt) {
-        return new VariantKeyFields(position, position + alt.length() - 1, "", alt);
+        return new VariantKeyFields(position, position - 1, "", alt);
     }
 
     protected VariantKeyFields createVariantsFromDeletionEmptyAlt(int position, String reference) {
@@ -610,11 +610,12 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             //There reference and the alternate are the same
             return null;
         } else if (indexOfDifference == 0) {
-            if (reference.length() > alt.length()) { // Deletion
-                keyFields = new VariantKeyFields(position, position + reference.length() - 1, reference, alt);
-            } else { // Insertion
-                keyFields = new VariantKeyFields(position, position + alt.length() - 1, reference, alt);
-            }
+            keyFields = new VariantKeyFields(position, position + reference.length() - 1, reference, alt);
+//            if (reference.length() > alt.length()) { // Deletion
+//                keyFields = new VariantKeyFields(position, position + reference.length() - 1, reference, alt);
+//            } else { // Insertion
+//                keyFields = new VariantKeyFields(position, position + alt.length() - 1, reference, alt);
+//            }
         } else {
 //            if (generateReferenceBlocks) {
 //                String blockRef = reference.substring(0, 1);
@@ -627,9 +628,10 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             int start = position + indexOfDifference;
             String ref = reference.substring(indexOfDifference);
             String inAlt = alt.substring(indexOfDifference);
-            int end = reference.length() > alt.length()
-                    ? position + reference.length() - 1
-                    : position + alt.length() - 1;
+//            int end = reference.length() > alt.length()
+//                    ? position + reference.length() - 1
+//                    : position + alt.length() - 1;
+            int end = position + reference.length() - 1;
             keyFields = new VariantKeyFields(start, end, ref, inAlt);
         }
 
@@ -1116,9 +1118,9 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
         @Override
         public String toString() {
-            return start + ":" + reference + ":" + alternate + ":" + numAllele
+            return start + "-" + end + ":" + reference + ":" + alternate + ":" + numAllele
                     + (phaseSet == null ? "" : ("(ps:" + phaseSet + ")"))
-                    + (referenceBlock ? ("(END=" + end + ")") : "");
+                    + (referenceBlock ? ("(refBlock)") : "");
         }
 
 

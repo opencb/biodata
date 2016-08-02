@@ -88,19 +88,19 @@ public class VariantNormalizerTest extends GenericTest {
     @Test
     public void testNormalizeSamplesDataIndel() throws NonStandardCompliantSampleField {
         // ATC -> ACCC  === T -> CC
-        testSampleNormalization("1", 100, "ATC", "ACCC", 101, 102, "T", "CC");
+        testSampleNormalization("1", 100, "ATC", "ACCC", 101, 101, "T", "CC");
     }
 
     @Test
     public void testNormalizeSamplesDataRightInsertion() throws NonStandardCompliantSampleField {
         // C -> AC  === . -> A
-        testSampleNormalization("1", 100, "C", "AC", 100, "", "A");
+        testSampleNormalization("1", 100, "C", "AC", 100, 99, "", "A");
     }
 
     @Test
     public void testNormalizeSamplesDataLeftInsertion() throws NonStandardCompliantSampleField {
         // C -> CA  === . -> A
-        testSampleNormalization("1", 100, "C", "CA", 101, "", "A");
+        testSampleNormalization("1", 100, "C", "CA", 101, 100, "", "A");
     }
 
     @Test
@@ -203,7 +203,7 @@ public class VariantNormalizerTest extends GenericTest {
     public void testNormalizeMultiAllelicSnpIndel() throws NonStandardCompliantSampleField {
         testSampleNormalization(100, "C", "T,CA", Arrays.asList(
                 new VariantNormalizer.VariantKeyFields(100, 100, 0, "C", "T"),
-                new VariantNormalizer.VariantKeyFields(101, 101, 1, "", "A")));
+                new VariantNormalizer.VariantKeyFields(101, 100, 1, "", "A")));
     }
 
     @Test
@@ -225,8 +225,8 @@ public class VariantNormalizerTest extends GenericTest {
     @Test
     public void testNormalizeMultiAllelicMultipleInsertions() throws NonStandardCompliantSampleField {
         testSampleNormalization(100, "G", "GCC,GCCTT", Arrays.asList(
-                new VariantNormalizer.VariantKeyFields(101, 102, 0, "", "CC"),
-                new VariantNormalizer.VariantKeyFields(101, 104, 1, "", "CCTT")),
+                new VariantNormalizer.VariantKeyFields(101, 100, 0, "", "CC"),
+                new VariantNormalizer.VariantKeyFields(101, 100, 1, "", "CCTT")),
                 Arrays.asList(new VariantNormalizer.VariantKeyFields(100, 100, "G", "")));
     }
 
@@ -241,7 +241,7 @@ public class VariantNormalizerTest extends GenericTest {
     @Test
     public void testNormalizeMultiAllelicMultipleDeletionsAndInsertions() throws NonStandardCompliantSampleField {
         testSampleNormalization(681, "TACACACACAC", "TACACACACACAC,TACAC,TACACAC,TACACACAC,TAC", Arrays.asList(
-                new VariantNormalizer.VariantKeyFields(682, 683, 0, "", "AC"),
+                new VariantNormalizer.VariantKeyFields(682, 681, 0, "", "AC"),
                 new VariantNormalizer.VariantKeyFields(682, 687, 1, "ACACAC", ""),
                 new VariantNormalizer.VariantKeyFields(682, 685, 2, "ACAC", ""),
                 new VariantNormalizer.VariantKeyFields(682, 683, 3, "AC", ""),
@@ -346,7 +346,11 @@ public class VariantNormalizerTest extends GenericTest {
         int numRefBlock = 0;
         for (int i = 0; i < variants.size(); i++) {
             Variant v = variants.get(i);
-            assertTrue(v.getStart() <= v.getEnd());
+            if (v.getReference().isEmpty()) {
+                assertEquals(v.getStart() - 1, v.getEnd().intValue());
+            } else {
+                assertTrue(v.getStart() <= v.getEnd());
+            }
             if (v.getType().equals(VariantType.NO_VARIATION)) {
                 assertEquals(0, v.getStudy(studyId).getSecondaryAlternates().size());
                 assertEquals("", v.getAlternate());
