@@ -1,5 +1,6 @@
 package org.opencb.biodata.models.variant;
 
+import htsjdk.variant.vcf.VCFConstants;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -10,10 +11,7 @@ import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.commons.test.GenericTest;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
@@ -196,6 +194,27 @@ public class VariantNormalizerTest extends GenericTest {
 
         Variant normalizedVariant = normalizer.normalize(Collections.singletonList(variant), false).get(0);
         assertEquals(variant, normalizedVariant);
+
+    }
+
+    @Test
+    public void testNormalize() throws NonStandardCompliantSampleField {
+//        Variant v1 = new Variant("1:100:AATATATATATAT:AATATATATATATAT");
+        Variant v1 = newVariant(100, "AATATATATATAT", Arrays.asList("AATATATATATATAT","A"), "1");
+        System.out.println("v1.getStudies().get(0) = " + v1.getStudies().get(0));
+        StudyEntry se = v1.getStudies().get(0);
+        Map<String, Integer> map = new HashMap<>();
+        map.put("S1",0);
+        se.setSamplesPosition(map);
+        se.setSamplesData(Collections.singletonList(Collections.singletonList("1/2")));
+        System.out.println("v1.getStudies().get(0) = " + v1.getStudies().get(0));
+        List<AlternateCoordinate> secalt = se.getSecondaryAlternates();
+        System.out.println("v1.toJson() = " + v1.toJson());
+        List<Variant> normalize = normalizer.normalize(Collections.singletonList(v1), false);
+        System.out.println("normalize = " + normalize);
+        Set<String> gts = normalize.stream().map(v -> v.getStudies().get(0).getSampleData("S1", "GT")).collect
+                (Collectors.toSet());
+        assertEquals(new HashSet<>(Arrays.asList("0/0","1/2","2/1")), gts);
 
     }
 
