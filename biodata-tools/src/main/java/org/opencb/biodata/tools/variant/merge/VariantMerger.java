@@ -211,8 +211,8 @@ public class VariantMerger {
                     for (Map.Entry<String, String> sgte : currSampleToGts.entrySet()) {
                         if (StringUtils.contains(sgte.getValue(), Integer.toString(gtIdx))){ // contains Alternate
                             if (otherStudy.getSamplesName().contains(sgte.getKey())) { // contains same individual
-                                throw new IllegalStateException(String.format("Duplicated entries - issue with merge: %s; current: %s; other: %s;",
-                                        StringUtils.join(sgte.getKey(), ", "), variantToString(current), variantToString(other)));
+                                throw new IllegalStateException(String.format("Duplicated entries - issue with merge: %s; current: %s; other: %s;\ncurrVar: %s\notherVar: %s",
+                                        StringUtils.join(sgte.getKey(), ", "), variantToString(current), variantToString(other), current.toJson(), other.toJson()));
                             }
                         }
                     }
