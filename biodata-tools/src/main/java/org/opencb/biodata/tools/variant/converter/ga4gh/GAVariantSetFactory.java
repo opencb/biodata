@@ -36,7 +36,7 @@ public class GAVariantSetFactory {
 
         for (VariantSource source : variantSources) {
             // TODO This header should be already split
-            List<VariantSetMetadata> setMetadata = new ArrayList<>();
+            List<VariantSetMetadata> metadata = new ArrayList<>();
             String header = source.getMetadata().get("header").toString();
 
             for (String line : header.split("\n")) {
@@ -44,11 +44,10 @@ public class GAVariantSetFactory {
                     continue;
                 }
 
-                VariantSetMetadata metadata = getMetadataLine(line);
-                setMetadata.add(metadata);
+                metadata.add(getMetadataLine(line));
             }
 
-            VariantSet variantSet = new VariantSet(source.getFileId(), source.getStudyId(), "", setMetadata);
+            VariantSet variantSet = new VariantSet(source.getFileId(), source.getFileName(), source.getStudyId(), "", metadata);
             gaVariantSets.add(variantSet);
         }
 

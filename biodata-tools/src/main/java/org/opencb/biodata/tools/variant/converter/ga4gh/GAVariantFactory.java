@@ -16,6 +16,7 @@
 
 package org.opencb.biodata.tools.variant.converter.ga4gh;
 
+import org.apache.commons.lang.StringUtils;
 import org.ga4gh.models.Call;
 import org.ga4gh.models.Variant;
 import org.opencb.biodata.models.feature.Genotype;
@@ -30,6 +31,20 @@ import java.util.*;
  */
 public class GAVariantFactory {
 
+    private boolean addCallSetName;
+    private Map<String, Integer> callSetNameId;
+
+    public GAVariantFactory() {
+        this(true, Collections.emptyMap());
+    }
+
+    public GAVariantFactory(boolean addCallSetName, Map<String, Integer> callSetNameId) {
+        if (callSetNameId == null) {
+            callSetNameId = Collections.emptyMap();
+        }
+        this.addCallSetName = addCallSetName;
+        this.callSetNameId = callSetNameId;
+    }
 
     /**
      * Given a list of variants, creates the equivalent set using the GA4GH API.
@@ -51,10 +66,10 @@ public class GAVariantFactory {
                 alternates.addAll(study.getSecondaryAlternatesAlleles());
 
                 //Optional
-                Long time = System.currentTimeMillis();
+                Long time = null;
 
-                //Only required for "graph" mode
-                List<String> alleleIds = null;
+//                //Only required for "graph" mode
+//                List<String> alleleIds = null;
 
                 //VariableSet should be the study, the file, or be provided?
                 String variantSetId = study.getStudyId();
@@ -63,7 +78,7 @@ public class GAVariantFactory {
                 Variant ga = new Variant(id, variantSetId, variantIds, time, time, variant.getChromosome(),
                         Long.valueOf(to0BasedStart(variant.getStart())), // Ga4gh uses 0-based positions.
                         Long.valueOf(variant.getEnd()),                  // 0-based end does not change
-                        variant.getReference(), alternates, alleleIds, parseInfo(study.getFiles()), parseCalls(null, study));
+                        variant.getReference(), alternates, parseInfo(study.getFiles()), parseCalls(null, study));
 
                 gaVariants.add(ga);
             }
@@ -131,39 +146,57 @@ public class GAVariantFactory {
 
             // Create empty call object
             Call call = new Call();
-            call.setCallSetId(sample);
-            call.setCallSetName(null);
-            call.setVariantId(variantId);
+            Integer id = callSetNameId.get(sample);
+            if (id != null) {
+                call.setCallSetId(id.toString());
+            }
+            if (addCallSetName) {
+                call.setCallSetName(sample);
+            }
+//            call.setVariantId(variantId);
             Map<String, List<String>> info = new HashMap<>();
             call.setInfo(info);
 
+            String phaseSet = null;
             for (String formatField : study.getFormat()) {
                 String sampleData = study.getSampleData(sample, formatField);
-                if ("GT".equals(formatField)) {
-                    // Transform genotype with form like 0|0 to the GA4GH style
-                    Genotype genotype = new Genotype(sampleData);
-                    List<Integer> allelesIdx = new ArrayList<>(genotype.getAllelesIdx().length);
-                    for (int alleleIdx : genotype.getAllelesIdx()) {
-                        if (alleleIdx >= 0) {
-                            allelesIdx.add(alleleIdx);
+                switch (formatField) {
+                    case "GT":
+                        // Transform genotype with form like 0|0 to the GA4GH style
+                        Genotype genotype = new Genotype(sampleData);
+                        List<Integer> allelesIdx = new ArrayList<>(genotype.getAllelesIdx().length);
+                        for (int alleleIdx : genotype.getAllelesIdx()) {
+                            if (alleleIdx >= 0) {
+                                allelesIdx.add(alleleIdx);
+                            }
                         }
-                    }
-                    call.setGenotype(allelesIdx);
+                        call.setGenotype(allelesIdx);
 
-                    String phaseSet = genotype.isPhased() ? "phased" : "unphased";
-                    call.setPhaseset(phaseSet);
-                } else if ("GL".equals(formatField)) {
-                    String[] split = sample.split(",");
-                    List<Double> genotypeLikelihood = new ArrayList<>(split.length);
-                    for (String gl : split) {
-                        genotypeLikelihood.add(Double.parseDouble(gl));
-                    }
-                    call.setGenotypeLikelihood(genotypeLikelihood);
-                } else {
-                    info.put(formatField, Collections.singletonList(sampleData));
+                        if (phaseSet == null && genotype.isPhased()) {
+                            // It may be that the genotype is 0|0, but without PS field
+                            // Set default phaseSet
+                            phaseSet = "p";
+                        }
+                        break;
+                    case "GL":
+                        String[] split = sample.split(",");
+                        List<Double> genotypeLikelihood = new ArrayList<>(split.length);
+                        for (String gl : split) {
+                            genotypeLikelihood.add(Double.parseDouble(gl));
+                        }
+                        call.setGenotypeLikelihood(genotypeLikelihood);
+                        break;
+                    case "PS":
+                        if (StringUtils.isNotEmpty(sampleData) && !sampleData.equals(".")) {
+                            phaseSet = sampleData;
+                        }
+                        break;
+                    default:
+                        info.put(formatField, Collections.singletonList(sampleData));
                 }
+                call.setPhaseset(phaseSet);
+                calls.add(call);
             }
-            calls.add(call);
         }
 
         return calls;
