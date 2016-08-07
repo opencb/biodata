@@ -29,6 +29,9 @@ public class GenomicScoreRegion<T> {
     private String source;
     private List<T> values;
 
+    public GenomicScoreRegion() {
+    }
+
     public GenomicScoreRegion(String chromosome, int start, int end, String type, List<T> values) {
         this.chromosome = chromosome;
         this.start = start;
