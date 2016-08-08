@@ -1,6 +1,7 @@
 package org.opencb.biodata.tools.variant.merge;
 
 import htsjdk.variant.vcf.VCFConstants;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -97,6 +98,77 @@ public class VariantMergerTest {
     }
 
     @Test
+    public void testEqualsVariantAltSecAlt() {
+        Variant v = new Variant("1:1050:CTTTC:-");
+        AlternateCoordinate a1 = new AlternateCoordinate(null, 1050, 1050, "C", "T", VariantType.SNV);
+        AlternateCoordinate a2 = new AlternateCoordinate("1", 1054, 1054, "C", "T", VariantType.SNV);
+        assertFalse(VARIANT_MERGER.equals(a1, a2));
+    }
+
+
+    @Test
+    public void testValidateEmptyFields() {
+        thrown.expect(IllegalStateException.class);
+        Variant v = new Variant("1:1050:CTTTC:-");
+        AlternateCoordinate a1 = new AlternateCoordinate(null, 1050, null, "C", "T", VariantType.SNV);
+        VARIANT_MERGER.validateAlternate(a1);
+    }
+
+    @Test
+    public void testMergeSecondaryAlternateToIdx() {
+        Variant var1 = VariantTestUtils.generateVariant("1:10:AT:T", "Sx", "1/2");
+        AlternateCoordinate a1 = new AlternateCoordinate("1", 10, 10, "ATG", "G", VariantType.SNV);
+        var1.getStudy(VariantTestUtils.STUDY_ID).getSecondaryAlternates().add(a1);
+
+        List<String> sampleList = new ArrayList<>();
+        List<Variant> variantList = new ArrayList<>();
+        List<AlternateCoordinate> secondaryAlternateList = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            String sample = "S"+i;
+
+            Variant v = VariantTestUtils.generateVariant("1:10:ATG"+ StringUtils.repeat("T",i)+":T", sample, "1/2");
+            AlternateCoordinate a = new AlternateCoordinate("1", 10, 10, "ATG", "G"+StringUtils.repeat('G',i), VariantType.SNV);
+            v.getStudy(VariantTestUtils.STUDY_ID).getSecondaryAlternates().add(a);
+            sampleList.add(sample);
+            variantList.add(v);
+            secondaryAlternateList.add(a);
+        }
+
+
+        Variant merged = VARIANT_MERGER.merge(var1, variantList);
+        StudyEntry studyEntry = merged.getStudies().get(0);
+
+        for (int i = 0; i < 10; i++) {
+            String gt = studyEntry.getSampleData(sampleList.get(i), "GT");
+            Variant variant = variantList.get(i);
+            AlternateCoordinate variantAlt = secondaryAlternateList.get(i);
+            for (Genotype gto : Genotype.parse(gt)) {
+                for (int gidx : gto.getAllelesIdx()) {
+                    assertNotEquals(0, gidx);
+                    assertNotEquals(1, gidx);
+                    gidx -= 2;
+                    AlternateCoordinate secAlt = studyEntry.getSecondaryAlternates().get(gidx);
+                    assertTrue(VariantMerger.isSameVariant(variant, secAlt) || VariantMerger.isSameVariant(variantAlt, secAlt));
+                }
+            }
+        }
+    }
+
+    @Test
+    public void testMergeLotsOAlt() {
+        Variant var = VARIANT_MERGER.merge(VariantTestUtils.generateVariant("1:100:CTTTC:-", "S01", "0/1"), VariantTestUtils.generateVariant("1:104:C:T", "S02", "0/1"));
+        StudyEntry se = var.getStudy(VariantTestUtils.STUDY_ID);
+        assertEquals(1, se.getSecondaryAlternates().size());
+        assertEquals(Collections.singletonList(new AlternateCoordinate("1", 104, 104, "C", "T", VariantType.SNV)), se.getSecondaryAlternates());
+        assertEquals(Arrays.asList(lst("0/1"),lst("0/2")),
+                onlyField(se.getSamplesData(), 0));
+        assertEquals(Arrays.asList("S01", "S02"), se.getOrderedSamplesName());
+        for (List<String> sampleData : se.getSamplesData()) {
+            assertEquals(se.getFormat().size(), sampleData.size());
+        }
+    }
+
+    @Test
     public void testMergeDifferentComplex2() {
         Variant var = VARIANT_MERGER.merge(VariantTestUtils.generateVariant("1:10:A:G", "S02", "0/1"), VariantTestUtils.generateVariant("1:10:A:T", "S01", "0/1"));
         StudyEntry se = var.getStudy(VariantTestUtils.STUDY_ID);
@@ -110,9 +182,9 @@ public class VariantMergerTest {
         }
     }
 
-
     @Test
     public void testMergeIndelOverlapping() throws NonStandardCompliantSampleField {
+        thrown.expect(IllegalStateException.class);
         Variant v1 = new Variant("1:10:TACACACACAC:TACACAC");
         v1 = VariantTestUtils.generateVariant(v1, v1.getType(),
                 Arrays.asList(VCFConstants.GENOTYPE_KEY, VCFConstants.GENOTYPE_FILTER_KEY),
@@ -126,11 +198,21 @@ public class VariantMergerTest {
 
         System.out.println(v1.toJson());
         List<Variant> variants = new VariantNormalizer().normalize(Collections.singletonList(v1), false);
+        for (Variant variant : variants) {
+            List<AlternateCoordinate> alts = variant.getStudies().get(0).getSecondaryAlternates();
+            for (AlternateCoordinate alt : alts) {
+                alt.setChromosome(variant.getChromosome());
+                if (alt.getStart() == null) {
+                    alt.setStart(variant.getStart());
+                }
+            }
+        }
+
 
         variants.stream().forEach(v -> System.out.println("v.toJson() = " + v.toJson()));
 
+        // Fails down to normalization producing two variants with same GT (1/2 and 2/1)
         Variant mergeVar = VARIANT_MERGER.merge(v2, variants);
-
         System.out.println("mergeVar = " + mergeVar.toJson());
     }
 

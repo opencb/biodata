@@ -190,7 +190,7 @@ public class VariantMerger {
         mergeFiles(current, other);
     }
 
-    private void checkForDuplicates(Variant current, Variant other, StudyEntry currentStudy, StudyEntry otherStudy) {
+    private boolean checkForDuplicates(Variant current, Variant other, StudyEntry currentStudy, StudyEntry otherStudy) {
         if (isSameVariant(current, other)) {
             Set<String> duplicates = currentStudy.getSamplesName().stream()
                     .filter(s -> otherStudy.getSamplesName().contains(s))
@@ -209,16 +209,22 @@ public class VariantMerger {
                 if (isSameVariant(other, currSec) ) {
                     int gtIdx = i+2;
                     for (Map.Entry<String, String> sgte : currSampleToGts.entrySet()) {
-                        if (StringUtils.contains(sgte.getValue(), Integer.toString(gtIdx))){ // contains Alternate
-                            if (otherStudy.getSamplesName().contains(sgte.getKey())) { // contains same individual
-                                throw new IllegalStateException(String.format("Duplicated entries - issue with merge: %s; current: %s; other: %s;\ncurrVar: %s\notherVar: %s",
-                                        StringUtils.join(sgte.getKey(), ", "), variantToString(current), variantToString(other), current.toJson(), other.toJson()));
+                        if (otherStudy.getSamplesName().contains(sgte.getKey())) { // contains same individual
+                            Set<String> gtIdxSet = Arrays.stream(sgte.getValue().split(",")).flatMap(e -> e.contains("/")
+                                    ? Arrays.stream(e.split("/")) : Arrays.stream(e.split("|"))).collect(Collectors.toSet
+                                    ());
+                            if (gtIdxSet.contains(Integer.toString(gtIdx))){ // contains Alternate
+                                throw new IllegalStateException(String.format(
+                                        "Duplicated entries - issue with merge: %s; value: %s; gtidx: %s\ncurrent: %s; other: %s;\ncurrVar: %s\notherVar: %s",
+                                        sgte.getKey(), sgte.getValue(), gtIdx,
+                                        variantToString(current), variantToString(other), current.toJson(), other.toJson()));
                             }
                         }
                     }
                 }
             }
         }
+        return false;
     }
 
     /**
@@ -243,27 +249,28 @@ public class VariantMerger {
      * @param otherAlternates    All the alternates from the other variant
      * @return Mapping from the alleleIds of the otherAlternates to the mergedAlternates
      */
-    private List<Integer> mergeSecondaryAlternates(Variant variant, List<AlternateCoordinate> otherAlternates) {
+    protected List<Integer> mergeSecondaryAlternates(Variant variant, List<AlternateCoordinate> otherAlternates) {
         AlternateCoordinate mainAlternate = getMainAlternate(variant);
         List<AlternateCoordinate> secondaryAlternates = getStudy(variant).getSecondaryAlternates();
 
         List<Integer> idx = new ArrayList<>(secondaryAlternates.size() + otherAlternates.size());
         idx.add(0); // The reference is the same
         for (AlternateCoordinate alternateCoordinate : otherAlternates) {
-//            int indexOf = secondaryAlternates.indexOf(alternateCoordinate);
+            validateAlternate(alternateCoordinate);
+            if (equals(alternateCoordinate, mainAlternate)) {
+                idx.add(1);
+                continue;
+            }
             int indexOf = -1;
-            int counter = 0;
-            for (AlternateCoordinate s : secondaryAlternates) {
-                if (equals(variant, alternateCoordinate, s)) {
-                    indexOf = counter;
+            for (int i = 0; i < secondaryAlternates.size(); i++) {
+                AlternateCoordinate s = secondaryAlternates.get(i);
+                if (equals(alternateCoordinate, s)) {
+                    indexOf = i;
                     break;
                 }
-                counter++;
             }
             if (indexOf >= 0) {
                 idx.add(indexOf + 2);
-            } else if (equals(variant, alternateCoordinate, mainAlternate)) {
-                idx.add(1);
             } else {
                 idx.add(secondaryAlternates.size() + 2);
                 secondaryAlternates.add(alternateCoordinate);
@@ -272,30 +279,34 @@ public class VariantMerger {
         return idx;
     }
 
-    private boolean equals(Variant variant, AlternateCoordinate alt1, AlternateCoordinate alt2) {
-        return getEnd(alt2, variant).equals(getEnd(alt1, variant))
-                && getReference(alt2, variant).equals(getReference(alt1, variant))
-                && getAlternate(alt2, variant).equals(getAlternate(alt1, variant));
+    protected void validateAlternate(AlternateCoordinate alt) throws IllegalStateException {
+        if (alt.getChromosome() == null) throw new IllegalStateException("Chromosome of alt is null: " + alt);
+        if (alt.getStart() == null) throw new IllegalStateException("Start of alt is null: " + alt);
+        if (alt.getEnd() == null) throw new IllegalStateException("End of alt is null: " + alt);
+        if (alt.getReference() == null) throw new IllegalStateException("Reference of alt is null: " + alt);
+        if (alt.getAlternate() == null) throw new IllegalStateException("Alternate of alt is null: " + alt);
     }
 
-    private String getChromosome(AlternateCoordinate s, Variant v) {
-        return s.getChromosome() != null ? s.getChromosome() : v.getChromosome();
+    protected boolean equals(AlternateCoordinate alt1, AlternateCoordinate alt2) {
+        return getStart(alt2).equals(getStart(alt1)) && getEnd(alt2).equals(getEnd(alt1))
+                && getReference(alt2).equals(getReference(alt1))
+                && getAlternate(alt2).equals(getAlternate(alt1));
     }
 
-    private String getReference(AlternateCoordinate s, Variant v) {
-        return s.getReference() != null ? s.getReference() : v.getReference();
+    private String getReference(AlternateCoordinate s) {
+        return s.getReference();
     }
 
-    private String getAlternate(AlternateCoordinate s, Variant v) {
-        return s.getAlternate() != null ? s.getAlternate() : v.getAlternate();
+    private String getAlternate(AlternateCoordinate s) {
+        return s.getAlternate();
     }
 
-    private Integer getStart(AlternateCoordinate s, Variant v) {
-        return s.getStart() != null ? s.getStart() : v.getStart();
+    private Integer getStart(AlternateCoordinate s) {
+        return s.getStart();
     }
 
-    private Integer getEnd(AlternateCoordinate s, Variant v) {
-        return s.getEnd() != null ? s.getEnd() : v.getEnd();
+    private Integer getEnd(AlternateCoordinate s) {
+        return s.getEnd();
     }
 
     /**
@@ -392,6 +403,14 @@ public class VariantMerger {
     }
 
     public static boolean isSameVariant(Variant a, AlternateCoordinate b){
+        return StringUtils.equals(a.getChromosome(), b.getChromosome())
+                && a.getStart().equals(b.getStart())
+                && a.getEnd().equals(b.getEnd())
+                && StringUtils.equals(a.getReference(), b.getReference())
+                && StringUtils.equals(a.getAlternate(), b.getAlternate());
+    }
+
+    public static boolean isSameVariant(AlternateCoordinate a, AlternateCoordinate b){
         return StringUtils.equals(a.getChromosome(), b.getChromosome())
                 && a.getStart().equals(b.getStart())
                 && a.getEnd().equals(b.getEnd())

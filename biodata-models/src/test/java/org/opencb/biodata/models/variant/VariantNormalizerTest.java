@@ -212,6 +212,7 @@ public class VariantNormalizerTest extends GenericTest {
         System.out.println("v1.toJson() = " + v1.toJson());
         List<Variant> normalize = normalizer.normalize(Collections.singletonList(v1), false);
         System.out.println("normalize = " + normalize);
+        normalize.stream().forEach(v -> System.out.println(v.getStudies().get(0).getFiles().get(0).getCall()));
         Set<String> gts = normalize.stream().map(v -> v.getStudies().get(0).getSampleData("S1", "GT")).collect
                 (Collectors.toSet());
         assertEquals(new HashSet<>(Arrays.asList("0/0","1/2","2/1")), gts);
