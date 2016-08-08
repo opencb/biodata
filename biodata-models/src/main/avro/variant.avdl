@@ -126,12 +126,24 @@ protocol Variants {
 
         union { null, string } chromosome;
 
+        /**
+         * First position 1-based of the alternate. If null, the start is the same of the variant.
+         */
         union { null, int } start;
 
+        /**
+         * End position 1-based of the alternate. If null, the end is the same of the variant.
+         */
         union { null, int } end;
 
+        /**
+         * Reference allele. If null, the reference is the same of the variant.
+         */
         union { null, string } reference;
 
+        /**
+         * Alternate allele.
+         */
         string alternate;
 
         VariantType type;

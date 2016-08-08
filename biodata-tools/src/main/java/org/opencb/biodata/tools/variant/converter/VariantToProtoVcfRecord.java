@@ -126,13 +126,14 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
             for (AlternateCoordinate alternate : secondaryAlternates) {
                 recordBuilder.addSecondaryAlternates(VariantProto.AlternateCoordinate
                         .newBuilder()
-                        .setChromosome(alternate.getChromosome() != null? alternate.getChromosome() : "")
-                        .setStart(alternate.getStart() != null? alternate.getStart() : 0)
-                        .setEnd(alternate.getEnd() != null? alternate.getEnd() : 0)
-                        .setReference(alternate.getReference() != null? alternate.getReference() : "")
-                        .setAlternate(alternate.getAlternate() != null? alternate.getAlternate() : "")
+                        .setChromosome(alternate.getChromosome() != null ? alternate.getChromosome() : "")
+                        .setStart(alternate.getStart() != null ? alternate.getStart() : 0)
+                        .setEnd(alternate.getEnd() != null ? alternate.getEnd() : 0)
+                        .setReference(alternate.getReference() == null ? "" : (alternate.getReference().isEmpty() ? "-" : alternate.getReference()))
+                        .setAlternate(alternate.getAlternate() == null ? "" : alternate.getAlternate())
                         .setType(getProtoVariantType(alternate.getType()))
                         .build());
+
             }
         }
 

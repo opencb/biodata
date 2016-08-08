@@ -207,9 +207,9 @@ public class VcfRecordToVariantConverter implements Converter<VcfSliceProtos.Vcf
             for (VariantProto.AlternateCoordinate alt : alts) {
                 AlternateCoordinate alternateCoordinate = new AlternateCoordinate(
                         alt.getChromosome().isEmpty() ? null : alt.getChromosome(),
-                        alt.getStart() == 0? null : alt.getStart(),
-                        alt.getEnd() == 0? null : alt.getEnd(),
-                        alt.getReference(),
+                        alt.getStart() == 0 ? null : alt.getStart(),
+                        alt.getEnd() == 0 ? null : alt.getEnd(),
+                        alt.getReference().isEmpty() ? null : (alt.getReference().equals("-") ? "" : alt.getReference()),
                         alt.getAlternate(),
                         getVariantType(alt.getType()));
                 alternateCoordinates.add(alternateCoordinate);

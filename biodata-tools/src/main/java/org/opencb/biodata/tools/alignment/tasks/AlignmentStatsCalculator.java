@@ -72,7 +72,7 @@ public class AlignmentStatsCalculator {
             }
 
             // paired, first, second
-            if (ra.getProperPlacement()) {
+            if (!ra.getImproperPlacement()) {
                 stats.numPaired++;
 
                 // insert
