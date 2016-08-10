@@ -100,6 +100,7 @@ public class VariantVcfHtsjdkReader implements VariantReader {
         // Create converter and fill VariantSource
         converter = new VariantContextToVariantConverter(source.getStudyId(), source.getFileId(), header.getSampleNamesInOrder());
         source.setHeader(new VCFHeaderToAvroVcfHeaderConverter().convert(header));
+        source.setSamples(header.getSampleNamesInOrder());
         return true;
     }
 

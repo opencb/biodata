@@ -5,6 +5,8 @@ import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.FileEntry;
+import org.opencb.biodata.tools.ga4gh.Ga4ghVariantFactory;
+import org.opencb.biodata.tools.ga4gh.ProtoGa4GhVariantFactory;
 import org.opencb.biodata.tools.variant.converter.Converter;
 
 import java.util.*;
@@ -15,42 +17,37 @@ import java.util.*;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  * @author Jacobo Coll &lt;jacobo167@gmail.com&gt;
  */
-public abstract class AbstractGa4ghVariantConverter<V, C> implements Converter<Variant, V> {
+public class Ga4ghVariantConverter<V> implements Converter<Variant, V> {
 
     private boolean addCallSetName;
-    private Map<String, Integer> callSetNameId;
+    private final Map<String, Integer> callSetNameId;
+    private final Ga4ghVariantFactory<V, ?, ?, ?, ?> factory;
 
-    public AbstractGa4ghVariantConverter() {
+    public Ga4ghVariantConverter(Ga4ghVariantFactory<V, ?, ?, ?, ?> factory) {
+        this(true, Collections.emptyMap(), factory);
+    }
+
+    public Ga4ghVariantConverter() {
         this(true, Collections.emptyMap());
     }
 
-    public AbstractGa4ghVariantConverter(boolean addCallSetName, Map<String, Integer> callSetNameId) {
+    public Ga4ghVariantConverter(boolean addCallSetName, Map<String, Integer> callSetNameId) {
+        this(addCallSetName, callSetNameId, (Ga4ghVariantFactory) new ProtoGa4GhVariantFactory());
+    }
+
+    public Ga4ghVariantConverter(boolean addCallSetName, Map<String, Integer> callSetNameId,
+                                 Ga4ghVariantFactory<V, ?, ?, ?, ?> ga4GhFactory) {
         if (callSetNameId == null) {
             callSetNameId = Collections.emptyMap();
         }
         this.addCallSetName = addCallSetName;
         this.callSetNameId = callSetNameId;
+        this.factory = ga4GhFactory;
     }
-
-    abstract protected V newVariant(String id, String variantSetId, List<String> names, Long created, Long updated,
-                                    String referenceName, Long start, Long end, String reference, List<String> alternates,
-                                    Map<String, List<String>> info, List<C> calls) ;
-
-    abstract protected C newCall(String callSetName, String callSetId, List<Integer> allelesIdx, String phaseSet,
-                                 List<Double> genotypeLikelihood, Map<String, List<String>> info);
-
 
     @Override
     public V convert(Variant variant) {
         return apply(Collections.singletonList(variant)).get(0);
-    }
-
-    /**
-     * @deprecated Use {@link #apply(List)} instead
-     */
-    @Deprecated
-    public List<V> create(List<Variant> variants) {
-        return apply(variants);
     }
 
     /**
@@ -84,14 +81,14 @@ public abstract class AbstractGa4ghVariantConverter<V, C> implements Converter<V
 
 
                 Map<String, List<String>> fileInfo = parseInfo(study.getFiles());
-                List<C> calls = parseCalls(null, study);
+                List calls = parseCalls(null, study);
 
                 Long start = Long.valueOf(to0BasedStart(variant.getStart())); // Ga4gh uses 0-based positions.
                 Long end = Long.valueOf(variant.getEnd());                    // 0-based end does not change
 
-                V ga = newVariant(id, variantSetId, variantIds, time, time,
-                        variant.getChromosome(), start, end, variant.getReference(), alternates, fileInfo, calls
-                );
+                @SuppressWarnings("unchecked")
+                V ga = (V) factory.newVariant(id, variantSetId, variantIds, time, time,
+                        variant.getChromosome(), start, end, variant.getReference(), alternates, fileInfo, calls);
 
                 gaVariants.add(ga);
             }
@@ -152,14 +149,14 @@ public abstract class AbstractGa4ghVariantConverter<V, C> implements Converter<V
      * @param study
      * @return
      */
-    protected List<C> parseCalls(String variantId, StudyEntry study) {
-        List<C> calls = new LinkedList<>();
+    protected List<Object> parseCalls(String variantId, StudyEntry study) {
+        List<Object> calls = new LinkedList<>();
 
         for (String sample : study.getOrderedSamplesName()) {
 
             Integer id = callSetNameId.get(sample);
-            String callSetId = null;
-            String callSetName = null;
+            String callSetId = null;    // SampleId
+            String callSetName = null;  // SampleName
             if (id != null) {
                 callSetId = id.toString();
             }
@@ -208,10 +205,10 @@ public abstract class AbstractGa4ghVariantConverter<V, C> implements Converter<V
                         info.put(formatField, Collections.singletonList(sampleData));
                 }
 
-                // Create call object
-                C call = newCall(callSetName, callSetId, allelesIdx, phaseSet, genotypeLikelihood, info);
-                calls.add(call);
             }
+            // Create call object
+            Object call = factory.newCall(callSetName, callSetId, allelesIdx, phaseSet, genotypeLikelihood, info);
+            calls.add(call);
         }
 
         return calls;

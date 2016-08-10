@@ -17,17 +17,19 @@
 package org.opencb.biodata.tools.variant.converter.ga4gh;
 
 import org.ga4gh.models.CallSet;
+import org.opencb.biodata.tools.ga4gh.AvroGa4GhVariantFactory;
 
-import java.util.*;
+import java.util.List;
 
 /**
  *
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
-public class GACallSetFactory extends AbstractGa4ghCallSetConverter<CallSet> {
+@Deprecated
+public class GACallSetFactory extends Ga4ghCallSetConverter<CallSet> {
 
     public GACallSetFactory() {
-        super();
+        super(new AvroGa4GhVariantFactory());
     }
 
     /**
@@ -36,10 +38,5 @@ public class GACallSetFactory extends AbstractGa4ghCallSetConverter<CallSet> {
     @Deprecated
     public static List<CallSet> create(List<String> variantSetNames, List<List<String>> callSets) {
         return new GACallSetFactory().convert(variantSetNames, callSets);
-    }
-
-    @Override
-    protected CallSet newCallSet(String callSetId, String callSetName, String sampleId, ArrayList<String> variantSetIds, long created, long updated, Map<String, List<String>> info) {
-        return new CallSet(callSetId, callSetName, sampleId, variantSetIds, created, updated, info);
     }
 }

@@ -17,8 +17,8 @@
 package org.opencb.biodata.tools.variant.converter.ga4gh;
 
 import org.ga4gh.models.VariantSet;
-import org.ga4gh.models.VariantSetMetadata;
 import org.opencb.biodata.models.variant.VariantSource;
+import org.opencb.biodata.tools.ga4gh.AvroGa4GhVariantFactory;
 
 import java.util.*;
 
@@ -26,23 +26,20 @@ import java.util.*;
  *
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
-public class GAVariantSetFactory<VS, VSM> extends AbstractGa4ghVariantSetConverter<VariantSet, VariantSetMetadata>{
+@Deprecated
+public class GAVariantSetFactory extends Ga4ghVariantSetConverter<VariantSet> {
+
+
+    public GAVariantSetFactory() {
+        super(new AvroGa4GhVariantFactory());
+    }
 
     /**
      * @deprecated Use {@link #apply(List)} instead
      */
     @Deprecated
     public static List<VariantSet> create(List<VariantSource> variantSources) {
-        return new GAVariantSetFactory<>().apply(variantSources);
-    }
-
-    protected VariantSet newVariantSet(String id, String name, String datasetId, String referenceSetId, List<VariantSetMetadata> metadata) {
-        return new VariantSet(id, name, datasetId, referenceSetId, metadata);
-    }
-
-    @Override
-    protected VariantSetMetadata newVariantSetMetadata(String key, String value, String id, String type, String number, String description, Map<String, List<String>> info) {
-        return new VariantSetMetadata(key, value, id, type, number, description, info);
+        return new GAVariantSetFactory().apply(variantSources);
     }
 
 }

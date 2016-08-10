@@ -16,8 +16,8 @@
 
 package org.opencb.biodata.tools.variant.converter.ga4gh;
 
-import org.ga4gh.models.Call;
 import org.ga4gh.models.Variant;
+import org.opencb.biodata.tools.ga4gh.AvroGa4GhVariantFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -26,22 +26,19 @@ import java.util.Map;
  *
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
-public class GAVariantFactory extends AbstractGa4ghVariantConverter<Variant, Call> {
+@Deprecated
+public class GAVariantFactory extends Ga4ghVariantConverter<Variant> {
 
-    @Override
-    protected Variant newVariant(String id, String variantSetId, List<String> names, Long created, Long updated,
-                                 String referenceName, Long start, Long end, String reference, List<String> alternates,
-                                 Map<String, List<String>> info, List<Call> calls) {
-        return new Variant(id, variantSetId, names, created, updated, referenceName,
-                start,                // Ga4gh uses 0-based positions.
-                end,                  // 0-based end does not change
-                reference, alternates, info, calls);
+    public GAVariantFactory(boolean addCallSetName, Map<String, Integer> callSetNameId) {
+        super(addCallSetName, callSetNameId, new AvroGa4GhVariantFactory());
     }
 
-    @Override
-    protected Call newCall(String callSetName, String callSetId, List<Integer> allelesIdx, String phaseSet, List<Double> genotypeLikelihood,
-                           Map<String, List<String>> info) {
-        return new Call(callSetName, callSetId, allelesIdx, phaseSet, genotypeLikelihood, info);
+    /**
+     * @deprecated Use {@link #apply(List)} instead
+     */
+    @Deprecated
+    public List<Variant> create(List<org.opencb.biodata.models.variant.Variant> variants) {
+        return apply(variants);
     }
 }
 
