@@ -89,7 +89,7 @@ protocol VariantAnnotations {
         union { null, string } id;
         int start;
         int end;
-        string type;
+        union { null, string } type;
         union { null, string } description;
     }
 
