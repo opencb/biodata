@@ -210,9 +210,9 @@ public class VariantMerger {
                     int gtIdx = i+2;
                     for (Map.Entry<String, String> sgte : currSampleToGts.entrySet()) {
                         if (otherStudy.getSamplesName().contains(sgte.getKey())) { // contains same individual
-                            Set<String> gtIdxSet = Arrays.stream(sgte.getValue().split(",")).flatMap(e -> e.contains("/")
-                                    ? Arrays.stream(e.split("/")) : Arrays.stream(e.split("|"))).collect(Collectors.toSet
-                                    ());
+                            Set<String> gtIdxSet = Arrays.stream(sgte.getValue().split(","))
+                                    .flatMap(e -> Arrays.stream(e.split("/")))
+                                    .flatMap(e -> Arrays.stream(e.split("\\|"))).collect(Collectors.toSet());
                             if (gtIdxSet.contains(Integer.toString(gtIdx))){ // contains Alternate
                                 throw new IllegalStateException(String.format(
                                         "Duplicated entries - issue with merge: %s; value: %s; gtidx: %s\ncurrent: %s; other: %s;\ncurrVar: %s\notherVar: %s",
