@@ -29,6 +29,9 @@ import java.util.Map;
 @Deprecated
 public class GAVariantFactory extends Ga4ghVariantConverter<Variant> {
 
+    public GAVariantFactory() {
+    }
+
     public GAVariantFactory(boolean addCallSetName, Map<String, Integer> callSetNameId) {
         super(addCallSetName, callSetNameId, new AvroGa4GhVariantFactory());
     }
