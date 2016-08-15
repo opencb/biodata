@@ -17,86 +17,29 @@
 package org.opencb.biodata.tools.variant.converter.ga4gh;
 
 import org.ga4gh.models.VariantSet;
-import org.ga4gh.models.VariantSetMetadata;
 import org.opencb.biodata.models.variant.VariantSource;
+import org.opencb.biodata.tools.ga4gh.AvroGa4GhVariantFactory;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  *
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
-public class GAVariantSetFactory {
-    
+@Deprecated
+public class GAVariantSetFactory extends Ga4ghVariantSetConverter<VariantSet> {
+
+
+    public GAVariantSetFactory() {
+        super(new AvroGa4GhVariantFactory());
+    }
+
+    /**
+     * @deprecated Use {@link #apply(List)} instead
+     */
+    @Deprecated
     public static List<VariantSet> create(List<VariantSource> variantSources) {
-        Set<VariantSet> gaVariantSets = new LinkedHashSet<>();
-
-        for (VariantSource source : variantSources) {
-            // TODO This header should be already split
-            List<VariantSetMetadata> metadata = new ArrayList<>();
-            String header = source.getMetadata().get("header").toString();
-
-            for (String line : header.split("\n")) {
-                if (line.startsWith("#CHROM")) {
-                    continue;
-                }
-
-                metadata.add(getMetadataLine(line));
-            }
-
-            VariantSet variantSet = new VariantSet(source.getFileId(), source.getFileName(), source.getStudyId(), "", metadata);
-            gaVariantSets.add(variantSet);
-        }
-
-        return new ArrayList<>(gaVariantSets);
+        return new GAVariantSetFactory().apply(variantSources);
     }
 
-    private static VariantSetMetadata getMetadataLine(String line) {
-        VariantSetMetadata metadata = new VariantSetMetadata();
-        // Split by square brackets that are NOT between quotes
-        String[] split = line.split("(<|>)(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
-
-        if (split.length > 1) { // Header entries like INFO or FORMAT
-            // Remove leading ## and trailing equals symbol
-            metadata.setKey(split[0].substring(2, split[0].length()-1));
-            metadata.setValue(split[1]);
-
-            // Split by commas that are NOT between quotes
-            String[] valueSplit = split[1].split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
-
-            for (String pair : valueSplit) { // Key-value pairs
-                String[] pairSplit = pair.split("=", 2);
-                switch (pairSplit[0]) {
-                    case "ID":
-                        metadata.setId(pairSplit[1]);
-                        break;
-                    case "Number":
-                        metadata.setNumber(pairSplit[1]);
-                        break;
-                    case "Type":
-                        metadata.setType(pairSplit[1]);
-                        break;
-                    case "Description":
-                        metadata.setDescription(pairSplit[1]);
-                        break;
-                    default:
-//                        metadata.addInfo(pairSplit[0], pairSplit[1]);
-                }
-            }
-        } else {
-            // Simpler entry like "assembly=GRCh37"
-            split = line.split("=", 2);
-            // Remove leading ## and trailing equals symbol
-            metadata.setKey(split[0].substring(2));
-            metadata.setId(split[0].substring(2));
-            if (split.length > 1) {
-                metadata.setValue(split[1]);
-            }
-        }
-
-        return metadata;
-    }
 }

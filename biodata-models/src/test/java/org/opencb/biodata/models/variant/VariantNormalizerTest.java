@@ -15,7 +15,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertFalse;
 import static org.opencb.biodata.models.variant.VariantTestUtils.generateVariantWithFormat;
 
 /**
@@ -269,6 +268,36 @@ public class VariantNormalizerTest extends GenericTest {
                 Arrays.asList(
                         new VariantNormalizer.VariantKeyFields(681, 681, "T", ""),
                         new VariantNormalizer.VariantKeyFields(690, 691, "A", "")));
+    }
+
+    @Test
+    public void testMultiSNP() throws NonStandardCompliantSampleField {
+        //6       109522683       .       TTTTT   TTTAT,TATTT
+        //8       32269959        .       TATATAT TATACAT,TACATAT
+        Variant variant = generateVariantWithFormat("6:109522683:TTTTT:TTTAT,TATTT", "GT", "S01", "1/2");
+
+        List<Variant> variants = normalizer.normalize(Collections.singletonList(variant), true);
+        variants.forEach(v -> System.out.println(v.toJson()));
+
+        assertEquals("6:109522683:T:-", variants.get(0).toString());
+        assertEquals(VariantType.NO_VARIATION, variants.get(0).getType());
+        assertEquals(1, variants.get(0).getLength().intValue());
+
+        assertEquals("6:109522684:T:A", variants.get(1).toString());
+        assertEquals(VariantType.SNV, variants.get(1).getType());
+        assertEquals(1, variants.get(1).getLength().intValue());
+
+        assertEquals("6:109522685:T:-", variants.get(2).toString());
+        assertEquals(VariantType.NO_VARIATION, variants.get(2).getType());
+        assertEquals(1, variants.get(2).getLength().intValue());
+
+        assertEquals("6:109522686:T:A", variants.get(3).toString());
+        assertEquals(VariantType.SNV, variants.get(3).getType());
+        assertEquals(1, variants.get(3).getLength().intValue());
+
+        assertEquals("6:109522687:T:-", variants.get(4).toString());
+        assertEquals(VariantType.NO_VARIATION, variants.get(4).getType());
+        assertEquals(1, variants.get(4).getLength().intValue());
     }
 
     @Test

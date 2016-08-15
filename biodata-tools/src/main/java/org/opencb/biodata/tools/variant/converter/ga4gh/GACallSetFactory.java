@@ -17,35 +17,26 @@
 package org.opencb.biodata.tools.variant.converter.ga4gh;
 
 import org.ga4gh.models.CallSet;
+import org.opencb.biodata.tools.ga4gh.AvroGa4GhVariantFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 /**
  *
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
-public class GACallSetFactory {
-    
+@Deprecated
+public class GACallSetFactory extends Ga4ghCallSetConverter<CallSet> {
+
+    public GACallSetFactory() {
+        super(new AvroGa4GhVariantFactory());
+    }
+
+    /**
+     * @deprecated Use {@link #convert(List, List)} instead
+     */
+    @Deprecated
     public static List<CallSet> create(List<String> variantSetNames, List<List<String>> callSets) {
-        List<CallSet> sets = new ArrayList<>();
-
-        Iterator<String> variantSetNamesIterator = variantSetNames.iterator();
-        Iterator<List<String>> callSetsIterator = callSets.iterator();
-
-        while (variantSetNamesIterator.hasNext() && callSetsIterator.hasNext()) {
-            String fileName = variantSetNamesIterator.next();
-            List<String> callsInFile = callSetsIterator.next();
-            // Add all samples in the file
-            for (String callName : callsInFile) {
-                CallSet callset = new CallSet(callName, callName, callName, new ArrayList<>(Arrays.asList(fileName)),
-                        System.currentTimeMillis(), System.currentTimeMillis(), null);
-                sets.add(callset);
-            }
-        }
-
-        return sets;
+        return new GACallSetFactory().convert(variantSetNames, callSets);
     }
 }
