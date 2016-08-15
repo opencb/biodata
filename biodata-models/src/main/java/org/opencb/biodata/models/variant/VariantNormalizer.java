@@ -337,13 +337,11 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                 keyFields = createVariantsFromNoEmptyRefAlt(position, reference, currentAlternate);
             }
             if (keyFields != null) {
-                if (decomposeMNVs
-                        && ((keyFields.getReference().length() > 1 && keyFields.getAlternate().length() > 1)
-                        || ((
-                        (keyFields.getReference().length() > 1 && keyFields.getAlternate().length() == 1) // To deal with cases such as A>GT
-                                || (keyFields.getAlternate().length() > 1 && keyFields.getReference().length() == 1)
-                        // After left and right trimming, first character of reference and alternate must be different.
-                ) /*&& keyFieldsList.getReference().charAt(0) != keyFieldsList.getAlternate().charAt(0)*/))) {
+
+                // To deal with cases such as A>GT
+                boolean isMnv = (keyFields.getReference().length() > 1 && keyFields.getAlternate().length() >= 1)
+                        || (keyFields.getAlternate().length() > 1 && keyFields.getReference().length() >= 1);
+                if (decomposeMNVs && isMnv) {
                     for (VariantKeyFields keyFields1 : decomposeMNVSingleVariants(keyFields)) {
                         keyFields1.numAllele = numAllelesIdx;
                         keyFields1.phaseSet = chromosome + ":" + position + ":" + reference + ":" + currentAlternate;
@@ -378,7 +376,8 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         for (int i = 0; i < list.size(); i++) {
             //Don't use iterators to avoid concurrent modification exceptions
             VariantKeyFields current = list.get(i);
-            if (current.isReferenceBlock()) {
+            boolean isFinished = false;
+            while (current.isReferenceBlock() && !isFinished) {
                 VariantKeyFields newSlice = null;
                 for (VariantKeyFields aux : list) {
                     if (aux == current) {
@@ -445,8 +444,8 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                                 current.setEnd(aux.getStart() - 1);
                                 if (current.getEnd() < current.getStart()) {
                                     list.remove(i--);
-                                    break;
                                 }
+                                break;
                             } // else, will be fixed later
 
                         }   /* else, nothing to do
@@ -458,6 +457,8 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                 }
                 if (newSlice != null) {
                     list.add(newSlice);
+                } else {
+                    isFinished = true;
                 }
             }
         }
@@ -993,6 +994,8 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         }
         return newSampleData;
     }
+
+
 
 
     public static class VariantKeyFields {
