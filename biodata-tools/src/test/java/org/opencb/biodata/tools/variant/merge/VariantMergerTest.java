@@ -183,6 +183,25 @@ public class VariantMergerTest {
     }
 
     @Test
+    public void testMergeIndelCase1() throws NonStandardCompliantSampleField {
+        Variant v1 = new Variant("1:328:CTT:C");
+        v1 = VariantTestUtils.generateVariant(v1, v1.getType(),
+                Arrays.asList(VCFConstants.GENOTYPE_KEY, VCFConstants.GENOTYPE_FILTER_KEY),
+                Arrays.asList("S1"), Collections.singletonList(Arrays.asList("1/2","PASS")), Collections.emptyMap());
+        v1.getStudies().get(0).getSecondaryAlternates().add(new AlternateCoordinate(null,null,331,"CTT", "CTTTC", VariantType.INDEL));
+
+        Variant v2 = new Variant("1:331:T:TCT");
+        v2 = VariantTestUtils.generateVariant(v2, v2.getType(),
+                Arrays.asList(VCFConstants.GENOTYPE_KEY, VCFConstants.GENOTYPE_FILTER_KEY),
+                Arrays.asList("S1"), Collections.singletonList(Arrays.asList("0/1","PASS")), Collections.emptyMap());
+
+
+        List<Variant> variants = new VariantNormalizer().normalize(Arrays.asList(v1, v2), false);
+        variants.forEach(v -> System.out.println(v.toJson()));
+        assertEquals(3, variants.size());
+    }
+
+    @Test
     public void testMergeIndelOverlapping() throws NonStandardCompliantSampleField {
         thrown.expect(IllegalStateException.class);
         Variant v1 = new Variant("1:10:TACACACACAC:TACACAC");
