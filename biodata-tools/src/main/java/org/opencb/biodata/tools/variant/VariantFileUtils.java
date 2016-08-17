@@ -18,6 +18,8 @@ import java.util.Objects;
  */
 public class VariantFileUtils {
 
+    public static final String VARIANT_FILE_HEADER = "variantFileHeader";
+
     /**
      * Reads the VariantSource from a Vcf file given a file Path
      *
@@ -50,7 +52,7 @@ public class VariantFileUtils {
             reader.pre();
 
             String variantFileHeader = reader.getHeader();
-            source.addMetadata("variantFileHeader", variantFileHeader);
+            source.addMetadata(VARIANT_FILE_HEADER, variantFileHeader);
             if (source.getHeader() == null) {
                 VCFHeader header = VariantFileMetadataToVCFHeaderConverter.parseVcfHeader(variantFileHeader);
                 source.setHeader(new VCFHeaderToAvroVcfHeaderConverter().convert(header));
