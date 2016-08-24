@@ -279,12 +279,22 @@ public class VariantMerger {
         return idx;
     }
 
-    protected void validateAlternate(AlternateCoordinate alt) throws IllegalStateException {
-        if (alt.getChromosome() == null) throw new IllegalStateException("Chromosome of alt is null: " + alt);
-        if (alt.getStart() == null) throw new IllegalStateException("Start of alt is null: " + alt);
-        if (alt.getEnd() == null) throw new IllegalStateException("End of alt is null: " + alt);
-        if (alt.getReference() == null) throw new IllegalStateException("Reference of alt is null: " + alt);
-        if (alt.getAlternate() == null) throw new IllegalStateException("Alternate of alt is null: " + alt);
+    protected void validateAlternate(AlternateCoordinate alt) {
+        if (alt.getChromosome() == null) {
+            throw new IllegalStateException("Chromosome of alt is null: " + alt);
+        }
+        if (alt.getStart() == null) {
+            throw new IllegalStateException("Start of alt is null: " + alt);
+        }
+        if (alt.getEnd() == null) {
+            throw new IllegalStateException("End of alt is null: " + alt);
+        }
+        if (alt.getReference() == null) {
+            throw new IllegalStateException("Reference of alt is null: " + alt);
+        }
+        if (alt.getAlternate() == null) {
+            throw new IllegalStateException("Alternate of alt is null: " + alt);
+        }
     }
 
     protected boolean equals(AlternateCoordinate alt1, AlternateCoordinate alt2) {
@@ -322,7 +332,24 @@ public class VariantMerger {
         }
         StudyEntry se = getStudy(variant);
         if(se.getSecondaryAlternates() != null){
-            alternates.addAll(se.getSecondaryAlternates());
+            for (AlternateCoordinate alt : se.getSecondaryAlternates()) {
+                if (alt.getChromosome() == null) {
+                    alt.setChromosome(variant.getChromosome());
+                }
+                if (alt.getStart() == null) {
+                    alt.setStart(variant.getStart());
+                }
+                if (alt.getEnd() == null) {
+                    alt.setEnd(variant.getEnd());
+                }
+                if (alt.getReference() == null) {
+                    alt.setReference(variant.getReference());
+                }
+                if (alt.getAlternate() == null) {
+                    alt.setAlternate(variant.getAlternate());
+                }
+                alternates.add(alt);
+            }
         }
         return alternates;
     }
