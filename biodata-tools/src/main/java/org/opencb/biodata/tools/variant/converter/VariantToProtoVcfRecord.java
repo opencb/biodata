@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
  */
 public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
 
+    public static final String EMPTY_SECONDARY_REFERENCE = "-";
     private VcfSliceProtos.Fields fields;
 
     private final Map<String, Integer> formatIndexMap = new HashMap<>();
@@ -59,6 +60,10 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
      */
     public VariantToProtoVcfRecord() {
         // do nothing
+    }
+
+    public VariantToProtoVcfRecord(VcfSliceProtos.Fields fields) {
+        init(fields);
     }
 
     private void init(VcfSliceProtos.Fields fields) {
@@ -124,13 +129,22 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
         List<AlternateCoordinate> secondaryAlternates = study.getSecondaryAlternates();
         if (secondaryAlternates != null) {
             for (AlternateCoordinate alternate : secondaryAlternates) {
+                String secAltRef;
+                if (alternate.getReference() == null) {
+                    secAltRef = "";
+                } else if (alternate.getReference().isEmpty()) {
+                    secAltRef = EMPTY_SECONDARY_REFERENCE;
+                } else {
+                    secAltRef = alternate.getReference();
+                }
+                String secAltAlt = alternate.getAlternate() == null ? "" : alternate.getAlternate();
                 recordBuilder.addSecondaryAlternates(VariantProto.AlternateCoordinate
                         .newBuilder()
                         .setChromosome(alternate.getChromosome() != null ? alternate.getChromosome() : "")
                         .setStart(alternate.getStart() != null ? alternate.getStart() : 0)
                         .setEnd(alternate.getEnd() != null ? alternate.getEnd() : 0)
-                        .setReference(alternate.getReference() == null ? "" : (alternate.getReference().isEmpty() ? "-" : alternate.getReference()))
-                        .setAlternate(alternate.getAlternate() == null ? "" : alternate.getAlternate())
+                        .setReference(secAltRef)
+                        .setAlternate(secAltAlt)
                         .setType(getProtoVariantType(alternate.getType()))
                         .build());
 

@@ -11,6 +11,8 @@ import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
 
 import java.util.*;
 
+import static org.opencb.biodata.tools.variant.converter.VariantToProtoVcfRecord.EMPTY_SECONDARY_REFERENCE;
+
 /**
  * Created on 05/11/15
  *
@@ -205,11 +207,19 @@ public class VcfRecordToVariantConverter implements Converter<VcfSliceProtos.Vcf
         List<AlternateCoordinate> alternateCoordinates = new ArrayList<>(alts.size());
         if (!alts.isEmpty()) {
             for (VariantProto.AlternateCoordinate alt : alts) {
+                String secAltRef;
+                if (alt.getReference().isEmpty()) {
+                    secAltRef = null;
+                } else if (alt.getReference().equals(EMPTY_SECONDARY_REFERENCE)) {
+                    secAltRef = "";
+                } else {
+                    secAltRef = alt.getReference();
+                }
                 AlternateCoordinate alternateCoordinate = new AlternateCoordinate(
                         alt.getChromosome().isEmpty() ? null : alt.getChromosome(),
                         alt.getStart() == 0 ? null : alt.getStart(),
                         alt.getEnd() == 0 ? null : alt.getEnd(),
-                        alt.getReference().isEmpty() ? null : (alt.getReference().equals("-") ? "" : alt.getReference()),
+                        secAltRef,
                         alt.getAlternate(),
                         getVariantType(alt.getType()));
                 alternateCoordinates.add(alternateCoordinate);
