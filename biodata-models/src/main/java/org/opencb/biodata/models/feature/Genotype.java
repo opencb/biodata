@@ -338,12 +338,6 @@ public class Genotype {
     public static List<Genotype> parse(String currGT) {
         if (StringUtils.isBlank(currGT))
             return Collections.emptyList();
-        String[] gtArr = currGT.split(",");
-        ArrayList<Genotype> gts = new ArrayList<>(gtArr.length);
-        for (int i = 0; i < gtArr.length; i++) {
-            Genotype gtObject = new Genotype(gtArr[i]);
-            gts.add(gtObject);
-        }
-        return gts;
+        return Arrays.stream(currGT.split(",")).map(g -> new Genotype(g)).collect(Collectors.toList());
     }
 }

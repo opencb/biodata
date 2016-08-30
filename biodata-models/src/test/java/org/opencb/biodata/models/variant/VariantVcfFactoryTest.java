@@ -73,7 +73,7 @@ public class VariantVcfFactoryTest {
         String line = "1\t1000\t.\t.\tTGACGC\t.\t.\t.";
 
         List<Variant> expResult = new LinkedList<>();
-        expResult.add(new Variant("1", 1000, 1000 + "TGACGC".length() - 1, "", "TGACGC"));
+        expResult.add(new Variant("1", 1000, 1000 - 1, "", "TGACGC"));
 
         List<Variant> result = factory.create(source, line);
         result.stream().forEach(variant -> variant.setStudies(Collections.<StudyEntry>emptyList()));
@@ -106,21 +106,21 @@ public class VariantVcfFactoryTest {
 
         line = "1\t1000\t.\t.\tATC\t.\t.\t.";
         expResult = new LinkedList<>();
-        expResult.add(new Variant("1", 1000, 1002, "", "ATC"));
+        expResult.add(new Variant("1", 1000, 999, "", "ATC"));
         result = factory.create(source, line);
         result.stream().forEach(variant -> variant.setStudies(Collections.<StudyEntry>emptyList()));
         assertEquals(expResult, result);
 
         line = "1\t1000\t.\tA\tATC\t.\t.\t.";
         expResult = new LinkedList<>();
-        expResult.add(new Variant("1", 1001, 1002, "", "TC"));
+        expResult.add(new Variant("1", 1001, 1000, "", "TC"));
         result = factory.create(source, line);
         result.stream().forEach(variant -> variant.setStudies(Collections.<StudyEntry>emptyList()));
         assertEquals(expResult, result);
 
         line = "1\t1000\t.\tAC\tACT\t.\t.\t.";
         expResult = new LinkedList<>();
-        expResult.add(new Variant("1", 1002, 1002, "", "T"));
+        expResult.add(new Variant("1", 1002, 1001, "", "T"));
         result = factory.create(source, line);
         result.stream().forEach(variant -> variant.setStudies(Collections.<StudyEntry>emptyList()));
         assertEquals(expResult, result);
@@ -149,7 +149,7 @@ public class VariantVcfFactoryTest {
 
         line = "1\t1000\t.\tAC\tATC\t.\t.\t.";
         expResult = new LinkedList<>();
-        expResult.add(new Variant("1", 1001, 1001, "", "T"));
+        expResult.add(new Variant("1", 1001, 1000, "", "T"));
         result = factory.create(source, line);
         result.stream().forEach(variant -> variant.setStudies(Collections.<StudyEntry>emptyList()));
         assertEquals(expResult, result);
