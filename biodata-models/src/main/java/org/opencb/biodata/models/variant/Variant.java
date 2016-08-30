@@ -264,9 +264,17 @@ public class Variant implements Serializable {
         }
         // Replace "chr" references only at the beginning of the chromosome name
         // For instance, tomato has SL2.40ch00 and that should be kept that way
-        if (chromosome.startsWith("chrom") || chromosome.startsWith("chrm")
-                || chromosome.startsWith("chr") || chromosome.startsWith("ch")) {
-            impl.setChromosome(chromosome.replaceFirst("chrom|chrm|chr|ch", ""));
+        if (chromosome.startsWith("ch")) {
+            if (chromosome.startsWith("chrom")) {
+                impl.setChromosome(chromosome.substring(5));
+            } else if (chromosome.startsWith("chrm")) {
+                impl.setChromosome(chromosome.substring(4));
+            } else if (chromosome.startsWith("chr")) {
+                impl.setChromosome(chromosome.substring(3));
+            } else {
+                // Only starts with ch
+                impl.setChromosome(chromosome.substring(2));
+            }
         } else {
             impl.setChromosome(chromosome);
         }
