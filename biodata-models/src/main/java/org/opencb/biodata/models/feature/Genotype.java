@@ -16,16 +16,16 @@
 
 package org.opencb.biodata.models.feature;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype.Builder;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype.Builder;
 
 /**
  * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
@@ -43,7 +43,7 @@ public class Genotype {
     private List<String> alternates;
     private int[] allelesIdx;
     private boolean phased;
-    
+
     private AllelesCode code;
     
     private int count;
@@ -57,7 +57,7 @@ public class Genotype {
     }
     
     public Genotype(String genotype, String ref, String alt) {
-        this(genotype, ref, Collections.singletonList(alt));
+        this(genotype, ref, Arrays.asList(alt.split(",")));
     }
 
     public Genotype(String genotype, String ref, List<String> alternates) {
@@ -77,21 +77,44 @@ public class Genotype {
     }
 
     private void parseGenotype(String genotype) {
-        String[] alleles = genotypePattern.split(genotype, -1);
-        
-        this.code = alleles.length > 1 ? AllelesCode.ALLELES_OK : AllelesCode.HAPLOID;
-        this.allelesIdx = new int[alleles.length];
-        
-        for (int i = 0; i < alleles.length; i++) {
-            String allele = alleles[i];
-            
+        int allelesLength;
+        /*REGEX*/
+//        List<String> alleles = Arrays.asList(genotypePattern.split(genotype, -1));
+
+        /*CUSTOM PARSER*/
+        ArrayList<String> alleles = new ArrayList<>(2);
+        int lastIdx = 0;
+
+        for (int i = 0; i < genotype.length(); i++) {
+            char c = genotype.charAt(i);
+            if (c == '/' || c == '|') {
+                alleles.add(genotype.substring(lastIdx, i));
+                lastIdx = i + 1;
+            }
+        }
+        if (lastIdx != genotype.length() + 1) {
+            alleles.add(genotype.substring(lastIdx));
+        }
+
+
+
+        allelesLength = alleles.size();
+        this.code = AllelesCode.ALLELES_OK;
+        this.allelesIdx = new int[allelesLength];
+
+        for (int i = 0, allelesSize = allelesLength; i < allelesSize; i++) {
+            String allele = alleles.get(i);
+//            String allele = alleles[i];
+
             if (allele.equals(".") || allele.equals("-1")) {
                 this.code = AllelesCode.ALLELES_MISSING;
                 this.allelesIdx[i] = -1;
             } else {
-                if (StringUtils.isNumeric(allele)) { // Accepts genotypes with form 0/0, 0/1, and so on
+                char ch;
+                if (allele.length() == 1 && ((ch = allele.charAt(0)) >= '0' && ch <= '9')) {
+                    this.allelesIdx[i] = ch - '0';
+                } else if (StringUtils.isNumeric(allele)) { // Accepts genotypes with form 0/0, 0/1, and so on
                     this.allelesIdx[i] = Integer.parseInt(allele);
-                    
                 } else { // Accepts genotypes with form A/A, A/T, and so on
                     if (allele.equalsIgnoreCase(reference)) {
                         this.allelesIdx[i] = 0;
@@ -112,7 +135,7 @@ public class Genotype {
                         }
                     }
                 }
-                
+
                 if (allelesIdx[i] > 1) {
                     this.code = AllelesCode.MULTIPLE_ALTERNATES;
                 }
@@ -151,6 +174,14 @@ public class Genotype {
     
     public int[] getAllelesIdx() {
         return allelesIdx;
+    }
+
+    public int getPloidy() {
+        return allelesIdx.length;
+    }
+
+    public boolean isHaploid() {
+        return getPloidy() == 1;
     }
 
     public void updateAlleleIdx(int idx, int allele){
@@ -302,5 +333,11 @@ public class Genotype {
         pb.setPhased(this.phased);
         pb.setCode(org.opencb.biodata.models.variant.protobuf.VariantProto.AllelesCode.valueOf(this.code.name()));
         return pb.build();
+    }
+
+    public static List<Genotype> parse(String currGT) {
+        if (StringUtils.isBlank(currGT))
+            return Collections.emptyList();
+        return Arrays.stream(currGT.split(",")).map(g -> new Genotype(g)).collect(Collectors.toList());
     }
 }

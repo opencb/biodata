@@ -22,6 +22,7 @@ import org.opencb.biodata.formats.variant.io.VariantReader;
 import org.opencb.biodata.formats.variant.io.VariantWriter;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantSource;
+import org.opencb.biodata.tools.variant.VariantFileUtils;
 import org.opencb.commons.run.Runner;
 import org.opencb.commons.run.Task;
 /**
@@ -65,7 +66,7 @@ public class VariantRunner extends Runner<Variant> {
     @Override
     protected void readerInit() {
         super.readerInit();
-        source.addMetadata("variantFileHeader", ((VariantReader) reader).getHeader());
+        source.addMetadata(VariantFileUtils.VARIANT_FILE_HEADER, ((VariantReader) reader).getHeader());
     }
 
 }

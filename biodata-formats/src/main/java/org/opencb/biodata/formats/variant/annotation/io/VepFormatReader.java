@@ -53,6 +53,9 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
     private String filename;
     private String currentVariantString = "";
     private VariantAnnotation currentAnnotation = null;
+
+    private static final String CNV_PATTERN = "CN([0123456789]+)";
+
     public VepFormatReader(String filename) { this.filename = filename; }
 
     @Override
@@ -106,7 +109,7 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
                 ConsequenceType consequenceType = new ConsequenceType();
                 String[] lineFields = line.split("\t");
                 // strings representing the current and the read are compared
-                if (!currentVariantString.equals(lineFields[0])) {
+                if (!currentVariantString.equals(lineFields[0] + ":" + lineFields[1] + ":" + lineFields[2])) {
                     noNewVariantFound = (currentAnnotation==null);  // currentAnnotation==null only in the first iteration.
                     variantAnnotationToReturn = currentAnnotation;
                     Map<String,String> variantMap = parseVariant(lineFields[0], lineFields[1], lineFields[2]);  // coordinates and alternative are only parsed once
@@ -133,7 +136,7 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
                     /**
                      * Save the string representing coordinates and
                      */
-                    currentVariantString = lineFields[0];
+                    currentVariantString = lineFields[0] + ":" + lineFields[1] + ":" + lineFields[2];
 
                     /**
                      * parses extra column and populates fields as required. Some lines do not have extra field and end with a \t: the split function above does not return that field
@@ -406,6 +409,7 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
             parseVariantFromOtherFields(parsedVariant, variantLocationFields, alternate);
         } else {
             parseVariantFromIdField(parsedVariant, variantIdFields);
+            parsedVariant.put("alternative", alternate);
         }
 
         return parsedVariant;
@@ -420,14 +424,22 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
             // Reference sequence does not appear in VEP file - fill with Ns
             parsedVariant.put("reference", StringUtils.repeat("N", Integer.valueOf(parsedVariant.get("end"))
                     - Integer.valueOf(parsedVariant.get("start")) + 1));
+            parsedVariant.put("alternative", alternate);
+        // CNV
+        } else if (alternate.matches(CNV_PATTERN)) {
+            parsedVariant.put("start", variantLocationFields[1]);
+            parsedVariant.put("reference", "N");
+            parsedVariant.put("alternative", "<" + alternate + ">");
         // Insertion
         } else if (variantLocationFields.length > 2 || alternate.length() > 1) {
             parsedVariant.put("start", variantLocationFields[variantLocationFields.length == 3 ? 2 : 1]);
             parsedVariant.put("reference", "-");
+            parsedVariant.put("alternative", alternate);
         // SNV. Reference nucleotide does not appear in VEP file - fill with N
         } else {
             parsedVariant.put("start", variantLocationFields[1]);
             parsedVariant.put("reference", "N");
+            parsedVariant.put("alternative", alternate);
         }
     }
 
@@ -448,7 +460,7 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
             }
             parsedVariant.put("start", leftVariantFields[leftVariantFields.length-2]);
             parsedVariant.put("reference", leftVariantFields[leftVariantFields.length-1]);
-            parsedVariant.put("alternative", variantIdFields[1]);
+//            parsedVariant.put("alternative", variantIdFields[1]);
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new IllegalArgumentException("Unexpected variant format for column 1: "+variantIdFields.toString());
         }

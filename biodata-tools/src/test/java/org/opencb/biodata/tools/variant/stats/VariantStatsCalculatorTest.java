@@ -42,8 +42,8 @@ public class VariantStatsCalculatorTest {
         List<String> sampleNames = Arrays.asList("NA001", "NA002", "NA003", "NA004", "NA005", "NA006");
         source.setSamples(sampleNames);
         String line = "1\t10040\trs123\tT\tC\t10.05\tHELLO\t.\tGT:GL\t"
-                + "0/0:1,2,3,4,5,6,7,8,9,10\t0/1:1,2,3,4,5,6,7,8,9,10\t0/1:1,2,3,4,5,6,7,8,9,10\t"
-                + "1/1:1,2,3,4,5,6,7,8,9,10\t./.:1,2,3,4,5,6,7,8,9,10\t1/1:1,2,3,4,5,6,7,8,9,10"; // 6 samples
+                + "0/0:1,2,3\t0/1:1,2,3\t0/1:1,2,3\t"
+                + "1/1:1,2,3\t./.:1,2,3\t1/1:1,2,3"; // 6 samples
 
         // Initialize expected variants
         List<Variant> result = new VariantVcfFactory().create(source, line);
@@ -53,7 +53,7 @@ public class VariantStatsCalculatorTest {
         StudyEntry sourceEntry = variant.getSourceEntry(source.getFileId(), source.getStudyId());
         
         VariantStats biallelicStats = new VariantStats(result.get(0));
-        VariantStatsCalculator.calculate(sourceEntry.getSamplesDataAsMap(), sourceEntry.getAttributes(), null, biallelicStats);
+        VariantStatsCalculator.calculate(sourceEntry, sourceEntry.getAttributes(), null, biallelicStats);
         
         assertEquals("T", biallelicStats.getRefAllele());
         assertEquals("C", biallelicStats.getAltAllele());
@@ -98,8 +98,8 @@ public class VariantStatsCalculatorTest {
         List<String> sampleNames = Arrays.asList("NA001", "NA002", "NA003", "NA004", "NA005", "NA006");
         source.setSamples(sampleNames);
         String line = "1\t10040\trs123\tT\tA,GC\t.\tPASS\t.\tGT:GL\t"
-                + "0/0:1,2,3,4,5,6,7,8,9,10\t0/1:1,2,3,4,5,6,7,8,9,10\t0/2:1,2,3,4,5,6,7,8,9,10\t"
-                + "1/1:1,2,3,4,5,6,7,8,9,10\t1/2:1,2,3,4,5,6,7,8,9,10\t2/2:1,2,3,4,5,6,7,8,9,10"; // 6 samples
+                + "0/0:1,2,3,4,5,6\t0/1:1,2,3,4,5,6\t0/2:1,2,3,4,5,6\t"
+                + "1/1:1,2,3,4,5,6\t1/2:1,2,3,4,5,6\t2/2:1,2,3,4,5,6"; // 6 samples
 
         // Initialize expected variants
         List<Variant> result = new VariantVcfFactory().create(source, line);
@@ -109,7 +109,7 @@ public class VariantStatsCalculatorTest {
         Variant variant_C = result.get(0);
         StudyEntry sourceEntry_C = variant_C.getSourceEntry(source.getFileId(), source.getStudyId());
         VariantStats multiallelicStats_C = new VariantStats(result.get(0));
-        VariantStatsCalculator.calculate(sourceEntry_C.getSamplesDataAsMap(), sourceEntry_C.getAttributes(), null, multiallelicStats_C);
+        VariantStatsCalculator.calculate(sourceEntry_C, sourceEntry_C.getAttributes(), null, multiallelicStats_C);
         
         assertEquals("T", multiallelicStats_C.getRefAllele());
         assertEquals("A", multiallelicStats_C.getAltAllele());
@@ -151,7 +151,7 @@ public class VariantStatsCalculatorTest {
         Variant variant_GC = result.get(1);
         StudyEntry sourceEntry_GC = variant_GC.getSourceEntry(source.getFileId(), source.getStudyId());
         VariantStats multiallelicStats_GC = new VariantStats(result.get(1));
-        VariantStatsCalculator.calculate(sourceEntry_GC.getSamplesDataAsMap(), sourceEntry_GC.getAttributes(), null, multiallelicStats_GC);
+        VariantStatsCalculator.calculate(sourceEntry_GC, sourceEntry_GC.getAttributes(), null, multiallelicStats_GC);
         
     }
     

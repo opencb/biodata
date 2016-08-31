@@ -70,14 +70,18 @@ public class VariantSourceStats {
     public void updateFileStats(List<Variant> variants) {
         int incompleteVariantStats = 0;
         for (Variant v : variants) {
-            StudyEntry file = v.getStudy(studyId);
-            if (file == null) {
+            StudyEntry studyEntry = v.getStudy(studyId);
+            if (studyEntry == null) {
                 // The variant is not contained in this file
                 continue;
             }
             try {
-                fileStats.update(file.getStats(StudyEntry.DEFAULT_COHORT));
+                VariantStats stats = studyEntry.getStats(StudyEntry.DEFAULT_COHORT);
+                if (stats != null) {
+                    fileStats.update(stats);
+                }
             } catch (NullPointerException e) {
+                e.printStackTrace();
                 incompleteVariantStats++;
             }
         }
@@ -131,7 +135,7 @@ public class VariantSourceStats {
 //                }
                 
                 // Count homozygous (not haploid)
-                if (g.getCode() != AllelesCode.HAPLOID && g.getAllele(0) == g.getAllele(1)) {
+                if (!g.isHaploid() && g.getAllele(0) == g.getAllele(1)) {
                     sampleStats.incrementHomozygous();
                 }
             }

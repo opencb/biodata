@@ -31,9 +31,14 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.file.Files;
+import java.nio.file.OpenOption;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
+
+import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 
 /**
  * Created by fjlopez on 01/04/15.
@@ -45,6 +50,7 @@ public class JsonAnnotationWriter implements DataWriter<Variant> {
     private BufferedWriter bw;
     private int writtenVariantAnnotations = 0;
     private Logger logger;
+    private OpenOption[] openMode;
 
     private ObjectWriter jsonObjectWriter;
 
@@ -53,14 +59,19 @@ public class JsonAnnotationWriter implements DataWriter<Variant> {
     }
 
     public JsonAnnotationWriter(String filename) {
+        this(filename, CREATE, TRUNCATE_EXISTING);
+    }
+
+    public JsonAnnotationWriter(String filename, OpenOption... openMode) {
         logger = LoggerFactory.getLogger(this.getClass());
         this.filename = filename;
+        this.openMode = openMode;
     }
 
     @Override
     public boolean open() {
         try {
-            OutputStream os = Files.newOutputStream(Paths.get(filename));
+            OutputStream os = Files.newOutputStream(Paths.get(filename), openMode);
             if (filename.endsWith(".gz") || filename.endsWith(".gzip")) {
                 os = new GZIPOutputStream(os);
             }
@@ -95,6 +106,7 @@ public class JsonAnnotationWriter implements DataWriter<Variant> {
 
     @Override
     public boolean post() {
+        logger.info("{} written annotations.", writtenVariantAnnotations);
         return true;
     }
 
@@ -102,6 +114,7 @@ public class JsonAnnotationWriter implements DataWriter<Variant> {
     public boolean write(Variant variant) {
         try {
             bw.write(jsonObjectWriter.writeValueAsString(variant)+"\n");
+//            writtenVariantAnnotations++;
         } catch (IOException e) {
             e.printStackTrace();
         }

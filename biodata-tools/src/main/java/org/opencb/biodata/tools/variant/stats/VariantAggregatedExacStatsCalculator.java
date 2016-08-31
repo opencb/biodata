@@ -62,7 +62,7 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
     }
 
     @Override
-    protected void parseStats(Variant variant, StudyEntry source, int numAllele, String[] alternateAlleles, Map<String, String> info) {
+    protected void parseStats(Variant variant, StudyEntry source, int numAllele, String reference, String[] alternateAlleles, Map<String, String> info) {
         StudyEntry sourceEntry = variant.getSourceEntry(source.getFileId(), source.getStudyId());
         VariantStats stats = new VariantStats(variant);
 
@@ -102,7 +102,7 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
     }
 
     @Override
-    protected void parseMappedStats(Variant variant, StudyEntry sourceEntry, int numAllele, String[] alternateAlleles, Map<String, String> info) {
+    protected void parseMappedStats(Variant variant, StudyEntry sourceEntry, int numAllele, String reference, String[] alternateAlleles, Map<String, String> info) {
         Map<String, Integer> ans = new LinkedHashMap<>();
         Map<String, String[]> acs = new LinkedHashMap<>();
         for (Map.Entry<String, String> infoElem : info.entrySet()) {

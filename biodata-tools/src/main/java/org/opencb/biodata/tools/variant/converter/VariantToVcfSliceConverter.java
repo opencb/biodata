@@ -18,10 +18,7 @@ import java.util.stream.Collectors;
  */
 public class VariantToVcfSliceConverter implements Converter<List<Variant>, VcfSliceProtos.VcfSlice> {
 
-    private final VariantToProtoVcfRecord converter;
-
     public VariantToVcfSliceConverter() {
-        converter = new VariantToProtoVcfRecord();
     }
 
     public VcfSliceProtos.VcfSlice convert(Variant variant) {
@@ -43,7 +40,8 @@ public class VariantToVcfSliceConverter implements Converter<List<Variant>, VcfS
 
         String chromosome = variants.isEmpty() ? "" : variants.get(0).getChromosome();
 
-        converter.updateMeta(fields);
+        VariantToProtoVcfRecord converter = new VariantToProtoVcfRecord(fields);
+
         List<VcfSliceProtos.VcfRecord> vcfRecords = new ArrayList<>(variants.size());
         for (Variant variant : variants) {
             vcfRecords.add(converter.convertUsingSlicePosition(variant, slicePosition));

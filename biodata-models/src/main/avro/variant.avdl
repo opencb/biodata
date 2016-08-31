@@ -76,8 +76,8 @@ protocol Variants {
         union { null, float } controlsPercentRecessive;
         union { null, float } quality;
         union { null, int } numSamples;
-        VariantType variantType;
-        VariantHardyWeinbergStats hw;
+        union { null, VariantType} variantType = null;
+        union { null, VariantHardyWeinbergStats} hw = null;
     }
 
     record VariantGlobalStats {
@@ -126,12 +126,24 @@ protocol Variants {
 
         union { null, string } chromosome;
 
+        /**
+         * First position 1-based of the alternate. If null, the start is the same of the variant.
+         */
         union { null, int } start;
 
+        /**
+         * End position 1-based of the alternate. If null, the end is the same of the variant.
+         */
         union { null, int } end;
 
+        /**
+         * Reference allele. If null, the reference is the same of the variant.
+         */
         union { null, string } reference;
 
+        /**
+         * Alternate allele.
+         */
         string alternate;
 
         VariantType type;
@@ -178,6 +190,27 @@ protocol Variants {
         string alternate;
         array<int> allelesIdx =[];
         boolean phased;
+    }
+
+//    /**
+//     * Confidence interval around a position for imprecise variants
+//     */
+//    record ConfidenceInterval {
+//       int right;
+////       int behind;
+//       int left;
+////       int forward;
+//    }
+
+    record StructuralVariation {
+        int ciStartLeft = 0;
+        int ciStartRight = 0;
+        int ciEndLeft = 0;
+        int ciEndRight = 0;
+        /**
+         * Number of copies for CNV variants.
+         */
+        union {null, int} copyNumber;
     }
 
     record VariantAvro {
@@ -234,7 +267,12 @@ protocol Variants {
         /**
          * Reference strand for this variant
          */
-        union { null, string } strand;
+        union { null, string } strand = null;
+
+        /**
+         * Information regarding Structural Variants
+         */
+        union { null, StructuralVariation } sv = null;
 
         /**
          * Length of the genomic variation, which depends on the variation type.
@@ -253,7 +291,7 @@ protocol Variants {
         /**
          * Unique identifier following the HGVS nomenclature.
          */
-        union { null, map<array<string>> } hgvs;
+        union { null, map<array<string>> } hgvs = null;
 
         /**
          * Information specific to each study the variant was read from, such as
@@ -264,7 +302,7 @@ protocol Variants {
         /**
          * Annotations of the genomic variation.
          */
-        union { null, VariantAnnotation } annotation;
+        union { null, VariantAnnotation } annotation = null;
     }
 
     // delete

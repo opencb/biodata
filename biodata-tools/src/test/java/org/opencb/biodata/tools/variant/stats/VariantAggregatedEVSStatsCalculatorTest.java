@@ -57,7 +57,7 @@ public class VariantAggregatedEVSStatsCalculatorTest extends GenericTest {
         genotypes.put(new Genotype("0/1", "T", "G"), 141);
         genotypes.put(new Genotype("1/1", "T", "G"), 93);
 
-        assertEquals(avf.getStats(StudyEntry.DEFAULT_COHORT).getGenotypesCount(), genotypes);
+        assertEquals(genotypes, avf.getStats(StudyEntry.DEFAULT_COHORT).getGenotypesCount());
 
     }
 
@@ -76,10 +76,10 @@ public class VariantAggregatedEVSStatsCalculatorTest extends GenericTest {
 
         Map<Genotype, Integer> genotypes = new HashMap<>();
 
-        genotypes.put(new Genotype("0/0", "T", "A"), 2442);
-        genotypes.put(new Genotype("1/1", "T", "A"), 1);
+        genotypes.put(new Genotype("0", "T", "A"), 2442);
+        genotypes.put(new Genotype("1", "T", "A"), 1);
 
-        assertEquals(avf.getStats(StudyEntry.DEFAULT_COHORT).getGenotypesCount(), genotypes);
+        assertEquals(genotypes, avf.getStats(StudyEntry.DEFAULT_COHORT).getGenotypesCount());
 
     }
 
@@ -105,7 +105,9 @@ public class VariantAggregatedEVSStatsCalculatorTest extends GenericTest {
 
         genotypes.put(new Genotype("1/1", "G", ""), 1);
         genotypes.put(new Genotype("0/1", "G", ""), 1);
-        genotypes.put(new Genotype("0/0", "G", ""), 6253);
+//        genotypes.put(new Genotype("0/0", "G", ""), 6253);
+        genotypes.put(new Genotype("0/0", "G", ""), 3947);
+        genotypes.put(new Genotype("0", "G", ""), 2306);
 
         assertEquals(avf.getStats(StudyEntry.DEFAULT_COHORT).getGenotypesCount(), genotypes);
 
@@ -132,9 +134,13 @@ public class VariantAggregatedEVSStatsCalculatorTest extends GenericTest {
 
         Map<Genotype, Integer> genotypes = new HashMap<>();
 
-        genotypes.put(new Genotype("1/1", "T", ""), 1697);
+//        genotypes.put(new Genotype("1/1", "T", ""), 1697);
+        genotypes.put(new Genotype("1/1", "T", ""), 960);
+        genotypes.put(new Genotype("1", "T", ""), 737);
         genotypes.put(new Genotype("0/1", "T", ""), 1298);
-        genotypes.put(new Genotype("0/0", "T", ""), 3261);
+//        genotypes.put(new Genotype("0/0", "T", ""), 3261);
+        genotypes.put(new Genotype("0/0", "T", ""), 1691);
+        genotypes.put(new Genotype("0", "T", ""), 1570);
 
         assertEquals(avf.getStats(StudyEntry.DEFAULT_COHORT).getGenotypesCount(), genotypes);
     }
@@ -156,18 +162,24 @@ public class VariantAggregatedEVSStatsCalculatorTest extends GenericTest {
         assertEquals(v.getAlternate(), "A");
 
 
-        StudyEntry avf = v.getSourceEntry(source.getFileId(), source.getStudyId());
+        StudyEntry avf = v.getStudy(source.getStudyId());
 
         Map<Genotype, Integer> genotypes = new HashMap<>();
 
-        genotypes.put(new Genotype("1/1", "", "A"), 162);
-        genotypes.put(new Genotype("1/2", "", "A"), 0);
-        genotypes.put(new Genotype("0/1", "", "A"), 134);
-        genotypes.put(new Genotype("0/0", "", "A"), 5734);
-        genotypes.put(new Genotype("2/2", "", "A"), 111);
-        genotypes.put(new Genotype("0/2", "", "A"), 92);
+//        genotypes.put(new Genotype("1/1", "CA", Arrays.asList("CAA", "C")), 162);
+        genotypes.put(new Genotype("1/1", "CA", Arrays.asList("CAA", "C")), 0);
+        genotypes.put(new Genotype("1", "CA", Arrays.asList("CAA", "C")), 162);
+        genotypes.put(new Genotype("1/2", "CA", Arrays.asList("CAA", "C")), 0);
+        genotypes.put(new Genotype("0/1", "CA", Arrays.asList("CAA", "C")), 134);
+//        genotypes.put(new Genotype("0/0", "CA", Arrays.asList("CAA", "C")), 5734);
+        genotypes.put(new Genotype("0/0", "CA", Arrays.asList("CAA", "C")), 3707);
+        genotypes.put(new Genotype("0", "CA", Arrays.asList("CAA", "C")), 2027);
+//        genotypes.put(new Genotype("2/2", "CA", Arrays.asList("CAA", "C")), 111);
+        genotypes.put(new Genotype("2/2", "CA", Arrays.asList("CAA", "C")), 4);
+        genotypes.put(new Genotype("2", "CA", Arrays.asList("CAA", "C")), 107);
+        genotypes.put(new Genotype("0/2", "CA", Arrays.asList("CAA", "C")), 92);
 
-        assertEquals(avf.getStats(StudyEntry.DEFAULT_COHORT).getGenotypesCount(), genotypes);
+        assertEquals(genotypes, avf.getStats(StudyEntry.DEFAULT_COHORT).getGenotypesCount());
 
 
         v = res.get(1);
@@ -176,18 +188,24 @@ public class VariantAggregatedEVSStatsCalculatorTest extends GenericTest {
         assertEquals(v.getAlternate(), "");
 
 
-        avf = v.getSourceEntry(source.getFileId(), source.getStudyId());
+        avf = v.getStudy(source.getStudyId());
 
         genotypes = new HashMap<>();
 
-        genotypes.put(new Genotype("1/1", "A", ""), 111);
-        genotypes.put(new Genotype("1/2", "A", ""), 0);
-        genotypes.put(new Genotype("0/1", "A", ""), 92);
-        genotypes.put(new Genotype("0/0", "A", ""), 5734);
-        genotypes.put(new Genotype("2/2", "A", ""), 162);
-        genotypes.put(new Genotype("0/2", "A", ""), 134);
+//        genotypes.put(new Genotype("1/1", "CA", Arrays.asList("CAA", "C")), 111);
+        genotypes.put(new Genotype("1/1", "CA", Arrays.asList("CAA", "C")), 4);
+        genotypes.put(new Genotype("1", "CA", Arrays.asList("CAA", "C")), 107);
+        genotypes.put(new Genotype("1/2", "CA", Arrays.asList("CAA", "C")), 0);
+        genotypes.put(new Genotype("0/1", "CA", Arrays.asList("CAA", "C")), 92);
+//        genotypes.put(new Genotype("0/0", "CA", Arrays.asList("CAA", "C")), 5734);
+        genotypes.put(new Genotype("0/0", "CA", Arrays.asList("CAA", "C")), 3707);
+        genotypes.put(new Genotype("0", "CA", Arrays.asList("CAA", "C")), 2027);
+//        genotypes.put(new Genotype("2/2", "CA", Arrays.asList("CAA", "C")), 162);
+        genotypes.put(new Genotype("2/2", "CA", Arrays.asList("CAA", "C")), 0);
+        genotypes.put(new Genotype("2", "CA", Arrays.asList("CAA", "C")), 162);
+        genotypes.put(new Genotype("0/2", "CA", Arrays.asList("CAA", "C")), 134);
 
-        assertEquals(avf.getStats(StudyEntry.DEFAULT_COHORT).getGenotypesCount(), genotypes);
+        assertEquals(genotypes, avf.getStats(StudyEntry.DEFAULT_COHORT).getGenotypesCount());
 
 
     }
@@ -206,7 +224,7 @@ public class VariantAggregatedEVSStatsCalculatorTest extends GenericTest {
         properties.put("AA.GTC", "AA_GTC");
         properties.put("ALL.AC", "TAC");
         properties.put("ALL.GTC", "ALL_GTC");
-        properties.put("GROUPS_ORDER", "EA,AA,ALL");
+        properties.put(VariantAggregatedEVSStatsCalculator.GROUPS_ORDER, "EA,AA,ALL");
         VariantFactory evsFactory = new VariantAggregatedVcfFactory();
 
         List<Variant> res = evsFactory.create(source, line);
@@ -247,7 +265,7 @@ public class VariantAggregatedEVSStatsCalculatorTest extends GenericTest {
         genotypes.add(new Genotype("0/1", "G", "A"));
         genotypes.add(new Genotype("0/0", "G", "A"));
         counts = new ArrayList<>(Arrays.asList(0, 6, 686));
-        genotypesCount = res.get(0).getSourceEntry("EVS", "EVS").getCohortStats("AA").getGenotypesCount();
+        genotypesCount = res.get(0).getStudy("EVS").getStats("AA").getGenotypesCount();
         for (int i = 0; i < genotypes.size(); i++) {
             assertEquals(genotypesCount.get(genotypes.get(i)), counts.get(i));
         }
@@ -266,7 +284,7 @@ public class VariantAggregatedEVSStatsCalculatorTest extends GenericTest {
         properties.put("AA.GTC", "AA_GTC");
         properties.put("ALL.AC", "TAC");
         properties.put("ALL.GTC", "ALL_GTC");
-        properties.put("GROUPS_ORDER", "EA,AA,ALL");
+        properties.put(VariantAggregatedEVSStatsCalculator.GROUPS_ORDER, "EA,AA,ALL");
         VariantFactory evsFactory = new VariantAggregatedVcfFactory();
 
         List<Variant> res = evsFactory.create(source, line);
@@ -274,58 +292,58 @@ public class VariantAggregatedEVSStatsCalculatorTest extends GenericTest {
         calculator.calculate(res);
 
         // testing multiallelic AC 
-        assertEquals(172, res.get(0).getSourceEntry("EVS", "EVS").getCohortStats("AA").getAltAlleleCount().longValue());
-        assertEquals(3174, res.get(0).getSourceEntry("EVS", "EVS").getCohortStats("AA").getRefAlleleCount().longValue());
-        assertEquals(13, res.get(1).getSourceEntry("EVS", "EVS").getCohortStats("AA").getAltAlleleCount().longValue());
-        assertEquals(3174, res.get(1).getSourceEntry("EVS", "EVS").getCohortStats("AA").getRefAlleleCount().longValue());
-        assertEquals(221, res.get(2).getSourceEntry("EVS", "EVS").getCohortStats("AA").getAltAlleleCount().longValue());
-        assertEquals(3174, res.get(2).getSourceEntry("EVS", "EVS").getCohortStats("AA").getRefAlleleCount().longValue());
+        assertEquals(172, res.get(0).getStudy("EVS").getStats("AA").getAltAlleleCount().longValue());
+        assertEquals(3174, res.get(0).getStudy("EVS").getStats("AA").getRefAlleleCount().longValue());
+        assertEquals(13, res.get(1).getStudy("EVS").getStats("AA").getAltAlleleCount().longValue());
+        assertEquals(3174, res.get(1).getStudy("EVS").getStats("AA").getRefAlleleCount().longValue());
+        assertEquals(221, res.get(2).getStudy("EVS").getStats("AA").getAltAlleleCount().longValue());
+        assertEquals(3174, res.get(2).getStudy("EVS").getStats("AA").getRefAlleleCount().longValue());
 
-        assertEquals(565, res.get(0).getSourceEntry("EVS", "EVS").getCohortStats("ALL").getAltAlleleCount().longValue());
-        assertEquals(10035, res.get(0).getSourceEntry("EVS", "EVS").getCohortStats("ALL").getRefAlleleCount().longValue());
-        assertEquals(48, res.get(1).getSourceEntry("EVS", "EVS").getCohortStats("ALL").getAltAlleleCount().longValue());
-        assertEquals(10035, res.get(1).getSourceEntry("EVS", "EVS").getCohortStats("ALL").getRefAlleleCount().longValue());
-        assertEquals(752, res.get(2).getSourceEntry("EVS", "EVS").getCohortStats("ALL").getAltAlleleCount().longValue());
-        assertEquals(10035, res.get(2).getSourceEntry("EVS", "EVS").getCohortStats("ALL").getRefAlleleCount().longValue());
+        assertEquals(565, res.get(0).getStudy("EVS").getStats("ALL").getAltAlleleCount().longValue());
+        assertEquals(10035, res.get(0).getStudy("EVS").getStats("ALL").getRefAlleleCount().longValue());
+        assertEquals(48, res.get(1).getStudy("EVS").getStats("ALL").getAltAlleleCount().longValue());
+        assertEquals(10035, res.get(1).getStudy("EVS").getStats("ALL").getRefAlleleCount().longValue());
+        assertEquals(752, res.get(2).getStudy("EVS").getStats("ALL").getAltAlleleCount().longValue());
+        assertEquals(10035, res.get(2).getStudy("EVS").getStats("ALL").getRefAlleleCount().longValue());
 
 
         // testing multiallelic GTS=A1A1,A1A2,A1A3,A1R,A2A2,A2A3,A2R,A3A3,A3R,RR;EA_GTC=1,2,3,4,5,6,7,8,9,10
         // first allele variant
         List<Genotype> genotypes = new LinkedList<>();
-        genotypes.add(new Genotype("1/1", "", "T"));
-        genotypes.add(new Genotype("1/2", "", "T"));
-        genotypes.add(new Genotype("1/3", "", "T"));
-        genotypes.add(new Genotype("0/1", "", "T"));
-        genotypes.add(new Genotype("2/2", "", "T"));
-        genotypes.add(new Genotype("2/3", "", "T"));
-        genotypes.add(new Genotype("0/2", "", "T"));
-        genotypes.add(new Genotype("3/3", "", "T"));
-        genotypes.add(new Genotype("0/3", "", "T"));
-        genotypes.add(new Genotype("0/0", "", "T"));
+        genotypes.add(new Genotype("1/1", "CTT", Arrays.asList("CTTT", "C", "CT")));
+        genotypes.add(new Genotype("1/2", "CTT", Arrays.asList("CTTT", "C", "CT")));
+        genotypes.add(new Genotype("1/3", "CTT", Arrays.asList("CTTT", "C", "CT")));
+        genotypes.add(new Genotype("0/1", "CTT", Arrays.asList("CTTT", "C", "CT")));
+        genotypes.add(new Genotype("2/2", "CTT", Arrays.asList("CTTT", "C", "CT")));
+        genotypes.add(new Genotype("2/3", "CTT", Arrays.asList("CTTT", "C", "CT")));
+        genotypes.add(new Genotype("0/2", "CTT", Arrays.asList("CTTT", "C", "CT")));
+        genotypes.add(new Genotype("3/3", "CTT", Arrays.asList("CTTT", "C", "CT")));
+        genotypes.add(new Genotype("0/3", "CTT", Arrays.asList("CTTT", "C", "CT")));
+        genotypes.add(new Genotype("0/0", "CTT", Arrays.asList("CTTT", "C", "CT")));
 
         List<Integer> counts = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
-        Map<Genotype, Integer> genotypesCount = res.get(0).getSourceEntry("EVS", "EVS").getCohortStats("EA").getGenotypesCount();
+        Map<Genotype, Integer> genotypesCount = res.get(0).getStudy("EVS").getStats("EA").getGenotypesCount();
 
         for (int i = 0; i < genotypes.size(); i++) {
-            assertEquals(genotypesCount.get(genotypes.get(i)), counts.get(i));
+            assertEquals(counts.get(i), genotypesCount.get(genotypes.get(i)));
         }
 //        genotypes.add(new Genotype("2/0", "CTT", "C"));
 //        genotypes.add(new Genotype("0/0", "CTT", "CT"));
 
         // second allele variant
         genotypes = new LinkedList<>();
-        genotypes.add(new Genotype("1/1", "TT", ""));
-        genotypes.add(new Genotype("1/2", "TT", ""));
-        genotypes.add(new Genotype("1/3", "TT", ""));
-        genotypes.add(new Genotype("0/1", "TT", ""));
-        genotypes.add(new Genotype("2/2", "TT", ""));
-        genotypes.add(new Genotype("2/3", "TT", ""));
-        genotypes.add(new Genotype("0/2", "TT", ""));
-        genotypes.add(new Genotype("3/3", "TT", ""));
-        genotypes.add(new Genotype("0/3", "TT", ""));
-        genotypes.add(new Genotype("0/0", "TT", ""));
+        genotypes.add(new Genotype("1/1", "CTT", Arrays.asList("CTTT", "C", "CT")));
+        genotypes.add(new Genotype("1/2", "CTT", Arrays.asList("CTTT", "C", "CT")));
+        genotypes.add(new Genotype("1/3", "CTT", Arrays.asList("CTTT", "C", "CT")));
+        genotypes.add(new Genotype("0/1", "CTT", Arrays.asList("CTTT", "C", "CT")));
+        genotypes.add(new Genotype("2/2", "CTT", Arrays.asList("CTTT", "C", "CT")));
+        genotypes.add(new Genotype("2/3", "CTT", Arrays.asList("CTTT", "C", "CT")));
+        genotypes.add(new Genotype("0/2", "CTT", Arrays.asList("CTTT", "C", "CT")));
+        genotypes.add(new Genotype("3/3", "CTT", Arrays.asList("CTTT", "C", "CT")));
+        genotypes.add(new Genotype("0/3", "CTT", Arrays.asList("CTTT", "C", "CT")));
+        genotypes.add(new Genotype("0/0", "CTT", Arrays.asList("CTTT", "C", "CT")));
         counts = new ArrayList<>(Arrays.asList(5, 2, 6, 7, 1, 3, 4, 8, 9, 10)); // taking A2 as if it were the first allele A1, and moving A1 to A2
-        genotypesCount = res.get(1).getSourceEntry("EVS", "EVS").getCohortStats("EA").getGenotypesCount();
+        genotypesCount = res.get(1).getStudy("EVS").getStats("EA").getGenotypesCount();
 
         for (int i = 0; i < genotypes.size(); i++) {
             assertEquals(genotypesCount.get(genotypes.get(i)), counts.get(i));
@@ -333,18 +351,18 @@ public class VariantAggregatedEVSStatsCalculatorTest extends GenericTest {
 
         // third allele variant
         genotypes = new LinkedList<>();
-        genotypes.add(new Genotype("1/1", "T", ""));
-        genotypes.add(new Genotype("1/2", "T", ""));
-        genotypes.add(new Genotype("1/3", "T", ""));
-        genotypes.add(new Genotype("0/1", "T", ""));
-        genotypes.add(new Genotype("2/2", "T", ""));
-        genotypes.add(new Genotype("2/3", "T", ""));
-        genotypes.add(new Genotype("0/2", "T", ""));
-        genotypes.add(new Genotype("3/3", "T", ""));
-        genotypes.add(new Genotype("0/3", "T", ""));
-        genotypes.add(new Genotype("0/0", "T", ""));
+        genotypes.add(new Genotype("1/1", "CTT", Arrays.asList("CTTT", "C", "CT")));
+        genotypes.add(new Genotype("1/2", "CTT", Arrays.asList("CTTT", "C", "CT")));
+        genotypes.add(new Genotype("1/3", "CTT", Arrays.asList("CTTT", "C", "CT")));
+        genotypes.add(new Genotype("0/1", "CTT", Arrays.asList("CTTT", "C", "CT")));
+        genotypes.add(new Genotype("2/2", "CTT", Arrays.asList("CTTT", "C", "CT")));
+        genotypes.add(new Genotype("2/3", "CTT", Arrays.asList("CTTT", "C", "CT")));
+        genotypes.add(new Genotype("0/2", "CTT", Arrays.asList("CTTT", "C", "CT")));
+        genotypes.add(new Genotype("3/3", "CTT", Arrays.asList("CTTT", "C", "CT")));
+        genotypes.add(new Genotype("0/3", "CTT", Arrays.asList("CTTT", "C", "CT")));
+        genotypes.add(new Genotype("0/0", "CTT", Arrays.asList("CTTT", "C", "CT")));
         counts = new ArrayList<>(Arrays.asList(8, 3, 6, 9, 1, 2, 4, 5, 7, 10));// taking A3 as if it were the first allele A1, and moving A1 to A2, and A2 to A3
-        genotypesCount = res.get(2).getSourceEntry("EVS", "EVS").getCohortStats("EA").getGenotypesCount();
+        genotypesCount = res.get(2).getStudy("EVS").getStats("EA").getGenotypesCount();
 
         for (int i = 0; i < genotypes.size(); i++) {
             assertEquals(genotypesCount.get(genotypes.get(i)), counts.get(i));
@@ -362,21 +380,21 @@ public class VariantAggregatedEVSStatsCalculatorTest extends GenericTest {
         calculator.calculate(res);
 
         // testing AC
-        assertEquals(4110, res.get(0).getSourceEntry("EVS", "EVS").getCohortStats("AA").getAltAlleleCount().longValue());
-        assertEquals(0, res.get(0).getSourceEntry("EVS", "EVS").getCohortStats("AA").getRefAlleleCount().longValue());
-        assertEquals(10, res.get(1).getSourceEntry("EVS", "EVS").getCohortStats("AA").getAltAlleleCount().longValue());
-        assertEquals(0, res.get(1).getSourceEntry("EVS", "EVS").getCohortStats("AA").getRefAlleleCount().longValue());
+        assertEquals(4110, res.get(0).getStudy("EVS").getStats("AA").getAltAlleleCount().longValue());
+        assertEquals(0, res.get(0).getStudy("EVS").getStats("AA").getRefAlleleCount().longValue());
+        assertEquals(10, res.get(1).getStudy("EVS").getStats("AA").getAltAlleleCount().longValue());
+        assertEquals(0, res.get(1).getStudy("EVS").getStats("AA").getRefAlleleCount().longValue());
 
         genotypes = new LinkedList<>();
-        genotypes.add(new Genotype("1/1", "C", "G"));
-        genotypes.add(new Genotype("1/2", "C", "G"));
-        genotypes.add(new Genotype("0/1", "C", "G"));
-        genotypes.add(new Genotype("2/2", "C", "G"));
-        genotypes.add(new Genotype("0/2", "C", "G"));
-        genotypes.add(new Genotype("0/0", "C", "G"));
+        genotypes.add(new Genotype("1/1", "C", "G,A"));
+        genotypes.add(new Genotype("1/2", "C", "G,A"));
+        genotypes.add(new Genotype("0/1", "C", "G,A"));
+        genotypes.add(new Genotype("2/2", "C", "G,A"));
+        genotypes.add(new Genotype("0/2", "C", "G,A"));
+        genotypes.add(new Genotype("0/0", "C", "G,A"));
 
         counts = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 6));
-        genotypesCount = res.get(0).getSourceEntry("EVS", "EVS").getCohortStats("EA").getGenotypesCount();
+        genotypesCount = res.get(0).getStudy("EVS").getStats("EA").getGenotypesCount();
 
         for (int i = 0; i < genotypes.size(); i++) {
             assertEquals(genotypesCount.get(genotypes.get(i)), counts.get(i));
@@ -384,14 +402,14 @@ public class VariantAggregatedEVSStatsCalculatorTest extends GenericTest {
 
 
         genotypes = new LinkedList<>();
-        genotypes.add(new Genotype("1/1", "C", "A"));
-        genotypes.add(new Genotype("1/2", "C", "A"));
-        genotypes.add(new Genotype("0/1", "C", "A"));
-        genotypes.add(new Genotype("2/2", "C", "A"));
-        genotypes.add(new Genotype("0/2", "C", "A"));
-        genotypes.add(new Genotype("0/0", "C", "A"));
+        genotypes.add(new Genotype("1/1", "C", "G,A"));
+        genotypes.add(new Genotype("1/2", "C", "G,A"));
+        genotypes.add(new Genotype("0/1", "C", "G,A"));
+        genotypes.add(new Genotype("2/2", "C", "G,A"));
+        genotypes.add(new Genotype("0/2", "C", "G,A"));
+        genotypes.add(new Genotype("0/0", "C", "G,A"));
         counts = new ArrayList<>(Arrays.asList(4, 2, 5, 1, 3, 6));
-        genotypesCount = res.get(1).getSourceEntry("EVS", "EVS").getCohortStats("EA").getGenotypesCount();
+        genotypesCount = res.get(1).getStudy("EVS").getStats("EA").getGenotypesCount();
 
         for (int i = 0; i < genotypes.size(); i++) {
             assertEquals(genotypesCount.get(genotypes.get(i)), counts.get(i));

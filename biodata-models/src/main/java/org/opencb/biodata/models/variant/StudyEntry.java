@@ -103,12 +103,20 @@ public class StudyEntry implements Serializable {
     }
 
     public void setSamplesPosition(Map<String, Integer> samplesPosition) {
+        setSamplesPosition(samplesPosition, true);
+    }
+
+    public void setSortedSamplesPosition(LinkedHashMap<String, Integer> samplesPosition) {
+        setSamplesPosition(samplesPosition, false);
+    }
+
+    protected void setSamplesPosition(Map<String, Integer> samplesPosition, boolean checkSorted) {
         if (samplesPosition == null) {
             this.samplesPosition = null;
             return;
         }
         if (samplesPosition instanceof LinkedHashMap) {
-            if (isSamplesPositionMapSorted((LinkedHashMap<String, Integer>) samplesPosition)) {
+            if (!checkSorted || isSamplesPositionMapSorted((LinkedHashMap<String, Integer>) samplesPosition)) {
                 this.samplesPosition = ((LinkedHashMap<String, Integer>) samplesPosition);
             } else {
                 this.samplesPosition = sortSamplesPositionMap(samplesPosition);
@@ -123,6 +131,7 @@ public class StudyEntry implements Serializable {
             }
         }
     }
+
 
     public static boolean isSamplesPositionMapSorted(LinkedHashMap<String, Integer> samplesPosition) {
         int idx = 0;

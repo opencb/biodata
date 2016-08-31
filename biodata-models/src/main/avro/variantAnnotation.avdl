@@ -89,7 +89,7 @@ protocol VariantAnnotations {
         union { null, string } id;
         int start;
         int end;
-        string type;
+        union { null, string } type;
         union { null, string } description;
     }
 
@@ -100,8 +100,8 @@ protocol VariantAnnotations {
     }
 
     record ProteinVariantAnnotation {
-        string uniprotAccession;
-        string uniprotName;
+        union { null, string } uniprotAccession = null;
+        union { null, string } uniprotName = null;
         int position;
         //string aaChange;
         string reference;

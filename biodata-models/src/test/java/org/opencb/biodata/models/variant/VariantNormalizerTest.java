@@ -1,21 +1,21 @@
 package org.opencb.biodata.models.variant;
 
+import htsjdk.variant.vcf.VCFConstants;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
+import org.opencb.biodata.models.variant.avro.StructuralVariation;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.commons.test.GenericTest;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertFalse;
+import static org.opencb.biodata.models.variant.VariantTestUtils.generateVariantWithFormat;
 
 /**
  * Created on 26/10/15
@@ -85,19 +85,19 @@ public class VariantNormalizerTest extends GenericTest {
     @Test
     public void testNormalizeSamplesDataIndel() throws NonStandardCompliantSampleField {
         // ATC -> ACCC  === T -> CC
-        testSampleNormalization("1", 100, "ATC", "ACCC", 101, 102, "T", "CC");
+        testSampleNormalization("1", 100, "ATC", "ACCC", 101, 101, "T", "CC");
     }
 
     @Test
     public void testNormalizeSamplesDataRightInsertion() throws NonStandardCompliantSampleField {
         // C -> AC  === . -> A
-        testSampleNormalization("1", 100, "C", "AC", 100, "", "A");
+        testSampleNormalization("1", 100, "C", "AC", 100, 99, "", "A");
     }
 
     @Test
     public void testNormalizeSamplesDataLeftInsertion() throws NonStandardCompliantSampleField {
         // C -> CA  === . -> A
-        testSampleNormalization("1", 100, "C", "CA", 101, "", "A");
+        testSampleNormalization("1", 100, "C", "CA", 101, 100, "", "A");
     }
 
     @Test
@@ -197,10 +197,32 @@ public class VariantNormalizerTest extends GenericTest {
     }
 
     @Test
+    public void testNormalize() throws NonStandardCompliantSampleField {
+//        Variant v1 = new Variant("1:100:AATATATATATAT:AATATATATATATAT");
+        Variant v1 = newVariant(100, "AATATATATATAT", Arrays.asList("AATATATATATATAT","A"), "1");
+        System.out.println("v1.getStudies().get(0) = " + v1.getStudies().get(0));
+        StudyEntry se = v1.getStudies().get(0);
+        Map<String, Integer> map = new HashMap<>();
+        map.put("S1",0);
+        se.setSamplesPosition(map);
+        se.setSamplesData(Collections.singletonList(Collections.singletonList("1/2")));
+        System.out.println("v1.getStudies().get(0) = " + v1.getStudies().get(0));
+        List<AlternateCoordinate> secalt = se.getSecondaryAlternates();
+        System.out.println("v1.toJson() = " + v1.toJson());
+        List<Variant> normalize = normalizer.normalize(Collections.singletonList(v1), false);
+        System.out.println("normalize = " + normalize);
+        normalize.stream().forEach(v -> System.out.println(v.getStudies().get(0).getFiles().get(0).getCall()));
+        Set<String> gts = normalize.stream().map(v -> v.getStudies().get(0).getSampleData("S1", "GT")).collect
+                (Collectors.toSet());
+        assertEquals(new HashSet<>(Arrays.asList("0/0","1/2","2/1")), gts);
+
+    }
+
+    @Test
     public void testNormalizeMultiAllelicSnpIndel() throws NonStandardCompliantSampleField {
         testSampleNormalization(100, "C", "T,CA", Arrays.asList(
                 new VariantNormalizer.VariantKeyFields(100, 100, 0, "C", "T"),
-                new VariantNormalizer.VariantKeyFields(101, 101, 1, "", "A")));
+                new VariantNormalizer.VariantKeyFields(101, 100, 1, "", "A")));
     }
 
     @Test
@@ -222,8 +244,8 @@ public class VariantNormalizerTest extends GenericTest {
     @Test
     public void testNormalizeMultiAllelicMultipleInsertions() throws NonStandardCompliantSampleField {
         testSampleNormalization(100, "G", "GCC,GCCTT", Arrays.asList(
-                new VariantNormalizer.VariantKeyFields(101, 102, 0, "", "CC"),
-                new VariantNormalizer.VariantKeyFields(101, 104, 1, "", "CCTT")),
+                new VariantNormalizer.VariantKeyFields(101, 100, 0, "", "CC"),
+                new VariantNormalizer.VariantKeyFields(101, 100, 1, "", "CCTT")),
                 Arrays.asList(new VariantNormalizer.VariantKeyFields(100, 100, "G", "")));
     }
 
@@ -238,7 +260,7 @@ public class VariantNormalizerTest extends GenericTest {
     @Test
     public void testNormalizeMultiAllelicMultipleDeletionsAndInsertions() throws NonStandardCompliantSampleField {
         testSampleNormalization(681, "TACACACACAC", "TACACACACACAC,TACAC,TACACAC,TACACACAC,TAC", Arrays.asList(
-                new VariantNormalizer.VariantKeyFields(682, 683, 0, "", "AC"),
+                new VariantNormalizer.VariantKeyFields(682, 681, 0, "", "AC"),
                 new VariantNormalizer.VariantKeyFields(682, 687, 1, "ACACAC", ""),
                 new VariantNormalizer.VariantKeyFields(682, 685, 2, "ACAC", ""),
                 new VariantNormalizer.VariantKeyFields(682, 683, 3, "AC", ""),
@@ -246,6 +268,64 @@ public class VariantNormalizerTest extends GenericTest {
                 Arrays.asList(
                         new VariantNormalizer.VariantKeyFields(681, 681, "T", ""),
                         new VariantNormalizer.VariantKeyFields(690, 691, "A", "")));
+    }
+
+    @Test
+    public void testMultiSNP() throws NonStandardCompliantSampleField {
+        //6       109522683       .       TTTTT   TTTAT,TATTT
+        //8       32269959        .       TATATAT TATACAT,TACATAT
+        Variant variant = generateVariantWithFormat("6:109522683:TTTTT:TTTAT,TATTT", "GT", "S01", "1/2");
+
+        List<Variant> variants = normalizer.normalize(Collections.singletonList(variant), true);
+        variants.forEach(v -> System.out.println(v.toJson()));
+
+        assertEquals("6:109522683:T:-", variants.get(0).toString());
+        assertEquals(VariantType.NO_VARIATION, variants.get(0).getType());
+        assertEquals(1, variants.get(0).getLength().intValue());
+
+        assertEquals("6:109522684:T:A", variants.get(1).toString());
+        assertEquals(VariantType.SNV, variants.get(1).getType());
+        assertEquals(1, variants.get(1).getLength().intValue());
+
+        assertEquals("6:109522685:T:-", variants.get(2).toString());
+        assertEquals(VariantType.NO_VARIATION, variants.get(2).getType());
+        assertEquals(1, variants.get(2).getLength().intValue());
+
+        assertEquals("6:109522686:T:A", variants.get(3).toString());
+        assertEquals(VariantType.SNV, variants.get(3).getType());
+        assertEquals(1, variants.get(3).getLength().intValue());
+
+        assertEquals("6:109522687:T:-", variants.get(4).toString());
+        assertEquals(VariantType.NO_VARIATION, variants.get(4).getType());
+        assertEquals(1, variants.get(4).getLength().intValue());
+    }
+
+    @Test
+    public void testNormalizeMultiAllelicPL() throws NonStandardCompliantSampleField {
+        Variant variant = generateVariantWithFormat("X:100:A:T", "GT:GL", "S01", "0/0", "1,2,3", "S02", "0", "1,2");
+        Variant variant2 = generateVariantWithFormat("X:100:A:T,C", "GT:GL", "S01", "0/0", "1,2,3,4,5,6", "S02", "A", "1,2,3");
+
+        List<Variant> normalize1 = normalizer.normalize(Collections.singletonList(variant), false);
+        assertEquals("1,2,3", normalize1.get(0).getStudies().get(0).getSampleData("S01", "GL"));
+        assertEquals("1,2", normalize1.get(0).getStudies().get(0).getSampleData("S02", "GL"));
+
+        List<Variant> normalize2 = normalizer.normalize(Collections.singletonList(variant2), false);
+        assertEquals("1,2,3,4,5,6", normalize2.get(0).getStudies().get(0).getSampleData("S01", "GL"));
+        assertEquals("1,4,6,2,5,3", normalize2.get(1).getStudies().get(0).getSampleData("S01", "GL"));
+        assertEquals("1,2,3", normalize2.get(0).getStudies().get(0).getSampleData("S02", "GL"));
+        assertEquals("1,3,2", normalize2.get(1).getStudies().get(0).getSampleData("S02", "GL"));
+
+        Variant variant3 = generateVariantWithFormat("X:100:A:T,C,G", "GT:GL", "S01", "0/0", "1,2,3,4,5,6,7,8,9,10", "S02", "A", "1,2,3,4");
+        Map<String, Variant> normalize3 = normalizer.normalize(Collections.singletonList(variant3), false)
+                .stream().collect(Collectors.toMap(Variant::getAlternate, v -> v));
+
+        assertEquals("1,2,3,4,5,6,7,8,9,10", normalize3.get("T").getStudies().get(0).getSampleData("S01", "GL"));
+        assertEquals("1,4,6,2,5,3,7,9,8,10", normalize3.get("C").getStudies().get(0).getSampleData("S01", "GL"));
+        assertEquals("1,7,10,2,8,3,4,9,5,6", normalize3.get("G").getStudies().get(0).getSampleData("S01", "GL"));
+        assertEquals("1,2,3,4", normalize3.get("T").getStudies().get(0).getSampleData("S02", "GL"));
+        assertEquals("1,3,2,4", normalize3.get("C").getStudies().get(0).getSampleData("S02", "GL"));
+        assertEquals("1,3,4,2", normalize3.get("G").getStudies().get(0).getSampleData("S02", "GL"));
+
     }
 
     private void testSampleNormalization(String chromosome, int position, String ref, String alt,
@@ -315,7 +395,11 @@ public class VariantNormalizerTest extends GenericTest {
         int numRefBlock = 0;
         for (int i = 0; i < variants.size(); i++) {
             Variant v = variants.get(i);
-            assertTrue(v.getStart() <= v.getEnd());
+            if (v.getReference().isEmpty()) {
+                assertEquals(v.getStart() - 1, v.getEnd().intValue());
+            } else {
+                assertTrue(v.getStart() <= v.getEnd());
+            }
             if (v.getType().equals(VariantType.NO_VARIATION)) {
                 assertEquals(0, v.getStudy(studyId).getSecondaryAlternates().size());
                 assertEquals("", v.getAlternate());
@@ -405,12 +489,59 @@ public class VariantNormalizerTest extends GenericTest {
 
     }
 
+    @Test
+    public void testCNVsNormalization() {
+        try {
+
+            Variant variant = newVariant(100, 200, "C", Collections.singletonList("<CN0>"), "2");
+            variant.getStudies().get(0).getFile("1").getAttributes().put("CIEND", "-50,11");
+            variant.getStudies().get(0).getFile("1").getAttributes().put("CIPOS", "-14,50");
+            variant.getStudies().get(0).addSampleData("HG00096", Arrays.asList("0|0"));
+            List<Variant> normalizedVariantList = normalizer.normalize(Collections.singletonList(variant), true);
+            assertEquals(normalizedVariantList.size(), 1);
+            assertEquals(normalizedVariantList.get(0).getSv(), new StructuralVariation(86, 150, 150, 211, 0));
+
+            variant = newVariant(100, 200, "C", Arrays.asList("<CN0>", "<CN2>", "<CN3>", "<CN4>"), "2");
+            variant.getStudies().get(0).addSampleData("HG00096", Arrays.asList("0|1"));
+            variant.getStudies().get(0).addSampleData("HG00097", Arrays.asList("0|2"));
+            variant.getStudies().get(0).addSampleData("HG00098", Arrays.asList("0|3"));
+            variant.getStudies().get(0).addSampleData("HG00099", Arrays.asList("0|4"));
+            normalizedVariantList = normalizer.normalize(Collections.singletonList(variant), true);
+            assertEquals(normalizedVariantList.size(), 4);
+            assertEquals(normalizedVariantList.get(0).getSv(), new StructuralVariation(100, 100, 200, 200, 0));
+            assertEquals(normalizedVariantList.get(1).getSv(), new StructuralVariation(100, 100, 200, 200, 2));
+            assertEquals(normalizedVariantList.get(2).getSv(), new StructuralVariation(100, 100, 200, 200, 3));
+            assertEquals(normalizedVariantList.get(3).getSv(), new StructuralVariation(100, 100, 200, 200, 4));
+
+            variant = newVariant(100, 200, "C", Arrays.asList("<CNV>"), "2");
+            variant.getStudies().get(0).addFormat("CN");
+            variant.getStudies().get(0).addSampleData("HG00096", Arrays.asList("0|1","3"));
+            normalizedVariantList = normalizer.normalize(Collections.singletonList(variant), true);
+            assertEquals(normalizedVariantList.size(), 1);
+            assertEquals(normalizedVariantList.get(0).getSv(), new StructuralVariation(100, 100, 200, 200, 3));
+
+        } catch (NonStandardCompliantSampleField nonStandardCompliantSampleField) {
+            nonStandardCompliantSampleField.printStackTrace();
+        }
+    }
+
     private Variant newVariant(int position, String ref, String altsCsv) {
-        return newVariant(position, ref, Arrays.asList(altsCsv.split(",")), "2");
+        return newVariant(position, position, ref, Arrays.asList(altsCsv.split(",")), "2");
     }
 
     private Variant newVariant(int position, String ref, List<String> altsList, String studyId) {
-        Variant variant = new Variant("1", position, ref, altsList.get(0));
+        return newVariant(position, position, ref, altsList, studyId);
+    }
+
+    private Variant newVariant(int position, int end, String ref, List<String> altsList, String studyId) {
+        Variant variant;
+        // Different constructor calls since the one that does not include the "end" sets the variant.end by making an
+        // inference of the variant length
+        if (position == end) {
+            variant = new Variant("1", position, ref, altsList.get(0));
+        } else {
+            variant = new Variant("1", position, end, ref, altsList.get(0));
+        }
         StudyEntry studyEntry = new StudyEntry(studyId, altsList.subList(1, altsList.size())
                 .stream()
                 .map(s -> new AlternateCoordinate(null, null, null, null, s, variant.getType()))
