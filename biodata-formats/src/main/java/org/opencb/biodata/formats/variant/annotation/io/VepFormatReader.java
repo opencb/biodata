@@ -409,6 +409,7 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
             parseVariantFromOtherFields(parsedVariant, variantLocationFields, alternate);
         } else {
             parseVariantFromIdField(parsedVariant, variantIdFields);
+            parsedVariant.put("alternative", alternate);
         }
 
         return parsedVariant;
@@ -459,7 +460,7 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
             }
             parsedVariant.put("start", leftVariantFields[leftVariantFields.length-2]);
             parsedVariant.put("reference", leftVariantFields[leftVariantFields.length-1]);
-            parsedVariant.put("alternative", variantIdFields[1]);
+//            parsedVariant.put("alternative", variantIdFields[1]);
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new IllegalArgumentException("Unexpected variant format for column 1: "+variantIdFields.toString());
         }
