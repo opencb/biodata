@@ -1,0 +1,190 @@
+@namespace("org.opencb.biodata.models.variant.metadata")
+
+protocol VariantMetadata {
+
+    /*
+    *	Generic and reusable data models for future analysis: expression, methylation, ...
+    */
+
+    /**
+    * Experiment information about the origin of the data
+    */
+    record Experiment {
+	    string center;
+        string date;
+	    string type;
+	    string platform;
+	    string description;
+    }
+
+    record Species {
+	    string commonName;
+	    string scientificName;
+	    string taxonomyId;
+	    string reference;?
+	    string strain;
+	    string assembly;
+    }
+
+/**
+ * Program that generated the data.
+ */
+record Program {
+	string name;
+	string version;
+	String commandLine;
+	string url;
+	string commit;
+}
+
+record Sample {
+	int id;
+	string name;
+
+	// PED information should go to the attributes/meta ?
+	string family;
+	*string father;
+	*string mother;
+	*string sex;
+	*string phenotype;
+	string age;?
+map<string> attributes; // age:i, height, weight, risk factors, secondary conditions, population
+
+}
+
+record Cohort {
+
+	int id;
+
+	string name;
+
+	array <string> samples = [ ];
+
+CohortType type;
+
+string population;
+}
+
+
+/*
+ *	Variant specific data models
+ */
+
+  record VariantGlobalStats {
+
+        int numVariants;
+
+        int numSamples;
+
+        int numPass;
+
+        int numTransitions;
+        int numTransversions;
+	  double tiTvRatio;
+
+        double meanQuality;
+
+        map<int> variantTypeCounts; // SNP, INDEL, MNP, SNV
+
+        map<int> variantBiotypeCounts; // protein-coding, miRNA, lncRNA
+
+        map<int> consequenceTypesCounts;
+
+        map<int> chromosomeCounts;
+
+        map<float> chromosomeDensities;?
+
+        array<int> numRareVariants = [4];
+
+
+    }
+
+
+
+
+    record VcfHeader {
+
+	string fileFormatversion;
+
+	map<array<union { string, map<string> }>> meta;
+
+	record VcfHeaderLine {
+string key;
+string value;
+string number;
+string id;
+string description:
+map<array<string>> info = {};
+	}
+
+	array<VcfHeaderLine> meta;
+
+    }
+
+    record VariantFileMetadata {
+        int id;
+        int studyId;
+        union { null, string } name = null;
+        union { null, string } studyName = null;
+
+        array<string> samples = [ ];
+
+        Aggregation aggregation;
+        //string aggregation;
+        union {null, VariantGlobalStats } stats;
+        map<union {string, VcfHeader}> metadata;
+        union {null, VcfHeader} header;
+    }
+
+
+record VariantStudyMetadata {
+    	int id;
+      	string name;
+
+union { null, string } description;
+	union { null, string } url;
+
+	union {null, VariantGlobalStats } stats;
+
+array<VariantFileMetadata> files = [ ];
+
+array<Sample> samples = [ ];
+
+	map<VariantGlobalStats> sampleStats = { };
+
+array<Cohort> cohorts = [ ]
+
+map<VariantGlobalStats> cohortStats = { };
+
+String sourceType;
+
+    	StudyType type;
+
+	Experiment experiment;
+	*String center;
+  	*String material;
+   	*String scope;
+    	*String experimentType;
+    	*String experimentTypeAbbreviation;
+	*String platform;
+
+
+int numVariants;
+int numSamples;
+}
+
+record VariantMetadata {
+
+	string version;
+union { null, Species } species;
+    	union { null, Program } program;
+	union { null, string } date;
+	union { null, string } description;
+
+VariantGlobalStats stats
+	array<VariantStudyMetadata> studies;
+}
+
+
+
+}
