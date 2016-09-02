@@ -929,7 +929,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         Variant normalizedVariant = new Variant(variant.getChromosome(), keyFields.getStart(), keyFields.getEnd(), keyFields.getReference(), keyFields.getAlternate());
         normalizedVariant.setIds(variant.getIds());
         normalizedVariant.setStrand(variant.getStrand());
-        normalizedVariant.setAnnotation(variant.getAnnotation());
+//        normalizedVariant.setAnnotation(variant.getAnnotation());
         if (variant.getStudies() != null && !variant.getStudies().isEmpty()) {
             if (variant.getStudies().get(0).getAllAttributes().containsKey(CIPOS_STRING)) {
                 int[] impreciseStart = getImpreciseStart(variant);
