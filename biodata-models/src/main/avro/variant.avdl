@@ -3,6 +3,7 @@
 
 protocol Variants {
 
+    import idl "variantCommons.avdl";
     import idl "variantAnnotation.avdl";
 
     /**
@@ -305,14 +306,6 @@ protocol Variants {
         union { null, VariantAnnotation } annotation = null;
     }
 
-    // delete
-    enum Aggregation {
-        NONE,
-        BASIC,
-        EVS,
-        EXAC
-    }
-
     record VcfHeader {
         string fileFormat;
       //map<union { string, array<map<string> }>> meta; ??
@@ -330,7 +323,7 @@ protocol Variants {
 
         array<string> samples = [];
 
-        Aggregation aggregation;
+        org.opencb.biodata.models.variant.commons.Aggregation aggregation;
         //string aggregation;
 
         union {null, VariantGlobalStats } stats;

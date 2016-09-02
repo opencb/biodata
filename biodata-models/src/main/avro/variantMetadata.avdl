@@ -2,8 +2,8 @@
 
 protocol VariantMetadatas {
 
-	// we need import variant.avdl to use the enum Aggregation
-	import idl "variant.avdl";
+	// we need import variantCommons.avdl to use the enum Aggregation
+    import idl "variantCommons.avdl";
 
     record Experiment {
 	    string center;
@@ -106,7 +106,7 @@ protocol VariantMetadatas {
 
         array<string> sampleNames = [ ];
 
-        org.opencb.biodata.models.variant.avro.Aggregation aggregation;
+        org.opencb.biodata.models.variant.commons.Aggregation aggregation;
 
         union {null, VariantGlobalStats } stats;
         union {null, FileHeader} header;
@@ -131,9 +131,7 @@ protocol VariantMetadatas {
 		array<Cohort> cohorts = [ ];
 		map<VariantGlobalStats> cohortStats = { };
 
-		// sourceType in Experiment?
-		//string sourceType;
-		// where is defined StudyType?
+		string sourceType;
     	//StudyType type;
 	}
 

@@ -1,0 +1,12 @@
+@namespace("org.opencb.biodata.models.variant.commons")
+
+protocol VariantCommons {
+
+    enum Aggregation {
+        NONE,
+        BASIC,
+        EVS,
+        EXAC
+    }
+
+}
