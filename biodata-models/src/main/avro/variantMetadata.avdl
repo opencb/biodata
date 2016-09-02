@@ -1,14 +1,10 @@
 @namespace("org.opencb.biodata.models.variant.metadata")
 
-protocol VariantMetadata {
+protocol VariantMetadatas {
 
-    /*
-    *	Generic and reusable data models for future analysis: expression, methylation, ...
-    */
+	// we need import variant.avdl to use the enum Aggregation
+	import idl "variant.avdl";
 
-    /**
-    * Experiment information about the origin of the data
-    */
     record Experiment {
 	    string center;
         string date;
@@ -21,170 +17,133 @@ protocol VariantMetadata {
 	    string commonName;
 	    string scientificName;
 	    string taxonomyId;
-	    string reference;?
 	    string strain;
 	    string assembly;
     }
 
-/**
- * Program that generated the data.
- */
-record Program {
-	string name;
-	string version;
-	String commandLine;
-	string url;
-	string commit;
-}
-
-record Sample {
-	int id;
-	string name;
-
-	// PED information should go to the attributes/meta ?
-	string family;
-	*string father;
-	*string mother;
-	*string sex;
-	*string phenotype;
-	string age;?
-map<string> attributes; // age:i, height, weight, risk factors, secondary conditions, population
-
-}
-
-record Cohort {
-
-	int id;
-
-	string name;
-
-	array <string> samples = [ ];
-
-CohortType type;
-
-string population;
-}
-
-
-/*
- *	Variant specific data models
- */
-
-  record VariantGlobalStats {
-
-        int numVariants;
-
-        int numSamples;
-
-        int numPass;
-
-        int numTransitions;
-        int numTransversions;
-	  double tiTvRatio;
-
-        double meanQuality;
-
-        map<int> variantTypeCounts; // SNP, INDEL, MNP, SNV
-
-        map<int> variantBiotypeCounts; // protein-coding, miRNA, lncRNA
-
-        map<int> consequenceTypesCounts;
-
-        map<int> chromosomeCounts;
-
-        map<float> chromosomeDensities;?
-
-        array<int> numRareVariants = [4];
-
-
-    }
-
-
-
-
-    record VcfHeader {
-
-	string fileFormatversion;
-
-	map<array<union { string, map<string> }>> meta;
-
-	record VcfHeaderLine {
-string key;
-string value;
-string number;
-string id;
-string description:
-map<array<string>> info = {};
+	record Program {
+		string name;
+		string version;
+		string commandLine;
+		string url;
+		string commit;
 	}
 
-	array<VcfHeaderLine> meta;
+	record Sample {
+		int id;
+		string name;
+		string family;
+		string father;
+		string mother;
+		string sex;
+		string phenotype;
 
+		// age, population, height, weight, risk factors, secondary conditions,...
+		// are stored in a map of attributes according to the format:
+		// attribute_name[:x] where x defines the attribute type, its valid values are:
+		//		n for numeric (i = integer, f = float)
+		//		s for string
+		//		b for boolean
+		map<string> attributes;
+	}
+
+	record Cohort {
+		int id;
+		string name;
+		array<string> sampleNames = [];
+
+		// where is defined CohortType?
+		//CohortType type;
+	}
+
+	record ChromosomeStats {
+		int counts;
+		float density;
+	}
+
+	record VariantGlobalStats {
+    	int numVariants;
+        int numSamples;
+        int numPass;
+		float tiTvRatio; // = num. transitions / num. transversions
+
+        float meanQuality;
+        float stdDevQuality;
+
+		// array of 4 elements to classify variants according to their 'rarity'
+		//	[0] -> very rare     : from 0 to 0.001
+		//	[1] -> rare          : from 0.001 to 0.005
+		//	[2] -> low frequency : from 0.005 to 0.05
+		//  [3] -> comon         : from 0.05
+        array<int> numRareVariants = [4];
+
+        map<int> variantTypeCounts;    // SNP, INDEL, MNP, SNV
+        map<int> variantBiotypeCounts; // protein-coding, miRNA, lncRNA
+        map<int> consequenceTypesCounts;
+
+        map<ChromosomeStats> chromStats = {};
+	}
+
+	record FileHeaderLine {
+		string key;
+		string value;
+		string number;
+		string id;
+		string description;
+		map<array<string>> info = {};
+	}
+
+    record FileHeader {
+		string fileFormat;
+		string version;
+
+		array<FileHeaderLine> lines;
     }
 
     record VariantFileMetadata {
         int id;
-        int studyId;
         union { null, string } name = null;
-        union { null, string } studyName = null;
 
-        array<string> samples = [ ];
+        array<string> sampleNames = [ ];
 
-        Aggregation aggregation;
-        //string aggregation;
+        org.opencb.biodata.models.variant.avro.Aggregation aggregation;
+
         union {null, VariantGlobalStats } stats;
-        map<union {string, VcfHeader}> metadata;
-        union {null, VcfHeader} header;
+        union {null, FileHeader} header;
     }
 
 
-record VariantStudyMetadata {
+	record VariantStudyMetadata {
     	int id;
       	string name;
+		union { null, string } description;
+		union { null, string } url;
 
-union { null, string } description;
-	union { null, string } url;
+		Experiment experiment;
 
-	union {null, VariantGlobalStats } stats;
+		union {null, VariantGlobalStats } stats;
 
-array<VariantFileMetadata> files = [ ];
+		array<VariantFileMetadata> files = [ ];
 
-array<Sample> samples = [ ];
+		array<Sample> samples = [ ];
+		map<VariantGlobalStats> sampleStats = { };
 
-	map<VariantGlobalStats> sampleStats = { };
+		array<Cohort> cohorts = [ ];
+		map<VariantGlobalStats> cohortStats = { };
 
-array<Cohort> cohorts = [ ]
+		// sourceType in Experiment?
+		//string sourceType;
+		// where is defined StudyType?
+    	//StudyType type;
+	}
 
-map<VariantGlobalStats> cohortStats = { };
-
-String sourceType;
-
-    	StudyType type;
-
-	Experiment experiment;
-	*String center;
-  	*String material;
-   	*String scope;
-    	*String experimentType;
-    	*String experimentTypeAbbreviation;
-	*String platform;
-
-
-int numVariants;
-int numSamples;
-}
-
-record VariantMetadata {
-
-	string version;
-union { null, Species } species;
+	record VariantMetadata {
+		string version;
+		union { null, Species } species;
     	union { null, Program } program;
-	union { null, string } date;
-	union { null, string } description;
+		union { null, string } date;
+		union { null, string } description;
 
-VariantGlobalStats stats
-	array<VariantStudyMetadata> studies;
-}
-
-
-
+		array<VariantStudyMetadata> studies;
+	}
 }
