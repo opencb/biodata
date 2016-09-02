@@ -757,7 +757,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         Variant normalizedVariant = new Variant(variant.getChromosome(), keyFields.getStart(), keyFields.getEnd(), keyFields.getReference(), keyFields.getAlternate());
         normalizedVariant.setIds(variant.getIds());
         normalizedVariant.setStrand(variant.getStrand());
-        normalizedVariant.setAnnotation(variant.getAnnotation());
+//        normalizedVariant.setAnnotation(variant.getAnnotation());
         return normalizedVariant;
     }
 
