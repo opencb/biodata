@@ -51,9 +51,7 @@ protocol VariantMetadatas {
 		int id;
 		string name;
 		array<string> sampleNames = [];
-
-		// where is defined CohortType?
-		//CohortType type;
+		org.opencb.biodata.models.variant.commons.Type type;
 	}
 
 	record ChromosomeStats {
@@ -132,7 +130,7 @@ protocol VariantMetadatas {
 		map<VariantGlobalStats> cohortStats = { };
 
 		string sourceType;
-    	//StudyType type;
+    	org.opencb.biodata.models.variant.commons.Type type;
 	}
 
 	record VariantMetadata {
