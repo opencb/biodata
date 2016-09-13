@@ -44,6 +44,37 @@ public class VariantMergerTest {
     public void tearDown() throws Exception {
     }
 
+    public void speedTest() {
+        int size = 10000;
+        List<Variant> variants = new ArrayList<>();
+        for (int i = 0; i < size; ++i) {
+            Variant v = i%100 == 0 ?
+                    VariantTestUtils.generateVariant("1:10:A:T", "S"+i, "0/1")
+                    : VariantTestUtils.generateVariant("1:10:A:-", "S"+i, "0/0");
+            v = i %301 == 0 ?
+                    VariantTestUtils.generateVariant("1:10:A:G,CCC", "S"+i, "1/2"):
+                    v;
+            variants.add(v);
+        }
+        for (int i = 0; i < 100; i++) {
+            Variant template = VARIANT_MERGER.createFromTemplate(variants.get(0));
+            long start = System.currentTimeMillis();
+            Variant merged = VARIANT_MERGER.merge(template, variants);
+            long end = System.currentTimeMillis();
+            System.out.println("end - start = " + (end - start));
+            assertEquals(size, merged.getStudies().get(0).getSamplesName().size());
+        }
+    }
+
+    @Test
+    public void testMerge_SecAltOverlapOnly() {
+        Variant s02 = VariantTestUtils.generateVariant("1:9:A:T", "S02", "1/2");
+        s02.getStudies().get(0).setSecondaryAlternates(Collections.singletonList(new AlternateCoordinate("1",9,11,"AAA","",VariantType.INDEL)));
+
+        Variant merged = VARIANT_MERGER.merge(var, Collections.singletonList(s02));
+        assertEquals(2,merged.getStudies().get(0).getSamplesName().size());
+    }
+
     @Test
     public void testMergeSame_3SNP() {
         VARIANT_MERGER.merge(var, VariantTestUtils.generateVariant("1:10:A:T", "S02", "0/1"));
@@ -405,6 +436,23 @@ public class VariantMergerTest {
         assertEquals(Arrays.asList(sample), se.getOrderedSamplesName());
         String genotype = se.getSampleData(sample, VCFConstants.GENOTYPE_KEY.toString());
         assertEquals("0/1,0/2", genotype);
+    }
+
+    @Test
+    public void testMergeOverlap_IN_SNP_MultiSampleAndRepeatSample() {
+        // see https://github.com/opencb/biodata/issues/100
+        String s1 = "S01";
+        String s2 = "S02";
+        Variant s1Var1 = VariantTestUtils.generateVariant("1:10::AT", s1, "0/1");
+        Variant s2Var1 = VariantTestUtils.generateVariant("1:9:A:G", s2, "0/1");
+        Variant s2Var2 = VariantTestUtils.generateVariant("1:10::AT", s2, "0/1");
+        Variant mVar1 = VARIANT_MERGER.merge(s1Var1, s2Var1);
+        Variant mVar2 = VARIANT_MERGER.merge(mVar1, s2Var2);
+        System.out.println("mergeVar.toJson() = " + mVar2.toJson());
+        StudyEntry se = mVar2.getStudy(VariantTestUtils.STUDY_ID);
+//        assertEquals(Arrays.asList(s1), se.getOrderedSamplesName());
+//        String genotype = se.getSampleData(s1, VCFConstants.GENOTYPE_KEY.toString());
+//        assertEquals("0/1,0/2", genotype);
     }
 
     @Test
