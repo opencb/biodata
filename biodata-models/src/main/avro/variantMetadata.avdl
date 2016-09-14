@@ -1,58 +1,9 @@
 @namespace("org.opencb.biodata.models.variant.metadata")
 
-protocol VariantMetadatas {
+protocol VariantMetadata {
 
-	// we need import variantCommons.avdl to use the enum Aggregation
-    import idl "variantCommons.avdl";
-
-    record Experiment {
-	    string center;
-        string date;
-	    string type;
-	    string platform;
-	    string description;
-    }
-
-    record Species {
-	    string commonName;
-	    string scientificName;
-	    string taxonomyId;
-	    string strain;
-	    string assembly;
-    }
-
-	record Program {
-		string name;
-		string version;
-		string commandLine;
-		string url;
-		string commit;
-	}
-
-	record Sample {
-		int id;
-		string name;
-		string family;
-		string father;
-		string mother;
-		string sex;
-		string phenotype;
-
-		// age, population, height, weight, risk factors, secondary conditions,...
-		// are stored in a map of attributes according to the format:
-		// attribute_name[:x] where x defines the attribute type, its valid values are:
-		//		n for numeric (i = integer, f = float)
-		//		s for string
-		//		b for boolean
-		map<string> attributes;
-	}
-
-	record Cohort {
-		int id;
-		string name;
-		array<string> sampleNames = [];
-		org.opencb.biodata.models.variant.commons.Type type;
-	}
+	// we need import metadata.avdl to use the enum Aggregation and Type
+    import idl "metadata.avdl";
 
 	record ChromosomeStats {
 		int counts;
@@ -79,7 +30,7 @@ protocol VariantMetadatas {
         map<int> variantBiotypeCounts; // protein-coding, miRNA, lncRNA
         map<int> consequenceTypesCounts;
 
-        map<ChromosomeStats> chromStats = {};
+        map<ChromosomeStats> chromosomeStats = {};
 	}
 
 	record FileHeaderLine {
@@ -92,54 +43,52 @@ protocol VariantMetadatas {
 	}
 
     record FileHeader {
-		string fileFormat;
 		string version;
 
 		array<FileHeaderLine> lines;
     }
 
     record VariantFileMetadata {
-        int id;
+        string id;
         union { null, string } name = null;
 
         array<string> sampleNames = [ ];
 
-        org.opencb.biodata.models.variant.commons.Aggregation aggregation;
+        org.opencb.biodata.models.metadata.Aggregation aggregation;
 
         union {null, VariantGlobalStats } stats;
         union {null, FileHeader} header;
     }
 
 
-	record VariantStudyMetadata {
-    	int id;
-      	string name;
+	record VariantDatasetMetadata {
+    	string id;
 		union { null, string } description;
 		union { null, string } url;
 
-		Experiment experiment;
+		org.opencb.biodata.models.metadata.Experiment experiment;
 
 		union {null, VariantGlobalStats } stats;
 
 		array<VariantFileMetadata> files = [ ];
 
-		array<Sample> samples = [ ];
+		array<org.opencb.biodata.models.metadata.Sample> samples = [ ];
 		map<VariantGlobalStats> sampleStats = { };
 
-		array<Cohort> cohorts = [ ];
+		array<org.opencb.biodata.models.metadata.Cohort> cohorts = [ ];
 		map<VariantGlobalStats> cohortStats = { };
 
 		string sourceType;
-    	org.opencb.biodata.models.variant.commons.Type type;
+    	//org.opencb.biodata.models.metadata.Type type;
 	}
 
 	record VariantMetadata {
 		string version;
-		union { null, Species } species;
-    	union { null, Program } program;
+		union { null, org.opencb.biodata.models.metadata.Species } species;
+    	union { null, org.opencb.biodata.models.metadata.Program } program;
 		union { null, string } date;
 		union { null, string } description;
 
-		array<VariantStudyMetadata> studies;
+		array<VariantDatasetMetadata> datasets;
 	}
 }

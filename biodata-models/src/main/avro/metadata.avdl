@@ -1,0 +1,85 @@
+@namespace("org.opencb.biodata.models.metadata")
+
+protocol Metadata {
+
+    enum Aggregation {
+        NONE,
+        BASIC,
+        EVS,
+        EXAC
+    }
+
+     enum Type {
+        CASE_CONTROL,
+        CASE_SET,
+        CONTROL_SET,
+        PAIRED,
+        PAIRED_TUMOR,
+        AGGREGATE,
+        TIME_SERIES,
+        FAMILY,
+        TRIO,
+        COLLECTION
+    }
+
+    record Experiment {
+	    string center;
+        string date;
+	    string type;
+	    string platform;
+	    string description;
+    }
+
+    record Species {
+	    string commonName;
+	    string scientificName;
+	    string taxonomyId;
+	    string strain;
+	    string assembly;
+    }
+
+	record Program {
+		string name;
+		string version;
+		string commandLine;
+		string url;
+		string commit;
+	}
+
+	record Sample {
+		string id;
+
+		// age, population, height, weight, risk factors, secondary conditions,...
+		// are stored in a map of attributes according to the format:
+		// attribute_name[:x] where x defines the attribute type, its valid values are:
+		//		n for numeric (i = integer, f = float)
+		//		s for string
+		//		b for boolean
+		map<string> info;
+	}
+
+	record Individual {
+		string id;
+		string family;
+		string father;
+		string mother;
+		string sex;
+		string phenotype;
+
+		// age, population, height, weight, risk factors, secondary conditions,...
+		// are stored in a map of attributes according to the format:
+		// attribute_name[:x] where x defines the attribute type, its valid values are:
+		//		n for numeric (i = integer, f = float)
+		//		s for string
+		//		b for boolean
+		map<string> info;
+
+		array<Sample> samples;
+	}
+
+	record Cohort {
+		string id;
+		array<string> sampleNames = [];
+		Type type;
+	}
+}
