@@ -6,6 +6,7 @@ package org.opencb.biodata.tools.variant.merge;
 import htsjdk.variant.vcf.VCFConstants;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
@@ -89,10 +90,22 @@ public class VariantMerger {
     }
 
     Variant merge(Variant current, Variant load){
-        if (current.overlapWith(load, true)){
+        if (hasAnyOverlap(current, load)){
             mergeVariants(current,load);
         } // else ignore
         return current;
+    }
+
+    public static boolean hasAnyOverlap(Variant current, Variant query) {
+        if (current.overlapWith(query, true)) {
+            return true;
+        }
+        // SecAlt of query
+        return query.getStudies().stream().filter( s -> // foreach study
+            s.getSecondaryAlternates().stream().filter(a -> // Check each SecAlt from query for overlap
+                    current.overlapWith(a.getChromosome(), a.getStart(), a.getEnd(), true)
+            ).findAny().isPresent()
+        ).findAny().isPresent();
     }
 
     private String variantToString(Variant v) {
@@ -142,15 +155,16 @@ public class VariantMerger {
                 : currentStudy.getFiles().get(0).getAttributes().getOrDefault(VariantVcfFactory.FILTER, DEFAULT_FILTER_VALUE);
         ensureFormat(currentStudy, GENOTYPE_FILTER_KEY, defaultFilterValue);
 
-        checkForDuplicates(current, other, currentStudy, otherStudy);
-        // Secondary index: translate from e.g. 0/1 to 0/2
         List<AlternateCoordinate> otherSecondaryAlternates = buildAltList(other);
+        checkForDuplicates(current, other, currentStudy, otherStudy, otherSecondaryAlternates);
+        // Secondary index: translate from e.g. 0/1 to 0/2
         List<Integer> secIdx = mergeSecondaryAlternates(current, otherSecondaryAlternates);
 
         // Add GT data for each sample to current Variant
         for (String sampleName : otherStudy.getOrderedSamplesName()) {
             boolean alreadyInStudy = currentStudy.getSamplesName().contains(sampleName);
             List<String> sampleDataList = new LinkedList<>();
+            boolean isGtUpdated = false;
             for (String format : currentStudy.getFormat()) {
                 switch (format) {
                     case GT_KEY:
@@ -162,17 +176,22 @@ public class VariantMerger {
                         String updatedGt = updateGT(gt, secIdx);
                         if (alreadyInStudy) {
                             String currGT = currentStudy.getSampleData(sampleName, GT_KEY);
-                            Set<String> gtlst = new HashSet<>(Arrays.asList(currGT.split(",")));
-                            gtlst.add(updatedGt);
-                            updatedGt = StringUtils.join(gtlst, ',');
+                            List<String> gtlst = new ArrayList<>(Arrays.asList(currGT.split(",")));
+                            if (!gtlst.contains(updatedGt)) {
+                                gtlst.add(updatedGt);
+                                updatedGt = StringUtils.join(gtlst, ',');
+                                isGtUpdated = true;
+                            }
                         }
                         sampleDataList.add(updatedGt);
                         break;
                     case GENOTYPE_FILTER_KEY:
                         String filter = sampleToFilter.getOrDefault(sampleName, DEFAULT_FILTER_VALUE);
-                        if (alreadyInStudy) {
-                            // TODO decide if using the first set filter is the correct way
-                            filter = currentStudy.getSampleData(sampleName, GENOTYPE_FILTER_KEY);
+                        if (alreadyInStudy && isGtUpdated) {
+                            String currFilter = currentStudy.getSampleData(sampleName, GENOTYPE_FILTER_KEY);
+                            List<String> filterLst = new ArrayList<>(Arrays.asList(currFilter.split(",")));
+                            filterLst.add(filter);
+                            filter = StringUtils.join(filterLst, ',');
                         }
                         sampleDataList.add(filter);
                         break;
@@ -190,37 +209,36 @@ public class VariantMerger {
         mergeFiles(current, other);
     }
 
-    private boolean checkForDuplicates(Variant current, Variant other, StudyEntry currentStudy, StudyEntry otherStudy) {
-        if (isSameVariant(current, other)) {
-            Set<String> duplicates = currentStudy.getSamplesName().stream()
-                    .filter(s -> otherStudy.getSamplesName().contains(s))
-                    .collect(Collectors.toSet());
-            if (!duplicates.isEmpty()) {
-                throw new IllegalStateException(String.format("Duplicated entries - issue with merge: %s; current: %s; other: %s;",
-
-                        StringUtils.join(duplicates, ", "), variantToString(current), variantToString(other)));
-            }
-        } else {
-            List<AlternateCoordinate> currSecAlts = getStudy(current).getSecondaryAlternates();
+    private boolean checkForDuplicates(Variant current, Variant other, StudyEntry currentStudy, StudyEntry otherStudy, List<AlternateCoordinate> otherAlts) {
+        Set<String> duplicateSamples = otherStudy.getSamplesName().stream()
+                .filter(s -> currentStudy.getSamplesName().contains(s))
+                .collect(Collectors.toSet());
+        if (!duplicateSamples.isEmpty()) {
             Map<String, String> currSampleToGts = sampleToGt(current);
-            for (int i = 0; i < currSecAlts.size(); i++) {
-                // check same secondary hits
-                AlternateCoordinate currSec = currSecAlts.get(i);
-                if (isSameVariant(other, currSec) ) {
-                    int gtIdx = i+2;
-                    for (Map.Entry<String, String> sgte : currSampleToGts.entrySet()) {
-                        if (otherStudy.getSamplesName().contains(sgte.getKey())) { // contains same individual
-                            Set<String> gtIdxSet = Arrays.stream(sgte.getValue().split(","))
-                                    .flatMap(e -> Arrays.stream(e.split("/")))
-                                    .flatMap(e -> Arrays.stream(e.split("\\|"))).collect(Collectors.toSet());
-                            if (gtIdxSet.contains(Integer.toString(gtIdx))){ // contains Alternate
-                                throw new IllegalStateException(String.format(
-                                        "Duplicated entries - issue with merge: %s; value: %s; gtidx: %s\ncurrent: %s; other: %s;\ncurrVar: %s\notherVar: %s",
-                                        sgte.getKey(), sgte.getValue(), gtIdx,
-                                        variantToString(current), variantToString(other), current.toJson(), other.toJson()));
-                            }
-                        }
-                    }
+            List<AlternateCoordinate> currAlts = new ArrayList<>();
+            currAlts.add(getMainAlternate(current));
+            currAlts.addAll(currentStudy.getSecondaryAlternates());
+            for (String dupSample : duplicateSamples) {
+                String currGt = currSampleToGts.get(dupSample);
+                Set<Integer> gtIdxSet = Arrays.stream(currGt.split(","))
+                        .flatMap(e -> Arrays.stream(e.split("/")))
+                        .flatMap(e -> Arrays.stream(e.split("\\|")))
+                        .filter(g -> NumberUtils.isNumber(g))
+                        .map(g -> Integer.valueOf(g))
+                        .filter(g -> g > 0)
+                        .collect(Collectors.toSet());
+                // Find same alleles in current and other for this individual
+                List<AlternateCoordinate> currConflict = gtIdxSet.stream()
+                        .map(g -> currAlts.get(g - 1))
+                        .filter(a -> otherAlts.stream().filter(o -> isSameVariant(a, o)).count() > 0)
+                        .collect(Collectors.toList());
+                // Only Throw Exception in case of duplicated Alt for same individual
+                if (!currConflict.isEmpty()) {
+                    StringBuilder sb = new StringBuilder("Duplicated entries during merging: Issue with ID ");
+                    sb.append(dupSample).append("; Variants: ");
+                    currConflict.forEach(a -> sb.append("\n").append(a));
+                    sb.append(";");
+                    throw new IllegalStateException(sb.toString());
                 }
             }
         }
@@ -332,26 +350,20 @@ public class VariantMerger {
         }
         StudyEntry se = getStudy(variant);
         if(se.getSecondaryAlternates() != null){
-            for (AlternateCoordinate alt : se.getSecondaryAlternates()) {
-                if (alt.getChromosome() == null) {
-                    alt.setChromosome(variant.getChromosome());
-                }
-                if (alt.getStart() == null) {
-                    alt.setStart(variant.getStart());
-                }
-                if (alt.getEnd() == null) {
-                    alt.setEnd(variant.getEnd());
-                }
-                if (alt.getReference() == null) {
-                    alt.setReference(variant.getReference());
-                }
-                if (alt.getAlternate() == null) {
-                    alt.setAlternate(variant.getAlternate());
-                }
-                alternates.add(alt);
-            }
+            se.getSecondaryAlternates().forEach( alt -> alternates.add(copyAlt(variant, alt)));
         }
         return alternates;
+    }
+
+    private AlternateCoordinate copyAlt(Variant var, AlternateCoordinate orig) {
+        AlternateCoordinate copy = new AlternateCoordinate();
+        copy.setChromosome(orig.getChromosome() == null ? var.getChromosome() : orig.getChromosome());
+        copy.setStart(orig.getStart() == null ? var.getStart() : orig.getStart());
+        copy.setEnd(orig.getEnd() == null ? var.getEnd() : orig.getEnd());
+        copy.setReference(orig.getReference() == null ? var.getReference() : orig.getReference());
+        copy.setAlternate(orig.getAlternate() == null ? var.getAlternate() : orig.getAlternate());
+        copy.setType(orig.getType() == null ? var.getType() : orig.getType());
+        return copy;
     }
 
     public static AlternateCoordinate getMainAlternate(Variant variant) {
