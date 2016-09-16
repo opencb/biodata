@@ -801,4 +801,14 @@ public class VariantMergerTest {
                 new Variant(variant).overlapWith(new Variant(otherVariant), inclusive));
 
     }
+
+    @Test
+    public void hasAnyOverlapTest() {
+        VariantNormalizer normalizer = new VariantNormalizer();
+        Variant current = normalizer.apply(Collections.singletonList(VariantTestUtils.generateVariantWithFormat("2:102:C:T", "GT", "a", "0/0"))).get(0);
+        Variant other = normalizer.apply(Collections.singletonList(VariantTestUtils.generateVariantWithFormat("2:100:CCCCC:ACCCC,TTTTT", "GT", "a", "0/0"))).get(0);
+        assertTrue(VariantMerger.hasAnyOverlap(current, other));
+        assertFalse(current.overlapWith(other, true));
+    }
+
 }

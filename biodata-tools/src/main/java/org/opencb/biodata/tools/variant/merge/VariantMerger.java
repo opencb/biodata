@@ -4,7 +4,6 @@
 package org.opencb.biodata.tools.variant.merge;
 
 import htsjdk.variant.vcf.VCFConstants;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.opencb.biodata.models.feature.Genotype;
@@ -96,16 +95,25 @@ public class VariantMerger {
         return current;
     }
 
-    public static boolean hasAnyOverlap(Variant current, Variant query) {
-        if (current.overlapWith(query, true)) {
+    public static boolean hasAnyOverlap(Variant current, Variant other) {
+        if (current.overlapWith(other, true)) {
             return true;
         }
         // SecAlt of query
-        return query.getStudies().stream().filter( s -> // foreach study
-            s.getSecondaryAlternates().stream().filter(a -> // Check each SecAlt from query for overlap
-                    current.overlapWith(a.getChromosome(), a.getStart(), a.getEnd(), true)
-            ).findAny().isPresent()
-        ).findAny().isPresent();
+        return other.getStudies().stream()
+                .filter( s -> // foreach study
+                        s.getSecondaryAlternates().stream()
+                                .filter(a -> {
+                                            // Avoid NPE
+                                            a = copyAlt(other, a);
+                                            return current.overlapWith(a.getChromosome(), a.getStart(), a.getEnd(), true);
+                                        }
+                                )
+                                .findAny()
+                                .isPresent()
+                )
+                .findAny()
+                .isPresent();
     }
 
     private String variantToString(Variant v) {
@@ -355,7 +363,7 @@ public class VariantMerger {
         return alternates;
     }
 
-    private AlternateCoordinate copyAlt(Variant var, AlternateCoordinate orig) {
+    private static AlternateCoordinate copyAlt(Variant var, AlternateCoordinate orig) {
         AlternateCoordinate copy = new AlternateCoordinate();
         copy.setChromosome(orig.getChromosome() == null ? var.getChromosome() : orig.getChromosome());
         copy.setStart(orig.getStart() == null ? var.getStart() : orig.getStart());
