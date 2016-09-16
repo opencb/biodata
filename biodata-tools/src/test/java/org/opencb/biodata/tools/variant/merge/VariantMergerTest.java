@@ -292,7 +292,7 @@ public class VariantMergerTest {
         Variant mergeVar2 = VARIANT_MERGER.merge(mergeVar, v3);
         System.out.println("mergeVar2 = " + mergeVar2.toJson());
         assertEquals("0/0,./.", mergeVar2.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_KEY));
-        assertEquals("PASS", mergeVar.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_FILTER_KEY));
+        assertEquals("PASS,XXX", mergeVar.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_FILTER_KEY));
     }
 
     @Test
@@ -321,7 +321,7 @@ public class VariantMergerTest {
         System.out.println("mergeVar2 = " + mergeVar2.toJson());
         assertEquals(2, mergeVar.getStudies().get(0).getSecondaryAlternates().size());
         assertEquals(new HashSet(Arrays.asList("2/2","0/3")), new HashSet(Arrays.asList(mergeVar2.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_KEY).split(","))));
-        assertEquals("PASS", mergeVar.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_FILTER_KEY));
+        assertEquals("PASS,XXX", mergeVar.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_FILTER_KEY));
     }
 
     @Test(expected = IllegalStateException.class)
@@ -801,4 +801,14 @@ public class VariantMergerTest {
                 new Variant(variant).overlapWith(new Variant(otherVariant), inclusive));
 
     }
+
+    @Test
+    public void hasAnyOverlapTest() {
+        VariantNormalizer normalizer = new VariantNormalizer();
+        Variant current = normalizer.apply(Collections.singletonList(VariantTestUtils.generateVariantWithFormat("2:102:C:T", "GT", "a", "0/0"))).get(0);
+        Variant other = normalizer.apply(Collections.singletonList(VariantTestUtils.generateVariantWithFormat("2:100:CCCCC:ACCCC,TTTTT", "GT", "a", "0/0"))).get(0);
+        assertTrue(VariantMerger.hasAnyOverlap(current, other));
+        assertFalse(current.overlapWith(other, true));
+    }
+
 }
