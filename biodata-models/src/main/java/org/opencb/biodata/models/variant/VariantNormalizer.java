@@ -309,7 +309,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                     newAlternate = "<CNV>";
                 }
             }
-            list.add(new VariantKeyFields(start, end, newReference, newAlternate));
+            list.add(new VariantKeyFields(start, end, numAllelesIdx, newReference, newAlternate));
         }
 
         return list;
