@@ -3,7 +3,6 @@ package org.opencb.biodata.models.variant;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.VariantType;
-import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 
 import java.util.*;
 import java.util.stream.Collectors;
