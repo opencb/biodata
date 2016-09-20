@@ -85,7 +85,8 @@ public class BeanReader<T> {
             if (constructor != null) {
                 argsClass = constructor.getParameterTypes();
             }
-            bufferedReader = Files.newBufferedReader(path, Charset.defaultCharset());
+//            bufferedReader = Files.newBufferedReader(path, Charset.defaultCharset());
+            bufferedReader = Files.newBufferedReader(path, Charset.forName("ISO-8859-1"));
         } else {
             new IOException("Empty path provided");
         }
@@ -190,7 +191,8 @@ public class BeanReader<T> {
     private String getFirstLineUncommented(Path path) throws IOException {
         String line = "";
         StringBuilder commentLineBuilder = new StringBuilder();
-        BufferedReader reader = Files.newBufferedReader(path, Charset.defaultCharset());
+//        BufferedReader reader = Files.newBufferedReader(path, Charset.defaultCharset());
+        BufferedReader reader = Files.newBufferedReader(path, Charset.forName("ISO-8859-1"));
         while ((line = reader.readLine()) != null && line.startsWith(comment)) {
             commentLineBuilder.append(line).append("\n");
         }
