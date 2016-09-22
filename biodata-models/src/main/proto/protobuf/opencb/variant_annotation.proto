@@ -37,10 +37,44 @@ message Cosmic {
     string mutation_somatic_status = 9;
 }
 
+message Germline {
+    string source = 1;
+    string accession = 2;
+    string clinical_significance = 3;
+    string phenotype = 4;
+    string disease = 5;
+    string review_status = 6;
+    repeated string gene_names = 7;
+    repeated string protein_names = 8;
+    string penetrance = 9;
+    string heritance_model = 10;
+    repeated string bibliography = 11;
+    repeated string drugs = 12;
+}
+
+record Somatic {
+    string source = 1;
+    string accession = 2;
+    string primary_site = 3;
+    string site_subtype = 4;
+    string primary_histology = 5;
+    string histology_subtype = 6;
+    string sample_source = 7;
+    string tumour_origin = 8;
+    string mutation_somatic_status = 9;
+    string review_status = 10;
+    repeated string gene_names = 11;
+    repeated string protein_names = 12;
+    repeated string bibliography = 13;
+    repeated string drugs = 14;
+}
+
 message VariantTraitAssociation {
     repeated ClinVar clinvar = 1;
     repeated Gwas gwas = 2;
     repeated Cosmic cosmic = 3;
+    repeated Germline germline = 4;
+    repeated Somatic somatic = 5;
 }
 
 message PopulationFrequency {
@@ -116,15 +150,20 @@ message VariantAnnotation {
     }
     repeated Xref xrefs = 7;
     repeated string hgvs = 8;
-    repeated ConsequenceType consequence_types = 9;
-    repeated PopulationFrequency population_frequencies = 10;
-    repeated Score conservation = 11;
-    repeated Expression gene_expression = 12;
-    repeated GeneDrugInteraction gene_drug_interaction = 13;
-    VariantTraitAssociation trait_association = 14;
+    string display_consequence_type = 9;
+    repeated ConsequenceType consequence_types = 10;
+    repeated PopulationFrequency population_frequencies = 11;
+    string minorAllele = 12;
+    float minorAlleleFreq = 13;
+
+    repeated Score conservation = 14;
+    repeated Expression gene_expression = 15;
+    repeated GeneTraitAssociation gene_trait_association = 16;
+    repeated GeneDrugInteraction gene_drug_interaction = 17;
+    VariantTraitAssociation variant_trait_association = 18;
 
     message AdditionalAttribute {
         map<string, string> attribute = 1;
     }
-    map<string, AdditionalAttribute> additional_attributes = 15;
+    map<string, AdditionalAttribute> additional_attributes = 19;
 }

@@ -442,7 +442,8 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         /*
          * set Clinical map type parameter
          */
-        variantAnnotation.setVariantTraitAssociation(new VariantTraitAssociation(Arrays.asList(), Arrays.asList(),Arrays.asList()));
+        variantAnnotation.setVariantTraitAssociation(new VariantTraitAssociation(Arrays.asList(), Arrays.asList(),
+                Arrays.asList(), Arrays.asList(), Arrays.asList()));
 
         /*
          * set ConsequenceTypes list type parameter
