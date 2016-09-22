@@ -17,11 +17,11 @@ protocol MetadataProtocol {
     }
 
     record Experiment {
-	    string center;
+        string center;
         string date;
-	    string type;
-	    string platform;
-	    string description;
+        string type;
+        string platform;
+        string description;
 
         // Other possible fields:
         // - The experiment ID
@@ -40,14 +40,14 @@ protocol MetadataProtocol {
     }
 
     record Species {
-	    string commonName;
-	    string scientificName;
-	    string taxonomyId;
-	    string strain;
-	    string assembly;
+        string commonName;
+        string scientificName;
+        string taxonomyId;
+        string strain;
+        string assembly;
     }
 
-	record Program {
+    record Program {
         string name;
         string version;
         string commandLine;

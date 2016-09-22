@@ -70,7 +70,7 @@ protocol VariantMetadataProtocol {
         union { null, string } url;
 
         org.opencb.biodata.models.metadata.Experiment experiment;
-	    union { null, org.opencb.biodata.models.metadata.Program } program;
+        union { null, org.opencb.biodata.models.metadata.Program } program;
 
         union {null, VariantSetStats } stats;
 
@@ -84,14 +84,14 @@ protocol VariantMetadataProtocol {
 
         string sourceType;
         org.opencb.biodata.models.metadata.Type type;
-	}
+    }
 
-	record VariantMetadata {
-	    string version;
-	    union { null, org.opencb.biodata.models.metadata.Species } species;
-	    union { null, string } date;
-	    union { null, string } description;
+    record VariantMetadata {
+        string version;
+        union { null, org.opencb.biodata.models.metadata.Species } species;
+        union { null, string } date;
+        union { null, string } description;
 
-	    array<VariantDatasetMetadata> datasets;
-	}
+        array<VariantDatasetMetadata> datasets;
+    }
 }
