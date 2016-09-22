@@ -3,7 +3,7 @@
 
 protocol Variants {
 
-    import idl "metadata.avdl";
+    //import idl "metadata.avdl";
     import idl "variantAnnotation.avdl";
 
     /**
@@ -323,7 +323,7 @@ protocol Variants {
 
         array<string> samples = [];
 
-        org.opencb.biodata.models.metadata.Aggregation aggregation;
+        org.opencb.biodata.models.variant.commons.Aggregation aggregation;
         //string aggregation;
 
         union {null, VariantGlobalStats } stats;
