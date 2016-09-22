@@ -87,7 +87,7 @@ protocol MetadataProtocol {
 
     record Cohort {
         string id;
-        array<string> sampleNames = [];
+        array<string> sampleIds = [];
         Type type;
     }
 }

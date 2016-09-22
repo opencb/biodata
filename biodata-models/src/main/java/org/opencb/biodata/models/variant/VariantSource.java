@@ -54,7 +54,7 @@ public class VariantSource {
 
     public VariantSource(String fileName, String fileId, String studyId, String studyName, VariantStudy.StudyType type, Aggregation aggregation) {
         impl = new VariantFileMetadata(fileId, studyId, fileName, studyName, new LinkedList<>(),
-                org.opencb.biodata.models.metadata.Aggregation.NONE, null, new HashMap<>(), null);
+                org.opencb.biodata.models.variant.commons.Aggregation.NONE, null, new HashMap<>(), null);
         samplesPosition = null;
     }
 
@@ -97,7 +97,7 @@ public class VariantSource {
 
     public void setAggregation(Aggregation aggregation) {
         impl.setAggregation(aggregation == null ? null
-                : org.opencb.biodata.models.metadata.Aggregation.valueOf(aggregation.toString()));
+                : org.opencb.biodata.models.variant.commons.Aggregation.valueOf(aggregation.toString()));
     }
 
     public Map<String, Integer> getSamplesPosition() {

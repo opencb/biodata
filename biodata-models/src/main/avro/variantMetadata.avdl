@@ -1,7 +1,8 @@
 @namespace("org.opencb.biodata.models.variant.metadata")
 
 protocol VariantMetadataProtocol {
-    // we need import metadata.avdl to use the enum Aggregation and Type
+
+    // we need import variantCommons.avdl and metadata.avdl to use the enum Aggregation and Type
     import idl "metadata.avdl";
     import idl "variantCommons.avdl";
 
@@ -40,8 +41,8 @@ protocol VariantMetadataProtocol {
         string number;
         string type;
         string description;
-        string source;
-        string version;
+        union { null, string } source;
+        union { null, string } version;
     }
 
     record FileHeader {
@@ -51,11 +52,11 @@ protocol VariantMetadataProtocol {
 
     record VariantFileMetadata {
         string id;
-        union { null, string } alias = null;
+        union { null, string } alias = "";
 
-        array<string> sampleNames = [ ];
+        array<string> sampleIds = [ ];
 
-        Aggregation aggregation;
+        org.opencb.biodata.models.variant.commons.Aggregation aggregation;
 
         union {null, VariantSetStats } stats;
         union {null, FileHeader} header;
@@ -63,9 +64,9 @@ protocol VariantMetadataProtocol {
 
     record VariantDatasetMetadata {
         string id;
-        // should we add these new fields?
-        // union { null, string } name;
-        // union { null, string } alias;
+        // should we add these new field?
+        // union { null, string } alias = "";
+        // union { null, string } name;  <--- No
         union { null, string } description;
         union { null, string } url;
 
@@ -90,7 +91,8 @@ protocol VariantMetadataProtocol {
         string version;
         union { null, org.opencb.biodata.models.metadata.Species } species;
         union { null, string } date;
-        union { null, string } description;
+        //union { null, string } description;
+        string description = "";
 
         array<VariantDatasetMetadata> datasets;
     }
