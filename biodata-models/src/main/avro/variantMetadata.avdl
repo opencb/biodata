@@ -52,7 +52,7 @@ protocol VariantMetadataProtocol {
 
     record VariantFileMetadata {
         string id;
-        union { null, string } alias = "";
+        union { null, string } alias;
 
         array<string> sampleIds = [ ];
 
