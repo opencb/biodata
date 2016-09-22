@@ -8,6 +8,7 @@ option java_generate_equals_and_hash = true;
 //option java_multiple_files = true;
 
 import "protobuf/opencb/common.proto";
+import "protobuf/opencb/gene.proto";
 
 
 message ClinVar {
@@ -52,7 +53,7 @@ message Germline {
     repeated string drugs = 12;
 }
 
-record Somatic {
+message Somatic {
     string source = 1;
     string accession = 2;
     string primary_site = 3;
@@ -165,5 +166,6 @@ message VariantAnnotation {
     message AdditionalAttribute {
         map<string, string> attribute = 1;
     }
+
     map<string, AdditionalAttribute> additional_attributes = 19;
 }

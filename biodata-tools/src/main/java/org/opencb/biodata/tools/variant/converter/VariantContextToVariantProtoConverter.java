@@ -336,7 +336,7 @@ public class VariantContextToVariantProtoConverter implements Converter<VariantC
         variantTraitAssociation.addAllClinvar(Arrays.asList());
         variantTraitAssociation.addAllCosmic(Arrays.asList());
         variantTraitAssociation.addAllGwas(Arrays.asList());
-        variantAnnotation.setTraitAssociation(variantTraitAssociation);
+        variantAnnotation.setVariantTraitAssociation(variantTraitAssociation);
 
         /*
          * set ConsequenceTypes list type parameter
