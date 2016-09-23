@@ -91,7 +91,7 @@ protocol VariantMetadataProtocol {
         map<VariantSetStats> cohortStats = { };
 
         string sourceType;
-        org.opencb.biodata.models.metadata.Type type;
+        org.opencb.biodata.models.metadata.SampleSetType sampleSetType;
     }
 
     record VariantMetadata {

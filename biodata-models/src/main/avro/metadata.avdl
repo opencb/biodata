@@ -2,7 +2,7 @@
 
 protocol MetadataProtocol {
 
-     enum Type {
+     enum SampleSetType {
         CASE_CONTROL,
         CASE_SET,
         CONTROL_SET,
@@ -19,7 +19,6 @@ protocol MetadataProtocol {
     record Experiment {
         string center;
         string date;
-        string type;
         string molecule; // genomics DNA, total RNA,...
         string technique; // whole genome sequencing, RNA-seq, RIP-seq,...
         string library;
@@ -73,6 +72,6 @@ protocol MetadataProtocol {
     record Cohort {
         string id;
         array<string> sampleIds = [];
-        Type type;
+        SampleSetType sampleSetType;
     }
 }
