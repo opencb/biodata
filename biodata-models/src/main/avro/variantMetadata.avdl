@@ -36,13 +36,20 @@ protocol VariantMetadataProtocol {
 
     record FileHeaderLine {
         string key;
+
+        // basic lines, e.g. fileDate=20090805
         string value;
+
+        // complex lines, e.g. INFO=<ID=NS,Number=1,Type=Integer,Description="Number of samples with data">
         string id;
         string number;
         string type;
         string description;
         union { null, string } source;
         union { null, string } version;
+
+        // it could be defined as an:
+        // union { string, ComplexHeaderLine } value;
     }
 
     record FileHeader {
