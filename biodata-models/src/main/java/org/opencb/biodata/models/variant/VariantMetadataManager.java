@@ -10,9 +10,7 @@ import org.opencb.biodata.models.variant.metadata.VariantFileMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantDatasetMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantMetadata;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,7 +56,7 @@ public class VariantMetadataManager {
 
     public void load(String filename) throws IOException {
         this.metaFilename = filename;
-        variantMetadata = mapper.readValue(filename, VariantMetadata.class);
+        variantMetadata = mapper.readValue(new File(filename), VariantMetadata.class);
     }
 
 
@@ -71,7 +69,7 @@ public class VariantMetadataManager {
                 }
             }
         }
-        // error management, not file found !!
+        // error management: file not found !!
     }
 
     public void createCohort(String datasetId, String cohortId, List<String> sampleIds, SampleSetType type) {
@@ -86,7 +84,8 @@ public class VariantMetadataManager {
                 } else {
                     for (Cohort cohort : dataset.getCohorts()) {
                         if (cohortId.equals(cohort.getId())) {
-                            // error management
+                            // error management: cohort already exists !
+                            return;
                         }
                     }
                     dataset.getCohorts().add(new Cohort(cohortId, sampleIds, type));
@@ -94,7 +93,17 @@ public class VariantMetadataManager {
                 }
             }
         }
-        // error management
+        // error management: dataset not found !
+    }
+
+    public void renameDataset(String oldName, String newName) {
+        for (VariantDatasetMetadata dataset : variantMetadata.getDatasets()) {
+            if (oldName.equals(dataset.getId())) {
+                dataset.setId(newName);
+                return;
+            }
+        }
+        // error management: dataset (old name) not found !
     }
 
     public void save() throws IOException {
