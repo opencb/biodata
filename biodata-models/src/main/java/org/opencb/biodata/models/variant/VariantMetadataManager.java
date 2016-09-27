@@ -106,6 +106,33 @@ public class VariantMetadataManager {
         // error management: dataset (old name) not found !
     }
 
+    public String summary() {
+        StringBuilder res = new StringBuilder();
+        res.append("Num. datasets: ").append(variantMetadata.getDatasets().size()).append("\n");
+        int counter, datasetCounter = 0;
+        for (VariantDatasetMetadata dataset : variantMetadata.getDatasets()) {
+            datasetCounter++;
+            res.append("\tDataset #").append(datasetCounter).append(": ").append(dataset.getId()).append("\n");
+
+            res.append("\tNum. files: ").append(dataset.getFiles().size()).append("\n");
+            counter = 0;
+            for (VariantFileMetadata file: dataset.getFiles()) {
+                counter++;
+                res.append("\t\tFile #").append(counter).append(": ").append(file.getId());
+                res.append(" (").append(file.getSampleIds().size()).append(" samples)\n");
+            }
+
+            res.append("\tNum. cohorts: ").append(dataset.getCohorts().size()).append("\n");
+            counter = 0;
+            for (Cohort cohort: dataset.getCohorts()) {
+                counter++;
+                res.append("\t\tCohort #").append(counter).append(": ").append(cohort.getId());
+                res.append(" (").append(cohort.getSampleIds().size()).append(" samples)\n");
+            }
+        }
+        return res.toString();
+    }
+
     public void save() throws IOException {
         save(metaFilename);
     }
