@@ -96,6 +96,21 @@ public class VariantMetadataManager {
         // error management: dataset not found !
     }
 
+    public void renameCohort(String datasetId, String oldName, String newName) {
+        for (VariantDatasetMetadata dataset : variantMetadata.getDatasets()) {
+            if (datasetId.equals(dataset.getId())) {
+                for (Cohort cohort : dataset.getCohorts()) {
+                    if (oldName.equals(cohort.getId())) {
+                        cohort.setId(newName);
+                        return;
+                    }
+                }
+                // error management: cohort not found !
+            }
+        }
+        // error management: dataset not found !
+    }
+
     public void renameDataset(String oldName, String newName) {
         for (VariantDatasetMetadata dataset : variantMetadata.getDatasets()) {
             if (oldName.equals(dataset.getId())) {
