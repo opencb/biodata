@@ -36,13 +36,13 @@ protocol VariantAnnotations {
         string source;
         string accession;
         union { null, string } clinicalSignificance;
-        union { null, string } phenotype;
-        union { null, string } disease;
+        union { null, array<string> } phenotype;
+        union { null, array<string> } disease;
         union { null, string } reviewStatus;
         union { null, array<string> } geneNames;
         union { null, array<string> } proteinNames;
         union { null, string } penetrance;
-        union { null, string } heritanceModel;
+        union { null, string } inheritanceModel;
         union { null, array<string> } bibliography;
         union { null, array<string> } drugs;
     }
