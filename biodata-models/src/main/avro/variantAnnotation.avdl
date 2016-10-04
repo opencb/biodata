@@ -104,8 +104,8 @@ protocol VariantAnnotations {
         union { null, string } uniprotName = null;
         int position;
         //string aaChange;
-        string reference;
-        string alternate;
+        union { null, string } reference;
+        union { null, string } alternate;
         union { null, string } uniprotVariantId;
         union { null, string } functionalDescription;
         union { null, array<Score> } substitutionScores;
