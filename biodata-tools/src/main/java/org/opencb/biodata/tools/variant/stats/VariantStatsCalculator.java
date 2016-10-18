@@ -59,9 +59,13 @@ public class VariantStatsCalculator {
 
             // Check missing alleles and genotypes
             switch (g.getCode()) {
+                case MULTIPLE_ALTERNATES:
                 case ALLELES_OK:
                     for (int i = 0; i < g.getPloidy(); i++) {
-                        allelesCount[g.getAllele(i)]++;
+                        // Count only REF and ALT alleles.
+                        if (g.getAllele(i) <= 1) {
+                            allelesCount[g.getAllele(i)]++;
+                        }
                     }
 
                     totalAllelesCount += g.getPloidy();
@@ -78,9 +82,6 @@ public class VariantStatsCalculator {
 //                        variantStats.getHw().incN_aa();
 //                    }
 
-                    break;
-                case MULTIPLE_ALTERNATES:
-                    // Alternate with different "index" than the one that is being handled
                     break;
                 case ALLELES_MISSING:
                     // Missing genotype (one or both alleles missing)

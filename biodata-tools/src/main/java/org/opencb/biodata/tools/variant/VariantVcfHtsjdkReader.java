@@ -44,6 +44,7 @@ public class VariantVcfHtsjdkReader implements VariantReader {
     private LineIterator lineIterator;
     private List<String> headerLines;
     private Set<BiConsumer<String, RuntimeException>> malformHandlerSet = new HashSet<>();
+    private boolean failOnError = false;
 
     public VariantVcfHtsjdkReader(InputStream inputStream, VariantSource source) {
         this(inputStream, source, null);
@@ -57,6 +58,11 @@ public class VariantVcfHtsjdkReader implements VariantReader {
 
     public VariantVcfHtsjdkReader registerMalformatedVcfHandler(BiConsumer<String, RuntimeException> handler) {
         this.malformHandlerSet.add(handler);
+        return this;
+    }
+
+    public VariantVcfHtsjdkReader setFailOnError(boolean failOnError) {
+        this.failOnError = failOnError;
         return this;
     }
 
@@ -113,12 +119,15 @@ public class VariantVcfHtsjdkReader implements VariantReader {
             }
             try {
                 variantContexts.add(codec.decode(line));
-            } catch (TribbleException e) {
-                if (e.getMessage().startsWith("The provided VCF file is malformed at approximately line number")) {
-                    logMalformatedLine(line, e);
-                } else {
+            } catch (RuntimeException e) {
+                logMalformatedLine(line, e);
+                if (failOnError) {
                     throw e;
                 }
+//                if (e.getMessage().startsWith("The provided VCF file is malformed at approximately line number")) {
+//                } else {
+//                    throw e;
+//                }
             }
         }
 
@@ -131,10 +140,10 @@ public class VariantVcfHtsjdkReader implements VariantReader {
         return variants;
     }
 
-    private void logMalformatedLine(String line, RuntimeException error) {
-        logger.warn(error.getMessage());
+    private void logMalformatedLine(String line, RuntimeException exception) {
+        logger.warn(exception.getMessage());
         for (BiConsumer<String, RuntimeException> consumer : this.malformHandlerSet) {
-            consumer.accept(line, error);
+            consumer.accept(line, exception);
         }
     }
 

@@ -631,18 +631,20 @@ public class Variant implements Serializable {
         if (!StringUtils.equals(this.getChromosome(), chromosome)) {
             return false; // Different Chromosome
         } else {
-            int thisStart = this.getStart();
-            int thisEnd = this.getEnd();
-            if (thisStart > thisEnd) {
-                thisEnd = thisStart;
+            int aStart = this.getStart();
+            int aEnd = this.getEnd();
+
+            if (aStart > aEnd) { // Insertion
+                aStart = aEnd;
             }
-            if (start > end) {
-                end = start;
+            if (start > end){ // Insertion
+                start = end;
             }
+
             if (inclusive) {
-                return thisStart <= end && thisEnd >= start;
+                return aStart <= end && aEnd >= start;
             } else {
-                return thisStart < end && thisEnd > start;
+                return aStart < end && aEnd > start;
             }
         }
     }

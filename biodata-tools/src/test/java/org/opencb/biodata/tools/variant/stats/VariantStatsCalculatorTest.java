@@ -99,7 +99,7 @@ public class VariantStatsCalculatorTest {
         source.setSamples(sampleNames);
         String line = "1\t10040\trs123\tT\tA,GC\t.\tPASS\t.\tGT:GL\t"
                 + "0/0:1,2,3,4,5,6\t0/1:1,2,3,4,5,6\t0/2:1,2,3,4,5,6\t"
-                + "1/1:1,2,3,4,5,6\t1/2:1,2,3,4,5,6\t2/2:1,2,3,4,5,6"; // 6 samples
+                + "1/1:1,2,3,4,5,6\t1/2:1,2,3,4,5,6\t1/2:1,2,3,4,5,6"; // 6 samples
 
         // Initialize expected variants
         List<Variant> result = new VariantVcfFactory().create(source, line);
@@ -107,7 +107,7 @@ public class VariantStatsCalculatorTest {
         
         // Test first variant (alt allele C)
         Variant variant_C = result.get(0);
-        StudyEntry sourceEntry_C = variant_C.getSourceEntry(source.getFileId(), source.getStudyId());
+        StudyEntry sourceEntry_C = variant_C.getStudy(source.getStudyId());
         VariantStats multiallelicStats_C = new VariantStats(result.get(0));
         VariantStatsCalculator.calculate(sourceEntry_C, sourceEntry_C.getAttributes(), null, multiallelicStats_C);
         
@@ -115,8 +115,8 @@ public class VariantStatsCalculatorTest {
         assertEquals("A", multiallelicStats_C.getAltAllele());
         assertEquals(VariantType.SNV, multiallelicStats_C.getVariantType());
         
-//        assertEquals(3, multiallelicStats_C.getRefAlleleCount());
-//        assertEquals(4, multiallelicStats_C.getAltAlleleCount());
+        assertEquals(multiallelicStats_C.getRefAlleleCount().intValue(), 4);
+        assertEquals(multiallelicStats_C.getAltAlleleCount().intValue(), 5);
 //        
 ////    private Map<Genotype, Integer> genotypesCount;
 //    
@@ -152,6 +152,12 @@ public class VariantStatsCalculatorTest {
         StudyEntry sourceEntry_GC = variant_GC.getSourceEntry(source.getFileId(), source.getStudyId());
         VariantStats multiallelicStats_GC = new VariantStats(result.get(1));
         VariantStatsCalculator.calculate(sourceEntry_GC, sourceEntry_GC.getAttributes(), null, multiallelicStats_GC);
+
+        assertEquals("T", multiallelicStats_GC.getRefAllele());
+        assertEquals("GC", multiallelicStats_GC.getAltAllele());
+
+        assertEquals(multiallelicStats_GC.getRefAlleleCount().intValue(), 4);
+        assertEquals(multiallelicStats_GC.getAltAlleleCount().intValue(), 3);
         
     }
     
