@@ -215,6 +215,10 @@ public class VariantAggregatedStatsCalculator {
             if (afs.length == alternateAlleles.length) {
                 variantStats.setAltAlleleFreq(Float.parseFloat(afs[numAllele]));
                 if (variantStats.getMaf() == -1) {  // in case that we receive AFs but no ACs
+                    if (variantStats.getRefAlleleFreq() < 0) {
+                        variantStats.setRefAlleleFreq(1 - variantStats.getAltAlleleFreq());
+                    }
+
                     float sumFreq = 0;
                     for (String af : afs) {
                         sumFreq += Float.parseFloat(af);
@@ -231,6 +235,27 @@ public class VariantAggregatedStatsCalculator {
                     }
                     variantStats.setMaf(maf);
                     variantStats.setMafAllele(mafAllele);
+                }
+            }
+        }
+
+        if (attributes.containsKey("MAF")) {
+            String[] mafs = attributes.get("MAF").split(COMMA);
+            if (mafs.length == alternateAlleles.length) {
+                float maf = Float.parseFloat(mafs[numAllele]);
+                variantStats.setMaf(maf);
+                if (attributes.containsKey("MA")) { // Get the minor allele
+                    String ma = attributes.get("MA");
+                    variantStats.setMafAllele(ma);
+                    if (variantStats.getAltAlleleFreq() < 0 || variantStats.getRefAlleleFreq() < 0) {
+                        if (ma.equals(variantStats.getRefAllele())) {
+                            variantStats.setRefAlleleFreq(maf);
+                            variantStats.setAltAlleleFreq(1 - maf);
+                        } else if (ma.equals(variantStats.getAltAllele())) {
+                            variantStats.setRefAlleleFreq(1 - maf);
+                            variantStats.setAltAlleleFreq(maf);
+                        } // It may happen that the MA is none of the variant alleles. Just skip
+                    }
                 }
             }
         }
