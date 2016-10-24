@@ -246,6 +246,9 @@ public class VariantAggregatedStatsCalculator {
                 variantStats.setMaf(maf);
                 if (attributes.containsKey("MA")) { // Get the minor allele
                     String ma = attributes.get("MA");
+                    if (ma.equals("-")) {
+                        ma = "";
+                    }
                     variantStats.setMafAllele(ma);
                     if (variantStats.getAltAlleleFreq() < 0 || variantStats.getRefAlleleFreq() < 0) {
                         if (ma.equals(variantStats.getRefAllele())) {

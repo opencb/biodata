@@ -24,9 +24,7 @@ import org.opencb.biodata.models.variant.VariantVcfFactory;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -186,25 +184,20 @@ public class VariantStatsCalculatorTest {
 
 
         Variant v = res.get(0);
-        Properties tagMap = new Properties();
-        tagMap.put("ALL.MAF", "MAF");
-        tagMap.put("ALL.MA", "MA");
-        tagMap.put("EAS.AF", "EAS_AF");
-        tagMap.put("AMR.AF", "AMR_AF");
-        tagMap.put("AFR.AF", "AFR_AF");
-        tagMap.put("EUR.AF", "EUR_AF");
-        tagMap.put("SAS.AF", "SAS_AF");
+        Properties tagMap = get1000gLiftOverTagMap();
         VariantAggregatedStatsCalculator calculator = new VariantAggregatedStatsCalculator(tagMap);
         calculator.calculate(v);
         StudyEntry s = v.getStudies().get(0);
 
-        assertEquals(0.4253, s.getStats().get("ALL").getAltAlleleFreq(), 0.0001);
-        assertEquals(0.3363, s.getStats().get("EAS").getAltAlleleFreq(), 0.0001);
-        assertEquals(0.3602, s.getStats().get("AMR").getAltAlleleFreq(), 0.0001);
-        assertEquals(0.4909, s.getStats().get("AFR").getAltAlleleFreq(), 0.0001);
-        assertEquals(0.4056, s.getStats().get("EUR").getAltAlleleFreq(), 0.0001);
-        assertEquals(0.4949, s.getStats().get("SAS").getAltAlleleFreq(), 0.0001);
+        Map<String, Double> freqs = new HashMap<>();
+        freqs.put("ALL", 0.4253);
+        freqs.put("EAS", 0.3363);
+        freqs.put("AMR", 0.3602);
+        freqs.put("AFR", 0.4909);
+        freqs.put("EUR", 0.4056);
+        freqs.put("SAS", 0.4949);
 
+        freqs.forEach((coh, freq) -> assertEquals(freq, s.getStats().get(coh).getAltAlleleFreq(), 0.0001));
 //        System.out.println(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(s.getStats()));
     }
 
@@ -232,6 +225,66 @@ public class VariantStatsCalculatorTest {
         assertTrue(res.size() == 2);
 
         Variant v = res.get(0);
+        Properties tagMap = get1000gLiftOverTagMap();
+        VariantAggregatedStatsCalculator calculator = new VariantAggregatedStatsCalculator(tagMap);
+        calculator.calculate(v);
+        StudyEntry s = v.getStudies().get(0);
+
+        Map<String, Double> freqs = new HashMap<>();
+        freqs.put("ALL", -1.0);
+        freqs.put("EAS", -1.0);
+        freqs.put("AMR", -1.0);
+        freqs.put("AFR", -1.0);
+        freqs.put("EUR", -1.0);
+        freqs.put("SAS", -1.0);
+
+        freqs.forEach((coh, freq) -> assertEquals(freq, s.getStats().get(coh).getAltAlleleFreq(), 0.0001));
+
+//        System.out.println(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(s.getStats()));
+    }
+
+    @Test
+    public void testCreate_1000g_38_liftover_indel() throws Exception {
+
+        String line = "1\t69521\trs553724620\tTA\tA\t.\t.\t" +
+                "dbSNP_144;" +
+                "TSA=SNV;" +
+                "E_Multiple_observations;" +
+                "E_1000G;" +
+                "MA=-;" +
+                "MAF=0.000399361;" +
+                "MAC=2;" +
+                "EAS_AF=0;" +
+                "AMR_AF=0.0029;" +
+                "AFR_AF=0;" +
+                "EUR_AF=0;" +
+                "SAS_AF=0" +
+                "\n";
+
+        List<Variant> res = readVariants(line);
+
+        assertTrue(res.size() == 1);
+
+        Variant v = res.get(0);
+        Properties tagMap = get1000gLiftOverTagMap();
+        VariantAggregatedStatsCalculator calculator = new VariantAggregatedStatsCalculator(tagMap);
+        calculator.calculate(v);
+        StudyEntry s = v.getStudies().get(0);
+
+        Map<String, Double> freqs = new HashMap<>();
+        freqs.put("ALL", 0.000399361);
+        freqs.put("EAS", 0.0);
+        freqs.put("AMR", 0.0029);
+        freqs.put("AFR", 0.0);
+        freqs.put("EUR", 0.0);
+        freqs.put("SAS", 0.0);
+
+        freqs.forEach((coh, freq) -> assertEquals(freq, s.getStats().get(coh).getAltAlleleFreq(), 0.0001));
+
+//        System.out.println(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(s.getStats()));
+    }
+
+    private Properties get1000gLiftOverTagMap() {
         Properties tagMap = new Properties();
         tagMap.put("ALL.MAF", "MAF");
         tagMap.put("ALL.MA", "MA");
@@ -240,18 +293,7 @@ public class VariantStatsCalculatorTest {
         tagMap.put("AFR.AF", "AFR_AF");
         tagMap.put("EUR.AF", "EUR_AF");
         tagMap.put("SAS.AF", "SAS_AF");
-        VariantAggregatedStatsCalculator calculator = new VariantAggregatedStatsCalculator(tagMap);
-        calculator.calculate(v);
-        StudyEntry s = v.getStudies().get(0);
-
-        assertEquals(-1, s.getStats().get("ALL").getAltAlleleFreq(), 0.0001);
-        assertEquals(-1, s.getStats().get("EAS").getAltAlleleFreq(), 0.0001);
-        assertEquals(-1, s.getStats().get("AMR").getAltAlleleFreq(), 0.0001);
-        assertEquals(-1, s.getStats().get("AFR").getAltAlleleFreq(), 0.0001);
-        assertEquals(-1, s.getStats().get("EUR").getAltAlleleFreq(), 0.0001);
-        assertEquals(-1, s.getStats().get("SAS").getAltAlleleFreq(), 0.0001);
-
-//        System.out.println(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(s.getStats()));
+        return tagMap;
     }
 
     private List<Variant> readVariants(String line) {
