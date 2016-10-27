@@ -2,6 +2,7 @@ package org.opencb.biodata.tools.alignment;
 
 import org.ga4gh.models.ReadAlignment;
 import org.junit.Test;
+import org.opencb.biodata.models.core.Region;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -19,11 +20,12 @@ public class AlignmentManagerTest {
         Path inputPath = Paths.get(getClass().getResource("/HG00096.chrom20.small.bam").toURI());
         AlignmentManager alignmentManager = new AlignmentManager(inputPath);
         AlignmentOptions options = new AlignmentOptions().setLimit(5);
-        List<ReadAlignment> query = alignmentManager.query("20", 60000, 65000, options);
+        Region region = new Region("20", 60000, 65000);
+        List<ReadAlignment> query = alignmentManager.query(region, options);
         assertEquals(5, query.size());
 
         options.setLimit(3);
-        query = alignmentManager.query("20", 60000, 65000, options);
+        query = alignmentManager.query(region, options);
         assertEquals(3, query.size());
     }
 

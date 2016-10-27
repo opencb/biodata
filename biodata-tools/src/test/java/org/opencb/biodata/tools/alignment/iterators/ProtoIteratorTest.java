@@ -2,6 +2,7 @@ package org.opencb.biodata.tools.alignment.iterators;
 
 import htsjdk.samtools.SAMRecord;
 import org.junit.Test;
+import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.tools.alignment.AlignmentManager;
 import org.opencb.biodata.tools.alignment.AlignmentOptions;
 import org.opencb.biodata.tools.alignment.filtering.AlignmentFilters;
@@ -24,7 +25,8 @@ public class ProtoIteratorTest {
         AlignmentFilters alignmentFilters = new AlignmentFilters()
                 .addMappingQualityFilter(50)
                 .addFilter(samRecord -> samRecord.getInferredInsertSize() > 200 && samRecord.getInferredInsertSize() < 300);
-        AlignmentIterator<SAMRecord> iterator = alignmentManager.iterator("20", 60000, 65000, new AlignmentOptions(), alignmentFilters);
+        Region region = new Region("20", 60000, 65000);
+        AlignmentIterator<SAMRecord> iterator = alignmentManager.iterator(region, new AlignmentOptions(), alignmentFilters);
         while (iterator.hasNext()) {
             SAMRecord next = iterator.next();
             System.out.println(next.getSAMString());

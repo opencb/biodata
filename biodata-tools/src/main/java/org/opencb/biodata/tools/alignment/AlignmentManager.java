@@ -22,6 +22,7 @@ import htsjdk.samtools.seekablestream.SeekableStream;
 import htsjdk.samtools.seekablestream.SeekableStreamFactory;
 import htsjdk.samtools.util.Log;
 import org.ga4gh.models.ReadAlignment;
+import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.tools.alignment.filtering.AlignmentFilters;
 import org.opencb.biodata.tools.alignment.iterators.AlignmentIterator;
 import org.opencb.biodata.tools.alignment.iterators.AvroIterator;
@@ -103,39 +104,54 @@ public class AlignmentManager {
     /**
      * This method aims to provide a very simple, safe and quick way of accessing to a small fragment of the BAM/CRAM file.
      * This must not be used in production for reading big data files. It returns a maximum of 10,000 SAM records.
-     * @param chromosome
-     * @param start
-     * @param end
-     * @return
+     *
+     * @param region@return
      * @throws IOException
      */
-    public List<ReadAlignment> query(String chromosome, int start, int end) throws Exception {
-        return query(chromosome, start, end, new AlignmentOptions(), null, ReadAlignment.class);
+    public List<ReadAlignment> query(Region region) throws Exception {
+        return query(region, new AlignmentOptions(), null, ReadAlignment.class);
     }
 
-    public List<ReadAlignment> query(String chromosome, int start, int end, AlignmentOptions options) throws Exception {
-        return query(chromosome, start, end, options, null, ReadAlignment.class);
+    public List<ReadAlignment> query(Region region, AlignmentOptions options) throws Exception {
+        return query(region, options, null, ReadAlignment.class);
     }
 
-    public List<ReadAlignment> query(String chromosome, int start, int end, AlignmentOptions options, AlignmentFilters filters)
+    public List<ReadAlignment> query(Region region, AlignmentOptions options, AlignmentFilters filters)
             throws Exception {
-        return query(chromosome, start, end, options, filters, ReadAlignment.class);
+        return query(region, options, filters, ReadAlignment.class);
     }
 
-    public <T> List<T> query(String chromosome, int start, int end, AlignmentOptions options, AlignmentFilters filters, Class<T> clazz)
-            throws Exception {
+    public <T> List<T> query(Region region, AlignmentOptions options, AlignmentFilters filters, Class<T> clazz) throws Exception {
         if (options == null) {
             options = new AlignmentOptions();
         }
         int maxNumberRecords = (options.getLimit() > 0 && options.getLimit() <= MAX_NUM_RECORDS)
                 ? options.getLimit() : MAX_NUM_RECORDS;
         List<T> results = new ArrayList<>(maxNumberRecords);
-        AlignmentIterator<T> alignmentIterator = iterator(chromosome, start, end, options, filters, clazz);
+        AlignmentIterator<T> alignmentIterator;
+        alignmentIterator = region != null ? iterator(region, options, filters, clazz) : iterator(options, filters, clazz);
+
         while (alignmentIterator.hasNext() && results.size() < maxNumberRecords) {
             results.add(alignmentIterator.next());
         }
         alignmentIterator.close();
         return results;
+    }
+
+    public List<ReadAlignment> query() throws Exception {
+        return query(null, new AlignmentOptions(), null, ReadAlignment.class);
+    }
+
+    public List<ReadAlignment> query(AlignmentOptions options) throws Exception {
+        return query(null, options, null, ReadAlignment.class);
+    }
+
+    public List<ReadAlignment> query(AlignmentOptions options, AlignmentFilters filters) throws Exception {
+        return query(null, options, filters, ReadAlignment.class);
+    }
+
+    public <T> List<T> query(AlignmentOptions options, AlignmentFilters filters, Class<T> clazz) throws Exception {
+        return query(null, options, filters, clazz);
     }
 
     public AlignmentIterator<SAMRecord> iterator() {
@@ -156,36 +172,31 @@ public class AlignmentManager {
             options = new AlignmentOptions();
         }
         SAMRecordIterator samRecordIterator = samReader.iterator();
-        if (ReadAlignment.class == clazz) { // AVRO
-            return (AlignmentIterator<T>) new AvroIterator(samRecordIterator, filters);
-        } else if (Reads.ReadAlignment.class == clazz) { // PROTOCOL BUFFER
-            return (AlignmentIterator<T>) new ProtoIterator(samRecordIterator, filters);
-        } else if (SAMRecord.class == clazz) {
-            return (AlignmentIterator<T>) new SamRecordIterator(samRecordIterator, filters);
-        } else {
-            throw new IllegalArgumentException("Unknown alignment class " + clazz);
-        }
+        return getAlignmentIterator(filters, clazz, samRecordIterator);
     }
 
-    public AlignmentIterator<SAMRecord> iterator(String chromosome, int start, int end) {
-        return iterator(chromosome, start, end, new AlignmentOptions(), null, SAMRecord.class);
+    public AlignmentIterator<SAMRecord> iterator(Region region) {
+        return iterator(region, new AlignmentOptions(), null, SAMRecord.class);
     }
 
-    public AlignmentIterator<SAMRecord> iterator(String chromosome, int start, int end, AlignmentOptions options) {
-        return iterator(chromosome, start, end, options, null, SAMRecord.class);
+    public AlignmentIterator<SAMRecord> iterator(Region region, AlignmentOptions options) {
+        return iterator(region, options, null, SAMRecord.class);
     }
 
-    public AlignmentIterator<SAMRecord> iterator(String chromosome, int start, int end, AlignmentOptions options,
-                                                     AlignmentFilters filters) {
-        return iterator(chromosome, start, end, options, filters, SAMRecord.class);
+    public AlignmentIterator<SAMRecord> iterator(Region region, AlignmentOptions options, AlignmentFilters filters) {
+        return iterator(region, options, filters, SAMRecord.class);
     }
 
-    public <T> AlignmentIterator<T> iterator(String chromosome, int start, int end, AlignmentOptions options, AlignmentFilters filters,
-                                             Class<T> clazz) {
+    public <T> AlignmentIterator<T> iterator(Region region, AlignmentOptions options, AlignmentFilters filters, Class<T> clazz) {
         if (options == null) {
             options = new AlignmentOptions();
         }
-        SAMRecordIterator samRecordIterator = samReader.query(chromosome, start, end, options.isContained());
+        SAMRecordIterator samRecordIterator =
+                samReader.query(region.getChromosome(), region.getStart(), region.getEnd(), options.isContained());
+        return getAlignmentIterator(filters, clazz, samRecordIterator);
+    }
+
+    private <T> AlignmentIterator<T> getAlignmentIterator(AlignmentFilters filters, Class<T> clazz, SAMRecordIterator samRecordIterator) {
         if (ReadAlignment.class == clazz) { // AVRO
             return (AlignmentIterator<T>) new AvroIterator(samRecordIterator, filters);
         } else if (Reads.ReadAlignment.class == clazz) { // PROTOCOL BUFFER
