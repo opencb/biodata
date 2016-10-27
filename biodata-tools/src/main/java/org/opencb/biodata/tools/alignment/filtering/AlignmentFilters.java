@@ -9,29 +9,33 @@ import java.util.function.Predicate;
 /**
  * Created by pfurio on 26/10/16.
  */
-public class AlignmentFilter {
+public class AlignmentFilters {
 
     List<Predicate<SAMRecord>> filters = new ArrayList<>();
 
-    public AlignmentFilter() {
+    public AlignmentFilters() {
     }
 
-    public AlignmentFilter(List<Predicate<SAMRecord>> filters) {
+    public AlignmentFilters(List<Predicate<SAMRecord>> filters) {
         this.filters = filters;
     }
 
+    public static AlignmentFilters create() {
+        return new AlignmentFilters();
+    }
 
-    public AlignmentFilter addFilter(Predicate<SAMRecord> predicate) {
+
+    public AlignmentFilters addFilter(Predicate<SAMRecord> predicate) {
         filters.add(predicate);
         return this;
     }
 
-    public AlignmentFilter addMappingQualityFilter(int mappingQuality) {
+    public AlignmentFilters addMappingQualityFilter(int mappingQuality) {
         filters.add(samRecord -> samRecord.getMappingQuality() > mappingQuality);
         return this;
     }
 
-    public AlignmentFilter addProperlyPairedFilter() {
+    public AlignmentFilters addProperlyPairedFilter() {
         filters.add(samRecord -> samRecord.getProperPairFlag());
         return this;
     }
@@ -40,7 +44,7 @@ public class AlignmentFilter {
         return filters;
     }
 
-    public AlignmentFilter setFilters(List<Predicate<SAMRecord>> filters) {
+    public AlignmentFilters setFilters(List<Predicate<SAMRecord>> filters) {
         this.filters = filters;
         return this;
     }

@@ -7,13 +7,13 @@ public class AlignmentOptions {
     private boolean contained;
     private boolean binQualities;
     private boolean updateMD;
-    private int maxNumberRecords;
+    private int limit;
 
     public AlignmentOptions() {
         this.contained = true;
         this.binQualities = false;
         this.updateMD = false;
-        this.maxNumberRecords = 50000;
+        this.limit = 50000;
     }
 
     public AlignmentOptions setContained(boolean contained) {
@@ -31,8 +31,8 @@ public class AlignmentOptions {
         return this;
     }
 
-    public AlignmentOptions setMaxNumberRecords(int maxNumberRecords) {
-        this.maxNumberRecords = maxNumberRecords;
+    public AlignmentOptions setLimit(int limit) {
+        this.limit = limit;
         return this;
     }
 
@@ -48,7 +48,7 @@ public class AlignmentOptions {
         return updateMD;
     }
 
-    public int getMaxNumberRecords() {
-        return maxNumberRecords;
+    public int getLimit() {
+        return limit;
     }
 }

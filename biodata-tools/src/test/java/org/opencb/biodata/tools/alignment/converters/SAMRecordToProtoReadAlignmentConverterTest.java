@@ -18,10 +18,6 @@ import static org.junit.Assert.assertEquals;
  */
 public class SAMRecordToProtoReadAlignmentConverterTest {
 
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
-
-
     @Test
     public void testConverter() throws URISyntaxException, IOException {
         Path inputPath = Paths.get(getClass().getResource("/HG00096.chrom20.small.bam").toURI());

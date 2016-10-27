@@ -1,10 +1,10 @@
 package org.opencb.biodata.tools.alignment.iterators;
 
-import org.ga4gh.models.ReadAlignment;
+import htsjdk.samtools.SAMRecord;
 import org.junit.Test;
 import org.opencb.biodata.tools.alignment.AlignmentManager;
 import org.opencb.biodata.tools.alignment.AlignmentOptions;
-import org.opencb.biodata.tools.alignment.filtering.AlignmentFilter;
+import org.opencb.biodata.tools.alignment.filtering.AlignmentFilters;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -21,13 +21,13 @@ public class ProtoIteratorTest {
         Path inputPath = Paths.get(getClass().getResource("/HG00096.chrom20.small.bam").toURI());
         AlignmentManager alignmentManager = new AlignmentManager(inputPath);
 
-        AlignmentFilter alignmentFilter = new AlignmentFilter()
+        AlignmentFilters alignmentFilters = new AlignmentFilters()
                 .addMappingQualityFilter(50)
                 .addFilter(samRecord -> samRecord.getInferredInsertSize() > 200 && samRecord.getInferredInsertSize() < 300);
-        AlignmentIterator<ReadAlignment> iterator = alignmentManager.iterator("20", 60000, 65000, new AlignmentOptions(), alignmentFilter);
+        AlignmentIterator<SAMRecord> iterator = alignmentManager.iterator("20", 60000, 65000, new AlignmentOptions(), alignmentFilters);
         while (iterator.hasNext()) {
-            ReadAlignment next = iterator.next();
-            System.out.println(next.toString());
+            SAMRecord next = iterator.next();
+            System.out.println(next.getSAMString());
         }
     }
 

@@ -2,7 +2,7 @@ package org.opencb.biodata.tools.alignment.iterators;
 
 import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.SAMRecordIterator;
-import org.opencb.biodata.tools.alignment.filtering.AlignmentFilter;
+import org.opencb.biodata.tools.alignment.filtering.AlignmentFilters;
 
 import java.util.Iterator;
 import java.util.List;
@@ -21,7 +21,7 @@ public abstract class AlignmentIterator<T> implements Iterator<T>, AutoCloseable
         this(samRecordIterator, null);
     }
 
-    public AlignmentIterator(SAMRecordIterator samRecordIterator, AlignmentFilter filters) {
+    public AlignmentIterator(SAMRecordIterator samRecordIterator, AlignmentFilters filters) {
         this.samRecordIterator = samRecordIterator;
         if (filters != null) {
             this.filters = filters.getFilters();
