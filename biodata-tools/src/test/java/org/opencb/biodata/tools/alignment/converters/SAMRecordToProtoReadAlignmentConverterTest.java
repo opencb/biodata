@@ -26,7 +26,7 @@ public class SAMRecordToProtoReadAlignmentConverterTest {
         srf.validationStringency(ValidationStringency.LENIENT);
         SamReader reader = srf.open(SamInputResource.of(inputPath.toFile()));
 
-        SAMRecordToProtoReadAlignmentConverter converter = new SAMRecordToProtoReadAlignmentConverter();
+        SAMRecordToProtoReadAlignmentConverter converter = new SAMRecordToProtoReadAlignmentConverter(false);
 
         for (SAMRecord original : reader) {
             // Convert to proto

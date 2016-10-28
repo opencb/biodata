@@ -13,12 +13,16 @@ public class AvroIterator extends AlignmentIterator<ReadAlignment> {
     private SAMRecordToAvroReadAlignmentConverter samRecordToAvroReadAlignmentConverter;
 
     public AvroIterator(SAMRecordIterator samRecordIterator) {
-        this(samRecordIterator, null);
+        this(samRecordIterator, null, true);
     }
 
     public AvroIterator(SAMRecordIterator samRecordIterator, AlignmentFilters filters) {
+        this(samRecordIterator, filters, true);
+    }
+
+    public AvroIterator(SAMRecordIterator samRecordIterator, AlignmentFilters filters, boolean binQualities) {
         super(samRecordIterator, filters);
-        samRecordToAvroReadAlignmentConverter = new SAMRecordToAvroReadAlignmentConverter();
+        samRecordToAvroReadAlignmentConverter = new SAMRecordToAvroReadAlignmentConverter(binQualities);
     }
 
     @Override

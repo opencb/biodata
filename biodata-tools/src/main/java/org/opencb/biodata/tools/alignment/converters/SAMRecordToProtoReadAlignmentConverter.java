@@ -21,6 +21,11 @@ public class SAMRecordToProtoReadAlignmentConverter extends AlignmentConverter<R
     private static final String FIELD_SEPARATOR = "\t";
 
     public SAMRecordToProtoReadAlignmentConverter() {
+        this(true);
+    }
+
+    public SAMRecordToProtoReadAlignmentConverter(boolean adjustQuality) {
+        this.adjustQuality = adjustQuality;
     }
 
     @Override

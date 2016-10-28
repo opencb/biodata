@@ -1,99 +1,88 @@
 package org.opencb.biodata.tools.alignment.tasks;
 
-import org.ga4gh.models.CigarUnit;
-import org.ga4gh.models.LinearAlignment;
-import org.ga4gh.models.ReadAlignment;
 import org.opencb.biodata.tools.sequence.tasks.SequenceStatsCalculator;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by jtarraga on 25/05/15.
+ * Created by pfurio on 28/10/16.
  */
-public class AlignmentStatsCalculator {
+public abstract class AlignmentStatsCalculator<T> {
 
-    public AlignmentStats compute(ReadAlignment ra) {
+    class CIGAR {
+        boolean hard = false;
+        boolean soft = false;
+        boolean in = false;
+        boolean del = false;
+        boolean pad = false;
+        boolean skip = false;
+
+        public CIGAR() {
+        }
+    }
+
+    abstract boolean isProperlyPaired(T alignment);
+
+    abstract int getInsertSize(T alignment);
+
+    abstract boolean isFirstOfPair(T alignment);
+
+    abstract boolean isSecondOfPair(T alignment);
+
+    abstract int getMappingQuality(T alignment);
+
+    abstract String getAlignedSequence(T alignment);
+
+    abstract List<Integer> getAlignedQuality(T alignment);
+
+    abstract CIGAR getActiveCigars(T alignment);
+
+    abstract int getNumberOfMismatches(T alignment);
+
+    abstract boolean isMapped(T alignment);
+
+    public AlignmentStats compute(T alignment) {
         AlignmentStats stats = new AlignmentStats();
 
-        if (ra.getAlignment() != null) {
-            // mapped
+        if (isMapped(alignment)) {
+            // Mapped
             stats.numMapped++;
 
+            // Get number of mismatches
+            stats.NM = getNumberOfMismatches(alignment);
+
+            CIGAR cigar = getActiveCigars(alignment);
+            if (cigar.hard) stats.numHardC++;
+            if (cigar.soft) stats.numSoftC++;
+            if (cigar.in) stats.numIn++;
+            if (cigar.del) stats.numDel++;
+            if (cigar.pad) stats.numPad++;
+            if (cigar.skip) stats.numSkip++;
+
             int value;
-            LinearAlignment la = (LinearAlignment) ra.getAlignment();
-
-            //System.out.println("chr " + la.getPosition().getReferenceName().toString() + " : " + la.getPosition().getPosition() + ", " + ra.getAlignedSequence().length());
-
-            // num. mismatches
-            if (ra.getInfo() != null) {
-                List<String> values = ra.getInfo().get("NM");
-                if (values != null) {
-                    stats.NM = Integer.parseInt(values.get(1).toString());
-                }
-            }
-
-//			pos = la.getPosition().getPosition();
-//			cigar = la.getCigar();
-
-            // clipping, indels...
-            List<CigarUnit> cigar = la.getCigar();
-            if (cigar != null) {
-                boolean hard = false, soft = false, in = false, del = false, pad = false, skip = false;
-                for (CigarUnit element: cigar) {
-                    switch(element.getOperation()) {
-                        case CLIP_HARD:
-                            hard = true;
-                            break;
-                        case CLIP_SOFT:
-                            soft = true;
-                            break;
-                        case DELETE:
-                            del = true;
-                            break;
-                        case INSERT:
-                            in = true;
-                            break;
-                        case PAD:
-                            pad = true;
-                            break;
-                        case SKIP:
-                            skip = true;
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                if (hard) stats.numHardC++;
-                if (soft) stats.numSoftC++;
-                if (in) stats.numIn++;
-                if (del) stats.numDel++;
-                if (pad) stats.numPad++;
-                if (skip) stats.numSkip++;
-            }
-
-            // paired, first, second
-            if (!ra.getImproperPlacement()) {
+            if (isProperlyPaired(alignment)) {
                 stats.numPaired++;
 
                 // insert
-                int insert = Math.abs(ra.getFragmentLength());
+                int insert = Math.abs(getInsertSize(alignment));
                 value = 1;
                 stats.accInsert += insert;
                 if (stats.insertMap.containsKey(insert)) {
                     value += stats.insertMap.get(insert);
                 }
                 stats.insertMap.put(insert, value);
-
             }
-            if (ra.getReadNumber() == 0) {
+
+            if (isFirstOfPair(alignment)) {
                 stats.numMappedFirst++;
             }
-            if (ra.getReadNumber() == ra.getNumberReads() - 1) {
+            if (isSecondOfPair(alignment)) {
                 stats.numMappedSecond++;
             }
 
             // mapping quality
-            int mappingQuality = la.getMappingQuality();
+            int mappingQuality = getMappingQuality(alignment);
             value = 1;
             stats.accMappingQuality += mappingQuality;
             if (stats.mappingQualityMap.containsKey(mappingQuality)) {
@@ -102,12 +91,12 @@ public class AlignmentStatsCalculator {
             stats.mappingQualityMap.put(mappingQuality, value);
 
         } else {
-            // unmapped
+            // Unmapped
             stats.numUnmapped++;
         }
 
         SequenceStatsCalculator calculator = new SequenceStatsCalculator();
-        stats.seqStats = calculator.compute(ra.getAlignedSequence().toString(), ra.getAlignedQuality(), 0);
+        stats.seqStats = calculator.compute(getAlignedSequence(alignment), getAlignedQuality(alignment), 0);
 
         return stats;
     }
@@ -151,4 +140,5 @@ public class AlignmentStatsCalculator {
         SequenceStatsCalculator calculator = new SequenceStatsCalculator();
         calculator.update(src.seqStats, dest.seqStats);
     }
+
 }

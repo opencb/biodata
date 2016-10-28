@@ -172,7 +172,7 @@ public class AlignmentManager {
             options = new AlignmentOptions();
         }
         SAMRecordIterator samRecordIterator = samReader.iterator();
-        return getAlignmentIterator(filters, clazz, samRecordIterator);
+        return getAlignmentIterator(filters, options.isBinQualities(), clazz, samRecordIterator);
     }
 
     public AlignmentIterator<SAMRecord> iterator(Region region) {
@@ -193,14 +193,15 @@ public class AlignmentManager {
         }
         SAMRecordIterator samRecordIterator =
                 samReader.query(region.getChromosome(), region.getStart(), region.getEnd(), options.isContained());
-        return getAlignmentIterator(filters, clazz, samRecordIterator);
+        return getAlignmentIterator(filters, options.isBinQualities(), clazz, samRecordIterator);
     }
 
-    private <T> AlignmentIterator<T> getAlignmentIterator(AlignmentFilters filters, Class<T> clazz, SAMRecordIterator samRecordIterator) {
+    private <T> AlignmentIterator<T> getAlignmentIterator(AlignmentFilters filters, boolean binQualities, Class<T> clazz,
+                                                          SAMRecordIterator samRecordIterator) {
         if (ReadAlignment.class == clazz) { // AVRO
-            return (AlignmentIterator<T>) new AvroIterator(samRecordIterator, filters);
+            return (AlignmentIterator<T>) new AvroIterator(samRecordIterator, filters, binQualities);
         } else if (Reads.ReadAlignment.class == clazz) { // PROTOCOL BUFFER
-            return (AlignmentIterator<T>) new ProtoIterator(samRecordIterator, filters);
+            return (AlignmentIterator<T>) new ProtoIterator(samRecordIterator, filters, binQualities);
         } else if (SAMRecord.class == clazz) {
             return (AlignmentIterator<T>) new SamRecordIterator(samRecordIterator, filters);
         } else {
