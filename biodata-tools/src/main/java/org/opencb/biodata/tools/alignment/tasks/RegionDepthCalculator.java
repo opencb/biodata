@@ -1,5 +1,8 @@
 package org.opencb.biodata.tools.alignment.tasks;
 
+import ga4gh.Reads;
+import htsjdk.samtools.SAMRecord;
+import org.apache.avro.specific.SpecificRecordBase;
 import org.ga4gh.models.CigarUnit;
 import org.ga4gh.models.LinearAlignment;
 import org.ga4gh.models.ReadAlignment;
@@ -11,97 +14,35 @@ import java.util.List;
 /**
  * Created by jtarraga on 26/05/15.
  */
-public class RegionDepthCalculator {
+public abstract class RegionDepthCalculator<T> {
 
-    private RegionDepth computeRegionDepth(LinearAlignment la, int size) {
-        RegionDepth regionDepth;
-        regionDepth = new RegionDepth(
-                la.getPosition().getReferenceName().toString(),
-                la.getPosition().getPosition().intValue(),
-                la.getPosition().getPosition().intValue() / RegionDepth.CHUNK_SIZE,
-                size);
+    public abstract RegionDepth compute(T alignment);
+    public abstract List<RegionDepth> computeAsList(T ra);
 
-        // update array (counter)
-        int arrayPos = 0;
-        for (CigarUnit cu: la.getCigar()) {
-            switch (cu.getOperation()) {
-                case ALIGNMENT_MATCH:
-                case SEQUENCE_MATCH:
-                case SEQUENCE_MISMATCH:
-                    for (int i = 0; i < cu.getOperationLength(); i++) {
-                        regionDepth.array[arrayPos++]++;
-                    }
-                    break;
-                case SKIP:
-                case DELETE:
-                    arrayPos += cu.getOperationLength();
-                    break;
-                default:
-                    break;
-            }
+    public void updateChunkDepth(RegionDepth src, long chunk, RegionDepth chunkDepth) {
+        short value;
+        int start = (int) Math.max(src.position, chunk * RegionDepth.CHUNK_SIZE);
+        int end = (int) Math.min(src.position + src.size - 1, (chunk + 1) * RegionDepth.CHUNK_SIZE - 1);
+
+        int srcOffset = (int) src.position;
+        int destOffset = (int) (chunk * RegionDepth.CHUNK_SIZE);
+
+        for (int i = start ; i <= end; i++) {
+            value = src.array[i - srcOffset];
+            chunkDepth.array[i - destOffset] += value;
         }
-
-        return regionDepth;
     }
 
     /*
-<<<<<<< HEAD
-     * compute the region size according to the cigar code
      */
-    public int computeSizeByCigar(List<CigarUnit> cigar) {
-        int size = 0;
-        for (CigarUnit cu: cigar) {
-            switch (cu.getOperation()) {
-                case ALIGNMENT_MATCH:
-                case SEQUENCE_MATCH:
-                case SEQUENCE_MISMATCH:
-                case SKIP:
-                case DELETE:
-                    size += cu.getOperationLength();
-                    break;
-                default:
-                    break;
-            }
-        }
-        return size;
-    }
-
-    /*
-=======
->>>>>>> hotfix/0.4
-
-     */
-    public RegionDepth compute(ReadAlignment ra) {
-
-        RegionDepth regionDepth;
-
-        LinearAlignment la = (LinearAlignment) ra.getAlignment();
-        if (la == null) {
-            return new RegionDepth();
-        }
-
-        // compute the region size according to the cigar code
-        int size = computeSizeByCigar(la.getCigar());
-        if (size == 0) {
-            return new RegionDepth();
-        }
-
-        return computeRegionDepth(la, size);
-    }
-
-    /*
-
-     */
-    public List<RegionDepth> computeAsList(ReadAlignment ra) {
-        List<RegionDepth> regions = new ArrayList<RegionDepth>();
-
-        RegionDepth src = compute(ra);
+    protected List<RegionDepth> splitRegionDepthByChunks(RegionDepth src) {
+        List<RegionDepth> regions = new ArrayList<>();
         if (src.size == 0) {
             return regions;
         }
 
-        int startChunk = (int) (src.position / RegionDepth.CHUNK_SIZE);
-        int endChunk = (int) ((src.position + src.size - 1) / RegionDepth.CHUNK_SIZE);
+        int startChunk = src.position / RegionDepth.CHUNK_SIZE;
+        int endChunk = (src.position + src.size - 1) / RegionDepth.CHUNK_SIZE;
 
         if (startChunk == endChunk) {
             regions.add(src);
@@ -112,10 +53,10 @@ public class RegionDepthCalculator {
         int start, end, acc;
         RegionDepth dest;
         for (int chunk = startChunk; chunk <= endChunk; chunk++) {
-            start = (int) Math.max(src.position, chunk * RegionDepth.CHUNK_SIZE);
-            end = (int) Math.min(src.position + src.size - 1, (chunk + 1) * RegionDepth.CHUNK_SIZE - 1);
+            start = Math.max(src.position, chunk * RegionDepth.CHUNK_SIZE);
+            end = Math.min(src.position + src.size - 1, (chunk + 1) * RegionDepth.CHUNK_SIZE - 1);
 
-            dest = new RegionDepth(src.chrom, start, chunk, (int) (end - start + 1));
+            dest = new RegionDepth(src.chrom, start, chunk, (end - start + 1));
 
             acc = 0;
             start -= src.position;
@@ -132,19 +73,5 @@ public class RegionDepthCalculator {
         }
 
         return regions;
-    }
-
-    public void updateChunk(RegionDepth src, long chunk, RegionDepth dest) {
-        short value;
-        int start = (int) Math.max(src.position, chunk * RegionDepth.CHUNK_SIZE);
-        int end = (int) Math.min(src.position + src.size - 1, (chunk + 1) * RegionDepth.CHUNK_SIZE - 1);
-
-        int srcOffset = (int) src.position;
-        int destOffset = (int) (chunk * RegionDepth.CHUNK_SIZE);
-
-        for (int i = start ; i <= end; i++) {
-            value = src.array[i - srcOffset];
-            dest.array[i - destOffset] += value;
-        }
     }
 }
