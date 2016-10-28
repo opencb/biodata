@@ -1,4 +1,4 @@
-package org.opencb.biodata.tools.sequence.tasks;
+package org.opencb.biodata.tools.alignment.stats;
 
 import org.opencb.biodata.models.sequence.Read;
 

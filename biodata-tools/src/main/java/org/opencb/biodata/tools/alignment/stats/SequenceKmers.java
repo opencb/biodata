@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package org.opencb.biodata.tools.sequence.tasks;
-
-import org.opencb.biodata.models.sequence.Read;
+package org.opencb.biodata.tools.alignment.stats;
 
 import java.util.*;
 

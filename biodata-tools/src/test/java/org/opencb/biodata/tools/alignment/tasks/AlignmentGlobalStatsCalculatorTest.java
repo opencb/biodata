@@ -6,6 +6,9 @@ import org.junit.Test;
 import org.opencb.biodata.tools.alignment.AlignmentManager;
 import org.opencb.biodata.tools.alignment.AlignmentOptions;
 import org.opencb.biodata.tools.alignment.iterators.AlignmentIterator;
+import org.opencb.biodata.tools.alignment.stats.AlignmentGlobalStats;
+import org.opencb.biodata.tools.alignment.stats.AvroAlignmentGlobalStatsCalculator;
+import org.opencb.biodata.tools.alignment.stats.SamRecordAlignmentGlobalStatsCalculator;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,32 +19,32 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by pfurio on 28/10/16.
  */
-public class AlignmentStatsCalculatorTest {
+public class AlignmentGlobalStatsCalculatorTest {
 
     @Test
     public void calculateStatsAvroVSSamRecord() throws Exception {
         // SAM stats calculator
-        SamAlignmentStatsCalculator samCalculator = new SamAlignmentStatsCalculator();
+        SamRecordAlignmentGlobalStatsCalculator samCalculator = new SamRecordAlignmentGlobalStatsCalculator();
 
         Path inputPath = Paths.get(getClass().getResource("/HG00096.chrom20.small.bam").toURI());
         AlignmentManager alignmentManager = new AlignmentManager(inputPath);
 
-        AlignmentStats samAlignmentStats = new AlignmentStats();
+        AlignmentGlobalStats samAlignmentStats = new AlignmentGlobalStats();
 
         try(AlignmentIterator<SAMRecord> iterator = alignmentManager.iterator()) {
             while (iterator.hasNext()) {
-                AlignmentStats computed = samCalculator.compute(iterator.next());
+                AlignmentGlobalStats computed = samCalculator.compute(iterator.next());
                 samCalculator.update(computed, samAlignmentStats);
             }
         }
 
         AlignmentOptions alignmentOptions = new AlignmentOptions().setBinQualities(false);
         // Avro stats calculator
-        AvroAlignmentStatsCalculator avroCalculator = new AvroAlignmentStatsCalculator();
-        AlignmentStats avroAlignmentStats = new AlignmentStats();
+        AvroAlignmentGlobalStatsCalculator avroCalculator = new AvroAlignmentGlobalStatsCalculator();
+        AlignmentGlobalStats avroAlignmentStats = new AlignmentGlobalStats();
         try(AlignmentIterator<ReadAlignment> iterator1 = alignmentManager.iterator(alignmentOptions, null, ReadAlignment.class)) {
             while (iterator1.hasNext()) {
-                AlignmentStats computed = avroCalculator.compute(iterator1.next());
+                AlignmentGlobalStats computed = avroCalculator.compute(iterator1.next());
                 avroCalculator.update(computed, avroAlignmentStats);
             }
         }

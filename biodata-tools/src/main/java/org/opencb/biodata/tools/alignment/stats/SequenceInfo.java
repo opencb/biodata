@@ -1,4 +1,4 @@
-package org.opencb.biodata.tools.sequence.tasks;
+package org.opencb.biodata.tools.alignment.stats;
 
 /**
  * Created by jtarraga on 22/05/15.

@@ -1,4 +1,4 @@
-package org.opencb.biodata.tools.alignment.tasks;
+package org.opencb.biodata.tools.alignment.stats;
 
 import htsjdk.samtools.Cigar;
 import htsjdk.samtools.CigarElement;
@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Created by pfurio on 28/10/16.
  */
-public class SamAlignmentStatsCalculator extends AlignmentStatsCalculator<SAMRecord> {
+public class SamRecordAlignmentGlobalStatsCalculator extends AlignmentGlobalStatsCalculator<SAMRecord> {
 
     @Override
     public boolean isProperlyPaired(SAMRecord alignment) {

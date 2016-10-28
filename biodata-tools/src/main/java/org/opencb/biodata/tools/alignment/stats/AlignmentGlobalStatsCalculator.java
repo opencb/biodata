@@ -1,14 +1,11 @@
-package org.opencb.biodata.tools.alignment.tasks;
+package org.opencb.biodata.tools.alignment.stats;
 
-import org.opencb.biodata.tools.sequence.tasks.SequenceStatsCalculator;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by pfurio on 28/10/16.
  */
-public abstract class AlignmentStatsCalculator<T> {
+public abstract class AlignmentGlobalStatsCalculator<T> {
 
     class CIGAR {
         boolean hard = false;
@@ -42,8 +39,8 @@ public abstract class AlignmentStatsCalculator<T> {
 
     abstract boolean isMapped(T alignment);
 
-    public AlignmentStats compute(T alignment) {
-        AlignmentStats stats = new AlignmentStats();
+    public AlignmentGlobalStats compute(T alignment) {
+        AlignmentGlobalStats stats = new AlignmentGlobalStats();
 
         if (isMapped(alignment)) {
             // Mapped
@@ -101,7 +98,7 @@ public abstract class AlignmentStatsCalculator<T> {
         return stats;
     }
 
-    public void update(AlignmentStats src, AlignmentStats dest) {
+    public void update(AlignmentGlobalStats src, AlignmentGlobalStats dest) {
         int value;
 
         dest.numMapped += src.numMapped;

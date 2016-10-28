@@ -1,4 +1,4 @@
-package org.opencb.biodata.tools.alignment.tasks;
+package org.opencb.biodata.tools.alignment.stats;
 
 import org.ga4gh.models.CigarUnit;
 import org.ga4gh.models.ReadAlignment;
@@ -8,9 +8,9 @@ import java.util.List;
 /**
  * Created by jtarraga on 25/05/15.
  */
-public class AvroAlignmentStatsCalculator extends AlignmentStatsCalculator<ReadAlignment> {
+public class AvroAlignmentGlobalStatsCalculator extends AlignmentGlobalStatsCalculator<ReadAlignment> {
 
-    public AvroAlignmentStatsCalculator() {
+    public AvroAlignmentGlobalStatsCalculator() {
         super();
     }
 

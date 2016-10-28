@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
-package org.opencb.biodata.tools.alignment.tasks;
+package org.opencb.biodata.tools.alignment.stats;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectWriter;
-import org.opencb.biodata.tools.sequence.tasks.SequenceStats;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 
-public class AlignmentStats {
+public class AlignmentGlobalStats {
 
 	public int numMapped;
 	public int numUnmapped;
@@ -52,7 +50,7 @@ public class AlignmentStats {
 
 	public SequenceStats seqStats;
 
-	public AlignmentStats() {
+	public AlignmentGlobalStats() {
 		numMapped = 0;
 		numUnmapped = 0;
 		numPaired = 0;
@@ -113,7 +111,7 @@ public class AlignmentStats {
 		return numMapped;
 	}
 
-	public AlignmentStats setNumMapped(int numMapped) {
+	public AlignmentGlobalStats setNumMapped(int numMapped) {
 		this.numMapped = numMapped;
 		return this;
 	}
@@ -122,7 +120,7 @@ public class AlignmentStats {
 		return numUnmapped;
 	}
 
-	public AlignmentStats setNumUnmapped(int numUnmapped) {
+	public AlignmentGlobalStats setNumUnmapped(int numUnmapped) {
 		this.numUnmapped = numUnmapped;
 		return this;
 	}
@@ -131,7 +129,7 @@ public class AlignmentStats {
 		return numPaired;
 	}
 
-	public AlignmentStats setNumPaired(int numPaired) {
+	public AlignmentGlobalStats setNumPaired(int numPaired) {
 		this.numPaired = numPaired;
 		return this;
 	}
@@ -140,7 +138,7 @@ public class AlignmentStats {
 		return numMappedFirst;
 	}
 
-	public AlignmentStats setNumMappedFirst(int numMappedFirst) {
+	public AlignmentGlobalStats setNumMappedFirst(int numMappedFirst) {
 		this.numMappedFirst = numMappedFirst;
 		return this;
 	}
@@ -149,7 +147,7 @@ public class AlignmentStats {
 		return numMappedSecond;
 	}
 
-	public AlignmentStats setNumMappedSecond(int numMappedSecond) {
+	public AlignmentGlobalStats setNumMappedSecond(int numMappedSecond) {
 		this.numMappedSecond = numMappedSecond;
 		return this;
 	}
@@ -158,7 +156,7 @@ public class AlignmentStats {
 		return NM;
 	}
 
-	public AlignmentStats setNM(int NM) {
+	public AlignmentGlobalStats setNM(int NM) {
 		this.NM = NM;
 		return this;
 	}
@@ -167,7 +165,7 @@ public class AlignmentStats {
 		return numHardC;
 	}
 
-	public AlignmentStats setNumHardC(int numHardC) {
+	public AlignmentGlobalStats setNumHardC(int numHardC) {
 		this.numHardC = numHardC;
 		return this;
 	}
@@ -176,7 +174,7 @@ public class AlignmentStats {
 		return numSoftC;
 	}
 
-	public AlignmentStats setNumSoftC(int numSoftC) {
+	public AlignmentGlobalStats setNumSoftC(int numSoftC) {
 		this.numSoftC = numSoftC;
 		return this;
 	}
@@ -185,7 +183,7 @@ public class AlignmentStats {
 		return numIn;
 	}
 
-	public AlignmentStats setNumIn(int numIn) {
+	public AlignmentGlobalStats setNumIn(int numIn) {
 		this.numIn = numIn;
 		return this;
 	}
@@ -194,7 +192,7 @@ public class AlignmentStats {
 		return numDel;
 	}
 
-	public AlignmentStats setNumDel(int numDel) {
+	public AlignmentGlobalStats setNumDel(int numDel) {
 		this.numDel = numDel;
 		return this;
 	}
@@ -203,7 +201,7 @@ public class AlignmentStats {
 		return numPad;
 	}
 
-	public AlignmentStats setNumPad(int numPad) {
+	public AlignmentGlobalStats setNumPad(int numPad) {
 		this.numPad = numPad;
 		return this;
 	}
@@ -212,7 +210,7 @@ public class AlignmentStats {
 		return numSkip;
 	}
 
-	public AlignmentStats setNumSkip(int numSkip) {
+	public AlignmentGlobalStats setNumSkip(int numSkip) {
 		this.numSkip = numSkip;
 		return this;
 	}
@@ -221,7 +219,7 @@ public class AlignmentStats {
 		return accMappingQuality;
 	}
 
-	public AlignmentStats setAccMappingQuality(int accMappingQuality) {
+	public AlignmentGlobalStats setAccMappingQuality(int accMappingQuality) {
 		this.accMappingQuality = accMappingQuality;
 		return this;
 	}
@@ -230,7 +228,7 @@ public class AlignmentStats {
 		return mappingQualityMap;
 	}
 
-	public AlignmentStats setMappingQualityMap(HashMap<Integer, Integer> mappingQualityMap) {
+	public AlignmentGlobalStats setMappingQualityMap(HashMap<Integer, Integer> mappingQualityMap) {
 		this.mappingQualityMap = mappingQualityMap;
 		return this;
 	}
@@ -239,7 +237,7 @@ public class AlignmentStats {
 		return accInsert;
 	}
 
-	public AlignmentStats setAccInsert(int accInsert) {
+	public AlignmentGlobalStats setAccInsert(int accInsert) {
 		this.accInsert = accInsert;
 		return this;
 	}
@@ -248,7 +246,7 @@ public class AlignmentStats {
 		return insertMap;
 	}
 
-	public AlignmentStats setInsertMap(HashMap<Integer, Integer> insertMap) {
+	public AlignmentGlobalStats setInsertMap(HashMap<Integer, Integer> insertMap) {
 		this.insertMap = insertMap;
 		return this;
 	}
@@ -257,7 +255,7 @@ public class AlignmentStats {
 		return seqStats;
 	}
 
-	public AlignmentStats setSeqStats(SequenceStats seqStats) {
+	public AlignmentGlobalStats setSeqStats(SequenceStats seqStats) {
 		this.seqStats = seqStats;
 		return this;
 	}

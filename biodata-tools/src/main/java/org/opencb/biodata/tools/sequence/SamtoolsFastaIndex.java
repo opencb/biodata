@@ -1,4 +1,4 @@
-package org.opencb.biodata.tools.sequence.fasta;
+package org.opencb.biodata.tools.sequence;
 
 import htsjdk.samtools.reference.IndexedFastaSequenceFile;
 import htsjdk.samtools.reference.ReferenceSequence;

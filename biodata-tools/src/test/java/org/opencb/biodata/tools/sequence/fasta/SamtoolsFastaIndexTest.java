@@ -2,6 +2,7 @@ package org.opencb.biodata.tools.sequence.fasta;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.opencb.biodata.tools.sequence.SamtoolsFastaIndex;
 
 import java.nio.file.Paths;
 
