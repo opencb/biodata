@@ -4,16 +4,30 @@ package org.opencb.biodata.tools.alignment;
  * Created by pfurio on 26/10/16.
  */
 public class AlignmentOptions {
+
     private boolean contained;
     private boolean binQualities;
-    private boolean updateMD;
+    private boolean calculateMD;
     private int limit;
+
+    public static final int DEFAULT_LIMIT = 50000;
 
     public AlignmentOptions() {
         this.contained = true;
         this.binQualities = false;
-        this.updateMD = false;
-        this.limit = 50000;
+        this.calculateMD = false;
+        this.limit = DEFAULT_LIMIT;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("AlignmentOptions{");
+        sb.append("contained=").append(contained);
+        sb.append(", binQualities=").append(binQualities);
+        sb.append(", calculateMD=").append(calculateMD);
+        sb.append(", limit=").append(limit);
+        sb.append('}');
+        return sb.toString();
     }
 
     public AlignmentOptions setContained(boolean contained) {
@@ -26,8 +40,8 @@ public class AlignmentOptions {
         return this;
     }
 
-    public AlignmentOptions setUpdateMD(boolean updateMD) {
-        this.updateMD = updateMD;
+    public AlignmentOptions setCalculateMD(boolean calculateMD) {
+        this.calculateMD = calculateMD;
         return this;
     }
 
@@ -44,8 +58,8 @@ public class AlignmentOptions {
         return binQualities;
     }
 
-    public boolean isUpdateMD() {
-        return updateMD;
+    public boolean isCalculateMD() {
+        return calculateMD;
     }
 
     public int getLimit() {

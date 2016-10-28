@@ -2,7 +2,7 @@ package org.opencb.biodata.tools.alignment.iterators;
 
 import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.SAMRecordIterator;
-import org.opencb.biodata.tools.alignment.filtering.AlignmentFilters;
+import org.opencb.biodata.tools.alignment.AlignmentFilters;
 
 import java.util.Iterator;
 import java.util.List;
@@ -15,6 +15,7 @@ public abstract class AlignmentIterator<T> implements Iterator<T>, AutoCloseable
 
     protected SAMRecordIterator samRecordIterator;
     protected List<Predicate<SAMRecord>> filters;
+
     protected SAMRecord prevNext;
 
     public AlignmentIterator(SAMRecordIterator samRecordIterator) {
@@ -26,12 +27,7 @@ public abstract class AlignmentIterator<T> implements Iterator<T>, AutoCloseable
         if (filters != null) {
             this.filters = filters.getFilters();
         }
-        moveIterator();
-    }
-
-    @Override
-    public void close() throws Exception {
-        samRecordIterator.close();
+        findNextMatch();
     }
 
     private boolean filter(SAMRecord samRecord) {
@@ -45,7 +41,7 @@ public abstract class AlignmentIterator<T> implements Iterator<T>, AutoCloseable
         return true;
     }
 
-    protected void moveIterator() {
+    protected void findNextMatch() {
         while (samRecordIterator.hasNext()) {
             SAMRecord next = samRecordIterator.next();
             if (filter(next)) {
@@ -55,10 +51,10 @@ public abstract class AlignmentIterator<T> implements Iterator<T>, AutoCloseable
         }
         prevNext = null;
     }
-//
-//    public AlignmentIterator<T> setFilters(List<Predicate<SAMRecord>> filters) {
-//        this.filters = filters;
-//        moveIterator();
-//        return this;
-//    }
+
+    @Override
+    public void close() throws Exception {
+        samRecordIterator.close();
+    }
+
 }

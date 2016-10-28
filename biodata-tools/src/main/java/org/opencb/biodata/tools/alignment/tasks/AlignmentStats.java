@@ -85,52 +85,181 @@ public class AlignmentStats {
 		return objectWriter.writeValueAsString(this);
 	}
 
-//	public String toJSON() {
-//		int i, size;
-//		StringBuilder res = new StringBuilder();
-//		res.append("{");
-//		res.append("\"num_mapped\": " + numMapped);
-//		res.append(", \"num_unmapped\": " + numUnmapped);
-//		res.append(", \"num_paired\": " + numPaired);
-//		res.append(", \"num_mapped_first\": " + numMappedFirst);
-//		res.append(", \"num_mapped_second\": " + numMappedSecond);
-//
-//		res.append(", \"num_mismatches\": " + NM);
-//
-//		res.append(", \"num_hard_clipping\": " + numHardC);
-//		res.append(", \"num_soft_clipping\": " + numSoftC);
-//		res.append(", \"num_insertion\": " + numIn);
-//		res.append(", \"num_deletion\": " + numDel);
-//		res.append(", \"num_padding\": " + numPad);
-//		res.append(", \"num_skip\": " + numSkip);
-//
-//		size = mappingQualityMap.size();
-//		res.append(", \"mapping_quality_mean\": " + (accMappingQuality / numMapped));
-//		res.append(", \"mapping_quality_map_size\": " + size);
-//		res.append(", \"mapping_quality_map_values\": [");
-//		i = 0;
-//		for(int key:mappingQualityMap.keySet()) {
-//			res.append("[" + key + ", " + mappingQualityMap.get(key) + "]");
-//			if (++i < size) res.append(", ");
-//		}
-//		res.append("]");
-//
-//		if (numPaired > 0) {
-//			size = insertMap.size();
-//			res.append(", \"insert_mean\": " + (accInsert / numPaired));
-//			res.append(", \"insert_map_size\": " + size);
-//			res.append(", \"insert_map_values\": [");
-//			i = 0;
-//			for(int key:insertMap.keySet()) {
-//				res.append("[" + key + ", " + insertMap.get(key) + "]");
-//				if (++i < size) res.append(", ");
-//			}
-//			res.append("]");
-//		}
-//
-//		res.append(", \"read_stats\": " + seqStats.toJSON());
-//		res.append("}");
-//		return res.toString();
-//	}
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder("AlignmentStats{");
+		sb.append("numMapped=").append(numMapped);
+		sb.append(", numUnmapped=").append(numUnmapped);
+		sb.append(", numPaired=").append(numPaired);
+		sb.append(", numMappedFirst=").append(numMappedFirst);
+		sb.append(", numMappedSecond=").append(numMappedSecond);
+		sb.append(", NM=").append(NM);
+		sb.append(", numHardC=").append(numHardC);
+		sb.append(", numSoftC=").append(numSoftC);
+		sb.append(", numIn=").append(numIn);
+		sb.append(", numDel=").append(numDel);
+		sb.append(", numPad=").append(numPad);
+		sb.append(", numSkip=").append(numSkip);
+		sb.append(", accMappingQuality=").append(accMappingQuality);
+		sb.append(", mappingQualityMap=").append(mappingQualityMap);
+		sb.append(", accInsert=").append(accInsert);
+		sb.append(", insertMap=").append(insertMap);
+		sb.append(", seqStats=").append(seqStats);
+		sb.append('}');
+		return sb.toString();
+	}
+
+	public int getNumMapped() {
+		return numMapped;
+	}
+
+	public AlignmentStats setNumMapped(int numMapped) {
+		this.numMapped = numMapped;
+		return this;
+	}
+
+	public int getNumUnmapped() {
+		return numUnmapped;
+	}
+
+	public AlignmentStats setNumUnmapped(int numUnmapped) {
+		this.numUnmapped = numUnmapped;
+		return this;
+	}
+
+	public int getNumPaired() {
+		return numPaired;
+	}
+
+	public AlignmentStats setNumPaired(int numPaired) {
+		this.numPaired = numPaired;
+		return this;
+	}
+
+	public int getNumMappedFirst() {
+		return numMappedFirst;
+	}
+
+	public AlignmentStats setNumMappedFirst(int numMappedFirst) {
+		this.numMappedFirst = numMappedFirst;
+		return this;
+	}
+
+	public int getNumMappedSecond() {
+		return numMappedSecond;
+	}
+
+	public AlignmentStats setNumMappedSecond(int numMappedSecond) {
+		this.numMappedSecond = numMappedSecond;
+		return this;
+	}
+
+	public int getNM() {
+		return NM;
+	}
+
+	public AlignmentStats setNM(int NM) {
+		this.NM = NM;
+		return this;
+	}
+
+	public int getNumHardC() {
+		return numHardC;
+	}
+
+	public AlignmentStats setNumHardC(int numHardC) {
+		this.numHardC = numHardC;
+		return this;
+	}
+
+	public int getNumSoftC() {
+		return numSoftC;
+	}
+
+	public AlignmentStats setNumSoftC(int numSoftC) {
+		this.numSoftC = numSoftC;
+		return this;
+	}
+
+	public int getNumIn() {
+		return numIn;
+	}
+
+	public AlignmentStats setNumIn(int numIn) {
+		this.numIn = numIn;
+		return this;
+	}
+
+	public int getNumDel() {
+		return numDel;
+	}
+
+	public AlignmentStats setNumDel(int numDel) {
+		this.numDel = numDel;
+		return this;
+	}
+
+	public int getNumPad() {
+		return numPad;
+	}
+
+	public AlignmentStats setNumPad(int numPad) {
+		this.numPad = numPad;
+		return this;
+	}
+
+	public int getNumSkip() {
+		return numSkip;
+	}
+
+	public AlignmentStats setNumSkip(int numSkip) {
+		this.numSkip = numSkip;
+		return this;
+	}
+
+	public int getAccMappingQuality() {
+		return accMappingQuality;
+	}
+
+	public AlignmentStats setAccMappingQuality(int accMappingQuality) {
+		this.accMappingQuality = accMappingQuality;
+		return this;
+	}
+
+	public HashMap<Integer, Integer> getMappingQualityMap() {
+		return mappingQualityMap;
+	}
+
+	public AlignmentStats setMappingQualityMap(HashMap<Integer, Integer> mappingQualityMap) {
+		this.mappingQualityMap = mappingQualityMap;
+		return this;
+	}
+
+	public int getAccInsert() {
+		return accInsert;
+	}
+
+	public AlignmentStats setAccInsert(int accInsert) {
+		this.accInsert = accInsert;
+		return this;
+	}
+
+	public HashMap<Integer, Integer> getInsertMap() {
+		return insertMap;
+	}
+
+	public AlignmentStats setInsertMap(HashMap<Integer, Integer> insertMap) {
+		this.insertMap = insertMap;
+		return this;
+	}
+
+	public SequenceStats getSeqStats() {
+		return seqStats;
+	}
+
+	public AlignmentStats setSeqStats(SequenceStats seqStats) {
+		this.seqStats = seqStats;
+		return this;
+	}
 
 }

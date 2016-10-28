@@ -1,4 +1,4 @@
-package org.opencb.biodata.tools.alignment.filtering;
+package org.opencb.biodata.tools.alignment;
 
 import htsjdk.samtools.SAMRecord;
 
@@ -11,7 +11,7 @@ import java.util.function.Predicate;
  */
 public class AlignmentFilters {
 
-    List<Predicate<SAMRecord>> filters = new ArrayList<>();
+    private List<Predicate<SAMRecord>> filters = new ArrayList<>();
 
     public AlignmentFilters() {
     }
@@ -40,6 +40,20 @@ public class AlignmentFilters {
         return this;
     }
 
+    public AlignmentFilters addUnmappedFilter() {
+        filters.add(samRecord -> samRecord.getReadUnmappedFlag());
+        return this;
+    }
+
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("AlignmentFilters{");
+        sb.append("filters=").append(filters);
+        sb.append('}');
+        return sb.toString();
+    }
+
     public List<Predicate<SAMRecord>> getFilters() {
         return filters;
     }
@@ -48,4 +62,5 @@ public class AlignmentFilters {
         this.filters = filters;
         return this;
     }
+
 }

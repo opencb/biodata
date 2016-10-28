@@ -16,6 +16,7 @@ public class SequenceStats {
     public int minSeqLength;
     public int maxSeqLength;
     public int accSeqQual;
+
     public HashMap<Integer, Integer> lengthMap;
     public HashMap<Integer, SequenceInfo> infoMap;
 

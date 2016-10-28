@@ -23,7 +23,6 @@ import htsjdk.samtools.seekablestream.SeekableStreamFactory;
 import htsjdk.samtools.util.Log;
 import org.ga4gh.models.ReadAlignment;
 import org.opencb.biodata.models.core.Region;
-import org.opencb.biodata.tools.alignment.filtering.AlignmentFilters;
 import org.opencb.biodata.tools.alignment.iterators.AlignmentIterator;
 import org.opencb.biodata.tools.alignment.iterators.AvroIterator;
 import org.opencb.biodata.tools.alignment.iterators.ProtoIterator;
@@ -42,7 +41,8 @@ public class AlignmentManager {
 
     private Path input;
     private SamReader samReader;
-    private final int MAX_NUM_RECORDS = 50000;
+
+    private static final int MAX_NUM_RECORDS = 50000;
 
     public AlignmentManager() {
     }
@@ -116,26 +116,8 @@ public class AlignmentManager {
         return query(region, options, null, ReadAlignment.class);
     }
 
-    public List<ReadAlignment> query(Region region, AlignmentOptions options, AlignmentFilters filters)
-            throws Exception {
+    public List<ReadAlignment> query(Region region, AlignmentOptions options, AlignmentFilters filters) throws Exception {
         return query(region, options, filters, ReadAlignment.class);
-    }
-
-    public <T> List<T> query(Region region, AlignmentOptions options, AlignmentFilters filters, Class<T> clazz) throws Exception {
-        if (options == null) {
-            options = new AlignmentOptions();
-        }
-        int maxNumberRecords = (options.getLimit() > 0 && options.getLimit() <= MAX_NUM_RECORDS)
-                ? options.getLimit() : MAX_NUM_RECORDS;
-        List<T> results = new ArrayList<>(maxNumberRecords);
-        AlignmentIterator<T> alignmentIterator;
-        alignmentIterator = region != null ? iterator(region, options, filters, clazz) : iterator(options, filters, clazz);
-
-        while (alignmentIterator.hasNext() && results.size() < maxNumberRecords) {
-            results.add(alignmentIterator.next());
-        }
-        alignmentIterator.close();
-        return results;
     }
 
     public List<ReadAlignment> query() throws Exception {
@@ -154,6 +136,28 @@ public class AlignmentManager {
         return query(null, options, filters, clazz);
     }
 
+    public <T> List<T> query(Region region, AlignmentOptions alignmentOptions, AlignmentFilters filters, Class<T> clazz) throws Exception {
+        if (alignmentOptions == null) {
+            alignmentOptions = new AlignmentOptions();
+        }
+
+        int maxNumberRecords = (alignmentOptions.getLimit() > 0 && alignmentOptions.getLimit() <= MAX_NUM_RECORDS)
+                ? alignmentOptions.getLimit()
+                : MAX_NUM_RECORDS;
+        List<T> results = new ArrayList<>(maxNumberRecords);
+        AlignmentIterator<T> alignmentIterator;
+        alignmentIterator = (region != null)
+                ? iterator(region, alignmentOptions, filters, clazz)
+                : iterator(alignmentOptions, filters, clazz);
+
+        while (alignmentIterator.hasNext() && results.size() < maxNumberRecords) {
+            results.add(alignmentIterator.next());
+        }
+        alignmentIterator.close();
+        return results;
+    }
+
+
     public AlignmentIterator<SAMRecord> iterator() {
         return iterator(new AlignmentOptions(), null, SAMRecord.class);
     }
@@ -166,13 +170,12 @@ public class AlignmentManager {
         return iterator(options, filters, SAMRecord.class);
     }
 
-
-    public <T> AlignmentIterator<T> iterator(AlignmentOptions options, AlignmentFilters filters, Class<T> clazz) {
-        if (options == null) {
-            options = new AlignmentOptions();
+    public <T> AlignmentIterator<T> iterator(AlignmentOptions alignmentOptions, AlignmentFilters filters, Class<T> clazz) {
+        if (alignmentOptions == null) {
+            alignmentOptions = new AlignmentOptions();
         }
         SAMRecordIterator samRecordIterator = samReader.iterator();
-        return getAlignmentIterator(filters, options.isBinQualities(), clazz, samRecordIterator);
+        return getAlignmentIterator(filters, alignmentOptions.isBinQualities(), clazz, samRecordIterator);
     }
 
     public AlignmentIterator<SAMRecord> iterator(Region region) {
@@ -187,13 +190,13 @@ public class AlignmentManager {
         return iterator(region, options, filters, SAMRecord.class);
     }
 
-    public <T> AlignmentIterator<T> iterator(Region region, AlignmentOptions options, AlignmentFilters filters, Class<T> clazz) {
-        if (options == null) {
-            options = new AlignmentOptions();
+    public <T> AlignmentIterator<T> iterator(Region region, AlignmentOptions alignmentOptions, AlignmentFilters filters, Class<T> clazz) {
+        if (alignmentOptions == null) {
+            alignmentOptions = new AlignmentOptions();
         }
         SAMRecordIterator samRecordIterator =
-                samReader.query(region.getChromosome(), region.getStart(), region.getEnd(), options.isContained());
-        return getAlignmentIterator(filters, options.isBinQualities(), clazz, samRecordIterator);
+                samReader.query(region.getChromosome(), region.getStart(), region.getEnd(), alignmentOptions.isContained());
+        return getAlignmentIterator(filters, alignmentOptions.isBinQualities(), clazz, samRecordIterator);
     }
 
     private <T> AlignmentIterator<T> getAlignmentIterator(AlignmentFilters filters, boolean binQualities, Class<T> clazz,

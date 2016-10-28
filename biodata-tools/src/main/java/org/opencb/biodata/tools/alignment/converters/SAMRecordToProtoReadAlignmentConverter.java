@@ -71,7 +71,7 @@ public class SAMRecordToProtoReadAlignmentConverter extends AlignmentConverter<R
         // alignment
         Reads.LinearAlignment.Builder linearAlignment = Reads.LinearAlignment.newBuilder();
         Common.Position.Builder position = Common.Position.newBuilder();
-        position.setPosition((long) in.getAlignmentStart() - 1); //from 1-based to 0-based
+        position.setPosition((long) in.getAlignmentStart() - 1); // from 1-based to 0-based
         position.setReferenceName(in.getReferenceName());
 //        position.setSequenceId("");
         position.setStrand(in.getReadNegativeStrandFlag() ? Common.Strand.NEG_STRAND : Common.Strand.POS_STRAND);
@@ -195,27 +195,7 @@ public class SAMRecordToProtoReadAlignmentConverter extends AlignmentConverter<R
             }
         }
 
-        SAMRecord out = new SAMRecord(null);
-
-        out.setReadName(fields[QNAME_COL]);
-        out.setFlags(Integer.valueOf(fields[FLAG_COL]));
-        out.setReferenceName(fields[RNAME_COL]);
-        out.setAlignmentStart(Integer.valueOf(fields[POS_COL]));
-        out.setMappingQuality(Integer.valueOf(fields[MAPQ_COL]));
-        out.setCigarString(fields[CIGAR_COL]);
-        out.setMateReferenceName(fields[MRNM_COL].equals("=") ? out.getReferenceName() : fields[MRNM_COL]);
-        out.setMateAlignmentStart(Integer.valueOf(fields[MPOS_COL]));
-        out.setInferredInsertSize(Integer.valueOf(fields[ISIZE_COL]));
-        if (!fields[SEQ_COL].equals("*")) {
-            out.setReadString(fields[SEQ_COL]);
-        } else {
-            out.setReadBases(SAMRecord.NULL_SEQUENCE);
-        }
-        if (!fields[QUAL_COL].equals("*")) {
-            out.setBaseQualityString(fields[QUAL_COL]);
-        } else {
-            out.setBaseQualities(SAMRecord.NULL_QUALS);
-        }
+        SAMRecord out = createFromFields(fields);
 
         TextTagCodec tagCodec = new TextTagCodec();
         for (int i = NUM_REQUIRED_FIELDS; i < numFields; ++i) {

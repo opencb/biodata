@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.tools.alignment.AlignmentManager;
 import org.opencb.biodata.tools.alignment.AlignmentOptions;
-import org.opencb.biodata.tools.alignment.filtering.AlignmentFilters;
+import org.opencb.biodata.tools.alignment.AlignmentFilters;
 
 import java.io.IOException;
 import java.net.URISyntaxException;

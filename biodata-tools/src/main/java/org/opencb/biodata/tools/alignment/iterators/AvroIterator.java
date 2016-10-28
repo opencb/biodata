@@ -3,7 +3,7 @@ package org.opencb.biodata.tools.alignment.iterators;
 import htsjdk.samtools.SAMRecordIterator;
 import org.ga4gh.models.ReadAlignment;
 import org.opencb.biodata.tools.alignment.converters.SAMRecordToAvroReadAlignmentConverter;
-import org.opencb.biodata.tools.alignment.filtering.AlignmentFilters;
+import org.opencb.biodata.tools.alignment.AlignmentFilters;
 
 /**
  * Created by pfurio on 25/10/16.
@@ -33,7 +33,7 @@ public class AvroIterator extends AlignmentIterator<ReadAlignment> {
     @Override
     public ReadAlignment next() {
         ReadAlignment readAlignment = samRecordToAvroReadAlignmentConverter.to(prevNext);
-        moveIterator();
+        findNextMatch();
         return readAlignment;
     }
 
