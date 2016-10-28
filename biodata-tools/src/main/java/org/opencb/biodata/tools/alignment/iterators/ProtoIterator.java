@@ -13,12 +13,17 @@ public class ProtoIterator extends AlignmentIterator<Reads.ReadAlignment> {
     private SAMRecordToProtoReadAlignmentConverter protoReadAlignmentConverter;
 
     public ProtoIterator(SAMRecordIterator samRecordIterator) {
-        this(samRecordIterator, null);
+        this(samRecordIterator, null, true);
     }
 
     public ProtoIterator(SAMRecordIterator samRecordIterator, AlignmentFilters filters) {
-        super(samRecordIterator, filters);
+        this(samRecordIterator, filters, true);
         protoReadAlignmentConverter = new SAMRecordToProtoReadAlignmentConverter();
+    }
+
+    public ProtoIterator(SAMRecordIterator samRecordIterator, AlignmentFilters filters, boolean binQualities) {
+        super(samRecordIterator, filters);
+        protoReadAlignmentConverter = new SAMRecordToProtoReadAlignmentConverter(binQualities);
     }
 
     @Override

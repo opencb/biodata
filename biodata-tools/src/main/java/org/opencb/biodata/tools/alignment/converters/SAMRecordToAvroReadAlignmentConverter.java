@@ -159,7 +159,7 @@ public class SAMRecordToAvroReadAlignmentConverter extends AlignmentConverter<Re
             info.put(tv.tag, list);
         }
 
-        ReadAlignment out = new ReadAlignment(id, readGroupId, fragmentName, properPlacement, duplicateFragment,
+        ReadAlignment out = new ReadAlignment(id, readGroupId, fragmentName, !properPlacement, duplicateFragment,
                 numberReads, fragmentLength, readNumber, failedVendorQualityChecks, alignment, secondaryAlignment,
                 supplementaryAlignment, alignedSequence, alignedQuality, nextMatePosition, info);
 
