@@ -41,7 +41,7 @@ public class AvroAlignmentGlobalStatsCalculator extends AlignmentGlobalStatsCalc
 
     @Override
     public String getAlignedSequence(ReadAlignment alignment) {
-        return alignment.getAlignedSequence().toString();
+        return alignment.getAlignedSequence();
     }
 
     @Override

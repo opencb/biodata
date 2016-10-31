@@ -27,6 +27,8 @@ import org.opencb.biodata.tools.alignment.iterators.AlignmentIterator;
 import org.opencb.biodata.tools.alignment.iterators.AvroIterator;
 import org.opencb.biodata.tools.alignment.iterators.ProtoIterator;
 import org.opencb.biodata.tools.alignment.iterators.SamRecordIterator;
+import org.opencb.biodata.tools.alignment.stats.AlignmentGlobalStats;
+import org.opencb.biodata.tools.alignment.stats.SamRecordAlignmentGlobalStatsCalculator;
 import org.opencb.commons.utils.FileUtils;
 
 import java.io.IOException;
@@ -197,6 +199,34 @@ public class AlignmentManager {
         SAMRecordIterator samRecordIterator =
                 samReader.query(region.getChromosome(), region.getStart(), region.getEnd(), alignmentOptions.isContained());
         return getAlignmentIterator(filters, alignmentOptions.isBinQualities(), clazz, samRecordIterator);
+    }
+
+    public AlignmentGlobalStats stats() {
+        AlignmentGlobalStats alignmentGlobalStats = new AlignmentGlobalStats();
+        SamRecordAlignmentGlobalStatsCalculator calculator = new SamRecordAlignmentGlobalStatsCalculator();
+        try(AlignmentIterator<SAMRecord> iterator = iterator()) {
+            while(iterator.hasNext()) {
+                AlignmentGlobalStats computed = calculator.compute(iterator.next());
+                calculator.update(computed, alignmentGlobalStats);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return alignmentGlobalStats;
+    }
+
+    public AlignmentGlobalStats stats(Region region, AlignmentOptions options, AlignmentFilters filters) {
+        AlignmentGlobalStats alignmentGlobalStats = new AlignmentGlobalStats();
+        SamRecordAlignmentGlobalStatsCalculator calculator = new SamRecordAlignmentGlobalStatsCalculator();
+        try(AlignmentIterator<SAMRecord> iterator = iterator(region, options, filters)) {
+            while(iterator.hasNext()) {
+                AlignmentGlobalStats computed = calculator.compute(iterator.next());
+                calculator.update(computed, alignmentGlobalStats);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return alignmentGlobalStats;
     }
 
     private <T> AlignmentIterator<T> getAlignmentIterator(AlignmentFilters filters, boolean binQualities, Class<T> clazz,
