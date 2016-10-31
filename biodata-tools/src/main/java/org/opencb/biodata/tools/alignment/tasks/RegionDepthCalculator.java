@@ -21,6 +21,10 @@ public abstract class RegionDepthCalculator<T> {
 
     public void updateChunkDepth(RegionDepth src, long chunk, RegionDepth chunkDepth) {
         short value;
+
+        assert(src.chrom.equals(chunkDepth.chrom));
+        assert(src.chunk == chunkDepth.chunk);
+
         int start = (int) Math.max(src.position, chunk * RegionDepth.CHUNK_SIZE);
         int end = (int) Math.min(src.position + src.size - 1, (chunk + 1) * RegionDepth.CHUNK_SIZE - 1);
 
