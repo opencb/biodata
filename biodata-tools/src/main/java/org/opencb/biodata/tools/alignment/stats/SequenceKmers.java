@@ -29,7 +29,7 @@ public class SequenceKmers {
 
 	public SequenceKmers(int k) {
 		kvalue = k;
-		kmersMap = new HashMap<String, Integer>();		
+		kmersMap = new HashMap<>();
 	}
 
 	public int getKvalue() {
@@ -42,11 +42,11 @@ public class SequenceKmers {
 
 	public String toJSON() {
 		int key;
-		TreeMap<Integer, List<String>> sortedMap = new TreeMap<Integer, List<String>>(Collections.reverseOrder());
+		TreeMap<Integer, List<String>> sortedMap = new TreeMap<>(Collections.reverseOrder());
 		for(Map.Entry entry: kmersMap.entrySet()) {
 			key = (Integer) entry.getValue();
 			if (!sortedMap.containsKey(key)) {
-				sortedMap.put(key, new ArrayList<String>());
+				sortedMap.put(key, new ArrayList<>());
 			}
 			sortedMap.get(key).add((String) entry.getKey());
 		}
@@ -60,7 +60,7 @@ public class SequenceKmers {
 		i = 0;
 		for(Map.Entry entry: sortedMap.entrySet()) {
 			for(String value: (List<String>) entry.getValue()) {
-				res.append("[\"" + value + "\", " + (Integer) entry.getKey() + "]");
+				res.append("[\"" + value + "\", " + entry.getKey() + "]");
 				if (i >= 99) break;
 				if (++i < size) res.append(", ");
 			}
