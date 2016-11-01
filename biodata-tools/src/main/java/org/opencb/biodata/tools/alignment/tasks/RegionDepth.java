@@ -29,6 +29,17 @@ public class RegionDepth {
         this.array = (size > 0 ? new short[size] : null);
     }
 
+    public int meanDepth() {
+        int depth = 0;
+        if (size <= 0) {
+            return depth;
+        }
+        for (int i = 0; i < size; i++) {
+            depth += array[i];
+        }
+        return (depth / size);
+    }
+
     private String toFormat(int start, int end) {
         StringBuilder res = new StringBuilder();
         int i, pos = start;
