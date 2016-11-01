@@ -14,7 +14,7 @@ import java.util.function.Predicate;
 public abstract class AlignmentIterator<T> implements Iterator<T>, AutoCloseable {
 
     protected SAMRecordIterator samRecordIterator;
-    protected List<Predicate<SAMRecord>> filters;
+    protected AlignmentFilters filters;
 
     protected SAMRecord prevNext;
 
@@ -24,21 +24,16 @@ public abstract class AlignmentIterator<T> implements Iterator<T>, AutoCloseable
 
     public AlignmentIterator(SAMRecordIterator samRecordIterator, AlignmentFilters filters) {
         this.samRecordIterator = samRecordIterator;
-        if (filters != null) {
-            this.filters = filters.getFilters();
+        if (filters == null) {
+            filters = new AlignmentFilters();
         }
+        this.filters = filters;
+
         findNextMatch();
     }
 
     private boolean filter(SAMRecord samRecord) {
-        if (filters != null && filters.size() > 0) {
-            for (Predicate<SAMRecord> filter : filters) {
-                if (!filter.test(samRecord)) {
-                    return false;
-                }
-            }
-        }
-        return true;
+        return filters.apply(samRecord);
     }
 
     protected void findNextMatch() {

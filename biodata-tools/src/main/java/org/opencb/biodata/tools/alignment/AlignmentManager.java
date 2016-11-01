@@ -27,6 +27,10 @@ import org.opencb.biodata.tools.alignment.iterators.AlignmentIterator;
 import org.opencb.biodata.tools.alignment.iterators.AvroIterator;
 import org.opencb.biodata.tools.alignment.iterators.ProtoIterator;
 import org.opencb.biodata.tools.alignment.iterators.SamRecordIterator;
+import org.opencb.biodata.tools.alignment.stats.AlignmentGlobalStats;
+import org.opencb.biodata.tools.alignment.stats.SamRecordAlignmentGlobalStatsCalculator;
+import org.opencb.biodata.tools.alignment.tasks.RegionDepth;
+import org.opencb.biodata.tools.alignment.tasks.SamRecordRegionDepthCalculator;
 import org.opencb.commons.utils.FileUtils;
 
 import java.io.IOException;
@@ -79,7 +83,7 @@ public class AlignmentManager {
         srf.validationStringency(ValidationStringency.LENIENT);
         try (SamReader reader = srf.open(SamInputResource.of(input.toFile()))) {
 
-            // Files need to be sorted by coordinates to crete the index
+            // Files need to be sorted by coordinates to create the index
             SAMFileHeader.SortOrder sortOrder = reader.getFileHeader().getSortOrder();
             if (!sortOrder.equals(SAMFileHeader.SortOrder.coordinate)) {
                 throw new IOException("Expected sorted file. File '" + input.toString()
@@ -197,6 +201,51 @@ public class AlignmentManager {
         SAMRecordIterator samRecordIterator =
                 samReader.query(region.getChromosome(), region.getStart(), region.getEnd(), alignmentOptions.isContained());
         return getAlignmentIterator(filters, alignmentOptions.isBinQualities(), clazz, samRecordIterator);
+    }
+
+    public AlignmentGlobalStats stats() {
+        AlignmentGlobalStats alignmentGlobalStats = new AlignmentGlobalStats();
+        SamRecordAlignmentGlobalStatsCalculator calculator = new SamRecordAlignmentGlobalStatsCalculator();
+        try(AlignmentIterator<SAMRecord> iterator = iterator()) {
+            while(iterator.hasNext()) {
+                AlignmentGlobalStats computed = calculator.compute(iterator.next());
+                calculator.update(computed, alignmentGlobalStats);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return alignmentGlobalStats;
+    }
+
+    public AlignmentGlobalStats stats(Region region, AlignmentOptions options, AlignmentFilters filters) {
+        AlignmentGlobalStats alignmentGlobalStats = new AlignmentGlobalStats();
+        SamRecordAlignmentGlobalStatsCalculator calculator = new SamRecordAlignmentGlobalStatsCalculator();
+        try(AlignmentIterator<SAMRecord> iterator = iterator(region, options, filters)) {
+            while(iterator.hasNext()) {
+                AlignmentGlobalStats computed = calculator.compute(iterator.next());
+                calculator.update(computed, alignmentGlobalStats);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return alignmentGlobalStats;
+    }
+
+
+    public RegionDepth depth(Region region, AlignmentOptions options, AlignmentFilters filters) {
+        RegionDepth regionDepth = new RegionDepth();
+        SamRecordRegionDepthCalculator calculator = new SamRecordRegionDepthCalculator();
+        try(AlignmentIterator<SAMRecord> iterator = iterator(region, options, filters)) {
+            while(iterator.hasNext()) {
+                List<RegionDepth> list = calculator.computeAsList(iterator.next());
+                for (RegionDepth depth: list) {
+                    calculator.updateChunkDepth(depth, depth.chunk, regionDepth);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return regionDepth;
     }
 
     private <T> AlignmentIterator<T> getAlignmentIterator(AlignmentFilters filters, boolean binQualities, Class<T> clazz,

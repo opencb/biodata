@@ -24,6 +24,16 @@ public class AlignmentFilters {
         return new AlignmentFilters();
     }
 
+    public boolean apply(SAMRecord samRecord) {
+        if (filters != null && filters.size() > 0) {
+            for (Predicate<SAMRecord> filter : filters) {
+                if (!filter.test(samRecord)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 
     public AlignmentFilters addFilter(Predicate<SAMRecord> predicate) {
         filters.add(predicate);
