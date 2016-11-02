@@ -28,13 +28,12 @@ public class SamRecordRegionDepthCalculator extends RegionDepthCalculator<SAMRec
     }
 
     @Override
-    public List<RegionDepth> computeAsList(SAMRecord sr) {
-        return super.splitRegionDepthByChunks(compute(sr));
+    public List<RegionDepth> computeAsList(SAMRecord sr, int chunkSize) {
+        return super.splitRegionDepthByChunks(compute(sr), chunkSize);
     }
 
     private RegionDepth computeRegionDepth(SAMRecord sr, int size) {
-        RegionDepth regionDepth = new RegionDepth(sr.getReferenceName(), sr.getStart(),
-                sr.getStart() / RegionDepth.CHUNK_SIZE, size);
+        RegionDepth regionDepth = new RegionDepth(sr.getReferenceName(), sr.getStart(), size);
 
         // update array (counter)
         int arrayPos = 0;

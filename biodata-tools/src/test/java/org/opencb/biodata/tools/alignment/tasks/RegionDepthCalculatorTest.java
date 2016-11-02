@@ -28,41 +28,41 @@ public abstract class RegionDepthCalculatorTest {
 
         LinkedList<RegionDepth> regionList = new LinkedList<>();
 
-        try(AlignmentIterator<SAMRecord> iterator = alignmentManager.iterator()) {
-            while (iterator.hasNext()) {
-                list = samCalculator.computeAsList(iterator.next());
-                RegionDepth depth = list.get(0);
-                if (currChunk == null) {
-                    currChunk = new RegionDepth(depth.chrom, depth.chunk * depth.size, depth.chunk, depth.size);
-                }
-                if (depth.chunk == currChunk.chunk) {
-                    samCalculator.updateChunkDepth(depth, depth.chunk, currChunk);
-                } else if (depth.chunk > currChunk.chunk) {
-                    // current chunk is complete now, save it and swap chunks
-                    // currChunk.save();
-                    currChunk = nextChunk;
-                    nextChunk = null;
-                } else {
-                    // error: bam is not sorted
-                }
-                for (int i = 1; i < list.size(); i++) {
-                    depth = list.get(i);
-                    if (depth.chunk == currChunk.chunk) {
-                        samCalculator.updateChunkDepth(depth, depth.chunk, currChunk);
-                    } else if (depth.chunk > currChunk.chunk) {
-                        if (nextChunk == null) {
-                            nextChunk = new RegionDepth(depth.chrom, depth.chunk * depth.size, depth.chunk, depth.size);
-                        }
-                        if (depth.chunk == nextChunk.chunk) {
-                            samCalculator.updateChunkDepth(depth, depth.chunk, nextChunk);
-                        } else {
-                            // error: bam is not sorted
-                        }
-                    } else {
-                        // error: bam is not sorted
-                    }
-                }
-            }
-        }
+//        try(AlignmentIterator<SAMRecord> iterator = alignmentManager.iterator()) {
+//            while (iterator.hasNext()) {
+//                list = samCalculator.computeAsList(iterator.next());
+//                RegionDepth depth = list.get(0);
+//                if (currChunk == null) {
+//                    currChunk = new RegionDepth(depth.chrom, depth.chunk * depth.size, depth.chunk, depth.size);
+//                }
+//                if (depth.chunk == currChunk.chunk) {
+//                    samCalculator.updateChunkDepth(depth, depth.chunk, currChunk);
+//                } else if (depth.chunk > currChunk.chunk) {
+//                    // current chunk is complete now, save it and swap chunks
+//                    // currChunk.save();
+//                    currChunk = nextChunk;
+//                    nextChunk = null;
+//                } else {
+//                    // error: bam is not sorted
+//                }
+//                for (int i = 1; i < list.size(); i++) {
+//                    depth = list.get(i);
+//                    if (depth.chunk == currChunk.chunk) {
+//                        samCalculator.updateChunkDepth(depth, depth.chunk, currChunk);
+//                    } else if (depth.chunk > currChunk.chunk) {
+//                        if (nextChunk == null) {
+//                            nextChunk = new RegionDepth(depth.chrom, depth.chunk * depth.size, depth.chunk, depth.size);
+//                        }
+//                        if (depth.chunk == nextChunk.chunk) {
+//                            samCalculator.updateChunkDepth(depth, depth.chunk, nextChunk);
+//                        } else {
+//                            // error: bam is not sorted
+//                        }
+//                    } else {
+//                        // error: bam is not sorted
+//                    }
+//                }
+//            }
+//        }
     }
 }

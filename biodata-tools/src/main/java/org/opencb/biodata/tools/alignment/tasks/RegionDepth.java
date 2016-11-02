@@ -10,30 +10,35 @@ import java.util.List;
  */
 public class RegionDepth {
 
-    public final static int CHUNK_SIZE = 4000;
+//    public final static int CHUNK_SIZE = 1000;
 
     public String chrom;
     public int position;
-    public int chunk;
+//    public int chunk;
     public int size;
     public short[] array;
 
     public RegionDepth() {
     }
 
-    public RegionDepth(String chrom, int pos, int chunk, int size) {
+    public RegionDepth(Region region) {
+        this(region.getChromosome(), region.getStart(), region.getEnd() - region.getStart() + 1);
+    }
+
+//    public RegionDepth(String chrom, int pos, int chunk, int size) {
+    public RegionDepth(String chrom, int pos, int size) {
         this.chrom = chrom;
         this.position = pos;
-        this.chunk = chunk;
+//        this.chunk = chunk;
         this.size = size;
         this.array = (size > 0 ? new short[size] : null);
     }
 
     public int meanDepth() {
-        int depth = 0;
         if (size <= 0) {
-            return depth;
+            return 0;
         }
+        int depth = 0;
         for (int i = 0; i < size; i++) {
             depth += array[i];
         }
@@ -85,5 +90,45 @@ public class RegionDepth {
             res.append(chrom + "\t" +  (position + i) + "\t" + array[i] + "\n");
         }
         return res.toString();
+    }
+
+    public String getChrom() {
+        return chrom;
+    }
+
+    public void setChrom(String chrom) {
+        this.chrom = chrom;
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
+    }
+
+//    public int getChunk() {
+//        return chunk;
+//    }
+//
+//    public void setChunk(int chunk) {
+//        this.chunk = chunk;
+//    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
+    }
+
+    public short[] getArray() {
+        return array;
+    }
+
+    public void setArray(short[] array) {
+        this.array = array;
     }
 }

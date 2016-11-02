@@ -233,13 +233,14 @@ public class AlignmentManager {
 
 
     public RegionDepth depth(Region region, AlignmentOptions options, AlignmentFilters filters) {
-        RegionDepth regionDepth = new RegionDepth();
+        int size = region.getEnd() - region.getStart() + 1;
+        RegionDepth regionDepth = new RegionDepth(region.getChromosome(), region.getStart(), size);
         SamRecordRegionDepthCalculator calculator = new SamRecordRegionDepthCalculator();
         try(AlignmentIterator<SAMRecord> iterator = iterator(region, options, filters)) {
             while(iterator.hasNext()) {
-                List<RegionDepth> list = calculator.computeAsList(iterator.next());
+                List<RegionDepth> list = calculator.computeAsList(iterator.next(), size);
                 for (RegionDepth depth: list) {
-                    calculator.updateChunkDepth(depth, depth.chunk, regionDepth);
+                    calculator.updateChunkDepth(depth, regionDepth, regionDepth.getPosition() / size, size);
                 }
             }
         } catch (Exception e) {

@@ -31,15 +31,13 @@ public class AvroRegionDepthCalculator extends RegionDepthCalculator<ReadAlignme
     /*
      */
     @Override
-    public List<RegionDepth> computeAsList(ReadAlignment ra) {
-        return super.splitRegionDepthByChunks(compute(ra));
+    public List<RegionDepth> computeAsList(ReadAlignment ra, int chunkSize) {
+        return super.splitRegionDepthByChunks(compute(ra), chunkSize);
     }
 
     private RegionDepth computeRegionDepth(LinearAlignment la, int size) {
         RegionDepth regionDepth = new RegionDepth(la.getPosition().getReferenceName().toString(),
-                la.getPosition().getPosition().intValue(),
-                la.getPosition().getPosition().intValue() / RegionDepth.CHUNK_SIZE,
-                size);
+                la.getPosition().getPosition().intValue(), size);
 
         // update array (counter)
         int arrayPos = 0;
