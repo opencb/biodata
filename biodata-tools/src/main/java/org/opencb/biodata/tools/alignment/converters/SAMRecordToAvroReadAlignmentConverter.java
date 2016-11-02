@@ -1,7 +1,7 @@
 package org.opencb.biodata.tools.alignment.converters;
 
-import htsjdk.samtools.*;
-import htsjdk.samtools.util.StringUtil;
+import htsjdk.samtools.CigarElement;
+import htsjdk.samtools.SAMRecord;
 import org.ga4gh.models.*;
 import org.opencb.biodata.tools.alignment.AlignmentUtils;
 
@@ -169,57 +169,16 @@ public class SAMRecordToAvroReadAlignmentConverter extends AlignmentConverter<Re
 
     @Override
     public SAMRecord from(ReadAlignment in) {
-
         final String samLine = getSamString(in);
-
-        final String[] fields = new String[1000];
-        final int numFields = StringUtil.split(samLine, fields, '\t');
-        if (numFields < NUM_REQUIRED_FIELDS) {
-            throw new IllegalArgumentException("Not enough fields");
-        }
-        if (numFields == fields.length) {
-            throw new IllegalArgumentException("Too many fields in SAM text record.");
-        }
-        for (int i = 0; i < numFields; ++i) {
-            if (fields[i].isEmpty()) {
-                throw new IllegalArgumentException("Empty field at position " + i + " (zero-based)");
-            }
-        }
-
-        SAMRecord out = createFromFields(fields);
-
-        TextTagCodec tagCodec = new TextTagCodec();
-        for (int i = NUM_REQUIRED_FIELDS; i < numFields; ++i) {
-            Map.Entry<String, Object> entry = null;
-            try {
-                entry = tagCodec.decode(fields[i]);
-            } catch (SAMFormatException e) {
-                throw new IllegalArgumentException("Unable to decode field \"" + fields[i] + "\"", e);
-            }
-            if (entry != null) {
-                if (entry.getValue() instanceof TagValueAndUnsignedArrayFlag) {
-                    final TagValueAndUnsignedArrayFlag valueAndFlag =
-                            (TagValueAndUnsignedArrayFlag) entry.getValue();
-                    if (valueAndFlag.isUnsignedArray) {
-                        out.setUnsignedArrayAttribute(entry.getKey(), valueAndFlag.value);
-                    } else {
-                        out.setAttribute(entry.getKey(), valueAndFlag.value);
-                    }
-                } else {
-                    out.setAttribute(entry.getKey(), entry.getValue());
-                }
-            }
-        }
-
-        return out;
+        return super.from(samLine);
     }
 
     private String getSamString(ReadAlignment ra) {
         StringBuilder res = new StringBuilder();
-        LinearAlignment la = (LinearAlignment) ra.getAlignment();
+        LinearAlignment la = ra.getAlignment();
 
         // id
-        res.append(ra.getId().toString()).append(FIELD_SEPARATOR);
+        res.append(ra.getId()).append(FIELD_SEPARATOR);
 
         // flags
         int flags = 0;
@@ -345,7 +304,7 @@ public class SAMRecordToAvroReadAlignmentConverter extends AlignmentConverter<Re
         res.append(FIELD_SEPARATOR);
 
         // sequence
-        res.append(ra.getAlignedSequence().toString());
+        res.append(ra.getAlignedSequence());
         res.append(FIELD_SEPARATOR);
 
         // quality

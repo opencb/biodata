@@ -16,12 +16,17 @@
 
 package org.opencb.biodata.tools.alignment.stats;
 
-import java.util.*;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectWriter;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SequenceKmers {
 
 	public int kvalue;
-	public HashMap<String, Integer> kmersMap;
+	public Map<String, Integer> kmersMap;
 
 	public SequenceKmers() {
 		this(0);
@@ -40,34 +45,17 @@ public class SequenceKmers {
 		kvalue = k;
 	}
 
-	public String toJSON() {
-		int key;
-		TreeMap<Integer, List<String>> sortedMap = new TreeMap<>(Collections.reverseOrder());
-		for(Map.Entry entry: kmersMap.entrySet()) {
-			key = (Integer) entry.getValue();
-			if (!sortedMap.containsKey(key)) {
-				sortedMap.put(key, new ArrayList<>());
-			}
-			sortedMap.get(key).add((String) entry.getKey());
-		}
-		
-		StringBuilder res = new StringBuilder();
-		
-		res.append("{\"kvalue\": " + kvalue);
-		
-		int i, size = kmersMap.size();
-		res.append(", \"kmers_values\": [");
-		i = 0;
-		for(Map.Entry entry: sortedMap.entrySet()) {
-			for(String value: (List<String>) entry.getValue()) {
-				res.append("[\"" + value + "\", " + entry.getKey() + "]");
-				if (i >= 99) break;
-				if (++i < size) res.append(", ");
-			}
-			if (i >= 99) break;
-		}
-		res.append("]}");
+	public String toJSON() throws IOException {
+		ObjectWriter objectWriter = new ObjectMapper().writer();
+		return objectWriter.writeValueAsString(this);
+	}
 
-		return res.toString();
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder("SequenceKmers{");
+		sb.append("kvalue=").append(kvalue);
+		sb.append(", kmersMap=").append(kmersMap);
+		sb.append('}');
+		return sb.toString();
 	}
 }

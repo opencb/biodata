@@ -21,6 +21,7 @@ import org.codehaus.jackson.map.ObjectWriter;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
 public class AlignmentGlobalStats {
 
@@ -40,10 +41,10 @@ public class AlignmentGlobalStats {
 	public int numSkip;
 	
 	public int accMappingQuality;
-	public HashMap<Integer, Integer> mappingQualityMap;
+	public Map<Integer, Integer> mappingQualityMap;
 
 	public int accInsert;
-	public HashMap<Integer, Integer> insertMap;
+	public Map<Integer, Integer> insertMap;
 
 //	public long pos;
 //	public List<CigarUnit> cigar;
@@ -51,30 +52,8 @@ public class AlignmentGlobalStats {
 	public SequenceStats seqStats;
 
 	public AlignmentGlobalStats() {
-		numMapped = 0;
-		numUnmapped = 0;
-		numPaired = 0;
-		numMappedFirst = 0;
-		numMappedSecond = 0;
-
-		NM = 0;
-		
-		numHardC = 0;
-		numSoftC = 0;
-		numIn = 0;
-		numDel = 0;
-		numPad = 0;
-		numSkip = 0;
-
-		accMappingQuality = 0;
 		mappingQualityMap = new HashMap<> ();
-
-		accInsert = 0;
 		insertMap = new HashMap<> ();
-
-//		pos = 0;
-//		cigar = null;
-		
 		seqStats = new SequenceStats();
 	}
 
@@ -224,7 +203,7 @@ public class AlignmentGlobalStats {
 		return this;
 	}
 
-	public HashMap<Integer, Integer> getMappingQualityMap() {
+	public Map<Integer, Integer> getMappingQualityMap() {
 		return mappingQualityMap;
 	}
 
@@ -242,7 +221,7 @@ public class AlignmentGlobalStats {
 		return this;
 	}
 
-	public HashMap<Integer, Integer> getInsertMap() {
+	public Map<Integer, Integer> getInsertMap() {
 		return insertMap;
 	}
 
