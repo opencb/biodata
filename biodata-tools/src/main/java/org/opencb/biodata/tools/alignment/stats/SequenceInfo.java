@@ -13,12 +13,19 @@ public class SequenceInfo {
     public int accQual;
 
     public SequenceInfo() {
-        numA = 0;
-        numT = 0;
-        numG = 0;
-        numC = 0;
-        numN = 0;
-        numQual = 0;
-        accQual = 0;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("SequenceInfo{");
+        sb.append("numA=").append(numA);
+        sb.append(", numT=").append(numT);
+        sb.append(", numG=").append(numG);
+        sb.append(", numC=").append(numC);
+        sb.append(", numN=").append(numN);
+        sb.append(", numQual=").append(numQual);
+        sb.append(", accQual=").append(accQual);
+        sb.append('}');
+        return sb.toString();
     }
 }
