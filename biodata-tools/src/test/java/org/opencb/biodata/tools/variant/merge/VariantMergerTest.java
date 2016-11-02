@@ -116,6 +116,30 @@ public class VariantMergerTest {
     }
 
     @Test
+    public void testExpectedSamplesDefaultValues() {
+        VARIANT_MERGER.merge(var, VariantTestUtils.generateVariant("1",10,"A","G",VariantType.SNV,
+                Arrays.asList("S02"),
+                Arrays.asList("0/0")));
+        assertEquals(Arrays.asList(lst("0/1"),lst("0/0")),
+                onlyField(VARIANT_MERGER.getStudy(var).getSamplesData(),0));
+        List<Variant> empty = new ArrayList<>();
+        VARIANT_MERGER.setExpectedSamples(Arrays.asList("SX"));
+        VARIANT_MERGER.merge(var, empty);
+        assertEquals(Arrays.asList(lst("0/1"),lst("0/0"), lst(".")),
+                onlyField(VARIANT_MERGER.getStudy(var).getSamplesData(),0));
+
+        VARIANT_MERGER.setExpectedSamples(Arrays.asList("SY"));
+        VARIANT_MERGER.setDefaultValue(VARIANT_MERGER.getGtKey(), "???");
+        VARIANT_MERGER.setDefaultValue(VARIANT_MERGER.getFilterKey(), "xxx");
+        VARIANT_MERGER.merge(var, empty);
+        assertEquals(Arrays.asList(lst("0/1"),lst("0/0"), lst("."), lst("???")),
+                onlyField(VARIANT_MERGER.getStudy(var).getSamplesData(),0));
+        assertEquals(".", VARIANT_MERGER.getStudy(var).getSampleData("SX", VARIANT_MERGER.getFilterKey()));
+        assertEquals("xxx", VARIANT_MERGER.getStudy(var).getSampleData("SY", VARIANT_MERGER.getFilterKey()));
+        VARIANT_MERGER.setExpectedSamples(Arrays.asList());
+    }
+
+    @Test
     public void testMergeDifferentComplex() {
         VARIANT_MERGER.merge(var, VariantTestUtils.generateVariant("1", 10, "A", "G", VariantType.SNV,
                 Arrays.asList("S02"),
