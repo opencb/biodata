@@ -224,11 +224,11 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
     }
 
     /**
-     * Calculate Slice given a position and a chunk size &gt; 0; if chunk size &lt;= 0, returns position
+     * Calculate Slice given a position and a chunk arraySize &gt; 0; if chunk arraySize &lt;= 0, returns position
      *
      * @param position  genomic position
-     * @param chunkSize chunk size
-     * @return slice calculated using position and chunk size
+     * @param chunkSize chunk arraySize
+     * @return slice calculated using position and chunk arraySize
      */
     public static int getSlicePosition(int position, int chunkSize) {
         return chunkSize > 0
@@ -237,10 +237,10 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
     }
 
     /**
-     * Calculate offset to a slice junction given a position and a chunk size &gt; 0; if chunk size &lt;= 0, return position
+     * Calculate offset to a slice junction given a position and a chunk arraySize &gt; 0; if chunk arraySize &lt;= 0, return position
      *
      * @param position  genomic position
-     * @param chunkSize chunk size
+     * @param chunkSize chunk arraySize
      * @return offset calculated to the slice start position
      */
     public static int getSliceOffset(int position, int chunkSize) {

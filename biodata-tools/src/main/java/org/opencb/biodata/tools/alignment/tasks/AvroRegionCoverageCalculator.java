@@ -4,40 +4,39 @@ import org.ga4gh.models.CigarUnit;
 import org.ga4gh.models.LinearAlignment;
 import org.ga4gh.models.ReadAlignment;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by jtarraga on 26/05/15.
  */
-public class AvroRegionDepthCalculator extends RegionDepthCalculator<ReadAlignment>{
+public class AvroRegionCoverageCalculator extends RegionCoverageCalculator<ReadAlignment> {
 
     @Override
-    public RegionDepth compute(ReadAlignment ra) {
+    public RegionCoverage compute(ReadAlignment ra) {
         LinearAlignment la = (LinearAlignment) ra.getAlignment();
         if (la == null) {
-            return new RegionDepth();
+            return new RegionCoverage();
         }
 
-        // compute the region size according to the cigar code
+        // compute the region arraySize according to the cigar code
         int size = computeSizeByCigar(la.getCigar());
         if (size == 0) {
-            return new RegionDepth();
+            return new RegionCoverage();
         }
 
-        return computeRegionDepth(la, size);
+        return computeRegionCoverage(la, size);
     }
 
     /*
-     */
     @Override
-    public List<RegionDepth> computeAsList(ReadAlignment ra, int chunkSize) {
+    public List<RegionCoverage> computeAsList(ReadAlignment ra, int chunkSize) {
         return super.splitRegionDepthByChunks(compute(ra), chunkSize);
     }
+     */
 
-    private RegionDepth computeRegionDepth(LinearAlignment la, int size) {
-        RegionDepth regionDepth = new RegionDepth(la.getPosition().getReferenceName().toString(),
-                la.getPosition().getPosition().intValue(), size);
+    private RegionCoverage computeRegionCoverage(LinearAlignment la, int size) {
+        RegionCoverage regionCoverage = new RegionCoverage(la.getPosition().getReferenceName().toString(),
+                la.getPosition().getPosition().intValue(), la.getPosition().getPosition().intValue() + size - 1);
 
         // update array (counter)
         int arrayPos = 0;
@@ -47,7 +46,7 @@ public class AvroRegionDepthCalculator extends RegionDepthCalculator<ReadAlignme
                 case SEQUENCE_MATCH:
                 case SEQUENCE_MISMATCH:
                     for (int i = 0; i < cu.getOperationLength(); i++) {
-                        regionDepth.array[arrayPos++]++;
+                        regionCoverage.array[arrayPos++]++;
                     }
                     break;
                 case SKIP:
@@ -59,11 +58,11 @@ public class AvroRegionDepthCalculator extends RegionDepthCalculator<ReadAlignme
             }
         }
 
-        return regionDepth;
+        return regionCoverage;
     }
 
     /*
-     * compute the region size according to the cigar code
+     * compute the region arraySize according to the cigar code
      */
     private int computeSizeByCigar(List<CigarUnit> cigar) {
         int size = 0;

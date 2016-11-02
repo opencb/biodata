@@ -29,8 +29,8 @@ import org.opencb.biodata.tools.alignment.iterators.ProtoIterator;
 import org.opencb.biodata.tools.alignment.iterators.SamRecordIterator;
 import org.opencb.biodata.tools.alignment.stats.AlignmentGlobalStats;
 import org.opencb.biodata.tools.alignment.stats.SamRecordAlignmentGlobalStatsCalculator;
-import org.opencb.biodata.tools.alignment.tasks.RegionDepth;
-import org.opencb.biodata.tools.alignment.tasks.SamRecordRegionDepthCalculator;
+import org.opencb.biodata.tools.alignment.tasks.RegionCoverage;
+import org.opencb.biodata.tools.alignment.tasks.SamRecordRegionCoverageCalculator;
 import org.opencb.commons.utils.FileUtils;
 
 import java.io.IOException;
@@ -231,22 +231,19 @@ public class AlignmentManager {
         return alignmentGlobalStats;
     }
 
-
-    public RegionDepth depth(Region region, AlignmentOptions options, AlignmentFilters filters) {
+    public RegionCoverage coverage(Region region, AlignmentOptions options, AlignmentFilters filters) {
         int size = region.getEnd() - region.getStart() + 1;
-        RegionDepth regionDepth = new RegionDepth(region.getChromosome(), region.getStart(), size);
-        SamRecordRegionDepthCalculator calculator = new SamRecordRegionDepthCalculator();
+        RegionCoverage regionCoverage = new RegionCoverage(region);
+        SamRecordRegionCoverageCalculator calculator = new SamRecordRegionCoverageCalculator();
         try(AlignmentIterator<SAMRecord> iterator = iterator(region, options, filters)) {
             while(iterator.hasNext()) {
-                List<RegionDepth> list = calculator.computeAsList(iterator.next(), size);
-                for (RegionDepth depth: list) {
-                    calculator.updateChunkDepth(depth, regionDepth, regionDepth.getPosition() / size, size);
-                }
+                RegionCoverage computed = calculator.compute(iterator.next());
+                calculator.update(computed, regionCoverage);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return regionDepth;
+        return regionCoverage;
     }
 
     private <T> AlignmentIterator<T> getAlignmentIterator(AlignmentFilters filters, boolean binQualities, Class<T> clazz,

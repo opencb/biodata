@@ -1,9 +1,7 @@
 package org.opencb.biodata.tools.alignment.tasks;
 
-import htsjdk.samtools.SAMRecord;
 import org.junit.Test;
 import org.opencb.biodata.tools.alignment.AlignmentManager;
-import org.opencb.biodata.tools.alignment.iterators.AlignmentIterator;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -18,22 +16,22 @@ public abstract class RegionDepthCalculatorTest {
     @Test
     public void calculateDepthAvroVSSamRecord() throws Exception {
         // SAM depth calculator
-        SamRecordRegionDepthCalculator samCalculator = new SamRecordRegionDepthCalculator();
+        SamRecordRegionCoverageCalculator samCalculator = new SamRecordRegionCoverageCalculator();
 
         Path inputPath = Paths.get(getClass().getResource("/HG00096.chrom20.small.bam").toURI());
         AlignmentManager alignmentManager = new AlignmentManager(inputPath);
 
-        List<RegionDepth> list;
-        RegionDepth currChunk = null, nextChunk = null;
+        List<RegionCoverage> list;
+        RegionCoverage currChunk = null, nextChunk = null;
 
-        LinkedList<RegionDepth> regionList = new LinkedList<>();
+        LinkedList<RegionCoverage> regionList = new LinkedList<>();
 
 //        try(AlignmentIterator<SAMRecord> iterator = alignmentManager.iterator()) {
 //            while (iterator.hasNext()) {
 //                list = samCalculator.computeAsList(iterator.next());
-//                RegionDepth depth = list.get(0);
+//                RegionCoverage depth = list.get(0);
 //                if (currChunk == null) {
-//                    currChunk = new RegionDepth(depth.chrom, depth.chunk * depth.size, depth.chunk, depth.size);
+//                    currChunk = new RegionCoverage(depth.chrom, depth.chunk * depth.arraySize, depth.chunk, depth.arraySize);
 //                }
 //                if (depth.chunk == currChunk.chunk) {
 //                    samCalculator.updateChunkDepth(depth, depth.chunk, currChunk);
@@ -45,13 +43,13 @@ public abstract class RegionDepthCalculatorTest {
 //                } else {
 //                    // error: bam is not sorted
 //                }
-//                for (int i = 1; i < list.size(); i++) {
+//                for (int i = 1; i < list.arraySize(); i++) {
 //                    depth = list.get(i);
 //                    if (depth.chunk == currChunk.chunk) {
 //                        samCalculator.updateChunkDepth(depth, depth.chunk, currChunk);
 //                    } else if (depth.chunk > currChunk.chunk) {
 //                        if (nextChunk == null) {
-//                            nextChunk = new RegionDepth(depth.chrom, depth.chunk * depth.size, depth.chunk, depth.size);
+//                            nextChunk = new RegionCoverage(depth.chrom, depth.chunk * depth.arraySize, depth.chunk, depth.arraySize);
 //                        }
 //                        if (depth.chunk == nextChunk.chunk) {
 //                            samCalculator.updateChunkDepth(depth, depth.chunk, nextChunk);

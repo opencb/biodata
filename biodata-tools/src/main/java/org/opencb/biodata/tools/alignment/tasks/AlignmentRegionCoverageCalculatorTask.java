@@ -411,7 +411,7 @@ public class AlignmentRegionCoverageCalculatorTask extends Task<AlignmentRegion>
     }
 
     /**
-     * Set size to the nearest upper 2^n number for quick modulus operation
+     * Set arraySize to the nearest upper 2^n number for quick modulus operation
      *
      * @param size
      */
@@ -420,7 +420,7 @@ public class AlignmentRegionCoverageCalculatorTask extends Task<AlignmentRegion>
             return;
         }
         int lg = (int)Math.ceil(Math.log(size)/Math.log(2));
-        //int lg = 31 - Integer.numberOfLeadingZeros(size);
+        //int lg = 31 - Integer.numberOfLeadingZeros(arraySize);
         int newRegionCoverageSize = 1 << lg;
         int newRegionCoverageMask = newRegionCoverageSize - 1;
         RegionCoverage newCoverage = new RegionCoverage(newRegionCoverageSize);

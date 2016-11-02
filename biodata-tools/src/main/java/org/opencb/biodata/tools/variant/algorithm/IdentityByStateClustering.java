@@ -29,7 +29,7 @@ import java.util.*;
  * Created by jmmut on 2015-11-13.
  *
  * assumptions:
- * - samples.size() > 1 && samples.size() < 10000
+ * - samples.arraySize() > 1 && samples.arraySize() < 10000
  * - only one study
  * - only 2 alleles per genotype
  *
@@ -40,30 +40,30 @@ public class IdentityByStateClustering {
     public static final int MAX_SAMPLES_ALLOWED = 10000;
 
     /**
-     * @return an array of IBS of length: (samples.size()*(samples.size() -1))/2
-     * which is samples.size() choose 2
+     * @return an array of IBS of length: (samples.arraySize()*(samples.arraySize() -1))/2
+     * which is samples.arraySize() choose 2
      */
     public List<IdentityByState> countIBS(List<Variant> variants, List<String> samples) {
         return countIBS(variants.iterator(), samples);
     }
 
     /**
-     * @return an array of IBS of length: (samples.size()*(samples.size() -1))/2
-     * which is samples.size() choose 2
+     * @return an array of IBS of length: (samples.arraySize()*(samples.arraySize() -1))/2
+     * which is samples.arraySize() choose 2
      */
     public List<IdentityByState> countIBS(Variant variant, List<String> samples) {
         return countIBS(Collections.singletonList(variant).iterator(), samples);
     }
 
     /**
-     * @return an array of IBS of length: (samples.size()*(samples.size() -1))/2
-     * which is samples.size() choose 2
+     * @return an array of IBS of length: (samples.arraySize()*(samples.arraySize() -1))/2
+     * which is samples.arraySize() choose 2
      */
     public List<IdentityByState> countIBS(Iterator<Variant> iterator, List<String> samples) {
 
         // assumptions
         if (samples.size() < 1 || samples.size() > MAX_SAMPLES_ALLOWED) {
-            throw new IllegalArgumentException("samples.size() is " + samples.size()
+            throw new IllegalArgumentException("samples.arraySize() is " + samples.size()
                     + " and it should be between 1 and" + MAX_SAMPLES_ALLOWED);
         }
         final int studyIndex = 0;
