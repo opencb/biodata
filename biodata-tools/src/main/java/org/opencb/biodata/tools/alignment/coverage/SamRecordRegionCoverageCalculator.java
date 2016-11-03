@@ -1,16 +1,14 @@
-package org.opencb.biodata.tools.alignment.tasks;
+package org.opencb.biodata.tools.alignment.coverage;
 
 import htsjdk.samtools.Cigar;
 import htsjdk.samtools.CigarElement;
 import htsjdk.samtools.SAMRecord;
 import org.opencb.biodata.models.alignment.RegionCoverage;
 
-import java.util.List;
-
 /**
  * Created by jtarraga on 28/10/16.
  */
-public class SamRecordRegionDepthCalculator extends RegionDepthCalculator<SAMRecord> {
+public class SamRecordRegionCoverageCalculator extends RegionCoverageCalculator<SAMRecord> {
 
     @Override
     public RegionCoverage compute(SAMRecord sr) {
@@ -24,16 +22,12 @@ public class SamRecordRegionDepthCalculator extends RegionDepthCalculator<SAMRec
             return new RegionCoverage();
         }
 
-        return computeRegionDepth(sr, size);
+        return computeRegionCoverage(sr, size);
     }
 
-    @Override
-    public List<RegionCoverage> computeAsList(SAMRecord sr, int chunkSize) {
-        return super.splitRegionDepthByChunks(compute(sr), chunkSize);
-    }
-
-    private RegionCoverage computeRegionDepth(SAMRecord sr, int size) {
-        RegionCoverage regionCoverage = new RegionCoverage(sr.getReferenceName(), sr.getStart(), size);
+    private RegionCoverage computeRegionCoverage(SAMRecord sr, int size) {
+        RegionCoverage regionCoverage = new RegionCoverage(sr.getReferenceName(), sr.getStart(),
+                sr.getStart() + size - 1);
 
         // update array (counter)
         int arrayPos = 0;

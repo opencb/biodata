@@ -1,15 +1,15 @@
 package org.opencb.biodata.models.alignment;
 
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectWriter;
 import org.opencb.biodata.models.core.Region;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 
-public class RegionCoverage {
+public class RegionCoverage extends Region {
 
-    private String chromosome;
-    private int start;
-    private int end;
     private short[] values;
     private int windowSize;
 
@@ -21,61 +21,42 @@ public class RegionCoverage {
     }
 
     public RegionCoverage(String chromosome, int start, int end) {
-        this.chromosome = chromosome;
-        this.start = start;
-        this.end = end;
+        super(chromosome, start, end);
+        windowSize = 1;
         if (end >= start) {
-            this.values = new short[end - start];
+            this.values = new short[end - start + 1];
         } else {
             this.values = new short[0];
         }
     }
 
-    public RegionCoverage(String chromosome, int start, int end, short[] values, int windowSize) {
-        this.chromosome = chromosome;
-        this.start = start;
-        this.end = end;
-        this.values = values;
-        this.windowSize = windowSize;
+    public int meanCoverage() {
+        int mean = 0;
+        if (values.length == 0) {
+            return mean;
+        }
+
+        for (short value : values) {
+            mean += value;
+        }
+        return Math.round(1.0f * mean / values.length);
+    }
+
+    public String toJSON() throws IOException {
+        ObjectWriter objectWriter = new ObjectMapper().writer();
+        return objectWriter.writeValueAsString(this);
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("RegionDepth{");
-        sb.append("chromosome='").append(chromosome).append('\'');
-        sb.append(", start=").append(start);
-        sb.append(", end=").append(end);
+        final StringBuilder sb = new StringBuilder("RegionCoverage{");
+        sb.append("chromosome='").append(getChromosome()).append('\'');
+        sb.append(", start=").append(getStart());
+        sb.append(", end=").append(getEnd());
         sb.append(", array=").append(Arrays.toString(values));
         sb.append(", windowSize=").append(windowSize);
         sb.append('}');
         return sb.toString();
-    }
-
-    public String getChromosome() {
-        return chromosome;
-    }
-
-    public RegionCoverage setChromosome(String chromosome) {
-        this.chromosome = chromosome;
-        return this;
-    }
-
-    public int getStart() {
-        return start;
-    }
-
-    public RegionCoverage setStart(int start) {
-        this.start = start;
-        return this;
-    }
-
-    public int getEnd() {
-        return end;
-    }
-
-    public RegionCoverage setEnd(int end) {
-        this.end = end;
-        return this;
     }
 
     public short[] getValues() {

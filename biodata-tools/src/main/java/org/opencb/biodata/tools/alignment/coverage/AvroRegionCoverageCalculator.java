@@ -1,4 +1,4 @@
-package org.opencb.biodata.tools.alignment.tasks;
+package org.opencb.biodata.tools.alignment.coverage;
 
 import org.ga4gh.models.CigarUnit;
 import org.ga4gh.models.LinearAlignment;
@@ -10,11 +10,11 @@ import java.util.List;
 /**
  * Created by jtarraga on 26/05/15.
  */
-public class AvroRegionDepthCalculator extends RegionDepthCalculator<ReadAlignment>{
+public class AvroRegionCoverageCalculator extends RegionCoverageCalculator<ReadAlignment> {
 
     @Override
     public RegionCoverage compute(ReadAlignment ra) {
-        LinearAlignment la = (LinearAlignment) ra.getAlignment();
+        LinearAlignment la = ra.getAlignment();
         if (la == null) {
             return new RegionCoverage();
         }
@@ -25,19 +25,12 @@ public class AvroRegionDepthCalculator extends RegionDepthCalculator<ReadAlignme
             return new RegionCoverage();
         }
 
-        return computeRegionDepth(la, size);
+        return computeRegionCoverage(la, size);
     }
 
-    /*
-     */
-    @Override
-    public List<RegionCoverage> computeAsList(ReadAlignment ra, int chunkSize) {
-        return super.splitRegionDepthByChunks(compute(ra), chunkSize);
-    }
-
-    private RegionCoverage computeRegionDepth(LinearAlignment la, int size) {
+    private RegionCoverage computeRegionCoverage(LinearAlignment la, int size) {
         RegionCoverage regionCoverage = new RegionCoverage(la.getPosition().getReferenceName().toString(),
-                la.getPosition().getPosition().intValue(), size);
+                la.getPosition().getPosition().intValue(), la.getPosition().getPosition().intValue() + size - 1);
 
         // update array (counter)
         int arrayPos = 0;

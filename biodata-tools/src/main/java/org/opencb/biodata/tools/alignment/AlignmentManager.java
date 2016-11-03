@@ -30,7 +30,7 @@ import org.opencb.biodata.tools.alignment.iterators.ProtoIterator;
 import org.opencb.biodata.tools.alignment.iterators.SamRecordIterator;
 import org.opencb.biodata.tools.alignment.stats.AlignmentGlobalStats;
 import org.opencb.biodata.tools.alignment.stats.SamRecordAlignmentGlobalStatsCalculator;
-import org.opencb.biodata.tools.alignment.tasks.SamRecordRegionDepthCalculator;
+import org.opencb.biodata.tools.alignment.coverage.SamRecordRegionCoverageCalculator;
 import org.opencb.commons.utils.FileUtils;
 
 import java.io.IOException;
@@ -232,16 +232,13 @@ public class AlignmentManager {
     }
 
 
-    public RegionCoverage depth(Region region, AlignmentOptions options, AlignmentFilters filters) {
-        int size = region.getEnd() - region.getStart() + 1;
-        RegionCoverage regionCoverage = new RegionCoverage(region.getChromosome(), region.getStart(), size);
-        SamRecordRegionDepthCalculator calculator = new SamRecordRegionDepthCalculator();
+    public RegionCoverage coverage(Region region, AlignmentOptions options, AlignmentFilters filters) {
+        RegionCoverage regionCoverage = new RegionCoverage(region);
+        SamRecordRegionCoverageCalculator calculator = new SamRecordRegionCoverageCalculator();
         try(AlignmentIterator<SAMRecord> iterator = iterator(region, options, filters)) {
             while(iterator.hasNext()) {
-                List<RegionCoverage> list = calculator.computeAsList(iterator.next(), size);
-                for (RegionCoverage depth: list) {
-                    calculator.updateChunkDepth(depth, regionCoverage, regionCoverage.getStart() / size, size);
-                }
+                RegionCoverage computed = calculator.compute(iterator.next());
+                calculator.update(computed, regionCoverage);
             }
         } catch (Exception e) {
             e.printStackTrace();
