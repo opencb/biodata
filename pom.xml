@@ -39,6 +39,8 @@
         <compileSource>1.8</compileSource>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <ga4gh.version>0.6.0a5</ga4gh.version>
+        <protobuf.version>3.1.0</protobuf.version>
+        <grpc.version>1.0.1</grpc.version>
     </properties>
 
     <scm>
@@ -137,7 +139,7 @@
             <dependency>
                 <groupId>com.google.protobuf</groupId>
                 <artifactId>protobuf-java</artifactId>
-                <version>3.0.0-beta-2</version>
+                <version>${protobuf.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
