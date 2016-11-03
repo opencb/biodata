@@ -3,8 +3,8 @@ package org.opencb.biodata.tools.alignment.tasks;
 import org.ga4gh.models.CigarUnit;
 import org.ga4gh.models.LinearAlignment;
 import org.ga4gh.models.ReadAlignment;
+import org.opencb.biodata.models.alignment.RegionCoverage;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -13,16 +13,16 @@ import java.util.List;
 public class AvroRegionDepthCalculator extends RegionDepthCalculator<ReadAlignment>{
 
     @Override
-    public RegionDepth compute(ReadAlignment ra) {
+    public RegionCoverage compute(ReadAlignment ra) {
         LinearAlignment la = (LinearAlignment) ra.getAlignment();
         if (la == null) {
-            return new RegionDepth();
+            return new RegionCoverage();
         }
 
         // compute the region size according to the cigar code
         int size = computeSizeByCigar(la.getCigar());
         if (size == 0) {
-            return new RegionDepth();
+            return new RegionCoverage();
         }
 
         return computeRegionDepth(la, size);
@@ -31,12 +31,12 @@ public class AvroRegionDepthCalculator extends RegionDepthCalculator<ReadAlignme
     /*
      */
     @Override
-    public List<RegionDepth> computeAsList(ReadAlignment ra, int chunkSize) {
+    public List<RegionCoverage> computeAsList(ReadAlignment ra, int chunkSize) {
         return super.splitRegionDepthByChunks(compute(ra), chunkSize);
     }
 
-    private RegionDepth computeRegionDepth(LinearAlignment la, int size) {
-        RegionDepth regionDepth = new RegionDepth(la.getPosition().getReferenceName().toString(),
+    private RegionCoverage computeRegionDepth(LinearAlignment la, int size) {
+        RegionCoverage regionCoverage = new RegionCoverage(la.getPosition().getReferenceName().toString(),
                 la.getPosition().getPosition().intValue(), size);
 
         // update array (counter)
@@ -47,7 +47,7 @@ public class AvroRegionDepthCalculator extends RegionDepthCalculator<ReadAlignme
                 case SEQUENCE_MATCH:
                 case SEQUENCE_MISMATCH:
                     for (int i = 0; i < cu.getOperationLength(); i++) {
-                        regionDepth.array[arrayPos++]++;
+                        regionCoverage.getValues()[arrayPos++]++;
                     }
                     break;
                 case SKIP:
@@ -59,7 +59,7 @@ public class AvroRegionDepthCalculator extends RegionDepthCalculator<ReadAlignme
             }
         }
 
-        return regionDepth;
+        return regionCoverage;
     }
 
     /*

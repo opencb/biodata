@@ -2,8 +2,8 @@ package org.opencb.biodata.tools.alignment.tasks;
 
 import htsjdk.samtools.Cigar;
 import htsjdk.samtools.CigarElement;
-import htsjdk.samtools.CigarOperator;
 import htsjdk.samtools.SAMRecord;
+import org.opencb.biodata.models.alignment.RegionCoverage;
 
 import java.util.List;
 
@@ -13,27 +13,27 @@ import java.util.List;
 public class SamRecordRegionDepthCalculator extends RegionDepthCalculator<SAMRecord> {
 
     @Override
-    public RegionDepth compute(SAMRecord sr) {
+    public RegionCoverage compute(SAMRecord sr) {
         if (sr.getReadUnmappedFlag()) {
-            return new RegionDepth();
+            return new RegionCoverage();
         }
 
         // compute the region size according to the cigar code
         int size = computeSizeByCigar(sr.getCigar());
         if (size == 0) {
-            return new RegionDepth();
+            return new RegionCoverage();
         }
 
         return computeRegionDepth(sr, size);
     }
 
     @Override
-    public List<RegionDepth> computeAsList(SAMRecord sr, int chunkSize) {
+    public List<RegionCoverage> computeAsList(SAMRecord sr, int chunkSize) {
         return super.splitRegionDepthByChunks(compute(sr), chunkSize);
     }
 
-    private RegionDepth computeRegionDepth(SAMRecord sr, int size) {
-        RegionDepth regionDepth = new RegionDepth(sr.getReferenceName(), sr.getStart(), size);
+    private RegionCoverage computeRegionDepth(SAMRecord sr, int size) {
+        RegionCoverage regionCoverage = new RegionCoverage(sr.getReferenceName(), sr.getStart(), size);
 
         // update array (counter)
         int arrayPos = 0;
@@ -43,7 +43,7 @@ public class SamRecordRegionDepthCalculator extends RegionDepthCalculator<SAMRec
                 case "=":
                 case "X":
                     for (int i = 0; i < ce.getLength(); i++) {
-                        regionDepth.array[arrayPos++]++;
+                        regionCoverage.getValues()[arrayPos++]++;
                     }
                     break;
                 case "N":
@@ -55,7 +55,7 @@ public class SamRecordRegionDepthCalculator extends RegionDepthCalculator<SAMRec
             }
         }
 
-        return regionDepth;
+        return regionCoverage;
     }
 
     private int computeSizeByCigar(Cigar cigar) {

@@ -1,9 +1,8 @@
 package org.opencb.biodata.tools.alignment.tasks;
 
-import htsjdk.samtools.SAMRecord;
 import org.junit.Test;
+import org.opencb.biodata.models.alignment.RegionCoverage;
 import org.opencb.biodata.tools.alignment.AlignmentManager;
-import org.opencb.biodata.tools.alignment.iterators.AlignmentIterator;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -23,10 +22,10 @@ public abstract class RegionDepthCalculatorTest {
         Path inputPath = Paths.get(getClass().getResource("/HG00096.chrom20.small.bam").toURI());
         AlignmentManager alignmentManager = new AlignmentManager(inputPath);
 
-        List<RegionDepth> list;
-        RegionDepth currChunk = null, nextChunk = null;
+        List<RegionCoverage> list;
+        RegionCoverage currChunk = null, nextChunk = null;
 
-        LinkedList<RegionDepth> regionList = new LinkedList<>();
+        LinkedList<RegionCoverage> regionList = new LinkedList<>();
 
 //        try(AlignmentIterator<SAMRecord> iterator = alignmentManager.iterator()) {
 //            while (iterator.hasNext()) {

@@ -22,6 +22,7 @@ import htsjdk.samtools.seekablestream.SeekableStream;
 import htsjdk.samtools.seekablestream.SeekableStreamFactory;
 import htsjdk.samtools.util.Log;
 import org.ga4gh.models.ReadAlignment;
+import org.opencb.biodata.models.alignment.RegionCoverage;
 import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.tools.alignment.iterators.AlignmentIterator;
 import org.opencb.biodata.tools.alignment.iterators.AvroIterator;
@@ -29,7 +30,6 @@ import org.opencb.biodata.tools.alignment.iterators.ProtoIterator;
 import org.opencb.biodata.tools.alignment.iterators.SamRecordIterator;
 import org.opencb.biodata.tools.alignment.stats.AlignmentGlobalStats;
 import org.opencb.biodata.tools.alignment.stats.SamRecordAlignmentGlobalStatsCalculator;
-import org.opencb.biodata.tools.alignment.tasks.RegionDepth;
 import org.opencb.biodata.tools.alignment.tasks.SamRecordRegionDepthCalculator;
 import org.opencb.commons.utils.FileUtils;
 
@@ -232,21 +232,21 @@ public class AlignmentManager {
     }
 
 
-    public RegionDepth depth(Region region, AlignmentOptions options, AlignmentFilters filters) {
+    public RegionCoverage depth(Region region, AlignmentOptions options, AlignmentFilters filters) {
         int size = region.getEnd() - region.getStart() + 1;
-        RegionDepth regionDepth = new RegionDepth(region.getChromosome(), region.getStart(), size);
+        RegionCoverage regionCoverage = new RegionCoverage(region.getChromosome(), region.getStart(), size);
         SamRecordRegionDepthCalculator calculator = new SamRecordRegionDepthCalculator();
         try(AlignmentIterator<SAMRecord> iterator = iterator(region, options, filters)) {
             while(iterator.hasNext()) {
-                List<RegionDepth> list = calculator.computeAsList(iterator.next(), size);
-                for (RegionDepth depth: list) {
-                    calculator.updateChunkDepth(depth, regionDepth, regionDepth.getPosition() / size, size);
+                List<RegionCoverage> list = calculator.computeAsList(iterator.next(), size);
+                for (RegionCoverage depth: list) {
+                    calculator.updateChunkDepth(depth, regionCoverage, regionCoverage.getStart() / size, size);
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return regionDepth;
+        return regionCoverage;
     }
 
     private <T> AlignmentIterator<T> getAlignmentIterator(AlignmentFilters filters, boolean binQualities, Class<T> clazz,
