@@ -35,17 +35,13 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.avro</groupId>
-            <artifactId>avro</artifactId>
-            <version>1.7.7</version>
-        </dependency>
-        <dependency>
             <groupId>com.github.samtools</groupId>
             <artifactId>htsjdk</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
+            <groupId>org.apache.avro</groupId>
+            <artifactId>avro</artifactId>
+            <version>1.7.7</version>
         </dependency>
         <dependency>
             <groupId>com.google.protobuf</groupId>
@@ -55,10 +51,6 @@
             <groupId>io.grpc</groupId>
             <artifactId>grpc-all</artifactId>
             <version>${grpc.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.biojava</groupId>
@@ -76,23 +68,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <!--<dependencies>-->
-    <!--<dependency>-->
-    <!--<groupId>org.apache.avro</groupId>-->
-    <!--<artifactId>avro-compiler</artifactId>-->
-    <!--<version>1.7.7</version>-->
-    <!--</dependency>-->
-    <!--<dependency>-->
-    <!--<groupId>org.apache.avro</groupId>-->
-    <!--<artifactId>avro-tools</artifactId>-->
-    <!--<version>1.7.7</version>-->
-    <!--</dependency>-->
-
-
-    <!-- <dependency> <groupId>org.apache.avro</groupId> <artifactId>avro-ipc</artifactId>
-        <version>1.7.7</version> </dependency> -->
-    <!--</dependencies>-->
 
     <build>
         <extensions>
@@ -163,6 +138,7 @@
                 </executions>
             </plugin>
         </plugins>
+
         <pluginManagement>
             <plugins>
                 <!--This plugin's configuration is used to store Eclipse m2e settings
