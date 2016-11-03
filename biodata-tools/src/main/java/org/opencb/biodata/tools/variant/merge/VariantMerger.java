@@ -33,17 +33,117 @@ public class VariantMerger {
 
     public static final String GENOTYPE_FILTER_KEY = VCFConstants.GENOTYPE_FILTER_KEY;
 
-    //    public static final String VCF_FILTER = "FILTER";
     public static final String GT_KEY = VCFConstants.GENOTYPE_KEY;
     public static final String PASS_VALUE = "PASS";
     public static final String DEFAULT_FILTER_VALUE = ".";
-    //    public static final String CALL_KEY = "CALL";
+    public static final String DEFAULT_MISSING_GT = Genotype.NOCALL;
+
+    private String gtKey;
+    private String filterKey;
+    private String annotationFilterKey;
+
+    private final Set<String> expectedSamples = new HashSet<>();
+    private final Map<String, String> defaultValues = new HashMap<>();
+
+    public VariantMerger() {
+        this.gtKey = GT_KEY;
+        this.filterKey = GENOTYPE_FILTER_KEY;
+        this.annotationFilterKey = VariantVcfFactory.FILTER;
+
+        setDefaultValue(getGtKey(), DEFAULT_MISSING_GT);
+        setDefaultValue(getFilterKey(), DEFAULT_FILTER_VALUE);
+    }
 
     /**
-     *
+     * Adds Sample names to the sample name set.
+     * Samples names are used to validate the completeness of a variant call.
+     * If a sample is not seen in the merged variant, the sample will be added as the registered default value.
+     * The default values are retrieved by {@link #getDefaultValue(String)} and set to {@link #DEFAULT_MISSING_GT} for GT_KEY.
+     * @param sampleNames Collection of sample names.
      */
-    public VariantMerger() {
-        // TODO Auto-generated constructor stub
+    public void addExpectedSamples(Collection<String> sampleNames) {
+        this.expectedSamples.addAll(sampleNames);
+    }
+
+    /**
+     * Calls {@link Set#clear()} before {@link #addExpectedSamples(Collection)}.
+     * @param sampleNames Collection of Sample names.
+     */
+    public void setExpectedSamples(Collection<String> sampleNames) {
+        this.expectedSamples.clear();
+        this.addExpectedSamples(sampleNames);
+    }
+
+    public Set<String> getExpectedSamples(){
+        return Collections.unmodifiableSet(this.expectedSamples);
+    }
+
+    public String getGtKey() {
+        return this.gtKey;
+    }
+
+    public void setGtKey(String gtKey) {
+        updateDefaultKeys(this.gtKey, gtKey);
+        this.gtKey = gtKey;
+    }
+
+
+    /**
+     * Update a key
+     * @param from
+     * @param to
+     * @return true if there was a value to be moved.
+     */
+    public boolean updateDefaultKeys(String from, String to) {
+        if (null == from) {
+            return false;
+        }
+        if (null == to) {
+            return false;
+        }
+        if (StringUtils.equals(from, to)) {
+            return false;
+        }
+        String value = this.defaultValues.remove(from);
+        if (null == value) {
+            return false;
+        }
+        this.defaultValues.put(to, value);
+        return true;
+    }
+
+    /**
+     * Gets the default value of a key or {@link StringUtils#EMPTY} if no key is registered.
+     * @param key Key
+     * @return value Registered default value or {@link StringUtils#EMPTY}.
+     */
+    public String getDefaultValue(String key) {
+        return this.defaultValues.getOrDefault(key, StringUtils.EMPTY);
+    }
+
+    public String getDefaultValue(String key, String valueIfNull) {
+        return this.defaultValues.getOrDefault(key, valueIfNull);
+    }
+
+    public void setDefaultValue(String key, String value) {
+        this.defaultValues.put(key, value);
+    }
+
+    public String getFilterKey() {
+        return this.filterKey;
+    }
+
+    public void setFilterKey(String filterKey) {
+        this.filterKey = filterKey;
+    }
+
+    public String getAnnotationFilterKey() {
+        return annotationFilterKey;
+    }
+
+    public void setAnnotationFilterKey(String annotationFilterKey) {
+        updateDefaultKeys(this.annotationFilterKey, annotationFilterKey);
+        this.annotationFilterKey = annotationFilterKey;
     }
 
     /**
@@ -73,9 +173,9 @@ public class VariantMerger {
         for(StudyEntry tse : target.getStudies()){
             StudyEntry se = new StudyEntry(tse.getStudyId());
             se.setFiles(Collections.singletonList(new FileEntry("", "", new HashMap<>())));
-            se.setFormat(Arrays.asList(GT_KEY, GENOTYPE_FILTER_KEY));
-            se.setSamplesPosition(new HashMap<String, Integer>());
-            se.setSamplesData(new ArrayList<List<String>>());
+            se.setFormat(Arrays.asList(getGtKey(), getFilterKey()));
+            se.setSamplesPosition(new HashMap<>());
+            se.setSamplesData(new ArrayList<>());
             var.addStudyEntry(se);
         }
         return var;
@@ -93,16 +193,21 @@ public class VariantMerger {
         }
     }
 
-
+    /**
+     * Calls {@link #merge(Variant, Collection)}
+     * @param current {@link Variant} to update.
+     * @param load {@link Variant} to be merged.
+     * @return Merged Variant object.
+     */
     Variant merge(Variant current, Variant load){
         return merge(current, Collections.singleton(load));
     }
 
     /**
      * Merge a collection of variants into one variant.
-     * @param current
-     * @param load
-     * @return Modified current object.
+     * @param current {@link Variant} to update with collection of variants. This object will be modified.
+     * @param load {@link Variant} to be merged.
+     * @return Modified {@link Variant} object (passed in as current.
      */
     public Variant merge(Variant current, Collection<Variant> load){
         isValidVariant(current);
@@ -114,7 +219,30 @@ public class VariantMerger {
 
 
         mergeVariants(current, loadAlts);
+        fillMissingGt(current);
         return current;
+    }
+
+    private void fillMissingGt(Variant variant){
+        if (this.getExpectedSamples().isEmpty()) {
+            return; // Nothing to do.
+        }
+        Set<String> missing = new HashSet<>(getExpectedSamples());
+        StudyEntry study = getStudy(variant);
+        missing.removeAll(study.getSamplesName());
+        if (missing.isEmpty()) {
+            return; // Nothing to do.
+        }
+        // Prepare one data template for all missing samples.
+        Map<String, Integer> formatPositions = study.getFormatPositions();
+        String[] dataList = new String[formatPositions.size()];
+        Arrays.fill(dataList, StringUtils.EMPTY);
+        dataList[formatPositions.get(getGtKey())] = getDefaultValue(getGtKey()); //set Missing GT
+        if (formatPositions.containsKey(getFilterKey())) {
+            dataList[formatPositions.get(getFilterKey())] = getDefaultValue(getFilterKey());
+        }
+        // Register template for all missing samples.
+        missing.forEach(sample -> study.addSampleData(sample, new ArrayList<String>(Arrays.asList(dataList))));
     }
 
     public Variant merge(Variant current, List<Pair<Variant, List<AlternateCoordinate>>> vatToAlts) {
@@ -185,14 +313,12 @@ public class VariantMerger {
      */
     void mergeVariants(Variant current, List<Pair<Variant, List<AlternateCoordinate>>> varToAlts) {
         StudyEntry currentStudy = getStudy(current);
-
-        String defaultFilterValue = currentStudy.getFiles().isEmpty() ? DEFAULT_FILTER_VALUE
-                : currentStudy.getFiles().get(0).getAttributes().getOrDefault(VariantVcfFactory.FILTER, DEFAULT_FILTER_VALUE);
-        ensureFormat(currentStudy, GENOTYPE_FILTER_KEY, defaultFilterValue);
+        String defaultFilterValue = currentStudy.getFiles().isEmpty() ? getDefaultValue(getFilterKey())
+                : currentStudy.getFiles().get(0).getAttributes().getOrDefault(getAnnotationFilterKey(), getDefaultValue(getFilterKey()));
+        ensureFormat(currentStudy, getFilterKey(), defaultFilterValue);
 
         List<String> orderedSamplesName = new ArrayList<>(currentStudy.getOrderedSamplesName());
         Set<String> currSampleNames = new HashSet<>(currentStudy.getSamplesName());
-
 
         // Build ALT index
         List<AlternateCoordinate> altList = buildAltsList(current, varToAlts.stream().map(p -> p.getRight()).collect(Collectors.toList()));
@@ -202,24 +328,24 @@ public class VariantMerger {
         currentStudy.setSecondaryAlternates(altList.subList(1,altList.size()));
         Map<String, Integer> formatPositions = new HashMap<>(currentStudy.getFormatPositions());
         Map<String, Integer> additionalForamt = new HashMap<>(formatPositions);
-        additionalForamt.remove(GT_KEY);
-        additionalForamt.remove(GENOTYPE_FILTER_KEY);
+        additionalForamt.remove(getGtKey());
+        additionalForamt.remove(getFilterKey());
 
-        if (!formatPositions.keySet().contains(GT_KEY)) {
+        if (!formatPositions.keySet().contains(getGtKey())) {
             throw new IllegalStateException("Current study expected to contain 'GT'");
         }
-        if (! (formatPositions.get(GT_KEY).equals(0))) {
+        if (! (formatPositions.get(getGtKey()).equals(0))) {
             throw new IllegalStateException("Current study expected to be in order of 'GT'");
         }
         Map<String, String> sampleToGt = sampleToGt(current);
-        Map<String, String> sampleToFilter = sampleToSampleData(current, GENOTYPE_FILTER_KEY);
+        Map<String, String> sampleToFilter = sampleToSampleData(current, getFilterKey());
         Map<String, Map<Integer, String>> sampleToAdditional = new HashMap<>();
         additionalForamt.forEach((k,id) -> {
             Map<String, String> sampleToValue = sampleToSampleData(current, k);
             sampleToValue.forEach((s,v) -> {
                 Map<Integer, String> keyMap = sampleToAdditional.get(s);
                 if (keyMap == null) {
-                    keyMap = new HashMap<Integer, String>();
+                    keyMap = new HashMap<>();
                     sampleToAdditional.put(s, keyMap);
                 }
                 keyMap.put(id, v);
@@ -232,9 +358,9 @@ public class VariantMerger {
                     .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
             StudyEntry otherStudy = getStudy(other);
             Map<String, String> otherSampleToGt = sampleToGt(other);
-            Map<String, String> otherSampleToFilter = otherStudy.getFormat().contains(GENOTYPE_FILTER_KEY)
-                    ? sampleToSampleData(other, GENOTYPE_FILTER_KEY)
-                    : sampleToAttribute(other, VariantVcfFactory.FILTER);
+            Map<String, String> otherSampleToFilter = otherStudy.getFormat().contains(getFilterKey())
+                    ? sampleToSampleData(other, getFilterKey())
+                    : sampleToAttribute(other, getAnnotationFilterKey());
             Map<String, Map<Integer, String>> otherSampleToAdditionalFormats = new HashMap<>();
             additionalForamt.forEach((ks,k) -> {
                 Map<String, String> data = sampleToSampleData(other, ks);
@@ -279,7 +405,7 @@ public class VariantMerger {
                 sampleToGt.put(sampleName, updatedGt);
 
                 // Filter
-                String filter = otherSampleToFilter.getOrDefault(sampleName, DEFAULT_FILTER_VALUE);
+                String filter = otherSampleToFilter.getOrDefault(sampleName, getDefaultValue(getFilterKey()));
                 if (alreadyInStudy && isGtUpdated) {
                     String currFilter = sampleToFilter.get(sampleName);
                     List<String> filterLst = new ArrayList<>(Arrays.asList(currFilter.split(",")));
@@ -329,15 +455,11 @@ public class VariantMerger {
         }
         for (int i = 0; i < format.size(); i++) {
             int pos = i;
-            switch (format.get(i)) {
-                case GT_KEY:
-                    sampleToGt.forEach((k,v) -> samplesData[samplesPosition.get(k)].set(pos,v));
-                    break;
-                case GENOTYPE_FILTER_KEY:
-                    sampleToFilter.forEach((k,v) -> samplesData[samplesPosition.get(k)].set(pos,v));
-                    break;
-                default:
-                    break;
+            String currFormat = format.get(pos);
+            if (StringUtils.equals(currFormat, getGtKey())) {
+                sampleToGt.forEach((k, v) -> samplesData[samplesPosition.get(k)].set(pos, v));
+            } else if (StringUtils.equals(currFormat, getFilterKey())) {
+                sampleToFilter.forEach((k, v) -> samplesData[samplesPosition.get(k)].set(pos, v));
             }
         }
         // and additional values
@@ -525,7 +647,7 @@ public class VariantMerger {
     }
 
     private Map<String, String> sampleToGt(Variant load) {
-        return sampleToSampleData(load, GT_KEY);
+        return sampleToSampleData(load, getGtKey());
     }
 
     private Map<String, String> sampleToSampleData(Variant var, String key){
@@ -550,7 +672,7 @@ public class VariantMerger {
             studyEntry.addFormat(formatValue);
             if (studyEntry.getSamplesData() != null && !studyEntry.getSamplesData().isEmpty()) {
                 for (String sampleName : studyEntry.getOrderedSamplesName()) {
-                    studyEntry.addSampleData(sampleName, GENOTYPE_FILTER_KEY, defaultValue);
+                    studyEntry.addSampleData(sampleName, getFilterKey(), defaultValue);
                 }
             }
         }
