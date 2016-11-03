@@ -30,6 +30,12 @@ public class RegionCoverage extends Region {
         }
     }
 
+    public RegionCoverage(Region region, int windowSize, short[] values) {
+        super(region.getChromosome(), region.getStart(), region.getEnd());
+        this.windowSize = windowSize;
+        this.values = values;
+    }
+
     public int meanCoverage() {
         int mean = 0;
         if (values.length == 0) {
