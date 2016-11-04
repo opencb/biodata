@@ -83,6 +83,11 @@
             <email>joaquintarraga@gmail.com</email>
         </developer>
         <developer>
+            <id>mh11</id>
+            <name>Matthias</name>
+            <email>mh719+git@cam.ac.uk</email>
+        </developer>
+        <developer>
             <id>cyenyxe</id>
             <name>Cristina</name>
             <email>cyenyxe@ebi.ac.uk</email>
