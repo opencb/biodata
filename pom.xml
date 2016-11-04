@@ -37,7 +37,11 @@
         <biodata.version>0.9.0-nvm</biodata.version>
         <commons.version>3.4.0-SNAPSHOT</commons.version>
         <compileSource>1.8</compileSource>
+        <commons.version>3.4.0-SNAPSHOT</commons.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <avro.version>1.7.7</avro.version>
+        <protobuf.version>3.1.0</protobuf.version>
+        <grpc.version>1.0.1</grpc.version>
         <ga4gh.version>0.6.0a5</ga4gh.version>
     </properties>
 
@@ -61,19 +65,9 @@
             <email>igmecas@gmail.com</email>
         </developer>
         <developer>
-            <id>cyenyxe</id>
-            <name>Cristina</name>
-            <email>cyenyxe@ebi.ac.uk</email>
-        </developer>
-        <developer>
             <id>j-coll</id>
             <name>jacobo</name>
             <email>jacobo167@gmail.com</email>
-        </developer>
-        <developer>
-            <id>jmmut</id>
-            <name>Josemi</name>
-            <email>jomutlo@gmail.com</email>
         </developer>
         <developer>
             <id>javild</id>
@@ -81,14 +75,34 @@
             <email>javild@gmail.com</email>
         </developer>
         <developer>
+            <id>pfurio</id>
+            <name>Pedro</name>
+            <email>pedrofurio@gmail.com</email>
+        </developer>
+        <developer>
+            <id>jtarraga</id>
+            <name>Joaquin</name>
+            <email>joaquintarraga@gmail.com</email>
+        </developer>
+        <developer>
+            <id>mh11</id>
+            <name>Matthias</name>
+            <email>mh719+git@cam.ac.uk</email>
+        </developer>
+        <developer>
+            <id>cyenyxe</id>
+            <name>Cristina</name>
+            <email>cyenyxe@ebi.ac.uk</email>
+        </developer>
+        <developer>
+            <id>jmmut</id>
+            <name>Josemi</name>
+            <email>jomutlo@gmail.com</email>
+        </developer>
+        <developer>
             <id>pabarcgar</id>
             <name>Pablo</name>
             <email>pablo.arce.garcia@gmail.com</email>
-        </developer>
-        <developer>
-            <id>aaleman</id>
-            <name>Alejandro</name>
-            <email>aaleman@cipf.es</email>
         </developer>
     </developers>
 
@@ -102,7 +116,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- Intra-module dependencies -->
             <dependency>
                 <groupId>org.opencb.biodata</groupId>
                 <artifactId>biodata-formats</artifactId>
@@ -130,29 +143,14 @@
                 <version>1.138</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-lang3</artifactId>
-                <version>3.4</version>
+                <groupId>org.apache.avro</groupId>
+                <artifactId>avro</artifactId>
+                <version>${avro.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.protobuf</groupId>
                 <artifactId>protobuf-java</artifactId>
-                <version>3.0.0-beta-2</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>2.5.4</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>18.0</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>1.7.12</version>
+                <version>${protobuf.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.biojava</groupId>
@@ -179,7 +177,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.2</version>
+                <version>3.6.0</version>
                 <configuration>
                     <source>${compileSource}</source>
                     <target>${compileSource}</target>
@@ -191,7 +189,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>2.6</version>
+                <version>3.0.1</version>
                 <configuration>
                     <encoding>UTF-8</encoding>
                 </configuration>
@@ -224,40 +222,41 @@
                 </dependencies>
             </plugin>
         </plugins>
+
         <pluginManagement>
-        	<plugins>
-        		<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
-        		<plugin>
-        			<groupId>org.eclipse.m2e</groupId>
-        			<artifactId>lifecycle-mapping</artifactId>
-        			<version>1.0.0</version>
-        			<configuration>
-        				<lifecycleMappingMetadata>
-        					<pluginExecutions>
-        						<pluginExecution>
-        							<pluginExecutionFilter>
-        								<groupId>
-        									org.codehaus.gmaven
-        								</groupId>
-        								<artifactId>
-        									gmaven-plugin
-        								</artifactId>
-        								<versionRange>
-        									[1.5,)
-        								</versionRange>
-        								<goals>
-        									<goal>testCompile</goal>
-        								</goals>
-        							</pluginExecutionFilter>
-        							<action>
-        								<ignore></ignore>
-        							</action>
-        						</pluginExecution>
-        					</pluginExecutions>
-        				</lifecycleMappingMetadata>
-        			</configuration>
-        		</plugin>
-        	</plugins>
+            <plugins>
+                <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+                <plugin>
+                    <groupId>org.eclipse.m2e</groupId>
+                    <artifactId>lifecycle-mapping</artifactId>
+                    <version>1.0.0</version>
+                    <configuration>
+                        <lifecycleMappingMetadata>
+                            <pluginExecutions>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>
+                                            org.codehaus.gmaven
+                                        </groupId>
+                                        <artifactId>
+                                            gmaven-plugin
+                                        </artifactId>
+                                        <versionRange>
+                                            [1.5,)
+                                        </versionRange>
+                                        <goals>
+                                            <goal>testCompile</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore></ignore>
+                                    </action>
+                                </pluginExecution>
+                            </pluginExecutions>
+                        </lifecycleMappingMetadata>
+                    </configuration>
+                </plugin>
+            </plugins>
         </pluginManagement>
     </build>
 
@@ -269,7 +268,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>2.4</version>
+                        <version>3.0.1</version>
                         <executions>
                             <execution>
                                 <id>attach-sources</id>
@@ -282,7 +281,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>2.10.1</version>
+                        <version>2.10.4</version>
                         <executions>
                             <execution>
                                 <id>attach-javadocs</id>
@@ -327,6 +326,7 @@
             </build>
         </profile>
     </profiles>
+
     <distributionManagement>
         <snapshotRepository>
             <id>ossrh</id>

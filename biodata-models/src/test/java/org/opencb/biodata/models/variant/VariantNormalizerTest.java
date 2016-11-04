@@ -490,39 +490,49 @@ public class VariantNormalizerTest extends GenericTest {
     }
 
     @Test
-    public void testCNVsNormalization() {
-        try {
+    public void testCNVsNormalization() throws Exception {
+        Variant variant = newVariant(100, 200, "C", Collections.singletonList("<CN0>"), "2");
+        variant.getStudies().get(0).getFile("1").getAttributes().put("CIEND", "-50,11");
+        variant.getStudies().get(0).getFile("1").getAttributes().put("CIPOS", "-14,50");
+        variant.getStudies().get(0).addSampleData("HG00096", Arrays.asList("0|0"));
+        List<Variant> normalizedVariantList = normalizer.normalize(Collections.singletonList(variant), true);
+        assertEquals(1, normalizedVariantList.size());
+        assertEquals(new StructuralVariation(86, 150, 150, 211, 0), normalizedVariantList.get(0).getSv());
+    }
 
-            Variant variant = newVariant(100, 200, "C", Collections.singletonList("<CN0>"), "2");
-            variant.getStudies().get(0).getFile("1").getAttributes().put("CIEND", "-50,11");
-            variant.getStudies().get(0).getFile("1").getAttributes().put("CIPOS", "-14,50");
-            variant.getStudies().get(0).addSampleData("HG00096", Arrays.asList("0|0"));
-            List<Variant> normalizedVariantList = normalizer.normalize(Collections.singletonList(variant), true);
-            assertEquals(normalizedVariantList.size(), 1);
-            assertEquals(normalizedVariantList.get(0).getSv(), new StructuralVariation(86, 150, 150, 211, 0));
+    @Test
+    public void testVNCNormalizationMultiallelic() throws NonStandardCompliantSampleField {
+        Variant variant;
+        List<Variant> normalizedVariantList;
+        variant = newVariant(100, 200, "C", Arrays.asList("<CN0>", "<CN2>", "<CN3>", "<CN4>"), "2");
+        variant.getStudies().get(0).addSampleData("HG00096", Arrays.asList("0|1"));
+        variant.getStudies().get(0).addSampleData("HG00097", Arrays.asList("0|2"));
+        variant.getStudies().get(0).addSampleData("HG00098", Arrays.asList("0|3"));
+        variant.getStudies().get(0).addSampleData("HG00099", Arrays.asList("0|4"));
+        variant.getStudies().get(0).getFiles().get(0).getAttributes().put("AF", "0.1,0.2,0.3,0.4");
+        normalizedVariantList = normalizer.normalize(Collections.singletonList(variant), true);
+        assertEquals(4, normalizedVariantList.size());
+        assertEquals(new StructuralVariation(100, 100, 200, 200, 0), normalizedVariantList.get(0).getSv());
+        assertEquals(new StructuralVariation(100, 100, 200, 200, 2), normalizedVariantList.get(1).getSv());
+        assertEquals(new StructuralVariation(100, 100, 200, 200, 3), normalizedVariantList.get(2).getSv());
+        assertEquals(new StructuralVariation(100, 100, 200, 200, 4), normalizedVariantList.get(3).getSv());
 
-            variant = newVariant(100, 200, "C", Arrays.asList("<CN0>", "<CN2>", "<CN3>", "<CN4>"), "2");
-            variant.getStudies().get(0).addSampleData("HG00096", Arrays.asList("0|1"));
-            variant.getStudies().get(0).addSampleData("HG00097", Arrays.asList("0|2"));
-            variant.getStudies().get(0).addSampleData("HG00098", Arrays.asList("0|3"));
-            variant.getStudies().get(0).addSampleData("HG00099", Arrays.asList("0|4"));
-            normalizedVariantList = normalizer.normalize(Collections.singletonList(variant), true);
-            assertEquals(normalizedVariantList.size(), 4);
-            assertEquals(normalizedVariantList.get(0).getSv(), new StructuralVariation(100, 100, 200, 200, 0));
-            assertEquals(normalizedVariantList.get(1).getSv(), new StructuralVariation(100, 100, 200, 200, 2));
-            assertEquals(normalizedVariantList.get(2).getSv(), new StructuralVariation(100, 100, 200, 200, 3));
-            assertEquals(normalizedVariantList.get(3).getSv(), new StructuralVariation(100, 100, 200, 200, 4));
+        assertEquals("100:C:<CN0>,<CN2>,<CN3>,<CN4>:0", normalizedVariantList.get(0).getStudies().get(0).getFiles().get(0).getCall());
+        assertEquals("100:C:<CN0>,<CN2>,<CN3>,<CN4>:1", normalizedVariantList.get(1).getStudies().get(0).getFiles().get(0).getCall());
+        assertEquals("100:C:<CN0>,<CN2>,<CN3>,<CN4>:2", normalizedVariantList.get(2).getStudies().get(0).getFiles().get(0).getCall());
+        assertEquals("100:C:<CN0>,<CN2>,<CN3>,<CN4>:3", normalizedVariantList.get(3).getStudies().get(0).getFiles().get(0).getCall());
+    }
 
-            variant = newVariant(100, 200, "C", Arrays.asList("<CNV>"), "2");
-            variant.getStudies().get(0).addFormat("CN");
-            variant.getStudies().get(0).addSampleData("HG00096", Arrays.asList("0|1","3"));
-            normalizedVariantList = normalizer.normalize(Collections.singletonList(variant), true);
-            assertEquals(normalizedVariantList.size(), 1);
-            assertEquals(normalizedVariantList.get(0).getSv(), new StructuralVariation(100, 100, 200, 200, 3));
-
-        } catch (NonStandardCompliantSampleField nonStandardCompliantSampleField) {
-            nonStandardCompliantSampleField.printStackTrace();
-        }
+    @Test
+    public void testCNVsNormalizationCopyNumber() throws NonStandardCompliantSampleField {
+        Variant variant;
+        List<Variant> normalizedVariantList;
+        variant = newVariant(100, 200, "C", Arrays.asList("<CNV>"), "2");
+        variant.getStudies().get(0).addFormat("CN");
+        variant.getStudies().get(0).addSampleData("HG00096", Arrays.asList("0|1","3"));
+        normalizedVariantList = normalizer.normalize(Collections.singletonList(variant), true);
+        assertEquals(1, normalizedVariantList.size());
+        assertEquals(new StructuralVariation(100, 100, 200, 200, 3), normalizedVariantList.get(0).getSv());
     }
 
     private Variant newVariant(int position, String ref, String altsCsv) {

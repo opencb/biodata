@@ -17,7 +17,9 @@
 package org.opencb.biodata.formats.io;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
@@ -26,6 +28,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
 
 
 public class BeanReader<T> {
@@ -85,7 +88,14 @@ public class BeanReader<T> {
             if (constructor != null) {
                 argsClass = constructor.getParameterTypes();
             }
-            bufferedReader = Files.newBufferedReader(path, Charset.defaultCharset());
+//            bufferedReader = Files.newBufferedReader(path, Charset.defaultCharset());
+//            bufferedReader = Files.newBufferedReader(path, Charset.forName("ISO-8859-1"));
+            if (path.toFile().getName().endsWith(".gz")) {
+                bufferedReader = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(path.toFile()))));
+            } else {
+                bufferedReader = Files.newBufferedReader(path, Charset.defaultCharset());
+            }
+
         } else {
             new IOException("Empty path provided");
         }
@@ -190,7 +200,15 @@ public class BeanReader<T> {
     private String getFirstLineUncommented(Path path) throws IOException {
         String line = "";
         StringBuilder commentLineBuilder = new StringBuilder();
-        BufferedReader reader = Files.newBufferedReader(path, Charset.defaultCharset());
+//        BufferedReader reader = Files.newBufferedReader(path, Charset.defaultCharset());
+//        BufferedReader reader = Files.newBufferedReader(path, Charset.forName("ISO-8859-1"));
+        BufferedReader reader;
+        if (path.toFile().getName().endsWith(".gz")) {
+            reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(path.toFile()))));
+        } else {
+            reader = Files.newBufferedReader(path, Charset.defaultCharset());
+        }
+
         while ((line = reader.readLine()) != null && line.startsWith(comment)) {
             commentLineBuilder.append(line).append("\n");
         }
