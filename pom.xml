@@ -38,6 +38,7 @@
         <compileSource>1.8</compileSource>
         <commons.version>3.4.0-SNAPSHOT</commons.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <avro.version>1.7.7</avro.version>
         <protobuf.version>3.1.0</protobuf.version>
         <grpc.version>1.0.1</grpc.version>
         <ga4gh.version>0.6.0a5</ga4gh.version>
@@ -102,7 +103,6 @@
             <name>Pablo</name>
             <email>pablo.arce.garcia@gmail.com</email>
         </developer>
-
     </developers>
 
     <mailingLists>
@@ -140,6 +140,11 @@
                 <groupId>com.github.samtools</groupId>
                 <artifactId>htsjdk</artifactId>
                 <version>1.138</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.avro</groupId>
+                <artifactId>avro</artifactId>
+                <version>${avro.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.protobuf</groupId>

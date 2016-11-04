@@ -35,10 +35,6 @@
             <groupId>org.opencb.biodata</groupId>
             <artifactId>biodata-formats</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.opencb.ga4gh</groupId>
-            <artifactId>ga4gh</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>com.github.samtools</groupId>
