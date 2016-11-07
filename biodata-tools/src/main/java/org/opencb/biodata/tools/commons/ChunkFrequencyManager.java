@@ -2,6 +2,8 @@ package org.opencb.biodata.tools.commons;
 
 import org.opencb.biodata.models.core.Region;
 import org.opencb.commons.utils.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,46 +14,39 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 
 /**
  * Created by jtarraga on 07/11/16.
  */
 public class ChunkFrequencyManager {
 
+    private Path databasePath;
+    private int chunkSize;
+
     private final static int DEFAULT_CHUNK_SIZE = 1000;
 
-    private int chunkSize;
-    private Path dbPath;
+    private Logger logger;
 
-    public class ChunkFrequency extends Region {
-        private int windowSize;
-        private short[] values;
 
-        public ChunkFrequency(Region region, int windowSize, short[] values) {
-            super(region.getChromosome(), region.getStart(), region.getEnd());
-            this.windowSize = windowSize;
-            this.values = values;
-        }
-
-        public int getWindowSize() { return this.windowSize; }
-        public short[] getValues() { return this.values; }
+    public ChunkFrequencyManager(Path databasePath) throws IOException {
+        this(databasePath, DEFAULT_CHUNK_SIZE);
     }
 
-    public ChunkFrequencyManager(Path dbPath) throws IOException {
-        this(dbPath, DEFAULT_CHUNK_SIZE);
-    }
-
-    public ChunkFrequencyManager(Path dbPath, int chunkSize) throws IOException {
-        this.dbPath = dbPath;
+    public ChunkFrequencyManager(Path databasePath, int chunkSize) {
+        this.databasePath = databasePath;
         this.chunkSize = chunkSize;
-//        FileUtils.checkFile(dbPath);
+
+        logger = LoggerFactory.getLogger(this.getClass());
     }
 
-    public void init(List<String> fragmentNames, List<Integer> fragmentSizes) {
-        Statement stmt;
+    public void init(List<String> chromosomeNames, List<Integer> chromosomeSizes) {
+        Statement stmt = null;
+        Connection connection = null;
+
         try {
             Class.forName("org.sqlite.JDBC");
-            Connection connection = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
+            connection = DriverManager.getConnection("jdbc:sqlite:" + databasePath);
 
             // Create tables
             stmt = connection.createStatement();
@@ -91,11 +86,11 @@ public class ChunkFrequencyManager {
 
             PreparedStatement insertChunk = connection.prepareStatement("insert into chunk (chunk_id, chromosome, start, end) "
                     + "values (?, ?, ?, ?)");
-            connection.setAutoCommit(false);
 
-            for (int i = 0; i < fragmentNames.size(); i++) {
-                String name = fragmentNames.get(i);
-                int length = fragmentSizes.get(i);
+            connection.setAutoCommit(false);
+            for (int i = 0; i < chromosomeNames.size(); i++) {
+                String name = chromosomeNames.get(i);
+                int length = chromosomeSizes.get(i);
 
                 int cont = 0;
                 for (int j = 0; j < length; j += 64 * chunkSize) {
@@ -109,23 +104,45 @@ public class ChunkFrequencyManager {
                 }
                 insertChunk.executeBatch();
             }
-
             connection.commit();
+            connection.setAutoCommit(true);
+
+            // close both resources
             stmt.close();
             connection.close();
-        } catch (Exception e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            System.exit(0);
+        } catch (SQLException e) {
+            logger.error(e.getClass().getName() + ": " + e.getMessage());
+            try {
+                if (connection != null) {
+                    connection.rollback();
+                }
+
+                if (stmt != null) {
+                    stmt.close();
+                }
+
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+//            System.exit(0);
+        } catch (ClassNotFoundException e) {
+            logger.error(e.getClass().getName() + ": " + e.getMessage());
+            e.printStackTrace();
         }
-        System.out.println("Initialized database successfully");
+
+        logger.debug("Initialized database successfully");
     }
 
     public void load(Path countPath, Path filePath) throws IOException {
         FileUtils.checkFile(countPath);
+
         try {
             // Insert into file table
             Class.forName("org.sqlite.JDBC");
-            Connection connection = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
+            Connection connection = DriverManager.getConnection("jdbc:sqlite:" + databasePath);
             Statement stmt = connection.createStatement();
             String insertFileSql = "insert into file (path, name) values ('" + filePath.getParent()
                     + "', '" + filePath.getFileName() + "');";
@@ -168,7 +185,7 @@ public class ChunkFrequencyManager {
 
                     if (prevChromosome == null) {
                         prevChromosome = fields[1];
-                        System.out.println("Processing chromosome " + prevChromosome + "...");
+                        logger.debug("Processing chromosome {}...", prevChromosome);
                     } else if (!prevChromosome.equals(fields[1])) {
                         // we have to write the current results into the DB
                         if (counter1 > 0 || counter2 > 0) {
@@ -176,7 +193,7 @@ public class ChunkFrequencyManager {
                             insertPackedCoverages(insertCoverage, chunkId, fileId, packedCoverages);
                         }
                         prevChromosome = fields[1];
-                        System.out.println("Processing chromosome " + prevChromosome + "...");
+                        logger.debug("Processing chromosome {}...", prevChromosome);
 
                         // reset arrays, counters,...
                         Arrays.fill(meanCoverages, (byte) 0);
@@ -227,18 +244,17 @@ public class ChunkFrequencyManager {
             connection.commit();
             stmt.close();
             connection.close();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
+        } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
         }
     }
 
     public ChunkFrequency query(Region region, Path filePath, int windowSize) {
-        return query(region, filePath, windowSize, null);
+        return query(region, filePath, windowSize, mean());
     }
 
-    public ChunkFrequency query(Region region, Path filePath, int windowSize, AggregatorFunction aggregatorFunction) {
+//    public ChunkFrequency query(Region region, Path filePath, int windowSize, AggregatorFunction aggregatorFunction) {
+    public ChunkFrequency query(Region region, Path filePath, int windowSize, BiFunction aggregatorFunction) {
         if (aggregatorFunction == null) {
             aggregatorFunction = mean();
         }
@@ -249,7 +265,7 @@ public class ChunkFrequencyManager {
 
         try {
             Class.forName("org.sqlite.JDBC");
-            Connection connection = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
+            Connection connection = DriverManager.getConnection("jdbc:sqlite:" + databasePath);
             Statement stmt = connection.createStatement();
 
             String sql = "SELECT id FROM file where path = '" + filePath.getParent() + "';";
@@ -318,26 +334,34 @@ public class ChunkFrequencyManager {
         return new ChunkFrequency(region, windowSize, values);
     }
 
-    @FunctionalInterface
-    interface AggregatorFunction<A, B, R> {
-        //R is like Return, but doesn't have to be last in the list nor named R.
-        public R apply(A a, B b);
+    public BiFunction<Integer, Integer, Short> mean() {
+        return (a, b) -> (short) Math.min(Math.round(1.0f * a / b), 255);
     }
 
-    public AggregatorFunction mean() {
-        AggregatorFunction<Integer, Integer, Short> aggregatorFunction;
-        aggregatorFunction = (a, b) -> { return (short) Math.min(Math.round(1.0f * a / b), 255);};
-        return aggregatorFunction;
+    public BiFunction<Integer, Integer, Short> addition() {
+        return (a, b) -> (short) Math.min(Math.round(1.0f * a / b), 255);
     }
 
-    public AggregatorFunction addition() {
-        AggregatorFunction<Integer, Integer, Short> aggregatorFunction;
-        aggregatorFunction = (a, b) -> { return (short) Math.min(a, 255);};
-        return aggregatorFunction;
-    }
+//    @FunctionalInterface
+//    interface AggregatorFunction<A, B, R> {
+//        // R is like Return, but doesn't have to be last in the list nor named R.
+//        public R apply(A a, B b);
+//    }
+//
+//    public AggregatorFunction mean() {
+//        AggregatorFunction<Integer, Integer, Short> aggregatorFunction;
+//        aggregatorFunction = (a, b) -> { return (short) Math.min(Math.round(1.0f * a / b), 255);};
+//        return aggregatorFunction;
+//    }
+//
+//    public AggregatorFunction addition() {
+//        AggregatorFunction<Integer, Integer, Short> aggregatorFunction;
+//        aggregatorFunction = (a, b) -> { return (short) Math.min(a, 255);};
+//        return aggregatorFunction;
+//    }
 
-    private void insertPackedCoverages(PreparedStatement insertCoverage, int chunkId, int fileId,
-                                       long[] packedCoverages) throws SQLException {
+    private void insertPackedCoverages(PreparedStatement insertCoverage, int chunkId, int fileId, long[] packedCoverages)
+            throws SQLException {
         assert(chunkId != -1);
 
         insertCoverage.setInt(1, chunkId);
@@ -359,5 +383,48 @@ public class ChunkFrequencyManager {
         buffer.put(bytes);
         buffer.flip(); // need flip
         return buffer.getLong();
+    }
+
+    public class ChunkFrequency extends Region {
+
+        private int windowSize;
+        private short[] values;
+
+        public ChunkFrequency(Region region, int windowSize, short[] values) {
+            super(region.getChromosome(), region.getStart(), region.getEnd());
+            this.windowSize = windowSize;
+            this.values = values;
+        }
+
+        public int getWindowSize() { return this.windowSize; }
+        public short[] getValues() { return this.values; }
+    }
+
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("ChunkFrequencyManager{");
+        sb.append("databasePath=").append(databasePath);
+        sb.append(", chunkSize=").append(chunkSize);
+        sb.append('}');
+        return sb.toString();
+    }
+
+    public Path getDatabasePath() {
+        return databasePath;
+    }
+
+    public ChunkFrequencyManager setDatabasePath(Path databasePath) {
+        this.databasePath = databasePath;
+        return this;
+    }
+
+    public int getChunkSize() {
+        return chunkSize;
+    }
+
+    public ChunkFrequencyManager setChunkSize(int chunkSize) {
+        this.chunkSize = chunkSize;
+        return this;
     }
 }
