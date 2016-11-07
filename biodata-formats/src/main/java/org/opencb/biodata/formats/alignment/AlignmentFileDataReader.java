@@ -31,6 +31,7 @@ import java.util.List;
 /**
  * Created by imedina on 18/10/15.
  */
+@Deprecated
 public class AlignmentFileDataReader implements AlignmentDataReader, Iterable<Alignment> {
 
     private Path input;
