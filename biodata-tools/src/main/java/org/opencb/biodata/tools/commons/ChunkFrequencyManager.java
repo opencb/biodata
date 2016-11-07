@@ -7,7 +7,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.*;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -239,9 +238,9 @@ public class ChunkFrequencyManager {
         return query(region, filePath, windowSize, null);
     }
 
-    public ChunkFrequency query(Region region, Path filePath, int windowSize, Function2 function2) {
-        if (function2 == null) {
-            function2 = mean();
+    public ChunkFrequency query(Region region, Path filePath, int windowSize, AggregatorFunction aggregatorFunction) {
+        if (aggregatorFunction == null) {
+            aggregatorFunction = mean();
         }
 
         windowSize = Math.max(windowSize / chunkSize * chunkSize, chunkSize);
@@ -297,7 +296,7 @@ public class ChunkFrequencyManager {
                             // we can get its unsigned value by binary-anding it with 0xFF
                             coverageAccumulator += (meanCoverages[j] & 0xFF);
                             if (++chunkCounter >= chunksPerWindow) {
-                                values[arrayPos++] = (short) function2.apply(coverageAccumulator, chunkCounter);
+                                values[arrayPos++] = (short) aggregatorFunction.apply(coverageAccumulator, chunkCounter);
 //                                        (short) Math.min(Math.round(
 //                                        1.0f * coverageAccumulator / chunkCounter), 255);
                                 coverageAccumulator = 0;
@@ -309,7 +308,7 @@ public class ChunkFrequencyManager {
                 }
             }
             if (chunkCounter > 0) {
-                values[arrayPos++] = (short) function2.apply(coverageAccumulator, chunkCounter);
+                values[arrayPos++] = (short) aggregatorFunction.apply(coverageAccumulator, chunkCounter);
 //                (short) Math.min(Math.round(1.0f * coverageAccumulator / chunkCounter), 255);
             }
         } catch (Exception e) {
@@ -320,21 +319,21 @@ public class ChunkFrequencyManager {
     }
 
     @FunctionalInterface
-    interface Function2<A, B, R> {
+    interface AggregatorFunction<A, B, R> {
         //R is like Return, but doesn't have to be last in the list nor named R.
         public R apply(A a, B b);
     }
 
-    public Function2 mean() {
-        Function2<Integer, Integer, Short> function2;
-        function2 = (a, b) -> { return (short) Math.min(Math.round(1.0f * a / b), 255);};
-        return function2;
+    public AggregatorFunction mean() {
+        AggregatorFunction<Integer, Integer, Short> aggregatorFunction;
+        aggregatorFunction = (a, b) -> { return (short) Math.min(Math.round(1.0f * a / b), 255);};
+        return aggregatorFunction;
     }
 
-    public Function2 counter() {
-        Function2<Integer, Integer, Short> function2;
-        function2 = (a, b) -> { return (short) Math.min(a, 255);};
-        return function2;
+    public AggregatorFunction addition() {
+        AggregatorFunction<Integer, Integer, Short> aggregatorFunction;
+        aggregatorFunction = (a, b) -> { return (short) Math.min(a, 255);};
+        return aggregatorFunction;
     }
 
     private void insertPackedCoverages(PreparedStatement insertCoverage, int chunkId, int fileId,
