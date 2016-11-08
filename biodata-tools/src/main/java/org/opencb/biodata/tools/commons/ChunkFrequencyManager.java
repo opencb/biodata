@@ -339,7 +339,7 @@ public class ChunkFrequencyManager {
     }
 
     public BiFunction<Integer, Integer, Short> addition() {
-        return (a, b) -> (short) Math.min(Math.round(1.0f * a / b), 255);
+        return (a, b) -> (short) Math.min(a, 255);
     }
 
 //    @FunctionalInterface
