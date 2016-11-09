@@ -3,7 +3,7 @@ package org.opencb.biodata.tools.alignment.tasks;
 import htsjdk.samtools.SAMRecord;
 import org.ga4gh.models.ReadAlignment;
 import org.junit.Test;
-import org.opencb.biodata.tools.alignment.AlignmentManager;
+import org.opencb.biodata.tools.alignment.BamManager;
 import org.opencb.biodata.tools.alignment.AlignmentOptions;
 import org.opencb.biodata.tools.alignment.iterators.AlignmentIterator;
 import org.opencb.biodata.tools.alignment.stats.AlignmentGlobalStats;
@@ -27,11 +27,11 @@ public class AlignmentGlobalStatsCalculatorTest {
         SamRecordAlignmentGlobalStatsCalculator samCalculator = new SamRecordAlignmentGlobalStatsCalculator();
 
         Path inputPath = Paths.get(getClass().getResource("/HG00096.chrom20.small.bam").toURI());
-        AlignmentManager alignmentManager = new AlignmentManager(inputPath);
+        BamManager BamManager = new BamManager(inputPath);
 
         AlignmentGlobalStats samAlignmentStats = new AlignmentGlobalStats();
 
-        try(AlignmentIterator<SAMRecord> iterator = alignmentManager.iterator()) {
+        try(AlignmentIterator<SAMRecord> iterator = BamManager.iterator()) {
             while (iterator.hasNext()) {
                 AlignmentGlobalStats computed = samCalculator.compute(iterator.next());
                 samCalculator.update(computed, samAlignmentStats);
@@ -42,7 +42,7 @@ public class AlignmentGlobalStatsCalculatorTest {
         // Avro stats calculator
         AvroAlignmentGlobalStatsCalculator avroCalculator = new AvroAlignmentGlobalStatsCalculator();
         AlignmentGlobalStats avroAlignmentStats = new AlignmentGlobalStats();
-        try(AlignmentIterator<ReadAlignment> iterator1 = alignmentManager.iterator(alignmentOptions, null, ReadAlignment.class)) {
+        try(AlignmentIterator<ReadAlignment> iterator1 = BamManager.iterator(alignmentOptions, null, ReadAlignment.class)) {
             while (iterator1.hasNext()) {
                 AlignmentGlobalStats computed = avroCalculator.compute(iterator1.next());
                 avroCalculator.update(computed, avroAlignmentStats);

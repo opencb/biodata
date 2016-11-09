@@ -41,17 +41,17 @@ import java.util.List;
 /**
  * Created by imedina on 14/09/15.
  */
-public class AlignmentManager {
+public class BamManager {
 
     private Path input;
     private SamReader samReader;
 
     private static final int MAX_NUM_RECORDS = 50000;
 
-    public AlignmentManager() {
+    public BamManager() {
     }
 
-    public AlignmentManager(Path input) throws IOException {
+    public BamManager(Path input) throws IOException {
         FileUtils.checkFile(input);
         this.input = input;
 
@@ -91,12 +91,12 @@ public class AlignmentManager {
             }
 
             if (reader.type().equals(SamReader.Type.BAM_TYPE)) {
-                BAMIndexer.createIndex(reader, outputIndex.toFile(), Log.getInstance(AlignmentManager.class));
+                BAMIndexer.createIndex(reader, outputIndex.toFile(), Log.getInstance(BamManager.class));
             } else {
                 if (reader.type().equals(SamReader.Type.CRAM_TYPE)) {
                     // TODO This really needs to be tested!
                     SeekableStream streamFor = SeekableStreamFactory.getInstance().getStreamFor(input.toString());
-                    CRAMBAIIndexer.createIndex(streamFor, outputIndex.toFile(), Log.getInstance(AlignmentManager.class),
+                    CRAMBAIIndexer.createIndex(streamFor, outputIndex.toFile(), Log.getInstance(BamManager.class),
                             ValidationStringency.DEFAULT_STRINGENCY);
                 } else {
                     throw new IOException("This is not a BAM or CRAM file. SAM files cannot be indexed");

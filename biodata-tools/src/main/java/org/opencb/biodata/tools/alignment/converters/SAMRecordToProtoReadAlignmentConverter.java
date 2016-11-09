@@ -5,8 +5,7 @@ import com.google.protobuf.Value;
 import ga4gh.Common;
 import ga4gh.Reads;
 import htsjdk.samtools.*;
-import htsjdk.samtools.util.StringUtil;
-import org.opencb.biodata.tools.alignment.AlignmentUtils;
+import org.opencb.biodata.tools.alignment.BamUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -134,7 +133,7 @@ public class SAMRecordToProtoReadAlignmentConverter extends AlignmentConverter<R
         List<Integer> alignedQuality = new ArrayList<>(size);
         if (adjustQuality) {
             for (byte baseQuality : baseQualities) {
-                int adjustedQuality = AlignmentUtils.adjustQuality(baseQuality);
+                int adjustedQuality = BamUtils.adjustQuality(baseQuality);
                 alignedQuality.add(adjustedQuality);
             }
         } else {
