@@ -38,11 +38,12 @@
         <commons.version>3.4.0-SNAPSHOT</commons.version>
         <compileSource>1.8</compileSource>
         <commons.version>3.4.0-SNAPSHOT</commons.version>
+        <ga4gh.version>0.6.0a5</ga4gh.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <avro.version>1.7.7</avro.version>
         <protobuf.version>3.1.0</protobuf.version>
         <grpc.version>1.0.1</grpc.version>
-        <ga4gh.version>0.6.0a5</ga4gh.version>
+        <htsjdk.version>2.6.1</htsjdk.version>
     </properties>
 
     <scm>
@@ -140,7 +141,7 @@
             <dependency>
                 <groupId>com.github.samtools</groupId>
                 <artifactId>htsjdk</artifactId>
-                <version>1.138</version>
+                <version>${htsjdk.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.avro</groupId>
@@ -151,6 +152,11 @@
                 <groupId>com.google.protobuf</groupId>
                 <artifactId>protobuf-java</artifactId>
                 <version>${protobuf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-all</artifactId>
+                <version>${grpc.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.biojava</groupId>

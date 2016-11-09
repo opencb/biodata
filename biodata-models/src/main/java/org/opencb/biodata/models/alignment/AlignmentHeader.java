@@ -24,6 +24,7 @@ import java.util.*;
  * Date: 8/06/14
  * Time: 11:33
  */
+@Deprecated
 public class AlignmentHeader {
 
     static public class SequenceRecord {

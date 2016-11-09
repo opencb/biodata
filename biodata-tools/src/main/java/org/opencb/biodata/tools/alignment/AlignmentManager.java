@@ -96,7 +96,8 @@ public class AlignmentManager {
                 if (reader.type().equals(SamReader.Type.CRAM_TYPE)) {
                     // TODO This really needs to be tested!
                     SeekableStream streamFor = SeekableStreamFactory.getInstance().getStreamFor(input.toString());
-                    CRAMIndexer.createIndex(streamFor, outputIndex.toFile(), Log.getInstance(AlignmentManager.class));
+                    CRAMBAIIndexer.createIndex(streamFor, outputIndex.toFile(), Log.getInstance(AlignmentManager.class),
+                            ValidationStringency.DEFAULT_STRINGENCY);
                 } else {
                     throw new IOException("This is not a BAM or CRAM file. SAM files cannot be indexed");
                 }
