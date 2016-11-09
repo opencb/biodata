@@ -38,6 +38,7 @@ import org.opencb.commons.run.Task;
  * Calculates coverage and mean coverage for AlignmentRegion
  *
  **/
+@Deprecated
 public class AlignmentRegionCoverageCalculatorTask extends Task<AlignmentRegion> {
 
     /**
