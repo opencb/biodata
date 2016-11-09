@@ -3,7 +3,7 @@ package org.opencb.biodata.tools.alignment.converters;
 import htsjdk.samtools.CigarElement;
 import htsjdk.samtools.SAMRecord;
 import org.ga4gh.models.*;
-import org.opencb.biodata.tools.alignment.AlignmentUtils;
+import org.opencb.biodata.tools.alignment.BamUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -125,7 +125,7 @@ public class SAMRecordToAvroReadAlignmentConverter extends AlignmentConverter<Re
         List<Integer> alignedQuality = new ArrayList<>(size);
         if (adjustQuality) {
             for (byte baseQuality : baseQualities) {
-                int adjustedQuality = AlignmentUtils.adjustQuality(baseQuality);
+                int adjustedQuality = BamUtils.adjustQuality(baseQuality);
                 alignedQuality.add(adjustedQuality);
             }
         } else {

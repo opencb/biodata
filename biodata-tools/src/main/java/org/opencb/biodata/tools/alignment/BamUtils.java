@@ -10,7 +10,7 @@ import java.nio.file.Path;
 /**
  * Created by pfurio on 25/10/16.
  */
-public class AlignmentUtils {
+public class BamUtils {
 
 
     /**

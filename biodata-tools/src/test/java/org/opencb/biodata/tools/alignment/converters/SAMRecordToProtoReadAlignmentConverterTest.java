@@ -3,7 +3,6 @@ package org.opencb.biodata.tools.alignment.converters;
 import ga4gh.Reads;
 import htsjdk.samtools.*;
 import org.junit.Test;
-import org.opencb.biodata.tools.alignment.AlignmentManager;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
