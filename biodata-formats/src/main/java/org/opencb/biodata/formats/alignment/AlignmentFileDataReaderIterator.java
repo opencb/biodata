@@ -26,6 +26,7 @@ import java.util.function.Consumer;
 /**
  * This class provides a GA4GH Alignment iterator of BAM files
  */
+@Deprecated
 public class AlignmentFileDataReaderIterator implements Iterator<Alignment> {
 
     private SAMRecordIterator samRecordIterator;
