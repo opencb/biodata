@@ -2,47 +2,44 @@ package org.opencb.biodata.tools.alignment.iterators;
 
 import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.SAMRecordIterator;
-import org.opencb.biodata.tools.alignment.AlignmentFilters;
+import org.opencb.biodata.tools.alignment.filters.AlignmentFilters;
+import org.opencb.biodata.tools.alignment.filters.SamRecordFilters;
 
 import java.util.Iterator;
 
 /**
  * Created by pfurio on 25/10/16.
  */
-public abstract class AlignmentIterator<T> implements Iterator<T>, AutoCloseable {
+public abstract class BamFileIterator<T> implements Iterator<T>, AutoCloseable {
 
     private SAMRecordIterator samRecordIterator;
-    protected AlignmentFilters filters;
+    protected AlignmentFilters<SAMRecord> filters;
 
-    SAMRecord prevNext;
+    protected SAMRecord prevNext;
 
-    public AlignmentIterator(SAMRecordIterator samRecordIterator) {
+    public BamFileIterator(SAMRecordIterator samRecordIterator) {
         this(samRecordIterator, null);
     }
 
-    public AlignmentIterator(SAMRecordIterator samRecordIterator, AlignmentFilters filters) {
+    public BamFileIterator(SAMRecordIterator samRecordIterator, AlignmentFilters<SAMRecord> filters) {
         this.samRecordIterator = samRecordIterator;
         if (filters == null) {
-            filters = new AlignmentFilters();
+            filters = new SamRecordFilters();
         }
         this.filters = filters;
 
         findNextMatch();
     }
 
-    private boolean filter(SAMRecord samRecord) {
-        return filters.apply(samRecord);
-    }
-
-    void findNextMatch() {
+    protected void findNextMatch() {
+        prevNext = null;
         while (samRecordIterator.hasNext()) {
             SAMRecord next = samRecordIterator.next();
-            if (filter(next)) {
+            if (filters.apply(next)) {
                 prevNext = next;
                 return;
             }
         }
-        prevNext = null;
     }
 
     @Override

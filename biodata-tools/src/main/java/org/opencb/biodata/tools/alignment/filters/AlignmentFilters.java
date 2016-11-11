@@ -29,16 +29,16 @@ public abstract class AlignmentFilters<T> {
         return true;
     }
 
-    public AlignmentFilters addFilter(Predicate<T> predicate) {
+    public AlignmentFilters<T> addFilter(Predicate<T> predicate) {
         filters.add(predicate);
         return this;
     }
 
-    public abstract AlignmentFilters addMappingQualityFilter(int mappingQuality);
+    public abstract AlignmentFilters<T> addMappingQualityFilter(int mappingQuality);
 
-    public abstract AlignmentFilters addProperlyPairedFilter();
+    public abstract AlignmentFilters<T> addProperlyPairedFilter();
 
-    public abstract AlignmentFilters addUnmappedFilter();
+    public abstract AlignmentFilters<T> addUnmappedFilter();
 
 
     @Override
