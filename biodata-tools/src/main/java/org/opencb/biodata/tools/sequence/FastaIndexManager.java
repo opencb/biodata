@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.opencb.biodata.tools.sequence.fasta;
+package org.opencb.biodata.tools.sequence;
 
 import org.opencb.biodata.models.core.Region;
 import org.opencb.commons.utils.FileUtils;

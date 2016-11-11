@@ -26,6 +26,7 @@ import java.util.List;
 /**
  * @author Joaquín Tárraga Giménez &lt;jtarraga@cipf.es&gt;
  */
+@Deprecated
 public class RegionFilter extends Filter<Region> {
 
     private List<Region> regionList;
