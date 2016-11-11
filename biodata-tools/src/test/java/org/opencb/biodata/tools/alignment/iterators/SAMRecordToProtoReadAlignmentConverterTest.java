@@ -3,9 +3,10 @@ package org.opencb.biodata.tools.alignment.iterators;
 import htsjdk.samtools.SAMRecord;
 import org.junit.Test;
 import org.opencb.biodata.models.core.Region;
-import org.opencb.biodata.tools.alignment.BamManager;
 import org.opencb.biodata.tools.alignment.AlignmentOptions;
-import org.opencb.biodata.tools.alignment.AlignmentFilters;
+import org.opencb.biodata.tools.alignment.BamManager;
+import org.opencb.biodata.tools.alignment.filters.AlignmentFilters;
+import org.opencb.biodata.tools.alignment.filters.SamRecordFilters;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -15,18 +16,18 @@ import java.nio.file.Paths;
 /**
  * Created by pfurio on 25/10/16.
  */
-public class ProtoIteratorTest {
+public class SAMRecordToProtoReadAlignmentConverterTest {
 
     @Test
     public void testIterator() throws URISyntaxException, IOException {
         Path inputPath = Paths.get(getClass().getResource("/HG00096.chrom20.small.bam").toURI());
         BamManager BamManager = new BamManager(inputPath);
 
-        AlignmentFilters alignmentFilters = new AlignmentFilters()
+        AlignmentFilters<SAMRecord> alignmentFilters = new SamRecordFilters()
                 .addMappingQualityFilter(50)
                 .addFilter(samRecord -> samRecord.getInferredInsertSize() > 200 && samRecord.getInferredInsertSize() < 300);
         Region region = new Region("20", 60000, 65000);
-        AlignmentIterator<SAMRecord> iterator = BamManager.iterator(region, new AlignmentOptions(), alignmentFilters);
+        BamFileIterator<SAMRecord> iterator = BamManager.iterator(region, new AlignmentOptions(), alignmentFilters);
         while (iterator.hasNext()) {
             SAMRecord next = iterator.next();
             System.out.println(next.getSAMString());

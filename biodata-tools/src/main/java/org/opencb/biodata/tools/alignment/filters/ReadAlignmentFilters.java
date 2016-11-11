@@ -22,20 +22,20 @@ public class ReadAlignmentFilters extends AlignmentFilters<ReadAlignment> {
     }
 
     @Override
-    public AlignmentFilters addMappingQualityFilter(int mappingQuality) {
+    public AlignmentFilters<ReadAlignment> addMappingQualityFilter(int mappingQuality) {
         filters.add(readAlignment ->
                 readAlignment.getAlignment() != null && readAlignment.getAlignment().getMappingQuality() > mappingQuality);
         return this;
     }
 
     @Override
-    public AlignmentFilters addProperlyPairedFilter() {
+    public AlignmentFilters<ReadAlignment> addProperlyPairedFilter() {
         filters.add(readAlignment -> !readAlignment.getImproperPlacement());
         return this;
     }
 
     @Override
-    public AlignmentFilters addUnmappedFilter() {
+    public AlignmentFilters<ReadAlignment> addUnmappedFilter() {
         filters.add(readAlignment -> readAlignment.getAlignment() == null);
         return this;
     }

@@ -22,19 +22,19 @@ public class SamRecordFilters extends AlignmentFilters<SAMRecord> {
     }
 
     @Override
-    public AlignmentFilters addMappingQualityFilter(int mappingQuality) {
+    public AlignmentFilters<SAMRecord> addMappingQualityFilter(int mappingQuality) {
         filters.add(samRecord -> samRecord.getMappingQuality() > mappingQuality);
         return this;
     }
 
     @Override
-    public AlignmentFilters addProperlyPairedFilter() {
+    public AlignmentFilters<SAMRecord> addProperlyPairedFilter() {
         filters.add(samRecord -> samRecord.getProperPairFlag());
         return this;
     }
 
     @Override
-    public AlignmentFilters addUnmappedFilter() {
+    public AlignmentFilters<SAMRecord> addUnmappedFilter() {
         filters.add(samRecord -> samRecord.getReadUnmappedFlag());
         return this;
     }
