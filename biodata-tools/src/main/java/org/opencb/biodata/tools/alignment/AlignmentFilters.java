@@ -9,6 +9,7 @@ import java.util.function.Predicate;
 /**
  * Created by pfurio on 26/10/16.
  */
+@Deprecated
 public class AlignmentFilters {
 
     private List<Predicate<SAMRecord>> filters = new ArrayList<>();
