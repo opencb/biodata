@@ -5,7 +5,7 @@ import org.ga4gh.models.ReadAlignment;
 import org.junit.Test;
 import org.opencb.biodata.tools.alignment.BamManager;
 import org.opencb.biodata.tools.alignment.AlignmentOptions;
-import org.opencb.biodata.tools.alignment.iterators.BamFileIterator;
+import org.opencb.biodata.tools.alignment.iterators.BamIterator;
 import org.opencb.biodata.tools.alignment.stats.AlignmentGlobalStats;
 import org.opencb.biodata.tools.alignment.stats.AvroAlignmentGlobalStatsCalculator;
 import org.opencb.biodata.tools.alignment.stats.SamRecordAlignmentGlobalStatsCalculator;
@@ -31,7 +31,7 @@ public class AlignmentGlobalStatsCalculatorTest {
 
         AlignmentGlobalStats samAlignmentStats = new AlignmentGlobalStats();
 
-        try(BamFileIterator<SAMRecord> iterator = BamManager.iterator()) {
+        try(BamIterator<SAMRecord> iterator = BamManager.iterator()) {
             while (iterator.hasNext()) {
                 AlignmentGlobalStats computed = samCalculator.compute(iterator.next());
                 samCalculator.update(computed, samAlignmentStats);
@@ -42,7 +42,7 @@ public class AlignmentGlobalStatsCalculatorTest {
         // Avro stats calculator
         AvroAlignmentGlobalStatsCalculator avroCalculator = new AvroAlignmentGlobalStatsCalculator();
         AlignmentGlobalStats avroAlignmentStats = new AlignmentGlobalStats();
-        try(BamFileIterator<ReadAlignment> iterator1 = BamManager.iterator(alignmentOptions, null, ReadAlignment.class)) {
+        try(BamIterator<ReadAlignment> iterator1 = BamManager.iterator(alignmentOptions, null, ReadAlignment.class)) {
             while (iterator1.hasNext()) {
                 AlignmentGlobalStats computed = avroCalculator.compute(iterator1.next());
                 avroCalculator.update(computed, avroAlignmentStats);

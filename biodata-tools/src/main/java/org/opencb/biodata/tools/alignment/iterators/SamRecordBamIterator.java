@@ -7,13 +7,13 @@ import org.opencb.biodata.tools.alignment.filters.AlignmentFilters;
 /**
  * Created by pfurio on 27/10/16.
  */
-public class SamRecordIterator extends BamFileIterator<SAMRecord> {
+public class SamRecordBamIterator extends BamIterator<SAMRecord> {
 
-    public SamRecordIterator(SAMRecordIterator samRecordIterator) {
+    public SamRecordBamIterator(SAMRecordIterator samRecordIterator) {
         this(samRecordIterator, null);
     }
 
-    public SamRecordIterator(SAMRecordIterator samRecordIterator, AlignmentFilters<SAMRecord> filters) {
+    public SamRecordBamIterator(SAMRecordIterator samRecordIterator, AlignmentFilters<SAMRecord> filters) {
         super(samRecordIterator, filters);
     }
 

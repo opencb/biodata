@@ -27,7 +27,7 @@ public class SAMRecordToProtoReadAlignmentConverterTest {
                 .addMappingQualityFilter(50)
                 .addFilter(samRecord -> samRecord.getInferredInsertSize() > 200 && samRecord.getInferredInsertSize() < 300);
         Region region = new Region("20", 60000, 65000);
-        BamFileIterator<SAMRecord> iterator = BamManager.iterator(region, new AlignmentOptions(), alignmentFilters);
+        BamIterator<SAMRecord> iterator = BamManager.iterator(region, new AlignmentOptions(), alignmentFilters);
         while (iterator.hasNext()) {
             SAMRecord next = iterator.next();
             System.out.println(next.getSAMString());
