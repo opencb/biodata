@@ -6,6 +6,8 @@ import org.opencb.commons.utils.FileUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by pfurio on 25/10/16.
@@ -68,6 +70,13 @@ public class BamUtils {
         return adjustedQuality;
     }
 
+    public static List<Integer> adjustQuality(List<Integer> qualities) {
+        List<Integer> adjustedQualities = new ArrayList<>(qualities.size());
+        for (Integer quality : qualities) {
+            adjustedQualities.add(adjustQuality(quality));
+        }
+        return adjustedQualities;
+    }
 
     public static SAMFileHeader getFileHeader(Path input) throws IOException {
         FileUtils.checkFile(input);
