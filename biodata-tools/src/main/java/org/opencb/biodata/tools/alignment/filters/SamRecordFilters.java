@@ -17,7 +17,7 @@ public class SamRecordFilters extends AlignmentFilters<SAMRecord> {
         this.filters = filters;
     }
 
-    public static AlignmentFilters create() {
+    public static AlignmentFilters<SAMRecord> create() {
         return new SamRecordFilters();
     }
 
