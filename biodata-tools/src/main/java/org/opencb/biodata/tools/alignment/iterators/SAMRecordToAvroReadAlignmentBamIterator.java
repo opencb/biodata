@@ -9,19 +9,19 @@ import org.opencb.biodata.tools.alignment.filters.AlignmentFilters;
 /**
  * Created by pfurio on 25/10/16.
  */
-public class SAMRecordToAvroReadBamFileIterator extends BamFileIterator<ReadAlignment> {
+public class SAMRecordToAvroReadAlignmentBamIterator extends BamIterator<ReadAlignment> {
 
     private SAMRecordToAvroReadAlignmentConverter samRecordToAvroReadAlignmentConverter;
 
-    public SAMRecordToAvroReadBamFileIterator(SAMRecordIterator samRecordIterator) {
+    public SAMRecordToAvroReadAlignmentBamIterator(SAMRecordIterator samRecordIterator) {
         this(samRecordIterator, null, true);
     }
 
-    public SAMRecordToAvroReadBamFileIterator(SAMRecordIterator samRecordIterator, AlignmentFilters<SAMRecord> filters) {
+    public SAMRecordToAvroReadAlignmentBamIterator(SAMRecordIterator samRecordIterator, AlignmentFilters<SAMRecord> filters) {
         this(samRecordIterator, filters, true);
     }
 
-    public SAMRecordToAvroReadBamFileIterator(SAMRecordIterator samRecordIterator, AlignmentFilters<SAMRecord> filters, boolean binQual) {
+    public SAMRecordToAvroReadAlignmentBamIterator(SAMRecordIterator samRecordIterator, AlignmentFilters<SAMRecord> filters, boolean binQual) {
         super(samRecordIterator, filters);
         samRecordToAvroReadAlignmentConverter = new SAMRecordToAvroReadAlignmentConverter(binQual);
     }

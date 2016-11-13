@@ -17,7 +17,7 @@ public class ReadAlignmentFilters extends AlignmentFilters<ReadAlignment> {
         this.filters = filters;
     }
 
-    public static AlignmentFilters create() {
+    public static AlignmentFilters<ReadAlignment> create() {
         return new ReadAlignmentFilters();
     }
 

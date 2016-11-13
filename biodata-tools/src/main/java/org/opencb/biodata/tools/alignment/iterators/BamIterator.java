@@ -10,18 +10,18 @@ import java.util.Iterator;
 /**
  * Created by pfurio on 25/10/16.
  */
-public abstract class BamFileIterator<T> implements Iterator<T>, AutoCloseable {
+public abstract class BamIterator<T> implements Iterator<T>, AutoCloseable {
 
     private SAMRecordIterator samRecordIterator;
     protected AlignmentFilters<SAMRecord> filters;
 
     protected SAMRecord prevNext;
 
-    public BamFileIterator(SAMRecordIterator samRecordIterator) {
+    public BamIterator(SAMRecordIterator samRecordIterator) {
         this(samRecordIterator, null);
     }
 
-    public BamFileIterator(SAMRecordIterator samRecordIterator, AlignmentFilters<SAMRecord> filters) {
+    public BamIterator(SAMRecordIterator samRecordIterator, AlignmentFilters<SAMRecord> filters) {
         this.samRecordIterator = samRecordIterator;
         if (filters == null) {
             filters = new SamRecordFilters();
