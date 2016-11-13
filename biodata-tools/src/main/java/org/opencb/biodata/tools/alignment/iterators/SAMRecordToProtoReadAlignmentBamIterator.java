@@ -14,7 +14,7 @@ public class SAMRecordToProtoReadAlignmentBamIterator extends BamIterator<Reads.
     private SAMRecordToProtoReadAlignmentConverter protoReadAlignmentConverter;
 
     public SAMRecordToProtoReadAlignmentBamIterator(SAMRecordIterator samRecordIterator) {
-        this(samRecordIterator, null, true);
+        this(samRecordIterator, null);
     }
 
     public SAMRecordToProtoReadAlignmentBamIterator(SAMRecordIterator samRecordIterator, AlignmentFilters<SAMRecord> filters) {
@@ -22,9 +22,10 @@ public class SAMRecordToProtoReadAlignmentBamIterator extends BamIterator<Reads.
         protoReadAlignmentConverter = new SAMRecordToProtoReadAlignmentConverter();
     }
 
-    public SAMRecordToProtoReadAlignmentBamIterator(SAMRecordIterator samRecordIterator, AlignmentFilters<SAMRecord> filters, boolean binQual) {
+    public SAMRecordToProtoReadAlignmentBamIterator(SAMRecordIterator samRecordIterator, AlignmentFilters<SAMRecord> filters,
+                                                    boolean binQualities) {
         super(samRecordIterator, filters);
-        protoReadAlignmentConverter = new SAMRecordToProtoReadAlignmentConverter(binQual);
+        protoReadAlignmentConverter = new SAMRecordToProtoReadAlignmentConverter(binQualities);
     }
 
     @Override

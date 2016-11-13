@@ -13,11 +13,16 @@ public class AlignmentOptions {
     public static final int DEFAULT_LIMIT = 50000;
 
     public AlignmentOptions() {
-        this.contained = true;
-        this.binQualities = false;
-        this.calculateMD = false;
-        this.limit = DEFAULT_LIMIT;
+        this(true, false, false, DEFAULT_LIMIT);
     }
+
+    public AlignmentOptions(boolean contained, boolean binQualities, boolean calculateMD, int limit) {
+        this.contained = contained;
+        this.binQualities = binQualities;
+        this.calculateMD = calculateMD;
+        this.limit = limit;
+    }
+
 
     @Override
     public String toString() {
