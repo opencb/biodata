@@ -9,22 +9,23 @@ import org.opencb.biodata.tools.alignment.filters.AlignmentFilters;
 /**
  * Created by pfurio on 25/10/16.
  */
-public class SAMRecordToProtoReadBamFileIterator extends BamFileIterator<Reads.ReadAlignment> {
+public class SAMRecordToProtoReadAlignmentBamIterator extends BamIterator<Reads.ReadAlignment> {
 
     private SAMRecordToProtoReadAlignmentConverter protoReadAlignmentConverter;
 
-    public SAMRecordToProtoReadBamFileIterator(SAMRecordIterator samRecordIterator) {
-        this(samRecordIterator, null, true);
+    public SAMRecordToProtoReadAlignmentBamIterator(SAMRecordIterator samRecordIterator) {
+        this(samRecordIterator, null);
     }
 
-    public SAMRecordToProtoReadBamFileIterator(SAMRecordIterator samRecordIterator, AlignmentFilters<SAMRecord> filters) {
+    public SAMRecordToProtoReadAlignmentBamIterator(SAMRecordIterator samRecordIterator, AlignmentFilters<SAMRecord> filters) {
         this(samRecordIterator, filters, true);
         protoReadAlignmentConverter = new SAMRecordToProtoReadAlignmentConverter();
     }
 
-    public SAMRecordToProtoReadBamFileIterator(SAMRecordIterator samRecordIterator, AlignmentFilters<SAMRecord> filters, boolean binQual) {
+    public SAMRecordToProtoReadAlignmentBamIterator(SAMRecordIterator samRecordIterator, AlignmentFilters<SAMRecord> filters,
+                                                    boolean binQualities) {
         super(samRecordIterator, filters);
-        protoReadAlignmentConverter = new SAMRecordToProtoReadAlignmentConverter(binQual);
+        protoReadAlignmentConverter = new SAMRecordToProtoReadAlignmentConverter(binQualities);
     }
 
     @Override

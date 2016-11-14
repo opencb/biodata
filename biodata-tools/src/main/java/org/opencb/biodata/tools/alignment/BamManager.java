@@ -26,10 +26,10 @@ import org.opencb.biodata.models.alignment.RegionCoverage;
 import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.tools.alignment.coverage.SamRecordRegionCoverageCalculator;
 import org.opencb.biodata.tools.alignment.filters.AlignmentFilters;
-import org.opencb.biodata.tools.alignment.iterators.BamFileIterator;
-import org.opencb.biodata.tools.alignment.iterators.SAMRecordToAvroReadBamFileIterator;
-import org.opencb.biodata.tools.alignment.iterators.SAMRecordToProtoReadBamFileIterator;
-import org.opencb.biodata.tools.alignment.iterators.SamRecordIterator;
+import org.opencb.biodata.tools.alignment.iterators.BamIterator;
+import org.opencb.biodata.tools.alignment.iterators.SAMRecordToAvroReadAlignmentBamIterator;
+import org.opencb.biodata.tools.alignment.iterators.SAMRecordToProtoReadAlignmentBamIterator;
+import org.opencb.biodata.tools.alignment.iterators.SamRecordBamIterator;
 import org.opencb.biodata.tools.alignment.stats.AlignmentGlobalStats;
 import org.opencb.biodata.tools.alignment.stats.SamRecordAlignmentGlobalStatsCalculator;
 import org.opencb.commons.utils.FileUtils;
@@ -151,32 +151,31 @@ public class BamManager {
                 ? alignmentOptions.getLimit()
                 : MAX_NUM_RECORDS;
         List<T> results = new ArrayList<>(maxNumberRecords);
-        BamFileIterator<T> bamFileIterator;
-        bamFileIterator = (region != null)
+        BamIterator<T> bamIterator = (region != null)
                 ? iterator(region, alignmentOptions, filters, clazz)
                 : iterator(alignmentOptions, filters, clazz);
 
-        while (bamFileIterator.hasNext() && results.size() < maxNumberRecords) {
-            results.add(bamFileIterator.next());
+        while (bamIterator.hasNext() && results.size() < maxNumberRecords) {
+            results.add(bamIterator.next());
         }
-        bamFileIterator.close();
+        bamIterator.close();
         return results;
     }
 
 
-    public BamFileIterator<SAMRecord> iterator() {
+    public BamIterator<SAMRecord> iterator() {
         return iterator(new AlignmentOptions(), null, SAMRecord.class);
     }
 
-    public BamFileIterator<SAMRecord> iterator(AlignmentOptions options) {
+    public BamIterator<SAMRecord> iterator(AlignmentOptions options) {
         return iterator(options, null, SAMRecord.class);
     }
 
-    public BamFileIterator<SAMRecord> iterator(AlignmentOptions options, AlignmentFilters<SAMRecord> filters) {
+    public BamIterator<SAMRecord> iterator(AlignmentOptions options, AlignmentFilters<SAMRecord> filters) {
         return iterator(options, filters, SAMRecord.class);
     }
 
-    public <T> BamFileIterator<T> iterator(AlignmentOptions alignmentOptions, AlignmentFilters<SAMRecord> filters, Class<T> clazz) {
+    public <T> BamIterator<T> iterator(AlignmentOptions alignmentOptions, AlignmentFilters<SAMRecord> filters, Class<T> clazz) {
         if (alignmentOptions == null) {
             alignmentOptions = new AlignmentOptions();
         }
@@ -184,19 +183,19 @@ public class BamManager {
         return getAlignmentIterator(filters, alignmentOptions.isBinQualities(), clazz, samRecordIterator);
     }
 
-    public BamFileIterator<SAMRecord> iterator(Region region) {
+    public BamIterator<SAMRecord> iterator(Region region) {
         return iterator(region, new AlignmentOptions(), null, SAMRecord.class);
     }
 
-    public BamFileIterator<SAMRecord> iterator(Region region, AlignmentOptions options) {
+    public BamIterator<SAMRecord> iterator(Region region, AlignmentOptions options) {
         return iterator(region, options, null, SAMRecord.class);
     }
 
-    public BamFileIterator<SAMRecord> iterator(Region region, AlignmentOptions options, AlignmentFilters<SAMRecord> filters) {
+    public BamIterator<SAMRecord> iterator(Region region, AlignmentOptions options, AlignmentFilters<SAMRecord> filters) {
         return iterator(region, options, filters, SAMRecord.class);
     }
 
-    public <T> BamFileIterator<T> iterator(Region region, AlignmentOptions alignmentOptions, AlignmentFilters<SAMRecord> filters, Class<T> clazz) {
+    public <T> BamIterator<T> iterator(Region region, AlignmentOptions alignmentOptions, AlignmentFilters<SAMRecord> filters, Class<T> clazz) {
         if (alignmentOptions == null) {
             alignmentOptions = new AlignmentOptions();
         }
@@ -208,7 +207,7 @@ public class BamManager {
     public AlignmentGlobalStats stats() {
         AlignmentGlobalStats alignmentGlobalStats = new AlignmentGlobalStats();
         SamRecordAlignmentGlobalStatsCalculator calculator = new SamRecordAlignmentGlobalStatsCalculator();
-        try(BamFileIterator<SAMRecord> iterator = iterator()) {
+        try(BamIterator<SAMRecord> iterator = iterator()) {
             while(iterator.hasNext()) {
                 AlignmentGlobalStats computed = calculator.compute(iterator.next());
                 calculator.update(computed, alignmentGlobalStats);
@@ -222,7 +221,7 @@ public class BamManager {
     public AlignmentGlobalStats stats(Region region, AlignmentOptions options, AlignmentFilters<SAMRecord> filters) {
         AlignmentGlobalStats alignmentGlobalStats = new AlignmentGlobalStats();
         SamRecordAlignmentGlobalStatsCalculator calculator = new SamRecordAlignmentGlobalStatsCalculator();
-        try(BamFileIterator<SAMRecord> iterator = iterator(region, options, filters)) {
+        try(BamIterator<SAMRecord> iterator = iterator(region, options, filters)) {
             while(iterator.hasNext()) {
                 AlignmentGlobalStats computed = calculator.compute(iterator.next());
                 calculator.update(computed, alignmentGlobalStats);
@@ -237,7 +236,7 @@ public class BamManager {
     public RegionCoverage coverage(Region region, AlignmentOptions options, AlignmentFilters<SAMRecord> filters) {
         RegionCoverage regionCoverage = new RegionCoverage(region);
         SamRecordRegionCoverageCalculator calculator = new SamRecordRegionCoverageCalculator();
-        try(BamFileIterator<SAMRecord> iterator = iterator(region, options, filters)) {
+        try(BamIterator<SAMRecord> iterator = iterator(region, options, filters)) {
             while(iterator.hasNext()) {
                 RegionCoverage computed = calculator.compute(iterator.next());
                 calculator.update(computed, regionCoverage);
@@ -248,14 +247,14 @@ public class BamManager {
         return regionCoverage;
     }
 
-    private <T> BamFileIterator<T> getAlignmentIterator(AlignmentFilters<SAMRecord> filters, boolean binQualities, Class<T> clazz,
-                                                        SAMRecordIterator samRecordIterator) {
+    private <T> BamIterator<T> getAlignmentIterator(AlignmentFilters<SAMRecord> filters, boolean binQualities, Class<T> clazz,
+                                                    SAMRecordIterator samRecordIterator) {
         if (ReadAlignment.class == clazz) { // AVRO
-            return (BamFileIterator<T>) new SAMRecordToAvroReadBamFileIterator(samRecordIterator, filters, binQualities);
+            return (BamIterator<T>) new SAMRecordToAvroReadAlignmentBamIterator(samRecordIterator, filters, binQualities);
         } else if (Reads.ReadAlignment.class == clazz) { // PROTOCOL BUFFER
-            return (BamFileIterator<T>) new SAMRecordToProtoReadBamFileIterator(samRecordIterator, filters, binQualities);
+            return (BamIterator<T>) new SAMRecordToProtoReadAlignmentBamIterator(samRecordIterator, filters, binQualities);
         } else if (SAMRecord.class == clazz) {
-            return (BamFileIterator<T>) new SamRecordIterator(samRecordIterator, filters);
+            return (BamIterator<T>) new SamRecordBamIterator(samRecordIterator, filters);
         } else {
             throw new IllegalArgumentException("Unknown alignment class " + clazz);
         }
