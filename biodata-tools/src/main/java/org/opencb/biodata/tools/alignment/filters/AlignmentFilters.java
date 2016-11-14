@@ -1,5 +1,7 @@
 package org.opencb.biodata.tools.alignment.filters;
 
+import org.opencb.biodata.models.core.Region;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -34,12 +36,37 @@ public abstract class AlignmentFilters<T> {
         return this;
     }
 
+    public AlignmentFilters<T> addFilterList(List<Predicate<T>> predicates) {
+        return addFilterList(predicates, true);
+    }
+
+    public AlignmentFilters<T> addFilterList(List<Predicate<T>> predicates, boolean or) {
+        return (or ? addFilterListOR(predicates) : addFilterListAND(predicates));
+    }
+
+    private AlignmentFilters<T> addFilterListOR(List<Predicate<T>> predicates) {
+        Predicate<T> result = (element -> false);
+        for (Predicate<T> predicate: predicates) {
+            result = result.or(predicate);
+        }
+        filters.add(result);
+        return this;
+    }
+
+    private AlignmentFilters<T> addFilterListAND(List<Predicate<T>> predicates) {
+        Predicate<T> result = (element -> true);
+        for (Predicate<T> predicate: predicates) {
+            result = result.and(predicate);
+        }
+        filters.add(result);
+        return this;
+    }
+
     public abstract AlignmentFilters<T> addMappingQualityFilter(int mappingQuality);
 
     public abstract AlignmentFilters<T> addProperlyPairedFilter();
 
     public abstract AlignmentFilters<T> addUnmappedFilter();
-
 
     @Override
     public String toString() {
