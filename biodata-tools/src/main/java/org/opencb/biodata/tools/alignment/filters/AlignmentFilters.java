@@ -20,7 +20,7 @@ public abstract class AlignmentFilters<T> {
         this.filters = filters;
     }
 
-    public boolean apply(T elem) {
+    public boolean test(T elem) {
         if (filters != null && filters.size() > 0) {
             for (Predicate<T> filter : filters) {
                 if (!filter.test(elem)) {

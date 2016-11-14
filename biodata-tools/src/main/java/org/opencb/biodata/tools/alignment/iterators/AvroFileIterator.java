@@ -34,7 +34,7 @@ public class AvroFileIterator implements Iterator<ReadAlignment>, AutoCloseable 
     protected void findNextMatch() {
         while (dataFileStream.hasNext()) {
             ReadAlignment next = dataFileStream.next();
-            if (filters.apply(next)) {
+            if (filters.test(next)) {
                 prevNext = next;
                 return;
             }
