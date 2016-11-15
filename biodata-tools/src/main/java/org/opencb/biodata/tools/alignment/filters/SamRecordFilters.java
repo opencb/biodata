@@ -23,7 +23,7 @@ public class SamRecordFilters extends AlignmentFilters<SAMRecord> {
 
     @Override
     public AlignmentFilters<SAMRecord> addMappingQualityFilter(int mappingQuality) {
-        filters.add(samRecord -> samRecord.getMappingQuality() > mappingQuality);
+        filters.add(samRecord -> samRecord.getMappingQuality() >= mappingQuality);
         return this;
     }
 

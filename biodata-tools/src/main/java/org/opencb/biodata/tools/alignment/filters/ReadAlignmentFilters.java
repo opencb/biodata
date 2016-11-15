@@ -24,7 +24,7 @@ public class ReadAlignmentFilters extends AlignmentFilters<ReadAlignment> {
     @Override
     public AlignmentFilters<ReadAlignment> addMappingQualityFilter(int mappingQuality) {
         filters.add(readAlignment ->
-                readAlignment.getAlignment() != null && readAlignment.getAlignment().getMappingQuality() > mappingQuality);
+                readAlignment.getAlignment() != null && readAlignment.getAlignment().getMappingQuality() >= mappingQuality);
         return this;
     }
 
