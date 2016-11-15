@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.opencb.biodata.tools.variant.converter;
+package org.opencb.biodata.tools.variant.converters;
 
 import htsjdk.variant.variantcontext.LazyGenotypesContext;
 import htsjdk.variant.variantcontext.VariantContext;
@@ -31,13 +31,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.opencb.biodata.formats.variant.vcf4.FullVcfCodec;
+import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantNormalizer;
-import org.opencb.biodata.models.variant.VariantVcfFactory;
 import org.opencb.biodata.models.variant.avro.Aggregation;
 import org.opencb.biodata.models.variant.avro.VariantAvro;
 import org.opencb.biodata.models.variant.avro.VariantFileMetadata;
 import org.opencb.biodata.models.variant.avro.VcfHeader;
+import org.opencb.biodata.tools.variant.converters.avro.VCFHeaderToAvroVcfHeaderConverter;
+import org.opencb.biodata.tools.variant.converters.avro.VariantContextToVariantConverter;
 import org.opencb.commons.run.ParallelTaskRunner;
 
 import java.io.File;
@@ -95,7 +97,7 @@ public class VariantContextToVariantConverterTest {
             assertEquals("-0.05,-0.95,-5.00", variant.getStudy(studyId).getSampleData(sampleNames.get(1), "GL"));
             assertEquals("-0.02,-1.45,-5.00", variant.getStudy(studyId).getSampleData(sampleNames.get(2), "GL"));
 
-            assertEquals("PASS", variant.getStudy(studyId).getFile(studyId).getAttributes().get(VariantVcfFactory.FILTER));
+            assertEquals("PASS", variant.getStudy(studyId).getFile(studyId).getAttributes().get(StudyEntry.FILTER));
             assertEquals(new HashSet<>(Arrays.asList("GT", "DS", "GL")), new HashSet<>(variant.getStudy(studyId).getFormat()));
         };
         VariantContext variantContext = vcfCodec.decode(vcfLine);
@@ -125,7 +127,7 @@ public class VariantContextToVariantConverterTest {
         VariantContextToVariantConverter converter = new VariantContextToVariantConverter(studyId, studyId, Collections.emptyList());
         Variant variant = converter.convert(variantContext);
 
-        assertEquals(".", variant.getStudy(studyId).getFile(studyId).getAttributes().get(VariantVcfFactory.FILTER));
+        assertEquals(".", variant.getStudy(studyId).getFile(studyId).getAttributes().get(StudyEntry.FILTER));
 
     }
 

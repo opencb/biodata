@@ -1,13 +1,15 @@
-package org.opencb.biodata.tools.variant.converter.ga4gh;
+package org.opencb.biodata.tools.variant.converters.ga4gh;
 
+import ga4gh.Variants;
 import org.apache.commons.lang.StringUtils;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.FileEntry;
-import org.opencb.biodata.tools.ga4gh.Ga4ghVariantFactory;
-import org.opencb.biodata.tools.ga4gh.ProtoGa4GhVariantFactory;
-import org.opencb.biodata.tools.variant.converter.Converter;
+import org.opencb.biodata.tools.variant.converters.ga4gh.factories.AvroGa4GhVariantFactory;
+import org.opencb.biodata.tools.variant.converters.ga4gh.factories.Ga4ghVariantFactory;
+import org.opencb.biodata.tools.variant.converters.ga4gh.factories.ProtoGa4GhVariantFactory;
+import org.opencb.biodata.tools.variant.converters.Converter;
 
 import java.util.*;
 
@@ -43,6 +45,14 @@ public class Ga4ghVariantConverter<V> implements Converter<Variant, V> {
         this.addCallSetName = addCallSetName;
         this.callSetNameId = callSetNameId;
         this.factory = ga4GhFactory;
+    }
+
+    public static Ga4ghVariantConverter<Variants.Variant> newProtoConverter(boolean addCallSetName, Map<String, Integer> callSetNameId) {
+        return new Ga4ghVariantConverter<>(addCallSetName, callSetNameId, new ProtoGa4GhVariantFactory());
+    }
+
+    public static Ga4ghVariantConverter<org.ga4gh.models.Variant> newAvroConverter(boolean addCallSetName, Map<String, Integer> callSetNameId) {
+        return new Ga4ghVariantConverter<>(addCallSetName, callSetNameId, new AvroGa4GhVariantFactory());
     }
 
     @Override

@@ -1,4 +1,4 @@
-package org.opencb.biodata.tools.variant.converter;
+package org.opencb.biodata.tools.variant.converters.proto;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -13,13 +13,12 @@ import java.util.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.opencb.biodata.models.variant.StudyEntry;
-import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.VariantSource;
-import org.opencb.biodata.models.variant.VariantVcfFactory;
+import org.opencb.biodata.models.variant.*;
 import org.opencb.biodata.models.variant.protobuf.VcfMeta;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfRecord;
+import org.opencb.biodata.tools.variant.converters.proto.VariantToProtoVcfRecord;
+import org.opencb.biodata.tools.variant.converters.proto.VcfRecordProtoToVariantConverter;
 
 public class VariantToVcfRecordTest {
 
@@ -56,9 +55,9 @@ public class VariantToVcfRecordTest {
         study.setAttributes(
                 buildMap(
                         "X:x", "A:ab",
-                        VariantVcfFactory.SRC + ":src-stuff",
-                        VariantVcfFactory.QUAL + ":" + qual,
-                        VariantVcfFactory.FILTER + ":" + filter));
+                        StudyEntry.SRC + ":src-stuff",
+                        StudyEntry.QUAL + ":" + qual,
+                        StudyEntry.FILTER + ":" + filter));
 //        study.setSamplesData(new HashMap<String, Map<String,String>>());
 //        study.getSamplesDataAsMap().put(sampleList.get(0), buildMap("EF:ef","AB:sample_03"));
 //        study.getSamplesDataAsMap().put(sampleList.get(1), buildMap("EF:ef","AB:sample_01","CD:cd"));
@@ -154,7 +153,7 @@ public class VariantToVcfRecordTest {
         converter.updateMeta(VcfSliceProtos.Fields.newBuilder().addFormats(String.join(":", formatList)).build());
         assertTrue("Format is default ", converter.isDefaultFormat(formatList));
         assertFalse("Format is default ", converter.isDefaultFormat(wrongList));
-//		assertEquals("Issues with Format",formatList, converter.getDefaultFormatKeys());
+//		assertEquals("Issues with Format",formatList, converters.getDefaultFormatKeys());
 
     }
 
@@ -209,6 +208,6 @@ public class VariantToVcfRecordTest {
     private void testEncodeDecodeQuality(String expected, float expectedFloat, String value) {
         float quality = VariantToProtoVcfRecord.encodeQuality(value);
         assertEquals(expectedFloat, quality, 0.0001);
-        assertEquals(expected, VcfRecordToVariantConverter.getQuality(quality));
+        assertEquals(expected, VcfRecordProtoToVariantConverter.getQuality(quality));
     }
 }

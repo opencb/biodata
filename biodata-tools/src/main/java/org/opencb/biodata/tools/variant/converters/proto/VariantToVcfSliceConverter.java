@@ -1,11 +1,11 @@
-package org.opencb.biodata.tools.variant.converter;
+package org.opencb.biodata.tools.variant.converters.proto;
 
 import com.google.protobuf.ProtocolStringList;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.VariantVcfFactory;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
+import org.opencb.biodata.tools.variant.converters.Converter;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -82,14 +82,14 @@ public class VariantToVcfSliceConverter implements Converter<List<Variant>, VcfS
                     for (Map.Entry<String, String> entry : attributes.entrySet()) {
                         String key = entry.getKey();
                         switch (key) {
-                            case VariantVcfFactory.FILTER:
+                            case StudyEntry.FILTER:
                                 String filter = entry.getValue();
                                 if (filter != null) {
                                     filters.put(filter, filters.getOrDefault(filter, 0) + 1);
                                 }
                                 break;
-                            case VariantVcfFactory.QUAL:
-                            case VariantVcfFactory.SRC:
+                            case StudyEntry.QUAL:
+                            case StudyEntry.SRC:
                             case "END":
                                 // Ignore
                                 break;

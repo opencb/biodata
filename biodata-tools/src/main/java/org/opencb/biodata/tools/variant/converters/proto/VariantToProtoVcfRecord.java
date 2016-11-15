@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package org.opencb.biodata.tools.variant.converter;
+package org.opencb.biodata.tools.variant.converters.proto;
 
 import com.google.protobuf.ProtocolStringList;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.VariantVcfFactory;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.VariantType;
@@ -29,6 +28,7 @@ import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfRecord;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfRecord.Builder;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfSample;
+import org.opencb.biodata.tools.variant.converters.Converter;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -49,10 +49,10 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
     private static final Set<String> IGNORED_KEYS = new HashSet<>();
 
     static {
-        IGNORED_KEYS.add(VariantVcfFactory.FILTER); // Save FILTER on VcfRecord specific field
-        IGNORED_KEYS.add(VariantVcfFactory.QUAL);   // Save QUAL on VcfRecord specific field
+        IGNORED_KEYS.add(StudyEntry.FILTER); // Save FILTER on VcfRecord specific field
+        IGNORED_KEYS.add(StudyEntry.QUAL);   // Save QUAL on VcfRecord specific field
         IGNORED_KEYS.add("END");                    // Save END on VcfRecord specific field
-        IGNORED_KEYS.add(VariantVcfFactory.SRC);    // Never save SRC
+        IGNORED_KEYS.add(StudyEntry.SRC);    // Never save SRC
     }
 
     /**
@@ -161,11 +161,11 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
         }
 
 		/* Filter */
-        int filter = encodeFilter(attr.get(VariantVcfFactory.FILTER));
+        int filter = encodeFilter(attr.get(StudyEntry.FILTER));
         recordBuilder.setFilterIndex(filter);
 
 		/* QUAL */
-        recordBuilder.setQuality(encodeQuality(attr.get(VariantVcfFactory.QUAL)));
+        recordBuilder.setQuality(encodeQuality(attr.get(StudyEntry.QUAL)));
 
 		/* INFO */
         setInfoKeyValues(recordBuilder, attr);
@@ -258,7 +258,7 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
     /**
      * Encodes the {@link String} value of the Quality into a float.
      *
-     * See {@link VcfRecordToVariantConverter#getQuality(float)}
+     * See {@link VcfRecordProtoToVariantConverter#getQuality(float)}
      * Increments one to the quality value. 0 means missing or unknown.
      *
      * @param value String quality value

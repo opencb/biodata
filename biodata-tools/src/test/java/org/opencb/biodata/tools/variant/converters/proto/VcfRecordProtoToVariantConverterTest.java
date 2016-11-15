@@ -1,14 +1,13 @@
-package org.opencb.biodata.tools.variant.converter;
+package org.opencb.biodata.tools.variant.converters.proto;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.opencb.biodata.models.variant.StudyEntry;
-import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.VariantSource;
-import org.opencb.biodata.models.variant.VariantVcfFactory;
+import org.opencb.biodata.models.variant.*;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.protobuf.VcfMeta;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
+import org.opencb.biodata.tools.variant.converters.proto.VariantToProtoVcfRecord;
+import org.opencb.biodata.tools.variant.converters.proto.VcfRecordProtoToVariantConverter;
 
 import java.util.*;
 
@@ -20,9 +19,9 @@ import static org.junit.Assert.assertNotEquals;
  *
  * @author Jacobo Coll &lt;jacobo167@gmail.com&gt;
  */
-public class VcfRecordToVariantConverterTest {
+public class VcfRecordProtoToVariantConverterTest {
 
-    private VcfRecordToVariantConverter converter;
+    private VcfRecordProtoToVariantConverter converter;
     private VcfMeta meta;
     private VcfSliceProtos.Fields fields;
 
@@ -57,7 +56,7 @@ public class VcfRecordToVariantConverterTest {
                 .addGts("1|1")
                 .build();
 
-        converter = new VcfRecordToVariantConverter(fields, samplePositions, meta.getVariantSource().getFileId(), meta.getVariantSource().getStudyId());
+        converter = new VcfRecordProtoToVariantConverter(fields, samplePositions, meta.getVariantSource().getFileId(), meta.getVariantSource().getStudyId());
 
     }
 
@@ -77,8 +76,8 @@ public class VcfRecordToVariantConverterTest {
                 Arrays.asList("1|0"),
                 Arrays.asList("1|1")));
         Map<String, String> attributes = new HashMap<>();
-        attributes.put(VariantVcfFactory.FILTER, "nopass");
-        attributes.put(VariantVcfFactory.QUAL, "50");
+        attributes.put(StudyEntry.FILTER, "nopass");
+        attributes.put(StudyEntry.QUAL, "50");
         attributes.put("Key1", "V1");
         attributes.put("Key2", "V2");
 
@@ -110,8 +109,8 @@ public class VcfRecordToVariantConverterTest {
                 Arrays.asList("1|0", "30"),
                 Arrays.asList("1|1", "40")));
         Map<String, String> attributes = new HashMap<>();
-        attributes.put(VariantVcfFactory.FILTER, "PASS");
-        attributes.put(VariantVcfFactory.QUAL, "57");
+        attributes.put(StudyEntry.FILTER, "PASS");
+        attributes.put(StudyEntry.QUAL, "57");
         attributes.put("Key", "Value");
 
         studyEntry.setFiles(Collections.singletonList(new FileEntry("chr1", "5:A:C:0", attributes)));

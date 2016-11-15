@@ -22,6 +22,7 @@ import org.opencb.commons.filters.Filter;
 /**
  * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
  */
+@Deprecated
 public abstract class VariantFilter extends Filter<Variant> {
 
     public VariantFilter() {

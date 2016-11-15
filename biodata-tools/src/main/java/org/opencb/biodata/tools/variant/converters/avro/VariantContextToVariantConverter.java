@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.opencb.biodata.tools.variant.converter;
+package org.opencb.biodata.tools.variant.converters.avro;
 
 import htsjdk.variant.variantcontext.Allele;
 import htsjdk.variant.variantcontext.VariantContext;
@@ -24,9 +24,9 @@ import org.opencb.biodata.formats.variant.annotation.VepParser;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.StudyEntry;
-import org.opencb.biodata.models.variant.VariantVcfFactory;
 import org.opencb.biodata.models.variant.avro.*;
 import org.opencb.biodata.models.variant.stats.VariantStats;
+import org.opencb.biodata.tools.variant.converters.Converter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -189,20 +189,20 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
 
         // QUAL
         if (variantContext.getLog10PError() != VariantContext.NO_LOG10_PERROR) {
-            attributes.put(VariantVcfFactory.QUAL, Double.toString(variantContext.getPhredScaledQual()));
+            attributes.put(StudyEntry.QUAL, Double.toString(variantContext.getPhredScaledQual()));
         }
 
         // FILTER
         Set<String> filter = variantContext.getFiltersMaybeNull();
         if (filter == null) {
-            attributes.put(VariantVcfFactory.FILTER, VCFConstants.UNFILTERED);
+            attributes.put(StudyEntry.FILTER, VCFConstants.UNFILTERED);
         } else if (filter.isEmpty()) {
-            attributes.put(VariantVcfFactory.FILTER, VCFConstants.PASSES_FILTERS_v4);
+            attributes.put(StudyEntry.FILTER, VCFConstants.PASSES_FILTERS_v4);
         } else {
             if (filter.size() == 1) {
-                attributes.put(VariantVcfFactory.FILTER, filter.iterator().next());
+                attributes.put(StudyEntry.FILTER, filter.iterator().next());
             } else {
-                attributes.put(VariantVcfFactory.FILTER, filter
+                attributes.put(StudyEntry.FILTER, filter
                         .stream().sorted().collect(Collectors.joining(VCFConstants.FILTER_CODE_SEPARATOR)));
             }
         }
@@ -320,242 +320,6 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         }
 
         return variant;
-    }
-
-    /**
-     * method to set Consequence Type Parameters
-     * @return consequenceTypeList
-     */
-    private List<ConsequenceType> setConsequenceTypeParams(){
-
-        List<ConsequenceType> consequenceTypeList = new ArrayList<>();
-        ConsequenceType consequenceType = new ConsequenceType();
-        consequenceType.setGeneName(null);
-        consequenceType.setEnsemblGeneId(null);
-        consequenceType.setEnsemblTranscriptId(null);
-        consequenceType.setStrand(null);
-        consequenceType.setBiotype(null);
-        consequenceType.setCdnaPosition(null);
-        consequenceType.setCdsPosition(null);
-        consequenceType.setCodon(null);
-
-        /*
-         * set ExpressionValues list type parameter
-         */
-//        List<ExpressionValue> expressionValueList = new ArrayList<>();
-//        ExpressionValue expressionValue = new ExpressionValue();
-//        expressionValue.setExpression(getEnumFromString(org.opencb.biodata.models.variant.avro.ExpressionCall.class, "UP"));
-        /*expressionValue.setExperimentalFactor(null);
-        expressionValue.setExperimentId(null);
-        expressionValue.setExpression(null);
-        expressionValue.setFactorValue(null);
-        expressionValue.setPvalue(null);
-        expressionValue.setTechnologyPlatform(null);*/
-//        expressionValueList.add(expressionValue);
-//        consequenceType.setExpression(expressionValueList);
-
-        /*
-         * set ProteinSubstitutionScores list type parameter
-         */
-//        List<Score> proteinSubstitutionScoreList = new ArrayList<>();
-//        Score score = new Score(null, null, null);
-//        proteinSubstitutionScoreList.add(score);
-
-
-        ProteinVariantAnnotation proteinVariantAnnotation = new ProteinVariantAnnotation();
-        proteinVariantAnnotation.setSubstitutionScores(Collections.emptyList());
-        consequenceType.setProteinVariantAnnotation(proteinVariantAnnotation);
-
-        /*
-         * set SoTerms list type parameter
-         */
-        List<SequenceOntologyTerm> sequenceOntologyTerms = new ArrayList<>();
-        SequenceOntologyTerm sequenceOntologyTerm = new SequenceOntologyTerm();
-        sequenceOntologyTerm.setAccession(null);
-        sequenceOntologyTerm.setName(null);
-        sequenceOntologyTerms.add(sequenceOntologyTerm);
-        consequenceType.setSequenceOntologyTerms(sequenceOntologyTerms);
-
-        consequenceType.setStrand(null);
-        /*
-         * Add consequenceType final bean to list
-         */
-        consequenceTypeList.add(consequenceType);
-        return consequenceTypeList;
-    }
-
-    /**
-     * method to set Population Frequency Parameters
-     * @return populationFrequencyList
-     */
-    private List<PopulationFrequency> setPopulationFrequencyParams(){
-
-        List<PopulationFrequency> populationFrequencyList = new ArrayList<>();
-        PopulationFrequency populationFrequency = new PopulationFrequency();
-        populationFrequency.setAltAllele(null);
-        populationFrequency.setAltAlleleFreq(null);
-        populationFrequency.setAltHomGenotypeFreq(null);
-        populationFrequency.setHetGenotypeFreq(null);
-        populationFrequency.setPopulation(null);
-        populationFrequency.setRefAllele(null);
-        populationFrequency.setRefAlleleFreq(null);
-        populationFrequency.setRefHomGenotypeFreq(null);
-        populationFrequency.setStudy(null);
-//        populationFrequency.setSuperPopulation(null);
-
-        populationFrequencyList.add(populationFrequency);
-        return populationFrequencyList;
-    }
-
-
-    /**
-     * method to set Varaint Annotation Parameters
-     * @return variantAnnotation
-     */
-    private VariantAnnotation setVaraintAnnotationParams(){
-        VariantAnnotation variantAnnotation = new VariantAnnotation();
-        /*
-         * set AdditionalAttributes map type parameter
-         */
-        Map<String, AdditionalAttribute> additionalAttributesMap = new HashMap<>();
-        //additionalAttributesMap.put(null, null);
-        variantAnnotation.setAdditionalAttributes(additionalAttributesMap);
-        /*
-         * set AlternateAllele parameter
-         */
-        variantAnnotation.setAlternate(null);
-        /*
-         * set CaddScore list type parameter
-         */
-//        List<CaddScore> caddScoreList = new ArrayList<>();
-//        CaddScore caddScore = new CaddScore();
-        /*caddScore.setCScore(null);
-        caddScore.setRawScore(null);
-        caddScore.setTranscriptId(null);*/
-//        caddScoreList.add(caddScore);
-//        variantAnnotation.setCaddScore(caddScoreList);
-        /*
-         * set Chromosome parameter
-         */
-        variantAnnotation.setChromosome(null);
-
-        /*
-         * set Clinical map type parameter
-         */
-        variantAnnotation.setVariantTraitAssociation(new VariantTraitAssociation(Arrays.asList(), Arrays.asList(),Arrays.asList()));
-
-        /*
-         * set ConsequenceTypes list type parameter
-         */
-        variantAnnotation.setConsequenceTypes(setConsequenceTypeParams());
-        /*
-         * set ConservationScores list type parameter
-         */
-        List<Score> conservationScoreList = new ArrayList<>();
-        Score score = new Score();
-        /*score.setDescription(null);
-        score.setScore(null);
-        score.setSource(null);    */
-        conservationScoreList.add(score);
-        variantAnnotation.setConservation(conservationScoreList);
-
-//        variantAnnotation.setEnd(0);
-        /*
-         * set GeneDrugInteraction map of list type parameter
-         */
-//        Map<String, List<String>> geneDrugInteractionMap = new HashMap<>();
-        List<GeneDrugInteraction> geneDrugInteractionList = new ArrayList<>();
-//        List<String> geneDrugInteractionList = new ArrayList<>();
-        //geneDrugInteractionList.add("AAA");
-        //geneDrugInteractionMap.put("000", geneDrugInteractionList);
-        variantAnnotation.setGeneDrugInteraction(geneDrugInteractionList);
-
-        /*
-         * set Hgvs list type parameter
-         */
-        List<String> hgvsList = new ArrayList<>();
-        //hgvsList.add(null);
-        variantAnnotation.setHgvs(hgvsList);
-
-        variantAnnotation.setId(null);
-        /*
-         * set PopulationFrequencies list type parameter
-         */
-        variantAnnotation.setPopulationFrequencies(setPopulationFrequencyParams());
-
-        variantAnnotation.setReference(null);
-        variantAnnotation.setStart(0);
-        /*
-         * set Xref list type parameter
-         */
-        List<Xref> xrefsList = new ArrayList<>();
-        Xref xref = new Xref();
-        /*xref.setId(null);
-        xref.setSrc(null);*/
-        xrefsList.add(xref);
-        variantAnnotation.setXrefs(xrefsList);
-        /*
-         * return variantAnnotation bean
-         */
-        return variantAnnotation;
-    }
-
-    /**
-     * method to set Variant Stats Parameters
-     * @param variantHardyWeinbergStats
-     * @param variantContext
-     * @return variantStats
-     */
-    private VariantStats setVariantStatsParams(
-            VariantHardyWeinbergStats variantHardyWeinbergStats,
-            VariantContext variantContext) {
-
-        VariantStats variantStats = new VariantStats();
-        variantStats.setAltAllele("aa");
-        variantStats.setAltAlleleCount(1);
-        variantStats.setAltAlleleFreq(2.1f);
-        variantStats.setCasesPercentDominant(3.1f);
-        variantStats.setCasesPercentRecessive(5.1f);
-        variantStats.setControlsPercentDominant(1.0f);
-        variantStats.setControlsPercentRecessive(3.1f);
-        variantStats.setMaf(4f);
-        variantStats.setMafAllele("ss");
-        variantStats.setMendelianErrors(4);
-        variantStats.setMgf(3f);
-        variantStats.setMgfGenotype("AA");
-        variantStats.setMissingAlleles(3);
-        variantStats.setMissingGenotypes(3);
-        variantStats.setNumSamples(4);
-        variantStats.setPassedFilters(true);
-        variantStats.setQuality((float) variantContext.getPhredScaledQual());
-        variantStats.setRefAllele("SS");
-        variantStats.setRefAlleleCount(4);
-        variantStats.setRefAlleleFreq(2f);
-        variantStats.setHw(variantHardyWeinbergStats);
-        variantStats.setVariantType(getEnumFromString(
-                VariantType.class, variantContext.getType()
-                        .toString()));
-
-        return variantStats;
-    }
-
-    /**
-     * method to set VariantHardyWeinberg Stats Parameters
-     * @return variantHardyWeinbergStats
-     */
-    private VariantHardyWeinbergStats setVariantHardyWeinbergStatsParams() {
-        VariantHardyWeinbergStats variantHardyWeinbergStats = new VariantHardyWeinbergStats();
-        variantHardyWeinbergStats.setChi2(1f);
-        variantHardyWeinbergStats.setEAa00(2f);
-        variantHardyWeinbergStats.setEAa10(3f);
-        variantHardyWeinbergStats.setEAA11(4f);
-        variantHardyWeinbergStats.setN(1);
-        variantHardyWeinbergStats.setNAa00(2);
-        variantHardyWeinbergStats.setNAa10(3);
-        variantHardyWeinbergStats.setNAA11(4);
-        variantHardyWeinbergStats.setP(1f);
-        variantHardyWeinbergStats.setQ(2f);
-        return variantHardyWeinbergStats;
     }
 
     /**

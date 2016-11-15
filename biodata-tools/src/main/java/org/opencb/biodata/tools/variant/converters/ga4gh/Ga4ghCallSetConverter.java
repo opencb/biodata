@@ -1,10 +1,10 @@
-package org.opencb.biodata.tools.variant.converter.ga4gh;
+package org.opencb.biodata.tools.variant.converters.ga4gh;
 
 import ga4gh.Variants;
 import org.opencb.biodata.models.variant.VariantSource;
-import org.opencb.biodata.tools.ga4gh.Ga4ghVariantFactory;
-import org.opencb.biodata.tools.ga4gh.ProtoGa4GhVariantFactory;
-import org.opencb.biodata.tools.variant.converter.Converter;
+import org.opencb.biodata.tools.variant.converters.ga4gh.factories.Ga4ghVariantFactory;
+import org.opencb.biodata.tools.variant.converters.ga4gh.factories.ProtoGa4GhVariantFactory;
+import org.opencb.biodata.tools.variant.converters.Converter;
 
 import java.util.*;
 

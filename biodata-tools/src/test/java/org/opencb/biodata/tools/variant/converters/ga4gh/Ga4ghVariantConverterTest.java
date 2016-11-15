@@ -1,4 +1,4 @@
-package org.opencb.biodata.tools.variant.converter.ga4gh;
+package org.opencb.biodata.tools.variant.converters.ga4gh;
 
 import ga4gh.Variants;
 import org.ga4gh.models.CallSet;
@@ -7,7 +7,7 @@ import org.ga4gh.models.VariantSet;
 import org.junit.Before;
 import org.junit.Test;
 import org.opencb.biodata.models.variant.VariantSource;
-import org.opencb.biodata.tools.ga4gh.AvroGa4GhVariantFactory;
+import org.opencb.biodata.tools.variant.converters.ga4gh.factories.AvroGa4GhVariantFactory;
 import org.opencb.biodata.tools.variant.VariantVcfHtsjdkReader;
 
 import java.util.Arrays;

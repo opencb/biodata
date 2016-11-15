@@ -1,24 +1,22 @@
-package org.opencb.biodata.tools.variant.converter;
+package org.opencb.biodata.tools.variant.converters.proto;
 
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.VariantVcfFactory;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.protobuf.VariantProto;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
+import org.opencb.biodata.tools.variant.converters.Converter;
 
 import java.util.*;
-
-import static org.opencb.biodata.tools.variant.converter.VariantToProtoVcfRecord.EMPTY_SECONDARY_REFERENCE;
 
 /**
  * Created on 05/11/15
  *
  * @author Jacobo Coll &lt;jacobo167@gmail.com&gt;
  */
-public class VcfRecordToVariantConverter implements Converter<VcfSliceProtos.VcfRecord, Variant> {
+public class VcfRecordProtoToVariantConverter implements Converter<VcfSliceProtos.VcfRecord, Variant> {
 
     private VcfSliceProtos.Fields fields;
 
@@ -28,15 +26,15 @@ public class VcfRecordToVariantConverter implements Converter<VcfSliceProtos.Vcf
 
 
 
-    public VcfRecordToVariantConverter(VcfSliceProtos.Fields fields, Map<String, Integer> samplePosition, String fileId, String studyId) {
+    public VcfRecordProtoToVariantConverter(VcfSliceProtos.Fields fields, Map<String, Integer> samplePosition, String fileId, String studyId) {
         this(fields, StudyEntry.sortSamplesPositionMap(samplePosition), fileId, studyId);
     }
 
-    public VcfRecordToVariantConverter(LinkedHashMap<String, Integer> samplePosition, String fileId, String studyId) {
+    public VcfRecordProtoToVariantConverter(LinkedHashMap<String, Integer> samplePosition, String fileId, String studyId) {
         this(null, samplePosition, fileId, studyId);
     }
 
-    public VcfRecordToVariantConverter(VcfSliceProtos.Fields fields, LinkedHashMap<String, Integer> samplePosition, String fileId, String studyId) {
+    public VcfRecordProtoToVariantConverter(VcfSliceProtos.Fields fields, LinkedHashMap<String, Integer> samplePosition, String fileId, String studyId) {
 
         this.samplePosition = samplePosition;
 
@@ -137,8 +135,8 @@ public class VcfRecordToVariantConverter implements Converter<VcfSliceProtos.Vcf
             attributes.put(fields.getInfoKeys(keyIdxIterator.next()), valueIterator.next());
         }
 
-        attributes.put(VariantVcfFactory.QUAL, getQuality(vcfRecord));
-        attributes.put(VariantVcfFactory.FILTER, getFilter(vcfRecord));
+        attributes.put(StudyEntry.QUAL, getQuality(vcfRecord));
+        attributes.put(StudyEntry.FILTER, getFilter(vcfRecord));
         return attributes;
     }
 
@@ -210,7 +208,7 @@ public class VcfRecordToVariantConverter implements Converter<VcfSliceProtos.Vcf
                 String secAltRef;
                 if (alt.getReference().isEmpty()) {
                     secAltRef = null;
-                } else if (alt.getReference().equals(EMPTY_SECONDARY_REFERENCE)) {
+                } else if (alt.getReference().equals(VariantToProtoVcfRecord.EMPTY_SECONDARY_REFERENCE)) {
                     secAltRef = "";
                 } else {
                     secAltRef = alt.getReference();
@@ -232,7 +230,7 @@ public class VcfRecordToVariantConverter implements Converter<VcfSliceProtos.Vcf
         return fields;
     }
 
-    public VcfRecordToVariantConverter setFields(VcfSliceProtos.Fields fields) {
+    public VcfRecordProtoToVariantConverter setFields(VcfSliceProtos.Fields fields) {
         this.fields = fields;
         return this;
     }

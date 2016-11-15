@@ -1,11 +1,11 @@
-package org.opencb.biodata.tools.variant.converter;
+package org.opencb.biodata.tools.variant.converters.proto;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import org.junit.Before;
 import org.junit.Test;
+import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantNormalizer;
-import org.opencb.biodata.models.variant.VariantVcfFactory;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
 
@@ -52,7 +52,7 @@ public class VcfSliceToVariantListConverterTest {
                 generateVariantWithFormat("1:11211::A,C", "PASS", 102f,
                         toMap(), "GT:X", "S1", "0/0", "1")
         );
-        variants.get(5).getStudy("").getFile("").getAttributes().put(VariantVcfFactory.QUAL, ".");
+        variants.get(5).getStudy("").getFile("").getAttributes().put(StudyEntry.QUAL, ".");
         variants.get(6).setType(VariantType.NO_VARIATION);
         variants.get(6).setEnd(1100);
 
@@ -77,7 +77,7 @@ public class VcfSliceToVariantListConverterTest {
 
     @Test
     public void testConvertVariants() throws InvalidProtocolBufferException {
-//        VcfSliceToVariantListConverter converter = new VcfSliceToVariantListConverter();
+//        VcfSliceToVariantListConverter converters = new VcfSliceToVariantListConverter();
         VariantToVcfSliceConverter converter = new VariantToVcfSliceConverter();
         VcfSliceProtos.VcfSlice slice = converter.convert(variants, 1000);
 
@@ -92,15 +92,15 @@ public class VcfSliceToVariantListConverterTest {
         assertEquals(1000, convert.get(0).getEnd().intValue());
         assertEquals(1000, convert.get(1).getEnd().intValue());
         assertEquals(1100, convert.get(6).getEnd().intValue());
-        assertEquals("0", convert.get(3).getStudy("").getFile("").getAttributes().get(VariantVcfFactory.QUAL));
-        assertEquals(null, convert.get(4).getStudy("").getFile("").getAttributes().get(VariantVcfFactory.QUAL));
-        assertEquals(null, convert.get(5).getStudy("").getFile("").getAttributes().get(VariantVcfFactory.QUAL));
+        assertEquals("0", convert.get(3).getStudy("").getFile("").getAttributes().get(StudyEntry.QUAL));
+        assertEquals(null, convert.get(4).getStudy("").getFile("").getAttributes().get(StudyEntry.QUAL));
+        assertEquals(null, convert.get(5).getStudy("").getFile("").getAttributes().get(StudyEntry.QUAL));
 
 
         for (int i = 0; i < convert.size(); i++) {
             // Set qual to NULL if required.
-            if (".".equals(variants.get(i).getStudy("").getFile("").getAttributes().get(VariantVcfFactory.QUAL))) {
-                variants.get(i).getStudy("").getFile("").getAttributes().put(VariantVcfFactory.QUAL, null);
+            if (".".equals(variants.get(i).getStudy("").getFile("").getAttributes().get(StudyEntry.QUAL))) {
+                variants.get(i).getStudy("").getFile("").getAttributes().put(StudyEntry.QUAL, null);
             }
 
             System.out.println("Expected  : " + variants.get(i).toJson());

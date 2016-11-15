@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.opencb.biodata.tools.variant.converter;
+package org.opencb.biodata.tools.variant.converters.proto;
 
 import htsjdk.variant.variantcontext.Allele;
 import htsjdk.variant.variantcontext.VariantContext;
@@ -27,6 +27,7 @@ import org.opencb.biodata.models.variant.protobuf.VariantAnnotationProto.Consequ
 import org.opencb.biodata.models.variant.protobuf.VariantAnnotationProto.ProteinVariantAnnotation;
 import org.opencb.biodata.models.variant.protobuf.VariantProto;
 import org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate;
+import org.opencb.biodata.tools.variant.converters.Converter;
 
 import java.util.*;
 import java.util.stream.Collectors;

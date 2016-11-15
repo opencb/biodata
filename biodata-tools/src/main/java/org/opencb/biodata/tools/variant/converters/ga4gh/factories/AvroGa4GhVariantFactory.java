@@ -1,4 +1,4 @@
-package org.opencb.biodata.tools.ga4gh;
+package org.opencb.biodata.tools.variant.converters.ga4gh.factories;
 
 import org.ga4gh.models.*;
 

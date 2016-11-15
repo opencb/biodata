@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.opencb.biodata.tools.variant.converter;
+package org.opencb.biodata.tools.variant.converters.proto;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,6 +32,7 @@ import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.protobuf.VcfTabixProto.VcfRecord;
 import org.opencb.biodata.models.variant.protobuf.VcfTabixProto.VcfRecord.Builder;
 import org.opencb.biodata.models.variant.protobuf.VcfTabixProto.VcfSample;
+import org.opencb.biodata.tools.variant.converters.Converter;
 
 /**
  * @author Matthias Haimel mh719+git@cam.ac.uk

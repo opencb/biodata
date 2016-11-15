@@ -28,6 +28,7 @@ import org.opencb.biodata.models.variant.Variant;
 /**
  * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
  */
+@Deprecated
 public class VariantBedFilter extends VariantFilter {
     private Map<String, SortedSet<Region>> regions;
 
