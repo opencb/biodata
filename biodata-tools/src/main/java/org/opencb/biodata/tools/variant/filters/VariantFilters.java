@@ -40,5 +40,9 @@ public abstract class VariantFilters<T> extends CommonsFilters<T> {
 
     public abstract VariantFilters<T> addSNPFilter();
 
-    //variant.getStudies().forEach(studyEntry -> studyEntry.getFiles().forEach(fileEntry -> fileEntry.get("QUAL")))); //
+    public void t() {
+
+    }
+    //( vaiant -> variant.getStudies().forEach(studyEntry -> studyEntry.getFiles().forEach(fileEntry -> fileEntry.get("FILTER").equals("PASS"))); //
+    //( vaiant -> variant.getStudies().forEach(studyEntry -> studyEntry.getFiles().forEach(fileEntry -> Integer.parseInt(fileEntry.get("QUAL")) > 20)); //
 }
