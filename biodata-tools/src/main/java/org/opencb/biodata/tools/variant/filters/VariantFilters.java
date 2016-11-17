@@ -1,5 +1,6 @@
 package org.opencb.biodata.tools.variant.filters;
 
+import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.tools.commons.CommonsFilters;
 
 import java.util.List;
@@ -39,9 +40,10 @@ public abstract class VariantFilters<T> extends CommonsFilters<T> {
 
     public abstract VariantFilters<T> addSNPFilter();
 
-    public void t() {
+    public abstract VariantFilters<T> addRegionFilter(Region region, boolean contained);
 
-    }
+    public abstract VariantFilters<T> addRegionFilter(List<Region> regions, boolean contained);
+
     //( vaiant -> variant.getStudies().forEach(studyEntry -> studyEntry.getFiles().forEach(fileEntry -> fileEntry.get("FILTER").equals("PASS"))); //
     //( vaiant -> variant.getStudies().forEach(studyEntry -> studyEntry.getFiles().forEach(fileEntry -> Integer.parseInt(fileEntry.get("QUAL")) > 20)); //
 }
