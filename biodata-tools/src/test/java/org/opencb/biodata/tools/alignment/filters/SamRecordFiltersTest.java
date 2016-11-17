@@ -1,7 +1,6 @@
 package org.opencb.biodata.tools.alignment.filters;
 
 import htsjdk.samtools.SAMRecord;
-import org.ga4gh.models.ReadAlignment;
 import org.junit.Test;
 import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.tools.alignment.AlignmentOptions;
@@ -33,7 +32,7 @@ public class SamRecordFiltersTest  {
 
         alignmentFilters.addFilterList(tmpFilters.getFilters(), true);
 
-        List<ReadAlignment> results = BamManager.query(region, options, alignmentFilters);
+        List<SAMRecord> results = BamManager.query(region, options, alignmentFilters);
         System.out.println("Number of results: " + results.size());
         assertEquals(108, results.size());
    }
@@ -53,7 +52,7 @@ public class SamRecordFiltersTest  {
 
         alignmentFilters.addFilterList(tmpFilters.getFilters(), false);
 
-        List<ReadAlignment> results = BamManager.query(region, options, alignmentFilters);
+        List<SAMRecord> results = BamManager.query(region, options, alignmentFilters);
         System.out.println("Number of results: " + results.size());
         assertEquals(96, results.size());
     }
