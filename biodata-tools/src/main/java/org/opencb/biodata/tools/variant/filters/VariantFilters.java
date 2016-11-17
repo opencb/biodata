@@ -2,7 +2,6 @@ package org.opencb.biodata.tools.variant.filters;
 
 import org.opencb.biodata.tools.commons.CommonsFilters;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 

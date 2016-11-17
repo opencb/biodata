@@ -1,11 +1,7 @@
 package org.opencb.biodata.tools.variant.iterators;
 
-import htsjdk.samtools.SAMRecord;
-import htsjdk.samtools.SAMRecordIterator;
 import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.variant.variantcontext.VariantContext;
-import org.opencb.biodata.tools.alignment.filters.AlignmentFilters;
-import org.opencb.biodata.tools.alignment.filters.SamRecordFilters;
 import org.opencb.biodata.tools.variant.filters.VariantContextFilters;
 import org.opencb.biodata.tools.variant.filters.VariantFilters;
 
