@@ -70,7 +70,7 @@ public class SAMRecordToProtoReadAlignmentConverter extends AlignmentConverter<R
         // alignment
         Reads.LinearAlignment.Builder linearAlignment = Reads.LinearAlignment.newBuilder();
         Common.Position.Builder position = Common.Position.newBuilder();
-        position.setPosition((long) in.getAlignmentStart() - 1); // from 1-based to 0-based
+        position.setPosition((long) in.getAlignmentStart());
         position.setReferenceName(in.getReferenceName());
 //        position.setSequenceId("");
         position.setStrand(in.getReadNegativeStrandFlag() ? Common.Strand.NEG_STRAND : Common.Strand.POS_STRAND);

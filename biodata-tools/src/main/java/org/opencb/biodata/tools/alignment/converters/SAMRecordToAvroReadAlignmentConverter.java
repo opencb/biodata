@@ -66,7 +66,7 @@ public class SAMRecordToAvroReadAlignmentConverter extends AlignmentConverter<Re
 
         // alignment
         Position position = new Position();
-        position.setPosition((long) in.getAlignmentStart() - 1); // from 1-based to 0-based
+        position.setPosition((long) in.getAlignmentStart());
         position.setReferenceName(in.getReferenceName());
 //        position.setSequenceId("");
         position.setStrand(in.getReadNegativeStrandFlag() ? Strand.NEG_STRAND : Strand.POS_STRAND);
