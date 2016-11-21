@@ -111,31 +111,31 @@ public class BamManager {
      * This method aims to provide a very simple, safe and quick way of accessing to a small fragment of the BAM/CRAM file.
      * This must not be used in production for reading big data files. It returns a maximum of 10,000 SAM records.
      *
-     * @param region@return
+     * @param region @return
      * @throws IOException
      */
-    public List<ReadAlignment> query(Region region) throws Exception {
-        return query(region, new AlignmentOptions(), null, ReadAlignment.class);
+    public List<SAMRecord> query(Region region) throws Exception {
+        return query(region, new AlignmentOptions(), null, SAMRecord.class);
     }
 
-    public List<ReadAlignment> query(Region region, AlignmentOptions options) throws Exception {
-        return query(region, options, null, ReadAlignment.class);
+    public List<SAMRecord> query(Region region, AlignmentOptions options) throws Exception {
+        return query(region, options, null, SAMRecord.class);
     }
 
-    public List<ReadAlignment> query(Region region, AlignmentOptions options, AlignmentFilters<SAMRecord> filters) throws Exception {
-        return query(region, options, filters, ReadAlignment.class);
+    public List<SAMRecord> query(Region region, AlignmentOptions options, AlignmentFilters<SAMRecord> filters) throws Exception {
+        return query(region, options, filters, SAMRecord.class);
     }
 
-    public List<ReadAlignment> query() throws Exception {
-        return query(null, new AlignmentOptions(), null, ReadAlignment.class);
+    public List<SAMRecord> query() throws Exception {
+        return query(null, new AlignmentOptions(), null, SAMRecord.class);
     }
 
-    public List<ReadAlignment> query(AlignmentOptions options) throws Exception {
-        return query(null, options, null, ReadAlignment.class);
+    public List<SAMRecord> query(AlignmentOptions options) throws Exception {
+        return query(null, options, null, SAMRecord.class);
     }
 
-    public List<ReadAlignment> query(AlignmentOptions options, AlignmentFilters<SAMRecord> filters) throws Exception {
-        return query(null, options, filters, ReadAlignment.class);
+    public List<SAMRecord> query(AlignmentOptions options, AlignmentFilters<SAMRecord> filters) throws Exception {
+        return query(null, options, filters, SAMRecord.class);
     }
 
     public <T> List<T> query(AlignmentOptions options, AlignmentFilters<SAMRecord> filters, Class<T> clazz) throws Exception {

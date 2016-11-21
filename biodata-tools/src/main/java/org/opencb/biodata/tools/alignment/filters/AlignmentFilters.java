@@ -3,7 +3,6 @@ package org.opencb.biodata.tools.alignment.filters;
 import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.tools.commons.CommonsFilters;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -42,4 +41,8 @@ public abstract class AlignmentFilters<T> extends CommonsFilters<T> {
     public abstract AlignmentFilters<T> addProperlyPairedFilter();
 
     public abstract AlignmentFilters<T> addUnmappedFilter();
+
+    public abstract AlignmentFilters<T> addRegionFilter(Region region, boolean contained);
+
+    public abstract AlignmentFilters<T> addRegionFilter(List<Region> regions, boolean contained);
 }
