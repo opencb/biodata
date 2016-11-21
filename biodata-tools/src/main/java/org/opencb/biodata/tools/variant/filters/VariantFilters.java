@@ -40,6 +40,12 @@ public abstract class VariantFilters<T> extends CommonsFilters<T> {
 
     public abstract VariantFilters<T> addSNPFilter();
 
+    public abstract VariantFilters<T> addQualFilter(double minQual);
+
+    public abstract VariantFilters<T> addPassFilter();
+
+    public abstract VariantFilters<T> addPassFilter(String name);
+
     public abstract VariantFilters<T> addRegionFilter(Region region, boolean contained);
 
     public abstract VariantFilters<T> addRegionFilter(List<Region> regions, boolean contained);

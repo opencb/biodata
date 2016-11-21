@@ -13,6 +13,15 @@ import java.util.function.Predicate;
  */
 public class VariantProtoFilters extends VariantFilters<VariantProto.Variant> {
 
+    private String datasetId;
+    private String fileId;
+
+    public VariantProtoFilters(String datasetId, String fileId) {
+        super();
+        this.datasetId = datasetId;
+        this.fileId = fileId;
+    }
+
     @Override
     public VariantFilters<VariantProto.Variant> addTypeFilter(String type) {
         filters.add(variant -> variant.getType().equals(type));
@@ -24,6 +33,21 @@ public class VariantProtoFilters extends VariantFilters<VariantProto.Variant> {
         filters.add(variant -> !variant.getId().equalsIgnoreCase(".")
                 && !variant.getId().equalsIgnoreCase(""));
         return this;
+    }
+
+    @Override
+    public VariantFilters<VariantProto.Variant> addQualFilter(double minQual) {
+        throw new UnsupportedOperationException("Filter VariantProto.Variant by quality not supported yet!");
+    }
+
+    @Override
+    public VariantFilters<VariantProto.Variant> addPassFilter() {
+        return addPassFilter("PASS");
+    }
+
+    @Override
+    public VariantFilters<VariantProto.Variant> addPassFilter(String name) {
+        throw new UnsupportedOperationException("Filter VariantProto.Variant by PASS not supported yet!");
     }
 
     @Override
@@ -47,5 +71,21 @@ public class VariantProtoFilters extends VariantFilters<VariantProto.Variant> {
         }
         addFilterList(predicates);
         return this;
+    }
+
+    public String getDatasetId() {
+        return datasetId;
+    }
+
+    public void setDatasetId(String datasetId) {
+        this.datasetId = datasetId;
+    }
+
+    public String getFileId() {
+        return fileId;
+    }
+
+    public void setFileId(String fileId) {
+        this.fileId = fileId;
     }
 }

@@ -1,11 +1,10 @@
 package org.opencb.biodata.tools.variant.filters;
 
 import htsjdk.variant.variantcontext.VariantContext;
+import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.core.Region;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.function.Predicate;
 
 /**
@@ -23,6 +22,42 @@ public class VariantContextFilters extends VariantFilters<VariantContext> {
     public VariantFilters<VariantContext> addSNPFilter() {
         filters.add(variantContext -> !variantContext.getID().equalsIgnoreCase(".")
                 && !variantContext.getID().equalsIgnoreCase(""));
+        return this;
+    }
+
+    @Override
+    public VariantFilters<VariantContext> addQualFilter(double minQual) {
+        filters.add(variantContext -> variantContext.getPhredScaledQual() >= minQual);
+        return this;
+    }
+
+    private boolean containFilter(VariantContext variantContext, String name) {
+        if (variantContext.getFilters().size() == 0 && "PASS".equals(name)) {
+            // PASS is not contained in the getFilters(),
+            // but the . neither!!
+            return true;
+        }
+        Iterator<String> iterator = variantContext.getFilters().iterator();
+        while (iterator.hasNext()) {
+            String filterName = iterator.next();
+            List<String> list = Arrays.asList(StringUtils.split(filterName, ","));
+            for (String element: list) {
+                if (element.equals(name)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public VariantFilters<VariantContext> addPassFilter() {
+        return addPassFilter("PASS");
+    }
+
+    @Override
+    public VariantFilters<VariantContext> addPassFilter(String name) {
+        filters.add(variantContext -> containFilter(variantContext, name));
         return this;
     }
 
