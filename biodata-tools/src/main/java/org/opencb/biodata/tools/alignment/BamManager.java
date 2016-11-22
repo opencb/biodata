@@ -238,8 +238,11 @@ public class BamManager {
         SamRecordRegionCoverageCalculator calculator = new SamRecordRegionCoverageCalculator();
         try(BamIterator<SAMRecord> iterator = iterator(region, options, filters)) {
             while(iterator.hasNext()) {
-                RegionCoverage computed = calculator.compute(iterator.next());
-                calculator.update(computed, regionCoverage);
+                SAMRecord next = iterator.next();
+                if (!next.getReadUnmappedFlag()) {
+                    RegionCoverage computed = calculator.compute(next);
+                    calculator.update(computed, regionCoverage);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
