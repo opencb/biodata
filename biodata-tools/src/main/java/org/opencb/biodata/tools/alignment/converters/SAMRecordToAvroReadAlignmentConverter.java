@@ -234,7 +234,7 @@ public class SAMRecordToAvroReadAlignmentConverter extends AlignmentConverter<Re
             res.append(FIELD_SEPARATOR);
 
             // position
-            res.append(la.getPosition().getPosition() + 1); //0-based to 1-based
+            res.append(la.getPosition().getPosition());
             res.append(FIELD_SEPARATOR);
 
             // mapping quality
