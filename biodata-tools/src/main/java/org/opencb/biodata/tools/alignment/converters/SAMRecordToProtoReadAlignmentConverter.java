@@ -158,14 +158,15 @@ public class SAMRecordToProtoReadAlignmentConverter extends AlignmentConverter<R
         List<SAMRecord.SAMTagAndValue> attributes = in.getAttributes();
         for (SAMRecord.SAMTagAndValue tv : attributes) {
             ListValue.Builder list = ListValue.newBuilder();
-            if (tv.value instanceof Character || tv.value instanceof String) {
-                list.addValues(Value.newBuilder().setStringValue("Z").build());
+//            if (tv.value instanceof Character || tv.value instanceof String) {
+            if (tv.value instanceof Integer) {
+                list.addValues(Value.newBuilder().setStringValue("i"));
 //                list.addValues(Value.newBuilder().setStringValue("" + tv.value));
             } else if (tv.value instanceof Float) {
                 list.addValues(Value.newBuilder().setStringValue("f"));
 //                list.addValues(Value.newBuilder().setNumberValue((float) tv.value));
             } else {
-                list.addValues(Value.newBuilder().setStringValue("i"));
+                list.addValues(Value.newBuilder().setStringValue("Z").build());
 //                list.addValues(Value.newBuilder().setNumberValue((int) tv.value));
             }
             list.addValues(Value.newBuilder().setStringValue("" + tv.value));

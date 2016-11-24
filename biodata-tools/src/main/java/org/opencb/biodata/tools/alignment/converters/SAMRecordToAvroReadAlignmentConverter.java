@@ -149,12 +149,12 @@ public class SAMRecordToAvroReadAlignmentConverter extends AlignmentConverter<Re
         List<SAMRecord.SAMTagAndValue> attributes = in.getAttributes();
         for (SAMRecord.SAMTagAndValue tv : attributes) {
             List<String> list = new ArrayList<>();
-            if (tv.value instanceof String) {
-                list.add("Z");
+            if (tv.value instanceof Integer) {
+                list.add("i");
             } else if (tv.value instanceof Float) {
                 list.add("f");
             } else {
-                list.add("i");
+                list.add("Z");
             }
             list.add("" + tv.value);
             info.put(tv.tag, list);
