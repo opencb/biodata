@@ -70,7 +70,7 @@ public class SAMRecordToProtoReadAlignmentConverter extends AlignmentConverter<R
         // alignment
         Reads.LinearAlignment.Builder linearAlignment = Reads.LinearAlignment.newBuilder();
         Common.Position.Builder position = Common.Position.newBuilder();
-        position.setPosition((long) in.getAlignmentStart() - 1); // from 1-based to 0-based
+        position.setPosition((long) in.getAlignmentStart());
         position.setReferenceName(in.getReferenceName());
 //        position.setSequenceId("");
         position.setStrand(in.getReadNegativeStrandFlag() ? Common.Strand.NEG_STRAND : Common.Strand.POS_STRAND);
@@ -158,14 +158,15 @@ public class SAMRecordToProtoReadAlignmentConverter extends AlignmentConverter<R
         List<SAMRecord.SAMTagAndValue> attributes = in.getAttributes();
         for (SAMRecord.SAMTagAndValue tv : attributes) {
             ListValue.Builder list = ListValue.newBuilder();
-            if (tv.value instanceof Character || tv.value instanceof String) {
-                list.addValues(Value.newBuilder().setStringValue("Z").build());
+//            if (tv.value instanceof Character || tv.value instanceof String) {
+            if (tv.value instanceof Integer) {
+                list.addValues(Value.newBuilder().setStringValue("i"));
 //                list.addValues(Value.newBuilder().setStringValue("" + tv.value));
             } else if (tv.value instanceof Float) {
                 list.addValues(Value.newBuilder().setStringValue("f"));
 //                list.addValues(Value.newBuilder().setNumberValue((float) tv.value));
             } else {
-                list.addValues(Value.newBuilder().setStringValue("i"));
+                list.addValues(Value.newBuilder().setStringValue("Z").build());
 //                list.addValues(Value.newBuilder().setNumberValue((int) tv.value));
             }
             list.addValues(Value.newBuilder().setStringValue("" + tv.value));
@@ -243,7 +244,7 @@ public class SAMRecordToProtoReadAlignmentConverter extends AlignmentConverter<R
             res.append(FIELD_SEPARATOR);
 
             // position
-            res.append(la.getPosition().getPosition() + 1); //0-based to 1-based
+            res.append(la.getPosition().getPosition());
             res.append(FIELD_SEPARATOR);
 
             // mapping quality
