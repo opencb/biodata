@@ -1,5 +1,6 @@
 package org.opencb.biodata.tools.alignment;
 
+import htsjdk.samtools.SAMRecord;
 import org.ga4gh.models.ReadAlignment;
 import org.junit.Test;
 import org.opencb.biodata.models.alignment.RegionCoverage;
@@ -14,7 +15,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by pfurio on 26/10/16.
  */
-public class bamManagerTest {
+public class BamManagerTest {
 
     @Test
     public void testQuery() throws Exception {
@@ -22,7 +23,7 @@ public class bamManagerTest {
         BamManager BamManager = new BamManager(inputPath);
         AlignmentOptions options = new AlignmentOptions().setLimit(5);
         Region region = new Region("20", 60000, 65000);
-        List<ReadAlignment> query = BamManager.query(region, options);
+        List<SAMRecord> query = BamManager.query(region, options);
         assertEquals(5, query.size());
 
         options.setLimit(3);

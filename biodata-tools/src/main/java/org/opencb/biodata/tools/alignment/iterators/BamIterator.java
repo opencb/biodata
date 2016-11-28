@@ -35,7 +35,7 @@ public abstract class BamIterator<T> implements Iterator<T>, AutoCloseable {
         prevNext = null;
         while (samRecordIterator.hasNext()) {
             SAMRecord next = samRecordIterator.next();
-            if (filters.apply(next)) {
+            if (filters.test(next)) {
                 prevNext = next;
                 return;
             }
