@@ -115,6 +115,13 @@
         </mailingList>
     </mailingLists>
 
+    <repositories>
+        <repository>
+            <id>opencb-ext-libs</id>
+            <url>http://bioinfo.hpc.cam.ac.uk/downloads/ext-libs/</url>
+        </repository>
+    </repositories>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -169,11 +176,23 @@
                 <version>4.1.0</version>
             </dependency>
             <dependency>
+                <groupId>igv</groupId>
+                <artifactId>igv</artifactId>
+                <version>2.2</version>
+            </dependency>
+            <dependency>
                 <groupId>org.spockframework</groupId>
                 <artifactId>spock-core</artifactId>
                 <version>0.7-groovy-2.0</version>
                 <scope>test</scope>
             </dependency>
+            <!--<dependency>-->
+                <!--<groupId>igv</groupId>-->
+                <!--<artifactId>igv</artifactId>-->
+                <!--<version>2.3.88</version>-->
+                <!--<scope>system</scope>-->
+                <!--<systemPath>/tmp/igv.jar</systemPath>-->
+            <!--</dependency>-->
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
