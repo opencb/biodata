@@ -13,7 +13,7 @@ public class AlignmentOptions {
     public static final int DEFAULT_LIMIT = 50000;
 
     public AlignmentOptions() {
-        this(true, false, false, DEFAULT_LIMIT);
+        this(false, false, false, DEFAULT_LIMIT);
     }
 
     public AlignmentOptions(boolean contained, boolean binQualities, boolean calculateMD, int limit) {
