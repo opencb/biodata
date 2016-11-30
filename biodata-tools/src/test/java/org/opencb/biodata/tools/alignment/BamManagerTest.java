@@ -40,7 +40,7 @@ public class BamManagerTest {
         AlignmentOptions options = new AlignmentOptions();
         options.setContained(false);
         Region region = new Region("20", 62000, 62200);
-        RegionCoverage coverage = BamManager.coverage(region, options, null);
+        RegionCoverage coverage = BamManager.coverage(region, null, options);
 //        System.out.println(coverage.toString());
         System.out.println(coverage.toJSON());
         System.out.println("mean coverage = " + coverage.meanCoverage());
