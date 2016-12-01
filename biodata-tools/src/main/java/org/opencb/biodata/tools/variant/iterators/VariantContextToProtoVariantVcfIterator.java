@@ -18,7 +18,7 @@ public class VariantContextToProtoVariantVcfIterator extends VcfIterator<Variant
     }
 
     public VariantContextToProtoVariantVcfIterator(CloseableIterator<VariantContext> contextVariantIterator,
-                                                  VariantFilters<VariantContext> filters) {
+                                                   VariantFilters<VariantContext> filters) {
         super(contextVariantIterator, filters);
         variantContextToVariantProtoConverter = new VariantContextToVariantProtoConverter("", "");
     }

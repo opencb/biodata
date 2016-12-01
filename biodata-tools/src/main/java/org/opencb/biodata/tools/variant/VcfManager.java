@@ -30,6 +30,7 @@ import static htsjdk.variant.variantcontext.writer.VariantContextWriterBuilder.O
  * Created by jtarraga on 29/11/16.
  */
 public class VcfManager {
+
     private Path input;
 
     private Path dataPath;
@@ -91,12 +92,9 @@ public class VcfManager {
 
 
         System.out.println("Creating index file: " + this.indexPath);
-        IndexFactory.createTabixIndex(dataPath.toFile(), new VCFCodec(),
-                TabixFormat.VCF, reader.getFileHeader().getSequenceDictionary())
+        IndexFactory.createTabixIndex(dataPath.toFile(), new VCFCodec(), TabixFormat.VCF, reader.getFileHeader().getSequenceDictionary())
                 .write(this.indexPath.toFile());
-
         reader.close();
-
         return this.indexPath;
     }
 
