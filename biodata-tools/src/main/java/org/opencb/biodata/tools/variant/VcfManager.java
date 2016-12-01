@@ -1,13 +1,15 @@
 package org.opencb.biodata.tools.variant;
 
-import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.tribble.index.IndexFactory;
+import htsjdk.tribble.index.tabix.TabixFormat;
 import htsjdk.variant.variantcontext.VariantContext;
+import htsjdk.variant.variantcontext.writer.VariantContextWriter;
+import htsjdk.variant.variantcontext.writer.VariantContextWriterBuilder;
+import htsjdk.variant.vcf.VCFCodec;
 import htsjdk.variant.vcf.VCFFileReader;
 import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.avro.VariantAvro;
 import org.opencb.biodata.models.variant.protobuf.VariantProto;
 import org.opencb.biodata.tools.variant.filters.VariantFilters;
 import org.opencb.biodata.tools.variant.iterators.VariantContextToAvroVariantVcfIterator;
@@ -16,29 +18,32 @@ import org.opencb.biodata.tools.variant.iterators.VariantContextVcfIterator;
 import org.opencb.biodata.tools.variant.iterators.VcfIterator;
 import org.opencb.commons.utils.FileUtils;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+
+import static htsjdk.variant.variantcontext.writer.VariantContextWriterBuilder.OutputType.BLOCK_COMPRESSED_VCF;
 
 /**
  * Created by jtarraga on 29/11/16.
  */
 public class VcfManager {
+
     private Path input;
+
+    private Path dataPath;
+    private Path indexPath;
+
     private VCFFileReader vcfReader;
 
     private static final int DEFAULT_MAX_NUM_RECORDS = 50000;
 
-    public VcfManager() {
-    }
-
     public VcfManager(Path input) throws IOException {
         FileUtils.checkFile(input);
         this.input = input;
-
-        this.vcfReader = new VCFFileReader(input.toFile());
+        this.dataPath = input;
     }
 
     /**
@@ -47,52 +52,50 @@ public class VcfManager {
      * @throws IOException
      */
     public Path createIndex() throws IOException {
-        Path indexPath = input.getParent().resolve(input.getFileName().toString() + ".gz.tbi");
-        return createIndex(indexPath);
+        return createIndex(null);
     }
 
     /**
      * Creates a VCF index file.
-     * @param outputIndex The index created.
+     * @param indexPath The index created.
      * @return
      * @throws IOException
      */
-    public Path createIndex(Path outputIndex) throws IOException {
-        // first, sort
+    public Path createIndex(Path indexPath) throws IOException {
+        VCFFileReader reader = new VCFFileReader(input.toFile(), false);
 
-        // compress, gz
-        //BlockCompressedOutputStream(indexFile))
+        // compress vcf if necessary, .gz
+        if (!dataPath.getFileName().endsWith(".gz")) {
+            dataPath = Paths.get(input + ".gz");
+            System.out.println("Creating compressed file: " + dataPath);
+            VariantContextWriter writer = new VariantContextWriterBuilder()
+                    .setOutputFile(dataPath.toFile())
+                    .setOutputFileType(BLOCK_COMPRESSED_VCF)
+                    .build();
+
+            writer.writeHeader(reader.getFileHeader());
+            for (VariantContext vc: reader) {
+                if (vc != null) {
+                    writer.add(vc);
+                }
+            }
+            writer.close();
+        }
+
 
         // and then create the tabix index, .tbi
-        //IndexFactory.createTabixIndex()
+        if (indexPath == null) {
+            this.indexPath = Paths.get(dataPath + ".tbi");
+        } else {
+            this.indexPath = indexPath;
+        }
 
-//        FileUtils.checkDirectory(outputIndex.toAbsolutePath().getParent(), true);
-//
-//        SamReaderFactory srf = SamReaderFactory.make().enable(SamReaderFactory.Option.INCLUDE_SOURCE_IN_RECORDS);
-//        srf.validationStringency(ValidationStringency.LENIENT);
-//        try (SamReader reader = srf.open(SamInputResource.of(input.toFile()))) {
-//
-//            // Files need to be sorted by coordinates to create the index
-//            SAMFileHeader.SortOrder sortOrder = reader.getFileHeader().getSortOrder();
-//            if (!sortOrder.equals(SAMFileHeader.SortOrder.coordinate)) {
-//                throw new IOException("Expected sorted file. File '" + input.toString()
-//                        + "' is not sorted by coordinates (" + sortOrder.name() + ")");
-//            }
-//
-//            if (reader.type().equals(SamReader.Type.BAM_TYPE)) {
-//                BAMIndexer.createIndex(reader, outputIndex.toFile(), Log.getInstance(BamManager.class));
-//            } else {
-//                if (reader.type().equals(SamReader.Type.CRAM_TYPE)) {
-//                    // TODO This really needs to be tested!
-//                    SeekableStream streamFor = SeekableStreamFactory.getInstance().getStreamFor(input.toString());
-//                    CRAMBAIIndexer.createIndex(streamFor, outputIndex.toFile(), Log.getInstance(BamManager.class),
-//                            ValidationStringency.DEFAULT_STRINGENCY);
-//                } else {
-//                    throw new IOException("This is not a BAM or CRAM file. SAM files cannot be indexed");
-//                }
-//            }
-//        }
-        return outputIndex;
+
+        System.out.println("Creating index file: " + this.indexPath);
+        IndexFactory.createTabixIndex(dataPath.toFile(), new VCFCodec(), TabixFormat.VCF, reader.getFileHeader().getSequenceDictionary())
+                .write(this.indexPath.toFile());
+        reader.close();
+        return this.indexPath;
     }
 
     /**
@@ -131,6 +134,8 @@ public class VcfManager {
     }
 
     public <T> List<T> query(Region region, VariantFilters<VariantContext> filters, VariantOptions options, Class<T> clazz) throws Exception {
+        open();
+
         if (options == null) {
             options = new VariantOptions();
         }
@@ -143,8 +148,8 @@ public class VcfManager {
 
         List<T> results = new ArrayList<>(maxNumberRecords);
         VcfIterator<T> vcfIterator = (region != null)
-                ? iterator(region, filters, options, clazz)
-                : iterator(filters, options, clazz);
+                ? iterator(region, filters, clazz)
+                : iterator(filters, clazz);
 
         while (vcfIterator.hasNext() && results.size() < maxNumberRecords) {
             results.add(vcfIterator.next());
@@ -159,41 +164,31 @@ public class VcfManager {
      */
 
     public VcfIterator<VariantContext> iterator() {
-        return iterator(null, new VariantOptions(), VariantContext.class);
+        return iterator(null, VariantContext.class);
     }
 
-    public VcfIterator<VariantContext> iterator(VariantOptions options) {
-        return iterator(null, options, VariantContext.class);
+    public VcfIterator<VariantContext> iterator(VariantFilters<VariantContext> filters) {
+        return iterator(filters, VariantContext.class);
     }
 
-    public VcfIterator<VariantContext> iterator(VariantFilters<VariantContext> filters, VariantOptions options) {
-        return iterator(filters, options, VariantContext.class);
-    }
+    public <T> VcfIterator<T> iterator(VariantFilters<VariantContext> filters, Class<T> clazz) {
+        open();
 
-    public <T> VcfIterator<T> iterator(VariantFilters<VariantContext> filters, VariantOptions options, Class<T> clazz) {
-        if (options == null) {
-            options = new VariantOptions();
-        }
         CloseableIterator<VariantContext> variantContextIterator = vcfReader.iterator();
         return getVariantIterator(filters, clazz, variantContextIterator);
     }
 
     public VcfIterator<VariantContext> iterator(Region region) {
-        return iterator(region, null, new VariantOptions(), VariantContext.class);
+        return iterator(region, null, VariantContext.class);
     }
 
-    public VcfIterator<VariantContext> iterator(Region region, VariantOptions options) {
-        return iterator(region, null, options, VariantContext.class);
+    public VcfIterator<VariantContext> iterator(Region region, VariantFilters<VariantContext> filters) {
+        return iterator(region, filters, VariantContext.class);
     }
 
-    public VcfIterator<VariantContext> iterator(Region region, VariantFilters<VariantContext> filters, VariantOptions options) {
-        return iterator(region, filters, options, VariantContext.class);
-    }
+    public <T> VcfIterator<T> iterator(Region region, VariantFilters<VariantContext> filters, Class<T> clazz) {
+        open();
 
-    public <T> VcfIterator<T> iterator(Region region, VariantFilters<VariantContext> filters, VariantOptions VariantOptions, Class<T> clazz) {
-        if (VariantOptions == null) {
-            VariantOptions = new VariantOptions();
-        }
         CloseableIterator<VariantContext> variantContextIterator =
                 vcfReader.query(region.getChromosome(), region.getStart(), region.getEnd());
         return getVariantIterator(filters, clazz, variantContextIterator);
@@ -215,6 +210,16 @@ public class VcfManager {
     public void close() throws IOException {
         if (vcfReader != null) {
             vcfReader.close();
+        }
+    }
+
+    private void open() {
+        if (vcfReader == null) {
+            if (indexPath != null) {
+                vcfReader = new VCFFileReader(dataPath.toFile(), indexPath.toFile());
+            } else {
+                vcfReader = new VCFFileReader(dataPath.toFile());
+            }
         }
     }
 

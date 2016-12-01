@@ -3,7 +3,7 @@ package org.opencb.biodata.tools.variant.iterators;
 import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.variant.variantcontext.VariantContext;
 import org.opencb.biodata.models.variant.protobuf.VariantProto;
-import org.opencb.biodata.tools.variant.converter.VariantContextToVariantProtoConverter;
+import org.opencb.biodata.tools.variant.converters.proto.VariantContextToVariantProtoConverter;
 import org.opencb.biodata.tools.variant.filters.VariantFilters;
 
 /**
@@ -18,7 +18,7 @@ public class VariantContextToProtoVariantVcfIterator extends VcfIterator<Variant
     }
 
     public VariantContextToProtoVariantVcfIterator(CloseableIterator<VariantContext> contextVariantIterator,
-                                                  VariantFilters<VariantContext> filters) {
+                                                   VariantFilters<VariantContext> filters) {
         super(contextVariantIterator, filters);
         variantContextToVariantProtoConverter = new VariantContextToVariantProtoConverter("", "");
     }
