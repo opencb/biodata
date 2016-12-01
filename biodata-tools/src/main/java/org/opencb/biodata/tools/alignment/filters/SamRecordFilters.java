@@ -43,6 +43,12 @@ public class SamRecordFilters extends AlignmentFilters<SAMRecord> {
     }
 
     @Override
+    public AlignmentFilters<SAMRecord> addDuplicatedFilter() {
+        filters.add(samRecord -> !samRecord.getDuplicateReadFlag());
+        return this;
+    }
+
+    @Override
     public AlignmentFilters<SAMRecord> addRegionFilter(Region region, boolean contained) {
         return addRegionFilter(Arrays.asList(region), contained);
     }

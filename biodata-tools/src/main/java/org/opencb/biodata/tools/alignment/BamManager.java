@@ -251,16 +251,17 @@ public class BamManager {
         return alignmentGlobalStats;
     }
 
-
     public RegionCoverage coverage(Region region,  AlignmentFilters<SAMRecord> filters, AlignmentOptions options) {
         RegionCoverage regionCoverage = new RegionCoverage(region);
-        SamRecordRegionCoverageCalculator calculator = new SamRecordRegionCoverageCalculator();
+        if (options == null) {
+            options = new AlignmentOptions();
+        }
+        SamRecordRegionCoverageCalculator calculator = new SamRecordRegionCoverageCalculator(options.getMinBaseQuality());
         try (BamIterator<SAMRecord> iterator = iterator(region, filters, options)) {
             while (iterator.hasNext()) {
                 SAMRecord next = iterator.next();
                 if (!next.getReadUnmappedFlag()) {
-                    RegionCoverage computed = calculator.compute(next);
-                    calculator.update(computed, regionCoverage);
+                    calculator.update(next, regionCoverage);
                 }
             }
         } catch (Exception e) {
