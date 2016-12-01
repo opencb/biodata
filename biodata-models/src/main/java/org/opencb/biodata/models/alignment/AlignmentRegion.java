@@ -27,6 +27,7 @@ import java.util.List;
  *
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cgonzalez@cipf.es&gt;
  */
+@Deprecated
 public class AlignmentRegion {
 
     private String chromosome;

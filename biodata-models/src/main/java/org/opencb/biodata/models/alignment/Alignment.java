@@ -16,7 +16,6 @@
 
 package org.opencb.biodata.models.alignment;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +25,7 @@ import java.util.Map;
  * 
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cgonzalez@cipf.es&gt;
  */
+@Deprecated
 public class Alignment {
     
     private String name;
