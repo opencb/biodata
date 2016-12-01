@@ -1,10 +1,12 @@
 package org.opencb.biodata.tools.alignment;
 
 import htsjdk.samtools.*;
+import org.opencb.biodata.models.alignment.RegionCoverage;
 import org.opencb.commons.utils.FileUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,10 +16,8 @@ import java.util.List;
  */
 public class BamUtils {
 
-
     /**
      * Adjusts the quality value for optimized 8-level mapping quality scores.
-     *
      * Quality range -> Mapped quality
      * 1     ->  1
      * 2-9   ->  6
@@ -27,7 +27,6 @@ public class BamUtils {
      * 30-34 ->  33
      * 35-39 ->  27
      * >=40  ->  40
-     *
      * Read more: http://www.illumina.com/documents/products/technotes/technote_understanding_quality_scores.pd
      *
      * @param quality original quality
@@ -92,8 +91,9 @@ public class BamUtils {
 
     /**
      * Check if the file is a sorted binary bam file.
-     * @param is            Bam InputStream
-     * @param bamFileName   Bam FileName
+     *
+     * @param is          Bam InputStream
+     * @param bamFileName Bam FileName
      * @throws IOException
      */
     public static void checkBamOrCramFile(InputStream is, String bamFileName) throws IOException {
@@ -102,8 +102,9 @@ public class BamUtils {
 
     /**
      * Check if the file is a sorted binary bam file.
-     * @param is            Bam InputStream
-     * @param bamFileName   Bam FileName
+     *
+     * @param is          Bam InputStream
+     * @param bamFileName Bam FileName
      * @param checkSort
      * @throws IOException
      */
@@ -133,4 +134,35 @@ public class BamUtils {
         }
     }
 
+    public static void printWigFileCoverage(RegionCoverage regionCoverage, int windowSize,
+                                            boolean header, PrintStream ps) {
+        // sanity check
+        if (windowSize < 1) {
+            windowSize = 1;
+        }
+        if (header) {
+            ps.println("fixedStep chrom=" + regionCoverage.getChromosome() + " start=1 step=1 span=" + windowSize);
+        }
+        short[] values = regionCoverage.getValues();
+        if (windowSize == 1) {
+            for (int i = 0; i < values.length; i++) {
+                ps.println(values[i]);
+            }
+        } else {
+            int counter = 0;
+            int sum = 0;
+            for (int i = 0; i < values.length; i++) {
+                counter++;
+                sum += values[i];
+                if (counter == windowSize) {
+                    ps.println(sum / counter);
+                    counter = 0;
+                    sum = 0;
+                }
+            }
+            if (counter > 0) {
+                ps.println(sum / counter);
+            }
+        }
+    }
 }
