@@ -42,7 +42,7 @@ protocol VariantAnnotations {
         union { null, array<string> } geneNames;
         union { null, array<string> } proteinNames;
         union { null, string } penetrance;
-        union { null, string } inheritanceModel;
+        union { null, array<string> } inheritanceModel;
         union { null, array<string> } bibliography;
         union { null, array<string> } drugs;
     }
