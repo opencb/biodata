@@ -1,6 +1,5 @@
 package org.opencb.biodata.tools.variant;
 
-import htsjdk.tribble.TribbleException;
 import htsjdk.tribble.readers.LineIterator;
 import htsjdk.tribble.readers.LineIteratorImpl;
 import htsjdk.tribble.readers.LineReader;
@@ -11,8 +10,8 @@ import org.opencb.biodata.formats.variant.vcf4.FullVcfCodec;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantNormalizer;
 import org.opencb.biodata.models.variant.VariantSource;
-import org.opencb.biodata.tools.variant.converter.VCFHeaderToAvroVcfHeaderConverter;
-import org.opencb.biodata.tools.variant.converter.VariantContextToVariantConverter;
+import org.opencb.biodata.tools.variant.converters.avro.VCFHeaderToAvroVcfHeaderConverter;
+import org.opencb.biodata.tools.variant.converters.avro.VariantContextToVariantConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,7 +101,7 @@ public class VariantVcfHtsjdkReader implements VariantReader {
             @Override public void close() {}
         }));
 
-        // Create converter and fill VariantSource
+        // Create converters and fill VariantSource
         converter = new VariantContextToVariantConverter(source.getStudyId(), source.getFileId(), header.getSampleNamesInOrder());
         source.setHeader(new VCFHeaderToAvroVcfHeaderConverter().convert(header));
         source.setSamples(header.getSampleNamesInOrder());

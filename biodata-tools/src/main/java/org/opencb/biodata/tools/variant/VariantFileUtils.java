@@ -4,8 +4,8 @@ import htsjdk.variant.vcf.VCFHeader;
 import org.opencb.biodata.formats.variant.io.VariantReader;
 import org.opencb.biodata.formats.variant.vcf4.io.VariantVcfReader;
 import org.opencb.biodata.models.variant.VariantSource;
-import org.opencb.biodata.tools.variant.converter.VCFHeaderToAvroVcfHeaderConverter;
-import org.opencb.biodata.tools.variant.converter.VariantFileMetadataToVCFHeaderConverter;
+import org.opencb.biodata.tools.variant.converters.avro.VCFHeaderToAvroVcfHeaderConverter;
+import org.opencb.biodata.tools.variant.converters.avro.VariantFileMetadataToVCFHeaderConverter;
 
 import java.io.IOException;
 import java.nio.file.Path;

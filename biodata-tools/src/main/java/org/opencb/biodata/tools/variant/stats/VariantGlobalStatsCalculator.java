@@ -1,9 +1,6 @@
 package org.opencb.biodata.tools.variant.stats;
 
-import org.opencb.biodata.models.variant.StudyEntry;
-import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.VariantSource;
-import org.opencb.biodata.models.variant.VariantVcfFactory;
+import org.opencb.biodata.models.variant.*;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.stats.VariantGlobalStats;
 import org.opencb.biodata.models.variant.stats.VariantStats;
@@ -11,7 +8,6 @@ import org.opencb.commons.run.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -64,13 +60,13 @@ public class VariantGlobalStatsCalculator extends Task<Variant> {
 
         globalStats.addVariantTypeCount(variant.getType(), 1);
 
-        if ("PASS".equalsIgnoreCase(attributes.get(VariantVcfFactory.FILTER))) {
+        if ("PASS".equalsIgnoreCase(attributes.get(StudyEntry.FILTER))) {
             globalStats.setPassCount(globalStats.getPassCount() + 1);
         }
 
         float qual = 0;
-        if (attributes.containsKey(VariantVcfFactory.QUAL) && !(".").equals(attributes.get(VariantVcfFactory.QUAL))) {
-            qual = Float.valueOf(attributes.get(VariantVcfFactory.QUAL));
+        if (attributes.containsKey(StudyEntry.QUAL) && !(".").equals(attributes.get(StudyEntry.QUAL))) {
+            qual = Float.valueOf(attributes.get(StudyEntry.QUAL));
         }
 
 

@@ -71,24 +71,4 @@
         </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.2</version>
-                <configuration>
-                    <source>${compileSource}</source>
-                    <target>${compileSource}</target>
-                    <excludes>
-                        <exclude>**/VariantEVSControlAnnotator.java</exclude>
-                    </excludes>
-                    <testExcludes>
-                        <exclude>**/EffectCalculatorTest.java</exclude>
-                        <exclude>**/VariantGeneNameAnnotatorTest.java</exclude>
-                    </testExcludes>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>
