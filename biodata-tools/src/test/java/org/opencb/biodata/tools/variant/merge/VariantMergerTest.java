@@ -26,6 +26,7 @@ import static org.junit.Assert.*;
 public class VariantMergerTest {
 
     private static final VariantMerger VARIANT_MERGER = new VariantMerger();
+    private static final VariantMerger VARIANT_MERGER_COLLAPSE = new VariantMerger(true);
     private Variant var;
 
     @Rule
@@ -64,6 +65,72 @@ public class VariantMergerTest {
             System.out.println("end - start = " + (end - start));
             assertEquals(size, merged.getStudies().get(0).getSamplesName().size());
         }
+    }
+
+    @Test
+    public void testCollapse_Deletion_SNP() {
+        Variant s01 = VariantTestUtils.generateVariant("1:10:ATT:", "S01", "0/1");
+        Variant s02 = VariantTestUtils.generateVariant("1:10:A:T", "S02", "0/1");
+        Variant s03 = VariantTestUtils.generateVariant("1:10:A:", "S03", "0/1");
+
+        Variant var = VARIANT_MERGER_COLLAPSE.merge(s01, Arrays.asList(s02, s03));
+        StudyEntry se = var.getStudy(VariantTestUtils.STUDY_ID);
+
+        assertEquals(Arrays.asList("S01", "S02", "S03"), se.getOrderedSamplesName());
+        assertEquals("0/1", se.getSampleData("S01", "GT"));
+        assertEquals("0/0", se.getSampleData("S02", "GT"));
+        assertEquals("0/0", se.getSampleData("S03", "GT"));
+        assertEquals(0, se.getSecondaryAlternates().size());
+    }
+
+    @Test
+    public void testCollapse_DEL_DEL_larger() {
+        Variant s01 = VariantTestUtils.generateVariant("1:10:A:", "S01", "0/1");
+        Variant s02 = VariantTestUtils.generateVariant("1:10:AT:", "S02", "0/1");
+        Variant s03 = VariantTestUtils.generateVariant("1:9:AATT:", "S03", "0/1");
+
+        Variant var = VARIANT_MERGER_COLLAPSE.merge(s01, Arrays.asList(s02, s03));
+        StudyEntry se = var.getStudy(VariantTestUtils.STUDY_ID);
+
+        assertEquals(Arrays.asList("S01", "S02", "S03"), se.getOrderedSamplesName());
+        assertEquals("0/1", se.getSampleData("S01", "GT"));
+        assertEquals("0/2", se.getSampleData("S02", "GT"));
+        assertEquals("0/2", se.getSampleData("S03", "GT"));
+        assertEquals(1, se.getSecondaryAlternates().size());
+        assertEquals("*", se.getSecondaryAlternates().get(0).getAlternate());
+    }
+
+    @Test
+    public void testCollapse_SNP_DEL() {
+        Variant s01 = VariantTestUtils.generateVariant("1:10:A:T", "S01", "0/1");
+        Variant s02 = VariantTestUtils.generateVariant("1:10:A:", "S02", "0/1");
+        Variant s03 = VariantTestUtils.generateVariant("1:9:AATT:", "S03", "0/1");
+
+        Variant var = VARIANT_MERGER_COLLAPSE.merge(s01, Arrays.asList(s02, s03));
+        StudyEntry se = var.getStudy(VariantTestUtils.STUDY_ID);
+
+        assertEquals(Arrays.asList("S01", "S02", "S03"), se.getOrderedSamplesName());
+        assertEquals("0/1", se.getSampleData("S01", "GT"));
+        assertEquals("0/2", se.getSampleData("S02", "GT"));
+        assertEquals("0/2", se.getSampleData("S03", "GT"));
+        assertEquals(1, se.getSecondaryAlternates().size());
+        assertEquals("*", se.getSecondaryAlternates().get(0).getAlternate());
+    }
+
+    @Test
+    public void testCollapse_INS_DEL() {
+        Variant s01 = VariantTestUtils.generateVariant("1:10::TT", "S01", "0/1");
+        Variant s02 = VariantTestUtils.generateVariant("1:10:A:", "S02", "0/1");
+        Variant s03 = VariantTestUtils.generateVariant("1:9:AATT:", "S03", "0/1");
+
+        Variant var = VARIANT_MERGER_COLLAPSE.merge(s01, Arrays.asList(s02, s03));
+        StudyEntry se = var.getStudy(VariantTestUtils.STUDY_ID);
+
+        assertEquals(Arrays.asList("S01", "S03"), se.getOrderedSamplesName());
+        assertEquals("0/1", se.getSampleData("S01", "GT"));
+        assertEquals("0/2", se.getSampleData("S03", "GT"));
+        assertEquals(1, se.getSecondaryAlternates().size());
+        assertEquals("*", se.getSecondaryAlternates().get(0).getAlternate());
     }
 
     @Test

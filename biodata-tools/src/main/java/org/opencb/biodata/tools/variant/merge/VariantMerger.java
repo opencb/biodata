@@ -8,6 +8,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.StudyEntry;
@@ -19,8 +20,10 @@ import org.opencb.biodata.models.variant.avro.VariantType;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * @author Matthias Haimel mh719+git@cam.ac.uk
@@ -42,16 +45,23 @@ public class VariantMerger {
     private String filterKey;
     private String annotationFilterKey;
 
+    private final boolean collapseDeletions;
     private final Set<String> expectedSamples = new HashSet<>();
     private final Map<String, String> defaultValues = new HashMap<>();
 
+
     public VariantMerger() {
+        this(false);
+    }
+
+    public VariantMerger(boolean collapseDeletions) {
         this.gtKey = GT_KEY;
         this.filterKey = GENOTYPE_FILTER_KEY;
         this.annotationFilterKey = VariantVcfFactory.FILTER;
 
         setDefaultValue(getGtKey(), DEFAULT_MISSING_GT);
         setDefaultValue(getFilterKey(), DEFAULT_FILTER_VALUE);
+        this.collapseDeletions = collapseDeletions;
     }
 
     /**
@@ -212,15 +222,77 @@ public class VariantMerger {
     public Variant merge(Variant current, Collection<Variant> load){
         isValidVariant(current);
         // Build alt list
-        List<Pair<Variant, List<AlternateCoordinate>>> loadAlts = load.stream()
-                .map(v -> new ImmutablePair<>(v, buildAltList(v)))
-                .filter(p -> hasAnyOverlap(current, p.getLeft(), p.getRight()))
-                .collect(Collectors.toList());
-
+        List<Pair<Variant, List<AlternateCoordinate>>> loadAlts =
+                updateCollapseDeletions(current,
+                    load.stream()
+                    .map(v -> new MutablePair<>(v, buildAltList(v)))
+                    .filter(p -> hasAnyOverlap(current, p.getLeft(), p.getRight()))
+                ).collect(Collectors.toList());
 
         mergeVariants(current, loadAlts);
         fillMissingGt(current);
         return current;
+    }
+
+    public static boolean isDeletion(AlternateCoordinate alt) {
+        return isDeletion(alt.getType(), alt.getStart(), alt.getEnd());
+    }
+
+    public static boolean isDeletion(VariantType type, Integer start, Integer end) {
+        if (type.equals(VariantType.DELETION)) {
+            return true;
+        }
+        if (type.equals(VariantType.INDEL) && end >= start) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean isInsertion(VariantType type, Integer start, Integer end) {
+        if (type.equals(VariantType.INSERTION)) {
+            return true;
+        }
+        if (type.equals(VariantType.INDEL) && end < start) {
+            return true;
+        }
+        return false;
+    }
+
+    private Stream<MutablePair<Variant, List<AlternateCoordinate>>> updateCollapseDeletions(
+            Variant current,
+            Stream<MutablePair<Variant, List<AlternateCoordinate>>> stream) {
+        if (this.collapseDeletions) {
+            Integer start = current.getStart();
+            Integer end = current.getEnd();
+            Consumer<AlternateCoordinate> updateAlt = a -> {
+                if (isDeletion(a)) {
+                    a.setStart(start);
+                    a.setEnd(end);
+                    a.setReference(current.getReference());
+                    a.setAlternate("*"); // set deletion to * Alternate
+                    a.setType(VariantType.DELETION); // refine
+                }
+            };
+
+            if (current.getType().equals(VariantType.SNP)
+                    || current.getType().equals(VariantType.SNV)
+                    || isInsertion(current.getType(), start, end)) {
+                return stream.map(pair -> {
+                    pair.getValue().forEach(updateAlt);
+                    return pair;
+                });
+            } else if (isDeletion(current.getType(), start, end)) {
+                return stream.map(pair -> {
+                    // for larger regions
+                    pair.getValue().stream().filter(a -> start >= a.getStart() && end <= a.getEnd()).forEach(updateAlt);
+                    if (pair.getValue().stream().filter(a -> ! (start >= a.getStart() && end <= a.getEnd())).findAny().isPresent()) {
+                        throw new IllegalStateException("Not yet implemented");
+                    }
+                    return pair;
+                });
+            }
+        }
+        return stream;
     }
 
     private void fillMissingGt(Variant variant){
@@ -581,6 +653,7 @@ public class VariantMerger {
     private Integer getEnd(AlternateCoordinate s) {
         return s.getEnd();
     }
+
 
     /**
      * Build a list of all the alternates from a variant. Includes the main and the secondary alternates.
