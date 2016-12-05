@@ -262,6 +262,7 @@ public class VariantMerger {
             Variant current,
             Stream<MutablePair<Variant, List<AlternateCoordinate>>> stream) {
         if (this.collapseDeletions) {
+            AlternateCoordinate currAlt = buildAltList(current).get(0);
             Integer start = current.getStart();
             Integer end = current.getEnd();
             Consumer<AlternateCoordinate> updateAlt = a -> {
@@ -283,11 +284,10 @@ public class VariantMerger {
                 });
             } else if (isDeletion(current.getType(), start, end)) {
                 return stream.map(pair -> {
-                    // for larger regions
-                    pair.getValue().stream().filter(a -> start >= a.getStart() && end <= a.getEnd()).forEach(updateAlt);
-                    if (pair.getValue().stream().filter(a -> ! (start >= a.getStart() && end <= a.getEnd())).findAny().isPresent()) {
-                        throw new IllegalStateException("Not yet implemented");
-                    }
+                    pair.getValue().stream()
+                            .filter(a -> !a.equals(currAlt)) // not same as current variant
+                            .filter(a -> start >= a.getStart() && end <= a.getEnd())
+                            .forEach(updateAlt);
                     return pair;
                 });
             }
@@ -399,9 +399,9 @@ public class VariantMerger {
         // Update SecALt list
         currentStudy.setSecondaryAlternates(altList.subList(1,altList.size()));
         Map<String, Integer> formatPositions = new HashMap<>(currentStudy.getFormatPositions());
-        Map<String, Integer> additionalForamt = new HashMap<>(formatPositions);
-        additionalForamt.remove(getGtKey());
-        additionalForamt.remove(getFilterKey());
+        Map<String, Integer> additionalFormat = new HashMap<>(formatPositions);
+        additionalFormat.remove(getGtKey());
+        additionalFormat.remove(getFilterKey());
 
         if (!formatPositions.keySet().contains(getGtKey())) {
             throw new IllegalStateException("Current study expected to contain 'GT'");
@@ -412,7 +412,7 @@ public class VariantMerger {
         Map<String, String> sampleToGt = sampleToGt(current);
         Map<String, String> sampleToFilter = sampleToSampleData(current, getFilterKey());
         Map<String, Map<Integer, String>> sampleToAdditional = new HashMap<>();
-        additionalForamt.forEach((k,id) -> {
+        additionalFormat.forEach((k,id) -> {
             Map<String, String> sampleToValue = sampleToSampleData(current, k);
             sampleToValue.forEach((s,v) -> {
                 Map<Integer, String> keyMap = sampleToAdditional.get(s);
@@ -434,7 +434,7 @@ public class VariantMerger {
                     ? sampleToSampleData(other, getFilterKey())
                     : sampleToAttribute(other, getAnnotationFilterKey());
             Map<String, Map<Integer, String>> otherSampleToAdditionalFormats = new HashMap<>();
-            additionalForamt.forEach((ks,k) -> {
+            additionalFormat.forEach((ks,k) -> {
                 Map<String, String> data = sampleToSampleData(other, ks);
                 data.forEach((s,v) -> {
                     Map<Integer, String> otherAdditional = otherSampleToAdditionalFormats.get(s);
@@ -551,7 +551,13 @@ public class VariantMerger {
         int[] idx = gto.getAllelesIdx();
         int len = idx.length;
         IntStream.range(0, len).boxed().filter(i -> idx[i] > 0 && idx[i] <= other.size())
-                .forEach(i -> gto.updateAlleleIdx(i, curr.get(other.get(idx[i]))));
+                .forEach(i -> {
+                    Integer allele = curr.get(other.get(idx[i]));
+                    if (this.collapseDeletions && Objects.isNull(allele)) {
+                        allele = 0; // change to '0' for 'missing' reference (missing because change to '0' GT)
+                    }
+                    gto.updateAlleleIdx(i, allele);
+                });
         if (!gto.isPhased()) {
             Arrays.sort(idx);
         }
@@ -559,9 +565,16 @@ public class VariantMerger {
     }
 
     private List<AlternateCoordinate> buildAltsList (Variant current, Collection<List<AlternateCoordinate>> alts) {
+        Integer start = current.getStart();
+        Integer end = current.getEnd();
         List<AlternateCoordinate> currAlts = buildAltList(current);
         Set<AlternateCoordinate> altSets = new HashSet<>(currAlts);
-        alts.forEach(l -> altSets.addAll(l));
+        if (this.collapseDeletions && isDeletion(current.getType(), current.getStart(), current.getEnd())) {
+            // remove all alts that are NOT fully overlap current deletion -> keep only larger or same
+            alts.forEach(l -> l.stream().filter(a -> (start >= a.getStart() && end <= a.getEnd())).forEach(a -> altSets.add(a)));
+        } else {
+            alts.forEach(l -> altSets.addAll(l));
+        }
         // remove current alts
         altSets.removeAll(currAlts);
         currAlts.addAll(altSets);

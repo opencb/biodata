@@ -84,6 +84,33 @@ public class VariantMergerTest {
     }
 
     @Test
+    public void testCollapse_Deletion_Deletion() {
+        Variant s01 = VariantTestUtils.generateVariant("1:10:ATT:", "S01", "0/1");
+        Variant s02 = VariantTestUtils.generateVariant("1:10:ATT:", "S02", "0/1");
+        Variant s03 = VariantTestUtils.generateVariant("1:10:A:", "S03", "0/1");
+        Variant s04 = VariantTestUtils.generateVariant("1:9:AATT:", "S04", "0/1");
+        Variant s05 = VariantTestUtils.generateVariant("1:10:ATTT:", "S05", "2/1");
+        s05.getStudies().get(0).setSecondaryAlternates(Collections.singletonList(
+                new AlternateCoordinate(s01.getChromosome(),s01.getStart(),s01.getEnd(), s01.getReference(), s01.getAlternate(), s01.getType())));
+        Variant s06 = VariantTestUtils.generateVariant("1:10:A:", "S06", "1/2");
+        s06.getStudies().get(0).setSecondaryAlternates(Collections.singletonList(
+                new AlternateCoordinate(s04.getChromosome(),s04.getStart(),s04.getEnd(), s04.getReference(), s04.getAlternate(), s04.getType())));
+
+        Variant var = VARIANT_MERGER_COLLAPSE.merge(s01, Arrays.asList(s02, s03, s04, s05, s06));
+        StudyEntry se = var.getStudy(VariantTestUtils.STUDY_ID);
+
+        assertEquals(Arrays.asList("S01", "S02", "S03", "S04", "S05", "S06"), se.getOrderedSamplesName());
+        assertEquals("0/1", se.getSampleData("S01", "GT"));
+        assertEquals("0/1", se.getSampleData("S02", "GT"));
+        assertEquals("0/0", se.getSampleData("S03", "GT"));
+        assertEquals("0/2", se.getSampleData("S04", "GT"));
+        assertEquals("1/2", se.getSampleData("S05", "GT"));
+        assertEquals("0/2", se.getSampleData("S06", "GT"));
+        assertEquals(1, se.getSecondaryAlternates().size());
+        assertEquals("*", se.getSecondaryAlternates().get(0).getAlternate());
+    }
+
+    @Test
     public void testCollapse_DEL_DEL_larger() {
         Variant s01 = VariantTestUtils.generateVariant("1:10:A:", "S01", "0/1");
         Variant s02 = VariantTestUtils.generateVariant("1:10:AT:", "S02", "0/1");
