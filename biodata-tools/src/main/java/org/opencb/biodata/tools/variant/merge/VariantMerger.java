@@ -247,6 +247,9 @@ public class VariantMerger {
         }
         return false;
     }
+    public static boolean isInsertion(AlternateCoordinate alt) {
+        return isInsertion(alt.getType(), alt.getStart(), alt.getEnd());
+    }
 
     public static boolean isInsertion(VariantType type, Integer start, Integer end) {
         if (type.equals(VariantType.INSERTION)) {
@@ -266,20 +269,23 @@ public class VariantMerger {
             Integer start = current.getStart();
             Integer end = current.getEnd();
             Consumer<AlternateCoordinate> updateAlt = a -> {
-                if (isDeletion(a)) {
                     a.setStart(start);
                     a.setEnd(end);
                     a.setReference(current.getReference());
                     a.setAlternate("*"); // set deletion to * Alternate
-                    a.setType(VariantType.DELETION); // refine
-                }
+                    a.setType(VariantType.MIXED); // set all to the same
             };
-
             if (current.getType().equals(VariantType.SNP)
-                    || current.getType().equals(VariantType.SNV)
-                    || isInsertion(current.getType(), start, end)) {
+                    || current.getType().equals(VariantType.SNV)) {
                 return stream.map(pair -> {
-                    pair.getValue().forEach(updateAlt);
+                    pair.getValue().stream()
+                            .filter(a -> {
+                                if (a.getType().equals(VariantType.INDEL)) {
+                                    return current.overlapWith(a.getChromosome(), a.getStart(), a.getEnd(), true);
+                                }
+                                return false; // Not for other SNPs
+                            })
+                            .forEach(updateAlt);
                     return pair;
                 });
             } else if (isDeletion(current.getType(), start, end)) {
@@ -287,6 +293,23 @@ public class VariantMerger {
                     pair.getValue().stream()
                             .filter(a -> !a.equals(currAlt)) // not same as current variant
                             .filter(a -> start >= a.getStart() && end <= a.getEnd())
+                            .forEach(updateAlt);
+                    return pair;
+                });
+            } else if (isInsertion(current.getType(), start, end)) {
+                return stream.map(pair -> {
+                    pair.getValue().stream()
+                            .filter(a -> !a.equals(currAlt)) // not same as current variant
+                            .filter(a -> {
+                                    if (isInsertion(a)) {
+                                        return (start.equals(a.getStart())
+                                                && end.equals(a.getEnd())
+                                                && a.getAlternate().length() >= currAlt.getAlternate().length()
+                                        );
+                                    }
+                                    return !a.getType().equals(VariantType.NO_VARIATION);
+                                }
+                            ) // only longer insertions
                             .forEach(updateAlt);
                     return pair;
                 });
@@ -572,6 +595,22 @@ public class VariantMerger {
         if (this.collapseDeletions && isDeletion(current.getType(), current.getStart(), current.getEnd())) {
             // remove all alts that are NOT fully overlap current deletion -> keep only larger or same
             alts.forEach(l -> l.stream().filter(a -> (start >= a.getStart() && end <= a.getEnd())).forEach(a -> altSets.add(a)));
+        } else if (this.collapseDeletions && isInsertion(current.getType(), current.getStart(), current.getEnd())) {
+            // remove all alts that are NOT fully overlap current deletion -> keep only larger or same
+            alts.forEach(l -> l.stream().filter(a -> {
+                        if (isInsertion(a)) {
+                            return (start.equals(a.getStart())
+                                    && end.equals(a.getEnd())
+                                    && (a.getAlternate().equals("*")
+                                      || a.getAlternate().length() >= current.getAlternate().length())
+                            );
+                        }
+                        return true;
+                    }).forEach(a -> altSets.add(a)));
+        } else if (this.collapseDeletions && current.getType().equals(VariantType.SNP)) {
+            alts.forEach(l -> l.stream()
+                    .filter(a ->current.overlapWith(a.getChromosome(), a.getStart(), a.getEnd(), true))
+                    .forEach(a -> altSets.add(a)));
         } else {
             alts.forEach(l -> altSets.addAll(l));
         }
