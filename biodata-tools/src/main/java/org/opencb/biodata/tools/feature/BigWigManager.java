@@ -8,7 +8,6 @@ import org.opencb.commons.utils.FileUtils;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
