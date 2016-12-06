@@ -155,6 +155,66 @@ public class ChunkFrequencyManager {
         logger.debug("Initialized database successfully");
     }
 
+    public void insert(String chromosome, List<Integer> values, int fileId) throws IOException {
+        try {
+            // Insert into file table
+            Class.forName("org.sqlite.JDBC");
+            Connection conn = DriverManager.getConnection("jdbc:sqlite:" + databasePath);
+
+            // get chunk size from database
+            chunkSize = getChunkSize(conn);
+            if (chunkSize == -1) {
+                throw new InternalError("Coverage DB does not contain information about chunk size");
+            }
+
+            // prepare statement to iterate over the file
+            PreparedStatement insertCoverage = conn.prepareStatement("insert into mean_coverage (chunk_id, "
+                    + " file_id, v1, v2, v3, v4, v5, v6, v7, v8) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            conn.setAutoCommit(false);
+
+            // reset counters
+            resetCounters();
+            int position = 1;
+
+            for (int v: values) {
+                meanCoverages[counter1] = (byte) Math.min(v, 255);
+                if (++counter1 == 8) {
+                    // packed mean coverages and save into the packed coverages array
+                    packedCoverages[counter2] = bytesToLong(meanCoverages);
+                    if (++counter2 == 8) {
+                        // write packed coverages array to DB
+                        insertPackedCoverages(insertCoverage, getChunkId(chromosome, position),
+                                fileId, packedCoverages);
+
+                        // reset packed coverages array and counter2
+                        Arrays.fill(packedCoverages, 0);
+                        counter2 = 0;
+                    }
+                    // reset mean coverages array and counter1
+                    counter1 = 0;
+                    Arrays.fill(meanCoverages, (byte) 0);
+                }
+                position += chunkSize;
+            }
+
+            // write to DB, if pending mean values
+            if (counter1 > 0 || counter2 > 0) {
+                packedCoverages[counter2] = bytesToLong(meanCoverages);
+                insertPackedCoverages(insertCoverage, getChunkId(chromosome, position), fileId, packedCoverages);
+            }
+
+            // insert batch to the DB
+            insertCoverage.executeBatch();
+
+            conn.commit();
+            conn.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @Deprecated
     public void loadWigFile(Path countPath, Path bamPath) throws IOException {
         FileUtils.checkFile(countPath);
 
@@ -452,6 +512,17 @@ public class ChunkFrequencyManager {
             chunkSize = Integer.parseInt(rs.getString("value"));
         }
         return chunkSize;
+    }
+
+    private int getFileId(Path bamPath, Connection conn) throws SQLException {
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery("SELECT id FROM file where path = '" + bamPath.getParent() + "';");
+        int fileId = -1;
+        while (rs.next()) {
+            fileId = rs.getInt("id");
+        }
+        stmt.close();
+        return fileId;
     }
 
     private int getChunkId(String chromosome, int position) {

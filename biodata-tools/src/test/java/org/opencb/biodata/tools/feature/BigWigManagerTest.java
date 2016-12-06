@@ -30,4 +30,13 @@ public class BigWigManagerTest {
         assertEquals(9411291 - 9411190, chr21.length);
     }
 
+    @Test
+    public void index() throws Exception {
+        // this reads a file from src/test/resources folder
+        Path inputPath = Paths.get(getClass().getResource("/wigVarStepExampleSmallChr21.bw").toURI());
+
+        BigWigManager bigWigManager = new BigWigManager(inputPath);
+        bigWigManager.index(null);
+    }
+
 }

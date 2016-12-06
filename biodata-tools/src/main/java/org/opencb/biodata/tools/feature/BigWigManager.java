@@ -4,10 +4,12 @@ import org.broad.igv.bbfile.BBFileReader;
 import org.broad.igv.bbfile.BigWigIterator;
 import org.broad.igv.bbfile.WigItem;
 import org.opencb.biodata.models.core.Region;
+import org.opencb.biodata.tools.commons.ChunkFrequencyManager;
 import org.opencb.commons.utils.FileUtils;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -50,11 +52,46 @@ public class BigWigManager {
         return bbFileReader.getBigWigIterator(region.getChromosome(), region.getStart(), region.getChromosome(), region.getEnd(), true);
     }
 
-    public void index() throws IOException {
-        throw new UnsupportedOperationException("index not yet implementd!");
+    public void index(ChunkFrequencyManager cfManager) throws IOException {
+        index(bbFileReader.getChromosomeNames(), cfManager);
     }
 
-    public void index(List<String> chromosomes) throws IOException {
-        throw new UnsupportedOperationException("index not yet implementd!");
+    public void index(List<String> chromosomes, ChunkFrequencyManager cfManager) throws IOException {
+        int fileId = 0;
+        int chunkSize = 1000; //cfManager.getChunkSize();
+        int chromSize;
+
+        boolean toInsert;
+        int startChunk, endChunk, partial;
+
+        for (String chromosome: chromosomes) {
+            // get chromosome size from name to allocate space for values
+            chromSize  = 10000000;
+            int[] values = new int[chromSize];
+            // and then iterate
+            toInsert = false;
+            BigWigIterator bwIterator = bbFileReader.getBigWigIterator(chromosome, 1, chromosome, chromSize, true);
+            while (bwIterator.hasNext()) {
+                WigItem next = bwIterator.next();
+
+                toInsert = true;
+                startChunk = next.getStartBase() / chunkSize;
+                endChunk = next.getEndBase() / chunkSize;
+                for (int chunk = startChunk, pos = startChunk * chunkSize;
+                     chunk <= endChunk;
+                     chunk++, pos += chunkSize) {
+                    partial = Math.min(next.getEndBase(), pos + chunkSize) - Math.max(next.getStartBase(), pos);
+                    values[chunk] += (partial * next.getWigValue());
+                }
+            }
+
+            if (toInsert) {
+                List<Integer> meanValues = new ArrayList<>(values.length);
+                for (int v : values) {
+                    meanValues.add(v / chunkSize);
+                }
+//                cfManager.insert(chromosome, meanValues, fileId);
+            }
+        }
     }
 }
