@@ -3,7 +3,7 @@ package org.opencb.biodata.tools.variant.iterators;
 import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.variant.variantcontext.VariantContext;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.tools.variant.converter.VariantContextToVariantConverter;
+import org.opencb.biodata.tools.variant.converters.avro.VariantContextToVariantConverter;
 import org.opencb.biodata.tools.variant.filters.VariantFilters;
 
 /**

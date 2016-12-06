@@ -44,6 +44,12 @@ public class ReadAlignmentFilters extends AlignmentFilters<ReadAlignment> {
     }
 
     @Override
+    public AlignmentFilters<ReadAlignment> addDuplicatedFilter() {
+        filters.add(readAlignment -> !readAlignment.getDuplicateFragment());
+        return this;
+    }
+
+    @Override
     public AlignmentFilters<ReadAlignment> addRegionFilter(Region region, boolean contained) {
         return addRegionFilter(Arrays.asList(region), contained);
     }
