@@ -6,10 +6,7 @@ import org.junit.Test;
 import org.opencb.biodata.models.alignment.RegionCoverage;
 import org.opencb.biodata.models.core.Region;
 
-import java.io.BufferedOutputStream;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -65,9 +62,7 @@ public class BamManagerTest {
 //        FileOutputStream fos = new FileOutputStream("/home/jtarraga/data150/bam/NA12877_chrM.single-chunk.coverage.out");
 //        FileOutputStream fos = new FileOutputStream("/home/jtarraga/data150/bam/NA12877_chrM.500k-chunk.coverage.out");
 //        FileOutputStream fos = new FileOutputStream("/home/jtarraga/data150/bam/NA12877_chr1.coverage.out");
-        FileOutputStream fos = new FileOutputStream(inputPath + ".coverage");
-        OutputStream os = new BufferedOutputStream(fos);
-        PrintStream ps = new PrintStream(os);
+        PrintWriter writer = new PrintWriter(new File(inputPath + ".coverage"));
 
 //        short[] values;
         int chunkSize = 100000;
@@ -104,7 +99,7 @@ public class BamManagerTest {
 //
 //                // start time
 //                long startTime2 = System.currentTimeMillis();
-                BamUtils.printWigFileCoverage(coverage, 1, coverage.getStart() == 1, ps);
+                BamUtils.printWigFormatCoverage(coverage, 1, coverage.getStart() == 1, writer);
                 // stop time
 //                long stopTime2 = System.currentTimeMillis();
 //                System.out.println("\tWriting coverage: CHR " + ref_name + " in " + (stopTime2 - startTime2)/1000.0 + " seconds.");
@@ -117,6 +112,6 @@ public class BamManagerTest {
         long totalStopTime = System.currentTimeMillis();
         System.out.println("\nTotal time: " + (totalStopTime - totalStartTime)/1000.0 + " seconds.");
 
-        ps.close();
+        writer.close();
     }
 }
