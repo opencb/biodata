@@ -2,6 +2,7 @@ package org.opencb.biodata.tools.feature;
 
 import org.broad.igv.bbfile.BBFileReader;
 import org.broad.igv.bbfile.BigWigIterator;
+import org.broad.igv.bbfile.WigItem;
 import org.opencb.biodata.models.core.Region;
 import org.opencb.commons.utils.FileUtils;
 
@@ -29,11 +30,19 @@ public class BigWigManager {
         bbFileReader = new BBFileReader(this.bigWigFilePath.toString());
     }
 
-    public List<Float> query(Region region) throws IOException {
-        BigWigIterator bigWigIterator = bbFileReader.getBigWigIterator(region.getChromosome(), region.getStart(), region.getChromosome(), region.getEnd(), true);
-        List<Float> values = new ArrayList<>(region.getEnd() - region.getStart());
+    public float[] query(Region region) throws IOException {
+        BigWigIterator bigWigIterator = bbFileReader.getBigWigIterator(region.getChromosome(), region.getStart(),
+                region.getChromosome(), region.getEnd(), true);
+        float[] values = new float[region.getEnd() - region.getStart()];
         while (bigWigIterator.hasNext()) {
-            values.add(bigWigIterator.next().getWigValue());
+            WigItem next = bigWigIterator.next();
+//            System.out.println(next.getChromosome() + ":" + next.getStartBase() + "-" + next.getEndBase()
+//                    + ", " + next.getWigValue());
+            for (int i = next.getStartBase(), j = next.getStartBase() - region.getStart();
+                 i <= next.getEndBase();
+                 i++, j++) {
+                values[j] = next.getWigValue();
+            }
         }
         return values;
     }
@@ -42,7 +51,11 @@ public class BigWigManager {
         return bbFileReader.getBigWigIterator(region.getChromosome(), region.getStart(), region.getChromosome(), region.getEnd(), true);
     }
 
-    public void close() {
-        bbFileReader.close();
+    public void index() throws IOException {
+        throw new UnsupportedOperationException("index not yet implementd!");
+    }
+
+    public void index(List<String> chromosomes) throws IOException {
+        throw new UnsupportedOperationException("index not yet implementd!");
     }
 }

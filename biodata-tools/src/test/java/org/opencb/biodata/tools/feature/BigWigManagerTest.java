@@ -20,10 +20,14 @@ public class BigWigManagerTest {
         Path inputPath = Paths.get(getClass().getResource("/wigVarStepExampleSmallChr21.bw").toURI());
 
         BigWigManager bigWigManager = new BigWigManager(inputPath);
-        List<Float> chr21 = bigWigManager.query(new Region("chr21", 9411190, 9411291));
-        bigWigManager.close();
+        float[] chr21 = bigWigManager.query(new Region("chr21", 9411190, 9411291));
 
-        assertEquals(20, chr21.size());
+        int start = 9411190;
+        for (float v: chr21) {
+            System.out.println((start++) + " :" + v);
+        }
+
+        assertEquals(9411291 - 9411190, chr21.length);
     }
 
 }
