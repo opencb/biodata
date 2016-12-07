@@ -1,23 +1,17 @@
 package org.opencb.biodata.tools.commons;
 
-import htsjdk.samtools.SAMFileHeader;
 import org.junit.Test;
-import org.opencb.biodata.models.core.Region;
-import org.opencb.biodata.tools.alignment.BamUtils;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by jtarraga on 02/12/16.
  */
 public class ChunkFrequencyManagerTest {
 
-    String filename = "NA12877_chr1";
-//    String filename = "NA12877_chrM";
+//    String filename = "NA12877_chr1";
+    String filename = "NA12877_chrM";
     Path bamPath = Paths.get("/home/jtarraga/data150/bam/" + filename + ".bam");
     Path coveragePath = Paths.get("/home/jtarraga/data150/bam/" + filename + ".bam.coverage.wig");
     Path databasePath = Paths.get("/home/jtarraga/data150/bam/" + filename + ".bam.db");
@@ -27,7 +21,7 @@ public class ChunkFrequencyManagerTest {
 
     @Test
     public void createCoverageFromWigFile() {
-//        try {
+        try {
 //            coveragePath.toFile().delete();
 //            databasePath.toFile().delete();
 //
@@ -44,11 +38,10 @@ public class ChunkFrequencyManagerTest {
 //                    });
 //            chunkFrequencyManager.init(chromosomeNames, chromosomeLengths);
 //            BamUtils.createCoverageWigFile(bamPath, coveragePath, windowSize);
-//            chunkFrequencyManager.loadWigFile(coveragePath, bamPath);
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+//            WigUtils.index(coveragePath, bamPath, chunkFrequencyManager);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
@@ -58,8 +51,8 @@ public class ChunkFrequencyManagerTest {
 //        }
 //
 //        ChunkFrequencyManager chunkFrequencyManager = new ChunkFrequencyManager(databasePath, chunkSize);
-//        //Region region = new Region("chrM", 1, 5000);
-//        Region region = new Region("chr1", 2000000, 2100000);
+//        Region region = new Region("chrM", 1, 5000);
+//        //Region region = new Region("chr1", 2000000, 2100000);
 //        ChunkFrequencyManager.ChunkFrequency res = chunkFrequencyManager.query(region, bamPath, 1000);
 //        for (int val: res.getValues()) {
 //            System.out.println(val);

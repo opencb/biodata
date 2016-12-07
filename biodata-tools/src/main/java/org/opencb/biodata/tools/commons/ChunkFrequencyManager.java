@@ -1,12 +1,9 @@
 package org.opencb.biodata.tools.commons;
 
-import org.opencb.biodata.formats.wig.WigUtils;
 import org.opencb.biodata.models.core.Region;
-import org.opencb.commons.utils.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
@@ -240,131 +237,6 @@ public class ChunkFrequencyManager {
         return chunkSize;
     }
 
-//    @Deprecated
-//    public void loadWigFile(Path countPath, Path bamPath) throws IOException {
-//        FileUtils.checkFile(countPath);
-//
-//        try {
-//            // Insert into file table
-//            Class.forName("org.sqlite.JDBC");
-//            Connection conn = DriverManager.getConnection("jdbc:sqlite:" + databasePath);
-//
-//            // get chunk size from database
-//            chunkSize = getChunkSize(conn);
-//            if (chunkSize == -1) {
-//                throw new InternalError("Coverage DB does not contain information about chunk size");
-//            }
-//
-//            // insert file info get chunk size from database
-//            int fileId = insertFile(bamPath, conn);
-//            if (fileId == -1) {
-//                throw new InternalError("Error inserting file " + bamPath + " into the coverage database");
-//            }
-//
-//            // retrieve chunk IDs from database
-//            chunkIdMap = new HashMap<String, Integer>();
-//            String sql = "SELECT id, chromosome, start FROM chunk";
-//            Statement stmt = conn.createStatement();
-//            ResultSet rs = stmt.executeQuery(sql);
-//            while (rs.next()) {
-//                chunkIdMap.put(rs.getString("chromosome") + "_" + rs.getInt("start"), rs.getInt("id"));
-//            }
-//
-//            // prepare statement to iterate over the file
-//            PreparedStatement insertCoverage = conn.prepareStatement("insert into mean_coverage (chunk_id, "
-//                    + " file_id, v1, v2, v3, v4, v5, v6, v7, v8) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-//            conn.setAutoCommit(false);
-//
-//            // reader
-//            BufferedReader bufferedReader = FileUtils.newBufferedReader(countPath);
-//
-//            int step = 1;
-//            int span = 1;
-//            int position = 1;
-//            String chromosome = null;
-//
-//            // main loop
-//            String line = bufferedReader.readLine();
-//            while (line != null) {
-//                // check for header lines
-//                if (WigUtils.isHeaderLine(line)) {
-//                    System.out.println("Loading wig data:" + line);
-//                    if (WigUtils.isVariableStep(line)) {
-//                        throw new UnsupportedOperationException("Wig coverage file with 'variableStep'"
-//                                + " is not supported yet.");
-//                    }
-//
-//                    // update some values
-//                    step = WigUtils.getStep(line);
-//                    span = WigUtils.getSpan(line);
-//                    position = WigUtils.getStart(line);
-//                    chromosome = WigUtils.getChromosome(line);
-//
-//                    if (step != 1) {
-//                        throw new UnsupportedOperationException("Wig coverage file with"
-//                                + " 'step' != 1 is not supported yet.");
-//                    }
-//
-//                    // next line...
-//                    line = bufferedReader.readLine();
-//                } else {
-//                    // main body, coverage values
-//                    if (span <= chunkSize) {
-//                        // span is smaller than chunk size, we have to read n = chunkSize/span lines
-//                        // and get a mean coverage for the chunk
-//                        int n = chunkSize / span;
-//                        int sum = 0;
-//                        int counter = 0;
-//                        while (true) {
-//                            // accumulate the current value, and check if we have a complete value
-//                            sum += Integer.parseInt(line);
-//                            if (++counter == n) {
-//                                updatePackedCoverages((byte) Math.min(sum / counter, 255), getChunkId(chromosome, position),
-//                                        fileId, insertCoverage);
-//                                sum = 0;
-//                                counter = 0;
-//                            }
-//                            line = bufferedReader.readLine();
-//                            if (line == null || (line != null && WigUtils.isHeaderLine(line))) {
-//                                // pending coverages to save
-//                                if (counter > 0) {
-//                                    updatePackedCoverages((byte) Math.min(sum / counter, 255),
-//                                            getChunkId(chromosome, position), fileId, insertCoverage);
-//                                }
-//                                if (counter1 > 0 || counter2 > 0) {
-//                                    packedCoverages[counter2] = bytesToLong(meanCoverages);
-//                                    insertPackedCoverages(insertCoverage, getChunkId(chromosome, position),
-//                                            fileId, packedCoverages);
-//                                }
-//                                resetCounters();
-//                                break;
-//                            } else {
-//                                position += span;
-//                            }
-//                        }
-//                    } else {
-//                        throw new UnsupportedOperationException("span bigger than chunkSize is not supported");
-//                    }
-//                }
-//            }
-//            bufferedReader.close();
-//
-//            if (counter1 > 0 || counter2 > 0) {
-//                packedCoverages[counter2] = bytesToLong(meanCoverages);
-//                insertPackedCoverages(insertCoverage, getChunkId(chromosome, position), fileId, packedCoverages);
-//            }
-//
-//            // insert batch to the DB
-//            insertCoverage.executeBatch();
-//
-//            conn.commit();
-//            stmt.close();
-//            conn.close();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
-
     public ChunkFrequency query(Region region, Path filePath, int windowSize) {
         return query(region, filePath, windowSize, mean());
     }
@@ -376,7 +248,10 @@ public class ChunkFrequencyManager {
         }
 
         windowSize = Math.max(windowSize / chunkSize * chunkSize, chunkSize);
-        int size = ((region.getEnd() - region.getStart() + 1) / windowSize) + 1;
+        int size = ((region.getEnd() - region.getStart() + 1) / windowSize);
+        if ((region.getEnd() - region.getStart() + 1) % windowSize > 0) {
+            size++;
+        }
         short[] values = new short[size];
 
         try {
@@ -508,10 +383,10 @@ public class ChunkFrequencyManager {
     }
 
     /**
-     *
-     * P R I V A T E     F U N C T I O N S
-     *
+     * P R I V A T E   M E T H O D S
      */
+
+
     private int insertFile(Path bamPath, Connection conn) throws SQLException {
         Statement stmt = conn.createStatement();
         String insertFileSql = "insert into file (path, name) values ('" + bamPath.getParent()
@@ -561,27 +436,7 @@ public class ChunkFrequencyManager {
         }
         return chunkId;
     }
-    //
-//    private void updatePackedCoverages(byte coverage, int chunkId, int fileId, PreparedStatement insertCoverage)
-//            throws SQLException {
-//        meanCoverages[counter1] = coverage;
-//        if (++counter1 == 8) {
-//            // packed mean coverages and save into the packed coverages array
-//            packedCoverages[counter2] = bytesToLong(meanCoverages);
-//            if (++counter2 == 8) {
-//                // write packed coverages array to DB
-//                insertPackedCoverages(insertCoverage, chunkId, fileId, packedCoverages);
-//
-//                // reset packed coverages array and counter2
-//                Arrays.fill(packedCoverages, 0);
-//                counter2 = 0;
-//            }
-//            // reset mean coverages array and counter1
-//            counter1 = 0;
-//            Arrays.fill(meanCoverages, (byte) 0);
-//        }
-//    }
-//
+
     private void resetCounters() {
         Arrays.fill(meanCoverages, (byte) 0);
         Arrays.fill(packedCoverages, 0);

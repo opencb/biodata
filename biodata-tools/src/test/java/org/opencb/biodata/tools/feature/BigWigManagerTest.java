@@ -3,21 +3,16 @@ package org.opencb.biodata.tools.feature;
 import htsjdk.samtools.SAMFileHeader;
 import htsjdk.samtools.SAMSequenceRecord;
 import org.junit.Test;
-import org.opencb.biodata.models.alignment.RegionCoverage;
 import org.opencb.biodata.models.core.Region;
-import org.opencb.biodata.tools.alignment.AlignmentOptions;
-import org.opencb.biodata.tools.alignment.BamManager;
 import org.opencb.biodata.tools.alignment.BamUtils;
 import org.opencb.biodata.tools.commons.ChunkFrequencyManager;
 
-import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by imedina on 25/11/16.
@@ -30,14 +25,15 @@ public class BigWigManagerTest {
         Path inputPath = Paths.get(getClass().getResource("/wigVarStepExampleSmallChr21.bw").toURI());
 
         BigWigManager bigWigManager = new BigWigManager(inputPath);
-        float[] chr21 = bigWigManager.query(new Region("chr21", 9411190, 9411291));
+        Region region = new Region("chr21", 9411190, 9411290);
+        float[] chr21 = bigWigManager.query(region);
 
-        int start = 9411190;
+        int start = region.getStart();
         for (float v: chr21) {
             System.out.println((start++) + " :" + v);
         }
 
-        assertEquals(9411291 - 9411190, chr21.length);
+        assertEquals(region.getEnd() - region.getStart() + 1, chr21.length);
     }
 
     @Test
