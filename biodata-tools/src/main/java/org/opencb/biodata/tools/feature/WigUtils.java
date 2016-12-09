@@ -1,7 +1,5 @@
 package org.opencb.biodata.tools.feature;
 
-import htsjdk.samtools.SAMFileHeader;
-import org.opencb.biodata.tools.alignment.BamUtils;
 import org.opencb.biodata.tools.commons.ChunkFrequencyManager;
 import org.opencb.commons.utils.FileUtils;
 
@@ -9,12 +7,114 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by jtarraga on 02/12/16.
  */
 public class WigUtils {
+
+    public static final String WIG_DB = "wig.db";
+
+    /**
+     * Index the entire Wig file content in a SQLite database managed by the ChunkFrequencyManager.
+     *
+     * @param wigPath   Wig file
+     * @return          Path to the database
+     * @throws Exception
+     */
+    public static Path index(Path wigPath) throws Exception {
+        Path dbPath = wigPath.getParent().resolve(WIG_DB);
+
+        ChunkFrequencyManager chunkFrequencyManager = new ChunkFrequencyManager(dbPath);
+
+        // get the chunk size
+        int chunkSize = chunkFrequencyManager.getChunkSize();
+
+        String chromosome = null;
+        int step, span = 1, start = 1, end;
+        int startChunk, endChunk, partial;
+
+        boolean empty = true;
+        List<Integer> values = new ArrayList<>();
+
+        // reader
+        BufferedReader bufferedReader = FileUtils.newBufferedReader(wigPath);
+        // main loop
+        String line = bufferedReader.readLine();
+        while (line != null) {
+            // check for header lines
+            if (WigUtils.isHeaderLine(line)) {
+                if (!empty) {
+                    // save values for the current chromosome into the database
+                    System.out.println("\tStoring " + values.size() + " values for " + chromosome);
+//                    if (chromosome.equals("chr1")) {
+                        computeAndSaveMeanValues(values, wigPath, chromosome, chunkSize, chunkFrequencyManager);
+//                    }
+                }
+
+                System.out.println("Loading wig data:" + line);
+                if (WigUtils.isVariableStep(line)) {
+                    throw new UnsupportedOperationException("Wig coverage file with 'variableStep'"
+                            + " is not supported yet.");
+                }
+
+                // update some values
+                step = WigUtils.getStep(line);
+                span = WigUtils.getSpan(line);
+                start = WigUtils.getStart(line);
+                chromosome = WigUtils.getChromosome(line);
+                empty = true;
+                values = new ArrayList<>();
+                // sanity check
+                if (start <= 0) {
+                    throw new UnsupportedOperationException("Wig coverage file with"
+                            + " 'start' <= 0, it must be greater than 0.");
+                }
+                if (start != 1) {
+                    // we have to put zeros until the start position
+                    for (int i = 0; i < start; i++) {
+                        values.add(0);
+                    }
+                }
+                if (step != 1) {
+                    throw new UnsupportedOperationException("Wig coverage file with"
+                            + " 'step' != 1 is not supported yet.");
+                }
+                // next line...
+                line = bufferedReader.readLine();
+            } else {
+                if (values != null) {
+                    end = start + span - 1;
+                    startChunk = start / chunkSize;
+                    endChunk = end / chunkSize;
+                    for (int chunk = startChunk, pos = startChunk * chunkSize;
+                         chunk <= endChunk;
+                         chunk++, pos += chunkSize) {
+                        // compute how many values are within the current chunk
+                        // and update the chunk
+                        partial = Math.min(end, pos + chunkSize) - Math.max(start, pos);
+                        values.add(partial * Integer.parseInt(line));
+                        empty = false;
+                    }
+                    start += span;
+                }
+                // next line...
+                line = bufferedReader.readLine();
+            }
+        }
+
+        if (!empty) {
+            // save values for the current chromosome into the database
+            System.out.println("\tStoring " + values.size() + " values for " + chromosome);
+//            if (chromosome.equals("chr1")) {
+                computeAndSaveMeanValues(values, wigPath, chromosome, chunkSize, chunkFrequencyManager);
+//            }
+        }
+
+        return dbPath;
+    }
 
     /**
      * Return true if the given line is a wig header line (fixed or variable step)
@@ -103,108 +203,6 @@ public class WigUtils {
     }
 
     /**
-     * Index the entire Wig file content in a SQLite database managed by the ChunkFrequencyManager.
-     *
-     * @param wigPath   Wig file
-     * @param bamPath   BAM file associated to the Wig file
-     * @param cfManager ChunkFrequencyManager who manages the SQLite database
-     * @throws Exception
-     */
-    public static void index(Path wigPath, Path bamPath, ChunkFrequencyManager cfManager) throws Exception {
-        SAMFileHeader samHeader = BamUtils.getFileHeader(bamPath);
-        List chromosomeNames = new ArrayList<String>();
-        samHeader.getSequenceDictionary().getSequences().forEach(s -> chromosomeNames.add(s.getSequenceName()));
-        index(chromosomeNames, wigPath, bamPath, cfManager);
-    }
-
-    /**
-     * Index the values for the given chromosomes of the Wig file in
-     * a SQLite database managed by the ChunkFrequencyManager.
-     *
-     * @param wigPath   Wig file
-     * @param bamPath   BAM file associated to the Wig file
-     * @param cfManager ChunkFrequencyManager who manages the SQLite database
-     * @throws Exception
-     */
-    public static void index(List<String> chromosomes, Path wigPath, Path bamPath, ChunkFrequencyManager cfManager) throws Exception {
-        // insert file into the DB and get its ID, and the ChunkSize as well
-        int fileId = cfManager.insertFile(bamPath);
-        int chunkSize = cfManager.readChunkSize();
-
-        // for efficiency purposes
-        Set<String> chromSet = new HashSet<>();
-        chromosomes.forEach(c -> chromSet.add(c));
-        SAMFileHeader samHeader = BamUtils.getFileHeader(bamPath);
-        Map<String, Integer> chromMap = new HashMap<>();
-        samHeader.getSequenceDictionary().getSequences()
-                .forEach(s -> chromMap.put(s.getSequenceName(), s.getSequenceLength()));
-
-        String chromosome = null;
-        int step, span = 1, start = 1, end;
-        int startChunk, endChunk, partial, chromosomeSize = 0;
-
-        int[] values = null;
-
-        // reader
-        BufferedReader bufferedReader = FileUtils.newBufferedReader(wigPath);
-        // main loop
-        String line = bufferedReader.readLine();
-        while (line != null) {
-            // check for header lines
-            if (WigUtils.isHeaderLine(line)) {
-                System.out.println("Loading wig data:" + line);
-                if (WigUtils.isVariableStep(line)) {
-                    throw new UnsupportedOperationException("Wig coverage file with 'variableStep'"
-                            + " is not supported yet.");
-                }
-
-                // save values for the current chromosome into the database
-                computeAndSaveMeanValues(values, fileId, chromosome, chunkSize, cfManager);
-
-                // update some values
-                values = null;
-                step = WigUtils.getStep(line);
-                span = WigUtils.getSpan(line);
-                start = WigUtils.getStart(line);
-                chromosome = WigUtils.getChromosome(line);
-                if (chromSet.contains(chromosome)) {
-                    chromosomeSize = chromMap.get(chromosome);
-                    values = new int[chromosomeSize / chunkSize + 1];
-                    if (step != 1) {
-                        throw new UnsupportedOperationException("Wig coverage file with"
-                                + " 'step' != 1 is not supported yet.");
-                    }
-                }
-                // next line...
-                line = bufferedReader.readLine();
-            } else {
-                if (values != null) {
-                    end = Math.min(start + span - 1, chromosomeSize);
-                    startChunk = start / chunkSize;
-                    endChunk = end / chunkSize;
-                    for (int chunk = startChunk, pos = startChunk * chunkSize;
-                         chunk <= endChunk;
-                         chunk++, pos += chunkSize) {
-                        // compute how many values are within the current chunk
-                        // and update the chunk
-                        partial = Math.min(end, pos + chunkSize) - Math.max(start, pos);
-                        try {
-                            values[chunk] += (partial * Integer.parseInt(line));
-                        } catch (ArrayIndexOutOfBoundsException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    start += span;
-                }
-                // next line...
-                line = bufferedReader.readLine();
-            }
-        }
-        // save values for the last chromosome into the database
-        computeAndSaveMeanValues(values, fileId, chromosome, chunkSize, cfManager);
-    }
-
-    /**
      * P R I V A T E   M E T H O D S
      */
 
@@ -232,20 +230,21 @@ public class WigUtils {
      * have to be divided by the chunk size in order to compute the mean values.
      *
      * @param values        Array of values, one value per chunk
-     * @param fileId        FileId associated
-     * @param chromosome    Chromosome
+     * @param filePath      File target
+     * @param chromosome    Chromosome target
      * @param chunkSize     Size of chunk, it will be used to compute the mean value for each chunk
-     * @param cfManager     ChunkFrequencyManager to insert mean values to the database
+     * @param chunkFrequencyManager     ChunkFrequencyManager to insert mean values to the database
      */
-    private static void computeAndSaveMeanValues(int[] values, int fileId, String chromosome,
-                                                 int chunkSize, ChunkFrequencyManager cfManager) throws IOException {
+    private static void computeAndSaveMeanValues(List<Integer> values, Path filePath, String chromosome,
+                                                 int chunkSize, ChunkFrequencyManager chunkFrequencyManager)
+            throws IOException {
         if (values != null) {
             // compute mean values and save into the DB
-            List<Integer> meanValues = new ArrayList<>(values.length);
+            List<Integer> meanValues = new ArrayList<>(values.size());
             for (int v : values) {
                 meanValues.add(v / chunkSize);
             }
-            cfManager.insert(chromosome, meanValues, fileId);
+            chunkFrequencyManager.insert(filePath, chromosome, meanValues);
         }
     }
 }

@@ -1,6 +1,7 @@
 package org.opencb.biodata.tools.commons;
 
 import org.junit.Test;
+import org.opencb.biodata.tools.feature.WigUtils;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -10,52 +11,51 @@ import java.nio.file.Paths;
  */
 public class ChunkFrequencyManagerTest {
 
-//    String filename = "NA12877_chr1";
-    String filename = "NA12877_chrM";
+    String filename = "NA12877_chr1";
+//    String filename = "NA12877_chrM";
     Path bamPath = Paths.get("/home/jtarraga/data150/bam/" + filename + ".bam");
-    Path coveragePath = Paths.get("/home/jtarraga/data150/bam/" + filename + ".bam.coverage.wig");
-    Path databasePath = Paths.get("/home/jtarraga/data150/bam/" + filename + ".bam.db");
+    Path coverageWigPath = Paths.get("/home/jtarraga/data150/bam/" + filename + ".bam.coverage.wig");
+    Path indexPath = Paths.get("/home/jtarraga/data150/bam/" + WigUtils.WIG_DB);
 
     int chunkSize = 1000;
     int windowSize = 100;
 
     @Test
     public void createCoverageFromWigFile() {
-        try {
-//            coveragePath.toFile().delete();
-//            databasePath.toFile().delete();
+//        try {
+//            //coverageWigPath.toFile().delete();
+//            indexPath.toFile().delete();
 //
-//            ChunkFrequencyManager chunkFrequencyManager = new ChunkFrequencyManager(databasePath, chunkSize);
+//            // create coverage wig file
+//            if (!coverageWigPath.toFile().exists()) {
+//                BamUtils.createCoverageWigFile(bamPath, coverageWigPath, windowSize);
+//            }
 //
-//            SAMFileHeader samHeader = null;
-//            samHeader = BamUtils.getFileHeader(bamPath);
-//            List<String> chromosomeNames = new ArrayList<>();
-//            List<Integer> chromosomeLengths = new ArrayList<>();
-//            samHeader.getSequenceDictionary().getSequences().forEach(
-//                    seq -> {
-//                        chromosomeNames.add(seq.getSequenceName());
-//                        chromosomeLengths.add(seq.getSequenceLength());
-//                    });
-//            chunkFrequencyManager.init(chromosomeNames, chromosomeLengths);
-//            BamUtils.createCoverageWigFile(bamPath, coveragePath, windowSize);
-//            WigUtils.index(coveragePath, bamPath, chunkFrequencyManager);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//            // index
+//            Path indexPath = WigUtils.index(coverageWigPath);
+//            System.out.println("Database in " + indexPath);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
     }
 
     @Test
-    public void queryCoverage() {
-//        if (!databasePath.toFile().exists()) {
-//            createCoverageFromWigFile();
-//        }
+    public void query() {
+//        try {
+//            if (!indexPath.toFile().exists()) {
+//                createCoverageFromWigFile();
+//            }
 //
-//        ChunkFrequencyManager chunkFrequencyManager = new ChunkFrequencyManager(databasePath, chunkSize);
-//        Region region = new Region("chrM", 1, 5000);
-//        //Region region = new Region("chr1", 2000000, 2100000);
-//        ChunkFrequencyManager.ChunkFrequency res = chunkFrequencyManager.query(region, bamPath, 1000);
-//        for (int val: res.getValues()) {
-//            System.out.println(val);
+//            // now we can query
+//            ChunkFrequencyManager chunkFrequencyManager = new ChunkFrequencyManager(indexPath);
+////            Region region = new Region("chrM", 1, 5000);
+//            Region region = new Region("chr1", 3100000, 3200000);
+//            ChunkFrequencyManager.ChunkFrequency res = chunkFrequencyManager.query(region, coverageWigPath, 1000);
+//            for (int val: res.getValues()) {
+//                System.out.println(val);
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
 //        }
     }
 }

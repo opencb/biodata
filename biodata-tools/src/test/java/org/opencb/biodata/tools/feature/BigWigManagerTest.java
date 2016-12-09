@@ -59,7 +59,7 @@ public class BigWigManagerTest {
             chromNames.add(samSequenceRecord.getSequenceName());
             chromLengths.add(samSequenceRecord.getSequenceLength());
         }
-        chunkFrequencyManager.init(chromNames, chromLengths);
+//        chunkFrequencyManager.init(chromNames, chromLengths);
 
         // now, we can index
         BigWigManager bigWigManager = new BigWigManager(bwPath);

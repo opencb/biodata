@@ -20,18 +20,27 @@ import java.util.*;
 public class BigWigManager {
 
     private Path bigWigFilePath;
+    private Path indexPath;
     private BBFileReader bbFileReader;
+
+    public static final String BIGWIG_DB = "bigwig.db";
 
     /**
      * Constructor.
      *
-     * @param path  Path to the Big Wig file
+     * @param bigwigPath  Path to the Big Wig file
      * @throws IOException
      */
-    public BigWigManager(Path path) throws IOException {
-        this.bigWigFilePath = path;
+    public BigWigManager(Path bigwigPath) throws IOException {
+        this(bigwigPath, bigwigPath.getParent().resolve(BIGWIG_DB));
+    }
+
+    public BigWigManager(Path bigwigPath, Path indexPath) throws IOException {
+        this.bigWigFilePath = bigwigPath;
+        this.indexPath = indexPath;
         init();
     }
+
 
     /**
      * Query by a given region.
@@ -69,6 +78,17 @@ public class BigWigManager {
                 region.getChromosome(), region.getEnd(), true);
     }
 
+    public void index() throws Exception {
+        index(bigWigFilePath);
+    }
+
+    public void index(Path bigwigPath) throws Exception {
+        FileUtils.checkFile(indexPath);
+        ChunkFrequencyManager cfManager = new ChunkFrequencyManager(indexPath);
+
+    }
+
+
     /**
      * Index the entire Big Wig file content in a SQLite database managed by the ChunkFrequencyManager.
      *
@@ -93,8 +113,8 @@ public class BigWigManager {
      */
     public void index(List<String> chromosomes, Path bamPath, ChunkFrequencyManager cfManager) throws Exception {
         // insert file into the DB and get its ID, and the ChunkSize as well
-        int fileId = cfManager.insertFile(bamPath);
-        int chunkSize = cfManager.readChunkSize();
+//        int fileId = cfManager.insertFile(bamPath);
+        int chunkSize = cfManager.getChunkSize();
 
         // for efficiency purposes
         Set chromSet = new HashSet<String>();
@@ -141,7 +161,7 @@ public class BigWigManager {
                     for (int v : values) {
                         meanValues.add(v / chunkSize);
                     }
-                    cfManager.insert(samSequenceRecord.getSequenceName(), meanValues, fileId);
+               //     cfManager.insert(samSequenceRecord.getSequenceName(), meanValues, fileId);
                 }
             }
         }
