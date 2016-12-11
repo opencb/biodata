@@ -203,6 +203,30 @@ public class WigUtils {
     }
 
     /**
+     * Compute the mean values for an array and save them into the database using the ChunkFrequencyManger.
+     * The array contains the total sum (counting) for each chunk. One element per chunk, and the values
+     * have to be divided by the chunk size in order to compute the mean values.
+     *
+     * @param values        Array of values, one value per chunk
+     * @param filePath      File target
+     * @param chromosome    Chromosome target
+     * @param chunkSize     Size of chunk, it will be used to compute the mean value for each chunk
+     * @param chunkFrequencyManager     ChunkFrequencyManager to insert mean values to the database
+     */
+    public static void computeAndSaveMeanValues(List<Integer> values, Path filePath, String chromosome,
+                                                int chunkSize, ChunkFrequencyManager chunkFrequencyManager)
+            throws IOException {
+        if (chromosome != null && values != null) {
+            // compute mean values and save into the DB
+            List<Integer> meanValues = new ArrayList<>(values.size());
+            for (int v : values) {
+                meanValues.add(v / chunkSize);
+            }
+            chunkFrequencyManager.insert(filePath, chromosome, meanValues);
+        }
+    }
+
+    /**
      * P R I V A T E   M E T H O D S
      */
 
@@ -222,29 +246,5 @@ public class WigUtils {
             }
         }
         return null;
-    }
-
-    /**
-     * Compute the mean values for an array and save them into the database using the ChunkFrequencyManger.
-     * The array contains the total sum (counting) for each chunk. One element per chunk, and the values
-     * have to be divided by the chunk size in order to compute the mean values.
-     *
-     * @param values        Array of values, one value per chunk
-     * @param filePath      File target
-     * @param chromosome    Chromosome target
-     * @param chunkSize     Size of chunk, it will be used to compute the mean value for each chunk
-     * @param chunkFrequencyManager     ChunkFrequencyManager to insert mean values to the database
-     */
-    private static void computeAndSaveMeanValues(List<Integer> values, Path filePath, String chromosome,
-                                                 int chunkSize, ChunkFrequencyManager chunkFrequencyManager)
-            throws IOException {
-        if (values != null) {
-            // compute mean values and save into the DB
-            List<Integer> meanValues = new ArrayList<>(values.size());
-            for (int v : values) {
-                meanValues.add(v / chunkSize);
-            }
-            chunkFrequencyManager.insert(filePath, chromosome, meanValues);
-        }
     }
 }

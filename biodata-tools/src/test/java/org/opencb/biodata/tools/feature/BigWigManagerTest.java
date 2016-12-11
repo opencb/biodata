@@ -49,21 +49,10 @@ public class BigWigManagerTest {
 
         dbPath.toFile().delete();
 
-        // initialize chunkFrequencyManager and DB
-        int chunkSize = 1000;
-        ChunkFrequencyManager chunkFrequencyManager = new ChunkFrequencyManager(dbPath, chunkSize);
-        SAMFileHeader fileHeader = BamUtils.getFileHeader(bamPath);
-        List chromNames = new ArrayList<String>();
-        List chromLengths = new ArrayList<Integer>();
-        for (SAMSequenceRecord samSequenceRecord: fileHeader.getSequenceDictionary().getSequences()) {
-            chromNames.add(samSequenceRecord.getSequenceName());
-            chromLengths.add(samSequenceRecord.getSequenceLength());
-        }
-//        chunkFrequencyManager.init(chromNames, chromLengths);
 
         // now, we can index
         BigWigManager bigWigManager = new BigWigManager(bwPath);
-        bigWigManager.index(bamPath, chunkFrequencyManager);
+        dbPath = bigWigManager.index();
 
 //        Region region = new Region("chr21", 10000000 - 1000, 10001000 - 1000);
 //        float[] values = bigWigManager.query(region);
@@ -74,10 +63,15 @@ public class BigWigManagerTest {
 //        }
 //        System.out.println("**** mean = " + (total / 1000));
 //
-//        ChunkFrequencyManager.ChunkFrequency res = chunkFrequencyManager.query(region, bamPath, 1000);
-//        for (short i : res.getValues()) {
-//            System.out.println("---> " + i);
-//        }
+
+        // initialize chunkFrequencyManager and DB to query
+        int chunkSize = 1000;
+        ChunkFrequencyManager chunkFrequencyManager = new ChunkFrequencyManager(dbPath, chunkSize);
+        Region region = new Region("chr21", 10000000 - 1000, 10001000 - 1000);
+        ChunkFrequencyManager.ChunkFrequency res = chunkFrequencyManager.query(region, bwPath, 1000);
+        for (short i : res.getValues()) {
+            System.out.println("---> " + i);
+        }
     }
 
 }

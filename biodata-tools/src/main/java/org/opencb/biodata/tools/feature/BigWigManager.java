@@ -78,93 +78,75 @@ public class BigWigManager {
                 region.getChromosome(), region.getEnd(), true);
     }
 
-    public void index() throws Exception {
-        index(bigWigFilePath);
-    }
-
-    public void index(Path bigwigPath) throws Exception {
-        FileUtils.checkFile(indexPath);
-        ChunkFrequencyManager cfManager = new ChunkFrequencyManager(indexPath);
-
-    }
-
-
     /**
-     * Index the entire Big Wig file content in a SQLite database managed by the ChunkFrequencyManager.
+     * Index the entire Big Wig file content in a SQLite database.
      *
-     * @param bamPath   BAM file associated to the Big Wig file
-     * @param cfManager ChunkFrequencyManager who manages the SQLite database
+     * @return              Path to the index (database file)
      * @throws Exception
      */
-    public void index(Path bamPath, ChunkFrequencyManager cfManager) throws Exception {
-        SAMFileHeader samHeader = BamUtils.getFileHeader(bamPath);
-        List chromosomeNames = new ArrayList<String>();
-        samHeader.getSequenceDictionary().getSequences().forEach(s -> chromosomeNames.add(s.getSequenceName()));
-        index(chromosomeNames, bamPath, cfManager);
+    public Path index() throws Exception {
+        return index(bigWigFilePath);
     }
 
     /**
-     * Index the values for the given chromosomes of the Big Wig file in
-     * a SQLite database managed by the ChunkFrequencyManager.
+     * Index the entire Big Wig file content in a SQLite database.
      *
-     * @param bamPath   BAM file associated to the Big Wig file
-     * @param cfManager ChunkFrequencyManager who manages the SQLite database
+     * @param bigwigPath    Path to the Big Wig file to index
+     * @return              Path to the index (database file)
      * @throws Exception
      */
-    public void index(List<String> chromosomes, Path bamPath, ChunkFrequencyManager cfManager) throws Exception {
-        // insert file into the DB and get its ID, and the ChunkSize as well
-//        int fileId = cfManager.insertFile(bamPath);
-        int chunkSize = cfManager.getChunkSize();
+    public Path index(Path bigwigPath) throws Exception {
+//        FileUtils.checkFile(indexPath);
+        ChunkFrequencyManager chunkFrequencyManager = new ChunkFrequencyManager(indexPath);
 
-        // for efficiency purposes
-        Set chromSet = new HashSet<String>();
-        chromosomes.forEach(c -> chromSet.add(c));
+        // get the chunk size
+        int chunkSize = chunkFrequencyManager.getChunkSize();
 
-        boolean isEmpty = true;
-        int startChunk, endChunk, partial;
+        int prevChunk = 0, startChunk, endChunk, partial;
+        String currChrom, prevChrom = null;
+        List<Integer> values = new ArrayList<>();
 
-        // iterate over chromosome names, and then over their lengths looking for WigItems
-        SAMFileHeader fileHeader = BamUtils.getFileHeader(bamPath);
-        Iterator<SAMSequenceRecord> chromIterator = fileHeader.getSequenceDictionary().getSequences().iterator();
-        while (chromIterator.hasNext()) {
-            SAMSequenceRecord samSequenceRecord = chromIterator.next();
-            // is it requested chromosome ?
-            if (chromSet.contains(samSequenceRecord.getSequenceName())) {
-                isEmpty = true;
-                //System.err.println("Processing chromosome " + samSequenceRecord.getSequenceName());
-                // then, allocate memory for chunk values
-                int[] values = new int[samSequenceRecord.getSequenceLength() / chunkSize + 1];
-                // and then iterate BigWig file
-                BigWigIterator bwIterator = bbFileReader.getBigWigIterator(samSequenceRecord.getSequenceName(), 1,
-                        samSequenceRecord.getSequenceName(), samSequenceRecord.getSequenceLength(), true);
-                while (bwIterator.hasNext()) {
-                    isEmpty = false;
-                    WigItem wigItem = bwIterator.next();
+        // and then iterate BigWig file
+        BigWigIterator bwIterator = bbFileReader.getBigWigIterator();
+        while (bwIterator.hasNext()) {
+            WigItem wigItem = bwIterator.next();
 
-                    startChunk = wigItem.getStartBase() / chunkSize;
-                    endChunk = wigItem.getEndBase() / chunkSize;
-                    for (int chunk = startChunk, pos = startChunk * chunkSize;
-                         chunk <= endChunk;
-                         chunk++, pos += chunkSize) {
-                        // compute how many values are within the current chunk
-                        // and update the chunk
-                        partial = Math.min(wigItem.getEndBase(), pos + chunkSize) - Math.max(wigItem.getStartBase(),
-                                pos);
-                        values[chunk] += (partial * wigItem.getWigValue());
-                    }
+            // get info from wig item
+            currChrom = wigItem.getChromosome();
+            startChunk = wigItem.getStartBase() / chunkSize;
+            endChunk = wigItem.getEndBase() / chunkSize;
+
+            // chromosome change, we must store previous chromosome values
+            if (prevChrom != currChrom) {
+                if (values.size() > 0) {
+                    WigUtils.computeAndSaveMeanValues(values, bigwigPath, prevChrom, chunkSize, chunkFrequencyManager);
                 }
+                currChrom = prevChrom;
+            }
 
-                if (!isEmpty) {
-                    //System.err.println("\tComputing mean values");
-                    // compute mean values and save into the DB
-                    List<Integer> meanValues = new ArrayList<>(values.length);
-                    for (int v : values) {
-                        meanValues.add(v / chunkSize);
-                    }
-               //     cfManager.insert(samSequenceRecord.getSequenceName(), meanValues, fileId);
+            if (prevChunk != startChunk) {
+                for (int chunk = prevChunk; chunk < startChunk; chunk++) {
+                    values.add(0);
                 }
             }
+
+            for (int chunk = startChunk, pos = startChunk * chunkSize;
+                 chunk <= endChunk;
+                 chunk++, pos += chunkSize) {
+                // compute how many values are within the current chunk
+                // and update the chunk
+                partial = Math.min(wigItem.getEndBase(), pos + chunkSize) - Math.max(wigItem.getStartBase(),
+                        pos);
+                values.add((int) (partial * wigItem.getWigValue()));
+            }
+            prevChunk = endChunk;
         }
+
+        if (values.size() > 0) {
+            WigUtils.computeAndSaveMeanValues(values, bigwigPath, prevChrom, chunkSize, chunkFrequencyManager);
+        }
+
+        return indexPath;
     }
 
     /**
