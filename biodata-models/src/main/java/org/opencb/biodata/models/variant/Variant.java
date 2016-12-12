@@ -40,7 +40,8 @@ public class Variant implements Serializable {
     private Map<String, StudyEntry> studyEntries = null;
 
     public static final int SV_THRESHOLD = 50;
-    public static final String CNVSTR = "<CN";
+    private static final String CNVSTR = "<CN";
+    private static final String DELSTR = "<DEL>";
 
     public Variant() {
         impl = new VariantAvro(null, new LinkedList<>(), "", -1, -1, "", "", "+", null, 0, null, new HashMap<>(), new LinkedList<>(), null);
@@ -180,6 +181,8 @@ public class Variant implements Serializable {
         if (Allele.wouldBeSymbolicAllele(alternate.getBytes()) || Allele.wouldBeSymbolicAllele(reference.getBytes())) {
             if (alternate.startsWith(CNVSTR)) {
                 return VariantType.CNV;
+            } else if (alternate.equals(DELSTR)){
+                return VariantType.DELETION;
             } else {
                 return VariantType.SYMBOLIC;
             }
@@ -235,7 +238,7 @@ public class Variant implements Serializable {
 
     private static int inferLengthSV(String alternate, int start, int end) {
         int length;
-        if (StringUtils.startsWith(alternate, CNVSTR)) {
+        if (StringUtils.startsWith(alternate, CNVSTR) || StringUtils.equals(alternate, DELSTR)) {
             length = end - start + 1;
         } else {
             length = alternate == null ? 0 : alternate.length();
