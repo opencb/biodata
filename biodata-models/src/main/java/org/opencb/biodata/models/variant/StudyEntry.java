@@ -42,7 +42,11 @@ public class StudyEntry implements Serializable {
     private Map<String, Integer> formatPosition = null;
     private Map<String, VariantStats> cohortStats = null;
     private final org.opencb.biodata.models.variant.avro.StudyEntry impl;
+
     public static final String DEFAULT_COHORT = "ALL";
+    public static final String QUAL = "QUAL";
+    public static final String FILTER = "FILTER";
+    public static final String SRC = "src";
 
     public StudyEntry() {
         this(null, null);

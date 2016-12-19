@@ -8,18 +8,23 @@ public class AlignmentOptions {
     private boolean contained;
     private boolean binQualities;
     private boolean calculateMD;
+    private int minBaseQuality;
+    private int windowSize;
     private int limit;
 
     public static final int DEFAULT_LIMIT = 50000;
 
     public AlignmentOptions() {
-        this(true, false, false, DEFAULT_LIMIT);
+        this(false, false, false, 0, 1, DEFAULT_LIMIT);
     }
 
-    public AlignmentOptions(boolean contained, boolean binQualities, boolean calculateMD, int limit) {
+    public AlignmentOptions(boolean contained, boolean binQualities, boolean calculateMD,
+                            int minBaseQuality, int windowSize, int limit) {
         this.contained = contained;
         this.binQualities = binQualities;
         this.calculateMD = calculateMD;
+        this.minBaseQuality = minBaseQuality;
+        this.windowSize = windowSize;
         this.limit = limit;
     }
 
@@ -30,6 +35,8 @@ public class AlignmentOptions {
         sb.append("contained=").append(contained);
         sb.append(", binQualities=").append(binQualities);
         sb.append(", calculateMD=").append(calculateMD);
+        sb.append(", minBaseQuality=").append(minBaseQuality);
+        sb.append(", windowSize=").append(windowSize);
         sb.append(", limit=").append(limit);
         sb.append('}');
         return sb.toString();
@@ -50,6 +57,16 @@ public class AlignmentOptions {
         return this;
     }
 
+    public AlignmentOptions setMinBaseQuality(int minBaseQuality) {
+        this.minBaseQuality = minBaseQuality;
+        return this;
+    }
+
+    public AlignmentOptions setWindowSize(int windowSize) {
+        this.windowSize = windowSize;
+        return this;
+    }
+
     public AlignmentOptions setLimit(int limit) {
         this.limit = limit;
         return this;
@@ -65,6 +82,14 @@ public class AlignmentOptions {
 
     public boolean isCalculateMD() {
         return calculateMD;
+    }
+
+    public int getMinBaseQuality() {
+        return minBaseQuality;
+    }
+
+    public int getWindowSize() {
+        return windowSize;
     }
 
     public int getLimit() {

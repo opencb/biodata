@@ -33,7 +33,7 @@ public class SamRecordFiltersTest  {
 
         alignmentFilters.addFilterList(tmpFilters.getFilters(), true);
 
-        List<SAMRecord> results = BamManager.query(region, options, alignmentFilters);
+        List<SAMRecord> results = BamManager.query(region, alignmentFilters, options);
         System.out.println("Number of results: " + results.size());
         assertEquals(108, results.size());
    }
@@ -53,7 +53,7 @@ public class SamRecordFiltersTest  {
 
         alignmentFilters.addFilterList(tmpFilters.getFilters(), false);
 
-        List<SAMRecord> results = BamManager.query(region, options, alignmentFilters);
+        List<SAMRecord> results = BamManager.query(region, alignmentFilters, options);
         System.out.println("Number of results: " + results.size());
         assertEquals(96, results.size());
     }
@@ -71,7 +71,7 @@ public class SamRecordFiltersTest  {
         regions.add(new Region("20", 63000, 63500));
         alignmentFilters.addRegionFilter(regions, true);
 
-        List<SAMRecord> results = BamManager.query(null, options, alignmentFilters);
+        List<SAMRecord> results = BamManager.query(null, alignmentFilters, options);
         System.out.println("Number of results: " + results.size());
         assertEquals(17, results.size()); // contained: 17
         //assertEquals(96, results.size()); // not contained: 28

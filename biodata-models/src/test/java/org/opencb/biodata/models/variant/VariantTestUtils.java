@@ -48,7 +48,7 @@ public class VariantTestUtils {
 //        variant.resetHGVS();
 
         attributes = new HashMap<>(attributes);
-        attributes.put(VariantVcfFactory.FILTER, filter);
+        attributes.put(StudyEntry.FILTER, filter);
         String qualStr;
         if (qual == null) {
             qualStr = ".";
@@ -58,7 +58,7 @@ public class VariantTestUtils {
                 qualStr = qualStr.substring(0, qualStr.lastIndexOf(".0"));
             }
         }
-        attributes.put(VariantVcfFactory.QUAL, qualStr);
+        attributes.put(StudyEntry.QUAL, qualStr);
 
         List<List<String>> samplesData = new LinkedList<>();
         String[] formats = format.split(":");

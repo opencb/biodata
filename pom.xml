@@ -174,13 +174,13 @@
                 <version>0.7-groovy-2.0</version>
                 <scope>test</scope>
             </dependency>
-            <dependency>
-                <groupId>igv</groupId>
-                <artifactId>igv</artifactId>
-                <version>2.3.88</version>
-                <scope>system</scope>
-                <systemPath>/tmp/igv.jar</systemPath>
-            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>igv</groupId>-->
+                <!--<artifactId>igv</artifactId>-->
+                <!--<version>2.3.88</version>-->
+                <!--<scope>system</scope>-->
+                <!--<systemPath>/tmp/igv.jar</systemPath>-->
+            <!--</dependency>-->
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>

@@ -4,7 +4,6 @@
 package org.opencb.biodata.tools.variant.merge;
 
 import htsjdk.variant.vcf.VCFConstants;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -12,7 +11,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.VariantVcfFactory;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.VariantType;
@@ -48,7 +46,7 @@ public class VariantMerger {
     public VariantMerger() {
         this.gtKey = GT_KEY;
         this.filterKey = GENOTYPE_FILTER_KEY;
-        this.annotationFilterKey = VariantVcfFactory.FILTER;
+        this.annotationFilterKey = StudyEntry.FILTER;
 
         setDefaultValue(getGtKey(), DEFAULT_MISSING_GT);
         setDefaultValue(getFilterKey(), DEFAULT_FILTER_VALUE);

@@ -42,6 +42,8 @@ public abstract class AlignmentFilters<T> extends CommonsFilters<T> {
 
     public abstract AlignmentFilters<T> addUnmappedFilter();
 
+    public abstract AlignmentFilters<T> addDuplicatedFilter();
+
     public abstract AlignmentFilters<T> addRegionFilter(Region region, boolean contained);
 
     public abstract AlignmentFilters<T> addRegionFilter(List<Region> regions, boolean contained);
