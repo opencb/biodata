@@ -30,35 +30,53 @@ public class Individual {
         UNAFFECTED
     }
 
-
     public Individual() {
+        this(null, null, null, null, null, Sex.UNKNOWN_SEX, Phenotype.MISSING, null, null);
     }
 
     public Individual(String id, String family, Individual father, Individual mother, Sex sex, Phenotype phenotype) {
-        this.id = id;
-        this.family = family;
-        this.father = father;
-        this.mother = mother;
-        this.sex = sex;
-        this.phenotype = phenotype;
-
+        this(id, family, father, mother, null, sex, phenotype, null, null);
     }
 
     public Individual(String id, String family, Individual father, Individual mother, Sex sex, Phenotype phenotype,
-                      Map<String, Object>  variables) {
-        this(id, family, father, mother, sex, phenotype);
-        this.variables = variables;
+                      Map<String, Object> variables) {
+        this(id, family, father, mother, null, sex, phenotype, variables, null);
     }
 
     public Individual(String id, String family, Individual father, Individual mother, Individual partner, Sex sex, Phenotype phenotype,
                       Map<String, Object> variables, Set<Individual> children) {
-        this(id, family, father, mother, sex, phenotype, variables);
+        this.id = id;
+        this.family = family;
+        this.father = father;
+        this.mother = mother;
         this.partner = partner;
+        this.sex = sex;
+        this.phenotype = phenotype;
+        this.variables = variables;
         this.children = children;
     }
 
+    public static Individual.Phenotype toPhenotype(String phenotype) {
+        switch (phenotype) {
+            case "1":
+                return Phenotype.UNAFFECTED;
+            case "2":
+                return Phenotype.AFFECTED;
+            default:
+                return Phenotype.MISSING;
+        }
+    }
 
-
+    public static Individual.Sex toSex(String sex) {
+        switch (sex) {
+            case "1":
+                return Sex.MALE;
+            case "2":
+                return Sex.FEMALE;
+            default:
+                return Sex.UNKNOWN_SEX;
+        }
+    }
 
     @Override
     public String toString() {
@@ -125,6 +143,10 @@ public class Individual {
         return sex;
     }
 
+    public Individual setSex(String sex) {
+        return setSex(toSex(sex));
+    }
+
     public Individual setSex(Sex sex) {
         this.sex = sex;
         return this;
@@ -132,6 +154,10 @@ public class Individual {
 
     public Phenotype getPhenotype() {
         return phenotype;
+    }
+
+    public Individual setPhenotype(String phenotype) {
+        return setPhenotype(toPhenotype(phenotype));
     }
 
     public Individual setPhenotype(Phenotype phenotype) {

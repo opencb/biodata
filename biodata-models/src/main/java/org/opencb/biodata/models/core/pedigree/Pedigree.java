@@ -11,18 +11,21 @@ public class Pedigree {
     private Map<String, Individual> individuals;
     private Map<String, Family> families;
 
-
-    public Pedigree() {
-        init(null, null);
+    public Pedigree(Map<String, Individual> individuals) {
+        this.individuals = individuals;
     }
 
-    public Pedigree(List<Individual> individuals) {
-        init(individuals, null);
-    }
-
-    public Pedigree(List<Individual> individuals, List<VariableField> variables) {
-        init(individuals, variables);
-    }
+//    public Pedigree() {
+//        init(null, null);
+//    }
+//
+//    public Pedigree(List<Individual> individuals) {
+//        init(individuals, null);
+//    }
+//
+//    public Pedigree(List<Individual> individuals, List<VariableField> variables) {
+//        init(individuals, variables);
+//    }
 
     private void init(List<Individual> individuals, List<VariableField> variables) {
         this.variables = new LinkedHashMap<>();
@@ -72,6 +75,14 @@ public class Pedigree {
                 // TODO
             }
         }
+    }
+
+    public static String key(Individual individual) {
+        return (individual.getFamily() + "_" + individual.getId());
+    }
+
+    public static String key(String family, String id) {
+        return (family + "_" + id);
     }
 
     @Override
