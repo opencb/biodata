@@ -1,5 +1,6 @@
 package org.opencb.biodata.models.core.pedigree;
 
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -15,16 +16,19 @@ public class Family {
     private Set<Individual> members;
 
     public Family() {
+        this(null, null, null);
     }
 
     public Family(String id) {
-        this.id = id;
+        this(id, null, null);
     }
 
     public Family(String id, Individual father, Individual mother) {
         this.id = id;
         this.father = father;
         this.mother = mother;
+        this.numGenerations = 0;
+        this.members = new LinkedHashSet<>();
     }
 
 

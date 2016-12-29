@@ -17,7 +17,6 @@ import java.util.Map;
  */
 public class PedigreeManager {
 
-
     public PedigreeManager() {
     }
 
@@ -43,7 +42,8 @@ public class PedigreeManager {
                             + ", it must contain minimum 6 columns!");
                 }
                 if (i == 0 && line.startsWith("#")) {
-                    // Header with variables
+                    // header with variables
+                    // TODO: is it mandatory ??
                     labels = line.split("\t");
                 } else {
                     // normal line
@@ -78,7 +78,7 @@ public class PedigreeManager {
                     // updating individual
                     individual = individualMap.get(Pedigree.key(fields[0], fields[1]));
 
-                    // setting father
+                    // setting father and children
                     key = Pedigree.key(fields[0], fields[2]);
                     father = individualMap.get(key);
                     if (father != null) {
@@ -89,7 +89,7 @@ public class PedigreeManager {
                         father.getChildren().add(individual);
                     }
 
-                    // setting mother
+                    // setting mother and children
                     key = Pedigree.key(fields[0], fields[3]);
                     mother = individualMap.get(key);
                     if (mother != null) {
@@ -109,10 +109,7 @@ public class PedigreeManager {
             }
         }
 
-        // Create the Pedigree object with the accumulated data
-        Pedigree pedigree = new Pedigree(individualMap);
-        //pedigree.addIndividuals(individuals);
-
-        return pedigree;
+        // create the Pedigree object with the map of individuals
+        return new Pedigree(individualMap);
     }
 }

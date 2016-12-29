@@ -11,8 +11,116 @@ public class Pedigree {
     private Map<String, Individual> individuals;
     private Map<String, Family> families;
 
+    /**
+     * Constructor.
+     *
+     * @param individuals   Map of individuals
+     */
     public Pedigree(Map<String, Individual> individuals) {
+        init(individuals);
+        //this.individuals = individuals;
+    }
+
+    /**
+     * Pedigree initialization.
+     *
+     * @param individuals   Map of individuals
+     */
+    private void init(Map<String, Individual> individuals) {
         this.individuals = individuals;
+
+        initFamilies();
+        initVariables();
+    }
+
+    /**
+     * Families map initialization.
+     */
+    private void initFamilies() {
+        Family family;
+        String familyID;
+        families = new HashMap<>();
+        for (Individual individual: individuals.values()) {
+            familyID = individual.getFamily();
+            if (!families.containsKey(familyID)) {
+                families.put(familyID, new Family(familyID));
+            }
+            family = families.get(familyID);
+            // set family father and mother
+            if (individual.getFather() == null && individual.getMother() == null) {
+                if (individual.getSex() == Individual.Sex.MALE) {
+                    // set father
+                    family.setFather(individual);
+                } else if (individual.getSex() == Individual.Sex.FEMALE) {
+                    // set mother
+                    family.setMother(individual);
+                }
+            }
+            // finally set members
+            family.getMembers().add(individual);
+        }
+
+        // compute number of generations for each family from the father or the mother
+        for (Family f: families.values()) {
+            if (f.getFather() != null) {
+                f.setNumGenerations(computeNumberOfGenerations(f.getFather()));
+            } else if (f.getMother() != null) {
+                f.setNumGenerations(computeNumberOfGenerations(f.getMother()));
+            } else {
+                // never have to occurr !!
+                throw new InternalError("Unexpected family without parents, something may be wrong in your data!");
+            }
+        }
+    }
+
+    /**
+     * Recursive function to compute the number of generations of a given individual.
+     *
+     * @param   Individual target
+     * @return  Number of generations
+     */
+    private int computeNumberOfGenerations(Individual individual) {
+        int max = 1;
+
+        Iterator it = individual.getChildren().iterator();
+        while (it.hasNext()) {
+            Individual child = (Individual) it.next();
+            max = Math.max(max, 1 + computeNumberOfGenerations(child));
+        }
+        return max;
+    }
+
+    /**
+     * Variables map initialization.
+     */
+    public void initVariables() {
+        Map<String, Object> individualVars;
+        String varID;
+
+        VariableField.VariableType type;
+        variables = new HashMap<>();
+
+        // iterate all individuals, checking their variables
+        for (Individual individual: individuals.values()) {
+            individualVars = individual.getVariables();
+            for (String key: individualVars.keySet()) {
+                // is this variable in the map ?
+                if (!variables.containsKey(key)) {
+                    // identify the type of variable
+                    if (individualVars.get(key) instanceof Boolean) {
+                        type = VariableField.VariableType.BOOLEAN;
+                    } else if (individualVars.get(key) instanceof Double) {
+                        type = VariableField.VariableType.DOUBLE;
+                    } else if (individualVars.get(key) instanceof Integer) {
+                        type = VariableField.VariableType.INTEGER;
+                    } else {
+                        type = VariableField.VariableType.STRING;
+                    }
+                    // and finally, add this variable into the map
+                    variables.put(key, new VariableField(key, type));
+                }
+            }
+        }
     }
 
 //    public Pedigree() {
@@ -26,7 +134,7 @@ public class Pedigree {
 //    public Pedigree(List<Individual> individuals, List<VariableField> variables) {
 //        init(individuals, variables);
 //    }
-
+/*
     private void init(List<Individual> individuals, List<VariableField> variables) {
         this.variables = new LinkedHashMap<>();
         this.individuals = new LinkedHashMap<>();
@@ -57,10 +165,10 @@ public class Pedigree {
             calculateFamilies();
         }
     }
-
+*/
     /**
      * This method calculate the families and the individual partners.
-     */
+     *//*
     private void calculateFamilies() {
         if (this.individuals != null) {
             Iterator<String> iterator = this.individuals.keySet().iterator();
@@ -76,7 +184,7 @@ public class Pedigree {
             }
         }
     }
-
+*/
     public static String key(Individual individual) {
         return (individual.getFamily() + "_" + individual.getId());
     }
