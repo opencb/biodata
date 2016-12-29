@@ -4,6 +4,7 @@ import org.opencb.biodata.models.core.pedigree.Individual;
 import org.opencb.biodata.models.core.pedigree.Pedigree;
 import org.opencb.commons.utils.FileUtils;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,6 +21,13 @@ public class PedigreeManager {
     public PedigreeManager() {
     }
 
+    /**
+     * Parse a Pedigree file and return a Pedigree object.
+     *
+     * @param   pedigreePath    Path to the Pedigree file
+     * @return                  Pedigree object
+     * @throws IOException
+     */
     public Pedigree parse(Path pedigreePath) throws IOException {
         FileUtils.checkFile(pedigreePath);
 
@@ -111,5 +119,42 @@ public class PedigreeManager {
 
         // create the Pedigree object with the map of individuals
         return new Pedigree(individualMap);
+    }
+
+    /**
+     * Save a Pedigree object into a Pedigree format file.
+     *
+     * @param pedigree      Pedigree object
+     * @param pedigreePath  Path to the Pedigree file
+     */
+    public void save(Pedigree pedigree, Path pedigreePath) throws IOException {
+        BufferedWriter writer = FileUtils.newBufferedWriter(pedigreePath);
+        StringBuilder line = new StringBuilder();
+
+        // TODO: check order labels, header line and individual lines !!
+
+        // header line
+        line.append("#");
+        pedigree.getVariables().forEach((s, variableField) -> line.append(s).append("\t"));
+        writer.write(line.toString());
+
+        // main lines (individual data)
+        for (Individual individual: pedigree.getIndividuals().values()) {
+            // mandatory fields
+            line.setLength(0);
+            line.append(individual.getFamily()).append("\t").append(individual.getId()).append("\t")
+                    .append(individual.getFather() != null ? individual.getFather().getId() : 0).append("\t")
+                    .append(individual.getMother() != null ? individual.getMother().getId() : 0).append("\t")
+                    .append(individual.getSex()).append("\t").append(individual.getPhenotype()).append("\t");
+
+            // custom fields (optional)
+            individual.getVariables().forEach(((s1, o) -> line.append(o).append("\t")));
+
+            // write line
+            writer.write(line.toString());
+        }
+
+        // close
+        writer.close();
     }
 }
