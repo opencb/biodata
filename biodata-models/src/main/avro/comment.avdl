@@ -1,0 +1,10 @@
+@namespace("org.opencb.biodata.models.variant.avro")
+
+protocol Comments {
+
+    record Comment {
+        string text;
+        double date;
+        string author;
+    }
+}
