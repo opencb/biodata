@@ -10,7 +10,7 @@ import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.PopulationFrequency;
 import org.opencb.biodata.models.variant.avro.VariantAnnotation;
 import org.opencb.biodata.models.variant.stats.VariantStats;
-import org.opencb.biodata.tools.variant.converter.VariantStatsToPopulationFrequencyConverter;
+import org.opencb.biodata.tools.variant.converters.avro.VariantStatsToPopulationFrequencyConverter;
 import org.opencb.commons.io.DataWriter;
 
 import java.io.IOException;

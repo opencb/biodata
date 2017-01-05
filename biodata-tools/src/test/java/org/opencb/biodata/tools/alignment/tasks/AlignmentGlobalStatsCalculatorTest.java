@@ -42,7 +42,7 @@ public class AlignmentGlobalStatsCalculatorTest {
         // Avro stats calculator
         AvroAlignmentGlobalStatsCalculator avroCalculator = new AvroAlignmentGlobalStatsCalculator();
         AlignmentGlobalStats avroAlignmentStats = new AlignmentGlobalStats();
-        try(BamIterator<ReadAlignment> iterator1 = BamManager.iterator(alignmentOptions, null, ReadAlignment.class)) {
+        try(BamIterator<ReadAlignment> iterator1 = BamManager.iterator(null, alignmentOptions, ReadAlignment.class)) {
             while (iterator1.hasNext()) {
                 AlignmentGlobalStats computed = avroCalculator.compute(iterator1.next());
                 avroCalculator.update(computed, avroAlignmentStats);

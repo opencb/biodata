@@ -123,7 +123,7 @@ public class VariantVcfDataWriter implements VariantWriter {
         sb.append(Joiner.on(":").join(format)).append("\t");
         sb.append(generateSampleInfo(elem, file, format));
 
-        printer.append(sb.toString()).append("\n"); // TODO aaleman: Create a Variant2Vcf converter.
+        printer.append(sb.toString()).append("\n"); // TODO aaleman: Create a Variant2Vcf converters.
         return true;
     }
 
