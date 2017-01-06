@@ -27,10 +27,6 @@ protocol CuratedVariants {
             array<Comment> comments = [];
     }
 
-    record CurationHistory {
-        array<CurationHistoryEntry> history = [];
-    }
-
     record EvidenceEntry {
         double date;
         string source;
@@ -39,16 +35,12 @@ protocol CuratedVariants {
         array<Comment> comments = [];
     }
 
-    record Evidences {
-        array<EvidenceEntry> evidences = [];
-    }
-
-    record CuratedVariant {
+    record CuratedVariantAvro {
         VariantAvro variant;
         CurationClassification classification;
         CurationScore curationScore;
-        CurationHistory curationHistory;
-        Evidences evidences;
+        array<CurationHistoryEntry> history = [];
+        array<EvidenceEntry> evidences = [];
         array<Comment> comments = [];
         // TODO: link report events
     }
