@@ -14,6 +14,8 @@ import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.VariantType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,6 +33,7 @@ import java.util.stream.Stream;
  *
  */
 public class VariantMerger {
+    private final Logger logger = LoggerFactory.getLogger(VariantMerger.class);
 
     @Deprecated
     public static final String VCF_FILTER = VCFConstants.GENOTYPE_FILTER_KEY;
@@ -289,7 +292,8 @@ public class VariantMerger {
                     a.setType(VariantType.MIXED); // set all to the same
             };
             if (current.getType().equals(VariantType.SNP)
-                    || current.getType().equals(VariantType.SNV)) {
+                    || current.getType().equals(VariantType.SNV)
+                    || current.getType().equals(VariantType.MNV)) {
                 return stream.map(pair -> {
                     pair.getValue().stream()
                             .filter(a -> {
@@ -870,17 +874,22 @@ public class VariantMerger {
         }
         Map<String, Integer> formatPositions = se.getFormatPositions();
         Integer formatPosition = formatPositions.get(key);
+        String defaultValue = getDefaultValue(key);
         if (Objects.isNull(formatPosition)) {
-            throw new IllegalStateException("No format position registered for " + key + " in " + formatPositions + " in " + var.getImpl());
+            logger.warn("No format position registered for {} in {} in {} ", key, formatPositions, var.getImpl());
         }
         samplesPosition.forEach((s,samplePosition) -> {
             List<String> values = samplesData.get(samplePosition);
             if (Objects.isNull(values)) {
                 throw new IllegalStateException("No values for sample " + s + " at position " + samplePosition + " in " + samplesData);
             }
-            String val = values.get(formatPosition);
-            if (StringUtils.isNotBlank(val)) {
-                retMap.put(s, val);
+            if (Objects.isNull(formatPosition)) {
+                retMap.put(s, defaultValue);
+            } else {
+                String val = values.get(formatPosition);
+                if (StringUtils.isNotBlank(val)) {
+                    retMap.put(s, val);
+                }
             }
         });
         return retMap;
