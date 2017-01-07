@@ -17,7 +17,6 @@
 package org.opencb.biodata.models.variant;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.opencb.biodata.models.variant.avro.VariantAvro;
 import org.opencb.biodata.models.variant.avro.CuratedVariantAvro;
 import org.opencb.biodata.models.variant.avro.CurationClassification;
 import org.opencb.biodata.models.variant.avro.CurationScore;
@@ -29,6 +28,9 @@ import java.io.Serializable;
 import java.util.*;
 
 /**
+ *
+ * This is a wrapper class for the CuratedVariantAvro record in Avro.
+ *
  * @author Pablo Riesgo;
  */
 @JsonIgnoreProperties({"impl", "variant"})
@@ -36,7 +38,14 @@ public class CuratedVariant implements Serializable {
 
     private CuratedVariantAvro impl;
     private Variant variant;
+    static private Integer INF_CURATION_SCORE = 0;
+    static private Integer SUP_CURATION_SCORE = 5;
+    static private Integer DEFAULT_CURATION_SCORE = 0;
+    static private String DEFAULT_CURATION_CLASSIFICATION = "VUS";
 
+    /**
+     * Empty constructor, set default values
+     */
     public CuratedVariant() {
         this.variant = new Variant();
         this.impl = new CuratedVariantAvro(
@@ -49,14 +58,22 @@ public class CuratedVariant implements Serializable {
         );
     }
 
+    /**
+     * Constructor from the avro object
+     * @param avro the avro object
+     */
     public CuratedVariant(CuratedVariantAvro avro) {
         Objects.requireNonNull(avro);
         this.variant = new Variant(avro.getVariant());
         this.impl = avro;
     }
 
+    /**
+     * Constructor from the variant wrapper with default values for the CuratedVariant specific values
+     * @param variant the Variant wrapper
+     */
     public CuratedVariant(Variant variant) {
-        //TODO: perform checks on the Variant, we don't want to store information from multiple samples
+        //TODO: perform checks on the Variant, for example we don't want to store information from multiple samples
         // so we may want to delete it
         this.variant = variant;
         this.impl = new CuratedVariantAvro(
@@ -69,6 +86,15 @@ public class CuratedVariant implements Serializable {
         );
     }
 
+    /**
+     * Constructor for the variant wrapper and curated variant values
+     * @param variant the Variant wrapper
+     * @param curationClassification the curation classification, only accept values as defined in CurationClassification
+     * @param curationScore the curation score, only accepts values between 0 and 5
+     * @param curationHistory a list of HistoryEntry
+     * @param evidences a list of Evidence
+     * @param comments a list of Comment
+     */
     public CuratedVariant(Variant variant, String curationClassification,
                           Integer curationScore, List curationHistory,
                           List evidences, List comments) {
@@ -80,26 +106,50 @@ public class CuratedVariant implements Serializable {
         this.setComments(comments);
     }
 
+    /**
+     * Default curation classification
+     * @return
+     */
     private CurationClassification getDefaultCurationClassification() {
-        return CurationClassification.VUS;
+        return CurationClassification.valueOf(CuratedVariant.DEFAULT_CURATION_CLASSIFICATION);
     }
 
+    /**
+     * Default curation score
+     * @return
+     */
     private CurationScore getDefaultCurationScore() {
-        return new CurationScore(0);
+        return new CurationScore(CuratedVariant.DEFAULT_CURATION_SCORE);
     }
 
+    /**
+     * Default curation history
+     * @return
+     */
     private List getDefaultCurationHistory() {
         return new LinkedList<CurationHistoryEntry>();
     }
 
+    /**
+     * Default evidences
+     * @return
+     */
     private List getDefaultEvidences() {
         return new LinkedList<EvidenceEntry>();
     }
 
+    /**
+     * Default comments
+     * @return
+     */
     private List getDefaultComments() {
         return new LinkedList<Comment>();
     }
 
+    /**
+     * Setter for curation classification. Throws an IllegalArgumentException if the value is not defined in the enum
+     * @param curationClassification
+     */
     public void setCurationClassification(String curationClassification) {
         if (curationClassification == null) {
             impl.setClassification(this.getDefaultCurationClassification());
@@ -109,26 +159,45 @@ public class CuratedVariant implements Serializable {
         }
     }
 
+    /**
+     * Getter for curation classificaion
+     * @return
+     */
     public String getCurationClassification() {
         return impl.getClassification().toString();
     }
 
+    /**
+     * Setter for curation score. Throws an IllegalArgumentException if the score is out of the defined range
+     * @param curationScore
+     */
     public void setCurationScore(Integer curationScore) {
         if (curationScore == null) {
             impl.setCurationScore(this.getDefaultCurationScore());
         }
-        else if (curationScore < 0 || curationScore > 5) {
-            throw new IllegalArgumentException("The curation score must be in the interval [0, 5]");
+        else if (curationScore < CuratedVariant.INF_CURATION_SCORE ||
+                curationScore > CuratedVariant.SUP_CURATION_SCORE) {
+            throw new IllegalArgumentException(String.format(
+                    "The curation score must be in the interval [%1$d, %2$d], found %3$d",
+                    CuratedVariant.INF_CURATION_SCORE, CuratedVariant.SUP_CURATION_SCORE, curationScore));
         }
         else {
             impl.setCurationScore(new CurationScore(curationScore));
         }
     }
 
+    /**
+     * Getter for curation score
+     * @return
+     */
     public Integer getCurationScore() {
         return impl.getCurationScore().getVariantScore();
     }
 
+    /**
+     * Setter for curation history
+     * @param curationHistory
+     */
     public void setCurationHistory(List curationHistory) {
         if (curationHistory == null) {
             impl.setHistory(this.getDefaultCurationHistory());
@@ -138,10 +207,18 @@ public class CuratedVariant implements Serializable {
         }
     }
 
+    /**
+     * Getter for curation history
+     * @return
+     */
     public List getCurationHistory() {
         return impl.getHistory();
     }
 
+    /**
+     * Setter for evidences
+     * @param evidences
+     */
     public void setEvidences(List evidences) {
         if (evidences == null) {
             impl.setEvidences(this.getDefaultEvidences());
@@ -151,10 +228,18 @@ public class CuratedVariant implements Serializable {
         }
     }
 
+    /**
+     * Getter for evidences
+     * @return
+     */
     public List getEvidences() {
         return impl.getEvidences();
     }
 
+    /**
+     * Setter for comments
+     * @param comments
+     */
     public void setComments(List comments) {
         if (comments == null) {
             impl.setComments(this.getDefaultComments());
@@ -164,6 +249,10 @@ public class CuratedVariant implements Serializable {
         }
     }
 
+    /**
+     * Getter for comments
+     * @return
+     */
     public List getComments() {
         return impl.getComments();
     }
