@@ -20,12 +20,15 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.opencb.biodata.models.variant.exceptions.NotAVariantException;
 
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+
+import org.opencb.biodata.models.variant.avro.CuratedVariantAvro;
+import org.opencb.biodata.models.variant.avro.CurationClassification;
+import org.opencb.biodata.models.variant.avro.CurationScore;
 
 /**
  * @author Pablo Riesgo Ferreiro &lt;pablo.ferreiro@genomicsengland.co.uk&gt;
@@ -56,6 +59,14 @@ public class CuratedVariantTest {
         assertNotNull(curatedVariant.getComments());
         assertEquals(0, curatedVariant.getComments().size());
         assertNotNull(curatedVariant.getVariant());
+        CuratedVariantAvro curatedVariantAvro = curatedVariant.getImpl();
+        assertNotNull(curatedVariantAvro);
+        assertEquals(CurationClassification.VUS, curatedVariantAvro.getClassification());
+        assertEquals(new Integer(0), curatedVariantAvro.getCurationScore().getVariantScore());
+        assertNotNull(curatedVariantAvro.getHistory());
+        assertNotNull(curatedVariantAvro.getEvidences());
+        assertNotNull(curatedVariantAvro.getComments());
+        assertNotNull(curatedVariantAvro.getVariant());
     }
 
     @Test
@@ -78,6 +89,14 @@ public class CuratedVariantTest {
         assertEquals(0, curatedVariant.getComments().size());
         assertNotNull(curatedVariant.getVariant());
         assertEquals(variant, curatedVariant.getVariant());
+        CuratedVariantAvro curatedVariantAvro = curatedVariant.getImpl();
+        assertNotNull(curatedVariantAvro);
+        assertEquals(CurationClassification.VUS, curatedVariantAvro.getClassification());
+        assertEquals(new Integer(0), curatedVariantAvro.getCurationScore().getVariantScore());
+        assertNotNull(curatedVariantAvro.getHistory());
+        assertNotNull(curatedVariantAvro.getEvidences());
+        assertNotNull(curatedVariantAvro.getComments());
+        assertNotNull(curatedVariantAvro.getVariant());
     }
 
     @Test
@@ -102,6 +121,14 @@ public class CuratedVariantTest {
         assertEquals(0, curatedVariant.getComments().size());
         assertNotNull(curatedVariant.getVariant());
         assertEquals(variant, curatedVariant.getVariant());
+        CuratedVariantAvro curatedVariantAvro = curatedVariant.getImpl();
+        assertNotNull(curatedVariantAvro);
+        assertEquals(CurationClassification.DISEASE_ASSOCIATED_VARIANT, curatedVariantAvro.getClassification());
+        assertEquals(new Integer(5), curatedVariantAvro.getCurationScore().getVariantScore());
+        assertNotNull(curatedVariantAvro.getHistory());
+        assertNotNull(curatedVariantAvro.getEvidences());
+        assertNotNull(curatedVariantAvro.getComments());
+        assertNotNull(curatedVariantAvro.getVariant());
     }
 
     @Test(expected = IllegalArgumentException.class)

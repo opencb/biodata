@@ -265,5 +265,13 @@ public class CuratedVariant implements Serializable {
     public Variant getVariant() {
         return variant;
     }
+
+    /**
+     * Getter for CuratedVariantAvro, no setter available as it should be passed in the constructor
+     * @return
+     */
+    public CuratedVariantAvro getImpl() {
+        return impl;
+    }
 }
 
