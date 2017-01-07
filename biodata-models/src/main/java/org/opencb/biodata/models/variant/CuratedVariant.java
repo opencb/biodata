@@ -31,7 +31,7 @@ import java.util.*;
  *
  * This is a wrapper class for the CuratedVariantAvro record in Avro.
  *
- * @author Pablo Riesgo;
+ * @author Pablo Riesgo Ferreiro &lt;pablo.ferreiro@genomicsengland.co.uk&gt;
  */
 @JsonIgnoreProperties({"impl", "variant"})
 public class CuratedVariant implements Serializable {
@@ -62,6 +62,7 @@ public class CuratedVariant implements Serializable {
      * Constructor from the avro object
      * @param avro the avro object
      */
+    //TODO: do we need this for reading the DB???
     public CuratedVariant(CuratedVariantAvro avro) {
         Objects.requireNonNull(avro);
         this.variant = new Variant(avro.getVariant());
@@ -255,6 +256,14 @@ public class CuratedVariant implements Serializable {
      */
     public List getComments() {
         return impl.getComments();
+    }
+
+    /**
+     * Getter for Variant, no setter available as it should be passed in the constructor
+     * @return
+     */
+    public Variant getVariant() {
+        return variant;
     }
 }
 
