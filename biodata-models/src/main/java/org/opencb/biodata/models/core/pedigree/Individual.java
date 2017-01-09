@@ -19,15 +19,31 @@ public class Individual {
     private Set<Individual> children;
 
     public enum Sex {
-        MALE,
-        FEMALE,
-        UNKNOWN_SEX
+        MALE(1),
+        FEMALE(2),
+        UNKNOWN_SEX(0);
+
+        private int value;
+        Sex(int value) {
+            this.value = value;
+        }
+        public int getValue() {
+            return value;
+        }
     }
 
     public enum Phenotype {
-        MISSING,
-        AFFECTED,
-        UNAFFECTED
+        MISSING(0),
+        UNAFFECTED(1),
+        AFFECTED(2);
+
+        private int value;
+        Phenotype(int value) {
+            this.value = value;
+        }
+        public int getValue() {
+            return value;
+        }
     }
 
     public Individual() {
@@ -83,14 +99,17 @@ public class Individual {
         final StringBuilder sb = new StringBuilder("Individual{");
         sb.append("id='").append(id).append('\'');
         sb.append(", family='").append(family).append('\'');
-        sb.append(", father=").append(father);
-        sb.append(", mother=").append(mother);
-        sb.append(", partner=").append(partner);
+        sb.append(", father=").append(father != null ? father.getId() : "-");
+        sb.append(", mother=").append(mother != null ? mother.getId() : "-");
+        sb.append(", partner=").append(partner != null ? partner.getId() : "-");
         sb.append(", sex=").append(sex);
         sb.append(", phenotype=").append(phenotype);
         sb.append(", variables=").append(variables);
-        sb.append(", children=").append(children);
-        sb.append('}');
+        sb.append(", children={");
+        if (children != null && children.size() > 0) {
+            children.forEach(c -> sb.append(c.getId()).append(", "));
+        }
+        sb.append("} }");
         return sb.toString();
     }
 

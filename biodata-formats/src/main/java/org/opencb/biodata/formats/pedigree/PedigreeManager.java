@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -50,8 +49,7 @@ public class PedigreeManager {
                             + ", it must contain minimum 6 columns!");
                 }
                 if (i == 0 && line.startsWith("#")) {
-                    // header with variables
-                    // TODO: is it mandatory ??
+                    // header with variables, labels are optional
                     labels = line.split("\t");
                 } else {
                     // normal line
@@ -61,8 +59,8 @@ public class PedigreeManager {
                             .setSex(fields[4])
                             .setPhenotype(fields[5]);
 
-                    if (fields.length > 6) {
-                        // TODO: checking existing labels ??
+                    // labels are optional
+                    if (labels != null && fields.length > 6 && labels.length == fields.length) {
                         Map<String, Object> vars = new HashMap<>();
                         for (int j = 6; j < fields.length; j++) {
                             vars.put(labels[j], fields[j]);
@@ -76,43 +74,15 @@ public class PedigreeManager {
         }
 
         // second loop: setting fathers, mothers, partners and children
-        Individual father, mother;
         for (int i = 1; i < individualStringLines.size(); i++) {
             line = individualStringLines.get(i);
             if (line != null) {
                 fields = line.split("\t");
                 if (!line.startsWith("#")) {
-
-                    // updating individual
-                    individual = individualMap.get(Pedigree.key(fields[0], fields[1]));
-
-                    // setting father and children
-                    key = Pedigree.key(fields[0], fields[2]);
-                    father = individualMap.get(key);
-                    if (father != null) {
-                        individual.setFather(father);
-                        if (father.getChildren() == null) {
-                            father.setChildren(new LinkedHashSet<>());
-                        }
-                        father.getChildren().add(individual);
-                    }
-
-                    // setting mother and children
-                    key = Pedigree.key(fields[0], fields[3]);
-                    mother = individualMap.get(key);
-                    if (mother != null) {
-                        individual.setMother(mother);
-                        if (mother.getChildren() == null) {
-                            mother.setChildren(new LinkedHashSet<>());
-                        }
-                        mother.getChildren().add(individual);
-                    }
-
-                    // setting partners
-                    if (father != null && mother != null) {
-                        father.setPartner(mother);
-                        mother.setPartner(father);
-                    }
+                    // update father, mother and child
+                    Pedigree.updateIndividuals(individualMap.get(Pedigree.key(fields[0], fields[2])),
+                            individualMap.get(Pedigree.key(fields[0], fields[3])),
+                            individualMap.get(Pedigree.key(fields[0], fields[1])));
                 }
             }
         }
@@ -134,8 +104,10 @@ public class PedigreeManager {
         // TODO: check order labels, header line and individual lines !!
 
         // header line
-        line.append("#");
-        pedigree.getVariables().forEach((s, variableField) -> line.append(s).append("\t"));
+        line.append("#Family").append("\t").append("Person").append("\t").append("Father").append("\t")
+                .append("Mother").append("\t").append("Sex").append("\t").append("Phenotype");
+        pedigree.getVariables().forEach((s, variableField) -> line.append("\t").append(s));
+        line.append("\n");
         writer.write(line.toString());
 
         // main lines (individual data)
@@ -145,10 +117,13 @@ public class PedigreeManager {
             line.append(individual.getFamily()).append("\t").append(individual.getId()).append("\t")
                     .append(individual.getFather() != null ? individual.getFather().getId() : 0).append("\t")
                     .append(individual.getMother() != null ? individual.getMother().getId() : 0).append("\t")
-                    .append(individual.getSex()).append("\t").append(individual.getPhenotype()).append("\t");
+                    .append(individual.getSex().getValue()).append("\t").append(individual.getPhenotype().getValue());
 
             // custom fields (optional)
-            individual.getVariables().forEach(((s1, o) -> line.append(o).append("\t")));
+            if (individual.getVariables() != null) {
+                individual.getVariables().forEach(((s1, o) -> line.append("\t").append(o)));
+            }
+            line.append("\n");
 
             // write line
             writer.write(line.toString());

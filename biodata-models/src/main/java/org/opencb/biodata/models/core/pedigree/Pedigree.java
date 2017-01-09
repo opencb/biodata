@@ -1,6 +1,9 @@
 package org.opencb.biodata.models.core.pedigree;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
 
 /**
  * Created by imedina on 10/10/16.
@@ -50,10 +53,22 @@ public class Pedigree {
             if (individual.getFather() == null && individual.getMother() == null) {
                 if (individual.getSex() == Individual.Sex.MALE) {
                     // set father
-                    family.setFather(individual);
+                    if (family.getFather() == null) {
+                        family.setFather(individual);
+                    } else {
+                        if (computeNumberOfGenerations(individual) > computeNumberOfGenerations(family.getFather())) {
+                            family.setFather(individual);
+                        }
+                    }
                 } else if (individual.getSex() == Individual.Sex.FEMALE) {
                     // set mother
-                    family.setMother(individual);
+                    if (family.getMother() == null) {
+                        family.setMother(individual);
+                    } else {
+                        if (computeNumberOfGenerations(individual) > computeNumberOfGenerations(family.getMother())) {
+                            family.setMother(individual);
+                        }
+                    }
                 }
             }
             // finally set members
@@ -67,25 +82,54 @@ public class Pedigree {
             } else if (f.getMother() != null) {
                 f.setNumGenerations(computeNumberOfGenerations(f.getMother()));
             } else {
-                // never have to occurr !!
+                // it does not have to occurr ever !!
                 throw new InternalError("Unexpected family without parents, something may be wrong in your data!");
             }
+        }
+    }
+
+
+    public static void updateIndividuals(Individual father, Individual mother, Individual child) {
+        // setting father and children
+        if (father != null) {
+            child.setFather(father);
+            if (father.getChildren() == null) {
+                father.setChildren(new LinkedHashSet<>());
+            }
+            father.getChildren().add(child);
+        }
+
+        // setting mother and children
+        if (mother != null) {
+            child.setMother(mother);
+            if (mother.getChildren() == null) {
+                mother.setChildren(new LinkedHashSet<>());
+            }
+            mother.getChildren().add(child);
+        }
+
+        // setting partners
+        if (father != null && mother != null) {
+            father.setPartner(mother);
+            mother.setPartner(father);
         }
     }
 
     /**
      * Recursive function to compute the number of generations of a given individual.
      *
-     * @param   Individual target
-     * @return  Number of generations
+     * @param   individual  Target individual
+     * @return              Number of generations
      */
     private int computeNumberOfGenerations(Individual individual) {
         int max = 1;
 
-        Iterator it = individual.getChildren().iterator();
-        while (it.hasNext()) {
-            Individual child = (Individual) it.next();
-            max = Math.max(max, 1 + computeNumberOfGenerations(child));
+        if (individual.getChildren() != null) {
+            Iterator it = individual.getChildren().iterator();
+            while (it.hasNext()) {
+                Individual child = (Individual) it.next();
+                max = Math.max(max, 1 + computeNumberOfGenerations(child));
+            }
         }
         return max;
     }
@@ -95,7 +139,6 @@ public class Pedigree {
      */
     public void initVariables() {
         Map<String, Object> individualVars;
-        String varID;
 
         VariableField.VariableType type;
         variables = new HashMap<>();
@@ -103,21 +146,23 @@ public class Pedigree {
         // iterate all individuals, checking their variables
         for (Individual individual: individuals.values()) {
             individualVars = individual.getVariables();
-            for (String key: individualVars.keySet()) {
-                // is this variable in the map ?
-                if (!variables.containsKey(key)) {
-                    // identify the type of variable
-                    if (individualVars.get(key) instanceof Boolean) {
-                        type = VariableField.VariableType.BOOLEAN;
-                    } else if (individualVars.get(key) instanceof Double) {
-                        type = VariableField.VariableType.DOUBLE;
-                    } else if (individualVars.get(key) instanceof Integer) {
-                        type = VariableField.VariableType.INTEGER;
-                    } else {
-                        type = VariableField.VariableType.STRING;
+            if (individualVars != null) {
+                for (String key: individualVars.keySet()) {
+                    // is this variable in the map ?
+                    if (!variables.containsKey(key)) {
+                        // identify the type of variable
+                        if (individualVars.get(key) instanceof Boolean) {
+                            type = VariableField.VariableType.BOOLEAN;
+                        } else if (individualVars.get(key) instanceof Double) {
+                            type = VariableField.VariableType.DOUBLE;
+                        } else if (individualVars.get(key) instanceof Integer) {
+                            type = VariableField.VariableType.INTEGER;
+                        } else {
+                            type = VariableField.VariableType.STRING;
+                        }
+                        // and finally, add this variable into the map
+                        variables.put(key, new VariableField(key, type));
                     }
-                    // and finally, add this variable into the map
-                    variables.put(key, new VariableField(key, type));
                 }
             }
         }

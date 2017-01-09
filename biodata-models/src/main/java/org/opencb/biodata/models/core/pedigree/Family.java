@@ -36,11 +36,14 @@ public class Family {
     public String toString() {
         final StringBuilder sb = new StringBuilder("Family{");
         sb.append("id='").append(id).append('\'');
-        sb.append(", father=").append(father);
-        sb.append(", mother=").append(mother);
+        sb.append(", father=").append(father != null ? father.getId() : "-");
+        sb.append(", mother=").append(mother != null ? mother.getId() : "-");
         sb.append(", numGenerations=").append(numGenerations);
-        sb.append(", members=").append(members);
-        sb.append('}');
+        sb.append(", members={");
+        if (members != null && members.size() > 0) {
+            members.forEach(m -> sb.append(m.getId()).append(", "));
+        }
+        sb.append("} }");
         return sb.toString();
     }
 
