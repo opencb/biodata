@@ -4,8 +4,7 @@ import org.opencb.biodata.models.core.pedigree.Individual;
 import org.opencb.biodata.models.core.pedigree.Pedigree;
 import org.opencb.commons.utils.FileUtils;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -91,14 +90,9 @@ public class PedigreeManager {
         return new Pedigree(individualMap);
     }
 
-    /**
-     * Save a Pedigree object into a Pedigree format file.
-     *
-     * @param pedigree      Pedigree object
-     * @param pedigreePath  Path to the Pedigree file
-     */
-    public void save(Pedigree pedigree, Path pedigreePath) throws IOException {
-        BufferedWriter writer = FileUtils.newBufferedWriter(pedigreePath);
+    public void write(Pedigree pedigree, OutputStream os) {
+        final PrintStream writer = new PrintStream(os);
+
         StringBuilder line = new StringBuilder();
 
         // TODO: check order labels, header line and individual lines !!
@@ -107,8 +101,7 @@ public class PedigreeManager {
         line.append("#Family").append("\t").append("Person").append("\t").append("Father").append("\t")
                 .append("Mother").append("\t").append("Sex").append("\t").append("Phenotype");
         pedigree.getVariables().forEach((s, variableField) -> line.append("\t").append(s));
-        line.append("\n");
-        writer.write(line.toString());
+        writer.println(line.toString());
 
         // main lines (individual data)
         for (Individual individual: pedigree.getIndividuals().values()) {
@@ -123,13 +116,26 @@ public class PedigreeManager {
             if (individual.getVariables() != null) {
                 individual.getVariables().forEach(((s1, o) -> line.append("\t").append(o)));
             }
-            line.append("\n");
 
             // write line
-            writer.write(line.toString());
+            writer.println(line.toString());
         }
 
         // close
         writer.close();
+    }
+
+    /**
+     * Save a Pedigree object into a Pedigree format file.
+     *
+     * @param pedigree      Pedigree object
+     * @param pedigreePath  Path to the Pedigree file
+     */
+    public void save(Pedigree pedigree, Path pedigreePath) throws IOException {
+        final OutputStream os = new FileOutputStream(pedigreePath.toFile());
+        write(pedigree, os);
+
+        // close
+        os.close();
     }
 }
