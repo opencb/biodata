@@ -32,6 +32,7 @@ public class Pedigree {
     private void init(Map<String, Individual> individuals) {
         this.individuals = individuals;
 
+        // now init families and variables
         initFamilies();
         initVariables();
     }

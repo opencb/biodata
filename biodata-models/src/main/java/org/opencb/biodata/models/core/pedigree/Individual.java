@@ -30,6 +30,19 @@ public class Individual {
         public int getValue() {
             return value;
         }
+
+        public static Sex getEnum(String value) {
+            switch (value) {
+                case "1":
+                case "MALE":
+                    return MALE;
+                case "2":
+                case "FEMALE":
+                    return FEMALE;
+                default:
+                    return UNKNOWN_SEX;
+            }
+        }
     }
 
     public enum Phenotype {
@@ -41,8 +54,22 @@ public class Individual {
         Phenotype(int value) {
             this.value = value;
         }
+
         public int getValue() {
             return value;
+        }
+
+        public static Phenotype getEnum(String value) {
+            switch (value) {
+                case "1":
+                case "UNAFFECTED":
+                    return UNAFFECTED;
+                case "2":
+                case "AFFECTED":
+                    return AFFECTED;
+                default:
+                    return MISSING;
+            }
         }
     }
 
@@ -70,28 +97,6 @@ public class Individual {
         this.phenotype = phenotype;
         this.variables = variables;
         this.children = children;
-    }
-
-    public static Individual.Phenotype toPhenotype(String phenotype) {
-        switch (phenotype) {
-            case "1":
-                return Phenotype.UNAFFECTED;
-            case "2":
-                return Phenotype.AFFECTED;
-            default:
-                return Phenotype.MISSING;
-        }
-    }
-
-    public static Individual.Sex toSex(String sex) {
-        switch (sex) {
-            case "1":
-                return Sex.MALE;
-            case "2":
-                return Sex.FEMALE;
-            default:
-                return Sex.UNKNOWN_SEX;
-        }
     }
 
     @Override
@@ -163,7 +168,7 @@ public class Individual {
     }
 
     public Individual setSex(String sex) {
-        return setSex(toSex(sex));
+        return setSex(Individual.Sex.getEnum(sex));
     }
 
     public Individual setSex(Sex sex) {
@@ -176,7 +181,7 @@ public class Individual {
     }
 
     public Individual setPhenotype(String phenotype) {
-        return setPhenotype(toPhenotype(phenotype));
+        return setPhenotype(Individual.Phenotype.getEnum(phenotype));
     }
 
     public Individual setPhenotype(Phenotype phenotype) {
