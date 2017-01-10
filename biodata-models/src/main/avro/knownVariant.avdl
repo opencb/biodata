@@ -1,6 +1,6 @@
 @namespace("org.opencb.biodata.models.variant.avro")
 
-protocol CuratedVariants {
+protocol KnownVariants {
 
     import idl "variant.avdl";
     import idl "comment.avdl";
@@ -35,7 +35,7 @@ protocol CuratedVariants {
         array<Comment> comments = [];
     }
 
-    record CuratedVariantAvro {
+    record KnownVariantAvro {
         VariantAvro variant;
         CurationClassification classification;
         CurationScore curationScore;

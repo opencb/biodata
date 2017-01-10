@@ -17,7 +17,7 @@
 package org.opencb.biodata.models.variant;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.opencb.biodata.models.variant.avro.CuratedVariantAvro;
+import org.opencb.biodata.models.variant.avro.KnownVariantAvro;
 import org.opencb.biodata.models.variant.avro.CurationClassification;
 import org.opencb.biodata.models.variant.avro.CurationScore;
 import org.opencb.biodata.models.variant.avro.EvidenceEntry;
@@ -34,9 +34,9 @@ import java.util.*;
  * @author Pablo Riesgo Ferreiro &lt;pablo.ferreiro@genomicsengland.co.uk&gt;
  */
 @JsonIgnoreProperties({"impl", "variant"})
-public class CuratedVariant implements Serializable {
+public class KnownVariant implements Serializable {
 
-    private CuratedVariantAvro impl;
+    private KnownVariantAvro impl;
     private Variant variant;
     static private Integer INF_CURATION_SCORE = 0;
     static private Integer SUP_CURATION_SCORE = 5;
@@ -46,9 +46,9 @@ public class CuratedVariant implements Serializable {
     /**
      * Empty constructor, set default values
      */
-    public CuratedVariant() {
+    public KnownVariant() {
         this.variant = new Variant();
-        this.impl = new CuratedVariantAvro(
+        this.impl = new KnownVariantAvro(
                 this.variant.getImpl(),
                 this.getDefaultCurationClassification(),
                 this.getDefaultCurationScore(),
@@ -63,21 +63,21 @@ public class CuratedVariant implements Serializable {
      * @param avro the avro object
      */
     //TODO: do we need this for reading the DB???
-    public CuratedVariant(CuratedVariantAvro avro) {
+    public KnownVariant(KnownVariantAvro avro) {
         Objects.requireNonNull(avro);
         this.variant = new Variant(avro.getVariant());
         this.impl = avro;
     }
 
     /**
-     * Constructor from the variant wrapper with default values for the CuratedVariant specific values
+     * Constructor from the variant wrapper with default values for the KnownVariant specific values
      * @param variant the Variant wrapper
      */
-    public CuratedVariant(Variant variant) {
+    public KnownVariant(Variant variant) {
         //TODO: perform checks on the Variant, for example we don't want to store information from multiple samples
         // so we may want to delete it
         this.variant = variant;
-        this.impl = new CuratedVariantAvro(
+        this.impl = new KnownVariantAvro(
                 this.variant.getImpl(),
                 this.getDefaultCurationClassification(),
                 this.getDefaultCurationScore(),
@@ -96,9 +96,9 @@ public class CuratedVariant implements Serializable {
      * @param evidences a list of Evidence
      * @param comments a list of Comment
      */
-    public CuratedVariant(Variant variant, String curationClassification,
-                          Integer curationScore, List curationHistory,
-                          List evidences, List comments) {
+    public KnownVariant(Variant variant, String curationClassification,
+                        Integer curationScore, List curationHistory,
+                        List evidences, List comments) {
         this(variant);
         this.setCurationClassification(curationClassification);
         this.setCurationScore(curationScore);
@@ -112,7 +112,7 @@ public class CuratedVariant implements Serializable {
      * @return
      */
     private CurationClassification getDefaultCurationClassification() {
-        return CurationClassification.valueOf(CuratedVariant.DEFAULT_CURATION_CLASSIFICATION);
+        return CurationClassification.valueOf(KnownVariant.DEFAULT_CURATION_CLASSIFICATION);
     }
 
     /**
@@ -120,7 +120,7 @@ public class CuratedVariant implements Serializable {
      * @return
      */
     private CurationScore getDefaultCurationScore() {
-        return new CurationScore(CuratedVariant.DEFAULT_CURATION_SCORE);
+        return new CurationScore(KnownVariant.DEFAULT_CURATION_SCORE);
     }
 
     /**
@@ -176,11 +176,11 @@ public class CuratedVariant implements Serializable {
         if (curationScore == null) {
             impl.setCurationScore(this.getDefaultCurationScore());
         }
-        else if (curationScore < CuratedVariant.INF_CURATION_SCORE ||
-                curationScore > CuratedVariant.SUP_CURATION_SCORE) {
+        else if (curationScore < KnownVariant.INF_CURATION_SCORE ||
+                curationScore > KnownVariant.SUP_CURATION_SCORE) {
             throw new IllegalArgumentException(String.format(
                     "The curation score must be in the interval [%1$d, %2$d], found %3$d",
-                    CuratedVariant.INF_CURATION_SCORE, CuratedVariant.SUP_CURATION_SCORE, curationScore));
+                    KnownVariant.INF_CURATION_SCORE, KnownVariant.SUP_CURATION_SCORE, curationScore));
         }
         else {
             impl.setCurationScore(new CurationScore(curationScore));
@@ -270,7 +270,7 @@ public class CuratedVariant implements Serializable {
      * Getter for CuratedVariantAvro, no setter available as it should be passed in the constructor
      * @return
      */
-    public CuratedVariantAvro getImpl() {
+    public KnownVariantAvro getImpl() {
         return impl;
     }
 }

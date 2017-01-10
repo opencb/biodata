@@ -26,14 +26,13 @@ import java.util.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import org.opencb.biodata.models.variant.avro.CuratedVariantAvro;
+import org.opencb.biodata.models.variant.avro.KnownVariantAvro;
 import org.opencb.biodata.models.variant.avro.CurationClassification;
-import org.opencb.biodata.models.variant.avro.CurationScore;
 
 /**
  * @author Pablo Riesgo Ferreiro &lt;pablo.ferreiro@genomicsengland.co.uk&gt;
  */
-public class CuratedVariantTest {
+public class KnownVariantTest {
 
     private VariantSource source = new VariantSource("filename.vcf", "fileId", "studyId", "studyName");
     private VariantFactory factory = new VariantVcfFactory();
@@ -49,17 +48,17 @@ public class CuratedVariantTest {
 
     @Test
     public void testCreateEmptyCuratedVariant() {
-        CuratedVariant curatedVariant = new CuratedVariant();
-        assertEquals("VUS", curatedVariant.getCurationClassification());
-        assertEquals(new Integer(0), curatedVariant.getCurationScore());
-        assertNotNull(curatedVariant.getCurationHistory());
-        assertEquals(0, curatedVariant.getCurationHistory().size());
-        assertNotNull(curatedVariant.getEvidences());
-        assertEquals(0, curatedVariant.getEvidences().size());
-        assertNotNull(curatedVariant.getComments());
-        assertEquals(0, curatedVariant.getComments().size());
-        assertNotNull(curatedVariant.getVariant());
-        CuratedVariantAvro curatedVariantAvro = curatedVariant.getImpl();
+        KnownVariant knownVariant = new KnownVariant();
+        assertEquals("VUS", knownVariant.getCurationClassification());
+        assertEquals(new Integer(0), knownVariant.getCurationScore());
+        assertNotNull(knownVariant.getCurationHistory());
+        assertEquals(0, knownVariant.getCurationHistory().size());
+        assertNotNull(knownVariant.getEvidences());
+        assertEquals(0, knownVariant.getEvidences().size());
+        assertNotNull(knownVariant.getComments());
+        assertEquals(0, knownVariant.getComments().size());
+        assertNotNull(knownVariant.getVariant());
+        KnownVariantAvro curatedVariantAvro = knownVariant.getImpl();
         assertNotNull(curatedVariantAvro);
         assertEquals(CurationClassification.VUS, curatedVariantAvro.getClassification());
         assertEquals(new Integer(0), curatedVariantAvro.getCurationScore().getVariantScore());
@@ -78,18 +77,18 @@ public class CuratedVariantTest {
         result.stream().forEach(variant -> variant.setStudies(Collections.<StudyEntry>emptyList()));
 
         Variant variant = result.get(0);
-        CuratedVariant curatedVariant = new CuratedVariant(variant);
-        assertEquals("VUS", curatedVariant.getCurationClassification());
-        assertEquals(new Integer(0), curatedVariant.getCurationScore());
-        assertNotNull(curatedVariant.getCurationHistory());
-        assertEquals(0, curatedVariant.getCurationHistory().size());
-        assertNotNull(curatedVariant.getEvidences());
-        assertEquals(0, curatedVariant.getEvidences().size());
-        assertNotNull(curatedVariant.getComments());
-        assertEquals(0, curatedVariant.getComments().size());
-        assertNotNull(curatedVariant.getVariant());
-        assertEquals(variant, curatedVariant.getVariant());
-        CuratedVariantAvro curatedVariantAvro = curatedVariant.getImpl();
+        KnownVariant knownVariant = new KnownVariant(variant);
+        assertEquals("VUS", knownVariant.getCurationClassification());
+        assertEquals(new Integer(0), knownVariant.getCurationScore());
+        assertNotNull(knownVariant.getCurationHistory());
+        assertEquals(0, knownVariant.getCurationHistory().size());
+        assertNotNull(knownVariant.getEvidences());
+        assertEquals(0, knownVariant.getEvidences().size());
+        assertNotNull(knownVariant.getComments());
+        assertEquals(0, knownVariant.getComments().size());
+        assertNotNull(knownVariant.getVariant());
+        assertEquals(variant, knownVariant.getVariant());
+        KnownVariantAvro curatedVariantAvro = knownVariant.getImpl();
         assertNotNull(curatedVariantAvro);
         assertEquals(CurationClassification.VUS, curatedVariantAvro.getClassification());
         assertEquals(new Integer(0), curatedVariantAvro.getCurationScore().getVariantScore());
@@ -108,20 +107,20 @@ public class CuratedVariantTest {
         result.stream().forEach(variant -> variant.setStudies(Collections.<StudyEntry>emptyList()));
 
         Variant variant = result.get(0);
-        CuratedVariant curatedVariant = new CuratedVariant(variant,
+        KnownVariant knownVariant = new KnownVariant(variant,
                 "DISEASE_ASSOCIATED_VARIANT", 5,
                 null, null, null);
-        assertEquals("DISEASE_ASSOCIATED_VARIANT", curatedVariant.getCurationClassification());
-        assertEquals(new Integer(5), curatedVariant.getCurationScore());
-        assertNotNull(curatedVariant.getCurationHistory());
-        assertEquals(0, curatedVariant.getCurationHistory().size());
-        assertNotNull(curatedVariant.getEvidences());
-        assertEquals(0, curatedVariant.getEvidences().size());
-        assertNotNull(curatedVariant.getComments());
-        assertEquals(0, curatedVariant.getComments().size());
-        assertNotNull(curatedVariant.getVariant());
-        assertEquals(variant, curatedVariant.getVariant());
-        CuratedVariantAvro curatedVariantAvro = curatedVariant.getImpl();
+        assertEquals("DISEASE_ASSOCIATED_VARIANT", knownVariant.getCurationClassification());
+        assertEquals(new Integer(5), knownVariant.getCurationScore());
+        assertNotNull(knownVariant.getCurationHistory());
+        assertEquals(0, knownVariant.getCurationHistory().size());
+        assertNotNull(knownVariant.getEvidences());
+        assertEquals(0, knownVariant.getEvidences().size());
+        assertNotNull(knownVariant.getComments());
+        assertEquals(0, knownVariant.getComments().size());
+        assertNotNull(knownVariant.getVariant());
+        assertEquals(variant, knownVariant.getVariant());
+        KnownVariantAvro curatedVariantAvro = knownVariant.getImpl();
         assertNotNull(curatedVariantAvro);
         assertEquals(CurationClassification.DISEASE_ASSOCIATED_VARIANT, curatedVariantAvro.getClassification());
         assertEquals(new Integer(5), curatedVariantAvro.getCurationScore().getVariantScore());
@@ -140,7 +139,7 @@ public class CuratedVariantTest {
         result.stream().forEach(variant -> variant.setStudies(Collections.<StudyEntry>emptyList()));
 
         Variant variant = result.get(0);
-        CuratedVariant curatedVariant = new CuratedVariant(variant,
+        KnownVariant knownVariant = new KnownVariant(variant,
                 "MY_CUSTOM_VARIANT", 5,
                 null, null, null);
     }
@@ -154,7 +153,7 @@ public class CuratedVariantTest {
         result.stream().forEach(variant -> variant.setStudies(Collections.<StudyEntry>emptyList()));
 
         Variant variant = result.get(0);
-        CuratedVariant curatedVariant = new CuratedVariant(variant,
+        KnownVariant knownVariant = new KnownVariant(variant,
                 "VUS", 6,
                 null, null, null);
     }
@@ -168,7 +167,7 @@ public class CuratedVariantTest {
         result.stream().forEach(variant -> variant.setStudies(Collections.<StudyEntry>emptyList()));
 
         Variant variant = result.get(0);
-        CuratedVariant curatedVariant = new CuratedVariant(variant,
+        KnownVariant knownVariant = new KnownVariant(variant,
                 "VUS", -1,
                 null, null, null);
     }
