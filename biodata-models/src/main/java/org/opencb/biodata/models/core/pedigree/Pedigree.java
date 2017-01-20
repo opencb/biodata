@@ -84,7 +84,9 @@ public class Pedigree {
                 f.setNumGenerations(computeNumberOfGenerations(f.getMother()));
             } else {
                 // it does not have to occurr ever !!
-                throw new InternalError("Unexpected family without parents, something may be wrong in your data!");
+                f.setNumGenerations(1);
+                System.err.println("Warning: family without parents, setting number of generations to 1!");
+                //throw new InternalError("Unexpected family without parents, something may be wrong in your data!");
             }
         }
     }
