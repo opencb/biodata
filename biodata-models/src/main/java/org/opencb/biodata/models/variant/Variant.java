@@ -172,7 +172,7 @@ public class Variant implements Serializable {
         return (sequence != null && !sequence.equals("-")) ? sequence : "";
     }
 
-    private void resetType() {
+    public void resetType() {
         setType(inferType(getReference(), getAlternate(), getLength()));
     }
 

@@ -180,6 +180,8 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                             variant.setEnd(keyFields.getEnd());
                             variant.setReference(keyFields.getReference());
                             variant.setAlternate(keyFields.getAlternate());
+                            variant.resetLength();
+                            variant.resetType();
                             // Variant is being reused, must ensure the SV field si appropriately created
                             if (VariantType.CNV.equals(variant.getType())) {
                                 int[] impreciseStart = getImpreciseStart(variant);
