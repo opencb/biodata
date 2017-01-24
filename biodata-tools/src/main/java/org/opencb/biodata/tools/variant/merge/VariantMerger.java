@@ -602,8 +602,9 @@ public class VariantMerger {
     }
 
     public static AlternateCoordinate getMainAlternate(Variant variant) {
+        VariantType type = Variant.inferType(variant.getReference(), variant.getAlternate(), variant.getLength());
         return new AlternateCoordinate(variant.getChromosome(), variant.getStart(), variant.getEnd(),
-                variant.getReference(), variant.getAlternate(), variant.getType());
+                variant.getReference(), variant.getAlternate(), type);
     }
 
     private void mergeFiles(Variant current, Variant other, StudyEntry currentStudy, StudyEntry otherStudy) {

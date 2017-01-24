@@ -535,6 +535,23 @@ public class VariantNormalizerTest extends GenericTest {
         assertEquals(new StructuralVariation(100, 100, 200, 200, 3), normalizedVariantList.get(0).getSv());
     }
 
+    @Test
+    public void testNormalizeSV() throws NonStandardCompliantSampleField {
+        String reference = "C";
+        for (int i = 0; i < 50; i++) {
+            reference += "A";
+        }
+        Variant variant = newVariant(100, "C", reference);
+        variant.getStudies().get(0).addSampleData("HG00096", Collections.singletonList("0|1"));
+        assertEquals(VariantType.SV, variant.getType());
+        assertEquals(51, variant.getLength().intValue());
+
+        normalizer.setGenerateReferenceBlocks(false);
+        List<Variant> normalizedVariantList = normalizer.normalize(Collections.singletonList(variant), true);
+        assertEquals(1, normalizedVariantList.size());
+        assertEquals(VariantType.INDEL, normalizedVariantList.get(0).getType());
+    }
+
     private Variant newVariant(int position, String ref, String altsCsv) {
         return newVariant(position, position, ref, Arrays.asList(altsCsv.split(",")), "2");
     }
