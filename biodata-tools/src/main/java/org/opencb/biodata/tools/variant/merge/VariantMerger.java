@@ -601,8 +601,31 @@ public class VariantMerger {
         return copy;
     }
 
+    /**
+     * Get the variant as Alternate Coordinate.
+     *
+     * At this point, we don't care if the Alternate is SNP or SNV.
+     * In case that the variant is SV, recalculate the type, just in case the size has changed.
+     *
+     * @param variant Variant
+     * @return Variant as AlternateCoordinate
+     */
     public static AlternateCoordinate getMainAlternate(Variant variant) {
-        VariantType type = Variant.inferType(variant.getReference(), variant.getAlternate(), variant.getLength());
+        VariantType type;
+        switch (variant.getType()) {
+            case SNP:
+                type = VariantType.SNV;
+                break;
+            case MNP:
+                type = VariantType.MNV;
+                break;
+            case SV:
+                type = Variant.inferType(variant.getReference(), variant.getAlternate(), variant.getLength());
+                break;
+            default:
+                type = variant.getType();
+
+        }
         return new AlternateCoordinate(variant.getChromosome(), variant.getStart(), variant.getEnd(),
                 variant.getReference(), variant.getAlternate(), type);
     }

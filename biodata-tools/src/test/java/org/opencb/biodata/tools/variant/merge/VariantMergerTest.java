@@ -394,6 +394,16 @@ public class VariantMergerTest {
     }
 
     @Test
+    public void testMergeSame_SNV_SNP() {
+        Variant var1 = VariantTestUtils.generateVariant("1:10:A:T", "S1", "0/0", "S2", "0/0");
+        var1.setType(VariantType.SNP);
+        Variant var2 = VariantTestUtils.generateVariant("1:10:A:T", "S03", "0/1", "S04", "1/1");
+        var2.setType(VariantType.SNV);
+
+        checkMergeVariants(var1, var2, Collections.emptyList(), "0/1", "1/1");
+    }
+
+    @Test
     public void testMergeSameWithDifferentAlternates_2SNV() {
         Variant var1 = VariantTestUtils.generateVariant("1:10:A:T", "S1", "0/0", "S2", "0/0");
         Variant var2 = VariantTestUtils.generateVariant("1:10:A:T", "S03", "0/1", "S04", "1/1", "S05", "1/1", "S06", "1/1");
