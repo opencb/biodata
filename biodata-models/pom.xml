@@ -68,6 +68,14 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main</directory>
+                <includes>
+                    <include>**/*.avdl</include>
+                </includes>
+            </resource>
+        </resources>
         <extensions>
             <extension>
                 <groupId>kr.motd.maven</groupId>
