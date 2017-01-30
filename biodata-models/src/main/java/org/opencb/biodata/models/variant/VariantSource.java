@@ -32,7 +32,7 @@ import java.util.*;
 public class VariantSource {
 
     private final VariantFileMetadata impl;
-    private LinkedHashMap<String, Integer> samplesPosition;
+    private volatile LinkedHashMap<String, Integer> samplesPosition;
 
     public enum Aggregation { NONE, BASIC, EVS, EXAC;
         public static boolean isAggregated(Aggregation agg) {return !NONE.equals(agg);}

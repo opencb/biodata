@@ -36,7 +36,7 @@
     <properties>
         <biodata.version>0.9.0-nvm</biodata.version>
         <compileSource>1.8</compileSource>
-        <commons.version>3.4.0-SNAPSHOT</commons.version>
+        <commons.version>3.4.1-SNAPSHOT</commons.version>
         <ga4gh.version>0.6.0a5</ga4gh.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <avro.version>1.7.7</avro.version>
@@ -175,11 +175,11 @@
                 <scope>test</scope>
             </dependency>
             <!--<dependency>-->
-                <!--<groupId>igv</groupId>-->
-                <!--<artifactId>igv</artifactId>-->
-                <!--<version>2.3.88</version>-->
-                <!--<scope>system</scope>-->
-                <!--<systemPath>/tmp/igv.jar</systemPath>-->
+            <!--<groupId>igv</groupId>-->
+            <!--<artifactId>igv</artifactId>-->
+            <!--<version>2.3.88</version>-->
+            <!--<scope>system</scope>-->
+            <!--<systemPath>/tmp/igv.jar</systemPath>-->
             <!--</dependency>-->
             <dependency>
                 <groupId>junit</groupId>

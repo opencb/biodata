@@ -18,6 +18,7 @@ package org.opencb.biodata.models.variant;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -38,9 +39,9 @@ import org.opencb.biodata.models.variant.stats.VariantStats;
         "formatPositions", "fileId", "attributes", "allAttributes", "cohortStats", "secondaryAlternatesAlleles"})
 public class StudyEntry implements Serializable {
 
-    private LinkedHashMap<String, Integer> samplesPosition = null;
-    private Map<String, Integer> formatPosition = null;
-    private Map<String, VariantStats> cohortStats = null;
+    private volatile LinkedHashMap<String, Integer> samplesPosition = null;
+    private final AtomicReference<Map<String, Integer>> formatPosition = new AtomicReference<>();
+    private volatile Map<String, VariantStats> cohortStats = null;
     private final org.opencb.biodata.models.variant.avro.StudyEntry impl;
 
     public static final String DEFAULT_COHORT = "ALL";
@@ -194,12 +195,12 @@ public class StudyEntry implements Serializable {
     }
 
     public void setFormat(List<String> value) {
-        formatPosition = null;
+        this.formatPosition.set(null);
         impl.setFormat(value);
     }
 
     public void addFormat(String value) {
-        formatPosition = null;
+        formatPosition.set(null);
         if (impl.getFormat() == null) {
             impl.setFormat(new LinkedList<>());
         }
@@ -210,14 +211,15 @@ public class StudyEntry implements Serializable {
     }
 
     public Map<String, Integer> getFormatPositions() {
-        if (formatPosition == null) {
-            formatPosition = new HashMap<>();
+        if (Objects.isNull(this.formatPosition.get())) {
+            Map<String, Integer> map = new HashMap<>();
             int pos = 0;
             for (String format : getFormat()) {
-                formatPosition.put(format, pos++);
+                map.put(format, pos++);
             }
+            this.formatPosition.compareAndSet(null, map);
         }
-        return formatPosition;
+        return formatPosition.get();
     }
 
     public List<List<String>> getSamplesData() {
