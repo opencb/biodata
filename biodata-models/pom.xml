@@ -68,6 +68,16 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>src/main/avro</directory>
+                <targetPath>avro</targetPath>
+            </resource>
+        </resources>
+
         <extensions>
             <extension>
                 <groupId>kr.motd.maven</groupId>
