@@ -101,14 +101,14 @@ public class VepFormatWriter implements DataWriter<Variant> {
         String alt;
         String pos;
         // Short deletion
-        if(variantAnnotation.getAlternate().equals("-")) {
+        if(variantAnnotation.getAlternate().isEmpty()) {
             alt = "-";
             if(variantAnnotation.getReference().length()>1) {
                 pos = variantAnnotation.getStart() + "-" + (variantAnnotation.getStart() + variantAnnotation.getReference().length() - 1);
             } else {
                 pos = Integer.toString(variantAnnotation.getStart());
             }
-        } else if(variantAnnotation.getReference().equals("-")) {
+        } else if(variantAnnotation.getReference().isEmpty()) {
             // Short insertion
             alt = variantAnnotation.getAlternate();
             pos = (variantAnnotation.getStart()-1) + "-" + variantAnnotation.getStart();
@@ -151,16 +151,19 @@ public class VepFormatWriter implements DataWriter<Variant> {
             }
             Integer aaPosition;
             String aaPositionString;
-            if((aaPosition=consequenceType.getProteinVariantAnnotation().getPosition())==null) {
+            if((consequenceType.getProteinVariantAnnotation() == null)
+                    || ((aaPosition=consequenceType.getProteinVariantAnnotation().getPosition())==null)) {
                 aaPositionString = "-";
             } else {
                 aaPositionString = aaPosition.toString();
             }
             String aaChange;
-            if(consequenceType.getProteinVariantAnnotation().getAlternate()==null) {
+            if(consequenceType.getProteinVariantAnnotation() == null
+                    || consequenceType.getProteinVariantAnnotation().getAlternate()==null) {
                 aaChange = "-";
             } else {
-                aaChange = consequenceType.getProteinVariantAnnotation().getReference()+"/"+consequenceType.getProteinVariantAnnotation().getAlternate();
+                aaChange = consequenceType.getProteinVariantAnnotation().getReference() + "/"
+                        + consequenceType.getProteinVariantAnnotation().getAlternate();
             }
             String codon;
             if((codon=consequenceType.getCodon())==null) {
