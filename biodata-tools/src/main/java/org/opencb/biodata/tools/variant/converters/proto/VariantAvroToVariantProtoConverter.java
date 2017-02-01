@@ -45,7 +45,7 @@ public class VariantAvroToVariantProtoConverter implements Converter<Variant, Va
 
         if (variant.getStudies() != null) {
             for (StudyEntry study : variant.getStudies()) {
-                VariantProto.VariantSourceEntry.Builder studyBuilder = toProto(study);
+                VariantProto.StudyEntry.Builder studyBuilder = toProto(study);
                 builder.addStudies(studyBuilder);
             }
         }
@@ -59,13 +59,13 @@ public class VariantAvroToVariantProtoConverter implements Converter<Variant, Va
         return VariantProto.VariantType.valueOf(type.toString());
     }
 
-    private VariantProto.VariantSourceEntry.Builder toProto(StudyEntry study) {
-        VariantProto.VariantSourceEntry.Builder studyBuilder = VariantProto.VariantSourceEntry.newBuilder();
+    private VariantProto.StudyEntry.Builder toProto(StudyEntry study) {
+        VariantProto.StudyEntry.Builder studyBuilder = VariantProto.StudyEntry.newBuilder();
         studyBuilder.setStudyId(study.getStudyId());
         set(study::getStudyId, studyBuilder::setStudyId);
         set(study::getFormat, studyBuilder::addAllFormat);
         for (List<String> sampleData : study.getSamplesData()) {
-            studyBuilder.addSamplesData(VariantProto.VariantSourceEntry.SamplesDataInfoEntry.newBuilder().addAllInfo(sampleData));
+            studyBuilder.addSamplesData(VariantProto.StudyEntry.SamplesDataInfoEntry.newBuilder().addAllInfo(sampleData));
         }
 
         for (Map.Entry<String, VariantStats> entry : study.getStats().entrySet()) {
