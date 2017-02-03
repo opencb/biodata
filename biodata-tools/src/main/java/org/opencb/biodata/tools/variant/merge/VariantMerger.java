@@ -6,7 +6,7 @@ package org.opencb.biodata.tools.variant.merge;
 import htsjdk.variant.vcf.VCFConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.StudyEntry;
@@ -14,17 +14,26 @@ import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.VariantType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * @author Matthias Haimel mh719+git@cam.ac.uk
  *
  */
 public class VariantMerger {
+    private final Logger logger = LoggerFactory.getLogger(VariantMerger.class);
 
     @Deprecated
     public static final String VCF_FILTER = VCFConstants.GENOTYPE_FILTER_KEY;
@@ -36,20 +45,39 @@ public class VariantMerger {
     public static final String DEFAULT_FILTER_VALUE = ".";
     public static final String DEFAULT_MISSING_GT = Genotype.NOCALL;
 
-    private String gtKey;
-    private String filterKey;
-    private String annotationFilterKey;
+    private final AtomicReference<String> gtKey = new AtomicReference<>();
+    private final AtomicReference<String>  filterKey = new AtomicReference<>();
+    private final AtomicReference<String>  annotationFilterKey = new AtomicReference<>();
 
-    private final Set<String> expectedSamples = new HashSet<>();
-    private final Map<String, String> defaultValues = new HashMap<>();
+    private final boolean collapseDeletions;
+    private final Set<String> expectedSamples = new ConcurrentSkipListSet<>();
+    private final Map<String, String> defaultValues = new ConcurrentHashMap<>();
+    private final AtomicReference<String> studyId = new AtomicReference<>(null);
 
     public VariantMerger() {
-        this.gtKey = GT_KEY;
-        this.filterKey = GENOTYPE_FILTER_KEY;
-        this.annotationFilterKey = StudyEntry.FILTER;
+        this(false);
+    }
+
+    public VariantMerger(boolean collapseDeletions) {
+        this.gtKey.set(GT_KEY);
+        this.filterKey.set(GENOTYPE_FILTER_KEY);
+        this.annotationFilterKey.set(StudyEntry.FILTER);
 
         setDefaultValue(getGtKey(), DEFAULT_MISSING_GT);
         setDefaultValue(getFilterKey(), DEFAULT_FILTER_VALUE);
+        this.collapseDeletions = collapseDeletions;
+    }
+
+    public void setStudyId(String studyId) {
+        this.studyId.set(studyId);
+    }
+
+    private boolean hasStudyId() {
+        return this.studyId.get() != null;
+    }
+
+    private String getStudyId() {
+        return studyId.get();
     }
 
     /**
@@ -77,12 +105,12 @@ public class VariantMerger {
     }
 
     public String getGtKey() {
-        return this.gtKey;
+        return this.gtKey.get();
     }
 
     public void setGtKey(String gtKey) {
-        updateDefaultKeys(this.gtKey, gtKey);
-        this.gtKey = gtKey;
+        updateDefaultKeys(this.gtKey.get(), gtKey);
+        this.gtKey.set(gtKey);
     }
 
 
@@ -128,20 +156,20 @@ public class VariantMerger {
     }
 
     public String getFilterKey() {
-        return this.filterKey;
+        return this.filterKey.get();
     }
 
     public void setFilterKey(String filterKey) {
-        this.filterKey = filterKey;
+        this.filterKey.set(filterKey);
     }
 
     public String getAnnotationFilterKey() {
-        return annotationFilterKey;
+        return annotationFilterKey.get();
     }
 
     public void setAnnotationFilterKey(String annotationFilterKey) {
-        updateDefaultKeys(this.annotationFilterKey, annotationFilterKey);
-        this.annotationFilterKey = annotationFilterKey;
+        updateDefaultKeys(this.annotationFilterKey.get(), annotationFilterKey);
+        this.annotationFilterKey.set(annotationFilterKey);
     }
 
     /**
@@ -210,15 +238,101 @@ public class VariantMerger {
     public Variant merge(Variant current, Collection<Variant> load){
         isValidVariant(current);
         // Build alt list
-        List<Pair<Variant, List<AlternateCoordinate>>> loadAlts = load.stream()
-                .map(v -> new ImmutablePair<>(v, buildAltList(v)))
-                .filter(p -> hasAnyOverlap(current, p.getLeft(), p.getRight()))
-                .collect(Collectors.toList());
-
+        List<Pair<Variant, List<AlternateCoordinate>>> loadAlts =
+                updateCollapseDeletions(current,
+                    load.stream()
+                    .map(v -> new MutablePair<>(v, buildAltList(v)))
+                    .filter(p -> hasAnyOverlap(current, p.getLeft(), p.getRight()))
+                ).collect(Collectors.toList());
 
         mergeVariants(current, loadAlts);
         fillMissingGt(current);
         return current;
+    }
+
+    public static boolean isDeletion(AlternateCoordinate alt) {
+        return isDeletion(alt.getType(), alt.getStart(), alt.getEnd());
+    }
+
+    public static boolean isDeletion(VariantType type, Integer start, Integer end) {
+        if (type.equals(VariantType.DELETION)) {
+            return true;
+        }
+        if (type.equals(VariantType.INDEL) && end >= start) {
+            return true;
+        }
+        return false;
+    }
+    public static boolean isInsertion(AlternateCoordinate alt) {
+        return isInsertion(alt.getType(), alt.getStart(), alt.getEnd());
+    }
+
+    public static boolean isInsertion(VariantType type, Integer start, Integer end) {
+        if (type.equals(VariantType.INSERTION)) {
+            return true;
+        }
+        if (type.equals(VariantType.INDEL) && end < start) {
+            return true;
+        }
+        return false;
+    }
+
+    private Stream<MutablePair<Variant, List<AlternateCoordinate>>> updateCollapseDeletions(
+            Variant current,
+            Stream<MutablePair<Variant, List<AlternateCoordinate>>> stream) {
+        if (this.collapseDeletions) {
+            AlternateCoordinate currAlt = buildAltList(current).get(0);
+            Integer start = current.getStart();
+            Integer end = current.getEnd();
+            Consumer<AlternateCoordinate> updateAlt = a -> {
+                    a.setStart(start);
+                    a.setEnd(end);
+                    a.setReference(current.getReference());
+                    a.setAlternate("*"); // set deletion to * Alternate
+                    a.setType(VariantType.MIXED); // set all to the same
+            };
+            if (current.getType().equals(VariantType.SNP)
+                    || current.getType().equals(VariantType.SNV)
+                    || current.getType().equals(VariantType.MNV)) {
+                return stream.map(pair -> {
+                    pair.getValue().stream()
+                            .filter(a -> {
+                                if (a.getType().equals(VariantType.INDEL)) {
+                                    return current.overlapWith(a.getChromosome(), a.getStart(), a.getEnd(), true);
+                                }
+                                return false; // Not for other SNPs
+                            })
+                            .forEach(updateAlt);
+                    return pair;
+                });
+            } else if (isDeletion(current.getType(), start, end)) {
+                return stream.map(pair -> {
+                    pair.getValue().stream()
+                            .filter(a -> !a.equals(currAlt)) // not same as current variant
+                            .filter(a -> start >= a.getStart() && end <= a.getEnd())
+                            .forEach(updateAlt);
+                    return pair;
+                });
+            } else if (isInsertion(current.getType(), start, end)) {
+                return stream.map(pair -> {
+                    pair.getValue().stream()
+                            .filter(a -> !a.equals(currAlt)) // not same as current variant
+                            .filter(a -> {
+                                    if (isInsertion(a)) {
+                                        return (start.equals(a.getStart())
+                                                && end.equals(a.getEnd())
+                                                && a.getAlternate().length() >= currAlt.getAlternate().length()
+                                        );
+                                    }
+                                    return !a.getType().equals(VariantType.NO_VARIATION);
+                                }
+                            ) // only longer insertions
+                            .forEach(updateAlt);
+                    return pair;
+                });
+            }
+        }
+        return stream;
     }
 
     private void fillMissingGt(Variant variant){
@@ -315,62 +429,43 @@ public class VariantMerger {
                 : currentStudy.getFiles().get(0).getAttributes().getOrDefault(getAnnotationFilterKey(), getDefaultValue(getFilterKey()));
         ensureFormat(currentStudy, getFilterKey(), defaultFilterValue);
 
-        List<String> orderedSamplesName = new ArrayList<>(currentStudy.getOrderedSamplesName());
-        Set<String> currSampleNames = new HashSet<>(currentStudy.getSamplesName());
+        final List<String> orderedSamplesName = new ArrayList<>(currentStudy.getOrderedSamplesName());
+        final Set<String> currSampleNames = new HashSet<>(currentStudy.getSamplesName());
 
         // Build ALT index
-        List<AlternateCoordinate> altList = buildAltsList(current, varToAlts.stream().map(p -> p.getRight()).collect(Collectors.toList()));
+        List<AlternateCoordinate> altList = buildAltsList(current, varToAlts.stream().map(Pair::getRight).collect(Collectors.toList()));
         Map<AlternateCoordinate, Integer> altIdx = index(altList);
 
         // Update SecALt list
         currentStudy.setSecondaryAlternates(altList.subList(1,altList.size()));
-        Map<String, Integer> formatPositions = new HashMap<>(currentStudy.getFormatPositions());
-        Map<String, Integer> additionalForamt = new HashMap<>(formatPositions);
-        additionalForamt.remove(getGtKey());
-        additionalForamt.remove(getFilterKey());
+        final Map<String, Integer> formatPositions = new HashMap<>(currentStudy.getFormatPositions());
+        final Map<String, Integer> additionalFormats = new HashMap<>(formatPositions);
+        additionalFormats.remove(getGtKey());
+        additionalFormats.remove(getFilterKey());
 
-        if (!formatPositions.keySet().contains(getGtKey())) {
-            throw new IllegalStateException("Current study expected to contain 'GT'");
+        final Map<String, String> sampleToGt;
+        if (formatPositions.keySet().contains(getGtKey())) {
+            if (!(formatPositions.get(getGtKey()).equals(0))) {
+                throw new IllegalStateException("Current study expected to be in order of 'GT'");
+            }
+            sampleToGt = sampleToGt(current);
+        } else {
+            sampleToGt  = null;
         }
-        if (! (formatPositions.get(getGtKey()).equals(0))) {
-            throw new IllegalStateException("Current study expected to be in order of 'GT'");
-        }
-        Map<String, String> sampleToGt = sampleToGt(current);
-        Map<String, String> sampleToFilter = sampleToSampleData(current, getFilterKey());
-        Map<String, Map<Integer, String>> sampleToAdditional = new HashMap<>();
-        additionalForamt.forEach((k,id) -> {
-            Map<String, String> sampleToValue = sampleToSampleData(current, k);
-            sampleToValue.forEach((s,v) -> {
-                Map<Integer, String> keyMap = sampleToAdditional.get(s);
-                if (keyMap == null) {
-                    keyMap = new HashMap<>();
-                    sampleToAdditional.put(s, keyMap);
-                }
-                keyMap.put(id, v);
-            });
-        });
+        final Map<String, String> sampleToFilter = sampleToSampleData(current, getFilterKey());
+        final Map<String, Map<Integer, String>> sampleToAdditional = sampleToAdditionalData(additionalFormats, current);
 
         varToAlts.forEach(e -> {
             Variant other = e.getKey();
             Map<Integer, AlternateCoordinate> otherAltIdx = index(e.getValue()).entrySet().stream()
                     .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
-            StudyEntry otherStudy = getStudy(other);
-            Map<String, String> otherSampleToGt = sampleToGt(other);
-            Map<String, String> otherSampleToFilter = otherStudy.getFormat().contains(getFilterKey())
+            final StudyEntry otherStudy = getStudy(other);
+            final Map<String, String> otherSampleToGt = sampleToGt(other);
+            final Map<String, String> otherSampleToFilter = otherStudy.getFormat().contains(getFilterKey())
                     ? sampleToSampleData(other, getFilterKey())
                     : sampleToAttribute(other, getAnnotationFilterKey());
-            Map<String, Map<Integer, String>> otherSampleToAdditionalFormats = new HashMap<>();
-            additionalForamt.forEach((ks,k) -> {
-                Map<String, String> data = sampleToSampleData(other, ks);
-                data.forEach((s,v) -> {
-                    Map<Integer, String> otherAdditional = otherSampleToAdditionalFormats.get(s);
-                    if (null == otherAdditional) {
-                        otherAdditional = new HashMap<>();
-                        otherSampleToAdditionalFormats.put(s, otherAdditional);
-                    }
-                    otherAdditional.put(k, v);
-                });
-            });
+
+            final Map<String, Map<Integer, String>> otherSampleToAdditionalFormats = sampleToAdditionalData(additionalFormats, other);
 
             checkForDuplicates(current, other, currentStudy, otherStudy, e.getValue());
 
@@ -384,23 +479,30 @@ public class VariantMerger {
 
                 // GT data
                 boolean isGtUpdated = false;
-                String gt = otherSampleToGt.get(sampleName);
-                if (StringUtils.isBlank(gt)) {
-                    throw new IllegalStateException(String.format("No GT found for sample %s in \nVariant: %s\nIndex:%s",
-                            sampleName, other.getImpl(), sampleToGt));
-                }
-                String updatedGt = updateGT(gt, altIdx, otherAltIdx);
-                if (alreadyInStudy) {
-                    String currGT = sampleToGt.get(sampleName);
-                    List<String> gtlst = new ArrayList<>(Arrays.asList(currGT.split(",")));
-                    if (!gtlst.contains(updatedGt)) {
-                        gtlst.add(updatedGt);
-                        updatedGt = StringUtils.join(gtlst, ',');
-                        isGtUpdated = true;
+                List<Integer> updatedGtPositions = Collections.emptyList();
+                if (sampleToGt != null) {
+                    String gt = otherSampleToGt.get(sampleName);
+                    if (StringUtils.isBlank(gt)) {
+                        throw new IllegalStateException(String.format(
+                            "No GT [%s] found for sample %s in \nVariant: %s\nIndexOther:%s\nIndex:%s\nOtherSe:%s\nOtherSp:%s",
+                            getGtKey(), sampleName, other.getImpl(), otherSampleToGt, sampleToGt, otherStudy.getSamplesData(),
+                            otherStudy.getSamplesPosition()));
+                    }
+                    String updatedGt = updateGT(gt, altIdx, otherAltIdx);
+                    if (alreadyInStudy) {
+                        String currGT = sampleToGt.get(sampleName);
+                        List<String> gtlst = new ArrayList<>(Arrays.asList(currGT.split(",")));
+                        if (!gtlst.contains(updatedGt)) {
+                            gtlst.add(updatedGt);
+                            updatedGtPositions = collapseGT(gtlst);
+                            updatedGt = StringUtils.join(updatedGtPositions.stream()
+                                    .map(p -> gtlst.get(p)).collect(Collectors.toList()), ',');
+                            isGtUpdated = true;
+                        }
+                        sampleToGt.put(sampleName, updatedGt);
                     }
                     sampleToGt.put(sampleName, updatedGt);
                 }
-                sampleToGt.put(sampleName, updatedGt);
 
                 // Filter
                 String filter = otherSampleToFilter.getOrDefault(sampleName, getDefaultValue(getFilterKey()));
@@ -408,7 +510,12 @@ public class VariantMerger {
                     String currFilter = sampleToFilter.get(sampleName);
                     List<String> filterLst = new ArrayList<>(Arrays.asList(currFilter.split(",")));
                     filterLst.add(filter);
-                    filter = StringUtils.join(filterLst, ',');
+                    if (Objects.isNull(sampleToGt)) {
+                        filter = StringUtils.join(filterLst, ',');
+                    } else {
+                        filter = StringUtils.join(updatedGtPositions.stream()
+                                .map(p -> filterLst.get(p)).collect(Collectors.toList()), ',');
+                    }
                 }
                 sampleToFilter.put(sampleName, filter);
 
@@ -435,41 +542,104 @@ public class VariantMerger {
      * @param sampleToAdditional
      * @param orderedSamplesName
      */
-    private void updateStudy(
-            StudyEntry study, Map<String, String> sampleToGt, Map<String, String> sampleToFilter,
+    private void updateStudy(StudyEntry study, Map<String, String> sampleToGt, Map<String, String> sampleToFilter,
             Map<String, Map<Integer, String>> sampleToAdditional, List<String> orderedSamplesName) {
+
+        // Build empty sample data.
         List<String> format = study.getFormat();
         String[] formatTemplate = new String[format.size()];
         Arrays.fill(formatTemplate, StringUtils.EMPTY);
+
+        // Build samples position
         LinkedHashMap<String, Integer> samplesPosition = new LinkedHashMap<>();
         int sampleSize = orderedSamplesName.size();
         for (int i = 0; i < sampleSize; i++) {
             samplesPosition.put(orderedSamplesName.get(i), i);
         }
-        List<String>[] samplesData = new List[sampleSize];
-        // Init format data with empty string.
+
+        // Init samples data with empty string.
+        List<List<String>> samplesData = new ArrayList<>(sampleSize);
         for (int i = 0; i < sampleSize; ++i) {
-            samplesData[i] = new ArrayList<>(Arrays.asList(formatTemplate));
+            samplesData.add(new ArrayList<>(Arrays.asList(formatTemplate)));
         }
-        for (int i = 0; i < format.size(); i++) {
-            int pos = i;
+
+        // Add genotypes, filer
+        for (int pos = 0; pos < format.size(); pos++) {
             String currFormat = format.get(pos);
             if (StringUtils.equals(currFormat, getGtKey())) {
-                sampleToGt.forEach((k, v) -> samplesData[samplesPosition.get(k)].set(pos, v));
+                for (Map.Entry<String, String> entry : sampleToGt.entrySet()) {
+                    samplesData.get(samplesPosition.get(entry.getKey())).set(pos, entry.getValue());
+                }
             } else if (StringUtils.equals(currFormat, getFilterKey())) {
-                sampleToFilter.forEach((k, v) -> samplesData[samplesPosition.get(k)].set(pos, v));
+                for (Map.Entry<String, String> entry : sampleToFilter.entrySet()) {
+                    samplesData.get(samplesPosition.get(entry.getKey())).set(pos, entry.getValue());
+                }
             }
         }
         // and additional values
-        sampleToAdditional.forEach((k,m) -> m.forEach((pos, val) -> samplesData[samplesPosition.get(k)].set(pos, val)));
+        sampleToAdditional.forEach((sample, m) -> m.forEach((pos, val) -> samplesData.get(samplesPosition.get(sample)).set(pos, val)));
 
-        for (int i = 0; i < samplesData.length; i++) {
-            if (null == samplesData[i]) {
-                throw new IllegalStateException("Position " + i + " of " + samplesData.length + " not filled!!!");
+//        for (int i = 0; i < samplesData.size(); i++) {
+//            if (null == samplesData.get(i)) {
+//                throw new IllegalStateException("Position " + i + " of " + samplesData.size() + " not filled!!!");
+//            }
+//        }
+        study.setSamplesPosition(samplesPosition);
+        study.setSamplesData(samplesData);
+    }
+
+    private <T> List<Integer> getMatchingPositions(List<T> list, Predicate<T> p){
+        List<Integer> matching = new ArrayList<>();
+        for (int i = 0; i < list.size(); i++) {
+            if (p.test(list.get(i))) {
+                matching.add(Integer.valueOf(i));
             }
         }
-        study.setSamplesPosition(samplesPosition);
-        study.setSamplesData(Arrays.asList(samplesData));
+        return matching;
+    }
+
+    /**
+     * Collapses a list of GT to a minimal set.
+     * @param gtlst
+     * @return
+     */
+    private List<Integer> collapseGT(List<String> gtlst) {
+        if (gtlst.isEmpty()) {
+            return Collections.emptyList();
+        }
+        if (gtlst.size() == 1) {
+            return Collections.singletonList(0);
+        }
+
+        // only get GT with an ALT e.g 0/1 0/2 1/2 etc. (ignore ./. and 0/0 GT)
+        Predicate<String> findAlts = gt -> Arrays.stream(new Genotype(gt).getAllelesIdx()).anyMatch(i -> i > 0);
+        Predicate<String> findHomRef = gt -> gt.equals(Genotype.HOM_REF);
+        Predicate<String> findOneRef = gt -> Arrays.stream(new Genotype(gt).getAllelesIdx()).anyMatch(i -> i == 0);
+        Predicate<String> findNoCalls = gt -> Arrays.stream(new Genotype(gt).getAllelesIdx()).anyMatch(i -> i < 0);
+
+        List<Integer> oneAltAllele = getMatchingPositions(gtlst, findAlts);
+        if (!oneAltAllele.isEmpty()) {
+            return oneAltAllele;
+        }
+        List<Integer> reference = getMatchingPositions(gtlst, findHomRef);
+        if (!reference.isEmpty()) {
+            return reference;
+        }
+
+        List<Integer> oneReferenceAllele = getMatchingPositions(gtlst, findOneRef);
+        if (!oneReferenceAllele.isEmpty()) {
+            return oneReferenceAllele;
+        }
+        // only no-calls left -> try to collapse
+        List<Integer> nocalls = getMatchingPositions(gtlst, findNoCalls);
+        if (nocalls.size() == gtlst.size()) { // all GT found
+            return Collections.singletonList(nocalls.get(0));
+        }
+        // don't know that could be left!!!
+        if (this.collapseDeletions) {
+            throw new IllegalStateException("Not able to resolve GT: " + StringUtils.join(gtlst, ","));
+        }
+        return IntStream.range(0, gtlst.size()-1).boxed().collect(Collectors.toList());
     }
 
     private String updateGT(String gt, Map<AlternateCoordinate, Integer> curr, Map<Integer, AlternateCoordinate> other) {
@@ -477,7 +647,13 @@ public class VariantMerger {
         int[] idx = gto.getAllelesIdx();
         int len = idx.length;
         IntStream.range(0, len).boxed().filter(i -> idx[i] > 0 && idx[i] <= other.size())
-                .forEach(i -> gto.updateAlleleIdx(i, curr.get(other.get(idx[i]))));
+                .forEach(i -> {
+                    Integer allele = curr.get(other.get(idx[i]));
+                    if (this.collapseDeletions && Objects.isNull(allele)) {
+                        allele = 0; // change to '0' for 'missing' reference (missing because change to '0' GT)
+                    }
+                    gto.updateAlleleIdx(i, allele);
+                });
         if (!gto.isPhased()) {
             Arrays.sort(idx);
         }
@@ -485,9 +661,32 @@ public class VariantMerger {
     }
 
     private List<AlternateCoordinate> buildAltsList (Variant current, Collection<List<AlternateCoordinate>> alts) {
-        List<AlternateCoordinate> currAlts = buildAltList(current);
-        Set<AlternateCoordinate> altSets = new HashSet<>(currAlts);
-        alts.forEach(l -> altSets.addAll(l));
+        Integer start = current.getStart();
+        Integer end = current.getEnd();
+        final List<AlternateCoordinate> currAlts = buildAltList(current);
+        final Set<AlternateCoordinate> altSets = new HashSet<>(currAlts);
+        if (this.collapseDeletions && isDeletion(current.getType(), current.getStart(), current.getEnd())) {
+            // remove all alts that are NOT fully overlap current deletion -> keep only larger or same
+            alts.forEach(l -> l.stream().filter(a -> (start >= a.getStart() && end <= a.getEnd())).forEach(a -> altSets.add(a)));
+        } else if (this.collapseDeletions && isInsertion(current.getType(), current.getStart(), current.getEnd())) {
+            // remove all alts that are NOT fully overlap current deletion -> keep only larger or same
+            alts.forEach(l -> l.stream().filter(a -> {
+                        if (isInsertion(a)) {
+                            return (start.equals(a.getStart())
+                                    && end.equals(a.getEnd())
+                                    && (a.getAlternate().equals("*")
+                                      || a.getAlternate().length() >= current.getAlternate().length())
+                            );
+                        }
+                        return true;
+                    }).forEach(a -> altSets.add(a)));
+        } else if (this.collapseDeletions && current.getType().equals(VariantType.SNP)) {
+            alts.forEach(l -> l.stream()
+                    .filter(a ->current.overlapWith(a.getChromosome(), a.getStart(), a.getEnd(), true))
+                    .forEach(a -> altSets.add(a)));
+        } else {
+            alts.forEach(l -> altSets.addAll(l));
+        }
         // remove current alts
         altSets.removeAll(currAlts);
         currAlts.addAll(altSets);
@@ -580,12 +779,13 @@ public class VariantMerger {
         return s.getEnd();
     }
 
+
     /**
      * Build a list of all the alternates from a variant. Includes the main and the secondary alternates.
      * @param variant
      * @return
      */
-    public static List<AlternateCoordinate> buildAltList(Variant variant) {
+    public List<AlternateCoordinate> buildAltList(Variant variant) {
         AlternateCoordinate mainAlternate = getMainAlternate(variant);
         List<AlternateCoordinate> alternates = new ArrayList<>();
         if (!mainAlternate.getType().equals(VariantType.NO_VARIATION)) {
@@ -609,9 +809,33 @@ public class VariantMerger {
         return copy;
     }
 
+    /**
+     * Get the variant as Alternate Coordinate.
+     *
+     * At this point, we don't care if the Alternate is SNP or SNV.
+     * In case that the variant is SV, recalculate the type, just in case the size has changed.
+     *
+     * @param variant Variant
+     * @return Variant as AlternateCoordinate
+     */
     public static AlternateCoordinate getMainAlternate(Variant variant) {
+        VariantType type;
+        switch (variant.getType()) {
+            case SNP:
+                type = VariantType.SNV;
+                break;
+            case MNP:
+                type = VariantType.MNV;
+                break;
+            case SV:
+                type = Variant.inferType(variant.getReference(), variant.getAlternate(), variant.getLength());
+                break;
+            default:
+                type = variant.getType();
+
+        }
         return new AlternateCoordinate(variant.getChromosome(), variant.getStart(), variant.getEnd(),
-                variant.getReference(), variant.getAlternate(), variant.getType());
+                variant.getReference(), variant.getAlternate(), type);
     }
 
     private void mergeFiles(Variant current, Variant other, StudyEntry currentStudy, StudyEntry otherStudy) {
@@ -648,14 +872,61 @@ public class VariantMerger {
         return sampleToSampleData(load, getGtKey());
     }
 
-    private Map<String, String> sampleToSampleData(Variant var, String key){
-        StudyEntry se = getStudy(var);
-        return se.getSamplesName().stream()
-                .filter(e -> StringUtils.isNotBlank(se.getSampleData(e, key))) // check for NULL or empty string
-                .collect(Collectors.toMap(e -> e, e -> se.getSampleData(e, key)));
+    private Map<String, Map<Integer, String>> sampleToAdditionalData(Map<String, Integer> additionalFormat, Variant var) {
+        Map<String, Map<Integer, String>> sampleToAdditional = new HashMap<>();
+        additionalFormat.forEach((key, idx) -> {
+            Map<String, String> sampleToValue = sampleToSampleData(var, key);
+            sampleToValue.forEach((sample, value) -> {
+                Map<Integer, String> map = sampleToAdditional.get(sample);
+                if (map == null) {
+                    map = new HashMap<>();
+                    sampleToAdditional.put(sample, map);
+                }
+                map.put(idx, value);
+            });
+        });
+        return sampleToAdditional;
     }
 
-    static StudyEntry getStudy(Variant variant) {
+    private Map<String, String> sampleToSampleData(Variant var, String key){
+        Map<String, String> retMap = new HashMap<>();
+        StudyEntry se = getStudy(var);
+        LinkedHashMap<String, Integer> samplesPosition = se.getSamplesPosition();
+        List<List<String>> samplesData = se.getSamplesData();
+        if (Objects.isNull(samplesData)) {
+            throw new IllegalStateException("No samplesData retrieved: " + var.getImpl());
+        }
+        Map<String, Integer> formatPositions = se.getFormatPositions();
+        Integer formatPosition = formatPositions.get(key);
+        String defaultValue = getDefaultValue(key);
+        if (Objects.isNull(formatPosition)) {
+            logger.warn("No format position registered for {} in {} in {} ", key, formatPositions, var.getImpl());
+        }
+        samplesPosition.forEach((s,samplePosition) -> {
+            List<String> values = samplesData.get(samplePosition);
+            if (Objects.isNull(values)) {
+                throw new IllegalStateException("No values for sample " + s + " at position " + samplePosition + " in " + samplesData);
+            }
+            if (Objects.isNull(formatPosition)) {
+                retMap.put(s, defaultValue);
+            } else {
+                String val = values.get(formatPosition);
+                if (StringUtils.isNotBlank(val)) {
+                    retMap.put(s, val);
+                }
+            }
+        });
+        return retMap;
+    }
+
+    StudyEntry getStudy(Variant variant) {
+        if (hasStudyId()) {
+            StudyEntry study = variant.getStudy(getStudyId());
+            if (Objects.isNull(study)) {
+                throw new IllegalStateException("No study found for " + getStudyId());
+            }
+            return study;
+        }
         return variant.getStudies().get(0);
     }
 

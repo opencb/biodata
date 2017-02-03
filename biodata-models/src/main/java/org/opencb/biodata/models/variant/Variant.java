@@ -32,12 +32,12 @@ import java.util.*;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
 @JsonIgnoreProperties({"impl", "ids", "sourceEntries", "studiesMap", "lengthReference", "lengthAlternate"})
-public class Variant implements Serializable {
+public class Variant implements Serializable, Comparable<Variant> {
 
     public static final EnumSet<VariantType> SV_SUBTYPES = EnumSet.of(VariantType.INSERTION, VariantType.DELETION,
             VariantType.TRANSLOCATION, VariantType.INVERSION, VariantType.CNV);
     private final VariantAvro impl;
-    private Map<String, StudyEntry> studyEntries = null;
+    private volatile Map<String, StudyEntry> studyEntries = null;
 
     public static final int SV_THRESHOLD = 50;
     private static final String CNVSTR = "<CN";
@@ -173,7 +173,7 @@ public class Variant implements Serializable {
         return (sequence != null && !sequence.equals("-")) ? sequence : "";
     }
 
-    private void resetType() {
+    public void resetType() {
         setType(inferType(getReference(), getAlternate(), getLength()));
     }
 
@@ -686,5 +686,12 @@ public class Variant implements Serializable {
         }
     }
 
+    @Override
+    public int compareTo(Variant o) {
+        if (this.equals(o)) {
+            return 0;
+        }
+        return this.getImpl().compareTo(o.getImpl());
+    }
 }
 

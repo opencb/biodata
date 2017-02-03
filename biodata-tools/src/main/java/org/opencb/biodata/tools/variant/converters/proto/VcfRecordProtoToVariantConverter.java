@@ -18,13 +18,11 @@ import java.util.*;
  */
 public class VcfRecordProtoToVariantConverter implements Converter<VcfSliceProtos.VcfRecord, Variant> {
 
-    private VcfSliceProtos.Fields fields;
+    private volatile VcfSliceProtos.Fields fields;
 
     private final LinkedHashMap<String, Integer> samplePosition;
     private final String fileId;
     private final String studyId;
-
-
 
     public VcfRecordProtoToVariantConverter(VcfSliceProtos.Fields fields, Map<String, Integer> samplePosition, String fileId, String studyId) {
         this(fields, StudyEntry.sortSamplesPositionMap(samplePosition), fileId, studyId);
@@ -35,13 +33,14 @@ public class VcfRecordProtoToVariantConverter implements Converter<VcfSliceProto
     }
 
     public VcfRecordProtoToVariantConverter(VcfSliceProtos.Fields fields, LinkedHashMap<String, Integer> samplePosition, String fileId, String studyId) {
-
         this.samplePosition = samplePosition;
-
         this.fields = fields;
         this.fileId = fileId;
         this.studyId = studyId;
+    }
 
+    protected LinkedHashMap<String, Integer> retrieveSamplePosition() {
+        return this.samplePosition;
     }
 
     @Override
@@ -71,10 +70,13 @@ public class VcfRecordProtoToVariantConverter implements Converter<VcfSliceProto
         studyEntry.setFiles(Collections.singletonList(fileEntry));
         studyEntry.setFormat(getFormat(vcfRecord));
         studyEntry.setSamplesData(getSamplesData(vcfRecord, studyEntry.getFormatPositions()));
-        studyEntry.setSamplesPosition(samplePosition);
+        studyEntry.setSamplesPosition(retrieveSamplePosition());
+        studyEntry.getFormatPositions(); // Initialize the map
+
         List<VariantProto.AlternateCoordinate> alts = vcfRecord.getSecondaryAlternatesList();
         studyEntry.setSecondaryAlternates(getAlternateCoordinates(alts));
         variant.addStudyEntry(studyEntry);
+        studyEntry.getFormatPositions(); // Initialize the map
 
         return variant;
     }

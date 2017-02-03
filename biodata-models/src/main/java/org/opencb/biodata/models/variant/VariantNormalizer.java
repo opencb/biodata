@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -180,6 +181,8 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                             variant.setEnd(keyFields.getEnd());
                             variant.setReference(keyFields.getReference());
                             variant.setAlternate(keyFields.getAlternate());
+                            variant.resetLength();
+                            variant.resetType();
                             // Variant is being reused, must ensure the SV field si appropriately created
                             if (VariantType.CNV.equals(variant.getType())) {
                                 int[] impreciseStart = getImpreciseStart(variant);
@@ -845,21 +848,38 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                         }
                     }
                     List<String> data = newSampleData.get(sampleIdx);
+                    int finalSampleIdx = sampleIdx;
                     if (data.size() > formatFieldIdx) {
-                        data.set(formatFieldIdx, sampleField);
+                        secureSet(data, formatFieldIdx, sampleField, list -> newSampleData.set(finalSampleIdx, list));
                     } else {
-                        try {
-                            data.add(sampleField);
-                        } catch (UnsupportedOperationException e ) {
-                            data = new ArrayList<>(data);
-                            data.add(sampleField);
-                            newSampleData.set(sampleIdx, data);
-                        }
+                        secureAdd(data, sampleField, list -> newSampleData.set(finalSampleIdx, list));
                     }
                 }
             }
         }
         return newSampleData;
+    }
+
+    private <T> List<T> secureAdd(List<T> list, T data, Consumer<List<T>> onNewList) {
+        try {
+            list.add(data);
+        } catch (UnsupportedOperationException e) {
+            list = new ArrayList<>(list);
+            list.add(data);
+            onNewList.accept(list);
+        }
+        return list;
+    }
+
+    private <T> List<T> secureSet(List<T> list, int idx, T data, Consumer<List<T>> onNewList) {
+        try {
+            list.set(idx, data);
+        } catch (UnsupportedOperationException e ) {
+            list = new ArrayList<>(list);
+            list.set(idx, data);
+            onNewList.accept(list);
+        }
+        return list;
     }
 
     /**
