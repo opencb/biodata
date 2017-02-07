@@ -133,6 +133,11 @@
                 <version>${commons.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.opencb.commons</groupId>
+                <artifactId>commons-datastore-core</artifactId>
+                <version>${commons.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.opencb.ga4gh</groupId>
                 <artifactId>ga4gh</artifactId>
                 <version>${ga4gh.version}</version>
