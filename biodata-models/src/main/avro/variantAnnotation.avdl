@@ -32,6 +32,11 @@ protocol VariantAnnotations {
         string mutationSomaticStatus;
     }
 
+    record Submission {
+        string submitter;
+        union { null, string } date;
+    }
+
     record Germline {
         string source;
         string accession;
@@ -40,6 +45,7 @@ protocol VariantAnnotations {
         union { null, array<string> } disease;
         union { null, string } reviewStatus;
         union { null, array<string> } geneNames;
+        union { null, array<Submission> } submissions;
         union { null, array<string> } proteinNames;
         union { null, string } penetrance;
         union { null, array<string> } inheritanceModel;
@@ -58,6 +64,7 @@ protocol VariantAnnotations {
         union { null, string } tumourOrigin;
         union { null, string } mutationSomaticStatus;
         union { null, array<string> } geneNames;
+        union { null, array<Submission> } submissions;
         union { null, array<string> } proteinNames;
         union { null, string } reviewStatus;
         union { null, array<string> } bibliography;
