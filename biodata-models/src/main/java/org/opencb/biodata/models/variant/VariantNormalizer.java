@@ -44,6 +44,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
     private static final Set<String> VALID_NTS = new HashSet<>(Arrays.asList("A", "C", "G", "T", "N"));
     private static final String CNVSTRINGPATTERN = "<CN[0-9]+>";
+    private static final String DELSTRINGPATTERN = "<DEL>";
     private static final Pattern CNVPATTERN = Pattern.compile(CNVSTRINGPATTERN);
     private static final String COPY_NUMBER_TAG = "CN";
     private static final String CIPOS_STRING = "CIPOS";
@@ -127,8 +128,9 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
             if (variant.getStudies() == null || variant.getStudies().isEmpty()) {
                 List<VariantKeyFields> keyFieldsList;
-                if (VariantType.CNV.equals(variant.getType())) {
-                    keyFieldsList = normalizeCNV(start, end, reference, alternate, null);
+                if (VariantType.CNV.equals(variant.getType())
+                        || VariantType.DELETION.equals(variant.getType())) {
+                    keyFieldsList = normalizeSV(start, end, reference, alternate, null);
                 } else {
                     keyFieldsList = normalize(chromosome, start, reference, alternate);
                 }
@@ -159,7 +161,9 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                     if (VariantType.CNV.equals(variant.getType())) {
                         String sampleName = variant.getStudies().get(0).getSamplesName().iterator().next();
                         copyNumberString = variant.getStudies().get(0).getSampleData(sampleName).get(COPY_NUMBER_TAG);
-                        keyFieldsList = normalizeCNV(start, end, reference, alternates, copyNumberString);
+                        keyFieldsList = normalizeSV(start, end, reference, alternates, copyNumberString);
+                    } else if (VariantType.DELETION.equals(variant.getType())){
+                        keyFieldsList = normalizeSV(start, end, reference, alternates, null);
                     } else {
                         keyFieldsList = normalize(chromosome, start, reference, alternates);
 
@@ -184,7 +188,8 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                             variant.resetLength();
                             variant.resetType();
                             // Variant is being reused, must ensure the SV field si appropriately created
-                            if (VariantType.CNV.equals(variant.getType())) {
+                            if (VariantType.CNV.equals(variant.getType())
+                                    || VariantType.DELETION.equals(variant.getType())) {
                                 int[] impreciseStart = getImpreciseStart(variant);
                                 int[] impreciseEnd = getImpreciseEnd(variant);
                                variant.setSv(new StructuralVariation(impreciseStart[0], impreciseStart[1],
@@ -285,17 +290,17 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         }
     }
 
-    public List<VariantKeyFields> normalizeCNV(Integer start, Integer end, String reference, String alternate,
-                                               String copyNumber) {
-        return normalizeCNV(start, end, reference, Collections.singletonList(alternate), copyNumber);
+    public List<VariantKeyFields> normalizeSV(Integer start, Integer end, String reference, String alternate,
+                                              String copyNumber) {
+        return normalizeSV(start, end, reference, Collections.singletonList(alternate), copyNumber);
     }
 
-    public List<VariantKeyFields> normalizeCNV(Integer start, Integer end, String reference, List<String> alternates,
-                                               String copyNumber) {
+    public List<VariantKeyFields> normalizeSV(Integer start, Integer end, String reference, List<String> alternates,
+                                              String copyNumber) {
         List<VariantKeyFields> list = new ArrayList<>(alternates.size());
 
         String newReference = reference;
-        // Reference for CNVs must contain just one nucleotide - set to N if it's something different
+        // Reference for SVs must contain just one nucleotide - set to N if it's something different
         if (reference.length() != 1 || !VALID_NTS.contains(reference)) {
             newReference = "N";
         }
@@ -303,13 +308,15 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         int numAllelesIdx = 0; // This index is necessary for getting the samples where the mutated allele is present
         for (Iterator<String> iterator = alternates.iterator(); iterator.hasNext(); numAllelesIdx++) {
             String newAlternate = iterator.next();
-
-            // Alternate must be of the form <CNxxx>, being xxx the number of copies
-            if (!CNVPATTERN.matcher(newAlternate).matches()) {
-                if (copyNumber != null && !copyNumber.isEmpty()) {
-                    newAlternate = "<CN" + copyNumber + ">";
-                } else {
-                    newAlternate = "<CNV>";
+            // It is not a deletion
+            if (!DELSTRINGPATTERN.equals(newAlternate)) {
+                // Alternate must be of the form <CNxxx>, being xxx the number of copies
+                if (!CNVPATTERN.matcher(newAlternate).matches()) {
+                    if (copyNumber != null && !copyNumber.isEmpty()) {
+                        newAlternate = "<CN" + copyNumber + ">";
+                    } else {
+                        newAlternate = "<CNV>";
+                    }
                 }
             }
             list.add(new VariantKeyFields(start, end, numAllelesIdx, newReference, newAlternate));
