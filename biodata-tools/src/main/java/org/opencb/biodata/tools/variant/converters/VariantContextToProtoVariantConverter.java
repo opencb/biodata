@@ -1,10 +1,10 @@
 package org.opencb.biodata.tools.variant.converters;
 
-import htsjdk.variant.variantcontext.*;
 import htsjdk.variant.variantcontext.Genotype;
+import htsjdk.variant.variantcontext.VariantContext;
+import htsjdk.variant.variantcontext.VariantContextBuilder;
 import htsjdk.variant.vcf.VCFConstants;
 import org.apache.commons.lang3.StringUtils;
-import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.protobuf.VariantAnnotationProto;
 import org.opencb.biodata.models.variant.protobuf.VariantProto;
 import org.opencb.commons.datastore.core.ObjectMap;
@@ -82,18 +82,22 @@ public class VariantContextToProtoVariantConverter extends VariantConverter<Vari
             }
 
             // TODO: check getAttributes, getOrderedSamplesName and getSampleData for proto
-//            String sourceFilter = studyEntry.getAttribute("FILTER");
-//            if (sourceFilter != null && !filter.equals(sourceFilter)) {
-//                filter = ".";   // write PASS iff all sources agree that the filter is "PASS" or assumed if not present, otherwise write "."
-//            }
-//
-//            attributes.putIfNotNull(prk, studyEntry.getAttributes().get("PR"));
-//            attributes.putIfNotNull(crk, studyEntry.getAttributes().get("CR"));
-//            attributes.putIfNotNull(oprk, studyEntry.getAttributes().get("OPR"));
-//
-//            for (String sampleName : studyEntry.getOrderedSamplesName()) {
-//                String gtStr = studyEntry.getSampleData(sampleName, "GT");
-//                String genotypeFilter = studyEntry.getSampleData(sampleName, "FT");
+            try {
+                String sourceFilter = studyEntry.getFiles(0).getAttributesOrDefault("FILTER", ".");
+                if (sourceFilter != null && !filter.equals(sourceFilter)) {
+                    filter = ".";   // write PASS iff all sources agree that the filter is "PASS" or assumed if not present, otherwise write "."
+                }
+            } catch (Exception e) {
+                filter = ".";
+            }
+
+            attributes.putIfNotNull(prk, studyEntry.getFiles(0).getAttributes().get("PR"));
+            attributes.putIfNotNull(crk, studyEntry.getFiles(0).getAttributes().get("CR"));
+            attributes.putIfNotNull(oprk, studyEntry.getFiles(0).getAttributes().get("OPR"));
+
+//            for (VariantProto.StudyEntry.SamplesDataInfoEntry sample: studyEntry.getSamplesDataList()) {
+//                String gtStr = sample.getInfo(0); // studyEntry.getSampleData(sampleName, "GT");
+//                String genotypeFilter = null; // studyEntry.getSampleData(sampleName, "FT");
 //
 //                if (gtStr != null) {
 //                    List<String> gtSplit = new ArrayList<>(Arrays.asList(gtStr.split(",")));
@@ -151,8 +155,8 @@ public class VariantContextToProtoVariantConverter extends VariantConverter<Vari
 //                    genotypes.add(builder.make());
 //                }
 //            }
-//
-//            addStats(studyEntry, attributes);
+
+            addStats(studyEntry, attributes);
         }
 
 
@@ -179,7 +183,7 @@ public class VariantContextToProtoVariantConverter extends VariantConverter<Vari
 
         // if asked variant annotations are exported
         if (annotations != null) {
-//            addAnnotations(variant, annotations, attributes);
+            addAnnotations(variant, annotations, attributes);
         }
 
         variantContextBuilder.attributes(attributes);

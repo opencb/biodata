@@ -19,8 +19,8 @@
 
 package org.opencb.biodata.tools.variant.converters;
 
-import org.opencb.biodata.tools.Converter;
 import htsjdk.variant.variantcontext.VariantContext;
+import org.opencb.biodata.tools.Converter;
 
 /**
  * Created by jtarraga on 07/02/17.
