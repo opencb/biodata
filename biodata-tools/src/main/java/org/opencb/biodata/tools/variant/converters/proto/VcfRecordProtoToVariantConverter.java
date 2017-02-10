@@ -58,8 +58,13 @@ public class VcfRecordProtoToVariantConverter implements Converter<VcfSliceProto
         this.studyId = studyId;
     }
 
-    protected LinkedHashMap<String, Integer> retrieveSamplePosition() {
+    protected LinkedHashMap<String, Integer> getSamplePosition() {
         return this.samplePosition;
+    }
+
+    @Deprecated
+    protected LinkedHashMap<String, Integer> retrieveSamplePosition() {
+        return getSamplePosition();
     }
 
     @Override
