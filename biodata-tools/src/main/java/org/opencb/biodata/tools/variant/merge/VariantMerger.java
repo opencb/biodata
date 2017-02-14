@@ -927,9 +927,7 @@ public class VariantMerger {
         Map<String, Integer> formatPositions = se.getFormatPositions();
         Integer formatPosition = formatPositions.get(key);
         String defaultValue = getDefaultValue(key);
-        if (Objects.isNull(formatPosition)) {
-            logger.warn("No format position registered for {} in {} in {} ", key, formatPositions, var.getImpl());
-        }
+
         samplesPosition.forEach((s,samplePosition) -> {
             List<String> values = samplesData.get(samplePosition);
             if (Objects.isNull(values)) {
