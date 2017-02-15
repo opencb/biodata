@@ -102,7 +102,7 @@ public class Region {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(this.chromosome);
-        if (this.start != 0 && this.end != Integer.MAX_VALUE) {
+        if (this.end != Integer.MAX_VALUE) {
             sb.append(":").append(this.start).append("-").append(this.end);
         } else {
             if (this.start != 0 && this.end == Integer.MAX_VALUE) {
