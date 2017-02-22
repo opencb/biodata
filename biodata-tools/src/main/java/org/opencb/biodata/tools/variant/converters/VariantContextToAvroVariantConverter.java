@@ -58,9 +58,9 @@ public class VariantContextToAvroVariantConverter extends VariantConverter<Varia
                 })
                 .collect(Collectors.toSet());
         String filter = "PASS";
-        String prk = "PR";
-        String crk = "CR";
-        String oprk = "OPR";
+//        String prk = "PR";
+//        String crk = "CR";
+//        String oprk = "OPR";
 
         //Attributes for INFO column
         ObjectMap attributes = new ObjectMap();
@@ -92,9 +92,9 @@ public class VariantContextToAvroVariantConverter extends VariantConverter<Varia
             filter = ".";   // write PASS iff all sources agree that the filter is "PASS" or assumed if not present, otherwise write "."
         }
 
-        attributes.putIfNotNull(prk, DECIMAL_FORMAT_7.format(Double.valueOf(studyEntry.getAttributes().get("PR"))));
-        attributes.putIfNotNull(crk, DECIMAL_FORMAT_7.format(Double.valueOf(studyEntry.getAttributes().get("CR"))));
-        attributes.putIfNotNull(oprk, DECIMAL_FORMAT_7.format(Double.valueOf(studyEntry.getAttributes().get("OPR"))));
+//        attributes.putIfNotNull(prk, DECIMAL_FORMAT_7.format(Double.valueOf(studyEntry.getAttributes().get("PR"))));
+//        attributes.putIfNotNull(crk, DECIMAL_FORMAT_7.format(Double.valueOf(studyEntry.getAttributes().get("CR"))));
+//        attributes.putIfNotNull(oprk, DECIMAL_FORMAT_7.format(Double.valueOf(studyEntry.getAttributes().get("OPR"))));
 
         String refAllele = allelesArray.get(0);
         for (String sampleName : this.sampleNames) {
