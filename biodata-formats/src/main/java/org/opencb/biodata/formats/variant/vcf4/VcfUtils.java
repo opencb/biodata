@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
 public class VcfUtils {
-    
+
     public static String getInfoColumn(StudyEntry file) {
         StringBuilder info = new StringBuilder();
 
@@ -59,7 +59,7 @@ public class VcfUtils {
 
         return info.toString().isEmpty() ? "." : info.toString();
     }
-    
+
     public static String getInfoColumn(Variant variant, String fileId, String studyId) {
         return VcfUtils.getInfoColumn(variant.getSourceEntry(fileId, studyId));
     }
@@ -77,7 +77,7 @@ public class VcfUtils {
 
         return info.toString().isEmpty() ? "." : info.toString();
     }
-    
+
     public static String getJoinedSampleFields(Variant variant, StudyEntry file, String sampleName) {
         return VcfUtils.getJoinedSampleFields(variant.getSourceEntry(file.getFileId(), file.getStudyId()), sampleName);
     }
@@ -94,10 +94,10 @@ public class VcfUtils {
      * @param converter             Function to convert sample names
      * @return                      The VCF header
      */
-    public VCFHeader createVCFHeader(List<String> cohortNames, List<String> annotations,
-                                     List<String> formatFields, List<String> formatFieldsType,
-                                     List<String> formatFieldsDescr, List<String> sampleNames,
-                                     Function<String, String> converter) {
+    public static VCFHeader createVCFHeader(List<String> cohortNames, List<String> annotations,
+                                            List<String> formatFields, List<String> formatFieldsType,
+                                            List<String> formatFieldsDescr, List<String> sampleNames,
+                                            Function<String, String> converter) {
 
         LinkedHashSet<VCFHeaderLine> meta = new LinkedHashSet<>();
 
@@ -166,9 +166,9 @@ public class VcfUtils {
      * @param options                   Writer options
      * @return                          The variant context writer
      */
-    public VariantContextWriter createVariantContextWriter(OutputStream outputStream,
-                                                           SAMSequenceDictionary sequenceDictionary,
-                                                           Options options) {
+    public static VariantContextWriter createVariantContextWriter(OutputStream outputStream,
+                                                                  SAMSequenceDictionary sequenceDictionary,
+                                                                  Options options) {
         // setup writer
         VariantContextWriterBuilder builder = new VariantContextWriterBuilder()
                 .setOutputStream(outputStream)
