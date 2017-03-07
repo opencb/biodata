@@ -107,9 +107,10 @@ public class VcfUtils {
             sampleNameConverter.set(converter);
         }
         Map<String, String> sampleNameMapping = new ConcurrentHashMap<>();
-        sampleNameMapping.putAll(sampleNames.stream().collect(
-                Collectors.toMap(s -> s, s -> sampleNameConverter.get().apply(s))));
-        List<String> names = sampleNames.stream().map(s -> sampleNameMapping.get(s)).collect(Collectors.toList());
+//        sampleNameMapping.putAll(sampleNames.stream().collect(
+//                Collectors.toMap(s -> s, s -> sampleNameConverter.get().apply(s))));
+//        List<String> names = sampleNames.stream().map(s -> sampleNameMapping.get(s)).collect(Collectors.toList());
+        List<String> names = sampleNames;
 
         /* FILTER */
         meta.add(new VCFFilterHeaderLine("PASS", "Valid variant"));

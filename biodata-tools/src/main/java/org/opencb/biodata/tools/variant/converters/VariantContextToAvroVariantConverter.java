@@ -33,11 +33,23 @@ public class VariantContextToAvroVariantConverter extends VariantConverter<Varia
     List<String> sampleNames;
     List<String> annotations;
 
+    private Map<String, String> studyNameMap;
+
+    @Deprecated
     public VariantContextToAvroVariantConverter(int studyId, List<String> sampleNames, List<String> annotations) {
         this.studyId = studyId;
         this.studyIdString = Integer.toString(studyId);
         this.sampleNames = sampleNames;
         this.annotations = annotations;
+    }
+
+    public VariantContextToAvroVariantConverter(String study, List<String> sampleNames, List<String> annotations) {
+//        this.studyId = studyId;
+        this.studyIdString = study;
+        this.sampleNames = sampleNames;
+        this.annotations = annotations;
+
+        this.studyNameMap = new HashMap<>();
     }
 
     @Override
@@ -47,6 +59,27 @@ public class VariantContextToAvroVariantConverter extends VariantConverter<Varia
 
     @Override
     public VariantContext from(Variant variant) {
+
+//        Iterator<StudyEntry> iterator = variant.getStudies().iterator();
+//        while (iterator.hasNext()) {
+//            System.out.println("iterator.next().getStudyId() = " + iterator.next().getStudyId());
+//        }
+
+        if (this.studyNameMap == null || this.studyNameMap.size() == 0) {
+            variant.getStudies().forEach(studyEntry -> {
+                String s = studyEntry.getStudyId();
+
+                this.studyNameMap.put(s, s);
+                if (s.contains("@")) {
+                    this.studyNameMap.put(s.split("@")[1], s);
+                }
+                if (s.contains(":")) {
+                    this.studyNameMap.put(s.split(":")[1], s);
+                }
+            });
+        }
+
+
         final String noCallAllele = String.valueOf(VCFConstants.NO_CALL_ALLELE);
         VariantContextBuilder variantContextBuilder = new VariantContextBuilder();
         VariantType type = variant.getType();
@@ -65,7 +98,8 @@ public class VariantContextToAvroVariantConverter extends VariantConverter<Varia
         //Attributes for INFO column
         ObjectMap attributes = new ObjectMap();
         ArrayList<Genotype> genotypes = new ArrayList<>();
-        StudyEntry studyEntry = variant.getStudy(this.studyIdString);
+//        StudyEntry studyEntry = variant.getStudy(this.studyIdString);
+        StudyEntry studyEntry = variant.getStudy(this.studyNameMap.get(this.studyIdString));
 
 //        Integer originalPosition = null;
 //        List<String> originalAlleles = null;
@@ -95,6 +129,14 @@ public class VariantContextToAvroVariantConverter extends VariantConverter<Varia
 //        attributes.putIfNotNull(prk, DECIMAL_FORMAT_7.format(Double.valueOf(studyEntry.getAttributes().get("PR"))));
 //        attributes.putIfNotNull(crk, DECIMAL_FORMAT_7.format(Double.valueOf(studyEntry.getAttributes().get("CR"))));
 //        attributes.putIfNotNull(oprk, DECIMAL_FORMAT_7.format(Double.valueOf(studyEntry.getAttributes().get("OPR"))));
+
+
+        Map<String, Integer> samplePositions = new HashMap<>(sampleNames.size());
+        for (int i = 0; i < sampleNames.size(); i++) {
+            samplePositions.put(sampleNames.get(i), i);
+        }
+        studyEntry.setSamplesPosition(samplePositions);
+
 
         String refAllele = allelesArray.get(0);
         for (String sampleName : this.sampleNames) {
@@ -163,7 +205,7 @@ public class VariantContextToAvroVariantConverter extends VariantConverter<Varia
             genotypes.add(builder.make());
         }
 
-        addStats(studyEntry, attributes);
+//        addStats(studyEntry, attributes);
 
         variantContextBuilder.start(adjustedRange.getLeft())
                 .stop(adjustedRange.getLeft() + refAllele.length() - 1) //TODO mh719: check what happens for Insertions
@@ -183,7 +225,7 @@ public class VariantContextToAvroVariantConverter extends VariantConverter<Varia
         }
 
         // if asked variant annotations are exported
-        if (annotations != null) {
+        if (annotations != null && annotations.size() > 0) {
             addAnnotations(variant, annotations, attributes);
         }
 
@@ -217,7 +259,8 @@ public class VariantContextToAvroVariantConverter extends VariantConverter<Varia
         if (StringUtils.isBlank(variant.getReference()) || StringUtils.isBlank(variant.getAlternate())) {
             start = start - 1;
         }
-        for (AlternateCoordinate alternateCoordinate : variant.getStudy(this.studyIdString).getSecondaryAlternates()) {
+//        for (AlternateCoordinate alternateCoordinate : variant.getStudy(this.studyIdString).getSecondaryAlternates()) {
+        for (AlternateCoordinate alternateCoordinate : variant.getStudy(this.studyNameMap.get(this.studyIdString)).getSecondaryAlternates()) {
             start = Math.min(start, alternateCoordinate.getStart());
             end = Math.max(end, alternateCoordinate.getEnd());
             if (StringUtils.isBlank(alternateCoordinate.getAlternate()) || StringUtils.isBlank(alternateCoordinate.getReference())) {
@@ -230,7 +273,8 @@ public class VariantContextToAvroVariantConverter extends VariantConverter<Varia
     public List<String> buildAlleles(Variant variant, Pair<Integer, Integer> adjustedRange) {
         String reference = variant.getReference();
         String alternate = variant.getAlternate();
-        List<AlternateCoordinate> secAlts = variant.getStudy(this.studyIdString).getSecondaryAlternates();
+//        List<AlternateCoordinate> secAlts = variant.getStudy(this.studyIdString).getSecondaryAlternates();
+        List<AlternateCoordinate> secAlts = variant.getStudy(this.studyNameMap.get(this.studyIdString)).getSecondaryAlternates();
         List<String> alleles = new ArrayList<>(secAlts.size() + 2);
         Integer origStart = variant.getStart();
         Integer origEnd = variant.getEnd();
@@ -412,7 +456,7 @@ public class VariantContextToAvroVariantConverter extends VariantConverter<Varia
             }
         }
 
-        attributes.put("CSQ", stringBuilder.toString());
+        attributes.put("ANN", stringBuilder.toString());
 //        infoAnnotations.put("CSQ", stringBuilder.toString().replaceAll("&|$", ""));
         return attributes;
     }
