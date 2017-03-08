@@ -143,7 +143,7 @@ public class VcfUtils {
 
         // annotations
         if (annotations != null && annotations.size() > 0) {
-            meta.add(new VCFInfoHeaderLine("CSQ", 1, VCFHeaderLineType.String, "Consequence annotations from CellBase. "
+            meta.add(new VCFInfoHeaderLine("ANN", 1, VCFHeaderLineType.String, "Consequence annotations from CellBase. "
                     + "Format: " +   String.join("|", annotations)));
         }
 
