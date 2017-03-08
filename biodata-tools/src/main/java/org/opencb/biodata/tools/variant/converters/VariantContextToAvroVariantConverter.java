@@ -33,6 +33,8 @@ public class VariantContextToAvroVariantConverter extends VariantConverter<Varia
     List<String> sampleNames;
     List<String> annotations;
 
+    VariantConverterConfiguration config;
+
     private Map<String, String> studyNameMap;
 
     @Deprecated
@@ -43,11 +45,24 @@ public class VariantContextToAvroVariantConverter extends VariantConverter<Varia
         this.annotations = annotations;
     }
 
+    @Deprecated
     public VariantContextToAvroVariantConverter(String study, List<String> sampleNames, List<String> annotations) {
 //        this.studyId = studyId;
         this.studyIdString = study;
         this.sampleNames = sampleNames;
         this.annotations = annotations;
+
+        this.studyNameMap = new HashMap<>();
+    }
+
+    public VariantContextToAvroVariantConverter(String study, VariantConverterConfiguration config) {
+//        this.studyId = studyId;
+        this.studyIdString = study;
+        this.config = config;
+
+        // TODO: to remove
+        this.sampleNames = new ArrayList<>(config.getSampleNames());
+        this.annotations = new ArrayList<>(config.getAnnotations());
 
         this.studyNameMap = new HashMap<>();
     }
