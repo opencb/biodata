@@ -69,7 +69,7 @@ public class VariantContextToAvroVariantConverter extends VariantConverter<Varia
 
     @Override
     public Variant to(VariantContext obj) {
-        return null;
+        throw new UnsupportedOperationException("VariantContext to Variant converstion not implemented yet!");
     }
 
     @Override
@@ -145,13 +145,12 @@ public class VariantContextToAvroVariantConverter extends VariantConverter<Varia
 //        attributes.putIfNotNull(crk, DECIMAL_FORMAT_7.format(Double.valueOf(studyEntry.getAttributes().get("CR"))));
 //        attributes.putIfNotNull(oprk, DECIMAL_FORMAT_7.format(Double.valueOf(studyEntry.getAttributes().get("OPR"))));
 
-
+        // we assume the samples are sorted
         Map<String, Integer> samplePositions = new HashMap<>(sampleNames.size());
         for (int i = 0; i < sampleNames.size(); i++) {
             samplePositions.put(sampleNames.get(i), i);
         }
         studyEntry.setSamplesPosition(samplePositions);
-
 
         String refAllele = allelesArray.get(0);
         for (String sampleName : this.sampleNames) {
