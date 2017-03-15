@@ -39,6 +39,8 @@ import java.util.stream.Collectors;
  */
 public class VcfUtils {
 
+    public static final String ANNOTATION_INFO_KEY = "ANN";
+
     public static String getInfoColumn(StudyEntry file) {
         StringBuilder info = new StringBuilder();
 
@@ -143,7 +145,7 @@ public class VcfUtils {
 
         // annotations
         if (annotations != null && annotations.size() > 0) {
-            meta.add(new VCFInfoHeaderLine("CSQ", 1, VCFHeaderLineType.String, "Consequence annotations from CellBase. "
+            meta.add(new VCFInfoHeaderLine(ANNOTATION_INFO_KEY, 1, VCFHeaderLineType.String, "Consequence annotations from CellBase. "
                     + "Format: " +   String.join("|", annotations)));
         }
 
@@ -169,7 +171,7 @@ public class VcfUtils {
      */
     public static VariantContextWriter createVariantContextWriter(OutputStream outputStream,
                                                                   SAMSequenceDictionary sequenceDictionary,
-                                                                  Options options) {
+                                                                  Options ...options) {
         // setup writer
         VariantContextWriterBuilder builder = new VariantContextWriterBuilder()
                 .setOutputStream(outputStream)
@@ -178,7 +180,9 @@ public class VcfUtils {
 
         // options
         if (options != null) {
-            builder.setOption(options);
+            for (Options option : options) {
+                builder.setOption(option);
+            }
         }
 
         return builder.build();
