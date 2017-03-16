@@ -203,10 +203,10 @@ protocol Variants {
 //    }
 
     record StructuralVariation {
-        int ciStartLeft = 0;
-        int ciStartRight = 0;
-        int ciEndLeft = 0;
-        int ciEndRight = 0;
+        union {null, int} ciStartLeft;
+        union {null, int} ciStartRight;
+        union {null, int} ciEndLeft;
+        union {null, int} ciEndRight;
         /**
          * Number of copies for CNV variants.
          */
