@@ -17,23 +17,13 @@
  *
  */
 
-package org.opencb.biodata.formats.alignment.io;
+package org.opencb.biodata.tools.variant.converters;
 
-
-import org.opencb.biodata.models.alignment.Alignment;
-import org.opencb.biodata.models.alignment.AlignmentHeader;
-import org.opencb.commons.io.DataWriter;
-
+import htsjdk.variant.variantcontext.VariantContext;
+import org.opencb.biodata.tools.Converter;
 
 /**
- * Created with IntelliJ IDEA.
- * User: jcoll
- * Date: 12/3/13
- * Time: 5:17 PM
- * To change this template use File | Settings | File Templates.
+ * Created by jtarraga on 07/02/17.
  */
-public interface AlignmentDataWriter extends DataWriter<Alignment> {
-
-    boolean writeHeader(AlignmentHeader head);
-
+public abstract class VariantConverter<T> implements Converter<VariantContext, T> {
 }
