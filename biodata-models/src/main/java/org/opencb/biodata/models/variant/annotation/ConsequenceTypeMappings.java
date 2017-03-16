@@ -48,6 +48,7 @@ public class ConsequenceTypeMappings {
         termToAccession.put("initiator_codon_variant", 1582);
         termToAccession.put("inframe_insertion", 1821);
         termToAccession.put("inframe_deletion", 1822);
+        termToAccession.put("inframe_variant", 1650);
         termToAccession.put("missense_variant", 1583);
         termToAccession.put("transcript_amplification", 1889);
         termToAccession.put("splice_region_variant", 1630);
