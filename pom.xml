@@ -20,7 +20,7 @@
 
     <groupId>org.opencb.biodata</groupId>
     <artifactId>biodata</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Biodata</name>
@@ -34,9 +34,9 @@
     </modules>
 
     <properties>
-        <biodata.version>1.0.0-SNAPSHOT</biodata.version>
+        <biodata.version>1.1.0-SNAPSHOT</biodata.version>
         <compileSource>1.8</compileSource>
-        <commons.version>3.4.1-SNAPSHOT</commons.version>
+        <commons.version>3.4.2-SNAPSHOT</commons.version>
         <ga4gh.version>0.6.0a5</ga4gh.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <avro.version>1.7.7</avro.version>
