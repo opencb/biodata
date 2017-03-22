@@ -82,16 +82,16 @@ message VariantTraitAssociation {
 // message GeneDrugInteraction in common.proto
 // message Expression in common.proto
 
-message GeneTraitAssociation {
-    string id = 1;
-    string name = 2;
-    string hpo = 3;
-    float score = 4;
-    int32 number_of_pubmeds = 5;
-    repeated string association_types = 6;
-    repeated string sources = 7;
-    string source = 8;
-}
+//message GeneTraitAssociation {
+//    string id = 1;
+//    string name = 2;
+//    string hpo = 3;
+//    float score = 4;
+//    int32 number_of_pubmeds = 5;
+//    repeated string association_types = 6;
+//    repeated string sources = 7;
+//    string source = 8;
+//}
 
 message PopulationFrequency {
     string study = 1;
