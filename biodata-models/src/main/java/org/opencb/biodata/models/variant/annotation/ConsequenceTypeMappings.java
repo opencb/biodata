@@ -1,17 +1,20 @@
 /*
- * Copyright 2015 OpenCB
+ * <!--
+ *   ~ Copyright 2015-2017 OpenCB
+ *   ~
+ *   ~ Licensed under the Apache License, Version 2.0 (the "License");
+ *   ~ you may not use this file except in compliance with the License.
+ *   ~ You may obtain a copy of the License at
+ *   ~
+ *   ~     http://www.apache.org/licenses/LICENSE-2.0
+ *   ~
+ *   ~ Unless required by applicable law or agreed to in writing, software
+ *   ~ distributed under the License is distributed on an "AS IS" BASIS,
+ *   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   ~ See the License for the specific language governing permissions and
+ *   ~ limitations under the License.
+ *   -->
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  */
 
 package org.opencb.biodata.models.variant.annotation;
@@ -48,6 +51,7 @@ public class ConsequenceTypeMappings {
         termToAccession.put("initiator_codon_variant", 1582);
         termToAccession.put("inframe_insertion", 1821);
         termToAccession.put("inframe_deletion", 1822);
+        termToAccession.put("inframe_variant", 1650);
         termToAccession.put("missense_variant", 1583);
         termToAccession.put("transcript_amplification", 1889);
         termToAccession.put("splice_region_variant", 1630);

@@ -115,7 +115,7 @@ message AlternateCoordinate {
     VariantType type = 6;
 }
 
-message VariantSourceEntry {
+message StudyEntry {
     message SamplesDataInfoEntry {
         repeated string info = 1;
     }
@@ -219,7 +219,7 @@ message Variant {
      * Information specific to each study the variant was read from, such as
      * samples or statistics.
      */
-    repeated VariantSourceEntry studies = 11;
+    repeated StudyEntry studies = 11;
 
     /**
      * Annotations of the genomic variation.

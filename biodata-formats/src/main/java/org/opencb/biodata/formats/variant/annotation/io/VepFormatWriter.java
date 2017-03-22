@@ -1,17 +1,20 @@
 /*
- * Copyright 2015 OpenCB
+ * <!--
+ *   ~ Copyright 2015-2017 OpenCB
+ *   ~
+ *   ~ Licensed under the Apache License, Version 2.0 (the "License");
+ *   ~ you may not use this file except in compliance with the License.
+ *   ~ You may obtain a copy of the License at
+ *   ~
+ *   ~     http://www.apache.org/licenses/LICENSE-2.0
+ *   ~
+ *   ~ Unless required by applicable law or agreed to in writing, software
+ *   ~ distributed under the License is distributed on an "AS IS" BASIS,
+ *   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   ~ See the License for the specific language governing permissions and
+ *   ~ limitations under the License.
+ *   -->
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  */
 
 package org.opencb.biodata.formats.variant.annotation.io;
@@ -101,14 +104,14 @@ public class VepFormatWriter implements DataWriter<Variant> {
         String alt;
         String pos;
         // Short deletion
-        if(variantAnnotation.getAlternate().equals("-")) {
+        if(variantAnnotation.getAlternate().isEmpty()) {
             alt = "-";
             if(variantAnnotation.getReference().length()>1) {
                 pos = variantAnnotation.getStart() + "-" + (variantAnnotation.getStart() + variantAnnotation.getReference().length() - 1);
             } else {
                 pos = Integer.toString(variantAnnotation.getStart());
             }
-        } else if(variantAnnotation.getReference().equals("-")) {
+        } else if(variantAnnotation.getReference().isEmpty()) {
             // Short insertion
             alt = variantAnnotation.getAlternate();
             pos = (variantAnnotation.getStart()-1) + "-" + variantAnnotation.getStart();
@@ -151,16 +154,19 @@ public class VepFormatWriter implements DataWriter<Variant> {
             }
             Integer aaPosition;
             String aaPositionString;
-            if((aaPosition=consequenceType.getProteinVariantAnnotation().getPosition())==null) {
+            if((consequenceType.getProteinVariantAnnotation() == null)
+                    || ((aaPosition=consequenceType.getProteinVariantAnnotation().getPosition())==null)) {
                 aaPositionString = "-";
             } else {
                 aaPositionString = aaPosition.toString();
             }
             String aaChange;
-            if(consequenceType.getProteinVariantAnnotation().getAlternate()==null) {
+            if(consequenceType.getProteinVariantAnnotation() == null
+                    || consequenceType.getProteinVariantAnnotation().getAlternate()==null) {
                 aaChange = "-";
             } else {
-                aaChange = consequenceType.getProteinVariantAnnotation().getReference()+"/"+consequenceType.getProteinVariantAnnotation().getAlternate();
+                aaChange = consequenceType.getProteinVariantAnnotation().getReference() + "/"
+                        + consequenceType.getProteinVariantAnnotation().getAlternate();
             }
             String codon;
             if((codon=consequenceType.getCodon())==null) {

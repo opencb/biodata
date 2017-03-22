@@ -1,3 +1,22 @@
+/*
+ * <!--
+ *   ~ Copyright 2015-2017 OpenCB
+ *   ~
+ *   ~ Licensed under the Apache License, Version 2.0 (the "License");
+ *   ~ you may not use this file except in compliance with the License.
+ *   ~ You may obtain a copy of the License at
+ *   ~
+ *   ~     http://www.apache.org/licenses/LICENSE-2.0
+ *   ~
+ *   ~ Unless required by applicable law or agreed to in writing, software
+ *   ~ distributed under the License is distributed on an "AS IS" BASIS,
+ *   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   ~ See the License for the specific language governing permissions and
+ *   ~ limitations under the License.
+ *   -->
+ *
+ */
+
 package org.opencb.biodata.models.variant;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -23,6 +42,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -180,6 +200,8 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                             variant.setEnd(keyFields.getEnd());
                             variant.setReference(keyFields.getReference());
                             variant.setAlternate(keyFields.getAlternate());
+                            variant.resetLength();
+                            variant.resetType();
                             // Variant is being reused, must ensure the SV field si appropriately created
                             if (VariantType.CNV.equals(variant.getType())) {
                                 int[] impreciseStart = getImpreciseStart(variant);
@@ -845,21 +867,38 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                         }
                     }
                     List<String> data = newSampleData.get(sampleIdx);
+                    int finalSampleIdx = sampleIdx;
                     if (data.size() > formatFieldIdx) {
-                        data.set(formatFieldIdx, sampleField);
+                        secureSet(data, formatFieldIdx, sampleField, list -> newSampleData.set(finalSampleIdx, list));
                     } else {
-                        try {
-                            data.add(sampleField);
-                        } catch (UnsupportedOperationException e ) {
-                            data = new ArrayList<>(data);
-                            data.add(sampleField);
-                            newSampleData.set(sampleIdx, data);
-                        }
+                        secureAdd(data, sampleField, list -> newSampleData.set(finalSampleIdx, list));
                     }
                 }
             }
         }
         return newSampleData;
+    }
+
+    private <T> List<T> secureAdd(List<T> list, T data, Consumer<List<T>> onNewList) {
+        try {
+            list.add(data);
+        } catch (UnsupportedOperationException e) {
+            list = new ArrayList<>(list);
+            list.add(data);
+            onNewList.accept(list);
+        }
+        return list;
+    }
+
+    private <T> List<T> secureSet(List<T> list, int idx, T data, Consumer<List<T>> onNewList) {
+        try {
+            list.set(idx, data);
+        } catch (UnsupportedOperationException e ) {
+            list = new ArrayList<>(list);
+            list.set(idx, data);
+            onNewList.accept(list);
+        }
+        return list;
     }
 
     /**

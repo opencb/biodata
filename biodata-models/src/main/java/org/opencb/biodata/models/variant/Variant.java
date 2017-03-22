@@ -1,17 +1,20 @@
 /*
- * Copyright 2015 OpenCB
+ * <!--
+ *   ~ Copyright 2015-2017 OpenCB
+ *   ~
+ *   ~ Licensed under the Apache License, Version 2.0 (the "License");
+ *   ~ you may not use this file except in compliance with the License.
+ *   ~ You may obtain a copy of the License at
+ *   ~
+ *   ~     http://www.apache.org/licenses/LICENSE-2.0
+ *   ~
+ *   ~ Unless required by applicable law or agreed to in writing, software
+ *   ~ distributed under the License is distributed on an "AS IS" BASIS,
+ *   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   ~ See the License for the specific language governing permissions and
+ *   ~ limitations under the License.
+ *   -->
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  */
 
 package org.opencb.biodata.models.variant;
@@ -19,6 +22,7 @@ package org.opencb.biodata.models.variant;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import htsjdk.variant.variantcontext.Allele;
 import org.apache.commons.lang3.StringUtils;
+import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.models.variant.avro.StructuralVariation;
 import org.opencb.biodata.models.variant.avro.VariantAnnotation;
 import org.opencb.biodata.models.variant.avro.VariantAvro;
@@ -32,12 +36,12 @@ import java.util.*;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
 @JsonIgnoreProperties({"impl", "ids", "sourceEntries", "studiesMap", "lengthReference", "lengthAlternate"})
-public class Variant implements Serializable {
+public class Variant implements Serializable, Comparable<Variant> {
 
     public static final EnumSet<VariantType> SV_SUBTYPES = EnumSet.of(VariantType.INSERTION, VariantType.DELETION,
             VariantType.TRANSLOCATION, VariantType.INVERSION, VariantType.CNV);
     private final VariantAvro impl;
-    private Map<String, StudyEntry> studyEntries = null;
+    private volatile Map<String, StudyEntry> studyEntries = null;
 
     public static final int SV_THRESHOLD = 50;
     public static final String CNVSTR = "<CN";
@@ -172,7 +176,7 @@ public class Variant implements Serializable {
         return (sequence != null && !sequence.equals("-")) ? sequence : "";
     }
 
-    private void resetType() {
+    public void resetType() {
         setType(inferType(getReference(), getAlternate(), getLength()));
     }
 
@@ -259,25 +263,10 @@ public class Variant implements Serializable {
     }
 
     public final void setChromosome(String chromosome) {
-        if (chromosome == null || chromosome.length() == 0) {
+        if (StringUtils.isEmpty(chromosome)) {
             throw new IllegalArgumentException("Chromosome must not be empty");
         }
-        // Replace "chr" references only at the beginning of the chromosome name
-        // For instance, tomato has SL2.40ch00 and that should be kept that way
-        if (chromosome.startsWith("ch")) {
-            if (chromosome.startsWith("chrom")) {
-                impl.setChromosome(chromosome.substring(5));
-            } else if (chromosome.startsWith("chrm")) {
-                impl.setChromosome(chromosome.substring(4));
-            } else if (chromosome.startsWith("chr")) {
-                impl.setChromosome(chromosome.substring(3));
-            } else {
-                // Only starts with ch
-                impl.setChromosome(chromosome.substring(2));
-            }
-        } else {
-            impl.setChromosome(chromosome);
-        }
+        impl.setChromosome(Region.normalizeChromosome(chromosome));
     }
 
     public final void setStart(Integer start) {
@@ -683,5 +672,12 @@ public class Variant implements Serializable {
         }
     }
 
+    @Override
+    public int compareTo(Variant o) {
+        if (this.equals(o)) {
+            return 0;
+        }
+        return this.getImpl().compareTo(o.getImpl());
+    }
 }
 
