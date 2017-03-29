@@ -103,6 +103,21 @@ public class VariantNormalizerTest extends GenericTest {
     }
 
     @Test
+    public void testNormalizeFalseMNV() throws NonStandardCompliantSampleField {
+
+        Variant variant = newVariant(100, "CA", "TA");
+        variant.getStudies().get(0).addSampleData("HG00096", Collections.singletonList("0|1"));
+        assertEquals(VariantType.MNV, variant.getType());
+        assertEquals(2, variant.getLength().intValue());
+
+        normalizer.setGenerateReferenceBlocks(false);
+        List<Variant> normalizedVariantList = normalizer.normalize(Collections.singletonList(variant), true);
+        assertEquals(1, normalizedVariantList.size());
+        assertEquals(VariantType.SNV, normalizedVariantList.get(0).getType());
+        assertEquals(1, normalizedVariantList.get(0).getLength().intValue());
+    }
+
+    @Test
     public void testNormalizeSamplesDataMNV() throws NonStandardCompliantSampleField {
         normalizer.setDecomposeMNVs(true);
         Variant variant = newVariant(100, "ACTCGTAAA", "ATTCGAAA");

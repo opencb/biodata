@@ -1,3 +1,22 @@
+/*
+ * <!--
+ *   ~ Copyright 2015-2017 OpenCB
+ *   ~
+ *   ~ Licensed under the Apache License, Version 2.0 (the "License");
+ *   ~ you may not use this file except in compliance with the License.
+ *   ~ You may obtain a copy of the License at
+ *   ~
+ *   ~     http://www.apache.org/licenses/LICENSE-2.0
+ *   ~
+ *   ~ Unless required by applicable law or agreed to in writing, software
+ *   ~ distributed under the License is distributed on an "AS IS" BASIS,
+ *   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   ~ See the License for the specific language governing permissions and
+ *   ~ limitations under the License.
+ *   -->
+ *
+ */
+
 /**
  *
  */
@@ -160,6 +179,7 @@ public class VariantMerger {
     }
 
     public void setFilterKey(String filterKey) {
+        updateDefaultKeys(this.filterKey.get(), filterKey);
         this.filterKey.set(filterKey);
     }
 
@@ -240,9 +260,9 @@ public class VariantMerger {
         // Build alt list
         List<Pair<Variant, List<AlternateCoordinate>>> loadAlts =
                 updateCollapseDeletions(current,
-                    load.stream()
-                    .map(v -> new MutablePair<>(v, buildAltList(v)))
-                    .filter(p -> hasAnyOverlap(current, p.getLeft(), p.getRight()))
+                        load.stream()
+                                .map(v -> new MutablePair<>(v, buildAltList(v)))
+                                .filter(p -> hasAnyOverlap(current, p.getLeft(), p.getRight()))
                 ).collect(Collectors.toList());
 
         mergeVariants(current, loadAlts);
@@ -285,11 +305,11 @@ public class VariantMerger {
             Integer start = current.getStart();
             Integer end = current.getEnd();
             Consumer<AlternateCoordinate> updateAlt = a -> {
-                    a.setStart(start);
-                    a.setEnd(end);
-                    a.setReference(current.getReference());
-                    a.setAlternate("*"); // set deletion to * Alternate
-                    a.setType(VariantType.MIXED); // set all to the same
+                a.setStart(start);
+                a.setEnd(end);
+                a.setReference(current.getReference());
+                a.setAlternate("*"); // set deletion to * Alternate
+                a.setType(VariantType.MIXED); // set all to the same
             };
             if (current.getType().equals(VariantType.SNP)
                     || current.getType().equals(VariantType.SNV)
@@ -318,14 +338,14 @@ public class VariantMerger {
                     pair.getValue().stream()
                             .filter(a -> !a.equals(currAlt)) // not same as current variant
                             .filter(a -> {
-                                    if (isInsertion(a)) {
-                                        return (start.equals(a.getStart())
-                                                && end.equals(a.getEnd())
-                                                && a.getAlternate().length() >= currAlt.getAlternate().length()
-                                        );
+                                        if (isInsertion(a)) {
+                                            return (start.equals(a.getStart())
+                                                    && end.equals(a.getEnd())
+                                                    && a.getAlternate().length() >= currAlt.getAlternate().length()
+                                            );
+                                        }
+                                        return !a.getType().equals(VariantType.NO_VARIATION);
                                     }
-                                    return !a.getType().equals(VariantType.NO_VARIATION);
-                                }
                             ) // only longer insertions
                             .forEach(updateAlt);
                     return pair;
@@ -484,9 +504,9 @@ public class VariantMerger {
                     String gt = otherSampleToGt.get(sampleName);
                     if (StringUtils.isBlank(gt)) {
                         throw new IllegalStateException(String.format(
-                            "No GT [%s] found for sample %s in \nVariant: %s\nIndexOther:%s\nIndex:%s\nOtherSe:%s\nOtherSp:%s",
-                            getGtKey(), sampleName, other.getImpl(), otherSampleToGt, sampleToGt, otherStudy.getSamplesData(),
-                            otherStudy.getSamplesPosition()));
+                                "No GT [%s] found for sample %s in \nVariant: %s\nIndexOther:%s\nIndex:%s\nOtherSe:%s\nOtherSp:%s",
+                                getGtKey(), sampleName, other.getImpl(), otherSampleToGt, sampleToGt, otherStudy.getSamplesData(),
+                                otherStudy.getSamplesPosition()));
                     }
                     String updatedGt = updateGT(gt, altIdx, otherAltIdx);
                     if (alreadyInStudy) {
@@ -543,7 +563,7 @@ public class VariantMerger {
      * @param orderedSamplesName
      */
     private void updateStudy(StudyEntry study, Map<String, String> sampleToGt, Map<String, String> sampleToFilter,
-            Map<String, Map<Integer, String>> sampleToAdditional, List<String> orderedSamplesName) {
+                             Map<String, Map<Integer, String>> sampleToAdditional, List<String> orderedSamplesName) {
 
         // Build empty sample data.
         List<String> format = study.getFormat();
@@ -592,7 +612,7 @@ public class VariantMerger {
         List<Integer> matching = new ArrayList<>();
         for (int i = 0; i < list.size(); i++) {
             if (p.test(list.get(i))) {
-                matching.add(Integer.valueOf(i));
+                matching.add(i);
             }
         }
         return matching;
@@ -600,46 +620,48 @@ public class VariantMerger {
 
     /**
      * Collapses a list of GT to a minimal set.
-     * @param gtlst
+     * @param gtsStr
      * @return
      */
-    private List<Integer> collapseGT(List<String> gtlst) {
-        if (gtlst.isEmpty()) {
+    private List<Integer> collapseGT(List<String> gtsStr) {
+        if (gtsStr.isEmpty()) {
             return Collections.emptyList();
         }
-        if (gtlst.size() == 1) {
+        if (gtsStr.size() == 1) {
             return Collections.singletonList(0);
         }
 
-        // only get GT with an ALT e.g 0/1 0/2 1/2 etc. (ignore ./. and 0/0 GT)
-        Predicate<String> findAlts = gt -> Arrays.stream(new Genotype(gt).getAllelesIdx()).anyMatch(i -> i > 0);
-        Predicate<String> findHomRef = gt -> gt.equals(Genotype.HOM_REF);
-        Predicate<String> findOneRef = gt -> Arrays.stream(new Genotype(gt).getAllelesIdx()).anyMatch(i -> i == 0);
-        Predicate<String> findNoCalls = gt -> Arrays.stream(new Genotype(gt).getAllelesIdx()).anyMatch(i -> i < 0);
+        List<Genotype> gts = gtsStr.stream().map(Genotype::new).collect(Collectors.toList());
 
-        List<Integer> oneAltAllele = getMatchingPositions(gtlst, findAlts);
+        // only get GT with an ALT e.g 0/1 0/2 1/2 etc. (ignore ./. and 0/0 GT)
+        Predicate<Genotype> findAlts = gt -> Arrays.stream(gt.getAllelesIdx()).anyMatch(i -> i > 0);
+        Predicate<Genotype> findHomRef = gt -> Arrays.stream(gt.getAllelesIdx()).allMatch(i -> i == 0);
+        Predicate<Genotype> findOneRef = gt -> Arrays.stream(gt.getAllelesIdx()).anyMatch(i -> i == 0);
+        Predicate<Genotype> findNoCalls = gt -> Arrays.stream(gt.getAllelesIdx()).anyMatch(i -> i < 0);
+
+        List<Integer> oneAltAllele = getMatchingPositions(gts, findAlts);
         if (!oneAltAllele.isEmpty()) {
             return oneAltAllele;
         }
-        List<Integer> reference = getMatchingPositions(gtlst, findHomRef);
+        List<Integer> reference = getMatchingPositions(gts, findHomRef);
         if (!reference.isEmpty()) {
             return reference;
         }
 
-        List<Integer> oneReferenceAllele = getMatchingPositions(gtlst, findOneRef);
+        List<Integer> oneReferenceAllele = getMatchingPositions(gts, findOneRef);
         if (!oneReferenceAllele.isEmpty()) {
             return oneReferenceAllele;
         }
         // only no-calls left -> try to collapse
-        List<Integer> nocalls = getMatchingPositions(gtlst, findNoCalls);
-        if (nocalls.size() == gtlst.size()) { // all GT found
+        List<Integer> nocalls = getMatchingPositions(gts, findNoCalls);
+        if (nocalls.size() == gtsStr.size()) { // all GT found
             return Collections.singletonList(nocalls.get(0));
         }
         // don't know that could be left!!!
         if (this.collapseDeletions) {
-            throw new IllegalStateException("Not able to resolve GT: " + StringUtils.join(gtlst, ","));
+            throw new IllegalStateException("Not able to resolve GT: " + StringUtils.join(gtsStr, ","));
         }
-        return IntStream.range(0, gtlst.size()-1).boxed().collect(Collectors.toList());
+        return IntStream.range(0, gtsStr.size() - 1).boxed().collect(Collectors.toList());
     }
 
     private String updateGT(String gt, Map<AlternateCoordinate, Integer> curr, Map<Integer, AlternateCoordinate> other) {
@@ -667,25 +689,31 @@ public class VariantMerger {
         final Set<AlternateCoordinate> altSets = new HashSet<>(currAlts);
         if (this.collapseDeletions && isDeletion(current.getType(), current.getStart(), current.getEnd())) {
             // remove all alts that are NOT fully overlap current deletion -> keep only larger or same
-            alts.forEach(l -> l.stream().filter(a -> (start >= a.getStart() && end <= a.getEnd())).forEach(a -> altSets.add(a)));
+            alts.stream()
+                    .flatMap(Collection::stream)
+                    .filter(a -> (start >= a.getStart() && end <= a.getEnd()))
+                    .forEach(altSets::add);
         } else if (this.collapseDeletions && isInsertion(current.getType(), current.getStart(), current.getEnd())) {
             // remove all alts that are NOT fully overlap current deletion -> keep only larger or same
-            alts.forEach(l -> l.stream().filter(a -> {
+            alts.stream()
+                    .flatMap(Collection::stream)
+                    .filter(a -> {
                         if (isInsertion(a)) {
                             return (start.equals(a.getStart())
                                     && end.equals(a.getEnd())
                                     && (a.getAlternate().equals("*")
-                                      || a.getAlternate().length() >= current.getAlternate().length())
+                                    || a.getAlternate().length() >= current.getAlternate().length())
                             );
                         }
                         return true;
-                    }).forEach(a -> altSets.add(a)));
+                    })
+                    .forEach(altSets::add);
         } else if (this.collapseDeletions && current.getType().equals(VariantType.SNP)) {
             alts.forEach(l -> l.stream()
                     .filter(a ->current.overlapWith(a.getChromosome(), a.getStart(), a.getEnd(), true))
-                    .forEach(a -> altSets.add(a)));
+                    .forEach(altSets::add));
         } else {
-            alts.forEach(l -> altSets.addAll(l));
+            alts.forEach(altSets::addAll);
         }
         // remove current alts
         altSets.removeAll(currAlts);
@@ -899,9 +927,7 @@ public class VariantMerger {
         Map<String, Integer> formatPositions = se.getFormatPositions();
         Integer formatPosition = formatPositions.get(key);
         String defaultValue = getDefaultValue(key);
-        if (Objects.isNull(formatPosition)) {
-            logger.warn("No format position registered for {} in {} in {} ", key, formatPositions, var.getImpl());
-        }
+
         samplesPosition.forEach((s,samplePosition) -> {
             List<String> values = samplesData.get(samplePosition);
             if (Objects.isNull(values)) {
