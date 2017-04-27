@@ -48,6 +48,8 @@ public class Variant implements Serializable, Comparable<Variant> {
     public static final int SV_THRESHOLD = 50;
     private static final String CNVSTR = "<CN";
     private static final String DELSTR = "<DEL>";
+    private static final String INVSTR = "<INV>";
+    private static final String INSSTR = "<INS>";
     private static final Pattern CNVPATTERN = Pattern.compile("<CN([0-9]+)>");
 
     public Variant() {
@@ -180,6 +182,10 @@ public class Variant implements Serializable, Comparable<Variant> {
                 return VariantType.CNV;
             } else if (alternate.equals(DELSTR)){
                 return VariantType.DELETION;
+            } else if (alternate.equals(INVSTR)){
+                return VariantType.INVERSION;
+            } else if (alternate.equals(INSSTR)){
+                return VariantType.INSERTION;
             } else {
                 return VariantType.SYMBOLIC;
             }
