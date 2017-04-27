@@ -73,8 +73,8 @@ public class VcfRecordProtoToVariantConverter implements Converter<VcfSliceProto
     }
 
     public Variant convert(VcfSliceProtos.VcfRecord vcfRecord, String chromosome, int slicePosition) {
-        int start = slicePosition + vcfRecord.getRelativeStart();
-        int end = getRealEnd(slicePosition, start, vcfRecord.getRelativeEnd());
+        int start = getStart(vcfRecord, slicePosition);
+        int end = getEnd(vcfRecord, slicePosition);
 
         Variant variant = new Variant(chromosome, start, end, vcfRecord.getReference(), vcfRecord.getAlternate());
 
@@ -105,10 +105,15 @@ public class VcfRecordProtoToVariantConverter implements Converter<VcfSliceProto
         return variant;
     }
 
-    private int getRealEnd(int slicePosition, int start, int relativeEnd) {
+    public static int getStart(VcfSliceProtos.VcfRecord vcfRecord, int slicePosition) {
+        return slicePosition + vcfRecord.getRelativeStart();
+    }
+
+    public static int getEnd(VcfSliceProtos.VcfRecord vcfRecord, int slicePosition) {
         final int end;
+        int relativeEnd = vcfRecord.getRelativeEnd();
         if (relativeEnd == 0) {
-            end = start;
+            end = getStart(vcfRecord, slicePosition);
         } else {
             if (relativeEnd < 0) {
                 // Negative values are stored with one position less.
