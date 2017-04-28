@@ -22,6 +22,7 @@ package org.opencb.biodata.models.variant;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import htsjdk.variant.variantcontext.Allele;
 import org.apache.commons.lang3.StringUtils;
+import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.models.variant.avro.StructuralVariation;
 import org.opencb.biodata.models.variant.avro.VariantAnnotation;
 import org.opencb.biodata.models.variant.avro.VariantAvro;
@@ -262,25 +263,10 @@ public class Variant implements Serializable, Comparable<Variant> {
     }
 
     public final void setChromosome(String chromosome) {
-        if (chromosome == null || chromosome.length() == 0) {
+        if (StringUtils.isEmpty(chromosome)) {
             throw new IllegalArgumentException("Chromosome must not be empty");
         }
-        // Replace "chr" references only at the beginning of the chromosome name
-        // For instance, tomato has SL2.40ch00 and that should be kept that way
-        if (chromosome.startsWith("ch")) {
-            if (chromosome.startsWith("chrom")) {
-                impl.setChromosome(chromosome.substring(5));
-            } else if (chromosome.startsWith("chrm")) {
-                impl.setChromosome(chromosome.substring(4));
-            } else if (chromosome.startsWith("chr")) {
-                impl.setChromosome(chromosome.substring(3));
-            } else {
-                // Only starts with ch
-                impl.setChromosome(chromosome.substring(2));
-            }
-        } else {
-            impl.setChromosome(chromosome);
-        }
+        impl.setChromosome(Region.normalizeChromosome(chromosome));
     }
 
     public final void setStart(Integer start) {

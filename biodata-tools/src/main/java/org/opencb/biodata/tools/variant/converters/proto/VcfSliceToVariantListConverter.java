@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 /**
  * Created on 05/11/15
@@ -58,11 +59,17 @@ public class VcfSliceToVariantListConverter implements Converter<VcfSliceProtos.
 
     @Override
     public List<Variant> convert(VcfSliceProtos.VcfSlice vcfSlice) {
+        return convert(vcfSlice, null);
+    }
+
+    public List<Variant> convert(VcfSliceProtos.VcfSlice vcfSlice, Predicate<VcfSliceProtos.VcfRecord> filter) {
         VcfRecordProtoToVariantConverter recordConverter = new VcfRecordProtoToVariantConverter(vcfSlice.getFields(),
                 samplesPosition, fileId, studyId);
         List<Variant> variants = new ArrayList<>(vcfSlice.getRecordsCount());
         for (VcfSliceProtos.VcfRecord vcfRecord : vcfSlice.getRecordsList()) {
-            variants.add(recordConverter.convert(vcfRecord, vcfSlice.getChromosome(), vcfSlice.getPosition()));
+            if (filter == null || filter.test(vcfRecord)) {
+                variants.add(recordConverter.convert(vcfRecord, vcfSlice.getChromosome(), vcfSlice.getPosition()));
+            }
         }
         return variants;
     }

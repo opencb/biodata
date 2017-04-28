@@ -79,15 +79,46 @@ public class Region {
     }
 
     public static List<Region> parseRegions(String regionsString) {
+        return parseRegions(regionsString, false);
+    }
+
+    public static List<Region> parseRegions(String regionsString, boolean normalize) {
         List<Region> regions = null;
         if (regionsString != null && !regionsString.isEmpty()) {
             String[] regionItems = regionsString.split(",");
             regions = new ArrayList<>(regionItems.length);
             for (String regionString : regionItems) {
-                regions.add(new Region(regionString));
+                Region region = new Region(regionString);
+                if (normalize) {
+                    region.normalizeChromosome();
+                }
+                regions.add(region);
             }
         }
         return regions;
+    }
+
+    public String normalizeChromosome() {
+        chromosome = normalizeChromosome(chromosome);
+        return chromosome;
+    }
+
+    public static String normalizeChromosome(String chromosome) {
+        // Replace "chr" references only at the beginning of the chromosome name
+        // For instance, tomato has SL2.40ch00 and that should be kept that way
+        if (chromosome.startsWith("ch")) {
+            if (chromosome.startsWith("chrom")) {
+                chromosome = chromosome.substring(5);
+            } else if (chromosome.startsWith("chrm")) {
+                chromosome = chromosome.substring(4);
+            } else if (chromosome.startsWith("chr")) {
+                chromosome = chromosome.substring(3);
+            } else {
+                // Only starts with ch
+                chromosome = chromosome.substring(2);
+            }
+        }
+        return chromosome;
     }
 
 

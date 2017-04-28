@@ -19,6 +19,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static org.opencb.biodata.formats.variant.vcf4.VcfUtils.ANNOTATION_INFO_KEY;
+
 /**
  * Created by jtarraga on 07/02/17.
  */
@@ -456,7 +458,7 @@ public class VariantContextToAvroVariantConverter extends VariantConverter<Varia
             }
         }
 
-        attributes.put("ANN", stringBuilder.toString());
+        attributes.put(ANNOTATION_INFO_KEY, stringBuilder.toString());
 //        infoAnnotations.put("CSQ", stringBuilder.toString().replaceAll("&|$", ""));
         return attributes;
     }
