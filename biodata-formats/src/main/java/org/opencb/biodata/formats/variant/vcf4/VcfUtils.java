@@ -153,9 +153,10 @@ public class VcfUtils {
 //        meta.add(new VCFFormatHeaderLine("GT", 1, VCFHeaderLineType.String, "Genotype"));
 //        meta.add(new VCFFormatHeaderLine("PF", 1, VCFHeaderLineType.Integer,
 //                "Variant was PASS (1) filter in original vcf"));
-        for (int i = 0; i < formatFields.size(); i++) {
-            meta.add(new VCFFormatHeaderLine(formatFields.get(i), 1,
-                    VCFHeaderLineType.valueOf(formatFieldsType.get(i)), formatFieldsDescr.get(i)));
+        if (formatFields != null) {
+            for (int i = 0; i < formatFields.size(); i++) {
+                meta.add(new VCFFormatHeaderLine(formatFields.get(i), 1, VCFHeaderLineType.valueOf(formatFieldsType.get(i)), formatFieldsDescr.get(i)));
+            }
         }
 
         return new VCFHeader(meta, names);

@@ -24,16 +24,17 @@ import static org.opencb.biodata.formats.variant.vcf4.VcfUtils.ANNOTATION_INFO_K
 /**
  * Created by jtarraga on 07/02/17.
  */
-public class VariantContextToAvroVariantConverter extends VariantConverter<Variant> {
+public class VariantContextToAvroVariantConverter extends VariantContextConverter<Variant> {
 
     private static final DecimalFormat DECIMAL_FORMAT_7 = new DecimalFormat("#.#######");
     private static final DecimalFormat DECIMAL_FORMAT_3 = new DecimalFormat("#.###");
     private final Logger logger = LoggerFactory.getLogger(VariantContextToAvroVariantConverter.class);
 
-    int studyId;
-    String studyIdString;
-    List<String> sampleNames;
-    List<String> annotations;
+    private int studyId;
+    private String studyIdString;
+    private List<String> sampleNames;
+    private List<String> sampleFormats;
+    private List<String> annotations;
 
     private Map<String, String> studyNameMap;
 
@@ -49,6 +50,16 @@ public class VariantContextToAvroVariantConverter extends VariantConverter<Varia
 //        this.studyId = studyId;
         this.studyIdString = study;
         this.sampleNames = sampleNames;
+        this.annotations = annotations;
+
+        this.studyNameMap = new HashMap<>();
+    }
+
+    public VariantContextToAvroVariantConverter(String study, List<String> sampleNames, List<String> sampleFormats, List<String> annotations) {
+//        this.studyId = studyId;
+        this.studyIdString = study;
+        this.sampleNames = sampleNames;
+        this.sampleFormats = sampleFormats;
         this.annotations = annotations;
 
         this.studyNameMap = new HashMap<>();
@@ -85,13 +96,14 @@ public class VariantContextToAvroVariantConverter extends VariantConverter<Varia
         final String noCallAllele = String.valueOf(VCFConstants.NO_CALL_ALLELE);
         VariantContextBuilder variantContextBuilder = new VariantContextBuilder();
         VariantType type = variant.getType();
-        Pair<Integer, Integer> adjustedRange = adjustedVariantStart(variant);
-        List<String> allelesArray = buildAlleles(variant, adjustedRange);
-        Set<Integer> nocallAlleles = IntStream.range(0,  allelesArray.size()).boxed()
+        Pair<Integer, Integer> adjustedStartEndPositions = adjustedVariantStart(variant);
+        List<String> alleleList = buildAlleles(variant, adjustedStartEndPositions);
+        Set<Integer> nocallAlleles = IntStream.range(0,  alleleList.size()).boxed()
                 .filter(i -> {
-                    return noCallAllele.equals(allelesArray.get(i));
+                    return noCallAllele.equals(alleleList.get(i));
                 })
                 .collect(Collectors.toSet());
+
         String filter = "PASS";
 //        String prk = "PR";
 //        String crk = "CR";
@@ -99,7 +111,7 @@ public class VariantContextToAvroVariantConverter extends VariantConverter<Varia
 
         //Attributes for INFO column
         ObjectMap attributes = new ObjectMap();
-        ArrayList<Genotype> genotypes = new ArrayList<>();
+
 //        StudyEntry studyEntry = variant.getStudy(this.studyIdString);
         StudyEntry studyEntry = variant.getStudy(this.studyNameMap.get(this.studyIdString));
 
@@ -114,7 +126,7 @@ public class VariantContextToAvroVariantConverter extends VariantConverter<Varia
 //        originalPosition = auxOriginalPosition;
 //        originalAlleles = getOriginalAlleles(ori);
 //        if (originalAlleles == null) {
-//            originalAlleles = allelesArray;
+//            originalAlleles = alleleList;
 //        }
 //
 //        //Only print those variants in which the alternate is the first alternate from the multiallelic alternatives
@@ -140,7 +152,8 @@ public class VariantContextToAvroVariantConverter extends VariantConverter<Varia
         studyEntry.setSamplesPosition(samplePositions);
 
 
-        String refAllele = allelesArray.get(0);
+        String refAllele = alleleList.get(0);
+        List<Genotype> genotypes = new ArrayList<>();
         for (String sampleName : this.sampleNames) {
             String gtStr = studyEntry.getSampleData(sampleName, "GT");
             String genotypeFilter = studyEntry.getSampleData(sampleName, "FT");
@@ -168,11 +181,11 @@ public class VariantContextToAvroVariantConverter extends VariantConverter<Varia
             String ft = ftSplit.get(0);
 
             org.opencb.biodata.models.feature.Genotype genotype =
-                    new org.opencb.biodata.models.feature.Genotype(gt, refAllele, allelesArray.subList(1, allelesArray.size()));
+                    new org.opencb.biodata.models.feature.Genotype(gt, refAllele, alleleList.subList(1, alleleList.size()));
             List<Allele> alleles = new ArrayList<>();
             for (int gtIdx : genotype.getAllelesIdx()) {
-                if (gtIdx < allelesArray.size() && gtIdx >= 0 && !nocallAlleles.contains(gtIdx)) { // .. AND NOT a nocall allele
-                    alleles.add(Allele.create(allelesArray.get(gtIdx), gtIdx == 0)); // allele is ref. if the alleleIndex is 0
+                if (gtIdx < alleleList.size() && gtIdx >= 0 && !nocallAlleles.contains(gtIdx)) { // .. AND NOT a nocall allele
+                    alleles.add(Allele.create(alleleList.get(gtIdx), gtIdx == 0)); // allele is ref. if the alleleIndex is 0
                 } else {
                     alleles.add(Allele.create(noCallAllele, false)); // genotype of a secondary alternate, or an actual missing
                 }
@@ -185,33 +198,39 @@ public class VariantContextToAvroVariantConverter extends VariantConverter<Varia
             } else {
                 genotypeFilter = "0";
             }
-//            GenotypeBuilder builder = new GenotypeBuilder()
+//            GenotypeBuilder genotypeBuilder = new GenotypeBuilder()
 //                    .name(this.sampleNameMapping.get(sampleName));
-            GenotypeBuilder builder = new GenotypeBuilder()
-                    .name(sampleName);
+            GenotypeBuilder genotypeBuilder = new GenotypeBuilder().name(sampleName);
             if (studyEntry.getFormatPositions().containsKey("GT")) {
-                builder.alleles(alleles)
-                        .phased(genotype.isPhased());
+                genotypeBuilder.alleles(alleles).phased(genotype.isPhased());
             }
             if (genotypeFilter != null) {
-                builder.attribute("PF", genotypeFilter);
+                genotypeBuilder.attribute("PF", genotypeFilter);
             }
+
+            System.out.println("studyEntry.getFormat() = " + studyEntry.getFormat());
             for (String id : studyEntry.getFormat()) {
                 if (id.equals("GT") || id.equals("FT")) {
                     continue;
                 }
                 String value = studyEntry.getSampleData(sampleName, id);
-                builder.attribute(id, value);
+                if (StringUtils.isEmpty(value)) {
+                    value = ".";
+                }
+                System.out.println("\tid  = " + id);
+                System.out.println("\tvalue = " + value);
+                genotypeBuilder.attribute(id, value);
             }
 
-            genotypes.add(builder.make());
+            genotypes.add(genotypeBuilder.make());
         }
 
 //        addStats(studyEntry, attributes);
 
-        variantContextBuilder.start(adjustedRange.getLeft())
-                .stop(adjustedRange.getLeft() + refAllele.length() - 1) //TODO mh719: check what happens for Insertions
+        variantContextBuilder
                 .chr(variant.getChromosome())
+                .start(adjustedStartEndPositions.getLeft())
+                .stop(adjustedStartEndPositions.getLeft() + refAllele.length() - 1) //TODO mh719: check what happens for Insertions
                 .filter(filter); // TODO jmmut: join attributes from different source entries? what to do on a collision?
 
         if (genotypes.isEmpty()) {
@@ -220,10 +239,10 @@ public class VariantContextToAvroVariantConverter extends VariantConverter<Varia
             variantContextBuilder.genotypes(genotypes);
         }
 
-        if (type.equals(VariantType.NO_VARIATION) && allelesArray.get(1).isEmpty()) {
+        if (type.equals(VariantType.NO_VARIATION) && alleleList.get(1).isEmpty()) {
             variantContextBuilder.alleles(refAllele);
         } else {
-            variantContextBuilder.alleles(allelesArray.stream().filter(a -> !a.equals(noCallAllele)).collect(Collectors.toList()));
+            variantContextBuilder.alleles(alleleList.stream().filter(a -> !a.equals(noCallAllele)).collect(Collectors.toList()));
         }
 
         // if asked variant annotations are exported
@@ -256,8 +275,8 @@ public class VariantContextToAvroVariantConverter extends VariantConverter<Varia
      * @return Pair<Integer, Integer> The adjusted (or same) start/end position e.g. SV and MNV as SecAlt, INDEL, etc.
      */
     protected Pair<Integer, Integer> adjustedVariantStart(Variant variant) {
-        Integer start = variant.getStart();
-        Integer end = variant.getEnd();
+        int start = variant.getStart();
+        int end = variant.getEnd();
         if (StringUtils.isBlank(variant.getReference()) || StringUtils.isBlank(variant.getAlternate())) {
             start = start - 1;
         }
@@ -278,8 +297,8 @@ public class VariantContextToAvroVariantConverter extends VariantConverter<Varia
 //        List<AlternateCoordinate> secAlts = variant.getStudy(this.studyIdString).getSecondaryAlternates();
         List<AlternateCoordinate> secAlts = variant.getStudy(this.studyNameMap.get(this.studyIdString)).getSecondaryAlternates();
         List<String> alleles = new ArrayList<>(secAlts.size() + 2);
-        Integer origStart = variant.getStart();
-        Integer origEnd = variant.getEnd();
+        int origStart = variant.getStart();
+        int origEnd = variant.getEnd();
         alleles.add(buildAllele(variant.getChromosome(), origStart, origEnd, reference, adjustedRange));
         alleles.add(buildAllele(variant.getChromosome(), origStart, origEnd, alternate, adjustedRange));
         secAlts.forEach(alt -> {

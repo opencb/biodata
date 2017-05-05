@@ -25,5 +25,5 @@ import org.opencb.biodata.tools.Converter;
 /**
  * Created by jtarraga on 07/02/17.
  */
-public abstract class VariantConverter<T> implements Converter<VariantContext, T> {
+public abstract class VariantContextConverter<T> implements Converter<VariantContext, T> {
 }
