@@ -42,6 +42,20 @@ public class VariantAggregatedStatsCalculatorTest extends GenericTest {
     }
 
     @Test
+    public void parseMissing_AF() {
+        String line = "1\t54722\t.\tT\tG\t999\tPASS\tAN=0;AC=0;AF=.;GTC=0,0,0";   // structure like gnomad
+
+        List<Variant> variants = factory.create(source, line);
+        VariantAggregatedStatsCalculator calculator = new VariantAggregatedStatsCalculator();
+        calculator.calculate(variants);
+
+        VariantStats stats = variants.get(0).getStudy(source.getStudyId()).getStats(StudyEntry.DEFAULT_COHORT);
+        assertEquals(0, stats.getRefAlleleCount().longValue());
+        assertEquals(0, stats.getAltAlleleCount().longValue());
+        assertEquals(-1f, stats.getAltAlleleFreq(), 0.01);
+    }
+
+    @Test
     public void parseGTC () {
         String line = "20\t61098\trs6078030\tC\tT\t51254.56\tPASS\tAC=225;AN=996;GTC=304,163,31";   // structure like gonl
 
