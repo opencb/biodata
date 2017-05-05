@@ -124,9 +124,9 @@ message Repeat {
     int32 start = 3;
     int32 end = 4;
     int32 period = 5;
-    int32 copy_number = 6;
-    double percentage_match = 7;
-    double score = 8;
+    float copy_number = 6;
+    float percentage_match = 7;
+    float score = 8;
     string sequence = 9;
     string source = 10;
 }

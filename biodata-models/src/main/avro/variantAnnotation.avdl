@@ -139,9 +139,9 @@ protocol VariantAnnotations {
         union { null, int } start;
         union { null, int } end;
         union { null, int } period;
-        union { null, int } copyNumber;
-        union { null, double } percentageMatch;
-        union { null, double } score;
+        union { null, float } copyNumber;
+        union { null, float } percentageMatch;
+        union { null, float } score;
         union { null, string } sequence;
         union { null, string } source;
     }
