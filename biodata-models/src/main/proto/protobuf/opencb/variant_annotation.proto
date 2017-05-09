@@ -118,6 +118,13 @@ message ConsequenceType {
     repeated SequenceOntologyTerm sequence_ontology_terms = 12;
 }
 
+message Cytoband {
+    string stain = 1;
+    string name = 2;
+    int32 start = 3;
+    int32 end = 4;
+}
+
 message VariantAnnotation {
     string chromosome = 1;
     int32 start = 2;
@@ -144,9 +151,10 @@ message VariantAnnotation {
     repeated GeneDrugInteraction gene_drug_interaction = 18;
     VariantTraitAssociation trait_association = 19;
     repeated Score functional_score = 20;
+    repeated Cytoband cytoband = 21;
 
     message AdditionalAttribute {
         map<string, string> attribute = 1;
     }
-    map<string, AdditionalAttribute> additional_attributes = 21;
+    map<string, AdditionalAttribute> additional_attributes = 22;
 }
