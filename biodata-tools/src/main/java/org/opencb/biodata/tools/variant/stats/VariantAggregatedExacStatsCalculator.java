@@ -66,7 +66,7 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
 
     @Override
     protected void parseStats(Variant variant, StudyEntry source, int numAllele, String reference, String[] alternateAlleles, Map<String, String> info) {
-        StudyEntry sourceEntry = variant.getSourceEntry(source.getFileId(), source.getStudyId());
+        StudyEntry sourceEntry = variant.getStudy(source.getStudyId());
         VariantStats stats = new VariantStats(variant);
 
         if (info.containsKey(AC_HET)) {   // heterozygous genotype count
