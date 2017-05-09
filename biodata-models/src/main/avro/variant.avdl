@@ -27,6 +27,8 @@ protocol Variants {
         TRANSLOCATION,  // SO:0000199
         INVERSION,      // SO:1000036
         CNV,            // SO:0001019
+        DUPLICATION,    // SO:1000035
+        BREAKEND,       
         NO_VARIATION,   // Defined in HTSJDK
         SYMBOLIC,       // Defined in HTSJDK
         MIXED           // Defined in HTSJDK

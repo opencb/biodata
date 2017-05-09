@@ -41,12 +41,14 @@ import java.util.regex.Pattern;
 public class Variant implements Serializable, Comparable<Variant> {
 
     public static final EnumSet<VariantType> SV_SUBTYPES = EnumSet.of(VariantType.INSERTION, VariantType.DELETION,
-            VariantType.TRANSLOCATION, VariantType.INVERSION, VariantType.CNV);
+            VariantType.TRANSLOCATION, VariantType.INVERSION, VariantType.CNV, VariantType.DUPLICATION,
+            VariantType.BREAKEND);
     private final VariantAvro impl;
     private volatile Map<String, StudyEntry> studyEntries = null;
 
     public static final int SV_THRESHOLD = 50;
     private static final String CNVSTR = "<CN";
+    private static final String DUPSTR = "<DUP>";
     private static final String DELSTR = "<DEL>";
     private static final String INVSTR = "<INV>";
     private static final String INSSTR = "<INS>";
@@ -177,15 +179,21 @@ public class Variant implements Serializable, Comparable<Variant> {
     }
 
     public static VariantType inferType(String reference, String alternate, Integer length) {
-        if (Allele.wouldBeSymbolicAllele(alternate.getBytes()) || Allele.wouldBeSymbolicAllele(reference.getBytes())) {
+        byte[] alternateBytes = alternate.getBytes();
+        if (Allele.wouldBeSymbolicAllele(alternateBytes) || Allele.wouldBeSymbolicAllele(reference.getBytes())) {
             if (alternate.startsWith(CNVSTR)) {
                 return VariantType.CNV;
+            } else if (alternate.equals(DUPSTR)){
+                return VariantType.DUPLICATION;
             } else if (alternate.equals(DELSTR)){
                 return VariantType.DELETION;
             } else if (alternate.equals(INVSTR)){
                 return VariantType.INVERSION;
             } else if (alternate.equals(INSSTR)){
                 return VariantType.INSERTION;
+            } else if (alternate.contains("[") || alternate.contains("]")  // mated breakend
+                    || alternateBytes[0] == '.' || alternateBytes[alternateBytes.length - 1] == '.')  { // single breakend
+                return VariantType.BREAKEND;
             } else {
                 return VariantType.SYMBOLIC;
             }
@@ -241,8 +249,13 @@ public class Variant implements Serializable, Comparable<Variant> {
 
     private static int inferLengthSV(String alternate, int start, int end) {
         int length;
-        if (StringUtils.startsWith(alternate, CNVSTR) || StringUtils.equals(alternate, DELSTR)) {
+        if (StringUtils.startsWith(alternate, CNVSTR) || StringUtils.equals(alternate, DELSTR)
+                || StringUtils.equals(alternate, DUPSTR)) {
             length = end - start + 1;
+        } else if (alternate.contains("[") || alternate.contains("]")  // mated breakend
+                || alternate.startsWith(".") || alternate.endsWith(".")) { // single breakend
+            length = 0; // WARNING: breakends length set to 0 in any case - breakends shall not be stored in the future;
+                        // translocations formed by 4 breakends must be parsed and managed instead
         } else {
             length = alternate == null ? 0 : alternate.length();
         }
