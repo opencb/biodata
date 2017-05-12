@@ -50,7 +50,6 @@ import java.util.stream.Stream;
  * @author Matthias Haimel mh719+git@cam.ac.uk
  *
  * TODO: Make this class inmutable. Remove all Atomicreferences
- * TODO: Accept a list of FORMAT fields to merge
  * TODO: Check for duplicated files
  */
 public class VariantMerger {
@@ -73,6 +72,7 @@ public class VariantMerger {
     private final boolean collapseDeletions;
     private final LinkedHashMap<String, Integer> expectedSamplesPosition = new LinkedHashMap<>();
     private final Set<String> expectedSamples = expectedSamplesPosition.keySet();
+    private final Map<String, Integer> expectedFormatsPosition = new LinkedHashMap<>();
     private final Map<String, String> defaultValues = new ConcurrentHashMap<>();
     private final AtomicReference<String> studyId = new AtomicReference<>(null);
 
@@ -100,6 +100,17 @@ public class VariantMerger {
 
     private String getStudyId() {
         return studyId.get();
+    }
+
+    public VariantMerger setExpectedFormats(List<String> formats) {
+        expectedFormatsPosition.clear();
+        for (String format : formats) {
+            if (format.equals(getGtKey()) && !expectedFormatsPosition.isEmpty()) {
+                throw new IllegalArgumentException("Genotype format field [" + getGtKey() + "] must be in the first position!");
+            }
+            expectedFormatsPosition.put(format, expectedFormatsPosition.size());
+        }
+        return this;
     }
 
     /**
@@ -251,7 +262,7 @@ public class VariantMerger {
      * @param load    {@link Variant} to be merged.
      * @return Merged Variant object.
      */
-    Variant merge(Variant current, Variant load) {
+    public Variant merge(Variant current, Variant load) {
         return merge(current, Collections.singleton(load));
     }
 
@@ -427,7 +438,7 @@ public class VariantMerger {
      * @param current Variant object - in/out
      * @param varToAlts List of Variant with matching ALTs (ALT and secondary ALTs)
      */
-    void mergeVariants(Variant current, List<Pair<Variant, List<AlternateCoordinate>>> varToAlts) {
+    private void mergeVariants(Variant current, List<Pair<Variant, List<AlternateCoordinate>>> varToAlts) {
         StudyEntry currentStudy = getStudy(current);
         String defaultFilterValue = currentStudy.getFiles().isEmpty() ? getDefaultValue(getFilterKey())
                 : currentStudy.getFiles().get(0).getAttributes().getOrDefault(getAnnotationFilterKey(), getDefaultValue(getFilterKey()));
@@ -441,22 +452,31 @@ public class VariantMerger {
         // Update SecALt list
         currentStudy.setSecondaryAlternates(altList.subList(1, altList.size()));
 
-        // Find all formats
-        Set<String> allFormats = varToAlts.stream()
-                .map(Pair::getKey)
-                .map(this::getStudy)
-                .map(StudyEntry::getFormat)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toSet());
-        Map<String, Integer> newFormatPositions = new HashMap<>(currentStudy.getFormatPositions());
-        newFormatPositions.putIfAbsent(getFilterKey(), newFormatPositions.size());
-        for (String format : allFormats) {
-            newFormatPositions.putIfAbsent(format, newFormatPositions.size());
+        // Find new formats
+        final Map<String, Integer> newFormatPositions;
+        final List<String> newFormat;
+        if (expectedFormatsPosition.isEmpty()) {
+            // Find all formats
+            Set<String> allFormats = varToAlts.stream()
+                    .map(Pair::getKey)
+                    .map(this::getStudy)
+                    .map(StudyEntry::getFormat)
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toSet());
+            newFormatPositions = new HashMap<>(currentStudy.getFormatPositions());
+            newFormatPositions.putIfAbsent(getFilterKey(), newFormatPositions.size());
+            for (String format : allFormats) {
+                newFormatPositions.putIfAbsent(format, newFormatPositions.size());
+            }
+            newFormat = Arrays.asList(new String[newFormatPositions.size()]);
+            newFormatPositions.forEach((format, formatIdx) -> {
+                newFormat.set(formatIdx, format);
+            });
+        } else {
+            // TODO: Try to avoid this copy
+            newFormatPositions = new HashMap<>(expectedFormatsPosition);
+            newFormat = new ArrayList<>(expectedFormatsPosition.keySet());
         }
-        List<String> newFormat = Arrays.asList(new String[newFormatPositions.size()]);
-        newFormatPositions.forEach((format, formatIdx) -> {
-            newFormat.set(formatIdx, format);
-        });
         Map<String, Integer> extraFormats = newFormatPositions.entrySet()
                 .stream()
                 .filter(e -> !e.getKey().equals(getGtKey()) && !e.getKey().equals(getFilterKey()))
@@ -490,7 +510,10 @@ public class VariantMerger {
             List<String> newSampleData = newSamplesData.get(newSampleIdx);
             int formatIdx = 0;
             for (String format : currentStudy.getFormat()) {
-                newSampleData.set(newFormatPositions.get(format), currentSampleData.get(formatIdx));
+                Integer newFormatIdx = newFormatPositions.get(format);
+                if (newFormatIdx != null) {
+                    newSampleData.set(newFormatIdx, currentSampleData.get(formatIdx));
+                }
                 formatIdx++;
             }
             currentSampleIdx++;

@@ -40,10 +40,8 @@ public class VariantMergerTest {
         Variant tempate = VariantTestUtils.generateVariant("1",10,"A","T",VariantType.SNV,
                 Arrays.asList("S01"),
                 Arrays.asList(Genotype.HET_REF));
-//        VARIANT_MERGER.setExpectedSamples(Arrays.asList("S01"));
         var = variantMerger.createFromTemplate(tempate);
         variantMerger.merge(var, tempate);
-//        VARIANT_MERGER.setExpectedSamples(Arrays.asList("S01", "S02"));
     }
 
     @After
@@ -845,11 +843,11 @@ public class VariantMergerTest {
         assertEquals("PASS2", studyEntry.getSampleData("S02", "FT"));
         assertEquals("0.2", studyEntry.getSampleData("S02", "GQ"));
     }
+
     @Test
     public void testMergeWithSecondaryWithOtherFormatsAndFT() {
         Variant var1 = VariantTestUtils.generateVariantWithFormat("1:10:A:T", "PASS1", 100F, "GT:DP:FT", "S01", "0/1", "4", "MyFilter1");
-        Variant var2 = VariantTestUtils.generateVariantWithFormat("1:10:A:G", "PASS2", 100F, "GT:DP:FT", "S02", "1/2", "5", "MyFilter2");
-        var2.getStudy(VariantTestUtils.STUDY_ID).getSecondaryAlternates().add(new AlternateCoordinate("1", 10, 10, "A", "C", VariantType.SNV));
+        Variant var2 = VariantTestUtils.generateVariantWithFormat("1:10:A:G,C", "PASS2", 100F, "GT:DP:FT", "S02", "1/2", "5", "MyFilter2");
         Variant mergedVariant = checkMergeVariants(var1, var2, Arrays.asList("1:10:A:G", "1:10:A:C"), "2/3");
         StudyEntry studyEntry = mergedVariant.getStudies().get(0);
         assertEquals("GT:DP:FT", studyEntry.getFormatAsString());
@@ -857,6 +855,41 @@ public class VariantMergerTest {
         assertEquals("MyFilter1", studyEntry.getSampleData("S01", "FT"));
         assertEquals("5", studyEntry.getSampleData("S02", "DP"));
         assertEquals("MyFilter2", studyEntry.getSampleData("S02", "FT"));
+    }
+
+    @Test
+    public void testUseWrongFormat() {
+        variantMerger.setExpectedFormats(Arrays.asList("GT"));
+        variantMerger.setExpectedFormats(Arrays.asList("DP"));
+        variantMerger.setExpectedFormats(Arrays.asList("GT", "DP"));
+        thrown.expect(IllegalArgumentException.class);
+        variantMerger.setExpectedFormats(Arrays.asList("DP", "GT"));
+    }
+
+    @Test
+    public void testMergeWithSecondaryWithExpectedFormats() {
+        Variant var1 = VariantTestUtils.generateVariantWithFormat("1:10:A:T", "PASS1", 100F, "GT:DP:FT", "S01", "0/1", "4", "MyFilter1");
+        Variant var2 = VariantTestUtils.generateVariantWithFormat("1:10:A:G,C", "PASS2", 100F, "GT:DP:GL", "S02", "1/2", "5", "...");
+        variantMerger.setExpectedFormats(Arrays.asList("GT", "DP"));
+        Variant mergedVariant = checkMergeVariants(var1, var2, Arrays.asList("1:10:A:G", "1:10:A:C"), "2/3");
+        StudyEntry studyEntry = mergedVariant.getStudies().get(0);
+        assertEquals("GT:DP", studyEntry.getFormatAsString());
+        assertEquals("4", studyEntry.getSampleData("S01", "DP"));
+        assertEquals("5", studyEntry.getSampleData("S02", "DP"));
+    }
+
+    @Test
+    public void testMergeWithSecondaryWithExpectedFormatsNoGT() {
+        Variant var1 = VariantTestUtils.generateVariantWithFormat("1:10:A:T", "PASS1", 100F, "GT:DP:FT", "S01", "0/1", "4", "MyFilter1");
+        Variant var2 = VariantTestUtils.generateVariantWithFormat("1:10:A:G,C", "PASS2", 100F, "GT:GL", "S02", "1/2", "...");
+        variantMerger.setExpectedFormats(Arrays.asList("DP", "FT"));
+        Variant mergedVariant = variantMerger.merge(var1, var2);
+        StudyEntry studyEntry = mergedVariant.getStudies().get(0);
+        assertEquals("DP:FT", studyEntry.getFormatAsString());
+        assertEquals("4", studyEntry.getSampleData("S01", "DP"));
+        assertEquals(variantMerger.getDefaultValue("DP"), studyEntry.getSampleData("S02", "DP"));
+        assertEquals("MyFilter1", studyEntry.getSampleData("S01", "FT"));
+        assertEquals("PASS2", studyEntry.getSampleData("S02", "FT"));
     }
 
     @Test
