@@ -6,6 +6,7 @@ import htsjdk.variant.vcf.VCFConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.opencb.biodata.formats.variant.vcf4.VcfUtils;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.*;
@@ -19,7 +20,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.opencb.biodata.formats.variant.vcf4.VcfUtils.ANNOTATION_INFO_KEY;
+import static org.opencb.biodata.formats.variant.vcf4.VcfUtils.*;
 
 /**
  * Created by jtarraga on 07/02/17.
@@ -28,6 +29,8 @@ public class VariantContextToAvroVariantConverter extends VariantContextConverte
 
     private static final DecimalFormat DECIMAL_FORMAT_7 = new DecimalFormat("#.#######");
     private static final DecimalFormat DECIMAL_FORMAT_3 = new DecimalFormat("#.###");
+    public static final String FIELD_SEPARATOR = "|";
+    public static final String INFO_SEPARATOR = "&";
     private final Logger logger = LoggerFactory.getLogger(VariantContextToAvroVariantConverter.class);
 
     private int studyId;
@@ -37,6 +40,7 @@ public class VariantContextToAvroVariantConverter extends VariantContextConverte
     private List<String> annotations;
 
     private Map<String, String> studyNameMap;
+    private Map<String, Integer> samplePositions;
 
     @Deprecated
     public VariantContextToAvroVariantConverter(int studyId, List<String> sampleNames, List<String> annotations) {
@@ -47,12 +51,7 @@ public class VariantContextToAvroVariantConverter extends VariantContextConverte
     }
 
     public VariantContextToAvroVariantConverter(String study, List<String> sampleNames, List<String> annotations) {
-//        this.studyId = studyId;
-        this.studyIdString = study;
-        this.sampleNames = sampleNames;
-        this.annotations = annotations;
-
-        this.studyNameMap = new HashMap<>();
+        this(study, sampleNames, VcfUtils.DEFAULT_SAMPLE_FORMAT, annotations);
     }
 
     public VariantContextToAvroVariantConverter(String study, List<String> sampleNames, List<String> sampleFormats, List<String> annotations) {
@@ -72,11 +71,6 @@ public class VariantContextToAvroVariantConverter extends VariantContextConverte
 
     @Override
     public VariantContext from(Variant variant) {
-
-//        Iterator<StudyEntry> iterator = variant.getStudies().iterator();
-//        while (iterator.hasNext()) {
-//            System.out.println("iterator.next().getStudyId() = " + iterator.next().getStudyId());
-//        }
 
         if (this.studyNameMap == null || this.studyNameMap.size() == 0) {
             variant.getStudies().forEach(studyEntry -> {
@@ -104,128 +98,154 @@ public class VariantContextToAvroVariantConverter extends VariantContextConverte
                 })
                 .collect(Collectors.toSet());
 
-        String filter = "PASS";
-//        String prk = "PR";
-//        String crk = "CR";
-//        String oprk = "OPR";
 
-        //Attributes for INFO column
-        ObjectMap attributes = new ObjectMap();
-
-//        StudyEntry studyEntry = variant.getStudy(this.studyIdString);
         StudyEntry studyEntry = variant.getStudy(this.studyNameMap.get(this.studyIdString));
 
-//        Integer originalPosition = null;
-//        List<String> originalAlleles = null;
-        // TODO work out properly how to deal with multi allelic sites.
-//        String[] ori = getOri(studyEntry);
-//        Integer auxOriginalPosition = getOriginalPosition(ori);
-//        if (originalPosition != null && auxOriginalPosition != null && !originalPosition.equals(auxOriginalPosition)) {
-//            throw new IllegalStateException("Two or more VariantSourceEntries have different origin. Unable to merge");
-//        }
-//        originalPosition = auxOriginalPosition;
-//        originalAlleles = getOriginalAlleles(ori);
-//        if (originalAlleles == null) {
-//            originalAlleles = alleleList;
-//        }
-//
-//        //Only print those variants in which the alternate is the first alternate from the multiallelic alternatives
-//        if (originalAlleles.size() > 2 && !"0".equals(getOriginalAlleleIndex(ori))) {
-//            logger.debug("Skip multi allelic variant! " + variant);
-//            return null;
-//        }
-
+        String filter = "PASS";
         String sourceFilter = studyEntry.getAttribute("FILTER");
         if (sourceFilter != null && !filter.equals(sourceFilter)) {
             filter = ".";   // write PASS iff all sources agree that the filter is "PASS" or assumed if not present, otherwise write "."
         }
 
-//        attributes.putIfNotNull(prk, DECIMAL_FORMAT_7.format(Double.valueOf(studyEntry.getAttributes().get("PR"))));
-//        attributes.putIfNotNull(crk, DECIMAL_FORMAT_7.format(Double.valueOf(studyEntry.getAttributes().get("CR"))));
-//        attributes.putIfNotNull(oprk, DECIMAL_FORMAT_7.format(Double.valueOf(studyEntry.getAttributes().get("OPR"))));
-
-
-        Map<String, Integer> samplePositions = new HashMap<>(sampleNames.size());
-        for (int i = 0; i < sampleNames.size(); i++) {
-            samplePositions.put(sampleNames.get(i), i);
-        }
-        studyEntry.setSamplesPosition(samplePositions);
-
-
         String refAllele = alleleList.get(0);
         List<Genotype> genotypes = new ArrayList<>();
-        for (String sampleName : this.sampleNames) {
-            String gtStr = studyEntry.getSampleData(sampleName, "GT");
-            String genotypeFilter = studyEntry.getSampleData(sampleName, "FT");
+        if (this.sampleNames != null && this.sampleFormats != null) {
 
-            if (Objects.isNull(gtStr)) {
-                gtStr = noCallAllele;
-                genotypeFilter = noCallAllele;
-            }
-
-            List<String> gtSplit = new ArrayList<>(Arrays.asList(gtStr.split(",")));
-            List<String> ftSplit = new ArrayList<>(Arrays.asList(
-                    (StringUtils.isBlank(genotypeFilter) ? "" : genotypeFilter).split(",")));
-            while (gtSplit.size() > 1) {
-                int idx = gtSplit.indexOf(noCallAllele);
-                if (idx < 0) {
-                    idx = gtSplit.indexOf("0/0");
-                }
-                if (idx < 0) {
-                    break;
-                }
-                gtSplit.remove(idx);
-                ftSplit.remove(idx);
-            }
-            String gt = gtSplit.get(0);
-            String ft = ftSplit.get(0);
-
-            org.opencb.biodata.models.feature.Genotype genotype =
-                    new org.opencb.biodata.models.feature.Genotype(gt, refAllele, alleleList.subList(1, alleleList.size()));
-            List<Allele> alleles = new ArrayList<>();
-            for (int gtIdx : genotype.getAllelesIdx()) {
-                if (gtIdx < alleleList.size() && gtIdx >= 0 && !nocallAlleles.contains(gtIdx)) { // .. AND NOT a nocall allele
-                    alleles.add(Allele.create(alleleList.get(gtIdx), gtIdx == 0)); // allele is ref. if the alleleIndex is 0
-                } else {
-                    alleles.add(Allele.create(noCallAllele, false)); // genotype of a secondary alternate, or an actual missing
+            if (samplePositions == null || samplePositions.size() == 0) {
+                samplePositions = new HashMap<>(sampleNames.size());
+                for (int i = 0; i < sampleNames.size(); i++) {
+                    samplePositions.put(sampleNames.get(i), i);
                 }
             }
+            studyEntry.setSamplesPosition(samplePositions);
 
-            if (StringUtils.isBlank(ft)) {
-                genotypeFilter = null;
-            } else if (StringUtils.equals("PASS", ft)) {
-                genotypeFilter = "1";
-            } else {
-                genotypeFilter = "0";
-            }
-//            GenotypeBuilder genotypeBuilder = new GenotypeBuilder()
-//                    .name(this.sampleNameMapping.get(sampleName));
-            GenotypeBuilder genotypeBuilder = new GenotypeBuilder().name(sampleName);
-            if (studyEntry.getFormatPositions().containsKey("GT")) {
-                genotypeBuilder.alleles(alleles).phased(genotype.isPhased());
-            }
-            if (genotypeFilter != null) {
-                genotypeBuilder.attribute("PF", genotypeFilter);
-            }
-
-            System.out.println("studyEntry.getFormat() = " + studyEntry.getFormat());
-            for (String id : studyEntry.getFormat()) {
-                if (id.equals("GT") || id.equals("FT")) {
-                    continue;
+            for (String sampleName : this.sampleNames) {
+                GenotypeBuilder genotypeBuilder = new GenotypeBuilder().name(sampleName);
+                for (String id : this.sampleFormats) {
+                    String value = studyEntry.getSampleData(sampleName, id);
+                    switch (id) {
+                        case "GT":
+                            if (value == null) {
+                                value = noCallAllele;
+                            }
+                            org.opencb.biodata.models.feature.Genotype genotype =
+                                    new org.opencb.biodata.models.feature.Genotype(value, refAllele, alleleList.subList(1, alleleList.size()));
+                            List<Allele> alleles = new ArrayList<>();
+                            for (int gtIdx : genotype.getAllelesIdx()) {
+                                if (gtIdx < alleleList.size() && gtIdx >= 0 && !nocallAlleles.contains(gtIdx)) { // .. AND NOT a nocall allele
+                                    alleles.add(Allele.create(alleleList.get(gtIdx), gtIdx == 0)); // allele is ref. if the alleleIndex is 0
+                                } else {
+                                    alleles.add(Allele.create(noCallAllele, false)); // genotype of a secondary alternate, or an actual missing
+                                }
+                            }
+                            genotypeBuilder.alleles(alleles).phased(genotype.isPhased());
+                            break;
+                        case "AD":
+                            if (StringUtils.isNotEmpty(value)) {
+                                String[] split = value.split(",");
+                                genotypeBuilder.AD(new int[]{Integer.parseInt(split[0]), Integer.parseInt(split[1])});
+                            } else {
+                                genotypeBuilder.noAD();
+                            }
+                            break;
+                        case "DP":
+                            if (StringUtils.isNotEmpty(value)) {
+                                genotypeBuilder.DP(Integer.parseInt(value));
+                            } else {
+                                genotypeBuilder.noDP();
+                            }
+                            break;
+                        case "GQ":
+                            if (StringUtils.isNotEmpty(value)) {
+                                genotypeBuilder.GQ(Integer.parseInt(value));
+                            } else {
+                                genotypeBuilder.noGQ();
+                            }
+                            break;
+                        case "PL":
+                            if (StringUtils.isNotEmpty(value)) {
+                                String[] split = value.split(",");
+                                genotypeBuilder.PL(new int[]{Integer.parseInt(split[0]), Integer.parseInt(split[1])});
+                            } else {
+                                genotypeBuilder.noPL();
+                            }
+                            break;
+                        default:
+                            genotypeBuilder.attribute(id, value);
+                            break;
+                    }
                 }
-                String value = studyEntry.getSampleData(sampleName, id);
-                if (StringUtils.isEmpty(value)) {
-                    value = ".";
-                }
-                System.out.println("\tid  = " + id);
-                System.out.println("\tvalue = " + value);
-                genotypeBuilder.attribute(id, value);
+
+                genotypes.add(genotypeBuilder.make());
+
+//            String gtStr = studyEntry.getSampleData(sampleName, "GT");
+//            String genotypeFilter = studyEntry.getSampleData(sampleName, "FT");
+//
+//            if (Objects.isNull(gtStr)) {
+//                gtStr = noCallAllele;
+//                genotypeFilter = noCallAllele;
+//            }
+//
+//            List<String> gtSplit = new ArrayList<>(Arrays.asList(gtStr.split(",")));
+//            List<String> ftSplit = new ArrayList<>(Arrays.asList(
+//                    (StringUtils.isBlank(genotypeFilter) ? "" : genotypeFilter).split(",")));
+//            while (gtSplit.size() > 1) {
+//                int idx = gtSplit.indexOf(noCallAllele);
+//                if (idx < 0) {
+//                    idx = gtSplit.indexOf("0/0");
+//                }
+//                if (idx < 0) {
+//                    break;
+//                }
+//                gtSplit.remove(idx);
+//                ftSplit.remove(idx);
+//            }
+//            String gt = gtSplit.get(0);
+//            String ft = ftSplit.get(0);
+//
+//            org.opencb.biodata.models.feature.Genotype genotype =
+//                    new org.opencb.biodata.models.feature.Genotype(gt, refAllele, alleleList.subList(1, alleleList.size()));
+//            List<Allele> alleles = new ArrayList<>();
+//            for (int gtIdx : genotype.getAllelesIdx()) {
+//                if (gtIdx < alleleList.size() && gtIdx >= 0 && !nocallAlleles.contains(gtIdx)) { // .. AND NOT a nocall allele
+//                    alleles.add(Allele.create(alleleList.get(gtIdx), gtIdx == 0)); // allele is ref. if the alleleIndex is 0
+//                } else {
+//                    alleles.add(Allele.create(noCallAllele, false)); // genotype of a secondary alternate, or an actual missing
+//                }
+//            }
+//
+//            if (StringUtils.isBlank(ft)) {
+//                genotypeFilter = null;
+//            } else if (StringUtils.equals("PASS", ft)) {
+//                genotypeFilter = "1";
+//            } else {
+//                genotypeFilter = "0";
+//            }
+////            GenotypeBuilder genotypeBuilder = new GenotypeBuilder()
+////                    .name(this.sampleNameMapping.get(sampleName));
+//            GenotypeBuilder genotypeBuilder = new GenotypeBuilder().name(sampleName);
+//            if (studyEntry.getFormatPositions().containsKey("GT")) {
+//                genotypeBuilder.alleles(alleles).phased(genotype.isPhased());
+//            }
+//            if (genotypeFilter != null) {
+//                genotypeBuilder.attribute("PF", genotypeFilter);
+//            }
+//
+//            System.out.println("studyEntry.getFormat() = " + studyEntry.getFormat());
+//            for (String id : studyEntry.getFormat()) {
+//                if (id.equals("GT") || id.equals("FT")) {
+//                    continue;
+//                }
+//                String value = studyEntry.getSampleData(sampleName, id);
+//                genotypeBuilder.attribute(id, value);
+//            }
+//
+//            genotypes.add(genotypeBuilder.make());
             }
 
-            genotypes.add(genotypeBuilder.make());
+
         }
 
-//        addStats(studyEntry, attributes);
 
         variantContextBuilder
                 .chr(variant.getChromosome())
@@ -233,21 +253,27 @@ public class VariantContextToAvroVariantConverter extends VariantContextConverte
                 .stop(adjustedStartEndPositions.getLeft() + refAllele.length() - 1) //TODO mh719: check what happens for Insertions
                 .filter(filter); // TODO jmmut: join attributes from different source entries? what to do on a collision?
 
-        if (genotypes.isEmpty()) {
-            variantContextBuilder.noGenotypes();
-        } else {
-            variantContextBuilder.genotypes(genotypes);
-        }
-
         if (type.equals(VariantType.NO_VARIATION) && alleleList.get(1).isEmpty()) {
             variantContextBuilder.alleles(refAllele);
         } else {
             variantContextBuilder.alleles(alleleList.stream().filter(a -> !a.equals(noCallAllele)).collect(Collectors.toList()));
         }
 
+        if (genotypes.isEmpty()) {
+            variantContextBuilder.noGenotypes();
+        } else {
+            variantContextBuilder.genotypes(genotypes);
+        }
+
+        //Attributes for INFO column (cohorts stats and annotations (consequence types and population frequencies)
+        ObjectMap attributes = new ObjectMap();
+
+        addCohortStats(studyEntry, attributes);
+
         // if asked variant annotations are exported
+        // (corresponding to the CT and POPFREQ info lines from VCF header)
         if (annotations != null && annotations.size() > 0) {
-            addAnnotations(variant, annotations, attributes);
+            addAnnotations(variant, attributes);
         }
 
         variantContextBuilder.attributes(attributes);
@@ -261,7 +287,7 @@ public class VariantContextToAvroVariantConverter extends VariantContextConverte
                     ids.append(VCFConstants.ID_FIELD_SEPARATOR).append(name);
                 }
             }
-            variantContextBuilder.id(ids.toString());
+            variantContextBuilder.id(StringUtils.join(ids, ","));
         } else {
             variantContextBuilder.id(VCFConstants.EMPTY_ID_FIELD);
         }
@@ -334,6 +360,148 @@ public class VariantContextToAvroVariantConverter extends VariantContextConverte
         return StringUtils.repeat('N', length); // current return default base TODO load reference sequence
     }
 
+
+    @Deprecated
+    private void addCohortStatsOLD(StudyEntry studyEntry, Map<String, Object> attributes) {
+        if (studyEntry.getStats() == null || studyEntry.getStats().size() == 0) {
+            return;
+        }
+        for (Map.Entry<String, VariantStats> entry : studyEntry.getStats().entrySet()) {
+            String cohortName = entry.getKey();
+            VariantStats stats = entry.getValue();
+
+            if (cohortName.equals(StudyEntry.DEFAULT_COHORT)) {
+                cohortName = "";
+                int an = stats.getAltAlleleCount() + stats.getRefAlleleCount();
+                if (an >= 0) {
+                    attributes.put(cohortName + VCFConstants.ALLELE_NUMBER_KEY, String.valueOf(an));
+                }
+                if (stats.getAltAlleleCount() >= 0) {
+                    attributes.put(cohortName + VCFConstants.ALLELE_COUNT_KEY, String.valueOf(stats.getAltAlleleCount()));
+                }
+            } else {
+                cohortName = cohortName + "_";
+            }
+            attributes.put(cohortName + VCFConstants.ALLELE_FREQUENCY_KEY, DECIMAL_FORMAT_7.format(stats.getAltAlleleFreq()));
+        }
+    }
+
+
+    private void addCohortStats(StudyEntry studyEntry, Map<String, Object> attributes) {
+        if (studyEntry.getStats() == null || studyEntry.getStats().size() == 0) {
+            return;
+        }
+
+        List<String> statsList = new ArrayList<>();
+        for (Map.Entry<String, VariantStats> entry : studyEntry.getStats().entrySet()) {
+            String cohortName = entry.getKey();
+            VariantStats stats = entry.getValue();
+
+//            if (cohortName.equals(StudyEntry.DEFAULT_COHORT)) {
+//                int an = stats.getAltAlleleCount() + stats.getRefAlleleCount();
+//                if (an >= 0) {
+//                    attributes.put(cohortName + VCFConstants.ALLELE_NUMBER_KEY, String.valueOf(an));
+//                }
+//                if (stats.getAltAlleleCount() >= 0) {
+//                    attributes.put(cohortName + VCFConstants.ALLELE_COUNT_KEY, String.valueOf(stats.getAltAlleleCount()));
+//                }
+//            }
+            statsList.add(cohortName + ":" + DECIMAL_FORMAT_7.format(stats.getAltAlleleFreq()));
+        }
+        // set cohort stats attributes
+        attributes.put(STATS_INFO_KEY, String.join(FIELD_SEPARATOR, statsList));
+    }
+
+    private void addAnnotations(Variant variant, Map<String, Object> attributes) {
+        // consequence type
+        List<String> ctList = new ArrayList<>();
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < variant.getAnnotation().getConsequenceTypes().size(); i++) {
+            ConsequenceType consequenceType = variant.getAnnotation().getConsequenceTypes().get(i);
+            stringBuilder.delete(0, stringBuilder.length());
+            // allele
+            stringBuilder.append(variant.getAlternate());
+            stringBuilder.append(FIELD_SEPARATOR);
+            // gene name
+            if (consequenceType.getGeneName() != null) {
+                stringBuilder.append(consequenceType.getGeneName());
+            }
+            stringBuilder.append(FIELD_SEPARATOR);
+            // ensembl gene
+            if (consequenceType.getEnsemblGeneId() != null) {
+                stringBuilder.append(consequenceType.getEnsemblGeneId());
+            }
+            stringBuilder.append(FIELD_SEPARATOR);
+            // ensembl transcript
+            if (consequenceType.getEnsemblTranscriptId() != null) {
+                stringBuilder.append(consequenceType.getEnsemblTranscriptId());
+            }
+            stringBuilder.append(FIELD_SEPARATOR);
+            // biotype
+            if (consequenceType.getBiotype() != null) {
+                stringBuilder.append(consequenceType.getBiotype());
+            }
+            stringBuilder.append(FIELD_SEPARATOR);
+            // consequenceType
+            stringBuilder.append(consequenceType.getSequenceOntologyTerms().stream()
+                    .map(SequenceOntologyTerm::getName)
+                    .collect(Collectors.joining(",")));
+            stringBuilder.append(FIELD_SEPARATOR);
+
+            // protein position
+            if (consequenceType.getProteinVariantAnnotation() != null) {
+                stringBuilder.append(consequenceType.getProteinVariantAnnotation().getPosition());
+                stringBuilder.append(FIELD_SEPARATOR);
+                stringBuilder.append(consequenceType.getProteinVariantAnnotation().getReference())
+                        .append("/")
+                        .append(consequenceType.getProteinVariantAnnotation().getAlternate());
+                stringBuilder.append(FIELD_SEPARATOR);
+                if (consequenceType.getProteinVariantAnnotation().getSubstitutionScores() != null) {
+                    List<String> sift = consequenceType.getProteinVariantAnnotation().getSubstitutionScores().stream()
+                            .filter(t -> t.getSource().equalsIgnoreCase("sift"))
+                            .map(Score::getDescription)
+                            .collect(Collectors.toList());
+                    if (sift.size() > 0) {
+                        stringBuilder.append(sift.get(0));
+                    }
+                    stringBuilder.append(FIELD_SEPARATOR);
+
+                    List<String> polyphen = consequenceType.getProteinVariantAnnotation().getSubstitutionScores().stream()
+                            .filter(t -> t.getSource().equalsIgnoreCase("polyphen"))
+                            .map(Score::getDescription)
+                            .collect(Collectors.toList());
+                    if (polyphen.size() > 0) {
+                        stringBuilder.append(polyphen.get(0));
+                    }
+                    stringBuilder.append(FIELD_SEPARATOR);
+                }
+            } else {
+                // We need to add four '|'
+                stringBuilder.append(FIELD_SEPARATOR).append(FIELD_SEPARATOR).append(FIELD_SEPARATOR).append(FIELD_SEPARATOR);
+            }
+
+            // add to ct list
+            ctList.add(stringBuilder.toString());
+        }
+
+        // set consequence type attributes
+        attributes.put(ANNOTATION_INFO_KEY, String.join(INFO_SEPARATOR, ctList));
+
+        // population frequencies
+
+        List<PopulationFrequency> populationFrequencies = variant.getAnnotation().getPopulationFrequencies();
+        if (populationFrequencies != null) {
+            List<String> popFreqList = new ArrayList<>();
+            for (PopulationFrequency pf: populationFrequencies) {
+                popFreqList.add(pf.getStudy() + "_" + pf.getPopulation() + ":" + DECIMAL_FORMAT_7.format(pf.getAltAlleleFreq()));
+            }
+            // set population frequency attributes
+            attributes.put(POPFREQ_INFO_KEY, String.join(FIELD_SEPARATOR, popFreqList));
+        }
+    }
+
+
+    @Deprecated
     private Map<String, Object> addAnnotations(Variant variant, List<String> annotations, Map<String, Object> attributes) {
         StringBuilder stringBuilder = new StringBuilder();
         if (variant.getAnnotation() == null) {
@@ -342,6 +510,7 @@ public class VariantContextToAvroVariantConverter extends VariantContextConverte
 //        for (ConsequenceType consequenceType : variant.getAnnotation().getConsequenceTypes()) {
         for (int i = 0; i < variant.getAnnotation().getConsequenceTypes().size(); i++) {
             ConsequenceType consequenceType = variant.getAnnotation().getConsequenceTypes().get(i);
+
             for (int j = 0; j < annotations.size(); j++) {
                 switch (annotations.get(j)) {
                     case "allele":
@@ -469,7 +638,7 @@ public class VariantContextToAvroVariantConverter extends VariantContextConverte
                         break;
                 }
                 if (j < annotations.size() - 1) {
-                    stringBuilder.append("|");
+                    stringBuilder.append(FIELD_SEPARATOR);
                 }
             }
             if (i < variant.getAnnotation().getConsequenceTypes().size() - 1) {
@@ -482,29 +651,6 @@ public class VariantContextToAvroVariantConverter extends VariantContextConverte
         return attributes;
     }
 
-    private void addStats(StudyEntry studyEntry, Map<String, Object> attributes) {
-        if (studyEntry.getStats() == null) {
-            return;
-        }
-        for (Map.Entry<String, VariantStats> entry : studyEntry.getStats().entrySet()) {
-            String cohortName = entry.getKey();
-            VariantStats stats = entry.getValue();
-
-            if (cohortName.equals(StudyEntry.DEFAULT_COHORT)) {
-                cohortName = "";
-                int an = stats.getAltAlleleCount() + stats.getRefAlleleCount();
-                if (an >= 0) {
-                    attributes.put(cohortName + VCFConstants.ALLELE_NUMBER_KEY, String.valueOf(an));
-                }
-                if (stats.getAltAlleleCount() >= 0) {
-                    attributes.put(cohortName + VCFConstants.ALLELE_COUNT_KEY, String.valueOf(stats.getAltAlleleCount()));
-                }
-            } else {
-                cohortName = cohortName + "_";
-            }
-            attributes.put(cohortName + VCFConstants.ALLELE_FREQUENCY_KEY, DECIMAL_FORMAT_7.format(stats.getAltAlleleFreq()));
-        }
-    }
 
     /**
      * Assumes that ori is in the form "POS:REF:ALT_0(,ALT_N)*:ALT_IDX".
