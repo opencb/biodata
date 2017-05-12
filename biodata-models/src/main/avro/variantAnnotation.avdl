@@ -140,6 +140,19 @@ protocol VariantAnnotations {
         union { null, int } end;
     }
 
+    record Repeat {
+        union { null, string } id;
+        union { null, string } chromosome;
+        union { null, int } start;
+        union { null, int } end;
+        union { null, int } period;
+        union { null, float } copyNumber;
+        union { null, float } percentageMatch;
+        union { null, float } score;
+        union { null, string } sequence;
+        union { null, string } source;
+    }
+
     record AdditionalAttribute {
         map<string> attribute;
     }
@@ -165,6 +178,7 @@ protocol VariantAnnotations {
         union { null, VariantTraitAssociation } variantTraitAssociation;
         union { null, array<Score> } functionalScore;
         union { null, array<Cytoband> } cytoband;
+        union { null, array<Repeat> } repeat;
         union { null, map<AdditionalAttribute> } additionalAttributes = null;
     }
 

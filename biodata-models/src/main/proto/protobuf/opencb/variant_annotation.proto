@@ -118,6 +118,19 @@ message ConsequenceType {
     repeated SequenceOntologyTerm sequence_ontology_terms = 12;
 }
 
+message Repeat {
+    string id = 1;
+    string chromosome = 2;
+    int32 start = 3;
+    int32 end = 4;
+    int32 period = 5;
+    float copy_number = 6;
+    float percentage_match = 7;
+    float score = 8;
+    string sequence = 9;
+    string source = 10;
+}
+
 message VariantAnnotation {
     string chromosome = 1;
     int32 start = 2;
@@ -144,9 +157,10 @@ message VariantAnnotation {
     repeated GeneDrugInteraction gene_drug_interaction = 18;
     VariantTraitAssociation trait_association = 19;
     repeated Score functional_score = 20;
+    repeated Repeat repeat = 21;
 
     message AdditionalAttribute {
         map<string, string> attribute = 1;
     }
-    map<string, AdditionalAttribute> additional_attributes = 21;
+    map<string, AdditionalAttribute> additional_attributes = 22;
 }
