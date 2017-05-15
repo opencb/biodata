@@ -31,11 +31,8 @@ import org.biojava.nbio.core.sequence.compound.AmbiguityDNACompoundSet;
 import org.biojava.nbio.core.sequence.compound.NucleotideCompound;
 import org.opencb.biodata.models.feature.AllelesCode;
 import org.opencb.biodata.models.feature.Genotype;
-import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
-import org.opencb.biodata.models.variant.avro.FileEntry;
-import org.opencb.biodata.models.variant.avro.VariantType;
+import org.opencb.biodata.models.variant.avro.*;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
-import org.opencb.biodata.models.variant.avro.StructuralVariation;
 import org.opencb.commons.run.ParallelTaskRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -206,13 +203,13 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                             if (VariantType.CNV.equals(variant.getType())) {
                                 int[] impreciseStart = getImpreciseStart(variant);
                                 int[] impreciseEnd = getImpreciseEnd(variant);
+                                Integer copyNumber = copyNumberString != null ? Integer.valueOf(copyNumberString)      // Assuming if copy number
+                                        : getCopyNumberFromAlternate(keyFields.getAlternate());                      // is not provided in the
+                                                                                                                    // info field, it shall be
+                                                                                                                    // indicated as part of the
+                                                                                                                    // alternate allele string
                                variant.setSv(new StructuralVariation(impreciseStart[0], impreciseStart[1],
-                                       impreciseEnd[0], impreciseEnd[1],
-                                       copyNumberString != null ? Integer.valueOf(copyNumberString)      // Assuming if copy number
-                                               : getCopyNumberFromAlternate(keyFields.getAlternate()))); // is not provided in the
-                                                                                                         // info field, it shall be
-                                                                                                         // indicated as part of the
-                                                                                                         // alternate allele string
+                                       impreciseEnd[0], impreciseEnd[1], copyNumber, Variant.getCNVSubtype(copyNumber)));
                             }
                             normalizedEntry = entry;
                             entry.getFiles().forEach(fileEntry -> fileEntry.setCall(sameVariant ? "" : call)); //TODO: Check file attributes
@@ -1019,7 +1016,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                             //Set reference only if is different from the original one
                             alternate.getReference().equals(keyFields.getReference()) ? null : keyFields.getReference(),
                             keyFields.getAlternate(),
-                            Variant.inferType(keyFields.getReference(), keyFields.getAlternate(), keyFields.getEnd() - keyFields.getStart() + 1)
+                            Variant.inferType(keyFields.getReference(), keyFields.getAlternate())
                     ));
                 }
             }

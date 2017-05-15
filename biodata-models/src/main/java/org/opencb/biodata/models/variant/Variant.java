@@ -23,10 +23,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import htsjdk.variant.variantcontext.Allele;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.core.Region;
-import org.opencb.biodata.models.variant.avro.StructuralVariation;
-import org.opencb.biodata.models.variant.avro.VariantAnnotation;
-import org.opencb.biodata.models.variant.avro.VariantAvro;
-import org.opencb.biodata.models.variant.avro.VariantType;
+import org.opencb.biodata.models.variant.avro.*;
 
 import java.io.Serializable;
 import java.util.*;
@@ -76,12 +73,12 @@ public class Variant implements Serializable, Comparable<Variant> {
                     setReference("N");
                     setStart(Integer.parseInt(coordinatesParts[0]));
                     setEnd(Integer.parseInt(coordinatesParts[1]));
-                    setLength(inferLengthSV(getAlternate(), getStart(), getEnd()));
+                    setLength(inferLengthSymbolic(getAlternate(), getStart(), getEnd()));
                 // Short variant, no reference specified
                 } else {
                     setStart(Integer.parseInt(fields[1]));
                     setReference("");
-                    setLength(inferLengthShortVariant(getReference(), getAlternate()));
+                    setLength(inferLengthSimpleVariant(getReference(), getAlternate()));
                     setEnd(getStart() + getLengthReference() - 1);
                 }
             } else {
@@ -94,11 +91,11 @@ public class Variant implements Serializable, Comparable<Variant> {
                         setReference(checkEmptySequence(fields[2]));
                         setStart(Integer.parseInt(coordinatesParts[0]));
                         setEnd(Integer.parseInt(coordinatesParts[1]));
-                        setLength(inferLengthSV(getAlternate(), getStart(), getEnd()));
+                        setLength(inferLengthSymbolic(getAlternate(), getStart(), getEnd()));
                     } else {
                         setStart(Integer.parseInt(fields[1]));
                         setReference(checkEmptySequence(fields[2]));
-                        setLength(inferLengthShortVariant(getReference(), getAlternate()));
+                        setLength(inferLengthSimpleVariant(getReference(), getAlternate()));
                         setEnd(getStart() + getLengthReference() - 1);
                     }
                 } else {
@@ -110,8 +107,9 @@ public class Variant implements Serializable, Comparable<Variant> {
         resetType();
 
         if (VariantType.CNV.equals(getType())) {
+            Integer copyNumber = getCopyNumberFromStr(this.getAlternate());
             setSv(new StructuralVariation(this.getStart(), this.getStart(), this.getEnd(), this.getEnd(),
-                    getCopyNumberFromStr(this.getAlternate())));
+                    copyNumber, getCNVSubtype(copyNumber)));
 
         }
     }
@@ -148,12 +146,13 @@ public class Variant implements Serializable, Comparable<Variant> {
 
         this.setChromosome(chromosome);
 
-        this.resetLength();
         this.resetType();
+        this.resetLength();
 
         if (VariantType.CNV.equals(getType())) {
+            Integer copyNumber = getCopyNumberFromStr(this.getAlternate());
             setSv(new StructuralVariation(this.getStart(), this.getStart(), this.getEnd(), this.getEnd(),
-                    getCopyNumberFromStr(this.getAlternate())));
+                    copyNumber, getCNVSubtype(copyNumber)));
 
         }
 
@@ -161,6 +160,17 @@ public class Variant implements Serializable, Comparable<Variant> {
 
 //        this.annotation = new VariantAnnotation(this.chromosome, this.start, this.end, this.reference, this.alternate);
         studyEntries = new HashMap<>();
+    }
+
+    public static StructuralVariantType getCNVSubtype(Integer copyNumber) {
+        if (copyNumber != null) {
+            if (copyNumber > 2) {
+                return StructuralVariantType.COPY_NUMBER_GAIN;
+            } else if (copyNumber < 2) {
+                return StructuralVariantType.COPY_NUMBER_LOSS;
+            }
+        }
+        return null;
     }
 
     private Integer getCopyNumberFromStr(String cnvStr) {
@@ -177,10 +187,10 @@ public class Variant implements Serializable, Comparable<Variant> {
     }
 
     public void resetType() {
-        setType(inferType(getReference(), getAlternate(), getLength()));
+        setType(inferType(getReference(), getAlternate()));
     }
 
-    public static VariantType inferType(String reference, String alternate, Integer length) {
+    public static VariantType inferType(String reference, String alternate) {
         if (Allele.wouldBeSymbolicAllele(alternate.getBytes()) || Allele.wouldBeSymbolicAllele(reference.getBytes())) {
             if (alternate.startsWith(CNVSTR)) {
                 return VariantType.CNV;
@@ -191,13 +201,13 @@ public class Variant implements Serializable, Comparable<Variant> {
             return VariantType.NO_VARIATION;
         } else {
             if (reference.length() == alternate.length()) {
-                if (length > 1) {
+                if (reference.length() > 1) {
                     return VariantType.MNV;
                 } else {
                     return VariantType.SNV;
                 }
             } else {
-                if (length <= SV_THRESHOLD) {
+                if (inferLengthSimpleVariant(reference, alternate) <= SV_THRESHOLD) {
                 /*
                 * 3 possibilities for being an INDEL:
                 * - The value of the ALT field is <DEL> or <INS>
@@ -214,20 +224,20 @@ public class Variant implements Serializable, Comparable<Variant> {
     }
 
     public void resetLength() {
-        setLength(inferLength(getReference(), getAlternate(), getStart(), getEnd()));
+        setLength(inferLength(getReference(), getAlternate(), getStart(), getEnd(), getType()));
     }
 
-    public static int inferLength(String reference, String alternate, int start, int end) {
+    public static int inferLength(String reference, String alternate, int start, int end, VariantType type) {
         final int length;
-        if (reference == null) {
-            length = inferLengthSV(alternate, start, end);
+        if (type.equals(VariantType.CNV)) {
+            length = inferLengthSymbolic(alternate, start, end);
         } else {
-            length = inferLengthShortVariant(reference, alternate);
+            length = inferLengthSimpleVariant(reference, alternate);
         }
         return length;
     }
 
-    private static int inferLengthShortVariant(String reference, String alternate) {
+    private static int inferLengthSimpleVariant(String reference, String alternate) {
         final int length;
         if (alternate == null) {
             length = reference.length();
@@ -237,7 +247,7 @@ public class Variant implements Serializable, Comparable<Variant> {
         return length;
     }
 
-    private static int inferLengthSV(String alternate, int start, int end) {
+    private static int inferLengthSymbolic(String alternate, int start, int end) {
         int length;
         if (StringUtils.startsWith(alternate, CNVSTR)) {
             length = end - start + 1;
