@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 /**
  * Created by jtarraga on 07/02/17.
  */
-public class VariantContextToProtoVariantConverter extends VariantConverter<VariantProto.Variant> {
+public class VariantContextToProtoVariantConverter extends VariantContextConverter<VariantProto.Variant> {
 
     private static final DecimalFormat DECIMAL_FORMAT_7 = new DecimalFormat("#.#######");
     private static final DecimalFormat DECIMAL_FORMAT_3 = new DecimalFormat("#.###");
