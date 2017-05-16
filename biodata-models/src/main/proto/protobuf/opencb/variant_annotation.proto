@@ -131,6 +131,13 @@ message Repeat {
     string source = 10;
 }
 
+message Cytoband {
+    string stain = 1;
+    string name = 2;
+    int32 start = 3;
+    int32 end = 4;
+}
+
 message VariantAnnotation {
     string chromosome = 1;
     int32 start = 2;
@@ -158,9 +165,10 @@ message VariantAnnotation {
     VariantTraitAssociation trait_association = 19;
     repeated Score functional_score = 20;
     repeated Repeat repeat = 21;
+    repeated Cytoband cytoband = 22;
 
     message AdditionalAttribute {
         map<string, string> attribute = 1;
     }
-    map<string, AdditionalAttribute> additional_attributes = 22;
+    map<string, AdditionalAttribute> additional_attributes = 23;
 }
