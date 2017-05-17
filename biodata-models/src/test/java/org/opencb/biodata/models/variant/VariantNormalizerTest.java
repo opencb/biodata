@@ -287,6 +287,16 @@ public class VariantNormalizerTest extends GenericTest {
     }
 
     @Test
+    public void testNormalizeAlleles() throws NonStandardCompliantSampleField {
+        Variant variant = generateVariantWithFormat("6:109522683:T:A,G", "GT", "S01", "1/2");
+        normalizer.setNormalizeAlleles(true);
+        List<Variant> variants = normalizer.normalize(Collections.singletonList(variant), false);
+        assertEquals(2, variants.size());
+        assertEquals("1/2", variants.get(0).getStudies().get(0).getSampleData("S01", "GT"));
+        assertEquals("1/2", variants.get(1).getStudies().get(0).getSampleData("S01", "GT"));
+    }
+
+    @Test
     public void testMultiSNP() throws NonStandardCompliantSampleField {
         //6       109522683       .       TTTTT   TTTAT,TATTT
         //8       32269959        .       TATATAT TATACAT,TACATAT

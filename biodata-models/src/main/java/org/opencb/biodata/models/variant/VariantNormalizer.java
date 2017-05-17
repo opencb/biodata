@@ -65,6 +65,8 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
     private static final String CIPOS_STRING = "CIPOS";
     private static final String CIEND_STRING = "CIEND";
 
+    private static final String[] ALLELE_TO_STRING = new String[]{"0", "1", "2", "3", "4", "5"};
+
     public VariantNormalizer() {}
 
     public VariantNormalizer(boolean reuseVariants) {
@@ -733,22 +735,18 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             newSampleData = reuseSampleData;
         }
 
-        String[] secondaryAlternatesMap = new String[1 + alternateAlleles.size()];  //reference + alternates
+//        String[] secondaryAlternatesMap = new String[1 + alternateAlleles.size()];  //reference + alternates
         int[] secondaryAlternatesIdxMap = new int[1 + alternateAlleles.size()];  //reference + alternates
         int secondaryReferencesIdx = 2;
-        int alleleIdx = 1;
-        secondaryAlternatesMap[0] = "0";     // Set the reference id
-        secondaryAlternatesIdxMap[0] = 0;
-        for (String alternateAllele : alternateAlleles) {
+
+        secondaryAlternatesIdxMap[0] = 0;       // Set the reference id
+        for (int i = 0, alleleIdx = 1; i < alternateAlleles.size(); i++, alleleIdx++) {
             if (variantKeyFields.getNumAllele() == alleleIdx - 1) {
-                secondaryAlternatesMap[alleleIdx] = "1";    //The first alternate
-                secondaryAlternatesIdxMap[alleleIdx] = 1;
+                secondaryAlternatesIdxMap[alleleIdx] = 1;       //The first alternate
             } else {    //Secondary alternates will start at position 2, and increase sequentially
-                secondaryAlternatesMap[alleleIdx] = Integer.toString(secondaryReferencesIdx);
                 secondaryAlternatesIdxMap[alleleIdx] = secondaryReferencesIdx;
                 secondaryReferencesIdx++;
             }
-            alleleIdx++;
         }
 
         // Normalizing an mnv and no sample data was provided in the original variant - need to create sample data to
@@ -794,11 +792,15 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
                         StringBuilder genotypeStr = new StringBuilder();
 
-                        int[] allelesIdx;
+                        int[] allelesIdx = genotype.getAllelesIdx();
+                        for (int i = 0; i < allelesIdx.length; i++) {
+                            int alleleIdx = allelesIdx[i];
+                            if (alleleIdx > 0) {
+                                allelesIdx[i] = secondaryAlternatesIdxMap[alleleIdx];
+                            }
+                        }
                         if (normalizeAlleles && !genotype.isPhased()) {
-                            allelesIdx = genotype.getNormalizedAllelesIdx();
-                        } else {
-                            allelesIdx = genotype.getAllelesIdx();
+                            Arrays.sort(allelesIdx);
                         }
                         for (int i = 0; i < allelesIdx.length; i++) {
                             int allele = allelesIdx[i];
@@ -806,10 +808,14 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                                 genotypeStr.append(".");
                             } else {
                                 if (variantKeyFields.isReferenceBlock()) {
-                                    genotypeStr.append(0);
+                                    genotypeStr.append("0");
                                 } else {
                                     // Replace numerical indexes when they refer to another alternate allele
-                                    genotypeStr.append(secondaryAlternatesMap[allele]);
+                                    if (allele < ALLELE_TO_STRING.length) {
+                                        genotypeStr.append(ALLELE_TO_STRING[allele]);
+                                    } else {
+                                        genotypeStr.append(allele);
+                                    }
                                 }
                             }
                             if (i < allelesIdx.length - 1) {
