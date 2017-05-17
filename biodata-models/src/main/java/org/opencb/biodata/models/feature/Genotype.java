@@ -72,9 +72,12 @@ public class Genotype {
     }
 
     public Genotype(org.opencb.biodata.models.variant.protobuf.VariantProto.Genotype gt){
-        this.allelesIdx = ArrayUtils.toPrimitive(gt.getAllelesIdxList().toArray(new Integer[0]));
+        this.allelesIdx = new int[gt.getAllelesIdxCount()];
+        for (int i = 0; i < gt.getAllelesIdxCount(); i++) {
+            allelesIdx[i] = gt.getAllelesIdx(i);
+        }
         this.reference = gt.getReference();
-        this.alternates = new ArrayList<String>(gt.getAlternatesList());
+        this.alternates = new ArrayList<>(gt.getAlternatesList());
         this.phased = gt.getPhased();
         this.code = AllelesCode.valueOf(gt.getCode().name());
     }
@@ -187,8 +190,20 @@ public class Genotype {
         return getPloidy() == 1;
     }
 
+    /**
+     * @deprecated use {@link #setAlleleIdx}
+     */
+    @Deprecated
     public void updateAlleleIdx(int idx, int allele){
+        setAlleleIdx(idx, allele);
+    }
+
+    public void setAlleleIdx(int idx, int allele){
         this.allelesIdx[idx] = allele;
+    }
+
+    public void normalizeAllelesIdx() {
+        Arrays.sort(allelesIdx);
     }
 
     public int[] getNormalizedAllelesIdx() {
@@ -287,7 +302,8 @@ public class Genotype {
         return new Genotype(builder.toString());
     }
 
-    public String toGenotypeString() {
+    @Override
+    public String toString() {
         StringBuilder value = new StringBuilder();
         value.append(allelesIdx[0] >= 0 ? allelesIdx[0] : ".");
         char separator = isPhased() ? '|' : '/';
@@ -298,9 +314,12 @@ public class Genotype {
         return value.toString();
     }
 
-    @Override
-    public String toString() {
-        return toGenotypeString();
+    /**
+     * @deprecated Use {@link #toString()}
+     */
+    @Deprecated
+    public String toGenotypeString() {
+        return toString();
     }
 
     @Override
@@ -338,9 +357,10 @@ public class Genotype {
         return pb.build();
     }
 
-    public static List<Genotype> parse(String currGT) {
-        if (StringUtils.isBlank(currGT))
+    public static List<Genotype> parse(String genotype) {
+        if (StringUtils.isBlank(genotype)) {
             return Collections.emptyList();
-        return Arrays.stream(currGT.split(",")).map(g -> new Genotype(g)).collect(Collectors.toList());
+        }
+        return Arrays.stream(genotype.split(",")).map(Genotype::new).collect(Collectors.toList());
     }
 }

@@ -699,12 +699,12 @@ public class VariantMerger {
                     if (this.collapseDeletions && Objects.isNull(allele)) {
                         allele = 0; // change to '0' for 'missing' reference (missing because change to '0' GT)
                     }
-                    gto.updateAlleleIdx(i, allele);
+                    gto.setAlleleIdx(i, allele);
                 });
         if (!gto.isPhased()) {
             Arrays.sort(idx);
         }
-        return gto.toGenotypeString();
+        return gto.toString();
     }
 
     private List<AlternateCoordinate> buildAltsList (Variant current, Collection<List<AlternateCoordinate>> alts) {

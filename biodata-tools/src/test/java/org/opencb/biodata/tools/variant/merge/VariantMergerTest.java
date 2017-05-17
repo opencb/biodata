@@ -1083,7 +1083,7 @@ public class VariantMergerTest {
         if (!b.isPhased()) {
             Arrays.sort(a.getAllelesIdx());
         }
-        assertEquals(a.toGenotypeString(), b.toGenotypeString());
+        assertEquals(a.toString(), b.toString());
     }
 
     @Test
