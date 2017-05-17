@@ -842,7 +842,7 @@ public class VariantMerger {
                 type = VariantType.MNV;
                 break;
             case SV:
-                type = Variant.inferType(variant.getReference(), variant.getAlternate(), variant.getLength());
+                type = Variant.inferType(variant.getReference(), variant.getAlternate());
                 break;
             default:
                 type = variant.getType();
