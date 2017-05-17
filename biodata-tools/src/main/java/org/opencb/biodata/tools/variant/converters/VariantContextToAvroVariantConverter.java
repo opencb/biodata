@@ -27,41 +27,30 @@ import static org.opencb.biodata.formats.variant.vcf4.VcfUtils.*;
  */
 public class VariantContextToAvroVariantConverter extends VariantContextConverter<Variant> {
 
-    private static final DecimalFormat DECIMAL_FORMAT_7 = new DecimalFormat("#.#######");
-    private static final DecimalFormat DECIMAL_FORMAT_3 = new DecimalFormat("#.###");
-    public static final String FIELD_SEPARATOR = "|";
-    public static final String INFO_SEPARATOR = "&";
     private final Logger logger = LoggerFactory.getLogger(VariantContextToAvroVariantConverter.class);
 
     private int studyId;
-    private String studyIdString;
-    private List<String> sampleNames;
-    private List<String> sampleFormats;
-    private List<String> annotations;
-
-    private Map<String, String> studyNameMap;
-    private Map<String, Integer> samplePositions;
+//    private String studyIdString;
+//    private List<String> sampleNames;
+//    private List<String> sampleFormats;
+//    private List<String> annotations;
+//
+//    private Map<String, String> studyNameMap;
+//    private Map<String, Integer> samplePositions;
 
     @Deprecated
     public VariantContextToAvroVariantConverter(int studyId, List<String> sampleNames, List<String> annotations) {
+        super(Integer.toString(studyId), sampleNames, null, annotations);
         this.studyId = studyId;
-        this.studyIdString = Integer.toString(studyId);
-        this.sampleNames = sampleNames;
-        this.annotations = annotations;
     }
 
     public VariantContextToAvroVariantConverter(String study, List<String> sampleNames, List<String> annotations) {
         this(study, sampleNames, VcfUtils.DEFAULT_SAMPLE_FORMAT, annotations);
     }
 
-    public VariantContextToAvroVariantConverter(String study, List<String> sampleNames, List<String> sampleFormats, List<String> annotations) {
-//        this.studyId = studyId;
-        this.studyIdString = study;
-        this.sampleNames = sampleNames;
-        this.sampleFormats = sampleFormats;
-        this.annotations = annotations;
-
-        this.studyNameMap = new HashMap<>();
+    public VariantContextToAvroVariantConverter(String study, List<String> sampleNames, List<String> sampleFormats,
+                                                List<String> annotations) {
+        super(study, sampleNames, sampleFormats, annotations);
     }
 
     @Override
@@ -333,6 +322,8 @@ public class VariantContextToAvroVariantConverter extends VariantContextConverte
         return alleles;
     }
 
+/*
+    // this function was moved to the parent class: VariantContextConverter
     public String buildAllele(String chromosome, Integer start, Integer end, String allele, Pair<Integer, Integer> adjustedRange) {
         if (start.equals(adjustedRange.getLeft()) && end.equals(adjustedRange.getRight())) {
             return allele; // same start / end
@@ -343,14 +334,10 @@ public class VariantContextToAvroVariantConverter extends VariantContextConverte
         return getReferenceBase(chromosome, adjustedRange.getLeft(), start) + allele
                 + getReferenceBase(chromosome, end, adjustedRange.getRight());
     }
+*/
 
-    /**
-     * Get bases from reference sequence.
-     * @param chromosome Chromosome.
-     * @param from Start ( inclusive) position.
-     * @param to End (exclusive) position.
-     * @return String Reference sequence of length to - from.
-     */
+    /*
+    // this function was moved to the parent class: VariantContextConverter
     private String getReferenceBase(String chromosome, Integer from, Integer to) {
         int length = to - from;
         if (length < 0) {
@@ -359,7 +346,7 @@ public class VariantContextToAvroVariantConverter extends VariantContextConverte
         }
         return StringUtils.repeat('N', length); // current return default base TODO load reference sequence
     }
-
+*/
 
     @Deprecated
     private void addCohortStatsOLD(StudyEntry studyEntry, Map<String, Object> attributes) {
