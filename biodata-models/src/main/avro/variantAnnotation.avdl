@@ -32,10 +32,51 @@ protocol VariantAnnotations {
         string mutationSomaticStatus;
     }
 
+    record Submission {
+        string submitter;
+        union { null, string } date;
+    }
+
+    record Germline {
+        string source;
+        string accession;
+        union { null, string } clinicalSignificance;
+        union { null, array<string> } phenotype;
+        union { null, array<string> } disease;
+        union { null, string } reviewStatus;
+        union { null, array<string> } geneNames;
+        union { null, array<Submission> } submissions;
+        union { null, array<string> } proteinNames;
+        union { null, string } penetrance;
+        union { null, array<string> } inheritanceModel;
+        union { null, array<string> } bibliography;
+        union { null, array<string> } drugs;
+    }
+
+    record Somatic {
+        string source;
+        string accession;
+        union { null, string } primarySite;
+        union { null, string } siteSubtype;
+        union { null, string } primaryHistology;
+        union { null, string } histologySubtype;
+        union { null, string } sampleSource;
+        union { null, string } tumourOrigin;
+        union { null, string } mutationSomaticStatus;
+        union { null, array<string> } geneNames;
+        union { null, array<Submission> } submissions;
+        union { null, array<string> } proteinNames;
+        union { null, string } reviewStatus;
+        union { null, array<string> } bibliography;
+        union { null, array<string> } drugs;
+    }
+
     record VariantTraitAssociation {
         union { null, array<ClinVar> } clinvar;
         union { null, array<Gwas> } gwas;
         union { null, array<Cosmic> } cosmic;
+        union { null, array<Germline> } germline;
+        union { null, array<Somatic> } somatic;
     }
 
     record GeneDrugInteraction {

@@ -8,7 +8,9 @@ option java_generate_equals_and_hash = true;
 //option java_multiple_files = true;
 
 import "protobuf/opencb/common.proto";
+import "protobuf/opencb/gene.proto";
 
+// enum ExpressionCall in common.proto
 
 message ClinVar {
     string accession = 1;
@@ -37,23 +39,70 @@ message Cosmic {
     string mutation_somatic_status = 9;
 }
 
+message Germline {
+    string source = 1;
+    string accession = 2;
+    string clinical_significance = 3;
+    string phenotype = 4;
+    string disease = 5;
+    string review_status = 6;
+    repeated string gene_names = 7;
+    repeated string protein_names = 8;
+    string penetrance = 9;
+    string heritance_model = 10;
+    repeated string bibliography = 11;
+    repeated string drugs = 12;
+}
+
+message Somatic {
+    string source = 1;
+    string accession = 2;
+    string primary_site = 3;
+    string site_subtype = 4;
+    string primary_histology = 5;
+    string histology_subtype = 6;
+    string sample_source = 7;
+    string tumour_origin = 8;
+    string mutation_somatic_status = 9;
+    string review_status = 10;
+    repeated string gene_names = 11;
+    repeated string protein_names = 12;
+    repeated string bibliography = 13;
+    repeated string drugs = 14;
+}
+
 message VariantTraitAssociation {
     repeated ClinVar clinvar = 1;
     repeated Gwas gwas = 2;
     repeated Cosmic cosmic = 3;
+    repeated Germline germline = 4;
+    repeated Somatic somatic = 5;
 }
+
+// message GeneDrugInteraction in common.proto
+// message Expression in common.proto
+
+//message GeneTraitAssociation {
+//    string id = 1;
+//    string name = 2;
+//    string hpo = 3;
+//    float score = 4;
+//    int32 number_of_pubmeds = 5;
+//    repeated string association_types = 6;
+//    repeated string sources = 7;
+//    string source = 8;
+//}
 
 message PopulationFrequency {
     string study = 1;
     string population = 2;
-    string super_population = 3;
-    string ref_allele = 4;
-    string alt_allele = 5;
-    float ref_allele_freq = 6;
-    float alt_allele_freq = 7;
-    float ref_hom_genotype_freq = 8;
-    float het_genotype_freq = 9;
-    float alt_hom_genotype_freq = 10;
+    string ref_allele = 3;
+    string alt_allele = 4;
+    float ref_allele_freq = 5;
+    float alt_allele_freq = 6;
+    float ref_hom_genotype_freq = 7;
+    float het_genotype_freq = 8;
+    float alt_hom_genotype_freq = 9;
 }
 
 message SequenceOntologyTerm {
@@ -95,11 +144,13 @@ message ConsequenceType {
     string ensembl_transcript_id = 3;
     string strand = 4;
     string biotype = 5;
-    int32 c_dna_position = 6;
-    int32 cds_position = 7;
-    string codon = 8;
-    ProteinVariantAnnotation protein_variant_annotation = 9;
-    repeated SequenceOntologyTerm sequence_ontology_terms = 10;
+    int32 exon_number = 6;
+    repeated string transcript_annotation_flags = 7;
+    int32 c_dna_position = 8;
+    int32 cds_position = 9;
+    string codon = 10;
+    ProteinVariantAnnotation protein_variant_annotation = 11;
+    repeated SequenceOntologyTerm sequence_ontology_terms = 12;
 }
 
 message VariantAnnotation {
@@ -108,23 +159,30 @@ message VariantAnnotation {
     int32 end = 3;
     string reference = 4;
     string alternate = 5;
-    string id = 6;
+    string ancestral_allele = 6;
+    string id = 7;
 
     message Xref {
         string id = 1;
         string source = 2;
     }
-    repeated Xref xrefs = 7;
-    repeated string hgvs = 8;
-    repeated ConsequenceType consequence_types = 9;
-    repeated PopulationFrequency population_frequencies = 10;
-    repeated Score conservation = 11;
-    repeated Expression gene_expression = 12;
-    repeated GeneDrugInteraction gene_drug_interaction = 13;
-    VariantTraitAssociation trait_association = 14;
+    repeated Xref xrefs = 8;
+    repeated string hgvs = 9;
+    string display_consequence_type= 10;
+    repeated ConsequenceType consequence_types = 11;
+    repeated PopulationFrequency population_frequencies = 12;
+    string minorAllele = 13;
+    float minorAlleleFreq = 14;
+    repeated Score conservation = 15;
+    repeated Expression gene_expression = 16;
+    repeated GeneTraitAssociation gene_trait_association = 17;
+    repeated GeneDrugInteraction gene_drug_interaction = 18;
+    VariantTraitAssociation trait_association = 19;
+    repeated Score functional_score = 20;
 
     message AdditionalAttribute {
         map<string, string> attribute = 1;
     }
-    map<string, AdditionalAttribute> additional_attributes = 15;
+
+    map<string, AdditionalAttribute> additional_attributes = 21;
 }
