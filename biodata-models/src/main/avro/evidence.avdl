@@ -3,37 +3,6 @@
 protocol EvidenceProtocol {
 
     /**
-    The source type of an evidence:
-
-* `database` : Database (e.g.: ClinVar)
-* `clinical_testing` : Clinical testing (e.g.: any clinical testing external to 100K Genomes Project)
-* `research` : Research study (e.g.: CFTR2)
-* `trial` : Trial results
-* `literature_manual_curation` : An article from the literature manually curated
-* `literature_automatic_curation` : An article from the literature automatically curated
-* `literature_database_curation` : An article from the literature referenced in a database (e.g.: ClinVar references
-to PubMed)
-* `insilico_impact_prediction` : Aggregation of in silico predictions. Independent in silico predictions should not
-be added as evidence
-* `population_allele_frequency` : Allele frequency in the population (e.g.: ExAC)
-* `conservation` : Evolutionary conservation
-* `other` : Any other type
-    */
-    enum SourceType {
-        database,
-        clinical_testing,
-        research,
-        trial,
-        literature_manual_curation,
-        literature_automatic_curation,
-        literature_database_curation,
-        insilico_impact_prediction,
-        population_allele_frequency,
-        conservation,
-        other
-    }
-
-    /**
     The source of an evidence.
     */
     record EvidenceSource {
@@ -41,10 +10,6 @@ be added as evidence
         Name of source
         */
         union {null, string} name;
-        /**
-        Type of source
-        */
-        SourceType type;
         /**
         Version of source
         */
@@ -487,6 +452,16 @@ Evidence of benign impact:
         Source of the evidence
         */
         EvidenceSource source;
+        /**
+        The type of evidence in an Evidence and Conclusion Ontology (ECO) term under the hierarchy of evidence.
+        See http://www.evidenceontology.org/browse/#ECO_0000000
+        */
+        union {null, string} type;
+        /**
+        Whether it is a manual or automatic evidence as described in the Evidence and Conclusion Ontology (ECO) under
+        the hierarchy of assertion_method. See http://www.evidenceontology.org/browse/#ECO_0000217
+        */
+        union {null, string} assertionMethod;
         /**
         The list of submissions
         */
