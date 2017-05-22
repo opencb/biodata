@@ -164,14 +164,14 @@ conflicting evidences should be classified as uncertain_significance
 
     /**
     Pharmacogenomics drug response variant classification
-* `responsive` : Responsive variants...
-* `resistant` :
-* `toxicity` :
-* `indication` :
-* `contraindication` :
-* `dosing` :
-* `increased_monitoring` :
-* `efficacy` :
+* `responsive` : A variant that confers response to a treatment
+* `resistant` : A variant that confers resistance to a treatment
+* `toxicity` : A variant that is associated with drug-induced toxicity
+* `indication` : A variant that is required in order for a particular drug to be prescribed
+* `contraindication` : A variant that if present, a particular drug should not be prescribed
+* `dosing` : A variant that results in an alteration in dosing of a particular drug in order to achieve INR, reduce toxicity or increase efficacy
+* `increased_monitoring` : increase vigilance or increased dosage monitoring may be required for a patient with this variant to look for signs of adverse drug reactions
+* `efficacy` : a variant that affects the efficacy of the treatment
     */
     enum DrugResponseClassification {
         responsive,
