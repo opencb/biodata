@@ -115,7 +115,7 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
                 if (!currentVariantString.equals(lineFields[0] + ":" + lineFields[1] + ":" + lineFields[2])) {
                     noNewVariantFound = (currentAnnotation==null);  // currentAnnotation==null only in the first iteration.
                     variantAnnotationToReturn = currentAnnotation;
-                    Map<String,String> variantMap = parseVariant(lineFields[0], lineFields[1], lineFields[2]);  // coordinates and alternative are only parsed once
+                    Map<String,String> variantMap = parseVariant(lineFields[0], lineFields[1], lineFields[2]);  // coordinates and alternative are only parsed onceca
                     currentAnnotation = new VariantAnnotation();
                     currentAnnotation.setChromosome(variantMap.get("chromosome"));
                     currentAnnotation.setStart(Integer.valueOf(variantMap.get("start")));

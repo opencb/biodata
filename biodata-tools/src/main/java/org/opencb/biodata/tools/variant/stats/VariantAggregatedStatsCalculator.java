@@ -232,7 +232,8 @@ public class VariantAggregatedStatsCalculator {
         if (attributes.containsKey("AF")) {
             String[] afs = attributes.get("AF").split(COMMA);
             if (afs.length == alternateAlleles.length) {
-                variantStats.setAltAlleleFreq(Float.parseFloat(afs[numAllele]));
+                float value = parseFloat(afs[numAllele], -1);
+                variantStats.setAltAlleleFreq(value);
                 if (variantStats.getMaf() == -1) {  // in case that we receive AFs but no ACs
                     if (variantStats.getRefAlleleFreq() < 0) {
                         variantStats.setRefAlleleFreq(1 - variantStats.getAltAlleleFreq());
@@ -240,13 +241,13 @@ public class VariantAggregatedStatsCalculator {
 
                     float sumFreq = 0;
                     for (String af : afs) {
-                        sumFreq += Float.parseFloat(af);
+                        sumFreq += parseFloat(af, -1);
                     }
                     float maf = 1 - sumFreq;
                     String mafAllele = variantStats.getRefAllele();
 
                     for (int i = 0; i < afs.length; i++) {
-                        float auxMaf = Float.parseFloat(afs[i]);
+                        float auxMaf = parseFloat(afs[i], -1);
                         if (auxMaf < maf) {
                             maf = auxMaf;
                             mafAllele = alternateAlleles[i];
@@ -261,7 +262,7 @@ public class VariantAggregatedStatsCalculator {
         if (attributes.containsKey("MAF")) {
             String[] mafs = attributes.get("MAF").split(COMMA);
             if (mafs.length == alternateAlleles.length) {
-                float maf = Float.parseFloat(mafs[numAllele]);
+                float maf = parseFloat(mafs[numAllele], -1);
                 variantStats.setMaf(maf);
                 if (attributes.containsKey("MA")) { // Get the minor allele
                     String ma = attributes.get("MA");
@@ -320,6 +321,14 @@ public class VariantAggregatedStatsCalculator {
                     }
                 }
             }
+        }
+    }
+
+    protected float parseFloat(String s, float missingValue) {
+        if (s.equals(".")) {
+            return missingValue;
+        } else {
+            return Float.parseFloat(s);
         }
     }
 
