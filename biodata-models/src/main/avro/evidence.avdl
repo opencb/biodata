@@ -1,4 +1,4 @@
-@namespace("org.opencb.biodata.models.evidence")
+@namespace("org.opencb.biodata.models.variant.avro")
 
 protocol EvidenceProtocol {
 
@@ -23,7 +23,7 @@ protocol EvidenceProtocol {
     /**
     The submission information
     */
-    record Submission {
+    record EvidenceSubmission {
         /**
         The submitter
         */
@@ -127,13 +127,9 @@ protocol EvidenceProtocol {
         */
         string ensemblId;
         /**
-        This field is optional, BUT it should be filled if possible
+        Others IDs. Fields like the HGNC symbol if available should be added here
         */
-        union {null, string} HGNC;
-        /**
-        Others IDs
-        */
-        union {null, map<string>} other_ids;
+        union {null, map<string>} xrefs;
     }
 
     /**
@@ -309,22 +305,6 @@ Evidence of benign impact:
     enum Penetrance {complete, incomplete}
 
     /**
-    Variant classification with Sequence Ontology terms. This is an optional classification, that might be inferred
-    from the `VariantClassification`.
-
-* `SO_0001770`: benign_variant (http://www.sequenceontology.org/browser/current_svn/term/SO:0001770)
-* `SO:0001771`: disease_associated_variant (http://www.sequenceontology.org/browser/current_svn/term/SO:0001771)
-* `SO:0001772`: disease_causing_variant (http://www.sequenceontology.org/browser/current_svn/term/SO:0001772)
-* `SO:0001774`: quantitative_variant (http://www.sequenceontology.org/browser/current_svn/term/SO:0001774)
-    */
-    enum SequenceOntologyClinicalSignificance {
-        SO_0001770,                     // benign_variant
-        SO_0001771,                     // disease_associated_variant
-        SO_0001772,                     // disease_causing_variant
-        SO_0001774                      // quantitative_variant
-    }
-
-    /**
     Variant effect with Sequence Ontology terms.
 
 * `SO_0002052`: dominant_negative_variant (http://purl.obolibrary.org/obo/SO_0002052)
@@ -404,9 +384,13 @@ Evidence of benign impact:
     */
     record OntologyTerm {
         /**
-        The ontology term id in OBO format ${ONTOLOGY_ID}:${TERM_ID} (http://www.obofoundry.org/id-policy.html)
+        The ontology term id or accession in OBO format ${ONTOLOGY_ID}:${TERM_ID} (http://www.obofoundry.org/id-policy.html)
         */
         string id;
+        /**
+        The ontology term name
+        */
+        union {null, string} name;
         /**
         Optional value for the ontology term, the type of the value is not checked
         (i.e.: we could set the pvalue term to "significant" or to "0.0001")
@@ -422,10 +406,6 @@ Evidence of benign impact:
         The variant's clinical significance.
         */
         union{null, ClinicalSignificance} clinicalSignificance;
-        /**
-        The variant's Sequence Ontology clinical significance.
-        */
-        union{null, SequenceOntologyClinicalSignificance} soClinicalSignificance;
         /**
         The variant's pharmacogenomics classification.
         */
@@ -453,19 +433,9 @@ Evidence of benign impact:
         */
         EvidenceSource source;
         /**
-        The type of evidence in an Evidence and Conclusion Ontology (ECO) term under the hierarchy of evidence.
-        See http://www.evidenceontology.org/browse/#ECO_0000000
-        */
-        union {null, string} type;
-        /**
-        Whether it is a manual or automatic evidence as described in the Evidence and Conclusion Ontology (ECO) under
-        the hierarchy of assertion_method. See http://www.evidenceontology.org/browse/#ECO_0000217
-        */
-        union {null, string} assertionMethod;
-        /**
         The list of submissions
         */
-        array<Submission> submissions = [];
+        array<EvidenceSubmission> submissions = [];
         /**
         The somatic information
         */
