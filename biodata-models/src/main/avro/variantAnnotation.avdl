@@ -160,6 +160,7 @@ protocol VariantAnnotations {
     record VariantAnnotation {
         union { null, string } chromosome;
         union { null, int } start;
+        union { null, int } end;
         union { null, string } reference;
         union { null, string } alternate;
         union { null, string } ancestralAllele;

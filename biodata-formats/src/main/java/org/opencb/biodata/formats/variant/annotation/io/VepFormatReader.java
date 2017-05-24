@@ -57,7 +57,7 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
     private String currentVariantString = "";
     private VariantAnnotation currentAnnotation = null;
 
-    private static final String CNV_PATTERN = "CN([0123456789]+)";
+    private static final String CNV_PATTERN = "CN(([0123456789]+)|V)";
 
     public VepFormatReader(String filename) { this.filename = filename; }
 
@@ -119,6 +119,7 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
                     currentAnnotation = new VariantAnnotation();
                     currentAnnotation.setChromosome(variantMap.get("chromosome"));
                     currentAnnotation.setStart(Integer.valueOf(variantMap.get("start")));
+                    currentAnnotation.setEnd(Integer.valueOf(variantMap.get("end")));
                     currentAnnotation.setReference(variantMap.get("reference"));
                     currentAnnotation.setAlternate(variantMap.get("alternative"));
 
