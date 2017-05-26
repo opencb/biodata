@@ -203,6 +203,20 @@ protocol Variants {
 ////       int forward;
 //    }
 
+    /**
+     * Type of structural variation
+     * <ul>
+     * <li>COPY_NUMBER_GAIN for CNVs</li>
+     * <li>COPY_NUMBER_LOSS for CNVs</li>
+     * <li>TANDEM_DUPLICATION for DUP</li>
+     * </ul>
+     */
+    enum StructuralVariantType {
+        COPY_NUMBER_GAIN,            // SO:0001742
+        COPY_NUMBER_LOSS,            // SO:0001743
+        TANDEM_DUPLICATION            // SO:1000173
+    }
+
     record StructuralVariation {
         int ciStartLeft = 0;
         int ciStartRight = 0;
@@ -212,6 +226,11 @@ protocol Variants {
          * Number of copies for CNV variants.
          */
         union {null, int} copyNumber;
+
+        /**
+        * Structural variation type: COPY_NUMBER_GAIN, COPY_NUMBER_LOSS, TANDEM_DUPLICATION, ...
+        */
+        union {null, StructuralVariantType} type;
     }
 
     record VariantAvro {

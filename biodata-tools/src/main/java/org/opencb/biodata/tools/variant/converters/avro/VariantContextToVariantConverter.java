@@ -1,17 +1,20 @@
 /*
- * Copyright 2015 OpenCB
+ * <!--
+ *   ~ Copyright 2015-2017 OpenCB
+ *   ~
+ *   ~ Licensed under the Apache License, Version 2.0 (the "License");
+ *   ~ you may not use this file except in compliance with the License.
+ *   ~ You may obtain a copy of the License at
+ *   ~
+ *   ~     http://www.apache.org/licenses/LICENSE-2.0
+ *   ~
+ *   ~ Unless required by applicable law or agreed to in writing, software
+ *   ~ distributed under the License is distributed on an "AS IS" BASIS,
+ *   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   ~ See the License for the specific language governing permissions and
+ *   ~ limitations under the License.
+ *   -->
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  */
 
 package org.opencb.biodata.tools.variant.converters.avro;
@@ -123,47 +126,18 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         variant.setIds(ids);
 
 
-        variant.resetLength();
-//        variant.setLength(Math.max(variant.getReference().length(), variant.getAlternate().length()));
 
         // TODO Nacho please add CNV when symbolic
 
         final VariantType type;
         if (!variantContext.getType().equals(VariantContext.Type.NO_VARIATION)) {
-            type = Variant.inferType(variant.getReference(), variant.getAlternate(), variant.getLength());
+            type = Variant.inferType(variant.getReference(), variant.getAlternate());
         } else {
             type = VariantType.NO_VARIATION;
         }
         variant.setType(type);
-//        variant.setType(getEnumFromString(VariantType.class, variantContext.getType().toString()));
 
-//        VariantType variantType = getEnumFromString(VariantType.class, variantContext.getType().toString());
-//        switch (variantType) {
-//            case SNP:
-//                if (variant.getIds().isEmpty()) {
-//                    variant.setType(VariantType.SNV);
-//                } else {
-//                    variant.setType(VariantType.SNP);
-//                }
-//                break;
-//            case INDEL:
-//                if (variant.getLength() > Variant.SV_THRESHOLD) {
-//                    if (variant.getReference().isEmpty()) {
-//                        variant.setType(VariantType.INSERTION);
-//                    } else if (variant.getAlternate().isEmpty()) {
-//                        variant.setType(VariantType.DELETION);
-//                    } else {
-//                        variant.setType(VariantType.SV);
-//                    }
-//                } else {
-//                    variant.setType(VariantType.INDEL);
-//                }
-//                break;
-//            default:
-//                variant.setType(variantType);
-//        }
-
-//        variant.resetHGVS();
+        variant.resetLength();
 
         // set variantSourceEntry fields
         List<StudyEntry> studies = new ArrayList<>();
