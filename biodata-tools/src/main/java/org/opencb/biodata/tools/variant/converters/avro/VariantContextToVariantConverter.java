@@ -126,47 +126,18 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         variant.setIds(ids);
 
 
-        variant.resetLength();
-//        variant.setLength(Math.max(variant.getReference().length(), variant.getAlternate().length()));
 
         // TODO Nacho please add CNV when symbolic
 
         final VariantType type;
         if (!variantContext.getType().equals(VariantContext.Type.NO_VARIATION)) {
-            type = Variant.inferType(variant.getReference(), variant.getAlternate(), variant.getLength());
+            type = Variant.inferType(variant.getReference(), variant.getAlternate());
         } else {
             type = VariantType.NO_VARIATION;
         }
         variant.setType(type);
-//        variant.setType(getEnumFromString(VariantType.class, variantContext.getType().toString()));
 
-//        VariantType variantType = getEnumFromString(VariantType.class, variantContext.getType().toString());
-//        switch (variantType) {
-//            case SNP:
-//                if (variant.getIds().isEmpty()) {
-//                    variant.setType(VariantType.SNV);
-//                } else {
-//                    variant.setType(VariantType.SNP);
-//                }
-//                break;
-//            case INDEL:
-//                if (variant.getLength() > Variant.SV_THRESHOLD) {
-//                    if (variant.getReference().isEmpty()) {
-//                        variant.setType(VariantType.INSERTION);
-//                    } else if (variant.getAlternate().isEmpty()) {
-//                        variant.setType(VariantType.DELETION);
-//                    } else {
-//                        variant.setType(VariantType.SV);
-//                    }
-//                } else {
-//                    variant.setType(VariantType.INDEL);
-//                }
-//                break;
-//            default:
-//                variant.setType(variantType);
-//        }
-
-//        variant.resetHGVS();
+        variant.resetLength();
 
         // set variantSourceEntry fields
         List<StudyEntry> studies = new ArrayList<>();
