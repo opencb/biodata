@@ -1,0 +1,504 @@
+@namespace("org.opencb.biodata.models.variant.avro")
+
+protocol EvidenceProtocol {
+
+    /**
+    The source of an evidence.
+    */
+    record EvidenceSource {
+        /**
+        Name of source
+        */
+        union {null, string} name;
+        /**
+        Version of source
+        */
+        union {null, string} version;
+        /**
+        The source date.
+        */
+        union {null, string} date;
+    }
+
+    /**
+    The submission information
+    */
+    record EvidenceSubmission {
+        /**
+        The submitter
+        */
+        union {null, string} submitter;
+        /**
+        The submission date
+        */
+        union {null, string} date;
+        /**
+        The submission id
+        */
+        union {null, string} id;
+    }
+
+    /**
+    The somatic information.
+    */
+    record SomaticInformation {
+        /**
+        The primary site
+        */
+        union {null, string} primarySite;
+        /**
+        The primary site subtype
+        */
+        union {null, string} siteSubtype;
+        /**
+        The primary histology
+        */
+        union {null, string} primaryHistology;
+        /**
+        The histology subtype
+        */
+        union {null, string} histologySubtype;
+        /**
+        The tumour origin
+        */
+        union {null, string} tumourOrigin;
+    }
+
+    /**
+    An enumeration for the different mode of inheritances:
+
+* `monoallelic_not_imprinted`: MONOALLELIC, autosomal or pseudoautosomal, not imprinted
+* `monoallelic_maternally_imprinted`: MONOALLELIC, autosomal or pseudoautosomal, maternally imprinted (paternal allele expressed)
+* `monoallelic_paternally_imprinted`: MONOALLELIC, autosomal or pseudoautosomal, paternally imprinted (maternal allele expressed)
+* `monoallelic`: MONOALLELIC, autosomal or pseudoautosomal, imprinted status unknown
+* `biallelic`: BIALLELIC, autosomal or pseudoautosomal
+* `monoallelic_and_biallelic`: BOTH monoallelic and biallelic, autosomal or pseudoautosomal
+* `monoallelic_and_more_severe_biallelic`: BOTH monoallelic and biallelic, autosomal or pseudoautosomal (but BIALLELIC mutations cause a more SEVERE disease form), autosomal or pseudoautosomal
+* `xlinked_biallelic`: X-LINKED: hemizygous mutation in males, biallelic mutations in females
+* `xlinked_monoallelic`: X linked: hemizygous mutation in males, monoallelic mutations in females may cause disease (may be less severe, later onset than males)
+* `mitochondrial`: MITOCHONDRIAL
+* `unknown`: Unknown
+* `NA`: Not applicable
+    */
+    enum ModeOfInheritance {
+        monoallelic,
+        monoallelic_not_imprinted,
+        monoallelic_maternally_imprinted,
+        monoallelic_paternally_imprinted,
+        biallelic,
+        monoallelic_and_biallelic,
+        monoallelic_and_more_severe_biallelic,
+        xlinked_biallelic,
+        xlinked_monoallelic,
+        mitochondrial,
+        unknown,
+        NA
+    }
+
+    /**
+    The entity representing a phenotype and its inheritance pattern.
+    */
+    record HeritableTrait {
+        /**
+        The trait (e.g.: HPO term, MIM term, DO term etc.)
+        */
+        string trait;
+        /**
+        The mode of inheritance
+        */
+        ModeOfInheritance inheritanceMode;
+    }
+
+    /**
+    The feature types
+    */
+    enum FeatureTypes {RegulatoryRegion, Gene, Transcript, Protein}
+
+    /**
+    The genomic feature
+    */
+    record GenomicFeature {
+        /**
+        Feature Type
+        */
+        FeatureTypes featureType;
+        /**
+        Transcript used, this should be a feature ID from Ensembl, (i.e, ENST00000544455)
+        */
+        string ensemblId;
+        /**
+        Others IDs. Fields like the HGNC symbol if available should be added here
+        */
+        union {null, map<string>} xrefs;
+    }
+
+    /**
+    Mendelian variants classification with ACMG terminology as defined in Richards, S. et al. (2015). Standards and
+        guidelines for the interpretation of sequence variants: a joint consensus recommendation of the American College
+        of Medical Genetics and Genomics and the Association for Molecular Pathology. Genetics in Medicine, 17(5),
+        405–423. https://doi.org/10.1038/gim.2015.30.
+
+    Classification for pharmacogenomic variants, variants associated to
+    disease and somatic variants based on the ACMG recommendations and ClinVar classification
+    (https://www.ncbi.nlm.nih.gov/clinvar/docs/clinsig/).
+
+* `benign_variant` : Benign variants interpreted for Mendelian disorders
+* `likely_benign_variant` : Likely benign variants interpreted for Mendelian disorders with a certainty of at least 90%
+* `pathogenic_variant` : Pathogenic variants interpreted for Mendelian disorders
+* `likely_pathogenic_variant` : Likely pathogenic variants interpreted for Mendelian disorders with a certainty of at
+least 90%
+* `uncertain_significance` : Uncertain significance variants interpreted for Mendelian disorders. Variants with
+conflicting evidences should be classified as uncertain_significance
+    */
+    enum ClinicalSignificance {
+        benign,
+        likely_benign,
+        VUS,
+        likely_pathogenic,
+        pathogenic
+    }
+
+    /**
+    Pharmacogenomics drug response variant classification
+* `responsive` : A variant that confers response to a treatment
+* `resistant` : A variant that confers resistance to a treatment
+* `toxicity` : A variant that is associated with drug-induced toxicity
+* `indication` : A variant that is required in order for a particular drug to be prescribed
+* `contraindication` : A variant that if present, a particular drug should not be prescribed
+* `dosing` : A variant that results in an alteration in dosing of a particular drug in order to achieve INR, reduce toxicity or increase efficacy
+* `increased_monitoring` : increase vigilance or increased dosage monitoring may be required for a patient with this variant to look for signs of adverse drug reactions
+* `efficacy` : a variant that affects the efficacy of the treatment
+    */
+    enum DrugResponseClassification {
+        responsive,
+        resistant,
+        toxicity,
+        indication,
+        contraindication,
+        dosing,
+        increased_monitoring,
+        efficacy
+    }
+
+    /**
+    Association of variants to a given trait.
+* `established_risk_allele` : Established risk allele for variants associated to disease
+* `likely_risk_allele` : Likely risk allele for variants associated to disease
+* `uncertain_risk_allele` : Uncertain risk allele for variants associated to disease
+* `protective` : Protective allele
+    */
+    enum TraitAssociation {
+        established_risk_allele,
+        likely_risk_allele,
+        uncertain_risk_allele,
+        protective
+    }
+
+    /**
+    Variant classification according to its relation to cancer aetiology.
+* `driver` : Driver variants
+* `passenger` : Passenger variants
+* `modifier` : Modifier variants
+    */
+    enum TumorigenesisClassification {
+        driver,
+        passenger,
+        modifier
+    }
+
+    /**
+    Evidence of pathogenicity and benign impact as defined in Richards, S. et al. (2015). Standards and guidelines for the interpretation
+    of sequence variants: a joint consensus recommendation of the American College of Medical Genetics and Genomics and
+    the Association for Molecular Pathology. Genetics in Medicine, 17(5), 405–423. https://doi.org/10.1038/gim.2015.30
+
+Evidence of pathogenicity:
+* `very_strong`:
+    - PVS1 null variant (nonsense, frameshift, canonical ±1 or 2 splice sites, initiation codon, single or multiexon
+    deletion) in a gene where LOF is a known mechanism of disease
+* `strong`:
+    - PS1 Same amino acid change as a previously established pathogenic variant regardless of nucleotide change
+    - PS2 De novo (both maternity and paternity confirmed) in a patient with the disease and no family history
+    - PS3 Well-established in vitro or in vivo functional studies supportive of a damaging effect on the gene or gene
+    product
+    - PS4 The prevalence of the variant in affected individuals is significantly increased compared with the prevalence
+    in controls
+* `moderate`:
+    - PM1 Located in a mutational hot spot and/or critical and well-established functional domain (e.g., active site of
+    an enzyme) without benign variation
+    - PM2 Absent from controls (or at extremely low frequency if recessive) in Exome Sequencing Project, 1000 Genomes
+    Project, or Exome Aggregation Consortium
+    - PM3 For recessive disorders, detected in trans with a pathogenic variant
+    - PM4 Protein length changes as a result of in-frame deletions/insertions in a nonrepeat region or stop-loss
+    variants
+    - PM5 Novel missense change at an amino acid residue where a different missense change determined to be pathogenic
+    has been seen before
+    - PM6 Assumed de novo, but without confirmation of paternity and maternity
+* `supporting`:
+    - PP1 Cosegregation with disease in multiple affected family members in a gene definitively known to cause the
+    disease
+    - PP2 Missense variant in a gene that has a low rate of benign missense variation and in which missense variants are
+    a common mechanism of disease
+    - PP3 Multiple lines of computational evidence support a deleterious effect on the gene or gene product
+    (conservation, evolutionary, splicing impact, etc.)
+    - PP4 Patient’s phenotype or family history is highly specific for a disease with a single genetic etiology
+    - PP5 Reputable source recently reports variant as pathogenic, but the evidence is not available to the laboratory
+    to perform an independent evaluation
+
+Evidence of benign impact:
+* `stand_alone`:
+    - BA1 Allele frequency is >5% in Exome Sequencing Project, 1000 Genomes Project, or Exome Aggregation
+    Consortium
+* `strong`:
+    - BS1 Allele frequency is greater than expected for disorder
+    - BS2 Observed in a healthy adult individual for a recessive (homozygous), dominant (heterozygous), or X-linked
+    (hemizygous) disorder, with full penetrance expected at an early age
+    - BS3 Well-established in vitro or in vivo functional studies show no damaging effect on protein function or
+    splicing
+    - BS4 Lack of segregation in affected members of a family
+* `supporting`:
+    - BP1 Missense variant in a gene for which primarily truncating variants are known to cause disease
+    - BP2 Observed in trans with a pathogenic variant for a fully penetrant dominant gene/disorder or observed in cis
+    with a pathogenic variant in any inheritance pattern
+    - BP3 In-frame deletions/insertions in a repetitive region without a known function
+    - BP4 Multiple lines of computational evidence suggest no impact on gene or gene product (conservation,
+    evolutionary, splicing impact, etc.)
+    - BP5 Variant found in a case with an alternate molecular basis for disease
+    - BP6 Reputable source recently reports variant as benign, but the evidence is not available to the laboratory to
+    perform an independent evaluation
+    - BP7 A synonymous (silent) variant for which splicing prediction algorithms predict no impact to the splice
+    consensus sequence nor the creation of a new splice site AND the nucleotide is not highly conserved
+    */
+    enum EvidenceImpact {
+        very_strong,
+        strong,
+        moderate,
+        supporting,
+        stand_alone
+    }
+
+    /**
+    This is the list of ethnics in ONS16
+
+* `D`:  Mixed: White and Black Caribbean
+* `E`:  Mixed: White and Black African
+* `F`:  Mixed: White and Asian
+* `G`:  Mixed: Any other mixed background
+* `A`:  White: British
+* `B`:  White: Irish
+* `C`:  White: Any other White background
+* `L`:  Asian or Asian British: Any other Asian background
+* `M`:  Black or Black British: Caribbean
+* `N`:  Black or Black British: African
+* `H`:  Asian or Asian British: Indian
+* `J`:  Asian or Asian British: Pakistani
+* `K`:  Asian or Asian British: Bangladeshi
+* `P`:  Black or Black British: Any other Black background
+* `S`:  Other Ethnic Groups: Any other ethnic group
+* `R`:  Other Ethnic Groups: Chinese
+* `Z`:  Not stated
+    */
+    enum EthnicCategory {D, E, F, G, A, B, C, L, M, N, H, J, K, P, S, R, Z}
+
+    /**
+    Penetrance assumed in the analysis
+    */
+    enum Penetrance {complete, incomplete}
+
+    /**
+    Variant effect with Sequence Ontology terms.
+
+* `SO_0002052`: dominant_negative_variant (http://purl.obolibrary.org/obo/SO_0002052)
+* `SO_0002053`: gain_of_function_variant (http://purl.obolibrary.org/obo/SO_0002053)
+* `SO_0001773`: lethal_variant (http://purl.obolibrary.org/obo/SO_0001773)
+* `SO_0002054`: loss_of_function_variant (http://purl.obolibrary.org/obo/SO_0002054)
+* `SO_0001786`: loss_of_heterozygosity (http://purl.obolibrary.org/obo/SO_0001786)
+* `SO_0002055`: null_variant (http://purl.obolibrary.org/obo/SO_0002055)
+    */
+    enum VariantFunctionalEffect {
+        SO_0002052,
+        SO_0002053,
+        SO_0001773,
+        SO_0002054,
+        SO_0001786,
+        SO_0002055
+    }
+
+    /**
+    Variant origin.
+
+* `SO_0001781`: de novo variant. http://purl.obolibrary.org/obo/SO_0001781
+* `SO_0001778`: germline variant. http://purl.obolibrary.org/obo/SO_0001778
+* `SO_0001775`: maternal variant. http://purl.obolibrary.org/obo/SO_0001775
+* `SO_0001776`: paternal variant. http://purl.obolibrary.org/obo/SO_0001776
+* `SO_0001779`: pedigree specific variant. http://purl.obolibrary.org/obo/SO_0001779
+* `SO_0001780`: population specific variant. http://purl.obolibrary.org/obo/SO_0001780
+* `SO_0001777`: somatic variant. http://purl.obolibrary.org/obo/SO_0001777
+    */
+    enum AlleleOrigin {
+        SO_0001781,
+        SO_0001778,
+        SO_0001775,
+        SO_0001776,
+        SO_0001779,
+        SO_0001780,
+        SO_0001777
+    }
+
+    /**
+    Confidence based on the Confidence Information Ontology
+
+* `CIO_0000029`: high confidence level http://purl.obolibrary.org/obo/CIO_0000029
+* `CIO_0000031`: low confidence level http://purl.obolibrary.org/obo/CIO_0000031
+* `CIO_0000030`: medium confidence level http://purl.obolibrary.org/obo/CIO_0000030
+* `CIO_0000039`: rejected http://purl.obolibrary.org/obo/CIO_0000039
+    */
+    enum Confidence {
+        CIO_0000031,    // low confidence
+        CIO_0000030,    // medium confidence
+        CIO_0000029,    // high confidence
+        CIO_0000039     // rejected
+    }
+
+    /**
+    The consistency of evidences for a given phenotype. This aggregates all evidences for a given phenotype and all
+    evidences with no phenotype associated (e.g.: in silico impact prediction, population frequency).
+    This is based on the Confidence Information Ontology terms.
+
+* `CIO_0000033`: congruent, all evidences are consistent. http://purl.obolibrary.org/obo/CIO_0000033
+* `CIO_0000034`: conflict, there are conflicting evidences. This should correspond to a `VariantClassification` of
+`uncertain_significance` for mendelian disorders. http://purl.obolibrary.org/obo/CIO_0000034
+* `CIO_0000035`: strongly conflicting. http://purl.obolibrary.org/obo/CIO_0000035
+* `CIO_0000036`: weakly conflicting. http://purl.obolibrary.org/obo/CIO_0000036
+    */
+    enum ConsistencyStatus {
+        CIO_0000033,        // congruent
+        CIO_0000034,        // conflict,
+        CIO_0000035,        // weakly conflicting
+        CIO_0000036         // strongly conflicting
+    }
+
+    /**
+    A property in the form of name-value pair.
+    Names are restricted to ontology ids, they should be checked against existing ontologies in resources like
+    Ontology Lookup Service.
+    */
+    record OntologyTerm {
+        /**
+        The ontology term id or accession in OBO format ${ONTOLOGY_ID}:${TERM_ID} (http://www.obofoundry.org/id-policy.html)
+        */
+        string id;
+        /**
+        The ontology term name
+        */
+        union {null, string} name;
+        /**
+        Optional value for the ontology term, the type of the value is not checked
+        (i.e.: we could set the pvalue term to "significant" or to "0.0001")
+        */
+        union {null, string} value;
+    }
+
+    /**
+    The variant classification according to different properties.
+    */
+    record VariantClassification {
+        /**
+        The variant's clinical significance.
+        */
+        union{null, ClinicalSignificance} clinicalSignificance;
+        /**
+        The variant's pharmacogenomics classification.
+        */
+        union{null, DrugResponseClassification} drugResponseClassification;
+        /**
+        The variant's trait association.
+        */
+        union{null, TraitAssociation} traitAssociation;
+        /**
+        The variant's tumorigenesis classification.
+        */
+        union{null, TumorigenesisClassification} tumorigenesisClassification;
+        /**
+        The variant functional effect
+        */
+        union {null, VariantFunctionalEffect} functionalEffect;
+    }
+
+    /**
+    An entry for an evidence
+    */
+    record EvidenceEntry {
+        /**
+        Source of the evidence
+        */
+        EvidenceSource source;
+        /**
+        The list of submissions
+        */
+        array<EvidenceSubmission> submissions = [];
+        /**
+        The somatic information
+        */
+        union {null, SomaticInformation} somaticInformation;
+        /**
+        URL of source if any
+        */
+        union {null, string} url;
+        /**
+        ID of record in the source
+        */
+        union {null, string} id;
+        /**
+        List of allele origins
+        */
+        array<AlleleOrigin> alleleOrigin;
+        /**
+        Heritable traits associated to this evidence
+        */
+        array<HeritableTrait> heritableTraits = [];
+        /**
+        The transcript to which the evidence refers
+        */
+        array<GenomicFeature> genomicFeatures = [];
+        /**
+        The variant classification
+        */
+        union {null, VariantClassification} variantClassification;
+        /**
+        Impact of evidence. Should be coherent with the classification of impact if provided.
+        */
+        union {null, EvidenceImpact} impact;
+        /**
+        The curation confidence.
+        */
+        union {null, Confidence} confidence;
+        /**
+        The consistency status. This is applicable to complex evidences (e.g.: ClinVar)
+        */
+        union {null, ConsistencyStatus} consistencyStatus;
+        /**
+        Ethnicity
+        */
+        EthnicCategory ethnicity;
+        /**
+        The penetrance of the phenotype for this genotype. Value in the range [0, 1]
+        */
+        union {null, Penetrance} penetrance;
+        /**
+        Variable expressivity of a given phenotype for the same genotype
+        */
+        union {null, boolean} variableExpressivity;
+        /**
+        Evidence description
+        */
+        union {null, string} description;
+        /**
+        A list of additional properties in the form name-value.
+        */
+        array<OntologyTerm> additionalProperties = [];
+        /**
+        Bibliography
+        */
+        array<string> bibliography = [];
+    }
+}
