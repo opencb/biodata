@@ -148,6 +148,7 @@ public class Variant implements Serializable, Comparable<Variant> {
 
         this.setChromosome(chromosome);
 
+        this.resetLength();
         this.resetType();
         this.resetSV();
 
@@ -285,14 +286,20 @@ public class Variant implements Serializable, Comparable<Variant> {
     }
 
     private void resetSV() {
-        if (VariantType.CNV.equals(getType())) {
-            Integer copyNumber = getCopyNumberFromAlternate(this.getAlternate());
-            setSv(new StructuralVariation(null, null, null, null, copyNumber,
-                    getCNVSubtype(copyNumber)));
-        }
-        if (VariantType.DELETION.equals(getType())) {
-            setSv(new StructuralVariation(null, null, null, null,
-                    0, null));
+        switch (getType()) {
+            case DUPLICATION:
+            case DELETION:
+            case INVERSION:
+            case INSERTION:
+            case BREAKEND:
+                setSv(new StructuralVariation(getStart(), getStart(), getEnd(), getEnd(), null,
+                        null));
+                break;
+            case CNV:
+                Integer copyNumber = getCopyNumberFromAlternate(this.getAlternate());
+                setSv(new StructuralVariation(getStart(), getStart(), getEnd(), getEnd(), copyNumber,
+                        getCNVSubtype(copyNumber)));
+                break;
         }
     }
 

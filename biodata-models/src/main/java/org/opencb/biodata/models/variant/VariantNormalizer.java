@@ -177,8 +177,6 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                         if (VariantType.CNV.equals(variant.getType())) {
                             String sampleName = variant.getStudies().get(0).getSamplesName().iterator().next();
                             copyNumberString = variant.getStudies().get(0).getSampleData(sampleName).get(COPY_NUMBER_TAG);
-                        } else if (VariantType.DELETION.equals(variant.getType())){
-                            copyNumberString = "0";
                         }
                         keyFieldsList = normalizeSymbolic(start, end, reference, alternates, copyNumberString);
                     } else {
@@ -273,7 +271,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         return Allele.wouldBeSymbolicAllele(variant.getAlternate().getBytes());
     }
 
-    private StructuralVariation getStructuralVariation(Variant variant, VariantKeyFields keyFields, String copyNumber) {
+    private StructuralVariation getStructuralVariation(Variant variant, VariantKeyFields keyFields, String copyNumberString) {
         int[] impreciseStart = getImpreciseStart(variant);
         int[] impreciseEnd = getImpreciseEnd(variant);
         StructuralVariation sv = variant.getSv() == null ? new StructuralVariation() : variant.getSv();
@@ -289,15 +287,18 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         if (sv.getCiEndRight() == null) {
             sv.setCiEndRight(impreciseEnd[1]);
         }
-        if (sv.getCopyNumber() == null) {
-            if (StringUtils.isNumeric(copyNumber)) {
-                sv.setCopyNumber(Integer.parseInt(copyNumber));
+        if (sv.getCopyNumber() == null && variant.getType().equals(VariantType.CNV)) {
+            if (StringUtils.isNumeric(copyNumberString)) {
+                sv.setCopyNumber(Integer.parseInt(copyNumberString));
             } else {
                 // Assuming if copy number is not provided in the info field,
                 // it shall be indicated as part of the alternate allele string
-                sv.setCopyNumber(Variant.getCopyNumberFromAlternate(keyFields.getAlternate()));
+                Integer copyNumber = Variant.getCopyNumberFromAlternate(keyFields.getAlternate());
+                if (copyNumber != null) {
+                    sv.setCopyNumber(copyNumber);
+                }
             }
-            Variant.getCNVSubtype(sv.getCopyNumber());
+            sv.setType(Variant.getCNVSubtype(sv.getCopyNumber()));
         }
         return sv;
     }
