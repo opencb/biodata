@@ -20,6 +20,7 @@
 package org.opencb.biodata.tools.variant.converters;
 
 import htsjdk.variant.variantcontext.VariantContext;
+import htsjdk.variant.vcf.VCFConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opencb.biodata.tools.Converter;
@@ -33,6 +34,7 @@ import java.util.Map;
  * Created by jtarraga on 07/02/17.
  */
 public abstract class VariantContextConverter<T> implements Converter<VariantContext, T> {
+
     public static final DecimalFormat DECIMAL_FORMAT_7 = new DecimalFormat("#.#######");
     public static final DecimalFormat DECIMAL_FORMAT_3 = new DecimalFormat("#.###");
     public static final String FIELD_SEPARATOR = "|";
@@ -81,5 +83,19 @@ public abstract class VariantContextConverter<T> implements Converter<VariantCon
                     "Sequence length is negative: chromosome " + chromosome + " from " + from + " to " + to);
         }
         return StringUtils.repeat('N', length); // current return default base TODO load reference sequence
+    }
+
+    protected String getIdForVcf(String id, List<String> names) {
+        if (StringUtils.isNotEmpty(id) && !id.contains(":")) {
+            StringBuilder ids = new StringBuilder(id);
+            if (names != null) {
+                for (String name : names) {
+                    ids.append(VCFConstants.ID_FIELD_SEPARATOR).append(name);
+                }
+            }
+            return ids.toString();
+        } else {
+            return VCFConstants.EMPTY_ID_FIELD;
+        }
     }
 }

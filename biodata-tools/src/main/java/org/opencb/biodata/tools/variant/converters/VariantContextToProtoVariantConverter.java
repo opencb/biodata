@@ -17,21 +17,17 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.opencb.biodata.formats.variant.vcf4.VcfUtils.ANNOTATION_INFO_KEY;
-import static org.opencb.biodata.formats.variant.vcf4.VcfUtils.POPFREQ_INFO_KEY;
-import static org.opencb.biodata.formats.variant.vcf4.VcfUtils.STATS_INFO_KEY;
+import static org.opencb.biodata.formats.variant.vcf4.VcfUtils.*;
 
 /**
  * Created by jtarraga on 07/02/17.
  */
 public class VariantContextToProtoVariantConverter extends VariantContextConverter<VariantProto.Variant> {
 
-    private static final DecimalFormat DECIMAL_FORMAT_7 = new DecimalFormat("#.#######");
-    private static final DecimalFormat DECIMAL_FORMAT_3 = new DecimalFormat("#.###");
     private final Logger logger = LoggerFactory.getLogger(VariantContextToProtoVariantConverter.class);
 
-    int studyId;
-    Map<String, Integer> formatPositions;
+    private int studyId;
+    private Map<String, Integer> formatPositions;
 
     public VariantContextToProtoVariantConverter(int studyId) {
         super(null, null, null, null);
@@ -51,9 +47,9 @@ public class VariantContextToProtoVariantConverter extends VariantContextConvert
     public VariantProto.Variant to(VariantContext obj) {
         return null;
     }
+
     @Override
     public VariantContext from(VariantProto.Variant variant) {
-
         if (this.studyNameMap == null || this.studyNameMap.size() == 0) {
             variant.getStudiesList().forEach(studyEntry -> {
                 String s = studyEntry.getStudyId();
@@ -67,7 +63,6 @@ public class VariantContextToProtoVariantConverter extends VariantContextConvert
                 }
             });
         }
-
 
         VariantProto.StudyEntry studyEntry = null;
         for (int i = 0; i < variant.getStudiesCount(); i++) {
@@ -208,18 +203,8 @@ public class VariantContextToProtoVariantConverter extends VariantContextConvert
 
         variantContextBuilder.attributes(attributes);
 
-        if (StringUtils.isNotEmpty(variant.getId()) && !variant.toString().equals(variant.getId())) {
-            StringBuilder ids = new StringBuilder();
-            ids.append(variant.getId());
-            if (variant.getNamesList() != null) {
-                for (String name : variant.getNamesList()) {
-                    ids.append(VCFConstants.ID_FIELD_SEPARATOR).append(name);
-                }
-            }
-            variantContextBuilder.id(StringUtils.join(ids, ","));
-        } else {
-            variantContextBuilder.id(VCFConstants.EMPTY_ID_FIELD);
-        }
+        String idForVcf = getIdForVcf(variant.getId(), variant.getNamesList());
+        variantContextBuilder.id(idForVcf);
 
         return variantContextBuilder.make();
     }
@@ -336,7 +321,7 @@ public class VariantContextToProtoVariantConverter extends VariantContextConvert
             stringBuilder.append(FIELD_SEPARATOR);
 
             // protein position
-            if (consequenceType.getProteinVariantAnnotation() != null) {
+            if (consequenceType.getProteinVariantAnnotation() != null && consequenceType.getProteinVariantAnnotation().getPosition() > 0) {
                 stringBuilder.append(consequenceType.getProteinVariantAnnotation().getPosition());
                 stringBuilder.append(FIELD_SEPARATOR);
                 stringBuilder.append(consequenceType.getProteinVariantAnnotation().getReference())

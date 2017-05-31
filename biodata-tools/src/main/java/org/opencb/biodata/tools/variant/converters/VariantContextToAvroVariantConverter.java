@@ -267,19 +267,8 @@ public class VariantContextToAvroVariantConverter extends VariantContextConverte
 
         variantContextBuilder.attributes(attributes);
 
-
-        if (StringUtils.isNotEmpty(variant.getId()) && !variant.toString().equals(variant.getId())) {
-            StringBuilder ids = new StringBuilder();
-            ids.append(variant.getId());
-            if (variant.getNames() != null) {
-                for (String name : variant.getNames()) {
-                    ids.append(VCFConstants.ID_FIELD_SEPARATOR).append(name);
-                }
-            }
-            variantContextBuilder.id(StringUtils.join(ids, ","));
-        } else {
-            variantContextBuilder.id(VCFConstants.EMPTY_ID_FIELD);
-        }
+        String idForVcf = getIdForVcf(variant.getId(), variant.getNames());
+        variantContextBuilder.id(idForVcf);
 
         return variantContextBuilder.make();
     }
