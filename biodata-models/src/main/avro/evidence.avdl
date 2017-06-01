@@ -451,7 +451,7 @@ Evidence of benign impact:
         /**
         List of allele origins
         */
-        array<AlleleOrigin> alleleOrigin;
+        union {null, array<AlleleOrigin>} alleleOrigin;
         /**
         Heritable traits associated to this evidence
         */
