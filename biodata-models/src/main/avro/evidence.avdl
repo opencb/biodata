@@ -123,9 +123,9 @@ protocol EvidenceProtocol {
         */
         FeatureTypes featureType;
         /**
-        Transcript used, this should be a feature ID from Ensembl, (i.e, ENST00000544455)
+        Feature used, this should be a feature ID from Ensembl, (i.e, ENST00000544455)
         */
-        string ensemblId;
+        union {null, string} ensemblId;
         /**
         Others IDs. Fields like the HGNC symbol if available should be added here
         */
