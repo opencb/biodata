@@ -27,6 +27,8 @@ import org.opencb.biodata.models.variant.avro.*;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Jacobo Coll;
@@ -36,12 +38,18 @@ import java.util.*;
 public class Variant implements Serializable, Comparable<Variant> {
 
     public static final EnumSet<VariantType> SV_SUBTYPES = EnumSet.of(VariantType.INSERTION, VariantType.DELETION,
-            VariantType.TRANSLOCATION, VariantType.INVERSION, VariantType.CNV);
+            VariantType.TRANSLOCATION, VariantType.INVERSION, VariantType.CNV, VariantType.DUPLICATION,
+            VariantType.BREAKEND);
     private final VariantAvro impl;
     private volatile Map<String, StudyEntry> studyEntries = null;
 
     public static final int SV_THRESHOLD = 50;
-    public static final String CNVSTR = "<CN";
+    private static final String CNVSTR = "<CN";
+    private static final String DUPSTR = "<DUP>";
+    private static final String DELSTR = "<DEL>";
+    private static final String INVSTR = "<INV>";
+    private static final String INSSTR = "<INS>";
+    private static final Pattern CNVPATTERN = Pattern.compile("<CN([0-9]+)>");
 
     public Variant() {
         impl = new VariantAvro(null, new LinkedList<>(), "", -1, -1, "", "", "+", null, 0, null, new HashMap<>(), new LinkedList<>(), null);
@@ -105,13 +113,7 @@ public class Variant implements Serializable, Comparable<Variant> {
             }
         }
         resetType();
-
-        if (VariantType.CNV.equals(getType())) {
-            Integer copyNumber = getCopyNumberFromStr(this.getAlternate());
-            setSv(new StructuralVariation(this.getStart(), this.getStart(), this.getEnd(), this.getEnd(),
-                    copyNumber, getCNVSubtype(copyNumber)));
-
-        }
+        resetSV();
     }
 
     public Variant(String chromosome, int position, String reference, String alternate) {
@@ -146,20 +148,23 @@ public class Variant implements Serializable, Comparable<Variant> {
 
         this.setChromosome(chromosome);
 
-        this.resetType();
         this.resetLength();
-
-        if (VariantType.CNV.equals(getType())) {
-            Integer copyNumber = getCopyNumberFromStr(this.getAlternate());
-            setSv(new StructuralVariation(this.getStart(), this.getStart(), this.getEnd(), this.getEnd(),
-                    copyNumber, getCNVSubtype(copyNumber)));
-
-        }
+        this.resetType();
+        this.resetSV();
 
 //        this.resetHGVS();
 
 //        this.annotation = new VariantAnnotation(this.chromosome, this.start, this.end, this.reference, this.alternate);
         studyEntries = new HashMap<>();
+    }
+
+    public static Integer getCopyNumberFromAlternate(String alternate) {
+        Matcher matcher = CNVPATTERN.matcher(alternate);
+        if (matcher.matches()) {
+            return Integer.valueOf(matcher.group(1));
+        } else {
+            return null;
+        }
     }
 
     public static StructuralVariantType getCNVSubtype(Integer copyNumber) {
@@ -173,15 +178,6 @@ public class Variant implements Serializable, Comparable<Variant> {
         return null;
     }
 
-    private Integer getCopyNumberFromStr(String cnvStr) {
-        String copyNumberString = cnvStr.split(CNVSTR)[1].split(">")[0];
-        if (StringUtils.isNumeric(copyNumberString)) {
-            return Integer.valueOf(copyNumberString);
-        } else {
-            return null;
-        }
-    }
-
     private String checkEmptySequence(String sequence) {
         return (sequence != null && !sequence.equals("-")) ? sequence : "";
     }
@@ -191,9 +187,21 @@ public class Variant implements Serializable, Comparable<Variant> {
     }
 
     public static VariantType inferType(String reference, String alternate) {
-        if (Allele.wouldBeSymbolicAllele(alternate.getBytes()) || Allele.wouldBeSymbolicAllele(reference.getBytes())) {
+        byte[] alternateBytes = alternate.getBytes();
+        if (Allele.wouldBeSymbolicAllele(alternateBytes) || Allele.wouldBeSymbolicAllele(reference.getBytes())) {
             if (alternate.startsWith(CNVSTR)) {
                 return VariantType.CNV;
+            } else if (alternate.equals(DUPSTR)){
+                return VariantType.DUPLICATION;
+            } else if (alternate.equals(DELSTR)){
+                return VariantType.DELETION;
+            } else if (alternate.equals(INVSTR)){
+                return VariantType.INVERSION;
+            } else if (alternate.equals(INSSTR)){
+                return VariantType.INSERTION;
+            } else if (alternate.contains("[") || alternate.contains("]")  // mated breakend
+                    || alternateBytes[0] == '.' || alternateBytes[alternateBytes.length - 1] == '.')  { // single breakend
+                return VariantType.BREAKEND;
             } else {
                 return VariantType.SYMBOLIC;
             }
@@ -229,8 +237,8 @@ public class Variant implements Serializable, Comparable<Variant> {
 
     public static int inferLength(String reference, String alternate, int start, int end, VariantType type) {
         final int length;
-        if (type.equals(VariantType.CNV)) {
-            length = inferLengthSymbolic(alternate, start, end);
+        if (reference == null || Allele.wouldBeSymbolicAllele(alternate.getBytes())) {
+            length = inferLengthSV(alternate, start, end);
         } else {
             length = inferLengthSimpleVariant(reference, alternate);
         }
@@ -249,12 +257,50 @@ public class Variant implements Serializable, Comparable<Variant> {
 
     private static int inferLengthSymbolic(String alternate, int start, int end) {
         int length;
-        if (StringUtils.startsWith(alternate, CNVSTR)) {
+        if (StringUtils.startsWith(alternate, CNVSTR) || StringUtils.equals(alternate, DELSTR)
+                || StringUtils.equals(alternate, DUPSTR)) {
             length = end - start + 1;
+        } else if (alternate.contains("[") || alternate.contains("]")  // mated breakend
+                || alternate.startsWith(".") || alternate.endsWith(".")) { // single breakend
+            length = 0; // WARNING: breakends length set to 0 in any case - breakends shall not be stored in the future;
+                        // translocations formed by 4 breakends must be parsed and managed instead
         } else {
             length = alternate == null ? 0 : alternate.length();
         }
         return length;
+    }
+
+    private static int inferLengthSV(String alternate, int start, int end) {
+        int length;
+        if (StringUtils.startsWith(alternate, CNVSTR) || StringUtils.equals(alternate, DELSTR)
+                || StringUtils.equals(alternate, DUPSTR)) {
+            length = end - start + 1;
+        } else if (alternate.contains("[") || alternate.contains("]")  // mated breakend
+                || alternate.startsWith(".") || alternate.endsWith(".")) { // single breakend
+            length = 0; // WARNING: breakends length set to 0 in any case - breakends shall not be stored in the future;
+            // translocations formed by 4 breakends must be parsed and managed instead
+        } else {
+            length = alternate == null ? 0 : alternate.length();
+        }
+        return length;
+    }
+
+    private void resetSV() {
+        switch (getType()) {
+            case DUPLICATION:
+            case DELETION:
+            case INVERSION:
+            case INSERTION:
+            case BREAKEND:
+                setSv(new StructuralVariation(getStart(), getStart(), getEnd(), getEnd(), null,
+                        null));
+                break;
+            case CNV:
+                Integer copyNumber = getCopyNumberFromAlternate(this.getAlternate());
+                setSv(new StructuralVariation(getStart(), getStart(), getEnd(), getEnd(), copyNumber,
+                        getCNVSubtype(copyNumber)));
+                break;
+        }
     }
 
 //    public void resetHGVS() {
@@ -343,8 +389,9 @@ public class Variant implements Serializable, Comparable<Variant> {
         return impl.getSv();
     }
 
-    public void setSv(StructuralVariation sv) {
+    public Variant setSv(StructuralVariation sv) {
         impl.setSv(sv);
+        return this;
     }
 
     @Deprecated
@@ -406,8 +453,9 @@ public class Variant implements Serializable, Comparable<Variant> {
         return impl.getType();
     }
 
-    public void setType(VariantType value) {
+    public Variant setType(VariantType value) {
         impl.setType(value);
+        return this;
     }
 
     public Map<String, List<String>> getHgvs() {

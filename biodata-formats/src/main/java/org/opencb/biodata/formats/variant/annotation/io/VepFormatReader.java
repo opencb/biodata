@@ -57,7 +57,7 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
     private String currentVariantString = "";
     private VariantAnnotation currentAnnotation = null;
 
-    private static final String CNV_PATTERN = "CN([0123456789]+)";
+    private static final String CNV_PATTERN = "CN(([0123456789]+)|V)";
 
     public VepFormatReader(String filename) { this.filename = filename; }
 
@@ -115,10 +115,11 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
                 if (!currentVariantString.equals(lineFields[0] + ":" + lineFields[1] + ":" + lineFields[2])) {
                     noNewVariantFound = (currentAnnotation==null);  // currentAnnotation==null only in the first iteration.
                     variantAnnotationToReturn = currentAnnotation;
-                    Map<String,String> variantMap = parseVariant(lineFields[0], lineFields[1], lineFields[2]);  // coordinates and alternative are only parsed once
+                    Map<String,String> variantMap = parseVariant(lineFields[0], lineFields[1], lineFields[2]);  // coordinates and alternative are only parsed onceca
                     currentAnnotation = new VariantAnnotation();
                     currentAnnotation.setChromosome(variantMap.get("chromosome"));
                     currentAnnotation.setStart(Integer.valueOf(variantMap.get("start")));
+                    currentAnnotation.setEnd(Integer.valueOf(variantMap.get("end")));
                     currentAnnotation.setReference(variantMap.get("reference"));
                     currentAnnotation.setAlternate(variantMap.get("alternative"));
 

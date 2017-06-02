@@ -77,6 +77,7 @@ public class ConsequenceTypeMappings {
         termToAccession.put("regulatory_region_amplification", 1891);
         termToAccession.put("feature_elongation", 1907);
         termToAccession.put("feature_truncation", 1906);
+        termToAccession.put("feature_variant", 1878);
         termToAccession.put("intergenic_variant", 1628);
         termToAccession.put("lincRNA", 1463);
         termToAccession.put("downstream_gene_variant", 1632);
