@@ -1,3 +1,22 @@
+/*
+ * <!--
+ *   ~ Copyright 2015-2017 OpenCB
+ *   ~
+ *   ~ Licensed under the Apache License, Version 2.0 (the "License");
+ *   ~ you may not use this file except in compliance with the License.
+ *   ~ You may obtain a copy of the License at
+ *   ~
+ *   ~     http://www.apache.org/licenses/LICENSE-2.0
+ *   ~
+ *   ~ Unless required by applicable law or agreed to in writing, software
+ *   ~ distributed under the License is distributed on an "AS IS" BASIS,
+ *   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   ~ See the License for the specific language governing permissions and
+ *   ~ limitations under the License.
+ *   -->
+ *
+ */
+
 package org.opencb.biodata.tools.alignment.coverage;
 
 import org.ga4gh.models.CigarUnit;
@@ -12,67 +31,55 @@ import java.util.List;
  */
 public class AvroRegionCoverageCalculator extends RegionCoverageCalculator<ReadAlignment> {
 
-    @Override
-    public RegionCoverage compute(ReadAlignment ra) {
-        LinearAlignment la = ra.getAlignment();
-        if (la == null) {
-            return new RegionCoverage();
-        }
-
-        // compute the region size according to the cigar code
-        int size = computeSizeByCigar(la.getCigar());
-        if (size == 0) {
-            return new RegionCoverage();
-        }
-
-        return computeRegionCoverage(la, size);
+    public AvroRegionCoverageCalculator() {
+        super(0);
     }
 
-    private RegionCoverage computeRegionCoverage(LinearAlignment la, int size) {
-        RegionCoverage regionCoverage = new RegionCoverage(la.getPosition().getReferenceName().toString(),
-                la.getPosition().getPosition().intValue(), la.getPosition().getPosition().intValue() + size - 1);
+    public AvroRegionCoverageCalculator(int minBaseQuality) {
+        super(minBaseQuality);
+    }
 
-        // update array (counter)
-        int arrayPos = 0;
+    @Override
+    public void update(ReadAlignment ra, RegionCoverage dest) {
+        LinearAlignment la = ra.getAlignment();
+        if ( la == null || !la.getPosition().getReferenceName().equals(dest.getChromosome())) {
+            // nothing to do
+            return;
+        }
+
+        // counters for bases and qualities
+        int refPos = Math.toIntExact(la.getPosition().getPosition());
+        int qualityPos = 0;
+
+        List<Integer> qualities = ra.getAlignedQuality();
+        short[] values = dest.getValues();
+
         for (CigarUnit cu: la.getCigar()) {
             switch (cu.getOperation()) {
                 case ALIGNMENT_MATCH:
                 case SEQUENCE_MATCH:
                 case SEQUENCE_MISMATCH:
                     for (int i = 0; i < cu.getOperationLength(); i++) {
-                        regionCoverage.getValues()[arrayPos++]++;
+                        if (refPos >= dest.getStart() && refPos <= dest.getEnd()) {
+                            if (qualities.get(qualityPos) >= minBaseQuality) {
+                                values[refPos - dest.getStart()]++;
+                            }
+                        }
+                        qualityPos++;
+                        refPos++;
                     }
                     break;
                 case SKIP:
                 case DELETE:
-                    arrayPos += cu.getOperationLength();
+                    refPos += cu.getOperationLength();
+                    break;
+                case CLIP_SOFT:
+                case INSERT:
+                    qualityPos += cu.getOperationLength();
                     break;
                 default:
                     break;
             }
         }
-
-        return regionCoverage;
-    }
-
-    /*
-     * compute the region size according to the cigar code
-     */
-    private int computeSizeByCigar(List<CigarUnit> cigar) {
-        int size = 0;
-        for (CigarUnit cu: cigar) {
-            switch (cu.getOperation()) {
-                case ALIGNMENT_MATCH:
-                case SEQUENCE_MATCH:
-                case SEQUENCE_MISMATCH:
-                case SKIP:
-                case DELETE:
-                    size += cu.getOperationLength();
-                    break;
-                default:
-                    break;
-            }
-        }
-        return size;
     }
 }

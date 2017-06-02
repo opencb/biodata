@@ -1,23 +1,27 @@
 /*
- * Copyright 2015 OpenCB
+ * <!--
+ *   ~ Copyright 2015-2017 OpenCB
+ *   ~
+ *   ~ Licensed under the Apache License, Version 2.0 (the "License");
+ *   ~ you may not use this file except in compliance with the License.
+ *   ~ You may obtain a copy of the License at
+ *   ~
+ *   ~     http://www.apache.org/licenses/LICENSE-2.0
+ *   ~
+ *   ~ Unless required by applicable law or agreed to in writing, software
+ *   ~ distributed under the License is distributed on an "AS IS" BASIS,
+ *   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   ~ See the License for the specific language governing permissions and
+ *   ~ limitations under the License.
+ *   -->
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  */
 
 package org.opencb.biodata.models.variant;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -38,11 +42,15 @@ import org.opencb.biodata.models.variant.stats.VariantStats;
         "formatPositions", "fileId", "attributes", "allAttributes", "cohortStats", "secondaryAlternatesAlleles"})
 public class StudyEntry implements Serializable {
 
-    private LinkedHashMap<String, Integer> samplesPosition = null;
-    private Map<String, Integer> formatPosition = null;
-    private Map<String, VariantStats> cohortStats = null;
+    private volatile LinkedHashMap<String, Integer> samplesPosition = null;
+    private final AtomicReference<Map<String, Integer>> formatPosition = new AtomicReference<>();
+    private volatile Map<String, VariantStats> cohortStats = null;
     private final org.opencb.biodata.models.variant.avro.StudyEntry impl;
+
     public static final String DEFAULT_COHORT = "ALL";
+    public static final String QUAL = "QUAL";
+    public static final String FILTER = "FILTER";
+    public static final String SRC = "src";
 
     public StudyEntry() {
         this(null, null);
@@ -190,12 +198,12 @@ public class StudyEntry implements Serializable {
     }
 
     public void setFormat(List<String> value) {
-        formatPosition = null;
+        this.formatPosition.set(null);
         impl.setFormat(value);
     }
 
     public void addFormat(String value) {
-        formatPosition = null;
+        formatPosition.set(null);
         if (impl.getFormat() == null) {
             impl.setFormat(new LinkedList<>());
         }
@@ -206,14 +214,15 @@ public class StudyEntry implements Serializable {
     }
 
     public Map<String, Integer> getFormatPositions() {
-        if (formatPosition == null) {
-            formatPosition = new HashMap<>();
+        if (Objects.isNull(this.formatPosition.get())) {
+            Map<String, Integer> map = new HashMap<>();
             int pos = 0;
             for (String format : getFormat()) {
-                formatPosition.put(format, pos++);
+                map.put(format, pos++);
             }
+            this.formatPosition.compareAndSet(null, map);
         }
-        return formatPosition;
+        return formatPosition.get();
     }
 
     public List<List<String>> getSamplesData() {

@@ -1,9 +1,25 @@
+/*
+ * <!--
+ *   ~ Copyright 2015-2017 OpenCB
+ *   ~
+ *   ~ Licensed under the Apache License, Version 2.0 (the "License");
+ *   ~ you may not use this file except in compliance with the License.
+ *   ~ You may obtain a copy of the License at
+ *   ~
+ *   ~     http://www.apache.org/licenses/LICENSE-2.0
+ *   ~
+ *   ~ Unless required by applicable law or agreed to in writing, software
+ *   ~ distributed under the License is distributed on an "AS IS" BASIS,
+ *   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   ~ See the License for the specific language governing permissions and
+ *   ~ limitations under the License.
+ *   -->
+ *
+ */
+
 package org.opencb.biodata.tools.variant.stats;
 
-import org.opencb.biodata.models.variant.StudyEntry;
-import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.VariantSource;
-import org.opencb.biodata.models.variant.VariantVcfFactory;
+import org.opencb.biodata.models.variant.*;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.stats.VariantGlobalStats;
 import org.opencb.biodata.models.variant.stats.VariantStats;
@@ -11,7 +27,6 @@ import org.opencb.commons.run.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -64,13 +79,13 @@ public class VariantGlobalStatsCalculator extends Task<Variant> {
 
         globalStats.addVariantTypeCount(variant.getType(), 1);
 
-        if ("PASS".equalsIgnoreCase(attributes.get(VariantVcfFactory.FILTER))) {
+        if ("PASS".equalsIgnoreCase(attributes.get(StudyEntry.FILTER))) {
             globalStats.setPassCount(globalStats.getPassCount() + 1);
         }
 
         float qual = 0;
-        if (attributes.containsKey(VariantVcfFactory.QUAL) && !(".").equals(attributes.get(VariantVcfFactory.QUAL))) {
-            qual = Float.valueOf(attributes.get(VariantVcfFactory.QUAL));
+        if (attributes.containsKey(StudyEntry.QUAL) && !(".").equals(attributes.get(StudyEntry.QUAL))) {
+            qual = Float.valueOf(attributes.get(StudyEntry.QUAL));
         }
 
 
