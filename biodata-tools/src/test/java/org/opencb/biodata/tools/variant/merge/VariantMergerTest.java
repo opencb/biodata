@@ -274,7 +274,7 @@ public class VariantMergerTest {
     }
 
     @Test
-    public void testCollapse_MNV_DEL_larger() {
+    public void testCollapse_MNV_DEL_larger_2() {
         Variant s01 = VariantTestUtils.generateVariant("1:9:AT:GC", "S01", "0/1");
         Variant s02 = VariantTestUtils.generateVariant("1:9:AAT:", "S02", "0/1");
         Variant s03 = VariantTestUtils.generateVariant("1:9:A:T", "S03", "0/1");

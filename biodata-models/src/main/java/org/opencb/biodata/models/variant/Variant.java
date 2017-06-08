@@ -44,6 +44,7 @@ public class Variant implements Serializable, Comparable<Variant> {
     private volatile Map<String, StudyEntry> studyEntries = null;
 
     public static final int SV_THRESHOLD = 50;
+    public static final int UNKNOWN_LENGTH = 0;
     private static final String CNVSTR = "<CN";
     private static final String DUPSTR = "<DUP>";
     private static final String DELSTR = "<DEL>";
@@ -78,7 +79,7 @@ public class Variant implements Serializable, Comparable<Variant> {
                 // Structural variant needs start-end coords
                 if (fields[1].contains("-")) {
                     String[] coordinatesParts = fields[1].split("-");
-                    setReference("N");
+                    setReference("");
                     setStart(Integer.parseInt(coordinatesParts[0]));
                     setEnd(Integer.parseInt(coordinatesParts[1]));
                     setLength(inferLengthSymbolic(getAlternate(), getStart(), getEnd()));
@@ -188,7 +189,9 @@ public class Variant implements Serializable, Comparable<Variant> {
 
     public static VariantType inferType(String reference, String alternate) {
         byte[] alternateBytes = alternate.getBytes();
-        if (Allele.wouldBeSymbolicAllele(alternateBytes) || Allele.wouldBeSymbolicAllele(reference.getBytes())) {
+//        if (Allele.wouldBeSymbolicAllele(alternateBytes) || Allele.wouldBeSymbolicAllele(reference.getBytes())) {
+        // Symbolic variants shall contain empty reference, no need to check
+        if (Allele.wouldBeSymbolicAllele(alternateBytes)) {
             if (alternate.startsWith(CNVSTR)) {
                 return VariantType.CNV;
             } else if (alternate.equals(DUPSTR)){
@@ -238,7 +241,7 @@ public class Variant implements Serializable, Comparable<Variant> {
     public static int inferLength(String reference, String alternate, int start, int end, VariantType type) {
         final int length;
         if (reference == null || Allele.wouldBeSymbolicAllele(alternate.getBytes())) {
-            length = inferLengthSV(alternate, start, end);
+            length = inferLengthSymbolic(alternate, start, end);
         } else {
             length = inferLengthSimpleVariant(reference, alternate);
         }
@@ -258,34 +261,22 @@ public class Variant implements Serializable, Comparable<Variant> {
     private static int inferLengthSymbolic(String alternate, int start, int end) {
         int length;
         if (StringUtils.startsWith(alternate, CNVSTR) || StringUtils.equals(alternate, DELSTR)
-                || StringUtils.equals(alternate, DUPSTR)) {
+                || StringUtils.equals(alternate, DUPSTR) || StringUtils.equals(alternate, INVSTR)) {
             length = end - start + 1;
         } else if (alternate.contains("[") || alternate.contains("]")  // mated breakend
                 || alternate.startsWith(".") || alternate.endsWith(".")) { // single breakend
-            length = 0; // WARNING: breakends length set to 0 in any case - breakends shall not be stored in the future;
-                        // translocations formed by 4 breakends must be parsed and managed instead
+            length = UNKNOWN_LENGTH; // WARNING: breakends length set to UNKNOWN_LENGTH in any case - breakends shall
+                        // not be stored in the future translocations formed by 4 breakends must be parsed and managed
+                        // instead
+        } else if (alternate == null || Allele.wouldBeSymbolicAllele(alternate.getBytes())) {
+            length = UNKNOWN_LENGTH;
         } else {
-            length = alternate == null ? 0 : alternate.length();
+            length = alternate.length();
         }
         return length;
     }
 
-    private static int inferLengthSV(String alternate, int start, int end) {
-        int length;
-        if (StringUtils.startsWith(alternate, CNVSTR) || StringUtils.equals(alternate, DELSTR)
-                || StringUtils.equals(alternate, DUPSTR)) {
-            length = end - start + 1;
-        } else if (alternate.contains("[") || alternate.contains("]")  // mated breakend
-                || alternate.startsWith(".") || alternate.endsWith(".")) { // single breakend
-            length = 0; // WARNING: breakends length set to 0 in any case - breakends shall not be stored in the future;
-            // translocations formed by 4 breakends must be parsed and managed instead
-        } else {
-            length = alternate == null ? 0 : alternate.length();
-        }
-        return length;
-    }
-
-    private void resetSV() {
+    public void resetSV() {
         switch (getType()) {
             case DUPLICATION:
             case DELETION:
@@ -293,12 +284,12 @@ public class Variant implements Serializable, Comparable<Variant> {
             case INSERTION:
             case BREAKEND:
                 setSv(new StructuralVariation(getStart(), getStart(), getEnd(), getEnd(), null,
-                        null));
+                        null, null, null));
                 break;
             case CNV:
                 Integer copyNumber = getCopyNumberFromAlternate(this.getAlternate());
-                setSv(new StructuralVariation(getStart(), getStart(), getEnd(), getEnd(), copyNumber,
-                        getCNVSubtype(copyNumber)));
+                setSv(new StructuralVariation(getStart(), getStart(), getEnd(), getEnd(), copyNumber, null,
+                        null, getCNVSubtype(copyNumber)));
                 break;
         }
     }
@@ -434,7 +425,9 @@ public class Variant implements Serializable, Comparable<Variant> {
     }
 
     public Integer getLengthReference() {
-        if (EnumSet.of(VariantType.NO_VARIATION, VariantType.CNV, VariantType.SV, VariantType.SYMBOLIC).contains(getType())) {
+        if (EnumSet.of(VariantType.NO_VARIATION, VariantType.CNV, VariantType.SV, VariantType.SYMBOLIC,
+                VariantType.BREAKEND, VariantType.DELETION, VariantType.DUPLICATION,
+                VariantType.INVERSION).contains(getType())) {
             return getLength();
         } else {
             return getReference().length();

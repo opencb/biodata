@@ -145,7 +145,8 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             if (variant.getStudies() == null || variant.getStudies().isEmpty()) {
                 List<VariantKeyFields> keyFieldsList;
                 if (isSymbolic(variant)) {
-                    keyFieldsList = normalizeSymbolic(start, end, reference, alternate, null);
+                    keyFieldsList = normalizeSymbolic(start, end, reference, alternate);
+//                    keyFieldsList = normalizeSymbolic(start, end, reference, alternate, null);
                 } else {
                     keyFieldsList = normalize(chromosome, start, reference, alternate);
                 }
@@ -172,13 +173,14 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
                     // FIXME: assumes there wont be multinucleotide positions with CNVs and short variants mixed
                     List<VariantKeyFields> keyFieldsList;
-                    String copyNumberString = null;
+//                    String copyNumberString = null;
                     if (isSymbolic(variant)) {
-                        if (VariantType.CNV.equals(variant.getType())) {
-                            String sampleName = variant.getStudies().get(0).getSamplesName().iterator().next();
-                            copyNumberString = variant.getStudies().get(0).getSampleData(sampleName).get(COPY_NUMBER_TAG);
-                        }
-                        keyFieldsList = normalizeSymbolic(start, end, reference, alternates, copyNumberString);
+//                        if (VariantType.CNV.equals(variant.getType())) {
+//                            String sampleName = variant.getStudies().get(0).getSamplesName().iterator().next();
+//                            copyNumberString = variant.getStudies().get(0).getSampleData(sampleName).get(COPY_NUMBER_TAG);
+//                        }
+//                        keyFieldsList = normalizeSymbolic(start, end, reference, alternates, copyNumberString);
+                        keyFieldsList = normalizeSymbolic(start, end, reference, alternates);
                     } else {
                         keyFieldsList = normalize(chromosome, start, reference, alternates);
                     }
@@ -202,10 +204,10 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                             variant.resetLength();
                             variant.resetType();
                             // Variant is being reused, must ensure the SV field si appropriately created
-                            if (isSymbolic(variant)) {
-                                StructuralVariation sv = getStructuralVariation(variant, keyFields, copyNumberString);
-                                variant.setSv(sv);
-                            }
+//                            if (isSymbolic(variant)) {
+//                                StructuralVariation sv = getStructuralVariation(variant, keyFields, copyNumberString);
+//                                variant.setSv(sv);
+//                            }
                             normalizedEntry = entry;
                             entry.getFiles().forEach(fileEntry -> fileEntry.setCall(sameVariant ? "" : call)); //TODO: Check file attributes
                             samplesData = entry.getSamplesData();
@@ -271,86 +273,91 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         return Allele.wouldBeSymbolicAllele(variant.getAlternate().getBytes());
     }
 
-    private StructuralVariation getStructuralVariation(Variant variant, VariantKeyFields keyFields, String copyNumberString) {
-        int[] impreciseStart = getImpreciseStart(variant);
-        int[] impreciseEnd = getImpreciseEnd(variant);
-        StructuralVariation sv = variant.getSv() == null ? new StructuralVariation() : variant.getSv();
-        if (sv.getCiStartLeft() == null) {
-            sv.setCiStartLeft(impreciseStart[0]);
-        }
-        if (sv.getCiStartRight() == null) {
-            sv.setCiStartRight(impreciseStart[1]);
-        }
-        if (sv.getCiEndLeft() == null) {
-            sv.setCiEndLeft(impreciseEnd[0]);
-        }
-        if (sv.getCiEndRight() == null) {
-            sv.setCiEndRight(impreciseEnd[1]);
-        }
-        if (sv.getCopyNumber() == null && variant.getType().equals(VariantType.CNV)) {
-            if (StringUtils.isNumeric(copyNumberString)) {
-                sv.setCopyNumber(Integer.parseInt(copyNumberString));
-            } else {
-                // Assuming if copy number is not provided in the info field,
-                // it shall be indicated as part of the alternate allele string
-                Integer copyNumber = Variant.getCopyNumberFromAlternate(keyFields.getAlternate());
-                if (copyNumber != null) {
-                    sv.setCopyNumber(copyNumber);
-                }
-            }
-            sv.setType(Variant.getCNVSubtype(sv.getCopyNumber()));
-        }
-        return sv;
-    }
+//    private StructuralVariation getStructuralVariation(Variant variant, VariantKeyFields keyFields, String copyNumberString) {
+//        int[] impreciseStart = getImpreciseStart(variant);
+//        int[] impreciseEnd = getImpreciseEnd(variant);
+//        StructuralVariation sv = variant.getSv() == null ? new StructuralVariation() : variant.getSv();
+//        if (sv.getCiStartLeft() == null) {
+//            sv.setCiStartLeft(impreciseStart[0]);
+//        }
+//        if (sv.getCiStartRight() == null) {
+//            sv.setCiStartRight(impreciseStart[1]);
+//        }
+//        if (sv.getCiEndLeft() == null) {
+//            sv.setCiEndLeft(impreciseEnd[0]);
+//        }
+//        if (sv.getCiEndRight() == null) {
+//            sv.setCiEndRight(impreciseEnd[1]);
+//        }
+//        if (sv.getCopyNumber() == null && variant.getType().equals(VariantType.CNV)) {
+//            if (StringUtils.isNumeric(copyNumberString)) {
+//                sv.setCopyNumber(Integer.parseInt(copyNumberString));
+//            } else {
+//                // Assuming if copy number is not provided in the info field,
+//                // it shall be indicated as part of the alternate allele string
+//                Integer copyNumber = Variant.getCopyNumberFromAlternate(keyFields.getAlternate());
+//                if (copyNumber != null) {
+//                    sv.setCopyNumber(copyNumber);
+//                }
+//            }
+//            sv.setType(Variant.getCNVSubtype(sv.getCopyNumber()));
+//        }
+//        return sv;
+//    }
 
-    private int[] getImpreciseStart(Variant variant) {
-        if (variant.getStudies()!= null
-                && !variant.getStudies().isEmpty()
-                && !variant.getStudies().get(0).getFiles().isEmpty()
-                && variant.getStudies().get(0).getFiles().get(0).getAttributes().containsKey(CIPOS_STRING)) {
-            String[] parts = variant.getStudies().get(0).getFiles().get(0).getAttributes().get(CIPOS_STRING).split(",");
-            return new int[]{variant.getStart() + Integer.parseInt(parts[0]),
-                    variant.getStart() + Integer.parseInt(parts[1])};
-        } else {
-            return new int[]{variant.getStart(), variant.getStart()};
-        }
-    }
+//    private int[] getImpreciseStart(Variant variant) {
+//        if (variant.getStudies()!= null
+//                && !variant.getStudies().isEmpty()
+//                && !variant.getStudies().get(0).getFiles().isEmpty()
+//                && variant.getStudies().get(0).getFiles().get(0).getAttributes().containsKey(CIPOS_STRING)) {
+//            String[] parts = variant.getStudies().get(0).getFiles().get(0).getAttributes().get(CIPOS_STRING).split(",");
+//            return new int[]{variant.getStart() + Integer.parseInt(parts[0]),
+//                    variant.getStart() + Integer.parseInt(parts[1])};
+//        } else {
+//            return new int[]{variant.getStart(), variant.getStart()};
+//        }
+//    }
+//
+//    private int[] getImpreciseEnd(Variant variant) {
+//        if (variant.getStudies()!= null
+//                && !variant.getStudies().isEmpty()
+//                && !variant.getStudies().get(0).getFiles().isEmpty()
+//                && variant.getStudies().get(0).getFiles().get(0).getAttributes().containsKey(CIEND_STRING)) {
+//            String[] parts = variant.getStudies().get(0).getFiles().get(0).getAttributes().get(CIEND_STRING).split(",");
+//            return new int[]{variant.getEnd() + Integer.parseInt(parts[0]),
+//                    variant.getEnd() + Integer.parseInt(parts[1])};
+//        } else {
+//            return new int[]{variant.getEnd(), variant.getEnd()};
+//        }
+//    }
 
-    private int[] getImpreciseEnd(Variant variant) {
-        if (variant.getStudies()!= null
-                && !variant.getStudies().isEmpty()
-                && !variant.getStudies().get(0).getFiles().isEmpty()
-                && variant.getStudies().get(0).getFiles().get(0).getAttributes().containsKey(CIEND_STRING)) {
-            String[] parts = variant.getStudies().get(0).getFiles().get(0).getAttributes().get(CIEND_STRING).split(",");
-            return new int[]{variant.getEnd() + Integer.parseInt(parts[0]),
-                    variant.getEnd() + Integer.parseInt(parts[1])};
-        } else {
-            return new int[]{variant.getEnd(), variant.getEnd()};
-        }
-    }
-
-    public List<VariantKeyFields> normalizeSymbolic(Integer start, Integer end, String reference, String alternate,
-                                                    String copyNumber) {
-        return normalizeSymbolic(start, end, reference, Collections.singletonList(alternate), copyNumber);
+    public List<VariantKeyFields> normalizeSymbolic(Integer start, Integer end, String reference, String alternate) {
+        return normalizeSymbolic(start, end, reference, Collections.singletonList(alternate));
+//        return normalizeSymbolic(start, end, reference, Collections.singletonList(alternate), copyNumber);
     }
 
     public List<VariantKeyFields> normalizeSymbolic(Integer start, Integer end, String reference,
-                                                    List<String> alternates, String copyNumber) {
+                                                    List<String> alternates) {
         List<VariantKeyFields> list = new ArrayList<>(alternates.size());
 
         String newReference = reference;
-        // Reference for SVs must contain just one nucleotide - set to N if it's something different
-        if (reference.length() != 1 || !VALID_NTS.contains(reference)) {
-            newReference = "N";
+        // Reference for SVs must be empty
+        if (reference.length() == 1) {
+            newReference = "";
+            start++;
+        } else if (reference.length() > 1) {
+            throw new IllegalArgumentException("Invalid reference value found for symbolic variant " + start + "-"
+                    + end + ":" + reference + ":" + String.join(",", alternates) + ". Reference can only "
+                    + "cotain 0 or 1 nt, but no more. Please, check.");
         }
 
         int numAllelesIdx = 0; // This index is necessary for getting the samples where the mutated allele is present
         for (Iterator<String> iterator = alternates.iterator(); iterator.hasNext(); numAllelesIdx++) {
             String newAlternate = iterator.next();
-            if (newAlternate.equals(CNV) && StringUtils.isNotEmpty(copyNumber)) {
-                // Alternate must be of the form <CNxxx>, being xxx the number of copies
-                newAlternate = "<CN" + copyNumber + ">";
-            }
+//            if (newAlternate.equals(CNV) && StringUtils.isNotEmpty(copyNumber)) {
+//                // Alternate must be of the form <CNxxx>, being xxx the number of copies
+//                newAlternate = "<CN" + copyNumber + ">";
+//            }
             list.add(new VariantKeyFields(start, end, numAllelesIdx, newReference, newAlternate));
         }
 
@@ -993,10 +1000,10 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         normalizedVariant.setIds(variant.getIds());
         normalizedVariant.setStrand(variant.getStrand());
 //        normalizedVariant.setAnnotation(variant.getAnnotation());
-        if (isSymbolic(variant)) {
-            StructuralVariation sv = getStructuralVariation(normalizedVariant, keyFields, null);
-            normalizedVariant.setSv(sv);
-        }
+//        if (isSymbolic(variant)) {
+//            StructuralVariation sv = getStructuralVariation(normalizedVariant, keyFields, null);
+//            normalizedVariant.setSv(sv);
+//        }
 
         return normalizedVariant;
     }

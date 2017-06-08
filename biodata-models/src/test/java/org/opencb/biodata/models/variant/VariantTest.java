@@ -20,10 +20,10 @@ public class VariantTest {
         Map<String, Variant> map = new LinkedHashMap<>();
         map.put("1:1000:A:C", new Variant("1", 1000, 1000, "A", "C"));
         map.put("chr1:1000:A:C", new Variant("1", 1000, 1000, "A", "C"));
-        map.put("1:1000-2000:<DEL>", new Variant("1", 1000, 2000, "N", "<DEL>").setType(VariantType.DELETION).setSv(new StructuralVariation(1000, 1000, 2000, 2000, null, null)));
-        map.put("1:1000-2000:<CNV>", new Variant("1", 1000, 2000, "N", "<CNV>").setType(VariantType.CNV).setSv(new StructuralVariation(1000, 1000, 2000, 2000, null, null)));
-        map.put("1:1000-2000:<CN0>", new Variant("1", 1000, 2000, "N", "<CN0>").setType(VariantType.CNV).setSv(new StructuralVariation(1000, 1000, 2000, 2000, 0, StructuralVariantType.COPY_NUMBER_LOSS)));
-        map.put("1:1000-2000:<CN5>", new Variant("1", 1000, 2000, "N", "<CN5>").setType(VariantType.CNV).setSv(new StructuralVariation(1000, 1000, 2000, 2000, 5, StructuralVariantType.COPY_NUMBER_GAIN)));
+        map.put("1:1000-2000:<DEL>", new Variant("1", 1000, 2000, "", "<DEL>").setType(VariantType.DELETION).setSv(new StructuralVariation(1000, 1000, 2000, 2000, null, null, null, null)));
+        map.put("1:1000-2000:<CNV>", new Variant("1", 1000, 2000, "", "<CNV>").setType(VariantType.CNV).setSv(new StructuralVariation(1000, 1000, 2000, 2000, null, null, null, null)));
+        map.put("1:1000-2000:<CN0>", new Variant("1", 1000, 2000, "", "<CN0>").setType(VariantType.CNV).setSv(new StructuralVariation(1000, 1000, 2000, 2000, 0, null, null, StructuralVariantType.COPY_NUMBER_LOSS)));
+        map.put("1:1000-2000:<CN5>", new Variant("1", 1000, 2000, "", "<CN5>").setType(VariantType.CNV).setSv(new StructuralVariation(1000, 1000, 2000, 2000, 5, null, null, StructuralVariantType.COPY_NUMBER_GAIN)));
 
         for (Map.Entry<String, Variant> entry : map.entrySet()) {
 //            System.out.println("expected : " + entry.getValue().toJson());
