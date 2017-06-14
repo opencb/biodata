@@ -155,7 +155,8 @@ conflicting evidences should be classified as uncertain_significance
         likely_benign,
         VUS,
         likely_pathogenic,
-        pathogenic
+        pathogenic,
+        uncertain_significance
     }
 
     /**
@@ -371,10 +372,10 @@ Evidence of benign impact:
 * `CIO_0000036`: weakly conflicting. http://purl.obolibrary.org/obo/CIO_0000036
     */
     enum ConsistencyStatus {
-        CIO_0000033,        // congruent
-        CIO_0000034,        // conflict,
-        CIO_0000035,        // weakly conflicting
-        CIO_0000036         // strongly conflicting
+        congruent,              // CIO_0000033
+        conflict,               // CIO_0000034
+        weakly_conflicting,     // CIO_0000035
+        strongly_conflicting    // CIO_0000036
     }
 
     /**
@@ -382,11 +383,11 @@ Evidence of benign impact:
     Names are restricted to ontology ids, they should be checked against existing ontologies in resources like
     Ontology Lookup Service.
     */
-    record OntologyTerm {
+    record Property {
         /**
         The ontology term id or accession in OBO format ${ONTOLOGY_ID}:${TERM_ID} (http://www.obofoundry.org/id-policy.html)
         */
-        string id;
+        union {null, string} id;
         /**
         The ontology term name
         */
@@ -495,7 +496,7 @@ Evidence of benign impact:
         /**
         A list of additional properties in the form name-value.
         */
-        array<OntologyTerm> additionalProperties = [];
+        array<Property> additionalProperties = [];
         /**
         Bibliography
         */
