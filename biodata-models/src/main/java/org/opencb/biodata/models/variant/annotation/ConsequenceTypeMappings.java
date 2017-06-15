@@ -42,6 +42,7 @@ public class ConsequenceTypeMappings {
         // Fill the term to accession map
         termToAccession.put("transcript_ablation", 1893);
         termToAccession.put("copy_number_change", 1563);
+        termToAccession.put("structural_variant", 1537);
         termToAccession.put("terminator_codon_variant", 1590);
         termToAccession.put("splice_donor_variant", 1575);
         termToAccession.put("splice_acceptor_variant", 1574);

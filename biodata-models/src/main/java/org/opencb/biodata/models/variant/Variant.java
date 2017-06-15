@@ -76,35 +76,35 @@ public class Variant implements Serializable, Comparable<Variant> {
             if (fields.length == 3) {
                 setChromosome(fields[0]);
                 setAlternate(checkEmptySequence(fields[2]));
-                // Structural variant needs start-end coords
+                // Structural variant (except <INS>) needs start-end coords
                 if (fields[1].contains("-")) {
                     String[] coordinatesParts = fields[1].split("-");
                     setReference("");
                     setStart(Integer.parseInt(coordinatesParts[0]));
                     setEnd(Integer.parseInt(coordinatesParts[1]));
-                    setLength(inferLengthSymbolic(getAlternate(), getStart(), getEnd()));
-                // Short variant, no reference specified
+//                    setLength(inferLengthSymbolic(getAlternate(), getStart(), getEnd()));
+                // Short variant or <INS>, no reference specified
                 } else {
                     setStart(Integer.parseInt(fields[1]));
                     setReference("");
-                    setLength(inferLengthSimpleVariant(getReference(), getAlternate()));
+//                    setLength(inferLengthSimpleVariant(getReference(), getAlternate()));
                     setEnd(getStart() + getLengthReference() - 1);
                 }
             } else {
                 if (fields.length == 4) {
                     setChromosome(fields[0]);
                     setAlternate(checkEmptySequence(fields[3]));
-                    // Structural variant needs start-end coords
+                    // Structural variant (except <INS>) needs start-end coords (<INS> may be missing end)
                     if (fields[1].contains("-")) {
                         String[] coordinatesParts = fields[1].split("-");
                         setReference(checkEmptySequence(fields[2]));
                         setStart(Integer.parseInt(coordinatesParts[0]));
                         setEnd(Integer.parseInt(coordinatesParts[1]));
-                        setLength(inferLengthSymbolic(getAlternate(), getStart(), getEnd()));
+//                        setLength(inferLengthSymbolic(getAlternate(), getStart(), getEnd()));
                     } else {
                         setStart(Integer.parseInt(fields[1]));
                         setReference(checkEmptySequence(fields[2]));
-                        setLength(inferLengthSimpleVariant(getReference(), getAlternate()));
+//                        setLength(inferLengthSimpleVariant(getReference(), getAlternate()));
                         setEnd(getStart() + getLengthReference() - 1);
                     }
                 } else {
@@ -113,6 +113,7 @@ public class Variant implements Serializable, Comparable<Variant> {
                 }
             }
         }
+        resetLength();
         resetType();
         resetSV();
     }
