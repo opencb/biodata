@@ -23,6 +23,7 @@
 package org.opencb.biodata.tools.variant.merge;
 
 import htsjdk.variant.vcf.VCFConstants;
+import htsjdk.variant.vcf.VCFHeaderLineCount;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
@@ -76,6 +77,10 @@ public class VariantMerger {
     private final Map<String, String> defaultValues = new ConcurrentHashMap<>();
     private final AtomicReference<String> studyId = new AtomicReference<>(null);
 
+    private Map<String, VCFHeaderLineCount> numberMap;
+    private int defaultPloidy = 2;
+
+
     public VariantMerger() {
         this(false);
     }
@@ -88,6 +93,21 @@ public class VariantMerger {
         setDefaultValue(getGtKey(), DEFAULT_MISSING_GT);
         setDefaultValue(getFilterKey(), DEFAULT_FILTER_VALUE);
         this.collapseDeletions = collapseDeletions;
+        numberMap = new HashMap<>();
+        numberMap.put("AD", VCFHeaderLineCount.R);
+        numberMap.put("ADF", VCFHeaderLineCount.R);
+        numberMap.put("ADR", VCFHeaderLineCount.R);
+
+        numberMap.put("AF", VCFHeaderLineCount.A);
+        numberMap.put("AC", VCFHeaderLineCount.A);
+
+        numberMap.put("GL", VCFHeaderLineCount.G);
+        numberMap.put("GP", VCFHeaderLineCount.G);
+        numberMap.put("PL", VCFHeaderLineCount.G);
+        numberMap.put("CNL", VCFHeaderLineCount.G);
+        numberMap.put("CNP", VCFHeaderLineCount.G);
+
+
     }
 
     public void setStudyId(String studyId) {
@@ -206,6 +226,20 @@ public class VariantMerger {
     public void setAnnotationFilterKey(String annotationFilterKey) {
         updateDefaultKeys(this.annotationFilterKey.get(), annotationFilterKey);
         this.annotationFilterKey.set(annotationFilterKey);
+    }
+
+    public int getDefaultPloidy() {
+        return defaultPloidy;
+    }
+
+    public VariantMerger setDefaultPloidy(int defaultPloidy) {
+        this.defaultPloidy = defaultPloidy;
+        return this;
+    }
+
+    public VariantMerger addFieldArity(String key, VCFHeaderLineCount number) {
+        this.numberMap.put(key, number);
+        return this;
     }
 
     /**
@@ -526,12 +560,27 @@ public class VariantMerger {
             Variant other = e.getKey();
             List<AlternateCoordinate> alternates = e.getValue();
 
+
             Map<Integer, AlternateCoordinate> otherAltIdx = index(alternates).entrySet().stream()
                     .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
             final StudyEntry otherStudy = getStudy(other);
             Map<String, Integer> otherStudyFormatPositions = otherStudy.getFormatPositions();
             checkForDuplicates(current, other, currentStudy, otherStudy, alternates);
 
+            VariantAlternateRearranger rearranger;
+            if (altList.size() == 1) {
+                rearranger = null;
+            } else {
+                int ploidy = defaultPloidy;
+                Integer gtIdx = otherStudyFormatPositions.get(getGtKey());
+                if (gtIdx != null) {
+                    if (otherStudy.getSamplesData().size() > 0) {
+                        String gt = otherStudy.getSamplesData().get(0).get(gtIdx);
+                        ploidy = new Genotype(StringUtils.split(gt, ',')[0]).getPloidy();
+                    }
+                }
+                rearranger = new VariantAlternateRearranger(alternates, altList, ploidy);
+            }
             // Add GT data for each sample to current Variant
 
             List<String> otherOrderedSamplesName = otherStudy.getOrderedSamplesName();
@@ -608,18 +657,45 @@ public class VariantMerger {
                     Integer idx = otherStudyFormatPositions.get(entry.getKey());
                     String data = idx == null ? getDefaultValue(entry.getKey()) : otherSampleData.get(idx);
                     if (StringUtils.isNotEmpty(data)) {
+                        data = rearrange(rearranger, entry.getKey(), data);
                         String old = newSampleData.set(entry.getValue(), data);
 //                        if (old != null) {
 //                            throw new IllegalStateException("TODO - merge additional formats!!!");
 //                        }
                     }
                 }
+
             }
-            mergeFiles(current, other, currentStudy, otherStudy);
+            mergeFile(current, other, rearranger, currentStudy, otherStudy);
         }
         currentStudy.setSamplesData(newSamplesData);
         currentStudy.setSortedSamplesPosition(newSamplesPosition);
         currentStudy.setFormat(newFormat);
+    }
+
+    private String rearrange(VariantAlternateRearranger rearranger, String key, String data) {
+        if (rearranger == null) {
+            return data;
+        }
+        VCFHeaderLineCount number = numberMap.getOrDefault(key, VCFHeaderLineCount.UNBOUNDED);
+//        VCFHeaderLineType type = typeMap.getOrDefault(key, VCFHeaderLineType.String);
+//        String missingValue = defaultValues.get(key);
+        switch (number) {
+            case A:
+                data = rearranger.rearrangeNumberA(data);
+                break;
+            case R:
+                data = rearranger.rearrangeNumberR(data);
+                break;
+            case G:
+                data = rearranger.rearrangeNumberG(data);
+                break;
+            case INTEGER:
+            case UNBOUNDED:
+            default:
+                // Do not rearrange other fields
+        }
+        return data;
     }
 
     private List<List<String>> newSamplesData(int samplesSize, Map<String, Integer> formats) {
@@ -875,17 +951,26 @@ public class VariantMerger {
                 variant.getReference(), variant.getAlternate(), type);
     }
 
-    private void mergeFiles(Variant current, Variant other, StudyEntry currentStudy, StudyEntry otherStudy) {
+    private void mergeFile(Variant current, Variant other, VariantAlternateRearranger rearranger,
+                           StudyEntry currentStudy, StudyEntry otherStudy) {
         String call = other.getStart() + ":" + other.getReference() + ":" + other.getAlternate() + ":0";
 
-        List<FileEntry> files = otherStudy.getFiles().stream().map(fileEntry -> FileEntry.newBuilder(fileEntry).build()).collect(Collectors.toList());
+        List<FileEntry> files = otherStudy.getFiles().stream()
+                .map(fileEntry -> FileEntry.newBuilder(fileEntry).build())
+                .collect(Collectors.toList());
         if (!current.toString().equals(other.toString())) {
             for (FileEntry file : files) {
-                if (file.getCall() == null || file.getCall().isEmpty()) {
+                if (StringUtils.isEmpty(file.getCall())) {
                     file.setCall(call);
                 }
             }
         }
+        for (FileEntry file : files) {
+            for (Map.Entry<String, String> entry : file.getAttributes().entrySet()) {
+                entry.setValue(rearrange(rearranger, entry.getKey(), entry.getValue()));
+            }
+        }
+
         StudyEntry study = currentStudy;
         try {
             study.getFiles().addAll(files);
