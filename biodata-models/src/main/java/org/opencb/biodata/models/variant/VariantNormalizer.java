@@ -922,7 +922,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
      *  N=2,P=2:  00,01,11,02,12,22
      *  N=3,P=2:  00,01,11,02,12,22,03,13,23,33
      *
-     *  With P=2, given a genotype a/b, where a<b, its position is b(b+a)/2+a
+     *  With P=2, given a genotype a/b, where a<b, its position is b(b+1)/2+a
      *
      *  For each genotype, map the alleles using the alleleMap, and calculate
      *  the position of the new mapped genotype in the original order.
