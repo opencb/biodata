@@ -1,7 +1,10 @@
 package org.opencb.biodata.tools.variant.merge;
 
+import htsjdk.variant.vcf.VCFHeaderLineCount;
+import htsjdk.variant.vcf.VCFHeaderLineType;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,32 +42,44 @@ public class VariantAlternateRearranger {
     }
 
     public String rearrangeNumberR(String data) {
+        return rearrangeNumberR(data, ".");
+    }
+
+    public String rearrangeNumberR(String data, String missingValue) {
         List<String> values = Arrays.asList(StringUtils.splitPreserveAllTokens(data, ','));
-        return rearrange(values, ".", true, ",", map);
+        return rearrange(values, missingValue, true, ",", map);
     }
 
     public <T> List<T> rearrangeNumberR(List<T> values, T missingValue) {
         return rearrange(values, missingValue, true, map);
     }
 
+    public String rearrangeNumberA(String data) {
+        return rearrangeNumberA(data, ".");
+    }
+
+    public String rearrangeNumberA(String data, String missingValue) {
+        List<String> values = Arrays.asList(StringUtils.splitPreserveAllTokens(data, ','));
+        return rearrange(values, missingValue, false, ",", map);
+    }
+
     public <T> List<T> rearrangeNumberA(List<T> values, T missingValue) {
         return rearrange(values, missingValue, false, map);
     }
 
-    public String rearrangeNumberA(String data) {
+    public String rearrangeNumberG(String data) {
+        return rearrangeNumberG(data, ".");
+    }
+
+    public String rearrangeNumberG(String data, String missingValue) {
+        int[] gMap = getGenotypeReorderingMap();
         List<String> values = Arrays.asList(StringUtils.splitPreserveAllTokens(data, ','));
-        return rearrange(values, ".", false, ",", map);
+        return rearrange(values, missingValue, false, ",", gMap);
     }
 
     public <T> List<T> rearrangeNumberG(List<T> values, T missingValue) {
         int[] gMap = getGenotypeReorderingMap();
         return rearrange(values, missingValue, false, gMap);
-    }
-
-    public String rearrangeNumberG(String data) {
-        int[] gMap = getGenotypeReorderingMap();
-        List<String> values = Arrays.asList(StringUtils.splitPreserveAllTokens(data, ','));
-        return rearrange(values, ".", false, ",", gMap);
     }
 
     private <T> List<T> rearrange(List<T> originalValues, T missingValue, boolean includeReference, int[] map) {

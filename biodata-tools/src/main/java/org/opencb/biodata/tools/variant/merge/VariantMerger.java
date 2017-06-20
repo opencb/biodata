@@ -22,8 +22,7 @@
  */
 package org.opencb.biodata.tools.variant.merge;
 
-import htsjdk.variant.vcf.VCFConstants;
-import htsjdk.variant.vcf.VCFHeaderLineCount;
+import htsjdk.variant.vcf.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
@@ -77,7 +76,7 @@ public class VariantMerger {
     private final Map<String, String> defaultValues = new ConcurrentHashMap<>();
     private final AtomicReference<String> studyId = new AtomicReference<>(null);
 
-    private Map<String, VCFHeaderLineCount> numberMap;
+    private Map<String, Pair<VCFHeaderLineType, VCFHeaderLineCount>> otherFieldsMap;
     private int defaultPloidy = 2;
 
 
@@ -93,19 +92,19 @@ public class VariantMerger {
         setDefaultValue(getGtKey(), DEFAULT_MISSING_GT);
         setDefaultValue(getFilterKey(), DEFAULT_FILTER_VALUE);
         this.collapseDeletions = collapseDeletions;
-        numberMap = new HashMap<>();
-        numberMap.put("AD", VCFHeaderLineCount.R);
-        numberMap.put("ADF", VCFHeaderLineCount.R);
-        numberMap.put("ADR", VCFHeaderLineCount.R);
+        otherFieldsMap = new HashMap<>();
+        otherFieldsMap.put("AD", Pair.of(VCFHeaderLineType.Integer, VCFHeaderLineCount.R));
+        otherFieldsMap.put("ADF", Pair.of(VCFHeaderLineType.Integer, VCFHeaderLineCount.R));
+        otherFieldsMap.put("ADR", Pair.of(VCFHeaderLineType.Integer, VCFHeaderLineCount.R));
 
-        numberMap.put("AF", VCFHeaderLineCount.A);
-        numberMap.put("AC", VCFHeaderLineCount.A);
+        otherFieldsMap.put("AF", Pair.of(VCFHeaderLineType.Integer, VCFHeaderLineCount.A));
+        otherFieldsMap.put("AC", Pair.of(VCFHeaderLineType.Integer, VCFHeaderLineCount.A));
 
-        numberMap.put("GL", VCFHeaderLineCount.G);
-        numberMap.put("GP", VCFHeaderLineCount.G);
-        numberMap.put("PL", VCFHeaderLineCount.G);
-        numberMap.put("CNL", VCFHeaderLineCount.G);
-        numberMap.put("CNP", VCFHeaderLineCount.G);
+        otherFieldsMap.put("GL", Pair.of(VCFHeaderLineType.Integer, VCFHeaderLineCount.G));
+        otherFieldsMap.put("GP", Pair.of(VCFHeaderLineType.Integer, VCFHeaderLineCount.G));
+        otherFieldsMap.put("PL", Pair.of(VCFHeaderLineType.Integer, VCFHeaderLineCount.G));
+        otherFieldsMap.put("CNL", Pair.of(VCFHeaderLineType.Integer, VCFHeaderLineCount.G));
+        otherFieldsMap.put("CNP", Pair.of(VCFHeaderLineType.Integer, VCFHeaderLineCount.G));
 
 
     }
@@ -237,8 +236,27 @@ public class VariantMerger {
         return this;
     }
 
-    public VariantMerger addFieldArity(String key, VCFHeaderLineCount number) {
-        this.numberMap.put(key, number);
+    public VariantMerger configure(VCFHeader header) {
+        configure(header.getInfoHeaderLines());
+        configure(header.getFormatHeaderLines());
+        return this;
+    }
+
+    public VariantMerger configure(Collection<? extends VCFHeaderLine> lines) {
+        lines.stream()
+                .filter(VCFCompoundHeaderLine.class::isInstance)
+                .map(VCFCompoundHeaderLine.class::cast)
+                .forEach(this::configure);
+        return this;
+    }
+
+    public VariantMerger configure(VCFCompoundHeaderLine line) {
+        this.otherFieldsMap.put(line.getKey(), Pair.of(line.getType(), line.getCountType()));
+        return this;
+    }
+
+    public VariantMerger configure(String key, VCFHeaderLineCount number, VCFHeaderLineType type) {
+        this.otherFieldsMap.put(key, Pair.of(type, number));
         return this;
     }
 
@@ -677,18 +695,19 @@ public class VariantMerger {
         if (rearranger == null) {
             return data;
         }
-        VCFHeaderLineCount number = numberMap.getOrDefault(key, VCFHeaderLineCount.UNBOUNDED);
-//        VCFHeaderLineType type = typeMap.getOrDefault(key, VCFHeaderLineType.String);
-//        String missingValue = defaultValues.get(key);
-        switch (number) {
+        Pair<VCFHeaderLineType, VCFHeaderLineCount> pair =
+                otherFieldsMap.getOrDefault(key, Pair.of(VCFHeaderLineType.String, VCFHeaderLineCount.UNBOUNDED));
+        VCFHeaderLineType type = pair.getLeft();
+        String missingValue = type.equals(VCFHeaderLineType.Float) || type.equals(VCFHeaderLineType.Integer) ? "0" : ".";
+        switch (pair.getRight()) {
             case A:
-                data = rearranger.rearrangeNumberA(data);
+                data = rearranger.rearrangeNumberA(data, missingValue);
                 break;
             case R:
-                data = rearranger.rearrangeNumberR(data);
+                data = rearranger.rearrangeNumberR(data, missingValue);
                 break;
             case G:
-                data = rearranger.rearrangeNumberG(data);
+                data = rearranger.rearrangeNumberG(data, missingValue);
                 break;
             case INTEGER:
             case UNBOUNDED:
@@ -696,6 +715,7 @@ public class VariantMerger {
                 // Do not rearrange other fields
         }
         return data;
+
     }
 
     private List<List<String>> newSamplesData(int samplesSize, Map<String, Integer> formats) {
