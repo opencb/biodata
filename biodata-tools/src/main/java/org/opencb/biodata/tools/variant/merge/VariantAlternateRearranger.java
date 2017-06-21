@@ -1,16 +1,13 @@
 package org.opencb.biodata.tools.variant.merge;
 
-import htsjdk.variant.vcf.VCFHeaderLineCount;
-import htsjdk.variant.vcf.VCFHeaderLineType;
+import htsjdk.variant.vcf.*;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -20,20 +17,28 @@ import java.util.function.Consumer;
  */
 public class VariantAlternateRearranger {
 
+    public static final int DEFAULT_PLOIDY = 2;
     // Map from reordered allele position to original allele position
     private final int[] map;
-    private final int ploidy;
+    private final Configuration configuration;
 
     // Lazy initialization
-    private int[] gMap;
+    private int[] gMapP1; // Ploidy = 1
+    private int[] gMapP2; // Ploidy = 2
+    private Map<Integer, int[]> gMapP;  // Ploidy = key
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass().toString());
 
-    public <T> VariantAlternateRearranger(List<T> originalAlternates, List<T> reorderedAlternates, int ploidy) {
+    public <T> VariantAlternateRearranger(List<T> originalAlternates, List<T> reorderedAlternates) {
+        this(originalAlternates, reorderedAlternates, null);
+    }
+
+    public <T> VariantAlternateRearranger(List<T> originalAlternates, List<T> reorderedAlternates,
+                                          Configuration configuration) {
+        this.configuration = configuration == null ? new Configuration() : configuration;
         if (originalAlternates.size() > reorderedAlternates.size()) {
             throw new IllegalArgumentException("Expected same size of alternates");
         }
-        this.ploidy = ploidy;
 
         this.map = new int[reorderedAlternates.size()];
         for (int i = 0; i < reorderedAlternates.size(); i++) {
@@ -67,18 +72,14 @@ public class VariantAlternateRearranger {
         return rearrange(values, missingValue, false, map);
     }
 
-    public String rearrangeNumberG(String data) {
-        return rearrangeNumberG(data, ".");
-    }
-
-    public String rearrangeNumberG(String data, String missingValue) {
-        int[] gMap = getGenotypeReorderingMap();
+    public String rearrangeNumberG(String data, String missingValue, int ploidy) {
+        int[] gMap = getGenotypeReorderingMap(ploidy);
         List<String> values = Arrays.asList(StringUtils.splitPreserveAllTokens(data, ','));
         return rearrange(values, missingValue, false, ",", gMap);
     }
 
-    public <T> List<T> rearrangeNumberG(List<T> values, T missingValue) {
-        int[] gMap = getGenotypeReorderingMap();
+    public <T> List<T> rearrangeNumberG(List<T> values, T missingValue, int ploidy) {
+        int[] gMap = getGenotypeReorderingMap(ploidy);
         return rearrange(values, missingValue, false, gMap);
     }
 
@@ -130,12 +131,29 @@ public class VariantAlternateRearranger {
         }
     }
 
-    private int[] getGenotypeReorderingMap() {
-        // Lazy initialization
-        if (gMap == null) {
-            gMap = getGenotypeReorderingMap(ploidy, map);
+    private int[] getGenotypeReorderingMap(int ploidy) {
+        if (ploidy <= 0) {
+            // Ploidy 2 is assumed when missing.
+            ploidy = DEFAULT_PLOIDY;
         }
-        return gMap;
+        // Lazy initialization
+        switch (ploidy) {
+            case 1:
+                if (gMapP1 == null) {
+                    gMapP1 = getGenotypeReorderingMap(ploidy, map);
+                }
+                return gMapP1;
+            case 2:
+                if (gMapP2 == null) {
+                    gMapP2 = getGenotypeReorderingMap(ploidy, map);
+                }
+                return gMapP2;
+            default:
+                if (gMapP == null) {
+                    gMapP = new HashMap<>();
+                }
+                return gMapP.computeIfAbsent(ploidy, p -> getGenotypeReorderingMap(p, map));
+        }
     }
 
     /**
@@ -287,4 +305,82 @@ public class VariantAlternateRearranger {
             }
         }
     }
+
+    public String rearrange(String key, String data) {
+        return rearrange(key, data, 0);
+    }
+
+    public String rearrange(String key, String data, int ploidy) {
+        if (data.isEmpty() || data.equals(".")) {
+            // Do not rearrange missing values
+            return data;
+        }
+        Pair<VCFHeaderLineType, VCFHeaderLineCount> pair =
+                configuration.otherFieldsMap.getOrDefault(key, Pair.of(VCFHeaderLineType.String, VCFHeaderLineCount.UNBOUNDED));
+        VCFHeaderLineType type = pair.getLeft();
+        String missingValue = type.equals(VCFHeaderLineType.Float) || type.equals(VCFHeaderLineType.Integer) ? "0" : ".";
+        switch (pair.getRight()) {
+            case A:
+                data = rearrangeNumberA(data, missingValue);
+                break;
+            case R:
+                data = rearrangeNumberR(data, missingValue);
+                break;
+            case G:
+                data = rearrangeNumberG(data, missingValue, ploidy);
+                break;
+            case INTEGER:
+            case UNBOUNDED:
+            default:
+                // Do not rearrange other fields
+        }
+        return data;
+    }
+
+    public static class Configuration {
+        private Map<String, Pair<VCFHeaderLineType, VCFHeaderLineCount>> otherFieldsMap;
+
+        public Configuration() {
+            otherFieldsMap = new HashMap<>();
+            otherFieldsMap.put("AD", Pair.of(VCFHeaderLineType.Integer, VCFHeaderLineCount.R));
+            otherFieldsMap.put("ADF", Pair.of(VCFHeaderLineType.Integer, VCFHeaderLineCount.R));
+            otherFieldsMap.put("ADR", Pair.of(VCFHeaderLineType.Integer, VCFHeaderLineCount.R));
+
+            otherFieldsMap.put("AF", Pair.of(VCFHeaderLineType.Integer, VCFHeaderLineCount.A));
+            otherFieldsMap.put("AC", Pair.of(VCFHeaderLineType.Integer, VCFHeaderLineCount.A));
+
+            otherFieldsMap.put("GL", Pair.of(VCFHeaderLineType.Integer, VCFHeaderLineCount.G));
+            otherFieldsMap.put("GP", Pair.of(VCFHeaderLineType.Integer, VCFHeaderLineCount.G));
+            otherFieldsMap.put("PL", Pair.of(VCFHeaderLineType.Integer, VCFHeaderLineCount.G));
+            otherFieldsMap.put("CNL", Pair.of(VCFHeaderLineType.Integer, VCFHeaderLineCount.G));
+            otherFieldsMap.put("CNP", Pair.of(VCFHeaderLineType.Integer, VCFHeaderLineCount.G));
+        }
+
+
+        public Configuration configure(VCFHeader header) {
+            configure(header.getInfoHeaderLines());
+            configure(header.getFormatHeaderLines());
+            return this;
+        }
+
+        public Configuration configure(Collection<? extends VCFHeaderLine> lines) {
+            lines.stream()
+                    .filter(VCFCompoundHeaderLine.class::isInstance)
+                    .map(VCFCompoundHeaderLine.class::cast)
+                    .forEach(this::configure);
+            return this;
+        }
+
+        public Configuration configure(VCFCompoundHeaderLine line) {
+            this.otherFieldsMap.put(line.getKey(), Pair.of(line.getType(), line.getCountType()));
+            return this;
+        }
+
+        public Configuration configure(String key, VCFHeaderLineCount number, VCFHeaderLineType type) {
+            this.otherFieldsMap.put(key, Pair.of(type, number));
+            return this;
+        }
+
+    }
+
 }

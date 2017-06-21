@@ -228,10 +228,10 @@ public class VariantVcfFactoryTest {
         List<String> sampleNames = Arrays.asList("NA001", "NA002", "NA003", "NA004");
         source.setSamples(sampleNames);
         String line ="1\t123456\t.\tT\tC,G\t110\tPASS\t.\tGT:AD:DP:GQ:PL" +
-                "\t0/1:10,5:17:94:94,0,286" +
-                "\t0/2:3,8:15:43:222,0,43" +
+                "\t0/1:10,5,0:17:94:94,0,286,4,5,6" +
+                "\t0/2:0,1,8:15:43:222,0,43,4,5,6" +
                 "\t0/0:.:18:.:." +
-                "\t1/2:7,6:13:99:162,0,180"; // 4 samples
+                "\t1/2:1,6,5:13:99:162,0,180,4,5,6"; // 4 samples
 
         // Initialize expected variants
         Variant var0 = new Variant("1", 123456, 123456, "T", "C");
@@ -246,16 +246,16 @@ public class VariantVcfFactoryTest {
         // Initialize expected samples in variant 1 (alt allele C)
         Map<String, String> na001_C = new HashMap<>();
         na001_C.put("GT", "0/1");
-        na001_C.put("AD", "10,5");
+        na001_C.put("AD", "10,5,0");
         na001_C.put("DP", "17");
         na001_C.put("GQ", "94");
-        na001_C.put("PL", "94,0,286");
+        na001_C.put("PL", "94,0,286,4,5,6");
         Map<String, String> na002_C = new HashMap<>();
         na002_C.put("GT", "0/2");
-        na002_C.put("AD", "3,8");
+        na002_C.put("AD", "0,1,8");
         na002_C.put("DP", "15");
         na002_C.put("GQ", "43");
-        na002_C.put("PL", "222,0,43");
+        na002_C.put("PL", "222,0,43,4,5,6");
         Map<String, String> na003_C = new HashMap<>();
         na003_C.put("GT", "0/0");
         na003_C.put("AD", ".");
@@ -264,10 +264,10 @@ public class VariantVcfFactoryTest {
         na003_C.put("PL", ".");
         Map<String, String> na004_C = new HashMap<>();
         na004_C.put("GT", "1/2");
-        na004_C.put("AD", "7,6");
+        na004_C.put("AD", "1,6,5");
         na004_C.put("DP", "13");
         na004_C.put("GQ", "99");
-        na004_C.put("PL", "162,0,180");
+        na004_C.put("PL", "162,0,180,4,5,6");
 
         var0.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(0), na001_C);
         var0.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(1), na002_C);
@@ -277,16 +277,16 @@ public class VariantVcfFactoryTest {
         // Initialize expected samples in variant 2 (alt allele G)
         Map<String, String> na001_G = new HashMap<>();
         na001_G.put("GT", "0/2");
-        na001_G.put("AD", "10,5");
+        na001_G.put("AD", "10,0,5");
         na001_G.put("DP", "17");
         na001_G.put("GQ", "94");
-        na001_G.put("PL", "94,0,286");
+        na001_G.put("PL", "94,4,6,0,5,286");
         Map<String, String> na002_G = new HashMap<>();
         na002_G.put("GT", "0/1");
-        na002_G.put("AD", "3,8");
+        na002_G.put("AD", "0,8,1");
         na002_G.put("DP", "15");
         na002_G.put("GQ", "43");
-        na002_G.put("PL", "222,0,43");
+        na002_G.put("PL", "222,4,6,0,5,43");
         Map<String, String> na003_G = new HashMap<>();
         na003_G.put("GT", "0/0");
         na003_G.put("AD", ".");
@@ -295,10 +295,10 @@ public class VariantVcfFactoryTest {
         na003_G.put("PL", ".");
         Map<String, String> na004_G = new HashMap<>();
         na004_G.put("GT", "2/1");
-        na004_G.put("AD", "7,6");
+        na004_G.put("AD", "1,5,6");
         na004_G.put("DP", "13");
         na004_G.put("GQ", "99");
-        na004_G.put("PL", "162,0,180");
+        na004_G.put("PL", "162,4,6,0,5,180");
         var1.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(0), na001_G);
         var1.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(1), na002_G);
         var1.getSourceEntry(source.getFileId(), source.getStudyId()).addSampleData(sampleNames.get(2), na003_G);

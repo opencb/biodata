@@ -15,7 +15,7 @@ public class VariantAlternateRearrangerTest {
 
     @Test
     public void testRearrange() {
-        VariantAlternateRearranger r = new VariantAlternateRearranger(Arrays.asList("A", "B", "C"), Arrays.asList("C", "A", "B"), 2);
+        VariantAlternateRearranger r = new VariantAlternateRearranger(Arrays.asList("A", "B", "C"), Arrays.asList("C", "A", "B"));
         assertEquals(".,A,.", r.rearrangeNumberA("A"));
         assertEquals(".,A,B", r.rearrangeNumberA("A,B"));
         assertEquals("C,A,B", r.rearrangeNumberA("A,B,C"));
@@ -24,7 +24,7 @@ public class VariantAlternateRearrangerTest {
         assertEquals("R,.,A,B", r.rearrangeNumberR("R,A,B"));
         assertEquals("R,C,A,B", r.rearrangeNumberR("R,A,B,C"));
 
-        r = new VariantAlternateRearranger(Arrays.asList("A", "B", "C"), Arrays.asList("B", "A", "C"), 2);
+        r = new VariantAlternateRearranger(Arrays.asList("A", "B", "C"), Arrays.asList("B", "A", "C"));
 
         assertEquals(".,A,.", r.rearrangeNumberA("A"));
         assertEquals("B,A,.", r.rearrangeNumberA("A,B"));
@@ -37,25 +37,25 @@ public class VariantAlternateRearrangerTest {
 
     @Test
     public void testRearrangeGenotypePloidy1() {
-        VariantAlternateRearranger r = new VariantAlternateRearranger(Arrays.asList("A", "B", "C"), Arrays.asList("C", "A", "B"), 1);
-        assertEquals(".,.,.,.", r.rearrangeNumberG("."));
-        assertEquals("0,.,1,.", r.rearrangeNumberG("0,1"));
-        assertEquals("0,3,1,2", r.rearrangeNumberG("0,1,2,3"));
+        VariantAlternateRearranger r = new VariantAlternateRearranger(Arrays.asList("A", "B", "C"), Arrays.asList("C", "A", "B"));
+        assertEquals(".,.,.,.", r.rearrangeNumberG(".", ".", 1));
+        assertEquals("0,.,1,.", r.rearrangeNumberG("0,1", ".", 1));
+        assertEquals("0,3,1,2", r.rearrangeNumberG("0,1,2,3", ".", 1));
     }
 
     @Test
     public void testRearrangeGenotypePloidy2() {
-        VariantAlternateRearranger r = new VariantAlternateRearranger(Arrays.asList("A", "B", "C"), Arrays.asList("C", "A", "B"), 2);
-        assertEquals(".,.,.,.,.,.,.,.,.,.", r.rearrangeNumberG("."));
-        assertEquals("00,.,.,01,.,11,.,.,.,.", r.rearrangeNumberG("00,01,11"));
-        assertEquals("00,.,.,01,.,11,02,.,12,22", r.rearrangeNumberG("00,01,11,02,12,22"));
-        assertEquals("00,03,33,01,13,11,02,23,12,22", r.rearrangeNumberG("00,01,11,02,12,22,03,13,23,33"));
+        VariantAlternateRearranger r = new VariantAlternateRearranger(Arrays.asList("A", "B", "C"), Arrays.asList("C", "A", "B"));
+        assertEquals(".,.,.,.,.,.,.,.,.,.", r.rearrangeNumberG(".", ".", 2));
+        assertEquals("00,.,.,01,.,11,.,.,.,.", r.rearrangeNumberG("00,01,11", ".", 2));
+        assertEquals("00,.,.,01,.,11,02,.,12,22", r.rearrangeNumberG("00,01,11,02,12,22", ".", 2));
+        assertEquals("00,03,33,01,13,11,02,23,12,22", r.rearrangeNumberG("00,01,11,02,12,22,03,13,23,33", ".", 2));
     }
 
     @Test
     public void testRearrangeGenotypePloidy2_missingAlleles() {
-        VariantAlternateRearranger r = new VariantAlternateRearranger(Arrays.asList("A"), Arrays.asList("C", "A", "B"), 2);
-        assertEquals(".,.,.,.,.,.,.,.,.,.", r.rearrangeNumberG("."));
-        assertEquals("00,.,.,01,.,11,.,.,.,.", r.rearrangeNumberG("00,01,11"));
+        VariantAlternateRearranger r = new VariantAlternateRearranger(Arrays.asList("A"), Arrays.asList("C", "A", "B"));
+        assertEquals(".,.,.,.,.,.,.,.,.,.", r.rearrangeNumberG(".", ".", 2));
+        assertEquals("00,.,.,01,.,11,.,.,.,.", r.rearrangeNumberG("00,01,11", ".", 2));
     }
 }

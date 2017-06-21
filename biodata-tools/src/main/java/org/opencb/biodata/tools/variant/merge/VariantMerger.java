@@ -75,9 +75,7 @@ public class VariantMerger {
     private final Map<String, Integer> expectedFormatsPosition = new LinkedHashMap<>();
     private final Map<String, String> defaultValues = new ConcurrentHashMap<>();
     private final AtomicReference<String> studyId = new AtomicReference<>(null);
-
-    private Map<String, Pair<VCFHeaderLineType, VCFHeaderLineCount>> otherFieldsMap;
-    private int defaultPloidy = 2;
+    private final VariantAlternateRearranger.Configuration rearrangerConf = new VariantAlternateRearranger.Configuration();
 
 
     public VariantMerger() {
@@ -92,19 +90,6 @@ public class VariantMerger {
         setDefaultValue(getGtKey(), DEFAULT_MISSING_GT);
         setDefaultValue(getFilterKey(), DEFAULT_FILTER_VALUE);
         this.collapseDeletions = collapseDeletions;
-        otherFieldsMap = new HashMap<>();
-        otherFieldsMap.put("AD", Pair.of(VCFHeaderLineType.Integer, VCFHeaderLineCount.R));
-        otherFieldsMap.put("ADF", Pair.of(VCFHeaderLineType.Integer, VCFHeaderLineCount.R));
-        otherFieldsMap.put("ADR", Pair.of(VCFHeaderLineType.Integer, VCFHeaderLineCount.R));
-
-        otherFieldsMap.put("AF", Pair.of(VCFHeaderLineType.Integer, VCFHeaderLineCount.A));
-        otherFieldsMap.put("AC", Pair.of(VCFHeaderLineType.Integer, VCFHeaderLineCount.A));
-
-        otherFieldsMap.put("GL", Pair.of(VCFHeaderLineType.Integer, VCFHeaderLineCount.G));
-        otherFieldsMap.put("GP", Pair.of(VCFHeaderLineType.Integer, VCFHeaderLineCount.G));
-        otherFieldsMap.put("PL", Pair.of(VCFHeaderLineType.Integer, VCFHeaderLineCount.G));
-        otherFieldsMap.put("CNL", Pair.of(VCFHeaderLineType.Integer, VCFHeaderLineCount.G));
-        otherFieldsMap.put("CNP", Pair.of(VCFHeaderLineType.Integer, VCFHeaderLineCount.G));
 
 
     }
@@ -227,36 +212,23 @@ public class VariantMerger {
         this.annotationFilterKey.set(annotationFilterKey);
     }
 
-    public int getDefaultPloidy() {
-        return defaultPloidy;
-    }
-
-    public VariantMerger setDefaultPloidy(int defaultPloidy) {
-        this.defaultPloidy = defaultPloidy;
-        return this;
-    }
-
     public VariantMerger configure(VCFHeader header) {
-        configure(header.getInfoHeaderLines());
-        configure(header.getFormatHeaderLines());
+        rearrangerConf.configure(header);
         return this;
     }
 
     public VariantMerger configure(Collection<? extends VCFHeaderLine> lines) {
-        lines.stream()
-                .filter(VCFCompoundHeaderLine.class::isInstance)
-                .map(VCFCompoundHeaderLine.class::cast)
-                .forEach(this::configure);
+        rearrangerConf.configure(lines);
         return this;
     }
 
     public VariantMerger configure(VCFCompoundHeaderLine line) {
-        this.otherFieldsMap.put(line.getKey(), Pair.of(line.getType(), line.getCountType()));
+        rearrangerConf.configure(line);
         return this;
     }
 
     public VariantMerger configure(String key, VCFHeaderLineCount number, VCFHeaderLineType type) {
-        this.otherFieldsMap.put(key, Pair.of(type, number));
+        rearrangerConf.configure(key, number, type);
         return this;
     }
 
@@ -589,15 +561,7 @@ public class VariantMerger {
             if (altList.size() == 1) {
                 rearranger = null;
             } else {
-                int ploidy = defaultPloidy;
-                Integer gtIdx = otherStudyFormatPositions.get(getGtKey());
-                if (gtIdx != null) {
-                    if (otherStudy.getSamplesData().size() > 0) {
-                        String gt = otherStudy.getSamplesData().get(0).get(gtIdx);
-                        ploidy = new Genotype(StringUtils.split(gt, ',')[0]).getPloidy();
-                    }
-                }
-                rearranger = new VariantAlternateRearranger(alternates, altList, ploidy);
+                rearranger = new VariantAlternateRearranger(alternates, altList, rearrangerConf);
             }
             // Add GT data for each sample to current Variant
 
@@ -612,6 +576,7 @@ public class VariantMerger {
                 alreadyMergedSamples[newSampleIdx] = true;
 
                 // GT data
+                int ploidy = -1;
                 boolean isGtUpdated = false;
                 List<Integer> updatedGtPositions = Collections.emptyList();
                 if (newGtIdx != null) {
@@ -623,6 +588,7 @@ public class VariantMerger {
                                 otherStudy.getSamplesPosition()));
                     }
                     String updatedGt = updateGT(gt, altIdx, otherAltIdx);
+                    ploidy = new Genotype(updatedGt).getPloidy();
                     if (alreadyMergedSample) {
                         String currGT = newSampleData.get(newGtIdx);
                         List<String> gtlst;
@@ -675,7 +641,9 @@ public class VariantMerger {
                     Integer idx = otherStudyFormatPositions.get(entry.getKey());
                     String data = idx == null ? getDefaultValue(entry.getKey()) : otherSampleData.get(idx);
                     if (StringUtils.isNotEmpty(data)) {
-                        data = rearrange(rearranger, entry.getKey(), data);
+                        if (rearranger != null) {
+                            data = rearranger.rearrange(entry.getKey(), data, ploidy);
+                        }
                         String old = newSampleData.set(entry.getValue(), data);
 //                        if (old != null) {
 //                            throw new IllegalStateException("TODO - merge additional formats!!!");
@@ -689,33 +657,6 @@ public class VariantMerger {
         currentStudy.setSamplesData(newSamplesData);
         currentStudy.setSortedSamplesPosition(newSamplesPosition);
         currentStudy.setFormat(newFormat);
-    }
-
-    private String rearrange(VariantAlternateRearranger rearranger, String key, String data) {
-        if (rearranger == null) {
-            return data;
-        }
-        Pair<VCFHeaderLineType, VCFHeaderLineCount> pair =
-                otherFieldsMap.getOrDefault(key, Pair.of(VCFHeaderLineType.String, VCFHeaderLineCount.UNBOUNDED));
-        VCFHeaderLineType type = pair.getLeft();
-        String missingValue = type.equals(VCFHeaderLineType.Float) || type.equals(VCFHeaderLineType.Integer) ? "0" : ".";
-        switch (pair.getRight()) {
-            case A:
-                data = rearranger.rearrangeNumberA(data, missingValue);
-                break;
-            case R:
-                data = rearranger.rearrangeNumberR(data, missingValue);
-                break;
-            case G:
-                data = rearranger.rearrangeNumberG(data, missingValue);
-                break;
-            case INTEGER:
-            case UNBOUNDED:
-            default:
-                // Do not rearrange other fields
-        }
-        return data;
-
     }
 
     private List<List<String>> newSamplesData(int samplesSize, Map<String, Integer> formats) {
@@ -987,7 +928,11 @@ public class VariantMerger {
         }
         for (FileEntry file : files) {
             for (Map.Entry<String, String> entry : file.getAttributes().entrySet()) {
-                entry.setValue(rearrange(rearranger, entry.getKey(), entry.getValue()));
+                String data = entry.getValue();
+                if (rearranger != null) {
+                    data = rearranger.rearrange(entry.getKey(), data);
+                }
+                entry.setValue(data);
             }
         }
 
