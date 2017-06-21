@@ -17,7 +17,7 @@
  *
  */
 
-package org.opencb.biodata.models.variant;
+package org.opencb.biodata.tools.variant;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -31,6 +31,7 @@ import org.biojava.nbio.core.sequence.compound.AmbiguityDNACompoundSet;
 import org.biojava.nbio.core.sequence.compound.NucleotideCompound;
 import org.opencb.biodata.models.feature.AllelesCode;
 import org.opencb.biodata.models.feature.Genotype;
+import org.opencb.biodata.models.variant.*;
 import org.opencb.biodata.models.variant.avro.*;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.commons.run.ParallelTaskRunner;
@@ -154,7 +155,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                     String call = start + ":" + reference + ":" + alternate + ":" + keyFields.getNumAllele();
                     Variant normalizedVariant = newVariant(variant, keyFields);
                     if (keyFields.getPhaseSet() != null) {
-                        StudyEntry studyEntry = new StudyEntry();
+                        org.opencb.biodata.models.variant.StudyEntry studyEntry = new org.opencb.biodata.models.variant.StudyEntry();
                         studyEntry.setSamplesData(
                                 Collections.singletonList(Collections.singletonList(keyFields.getPhaseSet())));
                         studyEntry.setFormat(Collections.singletonList("PS"));
@@ -166,7 +167,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                     normalizedVariants.add(normalizedVariant);
                 }
             } else {
-                for (StudyEntry entry : variant.getStudies()) {
+                for (org.opencb.biodata.models.variant.StudyEntry entry : variant.getStudies()) {
                     List<String> alternates = new ArrayList<>(1 + entry.getSecondaryAlternates().size());
                     alternates.add(alternate);
                     alternates.addAll(entry.getSecondaryAlternatesAlleles());
@@ -190,7 +191,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                         String call = start + ":" + reference + ":" + String.join(",", alternates) + ":" + keyFields.getNumAllele();
 
                         final Variant normalizedVariant;
-                        final StudyEntry normalizedEntry;
+                        final org.opencb.biodata.models.variant.StudyEntry normalizedEntry;
                         final List<List<String>> samplesData;
                         if (reuse && keyFieldsList.size() == 1) {   //Only reuse for non multiallelic variants
                             //Reuse variant. Set new fields.
@@ -219,7 +220,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                         } else {
                             normalizedVariant = newVariant(variant, keyFields);
 
-                            normalizedEntry = new StudyEntry();
+                            normalizedEntry = new org.opencb.biodata.models.variant.StudyEntry();
                             normalizedEntry.setStudyId(entry.getStudyId());
                             normalizedEntry.setSamplesPosition(entry.getSamplesPosition());
                             normalizedEntry.setFormat(entry.getFormat());

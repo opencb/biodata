@@ -17,7 +17,10 @@
  *
  */
 
-package org.opencb.biodata.models.variant;
+package org.opencb.biodata.formats.variant;
+
+import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.VariantSource;
 
 import java.util.List;
 

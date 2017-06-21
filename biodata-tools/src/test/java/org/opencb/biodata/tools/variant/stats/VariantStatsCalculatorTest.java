@@ -20,9 +20,10 @@ import org.junit.Test;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantSource;
-import org.opencb.biodata.models.variant.VariantVcfFactory;
+import org.opencb.biodata.formats.variant.vcf4.VariantVcfFactory;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.stats.VariantStats;
+import org.opencb.biodata.tools.variant.VariantNormalizer;
 
 import java.util.*;
 
@@ -297,7 +298,7 @@ public class VariantStatsCalculatorTest {
     }
 
     private List<Variant> readVariants(String line) {
-        return new VariantVcfFactory().create(source, line);
+        return new VariantNormalizer().apply(new VariantVcfFactory().create(source, line));
     }
 
 }
