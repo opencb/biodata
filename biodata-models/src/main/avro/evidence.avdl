@@ -62,6 +62,10 @@ protocol EvidenceProtocol {
         The tumour origin
         */
         union {null, string} tumourOrigin;
+        /**
+        The sample source, e.g. blood-bone marrow, cell-line, pancreatic
+        */
+        union {null, string} sampleSource;
     }
 
     /**
@@ -316,12 +320,12 @@ Evidence of benign impact:
 * `SO_0002055`: null_variant (http://purl.obolibrary.org/obo/SO_0002055)
     */
     enum VariantFunctionalEffect {
-        SO_0002052,
-        SO_0002053,
-        SO_0001773,
-        SO_0002054,
-        SO_0001786,
-        SO_0002055
+        dominant_negative_variant,
+        gain_of_function_variant,
+        lethal_variant,
+        loss_of_function_variant,
+        loss_of_heterozygosity,
+        null_variant
     }
 
     /**
@@ -336,13 +340,13 @@ Evidence of benign impact:
 * `SO_0001777`: somatic variant. http://purl.obolibrary.org/obo/SO_0001777
     */
     enum AlleleOrigin {
-        SO_0001781,
-        SO_0001778,
-        SO_0001775,
-        SO_0001776,
-        SO_0001779,
-        SO_0001780,
-        SO_0001777
+        de_novo_variant,
+        germline_variant,
+        maternal_variant,
+        paternal_variant,
+        pedigree_specific_variant,
+        population_specific_variant,
+        somatic_variant
     }
 
     /**
@@ -354,10 +358,10 @@ Evidence of benign impact:
 * `CIO_0000039`: rejected http://purl.obolibrary.org/obo/CIO_0000039
     */
     enum Confidence {
-        CIO_0000031,    // low confidence
-        CIO_0000030,    // medium confidence
-        CIO_0000029,    // high confidence
-        CIO_0000039     // rejected
+        low_confidence_level,       // CIO_0000031
+        medium_confidence_level,    // CIO_0000030
+        high_confidence_level,      // CIO_0000029
+        rejected                    // CIO_0000039
     }
 
     /**
