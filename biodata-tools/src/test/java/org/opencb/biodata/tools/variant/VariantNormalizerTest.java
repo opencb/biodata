@@ -1,10 +1,11 @@
-package org.opencb.biodata.models.variant;
+package org.opencb.biodata.tools.variant;
 
-import htsjdk.variant.vcf.VCFConstants;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.opencb.biodata.models.variant.StudyEntry;
+import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.StructuralVariantType;
 import org.opencb.biodata.models.variant.avro.StructuralVariation;
@@ -329,12 +330,12 @@ public class VariantNormalizerTest extends GenericTest {
     @Test
     public void testNormalizeMultiAllelicPL() throws NonStandardCompliantSampleField {
         Variant variant = generateVariantWithFormat("X:100:A:T", "GT:GL", "S01", "0/0", "1,2,3", "S02", "0", "1,2");
-        Variant variant2 = generateVariantWithFormat("X:100:A:T,C", "GT:GL", "S01", "0/0", "1,2,3,4,5,6", "S02", "A", "1,2,3");
 
         List<Variant> normalize1 = normalizer.normalize(Collections.singletonList(variant), false);
         assertEquals("1,2,3", normalize1.get(0).getStudies().get(0).getSampleData("S01", "GL"));
         assertEquals("1,2", normalize1.get(0).getStudies().get(0).getSampleData("S02", "GL"));
 
+        Variant variant2 = generateVariantWithFormat("X:100:A:T,C", "GT:GL", "S01", "0/0", "1,2,3,4,5,6", "S02", "A", "1,2,3");
         List<Variant> normalize2 = normalizer.normalize(Collections.singletonList(variant2), false);
         assertEquals("1,2,3,4,5,6", normalize2.get(0).getStudies().get(0).getSampleData("S01", "GL"));
         assertEquals("1,4,6,2,5,3", normalize2.get(1).getStudies().get(0).getSampleData("S01", "GL"));
@@ -350,7 +351,7 @@ public class VariantNormalizerTest extends GenericTest {
         assertEquals("1,7,10,2,8,3,4,9,5,6", normalize3.get("G").getStudies().get(0).getSampleData("S01", "GL"));
         assertEquals("1,2,3,4", normalize3.get("T").getStudies().get(0).getSampleData("S02", "GL"));
         assertEquals("1,3,2,4", normalize3.get("C").getStudies().get(0).getSampleData("S02", "GL"));
-        assertEquals("1,3,4,2", normalize3.get("G").getStudies().get(0).getSampleData("S02", "GL"));
+        assertEquals("1,4,2,3", normalize3.get("G").getStudies().get(0).getSampleData("S02", "GL"));
 
     }
 
@@ -386,7 +387,7 @@ public class VariantNormalizerTest extends GenericTest {
         assertNotNull(keyFields);
         assertEquals(new VariantNormalizer.VariantKeyFields(normStart, normEnd, normRef, normAlt), keyFields);
         samplesData = normalizer.normalizeSamplesData(keyFields, samplesData, Collections.singletonList("GT"), ref,
-                Collections.singletonList(alt));
+                Collections.singletonList(alt), null);
 
         assertEquals("0/1", samplesData.get(0).get(0));
         assertEquals("0/0", samplesData.get(1).get(0));
@@ -483,7 +484,7 @@ public class VariantNormalizerTest extends GenericTest {
 
             normalizer.setNormalizeAlleles(true);
             normalizedSamplesData = normalizer.normalizeSamplesData(normalizedKeyFields, samplesData, Collections.singletonList("GT"), ref,
-                    altsList);
+                    altsList, null);
 
             assertEquals("0/1", normalizedSamplesData.get(0).get(0));
             assertEquals("0/0", normalizedSamplesData.get(1).get(0));
@@ -497,7 +498,7 @@ public class VariantNormalizerTest extends GenericTest {
 
             normalizer.setNormalizeAlleles(false);
             normalizedSamplesData = normalizer.normalizeSamplesData(normalizedKeyFields, samplesData, Collections.singletonList("GT"), ref,
-                    altsList);
+                    altsList, null);
 
             assertEquals("0/1", normalizedSamplesData.get(0).get(0));
             assertEquals("0/0", normalizedSamplesData.get(1).get(0));
