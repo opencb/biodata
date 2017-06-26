@@ -121,6 +121,10 @@ public class Variant implements Serializable, Comparable<Variant> {
     public Variant(String chromosome, int position, String reference, String alternate) {
         this(chromosome, position, position, reference, alternate, "+");
         setEnd(getStart() + getLengthReference() - 1);
+        if (getSv() != null) {
+            getSv().setCiEndLeft(getEnd());
+            getSv().setCiEndRight(getEnd());
+        }
     }
 
     public Variant(String chromosome, int start, int end, String reference, String alternate) {
@@ -229,6 +233,11 @@ public class Variant implements Serializable, Comparable<Variant> {
                 */
                     return VariantType.INDEL;
                 } else {
+                    if (StringUtils.isBlank(reference) || reference.equals("-")) {
+                        return VariantType.INSERTION;
+                    } else if (StringUtils.isBlank(alternate) || alternate.equals("-")){
+                        return VariantType.DELETION;
+                    }
                     return VariantType.SV;
                 }
             }
@@ -284,6 +293,8 @@ public class Variant implements Serializable, Comparable<Variant> {
             case INVERSION:
             case INSERTION:
             case BREAKEND:
+            case SV:
+            case SYMBOLIC:
                 setSv(new StructuralVariation(getStart(), getStart(), getEnd(), getEnd(), null,
                         null, null, null));
                 break;

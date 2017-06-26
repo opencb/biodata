@@ -46,6 +46,9 @@ import static org.opencb.biodata.models.variant.StudyEntry.isSamplesPositionMapS
  */
 public class VariantContextToVariantConverter implements Converter<VariantContext, Variant>, Serializable {
 
+    private static final EnumSet<VariantType> SV_TYPES = EnumSet.of(VariantType.INSERTION, VariantType.DELETION,
+            VariantType.TRANSLOCATION, VariantType.INVERSION, VariantType.CNV, VariantType.DUPLICATION,
+            VariantType.BREAKEND, VariantType.SV, VariantType.SYMBOLIC);
     private final String studyId;
     private final String fileId;
     private LinkedHashMap<String, Integer> samplesPosition;
@@ -113,24 +116,24 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         variant.setStart(variantContext.getStart());
         variant.setEnd(variantContext.getEnd());
 
-        StructuralVariation structuralVariation = null;
-
         // Setting reference and alternate alleles
         variant.setReference(variantContext.getReference().getDisplayString());
         List<Allele> alternateAlleleList = variantContext.getAlternateAlleles();
         if (alternateAlleleList != null && !alternateAlleleList.isEmpty()) {
             String alternateString = alternateAlleleList.get(0).toString();
-            if (Allele.wouldBeSymbolicAllele(alternateString.getBytes())) {
-                structuralVariation = new StructuralVariation();
-            }
-            if (alternateString.equals(TANDEMDUPSTR)) {
-                variant.setAlternate(DUPSTR);
-                structuralVariation.setType(StructuralVariantType.TANDEM_DUPLICATION);
-            } else {
-                // Be aware! alternate may be modified later in this code: <INS> variants with known sequence will
-                // set the inserted sequence in the alternate, once the inserted sequence is parsed from the INFO field
-                variant.setAlternate(alternateString);
-            }
+//            if (Allele.wouldBeSymbolicAllele(alternateString.getBytes())) {
+//                structuralVariation = new StructuralVariation();
+//            }
+//            if (alternateString.equals(TANDEMDUPSTR)) {
+//                variant.setAlternate(DUPSTR);
+//                structuralVariation.setType(StructuralVariantType.TANDEM_DUPLICATION);
+//            } else {
+
+            // Be aware! alternate may be modified later in this code: <INS> variants with known sequence will
+            // set the inserted sequence in the alternate, once the inserted sequence is parsed from the INFO field
+            // Also, <DUP:TANDEM> alternates will later be replaced by <DUP>
+            variant.setAlternate(alternateString);
+//            }
         } else {
             alternateAlleleList = Collections.emptyList();
             variant.setAlternate("");
@@ -157,6 +160,19 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
             type = VariantType.NO_VARIATION;
         }
         variant.setType(type);
+
+        // Create and initialize StructuralVariation object if needed
+        StructuralVariation structuralVariation = null;
+        if (SV_TYPES.contains(variant.getType())) {
+            variant.resetSV();
+            structuralVariation = variant.getSv();
+            if (variant.getAlternate().equals(TANDEMDUPSTR)) {
+                variant.setAlternate(DUPSTR);
+                variant.setType(VariantType.DUPLICATION);
+                structuralVariation.setType(StructuralVariantType.TANDEM_DUPLICATION);
+            }
+        }
+
         variant.resetLength();
 
         // set variantSourceEntry fields
@@ -305,21 +321,21 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         variant.setStudies(studies);
 
         // Set the CNV type
-        if (variant.getType().equals(VariantType.CNV)) {
-            Integer copyNumber = Variant.getCopyNumberFromAlternate(variant.getAlternate());
-            if (copyNumber != null) {
-                structuralVariation.setCopyNumber(copyNumber);
-                structuralVariation.setType(Variant.getCNVSubtype(copyNumber));
-            }
-        }
-
-        if (structuralVariation != null) {
-            structuralVariation.setCiStartLeft(variant.getStart());
-            structuralVariation.setCiStartRight(variant.getStart());
-            structuralVariation.setCiEndLeft(variant.getEnd());
-            structuralVariation.setCiEndRight(variant.getEnd());
-            variant.setSv(structuralVariation);
-        }
+//        if (variant.getType().equals(VariantType.CNV)) {
+//            Integer copyNumber = Variant.getCopyNumberFromAlternate(variant.getAlternate());
+//            if (copyNumber != null) {
+//                structuralVariation.setCopyNumber(copyNumber);
+//                structuralVariation.setType(Variant.getCNVSubtype(copyNumber));
+//            }
+//        }
+//
+//        if (structuralVariation != null) {
+//            structuralVariation.setCiStartLeft(variant.getStart());
+//            structuralVariation.setCiStartRight(variant.getStart());
+//            structuralVariation.setCiEndLeft(variant.getEnd());
+//            structuralVariation.setCiEndRight(variant.getEnd());
+//            variant.setSv(structuralVariation);
+//        }
 
         // set VariantAnnotation parameters
         // TODO: Read annotation from info column
