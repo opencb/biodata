@@ -471,7 +471,7 @@ public class VariantMerger {
         // Build ALT index
         List<AlternateCoordinate> altList = buildAltsList(current, varToAlts.stream()
                 .map(Pair::getRight).collect(Collectors.toList()));
-        Map<AlternateCoordinate, Integer> altIdx = index(altList);
+//        Map<AlternateCoordinate, Integer> altIdx = index(altList);
 
         // Update SecALt list
         currentStudy.setSecondaryAlternates(altList.subList(1, altList.size()));
@@ -548,20 +548,22 @@ public class VariantMerger {
 
         for (Pair<Variant, List<AlternateCoordinate>> e : varToAlts) {
             Variant other = e.getKey();
-            List<AlternateCoordinate> alternates = e.getValue();
+            List<AlternateCoordinate> otherAlternates = e.getValue();
 
 
-            Map<Integer, AlternateCoordinate> otherAltIdx = index(alternates).entrySet().stream()
-                    .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
+//            Map<Integer, AlternateCoordinate> otherAltIdx = index(alternates).entrySet().stream()
+//                    .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
             final StudyEntry otherStudy = getStudy(other);
             Map<String, Integer> otherStudyFormatPositions = otherStudy.getFormatPositions();
-            checkForDuplicates(current, other, currentStudy, otherStudy, alternates);
+            checkForDuplicates(current, other, currentStudy, otherStudy, otherAlternates);
 
             VariantAlternateRearranger rearranger;
-            if (altList.size() == 1) {
+            // It may happen that the new list of alternates does not contains some of the other alternates.
+            // In that case, use the rearranger
+            if (altList.size() == 1 && altList.equals(otherAlternates)) {
                 rearranger = null;
             } else {
-                rearranger = new VariantAlternateRearranger(alternates, altList, rearrangerConf);
+                rearranger = new VariantAlternateRearranger(otherAlternates, altList, rearrangerConf);
             }
             // Add GT data for each sample to current Variant
 
@@ -587,8 +589,25 @@ public class VariantMerger {
                                 getGtKey(), sampleName, other.getImpl(), otherStudy.getSamplesData(),
                                 otherStudy.getSamplesPosition()));
                     }
-                    String updatedGt = updateGT(gt, altIdx, otherAltIdx);
-                    ploidy = new Genotype(updatedGt).getPloidy();
+                    String updatedGt;
+                    Genotype genotype;
+                    if (rearranger != null) {
+                        genotype = rearranger.rearrangeGenotype(new Genotype(gt));
+                    } else {
+                        genotype = new Genotype(gt);
+                    }
+                    genotype.normalizeAllelesIdx();
+                    if (collapseDeletions) {
+                        int[] allelesIdx = genotype.getAllelesIdx();
+                        for (int i = 0; i < allelesIdx.length; i++) {
+                            if (allelesIdx[i] < 0) {
+                                allelesIdx[i] = 0; // change to '0' for 'missing' reference (missing because change to '0' GT)
+                            }
+                        }
+                    }
+                    updatedGt = genotype.toString();
+//                    updatedGt = updateGT(gt, altIdx, otherAltIdx);
+                    ploidy = genotype.getPloidy();
                     if (alreadyMergedSample) {
                         String currGT = newSampleData.get(newGtIdx);
                         List<String> gtlst;
@@ -726,6 +745,10 @@ public class VariantMerger {
         return IntStream.range(0, gtsStr.size() - 1).boxed().collect(Collectors.toList());
     }
 
+    /**
+     * @deprecated Use {@link VariantAlternateRearranger#rearrangeGenotype}
+     */
+    @Deprecated
     private String updateGT(String gt, Map<AlternateCoordinate, Integer> curr, Map<Integer, AlternateCoordinate> other) {
         Genotype gto = new Genotype(gt);
         int[] idx = gto.getAllelesIdx();
@@ -783,6 +806,7 @@ public class VariantMerger {
         return currAlts;
     }
 
+    @Deprecated
     private Map<AlternateCoordinate, Integer> index(List<AlternateCoordinate> alts) {
         Map<AlternateCoordinate, Integer> altIdx = new HashMap<>();
         AtomicInteger pos = new AtomicInteger(1); // Start at 1 -> first Alt genotype

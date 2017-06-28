@@ -4,9 +4,11 @@ import htsjdk.variant.vcf.*;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.opencb.biodata.models.feature.Genotype;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -17,9 +19,12 @@ import java.util.function.Consumer;
  */
 public class VariantAlternateRearranger {
 
+    // Default ploidy as defined in vcf-spec
     public static final int DEFAULT_PLOIDY = 2;
     // Map from reordered allele position to original allele position
     private final int[] map;
+    // Map from original allele position to reordered allele position
+    private final int[] reverseMap;
     private final Configuration configuration;
 
     // Lazy initialization
@@ -36,14 +41,33 @@ public class VariantAlternateRearranger {
     public <T> VariantAlternateRearranger(List<T> originalAlternates, List<T> reorderedAlternates,
                                           Configuration configuration) {
         this.configuration = configuration == null ? new Configuration() : configuration;
-        if (originalAlternates.size() > reorderedAlternates.size()) {
-            throw new IllegalArgumentException("Expected same size of alternates");
-        }
+//        if (originalAlternates.size() > reorderedAlternates.size()) {
+//            throw new IllegalArgumentException("Expected all original alternates in reordered alternates");
+//        }
 
         this.map = new int[reorderedAlternates.size()];
+        this.reverseMap = new int[originalAlternates.size()];
         for (int i = 0; i < reorderedAlternates.size(); i++) {
             map[i] = originalAlternates.indexOf(reorderedAlternates.get(i));
         }
+        for (int i = 0; i < originalAlternates.size(); i++) {
+            reverseMap[i] = reorderedAlternates.indexOf(originalAlternates.get(i));
+//            if (reverseMap[i] < 0) {
+//                throw new IllegalArgumentException("Missing alternate in list of reordered alternates");
+//            }
+        }
+    }
+
+    public Genotype rearrangeGenotype(String genotypeString, String reference, List<String> alternateAlleles) {
+        return rearrangeGenotype(new Genotype(genotypeString, reference, alternateAlleles));
+    }
+
+    public Genotype rearrangeGenotype(Genotype genotype) {
+        int[] allelesIdx = genotype.getAllelesIdx();
+        for (int i = 0; i < allelesIdx.length; i++) {
+            allelesIdx[i] = remapAlleleReverse(allelesIdx[i]);
+        }
+        return genotype;
     }
 
     public String rearrangeNumberR(String data) {
@@ -72,13 +96,13 @@ public class VariantAlternateRearranger {
         return rearrange(values, missingValue, false, map);
     }
 
-    public String rearrangeNumberG(String data, String missingValue, int ploidy) {
+    public String rearrangeNumberG(String data, String missingValue, @Nullable Integer ploidy) {
         int[] gMap = getGenotypeReorderingMap(ploidy);
         List<String> values = Arrays.asList(StringUtils.splitPreserveAllTokens(data, ','));
         return rearrange(values, missingValue, false, ",", gMap);
     }
 
-    public <T> List<T> rearrangeNumberG(List<T> values, T missingValue, int ploidy) {
+    public <T> List<T> rearrangeNumberG(List<T> values, T missingValue, @Nullable Integer ploidy) {
         int[] gMap = getGenotypeReorderingMap(ploidy);
         return rearrange(values, missingValue, false, gMap);
     }
@@ -131,8 +155,8 @@ public class VariantAlternateRearranger {
         }
     }
 
-    private int[] getGenotypeReorderingMap(int ploidy) {
-        if (ploidy <= 0) {
+    private int[] getGenotypeReorderingMap(@Nullable Integer ploidy) {
+        if (ploidy == null || ploidy <= 0) {
             // Ploidy 2 is assumed when missing.
             ploidy = DEFAULT_PLOIDY;
         }
@@ -231,6 +255,10 @@ public class VariantAlternateRearranger {
         return gMap;
     }
 
+    private int remapAlleleReverse(int a) {
+        return remapAllele(reverseMap, a);
+    }
+
     private static int remapAlleleReverse(int[] map, int a) {
         // Map does not contain reference (0). Reference never changes
         if (a > 0) {
@@ -307,10 +335,10 @@ public class VariantAlternateRearranger {
     }
 
     public String rearrange(String key, String data) {
-        return rearrange(key, data, 0);
+        return rearrange(key, data, null);
     }
 
-    public String rearrange(String key, String data, int ploidy) {
+    public String rearrange(String key, String data, @Nullable Integer ploidy) {
         if (data.isEmpty() || data.equals(".")) {
             // Do not rearrange missing values
             return data;

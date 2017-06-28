@@ -11,6 +11,7 @@ import org.opencb.biodata.models.variant.avro.StructuralVariantType;
 import org.opencb.biodata.models.variant.avro.StructuralVariation;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
+import org.opencb.biodata.tools.variant.merge.VariantAlternateRearranger;
 import org.opencb.commons.test.GenericTest;
 
 import java.util.*;
@@ -482,9 +483,21 @@ public class VariantNormalizerTest extends GenericTest {
                     Collections.singletonList(alleleCode + "|" + "0")
             );
 
+            VariantAlternateRearranger rearranger = null;
+            if (expectedKeyFields.getNumAllele() > 0) {
+                List<String> reordered = new ArrayList<>();
+                reordered.add(alt);
+                for (String s : altsList) {
+                    if (!s.equals(alt)) {
+                        reordered.add(alt);
+                    }
+                }
+                rearranger = new VariantAlternateRearranger(altsList, reordered);
+            }
+
             normalizer.setNormalizeAlleles(true);
             normalizedSamplesData = normalizer.normalizeSamplesData(normalizedKeyFields, samplesData, Collections.singletonList("GT"), ref,
-                    altsList, null);
+                    altsList, rearranger);
 
             assertEquals("0/1", normalizedSamplesData.get(0).get(0));
             assertEquals("0/0", normalizedSamplesData.get(1).get(0));
@@ -498,7 +511,7 @@ public class VariantNormalizerTest extends GenericTest {
 
             normalizer.setNormalizeAlleles(false);
             normalizedSamplesData = normalizer.normalizeSamplesData(normalizedKeyFields, samplesData, Collections.singletonList("GT"), ref,
-                    altsList, null);
+                    altsList, rearranger);
 
             assertEquals("0/1", normalizedSamplesData.get(0).get(0));
             assertEquals("0/0", normalizedSamplesData.get(1).get(0));
