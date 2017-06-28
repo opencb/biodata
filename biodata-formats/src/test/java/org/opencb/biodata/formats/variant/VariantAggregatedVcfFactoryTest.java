@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package org.opencb.biodata.models.variant;
+package org.opencb.biodata.formats.variant;
 
-import org.junit.Ignore;
 import org.junit.Test;
-import org.opencb.biodata.models.feature.Genotype;
-import org.opencb.biodata.models.variant.stats.VariantStats;
+import org.opencb.biodata.formats.variant.vcf4.VariantAggregatedVcfFactory;
+import org.opencb.biodata.formats.variant.vcf4.VariantVcfFactory;
+import org.opencb.biodata.models.variant.StudyEntry;
+import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.VariantSource;
 import org.opencb.commons.test.GenericTest;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 
 import static org.junit.Assert.*;
 
@@ -47,7 +48,7 @@ public class VariantAggregatedVcfFactoryTest extends GenericTest {
         Variant variant = variants.get(0);
         variant.setStudies(Collections.<StudyEntry>emptyList());
 
-        Variant expected = new Variant("1", 1001, 1005, "CACCC", "GACGG");
+        Variant expected = new Variant("1", 1000, 1005, "TCACCC", "TGACGG");
         expected.setIds(Collections.singletonList("rs123"));
 
         assertEquals(expected, variant);

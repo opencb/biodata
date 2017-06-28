@@ -21,10 +21,12 @@ package org.opencb.biodata.formats.variant.annotation.io;
 
 //import org.opencb.biodata.models.variant.annotation.ConsequenceType;
 //import org.opencb.biodata.models.variant.annotation.VariantAnnotation;
+import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.ConsequenceType;
 import org.opencb.biodata.models.variant.avro.VariantAnnotation;
 
+import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.commons.io.DataWriter;
 
 import java.io.BufferedWriter;
@@ -34,7 +36,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by fjlopez on 12/02/15.
@@ -43,6 +47,16 @@ public class VepFormatWriter implements DataWriter<Variant> {
 
     String filename;
     BufferedWriter bw;
+
+    private static final Map<VariantType, String> SymbolicToVepTag = new HashMap<>(5);
+
+    static {
+        SymbolicToVepTag.put(VariantType.CNV, "CNV");
+        SymbolicToVepTag.put(VariantType.DELETION, "deletion");
+        SymbolicToVepTag.put(VariantType.INSERTION, "insertion");
+        SymbolicToVepTag.put(VariantType.INVERSION, "INV");
+        SymbolicToVepTag.put(VariantType.DUPLICATION, "duplication");
+    }
 
     public VepFormatWriter() {}
 
@@ -103,23 +117,56 @@ public class VepFormatWriter implements DataWriter<Variant> {
         }
         String alt;
         String pos;
-        // Short deletion
-        if(variantAnnotation.getAlternate().isEmpty()) {
-            alt = "-";
-            if(variantAnnotation.getReference().length()>1) {
-                pos = variantAnnotation.getStart() + "-" + (variantAnnotation.getStart() + variantAnnotation.getReference().length() - 1);
-            } else {
-                pos = Integer.toString(variantAnnotation.getStart());
-            }
-        } else if(variantAnnotation.getReference().isEmpty()) {
-            // Short insertion
-            alt = variantAnnotation.getAlternate();
-            pos = (variantAnnotation.getStart()-1) + "-" + variantAnnotation.getStart();
-            // SNV
-        } else {
-            alt = variantAnnotation.getAlternate();
-            pos = Integer.toString(variantAnnotation.getStart()-1);
+
+        switch (variant.getType()) {
+            case SNV:
+                alt = variant.getAlternate();
+                pos = Integer.toString(variant.getStart());
+                break;
+            case INDEL:
+                // Short deletion
+                if (StringUtils.isBlank(variant.getAlternate())) {
+                    alt = "-";
+                    if(variant.getReference().length()>1) {
+                        pos = variant.getStart() + "-" + variant.getEnd();
+                    } else {
+                        pos = Integer.toString(variant.getStart());
+                    }
+                // Short insertion
+                } else if (StringUtils.isBlank(variant.getReference())){
+                    // Short insertion
+                    alt = variant.getAlternate();
+                    pos = variant.getEnd() + "-" + variant.getStart();
+                // MNV
+                } else {
+                    alt = variant.getAlternate();
+                    pos = variant.getStart() + "-" + variant.getEnd();
+                }
+                break;
+            default:
+                alt = SymbolicToVepTag.get(variant.getType());
+                pos = variant.getStart() + "-" + variant.getEnd();
         }
+
+
+
+//        // Short deletion
+//        if(variantAnnotation.getAlternate().isEmpty()) {
+//            alt = "-";
+//            if(variantAnnotation.getReference().length()>1) {
+//                pos = variantAnnotation.getStart() + "-" + (variantAnnotation.getStart() + variantAnnotation.getReference().length() - 1);
+//            } else {
+//                pos = Integer.toString(variantAnnotation.getStart());
+//            }
+//        } else if(variantAnnotation.getReference().isEmpty()) {
+//            // Short insertion
+//            alt = variantAnnotation.getAlternate();
+//            pos = (variantAnnotation.getStart()-1) + "-" + variantAnnotation.getStart();
+//            // SNV
+//        } else {
+//            alt = variantAnnotation.getAlternate();
+//            pos = Integer.toString(variantAnnotation.getStart()-1);
+//        }
 
         for(ConsequenceType consequenceType : variantAnnotation.getConsequenceTypes()) {
             String gene;
