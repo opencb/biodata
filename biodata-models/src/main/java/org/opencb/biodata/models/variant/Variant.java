@@ -306,6 +306,10 @@ public class Variant implements Serializable, Comparable<Variant> {
         }
     }
 
+    public boolean isSymbolic() {
+        return Allele.wouldBeSymbolicAllele(getAlternate().getBytes());
+    }
+
 //    public void resetHGVS() {
 //        if (this.getType() == VariantType.SNV || this.getType() == VariantType.SNP) { // Generate HGVS code only for SNVs
 //            List<String> hgvsCodes = new LinkedList<>();
