@@ -184,7 +184,7 @@ protocol VariantAnnotations {
         union { null, array<GeneTraitAssociation> } geneTraitAssociation;
         union { null, array<GeneDrugInteraction> } geneDrugInteraction;
         union { null, VariantTraitAssociation } variantTraitAssociation;
-        union { null, EvidenceEntry } traitAssociation;
+        union { null, array<EvidenceEntry> } traitAssociation;
         union { null, array<Score> } functionalScore;
         union { null, array<Cytoband> } cytoband;
         union { null, array<Repeat> } repeat;
