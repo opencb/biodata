@@ -596,7 +596,9 @@ public class VariantMerger {
                     } else {
                         genotype = new Genotype(gt);
                     }
-                    genotype.normalizeAllelesIdx();
+                    if (!genotype.isPhased()) {
+                        genotype.normalizeAllelesIdx();
+                    }
                     if (collapseDeletions) {
                         int[] allelesIdx = genotype.getAllelesIdx();
                         for (int i = 0; i < allelesIdx.length; i++) {
@@ -767,7 +769,7 @@ public class VariantMerger {
         return gto.toString();
     }
 
-    private List<AlternateCoordinate> buildAltsList (Variant current, Collection<List<AlternateCoordinate>> alts) {
+    private List<AlternateCoordinate> buildAltsList(Variant current, Collection<List<AlternateCoordinate>> alts) {
         Integer start = current.getStart();
         Integer end = current.getEnd();
         final List<AlternateCoordinate> currAlts = buildAltList(current);
@@ -795,7 +797,7 @@ public class VariantMerger {
                     .forEach(altSets::add);
         } else if (this.collapseDeletions && current.getType().equals(VariantType.SNP)) {
             alts.forEach(l -> l.stream()
-                    .filter(a ->current.overlapWith(a.getChromosome(), a.getStart(), a.getEnd(), true))
+                    .filter(a -> current.overlapWith(a.getChromosome(), a.getStart(), a.getEnd(), true))
                     .forEach(altSets::add));
         } else {
             alts.forEach(altSets::addAll);

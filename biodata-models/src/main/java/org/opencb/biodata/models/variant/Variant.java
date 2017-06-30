@@ -375,6 +375,10 @@ public class Variant implements Serializable, Comparable<Variant> {
         return null;
     }
 
+    public boolean isSymbolic() {
+        return Allele.wouldBeSymbolicAllele(getAlternate().getBytes());
+    }
+
     public VariantAvro getImpl() {
         return impl;
     }

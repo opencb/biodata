@@ -301,6 +301,23 @@ public class VariantNormalizerTest extends GenericTest {
     }
 
     @Test
+    public void testNormalizeMultiallelic() throws NonStandardCompliantSampleField {
+        // Sort variants even when the main allele has a start position after the secondary alternate
+        Variant variant = generateVariantWithFormat("22:16349650:G:GT,T", "GT", "S01", "0/2", "S02", "0/1");
+        List<Variant> variants = normalizer.normalize(Collections.singletonList(variant), false);
+        assertEquals(2, variants.size());
+
+        assertEquals("22:16349650:G:T", variants.get(0).toString());
+        assertEquals("0/1", variants.get(0).getStudies().get(0).getSampleData("S01", "GT"));
+        assertEquals("0/2", variants.get(0).getStudies().get(0).getSampleData("S02", "GT"));
+
+        assertEquals("22:16349651:-:T", variants.get(1).toString());
+        assertEquals("0/2", variants.get(1).getStudies().get(0).getSampleData("S01", "GT"));
+        assertEquals("0/1", variants.get(1).getStudies().get(0).getSampleData("S02", "GT"));
+
+    }
+
+    @Test
     public void testMultiSNP() throws NonStandardCompliantSampleField {
         //6       109522683       .       TTTTT   TTTAT,TATTT
         //8       32269959        .       TATATAT TATACAT,TACATAT
