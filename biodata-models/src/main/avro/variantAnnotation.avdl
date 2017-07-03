@@ -119,7 +119,7 @@ protocol VariantAnnotations {
         union { null, string } ensemblTranscriptId;
         union { null, string } strand;
         union { null, string } biotype;
-        union { null, int } exonNumber;
+        union { null, array<Score> } exonOverlap;
         union { null, array<string> } transcriptAnnotationFlags;
         union { null, int } cdnaPosition;
         union { null, int } cdsPosition;
@@ -160,6 +160,7 @@ protocol VariantAnnotations {
     record VariantAnnotation {
         union { null, string } chromosome;
         union { null, int } start;
+        union { null, int } end;
         union { null, string } reference;
         union { null, string } alternate;
         union { null, string } ancestralAllele;

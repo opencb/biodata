@@ -305,13 +305,23 @@ public class Genotype {
     @Override
     public String toString() {
         StringBuilder value = new StringBuilder();
-        value.append(allelesIdx[0] >= 0 ? allelesIdx[0] : ".");
+        appendAllele(value, this.allelesIdx[0]);
         char separator = isPhased() ? '|' : '/';
         for (int i = 1; i < allelesIdx.length; i++) {
             value.append(separator);
-            value.append(allelesIdx[i] >= 0 ? allelesIdx[i] : ".");
+            appendAllele(value, this.allelesIdx[i]);
         }
         return value.toString();
+    }
+
+    private void appendAllele(StringBuilder sb, int allelesIdx) {
+        if (allelesIdx < 0) {
+            sb.append(".");
+        } else if (allelesIdx <= 9) {
+            sb.append(((char) (allelesIdx + '0')));
+        } else {
+            sb.append(allelesIdx);
+        }
     }
 
     /**

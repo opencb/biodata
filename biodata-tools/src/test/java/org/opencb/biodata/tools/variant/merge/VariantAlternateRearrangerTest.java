@@ -1,8 +1,10 @@
 package org.opencb.biodata.tools.variant.merge;
 
 import org.junit.Test;
+import org.opencb.biodata.models.feature.Genotype;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 
@@ -36,6 +38,20 @@ public class VariantAlternateRearrangerTest {
     }
 
     @Test
+    public void testRearrangeMissingAlternates() {
+        // Missing alternate
+        VariantAlternateRearranger r = new VariantAlternateRearranger(Arrays.asList("A", "X", "C"), Arrays.asList("B", "A", "C"));
+
+        assertEquals(".,A,.", r.rearrangeNumberA("A"));
+        assertEquals(".,A,.", r.rearrangeNumberA("A,X"));
+        assertEquals(".,A,C", r.rearrangeNumberA("A,X,C"));
+
+        assertEquals("R,.,A,.", r.rearrangeNumberR("R,A"));
+        assertEquals("R,.,A,.", r.rearrangeNumberR("R,A,X"));
+        assertEquals("R,.,A,C", r.rearrangeNumberR("R,A,X,C"));
+    }
+
+    @Test
     public void testRearrangeGenotypePloidy1() {
         VariantAlternateRearranger r = new VariantAlternateRearranger(Arrays.asList("A", "B", "C"), Arrays.asList("C", "A", "B"));
         assertEquals(".,.,.,.", r.rearrangeNumberG(".", ".", 1));
@@ -57,5 +73,22 @@ public class VariantAlternateRearrangerTest {
         VariantAlternateRearranger r = new VariantAlternateRearranger(Arrays.asList("A"), Arrays.asList("C", "A", "B"));
         assertEquals(".,.,.,.,.,.,.,.,.,.", r.rearrangeNumberG(".", ".", 2));
         assertEquals("00,.,.,01,.,11,.,.,.,.", r.rearrangeNumberG("00,01,11", ".", 2));
+    }
+
+
+    @Test
+    public void testRearrangeGenotype() {
+        VariantAlternateRearranger r = new VariantAlternateRearranger(Arrays.asList("A", "B"), Arrays.asList("B", "A", "C"));
+        assertEquals("2/1", r.rearrangeGenotype(new Genotype("1/2")).toString());
+        assertEquals("./.", r.rearrangeGenotype(new Genotype("./.")).toString());
+        assertEquals("./2", r.rearrangeGenotype(new Genotype("./1")).toString());
+    }
+
+    @Test
+    public void testRearrangeGenotype_missingAlternates() {
+        VariantAlternateRearranger r = new VariantAlternateRearranger(Arrays.asList("A", "T"), Arrays.asList("C", "A"));
+        assertEquals("2/.", r.rearrangeGenotype(new Genotype("1/2")).toString());
+        assertEquals("./.", r.rearrangeGenotype(new Genotype("./.")).toString());
+        assertEquals("./2", r.rearrangeGenotype(new Genotype("./1")).toString());
     }
 }
