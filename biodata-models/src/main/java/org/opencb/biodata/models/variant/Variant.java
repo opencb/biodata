@@ -121,7 +121,8 @@ public class Variant implements Serializable, Comparable<Variant> {
     public Variant(String chromosome, int position, String reference, String alternate) {
         this(chromosome, position, position, reference, alternate, "+");
         setEnd(getStart() + getLengthReference() - 1);
-        if (getSv() != null) {
+        // BREAKENDs interpret CiStart/CiEnd fields in a special manner. Please see comments below at resetSV
+        if (getSv() != null && !VariantType.BREAKEND.equals(getType())) {
             getSv().setCiEndLeft(getEnd());
             getSv().setCiEndRight(getEnd());
         }
@@ -292,10 +293,22 @@ public class Variant implements Serializable, Comparable<Variant> {
             case DELETION:
             case INVERSION:
             case INSERTION:
-            case BREAKEND:
             case SV:
             case SYMBOLIC:
                 setSv(new StructuralVariation(getStart(), getStart(), getEnd(), getEnd(), null,
+                        null, null, null));
+                break;
+            // Breakends use the variant.sv.CiStart/CiEnd in a special manner:
+            //   * variant.sv.CiStartLeft, variant.sv.CiStartRight: CIPOS of the first breakend, the one with
+            //   coordinates in variant.chromosome,variant.start
+            //   * variant.sv.CiEndLeft, variant.sv.CiEndRight: CIPOS of the second (mate) breakend, the one with
+            //   coordinates in variant.alternate
+            // IF, such as in this case, there's no actual CIPOS for the first nor the second breakend,
+            // variant.sv.CiStartLeft, variant.sv.CiStartRight are initialized with the FIRST breakend start and
+            // variant.sv.CiEndLeft, variant.sv.CiEndRight are initialized with the SECOND (mate) breakend start
+            case BREAKEND:
+                Variant mate = parseMateBreakendFromAlternate(getAlternate());
+                setSv(new StructuralVariation(getStart(), getStart(), mate.getStart(), mate.getStart(), null,
                         null, null, null));
                 break;
             case CNV:
@@ -306,16 +319,65 @@ public class Variant implements Serializable, Comparable<Variant> {
         }
     }
 
-//    public void resetHGVS() {
-//        if (this.getType() == VariantType.SNV || this.getType() == VariantType.SNP) { // Generate HGVS code only for SNVs
-//            List<String> hgvsCodes = new LinkedList<>();
-//            hgvsCodes.add(getChromosome() + ":g." + getStart() + getReference() + ">" + getAlternate());
-//            if (impl.getHgvs() == null) {
-//                impl.setHgvs(new HashMap<>());
-//            }
-//            impl.getHgvs().put("genomic", hgvsCodes);
-//        }
-//    }
+    /**
+     * For VariantType.BREAKEND variants only. Parses the alternate string of a breakend (e.g  A]2:321681]) and
+     * generates a new Variant object with the coordinates and CIPOS/CIEND of the breakend mate.
+     * @param variant BREAKEND Variant object containing:
+     *                1.- variant.chromosome, variant.start: coordinates of the first breakend
+     *                2.- variant.alternate: string containing the mate coordinates in a VCF-like format e.g  A]2:321681]
+     *                It could happen that the BREAKEND doesn't have any mate, the alternate could be a '.' for example
+     *                3.- variant.sv: it should be present althougth it's allowed to be null. If exists, then the
+     *                following interpretation is expected from the fields:
+     *                  * variant.sv.CiStartLeft, variant.sv.CiStartRight: CIPOS of the first breakend, the one with
+     *                  coordinates in variant.chromosome,variant.start
+     *                  * variant.sv.CiEndLeft, variant.sv.CiEndRight: CIPOS of the second (mate) breakend, the one with
+     *                  coordinates in variant.alternate
+     * @return A Variant object filled in with the coordinates and CIPOS of the mate breakend. IF the input variant
+     * does not have a mate breakend (e.g. alternate='.'), null will be returned. The returned variant object will be
+     * filled in as follows:
+     *  1.- variant.chromosome, variant.start: coordinates of the mate breakend
+     *  2.- variant.sv: will be null if the input variant.sv is null. Otherwise:
+     *    * variant.sv.CiStartLeft, variant.sv.CiStartRight: CIPOS of the MATE breakend
+     *    * variant.sv.CiEndLeft, variant.sv.CiEndRight: CIPOS of the FIRST breakend
+     *    PLEASE NOTE: that the values in CiStart/CiEnd of the coordenates is swapped with respect to the input variant
+     */
+    public static Variant getMateBreakend(Variant variant) {
+        // e.g. A]2:321681]
+        Variant newvariant = parseMateBreakendFromAlternate(variant.getAlternate());
+        if (newvariant != null) {
+            if (variant.getSv() != null) {
+                newvariant.setSv(new StructuralVariation(variant.getSv().getCiEndLeft(), variant.getSv().getCiEndRight(),
+                        variant.getSv().getCiStartLeft(), variant.getSv().getCiStartRight(), null,
+                        null, null, null));
+            }
+            return newvariant;
+        }
+        return null;
+    }
+
+    /**
+     * Generates a new variant object by parsing the alternate string of a breakend (e.g  A]2:321681])
+     * @param alternate String containing details of a mate breakend. Expected VCF-like format, e.g. A]2:321681]. Can
+     *                  also be "." to indicate there's no mate.
+     * @return A Variant object filled in with the coordinates parsed from the alternate string. IF there's no mate
+     * breakend (e.g. alternate='.'), null will be returned. Just the variant.chromosome and variant.start fields
+     * of the new Variant object will be filled in.
+     */
+    public static Variant parseMateBreakendFromAlternate(String alternate) {
+        String[] parts = alternate.split(":");
+        if (parts.length == 2) {
+            String chromosome = parts[0].split("[\\[\\]]")[1];
+            chromosome = Region.normalizeChromosome(chromosome);
+            Integer start = Integer.valueOf(parts[1].split("[\\[\\]]")[0]);
+            Variant newVariant = new Variant(chromosome, start, null, null);
+            return newVariant;
+        }
+        return null;
+    }
+
+    public boolean isSymbolic() {
+        return Allele.wouldBeSymbolicAllele(getAlternate().getBytes());
+    }
 
     public VariantAvro getImpl() {
         return impl;

@@ -19,7 +19,6 @@
 
 package org.opencb.biodata.tools.variant;
 
-import htsjdk.variant.variantcontext.Allele;
 import htsjdk.variant.vcf.*;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -36,7 +35,6 @@ import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.FileEntry;
-import org.opencb.biodata.models.variant.avro.StructuralVariation;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.biodata.tools.variant.merge.VariantAlternateRearranger;
@@ -47,7 +45,6 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -172,13 +169,13 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
             if (variant.getStudies() == null || variant.getStudies().isEmpty()) {
                 List<VariantKeyFields> keyFieldsList;
-                if (isSymbolic(variant)) {
+                if (variant.isSymbolic()) {
                     keyFieldsList = normalizeSymbolic(start, end, reference, alternate);
-//                    keyFieldsList = normalizeSymbolic(start, end, reference, alternate, null);
                 } else {
                     keyFieldsList = normalize(chromosome, start, reference, alternate);
                 }
-                for (VariantKeyFields keyFields : keyFieldsList) {
+                // Iterate keyFields sorting by position, so the generated variants are ordered. Do not modify original order!
+                for (VariantKeyFields keyFields : sortByPosition(keyFieldsList)) {
                     String call = start + ":" + reference + ":" + alternate + ":" + keyFields.getNumAllele();
                     Variant normalizedVariant = newVariant(variant, keyFields);
                     if (keyFields.getPhaseSet() != null) {
@@ -203,7 +200,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                     List<VariantKeyFields> keyFieldsList;
                     List<VariantKeyFields> originalKeyFieldsList;
 //                    String copyNumberString = null;
-                    if (isSymbolic(variant)) {
+                    if (variant.isSymbolic()) {
 //                        if (VariantType.CNV.equals(variant.getType())) {
 //                            String sampleName = variant.getStudies().get(0).getSamplesName().iterator().next();
 //                            copyNumberString = variant.getStudies().get(0).getSampleData(sampleName).get(COPY_NUMBER_TAG);
@@ -219,7 +216,8 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                             && keyFieldsList.get(0).getReference().equals(reference)
                             && keyFieldsList.get(0).getAlternate().equals(alternate);
 
-                    for (VariantKeyFields keyFields : keyFieldsList) {
+                    // Iterate keyFields sorting by position, so the generated variants are ordered. Do not modify original order!
+                    for (VariantKeyFields keyFields : sortByPosition(keyFieldsList)) {
                         String call = start + ":" + reference + ":" + String.join(",", alternates) + ":" + keyFields.getNumAllele();
 
                         final Variant normalizedVariant;
@@ -307,8 +305,10 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         return normalizedVariants;
     }
 
-    private boolean isSymbolic(Variant variant) {
-        return Allele.wouldBeSymbolicAllele(variant.getAlternate().getBytes());
+    private Collection<VariantKeyFields> sortByPosition(List<VariantKeyFields> keyFieldsList) {
+        List<VariantKeyFields> sortedKeyFields = new ArrayList<>(keyFieldsList);
+        sortedKeyFields.sort(Comparator.comparingInt(VariantKeyFields::getStart));
+        return sortedKeyFields;
     }
 
 //    private StructuralVariation getStructuralVariation(Variant variant, VariantKeyFields keyFields, String copyNumberString) {
@@ -445,7 +445,8 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             list = generateReferenceBlocks(list, position, reference);
         }
 
-        list.sort((o1, o2) -> Integer.compare(o1.getStart(), o2.getStart()));
+        // Sort by numAllele, then by start.
+        list.sort(Comparator.comparingInt(VariantKeyFields::getNumAllele).thenComparingInt(VariantKeyFields::getStart));
         return list;
     }
 
