@@ -16,20 +16,22 @@ protocol Variants {
      * </ul>
      */
     enum VariantType {
-        SNV,            // SO:0001483
-        SNP,            // SO:0000694
-        MNV,            // SO:0002007
-        MNP,            // SO:0001013
-        INDEL,          // SO:1000032
-        SV,             // SO:0001537
-        INSERTION,      // SO:0000667
-        DELETION,       // SO:0000159
-        TRANSLOCATION,  // SO:0000199
-        INVERSION,      // SO:1000036
-        CNV,            // SO:0001019
-        NO_VARIATION,   // Defined in HTSJDK
-        SYMBOLIC,       // Defined in HTSJDK
-        MIXED           // Defined in HTSJDK
+        SNV,                   // SO:0001483
+        SNP,                   // SO:0000694
+        MNV,                   // SO:0002007
+        MNP,                   // SO:0001013
+        INDEL,                 // SO:1000032
+        SV,                    // SO:0001537
+        INSERTION,             // SO:0000667
+        DELETION,              // SO:0000159
+        TRANSLOCATION,         // SO:0000199
+        INVERSION,             // SO:1000036
+        CNV,                   // SO:0001019
+        DUPLICATION,           // SO:1000035
+        BREAKEND,
+        NO_VARIATION,          // Defined in HTSJDK
+        SYMBOLIC,              // Defined in HTSJDK
+        MIXED                  // Defined in HTSJDK
     }
 
     enum AllelesCode {
@@ -217,14 +219,20 @@ protocol Variants {
     }
 
     record StructuralVariation {
-        int ciStartLeft = 0;
-        int ciStartRight = 0;
-        int ciEndLeft = 0;
-        int ciEndRight = 0;
+        union {null, int} ciStartLeft;
+        union {null, int} ciStartRight;
+        union {null, int} ciEndLeft;
+        union {null, int} ciEndRight;
         /**
          * Number of copies for CNV variants.
          */
         union {null, int} copyNumber;
+
+        /**
+        * Inserted sequence for long INS
+        **/
+        union { null, string } leftSvInsSeq;
+        union { null, string } rightSvInsSeq;
 
         /**
         * Structural variation type: COPY_NUMBER_GAIN, COPY_NUMBER_LOSS, TANDEM_DUPLICATION, ...

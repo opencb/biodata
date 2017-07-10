@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opencb.biodata.formats.variant.vcf4.VcfUtils;
+import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.protobuf.VariantAnnotationProto;
 import org.opencb.biodata.models.variant.protobuf.VariantProto;
 import org.opencb.commons.datastore.core.ObjectMap;
@@ -66,7 +67,8 @@ public class VariantContextToProtoVariantConverter extends VariantContextConvert
 
         VariantProto.StudyEntry studyEntry = null;
         for (int i = 0; i < variant.getStudiesCount(); i++) {
-            if (this.studyIdString.equals(studyNameMap.get(variant.getStudies(i).getStudyId()))) {
+//            if (this.studyIdString.equals(studyNameMap.get(variant.getStudies(i).getStudyId()))) {
+            if (variant.getStudies(i).getStudyId().equals(this.studyNameMap.get(this.studyIdString))) {
                 studyEntry = variant.getStudies(i);
                 break;
             }
@@ -103,6 +105,7 @@ public class VariantContextToProtoVariantConverter extends VariantContextConvert
                 }
             }
 
+            // We should use:  studyEntry.getFormatList() instead of sampleFormats
             if (this.formatPositions == null || this.formatPositions.size() == 0) {
                 formatPositions = new HashMap<>(sampleFormats.size());
                 for (int i = 0; i < sampleFormats.size(); i++) {
@@ -112,6 +115,7 @@ public class VariantContextToProtoVariantConverter extends VariantContextConvert
 
             for (String sampleName : this.sampleNames) {
                 GenotypeBuilder genotypeBuilder = new GenotypeBuilder().name(sampleName);
+
                 for (String id : this.sampleFormats) {
                     String value = getSampleData(studyEntry, sampleName, id);
                     switch (id) {
@@ -132,7 +136,7 @@ public class VariantContextToProtoVariantConverter extends VariantContextConvert
                             genotypeBuilder.alleles(alleles).phased(genotype.isPhased());
                             break;
                         case "AD":
-                            if (StringUtils.isNotEmpty(value)) {
+                            if (StringUtils.isNotEmpty(value) && !value.contains(".")) {
                                 String[] split = value.split(",");
                                 genotypeBuilder.AD(new int[]{Integer.parseInt(split[0]), Integer.parseInt(split[1])});
                             } else {
@@ -140,21 +144,21 @@ public class VariantContextToProtoVariantConverter extends VariantContextConvert
                             }
                             break;
                         case "DP":
-                            if (StringUtils.isNotEmpty(value)) {
+                            if (StringUtils.isNotEmpty(value) && !value.equals(".")) {
                                 genotypeBuilder.DP(Integer.parseInt(value));
                             } else {
                                 genotypeBuilder.noDP();
                             }
                             break;
                         case "GQ":
-                            if (StringUtils.isNotEmpty(value)) {
+                            if (StringUtils.isNotEmpty(value) && !value.equals(".")) {
                                 genotypeBuilder.GQ(Integer.parseInt(value));
                             } else {
                                 genotypeBuilder.noGQ();
                             }
                             break;
                         case "PL":
-                            if (StringUtils.isNotEmpty(value)) {
+                            if (StringUtils.isNotEmpty(value) && !value.contains(".")) {
                                 String[] split = value.split(",");
                                 genotypeBuilder.PL(new int[]{Integer.parseInt(split[0]), Integer.parseInt(split[1])});
                             } else {
@@ -211,6 +215,11 @@ public class VariantContextToProtoVariantConverter extends VariantContextConvert
 
     public String getSampleData(VariantProto.StudyEntry studyEntry, String sampleName, String field) {
         if (samplePositions != null && samplePositions.containsKey(sampleName)) {
+            // FIXME Currently each variant can have different FORMAT so we need to recalculate the positions. This will change in v1.2.0.
+            this.formatPositions.clear();
+            for (int i = 0; i < studyEntry.getFormatList().size(); i++) {
+                this.formatPositions.put(studyEntry.getFormatList().get(i), i);
+            }
             if (formatPositions != null && formatPositions.containsKey(field)) {
                 VariantProto.StudyEntry.SamplesDataInfoEntry info = studyEntry.getSamplesData(samplePositions.get(sampleName));
                 int formatPos = formatPositions.get(field);
@@ -285,85 +294,90 @@ public class VariantContextToProtoVariantConverter extends VariantContextConvert
     }
 
     private void addAnnotations(VariantProto.Variant variant, Map<String, Object> attributes) {
-        // consequence type
-        List<String> ctList = new ArrayList<>();
-        StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < variant.getAnnotation().getConsequenceTypesCount(); i++) {
-            VariantAnnotationProto.ConsequenceType consequenceType = variant.getAnnotation().getConsequenceTypes(i);
-            stringBuilder.delete(0, stringBuilder.length());
-            // allele
-            stringBuilder.append(variant.getAlternate());
-            stringBuilder.append(FIELD_SEPARATOR);
-            // gene name
-            if (consequenceType.getGeneName() != null) {
-                stringBuilder.append(consequenceType.getGeneName());
-            }
-            stringBuilder.append(FIELD_SEPARATOR);
-            // ensembl gene
-            if (consequenceType.getEnsemblGeneId() != null) {
-                stringBuilder.append(consequenceType.getEnsemblGeneId());
-            }
-            stringBuilder.append(FIELD_SEPARATOR);
-            // ensembl transcript
-            if (consequenceType.getEnsemblTranscriptId() != null) {
-                stringBuilder.append(consequenceType.getEnsemblTranscriptId());
-            }
-            stringBuilder.append(FIELD_SEPARATOR);
-            // biotype
-            if (consequenceType.getBiotype() != null) {
-                stringBuilder.append(consequenceType.getBiotype());
-            }
-            stringBuilder.append(FIELD_SEPARATOR);
-            // consequenceType
-            stringBuilder.append(consequenceType.getSequenceOntologyTermsList().stream()
-                    .map(VariantAnnotationProto.SequenceOntologyTerm::getName)
-                    .collect(Collectors.joining(",")));
-            stringBuilder.append(FIELD_SEPARATOR);
-
-            // protein position
-            if (consequenceType.getProteinVariantAnnotation() != null && consequenceType.getProteinVariantAnnotation().getPosition() > 0) {
-                stringBuilder.append(consequenceType.getProteinVariantAnnotation().getPosition());
-                stringBuilder.append(FIELD_SEPARATOR);
-                stringBuilder.append(consequenceType.getProteinVariantAnnotation().getReference())
-                        .append("/")
-                        .append(consequenceType.getProteinVariantAnnotation().getAlternate());
-                stringBuilder.append(FIELD_SEPARATOR);
-                if (consequenceType.getProteinVariantAnnotation().getSubstitutionScoresList() != null) {
-                    List<String> sift = consequenceType.getProteinVariantAnnotation().getSubstitutionScoresList().stream()
-                            .filter(t -> t.getSource().equalsIgnoreCase("sift"))
-                            .map(VariantAnnotationProto.Score::getDescription)
-                            .collect(Collectors.toList());
-                    if (sift.size() > 0) {
-                        stringBuilder.append(sift.get(0));
-                    }
-                    stringBuilder.append(FIELD_SEPARATOR);
-
-                    List<String> polyphen = consequenceType.getProteinVariantAnnotation().getSubstitutionScoresList().stream()
-                            .filter(t -> t.getSource().equalsIgnoreCase("polyphen"))
-                            .map(VariantAnnotationProto.Score::getDescription)
-                            .collect(Collectors.toList());
-                    if (polyphen.size() > 0) {
-                        stringBuilder.append(polyphen.get(0));
-                    }
-                    stringBuilder.append(FIELD_SEPARATOR);
-                }
-            } else {
-                // We need to add four '|'
-                stringBuilder.append(FIELD_SEPARATOR).append(FIELD_SEPARATOR).append(FIELD_SEPARATOR).append(FIELD_SEPARATOR);
-            }
-
-            // add to ct list
-            ctList.add(stringBuilder.toString());
+        if (variant.getAnnotation() == null) {
+            return;
         }
 
-        // set consequence type attributes
-        attributes.put(ANNOTATION_INFO_KEY, String.join(INFO_SEPARATOR, ctList));
+        // consequence type
+        if (variant.getAnnotation().getConsequenceTypesList() != null && !variant.getAnnotation().getConsequenceTypesList().isEmpty()) {
+            List<String> ctList = new ArrayList<>();
+            StringBuilder stringBuilder = new StringBuilder();
+            for (int i = 0; i < variant.getAnnotation().getConsequenceTypesCount(); i++) {
+                VariantAnnotationProto.ConsequenceType consequenceType = variant.getAnnotation().getConsequenceTypes(i);
+                stringBuilder.delete(0, stringBuilder.length());
+                // allele
+                stringBuilder.append(variant.getAlternate());
+                stringBuilder.append(FIELD_SEPARATOR);
+                // gene name
+                if (consequenceType.getGeneName() != null) {
+                    stringBuilder.append(consequenceType.getGeneName());
+                }
+                stringBuilder.append(FIELD_SEPARATOR);
+                // ensembl gene
+                if (consequenceType.getEnsemblGeneId() != null) {
+                    stringBuilder.append(consequenceType.getEnsemblGeneId());
+                }
+                stringBuilder.append(FIELD_SEPARATOR);
+                // ensembl transcript
+                if (consequenceType.getEnsemblTranscriptId() != null) {
+                    stringBuilder.append(consequenceType.getEnsemblTranscriptId());
+                }
+                stringBuilder.append(FIELD_SEPARATOR);
+                // biotype
+                if (consequenceType.getBiotype() != null) {
+                    stringBuilder.append(consequenceType.getBiotype());
+                }
+                stringBuilder.append(FIELD_SEPARATOR);
+                // consequenceType
+                stringBuilder.append(consequenceType.getSequenceOntologyTermsList().stream()
+                        .map(VariantAnnotationProto.SequenceOntologyTerm::getName)
+                        .collect(Collectors.joining(",")));
+                stringBuilder.append(FIELD_SEPARATOR);
+
+                // protein position
+                if (consequenceType.getProteinVariantAnnotation() != null && consequenceType.getProteinVariantAnnotation().getPosition() > 0) {
+                    stringBuilder.append(consequenceType.getProteinVariantAnnotation().getPosition());
+                    stringBuilder.append(FIELD_SEPARATOR);
+                    stringBuilder.append(consequenceType.getProteinVariantAnnotation().getReference())
+                            .append("/")
+                            .append(consequenceType.getProteinVariantAnnotation().getAlternate());
+                    stringBuilder.append(FIELD_SEPARATOR);
+                    if (consequenceType.getProteinVariantAnnotation().getSubstitutionScoresList() != null) {
+                        List<String> sift = consequenceType.getProteinVariantAnnotation().getSubstitutionScoresList().stream()
+                                .filter(t -> t.getSource().equalsIgnoreCase("sift"))
+                                .map(VariantAnnotationProto.Score::getDescription)
+                                .collect(Collectors.toList());
+                        if (sift.size() > 0) {
+                            stringBuilder.append(sift.get(0));
+                        }
+                        stringBuilder.append(FIELD_SEPARATOR);
+
+                        List<String> polyphen = consequenceType.getProteinVariantAnnotation().getSubstitutionScoresList().stream()
+                                .filter(t -> t.getSource().equalsIgnoreCase("polyphen"))
+                                .map(VariantAnnotationProto.Score::getDescription)
+                                .collect(Collectors.toList());
+                        if (polyphen.size() > 0) {
+                            stringBuilder.append(polyphen.get(0));
+                        }
+                        stringBuilder.append(FIELD_SEPARATOR);
+                    }
+                } else {
+                    // We need to add four '|'
+                    stringBuilder.append(FIELD_SEPARATOR).append(FIELD_SEPARATOR).append(FIELD_SEPARATOR).append(FIELD_SEPARATOR);
+                }
+
+                // add to ct list
+                ctList.add(stringBuilder.toString());
+            }
+
+            // set consequence type attributes
+            attributes.put(ANNOTATION_INFO_KEY, String.join(INFO_SEPARATOR, ctList));
+        }
 
         // population frequencies
-
         List<VariantAnnotationProto.PopulationFrequency> populationFrequencies = variant.getAnnotation()
                 .getPopulationFrequenciesList();
-        if (populationFrequencies != null) {
+        if (populationFrequencies != null && !populationFrequencies.isEmpty()) {
             List<String> popFreqList = new ArrayList<>();
             for (VariantAnnotationProto.PopulationFrequency pf: populationFrequencies) {
                 popFreqList.add(pf.getStudy() + "_" + pf.getPopulation() + ":" + DECIMAL_FORMAT_7.format(pf.getAltAlleleFreq()));

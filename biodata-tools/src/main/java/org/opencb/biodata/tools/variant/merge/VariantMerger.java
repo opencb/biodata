@@ -22,7 +22,7 @@
  */
 package org.opencb.biodata.tools.variant.merge;
 
-import htsjdk.variant.vcf.VCFConstants;
+import htsjdk.variant.vcf.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
@@ -75,6 +75,8 @@ public class VariantMerger {
     private final Map<String, Integer> expectedFormatsPosition = new LinkedHashMap<>();
     private final Map<String, String> defaultValues = new ConcurrentHashMap<>();
     private final AtomicReference<String> studyId = new AtomicReference<>(null);
+    private final VariantAlternateRearranger.Configuration rearrangerConf = new VariantAlternateRearranger.Configuration();
+
 
     public VariantMerger() {
         this(false);
@@ -88,6 +90,8 @@ public class VariantMerger {
         setDefaultValue(getGtKey(), DEFAULT_MISSING_GT);
         setDefaultValue(getFilterKey(), DEFAULT_FILTER_VALUE);
         this.collapseDeletions = collapseDeletions;
+
+
     }
 
     public void setStudyId(String studyId) {
@@ -206,6 +210,26 @@ public class VariantMerger {
     public void setAnnotationFilterKey(String annotationFilterKey) {
         updateDefaultKeys(this.annotationFilterKey.get(), annotationFilterKey);
         this.annotationFilterKey.set(annotationFilterKey);
+    }
+
+    public VariantMerger configure(VCFHeader header) {
+        rearrangerConf.configure(header);
+        return this;
+    }
+
+    public VariantMerger configure(Collection<? extends VCFHeaderLine> lines) {
+        rearrangerConf.configure(lines);
+        return this;
+    }
+
+    public VariantMerger configure(VCFCompoundHeaderLine line) {
+        rearrangerConf.configure(line);
+        return this;
+    }
+
+    public VariantMerger configure(String key, VCFHeaderLineCount number, VCFHeaderLineType type) {
+        rearrangerConf.configure(key, number, type);
+        return this;
     }
 
     /**
@@ -447,7 +471,7 @@ public class VariantMerger {
         // Build ALT index
         List<AlternateCoordinate> altList = buildAltsList(current, varToAlts.stream()
                 .map(Pair::getRight).collect(Collectors.toList()));
-        Map<AlternateCoordinate, Integer> altIdx = index(altList);
+//        Map<AlternateCoordinate, Integer> altIdx = index(altList);
 
         // Update SecALt list
         currentStudy.setSecondaryAlternates(altList.subList(1, altList.size()));
@@ -524,14 +548,23 @@ public class VariantMerger {
 
         for (Pair<Variant, List<AlternateCoordinate>> e : varToAlts) {
             Variant other = e.getKey();
-            List<AlternateCoordinate> alternates = e.getValue();
+            List<AlternateCoordinate> otherAlternates = e.getValue();
 
-            Map<Integer, AlternateCoordinate> otherAltIdx = index(alternates).entrySet().stream()
-                    .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
+
+//            Map<Integer, AlternateCoordinate> otherAltIdx = index(alternates).entrySet().stream()
+//                    .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
             final StudyEntry otherStudy = getStudy(other);
             Map<String, Integer> otherStudyFormatPositions = otherStudy.getFormatPositions();
-            checkForDuplicates(current, other, currentStudy, otherStudy, alternates);
+            checkForDuplicates(current, other, currentStudy, otherStudy, otherAlternates);
 
+            VariantAlternateRearranger rearranger;
+            // It may happen that the new list of alternates does not contains some of the other alternates.
+            // In that case, use the rearranger
+            if (altList.size() == 1 && altList.equals(otherAlternates)) {
+                rearranger = null;
+            } else {
+                rearranger = new VariantAlternateRearranger(otherAlternates, altList, rearrangerConf);
+            }
             // Add GT data for each sample to current Variant
 
             List<String> otherOrderedSamplesName = otherStudy.getOrderedSamplesName();
@@ -545,6 +578,7 @@ public class VariantMerger {
                 alreadyMergedSamples[newSampleIdx] = true;
 
                 // GT data
+                int ploidy = -1;
                 boolean isGtUpdated = false;
                 List<Integer> updatedGtPositions = Collections.emptyList();
                 if (newGtIdx != null) {
@@ -555,7 +589,27 @@ public class VariantMerger {
                                 getGtKey(), sampleName, other.getImpl(), otherStudy.getSamplesData(),
                                 otherStudy.getSamplesPosition()));
                     }
-                    String updatedGt = updateGT(gt, altIdx, otherAltIdx);
+                    String updatedGt;
+                    Genotype genotype;
+                    if (rearranger != null) {
+                        genotype = rearranger.rearrangeGenotype(new Genotype(gt));
+                    } else {
+                        genotype = new Genotype(gt);
+                    }
+                    if (!genotype.isPhased()) {
+                        genotype.normalizeAllelesIdx();
+                    }
+                    if (collapseDeletions) {
+                        int[] allelesIdx = genotype.getAllelesIdx();
+                        for (int i = 0; i < allelesIdx.length; i++) {
+                            if (allelesIdx[i] < 0) {
+                                allelesIdx[i] = 0; // change to '0' for 'missing' reference (missing because change to '0' GT)
+                            }
+                        }
+                    }
+                    updatedGt = genotype.toString();
+//                    updatedGt = updateGT(gt, altIdx, otherAltIdx);
+                    ploidy = genotype.getPloidy();
                     if (alreadyMergedSample) {
                         String currGT = newSampleData.get(newGtIdx);
                         List<String> gtlst;
@@ -608,14 +662,18 @@ public class VariantMerger {
                     Integer idx = otherStudyFormatPositions.get(entry.getKey());
                     String data = idx == null ? getDefaultValue(entry.getKey()) : otherSampleData.get(idx);
                     if (StringUtils.isNotEmpty(data)) {
+                        if (rearranger != null) {
+                            data = rearranger.rearrange(entry.getKey(), data, ploidy);
+                        }
                         String old = newSampleData.set(entry.getValue(), data);
 //                        if (old != null) {
 //                            throw new IllegalStateException("TODO - merge additional formats!!!");
 //                        }
                     }
                 }
+
             }
-            mergeFiles(current, other, currentStudy, otherStudy);
+            mergeFile(current, other, rearranger, currentStudy, otherStudy);
         }
         currentStudy.setSamplesData(newSamplesData);
         currentStudy.setSortedSamplesPosition(newSamplesPosition);
@@ -689,6 +747,10 @@ public class VariantMerger {
         return IntStream.range(0, gtsStr.size() - 1).boxed().collect(Collectors.toList());
     }
 
+    /**
+     * @deprecated Use {@link VariantAlternateRearranger#rearrangeGenotype}
+     */
+    @Deprecated
     private String updateGT(String gt, Map<AlternateCoordinate, Integer> curr, Map<Integer, AlternateCoordinate> other) {
         Genotype gto = new Genotype(gt);
         int[] idx = gto.getAllelesIdx();
@@ -707,7 +769,7 @@ public class VariantMerger {
         return gto.toString();
     }
 
-    private List<AlternateCoordinate> buildAltsList (Variant current, Collection<List<AlternateCoordinate>> alts) {
+    private List<AlternateCoordinate> buildAltsList(Variant current, Collection<List<AlternateCoordinate>> alts) {
         Integer start = current.getStart();
         Integer end = current.getEnd();
         final List<AlternateCoordinate> currAlts = buildAltList(current);
@@ -735,7 +797,7 @@ public class VariantMerger {
                     .forEach(altSets::add);
         } else if (this.collapseDeletions && current.getType().equals(VariantType.SNP)) {
             alts.forEach(l -> l.stream()
-                    .filter(a ->current.overlapWith(a.getChromosome(), a.getStart(), a.getEnd(), true))
+                    .filter(a -> current.overlapWith(a.getChromosome(), a.getStart(), a.getEnd(), true))
                     .forEach(altSets::add));
         } else {
             alts.forEach(altSets::addAll);
@@ -746,6 +808,7 @@ public class VariantMerger {
         return currAlts;
     }
 
+    @Deprecated
     private Map<AlternateCoordinate, Integer> index(List<AlternateCoordinate> alts) {
         Map<AlternateCoordinate, Integer> altIdx = new HashMap<>();
         AtomicInteger pos = new AtomicInteger(1); // Start at 1 -> first Alt genotype
@@ -875,17 +938,30 @@ public class VariantMerger {
                 variant.getReference(), variant.getAlternate(), type);
     }
 
-    private void mergeFiles(Variant current, Variant other, StudyEntry currentStudy, StudyEntry otherStudy) {
+    private void mergeFile(Variant current, Variant other, VariantAlternateRearranger rearranger,
+                           StudyEntry currentStudy, StudyEntry otherStudy) {
         String call = other.getStart() + ":" + other.getReference() + ":" + other.getAlternate() + ":0";
 
-        List<FileEntry> files = otherStudy.getFiles().stream().map(fileEntry -> FileEntry.newBuilder(fileEntry).build()).collect(Collectors.toList());
+        List<FileEntry> files = otherStudy.getFiles().stream()
+                .map(fileEntry -> FileEntry.newBuilder(fileEntry).build())
+                .collect(Collectors.toList());
         if (!current.toString().equals(other.toString())) {
             for (FileEntry file : files) {
-                if (file.getCall() == null || file.getCall().isEmpty()) {
+                if (StringUtils.isEmpty(file.getCall())) {
                     file.setCall(call);
                 }
             }
         }
+        for (FileEntry file : files) {
+            for (Map.Entry<String, String> entry : file.getAttributes().entrySet()) {
+                String data = entry.getValue();
+                if (rearranger != null) {
+                    data = rearranger.rearrange(entry.getKey(), data);
+                }
+                entry.setValue(data);
+            }
+        }
+
         StudyEntry study = currentStudy;
         try {
             study.getFiles().addAll(files);
