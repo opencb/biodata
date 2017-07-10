@@ -27,7 +27,6 @@ import htsjdk.variant.vcf.VCFHeader;
 import org.opencb.biodata.formats.variant.io.VariantReader;
 import org.opencb.biodata.formats.variant.vcf4.FullVcfCodec;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.VariantNormalizer;
 import org.opencb.biodata.models.variant.VariantSource;
 import org.opencb.biodata.tools.variant.converters.avro.VCFHeaderToAvroVcfHeaderConverter;
 import org.opencb.biodata.tools.variant.converters.avro.VariantContextToVariantConverter;

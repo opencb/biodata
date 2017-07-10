@@ -22,7 +22,7 @@ package org.opencb.biodata.formats.variant.vcf4.io;
 import org.junit.Test;
 import org.opencb.biodata.formats.variant.io.VariantReader;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.VariantAggregatedVcfFactory;
+import org.opencb.biodata.formats.variant.vcf4.VariantAggregatedVcfFactory;
 import org.opencb.biodata.models.variant.VariantSource;
 
 import java.util.List;

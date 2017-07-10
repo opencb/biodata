@@ -421,6 +421,10 @@ public class StudyEntry implements Serializable {
         getFile(fileId).getAttributes().put(key, value);
     }
 
+    public void addAttributes(String fileId, Map<String, String> attributes) {
+        getFile(fileId).getAttributes().putAll(attributes);
+    }
+
     @Deprecated
     public boolean hasAttribute(String key) {
         return getAttributes().containsKey(key);

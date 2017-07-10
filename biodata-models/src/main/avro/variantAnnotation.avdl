@@ -113,13 +113,18 @@ protocol VariantAnnotations {
         union { null, array<ProteinFeature> } features;
     }
 
+    record ExonOverlap {
+        union { null, string } number;
+        union { null, float } percentage;
+    }
+
     record ConsequenceType {
         union { null, string } geneName;
         union { null, string } ensemblGeneId;
         union { null, string } ensemblTranscriptId;
         union { null, string } strand;
         union { null, string } biotype;
-        union { null, int } exonNumber;
+        union { null, array<ExonOverlap> } exonOverlap;
         union { null, array<string> } transcriptAnnotationFlags;
         union { null, int } cdnaPosition;
         union { null, int } cdsPosition;
@@ -160,6 +165,7 @@ protocol VariantAnnotations {
     record VariantAnnotation {
         union { null, string } chromosome;
         union { null, int } start;
+        union { null, int } end;
         union { null, string } reference;
         union { null, string } alternate;
         union { null, string } ancestralAllele;

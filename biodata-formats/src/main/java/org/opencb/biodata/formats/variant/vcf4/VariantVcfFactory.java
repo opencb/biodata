@@ -17,18 +17,21 @@
  *
  */
 
-package org.opencb.biodata.models.variant;
+package org.opencb.biodata.formats.variant.vcf4;
 
-import org.apache.commons.lang3.StringUtils;
+import org.opencb.biodata.formats.variant.VariantFactory;
+import org.opencb.biodata.models.variant.StudyEntry;
+import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.VariantSource;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
+import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.biodata.models.variant.exceptions.NotAVariantException;
 
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static org.opencb.biodata.models.variant.VariantNormalizer.VariantKeyFields;
+import java.util.stream.Collectors;
 
 /**
  * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
@@ -45,8 +48,6 @@ public class VariantVcfFactory implements VariantFactory {
     public static final String FILTER = StudyEntry.FILTER;
     @Deprecated
     public static final String SRC = StudyEntry.SRC;
-
-    private final VariantNormalizer variantNormalizer = new VariantNormalizer();
 
     /**
      * Creates a list of Variant objects using the fields in a record of a VCF
@@ -68,11 +69,9 @@ public class VariantVcfFactory implements VariantFactory {
         if (fields.length < 8) {
             throw new IllegalArgumentException("Not enough fields provided (min 8)");
         }
-        if(fields[4].equals(".")) {
-            throw new NotAVariantException("Alternative allele is a '.'. This is not an actual variant but a reference position.");
-        }
-
-        List<Variant> variants = new LinkedList<>();
+//        if(fields[4].equals(".")) {
+//            throw new NotAVariantException("Alternative allele is a '.'. This is not an actual variant but a reference position.");
+//        }
 
         String chromosome = fields[0];
         int position = Integer.parseInt(fields[1]);
@@ -82,56 +81,38 @@ public class VariantVcfFactory implements VariantFactory {
         String alternate = fields[4];
 //        String alternate = fields[4].equals(".") ? "" : fields[4];
         String[] alternateAlleles = alternate.split(",");
+        String mainAlternate = alternateAlleles[0];
         float quality = fields[5].equals(".") ? -1 : Float.parseFloat(fields[5]);
         String filter = fields[6].equals(".") ? "" : fields[6];
         String info = fields[7].equals(".") ? "" : fields[7];
         String format = (fields.length <= 8 || fields[8].equals(".")) ? "" : fields[8];
 
-        List<VariantKeyFields> generatedKeyFields = variantNormalizer.normalize(
-                chromosome, position, reference, Arrays.asList(alternateAlleles));
+        int end = position + reference.length() - 1;
 
-        for (int i = 0; i < generatedKeyFields.size(); i++) {
+        Variant variant = new Variant(chromosome, position, end, reference, mainAlternate);
 
-            // Since the reference and alternate alleles won't necessarily match
-            // the ones read from the VCF file but they are still needed for
-            // instantiating the variants, they must be updated
-            alternateAlleles[i] = generatedKeyFields.get(i).getAlternate();
+        List<AlternateCoordinate> secondaryAlternatesMap = Arrays.stream(alternateAlleles, 1, alternateAlleles.length)
+                .map(a -> new AlternateCoordinate(chromosome, null, null, null, a, null))
+                .collect(Collectors.toList());
+        StudyEntry entry = new StudyEntry(source.getStudyId(), secondaryAlternatesMap, Arrays.asList(format.split(":")));
+        entry.setFileId(source.getFileId());
+        variant.addStudyEntry(entry);
+
+        try {
+            parseSplitSampleData(entry, source, fields, reference, alternateAlleles);
+            // Fill the rest of fields (after samples because INFO depends on them)
+            setOtherFields(variant, source, ids, quality, filter, info, format, alternateAlleles, line);
+        } catch (NonStandardCompliantSampleField ex) {
+            Logger.getLogger(VariantFactory.class.getName()).log(Level.SEVERE,
+                    String.format("Variant %s:%d:%s>%s will not be saved\n%s",
+                            chromosome, position, reference, alternate, ex.getMessage()));
         }
 
-        // Now create all the Variant objects read from the VCF record
-        for (int i = 0; i < alternateAlleles.length; i++) {
-            VariantKeyFields keyFields = generatedKeyFields.get(i);
-            Variant variant = new Variant(chromosome, keyFields.getStart(), keyFields.getEnd(), keyFields.getReference(), keyFields.getAlternate());
-//            String[] secondaryAlternates = getSecondaryAlternates(variant, keyFields.getNumAllele(), alternateAlleles);
-            List<AlternateCoordinate> secondaryAlternatesMap = variantNormalizer.getSecondaryAlternatesMap(chromosome, keyFields, generatedKeyFields);
-            StudyEntry entry = new StudyEntry(source.getStudyId(), secondaryAlternatesMap, Arrays.asList(format.split(":")));
-            entry.setFileId(source.getFileId());
-            variant.addStudyEntry(entry);
-
-            try {
-                parseSplitSampleData(entry, source, fields, reference, alternateAlleles, keyFields);
-                // Fill the rest of fields (after samples because INFO depends on them)
-                setOtherFields(variant, source, ids, quality, filter, info, format, keyFields.getNumAllele(), alternateAlleles, line);
-                if (alternateAlleles.length > 1
-                        || keyFields.getStart() != variant.getStart()
-                        || keyFields.getEnd() != variant.getEnd()
-                        || !Objects.equals(keyFields.getAlternate(), variant.getAlternate())
-                        || !Objects.equals(keyFields.getReference(), variant.getReference())) {
-                    entry.getFile(source.getFileId()).setCall(fields[1] + ":" + fields[3] + ":" + fields[4] + ":" + keyFields.getNumAllele());
-                }
-                variants.add(variant);
-            } catch (NonStandardCompliantSampleField ex) {
-                Logger.getLogger(VariantFactory.class.getName()).log(Level.SEVERE,
-                        String.format("Variant %s:%d:%s>%s will not be saved\n%s",
-                                chromosome, position, reference, alternateAlleles[i], ex.getMessage()));
-            }
-        }
-
-        return variants;
+        return Collections.singletonList(variant);
     }
 
     protected void parseSplitSampleData(StudyEntry entry, VariantSource source, String[] fields,
-                                        String reference, String[] alternateAlleles, VariantKeyFields variantKeyFields) throws NonStandardCompliantSampleField {
+                                        String reference, String[] alternateAlleles) throws NonStandardCompliantSampleField {
 //        List<String> formatFields = variant.getSourceEntry(source.getFileId(), source.getStudyId()).getFormat();
 
         if (fields.length < 9) {
@@ -156,7 +137,7 @@ public class VariantVcfFactory implements VariantFactory {
             samplesData.set(i - 9, data);
         }
 
-        samplesData = variantNormalizer.normalizeSamplesData(variantKeyFields, samplesData, formatFields, reference, Arrays.asList(alternateAlleles), null);
+//        samplesData = variantNormalizer.normalizeSamplesData(variantKeyFields, samplesData, formatFields, reference, Arrays.asList(alternateAlleles), null);
 
         // Add samples data to the variant entry in the source file
         entry.setSamplesData(samplesData);
@@ -191,87 +172,89 @@ public class VariantVcfFactory implements VariantFactory {
     }
 
     protected void setOtherFields(Variant variant, VariantSource source, List<String> ids, float quality, String filter,
-            String info, String format, int numAllele, String[] alternateAlleles, String line) {
+                                  String info, String format, String[] alternateAlleles, String line) {
         // Fields not affected by the structure of REF and ALT fields
         if (!ids.isEmpty()) {
             variant.setIds(ids);
         }
         if (quality > -1) {
-            variant.getSourceEntry(source.getFileId(), source.getStudyId()).addAttribute(StudyEntry.QUAL, String.valueOf(quality));
+            variant.getStudy(source.getStudyId()).addAttribute(source.getFileId(), StudyEntry.QUAL, String.valueOf(quality));
         }
         if (!filter.isEmpty()) {
-            variant.getSourceEntry(source.getFileId(), source.getStudyId()).addAttribute(StudyEntry.FILTER, filter);
+            variant.getStudy(source.getStudyId()).addAttribute(source.getFileId(), StudyEntry.FILTER, filter);
         }
         if (!info.isEmpty()) {
-            parseInfo(variant, source.getFileId(), source.getStudyId(), info, numAllele);
+            parseInfo(variant, source.getFileId(), source.getStudyId(), info);
         }
-        variant.getSourceEntry(source.getFileId(), source.getStudyId()).addAttribute(StudyEntry.SRC, line);
+        variant.getStudy(source.getStudyId()).addAttribute(source.getFileId(), StudyEntry.SRC, line);
     }
 
-    protected void parseInfo(Variant variant, String fileId, String studyId, String info, int numAllele) {
-        StudyEntry file = variant.getSourceEntry(fileId, studyId);
-        
+    protected void parseInfo(Variant variant, String fileId, String studyId, String info) {
+        StudyEntry study = variant.getStudy(studyId);
+        FileEntry file = study.getFile(fileId);
+
         for (String var : info.split(";")) {
             String[] splits = var.split("=");
             if (splits.length == 2) {
-                switch (splits[0]) {
-                    case "ACC":
-                        // Managing accession ID for the allele
-                        String[] ids = splits[1].split(",");
-                        file.addAttribute(splits[0], ids[numAllele]);
-                        break;
-
-                // next is commented to store the AC, AF and AN as-is, to be able to compute stats from the DB using the attributes, and "ori" tag
-//                    case "AC":
-//                        // TODO For now, only one alternate is supported
-//                        String[] counts = splits[1].split(",");
-//                        file.addAttribute(splits[0], counts[numAllele]);
+                file.getAttributes().put(splits[0], splits[1]);
+//                switch (splits[0]) {
+//                    case "ACC":
+//                        // Managing accession ID for the allele
+//                        String[] ids = splits[1].split(",");
+//                        file.addAttribute(splits[0], ids[numAllele]);
 //                        break;
-//                    case "AF":
-//                         // TODO For now, only one alternate is supported
-//                        String[] frequencies = splits[1].split(",");
-//                        file.addAttribute(splits[0], frequencies[numAllele]);
+//
+//                // next is commented to store the AC, AF and AN as-is, to be able to compute stats from the DB using the attributes, and "ori" tag
+////                    case "AC":
+////                        // TODO For now, only one alternate is supported
+////                        String[] counts = splits[1].split(",");
+////                        file.addAttribute(splits[0], counts[numAllele]);
+////                        break;
+////                    case "AF":
+////                         // TODO For now, only one alternate is supported
+////                        String[] frequencies = splits[1].split(",");
+////                        file.addAttribute(splits[0], frequencies[numAllele]);
+////                        break;
+////                    case "AN":
+////                        // TODO For now, only two alleles (reference and one alternate) are supported, but this should be changed
+////                        file.addAttribute(splits[0], "2");
+////                        break;
+//                    case "NS":
+//                        // Count the number of samples that are associated with the allele
+//                        file.addAttribute(splits[0], String.valueOf(file.getSamplesData().size()));
 //                        break;
-//                    case "AN":
-//                        // TODO For now, only two alleles (reference and one alternate) are supported, but this should be changed
-//                        file.addAttribute(splits[0], "2");
+//                    case "DP":
+//                        int dp = 0;
+//                        for (String sampleName : file.getSamplesName()) {
+//                            String sampleDp = file.getSampleData(sampleName, "DP");
+//                            if (StringUtils.isNumeric(sampleDp)) {
+//                                dp += Integer.parseInt(sampleDp);
+//                            }
+//                        }
+//                        file.addAttribute(splits[0], String.valueOf(dp));
 //                        break;
-                    case "NS":
-                        // Count the number of samples that are associated with the allele
-                        file.addAttribute(splits[0], String.valueOf(file.getSamplesData().size()));
-                        break;
-                    case "DP":
-                        int dp = 0;
-                        for (String sampleName : file.getSamplesName()) {
-                            String sampleDp = file.getSampleData(sampleName, "DP");
-                            if (StringUtils.isNumeric(sampleDp)) {
-                                dp += Integer.parseInt(sampleDp);
-                            }
-                        }
-                        file.addAttribute(splits[0], String.valueOf(dp));
-                        break;
-                    case "MQ":
-                    case "MQ0":
-                        int mq = 0;
-                        int mq0 = 0;
-                        for (String sampleName : file.getSamplesName()) {
-                            if (StringUtils.isNumeric(file.getSampleData(sampleName, "GQ"))) {
-                                int gq = Integer.parseInt(file.getSampleData(sampleName, "GQ"));
-                                mq += gq * gq;
-                                if (gq == 0) {
-                                    mq0++;
-                                }
-                            }
-                        }
-                        file.addAttribute("MQ", String.valueOf(mq));
-                        file.addAttribute("MQ0", String.valueOf(mq0));
-                        break;
-                    default:
-                        file.addAttribute(splits[0], splits[1]);
-                        break;
-                }
+//                    case "MQ":
+//                    case "MQ0":
+//                        int mq = 0;
+//                        int mq0 = 0;
+//                        for (String sampleName : file.getSamplesName()) {
+//                            if (StringUtils.isNumeric(file.getSampleData(sampleName, "GQ"))) {
+//                                int gq = Integer.parseInt(file.getSampleData(sampleName, "GQ"));
+//                                mq += gq * gq;
+//                                if (gq == 0) {
+//                                    mq0++;
+//                                }
+//                            }
+//                        }
+//                        file.addAttribute("MQ", String.valueOf(mq));
+//                        file.addAttribute("MQ0", String.valueOf(mq0));
+//                        break;
+//                    default:
+//                        file.addAttribute(splits[0], splits[1]);
+//                        break;
+//                }
             } else {
-                variant.getSourceEntry(fileId, studyId).addAttribute(splits[0], "");
+                file.getAttributes().put(splits[0], "");
             }
         }
     }

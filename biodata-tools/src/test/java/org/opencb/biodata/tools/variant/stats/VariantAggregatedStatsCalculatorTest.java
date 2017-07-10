@@ -3,10 +3,11 @@ package org.opencb.biodata.tools.variant.stats;
 import org.junit.Test;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.VariantAggregatedVcfFactory;
+import org.opencb.biodata.formats.variant.vcf4.VariantAggregatedVcfFactory;
 import org.opencb.biodata.models.variant.VariantSource;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.stats.VariantStats;
+import org.opencb.biodata.tools.variant.VariantNormalizer;
 import org.opencb.commons.test.GenericTest;
 
 import java.util.*;
@@ -27,7 +28,7 @@ public class VariantAggregatedStatsCalculatorTest extends GenericTest {
     public void parseAC_AN() {
         String line = "1\t54722\t.\tTTC\tT,TCTC\t999\tPASS\tDP4=3122,3282,891,558;DP=22582;INDEL;IS=3,0.272727;VQSLOD=6.76;AN=3854;AC=889,61;TYPE=del,ins;HWE=0;ICF=-0.155251";   // structure like uk10k
 
-        List<Variant> variants = factory.create(source, line);
+        List<Variant> variants = readLine(line);
         VariantAggregatedStatsCalculator calculator = new VariantAggregatedStatsCalculator();
         calculator.calculate(variants);
 
@@ -45,7 +46,7 @@ public class VariantAggregatedStatsCalculatorTest extends GenericTest {
     public void parseMissing_AF() {
         String line = "1\t54722\t.\tT\tG\t999\tPASS\tAN=0;AC=0;AF=.;GTC=0,0,0";   // structure like gnomad
 
-        List<Variant> variants = factory.create(source, line);
+        List<Variant> variants = readLine(line);
         VariantAggregatedStatsCalculator calculator = new VariantAggregatedStatsCalculator();
         calculator.calculate(variants);
 
@@ -59,7 +60,7 @@ public class VariantAggregatedStatsCalculatorTest extends GenericTest {
     public void parseGTC () {
         String line = "20\t61098\trs6078030\tC\tT\t51254.56\tPASS\tAC=225;AN=996;GTC=304,163,31";   // structure like gonl
 
-        List<Variant> variants = factory.create(source, line);
+        List<Variant> variants = readLine(line);
         VariantAggregatedStatsCalculator calculator = new VariantAggregatedStatsCalculator();
         calculator.calculate(variants);
 
@@ -79,11 +80,11 @@ public class VariantAggregatedStatsCalculatorTest extends GenericTest {
         properties.put("ALL.AC", "AC");
         properties.put("ALL.AN", "AN");
         properties.put("ALL.AF", "AF");
-        List<Variant> variants = new VariantAggregatedVcfFactory().create(source, line);
+        List<Variant> variants = new VariantNormalizer().apply(new VariantAggregatedVcfFactory().create(source, line));
         VariantAggregatedStatsCalculator calculator = new VariantAggregatedStatsCalculator(properties);
         calculator.calculate(variants);
 
-        VariantStats stats = variants.get(0).getSourceEntry(source.getFileId(), source.getStudyId()).getStats(StudyEntry.DEFAULT_COHORT);
+        VariantStats stats = variants.get(0).getStudy(source.getStudyId()).getStats(StudyEntry.DEFAULT_COHORT);
         assertEquals(Integer.valueOf(523), stats.getRefAlleleCount());
         assertEquals(Integer.valueOf(3), stats.getAltAlleleCount());
         assertEquals(0.006, stats.getAltAlleleFreq(), 0.0001);
@@ -94,7 +95,7 @@ public class VariantAggregatedStatsCalculatorTest extends GenericTest {
         assertEquals(Integer.valueOf(6), stats.getGenotypesCount().get(new Genotype("0/2", "G", "A")));
         assertEquals(Integer.valueOf(0), stats.getGenotypesCount().get(new Genotype("./.", "G", "A")));
 
-        stats = variants.get(1).getSourceEntry(source.getFileId(), source.getStudyId()).getCohortStats("ALL");
+        stats = variants.get(1).getStudy(source.getStudyId()).getStats("ALL");
         assertEquals(Integer.valueOf(6), stats.getGenotypesCount().get(new Genotype("0/1", "G", "C")));
 
     }
@@ -103,7 +104,7 @@ public class VariantAggregatedStatsCalculatorTest extends GenericTest {
     public void parseWithGTS () {
         String line = "1\t861255\t.\tA\tG\t.\tPASS\tAC=2;AF=0.0285714285714286;AN=70;GTS=GG,GA,AA;GTC=1,0,34";
 
-        List<Variant> variants = factory.create(source, line);
+        List<Variant> variants = readLine(line);
         VariantAggregatedStatsCalculator calculator = new VariantAggregatedStatsCalculator();
         calculator.calculate(variants);
 
@@ -145,5 +146,8 @@ public class VariantAggregatedStatsCalculatorTest extends GenericTest {
         assertEquals(alleles[0], new Integer(2));
     }
 
+    private List<Variant> readLine(String line) {
+        return new VariantNormalizer().apply(factory.create(source, line));
+    }
 }
 
