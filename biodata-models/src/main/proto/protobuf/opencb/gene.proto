@@ -28,9 +28,21 @@ message MiRNAGene {
     }
 }
 
+message GeneTraitAssociation {
+    string id = 1;
+    string name = 2;
+    string hpo = 3;
+    float score = 4;
+    int32 numberOfPubmeds = 5;
+    repeated string associationTypes = 6;
+    repeated string sources = 7;
+    string source = 8;
+}
+
 message GeneAnnotation {
 	repeated Expression expression = 1;
 	repeated GeneDrugInteraction drugInteractions = 2;
+	repeated GeneTraitAssociation geneTraitAssociation = 3;
 }
 
 message Gene {

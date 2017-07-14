@@ -8,6 +8,7 @@ option java_generate_equals_and_hash = true;
 //option java_multiple_files = true;
 
 import "protobuf/opencb/common.proto";
+import "protobuf/opencb/gene.proto";
 
 // enum ExpressionCall in common.proto
 
@@ -38,25 +39,59 @@ message Cosmic {
     string mutation_somatic_status = 9;
 }
 
+message Germline {
+    string source = 1;
+    string accession = 2;
+    string clinical_significance = 3;
+    string phenotype = 4;
+    string disease = 5;
+    string review_status = 6;
+    repeated string gene_names = 7;
+    repeated string protein_names = 8;
+    string penetrance = 9;
+    string heritance_model = 10;
+    repeated string bibliography = 11;
+    repeated string drugs = 12;
+}
+
+message Somatic {
+    string source = 1;
+    string accession = 2;
+    string primary_site = 3;
+    string site_subtype = 4;
+    string primary_histology = 5;
+    string histology_subtype = 6;
+    string sample_source = 7;
+    string tumour_origin = 8;
+    string mutation_somatic_status = 9;
+    string review_status = 10;
+    repeated string gene_names = 11;
+    repeated string protein_names = 12;
+    repeated string bibliography = 13;
+    repeated string drugs = 14;
+}
+
 message VariantTraitAssociation {
     repeated ClinVar clinvar = 1;
     repeated Gwas gwas = 2;
     repeated Cosmic cosmic = 3;
+    repeated Germline germline = 4;
+    repeated Somatic somatic = 5;
 }
 
 // message GeneDrugInteraction in common.proto
 // message Expression in common.proto
 
-message GeneTraitAssociation {
-    string id = 1;
-    string name = 2;
-    string hpo = 3;
-    float score = 4;
-    int32 number_of_pubmeds = 5;
-    repeated string association_types = 6;
-    repeated string sources = 7;
-    string source = 8;
-}
+//message GeneTraitAssociation {
+//    string id = 1;
+//    string name = 2;
+//    string hpo = 3;
+//    float score = 4;
+//    int32 number_of_pubmeds = 5;
+//    repeated string association_types = 6;
+//    repeated string sources = 7;
+//    string source = 8;
+//}
 
 message PopulationFrequency {
     string study = 1;
