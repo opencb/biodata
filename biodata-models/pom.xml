@@ -83,7 +83,6 @@
                 <targetPath>avro</targetPath>
             </resource>
         </resources>
-
         <extensions>
             <extension>
                 <groupId>kr.motd.maven</groupId>
