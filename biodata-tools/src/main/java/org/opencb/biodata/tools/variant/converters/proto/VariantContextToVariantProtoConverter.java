@@ -31,6 +31,7 @@ import org.opencb.biodata.models.variant.protobuf.VariantAnnotationProto.Protein
 import org.opencb.biodata.models.variant.protobuf.VariantProto;
 import org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate;
 import org.opencb.biodata.tools.variant.converters.Converter;
+import org.opencb.biodata.tools.variant.converters.avro.VariantContextToVariantConverter;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -152,6 +153,7 @@ public class VariantContextToVariantProtoConverter implements Converter<VariantC
         }
         variantSourceEntry.addAllFormat(formatFields);
 
+        Map<Allele, String> allelesMap = VariantContextToVariantConverter.getAlleleStringMap(variantContext);
 
         // set sample data parameters Eg: GT:GQ:GQX:DP:DPF:AD 1/1:63:29:22:7:0,22
 //        List<List<String>> sampleDataList = new ArrayList<>(variantContext.getSamplesName().size());
@@ -164,8 +166,7 @@ public class VariantContextToVariantProtoConverter implements Converter<VariantC
                 final String value;
                 switch (formatField) {
                     case VCFConstants.GENOTYPE_KEY:
-                        //TODO: Change from specific allele genotype to codified genotype (A/C -> 0/1)
-                        value = genotype.getGenotypeString();
+                        value = VariantContextToVariantConverter.genotypeToString(allelesMap, genotype);
                         break;
                     default:
                         Object attribute = genotype.getAnyAttribute(formatField);
@@ -339,7 +340,7 @@ public class VariantContextToVariantProtoConverter implements Converter<VariantC
         variantTraitAssociation.addAllClinvar(Arrays.asList());
         variantTraitAssociation.addAllCosmic(Arrays.asList());
         variantTraitAssociation.addAllGwas(Arrays.asList());
-        variantAnnotation.setTraitAssociation(variantTraitAssociation);
+        variantAnnotation.setVariantTraitAssociation(variantTraitAssociation);
 
         /*
          * set ConsequenceTypes list type parameter

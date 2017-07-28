@@ -22,7 +22,7 @@ package org.opencb.biodata.tools.variant.stats;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.StudyEntry;
-import org.opencb.biodata.models.variant.VariantVcfFactory;
+import org.opencb.biodata.formats.variant.vcf4.VariantVcfFactory;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
 import java.util.LinkedHashMap;

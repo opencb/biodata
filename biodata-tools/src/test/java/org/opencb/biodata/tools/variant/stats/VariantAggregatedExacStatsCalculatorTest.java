@@ -17,9 +17,12 @@
 package org.opencb.biodata.tools.variant.stats;
 
 import org.junit.Test;
+import org.opencb.biodata.formats.variant.vcf4.VariantAggregatedVcfFactory;
+import org.opencb.biodata.formats.variant.VariantFactory;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.*;
 import org.opencb.biodata.models.variant.stats.VariantStats;
+import org.opencb.biodata.tools.variant.VariantNormalizer;
 import org.opencb.commons.test.GenericTest;
 
 import java.util.*;
@@ -35,6 +38,8 @@ public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
 
     private VariantSource source = new VariantSource("Exac", "Exac", "Exac", "Exac");
     private VariantFactory factory = new VariantAggregatedVcfFactory();
+    private VariantNormalizer normalizer = new VariantNormalizer();
+    ;
 
     @Test
     public void basicLine() {
@@ -56,7 +61,7 @@ public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
                 + "non_coding_transcript_variant|604||||||1||1|DDX11L1|HGNC|37102|transcribed_unprocessed_pseudogene|||||||||3/4|||"
                 + "ENST00000518655.2:n.604G>T|||||||||||||||||||,T||ENSR00000528767|RegulatoryFeature|regulatory_region_variant|||||||"
                 + "1||||||regulatory_region|||||||||||||||||||||||||||||||";
-        List<Variant> res = factory.create(source, line);
+        List<Variant> res = readLine(line);
 
         assertTrue(res.size() == 1);
 
@@ -106,7 +111,7 @@ public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
                 + "||regulatory_region|||||||||||||||||||||||||||||||,C||ENSR00000278218|RegulatoryFeature|regulatory_region_variant||"
                 + "||||rs55874132|3||||||regulatory_region|||||||||||||||||||||||||||||||";
 
-        List<Variant> res = factory.create(source, line);
+        List<Variant> res = readLine(line);
 
         assertTrue(res.size() == 3);
 
@@ -168,6 +173,10 @@ public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
         assertEquals(genotypes, sourceEntry.getStats(StudyEntry.DEFAULT_COHORT).getGenotypesCount());
         assertEquals(0, sourceEntry.getStats(StudyEntry.DEFAULT_COHORT).getAltAlleleCount().longValue());
         assertEquals(79012 - 1 - 2 - 1 - 2, sourceEntry.getStats(StudyEntry.DEFAULT_COHORT).getRefAlleleCount().longValue());
+    }
+
+    private List<Variant> readLine(String line) {
+        return normalizer.apply(factory.create(source, line));
     }
 
     @Test
@@ -237,7 +246,7 @@ public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
         properties.put("ALL.HET", "AC_Het");
         properties.put("ALL.HOM", "AC_Hom");
         VariantFactory exacFactory = new VariantAggregatedVcfFactory();
-        List<Variant> res = exacFactory.create(source, line);
+        List<Variant> res = normalizer.apply(exacFactory.create(source, line));
 
         assertTrue(res.size() == 2);
 
