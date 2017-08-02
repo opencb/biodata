@@ -23,7 +23,7 @@ package org.opencb.biodata.tools;
  * Converts between two Java classes.
  *
  * Created by pfurio on 25/10/16.
- * @author Joaquín Tárraga Giménez &lt;joaquintarraga@gmail.com&gt;
+ * @author Joaquin Tarraga &lt;joaquintarraga@gmail.com&gt;
  */
 public interface Converter<S, T> {
 

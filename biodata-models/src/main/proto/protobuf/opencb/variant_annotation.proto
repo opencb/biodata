@@ -8,6 +8,8 @@ option java_generate_equals_and_hash = true;
 //option java_multiple_files = true;
 
 import "protobuf/opencb/common.proto";
+import "protobuf/opencb/gene.proto";
+import "protobuf/opencb/evidence.proto";
 
 // enum ExpressionCall in common.proto
 
@@ -47,16 +49,16 @@ message VariantTraitAssociation {
 // message GeneDrugInteraction in common.proto
 // message Expression in common.proto
 
-message GeneTraitAssociation {
-    string id = 1;
-    string name = 2;
-    string hpo = 3;
-    float score = 4;
-    int32 number_of_pubmeds = 5;
-    repeated string association_types = 6;
-    repeated string sources = 7;
-    string source = 8;
-}
+//message GeneTraitAssociation {
+//    string id = 1;
+//    string name = 2;
+//    string hpo = 3;
+//    float score = 4;
+//    int32 number_of_pubmeds = 5;
+//    repeated string association_types = 6;
+//    repeated string sources = 7;
+//    string source = 8;
+//}
 
 message PopulationFrequency {
     string study = 1;
@@ -167,7 +169,8 @@ message VariantAnnotation {
     repeated Expression gene_expression = 16;
     repeated GeneTraitAssociation gene_trait_association = 17;
     repeated GeneDrugInteraction gene_drug_interaction = 18;
-    VariantTraitAssociation trait_association = 19;
+    VariantTraitAssociation variant_trait_association = 19;
+    repeated EvidenceEntry trait_association = 24;
     repeated Score functional_score = 20;
     repeated Repeat repeat = 21;
     repeated Cytoband cytoband = 22;
