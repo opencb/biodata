@@ -34,7 +34,7 @@ protocol VariantMetadataProtocol {
         map<ChromosomeStats> chromosomeStats = {};
     }
 
-    record FileHeaderLine {
+    record VariantFileHeaderLine {
         string key;
 
         // basic lines, e.g. fileDate=20090805
@@ -52,52 +52,55 @@ protocol VariantMetadataProtocol {
         // union { string, ComplexHeaderLine } value;
     }
 
-    record FileHeader {
+    record VariantFileHeader {
         string version;
-        array<FileHeaderLine> lines;
+        array<VariantFileHeaderLine> lines;
     }
 
     record VariantFileMetadata {
         string id;
-        union { null, string } alias;
+        union { null, string } alias = null;
 
         array<string> sampleIds = [ ];
 
-        org.opencb.biodata.models.variant.commons.Aggregation aggregation;
+        union {null, VariantFileHeader} header = null;
+    }
 
-        union {null, VariantSetStats } stats;
-        union {null, FileHeader} header;
+    record VariantDatasetStats {
+        map<VariantSetStats> fileStats = { };
+
+        map<VariantSetStats> sampleStats = { };
+
+        map<VariantSetStats> cohortStats = { };
     }
 
     record VariantDatasetMetadata {
+
         string id;
-        // should we add these new field?
-        // union { null, string } alias = "";
-        // union { null, string } name;  <--- No
-        union { null, string } description;
-        union { null, string } url;
 
-        org.opencb.biodata.models.metadata.Experiment experiment;
-        union { null, org.opencb.biodata.models.metadata.Program } program;
+        union { null, string } description = null;
 
-        union {null, VariantSetStats } stats;
+        org.opencb.biodata.models.variant.commons.Aggregation aggregation = "NONE";
+
+        union {null, VariantFileHeader} aggregatedHeader = null;
 
         array<VariantFileMetadata> files = [ ];
 
         array<org.opencb.biodata.models.metadata.Individual> individuals = [ ];
-        map<VariantSetStats> sampleStats = { };
 
         array<org.opencb.biodata.models.metadata.Cohort> cohorts = [ ];
-        map<VariantSetStats> cohortStats = { };
 
-        string sourceType;
         org.opencb.biodata.models.metadata.SampleSetType sampleSetType;
+
+        union { null, VariantDatasetStats } stats = null;
+
+        map<string> attributes = {};
     }
 
     record VariantMetadata {
         string version;
         union { null, org.opencb.biodata.models.metadata.Species } species;
-        union { null, string } date;
+        union { null, string } date = null;
         //union { null, string } description;
         string description = "";
 

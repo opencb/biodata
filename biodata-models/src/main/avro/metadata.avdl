@@ -29,10 +29,10 @@ protocol MetadataProtocol {
 
     record Species {
         string id; // e.g. hsapiens for homo sapines, mmusculus for mus musculus,...
-        string scientificName;
-        string taxonomyId;
-        string strain;
-        string assembly;
+        string scientificName = null;
+        string taxonomyId = null;
+        string strain = null;
+        string assembly = null;
     }
 
     record Program {
@@ -53,20 +53,20 @@ protocol MetadataProtocol {
         //		n for numeric (i = integer, f = float)
         //		s for string
         //		b for boolean
-        map<string> info;
+        map<string> info = {};
     }
 
     record Individual {
         string id;
-        string family;
-        string father;
-        string mother;
-        string sex;
-        string phenotype;
+        union { null, string } family = null;
+        union { null, string } father = null;
+        union { null, string } mother = null;
+        union { null, string } sex = null;
+        union { null, string } phenotype = null;
 
         //map<string> info;
 
-        array<Sample> samples;
+        array<Sample> samples = [];
     }
 
     record Cohort {
