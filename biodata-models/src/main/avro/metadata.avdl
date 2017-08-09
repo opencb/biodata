@@ -29,10 +29,10 @@ protocol MetadataProtocol {
 
     record Species {
         string id; // e.g. hsapiens for homo sapines, mmusculus for mus musculus,...
-        string scientificName = null;
-        string taxonomyId = null;
-        string strain = null;
-        string assembly = null;
+        union { null, string } scientificName = null;
+        union { null, string } taxonomyId = null;
+        union { null, string } strain = null;
+        union { null, string } assembly = null;
     }
 
     record Program {

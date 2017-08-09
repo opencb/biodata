@@ -38,15 +38,15 @@ protocol VariantMetadataProtocol {
         string key;
 
         // basic lines, e.g. fileDate=20090805
-        string value;
+        union { null, string } value;
 
         // complex lines, e.g. INFO=<ID=NS,Number=1,Type=Integer,Description="Number of samples with data">
-        string id;
-        string number;
-        string type;
-        string description;
-        union { null, string } source;
-        union { null, string } version;
+        union { null, string } id;
+        union { null, string } number;
+        union { null, string } type;
+        union { null, string } description;
+        union { null, string } source = null;
+        union { null, string } version = null;
 
         // it could be defined as an:
         // union { string, ComplexHeaderLine } value;
