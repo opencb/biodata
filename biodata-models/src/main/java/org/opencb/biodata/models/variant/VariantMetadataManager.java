@@ -13,11 +13,17 @@ import org.opencb.biodata.models.metadata.Species;
 import org.opencb.biodata.models.variant.metadata.VariantDatasetMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantFileMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantMetadata;
+import org.opencb.commons.utils.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -25,44 +31,70 @@ import java.util.*;
  */
 public class VariantMetadataManager {
 
-    private ObjectMapper mapper = null;
-    private String metaFilename = null;
-    private VariantMetadata variantMetadata = null;
+    private VariantMetadata variantMetadata;
+
+    private ObjectMapper mapper;
+    private Logger logger;
 
     public VariantMetadataManager() {
-        this("unknown", "unknown", "noname", "noname");
+        this(new Species("hsapiens", "Homo sapiens", "", null, "GRCh38"), "");
     }
 
-    public VariantMetadataManager(String species, String assembly,
-                                  String datasetName, String filename) {
-
+    public VariantMetadataManager(Species species, String description) {
         variantMetadata = new VariantMetadata();
 
-        // set species
-        variantMetadata.setSpecies(new Species(species, species, species, "unknown", assembly));
+        variantMetadata.setDate(LocalDateTime.now().toString());
+        variantMetadata.setSpecies(species);
+        variantMetadata.setDescription(description);
 
-        // set file
-        List<VariantFileMetadata> files = new ArrayList<>();
-        VariantFileMetadata file = new VariantFileMetadata();
-        file.setId(filename);
-        files.add(file);
-
-        // set dataset
-        List<VariantDatasetMetadata> datasets = new ArrayList<>();
-        VariantDatasetMetadata dataset = new VariantDatasetMetadata();
-        dataset.setId(datasetName);
-        dataset.setFiles(files);
-        datasets.add(dataset);
-        variantMetadata.setDatasets(datasets);
+//        // set file
+//        List<VariantFileMetadata> files = new ArrayList<>();
+//        VariantFileMetadata file = new VariantFileMetadata();
+//        file.setId(filename);
+//        files.add(file);
+//
+//        // set dataset
+//        List<VariantDatasetMetadata> datasets = new ArrayList<>();
+//        VariantDatasetMetadata dataset = new VariantDatasetMetadata();
+//        dataset.setId(datasetName);
+//        dataset.setFiles(files);
+//        datasets.add(dataset);
+//        variantMetadata.setDatasets(datasets);
 
         mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         mapper.configure(MapperFeature.REQUIRE_SETTERS_FOR_GETTERS, true);
+
+        logger = LoggerFactory.getLogger(VariantMetadataManager.class);
     }
 
-    public void load(String filename) throws IOException {
-        this.metaFilename = filename;
-        variantMetadata = mapper.readValue(new File(filename), VariantMetadata.class);
+    public void load(Path path) throws IOException {
+        FileUtils.checkPath(path);
+        logger.debug("Loading variant metadata from '{}'", path.toAbsolutePath().toString());
+        variantMetadata = mapper.readValue(path.toFile(), VariantMetadata.class);
+    }
+
+
+    public VariantDatasetMetadata getVariantDatasetMetadata(String datasetId) {
+        for (VariantDatasetMetadata dataset : variantMetadata.getDatasets()) {
+            if (datasetId.equals(dataset.getId())) {
+                return dataset;
+            }
+        }
+        return null;
+    }
+
+    public void addVariantDatasetMetadata(VariantDatasetMetadata variantDatasetMetadata) {
+        if (variantDatasetMetadata != null) {
+            VariantDatasetMetadata found = getVariantDatasetMetadata(variantDatasetMetadata.getId());
+            // if there is not any dataset with that ID then we add the new one
+            // TODO we need to think what to do when it exists, should we throw an exception?
+            if (found != null) {
+                variantMetadata.getDatasets().add(variantDatasetMetadata);
+            } else {
+                logger.error("Dataset ID already exists");
+            }
+        }
     }
 
     public void setSampleIds(String fileId, List<String> sampleIds) {
@@ -159,7 +191,6 @@ public class VariantMetadataManager {
             if (individuals.size() > 0) {
                 variantDatasetMetadata.setIndividuals(individuals);
             }
-
         }
         return variantMetadata;
     }
@@ -226,7 +257,12 @@ public class VariantMetadataManager {
         return pedigree;
     }
 
-    public String summary() {
+
+    public void print() throws IOException {
+        System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(variantMetadata));
+    }
+
+    public void printSummary() {
         StringBuilder res = new StringBuilder();
         res.append("Num. datasets: ").append(variantMetadata.getDatasets().size()).append("\n");
         int counter, datasetCounter = 0;
@@ -250,34 +286,48 @@ public class VariantMetadataManager {
                 res.append(" (").append(cohort.getSampleIds().size()).append(" samples)\n");
             }
         }
-        return res.toString();
+        System.out.println(res.toString());
     }
 
-    public void save() throws IOException {
-        save(metaFilename);
+
+    public void save(Path filename) throws IOException {
+       save(filename, false);
     }
 
-    public void save(String filename) throws IOException {
-        PrintWriter writer = new PrintWriter(new FileOutputStream(filename));
-        writer.write(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(
-                mapper.readValue(variantMetadata.toString(), Object.class)));
+    public void save(Path filename, boolean pretty) throws IOException {
+        if (filename == null || Files.exists(filename)) {
+            throw new IOException("File path not correct, either it is null or file already exists: " + filename);
+        }
+
+        String text;
+        if (pretty) {
+            text = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(variantMetadata);
+        } else {
+            text = mapper.writeValueAsString(variantMetadata);
+        }
+
+        PrintWriter writer = new PrintWriter(new FileOutputStream(filename.toFile()));
+        writer.write(text);
         writer.close();
     }
 
-    private VariantDatasetMetadata getVariantDatasetMetadata(String datasetId) {
-        for (VariantDatasetMetadata dataset : variantMetadata.getDatasets()) {
-            if (datasetId.equals(dataset.getId())) {
-                return dataset;
-            }
-        }
-        return null;
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("VariantMetadataManager{");
+        sb.append("variantMetadata=").append(variantMetadata);
+        sb.append(", mapper=").append(mapper);
+        sb.append('}');
+        return sb.toString();
     }
 
     public VariantMetadata getVariantMetadata() {
         return variantMetadata;
     }
 
-    public void setVariantMetadata(VariantMetadata variantMetadata) {
+    public VariantMetadataManager setVariantMetadata(VariantMetadata variantMetadata) {
         this.variantMetadata = variantMetadata;
+        return this;
     }
+
 }
