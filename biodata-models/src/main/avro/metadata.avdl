@@ -53,7 +53,7 @@ protocol MetadataProtocol {
         //		n for numeric (i = integer, f = float)
         //		s for string
         //		b for boolean
-        map<string> info = {};
+        map<string> annotation = {};
     }
 
     record Individual {

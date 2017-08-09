@@ -135,22 +135,22 @@ public class VariantMetadataManager {
                 if (src.getVariables() != null && src.getVariables().size() > 0) {
                     Sample sample = new Sample();
                     sample.setId(dest.getId());
-                    Map<String, String> info = new HashMap();
+                    Map<String, String> annotation = new HashMap<>();
                     for (String key: src.getVariables().keySet()) {
                         if (pedigree.getVariables().get(key) != null) {
                             VariableField.VariableType type = pedigree.getVariables().get(key).getType();
                             if (type == VariableField.VariableType.INTEGER) {
-                                info.put(key + ":i", src.getVariables().get(key).toString());
+                                annotation.put(key + ":i", src.getVariables().get(key).toString());
                             } else if (type == VariableField.VariableType.DOUBLE) {
-                                info.put(key + ":d", src.getVariables().get(key).toString());
+                                annotation.put(key + ":d", src.getVariables().get(key).toString());
                             } else if (type == VariableField.VariableType.BOOLEAN) {
-                                info.put(key + ":b", src.getVariables().get(key).toString());
+                                annotation.put(key + ":b", src.getVariables().get(key).toString());
                             } else {
-                                info.put(key + ":s", src.getVariables().get(key).toString());
+                                annotation.put(key + ":s", src.getVariables().get(key).toString());
                             }
                         }
                     }
-                    sample.setInfo(info);
+                    sample.setAnnotation(annotation);
                     dest.setSamples(Collections.singletonList(sample));
                 }
 
@@ -183,27 +183,27 @@ public class VariantMetadataManager {
                         .setPhenotype(src.getPhenotype());
                 // attributes
                 if (src.getSamples() != null && src.getSamples().size() > 0) {
-                    Map<String, String> attrs = src.getSamples().get(0).getInfo();
-                    if (attrs != null) {
+                    Map<String, String> annotation = src.getSamples().get(0).getAnnotation();
+                    if (annotation != null) {
                         Map<String, Object> variables = new HashMap<>();
-                        for (String key: attrs.keySet()) {
+                        for (String key: annotation.keySet()) {
                             String fields[] = key.split(":");
                             if (fields.length > 1) {
                                 switch (fields[1].toLowerCase()) {
                                     case "i":
-                                        variables.put(fields[0], Integer.parseInt(attrs.get(key)));
+                                        variables.put(fields[0], Integer.parseInt(annotation.get(key)));
                                         break;
                                     case "d":
-                                        variables.put(fields[0], Double.parseDouble(attrs.get(key)));
+                                        variables.put(fields[0], Double.parseDouble(annotation.get(key)));
                                         break;
                                     case "b":
-                                        variables.put(fields[0], Boolean.parseBoolean(attrs.get(key)));
+                                        variables.put(fields[0], Boolean.parseBoolean(annotation.get(key)));
                                         break;
                                     default:
-                                        variables.put(fields[0], attrs.get(key));
+                                        variables.put(fields[0], annotation.get(key));
                                 }
                             } else {
-                                variables.put(fields[0], attrs.get(key));
+                                variables.put(fields[0], annotation.get(key));
                             }
                         }
                         dest.setVariables(variables);
