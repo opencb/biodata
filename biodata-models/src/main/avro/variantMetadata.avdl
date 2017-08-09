@@ -37,24 +37,20 @@ protocol VariantMetadataProtocol {
     record VariantFileHeaderLine {
         string key;
 
-        // basic lines, e.g. fileDate=20090805
-        union { null, string } value;
+        string id;
+        union {null, string} description = null;
+        union {null, string} number = null;
+        union {null, string} type = null;
 
-        // complex lines, e.g. INFO=<ID=NS,Number=1,Type=Integer,Description="Number of samples with data">
-        union { null, string } id;
-        union { null, string } number;
-        union { null, string } type;
-        union { null, string } description;
-        union { null, string } source = null;
-        union { null, string } version = null;
-
-        // it could be defined as an:
-        // union { string, ComplexHeaderLine } value;
+        map<string> attributes = { };
     }
 
     record VariantFileHeader {
         string version;
-        array<VariantFileHeaderLine> lines;
+        // complex lines, e.g. INFO=<ID=NS,Number=1,Type=Integer,Description="Number of samples with data">
+        array<VariantFileHeaderLine> lines = [ ];
+        // basic lines, e.g. fileDate=20090805
+        map<string> attributes = { };
     }
 
     record VariantFileMetadata {
