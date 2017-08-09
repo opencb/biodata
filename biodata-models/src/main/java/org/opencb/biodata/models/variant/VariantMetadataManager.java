@@ -150,7 +150,7 @@ public class VariantMetadataManager {
                             }
                         }
                     }
-                    sample.setAnnotation(annotation);
+                    sample.setAnnotations(annotation);
                     dest.setSamples(Collections.singletonList(sample));
                 }
 
@@ -183,7 +183,7 @@ public class VariantMetadataManager {
                         .setPhenotype(src.getPhenotype());
                 // attributes
                 if (src.getSamples() != null && src.getSamples().size() > 0) {
-                    Map<String, String> annotation = src.getSamples().get(0).getAnnotation();
+                    Map<String, String> annotation = src.getSamples().get(0).getAnnotations();
                     if (annotation != null) {
                         Map<String, Object> variables = new HashMap<>();
                         for (String key: annotation.keySet()) {
