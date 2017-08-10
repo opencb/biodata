@@ -1,24 +1,42 @@
-package org.opencb.biodata.models.variant;
+/*
+ * <!--
+ *   ~ Copyright 2015-2017 OpenCB
+ *   ~
+ *   ~ Licensed under the Apache License, Version 2.0 (the "License");
+ *   ~ you may not use this file except in compliance with the License.
+ *   ~ You may obtain a copy of the License at
+ *   ~
+ *   ~     http://www.apache.org/licenses/LICENSE-2.0
+ *   ~
+ *   ~ Unless required by applicable law or agreed to in writing, software
+ *   ~ distributed under the License is distributed on an "AS IS" BASIS,
+ *   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   ~ See the License for the specific language governing permissions and
+ *   ~ limitations under the License.
+ *   -->
+ *
+ */
+
+package org.opencb.biodata.tools.variant;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.core.pedigree.Individual;
 import org.opencb.biodata.models.core.pedigree.Pedigree;
 import org.opencb.biodata.models.core.pedigree.VariableField;
 import org.opencb.biodata.models.metadata.Cohort;
 import org.opencb.biodata.models.metadata.Sample;
-import org.opencb.biodata.models.metadata.SampleSetType;
 import org.opencb.biodata.models.metadata.Species;
 import org.opencb.biodata.models.variant.metadata.VariantDatasetMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantFileMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantMetadata;
+import org.opencb.commons.datastore.core.Query;
 import org.opencb.commons.utils.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -26,6 +44,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by joaquin on 9/26/16.
@@ -36,6 +57,8 @@ public class VariantMetadataManager {
 
     private ObjectMapper mapper;
     private Logger logger;
+
+    private static final Pattern OPERATION_PATTERN = Pattern.compile("^()(<=?|>=?|!=|!?=?~|==?)([^=<>~!]+.*)$");
 
     public VariantMetadataManager() {
         this(new Species("hsapiens", "Homo sapiens", "", null, "GRCh38"), "");
@@ -253,6 +276,28 @@ public class VariantMetadataManager {
         return samples;
     }
 
+    public List<Sample> getSamples(Query query, String datasetId) {
+        List<Sample> sampleResult = new ArrayList<>();
+
+        List<Sample> samples = getSamples(datasetId);
+        List<Predicate<Sample>> predicates = parseSampleQuery(query);
+        boolean passFilter;
+        for (Sample sample : samples) {
+            passFilter = true;
+            for (Predicate<Sample> predicate : predicates) {
+                if (!predicate.test(sample)) {
+                    passFilter = false;
+                    break;
+                }
+            }
+
+            if (passFilter) {
+                sampleResult.add(sample);
+            }
+        }
+
+        return sampleResult;
+    }
 
     /*
     public void setSampleIds(String fileId, List<String> sampleIds) {
@@ -501,4 +546,96 @@ public class VariantMetadataManager {
         return this;
     }
 
+    private List<Predicate<Sample>> parseSampleQuery(Query query) {
+        List<Predicate<Sample>> filters = new ArrayList<>();
+
+        Iterator<String> iterator = query.keySet().iterator();
+        while (iterator.hasNext()) {
+            String key = iterator.next();
+            String value = query.getString(key);
+
+            Matcher matcher = OPERATION_PATTERN.matcher(value);
+            if (matcher.matches()) {
+                String comparator = matcher.group(0);
+                String queryValue = matcher.group(1);
+
+                switch (comparator) {
+                    case "=":
+                    case "==":
+                    case "!=":
+                        filters.add(sample -> {
+                            String s = sample.getAnnotations().getOrDefault(key, "");
+
+                            // TODO think about this
+//                            if (s.equals("")) {
+//                                return true;
+//                            }
+
+                            try {
+                                if (!comparator.equals("!=")) {
+                                    return Double.parseDouble(s) == Double.parseDouble(queryValue);
+                                } else {
+                                    return Double.parseDouble(s) != Double.parseDouble(queryValue);
+                                }
+                            } catch (NumberFormatException e) {
+                                if (!comparator.equals("!=")) {
+                                    return s.equals(queryValue);
+                                } else {
+                                    return !s.equals(queryValue);
+                                }
+                            }
+                        });
+                        break;
+                    case "<":
+                        filters.add(sample -> {
+                            try {
+                                String s = sample.getAnnotations().getOrDefault(key, "");
+                                return Double.parseDouble(s) < Double.parseDouble(queryValue);
+                            } catch (NumberFormatException e) {
+                               return false;
+                            }
+                        });
+                        break;
+                    case "<=":
+                        filters.add(sample -> {
+                            try {
+                                String s = sample.getAnnotations().getOrDefault(key, "");
+                                return Double.parseDouble(s) <= Double.parseDouble(queryValue);
+                            } catch (NumberFormatException e) {
+                                return false;
+                            }
+                        });
+                        break;
+                    case ">":
+                        filters.add(sample -> {
+                            try {
+                                String s = sample.getAnnotations().getOrDefault(key, "");
+                                return Double.parseDouble(s) > Double.parseDouble(queryValue);
+                            } catch (NumberFormatException e) {
+                                return false;
+                            }
+                        });
+                        break;
+                    case ">=":
+                        filters.add(sample -> {
+                            try {
+                                String s = sample.getAnnotations().getOrDefault(key, "");
+                                return Double.parseDouble(s) >= Double.parseDouble(queryValue);
+                            } catch (NumberFormatException e) {
+                                return false;
+                            }
+                        });
+                        break;
+                    case "~=":
+                        break;
+                    default:
+                        break;
+                }
+
+            }
+        }
+
+
+        return filters;
+    }
 }
