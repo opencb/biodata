@@ -3,6 +3,7 @@ package org.opencb.biodata.models.variant;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang.StringUtils;
 import org.opencb.biodata.models.core.pedigree.Individual;
 import org.opencb.biodata.models.core.pedigree.Pedigree;
 import org.opencb.biodata.models.core.pedigree.VariableField;
@@ -103,7 +104,7 @@ public class VariantMetadataManager {
     /**
      * Add a variant dataset metadata. Dataset ID must not exist.
      *
-     * @param variantDatasetMetadata    Variant dataset metadata to insert
+     * @param variantDatasetMetadata    Variant dataset metadata to add
      */
     public void addVariantDatasetMetadata(VariantDatasetMetadata variantDatasetMetadata) {
         if (variantDatasetMetadata != null) {
@@ -116,6 +117,99 @@ public class VariantMetadataManager {
                 logger.error("Dataset ID already exists");
             }
         }
+    }
+
+    /**
+     * Add a variant file metadata to a given variant dataset metadata (from dataset ID).
+     *
+     * @param fileMetadata  Variant file metadata to add
+     * @param datasetId     Dataset ID
+     */
+    public void addFile(VariantFileMetadata fileMetadata, String datasetId) {
+        // Sanity check
+        if (fileMetadata == null || StringUtils.isEmpty(fileMetadata.getId())) {
+            logger.error("Variant file metadata (or its ID) is null or empty.");
+            return;
+        }
+
+        VariantDatasetMetadata variantDatasetMetadata = getVariantDatasetMetadata(datasetId);
+        if (variantDatasetMetadata == null) {
+            logger.error("Dataset not found. Check your dataset ID: '{}'", datasetId);
+            return;
+        }
+        if (variantDatasetMetadata.getFiles() == null) {
+            variantDatasetMetadata.setCohorts(new ArrayList<>());
+        }
+        for (VariantFileMetadata file: variantDatasetMetadata.getFiles()) {
+            if (file.getId() != null && file.getId().equals(fileMetadata.getId())) {
+                logger.error("Variant file metadata with id '{}' already exists in dataset '{}'", fileMetadata.getId(),
+                        datasetId);
+                return;
+            }
+        }
+        variantDatasetMetadata.getFiles().add(fileMetadata);
+    }
+
+    /**
+     * Add an individual to a given variant dataset metadata (from dataset ID).
+     *
+     * @param individual  Individual to add
+     * @param datasetId   Dataset ID
+     */
+    public void addIndividual(org.opencb.biodata.models.metadata.Individual individual, String datasetId) {
+        // Sanity check
+        if (individual == null || StringUtils.isEmpty(individual.getId())) {
+            logger.error("Individual (or its ID) is null or empty.");
+            return;
+        }
+
+        VariantDatasetMetadata variantDatasetMetadata = getVariantDatasetMetadata(datasetId);
+        if (variantDatasetMetadata == null) {
+            logger.error("Dataset not found. Check your dataset ID: '{}'", datasetId);
+            return;
+        }
+        if (variantDatasetMetadata.getIndividuals() == null) {
+            variantDatasetMetadata.setIndividuals(new ArrayList<>());
+        }
+        for (org.opencb.biodata.models.metadata.Individual indi: variantDatasetMetadata.getIndividuals()) {
+            if (indi.getId() != null && indi.getId().equals(individual.getId())) {
+                logger.error("Individual with id '{}' already exists in dataset '{}'", individual.getId(),
+                        datasetId);
+                return;
+            }
+        }
+        variantDatasetMetadata.getIndividuals().add(individual);
+    }
+
+    /**
+     * Add a cohort to a given variant dataset metadata (from dataset ID).
+     *
+     * @param cohort    Cohort to add
+     * @param datasetId Dataset ID
+     */
+    public void addCohort(Cohort cohort, String datasetId) {
+        // Sanity check
+        if (cohort == null || StringUtils.isEmpty(cohort.getId())) {
+            logger.error("Cohort (or its ID) is null or empty.");
+            return;
+        }
+
+        VariantDatasetMetadata variantDatasetMetadata = getVariantDatasetMetadata(datasetId);
+        if (variantDatasetMetadata == null) {
+            logger.error("Dataset not found. Check your dataset ID: '{}'", datasetId);
+            return;
+        }
+        if (variantDatasetMetadata.getCohorts() == null) {
+            variantDatasetMetadata.setCohorts(new ArrayList<>());
+        }
+        for (Cohort coho: variantDatasetMetadata.getCohorts()) {
+            if (coho.getId() != null && coho.getId().equals(cohort.getId())) {
+                logger.error("Cohort with id '{}' already exists in dataset '{}'", cohort.getId(),
+                        datasetId);
+                return;
+            }
+        }
+        variantDatasetMetadata.getCohorts().add(cohort);
     }
 
     /**
@@ -145,7 +239,7 @@ public class VariantMetadataManager {
         return samples;
     }
 
-    
+
     /*
     public void setSampleIds(String fileId, List<String> sampleIds) {
         for (VariantDatasetMetadata dataset: variantMetadata.getDatasets()) {
