@@ -119,7 +119,8 @@ public class VariantMetadataManager {
     }
 
     /**
-     * Retrieve the samples for a given dataset (from its dataset ID).
+     * Retrieve all samples for a given dataset (from its dataset ID).
+     * For each sample, add a new annotation: INDIVIDUAL_ID.
      *
      * @param datasetId Dataset ID
      * @return          Sample list
@@ -134,12 +135,17 @@ public class VariantMetadataManager {
         List<Sample> samples = new ArrayList<>();
         for (org.opencb.biodata.models.metadata.Individual individual: variantDatasetMetadata.getIndividuals()) {
             for (Sample sample : individual.getSamples()) {
+                if (sample.getAnnotations() == null) {
+                    sample.setAnnotations(new HashMap<>());
+                }
+                sample.getAnnotations().put("INDIVIDUAL_ID", individual.getId());
                 samples.add(sample);
             }
         }
         return samples;
     }
 
+    
     /*
     public void setSampleIds(String fileId, List<String> sampleIds) {
         for (VariantDatasetMetadata dataset: variantMetadata.getDatasets()) {
