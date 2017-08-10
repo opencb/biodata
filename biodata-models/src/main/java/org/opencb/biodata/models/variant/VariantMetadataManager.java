@@ -72,6 +72,20 @@ public class VariantMetadataManager {
         FileUtils.checkPath(path);
         logger.debug("Loading variant metadata from '{}'", path.toAbsolutePath().toString());
         variantMetadata = mapper.readValue(path.toFile(), VariantMetadata.class);
+
+        // We need to add Individual info fields to their sample annotations to allow more complex queries
+        for (VariantDatasetMetadata variantDatasetMetadata : variantMetadata.getDatasets()) {
+            for (org.opencb.biodata.models.metadata.Individual individual : variantDatasetMetadata.getIndividuals()) {
+                for (Sample sample : individual.getSamples()) {
+                    sample.getAnnotations().put("individual.id", individual.getId());
+                    sample.getAnnotations().put("individual.family", individual.getFamily());
+                    sample.getAnnotations().put("individual.father", individual.getFather());
+                    sample.getAnnotations().put("individual.mother", individual.getMother());
+                    sample.getAnnotations().put("individual.sex", individual.getSex());
+                    sample.getAnnotations().put("individual.phenotype", individual.getPhenotype());
+                }
+            }
+        }
     }
 
 
