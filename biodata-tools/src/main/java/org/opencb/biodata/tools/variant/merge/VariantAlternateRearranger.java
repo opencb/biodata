@@ -339,7 +339,7 @@ public class VariantAlternateRearranger {
     }
 
     public String rearrange(String key, String data, @Nullable Integer ploidy) {
-        if (data.isEmpty() || data.equals(".")) {
+        if (StringUtils.isEmpty(data) || data.equals(".")) {
             // Do not rearrange missing values
             return data;
         }

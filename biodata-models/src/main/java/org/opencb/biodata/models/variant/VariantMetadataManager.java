@@ -13,11 +13,17 @@ import org.opencb.biodata.models.metadata.Species;
 import org.opencb.biodata.models.variant.metadata.VariantDatasetMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantFileMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantMetadata;
+import org.opencb.commons.utils.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -25,46 +31,116 @@ import java.util.*;
  */
 public class VariantMetadataManager {
 
-    private ObjectMapper mapper = null;
-    private String metaFilename = null;
-    private VariantMetadata variantMetadata = null;
+    private VariantMetadata variantMetadata;
+
+    private ObjectMapper mapper;
+    private Logger logger;
 
     public VariantMetadataManager() {
-        this("unknown", "unknown", "noname", "noname");
+        this(new Species("hsapiens", "Homo sapiens", "", null, "GRCh38"), "");
     }
 
-    public VariantMetadataManager(String species, String assembly,
-                                  String datasetName, String filename) {
-
+    public VariantMetadataManager(Species species, String description) {
         variantMetadata = new VariantMetadata();
 
-        // set species
-        variantMetadata.setSpecies(new Species(species, species, species, "unknown", assembly));
+        variantMetadata.setDate(LocalDateTime.now().toString());
+        variantMetadata.setSpecies(species);
+        variantMetadata.setDescription(description);
 
-        // set file
-        List<VariantFileMetadata> files = new ArrayList<>();
-        VariantFileMetadata file = new VariantFileMetadata();
-        file.setId(filename);
-        files.add(file);
-
-        // set dataset
-        List<VariantDatasetMetadata> datasets = new ArrayList<>();
-        VariantDatasetMetadata dataset = new VariantDatasetMetadata();
-        dataset.setId(datasetName);
-        dataset.setFiles(files);
-        datasets.add(dataset);
-        variantMetadata.setDatasets(datasets);
+//        // set file
+//        List<VariantFileMetadata> files = new ArrayList<>();
+//        VariantFileMetadata file = new VariantFileMetadata();
+//        file.setId(filename);
+//        files.add(file);
+//
+//        // set dataset
+//        List<VariantDatasetMetadata> datasets = new ArrayList<>();
+//        VariantDatasetMetadata dataset = new VariantDatasetMetadata();
+//        dataset.setId(datasetName);
+//        dataset.setFiles(files);
+//        datasets.add(dataset);
+//        variantMetadata.setDatasets(datasets);
 
         mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         mapper.configure(MapperFeature.REQUIRE_SETTERS_FOR_GETTERS, true);
+
+        logger = LoggerFactory.getLogger(VariantMetadataManager.class);
     }
 
-    public void load(String filename) throws IOException {
-        this.metaFilename = filename;
-        variantMetadata = mapper.readValue(new File(filename), VariantMetadata.class);
+    /**
+     * Load variant metadata file.
+     *
+     * @param path          Path to the variant metadata file
+     * @throws IOException  IOException
+     */
+    public void load(Path path) throws IOException {
+        FileUtils.checkPath(path);
+        logger.debug("Loading variant metadata from '{}'", path.toAbsolutePath().toString());
+        variantMetadata = mapper.readValue(path.toFile(), VariantMetadata.class);
     }
 
+
+    /**
+     * Retrieve the variant dataset metadata from its dataset ID.
+     *
+     * @param datasetId Dataset ID
+     * @return          VariantDatasetMetadata object
+     */
+    public VariantDatasetMetadata getVariantDatasetMetadata(String datasetId) {
+        if (datasetId != null) {
+            for (VariantDatasetMetadata dataset : variantMetadata.getDatasets()) {
+                if (datasetId.equals(dataset.getId())) {
+                    return dataset;
+                }
+            }
+        } else {
+            logger.error("Dataset ID is null");
+        }
+        return null;
+    }
+
+    /**
+     * Add a variant dataset metadata. Dataset ID must not exist.
+     *
+     * @param variantDatasetMetadata    Variant dataset metadata to insert
+     */
+    public void addVariantDatasetMetadata(VariantDatasetMetadata variantDatasetMetadata) {
+        if (variantDatasetMetadata != null) {
+            VariantDatasetMetadata found = getVariantDatasetMetadata(variantDatasetMetadata.getId());
+            // if there is not any dataset with that ID then we add the new one
+            // TODO we need to think what to do when it exists, should we throw an exception?
+            if (found != null) {
+                variantMetadata.getDatasets().add(variantDatasetMetadata);
+            } else {
+                logger.error("Dataset ID already exists");
+            }
+        }
+    }
+
+    /**
+     * Retrieve the samples for a given dataset (from its dataset ID).
+     *
+     * @param datasetId Dataset ID
+     * @return          Sample list
+     */
+    public List<Sample> getSamples(String datasetId) {
+        VariantDatasetMetadata variantDatasetMetadata = getVariantDatasetMetadata(datasetId);
+        if (variantDatasetMetadata == null) {
+            logger.error("Dataset not found. Check your dataset ID: '{}'", datasetId);
+            return null;
+        }
+
+        List<Sample> samples = new ArrayList<>();
+        for (org.opencb.biodata.models.metadata.Individual individual: variantDatasetMetadata.getIndividuals()) {
+            for (Sample sample : individual.getSamples()) {
+                samples.add(sample);
+            }
+        }
+        return samples;
+    }
+
+    /*
     public void setSampleIds(String fileId, List<String> sampleIds) {
         for (VariantDatasetMetadata dataset: variantMetadata.getDatasets()) {
             for (VariantFileMetadata file: dataset.getFiles()) {
@@ -96,29 +172,15 @@ public class VariantMetadataManager {
         }
         // else: error management: dataset (datasetId) not found !
     }
+*/
 
-    public void renameCohort(String datasetId, String oldName, String newName) {
-        VariantDatasetMetadata variantDatasetMetadata = getVariantDatasetMetadata(datasetId);
-        if (variantDatasetMetadata != null) {
-            for (Cohort cohort : variantDatasetMetadata.getCohorts()) {
-                if (oldName.equals(cohort.getId())) {
-                    cohort.setId(newName);
-                    return;
-                }
-            }
-            // error management: cohort not found !
-        }
-        // else: error management: dataset (datasetId) not found !
-    }
-
-    public void renameDataset(String oldName, String newName) {
-        VariantDatasetMetadata variantDatasetMetadata = getVariantDatasetMetadata(oldName);
-        if (variantDatasetMetadata != null) {
-            variantDatasetMetadata.setId(newName);
-        }
-        // else: error management: dataset (old name) not found !
-    }
-
+    /**
+     * Load pedrigree into a given dataset (from its dataset ID).
+     *
+     * @param pedigree      Pedigree to load
+     * @param datasetId     Dataset ID related to that pedigree
+     * @return              Variant metadata object
+     */
     public VariantMetadata loadPedigree(Pedigree pedigree, String datasetId) {
         VariantDatasetMetadata variantDatasetMetadata = getVariantDatasetMetadata(datasetId);
         if (variantDatasetMetadata != null) {
@@ -135,22 +197,22 @@ public class VariantMetadataManager {
                 if (src.getVariables() != null && src.getVariables().size() > 0) {
                     Sample sample = new Sample();
                     sample.setId(dest.getId());
-                    Map<String, String> info = new HashMap();
+                    Map<String, String> annotation = new HashMap<>();
                     for (String key: src.getVariables().keySet()) {
                         if (pedigree.getVariables().get(key) != null) {
                             VariableField.VariableType type = pedigree.getVariables().get(key).getType();
                             if (type == VariableField.VariableType.INTEGER) {
-                                info.put(key + ":i", src.getVariables().get(key).toString());
+                                annotation.put(key + ":i", src.getVariables().get(key).toString());
                             } else if (type == VariableField.VariableType.DOUBLE) {
-                                info.put(key + ":d", src.getVariables().get(key).toString());
+                                annotation.put(key + ":d", src.getVariables().get(key).toString());
                             } else if (type == VariableField.VariableType.BOOLEAN) {
-                                info.put(key + ":b", src.getVariables().get(key).toString());
+                                annotation.put(key + ":b", src.getVariables().get(key).toString());
                             } else {
-                                info.put(key + ":s", src.getVariables().get(key).toString());
+                                annotation.put(key + ":s", src.getVariables().get(key).toString());
                             }
                         }
                     }
-                    sample.setInfo(info);
+                    sample.setAnnotations(annotation);
                     dest.setSamples(Collections.singletonList(sample));
                 }
 
@@ -159,11 +221,16 @@ public class VariantMetadataManager {
             if (individuals.size() > 0) {
                 variantDatasetMetadata.setIndividuals(individuals);
             }
-
         }
         return variantMetadata;
     }
 
+    /**
+     * Retrieve the pedigree related to the input dataset ID.
+     *
+     * @param datasetId     Dataset ID
+     * @return              Pedigree object
+     */
     public Pedigree getPedigree(String datasetId) {
         Pedigree pedigree = null;
 
@@ -183,27 +250,27 @@ public class VariantMetadataManager {
                         .setPhenotype(src.getPhenotype());
                 // attributes
                 if (src.getSamples() != null && src.getSamples().size() > 0) {
-                    Map<String, String> attrs = src.getSamples().get(0).getInfo();
-                    if (attrs != null) {
+                    Map<String, String> annotation = src.getSamples().get(0).getAnnotations();
+                    if (annotation != null) {
                         Map<String, Object> variables = new HashMap<>();
-                        for (String key: attrs.keySet()) {
+                        for (String key: annotation.keySet()) {
                             String fields[] = key.split(":");
                             if (fields.length > 1) {
                                 switch (fields[1].toLowerCase()) {
                                     case "i":
-                                        variables.put(fields[0], Integer.parseInt(attrs.get(key)));
+                                        variables.put(fields[0], Integer.parseInt(annotation.get(key)));
                                         break;
                                     case "d":
-                                        variables.put(fields[0], Double.parseDouble(attrs.get(key)));
+                                        variables.put(fields[0], Double.parseDouble(annotation.get(key)));
                                         break;
                                     case "b":
-                                        variables.put(fields[0], Boolean.parseBoolean(attrs.get(key)));
+                                        variables.put(fields[0], Boolean.parseBoolean(annotation.get(key)));
                                         break;
                                     default:
-                                        variables.put(fields[0], attrs.get(key));
+                                        variables.put(fields[0], annotation.get(key));
                                 }
                             } else {
-                                variables.put(fields[0], attrs.get(key));
+                                variables.put(fields[0], annotation.get(key));
                             }
                         }
                         dest.setVariables(variables);
@@ -226,7 +293,21 @@ public class VariantMetadataManager {
         return pedigree;
     }
 
-    public String summary() {
+    /**
+     * Print to the standard output the variant metadata manager in pretty JSON format.
+     *
+     * @throws IOException  IOException
+     */
+    public void print() throws IOException {
+        System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(variantMetadata));
+    }
+
+    /**
+     * Print to the standard output a summary of the variant metadata manager.
+     *
+     * @throws IOException  IOException
+     */
+    public void printSummary() {
         StringBuilder res = new StringBuilder();
         res.append("Num. datasets: ").append(variantMetadata.getDatasets().size()).append("\n");
         int counter, datasetCounter = 0;
@@ -250,34 +331,60 @@ public class VariantMetadataManager {
                 res.append(" (").append(cohort.getSampleIds().size()).append(" samples)\n");
             }
         }
-        return res.toString();
+        System.out.println(res.toString());
     }
 
-    public void save() throws IOException {
-        save(metaFilename);
+    /**
+     * Save variant metadata manager in JSON format into the given filename.
+     *
+     * @param filename      Filename where to store the metadata manager
+     * @throws IOException  IOException
+     */
+    public void save(Path filename) throws IOException {
+       save(filename, false);
     }
 
-    public void save(String filename) throws IOException {
-        PrintWriter writer = new PrintWriter(new FileOutputStream(filename));
-        writer.write(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(
-                mapper.readValue(variantMetadata.toString(), Object.class)));
+    /**
+     * Save variant metadata manager in JSON format into the given filename.
+     *
+     * @param filename      Filename where to store the metadata manager
+     * @param pretty        Flag to print pretty JSON
+     * @throws IOException  IOException
+     */
+    public void save(Path filename, boolean pretty) throws IOException {
+        if (filename == null || Files.exists(filename)) {
+            throw new IOException("File path not correct, either it is null or file already exists: " + filename);
+        }
+
+        String text;
+        if (pretty) {
+            text = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(variantMetadata);
+        } else {
+            text = mapper.writeValueAsString(variantMetadata);
+        }
+
+        PrintWriter writer = new PrintWriter(new FileOutputStream(filename.toFile()));
+        writer.write(text);
         writer.close();
     }
 
-    private VariantDatasetMetadata getVariantDatasetMetadata(String datasetId) {
-        for (VariantDatasetMetadata dataset : variantMetadata.getDatasets()) {
-            if (datasetId.equals(dataset.getId())) {
-                return dataset;
-            }
-        }
-        return null;
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("VariantMetadataManager{");
+        sb.append("variantMetadata=").append(variantMetadata);
+        sb.append(", mapper=").append(mapper);
+        sb.append('}');
+        return sb.toString();
     }
 
     public VariantMetadata getVariantMetadata() {
         return variantMetadata;
     }
 
-    public void setVariantMetadata(VariantMetadata variantMetadata) {
+    public VariantMetadataManager setVariantMetadata(VariantMetadata variantMetadata) {
         this.variantMetadata = variantMetadata;
+        return this;
     }
+
 }

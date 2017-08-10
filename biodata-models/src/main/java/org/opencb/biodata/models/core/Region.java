@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 /**
  * @author Ignacio Medina
  * @author Cristina Yenyxe Gonzalez Garcia
- * @author Joaquín Tárraga Giménez
+ * @author Joaquin Tarraga
  */
 public class Region {
 
