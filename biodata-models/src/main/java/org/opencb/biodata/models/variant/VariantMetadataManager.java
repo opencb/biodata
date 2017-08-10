@@ -68,6 +68,12 @@ public class VariantMetadataManager {
         logger = LoggerFactory.getLogger(VariantMetadataManager.class);
     }
 
+    /**
+     * Load variant metadata file.
+     *
+     * @param path          Path to the variant metadata file
+     * @throws IOException  IOException
+     */
     public void load(Path path) throws IOException {
         FileUtils.checkPath(path);
         logger.debug("Loading variant metadata from '{}'", path.toAbsolutePath().toString());
@@ -75,15 +81,30 @@ public class VariantMetadataManager {
     }
 
 
+    /**
+     * Retrieve the variant dataset metadata from its dataset ID.
+     *
+     * @param datasetId Dataset ID
+     * @return          VariantDatasetMetadata object
+     */
     public VariantDatasetMetadata getVariantDatasetMetadata(String datasetId) {
-        for (VariantDatasetMetadata dataset : variantMetadata.getDatasets()) {
-            if (datasetId.equals(dataset.getId())) {
-                return dataset;
+        if (datasetId != null) {
+            for (VariantDatasetMetadata dataset : variantMetadata.getDatasets()) {
+                if (datasetId.equals(dataset.getId())) {
+                    return dataset;
+                }
             }
+        } else {
+            logger.error("Dataset ID is null");
         }
         return null;
     }
 
+    /**
+     * Add a variant dataset metadata. Dataset ID must not exist.
+     *
+     * @param variantDatasetMetadata    Variant dataset metadata to insert
+     */
     public void addVariantDatasetMetadata(VariantDatasetMetadata variantDatasetMetadata) {
         if (variantDatasetMetadata != null) {
             VariantDatasetMetadata found = getVariantDatasetMetadata(variantDatasetMetadata.getId());
@@ -97,6 +118,29 @@ public class VariantMetadataManager {
         }
     }
 
+    /**
+     * Retrieve the samples for a given dataset (from its dataset ID).
+     *
+     * @param datasetId Dataset ID
+     * @return          Sample list
+     */
+    public List<Sample> getSamples(String datasetId) {
+        VariantDatasetMetadata variantDatasetMetadata = getVariantDatasetMetadata(datasetId);
+        if (variantDatasetMetadata == null) {
+            logger.error("Dataset not found. Check your dataset ID: '{}'", datasetId);
+            return null;
+        }
+
+        List<Sample> samples = new ArrayList<>();
+        for (org.opencb.biodata.models.metadata.Individual individual: variantDatasetMetadata.getIndividuals()) {
+            for (Sample sample : individual.getSamples()) {
+                samples.add(sample);
+            }
+        }
+        return samples;
+    }
+
+    /*
     public void setSampleIds(String fileId, List<String> sampleIds) {
         for (VariantDatasetMetadata dataset: variantMetadata.getDatasets()) {
             for (VariantFileMetadata file: dataset.getFiles()) {
@@ -128,29 +172,15 @@ public class VariantMetadataManager {
         }
         // else: error management: dataset (datasetId) not found !
     }
+*/
 
-    public void renameCohort(String datasetId, String oldName, String newName) {
-        VariantDatasetMetadata variantDatasetMetadata = getVariantDatasetMetadata(datasetId);
-        if (variantDatasetMetadata != null) {
-            for (Cohort cohort : variantDatasetMetadata.getCohorts()) {
-                if (oldName.equals(cohort.getId())) {
-                    cohort.setId(newName);
-                    return;
-                }
-            }
-            // error management: cohort not found !
-        }
-        // else: error management: dataset (datasetId) not found !
-    }
-
-    public void renameDataset(String oldName, String newName) {
-        VariantDatasetMetadata variantDatasetMetadata = getVariantDatasetMetadata(oldName);
-        if (variantDatasetMetadata != null) {
-            variantDatasetMetadata.setId(newName);
-        }
-        // else: error management: dataset (old name) not found !
-    }
-
+    /**
+     * Load pedrigree into a given dataset (from its dataset ID).
+     *
+     * @param pedigree      Pedigree to load
+     * @param datasetId     Dataset ID related to that pedigree
+     * @return              Variant metadata object
+     */
     public VariantMetadata loadPedigree(Pedigree pedigree, String datasetId) {
         VariantDatasetMetadata variantDatasetMetadata = getVariantDatasetMetadata(datasetId);
         if (variantDatasetMetadata != null) {
@@ -195,6 +225,12 @@ public class VariantMetadataManager {
         return variantMetadata;
     }
 
+    /**
+     * Retrieve the pedigree related to the input dataset ID.
+     *
+     * @param datasetId     Dataset ID
+     * @return              Pedigree object
+     */
     public Pedigree getPedigree(String datasetId) {
         Pedigree pedigree = null;
 
@@ -257,11 +293,20 @@ public class VariantMetadataManager {
         return pedigree;
     }
 
-
+    /**
+     * Print to the standard output the variant metadata manager in pretty JSON format.
+     *
+     * @throws IOException  IOException
+     */
     public void print() throws IOException {
         System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(variantMetadata));
     }
 
+    /**
+     * Print to the standard output a summary of the variant metadata manager.
+     *
+     * @throws IOException  IOException
+     */
     public void printSummary() {
         StringBuilder res = new StringBuilder();
         res.append("Num. datasets: ").append(variantMetadata.getDatasets().size()).append("\n");
@@ -289,11 +334,23 @@ public class VariantMetadataManager {
         System.out.println(res.toString());
     }
 
-
+    /**
+     * Save variant metadata manager in JSON format into the given filename.
+     *
+     * @param filename      Filename where to store the metadata manager
+     * @throws IOException  IOException
+     */
     public void save(Path filename) throws IOException {
        save(filename, false);
     }
 
+    /**
+     * Save variant metadata manager in JSON format into the given filename.
+     *
+     * @param filename      Filename where to store the metadata manager
+     * @param pretty        Flag to print pretty JSON
+     * @throws IOException  IOException
+     */
     public void save(Path filename, boolean pretty) throws IOException {
         if (filename == null || Files.exists(filename)) {
             throw new IOException("File path not correct, either it is null or file already exists: " + filename);
