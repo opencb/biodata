@@ -251,7 +251,6 @@ public class VariantMetadataManager {
 
     /**
      * Retrieve all samples for a given dataset (from its dataset ID).
-     * For each sample, add a new annotation: INDIVIDUAL_ID.
      *
      * @param datasetId Dataset ID
      * @return          Sample list
@@ -269,7 +268,6 @@ public class VariantMetadataManager {
                 if (sample.getAnnotations() == null) {
                     sample.setAnnotations(new HashMap<>());
                 }
-                sample.getAnnotations().put("INDIVIDUAL_ID", individual.getId());
                 samples.add(sample);
             }
         }
