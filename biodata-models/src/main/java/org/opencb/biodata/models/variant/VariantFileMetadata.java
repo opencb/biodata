@@ -126,12 +126,11 @@ public class VariantFileMetadata {
     }
 
     public VariantGlobalStats getStats() {
-//        return impl.getStats() == null ? null : new VariantGlobalStats(impl.getStats());
-        return null;
+        return impl.getStats() == null ? null : new VariantGlobalStats(impl.getStats());
     }
 
     public void setStats(VariantGlobalStats stats) {
-//        impl.setStats(stats == null ? null : stats.getImpl());
+        impl.setStats(stats == null ? null : stats.getImpl());
     }
 
     public VariantFileHeader getHeader() {
