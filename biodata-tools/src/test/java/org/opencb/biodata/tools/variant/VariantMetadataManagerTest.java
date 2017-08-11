@@ -10,7 +10,8 @@ import org.opencb.commons.datastore.core.Query;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by jtarraga on 11/08/17.
@@ -30,7 +31,7 @@ public class VariantMetadataManagerTest {
             individual.setId("Person_" + i);
             individual.setFamily("familyAA");
             individual.setFather("Father_" + i);
-            individual.setMother("Mother" + i);
+            individual.setMother("Mother_" + i);
             individual.setSex(i == 1 ? "male" : "female");
             individual.setPhenotype(i == 2 ? "cancer22" : "cancer00");
 
@@ -83,7 +84,6 @@ public class VariantMetadataManagerTest {
         query.put("population", "=P2220");
         query.put("weight", "<78");
 
-//        List<Predicate<Sample>> predicates = manager.parseSampleQuery(query);
         List<Sample> samples = manager.getSamples(query, variantMetadata.getDatasets().get(0).getId());
         System.out.println("Query:");
         System.out.println(query);
@@ -91,6 +91,8 @@ public class VariantMetadataManagerTest {
         for (int i = 0; i < samples.size(); i++) {
             System.out.println(samples.get(i));
         }
-//        System.out.println("num. predicates = " + predicates.size());
+
+        assertEquals(samples.size(), 1);
+        assertEquals("Sample_2_0", samples.get(0).getId());
     }
 }
