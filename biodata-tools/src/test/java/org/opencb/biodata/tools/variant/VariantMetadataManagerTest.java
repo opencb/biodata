@@ -1,6 +1,7 @@
 package org.opencb.biodata.tools.variant;
 
 import org.apache.commons.collections.map.HashedMap;
+import org.junit.Before;
 import org.junit.Test;
 import org.opencb.biodata.models.metadata.Individual;
 import org.opencb.biodata.models.metadata.Sample;
@@ -8,15 +9,30 @@ import org.opencb.biodata.models.variant.metadata.VariantDatasetMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantMetadata;
 import org.opencb.commons.datastore.core.Query;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * Created by jtarraga on 11/08/17.
  */
 public class VariantMetadataManagerTest {
+
+    private VariantMetadataManager manager;
+    private VariantMetadata variantMetadata;
+
+    @Before
+    public void setUp() throws Exception {
+        variantMetadata = createMetadata();
+        manager = new VariantMetadataManager();
+        manager.setVariantMetadata(variantMetadata);
+    }
 
     public VariantMetadata createMetadata() {
         VariantMetadata variantMetadata = new VariantMetadata();
@@ -60,7 +76,6 @@ public class VariantMetadataManagerTest {
             }
             individual.setSamples(samples);
 
-            System.out.println(individual);
             individuals.add(individual);
         }
 
@@ -74,11 +89,18 @@ public class VariantMetadataManagerTest {
     }
 
     @Test
-    public void parseQuery() {
-        VariantMetadata variantMetadata = createMetadata();
-        VariantMetadataManager manager = new VariantMetadataManager();
-        manager.setVariantMetadata(variantMetadata);
+    public void getSamples() {
+        List<Sample> samples = manager.getSamples(variantMetadata.getDatasets().get(0).getId());
+        System.out.println("Samples found: " + samples.size());
+        for (int i = 0; i < samples.size(); i++) {
+            System.out.println(samples.get(i));
+        }
 
+        assertEquals(samples.size(), 12);
+    }
+
+    @Test
+    public void getSamplesByQuery() {
         Query query = new Query();
         query.put("age", ">=30");
         query.put("population", "=P2220");
@@ -95,4 +117,71 @@ public class VariantMetadataManagerTest {
         assertEquals(samples.size(), 1);
         assertEquals("Sample_2_0", samples.get(0).getId());
     }
+
+
+    @Test
+    public void print() {
+        try {
+            manager.print();
+        } catch (IOException e) {
+            e.printStackTrace();
+            fail();
+        }
+    }
+
+    @Test
+    public void save() {
+        try {
+            Path path = Paths.get("/tmp/ds.meta.json");
+            if (path.toFile().exists()) {
+                path.toFile().delete();
+            }
+            manager.save(path);
+            assert(path.toFile().exists());
+        } catch (IOException e) {
+            e.printStackTrace();
+            fail();
+        }
+    }
+
+    @Test
+    public void savePretty() {
+        try {
+            Path path = Paths.get("/tmp/ds.meta.json");
+            if (path.toFile().exists()) {
+                path.toFile().delete();
+            }
+            manager.save(path, true);
+            assert(path.toFile().exists());
+        } catch (IOException e) {
+            e.printStackTrace();
+            fail();
+        }
+    }
+
+    @Test
+    public void load() {
+        try {
+            Path path = Paths.get("/tmp/ds.meta.json");
+            if (path.toFile().exists()) {
+                path.toFile().delete();
+            }
+            manager.save(path, true);
+
+            manager = new VariantMetadataManager();
+            manager.load(path);
+
+            List<Sample> samples = manager.getSamples(variantMetadata.getDatasets().get(0).getId());
+            System.out.println("Samples found: " + samples.size());
+            for (int i = 0; i < samples.size(); i++) {
+                System.out.println(samples.get(i));
+            }
+
+            assertEquals(samples.size(), 12);
+        } catch (IOException e) {
+            e.printStackTrace();
+            fail();
+        }
+    }
+
 }
