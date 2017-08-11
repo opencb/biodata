@@ -21,6 +21,7 @@ import org.opencb.biodata.formats.variant.vcf4.VariantAggregatedVcfFactory;
 import org.opencb.biodata.formats.variant.VariantFactory;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.*;
+import org.opencb.biodata.models.variant.metadata.VariantDatasetMetadata;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 import org.opencb.biodata.tools.variant.VariantNormalizer;
 import org.opencb.commons.test.GenericTest;
@@ -36,7 +37,8 @@ import static org.junit.Assert.*;
  */
 public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
 
-    private VariantSource source = new VariantSource("Exac", "Exac", "Exac", "Exac");
+    private VariantFileMetadata source = new VariantFileMetadata("Exac", "Exac");
+    private VariantDatasetMetadata metadata = source.toVariantDatasetMetadata("Exac");
     private VariantFactory factory = new VariantAggregatedVcfFactory();
     private VariantNormalizer normalizer = new VariantNormalizer();
     ;
@@ -68,7 +70,7 @@ public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
         Variant v = res.get(0);
         VariantAggregatedExacStatsCalculator calculator = new VariantAggregatedExacStatsCalculator();
         calculator.calculate(v);
-        StudyEntry sourceEntry = v.getSourceEntry(source.getFileId(), source.getStudyId());
+        StudyEntry sourceEntry = v.getStudy(metadata.getId());
 
         Map<Genotype, Integer> genotypes = new HashMap<>();
 
@@ -118,7 +120,7 @@ public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
         Variant v = res.get(0);
         VariantAggregatedExacStatsCalculator calculator = new VariantAggregatedExacStatsCalculator();
         calculator.calculate(res);
-        StudyEntry sourceEntry = v.getSourceEntry(source.getFileId(), source.getStudyId());
+        StudyEntry sourceEntry = v.getStudy(metadata.getId());
 
         Map<Genotype, Integer> genotypes = new HashMap<>();
 
@@ -150,7 +152,7 @@ public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
         genotypes.put(new Genotype("2/3", "G", "A"), 0);
         genotypes.put(new Genotype("3/3", "G", "A"), 0);
 
-        sourceEntry = res.get(1).getSourceEntry(source.getFileId(), source.getStudyId());
+        sourceEntry = res.get(1).getStudy(metadata.getId());
 
         assertEquals(genotypes, sourceEntry.getStats(StudyEntry.DEFAULT_COHORT).getGenotypesCount());
         assertEquals(3, sourceEntry.getStats(StudyEntry.DEFAULT_COHORT).getAltAlleleCount().longValue());
@@ -168,7 +170,7 @@ public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
         genotypes.put(new Genotype("2/3", "G", "C"), 0);
         genotypes.put(new Genotype("3/3", "G", "C"), 1);
 
-        sourceEntry = res.get(2).getSourceEntry(source.getFileId(), source.getStudyId());
+        sourceEntry = res.get(2).getStudy(metadata.getId());
 
         assertEquals(genotypes, sourceEntry.getStats(StudyEntry.DEFAULT_COHORT).getGenotypesCount());
         assertEquals(0, sourceEntry.getStats(StudyEntry.DEFAULT_COHORT).getAltAlleleCount().longValue());
@@ -176,7 +178,7 @@ public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
     }
 
     private List<Variant> readLine(String line) {
-        return normalizer.apply(factory.create(source, line));
+        return normalizer.apply(factory.create(metadata, line));
     }
 
     @Test
@@ -246,49 +248,49 @@ public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
         properties.put("ALL.HET", "AC_Het");
         properties.put("ALL.HOM", "AC_Hom");
         VariantFactory exacFactory = new VariantAggregatedVcfFactory();
-        List<Variant> res = normalizer.apply(exacFactory.create(source, line));
+        List<Variant> res = normalizer.apply(exacFactory.create(metadata, line));
 
         assertTrue(res.size() == 2);
 
         Variant v = res.get(0);
         VariantAggregatedExacStatsCalculator calculator = new VariantAggregatedExacStatsCalculator(properties);
         calculator.calculate(res);
-        StudyEntry sourceEntry = v.getSourceEntry(source.getFileId(), source.getStudyId());
+        StudyEntry sourceEntry = v.getStudy(metadata.getId());
 
         // Allele and genotype counts
-        assertEquals(12, sourceEntry.getCohortStats("AFR").getAltAlleleCount().longValue());
+        assertEquals(12, sourceEntry.getStats("AFR").getAltAlleleCount().longValue());
         Genotype genotype = new Genotype("0/1", v.getReference(), v.getAlternate());
-        assertEquals(12, (int) sourceEntry.getCohortStats("AFR").getGenotypesCount().get(genotype));
+        assertEquals(12, (int) sourceEntry.getStats("AFR").getGenotypesCount().get(genotype));
         genotype = new Genotype("0/2", v.getReference(), v.getAlternate());
-        assertEquals(7, (int) sourceEntry.getCohortStats("SAS").getGenotypesCount().get(genotype));
+        assertEquals(7, (int) sourceEntry.getStats("SAS").getGenotypesCount().get(genotype));
         genotype = new Genotype("1/1", v.getReference(), v.getAlternate());
-        assertEquals(0, (int) sourceEntry.getCohortStats("SAS").getGenotypesCount().get(genotype));
+        assertEquals(0, (int) sourceEntry.getStats("SAS").getGenotypesCount().get(genotype));
         genotype = new Genotype("0/1", v.getReference(), v.getAlternate());
-        assertEquals(0, (int) sourceEntry.getCohortStats("SAS").getGenotypesCount().get(genotype));
-        assertEquals(7025, sourceEntry.getCohortStats("SAS").getRefAlleleCount().longValue());
-        assertEquals(0, sourceEntry.getCohortStats("SAS").getAltAlleleCount().longValue());
+        assertEquals(0, (int) sourceEntry.getStats("SAS").getGenotypesCount().get(genotype));
+        assertEquals(7025, sourceEntry.getStats("SAS").getRefAlleleCount().longValue());
+        assertEquals(0, sourceEntry.getStats("SAS").getAltAlleleCount().longValue());
         
         // Minor allele frequencies
-        assertEquals(9 / 10426.0, sourceEntry.getCohortStats("ALL").getMaf(), 0.00001);
-        assertEquals(0, sourceEntry.getCohortStats("SAS").getMaf(), 0.001);
-        assertEquals(0, sourceEntry.getCohortStats("AFR").getMaf(), 0.00001);
-        assertEquals(0, sourceEntry.getCohortStats("AMR").getMaf(), 0.00001);
+        assertEquals(9 / 10426.0, sourceEntry.getStats("ALL").getMaf(), 0.00001);
+        assertEquals(0, sourceEntry.getStats("SAS").getMaf(), 0.001);
+        assertEquals(0, sourceEntry.getStats("AFR").getMaf(), 0.00001);
+        assertEquals(0, sourceEntry.getStats("AMR").getMaf(), 0.00001);
 
-        System.out.println("genotypes for C -> G in SAS: " + sourceEntry.getCohortStats("SAS").getGenotypesCount());
+        System.out.println("genotypes for C -> G in SAS: " + sourceEntry.getStats("SAS").getGenotypesCount());
 
         v = res.get(1);
-        sourceEntry = v.getSourceEntry(source.getFileId(), source.getStudyId());
+        sourceEntry = v.getStudy(metadata.getId());
 
-        assertEquals(2, sourceEntry.getCohortStats("NFE").getAltAlleleCount().longValue());
+        assertEquals(2, sourceEntry.getStats("NFE").getAltAlleleCount().longValue());
         genotype = new Genotype("0/2", v.getReference(), v.getAlternate());
-        assertEquals(12, (int) sourceEntry.getCohortStats("AFR").getGenotypesCount().get(genotype));
+        assertEquals(12, (int) sourceEntry.getStats("AFR").getGenotypesCount().get(genotype));
         genotype = new Genotype("0/1", v.getReference(), v.getAlternate());
-        assertEquals(7, (int) sourceEntry.getCohortStats("SAS").getGenotypesCount().get(genotype));
-        assertEquals(7025, sourceEntry.getCohortStats("SAS").getRefAlleleCount().longValue());
-        assertEquals(7, sourceEntry.getCohortStats("SAS").getAltAlleleCount().longValue());
+        assertEquals(7, (int) sourceEntry.getStats("SAS").getGenotypesCount().get(genotype));
+        assertEquals(7025, sourceEntry.getStats("SAS").getRefAlleleCount().longValue());
+        assertEquals(7, sourceEntry.getStats("SAS").getAltAlleleCount().longValue());
         genotype = new Genotype("0/0", v.getReference(), v.getAlternate());
-        assertEquals(7018 / 2, (int) sourceEntry.getCohortStats("SAS").getGenotypesCount().get(genotype));
-        System.out.println("genotypes for C -> T in SAS: " + sourceEntry.getCohortStats("SAS").getGenotypesCount());
+        assertEquals(7018 / 2, (int) sourceEntry.getStats("SAS").getGenotypesCount().get(genotype));
+        System.out.println("genotypes for C -> T in SAS: " + sourceEntry.getStats("SAS").getGenotypesCount());
     }
 
     @Test

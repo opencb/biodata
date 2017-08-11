@@ -21,9 +21,10 @@ import org.opencb.biodata.formats.variant.io.VariantReader;
 import org.opencb.biodata.formats.variant.vcf4.Vcf4;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.formats.variant.VariantFactory;
-import org.opencb.biodata.models.variant.VariantSource;
+import org.opencb.biodata.models.variant.VariantFileMetadata;
 import org.opencb.biodata.formats.variant.vcf4.VariantVcfFactory;
 import org.opencb.biodata.models.variant.exceptions.NotAVariantException;
+import org.opencb.biodata.models.variant.metadata.VariantDatasetMetadata;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -48,17 +49,17 @@ public class VariantVcfReader implements VariantReader {
 
     private String filePath;
 
-    private VariantSource source;
+    private VariantDatasetMetadata metadata;
     private VariantFactory factory;
     private VcfHeaderFactory heaederFactory = new VcfHeaderFactory();
     private String header;
 
-    public VariantVcfReader(VariantSource source, String filePath) {
-        this(source, filePath, new VariantVcfFactory());
+    public VariantVcfReader(VariantDatasetMetadata metadata, String filePath) {
+        this(metadata, filePath, new VariantVcfFactory());
     }
 
-    public VariantVcfReader(VariantSource source, String filePath, VariantFactory factory) {
-        this.source = source;
+    public VariantVcfReader(VariantDatasetMetadata metadata, String filePath, VariantFactory factory) {
+        this.metadata = metadata;
         this.filePath = filePath;
         this.factory = factory;
     }
@@ -105,7 +106,7 @@ public class VariantVcfReader implements VariantReader {
 //            for (Map.Entry<String, String> otherMeta : vcf4.getMetaInformation().entrySet()) {
 //                source.addMetadata(otherMeta.getKey(), otherMeta.getValue());
 //            }
-            source.setSamples(vcf4.getSampleNames());
+            metadata.getFiles().get(0).setSampleIds(vcf4.getSampleNames());
         } catch (IOException | FileFormatException ex) {
             Logger.getLogger(VariantVcfReader.class.getName()).log(Level.SEVERE, null, ex);
             return false;
@@ -141,7 +142,7 @@ public class VariantVcfReader implements VariantReader {
             // Look for a non reference position (alternative != '.')
             while (line != null && isReference) {
                 try {
-                    variants = factory.create(source, line);
+                    variants = factory.create(metadata, line);
                     isReference = false;
                 } catch (NotAVariantException e) {  // This line represents a reference position (alternative = '.')
                     line = reader.readLine();
@@ -178,6 +179,11 @@ public class VariantVcfReader implements VariantReader {
     @Override
     public String getHeader() {
         return header;
+    }
+
+    @Override
+    public VariantFileMetadata getVariantFileMetadata() {
+        return new VariantFileMetadata(metadata.getFiles().get(0));
     }
 
     private void processHeader() throws IOException, FileFormatException {

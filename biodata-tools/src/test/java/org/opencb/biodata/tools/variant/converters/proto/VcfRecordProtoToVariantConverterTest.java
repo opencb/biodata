@@ -6,8 +6,6 @@ import org.opencb.biodata.models.variant.*;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.protobuf.VcfMeta;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
-import org.opencb.biodata.tools.variant.converters.proto.VariantToProtoVcfRecord;
-import org.opencb.biodata.tools.variant.converters.proto.VcfRecordProtoToVariantConverter;
 
 import java.util.*;
 
@@ -22,18 +20,12 @@ import static org.junit.Assert.assertNotEquals;
 public class VcfRecordProtoToVariantConverterTest {
 
     private VcfRecordProtoToVariantConverter converter;
-    private VcfMeta meta;
     private VcfSliceProtos.Fields fields;
+    private String fileId = "file1";
+    private String studyId = "study1";
 
     @Before
     public void setUp() throws Exception {
-        meta = new VcfMeta(new VariantSource("1", "chr1", "study1", "5"));
-
-        meta.getVariantSource().setSamples(Arrays.asList("sample1", "sample2", "sample3", "sample4"));
-        meta.setFormatDefault(Arrays.asList("GT", "DP"));
-        meta.setInfoDefault(Collections.singletonList("Key"));
-        meta.setFilterDefault("PASS");
-        meta.setIdDefault(".");
 
         LinkedHashMap<String, Integer> samplePositions = new LinkedHashMap<>();
         samplePositions.put("sample1", 0);
@@ -56,7 +48,7 @@ public class VcfRecordProtoToVariantConverterTest {
                 .addGts("1|1")
                 .build();
 
-        converter = new VcfRecordProtoToVariantConverter(fields, samplePositions, meta.getVariantSource().getFileId(), meta.getVariantSource().getStudyId());
+        converter = new VcfRecordProtoToVariantConverter(fields, samplePositions, fileId, studyId);
 
     }
 
@@ -69,7 +61,7 @@ public class VcfRecordProtoToVariantConverterTest {
         Variant variant = new Variant("1", 5000, "A", "C");
         StudyEntry studyEntry = new StudyEntry();
         studyEntry.setFormat(Collections.singletonList("GT"));
-        studyEntry.setStudyId(meta.getVariantSource().getStudyId());
+        studyEntry.setStudyId(studyId);
         studyEntry.setSamplesData(Arrays.asList(
                 Arrays.asList("0|0"),
                 Arrays.asList("0|1"),
@@ -81,7 +73,7 @@ public class VcfRecordProtoToVariantConverterTest {
         attributes.put("Key1", "V1");
         attributes.put("Key2", "V2");
 
-        studyEntry.setFiles(Collections.singletonList(new FileEntry(meta.getVariantSource().getFileId(), "5:A:C:0", attributes)));
+        studyEntry.setFiles(Collections.singletonList(new FileEntry(fileId, "5:A:C:0", attributes)));
         variant.setStudies(Collections.singletonList(studyEntry));
 
         VcfSliceProtos.VcfRecord vcfRecord = toProto.convert(variant);
@@ -102,7 +94,7 @@ public class VcfRecordProtoToVariantConverterTest {
         Variant variant = new Variant("1", 5, "A", "C");
         StudyEntry studyEntry = new StudyEntry();
         studyEntry.setFormat(Arrays.asList("GT", "DP"));
-        studyEntry.setStudyId("study1");
+        studyEntry.setStudyId(studyId);
         studyEntry.setSamplesData(Arrays.asList(
                 Arrays.asList("0|0", "10"),
                 Arrays.asList("0|1", "20"),
@@ -113,7 +105,7 @@ public class VcfRecordProtoToVariantConverterTest {
         attributes.put(StudyEntry.QUAL, "57");
         attributes.put("Key", "Value");
 
-        studyEntry.setFiles(Collections.singletonList(new FileEntry("chr1", "5:A:C:0", attributes)));
+        studyEntry.setFiles(Collections.singletonList(new FileEntry(fileId, "5:A:C:0", attributes)));
         variant.setStudies(Collections.singletonList(studyEntry));
 
         VcfSliceProtos.VcfRecord vcfRecord = toProto.convert(variant, 100);

@@ -22,11 +22,12 @@ package org.opencb.biodata.formats.variant.vcf4;
 import org.opencb.biodata.formats.variant.VariantFactory;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.VariantSource;
+import org.opencb.biodata.models.variant.VariantFileMetadata;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.biodata.models.variant.exceptions.NotAVariantException;
+import org.opencb.biodata.models.variant.metadata.VariantDatasetMetadata;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -58,13 +59,13 @@ public class VariantVcfFactory implements VariantFactory {
      * as Ensembl does, except for insertions, where start is greater than end: 
      * http://www.ensembl.org/info/docs/tools/vep/vep_formats.html#vcf
      *
-     * @param source Origin of the variants information
+     * @param metadata Origin of the variants information
      * @param line Contents of the line in the file
      * @return The list of Variant objects that can be created using the fields
      * from a VCF record
      */
     @Override
-    public List<Variant> create(VariantSource source, String line) throws IllegalArgumentException, NotAVariantException {
+    public List<Variant> create(VariantDatasetMetadata metadata, String line) throws IllegalArgumentException, NotAVariantException {
         String[] fields = line.split("\t");
         if (fields.length < 8) {
             throw new IllegalArgumentException("Not enough fields provided (min 8)");
@@ -94,14 +95,15 @@ public class VariantVcfFactory implements VariantFactory {
         List<AlternateCoordinate> secondaryAlternatesMap = Arrays.stream(alternateAlleles, 1, alternateAlleles.length)
                 .map(a -> new AlternateCoordinate(chromosome, null, null, null, a, null))
                 .collect(Collectors.toList());
-        StudyEntry entry = new StudyEntry(source.getStudyId(), secondaryAlternatesMap, Arrays.asList(format.split(":")));
-        entry.setFileId(source.getFileId());
+        StudyEntry entry = new StudyEntry(metadata.getId(), secondaryAlternatesMap, Arrays.asList(format.split(":")));
+        VariantFileMetadata source = new VariantFileMetadata(metadata.getFiles().get(0));
+        entry.setFileId(source.getId());
         variant.addStudyEntry(entry);
 
         try {
             parseSplitSampleData(entry, source, fields, reference, alternateAlleles);
             // Fill the rest of fields (after samples because INFO depends on them)
-            setOtherFields(variant, source, ids, quality, filter, info, format, alternateAlleles, line);
+            setOtherFields(variant, entry, source, ids, quality, filter, info, format, alternateAlleles, line);
         } catch (NonStandardCompliantSampleField ex) {
             Logger.getLogger(VariantFactory.class.getName()).log(Level.SEVERE,
                     String.format("Variant %s:%d:%s>%s will not be saved\n%s",
@@ -111,7 +113,7 @@ public class VariantVcfFactory implements VariantFactory {
         return Collections.singletonList(variant);
     }
 
-    protected void parseSplitSampleData(StudyEntry entry, VariantSource source, String[] fields,
+    protected void parseSplitSampleData(StudyEntry entry, VariantFileMetadata source, String[] fields,
                                         String reference, String[] alternateAlleles) throws NonStandardCompliantSampleField {
 //        List<String> formatFields = variant.getSourceEntry(source.getFileId(), source.getStudyId()).getFormat();
 
@@ -171,22 +173,22 @@ public class VariantVcfFactory implements VariantFactory {
         return true;
     }
 
-    protected void setOtherFields(Variant variant, VariantSource source, List<String> ids, float quality, String filter,
-                                  String info, String format, String[] alternateAlleles, String line) {
+    protected void setOtherFields(Variant variant, StudyEntry study, VariantFileMetadata source, List<String> ids, float quality,
+                                  String filter, String info, String format, String[] alternateAlleles, String line) {
         // Fields not affected by the structure of REF and ALT fields
         if (!ids.isEmpty()) {
             variant.setIds(ids);
         }
         if (quality > -1) {
-            variant.getStudy(source.getStudyId()).addAttribute(source.getFileId(), StudyEntry.QUAL, String.valueOf(quality));
+            study.addAttribute(source.getId(), StudyEntry.QUAL, String.valueOf(quality));
         }
         if (!filter.isEmpty()) {
-            variant.getStudy(source.getStudyId()).addAttribute(source.getFileId(), StudyEntry.FILTER, filter);
+            study.addAttribute(source.getId(), StudyEntry.FILTER, filter);
         }
         if (!info.isEmpty()) {
-            parseInfo(variant, source.getFileId(), source.getStudyId(), info);
+            parseInfo(variant, source.getId(), study.getStudyId(), info);
         }
-        variant.getStudy(source.getStudyId()).addAttribute(source.getFileId(), StudyEntry.SRC, line);
+        study.addAttribute(source.getId(), StudyEntry.SRC, line);
     }
 
     protected void parseInfo(Variant variant, String fileId, String studyId, String info) {

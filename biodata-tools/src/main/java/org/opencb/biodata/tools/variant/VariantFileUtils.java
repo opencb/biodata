@@ -19,12 +19,9 @@
 
 package org.opencb.biodata.tools.variant;
 
-import htsjdk.variant.vcf.VCFHeader;
 import org.opencb.biodata.formats.variant.io.VariantReader;
 import org.opencb.biodata.formats.variant.vcf4.io.VariantVcfReader;
-import org.opencb.biodata.models.variant.VariantSource;
-import org.opencb.biodata.tools.variant.converters.avro.VCFHeaderToAvroVcfHeaderConverter;
-import org.opencb.biodata.tools.variant.converters.avro.VariantFileMetadataToVCFHeaderConverter;
+import org.opencb.biodata.models.variant.VariantFileMetadata;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -37,6 +34,10 @@ import java.util.Objects;
  */
 public class VariantFileUtils {
 
+    /**
+     * @deprecated We are not storing the header in plain text anymore
+     */
+    @Deprecated
     public static final String VARIANT_FILE_HEADER = "variantFileHeader";
 
     /**
@@ -47,41 +48,38 @@ public class VariantFileUtils {
      * @return        The read variant source
      * @throws IOException if an I/O error occurs
      */
-    public static VariantSource readVariantSource(Path path, VariantSource source) throws IOException {
+    public static VariantFileMetadata readVariantFileMetadata(Path path, VariantFileMetadata source) throws IOException {
         Objects.requireNonNull(path);
-        return readVariantSource(new VariantVcfReader(source, path.toString()), source);
+        return readVariantFileMetadata(new VariantVcfReader(source.toVariantDatasetMetadata(""), path.toString()), source);
     }
 
     /**
      * Reads the VariantSource from a Variant file given an initialized VariantReader
      *
      * @param reader    Initialized variant reader
-     * @param source    Optional source to fill up
-     * @return          The read variant source
+     * @param metadata    Optional metadata to fill up
+     * @return          The read variant metadata
      * @throws IOException if an I/O error occurs
      */
-    public static VariantSource readVariantSource(VariantReader reader, VariantSource source) throws IOException {
+    public static VariantFileMetadata readVariantFileMetadata(VariantReader reader, VariantFileMetadata metadata) throws IOException {
         Objects.requireNonNull(reader);
-        if (source == null) {
-            source = new VariantSource("", "", "", "");
+        if (metadata == null) {
+            metadata = new VariantFileMetadata("", "");
         }
 
         try {
             reader.open();
             reader.pre();
 
-            String variantFileHeader = reader.getHeader();
-            source.addMetadata(VARIANT_FILE_HEADER, variantFileHeader);
-            if (source.getHeader() == null) {
-                VCFHeader header = VariantFileMetadataToVCFHeaderConverter.parseVcfHeader(variantFileHeader);
-                source.setHeader(new VCFHeaderToAvroVcfHeaderConverter().convert(header));
-            }
+            metadata.setHeader(reader.getVariantFileMetadata().getHeader());
+            metadata.setSampleIds(reader.getVariantFileMetadata().getSampleIds());
+            metadata.setStats(reader.getVariantFileMetadata().getStats());
 
             reader.post();
         } finally {
             reader.close();
         }
-        return source;
+        return metadata;
     }
 
 }

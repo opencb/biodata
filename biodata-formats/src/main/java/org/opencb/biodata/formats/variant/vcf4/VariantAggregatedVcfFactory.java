@@ -22,7 +22,7 @@ package org.opencb.biodata.formats.variant.vcf4;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.VariantSource;
+import org.opencb.biodata.models.variant.VariantFileMetadata;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.apache.commons.lang3.StringUtils;
 
@@ -49,7 +49,7 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
 
 
     @Override
-    protected void parseSplitSampleData(StudyEntry variant, VariantSource source, String[] fields,
+    protected void parseSplitSampleData(StudyEntry variant, VariantFileMetadata source, String[] fields,
                                         String reference, String[] alternateAlleles)
             throws NonStandardCompliantSampleField {
         // Nothing to do
@@ -57,21 +57,20 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
     }
 
     @Override
-    protected void setOtherFields(Variant variant, VariantSource source, List<String> ids, float quality, String filter,
-                                  String info, String format, String[] alternateAlleles, String line) {
+    protected void setOtherFields(Variant variant, StudyEntry sourceEntry, VariantFileMetadata source, List<String> ids,
+                                  float quality, String filter, String info, String format, String[] alternateAlleles, String line) {
         // Fields not affected by the structure of REF and ALT fields
         variant.setIds(ids);
-        StudyEntry sourceEntry = variant.getSourceEntry(source.getFileId(), source.getStudyId());
         if (quality > -1) {
-            sourceEntry.addAttribute(source.getFileId(), StudyEntry.QUAL, String.valueOf(quality));
+            sourceEntry.addAttribute(source.getId(), StudyEntry.QUAL, String.valueOf(quality));
         }
         if (!filter.isEmpty()) {
-            sourceEntry.addAttribute(source.getFileId(), StudyEntry.FILTER, filter);
+            sourceEntry.addAttribute(source.getId(), StudyEntry.FILTER, filter);
         }
         Map<String, String> infoMap = getInfoMap(info);
         sourceEntry.setFormatAsString(format);
-        sourceEntry.addAttribute(source.getFileId(), StudyEntry.SRC, line);
-        sourceEntry.addAttributes(source.getFileId(), infoMap);
+        sourceEntry.addAttribute(source.getId(), StudyEntry.SRC, line);
+        sourceEntry.addAttributes(source.getId(), infoMap);
     }
 
     public static Map<String, String> getInfoMap(String info) {

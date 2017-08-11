@@ -4,8 +4,9 @@ import org.junit.Test;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.formats.variant.vcf4.VariantAggregatedVcfFactory;
-import org.opencb.biodata.models.variant.VariantSource;
+import org.opencb.biodata.models.variant.VariantFileMetadata;
 import org.opencb.biodata.models.variant.StudyEntry;
+import org.opencb.biodata.models.variant.metadata.VariantDatasetMetadata;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 import org.opencb.biodata.tools.variant.VariantNormalizer;
 import org.opencb.commons.test.GenericTest;
@@ -21,7 +22,8 @@ import static org.junit.Assert.*;
  */
 public class VariantAggregatedStatsCalculatorTest extends GenericTest {
 
-    private VariantSource source = new VariantSource("filename.vcf", "fileId", "studyId", "studyName");
+    private VariantFileMetadata source = new VariantFileMetadata("filename.vcf", "fileId");
+    private VariantDatasetMetadata metadata = source.toVariantDatasetMetadata("studyId");
     private VariantAggregatedVcfFactory factory = new VariantAggregatedVcfFactory();
 
     @Test
@@ -32,11 +34,11 @@ public class VariantAggregatedStatsCalculatorTest extends GenericTest {
         VariantAggregatedStatsCalculator calculator = new VariantAggregatedStatsCalculator();
         calculator.calculate(variants);
 
-        VariantStats stats = variants.get(0).getSourceEntry(source.getFileId(), source.getStudyId()).getStats(StudyEntry.DEFAULT_COHORT);
+        VariantStats stats = variants.get(0).getStudy(metadata.getId()).getStats(StudyEntry.DEFAULT_COHORT);
         assertEquals(2904, stats.getRefAlleleCount().longValue());
         assertEquals(889, stats.getAltAlleleCount().longValue());
 
-        stats = variants.get(1).getSourceEntry(source.getFileId(), source.getStudyId()).getStats(StudyEntry.DEFAULT_COHORT);
+        stats = variants.get(1).getStudy(metadata.getId()).getStats(StudyEntry.DEFAULT_COHORT);
         assertEquals(2904, stats.getRefAlleleCount().longValue());
         assertEquals(61, stats.getAltAlleleCount().longValue());
         assertEquals(0.015827711, stats.getMaf(), 0.0001);
@@ -50,7 +52,7 @@ public class VariantAggregatedStatsCalculatorTest extends GenericTest {
         VariantAggregatedStatsCalculator calculator = new VariantAggregatedStatsCalculator();
         calculator.calculate(variants);
 
-        VariantStats stats = variants.get(0).getStudy(source.getStudyId()).getStats(StudyEntry.DEFAULT_COHORT);
+        VariantStats stats = variants.get(0).getStudy(metadata.getId()).getStats(StudyEntry.DEFAULT_COHORT);
         assertEquals(0, stats.getRefAlleleCount().longValue());
         assertEquals(0, stats.getAltAlleleCount().longValue());
         assertEquals(-1f, stats.getAltAlleleFreq(), 0.01);
@@ -64,7 +66,7 @@ public class VariantAggregatedStatsCalculatorTest extends GenericTest {
         VariantAggregatedStatsCalculator calculator = new VariantAggregatedStatsCalculator();
         calculator.calculate(variants);
 
-        VariantStats stats = variants.get(0).getSourceEntry(source.getFileId(), source.getStudyId()).getStats(StudyEntry.DEFAULT_COHORT);
+        VariantStats stats = variants.get(0).getStudy(metadata.getId()).getStats(StudyEntry.DEFAULT_COHORT);
         assertEquals(new Integer(304), stats.getGenotypesCount().get(new Genotype("0/0", "C", "T")));
         assertEquals(new Integer(163), stats.getGenotypesCount().get(new Genotype("0/1", "C", "T")));
         assertEquals(new Integer(31),  stats.getGenotypesCount().get(new Genotype("T/T", "C", "T")));
@@ -80,11 +82,11 @@ public class VariantAggregatedStatsCalculatorTest extends GenericTest {
         properties.put("ALL.AC", "AC");
         properties.put("ALL.AN", "AN");
         properties.put("ALL.AF", "AF");
-        List<Variant> variants = new VariantNormalizer().apply(new VariantAggregatedVcfFactory().create(source, line));
+        List<Variant> variants = new VariantNormalizer().apply(new VariantAggregatedVcfFactory().create(metadata, line));
         VariantAggregatedStatsCalculator calculator = new VariantAggregatedStatsCalculator(properties);
         calculator.calculate(variants);
 
-        VariantStats stats = variants.get(0).getStudy(source.getStudyId()).getStats(StudyEntry.DEFAULT_COHORT);
+        VariantStats stats = variants.get(0).getStudy(metadata.getId()).getStats(StudyEntry.DEFAULT_COHORT);
         assertEquals(Integer.valueOf(523), stats.getRefAlleleCount());
         assertEquals(Integer.valueOf(3), stats.getAltAlleleCount());
         assertEquals(0.006, stats.getAltAlleleFreq(), 0.0001);
@@ -95,7 +97,7 @@ public class VariantAggregatedStatsCalculatorTest extends GenericTest {
         assertEquals(Integer.valueOf(6), stats.getGenotypesCount().get(new Genotype("0/2", "G", "A")));
         assertEquals(Integer.valueOf(0), stats.getGenotypesCount().get(new Genotype("./.", "G", "A")));
 
-        stats = variants.get(1).getStudy(source.getStudyId()).getStats("ALL");
+        stats = variants.get(1).getStudy(metadata.getId()).getStats("ALL");
         assertEquals(Integer.valueOf(6), stats.getGenotypesCount().get(new Genotype("0/1", "G", "C")));
 
     }
@@ -108,7 +110,7 @@ public class VariantAggregatedStatsCalculatorTest extends GenericTest {
         VariantAggregatedStatsCalculator calculator = new VariantAggregatedStatsCalculator();
         calculator.calculate(variants);
 
-        VariantStats stats = variants.get(0).getSourceEntry(source.getFileId(), source.getStudyId()).getStats(StudyEntry.DEFAULT_COHORT);
+        VariantStats stats = variants.get(0).getStudy(metadata.getId()).getStats(StudyEntry.DEFAULT_COHORT);
         assertEquals(new Integer(34), stats.getGenotypesCount().get(new Genotype("0/0", "A", "G")));
         assertEquals(new Integer(0),  stats.getGenotypesCount().get(new Genotype("0/1", "A", "G")));
         assertEquals(new Integer(1),  stats.getGenotypesCount().get(new Genotype("G/G", "A", "G")));
@@ -147,7 +149,7 @@ public class VariantAggregatedStatsCalculatorTest extends GenericTest {
     }
 
     private List<Variant> readLine(String line) {
-        return new VariantNormalizer().apply(factory.create(source, line));
+        return new VariantNormalizer().apply(factory.create(metadata, line));
     }
 }
 
