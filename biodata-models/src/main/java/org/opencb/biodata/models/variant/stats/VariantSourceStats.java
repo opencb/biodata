@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  * @author Jose Miguel Mut Lopez &lt;jmmut@ebi.ac.uk&gt;
  */
+@Deprecated
 public class VariantSourceStats {
 
     private final String fileId;
@@ -59,7 +60,7 @@ public class VariantSourceStats {
 
     public void setSampleNames(List<String> sampleNames) {
         this.sampleNames = sampleNames;
-        fileStats.setSamplesCount(sampleNames.size());
+        fileStats.setNumSamples(sampleNames.size());
     }
 
     public VariantGlobalStats getFileStats() {

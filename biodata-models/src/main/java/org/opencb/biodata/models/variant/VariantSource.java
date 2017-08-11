@@ -31,6 +31,7 @@ import java.util.*;
 /**
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
+@Deprecated
 @JsonIgnoreProperties({"impl", "samplesPosition", "type"})
 public class VariantSource {
 
