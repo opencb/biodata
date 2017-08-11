@@ -55,15 +55,17 @@ protocol VariantMetadataProtocol {
 
     record VariantFileMetadata {
         string id;
+
         union { null, string } alias = null;
 
         array<string> sampleIds = [ ];
 
-        union {null, VariantFileHeader} header = null;
+        union { null, VariantSetStats } stats = null;
+
+        union { null, VariantFileHeader } header = null;
     }
 
     record VariantDatasetStats {
-        map<VariantSetStats> fileStats = { };
 
         map<VariantSetStats> sampleStats = { };
 
