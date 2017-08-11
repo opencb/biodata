@@ -58,7 +58,7 @@ public class VariantMetadataManager {
     private ObjectMapper mapper;
     private Logger logger;
 
-    private static final Pattern OPERATION_PATTERN = Pattern.compile("^()(<=?|>=?|!=|!?=?~|==?)([^=<>~!]+.*)$");
+    private static final Pattern OPERATION_PATTERN = Pattern.compile("(<=?|>=?|!=|!?=?~|==?)([^=<>~!]+.*)$");
 
     public VariantMetadataManager() {
         this(new Species("hsapiens", "Homo sapiens", "", null, "GRCh38"), "");
@@ -546,7 +546,7 @@ public class VariantMetadataManager {
         return this;
     }
 
-    private List<Predicate<Sample>> parseSampleQuery(Query query) {
+    protected List<Predicate<Sample>> parseSampleQuery(Query query) {
         List<Predicate<Sample>> filters = new ArrayList<>();
 
         Iterator<String> iterator = query.keySet().iterator();
@@ -556,8 +556,8 @@ public class VariantMetadataManager {
 
             Matcher matcher = OPERATION_PATTERN.matcher(value);
             if (matcher.matches()) {
-                String comparator = matcher.group(0);
-                String queryValue = matcher.group(1);
+                String comparator = matcher.group(1);
+                String queryValue = matcher.group(2);
 
                 switch (comparator) {
                     case "=":
@@ -627,6 +627,14 @@ public class VariantMetadataManager {
                         });
                         break;
                     case "~=":
+                        filters.add(sample -> {
+                            try {
+                                String s = sample.getAnnotations().getOrDefault(key, "").trim();
+                                return queryValue.contains(s);
+                            } catch (Exception e) {
+                                return false;
+                            }
+                        });
                         break;
                     default:
                         break;
@@ -634,7 +642,6 @@ public class VariantMetadataManager {
 
             }
         }
-
 
         return filters;
     }
