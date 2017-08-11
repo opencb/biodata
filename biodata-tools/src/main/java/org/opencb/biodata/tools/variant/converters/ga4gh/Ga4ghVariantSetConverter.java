@@ -52,8 +52,8 @@ public class Ga4ghVariantSetConverter<VS> implements Converter<VariantFileMetada
     }
 
     @Override
-    public VS convert(VariantFileMetadata source) {
-        return apply(Collections.singletonList(source)).get(0);
+    public VS convert(VariantFileMetadata fileMetadata) {
+        return apply(Collections.singletonList(fileMetadata)).get(0);
     }
 
     @Override

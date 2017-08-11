@@ -96,14 +96,14 @@ public class VariantVcfFactory implements VariantFactory {
                 .map(a -> new AlternateCoordinate(chromosome, null, null, null, a, null))
                 .collect(Collectors.toList());
         StudyEntry entry = new StudyEntry(metadata.getId(), secondaryAlternatesMap, Arrays.asList(format.split(":")));
-        VariantFileMetadata source = new VariantFileMetadata(metadata.getFiles().get(0));
-        entry.setFileId(source.getId());
+        VariantFileMetadata fileMetadata = new VariantFileMetadata(metadata.getFiles().get(0));
+        entry.setFileId(fileMetadata.getId());
         variant.addStudyEntry(entry);
 
         try {
-            parseSplitSampleData(entry, source, fields, reference, alternateAlleles);
+            parseSplitSampleData(entry, fileMetadata, fields, reference, alternateAlleles);
             // Fill the rest of fields (after samples because INFO depends on them)
-            setOtherFields(variant, entry, source, ids, quality, filter, info, format, alternateAlleles, line);
+            setOtherFields(variant, entry, fileMetadata, ids, quality, filter, info, format, alternateAlleles, line);
         } catch (NonStandardCompliantSampleField ex) {
             Logger.getLogger(VariantFactory.class.getName()).log(Level.SEVERE,
                     String.format("Variant %s:%d:%s>%s will not be saved\n%s",
@@ -113,9 +113,9 @@ public class VariantVcfFactory implements VariantFactory {
         return Collections.singletonList(variant);
     }
 
-    protected void parseSplitSampleData(StudyEntry entry, VariantFileMetadata source, String[] fields,
+    protected void parseSplitSampleData(StudyEntry entry, VariantFileMetadata fileMetadata, String[] fields,
                                         String reference, String[] alternateAlleles) throws NonStandardCompliantSampleField {
-//        List<String> formatFields = variant.getSourceEntry(source.getFileId(), source.getStudyId()).getFormat();
+//        List<String> formatFields = variant.getSourceEntry(fileMetadata.getFileId(), fileMetadata.getStudyId()).getFormat();
 
         if (fields.length < 9) {
             entry.setSamplesData(Collections.emptyList());
@@ -123,7 +123,7 @@ public class VariantVcfFactory implements VariantFactory {
             return;
         }
         List<String> formatFields = Arrays.asList(fields[8].split(":"));
-        entry.setSamplesPosition(source.getSamplesPosition());
+        entry.setSamplesPosition(fileMetadata.getSamplesPosition());
 
         List<List<String>> samplesData = Arrays.asList(new List[fields.length - 9]);
         for (int i = 9; i < fields.length; i++) {
@@ -141,7 +141,7 @@ public class VariantVcfFactory implements VariantFactory {
 
 //        samplesData = variantNormalizer.normalizeSamplesData(variantKeyFields, samplesData, formatFields, reference, Arrays.asList(alternateAlleles), null);
 
-        // Add samples data to the variant entry in the source file
+        // Add samples data to the variant entry in the fileMetadata file
         entry.setSamplesData(samplesData);
     }
 
@@ -173,22 +173,22 @@ public class VariantVcfFactory implements VariantFactory {
         return true;
     }
 
-    protected void setOtherFields(Variant variant, StudyEntry study, VariantFileMetadata source, List<String> ids, float quality,
+    protected void setOtherFields(Variant variant, StudyEntry study, VariantFileMetadata fileMetadata, List<String> ids, float quality,
                                   String filter, String info, String format, String[] alternateAlleles, String line) {
         // Fields not affected by the structure of REF and ALT fields
         if (!ids.isEmpty()) {
             variant.setIds(ids);
         }
         if (quality > -1) {
-            study.addAttribute(source.getId(), StudyEntry.QUAL, String.valueOf(quality));
+            study.addAttribute(fileMetadata.getId(), StudyEntry.QUAL, String.valueOf(quality));
         }
         if (!filter.isEmpty()) {
-            study.addAttribute(source.getId(), StudyEntry.FILTER, filter);
+            study.addAttribute(fileMetadata.getId(), StudyEntry.FILTER, filter);
         }
         if (!info.isEmpty()) {
-            parseInfo(variant, source.getId(), study.getStudyId(), info);
+            parseInfo(variant, fileMetadata.getId(), study.getStudyId(), info);
         }
-        study.addAttribute(source.getId(), StudyEntry.SRC, line);
+        study.addAttribute(fileMetadata.getId(), StudyEntry.SRC, line);
     }
 
     protected void parseInfo(Variant variant, String fileId, String studyId, String info) {

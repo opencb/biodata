@@ -36,8 +36,8 @@ import static org.junit.Assert.*;
  */
 public class VariantAggregatedVcfFactoryTest extends GenericTest {
 
-    private VariantFileMetadata source = new VariantFileMetadata("filename.vcf", "fileId");
-    private VariantDatasetMetadata metadata = source.toVariantDatasetMetadata("studyId");
+    private VariantFileMetadata fileMetadata = new VariantFileMetadata("filename.vcf", "fileId");
+    private VariantDatasetMetadata metadata = fileMetadata.toVariantDatasetMetadata("studyId");
 
     @Test
     public void testIndel() {

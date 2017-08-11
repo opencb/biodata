@@ -44,13 +44,13 @@ public class VariantFileUtils {
      * Reads the VariantSource from a Vcf file given a file Path
      *
      * @param path    Path to the Vcf file
-     * @param source  Optional source to fill up
-     * @return        The read variant source
+     * @param fileMetadata  Optional fileMetadata to fill up
+     * @return        The read variant fileMetadata
      * @throws IOException if an I/O error occurs
      */
-    public static VariantFileMetadata readVariantFileMetadata(Path path, VariantFileMetadata source) throws IOException {
+    public static VariantFileMetadata readVariantFileMetadata(Path path, VariantFileMetadata fileMetadata) throws IOException {
         Objects.requireNonNull(path);
-        return readVariantFileMetadata(new VariantVcfReader(source.toVariantDatasetMetadata(""), path.toString()), source);
+        return readVariantFileMetadata(new VariantVcfReader(fileMetadata.toVariantDatasetMetadata(""), path.toString()), fileMetadata);
     }
 
     /**

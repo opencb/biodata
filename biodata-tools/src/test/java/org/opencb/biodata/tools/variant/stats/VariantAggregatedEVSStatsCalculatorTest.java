@@ -39,8 +39,8 @@ import static org.junit.Assert.assertTrue;
 public class VariantAggregatedEVSStatsCalculatorTest extends GenericTest {
 
     private final VariantNormalizer normalizer = new VariantNormalizer();
-    private VariantFileMetadata source = new VariantFileMetadata("EVS", "EVS");
-    private VariantDatasetMetadata metadata = source.toVariantDatasetMetadata("EVS");
+    private VariantFileMetadata fileMetadata = new VariantFileMetadata("EVS", "EVS");
+    private VariantDatasetMetadata metadata = fileMetadata.toVariantDatasetMetadata("EVS");
     private VariantFactory factory = new VariantAggregatedVcfFactory();
 
     @Test

@@ -35,9 +35,9 @@ public class VariantVcfReaderTest {
     @Test
     public void readFile() {
         String inputFile = getClass().getResource("/variant-test-file.vcf.gz").getFile();
-        VariantFileMetadata source = new VariantFileMetadata(inputFile, "test");
+        VariantFileMetadata fileMetadata = new VariantFileMetadata(inputFile, "test");
     
-        VariantReader reader = new VariantVcfReader(source.toVariantDatasetMetadata("studyId"), inputFile);
+        VariantReader reader = new VariantVcfReader(fileMetadata.toVariantDatasetMetadata("studyId"), inputFile);
 
         List<Variant> variants;
 
@@ -61,9 +61,9 @@ public class VariantVcfReaderTest {
     @Test
     public void readAggregatedFile() {
         String inputFile = getClass().getResource("/evs.vcf.gz").getFile();
-        VariantFileMetadata source = new VariantFileMetadata(inputFile, "evs");
+        VariantFileMetadata fileMetadata = new VariantFileMetadata(inputFile, "evs");
         
-        VariantReader reader = new VariantVcfReader(source.toVariantDatasetMetadata("studyId"), inputFile, new VariantAggregatedVcfFactory());
+        VariantReader reader = new VariantVcfReader(fileMetadata.toVariantDatasetMetadata("studyId"), inputFile, new VariantAggregatedVcfFactory());
 
         List<Variant> variants;
 

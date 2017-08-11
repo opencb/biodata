@@ -25,7 +25,6 @@ import org.opencb.biodata.formats.variant.io.VariantReader;
 import org.opencb.biodata.formats.variant.io.VariantWriter;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
-import org.opencb.biodata.tools.variant.VariantFileUtils;
 import org.opencb.commons.run.Runner;
 import org.opencb.commons.run.Task;
 /**
@@ -35,19 +34,19 @@ import org.opencb.commons.run.Task;
 @Deprecated
 public class VariantRunner extends Runner<Variant> {
 
-    protected VariantFileMetadata source;
+    protected VariantFileMetadata fileMetadata;
 
     public VariantRunner(VariantFileMetadata study, VariantReader reader, PedigreeReader pedReader,
                          List<VariantWriter> writer, List<Task<Variant>> tasks) {
         super(reader, writer, tasks);
-        this.source = study;
+        this.fileMetadata = study;
         parsePhenotypes(pedReader);
     }
 
     public VariantRunner(VariantFileMetadata study, VariantReader reader, PedigreeReader pedReader,
                          List<VariantWriter> writer, List<Task<Variant>> tasks, int batchSize) {
         super(reader, writer, tasks, batchSize);
-        this.source = study;
+        this.fileMetadata = study;
         parsePhenotypes(pedReader);
     }
 
@@ -60,11 +59,11 @@ public class VariantRunner extends Runner<Variant> {
     }
 
     public VariantFileMetadata getStudy() {
-        return source;
+        return fileMetadata;
     }
 
     public void setStudy(VariantFileMetadata study) {
-        this.source = study;
+        this.fileMetadata = study;
     }
 
 //    @Override

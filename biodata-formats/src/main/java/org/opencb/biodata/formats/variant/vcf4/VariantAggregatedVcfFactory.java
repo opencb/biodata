@@ -49,7 +49,7 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
 
 
     @Override
-    protected void parseSplitSampleData(StudyEntry variant, VariantFileMetadata source, String[] fields,
+    protected void parseSplitSampleData(StudyEntry variant, VariantFileMetadata fileMetadata, String[] fields,
                                         String reference, String[] alternateAlleles)
             throws NonStandardCompliantSampleField {
         // Nothing to do
@@ -57,20 +57,20 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
     }
 
     @Override
-    protected void setOtherFields(Variant variant, StudyEntry sourceEntry, VariantFileMetadata source, List<String> ids,
+    protected void setOtherFields(Variant variant, StudyEntry studyEntry, VariantFileMetadata fileMetadata, List<String> ids,
                                   float quality, String filter, String info, String format, String[] alternateAlleles, String line) {
         // Fields not affected by the structure of REF and ALT fields
         variant.setIds(ids);
         if (quality > -1) {
-            sourceEntry.addAttribute(source.getId(), StudyEntry.QUAL, String.valueOf(quality));
+            studyEntry.addAttribute(fileMetadata.getId(), StudyEntry.QUAL, String.valueOf(quality));
         }
         if (!filter.isEmpty()) {
-            sourceEntry.addAttribute(source.getId(), StudyEntry.FILTER, filter);
+            studyEntry.addAttribute(fileMetadata.getId(), StudyEntry.FILTER, filter);
         }
         Map<String, String> infoMap = getInfoMap(info);
-        sourceEntry.setFormatAsString(format);
-        sourceEntry.addAttribute(source.getId(), StudyEntry.SRC, line);
-        sourceEntry.addAttributes(source.getId(), infoMap);
+        studyEntry.setFormatAsString(format);
+        studyEntry.addAttribute(fileMetadata.getId(), StudyEntry.SRC, line);
+        studyEntry.addAttributes(fileMetadata.getId(), infoMap);
     }
 
     public static Map<String, String> getInfoMap(String info) {
@@ -149,7 +149,7 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
     }
 
 
-    protected void addAttributes(Variant variant, StudyEntry sourceEntry, int numAllele, String[] alternateAlleles,
+    protected void addAttributes(Variant variant, StudyEntry studyEntry, int numAllele, String[] alternateAlleles,
                                  Map<String, String> infoMap) {
 
     }

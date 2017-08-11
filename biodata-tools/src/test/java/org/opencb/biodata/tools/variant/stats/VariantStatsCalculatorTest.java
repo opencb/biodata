@@ -52,10 +52,10 @@ public class VariantStatsCalculatorTest {
         assertEquals(1, result.size());
 
         Variant variant = result.get(0);
-        StudyEntry sourceEntry = variant.getStudy(datasetMetadata.getId());
+        StudyEntry studyEntry = variant.getStudy(datasetMetadata.getId());
 
         VariantStats biallelicStats = new VariantStats(result.get(0));
-        VariantStatsCalculator.calculate(sourceEntry, sourceEntry.getAttributes(), null, biallelicStats);
+        VariantStatsCalculator.calculate(studyEntry, studyEntry.getAttributes(), null, biallelicStats);
 
         assertEquals("T", biallelicStats.getRefAllele());
         assertEquals("C", biallelicStats.getAltAllele());
