@@ -5,6 +5,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
+import static org.opencb.biodata.tools.variant.converters.proto.VariantToProtoVcfRecord.getSliceOffset;
+import static org.opencb.biodata.tools.variant.converters.proto.VariantToProtoVcfRecord.getSlicePosition;
 
 import htsjdk.variant.vcf.VCFConstants;
 
@@ -17,8 +19,6 @@ import org.opencb.biodata.models.variant.*;
 import org.opencb.biodata.models.variant.protobuf.VcfMeta;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfRecord;
-import org.opencb.biodata.tools.variant.converters.proto.VariantToProtoVcfRecord;
-import org.opencb.biodata.tools.variant.converters.proto.VcfRecordProtoToVariantConverter;
 
 public class VariantToVcfRecordTest {
 
@@ -70,9 +70,6 @@ public class VariantToVcfRecordTest {
         v.setStudies(Collections.singletonList(study));
 
         // META
-        VcfMeta meta = new VcfMeta(new VariantSource(fileName, fileName, "2", "study"));
-        meta.setFormatDefault(Arrays.asList(format.split(":")));
-        meta.setInfoDefault(Arrays.asList("X", "AB"));
 
         // Converter
         VariantToProtoVcfRecord con = new VariantToProtoVcfRecord();
@@ -99,7 +96,6 @@ public class VariantToVcfRecordTest {
         assertEquals(2, rec.getFilterIndex());
 
         // change default FILTER
-        meta.setFilterDefault(filter);
         con.updateMeta(VcfSliceProtos.Fields.newBuilder(fields).setFilters(0, filter).setFilters(2, "PASS").build());
         rec = con.convert(v, 100);
         assertEquals(0, rec.getFilterIndex());
@@ -121,25 +117,25 @@ public class VariantToVcfRecordTest {
     @Test
     public void testGetSlicePosition() {
         VariantToProtoVcfRecord con = new VariantToProtoVcfRecord();
-        assertEquals("Issues with ignoring chunks <= 0", 100, con.getSlicePosition(100, 0));
-        assertEquals("Issues with ignoring chunks <= 0", 101, con.getSlicePosition(101, -1));
-        assertEquals("Issues with slice conversion", 100, con.getSlicePosition(100, 10));
-        assertEquals("Issues with slice conversion", 100, con.getSlicePosition(109, 10));
-        assertEquals("Issues with slice conversion", 100, con.getSlicePosition(100, 100));
-        assertEquals("Issues with slice conversion", 0, con.getSlicePosition(99, 100));
-        assertEquals("Issues with slice conversion", 0, con.getSlicePosition(100, 1000));
-        assertEquals("Issues with slice conversion", 1200, con.getSlicePosition(1234, 100));
+        assertEquals("Issues with ignoring chunks <= 0", 100, getSlicePosition(100, 0));
+        assertEquals("Issues with ignoring chunks <= 0", 101, getSlicePosition(101, -1));
+        assertEquals("Issues with slice conversion", 100, getSlicePosition(100, 10));
+        assertEquals("Issues with slice conversion", 100, getSlicePosition(109, 10));
+        assertEquals("Issues with slice conversion", 100, getSlicePosition(100, 100));
+        assertEquals("Issues with slice conversion", 0, getSlicePosition(99, 100));
+        assertEquals("Issues with slice conversion", 0, getSlicePosition(100, 1000));
+        assertEquals("Issues with slice conversion", 1200, getSlicePosition(1234, 100));
     }
 
     @Test
     public void testGetSliceOffset() {
         VariantToProtoVcfRecord con = new VariantToProtoVcfRecord();
-        assertEquals("Issues with ignoring chunks <= 0", 100, con.getSliceOffset(100, 0));
-        assertEquals("Issues with ignoring chunks <= 0", 100, con.getSliceOffset(100, -1));
-        assertEquals("Issues with slice conversion", 0, con.getSliceOffset(100, 10));
-        assertEquals("Issues with slice conversion", 0, con.getSliceOffset(100, 100));
-        assertEquals("Issues with slice conversion", 1, con.getSliceOffset(101, 100));
-        assertEquals("Issues with slice conversion", 34, con.getSliceOffset(1234, 100));
+        assertEquals("Issues with ignoring chunks <= 0", 100, getSliceOffset(100, 0));
+        assertEquals("Issues with ignoring chunks <= 0", 100, getSliceOffset(100, -1));
+        assertEquals("Issues with slice conversion", 0, getSliceOffset(100, 10));
+        assertEquals("Issues with slice conversion", 0, getSliceOffset(100, 100));
+        assertEquals("Issues with slice conversion", 1, getSliceOffset(101, 100));
+        assertEquals("Issues with slice conversion", 34, getSliceOffset(1234, 100));
     }
 
     @Test
@@ -180,19 +176,6 @@ public class VariantToVcfRecordTest {
                 new ArrayList<>(con.encodeSamples(formatPositions, data).get(0).getSampleValuesList()),
                 Arrays.asList("a", "b", "c"));
 
-    }
-
-    @Test
-    public void testGetSamples() {
-        VariantToProtoVcfRecord con = new VariantToProtoVcfRecord();
-
-        List<String> samplesList = Arrays.asList("S1", "S2", "S5", "S3");
-        VcfMeta meta = new VcfMeta(new VariantSource("", "", "", ""));
-        meta.getVariantSource().setSamples(samplesList);
-//        con.updateVcfMeta(meta, slice);
-//
-//        List<String> samples = con.getSamples();
-//        assertEquals(samplesList, samples);
     }
 
     @Test

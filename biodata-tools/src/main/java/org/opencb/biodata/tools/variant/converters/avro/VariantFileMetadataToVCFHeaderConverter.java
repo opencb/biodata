@@ -35,6 +35,7 @@ import java.io.IOException;
  *
  * @author Jacobo Coll &lt;jacobo167@gmail.com&gt;
  */
+@Deprecated
 public class VariantFileMetadataToVCFHeaderConverter implements Converter<VariantFileMetadata, VCFHeader> {
 
     @Override

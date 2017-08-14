@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.opencb.biodata.formats.variant.io.VariantReader;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.formats.variant.vcf4.VariantAggregatedVcfFactory;
-import org.opencb.biodata.models.variant.VariantSource;
+import org.opencb.biodata.models.variant.VariantFileMetadata;
 
 import java.util.List;
 
@@ -35,9 +35,9 @@ public class VariantVcfReaderTest {
     @Test
     public void readFile() {
         String inputFile = getClass().getResource("/variant-test-file.vcf.gz").getFile();
-        VariantSource source = new VariantSource(inputFile, "test", "test", "Test file");
+        VariantFileMetadata fileMetadata = new VariantFileMetadata(inputFile, "test");
     
-        VariantReader reader = new VariantVcfReader(source, inputFile);
+        VariantReader reader = new VariantVcfReader(fileMetadata.toVariantDatasetMetadata("studyId"), inputFile);
 
         List<Variant> variants;
 
@@ -61,9 +61,9 @@ public class VariantVcfReaderTest {
     @Test
     public void readAggregatedFile() {
         String inputFile = getClass().getResource("/evs.vcf.gz").getFile();
-        VariantSource source = new VariantSource(inputFile, "evs", "evs", "Exome Variant Server");
+        VariantFileMetadata fileMetadata = new VariantFileMetadata(inputFile, "evs");
         
-        VariantReader reader = new VariantVcfReader(source, inputFile, new VariantAggregatedVcfFactory());
+        VariantReader reader = new VariantVcfReader(fileMetadata.toVariantDatasetMetadata("studyId"), inputFile, new VariantAggregatedVcfFactory());
 
         List<Variant> variants;
 

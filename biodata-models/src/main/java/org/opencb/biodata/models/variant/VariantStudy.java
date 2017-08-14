@@ -29,6 +29,7 @@ import java.util.Map;
  *
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
+@Deprecated
 public class VariantStudy implements Serializable {
     
     public enum StudyType { 

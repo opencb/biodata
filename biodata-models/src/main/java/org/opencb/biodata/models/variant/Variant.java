@@ -575,8 +575,8 @@ public class Variant implements Serializable, Comparable<Variant> {
         if (impl.getStudies() != null) {
             if (studyEntries == null) {
                 studyEntries = new HashMap<>();
-                for (org.opencb.biodata.models.variant.avro.StudyEntry sourceEntry : impl.getStudies()) {
-                    studyEntries.put(composeId(sourceEntry.getStudyId()), new StudyEntry(sourceEntry));
+                for (org.opencb.biodata.models.variant.avro.StudyEntry studyEntry : impl.getStudies()) {
+                    studyEntries.put(composeId(studyEntry.getStudyId()), new StudyEntry(studyEntry));
                 }
             }
             return Collections.unmodifiableMap(studyEntries);

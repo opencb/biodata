@@ -31,6 +31,7 @@ import java.util.*;
 /**
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
+@Deprecated
 @JsonIgnoreProperties({"impl", "samplesPosition", "type"})
 public class VariantSource {
 
@@ -188,11 +189,12 @@ public class VariantSource {
     }
 
     public VariantGlobalStats getStats() {
-        return impl.getStats() == null ? null : new VariantGlobalStats(impl.getStats());
+//        return impl.getStats() == null ? null : new VariantGlobalStats(impl.getStats());
+        return null;
     }
 
     public void setStats(VariantGlobalStats stats) {
-        impl.setStats(stats == null ? null : stats.getImpl());
+//        impl.setStats(stats == null ? null : stats.getImpl());
     }
 
     public VcfHeader getHeader() {

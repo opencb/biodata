@@ -27,8 +27,9 @@ import htsjdk.variant.vcf.VCFHeader;
 import org.opencb.biodata.formats.variant.io.VariantReader;
 import org.opencb.biodata.formats.variant.vcf4.FullVcfCodec;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.VariantSource;
-import org.opencb.biodata.tools.variant.converters.avro.VCFHeaderToAvroVcfHeaderConverter;
+import org.opencb.biodata.models.variant.VariantFileMetadata;
+import org.opencb.biodata.models.variant.metadata.VariantDatasetMetadata;
+import org.opencb.biodata.tools.variant.converters.avro.VCFHeaderToVariantFileHeaderConverter;
 import org.opencb.biodata.tools.variant.converters.avro.VariantContextToVariantConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +53,8 @@ public class VariantVcfHtsjdkReader implements VariantReader {
 
     private final Logger logger = LoggerFactory.getLogger(VariantVcfHtsjdkReader.class);
 
-    private final VariantSource source;
+    private final VariantDatasetMetadata metadata;
+    private final VariantFileMetadata fileMetadata;
     private final InputStream inputStream;
     private final VariantNormalizer normalizer;
     private FullVcfCodec codec;
@@ -63,12 +65,13 @@ public class VariantVcfHtsjdkReader implements VariantReader {
     private Set<BiConsumer<String, RuntimeException>> malformHandlerSet = new HashSet<>();
     private boolean failOnError = false;
 
-    public VariantVcfHtsjdkReader(InputStream inputStream, VariantSource source) {
-        this(inputStream, source, null);
+    public VariantVcfHtsjdkReader(InputStream inputStream, VariantDatasetMetadata metadata) {
+        this(inputStream, metadata, null);
     }
 
-    public VariantVcfHtsjdkReader(InputStream inputStream, VariantSource source, VariantNormalizer normalizer) {
-        this.source = source;
+    public VariantVcfHtsjdkReader(InputStream inputStream, VariantDatasetMetadata metadata, VariantNormalizer normalizer) {
+        this.metadata = metadata;
+        this.fileMetadata = new VariantFileMetadata(metadata.getFiles().get(0));
         this.inputStream = inputStream;
         this.normalizer = normalizer;
     }
@@ -120,9 +123,9 @@ public class VariantVcfHtsjdkReader implements VariantReader {
         }));
 
         // Create converters and fill VariantSource
-        converter = new VariantContextToVariantConverter(source.getStudyId(), source.getFileId(), header.getSampleNamesInOrder());
-        source.setHeader(new VCFHeaderToAvroVcfHeaderConverter().convert(header));
-        source.setSamples(header.getSampleNamesInOrder());
+        converter = new VariantContextToVariantConverter(metadata.getId(), metadata.getId(), header.getSampleNamesInOrder());
+        fileMetadata.setHeader(new VCFHeaderToVariantFileHeaderConverter().convert(header));
+        fileMetadata.setSampleIds(header.getSampleNamesInOrder());
         return true;
     }
 
@@ -189,7 +192,13 @@ public class VariantVcfHtsjdkReader implements VariantReader {
         return String.join("\n", headerLines);
     }
 
-    public VariantSource getSource() {
-        return source;
+    @Override
+    public VariantFileMetadata getVariantFileMetadata() {
+        return fileMetadata;
+    }
+
+    @Deprecated
+    public VariantFileMetadata getMetadata() {
+        return getVariantFileMetadata();
     }
 }

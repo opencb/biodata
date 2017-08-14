@@ -461,12 +461,10 @@ public class StudyEntry implements Serializable {
         return null;
     }
 
-    @Deprecated
     public String getFileId() {
         return !impl.getFiles().isEmpty() ? impl.getFiles().get(0).getFileId() : null;
     }
 
-    @Deprecated
     public void setFileId(String fileId) {
         if (impl.getFiles().isEmpty()) {
             impl.getFiles().add(new FileEntry(fileId, "", new HashMap<>()));

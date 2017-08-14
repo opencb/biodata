@@ -37,18 +37,20 @@ import java.util.Map;
  */
 public class VariantGlobalStatsCalculator extends Task<Variant> {
 
-    private final VariantSource source;
+    private final VariantFileMetadata metadata;
+    private final String studyId;
     private VariantGlobalStats globalStats;
     private static Logger logger = LoggerFactory.getLogger(VariantGlobalStatsCalculator.class);
 
-    public VariantGlobalStatsCalculator(VariantSource source) {
-        this.source = source;
+    public VariantGlobalStatsCalculator(String studyId, VariantFileMetadata metadata) {
+        this.studyId = studyId;
+        this.metadata = metadata;
     }
 
     @Override
     public boolean pre() {
         globalStats = new VariantGlobalStats();
-        globalStats.setSamplesCount(source.getSamples().size());
+        globalStats.setNumSamples(metadata.getSampleIds().size());
         return true;
     }
 
@@ -62,13 +64,13 @@ public class VariantGlobalStatsCalculator extends Task<Variant> {
     }
 
     public synchronized void updateGlobalStats(Variant variant) {
-        updateGlobalStats(variant, globalStats, source);
+        updateGlobalStats(variant, globalStats, studyId, metadata.getId());
     }
 
-    public static void updateGlobalStats(Variant variant, VariantGlobalStats globalStats, VariantSource source) {
-        globalStats.setNumRecords(globalStats.getNumRecords() + 1);
-        StudyEntry study = variant.getStudy(source.getStudyId());
-        FileEntry file = study.getFile(source.getFileId());
+    public static void updateGlobalStats(Variant variant, VariantGlobalStats globalStats, String studyId, String fileId) {
+        globalStats.setNumVariants(globalStats.getNumVariants() + 1);
+        StudyEntry study = variant.getStudy(studyId);
+        FileEntry file = study.getFile(fileId);
         if (file == null) {
             logger.warn("File \"{}\" not found in variant {}. Skip variant");
             return;
@@ -80,7 +82,7 @@ public class VariantGlobalStatsCalculator extends Task<Variant> {
         globalStats.addVariantTypeCount(variant.getType(), 1);
 
         if ("PASS".equalsIgnoreCase(attributes.get(StudyEntry.FILTER))) {
-            globalStats.setPassCount(globalStats.getPassCount() + 1);
+            globalStats.setNumPass(globalStats.getNumPass() + 1);
         }
 
         float qual = 0;
@@ -96,8 +98,8 @@ public class VariantGlobalStatsCalculator extends Task<Variant> {
 
     @Override
     public boolean post() {
-        globalStats.setMeanQuality(globalStats.getAccumulatedQuality() / globalStats.getVariantsCount());
-        source.setStats(globalStats);
+        globalStats.setMeanQuality((float) (globalStats.getAccumulatedQuality() / globalStats.getNumVariants()));
+        metadata.setStats(globalStats);
         return true;
     }
 }

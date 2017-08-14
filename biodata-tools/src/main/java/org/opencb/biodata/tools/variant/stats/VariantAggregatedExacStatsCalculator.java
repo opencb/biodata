@@ -65,8 +65,8 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
     }
 
     @Override
-    protected void parseStats(Variant variant, StudyEntry source, int numAllele, String reference, String[] alternateAlleles, Map<String, String> info) {
-        StudyEntry sourceEntry = variant.getStudy(source.getStudyId());
+    protected void parseStats(Variant variant, StudyEntry fileMetadata, int numAllele, String reference, String[] alternateAlleles, Map<String, String> info) {
+        StudyEntry studyentry = variant.getStudy(fileMetadata.getStudyId());
         VariantStats stats = new VariantStats(variant);
 
         if (info.containsKey(AC_HET)) {   // heterozygous genotype count
@@ -101,11 +101,11 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
             setMaf(an, acCounts, alternateAlleles, stats);
         }
 
-        sourceEntry.setStats(StudyEntry.DEFAULT_COHORT, stats);
+        studyentry.setStats(StudyEntry.DEFAULT_COHORT, stats);
     }
 
     @Override
-    protected void parseMappedStats(Variant variant, StudyEntry sourceEntry, int numAllele, String reference, String[] alternateAlleles, Map<String, String> info) {
+    protected void parseMappedStats(Variant variant, StudyEntry studyEntry, int numAllele, String reference, String[] alternateAlleles, Map<String, String> info) {
         Map<String, Integer> ans = new LinkedHashMap<>();
         Map<String, String[]> acs = new LinkedHashMap<>();
         for (Map.Entry<String, String> infoElem : info.entrySet()) {
@@ -118,10 +118,10 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
             if (mappedTag != null) {
                 String[] opencgaTagSplit = mappedTag.split(DOT);
                 String cohortName = opencgaTagSplit[0];
-                VariantStats cohortStats = sourceEntry.getCohortStats(cohortName);
+                VariantStats cohortStats = studyEntry.getStats(cohortName);
                 if (cohortStats == null) {
                     cohortStats = new VariantStats(variant);
-                    sourceEntry.setCohortStats(cohortName, cohortStats);
+                    studyEntry.setStats(cohortName, cohortStats);
                 }
                 switch (opencgaTagSplit[1]) {
                     case "AC":
@@ -140,9 +140,9 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
                 }
             }
         }
-        for (String cohortName : sourceEntry.getStats().keySet()) {
+        for (String cohortName : studyEntry.getStats().keySet()) {
             if (ans.containsKey(cohortName)) {
-                VariantStats cohortStats = sourceEntry.getStats(cohortName);
+                VariantStats cohortStats = studyEntry.getStats(cohortName);
                 Integer alleleNumber = ans.get(cohortName);
                 addReferenceGenotype(variant, cohortStats, alleleNumber);
                 setRefAlleleCount(cohortStats, alleleNumber, acs.get(cohortName));
