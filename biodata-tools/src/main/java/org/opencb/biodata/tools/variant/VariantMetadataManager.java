@@ -157,6 +157,30 @@ public class VariantMetadataManager {
     }
 
     /**
+     * Remove a variant dataset metadata (from dataset ID).
+     *
+     * @param datasetId     Dataset ID
+     */
+    public void removeVariantDatasetMetadata(String datasetId) {
+        // Sanity check
+        if (StringUtils.isEmpty(datasetId)) {
+            logger.error("Variant dataset metadata ID {} is null or empty.", datasetId);
+            return;
+        }
+        VariantDatasetMetadata variantDatasetMetadata = getVariantDatasetMetadata(datasetId);
+        if (variantDatasetMetadata == null) {
+            logger.error("Dataset not found. Check your dataset ID: '{}'", datasetId);
+            return;
+        }
+        for (int i = 0; i < variantMetadata.getDatasets().size(); i++) {
+            if (datasetId.equals(variantMetadata.getDatasets().get(i).getId())) {
+                variantMetadata.getDatasets().remove(i);
+                return;
+            }
+        }
+    }
+
+    /**
      * Add a variant file metadata to a given variant dataset metadata (from dataset ID).
      *
      * @param fileMetadata  Variant file metadata to add
@@ -175,7 +199,7 @@ public class VariantMetadataManager {
             return;
         }
         if (variantDatasetMetadata.getFiles() == null) {
-            variantDatasetMetadata.setCohorts(new ArrayList<>());
+            variantDatasetMetadata.setFiles(new ArrayList<>());
         }
         for (VariantFileMetadata file: variantDatasetMetadata.getFiles()) {
             if (file.getId() != null && file.getId().equals(fileMetadata.getId())) {
@@ -185,6 +209,49 @@ public class VariantMetadataManager {
             }
         }
         variantDatasetMetadata.getFiles().add(fileMetadata);
+    }
+
+    /**
+     * Remove a variant file metadata of a given variant dataset metadata (from dataset ID).
+     *
+     * @param file        File
+     * @param datasetId   Dataset ID
+     */
+    public void removeFile(VariantFileMetadata file, String datasetId) {
+        // Sanity check
+        if (file == null) {
+            logger.error("Variant file metadata is null.");
+            return;
+        }
+        removeFile(file.getId(), datasetId);
+    }
+
+    /**
+     * Remove a variant file metadata (from file ID) of a given variant dataset metadata (from dataset ID).
+     *
+     * @param fileId        File ID
+     * @param datasetId     Dataset ID
+     */
+    public void removeFile(String fileId, String datasetId) {
+        // Sanity check
+        if (StringUtils.isEmpty(fileId)) {
+            logger.error("Variant file metadata ID {} is null or empty.", fileId);
+            return;
+        }
+
+        VariantDatasetMetadata variantDatasetMetadata = getVariantDatasetMetadata(datasetId);
+        if (variantDatasetMetadata == null) {
+            logger.error("Dataset not found. Check your dataset ID: '{}'", datasetId);
+            return;
+        }
+        if (variantDatasetMetadata.getFiles() != null) {
+            for (int i = 0; i < variantDatasetMetadata.getFiles().size(); i++) {
+                if (fileId.equals(variantDatasetMetadata.getFiles().get(i).getId())) {
+                    variantDatasetMetadata.getFiles().remove(i);
+                    return;
+                }
+            }
+        }
     }
 
     /**
@@ -219,6 +286,49 @@ public class VariantMetadataManager {
     }
 
     /**
+     * Remove an individual of a given variant dataset metadata (from dataset ID).
+     *
+     * @param individual   Individual
+     * @param datasetId    Dataset ID
+     */
+    public void removeIndividual(Individual individual, String datasetId) {
+        // Sanity check
+        if (individual == null) {
+            logger.error("Individual is null.");
+            return;
+        }
+        removeIndividual(individual.getId(), datasetId);
+    }
+
+    /**
+     * Remove an individual (from individual ID) of a given variant dataset metadata (from dataset ID).
+     *
+     * @param individualId Individual ID
+     * @param datasetId    Dataset ID
+     */
+    public void removeIndividual(String individualId, String datasetId) {
+        // Sanity check
+        if (StringUtils.isEmpty(individualId)) {
+            logger.error("Individual ID {} is null or empty.", individualId);
+            return;
+        }
+
+        VariantDatasetMetadata variantDatasetMetadata = getVariantDatasetMetadata(datasetId);
+        if (variantDatasetMetadata == null) {
+            logger.error("Dataset not found. Check your dataset ID: '{}'", datasetId);
+            return;
+        }
+        if (variantDatasetMetadata.getIndividuals() != null) {
+            for (int i = 0; i < variantDatasetMetadata.getIndividuals().size(); i++) {
+                if (individualId.equals(variantDatasetMetadata.getIndividuals().get(i).getId())) {
+                    variantDatasetMetadata.getIndividuals().remove(i);
+                    return;
+                }
+            }
+        }
+    }
+
+    /**
      * Add a cohort to a given variant dataset metadata (from dataset ID).
      *
      * @param cohort    Cohort to add
@@ -247,6 +357,49 @@ public class VariantMetadataManager {
             }
         }
         variantDatasetMetadata.getCohorts().add(cohort);
+    }
+
+    /**
+     * Remove a cohort of a given variant dataset metadata (from dataset ID).
+     *
+     * @param cohort     Cohort
+     * @param datasetId  Dataset ID
+     */
+    public void removeCohort(Cohort cohort, String datasetId) {
+        // Sanity check
+        if (cohort == null) {
+            logger.error("Cohort is null.");
+            return;
+        }
+        removeCohort(cohort.getId(), datasetId);
+    }
+
+    /**
+     * Remove a cohort (from cohort ID) of a given variant dataset metadata (from dataset ID).
+     *
+     * @param cohortId     Cohort ID
+     * @param datasetId    Dataset ID
+     */
+    public void removeCohort(String cohortId, String datasetId) {
+        // Sanity check
+        if (StringUtils.isEmpty(cohortId)) {
+            logger.error("Cohort ID {} is null or empty.", cohortId);
+            return;
+        }
+
+        VariantDatasetMetadata variantDatasetMetadata = getVariantDatasetMetadata(datasetId);
+        if (variantDatasetMetadata == null) {
+            logger.error("Dataset not found. Check your dataset ID: '{}'", datasetId);
+            return;
+        }
+        if (variantDatasetMetadata.getCohorts() != null) {
+            for (int i = 0; i < variantDatasetMetadata.getCohorts().size(); i++) {
+                if (cohortId.equals(variantDatasetMetadata.getCohorts().get(i).getId())) {
+                    variantDatasetMetadata.getCohorts().remove(i);
+                    return;
+                }
+            }
+        }
     }
 
     /**
