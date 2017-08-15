@@ -127,6 +127,9 @@ public class VariantMetadataManager {
      */
     public VariantDatasetMetadata getVariantDatasetMetadata(String datasetId) {
         if (datasetId != null) {
+            if (variantMetadata.getDatasets() == null) {
+                variantMetadata.setDatasets(new ArrayList<>());
+            }
             for (VariantDatasetMetadata dataset : variantMetadata.getDatasets()) {
                 if (datasetId.equals(dataset.getId())) {
                     return dataset;
@@ -149,6 +152,9 @@ public class VariantMetadataManager {
             // if there is not any dataset with that ID then we add the new one
             // TODO we need to think what to do when it exists, should we throw an exception?
             if (found != null) {
+                if (variantMetadata.getDatasets() == null) {
+                    variantMetadata.setDatasets(new ArrayList<>());
+                }
                 variantMetadata.getDatasets().add(variantDatasetMetadata);
             } else {
                 logger.error("Dataset ID already exists");
