@@ -30,6 +30,7 @@ import java.util.*;
 
 /**
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
+ * @deprecated Use {@link org.opencb.biodata.models.variant.VariantFileMetadata}
  */
 @Deprecated
 @JsonIgnoreProperties({"impl", "samplesPosition", "type"})
@@ -38,6 +39,10 @@ public class VariantSource {
     private final VariantFileMetadata impl;
     private volatile LinkedHashMap<String, Integer> samplesPosition;
 
+    /**
+     * @deprecated Use {@link org.opencb.biodata.models.variant.commons.Aggregation}
+     */
+    @Deprecated
     public enum Aggregation { NONE, BASIC, EVS, EXAC;
         public static boolean isAggregated(Aggregation agg) {return !NONE.equals(agg);}
     }
@@ -57,8 +62,7 @@ public class VariantSource {
     }
 
     public VariantSource(String fileName, String fileId, String studyId, String studyName, VariantStudy.StudyType type, Aggregation aggregation) {
-        impl = new VariantFileMetadata(fileId, studyId, fileName, studyName, new LinkedList<>(),
-                org.opencb.biodata.models.variant.avro.Aggregation.NONE, null, new HashMap<>(), null);
+        impl = new VariantFileMetadata(fileId, studyId, fileName, studyName, new LinkedList<>(), null, new HashMap<>(), null);
         samplesPosition = null;
     }
 
@@ -95,13 +99,10 @@ public class VariantSource {
     }
 
     public Aggregation getAggregation() {
-        return impl.getAggregation() == null ? null
-                : Aggregation.valueOf(impl.getAggregation().toString());
+        return Aggregation.NONE;
     }
 
     public void setAggregation(Aggregation aggregation) {
-        impl.setAggregation(aggregation == null ? null
-                : org.opencb.biodata.models.variant.avro.Aggregation.valueOf(aggregation.toString()));
     }
 
     public Map<String, Integer> getSamplesPosition() {

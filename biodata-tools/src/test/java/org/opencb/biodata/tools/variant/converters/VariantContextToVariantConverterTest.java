@@ -34,6 +34,7 @@ import org.opencb.biodata.formats.variant.vcf4.FullVcfCodec;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.*;
+import org.opencb.biodata.models.variant.commons.Aggregation;
 import org.opencb.biodata.tools.variant.VariantNormalizer;
 import org.opencb.biodata.tools.variant.converters.avro.VCFHeaderToAvroVcfHeaderConverter;
 import org.opencb.biodata.tools.variant.converters.avro.VariantContextToVariantConverter;
@@ -302,7 +303,7 @@ public class VariantContextToVariantConverterTest {
         VcfHeader avroHeader = new VCFHeaderToAvroVcfHeaderConverter().convert(fileHeader);
         VariantFileMetadata fileMetadata = new VariantFileMetadata(
                 fileId, studyId, fileName, studyName, fileHeader.getSampleNamesInOrder(),
-                Aggregation.NONE, null, new HashMap<>(), avroHeader);
+                null, new HashMap<>(), avroHeader);
         System.out.println(fileMetadata.toString());
         FileOutputStream metaOutputStream = new FileOutputStream(metaOutputPath.toFile());
         DatumWriter<VariantFileMetadata> fileMetaDatumWriter = new SpecificDatumWriter<>(VariantFileMetadata.class);
