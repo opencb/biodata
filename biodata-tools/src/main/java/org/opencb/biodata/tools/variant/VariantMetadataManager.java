@@ -151,7 +151,7 @@ public class VariantMetadataManager {
             VariantDatasetMetadata found = getVariantDatasetMetadata(variantDatasetMetadata.getId());
             // if there is not any dataset with that ID then we add the new one
             // TODO we need to think what to do when it exists, should we throw an exception?
-            if (found != null) {
+            if (found == null) {
                 if (variantMetadata.getDatasets() == null) {
                     variantMetadata.setDatasets(new ArrayList<>());
                 }
