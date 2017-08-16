@@ -102,6 +102,6 @@ protocol VariantMetadataProtocol {
         //union { null, string } description;
         string description = "";
 
-        array<VariantDatasetMetadata> datasets;
+        array<VariantDatasetMetadata> datasets = [];
     }
 }
