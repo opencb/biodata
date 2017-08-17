@@ -216,6 +216,41 @@ public class VariantMetadataManager {
                 return;
             }
         }
+        // individual management
+        if (variantDatasetMetadata.getIndividuals() == null) {
+            variantDatasetMetadata.setIndividuals(new ArrayList<>());
+        }
+        if (!variantDatasetMetadata.getIndividuals().isEmpty()) {
+            // check if samples are already in dataset
+            for (String sampleId: fileMetadata.getSampleIds()) {
+                for (org.opencb.biodata.models.metadata.Individual individual: variantDatasetMetadata.getIndividuals()) {
+                    for (Sample sample: individual.getSamples()) {
+                        if (sampleId.equals(sample.getId())) {
+                            logger.error("Sample '{}' from file {} already exists in dataset '{}'",
+                                    sampleId, fileMetadata.getId(), datasetId);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+        // by default, create individuals from sample, and individual ID takes the sample ID
+        // TODO: manage multiple samples per individual
+        for (String sampleId: fileMetadata.getSampleIds()) {
+            List<Sample> samples = new ArrayList<>();
+            Sample sample = new Sample();
+            sample.setId(sampleId);
+            sample.setAnnotations(new HashMap<>());
+            samples.add(sample);
+
+            org.opencb.biodata.models.metadata.Individual individual = new org.opencb.biodata.models.metadata.Individual();
+            individual.setId(sampleId);
+            individual.setSamples(samples);
+
+            variantDatasetMetadata.getIndividuals().add(individual);
+        }
+
+
         variantDatasetMetadata.getFiles().add(fileMetadata);
     }
 
