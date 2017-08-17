@@ -310,14 +310,6 @@ protocol Variants {
         union { null, VariantAnnotation } annotation = null;
     }
 
-    // delete
-    enum Aggregation {
-        NONE,
-        BASIC,
-        EVS,
-        EXAC
-    }
-
     record VcfHeader {
         string fileFormat;
       //map<union { string, array<map<string> }>> meta; ??
@@ -335,7 +327,7 @@ protocol Variants {
 
         array<string> samples = [];
 
-        Aggregation aggregation;
+//        Aggregation aggregation;
         //string aggregation;
 
         null stats;
