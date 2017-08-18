@@ -269,15 +269,19 @@ public class VariantGlobalStats {
     }
 
     public float getTiTvRatio() {
-        if (transitionsCount == 0 && transversionsCount == 0) {
-            return this.impl.getTiTvRatio();
-        } else {
-            return ((float) transitionsCount) / transversionsCount;
-        }
+        return this.impl.getTiTvRatio();
     }
 
     public void setTiTvRatio(float tiTvRatio) {
         this.impl.setTiTvRatio(tiTvRatio);
+    }
+
+    public void updateTiTvRatio() {
+        setTiTvRatio(transitionsCount, transversionsCount);
+    }
+
+    public void setTiTvRatio(int transitionsCount, int transversionsCount) {
+        setTiTvRatio(((float) transitionsCount) / transversionsCount);
     }
 
     public double getAccumulatedQuality() {

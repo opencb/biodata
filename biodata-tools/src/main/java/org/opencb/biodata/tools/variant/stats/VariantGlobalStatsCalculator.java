@@ -19,6 +19,8 @@
 
 package org.opencb.biodata.tools.variant.stats;
 
+import org.apache.commons.lang.StringUtils;
+import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.models.variant.*;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.stats.VariantGlobalStats;
@@ -29,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created on 19/10/15
@@ -55,7 +58,7 @@ public class VariantGlobalStatsCalculator extends Task<Variant> {
     }
 
     @Override
-    public boolean apply(List<Variant> batch) {
+    public synchronized boolean apply(List<Variant> batch) {
 
         for (Variant variant : batch) {
             updateGlobalStats(variant);
@@ -63,7 +66,7 @@ public class VariantGlobalStatsCalculator extends Task<Variant> {
         return true;
     }
 
-    public synchronized void updateGlobalStats(Variant variant) {
+    public void updateGlobalStats(Variant variant) {
         updateGlobalStats(variant, globalStats, studyId, metadata.getId());
     }
 
@@ -99,6 +102,7 @@ public class VariantGlobalStatsCalculator extends Task<Variant> {
     @Override
     public boolean post() {
         globalStats.setMeanQuality((float) (globalStats.getAccumulatedQuality() / globalStats.getNumVariants()));
+        globalStats.updateTiTvRatio();
         metadata.setStats(globalStats);
         return true;
     }
