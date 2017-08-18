@@ -103,6 +103,23 @@ public class VariantGlobalStatsCalculator extends Task<Variant> {
     public boolean post() {
         globalStats.setMeanQuality((float) (globalStats.getAccumulatedQuality() / globalStats.getNumVariants()));
         globalStats.updateTiTvRatio();
+        Map<String, Integer> chrLengthMap = metadata.getHeader().getLines()
+                .stream()
+                .filter(line -> line.getKey().equalsIgnoreCase("contig"))
+                .collect(Collectors.toMap(line -> Region.normalizeChromosome(line.getId()), line -> {
+                    String length = line.getAttributes().get("length");
+                    if (StringUtils.isNumeric(length)) {
+                        return Integer.parseInt(length);
+                    } else {
+                        return -1;
+                    }
+                }));
+        globalStats.getChromosomeStats().forEach((chr, stats) -> {
+            Integer length = chrLengthMap.get(chr);
+            if (length != null && length > 0) {
+                stats.setDensity(stats.getCounts() / (float) length);
+            }
+        });
         metadata.setStats(globalStats);
         return true;
     }
