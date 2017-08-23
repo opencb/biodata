@@ -581,6 +581,22 @@ public class VariantMetadataManager {
                             sample.setId(dest.getId());
                             sample.setAnnotations(new HashMap<>());
                         }
+                        // Default annotation (attributes from Individual)
+                        sample.getAnnotations().put("individual.id", src.getId());
+                        sample.getAnnotations().put("individual.family", src.getFamily());
+                        if (src.getFather() != null) {
+                            sample.getAnnotations().put("individual.father", src.getFather().getId());
+                        }
+                        if (src.getMother() != null) {
+                            sample.getAnnotations().put("individual.mother", src.getMother().getId());
+                        }
+                        if (src.getSex() != null) {
+                            sample.getAnnotations().put("individual.sex", src.getSex().toString());
+                        }
+                        if (src.getPhenotype() != null) {
+                            sample.getAnnotations().put("individual.phenotype", src.getPhenotype().toString());
+                        }
+                        // Custom annotation
                         for (String key: src.getVariables().keySet()) {
                             if (pedigree.getVariables().get(key) != null) {
                                 sample.getAnnotations().put(key, src.getVariables().get(key).toString());
