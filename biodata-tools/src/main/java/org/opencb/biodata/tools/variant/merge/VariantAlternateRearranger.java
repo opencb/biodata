@@ -5,6 +5,8 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opencb.biodata.models.feature.Genotype;
+import org.opencb.biodata.models.variant.metadata.VariantFileHeader;
+import org.opencb.biodata.models.variant.metadata.VariantFileHeaderLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -409,6 +411,24 @@ public class VariantAlternateRearranger {
             return this;
         }
 
+        public void configure(VariantFileHeader header) {
+            for (VariantFileHeaderLine line : header.getLines()) {
+                if (line.getKey().equalsIgnoreCase("FORMAT") || line.getKey().equalsIgnoreCase("INFO")) {
+                    VCFHeaderLineCount number;
+                    try {
+                        number = VCFHeaderLineCount.valueOf(line.getNumber());
+                    } catch (IllegalArgumentException e) {
+                        if (StringUtils.isNumeric(line.getNumber())) {
+                            number = VCFHeaderLineCount.INTEGER;
+                        } else {
+                            number = VCFHeaderLineCount.UNBOUNDED;
+                        }
+                    }
+                    VCFHeaderLineType type = VCFHeaderLineType.valueOf(line.getType());
+                    configure(line.getId(), number, type);
+                }
+            }
+        }
     }
 
 }

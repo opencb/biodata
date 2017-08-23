@@ -346,13 +346,13 @@ public class VariantStats {
     public static boolean isTransversion(String refAllele, String altAllele) {
         switch (refAllele.toUpperCase()) {
             case "C":
-                return !altAllele.equalsIgnoreCase("T");
+                return altAllele.equalsIgnoreCase("G") || altAllele.equalsIgnoreCase("A");
             case "T":
-                return !altAllele.equalsIgnoreCase("C");
+                return altAllele.equalsIgnoreCase("G") || altAllele.equalsIgnoreCase("A");
             case "A":
-                return !altAllele.equalsIgnoreCase("G");
+                return altAllele.equalsIgnoreCase("T") || altAllele.equalsIgnoreCase("C");
             case "G":
-                return !altAllele.equalsIgnoreCase("A");
+                return altAllele.equalsIgnoreCase("T") || altAllele.equalsIgnoreCase("C");
             default:
                 return false;
         }

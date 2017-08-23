@@ -562,7 +562,7 @@ public class Variant implements Serializable, Comparable<Variant> {
         impl.setStudies(new ArrayList<>(studies.size()));
         for (StudyEntry study : studies) {
             impl.getStudies().add(study.getImpl());
-            studyEntries.put(composeId(study.getStudyId()), study);
+            studyEntries.put(study.getStudyId(), study);
         }
     }
 
@@ -574,9 +574,11 @@ public class Variant implements Serializable, Comparable<Variant> {
     public Map<String, StudyEntry> getStudiesMap() {
         if (impl.getStudies() != null) {
             if (studyEntries == null) {
-                studyEntries = new HashMap<>();
+                studyEntries = new HashMap<>(impl.getStudies().size());
+            }
+            if (studyEntries.size() != impl.getStudies().size()) {
                 for (org.opencb.biodata.models.variant.avro.StudyEntry studyEntry : impl.getStudies()) {
-                    studyEntries.put(composeId(studyEntry.getStudyId()), new StudyEntry(studyEntry));
+                    studyEntries.putIfAbsent(studyEntry.getStudyId(), new StudyEntry(studyEntry));
                 }
             }
             return Collections.unmodifiableMap(studyEntries);
@@ -596,7 +598,7 @@ public class Variant implements Serializable, Comparable<Variant> {
 
     public StudyEntry getStudy(String studyId) {
         if (impl.getStudies() != null) {
-            return getStudiesMap().get(composeId(studyId));
+            return getStudiesMap().get(studyId);
         }
         return null;
     }
@@ -608,16 +610,24 @@ public class Variant implements Serializable, Comparable<Variant> {
         if (impl.getStudies() == null) {
             impl.setStudies(new ArrayList<>());
         }
-        this.studyEntries.put(composeId(studyEntry.getStudyId()), studyEntry);
+        StudyEntry prevStudy = this.studyEntries.put(studyEntry.getStudyId(), studyEntry);
+        if (prevStudy != null) {
+            impl.getStudies().remove(prevStudy.getImpl());
+        }
         impl.getStudies().add(studyEntry.getImpl());
     }
 
+    @Deprecated
     public Iterable<String> getSampleNames(String studyId, String fileId) {
-        StudyEntry file = getSourceEntry(studyId, fileId);
-        if (file == null) {
+        return getSampleNames(studyId);
+    }
+
+    public List<String> getSampleNames(String studyId) {
+        StudyEntry studyEntry = getStudy(studyId);
+        if (studyEntry == null) {
             return null;
         }
-        return file.getSamplesName();
+        return studyEntry.getOrderedSamplesName();
     }
 
     public void transformToEnsemblFormat() {
@@ -711,15 +721,6 @@ public class Variant implements Serializable, Comparable<Variant> {
 //        result = 31 * result + (getType() != null ? getType().hashCode() : 0);
 //        return result;
 //    }
-
-    private String composeId(String studyId) {
-        return composeId(studyId, null);
-    }
-
-    @Deprecated
-    private String composeId(String studyId, String fileId) {
-        return studyId;
-    }
 
     public static Variant parseVariant(String variantString) {
         return new Variant(variantString);

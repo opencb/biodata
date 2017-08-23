@@ -130,7 +130,7 @@ public class VariantVcfDataWriter implements VariantWriter {
     private String generateSampleInfo(Variant elem, StudyEntry file, List<String> format) {
         StringBuilder sb = new StringBuilder();
 
-        Iterator<String> sampleIt = elem.getSampleNames(file.getStudyId(), file.getFileId()).iterator();
+        Iterator<String> sampleIt = elem.getSampleNames(file.getStudyId()).iterator();
         Iterator<String> formatIt;
         Map<String, String> data;
         String sampleName, formatElem;
