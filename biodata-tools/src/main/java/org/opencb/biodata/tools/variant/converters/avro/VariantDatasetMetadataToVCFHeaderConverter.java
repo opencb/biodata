@@ -1,0 +1,78 @@
+package org.opencb.biodata.tools.variant.converters.avro;
+
+import htsjdk.variant.vcf.*;
+import org.apache.commons.collections.CollectionUtils;
+import org.opencb.biodata.formats.variant.vcf4.VcfUtils;
+import org.opencb.biodata.models.metadata.Cohort;
+import org.opencb.biodata.models.metadata.Individual;
+import org.opencb.biodata.models.metadata.Sample;
+import org.opencb.biodata.models.variant.StudyEntry;
+import org.opencb.biodata.models.variant.metadata.VariantDatasetMetadata;
+import org.opencb.biodata.tools.variant.converters.Converter;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+/**
+ * Created on 24/08/17.
+ *
+ * @author Jacobo Coll &lt;jacobo167@gmail.com&gt;
+ */
+public class VariantDatasetMetadataToVCFHeaderConverter implements Converter<VariantDatasetMetadata, VCFHeader> {
+
+    @Override
+    public VCFHeader convert(VariantDatasetMetadata variantDatasetMetadata) {
+        return convert(variantDatasetMetadata, Collections.emptyList());
+    }
+
+    public VCFHeader convert(VariantDatasetMetadata variantDatasetMetadata, List<String> annotations) {
+        VCFHeader vcfHeader = new VariantFileHeaderToVCFHeaderConverter().convert(variantDatasetMetadata.getAggregatedHeader());
+
+        List<String> samples = new ArrayList<>();
+        for (Individual individual : variantDatasetMetadata.getIndividuals()) {
+            for (Sample sample : individual.getSamples()) {
+                samples.add(sample.getId());
+            }
+        }
+        vcfHeader.getGenotypeSamples().addAll(samples);
+
+        vcfHeader.addMetaDataLine(new VCFFilterHeaderLine(".", "No FILTER info"));
+
+        for (Cohort cohort : variantDatasetMetadata.getCohorts()) {
+            String cohortName = cohort.getId();
+            if (cohortName.equals(StudyEntry.DEFAULT_COHORT)) {
+                vcfHeader.addMetaDataLine(new VCFInfoHeaderLine(VCFConstants.ALLELE_COUNT_KEY, VCFHeaderLineCount.A,
+                        VCFHeaderLineType.Integer, "Total number of alternate alleles in called genotypes,"
+                        + " for each ALT allele, in the same order as listed"));
+                vcfHeader.addMetaDataLine(new VCFInfoHeaderLine(VCFConstants.ALLELE_FREQUENCY_KEY, VCFHeaderLineCount.A,
+                        VCFHeaderLineType.Float, "Allele Frequency, for each ALT allele, calculated from AC and AN, in the range (0,1),"
+                        + " in the same order as listed"));
+                vcfHeader.addMetaDataLine(new VCFInfoHeaderLine(VCFConstants.ALLELE_NUMBER_KEY, 1,
+                        VCFHeaderLineType.Integer, "Total number of alleles in called genotypes"));
+            } else {
+                vcfHeader.addMetaDataLine(new VCFInfoHeaderLine(cohortName + "_" + VCFConstants.ALLELE_FREQUENCY_KEY, VCFHeaderLineCount.A,
+                        VCFHeaderLineType.Float,
+                        "Allele frequency in the " + cohortName + " cohort calculated from AC and AN, in the range (0,1),"
+                                + " in the same order as listed"));
+            }
+        }
+
+        // annotations
+        if (CollectionUtils.isNotEmpty(annotations)) {
+            if (annotations.size() == 1 && annotations.get(0).equalsIgnoreCase("all")) {
+                annotations = VcfUtils.ANNOTATION_INFO_VALUES;
+            }
+//            vcfHeader.addMetaDataLine(new VCFInfoHeaderLine(VcfUtils.STATS_INFO_KEY, 1, VCFHeaderLineType.String, "Allele frequency "
+//                    + " for cohorts (separated by |), e.g.: ALL:0.0564705|MXL:0.0886758"));
+            vcfHeader.addMetaDataLine(new VCFInfoHeaderLine(VcfUtils.ANNOTATION_INFO_KEY, 1, VCFHeaderLineType.String, "Consequence annotations (separated "
+                    + " by &) from CellBase. Format: " +   String.join("|", annotations)));
+//            if (annotations.contains("populationFrequency")) {
+                vcfHeader.addMetaDataLine(new VCFInfoHeaderLine(VcfUtils.POPFREQ_INFO_KEY, 1, VCFHeaderLineType.String, "Alternate allele frequencies "
+                        + " for study and population (separated by |), e.g.: 1kG_phase3_IBS:0.06542056|1kG_phase3_CEU:0.08585858"));
+//            }
+        }
+
+        return vcfHeader;
+    }
+}

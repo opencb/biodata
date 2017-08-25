@@ -15,7 +15,6 @@ import org.opencb.commons.datastore.core.ObjectMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -29,7 +28,6 @@ public class VariantContextToAvroVariantConverter extends VariantContextConverte
 
     private final Logger logger = LoggerFactory.getLogger(VariantContextToAvroVariantConverter.class);
 
-    private int studyId;
 //    private String studyIdString;
 //    private List<String> sampleNames;
 //    private List<String> sampleFormats;
@@ -41,7 +39,6 @@ public class VariantContextToAvroVariantConverter extends VariantContextConverte
     @Deprecated
     public VariantContextToAvroVariantConverter(int studyId, List<String> sampleNames, List<String> annotations) {
         super(Integer.toString(studyId), sampleNames, null, annotations);
-        this.studyId = studyId;
     }
 
     public VariantContextToAvroVariantConverter(String study, List<String> sampleNames, List<String> annotations) {
@@ -88,7 +85,7 @@ public class VariantContextToAvroVariantConverter extends VariantContextConverte
                 .collect(Collectors.toSet());
 
 
-        StudyEntry studyEntry = variant.getStudy(this.studyNameMap.get(this.studyIdString));
+        StudyEntry studyEntry = getStudy(variant);
 
         String filter = "PASS";
         String sourceFilter = studyEntry.getAttribute("FILTER");
@@ -257,7 +254,7 @@ public class VariantContextToAvroVariantConverter extends VariantContextConverte
         //Attributes for INFO column (cohorts stats and annotations (consequence types and population frequencies)
         ObjectMap attributes = new ObjectMap();
 
-        addCohortStats(studyEntry, attributes);
+        addCohortStatsMultiInfoField(studyEntry, attributes);
 
         // if asked variant annotations are exported
         // (corresponding to the CT and POPFREQ info lines from VCF header)
@@ -284,8 +281,7 @@ public class VariantContextToAvroVariantConverter extends VariantContextConverte
         if (StringUtils.isBlank(variant.getReference()) || StringUtils.isBlank(variant.getAlternate())) {
             start = start - 1;
         }
-//        for (AlternateCoordinate alternateCoordinate : variant.getStudy(this.studyIdString).getSecondaryAlternates()) {
-        for (AlternateCoordinate alternateCoordinate : variant.getStudy(this.studyNameMap.get(this.studyIdString)).getSecondaryAlternates()) {
+        for (AlternateCoordinate alternateCoordinate : getStudy(variant).getSecondaryAlternates()) {
             start = Math.min(start, alternateCoordinate.getStart());
             end = Math.max(end, alternateCoordinate.getEnd());
             if (StringUtils.isBlank(alternateCoordinate.getAlternate()) || StringUtils.isBlank(alternateCoordinate.getReference())) {
@@ -298,8 +294,7 @@ public class VariantContextToAvroVariantConverter extends VariantContextConverte
     public List<String> buildAlleles(Variant variant, Pair<Integer, Integer> adjustedRange) {
         String reference = variant.getReference();
         String alternate = variant.getAlternate();
-//        List<AlternateCoordinate> secAlts = variant.getStudy(this.studyIdString).getSecondaryAlternates();
-        List<AlternateCoordinate> secAlts = variant.getStudy(this.studyNameMap.get(this.studyIdString)).getSecondaryAlternates();
+        List<AlternateCoordinate> secAlts = getStudy(variant).getSecondaryAlternates();
         List<String> alleles = new ArrayList<>(secAlts.size() + 2);
         int origStart = variant.getStart();
         int origEnd = variant.getEnd();
@@ -309,6 +304,10 @@ public class VariantContextToAvroVariantConverter extends VariantContextConverte
             alleles.add(buildAllele(variant.getChromosome(), alt.getStart(), alt.getEnd(), alt.getAlternate(), adjustedRange));
         });
         return alleles;
+    }
+
+    private StudyEntry getStudy(Variant variant) {
+        return variant.getStudy(this.studyNameMap.get(this.studyIdString));
     }
 
 /*
@@ -337,8 +336,7 @@ public class VariantContextToAvroVariantConverter extends VariantContextConverte
     }
 */
 
-    @Deprecated
-    private void addCohortStatsOLD(StudyEntry studyEntry, Map<String, Object> attributes) {
+    private void addCohortStatsMultiInfoField(StudyEntry studyEntry, Map<String, Object> attributes) {
         if (studyEntry.getStats() == null || studyEntry.getStats().size() == 0) {
             return;
         }
@@ -363,7 +361,7 @@ public class VariantContextToAvroVariantConverter extends VariantContextConverte
     }
 
 
-    private void addCohortStats(StudyEntry studyEntry, Map<String, Object> attributes) {
+    private void addCohortStatsSingleInfoField(StudyEntry studyEntry, Map<String, Object> attributes) {
         if (studyEntry.getStats() == null || studyEntry.getStats().size() == 0) {
             return;
         }

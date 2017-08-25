@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -102,7 +101,9 @@ public class VcfUtils {
      * @param sampleNames           List of sample names
      * @param converter             Function to convert sample names
      * @return                      The VCF header
+     * @deprecated use org.opencb.biodata.tools.variant.converters.avro.VariantDatasetMetadataToVCFHeaderConverter
      */
+    @Deprecated
     public static VCFHeader createVCFHeader(List<String> cohortNames, List<String> annotations,
                                             List<String> formatFields, List<String> formatFieldsType,
                                             List<String> formatFieldsDescr, List<String> sampleNames,
