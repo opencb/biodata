@@ -37,7 +37,8 @@ public class VariantDatasetMetadataToVCFHeaderConverter implements Converter<Var
         }
         vcfHeader.getGenotypeSamples().addAll(samples);
 
-        vcfHeader.addMetaDataLine(new VCFFilterHeaderLine(".", "No FILTER info"));
+        vcfHeader.addMetaDataLine(new VCFFilterHeaderLine(VCFConstants.MISSING_VALUE_v4, "No FILTER info"));
+        vcfHeader.addMetaDataLine(new VCFFilterHeaderLine(VCFConstants.PASSES_FILTERS_v4, "All filters passed"));
 
         for (Cohort cohort : variantDatasetMetadata.getCohorts()) {
             String cohortName = cohort.getId();
