@@ -25,7 +25,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.core.pedigree.Individual;
 import org.opencb.biodata.models.core.pedigree.Pedigree;
-import org.opencb.biodata.models.core.pedigree.VariableField;
 import org.opencb.biodata.models.metadata.Cohort;
 import org.opencb.biodata.models.metadata.Sample;
 import org.opencb.biodata.models.metadata.Species;
@@ -539,43 +538,80 @@ public class VariantMetadataManager {
     public VariantMetadata loadPedigree(Pedigree pedigree, String datasetId) {
         VariantDatasetMetadata variantDatasetMetadata = getVariantDatasetMetadata(datasetId);
         if (variantDatasetMetadata != null) {
-            org.opencb.biodata.models.metadata.Individual dest;
-            List<org.opencb.biodata.models.metadata.Individual> individuals = new ArrayList<>();
+            boolean found;
+            org.opencb.biodata.models.metadata.Individual dest = null;
             for (Individual src: pedigree.getIndividuals().values()) {
-                dest = new org.opencb.biodata.models.metadata.Individual();
-                dest.setId(src.getId());
-                dest.setFamily(src.getFamily());
-                dest.setFather(src.getFather() != null ? src.getFather().getId() : null);
-                dest.setMother(src.getMother() != null ? src.getMother().getId() : null);
-                dest.setSex(src.getSex().toString());
-                dest.setPhenotype(src.getPhenotype().toString());
-                if (src.getVariables() != null && src.getVariables().size() > 0) {
-                    Sample sample = new Sample();
-                    sample.setId(dest.getId());
-                    Map<String, String> annotation = new HashMap<>();
-                    for (String key: src.getVariables().keySet()) {
-                        if (pedigree.getVariables().get(key) != null) {
-                            VariableField.VariableType type = pedigree.getVariables().get(key).getType();
-                            if (type == VariableField.VariableType.INTEGER) {
-                                annotation.put(key + ":i", src.getVariables().get(key).toString());
-                            } else if (type == VariableField.VariableType.DOUBLE) {
-                                annotation.put(key + ":d", src.getVariables().get(key).toString());
-                            } else if (type == VariableField.VariableType.BOOLEAN) {
-                                annotation.put(key + ":b", src.getVariables().get(key).toString());
-                            } else {
-                                annotation.put(key + ":s", src.getVariables().get(key).toString());
+                found = false;
+                for (int i = 0; i < variantDatasetMetadata.getIndividuals().size(); i++) {
+                    dest = variantDatasetMetadata.getIndividuals().get(i);
+                    if (dest.getId().equals(src.getId())) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (found) {
+                    dest.setFamily(src.getFamily());
+                    dest.setFather(src.getFather() != null ? src.getFather().getId() : null);
+                    dest.setMother(src.getMother() != null ? src.getMother().getId() : null);
+                    dest.setSex(src.getSex().toString());
+                    dest.setPhenotype(src.getPhenotype().toString());
+                    if (src.getVariables() != null && src.getVariables().size() > 0) {
+                        found = false;
+                        Sample sample = null;
+                        // sanity check
+                        if (dest.getSamples() == null) {
+                            logger.warn("Loading pedigree, individual {} without samples: it will be added.", dest.getId());
+                            dest.setSamples(new ArrayList<>());
+                        }
+                        for (int i = 0; i < dest.getSamples().size(); i++) {
+                            sample = dest.getSamples().get(i);
+                            if (sample.getId().equals(dest.getId())) {
+                                found = true;
+                                break;
                             }
                         }
+                        if (found) {
+                            // sample found, add new attributes
+                            if (sample.getAnnotations() == null) {
+                                sample.setAnnotations(new HashMap<>());
+                            }
+                        } else {
+                            // sample not found, add as a new one
+                            sample = new Sample();
+                            sample.setId(dest.getId());
+                            sample.setAnnotations(new HashMap<>());
+                        }
+                        // Default annotation (attributes from Individual)
+                        sample.getAnnotations().put("individual.id", src.getId());
+                        sample.getAnnotations().put("individual.family", src.getFamily());
+                        if (src.getFather() != null) {
+                            sample.getAnnotations().put("individual.father", src.getFather().getId());
+                        }
+                        if (src.getMother() != null) {
+                            sample.getAnnotations().put("individual.mother", src.getMother().getId());
+                        }
+                        if (src.getSex() != null) {
+                            sample.getAnnotations().put("individual.sex", src.getSex().toString());
+                        }
+                        if (src.getPhenotype() != null) {
+                            sample.getAnnotations().put("individual.phenotype", src.getPhenotype().toString());
+                        }
+                        // Custom annotation
+                        for (String key: src.getVariables().keySet()) {
+                            if (pedigree.getVariables().get(key) != null) {
+                                sample.getAnnotations().put(key, src.getVariables().get(key).toString());
+                            }
+                        }
+                        if (!found) {
+                            dest.getSamples().add(sample);
+                        }
                     }
-                    sample.setAnnotations(annotation);
-                    dest.setSamples(Collections.singletonList(sample));
+                } else {
+                    logger.warn("Loading pedigree, individual {} not found in metadata file, it will not be added.", src.getId());
                 }
-
-                individuals.add(dest);
             }
-            if (individuals.size() > 0) {
-                variantDatasetMetadata.setIndividuals(individuals);
-            }
+        } else {
+            logger.warn("Loading pedigree, nothing to do because dataset ID '{}' does not exist.", datasetId);
         }
         return variantMetadata;
     }
