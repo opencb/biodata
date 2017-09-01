@@ -1,12 +1,11 @@
 package org.opencb.biodata.tools.variant.converters;
 
-import htsjdk.variant.variantcontext.*;
 import htsjdk.variant.variantcontext.Genotype;
+import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.opencb.biodata.formats.variant.vcf4.VcfUtils;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.*;
@@ -89,6 +88,16 @@ public class VariantContextToAvroVariantConverter extends VariantContextConverte
         }
 
         // TODO: Add other file attributes?
+        for (Map<String, String> map: fileAttributes) {
+            if (map != null && !map.isEmpty()) {
+                for (String key: map.keySet()) {
+                    if (!key.equals(StudyEntry.FILTER) && !key.equals(StudyEntry.QUAL)) {
+                        attributes.put(key, map.get(key));
+                        System.out.println(key + " -> " + map.get(key));
+                    }
+                }
+            }
+        }
 
         // SAMPLES
         List<Genotype> genotypes = getGenotypes(alleleList, studyEntry.getFormat(), getSampleData);

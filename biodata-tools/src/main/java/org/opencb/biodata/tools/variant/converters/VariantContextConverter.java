@@ -178,8 +178,25 @@ public abstract class VariantContextConverter<T> implements Converter<VariantCon
     }
 
     protected double getQuality(List<Map<String, String>> fileAttributes) {
-        //TODO: get quality from FileEntries
-        return VariantContext.NO_LOG10_PERROR;
+        // TODO: get quality from FileEntries
+        // By default, take the minimum 'valid' QUAL
+        double qual = Double.MAX_VALUE; //VariantContext.NO_LOG10_PERROR;
+        if (fileAttributes != null && !fileAttributes.isEmpty()) {
+            for (Map<String, String> attrs: fileAttributes) {
+                if (attrs.containsKey(StudyEntry.QUAL)) {
+                    try {
+                        // Take the minimum 'valid' QUAL
+                        if (qual > Double.parseDouble(attrs.get(StudyEntry.QUAL))) {
+                            qual = Double.parseDouble(attrs.get(StudyEntry.QUAL));
+                        }
+                    } catch (NumberFormatException e) {
+                        // Nothing to do
+                        e.getMessage();
+                    }
+                }
+            }
+        }
+        return (qual == Double.MAX_VALUE ? VariantContext.NO_LOG10_PERROR : (-0.1 * qual));
     }
 
     protected List<Genotype> getGenotypes(List<String> alleleList, List<String> variantFormats, BiFunction<String, String, String> getSampleData) {
