@@ -22,6 +22,7 @@ package org.opencb.biodata.tools.variant;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import htsjdk.variant.vcf.VCFHeader;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.core.pedigree.Individual;
 import org.opencb.biodata.models.core.pedigree.Pedigree;
@@ -31,6 +32,7 @@ import org.opencb.biodata.models.metadata.Species;
 import org.opencb.biodata.models.variant.metadata.VariantDatasetMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantFileMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantMetadata;
+import org.opencb.biodata.tools.variant.converters.avro.VCFHeaderToVariantFileHeaderConverter;
 import org.opencb.commons.datastore.core.Query;
 import org.opencb.commons.utils.FileUtils;
 import org.slf4j.Logger;
@@ -251,6 +253,32 @@ public class VariantMetadataManager {
 
 
         variantDatasetMetadata.getFiles().add(fileMetadata);
+    }
+
+    /**
+     * Add a variant file metadata (from VCF file and header) to a given variant dataset metadata (from dataset ID).
+     *
+     * @param filename      VCF filename (as an ID)
+     * @param vcfHeader     VCF header
+     * @param datasetId     Dataset ID
+     */
+    public void addFile(String filename, VCFHeader vcfHeader, String datasetId) {
+        // sanity check
+        if (StringUtils.isEmpty(filename)) {
+            logger.error("VCF filename is empty or null: '{}'", filename);
+            return;
+        }
+        if (vcfHeader == null) {
+            logger.error("VCF header is missingDataset not found. Check your dataset ID: '{}'", datasetId);
+            return;
+        }
+
+        VCFHeaderToVariantFileHeaderConverter headerConverter = new VCFHeaderToVariantFileHeaderConverter();
+        VariantFileMetadata variantFileMetadata = new VariantFileMetadata();
+        variantFileMetadata.setId(filename);
+        variantFileMetadata.setSampleIds(vcfHeader.getSampleNamesInOrder());
+        variantFileMetadata.setHeader(headerConverter.convert(vcfHeader));
+        addFile(variantFileMetadata, datasetId);
     }
 
     /**
