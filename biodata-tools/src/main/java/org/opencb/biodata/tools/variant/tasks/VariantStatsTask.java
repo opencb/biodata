@@ -38,6 +38,7 @@ import java.util.Map;
  * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
+@Deprecated
 public class VariantStatsTask extends Task<Variant> {
 
     private VariantStudyMetadata metadata;
