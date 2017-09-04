@@ -24,14 +24,14 @@ import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.TagValueAndUnsignedArrayFlag;
 import htsjdk.samtools.TextTagCodec;
 import htsjdk.samtools.util.StringUtil;
-import org.opencb.biodata.tools.Converter;
+import org.opencb.biodata.tools.BiConverter;
 
 import java.util.Map;
 
 /**
  * Created by pfurio on 25/10/16.
  */
-public abstract class AlignmentConverter<T> implements Converter<SAMRecord, T> {
+public abstract class AlignmentBiConverter<T> implements BiConverter<SAMRecord, T> {
 
     // From SAM specification
     private static final int QNAME_COL = 0;

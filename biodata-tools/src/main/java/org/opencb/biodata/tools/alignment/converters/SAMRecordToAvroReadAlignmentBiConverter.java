@@ -19,11 +19,9 @@
 
 package org.opencb.biodata.tools.alignment.converters;
 
-import com.google.protobuf.ListValue;
-import com.google.protobuf.Value;
-import ga4gh.Common;
-import ga4gh.Reads;
-import htsjdk.samtools.*;
+import htsjdk.samtools.CigarElement;
+import htsjdk.samtools.SAMRecord;
+import org.ga4gh.models.*;
 import org.opencb.biodata.tools.alignment.BamUtils;
 
 import java.util.ArrayList;
@@ -34,117 +32,111 @@ import java.util.Map;
 /**
  * Created by pfurio on 25/10/16.
  */
-public class SAMRecordToProtoReadAlignmentConverter extends AlignmentConverter<Reads.ReadAlignment> {
+public class SAMRecordToAvroReadAlignmentBiConverter extends AlignmentBiConverter<ReadAlignment> {
 
     private static final String FIELD_SEPARATOR = "\t";
 
-    public SAMRecordToProtoReadAlignmentConverter() {
-        this(true);
+    public SAMRecordToAvroReadAlignmentBiConverter() {
+        adjustQuality = true;
     }
 
-    public SAMRecordToProtoReadAlignmentConverter(boolean adjustQuality) {
+    public SAMRecordToAvroReadAlignmentBiConverter(boolean adjustQuality) {
         this.adjustQuality = adjustQuality;
     }
 
+
     @Override
-    public Reads.ReadAlignment to(SAMRecord in) {
-
-        Reads.ReadAlignment.Builder readBuilder = Reads.ReadAlignment.newBuilder();
-
-        // id
-        readBuilder.setId(in.getReadName());
+    public ReadAlignment to(SAMRecord in) {
+        //id
+        String id = in.getReadName();
 
         // read group id
+        String readGroupId;
         if (in.getReadGroup() != null) {
-            readBuilder.setReadGroupId(in.getReadGroup().getId());
+            readGroupId = in.getReadGroup().getId();
         } else {
-            readBuilder.setReadGroupId("no-group");
+            readGroupId = "no-group";
         }
 
         // reference name
-        readBuilder.setFragmentName(in.getReferenceName());
+        String fragmentName = in.getReferenceName();
 
         // the read is mapped in a proper pair
-        // TODO: Check again !
-        readBuilder.setImproperPlacement(!in.getReadPairedFlag() || !in.getProperPairFlag());
+        boolean properPlacement = in.getReadPairedFlag() && in.getProperPairFlag();
 
         // the read is either a PCR duplicate or an optical duplicate.
-        readBuilder.setDuplicateFragment(in.getDuplicateReadFlag());
+        boolean duplicateFragment = in.getDuplicateReadFlag();
 
         // the number of reads in the fragment (extension to SAM flag 0x1)
-        readBuilder.setNumberReads(in.getReadPairedFlag() ? 2 : 1);
+        int numberReads = in.getReadPairedFlag() ? 2 : 1;
 
         // the observed length of the fragment, equivalent to TLEN in SAM
-        readBuilder.setFragmentLength(in.getReadPairedFlag() ? in.getInferredInsertSize() : 0);
+        int fragmentLength = in.getReadPairedFlag() ? in.getInferredInsertSize() : 0;
 
         // The read number in sequencing. 0-based and less than numberReads.
         // This field replaces SAM flag 0x40 and 0x80
+        int readNumber = 0;
         if (in.getReadPairedFlag() && in.getSecondOfPairFlag()) {
-            readBuilder.setReadNumber(readBuilder.getNumberReads() - 1);
+            readNumber = numberReads - 1;
         }
 
         // the read fails platform/vendor quality checks
-        readBuilder.setFailedVendorQualityChecks(in.getReadFailsVendorQualityCheckFlag());
+        boolean failedVendorQualityChecks = in.getReadFailsVendorQualityCheckFlag();
 
         // alignment
-        Reads.LinearAlignment.Builder linearAlignment = Reads.LinearAlignment.newBuilder();
-        Common.Position.Builder position = Common.Position.newBuilder();
+        Position position = new Position();
         position.setPosition((long) in.getAlignmentStart());
         position.setReferenceName(in.getReferenceName());
 //        position.setSequenceId("");
-        position.setStrand(in.getReadNegativeStrandFlag() ? Common.Strand.NEG_STRAND : Common.Strand.POS_STRAND);
+        position.setStrand(in.getReadNegativeStrandFlag() ? Strand.NEG_STRAND : Strand.POS_STRAND);
+        int mappingQuality = in.getMappingQuality();
 
-        linearAlignment.setPosition(position);
-        linearAlignment.setMappingQuality(in.getMappingQuality());
-
-        List<Common.CigarUnit> cigar = new ArrayList<>();
+        List<CigarUnit> cigar = new ArrayList<>();
         for (CigarElement e: in.getCigar().getCigarElements()) {
-            Common.CigarUnit.Builder op = Common.CigarUnit.newBuilder();
+            CigarOperation op;
             switch (e.getOperator()) {
                 case M:
-                    op.setOperation(Common.CigarUnit.Operation.ALIGNMENT_MATCH);
+                    op = CigarOperation.ALIGNMENT_MATCH;
                     break;
                 case I:
-                    op = op.setOperation(Common.CigarUnit.Operation.INSERT);
+                    op = CigarOperation.INSERT;
                     break;
                 case D:
-                    op = op.setOperation(Common.CigarUnit.Operation.DELETE);
+                    op = CigarOperation.DELETE;
                     break;
                 case N:
-                    op = op.setOperation(Common.CigarUnit.Operation.SKIP);
+                    op = CigarOperation.SKIP;
                     break;
                 case S:
-                    op = op.setOperation(Common.CigarUnit.Operation.CLIP_SOFT);
+                    op = CigarOperation.CLIP_SOFT;
                     break;
                 case H:
-                    op = op.setOperation(Common.CigarUnit.Operation.CLIP_HARD);
+                    op = CigarOperation.CLIP_HARD;
                     break;
                 case P:
-                    op = op.setOperation(Common.CigarUnit.Operation.PAD);
+                    op = CigarOperation.PAD;
                     break;
                 case EQ:
-                    op = op.setOperation(Common.CigarUnit.Operation.SEQUENCE_MATCH);
+                    op = CigarOperation.SEQUENCE_MATCH;
                     break;
                 case X:
-                    op = op.setOperation(Common.CigarUnit.Operation.SEQUENCE_MISMATCH);
+                    op = CigarOperation.SEQUENCE_MISMATCH;
                     break;
                 default:
                     throw new IllegalArgumentException("Unrecognized CigarOperator: " + e);
             }
-            op.setOperationLength((long) e.getLength());
-            cigar.add(op.build());
+            cigar.add(new CigarUnit(op, (long) e.getLength(), null));
         }
-        linearAlignment.addAllCigar(cigar);
-        readBuilder.setAlignment(linearAlignment);
+        LinearAlignment alignment = new LinearAlignment(position, mappingQuality, cigar);
 
         // the read is the second read in a pair
-        readBuilder.setSecondaryAlignment(in.getSupplementaryAlignmentFlag());
+        boolean secondaryAlignment = in.getSupplementaryAlignmentFlag();
 
         // the alignment is supplementary
-        readBuilder.setSupplementaryAlignment(in.getSupplementaryAlignmentFlag());
+        boolean supplementaryAlignment = in.getSupplementaryAlignmentFlag();
 
         // read sequence
-        readBuilder.setAlignedSequence(in.getReadString());
+        String alignedSequence = in.getReadString();
 
         // aligned quality
         byte[] baseQualities = in.getBaseQualities();
@@ -160,51 +152,49 @@ public class SAMRecordToProtoReadAlignmentConverter extends AlignmentConverter<R
                 alignedQuality.add((int) baseQuality);
             }
         }
-        readBuilder.addAllAlignedQuality(alignedQuality);
 
         // next mate position
+        Position nextMatePosition = null;
         if (in.getReadPairedFlag()) {
-            Common.Position.Builder nextMatePosition = Common.Position.newBuilder();
+            nextMatePosition = new Position();
             nextMatePosition.setPosition((long) in.getMateAlignmentStart());
             nextMatePosition.setReferenceName(in.getMateReferenceName());
 //            nextMatePosition.setSequenceId("");
-            nextMatePosition.setStrand(in.getMateNegativeStrandFlag() ? Common.Strand.NEG_STRAND : Common.Strand.POS_STRAND);
-            readBuilder.setNextMatePosition(nextMatePosition.build());
+            nextMatePosition.setStrand(in.getMateNegativeStrandFlag() ? Strand.NEG_STRAND : Strand.POS_STRAND);
         }
 
         // A map of additional read alignment information.
-        Map<String, ListValue> info = new HashMap<>();
+        Map<String, List<String>> info = new HashMap<>();
         List<SAMRecord.SAMTagAndValue> attributes = in.getAttributes();
         for (SAMRecord.SAMTagAndValue tv : attributes) {
-            ListValue.Builder list = ListValue.newBuilder();
-//            if (tv.value instanceof Character || tv.value instanceof String) {
+            List<String> list = new ArrayList<>();
             if (tv.value instanceof Integer) {
-                list.addValues(Value.newBuilder().setStringValue("i"));
-//                list.addValues(Value.newBuilder().setStringValue("" + tv.value));
+                list.add("i");
             } else if (tv.value instanceof Float) {
-                list.addValues(Value.newBuilder().setStringValue("f"));
-//                list.addValues(Value.newBuilder().setNumberValue((float) tv.value));
+                list.add("f");
             } else {
-                list.addValues(Value.newBuilder().setStringValue("Z").build());
-//                list.addValues(Value.newBuilder().setNumberValue((int) tv.value));
+                list.add("Z");
             }
-            list.addValues(Value.newBuilder().setStringValue("" + tv.value));
-            info.put(tv.tag, list.build());
+            list.add("" + tv.value);
+            info.put(tv.tag, list);
         }
-        readBuilder.putAllInfo(info);
 
-        return readBuilder.build();
+        ReadAlignment out = new ReadAlignment(id, readGroupId, fragmentName, !properPlacement, duplicateFragment,
+                numberReads, fragmentLength, readNumber, failedVendorQualityChecks, alignment, secondaryAlignment,
+                supplementaryAlignment, alignedSequence, alignedQuality, nextMatePosition, info);
+
+        return out;
     }
 
     @Override
-    public SAMRecord from(Reads.ReadAlignment in) {
+    public SAMRecord from(ReadAlignment in) {
         final String samLine = getSamString(in);
         return super.from(samLine);
     }
 
-    private String getSamString(Reads.ReadAlignment ra) {
+    private String getSamString(ReadAlignment ra) {
         StringBuilder res = new StringBuilder();
-        Reads.LinearAlignment la = ra.getAlignment();
+        LinearAlignment la = ra.getAlignment();
 
         // id
         res.append(ra.getId()).append(FIELD_SEPARATOR);
@@ -221,12 +211,12 @@ public class SAMRecordToProtoReadAlignmentConverter extends AlignmentConverter<R
         if (la == null) {
             flags |= 0x4;
         } else {
-            if (la.getPosition().getStrand() == Common.Strand.NEG_STRAND) {
+            if (la.getPosition().getStrand() == Strand.NEG_STRAND) {
                 flags |= 0x10;
             }
         }
         if (ra.getNextMatePosition() != null) {
-            if (ra.getNextMatePosition().getStrand() == Common.Strand.NEG_STRAND) {
+            if (ra.getNextMatePosition().getStrand() == Strand.NEG_STRAND) {
                 flags |= 0x20;
             }
         } else {
@@ -271,7 +261,7 @@ public class SAMRecordToProtoReadAlignmentConverter extends AlignmentConverter<R
             res.append(FIELD_SEPARATOR);
 
             // cigar
-            for (Common.CigarUnit e : la.getCigarList()) {
+            for (CigarUnit e : la.getCigar()) {
                 res.append(e.getOperationLength());
                 switch (e.getOperation()) {
                     case ALIGNMENT_MATCH:
@@ -337,7 +327,7 @@ public class SAMRecordToProtoReadAlignmentConverter extends AlignmentConverter<R
         res.append(FIELD_SEPARATOR);
 
         // quality
-        for (int v: ra.getAlignedQualityList()) {
+        for (int v: ra.getAlignedQuality()) {
             res.append((char) (v + 33)); // Add ASCII offset
         }
 
@@ -345,19 +335,12 @@ public class SAMRecordToProtoReadAlignmentConverter extends AlignmentConverter<R
         for (CharSequence key: ra.getInfo().keySet()) {
             res.append(FIELD_SEPARATOR);
             res.append(key.toString());
-            for (Value val : ra.getInfo().get(key).getValuesList()) {
-                switch (val.getKindCase()) {
-                    case NUMBER_VALUE:
-                        res.append(":" + val.getNumberValue());
-                        break;
-                    case STRING_VALUE:
-                    default:
-                        res.append(":" + val.getStringValue());
-                        break;
-                }
+            for (CharSequence val : ra.getInfo().get(key)) {
+                res.append((":" + val.toString()));
             }
         }
 
         return res.toString();
     }
+
 }

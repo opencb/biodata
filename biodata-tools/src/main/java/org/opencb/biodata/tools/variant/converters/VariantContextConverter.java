@@ -24,7 +24,7 @@ import htsjdk.variant.vcf.VCFConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opencb.biodata.models.variant.StudyEntry;
-import org.opencb.biodata.tools.Converter;
+import org.opencb.biodata.tools.BiConverter;
 import org.opencb.commons.datastore.core.ObjectMap;
 
 import java.text.DecimalFormat;
@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 /**
  * Created by jtarraga on 07/02/17.
  */
-public abstract class VariantContextConverter<T> implements Converter<VariantContext, T> {
+public abstract class VariantContextConverter<T> implements BiConverter<VariantContext, T> {
 
     public static final DecimalFormat DECIMAL_FORMAT_7 = new DecimalFormat("#.#######");
     public static final DecimalFormat DECIMAL_FORMAT_3 = new DecimalFormat("#.###");

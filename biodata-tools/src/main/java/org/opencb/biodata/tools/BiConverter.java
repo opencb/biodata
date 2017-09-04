@@ -20,12 +20,12 @@
 package org.opencb.biodata.tools;
 
 /**
- * Converts between two Java classes.
+ * Bidirectional Converter between two Java classes.
  *
  * Created by pfurio on 25/10/16.
  * @author Joaquin Tarraga &lt;joaquintarraga@gmail.com&gt;
  */
-public interface Converter<S, T> {
+public interface BiConverter<S, T> {
 
     T to(S obj);
 

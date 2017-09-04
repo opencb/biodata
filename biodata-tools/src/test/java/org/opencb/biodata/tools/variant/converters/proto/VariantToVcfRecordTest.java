@@ -71,7 +71,7 @@ public class VariantToVcfRecordTest {
 
         // META
 
-        // Converter
+        // BiConverter
         VariantToProtoVcfRecord con = new VariantToProtoVcfRecord();
         VcfSliceProtos.Fields fields = VcfSliceProtos.Fields.newBuilder()
                 .addAllInfoKeys(Arrays.asList("X", "AB", "A"))
