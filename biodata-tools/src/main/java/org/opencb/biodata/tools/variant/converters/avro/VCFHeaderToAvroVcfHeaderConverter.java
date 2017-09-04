@@ -36,6 +36,7 @@ import java.util.Map;
  *
  * @author Jacobo Coll &lt;jacobo167@gmail.com&gt;
  */
+@Deprecated
 public class VCFHeaderToAvroVcfHeaderConverter implements Converter<VCFHeader, VcfHeader> {
 
     @Override
