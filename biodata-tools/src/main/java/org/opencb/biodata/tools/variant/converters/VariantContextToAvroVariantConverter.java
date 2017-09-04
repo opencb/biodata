@@ -81,19 +81,19 @@ public class VariantContextToAvroVariantConverter extends VariantContextConverte
 
         addCohortStatsMultiInfoField(studyEntry, attributes);
 
-        // if asked variant annotations are exported
+        // If asked variant annotations are exported
         // (corresponding to the CT and POPFREQ info lines from VCF header)
         if (annotations != null && annotations.size() > 0) {
             addAnnotations(variant, attributes);
         }
 
-        // TODO: Add other file attributes?
+        // Add file attributes
         for (Map<String, String> map: fileAttributes) {
             if (map != null && !map.isEmpty()) {
                 for (String key: map.keySet()) {
                     if (!key.equals(StudyEntry.FILTER) && !key.equals(StudyEntry.QUAL)) {
                         attributes.put(key, map.get(key));
-                        System.out.println(key + " -> " + map.get(key));
+                        //System.out.println(key + " -> " + map.get(key));
                     }
                 }
             }

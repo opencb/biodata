@@ -29,13 +29,13 @@ public class VCFExporterTest {
         //    System.out.println(variantAvro.toString());
         //}
 
-        VCFExporter exporter = new VCFExporter();
-
         VariantMetadataManager manager = new VariantMetadataManager();
         manager.load(metadataPath);
 
+        VCFExporter exporter = new VCFExporter(manager.getVariantMetadata().getDatasets().get(0));
+
         Options writerOptions = Options.USE_ASYNC_IO;
-        exporter.export(manager.getVariantMetadata().getDatasets().get(0), dataFileReader, writerOptions, outPath);
+        exporter.export(dataFileReader, writerOptions, outPath);
 
         dataFileReader.close();
     }
