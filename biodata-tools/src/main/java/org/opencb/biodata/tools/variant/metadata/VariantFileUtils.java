@@ -17,7 +17,7 @@
  *
  */
 
-package org.opencb.biodata.tools.variant;
+package org.opencb.biodata.tools.variant.metadata;
 
 import org.opencb.biodata.formats.variant.io.VariantReader;
 import org.opencb.biodata.formats.variant.vcf4.io.VariantVcfReader;

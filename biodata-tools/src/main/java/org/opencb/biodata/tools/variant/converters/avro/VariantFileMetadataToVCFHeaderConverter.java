@@ -24,7 +24,7 @@ import htsjdk.tribble.readers.LineIterator;
 import htsjdk.variant.vcf.VCFCodec;
 import htsjdk.variant.vcf.VCFHeader;
 import org.opencb.biodata.models.variant.avro.VariantFileMetadata;
-import org.opencb.biodata.tools.variant.VariantFileUtils;
+import org.opencb.biodata.tools.variant.metadata.VariantFileUtils;
 import org.opencb.biodata.tools.variant.converters.Converter;
 
 import java.io.ByteArrayInputStream;

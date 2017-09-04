@@ -7,6 +7,7 @@ import org.opencb.biodata.models.metadata.Individual;
 import org.opencb.biodata.models.metadata.Sample;
 import org.opencb.biodata.models.variant.metadata.VariantMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
+import org.opencb.biodata.tools.variant.metadata.VariantMetadataManager;
 import org.opencb.commons.datastore.core.Query;
 
 import java.io.IOException;
