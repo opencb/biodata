@@ -7,9 +7,9 @@ import org.ga4gh.models.VariantSet;
 import org.junit.Before;
 import org.junit.Test;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
-import org.opencb.biodata.models.variant.metadata.VariantDatasetMetadata;
-import org.opencb.biodata.tools.variant.converters.ga4gh.factories.AvroGa4GhVariantFactory;
+import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 import org.opencb.biodata.tools.variant.VariantVcfHtsjdkReader;
+import org.opencb.biodata.tools.variant.converters.ga4gh.factories.AvroGa4GhVariantFactory;
 
 import java.util.Arrays;
 import java.util.List;
@@ -39,7 +39,7 @@ public class Ga4ghVariantConverterTest {
                         "S2", "0|2", "NO_PASS"));
 
         fileMetadata = new VariantFileMetadata("CEU-1409-01_5000.vcf.gz", "fid");
-        VariantDatasetMetadata metadata = fileMetadata.toVariantDatasetMetadata("studyId");
+        VariantStudyMetadata metadata = fileMetadata.toVariantDatasetMetadata("studyId");
         VariantVcfHtsjdkReader reader = new VariantVcfHtsjdkReader(new GZIPInputStream(this.getClass().getResourceAsStream("/CEU-1409-01_5000.vcf.gz")), metadata);
         reader.open();
         reader.pre();

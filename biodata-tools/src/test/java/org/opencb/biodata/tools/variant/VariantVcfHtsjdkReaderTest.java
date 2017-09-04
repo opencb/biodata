@@ -3,8 +3,7 @@ package org.opencb.biodata.tools.variant;
 import org.junit.Test;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
-import org.opencb.biodata.models.variant.VariantStudy;
-import org.opencb.biodata.models.variant.metadata.VariantDatasetMetadata;
+import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -24,7 +23,7 @@ public class VariantVcfHtsjdkReaderTest {
     @Test
     public void readFileTest() throws Exception {
         InputStream inputStream = getClass().getResourceAsStream("/ibs.vcf");
-        VariantDatasetMetadata metadata = new VariantFileMetadata("ibs.vcf", "2").toVariantDatasetMetadata("sid");
+        VariantStudyMetadata metadata = new VariantFileMetadata("ibs.vcf", "2").toVariantDatasetMetadata("sid");
         VariantVcfHtsjdkReader reader = new VariantVcfHtsjdkReader(inputStream, metadata);
         reader.open();
         reader.pre();
@@ -57,7 +56,7 @@ public class VariantVcfHtsjdkReaderTest {
         String vcf = "##fileformat=VCFv4.1\n"
                 + "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\ts0\n"
                 + malformatedLine;
-        VariantDatasetMetadata metadata = new VariantFileMetadata("test.vcf", "2").toVariantDatasetMetadata("sid");
+        VariantStudyMetadata metadata = new VariantFileMetadata("test.vcf", "2").toVariantDatasetMetadata("sid");
         VariantVcfHtsjdkReader reader = new VariantVcfHtsjdkReader(new ByteArrayInputStream(vcf.getBytes()), metadata);
         final List<String> malformated = new ArrayList<>();
         reader.registerMalformatedVcfHandler((a,b) -> malformated.add(a));

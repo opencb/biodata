@@ -17,12 +17,12 @@
 package org.opencb.biodata.tools.variant.stats;
 
 import org.junit.Test;
+import org.opencb.biodata.formats.variant.vcf4.VariantVcfFactory;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
-import org.opencb.biodata.formats.variant.vcf4.VariantVcfFactory;
 import org.opencb.biodata.models.variant.avro.VariantType;
-import org.opencb.biodata.models.variant.metadata.VariantDatasetMetadata;
+import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 import org.opencb.biodata.tools.variant.VariantNormalizer;
 
@@ -37,7 +37,7 @@ import static org.junit.Assert.*;
 public class VariantStatsCalculatorTest {
 
     private VariantFileMetadata fileMetadata = new VariantFileMetadata("filename.vcf", "fileId");
-    private VariantDatasetMetadata datasetMetadata = fileMetadata.toVariantDatasetMetadata("studyId");
+    private VariantStudyMetadata datasetMetadata = fileMetadata.toVariantDatasetMetadata("studyId");
 
     @Test
     public void testCalculateBiallelicStats() {

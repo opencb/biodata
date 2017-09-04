@@ -27,9 +27,12 @@ import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.biodata.models.variant.exceptions.NotAVariantException;
-import org.opencb.biodata.models.variant.metadata.VariantDatasetMetadata;
+import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -65,7 +68,7 @@ public class VariantVcfFactory implements VariantFactory {
      * from a VCF record
      */
     @Override
-    public List<Variant> create(VariantDatasetMetadata metadata, String line) throws IllegalArgumentException, NotAVariantException {
+    public List<Variant> create(VariantStudyMetadata metadata, String line) throws IllegalArgumentException, NotAVariantException {
         String[] fields = line.split("\t");
         if (fields.length < 8) {
             throw new IllegalArgumentException("Not enough fields provided (min 8)");

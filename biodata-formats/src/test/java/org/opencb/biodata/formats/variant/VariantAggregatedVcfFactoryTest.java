@@ -22,13 +22,13 @@ import org.opencb.biodata.formats.variant.vcf4.VariantVcfFactory;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
-import org.opencb.biodata.models.variant.metadata.VariantDatasetMetadata;
+import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 import org.opencb.commons.test.GenericTest;
 
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 
 /** 
@@ -37,7 +37,7 @@ import static org.junit.Assert.*;
 public class VariantAggregatedVcfFactoryTest extends GenericTest {
 
     private VariantFileMetadata fileMetadata = new VariantFileMetadata("filename.vcf", "fileId");
-    private VariantDatasetMetadata metadata = fileMetadata.toVariantDatasetMetadata("studyId");
+    private VariantStudyMetadata metadata = fileMetadata.toVariantDatasetMetadata("studyId");
 
     @Test
     public void testIndel() {
