@@ -4,7 +4,7 @@ import htsjdk.variant.vcf.*;
 import org.apache.commons.lang.StringUtils;
 import org.opencb.biodata.models.variant.metadata.VariantFileHeader;
 import org.opencb.biodata.models.variant.metadata.VariantFileHeaderLine;
-import org.opencb.biodata.tools.variant.converters.Converter;
+import org.opencb.biodata.tools.Converter;
 
 import java.util.HashMap;
 import java.util.HashSet;

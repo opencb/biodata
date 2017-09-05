@@ -28,7 +28,7 @@ import org.opencb.biodata.formats.variant.io.VariantReader;
 import org.opencb.biodata.formats.variant.vcf4.FullVcfCodec;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
-import org.opencb.biodata.models.variant.metadata.VariantDatasetMetadata;
+import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 import org.opencb.biodata.tools.variant.converters.avro.VCFHeaderToVariantFileHeaderConverter;
 import org.opencb.biodata.tools.variant.converters.avro.VariantContextToVariantConverter;
 import org.slf4j.Logger;
@@ -53,7 +53,7 @@ public class VariantVcfHtsjdkReader implements VariantReader {
 
     private final Logger logger = LoggerFactory.getLogger(VariantVcfHtsjdkReader.class);
 
-    private final VariantDatasetMetadata metadata;
+    private final VariantStudyMetadata metadata;
     private final VariantFileMetadata fileMetadata;
     private final InputStream inputStream;
     private final VariantNormalizer normalizer;
@@ -65,11 +65,11 @@ public class VariantVcfHtsjdkReader implements VariantReader {
     private Set<BiConsumer<String, RuntimeException>> malformHandlerSet = new HashSet<>();
     private boolean failOnError = false;
 
-    public VariantVcfHtsjdkReader(InputStream inputStream, VariantDatasetMetadata metadata) {
+    public VariantVcfHtsjdkReader(InputStream inputStream, VariantStudyMetadata metadata) {
         this(inputStream, metadata, null);
     }
 
-    public VariantVcfHtsjdkReader(InputStream inputStream, VariantDatasetMetadata metadata, VariantNormalizer normalizer) {
+    public VariantVcfHtsjdkReader(InputStream inputStream, VariantStudyMetadata metadata, VariantNormalizer normalizer) {
         this.metadata = metadata;
         this.fileMetadata = new VariantFileMetadata(metadata.getFiles().get(0));
         this.inputStream = inputStream;

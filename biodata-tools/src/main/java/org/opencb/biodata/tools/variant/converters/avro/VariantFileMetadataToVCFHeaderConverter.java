@@ -24,8 +24,8 @@ import htsjdk.tribble.readers.LineIterator;
 import htsjdk.variant.vcf.VCFCodec;
 import htsjdk.variant.vcf.VCFHeader;
 import org.opencb.biodata.models.variant.avro.VariantFileMetadata;
-import org.opencb.biodata.tools.variant.VariantFileUtils;
-import org.opencb.biodata.tools.variant.converters.Converter;
+import org.opencb.biodata.tools.variant.metadata.VariantMetadataUtils;
+import org.opencb.biodata.tools.Converter;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -40,8 +40,8 @@ public class VariantFileMetadataToVCFHeaderConverter implements Converter<Varian
 
     @Override
     public VCFHeader convert(VariantFileMetadata variantFileMetadata) {
-        if (variantFileMetadata.getMetadata().containsKey(VariantFileUtils.VARIANT_FILE_HEADER)) {
-            String variantFileHeader = variantFileMetadata.getMetadata().get(VariantFileUtils.VARIANT_FILE_HEADER).toString();
+        if (variantFileMetadata.getMetadata().containsKey(VariantMetadataUtils.VARIANT_FILE_HEADER)) {
+            String variantFileHeader = variantFileMetadata.getMetadata().get(VariantMetadataUtils.VARIANT_FILE_HEADER).toString();
             try {
                 return parseVcfHeader(variantFileHeader);
             } catch (IOException e) {

@@ -24,12 +24,12 @@ protocol VariantMetadataProtocol {
         //	[0] -> very rare     : from 0 to 0.001
         //	[1] -> rare          : from 0.001 to 0.005
         //	[2] -> low frequency : from 0.005 to 0.05
-        //  [3] -> comon         : from 0.05
+        //  [3] -> common        : from 0.05
         array<int> numRareVariants = [4];
 
-        map<int> variantTypeCounts;    // SNP, INDEL, MNP, SNV
-        map<int> variantBiotypeCounts; // protein-coding, miRNA, lncRNA
-        map<int> consequenceTypesCounts;
+        map<int> variantTypeCounts = {};    // SNP, INDEL, MNP, SNV
+        map<int> variantBiotypeCounts = {}; // protein-coding, miRNA, lncRNA
+        map<int> consequenceTypesCounts = {};
 
         map<ChromosomeStats> chromosomeStats = {};
     }
@@ -42,66 +42,55 @@ protocol VariantMetadataProtocol {
         union {null, string} number = null;
         union {null, string} type = null;
 
-        map<string> attributes = { };
+        map<string> attributes = {};
     }
 
     record VariantFileHeader {
         string version;
+
         // complex lines, e.g. INFO=<ID=NS,Number=1,Type=Integer,Description="Number of samples with data">
-        array<VariantFileHeaderLine> lines = [ ];
+        array<VariantFileHeaderLine> lines = [];
+
         // basic lines, e.g. fileDate=20090805
-        map<string> attributes = { };
+        map<string> attributes = {};
     }
 
     record VariantFileMetadata {
         string id;
-
         union { null, string } alias = null;
 
-        array<string> sampleIds = [ ];
-
+        array<string> sampleIds = [];
         union { null, VariantSetStats } stats = null;
-
         union { null, VariantFileHeader } header = null;
     }
 
-    record VariantDatasetStats {
-
-        map<VariantSetStats> sampleStats = { };
-
-        map<VariantSetStats> cohortStats = { };
+    record VariantStudyStats {
+        map<VariantSetStats> sampleStats = {};
+        map<VariantSetStats> cohortStats = {};
     }
 
-    record VariantDatasetMetadata {
-
+    record VariantStudyMetadata {
         string id;
-
         union { null, string } description = null;
 
         org.opencb.biodata.models.variant.commons.Aggregation aggregation = "NONE";
-
         union {null, VariantFileHeader} aggregatedHeader = null;
 
-        array<VariantFileMetadata> files = [ ];
-
-        array<org.opencb.biodata.models.metadata.Individual> individuals = [ ];
-
-        array<org.opencb.biodata.models.metadata.Cohort> cohorts = [ ];
-
+        array<VariantFileMetadata> files = [];
+        array<org.opencb.biodata.models.metadata.Individual> individuals = [];
+        array<org.opencb.biodata.models.metadata.Cohort> cohorts = [];
         org.opencb.biodata.models.metadata.SampleSetType sampleSetType;
-
-        union { null, VariantDatasetStats } stats = null;
-
+        union { null, VariantStudyStats } stats = null;
         map<string> attributes = {};
     }
 
     record VariantMetadata {
         string version;
         union { null, org.opencb.biodata.models.metadata.Species } species;
-        union { null, string } date = null;
-        //union { null, string } description;
+        union { null, string } creationDate = null;
+        // union { null, string } description;
         string description = "";
 
-        array<VariantDatasetMetadata> datasets = [];
+        array<VariantStudyMetadata> studies = [];
     }
 }

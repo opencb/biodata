@@ -17,11 +17,13 @@
 package org.opencb.biodata.tools.variant.stats;
 
 import org.junit.Test;
-import org.opencb.biodata.formats.variant.vcf4.VariantAggregatedVcfFactory;
 import org.opencb.biodata.formats.variant.VariantFactory;
+import org.opencb.biodata.formats.variant.vcf4.VariantAggregatedVcfFactory;
 import org.opencb.biodata.models.feature.Genotype;
-import org.opencb.biodata.models.variant.*;
-import org.opencb.biodata.models.variant.metadata.VariantDatasetMetadata;
+import org.opencb.biodata.models.variant.StudyEntry;
+import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.VariantFileMetadata;
+import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 import org.opencb.biodata.tools.variant.VariantNormalizer;
 import org.opencb.commons.test.GenericTest;
 
@@ -40,7 +42,7 @@ public class VariantAggregatedEVSStatsCalculatorTest extends GenericTest {
 
     private final VariantNormalizer normalizer = new VariantNormalizer();
     private VariantFileMetadata fileMetadata = new VariantFileMetadata("EVS", "EVS");
-    private VariantDatasetMetadata metadata = fileMetadata.toVariantDatasetMetadata("EVS");
+    private VariantStudyMetadata metadata = fileMetadata.toVariantDatasetMetadata("EVS");
     private VariantFactory factory = new VariantAggregatedVcfFactory();
 
     @Test

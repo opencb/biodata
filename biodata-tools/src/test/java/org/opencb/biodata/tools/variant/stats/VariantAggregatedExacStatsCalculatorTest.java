@@ -17,18 +17,24 @@
 package org.opencb.biodata.tools.variant.stats;
 
 import org.junit.Test;
-import org.opencb.biodata.formats.variant.vcf4.VariantAggregatedVcfFactory;
 import org.opencb.biodata.formats.variant.VariantFactory;
+import org.opencb.biodata.formats.variant.vcf4.VariantAggregatedVcfFactory;
 import org.opencb.biodata.models.feature.Genotype;
-import org.opencb.biodata.models.variant.*;
-import org.opencb.biodata.models.variant.metadata.VariantDatasetMetadata;
+import org.opencb.biodata.models.variant.StudyEntry;
+import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.VariantFileMetadata;
+import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 import org.opencb.biodata.tools.variant.VariantNormalizer;
 import org.opencb.commons.test.GenericTest;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by jmmut on 2015-03-25.
@@ -38,7 +44,7 @@ import static org.junit.Assert.*;
 public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
 
     private VariantFileMetadata fileMetadata = new VariantFileMetadata("Exac", "Exac");
-    private VariantDatasetMetadata metadata = fileMetadata.toVariantDatasetMetadata("Exac");
+    private VariantStudyMetadata metadata = fileMetadata.toVariantDatasetMetadata("Exac");
     private VariantFactory factory = new VariantAggregatedVcfFactory();
     private VariantNormalizer normalizer = new VariantNormalizer();
     ;

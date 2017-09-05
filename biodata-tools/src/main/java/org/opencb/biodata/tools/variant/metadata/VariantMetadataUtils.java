@@ -17,14 +17,19 @@
  *
  */
 
-package org.opencb.biodata.tools.variant;
+package org.opencb.biodata.tools.variant.metadata;
 
+import org.apache.commons.lang.StringUtils;
 import org.opencb.biodata.formats.variant.io.VariantReader;
 import org.opencb.biodata.formats.variant.vcf4.io.VariantVcfReader;
+import org.opencb.biodata.models.metadata.Sample;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
+import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -32,7 +37,7 @@ import java.util.Objects;
  *
  * @author Jacobo Coll &lt;jacobo167@gmail.com&gt;
  */
-public class VariantFileUtils {
+public class VariantMetadataUtils {
 
     /**
      * @deprecated We are not storing the header in plain text anymore
@@ -82,4 +87,27 @@ public class VariantFileUtils {
         return metadata;
     }
 
+    /**
+     * Get sample names form a variant study metadata.
+     *
+     * @param variantStudyMetadata  Variant study metadata target
+     * @return                      List of sample names
+     */
+    public static List<String> getSampleNames(VariantStudyMetadata variantStudyMetadata) {
+        if (variantStudyMetadata == null) {
+            return null;
+        }
+
+        List<String> sampleNames = new ArrayList<>();
+        if (variantStudyMetadata.getIndividuals() != null) {
+            for (org.opencb.biodata.models.metadata.Individual individual : variantStudyMetadata.getIndividuals()) {
+                for (Sample sample : individual.getSamples()) {
+                    if (!StringUtils.isEmpty(sample.getId())) {
+                        sampleNames.add(sample.getId());
+                    }
+                }
+            }
+        }
+        return sampleNames;
+    }
 }

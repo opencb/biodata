@@ -17,14 +17,14 @@
 package org.opencb.biodata.formats.variant.vcf4.io;
 
 import org.opencb.biodata.formats.io.FileFormatException;
+import org.opencb.biodata.formats.variant.VariantFactory;
 import org.opencb.biodata.formats.variant.io.VariantReader;
+import org.opencb.biodata.formats.variant.vcf4.VariantVcfFactory;
 import org.opencb.biodata.formats.variant.vcf4.Vcf4;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.formats.variant.VariantFactory;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
-import org.opencb.biodata.formats.variant.vcf4.VariantVcfFactory;
 import org.opencb.biodata.models.variant.exceptions.NotAVariantException;
-import org.opencb.biodata.models.variant.metadata.VariantDatasetMetadata;
+import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -49,16 +49,16 @@ public class VariantVcfReader implements VariantReader {
 
     private String filePath;
 
-    private VariantDatasetMetadata metadata;
+    private VariantStudyMetadata metadata;
     private VariantFactory factory;
     private VcfHeaderFactory heaederFactory = new VcfHeaderFactory();
     private String header;
 
-    public VariantVcfReader(VariantDatasetMetadata metadata, String filePath) {
+    public VariantVcfReader(VariantStudyMetadata metadata, String filePath) {
         this(metadata, filePath, new VariantVcfFactory());
     }
 
-    public VariantVcfReader(VariantDatasetMetadata metadata, String filePath, VariantFactory factory) {
+    public VariantVcfReader(VariantStudyMetadata metadata, String filePath, VariantFactory factory) {
         this.metadata = metadata;
         this.filePath = filePath;
         this.factory = factory;

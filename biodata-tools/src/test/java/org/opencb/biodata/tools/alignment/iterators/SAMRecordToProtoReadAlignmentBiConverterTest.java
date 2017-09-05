@@ -16,7 +16,7 @@ import java.nio.file.Paths;
 /**
  * Created by pfurio on 25/10/16.
  */
-public class SAMRecordToProtoReadAlignmentConverterTest {
+public class SAMRecordToProtoReadAlignmentBiConverterTest {
 
     @Test
     public void testIterator() throws URISyntaxException, IOException {

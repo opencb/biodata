@@ -17,30 +17,22 @@
  *
  */
 
-/**
- * 
- */
-package org.opencb.biodata.tools.variant.converters;
-
-import org.opencb.commons.run.ParallelTaskRunner;
-
-import java.util.ArrayList;
-import java.util.List;
+package org.opencb.biodata.tools;
 
 /**
- * @author Matthias Haimel mh719+git@cam.ac.uk
+ * Bidirectional Converter between two Java classes.
  *
+ * Created by pfurio on 25/10/16.
+ * @author Joaquin Tarraga &lt;joaquintarraga@gmail.com&gt;
  */
-public interface Converter <FROM,TO> extends ParallelTaskRunner.Task<FROM, TO> {
+public interface BiConverter<S, T> {
 
-    TO convert(FROM from);
+    T to(S obj);
 
-    default List<TO> apply(List<FROM> from) {
-        List<TO> convertedBatch = new ArrayList<>(from.size());
-        for (FROM variantContext : from) {
-            convertedBatch.add(convert(variantContext));
-        }
-        return convertedBatch;
+    S from(T obj);
+
+    default T convert(S obj) {
+        return to(obj);
     }
 
 }

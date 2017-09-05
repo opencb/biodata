@@ -1,19 +1,22 @@
 package org.opencb.biodata.tools.variant.stats;
 
 import org.junit.Test;
-import org.opencb.biodata.models.feature.Genotype;
-import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.formats.variant.vcf4.VariantAggregatedVcfFactory;
-import org.opencb.biodata.models.variant.VariantFileMetadata;
+import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.StudyEntry;
-import org.opencb.biodata.models.variant.metadata.VariantDatasetMetadata;
+import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.VariantFileMetadata;
+import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 import org.opencb.biodata.tools.variant.VariantNormalizer;
 import org.opencb.commons.test.GenericTest;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by jmmut on 2015-08-25.
@@ -23,7 +26,7 @@ import static org.junit.Assert.*;
 public class VariantAggregatedStatsCalculatorTest extends GenericTest {
 
     private VariantFileMetadata fileMetadata = new VariantFileMetadata("filename.vcf", "fileId");
-    private VariantDatasetMetadata metadata = fileMetadata.toVariantDatasetMetadata("studyId");
+    protected VariantStudyMetadata metadata = fileMetadata.toVariantDatasetMetadata("studyId");
     private VariantAggregatedVcfFactory factory = new VariantAggregatedVcfFactory();
 
     @Test

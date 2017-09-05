@@ -5,11 +5,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opencb.biodata.models.metadata.Individual;
 import org.opencb.biodata.models.metadata.Sample;
-import org.opencb.biodata.models.variant.metadata.VariantDatasetMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantMetadata;
+import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
+import org.opencb.biodata.tools.variant.metadata.VariantMetadataManager;
 import org.opencb.commons.datastore.core.Query;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -37,9 +37,9 @@ public class VariantMetadataManagerTest {
     public VariantMetadata createMetadata() {
         VariantMetadata variantMetadata = new VariantMetadata();
 
-        List<VariantDatasetMetadata> datasets = new ArrayList<>();
+        List<VariantStudyMetadata> datasets = new ArrayList<>();
 
-        VariantDatasetMetadata variantDatasetMetadata = new VariantDatasetMetadata();
+        VariantStudyMetadata variantDatasetMetadata = new VariantStudyMetadata();
 
         List<Individual> individuals = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
@@ -83,14 +83,14 @@ public class VariantMetadataManagerTest {
         variantDatasetMetadata.setIndividuals(individuals);
 
         datasets.add(variantDatasetMetadata);
-        variantMetadata.setDatasets(datasets);
+        variantMetadata.setStudies(datasets);
 
         return variantMetadata;
     }
 
     @Test
     public void getSamples() {
-        List<Sample> samples = manager.getSamples(variantMetadata.getDatasets().get(0).getId());
+        List<Sample> samples = manager.getSamples(variantMetadata.getStudies().get(0).getId());
         System.out.println("Samples found: " + samples.size());
         for (int i = 0; i < samples.size(); i++) {
             System.out.println(samples.get(i));
@@ -106,7 +106,7 @@ public class VariantMetadataManagerTest {
         query.put("population", "=P2220");
         query.put("weight", "<78");
 
-        List<Sample> samples = manager.getSamples(query, variantMetadata.getDatasets().get(0).getId());
+        List<Sample> samples = manager.getSamples(query, variantMetadata.getStudies().get(0).getId());
         System.out.println("Query:");
         System.out.println(query);
         System.out.println("Samples found: " + samples.size());
@@ -171,7 +171,7 @@ public class VariantMetadataManagerTest {
             manager = new VariantMetadataManager();
             manager.load(path);
 
-            List<Sample> samples = manager.getSamples(variantMetadata.getDatasets().get(0).getId());
+            List<Sample> samples = manager.getSamples(variantMetadata.getStudies().get(0).getId());
             System.out.println("Samples found: " + samples.size());
             for (int i = 0; i < samples.size(); i++) {
                 System.out.println(samples.get(i));

@@ -2,9 +2,9 @@ package org.opencb.biodata.models.variant;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.opencb.biodata.models.metadata.SampleSetType;
-import org.opencb.biodata.models.variant.metadata.VariantDatasetMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantFileHeader;
 import org.opencb.biodata.models.variant.metadata.VariantSetStats;
+import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 import org.opencb.biodata.models.variant.stats.VariantGlobalStats;
 
 import java.util.*;
@@ -39,8 +39,8 @@ public class VariantFileMetadata {
         samplesPosition = null;
     }
 
-    public VariantDatasetMetadata toVariantDatasetMetadata(String studyId) {
-        return VariantDatasetMetadata.newBuilder()
+    public VariantStudyMetadata toVariantDatasetMetadata(String studyId) {
+        return VariantStudyMetadata.newBuilder()
                 .setId(studyId)
                 .setFiles(Collections.singletonList(getImpl()))
                 .setSampleSetType(SampleSetType.COLLECTION)

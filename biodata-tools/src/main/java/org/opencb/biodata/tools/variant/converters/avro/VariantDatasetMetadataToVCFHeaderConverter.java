@@ -7,8 +7,8 @@ import org.opencb.biodata.models.metadata.Cohort;
 import org.opencb.biodata.models.metadata.Individual;
 import org.opencb.biodata.models.metadata.Sample;
 import org.opencb.biodata.models.variant.StudyEntry;
-import org.opencb.biodata.models.variant.metadata.VariantDatasetMetadata;
-import org.opencb.biodata.tools.variant.converters.Converter;
+import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
+import org.opencb.biodata.tools.Converter;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,14 +19,14 @@ import java.util.List;
  *
  * @author Jacobo Coll &lt;jacobo167@gmail.com&gt;
  */
-public class VariantDatasetMetadataToVCFHeaderConverter implements Converter<VariantDatasetMetadata, VCFHeader> {
+public class VariantDatasetMetadataToVCFHeaderConverter implements Converter<VariantStudyMetadata, VCFHeader> {
 
     @Override
-    public VCFHeader convert(VariantDatasetMetadata variantDatasetMetadata) {
+    public VCFHeader convert(VariantStudyMetadata variantDatasetMetadata) {
         return convert(variantDatasetMetadata, Collections.emptyList());
     }
 
-    public VCFHeader convert(VariantDatasetMetadata variantDatasetMetadata, List<String> annotations) {
+    public VCFHeader convert(VariantStudyMetadata variantDatasetMetadata, List<String> annotations) {
         VCFHeader vcfHeader = new VariantFileHeaderToVCFHeaderConverter().convert(variantDatasetMetadata.getAggregatedHeader());
 
         List<String> samples = new ArrayList<>();

@@ -14,7 +14,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by pfurio on 25/10/16.
  */
-public class SAMRecordToProtoReadAlignmentConverterTest {
+public class SAMRecordToProtoReadAlignmentBiConverterTest {
 
     @Test
     public void testConverter() throws URISyntaxException, IOException {
@@ -24,7 +24,7 @@ public class SAMRecordToProtoReadAlignmentConverterTest {
         srf.validationStringency(ValidationStringency.LENIENT);
         SamReader reader = srf.open(SamInputResource.of(inputPath.toFile()));
 
-        SAMRecordToProtoReadAlignmentConverter converter = new SAMRecordToProtoReadAlignmentConverter(false);
+        SAMRecordToProtoReadAlignmentBiConverter converter = new SAMRecordToProtoReadAlignmentBiConverter(false);
 
         for (SAMRecord original : reader) {
             // Convert to proto

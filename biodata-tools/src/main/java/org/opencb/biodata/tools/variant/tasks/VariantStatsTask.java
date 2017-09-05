@@ -19,13 +19,10 @@
 
 package org.opencb.biodata.tools.variant.tasks;
 
-import java.util.List;
-import java.util.Map;
-
 import org.opencb.biodata.models.pedigree.Pedigree;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.metadata.VariantDatasetMetadata;
+import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 import org.opencb.biodata.models.variant.stats.VariantSourceStats;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 import org.opencb.biodata.tools.variant.stats.VariantAggregatedEVSStatsCalculator;
@@ -34,17 +31,21 @@ import org.opencb.biodata.tools.variant.stats.VariantAggregatedStatsCalculator;
 import org.opencb.biodata.tools.variant.stats.VariantStatsCalculator;
 import org.opencb.commons.run.Task;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
+@Deprecated
 public class VariantStatsTask extends Task<Variant> {
 
-    private VariantDatasetMetadata metadata;
+    private VariantStudyMetadata metadata;
     private VariantSourceStats stats;
     private Pedigree pedigree;
 
-    public VariantStatsTask(VariantDatasetMetadata study) {
+    public VariantStatsTask(VariantStudyMetadata study) {
         super();
         this.metadata = study;
         //TODO: Add pedigree?

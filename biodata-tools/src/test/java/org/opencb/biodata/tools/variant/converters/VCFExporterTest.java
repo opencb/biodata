@@ -6,7 +6,7 @@ import org.apache.avro.io.DatumReader;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.junit.Test;
 import org.opencb.biodata.models.variant.avro.VariantAvro;
-import org.opencb.biodata.tools.variant.VariantMetadataManager;
+import org.opencb.biodata.tools.variant.metadata.VariantMetadataManager;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -32,7 +32,7 @@ public class VCFExporterTest {
         VariantMetadataManager manager = new VariantMetadataManager();
         manager.load(metadataPath);
 
-        VCFExporter exporter = new VCFExporter(manager.getVariantMetadata().getDatasets().get(0));
+        VCFExporter exporter = new VCFExporter(manager.getVariantMetadata().getStudies().get(0));
 
         Options writerOptions = Options.USE_ASYNC_IO;
         exporter.export(dataFileReader, writerOptions, outPath);

@@ -6,13 +6,13 @@ import org.opencb.biodata.formats.variant.vcf4.io.VariantVcfReader;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
-import org.opencb.biodata.models.variant.metadata.VariantDatasetMetadata;
+import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by jmmut on 2015-12-02.
@@ -25,7 +25,7 @@ public class IdentityByStateClusteringTest {
     public void testWrite() throws Exception {
         String fileName = "ibs.vcf";
         VariantFileMetadata fileMetadata = new VariantFileMetadata(fileName, "fid");
-        VariantDatasetMetadata metadata = fileMetadata.toVariantDatasetMetadata("sid");
+        VariantStudyMetadata metadata = fileMetadata.toVariantDatasetMetadata("sid");
         String line;
 
         VariantVcfReader variantReader = new VariantVcfReader(metadata, IdentityByStateClusteringTest.class.getClassLoader().getResource(fileName).getPath());
@@ -61,8 +61,7 @@ public class IdentityByStateClusteringTest {
     public void testIBSPerformance() throws Exception {
         String fileName = "ibs.vcf";
         VariantFileMetadata fileMetadata = new VariantFileMetadata(fileName, "fid");
-        VariantDatasetMetadata metadata = fileMetadata.toVariantDatasetMetadata("sid");
-        String line;
+        VariantStudyMetadata metadata = fileMetadata.toVariantDatasetMetadata("sid");
 
         VariantVcfReader variantReader = new VariantVcfReader(metadata, IdentityByStateClusteringTest.class.getClassLoader().getResource(fileName).getPath());
         variantReader.open();
@@ -87,8 +86,7 @@ public class IdentityByStateClusteringTest {
     public void testIBSByRegion() throws Exception {
         String fileName = "ibs.vcf";
         VariantFileMetadata fileMetadata = new VariantFileMetadata(fileName, "fid");
-        VariantDatasetMetadata metadata = fileMetadata.toVariantDatasetMetadata("sid");
-        String line;
+        VariantStudyMetadata metadata = fileMetadata.toVariantDatasetMetadata("sid");
 
         VariantVcfReader variantReader = new VariantVcfReader(metadata, IdentityByStateClusteringTest.class.getClassLoader().getResource(fileName).getPath());
         variantReader.open();
@@ -118,8 +116,7 @@ public class IdentityByStateClusteringTest {
     public void testCountIBS() throws Exception {
         String fileName = "ibs.vcf";
         VariantFileMetadata fileMetadata = new VariantFileMetadata(fileName, "fid");
-        VariantDatasetMetadata metadata = fileMetadata.toVariantDatasetMetadata("sid");
-        String line;
+        VariantStudyMetadata metadata = fileMetadata.toVariantDatasetMetadata("sid");
 
         VariantVcfReader variantReader = new VariantVcfReader(metadata, IdentityByStateClusteringTest.class.getClassLoader().getResource(fileName).getPath());
         variantReader.open();

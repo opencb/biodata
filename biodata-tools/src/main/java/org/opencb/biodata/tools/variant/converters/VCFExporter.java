@@ -9,8 +9,10 @@ import org.opencb.biodata.models.metadata.Individual;
 import org.opencb.biodata.models.metadata.Sample;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.VariantAvro;
-import org.opencb.biodata.models.variant.metadata.VariantDatasetMetadata;
+import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
+import org.opencb.biodata.tools.variant.converters.avro.VariantAvroToVariantContextConverter;
 import org.opencb.biodata.tools.variant.converters.avro.VariantDatasetMetadataToVCFHeaderConverter;
+import org.opencb.biodata.tools.variant.metadata.VariantMetadataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,11 +28,11 @@ import java.util.List;
 
 public class VCFExporter {
 
-    private VariantDatasetMetadata metadata;
+    private VariantStudyMetadata metadata;
     private VCFHeader vcfHeader;
 
     // conversion: variant (AVRO) -> variant context (VCF), output stream and writer
-    private VariantContextToAvroVariantConverter variantConverter;
+    private VariantAvroToVariantContextConverter variantConverter;
     private OutputStream outputStream;
     private VariantContextWriter writer;
 
@@ -42,7 +44,7 @@ public class VCFExporter {
      *
      * @param metadata  Variant dataset metadata
      */
-    public VCFExporter(VariantDatasetMetadata metadata) {
+    public VCFExporter(VariantStudyMetadata metadata) {
         this.metadata = metadata;
 
         // Build VCF header from variant dataset metadata
@@ -74,7 +76,7 @@ public class VCFExporter {
             prepare(writerOptions, outPath);
 
             // writing variant
-            VariantContext variantContext = variantConverter.from(variant);
+            VariantContext variantContext = variantConverter.convert(variant);
             System.out.println(variantContext.toString());
             writer.add(variantContext);
 
@@ -101,7 +103,7 @@ public class VCFExporter {
             // main loop (from list)
             for (VariantAvro variantAvro: variants) {
                 Variant variant = new Variant(variantAvro);
-                VariantContext variantContext = variantConverter.from(variant);
+                VariantContext variantContext = variantConverter.convert(variant);
                 System.out.println(variantContext.toString());
                 writer.add(variantContext);
             }
@@ -128,7 +130,7 @@ public class VCFExporter {
             // main loop (from iterator)
             while (iterator.hasNext()) {
                 Variant variant = new Variant(iterator.next());
-                VariantContext variantContext = variantConverter.from(variant);
+                VariantContext variantContext = variantConverter.convert(variant);
                 //System.out.println(variantContext.toString());
                 writer.add(variantContext);
             }
@@ -143,20 +145,11 @@ public class VCFExporter {
     private void prepare(Options writerOptions, Path outPath) throws FileNotFoundException {
         // TODO: VariantContextToAvroVariantConverter takes as input parameters sampleNames, sampleFormats and annotations
         // TODO (cont.): these parameters should be taken into account, maybe in the constructor?
-        // conversion: variant (AVRO) -> variant context (VCF)
 
-        // TODO: sampleNames should be taken from vcfHeader.getSampleNamesInOrder()
-        // (snippet from VariantMetadataManager)
-        List<String> sampleNames = new ArrayList<>();
-        for (Individual individual : metadata.getIndividuals()) {
-            for (Sample sample: individual.getSamples()) {
-                sampleNames.add(sample.getId());
-            }
-        }
-        variantConverter =
-//                new VariantContextToAvroVariantConverter(metadata.getId(), Collections.emptyList(), Collections.emptyList());
-//                new VariantContextToAvroVariantConverter(metadata.getId(), vcfHeader.getSampleNamesInOrder(), Collections.emptyList());
-        new VariantContextToAvroVariantConverter(metadata.getId(), sampleNames, Collections.emptyList());
+        // conversion: variant (AVRO) -> variant context (VCF)
+        List<String> sampleNames = VariantMetadataUtils.getSampleNames(metadata);
+        variantConverter = new VariantAvroToVariantContextConverter(metadata.getId(), sampleNames,
+                Collections.emptyList());
 
         // create the variant context writer
         outputStream = new FileOutputStream(outPath.toString());

@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 /**
  * Created by jtarraga on 07/02/17.
  */
-public abstract class VariantContextConverter<T> implements Converter<VariantContext, T> {
+public abstract class VariantContextConverter<T> implements Converter<T, VariantContext> {
 
     public static final DecimalFormat DECIMAL_FORMAT_7 = new DecimalFormat("#.#######");
     public static final DecimalFormat DECIMAL_FORMAT_3 = new DecimalFormat("#.###");
@@ -84,11 +84,12 @@ public abstract class VariantContextConverter<T> implements Converter<VariantCon
 
     /**
      * Get bases from reference sequence.
-     * @param chromosome Chromosome.
-     * @param from Start ( inclusive) position.
-     * @param to End (exclusive) position.
-     * @param referenceAlleles
-     * @return String Reference sequence of length to - from.
+     *
+     * @param chromosome        Chromosome
+     * @param from              Start ( inclusive) position
+     * @param to                End (exclusive) position
+     * @param referenceAlleles  Reference alleles
+     * @return String Reference sequence of length to - from
      */
     private String getReferenceBase(String chromosome, int from, int to, Map<Integer, Character> referenceAlleles) {
         int length = to - from;
@@ -269,74 +270,8 @@ public abstract class VariantContextConverter<T> implements Converter<VariantCon
                             break;
                     }
                 }
-
                 genotypes.add(genotypeBuilder.make());
-
-//            String gtStr = studyEntry.getSampleData(sampleName, "GT");
-//            String genotypeFilter = studyEntry.getSampleData(sampleName, "FT");
-//
-//            if (Objects.isNull(gtStr)) {
-//                gtStr = noCallAllele;
-//                genotypeFilter = noCallAllele;
-//            }
-//
-//            List<String> gtSplit = new ArrayList<>(Arrays.asList(gtStr.split(",")));
-//            List<String> ftSplit = new ArrayList<>(Arrays.asList(
-//                    (StringUtils.isBlank(genotypeFilter) ? "" : genotypeFilter).split(",")));
-//            while (gtSplit.size() > 1) {
-//                int idx = gtSplit.indexOf(noCallAllele);
-//                if (idx < 0) {
-//                    idx = gtSplit.indexOf("0/0");
-//                }
-//                if (idx < 0) {
-//                    break;
-//                }
-//                gtSplit.remove(idx);
-//                ftSplit.remove(idx);
-//            }
-//            String gt = gtSplit.get(0);
-//            String ft = ftSplit.get(0);
-//
-//            org.opencb.biodata.models.feature.Genotype genotype =
-//                    new org.opencb.biodata.models.feature.Genotype(gt, refAllele, alleleList.subList(1, alleleList.size()));
-//            List<Allele> alleles = new ArrayList<>();
-//            for (int gtIdx : genotype.getAllelesIdx()) {
-//                if (gtIdx < alleleList.size() && gtIdx >= 0 && !nocallAlleles.contains(gtIdx)) { // .. AND NOT a nocall allele
-//                    alleles.add(Allele.create(alleleList.get(gtIdx), gtIdx == 0)); // allele is ref. if the alleleIndex is 0
-//                } else {
-//                    alleles.add(Allele.create(noCallAllele, false)); // genotype of a secondary alternate, or an actual missing
-//                }
-//            }
-//
-//            if (StringUtils.isBlank(ft)) {
-//                genotypeFilter = null;
-//            } else if (StringUtils.equals("PASS", ft)) {
-//                genotypeFilter = "1";
-//            } else {
-//                genotypeFilter = "0";
-//            }
-////            GenotypeBuilder genotypeBuilder = new GenotypeBuilder()
-////                    .name(this.sampleNameMapping.get(sampleName));
-//            GenotypeBuilder genotypeBuilder = new GenotypeBuilder().name(sampleName);
-//            if (studyEntry.getFormatPositions().containsKey("GT")) {
-//                genotypeBuilder.alleles(alleles).phased(genotype.isPhased());
-//            }
-//            if (genotypeFilter != null) {
-//                genotypeBuilder.attribute("PF", genotypeFilter);
-//            }
-//
-//            System.out.println("studyEntry.getFormat() = " + studyEntry.getFormat());
-//            for (String id : studyEntry.getFormat()) {
-//                if (id.equals("GT") || id.equals("FT")) {
-//                    continue;
-//                }
-//                String value = studyEntry.getSampleData(sampleName, id);
-//                genotypeBuilder.attribute(id, value);
-//            }
-//
-//            genotypes.add(genotypeBuilder.make());
             }
-
         }
         return genotypes;
     }
