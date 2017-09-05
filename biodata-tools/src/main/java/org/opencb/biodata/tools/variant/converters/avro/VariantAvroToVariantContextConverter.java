@@ -1,16 +1,16 @@
-package org.opencb.biodata.tools.variant.converters;
+package org.opencb.biodata.tools.variant.converters.avro;
 
-import htsjdk.variant.variantcontext.*;
 import htsjdk.variant.variantcontext.Genotype;
+import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.opencb.biodata.formats.variant.vcf4.VcfUtils;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.*;
 import org.opencb.biodata.models.variant.stats.VariantStats;
+import org.opencb.biodata.tools.variant.converters.VariantContextConverter;
 import org.opencb.commons.datastore.core.ObjectMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,31 +24,26 @@ import static org.opencb.biodata.formats.variant.vcf4.VcfUtils.*;
 /**
  * Created by jtarraga on 07/02/17.
  */
-public class VariantContextToAvroVariantConverter extends VariantContextConverter<Variant> {
+public class VariantAvroToVariantContextConverter extends VariantContextConverter<Variant> {
 
-    private final Logger logger = LoggerFactory.getLogger(VariantContextToAvroVariantConverter.class);
+    private final Logger logger = LoggerFactory.getLogger(VariantAvroToVariantContextConverter.class);
 
     @Deprecated
-    public VariantContextToAvroVariantConverter(int studyId, List<String> sampleNames, List<String> annotations) {
+    public VariantAvroToVariantContextConverter(int studyId, List<String> sampleNames, List<String> annotations) {
         super(Integer.toString(studyId), sampleNames, null, annotations);
     }
 
-    public VariantContextToAvroVariantConverter(String study, List<String> sampleNames, List<String> annotations) {
+    public VariantAvroToVariantContextConverter(String study, List<String> sampleNames, List<String> annotations) {
         this(study, sampleNames, null, annotations);
     }
 
-    public VariantContextToAvroVariantConverter(String study, List<String> sampleNames, List<String> sampleFormats,
+    public VariantAvroToVariantContextConverter(String study, List<String> sampleNames, List<String> sampleFormats,
                                                 List<String> annotations) {
         super(study, sampleNames, sampleFormats, annotations);
     }
 
     @Override
-    public Variant to(VariantContext obj) {
-        return null;
-    }
-
-    @Override
-    public VariantContext from(Variant variant) {
+    public VariantContext convert(Variant variant) {
         init(variant);
 
         StudyEntry studyEntry = getStudy(variant);

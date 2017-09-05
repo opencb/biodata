@@ -69,7 +69,7 @@ public class VariantRunner extends Runner<Variant> {
 //    @Override
 //    protected void readerInit() {
 //        super.readerInit();
-//        source.addMetadata(VariantFileUtils.VARIANT_FILE_HEADER, ((VariantReader) reader).getHeader());
+//        source.addMetadata(VariantMetadataUtils.VARIANT_FILE_HEADER, ((VariantReader) reader).getHeader());
 //    }
 
 }

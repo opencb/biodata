@@ -3,7 +3,7 @@ package org.opencb.biodata.tools.variant.converters.avro;
 import htsjdk.variant.vcf.*;
 import org.opencb.biodata.models.variant.metadata.VariantFileHeader;
 import org.opencb.biodata.models.variant.metadata.VariantFileHeaderLine;
-import org.opencb.biodata.tools.variant.converters.Converter;
+import org.opencb.biodata.tools.Converter;
 
 import java.util.*;
 import java.util.function.Function;

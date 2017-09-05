@@ -20,7 +20,7 @@
 /**
  * 
  */
-package org.opencb.biodata.tools.variant.converters;
+package org.opencb.biodata.tools;
 
 import org.opencb.commons.run.ParallelTaskRunner;
 

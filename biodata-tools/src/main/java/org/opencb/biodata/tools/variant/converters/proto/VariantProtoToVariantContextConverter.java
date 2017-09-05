@@ -1,12 +1,14 @@
-package org.opencb.biodata.tools.variant.converters;
+package org.opencb.biodata.tools.variant.converters.proto;
 
-import htsjdk.variant.variantcontext.*;
+import htsjdk.variant.variantcontext.Genotype;
+import htsjdk.variant.variantcontext.VariantContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.opencb.biodata.formats.variant.vcf4.VcfUtils;
+import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.protobuf.VariantAnnotationProto;
 import org.opencb.biodata.models.variant.protobuf.VariantProto;
+import org.opencb.biodata.tools.variant.converters.VariantContextConverter;
 import org.opencb.commons.datastore.core.ObjectMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,31 +22,26 @@ import static org.opencb.biodata.formats.variant.vcf4.VcfUtils.*;
 /**
  * Created by jtarraga on 07/02/17.
  */
-public class VariantContextToProtoVariantConverter extends VariantContextConverter<VariantProto.Variant> {
+public class VariantProtoToVariantContextConverter extends VariantContextConverter<VariantProto.Variant> {
 
-    private final Logger logger = LoggerFactory.getLogger(VariantContextToProtoVariantConverter.class);
+    private final Logger logger = LoggerFactory.getLogger(VariantProtoToVariantContextConverter.class);
 
     @Deprecated
-    public VariantContextToProtoVariantConverter(int studyId) {
+    public VariantProtoToVariantContextConverter(int studyId) {
         super(null, null, null, null);
     }
 
-    public VariantContextToProtoVariantConverter(String study, List<String> sampleNames, List<String> annotations) {
+    public VariantProtoToVariantContextConverter(String study, List<String> sampleNames, List<String> annotations) {
         this(study, sampleNames, null, annotations);
     }
 
-    public VariantContextToProtoVariantConverter(String study, List<String> sampleNames, List<String> sampleFormats,
+    public VariantProtoToVariantContextConverter(String study, List<String> sampleNames, List<String> sampleFormats,
                                                  List<String> annotations) {
         super(study, sampleNames, sampleFormats, annotations);
     }
 
     @Override
-    public VariantProto.Variant to(VariantContext obj) {
-        return null;
-    }
-
-    @Override
-    public VariantContext from(VariantProto.Variant variant) {
+    public VariantContext convert(VariantProto.Variant variant) {
         init(variant);
 
         VariantProto.StudyEntry studyEntry = getStudy(variant);

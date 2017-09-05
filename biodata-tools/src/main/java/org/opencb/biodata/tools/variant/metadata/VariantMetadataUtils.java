@@ -32,7 +32,7 @@ import java.util.Objects;
  *
  * @author Jacobo Coll &lt;jacobo167@gmail.com&gt;
  */
-public class VariantFileUtils {
+public class VariantMetadataUtils {
 
     /**
      * @deprecated We are not storing the header in plain text anymore

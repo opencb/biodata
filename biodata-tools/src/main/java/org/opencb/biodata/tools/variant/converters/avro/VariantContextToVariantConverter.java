@@ -29,7 +29,7 @@ import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.avro.*;
 import org.opencb.biodata.models.variant.stats.VariantStats;
-import org.opencb.biodata.tools.variant.converters.Converter;
+import org.opencb.biodata.tools.Converter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

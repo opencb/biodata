@@ -30,7 +30,7 @@ import org.opencb.biodata.models.variant.protobuf.VariantAnnotationProto.Consequ
 import org.opencb.biodata.models.variant.protobuf.VariantAnnotationProto.ProteinVariantAnnotation;
 import org.opencb.biodata.models.variant.protobuf.VariantProto;
 import org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate;
-import org.opencb.biodata.tools.variant.converters.Converter;
+import org.opencb.biodata.tools.Converter;
 import org.opencb.biodata.tools.variant.converters.avro.VariantContextToVariantConverter;
 
 import java.util.*;
