@@ -142,7 +142,7 @@ public class VCFExporter {
 
     private void prepare(Options writerOptions, Path outPath) throws FileNotFoundException {
         // TODO: VariantContextToAvroVariantConverter takes as input parameters sampleNames, sampleFormats and annotations
-        // TODO (cont.): these parameters should be taken into account
+        // TODO (cont.): these parameters should be taken into account, maybe in the constructor?
         // conversion: variant (AVRO) -> variant context (VCF)
 
         // TODO: sampleNames should be taken from vcfHeader.getSampleNamesInOrder()
