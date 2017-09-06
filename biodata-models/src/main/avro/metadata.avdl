@@ -12,13 +12,13 @@ protocol MetadataProtocol {
         TIME_SERIES,
         FAMILY,
         TRIO,
-        COLLECTION,
-        MISCELLANEOUS
+        //COLLECTION,
+        MISCELLANEOUS,
+        UNKNOWN
     }
 
     record Experiment {
         string center;
-        string date;
         string molecule; // genomics DNA, total RNA,...
         string technique; // whole genome sequencing, RNA-seq, RIP-seq,...
         string library;

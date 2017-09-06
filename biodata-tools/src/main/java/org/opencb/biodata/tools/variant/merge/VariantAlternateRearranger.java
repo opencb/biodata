@@ -413,7 +413,7 @@ public class VariantAlternateRearranger {
         }
 
         public void configure(VariantFileHeader header) {
-            for (VariantFileHeaderLine line : header.getLines()) {
+            for (VariantFileHeaderLine line : header.getComplexLines()) {
                 if (line.getKey().equalsIgnoreCase("FORMAT") || line.getKey().equalsIgnoreCase("INFO")) {
                     VCFHeaderLineCount number = VariantFileHeaderToVCFHeaderConverter.getVCFHeaderLineCount(line);
                     VCFHeaderLineType type = VariantFileHeaderToVCFHeaderConverter.getVCFHeaderLineType(line);

@@ -54,7 +54,7 @@ public class VCFHeaderToVariantFileHeaderConverter  implements Converter<VCFHead
                     setValue(map, "Number", builder::setNumber);
                     setValue(map, "Type", builder::setType);
                     builder.setKey(line.getKey());
-                    builder.setAttributes(map);
+                    builder.setGenericFields(map);
                     lines.add(builder.build());
                 }
             } else {
@@ -62,8 +62,8 @@ public class VCFHeaderToVariantFileHeaderConverter  implements Converter<VCFHead
             }
 
         }
-        avroHeader.setLines(lines);
-        avroHeader.setAttributes(attributes);
+        avroHeader.setComplexLines(lines);
+        avroHeader.setSimpleLines(attributes);
 
         return avroHeader;
     }

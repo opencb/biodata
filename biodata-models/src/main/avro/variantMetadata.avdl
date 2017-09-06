@@ -2,9 +2,15 @@
 
 protocol VariantMetadataProtocol {
 
-    // we need import variantCommons.avdl and metadata.avdl to use the enum Aggregation and Type
+    // we need import metadata.avdl
     import idl "metadata.avdl";
-    import idl "variantCommons.avdl";
+
+    enum Aggregation {
+        NONE,
+        BASIC,
+        EVS,
+        EXAC
+    }
 
     record ChromosomeStats {
         int counts;
@@ -21,11 +27,11 @@ protocol VariantMetadataProtocol {
         float stdDevQuality;
 
         // array of 4 elements to classify variants according to their 'rarity'
-        //	[0] -> very rare     : from 0 to 0.001
-        //	[1] -> rare          : from 0.001 to 0.005
-        //	[2] -> low frequency : from 0.005 to 0.05
+        //  [0] -> very rare     : from 0 to 0.001
+        //  [1] -> rare          : from 0.001 to 0.005
+        //  [2] -> low frequency : from 0.005 to 0.05
         //  [3] -> common        : from 0.05
-        array<int> numRareVariants = [4];
+        array<int> numRareVariants = [];
 
         map<int> variantTypeCounts = {};    // SNP, INDEL, MNP, SNV
         map<int> variantBiotypeCounts = {}; // protein-coding, miRNA, lncRNA
@@ -42,26 +48,27 @@ protocol VariantMetadataProtocol {
         union {null, string} number = null;
         union {null, string} type = null;
 
-        map<string> attributes = {};
+        map<string> genericFields = {};
     }
 
     record VariantFileHeader {
         string version;
 
         // complex lines, e.g. INFO=<ID=NS,Number=1,Type=Integer,Description="Number of samples with data">
-        array<VariantFileHeaderLine> lines = [];
+        array<VariantFileHeaderLine> complexLines = [];
 
-        // basic lines, e.g. fileDate=20090805
-        map<string> attributes = {};
+        // simple lines, e.g. fileDate=20090805
+        map<string> simpleLines = {};
     }
 
     record VariantFileMetadata {
         string id;
-        union { null, string } alias = null;
+        union { null, string } path = null;
 
         array<string> sampleIds = [];
         union { null, VariantSetStats } stats = null;
         union { null, VariantFileHeader } header = null;
+        map<string> attributes = {};
     }
 
     record VariantStudyStats {
@@ -73,7 +80,7 @@ protocol VariantMetadataProtocol {
         string id;
         union { null, string } description = null;
 
-        org.opencb.biodata.models.variant.commons.Aggregation aggregation = "NONE";
+        Aggregation aggregation = "NONE";
         union {null, VariantFileHeader} aggregatedHeader = null;
 
         array<VariantFileMetadata> files = [];
@@ -85,11 +92,11 @@ protocol VariantMetadataProtocol {
     }
 
     record VariantMetadata {
-        string version;
-        union { null, org.opencb.biodata.models.metadata.Species } species;
+        // Data model version
+        string version = "v1.0.0";
+        union { null, org.opencb.biodata.models.metadata.Species } species = null;
         union { null, string } creationDate = null;
-        // union { null, string } description;
-        string description = "";
+        union { null, string } description = null;
 
         array<VariantStudyMetadata> studies = [];
     }

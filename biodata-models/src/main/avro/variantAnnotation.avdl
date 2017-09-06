@@ -34,11 +34,6 @@ protocol VariantAnnotations {
         string mutationSomaticStatus;
     }
 
-    record Submission {
-        string submitter;
-        union { null, string } date;
-    }
-
     record VariantTraitAssociation {
         union { null, array<ClinVar> } clinvar;
         union { null, array<Gwas> } gwas;

@@ -35,7 +35,7 @@ public class VariantFileMetadata {
     }
 
     public VariantFileMetadata(String id, String alias, List<String> sampleIds, VariantSetStats stats, VariantFileHeader header) {
-        impl = new org.opencb.biodata.models.variant.metadata.VariantFileMetadata(id, alias, sampleIds, stats, header);
+        impl = new org.opencb.biodata.models.variant.metadata.VariantFileMetadata(id, alias, sampleIds, stats, header, new HashMap<>());
         samplesPosition = null;
     }
 
@@ -43,7 +43,7 @@ public class VariantFileMetadata {
         return VariantStudyMetadata.newBuilder()
                 .setId(studyId)
                 .setFiles(Collections.singletonList(getImpl()))
-                .setSampleSetType(SampleSetType.COLLECTION)
+                .setSampleSetType(SampleSetType.UNKNOWN)
                 .build();
     }
 
@@ -100,12 +100,23 @@ public class VariantFileMetadata {
         return this;
     }
 
-    public String getAlias() {
-        return impl.getAlias();
+    public String getPath() {
+        return impl.getPath();
     }
 
+    public VariantFileMetadata setPath(String path) {
+        impl.setPath(path);
+        return this;
+    }
+
+    @Deprecated
+    public String getAlias() {
+        return getPath();
+    }
+
+    @Deprecated
     public VariantFileMetadata setAlias(String alias) {
-        impl.setAlias(alias);
+        setPath(alias);
         return this;
     }
 
@@ -141,6 +152,16 @@ public class VariantFileMetadata {
         impl.setHeader(header);
         return this;
     }
+
+    public Map<String, String> getAttributes() {
+        return impl.getAttributes();
+    }
+
+    public VariantFileMetadata setAttributes(Map<String, String> attributes) {
+        impl.setAttributes(attributes);
+        return this;
+    }
+
 
     public org.opencb.biodata.models.variant.metadata.VariantFileMetadata getImpl() {
         return impl;

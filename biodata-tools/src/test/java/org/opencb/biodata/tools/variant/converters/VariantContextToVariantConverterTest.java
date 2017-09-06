@@ -34,7 +34,6 @@ import org.opencb.biodata.formats.variant.vcf4.FullVcfCodec;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.*;
-import org.opencb.biodata.models.variant.commons.Aggregation;
 import org.opencb.biodata.tools.variant.VariantNormalizer;
 import org.opencb.biodata.tools.variant.converters.avro.VCFHeaderToAvroVcfHeaderConverter;
 import org.opencb.biodata.tools.variant.converters.avro.VariantContextToVariantConverter;

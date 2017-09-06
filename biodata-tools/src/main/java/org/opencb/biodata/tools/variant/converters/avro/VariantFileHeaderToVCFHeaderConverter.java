@@ -18,11 +18,11 @@ public class VariantFileHeaderToVCFHeaderConverter implements Converter<VariantF
 
     @Override
     public VCFHeader convert(VariantFileHeader variantHeader) {
-        HashSet<VCFHeaderLine> meta = new HashSet<>(variantHeader.getAttributes().size() + variantHeader.getLines().size());
+        HashSet<VCFHeaderLine> meta = new HashSet<>(variantHeader.getSimpleLines().size() + variantHeader.getComplexLines().size());
 
         int contigIndex = 0;
-        variantHeader.getAttributes().forEach((key, value) -> meta.add(new VCFHeaderLine(key, value)));
-        for (VariantFileHeaderLine line : variantHeader.getLines()) {
+        variantHeader.getSimpleLines().forEach((key, value) -> meta.add(new VCFHeaderLine(key, value)));
+        for (VariantFileHeaderLine line : variantHeader.getComplexLines()) {
             VCFHeaderLine headerLine;
             VCFHeaderLineCount count = getVCFHeaderLineCount(line);
             VCFHeaderLineType type = getVCFHeaderLineType(line);
@@ -52,7 +52,7 @@ public class VariantFileHeaderToVCFHeaderConverter implements Converter<VariantF
                     putIfNotEmpty(map, "Description", line.getDescription());
                     putIfNotEmpty(map, "Number", line.getNumber());
                     putIfNotEmpty(map, "Type", line.getType());
-                    map.putAll(line.getAttributes());
+                    map.putAll(line.getGenericFields());
                     if (line.getKey().equals("contig")) {
                         headerLine = new VCFContigHeaderLine(map, contigIndex++);
                     } else {

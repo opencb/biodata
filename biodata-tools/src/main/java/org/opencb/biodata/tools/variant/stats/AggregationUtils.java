@@ -1,6 +1,6 @@
 package org.opencb.biodata.tools.variant.stats;
 
-import org.opencb.biodata.models.variant.commons.Aggregation;
+import org.opencb.biodata.models.variant.metadata.Aggregation;
 
 /**
  * Created on 16/08/17.
