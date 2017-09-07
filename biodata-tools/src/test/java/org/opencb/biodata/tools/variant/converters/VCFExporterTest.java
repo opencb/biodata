@@ -1,43 +1,55 @@
 package org.opencb.biodata.tools.variant.converters;
 
 import htsjdk.variant.variantcontext.writer.Options;
-import org.apache.avro.file.DataFileReader;
-import org.apache.avro.io.DatumReader;
-import org.apache.avro.specific.SpecificDatumReader;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.junit.Before;
 import org.junit.Test;
-import org.opencb.biodata.models.variant.avro.VariantAvro;
-import org.opencb.biodata.tools.variant.metadata.VariantMetadataManager;
+import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.VariantFileMetadata;
+import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
+import org.opencb.biodata.tools.variant.VariantVcfHtsjdkReader;
+import org.opencb.commons.utils.FileUtils;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.FileAttribute;
+import java.util.List;
 
 public class VCFExporterTest {
+
+    private Path outPath;
+
+    @Before
+    public void setUp() throws Exception {
+        outPath = Paths.get("target/test-data", "junit-" + RandomStringUtils.randomAlphabetic(5), "out.vcf");
+        Files.createDirectories(outPath.getParent());
+    }
 
     @Test
     public void export() throws Exception {
 
-        Path inputPath = Paths.get(getClass().getResource("/test.vcf.avro").toURI());
-        Path metadataPath = Paths.get(getClass().getResource("/test.vcf.avro.meta.json").toURI());
-        Path outPath = Paths.get("/tmp/out.vcf");
+        VariantStudyMetadata metadata = new VariantFileMetadata("1", "test.vcf").toVariantStudyMetadata("study");
+        VariantVcfHtsjdkReader reader = new VariantVcfHtsjdkReader(getClass().getResourceAsStream("/test.vcf"), metadata);
+        reader.open();
+        reader.pre();
 
-        DatumReader<VariantAvro> datumReader = new SpecificDatumReader<>(VariantAvro.class);
-        DataFileReader<VariantAvro> dataFileReader = new DataFileReader<>(inputPath.toFile(), datumReader);
-
-        //VariantAvro variantAvro = null;
-        //while (dataFileReader.hasNext()) {
-        //    variantAvro = dataFileReader.next(variantAvro);
-        //    System.out.println(variantAvro.toString());
-        //}
-
-        VariantMetadataManager manager = new VariantMetadataManager();
-        manager.load(metadataPath);
-
-        VCFExporter exporter = new VCFExporter(manager.getVariantMetadata().getStudies().get(0));
-
+        VCFExporter exporter = new VCFExporter(metadata);
         Options writerOptions = Options.USE_ASYNC_IO;
-        exporter.export(dataFileReader, writerOptions, outPath);
+        exporter.open(writerOptions, outPath);
 
-        dataFileReader.close();
+        List<Variant> read = reader.read();
+        while (read != null && !read.isEmpty()) {
+            exporter.export(read);
+            read = reader.read();
+        }
+
+        exporter.close();
+
+        reader.post();
+        reader.close();
+
+
     }
 
 }

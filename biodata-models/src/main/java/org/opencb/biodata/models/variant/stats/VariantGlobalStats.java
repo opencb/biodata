@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.metadata.ChromosomeStats;
 import org.opencb.biodata.models.variant.metadata.VariantSetStats;
+import org.opencb.biodata.models.variant.metadata.VariantsByFrequency;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -214,7 +215,7 @@ public class VariantGlobalStats {
     }
 
     public Map<String, Integer> getChromosomeCounts() {
-        return impl.getChromosomeStats().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, o -> o.getValue().getCounts()));
+        return impl.getChromosomeStats().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, o -> o.getValue().getCount()));
     }
 
     public void setChromosomeCounts(Map<String, Integer> counts) {
@@ -223,7 +224,7 @@ public class VariantGlobalStats {
 
     private int getChromosomeCount(String chromosome) {
         ChromosomeStats chromosomeStats = impl.getChromosomeStats().get(chromosome);
-        return chromosomeStats == null ? 0 : chromosomeStats.getCounts();
+        return chromosomeStats == null ? 0 : chromosomeStats.getCount();
     }
 
     public void setChromosomeCount(String chromosome, int count) {
@@ -231,7 +232,7 @@ public class VariantGlobalStats {
             if (chromosomeStats == null) {
                 return new ChromosomeStats(count, 0F);
             } else {
-                chromosomeStats.setCounts(count);
+                chromosomeStats.setCount(count);
                 return chromosomeStats;
             }
         });
@@ -242,7 +243,7 @@ public class VariantGlobalStats {
             if (chromosomeStats == null) {
                 return new ChromosomeStats(count, 0F);
             } else {
-                chromosomeStats.setCounts(chromosomeStats.getCounts() + count);
+                chromosomeStats.setCount(chromosomeStats.getCount() + count);
                 return chromosomeStats;
             }
         });
@@ -311,11 +312,11 @@ public class VariantGlobalStats {
         this.impl.setStdDevQuality(value);
     }
 
-    public List<Integer> getNumRareVariants() {
+    public List<VariantsByFrequency> getNumRareVariants() {
         return impl.getNumRareVariants();
     }
 
-    public void setNumRareVariants(List<Integer> numRareVariants) {
+    public void setNumRareVariants(List<VariantsByFrequency> numRareVariants) {
         impl.setNumRareVariants(numRareVariants);
     }
 

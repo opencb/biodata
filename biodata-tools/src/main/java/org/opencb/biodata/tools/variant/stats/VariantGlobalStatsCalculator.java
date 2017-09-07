@@ -117,7 +117,7 @@ public class VariantGlobalStatsCalculator extends Task<Variant> {
         globalStats.getChromosomeStats().forEach((chr, stats) -> {
             Integer length = chrLengthMap.get(chr);
             if (length != null && length > 0) {
-                stats.setDensity(stats.getCounts() / (float) length);
+                stats.setDensity(stats.getCount() / (float) length);
             }
         });
         metadata.setStats(globalStats);

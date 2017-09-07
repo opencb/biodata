@@ -29,8 +29,15 @@ protocol MetadataProtocol {
     }
 
     record Species {
-        string id; // e.g. hsapiens for homo sapines, mmusculus for mus musculus,...
+        /**
+         Short species id. First letter from the first word + second word
+         e.g. hsapiens for homo sapiens, mmusculus for mus musculus,...
+        */
+        string id;
+
+        /** Full scrientific name. e.g. homo sapiens, mus musculus,...*/
         union { null, string } scientificName = null;
+
         union { null, string } taxonomyId = null;
         union { null, string } strain = null;
         union { null, string } assembly = null;
@@ -45,27 +52,31 @@ protocol MetadataProtocol {
     }
 
     record Sample {
+        /** Sample identifier */
         string id;
         //string description;
 
-        // age, population, height, weight, risk factors, secondary conditions,...
-        // are stored in a map of attributes according to the format:
-        // attribute_name[:x] where x defines the attribute type, its valid values are:
-        //		n for numeric (i = integer, f = float)
-        //		s for string
-        //		b for boolean
+        /**
+         Sample annotations stored in a map of attributes according to the format:
+         attribute_name[:x] where x defines the attribute type, its valid values are:
+             n for numeric (i = integer, f = float)
+             s for string
+             b for boolean
+
+         e.g. age:n, population:s, height:n, weight, risk factors, secondary conditions,...
+        */
         map<string> annotations = {};
     }
 
     record Individual {
+        /** Individual identifier */
         string id;
+
         union { null, string } family = null;
         union { null, string } father = null;
         union { null, string } mother = null;
         union { null, string } sex = null;
         union { null, string } phenotype = null;
-
-        //map<string> info;
 
         array<Sample> samples = [];
     }

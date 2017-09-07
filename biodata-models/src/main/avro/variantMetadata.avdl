@@ -43,30 +43,70 @@ protocol VariantMetadataProtocol {
     }
 
     record ChromosomeStats {
-        int counts;
+        /** Number of variants within this chromosome */
+        int count;
+
+        /** Total density of variants within the chromosome. counts / chromosome.length */
         float density;
     }
 
-    record VariantSetStats {
-        int numVariants;
-        int numSamples;
-        int numPass;
-        float tiTvRatio; // = num. transitions / num. transversions
+    /**
+     Counts the number of variants within a certain frequency range.
+    */
+    record VariantsByFrequency {
+        /** Inclusive frequency range start */
+        float startFrequency;
 
+        /** Exclusive frequency range end */
+        float endFrequency;
+
+        /** Number of variants with this frequency */
+        int count;
+    }
+
+    /**
+     Variant statistics for a set of variants.
+     The variants set can be contain a whole study, a cohort, a sample, a region, ...
+    */
+    record VariantSetStats {
+        /** Number of variants in the variants set */
+        int numVariants;
+
+        /** Number of samples in the variants set */
+        int numSamples;
+
+        /** Number of variants with PASS filter */
+        int numPass;
+
+        /** TiTvRatio = num. transitions / num. transversions */
+        float tiTvRatio;
+
+        /** Mean Quality for all the variants */
         float meanQuality;
+
+        /** Standard Deviation of the quality */
         float stdDevQuality;
 
-        // array of 4 elements to classify variants according to their 'rarity'
-        //  [0] -> very rare     : from 0 to 0.001
-        //  [1] -> rare          : from 0.001 to 0.005
-        //  [2] -> low frequency : from 0.005 to 0.05
-        //  [3] -> common        : from 0.05
-        array<int> numRareVariants = [];
+        /**
+         array of elements to classify variants according to their 'rarity'
+         Typical frequency ranges:
+          - very rare     -> from 0 to 0.001
+          - rare          -> from 0.001 to 0.005
+          - low frequency -> from 0.005 to 0.05
+          - common        -> from 0.05
+        */
+        array<VariantsByFrequency> numRareVariants = [];
 
-        map<int> variantTypeCounts = {};    // SNP, INDEL, MNP, SNV
-        map<int> variantBiotypeCounts = {}; // protein-coding, miRNA, lncRNA
+        /** Variants count group by type. e.g. SNP, INDEL, MNP, SNV, ... */
+        map<int> variantTypeCounts = {};
+
+        /** Variants count group by biotype. e.g. protein-coding, miRNA, lncRNA, ... */
+        map<int> variantBiotypeCounts = {};
+
+        /** Variants count group by consequence type. e.g. synonymous_variant, missense_variant, stop_lost, ... */
         map<int> consequenceTypesCounts = {};
 
+        /** Statistics per chromosome. */
         map<ChromosomeStats> chromosomeStats = {};
     }
 
@@ -87,11 +127,11 @@ protocol VariantMetadataProtocol {
           - <Integer>: The field has always this number of values.
           - A: The field has one value per alternate allele.
           - R: The field has one value for each possible allele, including the reference.
-          - G: The field has one value for each possible genotyp
+          - G: The field has one value for each possible genotype
           - .: The number of possible values varies, is unknown or unbounded.
         */
-
         union {null, string} number = null;
+
         /**
         Type of the values associated with this metadata line.
         Only present if the metadata line describes data fields, i.e. key == INFO or FORMAT
@@ -128,21 +168,25 @@ protocol VariantMetadataProtocol {
         array<VariantFileHeaderComplexLine> complexLines = [];
 
         /** simple lines, e.g. fileDate=20090805 */
-        array<VariantFileHeaderSimpleLine> simpleLines = {};
+        array<VariantFileHeaderSimpleLine> simpleLines = [];
     }
 
     record VariantFileMetadata {
         /** File id. Will match with the {@link org.opencb.biodata.models.variant.avro.FileEntry#getFileId} */
         string id;
+
         /** Path to the original file */
         union { null, string } path = null;
 
         /** Ordered list of sample ids contained in the file */
         array<string> sampleIds = [];
+
         /** Global statistics calculated for this file */
         union { null, VariantSetStats } stats = null;
+
         /** The Variant File Header */
         union { null, VariantFileHeader } header = null;
+
         /** Other user defined attributes related with the file */
         map<string> attributes = {};
     }
@@ -171,8 +215,10 @@ protocol VariantMetadataProtocol {
 
         /** Metadata from all the files contained in this study */
         array<VariantFileMetadata> files = [];
+
         /** Metadata from all the individuals and samples in this study */
         array<org.opencb.biodata.models.metadata.Individual> individuals = [];
+
         /** Metadata from with all the cohorts defined in this study */
         array<org.opencb.biodata.models.metadata.Cohort> cohorts = [];
 
@@ -189,10 +235,13 @@ protocol VariantMetadataProtocol {
     record VariantMetadata {
         /** Data model version */
         string version = "v1.0.0";
+
         /** Species information. Same species and assembly for all the studies */
         union { null, org.opencb.biodata.models.metadata.Species } species = null;
+
         /** Creation date */
         union { null, string } creationDate = null;
+
         /** Optional description */
         union { null, string } description = null;
 

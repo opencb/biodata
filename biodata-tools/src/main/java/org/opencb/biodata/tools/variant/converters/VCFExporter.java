@@ -13,17 +13,14 @@ import org.opencb.biodata.tools.variant.metadata.VariantMetadataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-public class VCFExporter {
+public class VCFExporter implements Closeable {
 
     private VariantStudyMetadata metadata;
     private VCFHeader vcfHeader;
@@ -75,8 +72,8 @@ public class VCFExporter {
             System.out.println(variantContext.toString());
             writer.add(variantContext);
 
-            // close everything
-            close();
+//            // close everything
+//            close();
         } catch (Exception e) {
             logger.error("Error exporting VCF data: {}", e.getMessage());
         }
@@ -102,8 +99,8 @@ public class VCFExporter {
                 writer.add(variantContext);
             }
 
-            // close everything
-            close();
+//            // close everything
+//            close();
         } catch (Exception e) {
             logger.error("Error exporting VCF data: {}", e.getMessage());
         }
@@ -129,8 +126,8 @@ public class VCFExporter {
                 writer.add(variantContext);
             }
 
-            // close everything
-            close();
+//            // close everything
+//            close();
         } catch (Exception e) {
             logger.error("Error exporting VCF data: {}", e.getMessage());
         }
