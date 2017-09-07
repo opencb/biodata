@@ -30,12 +30,12 @@ public class VariantFileMetadata {
         samplesPosition = null;
     }
 
-    public VariantFileMetadata(String id, String alias) {
-        this(id, alias, null, null, null);
+    public VariantFileMetadata(String id, String path) {
+        this(id, path, null, null, null);
     }
 
-    public VariantFileMetadata(String id, String alias, List<String> sampleIds, VariantSetStats stats, VariantFileHeader header) {
-        impl = new org.opencb.biodata.models.variant.metadata.VariantFileMetadata(id, alias, sampleIds, stats, header, new HashMap<>());
+    public VariantFileMetadata(String id, String path, List<String> sampleIds, VariantSetStats stats, VariantFileHeader header) {
+        impl = new org.opencb.biodata.models.variant.metadata.VariantFileMetadata(id, path, sampleIds, stats, header, new HashMap<>());
         samplesPosition = null;
     }
 

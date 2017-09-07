@@ -21,7 +21,7 @@ package org.opencb.biodata.tools.variant.converters.ga4gh;
 
 import ga4gh.Variants;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
-import org.opencb.biodata.models.variant.metadata.VariantFileHeaderLine;
+import org.opencb.biodata.models.variant.metadata.VariantFileHeaderComplexLine;
 import org.opencb.biodata.tools.variant.converters.ga4gh.factories.Ga4ghVariantFactory;
 import org.opencb.biodata.tools.variant.converters.ga4gh.factories.ProtoGa4GhVariantFactory;
 import org.opencb.biodata.tools.Converter;
@@ -62,14 +62,14 @@ public class Ga4ghVariantSetConverter<VS> implements Converter<VariantFileMetada
 
         for (VariantFileMetadata fileMetadata : variantFileMetadata) {
             List<Object> metadata = new ArrayList<>();
-            for (VariantFileHeaderLine line : fileMetadata.getHeader().getComplexLines()) {
+            for (VariantFileHeaderComplexLine line : fileMetadata.getHeader().getComplexLines()) {
                 Map<String, List<String>> info = line.getGenericFields().entrySet().stream()
                         .collect(Collectors.toMap(Map.Entry::getKey,
                                 value -> Arrays.asList(value.getValue().split(","))));
                 metadata.add(factory.newVariantSetMetadata(line.getKey(), null, line.getId(), line.getType(), line.getNumber(), line.getDescription(), info));
             }
-            fileMetadata.getHeader().getSimpleLines().forEach((key, value) ->
-                    metadata.add(factory.newVariantSetMetadata(key, value, null, null, null, null, Collections.emptyMap())));
+            fileMetadata.getHeader().getSimpleLines().forEach(line ->
+                    metadata.add(factory.newVariantSetMetadata(line.getKey(), line.getValue(), null, null, null, null, Collections.emptyMap())));
 
             @SuppressWarnings("unchecked")
             VS variantSet = (VS) factory.newVariantSet(fileMetadata.getId(), fileMetadata.getPath(), "", "", (List) metadata);

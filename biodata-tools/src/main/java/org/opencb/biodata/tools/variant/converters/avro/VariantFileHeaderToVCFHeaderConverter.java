@@ -3,7 +3,7 @@ package org.opencb.biodata.tools.variant.converters.avro;
 import htsjdk.variant.vcf.*;
 import org.apache.commons.lang.StringUtils;
 import org.opencb.biodata.models.variant.metadata.VariantFileHeader;
-import org.opencb.biodata.models.variant.metadata.VariantFileHeaderLine;
+import org.opencb.biodata.models.variant.metadata.VariantFileHeaderComplexLine;
 import org.opencb.biodata.tools.Converter;
 
 import java.util.HashMap;
@@ -21,8 +21,8 @@ public class VariantFileHeaderToVCFHeaderConverter implements Converter<VariantF
         HashSet<VCFHeaderLine> meta = new HashSet<>(variantHeader.getSimpleLines().size() + variantHeader.getComplexLines().size());
 
         int contigIndex = 0;
-        variantHeader.getSimpleLines().forEach((key, value) -> meta.add(new VCFHeaderLine(key, value)));
-        for (VariantFileHeaderLine line : variantHeader.getComplexLines()) {
+        variantHeader.getSimpleLines().forEach(line -> meta.add(new VCFHeaderLine(line.getKey(), line.getValue())));
+        for (VariantFileHeaderComplexLine line : variantHeader.getComplexLines()) {
             VCFHeaderLine headerLine;
             VCFHeaderLineCount count = getVCFHeaderLineCount(line);
             VCFHeaderLineType type = getVCFHeaderLineType(line);
@@ -67,7 +67,7 @@ public class VariantFileHeaderToVCFHeaderConverter implements Converter<VariantF
         return new VCFHeader(meta);
     }
 
-    public static VCFHeaderLineType getVCFHeaderLineType(VariantFileHeaderLine line) {
+    public static VCFHeaderLineType getVCFHeaderLineType(VariantFileHeaderComplexLine line) {
         if (StringUtils.isEmpty(line.getType())) {
             return null;
         } else {
@@ -75,7 +75,7 @@ public class VariantFileHeaderToVCFHeaderConverter implements Converter<VariantF
         }
     }
 
-    public static VCFHeaderLineCount getVCFHeaderLineCount(VariantFileHeaderLine line) {
+    public static VCFHeaderLineCount getVCFHeaderLineCount(VariantFileHeaderComplexLine line) {
         if (StringUtils.isEmpty(line.getNumber())) {
             return null;
         } else if (StringUtils.isNumeric(line.getNumber())) {

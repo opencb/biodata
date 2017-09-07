@@ -70,7 +70,7 @@ protocol VariantMetadataProtocol {
         map<ChromosomeStats> chromosomeStats = {};
     }
 
-    record VariantFileHeaderLine {
+    record VariantFileHeaderComplexLine {
         /** Key of group of the Complex Header Line, e.g. INFO, FORMAT, FILTER, ALT, ... */
         string key;
 
@@ -108,18 +108,27 @@ protocol VariantMetadataProtocol {
         map<string> genericFields = {};
     }
 
+    record VariantFileHeaderSimpleLine {
+        /** Key of group of the Simple Header Line, e.g. source, assembly, pedigreeDB, ... */
+        string key;
+
+        /** Value */
+        string value;
+    }
+
     /**
     Variant File Header. Contains simple and complex metadata lines describing the content of the file.
     This header matches with the VCF header.
+    A header may have multiple Simple or Complex lines with the same key
     */
     record VariantFileHeader {
         string version;
 
         /** complex lines, e.g. INFO=<ID=NS,Number=1,Type=Integer,Description="Number of samples with data"> */
-        array<VariantFileHeaderLine> complexLines = [];
+        array<VariantFileHeaderComplexLine> complexLines = [];
 
         /** simple lines, e.g. fileDate=20090805 */
-        map<string> simpleLines = {};
+        array<VariantFileHeaderSimpleLine> simpleLines = {};
     }
 
     record VariantFileMetadata {
