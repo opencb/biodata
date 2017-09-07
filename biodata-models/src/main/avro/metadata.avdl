@@ -18,13 +18,14 @@ protocol MetadataProtocol {
     }
 
     record Experiment {
-        string center;
-        string molecule; // genomics DNA, total RNA,...
-        string technique; // whole genome sequencing, RNA-seq, RIP-seq,...
-        string library;
-        string library_layout; // single, paired,...
-        string platform;
-        string description;
+        union { null, string } center = null;
+        union { null, string } `date` = null;
+        union { null, string } molecule = null; // genomics DNA, total RNA,...
+        union { null, string } technique = null; // whole genome sequencing, RNA-seq, RIP-seq,...
+        union { null, string } library = null;
+        union { null, string } libraryLayout = null; // single, paired,...
+        union { null, string } platform = null;
+        union { null, string } description = null;
     }
 
     record Species {
@@ -36,11 +37,11 @@ protocol MetadataProtocol {
     }
 
     record Program {
-        string name;
-        string version;
-        string commandLine;
-        string url;
-        string commit;
+        union { null, string } name = null;
+        union { null, string } version = null;
+        union { null, string } commandLine = null;
+        union { null, string } url = null;
+        union { null, string } commit = null;
     }
 
     record Sample {

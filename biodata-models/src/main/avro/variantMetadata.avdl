@@ -5,10 +5,40 @@ protocol VariantMetadataProtocol {
     // we need import metadata.avdl
     import idl "metadata.avdl";
 
+    /**
+    Some studies does not provide real samples information.
+    Instead, only aggregated data is provided as file attributes.
+    This field represents the schema of representing aggregated data (if any)
+    */
     enum Aggregation {
+        /**
+        There is none aggregated data
+        */
         NONE,
+        /**
+        Basic aggregated data
+        Attributes used:
+         - AC: Allele Count
+         - AN: Allele Number
+         - AF: Allele Frequency
+         - GTC: Genotype Count
+         - GTS: Genotypes Sort
+         The attributes may refere to different cohorts with a prefix or sufix
+        */
         BASIC,
+        /**
+        EVS like aggregated data
+        Adds some attributes to the basic mode:
+          - GROUPS_ORDER: Used to specify the order of the comma separated values of cohorts in tags such as MAF.
+          - MAF: Minnor Allele Frequency for all the cohorts, ordered by GROUPS_ORDER
+        */
         EVS,
+        /**
+        EXAC like aggregated data
+        Adds some attributes to the basic mode:
+          - HOM: Homozygous Counts
+          - HET: Heterozygous Counts
+        */
         EXAC
     }
 
@@ -41,33 +71,70 @@ protocol VariantMetadataProtocol {
     }
 
     record VariantFileHeaderLine {
+        /** Key of group of the Complex Header Line, e.g. INFO, FORMAT, FILTER, ALT, ... */
         string key;
 
+        /** ID or Name of the line */
         string id;
+
+        /** The description */
         union {null, string} description = null;
+
+        /**
+        Arity of the values associated with this metadata line.
+        Only present if the metadata line describes data fields, i.e. key == INFO or FORMAT
+        Accepted values:
+          - <Integer>: The field has always this number of values.
+          - A: The field has one value per alternate allele.
+          - R: The field has one value for each possible allele, including the reference.
+          - G: The field has one value for each possible genotyp
+          - .: The number of possible values varies, is unknown or unbounded.
+        */
+
         union {null, string} number = null;
+        /**
+        Type of the values associated with this metadata line.
+        Only present if the metadata line describes data fields, i.e. key == INFO or FORMAT
+        Accepted values:
+          - Integer
+          - Float
+          - String
+          - Character
+          - Flag
+        */
         union {null, string} type = null;
 
+        /** Other optional fields */
         map<string> genericFields = {};
     }
 
+    /**
+    Variant File Header. Contains simple and complex metadata lines describing the content of the file.
+    This header matches with the VCF header.
+    */
     record VariantFileHeader {
         string version;
 
-        // complex lines, e.g. INFO=<ID=NS,Number=1,Type=Integer,Description="Number of samples with data">
+        /** complex lines, e.g. INFO=<ID=NS,Number=1,Type=Integer,Description="Number of samples with data"> */
         array<VariantFileHeaderLine> complexLines = [];
 
-        // simple lines, e.g. fileDate=20090805
+        /** simple lines, e.g. fileDate=20090805 */
         map<string> simpleLines = {};
     }
 
     record VariantFileMetadata {
+        /** File id. Will match with the {@link org.opencb.biodata.models.variant.avro.FileEntry#getFileId} */
         string id;
+        /** Path to the original file */
         union { null, string } path = null;
 
+        /** Ordered list of sample ids contained in the file */
         array<string> sampleIds = [];
+        /** Global statistics calculated for this file */
         union { null, VariantSetStats } stats = null;
+        /** The Variant File Header */
         union { null, VariantFileHeader } header = null;
+        /** Other user defined attributes related with the file */
         map<string> attributes = {};
     }
 
@@ -77,27 +144,50 @@ protocol VariantMetadataProtocol {
     }
 
     record VariantStudyMetadata {
+        /** Study id. Will match with the {@link org.opencb.biodata.models.variant.StudyEntry#getStudyId} */
         string id;
+
+        /** Optional description */
         union { null, string } description = null;
 
+        /**
+         Some studies does not provide real samples information.
+         Instead, only aggregated data is provided as file attributes.
+         This field represents the schema of representing aggregated data (if any)
+         */
         Aggregation aggregation = "NONE";
+
+        /** Aggregation of all the file headers from this study */
         union {null, VariantFileHeader} aggregatedHeader = null;
 
+        /** Metadata from all the files contained in this study */
         array<VariantFileMetadata> files = [];
+        /** Metadata from all the individuals and samples in this study */
         array<org.opencb.biodata.models.metadata.Individual> individuals = [];
+        /** Metadata from with all the cohorts defined in this study */
         array<org.opencb.biodata.models.metadata.Cohort> cohorts = [];
+
+        /** Type of sample set. Defines the type of the study. */
         org.opencb.biodata.models.metadata.SampleSetType sampleSetType;
+
+        /** Samples and Cohort global statistics */
         union { null, VariantStudyStats } stats = null;
+
+        /** Other user defined attributes related with the study */
         map<string> attributes = {};
     }
 
     record VariantMetadata {
-        // Data model version
+        /** Data model version */
         string version = "v1.0.0";
+        /** Species information. Same species and assembly for all the studies */
         union { null, org.opencb.biodata.models.metadata.Species } species = null;
+        /** Creation date */
         union { null, string } creationDate = null;
+        /** Optional description */
         union { null, string } description = null;
 
+        /** List of studies within this set of data */
         array<VariantStudyMetadata> studies = [];
     }
 }
