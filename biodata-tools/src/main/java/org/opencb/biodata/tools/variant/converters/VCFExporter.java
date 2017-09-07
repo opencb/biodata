@@ -5,10 +5,7 @@ import htsjdk.variant.variantcontext.writer.Options;
 import htsjdk.variant.variantcontext.writer.VariantContextWriter;
 import htsjdk.variant.vcf.VCFHeader;
 import org.opencb.biodata.formats.variant.vcf4.VcfUtils;
-import org.opencb.biodata.models.metadata.Individual;
-import org.opencb.biodata.models.metadata.Sample;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.avro.VariantAvro;
 import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 import org.opencb.biodata.tools.variant.converters.avro.VariantAvroToVariantContextConverter;
 import org.opencb.biodata.tools.variant.converters.avro.VariantDatasetMetadataToVCFHeaderConverter;
@@ -21,7 +18,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Path;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -31,7 +28,10 @@ public class VCFExporter {
     private VariantStudyMetadata metadata;
     private VCFHeader vcfHeader;
 
-    // conversion: variant (AVRO) -> variant context (VCF), output stream and writer
+    private List<String> formats;
+    private List<String> annotations;
+
+    // conversion: variant -> variant context, output stream and writer
     private VariantAvroToVariantContextConverter variantConverter;
     private OutputStream outputStream;
     private VariantContextWriter writer;
@@ -50,31 +50,26 @@ public class VCFExporter {
         // Build VCF header from variant dataset metadata
         VariantDatasetMetadataToVCFHeaderConverter headConverter = new VariantDatasetMetadataToVCFHeaderConverter();
         this.vcfHeader = headConverter.convert(metadata);
-    }
 
-    /**
-     * Export a variant (AVRO model) to VCF file.
-     *
-     * @param variantAvro       Variant
-     * @param writerOptions     Writing options
-     * @param outPath           Output path (VCF file)
-     */
-    public void export(VariantAvro variantAvro, Options writerOptions, Path outPath) {
-        export(new Variant(variantAvro), writerOptions, outPath);
+        // default use
+        sampleNames = VariantMetadataUtils.getSampleNames(metadata);
+        formats = Arrays.asList("GT");
+        annotations = Collections.emptyList();
     }
 
     /**
      * Export a variant to VCF file.
      *
      * @param variant           Variant
-     * @param writerOptions     Writing options
-     * @param outPath           Output path (VCF file)
      */
-    public void export(Variant variant, Options writerOptions, Path outPath) {
-        try {
-            // prepare
-            prepare(writerOptions, outPath);
+    public void export(Variant variant) {
+        // sanity check
+        if (writer == null) {
+            logger.error("Error exporting VCF data: exporter must be opened");
+            return;
+        }
 
+        try {
             // writing variant
             VariantContext variantContext = variantConverter.convert(variant);
             System.out.println(variantContext.toString());
@@ -87,22 +82,21 @@ public class VCFExporter {
         }
     }
 
-
     /**
-     * Export variants (AVRO model) in VCF file format from a variant list.
+     * Export variants in VCF file format from a variant list.
      *
      * @param variants          Variant list
-     * @param writerOptions     Writing options
-     * @param outPath           Output path (VCF file)
      */
-    public void export(List<VariantAvro> variants, Options writerOptions, Path outPath) {
-        try {
-            // prepare
-            prepare(writerOptions, outPath);
+    public void export(List<Variant> variants) {
+        // sanity check
+        if (writer == null) {
+            logger.error("Error exporting VCF data: exporter must be opened");
+            return;
+        }
 
+        try {
             // main loop (from list)
-            for (VariantAvro variantAvro: variants) {
-                Variant variant = new Variant(variantAvro);
+            for (Variant variant: variants) {
                 VariantContext variantContext = variantConverter.convert(variant);
                 System.out.println(variantContext.toString());
                 writer.add(variantContext);
@@ -116,21 +110,21 @@ public class VCFExporter {
     }
 
     /**
-     * Export variants (AVRO model) in VCF file format from a variant iterator.
+     * Export variants in VCF file format from a variant iterator.
      *
      * @param iterator          Variant iterator
-     * @param writerOptions     Writing options
-     * @param outPath           Output path (VCF file)
      */
-    public void export(Iterator<VariantAvro> iterator, Options writerOptions, Path outPath) {
-        try {
-            // prepare
-            prepare(writerOptions, outPath);
+    public void export(Iterator<Variant> iterator) {
+        // sanity check
+        if (writer == null) {
+            logger.error("Error exporting VCF data: exporter must be opened");
+            return;
+        }
 
+        try {
             // main loop (from iterator)
             while (iterator.hasNext()) {
-                Variant variant = new Variant(iterator.next());
-                VariantContext variantContext = variantConverter.convert(variant);
+                VariantContext variantContext = variantConverter.convert(iterator.next());
                 //System.out.println(variantContext.toString());
                 writer.add(variantContext);
             }
@@ -142,14 +136,8 @@ public class VCFExporter {
         }
     }
 
-    private void prepare(Options writerOptions, Path outPath) throws FileNotFoundException {
-        // TODO: VariantContextToAvroVariantConverter takes as input parameters sampleNames, sampleFormats and annotations
-        // TODO (cont.): these parameters should be taken into account, maybe in the constructor?
-
-        // conversion: variant (AVRO) -> variant context (VCF)
-        List<String> sampleNames = VariantMetadataUtils.getSampleNames(metadata);
-        variantConverter = new VariantAvroToVariantContextConverter(metadata.getId(), sampleNames,
-                Collections.emptyList());
+    public void open(Options writerOptions, Path outPath) throws FileNotFoundException {
+        variantConverter = new VariantAvroToVariantContextConverter(metadata.getId(), sampleNames, formats, annotations);
 
         // create the variant context writer
         outputStream = new FileOutputStream(outPath.toString());
@@ -160,9 +148,39 @@ public class VCFExporter {
         writer.writeHeader(vcfHeader);
     }
 
-    private void close() throws IOException {
+    public void close() throws IOException {
         // close everything
-        writer.close();
-        outputStream.close();
+        if (writer != null) {
+            writer.close();
+        }
+        if (outputStream != null) {
+            outputStream.close();
+        }
+    }
+
+    private List<String> sampleNames;
+
+    public List<String> getSampleNames() {
+        return sampleNames;
+    }
+
+    public void setSampleNames(List<String> sampleNames) {
+        this.sampleNames = sampleNames;
+    }
+
+    public List<String> getFormats() {
+        return formats;
+    }
+
+    public void setFormats(List<String> formats) {
+        this.formats = formats;
+    }
+
+    public List<String> getAnnotations() {
+        return annotations;
+    }
+
+    public void setAnnotations(List<String> annotations) {
+        this.annotations = annotations;
     }
 }
