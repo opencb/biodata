@@ -23,7 +23,7 @@ import htsjdk.variant.vcf.VCFHeader;
 import htsjdk.variant.vcf.VCFHeaderLine;
 import htsjdk.variant.vcf.VCFHeaderLineTranslator;
 import htsjdk.variant.vcf.VCFHeaderVersion;
-import org.opencb.biodata.models.variant.avro.VcfHeader;
+import org.opencb.biodata.models.variant.avro.legacy.VcfHeader;
 import org.opencb.biodata.tools.Converter;
 
 import java.util.LinkedHashMap;

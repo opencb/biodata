@@ -3,7 +3,6 @@ package org.opencb.biodata.models.variant;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.opencb.biodata.models.metadata.SampleSetType;
 import org.opencb.biodata.models.variant.metadata.VariantFileHeader;
-import org.opencb.biodata.models.variant.metadata.VariantSetStats;
 import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 import org.opencb.biodata.models.variant.stats.VariantGlobalStats;
 
@@ -34,7 +33,7 @@ public class VariantFileMetadata {
         this(id, path, null, null, null);
     }
 
-    public VariantFileMetadata(String id, String path, List<String> sampleIds, VariantSetStats stats, VariantFileHeader header) {
+    public VariantFileMetadata(String id, String path, List<String> sampleIds, org.opencb.biodata.models.variant.metadata.VariantSetStats stats, VariantFileHeader header) {
         impl = new org.opencb.biodata.models.variant.metadata.VariantFileMetadata(id, path, sampleIds, stats, header, new HashMap<>());
         samplesPosition = null;
     }
@@ -183,5 +182,11 @@ public class VariantFileMetadata {
     public int hashCode() {
         return impl != null ? impl.hashCode() : 0;
     }
+
+    @Override
+    public String toString() {
+        return impl.toString();
+    }
+
 
 }

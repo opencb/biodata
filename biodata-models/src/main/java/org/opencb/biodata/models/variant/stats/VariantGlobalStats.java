@@ -25,10 +25,7 @@ import org.opencb.biodata.models.variant.metadata.ChromosomeStats;
 import org.opencb.biodata.models.variant.metadata.VariantSetStats;
 import org.opencb.biodata.models.variant.metadata.VariantsByFrequency;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -63,6 +60,8 @@ public class VariantGlobalStats {
         this.impl = new VariantSetStats();
         this.impl.setVariantTypeCounts(new HashMap<>());
         this.impl.setChromosomeStats(new HashMap<>());
+        this.impl.setNumRareVariants(new ArrayList<>());
+        this.impl.setVariantBiotypeCounts(new HashMap<>());
         this.setNumVariants(0);
         this.setNumSamples(0);
         this.setSnpsCount(0);

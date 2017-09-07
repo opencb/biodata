@@ -23,7 +23,7 @@ import htsjdk.tribble.FeatureCodecHeader;
 import htsjdk.tribble.readers.LineIterator;
 import htsjdk.variant.vcf.VCFCodec;
 import htsjdk.variant.vcf.VCFHeader;
-import org.opencb.biodata.models.variant.avro.VariantFileMetadata;
+import org.opencb.biodata.models.variant.avro.legacy.VariantFileMetadata;
 import org.opencb.biodata.tools.variant.metadata.VariantMetadataUtils;
 import org.opencb.biodata.tools.Converter;
 

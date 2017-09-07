@@ -21,8 +21,8 @@ package org.opencb.biodata.models.variant;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.opencb.biodata.models.pedigree.Pedigree;
-import org.opencb.biodata.models.variant.avro.VariantFileMetadata;
-import org.opencb.biodata.models.variant.avro.VcfHeader;
+import org.opencb.biodata.models.variant.avro.legacy.VariantFileMetadata;
+import org.opencb.biodata.models.variant.avro.legacy.VcfHeader;
 import org.opencb.biodata.models.variant.stats.VariantGlobalStats;
 
 import java.util.*;
@@ -40,7 +40,7 @@ public class VariantSource {
     private volatile LinkedHashMap<String, Integer> samplesPosition;
 
     /**
-     * @deprecated Use {@link org.opencb.biodata.models.variant.commons.Aggregation}
+     * @deprecated Use {@link org.opencb.biodata.models.variant.metadata.Aggregation}
      */
     @Deprecated
     public enum Aggregation { NONE, BASIC, EVS, EXAC;
@@ -62,7 +62,7 @@ public class VariantSource {
     }
 
     public VariantSource(String fileName, String fileId, String studyId, String studyName, VariantStudy.StudyType type, Aggregation aggregation) {
-        impl = new VariantFileMetadata(fileId, studyId, fileName, studyName, new LinkedList<>(), null, new HashMap<>(), null);
+        impl = new VariantFileMetadata(fileId, studyId, fileName, studyName, new LinkedList<>(), null, null, new HashMap<>(), null, null);
         samplesPosition = null;
     }
 
