@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.opencb.biodata.models.metadata.SampleSetType;
 import org.opencb.biodata.models.variant.metadata.VariantFileHeader;
 import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
-import org.opencb.biodata.models.variant.stats.VariantGlobalStats;
+import org.opencb.biodata.models.variant.stats.VariantSetStats;
 
 import java.util.*;
 
@@ -135,11 +135,11 @@ public class VariantFileMetadata {
         return this;
     }
 
-    public VariantGlobalStats getStats() {
-        return impl.getStats() == null ? null : new VariantGlobalStats(impl.getStats());
+    public VariantSetStats getStats() {
+        return impl.getStats() == null ? null : new VariantSetStats(impl.getStats());
     }
 
-    public void setStats(VariantGlobalStats stats) {
+    public void setStats(VariantSetStats stats) {
         impl.setStats(stats == null ? null : stats.getImpl());
     }
 

@@ -22,7 +22,6 @@ package org.opencb.biodata.models.variant.stats;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.metadata.ChromosomeStats;
-import org.opencb.biodata.models.variant.metadata.VariantSetStats;
 import org.opencb.biodata.models.variant.metadata.VariantsByFrequency;
 
 import java.util.*;
@@ -45,19 +44,19 @@ import java.util.stream.Collectors;
         "snpsCount",
         "indelsCount",
         "structuralCount"})
-public class VariantGlobalStats {
+public class VariantSetStats {
 
-    private final VariantSetStats impl;
+    private final org.opencb.biodata.models.variant.metadata.VariantSetStats impl;
     private double accumulatedQuality;
     private int transitionsCount;
     private int transversionsCount;
 
-    public VariantGlobalStats(VariantSetStats impl) {
+    public VariantSetStats(org.opencb.biodata.models.variant.metadata.VariantSetStats impl) {
         this.impl = impl;
     }
 
-    public VariantGlobalStats() {
-        this.impl = new VariantSetStats();
+    public VariantSetStats() {
+        this.impl = new org.opencb.biodata.models.variant.metadata.VariantSetStats();
         this.impl.setVariantTypeCounts(new HashMap<>());
         this.impl.setChromosomeStats(new HashMap<>());
         this.impl.setNumRareVariants(new ArrayList<>());
@@ -74,10 +73,10 @@ public class VariantGlobalStats {
         this.setConsequenceTypesCounts(new LinkedHashMap<>(20));
     }
 
-    public VariantGlobalStats(int numRecords, int samplesCount, int snpsCount, int indelsCount, int structuralCount,
-            int passCount, int transitionsCount, int transversionsCount, float accumulatedQuality, float meanQuality,
-            Map<String, Integer> consequenceTypesCount) {
-        this.impl = new VariantSetStats();
+    public VariantSetStats(int numRecords, int samplesCount, int snpsCount, int indelsCount, int structuralCount,
+                           int passCount, int transitionsCount, int transversionsCount, float accumulatedQuality, float meanQuality,
+                           Map<String, Integer> consequenceTypesCount) {
+        this.impl = new org.opencb.biodata.models.variant.metadata.VariantSetStats();
         this.impl.setVariantTypeCounts(new HashMap<>());
         this.impl.setChromosomeStats(new HashMap<>());
         this.setNumVariants(numRecords);
@@ -93,7 +92,7 @@ public class VariantGlobalStats {
         this.setConsequenceTypesCounts(consequenceTypesCount);
     }
 
-    public VariantSetStats getImpl() {
+    public org.opencb.biodata.models.variant.metadata.VariantSetStats getImpl() {
         return impl;
     }
 
@@ -386,9 +385,9 @@ public class VariantGlobalStats {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof VariantGlobalStats)) return false;
+        if (!(o instanceof VariantSetStats)) return false;
 
-        VariantGlobalStats that = (VariantGlobalStats) o;
+        VariantSetStats that = (VariantSetStats) o;
 
         if (Double.compare(that.accumulatedQuality, accumulatedQuality) != 0) return false;
         return !(impl != null ? !impl.equals(that.impl) : that.impl != null);

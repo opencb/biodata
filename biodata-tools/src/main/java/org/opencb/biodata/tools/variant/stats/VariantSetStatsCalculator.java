@@ -23,7 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.models.variant.*;
 import org.opencb.biodata.models.variant.avro.FileEntry;
-import org.opencb.biodata.models.variant.stats.VariantGlobalStats;
+import org.opencb.biodata.models.variant.stats.VariantSetStats;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 import org.opencb.commons.run.Task;
 import org.slf4j.Logger;
@@ -38,22 +38,22 @@ import java.util.stream.Collectors;
  *
  * @author Jacobo Coll &lt;jacobo167@gmail.com&gt;
  */
-public class VariantGlobalStatsCalculator extends Task<Variant> {
+public class VariantSetStatsCalculator extends Task<Variant> {
 
     private final VariantFileMetadata metadata;
     private final String studyId;
-    private VariantGlobalStats globalStats;
-    private static Logger logger = LoggerFactory.getLogger(VariantGlobalStatsCalculator.class);
+    private VariantSetStats variantSetStats;
+    private static Logger logger = LoggerFactory.getLogger(VariantSetStatsCalculator.class);
 
-    public VariantGlobalStatsCalculator(String studyId, VariantFileMetadata metadata) {
+    public VariantSetStatsCalculator(String studyId, VariantFileMetadata metadata) {
         this.studyId = studyId;
         this.metadata = metadata;
     }
 
     @Override
     public boolean pre() {
-        globalStats = new VariantGlobalStats();
-        globalStats.setNumSamples(metadata.getSampleIds().size());
+        variantSetStats = new VariantSetStats();
+        variantSetStats.setNumSamples(metadata.getSampleIds().size());
         return true;
     }
 
@@ -61,17 +61,17 @@ public class VariantGlobalStatsCalculator extends Task<Variant> {
     public synchronized boolean apply(List<Variant> batch) {
 
         for (Variant variant : batch) {
-            updateGlobalStats(variant);
+            updateVariantSetStats(variant);
         }
         return true;
     }
 
-    public void updateGlobalStats(Variant variant) {
-        updateGlobalStats(variant, globalStats, studyId, metadata.getId());
+    public void updateVariantSetStats(Variant variant) {
+        updateVariantSetStats(variant, variantSetStats, studyId, metadata.getId());
     }
 
-    public static void updateGlobalStats(Variant variant, VariantGlobalStats globalStats, String studyId, String fileId) {
-        globalStats.setNumVariants(globalStats.getNumVariants() + 1);
+    public static void updateVariantSetStats(Variant variant, VariantSetStats stats, String studyId, String fileId) {
+        stats.setNumVariants(stats.getNumVariants() + 1);
         StudyEntry study = variant.getStudy(studyId);
         FileEntry file = study.getFile(fileId);
         if (file == null) {
@@ -80,12 +80,12 @@ public class VariantGlobalStatsCalculator extends Task<Variant> {
         }
         Map<String, String> attributes = file.getAttributes();
 
-        globalStats.addChromosomeCount(variant.getChromosome(), 1);
+        stats.addChromosomeCount(variant.getChromosome(), 1);
 
-        globalStats.addVariantTypeCount(variant.getType(), 1);
+        stats.addVariantTypeCount(variant.getType(), 1);
 
         if ("PASS".equalsIgnoreCase(attributes.get(StudyEntry.FILTER))) {
-            globalStats.setNumPass(globalStats.getNumPass() + 1);
+            stats.setNumPass(stats.getNumPass() + 1);
         }
 
         float qual = 0;
@@ -94,15 +94,15 @@ public class VariantGlobalStatsCalculator extends Task<Variant> {
         }
 
 
-        globalStats.setTransitionsCount(globalStats.getTransitionsCount() + (VariantStats.isTransition(variant.getReference(), variant.getAlternate()) ? 1 : 0));
-        globalStats.setTransversionsCount(globalStats.getTransversionsCount() + (VariantStats.isTransversion(variant.getReference(), variant.getAlternate()) ? 1 : 0));
-        globalStats.setAccumulatedQuality(globalStats.getAccumulatedQuality() + qual);
+        stats.setTransitionsCount(stats.getTransitionsCount() + (VariantStats.isTransition(variant.getReference(), variant.getAlternate()) ? 1 : 0));
+        stats.setTransversionsCount(stats.getTransversionsCount() + (VariantStats.isTransversion(variant.getReference(), variant.getAlternate()) ? 1 : 0));
+        stats.setAccumulatedQuality(stats.getAccumulatedQuality() + qual);
     }
 
     @Override
     public boolean post() {
-        globalStats.setMeanQuality((float) (globalStats.getAccumulatedQuality() / globalStats.getNumVariants()));
-        globalStats.updateTiTvRatio();
+        variantSetStats.setMeanQuality((float) (variantSetStats.getAccumulatedQuality() / variantSetStats.getNumVariants()));
+        variantSetStats.updateTiTvRatio();
         Map<String, Integer> chrLengthMap = metadata.getHeader().getComplexLines()
                 .stream()
                 .filter(line -> line.getKey().equalsIgnoreCase("contig"))
@@ -114,13 +114,13 @@ public class VariantGlobalStatsCalculator extends Task<Variant> {
                         return -1;
                     }
                 }));
-        globalStats.getChromosomeStats().forEach((chr, stats) -> {
+        variantSetStats.getChromosomeStats().forEach((chr, stats) -> {
             Integer length = chrLengthMap.get(chr);
             if (length != null && length > 0) {
                 stats.setDensity(stats.getCount() / (float) length);
             }
         });
-        metadata.setStats(globalStats);
+        metadata.setStats(variantSetStats);
         return true;
     }
 }

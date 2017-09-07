@@ -21,9 +21,8 @@ package org.opencb.biodata.models.variant;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.opencb.biodata.models.pedigree.Pedigree;
-import org.opencb.biodata.models.variant.avro.legacy.VariantFileMetadata;
 import org.opencb.biodata.models.variant.avro.legacy.VcfHeader;
-import org.opencb.biodata.models.variant.stats.VariantGlobalStats;
+import org.opencb.biodata.models.variant.stats.VariantSetStats;
 
 import java.util.*;
 
@@ -36,7 +35,7 @@ import java.util.*;
 @JsonIgnoreProperties({"impl", "samplesPosition", "type"})
 public class VariantSource {
 
-    private final VariantFileMetadata impl;
+    private final org.opencb.biodata.models.variant.avro.legacy.VariantSource impl;
     private volatile LinkedHashMap<String, Integer> samplesPosition;
 
     /**
@@ -48,12 +47,12 @@ public class VariantSource {
     }
 
     VariantSource() {
-        impl = new VariantFileMetadata();
+        impl = new org.opencb.biodata.models.variant.avro.legacy.VariantSource();
         samplesPosition = null;
     }
 
-    public VariantSource(VariantFileMetadata variantFileMetadata) {
-        impl = variantFileMetadata;
+    public VariantSource(org.opencb.biodata.models.variant.avro.legacy.VariantSource variantSource) {
+        impl = variantSource;
         samplesPosition = null;
     }
 
@@ -62,7 +61,7 @@ public class VariantSource {
     }
 
     public VariantSource(String fileName, String fileId, String studyId, String studyName, VariantStudy.StudyType type, Aggregation aggregation) {
-        impl = new VariantFileMetadata(fileId, studyId, fileName, studyName, new LinkedList<>(), null, null, new HashMap<>(), null, null);
+        impl = new org.opencb.biodata.models.variant.avro.legacy.VariantSource(fileId, studyId, fileName, studyName, new LinkedList<>(), null, null, new HashMap<>(), null, null);
         samplesPosition = null;
     }
 
@@ -189,12 +188,12 @@ public class VariantSource {
 //        this.type = type;
     }
 
-    public VariantGlobalStats getStats() {
+    public VariantSetStats getStats() {
 //        return impl.getStats() == null ? null : new VariantGlobalStats(impl.getStats());
         return null;
     }
 
-    public void setStats(VariantGlobalStats stats) {
+    public void setStats(VariantSetStats stats) {
 //        impl.setStats(stats == null ? null : stats.getImpl());
     }
 
@@ -206,7 +205,7 @@ public class VariantSource {
         impl.setHeader(value);
     }
 
-    public VariantFileMetadata getImpl() {
+    public org.opencb.biodata.models.variant.avro.legacy.VariantSource getImpl() {
         return impl;
     }
 
