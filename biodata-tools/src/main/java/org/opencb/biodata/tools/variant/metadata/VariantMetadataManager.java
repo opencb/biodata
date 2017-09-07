@@ -72,20 +72,6 @@ public class VariantMetadataManager {
         variantMetadata.setSpecies(species);
         variantMetadata.setDescription(description);
 
-//        // set file
-//        List<VariantFileMetadata> files = new ArrayList<>();
-//        VariantFileMetadata file = new VariantFileMetadata();
-//        file.setId(filename);
-//        files.add(file);
-//
-//        // set dataset
-//        List<VariantDatasetMetadata> datasets = new ArrayList<>();
-//        VariantDatasetMetadata dataset = new VariantDatasetMetadata();
-//        dataset.setId(datasetName);
-//        dataset.setFiles(files);
-//        datasets.add(dataset);
-//        variantMetadata.setStudies(datasets);
-
         mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         mapper.configure(MapperFeature.REQUIRE_SETTERS_FOR_GETTERS, true);
@@ -105,9 +91,9 @@ public class VariantMetadataManager {
         variantMetadata = mapper.readValue(path.toFile(), VariantMetadata.class);
 
         // We need to add Individual info fields to their sample annotations to allow more complex queries
-        for (VariantStudyMetadata variantDatasetMetadata: variantMetadata.getStudies()) {
-            if (variantDatasetMetadata.getIndividuals() != null) {
-                for (org.opencb.biodata.models.metadata.Individual individual : variantDatasetMetadata.getIndividuals()) {
+        for (VariantStudyMetadata variantStudyMetadata: variantMetadata.getStudies()) {
+            if (variantStudyMetadata.getIndividuals() != null) {
+                for (org.opencb.biodata.models.metadata.Individual individual : variantStudyMetadata.getIndividuals()) {
                     for (Sample sample : individual.getSamples()) {
                         sample.getAnnotations().put("individual.id", individual.getId());
                         sample.getAnnotations().put("individual.family", individual.getFamily());
@@ -123,66 +109,66 @@ public class VariantMetadataManager {
 
 
     /**
-     * Retrieve the variant dataset metadata from its dataset ID.
+     * Retrieve the variant study metadata from its study ID.
      *
-     * @param datasetId Dataset ID
-     * @return          VariantDatasetMetadata object
+     * @param studyId Study ID
+     * @return        VariantStudyMetadata object
      */
-    public VariantStudyMetadata getVariantDatasetMetadata(String datasetId) {
-        if (datasetId != null) {
+    public VariantStudyMetadata getVariantStudyMetadata(String studyId) {
+        if (studyId != null) {
             if (variantMetadata.getStudies() == null) {
                 variantMetadata.setStudies(new ArrayList<>());
             }
-            for (VariantStudyMetadata dataset : variantMetadata.getStudies()) {
-                if (datasetId.equals(dataset.getId())) {
-                    return dataset;
+            for (VariantStudyMetadata study : variantMetadata.getStudies()) {
+                if (studyId.equals(study.getId())) {
+                    return study;
                 }
             }
         } else {
-            logger.error("Dataset ID is null");
+            logger.error("Study ID is null");
         }
         return null;
     }
 
     /**
-     * Add a variant dataset metadata. Dataset ID must not exist.
+     * Add a variant study metadata. Study ID must not exist.
      *
-     * @param variantDatasetMetadata    Variant dataset metadata to add
+     * @param variantStudyMetadata    Variant study metadata to add
      */
-    public void addVariantDatasetMetadata(VariantStudyMetadata variantDatasetMetadata) {
-        if (variantDatasetMetadata != null) {
-            VariantStudyMetadata found = getVariantDatasetMetadata(variantDatasetMetadata.getId());
-            // if there is not any dataset with that ID then we add the new one
+    public void addVariantDatasetMetadata(VariantStudyMetadata variantStudyMetadata) {
+        if (variantStudyMetadata != null) {
+            VariantStudyMetadata found = getVariantStudyMetadata(variantStudyMetadata.getId());
+            // if there is not any study with that ID then we add the new one
             // TODO we need to think what to do when it exists, should we throw an exception?
             if (found == null) {
                 if (variantMetadata.getStudies() == null) {
                     variantMetadata.setStudies(new ArrayList<>());
                 }
-                variantMetadata.getStudies().add(variantDatasetMetadata);
+                variantMetadata.getStudies().add(variantStudyMetadata);
             } else {
-                logger.error("Dataset ID already exists");
+                logger.error("Study ID already exists");
             }
         }
     }
 
     /**
-     * Remove a variant dataset metadata (from dataset ID).
+     * Remove a variant study metadata (from study ID).
      *
-     * @param datasetId     Dataset ID
+     * @param studyId     Study ID
      */
-    public void removeVariantDatasetMetadata(String datasetId) {
+    public void removeVariantStudyMetadata(String studyId) {
         // Sanity check
-        if (StringUtils.isEmpty(datasetId)) {
-            logger.error("Variant dataset metadata ID {} is null or empty.", datasetId);
+        if (StringUtils.isEmpty(studyId)) {
+            logger.error("Variant study metadata ID {} is null or empty.", studyId);
             return;
         }
-        VariantStudyMetadata variantDatasetMetadata = getVariantDatasetMetadata(datasetId);
-        if (variantDatasetMetadata == null) {
-            logger.error("Dataset not found. Check your dataset ID: '{}'", datasetId);
+        VariantStudyMetadata variantStudyMetadata = getVariantStudyMetadata(studyId);
+        if (variantStudyMetadata == null) {
+            logger.error("Dataset not found. Check your study ID: '{}'", studyId);
             return;
         }
         for (int i = 0; i < variantMetadata.getStudies().size(); i++) {
-            if (datasetId.equals(variantMetadata.getStudies().get(i).getId())) {
+            if (studyId.equals(variantMetadata.getStudies().get(i).getId())) {
                 variantMetadata.getStudies().remove(i);
                 return;
             }
@@ -190,45 +176,45 @@ public class VariantMetadataManager {
     }
 
     /**
-     * Add a variant file metadata to a given variant dataset metadata (from dataset ID).
+     * Add a variant file metadata to a given variant study metadata (from study ID).
      *
      * @param fileMetadata  Variant file metadata to add
-     * @param datasetId     Dataset ID
+     * @param studyId       Study ID
      */
-    public void addFile(VariantFileMetadata fileMetadata, String datasetId) {
+    public void addFile(VariantFileMetadata fileMetadata, String studyId) {
         // Sanity check
         if (fileMetadata == null || StringUtils.isEmpty(fileMetadata.getId())) {
             logger.error("Variant file metadata (or its ID) is null or empty.");
             return;
         }
 
-        VariantStudyMetadata variantDatasetMetadata = getVariantDatasetMetadata(datasetId);
-        if (variantDatasetMetadata == null) {
-            logger.error("Dataset not found. Check your dataset ID: '{}'", datasetId);
+        VariantStudyMetadata variantStudyMetadata = getVariantStudyMetadata(studyId);
+        if (variantStudyMetadata == null) {
+            logger.error("Study not found. Check your study ID: '{}'", studyId);
             return;
         }
-        if (variantDatasetMetadata.getFiles() == null) {
-            variantDatasetMetadata.setFiles(new ArrayList<>());
+        if (variantStudyMetadata.getFiles() == null) {
+            variantStudyMetadata.setFiles(new ArrayList<>());
         }
-        for (VariantFileMetadata file: variantDatasetMetadata.getFiles()) {
+        for (VariantFileMetadata file: variantStudyMetadata.getFiles()) {
             if (file.getId() != null && file.getId().equals(fileMetadata.getId())) {
-                logger.error("Variant file metadata with id '{}' already exists in dataset '{}'", fileMetadata.getId(),
-                        datasetId);
+                logger.error("Variant file metadata with id '{}' already exists in study '{}'", fileMetadata.getId(),
+                        studyId);
                 return;
             }
         }
         // individual management
-        if (variantDatasetMetadata.getIndividuals() == null) {
-            variantDatasetMetadata.setIndividuals(new ArrayList<>());
+        if (variantStudyMetadata.getIndividuals() == null) {
+            variantStudyMetadata.setIndividuals(new ArrayList<>());
         }
-        if (!variantDatasetMetadata.getIndividuals().isEmpty()) {
-            // check if samples are already in dataset
+        if (!variantStudyMetadata.getIndividuals().isEmpty()) {
+            // check if samples are already in study
             for (String sampleId: fileMetadata.getSampleIds()) {
-                for (org.opencb.biodata.models.metadata.Individual individual: variantDatasetMetadata.getIndividuals()) {
+                for (org.opencb.biodata.models.metadata.Individual individual: variantStudyMetadata.getIndividuals()) {
                     for (Sample sample: individual.getSamples()) {
                         if (sampleId.equals(sample.getId())) {
-                            logger.error("Sample '{}' from file {} already exists in dataset '{}'",
-                                    sampleId, fileMetadata.getId(), datasetId);
+                            logger.error("Sample '{}' from file {} already exists in study '{}'",
+                                    sampleId, fileMetadata.getId(), studyId);
                             return;
                         }
                     }
@@ -248,28 +234,28 @@ public class VariantMetadataManager {
             individual.setId(sampleId);
             individual.setSamples(samples);
 
-            variantDatasetMetadata.getIndividuals().add(individual);
+            variantStudyMetadata.getIndividuals().add(individual);
         }
 
 
-        variantDatasetMetadata.getFiles().add(fileMetadata);
+        variantStudyMetadata.getFiles().add(fileMetadata);
     }
 
     /**
-     * Add a variant file metadata (from VCF file and header) to a given variant dataset metadata (from dataset ID).
+     * Add a variant file metadata (from VCF file and header) to a given variant study metadata (from study ID).
      *
      * @param filename      VCF filename (as an ID)
      * @param vcfHeader     VCF header
-     * @param datasetId     Dataset ID
+     * @param studyId       Study ID
      */
-    public void addFile(String filename, VCFHeader vcfHeader, String datasetId) {
+    public void addFile(String filename, VCFHeader vcfHeader, String studyId) {
         // sanity check
         if (StringUtils.isEmpty(filename)) {
             logger.error("VCF filename is empty or null: '{}'", filename);
             return;
         }
         if (vcfHeader == null) {
-            logger.error("VCF header is missingDataset not found. Check your dataset ID: '{}'", datasetId);
+            logger.error("VCF header is missingDataset not found. Check your study ID: '{}'", studyId);
             return;
         }
 
@@ -278,46 +264,46 @@ public class VariantMetadataManager {
         variantFileMetadata.setId(filename);
         variantFileMetadata.setSampleIds(vcfHeader.getSampleNamesInOrder());
         variantFileMetadata.setHeader(headerConverter.convert(vcfHeader));
-        addFile(variantFileMetadata, datasetId);
+        addFile(variantFileMetadata, studyId);
     }
 
     /**
-     * Remove a variant file metadata of a given variant dataset metadata (from dataset ID).
+     * Remove a variant file metadata of a given variant study metadata (from study ID).
      *
-     * @param file        File
-     * @param datasetId   Dataset ID
+     * @param file      File
+     * @param studyId   Study ID
      */
-    public void removeFile(VariantFileMetadata file, String datasetId) {
+    public void removeFile(VariantFileMetadata file, String studyId) {
         // Sanity check
         if (file == null) {
             logger.error("Variant file metadata is null.");
             return;
         }
-        removeFile(file.getId(), datasetId);
+        removeFile(file.getId(), studyId);
     }
 
     /**
-     * Remove a variant file metadata (from file ID) of a given variant dataset metadata (from dataset ID).
+     * Remove a variant file metadata (from file ID) of a given variant study metadata (from study ID).
      *
-     * @param fileId        File ID
-     * @param datasetId     Dataset ID
+     * @param fileId      File ID
+     * @param studyId     Study ID
      */
-    public void removeFile(String fileId, String datasetId) {
+    public void removeFile(String fileId, String studyId) {
         // Sanity check
         if (StringUtils.isEmpty(fileId)) {
             logger.error("Variant file metadata ID {} is null or empty.", fileId);
             return;
         }
 
-        VariantStudyMetadata variantDatasetMetadata = getVariantDatasetMetadata(datasetId);
-        if (variantDatasetMetadata == null) {
-            logger.error("Dataset not found. Check your dataset ID: '{}'", datasetId);
+        VariantStudyMetadata variantStudyMetadata = getVariantStudyMetadata(studyId);
+        if (variantStudyMetadata == null) {
+            logger.error("Study not found. Check your study ID: '{}'", studyId);
             return;
         }
-        if (variantDatasetMetadata.getFiles() != null) {
-            for (int i = 0; i < variantDatasetMetadata.getFiles().size(); i++) {
-                if (fileId.equals(variantDatasetMetadata.getFiles().get(i).getId())) {
-                    variantDatasetMetadata.getFiles().remove(i);
+        if (variantStudyMetadata.getFiles() != null) {
+            for (int i = 0; i < variantStudyMetadata.getFiles().size(); i++) {
+                if (fileId.equals(variantStudyMetadata.getFiles().get(i).getId())) {
+                    variantStudyMetadata.getFiles().remove(i);
                     return;
                 }
             }
@@ -325,73 +311,73 @@ public class VariantMetadataManager {
     }
 
     /**
-     * Add an individual to a given variant dataset metadata (from dataset ID).
+     * Add an individual to a given variant study metadata (from study ID).
      *
      * @param individual  Individual to add
-     * @param datasetId   Dataset ID
+     * @param studyId   Study ID
      */
-    public void addIndividual(org.opencb.biodata.models.metadata.Individual individual, String datasetId) {
+    public void addIndividual(org.opencb.biodata.models.metadata.Individual individual, String studyId) {
         // Sanity check
         if (individual == null || StringUtils.isEmpty(individual.getId())) {
             logger.error("Individual (or its ID) is null or empty.");
             return;
         }
 
-        VariantStudyMetadata variantDatasetMetadata = getVariantDatasetMetadata(datasetId);
-        if (variantDatasetMetadata == null) {
-            logger.error("Dataset not found. Check your dataset ID: '{}'", datasetId);
+        VariantStudyMetadata variantStudyMetadata = getVariantStudyMetadata(studyId);
+        if (variantStudyMetadata == null) {
+            logger.error("Study not found. Check your study ID: '{}'", studyId);
             return;
         }
-        if (variantDatasetMetadata.getIndividuals() == null) {
-            variantDatasetMetadata.setIndividuals(new ArrayList<>());
+        if (variantStudyMetadata.getIndividuals() == null) {
+            variantStudyMetadata.setIndividuals(new ArrayList<>());
         }
-        for (org.opencb.biodata.models.metadata.Individual indi: variantDatasetMetadata.getIndividuals()) {
+        for (org.opencb.biodata.models.metadata.Individual indi: variantStudyMetadata.getIndividuals()) {
             if (indi.getId() != null && indi.getId().equals(individual.getId())) {
-                logger.error("Individual with id '{}' already exists in dataset '{}'", individual.getId(),
-                        datasetId);
+                logger.error("Individual with id '{}' already exists in study '{}'", individual.getId(),
+                        studyId);
                 return;
             }
         }
-        variantDatasetMetadata.getIndividuals().add(individual);
+        variantStudyMetadata.getIndividuals().add(individual);
     }
 
     /**
-     * Remove an individual of a given variant dataset metadata (from dataset ID).
+     * Remove an individual of a given variant study metadata (from study ID).
      *
-     * @param individual   Individual
-     * @param datasetId    Dataset ID
+     * @param individual Individual
+     * @param studyId    Study ID
      */
-    public void removeIndividual(Individual individual, String datasetId) {
+    public void removeIndividual(Individual individual, String studyId) {
         // Sanity check
         if (individual == null) {
             logger.error("Individual is null.");
             return;
         }
-        removeIndividual(individual.getId(), datasetId);
+        removeIndividual(individual.getId(), studyId);
     }
 
     /**
-     * Remove an individual (from individual ID) of a given variant dataset metadata (from dataset ID).
+     * Remove an individual (from individual ID) of a given variant study metadata (from study ID).
      *
-     * @param individualId Individual ID
-     * @param datasetId    Dataset ID
+     * @param individualId  Individual ID
+     * @param studyId       Study ID
      */
-    public void removeIndividual(String individualId, String datasetId) {
+    public void removeIndividual(String individualId, String studyId) {
         // Sanity check
         if (StringUtils.isEmpty(individualId)) {
             logger.error("Individual ID {} is null or empty.", individualId);
             return;
         }
 
-        VariantStudyMetadata variantDatasetMetadata = getVariantDatasetMetadata(datasetId);
-        if (variantDatasetMetadata == null) {
-            logger.error("Dataset not found. Check your dataset ID: '{}'", datasetId);
+        VariantStudyMetadata variantStudyMetadata = getVariantStudyMetadata(studyId);
+        if (variantStudyMetadata == null) {
+            logger.error("Study not found. Check your study ID: '{}'", studyId);
             return;
         }
-        if (variantDatasetMetadata.getIndividuals() != null) {
-            for (int i = 0; i < variantDatasetMetadata.getIndividuals().size(); i++) {
-                if (individualId.equals(variantDatasetMetadata.getIndividuals().get(i).getId())) {
-                    variantDatasetMetadata.getIndividuals().remove(i);
+        if (variantStudyMetadata.getIndividuals() != null) {
+            for (int i = 0; i < variantStudyMetadata.getIndividuals().size(); i++) {
+                if (individualId.equals(variantStudyMetadata.getIndividuals().get(i).getId())) {
+                    variantStudyMetadata.getIndividuals().remove(i);
                     return;
                 }
             }
@@ -399,73 +385,73 @@ public class VariantMetadataManager {
     }
 
     /**
-     * Add a cohort to a given variant dataset metadata (from dataset ID).
+     * Add a cohort to a given variant study metadata (from study ID).
      *
      * @param cohort    Cohort to add
-     * @param datasetId Dataset ID
+     * @param studyId   Study ID
      */
-    public void addCohort(Cohort cohort, String datasetId) {
+    public void addCohort(Cohort cohort, String studyId) {
         // Sanity check
         if (cohort == null || StringUtils.isEmpty(cohort.getId())) {
             logger.error("Cohort (or its ID) is null or empty.");
             return;
         }
 
-        VariantStudyMetadata variantDatasetMetadata = getVariantDatasetMetadata(datasetId);
-        if (variantDatasetMetadata == null) {
-            logger.error("Dataset not found. Check your dataset ID: '{}'", datasetId);
+        VariantStudyMetadata variantStudyMetadata = getVariantStudyMetadata(studyId);
+        if (variantStudyMetadata == null) {
+            logger.error("Study not found. Check your study ID: '{}'", studyId);
             return;
         }
-        if (variantDatasetMetadata.getCohorts() == null) {
-            variantDatasetMetadata.setCohorts(new ArrayList<>());
+        if (variantStudyMetadata.getCohorts() == null) {
+            variantStudyMetadata.setCohorts(new ArrayList<>());
         }
-        for (Cohort coho: variantDatasetMetadata.getCohorts()) {
+        for (Cohort coho: variantStudyMetadata.getCohorts()) {
             if (coho.getId() != null && coho.getId().equals(cohort.getId())) {
-                logger.error("Cohort with id '{}' already exists in dataset '{}'", cohort.getId(),
-                        datasetId);
+                logger.error("Cohort with id '{}' already exists in study '{}'", cohort.getId(),
+                        studyId);
                 return;
             }
         }
-        variantDatasetMetadata.getCohorts().add(cohort);
+        variantStudyMetadata.getCohorts().add(cohort);
     }
 
     /**
-     * Remove a cohort of a given variant dataset metadata (from dataset ID).
+     * Remove a cohort of a given variant study metadata (from study ID).
      *
      * @param cohort     Cohort
-     * @param datasetId  Dataset ID
+     * @param studyId  Study ID
      */
-    public void removeCohort(Cohort cohort, String datasetId) {
+    public void removeCohort(Cohort cohort, String studyId) {
         // Sanity check
         if (cohort == null) {
             logger.error("Cohort is null.");
             return;
         }
-        removeCohort(cohort.getId(), datasetId);
+        removeCohort(cohort.getId(), studyId);
     }
 
     /**
-     * Remove a cohort (from cohort ID) of a given variant dataset metadata (from dataset ID).
+     * Remove a cohort (from cohort ID) of a given variant study metadata (from study ID).
      *
-     * @param cohortId     Cohort ID
-     * @param datasetId    Dataset ID
+     * @param cohortId   Cohort ID
+     * @param studyId    Study ID
      */
-    public void removeCohort(String cohortId, String datasetId) {
+    public void removeCohort(String cohortId, String studyId) {
         // Sanity check
         if (StringUtils.isEmpty(cohortId)) {
             logger.error("Cohort ID {} is null or empty.", cohortId);
             return;
         }
 
-        VariantStudyMetadata variantDatasetMetadata = getVariantDatasetMetadata(datasetId);
-        if (variantDatasetMetadata == null) {
-            logger.error("Dataset not found. Check your dataset ID: '{}'", datasetId);
+        VariantStudyMetadata variantStudyMetadata = getVariantStudyMetadata(studyId);
+        if (variantStudyMetadata == null) {
+            logger.error("Study not found. Check your study ID: '{}'", studyId);
             return;
         }
-        if (variantDatasetMetadata.getCohorts() != null) {
-            for (int i = 0; i < variantDatasetMetadata.getCohorts().size(); i++) {
-                if (cohortId.equals(variantDatasetMetadata.getCohorts().get(i).getId())) {
-                    variantDatasetMetadata.getCohorts().remove(i);
+        if (variantStudyMetadata.getCohorts() != null) {
+            for (int i = 0; i < variantStudyMetadata.getCohorts().size(); i++) {
+                if (cohortId.equals(variantStudyMetadata.getCohorts().get(i).getId())) {
+                    variantStudyMetadata.getCohorts().remove(i);
                     return;
                 }
             }
@@ -473,21 +459,21 @@ public class VariantMetadataManager {
     }
 
     /**
-     * Retrieve all samples for a given dataset (from its dataset ID).
+     * Retrieve all samples for a given study (from its study ID).
      *
-     * @param datasetId Dataset ID
+     * @param studyId   Study ID
      * @return          Sample list
      */
-    public List<Sample> getSamples(String datasetId) {
-        VariantStudyMetadata variantDatasetMetadata = getVariantDatasetMetadata(datasetId);
-        if (variantDatasetMetadata == null) {
-            logger.error("Dataset not found. Check your dataset ID: '{}'", datasetId);
+    public List<Sample> getSamples(String studyId) {
+        VariantStudyMetadata variantStudyMetadata = getVariantStudyMetadata(studyId);
+        if (variantStudyMetadata == null) {
+            logger.error("Study not found. Check your study ID: '{}'", studyId);
             return null;
         }
 
         List<Sample> samples = new ArrayList<>();
-        if (variantDatasetMetadata.getIndividuals() != null) {
-            for (org.opencb.biodata.models.metadata.Individual individual : variantDatasetMetadata.getIndividuals()) {
+        if (variantStudyMetadata.getIndividuals() != null) {
+            for (org.opencb.biodata.models.metadata.Individual individual : variantStudyMetadata.getIndividuals()) {
                 for (Sample sample : individual.getSamples()) {
                     if (sample.getAnnotations() == null) {
                         sample.setAnnotations(new HashMap<>());
@@ -499,10 +485,10 @@ public class VariantMetadataManager {
         return samples;
     }
 
-    public List<Sample> getSamples(Query query, String datasetId) {
+    public List<Sample> getSamples(Query query, String studyId) {
         List<Sample> sampleResult = new ArrayList<>();
 
-        List<Sample> samples = getSamples(datasetId);
+        List<Sample> samples = getSamples(studyId);
         List<Predicate<Sample>> predicates = parseSampleQuery(query);
         boolean passFilter;
         for (Sample sample : samples) {
@@ -522,56 +508,22 @@ public class VariantMetadataManager {
         return sampleResult;
     }
 
-    /*
-    public void setSampleIds(String fileId, List<String> sampleIds) {
-        for (VariantStudyMetadata dataset: variantMetadata.getDatasets()) {
-            for (VariantFileMetadata file: dataset.getFiles()) {
-                if (fileId.equals(file.getId())) {
-                    file.setSampleIds(sampleIds);
-                    return;
-                }
-            }
-        }
-        // error management: file not found !!
-    }
-
-    public void createCohort(String datasetId, String cohortId, List<String> sampleIds, SampleSetType type) {
-        VariantStudyMetadata variantDatasetMetadata = getVariantDatasetMetadata(datasetId);
-        if (variantDatasetMetadata != null) {
-            // check if cohort exists
-            if (variantDatasetMetadata.getCohorts() == null) {
-                variantDatasetMetadata.setCohorts(new ArrayList<>());
-                variantDatasetMetadata.getCohorts().add(new Cohort(cohortId, sampleIds, type));
-            } else {
-                for (Cohort cohort : variantDatasetMetadata.getCohorts()) {
-                    if (cohortId.equals(cohort.getId())) {
-                        // error management: cohort already exists !
-                        return;
-                    }
-                }
-                variantDatasetMetadata.getCohorts().add(new Cohort(cohortId, sampleIds, type));
-            }
-        }
-        // else: error management: dataset (datasetId) not found !
-    }
-*/
-
     /**
-     * Load pedrigree into a given dataset (from its dataset ID).
+     * Load pedrigree into a given study (from its study ID).
      *
      * @param pedigree      Pedigree to load
-     * @param datasetId     Dataset ID related to that pedigree
+     * @param studyId       Study ID related to that pedigree
      * @return              Variant metadata object
      */
-    public VariantMetadata loadPedigree(Pedigree pedigree, String datasetId) {
-        VariantStudyMetadata variantDatasetMetadata = getVariantDatasetMetadata(datasetId);
-        if (variantDatasetMetadata != null) {
+    public VariantMetadata loadPedigree(Pedigree pedigree, String studyId) {
+        VariantStudyMetadata variantStudyMetadata = getVariantStudyMetadata(studyId);
+        if (variantStudyMetadata != null) {
             boolean found;
             org.opencb.biodata.models.metadata.Individual dest = null;
             for (Individual src: pedigree.getIndividuals().values()) {
                 found = false;
-                for (int i = 0; i < variantDatasetMetadata.getIndividuals().size(); i++) {
-                    dest = variantDatasetMetadata.getIndividuals().get(i);
+                for (int i = 0; i < variantStudyMetadata.getIndividuals().size(); i++) {
+                    dest = variantStudyMetadata.getIndividuals().get(i);
                     if (dest.getId().equals(src.getId())) {
                         found = true;
                         break;
@@ -639,28 +591,28 @@ public class VariantMetadataManager {
                 }
             }
         } else {
-            logger.warn("Loading pedigree, nothing to do because dataset ID '{}' does not exist.", datasetId);
+            logger.warn("Loading pedigree, nothing to do because study ID '{}' does not exist.", studyId);
         }
         return variantMetadata;
     }
 
     /**
-     * Retrieve the pedigree related to the input dataset ID.
+     * Retrieve the pedigree related to the input study ID.
      *
-     * @param datasetId     Dataset ID
-     * @return              Pedigree object
+     * @param studyId     Study ID
+     * @return            Pedigree object
      */
-    public Pedigree getPedigree(String datasetId) {
+    public Pedigree getPedigree(String studyId) {
         Pedigree pedigree = null;
 
         Individual dest;
         Map<String, Individual> individualMap = new HashMap<>();
 
-        VariantStudyMetadata variantDatasetMetadata = getVariantDatasetMetadata(datasetId);
-        if (variantDatasetMetadata != null) {
+        VariantStudyMetadata variantStudyMetadata = getVariantStudyMetadata(studyId);
+        if (variantStudyMetadata != null) {
 
             // first loop
-            for (org.opencb.biodata.models.metadata.Individual src: variantDatasetMetadata.getIndividuals()) {
+            for (org.opencb.biodata.models.metadata.Individual src: variantStudyMetadata.getIndividuals()) {
                 // main fields
                 dest = new Individual()
                         .setId(src.getId())
@@ -699,7 +651,7 @@ public class VariantMetadataManager {
             }
 
             // second loop: setting fathers, mothers, partners and children
-            for (org.opencb.biodata.models.metadata.Individual src: variantDatasetMetadata.getIndividuals()) {
+            for (org.opencb.biodata.models.metadata.Individual src: variantStudyMetadata.getIndividuals()) {
                 // update father, mother and child
                 Pedigree.updateIndividuals(individualMap.get(Pedigree.key(src.getFamily(), src.getFather())),
                         individualMap.get(Pedigree.key(src.getFamily(), src.getMother())),
@@ -728,23 +680,23 @@ public class VariantMetadataManager {
      */
     public void printSummary() {
         StringBuilder res = new StringBuilder();
-        res.append("Num. datasets: ").append(variantMetadata.getStudies().size()).append("\n");
-        int counter, datasetCounter = 0;
-        for (VariantStudyMetadata dataset : variantMetadata.getStudies()) {
-            datasetCounter++;
-            res.append("\tDataset #").append(datasetCounter).append(": ").append(dataset.getId()).append("\n");
+        res.append("Num. studies: ").append(variantMetadata.getStudies().size()).append("\n");
+        int counter, studyCounter = 0;
+        for (VariantStudyMetadata study: variantMetadata.getStudies()) {
+            studyCounter++;
+            res.append("\tStudy #").append(studyCounter).append(": ").append(study.getId()).append("\n");
 
-            res.append("\tNum. files: ").append(dataset.getFiles().size()).append("\n");
+            res.append("\tNum. files: ").append(study.getFiles().size()).append("\n");
             counter = 0;
-            for (VariantFileMetadata file: dataset.getFiles()) {
+            for (VariantFileMetadata file: study.getFiles()) {
                 counter++;
                 res.append("\t\tFile #").append(counter).append(": ").append(file.getId());
                 res.append(" (").append(file.getSampleIds().size()).append(" samples)\n");
             }
 
-            res.append("\tNum. cohorts: ").append(dataset.getCohorts().size()).append("\n");
+            res.append("\tNum. cohorts: ").append(study.getCohorts().size()).append("\n");
             counter = 0;
-            for (Cohort cohort: dataset.getCohorts()) {
+            for (Cohort cohort: study.getCohorts()) {
                 counter++;
                 res.append("\t\tCohort #").append(counter).append(": ").append(cohort.getId());
                 res.append(" (").append(cohort.getSampleIds().size()).append(" samples)\n");
