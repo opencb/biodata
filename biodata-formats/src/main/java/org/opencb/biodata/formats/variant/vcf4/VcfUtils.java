@@ -101,7 +101,7 @@ public class VcfUtils {
      * @param sampleNames           List of sample names
      * @param converter             Function to convert sample names
      * @return                      The VCF header
-     * @deprecated use org.opencb.biodata.tools.variant.converters.avro.VariantDatasetMetadataToVCFHeaderConverter
+     * @deprecated use org.opencb.biodata.tools.variant.converters.avro.VariantStudyMetadataToVCFHeaderConverter
      */
     @Deprecated
     public static VCFHeader createVCFHeader(List<String> cohortNames, List<String> annotations,

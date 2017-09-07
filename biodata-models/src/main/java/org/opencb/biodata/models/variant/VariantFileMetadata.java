@@ -39,7 +39,7 @@ public class VariantFileMetadata {
         samplesPosition = null;
     }
 
-    public VariantStudyMetadata toVariantDatasetMetadata(String studyId) {
+    public VariantStudyMetadata toVariantStudyMetadata(String studyId) {
         return VariantStudyMetadata.newBuilder()
                 .setId(studyId)
                 .setFiles(Collections.singletonList(getImpl()))

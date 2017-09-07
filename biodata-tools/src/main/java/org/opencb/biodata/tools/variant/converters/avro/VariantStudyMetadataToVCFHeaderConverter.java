@@ -19,18 +19,18 @@ import java.util.List;
  *
  * @author Jacobo Coll &lt;jacobo167@gmail.com&gt;
  */
-public class VariantDatasetMetadataToVCFHeaderConverter implements Converter<VariantStudyMetadata, VCFHeader> {
+public class VariantStudyMetadataToVCFHeaderConverter implements Converter<VariantStudyMetadata, VCFHeader> {
 
     @Override
-    public VCFHeader convert(VariantStudyMetadata variantDatasetMetadata) {
-        return convert(variantDatasetMetadata, Collections.emptyList());
+    public VCFHeader convert(VariantStudyMetadata variantStudyMetadata) {
+        return convert(variantStudyMetadata, Collections.emptyList());
     }
 
-    public VCFHeader convert(VariantStudyMetadata variantDatasetMetadata, List<String> annotations) {
-        VCFHeader vcfHeader = new VariantFileHeaderToVCFHeaderConverter().convert(variantDatasetMetadata.getAggregatedHeader());
+    public VCFHeader convert(VariantStudyMetadata variantStudyMetadata, List<String> annotations) {
+        VCFHeader vcfHeader = new VariantFileHeaderToVCFHeaderConverter().convert(variantStudyMetadata.getAggregatedHeader());
 
         List<String> samples = new ArrayList<>();
-        for (Individual individual : variantDatasetMetadata.getIndividuals()) {
+        for (Individual individual : variantStudyMetadata.getIndividuals()) {
             for (Sample sample : individual.getSamples()) {
                 samples.add(sample.getId());
             }
@@ -40,7 +40,7 @@ public class VariantDatasetMetadataToVCFHeaderConverter implements Converter<Var
         vcfHeader.addMetaDataLine(new VCFFilterHeaderLine(VCFConstants.MISSING_VALUE_v4, "No FILTER info"));
         vcfHeader.addMetaDataLine(new VCFFilterHeaderLine(VCFConstants.PASSES_FILTERS_v4, "All filters passed"));
 
-        for (Cohort cohort : variantDatasetMetadata.getCohorts()) {
+        for (Cohort cohort : variantStudyMetadata.getCohorts()) {
             String cohortName = cohort.getId();
             if (cohortName.equals(StudyEntry.DEFAULT_COHORT)) {
                 vcfHeader.addMetaDataLine(new VCFInfoHeaderLine(VCFConstants.ALLELE_COUNT_KEY, VCFHeaderLineCount.A,

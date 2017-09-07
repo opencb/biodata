@@ -37,7 +37,7 @@ import static org.junit.Assert.*;
 public class VariantStatsCalculatorTest {
 
     private VariantFileMetadata fileMetadata = new VariantFileMetadata("filename.vcf", "fileId");
-    private VariantStudyMetadata datasetMetadata = fileMetadata.toVariantDatasetMetadata("studyId");
+    private VariantStudyMetadata metadata = fileMetadata.toVariantStudyMetadata("studyId");
 
     @Test
     public void testCalculateBiallelicStats() {
@@ -52,7 +52,7 @@ public class VariantStatsCalculatorTest {
         assertEquals(1, result.size());
 
         Variant variant = result.get(0);
-        StudyEntry studyEntry = variant.getStudy(datasetMetadata.getId());
+        StudyEntry studyEntry = variant.getStudy(metadata.getId());
 
         VariantStats biallelicStats = new VariantStats(result.get(0));
         VariantStatsCalculator.calculate(studyEntry, studyEntry.getAttributes(), null, biallelicStats);
@@ -109,7 +109,7 @@ public class VariantStatsCalculatorTest {
 
         // Test first variant (alt allele C)
         Variant variant_C = result.get(0);
-        StudyEntry sourceEntry_C = variant_C.getStudy(datasetMetadata.getId());
+        StudyEntry sourceEntry_C = variant_C.getStudy(metadata.getId());
         VariantStats multiallelicStats_C = new VariantStats(result.get(0));
         VariantStatsCalculator.calculate(sourceEntry_C, sourceEntry_C.getAttributes(), null, multiallelicStats_C);
 
@@ -151,7 +151,7 @@ public class VariantStatsCalculatorTest {
 
         // Test second variant (alt allele GC)
         Variant variant_GC = result.get(1);
-        StudyEntry sourceEntry_GC = variant_GC.getStudy(datasetMetadata.getId());
+        StudyEntry sourceEntry_GC = variant_GC.getStudy(metadata.getId());
         VariantStats multiallelicStats_GC = new VariantStats(result.get(1));
         VariantStatsCalculator.calculate(sourceEntry_GC, sourceEntry_GC.getAttributes(), null, multiallelicStats_GC);
 
@@ -300,7 +300,7 @@ public class VariantStatsCalculatorTest {
     }
 
     private List<Variant> readVariants(String line) {
-        return new VariantNormalizer().apply(new VariantVcfFactory().create(datasetMetadata, line));
+        return new VariantNormalizer().apply(new VariantVcfFactory().create(metadata, line));
     }
 
 }

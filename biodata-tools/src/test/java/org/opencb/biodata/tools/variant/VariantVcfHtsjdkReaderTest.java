@@ -23,7 +23,7 @@ public class VariantVcfHtsjdkReaderTest {
     @Test
     public void readFileTest() throws Exception {
         InputStream inputStream = getClass().getResourceAsStream("/ibs.vcf");
-        VariantStudyMetadata metadata = new VariantFileMetadata("ibs.vcf", "2").toVariantDatasetMetadata("sid");
+        VariantStudyMetadata metadata = new VariantFileMetadata("ibs.vcf", "2").toVariantStudyMetadata("sid");
         VariantVcfHtsjdkReader reader = new VariantVcfHtsjdkReader(inputStream, metadata);
         reader.open();
         reader.pre();
@@ -56,7 +56,7 @@ public class VariantVcfHtsjdkReaderTest {
         String vcf = "##fileformat=VCFv4.1\n"
                 + "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\ts0\n"
                 + malformatedLine;
-        VariantStudyMetadata metadata = new VariantFileMetadata("test.vcf", "2").toVariantDatasetMetadata("sid");
+        VariantStudyMetadata metadata = new VariantFileMetadata("test.vcf", "2").toVariantStudyMetadata("sid");
         VariantVcfHtsjdkReader reader = new VariantVcfHtsjdkReader(new ByteArrayInputStream(vcf.getBytes()), metadata);
         final List<String> malformated = new ArrayList<>();
         reader.registerMalformatedVcfHandler((a,b) -> malformated.add(a));

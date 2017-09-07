@@ -39,7 +39,7 @@ public class VariantMetadataManagerTest {
 
         List<VariantStudyMetadata> datasets = new ArrayList<>();
 
-        VariantStudyMetadata variantDatasetMetadata = new VariantStudyMetadata();
+        VariantStudyMetadata studyMetadata = new VariantStudyMetadata();
 
         List<Individual> individuals = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
@@ -79,10 +79,10 @@ public class VariantMetadataManagerTest {
             individuals.add(individual);
         }
 
-        variantDatasetMetadata.setId("11");
-        variantDatasetMetadata.setIndividuals(individuals);
+        studyMetadata.setId("11");
+        studyMetadata.setIndividuals(individuals);
 
-        datasets.add(variantDatasetMetadata);
+        datasets.add(studyMetadata);
         variantMetadata.setStudies(datasets);
 
         return variantMetadata;

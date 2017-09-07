@@ -44,7 +44,7 @@ import static org.junit.Assert.assertTrue;
 public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
 
     private VariantFileMetadata fileMetadata = new VariantFileMetadata("Exac", "Exac");
-    private VariantStudyMetadata metadata = fileMetadata.toVariantDatasetMetadata("Exac");
+    private VariantStudyMetadata metadata = fileMetadata.toVariantStudyMetadata("Exac");
     private VariantFactory factory = new VariantAggregatedVcfFactory();
     private VariantNormalizer normalizer = new VariantNormalizer();
     ;

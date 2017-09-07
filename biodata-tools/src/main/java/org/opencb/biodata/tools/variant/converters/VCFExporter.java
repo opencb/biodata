@@ -8,7 +8,7 @@ import org.opencb.biodata.formats.variant.vcf4.VcfUtils;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 import org.opencb.biodata.tools.variant.converters.avro.VariantAvroToVariantContextConverter;
-import org.opencb.biodata.tools.variant.converters.avro.VariantDatasetMetadataToVCFHeaderConverter;
+import org.opencb.biodata.tools.variant.converters.avro.VariantStudyMetadataToVCFHeaderConverter;
 import org.opencb.biodata.tools.variant.metadata.VariantMetadataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +48,7 @@ public class VCFExporter {
         this.metadata = metadata;
 
         // Build VCF header from variant dataset metadata
-        VariantDatasetMetadataToVCFHeaderConverter headConverter = new VariantDatasetMetadataToVCFHeaderConverter();
+        VariantStudyMetadataToVCFHeaderConverter headConverter = new VariantStudyMetadataToVCFHeaderConverter();
         this.vcfHeader = headConverter.convert(metadata);
 
         // default use

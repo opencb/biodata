@@ -26,7 +26,7 @@ import static org.junit.Assert.assertEquals;
 public class VariantAggregatedStatsCalculatorTest extends GenericTest {
 
     private VariantFileMetadata fileMetadata = new VariantFileMetadata("filename.vcf", "fileId");
-    protected VariantStudyMetadata metadata = fileMetadata.toVariantDatasetMetadata("studyId");
+    protected VariantStudyMetadata metadata = fileMetadata.toVariantStudyMetadata("studyId");
     private VariantAggregatedVcfFactory factory = new VariantAggregatedVcfFactory();
 
     @Test

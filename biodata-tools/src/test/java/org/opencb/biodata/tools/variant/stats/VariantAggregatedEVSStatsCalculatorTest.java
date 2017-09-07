@@ -42,7 +42,7 @@ public class VariantAggregatedEVSStatsCalculatorTest extends GenericTest {
 
     private final VariantNormalizer normalizer = new VariantNormalizer();
     private VariantFileMetadata fileMetadata = new VariantFileMetadata("EVS", "EVS");
-    private VariantStudyMetadata metadata = fileMetadata.toVariantDatasetMetadata("EVS");
+    private VariantStudyMetadata metadata = fileMetadata.toVariantStudyMetadata("EVS");
     private VariantFactory factory = new VariantAggregatedVcfFactory();
 
     @Test

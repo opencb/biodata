@@ -39,7 +39,7 @@ public class Ga4ghVariantConverterTest {
                         "S2", "0|2", "NO_PASS"));
 
         fileMetadata = new VariantFileMetadata("CEU-1409-01_5000.vcf.gz", "fid");
-        VariantStudyMetadata metadata = fileMetadata.toVariantDatasetMetadata("studyId");
+        VariantStudyMetadata metadata = fileMetadata.toVariantStudyMetadata("studyId");
         VariantVcfHtsjdkReader reader = new VariantVcfHtsjdkReader(new GZIPInputStream(this.getClass().getResourceAsStream("/CEU-1409-01_5000.vcf.gz")), metadata);
         reader.open();
         reader.pre();

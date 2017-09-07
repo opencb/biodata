@@ -40,7 +40,7 @@ import static org.junit.Assert.assertEquals;
 public class VariantVcfFactoryTest {
 
     private VariantFileMetadata fileMetadata = new VariantFileMetadata("filename.vcf", "fileId");
-    private VariantStudyMetadata metadata = fileMetadata.toVariantDatasetMetadata("studyId");
+    private VariantStudyMetadata metadata = fileMetadata.toVariantStudyMetadata("studyId");
     private VariantFactory factory = new VariantVcfFactory();
     private VariantNormalizer normalizer = new VariantNormalizer();
 

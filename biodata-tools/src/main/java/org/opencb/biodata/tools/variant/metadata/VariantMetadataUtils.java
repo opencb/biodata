@@ -55,7 +55,7 @@ public class VariantMetadataUtils {
      */
     public static VariantFileMetadata readVariantFileMetadata(Path path, VariantFileMetadata fileMetadata) throws IOException {
         Objects.requireNonNull(path);
-        return readVariantFileMetadata(new VariantVcfReader(fileMetadata.toVariantDatasetMetadata(""), path.toString()), fileMetadata);
+        return readVariantFileMetadata(new VariantVcfReader(fileMetadata.toVariantStudyMetadata(""), path.toString()), fileMetadata);
     }
 
     /**

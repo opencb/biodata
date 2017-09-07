@@ -25,7 +25,7 @@ public class IdentityByStateClusteringTest {
     public void testWrite() throws Exception {
         String fileName = "ibs.vcf";
         VariantFileMetadata fileMetadata = new VariantFileMetadata(fileName, "fid");
-        VariantStudyMetadata metadata = fileMetadata.toVariantDatasetMetadata("sid");
+        VariantStudyMetadata metadata = fileMetadata.toVariantStudyMetadata("sid");
         String line;
 
         VariantVcfReader variantReader = new VariantVcfReader(metadata, IdentityByStateClusteringTest.class.getClassLoader().getResource(fileName).getPath());
@@ -61,7 +61,7 @@ public class IdentityByStateClusteringTest {
     public void testIBSPerformance() throws Exception {
         String fileName = "ibs.vcf";
         VariantFileMetadata fileMetadata = new VariantFileMetadata(fileName, "fid");
-        VariantStudyMetadata metadata = fileMetadata.toVariantDatasetMetadata("sid");
+        VariantStudyMetadata metadata = fileMetadata.toVariantStudyMetadata("sid");
 
         VariantVcfReader variantReader = new VariantVcfReader(metadata, IdentityByStateClusteringTest.class.getClassLoader().getResource(fileName).getPath());
         variantReader.open();
@@ -86,7 +86,7 @@ public class IdentityByStateClusteringTest {
     public void testIBSByRegion() throws Exception {
         String fileName = "ibs.vcf";
         VariantFileMetadata fileMetadata = new VariantFileMetadata(fileName, "fid");
-        VariantStudyMetadata metadata = fileMetadata.toVariantDatasetMetadata("sid");
+        VariantStudyMetadata metadata = fileMetadata.toVariantStudyMetadata("sid");
 
         VariantVcfReader variantReader = new VariantVcfReader(metadata, IdentityByStateClusteringTest.class.getClassLoader().getResource(fileName).getPath());
         variantReader.open();
@@ -116,7 +116,7 @@ public class IdentityByStateClusteringTest {
     public void testCountIBS() throws Exception {
         String fileName = "ibs.vcf";
         VariantFileMetadata fileMetadata = new VariantFileMetadata(fileName, "fid");
-        VariantStudyMetadata metadata = fileMetadata.toVariantDatasetMetadata("sid");
+        VariantStudyMetadata metadata = fileMetadata.toVariantStudyMetadata("sid");
 
         VariantVcfReader variantReader = new VariantVcfReader(metadata, IdentityByStateClusteringTest.class.getClassLoader().getResource(fileName).getPath());
         variantReader.open();
