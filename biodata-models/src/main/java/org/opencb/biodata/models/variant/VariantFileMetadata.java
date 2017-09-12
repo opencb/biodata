@@ -108,17 +108,6 @@ public class VariantFileMetadata {
         return this;
     }
 
-    @Deprecated
-    public String getAlias() {
-        return getPath();
-    }
-
-    @Deprecated
-    public VariantFileMetadata setAlias(String alias) {
-        setPath(alias);
-        return this;
-    }
-
     public List<String> getSampleIds() {
         return impl.getSampleIds() == null ? null : Collections.unmodifiableList(impl.getSampleIds());
     }

@@ -123,7 +123,7 @@ public class VariantVcfHtsjdkReader implements VariantReader {
         }));
 
         // Create converters and fill VariantSource
-        converter = new VariantContextToVariantConverter(metadata.getId(), metadata.getId(), header.getSampleNamesInOrder());
+        converter = new VariantContextToVariantConverter(metadata.getId(), fileMetadata.getId(), header.getSampleNamesInOrder());
         fileMetadata.setHeader(new VCFHeaderToVariantFileHeaderConverter().convert(header));
         fileMetadata.setSampleIds(header.getSampleNamesInOrder());
         return true;
