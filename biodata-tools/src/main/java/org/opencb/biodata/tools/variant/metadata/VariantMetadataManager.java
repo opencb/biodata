@@ -60,6 +60,12 @@ public class VariantMetadataManager {
     private Logger logger;
 
     private static final Pattern OPERATION_PATTERN = Pattern.compile("(<=?|>=?|!=|!?=?~|==?)([^=<>~!]+.*)$");
+    private static final String INDIVIDUAL_ID = "individual.id";
+    private static final String INDIVIDUAL_FAMILY = "individual.family";
+    private static final String INDIVIDUAL_FATHER = "individual.father";
+    private static final String INDIVIDUAL_MOTHER = "individual.mother";
+    private static final String INDIVIDUAL_SEX = "individual.sex";
+    private static final String INDIVIDUAL_PHENOTYPE = "individual.phenotype";
 
     public VariantMetadataManager() {
         this(new Species("hsapiens", "Homo sapiens", "", null, "GRCh38"), "");
@@ -95,12 +101,12 @@ public class VariantMetadataManager {
             if (variantStudyMetadata.getIndividuals() != null) {
                 for (org.opencb.biodata.models.metadata.Individual individual : variantStudyMetadata.getIndividuals()) {
                     for (Sample sample : individual.getSamples()) {
-                        sample.getAnnotations().put("individual.id", individual.getId());
-                        sample.getAnnotations().put("individual.family", individual.getFamily());
-                        sample.getAnnotations().put("individual.father", individual.getFather());
-                        sample.getAnnotations().put("individual.mother", individual.getMother());
-                        sample.getAnnotations().put("individual.sex", individual.getSex());
-                        sample.getAnnotations().put("individual.phenotype", individual.getPhenotype());
+                        sample.getAnnotations().put(INDIVIDUAL_ID, individual.getId());
+                        sample.getAnnotations().put(INDIVIDUAL_FAMILY, individual.getFamily());
+                        sample.getAnnotations().put(INDIVIDUAL_FATHER, individual.getFather());
+                        sample.getAnnotations().put(INDIVIDUAL_MOTHER, individual.getMother());
+                        sample.getAnnotations().put(INDIVIDUAL_SEX, individual.getSex());
+                        sample.getAnnotations().put(INDIVIDUAL_PHENOTYPE, individual.getPhenotype());
                     }
                 }
             }
@@ -562,19 +568,19 @@ public class VariantMetadataManager {
                             sample.setAnnotations(new HashMap<>());
                         }
                         // Default annotation (attributes from Individual)
-                        sample.getAnnotations().put("individual.id", src.getId());
-                        sample.getAnnotations().put("individual.family", src.getFamily());
+                        sample.getAnnotations().put(INDIVIDUAL_ID, src.getId());
+                        sample.getAnnotations().put(INDIVIDUAL_FAMILY, src.getFamily());
                         if (src.getFather() != null) {
-                            sample.getAnnotations().put("individual.father", src.getFather().getId());
+                            sample.getAnnotations().put(INDIVIDUAL_FATHER, src.getFather().getId());
                         }
                         if (src.getMother() != null) {
-                            sample.getAnnotations().put("individual.mother", src.getMother().getId());
+                            sample.getAnnotations().put(INDIVIDUAL_MOTHER, src.getMother().getId());
                         }
                         if (src.getSex() != null) {
-                            sample.getAnnotations().put("individual.sex", src.getSex().toString());
+                            sample.getAnnotations().put(INDIVIDUAL_SEX, src.getSex().toString());
                         }
                         if (src.getPhenotype() != null) {
-                            sample.getAnnotations().put("individual.phenotype", src.getPhenotype().toString());
+                            sample.getAnnotations().put(INDIVIDUAL_PHENOTYPE, src.getPhenotype().toString());
                         }
                         // Custom annotation
                         for (String key: src.getVariables().keySet()) {
@@ -625,6 +631,11 @@ public class VariantMetadataManager {
                     if (annotation != null) {
                         Map<String, Object> variables = new HashMap<>();
                         for (String key: annotation.keySet()) {
+                            if (key.equals(INDIVIDUAL_ID) || key.equals(INDIVIDUAL_FAMILY)
+                                    || key.equals(INDIVIDUAL_FATHER) || key.equals(INDIVIDUAL_MOTHER)
+                                    || key.equals(INDIVIDUAL_SEX) || key.equals(INDIVIDUAL_PHENOTYPE)) {
+                                continue;
+                            }
                             String fields[] = key.split(":");
                             if (fields.length > 1) {
                                 switch (fields[1].toLowerCase()) {
