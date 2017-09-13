@@ -81,7 +81,7 @@ protocol VariantMetadataProtocol {
         /** TiTvRatio = num. transitions / num. transversions */
         float tiTvRatio;
 
-        /** Mean Quality for all the variants */
+        /** Mean Quality for all the variants with quality */
         float meanQuality;
 
         /** Standard Deviation of the quality */

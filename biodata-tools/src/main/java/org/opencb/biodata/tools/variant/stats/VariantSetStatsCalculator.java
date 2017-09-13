@@ -21,16 +21,23 @@ package org.opencb.biodata.tools.variant.stats;
 
 import org.apache.commons.lang.StringUtils;
 import org.opencb.biodata.models.core.Region;
-import org.opencb.biodata.models.variant.*;
+import org.opencb.biodata.models.variant.StudyEntry;
+import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.VariantFileMetadata;
+import org.opencb.biodata.models.variant.avro.ConsequenceType;
 import org.opencb.biodata.models.variant.avro.FileEntry;
+import org.opencb.biodata.models.variant.avro.SequenceOntologyTerm;
+import org.opencb.biodata.models.variant.avro.VariantAnnotation;
+import org.opencb.biodata.models.variant.metadata.VariantFileHeader;
+import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
+import org.opencb.biodata.models.variant.metadata.VariantStudyStats;
 import org.opencb.biodata.models.variant.stats.VariantSetStats;
 import org.opencb.biodata.models.variant.stats.VariantStats;
-import org.opencb.commons.run.Task;
+import org.opencb.commons.run.ParallelTaskRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -38,72 +45,157 @@ import java.util.stream.Collectors;
  *
  * @author Jacobo Coll &lt;jacobo167@gmail.com&gt;
  */
-public class VariantSetStatsCalculator extends Task<Variant> {
+public class VariantSetStatsCalculator implements ParallelTaskRunner.Task<Variant, Variant> {
 
-    private final VariantFileMetadata metadata;
+    private final VariantStudyMetadata metadata;
     private final String studyId;
-    private VariantSetStats variantSetStats;
+    private final Set<String> files;
+    private final Set<String> samples;
+    private final VariantSetStats stats;
     private static Logger logger = LoggerFactory.getLogger(VariantSetStatsCalculator.class);
 
-    public VariantSetStatsCalculator(String studyId, VariantFileMetadata metadata) {
-        this.studyId = studyId;
+    private int transitionsCount = 0;
+    private int transversionsCount = 0;
+    private double qualCount = 0;
+    private double qualSum = 0;
+    private double qualSumSq = 0;
+    private VariantFileHeader header;
+
+    /**
+     * Calculate global statistics for the whole study. i.e. cohort ALL
+     * @param metadata VariantStudyMetadata
+     */
+    public VariantSetStatsCalculator(VariantStudyMetadata metadata) {
+        this.studyId = metadata.getId();
         this.metadata = metadata;
+        files = metadata.getFiles()
+                .stream()
+                .map(org.opencb.biodata.models.variant.metadata.VariantFileMetadata::getId)
+                .collect(Collectors.toSet());
+        samples = metadata.getFiles()
+                .stream()
+                .flatMap(fileMetadata -> fileMetadata.getSampleIds().stream())
+                .collect(Collectors.toSet());
+        header = metadata.getAggregatedHeader();
+        stats = new VariantSetStats();
+        if (metadata.getStats() == null) {
+            metadata.setStats(new VariantStudyStats(new HashMap<>(), new HashMap<>()));
+        }
+        if (metadata.getStats().getCohortStats() == null) {
+            metadata.getStats().setCohortStats(new HashMap<>());
+        }
+        metadata.getStats().getCohortStats().put(StudyEntry.DEFAULT_COHORT, stats.getImpl());
+    }
+
+    /**
+     * Calculates VariantSetStats for a file.
+     * @param studyId       StudyId
+     * @param fileMetadata  VariantFileMetadata
+     */
+    public VariantSetStatsCalculator(String studyId, VariantFileMetadata fileMetadata) {
+        this.studyId = studyId;
+        this.metadata = fileMetadata.toVariantStudyMetadata(studyId);
+        files = Collections.singleton(fileMetadata.getId());
+        samples = new HashSet<>(fileMetadata.getSampleIds());
+        header = fileMetadata.getHeader();
+        stats = new VariantSetStats();
+        fileMetadata.setStats(stats);
     }
 
     @Override
-    public boolean pre() {
-        variantSetStats = new VariantSetStats();
-        variantSetStats.setNumSamples(metadata.getSampleIds().size());
-        return true;
+    public synchronized void pre() {
+        stats.setNumSamples(samples.size());
     }
 
     @Override
-    public synchronized boolean apply(List<Variant> batch) {
-
+    public synchronized List<Variant> apply(List<Variant> batch) {
         for (Variant variant : batch) {
             updateVariantSetStats(variant);
         }
-        return true;
+        return batch;
     }
 
-    public void updateVariantSetStats(Variant variant) {
-        updateVariantSetStats(variant, variantSetStats, studyId, metadata.getId());
-    }
-
-    public static void updateVariantSetStats(Variant variant, VariantSetStats stats, String studyId, String fileId) {
-        stats.setNumVariants(stats.getNumVariants() + 1);
+    private void updateVariantSetStats(Variant variant) {
         StudyEntry study = variant.getStudy(studyId);
-        FileEntry file = study.getFile(fileId);
-        if (file == null) {
-            logger.warn("File \"{}\" not found in variant {}. Skip variant");
+        if (study == null) {
             return;
         }
-        Map<String, String> attributes = file.getAttributes();
+        boolean validVariant = false;
+        List<FileEntry> fileEntries = new ArrayList<>(files.size());
+        for (String fileId : files) {
+            FileEntry fileEntry = study.getFile(fileId);
+            if (fileEntry == null) {
+//                logger.warn("File \"{}\" not found in variant {}. Skip variant", fileId, variant);
+                continue;
+            }
+            fileEntries.add(fileEntry);
+        }
+        if (!fileEntries.isEmpty()) {
+            validVariant = true;
+            updateVariantSetStats(fileEntries);
+        }
+        if (validVariant) {
+            stats.setNumVariants(stats.getNumVariants() + 1);
+            stats.addChromosomeCount(variant.getChromosome(), 1);
+            stats.addVariantTypeCount(variant.getType(), 1);
+            if (VariantStats.isTransition(variant.getReference(), variant.getAlternate())) {
+                transitionsCount++;
+            }
+            if (VariantStats.isTransversion(variant.getReference(), variant.getAlternate())) {
+                transversionsCount++;
+            }
+            updateVariantSetStats(variant.getAnnotation());
+        }
+    }
 
-        stats.addChromosomeCount(variant.getChromosome(), 1);
+    private void updateVariantSetStats(List<FileEntry> files) {
 
-        stats.addVariantTypeCount(variant.getType(), 1);
+        int numPass = 0;
+        for (FileEntry file : files) {
+            Map<String, String> attributes = file.getAttributes();
 
-        if ("PASS".equalsIgnoreCase(attributes.get(StudyEntry.FILTER))) {
-            stats.setNumPass(stats.getNumPass() + 1);
+            if (attributes.containsKey(StudyEntry.QUAL) && !(".").equals(attributes.get(StudyEntry.QUAL))) {
+                float qual = Float.valueOf(attributes.get(StudyEntry.QUAL));
+                qualCount++;
+                qualSum += qual;
+                qualSumSq += qual * qual;
+            }
+            if ("PASS".equalsIgnoreCase(attributes.get(StudyEntry.FILTER))) {
+                numPass++;
+            }
         }
 
-        float qual = 0;
-        if (attributes.containsKey(StudyEntry.QUAL) && !(".").equals(attributes.get(StudyEntry.QUAL))) {
-            qual = Float.valueOf(attributes.get(StudyEntry.QUAL));
+        // Count +1 PASS variant if ANY of the files is PASS
+        if (numPass > 0) {
+            stats.addNumPass(1);
         }
 
+    }
 
-        stats.setTransitionsCount(stats.getTransitionsCount() + (VariantStats.isTransition(variant.getReference(), variant.getAlternate()) ? 1 : 0));
-        stats.setTransversionsCount(stats.getTransversionsCount() + (VariantStats.isTransversion(variant.getReference(), variant.getAlternate()) ? 1 : 0));
-        stats.setAccumulatedQuality(stats.getAccumulatedQuality() + qual);
+    private void updateVariantSetStats(VariantAnnotation annotation) {
+        if (annotation != null) {
+            for (ConsequenceType consequenceType : annotation.getConsequenceTypes()) {
+                String biotype = consequenceType.getBiotype();
+                if (StringUtils.isNotEmpty(biotype)) {
+                    stats.addVariantBiotypeCounts(biotype, 1);
+                }
+                if (consequenceType.getSequenceOntologyTerms() != null) {
+                    for (SequenceOntologyTerm term : consequenceType.getSequenceOntologyTerms()) {
+                        stats.addConsequenceTypeCounts(term.getAccession(), 1);
+                    }
+                }
+            }
+        }
     }
 
     @Override
-    public boolean post() {
-        variantSetStats.setMeanQuality((float) (variantSetStats.getAccumulatedQuality() / variantSetStats.getNumVariants()));
-        variantSetStats.updateTiTvRatio();
-        Map<String, Integer> chrLengthMap = metadata.getHeader().getComplexLines()
+    public synchronized void post() {
+        float meanQuality = (float) (qualSum / qualCount);
+        stats.setMeanQuality(meanQuality);
+        //Var = SumSq / n - mean * mean
+        stats.setStdDevQuality((float) Math.sqrt(qualSumSq / qualCount - meanQuality * meanQuality));
+        stats.setTiTvRatio(transitionsCount, transversionsCount);
+        Map<String, Integer> chrLengthMap = header.getComplexLines()
                 .stream()
                 .filter(line -> line.getKey().equalsIgnoreCase("contig"))
                 .collect(Collectors.toMap(line -> Region.normalizeChromosome(line.getId()), line -> {
@@ -114,13 +206,15 @@ public class VariantSetStatsCalculator extends Task<Variant> {
                         return -1;
                     }
                 }));
-        variantSetStats.getChromosomeStats().forEach((chr, stats) -> {
+        stats.getChromosomeStats().forEach((chr, stats) -> {
             Integer length = chrLengthMap.get(chr);
             if (length != null && length > 0) {
                 stats.setDensity(stats.getCount() / (float) length);
             }
         });
-        metadata.setStats(variantSetStats);
-        return true;
+    }
+
+    public VariantSetStats getStats() {
+        return stats;
     }
 }
