@@ -61,14 +61,14 @@ public class PedigreeManager {
         for (int i = 0; i < individualStringLines.size(); i++) {
             line = individualStringLines.get(i);
             if (line != null) {
-                fields = line.split("\t");
+                fields = line.split("[ \t]");
                 if (fields.length < 6) {
                     throw new IOException("Pedigree file '" + pedigreePath + "' contains " + fields.length
-                            + ", it must contain minimum 6 columns!");
+                            + ", it must contain minimum 6 columns!\n" + line);
                 }
                 if (i == 0 && line.startsWith("#")) {
                     // header with variables, labels are optional
-                    labels = line.split("\t");
+                    labels = line.split("[ \t]");
                 } else {
                     // normal line
                     individual = new Individual()
@@ -95,7 +95,7 @@ public class PedigreeManager {
         for (int i = 1; i < individualStringLines.size(); i++) {
             line = individualStringLines.get(i);
             if (line != null) {
-                fields = line.split("\t");
+                fields = line.split("[ \t]");
                 if (!line.startsWith("#")) {
                     // update father, mother and child
                     Pedigree.updateIndividuals(individualMap.get(Pedigree.key(fields[0], fields[2])),

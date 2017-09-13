@@ -14,7 +14,7 @@ public class PedigreeManagerTest {
     @Test
     public void test() {
         try {
-            Path inputPath = Paths.get(getClass().getResource("/test1.ped").toURI());
+            Path inputPath = Paths.get(getClass().getResource("/pheno").toURI());
             Path outputPath = Paths.get("/tmp/output.ped");
 
             PedigreeManager pedigreeManager = new PedigreeManager();
