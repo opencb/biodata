@@ -8,12 +8,10 @@ import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 import org.opencb.biodata.tools.variant.VariantVcfHtsjdkReader;
-import org.opencb.commons.utils.FileUtils;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.FileAttribute;
 import java.util.List;
 
 public class VCFExporterTest {
@@ -36,7 +34,7 @@ public class VCFExporterTest {
 
         VCFExporter exporter = new VCFExporter(metadata);
         Options writerOptions = Options.USE_ASYNC_IO;
-        exporter.open(writerOptions, outPath);
+        exporter.open(outPath, writerOptions);
 
         List<Variant> read = reader.read();
         while (read != null && !read.isEmpty()) {

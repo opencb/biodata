@@ -276,12 +276,13 @@ public abstract class VariantContextConverter<T> implements Converter<T, Variant
         return genotypes;
     }
 
-    protected VariantContext makeVariantContext(String chromosome, int start, String idForVcf, List<String> alleleList, boolean isNoVariation, Set<String> filters, double qual, ObjectMap attributes, List<Genotype> genotypes) {
+    protected VariantContext makeVariantContext(String chromosome, int start, int end, String idForVcf, List<String> alleleList, boolean isNoVariation, Set<String> filters, double qual, ObjectMap attributes, List<Genotype> genotypes) {
         String refAllele = alleleList.get(0);
         VariantContextBuilder variantContextBuilder = new VariantContextBuilder()
                 .chr(chromosome)
                 .start(start)
-                .stop(start + refAllele.length() - 1) //TODO mh719: check what happens for Insertions
+                .stop(end)
+//                .stop(start + refAllele.length() - 1) //TODO mh719: check what happens for Insertions
                 .log10PError(qual)
                 .filters(filters);
 

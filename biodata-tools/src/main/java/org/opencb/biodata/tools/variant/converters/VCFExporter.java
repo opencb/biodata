@@ -1,5 +1,6 @@
 package org.opencb.biodata.tools.variant.converters;
 
+import com.google.common.collect.Iterators;
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.variantcontext.writer.Options;
 import htsjdk.variant.variantcontext.writer.VariantContextWriter;
@@ -15,10 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class VCFExporter implements Closeable {
 
@@ -60,23 +58,7 @@ public class VCFExporter implements Closeable {
      * @param variant           Variant
      */
     public void export(Variant variant) {
-        // sanity check
-        if (writer == null) {
-            logger.error("Error exporting VCF data: exporter must be opened");
-            return;
-        }
-
-        try {
-            // writing variant
-            VariantContext variantContext = variantConverter.convert(variant);
-            System.out.println(variantContext.toString());
-            writer.add(variantContext);
-
-//            // close everything
-//            close();
-        } catch (Exception e) {
-            logger.error("Error exporting VCF data: {}", e.getMessage());
-        }
+        export(Iterators.singletonIterator(variant));
     }
 
     /**
@@ -85,25 +67,7 @@ public class VCFExporter implements Closeable {
      * @param variants          Variant list
      */
     public void export(List<Variant> variants) {
-        // sanity check
-        if (writer == null) {
-            logger.error("Error exporting VCF data: exporter must be opened");
-            return;
-        }
-
-        try {
-            // main loop (from list)
-            for (Variant variant: variants) {
-                VariantContext variantContext = variantConverter.convert(variant);
-                System.out.println(variantContext.toString());
-                writer.add(variantContext);
-            }
-
-//            // close everything
-//            close();
-        } catch (Exception e) {
-            logger.error("Error exporting VCF data: {}", e.getMessage());
-        }
+        export(variants.iterator());
     }
 
     /**
@@ -118,26 +82,31 @@ public class VCFExporter implements Closeable {
             return;
         }
 
-        try {
-            // main loop (from iterator)
-            while (iterator.hasNext()) {
+        // main loop (from iterator)
+        while (iterator.hasNext()) {
+            try {
                 VariantContext variantContext = variantConverter.convert(iterator.next());
                 //System.out.println(variantContext.toString());
                 writer.add(variantContext);
+            } catch (Exception e) {
+                logger.error("Error exporting VCF data: {}", e.getMessage(), e);
             }
-
-//            // close everything
-//            close();
-        } catch (Exception e) {
-            logger.error("Error exporting VCF data: {}", e.getMessage());
         }
+
+//      // close everything
+//      close();
     }
 
-    public void open(Options writerOptions, Path outPath) throws FileNotFoundException {
+    public void open(Path outPath, Options... writerOptions) throws FileNotFoundException {
+        FileOutputStream os = new FileOutputStream(outPath.toString());
+        open(os, writerOptions);
+    }
+
+    public void open(OutputStream os, Options... writerOptions) {
         variantConverter = new VariantAvroToVariantContextConverter(metadata.getId(), sampleNames, formats, annotations);
 
         // create the variant context writer
-        outputStream = new FileOutputStream(outPath.toString());
+        outputStream = Objects.requireNonNull(os);
         writer = VcfUtils.createVariantContextWriter(outputStream,
                 vcfHeader.getSequenceDictionary(), writerOptions);
 
