@@ -146,6 +146,7 @@ protocol VariantAnnotations {
     }
 
     record Cytoband {
+        union { null, string } chromosome;
         union { null, string } stain;
         union { null, string } name;
         union { null, int } start;
