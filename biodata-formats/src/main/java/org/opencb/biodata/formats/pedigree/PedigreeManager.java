@@ -149,46 +149,66 @@ public class PedigreeManager {
      */
     public void save(Pedigree pedigree, Path pedigreePath) throws IOException {
         final OutputStream os = new FileOutputStream(pedigreePath.toFile());
-        write(pedigree, os);
-
-        // close
+        // Sanity check
+        if (pedigree != null) {
+            writeHeader(pedigree, os);
+            write(pedigree, os);
+        }
+        // Close
         os.close();
     }
 
-    public void write(Pedigree pedigree, OutputStream os) {
-/*
-        final PrintStream writer = new PrintStream(os);
+    public void save(List<Pedigree> pedigrees, Path pedigreePath) throws IOException {
+        final OutputStream os = new FileOutputStream(pedigreePath.toFile());
+        // Sanity check
+        if (pedigrees != null && !pedigrees.isEmpty()) {
+            writeHeader(pedigrees.get(0), os);
+            for (Pedigree pedigree : pedigrees) {
+                write(pedigree, os);
+            }
+        }
+        // Close
+        os.close();
+    }
 
+    private void writeHeader(Pedigree pedigree, OutputStream os) throws IOException {
         StringBuilder line = new StringBuilder();
 
         // TODO: check order labels, header line and individual lines !!
-
         // header line
-        line.append("#Family").append("\t").append("Person").append("\t").append("Father").append("\t")
-                .append("Mother").append("\t").append("Sex").append("\t").append("Phenotype");
-        pedigree.getVariables().forEach((s, variableField) -> line.append("\t").append(s));
-        writer.println(line.toString());
+        line.append("#family").append("\t").append("individual").append("\t").append("father").append("\t")
+                .append("mother").append("\t").append("sex").append("\t").append("affection");
+        pedigree.getMembers().get(0).getAttributes().forEach((k, v) -> line.append("\t").append(k));
+        os.write(line.toString().getBytes());
+        os.write("\n".getBytes());
+    }
+
+    private void write(Pedigree pedigree, OutputStream os) throws IOException {
+//        final PrintStream writer = new PrintStream(os);
+
+        StringBuilder line = new StringBuilder();
 
         // main lines (individual data)
-        for (Individual individual: pedigree.getIndividuals().values()) {
+        for (Individual individual: pedigree.getMembers()) {
             // mandatory fields
             line.setLength(0);
-            line.append(individual.getFamily()).append("\t").append(individual.getId()).append("\t")
-                    .append(individual.getFather() != null ? individual.getFather().getId() : 0).append("\t")
-                    .append(individual.getMother() != null ? individual.getMother().getId() : 0).append("\t")
-                    .append(individual.getSex().getValue()).append("\t").append(individual.getPhenotype().getValue());
+            line.append(pedigree.getName()).append("\t").append(individual.getName()).append("\t")
+                    .append(individual.getFather() != null ? individual.getFather().getName() : 0).append("\t")
+                    .append(individual.getMother() != null ? individual.getMother().getName() : 0).append("\t")
+                    .append(individual.getSex().getValue()).append("\t")
+                    .append(individual.getAffectionStatus().getValue());
 
             // custom fields (optional)
-            if (individual.getVariables() != null) {
-                individual.getVariables().forEach(((s1, o) -> line.append("\t").append(o)));
+            if (individual.getAttributes() != null) {
+                individual.getAttributes().forEach(((k, v) -> line.append("\t").append(v)));
             }
 
             // write line
-            writer.println(line.toString());
+            os.write(line.toString().getBytes());
+            os.write("\n".getBytes());
         }
 
         // close
-        writer.close();
-*/
+        //writer.close();
     }
 }

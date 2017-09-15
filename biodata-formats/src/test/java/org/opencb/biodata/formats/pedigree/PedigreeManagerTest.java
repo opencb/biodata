@@ -23,7 +23,7 @@ public class PedigreeManagerTest {
             for (Pedigree pedigree: pedigrees) {
                 System.out.println(pedigree.toJSON());
             }
-            //pedigreeManager.save(pedigree, outputPath);
+            pedigreeManager.save(pedigrees, outputPath);
         } catch (Exception e) {
             e.printStackTrace();
         }
