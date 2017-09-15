@@ -33,6 +33,7 @@ import org.biojava.nbio.core.sequence.compound.NucleotideCompound;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.VariantBuilder;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.VariantType;
@@ -62,14 +63,6 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
     private boolean generateReferenceBlocks = false;
     private Map<Integer, int[]> genotypeReorderMapCache = new ConcurrentHashMap<>();
     private final VariantAlternateRearranger.Configuration rearrangerConf = new VariantAlternateRearranger.Configuration();
-
-    private static final Set<String> VALID_NTS = new HashSet<>(Arrays.asList("A", "C", "G", "T", "N"));
-    private static final String CNV = "<CNV>";
-    private static final String COPY_NUMBER_TAG = "CN";
-    private static final String CIPOS_STRING = "CIPOS";
-    private static final String CIEND_STRING = "CIEND";
-
-    private static final String[] ALLELE_TO_STRING = new String[]{"0", "1", "2", "3", "4", "5"};
 
     public VariantNormalizer() {}
 
@@ -1022,7 +1015,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                         //Set reference only if is different from the original one
                         alternate.getReference().equals(keyFields.getReference()) ? null : keyFields.getReference(),
                         keyFields.getAlternate(),
-                        Variant.inferType(keyFields.getReference(), keyFields.getAlternate())
+                        VariantBuilder.inferType(keyFields.getReference(), keyFields.getAlternate())
                 ));
             }
         }

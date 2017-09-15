@@ -22,13 +22,11 @@ package org.opencb.biodata.tools.variant.converters.avro;
 import htsjdk.variant.variantcontext.Allele;
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFConstants;
-import org.apache.commons.lang3.StringUtils;
-import org.opencb.biodata.formats.variant.annotation.VepParser;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.StudyEntry;
+import org.opencb.biodata.models.variant.VariantBuilder;
 import org.opencb.biodata.models.variant.avro.*;
-import org.opencb.biodata.models.variant.stats.VariantStats;
+import org.opencb.biodata.models.variant.protobuf.VariantProto;
 import org.opencb.biodata.tools.variant.converters.Converter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,24 +44,12 @@ import static org.opencb.biodata.models.variant.StudyEntry.isSamplesPositionMapS
  */
 public class VariantContextToVariantConverter implements Converter<VariantContext, Variant>, Serializable {
 
-    private static final EnumSet<VariantType> SV_TYPES = EnumSet.of(VariantType.INSERTION, VariantType.DELETION,
-            VariantType.TRANSLOCATION, VariantType.INVERSION, VariantType.CNV, VariantType.DUPLICATION,
-            VariantType.BREAKEND, VariantType.SV, VariantType.SYMBOLIC);
     private final String studyId;
     private final String fileId;
     private LinkedHashMap<String, Integer> samplesPosition;
     private List<String> consequenceTypeFields;
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass().toString());
-
-    private static final String CIPOS_STRING = "CIPOS";
-    private static final String CIEND_STRING = "CIEND";
-    private static final String SVINSSEQ = "SVINSSEQ";
-    private static final String LEFT_SVINSSEQ = "LEFT_SVINSSEQ";
-    private static final String RIGHT_SVINSSEQ = "RIGHT_SVINSSEQ";
-    private static final String DUPSTR = "<DUP>";
-    private static final String TANDEMDUPSTR = "<DUP:TANDEM>";
-
 
     VariantContextToVariantConverter(){
         this("", "", null);
@@ -110,33 +96,47 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
      * @return
      */
     public Variant convert(VariantContext variantContext, Variant reuse) {
-        Variant variant = reuse;
+        return getBuilder(variantContext).build(reuse);
+    }
 
-        variant.setChromosome(variantContext.getContig());
-        variant.setStart(variantContext.getStart());
-        variant.setEnd(variantContext.getEnd());
+    /**
+     *
+     * @param variantContext
+     * @param reuse an instance to reuse.
+     * @return
+     */
+    public VariantProto.Variant convertToProto(VariantContext variantContext, VariantProto.Variant reuse) {
+        return getBuilder(variantContext).buildProtoVariant(reuse);
+    }
+
+    /**
+     *
+     * @param variantContext
+     * @return
+     */
+    private VariantBuilder getBuilder(VariantContext variantContext) {
+        VariantBuilder builder = Variant.newBuilder()
+                .setChromosome(variantContext.getContig())
+                .setStart(variantContext.getStart())
+                .setEnd(variantContext.getEnd())
+                .setStudyId(studyId)
+                .setFileId(fileId);
 
         // Setting reference and alternate alleles
-        variant.setReference(variantContext.getReference().getDisplayString());
-        List<Allele> alternateAlleleList = variantContext.getAlternateAlleles();
-        if (alternateAlleleList != null && !alternateAlleleList.isEmpty()) {
-            String alternateString = alternateAlleleList.get(0).toString();
-//            if (Allele.wouldBeSymbolicAllele(alternateString.getBytes())) {
-//                structuralVariation = new StructuralVariation();
-//            }
-//            if (alternateString.equals(TANDEMDUPSTR)) {
-//                variant.setAlternate(DUPSTR);
-//                structuralVariation.setType(StructuralVariantType.TANDEM_DUPLICATION);
-//            } else {
+        String reference = variantContext.getReference().getDisplayString();
+        builder.setReference(reference);
 
-            // Be aware! alternate may be modified later in this code: <INS> variants with known sequence will
-            // set the inserted sequence in the alternate, once the inserted sequence is parsed from the INFO field
-            // Also, <DUP:TANDEM> alternates will later be replaced by <DUP>
-            variant.setAlternate(alternateString);
-//            }
+        List<Allele> alternateAlleleList = variantContext.getAlternateAlleles();
+        List<String> alternates;
+        if (alternateAlleleList.isEmpty()) {
+            alternates = Collections.singletonList("");
+            builder.setAlternate("");
         } else {
-            alternateAlleleList = Collections.emptyList();
-            variant.setAlternate("");
+            alternates = new ArrayList<>(alternateAlleleList.size());
+            for (Allele alternate : alternateAlleleList) {
+                alternates.add(alternate.toString());
+            }
+            builder.setAlternates(alternates);
         }
 
         //Do not need to store dot ID. It means that this variant does not have any ID
@@ -147,99 +147,48 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
                 ids.add(id);
             }
         }
-        variant.setIds(ids);
+        builder.setIds(ids);
 
-
-
-        // TODO Nacho please add CNV when symbolic
-
-        final VariantType type;
-        if (!variantContext.getType().equals(VariantContext.Type.NO_VARIATION)) {
-            type = Variant.inferType(variant.getReference(), variant.getAlternate());
-        } else {
-            type = VariantType.NO_VARIATION;
-        }
-        variant.setType(type);
-
-        // Create and initialize StructuralVariation object if needed
-        StructuralVariation structuralVariation = null;
-        if (SV_TYPES.contains(variant.getType())) {
-            variant.resetSV();
-            structuralVariation = variant.getSv();
-            if (variant.getAlternate().equals(TANDEMDUPSTR)) {
-                variant.setAlternate(DUPSTR);
-                variant.setType(VariantType.DUPLICATION);
-                structuralVariation.setType(StructuralVariantType.TANDEM_DUPLICATION);
-            }
+        if (variantContext.getType().equals(VariantContext.Type.NO_VARIATION)) {
+            builder.setType(VariantType.NO_VARIATION);
         }
 
-        variant.resetLength();
-
-        // set variantSourceEntry fields
-        List<StudyEntry> studies = new ArrayList<>();
-        StudyEntry studyEntry = new StudyEntry();
-
-        // For time being setting the hard coded values for FileId and Study ID
-        studyEntry.setStudyId(studyId);
-
-
-        FileEntry fileEntry = new FileEntry();
-        fileEntry.setFileId(fileId);
-        fileEntry.setCall("");
-        Map<String, String> attributes = new HashMap<>();
+        // INFO
         for (String key : variantContext.getAttributes().keySet()) {
             // Do not use "getAttributeAsString" for lists.
             // It will add brackets surrounding the values
             if (variantContext.getAttribute(key, "") instanceof List) {
-                attributes.put(key, StringUtils.join(variantContext.getAttributeAsList(key), VCFConstants.INFO_FIELD_ARRAY_SEPARATOR));
+                builder.addAttribute(key, variantContext.getAttributeAsList(key));
             } else {
-                attributes.put(key, variantContext.getAttributeAsString(key, ""));
+                builder.addAttribute(key, variantContext.getAttributeAsString(key, ""));
             }
-            // Be aware! this method below may change variant.alternate
-            parseStructuralVariationAttributes(structuralVariation, variant, key, attributes.get(key));
         }
+
+        //TODO: Call to the Variant Aggregated Stats Parser ??
+//        builder.setStats(new HashMap<>());
 
         // QUAL
         if (variantContext.getLog10PError() != VariantContext.NO_LOG10_PERROR) {
-            attributes.put(StudyEntry.QUAL, Double.toString(variantContext.getPhredScaledQual()));
+            builder.setQuality(variantContext.getPhredScaledQual());
         }
 
         // FILTER
         Set<String> filter = variantContext.getFiltersMaybeNull();
         if (filter == null) {
-            attributes.put(StudyEntry.FILTER, VCFConstants.UNFILTERED);
+            builder.setFilter(VCFConstants.UNFILTERED);
         } else if (filter.isEmpty()) {
-            attributes.put(StudyEntry.FILTER, VCFConstants.PASSES_FILTERS_v4);
+            builder.setFilter(VCFConstants.PASSES_FILTERS_v4);
         } else {
             if (filter.size() == 1) {
-                attributes.put(StudyEntry.FILTER, filter.iterator().next());
+                builder.setFilter(filter.iterator().next());
             } else {
-                attributes.put(StudyEntry.FILTER, filter
-                        .stream().sorted().collect(Collectors.joining(VCFConstants.FILTER_CODE_SEPARATOR)));
+                builder.setFilter(filter.stream()
+                        .sorted()
+                        .collect(Collectors.joining(VCFConstants.FILTER_CODE_SEPARATOR)));
             }
         }
 
-        fileEntry.setAttributes(attributes);
-        studyEntry.setFiles(Collections.singletonList(fileEntry));
-
-
-        // We need to convert Allele object to String
-        // We skip the first alternate allele since these are the secondaries
-        List<AlternateCoordinate> secondaryAlternateList = new ArrayList<>(Math.max(alternateAlleleList.size() - 1, 0));
-        List<String> alternates = new ArrayList<>(alternateAlleleList.size());
-        if (alternateAlleleList.size() > 0) {
-            alternates.add(alternateAlleleList.get(0).toString());
-        }
-        for (int i = 1; i < alternateAlleleList.size(); i++) {
-            String allele = alternateAlleleList.get(i).toString();
-            alternates.add(allele);
-            secondaryAlternateList.add(new AlternateCoordinate(null, null, null, null, allele, variant.getType()));
-//            secondaryAlternateList.add(new AlternateCoordinate(null, null, null, null, allele, variantType));
-        }
-        studyEntry.setSecondaryAlternates(secondaryAlternateList);
-
-
-        // set variant format
+        // FORMAT
         // FIXME: This code is not respecting the original format order
         List<String> formatFields = new ArrayList<>(10);
         if (!variantContext.getGenotypes().isEmpty()) {
@@ -255,10 +204,11 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
                 }
             }
         }
-        studyEntry.setFormat(formatFields);
+        builder.setFormat(formatFields);
 
         Map<Allele, String> allelesMap = getAlleleStringMap(variantContext);
 
+        // GENOTYPES
         if (samplesPosition == null) {
             logger.warn("Using alphabetical order for samples position!");
             samplesPosition = createSamplesPositionMap(variantContext.getSampleNamesOrderedByName());
@@ -277,7 +227,7 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
                         if (genotypeValue.equals(".")) {
                             value = "./.";
                         } else {
-                            value = new Genotype(genotypeValue, variant.getReference(), alternates).toString();
+                            value = new Genotype(genotypeValue, reference, alternates).toString();
                         }
                         break;
                     default:
@@ -299,157 +249,10 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
             }
             sampleDataList.add(sampleList);
         }
-        studyEntry.setSamplesData(sampleDataList);
-        studyEntry.setSamplesPosition(samplesPosition);
+        builder.setSamplesPosition(samplesPosition);
+        builder.setSamplesData(sampleDataList);
 
-
-        /*
-         * set stats fields. Putting hard coded values for time
-         * being as these value will not be getting from HTSJDK
-         * currently.
-         */
-        Map<String, VariantStats> stats = new HashMap<>();
-        //TODO: Call to the Variant Aggregated Stats Parser
-//        stats.put(
-//                "2",
-//                setVariantStatsParams(
-//                        setVariantHardyWeinbergStatsParams(),
-//                        variantContext));
-        studyEntry.setStats(stats);
-
-        studies.add(studyEntry);
-        variant.setStudies(studies);
-
-        // Set the CNV type
-//        if (variant.getType().equals(VariantType.CNV)) {
-//            Integer copyNumber = Variant.getCopyNumberFromAlternate(variant.getAlternate());
-//            if (copyNumber != null) {
-//                structuralVariation.setCopyNumber(copyNumber);
-//                structuralVariation.setType(Variant.getCNVSubtype(copyNumber));
-//            }
-//        }
-//
-//        if (structuralVariation != null) {
-//            structuralVariation.setCiStartLeft(variant.getStart());
-//            structuralVariation.setCiStartRight(variant.getStart());
-//            structuralVariation.setCiEndLeft(variant.getEnd());
-//            structuralVariation.setCiEndRight(variant.getEnd());
-//            variant.setSv(structuralVariation);
-//        }
-
-        // set VariantAnnotation parameters
-        // TODO: Read annotation from info column
-        if (consequenceTypeFields != null && !consequenceTypeFields.isEmpty()) {
-            variant.setAnnotation(VepParser.parseInfoCsq(consequenceTypeFields, variantContext.getAttributes().get("CSQ").toString()));
-        }
-
-        return variant;
-    }
-
-    private void parseStructuralVariationAttributes(StructuralVariation structuralVariation, Variant variant,
-                                                    String attribute, String value) {
-        switch (attribute) {
-            case SVINSSEQ:
-                // Seen DELETIONS with this field set - makes no sense
-                if (VariantType.INSERTION.equals(variant.getType())) {
-                    variant.setAlternate(value);
-                }
-                break;
-            case LEFT_SVINSSEQ:
-                if (VariantType.INSERTION.equals(variant.getType())) {
-                    structuralVariation.setLeftSvInsSeq(value);
-                }
-                break;
-            case RIGHT_SVINSSEQ:
-                // Seen DELETIONS with this field set - makes no sense
-                if (VariantType.INSERTION.equals(variant.getType())) {
-                    structuralVariation.setRightSvInsSeq(value);
-                }
-                break;
-            case CIPOS_STRING:
-                String[] parts = value.split(",");
-                structuralVariation.setCiStartLeft(variant.getStart() + Integer.parseInt(parts[0]));
-                structuralVariation.setCiStartRight(variant.getStart() + Integer.parseInt(parts[1]));
-                break;
-            case CIEND_STRING:
-                parts = value.split(",");
-                structuralVariation.setCiEndLeft(variant.getEnd() + Integer.parseInt(parts[0]));
-                structuralVariation.setCiEndRight(variant.getEnd() + Integer.parseInt(parts[1]));
-                break;
-        }
-
-    }
-
-    public static StructuralVariation getStructuralVariation(Variant variant, StructuralVariantType tandemDuplication) {
-        int[] impreciseStart = getImpreciseStart(variant);
-        int[] impreciseEnd = getImpreciseEnd(variant);
-        String[] svInsSeq = getSvInsSeq(variant);
-
-        StructuralVariation sv = new StructuralVariation();
-        sv.setCiStartLeft(impreciseStart[0]);
-        sv.setCiStartRight(impreciseStart[1]);
-        sv.setCiEndLeft(impreciseEnd[0]);
-        sv.setCiEndRight(impreciseEnd[1]);
-
-        sv.setLeftSvInsSeq(svInsSeq[0]);
-        sv.setRightSvInsSeq(svInsSeq[1]);
-
-        // If it's not a tandem duplication, this will set the type to null
-        sv.setType(tandemDuplication);
-
-        // Will properly set the type if it's a CNV
-        if (variant.getType().equals(VariantType.CNV)) {
-            Integer copyNumber = Variant.getCopyNumberFromAlternate(variant.getAlternate());
-            if (copyNumber != null) {
-                sv.setCopyNumber(copyNumber);
-                sv.setType(Variant.getCNVSubtype(copyNumber));
-            }
-        }
-        return sv;
-
-    }
-
-    private static String[] getSvInsSeq(Variant variant) {
-        String leftSvInsSeq = null;
-        String rightSvInsSeq = null;
-        if (variant.getStudies()!= null
-                && !variant.getStudies().isEmpty()
-                && !variant.getStudies().get(0).getFiles().isEmpty()) {
-            if (variant.getStudies().get(0).getFiles().get(0).getAttributes().containsKey(LEFT_SVINSSEQ)) {
-                leftSvInsSeq = variant.getStudies().get(0).getFiles().get(0).getAttributes().get(LEFT_SVINSSEQ);
-            }
-            if (variant.getStudies().get(0).getFiles().get(0).getAttributes().containsKey(RIGHT_SVINSSEQ)) {
-                rightSvInsSeq = variant.getStudies().get(0).getFiles().get(0).getAttributes().get(RIGHT_SVINSSEQ);
-            }
-        }
-
-        return new String[]{leftSvInsSeq, rightSvInsSeq};
-    }
-
-    public static int[] getImpreciseStart(Variant variant) {
-        if (variant.getStudies()!= null
-                && !variant.getStudies().isEmpty()
-                && !variant.getStudies().get(0).getFiles().isEmpty()
-                && variant.getStudies().get(0).getFiles().get(0).getAttributes().containsKey(CIPOS_STRING)) {
-            String[] parts = variant.getStudies().get(0).getFiles().get(0).getAttributes().get(CIPOS_STRING).split(",");
-            return new int[]{variant.getStart() + Integer.parseInt(parts[0]),
-                    variant.getStart() + Integer.parseInt(parts[1])};
-        } else {
-            return new int[]{variant.getStart(), variant.getStart()};
-        }
-    }
-
-    public static int[] getImpreciseEnd(Variant variant) {
-        if (variant.getStudies()!= null
-                && !variant.getStudies().isEmpty()
-                && !variant.getStudies().get(0).getFiles().isEmpty()
-                && variant.getStudies().get(0).getFiles().get(0).getAttributes().containsKey(CIEND_STRING)) {
-            String[] parts = variant.getStudies().get(0).getFiles().get(0).getAttributes().get(CIEND_STRING).split(",");
-            return new int[]{variant.getEnd() + Integer.parseInt(parts[0]),
-                    variant.getEnd() + Integer.parseInt(parts[1])};
-        } else {
-            return new int[]{variant.getEnd(), variant.getEnd()};
-        }
+        return builder;
     }
 
     public static Map<Allele, String> getAlleleStringMap(VariantContext variantContext) {
@@ -462,7 +265,6 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
         return allelesMap;
     }
 
-    // TODO: Move to an abstract class
     public static String genotypeToString(Map<Allele, String> allelesMap, htsjdk.variant.variantcontext.Genotype genotype) {
         String genotypeValue;
         StringBuilder gt = new StringBuilder();

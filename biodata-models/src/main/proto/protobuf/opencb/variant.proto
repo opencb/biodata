@@ -164,9 +164,16 @@ message StructuralVariation {
     int32 copyNumber = 5;
 
     /**
+    * Inserted sequence for long INS
+    **/
+    string leftSvInsSeq = 6;
+    string rightSvInsSeq = 7;
+
+
+    /**
     * Structural variation type: COPY_NUMBER_GAIN, COPY_NUMBER_LOSS, TANDEM_DUPLICATION, ...
     */
-    StructuralVariantType type = 6;
+    StructuralVariantType type = 8;
 }
 
 message Variant {
@@ -217,7 +224,7 @@ message Variant {
     /**
      * Information regarding Structural Variants
      */
-    /** StructuralVariation sv = 14; **/
+    StructuralVariation sv = 14;
 
     /**
      * The variant ID.

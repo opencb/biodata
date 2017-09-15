@@ -26,8 +26,8 @@ public class VariantTest {
         map.put("1:1000-2000:<CN5>", new Variant("1", 1000, 2000, "", "<CN5>").setType(VariantType.CNV).setSv(new StructuralVariation(1000, 1000, 2000, 2000, 5, null, null, StructuralVariantType.COPY_NUMBER_GAIN)));
 
         for (Map.Entry<String, Variant> entry : map.entrySet()) {
-//            System.out.println("expected : " + entry.getValue().toJson());
-//            System.out.println("actual   : " + new Variant(entry.getKey()).toJson());
+            System.out.println("expected : " + entry.getValue().toJson());
+            System.out.println("actual   : " + new Variant(entry.getKey()).toJson());
             assertEquals("Parsing \"" + entry.getKey() + "\"", entry.getValue(), new Variant(entry.getKey()));
         }
     }
