@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import htsjdk.variant.vcf.VCFHeader;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.core.pedigree.Individual;
+import org.opencb.biodata.models.core.pedigree.Multiples;
 import org.opencb.biodata.models.core.pedigree.Pedigree;
 import org.opencb.biodata.models.metadata.Cohort;
 import org.opencb.biodata.models.metadata.Sample;
@@ -359,7 +360,7 @@ public class VariantMetadataManager {
             logger.error("Individual is null.");
             return;
         }
-        removeIndividual(individual.getId(), studyId);
+        removeIndividual(individual.getName(), studyId);
     }
 
     /**
@@ -515,6 +516,21 @@ public class VariantMetadataManager {
     }
 
     /**
+     * Load a list of pedrigree objects into a given study (from its study ID).
+     *
+     * @param pedigrees     List of Pedigree objects to load
+     * @param studyId       Study ID related to that pedigrees
+     * @return              Variant metadata object
+     */
+    public VariantMetadata loadPedigree(List<Pedigree> pedigrees, String studyId) {
+        VariantMetadata variantMetadata = null;
+        for(Pedigree pedigree: pedigrees) {
+            variantMetadata = loadPedigree(pedigree, studyId);
+        }
+        return variantMetadata;
+    }
+
+    /**
      * Load pedrigree into a given study (from its study ID).
      *
      * @param pedigree      Pedigree to load
@@ -526,22 +542,22 @@ public class VariantMetadataManager {
         if (variantStudyMetadata != null) {
             boolean found;
             org.opencb.biodata.models.metadata.Individual dest = null;
-            for (Individual src: pedigree.getIndividuals().values()) {
+            for (Individual src: pedigree.getMembers()) {
                 found = false;
                 for (int i = 0; i < variantStudyMetadata.getIndividuals().size(); i++) {
                     dest = variantStudyMetadata.getIndividuals().get(i);
-                    if (dest.getId().equals(src.getId())) {
+                    if (dest.getId().equals(src.getName())) {
                         found = true;
                         break;
                     }
                 }
                 if (found) {
-                    dest.setFamily(src.getFamily());
-                    dest.setFather(src.getFather() != null ? src.getFather().getId() : null);
-                    dest.setMother(src.getMother() != null ? src.getMother().getId() : null);
+                    dest.setFamily(pedigree.getName());
+                    dest.setFather(src.getFather() != null ? src.getFather().getName() : null);
+                    dest.setMother(src.getMother() != null ? src.getMother().getName() : null);
                     dest.setSex(src.getSex().toString());
-                    dest.setPhenotype(src.getPhenotype().toString());
-                    if (src.getVariables() != null && src.getVariables().size() > 0) {
+                    dest.setPhenotype(src.getAffectionStatus().toString());
+                    if (src.getAttributes() != null && src.getAttributes().size() > 0) {
                         found = false;
                         Sample sample = null;
                         // sanity check
@@ -568,24 +584,24 @@ public class VariantMetadataManager {
                             sample.setAnnotations(new HashMap<>());
                         }
                         // Default annotation (attributes from Individual)
-                        sample.getAnnotations().put(INDIVIDUAL_ID, src.getId());
-                        sample.getAnnotations().put(INDIVIDUAL_FAMILY, src.getFamily());
+                        sample.getAnnotations().put(INDIVIDUAL_ID, src.getName());
+                        sample.getAnnotations().put(INDIVIDUAL_FAMILY, pedigree.getName());
                         if (src.getFather() != null) {
-                            sample.getAnnotations().put(INDIVIDUAL_FATHER, src.getFather().getId());
+                            sample.getAnnotations().put(INDIVIDUAL_FATHER, src.getFather().getName());
                         }
                         if (src.getMother() != null) {
-                            sample.getAnnotations().put(INDIVIDUAL_MOTHER, src.getMother().getId());
+                            sample.getAnnotations().put(INDIVIDUAL_MOTHER, src.getMother().getName());
                         }
                         if (src.getSex() != null) {
                             sample.getAnnotations().put(INDIVIDUAL_SEX, src.getSex().toString());
                         }
-                        if (src.getPhenotype() != null) {
-                            sample.getAnnotations().put(INDIVIDUAL_PHENOTYPE, src.getPhenotype().toString());
+                        if (src.getAffectionStatus() != null) {
+                            sample.getAnnotations().put(INDIVIDUAL_PHENOTYPE, src.getAffectionStatus().toString());
                         }
                         // Custom annotation
-                        for (String key: src.getVariables().keySet()) {
-                            if (pedigree.getVariables().get(key) != null) {
-                                sample.getAnnotations().put(key, src.getVariables().get(key).toString());
+                        for (String key: src.getAttributes().keySet()) {
+                            if (pedigree.getAttributes().get(key) != null) {
+                                sample.getAnnotations().put(key, src.getAttributes().get(key).toString());
                             }
                         }
                         if (!found) {
@@ -603,15 +619,14 @@ public class VariantMetadataManager {
     }
 
     /**
-     * Retrieve the pedigree related to the input study ID.
+     * Retrieve the pedigree objects related to the input study ID.
      *
      * @param studyId     Study ID
-     * @return            Pedigree object
+     * @return            List of Pedigree objects
      */
-    public Pedigree getPedigree(String studyId) {
-        Pedigree pedigree = null;
-
+    public List<Pedigree> getPedigree(String studyId) {
         Individual dest;
+        Map<String, Pedigree> pedigreeMap = new HashMap<>();
         Map<String, Individual> individualMap = new HashMap<>();
 
         VariantStudyMetadata variantStudyMetadata = getVariantStudyMetadata(studyId);
@@ -619,12 +634,16 @@ public class VariantMetadataManager {
 
             // first loop
             for (org.opencb.biodata.models.metadata.Individual src: variantStudyMetadata.getIndividuals()) {
+
+                String pedigreeName = src.getFamily();
+                if (!pedigreeMap.containsKey(pedigreeName)) {
+                    pedigreeMap.put(pedigreeName, new Pedigree(pedigreeName, new ArrayList<>(), new HashMap<>()));
+                }
+
                 // main fields
-                dest = new Individual()
-                        .setId(src.getId())
-                        .setFamily(src.getFamily())
-                        .setSex(src.getSex())
-                        .setPhenotype(src.getPhenotype());
+                dest = new Individual(src.getId(), Individual.Sex.getEnum(src.getSex()),
+                        Individual.AffectionStatus.getEnum(src.getPhenotype()));
+
                 // attributes
                 if (src.getSamples() != null && src.getSamples().size() > 0) {
                     Map<String, String> annotation = src.getSamples().get(0).getAnnotations();
@@ -655,24 +674,45 @@ public class VariantMetadataManager {
                                 variables.put(fields[0], annotation.get(key));
                             }
                         }
-                        dest.setVariables(variables);
+                        dest.setAttributes(variables);
                     }
                 }
-                individualMap.put(Pedigree.key(dest), dest);
+                pedigreeMap.get(pedigreeName).getMembers().add(dest);
+                individualMap.put(pedigreeName + "_" + dest.getName(), dest);
             }
 
             // second loop: setting fathers, mothers, partners and children
             for (org.opencb.biodata.models.metadata.Individual src: variantStudyMetadata.getIndividuals()) {
                 // update father, mother and child
-                Pedigree.updateIndividuals(individualMap.get(Pedigree.key(src.getFamily(), src.getFather())),
-                        individualMap.get(Pedigree.key(src.getFamily(), src.getMother())),
-                        individualMap.get(Pedigree.key(src.getFamily(), src.getId())));
+                Individual father = individualMap.get(src.getFamily() + "_" + src.getFather());
+                Individual mother = individualMap.get(src.getFamily() + "_" + src.getMother());
+                Individual child = individualMap.get(src.getFamily() + "_" + src.getId());
+
+                // setting father and children
+                if (father != null) {
+                    child.setFather(father);
+                    if (father.getMultiples() == null) {
+                        Multiples multiples = new Multiples().setType("children").setSiblings(new ArrayList<>());
+                        father.setMultiples(multiples);
+                    }
+                    father.getMultiples().getSiblings().add(child.getName());
+                }
+
+                // setting mother and children
+                if (mother != null) {
+                    child.setMother(mother);
+                    if (mother.getMultiples() == null) {
+                        Multiples multiples = new Multiples().setType("children").setSiblings(new ArrayList<>());
+                        mother.setMultiples(multiples);
+                    }
+                    mother.getMultiples().getSiblings().add(child.getName());
+                }
             }
 
-            pedigree = new Pedigree(individualMap);
         }
 
-        return pedigree;
+        // create the list of Pedigree objects from the map
+        return new ArrayList<>(pedigreeMap.values());
     }
 
     /**
