@@ -19,13 +19,16 @@
 
 package org.opencb.biodata.formats.pedigree;
 
+import org.apache.avro.generic.GenericData;
 import org.opencb.biodata.models.core.pedigree.Individual;
+import org.opencb.biodata.models.core.pedigree.Multiples;
 import org.opencb.biodata.models.core.pedigree.Pedigree;
 import org.opencb.commons.utils.FileUtils;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,27 +42,32 @@ public class PedigreeManager {
     }
 
     /**
-     * Parse a Pedigree file and return a Pedigree object.
+     * Parse a Pedigree file and return a list of Pedigree objects.
      *
      * @param   pedigreePath    Path to the Pedigree file
-     * @return                  Pedigree object
+     * @return                  List of Pedigree objects
      * @throws IOException
      */
-    public Pedigree parse(Path pedigreePath) throws IOException {
+    public List<Pedigree> parse(Path pedigreePath) throws IOException {
         FileUtils.checkFile(pedigreePath);
 
+        Map<String, Pedigree> pedigreeMap = new HashMap<>();
         Map<String, Individual> individualMap = new HashMap<>();
-        List<String> individualStringLines = Files.readAllLines(pedigreePath);
 
-        String line, key;
-        String[] labels = null;
-        String[] fields;
+        String pedigreeName, individualName;
+        Individual.Sex sex;
+        Individual.AffectionStatus affectionStatus;
+        //String line, key;
+        String[] fields, labels = null;
 
         Individual individual;
 
-        // first loop: initializing individual map
+        // Read the whole pedigree file
+        List<String> individualStringLines = Files.readAllLines(pedigreePath);
+
+        // First loop: initializing individual map
         for (int i = 0; i < individualStringLines.size(); i++) {
-            line = individualStringLines.get(i);
+            String line = individualStringLines.get(i);
             if (line != null) {
                 fields = line.split("[ \t]");
                 if (fields.length < 6) {
@@ -71,45 +79,84 @@ public class PedigreeManager {
                     labels = line.split("[ \t]");
                 } else {
                     // normal line
-                    individual = new Individual()
-                            .setId(fields[1])
-                            .setFamily(fields[0])
-                            .setSex(fields[4])
-                            .setPhenotype(fields[5]);
+                    pedigreeName = fields[0];
+                    individualName = fields[1];
+                    sex = Individual.Sex.getEnum(fields[4]);
+                    affectionStatus = Individual.AffectionStatus.getEnum(fields[5]);
+                    if (!pedigreeMap.containsKey(pedigreeName)) {
+                        pedigreeMap.put(pedigreeName, new Pedigree(pedigreeName, new ArrayList<>(), new HashMap<>()));
+                    }
+
+                    individual = new Individual(individualName, sex, affectionStatus);
 
                     // labels are optional
                     if (labels != null && fields.length > 6 && labels.length == fields.length) {
-                        Map<String, Object> vars = new HashMap<>();
+                        Map<String, Object> attributes = new HashMap<>();
                         for (int j = 6; j < fields.length; j++) {
-                            vars.put(labels[j], fields[j]);
+                            attributes.put(labels[j], fields[j]);
                         }
-                        individual.setVariables(vars);
+                        individual.setAttributes(attributes);
                     }
-                    key = Pedigree.key(individual);
-                    individualMap.put(key, individual);
+                    pedigreeMap.get(pedigreeName).getMembers().add(individual);
+                    individualMap.put(pedigreeName + "_" + individualName, individual);
                 }
             }
         }
 
         // second loop: setting fathers, mothers, partners and children
         for (int i = 1; i < individualStringLines.size(); i++) {
-            line = individualStringLines.get(i);
+            String line = individualStringLines.get(i);
             if (line != null) {
                 fields = line.split("[ \t]");
                 if (!line.startsWith("#")) {
                     // update father, mother and child
-                    Pedigree.updateIndividuals(individualMap.get(Pedigree.key(fields[0], fields[2])),
-                            individualMap.get(Pedigree.key(fields[0], fields[3])),
-                            individualMap.get(Pedigree.key(fields[0], fields[1])));
+                    Individual father = individualMap.get(fields[0] + "_" + fields[2]);
+                    Individual mother = individualMap.get(fields[0] + "_" + fields[3]);
+                    Individual child = individualMap.get(fields[0] + "_" + fields[1]);
+
+                    // setting father and children
+                    if (father != null) {
+                        child.setFather(father);
+                        if (father.getMultiples() == null) {
+                            Multiples multiples = new Multiples().setType("children").setSiblings(new ArrayList<>());
+                            father.setMultiples(multiples);
+                        }
+                        father.getMultiples().getSiblings().add(child.getName());
+                    }
+
+                    // setting mother and children
+                    if (mother != null) {
+                        child.setMother(mother);
+                        if (mother.getMultiples() == null) {
+                            Multiples multiples = new Multiples().setType("children").setSiblings(new ArrayList<>());
+                            mother.setMultiples(multiples);
+                        }
+                        mother.getMultiples().getSiblings().add(child.getName());
+                    }
                 }
             }
         }
 
-        // create the Pedigree object with the map of individuals
-        return new Pedigree(individualMap);
+        // create the list of Pedigree objects from the map
+        return new ArrayList<>(pedigreeMap.values());
+    }
+
+    /**
+     * Save a Pedigree object into a Pedigree format file.
+     *
+     * @param pedigree      Pedigree object
+     * @param pedigreePath  Path to the Pedigree file
+     */
+    public void save(Pedigree pedigree, Path pedigreePath) throws IOException {
+        final OutputStream os = new FileOutputStream(pedigreePath.toFile());
+        write(pedigree, os);
+
+        // close
+        os.close();
     }
 
     public void write(Pedigree pedigree, OutputStream os) {
+/*
         final PrintStream writer = new PrintStream(os);
 
         StringBuilder line = new StringBuilder();
@@ -142,19 +189,6 @@ public class PedigreeManager {
 
         // close
         writer.close();
-    }
-
-    /**
-     * Save a Pedigree object into a Pedigree format file.
-     *
-     * @param pedigree      Pedigree object
-     * @param pedigreePath  Path to the Pedigree file
-     */
-    public void save(Pedigree pedigree, Path pedigreePath) throws IOException {
-        final OutputStream os = new FileOutputStream(pedigreePath.toFile());
-        write(pedigree, os);
-
-        // close
-        os.close();
+*/
     }
 }

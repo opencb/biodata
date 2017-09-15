@@ -5,6 +5,7 @@ import org.opencb.biodata.models.core.pedigree.Pedigree;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 /**
  * Created by jtarraga on 09/01/17.
@@ -18,9 +19,11 @@ public class PedigreeManagerTest {
             Path outputPath = Paths.get("/tmp/output.ped");
 
             PedigreeManager pedigreeManager = new PedigreeManager();
-            Pedigree pedigree = pedigreeManager.parse(inputPath);
-            System.out.println(pedigree);
-            pedigreeManager.save(pedigree, outputPath);
+            List<Pedigree> pedigrees = pedigreeManager.parse(inputPath);
+            for (Pedigree pedigree: pedigrees) {
+                System.out.println(pedigree.toJSON());
+            }
+            //pedigreeManager.save(pedigree, outputPath);
         } catch (Exception e) {
             e.printStackTrace();
         }
