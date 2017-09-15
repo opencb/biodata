@@ -56,6 +56,7 @@ public class VariantAvroToVariantContextConverter extends VariantContextConverte
         VariantType type = variant.getType();
         Pair<Integer, Integer> adjustedStartEndPositions = adjustedVariantStart(variant);
         int start = adjustedStartEndPositions.getLeft();
+        int end = adjustedStartEndPositions.getRight();
         List<String> alleleList = buildAlleles(variant, adjustedStartEndPositions);
         boolean isNoVariation = type.equals(VariantType.NO_VARIATION);
 
@@ -98,7 +99,7 @@ public class VariantAvroToVariantContextConverter extends VariantContextConverte
         // SAMPLES
         List<Genotype> genotypes = getGenotypes(alleleList, studyEntry.getFormat(), getSampleData);
 
-        return makeVariantContext(chromosome, start, idForVcf, alleleList, isNoVariation, filters, qual, attributes, genotypes);
+        return makeVariantContext(chromosome, start, end, idForVcf, alleleList, isNoVariation, filters, qual, attributes, genotypes);
     }
 
     /**
@@ -109,14 +110,19 @@ public class VariantAvroToVariantContextConverter extends VariantContextConverte
     protected Pair<Integer, Integer> adjustedVariantStart(Variant variant) {
         int start = variant.getStart();
         int end = variant.getEnd();
+        if (variant.getType().equals(VariantType.NO_VARIATION)) {
+            return new ImmutablePair<>(start, end);
+        }
         if (StringUtils.isBlank(variant.getReference()) || StringUtils.isBlank(variant.getAlternate())) {
             start = start - 1;
         }
         for (AlternateCoordinate alternateCoordinate : getStudy(variant).getSecondaryAlternates()) {
-            start = Math.min(start, alternateCoordinate.getStart());
-            end = Math.max(end, alternateCoordinate.getEnd());
+            int alternateStart = alternateCoordinate.getStart() == null ? variant.getStart() : alternateCoordinate.getStart().intValue();
+            int alternateEnd = alternateCoordinate.getEnd() == null ? variant.getEnd() : alternateCoordinate.getEnd().intValue();
+            start = Math.min(start, alternateStart);
+            end = Math.max(end, alternateEnd);
             if (StringUtils.isBlank(alternateCoordinate.getAlternate()) || StringUtils.isBlank(alternateCoordinate.getReference())) {
-                start = Math.min(start, alternateCoordinate.getStart() - 1);
+                start = Math.min(start, alternateStart - 1);
             }
         }
         return new ImmutablePair<>(start, end);
@@ -125,6 +131,9 @@ public class VariantAvroToVariantContextConverter extends VariantContextConverte
     public List<String> buildAlleles(Variant variant, Pair<Integer, Integer> adjustedRange) {
         String reference = variant.getReference();
         String alternate = variant.getAlternate();
+        if (variant.getType().equals(VariantType.NO_VARIATION)) {
+            return Arrays.asList(reference, ".");
+        }
         StudyEntry study = getStudy(variant);
         List<AlternateCoordinate> secAlts = study.getSecondaryAlternates();
         Map<Integer, Character> referenceAlleles = buildReferenceAllelesMap(study.getFiles().stream().map(FileEntry::getCall).iterator());
@@ -135,7 +144,9 @@ public class VariantAvroToVariantContextConverter extends VariantContextConverte
         alleles.add(buildAllele(variant.getChromosome(), origStart, origEnd, reference, adjustedRange, referenceAlleles));
         alleles.add(buildAllele(variant.getChromosome(), origStart, origEnd, alternate, adjustedRange, referenceAlleles));
         secAlts.forEach(alt -> {
-            alleles.add(buildAllele(variant.getChromosome(), alt.getStart(), alt.getEnd(), alt.getAlternate(), adjustedRange, referenceAlleles));
+            int alternateStart = alt.getStart() == null ? variant.getStart() : alt.getStart().intValue();
+            int alternateEnd = alt.getEnd() == null ? variant.getEnd() : alt.getEnd().intValue();
+            alleles.add(buildAllele(variant.getChromosome(), alternateStart, alternateEnd, alt.getAlternate(), adjustedRange, referenceAlleles));
         });
         return alleles;
     }

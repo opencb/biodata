@@ -55,6 +55,7 @@ public class VariantProtoToVariantContextConverter extends VariantContextConvert
         VariantProto.VariantType type = variant.getType();
         Pair<Integer, Integer> adjustedStartEndPositions = adjustedVariantStart(variant, studyEntry.getSecondaryAlternatesList());
         int start = adjustedStartEndPositions.getLeft();
+        int end = adjustedStartEndPositions.getRight();
         List<String> alleleList = buildAlleles(variant, studyEntry, adjustedStartEndPositions);
         boolean isNoVariation = type.equals(VariantProto.VariantType.NO_VARIATION);
 
@@ -94,7 +95,7 @@ public class VariantProtoToVariantContextConverter extends VariantContextConvert
 
         List<Genotype> genotypes = getGenotypes(alleleList, studyEntry.getFormatList(), getSampleData);
 
-        return makeVariantContext(chromosome, start, idForVcf, alleleList, isNoVariation, filters, qual, attributes, genotypes);
+        return makeVariantContext(chromosome, start, end, idForVcf, alleleList, isNoVariation, filters, qual, attributes, genotypes);
     }
 
     public String getSampleData(VariantProto.StudyEntry studyEntry, Map<String, Integer> formatPositions, String sampleName, String field) {
