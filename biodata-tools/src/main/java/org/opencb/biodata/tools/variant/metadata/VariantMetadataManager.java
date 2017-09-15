@@ -609,7 +609,7 @@ public class VariantMetadataManager {
                         }
                     }
                 } else {
-                    logger.warn("Loading pedigree, individual {} not found in metadata file, it will not be added.", src.getId());
+                    logger.warn("Loading pedigree, individual {} not found in metadata file, it will not be added.", src.getName());
                 }
             }
         } else {
