@@ -25,6 +25,7 @@ import java.util.Set;
 /**
  * Created by imedina on 10/10/16.
  */
+@Deprecated
 public class Family {
 
     private String id;
