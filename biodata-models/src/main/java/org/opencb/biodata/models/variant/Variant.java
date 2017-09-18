@@ -110,6 +110,16 @@ public class Variant implements Serializable, Comparable<Variant> {
         return VariantBuilder.inferType(reference, alternate);
     }
 
+    @Deprecated
+    public static Variant getMateBreakend(Variant variant) {
+        return VariantBuilder.getMateBreakend(variant);
+    }
+
+    @Deprecated
+    public static StructuralVariantType getCNVSubtype(Integer copyNumber) {
+        return VariantBuilder.getCNVSubtype(copyNumber);
+    }
+
     public void resetType() {
         setType(VariantBuilder.inferType(getReference(), getAlternate()));
     }
@@ -387,6 +397,10 @@ public class Variant implements Serializable, Comparable<Variant> {
                 resetLength();
             }
         }
+    }
+
+    public String toStringSimple() {
+        return getChromosome() + ":" + getStart() + ":" + (getReference().isEmpty() ? "-" : getReference()) + ":" + (getAlternate().isEmpty() ? "-" : getAlternate());
     }
 
     @Override

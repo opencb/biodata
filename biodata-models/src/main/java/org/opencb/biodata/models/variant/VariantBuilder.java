@@ -8,6 +8,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.models.variant.avro.*;
 import org.opencb.biodata.models.variant.protobuf.VariantProto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -21,20 +23,26 @@ import java.util.regex.Pattern;
  */
 public class VariantBuilder {
 
-    private static final String CIPOS_STRING = "CIPOS";
-    private static final String CIEND_STRING = "CIEND";
-    private static final String SVINSSEQ = "SVINSSEQ";
-    private static final String LEFT_SVINSSEQ = "LEFT_SVINSSEQ";
-    private static final String RIGHT_SVINSSEQ = "RIGHT_SVINSSEQ";
-    private static final String TANDEMDUPSTR = "<DUP:TANDEM>";
+    // Known INFO gags
+    private static final String CIPOS_INFO = "CIPOS";
+    private static final String CIEND_INFO = "CIEND";
+    private static final String SVINSSEQ_INFO = "SVINSSEQ";
+    private static final String LEFT_SVINSSEQ_INFO = "LEFT_SVINSSEQ";
+    private static final String RIGHT_SVINSSEQ_INFO = "RIGHT_SVINSSEQ";
+    private static final String END_INFO = "END";
 
-    private static final String CNVSTR = "<CN";
-    private static final String DUPSTR = "<DUP>";
-    private static final String DELSTR = "<DEL>";
-    private static final String INVSTR = "<INV>";
-    private static final String INSSTR = "<INS>";
-    private static final Pattern CNVPATTERN = Pattern.compile("<CN([0-9]+)>");
-    private static final String COPY_NUMBER_TAG = "CN";
+    // Known FORMAT tags
+    private static final String COPY_NUMBER_FORMAT = "CN";
+
+    // Known symbolic alternates
+    // TODO: Support alternates like DEL:ME, INS:ME, ...
+    private static final String CNV_ALT = "<CN";
+    private static final String DUP_ALT = "<DUP>";
+    private static final String DUP_TANDEM_ALT = "<DUP:TANDEM>";
+    private static final String DEL_ALT = "<DEL>";
+    private static final String INV_ALT = "<INV>";
+    private static final String INS_ALT = "<INS>";
+    private static final Pattern CNV_ALT_PATTERN = Pattern.compile("<CN([0-9]+)>");
 
     private static final Set<String> VALID_NTS = new HashSet<>(Arrays.asList("A", "C", "G", "T", "N"));
     protected static final String VARIANT_STRING_FORMAT
@@ -42,6 +50,8 @@ public class VariantBuilder {
 
     private static final EnumSet<VariantType> SV_TYPES;
     private static final EnumSet<VariantType> MISSING_REFERENCE_TYPES;
+
+    protected static Logger logger = LoggerFactory.getLogger(VariantBuilder.class);
 
     static {
         SV_TYPES = EnumSet.copyOf(Variant.SV_SUBTYPES);
@@ -509,6 +519,7 @@ public class VariantBuilder {
             names = new ArrayList<>();
         }
 
+        // FIXME: Should this line be moved to VariantNormalizer?
         chromosome = Region.normalizeChromosome(chromosome);
 
         if (type == null) {
@@ -520,13 +531,13 @@ public class VariantBuilder {
         }
 
         if (attributes != null) {
-            String attributeEndStr = attributes.get("END");
+            String attributeEndStr = attributes.get(END_INFO);
             if (StringUtils.isNumeric(attributeEndStr)) {
                 Integer attributeEnd = Integer.valueOf(attributeEndStr);
                 if (end == null) {
                     end = attributeEnd;
                 } else if (!Objects.equals(end, attributeEnd)) {
-                    throw new IllegalStateException("Conflict END position. "
+                    throw new IllegalStateException("Conflict END position at variant " + toString() + ". "
                             + "Variant end = '" + end + "', "
                             + "file attribute END = '" + attributeEnd + "'");
                 }
@@ -610,15 +621,15 @@ public class VariantBuilder {
 //        if (Allele.wouldBeSymbolicAllele(alternateBytes) || Allele.wouldBeSymbolicAllele(reference.getBytes())) {
         // Symbolic variants shall contain empty reference, no need to check
         if (Allele.wouldBeSymbolicAllele(alternateBytes)) {
-            if (alternate.startsWith(CNVSTR)) {
+            if (alternate.startsWith(CNV_ALT)) {
                 return VariantType.CNV;
-            } else if (alternate.equals(DUPSTR) || alternate.equals(TANDEMDUPSTR)){
+            } else if (alternate.equals(DUP_ALT) || alternate.equals(DUP_TANDEM_ALT)){
                 return VariantType.DUPLICATION;
-            } else if (alternate.equals(DELSTR)){
+            } else if (alternate.equals(DEL_ALT)){
                 return VariantType.DELETION;
-            } else if (alternate.equals(INVSTR)){
+            } else if (alternate.equals(INV_ALT)){
                 return VariantType.INVERSION;
-            } else if (alternate.equals(INSSTR)){
+            } else if (alternate.equals(INS_ALT)){
                 return VariantType.INSERTION;
             } else if (alternate.contains("[") || alternate.contains("]")  // mated breakend
                     || alternateBytes[0] == '.' || alternateBytes[alternateBytes.length - 1] == '.')  { // single breakend
@@ -779,8 +790,8 @@ public class VariantBuilder {
                     sv.setCiEndRight(mate.getEnd());
                     break;
                 case DUPLICATION:
-                    if (alternates.get(0).equals(TANDEMDUPSTR)) {
-                        alternates.set(0, DUPSTR);
+                    if (alternates.get(0).equals(DUP_TANDEM_ALT)) {
+                        alternates.set(0, DUP_ALT);
                         sv.setType(StructuralVariantType.TANDEM_DUPLICATION);
                     }
                     break;
@@ -830,30 +841,30 @@ public class VariantBuilder {
             return;
         }
         switch (key) {
-            case SVINSSEQ:
+            case SVINSSEQ_INFO:
                 // Seen DELETIONS with this field set. Makes no sense
                 if (VariantType.INSERTION.equals(type)) {
                     alternates.set(0, value);
                 }
                 break;
-            case LEFT_SVINSSEQ:
+            case LEFT_SVINSSEQ_INFO:
                 // Seen DELETIONS with this field set. Makes no sense
                 if (VariantType.INSERTION.equals(type)) {
                     sv.setLeftSvInsSeq(value);
                 }
                 break;
-            case RIGHT_SVINSSEQ:
+            case RIGHT_SVINSSEQ_INFO:
                 // Seen DELETIONS with this field set. Makes no sense
                 if (VariantType.INSERTION.equals(type)) {
                     sv.setRightSvInsSeq(value);
                 }
                 break;
-            case CIPOS_STRING:
+            case CIPOS_INFO:
                 String[] parts = value.split(",");
                 sv.setCiStartLeft(start + Integer.parseInt(parts[0]));
                 sv.setCiStartRight(start + Integer.parseInt(parts[1]));
                 break;
-            case CIEND_STRING:
+            case CIEND_INFO:
                 parts = value.split(",");
                 sv.setCiEndLeft(end + Integer.parseInt(parts[0]));
                 sv.setCiEndRight(end + Integer.parseInt(parts[1]));
@@ -863,7 +874,7 @@ public class VariantBuilder {
     }
 
     public static Integer getCopyNumberFromAlternate(String alternate) {
-        Matcher matcher = CNVPATTERN.matcher(alternate);
+        Matcher matcher = CNV_ALT_PATTERN.matcher(alternate);
         if (matcher.matches()) {
             return Integer.valueOf(matcher.group(1));
         } else {
@@ -875,7 +886,7 @@ public class VariantBuilder {
         if (format == null) {
             return null;
         }
-        int cnIdx = format.indexOf(COPY_NUMBER_TAG);
+        int cnIdx = format.indexOf(COPY_NUMBER_FORMAT);
         if (cnIdx < 0) {
             return null;
         }
@@ -887,7 +898,7 @@ public class VariantBuilder {
                 if (cn == null) {
                     cn = aux;
                 } else if (!Objects.equals(cn, aux)) {
-                    // FIXME: LOGGER WARN?
+                    logger.warn("Found multiple samples with different CN format values at variant '{}'", this);
                     return null;
                 }
             }
@@ -941,11 +952,11 @@ public class VariantBuilder {
         if (variant.getStudies()!= null
                 && !variant.getStudies().isEmpty()
                 && !variant.getStudies().get(0).getFiles().isEmpty()) {
-            if (variant.getStudies().get(0).getFiles().get(0).getAttributes().containsKey(LEFT_SVINSSEQ)) {
-                leftSvInsSeq = variant.getStudies().get(0).getFiles().get(0).getAttributes().get(LEFT_SVINSSEQ);
+            if (variant.getStudies().get(0).getFiles().get(0).getAttributes().containsKey(LEFT_SVINSSEQ_INFO)) {
+                leftSvInsSeq = variant.getStudies().get(0).getFiles().get(0).getAttributes().get(LEFT_SVINSSEQ_INFO);
             }
-            if (variant.getStudies().get(0).getFiles().get(0).getAttributes().containsKey(RIGHT_SVINSSEQ)) {
-                rightSvInsSeq = variant.getStudies().get(0).getFiles().get(0).getAttributes().get(RIGHT_SVINSSEQ);
+            if (variant.getStudies().get(0).getFiles().get(0).getAttributes().containsKey(RIGHT_SVINSSEQ_INFO)) {
+                rightSvInsSeq = variant.getStudies().get(0).getFiles().get(0).getAttributes().get(RIGHT_SVINSSEQ_INFO);
             }
         }
 
@@ -956,8 +967,8 @@ public class VariantBuilder {
         if (variant.getStudies()!= null
                 && !variant.getStudies().isEmpty()
                 && !variant.getStudies().get(0).getFiles().isEmpty()
-                && variant.getStudies().get(0).getFiles().get(0).getAttributes().containsKey(CIPOS_STRING)) {
-            String[] parts = variant.getStudies().get(0).getFiles().get(0).getAttributes().get(CIPOS_STRING).split(",", 2);
+                && variant.getStudies().get(0).getFiles().get(0).getAttributes().containsKey(CIPOS_INFO)) {
+            String[] parts = variant.getStudies().get(0).getFiles().get(0).getAttributes().get(CIPOS_INFO).split(",", 2);
             return new int[]{variant.getStart() + Integer.parseInt(parts[0]),
                     variant.getStart() + Integer.parseInt(parts[1])};
         } else {
@@ -969,8 +980,8 @@ public class VariantBuilder {
         if (variant.getStudies()!= null
                 && !variant.getStudies().isEmpty()
                 && !variant.getStudies().get(0).getFiles().isEmpty()
-                && variant.getStudies().get(0).getFiles().get(0).getAttributes().containsKey(CIEND_STRING)) {
-            String[] parts = variant.getStudies().get(0).getFiles().get(0).getAttributes().get(CIEND_STRING).split(",", 2);
+                && variant.getStudies().get(0).getFiles().get(0).getAttributes().containsKey(CIEND_INFO)) {
+            String[] parts = variant.getStudies().get(0).getFiles().get(0).getAttributes().get(CIEND_INFO).split(",", 2);
             return new int[]{variant.getEnd() + Integer.parseInt(parts[0]),
                     variant.getEnd() + Integer.parseInt(parts[1])};
         } else {
@@ -980,6 +991,15 @@ public class VariantBuilder {
 
     private static String checkEmptySequence(String sequence) {
         return (sequence != null && !sequence.equals("-")) ? sequence : "";
+    }
+
+    @Override
+    public String toString() {
+        return chromosome + ":"
+                + start + "-"
+                + end + ":"
+                + reference + ":"
+                + (alternates == null ? "null" : String.join(",", alternates));
     }
 
 }
