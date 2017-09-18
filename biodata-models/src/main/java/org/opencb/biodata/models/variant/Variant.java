@@ -27,8 +27,6 @@ import org.opencb.biodata.models.variant.avro.*;
 
 import java.io.Serializable;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author Jacobo Coll;
@@ -255,8 +253,9 @@ public class Variant implements Serializable, Comparable<Variant> {
         return getAlternate().length();
     }
 
-    public void setLength(Integer value) {
+    public Variant setLength(Integer value) {
         impl.setLength(value);
+        return this;
     }
 
     public VariantType getType() {
@@ -390,14 +389,56 @@ public class Variant implements Serializable, Comparable<Variant> {
         }
     }
 
-
     @Override
     public String toString() {
-        if (this.getReference() == null) {
-            return getChromosome() + ":" + getStart() + ":" + (getAlternate().isEmpty() ? "-" : getAlternate());
+        int start = getStart();
+        int end = getEnd();
+        StringBuilder sb = new StringBuilder().append(getChromosome()).append(":");
+        StructuralVariation sv = getSv();
+
+        // Start
+        if (sv != null) {
+            if (sv.getCiStartLeft() != start) {
+                sb.append(sv.getCiStartLeft()).append("<");
+            }
+            sb.append(start);
+            if (sv.getCiStartRight() != start) {
+                sb.append("<").append(sv.getCiStartRight());
+            }
         } else {
-            return getChromosome() + ":" + getStart() + ":" + (getReference().isEmpty() ? "-" : getReference()) + ":" + (getAlternate().isEmpty() ? "-" : getAlternate());
+            sb.append(start);
         }
+
+        // Optional end
+        if (start != end && getLengthReference() != getReference().length()) {
+            sb.append("-");
+            if (sv != null) {
+                if (sv.getCiEndLeft() != start) {
+                    sb.append(sv.getCiEndLeft()).append("<");
+                }
+                sb.append(end);
+                if (sv.getCiEndRight() != start) {
+                    sb.append("<").append(sv.getCiEndRight());
+                }
+            } else {
+                sb.append(end);
+            }
+        }
+
+        sb.append(":");
+        if (this.getReference() != null) {
+            sb.append(getReference().isEmpty() ? "-" : getReference()).append(":");
+        }
+        if (getAlternate().isEmpty()) {
+            if (getType().equals(VariantType.NO_VARIATION)) {
+                sb.append(".");
+            } else {
+                sb.append("-");
+            }
+        } else {
+            sb.append(getAlternate());
+        }
+        return sb.toString();
     }
 
     public String toJson() {

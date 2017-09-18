@@ -9,6 +9,7 @@ import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.models.variant.avro.*;
 import org.opencb.biodata.models.variant.protobuf.VariantProto;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,6 +37,17 @@ public class VariantBuilder {
     private static final String COPY_NUMBER_TAG = "CN";
 
     private static final Set<String> VALID_NTS = new HashSet<>(Arrays.asList("A", "C", "G", "T", "N"));
+    protected static final String VARIANT_STRING_FORMAT
+            = "(chr):[(cipos_left)<](start)[<(cipos_right)][-[(ciend_left)<](end)[<(ciend_right)]][:(ref)]:(alt)";
+
+    private static final EnumSet<VariantType> SV_TYPES;
+
+    static {
+        SV_TYPES = EnumSet.copyOf(Variant.SV_SUBTYPES);
+        SV_TYPES.add(VariantType.SV);
+        SV_TYPES.add(VariantType.SYMBOLIC);
+
+    }
 
     private String id;
     private List<String> names;
@@ -73,42 +85,78 @@ public class VariantBuilder {
             if (fields.length == 3) {
                 setChromosome(fields[0]);
                 setAlternate(fields[2]);
+                setReference("");
+
                 // Structural variant (except <INS>) needs start-end coords
                 if (fields[1].contains("-")) {
                     String[] coordinatesParts = fields[1].split("-");
-                    setReference("");
-                    setStart(Integer.parseInt(coordinatesParts[0]));
-                    setEnd(Integer.parseInt(coordinatesParts[1]));
-//                    setLength(inferLengthSymbolic(getAlternate(), getStart(), getEnd()));
+                    parseStart(coordinatesParts[0], variantString);
+                    parseEnd(coordinatesParts[1], variantString);
+
                     // Short variant or <INS>, no reference specified
                 } else {
-                    setStart(Integer.parseInt(fields[1]));
-                    setReference("");
-//                    setLength(inferLengthSimpleVariant(getReference(), getAlternate()));
-                    setEnd(start + getLengthReference(reference, type, length) - 1);
+                    parseStart(fields[1], variantString);
                 }
             } else if (fields.length == 4) {
                 setChromosome(fields[0]);
+                setReference(fields[2]);
                 setAlternate(fields[3]);
+
                 // Structural variant (except <INS>) needs start-end coords (<INS> may be missing end)
                 if (fields[1].contains("-")) {
                     String[] coordinatesParts = fields[1].split("-");
-                    setReference(fields[2]);
-                    setStart(Integer.parseInt(coordinatesParts[0]));
-                    setEnd(Integer.parseInt(coordinatesParts[1]));
-//                        setLength(inferLengthSymbolic(getAlternate(), getStart(), getEnd()));
+                    parseStart(coordinatesParts[0], variantString);
+                    parseEnd(coordinatesParts[1], variantString);
                 } else {
-                    setStart(Integer.parseInt(fields[1]));
-                    setReference(fields[2]);
-//                        setLength(inferLengthSimpleVariant(getReference(), getAlternate()));
-                    setEnd(start + getLengthReference(reference, type, length) - 1);
+                    parseStart(fields[1], variantString);
                 }
             } else {
                 throw new IllegalArgumentException("Variant " + variantString + " needs 3 or 4 fields separated by ':'. "
-                        + "Format: \"(chr):(start)[-(end)][:(ref)]:(alt)\"");
+                        + "Format: \"" + VARIANT_STRING_FORMAT + "\"");
             }
         }
     }
+
+    private void parseStart(String start, String variantString) {
+        if (StringUtils.contains(start, '<')) {
+            String[] split = start.split("<", -1);
+            if (split.length != 3) {
+                throw new IllegalArgumentException("Error parsing start from variant " + variantString + ". Expected 3 fields separated by '<'. "
+                        + "Format: \"" + VARIANT_STRING_FORMAT + "\"");
+            }
+            initSv();
+            if (!split[0].isEmpty()) {
+                sv.setCiStartLeft(Integer.parseInt(split[0]));
+            }
+            setStart(Integer.parseInt(split[1]));
+            if (!split[2].isEmpty()) {
+                sv.setCiStartRight(Integer.parseInt(split[2]));
+            }
+        } else {
+            setStart(Integer.parseInt(start));
+        }
+    }
+
+    private void parseEnd(String end, String variantString) {
+        if (StringUtils.contains(end, '<')) {
+            String[] split = end.split("<", -1);
+            if (split.length != 3) {
+                throw new IllegalArgumentException("Error parsing end from variant " + variantString + ". Expected 3 fields separated by '<'. "
+                        + "Format: \"" + VARIANT_STRING_FORMAT + "\"");
+            }
+            initSv();
+            if (!split[0].isEmpty()) {
+                sv.setCiEndLeft(Integer.parseInt(split[0]));
+            }
+            setEnd(Integer.parseInt(split[1]));
+            if (!split[2].isEmpty()) {
+                sv.setCiEndRight(Integer.parseInt(split[2]));
+            }
+        } else {
+            setEnd(Integer.parseInt(end));
+        }
+    }
+
 
     public VariantBuilder(String chromosome, Integer start, Integer end, String reference, String alternate) {
         this.chromosome = chromosome;
@@ -262,6 +310,10 @@ public class VariantBuilder {
         return this;
     }
 
+    public VariantBuilder setFormat(String... format) {
+        return setFormat(Arrays.asList(format));
+    }
+
     public VariantBuilder setFormat(List<String> format) {
         checkStudy("set format");
         this.format = format;
@@ -286,6 +338,10 @@ public class VariantBuilder {
     public void setSamplesData(List<List<String>> samplesData) {
         checkStudy("set samples data");
         this.samplesData = samplesData;
+    }
+
+    public VariantBuilder addSample(String sampleName, String... data) {
+        return addSample(sampleName, Arrays.asList(data));
     }
 
     public VariantBuilder addSample(String sampleName, List<String> data) {
@@ -341,7 +397,7 @@ public class VariantBuilder {
         variant.setLength(length);
         variant.setStrand(strand);
         variant.setSv(sv);
-        if (studyId != null) {
+        if (hasStudyId()) {
             StudyEntry studyEntry = new StudyEntry(studyId);
             if (fileId != null) {
                 FileEntry fileEntry = new FileEntry(fileId, null, attributes);
@@ -411,6 +467,34 @@ public class VariantBuilder {
             }
             builder.setSv(svBuilder);
         }
+        if (hasStudyId()) {
+            VariantProto.StudyEntry.Builder studyBuilder = VariantProto.StudyEntry.newBuilder()
+                    .setStudyId(studyId);
+
+            if (fileId != null) {
+                studyBuilder.addFiles(VariantProto.FileEntry.newBuilder()
+                        .setFileId(fileId)
+                        .putAllAttributes(attributes));
+            }
+
+            for (int i = 1; i < alternates.size(); i++) {
+                studyBuilder.addSecondaryAlternates(VariantProto.AlternateCoordinate.newBuilder()
+                        .setStart(start)
+                        .setEnd(end)
+                        .setReference(reference)
+                        .setAlternate(alternates.get(i))
+                        .setType(builder.getType()));
+            }
+
+            if (format != null) {
+                studyBuilder.addAllFormat(format);
+            }
+            for (List<String> samplesDatum : samplesData) {
+                studyBuilder.addSamplesData(VariantProto.StudyEntry.SamplesDataInfoEntry.newBuilder().addAllInfo(samplesDatum));
+            }
+
+            builder.addStudies(studyBuilder.build());
+        }
         return builder.build();
     }
 
@@ -427,8 +511,26 @@ public class VariantBuilder {
             type = inferType(reference, alternates.get(0));
         }
 
+        if (type.equals(VariantType.NO_VARIATION) && alternates.get(0).equals(Allele.NO_CALL_STRING)) {
+            alternates.set(0, "");
+        }
+
+        if (attributes != null) {
+            String attributeEndStr = attributes.get("END");
+            if (StringUtils.isNumeric(attributeEndStr)) {
+                Integer attributeEnd = Integer.valueOf(attributeEndStr);
+                if (end == null) {
+                    end = attributeEnd;
+                } else if (!Objects.equals(end, attributeEnd)) {
+                    throw new IllegalStateException("Conflict END position. "
+                            + "Variant end = '" + end + "', "
+                            + "file attribute END = '" + attributeEnd + "'");
+                }
+            }
+        }
+
         if (end == null && length == null && isSV(type)) {
-            if (type != VariantType.INSERTION) {
+            if (type == VariantType.INSERTION) {
                 end = start;
             } else {
                 throw new IllegalStateException("Unknown end or length of a SV variant");
@@ -630,14 +732,12 @@ public class VariantBuilder {
 
 
     public static boolean isSV(VariantType type) {
-        return Variant.SV_SUBTYPES.contains(type) || type.equals(VariantType.SV) || type.equals(VariantType.SYMBOLIC);
+        return SV_TYPES.contains(type);
     }
 
     public void inferSV() {
         if (isSV(type)) {
-            if (sv == null) {
-                sv = new StructuralVariation(start, start, end, end, null, null, null, null);
-            }
+            initSv();
             switch (type) {
                 // Breakends use the variant.sv.CiStart/CiEnd in a special manner:
                 //   * variant.sv.CiStartLeft, variant.sv.CiStartRight: CIPOS of the first breakend, the one with
@@ -673,6 +773,25 @@ public class VariantBuilder {
             }
         }
 
+    }
+
+    private void initSv() {
+        if (sv == null) {
+            sv = new StructuralVariation(start, start, end, end, null, null, null, null);
+        } else {
+            if (sv.getCiStartLeft() == null) {
+                sv.setCiStartLeft(start);
+            }
+            if (sv.getCiStartRight() == null) {
+                sv.setCiStartRight(start);
+            }
+            if (sv.getCiEndLeft() == null) {
+                sv.setCiEndLeft(end);
+            }
+            if (sv.getCiEndRight() == null) {
+                sv.setCiEndRight(end);
+            }
+        }
     }
 
     /**
