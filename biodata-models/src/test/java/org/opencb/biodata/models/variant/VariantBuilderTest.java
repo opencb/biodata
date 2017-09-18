@@ -76,6 +76,23 @@ public class VariantBuilderTest {
 
     @Test
     public void buildSVInsertion2() {
+        int length = 500;
+        String alt = "A" + RandomStringUtils.random(length - 1, 'A', 'C', 'G', 'T');
+        Variant v = new VariantBuilder("1:1000:A:" + alt)
+                .setStudyId("1")
+                .build();
+
+        assertEquals(VariantType.INSERTION, v.getType());
+        assertEquals("A", v.getReference());
+        assertEquals(alt, v.getAlternate());
+        assertEquals(length, v.getLength().intValue());
+        assertEquals(length, v.getLengthAlternate().intValue());
+        assertEquals(1, v.getLengthReference().intValue());
+
+    }
+
+    @Test
+    public void buildSVInsertion3() {
         String leftSeq = RandomStringUtils.random(20, 'A', 'C', 'G', 'T');
         String rightSeq = RandomStringUtils.random(20, 'A', 'C', 'G', 'T');
         Variant v = new VariantBuilder("1:1000:A:<INS>")

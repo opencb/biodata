@@ -639,19 +639,23 @@ public class VariantBuilder {
                 if (inferLengthSimpleVariant(reference, alternate) <= Variant.SV_THRESHOLD) {
                 /*
                 * 3 possibilities for being an INDEL:
-                * - The value of the ALT field is <DEL> or <INS>
                 * - The REF allele is not . but the ALT is
                 * - The REF allele is . but the ALT is not
                 * - The REF field length is different than the ALT field length
                 */
                     return VariantType.INDEL;
                 } else {
-                    if (StringUtils.isBlank(reference) || reference.equals("-")) {
+                    if (reference.isEmpty()
+                            || alternate.startsWith(reference)
+                            || alternate.endsWith(reference)) {
                         return VariantType.INSERTION;
-                    } else if (StringUtils.isBlank(alternate) || alternate.equals("-")){
+                    } else if (alternate.isEmpty()
+                            || reference.startsWith(alternate)
+                            || reference.endsWith(alternate)){
                         return VariantType.DELETION;
+                    } else {
+                        return VariantType.SV;
                     }
-                    return VariantType.SV;
                 }
             }
         }

@@ -630,7 +630,7 @@ public class VariantNormalizerTest extends GenericTest {
         }
         Variant variant = newVariant(100, "C", alt);
         variant.getStudies().get(0).addSampleData("HG00096", Collections.singletonList("0|1"));
-        assertEquals(VariantType.SV, variant.getType());
+        assertEquals(VariantType.INSERTION, variant.getType());
         assertEquals(51, variant.getLength().intValue());
 
         normalizer.setGenerateReferenceBlocks(false);
