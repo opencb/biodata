@@ -146,6 +146,7 @@ protocol VariantAnnotations {
     }
 
     record Cytoband {
+        union { null, string } chromosome;
         union { null, string } stain;
         union { null, string } name;
         union { null, int } start;
@@ -158,6 +159,7 @@ protocol VariantAnnotations {
         union { null, int } start;
         union { null, int } end;
         union { null, int } period;
+        union { null, int } consensusSize;
         union { null, float } copyNumber;
         union { null, float } percentageMatch;
         union { null, float } score;
