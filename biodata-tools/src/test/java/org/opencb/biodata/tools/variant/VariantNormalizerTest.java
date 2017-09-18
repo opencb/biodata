@@ -326,7 +326,7 @@ public class VariantNormalizerTest extends GenericTest {
         List<Variant> variants = normalizer.normalize(Collections.singletonList(variant), true);
         variants.forEach(v -> System.out.println(v.toJson()));
 
-        assertEquals("6:109522683:T:-", variants.get(0).toString());
+        assertEquals("6:109522683:T:.", variants.get(0).toString());
         assertEquals(VariantType.NO_VARIATION, variants.get(0).getType());
         assertEquals(1, variants.get(0).getLength().intValue());
 
@@ -334,7 +334,7 @@ public class VariantNormalizerTest extends GenericTest {
         assertEquals(VariantType.SNV, variants.get(1).getType());
         assertEquals(1, variants.get(1).getLength().intValue());
 
-        assertEquals("6:109522685:T:-", variants.get(2).toString());
+        assertEquals("6:109522685:T:.", variants.get(2).toString());
         assertEquals(VariantType.NO_VARIATION, variants.get(2).getType());
         assertEquals(1, variants.get(2).getLength().intValue());
 
@@ -342,7 +342,7 @@ public class VariantNormalizerTest extends GenericTest {
         assertEquals(VariantType.SNV, variants.get(3).getType());
         assertEquals(1, variants.get(3).getLength().intValue());
 
-        assertEquals("6:109522687:T:-", variants.get(4).toString());
+        assertEquals("6:109522687:T:.", variants.get(4).toString());
         assertEquals(VariantType.NO_VARIATION, variants.get(4).getType());
         assertEquals(1, variants.get(4).getLength().intValue());
     }
@@ -624,11 +624,11 @@ public class VariantNormalizerTest extends GenericTest {
 
     @Test
     public void testNormalizeSV() throws NonStandardCompliantSampleField {
-        String reference = "C";
+        String alt = "C";
         for (int i = 0; i < 50; i++) {
-            reference += "A";
+            alt += "A";
         }
-        Variant variant = newVariant(100, "C", reference);
+        Variant variant = newVariant(100, "C", alt);
         variant.getStudies().get(0).addSampleData("HG00096", Collections.singletonList("0|1"));
         assertEquals(VariantType.SV, variant.getType());
         assertEquals(51, variant.getLength().intValue());

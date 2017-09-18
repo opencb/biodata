@@ -41,12 +41,16 @@ public class VariantBuilder {
             = "(chr):[(cipos_left)<](start)[<(cipos_right)][-[(ciend_left)<](end)[<(ciend_right)]][:(ref)]:(alt)";
 
     private static final EnumSet<VariantType> SV_TYPES;
+    private static final EnumSet<VariantType> MISSING_REFERENCE_TYPES;
 
     static {
         SV_TYPES = EnumSet.copyOf(Variant.SV_SUBTYPES);
         SV_TYPES.add(VariantType.SV);
         SV_TYPES.add(VariantType.SYMBOLIC);
 
+        MISSING_REFERENCE_TYPES = EnumSet.copyOf(SV_TYPES);
+        MISSING_REFERENCE_TYPES.remove(VariantType.INSERTION);
+        MISSING_REFERENCE_TYPES.add(VariantType.NO_VARIATION);
     }
 
     private String id;
@@ -541,7 +545,7 @@ public class VariantBuilder {
             end = start + getLengthReference(reference, type, length) - 1;
         }
 
-        if (start > end && !(reference.equals("-") || reference.isEmpty())) {
+        if (start > end && !(reference.isEmpty())) {
             throw new IllegalArgumentException("End position must be greater than the start position for variant: "
                     + chromosome + ":" + start + "-" + end + ":" + reference + ":" + alternates.get(0));
         }
@@ -568,13 +572,30 @@ public class VariantBuilder {
         }
     }
 
-    static Integer getLengthReference(String reference, VariantType type, Integer length) {
-        if (EnumSet.of(VariantType.NO_VARIATION, VariantType.CNV, VariantType.SV, VariantType.SYMBOLIC,
-                VariantType.BREAKEND, VariantType.DELETION, VariantType.DUPLICATION,
-                VariantType.INVERSION).contains(type)) {
-            return length;
+    static Integer getLengthReference(String reference, VariantType type, @Nullable  Integer length) {
+        if (MISSING_REFERENCE_TYPES.contains(type)) {
+            if (length == null) {
+                // Default length 1 for type NO_VARIATION
+                if (type == VariantType.NO_VARIATION) {
+                    return 1;
+                } else {
+                    throw new IllegalArgumentException("Unknown reference length!");
+                }
+            } else {
+                return length;
+            }
         } else {
             return reference.length();
+        }
+    }
+
+    static Integer getLengthAlternate(String alternate, VariantType type, Integer length) {
+        if (VariantType.DELETION.equals(type)) {
+            return 0;
+        } else if (isSV(type) || type.equals(VariantType.NO_VARIATION)) {
+            return length;
+        } else {
+            return alternate.length();
         }
     }
 
@@ -638,8 +659,8 @@ public class VariantBuilder {
 
     public static int inferLength(String reference, String alternate, int start, int end, VariantType type) {
         final int length;
-        if (reference == null || Allele.wouldBeSymbolicAllele(alternate.getBytes())) {
-            length = inferLengthSymbolic(alternate, start, end);
+        if (isSV(type) || type.equals(VariantType.NO_VARIATION)) {
+            length = inferLengthSymbolic(type, alternate, start, end);
         } else {
             length = inferLengthSimpleVariant(reference, alternate);
         }
@@ -656,20 +677,21 @@ public class VariantBuilder {
         return length;
     }
 
-    private static int inferLengthSymbolic(String alternate, int start, int end) {
+    private static int inferLengthSymbolic(VariantType type, String alternate, int start, int end) {
         int length;
-        if (StringUtils.startsWith(alternate, CNVSTR) || StringUtils.equals(alternate, DELSTR)
-                || StringUtils.equals(alternate, DUPSTR) || StringUtils.equals(alternate, INVSTR)) {
-            length = end - start + 1;
-        } else if (alternate.contains("[") || alternate.contains("]")  // mated breakend
-                || alternate.startsWith(".") || alternate.endsWith(".")) { // single breakend
+        if (type.equals(VariantType.INSERTION)) {
+            if (!Allele.wouldBeSymbolicAllele(alternate.getBytes())) {
+                length = alternate.length();
+            } else {
+                // TODO: Check attribute SVLEN?
+                length = Variant.UNKNOWN_LENGTH;
+            }
+        } else if (type.equals(VariantType.BREAKEND) || type.equals(VariantType.TRANSLOCATION)) {
             length = Variant.UNKNOWN_LENGTH; // WARNING: breakends length set to UNKNOWN_LENGTH in any case - breakends shall
             // not be stored in the future translocations formed by 4 breakends must be parsed and managed
             // instead
-        } else if (alternate == null || Allele.wouldBeSymbolicAllele(alternate.getBytes())) {
-            length = Variant.UNKNOWN_LENGTH;
         } else {
-            length = alternate.length();
+            length = end - start + 1;
         }
         return length;
     }

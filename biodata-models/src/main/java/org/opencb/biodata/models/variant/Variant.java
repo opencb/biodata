@@ -250,7 +250,7 @@ public class Variant implements Serializable, Comparable<Variant> {
     }
 
     public Integer getLengthAlternate() {
-        return getAlternate().length();
+        return VariantBuilder.getLengthAlternate(getAlternate(), getType(), getLength());
     }
 
     public Variant setLength(Integer value) {
