@@ -875,7 +875,10 @@ public class VariantBuilder {
             case SVINSSEQ_INFO:
                 // Seen DELETIONS with this field set. Makes no sense
                 if (VariantType.INSERTION.equals(type)) {
-                    alternates.set(0, value);
+                    // SVINSSEQ contains the sequence inserted AFTER the reference.
+                    // To represent correctly the alternate, given that reference, we need to add the reference as allele context
+                    // If the variant is normalized, the alleles will be trimmed, removing this "context"
+                    alternates.set(0, reference + value);
                 }
                 break;
             case LEFT_SVINSSEQ_INFO:

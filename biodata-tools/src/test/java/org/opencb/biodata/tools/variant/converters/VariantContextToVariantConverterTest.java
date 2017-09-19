@@ -166,7 +166,7 @@ public class VariantContextToVariantConverterTest {
                 + "\tGT:AD\t./0:.\t0/1:10\t1/1:20";
         variantContext = vcfCodec.decode(vcfLine);
         variant = converter.convert(variantContext);
-        assertEquals("AGAACCTTAATACCCTAGTCTCGATGGTCTTTACATTTTGGCATGATTTTGCAGCGGCTGGTACCGG",
+        assertEquals("CAGAACCTTAATACCCTAGTCTCGATGGTCTTTACATTTTGGCATGATTTTGCAGCGGCTGGTACCGG",
                 variant.getAlternate());
         assertEquals(new StructuralVariation(), variant.getSv());
 

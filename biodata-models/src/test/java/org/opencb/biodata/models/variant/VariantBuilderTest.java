@@ -70,7 +70,7 @@ public class VariantBuilderTest {
     @Test
     public void buildSVInsertion() {
         int length = 500;
-        String alt = RandomStringUtils.random(length, 'A', 'C', 'G', 'T');
+        String alt = RandomStringUtils.random(length - 1, 'A', 'C', 'G', 'T');
         Variant v = new VariantBuilder("1:1000:A:<INS>")
                 .setStudyId("1")
                 .addAttribute("SVINSSEQ", alt)
@@ -78,7 +78,7 @@ public class VariantBuilderTest {
 
         assertEquals(VariantType.INSERTION, v.getType());
         assertEquals("A", v.getReference());
-        assertEquals(alt, v.getAlternate());
+        assertEquals("A" + alt, v.getAlternate());
         assertEquals(length, v.getLength().intValue());
         assertEquals(length, v.getLengthAlternate().intValue());
         assertEquals(1, v.getLengthReference().intValue());
