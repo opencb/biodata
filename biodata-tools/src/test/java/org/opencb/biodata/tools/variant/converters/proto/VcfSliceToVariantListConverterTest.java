@@ -53,9 +53,9 @@ public class VcfSliceToVariantListConverterTest {
                         toMap(), "GT:X", "S1", "0/0", "1")
         );
         variants.get(5).getStudy("").getFile("").getAttributes().put(StudyEntry.QUAL, ".");
-        variants.get(6).setEnd(1100);
+//        variants.get(0).setEnd(1000);
+//        variants.get(6).setEnd(1100);
 
-        variants.get(0).setEnd(1000);
 
         variants = new VariantNormalizer(true).apply(variants);
     }

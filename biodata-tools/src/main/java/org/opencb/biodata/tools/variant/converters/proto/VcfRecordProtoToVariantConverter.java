@@ -80,12 +80,13 @@ public class VcfRecordProtoToVariantConverter implements Converter<VcfSliceProto
 
         variant.setType(getVariantType(vcfRecord.getType()));
         variant.setIds(vcfRecord.getIdNonDefaultList());
+        variant.resetLength();
 
         FileEntry fileEntry = new FileEntry();
         fileEntry.setFileId(fileId);
         Map<String, String> attributes = getFileAttributes(vcfRecord);
         fileEntry.setAttributes(attributes);
-        fileEntry.setCall(vcfRecord.getCall());
+        fileEntry.setCall(vcfRecord.getCall().isEmpty() ? null : vcfRecord.getCall());
         if (vcfRecord.getType().equals(VariantProto.VariantType.NO_VARIATION)) {
             attributes.put("END", Integer.toString(end));
         }

@@ -257,16 +257,15 @@ public class VariantBuilder {
     public VariantBuilder setAlternate(String alternate) {
         if (alternate.contains(",")) {
             return setAlternates(Arrays.asList(alternate.split(",")));
+        } else {
+            return setAlternates(Collections.singletonList(alternate));
         }
-        this.alternates = new ArrayList<>(1);
-        alternates.add(checkEmptySequence(alternate));
-        return this;
     }
 
     public VariantBuilder setAlternates(List<String> alternates) {
         this.alternates = new ArrayList<>(alternates.size());
         for (String alternate : alternates) {
-            this.alternates.add(checkEmptySequence(alternate));
+            addAlternate(alternate);
         }
         return this;
     }
@@ -275,7 +274,11 @@ public class VariantBuilder {
         if (alternates == null) {
             alternates = new ArrayList<>(1);
         }
-        alternates.add(alternate);
+        if (!alternates.isEmpty()) {
+            // A study entry is required if there are more than one alternate
+            checkStudy("add alternate");
+        }
+        alternates.add(checkEmptySequence(alternate));
         return this;
     }
 
@@ -323,8 +326,12 @@ public class VariantBuilder {
         return this;
     }
 
+    public boolean hasFileId() {
+        return fileId != null;
+    }
+
     public VariantBuilder setAttributes(Map<String, String> attributes) {
-        checkStudy("set attributes");
+        checkFile("set attributes");
         this.attributes = attributes;
         return this;
     }
@@ -338,11 +345,16 @@ public class VariantBuilder {
     }
 
     public VariantBuilder addAttribute(String key, String value) {
-        checkStudy("add attribute");
+        checkFile("add attribute");
         if (attributes == null) {
             attributes = new HashMap<>();
         }
-        attributes.put(key, value);
+        try {
+            attributes.put(key, value);
+        } catch (UnsupportedOperationException e) {
+            attributes = new HashMap<>(attributes);
+            attributes.put(key, value);
+        }
         return this;
     }
 
@@ -371,9 +383,10 @@ public class VariantBuilder {
         return this;
     }
 
-    public void setSamplesData(List<List<String>> samplesData) {
+    public VariantBuilder setSamplesData(List<List<String>> samplesData) {
         checkStudy("set samples data");
         this.samplesData = samplesData;
+        return this;
     }
 
     public VariantBuilder addSample(String sampleName, String... data) {
@@ -634,7 +647,15 @@ public class VariantBuilder {
 
     private void checkStudy(String method) {
         if (!hasStudyId()) {
-            throw new IllegalArgumentException("Can not " + method + " without study.");
+            setStudyId("");
+//            throw new IllegalArgumentException("Can not " + method + " without study.");
+        }
+    }
+
+    private void checkFile(String method) {
+        if (!hasFileId()) {
+            setFileId("");
+//            throw new IllegalArgumentException("Can not " + method + " without file.");
         }
     }
 

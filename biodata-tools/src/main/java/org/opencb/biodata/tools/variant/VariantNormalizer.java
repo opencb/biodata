@@ -232,7 +232,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 //                                variant.setSv(sv);
 //                            }
                             normalizedEntry = entry;
-                            entry.getFiles().forEach(fileEntry -> fileEntry.setCall(sameVariant ? "" : call)); //TODO: Check file attributes
+                            entry.getFiles().forEach(fileEntry -> fileEntry.setCall(sameVariant ? null : call));
                             samplesData = entry.getSamplesData();
                         } else {
                             normalizedVariant = newVariant(variant, keyFields, sv);
@@ -244,8 +244,8 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
                             List<FileEntry> files = new ArrayList<>(entry.getFiles().size());
                             for (FileEntry file : entry.getFiles()) {
-                                HashMap<String, String> attributes = new HashMap<>(file.getAttributes()); //TODO: Check file attributes
-                                files.add(new FileEntry(file.getFileId(), sameVariant ? "" : call, attributes));
+                                HashMap<String, String> attributes = new HashMap<>(file.getAttributes());
+                                files.add(new FileEntry(file.getFileId(), sameVariant ? null : call, attributes));
                             }
                             normalizedEntry.setFiles(files);
                             normalizedVariant.addStudyEntry(normalizedEntry);
