@@ -24,6 +24,10 @@ public class VariantBuilderTest {
         map.put("1:1000:A:C", new Variant("1", 1000, 1000, "A", "C"));
         map.put("chr1:1000:A:C", new Variant("1", 1000, 1000, "A", "C"));
         map.put("1:1000-2000:<DEL>", new Variant("1", 1000, 2000, "", "<DEL>").setType(VariantType.DELETION).setSv(new StructuralVariation(1000, 1000, 2000, 2000, null, null, null, null)));
+        map.put("1:1000-1010:A:<DEL>", new Variant("1", 1000, 1010, "A", "<DEL>").setType(VariantType.DELETION).setSv(new StructuralVariation(1000, 1000, 1010, 1010, null, null, null, null)).setLength(11));
+        map.put("1:1000-1010:<DEL>", new Variant("1", 1000, 1010, "", "<DEL>").setType(VariantType.DELETION).setSv(new StructuralVariation(1000, 1000, 1010, 1010, null, null, null, null)).setLength(11));
+//        map.put("1:1000:A:<DEL>", new Variant("1", 1000, 1000, "A", "<DEL>").setType(VariantType.DELETION).setSv(new StructuralVariation(1000, 1000, 1000, 1000, null, null, null, null)).setLength(Variant.UNKNOWN_LENGTH));
+//        map.put("1:1000:<DEL>", new Variant("1", 1000, 999, "", "<DEL>").setType(VariantType.DELETION).setSv(new StructuralVariation(1000, 1000, 999, 999, null, null, null, null)).setLength(Variant.UNKNOWN_LENGTH));
         map.put("1:1000-2000:<CNV>", new Variant("1", 1000, 2000, "", "<CNV>").setType(VariantType.CNV).setSv(new StructuralVariation(1000, 1000, 2000, 2000, null, null, null, null)));
         map.put("1:1000-2000:<CN0>", new Variant("1", 1000, 2000, "", "<CN0>").setType(VariantType.CNV).setSv(new StructuralVariation(1000, 1000, 2000, 2000, 0, null, null, StructuralVariantType.COPY_NUMBER_LOSS)));
         map.put("1:1000-2000:<CN5>", new Variant("1", 1000, 2000, "", "<CN5>").setType(VariantType.CNV).setSv(new StructuralVariation(1000, 1000, 2000, 2000, 5, null, null, StructuralVariantType.COPY_NUMBER_GAIN)));
@@ -34,10 +38,14 @@ public class VariantBuilderTest {
         map.put("1:1000-1005:A:.", new Variant("1", 1000, 1005, "A", "").setLength(6).setType(VariantType.NO_VARIATION));
 
         for (Map.Entry<String, Variant> entry : map.entrySet()) {
-//            System.out.println("expected : " + entry.getValue().toJson());
-//            System.out.println("actual   : " + new Variant(entry.getKey()).toJson());
             System.out.println("Original : " + entry.getKey() + " \t-->\t " + entry.getValue());
-            assertEquals("Parsing \"" + entry.getKey() + "\"", entry.getValue(), new Variant(entry.getKey()));
+            try {
+                assertEquals("Parsing \"" + entry.getKey() + "\"", entry.getValue(), new Variant(entry.getKey()));
+            } catch (AssertionError e) {
+                System.out.println("expected : " + entry.getValue().toJson());
+                System.out.println("actual   : " + new Variant(entry.getKey()).toJson());
+                throw e;
+            }
         }
     }
 
@@ -113,6 +121,28 @@ public class VariantBuilderTest {
     }
 
     @Test
+    public void buildSVInsertion4() {
+        String leftSeq = RandomStringUtils.random(20, 'A', 'C', 'G', 'T');
+        String rightSeq = RandomStringUtils.random(20, 'A', 'C', 'G', 'T');
+        Variant v = new VariantBuilder("1:1000:A:<INS>")
+                .setLength(1000)
+                .setStudyId("1")
+                .addAttribute("LEFT_SVINSSEQ", leftSeq)
+                .addAttribute("RIGHT_SVINSSEQ", rightSeq)
+                .build();
+
+        assertEquals(VariantType.INSERTION, v.getType());
+        assertEquals("A", v.getReference());
+        assertEquals("<INS>", v.getAlternate());
+        assertEquals(1000, v.getLength().intValue());
+        assertEquals(1000, v.getLengthAlternate().intValue());
+        assertEquals(1, v.getLengthReference().intValue());
+        assertEquals(leftSeq, v.getSv().getLeftSvInsSeq());
+        assertEquals(rightSeq, v.getSv().getRightSvInsSeq());
+
+    }
+
+    @Test
     public void buildCNV() {
         Variant v = new VariantBuilder("1:1000:A:<CNV>")
                 .setStudyId("1")
@@ -137,4 +167,13 @@ public class VariantBuilderTest {
 
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void buildIncompleteSV() throws Exception {
+        new VariantBuilder("1:1000:<DEL>").build();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void buildIncompleteSV_2() throws Exception {
+        new VariantBuilder("1:1000:A:<DEL>").build();
+    }
 }

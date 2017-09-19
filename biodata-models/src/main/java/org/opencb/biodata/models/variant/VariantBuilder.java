@@ -49,7 +49,8 @@ public class VariantBuilder {
             = "(chr):[(cipos_left)<](start)[<(cipos_right)][-[(ciend_left)<](end)[<(ciend_right)]][:(ref)]:(alt)";
 
     private static final EnumSet<VariantType> SV_TYPES;
-    private static final EnumSet<VariantType> MISSING_REFERENCE_TYPES;
+    // Variant types where the reference is incomplete.
+    private static final EnumSet<VariantType> INCOMPLETE_REFERENCE_TYPES;
 
     protected static Logger logger = LoggerFactory.getLogger(VariantBuilder.class);
 
@@ -58,9 +59,9 @@ public class VariantBuilder {
         SV_TYPES.add(VariantType.SV);
         SV_TYPES.add(VariantType.SYMBOLIC);
 
-        MISSING_REFERENCE_TYPES = EnumSet.copyOf(SV_TYPES);
-        MISSING_REFERENCE_TYPES.remove(VariantType.INSERTION);
-        MISSING_REFERENCE_TYPES.add(VariantType.NO_VARIATION);
+        INCOMPLETE_REFERENCE_TYPES = EnumSet.copyOf(SV_TYPES);
+        INCOMPLETE_REFERENCE_TYPES.remove(VariantType.INSERTION);
+        INCOMPLETE_REFERENCE_TYPES.add(VariantType.NO_VARIATION);
     }
 
     private String id;
@@ -81,6 +82,8 @@ public class VariantBuilder {
     private Map<String, String> attributes;
     private List<String> format;
 
+    private String variantString;
+
     public VariantBuilder() {
     }
 
@@ -94,6 +97,7 @@ public class VariantBuilder {
      */
     public VariantBuilder(String variantString) {
         this();
+        this.variantString = variantString;
         if (variantString != null && !variantString.isEmpty()) {
             String[] fields = variantString.split(":", -1);
             if (fields.length == 3) {
@@ -537,33 +541,27 @@ public class VariantBuilder {
                 if (end == null) {
                     end = attributeEnd;
                 } else if (!Objects.equals(end, attributeEnd)) {
-                    throw new IllegalStateException("Conflict END position at variant " + toString() + ". "
+                    throw new IllegalArgumentException("Conflict END position at variant " + toString() + ". "
                             + "Variant end = '" + end + "', "
                             + "file attribute END = '" + attributeEnd + "'");
                 }
             }
         }
 
-        if (end == null && length == null && isSV(type)) {
-            if (type == VariantType.INSERTION) {
-                end = start;
-            } else {
-                throw new IllegalStateException("Unknown end or length of a SV variant");
-            }
-        }
-
         if (end == null) {
-            end = start + getLengthReference(reference, type, length) - 1;
+            end = start + getLengthReference(reference, type, length, this) - 1;
         }
 
         if (start > end && !(reference.isEmpty())) {
             throw new IllegalArgumentException("End position must be greater than the start position for variant: "
-                    + chromosome + ":" + start + "-" + end + ":" + reference + ":" + alternates.get(0));
+                    + toString());
         }
         // Create and initialize StructuralVariation object if needed
         inferSV();
 
-        length = inferLength(reference, alternates.get(0), start, end, type);
+        if (length == null) {
+            length = inferLength(reference, alternates.get(0), start, end, type);
+        }
 
     }
 
@@ -576,21 +574,27 @@ public class VariantBuilder {
         if (samplesPosition != null && samplesPosition.size() > 0) {
             int dataSize = samplesData == null ? 0 : samplesData.size();
             if (samplesPosition.size() > dataSize) {
-                throw new IllegalStateException("Missing data from " + (samplesPosition.size() - dataSize) + " samples");
+                throw new IllegalArgumentException("Missing data from " + (samplesPosition.size() - dataSize) + " samples at variant " + this);
             } else if (samplesPosition.size() < dataSize) {
-                throw new IllegalStateException("Missing name or identifier for " + (samplesPosition.size() - dataSize) + " samples");
+                throw new IllegalArgumentException("Missing name or identifier for " + (samplesPosition.size() - dataSize) + " samples at variant " + this);
             }
         }
     }
 
-    static Integer getLengthReference(String reference, VariantType type, @Nullable  Integer length) {
-        if (MISSING_REFERENCE_TYPES.contains(type)) {
+    static Integer getLengthReference(String reference, VariantType type, Integer length) {
+        Objects.requireNonNull(length);
+        return getLengthReference(reference, type, length, null);
+    }
+
+    private static Integer getLengthReference(String reference, VariantType type, @Nullable  Integer length, Object obj) {
+        if (hasIncompleteReference(type)) {
             if (length == null) {
                 // Default length 1 for type NO_VARIATION
                 if (type == VariantType.NO_VARIATION) {
                     return 1;
                 } else {
-                    throw new IllegalArgumentException("Unknown reference length!");
+//                    return Variant.UNKNOWN_LENGTH;
+                    throw new IllegalArgumentException("Unknown end or length of the variant '" + obj + "', type '" + type + "'");
                 }
             } else {
                 return length;
@@ -612,7 +616,7 @@ public class VariantBuilder {
 
     private void checkStudy(String method) {
         if (!hasStudyId()) {
-            throw new IllegalStateException("Can not " + method + " without study");
+            throw new IllegalArgumentException("Can not " + method + " without study.");
         }
     }
 
@@ -684,6 +688,7 @@ public class VariantBuilder {
 
     private static int inferLengthSimpleVariant(String reference, String alternate) {
         final int length;
+        //TODO: Can alternate be null?
         if (alternate == null) {
             length = reference.length();
         } else {
@@ -770,6 +775,10 @@ public class VariantBuilder {
 
     public static boolean isSV(VariantType type) {
         return SV_TYPES.contains(type);
+    }
+
+    public static boolean hasIncompleteReference(VariantType type) {
+        return INCOMPLETE_REFERENCE_TYPES.contains(type);
     }
 
     public void inferSV() {
@@ -995,11 +1004,12 @@ public class VariantBuilder {
 
     @Override
     public String toString() {
-        return chromosome + ":"
-                + start + "-"
-                + end + ":"
-                + reference + ":"
-                + (alternates == null ? "null" : String.join(",", alternates));
+        return variantString != null ? variantString
+                : chromosome + ":"
+                    + start + "-"
+                    + end + ":"
+                    + reference + ":"
+                    + (alternates == null ? "null" : String.join(",", alternates));
     }
 
 }
