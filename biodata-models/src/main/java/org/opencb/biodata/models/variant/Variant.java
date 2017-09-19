@@ -457,6 +457,15 @@ public class Variant implements Serializable, Comparable<Variant> {
             } else {
                 sb.append("-");
             }
+        } else if (getType().equals(VariantType.INSERTION) && getSv() != null
+                    && (getSv().getLeftSvInsSeq() != null || getSv().getRightSvInsSeq() != null)) {
+            if (getSv().getLeftSvInsSeq() != null) {
+                sb.append(getSv().getLeftSvInsSeq());
+            }
+            sb.append("...");
+            if (getSv().getRightSvInsSeq() != null) {
+                sb.append(getSv().getRightSvInsSeq());
+            }
         } else {
             sb.append(getAlternate());
         }

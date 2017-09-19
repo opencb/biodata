@@ -46,7 +46,10 @@ public class VariantBuilder {
 
     private static final Set<String> VALID_NTS = new HashSet<>(Arrays.asList("A", "C", "G", "T", "N"));
     protected static final String VARIANT_STRING_FORMAT
-            = "(chr):[(cipos_left)<](start)[<(cipos_right)][-[(ciend_left)<](end)[<(ciend_right)]][:(ref)]:(alt)";
+            = "(chr)"
+            + ":[(cipos_left)<](start)[<(cipos_right)]" + "[-[(ciend_left)<](end)[<(ciend_right)]]"
+            + "[:(ref)]"
+            + ":[(alt)|(left_ins_seq)...(right_ins_seq)]";
 
     private static final EnumSet<VariantType> SV_TYPES;
     // Variant types where the reference is incomplete.
@@ -102,7 +105,7 @@ public class VariantBuilder {
             String[] fields = variantString.split(":", -1);
             if (fields.length == 3) {
                 setChromosome(fields[0]);
-                setAlternate(fields[2]);
+                parseAlternate(fields[2]);
                 setReference("");
 
                 // Structural variant (except <INS>) needs start-end coords
@@ -118,7 +121,7 @@ public class VariantBuilder {
             } else if (fields.length == 4) {
                 setChromosome(fields[0]);
                 setReference(fields[2]);
-                setAlternate(fields[3]);
+                parseAlternate(fields[3]);
 
                 // Structural variant (except <INS>) needs start-end coords (<INS> may be missing end)
                 if (fields[1].contains("-")) {
@@ -132,6 +135,18 @@ public class VariantBuilder {
                 throw new IllegalArgumentException("Variant " + variantString + " needs 3 or 4 fields separated by ':'. "
                         + "Format: \"" + VARIANT_STRING_FORMAT + "\"");
             }
+        }
+    }
+
+    private void parseAlternate(String alternate) {
+        int idx = alternate.indexOf("...");
+        if (idx < 0) {
+            setAlternate(alternate);
+        } else {
+            setAlternate(INS_ALT);
+            initSv();
+            sv.setLeftSvInsSeq(alternate.substring(0, idx));
+            sv.setRightSvInsSeq(alternate.substring(idx + 3));
         }
     }
 
