@@ -1,5 +1,6 @@
 package org.opencb.biodata.tools.variant;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -564,24 +565,27 @@ public class VariantNormalizerTest extends GenericTest {
 
     @Test
     public void testVNCNormalizationMultiallelic() throws NonStandardCompliantSampleField {
-        Variant variant;
-        List<Variant> normalizedVariantList;
-        variant = newVariant(100, 200, "C", Arrays.asList("<CN0>", "<CN2>", "<CN3>", "<CN4>"), "2");
-        variant.getStudies().get(0).addSampleData("HG00096", Arrays.asList("0|1"));
-        variant.getStudies().get(0).addSampleData("HG00097", Arrays.asList("0|2"));
-        variant.getStudies().get(0).addSampleData("HG00098", Arrays.asList("0|3"));
-        variant.getStudies().get(0).addSampleData("HG00099", Arrays.asList("0|4"));
-        variant.getStudies().get(0).getFiles().get(0).getAttributes().put("AF", "0.1,0.2,0.3,0.4");
-        normalizedVariantList = normalizer.normalize(Collections.singletonList(variant), true);
+        Variant variant = Variant.newBuilder("1", 100, 200, "C", "<CN0>,<CN2>,<CN3>,<CN4>")
+                .setStudyId("1")
+                .setFileId("1")
+                .setFormat("GT")
+                .addSample("HG00096", "0|1")
+                .addSample("HG00097", "0|2")
+                .addSample("HG00098", "0|3")
+                .addSample("HG00099", "0|4")
+                .addAttribute("AF", "0.1,0.2,0.3,0.4")
+                .addAttribute("CIPOS", "-10,10")
+                .build();
+        List<Variant> normalizedVariantList = normalizer.normalize(Collections.singletonList(variant), true);
         assertEquals(4, normalizedVariantList.size());
-        assertEquals(new StructuralVariation(101, 101, 200, 200, 0,
+        assertEquals(new StructuralVariation(90, 110, null, null, 0,
                 null, null, StructuralVariantType.COPY_NUMBER_LOSS),
                 normalizedVariantList.get(0).getSv());
-        assertEquals(new StructuralVariation(101, 101, 200, 200, 2,
+        assertEquals(new StructuralVariation(90, 110, null, null, 2,
                 null, null, null), normalizedVariantList.get(1).getSv());
-        assertEquals(new StructuralVariation(101, 101, 200, 200, 3,
+        assertEquals(new StructuralVariation(90, 110, null, null, 3,
                 null, null, StructuralVariantType.COPY_NUMBER_GAIN), normalizedVariantList.get(2).getSv());
-        assertEquals(new StructuralVariation(101, 101, 200, 200, 4,
+        assertEquals(new StructuralVariation(90, 110, null, null, 4,
                 null, null, StructuralVariantType.COPY_NUMBER_GAIN), normalizedVariantList.get(3).getSv());
 
         assertEquals("100:C:<CN0>,<CN2>,<CN3>,<CN4>:0", normalizedVariantList.get(0).getStudies().get(0).getFiles().get(0).getCall());
@@ -624,10 +628,8 @@ public class VariantNormalizerTest extends GenericTest {
 
     @Test
     public void testNormalizeSV() throws NonStandardCompliantSampleField {
-        String alt = "C";
-        for (int i = 0; i < 50; i++) {
-            alt += "A";
-        }
+        String alt = "C" + StringUtils.repeat('A', 50);
+
         Variant variant = newVariant(100, "C", alt);
         variant.getStudies().get(0).addSampleData("HG00096", Collections.singletonList("0|1"));
         assertEquals(VariantType.INSERTION, variant.getType());
@@ -647,6 +649,9 @@ public class VariantNormalizerTest extends GenericTest {
         List<Variant> normalized = normalizer.normalize(Collections.singletonList(variant), false);
 
         assertEquals(1, normalized.size());
+        assertEquals(101, normalized.get(0).getStart().intValue());
+        assertEquals(200, normalized.get(0).getEnd().intValue());
+        assertEquals(new StructuralVariation(), normalized.get(0).getSv());
         System.out.println(normalized.get(0).toJson());
     }
 

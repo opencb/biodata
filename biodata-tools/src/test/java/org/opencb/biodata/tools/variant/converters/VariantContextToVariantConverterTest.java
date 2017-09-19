@@ -168,9 +168,7 @@ public class VariantContextToVariantConverterTest {
         variant = converter.convert(variantContext);
         assertEquals("AGAACCTTAATACCCTAGTCTCGATGGTCTTTACATTTTGGCATGATTTTGCAGCGGCTGGTACCGG",
                 variant.getAlternate());
-        assertEquals(new StructuralVariation(16050984, 16050984, 16050984,
-                        16050984, null, null, null, null),
-                variant.getSv());
+        assertEquals(new StructuralVariation(), variant.getSv());
 
         vcfLine = "22\t16050984\trs188945759\tC\t<INS>\t100\t.\tEND=16050984;"
                 + "LEFT_SVINSSEQ=AGAACCTTAATACCCTAGTCTCGATGGTCTTTACATTTTGGCATGATTTTGCAGCGGCTGGTACCGG;"
@@ -179,21 +177,18 @@ public class VariantContextToVariantConverterTest {
         variantContext = vcfCodec.decode(vcfLine);
         variant = converter.convert(variantContext);
         assertEquals("<INS>", variant.getAlternate());
-        assertEquals(new StructuralVariation(16050984, 16050984, 16050984,
-                        16050984, null,
+        assertEquals(new StructuralVariation(null, null, null, null, null,
                         "AGAACCTTAATACCCTAGTCTCGATGGTCTTTACATTTTGGCATGATTTTGCAGCGGCTGGTACCGG",
                         "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", null),
                 variant.getSv());
 
-        vcfLine = "22\t16050984\trs188945759\tC\t<DUP:TANDEM>\t100\t.\tEND=16050988\tGT:AD\t./0:.\t0/1:10\t1/1:20";
+        vcfLine = "22\t16050984\trs188945759\tC\t<DUP:TANDEM>\t100\t.\tEND=16050988;CIPOS=-10,10\tGT:AD\t./0:.\t0/1:10\t1/1:20";
         variantContext = vcfCodec.decode(vcfLine);
         variant = converter.convert(variantContext);
         assertEquals(VariantType.DUPLICATION, variant.getType());
-        assertEquals(new StructuralVariation(16050984, 16050984, 16050988,
-                        16050988, null, null, null,
+        assertEquals(new StructuralVariation(16050974, 16050994, null, null, null, null, null,
                         StructuralVariantType.TANDEM_DUPLICATION),
                 variant.getSv());
-
 
     }
 

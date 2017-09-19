@@ -36,6 +36,7 @@ import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantBuilder;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.FileEntry;
+import org.opencb.biodata.models.variant.avro.StructuralVariation;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.biodata.tools.variant.merge.VariantAlternateRearranger;
@@ -159,6 +160,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             Integer start = variant.getStart();
             Integer end = variant.getEnd();
             String chromosome = variant.getChromosome();
+            StructuralVariation sv = variant.getSv();
 
             if (variant.getStudies() == null || variant.getStudies().isEmpty()) {
                 List<VariantKeyFields> keyFieldsList;
@@ -170,7 +172,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                 // Iterate keyFields sorting by position, so the generated variants are ordered. Do not modify original order!
                 for (VariantKeyFields keyFields : sortByPosition(keyFieldsList)) {
                     String call = start + ":" + reference + ":" + alternate + ":" + keyFields.getNumAllele();
-                    Variant normalizedVariant = newVariant(variant, keyFields);
+                    Variant normalizedVariant = newVariant(variant, keyFields, sv);
                     if (keyFields.getPhaseSet() != null) {
                         StudyEntry studyEntry = new StudyEntry();
                         studyEntry.setSamplesData(
@@ -223,8 +225,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                             variant.setEnd(keyFields.getEnd());
                             variant.setReference(keyFields.getReference());
                             variant.setAlternate(keyFields.getAlternate());
-                            variant.resetLength();
-                            variant.resetType();
+                            variant.reset();
                             // Variant is being reused, must ensure the SV field si appropriately created
 //                            if (isSymbolic(variant)) {
 //                                StructuralVariation sv = getStructuralVariation(variant, keyFields, copyNumberString);
@@ -234,7 +235,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                             entry.getFiles().forEach(fileEntry -> fileEntry.setCall(sameVariant ? "" : call)); //TODO: Check file attributes
                             samplesData = entry.getSamplesData();
                         } else {
-                            normalizedVariant = newVariant(variant, keyFields);
+                            normalizedVariant = newVariant(variant, keyFields, sv);
 
                             normalizedEntry = new StudyEntry();
                             normalizedEntry.setStudyId(entry.getStudyId());
@@ -367,15 +368,20 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 //        return normalizeSymbolic(start, end, reference, Collections.singletonList(alternate), copyNumber);
     }
 
-    public List<VariantKeyFields> normalizeSymbolic(Integer start, Integer end, String reference,
-                                                    List<String> alternates) {
+    public List<VariantKeyFields> normalizeSymbolic(final Integer start, final Integer end, final String reference,
+                                                    final List<String> alternates) {
         List<VariantKeyFields> list = new ArrayList<>(alternates.size());
 
         String newReference = reference;
-        // Reference for SVs must be empty
+        int newStart = start;
+        // Copy from the VCFv4.3.pdf :
+        //   If any of the ALT alleles is a symbolic allele (an angle-bracketed ID String "<ID>") then the padding
+        //   base is required and POS denotes the coordinate of the base preceding the polymorphism.
+        //
+        // Reference for SVs in normalized variants must be empty. Then, the start should be incremented one position.
         if (reference.length() == 1) {
             newReference = "";
-            start++;
+            newStart++;
         } else if (reference.length() > 1) {
             throw new IllegalArgumentException("Invalid reference value found for symbolic variant " + start + "-"
                     + end + ":" + reference + ":" + String.join(",", alternates) + ". Reference can only "
@@ -389,7 +395,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 //                // Alternate must be of the form <CNxxx>, being xxx the number of copies
 //                newAlternate = "<CN" + copyNumber + ">";
 //            }
-            list.add(new VariantKeyFields(start, end, numAllelesIdx, newReference, newAlternate));
+            list.add(new VariantKeyFields(newStart, end, numAllelesIdx, newReference, newAlternate));
         }
 
         return list;
@@ -957,17 +963,29 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
     }
 
 
-    private Variant newVariant(Variant variant, VariantKeyFields keyFields) {
-        Variant normalizedVariant = new Variant(variant.getChromosome(), keyFields.getStart(), keyFields.getEnd(), keyFields.getReference(), keyFields.getAlternate());
-        normalizedVariant.setIds(variant.getIds());
-        normalizedVariant.setStrand(variant.getStrand());
+    private Variant newVariant(Variant variant, VariantKeyFields keyFields, StructuralVariation sv) {
+        Variant normalizedVariant = new Variant(variant.getChromosome(), keyFields.getStart(), keyFields.getEnd(), keyFields.getReference(), keyFields.getAlternate())
+                .setId(variant.getId())
+                .setNames(variant.getNames())
+                .setStrand(variant.getStrand());
+
+        if (sv != null) {
+            if (normalizedVariant.getSv() != null) {
+                // CI positions may change during the normalization. Update them.
+                normalizedVariant.getSv().setCiStartLeft(sv.getCiStartLeft());
+                normalizedVariant.getSv().setCiStartRight(sv.getCiStartRight());
+                normalizedVariant.getSv().setCiEndLeft(sv.getCiEndLeft());
+                normalizedVariant.getSv().setCiEndRight(sv.getCiEndRight());
+            } else {
+                normalizedVariant.setSv(sv);
+            }
+        }
+        return normalizedVariant;
 //        normalizedVariant.setAnnotation(variant.getAnnotation());
 //        if (isSymbolic(variant)) {
 //            StructuralVariation sv = getStructuralVariation(normalizedVariant, keyFields, null);
 //            normalizedVariant.setSv(sv);
 //        }
-
-        return normalizedVariant;
     }
 
     public List<VariantKeyFields> reorderVariantKeyFields(String chromosome, VariantKeyFields alternate, List<VariantKeyFields> alternates) {

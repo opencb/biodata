@@ -240,6 +240,9 @@ public class VariantBuilder {
     }
 
     public VariantBuilder setAlternate(String alternate) {
+        if (alternate.contains(",")) {
+            return setAlternates(Arrays.asList(alternate.split(",")));
+        }
         this.alternates = new ArrayList<>(1);
         alternates.add(checkEmptySequence(alternate));
         return this;
@@ -822,22 +825,26 @@ public class VariantBuilder {
     }
 
     private void initSv() {
+        // Do not initialize any value by default
         if (sv == null) {
-            sv = new StructuralVariation(start, start, end, end, null, null, null, null);
-        } else {
-            if (sv.getCiStartLeft() == null) {
-                sv.setCiStartLeft(start);
-            }
-            if (sv.getCiStartRight() == null) {
-                sv.setCiStartRight(start);
-            }
-            if (sv.getCiEndLeft() == null) {
-                sv.setCiEndLeft(end);
-            }
-            if (sv.getCiEndRight() == null) {
-                sv.setCiEndRight(end);
-            }
+            sv = new StructuralVariation();
         }
+//        if (sv == null) {
+//            sv = new StructuralVariation(start, start, end, end, null, null, null, null);
+//        } else {
+//            if (sv.getCiStartLeft() == null) {
+//                sv.setCiStartLeft(start);
+//            }
+//            if (sv.getCiStartRight() == null) {
+//                sv.setCiStartRight(start);
+//            }
+//            if (sv.getCiEndLeft() == null) {
+//                sv.setCiEndLeft(end);
+//            }
+//            if (sv.getCiEndRight() == null) {
+//                sv.setCiEndRight(end);
+//            }
+//        }
     }
 
     /**

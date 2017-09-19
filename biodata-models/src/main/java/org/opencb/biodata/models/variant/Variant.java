@@ -84,6 +84,14 @@ public class Variant implements Serializable, Comparable<Variant> {
         return new VariantBuilder();
     }
 
+    public static VariantBuilder newBuilder(String str) {
+        return new VariantBuilder(str);
+    }
+
+    public static VariantBuilder newBuilder(String chromosome, Integer start, Integer end, String reference, String alternate) {
+        return new VariantBuilder(chromosome, start, end, reference, alternate);
+    }
+
     public static Variant parseVariant(String variantString) {
         return new VariantBuilder(variantString).build();
     }
@@ -118,6 +126,11 @@ public class Variant implements Serializable, Comparable<Variant> {
     @Deprecated
     public static StructuralVariantType getCNVSubtype(Integer copyNumber) {
         return VariantBuilder.getCNVSubtype(copyNumber);
+    }
+
+    public void reset() {
+        resetType();
+        resetLength();
     }
 
     public void resetType() {
@@ -175,8 +188,9 @@ public class Variant implements Serializable, Comparable<Variant> {
         return impl.getId();
     }
 
-    public void setId(String id) {
+    public Variant setId(String id) {
         impl.setId(id);
+        return this;
     }
 
     public String getChromosome() {
@@ -203,8 +217,9 @@ public class Variant implements Serializable, Comparable<Variant> {
         return impl.getStrand();
     }
 
-    public void setStrand(String strand) {
+    public Variant setStrand(String strand) {
         impl.setStrand(strand);
+        return this;
     }
 
     public StructuralVariation getSv() {
@@ -247,8 +262,9 @@ public class Variant implements Serializable, Comparable<Variant> {
         return impl.getNames();
     }
 
-    public void setNames(List<String> names) {
+    public Variant setNames(List<String> names) {
         impl.setNames(names);
+        return this;
     }
 
     public Integer getLength() {
@@ -411,14 +427,10 @@ public class Variant implements Serializable, Comparable<Variant> {
         StructuralVariation sv = getSv();
 
         // Start
-        if (sv != null) {
-            if (sv.getCiStartLeft() != start) {
-                sb.append(sv.getCiStartLeft()).append("<");
-            }
-            sb.append(start);
-            if (sv.getCiStartRight() != start) {
-                sb.append("<").append(sv.getCiStartRight());
-            }
+        if (sv != null && (sv.getCiStartLeft() != null || sv.getCiStartRight() != null)) {
+            sb.append(sv.getCiStartLeft() == null ? start : sv.getCiStartLeft())
+                    .append('<').append(start).append('<')
+                    .append(sv.getCiStartRight() == null ? start : sv.getCiStartRight());
         } else {
             sb.append(start);
         }
@@ -426,14 +438,10 @@ public class Variant implements Serializable, Comparable<Variant> {
         // Optional end
         if (start != end && getLengthReference() != getReference().length()) {
             sb.append("-");
-            if (sv != null) {
-                if (sv.getCiEndLeft() != start) {
-                    sb.append(sv.getCiEndLeft()).append("<");
-                }
-                sb.append(end);
-                if (sv.getCiEndRight() != start) {
-                    sb.append("<").append(sv.getCiEndRight());
-                }
+            if (sv != null && (sv.getCiEndLeft() != null || sv.getCiEndRight() != null)) {
+                sb.append(sv.getCiEndLeft() == null ? end : sv.getCiEndLeft())
+                        .append('<').append(end).append('<')
+                        .append(sv.getCiEndRight() == null ? end : sv.getCiEndRight());
             } else {
                 sb.append(end);
             }
