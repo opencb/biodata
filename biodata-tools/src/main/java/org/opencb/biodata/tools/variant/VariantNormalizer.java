@@ -391,11 +391,16 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         int numAllelesIdx = 0; // This index is necessary for getting the samples where the mutated allele is present
         for (Iterator<String> iterator = alternates.iterator(); iterator.hasNext(); numAllelesIdx++) {
             String newAlternate = iterator.next();
+            Integer cn = VariantBuilder.getCopyNumberFromAlternate(newAlternate);
+            if (cn != null) {
+                // Alternate with the form <CNxxx>, being xxx the number of copies, must be normalized into "<CNV>"
+                newAlternate = "<CNV>";
+            }
 //            if (newAlternate.equals(CNV) && StringUtils.isNotEmpty(copyNumber)) {
 //                // Alternate must be of the form <CNxxx>, being xxx the number of copies
 //                newAlternate = "<CN" + copyNumber + ">";
 //            }
-            list.add(new VariantKeyFields(newStart, end, numAllelesIdx, newReference, newAlternate));
+            list.add(new VariantKeyFields(newStart, end, numAllelesIdx, newReference, newAlternate, cn, false));
         }
 
         return list;
@@ -976,9 +981,14 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                 normalizedVariant.getSv().setCiStartRight(sv.getCiStartRight());
                 normalizedVariant.getSv().setCiEndLeft(sv.getCiEndLeft());
                 normalizedVariant.getSv().setCiEndRight(sv.getCiEndRight());
+
             } else {
                 normalizedVariant.setSv(sv);
             }
+
+            // Variant will never have CopyNumber, because the Alternate is normalized from <CNxx> to <CNV>
+            normalizedVariant.getSv().setCopyNumber(keyFields.getCopyNumber());
+            normalizedVariant.getSv().setType(VariantBuilder.getCNVSubtype(keyFields.getCopyNumber()));
         }
         return normalizedVariant;
 //        normalizedVariant.setAnnotation(variant.getAnnotation());
@@ -1060,6 +1070,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         private String phaseSet;
         private String reference;
         private String alternate;
+        private Integer copyNumber;
 
         boolean referenceBlock;
 
@@ -1072,11 +1083,16 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         }
 
         public VariantKeyFields(int start, int end, int numAllele, String reference, String alternate, boolean referenceBlock) {
+            this(start, end, numAllele, reference, alternate, null, referenceBlock);
+        }
+
+        public VariantKeyFields(int start, int end, int numAllele, String reference, String alternate, Integer copyNumber, boolean referenceBlock) {
             this.start = start;
             this.end = end;
             this.numAllele = numAllele;
             this.reference = reference;
             this.alternate = alternate;
+            this.copyNumber = copyNumber;
             this.referenceBlock = referenceBlock;
         }
 
@@ -1134,6 +1150,15 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
         public VariantKeyFields setAlternate(String alternate) {
             this.alternate = alternate;
+            return this;
+        }
+
+        public Integer getCopyNumber() {
+            return copyNumber;
+        }
+
+        public VariantKeyFields setCopyNumber(Integer copyNumber) {
+            this.copyNumber = copyNumber;
             return this;
         }
 

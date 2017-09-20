@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.VariantBuilder;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.StructuralVariantType;
 import org.opencb.biodata.models.variant.avro.StructuralVariation;
@@ -551,16 +552,19 @@ public class VariantNormalizerTest extends GenericTest {
 
     @Test
     public void testCNVsNormalization() throws Exception {
-        Variant variant = newVariant(100, 200, "C", Collections.singletonList("<CN0>"), "2");
-        // VariantNormalizer does not touch the sv field any more
-//        variant.getStudies().get(0).getFile("1").getAttributes().put("CIEND", "-50,11");
-//        variant.getStudies().get(0).getFile("1").getAttributes().put("CIPOS", "-14,50");
-        variant.getStudies().get(0).addSampleData("HG00096", Arrays.asList("0|0"));
+        Variant variant = newVariantBuilder(100, 200, "C", Collections.singletonList("<CN0>"), "2")
+                .addAttribute("CIPOS", "-14,50")
+                .addAttribute("CIEND", "-50,11")
+                .addSample("HG00096", "0|0")
+                .build();
+
         List<Variant> normalizedVariantList = normalizer.normalize(Collections.singletonList(variant), true);
         assertEquals(1, normalizedVariantList.size());
-        // VariantNormalizer does not touch the sv field any more
-//        assertEquals(new StructuralVariation(86, 150, 150, 211, 0,
-//                StructuralVariantType.COPY_NUMBER_LOSS), normalizedVariantList.get(0).getSv());
+        assertEquals(new StructuralVariation(86, 150, 150, 211, 0, null, null,
+                StructuralVariantType.COPY_NUMBER_LOSS), normalizedVariantList.get(0).getSv());
+        // Normalize CNV alternate
+        assertEquals("<CNV>", normalizedVariantList.get(0).getAlternate());
+        assertEquals("100:C:<CN0>:0", normalizedVariantList.get(0).getStudies().get(0).getFiles().get(0).getCall());
     }
 
     @Test
@@ -592,20 +596,32 @@ public class VariantNormalizerTest extends GenericTest {
         assertEquals("100:C:<CN0>,<CN2>,<CN3>,<CN4>:1", normalizedVariantList.get(1).getStudies().get(0).getFiles().get(0).getCall());
         assertEquals("100:C:<CN0>,<CN2>,<CN3>,<CN4>:2", normalizedVariantList.get(2).getStudies().get(0).getFiles().get(0).getCall());
         assertEquals("100:C:<CN0>,<CN2>,<CN3>,<CN4>:3", normalizedVariantList.get(3).getStudies().get(0).getFiles().get(0).getCall());
+
+        for (Variant v : normalizedVariantList) {
+            assertEquals(101, v.getStart().intValue());
+            assertEquals(VariantType.CNV, v.getType());
+        }
     }
 
     @Test
     public void testCNVsNormalizationCopyNumber() throws NonStandardCompliantSampleField {
         Variant variant;
         List<Variant> normalizedVariantList;
-        variant = newVariant(100, 200, "C", Arrays.asList("<CNV>"), "2");
-        variant.getStudies().get(0).addFormat("CN");
-        variant.getStudies().get(0).addSampleData("HG00096", Arrays.asList("0|1","3"));
+        variant = newVariantBuilder(100, 200, "C", Arrays.asList("<CNV>"), "2")
+                .setFormat("GT", "CN")
+                .addSample("HG00096", "0|1","3")
+                .build();
         normalizedVariantList = normalizer.normalize(Collections.singletonList(variant), true);
         assertEquals(1, normalizedVariantList.size());
-        // VariantNormalizer does not touch the sv field any more
-//        assertEquals(new StructuralVariation(100, 100, 200, 200, 3,
-//                StructuralVariantType.COPY_NUMBER_GAIN), normalizedVariantList.get(0).getSv());
+        Variant normalizedVariant = normalizedVariantList.get(0);
+        assertEquals(new StructuralVariation(null, null, null, null, 3, null, null,
+                StructuralVariantType.COPY_NUMBER_GAIN), normalizedVariant.getSv());
+        // Normalize CNV alternate
+        assertEquals("<CNV>", normalizedVariant.getAlternate());
+        assertEquals(101, normalizedVariant.getStart().intValue());
+        assertEquals("", normalizedVariant.getReference());
+        assertEquals("100:C:<CNV>:0", normalizedVariant.getStudies().get(0).getFiles().get(0).getCall());
+
     }
 
     @Test
@@ -664,20 +680,14 @@ public class VariantNormalizerTest extends GenericTest {
     }
 
     private Variant newVariant(int position, int end, String ref, List<String> altsList, String studyId) {
-        Variant variant;
-        // Different constructor calls since the one that does not include the "end" sets the variant.end by making an
-        // inference of the variant length
-        if (position == end) {
-            variant = new Variant("1", position, ref, altsList.get(0));
-        } else {
-            variant = new Variant("1", position, end, ref, altsList.get(0));
-        }
-        StudyEntry studyEntry = new StudyEntry(studyId, altsList.subList(1, altsList.size())
-                .stream()
-                .map(s -> new AlternateCoordinate(null, null, null, null, s, variant.getType()))
-                .collect(Collectors.toList()), Collections.singletonList("GT"));
-        studyEntry.setFileId("1");
-        variant.addStudyEntry(studyEntry);
-        return variant;
+        return newVariantBuilder(position, end, ref, altsList, studyId).build();
+    }
+
+    private VariantBuilder newVariantBuilder(int position, int end, String ref, List<String> altsList, String studyId) {
+        return Variant.newBuilder("1", position, end, ref, String.join(",", altsList))
+                .setStudyId(studyId)
+                .setFormat("GT")
+                .setSamplesData(new ArrayList<>())
+                .setFileId("1");
     }
 }
