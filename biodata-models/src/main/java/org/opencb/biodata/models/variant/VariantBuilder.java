@@ -36,7 +36,8 @@ public class VariantBuilder {
 
     // Known symbolic alternates
     // TODO: Support alternates like DEL:ME, INS:ME, ...
-    private static final String CNV_ALT = "<CN";
+    private static final String CNV_PREFIX_ALT = "<CN";
+    private static final String CNV_ALT = "<CNV>";
     private static final String DUP_ALT = "<DUP>";
     private static final String DUP_TANDEM_ALT = "<DUP:TANDEM>";
     private static final String DEL_ALT = "<DEL>";
@@ -83,6 +84,7 @@ public class VariantBuilder {
     private LinkedHashMap<String, Integer> samplesPosition;
     private List<List<String>> samplesData;
     private Map<String, String> attributes;
+    private String call;
     private List<String> format;
 
     private String variantString;
@@ -140,13 +142,19 @@ public class VariantBuilder {
 
     private void parseAlternate(String alternate) {
         int idx = alternate.indexOf("...");
-        if (idx < 0) {
-            setAlternate(alternate);
-        } else {
+        if (idx >= 0) {
             setAlternate(INS_ALT);
             initSv();
             sv.setLeftSvInsSeq(alternate.substring(0, idx));
             sv.setRightSvInsSeq(alternate.substring(idx + 3));
+        } else {
+            Integer copyNumber = getCopyNumberFromAlternate(alternate);
+            if (copyNumber != null) {
+                setAlternate(CNV_ALT);
+                setCopyNumber(copyNumber);
+            } else {
+                setAlternate(alternate);
+            }
         }
     }
 
@@ -197,6 +205,7 @@ public class VariantBuilder {
         this.end = end;
         setReference(reference);
         setAlternate(alternate);
+        call = null;
     }
     
     public VariantBuilder setId(String id) {
@@ -287,6 +296,34 @@ public class VariantBuilder {
         return this;
     }
 
+    public VariantBuilder setCiStart(int left, int right) {
+        initSv();
+        sv.setCiStartLeft(left);
+        sv.setCiStartRight(right);
+        return this;
+    }
+
+    public VariantBuilder setCiEnd(int left, int right) {
+        initSv();
+        sv.setCiEndLeft(left);
+        sv.setCiEndRight(right);
+        return this;
+    }
+
+    public VariantBuilder setCopyNumber(int copyNumber) {
+        initSv();
+        sv.setCopyNumber(copyNumber);
+        sv.setType(getCNVSubtype(copyNumber));
+        return this;
+    }
+
+    public VariantBuilder setSvInsSeq(String left, String right) {
+        initSv();
+        sv.setLeftSvInsSeq(left);
+        sv.setRightSvInsSeq(right);
+        return this;
+    }
+
     public VariantBuilder setStrand(String strand) {
         this.strand = strand;
         return this;
@@ -355,6 +392,12 @@ public class VariantBuilder {
             attributes = new HashMap<>(attributes);
             attributes.put(key, value);
         }
+        return this;
+    }
+
+    public VariantBuilder setCall(String call) {
+        checkFile("set call");
+        this.call = call;
         return this;
     }
 
@@ -449,7 +492,7 @@ public class VariantBuilder {
         if (hasStudyId()) {
             StudyEntry studyEntry = new StudyEntry(studyId);
             if (fileId != null) {
-                FileEntry fileEntry = new FileEntry(fileId, null, attributes);
+                FileEntry fileEntry = new FileEntry(fileId, call, attributes);
                 studyEntry.setFiles(Collections.singletonList(fileEntry));
             }
             studyEntry.setFormat(format);
@@ -498,10 +541,18 @@ public class VariantBuilder {
 
         if (sv != null) {
             VariantProto.StructuralVariation.Builder svBuilder = VariantProto.StructuralVariation.newBuilder();
-            svBuilder.setCiStartLeft(sv.getCiStartLeft())
-                    .setCiStartRight(sv.getCiStartRight())
-                    .setCiEndLeft(sv.getCiEndLeft())
-                    .setCiEndRight(sv.getCiEndRight());
+            if (sv.getCiStartLeft() != null) {
+                svBuilder.setCiStartLeft(sv.getCiStartLeft());
+            }
+            if (sv.getCiStartRight() != null) {
+                svBuilder.setCiStartRight(sv.getCiStartRight());
+            }
+            if (sv.getCiEndLeft() != null) {
+                svBuilder.setCiEndLeft(sv.getCiEndLeft());
+            }
+            if (sv.getCiEndRight() != null) {
+                svBuilder.setCiEndRight(sv.getCiEndRight());
+            }
             if (sv.getCopyNumber() != null) {
                 svBuilder.setCopyNumber(sv.getCopyNumber());
             }
@@ -577,6 +628,8 @@ public class VariantBuilder {
                             + "file attribute END = '" + attributeEnd + "'");
                 }
             }
+        } else {
+            attributes = new HashMap<>();
         }
 
         if (end == null) {
@@ -664,7 +717,7 @@ public class VariantBuilder {
 //        if (Allele.wouldBeSymbolicAllele(alternateBytes) || Allele.wouldBeSymbolicAllele(reference.getBytes())) {
         // Symbolic variants shall contain empty reference, no need to check
         if (Allele.wouldBeSymbolicAllele(alternateBytes)) {
-            if (alternate.startsWith(CNV_ALT)) {
+            if (alternate.startsWith(CNV_PREFIX_ALT)) {
                 return VariantType.CNV;
             } else if (alternate.equals(DUP_ALT) || alternate.equals(DUP_TANDEM_ALT)){
                 return VariantType.DUPLICATION;
@@ -848,8 +901,10 @@ public class VariantBuilder {
                     if (copyNumber == null) {
                         copyNumber = getCopyNumberFromFormat();
                     }
-                    sv.setCopyNumber(copyNumber);
-                    sv.setType(getCNVSubtype(copyNumber));
+                    if (copyNumber != null) {
+                        sv.setCopyNumber(copyNumber);
+                        sv.setType(getCNVSubtype(copyNumber));
+                    }
                     break;
             }
 
@@ -929,6 +984,10 @@ public class VariantBuilder {
     }
 
     public static Integer getCopyNumberFromAlternate(String alternate) {
+        // Fast fail
+        if (alternate.isEmpty() || alternate.charAt(0) != '<') {
+            return null;
+        }
         Matcher matcher = CNV_ALT_PATTERN.matcher(alternate);
         if (matcher.matches()) {
             return Integer.valueOf(matcher.group(1));

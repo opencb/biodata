@@ -466,6 +466,12 @@ public class Variant implements Serializable, Comparable<Variant> {
             if (getSv().getRightSvInsSeq() != null) {
                 sb.append(getSv().getRightSvInsSeq());
             }
+        } else if (getType().equals(VariantType.CNV)) {
+            if (getSv().getCopyNumber() != null) {
+                sb.append("<CN").append(getSv().getCopyNumber()).append('>');
+            } else {
+                sb.append(getAlternate());
+            }
         } else {
             sb.append(getAlternate());
         }
