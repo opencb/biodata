@@ -211,9 +211,18 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                             && keyFieldsList.get(0).getReference().equals(reference)
                             && keyFieldsList.get(0).getAlternate().equals(alternate);
 
+                    String callPrefix;
+                    if (entry.getFiles() != null && StringUtils.isNotEmpty(entry.getFiles().get(0).getCall())) {
+                        String call = entry.getFiles().get(0).getCall();
+                        // Remove allele index
+                        callPrefix = call.substring(0, call.lastIndexOf(':') + 1);
+                    } else {
+                        callPrefix = start + ":" + reference + ":" + String.join(",", alternates) + ":";
+                    }
+
                     // Iterate keyFields sorting by position, so the generated variants are ordered. Do not modify original order!
                     for (VariantKeyFields keyFields : sortByPosition(keyFieldsList)) {
-                        String call = start + ":" + reference + ":" + String.join(",", alternates) + ":" + keyFields.getNumAllele();
+                        String call = callPrefix + keyFields.getNumAllele();
 
                         final Variant normalizedVariant;
                         final StudyEntry normalizedEntry;

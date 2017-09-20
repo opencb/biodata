@@ -671,6 +671,28 @@ public class VariantNormalizerTest extends GenericTest {
         System.out.println(normalized.get(0).toJson());
     }
 
+    @Test
+    public void testNormalizeINS() throws NonStandardCompliantSampleField {
+
+        String seq = "ACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTG";
+        Variant variant = newVariantBuilder(100, 100, "N", Collections.singletonList("<INS>"), STUDY_ID)
+                .addAttribute("SVINSSEQ", seq)
+                .build();
+        List<Variant> list = new VariantNormalizer().normalize(Collections.singletonList(variant), false);
+
+        assertEquals(1, list.size());
+        Variant normalized = list.get(0);
+        assertEquals(101, normalized.getStart().intValue());
+        assertEquals(100, normalized.getEnd().intValue());
+        assertEquals(seq.length(), normalized.getLength().intValue());
+        assertEquals(seq.length(), normalized.getLengthAlternate().intValue());
+        assertEquals(0, normalized.getLengthReference().intValue());
+        assertEquals("", normalized.getReference());
+        assertEquals(seq, normalized.getAlternate());
+        assertEquals(new StructuralVariation(), normalized.getSv());
+        assertEquals("100:N:<INS>:0", normalized.getStudies().get(0).getFiles().get(0).getCall());
+    }
+
     private Variant newVariant(int position, String ref, String altsCsv) {
         return newVariant(position, position, ref, Arrays.asList(altsCsv.split(",")), "2");
     }

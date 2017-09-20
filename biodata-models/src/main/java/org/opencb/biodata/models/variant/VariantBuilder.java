@@ -954,7 +954,12 @@ public class VariantBuilder {
                     // SVINSSEQ contains the sequence inserted AFTER the reference.
                     // To represent correctly the alternate, given that reference, we need to add the reference as allele context
                     // If the variant is normalized, the alleles will be trimmed, removing this "context"
-                    alternates.set(0, reference + value);
+                    if (alternates.size() > 1) {
+                        throw new IllegalArgumentException("Found SVINSSEQ in a multi allelic variant!");
+                    } else {
+                        setCall(start + ":" + reference + ":" + alternates.get(0) + ":" + 0);
+                        setAlternate(reference + value);
+                    }
                 }
                 break;
             case LEFT_SVINSSEQ_INFO:
@@ -1031,6 +1036,7 @@ public class VariantBuilder {
         return null;
     }
 
+    @Deprecated
     public static StructuralVariation getStructuralVariation(Variant variant, StructuralVariantType tandemDuplication) {
         int[] impreciseStart = getImpreciseStart(variant);
         int[] impreciseEnd = getImpreciseEnd(variant);
@@ -1060,6 +1066,7 @@ public class VariantBuilder {
 
     }
 
+    @Deprecated
     private static String[] getSvInsSeq(Variant variant) {
         String leftSvInsSeq = null;
         String rightSvInsSeq = null;
@@ -1077,6 +1084,7 @@ public class VariantBuilder {
         return new String[]{leftSvInsSeq, rightSvInsSeq};
     }
 
+    @Deprecated
     public static int[] getImpreciseStart(Variant variant) {
         if (variant.getStudies()!= null
                 && !variant.getStudies().isEmpty()
@@ -1090,6 +1098,7 @@ public class VariantBuilder {
         }
     }
 
+    @Deprecated
     public static int[] getImpreciseEnd(Variant variant) {
         if (variant.getStudies()!= null
                 && !variant.getStudies().isEmpty()
