@@ -41,7 +41,11 @@ public class VariantBuilderTest {
         map.put("1:1000:ACACAC...", new Variant("1", 1000, 999, "", "<INS>").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.INSERTION).setSv(new StructuralVariation(null, null, null, null, null, "ACACAC", "", null)));
 
         for (Map.Entry<String, Variant> entry : map.entrySet()) {
+            String expected = entry.getKey().replace(":-:", ":").replace("chr", "");
+            String actual = entry.getValue().toString().replace(":-:", ":").replace("chr", "");
+
             System.out.println("Original : " + entry.getKey() + " \t-->\t " + entry.getValue());
+            assertEquals(expected, actual);
             try {
                 assertEquals("Parsing \"" + entry.getKey() + "\"", entry.getValue(), new Variant(entry.getKey()));
             } catch (AssertionError e) {
@@ -82,6 +86,7 @@ public class VariantBuilderTest {
         assertEquals(length, v.getLength().intValue());
         assertEquals(length, v.getLengthAlternate().intValue());
         assertEquals(1, v.getLengthReference().intValue());
+        assertEquals("1000:A:<INS>:0", v.getStudies().get(0).getFiles().get(0).getCall());
 
     }
 

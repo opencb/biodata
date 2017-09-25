@@ -36,7 +36,8 @@ public class VariantBuilder {
 
     // Known symbolic alternates
     // TODO: Support alternates like DEL:ME, INS:ME, ...
-    private static final String CNV_ALT = "<CN";
+    private static final String CNV_PREFIX_ALT = "<CN";
+    private static final String CNV_ALT = "<CNV>";
     private static final String DUP_ALT = "<DUP>";
     private static final String DUP_TANDEM_ALT = "<DUP:TANDEM>";
     private static final String DEL_ALT = "<DEL>";
@@ -83,6 +84,7 @@ public class VariantBuilder {
     private LinkedHashMap<String, Integer> samplesPosition;
     private List<List<String>> samplesData;
     private Map<String, String> attributes;
+    private String call;
     private List<String> format;
 
     private String variantString;
@@ -140,13 +142,13 @@ public class VariantBuilder {
 
     private void parseAlternate(String alternate) {
         int idx = alternate.indexOf("...");
-        if (idx < 0) {
-            setAlternate(alternate);
-        } else {
+        if (idx >= 0) {
             setAlternate(INS_ALT);
             initSv();
             sv.setLeftSvInsSeq(alternate.substring(0, idx));
             sv.setRightSvInsSeq(alternate.substring(idx + 3));
+        } else {
+            setAlternate(alternate);
         }
     }
 
@@ -197,6 +199,7 @@ public class VariantBuilder {
         this.end = end;
         setReference(reference);
         setAlternate(alternate);
+        call = null;
     }
     
     public VariantBuilder setId(String id) {
@@ -255,7 +258,7 @@ public class VariantBuilder {
     }
 
     public VariantBuilder setAlternate(String alternate) {
-        if (alternate.contains(",")) {
+        if (alternate != null && alternate.contains(",")) {
             return setAlternates(Arrays.asList(alternate.split(",")));
         } else {
             return setAlternates(Collections.singletonList(alternate));
@@ -284,6 +287,34 @@ public class VariantBuilder {
 
     public VariantBuilder setType(VariantType type) {
         this.type = type;
+        return this;
+    }
+
+    public VariantBuilder setCiStart(int left, int right) {
+        initSv();
+        sv.setCiStartLeft(left);
+        sv.setCiStartRight(right);
+        return this;
+    }
+
+    public VariantBuilder setCiEnd(int left, int right) {
+        initSv();
+        sv.setCiEndLeft(left);
+        sv.setCiEndRight(right);
+        return this;
+    }
+
+    public VariantBuilder setCopyNumber(int copyNumber) {
+        initSv();
+        sv.setCopyNumber(copyNumber);
+        sv.setType(getCNVSubtype(copyNumber));
+        return this;
+    }
+
+    public VariantBuilder setSvInsSeq(String left, String right) {
+        initSv();
+        sv.setLeftSvInsSeq(left);
+        sv.setRightSvInsSeq(right);
         return this;
     }
 
@@ -355,6 +386,12 @@ public class VariantBuilder {
             attributes = new HashMap<>(attributes);
             attributes.put(key, value);
         }
+        return this;
+    }
+
+    public VariantBuilder setCall(String call) {
+        checkFile("set call");
+        this.call = call;
         return this;
     }
 
@@ -449,7 +486,7 @@ public class VariantBuilder {
         if (hasStudyId()) {
             StudyEntry studyEntry = new StudyEntry(studyId);
             if (fileId != null) {
-                FileEntry fileEntry = new FileEntry(fileId, null, attributes);
+                FileEntry fileEntry = new FileEntry(fileId, call, attributes);
                 studyEntry.setFiles(Collections.singletonList(fileEntry));
             }
             studyEntry.setFormat(format);
@@ -498,10 +535,18 @@ public class VariantBuilder {
 
         if (sv != null) {
             VariantProto.StructuralVariation.Builder svBuilder = VariantProto.StructuralVariation.newBuilder();
-            svBuilder.setCiStartLeft(sv.getCiStartLeft())
-                    .setCiStartRight(sv.getCiStartRight())
-                    .setCiEndLeft(sv.getCiEndLeft())
-                    .setCiEndRight(sv.getCiEndRight());
+            if (sv.getCiStartLeft() != null) {
+                svBuilder.setCiStartLeft(sv.getCiStartLeft());
+            }
+            if (sv.getCiStartRight() != null) {
+                svBuilder.setCiStartRight(sv.getCiStartRight());
+            }
+            if (sv.getCiEndLeft() != null) {
+                svBuilder.setCiEndLeft(sv.getCiEndLeft());
+            }
+            if (sv.getCiEndRight() != null) {
+                svBuilder.setCiEndRight(sv.getCiEndRight());
+            }
             if (sv.getCopyNumber() != null) {
                 svBuilder.setCopyNumber(sv.getCopyNumber());
             }
@@ -577,6 +622,8 @@ public class VariantBuilder {
                             + "file attribute END = '" + attributeEnd + "'");
                 }
             }
+        } else {
+            attributes = new HashMap<>();
         }
 
         if (end == null) {
@@ -664,7 +711,7 @@ public class VariantBuilder {
 //        if (Allele.wouldBeSymbolicAllele(alternateBytes) || Allele.wouldBeSymbolicAllele(reference.getBytes())) {
         // Symbolic variants shall contain empty reference, no need to check
         if (Allele.wouldBeSymbolicAllele(alternateBytes)) {
-            if (alternate.startsWith(CNV_ALT)) {
+            if (alternate.startsWith(CNV_PREFIX_ALT)) {
                 return VariantType.CNV;
             } else if (alternate.equals(DUP_ALT) || alternate.equals(DUP_TANDEM_ALT)){
                 return VariantType.DUPLICATION;
@@ -848,8 +895,10 @@ public class VariantBuilder {
                     if (copyNumber == null) {
                         copyNumber = getCopyNumberFromFormat();
                     }
-                    sv.setCopyNumber(copyNumber);
-                    sv.setType(getCNVSubtype(copyNumber));
+                    if (copyNumber != null) {
+                        sv.setCopyNumber(copyNumber);
+                        sv.setType(getCNVSubtype(copyNumber));
+                    }
                     break;
             }
 
@@ -899,7 +948,12 @@ public class VariantBuilder {
                     // SVINSSEQ contains the sequence inserted AFTER the reference.
                     // To represent correctly the alternate, given that reference, we need to add the reference as allele context
                     // If the variant is normalized, the alleles will be trimmed, removing this "context"
-                    alternates.set(0, reference + value);
+                    if (alternates.size() > 1) {
+                        throw new IllegalArgumentException("Found SVINSSEQ in a multi allelic variant!");
+                    } else {
+                        setCall(start + ":" + reference + ":" + alternates.get(0) + ":" + 0);
+                        setAlternate(reference + value);
+                    }
                 }
                 break;
             case LEFT_SVINSSEQ_INFO:
@@ -929,6 +983,10 @@ public class VariantBuilder {
     }
 
     public static Integer getCopyNumberFromAlternate(String alternate) {
+        // Fast fail
+        if (alternate.isEmpty() || alternate.charAt(0) != '<') {
+            return null;
+        }
         Matcher matcher = CNV_ALT_PATTERN.matcher(alternate);
         if (matcher.matches()) {
             return Integer.valueOf(matcher.group(1));
@@ -972,6 +1030,7 @@ public class VariantBuilder {
         return null;
     }
 
+    @Deprecated
     public static StructuralVariation getStructuralVariation(Variant variant, StructuralVariantType tandemDuplication) {
         int[] impreciseStart = getImpreciseStart(variant);
         int[] impreciseEnd = getImpreciseEnd(variant);
@@ -1001,6 +1060,7 @@ public class VariantBuilder {
 
     }
 
+    @Deprecated
     private static String[] getSvInsSeq(Variant variant) {
         String leftSvInsSeq = null;
         String rightSvInsSeq = null;
@@ -1018,6 +1078,7 @@ public class VariantBuilder {
         return new String[]{leftSvInsSeq, rightSvInsSeq};
     }
 
+    @Deprecated
     public static int[] getImpreciseStart(Variant variant) {
         if (variant.getStudies()!= null
                 && !variant.getStudies().isEmpty()
@@ -1031,6 +1092,7 @@ public class VariantBuilder {
         }
     }
 
+    @Deprecated
     public static int[] getImpreciseEnd(Variant variant) {
         if (variant.getStudies()!= null
                 && !variant.getStudies().isEmpty()

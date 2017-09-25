@@ -165,7 +165,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             if (variant.getStudies() == null || variant.getStudies().isEmpty()) {
                 List<VariantKeyFields> keyFieldsList;
                 if (variant.isSymbolic()) {
-                    keyFieldsList = normalizeSymbolic(start, end, reference, alternate);
+                    keyFieldsList = normalizeSymbolic(start, end, reference, alternate, sv.getCopyNumber());
                 } else {
                     keyFieldsList = normalize(chromosome, start, reference, alternate);
                 }
@@ -194,14 +194,8 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                     // FIXME: assumes there wont be multinucleotide positions with CNVs and short variants mixed
                     List<VariantKeyFields> keyFieldsList;
                     List<VariantKeyFields> originalKeyFieldsList;
-//                    String copyNumberString = null;
                     if (variant.isSymbolic()) {
-//                        if (VariantType.CNV.equals(variant.getType())) {
-//                            String sampleName = variant.getStudies().get(0).getSamplesName().iterator().next();
-//                            copyNumberString = variant.getStudies().get(0).getSampleData(sampleName).get(COPY_NUMBER_TAG);
-//                        }
-//                        keyFieldsList = normalizeSymbolic(start, end, reference, alternates, copyNumberString);
-                        keyFieldsList = normalizeSymbolic(start, end, reference, alternates);
+                        keyFieldsList = normalizeSymbolic(start, end, reference, alternates, sv.getCopyNumber());
                     } else {
                         keyFieldsList = normalize(chromosome, start, reference, alternates);
                     }
@@ -211,9 +205,18 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                             && keyFieldsList.get(0).getReference().equals(reference)
                             && keyFieldsList.get(0).getAlternate().equals(alternate);
 
+                    String callPrefix;
+                    if (entry.getFiles() != null && StringUtils.isNotEmpty(entry.getFiles().get(0).getCall())) {
+                        String call = entry.getFiles().get(0).getCall();
+                        // Remove allele index
+                        callPrefix = call.substring(0, call.lastIndexOf(':') + 1);
+                    } else {
+                        callPrefix = start + ":" + reference + ":" + String.join(",", alternates) + ":";
+                    }
+
                     // Iterate keyFields sorting by position, so the generated variants are ordered. Do not modify original order!
                     for (VariantKeyFields keyFields : sortByPosition(keyFieldsList)) {
-                        String call = start + ":" + reference + ":" + String.join(",", alternates) + ":" + keyFields.getNumAllele();
+                        String call = callPrefix + keyFields.getNumAllele();
 
                         final Variant normalizedVariant;
                         final StudyEntry normalizedEntry;
@@ -363,13 +366,18 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 //        }
 //    }
 
-    public List<VariantKeyFields> normalizeSymbolic(Integer start, Integer end, String reference, String alternate) {
-        return normalizeSymbolic(start, end, reference, Collections.singletonList(alternate));
-//        return normalizeSymbolic(start, end, reference, Collections.singletonList(alternate), copyNumber);
+    public List<VariantKeyFields> normalizeSymbolic(Integer start, Integer end, String reference, String alternate, Integer copyNumber) {
+        return normalizeSymbolic(start, end, reference, Collections.singletonList(alternate), copyNumber);
+    }
+
+    @Deprecated
+    public List<VariantKeyFields> normalizeSymbolic(final Integer start, final Integer end, final String reference,
+                                                    final List<String> alternates) {
+        return normalizeSymbolic(start, end, reference, alternates, null);
     }
 
     public List<VariantKeyFields> normalizeSymbolic(final Integer start, final Integer end, final String reference,
-                                                    final List<String> alternates) {
+                                                    final List<String> alternates, Integer copyNumber) {
         List<VariantKeyFields> list = new ArrayList<>(alternates.size());
 
         String newReference = reference;
@@ -391,11 +399,16 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         int numAllelesIdx = 0; // This index is necessary for getting the samples where the mutated allele is present
         for (Iterator<String> iterator = alternates.iterator(); iterator.hasNext(); numAllelesIdx++) {
             String newAlternate = iterator.next();
-//            if (newAlternate.equals(CNV) && StringUtils.isNotEmpty(copyNumber)) {
-//                // Alternate must be of the form <CNxxx>, being xxx the number of copies
-//                newAlternate = "<CN" + copyNumber + ">";
+            Integer cn = VariantBuilder.getCopyNumberFromAlternate(newAlternate);
+//            if (cn != null) {
+//                // Alternate with the form <CNxxx>, being xxx the number of copies, must be normalized into "<CNV>"
+//                newAlternate = "<CNV>";
 //            }
-            list.add(new VariantKeyFields(newStart, end, numAllelesIdx, newReference, newAlternate));
+            if (newAlternate.equals("<CNV>") && copyNumber != null) {
+                // Alternate must be of the form <CNxxx>, being xxx the number of copies
+                newAlternate = "<CN" + copyNumber + ">";
+            }
+            list.add(new VariantKeyFields(newStart, end, numAllelesIdx, newReference, newAlternate, cn, false));
         }
 
         return list;
@@ -976,9 +989,14 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                 normalizedVariant.getSv().setCiStartRight(sv.getCiStartRight());
                 normalizedVariant.getSv().setCiEndLeft(sv.getCiEndLeft());
                 normalizedVariant.getSv().setCiEndRight(sv.getCiEndRight());
+
             } else {
                 normalizedVariant.setSv(sv);
             }
+
+            // Variant will never have CopyNumber, because the Alternate is normalized from <CNxx> to <CNV>
+            normalizedVariant.getSv().setCopyNumber(keyFields.getCopyNumber());
+            normalizedVariant.getSv().setType(VariantBuilder.getCNVSubtype(keyFields.getCopyNumber()));
         }
         return normalizedVariant;
 //        normalizedVariant.setAnnotation(variant.getAnnotation());
@@ -1060,6 +1078,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         private String phaseSet;
         private String reference;
         private String alternate;
+        private Integer copyNumber;
 
         boolean referenceBlock;
 
@@ -1072,11 +1091,16 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         }
 
         public VariantKeyFields(int start, int end, int numAllele, String reference, String alternate, boolean referenceBlock) {
+            this(start, end, numAllele, reference, alternate, null, referenceBlock);
+        }
+
+        public VariantKeyFields(int start, int end, int numAllele, String reference, String alternate, Integer copyNumber, boolean referenceBlock) {
             this.start = start;
             this.end = end;
             this.numAllele = numAllele;
             this.reference = reference;
             this.alternate = alternate;
+            this.copyNumber = copyNumber;
             this.referenceBlock = referenceBlock;
         }
 
@@ -1134,6 +1158,15 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
         public VariantKeyFields setAlternate(String alternate) {
             this.alternate = alternate;
+            return this;
+        }
+
+        public Integer getCopyNumber() {
+            return copyNumber;
+        }
+
+        public VariantKeyFields setCopyNumber(Integer copyNumber) {
+            this.copyNumber = copyNumber;
             return this;
         }
 
