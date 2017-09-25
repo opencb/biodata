@@ -563,7 +563,7 @@ public class VariantNormalizerTest extends GenericTest {
         assertEquals(new StructuralVariation(86, 150, 150, 211, 0, null, null,
                 StructuralVariantType.COPY_NUMBER_LOSS), normalizedVariantList.get(0).getSv());
         // Normalize CNV alternate
-        assertEquals("<CNV>", normalizedVariantList.get(0).getAlternate());
+        assertEquals("<CN0>", normalizedVariantList.get(0).getAlternate());
         assertEquals("100:C:<CN0>:0", normalizedVariantList.get(0).getStudies().get(0).getFiles().get(0).getCall());
     }
 
@@ -617,7 +617,7 @@ public class VariantNormalizerTest extends GenericTest {
         assertEquals(new StructuralVariation(null, null, null, null, 3, null, null,
                 StructuralVariantType.COPY_NUMBER_GAIN), normalizedVariant.getSv());
         // Normalize CNV alternate
-        assertEquals("<CNV>", normalizedVariant.getAlternate());
+        assertEquals("<CN3>", normalizedVariant.getAlternate());
         assertEquals(101, normalizedVariant.getStart().intValue());
         assertEquals("", normalizedVariant.getReference());
         assertEquals("100:C:<CNV>:0", normalizedVariant.getStudies().get(0).getFiles().get(0).getCall());

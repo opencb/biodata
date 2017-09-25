@@ -148,13 +148,7 @@ public class VariantBuilder {
             sv.setLeftSvInsSeq(alternate.substring(0, idx));
             sv.setRightSvInsSeq(alternate.substring(idx + 3));
         } else {
-            Integer copyNumber = getCopyNumberFromAlternate(alternate);
-            if (copyNumber != null) {
-                setAlternate(CNV_ALT);
-                setCopyNumber(copyNumber);
-            } else {
-                setAlternate(alternate);
-            }
+            setAlternate(alternate);
         }
     }
 
@@ -264,7 +258,7 @@ public class VariantBuilder {
     }
 
     public VariantBuilder setAlternate(String alternate) {
-        if (alternate.contains(",")) {
+        if (alternate != null && alternate.contains(",")) {
             return setAlternates(Arrays.asList(alternate.split(",")));
         } else {
             return setAlternates(Collections.singletonList(alternate));

@@ -165,7 +165,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             if (variant.getStudies() == null || variant.getStudies().isEmpty()) {
                 List<VariantKeyFields> keyFieldsList;
                 if (variant.isSymbolic()) {
-                    keyFieldsList = normalizeSymbolic(start, end, reference, alternate);
+                    keyFieldsList = normalizeSymbolic(start, end, reference, alternate, sv.getCopyNumber());
                 } else {
                     keyFieldsList = normalize(chromosome, start, reference, alternate);
                 }
@@ -194,14 +194,8 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                     // FIXME: assumes there wont be multinucleotide positions with CNVs and short variants mixed
                     List<VariantKeyFields> keyFieldsList;
                     List<VariantKeyFields> originalKeyFieldsList;
-//                    String copyNumberString = null;
                     if (variant.isSymbolic()) {
-//                        if (VariantType.CNV.equals(variant.getType())) {
-//                            String sampleName = variant.getStudies().get(0).getSamplesName().iterator().next();
-//                            copyNumberString = variant.getStudies().get(0).getSampleData(sampleName).get(COPY_NUMBER_TAG);
-//                        }
-//                        keyFieldsList = normalizeSymbolic(start, end, reference, alternates, copyNumberString);
-                        keyFieldsList = normalizeSymbolic(start, end, reference, alternates);
+                        keyFieldsList = normalizeSymbolic(start, end, reference, alternates, sv.getCopyNumber());
                     } else {
                         keyFieldsList = normalize(chromosome, start, reference, alternates);
                     }
@@ -372,13 +366,18 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 //        }
 //    }
 
-    public List<VariantKeyFields> normalizeSymbolic(Integer start, Integer end, String reference, String alternate) {
-        return normalizeSymbolic(start, end, reference, Collections.singletonList(alternate));
-//        return normalizeSymbolic(start, end, reference, Collections.singletonList(alternate), copyNumber);
+    public List<VariantKeyFields> normalizeSymbolic(Integer start, Integer end, String reference, String alternate, Integer copyNumber) {
+        return normalizeSymbolic(start, end, reference, Collections.singletonList(alternate), copyNumber);
+    }
+
+    @Deprecated
+    public List<VariantKeyFields> normalizeSymbolic(final Integer start, final Integer end, final String reference,
+                                                    final List<String> alternates) {
+        return normalizeSymbolic(start, end, reference, alternates, null);
     }
 
     public List<VariantKeyFields> normalizeSymbolic(final Integer start, final Integer end, final String reference,
-                                                    final List<String> alternates) {
+                                                    final List<String> alternates, Integer copyNumber) {
         List<VariantKeyFields> list = new ArrayList<>(alternates.size());
 
         String newReference = reference;
@@ -401,14 +400,14 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         for (Iterator<String> iterator = alternates.iterator(); iterator.hasNext(); numAllelesIdx++) {
             String newAlternate = iterator.next();
             Integer cn = VariantBuilder.getCopyNumberFromAlternate(newAlternate);
-            if (cn != null) {
-                // Alternate with the form <CNxxx>, being xxx the number of copies, must be normalized into "<CNV>"
-                newAlternate = "<CNV>";
-            }
-//            if (newAlternate.equals(CNV) && StringUtils.isNotEmpty(copyNumber)) {
-//                // Alternate must be of the form <CNxxx>, being xxx the number of copies
-//                newAlternate = "<CN" + copyNumber + ">";
+//            if (cn != null) {
+//                // Alternate with the form <CNxxx>, being xxx the number of copies, must be normalized into "<CNV>"
+//                newAlternate = "<CNV>";
 //            }
+            if (newAlternate.equals("<CNV>") && copyNumber != null) {
+                // Alternate must be of the form <CNxxx>, being xxx the number of copies
+                newAlternate = "<CN" + copyNumber + ">";
+            }
             list.add(new VariantKeyFields(newStart, end, numAllelesIdx, newReference, newAlternate, cn, false));
         }
 
