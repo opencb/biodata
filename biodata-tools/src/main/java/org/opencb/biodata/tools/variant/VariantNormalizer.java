@@ -80,8 +80,9 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             return reuseVariants;
         }
 
-        public void setReuseVariants(boolean reuseVariants) {
+        public VariantNormalizerConfig setReuseVariants(boolean reuseVariants) {
             this.reuseVariants = reuseVariants;
+            return this;
         }
 
         public boolean isNormalizeAlleles() {
@@ -92,27 +93,30 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             return decomposeMNVs;
         }
 
-        public void setDecomposeMNVs(boolean decomposeMNVs) {
+        public VariantNormalizerConfig setDecomposeMNVs(boolean decomposeMNVs) {
             this.decomposeMNVs = decomposeMNVs;
+            return this;
         }
 
-        public void setNormalizeAlleles(boolean normalizeAlleles) {
+        public VariantNormalizerConfig setNormalizeAlleles(boolean normalizeAlleles) {
             this.normalizeAlleles = normalizeAlleles;
+            return this;
         }
 
         public boolean isGenerateReferenceBlocks() {
             return generateReferenceBlocks;
         }
 
-        public void setGenerateReferenceBlocks(boolean generateReferenceBlocks) {
+        public VariantNormalizerConfig setGenerateReferenceBlocks(boolean generateReferenceBlocks) {
             this.generateReferenceBlocks = generateReferenceBlocks;
+            return this;
         }
 
         public boolean isLeftAlign() {
             return leftAlign;
         }
 
-        public void enableLeftAlign(String referenceGenome) throws FileNotFoundException {
+        public VariantNormalizerConfig enableLeftAlign(String referenceGenome) throws FileNotFoundException {
             SamtoolsFastaIndex referenceGenomeReader = new SamtoolsFastaIndex(referenceGenome);
             if (!this.referenceGenomeReader.hasIndex()) {
                 throw new IllegalArgumentException(
@@ -125,10 +129,12 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             this.leftAlign = true;
             this.referenceGenome = referenceGenome;
             this.referenceGenomeReader = referenceGenomeReader;
+            return this;
         }
 
-        public void disableLeftAlign() {
+        public VariantNormalizerConfig disableLeftAlign() {
             this.leftAlign = false;
+            return this;
         }
 
         public String getReferenceGenome() {
