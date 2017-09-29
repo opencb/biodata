@@ -575,8 +575,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                 int endPointer = alternateLength - 1;
                 int idx = 0;
                 // while last base between reference and alternate is equal...
-                while (sequence.substring(startPointer, startPointer + 1) ==
-                        variant.getAlternate().substring(endPointer, endPointer + 1)) {
+                while (sequence.charAt(startPointer) == variant.getAlternate().charAt(endPointer)) {
                     // slides the window to the left
                     idx ++;
                     startPointer--;
