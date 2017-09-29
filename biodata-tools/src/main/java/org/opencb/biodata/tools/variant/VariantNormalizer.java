@@ -567,9 +567,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             // TODO: add check if left alignment to avoid reading from the reference genome always
             if (isInsertion) {
                 // gets an analysis window from the reference genome
-                int windowStart = referenceLength == 0?
-                        variant.getStart() - 1 - WINDOW_LEFT_PADDING :
-                        variant.getStart() + referenceLength - 1 - WINDOW_LEFT_PADDING;
+                int windowStart = variant.getStart() + referenceLength - 1 - WINDOW_LEFT_PADDING;
                 int windowEnd = variant.getStart() + alternateLength;
                 String sequence = referenceGenomeReader.query(chromosome, windowStart, windowEnd);
                 // points to the bases to check for left alignment
