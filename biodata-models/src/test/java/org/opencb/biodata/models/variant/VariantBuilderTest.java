@@ -175,6 +175,17 @@ public class VariantBuilderTest {
 
     }
 
+    @Test
+    public void buildIndelVariantNoEnd() {
+        String ref = "CAAAAAAA";
+        Variant variant = new Variant("1", 100, ref, "C");
+        assertEquals(ref, variant.getReference());
+        assertEquals("C", variant.getAlternate());
+        assertEquals(VariantType.INDEL, variant.getType());
+        assertEquals(100, variant.getStart().intValue());
+        assertEquals(100 + ref.length() - 1, variant.getEnd().intValue());
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void buildIncompleteSV() throws Exception {
         new VariantBuilder("1:1000:<DEL>").build();
