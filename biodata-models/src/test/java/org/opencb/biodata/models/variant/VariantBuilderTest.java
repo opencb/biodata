@@ -186,6 +186,17 @@ public class VariantBuilderTest {
         assertEquals(100 + ref.length() - 1, variant.getEnd().intValue());
     }
 
+    @Test
+    public void buildIndelVariantNoEnd_large() {
+        String ref = RandomStringUtils.random(200, 'A', 'C', 'G', 'T');
+        Variant variant = new Variant("1", 100, ref, "-");
+        assertEquals(ref, variant.getReference());
+        assertEquals("", variant.getAlternate());
+        assertEquals(VariantType.DELETION, variant.getType());
+        assertEquals(100, variant.getStart().intValue());
+        assertEquals(100 + ref.length() - 1, variant.getEnd().intValue());
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void buildIncompleteSV() throws Exception {
         new VariantBuilder("1:1000:<DEL>").build();
