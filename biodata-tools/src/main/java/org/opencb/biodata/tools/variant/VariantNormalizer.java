@@ -45,11 +45,7 @@ import org.opencb.commons.run.ParallelTaskRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -63,6 +59,7 @@ import java.util.stream.Collectors;
 public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Variant> {
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass().toString());
+    public static final int WINDOW_LEFT_PADDING = 100;
 
     public class VariantNormalizerConfig {
 
@@ -532,7 +529,9 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                 }
             }
         }
-
+        if (this.config.isLeftAlign()) {
+            list = leftAlign(list, chromosome);
+        }
         if (this.config.isGenerateReferenceBlocks()) {
             list = generateReferenceBlocks(list, position, reference);
         }
@@ -541,6 +540,104 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         list.sort(Comparator.comparingInt(VariantKeyFields::getNumAllele).thenComparingInt(VariantKeyFields::getStart));
         return list;
     }
+
+    /**
+     *
+     * @param list
+     * @return
+     */
+    private List<VariantKeyFields> leftAlign(List<VariantKeyFields> list, String chromosome) {
+
+        SamtoolsFastaIndex referenceGenomeReader = this.config.getReferenceGenomeReader();
+
+        for (VariantKeyFields variant : list) {
+            leftAlign(variant, chromosome, referenceGenomeReader);
+        }
+        return list;
+    }
+
+    private void leftAlign(VariantKeyFields variant, String chromosome, SamtoolsFastaIndex referenceGenomeReader) {
+        int referenceLength = variant.getReference() != null? variant.getReference().length() : 0;
+        int alternateLength = variant.getAlternate() != null? variant.getAlternate().length() : 0;
+        boolean isInsertion = referenceLength - alternateLength < 0;
+        boolean isDeletion = referenceLength - alternateLength > 0;
+        boolean isIndel = isInsertion || isDeletion;
+        // only left aligns indels and non-blocked substitutions
+        if (isIndel) {
+            // TODO: add check if left alignment to avoid reading from the reference genome always
+            if (isInsertion) {
+                // gets an analysis window from the reference genome
+                int windowStart = referenceLength == 0?
+                        variant.getStart() - 1 - WINDOW_LEFT_PADDING :
+                        variant.getStart() + referenceLength - 1 - WINDOW_LEFT_PADDING;
+                int windowEnd = variant.getStart() + alternateLength;
+                String sequence = referenceGenomeReader.query(chromosome, windowStart, windowEnd);
+                // points to the bases to check for left alignment
+                int startPointer = WINDOW_LEFT_PADDING;
+                int endPointer = alternateLength - 1;
+                int idx = 0;
+                // while last base between reference and alternate is equal...
+                while (sequence.substring(startPointer, startPointer + 1) ==
+                        variant.getAlternate().substring(endPointer, endPointer + 1)) {
+                    // slides the window to the left
+                    idx ++;
+                    startPointer--;
+                    endPointer--;
+                    if (startPointer < 0) {
+                        // reloads sequence from the reference genome if necessary
+                        startPointer = WINDOW_LEFT_PADDING;
+                        windowStart = windowStart - WINDOW_LEFT_PADDING;
+                        windowEnd = windowEnd - WINDOW_LEFT_PADDING;
+                        sequence = referenceGenomeReader.query(chromosome, windowStart, windowEnd);
+                    }
+                    if (endPointer < 0) {
+                        endPointer = alternateLength - 1;
+                    }
+                }
+                // sets the new coordinates
+                variant.setReference(referenceLength == 0?
+                        "" : sequence.substring(startPointer - referenceLength, startPointer + 1));
+                variant.setAlternate(
+                        variant.getAlternate().substring(endPointer) +
+                                variant.getAlternate().substring(0, endPointer - 1)
+                );
+                variant.setStart(variant.getStart() - idx);
+                variant.setEnd(variant.getEnd() - idx);
+            } else if (isDeletion) {
+                // gets a window from the reference genome
+                int windowStart = variant.getStart() + alternateLength - 1 - WINDOW_LEFT_PADDING;
+                int windowEnd = variant.getStart() + referenceLength;
+                String sequence = referenceGenomeReader.query(chromosome, windowStart, windowEnd);
+                // points to the bases to check for left alignment
+                int startPointer = WINDOW_LEFT_PADDING;
+                int endPointer = WINDOW_LEFT_PADDING + referenceLength;
+                int idx = 0;
+                // while last base between reference and alternate is equal...
+                while (sequence.charAt(startPointer) == sequence.charAt(endPointer)) {
+                    // slides the window to the left
+                    idx ++;
+                    startPointer--;
+                    endPointer--;
+                    if (startPointer < 0) {
+                        // reloads sequence from the reference genome if necessary
+                        startPointer = WINDOW_LEFT_PADDING;
+                        endPointer = WINDOW_LEFT_PADDING + referenceLength;
+                        windowStart = windowStart - WINDOW_LEFT_PADDING;
+                        windowEnd = windowEnd - WINDOW_LEFT_PADDING;
+                        sequence = referenceGenomeReader.query(chromosome, windowStart, windowEnd);
+                    }
+                }
+                // sets the new coordinates
+                variant.setReference(sequence.substring(startPointer - alternateLength, endPointer + 1));
+                variant.setAlternate(alternateLength == 0?
+                        "" : sequence.substring(startPointer - alternateLength, startPointer + 1)
+                );
+                variant.setStart(variant.getStart() - idx);
+                variant.setEnd(variant.getEnd() - idx);
+            }
+        }
+    }
+
 
     private List<VariantKeyFields> generateReferenceBlocks(List<VariantKeyFields> list, int position, String reference) {
 
