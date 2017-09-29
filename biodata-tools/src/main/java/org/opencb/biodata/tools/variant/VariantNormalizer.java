@@ -58,63 +58,106 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass().toString());
 
-    private boolean reuseVariants = true;
-    private boolean normalizeAlleles = false;
-    private boolean decomposeMNVs = false;
-    private boolean generateReferenceBlocks = false;
+    public class VariantNormalizerConfig {
+
+        private boolean reuseVariants = true;
+        private boolean normalizeAlleles = false;
+        private boolean decomposeMNVs = false;
+        private boolean generateReferenceBlocks = false;
+        private boolean leftAlign = false;
+
+        public VariantNormalizerConfig(){}
+
+        public boolean isReuseVariants() {
+            return reuseVariants;
+        }
+
+        public void setReuseVariants(boolean reuseVariants) {
+            this.reuseVariants = reuseVariants;
+        }
+
+        public boolean isNormalizeAlleles() {
+            return normalizeAlleles;
+        }
+
+        public boolean isDecomposeMNVs() {
+            return decomposeMNVs;
+        }
+
+        public void setDecomposeMNVs(boolean decomposeMNVs) {
+            this.decomposeMNVs = decomposeMNVs;
+        }
+
+        public void setNormalizeAlleles(boolean normalizeAlleles) {
+            this.normalizeAlleles = normalizeAlleles;
+        }
+
+        public boolean isGenerateReferenceBlocks() {
+            return generateReferenceBlocks;
+        }
+
+        public void setGenerateReferenceBlocks(boolean generateReferenceBlocks) {
+            this.generateReferenceBlocks = generateReferenceBlocks;
+        }
+
+        public boolean isLeftAlign() {
+            return leftAlign;
+        }
+
+        public void setLeftAlign(boolean leftAlign) {
+            this.leftAlign = leftAlign;
+        }
+    }
+
     private Map<Integer, int[]> genotypeReorderMapCache = new ConcurrentHashMap<>();
     private final VariantAlternateRearranger.Configuration rearrangerConf = new VariantAlternateRearranger.Configuration();
+    private VariantNormalizerConfig config = new VariantNormalizerConfig();
 
     public VariantNormalizer() {}
 
+    @Deprecated
     public VariantNormalizer(boolean reuseVariants) {
-        this.reuseVariants = reuseVariants;
+        this.config.setReuseVariants(reuseVariants);
     }
 
+    @Deprecated
     public VariantNormalizer(boolean reuseVariants, boolean normalizeAlleles) {
-        this.reuseVariants = reuseVariants;
-        this.normalizeAlleles = normalizeAlleles;
+        this.config.setReuseVariants(reuseVariants);
+        this.config.setNormalizeAlleles(normalizeAlleles);
     }
 
+    @Deprecated
     public VariantNormalizer(boolean reuseVariants, boolean normalizeAlleles, boolean decomposeMNVs) {
-        this.reuseVariants = reuseVariants;
-        this.normalizeAlleles = normalizeAlleles;
-        this.decomposeMNVs = decomposeMNVs;
+        this.config.setReuseVariants(reuseVariants);
+        this.config.setNormalizeAlleles(normalizeAlleles);
+        this.config.setDecomposeMNVs(decomposeMNVs);
     }
 
-    public boolean isReuseVariants() {
-        return reuseVariants;
+    public VariantNormalizer(VariantNormalizerConfig config) {
+        this.config = config;
     }
 
-    public VariantNormalizer setReuseVariants(boolean reuseVariants) {
-        this.reuseVariants = reuseVariants;
-        return this;
-    }
-
-    public boolean isNormalizeAlleles() {
-        return normalizeAlleles;
-    }
-
-    public boolean isDecomposeMNVs() {
-        return decomposeMNVs;
-    }
-
-    public VariantNormalizer setDecomposeMNVs(boolean decomposeMNVs) {
-        this.decomposeMNVs = decomposeMNVs;
-        return this;
-    }
-
-    public VariantNormalizer setNormalizeAlleles(boolean normalizeAlleles) {
-        this.normalizeAlleles = normalizeAlleles;
-        return this;
-    }
-
-    public boolean isGenerateReferenceBlocks() {
-        return generateReferenceBlocks;
-    }
-
+    @Deprecated
     public VariantNormalizer setGenerateReferenceBlocks(boolean generateReferenceBlocks) {
-        this.generateReferenceBlocks = generateReferenceBlocks;
+        this.config.setGenerateReferenceBlocks(generateReferenceBlocks);
+        return this;
+    }
+
+    @Deprecated
+    public VariantNormalizer setNormalizeAlleles(boolean normalizeAlleles) {
+        this.config.setNormalizeAlleles(normalizeAlleles);
+        return this;
+    }
+
+    @Deprecated
+    public VariantNormalizer setDecomposeMNVs(boolean decomposeMNVs) {
+        this.config.setDecomposeMNVs(decomposeMNVs);
+        return this;
+    }
+
+    @Deprecated
+    public VariantNormalizer setReuseVariants(boolean reuseVariants) {
+        this.config.setReuseVariants(reuseVariants);
         return this;
     }
 
@@ -141,7 +184,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
     @Override
     public List<Variant> apply(List<Variant> batch) {
         try {
-            return normalize(batch, reuseVariants);
+            return normalize(batch, this.config.isReuseVariants());
         } catch (NonStandardCompliantSampleField e) {
             throw new RuntimeException(e);
         }
@@ -440,7 +483,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                 // To deal with cases such as A>GT
                 boolean isMnv = (keyFields.getReference().length() > 1 && keyFields.getAlternate().length() >= 1)
                         || (keyFields.getAlternate().length() > 1 && keyFields.getReference().length() >= 1);
-                if (decomposeMNVs && isMnv) {
+                if (this.config.isDecomposeMNVs() && isMnv) {
                     for (VariantKeyFields keyFields1 : decomposeMNVSingleVariants(keyFields)) {
                         keyFields1.numAllele = numAllelesIdx;
                         keyFields1.phaseSet = chromosome + ":" + position + ":" + reference + ":" + currentAlternate;
@@ -453,7 +496,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             }
         }
 
-        if (generateReferenceBlocks) {
+        if (this.config.isGenerateReferenceBlocks()) {
             list = generateReferenceBlocks(list, position, reference);
         }
 
@@ -865,7 +908,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                         } else if (rearranger != null) {
                             genotype = rearranger.rearrangeGenotype(genotype);
                         }
-                        if (normalizeAlleles && !genotype.isPhased()) {
+                        if (this.config.isNormalizeAlleles() && !genotype.isPhased()) {
                             genotype.normalizeAllelesIdx();
                         }
                         sampleField = genotype.toString();
