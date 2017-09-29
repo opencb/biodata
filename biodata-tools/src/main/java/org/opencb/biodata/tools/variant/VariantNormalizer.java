@@ -39,11 +39,17 @@ import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.StructuralVariation;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
+import org.opencb.biodata.tools.sequence.SamtoolsFastaIndex;
 import org.opencb.biodata.tools.variant.merge.VariantAlternateRearranger;
 import org.opencb.commons.run.ParallelTaskRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -65,6 +71,8 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         private boolean decomposeMNVs = false;
         private boolean generateReferenceBlocks = false;
         private boolean leftAlign = false;
+        private String referenceGenome;
+        private SamtoolsFastaIndex referenceGenomeReader;
 
         public VariantNormalizerConfig(){}
 
@@ -104,8 +112,31 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             return leftAlign;
         }
 
-        public void setLeftAlign(boolean leftAlign) {
-            this.leftAlign = leftAlign;
+        public void enableLeftAlign(String referenceGenome) throws FileNotFoundException {
+            SamtoolsFastaIndex referenceGenomeReader = new SamtoolsFastaIndex(referenceGenome);
+            if (!this.referenceGenomeReader.hasIndex()) {
+                throw new IllegalArgumentException(
+                        String.format(
+                                "Cannot enable left alignment with an unindexed reference genome: %s",
+                                referenceGenome
+                        )
+                );
+            }
+            this.leftAlign = true;
+            this.referenceGenome = referenceGenome;
+            this.referenceGenomeReader = referenceGenomeReader;
+        }
+
+        public void disableLeftAlign() {
+            this.leftAlign = false;
+        }
+
+        public String getReferenceGenome() {
+            return this.referenceGenome;
+        }
+
+        public SamtoolsFastaIndex getReferenceGenomeReader() {
+            return this.referenceGenomeReader;
         }
     }
 

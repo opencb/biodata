@@ -50,6 +50,19 @@ public class SamtoolsFastaIndex {
 //        index(fastaFilePath, Paths.get(fastaFilePath.toString() + ".fai"));
 //    }
 
+    /**
+     * Checks if the set FASTA file is indexed
+     * @return
+     */
+    public Boolean hasIndex() {
+
+        Boolean hasIndex = false;
+        if (this.indexedFastaSequenceFile != null) {
+            hasIndex = this.indexedFastaSequenceFile.isIndexed();
+        }
+        return hasIndex;
+    }
+
     public void index(Path fastaFilePath) throws IOException {
         FileUtils.checkFile(fastaFilePath);
 
