@@ -167,6 +167,16 @@ protocol VariantAnnotations {
         union { null, string } source;
     }
 
+    record Drug {
+        union { null, string } therapeuticContext;
+        union { null, string } pathway;
+        union { null, string } effect;
+        union { null, string } association;
+        union { null, string } status;
+        union { null, string } evidence;
+        union { null, array<string> } bibliography;
+    }
+
     record AdditionalAttribute {
         map<string> attribute;
     }
@@ -195,6 +205,7 @@ protocol VariantAnnotations {
         union { null, array<Score> } functionalScore;
         union { null, array<Cytoband> } cytoband;
         union { null, array<Repeat> } repeat;
+        union { null, array<Drug> } drugs;
         union { null, map<AdditionalAttribute> } additionalAttributes = null;
     }
 
