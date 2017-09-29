@@ -23,13 +23,11 @@ import htsjdk.samtools.reference.IndexedFastaSequenceFile;
 import htsjdk.samtools.reference.ReferenceSequence;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.commons.utils.FileUtils;
-import org.rocksdb.RocksDBException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Created by imedina on 21/10/16.
@@ -78,7 +76,7 @@ public class SamtoolsFastaIndex {
         throw new UnsupportedOperationException();
     }
 
-    public String query(String chromosome, int start, int end) throws RocksDBException {
+    public String query(String chromosome, int start, int end) {
         ReferenceSequence subsequenceAt = indexedFastaSequenceFile.getSubsequenceAt(chromosome, start, end);
         return new String(subsequenceAt.getBases());
     }
