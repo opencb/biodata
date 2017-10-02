@@ -59,7 +59,9 @@ import java.util.stream.Collectors;
 public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Variant> {
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass().toString());
-    public static final int WINDOW_LEFT_PADDING = 100;
+    private static final int WINDOW_LEFT_PADDING = 100;
+    private static final Set<Character> ACCEPTED_BASES =
+            new HashSet(Arrays.asList('a', 'c', 'g', 't', 'A', 'C', 'G', 'T'));
 
     public class VariantNormalizerConfig {
 
@@ -115,7 +117,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
         public VariantNormalizerConfig enableLeftAlign(String referenceGenome) throws FileNotFoundException {
             SamtoolsFastaIndex referenceGenomeReader = new SamtoolsFastaIndex(referenceGenome);
-            if (!this.referenceGenomeReader.hasIndex()) {
+            if (!referenceGenomeReader.hasIndex()) {
                 throw new IllegalArgumentException(
                         String.format(
                                 "Cannot enable left alignment with an unindexed reference genome: %s",
@@ -171,27 +173,33 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         this.config = config;
     }
 
-    @Deprecated
     public VariantNormalizer setGenerateReferenceBlocks(boolean generateReferenceBlocks) {
         this.config.setGenerateReferenceBlocks(generateReferenceBlocks);
         return this;
     }
 
-    @Deprecated
     public VariantNormalizer setNormalizeAlleles(boolean normalizeAlleles) {
         this.config.setNormalizeAlleles(normalizeAlleles);
         return this;
     }
 
-    @Deprecated
     public VariantNormalizer setDecomposeMNVs(boolean decomposeMNVs) {
         this.config.setDecomposeMNVs(decomposeMNVs);
         return this;
     }
 
-    @Deprecated
     public VariantNormalizer setReuseVariants(boolean reuseVariants) {
         this.config.setReuseVariants(reuseVariants);
+        return this;
+    }
+
+    public VariantNormalizer enableLeftAlign(String referenceGenome) throws FileNotFoundException {
+        this.config.enableLeftAlign(referenceGenome);
+        return this;
+    }
+
+    public VariantNormalizer disableLeftAlign() {
+        this.config.disableLeftAlign();
         return this;
     }
 
@@ -556,81 +564,167 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         return list;
     }
 
+    /**
+     * Calculates the allele length considering "-" for empty alleles
+     * @param allele
+     * @return
+     */
+    private int getAlleleLength(String allele) {
+        return allele != null && !allele.equals("-")? allele.length() : 0;
+    }
+
     private void leftAlign(VariantKeyFields variant, String chromosome, SamtoolsFastaIndex referenceGenomeReader) {
-        int referenceLength = variant.getReference() != null? variant.getReference().length() : 0;
-        int alternateLength = variant.getAlternate() != null? variant.getAlternate().length() : 0;
-        boolean isInsertion = referenceLength - alternateLength < 0;
-        boolean isDeletion = referenceLength - alternateLength > 0;
-        boolean isIndel = isInsertion || isDeletion;
+
+        String reference = variant.getReference();
+        String alternate = variant.getAlternate();
+        int referenceLength = this.getAlleleLength(reference);
+        int alternateLength = this.getAlleleLength(alternate);
+        int lastReferenceBasePosition = variant.getStart() + referenceLength - 1;
+        int lastAlternateBasePosition = variant.getStart() + alternateLength - 1;
+        boolean hasInsertion = referenceLength - alternateLength < 0;
+        boolean hasDeletion = referenceLength - alternateLength > 0;
+        boolean hasIndel = hasInsertion || hasDeletion;
+        // TODO: verify if we need to left align only indels strictly (i.e.: skip non-blocked substitutions)
         // only left aligns indels and non-blocked substitutions
-        if (isIndel) {
-            // TODO: add check if left alignment to avoid reading from the reference genome always
-            if (isInsertion) {
+        if (hasIndel) {
+            // TODO: check if left alignment is required to avoid reading from the reference genome always
+            // TODO: check if variant is at the beginning of the chromosome
+            if (hasInsertion) {
+
                 // gets an analysis window from the reference genome
-                int windowStart = variant.getStart() + referenceLength - 1 - WINDOW_LEFT_PADDING;
-                int windowEnd = variant.getStart() + alternateLength;
+                int windowStart = lastReferenceBasePosition - WINDOW_LEFT_PADDING;
+                if (windowStart < 1) {
+                    // the window cannot go below position 1 as genomic coordinates in this context are 1-based
+                    windowStart = 1;
+                }
+                int windowEnd = lastAlternateBasePosition;
                 String sequence = referenceGenomeReader.query(chromosome, windowStart, windowEnd);
+
                 // points to the bases to check for left alignment
-                int startPointer = WINDOW_LEFT_PADDING;
-                int endPointer = alternateLength - 1;
-                int idx = 0;
+                // beware that relative positions are 0-based
+                int lastReferenceBaseRelativePosition = lastReferenceBasePosition - windowStart;
+                int lastAlternateBaseRelativePosition = alternateLength - 1;
+                int skipped_positions = 0;
+
                 // while last base between reference and alternate is equal...
-                while (sequence.charAt(startPointer) == variant.getAlternate().charAt(endPointer)) {
-                    // slides the window to the left
-                    idx ++;
-                    startPointer--;
-                    endPointer--;
-                    if (startPointer < 0) {
+                char referenceBase = sequence.charAt(lastReferenceBaseRelativePosition);
+                char alternateBase = alternate.charAt(lastAlternateBaseRelativePosition);
+                Boolean isValidBase = ACCEPTED_BASES.contains(referenceBase);
+                Boolean isGenomeExhausted = windowStart == 1 && windowEnd == 1;
+                // only left aligns if last bases of reference and alternate equal and they contain new bases
+                while (referenceBase == alternateBase && isValidBase && !isGenomeExhausted) {
+
+                    // slides the window 1bp to the left
+                    skipped_positions ++;
+                    lastReferenceBaseRelativePosition--;
+                    lastAlternateBaseRelativePosition--;
+
+                    if (lastReferenceBaseRelativePosition < 0) {
                         // reloads sequence from the reference genome if necessary
-                        startPointer = WINDOW_LEFT_PADDING;
                         windowStart = windowStart - WINDOW_LEFT_PADDING;
+                        if (windowStart < 1) {
+                            // the window cannot go below position 1 as genomic coordinates in this context are 1-based
+                            windowStart = 1;
+                        }
                         windowEnd = windowEnd - WINDOW_LEFT_PADDING;
                         sequence = referenceGenomeReader.query(chromosome, windowStart, windowEnd);
+                        lastReferenceBaseRelativePosition = WINDOW_LEFT_PADDING - 1;  // 0-based
                     }
-                    if (endPointer < 0) {
-                        endPointer = alternateLength - 1;
+
+                    if (lastAlternateBaseRelativePosition < 0) {
+                        // reloads alternate sequence from the end
+                        lastAlternateBaseRelativePosition = alternateLength - 1;  // 0-based
                     }
+                    referenceBase = sequence.charAt(lastReferenceBaseRelativePosition);
+                    alternateBase = alternate.charAt(lastAlternateBaseRelativePosition);
+                    isValidBase = ACCEPTED_BASES.contains(referenceBase);
+                    isGenomeExhausted = windowStart == 1 && windowEnd == 1;
                 }
                 // sets the new coordinates
-                variant.setReference(referenceLength == 0?
-                        "" : sequence.substring(startPointer - referenceLength, startPointer + 1));
-                variant.setAlternate(
-                        variant.getAlternate().substring(endPointer) +
-                                variant.getAlternate().substring(0, endPointer - 1)
-                );
-                variant.setStart(variant.getStart() - idx);
-                variant.setEnd(variant.getEnd() - idx);
-            } else if (isDeletion) {
+                if (skipped_positions > 0 && isValidBase && !isGenomeExhausted) {
+                    variant.setReference(referenceLength == 0 ?
+                            "" :
+                            sequence.substring(
+                                    lastReferenceBaseRelativePosition - referenceLength + 1,
+                                    lastReferenceBaseRelativePosition + 1
+                            )
+                    );
+                    variant.setAlternate(
+                            alternate.substring(lastAlternateBaseRelativePosition) +
+                                    alternate.substring(0, lastAlternateBaseRelativePosition)
+                    );
+                    variant.setStart(variant.getStart() - skipped_positions);
+                    variant.setEnd(variant.getEnd() - skipped_positions);
+                }
+
+            } else if (hasDeletion) {
+
                 // gets a window from the reference genome
-                int windowStart = variant.getStart() + alternateLength - 1 - WINDOW_LEFT_PADDING;
-                int windowEnd = variant.getStart() + referenceLength;
+                int windowStart = lastAlternateBasePosition - WINDOW_LEFT_PADDING;
+                if (windowStart < 1) {
+                    // the window cannot go below position 1 as genomic coordinates in this context are 1-based
+                    windowStart = 1;
+                }
+                int windowEnd = lastReferenceBasePosition;
                 String sequence = referenceGenomeReader.query(chromosome, windowStart, windowEnd);
+
                 // points to the bases to check for left alignment
-                int startPointer = WINDOW_LEFT_PADDING;
-                int endPointer = WINDOW_LEFT_PADDING + referenceLength;
-                int idx = 0;
+                // beware that relative positions are 0-based
+                int lastAlternateBaseRelativePosition = lastAlternateBasePosition - windowStart;
+                int lastReferenceBaseRelativePosition = lastReferenceBasePosition - windowStart;
+                int skipped_positions = 0;
+
                 // while last base between reference and alternate is equal...
-                while (sequence.charAt(startPointer) == sequence.charAt(endPointer)) {
-                    // slides the window to the left
-                    idx ++;
-                    startPointer--;
-                    endPointer--;
-                    if (startPointer < 0) {
+                char referenceBase = sequence.charAt(lastReferenceBaseRelativePosition);
+                char alternateBase = sequence.charAt(lastAlternateBaseRelativePosition);
+                Boolean isValidBase = ACCEPTED_BASES.contains(referenceBase);
+                Boolean isGenomeExhausted = windowStart == 1 && windowEnd == 1;
+                // only left aligns if last bases of reference and alternate equal and they contain new bases
+                while (referenceBase == alternateBase && isValidBase && !isGenomeExhausted) {
+
+                    // slides the window 1bp to the left
+                    skipped_positions ++;
+                    lastAlternateBaseRelativePosition--;
+                    lastReferenceBaseRelativePosition--;
+                    if (lastAlternateBaseRelativePosition < 0) {
+
                         // reloads sequence from the reference genome if necessary
-                        startPointer = WINDOW_LEFT_PADDING;
-                        endPointer = WINDOW_LEFT_PADDING + referenceLength;
                         windowStart = windowStart - WINDOW_LEFT_PADDING;
+                        if (windowStart < 1) {
+                            // the window cannot go below position 1 as genomic coordinates in this context are 1-based
+                            windowStart = 1;
+                        }
                         windowEnd = windowEnd - WINDOW_LEFT_PADDING;
                         sequence = referenceGenomeReader.query(chromosome, windowStart, windowEnd);
+                        lastAlternateBaseRelativePosition = WINDOW_LEFT_PADDING;
+                        lastReferenceBaseRelativePosition = WINDOW_LEFT_PADDING + referenceLength;
                     }
+                    referenceBase = sequence.charAt(lastReferenceBaseRelativePosition);
+                    alternateBase = sequence.charAt(lastAlternateBaseRelativePosition);
+                    isValidBase = ACCEPTED_BASES.contains(referenceBase);
+                    isGenomeExhausted = windowStart == 1 && windowEnd == 1;
                 }
+
                 // sets the new coordinates
-                variant.setReference(sequence.substring(startPointer - alternateLength, endPointer + 1));
-                variant.setAlternate(alternateLength == 0?
-                        "" : sequence.substring(startPointer - alternateLength, startPointer + 1)
-                );
-                variant.setStart(variant.getStart() - idx);
-                variant.setEnd(variant.getEnd() - idx);
+                if (skipped_positions > 0 && isValidBase && !isGenomeExhausted) {
+                    variant.setReference(
+                            sequence.substring(
+                                    lastReferenceBaseRelativePosition - referenceLength + 1,
+                                    lastReferenceBaseRelativePosition + 1
+                            )
+                    );
+                    // TODO: can't we just set alternate to ""???
+                    variant.setAlternate(
+                            alternateLength == 0 ?
+                                    "" :
+                                    sequence.substring(
+                                            lastAlternateBaseRelativePosition - alternateLength + 1,
+                                            lastAlternateBaseRelativePosition + 1
+                                    )
+                    );
+                    variant.setStart(variant.getStart() - skipped_positions);
+                    variant.setEnd(variant.getStart() + referenceLength - 1);
+                }
             }
         }
     }

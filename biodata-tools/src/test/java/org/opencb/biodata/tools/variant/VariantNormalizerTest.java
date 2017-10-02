@@ -17,6 +17,9 @@ import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleFi
 import org.opencb.biodata.tools.variant.merge.VariantAlternateRearranger;
 import org.opencb.commons.test.GenericTest;
 
+import java.io.FileNotFoundException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,6 +35,8 @@ import static org.opencb.biodata.models.variant.VariantTestUtils.generateVariant
 public class VariantNormalizerTest extends GenericTest {
 
     private VariantNormalizer normalizer;
+    private Path referenceGenomeUncompressed;
+    private Path referenceGenomeCompressed;
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -40,6 +45,12 @@ public class VariantNormalizerTest extends GenericTest {
     public void setUp() throws Exception {
         normalizer = new VariantNormalizer();
         normalizer.setGenerateReferenceBlocks(true);
+        referenceGenomeUncompressed = Paths.get(
+                getClass().getResource("/homo_sapiens_grch38_small.fa").toURI()
+        );
+        referenceGenomeCompressed = Paths.get(
+                getClass().getResource("/homo_sapiens_grch38_small.fa.gz").toURI()
+        );
     }
 
     @Test
@@ -376,6 +387,106 @@ public class VariantNormalizerTest extends GenericTest {
         assertEquals("1,4,2,3", normalize3.get("G").getStudies().get(0).getSampleData("S02", "GL"));
 
     }
+
+    //////////// Tests for left alignment
+
+    @Test
+    public void testNormalizedSamplesDataSameNoLeftAlignment()
+            throws NonStandardCompliantSampleField, FileNotFoundException {
+        // C -> A  === C -> A
+        this.normalizer.enableLeftAlign(this.referenceGenomeUncompressed.toString());
+        testSampleNormalization("1", 100, "C", "A", 100, "C", "A");
+    }
+
+    @Test
+    public void testNormalizeSamplesData1NoLeftAlignment()
+            throws NonStandardCompliantSampleField, FileNotFoundException {
+        // AC -> AA  === C -> A
+        this.normalizer.enableLeftAlign(this.referenceGenomeUncompressed.toString());
+        testSampleNormalization("1", 100, "AC", "AA", 101, "C", "A");
+    }
+
+    @Test
+    public void testNormalizeSamplesData2NoLeftAlignment()
+            throws NonStandardCompliantSampleField, FileNotFoundException {
+        // CA -> AA  === C -> A
+        this.normalizer.enableLeftAlign(this.referenceGenomeUncompressed.toString());
+        testSampleNormalization("1", 100, "CA", "AA", 100, "C", "A");
+    }
+
+    @Test
+    public void testNormalizeSamplesDataLeftDeletionNoLeftAlignment()
+            throws NonStandardCompliantSampleField, FileNotFoundException {
+        // AC -> C  === A -> .
+        // no left alignment as position 100 at chromosome 1 is N
+        this.normalizer.enableLeftAlign(this.referenceGenomeUncompressed.toString());
+        testSampleNormalization("1", 100, "AC", "C", 100, "A", "");
+    }
+
+    @Test
+    public void testNormalizeSamplesDataRightDeletionNoLeftAlignment()
+            throws NonStandardCompliantSampleField, FileNotFoundException {
+        // CA -> C  === A -> .
+        this.normalizer.enableLeftAlign(this.referenceGenomeUncompressed.toString());
+        testSampleNormalization("1", 100, "CA", "C", 101, "A", "");
+    }
+
+    @Test
+    public void testNormalizeSamplesDataAmbiguousDeletionNoLeftAlignment()
+            throws NonStandardCompliantSampleField, FileNotFoundException {
+        // AAA -> A  === AA -> .
+        // no left alignment as position 100 at chromosome 1 is N
+        this.normalizer.enableLeftAlign(this.referenceGenomeUncompressed.toString());
+        testSampleNormalization("1", 100, "AAA", "A", 100, 101, "AA", "");
+    }
+
+    @Test
+    public void testNormalizeSamplesDataIndelNoLeftAlignment()
+            throws NonStandardCompliantSampleField, FileNotFoundException {
+        // ATC -> ACCC  === T -> CC
+        this.normalizer.enableLeftAlign(this.referenceGenomeUncompressed.toString());
+        testSampleNormalization("1", 100, "ATC", "ACCC", 101, 101, "T", "CC");
+    }
+
+    @Test
+    public void testNormalizeSamplesDataRightInsertionNoLeftAlignment()
+            throws NonStandardCompliantSampleField, FileNotFoundException {
+        // C -> AC  === . -> A
+        // no left alignment as position 100 at chromosome 1 is N
+        this.normalizer.enableLeftAlign(this.referenceGenomeUncompressed.toString());
+        testSampleNormalization("1", 100, "C", "AC", 100, 99, "", "A");
+    }
+
+    @Test
+    public void testNormalizeSamplesDataLeftInsertionNoLeftAlignment()
+            throws NonStandardCompliantSampleField, FileNotFoundException {
+        // C -> CA  === . -> A
+        this.normalizer.enableLeftAlign(this.referenceGenomeUncompressed.toString());
+        testSampleNormalization("1", 100, "C", "CA", 101, 100, "", "A");
+    }
+
+    @Test
+    public void testNormalizedSamplesData1bpDeletionLeftAlignment()
+            throws NonStandardCompliantSampleField, FileNotFoundException {
+        // C -> A  === C -> A
+        this.normalizer.enableLeftAlign(this.referenceGenomeUncompressed.toString());
+        testSampleNormalization("10", 10486, "TT", "T", 10484, "T", "");
+        testSampleNormalization("10", 10485, "TT", "T", 10484, "T", "");
+        testSampleNormalization("10", 10484, "TT", "T", 10484, "T", "");
+        testSampleNormalization("10", 10483, "AT", "A", 10484, "T", "");
+    }
+
+    @Test
+    public void testNormalizedSamplesData2bpDeletionLeftAlignment()
+            throws NonStandardCompliantSampleField, FileNotFoundException {
+        // C -> A  === C -> A
+        this.normalizer.enableLeftAlign(this.referenceGenomeUncompressed.toString());
+        testSampleNormalization("10", 14529, "ACA", "A", 14526, "CA", "");
+        testSampleNormalization("10", 14527, "ACA", "A", 14526, "CA", "");
+        testSampleNormalization("10", 14525, "GCA", "G", 14526, "CA", "");
+    }
+
+    ////////////
 
     private void testSampleNormalization(String chromosome, int position, String ref, String alt,
                                          int normPos, String normRef, String normAlt)
