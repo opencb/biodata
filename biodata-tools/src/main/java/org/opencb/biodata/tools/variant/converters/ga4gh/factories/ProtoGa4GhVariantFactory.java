@@ -30,6 +30,7 @@ import ga4gh.Variants.VariantSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -119,6 +120,7 @@ public class ProtoGa4GhVariantFactory implements Ga4ghVariantFactory<Variant, Ca
         info.forEach((key, values) -> {
             List<Value> listValues = values
                     .stream()
+                    .filter(Objects::nonNull)
                     .map(v -> Value.newBuilder().setStringValue(v).build())
                     .collect(Collectors.toList());
             mutableInfo.put(key, ListValue.newBuilder().addAllValues(listValues).build());

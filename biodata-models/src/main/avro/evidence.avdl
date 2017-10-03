@@ -116,7 +116,7 @@ protocol EvidenceProtocol {
     /**
     The feature types
     */
-    enum FeatureTypes {RegulatoryRegion, Gene, Transcript, Protein}
+    enum FeatureTypes {regulatory_region, gene, transcript, protein}
 
     /**
     The genomic feature

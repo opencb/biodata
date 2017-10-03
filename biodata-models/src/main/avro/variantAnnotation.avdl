@@ -141,6 +141,7 @@ protocol VariantAnnotations {
     }
 
     record Cytoband {
+        union { null, string } chromosome;
         union { null, string } stain;
         union { null, string } name;
         union { null, int } start;
@@ -153,11 +154,22 @@ protocol VariantAnnotations {
         union { null, int } start;
         union { null, int } end;
         union { null, int } period;
+        union { null, int } consensusSize;
         union { null, float } copyNumber;
         union { null, float } percentageMatch;
         union { null, float } score;
         union { null, string } sequence;
         union { null, string } source;
+    }
+
+    record Drug {
+        union { null, string } therapeuticContext;
+        union { null, string } pathway;
+        union { null, string } effect;
+        union { null, string } association;
+        union { null, string } status;
+        union { null, string } evidence;
+        union { null, array<string> } bibliography;
     }
 
     record AdditionalAttribute {
@@ -188,6 +200,7 @@ protocol VariantAnnotations {
         union { null, array<Score> } functionalScore;
         union { null, array<Cytoband> } cytoband;
         union { null, array<Repeat> } repeat;
+        union { null, array<Drug> } drugs;
         union { null, map<AdditionalAttribute> } additionalAttributes = null;
     }
 

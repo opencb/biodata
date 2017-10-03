@@ -131,18 +131,30 @@ message Repeat {
     int32 start = 3;
     int32 end = 4;
     int32 period = 5;
-    float copy_number = 6;
-    float percentage_match = 7;
-    float score = 8;
-    string sequence = 9;
-    string source = 10;
+    int32 consensusSize = 6;
+    float copy_number = 7;
+    float percentage_match = 8;
+    float score = 9;
+    string sequence = 10;
+    string source = 11;
 }
 
 message Cytoband {
-    string stain = 1;
-    string name = 2;
-    int32 start = 3;
-    int32 end = 4;
+    string chromosome = 1;
+    string stain = 2;
+    string name = 3;
+    int32 start = 4;
+    int32 end = 5;
+}
+
+message Drug {
+    string therapeuticContext = 1;
+    string pathway = 2;
+    string effect = 3;
+    string association = 4;
+    string status = 5;
+    string evidence = 6;
+    repeated string bibliography = 7;
 }
 
 message VariantAnnotation {
@@ -174,6 +186,7 @@ message VariantAnnotation {
     repeated Score functional_score = 20;
     repeated Repeat repeat = 21;
     repeated Cytoband cytoband = 22;
+    repeated Drug drugs = 25;
 
     message AdditionalAttribute {
         map<string, string> attribute = 1;
