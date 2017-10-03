@@ -468,22 +468,47 @@ public class VariantNormalizerTest extends GenericTest {
     @Test
     public void testNormalizedSamplesData1bpDeletionLeftAlignment()
             throws NonStandardCompliantSampleField, FileNotFoundException {
-        // C -> A  === C -> A
+
         this.normalizer.enableLeftAlign(this.referenceGenomeUncompressed.toString());
         testSampleNormalization("10", 10486, "TT", "T", 10484, "T", "");
         testSampleNormalization("10", 10485, "TT", "T", 10484, "T", "");
         testSampleNormalization("10", 10484, "TT", "T", 10484, "T", "");
         testSampleNormalization("10", 10483, "AT", "A", 10484, "T", "");
+        // FIXME: using the context-free representation breaks normalization
+        testSampleNormalization("10", 10484, "T", "", 10484, "T", "", false);
+        testSampleNormalization("10", 10485, "T", "", 10484, "T", "", false);
+        testSampleNormalization("10", 10486, "T", "", 10484, "T", "", false);
+        testSampleNormalization("10", 10487, "T", "", 10484, "T", "", false);
     }
 
     @Test
     public void testNormalizedSamplesData2bpDeletionLeftAlignment()
             throws NonStandardCompliantSampleField, FileNotFoundException {
-        // C -> A  === C -> A
+
         this.normalizer.enableLeftAlign(this.referenceGenomeUncompressed.toString());
         testSampleNormalization("10", 14529, "ACA", "A", 14526, "CA", "");
         testSampleNormalization("10", 14527, "ACA", "A", 14526, "CA", "");
         testSampleNormalization("10", 14525, "GCA", "G", 14526, "CA", "");
+    }
+
+    @Test
+    public void testNormalizedSamplesData1bpInsertionLeftAlignment()
+            throws NonStandardCompliantSampleField, FileNotFoundException {
+
+        this.normalizer.enableLeftAlign(this.referenceGenomeUncompressed.toString());
+        //testSampleNormalization("10", 10483, "A", "AT", 10484, "", "T");
+        testSampleNormalization("10", 10484, "T", "TT", 10484, "", "T");
+        testSampleNormalization("10", 10485, "T", "TT", 10484, "", "T");
+        testSampleNormalization("10", 10486, "T", "TT", 10484, "", "T");
+        testSampleNormalization("10", 10487, "T", "TT", 10484, "", "T");
+        // FIXME: using the context-free representation breaks normalization
+        // FIXME: breaks the generation of reference blocks
+        this.normalizer.setGenerateReferenceBlocks(false);
+        testSampleNormalization("10", 10484, "", "T", 10484, "", "T", false);
+        testSampleNormalization("10", 10485, "", "T", 10484, "", "T", false);
+        testSampleNormalization("10", 10486, "", "T", 10484, "", "T", false);
+        testSampleNormalization("10", 10487, "", "T", 10484, "", "T", false);
+        testSampleNormalization("10", 10488, "", "T", 10484, "", "T", false);
     }
 
     ////////////
@@ -491,12 +516,29 @@ public class VariantNormalizerTest extends GenericTest {
     private void testSampleNormalization(String chromosome, int position, String ref, String alt,
                                          int normPos, String normRef, String normAlt)
             throws NonStandardCompliantSampleField {
+
         testSampleNormalization(chromosome, position, ref, alt, normPos, normPos, normRef, normAlt);
+    }
+
+    private void testSampleNormalization(String chromosome, int position, String ref, String alt,
+                                         int normPos, String normRef, String normAlt, Boolean normalizeSamplesData)
+            throws NonStandardCompliantSampleField {
+
+        testSampleNormalization(chromosome, position, ref, alt, normPos, normPos, normRef, normAlt, normalizeSamplesData);
     }
 
     private void testSampleNormalization(String chromosome, int position, String ref, String alt,
                                          int normStart, int normEnd, String normRef, String normAlt)
             throws NonStandardCompliantSampleField {
+
+        testSampleNormalization(chromosome, position, ref, alt, normStart, normEnd, normRef, normAlt, true);
+    }
+
+    private void testSampleNormalization(String chromosome, int position, String ref, String alt,
+                                         int normStart, int normEnd, String normRef, String normAlt,
+                                         Boolean normalizeSamplesData)
+            throws NonStandardCompliantSampleField {
+
         List<List<String>> samplesData = Arrays.asList(
                 Collections.singletonList(ref + "/" + alt),
                 Collections.singletonList(ref + "/" + ref),
@@ -519,18 +561,19 @@ public class VariantNormalizerTest extends GenericTest {
         }
         assertNotNull(keyFields);
         assertEquals(new VariantNormalizer.VariantKeyFields(normStart, normEnd, normRef, normAlt), keyFields);
-        samplesData = normalizer.normalizeSamplesData(keyFields, samplesData, Collections.singletonList("GT"), ref,
-                Collections.singletonList(alt), null);
+        if (normalizeSamplesData) {
+            samplesData = normalizer.normalizeSamplesData(keyFields, samplesData, Collections.singletonList("GT"), ref,
+                    Collections.singletonList(alt), null);
 
-        assertEquals("0/1", samplesData.get(0).get(0));
-        assertEquals("0/0", samplesData.get(1).get(0));
-        assertEquals("1/0", samplesData.get(2).get(0));
-        assertEquals("1/1", samplesData.get(3).get(0));
-        assertEquals("0/1", samplesData.get(4).get(0));
-        assertEquals("0/0", samplesData.get(5).get(0));
-        assertEquals("1/0", samplesData.get(6).get(0));
-        assertEquals("1/1", samplesData.get(7).get(0));
-
+            assertEquals("0/1", samplesData.get(0).get(0));
+            assertEquals("0/0", samplesData.get(1).get(0));
+            assertEquals("1/0", samplesData.get(2).get(0));
+            assertEquals("1/1", samplesData.get(3).get(0));
+            assertEquals("0/1", samplesData.get(4).get(0));
+            assertEquals("0/0", samplesData.get(5).get(0));
+            assertEquals("1/0", samplesData.get(6).get(0));
+            assertEquals("1/1", samplesData.get(7).get(0));
+        }
     }
 
 

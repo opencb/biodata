@@ -602,7 +602,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
                 // points to the bases to check for left alignment
                 // beware that relative positions are 0-based
-                int lastReferenceBaseRelativePosition = lastReferenceBasePosition - windowStart;
+                int lastReferenceBaseRelativePosition = lastReferenceBasePosition - windowStart + 1;
                 int lastAlternateBaseRelativePosition = alternateLength - 1;
                 int skipped_positions = 0;
 
@@ -653,8 +653,8 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                             alternate.substring(lastAlternateBaseRelativePosition) +
                                     alternate.substring(0, lastAlternateBaseRelativePosition)
                     );
-                    variant.setStart(variant.getStart() - skipped_positions);
-                    variant.setEnd(variant.getEnd() - skipped_positions);
+                    variant.setStart(variant.getStart() - skipped_positions + 1);
+                    variant.setEnd(variant.getStart());
                 }
 
             } else if (hasDeletion) {
