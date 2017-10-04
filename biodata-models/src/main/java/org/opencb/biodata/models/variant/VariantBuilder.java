@@ -629,15 +629,16 @@ public class VariantBuilder {
             end = start + inferLengthReference(reference, alternates.get(0), type, length) - 1;
         }
 
-        if (start > end && !(reference.isEmpty())) {
-            throw new IllegalArgumentException("End position must be greater than the start position for variant: "
-                    + toString());
-        }
         // Create and initialize StructuralVariation object if needed
         inferSV();
 
         if (length == null) {
             length = inferLength(reference, alternates.get(0), start, end, type);
+        }
+
+        if (start > end && !reference.isEmpty() && length != Variant.UNKNOWN_LENGTH) {
+            throw new IllegalArgumentException("End position must be greater than the start position for variant: "
+                    + toString());
         }
 
     }
@@ -672,6 +673,8 @@ public class VariantBuilder {
                 // Default length 1 for type NO_VARIATION
                 if (type == VariantType.NO_VARIATION) {
                     return 1;
+                } else if (type == VariantType.BREAKEND || type == VariantType.TRANSLOCATION) {
+                    return Variant.UNKNOWN_LENGTH;
                 } else {
 //                    return Variant.UNKNOWN_LENGTH;
                     throw new IllegalArgumentException("Unknown end or length of the variant '" + this + "', type '" + type + "'");
