@@ -637,4 +637,44 @@ public class LeftAlignmentTest  extends VariantNormalizerGenericTest{
         testSampleNormalization("2", 8, "CTTTT", "TTTTT", 8, 8, "C", "T", false);
         testSampleNormalization("2", 8, "CGT", "TTTTT", 8, 9, "CG", "TTTT", false);
     }
+
+    @Test
+    public void testAmbiguousBases()
+            throws NonStandardCompliantSampleField, IOException, URISyntaxException {
+
+        /*
+        Tests two cases:
+        * Left alignment when Ns are found in the reference genome
+        * Left alignment when the alternate sequence contains ambiguous bases
+
+        Context:
+        > 3 (ambiguous bases)
+        NNNNCTCCCTCCCTCCCTCCCTCCCTCCCTCCCTCCCTCC
+        1234567890123456789012345678901234567890
+         */
+        this.normalizer.enableLeftAlign(trickyReference.toString());
+        this.normalizer.setGenerateReferenceBlocks(false);
+
+        // Ambiguous bases found in the reference
+        testSampleNormalization("3", 8, "C", "CCTCC", 8, 7, "", "CCTC");
+        this.normalizer.setAcceptAmbiguousBasesInReference(true);
+        testSampleNormalization("3", 8, "C", "CCTCC", 5, 4, "", "CTCC");
+        this.normalizer.setAcceptAmbiguousBasesInReference(false);
+        testSampleNormalization("3", 8, "C", "CCTCC", 8, 7, "", "CCTC");
+
+        // Ambiguous codes in the alternate
+        // N and W are ambiguous IUPAC codes
+        testSampleNormalization("3", 8, "C", "CNTCC", 8, 7, "", "CNTC");
+        testSampleNormalization("3", 8, "C", "CWTCC", 8, 7, "", "CWTC");
+        // Z is not an ambiguous IUPAC codes
+        testSampleNormalization("3", 8, "C", "CZTCC", 8, 7, "", "CZTC");
+        this.normalizer.setAcceptAmbiguousBasesInAlternate(true);
+        testSampleNormalization("3", 8, "C", "CNTCC", 6, 5, "", "TCCN");
+        testSampleNormalization("3", 8, "C", "CWTCC", 6, 5, "", "TCCW");
+        testSampleNormalization("3", 8, "C", "CZTCC", 8, 7, "", "CZTC");
+        this.normalizer.setAcceptAmbiguousBasesInAlternate(false);
+        testSampleNormalization("3", 8, "C", "CNTCC", 8, 7, "", "CNTC");
+        testSampleNormalization("3", 8, "C", "CWTCC", 8, 7, "", "CWTC");
+        testSampleNormalization("3", 8, "C", "CZTCC", 8, 7, "", "CZTC");
+    }
 }

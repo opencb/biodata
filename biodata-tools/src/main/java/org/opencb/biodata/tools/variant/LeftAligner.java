@@ -13,12 +13,17 @@ import java.util.Set;
  */
 public class LeftAligner {
 
-    private static final Set<Character> ACCEPTED_BASES =
+    private static final Set<Character> PRECISE_BASES =
             new HashSet(Arrays.asList('a', 'c', 'g', 't', 'A', 'C', 'G', 'T'));
+    private static final Character N = 'N';
+    private static final Set<Character> AMBIGUOUS_BASES =
+            new HashSet(Arrays.asList('M', 'R', 'W', 'S', 'Y', 'K', 'V', 'H', 'D', 'B'));
     private final String[] acceptedExtensions = {".fa", ".fn", ".fasta"}; //, ".gz"};
     private SamtoolsFastaIndex referenceGenomeReader;
     private String referenceGenome;
     private int windowSize;
+    private boolean acceptAmbiguousBasesInReference = false;
+    private boolean acceptAmbiguousBasesInAlternate = false;
 
     public LeftAligner(String referenceGenome, int windowSize) throws FileNotFoundException {
         boolean validExtension = false;
@@ -43,6 +48,32 @@ public class LeftAligner {
     }
 
     /**
+     * Enables/disables the usage of Ns in the reference genome.
+     * Default value: false
+     * PRE: there are no ambiguous bases in the reference genome other than N
+     *
+     * @param acceptAmbiguousBasesInReference
+     * @return
+     */
+    public LeftAligner setAcceptAmbiguousBasesInReference(boolean acceptAmbiguousBasesInReference) {
+
+        this.acceptAmbiguousBasesInReference = acceptAmbiguousBasesInReference;
+        return this;
+    }
+
+    /**
+     * Enables/disables the usage of ambiguous bases in the alternate.
+     * Default value: false
+     * @param acceptAmbiguousBasesInAlternate
+     * @return
+     */
+    public LeftAligner setAcceptAmbiguousBasesInAlternate(boolean acceptAmbiguousBasesInAlternate) {
+
+        this.acceptAmbiguousBasesInAlternate = acceptAmbiguousBasesInAlternate;
+        return this;
+    }
+
+    /**
      * Calculates the allele length considering "-" for empty alleles
      * @param allele
      * @return
@@ -53,11 +84,17 @@ public class LeftAligner {
 
     /**
      * Only accepts as a valid base A, C, G and T
+     * or IUPAC ambiguous if enabled
      * @param base
      * @return
      */
-    static boolean isValidBase(char base) {
-        return ACCEPTED_BASES.contains(base);
+    static boolean isValidBase(char base, boolean acceptAmbiguous) {
+        boolean isValidBase = false;
+        isValidBase |= PRECISE_BASES.contains(base);
+        if (!isValidBase && acceptAmbiguous) {
+            isValidBase |= N.equals(base) || AMBIGUOUS_BASES.contains(base);
+        }
+        return isValidBase;
     }
 
     /**
@@ -66,21 +103,22 @@ public class LeftAligner {
      * @param alternateBase
      * @return
      */
-    static boolean areValidBases(char referenceBase, char alternateBase) {
-        return isValidBase(referenceBase) && isValidBase(alternateBase);
+    private boolean areValidBases(char referenceBase, char alternateBase) {
+        return isValidBase(referenceBase, this.acceptAmbiguousBasesInReference) &&
+                isValidBase(alternateBase, this.acceptAmbiguousBasesInAlternate);
     }
 
     /**
-     * Checks if all bases in the reference are valid bases.
-     * @param reference the reference bases
+     * Checks if all bases in the allele are valid bases.
+     * @param allele the reference bases
      * @return
      */
-    static boolean isAlternateCorrect(String reference) {
+    private boolean isAlleleCorrect(String allele, boolean acceptAmbiguousBases) {
 
         boolean isCorrect = true;
-        if (!StringUtils.isEmpty(reference)) {
-            for (char base : reference.toCharArray()) {
-                isCorrect = isCorrect && isValidBase(base);
+        if (!StringUtils.isEmpty(allele)) {
+            for (char base : allele.toCharArray()) {
+                isCorrect = isCorrect && isValidBase(base, acceptAmbiguousBases);
                 if (!isCorrect) {
                     return isCorrect;
                 }
@@ -180,7 +218,9 @@ public class LeftAligner {
         boolean hasDeletion = referenceLength - alternateLength > 0;
         boolean hasIndel = hasInsertion || hasDeletion;
         // only left aligns indels
-        if (hasIndel && isAlternateCorrect(reference) && isAlternateCorrect(alternate)) {
+        if (hasIndel &&
+                isAlleleCorrect(reference, this.acceptAmbiguousBasesInReference) &&
+                isAlleleCorrect(alternate, this.acceptAmbiguousBasesInAlternate)) {
             // TODO: check if left alignment is required to avoid reading from the reference genome always
             // TODO: check if variant is at the beginning of the chromosome
             // gets an analysis window from the reference genome

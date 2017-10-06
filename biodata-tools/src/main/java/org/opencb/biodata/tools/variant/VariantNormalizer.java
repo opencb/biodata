@@ -39,7 +39,6 @@ import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.StructuralVariation;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
-import org.opencb.biodata.tools.sequence.SamtoolsFastaIndex;
 import org.opencb.biodata.tools.variant.merge.VariantAlternateRearranger;
 import org.opencb.commons.run.ParallelTaskRunner;
 import org.slf4j.Logger;
@@ -69,6 +68,8 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         private boolean leftAlign = false;
         private LeftAligner leftAligner;
         private int leftAlignmentWindowSize = 100;
+        private boolean acceptAmbiguousBasesInReference = false;
+        private boolean acceptAmbiguousBasesInAlternate = false;
 
         public VariantNormalizerConfig(){}
 
@@ -128,6 +129,30 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
         public LeftAligner getLeftAligner() {
             return leftAligner;
+        }
+
+        public VariantNormalizerConfig setAcceptAmbiguousBasesInReference(boolean acceptAmbiguousBasesInReference) {
+
+            if (this.leftAligner == null) {
+                throw new IllegalArgumentException(
+                        "Cannot set 'accept ambiguous bases in reference' if left aligner is not configured"
+                );
+            }
+            this.acceptAmbiguousBasesInReference = acceptAmbiguousBasesInReference;
+            this.leftAligner.setAcceptAmbiguousBasesInReference(acceptAmbiguousBasesInReference);
+            return this;
+        }
+
+        public VariantNormalizerConfig setAcceptAmbiguousBasesInAlternate(boolean acceptAmbiguousBasesInAlternate) {
+
+            if (this.leftAligner == null) {
+                throw new IllegalArgumentException(
+                        "Cannot set 'accept ambiguous bases in alternate' if left aligner is not configured"
+                );
+            }
+            this.acceptAmbiguousBasesInAlternate = acceptAmbiguousBasesInAlternate;
+            this.leftAligner.setAcceptAmbiguousBasesInAlternate(acceptAmbiguousBasesInAlternate);
+            return this;
         }
 
     }
@@ -192,6 +217,16 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
     public VariantNormalizer disableLeftAlign() {
         this.config.disableLeftAlign();
+        return this;
+    }
+
+    public VariantNormalizer setAcceptAmbiguousBasesInReference(boolean acceptAmbiguousBasesInReference)  {
+        this.config.setAcceptAmbiguousBasesInReference(acceptAmbiguousBasesInReference);
+        return this;
+    }
+
+    public VariantNormalizer setAcceptAmbiguousBasesInAlternate(boolean acceptAmbiguousBasesInAlternate)  {
+        this.config.setAcceptAmbiguousBasesInAlternate(acceptAmbiguousBasesInAlternate);
         return this;
     }
 
