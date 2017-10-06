@@ -8,6 +8,7 @@ import htsjdk.tribble.TribbleException;
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFHeader;
 import org.opencb.biodata.formats.variant.vcf4.FullVcfCodec;
+import org.opencb.commons.io.DataReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +19,7 @@ import java.util.function.BiConsumer;
 /**
  * Created by joaquin on 9/27/16.
  */
-public class VcfFileReader {
+public class VcfFileReader  implements DataReader<VariantContext> {
 
     private final Logger logger = LoggerFactory.getLogger(VcfFileReader.class);
 
@@ -28,6 +29,7 @@ public class VcfFileReader {
     private VCFHeader header;
     private LineIterator lineIterator;
     private List<String> headerLines;
+    private boolean lazy;
     private Set<BiConsumer<String, RuntimeException>> malformHandlerSet = new HashSet<>();
 
     public VcfFileReader registerMalformatedVcfHandler(BiConsumer<String, RuntimeException> handler) {
@@ -35,42 +37,56 @@ public class VcfFileReader {
         return this;
     }
 
-    public void open(String inputFilename) throws IOException {
+    public VcfFileReader(String inputFilename, boolean lazy) {
         this.inputFilename = inputFilename;
-        inputStream = new FileInputStream(new File(inputFilename));
-
-        codec = new FullVcfCodec();
-        lineIterator = codec.makeSourceFromStream(inputStream);
-
-        // Read the header
-        headerLines = new LinkedList<>();
-        while (lineIterator.hasNext()) {
-            String line = lineIterator.peek();
-            if (line.startsWith(VCFHeader.HEADER_INDICATOR)) {
-                headerLines.add(line);
-                lineIterator.next();
-            } else {
-                break;
-            }
-        }
-
-        // Parse the header
-        header = (VCFHeader) codec.readActualHeader(new LineIteratorImpl(new LineReader() {
-            Iterator<String> iterator = headerLines.iterator();
-            @Override
-            public String readLine() throws IOException {
-                if (iterator.hasNext()) {
-                    return iterator.next();
-                } else {
-                    return null;
-                }
-            }
-            @Override
-            public void close() {}
-        }));
-
+        this.lazy = lazy;
     }
 
+    @Override
+    public boolean open() {
+        try {
+            inputStream = new FileInputStream(new File(inputFilename));
+
+            codec = new FullVcfCodec();
+            lineIterator = codec.makeSourceFromStream(inputStream);
+
+            // Read the header
+            headerLines = new LinkedList<>();
+            while (lineIterator.hasNext()) {
+                String line = lineIterator.peek();
+                if (line.startsWith(VCFHeader.HEADER_INDICATOR)) {
+                    headerLines.add(line);
+                    lineIterator.next();
+                } else {
+                    break;
+                }
+            }
+
+            // Parse the header
+            header = (VCFHeader) codec.readActualHeader(new LineIteratorImpl(new LineReader() {
+                Iterator<String> iterator = headerLines.iterator();
+
+                @Override
+                public String readLine() throws IOException {
+                    if (iterator.hasNext()) {
+                        return iterator.next();
+                    } else {
+                        return null;
+                    }
+                }
+
+                @Override
+                public void close() {
+                }
+            }));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    @Override
     public List<VariantContext> read(int batchSize) {
         List<VariantContext> variantContexts = new ArrayList<>(batchSize);
         while (lineIterator.hasNext() && variantContexts.size() < batchSize) {
@@ -79,7 +95,13 @@ public class VcfFileReader {
                 continue;
             }
             try {
-                variantContexts.add(codec.decode(line));
+                VariantContext variantContext = codec.decode(line);
+                // Lazy processing management
+                if (!lazy && variantContext.getGenotypes().isLazyWithData()) {
+                    variantContext.getGenotype(variantContext.getGenotypes().size() - 1);
+                }
+                variantContext.getGenotypes();
+                variantContexts.add(variantContext);
             } catch (TribbleException e) {
                 if (e.getMessage().startsWith("The provided VCF file is malformed at approximately line number")) {
                     logMalformatedLine(line, e);
@@ -98,6 +120,7 @@ public class VcfFileReader {
         }
     }
 
+    @Override
     public boolean close() {
         try {
             inputStream.close();
@@ -108,6 +131,19 @@ public class VcfFileReader {
     }
 
     public VCFHeader getVcfHeader() {
+        if (header == null) {
+            open();
+            close();
+        }
         return header;
+    }
+
+    public boolean isLazy() {
+        return lazy;
+    }
+
+    public VcfFileReader setLazy(boolean lazy) {
+        this.lazy = lazy;
+        return this;
     }
 }
