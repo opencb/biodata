@@ -197,20 +197,28 @@ public class StudyEntry implements Serializable {
         return impl.getFormat() == null? null : Collections.unmodifiableList(impl.getFormat());
     }
 
-    public void setFormat(List<String> value) {
+    public StudyEntry setFormat(List<String> value) {
         this.formatPosition.set(null);
         impl.setFormat(value);
+        return this;
     }
 
-    public void addFormat(String value) {
-        formatPosition.set(null);
-        if (impl.getFormat() == null) {
-            impl.setFormat(new LinkedList<>());
+    public StudyEntry addFormat(String value) {
+        Map<String, Integer> formatPositions = getFormatPositions();
+        if (formatPositions.containsKey(value)) {
+            return this;
+        } else {
+            List<String> format = impl.getFormat();
+            if (format == null) {
+                format = new ArrayList<>(1);
+                format.add(value);
+                impl.setFormat(format);
+            } else {
+                actOnList(format, f -> f.add(value), impl::setFormat);
+            }
+            formatPositions.put(value, formatPositions.size());
         }
-        List<String> format = new ArrayList<>(impl.getFormat().size());
-        format.addAll(impl.getFormat());
-        format.add(value);
-        impl.setFormat(format);
+        return this;
     }
 
     public Map<String, Integer> getFormatPositions() {
@@ -239,7 +247,7 @@ public class StudyEntry implements Serializable {
 
         Map<String, Map<String, String>> samplesDataMap = new HashMap<>();
         for (Map.Entry<String, Integer> entry : samplesPosition.entrySet()) {
-            samplesDataMap.put(entry.getKey(), getSampleData(entry.getKey()));
+            samplesDataMap.put(entry.getKey(), getSampleDataAsMap(entry.getKey()));
         }
 
         return Collections.unmodifiableMap(samplesDataMap);
@@ -258,7 +266,26 @@ public class StudyEntry implements Serializable {
         return null;
     }
 
-    public Map<String, String> getSampleData(String sampleName) {
+    public List<String> getSampleData(String sampleName) {
+        requireSamplesPosition();
+        Integer samplePosition = samplesPosition.get(sampleName);
+        if (samplePosition == null) {
+            return null;
+        } else {
+            return getSampleData(samplePosition);
+        }
+
+    }
+
+    public List<String> getSampleData(int samplePosition) {
+        if (samplePosition >= 0 && samplePosition < impl.getSamplesData().size()) {
+            return impl.getSamplesData().get(samplePosition);
+        } else {
+            return null;
+        }
+    }
+
+    public Map<String, String> getSampleDataAsMap(String sampleName) {
         requireSamplesPosition();
         if (samplesPosition.containsKey(sampleName)) {
             HashMap<String, String> sampleDataMap = new HashMap<>();
@@ -273,7 +300,7 @@ public class StudyEntry implements Serializable {
         return null;
     }
 
-    public void addSampleData(String sampleName, Map<String, String> sampleData) {
+    public StudyEntry addSampleData(String sampleName, Map<String, String> sampleData) {
         if (getFormat() == null) {
             setFormat(new ArrayList<>(sampleData.keySet()));
         }
@@ -286,19 +313,17 @@ public class StudyEntry implements Serializable {
             throw new IllegalArgumentException("Some sample data fields were not in the format field: " + extraFields);
         }
         addSampleData(sampleName, sampleDataList);
+        return this;
     }
 
-    public void addSampleData(String sampleName, List<String> sampleDataList) {
+    public StudyEntry addSampleData(String sampleName, List<String> sampleDataList) {
         if (samplesPosition == null && impl.getSamplesData().isEmpty()) {
             samplesPosition = new LinkedHashMap<>();
         }
         if (samplesPosition != null) {
             if (samplesPosition.containsKey(sampleName)) {
                 int position = samplesPosition.get(sampleName);
-                while (impl.getSamplesData().size() <= position) {
-                    actOnSamplesDataList((l) -> l.add(null));
-                }
-                actOnSamplesDataList((l) -> l.set(position, sampleDataList));
+                addSampleData(position, sampleDataList);
             } else {
                 int position = samplesPosition.size();
                 samplesPosition.put(sampleName, position);
@@ -307,6 +332,15 @@ public class StudyEntry implements Serializable {
         } else {
             actOnSamplesDataList((l) -> l.add(sampleDataList));
         }
+        return this;
+    }
+
+    public StudyEntry addSampleData(int samplePosition, List<String> sampleDataList) {
+        while (impl.getSamplesData().size() <= samplePosition) {
+            actOnSamplesDataList((l) -> l.add(null));
+        }
+        actOnSamplesDataList((l) -> l.set(samplePosition, sampleDataList));
+        return this;
     }
 
     /**
@@ -316,35 +350,54 @@ public class StudyEntry implements Serializable {
      * @param action Action to execute
      */
     private void actOnSamplesDataList(Consumer<List<List<String>>> action) {
-        List<List<String>> samplesDataList = impl.getSamplesData();
-        try {
-            action.accept(samplesDataList);
-        } catch (UnsupportedOperationException e) {
-            samplesDataList = new ArrayList<>(samplesDataList);
-            impl.setSamplesData(samplesDataList);
-            action.accept(samplesDataList);
-        }
-
+        actOnList(impl.getSamplesData(), action, impl::setSamplesData);
     }
 
-    public void addSampleData(String sampleName, String format, String value) {
+    private <T> List<T> actOnList(List<T> list, Consumer<List<T>> action, Consumer<List<T>> update) {
+        try {
+            action.accept(list);
+        } catch (UnsupportedOperationException e) {
+            list = new ArrayList<>(list);
+            action.accept(list);
+            if (update != null) {
+                update.accept(list);
+            }
+        }
+        return list;
+    }
+
+    public StudyEntry addSampleData(String sampleName, String format, String value) {
+        return addSampleData(sampleName, format, value, null);
+    }
+
+    public StudyEntry addSampleData(String sampleName, String format, String value, String defaultValue) {
         requireSamplesPosition();
         Integer formatIdx = getFormatPositions().get(format);
         Integer samplePosition = getSamplesPosition().get(sampleName);
+        return addSampleData(samplePosition, formatIdx, value, defaultValue);
+    }
+
+    public StudyEntry addSampleData(Integer samplePosition, Integer formatIdx, String value, String defaultValue) {
+        Consumer<List<String>> update = sampleData -> getSamplesData().set(samplePosition, sampleData);
 
         if (formatIdx != null && samplePosition != null) {
             List<String> sampleData = getSamplesData().get(samplePosition);
+            if (sampleData == null) {
+                sampleData = new ArrayList<>(getFormat().size());
+                getSamplesData().set(samplePosition, sampleData);
+            }
             if (formatIdx < sampleData.size()) {
-                sampleData.set(formatIdx, value);
+                actOnList(sampleData, l -> l.set(formatIdx, value), update);
             } else {
-                List<String> modifiableSampleData = new ArrayList<>(getFormat().size());
-                modifiableSampleData.addAll(sampleData);
-                modifiableSampleData.add(value);
-                addSampleData(sampleName, modifiableSampleData);
+                while (formatIdx > sampleData.size()) {
+                    sampleData = actOnList(sampleData, l -> l.add(defaultValue), update);
+                }
+                actOnList(sampleData, l -> l.add(value), update);
             }
         } else {
             throw new IndexOutOfBoundsException();
         }
+        return this;
     }
 
     public Set<String> getSamplesName() {
@@ -440,16 +493,18 @@ public class StudyEntry implements Serializable {
         return impl.getStudyId();
     }
 
-    public void setStudyId(String value) {
+    public StudyEntry setStudyId(String value) {
         impl.setStudyId(value);
+        return this;
     }
 
     public List<FileEntry> getFiles() {
         return impl.getFiles();
     }
 
-    public void setFiles(List<FileEntry> files) {
+    public StudyEntry setFiles(List<FileEntry> files) {
         impl.setFiles(files);
+        return this;
     }
 
     public FileEntry getFile(String fileId) {
