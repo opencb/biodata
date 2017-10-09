@@ -19,6 +19,7 @@
 
 package org.opencb.biodata.tools.variant;
 
+import htsjdk.samtools.SAMException;
 import htsjdk.variant.vcf.*;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -557,7 +558,12 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
             // left alignment
             if (requireLeftAlignment) {
-                this.config.leftAligner.leftAlign(keyFields, chromosome);
+                try {
+                    this.config.leftAligner.leftAlign(keyFields, chromosome);
+                }
+                catch (SAMException ex) {
+                    this.logger.warn(ex.getMessage());
+                }
             }
 
             if (keyFields != null) {

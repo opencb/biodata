@@ -1,5 +1,6 @@
 package org.opencb.biodata.tools.variant;
 
+import htsjdk.samtools.SAMException;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.tools.sequence.SamtoolsFastaIndex;
 
@@ -147,7 +148,7 @@ public class LeftAligner {
             this.windowEnd = windowEnd;
             this.chromosome = chromosome;
             this.referenceGenomeReader = referenceGenomeReader;
-            this.sequence = this.referenceGenomeReader.query(this.chromosome, this.windowStart, this.windowEnd);
+            this.loadSequence();
         }
 
         public int getWindowStart() {
@@ -158,22 +159,31 @@ public class LeftAligner {
             return windowEnd;
         }
 
+        public int getWindowSize() {
+            return windowEnd - windowStart;
+        }
+
         public String getSequence() {
             return sequence;
         }
 
         public boolean isChromosomeExhausted() {
-            return this.windowStart == 1 && this.windowEnd == 1;
+            return this.windowStart == 1; //&& this.windowEnd == 1;
         }
 
-        public LeftAlignmentWindow slideWindow(int windowSize) {
+        private void loadSequence() {
+
+            this.sequence = this.referenceGenomeReader.query(this.chromosome, this.windowStart, this.windowEnd);
+        }
+
+        public LeftAlignmentWindow slideWindow(int windowSize, int offset) {
+            windowEnd = windowStart + offset + 1;
             windowStart = windowStart - windowSize;
             if (windowStart < 1) {
                 // the window cannot go below position 1 as genomic coordinates in this context are 1-based
                 windowStart = 1;
             }
-            windowEnd = windowEnd - windowSize;
-            sequence = referenceGenomeReader.query(chromosome, windowStart, windowEnd);
+            this.loadSequence();
             return this;
         }
     }
@@ -205,8 +215,9 @@ public class LeftAligner {
      *
      * @param variant
      * @param chromosome
+     * @throws SAMException - when contig does not exist or query goes beyond contig boundaries
      */
-    public void leftAlign(VariantNormalizer.VariantKeyFields variant, String chromosome) {
+    public void leftAlign(VariantNormalizer.VariantKeyFields variant, String chromosome) throws SAMException {
 
         String reference = variant.getReference();
         String alternate = variant.getAlternate();
@@ -234,108 +245,134 @@ public class LeftAligner {
             String sequence = alignmentWindow.getSequence();
             int lastReferenceBaseRelativePosition = lastReferenceBasePosition - alignmentWindow.getWindowStart();
             char referenceBase = sequence.charAt(lastReferenceBaseRelativePosition);
+
+            // if reference bases do not match the reference genome skips left alignment
             boolean referenceCoherent = checkReferenceMatchGenome(
                     reference, lastReferenceBaseRelativePosition, sequence
             );
-            int skipped_positions = 0;
-            boolean applyLeftAlignment = false;
+            if (referenceCoherent) {
+                int skipped_positions = 0;
+                boolean applyLeftAlignment = false;
 
-            if (hasInsertion && referenceCoherent) {
-                // points to the bases to check for left alignment
-                // beware that relative positions are 0-based
-                int lastAlternateBaseRelativePosition = alternateLength - 1;
-                char alternateBase = alternate.charAt(lastAlternateBaseRelativePosition);
-                // only left aligns if last bases of reference and alternate equal and they contain new bases
-                while (referenceBase == alternateBase &&
-                        areValidBases(referenceBase, alternateBase) &&
-                        !alignmentWindow.isChromosomeExhausted()) {
+                if (hasInsertion) {
+                    // points to the bases to check for left alignment
+                    // beware that relative positions are 0-based
+                    int lastAlternateBaseRelativePosition = alternateLength - 1;
+                    char alternateBase = alternate.charAt(lastAlternateBaseRelativePosition);
+                    // only left aligns if last bases of reference and alternate equal and they contain new bases
+                    while (lastReferenceBaseRelativePosition >= 0 &&
+                            referenceBase == alternateBase &&
+                            areValidBases(referenceBase, alternateBase)) {
 
-                    // slides the window 1bp to the left
-                    skipped_positions ++;
-                    lastReferenceBaseRelativePosition--;
-                    lastAlternateBaseRelativePosition--;
+                        // slides the window 1bp to the left
+                        skipped_positions++;
+                        lastReferenceBaseRelativePosition--;
+                        lastAlternateBaseRelativePosition--;
 
-                    // checks if window is exhausted and reloads
-                    if (lastReferenceBaseRelativePosition < 0) {
-                        alignmentWindow = alignmentWindow.slideWindow(this.windowSize);
-                        sequence = alignmentWindow.getSequence();
-                        lastReferenceBaseRelativePosition = this.windowSize - 1;  // 0-based
+                        // checks if chromosome is exhausted and ends
+                        boolean reachedFirstPosition = lastReferenceBaseRelativePosition < 0 &&
+                                alignmentWindow.isChromosomeExhausted();
+                        if (reachedFirstPosition) {
+                            break;
+                        }
+
+                        // checks if window is exhausted and reloads
+                        if (lastReferenceBaseRelativePosition < 0) {
+                            alignmentWindow = alignmentWindow.slideWindow(
+                                    this.windowSize, lastReferenceBaseRelativePosition
+                            );
+                            sequence = alignmentWindow.getSequence();
+                            lastReferenceBaseRelativePosition = alignmentWindow.getWindowSize() - 1;  // 0-based
+                        }
+
+                        // checks if alternate sequence is exhausted and reloads
+                        if (lastAlternateBaseRelativePosition < 0) {
+                            // reloads alternate sequence from the end
+                            lastAlternateBaseRelativePosition = alternateLength - 1;  // 0-based
+                        }
+
+                        referenceBase = sequence.charAt(lastReferenceBaseRelativePosition);
+                        alternateBase = alternate.charAt(lastAlternateBaseRelativePosition);
+                    }
+                    applyLeftAlignment = skipped_positions > 0 &&
+                            areValidBases(referenceBase, alternateBase);
+                            //&&
+                            //!alignmentWindow.isChromosomeExhausted();
+                    // sets the new coordinates
+                    if (applyLeftAlignment) {
+                        int positionInAlternate = alternateLength - (skipped_positions % alternateLength);
+                        if (positionInAlternate > 0) {
+                            variant.setAlternate(
+                                    alternate.substring(positionInAlternate) +
+                                            alternate.substring(0, positionInAlternate)
+                            );
+                        }
                     }
 
-                    // checks if alternate sequence is exhausted and reloads
-                    if (lastAlternateBaseRelativePosition < 0) {
-                        // reloads alternate sequence from the end
-                        lastAlternateBaseRelativePosition = alternateLength - 1;  // 0-based
+                } else if (hasDeletion) {
+                    // points to the bases to check for left alignment
+                    // beware that relative positions are 0-based
+                    int lastAlternateBaseRelativePosition = lastAlternateBasePosition - alignmentWindow.getWindowStart();
+                    char alternateBase = sequence.charAt(lastAlternateBaseRelativePosition);
+                    // only left aligns if last bases of reference and alternate equal and they contain new bases
+                    while (referenceBase == alternateBase &&
+                            areValidBases(referenceBase, alternateBase)) {
+
+                        // slides the window 1bp to the left
+                        skipped_positions++;
+                        lastAlternateBaseRelativePosition--;
+                        lastReferenceBaseRelativePosition--;
+
+                        // checks if chromosome is exhausted and ends
+                        boolean reachedFirstPosition = lastAlternateBaseRelativePosition < 0 &&
+                                alignmentWindow.isChromosomeExhausted();
+                        if (reachedFirstPosition) {
+                            break;
+                        }
+
+                        if (lastAlternateBaseRelativePosition < 0) {
+                            // window is exhausted
+                            alignmentWindow = alignmentWindow.slideWindow(
+                                    this.windowSize, lastReferenceBaseRelativePosition
+                            );
+                            sequence = alignmentWindow.getSequence();
+                            lastAlternateBaseRelativePosition = alignmentWindow.getWindowSize() - 1 - referenceLength;
+                            lastReferenceBaseRelativePosition = alignmentWindow.getWindowSize() - 1;
+                        }
+                        // reads the preceding bases if chromosome not exhausted
+                        referenceBase = sequence.charAt(lastReferenceBaseRelativePosition);
+                        alternateBase = sequence.charAt(lastAlternateBaseRelativePosition);
                     }
-                    referenceBase = sequence.charAt(lastReferenceBaseRelativePosition);
-                    alternateBase = alternate.charAt(lastAlternateBaseRelativePosition);
-                }
-                applyLeftAlignment = skipped_positions > 0 &&
-                        areValidBases(referenceBase, alternateBase) &&
-                        !alignmentWindow.isChromosomeExhausted();
-                // sets the new coordinates
-                if (applyLeftAlignment) {
-                    int positionInAlternate = alternateLength - (skipped_positions % alternateLength);
-                    if (positionInAlternate > 0) {
+
+                    applyLeftAlignment = skipped_positions > 0 &&
+                            areValidBases(referenceBase, alternateBase);
+                            //&&
+                            //!alignmentWindow.isChromosomeExhausted();
+                    // sets the new alternate
+                    if (applyLeftAlignment) {
+                        // TODO: can't we just set alternate to ""???
                         variant.setAlternate(
-                                alternate.substring(positionInAlternate) +
-                                        alternate.substring(0, positionInAlternate)
+                                alternateLength == 0 ?
+                                        "" :
+                                        sequence.substring(
+                                                lastAlternateBaseRelativePosition - alternateLength + 1,
+                                                lastAlternateBaseRelativePosition + 1
+                                        )
                         );
                     }
                 }
 
-            } else if (hasDeletion && referenceCoherent) {
-                // points to the bases to check for left alignment
-                // beware that relative positions are 0-based
-                int lastAlternateBaseRelativePosition = lastAlternateBasePosition - alignmentWindow.getWindowStart();
-                char alternateBase = sequence.charAt(lastAlternateBaseRelativePosition);
-                // only left aligns if last bases of reference and alternate equal and they contain new bases
-                while (referenceBase == alternateBase &&
-                        areValidBases(referenceBase, alternateBase) &&
-                        !alignmentWindow.isChromosomeExhausted()) {
-
-                    // slides the window 1bp to the left
-                    skipped_positions ++;
-                    lastAlternateBaseRelativePosition--;
-                    lastReferenceBaseRelativePosition--;
-                    if (lastAlternateBaseRelativePosition < 0) {
-                        // window is exhausted
-                        alignmentWindow = alignmentWindow.slideWindow(this.windowSize);
-                        sequence = alignmentWindow.getSequence();
-                        lastAlternateBaseRelativePosition = this.windowSize;
-                        lastReferenceBaseRelativePosition = this.windowSize + referenceLength;
-                    }
-                    referenceBase = sequence.charAt(lastReferenceBaseRelativePosition);
-                    alternateBase = sequence.charAt(lastAlternateBaseRelativePosition);
-                }
-
-                applyLeftAlignment = skipped_positions > 0 &&
-                        areValidBases(referenceBase, alternateBase) &&
-                        !alignmentWindow.isChromosomeExhausted();
-                // sets the new alternate
                 if (applyLeftAlignment) {
-                    // TODO: can't we just set alternate to ""???
-                    variant.setAlternate(
-                            alternateLength == 0 ?
-                                    "" :
-                                    sequence.substring(
-                                            lastAlternateBaseRelativePosition - alternateLength + 1,
-                                            lastAlternateBaseRelativePosition + 1
-                                    )
+                    variant.setReference(referenceLength == 0 ?
+                            "" :
+                            sequence.substring(
+                                    lastReferenceBaseRelativePosition - referenceLength + 1,
+                                    lastReferenceBaseRelativePosition + 1
+                            )
                     );
+                    variant.setStart(variant.getStart() - skipped_positions);
+                    variant.setEnd(variant.getStart() + referenceLength - 1);
                 }
-            }
-
-            if (applyLeftAlignment) {
-                variant.setReference(referenceLength == 0 ?
-                        "" :
-                        sequence.substring(
-                                lastReferenceBaseRelativePosition - referenceLength + 1,
-                                lastReferenceBaseRelativePosition + 1
-                        )
-                );
-                variant.setStart(variant.getStart() - skipped_positions);
-                variant.setEnd(variant.getStart() + referenceLength - 1);
             }
         }
     }
