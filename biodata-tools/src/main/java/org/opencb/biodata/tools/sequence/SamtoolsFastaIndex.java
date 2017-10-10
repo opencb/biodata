@@ -19,8 +19,10 @@
 
 package org.opencb.biodata.tools.sequence;
 
+import htsjdk.samtools.SAMSequenceDictionary;
 import htsjdk.samtools.reference.IndexedFastaSequenceFile;
 import htsjdk.samtools.reference.ReferenceSequence;
+import htsjdk.samtools.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.commons.utils.FileUtils;
 
@@ -38,6 +40,7 @@ public class SamtoolsFastaIndex {
     private String samtoolsBin;
 
     public SamtoolsFastaIndex() {
+
     }
 
     public SamtoolsFastaIndex(String fastaFileName) throws FileNotFoundException {
@@ -78,7 +81,15 @@ public class SamtoolsFastaIndex {
 
     public String query(String chromosome, int start, int end) {
         ReferenceSequence subsequenceAt = indexedFastaSequenceFile.getSubsequenceAt(chromosome, start, end);
-        return new String(subsequenceAt.getBases());
+        return StringUtil.bytesToString(subsequenceAt.getBases());
     }
 
+    public ReferenceSequence queryReferenceSequence(String chromosome, int start, int end) {
+        ReferenceSequence referenceSequence = indexedFastaSequenceFile.getSubsequenceAt(chromosome, start, end);
+        return referenceSequence;
+    }
+
+    public SAMSequenceDictionary getSequenceDictionary() {
+        return indexedFastaSequenceFile.getSequenceDictionary();
+    }
 }
