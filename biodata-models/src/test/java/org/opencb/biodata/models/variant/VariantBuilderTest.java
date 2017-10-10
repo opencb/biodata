@@ -206,4 +206,30 @@ public class VariantBuilderTest {
     public void buildIncompleteSV_2() throws Exception {
         new VariantBuilder("1:1000:A:<DEL>").build();
     }
+
+
+    @Test
+    public void buildBND1() {
+        Variant v1 = new Variant("1", 16877367, "A", "[chr4:17481913[T");
+        assertEquals(VariantType.BREAKEND, v1.getType());
+        assertEquals("A", v1.getReference());
+        assertEquals("[chr4:17481913[T", v1.getAlternate());
+        assertEquals(16877367, v1.getStart().intValue());
+        assertEquals(Variant.UNKNOWN_LENGTH, v1.getLength().intValue());
+        assertEquals(Variant.UNKNOWN_LENGTH, v1.getLengthReference().intValue());
+        assertEquals(Variant.UNKNOWN_LENGTH, v1.getLengthAlternate().intValue());
+    }
+
+    @Test
+    public void buildBND2() {
+        Variant v1 = new Variant("19", 172450, "", "A]2:10000]");
+        assertEquals(VariantType.BREAKEND, v1.getType());
+        assertEquals("", v1.getReference());
+        assertEquals("A]2:10000]", v1.getAlternate());
+        assertEquals(172450, v1.getStart().intValue());
+        assertEquals(172449, v1.getEnd().intValue());
+        assertEquals(Variant.UNKNOWN_LENGTH, v1.getLength().intValue());
+        assertEquals(Variant.UNKNOWN_LENGTH, v1.getLengthReference().intValue());
+        assertEquals(Variant.UNKNOWN_LENGTH, v1.getLengthAlternate().intValue());
+    }
 }

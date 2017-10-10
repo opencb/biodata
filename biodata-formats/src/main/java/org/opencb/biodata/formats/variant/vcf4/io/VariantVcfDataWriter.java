@@ -136,7 +136,7 @@ public class VariantVcfDataWriter implements VariantWriter {
         String sampleName, formatElem;
         while (sampleIt.hasNext()) {
             sampleName = sampleIt.next();
-            data = file.getSampleData(sampleName);
+            data = file.getSampleDataAsMap(sampleName);
             formatIt = format.iterator();
 
             while (formatIt.hasNext()) {

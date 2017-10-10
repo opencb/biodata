@@ -468,28 +468,28 @@ public class VariantVcfFactoryTest {
         Variant getVar0 = result.get(0);
         StudyEntry getFile0 = getVar0.getStudy(metadata.getId());
 
-        Map<String, String> na001Data = getFile0.getSampleData("NA001");
+        Map<String, String> na001Data = getFile0.getSampleDataAsMap("NA001");
         assertEquals("./.", na001Data.get("GT"));
         assertEquals(".", na001Data.get("AD"));
         assertEquals(".", na001Data.get("DP"));
         assertEquals(".", na001Data.get("GQ"));
         assertEquals(".", na001Data.get("PL"));
 
-        Map<String, String> na002Data = getFile0.getSampleData("NA002");
+        Map<String, String> na002Data = getFile0.getSampleDataAsMap("NA002");
         assertEquals("1/1", na002Data.get("GT"));
         assertEquals("0,2", na002Data.get("AD"));
         assertEquals("2", na002Data.get("DP"));
         assertEquals("6", na002Data.get("GQ"));
         assertEquals("71,6,0", na002Data.get("PL"));
 
-        Map<String, String> na003Data = getFile0.getSampleData("NA003");
+        Map<String, String> na003Data = getFile0.getSampleDataAsMap("NA003");
         assertEquals("./.", na003Data.get("GT"));
         assertEquals(".", na003Data.get("AD"));
         assertEquals(".", na003Data.get("DP"));
         assertEquals(".", na003Data.get("GQ"));
         assertEquals(".", na003Data.get("PL"));
 
-        Map<String, String> na004Data = getFile0.getSampleData("NA004");
+        Map<String, String> na004Data = getFile0.getSampleDataAsMap("NA004");
         assertEquals("./.", na004Data.get("GT"));
         assertEquals(".", na004Data.get("AD"));
         assertEquals(".", na004Data.get("DP"));

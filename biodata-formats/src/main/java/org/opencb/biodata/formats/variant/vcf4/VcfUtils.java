@@ -73,7 +73,7 @@ public class VcfUtils {
     }
 
     public static String getJoinedSampleFields(StudyEntry file, String sampleName) {
-        Map<String, String> data = file.getSampleData(sampleName);
+        Map<String, String> data = file.getSampleDataAsMap(sampleName);
         if (data == null) {
             return "";
         }
