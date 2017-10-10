@@ -99,4 +99,37 @@ public class OntologyTerm {
         this.alternativeIds = alternativeIds;
         return this;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        OntologyTerm that = (OntologyTerm) o;
+
+        if (!id.equals(that.id)) return false;
+        if (term != null ? !term.equals(that.term) : that.term != null) return false;
+        if (definition != null ? !definition.equals(that.definition) : that.definition != null) return false;
+        if (source != null ? !source.equals(that.source) : that.source != null) return false;
+        if (subClassOf != null ? !subClassOf.equals(that.subClassOf) : that.subClassOf != null) return false;
+        if (synonyms != null ? !synonyms.equals(that.synonyms) : that.synonyms != null) return false;
+        if (xrefs != null ? !xrefs.equals(that.xrefs) : that.xrefs != null) return false;
+        if (namespace != null ? !namespace.equals(that.namespace) : that.namespace != null) return false;
+        return alternativeIds != null ? alternativeIds.equals(that.alternativeIds) : that.alternativeIds == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id.hashCode();
+        result = 31 * result + (term != null ? term.hashCode() : 0);
+        result = 31 * result + (definition != null ? definition.hashCode() : 0);
+        result = 31 * result + (source != null ? source.hashCode() : 0);
+        result = 31 * result + (subClassOf != null ? subClassOf.hashCode() : 0);
+        result = 31 * result + (synonyms != null ? synonyms.hashCode() : 0);
+        result = 31 * result + (xrefs != null ? xrefs.hashCode() : 0);
+        result = 31 * result + (namespace != null ? namespace.hashCode() : 0);
+        result = 31 * result + (alternativeIds != null ? alternativeIds.hashCode() : 0);
+        return result;
+    }
 }
