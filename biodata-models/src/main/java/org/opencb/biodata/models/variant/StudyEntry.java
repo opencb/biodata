@@ -462,7 +462,8 @@ public class StudyEntry implements Serializable {
 
     @Deprecated
     public String getAttribute(String key) {
-        return getAttributes().get(key);
+        Map<String, String> attributes = getAttributes();
+        return attributes == null ? null : attributes.get(key);
     }
 
     @Deprecated

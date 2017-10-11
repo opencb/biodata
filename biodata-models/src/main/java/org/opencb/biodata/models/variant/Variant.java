@@ -490,6 +490,8 @@ public class Variant implements Serializable, Comparable<Variant> {
 //            } else {
 //                sb.append(getAlternate());
 //            }
+        } else if (sv != null && sv.getType() == StructuralVariantType.TANDEM_DUPLICATION) {
+            sb.append("<DUP:TANDEM>");
         } else {
             sb.append(getAlternate());
         }
