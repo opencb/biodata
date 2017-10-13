@@ -17,22 +17,30 @@
  *
  */
 
+/**
+ * 
+ */
 package org.opencb.biodata.tools;
 
+import org.opencb.commons.run.ParallelTaskRunner;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * Converts between two Java classes.
+ * @author Matthias Haimel mh719+git@cam.ac.uk
  *
- * Created by pfurio on 25/10/16.
- * @author Joaquin Tarraga &lt;joaquintarraga@gmail.com&gt;
  */
-public interface Converter<S, T> {
+public interface Converter<FROM, TO> extends ParallelTaskRunner.Task<FROM, TO> {
 
-    T to(S obj);
+    TO convert(FROM from);
 
-    S from(T obj);
-
-    default T convert(S obj) {
-        return to(obj);
+    default List<TO> apply(List<FROM> from) {
+        List<TO> convertedBatch = new ArrayList<>(from.size());
+        for (FROM item: from) {
+            convertedBatch.add(convert(item));
+        }
+        return convertedBatch;
     }
 
 }

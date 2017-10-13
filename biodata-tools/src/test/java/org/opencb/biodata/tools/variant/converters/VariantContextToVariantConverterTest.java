@@ -33,9 +33,14 @@ import org.junit.rules.TemporaryFolder;
 import org.opencb.biodata.formats.variant.vcf4.FullVcfCodec;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.avro.*;
+import org.opencb.biodata.models.variant.avro.StructuralVariantType;
+import org.opencb.biodata.models.variant.avro.StructuralVariation;
+import org.opencb.biodata.models.variant.avro.VariantAvro;
+import org.opencb.biodata.models.variant.avro.VariantType;
+import org.opencb.biodata.models.variant.metadata.VariantFileHeader;
+import org.opencb.biodata.models.variant.metadata.VariantFileMetadata;
 import org.opencb.biodata.tools.variant.VariantNormalizer;
-import org.opencb.biodata.tools.variant.converters.avro.VCFHeaderToAvroVcfHeaderConverter;
+import org.opencb.biodata.tools.variant.converters.avro.VCFHeaderToVariantFileHeaderConverter;
 import org.opencb.biodata.tools.variant.converters.avro.VariantContextToVariantConverter;
 import org.opencb.commons.run.ParallelTaskRunner;
 
@@ -294,15 +299,14 @@ public class VariantContextToVariantConverterTest {
         reader.close();
         writer.close();
 
-        VcfHeader avroHeader = new VCFHeaderToAvroVcfHeaderConverter().convert(fileHeader);
-        VariantFileMetadata fileMetadata = new VariantFileMetadata(
-                fileId, studyId, fileName, studyName, fileHeader.getSampleNamesInOrder(),
-                Aggregation.NONE, null, new HashMap<>(), avroHeader);
+        VariantFileHeader variantFileHeader = new VCFHeaderToVariantFileHeaderConverter().convert(fileHeader);
+        VariantFileMetadata fileMetadata = new VariantFileMetadata(fileId, fileName, fileHeader.getSampleNamesInOrder(),
+                null, variantFileHeader, Collections.emptyMap());
         System.out.println(fileMetadata.toString());
         FileOutputStream metaOutputStream = new FileOutputStream(metaOutputPath.toFile());
         DatumWriter<VariantFileMetadata> fileMetaDatumWriter = new SpecificDatumWriter<>(VariantFileMetadata.class);
         DataFileWriter<VariantFileMetadata> fileMetaWriter = new DataFileWriter<>(fileMetaDatumWriter);
-        fileMetaWriter.create(VariantFileMetadata.getClassSchema(), metaOutputStream);
+        fileMetaWriter.create(org.opencb.biodata.models.variant.metadata.VariantFileMetadata.getClassSchema(), metaOutputStream);
         fileMetaWriter.append(fileMetadata);
         fileMetaWriter.close();
 

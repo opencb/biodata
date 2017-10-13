@@ -82,28 +82,6 @@ protocol Variants {
         union { null, VariantHardyWeinbergStats} hw = null;
     }
 
-    record VariantGlobalStats {
-
-        int numRecords;
-
-        int samplesCount;
-
-        int passCount;
-
-        int transitionsCount;
-
-        int transversionsCount;
-
-        double meanQuality;
-
-        map<int> variantTypeCounts;
-
-        map<int> chromosomeCounts;
-
-        map<int> consequenceTypesCount;
-
-    }
-
     record FileEntry {
         /**
          * Unique identifier of the source file.
@@ -330,41 +308,6 @@ protocol Variants {
          * Annotations of the genomic variation.
          */
         union { null, VariantAnnotation } annotation = null;
-    }
-
-    // delete
-    enum Aggregation {
-        NONE,
-        BASIC,
-        EVS,
-        EXAC
-    }
-
-    record VcfHeader {
-        string fileFormat;
-      //map<union { string, array<map<string> }>> meta; ??
-        map<array<union { string, map<string> }>> meta;
-    }
-
-    record VariantFileMetadata {
-        string fileId;
-
-        string studyId;
-
-        union { null, string } fileName = null;
-
-        union { null, string } studyName = null;
-
-        array<string> samples = [];
-
-        Aggregation aggregation;
-        //string aggregation;
-
-        union {null, VariantGlobalStats } stats;
-
-        map<union {string, VcfHeader}> metadata;
-
-        union {null, VcfHeader} header;
     }
 
 }

@@ -11,7 +11,6 @@ import org.opencb.biodata.models.variant.protobuf.VariantProto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -55,6 +54,10 @@ public class VariantBuilder {
     private static final EnumSet<VariantType> SV_TYPES;
     // Variant types where the reference is incomplete.
     private static final EnumSet<VariantType> INCOMPLETE_REFERENCE_TYPES;
+    protected static final String DUP_ALT_EXTENDED = "<DUP:";
+    protected static final String DEL_ALT_EXTENDED = "<DEL:";
+    protected static final String INV_ALT_EXTENDED = "<INV:";
+    protected static final String INS_ALT_EXTENDED = "<INS:";
 
     protected static Logger logger = LoggerFactory.getLogger(VariantBuilder.class);
 
@@ -104,7 +107,19 @@ public class VariantBuilder {
         this();
         this.variantString = variantString;
         if (variantString != null && !variantString.isEmpty()) {
-            String[] fields = variantString.split(":", -1);
+            String[] fields;
+            // Get last index of '<'. Start and end may use '<' for imprecise positions.
+            int idx = variantString.lastIndexOf("<");
+            if (idx >= 0) {
+                String[] split = variantString.substring(0, idx - 1).split(":", -1);
+                fields = new String[split.length + 1];
+                for (int i = 0; i < split.length; i++) {
+                    fields[i] = split[i];
+                }
+                fields[fields.length - 1] = variantString.substring(idx);
+            } else {
+                fields = variantString.split(":", -1);
+            }
             if (fields.length == 3) {
                 setChromosome(fields[0]);
                 parseAlternate(fields[2]);
@@ -627,18 +642,19 @@ public class VariantBuilder {
         }
 
         if (end == null) {
-            end = start + getLengthReference(reference, type, length, this) - 1;
+            end = start + inferLengthReference(reference, alternates.get(0), type, length) - 1;
         }
 
-        if (start > end && !(reference.isEmpty())) {
-            throw new IllegalArgumentException("End position must be greater than the start position for variant: "
-                    + toString());
-        }
         // Create and initialize StructuralVariation object if needed
         inferSV();
 
         if (length == null) {
             length = inferLength(reference, alternates.get(0), start, end, type);
+        }
+
+        if (start > end && !reference.isEmpty() && length != Variant.UNKNOWN_LENGTH) {
+            throw new IllegalArgumentException("End position must be greater than the start position for variant: "
+                    + toString());
         }
 
     }
@@ -659,20 +675,25 @@ public class VariantBuilder {
         }
     }
 
-    static Integer getLengthReference(String reference, VariantType type, Integer length) {
-        Objects.requireNonNull(length);
-        return getLengthReference(reference, type, length, null);
+    static Integer getLengthReference(String reference, VariantType type, int length) {
+        if (hasIncompleteReference(type)) {
+            return length;
+        } else {
+            return reference.length();
+        }
     }
 
-    private static Integer getLengthReference(String reference, VariantType type, @Nullable  Integer length, Object obj) {
-        if (hasIncompleteReference(type)) {
+    private Integer inferLengthReference(String reference, String alternate, VariantType type, Integer length) {
+        if (hasIncompleteReference(alternate, type)) {
             if (length == null) {
                 // Default length 1 for type NO_VARIATION
                 if (type == VariantType.NO_VARIATION) {
                     return 1;
+                } else if (type == VariantType.BREAKEND || type == VariantType.TRANSLOCATION) {
+                    return Variant.UNKNOWN_LENGTH;
                 } else {
 //                    return Variant.UNKNOWN_LENGTH;
-                    throw new IllegalArgumentException("Unknown end or length of the variant '" + obj + "', type '" + type + "'");
+                    throw new IllegalArgumentException("Unknown end or length of the variant '" + this + "', type '" + type + "'");
                 }
             } else {
                 return length;
@@ -713,16 +734,16 @@ public class VariantBuilder {
         if (Allele.wouldBeSymbolicAllele(alternateBytes)) {
             if (alternate.startsWith(CNV_PREFIX_ALT)) {
                 return VariantType.CNV;
-            } else if (alternate.equals(DUP_ALT) || alternate.equals(DUP_TANDEM_ALT)){
+            } else if (alternate.equals(DUP_ALT) || alternate.startsWith(DUP_ALT_EXTENDED)){
                 return VariantType.DUPLICATION;
-            } else if (alternate.equals(DEL_ALT)){
+            } else if (alternate.equals(DEL_ALT) || alternate.startsWith(DEL_ALT_EXTENDED)) {
                 return VariantType.DELETION;
-            } else if (alternate.equals(INV_ALT)){
+            } else if (alternate.equals(INV_ALT) || alternate.startsWith(INV_ALT_EXTENDED)) {
                 return VariantType.INVERSION;
-            } else if (alternate.equals(INS_ALT)){
+            } else if (alternate.equals(INS_ALT) || alternate.startsWith(INS_ALT_EXTENDED)) {
                 return VariantType.INSERTION;
             } else if (alternate.contains("[") || alternate.contains("]")  // mated breakend
-                    || alternateBytes[0] == '.' || alternateBytes[alternateBytes.length - 1] == '.')  { // single breakend
+                    || alternateBytes[0] == '.' || alternateBytes[alternateBytes.length - 1] == '.') { // single breakend
                 return VariantType.BREAKEND;
             } else {
                 return VariantType.SYMBOLIC;
@@ -861,6 +882,14 @@ public class VariantBuilder {
 
     public static boolean isSV(VariantType type) {
         return SV_TYPES.contains(type);
+    }
+
+    public static boolean hasIncompleteReference(String alternate, VariantType type) {
+        if (alternate != null) {
+            return Allele.wouldBeSymbolicAllele(alternate.getBytes()) && hasIncompleteReference(type);
+        } else {
+            return hasIncompleteReference(type);
+        }
     }
 
     public static boolean hasIncompleteReference(VariantType type) {

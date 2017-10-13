@@ -35,7 +35,7 @@ import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.protobuf.VcfTabixProto.VcfRecord;
 import org.opencb.biodata.models.variant.protobuf.VcfTabixProto.VcfRecord.Builder;
 import org.opencb.biodata.models.variant.protobuf.VcfTabixProto.VcfSample;
-import org.opencb.biodata.tools.variant.converters.Converter;
+import org.opencb.biodata.tools.Converter;
 
 /**
  * @author Matthias Haimel mh719+git@cam.ac.uk

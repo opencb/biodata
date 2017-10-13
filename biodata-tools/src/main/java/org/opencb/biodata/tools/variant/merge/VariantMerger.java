@@ -34,6 +34,8 @@ import org.opencb.biodata.models.variant.VariantBuilder;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.VariantType;
+import org.opencb.biodata.models.variant.metadata.VariantFileHeader;
+import org.opencb.biodata.tools.variant.VariantNormalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -230,6 +232,11 @@ public class VariantMerger {
 
     public VariantMerger configure(String key, VCFHeaderLineCount number, VCFHeaderLineType type) {
         rearrangerConf.configure(key, number, type);
+        return this;
+    }
+
+    public VariantMerger configure(VariantFileHeader header) {
+        rearrangerConf.configure(header);
         return this;
     }
 

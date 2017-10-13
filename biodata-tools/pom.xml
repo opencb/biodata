@@ -53,6 +53,10 @@
             <artifactId>rocksdbjni</artifactId>
             <version>4.5.1</version>
         </dependency>
+        <!--<dependency>-->
+            <!--<groupId>igv</groupId>-->
+            <!--<artifactId>igv</artifactId>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.opencb.biodata</groupId>
             <artifactId>biodata-models</artifactId>

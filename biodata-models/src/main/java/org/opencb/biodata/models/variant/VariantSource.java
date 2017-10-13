@@ -21,33 +21,38 @@ package org.opencb.biodata.models.variant;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.opencb.biodata.models.pedigree.Pedigree;
-import org.opencb.biodata.models.variant.avro.VariantFileMetadata;
-import org.opencb.biodata.models.variant.avro.VcfHeader;
-import org.opencb.biodata.models.variant.stats.VariantGlobalStats;
+import org.opencb.biodata.models.variant.avro.legacy.VcfHeader;
+import org.opencb.biodata.models.variant.stats.VariantSetStats;
 
 import java.util.*;
 
 
 /**
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
+ * @deprecated Use {@link org.opencb.biodata.models.variant.VariantFileMetadata}
  */
+@Deprecated
 @JsonIgnoreProperties({"impl", "samplesPosition", "type"})
 public class VariantSource {
 
-    private final VariantFileMetadata impl;
+    private final org.opencb.biodata.models.variant.avro.legacy.VariantSource impl;
     private volatile LinkedHashMap<String, Integer> samplesPosition;
 
+    /**
+     * @deprecated Use {@link org.opencb.biodata.models.variant.metadata.Aggregation}
+     */
+    @Deprecated
     public enum Aggregation { NONE, BASIC, EVS, EXAC;
         public static boolean isAggregated(Aggregation agg) {return !NONE.equals(agg);}
     }
 
     VariantSource() {
-        impl = new VariantFileMetadata();
+        impl = new org.opencb.biodata.models.variant.avro.legacy.VariantSource();
         samplesPosition = null;
     }
 
-    public VariantSource(VariantFileMetadata variantFileMetadata) {
-        impl = variantFileMetadata;
+    public VariantSource(org.opencb.biodata.models.variant.avro.legacy.VariantSource variantSource) {
+        impl = variantSource;
         samplesPosition = null;
     }
 
@@ -56,8 +61,7 @@ public class VariantSource {
     }
 
     public VariantSource(String fileName, String fileId, String studyId, String studyName, VariantStudy.StudyType type, Aggregation aggregation) {
-        impl = new VariantFileMetadata(fileId, studyId, fileName, studyName, new LinkedList<>(),
-                org.opencb.biodata.models.variant.avro.Aggregation.NONE, null, new HashMap<>(), null);
+        impl = new org.opencb.biodata.models.variant.avro.legacy.VariantSource(fileId, studyId, fileName, studyName, new LinkedList<>(), null, null, new HashMap<>(), null, null);
         samplesPosition = null;
     }
 
@@ -94,13 +98,10 @@ public class VariantSource {
     }
 
     public Aggregation getAggregation() {
-        return impl.getAggregation() == null ? null
-                : Aggregation.valueOf(impl.getAggregation().toString());
+        return Aggregation.NONE;
     }
 
     public void setAggregation(Aggregation aggregation) {
-        impl.setAggregation(aggregation == null ? null
-                : org.opencb.biodata.models.variant.avro.Aggregation.valueOf(aggregation.toString()));
     }
 
     public Map<String, Integer> getSamplesPosition() {
@@ -187,12 +188,13 @@ public class VariantSource {
 //        this.type = type;
     }
 
-    public VariantGlobalStats getStats() {
-        return impl.getStats() == null ? null : new VariantGlobalStats(impl.getStats());
+    public VariantSetStats getStats() {
+//        return impl.getStats() == null ? null : new VariantGlobalStats(impl.getStats());
+        return null;
     }
 
-    public void setStats(VariantGlobalStats stats) {
-        impl.setStats(stats == null ? null : stats.getImpl());
+    public void setStats(VariantSetStats stats) {
+//        impl.setStats(stats == null ? null : stats.getImpl());
     }
 
     public VcfHeader getHeader() {
@@ -203,7 +205,7 @@ public class VariantSource {
         impl.setHeader(value);
     }
 
-    public VariantFileMetadata getImpl() {
+    public org.opencb.biodata.models.variant.avro.legacy.VariantSource getImpl() {
         return impl;
     }
 

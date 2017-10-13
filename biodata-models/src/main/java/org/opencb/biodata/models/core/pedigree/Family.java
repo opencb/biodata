@@ -19,11 +19,13 @@
 
 package org.opencb.biodata.models.core.pedigree;
 
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
  * Created by imedina on 10/10/16.
  */
+@Deprecated
 public class Family {
 
     private String id;
@@ -34,16 +36,19 @@ public class Family {
     private Set<Individual> members;
 
     public Family() {
+        this(null, null, null);
     }
 
     public Family(String id) {
-        this.id = id;
+        this(id, null, null);
     }
 
     public Family(String id, Individual father, Individual mother) {
         this.id = id;
         this.father = father;
         this.mother = mother;
+        this.numGenerations = 0;
+        this.members = new LinkedHashSet<>();
     }
 
 
@@ -51,11 +56,14 @@ public class Family {
     public String toString() {
         final StringBuilder sb = new StringBuilder("Family{");
         sb.append("id='").append(id).append('\'');
-        sb.append(", father=").append(father);
-        sb.append(", mother=").append(mother);
+        sb.append(", father=").append(father != null ? father.getName() : "-");
+        sb.append(", mother=").append(mother != null ? mother.getName() : "-");
         sb.append(", numGenerations=").append(numGenerations);
-        sb.append(", members=").append(members);
-        sb.append('}');
+        sb.append(", members={");
+        if (members != null && members.size() > 0) {
+            members.forEach(m -> sb.append(m.getName()).append(", "));
+        }
+        sb.append("} }");
         return sb.toString();
     }
 

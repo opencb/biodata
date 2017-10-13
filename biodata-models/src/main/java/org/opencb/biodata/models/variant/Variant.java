@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.models.variant.avro.*;
 
+import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.*;
 
@@ -68,7 +69,8 @@ public class Variant implements Serializable, Comparable<Variant> {
     }
 
     public Variant(String chromosome, int position, String reference, String alternate) {
-        this(chromosome, position, position, reference, alternate, "+");
+        // Use null end, so the builder will infer the end position.
+        this(chromosome, position, null, reference, alternate, "+");
     }
 
     public Variant(String chromosome, int start, int end, String reference, String alternate) {
@@ -77,6 +79,12 @@ public class Variant implements Serializable, Comparable<Variant> {
 
     public Variant(String chromosome, int start, int end, String reference, String alternate, String strand) {
         this();
+        new VariantBuilder(chromosome, start, end, reference, alternate).setStrand(strand).build(this);
+    }
+
+    private Variant(String chromosome, int start, @Nullable Integer end, String reference, String alternate, String strand) {
+        this();
+        // Nullable end. The builder will infer the end (and length) if null.
         new VariantBuilder(chromosome, start, end, reference, alternate).setStrand(strand).build(this);
     }
 
@@ -347,9 +355,11 @@ public class Variant implements Serializable, Comparable<Variant> {
     public Map<String, StudyEntry> getStudiesMap() {
         if (impl.getStudies() != null) {
             if (studyEntries == null) {
-                studyEntries = new HashMap<>();
-                for (org.opencb.biodata.models.variant.avro.StudyEntry sourceEntry : impl.getStudies()) {
-                    studyEntries.put(sourceEntry.getStudyId(), new StudyEntry(sourceEntry));
+                studyEntries = new HashMap<>(impl.getStudies().size());
+            }
+            if (studyEntries.size() != impl.getStudies().size()) {
+                for (org.opencb.biodata.models.variant.avro.StudyEntry studyEntry : impl.getStudies()) {
+                    studyEntries.putIfAbsent(studyEntry.getStudyId(), new StudyEntry(studyEntry));
                 }
             }
             return Collections.unmodifiableMap(studyEntries);
@@ -381,16 +391,24 @@ public class Variant implements Serializable, Comparable<Variant> {
         if (impl.getStudies() == null) {
             impl.setStudies(new ArrayList<>());
         }
-        this.studyEntries.put(studyEntry.getStudyId(), studyEntry);
+        StudyEntry prevStudy = this.studyEntries.put(studyEntry.getStudyId(), studyEntry);
+        if (prevStudy != null) {
+            impl.getStudies().remove(prevStudy.getImpl());
+        }
         impl.getStudies().add(studyEntry.getImpl());
     }
 
+    @Deprecated
     public Iterable<String> getSampleNames(String studyId, String fileId) {
-        StudyEntry file = getSourceEntry(studyId, fileId);
-        if (file == null) {
+        return getSampleNames(studyId);
+    }
+
+    public List<String> getSampleNames(String studyId) {
+        StudyEntry studyEntry = getStudy(studyId);
+        if (studyEntry == null) {
             return null;
         }
-        return file.getSamplesName();
+        return studyEntry.getOrderedSamplesName();
     }
 
     public void transformToEnsemblFormat() {
@@ -472,6 +490,8 @@ public class Variant implements Serializable, Comparable<Variant> {
 //            } else {
 //                sb.append(getAlternate());
 //            }
+        } else if (sv != null && sv.getType() == StructuralVariantType.TANDEM_DUPLICATION) {
+            sb.append("<DUP:TANDEM>");
         } else {
             sb.append(getAlternate());
         }

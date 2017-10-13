@@ -20,10 +20,10 @@
 package org.opencb.biodata.tools.variant.converters.ga4gh;
 
 import ga4gh.Variants;
-import org.opencb.biodata.models.variant.VariantSource;
+import org.opencb.biodata.models.variant.VariantFileMetadata;
 import org.opencb.biodata.tools.variant.converters.ga4gh.factories.Ga4ghVariantFactory;
 import org.opencb.biodata.tools.variant.converters.ga4gh.factories.ProtoGa4GhVariantFactory;
-import org.opencb.biodata.tools.variant.converters.Converter;
+import org.opencb.biodata.tools.Converter;
 
 import java.util.*;
 
@@ -33,7 +33,7 @@ import java.util.*;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  * @author Jacobo Coll &lt;jacobo167@gmail.com&gt;
  */
-public class Ga4ghCallSetConverter<CS> implements Converter<VariantSource, List<CS>> {
+public class Ga4ghCallSetConverter<CS> implements Converter<VariantFileMetadata, List<CS>> {
 
     private final Ga4ghVariantFactory<?, ?, CS, ?, ?> factory;
 
@@ -50,8 +50,8 @@ public class Ga4ghCallSetConverter<CS> implements Converter<VariantSource, List<
     }
 
     @Override
-    public List<CS> convert(VariantSource source) {
-        return convert(source.getFileId(), source.getSamples());
+    public List<CS> convert(VariantFileMetadata fileMetadata) {
+        return convert(fileMetadata.getId(), fileMetadata.getSampleIds());
     }
 
     public List<CS> convert(List<String> variantSetIds, List<List<String>> callSets) {

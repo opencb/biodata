@@ -22,6 +22,7 @@ package org.opencb.biodata.models.core.pedigree;
 /**
  * Created by imedina on 10/10/16.
  */
+@Deprecated
 public class VariableField {
 
     private String id;

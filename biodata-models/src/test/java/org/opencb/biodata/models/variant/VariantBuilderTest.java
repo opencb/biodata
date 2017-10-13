@@ -26,11 +26,14 @@ public class VariantBuilderTest {
         map.put("1:1000-2000:<DEL>", new Variant("1", 1000, 2000, "", "<DEL>").setType(VariantType.DELETION).setSv(new StructuralVariation()));
         map.put("1:1000-1010:A:<DEL>", new Variant("1", 1000, 1010, "A", "<DEL>").setType(VariantType.DELETION).setSv(new StructuralVariation()).setLength(11));
         map.put("1:1000-1010:<DEL>", new Variant("1", 1000, 1010, "", "<DEL>").setType(VariantType.DELETION).setSv(new StructuralVariation()).setLength(11));
+        map.put("1:1000-1010:<DEL:ME:ALU>", new Variant("1", 1000, 1010, "", "<DEL:ME:ALU>").setType(VariantType.DELETION).setSv(new StructuralVariation()).setLength(11));
 //        map.put("1:1000:A:<DEL>", new Variant("1", 1000, 1000, "A", "<DEL>").setType(VariantType.DELETION).setSv(new StructuralVariation(1000, 1000, 1000, 1000, null, null, null, null)).setLength(Variant.UNKNOWN_LENGTH));
 //        map.put("1:1000:<DEL>", new Variant("1", 1000, 999, "", "<DEL>").setType(VariantType.DELETION).setSv(new StructuralVariation(1000, 1000, 999, 999, null, null, null, null)).setLength(Variant.UNKNOWN_LENGTH));
         map.put("1:1000-2000:<CNV>", new Variant("1", 1000, 2000, "", "<CNV>").setType(VariantType.CNV).setSv(new StructuralVariation()));
         map.put("1:1000-2000:<CN0>", new Variant("1", 1000, 2000, "", "<CN0>").setType(VariantType.CNV).setSv(new StructuralVariation(null, null, null, null, 0, null, null, StructuralVariantType.COPY_NUMBER_LOSS)));
         map.put("1:1000-2000:<CN5>", new Variant("1", 1000, 2000, "", "<CN5>").setType(VariantType.CNV).setSv(new StructuralVariation(null, null, null, null, 5, null, null, StructuralVariantType.COPY_NUMBER_GAIN)));
+        map.put("1:1000-2000::<DUP:TANDEM>", new Variant("1", 1000, 2000, "", "<DUP>").setType(VariantType.DUPLICATION).setSv(new StructuralVariation(null, null, null, null, null, null, null, StructuralVariantType.TANDEM_DUPLICATION)));
+        map.put("1:1000-2000:<DUP:TANDEM>", new Variant("1", 1000, 2000, "", "<DUP>").setType(VariantType.DUPLICATION).setSv(new StructuralVariation(null, null, null, null, null, null, null, StructuralVariantType.TANDEM_DUPLICATION)));
         map.put("1:999<1000<1001-2000:<CN5>", new Variant("1", 1000, 2000, "", "<CN5>").setType(VariantType.CNV).setSv(new StructuralVariation(999, 1001, null, null, 5, null, null, StructuralVariantType.COPY_NUMBER_GAIN)));
         map.put("1:1000-1999<2000<2001:<CN5>", new Variant("1", 1000, 2000, "", "<CN5>").setType(VariantType.CNV).setSv(new StructuralVariation(null, null, 1999, 2001, 5, null, null, StructuralVariantType.COPY_NUMBER_GAIN)));
         map.put("1:999<1000<1001-1999<2000<2001:<CN5>", new Variant("1", 1000, 2000, "", "<CN5>").setType(VariantType.CNV).setSv(new StructuralVariation(999, 1001, 1999, 2001, 5, null, null, StructuralVariantType.COPY_NUMBER_GAIN)));
@@ -41,8 +44,8 @@ public class VariantBuilderTest {
         map.put("1:1000:ACACAC...", new Variant("1", 1000, 999, "", "<INS>").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.INSERTION).setSv(new StructuralVariation(null, null, null, null, null, "ACACAC", "", null)));
 
         for (Map.Entry<String, Variant> entry : map.entrySet()) {
-            String expected = entry.getKey().replace(":-:", ":").replace("chr", "");
-            String actual = entry.getValue().toString().replace(":-:", ":").replace("chr", "");
+            String expected = entry.getKey().replace(":-:", ":").replace("::", ":").replace("chr", "");
+            String actual = entry.getValue().toString().replace(":-:", ":");
 
             System.out.println("Original : " + entry.getKey() + " \t-->\t " + entry.getValue());
             assertEquals(expected, actual);
@@ -175,6 +178,28 @@ public class VariantBuilderTest {
 
     }
 
+    @Test
+    public void buildIndelVariantNoEnd() {
+        String ref = "CAAAAAAA";
+        Variant variant = new Variant("1", 100, ref, "C");
+        assertEquals(ref, variant.getReference());
+        assertEquals("C", variant.getAlternate());
+        assertEquals(VariantType.INDEL, variant.getType());
+        assertEquals(100, variant.getStart().intValue());
+        assertEquals(100 + ref.length() - 1, variant.getEnd().intValue());
+    }
+
+    @Test
+    public void buildIndelVariantNoEnd_large() {
+        String ref = RandomStringUtils.random(200, 'A', 'C', 'G', 'T');
+        Variant variant = new Variant("1", 100, ref, "-");
+        assertEquals(ref, variant.getReference());
+        assertEquals("", variant.getAlternate());
+        assertEquals(VariantType.DELETION, variant.getType());
+        assertEquals(100, variant.getStart().intValue());
+        assertEquals(100 + ref.length() - 1, variant.getEnd().intValue());
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void buildIncompleteSV() throws Exception {
         new VariantBuilder("1:1000:<DEL>").build();
@@ -183,5 +208,31 @@ public class VariantBuilderTest {
     @Test(expected = IllegalArgumentException.class)
     public void buildIncompleteSV_2() throws Exception {
         new VariantBuilder("1:1000:A:<DEL>").build();
+    }
+
+
+    @Test
+    public void buildBND1() {
+        Variant v1 = new Variant("1", 16877367, "A", "[chr4:17481913[T");
+        assertEquals(VariantType.BREAKEND, v1.getType());
+        assertEquals("A", v1.getReference());
+        assertEquals("[chr4:17481913[T", v1.getAlternate());
+        assertEquals(16877367, v1.getStart().intValue());
+        assertEquals(Variant.UNKNOWN_LENGTH, v1.getLength().intValue());
+        assertEquals(Variant.UNKNOWN_LENGTH, v1.getLengthReference().intValue());
+        assertEquals(Variant.UNKNOWN_LENGTH, v1.getLengthAlternate().intValue());
+    }
+
+    @Test
+    public void buildBND2() {
+        Variant v1 = new Variant("19", 172450, "", "A]2:10000]");
+        assertEquals(VariantType.BREAKEND, v1.getType());
+        assertEquals("", v1.getReference());
+        assertEquals("A]2:10000]", v1.getAlternate());
+        assertEquals(172450, v1.getStart().intValue());
+        assertEquals(172449, v1.getEnd().intValue());
+        assertEquals(Variant.UNKNOWN_LENGTH, v1.getLength().intValue());
+        assertEquals(Variant.UNKNOWN_LENGTH, v1.getLengthReference().intValue());
+        assertEquals(Variant.UNKNOWN_LENGTH, v1.getLengthAlternate().intValue());
     }
 }

@@ -1,0 +1,251 @@
+@namespace("org.opencb.biodata.models.variant.metadata")
+
+protocol VariantMetadataProtocol {
+
+    // we need import metadata.avdl
+    import idl "metadata.avdl";
+
+    /**
+    Some studies does not provide real samples information.
+    Instead, only aggregated data is provided as file attributes.
+    This field represents the schema of representing aggregated data (if any)
+    */
+    enum Aggregation {
+        /**
+        There is none aggregated data
+        */
+        NONE,
+        /**
+        Basic aggregated data
+        Attributes used:
+         - AC: Allele Count
+         - AN: Allele Number
+         - AF: Allele Frequency
+         - GTC: Genotype Count
+         - GTS: Genotypes Sort
+         The attributes may refere to different cohorts with a prefix or sufix
+        */
+        BASIC,
+        /**
+        EVS like aggregated data
+        Adds some attributes to the basic mode:
+          - GROUPS_ORDER: Used to specify the order of the comma separated values of cohorts in tags such as MAF.
+          - MAF: Minnor Allele Frequency for all the cohorts, ordered by GROUPS_ORDER
+        */
+        EVS,
+        /**
+        EXAC like aggregated data
+        Adds some attributes to the basic mode:
+          - HOM: Homozygous Counts
+          - HET: Heterozygous Counts
+        */
+        EXAC
+    }
+
+    record ChromosomeStats {
+        /** Number of variants within this chromosome */
+        int count;
+
+        /** Total density of variants within the chromosome. counts / chromosome.length */
+        float density;
+    }
+
+    /**
+     Counts the number of variants within a certain frequency range.
+    */
+    record VariantsByFrequency {
+        /** Inclusive frequency range start */
+        float startFrequency;
+
+        /** Exclusive frequency range end */
+        float endFrequency;
+
+        /** Number of variants with this frequency */
+        int count;
+    }
+
+    /**
+     Variant statistics for a set of variants.
+     The variants set can be contain a whole study, a cohort, a sample, a region, ...
+    */
+    record VariantSetStats {
+        /** Number of variants in the variants set */
+        int numVariants;
+
+        /** Number of samples in the variants set */
+        int numSamples;
+
+        /** Number of variants with PASS filter */
+        int numPass;
+
+        /** TiTvRatio = num. transitions / num. transversions */
+        float tiTvRatio;
+
+        /** Mean Quality for all the variants with quality */
+        float meanQuality;
+
+        /** Standard Deviation of the quality */
+        float stdDevQuality;
+
+        /**
+         array of elements to classify variants according to their 'rarity'
+         Typical frequency ranges:
+          - very rare     -> from 0 to 0.001
+          - rare          -> from 0.001 to 0.005
+          - low frequency -> from 0.005 to 0.05
+          - common        -> from 0.05
+        */
+        array<VariantsByFrequency> numRareVariants = [];
+
+        /** Variants count group by type. e.g. SNP, INDEL, MNP, SNV, ... */
+        map<int> variantTypeCounts = {};
+
+        /** Variants count group by biotype. e.g. protein-coding, miRNA, lncRNA, ... */
+        map<int> variantBiotypeCounts = {};
+
+        /** Variants count group by consequence type. e.g. synonymous_variant, missense_variant, stop_lost, ... */
+        map<int> consequenceTypesCounts = {};
+
+        /** Statistics per chromosome. */
+        map<ChromosomeStats> chromosomeStats = {};
+    }
+
+    record VariantFileHeaderComplexLine {
+        /** Key of group of the Complex Header Line, e.g. INFO, FORMAT, FILTER, ALT, ... */
+        string key;
+
+        /** ID or Name of the line */
+        string id;
+
+        /** The description */
+        union {null, string} description = null;
+
+        /**
+        Arity of the values associated with this metadata line.
+        Only present if the metadata line describes data fields, i.e. key == INFO or FORMAT
+        Accepted values:
+          - <Integer>: The field has always this number of values.
+          - A: The field has one value per alternate allele.
+          - R: The field has one value for each possible allele, including the reference.
+          - G: The field has one value for each possible genotype
+          - .: The number of possible values varies, is unknown or unbounded.
+        */
+        union {null, string} number = null;
+
+        /**
+        Type of the values associated with this metadata line.
+        Only present if the metadata line describes data fields, i.e. key == INFO or FORMAT
+        Accepted values:
+          - Integer
+          - Float
+          - String
+          - Character
+          - Flag
+        */
+        union {null, string} type = null;
+
+        /** Other optional fields */
+        map<string> genericFields = {};
+    }
+
+    record VariantFileHeaderSimpleLine {
+        /** Key of group of the Simple Header Line, e.g. source, assembly, pedigreeDB, ... */
+        string key;
+
+        /** Value */
+        string value;
+    }
+
+    /**
+    Variant File Header. Contains simple and complex metadata lines describing the content of the file.
+    This header matches with the VCF header.
+    A header may have multiple Simple or Complex lines with the same key
+    */
+    record VariantFileHeader {
+        string version;
+
+        /** complex lines, e.g. INFO=<ID=NS,Number=1,Type=Integer,Description="Number of samples with data"> */
+        array<VariantFileHeaderComplexLine> complexLines = [];
+
+        /** simple lines, e.g. fileDate=20090805 */
+        array<VariantFileHeaderSimpleLine> simpleLines = [];
+    }
+
+    record VariantFileMetadata {
+        /** File id. Will match with the {@link org.opencb.biodata.models.variant.avro.FileEntry#getFileId} */
+        string id;
+
+        /** Path to the original file */
+        union { null, string } path = null;
+
+        /** Ordered list of sample ids contained in the file */
+        array<string> sampleIds = [];
+
+        /** Global statistics calculated for this file */
+        union { null, VariantSetStats } stats = null;
+
+        /** The Variant File Header */
+        union { null, VariantFileHeader } header = null;
+
+        /** Other user defined attributes related with the file */
+        map<string> attributes = {};
+    }
+
+    record VariantStudyStats {
+        map<VariantSetStats> sampleStats = {};
+        map<VariantSetStats> cohortStats = {};
+    }
+
+    record VariantStudyMetadata {
+        /** Study id. Will match with the {@link org.opencb.biodata.models.variant.StudyEntry#getStudyId} */
+        string id;
+
+        /** Optional description */
+        union { null, string } description = null;
+
+        /**
+         Some studies does not provide real samples information.
+         Instead, only aggregated data is provided as file attributes.
+         This field represents the schema of representing aggregated data (if any)
+         */
+        Aggregation aggregation = "NONE";
+
+        /** Aggregation of all the file headers from this study */
+        union {null, VariantFileHeader} aggregatedHeader = null;
+
+        /** Metadata from all the files contained in this study */
+        array<VariantFileMetadata> files = [];
+
+        /** Metadata from all the individuals and samples in this study */
+        array<org.opencb.biodata.models.metadata.Individual> individuals = [];
+
+        /** Metadata from with all the cohorts defined in this study */
+        array<org.opencb.biodata.models.metadata.Cohort> cohorts = [];
+
+        /** Type of sample set. Defines the type of the study. */
+        org.opencb.biodata.models.metadata.SampleSetType sampleSetType;
+
+        /** Samples and Cohort global statistics */
+        union { null, VariantStudyStats } stats = null;
+
+        /** Other user defined attributes related with the study */
+        map<string> attributes = {};
+    }
+
+    record VariantMetadata {
+        /** Data model version */
+        string version = "v1.0.0";
+
+        /** Species information. Same species and assembly for all the studies */
+        union { null, org.opencb.biodata.models.metadata.Species } species = null;
+
+        /** Creation date */
+        union { null, string } creationDate = null;
+
+        /** Optional description */
+        union { null, string } description = null;
+
+        /** List of studies within this set of data */
+        array<VariantStudyMetadata> studies = [];
+    }
+}

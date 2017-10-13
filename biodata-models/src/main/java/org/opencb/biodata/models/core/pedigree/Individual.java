@@ -26,153 +26,167 @@ import java.util.Set;
  * Created by imedina on 10/10/16.
  */
 public class Individual {
+    private String name;
 
-    private String id;
-    private String family;
     private Individual father;
     private Individual mother;
-    private Individual partner;
+    private Multiples multiples;
+
     private Sex sex;
-    private Phenotype phenotype;
-    private Map<String, Object> variables;
-    private Set<Individual> children;
+    private LifeStatus lifeStatus;
+    private AffectionStatus affectionStatus;
+    //private List<OntologyTerm> ontologyTerms;
+    //private List<Sample> samples;
+
+    private Map<String, Object> attributes;
 
     public enum Sex {
-        MALE,
-        FEMALE,
-        UNKNOWN_SEX
+        MALE(1),
+        FEMALE(2),
+        UNKNOWN(0);
+
+        private int value;
+        Sex(int value) {
+            this.value = value;
+        }
+        public int getValue() {
+            return value;
+        }
+
+        public static Sex getEnum(String value) {
+            switch (value) {
+                case "1":
+                case "MALE":
+                    return MALE;
+                case "2":
+                case "FEMALE":
+                    return FEMALE;
+                default:
+                    return UNKNOWN;
+            }
+        }
     }
 
-    public enum Phenotype {
-        MISSING,
-        AFFECTED,
-        UNAFFECTED
+    public enum AffectionStatus {
+        UNKNOWN(0),
+        UNAFFECTED(1),
+        AFFECTED(2);
+
+        private int value;
+        AffectionStatus(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public static AffectionStatus getEnum(String value) {
+            switch (value) {
+                case "1":
+                case "UNAFFECTED":
+                    return UNAFFECTED;
+                case "2":
+                case "AFFECTED":
+                    return AFFECTED;
+                default:
+                    return UNKNOWN;
+            }
+        }
     }
 
+    public enum LifeStatus {
+        ALIVE, ABORTED, DECEASED, UNBORN, STILLBORN, MISCARRIAGE, UNKNOWN
+    }
 
+    /**
+     * Empty constructor.
+     */
     public Individual() {
     }
 
-    public Individual(String id, String family, Individual father, Individual mother, Sex sex, Phenotype phenotype) {
-        this.id = id;
-        this.family = family;
-        this.father = father;
-        this.mother = mother;
+    /**
+     * Constructor.
+     *
+     * @param name              Individual name
+     * @param sex               Individual sex
+     * @param affectionStatus   Individual affection status
+     */
+    public Individual(String name, Sex sex, AffectionStatus affectionStatus) {
+        this.name = name;
         this.sex = sex;
-        this.phenotype = phenotype;
-
+        this.affectionStatus = affectionStatus;
     }
 
-    public Individual(String id, String family, Individual father, Individual mother, Sex sex, Phenotype phenotype,
-                      Map<String, Object>  variables) {
-        this(id, family, father, mother, sex, phenotype);
-        this.variables = variables;
+    public String getName() {
+        return name;
     }
 
-    public Individual(String id, String family, Individual father, Individual mother, Individual partner, Sex sex, Phenotype phenotype,
-                      Map<String, Object> variables, Set<Individual> children) {
-        this(id, family, father, mother, sex, phenotype, variables);
-        this.partner = partner;
-        this.children = children;
-    }
-
-
-
-
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("Individual{");
-        sb.append("id='").append(id).append('\'');
-        sb.append(", family='").append(family).append('\'');
-        sb.append(", father=").append(father);
-        sb.append(", mother=").append(mother);
-        sb.append(", partner=").append(partner);
-        sb.append(", sex=").append(sex);
-        sb.append(", phenotype=").append(phenotype);
-        sb.append(", variables=").append(variables);
-        sb.append(", children=").append(children);
-        sb.append('}');
-        return sb.toString();
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public Individual setId(String id) {
-        this.id = id;
-        return this;
-    }
-
-    public String getFamily() {
-        return family;
-    }
-
-    public Individual setFamily(String family) {
-        this.family = family;
-        return this;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Individual getFather() {
         return father;
     }
 
-    public Individual setFather(Individual father) {
+    public void setFather(Individual father) {
         this.father = father;
-        return this;
     }
 
     public Individual getMother() {
         return mother;
     }
 
-    public Individual setMother(Individual mother) {
+    public void setMother(Individual mother) {
         this.mother = mother;
-        return this;
     }
 
-    public Individual getPartner() {
-        return partner;
+    public Multiples getMultiples() {
+        return multiples;
     }
 
-    public Individual setPartner(Individual partner) {
-        this.partner = partner;
-        return this;
+    public void setMultiples(Multiples multiples) {
+        this.multiples = multiples;
     }
 
     public Sex getSex() {
         return sex;
     }
 
-    public Individual setSex(Sex sex) {
+    public void setSex(Sex sex) {
         this.sex = sex;
-        return this;
     }
 
-    public Phenotype getPhenotype() {
-        return phenotype;
+    public void setSex(String sex){
+        setSex(Individual.Sex.getEnum(sex));
     }
 
-    public Individual setPhenotype(Phenotype phenotype) {
-        this.phenotype = phenotype;
-        return this;
+    public LifeStatus getLifeStatus() {
+        return lifeStatus;
     }
 
-    public Map<String, Object> getVariables() {
-        return variables;
+    public void setLifeStatus(LifeStatus lifeStatus) {
+        this.lifeStatus = lifeStatus;
     }
 
-    public Individual setVariables(Map<String, Object> variables) {
-        this.variables = variables;
-        return this;
+    public AffectionStatus getAffectionStatus() {
+        return affectionStatus;
     }
 
-    public Set<Individual> getChildren() {
-        return children;
+    public void setAffectionStatus(AffectionStatus affectionStatus) {
+        this.affectionStatus = affectionStatus;
     }
 
-    public Individual setChildren(Set<Individual> children) {
-        this.children = children;
-        return this;
+    public void setAffectionStatus(String affectionStatus){
+        setAffectionStatus(Individual.AffectionStatus.getEnum(affectionStatus));
+    }
+
+    public Map<String, Object> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(Map<String, Object> attributes) {
+        this.attributes = attributes;
     }
 }

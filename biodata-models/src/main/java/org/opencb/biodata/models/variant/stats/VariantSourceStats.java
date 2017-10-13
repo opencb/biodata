@@ -33,12 +33,13 @@ import org.slf4j.LoggerFactory;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  * @author Jose Miguel Mut Lopez &lt;jmmut@ebi.ac.uk&gt;
  */
+@Deprecated
 public class VariantSourceStats {
 
     private final String fileId;
     private final String studyId;
     private List<String> sampleNames;
-    private VariantGlobalStats fileStats;
+    private VariantSetStats fileStats;
     private Map<String, VariantSingleSampleStats> samplesStats;
 
     VariantSourceStats() {
@@ -49,7 +50,7 @@ public class VariantSourceStats {
         this.fileId = fileId;
         this.studyId = studyId;
         this.sampleNames = new ArrayList<>();
-        this.fileStats = new VariantGlobalStats();
+        this.fileStats = new VariantSetStats();
         this.samplesStats = new LinkedHashMap<>();
     }
 
@@ -59,14 +60,14 @@ public class VariantSourceStats {
 
     public void setSampleNames(List<String> sampleNames) {
         this.sampleNames = sampleNames;
-        fileStats.setSamplesCount(sampleNames.size());
+        fileStats.setNumSamples(sampleNames.size());
     }
 
-    public VariantGlobalStats getFileStats() {
+    public VariantSetStats getFileStats() {
         return fileStats;
     }
 
-    public void setFileStats(VariantGlobalStats fileStats) {
+    public void setFileStats(VariantSetStats fileStats) {
         this.fileStats = fileStats;
     }
 
