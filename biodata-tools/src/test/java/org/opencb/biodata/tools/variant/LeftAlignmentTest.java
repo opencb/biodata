@@ -314,6 +314,7 @@ public class LeftAlignmentTest  extends VariantNormalizerGenericTest{
         Output: the same as input after left and right trimming, any of these variants is normalized as the sequence of Ns is reached
          */
         this.normalizer.enableLeftAlign(this.referenceGenomeUncompressed.toString());
+        this.normalizer.setAcceptAmbiguousBasesInReference(false);
         // right trimming C + failed left alignment as N is reached
         testSampleNormalization("10", 10000, "CTAACCC", "C", 10000, 10005, "CTAACC", "");
         // right trimming C + failed left alignment as N is reached
@@ -398,6 +399,7 @@ public class LeftAlignmentTest  extends VariantNormalizerGenericTest{
         Output: the same as input after left and right trimming, any of these variants is normalized as the sequence of Ns is reached
          */
         this.normalizer.enableLeftAlign(this.referenceGenomeUncompressed.toString());
+        this.normalizer.setAcceptAmbiguousBasesInReference(false);
         // right trimming C + failed left alignment as N is reached
         testSampleNormalization("10", 10001, "C", "CTAACCC", 10001, 10000, "", "CTAACC");
         // right trimming C + failed left alignment as N is reached

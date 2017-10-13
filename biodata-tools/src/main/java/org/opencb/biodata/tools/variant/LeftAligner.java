@@ -80,7 +80,7 @@ public class LeftAligner {
      * @return
      */
     static int getAlleleLength(String allele) {
-        return allele != null && !allele.equals("-")? allele.length() : 0;
+        return allele != null? allele.length() : 0;
     }
 
     /**
@@ -133,46 +133,44 @@ public class LeftAligner {
         private String chromosome;
         private SamtoolsFastaIndex referenceGenomeReader;
         private String sequence;
+        // Absolute position
+        private int position;
 
-        public LeftAlignmentWindow(
-                int windowStart, int windowEnd, String chromosome, SamtoolsFastaIndex referenceGenomeReader
+        LeftAlignmentWindow(int position, int offset, String chromosome, SamtoolsFastaIndex referenceGenomeReader) {
+            this(position - windowSize, position + offset + 1, chromosome, referenceGenomeReader, position);
+        }
+
+        LeftAlignmentWindow(
+                int windowStart, int windowEnd, String chromosome, SamtoolsFastaIndex referenceGenomeReader, int position
         ) {
             this.windowStart = windowStart;
             if (windowStart < 1) {
                 this.windowStart = 1;
             }
+            this.position = position;
             this.windowEnd = windowEnd;
             this.chromosome = chromosome;
             this.referenceGenomeReader = referenceGenomeReader;
             this.loadSequence();
         }
 
-        public int getWindowStart() {
-            return windowStart;
-        }
-
-        public int getWindowEnd() {
-            return windowEnd;
-        }
-
-        public int getWindowSize() {
-            return windowEnd - windowStart;
-        }
-
-        public String getSequence() {
+        String getSequence() {
             return sequence;
         }
 
-        public boolean isChromosomeExhausted() {
-            return this.windowStart == 1; //&& this.windowEnd == 1;
+        boolean isChromosomeExhausted() {
+            return this.position == 0;
+        }
+
+        boolean isWindowExhausted() {
+            return position == windowStart;
         }
 
         private void loadSequence() {
-
             this.sequence = this.referenceGenomeReader.query(this.chromosome, this.windowStart, this.windowEnd);
         }
 
-        public LeftAlignmentWindow slideWindow(int windowSize, int offset) {
+        LeftAlignmentWindow slideWindow(int windowSize, int offset) {
             windowEnd = windowStart + offset + 1;
             windowStart = windowStart - windowSize;
             if (windowStart < 1) {
@@ -182,22 +180,34 @@ public class LeftAligner {
             this.loadSequence();
             return this;
         }
+
+        char getBase() {
+            return isChromosomeExhausted() ? 'c' : getSequence().charAt(position - windowStart);
+        }
+
+        char slidePosition() {
+            if (isWindowExhausted()) {
+                slideWindow(windowSize, 0);
+            }
+            position--;
+            return getBase();
+        }
+
+        String getSequence(int start, int end) {
+            return sequence.substring(start - windowStart, end - windowStart + 1);
+        }
+
     }
 
     /**
      * Checks that a given reference matches the reference genome
      * @param reference
-     * @param lastReferenceBaseRelativePosition
-     * @param sequence
      * @return
      */
     private static boolean checkReferenceMatchGenome(
-            String reference, int lastReferenceBaseRelativePosition, String sequence) {
+            String reference, String expectedReference) {
 
-        return reference.equals(sequence.substring(
-                lastReferenceBaseRelativePosition - getAlleleLength(reference) + 1,
-                lastReferenceBaseRelativePosition + 1
-        ));
+        return reference.equals(expectedReference);
     }
 
     /**
@@ -217,156 +227,58 @@ public class LeftAligner {
 
         String reference = variant.getReference();
         String alternate = variant.getAlternate();
-        int referenceLength = this.getAlleleLength(reference);
-        int alternateLength = this.getAlleleLength(alternate);
-        int lastReferenceBasePosition = variant.getStart() + referenceLength - 1;
-        int lastAlternateBasePosition = variant.getStart() + alternateLength - 1;
+        int referenceLength = getAlleleLength(reference);
+        int alternateLength = getAlleleLength(alternate);
         boolean hasInsertion = referenceLength - alternateLength < 0;
         boolean hasDeletion = referenceLength - alternateLength > 0;
         boolean hasIndel = hasInsertion || hasDeletion;
+        String allele = referenceLength == 0 ? alternate : reference;
+        int alleleIndex = allele.length() - 1;
+
         // only left aligns indels
         if (hasIndel &&
                 isAlleleCorrect(reference, this.acceptAmbiguousBasesInReference) &&
                 isAlleleCorrect(alternate, this.acceptAmbiguousBasesInAlternate)) {
-            // TODO: check if left alignment is required to avoid reading from the reference genome always
-            // TODO: check if variant is at the beginning of the chromosome
-            // gets an analysis window from the reference genome
-            LeftAlignmentWindow alignmentWindow = new LeftAlignmentWindow(
-                    Math.min(lastAlternateBasePosition, lastReferenceBasePosition)
-                            - this.windowSize,
-                    Math.max(lastReferenceBasePosition, lastAlternateBasePosition),
-                    chromosome,
-                    referenceGenomeReader
-            );
-            String sequence = alignmentWindow.getSequence();
-            int lastReferenceBaseRelativePosition = lastReferenceBasePosition - alignmentWindow.getWindowStart();
-            char referenceBase = sequence.charAt(lastReferenceBaseRelativePosition);
+
+            LeftAlignmentWindow alignmentWindow = new LeftAlignmentWindow(variant.getStart() - 1, referenceLength, chromosome, referenceGenomeReader);
+            char referenceBase = alignmentWindow.getBase();
 
             // if reference bases do not match the reference genome skips left alignment
-            boolean referenceCoherent = checkReferenceMatchGenome(
-                    reference, lastReferenceBaseRelativePosition, sequence
-            );
+            boolean referenceCoherent = checkReferenceMatchGenome(reference, alignmentWindow.getSequence(variant.getStart(), variant.getEnd()));
             if (referenceCoherent) {
                 int skipped_positions = 0;
-                boolean applyLeftAlignment = false;
+                boolean applyLeftAlignment;
 
-                if (hasInsertion) {
-                    // points to the bases to check for left alignment
-                    // beware that relative positions are 0-based
-                    int lastAlternateBaseRelativePosition = alternateLength - 1;
-                    char alternateBase = alternate.charAt(lastAlternateBaseRelativePosition);
-                    // only left aligns if last bases of reference and alternate equal and they contain new bases
-                    while (lastReferenceBaseRelativePosition >= 0 &&
-                            referenceBase == alternateBase &&
-                            areValidBases(referenceBase, alternateBase)) {
+                char alleleBase = allele.charAt(alleleIndex);
+                while (referenceBase == alleleBase && areValidBases(referenceBase, alleleBase)) {
+                    skipped_positions++;
 
-                        // slides the window 1bp to the left
-                        skipped_positions++;
-                        lastReferenceBaseRelativePosition--;
-                        lastAlternateBaseRelativePosition--;
-
-                        // checks if chromosome is exhausted and ends
-                        boolean reachedFirstPosition = lastReferenceBaseRelativePosition < 0 &&
-                                alignmentWindow.isChromosomeExhausted();
-                        if (reachedFirstPosition) {
-                            break;
-                        }
-
-                        // checks if window is exhausted and reloads
-                        if (lastReferenceBaseRelativePosition < 0) {
-                            alignmentWindow = alignmentWindow.slideWindow(
-                                    this.windowSize, lastReferenceBaseRelativePosition
-                            );
-                            sequence = alignmentWindow.getSequence();
-                            lastReferenceBaseRelativePosition = alignmentWindow.getWindowSize() - 1;  // 0-based
-                        }
-
-                        // checks if alternate sequence is exhausted and reloads
-                        if (lastAlternateBaseRelativePosition < 0) {
-                            // reloads alternate sequence from the end
-                            lastAlternateBaseRelativePosition = alternateLength - 1;  // 0-based
-                        }
-
-                        referenceBase = sequence.charAt(lastReferenceBaseRelativePosition);
-                        alternateBase = alternate.charAt(lastAlternateBaseRelativePosition);
+                    referenceBase = alignmentWindow.slidePosition();
+                    alleleIndex--;
+                    if (alleleIndex < 0) {
+                        alleleIndex = allele.length() - 1;
                     }
-                    applyLeftAlignment = skipped_positions > 0 &&
-                            areValidBases(referenceBase, alternateBase);
-                            //&&
-                            //!alignmentWindow.isChromosomeExhausted();
-                    // sets the new coordinates
-                    if (applyLeftAlignment) {
-                        int positionInAlternate = alternateLength - (skipped_positions % alternateLength);
-                        if (positionInAlternate > 0) {
-                            variant.setAlternate(
-                                    alternate.substring(positionInAlternate) +
-                                            alternate.substring(0, positionInAlternate)
-                            );
-                        }
-                    }
+                    alleleBase = allele.charAt(alleleIndex);
 
-                } else if (hasDeletion) {
-                    // points to the bases to check for left alignment
-                    // beware that relative positions are 0-based
-                    int lastAlternateBaseRelativePosition = lastAlternateBasePosition - alignmentWindow.getWindowStart();
-                    char alternateBase = sequence.charAt(lastAlternateBaseRelativePosition);
-                    // only left aligns if last bases of reference and alternate equal and they contain new bases
-                    while (referenceBase == alternateBase &&
-                            areValidBases(referenceBase, alternateBase)) {
-
-                        // slides the window 1bp to the left
-                        skipped_positions++;
-                        lastAlternateBaseRelativePosition--;
-                        lastReferenceBaseRelativePosition--;
-
-                        // checks if chromosome is exhausted and ends
-                        boolean reachedFirstPosition = lastAlternateBaseRelativePosition < 0 &&
-                                alignmentWindow.isChromosomeExhausted();
-                        if (reachedFirstPosition) {
-                            break;
-                        }
-
-                        if (lastAlternateBaseRelativePosition < 0) {
-                            // window is exhausted
-                            alignmentWindow = alignmentWindow.slideWindow(
-                                    this.windowSize, lastReferenceBaseRelativePosition
-                            );
-                            sequence = alignmentWindow.getSequence();
-                            lastAlternateBaseRelativePosition = alignmentWindow.getWindowSize() - 1 - referenceLength;
-                            lastReferenceBaseRelativePosition = alignmentWindow.getWindowSize() - 1;
-                        }
-                        // reads the preceding bases if chromosome not exhausted
-                        referenceBase = sequence.charAt(lastReferenceBaseRelativePosition);
-                        alternateBase = sequence.charAt(lastAlternateBaseRelativePosition);
-                    }
-
-                    applyLeftAlignment = skipped_positions > 0 &&
-                            areValidBases(referenceBase, alternateBase);
-                            //&&
-                            //!alignmentWindow.isChromosomeExhausted();
-                    // sets the new alternate
-                    if (applyLeftAlignment) {
-                        // TODO: can't we just set alternate to ""???
-                        variant.setAlternate(
-                                alternateLength == 0 ?
-                                        "" :
-                                        sequence.substring(
-                                                lastAlternateBaseRelativePosition - alternateLength + 1,
-                                                lastAlternateBaseRelativePosition + 1
-                                        )
-                        );
+                    // checks if chromosome is exhausted and ends
+                    boolean reachedFirstPosition = alignmentWindow.isChromosomeExhausted();
+                    if (reachedFirstPosition) {
+                        break;
                     }
                 }
+                applyLeftAlignment = skipped_positions > 0 && areValidBases(referenceBase, alleleBase);
 
                 if (applyLeftAlignment) {
-                    variant.setReference(referenceLength == 0 ?
-                            "" :
-                            sequence.substring(
-                                    lastReferenceBaseRelativePosition - referenceLength + 1,
-                                    lastReferenceBaseRelativePosition + 1
-                            )
-                    );
-                    variant.setStart(variant.getStart() - skipped_positions);
+
+                    if (alleleIndex != allele.length() - 1) {
+                        allele = allele.substring(alleleIndex + 1) + allele.substring(0, alleleIndex + 1);
+                    }
+                    if (hasDeletion) {
+                        variant.setReference(allele);
+                    } else {
+                        variant.setAlternate(allele);
+                    }
+                    variant.setStart(alignmentWindow.position + 1);
                     variant.setEnd(variant.getStart() + referenceLength - 1);
                 }
             }
