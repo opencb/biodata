@@ -15,15 +15,15 @@ import java.util.Set;
 public class LeftAligner {
 
     private static final Set<Character> PRECISE_BASES =
-            new HashSet(Arrays.asList('a', 'c', 'g', 't', 'A', 'C', 'G', 'T'));
+            new HashSet<>(Arrays.asList('a', 'c', 'g', 't', 'A', 'C', 'G', 'T'));
     private static final Character N = 'N';
     private static final Set<Character> AMBIGUOUS_BASES =
-            new HashSet(Arrays.asList('M', 'R', 'W', 'S', 'Y', 'K', 'V', 'H', 'D', 'B'));
+            new HashSet<>(Arrays.asList('M', 'R', 'W', 'S', 'Y', 'K', 'V', 'H', 'D', 'B'));
     private final String[] acceptedExtensions = {".fa", ".fn", ".fasta"}; //, ".gz"};
     private SamtoolsFastaIndex referenceGenomeReader;
     private String referenceGenome;
     private int windowSize;
-    private boolean acceptAmbiguousBasesInReference = false;
+    private boolean acceptAmbiguousBasesInReference = true;
     private boolean acceptAmbiguousBasesInAlternate = false;
 
     public LeftAligner(String referenceGenome, int windowSize) throws FileNotFoundException {
@@ -90,10 +90,9 @@ public class LeftAligner {
      * @return
      */
     static boolean isValidBase(char base, boolean acceptAmbiguous) {
-        boolean isValidBase = false;
-        isValidBase |= PRECISE_BASES.contains(base);
+        boolean isValidBase = PRECISE_BASES.contains(base);
         if (!isValidBase && acceptAmbiguous) {
-            isValidBase |= N.equals(base) || AMBIGUOUS_BASES.contains(base);
+            isValidBase = N.equals(base) || AMBIGUOUS_BASES.contains(base);
         }
         return isValidBase;
     }
@@ -105,8 +104,8 @@ public class LeftAligner {
      * @return
      */
     private boolean areValidBases(char referenceBase, char alternateBase) {
-        return isValidBase(referenceBase, this.acceptAmbiguousBasesInReference) &&
-                isValidBase(alternateBase, this.acceptAmbiguousBasesInAlternate);
+        return isValidBase(referenceBase, this.acceptAmbiguousBasesInReference)
+                && isValidBase(alternateBase, this.acceptAmbiguousBasesInAlternate);
     }
 
     /**
@@ -115,17 +114,14 @@ public class LeftAligner {
      * @return
      */
     private boolean isAlleleCorrect(String allele, boolean acceptAmbiguousBases) {
-
-        boolean isCorrect = true;
-        if (!StringUtils.isEmpty(allele)) {
+        if (StringUtils.isNotEmpty(allele)) {
             for (char base : allele.toCharArray()) {
-                isCorrect = isCorrect && isValidBase(base, acceptAmbiguousBases);
-                if (!isCorrect) {
-                    return isCorrect;
+                if (!isValidBase(base, acceptAmbiguousBases)) {
+                    return false;
                 }
             }
         }
-        return isCorrect;
+        return true;
     }
 
     /**

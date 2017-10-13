@@ -60,7 +60,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass().toString());
 
-    public class VariantNormalizerConfig {
+    public static class VariantNormalizerConfig {
 
         private boolean reuseVariants = true;
         private boolean normalizeAlleles = false;
@@ -74,7 +74,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
         public VariantNormalizerConfig(){}
 
-        public boolean isReuseVariants() {
+        boolean isReuseVariants() {
             return reuseVariants;
         }
 
@@ -249,6 +249,10 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
     public VariantNormalizer configure(String key, VCFHeaderLineCount number, VCFHeaderLineType type) {
         rearrangerConf.configure(key, number, type);
         return this;
+    }
+
+    public VariantNormalizerConfig getConfig() {
+        return config;
     }
 
     @Override

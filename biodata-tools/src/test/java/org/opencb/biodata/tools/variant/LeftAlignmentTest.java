@@ -2,6 +2,9 @@ package org.opencb.biodata.tools.variant;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.opencb.biodata.models.variant.StudyEntry;
+import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 
 import java.io.FileNotFoundException;
@@ -9,6 +12,8 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -729,11 +734,12 @@ public class LeftAlignmentTest  extends VariantNormalizerGenericTest{
         this.normalizer.setGenerateReferenceBlocks(false);
 
         // Ambiguous bases found in the reference
-        testSampleNormalization("3", 8, "C", "CCTCC", 8, 7, "", "CCTC");
-        this.normalizer.setAcceptAmbiguousBasesInReference(true);
         testSampleNormalization("3", 8, "C", "CCTCC", 5, 4, "", "CTCC");
         this.normalizer.setAcceptAmbiguousBasesInReference(false);
         testSampleNormalization("3", 8, "C", "CCTCC", 8, 7, "", "CCTC");
+        this.normalizer.setAcceptAmbiguousBasesInReference(true);
+        testSampleNormalization("3", 8, "C", "CCTCC", 5, 4, "", "CTCC");
+
 
         // Ambiguous codes in the alternate
         // N and W are ambiguous IUPAC codes
@@ -960,6 +966,40 @@ public class LeftAlignmentTest  extends VariantNormalizerGenericTest{
         // tests left alignment disabled
         this.normalizer.disableLeftAlign();
         testSampleNormalization("5", 8, "C", "GCTCC", 8, 7, "", "GCTC");
+
+        // enables left alignment
+        this.normalizer.enableLeftAlign(trickyReference.toString());
+        this.normalizer.setGenerateReferenceBlocks(false);
+        testSampleNormalization("5", 8, "C", "GCTCC", 4, 3, "", "GCTC");
+    }
+
+    @Test
+    public void testLostGenotypes()
+            throws NonStandardCompliantSampleField, IOException, URISyntaxException {
+        /*
+        https://jira.extge.co.uk/browse/INTERP-2248
+         */
+
+        // tests left alignment disabled
+        this.normalizer.disableLeftAlign();
+        this.normalizer.setDecomposeMNVs(false);
+        Variant variant = Variant.newBuilder("2:110855123:GCAGGGGCCG:TCAGGGGCCA,TCAGGGGCCG")
+                .setStudyId("s").setFileId("f")
+                .setFormat("GT", "AD")
+                .addSample("S1", "0/0", "1,2,8")
+                .addSample("S2", "1/2", "3,4,8")
+                .addSample("S3", "2/2", "5,6,8")
+                .build();
+//        Variant variant = new Variant("2", 110855123, "GCAGGGGCCG", "TCAGGGGCCA,TCAGGGGCCG");
+//        new FileEntry();
+        //new StudyEntry()
+        //variant.setStudies();
+        List<Variant> normalizedVariants = this.normalizer.normalize(Collections.singletonList(variant), false);
+
+        for (Variant normalizedVariant : normalizedVariants) {
+            System.out.println("normalizedVariant.toJson() = " + normalizedVariant.toJson());
+        }
+        assertTrue(normalizedVariants.size() == 2);
 
         // enables left alignment
         this.normalizer.enableLeftAlign(trickyReference.toString());
