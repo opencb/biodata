@@ -308,8 +308,12 @@ public class Variant implements Serializable, Comparable<Variant> {
             // variant.sv.CiEndLeft, variant.sv.CiEndRight are initialized with the SECOND (mate) breakend start
             case BREAKEND:
                 Variant mate = parseMateBreakendFromAlternate(getAlternate());
-                setSv(new StructuralVariation(getStart(), getStart(), mate.getStart(), mate.getStart(), null,
-                        null, null, null));
+                if (mate != null) {
+                    setSv(new StructuralVariation(getStart(), getStart(), mate.getStart(), mate.getStart(), null,
+                            null, null, null));
+                } else {
+                    setSv(new StructuralVariation(getStart(), getStart(), null, null, null, null, null, null));
+                }
                 break;
             case CNV:
                 Integer copyNumber = getCopyNumberFromAlternate(this.getAlternate());
