@@ -430,13 +430,17 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                 // To deal with cases such as A>GT
                 boolean isMnv = (keyFields.getReference().length() > 1 && keyFields.getAlternate().length() >= 1)
                         || (keyFields.getAlternate().length() > 1 && keyFields.getReference().length() >= 1);
-                if (decomposeMNVs && isMnv) {
+                if (decomposeMNVs && isMnv && alternates.size() == 1) {
                     for (VariantKeyFields keyFields1 : decomposeMNVSingleVariants(keyFields)) {
                         keyFields1.numAllele = numAllelesIdx;
                         keyFields1.phaseSet = chromosome + ":" + position + ":" + reference + ":" + currentAlternate;
                         list.add(keyFields1);
                     }
                 } else {
+                    if (decomposeMNVs && isMnv) {
+                        logger.warn("Unable to decompose multiallelic with MNV variants -> "
+                                + chromosome + ":" + position + ":" + reference + ":" + String.join(",", alternates));
+                    }
                     keyFields.numAllele = numAllelesIdx;
                     list.add(keyFields);
                 }
