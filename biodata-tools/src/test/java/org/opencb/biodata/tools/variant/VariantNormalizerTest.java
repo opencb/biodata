@@ -168,15 +168,17 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
     @Test
     public void testNormalizeSamplesDataMNV2() throws NonStandardCompliantSampleField {
         normalizer.setDecomposeMNVs(true);
+        normalizer.setGenerateReferenceBlocks(false);
         Variant variant = newVariant(100, "ACTCGTA", "ATTCGA,ACTCCTA");
         variant.getStudies().get(0).addSampleData("S1", Collections.singletonList("0/0"));
         variant.getStudies().get(0).addSampleData("S2", Collections.singletonList("0/1"));
         variant.getStudies().get(0).addSampleData("S3", Collections.singletonList("0/2"));
-        System.out.println(variant.toJson());
-        thrown.expect(IllegalStateException.class);
-        thrown.expectMessage("Unable to resolve");
         List<Variant> variants = normalizer.apply(Collections.singletonList(variant));
-//
+
+        assertEquals(2, variants.size());
+        assertEquals("1:101:CTCGT:TTCG", variants.get(0).toString());
+        assertEquals("1:104:G:C", variants.get(1).toString());
+
 //        variants.forEach(System.out::println);
 //        variants.forEach((v) -> System.out.println(v.toJson()));
 //        assertEquals("1:101:C:T", variants.get(0).toString());

@@ -802,7 +802,7 @@ public class VariantMergerTest {
         var2.getStudy(VariantTestUtils.STUDY_ID).getSecondaryAlternates().add(new AlternateCoordinate("1", 10, 10, "A", "C", VariantType.SNV));
         Variant mergedVariant = checkMergeVariants(var1, var2, Arrays.asList("1:10:A:G", "1:10:A:C"), "2/3");
         StudyEntry studyEntry = mergedVariant.getStudies().get(0);
-        assertEquals("GT:DP:FT", studyEntry.getFormatAsString());
+        assertEquals("GT:DP", studyEntry.getFormatAsString());
         assertEquals("4", studyEntry.getSampleData("S01", "DP"));
         assertEquals("5", studyEntry.getSampleData("S02", "DP"));
     }
@@ -816,12 +816,12 @@ public class VariantMergerTest {
         var2.getStudy(VariantTestUtils.STUDY_ID).getSecondaryAlternates().add(new AlternateCoordinate("1", 10, 10, "A", "C", VariantType.SNV));
         Variant mergedVariant = checkMergeVariants(var1, var2, Arrays.asList("1:10:A:G", "1:10:A:C"), "2/3");
         StudyEntry studyEntry = mergedVariant.getStudies().get(0);
-        assertEquals("GT:DP:FT:GQ", studyEntry.getFormatAsString());
+        assertEquals("GT:DP:GQ", studyEntry.getFormatAsString());
         assertEquals("4", studyEntry.getSampleData("S01", "DP"));
-        assertEquals("PASS1", studyEntry.getSampleData("S01", "FT"));
+//        assertEquals("PASS1", studyEntry.getSampleData("S01", "FT"));
         assertEquals(".", studyEntry.getSampleData("S01", "GQ"));
         assertEquals(".", studyEntry.getSampleData("S02", "DP"));
-        assertEquals("PASS2", studyEntry.getSampleData("S02", "FT"));
+//        assertEquals("PASS2", studyEntry.getSampleData("S02", "FT"));
         assertEquals("0.2", studyEntry.getSampleData("S02", "GQ"));
     }
 
@@ -836,6 +836,20 @@ public class VariantMergerTest {
         assertEquals("MyFilter1", studyEntry.getSampleData("S01", "FT"));
         assertEquals("5", studyEntry.getSampleData("S02", "DP"));
         assertEquals("MyFilter2", studyEntry.getSampleData("S02", "FT"));
+    }
+
+    @Test
+    public void testMergeWithSecondaryWithOtherFormatsExtractFT() {
+        Variant var1 = VariantTestUtils.generateVariantWithFormat("1:10:A:T", "PASS1", 100F, "GT:DP:AD", "S01", "0/1", "4", "4,5");
+        Variant var2 = VariantTestUtils.generateVariantWithFormat("1:10:A:G,C", "PASS2", 100F, "GT:DP:XX", "S02", "1/2", "5", "value");
+        variantMerger.setExpectedFormats(Arrays.asList("GT", "DP", "AD", "FT"));
+        Variant mergedVariant = checkMergeVariants(var1, var2, Arrays.asList("1:10:A:G", "1:10:A:C"), "2/3");
+        StudyEntry studyEntry = mergedVariant.getStudies().get(0);
+        assertEquals("GT:DP:AD:FT", studyEntry.getFormatAsString());
+        assertEquals("4", studyEntry.getSampleData("S01", "DP"));
+        assertEquals("PASS1", studyEntry.getSampleData("S01", "FT"));
+        assertEquals("5", studyEntry.getSampleData("S02", "DP"));
+        assertEquals("PASS2", studyEntry.getSampleData("S02", "FT"));
     }
 
     @Test

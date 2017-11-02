@@ -557,55 +557,53 @@ public class VariantMetadataManager {
                     dest.setMother(src.getMother() != null ? src.getMother().getName() : null);
                     dest.setSex(src.getSex().toString());
                     dest.setPhenotype(src.getAffectionStatus().toString());
+                    Sample sample = null;
+                    // sanity check
+                    if (dest.getSamples() == null) {
+                        logger.warn("Loading pedigree, individual {} without samples: it will be added.", dest.getId());
+                        dest.setSamples(new ArrayList<>());
+                    }
+                    for (Sample s: dest.getSamples()) {
+                        if (s.getId().equals(dest.getId())) {
+                            sample = s;
+                            break;
+                        }
+                    }
+                    // sample not found, add as a new one
+                    if (sample == null) {
+                        sample = new Sample();
+                        sample.setId(dest.getId());
+                        sample.setAnnotations(new HashMap<>());
+
+                        dest.getSamples().add(sample);
+                    }
+
+                    if (sample.getAnnotations() == null) {
+                        sample.setAnnotations(new HashMap<>());
+                    }
+
+                    // Default annotation (attributes from Individual)
+                    sample.getAnnotations().put(INDIVIDUAL_ID, src.getName());
+                    sample.getAnnotations().put(INDIVIDUAL_FAMILY, pedigree.getName());
+                    if (src.getFather() != null) {
+                        sample.getAnnotations().put(INDIVIDUAL_FATHER, src.getFather().getName());
+                    }
+                    if (src.getMother() != null) {
+                        sample.getAnnotations().put(INDIVIDUAL_MOTHER, src.getMother().getName());
+                    }
+                    if (src.getSex() != null) {
+                        sample.getAnnotations().put(INDIVIDUAL_SEX, src.getSex().toString());
+                    }
+                    if (src.getAffectionStatus() != null) {
+                        sample.getAnnotations().put(INDIVIDUAL_PHENOTYPE, src.getAffectionStatus().toString());
+                    }
+
                     if (src.getAttributes() != null && src.getAttributes().size() > 0) {
-                        found = false;
-                        Sample sample = null;
-                        // sanity check
-                        if (dest.getSamples() == null) {
-                            logger.warn("Loading pedigree, individual {} without samples: it will be added.", dest.getId());
-                            dest.setSamples(new ArrayList<>());
-                        }
-                        for (int i = 0; i < dest.getSamples().size(); i++) {
-                            sample = dest.getSamples().get(i);
-                            if (sample.getId().equals(dest.getId())) {
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (found) {
-                            // sample found, add new attributes
-                            if (sample.getAnnotations() == null) {
-                                sample.setAnnotations(new HashMap<>());
-                            }
-                        } else {
-                            // sample not found, add as a new one
-                            sample = new Sample();
-                            sample.setId(dest.getId());
-                            sample.setAnnotations(new HashMap<>());
-                        }
-                        // Default annotation (attributes from Individual)
-                        sample.getAnnotations().put(INDIVIDUAL_ID, src.getName());
-                        sample.getAnnotations().put(INDIVIDUAL_FAMILY, pedigree.getName());
-                        if (src.getFather() != null) {
-                            sample.getAnnotations().put(INDIVIDUAL_FATHER, src.getFather().getName());
-                        }
-                        if (src.getMother() != null) {
-                            sample.getAnnotations().put(INDIVIDUAL_MOTHER, src.getMother().getName());
-                        }
-                        if (src.getSex() != null) {
-                            sample.getAnnotations().put(INDIVIDUAL_SEX, src.getSex().toString());
-                        }
-                        if (src.getAffectionStatus() != null) {
-                            sample.getAnnotations().put(INDIVIDUAL_PHENOTYPE, src.getAffectionStatus().toString());
-                        }
                         // Custom annotation
-                        for (String key: src.getAttributes().keySet()) {
+                        for (String key : src.getAttributes().keySet()) {
                             if (pedigree.getAttributes().get(key) != null) {
                                 sample.getAnnotations().put(key, src.getAttributes().get(key).toString());
                             }
-                        }
-                        if (!found) {
-                            dest.getSamples().add(sample);
                         }
                     }
                 } else {
@@ -763,7 +761,7 @@ public class VariantMetadataManager {
      * @throws IOException  IOException
      */
     public void save(Path filename) throws IOException {
-       save(filename, false);
+        save(filename, false);
     }
 
     /**
@@ -855,7 +853,7 @@ public class VariantMetadataManager {
                                 String s = sample.getAnnotations().getOrDefault(key, "");
                                 return Double.parseDouble(s) < Double.parseDouble(queryValue);
                             } catch (NumberFormatException e) {
-                               return false;
+                                return false;
                             }
                         });
                         break;

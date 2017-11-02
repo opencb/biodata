@@ -42,13 +42,13 @@ public class VariantBuilderTest {
         map.put("1:1000:ACACAC...GTGTGTGT", new Variant("1", 1000, 999, "", "<INS>").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.INSERTION).setSv(new StructuralVariation(null, null, null, null, null, "ACACAC", "GTGTGTGT", null)));
         map.put("1:1000:...GTGTGTGT", new Variant("1", 1000, 999, "", "<INS>").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.INSERTION).setSv(new StructuralVariation(null, null, null, null, null, "", "GTGTGTGT", null)));
         map.put("1:1000:ACACAC...", new Variant("1", 1000, 999, "", "<INS>").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.INSERTION).setSv(new StructuralVariation(null, null, null, null, null, "ACACAC", "", null)));
+        map.put("1:1000-999:A:A.", new Variant("1", 1000, 999, "A", "A.").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.BREAKEND).setSv(new StructuralVariation(null, null, null, null, null, null, null, null)));
 
         for (Map.Entry<String, Variant> entry : map.entrySet()) {
             String expected = entry.getKey().replace(":-:", ":").replace("::", ":").replace("chr", "");
             String actual = entry.getValue().toString().replace(":-:", ":");
 
             System.out.println("Original : " + entry.getKey() + " \t-->\t " + entry.getValue());
-            assertEquals(expected, actual);
             try {
                 assertEquals("Parsing \"" + entry.getKey() + "\"", entry.getValue(), new Variant(entry.getKey()));
             } catch (AssertionError e) {
@@ -56,6 +56,7 @@ public class VariantBuilderTest {
                 System.out.println("actual   : " + new Variant(entry.getKey()).toJson());
                 throw e;
             }
+            assertEquals(expected, actual);
         }
     }
 

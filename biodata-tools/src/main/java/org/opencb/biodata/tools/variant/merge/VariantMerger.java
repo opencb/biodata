@@ -472,9 +472,6 @@ public class VariantMerger {
      */
     private void mergeVariants(Variant current, List<Pair<Variant, List<AlternateCoordinate>>> varToAlts) {
         StudyEntry currentStudy = getStudy(current);
-        String defaultFilterValue = currentStudy.getFiles().isEmpty() ? getDefaultValue(getFilterKey())
-                : currentStudy.getFiles().get(0).getAttributes().getOrDefault(getAnnotationFilterKey(), getDefaultValue(getFilterKey()));
-        ensureFormat(currentStudy, getFilterKey(), defaultFilterValue);
 
         // Build ALT index
         List<AlternateCoordinate> altList = buildAltsList(current, varToAlts.stream()
@@ -496,7 +493,7 @@ public class VariantMerger {
                     .flatMap(Collection::stream)
                     .collect(Collectors.toSet());
             newFormatPositions = new HashMap<>(currentStudy.getFormatPositions());
-            newFormatPositions.putIfAbsent(getFilterKey(), newFormatPositions.size());
+//            newFormatPositions.putIfAbsent(getFilterKey(), newFormatPositions.size());
             for (String format : allFormats) {
                 newFormatPositions.putIfAbsent(format, newFormatPositions.size());
             }
@@ -529,11 +526,20 @@ public class VariantMerger {
             newSamplesPosition = new LinkedHashMap<>(expectedSamplesPosition);
         }
 
+        Integer newGtIdx = newFormatPositions.get(getGtKey());
+        Integer newFilterIdx = newFormatPositions.get(getFilterKey());
+
         // Create new Samples data
         List<List<String>> newSamplesData = newSamplesData(newSamplesPosition.size(), newFormatPositions);
         boolean[] alreadyMergedSamples = new boolean[newSamplesPosition.size()];
         // Copy current samples data into new samples data
         List<List<String>> currentSamplesData = currentStudy.getSamplesData();
+        // If FT is required, but missing in the input variant, get FILTER from the File Attributes.
+        String currentFilterValue = null;
+        if (!currentStudy.getFormatPositions().containsKey(getFilterKey()) && newFormatPositions.containsKey(getFilterKey())) {
+            currentFilterValue = currentStudy.getFiles().isEmpty() ? getDefaultValue(getFilterKey())
+                    : currentStudy.getFiles().get(0).getAttributes().getOrDefault(getAnnotationFilterKey(), getDefaultValue(getFilterKey()));
+        }
         int currentSampleIdx = 0;
         for (String sample : currentStudy.getOrderedSamplesName()) {
             List<String> currentSampleData = currentSamplesData.get(currentSampleIdx);
@@ -548,11 +554,12 @@ public class VariantMerger {
                 }
                 formatIdx++;
             }
+            // If FT is required, but missing in the input variant, add FILTER from the File Attributes.
+            if (newFilterIdx != null && currentFilterValue != null) {
+                newSampleData.set(newFilterIdx, currentFilterValue);
+            }
             currentSampleIdx++;
         }
-
-        Integer newGtIdx = newFormatPositions.get(getGtKey());
-        Integer newFilterIdx = newFormatPositions.get(getFilterKey());
 
         for (Pair<Variant, List<AlternateCoordinate>> e : varToAlts) {
             Variant other = e.getKey();
@@ -989,23 +996,6 @@ public class VariantMerger {
             return study;
         }
         return variant.getStudies().get(0);
-    }
-
-    /**
-     * Ensures that all the samples contains the required format value.
-     * @param studyEntry
-     * @param formatValue
-     * @param defaultValue
-     */
-    private void ensureFormat(StudyEntry studyEntry, String formatValue, String defaultValue) {
-        if (!studyEntry.getFormat().contains(formatValue)) {
-            studyEntry.addFormat(formatValue);
-            if (studyEntry.getSamplesData() != null && !studyEntry.getSamplesData().isEmpty()) {
-                for (String sampleName : studyEntry.getOrderedSamplesName()) {
-                    studyEntry.addSampleData(sampleName, getFilterKey(), defaultValue);
-                }
-            }
-        }
     }
 
     static boolean onSameVariant (Variant a, Variant b){

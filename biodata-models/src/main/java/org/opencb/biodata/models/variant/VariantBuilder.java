@@ -910,8 +910,10 @@ public class VariantBuilder {
                 // variant.sv.CiEndLeft, variant.sv.CiEndRight are initialized with the SECOND (mate) breakend start
                 case BREAKEND:
                     Variant mate = parseMateBreakendFromAlternate(alternates.get(0));
-                    sv.setCiEndLeft(mate.getStart());
-                    sv.setCiEndRight(mate.getEnd());
+                    if (mate != null) {
+                        sv.setCiEndLeft(mate.getStart());
+                        sv.setCiEndRight(mate.getEnd());
+                    }
                     break;
                 case DUPLICATION:
                     if (alternates.get(0).equals(DUP_TANDEM_ALT)) {
