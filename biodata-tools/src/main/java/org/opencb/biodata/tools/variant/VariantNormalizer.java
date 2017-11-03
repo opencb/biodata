@@ -19,6 +19,7 @@
 
 package org.opencb.biodata.tools.variant;
 
+import htsjdk.samtools.SAMException;
 import htsjdk.variant.vcf.*;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -47,6 +48,7 @@ import org.opencb.commons.run.ParallelTaskRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -61,63 +63,174 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass().toString());
 
-    private boolean reuseVariants = true;
-    private boolean normalizeAlleles = false;
-    private boolean decomposeMNVs = false;
-    private boolean generateReferenceBlocks = false;
+    public static class VariantNormalizerConfig {
+
+        private boolean reuseVariants = true;
+        private boolean normalizeAlleles = false;
+        private boolean decomposeMNVs = false;
+        private boolean generateReferenceBlocks = false;
+        private boolean leftAlign = false;
+        private LeftAligner leftAligner;
+        private int leftAlignmentWindowSize = 100;
+        private boolean acceptAmbiguousBasesInReference = false;
+        private boolean acceptAmbiguousBasesInAlternate = false;
+
+        public VariantNormalizerConfig(){}
+
+        boolean isReuseVariants() {
+            return reuseVariants;
+        }
+
+        public VariantNormalizerConfig setReuseVariants(boolean reuseVariants) {
+            this.reuseVariants = reuseVariants;
+            return this;
+        }
+
+        public boolean isNormalizeAlleles() {
+            return normalizeAlleles;
+        }
+
+        public boolean isDecomposeMNVs() {
+            return decomposeMNVs;
+        }
+
+        public VariantNormalizerConfig setDecomposeMNVs(boolean decomposeMNVs) {
+            this.decomposeMNVs = decomposeMNVs;
+            return this;
+        }
+
+        public VariantNormalizerConfig setNormalizeAlleles(boolean normalizeAlleles) {
+            this.normalizeAlleles = normalizeAlleles;
+            return this;
+        }
+
+        public boolean isGenerateReferenceBlocks() {
+            return generateReferenceBlocks;
+        }
+
+        public VariantNormalizerConfig setGenerateReferenceBlocks(boolean generateReferenceBlocks) {
+            this.generateReferenceBlocks = generateReferenceBlocks;
+            return this;
+        }
+
+        public boolean isLeftAlignEnabled() {
+            return leftAlign;
+        }
+
+        public VariantNormalizerConfig enableLeftAlign(String referenceGenome) throws FileNotFoundException {
+
+            this.leftAligner = new LeftAligner(referenceGenome, this.leftAlignmentWindowSize);
+            this.leftAlign = true;
+            return this;
+        }
+
+        public VariantNormalizerConfig disableLeftAlign() {
+
+            this.leftAligner = null;
+            this.leftAlign = false;
+            return this;
+        }
+
+        public LeftAligner getLeftAligner() {
+            return leftAligner;
+        }
+
+        public VariantNormalizerConfig setAcceptAmbiguousBasesInReference(boolean acceptAmbiguousBasesInReference) {
+
+            if (this.leftAligner == null) {
+                throw new IllegalArgumentException(
+                        "Cannot set 'accept ambiguous bases in reference' if left aligner is not configured"
+                );
+            }
+            this.acceptAmbiguousBasesInReference = acceptAmbiguousBasesInReference;
+            this.leftAligner.setAcceptAmbiguousBasesInReference(acceptAmbiguousBasesInReference);
+            return this;
+        }
+
+        public VariantNormalizerConfig setAcceptAmbiguousBasesInAlternate(boolean acceptAmbiguousBasesInAlternate) {
+
+            if (this.leftAligner == null) {
+                throw new IllegalArgumentException(
+                        "Cannot set 'accept ambiguous bases in alternate' if left aligner is not configured"
+                );
+            }
+            this.acceptAmbiguousBasesInAlternate = acceptAmbiguousBasesInAlternate;
+            this.leftAligner.setAcceptAmbiguousBasesInAlternate(acceptAmbiguousBasesInAlternate);
+            return this;
+        }
+
+    }
+
     private Map<Integer, int[]> genotypeReorderMapCache = new ConcurrentHashMap<>();
     private final VariantAlternateRearranger.Configuration rearrangerConf = new VariantAlternateRearranger.Configuration();
+    private VariantNormalizerConfig config = new VariantNormalizerConfig();
 
     public VariantNormalizer() {}
 
+    @Deprecated
     public VariantNormalizer(boolean reuseVariants) {
-        this.reuseVariants = reuseVariants;
+        this.config.setReuseVariants(reuseVariants);
     }
 
+    @Deprecated
     public VariantNormalizer(boolean reuseVariants, boolean normalizeAlleles) {
-        this.reuseVariants = reuseVariants;
-        this.normalizeAlleles = normalizeAlleles;
+        this.config.setReuseVariants(reuseVariants);
+        this.config.setNormalizeAlleles(normalizeAlleles);
     }
 
+    @Deprecated
     public VariantNormalizer(boolean reuseVariants, boolean normalizeAlleles, boolean decomposeMNVs) {
-        this.reuseVariants = reuseVariants;
-        this.normalizeAlleles = normalizeAlleles;
-        this.decomposeMNVs = decomposeMNVs;
+        this.config.setReuseVariants(reuseVariants);
+        this.config.setNormalizeAlleles(normalizeAlleles);
+        this.config.setDecomposeMNVs(decomposeMNVs);
     }
 
-    public boolean isReuseVariants() {
-        return reuseVariants;
+    public VariantNormalizer(VariantNormalizerConfig config) {
+        this.config = config;
     }
 
-    public VariantNormalizer setReuseVariants(boolean reuseVariants) {
-        this.reuseVariants = reuseVariants;
-        return this;
-    }
-
-    public boolean isNormalizeAlleles() {
-        return normalizeAlleles;
-    }
-
-    public boolean isDecomposeMNVs() {
-        return decomposeMNVs;
-    }
-
-    public VariantNormalizer setDecomposeMNVs(boolean decomposeMNVs) {
-        this.decomposeMNVs = decomposeMNVs;
+    public VariantNormalizer setGenerateReferenceBlocks(boolean generateReferenceBlocks) {
+        this.config.setGenerateReferenceBlocks(generateReferenceBlocks);
         return this;
     }
 
     public VariantNormalizer setNormalizeAlleles(boolean normalizeAlleles) {
-        this.normalizeAlleles = normalizeAlleles;
+        this.config.setNormalizeAlleles(normalizeAlleles);
         return this;
     }
 
-    public boolean isGenerateReferenceBlocks() {
-        return generateReferenceBlocks;
+    public VariantNormalizer setDecomposeMNVs(boolean decomposeMNVs) {
+        this.config.setDecomposeMNVs(decomposeMNVs);
+        return this;
     }
 
-    public VariantNormalizer setGenerateReferenceBlocks(boolean generateReferenceBlocks) {
-        this.generateReferenceBlocks = generateReferenceBlocks;
+    public VariantNormalizer setReuseVariants(boolean reuseVariants) {
+        this.config.setReuseVariants(reuseVariants);
+        return this;
+    }
+
+    public VariantNormalizer enableLeftAlign(String referenceGenome) throws FileNotFoundException {
+        this.config.enableLeftAlign(referenceGenome);
+        return this;
+    }
+
+    public VariantNormalizer setLeftAlignmentWindowSize(int windowSize) {
+        this.config.leftAlignmentWindowSize = windowSize;
+        return this;
+    }
+
+    public VariantNormalizer disableLeftAlign() {
+        this.config.disableLeftAlign();
+        return this;
+    }
+
+    public VariantNormalizer setAcceptAmbiguousBasesInReference(boolean acceptAmbiguousBasesInReference)  {
+        this.config.setAcceptAmbiguousBasesInReference(acceptAmbiguousBasesInReference);
+        return this;
+    }
+
+    public VariantNormalizer setAcceptAmbiguousBasesInAlternate(boolean acceptAmbiguousBasesInAlternate)  {
+        this.config.setAcceptAmbiguousBasesInAlternate(acceptAmbiguousBasesInAlternate);
         return this;
     }
 
@@ -146,10 +259,14 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         return this;
     }
 
+    public VariantNormalizerConfig getConfig() {
+            return config;
+    }
+
     @Override
     public List<Variant> apply(List<Variant> batch) {
         try {
-            return normalize(batch, reuseVariants);
+            return normalize(batch, this.config.isReuseVariants());
         } catch (NonStandardCompliantSampleField e) {
             throw new RuntimeException(e);
         }
@@ -427,7 +544,9 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         return normalize(chromosome, position, reference, Collections.singletonList(alternate));
     }
 
-    public List<VariantKeyFields> normalize(String chromosome, int position, String reference, List<String> alternates) {
+    public List<VariantKeyFields> normalize(String chromosome, int position, String reference, List<String> alternates)
+    {
+
         List<VariantKeyFields> list = new ArrayList<>(alternates.size());
         int numAllelesIdx = 0; // This index is necessary for getting the samples where the mutated allele is present
         for (Iterator<String> iterator = alternates.iterator(); iterator.hasNext(); numAllelesIdx++) {
@@ -436,26 +555,43 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             int alternateLen = currentAlternate.length();
 
             VariantKeyFields keyFields;
+            final boolean requireLeftAlignment;
+            // left and right trimming
             if (referenceLen == 0) {
+                requireLeftAlignment = this.config.isLeftAlignEnabled();
                 keyFields = createVariantsFromInsertionEmptyRef(position, currentAlternate);
             } else if (alternateLen == 0) {
+                requireLeftAlignment = this.config.isLeftAlignEnabled();
                 keyFields = createVariantsFromDeletionEmptyAlt(position, reference);
             } else {
                 keyFields = createVariantsFromNoEmptyRefAlt(position, reference, currentAlternate);
+                requireLeftAlignment = this.config.isLeftAlignEnabled() && requireLeftAlignment(reference, currentAlternate, keyFields);
             }
+
+            // left alignment
+            if (requireLeftAlignment) {
+                try {
+                    this.config.leftAligner.leftAlign(keyFields, chromosome);
+                }
+                catch (SAMException ex) {
+                    this.logger.warn(ex.getMessage());
+                }
+            }
+
             if (keyFields != null) {
 
                 // To deal with cases such as A>GT
                 boolean isMnv = (keyFields.getReference().length() > 1 && keyFields.getAlternate().length() >= 1)
                         || (keyFields.getAlternate().length() > 1 && keyFields.getReference().length() >= 1);
-                if (decomposeMNVs && isMnv && alternates.size() == 1) {
+                if (this.config.isDecomposeMNVs() && isMnv && alternates.size() == 1) {
+                    // decomposition of MNVs
                     for (VariantKeyFields keyFields1 : decomposeMNVSingleVariants(keyFields)) {
                         keyFields1.numAllele = numAllelesIdx;
                         keyFields1.phaseSet = chromosome + ":" + position + ":" + reference + ":" + currentAlternate;
                         list.add(keyFields1);
                     }
                 } else {
-                    if (decomposeMNVs && isMnv) {
+                    if (this.config.isDecomposeMNVs() && isMnv) {
                         logger.warn("Unable to decompose multiallelic with MNV variants -> "
                                 + chromosome + ":" + position + ":" + reference + ":" + String.join(",", alternates));
                     }
@@ -464,14 +600,44 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                 }
             }
         }
+        /*if (this.config.isLeftAlignEnabled()) {
+            list = leftAlign(list, chromosome);
+        }*/
 
-        if (generateReferenceBlocks) {
+        if (this.config.isGenerateReferenceBlocks()) {
             list = generateReferenceBlocks(list, position, reference);
         }
 
         // Sort by numAllele, then by start.
         list.sort(Comparator.comparingInt(VariantKeyFields::getNumAllele).thenComparingInt(VariantKeyFields::getStart));
         return list;
+    }
+
+    /**
+     * Only requires left alignment if after trimming reference or alternate are empty and before trimming either
+     * reference or alternate is empty or the bases from each of them are equal.
+     * This excludes from left alignment all non pure indels: non blocked substitutions, MNVs, etc.
+     * @param reference
+     * @param alternate
+     * @param keyFields
+     * @return
+     */
+    static boolean requireLeftAlignment(String reference, String alternate, VariantKeyFields keyFields) {
+        return (keyFields.getReference().isEmpty() || keyFields.getAlternate().isEmpty())
+                && requireLeftAlignment(reference, alternate);
+    }
+
+    /**
+     * Reference and alternate are either empty or last base from each is equal
+     * @param reference
+     * @param alternate
+     * @return
+     */
+    static boolean requireLeftAlignment(String reference, String alternate) {
+        return StringUtils.isEmpty(reference) ||
+                StringUtils.isEmpty(alternate) ||
+                reference.charAt(reference.length() - 1) ==
+                        alternate.charAt(alternate.length() - 1);
     }
 
     private List<VariantKeyFields> generateReferenceBlocks(List<VariantKeyFields> list, int position, String reference) {
@@ -879,7 +1045,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                         } else if (rearranger != null) {
                             genotype = rearranger.rearrangeGenotype(genotype);
                         }
-                        if (normalizeAlleles && !genotype.isPhased()) {
+                        if (this.config.isNormalizeAlleles() && !genotype.isPhased()) {
                             genotype.normalizeAllelesIdx();
                         }
                         sampleField = genotype.toString();

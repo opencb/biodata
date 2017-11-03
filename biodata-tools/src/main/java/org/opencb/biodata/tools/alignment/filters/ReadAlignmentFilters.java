@@ -51,6 +51,34 @@ public class ReadAlignmentFilters extends AlignmentFilters<ReadAlignment> {
     }
 
     @Override
+    public AlignmentFilters<ReadAlignment> addMaxNumberMismatchesFilter(int maxNumberMismatches) {
+        filters.add(readAlignment -> {
+            List<String> nmFields = readAlignment.getInfo().get("NM");
+            if (nmFields != null && nmFields.size() == 2) {
+                int nm = Integer.parseInt(nmFields.get(1));
+                return nm <= maxNumberMismatches;
+            } else {
+                return true;
+            }
+        });
+        return this;
+    }
+
+    @Override
+    public AlignmentFilters<ReadAlignment> addMaxNumberHitsFilter(int maxNumberHits) {
+        filters.add(readAlignment -> {
+            List<String> nhFields = readAlignment.getInfo().get("NH");
+            if (nhFields != null && nhFields.size() == 2) {
+                int nh = Integer.parseInt(nhFields.get(1));
+                return nh <= maxNumberHits;
+            } else {
+                return true;
+            }
+        });
+        return this;
+    }
+
+    @Override
     public AlignmentFilters<ReadAlignment> addProperlyPairedFilter() {
         filters.add(readAlignment -> !readAlignment.getImproperPlacement());
         return this;

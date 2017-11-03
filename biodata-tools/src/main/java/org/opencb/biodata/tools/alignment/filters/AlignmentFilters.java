@@ -57,6 +57,15 @@ public abstract class AlignmentFilters<T> extends CommonsFilters<T> {
 
     public abstract AlignmentFilters<T> addMappingQualityFilter(int mappingQuality);
 
+    /**
+     * Add a filter for reads with <= maxNumberMismatches, by default all are returned
+     * @param maxNumberMismatches Max number of mismatches allowed
+     * @return A filter for reads with <= maxNumberMismatches
+     */
+    public abstract AlignmentFilters<T> addMaxNumberMismatchesFilter(int maxNumberMismatches);
+
+    public abstract AlignmentFilters<T> addMaxNumberHitsFilter(int maxNumberHits);
+
     public abstract AlignmentFilters<T> addProperlyPairedFilter();
 
     public abstract AlignmentFilters<T> addUnmappedFilter();
