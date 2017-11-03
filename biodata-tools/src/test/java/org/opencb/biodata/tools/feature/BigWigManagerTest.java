@@ -19,13 +19,15 @@ import static org.junit.Assert.assertEquals;
  */
 public class BigWigManagerTest {
 
-    public void query(Path inputPath, String chrom, int start, int end) throws Exception {
+    public void query(Path inputPath, String chrom, int start, int end, boolean display) throws Exception {
         BigWigManager bigWigManager = new BigWigManager(inputPath);
         Region region = new Region(chrom, start, end);
         float[] coverage = bigWigManager.query(region);
 
-        for (float v: coverage) {
-            System.out.println((start++) + " :" + v);
+        if (display) {
+            for (float v : coverage) {
+                System.out.println((start++) + " :" + v);
+            }
         }
 
         assertEquals(region.getEnd() - region.getStart() + 1, coverage.length);
@@ -34,13 +36,39 @@ public class BigWigManagerTest {
     @Test
     public void query1() throws Exception {
         Path bwPath = Paths.get(getClass().getResource("/wigVarStepExampleSmallChr21.bw").toURI());
-        query(bwPath, "chr21", 9411190, 9411290);
+        query(bwPath, "chr21", 9411190, 9411290, true);
     }
 
     //@Test
     public void query2() throws Exception {
         Path bwPath = Paths.get("/tmp/test/HG00096.chrom20.small.bam.sort.bam.coverage.bw");
-        query(bwPath, "20", 60000, 60200);
+        query(bwPath, "20", 60000, 60200, true);
+    }
+
+    @Test
+    public void query3() throws Exception {
+        Path bwPath = Paths.get("/home/jtarraga/test/HG00096.mapped.illumina.exome.bam.1.sort.bam.coverage.bw");
+        query(bwPath, "18", 10000000, 100002000, false);
+    }
+
+
+    @Test
+    public void groupBy() throws Exception {
+        Path bwPath = Paths.get("/home/jtarraga/test/HG00096.mapped.illumina.exome.bam.1.sort.bam.coverage.bw");
+
+        String chrom = "2";
+        int start = 1000;
+        int end =   100000000;
+        int chunkSize = 1000;
+
+        BigWigManager bigWigManager = new BigWigManager(bwPath);
+        Region region = new Region(chrom, start, end);
+        List<Float> coverage = bigWigManager.groupBy(region, chunkSize);
+
+        for (int i = 0; i < coverage.size(); i++) {
+            System.out.println(i + " :" + coverage.get(i));
+        }
+//        assertEquals(region.getEnd() - region.getStart() + 1, coverage.length);
     }
 
     @Test

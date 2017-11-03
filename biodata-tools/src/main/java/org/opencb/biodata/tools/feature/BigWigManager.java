@@ -76,6 +76,29 @@ public class BigWigManager {
                 region.getChromosome(), region.getEnd(), true);
     }
 
+    public List<Float> groupBy(Region region, int windowSize) throws IOException {
+        BigWigIterator bigWigIterator = bbFileReader.getBigWigIterator(region.getChromosome(), region.getStart(),
+                region.getChromosome(), region.getEnd(), true);
+        int numChunks = (region.getEnd() - region.getStart()) / windowSize + 1;
+        List<Float> chunks = new ArrayList<>(numChunks);
+        float value = 0;
+        while (bigWigIterator.hasNext()) {
+            for (int i = 0; i < windowSize; i++) {
+                if (bigWigIterator.hasNext()) {
+                    value += bigWigIterator.next().getWigValue();
+                } else {
+                    chunks.add(value / i);
+                    break;
+                }
+            }
+            if (bigWigIterator.hasNext()) {
+                chunks.add(value / windowSize);
+                value = 0;
+            }
+        }
+        return chunks;
+    }
+
     /**
      * Index the entire Big Wig file content in a SQLite database.
      *
