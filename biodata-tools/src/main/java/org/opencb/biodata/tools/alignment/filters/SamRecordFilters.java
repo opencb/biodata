@@ -20,6 +20,7 @@
 package org.opencb.biodata.tools.alignment.filters;
 
 import htsjdk.samtools.SAMRecord;
+import htsjdk.samtools.SAMTag;
 import org.opencb.biodata.models.core.Region;
 
 import java.util.ArrayList;
@@ -46,6 +47,44 @@ public class SamRecordFilters extends AlignmentFilters<SAMRecord> {
     @Override
     public AlignmentFilters<SAMRecord> addMappingQualityFilter(int mappingQuality) {
         filters.add(samRecord -> samRecord.getMappingQuality() >= mappingQuality);
+        return this;
+    }
+
+    @Override
+    public AlignmentFilters<SAMRecord> addMaxNumberMismatchesFilter(int maxNumberMismatches) {
+        filters.add(samRecord -> {
+            Object nmAttribute = samRecord.getAttribute(SAMTag.NM.name());
+            if (nmAttribute != null) {
+                try {
+                    Integer nm = (Integer) nmAttribute;
+                    return nm <= maxNumberMismatches;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return true;
+                }
+            } else {
+                return true;
+            }
+        });
+        return this;
+    }
+
+    @Override
+    public AlignmentFilters<SAMRecord> addMaxNumberHitsFilter(int maxNumberHits) {
+        filters.add(samRecord -> {
+            Object nhAttribute = samRecord.getAttribute(SAMTag.NH.name());
+            if (nhAttribute != null) {
+                try {
+                    Integer nm = (Integer) nhAttribute;
+                    return nm <= maxNumberHits;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return true;
+                }
+            } else {
+                return true;
+            }
+        });
         return this;
     }
 
