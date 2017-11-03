@@ -1,17 +1,20 @@
 /*
- * Copyright 2015 OpenCB
+ * <!--
+ *   ~ Copyright 2015-2017 OpenCB
+ *   ~
+ *   ~ Licensed under the Apache License, Version 2.0 (the "License");
+ *   ~ you may not use this file except in compliance with the License.
+ *   ~ You may obtain a copy of the License at
+ *   ~
+ *   ~     http://www.apache.org/licenses/LICENSE-2.0
+ *   ~
+ *   ~ Unless required by applicable law or agreed to in writing, software
+ *   ~ distributed under the License is distributed on an "AS IS" BASIS,
+ *   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   ~ See the License for the specific language governing permissions and
+ *   ~ limitations under the License.
+ *   -->
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  */
 
 package org.opencb.biodata.tools.variant.converters.proto;
@@ -27,7 +30,8 @@ import org.opencb.biodata.models.variant.protobuf.VariantAnnotationProto.Consequ
 import org.opencb.biodata.models.variant.protobuf.VariantAnnotationProto.ProteinVariantAnnotation;
 import org.opencb.biodata.models.variant.protobuf.VariantProto;
 import org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate;
-import org.opencb.biodata.tools.variant.converters.Converter;
+import org.opencb.biodata.tools.Converter;
+import org.opencb.biodata.tools.variant.converters.avro.VariantContextToVariantConverter;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -100,8 +104,8 @@ public class VariantContextToVariantProtoConverter implements Converter<VariantC
 //        variant.resetHGVS();
 
         // set variantSourceEntry fields
-        List<VariantProto.VariantSourceEntry> studies = new ArrayList<>();
-        VariantProto.VariantSourceEntry.Builder variantSourceEntry = VariantProto.VariantSourceEntry.newBuilder();
+        List<VariantProto.StudyEntry> studies = new ArrayList<>();
+        VariantProto.StudyEntry.Builder variantSourceEntry = VariantProto.StudyEntry.newBuilder();
 
         // For time being setting the hard coded values for FileId and Study ID
         variantSourceEntry.setStudyId(studyId);
@@ -149,10 +153,11 @@ public class VariantContextToVariantProtoConverter implements Converter<VariantC
         }
         variantSourceEntry.addAllFormat(formatFields);
 
+        Map<Allele, String> allelesMap = VariantContextToVariantConverter.getAlleleStringMap(variantContext);
 
         // set sample data parameters Eg: GT:GQ:GQX:DP:DPF:AD 1/1:63:29:22:7:0,22
 //        List<List<String>> sampleDataList = new ArrayList<>(variantContext.getSamplesName().size());
-        List<VariantProto.VariantSourceEntry.SamplesDataInfoEntry> sampleDataList = new ArrayList<>(formatFields.size());
+        List<VariantProto.StudyEntry.SamplesDataInfoEntry> sampleDataList = new ArrayList<>(formatFields.size());
         for (String sampleName : variantContext.getSampleNames()) {
             htsjdk.variant.variantcontext.Genotype genotype = variantContext.getGenotype(sampleName);
             List<String> sampleList = new ArrayList<>(formatFields.size());
@@ -161,8 +166,7 @@ public class VariantContextToVariantProtoConverter implements Converter<VariantC
                 final String value;
                 switch (formatField) {
                     case VCFConstants.GENOTYPE_KEY:
-                        //TODO: Change from specific allele genotype to codified genotype (A/C -> 0/1)
-                        value = genotype.getGenotypeString();
+                        value = VariantContextToVariantConverter.genotypeToString(allelesMap, genotype);
                         break;
                     default:
                         Object attribute = genotype.getAnyAttribute(formatField);
@@ -182,7 +186,7 @@ public class VariantContextToVariantProtoConverter implements Converter<VariantC
                 sampleList.add(value);
             }
 //            sampleDataList.add(sampleList);
-            sampleDataList.add(VariantProto.VariantSourceEntry.SamplesDataInfoEntry.newBuilder().addAllInfo(sampleList).build());
+            sampleDataList.add(VariantProto.StudyEntry.SamplesDataInfoEntry.newBuilder().addAllInfo(sampleList).build());
         }
         variantSourceEntry.addAllSamplesData(sampleDataList);
 
@@ -292,7 +296,6 @@ public class VariantContextToVariantProtoConverter implements Converter<VariantC
         populationFrequency.setRefAlleleFreq(0.0f);
         populationFrequency.setRefHomGenotypeFreq(0.0f);
         populationFrequency.setStudy(null);
-        populationFrequency.setSuperPopulation(null);
 
         populationFrequencyList.add(populationFrequency.build());
         return populationFrequencyList;
@@ -337,7 +340,7 @@ public class VariantContextToVariantProtoConverter implements Converter<VariantC
         variantTraitAssociation.addAllClinvar(Arrays.asList());
         variantTraitAssociation.addAllCosmic(Arrays.asList());
         variantTraitAssociation.addAllGwas(Arrays.asList());
-        variantAnnotation.setTraitAssociation(variantTraitAssociation);
+        variantAnnotation.setVariantTraitAssociation(variantTraitAssociation);
 
         /*
          * set ConsequenceTypes list type parameter

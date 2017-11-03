@@ -1,3 +1,22 @@
+/*
+ * <!--
+ *   ~ Copyright 2015-2017 OpenCB
+ *   ~
+ *   ~ Licensed under the Apache License, Version 2.0 (the "License");
+ *   ~ you may not use this file except in compliance with the License.
+ *   ~ You may obtain a copy of the License at
+ *   ~
+ *   ~     http://www.apache.org/licenses/LICENSE-2.0
+ *   ~
+ *   ~ Unless required by applicable law or agreed to in writing, software
+ *   ~ distributed under the License is distributed on an "AS IS" BASIS,
+ *   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   ~ See the License for the specific language governing permissions and
+ *   ~ limitations under the License.
+ *   -->
+ *
+ */
+
 package org.opencb.biodata.tools.variant;
 
 import htsjdk.tribble.readers.LineIterator;
@@ -8,9 +27,9 @@ import htsjdk.variant.vcf.VCFHeader;
 import org.opencb.biodata.formats.variant.io.VariantReader;
 import org.opencb.biodata.formats.variant.vcf4.FullVcfCodec;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.VariantNormalizer;
-import org.opencb.biodata.models.variant.VariantSource;
-import org.opencb.biodata.tools.variant.converters.avro.VCFHeaderToAvroVcfHeaderConverter;
+import org.opencb.biodata.models.variant.VariantFileMetadata;
+import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
+import org.opencb.biodata.tools.variant.converters.avro.VCFHeaderToVariantFileHeaderConverter;
 import org.opencb.biodata.tools.variant.converters.avro.VariantContextToVariantConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +53,8 @@ public class VariantVcfHtsjdkReader implements VariantReader {
 
     private final Logger logger = LoggerFactory.getLogger(VariantVcfHtsjdkReader.class);
 
-    private final VariantSource source;
+    private final VariantStudyMetadata metadata;
+    private final VariantFileMetadata fileMetadata;
     private final InputStream inputStream;
     private final VariantNormalizer normalizer;
     private FullVcfCodec codec;
@@ -45,12 +65,13 @@ public class VariantVcfHtsjdkReader implements VariantReader {
     private Set<BiConsumer<String, RuntimeException>> malformHandlerSet = new HashSet<>();
     private boolean failOnError = false;
 
-    public VariantVcfHtsjdkReader(InputStream inputStream, VariantSource source) {
-        this(inputStream, source, null);
+    public VariantVcfHtsjdkReader(InputStream inputStream, VariantStudyMetadata metadata) {
+        this(inputStream, metadata, null);
     }
 
-    public VariantVcfHtsjdkReader(InputStream inputStream, VariantSource source, VariantNormalizer normalizer) {
-        this.source = source;
+    public VariantVcfHtsjdkReader(InputStream inputStream, VariantStudyMetadata metadata, VariantNormalizer normalizer) {
+        this.metadata = metadata;
+        this.fileMetadata = new VariantFileMetadata(metadata.getFiles().get(0));
         this.inputStream = inputStream;
         this.normalizer = normalizer;
     }
@@ -102,9 +123,13 @@ public class VariantVcfHtsjdkReader implements VariantReader {
         }));
 
         // Create converters and fill VariantSource
-        converter = new VariantContextToVariantConverter(source.getStudyId(), source.getFileId(), header.getSampleNamesInOrder());
-        source.setHeader(new VCFHeaderToAvroVcfHeaderConverter().convert(header));
-        source.setSamples(header.getSampleNamesInOrder());
+        converter = new VariantContextToVariantConverter(metadata.getId(), fileMetadata.getId(), header.getSampleNamesInOrder());
+        fileMetadata.setHeader(new VCFHeaderToVariantFileHeaderConverter().convert(header));
+        fileMetadata.setSampleIds(header.getSampleNamesInOrder());
+
+        if (normalizer != null) {
+            normalizer.configure(fileMetadata.getHeader());
+        }
         return true;
     }
 
@@ -171,7 +196,13 @@ public class VariantVcfHtsjdkReader implements VariantReader {
         return String.join("\n", headerLines);
     }
 
-    public VariantSource getSource() {
-        return source;
+    @Override
+    public VariantFileMetadata getVariantFileMetadata() {
+        return fileMetadata;
+    }
+
+    @Deprecated
+    public VariantFileMetadata getMetadata() {
+        return getVariantFileMetadata();
     }
 }

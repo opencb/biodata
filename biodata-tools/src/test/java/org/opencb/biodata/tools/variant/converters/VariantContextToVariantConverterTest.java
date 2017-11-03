@@ -33,12 +33,14 @@ import org.junit.rules.TemporaryFolder;
 import org.opencb.biodata.formats.variant.vcf4.FullVcfCodec;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.VariantNormalizer;
-import org.opencb.biodata.models.variant.avro.Aggregation;
+import org.opencb.biodata.models.variant.avro.StructuralVariantType;
+import org.opencb.biodata.models.variant.avro.StructuralVariation;
 import org.opencb.biodata.models.variant.avro.VariantAvro;
-import org.opencb.biodata.models.variant.avro.VariantFileMetadata;
-import org.opencb.biodata.models.variant.avro.VcfHeader;
-import org.opencb.biodata.tools.variant.converters.avro.VCFHeaderToAvroVcfHeaderConverter;
+import org.opencb.biodata.models.variant.avro.VariantType;
+import org.opencb.biodata.models.variant.metadata.VariantFileHeader;
+import org.opencb.biodata.models.variant.metadata.VariantFileMetadata;
+import org.opencb.biodata.tools.variant.VariantNormalizer;
+import org.opencb.biodata.tools.variant.converters.avro.VCFHeaderToVariantFileHeaderConverter;
 import org.opencb.biodata.tools.variant.converters.avro.VariantContextToVariantConverter;
 import org.opencb.commons.run.ParallelTaskRunner;
 
@@ -147,6 +149,54 @@ public class VariantContextToVariantConverterTest {
 
     }
 
+    @Test
+    public void testConvertVariantSymbolicVariant() throws Exception {
+        VCFCodec vcfCodec = new FullVcfCodec();
+        List<String> sampleNames = Arrays.asList("HG04584", "HG03234", "HG05023");
+        vcfCodec.setVCFHeader(new VCFHeader(Collections.emptySet(), sampleNames), VCFHeaderVersion.VCF4_1);
+        String vcfLine = "22\t16050984\trs188945759\tC\t<DEL>\t100\t.\tEND=16050988\tGT:AD\t./0:.\t0/1:10\t1/1:20";
+        VariantContext variantContext = vcfCodec.decode(vcfLine);
+        String studyId = "1";
+
+        VariantContextToVariantConverter converter = new VariantContextToVariantConverter(studyId, studyId, sampleNames);
+        Variant variant = converter.convert(variantContext);
+
+        assertEquals(16050988, variant.getEnd().intValue());
+        assertEquals("./0", variant.getStudy(studyId).getSampleData("HG04584", "GT"));
+        assertEquals("0/1", variant.getStudy(studyId).getSampleData("HG03234", "GT"));
+        assertEquals("1/1", variant.getStudy(studyId).getSampleData("HG05023", "GT"));
+
+        vcfLine = "22\t16050984\trs188945759\tC\t<INS>\t100\t.\tEND=16050984;"
+                + "SVINSSEQ=AGAACCTTAATACCCTAGTCTCGATGGTCTTTACATTTTGGCATGATTTTGCAGCGGCTGGTACCGG;"
+                + "\tGT:AD\t./0:.\t0/1:10\t1/1:20";
+        variantContext = vcfCodec.decode(vcfLine);
+        variant = converter.convert(variantContext);
+        assertEquals("CAGAACCTTAATACCCTAGTCTCGATGGTCTTTACATTTTGGCATGATTTTGCAGCGGCTGGTACCGG",
+                variant.getAlternate());
+        assertEquals(new StructuralVariation(), variant.getSv());
+
+        vcfLine = "22\t16050984\trs188945759\tC\t<INS>\t100\t.\tEND=16050984;"
+                + "LEFT_SVINSSEQ=AGAACCTTAATACCCTAGTCTCGATGGTCTTTACATTTTGGCATGATTTTGCAGCGGCTGGTACCGG;"
+                + "RIGHT_SVINSSEQ=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                + "\tGT:AD\t./0:.\t0/1:10\t1/1:20";
+        variantContext = vcfCodec.decode(vcfLine);
+        variant = converter.convert(variantContext);
+        assertEquals("<INS>", variant.getAlternate());
+        assertEquals(new StructuralVariation(null, null, null, null, null,
+                        "AGAACCTTAATACCCTAGTCTCGATGGTCTTTACATTTTGGCATGATTTTGCAGCGGCTGGTACCGG",
+                        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", null),
+                variant.getSv());
+
+        vcfLine = "22\t16050984\trs188945759\tC\t<DUP:TANDEM>\t100\t.\tEND=16050988;CIPOS=-10,10\tGT:AD\t./0:.\t0/1:10\t1/1:20";
+        variantContext = vcfCodec.decode(vcfLine);
+        variant = converter.convert(variantContext);
+        assertEquals(VariantType.DUPLICATION, variant.getType());
+        assertEquals(new StructuralVariation(16050974, 16050994, null, null, null, null, null,
+                        StructuralVariantType.TANDEM_DUPLICATION),
+                variant.getSv());
+
+    }
+
     private long readFile(Path outPath) throws IOException {
         // And read file again
         SpecificDatumReader<VariantAvro> reader = new SpecificDatumReader<>(VariantAvro.class);
@@ -249,15 +299,14 @@ public class VariantContextToVariantConverterTest {
         reader.close();
         writer.close();
 
-        VcfHeader avroHeader = new VCFHeaderToAvroVcfHeaderConverter().convert(fileHeader);
-        VariantFileMetadata fileMetadata = new VariantFileMetadata(
-                fileId, studyId, fileName, studyName, fileHeader.getSampleNamesInOrder(),
-                Aggregation.NONE, null, new HashMap<>(), avroHeader);
+        VariantFileHeader variantFileHeader = new VCFHeaderToVariantFileHeaderConverter().convert(fileHeader);
+        VariantFileMetadata fileMetadata = new VariantFileMetadata(fileId, fileName, fileHeader.getSampleNamesInOrder(),
+                null, variantFileHeader, Collections.emptyMap());
         System.out.println(fileMetadata.toString());
         FileOutputStream metaOutputStream = new FileOutputStream(metaOutputPath.toFile());
         DatumWriter<VariantFileMetadata> fileMetaDatumWriter = new SpecificDatumWriter<>(VariantFileMetadata.class);
         DataFileWriter<VariantFileMetadata> fileMetaWriter = new DataFileWriter<>(fileMetaDatumWriter);
-        fileMetaWriter.create(VariantFileMetadata.getClassSchema(), metaOutputStream);
+        fileMetaWriter.create(org.opencb.biodata.models.variant.metadata.VariantFileMetadata.getClassSchema(), metaOutputStream);
         fileMetaWriter.append(fileMetadata);
         fileMetaWriter.close();
 

@@ -72,6 +72,15 @@ public class BigWigManagerTest {
         for (short i : res.getValues()) {
             System.out.println("---> " + i);
         }
+
+        //        // this reads a file from src/test/resources folder
+//        Path inputPath = Paths.get(getClass().getResource("/wigVarStepExampleSmallChr21.bw").toURI());
+//
+//        BigWigManager bigWigManager = new BigWigManager(inputPath);
+//        List<Float> chr21 = bigWigManager.query(new Region("chr21", 9411190, 9411291));
+//        bigWigManager.close();
+//
+//        assertEquals(20, chr21.size());
     }
 
 }

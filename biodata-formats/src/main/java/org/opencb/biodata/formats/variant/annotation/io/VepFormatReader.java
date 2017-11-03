@@ -1,17 +1,20 @@
 /*
- * Copyright 2015 OpenCB
+ * <!--
+ *   ~ Copyright 2015-2017 OpenCB
+ *   ~
+ *   ~ Licensed under the Apache License, Version 2.0 (the "License");
+ *   ~ you may not use this file except in compliance with the License.
+ *   ~ You may obtain a copy of the License at
+ *   ~
+ *   ~     http://www.apache.org/licenses/LICENSE-2.0
+ *   ~
+ *   ~ Unless required by applicable law or agreed to in writing, software
+ *   ~ distributed under the License is distributed on an "AS IS" BASIS,
+ *   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   ~ See the License for the specific language governing permissions and
+ *   ~ limitations under the License.
+ *   -->
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  */
 
 package org.opencb.biodata.formats.variant.annotation.io;
@@ -54,7 +57,7 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
     private String currentVariantString = "";
     private VariantAnnotation currentAnnotation = null;
 
-    private static final String CNV_PATTERN = "CN([0123456789]+)";
+    private static final String CNV_PATTERN = "CN(([0123456789]+)|V)";
 
     public VepFormatReader(String filename) { this.filename = filename; }
 
@@ -112,10 +115,11 @@ public class VepFormatReader implements DataReader<VariantAnnotation> {
                 if (!currentVariantString.equals(lineFields[0] + ":" + lineFields[1] + ":" + lineFields[2])) {
                     noNewVariantFound = (currentAnnotation==null);  // currentAnnotation==null only in the first iteration.
                     variantAnnotationToReturn = currentAnnotation;
-                    Map<String,String> variantMap = parseVariant(lineFields[0], lineFields[1], lineFields[2]);  // coordinates and alternative are only parsed once
+                    Map<String,String> variantMap = parseVariant(lineFields[0], lineFields[1], lineFields[2]);  // coordinates and alternative are only parsed onceca
                     currentAnnotation = new VariantAnnotation();
                     currentAnnotation.setChromosome(variantMap.get("chromosome"));
                     currentAnnotation.setStart(Integer.valueOf(variantMap.get("start")));
+                    currentAnnotation.setEnd(Integer.valueOf(variantMap.get("end")));
                     currentAnnotation.setReference(variantMap.get("reference"));
                     currentAnnotation.setAlternate(variantMap.get("alternative"));
 

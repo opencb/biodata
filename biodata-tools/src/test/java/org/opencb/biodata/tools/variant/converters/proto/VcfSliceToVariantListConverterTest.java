@@ -5,7 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.VariantNormalizer;
+import org.opencb.biodata.tools.variant.VariantNormalizer;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
 
@@ -27,7 +27,7 @@ public class VcfSliceToVariantListConverterTest {
     @Before
     public void setUp() throws Exception {
         variants = Arrays.asList(
-                generateVariantWithFormat("1:980:A:", "PASS", 102f,
+                generateVariantWithFormat("1:980:A:.", "PASS", 102f,
                         toMap("K4", "V1", "K2", "V2", "END", "1000"), "GT:X", "S1", "0/0", "1"),
                 generateVariantWithFormat("1:1000:A:C", "PASS", 12f,
                         toMap("K3", "V1", "K4", "V2"), "GT:X", "S1", "0/0", "1"),
@@ -39,7 +39,7 @@ public class VcfSliceToVariantListConverterTest {
                         toMap("K2", "V1", "K3", "V2"), "GT:X", "S1", "0/0", "1"),
                 generateVariantWithFormat("1:1005:A:C", "PASS", 102f,
                         toMap("K3", "V1", "K2", "V2"), "GT:X", "S1", "0/1", "1"),
-                generateVariantWithFormat("1:1006:A:", "PASS:LowGQX", 102f,
+                generateVariantWithFormat("1:1006:A:.", "PASS:LowGQX", 102f,
                         toMap("K1", "V1", "K5", "V2", "END", "1100"), "GT:T", "S1", "0/0", "1"),
                 generateVariantWithFormat("1:1106:T:C,TT", "PASS:LowGQX", 102f,
                         toMap("K2", "V1", "K3", "V2"), "GT:T", "S1", "0/0", "1"),
@@ -53,11 +53,9 @@ public class VcfSliceToVariantListConverterTest {
                         toMap(), "GT:X", "S1", "0/0", "1")
         );
         variants.get(5).getStudy("").getFile("").getAttributes().put(StudyEntry.QUAL, ".");
-        variants.get(6).setType(VariantType.NO_VARIATION);
-        variants.get(6).setEnd(1100);
+//        variants.get(0).setEnd(1000);
+//        variants.get(6).setEnd(1100);
 
-        variants.get(0).setType(VariantType.NO_VARIATION);
-        variants.get(0).setEnd(1000);
 
         variants = new VariantNormalizer(true).apply(variants);
     }

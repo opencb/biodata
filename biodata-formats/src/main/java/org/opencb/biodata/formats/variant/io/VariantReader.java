@@ -17,6 +17,8 @@
 package org.opencb.biodata.formats.variant.io;
 
 import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.VariantFileMetadata;
+import org.opencb.biodata.models.variant.metadata.VariantFileHeader;
 import org.opencb.commons.io.DataReader;
 
 import java.util.List;
@@ -28,5 +30,10 @@ public interface VariantReader extends DataReader<Variant> {
     
     List<String> getSampleNames();
 
-    String getHeader();
+    @Deprecated
+    default String getHeader() {
+        throw new UnsupportedOperationException();
+    }
+
+    VariantFileMetadata getVariantFileMetadata();
 }

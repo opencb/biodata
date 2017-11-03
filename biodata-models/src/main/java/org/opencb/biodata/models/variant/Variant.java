@@ -1,17 +1,20 @@
 /*
- * Copyright 2015 OpenCB
+ * <!--
+ *   ~ Copyright 2015-2017 OpenCB
+ *   ~
+ *   ~ Licensed under the Apache License, Version 2.0 (the "License");
+ *   ~ you may not use this file except in compliance with the License.
+ *   ~ You may obtain a copy of the License at
+ *   ~
+ *   ~     http://www.apache.org/licenses/LICENSE-2.0
+ *   ~
+ *   ~ Unless required by applicable law or agreed to in writing, software
+ *   ~ distributed under the License is distributed on an "AS IS" BASIS,
+ *   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   ~ See the License for the specific language governing permissions and
+ *   ~ limitations under the License.
+ *   -->
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  */
 
 package org.opencb.biodata.models.variant;
@@ -19,11 +22,10 @@ package org.opencb.biodata.models.variant;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import htsjdk.variant.variantcontext.Allele;
 import org.apache.commons.lang3.StringUtils;
-import org.opencb.biodata.models.variant.avro.StructuralVariation;
-import org.opencb.biodata.models.variant.avro.VariantAnnotation;
-import org.opencb.biodata.models.variant.avro.VariantAvro;
-import org.opencb.biodata.models.variant.avro.VariantType;
+import org.opencb.biodata.models.core.Region;
+import org.opencb.biodata.models.variant.avro.*;
 
+import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.*;
 
@@ -32,15 +34,16 @@ import java.util.*;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
 @JsonIgnoreProperties({"impl", "ids", "sourceEntries", "studiesMap", "lengthReference", "lengthAlternate"})
-public class Variant implements Serializable {
+public class Variant implements Serializable, Comparable<Variant> {
 
     public static final EnumSet<VariantType> SV_SUBTYPES = EnumSet.of(VariantType.INSERTION, VariantType.DELETION,
-            VariantType.TRANSLOCATION, VariantType.INVERSION, VariantType.CNV);
+            VariantType.TRANSLOCATION, VariantType.INVERSION, VariantType.CNV, VariantType.DUPLICATION,
+            VariantType.BREAKEND);
     private final VariantAvro impl;
-    private Map<String, StudyEntry> studyEntries = null;
+    private volatile Map<String, StudyEntry> studyEntries = null;
 
     public static final int SV_THRESHOLD = 50;
-    public static final String CNVSTR = "<CN";
+    public static final int UNKNOWN_LENGTH = 0;
 
     public Variant() {
         impl = new VariantAvro(null, new LinkedList<>(), "", -1, -1, "", "", "+", null, 0, null, new HashMap<>(), new LinkedList<>(), null);
@@ -56,65 +59,18 @@ public class Variant implements Serializable {
      *
      * Format : (chr):(start)[-(end)][:(ref)]:(alt)
      *
+     * @see VariantBuilder
      * @param variantString Variant string
      * @throws IllegalArgumentException if the variant does not match with the pattern
      */
     public Variant(String variantString) {
         this();
-        if (variantString != null && !variantString.isEmpty()) {
-            String[] fields = variantString.split(":", -1);
-            if (fields.length == 3) {
-                setChromosome(fields[0]);
-                setAlternate(checkEmptySequence(fields[2]));
-                // Structural variant needs start-end coords
-                if (fields[1].contains("-")) {
-                    String[] coordinatesParts = fields[1].split("-");
-                    setReference("N");
-                    setStart(Integer.parseInt(coordinatesParts[0]));
-                    setEnd(Integer.parseInt(coordinatesParts[1]));
-                    setLength(inferLengthSV(getAlternate(), getStart(), getEnd()));
-                // Short variant, no reference specified
-                } else {
-                    setStart(Integer.parseInt(fields[1]));
-                    setReference("");
-                    setLength(inferLengthShortVariant(getReference(), getAlternate()));
-                    setEnd(getStart() + getLengthReference() - 1);
-                }
-            } else {
-                if (fields.length == 4) {
-                    setChromosome(fields[0]);
-                    setAlternate(checkEmptySequence(fields[3]));
-                    // Structural variant needs start-end coords
-                    if (fields[1].contains("-")) {
-                        String[] coordinatesParts = fields[1].split("-");
-                        setReference(checkEmptySequence(fields[2]));
-                        setStart(Integer.parseInt(coordinatesParts[0]));
-                        setEnd(Integer.parseInt(coordinatesParts[1]));
-                        setLength(inferLengthSV(getAlternate(), getStart(), getEnd()));
-                    } else {
-                        setStart(Integer.parseInt(fields[1]));
-                        setReference(checkEmptySequence(fields[2]));
-                        setLength(inferLengthShortVariant(getReference(), getAlternate()));
-                        setEnd(getStart() + getLengthReference() - 1);
-                    }
-                } else {
-                    throw new IllegalArgumentException("Variant " + variantString + " needs 3 or 4 fields separated by ':'. "
-                            + "Format: \"(chr):(start)[-(end)][:(ref)]:(alt)\"");
-                }
-            }
-        }
-        resetType();
-
-        if (VariantType.CNV.equals(getType())) {
-            setSv(new StructuralVariation(this.getStart(), this.getStart(), this.getEnd(), this.getEnd(),
-                    getCopyNumberFromStr(this.getAlternate())));
-
-        }
+        new VariantBuilder(variantString).build(this);
     }
 
     public Variant(String chromosome, int position, String reference, String alternate) {
-        this(chromosome, position, position, reference, alternate, "+");
-        setEnd(getStart() + getLengthReference() - 1);
+        // Use null end, so the builder will infer the end position.
+        this(chromosome, position, null, reference, alternate, "+");
     }
 
     public Variant(String chromosome, int start, int end, String reference, String alternate) {
@@ -122,162 +78,94 @@ public class Variant implements Serializable {
     }
 
     public Variant(String chromosome, int start, int end, String reference, String alternate, String strand) {
-        impl = new VariantAvro(
-                null,
-                new LinkedList<>(),
-                "",
-                start,
-                end,
-                checkEmptySequence(reference),
-                checkEmptySequence(alternate),
-                strand,
-                null,
-                0,
-                null,
-                new HashMap<>(),
-                new LinkedList<>(),
-                null);
-        if (start > end && !(reference.equals("-") || reference.isEmpty())) {
-            throw new IllegalArgumentException("End position must be greater than the start position for variant: "
-                    + chromosome + ":" + start + "-" + end + ":" + reference + ":" + alternate);
-        }
-
-        this.setChromosome(chromosome);
-
-        this.resetLength();
-        this.resetType();
-
-        if (VariantType.CNV.equals(getType())) {
-            setSv(new StructuralVariation(this.getStart(), this.getStart(), this.getEnd(), this.getEnd(),
-                    getCopyNumberFromStr(this.getAlternate())));
-
-        }
-
-//        this.resetHGVS();
-
-//        this.annotation = new VariantAnnotation(this.chromosome, this.start, this.end, this.reference, this.alternate);
-        studyEntries = new HashMap<>();
+        this();
+        new VariantBuilder(chromosome, start, end, reference, alternate).setStrand(strand).build(this);
     }
 
-    private Integer getCopyNumberFromStr(String cnvStr) {
-        String copyNumberString = cnvStr.split(CNVSTR)[1].split(">")[0];
-        if (StringUtils.isNumeric(copyNumberString)) {
-            return Integer.valueOf(copyNumberString);
-        } else {
-            return null;
-        }
+    private Variant(String chromosome, int start, @Nullable Integer end, String reference, String alternate, String strand) {
+        this();
+        // Nullable end. The builder will infer the end (and length) if null.
+        new VariantBuilder(chromosome, start, end, reference, alternate).setStrand(strand).build(this);
     }
 
-    private String checkEmptySequence(String sequence) {
-        return (sequence != null && !sequence.equals("-")) ? sequence : "";
+    public static VariantBuilder newBuilder() {
+        return new VariantBuilder();
     }
 
-    private void resetType() {
-        setType(inferType(getReference(), getAlternate(), getLength()));
+    public static VariantBuilder newBuilder(String str) {
+        return new VariantBuilder(str);
     }
 
-    public static VariantType inferType(String reference, String alternate, Integer length) {
-        if (Allele.wouldBeSymbolicAllele(alternate.getBytes()) || Allele.wouldBeSymbolicAllele(reference.getBytes())) {
-            if (alternate.startsWith(CNVSTR)) {
-                return VariantType.CNV;
-            } else {
-                return VariantType.SYMBOLIC;
-            }
-        } else if (alternate.equals(Allele.NO_CALL_STRING)) {
-            return VariantType.NO_VARIATION;
-        } else {
-            if (reference.length() == alternate.length()) {
-                if (length > 1) {
-                    return VariantType.MNV;
-                } else {
-                    return VariantType.SNV;
-                }
-            } else {
-                if (length <= SV_THRESHOLD) {
-                /*
-                * 3 possibilities for being an INDEL:
-                * - The value of the ALT field is <DEL> or <INS>
-                * - The REF allele is not . but the ALT is
-                * - The REF allele is . but the ALT is not
-                * - The REF field length is different than the ALT field length
-                */
-                    return VariantType.INDEL;
-                } else {
-                    return VariantType.SV;
-                }
+    public static VariantBuilder newBuilder(String chromosome, Integer start, Integer end, String reference, String alternate) {
+        return new VariantBuilder(chromosome, start, end, reference, alternate);
+    }
+
+    public static Variant parseVariant(String variantString) {
+        return new VariantBuilder(variantString).build();
+    }
+
+    public static List<Variant> parseVariants(String variantsString) {
+        List<Variant> variants = null;
+        if(variantsString != null && !variantsString.isEmpty()) {
+            String[] variantItems = variantsString.split(",");
+            variants = new ArrayList<>(variantItems.length);
+            for(String variantString: variantItems) {
+                variants.add(parseVariant(variantString));
             }
         }
+        return variants;
+    }
+
+    @Deprecated
+    public static int inferLength(String reference, String alternate, int start, int end, VariantType type) {
+        return VariantBuilder.inferLength(reference, alternate, start, end, type);
+    }
+
+    @Deprecated
+    public static VariantType inferType(String reference, String alternate) {
+        return VariantBuilder.inferType(reference, alternate);
+    }
+
+    @Deprecated
+    public static Variant getMateBreakend(Variant variant) {
+        return VariantBuilder.getMateBreakend(variant);
+    }
+
+    @Deprecated
+    public static StructuralVariantType getCNVSubtype(Integer copyNumber) {
+        return VariantBuilder.getCNVSubtype(copyNumber);
+    }
+
+    public void reset() {
+        resetType();
+        resetLength();
+    }
+
+    public void resetType() {
+        setType(VariantBuilder.inferType(getReference(), getAlternate()));
     }
 
     public void resetLength() {
-        setLength(inferLength(getReference(), getAlternate(), getStart(), getEnd()));
+        setLength(VariantBuilder.inferLength(getReference(), getAlternate(), getStart(), getEnd(), getType()));
     }
 
-    public static int inferLength(String reference, String alternate, int start, int end) {
-        final int length;
-        if (reference == null) {
-            length = inferLengthSV(alternate, start, end);
-        } else {
-            length = inferLengthShortVariant(reference, alternate);
-        }
-        return length;
+    public boolean isSV() {
+        return VariantBuilder.isSV(getType());
     }
 
-    private static int inferLengthShortVariant(String reference, String alternate) {
-        final int length;
-        if (alternate == null) {
-            length = reference.length();
-        } else {
-            length = Math.max(reference.length(), alternate.length());
-        }
-        return length;
+    public boolean isSymbolic() {
+        return Allele.wouldBeSymbolicAllele(getAlternate().getBytes());
     }
-
-    private static int inferLengthSV(String alternate, int start, int end) {
-        int length;
-        if (StringUtils.startsWith(alternate, CNVSTR)) {
-            length = end - start + 1;
-        } else {
-            length = alternate == null ? 0 : alternate.length();
-        }
-        return length;
-    }
-
-//    public void resetHGVS() {
-//        if (this.getType() == VariantType.SNV || this.getType() == VariantType.SNP) { // Generate HGVS code only for SNVs
-//            List<String> hgvsCodes = new LinkedList<>();
-//            hgvsCodes.add(getChromosome() + ":g." + getStart() + getReference() + ">" + getAlternate());
-//            if (impl.getHgvs() == null) {
-//                impl.setHgvs(new HashMap<>());
-//            }
-//            impl.getHgvs().put("genomic", hgvsCodes);
-//        }
-//    }
 
     public VariantAvro getImpl() {
         return impl;
     }
 
     public final void setChromosome(String chromosome) {
-        if (chromosome == null || chromosome.length() == 0) {
+        if (StringUtils.isEmpty(chromosome)) {
             throw new IllegalArgumentException("Chromosome must not be empty");
         }
-        // Replace "chr" references only at the beginning of the chromosome name
-        // For instance, tomato has SL2.40ch00 and that should be kept that way
-        if (chromosome.startsWith("ch")) {
-            if (chromosome.startsWith("chrom")) {
-                impl.setChromosome(chromosome.substring(5));
-            } else if (chromosome.startsWith("chrm")) {
-                impl.setChromosome(chromosome.substring(4));
-            } else if (chromosome.startsWith("chr")) {
-                impl.setChromosome(chromosome.substring(3));
-            } else {
-                // Only starts with ch
-                impl.setChromosome(chromosome.substring(2));
-            }
-        } else {
-            impl.setChromosome(chromosome);
-        }
+        impl.setChromosome(Region.normalizeChromosome(chromosome));
     }
 
     public final void setStart(Integer start) {
@@ -308,8 +196,9 @@ public class Variant implements Serializable {
         return impl.getId();
     }
 
-    public void setId(String id) {
+    public Variant setId(String id) {
         impl.setId(id);
+        return this;
     }
 
     public String getChromosome() {
@@ -336,16 +225,18 @@ public class Variant implements Serializable {
         return impl.getStrand();
     }
 
-    public void setStrand(String strand) {
+    public Variant setStrand(String strand) {
         impl.setStrand(strand);
+        return this;
     }
 
     public StructuralVariation getSv() {
         return impl.getSv();
     }
 
-    public void setSv(StructuralVariation sv) {
+    public Variant setSv(StructuralVariation sv) {
         impl.setSv(sv);
+        return this;
     }
 
     @Deprecated
@@ -379,8 +270,9 @@ public class Variant implements Serializable {
         return impl.getNames();
     }
 
-    public void setNames(List<String> names) {
+    public Variant setNames(List<String> names) {
         impl.setNames(names);
+        return this;
     }
 
     public Integer getLength() {
@@ -388,27 +280,25 @@ public class Variant implements Serializable {
     }
 
     public Integer getLengthReference() {
-        if (EnumSet.of(VariantType.NO_VARIATION, VariantType.CNV, VariantType.SV, VariantType.SYMBOLIC).contains(getType())) {
-            return getLength();
-        } else {
-            return getReference().length();
-        }
+        return VariantBuilder.getLengthReference(getReference(), getType(), getLength());
     }
 
     public Integer getLengthAlternate() {
-        return getAlternate().length();
+        return VariantBuilder.getLengthAlternate(getAlternate(), getType(), getLength());
     }
 
-    public void setLength(Integer value) {
+    public Variant setLength(Integer value) {
         impl.setLength(value);
+        return this;
     }
 
     public VariantType getType() {
         return impl.getType();
     }
 
-    public void setType(VariantType value) {
+    public Variant setType(VariantType value) {
         impl.setType(value);
+        return this;
     }
 
     public Map<String, List<String>> getHgvs() {
@@ -444,11 +334,16 @@ public class Variant implements Serializable {
     }
 
     public void setStudies(List<StudyEntry> studies) {
-        studyEntries = new HashMap<>(studies.size());
-        impl.setStudies(new ArrayList<>(studies.size()));
-        for (StudyEntry study : studies) {
-            impl.getStudies().add(study.getImpl());
-            studyEntries.put(composeId(study.getStudyId()), study);
+        if (studies == null) {
+            studyEntries = null;
+            impl.setStudies(new ArrayList<>());
+        } else {
+            studyEntries = new HashMap<>(studies.size());
+            impl.setStudies(new ArrayList<>(studies.size()));
+            for (StudyEntry study : studies) {
+                impl.getStudies().add(study.getImpl());
+                studyEntries.put(study.getStudyId(), study);
+            }
         }
     }
 
@@ -460,9 +355,11 @@ public class Variant implements Serializable {
     public Map<String, StudyEntry> getStudiesMap() {
         if (impl.getStudies() != null) {
             if (studyEntries == null) {
-                studyEntries = new HashMap<>();
-                for (org.opencb.biodata.models.variant.avro.StudyEntry sourceEntry : impl.getStudies()) {
-                    studyEntries.put(composeId(sourceEntry.getStudyId()), new StudyEntry(sourceEntry));
+                studyEntries = new HashMap<>(impl.getStudies().size());
+            }
+            if (studyEntries.size() != impl.getStudies().size()) {
+                for (org.opencb.biodata.models.variant.avro.StudyEntry studyEntry : impl.getStudies()) {
+                    studyEntries.putIfAbsent(studyEntry.getStudyId(), new StudyEntry(studyEntry));
                 }
             }
             return Collections.unmodifiableMap(studyEntries);
@@ -482,7 +379,7 @@ public class Variant implements Serializable {
 
     public StudyEntry getStudy(String studyId) {
         if (impl.getStudies() != null) {
-            return getStudiesMap().get(composeId(studyId));
+            return getStudiesMap().get(studyId);
         }
         return null;
     }
@@ -494,16 +391,24 @@ public class Variant implements Serializable {
         if (impl.getStudies() == null) {
             impl.setStudies(new ArrayList<>());
         }
-        this.studyEntries.put(composeId(studyEntry.getStudyId()), studyEntry);
+        StudyEntry prevStudy = this.studyEntries.put(studyEntry.getStudyId(), studyEntry);
+        if (prevStudy != null) {
+            impl.getStudies().remove(prevStudy.getImpl());
+        }
         impl.getStudies().add(studyEntry.getImpl());
     }
 
+    @Deprecated
     public Iterable<String> getSampleNames(String studyId, String fileId) {
-        StudyEntry file = getSourceEntry(studyId, fileId);
-        if (file == null) {
+        return getSampleNames(studyId);
+    }
+
+    public List<String> getSampleNames(String studyId) {
+        StudyEntry studyEntry = getStudy(studyId);
+        if (studyEntry == null) {
             return null;
         }
-        return file.getSamplesName();
+        return studyEntry.getOrderedSamplesName();
     }
 
     public void transformToEnsemblFormat() {
@@ -528,14 +433,69 @@ public class Variant implements Serializable {
         }
     }
 
+    public String toStringSimple() {
+        return getChromosome() + ":" + getStart() + ":" + (getReference().isEmpty() ? "-" : getReference()) + ":" + (getAlternate().isEmpty() ? "-" : getAlternate());
+    }
 
     @Override
     public String toString() {
-        if (this.getReference() == null) {
-            return getChromosome() + ":" + getStart() + ":" + (getAlternate().isEmpty() ? "-" : getAlternate());
+        int start = getStart();
+        int end = getEnd();
+        StringBuilder sb = new StringBuilder().append(getChromosome()).append(":");
+        StructuralVariation sv = getSv();
+
+        // Start
+        if (sv != null && (sv.getCiStartLeft() != null || sv.getCiStartRight() != null)) {
+            sb.append(sv.getCiStartLeft() == null ? start : sv.getCiStartLeft())
+                    .append('<').append(start).append('<')
+                    .append(sv.getCiStartRight() == null ? start : sv.getCiStartRight());
         } else {
-            return getChromosome() + ":" + getStart() + ":" + (getReference().isEmpty() ? "-" : getReference()) + ":" + (getAlternate().isEmpty() ? "-" : getAlternate());
+            sb.append(start);
         }
+
+        // Optional end
+        if (start != end && getLengthReference() != getReference().length()) {
+            sb.append("-");
+            if (sv != null && (sv.getCiEndLeft() != null || sv.getCiEndRight() != null)) {
+                sb.append(sv.getCiEndLeft() == null ? end : sv.getCiEndLeft())
+                        .append('<').append(end).append('<')
+                        .append(sv.getCiEndRight() == null ? end : sv.getCiEndRight());
+            } else {
+                sb.append(end);
+            }
+        }
+
+        sb.append(":");
+        if (this.getReference() != null) {
+            sb.append(getReference().isEmpty() ? "-" : getReference()).append(":");
+        }
+        if (getAlternate().isEmpty()) {
+            if (getType().equals(VariantType.NO_VARIATION)) {
+                sb.append(".");
+            } else {
+                sb.append("-");
+            }
+        } else if (getType().equals(VariantType.INSERTION) && getSv() != null
+                    && (getSv().getLeftSvInsSeq() != null || getSv().getRightSvInsSeq() != null)) {
+            if (getSv().getLeftSvInsSeq() != null) {
+                sb.append(getSv().getLeftSvInsSeq());
+            }
+            sb.append("...");
+            if (getSv().getRightSvInsSeq() != null) {
+                sb.append(getSv().getRightSvInsSeq());
+            }
+//        } else if (getType().equals(VariantType.CNV)) {
+//            if (getSv().getCopyNumber() != null) {
+//                sb.append("<CN").append(getSv().getCopyNumber()).append('>');
+//            } else {
+//                sb.append(getAlternate());
+//            }
+        } else if (sv != null && sv.getType() == StructuralVariantType.TANDEM_DUPLICATION) {
+            sb.append("<DUP:TANDEM>");
+        } else {
+            sb.append(getAlternate());
+        }
+        return sb.toString();
     }
 
     public String toJson() {
@@ -585,42 +545,6 @@ public class Variant implements Serializable {
     @Override
     public int hashCode() {
         return impl != null ? impl.hashCode() : 0;
-    }
-
-
-//    //    public int hashCode() {
-//        int result = getChromosome() != null ? getChromosome().hashCode() : 0;
-//        result = 31 * result + getStart();
-//        result = 31 * result + getEnd();
-//        result = 31 * result + (getReference() != null ? getReference().hashCode() : 0);
-//        result = 31 * result + (getAlternate() != null ? getAlternate().hashCode() : 0);
-//        result = 31 * result + (getType() != null ? getType().hashCode() : 0);
-//        return result;
-//    }
-
-    private String composeId(String studyId) {
-        return composeId(studyId, null);
-    }
-
-    @Deprecated
-    private String composeId(String studyId, String fileId) {
-        return studyId;
-    }
-
-    public static Variant parseVariant(String variantString) {
-        return new Variant(variantString);
-    }
-
-    public static List<Variant> parseVariants(String variantsString) {
-        List<Variant> variants = null;
-        if(variantsString != null && !variantsString.isEmpty()) {
-            String[] variantItems = variantsString.split(",");
-            variants = new ArrayList<>(variantItems.length);
-            for(String variantString: variantItems) {
-                variants.add(new Variant(variantString));
-            }
-        }
-        return variants;
     }
 
     public boolean overlapWith(Variant other, boolean inclusive) {
@@ -683,5 +607,12 @@ public class Variant implements Serializable {
         }
     }
 
+    @Override
+    public int compareTo(Variant o) {
+        if (this.equals(o)) {
+            return 0;
+        }
+        return this.getImpl().compareTo(o.getImpl());
+    }
 }
 

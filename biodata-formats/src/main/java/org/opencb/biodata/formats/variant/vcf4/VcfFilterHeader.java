@@ -16,17 +16,27 @@
 
 package org.opencb.biodata.formats.variant.vcf4;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class VcfFilterHeader {
     private String id;
     private String description;
 
+    /**
+     * @param filterLine string in format: ##FILTER=<ID=q10,Description="Variants that not pass quality 10">
+     */
     public VcfFilterHeader(String filterLine) {
-        // ##FILTER=<ID=q10,Description="Variants that not pass quality 10">
-        String[] fields = filterLine.replaceAll("[\"<>]", "").split("=");
-        // fields[2] ==> q10,Description
-        this.id = fields[2].split(",")[0];
-        // fields[3] ==> "Variants that not pass quality 10"
-        this.description = fields[3];
+        String pattern = "##FILTER=<ID=(.+),.*Description=\"(.*)\".*";
+        Matcher m = Pattern.compile(pattern).matcher(filterLine);
+        if (m.find()) {
+            this.id = m.group(1);
+            this.description = m.group(2);
+        } else {
+            // TODO: throw an exception, but as it would be a major API change it's postponed to later major release
+            this.id = "";
+            this.description = "";
+        }
     }
 
     public VcfFilterHeader(String id, String description) {
