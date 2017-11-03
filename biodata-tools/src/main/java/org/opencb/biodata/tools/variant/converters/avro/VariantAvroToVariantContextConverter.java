@@ -301,7 +301,7 @@ public class VariantAvroToVariantContextConverter extends VariantContextConverte
                 }
 
                 // add to ct list
-                ctList.add(stringBuilder.toString());
+                ctList.add(stringBuilder.toString().replace(' ', '_'));
             }
 
             // set consequence type attributes
