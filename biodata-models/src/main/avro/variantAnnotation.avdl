@@ -8,30 +8,30 @@ protocol VariantAnnotations {
     enum ExpressionCall {UP, DOWN}
 
     record ClinVar {
-        string accession;
-        string clinicalSignificance;
-        array<string> traits;
-        array<string> geneNames;
-        string reviewStatus;
+        union { null, string } accession;
+        union { null, string } clinicalSignificance;
+        union { null, array<string> } traits;
+        union { null, array<string> } geneNames;
+        union { null, string } reviewStatus;
     }
 
     record Gwas {
-        string snpIdCurrent;
-        array<string> traits;
-        double riskAlleleFrequency;
-        string reportedGenes;
+        union { null, string } snpIdCurrent;
+        union { null, array<string> } traits;
+        union { null, double } riskAlleleFrequency;
+        union { null, string } reportedGenes;
     }
 
     record Cosmic {
-        string mutationId;
-        string primarySite;
-        string siteSubtype;
-        string primaryHistology;
-        string histologySubtype;
-        string sampleSource;
-        string tumourOrigin;
-        string geneName;
-        string mutationSomaticStatus;
+        union { null, string } mutationId;
+        union { null, string } primarySite;
+        union { null, string } siteSubtype;
+        union { null, string } primaryHistology;
+        union { null, string } histologySubtype;
+        union { null, string } sampleSource;
+        union { null, string } tumourOrigin;
+        union { null, string } geneName;
+        union { null, string } mutationSomaticStatus;
     }
 
     record VariantTraitAssociation {
