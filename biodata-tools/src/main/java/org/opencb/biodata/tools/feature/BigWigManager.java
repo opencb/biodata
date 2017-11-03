@@ -1,18 +1,15 @@
 package org.opencb.biodata.tools.feature;
 
-import htsjdk.samtools.SAMFileHeader;
-import htsjdk.samtools.SAMSequenceRecord;
 import org.broad.igv.bbfile.BBFileReader;
 import org.broad.igv.bbfile.BigWigIterator;
 import org.broad.igv.bbfile.WigItem;
 import org.opencb.biodata.models.core.Region;
-import org.opencb.biodata.tools.alignment.BamUtils;
 import org.opencb.biodata.tools.commons.ChunkFrequencyManager;
-import org.opencb.commons.utils.FileUtils;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by imedina on 25/11/16.
