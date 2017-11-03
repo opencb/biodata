@@ -19,21 +19,28 @@ import static org.junit.Assert.assertEquals;
  */
 public class BigWigManagerTest {
 
-    @Test
-    public void query() throws Exception {
-        // this reads a file from src/test/resources folder
-        Path inputPath = Paths.get(getClass().getResource("/wigVarStepExampleSmallChr21.bw").toURI());
-
+    public void query(Path inputPath, String chrom, int start, int end) throws Exception {
         BigWigManager bigWigManager = new BigWigManager(inputPath);
-        Region region = new Region("chr21", 9411190, 9411290);
-        float[] chr21 = bigWigManager.query(region);
+        Region region = new Region(chrom, start, end);
+        float[] coverage = bigWigManager.query(region);
 
-        int start = region.getStart();
-        for (float v: chr21) {
+        for (float v: coverage) {
             System.out.println((start++) + " :" + v);
         }
 
-        assertEquals(region.getEnd() - region.getStart() + 1, chr21.length);
+        assertEquals(region.getEnd() - region.getStart() + 1, coverage.length);
+    }
+
+    @Test
+    public void query1() throws Exception {
+        Path bwPath = Paths.get(getClass().getResource("/wigVarStepExampleSmallChr21.bw").toURI());
+        query(bwPath, "chr21", 9411190, 9411290);
+    }
+
+    //@Test
+    public void query2() throws Exception {
+        Path bwPath = Paths.get("/tmp/test/HG00096.chrom20.small.bam.sort.bam.coverage.bw");
+        query(bwPath, "20", 60000, 60200);
     }
 
     @Test
