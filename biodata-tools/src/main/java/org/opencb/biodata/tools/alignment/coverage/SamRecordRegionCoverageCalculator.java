@@ -19,7 +19,6 @@
 
 package org.opencb.biodata.tools.alignment.coverage;
 
-import htsjdk.samtools.Cigar;
 import htsjdk.samtools.CigarElement;
 import htsjdk.samtools.SAMRecord;
 import org.opencb.biodata.models.alignment.RegionCoverage;
