@@ -115,7 +115,7 @@ message AlternateCoordinate {
     VariantType type = 6;
 }
 
-message VariantSourceEntry {
+message StudyEntry {
     message SamplesDataInfoEntry {
         repeated string info = 1;
     }
@@ -136,6 +136,44 @@ message Genotype {
     repeated int32 allelesIdx = 3;
     bool phased = 4;
     AllelesCode code = 5;
+}
+
+/**
+ * Type of structural variation
+ * <ul>
+ * <li>COPY_NUMBER_GAIN for CNVs</li>
+ * <li>COPY_NUMBER_LOSS for CNVs</li>
+ * <li>TANDEM_DUPLICATION for DUP</li>
+ * </ul>
+ */
+enum StructuralVariantType {
+    COPY_NUMBER_GAIN   = 0;            // SO:0001742
+    COPY_NUMBER_LOSS   = 1;            // SO:0001743
+    TANDEM_DUPLICATION = 2;            // SO:1000173
+}
+
+message StructuralVariation {
+    int32 ciStartLeft = 1;
+    int32 ciStartRight = 2;
+    int32 ciEndLeft = 3;
+    int32 ciEndRight = 4;
+
+    /**
+     * Number of copies for CNV variants.
+    */
+    int32 copyNumber = 5;
+
+    /**
+    * Inserted sequence for long INS
+    **/
+    string leftSvInsSeq = 6;
+    string rightSvInsSeq = 7;
+
+
+    /**
+    * Structural variation type: COPY_NUMBER_GAIN, COPY_NUMBER_LOSS, TANDEM_DUPLICATION, ...
+    */
+    StructuralVariantType type = 8;
 }
 
 message Variant {
@@ -184,6 +222,11 @@ message Variant {
     string strand = 6;
 
     /**
+     * Information regarding Structural Variants
+     */
+    StructuralVariation sv = 14;
+
+    /**
      * The variant ID.
      */
     string id = 13;
@@ -219,7 +262,7 @@ message Variant {
      * Information specific to each study the variant was read from, such as
      * samples or statistics.
      */
-    repeated VariantSourceEntry studies = 11;
+    repeated StudyEntry studies = 11;
 
     /**
      * Annotations of the genomic variation.

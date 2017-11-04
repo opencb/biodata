@@ -1,10 +1,29 @@
+/*
+ * <!--
+ *   ~ Copyright 2015-2017 OpenCB
+ *   ~
+ *   ~ Licensed under the Apache License, Version 2.0 (the "License");
+ *   ~ you may not use this file except in compliance with the License.
+ *   ~ You may obtain a copy of the License at
+ *   ~
+ *   ~     http://www.apache.org/licenses/LICENSE-2.0
+ *   ~
+ *   ~ Unless required by applicable law or agreed to in writing, software
+ *   ~ distributed under the License is distributed on an "AS IS" BASIS,
+ *   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   ~ See the License for the specific language governing permissions and
+ *   ~ limitations under the License.
+ *   -->
+ *
+ */
+
 package org.opencb.biodata.tools.variant.stats;
 
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.VariantAggregatedVcfFactory;
+import org.opencb.biodata.formats.variant.vcf4.VariantAggregatedVcfFactory;
 import org.opencb.biodata.models.variant.StudyEntry;
-import org.opencb.biodata.models.variant.VariantVcfFactory;
+import org.opencb.biodata.formats.variant.vcf4.VariantVcfFactory;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
@@ -157,21 +176,21 @@ public class VariantAggregatedStatsCalculator {
         for (String cohortName : cohortStats.keySet()) {
             VariantStats vs = new VariantStats(variant);
             calculate(variant, file, numAllele, reference, alternateAlleles, cohortStats.get(cohortName), vs);
-            file.setCohortStats(cohortName, vs);
+            file.setStats(cohortName, vs);
         }
     }
 
     /**
      * sets (if the map of attributes contains AF, AC, AF and GTC) alleleCount, refAlleleCount, maf, mafAllele, alleleFreq and genotypeCounts,
      * @param variant
-     * @param sourceEntry
+     * @param studyEntry
      * @param numAllele
      * @param reference
      * @param alternateAlleles
      * @param attributes
      * @param variantStats results are returned by reference here
      */
-    protected void calculate(Variant variant, StudyEntry sourceEntry, int numAllele, String reference, String[] alternateAlleles,
+    protected void calculate(Variant variant, StudyEntry studyEntry, int numAllele, String reference, String[] alternateAlleles,
                              Map<String, String> attributes, VariantStats variantStats) {
 
         if (attributes.containsKey("AN") && attributes.containsKey("AC")) {
@@ -213,7 +232,8 @@ public class VariantAggregatedStatsCalculator {
         if (attributes.containsKey("AF")) {
             String[] afs = attributes.get("AF").split(COMMA);
             if (afs.length == alternateAlleles.length) {
-                variantStats.setAltAlleleFreq(Float.parseFloat(afs[numAllele]));
+                float value = parseFloat(afs[numAllele], -1);
+                variantStats.setAltAlleleFreq(value);
                 if (variantStats.getMaf() == -1) {  // in case that we receive AFs but no ACs
                     if (variantStats.getRefAlleleFreq() < 0) {
                         variantStats.setRefAlleleFreq(1 - variantStats.getAltAlleleFreq());
@@ -221,13 +241,13 @@ public class VariantAggregatedStatsCalculator {
 
                     float sumFreq = 0;
                     for (String af : afs) {
-                        sumFreq += Float.parseFloat(af);
+                        sumFreq += parseFloat(af, -1);
                     }
                     float maf = 1 - sumFreq;
                     String mafAllele = variantStats.getRefAllele();
 
                     for (int i = 0; i < afs.length; i++) {
-                        float auxMaf = Float.parseFloat(afs[i]);
+                        float auxMaf = parseFloat(afs[i], -1);
                         if (auxMaf < maf) {
                             maf = auxMaf;
                             mafAllele = alternateAlleles[i];
@@ -242,7 +262,7 @@ public class VariantAggregatedStatsCalculator {
         if (attributes.containsKey("MAF")) {
             String[] mafs = attributes.get("MAF").split(COMMA);
             if (mafs.length == alternateAlleles.length) {
-                float maf = Float.parseFloat(mafs[numAllele]);
+                float maf = parseFloat(mafs[numAllele], -1);
                 variantStats.setMaf(maf);
                 if (attributes.containsKey("MA")) { // Get the minor allele
                     String ma = attributes.get("MA");
@@ -301,6 +321,14 @@ public class VariantAggregatedStatsCalculator {
                     }
                 }
             }
+        }
+    }
+
+    protected float parseFloat(String s, float missingValue) {
+        if (s.equals(".")) {
+            return missingValue;
+        } else {
+            return Float.parseFloat(s);
         }
     }
 

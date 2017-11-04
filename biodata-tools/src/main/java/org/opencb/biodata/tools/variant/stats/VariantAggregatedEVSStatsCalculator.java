@@ -1,17 +1,20 @@
 /*
- * Copyright 2015 OpenCB
+ * <!--
+ *   ~ Copyright 2015-2017 OpenCB
+ *   ~
+ *   ~ Licensed under the Apache License, Version 2.0 (the "License");
+ *   ~ you may not use this file except in compliance with the License.
+ *   ~ You may obtain a copy of the License at
+ *   ~
+ *   ~     http://www.apache.org/licenses/LICENSE-2.0
+ *   ~
+ *   ~ Unless required by applicable law or agreed to in writing, software
+ *   ~ distributed under the License is distributed on an "AS IS" BASIS,
+ *   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   ~ See the License for the specific language governing permissions and
+ *   ~ limitations under the License.
+ *   -->
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  */
 
 package org.opencb.biodata.tools.variant.stats;
@@ -75,7 +78,7 @@ public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsC
     }
 
     @Override
-    protected void parseMappedStats(Variant variant, StudyEntry sourceEntry,
+    protected void parseMappedStats(Variant variant, StudyEntry studyEntry,
                                     int numAllele, String reference, String[] alternateAlleles, Map<String, String> info) {
         if (tagMap != null) {
             for (String key : info.keySet()) {
@@ -85,10 +88,10 @@ public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsC
                     String[] opencgaTagSplit = opencgaTag.split(DOT); // a literal point
                     if (opencgaTagSplit.length == 2) {
                         String cohort = opencgaTagSplit[0];
-                        VariantStats cohortStats = sourceEntry.getStats(cohort);
+                        VariantStats cohortStats = studyEntry.getStats(cohort);
                         if (cohortStats == null) {
                             cohortStats = new VariantStats(variant);
-                            sourceEntry.setStats(cohort, cohortStats);
+                            studyEntry.setStats(cohort, cohortStats);
                         }
                         switch (opencgaTagSplit[1]) {
                             case "AC":
@@ -103,7 +106,7 @@ public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsC
                                 // TODO implement this. also, take into account that needed fields may not be processed yet
                                 break;
                             case "GTC":
-                                addGenotypeWithGTS(sourceEntry.getAttributes(), values, reference, alternateAlleles, numAllele, cohortStats);
+                                addGenotypeWithGTS(studyEntry.getAttributes(), values, reference, alternateAlleles, numAllele, cohortStats);
                                 break;
                             default:
                                 break;
@@ -116,10 +119,10 @@ public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsC
                         if (populations.length == values.length) {
                             for (int i = 0; i < values.length; i++) {   // each value has the maf of each population
                                 float maf = Float.parseFloat(values[i]) / 100;  // from [0, 100] (%) to [0, 1]
-                                VariantStats cohortStats = sourceEntry.getCohortStats(populations[i]);
+                                VariantStats cohortStats = studyEntry.getStats(populations[i]);
                                 if (cohortStats == null) {
                                     cohortStats = new VariantStats(variant);
-                                    sourceEntry.setCohortStats(populations[i], cohortStats);
+                                    studyEntry.setStats(populations[i], cohortStats);
                                 }
                                 cohortStats.setMaf(maf);
                             }

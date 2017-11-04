@@ -1,12 +1,33 @@
+/*
+ * <!--
+ *   ~ Copyright 2015-2017 OpenCB
+ *   ~
+ *   ~ Licensed under the Apache License, Version 2.0 (the "License");
+ *   ~ you may not use this file except in compliance with the License.
+ *   ~ You may obtain a copy of the License at
+ *   ~
+ *   ~     http://www.apache.org/licenses/LICENSE-2.0
+ *   ~
+ *   ~ Unless required by applicable law or agreed to in writing, software
+ *   ~ distributed under the License is distributed on an "AS IS" BASIS,
+ *   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   ~ See the License for the specific language governing permissions and
+ *   ~ limitations under the License.
+ *   -->
+ *
+ */
+
 package org.opencb.biodata.tools.variant.converters.ga4gh;
 
 import ga4gh.Variants;
-import org.opencb.biodata.models.variant.VariantSource;
+import org.opencb.biodata.models.variant.VariantFileMetadata;
+import org.opencb.biodata.models.variant.metadata.VariantFileHeaderComplexLine;
 import org.opencb.biodata.tools.variant.converters.ga4gh.factories.Ga4ghVariantFactory;
 import org.opencb.biodata.tools.variant.converters.ga4gh.factories.ProtoGa4GhVariantFactory;
-import org.opencb.biodata.tools.variant.converters.Converter;
+import org.opencb.biodata.tools.Converter;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created on 08/08/16.
@@ -14,7 +35,7 @@ import java.util.*;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  * @author Jacobo Coll &lt;jacobo167@gmail.com&gt;
  */
-public class Ga4ghVariantSetConverter<VS> implements Converter<VariantSource, VS> {
+public class Ga4ghVariantSetConverter<VS> implements Converter<VariantFileMetadata, VS> {
 
     private final Ga4ghVariantFactory<?, ?, ?, VS, ?> factory;
 
@@ -31,32 +52,27 @@ public class Ga4ghVariantSetConverter<VS> implements Converter<VariantSource, VS
     }
 
     @Override
-    public VS convert(VariantSource source) {
-        return apply(Collections.singletonList(source)).get(0);
+    public VS convert(VariantFileMetadata fileMetadata) {
+        return apply(Collections.singletonList(fileMetadata)).get(0);
     }
 
     @Override
-    public List<VS> apply(List<VariantSource> variantSources) {
+    public List<VS> apply(List<VariantFileMetadata> variantFileMetadata) {
         Set<VS> gaVariantSets = new LinkedHashSet<>();
 
-        for (VariantSource source : variantSources) {
-            // TODO This header should be already split
+        for (VariantFileMetadata fileMetadata : variantFileMetadata) {
             List<Object> metadata = new ArrayList<>();
-            for (Map.Entry<String, List<Object>> entry : source.getHeader().getMeta().entrySet()) {
-                String key = entry.getKey();
-                for (Object o : entry.getValue()) {
-                    Object variantSetMetadata;
-                    if (o instanceof Map) {
-                        variantSetMetadata = getMetadataLine(key, ((Map) o));
-                    } else {
-                        variantSetMetadata = factory.newVariantSetMetadata(key, o.toString(), "", "", "", "", Collections.emptyMap());
-                    }
-                    metadata.add(variantSetMetadata);
-                }
+            for (VariantFileHeaderComplexLine line : fileMetadata.getHeader().getComplexLines()) {
+                Map<String, List<String>> info = line.getGenericFields().entrySet().stream()
+                        .collect(Collectors.toMap(Map.Entry::getKey,
+                                value -> Arrays.asList(value.getValue().split(","))));
+                metadata.add(factory.newVariantSetMetadata(line.getKey(), null, line.getId(), line.getType(), line.getNumber(), line.getDescription(), info));
             }
+            fileMetadata.getHeader().getSimpleLines().forEach(line ->
+                    metadata.add(factory.newVariantSetMetadata(line.getKey(), line.getValue(), null, null, null, null, Collections.emptyMap())));
 
             @SuppressWarnings("unchecked")
-            VS variantSet = (VS) factory.newVariantSet(source.getFileId(), source.getFileName(), source.getStudyId(), "", (List) metadata);
+            VS variantSet = (VS) factory.newVariantSet(fileMetadata.getId(), fileMetadata.getPath(), "", "", (List) metadata);
             gaVariantSets.add(variantSet);
         }
 

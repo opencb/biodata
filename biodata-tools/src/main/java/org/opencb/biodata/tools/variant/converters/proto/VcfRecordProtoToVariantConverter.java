@@ -1,3 +1,22 @@
+/*
+ * <!--
+ *   ~ Copyright 2015-2017 OpenCB
+ *   ~
+ *   ~ Licensed under the Apache License, Version 2.0 (the "License");
+ *   ~ you may not use this file except in compliance with the License.
+ *   ~ You may obtain a copy of the License at
+ *   ~
+ *   ~     http://www.apache.org/licenses/LICENSE-2.0
+ *   ~
+ *   ~ Unless required by applicable law or agreed to in writing, software
+ *   ~ distributed under the License is distributed on an "AS IS" BASIS,
+ *   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   ~ See the License for the specific language governing permissions and
+ *   ~ limitations under the License.
+ *   -->
+ *
+ */
+
 package org.opencb.biodata.tools.variant.converters.proto;
 
 import org.opencb.biodata.models.variant.StudyEntry;
@@ -7,7 +26,7 @@ import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.protobuf.VariantProto;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
-import org.opencb.biodata.tools.variant.converters.Converter;
+import org.opencb.biodata.tools.Converter;
 
 import java.util.*;
 
@@ -18,13 +37,11 @@ import java.util.*;
  */
 public class VcfRecordProtoToVariantConverter implements Converter<VcfSliceProtos.VcfRecord, Variant> {
 
-    private VcfSliceProtos.Fields fields;
+    private volatile VcfSliceProtos.Fields fields;
 
     private final LinkedHashMap<String, Integer> samplePosition;
     private final String fileId;
     private final String studyId;
-
-
 
     public VcfRecordProtoToVariantConverter(VcfSliceProtos.Fields fields, Map<String, Integer> samplePosition, String fileId, String studyId) {
         this(fields, StudyEntry.sortSamplesPositionMap(samplePosition), fileId, studyId);
@@ -35,13 +52,19 @@ public class VcfRecordProtoToVariantConverter implements Converter<VcfSliceProto
     }
 
     public VcfRecordProtoToVariantConverter(VcfSliceProtos.Fields fields, LinkedHashMap<String, Integer> samplePosition, String fileId, String studyId) {
-
         this.samplePosition = samplePosition;
-
         this.fields = fields;
         this.fileId = fileId;
         this.studyId = studyId;
+    }
 
+    protected LinkedHashMap<String, Integer> getSamplePosition() {
+        return this.samplePosition;
+    }
+
+    @Deprecated
+    protected LinkedHashMap<String, Integer> retrieveSamplePosition() {
+        return getSamplePosition();
     }
 
     @Override
@@ -50,19 +73,20 @@ public class VcfRecordProtoToVariantConverter implements Converter<VcfSliceProto
     }
 
     public Variant convert(VcfSliceProtos.VcfRecord vcfRecord, String chromosome, int slicePosition) {
-        int start = slicePosition + vcfRecord.getRelativeStart();
-        int end = getRealEnd(slicePosition, start, vcfRecord.getRelativeEnd());
+        int start = getStart(vcfRecord, slicePosition);
+        int end = getEnd(vcfRecord, slicePosition);
 
         Variant variant = new Variant(chromosome, start, end, vcfRecord.getReference(), vcfRecord.getAlternate());
 
         variant.setType(getVariantType(vcfRecord.getType()));
         variant.setIds(vcfRecord.getIdNonDefaultList());
+        variant.resetLength();
 
         FileEntry fileEntry = new FileEntry();
         fileEntry.setFileId(fileId);
         Map<String, String> attributes = getFileAttributes(vcfRecord);
         fileEntry.setAttributes(attributes);
-        fileEntry.setCall(vcfRecord.getCall());
+        fileEntry.setCall(vcfRecord.getCall().isEmpty() ? null : vcfRecord.getCall());
         if (vcfRecord.getType().equals(VariantProto.VariantType.NO_VARIATION)) {
             attributes.put("END", Integer.toString(end));
         }
@@ -71,18 +95,26 @@ public class VcfRecordProtoToVariantConverter implements Converter<VcfSliceProto
         studyEntry.setFiles(Collections.singletonList(fileEntry));
         studyEntry.setFormat(getFormat(vcfRecord));
         studyEntry.setSamplesData(getSamplesData(vcfRecord, studyEntry.getFormatPositions()));
-        studyEntry.setSamplesPosition(samplePosition);
+        studyEntry.setSamplesPosition(retrieveSamplePosition());
+        studyEntry.getFormatPositions(); // Initialize the map
+
         List<VariantProto.AlternateCoordinate> alts = vcfRecord.getSecondaryAlternatesList();
         studyEntry.setSecondaryAlternates(getAlternateCoordinates(alts));
         variant.addStudyEntry(studyEntry);
+        studyEntry.getFormatPositions(); // Initialize the map
 
         return variant;
     }
 
-    private int getRealEnd(int slicePosition, int start, int relativeEnd) {
+    public static int getStart(VcfSliceProtos.VcfRecord vcfRecord, int slicePosition) {
+        return slicePosition + vcfRecord.getRelativeStart();
+    }
+
+    public static int getEnd(VcfSliceProtos.VcfRecord vcfRecord, int slicePosition) {
         final int end;
+        int relativeEnd = vcfRecord.getRelativeEnd();
         if (relativeEnd == 0) {
-            end = start;
+            end = getStart(vcfRecord, slicePosition);
         } else {
             if (relativeEnd < 0) {
                 // Negative values are stored with one position less.

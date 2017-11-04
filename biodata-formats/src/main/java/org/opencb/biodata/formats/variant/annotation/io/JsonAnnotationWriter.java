@@ -1,17 +1,20 @@
 /*
- * Copyright 2015 OpenCB
+ * <!--
+ *   ~ Copyright 2015-2017 OpenCB
+ *   ~
+ *   ~ Licensed under the Apache License, Version 2.0 (the "License");
+ *   ~ you may not use this file except in compliance with the License.
+ *   ~ You may obtain a copy of the License at
+ *   ~
+ *   ~     http://www.apache.org/licenses/LICENSE-2.0
+ *   ~
+ *   ~ Unless required by applicable law or agreed to in writing, software
+ *   ~ distributed under the License is distributed on an "AS IS" BASIS,
+ *   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   ~ See the License for the specific language governing permissions and
+ *   ~ limitations under the License.
+ *   -->
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  */
 
 package org.opencb.biodata.formats.variant.annotation.io;
@@ -20,8 +23,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.google.common.base.Throwables;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.VariantAnnotation;
+import org.opencb.biodata.models.variant.avro.VariantAvro;
 import org.opencb.commons.io.DataWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,8 +83,7 @@ public class JsonAnnotationWriter implements DataWriter<Variant> {
             bw = new BufferedWriter(new OutputStreamWriter(os));
 
         } catch (IOException e) {
-            e.printStackTrace();
-            return false;
+            throw Throwables.propagate(e);
         }
         return true;
     }
@@ -89,8 +93,7 @@ public class JsonAnnotationWriter implements DataWriter<Variant> {
         try {
             bw.close();
         } catch (IOException e) {
-            e.printStackTrace();
-            return false;
+            throw Throwables.propagate(e);
         }
         return true;
     }
@@ -100,7 +103,7 @@ public class JsonAnnotationWriter implements DataWriter<Variant> {
         ObjectMapper jsonObjectMapper = new ObjectMapper();
         jsonObjectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         jsonObjectMapper.configure(MapperFeature.REQUIRE_SETTERS_FOR_GETTERS, true);
-        jsonObjectWriter = jsonObjectMapper.writer();
+        jsonObjectWriter = jsonObjectMapper.writerFor(VariantAvro.class);
         return true;
     }
 
@@ -113,17 +116,17 @@ public class JsonAnnotationWriter implements DataWriter<Variant> {
     @Override
     public boolean write(Variant variant) {
         try {
-            bw.write(jsonObjectWriter.writeValueAsString(variant)+"\n");
+            jsonObjectWriter.writeValue(bw, variant.getImpl());
+            bw.write('\n');
 //            writtenVariantAnnotations++;
         } catch (IOException e) {
-            e.printStackTrace();
+            throw Throwables.propagate(e);
         }
         return true;
     }
 
     @Override
     public boolean write(List<Variant> list) {
-
         if (list != null) {
             for(Variant variant : list) {
                 write(variant);
@@ -132,7 +135,6 @@ public class JsonAnnotationWriter implements DataWriter<Variant> {
             int previousBatch = writtenVariantAnnotations / LOG_BATCH_SIZE;
             writtenVariantAnnotations +=list.size();
             int newBatch = writtenVariantAnnotations / LOG_BATCH_SIZE;
-
             if (newBatch != previousBatch) {
                 logger.info("{} written annotations.", writtenVariantAnnotations);
             }

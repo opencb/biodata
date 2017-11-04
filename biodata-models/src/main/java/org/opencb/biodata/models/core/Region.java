@@ -1,17 +1,20 @@
 /*
- * Copyright 2015 OpenCB
+ * <!--
+ *   ~ Copyright 2015-2017 OpenCB
+ *   ~
+ *   ~ Licensed under the Apache License, Version 2.0 (the "License");
+ *   ~ you may not use this file except in compliance with the License.
+ *   ~ You may obtain a copy of the License at
+ *   ~
+ *   ~     http://www.apache.org/licenses/LICENSE-2.0
+ *   ~
+ *   ~ Unless required by applicable law or agreed to in writing, software
+ *   ~ distributed under the License is distributed on an "AS IS" BASIS,
+ *   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   ~ See the License for the specific language governing permissions and
+ *   ~ limitations under the License.
+ *   -->
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  */
 
 package org.opencb.biodata.models.core;
@@ -23,7 +26,7 @@ import java.util.regex.Pattern;
 /**
  * @author Ignacio Medina
  * @author Cristina Yenyxe Gonzalez Garcia
- * @author Joaquín Tárraga Giménez
+ * @author Joaquin Tarraga
  */
 public class Region {
 
@@ -76,15 +79,46 @@ public class Region {
     }
 
     public static List<Region> parseRegions(String regionsString) {
+        return parseRegions(regionsString, false);
+    }
+
+    public static List<Region> parseRegions(String regionsString, boolean normalize) {
         List<Region> regions = null;
         if (regionsString != null && !regionsString.isEmpty()) {
             String[] regionItems = regionsString.split(",");
             regions = new ArrayList<>(regionItems.length);
             for (String regionString : regionItems) {
-                regions.add(new Region(regionString));
+                Region region = new Region(regionString);
+                if (normalize) {
+                    region.normalizeChromosome();
+                }
+                regions.add(region);
             }
         }
         return regions;
+    }
+
+    public String normalizeChromosome() {
+        chromosome = normalizeChromosome(chromosome);
+        return chromosome;
+    }
+
+    public static String normalizeChromosome(String chromosome) {
+        // Replace "chr" references only at the beginning of the chromosome name
+        // For instance, tomato has SL2.40ch00 and that should be kept that way
+        if (chromosome.startsWith("ch")) {
+            if (chromosome.startsWith("chrom")) {
+                chromosome = chromosome.substring(5);
+            } else if (chromosome.startsWith("chrm")) {
+                chromosome = chromosome.substring(4);
+            } else if (chromosome.startsWith("chr")) {
+                chromosome = chromosome.substring(3);
+            } else {
+                // Only starts with ch
+                chromosome = chromosome.substring(2);
+            }
+        }
+        return chromosome;
     }
 
 
@@ -99,7 +133,7 @@ public class Region {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(this.chromosome);
-        if (this.start != 0 && this.end != Integer.MAX_VALUE) {
+        if (this.end != Integer.MAX_VALUE) {
             sb.append(":").append(this.start).append("-").append(this.end);
         } else {
             if (this.start != 0 && this.end == Integer.MAX_VALUE) {

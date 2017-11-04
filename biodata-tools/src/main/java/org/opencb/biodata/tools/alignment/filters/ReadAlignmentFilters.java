@@ -1,3 +1,22 @@
+/*
+ * <!--
+ *   ~ Copyright 2015-2017 OpenCB
+ *   ~
+ *   ~ Licensed under the Apache License, Version 2.0 (the "License");
+ *   ~ you may not use this file except in compliance with the License.
+ *   ~ You may obtain a copy of the License at
+ *   ~
+ *   ~     http://www.apache.org/licenses/LICENSE-2.0
+ *   ~
+ *   ~ Unless required by applicable law or agreed to in writing, software
+ *   ~ distributed under the License is distributed on an "AS IS" BASIS,
+ *   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   ~ See the License for the specific language governing permissions and
+ *   ~ limitations under the License.
+ *   -->
+ *
+ */
+
 package org.opencb.biodata.tools.alignment.filters;
 
 import org.ga4gh.models.ReadAlignment;
@@ -28,6 +47,34 @@ public class ReadAlignmentFilters extends AlignmentFilters<ReadAlignment> {
     public AlignmentFilters<ReadAlignment> addMappingQualityFilter(int mappingQuality) {
         filters.add(readAlignment ->
                 readAlignment.getAlignment() != null && readAlignment.getAlignment().getMappingQuality() >= mappingQuality);
+        return this;
+    }
+
+    @Override
+    public AlignmentFilters<ReadAlignment> addMaxNumberMismatchesFilter(int maxNumberMismatches) {
+        filters.add(readAlignment -> {
+            List<String> nmFields = readAlignment.getInfo().get("NM");
+            if (nmFields != null && nmFields.size() == 2) {
+                int nm = Integer.parseInt(nmFields.get(1));
+                return nm <= maxNumberMismatches;
+            } else {
+                return true;
+            }
+        });
+        return this;
+    }
+
+    @Override
+    public AlignmentFilters<ReadAlignment> addMaxNumberHitsFilter(int maxNumberHits) {
+        filters.add(readAlignment -> {
+            List<String> nhFields = readAlignment.getInfo().get("NH");
+            if (nhFields != null && nhFields.size() == 2) {
+                int nh = Integer.parseInt(nhFields.get(1));
+                return nh <= maxNumberHits;
+            } else {
+                return true;
+            }
+        });
         return this;
     }
 

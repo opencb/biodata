@@ -5,15 +5,14 @@ import org.junit.Test;
 import org.opencb.biodata.formats.variant.vcf4.io.VariantVcfReader;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.VariantSource;
+import org.opencb.biodata.models.variant.VariantFileMetadata;
+import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by jmmut on 2015-12-02.
@@ -25,10 +24,11 @@ public class IdentityByStateClusteringTest {
     @Test
     public void testWrite() throws Exception {
         String fileName = "ibs.vcf";
-        VariantSource source = new VariantSource(fileName, "fid", "sid", "studyName");
+        VariantFileMetadata fileMetadata = new VariantFileMetadata(fileName, "fid");
+        VariantStudyMetadata metadata = fileMetadata.toVariantStudyMetadata("sid");
         String line;
 
-        VariantVcfReader variantReader = new VariantVcfReader(source, IdentityByStateClusteringTest.class.getClassLoader().getResource(source.getFileName()).getPath());
+        VariantVcfReader variantReader = new VariantVcfReader(metadata, IdentityByStateClusteringTest.class.getClassLoader().getResource(fileName).getPath());
         variantReader.open();
         variantReader.pre();
         List<Variant> variants = variantReader.read(50);
@@ -36,7 +36,7 @@ public class IdentityByStateClusteringTest {
         variantReader.close();
 
         IdentityByStateClustering ibsc = new IdentityByStateClustering();
-        List<String> samples = new ArrayList<>(variants.get(0).getStudy(source.getStudyId()).getSamplesName());
+        List<String> samples = new ArrayList<>(variants.get(0).getStudy(metadata.getId()).getSamplesName());
         List<IdentityByState> ibses = ibsc.countIBS(variants, samples);
 
 //        OutputStream outputStream = new FileOutputStream("/tmp/test.genome");
@@ -60,10 +60,10 @@ public class IdentityByStateClusteringTest {
     @Test
     public void testIBSPerformance() throws Exception {
         String fileName = "ibs.vcf";
-        VariantSource source = new VariantSource(fileName, "fid", "sid", "studyName");
-        String line;
+        VariantFileMetadata fileMetadata = new VariantFileMetadata(fileName, "fid");
+        VariantStudyMetadata metadata = fileMetadata.toVariantStudyMetadata("sid");
 
-        VariantVcfReader variantReader = new VariantVcfReader(source, IdentityByStateClusteringTest.class.getClassLoader().getResource(source.getFileName()).getPath());
+        VariantVcfReader variantReader = new VariantVcfReader(metadata, IdentityByStateClusteringTest.class.getClassLoader().getResource(fileName).getPath());
         variantReader.open();
         variantReader.pre();
         List<Variant> variants = variantReader.read(50);
@@ -71,7 +71,7 @@ public class IdentityByStateClusteringTest {
         variantReader.close();
 
         IdentityByStateClustering ibsc = new IdentityByStateClustering();
-        List<String> samples = new ArrayList<>(variants.get(0).getStudy(source.getStudyId()).getSamplesName());
+        List<String> samples = new ArrayList<>(variants.get(0).getStudy(metadata.getId()).getSamplesName());
         List<IdentityByState> ibsesFirstTime = ibsc.countIBS(variants, samples);
 
         for (int j = 0; j < 10000; j++) {
@@ -85,10 +85,10 @@ public class IdentityByStateClusteringTest {
     @Test
     public void testIBSByRegion() throws Exception {
         String fileName = "ibs.vcf";
-        VariantSource source = new VariantSource(fileName, "fid", "sid", "studyName");
-        String line;
+        VariantFileMetadata fileMetadata = new VariantFileMetadata(fileName, "fid");
+        VariantStudyMetadata metadata = fileMetadata.toVariantStudyMetadata("sid");
 
-        VariantVcfReader variantReader = new VariantVcfReader(source, IdentityByStateClusteringTest.class.getClassLoader().getResource(source.getFileName()).getPath());
+        VariantVcfReader variantReader = new VariantVcfReader(metadata, IdentityByStateClusteringTest.class.getClassLoader().getResource(fileName).getPath());
         variantReader.open();
         variantReader.pre();
         List<Variant> variants = variantReader.read(50);
@@ -96,7 +96,7 @@ public class IdentityByStateClusteringTest {
         variantReader.close();
 
         IdentityByStateClustering ibsc = new IdentityByStateClustering();
-        List<String> samples = new ArrayList<>(variants.get(0).getStudy(source.getStudyId()).getSamplesName());
+        List<String> samples = new ArrayList<>(variants.get(0).getStudy(metadata.getId()).getSamplesName());
         List<IdentityByState> ibsesFirstHalf = ibsc.countIBS(variants.subList(0, variants.size()/2), samples);
         List<IdentityByState> ibsesSecondHalf = ibsc.countIBS(variants.subList(variants.size()/2, variants.size()), samples);
 
@@ -115,10 +115,10 @@ public class IdentityByStateClusteringTest {
     @Test
     public void testCountIBS() throws Exception {
         String fileName = "ibs.vcf";
-        VariantSource source = new VariantSource(fileName, "fid", "sid", "studyName");
-        String line;
+        VariantFileMetadata fileMetadata = new VariantFileMetadata(fileName, "fid");
+        VariantStudyMetadata metadata = fileMetadata.toVariantStudyMetadata("sid");
 
-        VariantVcfReader variantReader = new VariantVcfReader(source, IdentityByStateClusteringTest.class.getClassLoader().getResource(source.getFileName()).getPath());
+        VariantVcfReader variantReader = new VariantVcfReader(metadata, IdentityByStateClusteringTest.class.getClassLoader().getResource(fileName).getPath());
         variantReader.open();
         variantReader.pre();
         List<Variant> variants = variantReader.read(50);
@@ -126,7 +126,7 @@ public class IdentityByStateClusteringTest {
         variantReader.close();
 
         IdentityByStateClustering ibsc = new IdentityByStateClustering();
-        List<String> samples = new ArrayList<>(variants.get(0).getStudy(source.getStudyId()).getSamplesName());
+        List<String> samples = new ArrayList<>(variants.get(0).getStudy(metadata.getId()).getSamplesName());
         List<IdentityByState> ibses = ibsc.countIBS(variants, samples);
 
 

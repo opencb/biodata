@@ -1,3 +1,22 @@
+/*
+ * <!--
+ *   ~ Copyright 2015-2017 OpenCB
+ *   ~
+ *   ~ Licensed under the Apache License, Version 2.0 (the "License");
+ *   ~ you may not use this file except in compliance with the License.
+ *   ~ You may obtain a copy of the License at
+ *   ~
+ *   ~     http://www.apache.org/licenses/LICENSE-2.0
+ *   ~
+ *   ~ Unless required by applicable law or agreed to in writing, software
+ *   ~ distributed under the License is distributed on an "AS IS" BASIS,
+ *   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   ~ See the License for the specific language governing permissions and
+ *   ~ limitations under the License.
+ *   -->
+ *
+ */
+
 package org.opencb.biodata.tools.variant.converters.ga4gh;
 
 import ga4gh.Variants;
@@ -9,7 +28,7 @@ import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.tools.variant.converters.ga4gh.factories.AvroGa4GhVariantFactory;
 import org.opencb.biodata.tools.variant.converters.ga4gh.factories.Ga4ghVariantFactory;
 import org.opencb.biodata.tools.variant.converters.ga4gh.factories.ProtoGa4GhVariantFactory;
-import org.opencb.biodata.tools.variant.converters.Converter;
+import org.opencb.biodata.tools.Converter;
 
 import java.util.*;
 
@@ -134,8 +153,8 @@ public class Ga4ghVariantConverter<V> implements Converter<Variant, V> {
         parsedInfo.put("ORI", ori);
         int fileIdx = 0;
         for (FileEntry file : files) {
-            fileIds.add(file.getFileId());
-            ori.add(file.getCall());
+            fileIds.add(file.getFileId() == null ? "" : file.getFileId());
+            ori.add(file.getCall() == null ? "" : file.getCall());
             Map<String, String> attributes = file.getAttributes();
             for (Map.Entry<String, String> field : attributes.entrySet()) {
                 List<String> value;
