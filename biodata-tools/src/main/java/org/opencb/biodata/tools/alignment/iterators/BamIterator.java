@@ -27,7 +27,8 @@ import org.opencb.biodata.tools.alignment.filters.SamRecordFilters;
 import java.util.Iterator;
 
 /**
- * Created by pfurio on 25/10/16.
+ * This class implements an Iterator for BAM files that can filter reads.
+ * There are three subclasses depending on the data model to be returned: SAMRecord, ReadAlignment in Avro and ReadAlignment in Protobuff.
  */
 public abstract class BamIterator<T> implements Iterator<T>, AutoCloseable {
 

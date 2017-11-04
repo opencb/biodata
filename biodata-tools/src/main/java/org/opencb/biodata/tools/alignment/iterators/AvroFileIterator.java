@@ -27,7 +27,7 @@ import org.opencb.biodata.tools.alignment.filters.ReadAlignmentFilters;
 import java.util.Iterator;
 
 /**
- * Created by pfurio on 27/10/16.
+ * This class implements an Iterator for ReadAlignment Avro files.
  */
 public class AvroFileIterator implements Iterator<ReadAlignment>, AutoCloseable  {
 

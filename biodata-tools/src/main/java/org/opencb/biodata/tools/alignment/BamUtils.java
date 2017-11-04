@@ -215,14 +215,12 @@ public class BamUtils {
         BamManager alignmentManager = new BamManager(bamPath);
         Iterator<SAMSequenceRecord> iterator = fileHeader.getSequenceDictionary().getSequences().iterator();
         PrintWriter writer = new PrintWriter(coveragePath.toFile());
-        StringBuilder line;
         // chunkSize = 100000 (too small, it takes loooooong...)
         int chunkSize = Math.max(span, 200000 / span * span);
         while (iterator.hasNext()) {
             SAMSequenceRecord next = iterator.next();
             for (int i = 0; i < next.getSequenceLength(); i += chunkSize) {
-                Region region = new Region(next.getSequenceName(), i + 1,
-                        Math.min(i + chunkSize, next.getSequenceLength()));
+                Region region = new Region(next.getSequenceName(), i + 1, Math.min(i + chunkSize, next.getSequenceLength()));
                 RegionCoverage regionCoverage = alignmentManager.coverage(region, null, options);
                 printWigFormatCoverage(regionCoverage, span, (i == 0), writer);
             }
