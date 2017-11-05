@@ -165,8 +165,7 @@ public class BamUtils {
      * @param header            Flag, to write a header line (assuming fixedStep, and start=1 and step=1)
      * @param writer            File writer
      */
-    public static void printWigFormatCoverage(RegionCoverage regionCoverage, int span,
-                                              boolean header, PrintWriter writer) {
+    public static void printWigFormatCoverage(RegionCoverage regionCoverage, int span, boolean header, PrintWriter writer) {
         // sanity check
         if (span < 1) {
             span = 1;
@@ -174,7 +173,7 @@ public class BamUtils {
         if (header) {
             writer.println("fixedStep chrom=" + regionCoverage.getChromosome() + " start=1 step=1 span=" + span);
         }
-        short[] values = regionCoverage.getValues();
+        float[] values = regionCoverage.getValues();
         if (span == 1) {
             for (int i = 0; i < values.length; i++) {
                 writer.println(values[i]);

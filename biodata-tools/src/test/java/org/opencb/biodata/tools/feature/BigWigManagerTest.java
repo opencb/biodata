@@ -2,6 +2,7 @@ package org.opencb.biodata.tools.feature;
 
 import htsjdk.samtools.SAMFileHeader;
 import htsjdk.samtools.SAMSequenceRecord;
+import org.broad.igv.bbfile.BigWigIterator;
 import org.junit.Test;
 import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.tools.alignment.BamUtils;
@@ -54,19 +55,20 @@ public class BigWigManagerTest {
 
     @Test
     public void groupBy() throws Exception {
-        Path bwPath = Paths.get("/home/jtarraga/test/HG00096.mapped.illumina.exome.bam.1.sort.bam.coverage.bw");
+//        Path bwPath = Paths.get("/home/jtarraga/test/HG00096.mapped.illumina.exome.bam.1.sort.bam.coverage.bw");
+        Path bwPath = Paths.get(getClass().getResource("/wigVarStepExampleSmallChr21.bw").toURI());
 
-        String chrom = "2";
-        int start = 1000;
+        String chrom = "21";
+        int start = 100;
         int end =   100000000;
         int chunkSize = 1000;
 
         BigWigManager bigWigManager = new BigWigManager(bwPath);
         Region region = new Region(chrom, start, end);
-        List<Float> coverage = bigWigManager.groupBy(region, chunkSize);
+        float[] coverage = bigWigManager.groupBy(region, chunkSize);
 
-        for (int i = 0; i < coverage.size(); i++) {
-            System.out.println(i + " :" + coverage.get(i));
+        for (int i = 0; i < coverage.length; i++) {
+            System.out.println(i + ": " + coverage[i]);
         }
 //        assertEquals(region.getEnd() - region.getStart() + 1, coverage.length);
     }

@@ -33,12 +33,19 @@ public class BigWigManager {
         this(bigwigPath, bigwigPath.getParent().resolve(BIGWIG_DB));
     }
 
+    @Deprecated
     public BigWigManager(Path bigwigPath, Path indexPath) throws IOException {
         this.bigWigFilePath = bigwigPath;
         this.indexPath = indexPath;
+
         init();
     }
 
+    private void init() throws IOException {
+        FileUtils.checkPath(this.bigWigFilePath);
+
+        this.bbFileReader = new BBFileReader(this.bigWigFilePath.toString());
+    }
 
     /**
      * Query by a given region.
@@ -48,8 +55,7 @@ public class BigWigManager {
      * @throws IOException
      */
     public float[] query(Region region) throws IOException {
-        BigWigIterator bigWigIterator = bbFileReader.getBigWigIterator(region.getChromosome(), region.getStart(),
-                region.getChromosome(), region.getEnd(), true);
+        BigWigIterator bigWigIterator = iterator(region);
         float[] values = new float[region.getEnd() - region.getStart() + 1];
         while (bigWigIterator.hasNext()) {
             WigItem next = bigWigIterator.next();
@@ -72,27 +78,35 @@ public class BigWigManager {
      * @throws IOException
      */
     public BigWigIterator iterator(Region region) throws IOException {
-        return bbFileReader.getBigWigIterator(region.getChromosome(), region.getStart(),
-                region.getChromosome(), region.getEnd(), true);
+        return bbFileReader.getBigWigIterator(region.getChromosome(), region.getStart(), region.getChromosome(), region.getEnd(), true);
     }
 
-    public List<Float> groupBy(Region region, int windowSize) throws IOException {
-        BigWigIterator bigWigIterator = bbFileReader.getBigWigIterator(region.getChromosome(), region.getStart(),
-                region.getChromosome(), region.getEnd(), true);
-        int numChunks = (region.getEnd() - region.getStart()) / windowSize + 1;
-        List<Float> chunks = new ArrayList<>(numChunks);
+    public float[] groupBy(Region region, int windowSize) throws IOException {
+        BigWigIterator bigWigIterator = iterator(region);
+
+        // Calculate the number of needed windows
+        int numWindows = (region.getEnd() - region.getStart()) / windowSize;
+        if (region.getEnd() % region.getStart() != 0) {
+            numWindows++;
+        }
+        float[] chunks = new float[numWindows];
         float value = 0;
+        int chunk = 0;
         while (bigWigIterator.hasNext()) {
+            // We group in windowSize and average
             for (int i = 0; i < windowSize; i++) {
                 if (bigWigIterator.hasNext()) {
                     value += bigWigIterator.next().getWigValue();
                 } else {
-                    chunks.add(value / i);
+                    // We have to calculate the average of the last few values
+                    chunks[chunk] = value / i;
                     break;
                 }
             }
+
             if (bigWigIterator.hasNext()) {
-                chunks.add(value / windowSize);
+                chunks[chunk] = value / windowSize;
+                chunk++;
                 value = 0;
             }
         }
@@ -156,8 +170,7 @@ public class BigWigManager {
                  chunk++, pos += chunkSize) {
                 // compute how many values are within the current chunk
                 // and update the chunk
-                partial = Math.min(wigItem.getEndBase(), pos + chunkSize) - Math.max(wigItem.getStartBase(),
-                        pos);
+                partial = Math.min(wigItem.getEndBase(), pos + chunkSize) - Math.max(wigItem.getStartBase(), pos);
                 values.add((int) (partial * wigItem.getWigValue()));
             }
             prevChunk = endChunk;
@@ -170,17 +183,4 @@ public class BigWigManager {
         return indexPath;
     }
 
-    /**
-     * P R I V A T E   M E T H O D S
-     */
-
-    /**
-     * Create the Big Wig file reader.
-     *
-     * @throws IOException
-     */
-    private void init() throws IOException {
-        FileUtils.checkPath(this.bigWigFilePath);
-        bbFileReader = new BBFileReader(this.bigWigFilePath.toString());
-    }
 }

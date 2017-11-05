@@ -35,11 +35,13 @@ import org.opencb.biodata.tools.alignment.iterators.SAMRecordToProtoReadAlignmen
 import org.opencb.biodata.tools.alignment.iterators.SamRecordBamIterator;
 import org.opencb.biodata.tools.alignment.stats.AlignmentGlobalStats;
 import org.opencb.biodata.tools.alignment.stats.SamRecordAlignmentGlobalStatsCalculator;
+import org.opencb.biodata.tools.feature.BigWigManager;
 import org.opencb.commons.utils.FileUtils;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -47,7 +49,7 @@ import java.util.List;
  */
 public class BamManager {
 
-    private Path input;
+    private Path bamPath;
     private SamReader samReader;
 
     private static final int DEFAULT_MAX_NUM_RECORDS = 50000;
@@ -56,13 +58,13 @@ public class BamManager {
     public BamManager() {
     }
 
-    public BamManager(Path input) throws IOException {
-        FileUtils.checkFile(input);
-        this.input = input;
+    public BamManager(Path bamPath) throws IOException {
+        FileUtils.checkFile(bamPath);
+        this.bamPath = bamPath;
 
         SamReaderFactory srf = SamReaderFactory.make();
         srf.validationStringency(ValidationStringency.LENIENT);
-        this.samReader = srf.open(SamInputResource.of(input.toFile()));
+        this.samReader = srf.open(SamInputResource.of(bamPath.toFile()));
     }
 
     /**
@@ -71,7 +73,7 @@ public class BamManager {
      * @throws IOException
      */
     public Path createIndex() throws IOException {
-        Path indexPath = input.getParent().resolve(input.getFileName().toString() + ".bai");
+        Path indexPath = bamPath.getParent().resolve(bamPath.getFileName().toString() + ".bai");
         return createIndex(indexPath);
     }
 
@@ -86,12 +88,12 @@ public class BamManager {
 
         SamReaderFactory srf = SamReaderFactory.make().enable(SamReaderFactory.Option.INCLUDE_SOURCE_IN_RECORDS);
         srf.validationStringency(ValidationStringency.LENIENT);
-        try (SamReader reader = srf.open(SamInputResource.of(input.toFile()))) {
+        try (SamReader reader = srf.open(SamInputResource.of(bamPath.toFile()))) {
 
             // Files need to be sorted by coordinates to create the index
             SAMFileHeader.SortOrder sortOrder = reader.getFileHeader().getSortOrder();
             if (!sortOrder.equals(SAMFileHeader.SortOrder.coordinate)) {
-                throw new IOException("Expected sorted file. File '" + input.toString()
+                throw new IOException("Expected sorted file. File '" + bamPath.toString()
                         + "' is not sorted by coordinates (" + sortOrder.name() + ")");
             }
 
@@ -100,7 +102,7 @@ public class BamManager {
             } else {
                 if (reader.type().equals(SamReader.Type.CRAM_TYPE)) {
                     // TODO This really needs to be tested!
-                    SeekableStream streamFor = SeekableStreamFactory.getInstance().getStreamFor(input.toString());
+                    SeekableStream streamFor = SeekableStreamFactory.getInstance().getStreamFor(bamPath.toString());
                     CRAMBAIIndexer.createIndex(streamFor, outputIndex.toFile(), Log.getInstance(BamManager.class),
                             ValidationStringency.DEFAULT_STRINGENCY);
                 } else {
@@ -110,6 +112,7 @@ public class BamManager {
         }
         return outputIndex;
     }
+
 
     /**
      * This method aims to provide a very simple, safe and quick way of accessing to a small fragment of the BAM/CRAM file.
@@ -165,6 +168,7 @@ public class BamManager {
         bamIterator.close();
         return results;
     }
+
 
     /*
      * These methods aim to provide a very simple, safe and quick way of iterating BAM/CRAM files.
@@ -227,7 +231,7 @@ public class BamManager {
     }
 
 
-    public RegionCoverage coverage(Region region,  AlignmentFilters<SAMRecord> filters, AlignmentOptions options) {
+    public RegionCoverage coverage(Region region, AlignmentFilters<SAMRecord> filters, AlignmentOptions options) {
         RegionCoverage regionCoverage = new RegionCoverage(region);
         if (options == null) {
             options = new AlignmentOptions();
@@ -246,35 +250,52 @@ public class BamManager {
         return regionCoverage;
     }
 
+    /**
+     * Return the coverage average given a window size from a BigWig file. This is expected to have the same name
+     * that the BAM file with .coverage.bw or .bw suffix.
+     * If no BigWig file is founf and windowSize is 1 then we calculate te coverage from the BAM file.
+     * @param region Region from which return the coverage
+     * @param windowSize Window size to average
+     * @return One average score per window size spanning the region
+     * @throws IOException If any error happens reading BigWig file
+     */
+    public RegionCoverage coverage(Region region, int windowSize) throws IOException {
+        if (this.bamPath.resolve(".bw").toFile().exists()) {
+            return coverage(region, windowSize, this.bamPath.resolve(".bw"));
+        } else {
+            if (this.bamPath.resolve(".coverage.bw").toFile().exists()) {
+                return coverage(region, windowSize, this.bamPath.resolve(".coverage.bw"));
+            } else {
+                // If not BigWig file is found and windowSize is 1 then we calculate it from the BAM file
+                if (windowSize == 1) {
+                    return coverage(region, null, new AlignmentOptions());
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Return the coverage average given a window size from the BigWig file passed.
+     * @param region Region from which return the coverage
+     * @param windowSize Window size to average
+     * @param bigwigPath BigWig path with coverage
+     * @return One average score per window size spanning the region
+     * @throws IOException If any error happens reading BigWig file
+     */
+    public RegionCoverage coverage(Region region, int windowSize, Path bigwigPath) throws IOException {
+        BigWigManager bigWigManager = new BigWigManager(bigwigPath);
+        float[] avgCoverage = bigWigManager.groupBy(region, windowSize);
+        return new RegionCoverage(region, windowSize, avgCoverage);
+    }
+
 
     public AlignmentGlobalStats stats() throws Exception {
         return calculateGlobalStats(iterator());
-//        AlignmentGlobalStats alignmentGlobalStats = new AlignmentGlobalStats();
-//        SamRecordAlignmentGlobalStatsCalculator calculator = new SamRecordAlignmentGlobalStatsCalculator();
-//        try (BamIterator<SAMRecord> iterator = iterator()) {
-//            while (iterator.hasNext()) {
-//                AlignmentGlobalStats computed = calculator.compute(iterator.next());
-//                calculator.update(computed, alignmentGlobalStats);
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return alignmentGlobalStats;
     }
 
     public AlignmentGlobalStats stats(Region region, AlignmentFilters<SAMRecord> filters, AlignmentOptions options) throws Exception {
         return calculateGlobalStats(iterator(region, filters, options));
-//        AlignmentGlobalStats alignmentGlobalStats = new AlignmentGlobalStats();
-//        SamRecordAlignmentGlobalStatsCalculator calculator = new SamRecordAlignmentGlobalStatsCalculator();
-//        try (BamIterator<SAMRecord> iterator = iterator(region, options, filters)) {
-//            while (iterator.hasNext()) {
-//                AlignmentGlobalStats computed = calculator.compute(iterator.next());
-//                calculator.update(computed, alignmentGlobalStats);
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return alignmentGlobalStats;
     }
 
     private AlignmentGlobalStats calculateGlobalStats(BamIterator<SAMRecord> iterator) throws Exception {
