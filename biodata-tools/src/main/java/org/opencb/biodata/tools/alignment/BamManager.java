@@ -202,13 +202,13 @@ public class BamManager {
         return iterator(region, filters, options, SAMRecord.class);
     }
 
-    public <T> BamIterator<T> iterator(Region region, AlignmentFilters<SAMRecord> filters, AlignmentOptions alignmentOptions, Class<T> clazz) {
-        if (alignmentOptions == null) {
-            alignmentOptions = new AlignmentOptions();
+    public <T> BamIterator<T> iterator(Region region, AlignmentFilters<SAMRecord> filters, AlignmentOptions options, Class<T> clazz) {
+        if (options == null) {
+            options = new AlignmentOptions();
         }
         SAMRecordIterator samRecordIterator =
-                samReader.query(region.getChromosome(), region.getStart(), region.getEnd(), alignmentOptions.isContained());
-        return getAlignmentIterator(filters, alignmentOptions, clazz, samRecordIterator);
+                samReader.query(region.getChromosome(), region.getStart(), region.getEnd(), options.isContained());
+        return getAlignmentIterator(filters, options, clazz, samRecordIterator);
     }
 
     private <T> BamIterator<T> getAlignmentIterator(AlignmentFilters<SAMRecord> filters, AlignmentOptions options, Class<T> clazz,
@@ -253,7 +253,7 @@ public class BamManager {
     /**
      * Return the coverage average given a window size from a BigWig file. This is expected to have the same name
      * that the BAM file with .coverage.bw or .bw suffix.
-     * If no BigWig file is founf and windowSize is 1 then we calculate te coverage from the BAM file.
+     * If no BigWig file is found and windowSize is 1 then we calculate te coverage from the BAM file.
      * @param region Region from which return the coverage
      * @param windowSize Window size to average
      * @return One average score per window size spanning the region

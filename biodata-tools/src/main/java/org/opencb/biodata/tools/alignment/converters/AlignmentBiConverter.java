@@ -33,6 +33,9 @@ import java.util.Map;
  */
 public abstract class AlignmentBiConverter<T> implements BiConverter<SAMRecord, T> {
 
+    protected boolean adjustQuality;
+    protected static final String FIELD_SEPARATOR = "\t";
+
     // From SAM specification
     private static final int QNAME_COL = 0;
     private static final int FLAG_COL = 1;
@@ -45,9 +48,8 @@ public abstract class AlignmentBiConverter<T> implements BiConverter<SAMRecord, 
     private static final int ISIZE_COL = 8;
     private static final int SEQ_COL = 9;
     private static final int QUAL_COL = 10;
-
     private static final int NUM_REQUIRED_FIELDS = 11;
-    protected boolean adjustQuality = false;
+
 
     protected SAMRecord from(String samLine) {
         final String[] fields = new String[1000];

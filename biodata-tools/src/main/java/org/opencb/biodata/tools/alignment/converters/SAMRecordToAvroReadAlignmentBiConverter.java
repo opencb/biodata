@@ -34,10 +34,8 @@ import java.util.Map;
  */
 public class SAMRecordToAvroReadAlignmentBiConverter extends AlignmentBiConverter<ReadAlignment> {
 
-    private static final String FIELD_SEPARATOR = "\t";
-
     public SAMRecordToAvroReadAlignmentBiConverter() {
-        adjustQuality = true;
+        this(false);
     }
 
     public SAMRecordToAvroReadAlignmentBiConverter(boolean adjustQuality) {

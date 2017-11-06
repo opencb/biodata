@@ -36,10 +36,8 @@ import java.util.Map;
  */
 public class SAMRecordToProtoReadAlignmentBiConverter extends AlignmentBiConverter<Reads.ReadAlignment> {
 
-    private static final String FIELD_SEPARATOR = "\t";
-
     public SAMRecordToProtoReadAlignmentBiConverter() {
-        this(true);
+        this(false);
     }
 
     public SAMRecordToProtoReadAlignmentBiConverter(boolean adjustQuality) {

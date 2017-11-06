@@ -58,16 +58,16 @@ public class BigWigManagerTest {
 //        Path bwPath = Paths.get("/home/jtarraga/test/HG00096.mapped.illumina.exome.bam.1.sort.bam.coverage.bw");
         Path bwPath = Paths.get(getClass().getResource("/wigVarStepExampleSmallChr21.bw").toURI());
 
-        String chrom = "21";
+        String chrom = "20";
         int start = 100;
-        int end =   100000000;
+        int end =   10000000;
         int chunkSize = 1000;
 
         BigWigManager bigWigManager = new BigWigManager(bwPath);
         Region region = new Region(chrom, start, end);
         float[] coverage = bigWigManager.groupBy(region, chunkSize);
 
-        for (int i = 0; i < coverage.length; i++) {
+        for (int i = 0; i < coverage.length ; i++) {
             System.out.println(i + ": " + coverage[i]);
         }
 //        assertEquals(region.getEnd() - region.getStart() + 1, coverage.length);
