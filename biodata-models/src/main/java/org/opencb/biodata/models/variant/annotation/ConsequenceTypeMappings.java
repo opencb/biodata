@@ -62,6 +62,7 @@ public class ConsequenceTypeMappings {
         tmpTermToAccession.put("incomplete_terminal_codon_variant", 1626);
         tmpTermToAccession.put("synonymous_variant", 1819);
         tmpTermToAccession.put("stop_retained_variant", 1567);
+        tmpTermToAccession.put("start_retained_variant", 2019);
         tmpTermToAccession.put("coding_sequence_variant", 1580);
         tmpTermToAccession.put("miRNA", 276);
         tmpTermToAccession.put("miRNA_target_site", 934);
