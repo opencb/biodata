@@ -108,8 +108,14 @@ public class VariantBuilder {
         this.variantString = variantString;
         if (variantString != null && !variantString.isEmpty()) {
             String[] fields;
+            int idx;
+            // Symbolic alternates may use ':' within the alternate. If ends with ">", is a symbolic variant
             // Get last index of '<'. Start and end may use '<' for imprecise positions.
-            int idx = variantString.lastIndexOf("<");
+            if (variantString.endsWith(">")) {
+                idx = variantString.lastIndexOf("<");
+            } else {
+                idx = -1;
+            }
             if (idx >= 0) {
                 String[] split = variantString.substring(0, idx - 1).split(":", -1);
                 fields = new String[split.length + 1];

@@ -236,9 +236,9 @@ public abstract class VariantContextConverter<T> implements Converter<T, Variant
                             genotypeBuilder.alleles(alleles).phased(genotype.isPhased());
                             break;
                         case "AD":
-                            if (StringUtils.isNotEmpty(value) && !value.contains(".")) {
-                                String[] split = value.split(",");
-                                genotypeBuilder.AD(new int[]{Integer.parseInt(split[0]), Integer.parseInt(split[1])});
+                            if (StringUtils.isNotEmpty(value) && !value.equals(".")) {
+                                int[] ad = getInts(value);
+                                genotypeBuilder.AD(ad);
                             } else {
                                 genotypeBuilder.noAD();
                             }
@@ -258,9 +258,9 @@ public abstract class VariantContextConverter<T> implements Converter<T, Variant
                             }
                             break;
                         case "PL":
-                            if (StringUtils.isNotEmpty(value) && !value.contains(".")) {
-                                String[] split = value.split(",");
-                                genotypeBuilder.PL(new int[]{Integer.parseInt(split[0]), Integer.parseInt(split[1])});
+                            if (StringUtils.isNotEmpty(value) && !value.equals(".")) {
+                                int[] pl = getInts(value);
+                                genotypeBuilder.PL(pl);
                             } else {
                                 genotypeBuilder.noPL();
                             }
@@ -274,6 +274,20 @@ public abstract class VariantContextConverter<T> implements Converter<T, Variant
             }
         }
         return genotypes;
+    }
+
+    private int[] getInts(String value) {
+        String[] split = value.split(",");
+        int[] ints = new int[split.length];
+        for (int i = 0; i < split.length; i++) {
+            String s = split[i];
+            try {
+                ints[i] = Integer.parseInt(s);
+            } catch (NumberFormatException e) {
+                ints[i] = 0;
+            }
+        }
+        return ints;
     }
 
     protected VariantContext makeVariantContext(String chromosome, int start, int end, String idForVcf, List<String> alleleList, boolean isNoVariation, Set<String> filters, double qual, ObjectMap attributes, List<Genotype> genotypes) {

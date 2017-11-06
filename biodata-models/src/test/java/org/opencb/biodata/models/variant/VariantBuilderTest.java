@@ -43,6 +43,7 @@ public class VariantBuilderTest {
         map.put("1:1000:...GTGTGTGT", new Variant("1", 1000, 999, "", "<INS>").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.INSERTION).setSv(new StructuralVariation(null, null, null, null, null, "", "GTGTGTGT", null)));
         map.put("1:1000:ACACAC...", new Variant("1", 1000, 999, "", "<INS>").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.INSERTION).setSv(new StructuralVariation(null, null, null, null, null, "ACACAC", "", null)));
         map.put("1:1000-999:A:A.", new Variant("1", 1000, 999, "A", "A.").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.BREAKEND).setSv(new StructuralVariation(null, null, null, null, null, null, null, null)));
+        map.put("1:799984<800001<800022:-:TGTGGTGTGTGTGGTGTG...ACCACACCCACACAACACACA", new Variant("1", 800001, 800000, "", "<INS>").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.INSERTION).setSv(new StructuralVariation(799984, 800022, null, null, null, "TGTGGTGTGTGTGGTGTG", "ACCACACCCACACAACACACA", null)));
 
         for (Map.Entry<String, Variant> entry : map.entrySet()) {
             String expected = entry.getKey().replace(":-:", ":").replace("::", ":").replace("chr", "");
