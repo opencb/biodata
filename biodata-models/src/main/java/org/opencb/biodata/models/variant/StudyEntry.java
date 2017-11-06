@@ -225,8 +225,10 @@ public class StudyEntry implements Serializable {
         if (Objects.isNull(this.formatPosition.get())) {
             Map<String, Integer> map = new HashMap<>();
             int pos = 0;
-            for (String format : getFormat()) {
-                map.put(format, pos++);
+            if (getFormat() != null) {
+                for (String format : getFormat()) {
+                    map.put(format, pos++);
+                }
             }
             this.formatPosition.compareAndSet(null, map);
         }
