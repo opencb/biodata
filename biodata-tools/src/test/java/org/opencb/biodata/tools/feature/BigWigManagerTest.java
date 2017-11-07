@@ -1,17 +1,11 @@
 package org.opencb.biodata.tools.feature;
 
-import htsjdk.samtools.SAMFileHeader;
-import htsjdk.samtools.SAMSequenceRecord;
-import org.broad.igv.bbfile.BigWigIterator;
 import org.junit.Test;
 import org.opencb.biodata.models.core.Region;
-import org.opencb.biodata.tools.alignment.BamUtils;
 import org.opencb.biodata.tools.commons.ChunkFrequencyManager;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -46,16 +40,9 @@ public class BigWigManagerTest {
         query(bwPath, "20", 60000, 60200, true);
     }
 
-    @Test
-    public void query3() throws Exception {
-        Path bwPath = Paths.get("/home/jtarraga/test/HG00096.mapped.illumina.exome.bam.1.sort.bam.coverage.bw");
-        query(bwPath, "18", 10000000, 100002000, false);
-    }
-
 
     @Test
     public void groupBy() throws Exception {
-//        Path bwPath = Paths.get("/home/jtarraga/test/HG00096.mapped.illumina.exome.bam.1.sort.bam.coverage.bw");
         Path bwPath = Paths.get(getClass().getResource("/wigVarStepExampleSmallChr21.bw").toURI());
 
         String chrom = "20";
@@ -79,10 +66,6 @@ public class BigWigManagerTest {
         Path bamPath = Paths.get(getClass().getResource("/HG00096.chrom20.small.bam").toURI());
         Path bwPath = Paths.get(getClass().getResource("/wigVarStepExampleSmallChr21.bw").toURI());
         Path dbPath = Paths.get(bamPath + ".db");
-
-//        Path bamPath = Paths.get("/home/jtarraga/data150/bam/NA12877_chr1.bam");
-//        Path bwPath = Paths.get("/home/jtarraga/data150/bam/wgEncodeBroadHistoneH1hescH4k20me1StdSig.bigWig");
-//        Path dbPath = Paths.get(bwPath + ".db");
 
         dbPath.toFile().delete();
 

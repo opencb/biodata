@@ -1,15 +1,19 @@
 package org.opencb.biodata.tools.alignment;
 
 import htsjdk.samtools.*;
-import org.ga4gh.models.ReadAlignment;
+import org.junit.Before;
 import org.junit.Test;
 import org.opencb.biodata.models.alignment.RegionCoverage;
 import org.opencb.biodata.models.core.Region;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.URISyntaxException;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -18,10 +22,42 @@ import static org.junit.Assert.assertEquals;
  * Created by pfurio on 26/10/16.
  */
 public class BamManagerTest {
+    Path inputPath;
+    Path bamPath;
+    Path bwPath;
+
+    @Before
+    public void init() throws URISyntaxException, IOException {
+        inputPath = Paths.get(getClass().getResource("/HG00096.chrom20.small.bam").toURI());
+        bamPath = Paths.get("/tmp/" + inputPath.toFile().getName());
+        bwPath = Paths.get("/tmp/" + inputPath.toFile().getName() + ".bw");
+    }
+
+    @Test
+    public void testIndex() throws IOException {
+        Files.copy(inputPath, bamPath);
+        System.out.println("bamPath = " + bamPath);
+        BamManager bamManager = new BamManager(bamPath);
+        bamManager.createIndex();
+    }
+
+    @Test
+    public void testIndexBigWigCoverage() throws Exception {
+        try {
+            Files.copy(inputPath, bamPath);
+        } catch (FileAlreadyExistsException e) {
+            System.out.println("BAM file " + bamPath + " already copied");
+        }
+
+        System.out.println("bamPath = " + bamPath);
+        System.out.println("bwPath = " + bwPath);
+        BamManager bamManager = new BamManager(bamPath);
+        bamManager.createIndex();
+        bamManager.calculateBigWigCoverage(bwPath);
+    }
 
     @Test
     public void testQuery() throws Exception {
-        Path inputPath = Paths.get(getClass().getResource("/HG00096.chrom20.small.bam").toURI());
         BamManager bamManager = new BamManager(inputPath);
         AlignmentOptions options = new AlignmentOptions().setLimit(5);
         Region region = new Region("20", 60000, 65000);
@@ -30,12 +66,29 @@ public class BamManagerTest {
 
         options.setLimit(3);
         query = bamManager.query(region, options);
+        for (SAMRecord sam: query) {
+            System.out.println(sam.toString());
+        }
         assertEquals(3, query.size());
     }
 
     @Test
-    public void testCoverage() throws Exception {
-        Path inputPath = Paths.get(getClass().getResource("/HG00096.chrom20.small.bam").toURI());
+    public void testQueryBigWigCoverage() throws Exception {
+        if (!bwPath.toFile().exists()) {
+            testIndexBigWigCoverage();
+        }
+
+        BamManager bamManager = new BamManager(bamPath);
+
+        Region region = new Region("20", 62000, 62200);
+        RegionCoverage coverage = bamManager.coverage(region, 50);
+//        System.out.println(coverage.toString());
+        System.out.println(coverage.toJSON());
+        System.out.println("mean coverage = " + coverage.meanCoverage());
+    }
+
+    @Test
+    public void testQueryBAMCoverage() throws Exception {
         System.out.println("inputPath = " + inputPath);
         BamManager bamManager = new BamManager(inputPath);
 
@@ -50,18 +103,9 @@ public class BamManagerTest {
 
     //@Test
     public void testFullCoverage() throws Exception {
-        Path inputPath = Paths.get(getClass().getResource("/HG00096.chrom20.small.bam").toURI());
-//        Path inputPath = Paths.get("/home/jtarraga/data150/bam/NA12877_chrM.bam");
-//        Path inputPath = Paths.get("/home/jtarraga/swdev-data/downloads/datasets/bam/platinum_genomes/NA12877_S1.bam");
-//        Path inputPath = Paths.get("/home/jtarraga/data150/bam/NA12877_chr1.bam");
         System.out.println("inputPath = " + inputPath);
         BamManager bamManager = new BamManager(inputPath);
 
-//        FileOutputStream fos = new FileOutputStream("/home/jtarraga/data150/bam/NA12877_chr1.500k-chunk.coverage.out");
-//        FileOutputStream fos = new FileOutputStream("/home/jtarraga/data150/bam/NA12877_chr1.1k-chunk.coverage.out");
-//        FileOutputStream fos = new FileOutputStream("/home/jtarraga/data150/bam/NA12877_chrM.single-chunk.coverage.out");
-//        FileOutputStream fos = new FileOutputStream("/home/jtarraga/data150/bam/NA12877_chrM.500k-chunk.coverage.out");
-//        FileOutputStream fos = new FileOutputStream("/home/jtarraga/data150/bam/NA12877_chr1.coverage.out");
         PrintWriter writer = new PrintWriter(new File(inputPath + ".coverage"));
 
 //        short[] values;
