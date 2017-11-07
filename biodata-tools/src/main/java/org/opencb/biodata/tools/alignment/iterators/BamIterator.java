@@ -63,7 +63,7 @@ public abstract class BamIterator<T> implements Iterator<T>, AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         samRecordIterator.close();
     }
 
