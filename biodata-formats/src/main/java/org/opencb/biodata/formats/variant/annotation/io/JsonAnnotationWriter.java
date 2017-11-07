@@ -20,14 +20,17 @@
 package org.opencb.biodata.formats.variant.annotation.io;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SequenceWriter;
 import com.google.common.base.Throwables;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.VariantAnnotation;
 import org.opencb.biodata.models.variant.avro.VariantAvro;
 import org.opencb.commons.io.DataWriter;
+import org.opencb.commons.utils.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +60,7 @@ public class JsonAnnotationWriter implements DataWriter<Variant> {
     private Logger logger;
     private OpenOption[] openMode;
 
-    private ObjectWriter jsonObjectWriter;
+    private SequenceWriter jsonObjectWriter;
 
     public JsonAnnotationWriter() {
         this(null);
@@ -76,12 +79,7 @@ public class JsonAnnotationWriter implements DataWriter<Variant> {
     @Override
     public boolean open() {
         try {
-            OutputStream os = Files.newOutputStream(Paths.get(filename), openMode);
-            if (filename.endsWith(".gz") || filename.endsWith(".gzip")) {
-                os = new GZIPOutputStream(os);
-            }
-            bw = new BufferedWriter(new OutputStreamWriter(os));
-
+            bw = FileUtils.newBufferedWriter(Paths.get(filename));
         } catch (IOException e) {
             throw Throwables.propagate(e);
         }
@@ -103,7 +101,11 @@ public class JsonAnnotationWriter implements DataWriter<Variant> {
         ObjectMapper jsonObjectMapper = new ObjectMapper();
         jsonObjectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         jsonObjectMapper.configure(MapperFeature.REQUIRE_SETTERS_FOR_GETTERS, true);
-        jsonObjectWriter = jsonObjectMapper.writerFor(VariantAvro.class);
+        try {
+            jsonObjectWriter = jsonObjectMapper.writerFor(VariantAvro.class).writeValues(bw);
+        } catch (IOException e) {
+            throw Throwables.propagate(e);
+        }
         return true;
     }
 
@@ -116,9 +118,8 @@ public class JsonAnnotationWriter implements DataWriter<Variant> {
     @Override
     public boolean write(Variant variant) {
         try {
-            jsonObjectWriter.writeValue(bw, variant.getImpl());
+            jsonObjectWriter.write(variant.getImpl());
             bw.write('\n');
-//            writtenVariantAnnotations++;
         } catch (IOException e) {
             throw Throwables.propagate(e);
         }
