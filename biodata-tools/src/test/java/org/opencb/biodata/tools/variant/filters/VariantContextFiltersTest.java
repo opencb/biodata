@@ -39,24 +39,5 @@ public class VariantContextFiltersTest {
         reader.close();
 
         assertEquals(3, count);
-
-        /*
-        Path inputPath = Paths.get(getClass().getResource("/ibs.vcf.avro").toURI());
-        //Path inputPath = Paths.get("/home/jtarraga/data/ibs.vcf.avro");
-        VariantAvroFilters filters = new VariantAvroFilters("", "");
-        filters.addPassFilter();
-        SpecificDatumReader<VariantAvro> reader = new SpecificDatumReader<>(VariantAvro.class);
-        int count = 0;
-        try (DataFileReader<VariantAvro> in = new DataFileReader<>(inputPath.toFile(), reader)) {
-            for (VariantAvro v : in) {
-                Variant variant = new Variant(v);
-                if (filters.test(variant)) {
-                    System.out.println(">>> " + variant);
-                    count++;
-                }
-            }
-        }
-        */
-
     }
 }
