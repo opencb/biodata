@@ -85,9 +85,9 @@ public class ConsequenceTypeMappings {
         tmpTermToAccession.put("feature_variant", 1878);
         tmpTermToAccession.put("intergenic_variant", 1628);
         tmpTermToAccession.put("lincRNA", 1463);
-        tmpTermToAccession.put("downstream_variant", 1632);
+        tmpTermToAccession.put("downstream_gene_variant", 1632);
         tmpTermToAccession.put("2KB_downstream_variant", 2083);
-        tmpTermToAccession.put("upstream_variant", 1631);
+        tmpTermToAccession.put("upstream_gene_variant", 1631);
         tmpTermToAccession.put("2KB_upstream_variant", 1636);
         tmpTermToAccession.put("SNV", 1483);
         tmpTermToAccession.put("SNP", 694);
