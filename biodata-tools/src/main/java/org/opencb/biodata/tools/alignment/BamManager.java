@@ -136,7 +136,7 @@ public class BamManager {
         // Execute the bamCoverage utility from deepTools package, assuming it is installed in the system
         // deepTools installation: pip install deepTools
         ProcessBuilder processBuilder = new ProcessBuilder(
-                Arrays.asList("bamCoverage", " -b ", bamFile.toString(), " -o ", bigWigPath.toString(), " -of ", "bigwig"));
+                Arrays.asList("bamCoverage", "-b", bamFile.toString(), "-o", bigWigPath.toString(), "-of", "bigwig"));
         Process p = processBuilder.start();
         BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
         String line;
