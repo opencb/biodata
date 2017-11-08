@@ -41,10 +41,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -60,14 +63,14 @@ public class BamManager {
     protected Logger logger;
 
     public BamManager() {
-        logger = LoggerFactory.getLogger(this.getClass().toString());
+        logger = LoggerFactory.getLogger(BamManager.class);
     }
 
     public BamManager(Path bamFilePath) throws IOException {
+        this();
+
         FileUtils.checkFile(bamFilePath);
         this.bamFile = bamFilePath;
-
-        logger = LoggerFactory.getLogger(this.getClass().toString());
     }
 
     private void init() throws IOException {
@@ -126,17 +129,14 @@ public class BamManager {
         return outputIndex;
     }
 
-    public Path calculateBigWigCoverage(Path bwPath) throws IOException {
-        // Sanity checks
-        if (!bamFile.getParent().resolve(bamFile.getFileName().toString() + ".bai").toFile().exists()) {
-            throw new IOException("Missing BAM index (.bai file) for " + bamFile.toString());
-        }
-        FileUtils.checkDirectory(bwPath.toAbsolutePath().getParent(), true);
+    public Path calculateBigWigCoverage(Path bigWigPath) throws IOException {
+        checkBaiFileExists();
+        FileUtils.checkDirectory(bigWigPath.toAbsolutePath().getParent(), true);
 
         // Execute the bamCoverage utility from deepTools package, assuming it is installed in the system
-        // deepTools installation: pip install deeptools
-        String cmdline = "bamCoverage -b " + bamFile.toString() + " -o " + bwPath + " -of bigwig";
-        ProcessBuilder processBuilder = new ProcessBuilder(cmdline.split(" "));
+        // deepTools installation: pip install deepTools
+        ProcessBuilder processBuilder = new ProcessBuilder(
+                Arrays.asList("bamCoverage", " -b ", bamFile.toString(), " -o ", bigWigPath.toString(), " -of ", "bigwig"));
         Process p = processBuilder.start();
         BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
         String line;
@@ -144,7 +144,7 @@ public class BamManager {
             logger.info(line);
         }
 
-        return bwPath;
+        return bigWigPath;
     }
 
 
@@ -219,6 +219,7 @@ public class BamManager {
 
     public <T> BamIterator<T> iterator(AlignmentFilters<SAMRecord> filters, AlignmentOptions options, Class<T> clazz) throws IOException {
         init();
+        checkBaiFileExists();
 
         SAMRecordIterator samRecordIterator = samReader.iterator();
         return getAlignmentIterator(filters, options, clazz, samRecordIterator);
@@ -239,6 +240,7 @@ public class BamManager {
     public <T> BamIterator<T> iterator(Region region, AlignmentFilters<SAMRecord> filters, AlignmentOptions options, Class<T> clazz)
             throws IOException {
         init();
+        checkBaiFileExists();
 
         if (options == null) {
             options = new AlignmentOptions();
@@ -297,11 +299,11 @@ public class BamManager {
      * @throws IOException If any error happens reading BigWig file
      */
     public RegionCoverage coverage(Region region, int windowSize) throws IOException {
-        if (this.bamFile.resolve(bamFile.toString() + ".bw").toFile().exists()) {
-            return coverage(region, windowSize, this.bamFile.resolve(bamFile.toString() + ".bw"));
+        if (Paths.get(bamFile.toString() + ".bw").toFile().exists()) {
+            return coverage(region, windowSize, Paths.get(bamFile.toString() + ".bw"));
         } else {
-            if (this.bamFile.resolve(bamFile.toString() + ".coverage.bw").toFile().exists()) {
-                return coverage(region, windowSize, this.bamFile.resolve(this.bamFile.toString() + ".coverage.bw"));
+            if (Paths.get(bamFile.toString() + ".coverage.bw").toFile().exists()) {
+                return coverage(region, windowSize, Paths.get(this.bamFile.toString() + ".coverage.bw"));
             } else {
                 // If BigWig file is not found and windowSize is 1 then we calculate it from the BAM file
                 if (windowSize == 1) {
@@ -350,6 +352,12 @@ public class BamManager {
     public void close() throws IOException {
         if (samReader != null) {
             samReader.close();
+        }
+    }
+
+    private void checkBaiFileExists() throws IOException {
+        if (!new File(bamFile.toString() + ".bai").exists()) {
+            throw new IOException("Missing BAM index (.bai file) for " + bamFile.toString());
         }
     }
 
