@@ -53,7 +53,7 @@ public class BamManagerTest {
         System.out.println("bwPath = " + bwPath);
         BamManager bamManager = new BamManager(bamPath);
         bamManager.createIndex();
-        bamManager.calculateBigWigCoverage(bwPath);
+        bamManager.calculateBigWigCoverage(bwPath, 50);
     }
 
     @Test
