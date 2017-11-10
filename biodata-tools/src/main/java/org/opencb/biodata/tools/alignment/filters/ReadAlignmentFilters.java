@@ -85,6 +85,19 @@ public class ReadAlignmentFilters extends AlignmentFilters<ReadAlignment> {
     }
 
     @Override
+    public AlignmentFilters<ReadAlignment> addInsertSizeFilter(int maxInsertSize) {
+        filters.add(readAlignment -> {
+            if (readAlignment.getNextMatePosition() != null) {
+                int end = readAlignment.getAlignment().getPosition().getPosition().intValue() + readAlignment.getAlignedSequence().length();
+                int mateStart = readAlignment.getNextMatePosition().getPosition().intValue();
+                return Math.abs(end - mateStart) <= maxInsertSize;
+            }
+            return false;
+        });
+        return this;
+    }
+
+    @Override
     public AlignmentFilters<ReadAlignment> addUnmappedFilter() {
         filters.add(readAlignment -> readAlignment.getAlignment() == null);
         return this;
