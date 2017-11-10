@@ -129,6 +129,10 @@ public class BamManager {
         return outputIndex;
     }
 
+    public Path calculateBigWigCoverage() throws IOException {
+        return calculateBigWigCoverage(Paths.get(this.bamFile.toFile().getAbsolutePath() + ".coverage.bw"));
+    }
+
     public Path calculateBigWigCoverage(Path bigWigPath) throws IOException {
         checkBaiFileExists();
         FileUtils.checkDirectory(bigWigPath.toAbsolutePath().getParent(), true);

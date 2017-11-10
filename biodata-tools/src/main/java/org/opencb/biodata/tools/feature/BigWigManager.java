@@ -18,9 +18,12 @@ import java.util.List;
 public class BigWigManager {
 
     private Path bigWigFilePath;
-    private Path indexPath;
     private BBFileReader bbFileReader;
 
+    @Deprecated
+    private Path indexPath;
+
+    @Deprecated
     public static final String BIGWIG_DB = "bigwig.db";
 
     /**
@@ -30,7 +33,9 @@ public class BigWigManager {
      * @throws IOException
      */
     public BigWigManager(Path bigwigPath) throws IOException {
-        this(bigwigPath, bigwigPath.getParent().resolve(BIGWIG_DB));
+        this.bigWigFilePath = bigwigPath;
+
+        init();
     }
 
     @Deprecated
@@ -58,13 +63,9 @@ public class BigWigManager {
         BigWigIterator bigWigIterator = iterator(region);
         float[] values = new float[region.getEnd() - region.getStart() + 1];
         while (bigWigIterator.hasNext()) {
-            WigItem next = bigWigIterator.next();
-            System.out.println("---->" + next.getChromosome() + ":" + next.getStartBase() + "-" + next.getEndBase()
-                    + ", " + next.getWigValue());
-            for (int i = next.getStartBase(), j = next.getStartBase() - region.getStart();
-                 i <= next.getEndBase();
-                 i++, j++) {
-                values[j] = next.getWigValue();
+            WigItem wigItem = bigWigIterator.next();
+            for (int i = wigItem.getStartBase(), j = wigItem.getStartBase() - region.getStart(); i <= wigItem.getEndBase(); i++, j++) {
+                values[j] = wigItem.getWigValue();
             }
         }
         return values;
@@ -81,51 +82,11 @@ public class BigWigManager {
         return bbFileReader.getBigWigIterator(region.getChromosome(), region.getStart(), region.getChromosome(), region.getEnd(), false);
     }
 
-    public float[] groupByOLD(Region region, int windowSize) throws IOException {
-        BigWigIterator bigWigIterator = iterator(region);
-
-        // Calculate the number of needed windows
-        int numWindows = (region.getEnd() - region.getStart()) / windowSize;
-        if ((region.getEnd() - region.getStart()) % windowSize != 0) {
-            numWindows++;
-        }
-        float[] chunks = new float[numWindows];
-        float value = 0;
-        int chunk = 0;
-        WigItem wItem;
-        while (bigWigIterator.hasNext()) {
-            // We group in windowSize and average
-            for (int i = 0; i < windowSize; i += (wItem.getEndBase() - wItem.getStartBase())) {
-                if (bigWigIterator.hasNext()) {
-                    wItem = bigWigIterator.next();
-
-                    System.out.println("Wig item index " + wItem.getItemNumber());
-                    System.out.println("\tChromosome name: " + wItem.getChromosome());
-                    System.out.println("\tChromosome start base = " + wItem.getStartBase());
-                    System.out.println("\tChromosome end base = " + wItem.getEndBase());
-                    System.out.println("\tWig value: " + wItem.getWigValue());
-
-                    value += wItem.getWigValue();
-                } else {
-                    // We have to calculate the average of the last few values
-                    chunks[chunk] = value / i;
-                    break;
-                }
-            }
-
-            if (bigWigIterator.hasNext()) {
-                chunks[chunk] = value / windowSize;
-                chunk++;
-                value = 0;
-            }
-        }
-        return chunks;
-    }
-
     public float[] groupBy(Region region, int windowSize) throws IOException {
         BigWigIterator bigWigIterator = iterator(region);
 
-        // Calculate the number of needed windows
+        // Calculate the number of needed windows, ensure windowSize => 1
+        windowSize = Math.max(1, windowSize);
         int numWindows = (region.getEnd() - region.getStart()) / windowSize;
         if ((region.getEnd() - region.getStart()) % windowSize != 0) {
             numWindows++;
@@ -136,19 +97,11 @@ public class BigWigManager {
         int length, chunkStart, chunkEnd;
         while (bigWigIterator.hasNext()) {
             wItem = bigWigIterator.next();
-//            System.out.println("Wig item index " + wItem.getItemNumber());
-//            System.out.println("\tChromosome name: " + wItem.getChromosome());
-//            System.out.println("\tChromosome start base = " + wItem.getStartBase());
-//            System.out.println("\tChromosome end base = " + wItem.getEndBase());
-//            System.out.println("\tWig value: " + wItem.getWigValue());
             chunkStart = (Math.max(region.getStart(), wItem.getStartBase()) - region.getStart()) / windowSize;
             chunkEnd = (Math.min(region.getEnd(), wItem.getEndBase()) - region.getStart() - 1) / windowSize;
-//            System.out.println("\t\tChunk start: " + chunkStart);
-//            System.out.println("\t\tChunk end: " + chunkEnd);
             for (int chunk = chunkStart; chunk <= chunkEnd; chunk++) {
                 length = Math.min(wItem.getEndBase() - region.getStart(), chunk * windowSize + windowSize)
                         - Math.max(wItem.getStartBase() - region.getStart(), chunk * windowSize);
-//                System.out.println("\t\t\tChunk: " + chunk + ", length = " + length);
                 chunks[chunk] += (wItem.getWigValue() * length);
             }
         }
@@ -177,6 +130,7 @@ public class BigWigManager {
      * @return              Path to the index (database file)
      * @throws Exception
      */
+    @Deprecated
     public Path index(Path bigwigPath) throws Exception {
 //        FileUtils.checkFile(indexPath);
         ChunkFrequencyManager chunkFrequencyManager = new ChunkFrequencyManager(indexPath);
