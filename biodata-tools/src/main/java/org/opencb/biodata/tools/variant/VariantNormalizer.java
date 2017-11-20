@@ -27,6 +27,7 @@ import org.biojava.nbio.alignment.SimpleGapPenalty;
 import org.biojava.nbio.alignment.SubstitutionMatrixHelper;
 import org.biojava.nbio.alignment.template.SequencePair;
 import org.biojava.nbio.alignment.template.SubstitutionMatrix;
+import org.biojava.nbio.core.exceptions.CompoundNotFoundException;
 import org.biojava.nbio.core.sequence.DNASequence;
 import org.biojava.nbio.core.sequence.compound.AmbiguityDNACompoundSet;
 import org.biojava.nbio.core.sequence.compound.NucleotideCompound;
@@ -37,6 +38,7 @@ import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
+import org.opencb.biodata.tools.variant.exceptions.VariantNormalizerException;
 import org.opencb.biodata.tools.variant.merge.VariantAlternateRearranger;
 import org.opencb.commons.run.ParallelTaskRunner;
 import org.slf4j.Logger;
@@ -428,13 +430,17 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                 // To deal with cases such as A>GT
                 boolean isMnv = (keyFields.getReference().length() > 1 && keyFields.getAlternate().length() >= 1)
                         || (keyFields.getAlternate().length() > 1 && keyFields.getReference().length() >= 1);
-                if (decomposeMNVs && isMnv) {
+                if (decomposeMNVs && isMnv && alternates.size() == 1) {
                     for (VariantKeyFields keyFields1 : decomposeMNVSingleVariants(keyFields)) {
                         keyFields1.numAllele = numAllelesIdx;
                         keyFields1.phaseSet = chromosome + ":" + position + ":" + reference + ":" + currentAlternate;
                         list.add(keyFields1);
                     }
                 } else {
+                    if (decomposeMNVs && isMnv) {
+                        logger.warn("Unable to decompose multiallelic with MNV variants -> "
+                                + chromosome + ":" + position + ":" + reference + ":" + String.join(",", alternates));
+                    }
                     keyFields.numAllele = numAllelesIdx;
                     list.add(keyFields);
                 }
@@ -619,9 +625,11 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         try {
             target = new DNASequence(seq1, AmbiguityDNACompoundSet.getDNACompoundSet());
             query = new DNASequence(seq2, AmbiguityDNACompoundSet.getDNACompoundSet());
-        } catch (Exception e) {
-            logger.error("Error when creating DNASequence objects for " + seq1 + " and " + seq2 + " prior to pairwise " +
-                    "sequence alignment", e);
+        } catch (CompoundNotFoundException e) {
+            String msg = "Error when creating DNASequence objects for " + seq1 + " and " + seq2 + " prior to pairwise "
+                    + "sequence alignment";
+            logger.error(msg, e);
+            throw new VariantNormalizerException(msg, e);
         }
         SubstitutionMatrix<NucleotideCompound> substitutionMatrix = SubstitutionMatrixHelper.getNuc4_4();
         SimpleGapPenalty gapP = new SimpleGapPenalty();

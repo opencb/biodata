@@ -106,11 +106,11 @@ protocol EvidenceProtocol {
         /**
         The trait (e.g.: HPO term, MIM term, DO term etc.)
         */
-        string trait;
+        union { null, string } trait;
         /**
         The mode of inheritance
         */
-        ModeOfInheritance inheritanceMode;
+        union { null, ModeOfInheritance } inheritanceMode;
     }
 
     /**
@@ -125,7 +125,7 @@ protocol EvidenceProtocol {
         /**
         Feature Type
         */
-        FeatureTypes featureType;
+        union { null, FeatureTypes } featureType;
         /**
         Feature used, this should be a feature ID from Ensembl, (i.e, ENST00000544455)
         */
