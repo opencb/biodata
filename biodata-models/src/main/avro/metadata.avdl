@@ -1,0 +1,89 @@
+@namespace("org.opencb.biodata.models.metadata")
+
+protocol MetadataProtocol {
+
+     enum SampleSetType {
+        CASE_CONTROL,
+        CASE_SET,
+        CONTROL_SET,
+        PAIRED,
+        //PAIRED_TUMOR,
+        //AGGREGATE,
+        TIME_SERIES,
+        FAMILY,
+        TRIO,
+        //COLLECTION,
+        MISCELLANEOUS,
+        UNKNOWN
+    }
+
+    record Experiment {
+        union { null, string } center = null;
+        union { null, string } `date` = null;
+        union { null, string } molecule = null; // genomics DNA, total RNA,...
+        union { null, string } technique = null; // whole genome sequencing, RNA-seq, RIP-seq,...
+        union { null, string } library = null;
+        union { null, string } libraryLayout = null; // single, paired,...
+        union { null, string } platform = null;
+        union { null, string } description = null;
+    }
+
+    record Species {
+        /**
+         Short species id. First letter from the first word + second word
+         e.g. hsapiens for homo sapiens, mmusculus for mus musculus,...
+        */
+        string id;
+
+        /** Full scrientific name. e.g. homo sapiens, mus musculus,...*/
+        union { null, string } scientificName = null;
+
+        union { null, string } taxonomyId = null;
+        union { null, string } strain = null;
+        union { null, string } assembly = null;
+    }
+
+    record Program {
+        union { null, string } name = null;
+        union { null, string } version = null;
+        union { null, string } commandLine = null;
+        union { null, string } url = null;
+        union { null, string } commit = null;
+    }
+
+    record Sample {
+        /** Sample identifier */
+        string id;
+        //string description;
+
+        /**
+         Sample annotations stored in a map of attributes according to the format:
+         attribute_name[:x] where x defines the attribute type, its valid values are:
+             n for numeric (i = integer, f = float)
+             s for string
+             b for boolean
+
+         e.g. age:n, population:s, height:n, weight, risk factors, secondary conditions,...
+        */
+        map<string> annotations = {};
+    }
+
+    record Individual {
+        /** Individual identifier */
+        string id;
+
+        union { null, string } family = null;
+        union { null, string } father = null;
+        union { null, string } mother = null;
+        union { null, string } sex = null;
+        union { null, string } phenotype = null;
+
+        array<Sample> samples = [];
+    }
+
+    record Cohort {
+        string id;
+        array<string> sampleIds = [];
+        SampleSetType sampleSetType;
+    }
+}

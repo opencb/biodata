@@ -20,10 +20,12 @@
 package org.opencb.biodata.tools.alignment.filters;
 
 import htsjdk.samtools.SAMRecord;
+import htsjdk.samtools.SAMTag;
 import org.opencb.biodata.models.core.Region;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -50,8 +52,52 @@ public class SamRecordFilters extends AlignmentFilters<SAMRecord> {
     }
 
     @Override
+    public AlignmentFilters<SAMRecord> addMaxNumberMismatchesFilter(int maxNumberMismatches) {
+        filters.add(samRecord -> {
+            Object nmAttribute = samRecord.getAttribute(SAMTag.NM.name());
+            if (nmAttribute != null) {
+                try {
+                    Integer nm = (Integer) nmAttribute;
+                    return nm <= maxNumberMismatches;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return true;
+                }
+            } else {
+                return true;
+            }
+        });
+        return this;
+    }
+
+    @Override
+    public AlignmentFilters<SAMRecord> addMaxNumberHitsFilter(int maxNumberHits) {
+        filters.add(samRecord -> {
+            Object nhAttribute = samRecord.getAttribute(SAMTag.NH.name());
+            if (nhAttribute != null) {
+                try {
+                    Integer nm = (Integer) nhAttribute;
+                    return nm <= maxNumberHits;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return true;
+                }
+            } else {
+                return true;
+            }
+        });
+        return this;
+    }
+
+    @Override
     public AlignmentFilters<SAMRecord> addProperlyPairedFilter() {
         filters.add(samRecord -> samRecord.getProperPairFlag());
+        return this;
+    }
+
+    @Override
+    public AlignmentFilters<SAMRecord> addInsertSizeFilter(int maxInsertSize) {
+        filters.add(samRecord -> samRecord.getInferredInsertSize() <= maxInsertSize);
         return this;
     }
 
@@ -69,7 +115,7 @@ public class SamRecordFilters extends AlignmentFilters<SAMRecord> {
 
     @Override
     public AlignmentFilters<SAMRecord> addRegionFilter(Region region, boolean contained) {
-        return addRegionFilter(Arrays.asList(region), contained);
+        return addRegionFilter(Collections.singletonList(region), contained);
     }
 
     @Override

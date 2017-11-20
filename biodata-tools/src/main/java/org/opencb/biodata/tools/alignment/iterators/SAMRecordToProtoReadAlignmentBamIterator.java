@@ -22,7 +22,7 @@ package org.opencb.biodata.tools.alignment.iterators;
 import ga4gh.Reads;
 import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.SAMRecordIterator;
-import org.opencb.biodata.tools.alignment.converters.SAMRecordToProtoReadAlignmentConverter;
+import org.opencb.biodata.tools.alignment.converters.SAMRecordToProtoReadAlignmentBiConverter;
 import org.opencb.biodata.tools.alignment.filters.AlignmentFilters;
 
 /**
@@ -30,7 +30,7 @@ import org.opencb.biodata.tools.alignment.filters.AlignmentFilters;
  */
 public class SAMRecordToProtoReadAlignmentBamIterator extends BamIterator<Reads.ReadAlignment> {
 
-    private SAMRecordToProtoReadAlignmentConverter protoReadAlignmentConverter;
+    private SAMRecordToProtoReadAlignmentBiConverter protoReadAlignmentConverter;
 
     public SAMRecordToProtoReadAlignmentBamIterator(SAMRecordIterator samRecordIterator) {
         this(samRecordIterator, null);
@@ -38,13 +38,13 @@ public class SAMRecordToProtoReadAlignmentBamIterator extends BamIterator<Reads.
 
     public SAMRecordToProtoReadAlignmentBamIterator(SAMRecordIterator samRecordIterator, AlignmentFilters<SAMRecord> filters) {
         this(samRecordIterator, filters, true);
-        protoReadAlignmentConverter = new SAMRecordToProtoReadAlignmentConverter();
+        protoReadAlignmentConverter = new SAMRecordToProtoReadAlignmentBiConverter();
     }
 
     public SAMRecordToProtoReadAlignmentBamIterator(SAMRecordIterator samRecordIterator, AlignmentFilters<SAMRecord> filters,
                                                     boolean binQualities) {
         super(samRecordIterator, filters);
-        protoReadAlignmentConverter = new SAMRecordToProtoReadAlignmentConverter(binQualities);
+        protoReadAlignmentConverter = new SAMRecordToProtoReadAlignmentBiConverter(binQualities);
     }
 
     @Override

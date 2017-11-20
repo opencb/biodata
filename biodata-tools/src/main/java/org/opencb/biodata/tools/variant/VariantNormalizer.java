@@ -19,6 +19,7 @@
 
 package org.opencb.biodata.tools.variant;
 
+import htsjdk.samtools.SAMException;
 import htsjdk.variant.vcf.*;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -34,16 +35,20 @@ import org.biojava.nbio.core.sequence.compound.NucleotideCompound;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.VariantBuilder;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.FileEntry;
+import org.opencb.biodata.models.variant.avro.StructuralVariation;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
+import org.opencb.biodata.models.variant.metadata.VariantFileHeader;
 import org.opencb.biodata.tools.variant.exceptions.VariantNormalizerException;
 import org.opencb.biodata.tools.variant.merge.VariantAlternateRearranger;
 import org.opencb.commons.run.ParallelTaskRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -58,71 +63,174 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass().toString());
 
-    private boolean reuseVariants = true;
-    private boolean normalizeAlleles = false;
-    private boolean decomposeMNVs = false;
-    private boolean generateReferenceBlocks = false;
+    public static class VariantNormalizerConfig {
+
+        private boolean reuseVariants = true;
+        private boolean normalizeAlleles = false;
+        private boolean decomposeMNVs = false;
+        private boolean generateReferenceBlocks = false;
+        private boolean leftAlign = false;
+        private LeftAligner leftAligner;
+        private int leftAlignmentWindowSize = 100;
+        private boolean acceptAmbiguousBasesInReference = false;
+        private boolean acceptAmbiguousBasesInAlternate = false;
+
+        public VariantNormalizerConfig(){}
+
+        boolean isReuseVariants() {
+            return reuseVariants;
+        }
+
+        public VariantNormalizerConfig setReuseVariants(boolean reuseVariants) {
+            this.reuseVariants = reuseVariants;
+            return this;
+        }
+
+        public boolean isNormalizeAlleles() {
+            return normalizeAlleles;
+        }
+
+        public boolean isDecomposeMNVs() {
+            return decomposeMNVs;
+        }
+
+        public VariantNormalizerConfig setDecomposeMNVs(boolean decomposeMNVs) {
+            this.decomposeMNVs = decomposeMNVs;
+            return this;
+        }
+
+        public VariantNormalizerConfig setNormalizeAlleles(boolean normalizeAlleles) {
+            this.normalizeAlleles = normalizeAlleles;
+            return this;
+        }
+
+        public boolean isGenerateReferenceBlocks() {
+            return generateReferenceBlocks;
+        }
+
+        public VariantNormalizerConfig setGenerateReferenceBlocks(boolean generateReferenceBlocks) {
+            this.generateReferenceBlocks = generateReferenceBlocks;
+            return this;
+        }
+
+        public boolean isLeftAlignEnabled() {
+            return leftAlign;
+        }
+
+        public VariantNormalizerConfig enableLeftAlign(String referenceGenome) throws FileNotFoundException {
+
+            this.leftAligner = new LeftAligner(referenceGenome, this.leftAlignmentWindowSize);
+            this.leftAlign = true;
+            return this;
+        }
+
+        public VariantNormalizerConfig disableLeftAlign() {
+
+            this.leftAligner = null;
+            this.leftAlign = false;
+            return this;
+        }
+
+        public LeftAligner getLeftAligner() {
+            return leftAligner;
+        }
+
+        public VariantNormalizerConfig setAcceptAmbiguousBasesInReference(boolean acceptAmbiguousBasesInReference) {
+
+            if (this.leftAligner == null) {
+                throw new IllegalArgumentException(
+                        "Cannot set 'accept ambiguous bases in reference' if left aligner is not configured"
+                );
+            }
+            this.acceptAmbiguousBasesInReference = acceptAmbiguousBasesInReference;
+            this.leftAligner.setAcceptAmbiguousBasesInReference(acceptAmbiguousBasesInReference);
+            return this;
+        }
+
+        public VariantNormalizerConfig setAcceptAmbiguousBasesInAlternate(boolean acceptAmbiguousBasesInAlternate) {
+
+            if (this.leftAligner == null) {
+                throw new IllegalArgumentException(
+                        "Cannot set 'accept ambiguous bases in alternate' if left aligner is not configured"
+                );
+            }
+            this.acceptAmbiguousBasesInAlternate = acceptAmbiguousBasesInAlternate;
+            this.leftAligner.setAcceptAmbiguousBasesInAlternate(acceptAmbiguousBasesInAlternate);
+            return this;
+        }
+
+    }
+
     private Map<Integer, int[]> genotypeReorderMapCache = new ConcurrentHashMap<>();
     private final VariantAlternateRearranger.Configuration rearrangerConf = new VariantAlternateRearranger.Configuration();
-
-    private static final Set<String> VALID_NTS = new HashSet<>(Arrays.asList("A", "C", "G", "T", "N"));
-    private static final String CNV = "<CNV>";
-    private static final String COPY_NUMBER_TAG = "CN";
-    private static final String CIPOS_STRING = "CIPOS";
-    private static final String CIEND_STRING = "CIEND";
-
-    private static final String[] ALLELE_TO_STRING = new String[]{"0", "1", "2", "3", "4", "5"};
+    private VariantNormalizerConfig config = new VariantNormalizerConfig();
 
     public VariantNormalizer() {}
 
+    @Deprecated
     public VariantNormalizer(boolean reuseVariants) {
-        this.reuseVariants = reuseVariants;
+        this.config.setReuseVariants(reuseVariants);
     }
 
+    @Deprecated
     public VariantNormalizer(boolean reuseVariants, boolean normalizeAlleles) {
-        this.reuseVariants = reuseVariants;
-        this.normalizeAlleles = normalizeAlleles;
+        this.config.setReuseVariants(reuseVariants);
+        this.config.setNormalizeAlleles(normalizeAlleles);
     }
 
+    @Deprecated
     public VariantNormalizer(boolean reuseVariants, boolean normalizeAlleles, boolean decomposeMNVs) {
-        this.reuseVariants = reuseVariants;
-        this.normalizeAlleles = normalizeAlleles;
-        this.decomposeMNVs = decomposeMNVs;
+        this.config.setReuseVariants(reuseVariants);
+        this.config.setNormalizeAlleles(normalizeAlleles);
+        this.config.setDecomposeMNVs(decomposeMNVs);
     }
 
-    public boolean isReuseVariants() {
-        return reuseVariants;
+    public VariantNormalizer(VariantNormalizerConfig config) {
+        this.config = config;
     }
 
-    public VariantNormalizer setReuseVariants(boolean reuseVariants) {
-        this.reuseVariants = reuseVariants;
-        return this;
-    }
-
-    public boolean isNormalizeAlleles() {
-        return normalizeAlleles;
-    }
-
-    public boolean isDecomposeMNVs() {
-        return decomposeMNVs;
-    }
-
-    public VariantNormalizer setDecomposeMNVs(boolean decomposeMNVs) {
-        this.decomposeMNVs = decomposeMNVs;
+    public VariantNormalizer setGenerateReferenceBlocks(boolean generateReferenceBlocks) {
+        this.config.setGenerateReferenceBlocks(generateReferenceBlocks);
         return this;
     }
 
     public VariantNormalizer setNormalizeAlleles(boolean normalizeAlleles) {
-        this.normalizeAlleles = normalizeAlleles;
+        this.config.setNormalizeAlleles(normalizeAlleles);
         return this;
     }
 
-    public boolean isGenerateReferenceBlocks() {
-        return generateReferenceBlocks;
+    public VariantNormalizer setDecomposeMNVs(boolean decomposeMNVs) {
+        this.config.setDecomposeMNVs(decomposeMNVs);
+        return this;
     }
 
-    public VariantNormalizer setGenerateReferenceBlocks(boolean generateReferenceBlocks) {
-        this.generateReferenceBlocks = generateReferenceBlocks;
+    public VariantNormalizer setReuseVariants(boolean reuseVariants) {
+        this.config.setReuseVariants(reuseVariants);
+        return this;
+    }
+
+    public VariantNormalizer enableLeftAlign(String referenceGenome) throws FileNotFoundException {
+        this.config.enableLeftAlign(referenceGenome);
+        return this;
+    }
+
+    public VariantNormalizer setLeftAlignmentWindowSize(int windowSize) {
+        this.config.leftAlignmentWindowSize = windowSize;
+        return this;
+    }
+
+    public VariantNormalizer disableLeftAlign() {
+        this.config.disableLeftAlign();
+        return this;
+    }
+
+    public VariantNormalizer setAcceptAmbiguousBasesInReference(boolean acceptAmbiguousBasesInReference)  {
+        this.config.setAcceptAmbiguousBasesInReference(acceptAmbiguousBasesInReference);
+        return this;
+    }
+
+    public VariantNormalizer setAcceptAmbiguousBasesInAlternate(boolean acceptAmbiguousBasesInAlternate)  {
+        this.config.setAcceptAmbiguousBasesInAlternate(acceptAmbiguousBasesInAlternate);
         return this;
     }
 
@@ -146,10 +254,19 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         return this;
     }
 
+    public VariantNormalizer configure(VariantFileHeader header) {
+        rearrangerConf.configure(header);
+        return this;
+    }
+
+    public VariantNormalizerConfig getConfig() {
+            return config;
+    }
+
     @Override
     public List<Variant> apply(List<Variant> batch) {
         try {
-            return normalize(batch, reuseVariants);
+            return normalize(batch, this.config.isReuseVariants());
         } catch (NonStandardCompliantSampleField e) {
             throw new RuntimeException(e);
         }
@@ -168,18 +285,19 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             Integer start = variant.getStart();
             Integer end = variant.getEnd();
             String chromosome = variant.getChromosome();
+            StructuralVariation sv = variant.getSv();
 
             if (variant.getStudies() == null || variant.getStudies().isEmpty()) {
                 List<VariantKeyFields> keyFieldsList;
                 if (variant.isSymbolic()) {
-                    keyFieldsList = normalizeSymbolic(start, end, reference, alternate);
+                    keyFieldsList = normalizeSymbolic(start, end, reference, alternate, sv.getCopyNumber());
                 } else {
                     keyFieldsList = normalize(chromosome, start, reference, alternate);
                 }
                 // Iterate keyFields sorting by position, so the generated variants are ordered. Do not modify original order!
                 for (VariantKeyFields keyFields : sortByPosition(keyFieldsList)) {
                     String call = start + ":" + reference + ":" + alternate + ":" + keyFields.getNumAllele();
-                    Variant normalizedVariant = newVariant(variant, keyFields);
+                    Variant normalizedVariant = newVariant(variant, keyFields, sv);
                     if (keyFields.getPhaseSet() != null) {
                         StudyEntry studyEntry = new StudyEntry();
                         studyEntry.setSamplesData(
@@ -201,14 +319,8 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                     // FIXME: assumes there wont be multinucleotide positions with CNVs and short variants mixed
                     List<VariantKeyFields> keyFieldsList;
                     List<VariantKeyFields> originalKeyFieldsList;
-//                    String copyNumberString = null;
                     if (variant.isSymbolic()) {
-//                        if (VariantType.CNV.equals(variant.getType())) {
-//                            String sampleName = variant.getStudies().get(0).getSamplesName().iterator().next();
-//                            copyNumberString = variant.getStudies().get(0).getSampleData(sampleName).get(COPY_NUMBER_TAG);
-//                        }
-//                        keyFieldsList = normalizeSymbolic(start, end, reference, alternates, copyNumberString);
-                        keyFieldsList = normalizeSymbolic(start, end, reference, alternates);
+                        keyFieldsList = normalizeSymbolic(start, end, reference, alternates, sv.getCopyNumber());
                     } else {
                         keyFieldsList = normalize(chromosome, start, reference, alternates);
                     }
@@ -218,9 +330,18 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                             && keyFieldsList.get(0).getReference().equals(reference)
                             && keyFieldsList.get(0).getAlternate().equals(alternate);
 
+                    String callPrefix;
+                    if (entry.getFiles() != null && StringUtils.isNotEmpty(entry.getFiles().get(0).getCall())) {
+                        String call = entry.getFiles().get(0).getCall();
+                        // Remove allele index
+                        callPrefix = call.substring(0, call.lastIndexOf(':') + 1);
+                    } else {
+                        callPrefix = start + ":" + reference + ":" + String.join(",", alternates) + ":";
+                    }
+
                     // Iterate keyFields sorting by position, so the generated variants are ordered. Do not modify original order!
                     for (VariantKeyFields keyFields : sortByPosition(keyFieldsList)) {
-                        String call = start + ":" + reference + ":" + String.join(",", alternates) + ":" + keyFields.getNumAllele();
+                        String call = callPrefix + keyFields.getNumAllele();
 
                         final Variant normalizedVariant;
                         final StudyEntry normalizedEntry;
@@ -232,18 +353,17 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                             variant.setEnd(keyFields.getEnd());
                             variant.setReference(keyFields.getReference());
                             variant.setAlternate(keyFields.getAlternate());
-                            variant.resetLength();
-                            variant.resetType();
+                            variant.reset();
                             // Variant is being reused, must ensure the SV field si appropriately created
 //                            if (isSymbolic(variant)) {
 //                                StructuralVariation sv = getStructuralVariation(variant, keyFields, copyNumberString);
 //                                variant.setSv(sv);
 //                            }
                             normalizedEntry = entry;
-                            entry.getFiles().forEach(fileEntry -> fileEntry.setCall(sameVariant ? "" : call)); //TODO: Check file attributes
+                            entry.getFiles().forEach(fileEntry -> fileEntry.setCall(sameVariant ? null : call));
                             samplesData = entry.getSamplesData();
                         } else {
-                            normalizedVariant = newVariant(variant, keyFields);
+                            normalizedVariant = newVariant(variant, keyFields, sv);
 
                             normalizedEntry = new StudyEntry();
                             normalizedEntry.setStudyId(entry.getStudyId());
@@ -252,8 +372,8 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
                             List<FileEntry> files = new ArrayList<>(entry.getFiles().size());
                             for (FileEntry file : entry.getFiles()) {
-                                HashMap<String, String> attributes = new HashMap<>(file.getAttributes()); //TODO: Check file attributes
-                                files.add(new FileEntry(file.getFileId(), sameVariant ? "" : call, attributes));
+                                HashMap<String, String> attributes = new HashMap<>(file.getAttributes());
+                                files.add(new FileEntry(file.getFileId(), sameVariant ? null : call, attributes));
                             }
                             normalizedEntry.setFiles(files);
                             normalizedVariant.addStudyEntry(normalizedEntry);
@@ -371,20 +491,30 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 //        }
 //    }
 
-    public List<VariantKeyFields> normalizeSymbolic(Integer start, Integer end, String reference, String alternate) {
-        return normalizeSymbolic(start, end, reference, Collections.singletonList(alternate));
-//        return normalizeSymbolic(start, end, reference, Collections.singletonList(alternate), copyNumber);
+    public List<VariantKeyFields> normalizeSymbolic(Integer start, Integer end, String reference, String alternate, Integer copyNumber) {
+        return normalizeSymbolic(start, end, reference, Collections.singletonList(alternate), copyNumber);
     }
 
-    public List<VariantKeyFields> normalizeSymbolic(Integer start, Integer end, String reference,
-                                                    List<String> alternates) {
+    @Deprecated
+    public List<VariantKeyFields> normalizeSymbolic(final Integer start, final Integer end, final String reference,
+                                                    final List<String> alternates) {
+        return normalizeSymbolic(start, end, reference, alternates, null);
+    }
+
+    public List<VariantKeyFields> normalizeSymbolic(final Integer start, final Integer end, final String reference,
+                                                    final List<String> alternates, Integer copyNumber) {
         List<VariantKeyFields> list = new ArrayList<>(alternates.size());
 
         String newReference = reference;
-        // Reference for SVs must be empty
+        int newStart = start;
+        // Copy from the VCFv4.3.pdf :
+        //   If any of the ALT alleles is a symbolic allele (an angle-bracketed ID String "<ID>") then the padding
+        //   base is required and POS denotes the coordinate of the base preceding the polymorphism.
+        //
+        // Reference for SVs in normalized variants must be empty. Then, the start should be incremented one position.
         if (reference.length() == 1) {
             newReference = "";
-            start++;
+            newStart++;
         } else if (reference.length() > 1) {
             throw new IllegalArgumentException("Invalid reference value found for symbolic variant " + start + "-"
                     + end + ":" + reference + ":" + String.join(",", alternates) + ". Reference can only "
@@ -394,11 +524,16 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         int numAllelesIdx = 0; // This index is necessary for getting the samples where the mutated allele is present
         for (Iterator<String> iterator = alternates.iterator(); iterator.hasNext(); numAllelesIdx++) {
             String newAlternate = iterator.next();
-//            if (newAlternate.equals(CNV) && StringUtils.isNotEmpty(copyNumber)) {
-//                // Alternate must be of the form <CNxxx>, being xxx the number of copies
-//                newAlternate = "<CN" + copyNumber + ">";
+            Integer cn = VariantBuilder.getCopyNumberFromAlternate(newAlternate);
+//            if (cn != null) {
+//                // Alternate with the form <CNxxx>, being xxx the number of copies, must be normalized into "<CNV>"
+//                newAlternate = "<CNV>";
 //            }
-            list.add(new VariantKeyFields(start, end, numAllelesIdx, newReference, newAlternate));
+            if (newAlternate.equals("<CNV>") && copyNumber != null) {
+                // Alternate must be of the form <CNxxx>, being xxx the number of copies
+                newAlternate = "<CN" + copyNumber + ">";
+            }
+            list.add(new VariantKeyFields(newStart, end, numAllelesIdx, newReference, newAlternate, cn, false));
         }
 
         return list;
@@ -409,7 +544,9 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         return normalize(chromosome, position, reference, Collections.singletonList(alternate));
     }
 
-    public List<VariantKeyFields> normalize(String chromosome, int position, String reference, List<String> alternates) {
+    public List<VariantKeyFields> normalize(String chromosome, int position, String reference, List<String> alternates)
+    {
+
         List<VariantKeyFields> list = new ArrayList<>(alternates.size());
         int numAllelesIdx = 0; // This index is necessary for getting the samples where the mutated allele is present
         for (Iterator<String> iterator = alternates.iterator(); iterator.hasNext(); numAllelesIdx++) {
@@ -418,26 +555,43 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             int alternateLen = currentAlternate.length();
 
             VariantKeyFields keyFields;
+            final boolean requireLeftAlignment;
+            // left and right trimming
             if (referenceLen == 0) {
+                requireLeftAlignment = this.config.isLeftAlignEnabled();
                 keyFields = createVariantsFromInsertionEmptyRef(position, currentAlternate);
             } else if (alternateLen == 0) {
+                requireLeftAlignment = this.config.isLeftAlignEnabled();
                 keyFields = createVariantsFromDeletionEmptyAlt(position, reference);
             } else {
                 keyFields = createVariantsFromNoEmptyRefAlt(position, reference, currentAlternate);
+                requireLeftAlignment = this.config.isLeftAlignEnabled() && requireLeftAlignment(reference, currentAlternate, keyFields);
             }
+
+            // left alignment
+            if (requireLeftAlignment) {
+                try {
+                    this.config.leftAligner.leftAlign(keyFields, chromosome);
+                }
+                catch (SAMException ex) {
+                    this.logger.warn(ex.getMessage());
+                }
+            }
+
             if (keyFields != null) {
 
                 // To deal with cases such as A>GT
                 boolean isMnv = (keyFields.getReference().length() > 1 && keyFields.getAlternate().length() >= 1)
                         || (keyFields.getAlternate().length() > 1 && keyFields.getReference().length() >= 1);
-                if (decomposeMNVs && isMnv && alternates.size() == 1) {
+                if (this.config.isDecomposeMNVs() && isMnv && alternates.size() == 1) {
+                    // decomposition of MNVs
                     for (VariantKeyFields keyFields1 : decomposeMNVSingleVariants(keyFields)) {
                         keyFields1.numAllele = numAllelesIdx;
                         keyFields1.phaseSet = chromosome + ":" + position + ":" + reference + ":" + currentAlternate;
                         list.add(keyFields1);
                     }
                 } else {
-                    if (decomposeMNVs && isMnv) {
+                    if (this.config.isDecomposeMNVs() && isMnv) {
                         logger.warn("Unable to decompose multiallelic with MNV variants -> "
                                 + chromosome + ":" + position + ":" + reference + ":" + String.join(",", alternates));
                     }
@@ -446,14 +600,44 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                 }
             }
         }
+        /*if (this.config.isLeftAlignEnabled()) {
+            list = leftAlign(list, chromosome);
+        }*/
 
-        if (generateReferenceBlocks) {
+        if (this.config.isGenerateReferenceBlocks()) {
             list = generateReferenceBlocks(list, position, reference);
         }
 
         // Sort by numAllele, then by start.
         list.sort(Comparator.comparingInt(VariantKeyFields::getNumAllele).thenComparingInt(VariantKeyFields::getStart));
         return list;
+    }
+
+    /**
+     * Only requires left alignment if after trimming reference or alternate are empty and before trimming either
+     * reference or alternate is empty or the bases from each of them are equal.
+     * This excludes from left alignment all non pure indels: non blocked substitutions, MNVs, etc.
+     * @param reference
+     * @param alternate
+     * @param keyFields
+     * @return
+     */
+    static boolean requireLeftAlignment(String reference, String alternate, VariantKeyFields keyFields) {
+        return (keyFields.getReference().isEmpty() || keyFields.getAlternate().isEmpty())
+                && requireLeftAlignment(reference, alternate);
+    }
+
+    /**
+     * Reference and alternate are either empty or last base from each is equal
+     * @param reference
+     * @param alternate
+     * @return
+     */
+    static boolean requireLeftAlignment(String reference, String alternate) {
+        return StringUtils.isEmpty(reference) ||
+                StringUtils.isEmpty(alternate) ||
+                reference.charAt(reference.length() - 1) ==
+                        alternate.charAt(alternate.length() - 1);
     }
 
     private List<VariantKeyFields> generateReferenceBlocks(List<VariantKeyFields> list, int position, String reference) {
@@ -861,7 +1045,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                         } else if (rearranger != null) {
                             genotype = rearranger.rearrangeGenotype(genotype);
                         }
-                        if (normalizeAlleles && !genotype.isPhased()) {
+                        if (this.config.isNormalizeAlleles() && !genotype.isPhased()) {
                             genotype.normalizeAllelesIdx();
                         }
                         sampleField = genotype.toString();
@@ -972,17 +1156,34 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
     }
 
 
-    private Variant newVariant(Variant variant, VariantKeyFields keyFields) {
-        Variant normalizedVariant = new Variant(variant.getChromosome(), keyFields.getStart(), keyFields.getEnd(), keyFields.getReference(), keyFields.getAlternate());
-        normalizedVariant.setIds(variant.getIds());
-        normalizedVariant.setStrand(variant.getStrand());
+    private Variant newVariant(Variant variant, VariantKeyFields keyFields, StructuralVariation sv) {
+        Variant normalizedVariant = new Variant(variant.getChromosome(), keyFields.getStart(), keyFields.getEnd(), keyFields.getReference(), keyFields.getAlternate())
+                .setId(variant.getId())
+                .setNames(variant.getNames())
+                .setStrand(variant.getStrand());
+
+        if (sv != null) {
+            if (normalizedVariant.getSv() != null) {
+                // CI positions may change during the normalization. Update them.
+                normalizedVariant.getSv().setCiStartLeft(sv.getCiStartLeft());
+                normalizedVariant.getSv().setCiStartRight(sv.getCiStartRight());
+                normalizedVariant.getSv().setCiEndLeft(sv.getCiEndLeft());
+                normalizedVariant.getSv().setCiEndRight(sv.getCiEndRight());
+
+            } else {
+                normalizedVariant.setSv(sv);
+            }
+
+            // Variant will never have CopyNumber, because the Alternate is normalized from <CNxx> to <CNV>
+            normalizedVariant.getSv().setCopyNumber(keyFields.getCopyNumber());
+            normalizedVariant.getSv().setType(VariantBuilder.getCNVSubtype(keyFields.getCopyNumber()));
+        }
+        return normalizedVariant;
 //        normalizedVariant.setAnnotation(variant.getAnnotation());
 //        if (isSymbolic(variant)) {
 //            StructuralVariation sv = getStructuralVariation(normalizedVariant, keyFields, null);
 //            normalizedVariant.setSv(sv);
 //        }
-
-        return normalizedVariant;
     }
 
     public List<VariantKeyFields> reorderVariantKeyFields(String chromosome, VariantKeyFields alternate, List<VariantKeyFields> alternates) {
@@ -1030,7 +1231,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                         //Set reference only if is different from the original one
                         alternate.getReference().equals(keyFields.getReference()) ? null : keyFields.getReference(),
                         keyFields.getAlternate(),
-                        Variant.inferType(keyFields.getReference(), keyFields.getAlternate())
+                        VariantBuilder.inferType(keyFields.getReference(), keyFields.getAlternate())
                 ));
             }
         }
@@ -1057,6 +1258,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         private String phaseSet;
         private String reference;
         private String alternate;
+        private Integer copyNumber;
 
         boolean referenceBlock;
 
@@ -1069,11 +1271,16 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         }
 
         public VariantKeyFields(int start, int end, int numAllele, String reference, String alternate, boolean referenceBlock) {
+            this(start, end, numAllele, reference, alternate, null, referenceBlock);
+        }
+
+        public VariantKeyFields(int start, int end, int numAllele, String reference, String alternate, Integer copyNumber, boolean referenceBlock) {
             this.start = start;
             this.end = end;
             this.numAllele = numAllele;
             this.reference = reference;
             this.alternate = alternate;
+            this.copyNumber = copyNumber;
             this.referenceBlock = referenceBlock;
         }
 
@@ -1131,6 +1338,15 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
         public VariantKeyFields setAlternate(String alternate) {
             this.alternate = alternate;
+            return this;
+        }
+
+        public Integer getCopyNumber() {
+            return copyNumber;
+        }
+
+        public VariantKeyFields setCopyNumber(Integer copyNumber) {
+            this.copyNumber = copyNumber;
             return this;
         }
 

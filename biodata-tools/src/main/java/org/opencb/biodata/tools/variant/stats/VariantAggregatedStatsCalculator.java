@@ -176,21 +176,21 @@ public class VariantAggregatedStatsCalculator {
         for (String cohortName : cohortStats.keySet()) {
             VariantStats vs = new VariantStats(variant);
             calculate(variant, file, numAllele, reference, alternateAlleles, cohortStats.get(cohortName), vs);
-            file.setCohortStats(cohortName, vs);
+            file.setStats(cohortName, vs);
         }
     }
 
     /**
      * sets (if the map of attributes contains AF, AC, AF and GTC) alleleCount, refAlleleCount, maf, mafAllele, alleleFreq and genotypeCounts,
      * @param variant
-     * @param sourceEntry
+     * @param studyEntry
      * @param numAllele
      * @param reference
      * @param alternateAlleles
      * @param attributes
      * @param variantStats results are returned by reference here
      */
-    protected void calculate(Variant variant, StudyEntry sourceEntry, int numAllele, String reference, String[] alternateAlleles,
+    protected void calculate(Variant variant, StudyEntry studyEntry, int numAllele, String reference, String[] alternateAlleles,
                              Map<String, String> attributes, VariantStats variantStats) {
 
         if (attributes.containsKey("AN") && attributes.containsKey("AC")) {

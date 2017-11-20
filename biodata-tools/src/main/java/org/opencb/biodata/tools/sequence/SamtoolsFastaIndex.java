@@ -19,17 +19,17 @@
 
 package org.opencb.biodata.tools.sequence;
 
+import htsjdk.samtools.SAMSequenceDictionary;
 import htsjdk.samtools.reference.IndexedFastaSequenceFile;
 import htsjdk.samtools.reference.ReferenceSequence;
+import htsjdk.samtools.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.commons.utils.FileUtils;
-import org.rocksdb.RocksDBException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Created by imedina on 21/10/16.
@@ -40,6 +40,7 @@ public class SamtoolsFastaIndex {
     private String samtoolsBin;
 
     public SamtoolsFastaIndex() {
+
     }
 
     public SamtoolsFastaIndex(String fastaFileName) throws FileNotFoundException {
@@ -49,6 +50,19 @@ public class SamtoolsFastaIndex {
 //    public void index(Path fastaFilePath) throws IOException, RocksDBException {
 //        index(fastaFilePath, Paths.get(fastaFilePath.toString() + ".fai"));
 //    }
+
+    /**
+     * Checks if the set FASTA file is indexed
+     * @return
+     */
+    public Boolean hasIndex() {
+
+        Boolean hasIndex = false;
+        if (this.indexedFastaSequenceFile != null) {
+            hasIndex = this.indexedFastaSequenceFile.isIndexed();
+        }
+        return hasIndex;
+    }
 
     public void index(Path fastaFilePath) throws IOException {
         FileUtils.checkFile(fastaFilePath);
@@ -65,9 +79,17 @@ public class SamtoolsFastaIndex {
         throw new UnsupportedOperationException();
     }
 
-    public String query(String chromosome, int start, int end) throws RocksDBException {
+    public String query(String chromosome, int start, int end) {
         ReferenceSequence subsequenceAt = indexedFastaSequenceFile.getSubsequenceAt(chromosome, start, end);
-        return new String(subsequenceAt.getBases());
+        return StringUtil.bytesToString(subsequenceAt.getBases());
     }
 
+    public ReferenceSequence queryReferenceSequence(String chromosome, int start, int end) {
+        ReferenceSequence referenceSequence = indexedFastaSequenceFile.getSubsequenceAt(chromosome, start, end);
+        return referenceSequence;
+    }
+
+    public SAMSequenceDictionary getSequenceDictionary() {
+        return indexedFastaSequenceFile.getSequenceDictionary();
+    }
 }

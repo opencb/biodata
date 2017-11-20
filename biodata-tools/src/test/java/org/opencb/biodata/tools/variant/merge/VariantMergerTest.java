@@ -373,9 +373,7 @@ public class VariantMergerTest {
 
     @Test
     public void testExpectedSamplesDefaultValues() {
-        variantMerger.merge(var, VariantTestUtils.generateVariant("1",10,"A","G",VariantType.SNV,
-                Arrays.asList("S02"),
-                Arrays.asList("0/0")));
+        variantMerger.merge(var, VariantTestUtils.generateVariant("1:10:A:G", "S02", "0/0"));
         assertEquals(Arrays.asList(lst("0/1"),lst("0/0")),
                 onlyField(var.getStudies().get(0).getSamplesData(),0));
         List<Variant> empty = new ArrayList<>();
@@ -397,9 +395,7 @@ public class VariantMergerTest {
 
     @Test
     public void testMergeDifferentComplex() {
-        variantMerger.merge(var, VariantTestUtils.generateVariant("1", 10, "A", "G", VariantType.SNV,
-                Arrays.asList("S02"),
-                Arrays.asList("0/1")));
+        variantMerger.merge(var, VariantTestUtils.generateVariant("1:10:A:G", "S02", "0/1"));
         StudyEntry se = var.getStudy(VariantTestUtils.STUDY_ID);
         assertEquals(1, se.getSecondaryAlternates().size());
         assertEquals(Collections.singletonList(new AlternateCoordinate("1", 10, 10, "A", "G", VariantType.SNV)), se.getSecondaryAlternates());
@@ -495,16 +491,14 @@ public class VariantMergerTest {
 
     @Test
     public void testMergeIndelCase1() throws NonStandardCompliantSampleField {
-        Variant v1 = new Variant("1:328:CTT:C");
-        v1 = VariantTestUtils.generateVariant(v1, v1.getType(),
-                Arrays.asList(VCFConstants.GENOTYPE_KEY, VCFConstants.GENOTYPE_FILTER_KEY),
-                Arrays.asList("S1"), Collections.singletonList(Arrays.asList("1/2","PASS")), Collections.emptyMap());
+        Variant v1 = VariantTestUtils.generateVariantWithFormat("1:328:CTT:C",
+                VCFConstants.GENOTYPE_KEY + "," + VCFConstants.GENOTYPE_FILTER_KEY,
+                "S1", "1/2","PASS");
         v1.getStudies().get(0).getSecondaryAlternates().add(new AlternateCoordinate(null,null,331,"CTT", "CTTTC", VariantType.INDEL));
 
-        Variant v2 = new Variant("1:331:T:TCT");
-        v2 = VariantTestUtils.generateVariant(v2, v2.getType(),
-                Arrays.asList(VCFConstants.GENOTYPE_KEY, VCFConstants.GENOTYPE_FILTER_KEY),
-                Arrays.asList("S1"), Collections.singletonList(Arrays.asList("0/1","PASS")), Collections.emptyMap());
+        Variant v2 = VariantTestUtils.generateVariantWithFormat("1:331:T:TCT",
+                VCFConstants.GENOTYPE_KEY + "," + VCFConstants.GENOTYPE_FILTER_KEY,
+                "S1", "0/1","PASS");
 
 
         List<Variant> variants = new VariantNormalizer().normalize(Arrays.asList(v1, v2), false);
@@ -515,16 +509,14 @@ public class VariantMergerTest {
     @Test
     public void testMergeIndelOverlapping() throws NonStandardCompliantSampleField {
         thrown.expect(IllegalStateException.class);
-        Variant v1 = new Variant("1:10:TACACACACAC:TACACAC");
-        v1 = VariantTestUtils.generateVariant(v1, v1.getType(),
-                Arrays.asList(VCFConstants.GENOTYPE_KEY, VCFConstants.GENOTYPE_FILTER_KEY),
-                Arrays.asList("S1"), Collections.singletonList(Arrays.asList("1/2","PASS")), Collections.emptyMap());
+        Variant v1 = VariantTestUtils.generateVariantWithFormat("1:10:TACACACACAC:TACACAC",
+                VCFConstants.GENOTYPE_KEY + "," + VCFConstants.GENOTYPE_FILTER_KEY,
+                "S1", "1/2","PASS");
         v1.getStudies().get(0).getSecondaryAlternates().add(new AlternateCoordinate("1",10,21,"TACACACACAC", "T", VariantType.INDEL));
 
-        Variant v2 = new Variant("1:11:A:.");
-        v2 = VariantTestUtils.generateVariant(v2, v2.getType(),
-                Arrays.asList(VCFConstants.GENOTYPE_KEY, VCFConstants.GENOTYPE_FILTER_KEY),
-                Arrays.asList("S2"), Collections.singletonList(Arrays.asList("0/0","PASS")), Collections.emptyMap());
+        Variant v2 = VariantTestUtils.generateVariantWithFormat("1:11:A:.",
+                VCFConstants.GENOTYPE_KEY + "," + VCFConstants.GENOTYPE_FILTER_KEY,
+                "S2", "0/0","PASS");
 
         System.out.println(v1.toJson());
         List<Variant> variants = new VariantNormalizer().normalize(Collections.singletonList(v1), false);
@@ -549,20 +541,17 @@ public class VariantMergerTest {
 
     @Test
     public void testMergeReference() {
-        Variant v1 = new Variant("1:10:ATGTA:-");
-        v1 = VariantTestUtils.generateVariant(v1, v1.getType(),
-                Arrays.asList(VCFConstants.GENOTYPE_KEY, VCFConstants.GENOTYPE_FILTER_KEY),
-                Arrays.asList("S1"), Collections.singletonList(Arrays.asList("0/1", "PASS")), Collections.emptyMap());
+        Variant v1 = VariantTestUtils.generateVariantWithFormat("1:10:ATGTA:-",
+                VCFConstants.GENOTYPE_KEY + "," + VCFConstants.GENOTYPE_FILTER_KEY,
+                "S1", "0/1", "PASS");
 
-        Variant v2 = new Variant("1:10:A:.");
-        v2 = VariantTestUtils.generateVariant(v2, v2.getType(),
-                Arrays.asList(VCFConstants.GENOTYPE_KEY, VCFConstants.GENOTYPE_FILTER_KEY),
-                Arrays.asList("S2"), Collections.singletonList(Arrays.asList("0/0", "PASS")), Collections.emptyMap());
+        Variant v2 = VariantTestUtils.generateVariantWithFormat("1:10:A:.",
+                VCFConstants.GENOTYPE_KEY + "," + VCFConstants.GENOTYPE_FILTER_KEY,
+                "S2", "0/0", "PASS");
 
-        Variant v3 = new Variant("1:12:T:.");
-        v3 = VariantTestUtils.generateVariant(v3, v3.getType(),
-                Arrays.asList(VCFConstants.GENOTYPE_KEY, VCFConstants.GENOTYPE_FILTER_KEY),
-                Arrays.asList("S2"), Collections.singletonList(Arrays.asList("./.", "XXX")), Collections.emptyMap());
+        Variant v3 = VariantTestUtils.generateVariantWithFormat("1:12:T:.",
+                VCFConstants.GENOTYPE_KEY + "," + VCFConstants.GENOTYPE_FILTER_KEY,
+                "S2", "./.", "XXX");
 
         Variant mergeVar = variantMerger.merge(v1, v2);
         assertEquals(0, mergeVar.getStudies().get(0).getSecondaryAlternates().size());
@@ -575,20 +564,17 @@ public class VariantMergerTest {
 
     @Test
     public void testMergeIndel() {
-        Variant v1 = new Variant("1:10:ATGTA:-");
-        v1 = VariantTestUtils.generateVariant(v1, v1.getType(),
-                Arrays.asList(VCFConstants.GENOTYPE_KEY, VCFConstants.GENOTYPE_FILTER_KEY),
-                Arrays.asList("S1"), Collections.singletonList(Arrays.asList("0/1","PASS")), Collections.emptyMap());
+        Variant v1 = VariantTestUtils.generateVariantWithFormat("1:10:ATGTA:-",
+                VCFConstants.GENOTYPE_KEY + "," + VCFConstants.GENOTYPE_FILTER_KEY,
+                "S1", "0/1","PASS");
 
-        Variant v2 = new Variant("1:10:A:T");
-        v2 = VariantTestUtils.generateVariant(v2, v2.getType(),
-                Arrays.asList(VCFConstants.GENOTYPE_KEY, VCFConstants.GENOTYPE_FILTER_KEY),
-                Arrays.asList("S2"), Collections.singletonList(Arrays.asList("1/1","PASS")), Collections.emptyMap());
+        Variant v2 = VariantTestUtils.generateVariantWithFormat("1:10:A:T",
+                VCFConstants.GENOTYPE_KEY + "," + VCFConstants.GENOTYPE_FILTER_KEY,
+                "S2", "1/1","PASS");
 
-        Variant v3 = new Variant("1:12:T:A");
-        v3 = VariantTestUtils.generateVariant(v3, v3.getType(),
-                Arrays.asList(VCFConstants.GENOTYPE_KEY, VCFConstants.GENOTYPE_FILTER_KEY),
-                Arrays.asList("S2"), Collections.singletonList(Arrays.asList("0/1","XXX")), Collections.emptyMap());
+        Variant v3 = VariantTestUtils.generateVariantWithFormat("1:12:T:A",
+                VCFConstants.GENOTYPE_KEY + "," + VCFConstants.GENOTYPE_FILTER_KEY,
+                "S2", "0/1","XXX");
 
         Variant mergeVar = variantMerger.merge(v1, v2);
         assertEquals(1, mergeVar.getStudies().get(0).getSecondaryAlternates().size());
@@ -775,9 +761,7 @@ public class VariantMergerTest {
 
     @Test
     public void testMergeWithSecondary_2SNP() {
-        Variant variant = VariantTestUtils.generateVariant("1",10,"A","G",VariantType.SNV,
-                Arrays.asList("S02"), 
-                Arrays.asList("1/2"));
+        Variant variant = VariantTestUtils.generateVariant("1:10:A:G", "S02", "1/2");
         variant.getStudies().get(0).setSecondaryAlternates(Arrays.asList(new AlternateCoordinate("1", 10, 10, "A", "C", VariantType.SNV)));
         variantMerger.merge(var, variant);
         StudyEntry se = variantMerger.getStudy(var);
@@ -818,7 +802,7 @@ public class VariantMergerTest {
         var2.getStudy(VariantTestUtils.STUDY_ID).getSecondaryAlternates().add(new AlternateCoordinate("1", 10, 10, "A", "C", VariantType.SNV));
         Variant mergedVariant = checkMergeVariants(var1, var2, Arrays.asList("1:10:A:G", "1:10:A:C"), "2/3");
         StudyEntry studyEntry = mergedVariant.getStudies().get(0);
-        assertEquals("GT:DP:FT", studyEntry.getFormatAsString());
+        assertEquals("GT:DP", studyEntry.getFormatAsString());
         assertEquals("4", studyEntry.getSampleData("S01", "DP"));
         assertEquals("5", studyEntry.getSampleData("S02", "DP"));
     }
@@ -832,12 +816,12 @@ public class VariantMergerTest {
         var2.getStudy(VariantTestUtils.STUDY_ID).getSecondaryAlternates().add(new AlternateCoordinate("1", 10, 10, "A", "C", VariantType.SNV));
         Variant mergedVariant = checkMergeVariants(var1, var2, Arrays.asList("1:10:A:G", "1:10:A:C"), "2/3");
         StudyEntry studyEntry = mergedVariant.getStudies().get(0);
-        assertEquals("GT:DP:FT:GQ", studyEntry.getFormatAsString());
+        assertEquals("GT:DP:GQ", studyEntry.getFormatAsString());
         assertEquals("4", studyEntry.getSampleData("S01", "DP"));
-        assertEquals("PASS1", studyEntry.getSampleData("S01", "FT"));
+//        assertEquals("PASS1", studyEntry.getSampleData("S01", "FT"));
         assertEquals(".", studyEntry.getSampleData("S01", "GQ"));
         assertEquals(".", studyEntry.getSampleData("S02", "DP"));
-        assertEquals("PASS2", studyEntry.getSampleData("S02", "FT"));
+//        assertEquals("PASS2", studyEntry.getSampleData("S02", "FT"));
         assertEquals("0.2", studyEntry.getSampleData("S02", "GQ"));
     }
 
@@ -852,6 +836,20 @@ public class VariantMergerTest {
         assertEquals("MyFilter1", studyEntry.getSampleData("S01", "FT"));
         assertEquals("5", studyEntry.getSampleData("S02", "DP"));
         assertEquals("MyFilter2", studyEntry.getSampleData("S02", "FT"));
+    }
+
+    @Test
+    public void testMergeWithSecondaryWithOtherFormatsExtractFT() {
+        Variant var1 = VariantTestUtils.generateVariantWithFormat("1:10:A:T", "PASS1", 100F, "GT:DP:AD", "S01", "0/1", "4", "4,5");
+        Variant var2 = VariantTestUtils.generateVariantWithFormat("1:10:A:G,C", "PASS2", 100F, "GT:DP:XX", "S02", "1/2", "5", "value");
+        variantMerger.setExpectedFormats(Arrays.asList("GT", "DP", "AD", "FT"));
+        Variant mergedVariant = checkMergeVariants(var1, var2, Arrays.asList("1:10:A:G", "1:10:A:C"), "2/3");
+        StudyEntry studyEntry = mergedVariant.getStudies().get(0);
+        assertEquals("GT:DP:AD:FT", studyEntry.getFormatAsString());
+        assertEquals("4", studyEntry.getSampleData("S01", "DP"));
+        assertEquals("PASS1", studyEntry.getSampleData("S01", "FT"));
+        assertEquals("5", studyEntry.getSampleData("S02", "DP"));
+        assertEquals("PASS2", studyEntry.getSampleData("S02", "FT"));
     }
 
     @Test
@@ -915,9 +913,7 @@ public class VariantMergerTest {
 
     @Test
     public void testMergeMonoAllelicSameAlt() {
-        variantMerger.merge(var, VariantTestUtils.generateVariant("1",10,"A","T",VariantType.SNV,
-                Arrays.asList("S02"), 
-                Arrays.asList("1")));
+        variantMerger.merge(var, VariantTestUtils.generateVariant("1:10:A:T", "S02", "1"));
         StudyEntry se = variantMerger.getStudy(var);
         assertEquals(Arrays.asList("S01", "S02"), se.getOrderedSamplesName());
         assertEquals(0, se.getSecondaryAlternates().size());
@@ -927,9 +923,7 @@ public class VariantMergerTest {
 
     @Test
     public void testMergeMonoAllelicNocall() {
-        variantMerger.merge(var, VariantTestUtils.generateVariant("1",10,"A","G",VariantType.SNV,
-                Arrays.asList("S02"), 
-                Arrays.asList("./1")));
+        variantMerger.merge(var, VariantTestUtils.generateVariant("1:10:A:G", "S02", "./1"));
         StudyEntry se = variantMerger.getStudy(var);
         assertEquals(Arrays.asList("S01", "S02"), se.getOrderedSamplesName());
         assertEquals(1, se.getSecondaryAlternates().size());
@@ -949,7 +943,7 @@ public class VariantMergerTest {
     @Test
     public void testMergeSameSampleSameVariant() { // TODO check if this can happen and result is correct !!!
         thrown.expect(IllegalStateException.class);
-        variantMerger.merge(var, VariantTestUtils.generateVariant("1", 10, "A", "T", VariantType.INDEL, Arrays.asList("S01"), Arrays.asList("0/1")));
+        variantMerger.merge(var, VariantTestUtils.generateVariant("1:10:A:T", "S01", "0/1"));
         StudyEntry se = variantMerger.getStudy(var);
         assertEquals(1, se.getSecondaryAlternates().size());
 //        // TODO not sure 1/2 is correct if the same individual has a variant with 0/1 and another variant with 0/2 overlapping each other
@@ -958,7 +952,7 @@ public class VariantMergerTest {
 
     @Test
     public void testMergeSameSampleDifferentVariant() { // TODO check if this can happen and result is correct !!!
-        Variant res = variantMerger.merge(var, VariantTestUtils.generateVariant("1", 9, "AAA", "-", VariantType.INDEL, Arrays.asList("S01"), Arrays.asList("0/1")));
+        Variant res = variantMerger.merge(var, VariantTestUtils.generateVariant("1:9:AAA:-", "S01", "0/1"));
         StudyEntry se = res.getStudies().get(0);
         assertEquals(1, se.getSecondaryAlternates().size());
         assertEquals("0/1,0/2", se.getSampleData("S01",VCFConstants.GENOTYPE_KEY));
@@ -971,8 +965,8 @@ public class VariantMergerTest {
     
     @Test
     public void sameStartPosition(){
-        assertTrue(VariantTestUtils.generateVariant("1", 10, "A", "T", VariantType.SNV).onSameStartPosition(VariantTestUtils.generateVariant("1", 10, "A", "T", VariantType.SNV)));
-        assertFalse(VariantTestUtils.generateVariant("1", 10, "A", "T", VariantType.SNV).onSameStartPosition(VariantTestUtils.generateVariant("1", 11, "A", "T", VariantType.SNV)));
+        assertTrue(new Variant("1", 10, "A", "T").onSameStartPosition(new Variant("1", 10, "A", "T")));
+        assertFalse(new Variant("1", 10, "A", "T").onSameStartPosition(new Variant("1", 11, "A", "T")));
     }
 
     public void checkOverlapNoSecondaries(String varstr1, String varstr2) {

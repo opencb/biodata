@@ -37,8 +37,7 @@ public class AlignmentOptions {
         this(false, false, false, 0, 1, DEFAULT_LIMIT);
     }
 
-    public AlignmentOptions(boolean contained, boolean binQualities, boolean calculateMD,
-                            int minBaseQuality, int windowSize, int limit) {
+    public AlignmentOptions(boolean contained, boolean binQualities, boolean calculateMD, int minBaseQuality, int windowSize, int limit) {
         this.contained = contained;
         this.binQualities = binQualities;
         this.calculateMD = calculateMD;

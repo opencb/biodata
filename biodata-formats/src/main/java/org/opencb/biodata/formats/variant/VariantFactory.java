@@ -20,7 +20,7 @@
 package org.opencb.biodata.formats.variant;
 
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.VariantSource;
+import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 
 import java.util.List;
 
@@ -30,7 +30,7 @@ import java.util.List;
  */
 public interface VariantFactory {
 
-    public List<Variant> create(VariantSource source, String line);
+    List<Variant> create(VariantStudyMetadata metadata, String line);
 
 
 }

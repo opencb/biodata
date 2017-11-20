@@ -1,22 +1,3 @@
-/*
- * <!--
- *   ~ Copyright 2015-2017 OpenCB
- *   ~
- *   ~ Licensed under the Apache License, Version 2.0 (the "License");
- *   ~ you may not use this file except in compliance with the License.
- *   ~ You may obtain a copy of the License at
- *   ~
- *   ~     http://www.apache.org/licenses/LICENSE-2.0
- *   ~
- *   ~ Unless required by applicable law or agreed to in writing, software
- *   ~ distributed under the License is distributed on an "AS IS" BASIS,
- *   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *   ~ See the License for the specific language governing permissions and
- *   ~ limitations under the License.
- *   -->
- *
- */
-
 package org.opencb.biodata.models.alignment;
 
 import org.codehaus.jackson.map.ObjectMapper;
@@ -29,8 +10,8 @@ import java.util.Arrays;
 
 public class RegionCoverage extends Region {
 
-    private short[] values;
     private int windowSize;
+    private float[] values;
 
     public RegionCoverage() {
     }
@@ -41,15 +22,16 @@ public class RegionCoverage extends Region {
 
     public RegionCoverage(String chromosome, int start, int end) {
         super(chromosome, start, end);
+
         windowSize = 1;
         if (end >= start) {
-            this.values = new short[end - start + 1];
+            this.values = new float[end - start + 1];
         } else {
-            this.values = new short[0];
+            this.values = new float[0];
         }
     }
 
-    public RegionCoverage(Region region, int windowSize, short[] values) {
+    public RegionCoverage(Region region, int windowSize, float[] values) {
         super(region.getChromosome(), region.getStart(), region.getEnd());
         this.windowSize = windowSize;
         this.values = values;
@@ -61,7 +43,7 @@ public class RegionCoverage extends Region {
             return mean;
         }
 
-        for (short value : values) {
+        for (float value: values) {
             mean += value;
         }
         return Math.round(1.0f * mean / values.length);
@@ -78,19 +60,10 @@ public class RegionCoverage extends Region {
         sb.append("chromosome='").append(getChromosome()).append('\'');
         sb.append(", start=").append(getStart());
         sb.append(", end=").append(getEnd());
-        sb.append(", array=").append(Arrays.toString(values));
         sb.append(", windowSize=").append(windowSize);
+        sb.append(", values=").append(Arrays.toString(values));
         sb.append('}');
         return sb.toString();
-    }
-
-    public short[] getValues() {
-        return values;
-    }
-
-    public RegionCoverage setValues(short[] values) {
-        this.values = values;
-        return this;
     }
 
     public int getWindowSize() {
@@ -102,4 +75,12 @@ public class RegionCoverage extends Region {
         return this;
     }
 
+    public float[] getValues() {
+        return values;
+    }
+
+    public RegionCoverage setValues(float[] values) {
+        this.values = values;
+        return this;
+    }
 }

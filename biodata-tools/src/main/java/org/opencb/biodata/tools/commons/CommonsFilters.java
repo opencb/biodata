@@ -27,9 +27,11 @@ import java.util.function.Predicate;
  * Created by joaquin on 11/14/16.
  */
 public class CommonsFilters<T> {
-    protected List<Predicate<T>> filters = new ArrayList<>();
+
+    protected List<Predicate<T>> filters;
 
     public CommonsFilters() {
+        this(new ArrayList<>());
     }
 
     public CommonsFilters(List<Predicate<T>> filters) {
@@ -57,22 +59,17 @@ public class CommonsFilters<T> {
     }
 
     public CommonsFilters<T> addFilterList(List<Predicate<T>> predicates, boolean or) {
-        return (or ? addFilterListOR(predicates) : addFilterListAND(predicates));
-    }
-
-    private CommonsFilters<T> addFilterListOR(List<Predicate<T>> predicates) {
-        Predicate<T> result = (element -> false);
-        for (Predicate<T> predicate: predicates) {
-            result = result.or(predicate);
-        }
-        filters.add(result);
-        return this;
-    }
-
-    private CommonsFilters<T> addFilterListAND(List<Predicate<T>> predicates) {
-        Predicate<T> result = (element -> true);
-        for (Predicate<T> predicate: predicates) {
-            result = result.and(predicate);
+        Predicate<T> result;
+        if (or) {
+            result = (element -> false);
+            for (Predicate<T> predicate: predicates) {
+                result = result.or(predicate);
+            }
+        } else {
+            result = (element -> true);
+            for (Predicate<T> predicate: predicates) {
+                result = result.and(predicate);
+            }
         }
         filters.add(result);
         return this;
@@ -80,10 +77,7 @@ public class CommonsFilters<T> {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Filters{");
-        sb.append("filters=").append(filters);
-        sb.append('}');
-        return sb.toString();
+        return "Filters{" + "filters=" + filters + "}";
     }
 
     public List<Predicate<T>> getFilters() {

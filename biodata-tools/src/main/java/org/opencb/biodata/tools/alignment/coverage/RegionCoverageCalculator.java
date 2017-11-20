@@ -21,9 +21,6 @@ package org.opencb.biodata.tools.alignment.coverage;
 
 import org.opencb.biodata.models.alignment.RegionCoverage;
 
-import java.util.ArrayList;
-import java.util.List;
-
 
 public abstract class RegionCoverageCalculator<T> {
 

@@ -17,11 +17,12 @@
 package org.opencb.biodata.tools.variant.stats;
 
 import org.junit.Test;
+import org.opencb.biodata.formats.variant.vcf4.VariantVcfFactory;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.VariantSource;
-import org.opencb.biodata.formats.variant.vcf4.VariantVcfFactory;
+import org.opencb.biodata.models.variant.VariantFileMetadata;
 import org.opencb.biodata.models.variant.avro.VariantType;
+import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 import org.opencb.biodata.tools.variant.VariantNormalizer;
 
@@ -35,12 +36,13 @@ import static org.junit.Assert.*;
  */
 public class VariantStatsCalculatorTest {
 
-    private VariantSource source = new VariantSource("filename.vcf", "fileId", "studyId", "studyName");
+    private VariantFileMetadata fileMetadata = new VariantFileMetadata("filename.vcf", "fileId");
+    private VariantStudyMetadata metadata = fileMetadata.toVariantStudyMetadata("studyId");
 
     @Test
     public void testCalculateBiallelicStats() {
         List<String> sampleNames = Arrays.asList("NA001", "NA002", "NA003", "NA004", "NA005", "NA006");
-        source.setSamples(sampleNames);
+        fileMetadata.setSampleIds(sampleNames);
         String line = "1\t10040\trs123\tT\tC\t10.05\tHELLO\t.\tGT:GL\t"
                 + "0/0:1,2,3\t0/1:1,2,3\t0/1:1,2,3\t"
                 + "1/1:1,2,3\t./.:1,2,3\t1/1:1,2,3"; // 6 samples
@@ -50,10 +52,10 @@ public class VariantStatsCalculatorTest {
         assertEquals(1, result.size());
 
         Variant variant = result.get(0);
-        StudyEntry sourceEntry = variant.getSourceEntry(source.getFileId(), source.getStudyId());
+        StudyEntry studyEntry = variant.getStudy(metadata.getId());
 
         VariantStats biallelicStats = new VariantStats(result.get(0));
-        VariantStatsCalculator.calculate(sourceEntry, sourceEntry.getAttributes(), null, biallelicStats);
+        VariantStatsCalculator.calculate(studyEntry, studyEntry.getAttributes(), null, biallelicStats);
 
         assertEquals("T", biallelicStats.getRefAllele());
         assertEquals("C", biallelicStats.getAltAllele());
@@ -96,7 +98,7 @@ public class VariantStatsCalculatorTest {
     @Test
     public void testCalculateMultiallelicStats() {
         List<String> sampleNames = Arrays.asList("NA001", "NA002", "NA003", "NA004", "NA005", "NA006");
-        source.setSamples(sampleNames);
+        fileMetadata.setSampleIds(sampleNames);
         String line = "1\t10040\trs123\tT\tA,GC\t.\tPASS\t.\tGT:GL\t"
                 + "0/0:1,2,3,4,5,6\t0/1:1,2,3,4,5,6\t0/2:1,2,3,4,5,6\t"
                 + "1/1:1,2,3,4,5,6\t1/2:1,2,3,4,5,6\t1/2:1,2,3,4,5,6"; // 6 samples
@@ -107,7 +109,7 @@ public class VariantStatsCalculatorTest {
 
         // Test first variant (alt allele C)
         Variant variant_C = result.get(0);
-        StudyEntry sourceEntry_C = variant_C.getStudy(source.getStudyId());
+        StudyEntry sourceEntry_C = variant_C.getStudy(metadata.getId());
         VariantStats multiallelicStats_C = new VariantStats(result.get(0));
         VariantStatsCalculator.calculate(sourceEntry_C, sourceEntry_C.getAttributes(), null, multiallelicStats_C);
 
@@ -149,7 +151,7 @@ public class VariantStatsCalculatorTest {
 
         // Test second variant (alt allele GC)
         Variant variant_GC = result.get(1);
-        StudyEntry sourceEntry_GC = variant_GC.getSourceEntry(source.getFileId(), source.getStudyId());
+        StudyEntry sourceEntry_GC = variant_GC.getStudy(metadata.getId());
         VariantStats multiallelicStats_GC = new VariantStats(result.get(1));
         VariantStatsCalculator.calculate(sourceEntry_GC, sourceEntry_GC.getAttributes(), null, multiallelicStats_GC);
 
@@ -298,7 +300,7 @@ public class VariantStatsCalculatorTest {
     }
 
     private List<Variant> readVariants(String line) {
-        return new VariantNormalizer().apply(new VariantVcfFactory().create(source, line));
+        return new VariantNormalizer().apply(new VariantVcfFactory().create(metadata, line));
     }
 
 }

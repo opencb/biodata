@@ -23,8 +23,8 @@ import htsjdk.variant.vcf.VCFHeader;
 import htsjdk.variant.vcf.VCFHeaderLine;
 import htsjdk.variant.vcf.VCFHeaderLineTranslator;
 import htsjdk.variant.vcf.VCFHeaderVersion;
-import org.opencb.biodata.models.variant.avro.VcfHeader;
-import org.opencb.biodata.tools.variant.converters.Converter;
+import org.opencb.biodata.models.variant.avro.legacy.VcfHeader;
+import org.opencb.biodata.tools.Converter;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -36,6 +36,7 @@ import java.util.Map;
  *
  * @author Jacobo Coll &lt;jacobo167@gmail.com&gt;
  */
+@Deprecated
 public class VCFHeaderToAvroVcfHeaderConverter implements Converter<VCFHeader, VcfHeader> {
 
     @Override

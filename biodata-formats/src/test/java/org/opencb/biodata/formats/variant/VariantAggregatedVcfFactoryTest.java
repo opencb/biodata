@@ -21,13 +21,14 @@ import org.opencb.biodata.formats.variant.vcf4.VariantAggregatedVcfFactory;
 import org.opencb.biodata.formats.variant.vcf4.VariantVcfFactory;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.VariantSource;
+import org.opencb.biodata.models.variant.VariantFileMetadata;
+import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 import org.opencb.commons.test.GenericTest;
 
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 
 /** 
@@ -35,14 +36,15 @@ import static org.junit.Assert.*;
  */
 public class VariantAggregatedVcfFactoryTest extends GenericTest {
 
-    private VariantSource source = new VariantSource("filename.vcf", "fileId", "studyId", "studyName");
+    private VariantFileMetadata fileMetadata = new VariantFileMetadata("filename.vcf", "fileId");
+    private VariantStudyMetadata metadata = fileMetadata.toVariantStudyMetadata("studyId");
 
     @Test
     public void testIndel() {
         String line = "1\t1000\trs123\tTCACCC\tTGACGG\t.\t.\t.";
         VariantVcfFactory factory = new VariantAggregatedVcfFactory();
 
-        List<Variant> variants = factory.create(source, line);
+        List<Variant> variants = factory.create(metadata, line);
 
         assertEquals(1, variants.size());
         Variant variant = variants.get(0);

@@ -35,11 +35,19 @@ import org.opencb.biodata.tools.alignment.iterators.SAMRecordToProtoReadAlignmen
 import org.opencb.biodata.tools.alignment.iterators.SamRecordBamIterator;
 import org.opencb.biodata.tools.alignment.stats.AlignmentGlobalStats;
 import org.opencb.biodata.tools.alignment.stats.SamRecordAlignmentGlobalStatsCalculator;
+import org.opencb.biodata.tools.feature.BigWigManager;
 import org.opencb.commons.utils.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -47,21 +55,32 @@ import java.util.List;
  */
 public class BamManager {
 
-    private Path input;
+    private Path bamFile;
     private SamReader samReader;
 
     private static final int DEFAULT_MAX_NUM_RECORDS = 50000;
 
+    protected Logger logger;
+
     public BamManager() {
+        logger = LoggerFactory.getLogger(BamManager.class);
     }
 
-    public BamManager(Path input) throws IOException {
-        FileUtils.checkFile(input);
-        this.input = input;
+    public BamManager(Path bamFilePath) throws IOException {
+        this();
 
-        SamReaderFactory srf = SamReaderFactory.make();
-        srf.validationStringency(ValidationStringency.LENIENT);
-        this.samReader = srf.open(SamInputResource.of(input.toFile()));
+        FileUtils.checkFile(bamFilePath);
+        this.bamFile = bamFilePath;
+    }
+
+    private void init() throws IOException {
+        FileUtils.checkFile(bamFile);
+
+        if (this.samReader == null) {
+            SamReaderFactory srf = SamReaderFactory.make();
+            srf.validationStringency(ValidationStringency.LENIENT);
+            this.samReader = srf.open(SamInputResource.of(bamFile.toFile()));
+        }
     }
 
     /**
@@ -70,7 +89,7 @@ public class BamManager {
      * @throws IOException
      */
     public Path createIndex() throws IOException {
-        Path indexPath = input.getParent().resolve(input.getFileName().toString() + ".bai");
+        Path indexPath = bamFile.getParent().resolve(bamFile.getFileName().toString() + ".bai");
         return createIndex(indexPath);
     }
 
@@ -85,12 +104,12 @@ public class BamManager {
 
         SamReaderFactory srf = SamReaderFactory.make().enable(SamReaderFactory.Option.INCLUDE_SOURCE_IN_RECORDS);
         srf.validationStringency(ValidationStringency.LENIENT);
-        try (SamReader reader = srf.open(SamInputResource.of(input.toFile()))) {
+        try (SamReader reader = srf.open(SamInputResource.of(bamFile.toFile()))) {
 
             // Files need to be sorted by coordinates to create the index
             SAMFileHeader.SortOrder sortOrder = reader.getFileHeader().getSortOrder();
             if (!sortOrder.equals(SAMFileHeader.SortOrder.coordinate)) {
-                throw new IOException("Expected sorted file. File '" + input.toString()
+                throw new IOException("Sorted file expected. File '" + bamFile.toString()
                         + "' is not sorted by coordinates (" + sortOrder.name() + ")");
             }
 
@@ -99,7 +118,7 @@ public class BamManager {
             } else {
                 if (reader.type().equals(SamReader.Type.CRAM_TYPE)) {
                     // TODO This really needs to be tested!
-                    SeekableStream streamFor = SeekableStreamFactory.getInstance().getStreamFor(input.toString());
+                    SeekableStream streamFor = SeekableStreamFactory.getInstance().getStreamFor(bamFile.toString());
                     CRAMBAIIndexer.createIndex(streamFor, outputIndex.toFile(), Log.getInstance(BamManager.class),
                             ValidationStringency.DEFAULT_STRINGENCY);
                 } else {
@@ -110,56 +129,74 @@ public class BamManager {
         return outputIndex;
     }
 
-    /**
-     * This method aims to provide a very simple, safe and quick way of accessing to a small fragment of the BAM/CRAM file.
-     * This must not be used in production for reading big data files. It returns a maximum of 10,000 SAM records.
+    public Path calculateBigWigCoverage() throws IOException {
+        return calculateBigWigCoverage(Paths.get(this.bamFile.toFile().getAbsolutePath() + ".coverage.bw"), 50);
+    }
+
+    public Path calculateBigWigCoverage(Path bigWigPath, int windowSize) throws IOException {
+        checkBaiFileExists();
+        FileUtils.checkDirectory(bigWigPath.toAbsolutePath().getParent(), true);
+
+        // Execute the bamCoverage utility from deepTools package, assuming it is installed in the system
+        // deepTools installation: pip install deepTools
+        ProcessBuilder processBuilder = new ProcessBuilder(
+                Arrays.asList("bamCoverage", "-b", bamFile.toString(), "-o", bigWigPath.toString(), "-of", "bigwig", "-bs", String.valueOf(windowSize)));
+        Process p = processBuilder.start();
+        BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        String line;
+        while ((line = input.readLine()) != null) {
+            logger.info(line);
+        }
+
+        return bigWigPath;
+    }
+
+
+    /*
+     * These methods aim to provide a very simple, safe and quick way of accessing to a small fragment of the BAM/CRAM file.
+     * This must not be used in production for reading big data files. It returns a maximum of 50,000 SAM records,
+     * you can use iterator methods for reading more reads.
      *
-     * @param region @return
-     * @throws IOException
      */
-    public List<SAMRecord> query(Region region) throws Exception {
-        return query(region, null, new AlignmentOptions(), SAMRecord.class);
-    }
-
-    public List<SAMRecord> query(Region region, AlignmentOptions options) throws Exception {
-        return query(region, null, options, SAMRecord.class);
-    }
-
-    public List<SAMRecord> query(Region region, AlignmentFilters<SAMRecord> filters, AlignmentOptions options) throws Exception {
-        return query(region, filters, options, SAMRecord.class);
-    }
-
-//    public List<SAMRecord> query() throws Exception {
-//        return query(null, null, new AlignmentOptions(), SAMRecord.class);
-//    }
-
-    public List<SAMRecord> query(AlignmentFilters<SAMRecord> filters) throws Exception {
+    public List<SAMRecord> query(AlignmentFilters<SAMRecord> filters) throws IOException {
         return query(null, filters, null, SAMRecord.class);
     }
 
-    public List<SAMRecord> query(AlignmentFilters<SAMRecord> filters, AlignmentOptions options) throws Exception {
+    public List<SAMRecord> query(AlignmentFilters<SAMRecord> filters, AlignmentOptions options) throws IOException {
         return query(null, filters, options, SAMRecord.class);
     }
 
-    public <T> List<T> query(AlignmentFilters<SAMRecord> filters, AlignmentOptions options, Class<T> clazz) throws Exception {
+    public <T> List<T> query(AlignmentFilters<SAMRecord> filters, AlignmentOptions options, Class<T> clazz) throws IOException {
         return query(null, filters, options, clazz);
     }
 
-    public <T> List<T> query(Region region, AlignmentFilters<SAMRecord> filters, AlignmentOptions alignmentOptions, Class<T> clazz) throws Exception {
-        if (alignmentOptions == null) {
-            alignmentOptions = new AlignmentOptions();
+    public List<SAMRecord> query(Region region) throws IOException {
+        return query(region, null, new AlignmentOptions(), SAMRecord.class);
+    }
+
+    public List<SAMRecord> query(Region region, AlignmentOptions options) throws IOException {
+        return query(region, null, options, SAMRecord.class);
+    }
+
+    public List<SAMRecord> query(Region region, AlignmentFilters<SAMRecord> filters, AlignmentOptions options) throws IOException {
+        return query(region, filters, options, SAMRecord.class);
+    }
+
+    public <T> List<T> query(Region region, AlignmentFilters<SAMRecord> filters, AlignmentOptions options, Class<T> clazz) throws IOException {
+        if (options == null) {
+            options = new AlignmentOptions();
         }
 
-        // Number of returned records, if not set then DEFAULT_MAX_NUM_RECORDS is returned
+        // Set number of returned records up to DEFAULT_MAX_NUM_RECORDS, if not set then DEFAULT_MAX_NUM_RECORDS is returned
         int maxNumberRecords = DEFAULT_MAX_NUM_RECORDS;
-        if (alignmentOptions.getLimit() > 0) {  // && alignmentOptions.getLimit() <= DEFAULT_MAX_NUM_RECORDS
-            maxNumberRecords = alignmentOptions.getLimit();
+        if (options.getLimit() > 0) {
+            maxNumberRecords = Math.min(options.getLimit(), DEFAULT_MAX_NUM_RECORDS);
         }
 
         List<T> results = new ArrayList<>(maxNumberRecords);
         BamIterator<T> bamIterator = (region != null)
-                ? iterator(region, filters, alignmentOptions, clazz)
-                : iterator(filters, alignmentOptions, clazz);
+                ? iterator(region, filters, options, clazz)
+                : iterator(filters, options, clazz);
 
         while (bamIterator.hasNext() && results.size() < maxNumberRecords) {
             results.add(bamIterator.next());
@@ -168,93 +205,76 @@ public class BamManager {
         return results;
     }
 
-    /**
-     * This method aims to provide a very simple, safe and quick way of iterating BAM/CRAM files.
-     *
+
+    /*
+     * These methods aim to provide a very simple, safe and quick way of iterating BAM/CRAM files.
      */
-    public BamIterator<SAMRecord> iterator() {
+    public BamIterator<SAMRecord> iterator() throws IOException {
         return iterator(null, new AlignmentOptions(), SAMRecord.class);
     }
 
-    public BamIterator<SAMRecord> iterator(AlignmentOptions options) {
+    public BamIterator<SAMRecord> iterator(AlignmentOptions options) throws IOException {
         return iterator(null, options, SAMRecord.class);
     }
 
-    public BamIterator<SAMRecord> iterator(AlignmentFilters<SAMRecord> filters, AlignmentOptions options) {
+    public BamIterator<SAMRecord> iterator(AlignmentFilters<SAMRecord> filters, AlignmentOptions options) throws IOException {
         return iterator(filters, options, SAMRecord.class);
     }
 
-    public <T> BamIterator<T> iterator(AlignmentFilters<SAMRecord> filters, AlignmentOptions alignmentOptions, Class<T> clazz) {
-        if (alignmentOptions == null) {
-            alignmentOptions = new AlignmentOptions();
-        }
+    public <T> BamIterator<T> iterator(AlignmentFilters<SAMRecord> filters, AlignmentOptions options, Class<T> clazz) throws IOException {
+        init();
+        checkBaiFileExists();
+
         SAMRecordIterator samRecordIterator = samReader.iterator();
-        return getAlignmentIterator(filters, alignmentOptions.isBinQualities(), clazz, samRecordIterator);
+        return getAlignmentIterator(filters, options, clazz, samRecordIterator);
     }
 
-    public BamIterator<SAMRecord> iterator(Region region) {
+    public BamIterator<SAMRecord> iterator(Region region) throws IOException {
         return iterator(region, null, new AlignmentOptions(), SAMRecord.class);
     }
 
-    public BamIterator<SAMRecord> iterator(Region region, AlignmentOptions options) {
+    public BamIterator<SAMRecord> iterator(Region region, AlignmentOptions options) throws IOException {
         return iterator(region, null, options, SAMRecord.class);
     }
 
-    public BamIterator<SAMRecord> iterator(Region region, AlignmentFilters<SAMRecord> filters, AlignmentOptions options) {
+    public BamIterator<SAMRecord> iterator(Region region, AlignmentFilters<SAMRecord> filters, AlignmentOptions options) throws IOException {
         return iterator(region, filters, options, SAMRecord.class);
     }
 
-    public <T> BamIterator<T> iterator(Region region, AlignmentFilters<SAMRecord> filters, AlignmentOptions alignmentOptions, Class<T> clazz) {
-        if (alignmentOptions == null) {
-            alignmentOptions = new AlignmentOptions();
+    public <T> BamIterator<T> iterator(Region region, AlignmentFilters<SAMRecord> filters, AlignmentOptions options, Class<T> clazz)
+            throws IOException {
+        init();
+        checkBaiFileExists();
+
+        if (options == null) {
+            options = new AlignmentOptions();
         }
         SAMRecordIterator samRecordIterator =
-                samReader.query(region.getChromosome(), region.getStart(), region.getEnd(), alignmentOptions.isContained());
-        return getAlignmentIterator(filters, alignmentOptions.isBinQualities(), clazz, samRecordIterator);
+                samReader.query(region.getChromosome(), region.getStart(), region.getEnd(), options.isContained());
+        return getAlignmentIterator(filters, options, clazz, samRecordIterator);
     }
 
-    public AlignmentGlobalStats stats() throws Exception {
-        return calculateGlobalStats(iterator());
-//        AlignmentGlobalStats alignmentGlobalStats = new AlignmentGlobalStats();
-//        SamRecordAlignmentGlobalStatsCalculator calculator = new SamRecordAlignmentGlobalStatsCalculator();
-//        try (BamIterator<SAMRecord> iterator = iterator()) {
-//            while (iterator.hasNext()) {
-//                AlignmentGlobalStats computed = calculator.compute(iterator.next());
-//                calculator.update(computed, alignmentGlobalStats);
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return alignmentGlobalStats;
-    }
-
-    public AlignmentGlobalStats stats(Region region, AlignmentFilters<SAMRecord> filters, AlignmentOptions options) throws Exception {
-        return calculateGlobalStats(iterator(region, filters, options));
-//        AlignmentGlobalStats alignmentGlobalStats = new AlignmentGlobalStats();
-//        SamRecordAlignmentGlobalStatsCalculator calculator = new SamRecordAlignmentGlobalStatsCalculator();
-//        try (BamIterator<SAMRecord> iterator = iterator(region, options, filters)) {
-//            while (iterator.hasNext()) {
-//                AlignmentGlobalStats computed = calculator.compute(iterator.next());
-//                calculator.update(computed, alignmentGlobalStats);
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return alignmentGlobalStats;
-    }
-
-    private AlignmentGlobalStats calculateGlobalStats(BamIterator<SAMRecord> iterator) throws Exception {
-        AlignmentGlobalStats alignmentGlobalStats = new AlignmentGlobalStats();
-        SamRecordAlignmentGlobalStatsCalculator calculator = new SamRecordAlignmentGlobalStatsCalculator();
-        while (iterator.hasNext()) {
-            AlignmentGlobalStats computed = calculator.compute(iterator.next());
-            calculator.update(computed, alignmentGlobalStats);
+    private <T> BamIterator<T> getAlignmentIterator(AlignmentFilters<SAMRecord> filters, AlignmentOptions options, Class<T> clazz,
+                                                    SAMRecordIterator samRecordIterator) {
+        if (options == null) {
+            options = new AlignmentOptions();
         }
-        iterator.close();
-        return alignmentGlobalStats;
+
+        if (ReadAlignment.class == clazz) {
+            // AVRO
+            return (BamIterator<T>) new SAMRecordToAvroReadAlignmentBamIterator(samRecordIterator, filters, options.isBinQualities());
+        } else if (Reads.ReadAlignment.class == clazz) {
+            // PROTOCOL BUFFER
+            return (BamIterator<T>) new SAMRecordToProtoReadAlignmentBamIterator(samRecordIterator, filters, options.isBinQualities());
+        } else if (SAMRecord.class == clazz) {
+            return (BamIterator<T>) new SamRecordBamIterator(samRecordIterator, filters);
+        } else {
+            throw new IllegalArgumentException("Unknown alignment model class: " + clazz);
+        }
     }
 
-    public RegionCoverage coverage(Region region,  AlignmentFilters<SAMRecord> filters, AlignmentOptions options) {
+
+    public RegionCoverage coverage(Region region, AlignmentFilters<SAMRecord> filters, AlignmentOptions options) {
         RegionCoverage regionCoverage = new RegionCoverage(region);
         if (options == null) {
             options = new AlignmentOptions();
@@ -273,22 +293,84 @@ public class BamManager {
         return regionCoverage;
     }
 
-    private <T> BamIterator<T> getAlignmentIterator(AlignmentFilters<SAMRecord> filters, boolean binQualities, Class<T> clazz,
-                                                    SAMRecordIterator samRecordIterator) {
-        if (ReadAlignment.class == clazz) { // AVRO
-            return (BamIterator<T>) new SAMRecordToAvroReadAlignmentBamIterator(samRecordIterator, filters, binQualities);
-        } else if (Reads.ReadAlignment.class == clazz) { // PROTOCOL BUFFER
-            return (BamIterator<T>) new SAMRecordToProtoReadAlignmentBamIterator(samRecordIterator, filters, binQualities);
-        } else if (SAMRecord.class == clazz) {
-            return (BamIterator<T>) new SamRecordBamIterator(samRecordIterator, filters);
+    /**
+     * Return the coverage average given a window size from a BigWig file. This is expected to have the same name
+     * that the BAM file with .coverage.bw or .bw suffix.
+     * If no BigWig file is found and windowSize is 1 then we calculate te coverage from the BAM file.
+     * @param region Region from which return the coverage
+     * @param windowSize Window size to average
+     * @return One average score per window size spanning the region
+     * @throws IOException If any error happens reading BigWig file
+     */
+    public RegionCoverage coverage(Region region, int windowSize) throws IOException {
+        if (Paths.get(bamFile.toString() + ".bw").toFile().exists()) {
+            return coverage(region, windowSize, Paths.get(bamFile.toString() + ".bw"));
         } else {
-            throw new IllegalArgumentException("Unknown alignment class " + clazz);
+            if (Paths.get(bamFile.toString() + ".coverage.bw").toFile().exists()) {
+                return coverage(region, windowSize, Paths.get(this.bamFile.toString() + ".coverage.bw"));
+            } else {
+                // If BigWig file is not found and windowSize is 1 then we calculate it from the BAM file
+                if (windowSize == 1) {
+                    return coverage(region, null, new AlignmentOptions());
+                }
+            }
         }
+        return null;
     }
+
+    /**
+     * Return the coverage average given a window size from the BigWig file passed.
+     * @param region Region from which return the coverage
+     * @param windowSize Window size to average
+     * @param bigwigPath BigWig path with coverage
+     * @return One average score per window size spanning the region
+     * @throws IOException If any error happens reading BigWig file
+     */
+    public RegionCoverage coverage(Region region, int windowSize, Path bigwigPath) throws IOException {
+        BigWigManager bigWigManager = new BigWigManager(bigwigPath);
+        float[] avgCoverage = bigWigManager.groupBy(region, windowSize);
+        return new RegionCoverage(region, windowSize, avgCoverage);
+    }
+
+
+    public AlignmentGlobalStats stats() throws IOException {
+        return calculateGlobalStats(iterator());
+    }
+
+    public AlignmentGlobalStats stats(Region region, AlignmentFilters<SAMRecord> filters, AlignmentOptions options) throws IOException {
+        return calculateGlobalStats(iterator(region, filters, options));
+    }
+
+    private AlignmentGlobalStats calculateGlobalStats(BamIterator<SAMRecord> iterator) throws IOException {
+        AlignmentGlobalStats alignmentGlobalStats = new AlignmentGlobalStats();
+        SamRecordAlignmentGlobalStatsCalculator calculator = new SamRecordAlignmentGlobalStatsCalculator();
+        while (iterator.hasNext()) {
+            AlignmentGlobalStats computed = calculator.compute(iterator.next());
+            calculator.update(computed, alignmentGlobalStats);
+        }
+        iterator.close();
+        return alignmentGlobalStats;
+    }
+
 
     public void close() throws IOException {
         if (samReader != null) {
             samReader.close();
         }
+    }
+
+    private void checkBaiFileExists() throws IOException {
+        if (!new File(bamFile.toString() + ".bai").exists()) {
+            throw new IOException("Missing BAM index (.bai file) for " + bamFile.toString());
+        }
+    }
+
+    public Path getBamFile() {
+        return bamFile;
+    }
+
+    public BamManager setBamFile(Path bamFilePath) {
+        this.bamFile = bamFilePath;
+        return this;
     }
 }

@@ -21,10 +21,10 @@ package org.opencb.biodata.tools.variant.converters.proto;
 
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.VariantSource;
-import org.opencb.biodata.models.variant.protobuf.VcfMeta;
+import org.opencb.biodata.models.variant.VariantFileMetadata;
+import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
-import org.opencb.biodata.tools.variant.converters.Converter;
+import org.opencb.biodata.tools.Converter;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -43,12 +43,9 @@ public class VcfSliceToVariantListConverter implements Converter<VcfSliceProtos.
     private final String fileId;
     private final String studyId;
 
-    public VcfSliceToVariantListConverter(VcfMeta meta) {
-        this(meta.getVariantSource());
-    }
-
-    public VcfSliceToVariantListConverter(VariantSource source) {
-        this(source.getSamplesPosition(), source.getFileId(), source.getStudyId());
+    public VcfSliceToVariantListConverter(VariantStudyMetadata metadata) {
+        this(VariantFileMetadata.getSamplesPositionMap(metadata.getFiles().get(0).getSampleIds()),
+                metadata.getFiles().get(0).getId(), metadata.getId());
     }
 
     public VcfSliceToVariantListConverter(Map<String, Integer> samplesPosition, String fileId, String studyId) {

@@ -31,7 +31,7 @@ import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.protobuf.VariantAnnotationProto;
 import org.opencb.biodata.models.variant.protobuf.VariantProto;
 import org.opencb.biodata.models.variant.stats.VariantStats;
-import org.opencb.biodata.tools.variant.converters.Converter;
+import org.opencb.biodata.tools.Converter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -181,14 +181,29 @@ public class VariantAvroToVariantProtoConverter implements Converter<Variant, Va
                     if (fieldDescriptor.isRepeated()) {
                         Collection c = o instanceof Collection ? ((Collection) o) : Collections.singletonList(o);
                         for (Object o1 : c) {
+                            if (fieldDescriptor.getJavaType() == Descriptors.FieldDescriptor.JavaType.ENUM) {
+                                o1 = fieldDescriptor.getEnumType().findValueByName(String.valueOf(o1));
+                            }
                             builder.addRepeatedField(fieldDescriptor, o1);
                         }
                     } else {
+                        if (fieldDescriptor.getJavaType() == Descriptors.FieldDescriptor.JavaType.ENUM) {
+                            o = fieldDescriptor.getEnumType().findValueByName(String.valueOf(o));
+                        }
                         builder.setField(fieldDescriptor, o);
                     }
                 } catch (RuntimeException e) {
-                    logger.warn("Error adding field " + fieldDescriptor.getName() + " type: " + fieldDescriptor.getMessageType().toProto() + " value: " + o);
-                    throw e;
+                    Descriptors.GenericDescriptor d;
+                    if (fieldDescriptor.getJavaType() == Descriptors.FieldDescriptor.JavaType.MESSAGE) {
+                        d = fieldDescriptor.getMessageType();
+                    } else if (fieldDescriptor.getJavaType() == Descriptors.FieldDescriptor.JavaType.ENUM ) {
+                        d = fieldDescriptor.getEnumType();
+                    } else {
+                        logger.warn("Type = " + fieldDescriptor.getJavaType());
+                        d = descriptor;
+                    }
+                    logger.warn("Error adding field '" + fieldDescriptor.getName() + "' type: " + d.toProto() + " value: " + o);
+                //    throw e;
                 }
             }
         }

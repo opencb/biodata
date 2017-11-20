@@ -17,7 +17,7 @@ protocol EvidenceProtocol {
         /**
         The source date.
         */
-        union {null, string} date;
+        union {null, string} `date`;
     }
 
     /**
@@ -31,7 +31,7 @@ protocol EvidenceProtocol {
         /**
         The submission date
         */
-        union {null, string} date;
+        union {null, string} `date`;
         /**
         The submission id
         */

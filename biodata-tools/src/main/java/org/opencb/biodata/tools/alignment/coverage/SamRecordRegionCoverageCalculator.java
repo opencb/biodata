@@ -19,7 +19,6 @@
 
 package org.opencb.biodata.tools.alignment.coverage;
 
-import htsjdk.samtools.Cigar;
 import htsjdk.samtools.CigarElement;
 import htsjdk.samtools.SAMRecord;
 import org.opencb.biodata.models.alignment.RegionCoverage;
@@ -49,7 +48,7 @@ public class SamRecordRegionCoverageCalculator extends RegionCoverageCalculator<
         int qualityPos = 0;
 
         byte[] qualities = sr.getBaseQualities();
-        short[] values = dest.getValues();
+        float[] values = dest.getValues();
 
         for (CigarElement ce: sr.getCigar().getCigarElements()) {
             switch (ce.getOperator().toString()) {
