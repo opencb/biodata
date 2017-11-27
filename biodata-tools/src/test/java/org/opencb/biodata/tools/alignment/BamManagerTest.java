@@ -53,7 +53,7 @@ public class BamManagerTest {
         System.out.println("bwPath = " + bwPath);
         BamManager bamManager = new BamManager(bamPath);
         bamManager.createIndex();
-        bamManager.calculateBigWigCoverage(bwPath);
+        bamManager.calculateBigWigCoverage(bwPath, 50);
     }
 
     @Test
@@ -81,7 +81,7 @@ public class BamManagerTest {
         BamManager bamManager = new BamManager(bamPath);
 
         Region region = new Region("20", 62000, 62200);
-        RegionCoverage coverage = bamManager.coverage(region, 50);
+        RegionCoverage coverage = bamManager.coverage(region, 20);
 //        System.out.println(coverage.toString());
         System.out.println(coverage.toJSON());
         System.out.println("mean coverage = " + coverage.meanCoverage());

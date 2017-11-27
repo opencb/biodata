@@ -129,14 +129,18 @@ public class BamManager {
         return outputIndex;
     }
 
-    public Path calculateBigWigCoverage(Path bigWigPath) throws IOException {
+    public Path calculateBigWigCoverage() throws IOException {
+        return calculateBigWigCoverage(Paths.get(this.bamFile.toFile().getAbsolutePath() + ".coverage.bw"), 50);
+    }
+
+    public Path calculateBigWigCoverage(Path bigWigPath, int windowSize) throws IOException {
         checkBaiFileExists();
         FileUtils.checkDirectory(bigWigPath.toAbsolutePath().getParent(), true);
 
         // Execute the bamCoverage utility from deepTools package, assuming it is installed in the system
         // deepTools installation: pip install deepTools
         ProcessBuilder processBuilder = new ProcessBuilder(
-                Arrays.asList("bamCoverage", " -b ", bamFile.toString(), " -o ", bigWigPath.toString(), " -of ", "bigwig"));
+                Arrays.asList("bamCoverage", "-b", bamFile.toString(), "-o", bigWigPath.toString(), "-of", "bigwig", "-bs", String.valueOf(windowSize)));
         Process p = processBuilder.start();
         BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
         String line;

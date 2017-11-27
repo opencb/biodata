@@ -68,6 +68,8 @@ public abstract class AlignmentFilters<T> extends CommonsFilters<T> {
 
     public abstract AlignmentFilters<T> addProperlyPairedFilter();
 
+    public abstract AlignmentFilters<T> addInsertSizeFilter(int maxInsertSize);
+
     public abstract AlignmentFilters<T> addUnmappedFilter();
 
     public abstract AlignmentFilters<T> addDuplicatedFilter();
