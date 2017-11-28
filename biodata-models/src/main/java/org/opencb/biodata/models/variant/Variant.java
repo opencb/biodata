@@ -470,12 +470,12 @@ public class Variant implements Serializable, Comparable<Variant> {
             sb.append(getReference().isEmpty() ? "-" : getReference()).append(":");
         }
         if (getAlternate().isEmpty()) {
-            if (getType().equals(VariantType.NO_VARIATION)) {
+            if (VariantType.NO_VARIATION.equals(getType())) {
                 sb.append(".");
             } else {
                 sb.append("-");
             }
-        } else if (getType().equals(VariantType.INSERTION) && getSv() != null
+        } else if (VariantType.INSERTION.equals(getType()) && getSv() != null
                     && (getSv().getLeftSvInsSeq() != null || getSv().getRightSvInsSeq() != null)) {
             if (getSv().getLeftSvInsSeq() != null) {
                 sb.append(getSv().getLeftSvInsSeq());
