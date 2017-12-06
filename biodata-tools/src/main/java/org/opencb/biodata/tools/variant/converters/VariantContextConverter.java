@@ -22,6 +22,7 @@ package org.opencb.biodata.tools.variant.converters;
 import htsjdk.variant.variantcontext.*;
 import htsjdk.variant.vcf.VCFConstants;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.tools.Converter;
@@ -70,7 +71,7 @@ public abstract class VariantContextConverter<T> implements Converter<T, Variant
         }
     }
 
-    protected String buildAllele(String chromosome, Integer start, Integer end, String allele, Pair<Integer, Integer> adjustedRange, Map<Integer, Character> referenceAlleles) {
+    protected static String buildAllele(String chromosome, Integer start, Integer end, String allele, Pair<Integer, Integer> adjustedRange, Map<Integer, Character> referenceAlleles) {
         if (start.equals(adjustedRange.getLeft()) && end.equals(adjustedRange.getRight())) {
             return allele; // same start / end
         }
@@ -79,7 +80,44 @@ public abstract class VariantContextConverter<T> implements Converter<T, Variant
         }
         return getReferenceBase(chromosome, adjustedRange.getLeft(), start, referenceAlleles)
                 + allele
-                + getReferenceBase(chromosome, end, adjustedRange.getRight(), referenceAlleles);
+                + getReferenceBase(chromosome, end + 1, adjustedRange.getRight() + 1, referenceAlleles);
+    }
+
+    protected static MutablePair<Integer, Integer> adjustedVariantStart(
+            final int start, final int end, String reference, String alternate,
+            Map<Integer, Character> referenceAlleles, MutablePair<Integer, Integer> adjustedPosition) {
+        int adjustedStart;
+        int adjustedEnd;
+
+        if (adjustedPosition == null) {
+            adjustedStart = start;
+            adjustedEnd = end;
+        } else {
+            adjustedStart = Math.min(start, adjustedPosition.getLeft());
+            adjustedEnd = Math.max(end, adjustedPosition.getRight());
+        }
+
+        // Add a context base if reference or alternate are empty,
+        if (StringUtils.isBlank(reference) || StringUtils.isBlank(alternate)) {
+            // Add the context base at the beginning or at the end, depending if it's contained in the referenceAlleles map.
+            // If none is present, add from the start
+
+            // Do not add a context base if the adjusted position already includes that position.
+            if (start - 1 < adjustedStart && end + 1 > adjustedEnd) {
+                if (referenceAlleles.containsKey(start - 1) || !referenceAlleles.containsKey(end + 1)) {
+                    adjustedStart = start - 1;
+                } else {
+                    adjustedEnd = end + 1;
+                }
+            }
+        }
+        if (adjustedPosition == null) {
+            adjustedPosition = new MutablePair<>(adjustedStart, adjustedEnd);
+        } else {
+            adjustedPosition.setLeft(adjustedStart);
+            adjustedPosition.setRight(adjustedEnd);
+        }
+        return adjustedPosition;
     }
 
     /**
@@ -91,7 +129,7 @@ public abstract class VariantContextConverter<T> implements Converter<T, Variant
      * @param referenceAlleles  Reference alleles
      * @return String Reference sequence of length to - from
      */
-    private String getReferenceBase(String chromosome, int from, int to, Map<Integer, Character> referenceAlleles) {
+    protected static String getReferenceBase(String chromosome, int from, int to, Map<Integer, Character> referenceAlleles) {
         int length = to - from;
         if (length < 0) {
             throw new IllegalStateException(
@@ -145,7 +183,7 @@ public abstract class VariantContextConverter<T> implements Converter<T, Variant
         return nocallAlleles;
     }
 
-    protected Map<Integer, Character> buildReferenceAllelesMap(Iterator<String> callsIterator) {
+    protected static Map<Integer, Character> buildReferenceAllelesMap(Iterator<String> callsIterator) {
         Map<Integer, Character> referenceAlleles = new HashMap<>();
         callsIterator.forEachRemaining(call -> {
             if (StringUtils.isNotEmpty(call)) {
