@@ -25,6 +25,7 @@ import org.opencb.biodata.models.core.Region;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -95,6 +96,12 @@ public class SamRecordFilters extends AlignmentFilters<SAMRecord> {
     }
 
     @Override
+    public AlignmentFilters<SAMRecord> addInsertSizeFilter(int maxInsertSize) {
+        filters.add(samRecord -> samRecord.getInferredInsertSize() <= maxInsertSize);
+        return this;
+    }
+
+    @Override
     public AlignmentFilters<SAMRecord> addUnmappedFilter() {
         filters.add(samRecord -> samRecord.getReadUnmappedFlag());
         return this;
@@ -108,7 +115,7 @@ public class SamRecordFilters extends AlignmentFilters<SAMRecord> {
 
     @Override
     public AlignmentFilters<SAMRecord> addRegionFilter(Region region, boolean contained) {
-        return addRegionFilter(Arrays.asList(region), contained);
+        return addRegionFilter(Collections.singletonList(region), contained);
     }
 
     @Override

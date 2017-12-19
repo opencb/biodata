@@ -60,7 +60,7 @@ public class BigWigManagerTest {
 //        assertEquals(region.getEnd() - region.getStart() + 1, coverage.length);
     }
 
-    @Test
+    @Deprecated
     public void index() throws Exception {
         // this reads a file from src/test/resources folder
         Path bamPath = Paths.get(getClass().getResource("/HG00096.chrom20.small.bam").toURI());

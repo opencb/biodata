@@ -11,7 +11,7 @@ import org.opencb.biodata.models.variant.metadata.Aggregation;
 public class AggregationUtils {
 
     public static boolean isAggregated(Aggregation aggregation) {
-        return !Aggregation.NONE.equals(aggregation);
+        return aggregation != null && !aggregation.equals(Aggregation.NONE);
     }
 
     public static Aggregation valueOf(String aggregation) {

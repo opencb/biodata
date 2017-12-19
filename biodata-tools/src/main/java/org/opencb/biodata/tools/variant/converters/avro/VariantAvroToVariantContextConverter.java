@@ -3,8 +3,8 @@ package org.opencb.biodata.tools.variant.converters.avro;
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFConstants;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
@@ -54,10 +54,11 @@ public class VariantAvroToVariantContextConverter extends VariantContextConverte
         // CHROM START END REFERENCE ALTERNATE
         String chromosome = variant.getChromosome();
         VariantType type = variant.getType();
-        Pair<Integer, Integer> adjustedStartEndPositions = adjustedVariantStart(variant);
+        Map<Integer, Character> referenceAlleles = buildReferenceAllelesMap(studyEntry.getFiles().stream().map(FileEntry::getCall).iterator());
+        Pair<Integer, Integer> adjustedStartEndPositions = adjustedVariantStart(variant, studyEntry, referenceAlleles);
         int start = adjustedStartEndPositions.getLeft();
         int end = adjustedStartEndPositions.getRight();
-        List<String> alleleList = buildAlleles(variant, adjustedStartEndPositions);
+        List<String> alleleList = buildAlleles(variant, adjustedStartEndPositions, referenceAlleles);
         boolean isNoVariation = type.equals(VariantType.NO_VARIATION);
 
         // ID
@@ -105,30 +106,25 @@ public class VariantAvroToVariantContextConverter extends VariantContextConverte
     /**
      * Adjust start/end if a reference base is required due to an empty allele. All variants are checked due to SecAlts.
      * @param variant {@link Variant} object.
+     * @param study Study
      * @return Pair<Integer, Integer> The adjusted (or same) start/end position e.g. SV and MNV as SecAlt, INDEL, etc.
      */
-    protected Pair<Integer, Integer> adjustedVariantStart(Variant variant) {
-        int start = variant.getStart();
-        int end = variant.getEnd();
+    public static Pair<Integer, Integer> adjustedVariantStart(Variant variant, StudyEntry study, Map<Integer, Character> referenceAlleles) {
         if (variant.getType().equals(VariantType.NO_VARIATION)) {
-            return new ImmutablePair<>(start, end);
+            return new ImmutablePair<>(variant.getStart(), variant.getEnd());
         }
-        if (StringUtils.isBlank(variant.getReference()) || StringUtils.isBlank(variant.getAlternate())) {
-            start = start - 1;
-        }
-        for (AlternateCoordinate alternateCoordinate : getStudy(variant).getSecondaryAlternates()) {
+        MutablePair<Integer, Integer> pos = adjustedVariantStart(variant.getStart(), variant.getEnd(), variant.getReference(), variant.getAlternate(), referenceAlleles, null);
+
+        for (AlternateCoordinate alternateCoordinate : study.getSecondaryAlternates()) {
             int alternateStart = alternateCoordinate.getStart() == null ? variant.getStart() : alternateCoordinate.getStart().intValue();
             int alternateEnd = alternateCoordinate.getEnd() == null ? variant.getEnd() : alternateCoordinate.getEnd().intValue();
-            start = Math.min(start, alternateStart);
-            end = Math.max(end, alternateEnd);
-            if (StringUtils.isBlank(alternateCoordinate.getAlternate()) || StringUtils.isBlank(alternateCoordinate.getReference())) {
-                start = Math.min(start, alternateStart - 1);
-            }
+
+            adjustedVariantStart(alternateStart, alternateEnd, alternateCoordinate.getReference(), alternateCoordinate.getAlternate(), referenceAlleles, pos);
         }
-        return new ImmutablePair<>(start, end);
+        return pos;
     }
 
-    public List<String> buildAlleles(Variant variant, Pair<Integer, Integer> adjustedRange) {
+    public List<String> buildAlleles(Variant variant, Pair<Integer, Integer> adjustedRange, Map<Integer, Character> referenceAlleles) {
         String reference = variant.getReference();
         String alternate = variant.getAlternate();
         if (variant.getType().equals(VariantType.NO_VARIATION)) {
@@ -136,7 +132,6 @@ public class VariantAvroToVariantContextConverter extends VariantContextConverte
         }
         StudyEntry study = getStudy(variant);
         List<AlternateCoordinate> secAlts = study.getSecondaryAlternates();
-        Map<Integer, Character> referenceAlleles = buildReferenceAllelesMap(study.getFiles().stream().map(FileEntry::getCall).iterator());
 
         List<String> alleles = new ArrayList<>(secAlts.size() + 2);
         int origStart = variant.getStart();
