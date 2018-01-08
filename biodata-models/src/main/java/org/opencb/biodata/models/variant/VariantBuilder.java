@@ -12,6 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -58,6 +60,7 @@ public class VariantBuilder {
     protected static final String DEL_ALT_EXTENDED = "<DEL:";
     protected static final String INV_ALT_EXTENDED = "<INV:";
     protected static final String INS_ALT_EXTENDED = "<INS:";
+    private static final Pattern BREAKEND_MATED_PATTERN = Pattern.compile("(.*)([\\[\\]])(.+):(\\p{Digit}+)([\\[\\]])(.*)");
 
     protected static Logger logger = LoggerFactory.getLogger(VariantBuilder.class);
 
@@ -113,10 +116,6 @@ public class VariantBuilder {
             // Get last index of '<'. Start and end may use '<' for imprecise positions.
             if (variantString.endsWith(">")) {
                 idx = variantString.lastIndexOf("<");
-            } else {
-                idx = -1;
-            }
-            if (idx >= 0) {
                 String[] split = variantString.substring(0, idx - 1).split(":", -1);
                 fields = new String[split.length + 1];
                 for (int i = 0; i < split.length; i++) {
@@ -124,7 +123,12 @@ public class VariantBuilder {
                 }
                 fields[fields.length - 1] = variantString.substring(idx);
             } else {
-                fields = variantString.split(":", -1);
+                idx = StringUtils.indexOfAny(variantString, '[', ']');
+                if (idx != StringUtils.INDEX_NOT_FOUND) {
+                    fields = variantString.split(":", 4);
+                } else {
+                    fields = variantString.split(":", -1);
+                }
             }
             if (fields.length == 3) {
                 setChromosome(fields[0]);
@@ -556,29 +560,30 @@ public class VariantBuilder {
 
         if (sv != null) {
             VariantProto.StructuralVariation.Builder svBuilder = VariantProto.StructuralVariation.newBuilder();
-            if (sv.getCiStartLeft() != null) {
-                svBuilder.setCiStartLeft(sv.getCiStartLeft());
-            }
-            if (sv.getCiStartRight() != null) {
-                svBuilder.setCiStartRight(sv.getCiStartRight());
-            }
-            if (sv.getCiEndLeft() != null) {
-                svBuilder.setCiEndLeft(sv.getCiEndLeft());
-            }
-            if (sv.getCiEndRight() != null) {
-                svBuilder.setCiEndRight(sv.getCiEndRight());
-            }
-            if (sv.getCopyNumber() != null) {
-                svBuilder.setCopyNumber(sv.getCopyNumber());
-            }
-            if (sv.getRightSvInsSeq() != null) {
-                svBuilder.setRightSvInsSeq(sv.getRightSvInsSeq());
-            }
-            if (sv.getLeftSvInsSeq() != null) {
-                svBuilder.setLeftSvInsSeq(sv.getLeftSvInsSeq());
-            }
-            if (sv.getType() != null) {
-                svBuilder.setType(VariantProto.StructuralVariantType.valueOf(sv.getType().toString()));
+            ifNotNull(sv.getCiStartLeft(), svBuilder::setCiStartLeft);
+            ifNotNull(sv.getCiStartRight(), svBuilder::setCiStartRight);
+            ifNotNull(sv.getCiEndLeft(), svBuilder::setCiEndLeft);
+            ifNotNull(sv.getCiEndRight(), svBuilder::setCiEndRight);
+            ifNotNull(sv.getCopyNumber(), svBuilder::setCopyNumber);
+            ifNotNull(sv.getRightSvInsSeq(), svBuilder::setRightSvInsSeq);
+            ifNotNull(sv.getLeftSvInsSeq(), svBuilder::setLeftSvInsSeq);
+            ifNotNull(sv.getType(), type -> svBuilder.setType(VariantProto.StructuralVariantType.valueOf(sv.getType().toString())));
+            if (sv.getBreakend() != null) {
+                Breakend bnd = sv.getBreakend();
+                VariantProto.Breakend.Builder bndBuilder = VariantProto.Breakend.newBuilder();
+                ifNotNull(bnd.getInsSeq(), bndBuilder::setInsSeq);
+
+                if (bnd.getMate() != null) {
+                    VariantProto.BreakendMate.Builder bndMateBuilder = VariantProto.BreakendMate.newBuilder();
+                    ifNotNull(bnd.getMate().getChromosome(), bndMateBuilder::setChromosome);
+                    ifNotNull(bnd.getMate().getPosition(), bndMateBuilder::setPosition);
+                    ifNotNull(bnd.getMate().getCiPositionLeft(), bndMateBuilder::setCiPositionLeft);
+                    ifNotNull(bnd.getMate().getCiPositionRight(), bndMateBuilder::setCiPositionRight);
+                    bndBuilder.setMate(bndMateBuilder);
+                }
+                ifNotNull(bnd.getOrientation(), type -> bndBuilder.setOrientation(VariantProto.BreakendOrientation.valueOf(type.toString())));
+
+                svBuilder.setBreakend(bndBuilder);
             }
             builder.setSv(svBuilder);
         }
@@ -851,6 +856,7 @@ public class VariantBuilder {
      *    * variant.sv.CiEndLeft, variant.sv.CiEndRight: CIPOS of the FIRST breakend
      *    PLEASE NOTE: that the values in CiStart/CiEnd of the coordenates is swapped with respect to the input variant
      */
+    @Deprecated
     public static Variant getMateBreakend(Variant variant) {
         // e.g. A]2:321681]
         Variant newvariant = parseMateBreakendFromAlternate(variant.getAlternate());
@@ -858,7 +864,7 @@ public class VariantBuilder {
             if (variant.getSv() != null) {
                 newvariant.setSv(new StructuralVariation(variant.getSv().getCiEndLeft(), variant.getSv().getCiEndRight(),
                         variant.getSv().getCiStartLeft(), variant.getSv().getCiStartRight(), null,
-                        null, null, null));
+                        null, null, null, null));
             }
             return newvariant;
         }
@@ -873,6 +879,7 @@ public class VariantBuilder {
      * breakend (e.g. alternate='.'), null will be returned. Just the variant.chromosome and variant.start fields
      * of the new Variant object will be filled in.
      */
+    @Deprecated
     public static Variant parseMateBreakendFromAlternate(String alternate) {
         String[] parts = alternate.split(":");
         if (parts.length == 2) {
@@ -883,6 +890,91 @@ public class VariantBuilder {
             return newVariant;
         }
         return null;
+    }
+
+    /**
+     * Generates a new Breakend object by parsing the alternate string of a breakend (e.g  A]2:321681])
+     * @param alternate String containing details of a mate breakend. Expected VCF-like format, e.g. A]2:321681]. Can
+     *                  also be "." to indicate there's no mate (single breakend).
+     * @return A Breakend object filled in with the coordinates parsed from the alternate string. IF there's no mate
+     * breakend (e.g. alternate='.'), null will be returned.
+     */
+    public static Breakend parseBreakend(String reference, String alternate) {
+        if (isMateBreakend(alternate)) {
+            Matcher matcher = BREAKEND_MATED_PATTERN.matcher(alternate);
+            if (matcher.matches()) {
+                String insSeqLeft = matcher.group(1);
+                String bracket = matcher.group(2);
+                String chromosome = matcher.group(3);
+                Integer start = Integer.valueOf(matcher.group(4));
+                String bracket2 = matcher.group(5);
+                String insSeqRight = matcher.group(6);
+
+                chromosome = Region.normalizeChromosome(chromosome);
+
+                if (!bracket.equals(bracket2) || bracket.isEmpty()) {
+                    throw breakendParseException(alternate);
+                }
+
+                String insSeq;
+                BreakendOrientation type;
+                char thisJunctionOrientation;
+                char mateJunctionOrientation;
+
+                if (insSeqLeft.isEmpty()) {
+                    if (insSeqRight.isEmpty()) {
+                        throw breakendParseException(alternate);
+                    } else {
+                        insSeq = insSeqRight;
+                        thisJunctionOrientation = 'L';
+                        if (insSeq.endsWith(reference)) {
+                            insSeq = insSeq.substring(0, insSeq.length() - reference.length());
+                        }
+                    }
+                } else {
+                    if (insSeqRight.isEmpty()) {
+                        insSeq = insSeqLeft;
+                        thisJunctionOrientation = 'R';
+                        if (insSeq.startsWith(reference)) {
+                            insSeq = insSeq.substring(reference.length());
+                        }
+                    } else {
+                        throw breakendParseException(alternate);
+                    }
+                }
+                if (insSeq.isEmpty() || insSeq.equals(".")) {
+                    insSeq = null;
+                }
+
+                mateJunctionOrientation = bracket.equals("]") ? 'R' : 'L';
+                if (thisJunctionOrientation == 'R') {
+                    if (mateJunctionOrientation == 'R') {
+                        type = BreakendOrientation.RR;
+                    } else { // 'L'
+                        type = BreakendOrientation.RL;
+                    }
+                } else { // 'L'
+                    if (mateJunctionOrientation == 'R') {
+                        type = BreakendOrientation.LR;
+                    } else { // 'L'
+                        type = BreakendOrientation.LL;
+                    }
+                }
+
+                return new Breakend(new BreakendMate(chromosome, start, null, null), type, insSeq);
+            } else {
+                throw breakendParseException(alternate);
+            }
+        }
+        return null;
+    }
+
+    public static boolean isMateBreakend(String alternate) {
+        return StringUtils.contains(alternate, ']') || StringUtils.contains(alternate, '[');
+    }
+
+    private static RuntimeException breakendParseException(String alternate) {
+        return new IllegalArgumentException("Error parsing breakend '" + alternate + "'.");
     }
 
 
@@ -915,10 +1007,9 @@ public class VariantBuilder {
                 // variant.sv.CiStartLeft, variant.sv.CiStartRight are initialized with the FIRST breakend start and
                 // variant.sv.CiEndLeft, variant.sv.CiEndRight are initialized with the SECOND (mate) breakend start
                 case BREAKEND:
-                    Variant mate = parseMateBreakendFromAlternate(alternates.get(0));
-                    if (mate != null) {
-                        sv.setCiEndLeft(mate.getStart());
-                        sv.setCiEndRight(mate.getEnd());
+                    Breakend bnd = parseBreakend(reference, alternates.get(0));
+                    if (bnd != null) {
+                        sv.setBreakend(bnd);
                     }
                     break;
                 case DUPLICATION:
@@ -1157,4 +1248,9 @@ public class VariantBuilder {
                     + (alternates == null ? "null" : String.join(",", alternates));
     }
 
+    private static <T> void ifNotNull(T value, Consumer<T> setter) {
+        if (value != null) {
+            setter.accept(value);
+        }
+    }
 }

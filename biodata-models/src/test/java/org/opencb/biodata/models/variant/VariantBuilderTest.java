@@ -1,11 +1,8 @@
 package org.opencb.biodata.models.variant;
 
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
-import org.opencb.biodata.models.variant.avro.StructuralVariantType;
-import org.opencb.biodata.models.variant.avro.StructuralVariation;
-import org.opencb.biodata.models.variant.avro.VariantType;
+import org.opencb.biodata.models.variant.avro.*;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -30,20 +27,26 @@ public class VariantBuilderTest {
 //        map.put("1:1000:A:<DEL>", new Variant("1", 1000, 1000, "A", "<DEL>").setType(VariantType.DELETION).setSv(new StructuralVariation(1000, 1000, 1000, 1000, null, null, null, null)).setLength(Variant.UNKNOWN_LENGTH));
 //        map.put("1:1000:<DEL>", new Variant("1", 1000, 999, "", "<DEL>").setType(VariantType.DELETION).setSv(new StructuralVariation(1000, 1000, 999, 999, null, null, null, null)).setLength(Variant.UNKNOWN_LENGTH));
         map.put("1:1000-2000:<CNV>", new Variant("1", 1000, 2000, "", "<CNV>").setType(VariantType.CNV).setSv(new StructuralVariation()));
-        map.put("1:1000-2000:<CN0>", new Variant("1", 1000, 2000, "", "<CN0>").setType(VariantType.CNV).setSv(new StructuralVariation(null, null, null, null, 0, null, null, StructuralVariantType.COPY_NUMBER_LOSS)));
-        map.put("1:1000-2000:<CN5>", new Variant("1", 1000, 2000, "", "<CN5>").setType(VariantType.CNV).setSv(new StructuralVariation(null, null, null, null, 5, null, null, StructuralVariantType.COPY_NUMBER_GAIN)));
-        map.put("1:1000-2000::<DUP:TANDEM>", new Variant("1", 1000, 2000, "", "<DUP>").setType(VariantType.DUPLICATION).setSv(new StructuralVariation(null, null, null, null, null, null, null, StructuralVariantType.TANDEM_DUPLICATION)));
-        map.put("1:1000-2000:<DUP:TANDEM>", new Variant("1", 1000, 2000, "", "<DUP>").setType(VariantType.DUPLICATION).setSv(new StructuralVariation(null, null, null, null, null, null, null, StructuralVariantType.TANDEM_DUPLICATION)));
-        map.put("1:999<1000<1001-2000:<CN5>", new Variant("1", 1000, 2000, "", "<CN5>").setType(VariantType.CNV).setSv(new StructuralVariation(999, 1001, null, null, 5, null, null, StructuralVariantType.COPY_NUMBER_GAIN)));
-        map.put("1:1000-1999<2000<2001:<CN5>", new Variant("1", 1000, 2000, "", "<CN5>").setType(VariantType.CNV).setSv(new StructuralVariation(null, null, 1999, 2001, 5, null, null, StructuralVariantType.COPY_NUMBER_GAIN)));
-        map.put("1:999<1000<1001-1999<2000<2001:<CN5>", new Variant("1", 1000, 2000, "", "<CN5>").setType(VariantType.CNV).setSv(new StructuralVariation(999, 1001, 1999, 2001, 5, null, null, StructuralVariantType.COPY_NUMBER_GAIN)));
+        map.put("1:1000-2000:<CN0>", new Variant("1", 1000, 2000, "", "<CN0>").setType(VariantType.CNV).setSv(new StructuralVariation(null, null, null, null, 0, null, null, StructuralVariantType.COPY_NUMBER_LOSS, null)));
+        map.put("1:1000-2000:<CN5>", new Variant("1", 1000, 2000, "", "<CN5>").setType(VariantType.CNV).setSv(new StructuralVariation(null, null, null, null, 5, null, null, StructuralVariantType.COPY_NUMBER_GAIN, null)));
+        map.put("1:1000-2000::<DUP:TANDEM>", new Variant("1", 1000, 2000, "", "<DUP>").setType(VariantType.DUPLICATION).setSv(new StructuralVariation(null, null, null, null, null, null, null, StructuralVariantType.TANDEM_DUPLICATION, null)));
+        map.put("1:1000-2000:<DUP:TANDEM>", new Variant("1", 1000, 2000, "", "<DUP>").setType(VariantType.DUPLICATION).setSv(new StructuralVariation(null, null, null, null, null, null, null, StructuralVariantType.TANDEM_DUPLICATION, null)));
+        map.put("1:999<1000<1001-2000:<CN5>", new Variant("1", 1000, 2000, "", "<CN5>").setType(VariantType.CNV).setSv(new StructuralVariation(999, 1001, null, null, 5, null, null, StructuralVariantType.COPY_NUMBER_GAIN, null)));
+        map.put("1:1000-1999<2000<2001:<CN5>", new Variant("1", 1000, 2000, "", "<CN5>").setType(VariantType.CNV).setSv(new StructuralVariation(null, null, 1999, 2001, 5, null, null, StructuralVariantType.COPY_NUMBER_GAIN, null)));
+        map.put("1:999<1000<1001-1999<2000<2001:<CN5>", new Variant("1", 1000, 2000, "", "<CN5>").setType(VariantType.CNV).setSv(new StructuralVariation(999, 1001, 1999, 2001, 5, null, null, StructuralVariantType.COPY_NUMBER_GAIN, null)));
         map.put("1:1000:A:.", new Variant("1", 1000, 1000, "A", "").setType(VariantType.NO_VARIATION));
         map.put("1:1000-1005:A:.", new Variant("1", 1000, 1005, "A", "").setLength(6).setType(VariantType.NO_VARIATION));
-        map.put("1:1000:ACACAC...GTGTGTGT", new Variant("1", 1000, 999, "", "<INS>").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.INSERTION).setSv(new StructuralVariation(null, null, null, null, null, "ACACAC", "GTGTGTGT", null)));
-        map.put("1:1000:...GTGTGTGT", new Variant("1", 1000, 999, "", "<INS>").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.INSERTION).setSv(new StructuralVariation(null, null, null, null, null, "", "GTGTGTGT", null)));
-        map.put("1:1000:ACACAC...", new Variant("1", 1000, 999, "", "<INS>").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.INSERTION).setSv(new StructuralVariation(null, null, null, null, null, "ACACAC", "", null)));
-        map.put("1:1000-999:A:A.", new Variant("1", 1000, 999, "A", "A.").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.BREAKEND).setSv(new StructuralVariation(null, null, null, null, null, null, null, null)));
-        map.put("1:799984<800001<800022:-:TGTGGTGTGTGTGGTGTG...ACCACACCCACACAACACACA", new Variant("1", 800001, 800000, "", "<INS>").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.INSERTION).setSv(new StructuralVariation(799984, 800022, null, null, null, "TGTGGTGTGTGTGGTGTG", "ACCACACCCACACAACACACA", null)));
+        map.put("1:1000:ACACAC...GTGTGTGT", new Variant("1", 1000, 999, "", "<INS>").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.INSERTION).setSv(new StructuralVariation(null, null, null, null, null, "ACACAC", "GTGTGTGT", null, null)));
+        map.put("1:1000:...GTGTGTGT", new Variant("1", 1000, 999, "", "<INS>").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.INSERTION).setSv(new StructuralVariation(null, null, null, null, null, "", "GTGTGTGT", null, null)));
+        map.put("1:1000:ACACAC...", new Variant("1", 1000, 999, "", "<INS>").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.INSERTION).setSv(new StructuralVariation(null, null, null, null, null, "ACACAC", "", null, null)));
+        map.put("1:799984<800001<800022:-:TGTGGTGTGTGTGGTGTG...ACCACACCCACACAACACACA", new Variant("1", 800001, 800000, "", "<INS>").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.INSERTION).setSv(new StructuralVariation(799984, 800022, null, null, null, "TGTGGTGTGTGTGGTGTG", "ACCACACCCACACAACACACA", null, null)));
+
+        // Breakends
+        map.put("1:1000:A:A.", new Variant("1", 1000, 999, "A", "A.").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.BREAKEND).setSv(new StructuralVariation(null, null, null, null, null, null, null, null, null)));
+        map.put("1:800001:A:A[2:321681[", new Variant("1", 800001, 800000, "A", "A[2:321681[").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.BREAKEND).setSv(new StructuralVariation(null, null, null, null, null, null, null, null, new Breakend(new BreakendMate("2", 321681, null, null), BreakendOrientation.RL, null))));
+        map.put("1:799984<800001<800022:A:A[2:321681[", new Variant("1", 800001, 800000, "A", "A[2:321681[").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.BREAKEND).setSv(new StructuralVariation(799984, 800022, null, null, null, null, null, null, new Breakend(new BreakendMate("2", 321681, null, null), BreakendOrientation.RL, null))));
+        map.put("1:800001:G:GTATTG[2:321681[", new Variant("1", 800001, 800000, "G", "GTATTG[2:321681[").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.BREAKEND).setSv(new StructuralVariation(null, null, null, null, null, null, null, null, new Breakend(new BreakendMate("2", 321681, null, null), BreakendOrientation.RL, "TATTG"))));
+        map.put("1:800001:G:[2:321681[GTATTG", new Variant("1", 800001, 800000, "G", "[2:321681[GTATTG").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.BREAKEND).setSv(new StructuralVariation(null, null, null, null, null, null, null, null, new Breakend(new BreakendMate("2", 321681, null, null), BreakendOrientation.LL, "GTATT"))));
 
         for (Map.Entry<String, Variant> entry : map.entrySet()) {
             String expected = entry.getKey().replace(":-:", ":").replace("::", ":").replace("chr", "");
@@ -223,6 +226,9 @@ public class VariantBuilderTest {
         assertEquals(Variant.UNKNOWN_LENGTH, v1.getLength().intValue());
         assertEquals(Variant.UNKNOWN_LENGTH, v1.getLengthReference().intValue());
         assertEquals(Variant.UNKNOWN_LENGTH, v1.getLengthAlternate().intValue());
+        assertEquals("4", v1.getSv().getBreakend().getMate().getChromosome());
+        assertEquals(17481913, v1.getSv().getBreakend().getMate().getPosition().intValue());
+        assertEquals(BreakendOrientation.LL, v1.getSv().getBreakend().getOrientation());
     }
 
     @Test
@@ -236,5 +242,8 @@ public class VariantBuilderTest {
         assertEquals(Variant.UNKNOWN_LENGTH, v1.getLength().intValue());
         assertEquals(Variant.UNKNOWN_LENGTH, v1.getLengthReference().intValue());
         assertEquals(Variant.UNKNOWN_LENGTH, v1.getLengthAlternate().intValue());
+        assertEquals("2", v1.getSv().getBreakend().getMate().getChromosome());
+        assertEquals(10000, v1.getSv().getBreakend().getMate().getPosition().intValue());
+        assertEquals(BreakendOrientation.RR, v1.getSv().getBreakend().getOrientation());
     }
 }

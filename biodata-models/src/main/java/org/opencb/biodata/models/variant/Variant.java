@@ -454,7 +454,7 @@ public class Variant implements Serializable, Comparable<Variant> {
         }
 
         // Optional end
-        if (start != end && getLengthReference() != getReference().length()) {
+        if (start != end && getLengthReference() != getReference().length() && getLength() != UNKNOWN_LENGTH) {
             sb.append("-");
             if (sv != null && (sv.getCiEndLeft() != null || sv.getCiEndRight() != null)) {
                 sb.append(sv.getCiEndLeft() == null ? end : sv.getCiEndLeft())

@@ -231,12 +231,16 @@ public class VariantNormalizerGenericTest extends GenericTest {
         return newVariant(position, position, ref, Arrays.asList(altsCsv.split(",")), "2");
     }
 
+    protected Variant newVariant(int start, int end, String ref, String altsCsv) {
+        return newVariant(start, end, ref, Arrays.asList(altsCsv.split(",")), "2");
+    }
+
     protected Variant newVariant(int position, String ref, List<String> altsList, String studyId) {
         return newVariant(position, position, ref, altsList, studyId);
     }
 
-    protected Variant newVariant(int position, int end, String ref, List<String> altsList, String studyId) {
-        return newVariantBuilder(position, end, ref, altsList, studyId).build();
+    protected Variant newVariant(int start, int end, String ref, List<String> altsList, String studyId) {
+        return newVariantBuilder(start, end, ref, altsList, studyId).build();
     }
 
     protected VariantBuilder newVariantBuilder(int position, int end, String ref, List<String> altsList, String studyId) {

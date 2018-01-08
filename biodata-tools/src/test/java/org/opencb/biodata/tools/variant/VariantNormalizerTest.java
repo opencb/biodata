@@ -1,29 +1,21 @@
 package org.opencb.biodata.tools.variant;
 
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Before;
 import org.junit.Ignore;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.VariantBuilder;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.StructuralVariantType;
 import org.opencb.biodata.models.variant.avro.StructuralVariation;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
-import org.opencb.biodata.tools.variant.merge.VariantAlternateRearranger;
-import org.opencb.commons.test.GenericTest;
 
-import java.io.FileNotFoundException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
+import static org.opencb.biodata.models.variant.VariantTestUtils.FILE_ID;
 import static org.opencb.biodata.models.variant.VariantTestUtils.STUDY_ID;
 import static org.opencb.biodata.models.variant.VariantTestUtils.generateVariantWithFormat;
 
@@ -382,7 +374,7 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
         List<Variant> normalizedVariantList = normalizer.normalize(Collections.singletonList(variant), true);
         assertEquals(1, normalizedVariantList.size());
         assertEquals(new StructuralVariation(86, 150, 150, 211, 0, null, null,
-                StructuralVariantType.COPY_NUMBER_LOSS), normalizedVariantList.get(0).getSv());
+                StructuralVariantType.COPY_NUMBER_LOSS, null), normalizedVariantList.get(0).getSv());
         // Normalize CNV alternate
         assertEquals("<CN0>", normalizedVariantList.get(0).getAlternate());
         assertEquals("100:C:<CN0>:0", normalizedVariantList.get(0).getStudies().get(0).getFiles().get(0).getCall());
@@ -404,14 +396,14 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
         List<Variant> normalizedVariantList = normalizer.normalize(Collections.singletonList(variant), true);
         assertEquals(4, normalizedVariantList.size());
         assertEquals(new StructuralVariation(90, 110, null, null, 0,
-                null, null, StructuralVariantType.COPY_NUMBER_LOSS),
+                null, null, StructuralVariantType.COPY_NUMBER_LOSS, null),
                 normalizedVariantList.get(0).getSv());
         assertEquals(new StructuralVariation(90, 110, null, null, 2,
-                null, null, null), normalizedVariantList.get(1).getSv());
+                null, null, null, null), normalizedVariantList.get(1).getSv());
         assertEquals(new StructuralVariation(90, 110, null, null, 3,
-                null, null, StructuralVariantType.COPY_NUMBER_GAIN), normalizedVariantList.get(2).getSv());
+                null, null, StructuralVariantType.COPY_NUMBER_GAIN, null), normalizedVariantList.get(2).getSv());
         assertEquals(new StructuralVariation(90, 110, null, null, 4,
-                null, null, StructuralVariantType.COPY_NUMBER_GAIN), normalizedVariantList.get(3).getSv());
+                null, null, StructuralVariantType.COPY_NUMBER_GAIN, null), normalizedVariantList.get(3).getSv());
 
         assertEquals("100:C:<CN0>,<CN2>,<CN3>,<CN4>:0", normalizedVariantList.get(0).getStudies().get(0).getFiles().get(0).getCall());
         assertEquals("100:C:<CN0>,<CN2>,<CN3>,<CN4>:1", normalizedVariantList.get(1).getStudies().get(0).getFiles().get(0).getCall());
@@ -436,7 +428,7 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
         assertEquals(1, normalizedVariantList.size());
         Variant normalizedVariant = normalizedVariantList.get(0);
         assertEquals(new StructuralVariation(null, null, null, null, 3, null, null,
-                StructuralVariantType.COPY_NUMBER_GAIN), normalizedVariant.getSv());
+                StructuralVariantType.COPY_NUMBER_GAIN, null), normalizedVariant.getSv());
         // Normalize CNV alternate
         assertEquals("<CN3>", normalizedVariant.getAlternate());
         assertEquals(101, normalizedVariant.getStart().intValue());
@@ -458,9 +450,9 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
         normalizedVariantList = normalizer.normalize(Collections.singletonList(variant), false);
         assertEquals(2, normalizedVariantList.size());
         assertEquals(new StructuralVariation(100, 100, 200, 200, 3,
-                null, null, StructuralVariantType.COPY_NUMBER_GAIN), normalizedVariantList.get(0).getSv());
+                null, null, StructuralVariantType.COPY_NUMBER_GAIN, null), normalizedVariantList.get(0).getSv());
         assertEquals(new StructuralVariation(100, 100, 200, 200, 2,
-                null, null, null), normalizedVariantList.get(1).getSv());
+                null, null, null, null), normalizedVariantList.get(1).getSv());
     }
 
     @Test
@@ -513,4 +505,68 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
         assertEquals(new StructuralVariation(), normalized.getSv());
         assertEquals("100:N:<INS>:0", normalized.getStudies().get(0).getFiles().get(0).getCall());
     }
+
+    @Test
+    public void testNormalizeBND() throws NonStandardCompliantSampleField {
+        normalizeBnd(newVariant(101, 100, "", ".[9:10["),  newVariant(100, 99, "A", "A[chr9:10["));
+        normalizeBnd(newVariant(100, 99, "", "[22:10[."),  newVariant(100, 99, "A", "[chr22:10[A"));
+        normalizeBnd(newVariant(101, 100, "", ".]9:10]"),  newVariant(100, 99, "A", "A]chr9:10]"));
+        normalizeBnd(newVariant(100, 99, "", "]22:10]."),  newVariant(100, 99, "A", "]chr22:10]A"));
+        normalizeBnd(newVariant(100, 99, "", "]22:10]NNN"),  newVariant(100, 99, "A", "]chr22:10]NNNA"));
+
+        normalizeBnd(newVariant(100, 99, "", "[1:10[T"),  newVariant(100, 99, "A", "[1:10[TA"));
+        normalizeBnd(newVariant(100, 99, "", "[1:10[T"),  newVariant(100, 99, "AC", "[1:10[TAC"));
+
+        normalizeBnd(newVariant(100, 99, "TAC", "[1:10[AC"),  newVariant(100, 99, "TAC", "[1:10[AC"));
+        normalizeBnd(newVariant(100, 99, "TAC", "TA[1:10["),  newVariant(100, 99, "TAC", "TA[1:10["));
+    }
+
+    private void normalizeBnd(Variant expectedVariant, Variant variant) throws NonStandardCompliantSampleField {
+        System.out.println("---");
+        boolean expectsNormalization = !expectedVariant.equals(variant);
+
+        System.out.println(" - Actual");
+        System.out.println("    " + variant.toString());
+        System.out.println("    " + variant.toJson());
+        System.out.println(" - Expected");
+        System.out.println("    " + expectedVariant.toString());
+        System.out.println("    " + expectedVariant.toJson());
+        System.out.println(" - Normalized (same = " + !expectsNormalization + ")");
+        List<Variant> normalized = normalizer.normalize(Collections.singletonList(variant), false);
+
+        for (Variant v : normalized) {
+            System.out.println("    " + v.toString());
+            System.out.println("    " + v.toJson());
+            if (expectsNormalization) {
+                assertNotNull(v.getStudies().get(0).getFiles().get(0).getCall());
+                v.getStudies().get(0).getFiles().get(0).setCall(null);
+            }
+            assertEquals(expectedVariant, v);
+        }
+    }
+
+
+    @Test
+    public void testNormalizeBND2() throws NonStandardCompliantSampleField {
+
+
+        for (String alternate : Arrays.asList(
+                "A[chr9:10[",
+                "A]chr9:10]",
+                "[chr22:10[A",
+                "]chr22:10]A",
+                "]chr22:10]NNNA")) {
+            System.out.println("---");
+            Variant variant = newVariant(100, "A", alternate);
+            System.out.println(variant.toString());
+            List<Variant> normalized = normalizer.normalize(Collections.singletonList(variant), false);
+
+            for (Variant v : normalized) {
+                System.out.println(v.toString());
+                System.out.println(v.toJson());
+            }
+        }
+
+    }
+
 }

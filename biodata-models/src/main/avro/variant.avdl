@@ -196,6 +196,32 @@ protocol Variants {
         TANDEM_DUPLICATION            // SO:1000173
     }
 
+    /**
+     * RL | (Right -> Left)  | s | t[p[ | piece extending to the right of p is joined after t
+     * RR | (Right -> Right) | s | t]p] | reverse comp piece extending left of p is joined after t
+     * LR | (Left -> Right)  | s | ]p]t | piece extending to the left of p is joined before t
+     * LL | (Left -> Left)   | s | [p[t | reverse comp piece extending right of p is joined before t
+     */
+    enum BreakendOrientation {
+        RL,
+        RR,
+        LR,
+        LL
+    }
+
+    record BreakendMate {
+        union { null, string } chromosome;
+        union { null, int } position;
+        union { null, int } ciPositionRight;
+        union { null, int } ciPositionLeft;
+    }
+
+    record Breakend {
+        union { null, BreakendMate } mate;
+        union { null, BreakendOrientation} orientation;
+        union { null, string } insSeq;
+    }
+
     record StructuralVariation {
         union {null, int} ciStartLeft;
         union {null, int} ciStartRight;
@@ -216,6 +242,8 @@ protocol Variants {
         * Structural variation type: COPY_NUMBER_GAIN, COPY_NUMBER_LOSS, TANDEM_DUPLICATION, ...
         */
         union {null, StructuralVariantType} type;
+
+        union { null, Breakend } breakend;
     }
 
     record VariantAvro {

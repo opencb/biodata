@@ -184,7 +184,7 @@ public class VariantContextToVariantConverterTest {
         assertEquals("<INS>", variant.getAlternate());
         assertEquals(new StructuralVariation(null, null, null, null, null,
                         "AGAACCTTAATACCCTAGTCTCGATGGTCTTTACATTTTGGCATGATTTTGCAGCGGCTGGTACCGG",
-                        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", null),
+                        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", null, null),
                 variant.getSv());
 
         vcfLine = "22\t16050984\trs188945759\tC\t<DUP:TANDEM>\t100\t.\tEND=16050988;CIPOS=-10,10\tGT:AD\t./0:.\t0/1:10\t1/1:20";
@@ -192,7 +192,7 @@ public class VariantContextToVariantConverterTest {
         variant = converter.convert(variantContext);
         assertEquals(VariantType.DUPLICATION, variant.getType());
         assertEquals(new StructuralVariation(16050974, 16050994, null, null, null, null, null,
-                        StructuralVariantType.TANDEM_DUPLICATION),
+                        StructuralVariantType.TANDEM_DUPLICATION, null),
                 variant.getSv());
 
     }

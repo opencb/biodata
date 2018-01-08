@@ -38,6 +38,8 @@ enum VariantType {
     DELETION       = 11;  // SO:0000159
     TRANSLOCATION  = 12;  // SO:0000199
     INVERSION      = 13;  // SO:1000036
+    DUPLICATION    = 14;  // SO:1000035
+    BREAKEND       = 15;
 }
 
 enum AllelesCode {
@@ -152,6 +154,34 @@ enum StructuralVariantType {
     TANDEM_DUPLICATION = 2;            // SO:1000173
 }
 
+
+/*
+* RL | (Right -> Left)  | s | t[p[ | piece extending to the right of p is joined after t
+* RR | (Right -> Right) | s | t]p] | reverse comp piece extending left of p is joined after t
+* LR | (Left -> Right)  | s | ]p]t | piece extending to the left of p is joined before t
+* LL | (Left -> Left)   | s | [p[t | reverse comp piece extending right of p is joined before t
+*/
+enum BreakendOrientation {
+    RL = 0;
+    RR = 1;
+    LR = 2;
+    LL = 3;
+}
+
+message BreakendMate {
+    string chromosome = 1;
+    int32 position = 2;
+    int32 ciPositionRight = 3;
+    int32 ciPositionLeft = 4;
+}
+
+message Breakend {
+    BreakendMate mate = 1;
+    BreakendOrientation orientation = 2;
+    string insSeq = 3;
+}
+
+
 message StructuralVariation {
     int32 ciStartLeft = 1;
     int32 ciStartRight = 2;
@@ -174,6 +204,8 @@ message StructuralVariation {
     * Structural variation type: COPY_NUMBER_GAIN, COPY_NUMBER_LOSS, TANDEM_DUPLICATION, ...
     */
     StructuralVariantType type = 8;
+
+    Breakend breakend = 9;
 }
 
 message Variant {

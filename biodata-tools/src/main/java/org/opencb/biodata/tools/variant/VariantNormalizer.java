@@ -36,10 +36,7 @@ import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantBuilder;
-import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
-import org.opencb.biodata.models.variant.avro.FileEntry;
-import org.opencb.biodata.models.variant.avro.StructuralVariation;
-import org.opencb.biodata.models.variant.avro.VariantType;
+import org.opencb.biodata.models.variant.avro.*;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.biodata.models.variant.metadata.VariantFileHeader;
 import org.opencb.biodata.tools.variant.exceptions.VariantNormalizerException;
@@ -290,7 +287,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             if (variant.getStudies() == null || variant.getStudies().isEmpty()) {
                 List<VariantKeyFields> keyFieldsList;
                 if (variant.isSymbolic()) {
-                    keyFieldsList = normalizeSymbolic(start, end, reference, alternate, sv.getCopyNumber());
+                    keyFieldsList = normalizeSymbolic(start, end, reference, alternate, sv);
                 } else {
                     keyFieldsList = normalize(chromosome, start, reference, alternate);
                 }
@@ -320,7 +317,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                     List<VariantKeyFields> keyFieldsList;
                     List<VariantKeyFields> originalKeyFieldsList;
                     if (variant.isSymbolic()) {
-                        keyFieldsList = normalizeSymbolic(start, end, reference, alternates, sv.getCopyNumber());
+                        keyFieldsList = normalizeSymbolic(start, end, reference, alternates, sv);
                     } else {
                         keyFieldsList = normalize(chromosome, start, reference, alternates);
                     }
@@ -491,8 +488,8 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 //        }
 //    }
 
-    public List<VariantKeyFields> normalizeSymbolic(Integer start, Integer end, String reference, String alternate, Integer copyNumber) {
-        return normalizeSymbolic(start, end, reference, Collections.singletonList(alternate), copyNumber);
+    public List<VariantKeyFields> normalizeSymbolic(Integer start, Integer end, String reference, String alternate, StructuralVariation sv) {
+        return normalizeSymbolic(start, end, reference, Collections.singletonList(alternate), sv);
     }
 
     @Deprecated
@@ -502,9 +499,87 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
     }
 
     public List<VariantKeyFields> normalizeSymbolic(final Integer start, final Integer end, final String reference,
-                                                    final List<String> alternates, Integer copyNumber) {
+                                                    final List<String> alternates, StructuralVariation sv) {
         List<VariantKeyFields> list = new ArrayList<>(alternates.size());
 
+        int numAllelesIdx = 0; // This index is necessary for getting the samples where the mutated allele is present
+        for (Iterator<String> iterator = alternates.iterator(); iterator.hasNext(); numAllelesIdx++) {
+            String alternate = iterator.next();
+            VariantKeyFields keyFields;
+            if (VariantBuilder.isMateBreakend(alternate)) {
+                keyFields = normalizeMateBreakend(start, reference, alternate, alternates, numAllelesIdx);
+            } else {
+                Integer copyNumber = sv == null ? null : sv.getCopyNumber();
+                keyFields = normalizeSymbolic(start, end, reference, alternate, alternates, copyNumber, numAllelesIdx);
+            }
+            list.add(keyFields);
+        }
+
+        return list;
+    }
+
+    private static VariantKeyFields normalizeMateBreakend(
+            final Integer start, final String reference, final String alternate,
+            List<String> alternates, final int numAllelesIdx) {
+        Breakend breakend = VariantBuilder.parseBreakend(reference, alternate);
+        if (breakend == null) {
+            throw new VariantNormalizerException("Missing breakend information for variant " + start + ":" + reference
+                    + ":" + String.join(",", alternates) + ".");
+        }
+
+        int newStart = start;
+        final String newReference;
+        final String newAlternate;
+        int indexOfDifference;
+        char braket = '[';
+        switch (breakend.getOrientation()) {
+            case RR:
+                braket = ']';
+            case RL:
+                indexOfDifference = StringUtils.indexOfDifference(reference, alternate);
+                if (alternate.startsWith(reference)) {
+                    newStart = start + indexOfDifference;
+                    newReference = reference.substring(indexOfDifference);
+                } else {
+                    // TODO: Is this a valid case?
+                    newReference = reference;
+                }
+                newAlternate = (StringUtils.isEmpty(breakend.getInsSeq()) ? "." : breakend.getInsSeq())
+                        + braket
+                        + breakend.getMate().getChromosome()
+                        + ':'
+                        + breakend.getMate().getPosition()
+                        + braket;
+                break;
+            case LR:
+                braket = ']';
+            case LL:
+                if (alternate.endsWith(reference)) {
+                    indexOfDifference = reverseIndexOfDifference(reference, alternate);
+                    newReference = reference.substring(0, reference.length() - indexOfDifference);
+                } else {
+                    // TODO: Is this a valid case?
+                    newReference = reference;
+                }
+                newAlternate = braket
+                        + breakend.getMate().getChromosome()
+                        + ':'
+                        + breakend.getMate().getPosition()
+                        + braket
+                        + (StringUtils.isEmpty(breakend.getInsSeq()) ? "." : breakend.getInsSeq());
+                break;
+            default:
+                throw new IllegalStateException("Unknown breakend orientation " + breakend.getOrientation());
+        }
+
+        VariantKeyFields keyFields = new VariantKeyFields(newStart, newStart - 1, numAllelesIdx, newReference, newAlternate);
+        keyFields.getSv().setBreakend(breakend);
+        return keyFields;
+    }
+
+    private VariantKeyFields normalizeSymbolic(
+            final Integer start, final Integer end, final String reference, final String alternate,
+            List<String> alternates, final Integer copyNumber, final int numAllelesIdx) {
         String newReference = reference;
         int newStart = start;
         // Copy from the VCFv4.3.pdf :
@@ -516,27 +591,24 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             newReference = "";
             newStart++;
         } else if (reference.length() > 1) {
-            throw new IllegalArgumentException("Invalid reference value found for symbolic variant " + start + "-"
+            throw new VariantNormalizerException("Invalid reference value found for symbolic variant " + start + "-"
                     + end + ":" + reference + ":" + String.join(",", alternates) + ". Reference can only "
-                    + "cotain 0 or 1 nt, but no more. Please, check.");
+                    + "contain 0 or 1 nt, but no more. Please, check.");
         }
 
-        int numAllelesIdx = 0; // This index is necessary for getting the samples where the mutated allele is present
-        for (Iterator<String> iterator = alternates.iterator(); iterator.hasNext(); numAllelesIdx++) {
-            String newAlternate = iterator.next();
-            Integer cn = VariantBuilder.getCopyNumberFromAlternate(newAlternate);
+        Integer cn = VariantBuilder.getCopyNumberFromAlternate(alternate);
 //            if (cn != null) {
 //                // Alternate with the form <CNxxx>, being xxx the number of copies, must be normalized into "<CNV>"
 //                newAlternate = "<CNV>";
 //            }
-            if (newAlternate.equals("<CNV>") && copyNumber != null) {
-                // Alternate must be of the form <CNxxx>, being xxx the number of copies
-                newAlternate = "<CN" + copyNumber + ">";
-            }
-            list.add(new VariantKeyFields(newStart, end, numAllelesIdx, newReference, newAlternate, cn, false));
+        String newAlternate;
+        if (alternate.equals("<CNV>") && copyNumber != null) {
+            // Alternate must be of the form <CNxxx>, being xxx the number of copies
+            newAlternate = "<CN" + copyNumber + ">";
+        } else {
+            newAlternate = alternate;
         }
-
-        return list;
+        return new VariantKeyFields(newStart, end, numAllelesIdx, newReference, newAlternate, cn, false);
     }
 
 
@@ -1258,8 +1330,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         private String phaseSet;
         private String reference;
         private String alternate;
-        private Integer copyNumber;
-
+        private StructuralVariation sv;
         boolean referenceBlock;
 
         public VariantKeyFields(int start, int end, String reference, String alternate) {
@@ -1280,8 +1351,9 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             this.numAllele = numAllele;
             this.reference = reference;
             this.alternate = alternate;
-            this.copyNumber = copyNumber;
             this.referenceBlock = referenceBlock;
+            this.sv = new StructuralVariation();
+            setCopyNumber(copyNumber);
         }
 
 
@@ -1342,11 +1414,20 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         }
 
         public Integer getCopyNumber() {
-            return copyNumber;
+            return sv == null ? null : sv.getCopyNumber();
         }
 
         public VariantKeyFields setCopyNumber(Integer copyNumber) {
-            this.copyNumber = copyNumber;
+            sv.setCopyNumber(copyNumber);
+            return this;
+        }
+
+        public StructuralVariation getSv() {
+            return sv;
+        }
+
+        public VariantKeyFields setSv(StructuralVariation sv) {
+            this.sv = sv;
             return this;
         }
 
