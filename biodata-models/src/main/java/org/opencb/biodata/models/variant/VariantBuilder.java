@@ -111,24 +111,20 @@ public class VariantBuilder {
         this.variantString = variantString;
         if (variantString != null && !variantString.isEmpty()) {
             String[] fields;
-            int idx;
-            // Symbolic alternates may use ':' within the alternate. If ends with ">", is a symbolic variant
+
+            // Symbolic and breakend variants may use ':' within the alternate.
+            //  If contains '>', is a symbolic variant
+            //  If contains ']' or "[", is a breakend
+            // Split in 4 segments. If reference (field[2]) contains a '<', '>', ']', '[', the reference was missing,
+            // so it has to split in 3 segments.
             // Get last index of '<'. Start and end may use '<' for imprecise positions.
-            if (variantString.endsWith(">")) {
-                idx = variantString.lastIndexOf("<");
-                String[] split = variantString.substring(0, idx - 1).split(":", -1);
-                fields = new String[split.length + 1];
-                for (int i = 0; i < split.length; i++) {
-                    fields[i] = split[i];
+            if (StringUtils.containsAny(variantString, '>', ']', '[')) {
+                fields = variantString.split(":", 4);
+                if (fields.length == 4 && StringUtils.containsAny(fields[2], '<', '>', ']', '[')) {
+                    fields = variantString.split(":", 3);
                 }
-                fields[fields.length - 1] = variantString.substring(idx);
             } else {
-                idx = StringUtils.indexOfAny(variantString, '[', ']');
-                if (idx != StringUtils.INDEX_NOT_FOUND) {
-                    fields = variantString.split(":", 4);
-                } else {
-                    fields = variantString.split(":", -1);
-                }
+                fields = variantString.split(":", -1);
             }
             if (fields.length == 3) {
                 setChromosome(fields[0]);
