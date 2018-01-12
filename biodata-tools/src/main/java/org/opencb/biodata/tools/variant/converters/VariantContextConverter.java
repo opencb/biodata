@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opencb.biodata.models.variant.StudyEntry;
+import org.opencb.biodata.models.variant.protobuf.VariantProto;
 import org.opencb.biodata.tools.Converter;
 import org.opencb.commons.datastore.core.ObjectMap;
 
@@ -70,6 +71,8 @@ public abstract class VariantContextConverter<T> implements Converter<T, Variant
             samplePositions = Collections.emptyMap();
         }
     }
+
+    protected abstract List<String> buildAlleles(T variant, Pair<Integer, Integer> adjustedRange, Map<Integer, Character> referenceAlleles);
 
     protected static String buildAllele(String chromosome, Integer start, Integer end, String allele, Pair<Integer, Integer> adjustedRange, Map<Integer, Character> referenceAlleles) {
         if (start.equals(adjustedRange.getLeft()) && end.equals(adjustedRange.getRight())) {

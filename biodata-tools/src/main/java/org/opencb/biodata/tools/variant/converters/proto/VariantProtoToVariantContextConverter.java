@@ -6,6 +6,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.VariantBuilder;
 import org.opencb.biodata.models.variant.protobuf.VariantAnnotationProto;
 import org.opencb.biodata.models.variant.protobuf.VariantProto;
 import org.opencb.biodata.tools.variant.converters.VariantContextConverter;
@@ -58,7 +59,7 @@ public class VariantProtoToVariantContextConverter extends VariantContextConvert
         Pair<Integer, Integer> adjustedStartEndPositions = adjustedVariantStart(variant, studyEntry.getSecondaryAlternatesList(), referenceAlleles);
         int start = adjustedStartEndPositions.getLeft();
         int end = adjustedStartEndPositions.getRight();
-        List<String> alleleList = buildAlleles(variant, studyEntry, adjustedStartEndPositions, referenceAlleles);
+        List<String> alleleList = buildAlleles(variant, adjustedStartEndPositions, referenceAlleles);
         boolean isNoVariation = type.equals(VariantProto.VariantType.NO_VARIATION);
 
         // ID
@@ -131,12 +132,15 @@ public class VariantProtoToVariantContextConverter extends VariantContextConvert
         return pos;
     }
 
+    @Override
     public List<String> buildAlleles(VariantProto.Variant variant,
-                                     VariantProto.StudyEntry study,
                                      Pair<Integer, Integer> adjustedRange, Map<Integer, Character> referenceAlleles) {
         String reference = variant.getReference();
         String alternate = variant.getAlternate();
-        List<VariantProto.AlternateCoordinate> secAlts = study.getSecondaryAlternatesList();
+        if (variant.getSv() != null && variant.getSv().getType() == VariantProto.StructuralVariantType.TANDEM_DUPLICATION && alternate.equals(VariantBuilder.DUP_ALT)) {
+            alternate = VariantBuilder.DUP_TANDEM_ALT;
+        }
+        List<VariantProto.AlternateCoordinate> secAlts = getStudy(variant).getSecondaryAlternatesList();
 
         List<String> alleles = new ArrayList<>(secAlts.size() + 2);
         int origStart = variant.getStart();

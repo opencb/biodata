@@ -8,6 +8,7 @@ import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.VariantBuilder;
 import org.opencb.biodata.models.variant.avro.*;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 import org.opencb.biodata.tools.variant.converters.VariantContextConverter;
@@ -124,9 +125,13 @@ public class VariantAvroToVariantContextConverter extends VariantContextConverte
         return pos;
     }
 
+    @Override
     public List<String> buildAlleles(Variant variant, Pair<Integer, Integer> adjustedRange, Map<Integer, Character> referenceAlleles) {
         String reference = variant.getReference();
         String alternate = variant.getAlternate();
+        if (variant.getSv() != null && variant.getSv().getType() == StructuralVariantType.TANDEM_DUPLICATION && alternate.equals(VariantBuilder.DUP_ALT)) {
+            alternate = VariantBuilder.DUP_TANDEM_ALT;
+        }
         if (variant.getType().equals(VariantType.NO_VARIATION)) {
             return Arrays.asList(reference, ".");
         }

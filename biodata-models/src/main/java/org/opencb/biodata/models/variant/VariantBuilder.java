@@ -36,14 +36,13 @@ public class VariantBuilder {
     private static final String COPY_NUMBER_FORMAT = "CN";
 
     // Known symbolic alternates
-    // TODO: Support alternates like DEL:ME, INS:ME, ...
+    public static final String CNV_ALT = "<CNV>";
+    public static final String DUP_ALT = "<DUP>";
+    public static final String DUP_TANDEM_ALT = "<DUP:TANDEM>";
+    public static final String DEL_ALT = "<DEL>";
+    public static final String INV_ALT = "<INV>";
+    public static final String INS_ALT = "<INS>";
     private static final String CNV_PREFIX_ALT = "<CN";
-    private static final String CNV_ALT = "<CNV>";
-    private static final String DUP_ALT = "<DUP>";
-    private static final String DUP_TANDEM_ALT = "<DUP:TANDEM>";
-    private static final String DEL_ALT = "<DEL>";
-    private static final String INV_ALT = "<INV>";
-    private static final String INS_ALT = "<INS>";
     private static final Pattern CNV_ALT_PATTERN = Pattern.compile("<CN([0-9]+)>");
 
     private static final Set<String> VALID_NTS = new HashSet<>(Arrays.asList("A", "C", "G", "T", "N"));
