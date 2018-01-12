@@ -75,8 +75,20 @@ public abstract class VariantContextConverter<T> implements Converter<T, Variant
         if (start.equals(adjustedRange.getLeft()) && end.equals(adjustedRange.getRight())) {
             return allele; // same start / end
         }
-        if (StringUtils.startsWith(allele, "*")) {
-            return allele; // no need
+        if (StringUtils.startsWith(allele, "*") || StringUtils.startsWith(allele, "<")) {
+            return allele; // no need for overlapping deletions and symbolic alleles
+        }
+        if (StringUtils.startsWithAny(allele, "]", "[")) {
+            if (allele.endsWith(".")) {
+                allele = allele.substring(0, allele.length() - 1);
+            }
+            return allele + getReferenceBase(chromosome, adjustedRange.getLeft(), adjustedRange.getLeft() + 1, referenceAlleles);
+        }
+        if (StringUtils.endsWithAny(allele, "]", "[")) {
+            if (allele.startsWith(".")) {
+                allele = allele.substring(1);
+            }
+            return getReferenceBase(chromosome, adjustedRange.getLeft(), start, referenceAlleles) + allele;
         }
         return getReferenceBase(chromosome, adjustedRange.getLeft(), start, referenceAlleles)
                 + allele
@@ -111,6 +123,7 @@ public abstract class VariantContextConverter<T> implements Converter<T, Variant
                 }
             }
         }
+        adjustedEnd = Math.max(adjustedEnd, adjustedStart);
         if (adjustedPosition == null) {
             adjustedPosition = new MutablePair<>(adjustedStart, adjustedEnd);
         } else {
@@ -186,8 +199,8 @@ public abstract class VariantContextConverter<T> implements Converter<T, Variant
     protected static Map<Integer, Character> buildReferenceAllelesMap(Iterator<String> callsIterator) {
         Map<Integer, Character> referenceAlleles = new HashMap<>();
         callsIterator.forEachRemaining(call -> {
-            if (StringUtils.isNotEmpty(call)) {
-                String[] split = StringUtils.split(call, ':');
+            String[] split = splitCall(call);
+            if (split != null) {
                 String originalReference = VariantContextConverter.getOriginalReference(split);
                 Integer originalPosition = VariantContextConverter.getOriginalPosition(split);
                 for (int i = 0; i < originalReference.length(); i++) {
@@ -357,6 +370,22 @@ public abstract class VariantContextConverter<T> implements Converter<T, Variant
         variantContextBuilder.id(idForVcf);
 
         return variantContextBuilder.make();
+    }
+
+    protected static String[] splitCall(String call) {
+        if (StringUtils.isNotEmpty(call)) {
+            int idx1 = call.indexOf(':');
+            int idx2 = call.indexOf(':', idx1 + 1);
+            int idx3 = call.lastIndexOf(':'); // Get lastIndexOf, as it may be other intermediate ':' from symbolic or breakend alleles
+            return new String[]{
+                    call.substring(0, idx1),
+                    call.substring(idx1 + 1, idx2),
+                    call.substring(idx2 + 1, idx3),
+                    call.substring(idx3 + 1)
+            };
+        } else {
+            return null;
+        }
     }
 
     /**

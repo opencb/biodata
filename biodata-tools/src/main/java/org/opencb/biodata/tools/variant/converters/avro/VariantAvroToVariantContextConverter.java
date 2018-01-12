@@ -135,7 +135,13 @@ public class VariantAvroToVariantContextConverter extends VariantContextConverte
 
         List<String> alleles = new ArrayList<>(secAlts.size() + 2);
         int origStart = variant.getStart();
-        int origEnd = variant.getEnd();
+        int origEnd;
+        if (variant.getLength() == Variant.UNKNOWN_LENGTH) {
+            // Variant::getLengthReference would return UNKNOWN_LENGTH, as the reference could have incomplete reference length
+            origEnd = variant.getStart() + variant.getReference().length() - 1;
+        } else {
+            origEnd = variant.getEnd();
+        }
         alleles.add(buildAllele(variant.getChromosome(), origStart, origEnd, reference, adjustedRange, referenceAlleles));
         alleles.add(buildAllele(variant.getChromosome(), origStart, origEnd, alternate, adjustedRange, referenceAlleles));
         secAlts.forEach(alt -> {

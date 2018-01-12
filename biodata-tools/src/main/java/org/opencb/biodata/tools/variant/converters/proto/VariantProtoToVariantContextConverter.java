@@ -5,6 +5,7 @@ import htsjdk.variant.variantcontext.VariantContext;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.protobuf.VariantAnnotationProto;
 import org.opencb.biodata.models.variant.protobuf.VariantProto;
 import org.opencb.biodata.tools.variant.converters.VariantContextConverter;
@@ -139,7 +140,12 @@ public class VariantProtoToVariantContextConverter extends VariantContextConvert
 
         List<String> alleles = new ArrayList<>(secAlts.size() + 2);
         int origStart = variant.getStart();
-        int origEnd = variant.getEnd();
+        int origEnd;
+        if (variant.getLength() == Variant.UNKNOWN_LENGTH) {
+            origEnd = variant.getStart() + variant.getReference().length() - 1;
+        } else {
+            origEnd = variant.getEnd();
+        }
 
         alleles.add(buildAllele(variant.getChromosome(), origStart, origEnd, reference, adjustedRange, referenceAlleles));
         alleles.add(buildAllele(variant.getChromosome(), origStart, origEnd, alternate, adjustedRange, referenceAlleles));
