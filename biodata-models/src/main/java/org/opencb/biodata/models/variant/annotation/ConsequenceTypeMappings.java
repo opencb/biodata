@@ -107,9 +107,9 @@ public class ConsequenceTypeMappings {
         /********************************************************
          * *********     DEPRECATED !!!!!!!! *******************
          ********************************************************/
-        tmpTermToAccession.put("downstream_gene_variant", 1632);
+        tmpTermToAccession.put("downstream_variant", 1632);
         tmpTermToAccession.put("2KB_downstream_gene_variant", 1632);
-        tmpTermToAccession.put("upstream_gene_variant", 1631);
+        tmpTermToAccession.put("upstream_variant", 1631);
         tmpTermToAccession.put("2KB_upstream_gene_variant", 1631);
 
         termToAccession = Collections.unmodifiableMap(tmpTermToAccession);
