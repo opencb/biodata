@@ -6,11 +6,14 @@ import org.junit.Test;
 import org.opencb.biodata.models.variant.avro.StructuralVariantType;
 import org.opencb.biodata.models.variant.avro.StructuralVariation;
 import org.opencb.biodata.models.variant.avro.VariantType;
+import org.opencb.biodata.models.variant.protobuf.VariantProto;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.opencb.biodata.models.variant.VariantBuilder.getProtoVariantType;
 
 /**
  * Created by fjlopez on 02/03/17.
@@ -236,5 +239,19 @@ public class VariantBuilderTest {
         assertEquals(Variant.UNKNOWN_LENGTH, v1.getLength().intValue());
         assertEquals(Variant.UNKNOWN_LENGTH, v1.getLengthReference().intValue());
         assertEquals(Variant.UNKNOWN_LENGTH, v1.getLengthAlternate().intValue());
+    }
+
+    @Test
+    public void testGetProtoVariantType() throws Exception {
+        for (VariantType type : VariantType.values()) {
+            getProtoVariantType(type);
+        }
+        for (VariantProto.VariantType type : VariantProto.VariantType.values()) {
+            // Proto generates an extra enum value "UNRECOGNIZED"
+            if (type != VariantProto.VariantType.UNRECOGNIZED) {
+                assertNotNull(VariantType.valueOf(type.name()));
+            }
+        }
+        assertEquals(VariantType.values().length, VariantProto.VariantType.values().length - 1);
     }
 }

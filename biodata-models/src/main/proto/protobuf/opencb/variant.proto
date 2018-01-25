@@ -38,6 +38,8 @@ enum VariantType {
     DELETION       = 11;  // SO:0000159
     TRANSLOCATION  = 12;  // SO:0000199
     INVERSION      = 13;  // SO:1000036
+    DUPLICATION    = 14;  // SO:1000035
+    BREAKEND       = 15;
 }
 
 enum AllelesCode {
