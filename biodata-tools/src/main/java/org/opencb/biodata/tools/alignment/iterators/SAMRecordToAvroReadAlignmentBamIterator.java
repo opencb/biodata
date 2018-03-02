@@ -33,22 +33,17 @@ public class SAMRecordToAvroReadAlignmentBamIterator extends BamIterator<ReadAli
     private SAMRecordToAvroReadAlignmentBiConverter samRecordToAvroReadAlignmentConverter;
 
     public SAMRecordToAvroReadAlignmentBamIterator(SAMRecordIterator samRecordIterator) {
-        this(samRecordIterator, null);
+        this(samRecordIterator, null, false, -1);
     }
 
     public SAMRecordToAvroReadAlignmentBamIterator(SAMRecordIterator samRecordIterator, AlignmentFilters<SAMRecord> filters) {
-        this(samRecordIterator, filters, true);
+        this(samRecordIterator, filters, false, -1);
     }
 
     public SAMRecordToAvroReadAlignmentBamIterator(SAMRecordIterator samRecordIterator, AlignmentFilters<SAMRecord> filters,
-                                                   boolean binQualities) {
-        super(samRecordIterator, filters);
+                                                   boolean binQualities, int limit) {
+        super(samRecordIterator, filters, limit);
         samRecordToAvroReadAlignmentConverter = new SAMRecordToAvroReadAlignmentBiConverter(binQualities);
-    }
-
-    @Override
-    public boolean hasNext() {
-        return prevNext != null;
     }
 
     @Override

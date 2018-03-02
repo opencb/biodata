@@ -254,20 +254,25 @@ public class BamManager {
         return getAlignmentIterator(filters, options, clazz, samRecordIterator);
     }
 
-    private <T> BamIterator<T> getAlignmentIterator(AlignmentFilters<SAMRecord> filters, AlignmentOptions options, Class<T> clazz,
+    private <T> BamIterator<T> getAlignmentIterator(AlignmentFilters<SAMRecord> filters, AlignmentOptions alignmentOptions, Class<T> clazz,
                                                     SAMRecordIterator samRecordIterator) {
-        if (options == null) {
-            options = new AlignmentOptions();
+        if (alignmentOptions == null) {
+            alignmentOptions = new AlignmentOptions();
+        }
+
+        int limit = -1;
+        if (alignmentOptions.getLimit() > 0) {
+            limit = alignmentOptions.getLimit();
         }
 
         if (ReadAlignment.class == clazz) {
             // AVRO
-            return (BamIterator<T>) new SAMRecordToAvroReadAlignmentBamIterator(samRecordIterator, filters, options.isBinQualities());
+            return (BamIterator<T>) new SAMRecordToAvroReadAlignmentBamIterator(samRecordIterator, filters, alignmentOptions.isBinQualities(), limit);
         } else if (Reads.ReadAlignment.class == clazz) {
             // PROTOCOL BUFFER
-            return (BamIterator<T>) new SAMRecordToProtoReadAlignmentBamIterator(samRecordIterator, filters, options.isBinQualities());
+            return (BamIterator<T>) new SAMRecordToProtoReadAlignmentBamIterator(samRecordIterator, filters, alignmentOptions.isBinQualities(), limit);
         } else if (SAMRecord.class == clazz) {
-            return (BamIterator<T>) new SamRecordBamIterator(samRecordIterator, filters);
+            return (BamIterator<T>) new SamRecordBamIterator(samRecordIterator, filters, limit);
         } else {
             throw new IllegalArgumentException("Unknown alignment model class: " + clazz);
         }
