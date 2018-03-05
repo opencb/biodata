@@ -33,30 +33,51 @@ import java.util.Iterator;
 public abstract class BamIterator<T> implements Iterator<T>, AutoCloseable {
 
     private SAMRecordIterator samRecordIterator;
-    protected AlignmentFilters<SAMRecord> filters;
+    private AlignmentFilters<SAMRecord> filters;
+
+    private int limit;
+    private int counter;
 
     protected SAMRecord prevNext;
 
     public BamIterator(SAMRecordIterator samRecordIterator) {
-        this(samRecordIterator, null);
+        this(samRecordIterator, null, -1);
     }
 
     public BamIterator(SAMRecordIterator samRecordIterator, AlignmentFilters<SAMRecord> filters) {
+        this(samRecordIterator, filters, -1);
+    }
+
+    public BamIterator(SAMRecordIterator samRecordIterator, AlignmentFilters<SAMRecord> filters, int limit) {
         this.samRecordIterator = samRecordIterator;
         if (filters == null) {
             filters = new SamRecordFilters();
         }
         this.filters = filters;
+        this.limit = limit;
+        this.counter = 0;
 
         findNextMatch();
     }
 
+    @Override
+    public boolean hasNext() {
+        return prevNext != null;
+    }
+
     protected void findNextMatch() {
         prevNext = null;
+
+        // Check if limit has been set up and the counter is still less than limit
+        if (limit > 0 && counter >= limit) {
+            return;
+        }
+
         while (samRecordIterator.hasNext()) {
             SAMRecord next = samRecordIterator.next();
             if (filters.test(next)) {
                 prevNext = next;
+                counter++;
                 return;
             }
         }
