@@ -19,6 +19,7 @@ public class VariantDeduplicationTask implements Task<Variant, Variant> {
             .comparing(Variant::getChromosome, (chr1, chr2) -> chr1.equals(chr2) ? 0 : -1)
             .thenComparing(Variant::getStart)
             .thenComparing(Variant::getEnd)
+            .thenComparing(Variant::getType)
             .thenComparing(Variant::getReference)
             .thenComparing(Variant::getAlternate)
             .thenComparing(Variant::getSv, (sv1, sv2) ->
