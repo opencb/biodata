@@ -550,7 +550,11 @@ public class VariantMerger {
             for (String format : currentStudy.getFormat()) {
                 Integer newFormatIdx = newFormatPositions.get(format);
                 if (newFormatIdx != null) {
-                    newSampleData.set(newFormatIdx, currentSampleData.get(formatIdx));
+                    if (currentSampleData.size() > formatIdx) {
+                        newSampleData.set(newFormatIdx, currentSampleData.get(formatIdx));
+                    } else {
+                        newSampleData.set(newFormatIdx, getDefaultValue(format));
+                    }
                 }
                 formatIdx++;
             }
