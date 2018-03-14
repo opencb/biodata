@@ -679,7 +679,7 @@ public class VariantMerger {
                 // Additional data
                 for (Map.Entry<String, Integer> entry : extraFormats.entrySet()) {
                     Integer idx = otherStudyFormatPositions.get(entry.getKey());
-                    String data = idx == null ? getDefaultValue(entry.getKey()) : otherSampleData.get(idx);
+                    String data = idx == null || idx >= otherSampleData.size() ? getDefaultValue(entry.getKey()) : otherSampleData.get(idx);
                     if (StringUtils.isNotEmpty(data)) {
                         if (rearranger != null) {
                             data = rearranger.rearrange(entry.getKey(), data, ploidy);

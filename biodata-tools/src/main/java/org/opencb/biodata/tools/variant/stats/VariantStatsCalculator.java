@@ -44,8 +44,6 @@ public class VariantStatsCalculator {
 
     public static void calculate(StudyEntry study, Collection<String> sampleNames, Map<String, String> attributes,
                                  Pedigree pedigree, VariantStats variantStats) {
-        int[] allelesCount = new int[2];
-        int totalAllelesCount = 0, totalGenotypesCount = 0;
 
         float controlsDominant = 0, casesDominant = 0;
         float controlsRecessive = 0, casesRecessive = 0;
@@ -60,6 +58,7 @@ public class VariantStatsCalculator {
         Integer gtIdx = study.getFormatPositions().get("GT");
         LinkedHashMap<String, Integer> samplesPosition = study.getSamplesPosition();
 
+        Map<Genotype, Integer> gtCount = new HashMap<>();
         Map<String, Genotype> gts = new TreeMap<>(String::compareTo);
         for (String sampleName : sampleNames) {
             Integer sampleIdx = samplesPosition.get(sampleName);
@@ -67,56 +66,8 @@ public class VariantStatsCalculator {
                 continue;
             }
             String genotype = study.getSamplesData().get(sampleIdx).get(gtIdx);
-            Genotype g = gts.get(genotype);
-            if (g == null) {
-                g = new Genotype(genotype, variantStats.getRefAllele(), variantStats.getAltAllele());
-                gts.put(genotype, g);
-            }
-//            String genotype = study.getSampleData(sampleName, "GT");
-//            Genotype g = new Genotype(genotype, variantStats.getRefAllele(), variantStats.getAltAllele());
-            variantStats.addGenotype(g, 1, false);
-
-            // Check missing alleles and genotypes
-            switch (g.getCode()) {
-                case MULTIPLE_ALTERNATES:
-                case ALLELES_OK:
-                    for (int i = 0; i < g.getPloidy(); i++) {
-                        // Count only REF and ALT alleles.
-                        if (g.getAllele(i) <= 1) {
-                            allelesCount[g.getAllele(i)]++;
-                        }
-                    }
-
-                    totalAllelesCount += g.getPloidy();
-                    totalGenotypesCount++;
-
-                    // Counting genotypes for Hardy-Weinberg (all phenotypes)
-                    //FIXME//FIXME//FIXME//FIXME
-//                    if (g.isAlleleRef(0) && g.isAlleleRef(1)) { // 0|0
-//                        variantStats.getHw().incN_AA();
-//                    } else if ((g.isAlleleRef(0) && g.getAllele(1) == 1) || (g.getAllele(0) == 1 && g.isAlleleRef(1))) {  // 0|1, 1|0
-//                        variantStats.getHw().incN_Aa();
-//
-//                    } else if (g.getAllele(0) == 1 && g.getAllele(1) == 1) {
-//                        variantStats.getHw().incN_aa();
-//                    }
-
-                    break;
-                case ALLELES_MISSING:
-                    // Missing genotype (one or both alleles missing)
-                    variantStats.setMissingGenotypes(variantStats.getMissingGenotypes() + 1);
-                    for (int i = 0; i < g.getPloidy(); i++) {
-                        if (g.getAllele(i) < 0) {
-                            variantStats.setMissingAlleles(variantStats.getMissingAlleles() + 1);
-                        } else {
-                            allelesCount[g.getAllele(i)]++;
-                            totalAllelesCount++;
-                        }
-                    }
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unknown allele code " + g.getCode());
-            }
+            Genotype g = gts.computeIfAbsent(genotype, key -> new Genotype(genotype, variantStats.getRefAllele(), variantStats.getAltAllele()));
+            gtCount.compute(g, (s, prev) -> prev == null ? 1 : prev + 1);
 
             // Include statistics that depend on pedigree information
             if (pedigree != null) {
@@ -152,13 +103,7 @@ public class VariantStatsCalculator {
 
         }  // Finish all samples loop
 
-        // Set counts for each allele
-        variantStats.setRefAlleleCount(allelesCount[0]);
-        variantStats.setAltAlleleCount(allelesCount[1]);
-
-        // Calculate MAF and MGF
-        calculateAlleleFrequencies(totalAllelesCount, variantStats);
-        calculateGenotypeFrequencies(totalGenotypesCount, variantStats);
+        calculate(gtCount, variantStats);
 
         // Calculate Hardy-Weinberg statistic       //FIXME
 //        variantStats.getHw().calculate();
@@ -187,6 +132,99 @@ public class VariantStatsCalculator {
             variantStats.setCasesPercentRecessive(casesRecessive);
             variantStats.setControlsPercentRecessive(controlsRecessive);
         }
+    }
+
+    public static VariantStats calculate(Variant variant, int homRefCount, int hetCount, int homAltCount, int missingCount) {
+        Map<Genotype, Integer> gtCount = new HashMap<>(4);
+        gtCount.put(new Genotype("0/0"), homRefCount);
+        gtCount.put(new Genotype("0/1"), hetCount);
+        gtCount.put(new Genotype("1/1"), homAltCount);
+        gtCount.put(new Genotype("./."), missingCount);
+
+        VariantStats variantStats = new VariantStats(variant);
+        calculate(gtCount, variantStats);
+        return variantStats;
+    }
+
+    public static VariantStats calculateHemizygous(Variant variant, int refCount, int altCount, int missingCount) {
+        Map<Genotype, Integer> gtCount = new HashMap<>(4);
+        gtCount.put(new Genotype("0"), refCount);
+        gtCount.put(new Genotype("1"), altCount);
+        gtCount.put(new Genotype("."), missingCount);
+
+        VariantStats variantStats = new VariantStats(variant);
+        calculate(gtCount, variantStats);
+        return variantStats;
+    }
+
+    public static VariantStats calculate(Variant variant, Map<Genotype, Integer> genotypeCount) {
+        VariantStats variantStats = new VariantStats(variant);
+        calculate(genotypeCount, variantStats);
+        return variantStats;
+    }
+
+    public static void calculate(Map<Genotype, Integer> genotypeCount, VariantStats variantStats) {
+//        Map<String, Genotype> gts = new TreeMap<>(String::compareTo);
+        int[] allelesCount = new int[2];
+        int totalAllelesCount = 0, totalGenotypesCount = 0;
+
+        for (Map.Entry<Genotype, Integer> entry : genotypeCount.entrySet()) {
+            Genotype g = entry.getKey();
+            Integer numGt = entry.getValue();
+            variantStats.addGenotype(g, numGt, false);
+
+            // Check missing alleles and genotypes
+            switch (g.getCode()) {
+                case MULTIPLE_ALTERNATES:
+                case ALLELES_OK:
+                    for (int i = 0; i < g.getPloidy(); i++) {
+                        // Count only REF and ALT alleles.
+                        if (g.getAllele(i) <= 1) {
+                            allelesCount[g.getAllele(i)] += numGt;
+                        }
+                    }
+
+                    totalAllelesCount += g.getPloidy() * numGt;
+                    totalGenotypesCount += numGt;
+
+                    // Counting genotypes for Hardy-Weinberg (all phenotypes)
+                    //FIXME//FIXME//FIXME//FIXME
+//                    if (g.isAlleleRef(0) && g.isAlleleRef(1)) { // 0|0
+//                        variantStats.getHw().incN_AA();
+//                    } else if ((g.isAlleleRef(0) && g.getAllele(1) == 1) || (g.getAllele(0) == 1 && g.isAlleleRef(1))) {  // 0|1, 1|0
+//                        variantStats.getHw().incN_Aa();
+//
+//                    } else if (g.getAllele(0) == 1 && g.getAllele(1) == 1) {
+//                        variantStats.getHw().incN_aa();
+//                    }
+
+                    break;
+                case ALLELES_MISSING:
+                    // Missing genotype (one or both alleles missing)
+                    variantStats.setMissingGenotypes(variantStats.getMissingGenotypes() + numGt);
+                    for (int i = 0; i < g.getPloidy(); i++) {
+                        if (g.getAllele(i) < 0) {
+                            variantStats.setMissingAlleles(variantStats.getMissingAlleles() + numGt);
+                        } else {
+                            allelesCount[g.getAllele(i)] += numGt;
+                            totalAllelesCount += numGt;
+                        }
+                    }
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown allele code " + g.getCode());
+            }
+        }
+
+
+        // Set counts for each allele
+        variantStats.setRefAlleleCount(allelesCount[0]);
+        variantStats.setAltAlleleCount(allelesCount[1]);
+
+        // Calculate MAF and MGF
+        calculateAlleleFrequencies(totalAllelesCount, variantStats);
+        calculateGenotypeFrequencies(totalGenotypesCount, variantStats);
+
     }
 
     /**
