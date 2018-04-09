@@ -26,8 +26,8 @@ import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.VariantBuilder;
 import org.opencb.biodata.models.variant.avro.FileEntry;
-import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.protobuf.VariantAnnotationProto;
 import org.opencb.biodata.models.variant.protobuf.VariantProto;
 import org.opencb.biodata.models.variant.stats.VariantStats;
@@ -60,7 +60,7 @@ public class VariantAvroToVariantProtoConverter implements Converter<Variant, Va
         set(variant::getLength, builder::setLength);
         set(variant::getReference, builder::setReference);
         set(variant::getAlternate, builder::setAlternate);
-        set(variant::getType, t -> builder.setType(toProto(t)));
+        set(variant::getType, t -> builder.setType(VariantBuilder.getProtoVariantType(t)));
 
         if (variant.getStudies() != null) {
             for (StudyEntry study : variant.getStudies()) {
@@ -72,10 +72,6 @@ public class VariantAvroToVariantProtoConverter implements Converter<Variant, Va
             builder.setAnnotation(toProto(variant.getAnnotation(), VariantAnnotationProto.VariantAnnotation.newBuilder()));
         }
         return builder.build();
-    }
-
-    private VariantProto.VariantType toProto(VariantType type) {
-        return VariantProto.VariantType.valueOf(type.toString());
     }
 
     private VariantProto.StudyEntry.Builder toProto(StudyEntry study) {
@@ -131,10 +127,9 @@ public class VariantAvroToVariantProtoConverter implements Converter<Variant, Va
         set(stats::getControlsPercentRecessive, statsBuilder::setControlsPercentRecessive);
         set(stats::getQuality, statsBuilder::setQuality);
         set(stats::getNumSamples, statsBuilder::setNumSamples);
-        set(stats::getVariantType, t -> statsBuilder.setVariantType(toProto(t)));
+        set(stats::getVariantType, t -> statsBuilder.setVariantType(VariantBuilder.getProtoVariantType(t)));
         return statsBuilder;
     }
-
 
     private Object toProto(Object o, Descriptors.FieldDescriptor fieldDescriptor) {
         if (o instanceof GenericRecord) {

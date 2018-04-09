@@ -29,16 +29,15 @@ import org.opencb.biodata.tools.alignment.filters.AlignmentFilters;
 public class SamRecordBamIterator extends BamIterator<SAMRecord> {
 
     public SamRecordBamIterator(SAMRecordIterator samRecordIterator) {
-        this(samRecordIterator, null);
+        this(samRecordIterator, null, -1);
     }
 
     public SamRecordBamIterator(SAMRecordIterator samRecordIterator, AlignmentFilters<SAMRecord> filters) {
-        super(samRecordIterator, filters);
+        this(samRecordIterator, filters, -1);
     }
 
-    @Override
-    public boolean hasNext() {
-        return prevNext != null;
+    public SamRecordBamIterator(SAMRecordIterator samRecordIterator, AlignmentFilters<SAMRecord> filters, int limit) {
+        super(samRecordIterator, filters, limit);
     }
 
     @Override

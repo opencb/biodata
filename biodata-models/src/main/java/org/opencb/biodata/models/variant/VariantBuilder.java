@@ -549,7 +549,7 @@ public class VariantBuilder {
                 .setEnd(end)
                 .setReference(reference)
                 .setAlternate(alternates.get(0))
-                .setType(VariantProto.VariantType.valueOf(type.toString()))
+                .setType(getProtoVariantType(type))
                 .setLength(length)
                 .setStrand(strand);
 
@@ -1151,6 +1151,31 @@ public class VariantBuilder {
             }
         }
         return null;
+    }
+
+    public static VariantProto.VariantType getProtoVariantType(VariantType type) {
+        if (type == null) {
+            return null;
+        }
+        switch (type) {
+            case SNV: return VariantProto.VariantType.SNV;
+            case SNP: return VariantProto.VariantType.SNP;
+            case MNV: return VariantProto.VariantType.MNV;
+            case MNP: return VariantProto.VariantType.MNP;
+            case INDEL: return VariantProto.VariantType.INDEL;
+            case SV: return VariantProto.VariantType.SV;
+            case INSERTION: return VariantProto.VariantType.INSERTION;
+            case DELETION: return VariantProto.VariantType.DELETION;
+            case TRANSLOCATION: return VariantProto.VariantType.TRANSLOCATION;
+            case INVERSION: return VariantProto.VariantType.INVERSION;
+            case CNV: return VariantProto.VariantType.CNV;
+            case NO_VARIATION: return VariantProto.VariantType.NO_VARIATION;
+            case SYMBOLIC: return VariantProto.VariantType.SYMBOLIC;
+            case MIXED: return VariantProto.VariantType.MIXED;
+            case DUPLICATION: return VariantProto.VariantType.DUPLICATION;
+            case BREAKEND: return VariantProto.VariantType.BREAKEND;
+            default: throw new EnumConstantNotPresentException(VariantProto.VariantType.class, type.name());
+        }
     }
 
     @Deprecated

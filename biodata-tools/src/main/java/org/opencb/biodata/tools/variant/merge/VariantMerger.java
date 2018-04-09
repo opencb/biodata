@@ -550,7 +550,11 @@ public class VariantMerger {
             for (String format : currentStudy.getFormat()) {
                 Integer newFormatIdx = newFormatPositions.get(format);
                 if (newFormatIdx != null) {
-                    newSampleData.set(newFormatIdx, currentSampleData.get(formatIdx));
+                    if (currentSampleData.size() > formatIdx) {
+                        newSampleData.set(newFormatIdx, currentSampleData.get(formatIdx));
+                    } else {
+                        newSampleData.set(newFormatIdx, getDefaultValue(format));
+                    }
                 }
                 formatIdx++;
             }
@@ -675,7 +679,7 @@ public class VariantMerger {
                 // Additional data
                 for (Map.Entry<String, Integer> entry : extraFormats.entrySet()) {
                     Integer idx = otherStudyFormatPositions.get(entry.getKey());
-                    String data = idx == null ? getDefaultValue(entry.getKey()) : otherSampleData.get(idx);
+                    String data = idx == null || idx >= otherSampleData.size() ? getDefaultValue(entry.getKey()) : otherSampleData.get(idx);
                     if (StringUtils.isNotEmpty(data)) {
                         if (rearranger != null) {
                             data = rearranger.rearrange(entry.getKey(), data, ploidy);

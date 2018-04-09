@@ -23,6 +23,7 @@ import com.google.protobuf.ProtocolStringList;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.VariantBuilder;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.VariantType;
@@ -148,7 +149,7 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
                         .setEnd(alternate.getEnd() != null ? alternate.getEnd() : 0)
                         .setReference(secAltRef)
                         .setAlternate(secAltAlt)
-                        .setType(getProtoVariantType(alternate.getType()))
+                        .setType(VariantBuilder.getProtoVariantType(alternate.getType()))
                         .build());
 
             }
@@ -179,7 +180,7 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
         recordBuilder.addAllSamples(encodeSamples(study.getFormatPositions(), study.getSamplesData()));
 
         /* TYPE */
-        recordBuilder.setType(getProtoVariantType(variant.getType()));
+        recordBuilder.setType(VariantBuilder.getProtoVariantType(variant.getType()));
 
         // TODO check all worked
         return recordBuilder.build();
@@ -358,30 +359,6 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
         }
 
         return ret;
-    }
-
-
-    public static VariantProto.VariantType getProtoVariantType(VariantType type) {
-        if (type == null) {
-            return null;
-        }
-        switch (type) {
-            case SNV: return VariantProto.VariantType.SNV;
-            case SNP: return VariantProto.VariantType.SNP;
-            case MNV: return VariantProto.VariantType.MNV;
-            case MNP: return VariantProto.VariantType.MNP;
-            case INDEL: return VariantProto.VariantType.INDEL;
-            case SV: return VariantProto.VariantType.SV;
-            case INSERTION: return VariantProto.VariantType.INSERTION;
-            case DELETION: return VariantProto.VariantType.DELETION;
-            case TRANSLOCATION: return VariantProto.VariantType.TRANSLOCATION;
-            case INVERSION: return VariantProto.VariantType.INVERSION;
-            case CNV: return VariantProto.VariantType.CNV;
-            case NO_VARIATION: return VariantProto.VariantType.NO_VARIATION;
-            case SYMBOLIC: return VariantProto.VariantType.SYMBOLIC;
-            case MIXED: return VariantProto.VariantType.MIXED;
-            default: return VariantProto.VariantType.valueOf(type.name());
-        }
     }
 
 }

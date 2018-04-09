@@ -19,14 +19,19 @@
 
 package org.opencb.biodata.tools.variant.metadata;
 
+import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.opencb.biodata.formats.variant.io.VariantReader;
 import org.opencb.biodata.formats.variant.vcf4.io.VariantVcfReader;
 import org.opencb.biodata.models.metadata.Sample;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
+import org.opencb.biodata.tools.variant.VariantVcfHtsjdkReader;
+import org.opencb.commons.utils.FileUtils;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +60,9 @@ public class VariantMetadataUtils {
      */
     public static VariantFileMetadata readVariantFileMetadata(Path path, VariantFileMetadata fileMetadata) throws IOException {
         Objects.requireNonNull(path);
-        return readVariantFileMetadata(new VariantVcfReader(fileMetadata.toVariantStudyMetadata(""), path.toString()), fileMetadata);
+        try (InputStream is = FileUtils.newInputStream(path)) {
+            return readVariantFileMetadata(new VariantVcfHtsjdkReader(is, fileMetadata.toVariantStudyMetadata("")), fileMetadata);
+        }
     }
 
     /**

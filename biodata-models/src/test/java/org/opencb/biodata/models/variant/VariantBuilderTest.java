@@ -3,11 +3,14 @@ package org.opencb.biodata.models.variant;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
 import org.opencb.biodata.models.variant.avro.*;
+import org.opencb.biodata.models.variant.protobuf.VariantProto;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.opencb.biodata.models.variant.VariantBuilder.getProtoVariantType;
 
 /**
  * Created by fjlopez on 02/03/17.
@@ -245,5 +248,19 @@ public class VariantBuilderTest {
         assertEquals("2", v1.getSv().getBreakend().getMate().getChromosome());
         assertEquals(10000, v1.getSv().getBreakend().getMate().getPosition().intValue());
         assertEquals(BreakendOrientation.RR, v1.getSv().getBreakend().getOrientation());
+    }
+
+    @Test
+    public void testGetProtoVariantType() throws Exception {
+        for (VariantType type : VariantType.values()) {
+            getProtoVariantType(type);
+        }
+        for (VariantProto.VariantType type : VariantProto.VariantType.values()) {
+            // Proto generates an extra enum value "UNRECOGNIZED"
+            if (type != VariantProto.VariantType.UNRECOGNIZED) {
+                assertNotNull(VariantType.valueOf(type.name()));
+            }
+        }
+        assertEquals(VariantType.values().length, VariantProto.VariantType.values().length - 1);
     }
 }
