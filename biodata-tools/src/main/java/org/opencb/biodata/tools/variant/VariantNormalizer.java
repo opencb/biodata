@@ -533,9 +533,9 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         int indexOfDifference;
         char braket = '[';
         switch (breakend.getOrientation()) {
-            case RR:
+            case SS:
                 braket = ']';
-            case RL:
+            case SE:
                 indexOfDifference = StringUtils.indexOfDifference(reference, alternate);
                 if (alternate.startsWith(reference)) {
                     newStart = start + indexOfDifference;
@@ -551,9 +551,9 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                         + breakend.getMate().getPosition()
                         + braket;
                 break;
-            case LR:
+            case ES:
                 braket = ']';
-            case LL:
+            case EE:
                 if (alternate.endsWith(reference)) {
                     indexOfDifference = reverseIndexOfDifference(reference, alternate);
                     newReference = reference.substring(0, reference.length() - indexOfDifference);

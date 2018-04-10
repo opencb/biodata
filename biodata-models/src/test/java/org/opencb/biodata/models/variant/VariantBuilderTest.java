@@ -46,10 +46,10 @@ public class VariantBuilderTest {
 
         // Breakends
         map.put("1:1000:A:A.", new Variant("1", 1000, 999, "A", "A.").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.BREAKEND).setSv(new StructuralVariation(null, null, null, null, null, null, null, null, null)));
-        map.put("1:800001:A:A[2:321681[", new Variant("1", 800001, 800000, "A", "A[2:321681[").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.BREAKEND).setSv(new StructuralVariation(null, null, null, null, null, null, null, null, new Breakend(new BreakendMate("2", 321681, null, null), BreakendOrientation.RL, null))));
-        map.put("1:799984<800001<800022:A:A[2:321681[", new Variant("1", 800001, 800000, "A", "A[2:321681[").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.BREAKEND).setSv(new StructuralVariation(799984, 800022, null, null, null, null, null, null, new Breakend(new BreakendMate("2", 321681, null, null), BreakendOrientation.RL, null))));
-        map.put("1:800001:G:GTATTG[2:321681[", new Variant("1", 800001, 800000, "G", "GTATTG[2:321681[").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.BREAKEND).setSv(new StructuralVariation(null, null, null, null, null, null, null, null, new Breakend(new BreakendMate("2", 321681, null, null), BreakendOrientation.RL, "TATTG"))));
-        map.put("1:800001:G:[2:321681[GTATTG", new Variant("1", 800001, 800000, "G", "[2:321681[GTATTG").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.BREAKEND).setSv(new StructuralVariation(null, null, null, null, null, null, null, null, new Breakend(new BreakendMate("2", 321681, null, null), BreakendOrientation.LL, "GTATT"))));
+        map.put("1:800001:A:A[2:321681[", new Variant("1", 800001, 800000, "A", "A[2:321681[").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.BREAKEND).setSv(new StructuralVariation(null, null, null, null, null, null, null, null, new Breakend(new BreakendMate("2", 321681, null, null), BreakendOrientation.SE, null))));
+        map.put("1:799984<800001<800022:A:A[2:321681[", new Variant("1", 800001, 800000, "A", "A[2:321681[").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.BREAKEND).setSv(new StructuralVariation(799984, 800022, null, null, null, null, null, null, new Breakend(new BreakendMate("2", 321681, null, null), BreakendOrientation.SE, null))));
+        map.put("1:800001:G:GTATTG[2:321681[", new Variant("1", 800001, 800000, "G", "GTATTG[2:321681[").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.BREAKEND).setSv(new StructuralVariation(null, null, null, null, null, null, null, null, new Breakend(new BreakendMate("2", 321681, null, null), BreakendOrientation.SE, "TATTG"))));
+        map.put("1:800001:G:[2:321681[GTATTG", new Variant("1", 800001, 800000, "G", "[2:321681[GTATTG").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.BREAKEND).setSv(new StructuralVariation(null, null, null, null, null, null, null, null, new Breakend(new BreakendMate("2", 321681, null, null), BreakendOrientation.EE, "GTATT"))));
 
         for (Map.Entry<String, Variant> entry : map.entrySet()) {
             String expected = entry.getKey().replace(":-:", ":").replace("::", ":").replace("chr", "");
@@ -231,7 +231,7 @@ public class VariantBuilderTest {
         assertEquals(Variant.UNKNOWN_LENGTH, v1.getLengthAlternate().intValue());
         assertEquals("4", v1.getSv().getBreakend().getMate().getChromosome());
         assertEquals(17481913, v1.getSv().getBreakend().getMate().getPosition().intValue());
-        assertEquals(BreakendOrientation.LL, v1.getSv().getBreakend().getOrientation());
+        assertEquals(BreakendOrientation.EE, v1.getSv().getBreakend().getOrientation());
     }
 
     @Test
@@ -247,7 +247,7 @@ public class VariantBuilderTest {
         assertEquals(Variant.UNKNOWN_LENGTH, v1.getLengthAlternate().intValue());
         assertEquals("2", v1.getSv().getBreakend().getMate().getChromosome());
         assertEquals(10000, v1.getSv().getBreakend().getMate().getPosition().intValue());
-        assertEquals(BreakendOrientation.RR, v1.getSv().getBreakend().getOrientation());
+        assertEquals(BreakendOrientation.SS, v1.getSv().getBreakend().getOrientation());
     }
 
     @Test

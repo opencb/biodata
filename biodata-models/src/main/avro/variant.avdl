@@ -197,16 +197,16 @@ protocol Variants {
     }
 
     /**
-     * RL | (Right -> Left)  | s | t[p[ | piece extending to the right of p is joined after t
-     * RR | (Right -> Right) | s | t]p] | reverse comp piece extending left of p is joined after t
-     * LR | (Left -> Right)  | s | ]p]t | piece extending to the left of p is joined before t
-     * LL | (Left -> Left)   | s | [p[t | reverse comp piece extending right of p is joined before t
+     * SE | (Start -> End)  | s | t[p[ | piece extending to the right of p is joined after t
+     * SS | (Start -> Start) | s | t]p] | reverse comp piece extending left of p is joined after t
+     * ES | (End -> Start)  | s | ]p]t | piece extending to the left of p is joined before t
+     * EE | (End -> End)   | s | [p[t | reverse comp piece extending right of p is joined before t
      */
     enum BreakendOrientation {
-        RL,
-        RR,
-        LR,
-        LL
+        SE,
+        SS,
+        ES,
+        EE
     }
 
     record BreakendMate {

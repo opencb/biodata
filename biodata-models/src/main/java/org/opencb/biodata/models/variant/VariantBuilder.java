@@ -921,7 +921,7 @@ public class VariantBuilder {
                         throw breakendParseException(alternate);
                     } else {
                         insSeq = insSeqRight;
-                        thisJunctionOrientation = 'L';
+                        thisJunctionOrientation = 'E';
                         if (insSeq.endsWith(reference)) {
                             insSeq = insSeq.substring(0, insSeq.length() - reference.length());
                         }
@@ -929,7 +929,7 @@ public class VariantBuilder {
                 } else {
                     if (insSeqRight.isEmpty()) {
                         insSeq = insSeqLeft;
-                        thisJunctionOrientation = 'R';
+                        thisJunctionOrientation = 'S';
                         if (insSeq.startsWith(reference)) {
                             insSeq = insSeq.substring(reference.length());
                         }
@@ -941,18 +941,18 @@ public class VariantBuilder {
                     insSeq = null;
                 }
 
-                mateJunctionOrientation = bracket.equals("]") ? 'R' : 'L';
-                if (thisJunctionOrientation == 'R') {
-                    if (mateJunctionOrientation == 'R') {
-                        type = BreakendOrientation.RR;
-                    } else { // 'L'
-                        type = BreakendOrientation.RL;
+                mateJunctionOrientation = bracket.equals("]") ? 'S' : 'E';
+                if (thisJunctionOrientation == 'S') {
+                    if (mateJunctionOrientation == 'S') {
+                        type = BreakendOrientation.SS;
+                    } else { // 'E'
+                        type = BreakendOrientation.SE;
                     }
-                } else { // 'L'
-                    if (mateJunctionOrientation == 'R') {
-                        type = BreakendOrientation.LR;
-                    } else { // 'L'
-                        type = BreakendOrientation.LL;
+                } else { // 'E'
+                    if (mateJunctionOrientation == 'S') {
+                        type = BreakendOrientation.ES;
+                    } else { // 'E'
+                        type = BreakendOrientation.EE;
                     }
                 }
 
