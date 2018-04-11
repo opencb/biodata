@@ -156,23 +156,23 @@ enum StructuralVariantType {
 
 
 /*
-* RL | (Right -> Left)  | s | t[p[ | piece extending to the right of p is joined after t
-* RR | (Right -> Right) | s | t]p] | reverse comp piece extending left of p is joined after t
-* LR | (Left -> Right)  | s | ]p]t | piece extending to the left of p is joined before t
-* LL | (Left -> Left)   | s | [p[t | reverse comp piece extending right of p is joined before t
+* SE | (Start -> End)   | s | t[p[ | piece extending to the right of p is joined after t
+* SS | (Start -> Start) | s | t]p] | reverse comp piece extending left of p is joined after t
+* ES | (End -> Start)   | s | ]p]t | piece extending to the left of p is joined before t
+* EE | (End -> End)     | s | [p[t | reverse comp piece extending right of p is joined before t
 */
 enum BreakendOrientation {
-    RL = 0;
-    RR = 1;
-    LR = 2;
-    LL = 3;
+    SE = 0;
+    SS = 1;
+    ES = 2;
+    EE = 3;
 }
 
 message BreakendMate {
     string chromosome = 1;
     int32 position = 2;
-    int32 ciPositionRight = 3;
-    int32 ciPositionLeft = 4;
+    int32 ciPositionLeft = 3;
+    int32 ciPositionRight = 4;
 }
 
 message Breakend {

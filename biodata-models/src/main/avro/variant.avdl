@@ -197,10 +197,10 @@ protocol Variants {
     }
 
     /**
-     * SE | (Start -> End)  | s | t[p[ | piece extending to the right of p is joined after t
+     * SE | (Start -> End)   | s | t[p[ | piece extending to the right of p is joined after t
      * SS | (Start -> Start) | s | t]p] | reverse comp piece extending left of p is joined after t
-     * ES | (End -> Start)  | s | ]p]t | piece extending to the left of p is joined before t
-     * EE | (End -> End)   | s | [p[t | reverse comp piece extending right of p is joined before t
+     * ES | (End -> Start)   | s | ]p]t | piece extending to the left of p is joined before t
+     * EE | (End -> End)     | s | [p[t | reverse comp piece extending right of p is joined before t
      */
     enum BreakendOrientation {
         SE,
@@ -212,8 +212,8 @@ protocol Variants {
     record BreakendMate {
         union { null, string } chromosome;
         union { null, int } position;
-        union { null, int } ciPositionRight;
         union { null, int } ciPositionLeft;
+        union { null, int } ciPositionRight;
     }
 
     record Breakend {
