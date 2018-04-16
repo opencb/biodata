@@ -829,63 +829,107 @@ public class VariantBuilder {
         return length;
     }
 
-    /**
-     * For VariantType.BREAKEND variants only. Parses the alternate string of a breakend (e.g  A]2:321681]) and
-     * generates a new Variant object with the coordinates and CIPOS/CIEND of the breakend mate.
-     * @param variant BREAKEND Variant object containing:
-     *                1.- variant.chromosome, variant.start: coordinates of the first breakend
-     *                2.- variant.alternate: string containing the mate coordinates in a VCF-like format e.g  A]2:321681]
-     *                It could happen that the BREAKEND doesn't have any mate, the alternate could be a '.' for example
-     *                3.- variant.sv: it should be present althougth it's allowed to be null. If exists, then the
-     *                following interpretation is expected from the fields:
-     *                  * variant.sv.CiStartLeft, variant.sv.CiStartRight: CIPOS of the first breakend, the one with
-     *                  coordinates in variant.chromosome,variant.start
-     *                  * variant.sv.CiEndLeft, variant.sv.CiEndRight: CIPOS of the second (mate) breakend, the one with
-     *                  coordinates in variant.alternate
-     * @return A Variant object filled in with the coordinates and CIPOS of the mate breakend. IF the input variant
-     * does not have a mate breakend (e.g. alternate='.'), null will be returned. The returned variant object will be
-     * filled in as follows:
-     *  1.- variant.chromosome, variant.start: coordinates of the mate breakend
-     *  2.- variant.sv: will be null if the input variant.sv is null. Otherwise:
-     *    * variant.sv.CiStartLeft, variant.sv.CiStartRight: CIPOS of the MATE breakend
-     *    * variant.sv.CiEndLeft, variant.sv.CiEndRight: CIPOS of the FIRST breakend
-     *    PLEASE NOTE: that the values in CiStart/CiEnd of the coordenates is swapped with respect to the input variant
-     */
-    @Deprecated
     public static Variant getMateBreakend(Variant variant) {
-        // e.g. A]2:321681]
-        Variant newvariant = parseMateBreakendFromAlternate(variant.getAlternate());
-        if (newvariant != null) {
-            if (variant.getSv() != null) {
-                newvariant.setSv(new StructuralVariation(variant.getSv().getCiEndLeft(), variant.getSv().getCiEndRight(),
-                        variant.getSv().getCiStartLeft(), variant.getSv().getCiStartRight(), null,
-                        null, null, null, null));
-            }
-            return newvariant;
+        // Check variant does have a mate
+        if (variant.getSv() != null && variant.getSv().getBreakend() != null
+                && variant.getSv().getBreakend().getMate() != null) {
+            Variant mate =  new Variant(variant.getSv().getBreakend().getMate().getChromosome(),
+                    variant.getSv().getBreakend().getMate().getPosition(), null, null);
+            mate.setType(VariantType.BREAKEND);
+            mate.setSv(getMateStructuralVariation(variant));
+
+            return mate;
+
+        } else {
+            return null;
         }
-        return null;
     }
 
-    /**
-     * Generates a new variant object by parsing the alternate string of a breakend (e.g  A]2:321681])
-     * @param alternate String containing details of a mate breakend. Expected VCF-like format, e.g. A]2:321681]. Can
-     *                  also be "." to indicate there's no mate.
-     * @return A Variant object filled in with the coordinates parsed from the alternate string. IF there's no mate
-     * breakend (e.g. alternate='.'), null will be returned. Just the variant.chromosome and variant.start fields
-     * of the new Variant object will be filled in.
-     */
-    @Deprecated
-    public static Variant parseMateBreakendFromAlternate(String alternate) {
-        String[] parts = alternate.split(":");
-        if (parts.length == 2) {
-            String chromosome = parts[0].split("[\\[\\]]")[1];
-            chromosome = Region.normalizeChromosome(chromosome);
-            Integer start = Integer.valueOf(parts[1].split("[\\[\\]]")[0]);
-            Variant newVariant = new Variant(chromosome, start, null, null);
-            return newVariant;
+    private static StructuralVariation getMateStructuralVariation(Variant variant) {
+        StructuralVariation structuralVariation = new StructuralVariation();
+        // Check whether mate has CIPOS
+        if (variant.getSv().getBreakend().getMate().getCiPositionLeft() != null
+                && variant.getSv().getBreakend().getMate().getCiPositionRight() != null) {
+            structuralVariation.setCiStartLeft(variant.getSv().getBreakend().getMate().getCiPositionLeft());
+            structuralVariation.setCiStartRight(variant.getSv().getBreakend().getMate().getCiPositionRight());
         }
-        return null;
+        Breakend breakend = new Breakend(new BreakendMate(variant.getChromosome(), variant.getStart(),
+                variant.getSv().getCiStartLeft() != null ? variant.getSv().getCiStartLeft() : null,
+                variant.getSv().getCiStartRight() != null ? variant.getSv().getCiStartRight() : null),
+                getMateOrientation(variant), null);
+        structuralVariation.setBreakend(breakend);
+
+        return structuralVariation;
     }
+
+    private static BreakendOrientation getMateOrientation(Variant variant) {
+        switch (variant.getSv().getBreakend().getOrientation()) {
+            case ES:
+                return BreakendOrientation.SE;
+            case SE:
+                return BreakendOrientation.ES;
+            default:
+                return variant.getSv().getBreakend().getOrientation();
+        }
+    }
+
+//    /**
+//     * For VariantType.BREAKEND variants only. Parses the alternate string of a breakend (e.g  A]2:321681]) and
+//     * generates a new Variant object with the coordinates and CIPOS/CIEND of the breakend mate.
+//     * @param variant BREAKEND Variant object containing:
+//     *                1.- variant.chromosome, variant.start: coordinates of the first breakend
+//     *                2.- variant.alternate: string containing the mate coordinates in a VCF-like format e.g  A]2:321681]
+//     *                It could happen that the BREAKEND doesn't have any mate, the alternate could be a '.' for example
+//     *                3.- variant.sv: it should be present althougth it's allowed to be null. If exists, then the
+//     *                following interpretation is expected from the fields:
+//     *                  * variant.sv.CiStartLeft, variant.sv.CiStartRight: CIPOS of the first breakend, the one with
+//     *                  coordinates in variant.chromosome,variant.start
+//     *                  * variant.sv.CiEndLeft, variant.sv.CiEndRight: CIPOS of the second (mate) breakend, the one with
+//     *                  coordinates in variant.alternate
+//     * @return A Variant object filled in with the coordinates and CIPOS of the mate breakend. IF the input variant
+//     * does not have a mate breakend (e.g. alternate='.'), null will be returned. The returned variant object will be
+//     * filled in as follows:
+//     *  1.- variant.chromosome, variant.start: coordinates of the mate breakend
+//     *  2.- variant.sv: will be null if the input variant.sv is null. Otherwise:
+//     *    * variant.sv.CiStartLeft, variant.sv.CiStartRight: CIPOS of the MATE breakend
+//     *    * variant.sv.CiEndLeft, variant.sv.CiEndRight: CIPOS of the FIRST breakend
+//     *    PLEASE NOTE: that the values in CiStart/CiEnd of the coordenates is swapped with respect to the input variant
+//     */
+//    @Deprecated
+//    public static Variant getMateBreakend(Variant variant) {
+//        // e.g. A]2:321681]
+//        Variant newvariant = parseMateBreakendFromAlternate(variant.getAlternate());
+//        if (newvariant != null) {
+//            if (variant.getSv() != null) {
+//                newvariant.setSv(new StructuralVariation(variant.getSv().getCiEndLeft(), variant.getSv().getCiEndRight(),
+//                        variant.getSv().getCiStartLeft(), variant.getSv().getCiStartRight(), null,
+//                        null, null, null, null));
+//            }
+//            return newvariant;
+//        }
+//        return null;
+//    }
+//
+//    /**
+//     * Generates a new variant object by parsing the alternate string of a breakend (e.g  A]2:321681])
+//     * @param alternate String containing details of a mate breakend. Expected VCF-like format, e.g. A]2:321681]. Can
+//     *                  also be "." to indicate there's no mate.
+//     * @return A Variant object filled in with the coordinates parsed from the alternate string. IF there's no mate
+//     * breakend (e.g. alternate='.'), null will be returned. Just the variant.chromosome and variant.start fields
+//     * of the new Variant object will be filled in.
+//     */
+//    @Deprecated
+//    public static Variant parseMateBreakendFromAlternate(String alternate) {
+//        String[] parts = alternate.split(":");
+//        if (parts.length == 2) {
+//            String chromosome = parts[0].split("[\\[\\]]")[1];
+//            chromosome = Region.normalizeChromosome(chromosome);
+//            Integer start = Integer.valueOf(parts[1].split("[\\[\\]]")[0]);
+//            Variant newVariant = new Variant(chromosome, start, null, null);
+//            return newVariant;
+//        }
+//        return null;
+//    }
 
     /**
      * Generates a new Breakend object by parsing the alternate string of a breakend (e.g  A]2:321681])
