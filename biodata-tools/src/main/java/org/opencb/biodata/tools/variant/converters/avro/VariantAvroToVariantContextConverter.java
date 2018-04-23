@@ -120,7 +120,10 @@ public class VariantAvroToVariantContextConverter extends VariantContextConverte
             int alternateStart = alternateCoordinate.getStart() == null ? variant.getStart() : alternateCoordinate.getStart().intValue();
             int alternateEnd = alternateCoordinate.getEnd() == null ? variant.getEnd() : alternateCoordinate.getEnd().intValue();
 
-            adjustedVariantStart(alternateStart, alternateEnd, alternateCoordinate.getReference(), alternateCoordinate.getAlternate(), referenceAlleles, pos);
+            String reference = alternateCoordinate.getReference() == null ? variant.getReference() : alternateCoordinate.getReference();
+            String alternate = alternateCoordinate.getAlternate() == null ? variant.getAlternate() : alternateCoordinate.getAlternate();
+
+            adjustedVariantStart(alternateStart, alternateEnd, reference, alternate, referenceAlleles, pos);
         }
         return pos;
     }
