@@ -32,10 +32,11 @@ public class ClinvarParser {
 
     public final static String CLINVAR_CONTEXT_v19 = "org.opencb.biodata.formats.variant.clinvar.v19jaxb";
     public final static String CLINVAR_CONTEXT_v24 = "org.opencb.biodata.formats.variant.clinvar.v24jaxb";
+    public final static String CLINVAR_CONTEXT_v53 = "org.opencb.biodata.formats.variant.clinvar.v53jaxb";
 
     public static void saveXMLInfo(Object obj, String filename) throws FileNotFoundException, JAXBException {
         JAXBContext jaxbContext;
-        jaxbContext = JAXBContext.newInstance(CLINVAR_CONTEXT_v24);
+        jaxbContext = JAXBContext.newInstance(CLINVAR_CONTEXT_v53);
         Marshaller marshaller = jaxbContext.createMarshaller();
         marshaller.marshal(obj, new FileOutputStream(filename));
     }
@@ -48,7 +49,7 @@ public class ClinvarParser {
      */
     public static Object loadXMLInfo(String filename) throws JAXBException {
         Object obj = null;
-        JAXBContext jaxbContext = JAXBContext.newInstance(CLINVAR_CONTEXT_v24);
+        JAXBContext jaxbContext = JAXBContext.newInstance(CLINVAR_CONTEXT_v53);
         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
         obj = unmarshaller.unmarshal(new File(filename));
         return obj;

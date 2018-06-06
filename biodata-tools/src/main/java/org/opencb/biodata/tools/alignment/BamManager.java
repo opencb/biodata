@@ -58,10 +58,13 @@ public class BamManager {
     private Path bamFile;
     private SamReader samReader;
 
+    private static final String COVERAGE_BIGWIG_EXTENSION = ".coverage.bw";
+    private static final int DEFAULT_WINDOW_SIZE = 50;
     private static final int DEFAULT_MAX_NUM_RECORDS = 50000;
 
     protected Logger logger;
 
+    @Deprecated
     public BamManager() {
         logger = LoggerFactory.getLogger(BamManager.class);
     }
@@ -129,8 +132,8 @@ public class BamManager {
         return outputIndex;
     }
 
-    public Path calculateBigWigCoverage() throws IOException {
-        return calculateBigWigCoverage(Paths.get(this.bamFile.toFile().getAbsolutePath() + ".coverage.bw"), 50);
+    public Path calculateBigWigCoverage(int windowSize) throws IOException {
+        return calculateBigWigCoverage(Paths.get(this.bamFile.toFile().getAbsolutePath() + COVERAGE_BIGWIG_EXTENSION), windowSize);
     }
 
     public Path calculateBigWigCoverage(Path bigWigPath, int windowSize) throws IOException {
@@ -151,6 +154,11 @@ public class BamManager {
         return bigWigPath;
     }
 
+
+    public String header() throws IOException {
+        init();
+        return samReader.getFileHeader().getTextHeader();
+    }
 
     /*
      * These methods aim to provide a very simple, safe and quick way of accessing to a small fragment of the BAM/CRAM file.
@@ -311,8 +319,8 @@ public class BamManager {
         if (Paths.get(bamFile.toString() + ".bw").toFile().exists()) {
             return coverage(region, windowSize, Paths.get(bamFile.toString() + ".bw"));
         } else {
-            if (Paths.get(bamFile.toString() + ".coverage.bw").toFile().exists()) {
-                return coverage(region, windowSize, Paths.get(this.bamFile.toString() + ".coverage.bw"));
+            if (Paths.get(bamFile.toString() + COVERAGE_BIGWIG_EXTENSION).toFile().exists()) {
+                return coverage(region, windowSize, Paths.get(this.bamFile.toString() + COVERAGE_BIGWIG_EXTENSION));
             } else {
                 // If BigWig file is not found and windowSize is 1 then we calculate it from the BAM file
                 if (windowSize == 1) {
