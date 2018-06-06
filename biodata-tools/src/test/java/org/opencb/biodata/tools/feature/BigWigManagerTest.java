@@ -1,5 +1,6 @@
 package org.opencb.biodata.tools.feature;
 
+import org.broad.igv.bbfile.*;
 import org.junit.Test;
 import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.tools.commons.ChunkFrequencyManager;
@@ -45,14 +46,14 @@ public class BigWigManagerTest {
     public void groupBy() throws Exception {
         Path bwPath = Paths.get(getClass().getResource("/wigVarStepExampleSmallChr21.bw").toURI());
 
-        String chrom = "20";
-        int start = 100;
-        int end =   10000000;
-        int chunkSize = 1000;
+        String chrom = "chr21";
+        int start = 9480000;
+        int end =   9500000;
+        int windowSize = 10000;
 
         BigWigManager bigWigManager = new BigWigManager(bwPath);
         Region region = new Region(chrom, start, end);
-        float[] coverage = bigWigManager.groupBy(region, chunkSize);
+        float[] coverage = bigWigManager.groupBy(region, windowSize);
 
         for (int i = 0; i < coverage.length ; i++) {
             System.out.println(i + ": " + coverage[i]);
@@ -101,6 +102,70 @@ public class BigWigManagerTest {
 //        bigWigManager.close();
 //
 //        assertEquals(20, chr21.size());
+    }
+
+    @Test
+    public void zoom() throws Exception {
+//        Path bwPath = Paths.get("~/data150/coverage.bw");
+//        Path bwPath = Paths.get("~/data150/bw/HG00096.chrom20.small.bam.bw");
+//        Path bwPath = Paths.get("~/data150/bw/HG00096.mapped.illumina.exome.bam.1.sort.bam.coverage.bs100.bw");
+        Path bwPath = Paths.get(getClass().getResource("/wigVarStepExampleSmallChr21.bw").toURI());
+
+        BBFileReader bbFileReader = new BBFileReader(bwPath.toString());
+        System.out.println("zoom level count = " + bbFileReader.getZoomLevelCount());
+
+        BBZoomLevels zoomLevels = bbFileReader.getZoomLevels();
+        System.out.println("zoom headers:");
+        zoomLevels.printZoomHeaders();
+
+        for (int zoomLevel = 1; zoomLevel <= bbFileReader.getZoomLevelCount(); zoomLevel++) {
+            System.out.println("Zoom level " + zoomLevel);
+            System.out.println(bbFileReader.getZoomLevels().getZoomLevelHeader(zoomLevel).getReductionLevel());
+        }
+
+        System.exit(0);
+//        long chromosomeNameCount = bbFileReader.getChromosomeNameCount();
+//        for (int chrom = 0; chrom < chromosomeNameCount; chrom++) {
+//            System.out.println(chrom + " > " + bbFileReader.getChromosomeName(chrom));
+//        }
+
+        System.out.println("------------------------------------------");
+        String info = "";
+        for (int zoomLevel = 1; zoomLevel <= bbFileReader.getZoomLevelCount(); zoomLevel++) {
+            System.out.println("Zoom level " + zoomLevel);
+            ZoomLevelIterator zoomLevelIterator = bbFileReader.getZoomLevelIterator(zoomLevel,
+                    "1", 0, "1", 900000000, false);
+            long count = 0;
+            while (zoomLevelIterator.hasNext()) {
+                ++count;
+                ZoomDataRecord next = zoomLevelIterator.next();
+                info = "Chunk " + count + " > " + next.getChromName() + ":"
+                        + next.getChromStart() + "-" + next.getChromEnd()
+                        + ", mean value = " + next.getMeanVal()
+                        + ", min. value = " + next.getMinVal()
+                        + ", max. value = " + next.getMaxVal();
+
+
+                if (count < 3) {
+                    System.out.println("\t" + info);
+                } else if (count == 3) {
+                    System.out.println("\t...");
+                }
+//                if (++count > 100) {
+//                    break;
+//                }
+            }
+            System.out.println("\t" + info);
+            System.out.println("\t\tNum. chunks = " + count + "\n");
+        }
+
+//        for (int zoomLevel = 1; zoomLevel <= bbFileReader.getZoomLevelCount(); zoomLevel++) {
+//            System.out.println("Zoom level " + zoomLevel);
+//            RPChromosomeRegion zoomLevelBounds = bbFileReader.getZoomLevelBounds(zoomLevel);
+//            System.out.println("\t" + zoomLevelBounds.getStartBase() + ", " + zoomLevelBounds.getEndBase());
+//        }
+//        System.out.println("zoom levels = " + zoomLevels);
+
     }
 
 }
