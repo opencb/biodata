@@ -80,17 +80,16 @@ public class BigWigManager {
      *
      * @param region    Region target
      * @return          Big Wig file iterator
-     * @throws IOException
      */
-    public BigWigIterator iterator(Region region) throws IOException {
+    public BigWigIterator iterator(Region region) {
         return bbFileReader.getBigWigIterator(region.getChromosome(), region.getStart(), region.getChromosome(), region.getEnd(), false);
     }
 
-    public ZoomLevelIterator iterator(Region region, int zoomLevel) throws IOException {
+    public ZoomLevelIterator iterator(Region region, int zoomLevel) {
         return bbFileReader.getZoomLevelIterator(zoomLevel, region.getChromosome(), region.getStart(), region.getChromosome(), region.getEnd(), false);
     }
 
-    public float[] groupBy(Region region, int windowSize) throws IOException {
+    public float[] groupBy(Region region, int windowSize) {
         int zoomLevel = -1;
         for (int level = 0; level < zoomWindowSizes.size(); level++) {
             if (windowSize < zoomWindowSizes.get(level)) {
@@ -108,6 +107,7 @@ public class BigWigManager {
         float[] chunks = new float[numWindows];
 
         if (zoomLevel == -1) {
+            // No zoom level available. This can happen because there are not zoom levels or the window size is too small
             BigWigIterator bigWigIterator = iterator(region);
             WigItem wItem;
             int length, chunkStart, chunkEnd;
@@ -122,6 +122,7 @@ public class BigWigManager {
                 }
             }
         } else {
+            // We get the zoom iterator, we need to increment by 1.
             ZoomLevelIterator zoomIterator = iterator(region, zoomLevel + 1);
             ZoomDataRecord wItem;
             int length, chunkStart, chunkEnd;
@@ -219,9 +220,5 @@ public class BigWigManager {
         return zoomWindowSizes;
     }
 
-    public BigWigManager setZoomWindowSizes(List<Integer> zoomWindowSizes) {
-        this.zoomWindowSizes = zoomWindowSizes;
-        return this;
-    }
-
 }
+
