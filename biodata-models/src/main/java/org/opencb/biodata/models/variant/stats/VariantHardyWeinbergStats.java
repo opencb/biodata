@@ -42,6 +42,13 @@ public class VariantHardyWeinbergStats {
         pValue = Float.MAX_VALUE;
     }
 
+    public VariantHardyWeinbergStats(int n_AA, int n_Aa, int n_aa) {
+        this();
+        this.n_AA = n_AA;
+        this.n_Aa = n_Aa;
+        this.n_aa = n_aa;
+    }
+
     public float getChi2() {
         if (chi2 == Float.MAX_VALUE) {
             calculate();
@@ -153,6 +160,7 @@ public class VariantHardyWeinbergStats {
             // TODO Calculate p-value
             // GSL call: hw->p_value = 1-gsl_cdf_chisq_P(hw->chi2,1);
 //            pValue = chiSquareTest.chiSquare(chi, 1);
+            pValue = -1;
         }
     }
 

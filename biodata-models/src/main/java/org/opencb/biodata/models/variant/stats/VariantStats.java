@@ -163,19 +163,22 @@ public class VariantStats {
         impl.setMgfGenotype(value);
     }
 
-    public void addGenotype(Genotype g) {
+    public VariantStats addGenotype(Genotype g) {
         this.addGenotype(g, 1);
+        return this;
     }
 
-    public void addGenotype(Genotype g, int addedCount) {
+    public VariantStats addGenotype(Genotype g, int addedCount) {
         addGenotype(g, addedCount, true);
+        return this;
     }
 
-    public void addGenotype(Genotype g, int addedCount, boolean normalize) {
+    public VariantStats addGenotype(Genotype g, int addedCount, boolean normalize) {
         if (normalize) {
             g = normalizeGenotypeAlleles(g);
         }
         getGenotypeCount().compute(g, (key, prev) -> prev == null ? addedCount : prev + addedCount);
+        return this;
     }
 
     private Genotype normalizeGenotypeAlleles(Genotype g) {

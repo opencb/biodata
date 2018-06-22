@@ -51,6 +51,30 @@ protocol Variants {
         union { null, string } mgfGenotype;
     }
 
+    record VariantScore {
+
+        /**
+         * Variant score ID.
+         */
+        string id;
+        /**
+         * Main cohort used for calculating the score.
+         */
+        string cohortId;
+        /**
+         * Optional secondary cohort used for calculating the score.
+         */
+        union { null, string } secondCohortId = null;
+        /**
+         * Score value
+         */
+        float score;
+        /**
+         * Score p value
+         */
+        union { null, float } pValue = null;
+    }
+
     record FileEntry {
         /**
          * Unique identifier of the source file.
@@ -132,6 +156,8 @@ protocol Variants {
          * or its minimum allele frequency, grouped by cohort name.
          */
         map<VariantStats> stats;
+
+        array<VariantScore> scores = [];
     }
 
 //    /**
