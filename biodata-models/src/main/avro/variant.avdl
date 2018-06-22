@@ -34,52 +34,21 @@ protocol Variants {
         MIXED                  // Defined in HTSJDK
     }
 
-    enum AllelesCode {
-        ALLELES_OK,
-        ALLELES_MISSING,
-        MULTIPLE_ALTERNATES,
-        HAPLOID
-    }
-
-    record VariantHardyWeinbergStats {
-        union { null, float } chi2;
-        union { null, float } pValue;
-        union { null, int } n;
-        union { null, int } n_AA_11;
-        union { null, int } n_Aa_10;
-        union { null, int } n_aa_00;
-        union { null, float } e_AA_11;
-        union { null, float } e_Aa_10;
-        union { null, float } e_aa_00;
-        union { null, float } p;
-        union { null, float } q;
-    }
-
     record VariantStats {
-        union { null, string } refAllele;
-        union { null, string } altAllele;
+        union { null, int } alleleCount;
         union { null, int } refAlleleCount;
         union { null, int } altAlleleCount;
-        @java-key-class("org.opencb.biodata.models.feature.Genotype") map<int> genotypesCount;
-        @java-key-class("org.opencb.biodata.models.feature.Genotype") map<float> genotypesFreq;
-        union { null, int } missingAlleles;
-        union { null, int } missingGenotypes;
         union { null, float } refAlleleFreq;
         union { null, float } altAlleleFreq;
+
+        @java-key-class("org.opencb.biodata.models.feature.Genotype") map<int> genotypeCount;
+        @java-key-class("org.opencb.biodata.models.feature.Genotype") map<float> genotypeFreq;
+        union { null, int } missingAlleleCount;
+        union { null, int } missingGenotypeCount;
         union { null, float } maf;
         union { null, float } mgf;
         union { null, string } mafAllele;
         union { null, string } mgfGenotype;
-        union { null, boolean } passedFilters;
-        union { null, int } mendelianErrors;
-        union { null, float } casesPercentDominant;
-        union { null, float } controlsPercentDominant;
-        union { null, float } casesPercentRecessive;
-        union { null, float } controlsPercentRecessive;
-        union { null, float } quality;
-        union { null, int } numSamples;
-        union { null, VariantType} variantType = null;
-        union { null, VariantHardyWeinbergStats} hw = null;
     }
 
     record FileEntry {
@@ -163,13 +132,6 @@ protocol Variants {
          * or its minimum allele frequency, grouped by cohort name.
          */
         map<VariantStats> stats;
-    }
-
-    record Genotype {
-        string reference;
-        string alternate;
-        array<int> allelesIdx =[];
-        boolean phased;
     }
 
 //    /**

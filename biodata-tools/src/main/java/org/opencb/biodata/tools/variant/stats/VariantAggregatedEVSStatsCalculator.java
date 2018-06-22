@@ -61,7 +61,7 @@ public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsC
 
     @Override
     protected void parseStats(Variant variant, StudyEntry file, int numAllele, String reference, String[] alternateAlleles, Map<String, String> info) {
-        VariantStats stats = new VariantStats(variant);
+        VariantStats stats = new VariantStats();
         if (info.containsKey("MAF")) {
             String splitsMAF[] = info.get("MAF").split(",");
             if (splitsMAF.length == 3) {
@@ -90,7 +90,7 @@ public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsC
                         String cohort = opencgaTagSplit[0];
                         VariantStats cohortStats = studyEntry.getStats(cohort);
                         if (cohortStats == null) {
-                            cohortStats = new VariantStats(variant);
+                            cohortStats = new VariantStats();
                             studyEntry.setStats(cohort, cohortStats);
                         }
                         switch (opencgaTagSplit[1]) {
@@ -121,7 +121,7 @@ public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsC
                                 float maf = Float.parseFloat(values[i]) / 100;  // from [0, 100] (%) to [0, 1]
                                 VariantStats cohortStats = studyEntry.getStats(populations[i]);
                                 if (cohortStats == null) {
-                                    cohortStats = new VariantStats(variant);
+                                    cohortStats = new VariantStats();
                                     studyEntry.setStats(populations[i], cohortStats);
                                 }
                                 cohortStats.setMaf(maf);

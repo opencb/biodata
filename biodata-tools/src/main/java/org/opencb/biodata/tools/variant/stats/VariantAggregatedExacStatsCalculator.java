@@ -67,7 +67,7 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
     @Override
     protected void parseStats(Variant variant, StudyEntry fileMetadata, int numAllele, String reference, String[] alternateAlleles, Map<String, String> info) {
         StudyEntry studyentry = variant.getStudy(fileMetadata.getStudyId());
-        VariantStats stats = new VariantStats(variant);
+        VariantStats stats = new VariantStats();
 
         if (info.containsKey(AC_HET)) {   // heterozygous genotype count
             String[] hetCounts = info.get(AC_HET).split(COMMA);
@@ -98,7 +98,7 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
 
         if (info.containsKey(AC_ADJ) && info.containsKey(AN_ADJ)) {
             int an = Integer.parseInt(info.get(AN_ADJ));
-            setMaf(an, acCounts, alternateAlleles, stats);
+            setMaf(an, acCounts, variant.getReference(), alternateAlleles, stats);
         }
 
         studyentry.setStats(StudyEntry.DEFAULT_COHORT, stats);
@@ -120,7 +120,7 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
                 String cohortName = opencgaTagSplit[0];
                 VariantStats cohortStats = studyEntry.getStats(cohortName);
                 if (cohortStats == null) {
-                    cohortStats = new VariantStats(variant);
+                    cohortStats = new VariantStats();
                     studyEntry.setStats(cohortName, cohortStats);
                 }
                 switch (opencgaTagSplit[1]) {
@@ -146,7 +146,7 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
                 Integer alleleNumber = ans.get(cohortName);
                 addReferenceGenotype(variant, cohortStats, alleleNumber);
                 setRefAlleleCount(cohortStats, alleleNumber, acs.get(cohortName));
-                setMaf(alleleNumber, acs.get(cohortName), alternateAlleles, cohortStats);
+                setMaf(alleleNumber, acs.get(cohortName), variant.getReference(), alternateAlleles, cohortStats);
             }
         }
     }
@@ -167,7 +167,7 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
      */
     private static void addReferenceGenotype(Variant variant, VariantStats stats, int alleleNumber) {
         int gtSum = 0;
-        for (Integer gtCounts : stats.getGenotypesCount().values()) {
+        for (Integer gtCounts : stats.getGenotypeCount().values()) {
             gtSum += gtCounts;
         }
         Genotype genotype = new Genotype("0/0", variant.getReference(), variant.getAlternate());
@@ -218,13 +218,13 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
         }
     }
 
-    private void setMaf(int totalAlleleCount, String alleleCounts[], String alternateAlleles[], VariantStats stats) {
+    private void setMaf(int totalAlleleCount, String[] alleleCounts, String refAllele, String[] alternateAlleles, VariantStats stats) {
         if (stats.getMaf() == -1) {
 
             int referenceCount = stats.getRefAlleleCount();
             float maf = (float) referenceCount / totalAlleleCount;
 
-            String mafAllele = stats.getRefAllele();
+            String mafAllele = refAllele;
             for (int i = 0; i < alleleCounts.length; i++) {
                 float auxMaf = (float) Integer.parseInt(alleleCounts[i]) / totalAlleleCount;
                 if (auxMaf < maf) {

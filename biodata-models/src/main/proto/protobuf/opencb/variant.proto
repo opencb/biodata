@@ -42,52 +42,21 @@ enum VariantType {
     BREAKEND       = 15;
 }
 
-enum AllelesCode {
-    ALLELES_OK = 0;
-    ALLELES_MISSING = 1;
-    MULTIPLE_ALTERNATES = 2;
-    HAPLOID = 3;
-}
-
-message VariantHardyWeinbergStats {
-    float chi2 = 1;
-    float pValue = 2;
-    int32 n = 3;
-    int32 n_AA_11 = 4;
-    int32 n_Aa_10 = 5;
-    int32 n_aa_00 = 6;
-    float e_AA_11 = 7;
-    float e_Aa_10 = 8;
-    float e_aa_00 = 9;
-    float p = 10;
-    float q = 11;
-}
-
 message VariantStats {
-    string refAllele = 1;
-    string altAllele = 2;
-    int32 refAlleleCount = 3;
-    int32 altAlleleCount = 4;
-    map<string, int32> genotypesCount = 5;
-    map<string, float> genotypesFreq = 6;
-    int32 missingAlleles = 7;
-    int32 missingGenotypes = 8;
-    float refAlleleFreq = 9;
-    float altAlleleFreq = 10;
-    float maf = 11;
-    float mgf = 12;
-    string mafAllele = 13;
-    string mgfGenotype = 14;
-    bool  passedFilters = 15;
-    int32 mendelianErrors = 16;
-    float casesPercentDominant = 17;
-    float controlsPercentDominant = 18;
-    float casesPercentRecessive = 19;
-    float controlsPercentRecessive = 20;
-    float quality = 21;
-    int32 numSamples = 22;
-    VariantType variantType = 23;
-    VariantHardyWeinbergStats hw = 24;
+    int32 alleleCount = 1;
+    int32 refAlleleCount = 2;
+    int32 altAlleleCount = 3;
+    float refAlleleFreq = 4;
+    float altAlleleFreq = 5;
+
+    map<string, int32> genotypeCount = 6;
+    map<string, float> genotypeFreq = 7;
+    int32 missingAlleleCount = 8;
+    int32 missingGenotypeCount = 9;
+    float maf = 10;
+    float mgf = 11;
+    string mafAllele = 12;
+    string mgfGenotype = 13;
 }
 
 message FileEntry {
@@ -130,14 +99,6 @@ message StudyEntry {
     repeated string format = 4;
     repeated SamplesDataInfoEntry samplesData = 5;
     map<string, VariantStats> stats = 6;
-}
-
-message Genotype {
-    string reference = 1;
-    repeated string alternates = 2;
-    repeated int32 allelesIdx = 3;
-    bool phased = 4;
-    AllelesCode code = 5;
 }
 
 /**

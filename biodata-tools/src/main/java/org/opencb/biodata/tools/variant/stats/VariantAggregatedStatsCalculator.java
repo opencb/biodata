@@ -129,7 +129,7 @@ public class VariantAggregatedStatsCalculator {
      * @param info
      */
     protected void parseStats(Variant variant, StudyEntry file, int numAllele, String reference, String[] alternateAlleles, Map<String, String> info) {
-        VariantStats vs = new VariantStats(variant);
+        VariantStats vs = new VariantStats();
         Map<String, String> stats = new LinkedHashMap<>();
         for (Map.Entry<String, String> entry : info.entrySet()) {
 
@@ -174,7 +174,7 @@ public class VariantAggregatedStatsCalculator {
         }
 
         for (String cohortName : cohortStats.keySet()) {
-            VariantStats vs = new VariantStats(variant);
+            VariantStats vs = new VariantStats();
             calculate(variant, file, numAllele, reference, alternateAlleles, cohortStats.get(cohortName), vs);
             file.setStats(cohortName, vs);
         }
@@ -244,7 +244,7 @@ public class VariantAggregatedStatsCalculator {
                         sumFreq += parseFloat(af, -1);
                     }
                     float maf = 1 - sumFreq;
-                    String mafAllele = variantStats.getRefAllele();
+                    String mafAllele = variant.getReference();
 
                     for (int i = 0; i < afs.length; i++) {
                         float auxMaf = parseFloat(afs[i], -1);
@@ -271,10 +271,10 @@ public class VariantAggregatedStatsCalculator {
                     }
                     variantStats.setMafAllele(ma);
                     if (variantStats.getAltAlleleFreq() < 0 || variantStats.getRefAlleleFreq() < 0) {
-                        if (ma.equals(variantStats.getRefAllele())) {
+                        if (ma.equals(variant.getReference())) {
                             variantStats.setRefAlleleFreq(maf);
                             variantStats.setAltAlleleFreq(1 - maf);
-                        } else if (ma.equals(variantStats.getAltAllele())) {
+                        } else if (ma.equals(variant.getAlternate())) {
                             variantStats.setRefAlleleFreq(1 - maf);
                             variantStats.setAltAlleleFreq(maf);
                         } // It may happen that the MA is none of the variant alleles. Just skip

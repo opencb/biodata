@@ -399,63 +399,6 @@ public class VariantContextToVariantProtoConverter implements Converter<VariantC
     }
 
     /**
-     * method to set Variant Stats Parameters
-     * @param variantHardyWeinbergStats
-     * @param variantContext
-     * @return variantStats
-     */
-    private VariantProto.VariantStats setVariantStatsParams(
-            VariantProto.VariantHardyWeinbergStats variantHardyWeinbergStats,
-            VariantContext variantContext) {
-
-        VariantProto.VariantStats.Builder variantStats = VariantProto.VariantStats.newBuilder();
-        variantStats.setAltAllele("aa");
-        variantStats.setAltAlleleCount(1);
-        variantStats.setAltAlleleFreq(2.1f);
-        variantStats.setCasesPercentDominant(3.1f);
-        variantStats.setCasesPercentRecessive(5.1f);
-        variantStats.setControlsPercentDominant(1.0f);
-        variantStats.setControlsPercentRecessive(3.1f);
-        variantStats.setMaf(4f);
-        variantStats.setMafAllele("ss");
-        variantStats.setMendelianErrors(4);
-        variantStats.setMgf(3f);
-        variantStats.setMgfGenotype("AA");
-        variantStats.setMissingAlleles(3);
-        variantStats.setMissingGenotypes(3);
-        variantStats.setNumSamples(4);
-        variantStats.setPassedFilters(true);
-        variantStats.setQuality((float) variantContext.getPhredScaledQual());
-        variantStats.setRefAllele("SS");
-        variantStats.setRefAlleleCount(4);
-        variantStats.setRefAlleleFreq(2f);
-        variantStats.setHw(variantHardyWeinbergStats);
-        variantStats.setVariantType(getEnumFromString(VariantProto.VariantType.class, variantContext.getType()
-                        .toString()));
-
-        return variantStats.build();
-    }
-
-    /**
-     * method to set VariantHardyWeinberg Stats Parameters
-     * @return variantHardyWeinbergStats
-     */
-    private VariantProto.VariantHardyWeinbergStats setVariantHardyWeinbergStatsParams() {
-        VariantProto.VariantHardyWeinbergStats.Builder variantHardyWeinbergStats = VariantProto.VariantHardyWeinbergStats.newBuilder();
-        variantHardyWeinbergStats.setChi2(1f);
-        variantHardyWeinbergStats.setEAa00(2f);
-        variantHardyWeinbergStats.setEAa10(3f);
-        variantHardyWeinbergStats.setEAA11(4f);
-        variantHardyWeinbergStats.setN(1);
-        variantHardyWeinbergStats.setNAa00(2);
-        variantHardyWeinbergStats.setNAa10(3);
-        variantHardyWeinbergStats.setNAA11(4);
-        variantHardyWeinbergStats.setP(1f);
-        variantHardyWeinbergStats.setQ(2f);
-        return variantHardyWeinbergStats.build();
-    }
-
-    /**
      * @param variantType
      * @param string
      * @return
