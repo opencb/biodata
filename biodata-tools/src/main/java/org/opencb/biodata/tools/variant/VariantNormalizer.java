@@ -46,6 +46,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -114,7 +115,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             return leftAlign;
         }
 
-        public VariantNormalizerConfig enableLeftAlign(String referenceGenome) throws FileNotFoundException {
+        public VariantNormalizerConfig enableLeftAlign(String referenceGenome) throws IOException {
 
             this.leftAligner = new LeftAligner(referenceGenome, this.leftAlignmentWindowSize);
             this.leftAlign = true;
@@ -206,7 +207,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         return this;
     }
 
-    public VariantNormalizer enableLeftAlign(String referenceGenome) throws FileNotFoundException {
+    public VariantNormalizer enableLeftAlign(String referenceGenome) throws IOException {
         this.config.enableLeftAlign(referenceGenome);
         return this;
     }

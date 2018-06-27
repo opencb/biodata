@@ -115,7 +115,7 @@ public class BamManagerTest {
 //        short[] values;
         int chunkSize = 100000;
 
-        SAMFileReader sfr = new SAMFileReader(inputPath.toFile());
+        SamReader sfr = SamReaderFactory.makeDefault().open(inputPath.toFile());
         SAMFileHeader h = sfr.getFileHeader();
         SAMSequenceDictionary dict = h.getSequenceDictionary();
         long totalStartTime = System.currentTimeMillis();

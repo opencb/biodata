@@ -20,31 +20,34 @@
 package org.opencb.biodata.tools.sequence;
 
 import htsjdk.samtools.SAMSequenceDictionary;
-import htsjdk.samtools.reference.IndexedFastaSequenceFile;
 import htsjdk.samtools.reference.ReferenceSequence;
+import htsjdk.samtools.reference.ReferenceSequenceFile;
+import htsjdk.samtools.reference.ReferenceSequenceFileFactory;
 import htsjdk.samtools.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.commons.utils.FileUtils;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Created by imedina on 21/10/16.
  */
-public class SamtoolsFastaIndex {
+public class SamtoolsFastaIndex implements SequenceAdaptor {
 
-    private IndexedFastaSequenceFile indexedFastaSequenceFile;
+    private ReferenceSequenceFile indexedFastaSequenceFile;
     private String samtoolsBin;
 
     public SamtoolsFastaIndex() {
 
     }
 
-    public SamtoolsFastaIndex(String fastaFileName) throws FileNotFoundException {
-        this.indexedFastaSequenceFile = new IndexedFastaSequenceFile(new File(fastaFileName));
+    public SamtoolsFastaIndex(String fastaFileName) throws IOException {
+        if (!ReferenceSequenceFileFactory.canCreateIndexedFastaReader(Paths.get(fastaFileName))) {
+            throw new IOException("Fasta file '" + fastaFileName + "' is not indexed.");
+        }
+        this.indexedFastaSequenceFile = ReferenceSequenceFileFactory.getReferenceSequenceFile(Paths.get(fastaFileName));
     }
 
 //    public void index(Path fastaFilePath) throws IOException, RocksDBException {

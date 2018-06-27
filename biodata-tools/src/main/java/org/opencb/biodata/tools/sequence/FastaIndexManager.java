@@ -27,6 +27,7 @@ import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,8 +36,9 @@ import java.nio.file.Paths;
 /**
  * Created by imedina on 19/01/16.
  */
-public class FastaIndexManager {
+public class FastaIndexManager implements SequenceAdaptor {
 
+    public static final String INDEX_EXTENSION = ".rdb";
     private Path fastaFilePath;
 
     private Options options;
@@ -47,31 +49,52 @@ public class FastaIndexManager {
     private int CHUNK_SIZE = 2000;
     private String chunkIdSuffix = CHUNK_SIZE / 1000 + "k";
 
-    public FastaIndexManager(Path fastaFilePath) throws Exception {
-        this(fastaFilePath, false);
+    public FastaIndexManager(Path fastaFilePath) throws IOException {
+        this.fastaFilePath = fastaFilePath;
+        if (!fastaFilePath.toFile().exists()) {
+            throw new FileNotFoundException(fastaFilePath.toAbsolutePath().toString());
+        }
     }
 
-    public FastaIndexManager(Path fastaFilePath, boolean connect) throws Exception {
-        this.fastaFilePath = fastaFilePath;
+    public FastaIndexManager(Path fastaFilePath, boolean connect) throws IOException {
+        this(fastaFilePath);
         if (connect) {
             connect();
         }
     }
 
-    public void connect() throws Exception {
+    public FastaIndexManager ensureIndex() throws IOException {
+        if (!this.connected) {
+            // Try to connect to the index
+            connect();
+        }
+        if (!this.connected) {
+            // Could not connect!
+            // Index does not exist.
+            // Create index
+            try {
+                index();
+            } catch (RocksDBException e) {
+                throw new IOException(e);
+            }
+        }
+        return this;
+    }
+
+    public void connect() throws IOException {
         try {
             if (Files.exists(fastaFilePath) && Files.isDirectory(fastaFilePath)) {
                 rocksDB = RocksDB.openReadOnly(fastaFilePath.toAbsolutePath().toString());
                 connected = true;
             } else {
-                Path rocksdbIdxPath = Paths.get(fastaFilePath.toString() + ".rdb");
+                Path rocksdbIdxPath = Paths.get(fastaFilePath.toString() + INDEX_EXTENSION);
                 if (Files.exists(rocksdbIdxPath) && Files.isDirectory(rocksdbIdxPath)) {
                     rocksDB = RocksDB.openReadOnly(rocksdbIdxPath.toString());
                     connected = true;
                 }
             }
         } catch (RocksDBException e) {
-            throw new Exception("Error while connecting: " + e.toString());
+            throw new IOException("Error while connecting", e);
         }
     }
 
@@ -80,7 +103,7 @@ public class FastaIndexManager {
     }
 
     public void index(Path fastaFilePath) throws IOException, RocksDBException {
-        index(fastaFilePath, Paths.get(fastaFilePath.toString() + ".rdb"));
+        index(fastaFilePath, Paths.get(fastaFilePath.toString() + INDEX_EXTENSION));
     }
 
     public void index(Path fastaFilePath, Path fastaIndexFilePath) throws IOException, RocksDBException {
@@ -104,7 +127,7 @@ public class FastaIndexManager {
             if (!line.startsWith(">")) {
                 sequenceStringBuilder.append(line);
             } else {
-                System.out.println(line);
+//                System.out.println(line);
 
                 // New sequence has been found and we must insert it into RocksDB.
                 // Note that the first time there is no sequence. Only HAP sequences are excluded.

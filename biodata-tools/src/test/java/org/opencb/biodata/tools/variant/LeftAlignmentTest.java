@@ -2,12 +2,8 @@ package org.opencb.biodata.tools.variant;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.avro.FileEntry;
-import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -42,83 +38,73 @@ public class LeftAlignmentTest  extends VariantNormalizerGenericTest{
     }
 
     @Test
-    public void testNormalizedSamplesDataSameNoLeftAlignment()
-            throws NonStandardCompliantSampleField, FileNotFoundException {
+    public void testNormalizedSamplesDataSameNoLeftAlignment() throws Exception {
         // C -> A  === C -> A
-        this.normalizer.enableLeftAlign(this.referenceGenomeUncompressed.toString());
+        this.normalizer.enableLeftAlign(this.referenceGenomeCompressed.toString());
         testSampleNormalization("1", 100, "C", "A", 100, "C", "A");
     }
 
     @Test
-    public void testNormalizeSamplesData1NoLeftAlignment()
-            throws NonStandardCompliantSampleField, FileNotFoundException {
+    public void testNormalizeSamplesData1NoLeftAlignment() throws Exception {
         // AC -> AA  === C -> A
-        this.normalizer.enableLeftAlign(this.referenceGenomeUncompressed.toString());
+        this.normalizer.enableLeftAlign(this.referenceGenomeCompressed.toString());
         testSampleNormalization("1", 100, "AC", "AA", 101, "C", "A");
     }
 
     @Test
-    public void testNormalizeSamplesData2NoLeftAlignment()
-            throws NonStandardCompliantSampleField, FileNotFoundException {
+    public void testNormalizeSamplesData2NoLeftAlignment() throws Exception {
         // CA -> AA  === C -> A
-        this.normalizer.enableLeftAlign(this.referenceGenomeUncompressed.toString());
+        this.normalizer.enableLeftAlign(this.referenceGenomeCompressed.toString());
         testSampleNormalization("1", 100, "CA", "AA", 100, "C", "A");
     }
 
     @Test
-    public void testNormalizeSamplesDataLeftDeletionNoLeftAlignment()
-            throws NonStandardCompliantSampleField, FileNotFoundException {
+    public void testNormalizeSamplesDataLeftDeletionNoLeftAlignment() throws Exception {
         // AC -> C  === A -> .
         // no left alignment as position 100 at chromosome 1 is N
-        this.normalizer.enableLeftAlign(this.referenceGenomeUncompressed.toString());
+        this.normalizer.enableLeftAlign(this.referenceGenomeCompressed.toString());
         testSampleNormalization("1", 100, "AC", "C", 100, "A", "");
     }
 
     @Test
-    public void testNormalizeSamplesDataRightDeletionNoLeftAlignment()
-            throws NonStandardCompliantSampleField, FileNotFoundException {
+    public void testNormalizeSamplesDataRightDeletionNoLeftAlignment() throws Exception {
         // CA -> C  === A -> .
-        this.normalizer.enableLeftAlign(this.referenceGenomeUncompressed.toString());
+        this.normalizer.enableLeftAlign(this.referenceGenomeCompressed.toString());
         testSampleNormalization("1", 100, "CA", "C", 101, "A", "");
     }
 
     @Test
-    public void testNormalizeSamplesDataAmbiguousDeletionNoLeftAlignment()
-            throws NonStandardCompliantSampleField, FileNotFoundException {
+    public void testNormalizeSamplesDataAmbiguousDeletionNoLeftAlignment() throws Exception {
         // AAA -> A  === AA -> .
         // no left alignment as position 100 at chromosome 1 is N
-        this.normalizer.enableLeftAlign(this.referenceGenomeUncompressed.toString());
+        this.normalizer.enableLeftAlign(this.referenceGenomeCompressed.toString());
         testSampleNormalization("1", 100, "AAA", "A", 100, 101, "AA", "");
     }
 
     @Test
-    public void testNormalizeSamplesDataIndelNoLeftAlignment()
-            throws NonStandardCompliantSampleField, FileNotFoundException {
+    public void testNormalizeSamplesDataIndelNoLeftAlignment() throws Exception {
         // ATC -> ACCC  === T -> CC
-        this.normalizer.enableLeftAlign(this.referenceGenomeUncompressed.toString());
+        this.normalizer.enableLeftAlign(this.referenceGenomeCompressed.toString());
         testSampleNormalization("1", 100, "ATC", "ACCC", 101, 101, "T", "CC");
     }
 
     @Test
-    public void testNormalizeSamplesDataRightInsertionNoLeftAlignment()
-            throws NonStandardCompliantSampleField, FileNotFoundException {
+    public void testNormalizeSamplesDataRightInsertionNoLeftAlignment() throws Exception {
         // C -> AC  === . -> A
         // no left alignment as position 100 at chromosome 1 is N
-        this.normalizer.enableLeftAlign(this.referenceGenomeUncompressed.toString());
+        this.normalizer.enableLeftAlign(this.referenceGenomeCompressed.toString());
         testSampleNormalization("1", 100, "C", "AC", 100, 99, "", "A");
     }
 
     @Test
-    public void testNormalizeSamplesDataLeftInsertionNoLeftAlignment()
-            throws NonStandardCompliantSampleField, FileNotFoundException {
+    public void testNormalizeSamplesDataLeftInsertionNoLeftAlignment() throws Exception {
         // C -> CA  === . -> A
-        this.normalizer.enableLeftAlign(this.referenceGenomeUncompressed.toString());
+        this.normalizer.enableLeftAlign(this.referenceGenomeCompressed.toString());
         testSampleNormalization("1", 100, "C", "CA", 101, 100, "", "A");
     }
 
     @Test
-    public void testNormalizedSamplesData1bpDeletionLeftAlignment()
-            throws NonStandardCompliantSampleField, FileNotFoundException {
+    public void testNormalizedSamplesData1bpDeletionLeftAlignment() throws Exception {
 
         /*
         Context:
@@ -137,7 +123,7 @@ public class LeftAlignmentTest  extends VariantNormalizerGenericTest{
         Output:
         chr10:10484:T>-
          */
-        this.normalizer.enableLeftAlign(this.referenceGenomeUncompressed.toString());
+        this.normalizer.enableLeftAlign(this.referenceGenomeCompressed.toString());
         testSampleNormalization("10", 10486, "TT", "T", 10484, "T", "");
         testSampleNormalization("10", 10485, "TT", "T", 10484, "T", "");
         testSampleNormalization("10", 10484, "TT", "T", 10484, "T", "");
@@ -150,8 +136,7 @@ public class LeftAlignmentTest  extends VariantNormalizerGenericTest{
     }
 
     @Test
-    public void testNormalizedSamplesData2bpDeletionLeftAlignment()
-            throws NonStandardCompliantSampleField, FileNotFoundException {
+    public void testNormalizedSamplesData2bpDeletionLeftAlignment() throws Exception {
 
         /*
         Context:
@@ -176,7 +161,7 @@ public class LeftAlignmentTest  extends VariantNormalizerGenericTest{
         Output:
         chr10:12391:AC>-
          */
-        this.normalizer.enableLeftAlign(this.referenceGenomeUncompressed.toString());
+        this.normalizer.enableLeftAlign(this.referenceGenomeCompressed.toString());
         testSampleNormalization("10", 12395, "ACA", "A", 12391, 12392, "AC", "");
         testSampleNormalization("10", 12394, "CAC", "C", 12391, 12392, "AC", "");
         testSampleNormalization("10", 12393, "ACA", "A", 12391, 12392, "AC", "");
@@ -193,8 +178,7 @@ public class LeftAlignmentTest  extends VariantNormalizerGenericTest{
     }
 
     @Test
-    public void testNormalizedSamplesData1bpInsertionLeftAlignment()
-            throws NonStandardCompliantSampleField, FileNotFoundException {
+    public void testNormalizedSamplesData1bpInsertionLeftAlignment() throws Exception {
 
         /*
         Context:
@@ -215,7 +199,7 @@ public class LeftAlignmentTest  extends VariantNormalizerGenericTest{
         Output:
         chr10:10484:->T
          */
-        this.normalizer.enableLeftAlign(this.referenceGenomeUncompressed.toString());
+        this.normalizer.enableLeftAlign(this.referenceGenomeCompressed.toString());
         //testSampleNormalization("10", 10483, "A", "AT", 10484, "", "T");
         testSampleNormalization("10", 10484, "T", "TT", 10484, 10483, "", "T");
         testSampleNormalization("10", 10485, "T", "TT", 10484, 10483, "", "T");
@@ -231,8 +215,7 @@ public class LeftAlignmentTest  extends VariantNormalizerGenericTest{
     }
 
     @Test
-    public void testNormalizedSamplesData2bpInsertionLeftAlignment()
-            throws NonStandardCompliantSampleField, FileNotFoundException {
+    public void testNormalizedSamplesData2bpInsertionLeftAlignment() throws Exception {
 
         /*
         Context:
@@ -259,7 +242,7 @@ public class LeftAlignmentTest  extends VariantNormalizerGenericTest{
         Output:
         chr10:12391:->AC
          */
-        this.normalizer.enableLeftAlign(this.referenceGenomeUncompressed.toString());
+        this.normalizer.enableLeftAlign(this.referenceGenomeCompressed.toString());
         testSampleNormalization("10", 10483, "A", "AT", 10484, 10483, "", "T");
         testSampleNormalization("10", 12397, "A", "ACA", 12391, 12390, "", "AC");
         testSampleNormalization("10", 12396, "C", "CAC", 12391, 12390, "", "AC");
@@ -283,8 +266,7 @@ public class LeftAlignmentTest  extends VariantNormalizerGenericTest{
     }
 
     @Test
-    public void testNormalizedSamplesData6bpDeletionLeftAlignment()
-            throws NonStandardCompliantSampleField, FileNotFoundException {
+    public void testNormalizedSamplesData6bpDeletionLeftAlignment() throws Exception {
 
         /*
         ### Test case 5:
@@ -313,7 +295,7 @@ public class LeftAlignmentTest  extends VariantNormalizerGenericTest{
 
         Output: the same as input after left and right trimming, any of these variants is normalized as the sequence of Ns is reached
          */
-        this.normalizer.enableLeftAlign(this.referenceGenomeUncompressed.toString());
+        this.normalizer.enableLeftAlign(this.referenceGenomeCompressed.toString());
         this.normalizer.setAcceptAmbiguousBasesInReference(false);
         // right trimming C + failed left alignment as N is reached
         testSampleNormalization("10", 10000, "CTAACCC", "C", 10000, 10005, "CTAACC", "");
@@ -354,8 +336,7 @@ public class LeftAlignmentTest  extends VariantNormalizerGenericTest{
     }
 
     @Test
-    public void testNormalizedSamplesData6bpInsertionLeftAlignment()
-            throws NonStandardCompliantSampleField, FileNotFoundException {
+    public void testNormalizedSamplesData6bpInsertionLeftAlignment() throws Exception {
 
         /*
         ### Test case 6
@@ -398,7 +379,7 @@ public class LeftAlignmentTest  extends VariantNormalizerGenericTest{
 
         Output: the same as input after left and right trimming, any of these variants is normalized as the sequence of Ns is reached
          */
-        this.normalizer.enableLeftAlign(this.referenceGenomeUncompressed.toString());
+        this.normalizer.enableLeftAlign(this.referenceGenomeCompressed.toString());
         this.normalizer.setAcceptAmbiguousBasesInReference(false);
         // right trimming C + failed left alignment as N is reached
         testSampleNormalization("10", 10001, "C", "CTAACCC", 10001, 10000, "", "CTAACC");
@@ -461,25 +442,14 @@ public class LeftAlignmentTest  extends VariantNormalizerGenericTest{
     }
 
     @Test
-    public void testWrongReferenceGenome()
-            throws NonStandardCompliantSampleField, FileNotFoundException {
-
-        // Initializing the normalizer with a compressed reference genome should raise an exception
-        try {
-            this.normalizer.enableLeftAlign(this.referenceGenomeCompressed.toString());
-            assertTrue(false);
-        }
-        catch (IllegalArgumentException ex) {
-            assertTrue(true);
-            assertTrue(ex.getMessage().startsWith("A reference genome extension must be one of"));
-        }
+    public void testWrongReferenceGenome() throws Exception {
 
         // Initializing the normalizer with an unexisting reference genome should raise an exception
         try {
             this.normalizer.enableLeftAlign("idontexist.fasta");
             assertTrue(false);
         }
-        catch (FileNotFoundException ex) {
+        catch (IOException ex) {
             assertTrue(true);
         }
 
@@ -501,8 +471,7 @@ public class LeftAlignmentTest  extends VariantNormalizerGenericTest{
             this.normalizer.enableLeftAlign(Paths.get(
                     getClass().getResource("/homo_sapiens_grch38_small_unindexed.fa").toURI()).toString());
             assertTrue(false);
-        }
-        catch (FileNotFoundException ex) {
+        } catch (IOException ex) {
             assertTrue(true);
         } catch (URISyntaxException e) {
             assertTrue(false);
@@ -510,8 +479,7 @@ public class LeftAlignmentTest  extends VariantNormalizerGenericTest{
     }
 
     @Test
-    public void testReferenceBasesMismatch()
-            throws NonStandardCompliantSampleField, FileNotFoundException {
+    public void testReferenceBasesMismatch() throws Exception {
 
         /*
         Context:
@@ -530,14 +498,17 @@ public class LeftAlignmentTest  extends VariantNormalizerGenericTest{
         Output:
         chr10:10484:T>-
          */
-        this.normalizer.enableLeftAlign(this.referenceGenomeUncompressed.toString());
+        this.normalizer.enableLeftAlign(this.referenceGenomeCompressed.toString());
         testSampleNormalization("10", 10484, "ATT", "T", 10484, 10485, "AT", "");
         testSampleNormalization("10", 10485, "AT", "TTTT", 10485, 10485, "A", "TTT");
     }
 
     @Test
-    public void testCompressedReferenceGenome()
-            throws NonStandardCompliantSampleField, FileNotFoundException {
+    public void testCompressedReferenceGenome() throws Exception {
+
+        // Initializing the normalizer with a compressed reference genome should not raise an exception
+        this.normalizer.enableLeftAlign(this.referenceGenomeCompressed.toString());
+        this.normalizer.enableLeftAlign(this.referenceGenomeUncompressed.toString());
 
         /*
         Context:
@@ -569,8 +540,7 @@ public class LeftAlignmentTest  extends VariantNormalizerGenericTest{
     }
 
     @Test
-    public void testTrickyInsertion()
-            throws NonStandardCompliantSampleField, FileNotFoundException, URISyntaxException {
+    public void testTrickyInsertion() throws Exception {
 
         /*
 
@@ -581,8 +551,7 @@ public class LeftAlignmentTest  extends VariantNormalizerGenericTest{
     }
 
     @Test
-    public void testInsertionRightTrimmingAndLeftAlignment()
-            throws NonStandardCompliantSampleField, IOException, URISyntaxException {
+    public void testInsertionRightTrimmingAndLeftAlignment() throws Exception {
         /*
         Insertions of a whole repetitive block, CTCC
         Some requiring right trimming + left alignment, all requiring left alignment
@@ -650,8 +619,7 @@ public class LeftAlignmentTest  extends VariantNormalizerGenericTest{
     }
 
     @Test
-    public void testDeletionRightTrimmingAndLeftAlignment()
-            throws NonStandardCompliantSampleField, IOException, URISyntaxException {
+    public void testDeletionRightTrimmingAndLeftAlignment() throws Exception {
         /*
         Insertions of a whole repetitive block, CTCC
         Some requiring right trimming + left alignment, all requiring left alignment
@@ -719,8 +687,7 @@ public class LeftAlignmentTest  extends VariantNormalizerGenericTest{
     }
 
     @Test
-    public void testAmbiguousBases()
-            throws NonStandardCompliantSampleField, IOException, URISyntaxException {
+    public void testAmbiguousBases() throws Exception {
 
         /*
         Tests two cases:
@@ -760,8 +727,7 @@ public class LeftAlignmentTest  extends VariantNormalizerGenericTest{
     }
 
     @Test
-    public void testExhaustedChromosome()
-            throws NonStandardCompliantSampleField, IOException, URISyntaxException {
+    public void testExhaustedChromosome() throws Exception {
 
         /*
         Tests:
@@ -800,8 +766,7 @@ public class LeftAlignmentTest  extends VariantNormalizerGenericTest{
     }
 
     @Test
-    public void testDeletionAndSlidingWindow()
-            throws NonStandardCompliantSampleField, IOException, URISyntaxException {
+    public void testDeletionAndSlidingWindow() throws Exception {
         /*
         Insertions of a whole repetitive block, CTCC for a region longer than the sliding window of 100 bp
 
@@ -850,8 +815,7 @@ public class LeftAlignmentTest  extends VariantNormalizerGenericTest{
     }
 
     @Test
-    public void testInsertionAndSlidingWindow()
-            throws NonStandardCompliantSampleField, IOException, URISyntaxException {
+    public void testInsertionAndSlidingWindow() throws Exception {
         /*
         Insertions of a whole repetitive block, CTCC
         Some requiring right trimming + left alignment, all requiring left alignment
@@ -919,8 +883,7 @@ public class LeftAlignmentTest  extends VariantNormalizerGenericTest{
     }
 
     @Test
-    public void testUnexistingChromosomeOrCoordinates()
-            throws NonStandardCompliantSampleField, IOException, URISyntaxException {
+    public void testUnexistingChromosomeOrCoordinates() throws Exception {
         /*
         Indels in unexisting contigs or in coordinates out of bounds
          */
@@ -942,8 +905,7 @@ public class LeftAlignmentTest  extends VariantNormalizerGenericTest{
     }
 
     @Test
-    public void testMNVs()
-            throws NonStandardCompliantSampleField, IOException, URISyntaxException {
+    public void testMNVs() throws Exception {
         /*
         Indels in unexisting contigs or in coordinates out of bounds
          */
@@ -959,8 +921,7 @@ public class LeftAlignmentTest  extends VariantNormalizerGenericTest{
     }
 
     @Test
-    public void testNonBlockedSubstitutions()
-            throws NonStandardCompliantSampleField, IOException, URISyntaxException {
+    public void testNonBlockedSubstitutions() throws Exception {
         /*
         Indels in unexisting contigs or in coordinates out of bounds
          */
@@ -976,8 +937,7 @@ public class LeftAlignmentTest  extends VariantNormalizerGenericTest{
     }
 
     @Test
-    public void testLostGenotypes()
-            throws NonStandardCompliantSampleField, IOException, URISyntaxException {
+    public void testLostGenotypes() throws Exception {
         /*
         https://jira.extge.co.uk/browse/INTERP-2248
          */
