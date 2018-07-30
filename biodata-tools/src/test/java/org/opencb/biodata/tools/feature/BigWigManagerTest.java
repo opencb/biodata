@@ -123,7 +123,6 @@ public class BigWigManagerTest {
             System.out.println(bbFileReader.getZoomLevels().getZoomLevelHeader(zoomLevel).getReductionLevel());
         }
 
-        System.exit(0);
 //        long chromosomeNameCount = bbFileReader.getChromosomeNameCount();
 //        for (int chrom = 0; chrom < chromosomeNameCount; chrom++) {
 //            System.out.println(chrom + " > " + bbFileReader.getChromosomeName(chrom));
