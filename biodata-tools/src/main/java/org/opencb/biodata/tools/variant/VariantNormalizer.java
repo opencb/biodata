@@ -39,6 +39,7 @@ import org.opencb.biodata.models.variant.VariantBuilder;
 import org.opencb.biodata.models.variant.avro.*;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.biodata.models.variant.metadata.VariantFileHeader;
+import org.opencb.biodata.tools.sequence.SequenceAdaptor;
 import org.opencb.biodata.tools.variant.exceptions.VariantNormalizerException;
 import org.opencb.biodata.tools.variant.merge.VariantAlternateRearranger;
 import org.opencb.commons.run.ParallelTaskRunner;
@@ -118,6 +119,13 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         public VariantNormalizerConfig enableLeftAlign(String referenceGenome) throws IOException {
 
             this.leftAligner = new LeftAligner(referenceGenome, this.leftAlignmentWindowSize);
+            this.leftAlign = true;
+            return this;
+        }
+
+        public VariantNormalizerConfig enableLeftAlign(SequenceAdaptor referenceGenomeReader) {
+
+            this.leftAligner = new LeftAligner(referenceGenomeReader, this.leftAlignmentWindowSize);
             this.leftAlign = true;
             return this;
         }
@@ -209,6 +217,11 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
     public VariantNormalizer enableLeftAlign(String referenceGenome) throws IOException {
         this.config.enableLeftAlign(referenceGenome);
+        return this;
+    }
+
+    public VariantNormalizer enableLeftAlign(SequenceAdaptor referenceGenomeReader) {
+        this.config.enableLeftAlign(referenceGenomeReader);
         return this;
     }
 

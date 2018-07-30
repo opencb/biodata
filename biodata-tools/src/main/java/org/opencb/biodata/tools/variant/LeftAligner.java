@@ -63,8 +63,20 @@ public class LeftAligner {
             // it is checked by HTSJDK if there is a fai index exists
             this.referenceGenomeReader = new SamtoolsFastaIndex(referenceGenome);
         }
-
         this.referenceGenome = referenceGenome;
+        this.windowSize = windowSize;
+    }
+
+    /**
+     * WARNING: will leave this.referenceGenome Un-initialised. It's currently not a problem since it's not used
+     * anywhere
+     * @param referenceGenomeReader
+     * @param windowSize
+     */
+    public LeftAligner(SequenceAdaptor referenceGenomeReader, int windowSize) {
+        // WARNING: will leave this.referenceGenome Un-initialised. It's currently not a problem since it's not used
+        // anywhere
+        this.referenceGenomeReader = referenceGenomeReader;
         this.windowSize = windowSize;
     }
 
