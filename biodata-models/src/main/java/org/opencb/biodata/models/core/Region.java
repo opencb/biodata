@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
  */
 public class Region {
 
+    private static final String MITOCHONDRIA_M = "M";
     private String chromosome;
     private int start;
     private int end;
@@ -117,6 +118,9 @@ public class Region {
                 // Only starts with ch
                 chromosome = chromosome.substring(2);
             }
+        }
+        if (chromosome.equals(MITOCHONDRIA_M)) {
+            chromosome = "MT";
         }
         return chromosome;
     }
