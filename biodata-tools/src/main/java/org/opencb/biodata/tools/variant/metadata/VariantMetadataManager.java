@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import htsjdk.variant.vcf.VCFHeader;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.core.pedigree.Individual;
-import org.opencb.biodata.models.core.pedigree.Multiples;
+import org.opencb.biodata.models.pedigree.Multiples;
 import org.opencb.biodata.models.core.pedigree.Pedigree;
 import org.opencb.biodata.models.metadata.Cohort;
 import org.opencb.biodata.models.metadata.Sample;

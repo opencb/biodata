@@ -19,8 +19,9 @@
 
 package org.opencb.biodata.models.core.pedigree;
 
+import org.opencb.biodata.models.pedigree.Multiples;
+
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by imedina on 10/10/16.
