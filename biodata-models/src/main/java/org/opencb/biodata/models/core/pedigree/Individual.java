@@ -19,8 +19,10 @@
 
 package org.opencb.biodata.models.core.pedigree;
 
+import org.opencb.biodata.models.commons.Phenotype;
 import org.opencb.biodata.models.pedigree.Multiples;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -36,8 +38,7 @@ public class Individual {
     private Sex sex;
     private LifeStatus lifeStatus;
     private AffectionStatus affectionStatus;
-    //private List<OntologyTerm> ontologyTerms;
-    //private List<Sample> samples;
+    private List<Phenotype> phenotypes;
 
     private Map<String, Object> attributes;
 
