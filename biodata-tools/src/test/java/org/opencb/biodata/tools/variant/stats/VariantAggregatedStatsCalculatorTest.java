@@ -75,7 +75,15 @@ public class VariantAggregatedStatsCalculatorTest extends GenericTest {
 
     @Test
     public void parseCustomGTC () {
-        String line = "1\t1225579\t.\tG\tA,C\t170.13\tPASS\tAC=3,8;AN=534;AF=0.006,0.015;HPG_GTC=0/0:258,0/1:1,0/2:6,1/1:1,1/2:0,2/2:1,./.:0";  // structure like HPG
+        String line = "1\t1225579\t.\tG\tA,C\t170.13\tPASS\tAC=3,8;AN=534;AF=0.006,0.015;"
+                + "HPG_GTC="
+                + "0/0:258,"
+                + "0/1:1,"
+                + "0/2:6,"
+                + "1/1:1,"
+                + "1/2:0,"
+                + "2/2:1,"
+                + "./.:0";  // structure like HPG
 
         Properties properties = new Properties();
         properties.put("ALL.GTC", "HPG_GTC");
@@ -98,7 +106,7 @@ public class VariantAggregatedStatsCalculatorTest extends GenericTest {
         assertEquals(Integer.valueOf(0), stats.getGenotypeCount().get(new Genotype("./.", "G", "A")));
 
         stats = variants.get(1).getStudy(metadata.getId()).getStats("ALL");
-        assertEquals(Integer.valueOf(6), stats.getGenotypeCount().get(new Genotype("0/1", "G", "C")));
+        assertEquals(Integer.valueOf(6), stats.getGenotypeCount().get(new Genotype("0/1", "G", "A")));
 
     }
 

@@ -21,6 +21,7 @@ package org.opencb.biodata.tools.variant.stats;
 
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.StudyEntry;
+import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
 import java.util.*;
@@ -60,7 +61,15 @@ public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsC
     }
 
     @Override
-    protected void parseStats(Variant variant, StudyEntry file, int numAllele, String reference, String[] alternateAlleles, Map<String, String> info) {
+    protected void parseStats(Variant variant, StudyEntry study, int numAllele, String reference, String[] alternateAlleles, Map<String, String> info) {
+        FileEntry fileEntry = study.getFiles().get(0);
+        // EVS params are not rearranged when normalizing. Use original call
+        if (fileEntry.getCall() != null && !fileEntry.getCall().isEmpty()) {
+            String[] ori = fileEntry.getCall().split(":");
+            numAllele = Integer.parseInt(ori[3]);
+            alternateAlleles = ori[2].split(",");
+            reference = ori[1];
+        }
         VariantStats stats = new VariantStats();
         if (info.containsKey("MAF")) {
             String splitsMAF[] = info.get("MAF").split(",");
@@ -72,19 +81,27 @@ public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsC
 
         if (info.containsKey("GTS") && info.containsKey("GTC")) {
             String splitsGTC[] = info.get("GTC").split(",");
-            addGenotypeWithGTS(file.getAttributes(), splitsGTC, reference, alternateAlleles, numAllele, stats);
+            addGenotypeWithGTS(study.getAttributes(), splitsGTC, reference, alternateAlleles, numAllele, stats);
         }
-        file.setStats(StudyEntry.DEFAULT_COHORT, stats);
+        study.setStats(StudyEntry.DEFAULT_COHORT, stats);
     }
 
     @Override
     protected void parseMappedStats(Variant variant, StudyEntry studyEntry,
                                     int numAllele, String reference, String[] alternateAlleles, Map<String, String> info) {
+        FileEntry fileEntry = studyEntry.getFiles().get(0);
+        if (fileEntry.getCall() != null && !fileEntry.getCall().isEmpty()) {
+            String[] ori = fileEntry.getCall().split(":");
+            numAllele = Integer.parseInt(ori[3]);
+            alternateAlleles = ori[2].split(",");
+            reference = ori[1];
+        }
+
         if (tagMap != null) {
             for (String key : info.keySet()) {
                 String opencgaTag = reverseTagMap.get(key);
-                String[] values = info.get(key).split(COMMA);
                 if (opencgaTag != null) {
+                    String[] values = info.get(key).split(COMMA);
                     String[] opencgaTagSplit = opencgaTag.split(DOT); // a literal point
                     if (opencgaTagSplit.length == 2) {
                         String cohort = opencgaTagSplit[0];
@@ -113,6 +130,7 @@ public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsC
                         }
                     }
                 } else if (key.equals("MAF")) {
+                    String[] values = info.get(key).split(COMMA);
                     String groups_order = tagMap.getProperty(VariantAggregatedEVSStatsCalculator.GROUPS_ORDER);
                     if (groups_order != null) {
                         String[] populations = groups_order.split(COMMA);

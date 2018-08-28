@@ -16,6 +16,9 @@
 
 package org.opencb.biodata.tools.variant.stats;
 
+import htsjdk.variant.vcf.VCFHeaderLineCount;
+import htsjdk.variant.vcf.VCFHeaderLineType;
+import org.junit.Before;
 import org.junit.Test;
 import org.opencb.biodata.formats.variant.VariantFactory;
 import org.opencb.biodata.formats.variant.vcf4.VariantAggregatedVcfFactory;
@@ -47,7 +50,30 @@ public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
     private VariantStudyMetadata metadata = fileMetadata.toVariantStudyMetadata("Exac");
     private VariantFactory factory = new VariantAggregatedVcfFactory();
     private VariantNormalizer normalizer = new VariantNormalizer();
-    ;
+
+    @Before
+    public void setUp() throws Exception {
+        normalizer.configure("AC_Hom", VCFHeaderLineCount.A, VCFHeaderLineType.Integer);
+//        normalizer.configure("AC_Het", VCFHeaderLineCount.A, VCFHeaderLineType.Integer);
+        normalizer.configure("AC_Hemi", VCFHeaderLineCount.A, VCFHeaderLineType.Integer);
+        normalizer.configure("AC_Adj", VCFHeaderLineCount.A, VCFHeaderLineType.Integer);
+
+        normalizer.configure("AC_AFR", VCFHeaderLineCount.A, VCFHeaderLineType.Integer);
+        normalizer.configure("Hom_AFR", VCFHeaderLineCount.A, VCFHeaderLineType.Integer);
+        normalizer.configure("Hemi_AFR", VCFHeaderLineCount.A, VCFHeaderLineType.Integer);
+
+        normalizer.configure("AC_AMR", VCFHeaderLineCount.A, VCFHeaderLineType.Integer);
+        normalizer.configure("Hom_AMR", VCFHeaderLineCount.A, VCFHeaderLineType.Integer);
+        normalizer.configure("Hemi_AMR", VCFHeaderLineCount.A, VCFHeaderLineType.Integer);
+
+        normalizer.configure("AC_SAS", VCFHeaderLineCount.A, VCFHeaderLineType.Integer);
+        normalizer.configure("Hom_SAS", VCFHeaderLineCount.A, VCFHeaderLineType.Integer);
+        normalizer.configure("Hemi_SAS", VCFHeaderLineCount.A, VCFHeaderLineType.Integer);
+
+        normalizer.configure("AC_NFE", VCFHeaderLineCount.A, VCFHeaderLineType.Integer);
+        normalizer.configure("Hom_NFE", VCFHeaderLineCount.A, VCFHeaderLineType.Integer);
+        normalizer.configure("Hemi_NFE", VCFHeaderLineCount.A, VCFHeaderLineType.Integer);
+    }
 
     @Test
     public void basicLine() {

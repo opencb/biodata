@@ -46,7 +46,6 @@ import org.opencb.commons.run.ParallelTaskRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -409,6 +408,11 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                         //Set normalized samples data
                         try {
                             List<String> format = entry.getFormat();
+                            if (!normalizedEntry.getFiles().isEmpty()) {
+                                List<FileEntry> files = normalizeFilesInfo(normalizedEntry.getFiles(), rearranger);
+                                normalizedEntry.setFiles(files);
+                            }
+
                             if (keyFields.getPhaseSet() != null) {
                                 if (!normalizedEntry.getFormatPositions().containsKey("PS")) {
                                     normalizedEntry.addFormat("PS");
@@ -436,6 +440,21 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         }
 
         return normalizedVariants;
+    }
+
+    private List<FileEntry> normalizeFilesInfo(List<FileEntry> files, VariantAlternateRearranger rearranger) {
+        if (rearranger == null) {
+            return files;
+        }
+
+        for (FileEntry file : files) {
+            for (Map.Entry<String, String> entry : file.getAttributes().entrySet()) {
+                String data = rearranger.rearrange(entry.getKey(), entry.getValue());
+                entry.setValue(data);
+            }
+        }
+
+        return files;
     }
 
     private Collection<VariantKeyFields> sortByPosition(List<VariantKeyFields> keyFieldsList) {

@@ -24,12 +24,14 @@ import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.formats.variant.vcf4.VariantAggregatedVcfFactory;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.formats.variant.vcf4.VariantVcfFactory;
+import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Created by jmmut on 2015-08-25.
@@ -101,16 +103,15 @@ public class VariantAggregatedStatsCalculator {
         FileEntry fileEntry = study.getFiles().get(0);
         Map<String, String> infoMap = fileEntry.getAttributes();
         int numAllele = 0;
-        String reference;
+        String reference = variant.getReference();
         String[] alternateAlleles;
-        if (fileEntry.getCall() != null && !fileEntry.getCall().isEmpty()) {
-            String[] ori = fileEntry.getCall().split(":");
-            numAllele = Integer.parseInt(ori[3]);
-            alternateAlleles = ori[2].split(",");
-            reference = ori[1];
-        } else {
-            reference = variant.getReference();
+
+        if (study.getSecondaryAlternates().isEmpty()) {
             alternateAlleles = new String[]{variant.getAlternate()};
+        } else {
+            List<String> secondaryAlternates = study.getSecondaryAlternates().stream().map(AlternateCoordinate::getAlternate).collect(Collectors.toList());
+            secondaryAlternates.add(0, variant.getAlternate());
+            alternateAlleles = secondaryAlternates.toArray(new String[secondaryAlternates.size()]);
         }
         if (tagMap != null) {
             parseMappedStats(variant, study, numAllele, reference, alternateAlleles, infoMap);
@@ -287,6 +288,20 @@ public class VariantAggregatedStatsCalculator {
             if (attributes.containsKey("GTS")) {    // GTS contains the format like: GTS=GG,GT,TT or GTS=A1A1,A1R,RR
                 addGenotypeWithGTS(attributes, gtcs, reference, alternateAlleles, numAllele, variantStats);
             } else {
+                // Het count is a non standard field that can not be rearranged when decomposing multi-allelic variants.
+                // Get the original variant call to parse this field
+                FileEntry fileEntry = studyEntry.getFiles().get(0);
+                int numAlleleOri;
+                String[] alternateAllelesOri;
+                if (fileEntry.getCall() != null && !fileEntry.getCall().isEmpty()) {
+                    String[] ori = fileEntry.getCall().split(":");
+                    numAlleleOri = Integer.parseInt(ori[3]);
+                    alternateAllelesOri = ori[2].split(",");
+                } else {
+                    numAlleleOri = numAllele;
+                    alternateAllelesOri = alternateAlleles;
+                }
+
                 for (int i = 0; i < gtcs.length; i++) {
                     String[] gtcSplit = gtcs[i].split(":");
                     Integer alleles[] = new Integer[2];
@@ -296,14 +311,14 @@ public class VariantAggregatedStatsCalculator {
                     if (gtcSplit.length == 1) { // GTC=0,5,8
                         getGenotype(i, alleles);
                         gtc = Integer.parseInt(gtcs[i]);
-                        gt = VariantVcfFactory.mapToMultiallelicIndex(alleles[0], numAllele) + "/" + VariantVcfFactory.mapToMultiallelicIndex(alleles[1], numAllele);
+                        gt = VariantVcfFactory.mapToMultiallelicIndex(alleles[0], numAlleleOri) + "/" + VariantVcfFactory.mapToMultiallelicIndex(alleles[1], numAlleleOri);
                     } else {    // GTC=0/0:0,0/1:5,1/1:8
                         Matcher matcher = numNum.matcher(gtcSplit[0]);
                         if (matcher.matches()) {    // number/number:number
                             alleles[0] = Integer.parseInt(matcher.group(1));
                             alleles[1] = Integer.parseInt(matcher.group(2));
                             gtc = Integer.parseInt(gtcSplit[1]);
-                            gt = VariantVcfFactory.mapToMultiallelicIndex(alleles[0], numAllele) + "/" + VariantVcfFactory.mapToMultiallelicIndex(alleles[1], numAllele);
+                            gt = VariantVcfFactory.mapToMultiallelicIndex(alleles[0], numAlleleOri) + "/" + VariantVcfFactory.mapToMultiallelicIndex(alleles[1], numAlleleOri);
                         } else {
                             if (gtcSplit[0].equals("./.")) {    // ./.:number
                                 alleles[0] = -1;
@@ -316,7 +331,7 @@ public class VariantAggregatedStatsCalculator {
                         }
                     }
                     if (parseable) {
-                        Genotype genotype = new Genotype(gt, variant.getReference(), alternateAlleles[numAllele]);
+                        Genotype genotype = new Genotype(gt, variant.getReference(), alternateAlleles[numAlleleOri]);
                         variantStats.addGenotype(genotype, gtc);
                     }
                 }
