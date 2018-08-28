@@ -20,6 +20,7 @@
 package org.opencb.biodata.models.core.pedigree;
 
 import org.codehaus.jackson.map.ObjectMapper;
+import org.opencb.biodata.models.commons.Phenotype;
 
 import java.util.*;
 
@@ -29,7 +30,7 @@ import java.util.*;
 public class Pedigree {
     private String name;
 
-    //private List<OntologyTerm> diseases;
+    private List<Phenotype> phenotypes;
     private List<Individual> members;
 
     private Map<String, Object> attributes;
