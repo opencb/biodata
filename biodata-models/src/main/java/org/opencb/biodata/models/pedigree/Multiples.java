@@ -1,4 +1,4 @@
-package org.opencb.biodata.models.core.pedigree;
+package org.opencb.biodata.models.pedigree;
 
 import java.util.List;
 

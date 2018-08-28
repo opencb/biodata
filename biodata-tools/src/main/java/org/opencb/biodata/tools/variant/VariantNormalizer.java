@@ -39,6 +39,7 @@ import org.opencb.biodata.models.variant.VariantBuilder;
 import org.opencb.biodata.models.variant.avro.*;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.biodata.models.variant.metadata.VariantFileHeader;
+import org.opencb.biodata.tools.sequence.SequenceAdaptor;
 import org.opencb.biodata.tools.variant.exceptions.VariantNormalizerException;
 import org.opencb.biodata.tools.variant.merge.VariantAlternateRearranger;
 import org.opencb.commons.run.ParallelTaskRunner;
@@ -46,6 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -114,9 +116,16 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             return leftAlign;
         }
 
-        public VariantNormalizerConfig enableLeftAlign(String referenceGenome) throws FileNotFoundException {
+        public VariantNormalizerConfig enableLeftAlign(String referenceGenome) throws IOException {
 
             this.leftAligner = new LeftAligner(referenceGenome, this.leftAlignmentWindowSize);
+            this.leftAlign = true;
+            return this;
+        }
+
+        public VariantNormalizerConfig enableLeftAlign(SequenceAdaptor referenceGenomeReader) {
+
+            this.leftAligner = new LeftAligner(referenceGenomeReader, this.leftAlignmentWindowSize);
             this.leftAlign = true;
             return this;
         }
@@ -206,8 +215,13 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         return this;
     }
 
-    public VariantNormalizer enableLeftAlign(String referenceGenome) throws FileNotFoundException {
+    public VariantNormalizer enableLeftAlign(String referenceGenome) throws IOException {
         this.config.enableLeftAlign(referenceGenome);
+        return this;
+    }
+
+    public VariantNormalizer enableLeftAlign(SequenceAdaptor referenceGenomeReader) {
+        this.config.enableLeftAlign(referenceGenomeReader);
         return this;
     }
 

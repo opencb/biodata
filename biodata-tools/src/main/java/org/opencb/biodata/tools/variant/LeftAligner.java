@@ -1,10 +1,20 @@
 package org.opencb.biodata.tools.variant;
 
+import com.google.common.base.Throwables;
 import htsjdk.samtools.SAMException;
+import htsjdk.samtools.reference.ReferenceSequenceFileFactory;
+import htsjdk.samtools.util.IOUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.opencb.biodata.formats.sequence.fasta.dbadaptor.SequenceDBAdaptor;
+import org.opencb.biodata.tools.sequence.FastaIndexManager;
 import org.opencb.biodata.tools.sequence.SamtoolsFastaIndex;
+import org.opencb.biodata.tools.sequence.SequenceAdaptor;
+import org.rocksdb.RocksDBException;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -19,15 +29,15 @@ public class LeftAligner {
     private static final Character N = 'N';
     private static final Set<Character> AMBIGUOUS_BASES =
             new HashSet<>(Arrays.asList('M', 'R', 'W', 'S', 'Y', 'K', 'V', 'H', 'D', 'B'));
-    private final String[] acceptedExtensions = {".fa", ".fn", ".fasta"}; //, ".gz"};
-    private SamtoolsFastaIndex referenceGenomeReader;
+    private final String[] acceptedExtensions = {".fa", ".fn", ".fasta"};
+    private SequenceAdaptor referenceGenomeReader;
     private String referenceGenome;
     private int windowSize;
     private boolean acceptAmbiguousBasesInReference = true;
     private boolean acceptAmbiguousBasesInAlternate = false;
 
-    public LeftAligner(String referenceGenome, int windowSize) throws FileNotFoundException {
-        boolean validExtension = false;
+    public LeftAligner(String referenceGenome, int windowSize) throws IOException {
+        boolean validExtension = IOUtil.hasBlockCompressedExtension(referenceGenome);
         for (String acceptedExtension : acceptedExtensions) {
             if (referenceGenome.endsWith(acceptedExtension)) {
                 validExtension = true;
@@ -42,9 +52,31 @@ public class LeftAligner {
                     )
             );
         }
-        // it is checked by HTSJDK if there is a fai index exists
-        this.referenceGenomeReader = new SamtoolsFastaIndex(referenceGenome);
+
+        if (!Paths.get(referenceGenome).toFile().exists()) {
+            throw new FileNotFoundException(referenceGenome);
+        }
+
+        if (Paths.get(referenceGenome + FastaIndexManager.INDEX_EXTENSION).toFile().exists())  {
+            this.referenceGenomeReader = new FastaIndexManager(Paths.get(referenceGenome), true);
+        } else {
+            // it is checked by HTSJDK if there is a fai index exists
+            this.referenceGenomeReader = new SamtoolsFastaIndex(referenceGenome);
+        }
         this.referenceGenome = referenceGenome;
+        this.windowSize = windowSize;
+    }
+
+    /**
+     * WARNING: will leave this.referenceGenome Un-initialised. It's currently not a problem since it's not used
+     * anywhere
+     * @param referenceGenomeReader
+     * @param windowSize
+     */
+    public LeftAligner(SequenceAdaptor referenceGenomeReader, int windowSize) {
+        // WARNING: will leave this.referenceGenome Un-initialised. It's currently not a problem since it's not used
+        // anywhere
+        this.referenceGenomeReader = referenceGenomeReader;
         this.windowSize = windowSize;
     }
 
@@ -131,17 +163,17 @@ public class LeftAligner {
         private int windowStart;
         private int windowEnd;
         private String chromosome;
-        private SamtoolsFastaIndex referenceGenomeReader;
+        private SequenceAdaptor referenceGenomeReader;
         private String sequence;
         // Absolute position
         private int position;
 
-        LeftAlignmentWindow(int position, int offset, String chromosome, SamtoolsFastaIndex referenceGenomeReader) {
+        LeftAlignmentWindow(int position, int offset, String chromosome, SequenceAdaptor referenceGenomeReader) {
             this(position - windowSize, position + offset + 1, chromosome, referenceGenomeReader, position);
         }
 
         LeftAlignmentWindow(
-                int windowStart, int windowEnd, String chromosome, SamtoolsFastaIndex referenceGenomeReader, int position
+                int windowStart, int windowEnd, String chromosome, SequenceAdaptor referenceGenomeReader, int position
         ) {
             this.windowStart = windowStart;
             if (windowStart < 1) {
@@ -167,7 +199,11 @@ public class LeftAligner {
         }
 
         private void loadSequence() {
-            this.sequence = this.referenceGenomeReader.query(this.chromosome, this.windowStart, this.windowEnd);
+            try {
+                this.sequence = this.referenceGenomeReader.query(this.chromosome, this.windowStart, this.windowEnd);
+            } catch (Exception e) {
+                throw Throwables.propagate(e);
+            }
         }
 
         LeftAlignmentWindow slideWindow(int windowSize, int offset) {

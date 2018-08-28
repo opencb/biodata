@@ -19,9 +19,8 @@
 
 package org.opencb.biodata.formats.pedigree;
 
-import org.apache.avro.generic.GenericData;
 import org.opencb.biodata.models.core.pedigree.Individual;
-import org.opencb.biodata.models.core.pedigree.Multiples;
+import org.opencb.biodata.models.pedigree.Multiples;
 import org.opencb.biodata.models.core.pedigree.Pedigree;
 import org.opencb.commons.utils.FileUtils;
 
