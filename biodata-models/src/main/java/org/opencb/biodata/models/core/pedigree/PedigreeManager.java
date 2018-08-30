@@ -11,6 +11,7 @@ public class PedigreeManager {
     private List<Individual> withoutParents;
     private List<Individual> withOneParent;
     private List<Individual> withoutChildren;
+    private Map<String, Individual> individualMap;
     private Map<String, List<Individual>> partner;
     private Map<String, List<Individual>> children;
 
@@ -20,10 +21,13 @@ public class PedigreeManager {
         withoutParents = new ArrayList<>();
         withOneParent = new ArrayList<>();
         withoutChildren = new ArrayList<>();
+        individualMap = new HashMap<>();
         partner = new HashMap<>();
         children = new HashMap<>();
 
         for (Individual individual: pedigree.getMembers()) {
+            individualMap.put(individual.getId(), individual);
+
             // Parent and partner management
             if (individual.getFather() == null && individual.getMother() == null) {
                 withoutParents.add(individual);
@@ -112,6 +116,10 @@ public class PedigreeManager {
 
     public List<Individual> getWithoutChildren() {
         return withoutChildren;
+    }
+
+    public Map<String, Individual> getIndividualMap() {
+        return individualMap;
     }
 
     public Map<String, List<Individual>> getPartner() {

@@ -33,7 +33,22 @@ public class ModeOfInheritance {
     }
 
     public static Map<String, List<String>> recessive(Pedigree pedigree, Phenotype phenotype) {
-        return null;
+        PedigreeManager pedigreeManager = new PedigreeManager(pedigree);
+
+        // Get affected individuals for that phenotype
+        Set<Individual> affectedIndividuals = pedigreeManager.getAffectedIndividuals(phenotype);
+
+        // Get all possible genotypes for each individual
+        Map<String, Set<Integer>> genotypes = new HashMap<>();
+        for (Individual individual: pedigree.getMembers()) {
+            genotypes.put(individual.getId(), calculateRecessive(affectedIndividuals.contains(individual)));
+        }
+
+        // Validate genotypes using relationships
+        validateGenotypes(genotypes, pedigreeManager);
+
+        // Return a readable output, i.e., returning "0/0, "0/1", "1/1"
+        return prepareOutput(genotypes);
     }
 
     public static Map<String, List<String>> xLinked(Pedigree pedigree, Phenotype phenotype) {
@@ -69,29 +84,54 @@ public class ModeOfInheritance {
     private static void validateGenotypes(Map<String, Set<Integer>> gt, PedigreeManager pedigreeManager) {
         List<Individual> withoutChildren = pedigreeManager.getWithoutChildren();
 
+        Queue<String> queue = new LinkedList<>();
+
         for (Individual individual: withoutChildren) {
-            // From father to child
+            queue.add(individual.getId());
+        }
+
+        while(!queue.isEmpty()) {
+            String individualId = queue.remove();
+            Individual individual = pedigreeManager.getIndividualMap().get(individualId);
+            processIndividual(individual, gt);
+
             if (individual.getFather() != null) {
-                gt.put(individual.getId(), validate(gt.get(individual.getFather().getId()), gt.get(individual.getId())));
+                if (!queue.contains(individual.getFather().getId())) {
+                    queue.add(individual.getFather().getId());
+                }
             }
 
-            // From mother to child
             if (individual.getMother() != null) {
-                gt.put(individual.getId(), validate(gt.get(individual.getMother().getId()), gt.get(individual.getId())));
-            }
-
-            // From child to father
-            if (individual.getFather() != null) {
-                gt.put(individual.getFather().getId(), validate(gt.get(individual.getId()), gt.get(individual.getFather().getId())));
-            }
-
-            // From child to mother
-            if (individual.getMother() != null) {
-                gt.put(individual.getMother().getId(), validate(gt.get(individual.getId()), gt.get(individual.getMother().getId())));
+                if (!queue.contains(individual.getMother().getId())) {
+                    queue.add(individual.getMother().getId());
+                }
             }
         }
+
+
     }
 
+    private static void processIndividual(Individual individual, Map<String, Set<Integer>> gt) {
+        // From father to child
+        if (individual.getFather() != null) {
+            gt.put(individual.getId(), validate(gt.get(individual.getFather().getId()), gt.get(individual.getId())));
+        }
+
+        // From mother to child
+        if (individual.getMother() != null) {
+            gt.put(individual.getId(), validate(gt.get(individual.getMother().getId()), gt.get(individual.getId())));
+        }
+
+        // From child to father
+        if (individual.getFather() != null) {
+            gt.put(individual.getFather().getId(), validate(gt.get(individual.getId()), gt.get(individual.getFather().getId())));
+        }
+
+        // From child to mother
+        if (individual.getMother() != null) {
+            gt.put(individual.getMother().getId(), validate(gt.get(individual.getId()), gt.get(individual.getMother().getId())));
+        }
+    }
 
 
     private static Set<Integer> validate(Set<Integer> from, Set<Integer> to) {
