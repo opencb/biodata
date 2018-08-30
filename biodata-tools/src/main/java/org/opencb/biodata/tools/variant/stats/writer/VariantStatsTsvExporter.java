@@ -163,7 +163,7 @@ public class VariantStatsTsvExporter implements DataWriter<Variant> {
                 dataOutputStream.print(".\t.\t.\t.\t.");
             } else {
 
-                int an = stats.getAltAlleleCount() + stats.getRefAlleleCount();
+                int an = stats.getAlleleCount();
                 Integer ac = stats.getAltAlleleCount();
                 Float af = stats.getAltAlleleFreq();
 
@@ -187,7 +187,7 @@ public class VariantStatsTsvExporter implements DataWriter<Variant> {
                 dataOutputStream.print(TAB);
 
 
-                if (stats.getGenotypesFreq() != null && !stats.getGenotypesFreq().isEmpty()) {
+                if (stats.getGenotypeFreq() != null && !stats.getGenotypeFreq().isEmpty()) {
                     PopulationFrequency frequency = converter.convert("", "", stats, "", "");
                     dataOutputStream.print(frequency.getHetGenotypeFreq() + TAB + frequency.getAltHomGenotypeFreq());
                 } else {

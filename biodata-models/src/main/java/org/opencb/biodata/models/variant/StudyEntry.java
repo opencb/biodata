@@ -19,17 +19,18 @@
 
 package org.opencb.biodata.models.variant;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
+import org.opencb.biodata.models.variant.avro.FileEntry;
+import org.opencb.biodata.models.variant.avro.VariantScore;
+import org.opencb.biodata.models.variant.avro.VariantType;
+import org.opencb.biodata.models.variant.stats.VariantStats;
+
 import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
-import org.opencb.biodata.models.variant.avro.FileEntry;
-import org.opencb.biodata.models.variant.avro.VariantType;
-import org.opencb.biodata.models.variant.stats.VariantStats;
 
 /** 
  * Entry that associates a variant and a file in a variant archive. It contains 
@@ -93,7 +94,7 @@ public class StudyEntry implements Serializable {
     @Deprecated
     public StudyEntry(String fileId, String studyId, List<String> secondaryAlternates, List<String> format) {
         this.impl = new org.opencb.biodata.models.variant.avro.StudyEntry(studyId,
-                new LinkedList<>(), null, format, new LinkedList<>(), new LinkedHashMap<>());
+                new LinkedList<>(), null, format, new LinkedList<>(), new LinkedHashMap<>(), new LinkedList<>());
         setSecondaryAlternatesAlleles(secondaryAlternates);
         if (fileId != null) {
             setFileId(fileId);
@@ -102,7 +103,7 @@ public class StudyEntry implements Serializable {
 
     public StudyEntry(String studyId, List<AlternateCoordinate> secondaryAlternates, List<String> format) {
         this.impl = new org.opencb.biodata.models.variant.avro.StudyEntry(studyId,
-                new LinkedList<>(), null, format, new LinkedList<>(), new LinkedHashMap<>());
+                new LinkedList<>(), null, format, new LinkedList<>(), new LinkedHashMap<>(), new LinkedList<>());
         setSecondaryAlternates(secondaryAlternates);
     }
 
@@ -587,6 +588,25 @@ public class StudyEntry implements Serializable {
         } else {
             impl.getFiles().get(0).setAttributes(attributes);
         }
+    }
+
+    public List<VariantScore> getScores() {
+        return impl.getScores();
+    }
+
+    public StudyEntry setScores(List<VariantScore> scores) {
+        impl.setScores(scores);
+        return this;
+    }
+
+    public StudyEntry addScore(VariantScore score) {
+        List<VariantScore> scores = impl.getScores();
+        if (scores == null) {
+            scores = new LinkedList<>();
+            setScores(scores);
+        }
+        scores.add(score);
+        return this;
     }
 
     @Override

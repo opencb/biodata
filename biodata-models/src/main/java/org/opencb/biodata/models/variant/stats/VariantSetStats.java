@@ -310,15 +310,15 @@ public class VariantSetStats {
 
     @Deprecated
     public void update(VariantStats stats) {
-        this.setNumVariants(getNumVariants() + 1);
-
-        addVariantTypeCount(stats.getVariantType(), 1);
-
-        if (stats.hasPassedFilters()) {
-            this.setNumPass(getNumPass() + 1);
-        }
-
-        this.setNumSamples(stats.getNumSamples());
+//        this.setNumVariants(getNumVariants() + 1);
+//
+//        addVariantTypeCount(stats.getVariantType(), 1);
+//
+//        if (stats.hasPassedFilters()) {
+//            this.setNumPass(getNumPass() + 1);
+//        }
+//
+//        this.setNumSamples(stats.getNumSamples());
 //        setTransitionsCount(getTransitionsCount() + (stats.isTransition() ? 1 : 0));
 //        setTransversionsCount(getTransversionsCount() + (stats.isTransversion() ? 1 : 0));
 //        setAccumulatedQuality(getAccumulatedQuality() + stats.getQuality());

@@ -350,20 +350,24 @@ public class VariantAlternateRearranger {
                 configuration.otherFieldsMap.getOrDefault(key, Pair.of(VCFHeaderLineType.String, VCFHeaderLineCount.UNBOUNDED));
         VCFHeaderLineType type = pair.getLeft();
         String missingValue = type.equals(VCFHeaderLineType.Float) || type.equals(VCFHeaderLineType.Integer) ? "0" : ".";
-        switch (pair.getRight()) {
-            case A:
-                data = rearrangeNumberA(data, missingValue);
-                break;
-            case R:
-                data = rearrangeNumberR(data, missingValue);
-                break;
-            case G:
-                data = rearrangeNumberG(data, missingValue, ploidy);
-                break;
-            case INTEGER:
-            case UNBOUNDED:
-            default:
-                // Do not rearrange other fields
+        try {
+            switch (pair.getRight()) {
+                case A:
+                    data = rearrangeNumberA(data, missingValue);
+                    break;
+                case R:
+                    data = rearrangeNumberR(data, missingValue);
+                    break;
+                case G:
+                    data = rearrangeNumberG(data, missingValue, ploidy);
+                    break;
+                case INTEGER:
+                case UNBOUNDED:
+                default:
+                    // Do not rearrange other fields
+            }
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Error rearranging key " + key + " = " + data, e);
         }
         return data;
     }

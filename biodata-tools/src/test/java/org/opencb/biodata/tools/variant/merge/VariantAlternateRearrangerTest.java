@@ -73,6 +73,12 @@ public class VariantAlternateRearrangerTest {
         VariantAlternateRearranger r = new VariantAlternateRearranger(Arrays.asList("A"), Arrays.asList("C", "A", "B"));
         assertEquals(".,.,.,.,.,.,.,.,.,.", r.rearrangeNumberG(".", ".", 2));
         assertEquals("00,.,.,01,.,11,.,.,.,.", r.rearrangeNumberG("00,01,11", ".", 2));
+
+        r = new VariantAlternateRearranger(Arrays.asList("A", "C"), Arrays.asList("C", "A", "B"));
+        assertEquals("00,02,22,01,12,11,.,.,.,.", r.rearrangeNumberG("00,01,11,02,12,22", ".", 2));
+
+        r = new VariantAlternateRearranger(Arrays.asList("A", "C"), Arrays.asList("C", "B", "A"));
+        assertEquals("00,02,22,.,.,.,01,12,.,11", r.rearrangeNumberG("00,01,11,02,12,22", ".", 2));
     }
 
 

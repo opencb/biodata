@@ -170,7 +170,7 @@ public class VariantProtoToVariantContextConverter extends VariantContextConvert
             VariantProto.VariantStats stats = entry.getValue();
 
 //            if (cohortName.equals(StudyEntry.DEFAULT_COHORT)) {
-//                int an = stats.getAltAlleleCount() + stats.getRefAlleleCount();
+//                int an = stats.getAlleleCount();
 //                if (an >= 0) {
 //                    attributes.put(cohortName + VCFConstants.ALLELE_NUMBER_KEY, String.valueOf(an));
 //                }

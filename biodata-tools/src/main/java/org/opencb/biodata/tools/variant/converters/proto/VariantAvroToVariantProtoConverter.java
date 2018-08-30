@@ -105,29 +105,19 @@ public class VariantAvroToVariantProtoConverter implements Converter<Variant, Va
 
     private VariantProto.VariantStats.Builder toProto(VariantStats stats) {
         VariantProto.VariantStats.Builder statsBuilder = VariantProto.VariantStats.newBuilder();
-        set(stats::getRefAllele, statsBuilder::setRefAllele);
-        set(stats::getAltAllele, statsBuilder::setAltAllele);
+        set(stats::getAlleleCount, statsBuilder::setAlleleCount);
         set(stats::getRefAlleleCount, statsBuilder::setRefAlleleCount);
         set(stats::getAltAlleleCount, statsBuilder::setAltAlleleCount);
-        set(stats::getGenotypesCount, map -> map.forEach((gt, n) -> statsBuilder.putGenotypesCount(gt.toString(), n)));
-        set(stats::getGenotypesFreq, map -> map.forEach((gt, n) -> statsBuilder.putGenotypesFreq(gt.toString(), n)));
-        set(stats::getMissingAlleles, statsBuilder::setMissingAlleles);
-        set(stats::getMissingGenotypes, statsBuilder::setMissingGenotypes);
+        set(stats::getGenotypeCount, map -> map.forEach((gt, n) -> statsBuilder.putGenotypeCount(gt.toString(), n)));
+        set(stats::getGenotypeFreq, map -> map.forEach((gt, n) -> statsBuilder.putGenotypeFreq(gt.toString(), n)));
+        set(stats::getMissingAlleleCount, statsBuilder::setMissingAlleleCount);
+        set(stats::getMissingGenotypeCount, statsBuilder::setMissingGenotypeCount);
         set(stats::getRefAlleleFreq, statsBuilder::setRefAlleleFreq);
         set(stats::getAltAlleleFreq, statsBuilder::setAltAlleleFreq);
         set(stats::getMaf, statsBuilder::setMaf);
         set(stats::getMgf, statsBuilder::setMgf);
         set(stats::getMafAllele, statsBuilder::setMafAllele);
         set(stats::getMgfGenotype, statsBuilder::setMgfGenotype);
-        set(stats::getPassedFilters, statsBuilder::setPassedFilters);
-        set(stats::getMendelianErrors, statsBuilder::setMendelianErrors);
-        set(stats::getCasesPercentDominant, statsBuilder::setCasesPercentDominant);
-        set(stats::getControlsPercentDominant, statsBuilder::setControlsPercentDominant);
-        set(stats::getCasesPercentRecessive, statsBuilder::setCasesPercentRecessive);
-        set(stats::getControlsPercentRecessive, statsBuilder::setControlsPercentRecessive);
-        set(stats::getQuality, statsBuilder::setQuality);
-        set(stats::getNumSamples, statsBuilder::setNumSamples);
-        set(stats::getVariantType, t -> statsBuilder.setVariantType(VariantBuilder.getProtoVariantType(t)));
         return statsBuilder;
     }
 

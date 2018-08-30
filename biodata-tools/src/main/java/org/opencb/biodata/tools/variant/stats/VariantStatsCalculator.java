@@ -21,8 +21,6 @@ package org.opencb.biodata.tools.variant.stats;
 
 import org.opencb.biodata.models.feature.AllelesCode;
 import org.opencb.biodata.models.feature.Genotype;
-import org.opencb.biodata.models.pedigree.Condition;
-import org.opencb.biodata.models.pedigree.Individual;
 import org.opencb.biodata.models.pedigree.Pedigree;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
@@ -37,23 +35,15 @@ import java.util.*;
  */
 public class VariantStatsCalculator {
 
-    public static void calculate(StudyEntry entry, Map<String, String> attributes,
-                                 Pedigree pedigree, VariantStats variantStats) {
-        calculate(entry, entry.getSamplesName(), attributes, pedigree, variantStats);
+    public static VariantStats calculate(Variant variant, StudyEntry study) {
+        return calculate(variant, study, study.getSamplesName());
     }
 
-    public static void calculate(StudyEntry study, Collection<String> sampleNames, Map<String, String> attributes,
-                                 Pedigree pedigree, VariantStats variantStats) {
+    public static VariantStats calculate(Variant variant, StudyEntry study, Collection<String> sampleNames) {
+        VariantStats variantStats = new VariantStats();
 
-        float controlsDominant = 0, casesDominant = 0;
-        float controlsRecessive = 0, casesRecessive = 0;
-
-        variantStats.setNumSamples(sampleNames.size());
-        variantStats.setMissingAlleles(0);
-        variantStats.setMissingGenotypes(0);
-        if (pedigree != null) {
-            variantStats.setMendelianErrors(0);
-        }
+        variantStats.setMissingAlleleCount(0);
+        variantStats.setMissingGenotypeCount(0);
 
         Integer gtIdx = study.getFormatPositions().get("GT");
         LinkedHashMap<String, Integer> samplesPosition = study.getSamplesPosition();
@@ -66,72 +56,29 @@ public class VariantStatsCalculator {
                 continue;
             }
             String genotype = study.getSamplesData().get(sampleIdx).get(gtIdx);
-            Genotype g = gts.computeIfAbsent(genotype, key -> new Genotype(genotype, variantStats.getRefAllele(), variantStats.getAltAllele()));
+            Genotype g = gts.computeIfAbsent(genotype, key -> new Genotype(genotype));
             gtCount.compute(g, (s, prev) -> prev == null ? 1 : prev + 1);
-
-            // Include statistics that depend on pedigree information
-            if (pedigree != null) {
-                if (g.getCode() == AllelesCode.ALLELES_OK) {
-                    Individual ind = pedigree.getIndividual(sampleName);
-//                    if (MendelChecker.isMendelianError(ind, g, variant.getChromosome(), file.getSamplesDataAsMap())) {
-//                        this.setMendelianErrors(this.getMendelianErrors() + 1);
-//                    }
-                    if (g.getCode() == AllelesCode.ALLELES_OK) {
-                        // Check inheritance models
-                        if (ind.getCondition() == Condition.UNAFFECTED) {
-                            if (g.isAlleleRef(0) && g.isAlleleRef(1)) { // 0|0
-                                controlsDominant++;
-                                controlsRecessive++;
-
-                            } else if ((g.isAlleleRef(0) && !g.isAlleleRef(1)) || (!g.isAlleleRef(0) || g.isAlleleRef(1))) { // 0|1 or 1|0
-                                controlsRecessive++;
-
-                            }
-                        } else if (ind.getCondition() == Condition.AFFECTED) {
-                            if (!g.isAlleleRef(0) && !g.isAlleleRef(1) && g.getAllele(0) == g.getAllele(1)) {// 1|1, 2|2, and so on
-                                casesRecessive++;
-                                casesDominant++;
-                            } else if (!g.isAlleleRef(0) || !g.isAlleleRef(1)) { // 0|1, 1|0, 1|2, 2|1, 1|3, and so on
-                                casesDominant++;
-
-                            }
-                        }
-
-                    }
-                }
-            }
 
         }  // Finish all samples loop
 
-        calculate(gtCount, variantStats);
+        calculate(gtCount, variantStats, variant.getReference(), variant.getAlternate());
 
         // Calculate Hardy-Weinberg statistic       //FIXME
 //        variantStats.getHw().calculate();
 
-        // Update variables finally used to update file_stats_t structure
-        if ("PASS".equalsIgnoreCase(attributes.get("FILTER"))) {
-            variantStats.setPassedFilters(true);
-        }
+//        // Update variables finally used to update file_stats_t structure
+//        if ("PASS".equalsIgnoreCase(attributes.get("FILTER"))) {
+//            variantStats.setPassedFilters(true);
+//        }
+//
+//        if (attributes.containsKey("QUAL") && !(".").equals(attributes.get("QUAL"))) {
+//            float qualAux = Float.valueOf(attributes.get("QUAL"));
+//            if (qualAux >= 0) {
+//                variantStats.setQuality(qualAux);
+//            }
+//        }
 
-        if (attributes.containsKey("QUAL") && !(".").equals(attributes.get("QUAL"))) {
-            float qualAux = Float.valueOf(attributes.get("QUAL"));
-            if (qualAux >= 0) {
-                variantStats.setQuality(qualAux);
-            }
-        }
-
-        if (pedigree != null) {
-            // Once all samples have been traversed, calculate % that follow inheritance model
-            controlsDominant = controlsDominant * 100 / (variantStats.getNumSamples() - variantStats.getMissingGenotypes());
-            casesDominant = casesDominant * 100 / (variantStats.getNumSamples() - variantStats.getMissingGenotypes());
-            controlsRecessive = controlsRecessive * 100 / (variantStats.getNumSamples() - variantStats.getMissingGenotypes());
-            casesRecessive = casesRecessive * 100 / (variantStats.getNumSamples() - variantStats.getMissingGenotypes());
-
-            variantStats.setCasesPercentDominant(casesDominant);
-            variantStats.setControlsPercentDominant(controlsDominant);
-            variantStats.setCasesPercentRecessive(casesRecessive);
-            variantStats.setControlsPercentRecessive(controlsRecessive);
-        }
+        return variantStats;
     }
 
     public static VariantStats calculate(Variant variant, int homRefCount, int hetCount, int homAltCount, int missingCount) {
@@ -141,8 +88,8 @@ public class VariantStatsCalculator {
         gtCount.put(new Genotype("1/1"), homAltCount);
         gtCount.put(new Genotype("./."), missingCount);
 
-        VariantStats variantStats = new VariantStats(variant);
-        calculate(gtCount, variantStats);
+        VariantStats variantStats = new VariantStats();
+        calculate(gtCount, variantStats, variant.getReference(), variant.getAlternate());
         return variantStats;
     }
 
@@ -152,18 +99,19 @@ public class VariantStatsCalculator {
         gtCount.put(new Genotype("1"), altCount);
         gtCount.put(new Genotype("."), missingCount);
 
-        VariantStats variantStats = new VariantStats(variant);
-        calculate(gtCount, variantStats);
+        VariantStats variantStats = new VariantStats();
+        calculate(gtCount, variantStats, variant.getReference(), variant.getAlternate());
         return variantStats;
     }
 
     public static VariantStats calculate(Variant variant, Map<Genotype, Integer> genotypeCount) {
-        VariantStats variantStats = new VariantStats(variant);
-        calculate(genotypeCount, variantStats);
+        VariantStats variantStats = new VariantStats();
+        calculate(genotypeCount, variantStats, variant.getReference(), variant.getAlternate());
         return variantStats;
     }
 
-    public static void calculate(Map<Genotype, Integer> genotypeCount, VariantStats variantStats) {
+    public static void calculate(Map<Genotype, Integer> genotypeCount, VariantStats variantStats,
+                                 String refAllele, String altAllele) {
 //        Map<String, Genotype> gts = new TreeMap<>(String::compareTo);
         int[] allelesCount = new int[2];
         int totalAllelesCount = 0, totalGenotypesCount = 0;
@@ -201,15 +149,16 @@ public class VariantStatsCalculator {
                     break;
                 case ALLELES_MISSING:
                     // Missing genotype (one or both alleles missing)
-                    variantStats.setMissingGenotypes(variantStats.getMissingGenotypes() + numGt);
+                    variantStats.setMissingGenotypeCount(variantStats.getMissingGenotypeCount() + numGt);
                     for (int i = 0; i < g.getPloidy(); i++) {
                         if (g.getAllele(i) < 0) {
-                            variantStats.setMissingAlleles(variantStats.getMissingAlleles() + numGt);
+                            variantStats.setMissingAlleleCount(variantStats.getMissingAlleleCount() + numGt);
                         } else {
                             allelesCount[g.getAllele(i)] += numGt;
                             totalAllelesCount += numGt;
                         }
                     }
+//                    totalGenotypesCount += numGt;
                     break;
                 default:
                     throw new IllegalArgumentException("Unknown allele code " + g.getCode());
@@ -222,7 +171,7 @@ public class VariantStatsCalculator {
         variantStats.setAltAlleleCount(allelesCount[1]);
 
         // Calculate MAF and MGF
-        calculateAlleleFrequencies(totalAllelesCount, variantStats);
+        calculateAlleleFrequencies(totalAllelesCount, variantStats, refAllele, altAllele);
         calculateGenotypeFrequencies(totalGenotypesCount, variantStats);
 
     }
@@ -238,14 +187,14 @@ public class VariantStatsCalculator {
     public static void calculateStatsForVariantsList(List<Variant> variants, Pedigree ped) {
         for (Variant variant : variants) {
             for (StudyEntry entry : variant.getStudies()) {
-                VariantStats stats = new VariantStats(variant);
-                calculate(entry, entry.getAttributes(), ped, stats);
+                VariantStats stats = calculate(variant, entry);
                 entry.setStats(StudyEntry.DEFAULT_COHORT, stats);
             }
         }
     }
 
-    private static void calculateAlleleFrequencies(int totalAllelesCount, VariantStats variantStats) {
+    private static void calculateAlleleFrequencies(int totalAllelesCount, VariantStats variantStats,
+                                                   String refAllele, String altAllele) {
         if (totalAllelesCount < 0) {
             throw new IllegalArgumentException("The number of alleles must be equals or greater than zero");
         }
@@ -257,16 +206,28 @@ public class VariantStatsCalculator {
             return;
         }
 
+        variantStats.setAlleleCount(totalAllelesCount);
         variantStats.setRefAlleleFreq(variantStats.getRefAlleleCount() / (float) totalAllelesCount);
         variantStats.setAltAlleleFreq(variantStats.getAltAlleleCount() / (float) totalAllelesCount);
 
         if (variantStats.getRefAlleleFreq() <= variantStats.getAltAlleleFreq()) {
             variantStats.setMaf(variantStats.getRefAlleleFreq());
-            variantStats.setMafAllele(variantStats.getRefAllele());
+            variantStats.setMafAllele(refAllele);
         } else {
             variantStats.setMaf(variantStats.getAltAlleleFreq());
-            variantStats.setMafAllele(variantStats.getAltAllele());
+            variantStats.setMafAllele(altAllele);
         }
+    }
+
+    public static void calculateGenotypeFrequencies(VariantStats variantStats) {
+        int totalGenotypesCount = 0;
+        for (Map.Entry<Genotype, Integer> entry : variantStats.getGenotypeCount().entrySet()) {
+            if (!entry.getKey().getCode().equals(AllelesCode.ALLELES_MISSING)) {
+                totalGenotypesCount += entry.getValue();
+            }
+        }
+
+        calculateGenotypeFrequencies(totalGenotypesCount, variantStats);
     }
 
     private static void calculateGenotypeFrequencies(int totalGenotypesCount, VariantStats variantStats) {
@@ -274,7 +235,7 @@ public class VariantStatsCalculator {
             throw new IllegalArgumentException("The number of genotypes must be equals or greater than zero");
         }
 
-        if (variantStats.getGenotypesCount().isEmpty() || totalGenotypesCount == 0) {
+        if (variantStats.getGenotypeCount().isEmpty() || totalGenotypesCount == 0) {
             // Nothing to calculate here
             variantStats.setMgf((float) -1);
             variantStats.setMgfGenotype(null);
@@ -282,13 +243,13 @@ public class VariantStatsCalculator {
         }
 
         // Set all combinations of genotypes to zero
-        Map<Genotype, Float> genotypesFreq = variantStats.getGenotypesFreq();
-        genotypesFreq.put(new Genotype("0/0", variantStats.getRefAllele(), variantStats.getAltAllele()), 0.0f);
-        genotypesFreq.put(new Genotype("0/1", variantStats.getRefAllele(), variantStats.getAltAllele()), 0.0f);
-        genotypesFreq.put(new Genotype("1/1", variantStats.getRefAllele(), variantStats.getAltAllele()), 0.0f);
+        Map<Genotype, Float> genotypesFreq = variantStats.getGenotypeFreq();
+        genotypesFreq.put(new Genotype("0/0"), 0.0f);
+        genotypesFreq.put(new Genotype("0/1"), 0.0f);
+        genotypesFreq.put(new Genotype("1/1"), 0.0f);
 
         // Insert the genotypes found in the file
-        for (Map.Entry<Genotype, Integer> gtCount : variantStats.getGenotypesCount().entrySet()) {
+        for (Map.Entry<Genotype, Integer> gtCount : variantStats.getGenotypeCount().entrySet()) {
             if (gtCount.getKey().getCode() == AllelesCode.ALLELES_MISSING) {
                 // Missing genotypes shouldn't have frequencies calculated
                 continue;

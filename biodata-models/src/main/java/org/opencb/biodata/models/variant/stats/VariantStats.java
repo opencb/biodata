@@ -19,82 +19,52 @@
 
 package org.opencb.biodata.models.variant.stats;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.avro.*;
-import org.opencb.biodata.models.variant.avro.VariantHardyWeinbergStats;
+import org.opencb.biodata.models.variant.avro.VariantType;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  * @author Jose Miguel Mut Lopez &lt;jmmut@ebi.ac.uk&gt;
- *         <p>
- *         TODO Mendelian errors must be calculated
  */
-@JsonIgnoreProperties({"impl", "transversion", "transition"})
+@JsonIgnoreProperties({"impl"})
 public class VariantStats {
 
     private final org.opencb.biodata.models.variant.avro.VariantStats impl;
 
     public VariantStats() {
-        this(null, -1, null, null, VariantType.SNV, -1, -1, null, null, -1, -1, -1, -1, -1, -1, -1);
+        this(-1f, -1f, null, null, -1, -1);
     }
 
     public VariantStats(org.opencb.biodata.models.variant.avro.VariantStats other) {
         impl = other;
     }
 
-    public VariantStats(Variant variant) {
-        this(null, -1,
-                variant != null ? variant.getReference() : null,
-                variant != null ? variant.getAlternate() : null,
-                variant != null ? variant.getType() : VariantType.SNV,
-                -1, -1, null, null, -1, -1, -1, -1, -1, -1, -1);
-    }
-
-    public VariantStats(String referenceAllele, String alternateAllele, VariantType type) {
-        this(null, -1, referenceAllele, alternateAllele, type, -1, -1, null, null, -1, -1, -1, -1, -1, -1, -1);
-    }
-
-    public VariantStats(String chromosome, int position, String referenceAllele, String alternateAlleles,
-                        VariantType variantType, float maf, float mgf, String mafAllele, String mgfGenotype,
-                        int numMissingAlleles, int numMissingGenotypes, int numMendelErrors, float percentCasesDominant,
-                        float percentControlsDominant, float percentCasesRecessive, float percentControlsRecessive) {
-        impl = new org.opencb.biodata.models.variant.avro.VariantStats(referenceAllele, alternateAlleles,
-                -1, -1,
+    public VariantStats(float maf, float mgf, String mafAllele, String mgfGenotype,
+                        int missingAlleleCount, int missingGenotypeCount) {
+        impl = new org.opencb.biodata.models.variant.avro.VariantStats(-1, -1, -1, -1F, -1F,
                 new HashMap<>(), new HashMap<>(),
-                numMissingAlleles, numMissingGenotypes,
-                -1F, -1F, maf, mgf, mafAllele, mgfGenotype,
-                false, -1,
-                percentCasesDominant, percentControlsDominant, percentCasesRecessive, percentControlsRecessive,
-                -1F, -1, variantType, null);
-
-//        this.hw = new VariantHardyWeinbergStats();
+                missingAlleleCount, missingGenotypeCount,
+                maf, mgf, mafAllele, mgfGenotype);
     }
 
     public org.opencb.biodata.models.variant.avro.VariantStats getImpl() {
         return impl;
     }
 
-    public String getRefAllele() {
-        return impl.getRefAllele();
+
+    public Integer getAlleleCount() {
+        return impl.getAlleleCount();
     }
 
-    public void setRefAllele(String value) {
-        impl.setRefAllele(value);
-    }
-
-    public String getAltAllele() {
-        return impl.getAltAllele();
-    }
-
-    public void setAltAllele(String value) {
-        impl.setAltAllele(value);
+    public void setAlleleCount(Integer value) {
+        impl.setAlleleCount(value);
     }
 
     public Integer getRefAlleleCount() {
@@ -113,36 +83,36 @@ public class VariantStats {
         impl.setAltAlleleCount(value);
     }
 
-    public Map<Genotype, Integer> getGenotypesCount() {
-        return impl.getGenotypesCount();
+    public Map<Genotype, Integer> getGenotypeCount() {
+        return impl.getGenotypeCount();
     }
 
-    public void setGenotypesCount(Map<Genotype, Integer> value) {
-        impl.setGenotypesCount(value);
+    public void setGenotypeCount(Map<Genotype, Integer> value) {
+        impl.setGenotypeCount(value);
     }
 
-    public Map<Genotype, Float> getGenotypesFreq() {
-        return impl.getGenotypesFreq();
+    public Map<Genotype, Float> getGenotypeFreq() {
+        return impl.getGenotypeFreq();
     }
 
-    public void setGenotypesFreq(Map<Genotype, Float> value) {
-        impl.setGenotypesFreq(value);
+    public void setGenotypeFreq(Map<Genotype, Float> value) {
+        impl.setGenotypeFreq(value);
     }
 
-    public Integer getMissingAlleles() {
-        return impl.getMissingAlleles();
+    public Integer getMissingAlleleCount() {
+        return impl.getMissingAlleleCount();
     }
 
-    public void setMissingAlleles(Integer value) {
-        impl.setMissingAlleles(value);
+    public void setMissingAlleleCount(Integer value) {
+        impl.setMissingAlleleCount(value);
     }
 
-    public Integer getMissingGenotypes() {
-        return impl.getMissingGenotypes();
+    public Integer getMissingGenotypeCount() {
+        return impl.getMissingGenotypeCount();
     }
 
-    public void setMissingGenotypes(Integer value) {
-        impl.setMissingGenotypes(value);
+    public void setMissingGenotypeCount(Integer value) {
+        impl.setMissingGenotypeCount(value);
     }
 
     public Float getRefAlleleFreq() {
@@ -193,104 +163,22 @@ public class VariantStats {
         impl.setMgfGenotype(value);
     }
 
-    public Boolean getPassedFilters() {
-        return impl.getPassedFilters();
-    }
-
-    public boolean hasPassedFilters() {
-        return impl.getPassedFilters();
-    }
-
-    public void setPassedFilters(Boolean value) {
-        impl.setPassedFilters(value);
-    }
-
-    public Integer getMendelianErrors() {
-        return impl.getMendelianErrors();
-    }
-
-    public void setMendelianErrors(Integer value) {
-        impl.setMendelianErrors(value);
-    }
-
-    public Float getCasesPercentDominant() {
-        return impl.getCasesPercentDominant();
-    }
-
-    public void setCasesPercentDominant(Float value) {
-        impl.setCasesPercentDominant(value);
-    }
-
-    public Float getControlsPercentDominant() {
-        return impl.getControlsPercentDominant();
-    }
-
-    public void setControlsPercentDominant(Float value) {
-        impl.setControlsPercentDominant(value);
-    }
-
-    public Float getCasesPercentRecessive() {
-        return impl.getCasesPercentRecessive();
-    }
-
-    public void setCasesPercentRecessive(Float value) {
-        impl.setCasesPercentRecessive(value);
-    }
-
-    public Float getControlsPercentRecessive() {
-        return impl.getControlsPercentRecessive();
-    }
-
-    public void setControlsPercentRecessive(Float value) {
-        impl.setControlsPercentRecessive(value);
-    }
-
-    public Float getQuality() {
-        return impl.getQuality();
-    }
-
-    public void setQuality(Float value) {
-        impl.setQuality(value);
-    }
-
-    public Integer getNumSamples() {
-        return impl.getNumSamples();
-    }
-
-    public void setNumSamples(Integer value) {
-        impl.setNumSamples(value);
-    }
-
-    public VariantType getVariantType() {
-        return impl.getVariantType();
-    }
-
-    public void setVariantType(VariantType value) {
-        impl.setVariantType(value);
-    }
-
-    public VariantHardyWeinbergStats getHw() {
-        return impl.getHw();
-    }
-
-    public void setHw(VariantHardyWeinbergStats value) {
-        impl.setHw(value);
-    }
-
-    public void addGenotype(Genotype g) {
+    public VariantStats addGenotype(Genotype g) {
         this.addGenotype(g, 1);
+        return this;
     }
 
-    public void addGenotype(Genotype g, int addedCount) {
+    public VariantStats addGenotype(Genotype g, int addedCount) {
         addGenotype(g, addedCount, true);
+        return this;
     }
 
-    public void addGenotype(Genotype g, int addedCount, boolean normalize) {
-//        Genotype normalizedGenotype = normalizeGenotypeAlleles(g);
+    public VariantStats addGenotype(Genotype g, int addedCount, boolean normalize) {
         if (normalize) {
             g = normalizeGenotypeAlleles(g);
         }
-        getGenotypesCount().compute(g, (key, prev) -> prev == null ? addedCount : prev + addedCount);
+        getGenotypeCount().compute(g, (key, prev) -> prev == null ? addedCount : prev + addedCount);
+        return this;
     }
 
     private Genotype normalizeGenotypeAlleles(Genotype g) {
@@ -310,14 +198,6 @@ public class VariantStats {
             }
             return new Genotype(joinedAlleles.toString(), g.getReference(), g.getAlternates());
         }
-    }
-
-    public boolean isTransition() {
-        return isTransition(getRefAllele(), getAltAllele());
-    }
-
-    public boolean isTransversion() {
-        return isTransversion(getRefAllele(), getAltAllele());
     }
 
     public static boolean isTransition(String refAllele, String altAllele) {
