@@ -13,7 +13,7 @@ public class ModeOfInheritance {
     public static final int GENOTYPE_0_1 = 1;
     public static final int GENOTYPE_1_1 = 2;
 
-    public static Map<String, List<String>> dominant(Pedigree pedigree, Phenotype phenotype) {
+    public static Map<String, List<String>> dominant(Pedigree pedigree, Phenotype phenotype, boolean incompletePenetrance) {
         PedigreeManager pedigreeManager = new PedigreeManager(pedigree);
 
         // Get affected individuals for that phenotype
@@ -22,7 +22,7 @@ public class ModeOfInheritance {
         // Get all possible genotypes for each individual
         Map<String, Set<Integer>> genotypes = new HashMap<>();
         for (Individual individual: pedigree.getMembers()) {
-            genotypes.put(individual.getId(), calculateDominant(affectedIndividuals.contains(individual)));
+            genotypes.put(individual.getId(), calculateDominant(affectedIndividuals.contains(individual), incompletePenetrance));
         }
 
         // Validate genotypes using relationships
@@ -32,7 +32,9 @@ public class ModeOfInheritance {
         return prepareOutput(genotypes);
     }
 
-    public static Map<String, List<String>> recessive(Pedigree pedigree, Phenotype phenotype) {
+
+
+    public static Map<String, List<String>> recessive(Pedigree pedigree, Phenotype phenotype, boolean incompletePenetrance) {
         PedigreeManager pedigreeManager = new PedigreeManager(pedigree);
 
         // Get affected individuals for that phenotype
@@ -41,7 +43,7 @@ public class ModeOfInheritance {
         // Get all possible genotypes for each individual
         Map<String, Set<Integer>> genotypes = new HashMap<>();
         for (Individual individual: pedigree.getMembers()) {
-            genotypes.put(individual.getId(), calculateRecessive(affectedIndividuals.contains(individual)));
+            genotypes.put(individual.getId(), calculateRecessive(affectedIndividuals.contains(individual), incompletePenetrance));
         }
 
         // Validate genotypes using relationships
@@ -59,24 +61,31 @@ public class ModeOfInheritance {
         return null;
     }
 
-    private static Set<Integer> calculateDominant(boolean affected) {
+    private static Set<Integer> calculateDominant(boolean affected, boolean incompletePenetrance) {
         Set<Integer> gt = new HashSet<>();
         if (affected) {
             gt.add(GENOTYPE_0_1);
             gt.add(GENOTYPE_1_1);
         } else {
             gt.add(GENOTYPE_0_0);
+            if (incompletePenetrance) {
+                gt.add(GENOTYPE_0_1);
+                gt.add(GENOTYPE_1_1);
+            }
         }
         return gt;
     }
 
-    private static Set<Integer> calculateRecessive(boolean affected) {
+    private static Set<Integer> calculateRecessive(boolean affected, boolean incompletePenetrance) {
         Set<Integer> gt = new HashSet<>();
         if (affected) {
             gt.add(GENOTYPE_1_1);
         } else {
             gt.add(GENOTYPE_0_0);
             gt.add(GENOTYPE_0_1);
+            if (incompletePenetrance) {
+                gt.add(GENOTYPE_1_1);
+            }
         }
         return gt;
     }
@@ -140,7 +149,7 @@ public class ModeOfInheritance {
             for (int gtTo: to) {
                 if (gtFrom == GENOTYPE_0_0) {
                     // 0/0 in parent should be...
-                    if (gtTo == GENOTYPE_0_0 || gtTo == GENOTYPE_1_1) {
+                    if (gtTo == GENOTYPE_0_0 || gtTo == GENOTYPE_0_1) {
                         validGt.add(gtTo);
                     }
                 } else if (gtFrom == GENOTYPE_1_1) {

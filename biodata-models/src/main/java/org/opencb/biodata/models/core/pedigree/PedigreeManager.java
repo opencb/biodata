@@ -31,7 +31,9 @@ public class PedigreeManager {
             // Parent and partner management
             if (individual.getFather() == null && individual.getMother() == null) {
                 withoutParents.add(individual);
-
+            } else if (individual.getFather() == null || individual.getMother() == null) {
+                withOneParent.add(individual);
+            } else {
                 if (!partner.containsKey(individual.getFather().getId())) {
                     partner.put(individual.getFather().getId(), new ArrayList<>());
                 }
@@ -41,28 +43,26 @@ public class PedigreeManager {
                     partner.put(individual.getMother().getId(), new ArrayList<>());
                 }
                 partner.get(individual.getMother().getId()).add(individual.getFather());
-            } else if (individual.getFather() == null || individual.getMother() == null) {
-                withOneParent.add(individual);
             }
 
             // Children management
             if (individual.getFather() != null) {
-                if (!children.containsKey(individual.getFather())) {
+                if (!children.containsKey(individual.getFather().getId())) {
                     children.put(individual.getFather().getId(), new ArrayList<>());
                 }
-                children.get(individual.getMother()).add(individual);
+                children.get(individual.getFather().getId()).add(individual);
             }
             if (individual.getMother() != null) {
-                if (!children.containsKey(individual.getMother())) {
+                if (!children.containsKey(individual.getMother().getId())) {
                     children.put(individual.getMother().getId(), new ArrayList<>());
                 }
-                children.get(individual.getMother()).add(individual);
+                children.get(individual.getMother().getId()).add(individual);
             }
         }
 
         // Without children management
         for (Individual individual: pedigree.getMembers()) {
-            if (!children.containsKey(individual)) {
+            if (!children.containsKey(individual.getId())) {
                 withoutChildren.add(individual);
             }
         }
