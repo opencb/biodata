@@ -38,6 +38,7 @@ public class Individual {
     private Sex sex;
     private LifeStatus lifeStatus;
     private AffectionStatus affectionStatus;
+
     private List<Phenotype> phenotypes;
 
     private Map<String, Object> attributes;
@@ -182,6 +183,15 @@ public class Individual {
 
     public void setAffectionStatus(String affectionStatus){
         setAffectionStatus(Individual.AffectionStatus.getEnum(affectionStatus));
+    }
+
+    public List<Phenotype> getPhenotypes() {
+        return phenotypes;
+    }
+
+    public Individual setPhenotypes(List<Phenotype> phenotypes) {
+        this.phenotypes = phenotypes;
+        return this;
     }
 
     public Map<String, Object> getAttributes() {

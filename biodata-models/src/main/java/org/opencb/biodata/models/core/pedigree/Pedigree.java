@@ -62,6 +62,14 @@ public class Pedigree {
         this.name = name;
     }
 
+    public List<Phenotype> getPhenotypes() {
+        return phenotypes;
+    }
+
+    public void setPhenotypes(List<Phenotype> phenotypes) {
+        this.phenotypes = phenotypes;
+    }
+
     public List<Individual> getMembers() {
         return members;
     }

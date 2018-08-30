@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Created by jtarraga on 09/01/17.
  */
-public class PedigreeManagerTest {
+public class PedigreeParserTest {
 
     @Test
     public void test() {
@@ -18,12 +18,12 @@ public class PedigreeManagerTest {
             Path inputPath = Paths.get(getClass().getResource("/pheno").toURI());
             Path outputPath = Paths.get("/tmp/output.ped");
 
-            PedigreeManager pedigreeManager = new PedigreeManager();
-            List<Pedigree> pedigrees = pedigreeManager.parse(inputPath);
+            PedigreeParser pedigreeParser = new PedigreeParser();
+            List<Pedigree> pedigrees = pedigreeParser.parse(inputPath);
             for (Pedigree pedigree: pedigrees) {
                 System.out.println(pedigree.toJSON());
             }
-            pedigreeManager.save(pedigrees, outputPath);
+            pedigreeParser.save(pedigrees, outputPath);
         } catch (Exception e) {
             e.printStackTrace();
         }
