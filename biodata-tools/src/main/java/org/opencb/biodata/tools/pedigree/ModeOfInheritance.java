@@ -13,6 +13,10 @@ public class ModeOfInheritance {
     public static final int GENOTYPE_0_1 = 1;
     public static final int GENOTYPE_1_1 = 2;
 
+    public static final int GENOTYPE_0 = 3;
+    public static final int GENOTYPE_1 = 4;
+
+
     public static Map<String, List<String>> dominant(Pedigree pedigree, Phenotype phenotype, boolean incompletePenetrance) {
         PedigreeManager pedigreeManager = new PedigreeManager(pedigree);
 
@@ -58,7 +62,37 @@ public class ModeOfInheritance {
     }
 
     public static Map<String, List<String>> yLinked(Pedigree pedigree, Phenotype phenotype) {
-        return null;
+        PedigreeManager pedigreeManager = new PedigreeManager(pedigree);
+
+        // Get affected individuals for that phenotype
+        Set<Individual> affectedIndividuals = pedigreeManager.getAffectedIndividuals(phenotype);
+
+        // Get all possible genotypes for each individual
+        Map<String, Set<Integer>> genotypes = new HashMap<>();
+
+        Set<Integer> genotype0 = new HashSet<>();
+        genotype0.add(GENOTYPE_0);
+
+        Set<Integer> genotype1 = new HashSet<>();
+        genotype1.add(GENOTYPE_1);
+
+        Set<Integer> noGenotype = new HashSet<>();
+
+        for (Individual individual: pedigree.getMembers()) {
+            if (affectedIndividuals.contains(individual)) {
+                // TODO: Individual must be male. Do we check it here?
+                genotypes.put(individual.getId(), genotype1);
+            } else {
+                if (individual.getSex() == Individual.Sex.MALE) {
+                    genotypes.put(individual.getId(), genotype0);
+                } else {
+                    genotypes.put(individual.getId(), noGenotype);
+                }
+            }
+        }
+
+        // Return a readable output, i.e., returning "-", "0", "1"
+        return prepareOutput(genotypes);
     }
 
     private static Set<Integer> calculateDominant(boolean affected, boolean incompletePenetrance) {
@@ -187,6 +221,10 @@ public class ModeOfInheritance {
                 return "0/1";
             case GENOTYPE_1_1:
                 return "1/1";
+            case GENOTYPE_0:
+                return "0";
+            case GENOTYPE_1:
+                return "1";
             default:
                 return "-";
         }
