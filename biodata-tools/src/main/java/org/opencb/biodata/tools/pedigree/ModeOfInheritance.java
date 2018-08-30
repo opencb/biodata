@@ -21,11 +21,12 @@ public class ModeOfInheritance {
 
         // Get all possible genotypes for each individual
         Map<String, Set<Integer>> genotypes = new HashMap<>();
-        for (Individual individual : pedigree.getMembers()) {
-            genotypes.put(individual.getName(), calculateDominant(affectedIndividuals.contains(individual)));
+        for (Individual individual: pedigree.getMembers()) {
+            genotypes.put(individual.getId(), calculateDominant(affectedIndividuals.contains(individual)));
         }
 
         // Validate genotypes using relationships
+        validateGenotypes(genotypes, pedigreeManager);
 
         // Return a readable output, i.e., returning "0/0, "0/1", "1/1"
         return prepareOutput(genotypes);
@@ -63,6 +64,57 @@ public class ModeOfInheritance {
             gt.add(GENOTYPE_0_1);
         }
         return gt;
+    }
+
+    private static void validateGenotypes(Map<String, Set<Integer>> gt, PedigreeManager pedigreeManager) {
+        List<Individual> withoutChildren = pedigreeManager.getWithoutChildren();
+
+        for (Individual individual: withoutChildren) {
+            // From father to child
+            if (individual.getFather() != null) {
+                gt.put(individual.getId(), validate(gt.get(individual.getFather().getId()), gt.get(individual.getId())));
+            }
+
+            // From mother to child
+            if (individual.getMother() != null) {
+                gt.put(individual.getId(), validate(gt.get(individual.getMother().getId()), gt.get(individual.getId())));
+            }
+
+            // From child to father
+            if (individual.getFather() != null) {
+                gt.put(individual.getFather().getId(), validate(gt.get(individual.getId()), gt.get(individual.getFather().getId())));
+            }
+
+            // From child to mother
+            if (individual.getMother() != null) {
+                gt.put(individual.getMother().getId(), validate(gt.get(individual.getId()), gt.get(individual.getMother().getId())));
+            }
+        }
+    }
+
+
+
+    private static Set<Integer> validate(Set<Integer> from, Set<Integer> to) {
+        Set<Integer> validGt = new HashSet<>();
+        for (int gtFrom: from) {
+            for (int gtTo: to) {
+                if (gtFrom == GENOTYPE_0_0) {
+                    // 0/0 in parent should be...
+                    if (gtTo == GENOTYPE_0_0 || gtTo == GENOTYPE_1_1) {
+                        validGt.add(gtTo);
+                    }
+                } else if (gtFrom == GENOTYPE_1_1) {
+                    // 1/1 in parent should be 0/1 or 1/1 in child
+                    if (gtTo == GENOTYPE_0_1 || gtTo == GENOTYPE_1_1) {
+                        validGt.add(gtTo);
+                    }
+                } else {
+                    // 0/1 in parent can be whatever in child
+                    validGt.add(gtTo);
+                }
+            }
+        }
+        return validGt;
     }
 
     private static Map<String, List<String>> prepareOutput(Map<String, Set<Integer>> genotypes) {
