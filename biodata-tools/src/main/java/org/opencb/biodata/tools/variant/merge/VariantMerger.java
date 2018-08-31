@@ -36,7 +36,6 @@ import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.metadata.VariantFileHeader;
-import org.opencb.biodata.tools.variant.VariantNormalizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -479,7 +478,14 @@ public class VariantMerger {
 //        Map<AlternateCoordinate, Integer> altIdx = index(altList);
 
         // Update SecALt list
+        List<AlternateCoordinate> currentSecondaryAlternates = currentStudy.getSecondaryAlternates();
         currentStudy.setSecondaryAlternates(altList.subList(1, altList.size()));
+
+        // Check if the number of secondary alternates has increased. If so, rearrange the current study (files + samples)
+        VariantAlternateRearranger currentStudyrearranger = null;
+        if (currentSecondaryAlternates.size() != currentStudy.getSecondaryAlternates().size()) {
+            currentStudyrearranger = new VariantAlternateRearranger(buildAltList(current), altList);
+        }
 
         // Find new formats
         final Map<String, Integer> newFormatPositions;
@@ -547,11 +553,20 @@ public class VariantMerger {
             alreadyMergedSamples[newSampleIdx] = true;
             List<String> newSampleData = newSamplesData.get(newSampleIdx);
             int formatIdx = 0;
+            int ploidy = 2; // Default ploidy. Required for the rearranger
             for (String format : currentStudy.getFormat()) {
                 Integer newFormatIdx = newFormatPositions.get(format);
                 if (newFormatIdx != null) {
                     if (currentSampleData.size() > formatIdx) {
-                        newSampleData.set(newFormatIdx, currentSampleData.get(formatIdx));
+                        String data = currentSampleData.get(formatIdx);
+                        if (currentStudyrearranger != null) {
+                            if (format.equals(VCFConstants.GENOTYPE_KEY)) {
+                                ploidy = new Genotype(data).getPloidy();
+                            } else {
+                                data = currentStudyrearranger.rearrange(format, data, ploidy);
+                            }
+                        }
+                        newSampleData.set(newFormatIdx, data);
                     } else {
                         newSampleData.set(newFormatIdx, getDefaultValue(format));
                     }
@@ -563,6 +578,11 @@ public class VariantMerger {
                 newSampleData.set(newFilterIdx, currentFilterValue);
             }
             currentSampleIdx++;
+        }
+        if (currentStudyrearranger != null) {
+            for (FileEntry file : currentStudy.getFiles()) {
+                file.getAttributes().replaceAll(currentStudyrearranger::rearrange);
+            }
         }
 
         for (Pair<Variant, List<AlternateCoordinate>> e : varToAlts) {

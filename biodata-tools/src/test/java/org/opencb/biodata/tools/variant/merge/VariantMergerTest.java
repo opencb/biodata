@@ -570,7 +570,7 @@ public class VariantMergerTest {
         assertEquals("0/0", mergeVar.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_KEY));
         assertEquals("PASS", mergeVar.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_FILTER_KEY));
         assertEquals("8,0,2", mergeVar.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_ALLELE_DEPTHS));
-        assertEquals("10,11", mergeVar.getStudies().get(0).getSampleData("S1", VCFConstants.GENOTYPE_ALLELE_DEPTHS));
+        assertEquals("10,11,0", mergeVar.getStudies().get(0).getSampleData("S1", VCFConstants.GENOTYPE_ALLELE_DEPTHS));
     }
 
     @Test
@@ -589,7 +589,7 @@ public class VariantMergerTest {
         assertEquals(new AlternateCoordinate("1", 11, 13, "A", "<NON_REF>", VariantType.NO_VARIATION), mergeVar.getStudies().get(0).getSecondaryAlternates().get(0));
         assertEquals("0/0", mergeVar.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_KEY));
         assertEquals("PASS", mergeVar.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_FILTER_KEY));
-        assertEquals("10,11", mergeVar.getStudies().get(0).getSampleData("S1", VCFConstants.GENOTYPE_ALLELE_DEPTHS));
+        assertEquals("10,11,0", mergeVar.getStudies().get(0).getSampleData("S1", VCFConstants.GENOTYPE_ALLELE_DEPTHS));
         assertEquals("8,0,2", mergeVar.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_ALLELE_DEPTHS));
     }
 
