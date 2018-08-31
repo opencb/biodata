@@ -117,9 +117,7 @@ public class VariantMergerTest {
         Variant s02 = VariantTestUtils.generateVariant("1:10:ATT:-", "S02", "0/1");
         Variant s03 = VariantTestUtils.generateVariant("1:10:A:-", "S03", "0/1");
         Variant s04 = VariantTestUtils.generateVariant("1:9:AATT:-", "S04", "0/1");
-        Variant s05 = VariantTestUtils.generateVariant("1:3:A:-", "S05", "0/0");
-        s05.setType(VariantType.NO_VARIATION);
-        s05.setEnd(15);
+        Variant s05 = VariantTestUtils.generateVariant("1:3-15:A:.", "S05", "0/0");
 
         Variant var = variantMergerCollapse.merge(s01, Arrays.asList(s02, s03, s04, s05));
         StudyEntry se = var.getStudy(VariantTestUtils.STUDY_ID);
@@ -140,9 +138,7 @@ public class VariantMergerTest {
         Variant s02 = VariantTestUtils.generateVariant("1:10:ATT:", "S02", "0/1");
         Variant s03 = VariantTestUtils.generateVariant("1:10:A:", "S03", "0/1");
         Variant s04 = VariantTestUtils.generateVariant("1:9:AATT:", "S04", "0/1");
-        Variant s05 = VariantTestUtils.generateVariant("1:3:A:", "S05", "0/0");
-        s05.setType(VariantType.NO_VARIATION);
-        s05.setEnd(15);
+        Variant s05 = VariantTestUtils.generateVariant("1:3-15:A:.", "S05", "0/0");
 
         Variant var = variantMergerCollapse.merge(s01, Arrays.asList(s02, s03, s04, s05));
         StudyEntry se = var.getStudy(VariantTestUtils.STUDY_ID);
@@ -163,9 +159,7 @@ public class VariantMergerTest {
         Variant s02 = VariantTestUtils.generateVariant("1:10:ATT:", "S02", "0/1");
         Variant s03 = VariantTestUtils.generateVariant("1:11::T", "S03", "0/1");
         Variant s04 = VariantTestUtils.generateVariant("1:11::TTTT", "S04", "0/1");
-        Variant s05 = VariantTestUtils.generateVariant("1:3:A:", "S05", "0/0");
-        s05.setType(VariantType.NO_VARIATION);
-        s05.setEnd(15);
+        Variant s05 = VariantTestUtils.generateVariant("1:3-15:A:.", "S05", "0/0");
 
         Variant var = variantMergerCollapse.merge(s01, Arrays.asList(s02, s03, s04, s05));
         StudyEntry se = var.getStudy(VariantTestUtils.STUDY_ID);
@@ -219,9 +213,7 @@ public class VariantMergerTest {
         Variant s02 = VariantTestUtils.generateVariant("1:10:ATT:", "S02", "0/1");
         Variant s03 = VariantTestUtils.generateVariant("1:10:A:", "S03", "0/1");
         Variant s04 = VariantTestUtils.generateVariant("1:9:AATT:", "S04", "0/1");
-        Variant s05 = VariantTestUtils.generateVariant("1:3:A:", "S05", "0/0");
-        s05.setType(VariantType.NO_VARIATION);
-        s05.setEnd(15);
+        Variant s05 = VariantTestUtils.generateVariant("1:3-15:A:.", "S05", "0/0");
 
         Variant var = variantMergerCollapse.merge(s01, Arrays.asList(s02, s03, s04, s05));
         StudyEntry se = var.getStudy(VariantTestUtils.STUDY_ID);
@@ -538,7 +530,6 @@ public class VariantMergerTest {
         System.out.println("mergeVar = " + mergeVar.toJson());
     }
 
-
     @Test
     public void testMergeReference() {
         Variant v1 = VariantTestUtils.generateVariantWithFormat("1:10:ATGTA:-",
@@ -560,6 +551,46 @@ public class VariantMergerTest {
         Variant mergeVar2 = variantMerger.merge(mergeVar, v3);
         assertEquals("0/0", mergeVar2.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_KEY));
         assertEquals("PASS", mergeVar.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_FILTER_KEY));
+    }
+
+    @Test
+    public void testMergeSymbolicReference() {
+        String format = VCFConstants.GENOTYPE_KEY + "," + VCFConstants.GENOTYPE_FILTER_KEY + "," + VCFConstants.GENOTYPE_ALLELE_DEPTHS;
+        Variant variant = VariantTestUtils.generateVariantWithFormat("1:10:ATGTA:-",
+                format,
+                "S1", "0/1", "PASS", "10,11");
+
+        Variant ref1 = VariantTestUtils.generateVariantWithFormat("1:5-15:A:<NON_REF>",
+                format,
+                "S2", "0/0", "PASS", "8,2");
+
+        Variant mergeVar = variantMerger.merge(variant, ref1);
+        assertEquals(1, mergeVar.getStudies().get(0).getSecondaryAlternates().size());
+        assertEquals(new AlternateCoordinate("1", 10, 14, "A", "<NON_REF>", VariantType.NO_VARIATION), mergeVar.getStudies().get(0).getSecondaryAlternates().get(0));
+        assertEquals("0/0", mergeVar.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_KEY));
+        assertEquals("PASS", mergeVar.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_FILTER_KEY));
+        assertEquals("8,0,2", mergeVar.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_ALLELE_DEPTHS));
+        assertEquals("10,11", mergeVar.getStudies().get(0).getSampleData("S1", VCFConstants.GENOTYPE_ALLELE_DEPTHS));
+    }
+
+    @Test
+    public void testMergePartialSymbolicReference() {
+        String format = VCFConstants.GENOTYPE_KEY + "," + VCFConstants.GENOTYPE_FILTER_KEY + "," + VCFConstants.GENOTYPE_ALLELE_DEPTHS;
+        Variant variant = VariantTestUtils.generateVariantWithFormat("1:10:ATGTA:-",
+                format,
+                "S1", "0/1", "PASS", "10,11");
+
+        Variant ref1 = VariantTestUtils.generateVariantWithFormat("1:11-13:A:<NON_REF>",
+                format,
+                "S2", "0/0", "PASS", "8,2");
+
+        Variant mergeVar = variantMerger.merge(variant, ref1);
+        assertEquals(1, mergeVar.getStudies().get(0).getSecondaryAlternates().size());
+        assertEquals(new AlternateCoordinate("1", 11, 13, "A", "<NON_REF>", VariantType.NO_VARIATION), mergeVar.getStudies().get(0).getSecondaryAlternates().get(0));
+        assertEquals("0/0", mergeVar.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_KEY));
+        assertEquals("PASS", mergeVar.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_FILTER_KEY));
+        assertEquals("10,11", mergeVar.getStudies().get(0).getSampleData("S1", VCFConstants.GENOTYPE_ALLELE_DEPTHS));
+        assertEquals("8,0,2", mergeVar.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_ALLELE_DEPTHS));
     }
 
     @Test
@@ -933,9 +964,7 @@ public class VariantMergerTest {
 
     @Test
     public void testMergeSnpBlock() {
-        Variant v = VariantTestUtils.generateVariant("1:10:A:", "S01", "0/0");
-        v.setType(VariantType.NO_VARIATION);
-        v.setEnd(100);
+        Variant v = VariantTestUtils.generateVariant("1:10:A-100:.", "S01", "0/0");
 
         checkMergeVariants(VariantTestUtils.generateVariant("1:10:A:T", "S02", "0/1"), v, Collections.emptyList(), "0/0");
     }

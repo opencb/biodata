@@ -22,6 +22,7 @@
  */
 package org.opencb.biodata.tools.variant.merge;
 
+import htsjdk.variant.variantcontext.Allele;
 import htsjdk.variant.vcf.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -474,8 +475,7 @@ public class VariantMerger {
         StudyEntry currentStudy = getStudy(current);
 
         // Build ALT index
-        List<AlternateCoordinate> altList = buildAltsList(current, varToAlts.stream()
-                .map(Pair::getRight).collect(Collectors.toList()));
+        List<AlternateCoordinate> altList = buildAltsList(current, varToAlts);
 //        Map<AlternateCoordinate, Integer> altIdx = index(altList);
 
         // Update SecALt list
@@ -766,42 +766,22 @@ public class VariantMerger {
         return IntStream.range(0, gtsStr.size() - 1).boxed().collect(Collectors.toList());
     }
 
-    /**
-     * @deprecated Use {@link VariantAlternateRearranger#rearrangeGenotype}
-     */
-    @Deprecated
-    private String updateGT(String gt, Map<AlternateCoordinate, Integer> curr, Map<Integer, AlternateCoordinate> other) {
-        Genotype gto = new Genotype(gt);
-        int[] idx = gto.getAllelesIdx();
-        int len = idx.length;
-        IntStream.range(0, len).boxed().filter(i -> idx[i] > 0 && idx[i] <= other.size())
-                .forEach(i -> {
-                    Integer allele = curr.get(other.get(idx[i]));
-                    if (this.collapseDeletions && Objects.isNull(allele)) {
-                        allele = 0; // change to '0' for 'missing' reference (missing because change to '0' GT)
-                    }
-                    gto.setAlleleIdx(i, allele);
-                });
-        if (!gto.isPhased()) {
-            Arrays.sort(idx);
-        }
-        return gto.toString();
-    }
-
-    private List<AlternateCoordinate> buildAltsList(Variant current, Collection<List<AlternateCoordinate>> alts) {
+    private List<AlternateCoordinate> buildAltsList(Variant current, List<Pair<Variant, List<AlternateCoordinate>>> varToAlts) {
         Integer start = current.getStart();
         Integer end = current.getEnd();
         final List<AlternateCoordinate> currAlts = buildAltList(current);
         final Set<AlternateCoordinate> altSets = new HashSet<>(currAlts);
         if (this.collapseDeletions && isDeletion(current.getType(), current.getStart(), current.getEnd())) {
             // remove all alts that are NOT fully overlap current deletion -> keep only larger or same
-            alts.stream()
+            varToAlts.stream()
+                    .map(Pair::getValue)
                     .flatMap(Collection::stream)
                     .filter(a -> (start >= a.getStart() && end <= a.getEnd()))
                     .forEach(altSets::add);
         } else if (this.collapseDeletions && isInsertion(current.getType(), current.getStart(), current.getEnd())) {
             // remove all alts that are NOT fully overlap current deletion -> keep only larger or same
-            alts.stream()
+            varToAlts.stream()
+                    .map(Pair::getValue)
                     .flatMap(Collection::stream)
                     .filter(a -> {
                         if (isInsertion(a)) {
@@ -815,11 +795,20 @@ public class VariantMerger {
                     })
                     .forEach(altSets::add);
         } else if (this.collapseDeletions && current.getType().equals(VariantType.SNP)) {
-            alts.forEach(l -> l.stream()
+            varToAlts.forEach(p -> p.getValue().stream()
                     .filter(a -> current.overlapWith(a.getChromosome(), a.getStart(), a.getEnd(), true))
                     .forEach(altSets::add));
         } else {
-            alts.forEach(altSets::addAll);
+            for (Pair<Variant, List<AlternateCoordinate>> pair : varToAlts) {
+                Variant variant = pair.getKey();
+                List<AlternateCoordinate> alts = pair.getValue();
+                if (variant.getType().equals(VariantType.NO_VARIATION) && !alts.isEmpty()) {
+                    AlternateCoordinate mainAlternate = alts.get(0);
+                    mainAlternate.setStart(Math.max(mainAlternate.getStart(), current.getStart()));
+                    mainAlternate.setEnd(Math.min(mainAlternate.getEnd(), current.getEnd()));
+                }
+                altSets.addAll(alts);
+            }
         }
         // remove current alts
         altSets.removeAll(currAlts);
@@ -907,7 +896,10 @@ public class VariantMerger {
     public List<AlternateCoordinate> buildAltList(Variant variant) {
         AlternateCoordinate mainAlternate = getMainAlternate(variant);
         List<AlternateCoordinate> alternates = new ArrayList<>();
-        if (!mainAlternate.getType().equals(VariantType.NO_VARIATION)) {
+        boolean emptyRefBlock = mainAlternate.getType().equals(VariantType.NO_VARIATION)
+                && (mainAlternate.getAlternate().isEmpty() || mainAlternate.getAlternate().equals(Allele.NO_CALL_STRING));
+        // Skip Reference Blocks (NO_VARIATION) where the alternate is empty
+        if (!emptyRefBlock) {
             alternates.add(mainAlternate);
         }
         StudyEntry se = getStudy(variant);
