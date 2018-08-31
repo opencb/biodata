@@ -29,6 +29,7 @@ import java.util.Map;
  * Created by imedina on 10/10/16.
  */
 public class Individual {
+    private String id;
     private String name;
 
     private Individual father;
@@ -38,6 +39,7 @@ public class Individual {
     private Sex sex;
     private LifeStatus lifeStatus;
     private AffectionStatus affectionStatus;
+
     private List<Phenotype> phenotypes;
 
     private Map<String, Object> attributes;
@@ -110,85 +112,119 @@ public class Individual {
     /**
      * Constructor.
      *
+     * @param id                Individual ID
+     * @param name              Individual name
+     * @param sex               Individual sex
+     * @param affectionStatus   Individual affection status
+     */
+    public Individual(String id, String name, Sex sex, AffectionStatus affectionStatus) {
+        this.id = id;
+        this.name = name;
+        this.sex = sex;
+        this.affectionStatus = affectionStatus;
+    }
+
+    /**
+     * Constructor.
+     *
      * @param name              Individual name
      * @param sex               Individual sex
      * @param affectionStatus   Individual affection status
      */
     public Individual(String name, Sex sex, AffectionStatus affectionStatus) {
+        this.id = id;
         this.name = name;
         this.sex = sex;
         this.affectionStatus = affectionStatus;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public Individual setId(String id) {
+        this.id = id;
+        return this;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public Individual setName(String name) {
         this.name = name;
+        return this;
     }
 
     public Individual getFather() {
         return father;
     }
 
-    public void setFather(Individual father) {
+    public Individual setFather(Individual father) {
         this.father = father;
+        return this;
     }
 
     public Individual getMother() {
         return mother;
     }
 
-    public void setMother(Individual mother) {
+    public Individual setMother(Individual mother) {
         this.mother = mother;
+        return this;
     }
 
     public Multiples getMultiples() {
         return multiples;
     }
 
-    public void setMultiples(Multiples multiples) {
+    public Individual setMultiples(Multiples multiples) {
         this.multiples = multiples;
+        return this;
     }
 
     public Sex getSex() {
         return sex;
     }
 
-    public void setSex(Sex sex) {
+    public Individual setSex(Sex sex) {
         this.sex = sex;
-    }
-
-    public void setSex(String sex){
-        setSex(Individual.Sex.getEnum(sex));
+        return this;
     }
 
     public LifeStatus getLifeStatus() {
         return lifeStatus;
     }
 
-    public void setLifeStatus(LifeStatus lifeStatus) {
+    public Individual setLifeStatus(LifeStatus lifeStatus) {
         this.lifeStatus = lifeStatus;
+        return this;
     }
 
     public AffectionStatus getAffectionStatus() {
         return affectionStatus;
     }
 
-    public void setAffectionStatus(AffectionStatus affectionStatus) {
+    public Individual setAffectionStatus(AffectionStatus affectionStatus) {
         this.affectionStatus = affectionStatus;
+        return this;
     }
 
-    public void setAffectionStatus(String affectionStatus){
-        setAffectionStatus(Individual.AffectionStatus.getEnum(affectionStatus));
+    public List<Phenotype> getPhenotypes() {
+        return phenotypes;
+    }
+
+    public Individual setPhenotypes(List<Phenotype> phenotypes) {
+        this.phenotypes = phenotypes;
+        return this;
     }
 
     public Map<String, Object> getAttributes() {
         return attributes;
     }
 
-    public void setAttributes(Map<String, Object> attributes) {
+    public Individual setAttributes(Map<String, Object> attributes) {
         this.attributes = attributes;
+        return this;
     }
 }

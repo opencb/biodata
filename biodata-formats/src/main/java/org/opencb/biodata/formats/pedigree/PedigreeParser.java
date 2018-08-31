@@ -35,10 +35,7 @@ import java.util.Map;
 /**
  * Created by imedina on 11/10/16.
  */
-public class PedigreeManager {
-
-    public PedigreeManager() {
-    }
+public class PedigreeParser {
 
     /**
      * Parse a Pedigree file and return a list of Pedigree objects.
@@ -47,7 +44,7 @@ public class PedigreeManager {
      * @return                  List of Pedigree objects
      * @throws IOException
      */
-    public List<Pedigree> parse(Path pedigreePath) throws IOException {
+    public static List<Pedigree> parse(Path pedigreePath) throws IOException {
         FileUtils.checkFile(pedigreePath);
 
         Map<String, Pedigree> pedigreeMap = new HashMap<>();
@@ -146,7 +143,7 @@ public class PedigreeManager {
      * @param pedigree      Pedigree object
      * @param pedigreePath  Path to the Pedigree file
      */
-    public void save(Pedigree pedigree, Path pedigreePath) throws IOException {
+    public static void save(Pedigree pedigree, Path pedigreePath) throws IOException {
         final OutputStream os = new FileOutputStream(pedigreePath.toFile());
         // Sanity check
         if (pedigree != null) {
@@ -157,7 +154,7 @@ public class PedigreeManager {
         os.close();
     }
 
-    public void save(List<Pedigree> pedigrees, Path pedigreePath) throws IOException {
+    public static void save(List<Pedigree> pedigrees, Path pedigreePath) throws IOException {
         final OutputStream os = new FileOutputStream(pedigreePath.toFile());
         // Sanity check
         if (pedigrees != null && !pedigrees.isEmpty()) {
@@ -170,7 +167,7 @@ public class PedigreeManager {
         os.close();
     }
 
-    private void writeHeader(Pedigree pedigree, OutputStream os) throws IOException {
+    private static void writeHeader(Pedigree pedigree, OutputStream os) throws IOException {
         StringBuilder line = new StringBuilder();
 
         // TODO: check order labels, header line and individual lines !!
@@ -182,7 +179,7 @@ public class PedigreeManager {
         os.write("\n".getBytes());
     }
 
-    private void write(Pedigree pedigree, OutputStream os) throws IOException {
+    private static void write(Pedigree pedigree, OutputStream os) throws IOException {
 //        final PrintStream writer = new PrintStream(os);
 
         StringBuilder line = new StringBuilder();
