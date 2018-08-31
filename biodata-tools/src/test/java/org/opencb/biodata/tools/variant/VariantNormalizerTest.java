@@ -196,12 +196,52 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
 
     @Test
     public void testNormalizeNoVariation() throws NonStandardCompliantSampleField {
-        Variant variant = new Variant("2", 10, 1000, "A", "");
-        variant.setType(VariantType.NO_VARIATION);
+        Variant variant = new Variant("2", 10, 1000, "A", ".");
 
+        assertEquals(VariantType.NO_VARIATION, variant.getType());
         Variant normalizedVariant = normalizer.normalize(Collections.singletonList(variant), false).get(0);
         assertEquals(variant, normalizedVariant);
+    }
 
+    @Test
+    public void testNormalizeNoVariationSymbolic() throws NonStandardCompliantSampleField {
+        Variant variant = new Variant("2", 10, 1000, "A", "<NON_REF>");
+
+        Variant normalizedVariant = normalizer.normalize(Collections.singletonList(variant), false).get(0);
+        assertEquals("<*>", normalizedVariant.getAlternate());
+        variant.setAlternate("<*>");
+        assertEquals(variant, normalizedVariant);
+    }
+
+    @Test
+    public void testNormalizeMultiallelicNoVariationSymbolic() throws NonStandardCompliantSampleField {
+        Variant variant = Variant.newBuilder("2", 10, 10, "A", "C,<*>").setStudyId("s").setFileId("f")
+                .setFormat(Collections.emptyList())
+                .setSamplesData(Collections.emptyList()).build();
+
+        List<Variant> variants = normalizer.normalize(Collections.singletonList(variant), false);
+        assertEquals(1, variants.size());
+        Variant normalizedVariant = variants.get(0);
+        String call = normalizedVariant.getStudies().get(0).getFiles().get(0).getCall();
+        assertEquals("10:A:C,<*>:0", call);
+        variant.getStudies().get(0).getFiles().get(0).setCall("10:A:C,<*>:0");
+        assertEquals(variant.toJson(), normalizedVariant.toJson());
+    }
+
+    @Test
+    public void testNormalizeMultiallelicNoVariationSymbolicNonRef() throws NonStandardCompliantSampleField {
+        Variant variant = Variant.newBuilder("2", 10, 10, "A", "C,<NON_REF>").setStudyId("s").setFileId("f")
+                .setFormat(Collections.emptyList())
+                .setSamplesData(Collections.emptyList()).build();
+
+        List<Variant> variants = normalizer.normalize(Collections.singletonList(variant), false);
+        assertEquals(1, variants.size());
+        Variant normalizedVariant = variants.get(0);
+        String call = normalizedVariant.getStudies().get(0).getFiles().get(0).getCall();
+        assertEquals("10:A:C,<NON_REF>:0", call);
+        variant.getStudies().get(0).getFiles().get(0).setCall("10:A:C,<NON_REF>:0");
+        variant.getStudies().get(0).getSecondaryAlternates().get(0).setAlternate("<*>");
+        assertEquals(variant.toJson(), normalizedVariant.toJson());
     }
 
     @Test

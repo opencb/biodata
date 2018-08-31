@@ -20,6 +20,7 @@
 package org.opencb.biodata.tools.variant;
 
 import htsjdk.samtools.SAMException;
+import htsjdk.variant.variantcontext.Allele;
 import htsjdk.variant.vcf.*;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -286,7 +287,11 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         List<Variant> normalizedVariants = new ArrayList<>(batch.size());
 
         for (Variant variant : batch) {
-            if (!isNormalizable(variant)) {
+            if (variant.getType().equals(VariantType.NO_VARIATION)) {
+                variant.setAlternate(normalizeNoVariationAlternate(variant.getAlternate()));
+                normalizedVariants.add(variant);
+                continue;
+            } else if (!isNormalizable(variant)) {
                 normalizedVariants.add(variant);
                 continue;
             }
@@ -322,9 +327,14 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                 }
             } else {
                 for (StudyEntry entry : variant.getStudies()) {
+                    List<String> originalAlternates = new ArrayList<>(1 + entry.getSecondaryAlternates().size());
                     List<String> alternates = new ArrayList<>(1 + entry.getSecondaryAlternates().size());
                     alternates.add(alternate);
-                    alternates.addAll(entry.getSecondaryAlternatesAlleles());
+                    originalAlternates.add(alternate);
+                    for (String secondaryAlternatesAllele : entry.getSecondaryAlternatesAlleles()) {
+                        alternates.add(normalizeNoVariationAlternate(secondaryAlternatesAllele));
+                        originalAlternates.add(secondaryAlternatesAllele);
+                    }
 
                     // FIXME: assumes there wont be multinucleotide positions with CNVs and short variants mixed
                     List<VariantKeyFields> keyFieldsList;
@@ -346,11 +356,15 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                         // Remove allele index
                         callPrefix = call.substring(0, call.lastIndexOf(':') + 1);
                     } else {
-                        callPrefix = start + ":" + reference + ":" + String.join(",", alternates) + ":";
+                        callPrefix = start + ":" + reference + ":" + String.join(",", originalAlternates) + ":";
                     }
 
                     // Iterate keyFields sorting by position, so the generated variants are ordered. Do not modify original order!
                     for (VariantKeyFields keyFields : sortByPosition(keyFieldsList)) {
+                        // Skip symbolic NO_VARIATION
+                        if (keyFields.alternate.equals(VariantBuilder.REF_ONLY_ALT)) {
+                            continue;
+                        }
                         String call = callPrefix + keyFields.getNumAllele();
 
                         final Variant normalizedVariant;
@@ -398,7 +412,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
                         //Set normalized secondary alternates
                         List<VariantKeyFields> reorderedKeyFields = reorderVariantKeyFields(chromosome, keyFields, keyFieldsList);
-                        normalizedEntry.setSecondaryAlternates(getSecondaryAlternates(keyFields, reorderedKeyFields));
+                        normalizedEntry.setSecondaryAlternates(getSecondaryAlternates(chromosome, keyFields, reorderedKeyFields));
 
                         VariantAlternateRearranger rearranger = null;
                         if (originalKeyFieldsList.size() > 1 && !reorderedKeyFields.isEmpty()) {
@@ -440,6 +454,14 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         }
 
         return normalizedVariants;
+    }
+
+    private String normalizeNoVariationAlternate(String alternate) {
+        if (alternate.equals(VariantBuilder.NON_REF_ALT)) {
+            return VariantBuilder.REF_ONLY_ALT;
+        } else {
+            return alternate;
+        }
     }
 
     private List<FileEntry> normalizeFilesInfo(List<FileEntry> files, VariantAlternateRearranger rearranger) {
@@ -662,7 +684,10 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             VariantKeyFields keyFields;
             final boolean requireLeftAlignment;
             // left and right trimming
-            if (referenceLen == 0) {
+            if (Allele.wouldBeSymbolicAllele(currentAlternate.getBytes())) {
+                keyFields = new VariantKeyFields(position, position + referenceLen - 1, numAllelesIdx, reference, currentAlternate, false);
+                requireLeftAlignment = false;
+            } else if (referenceLen == 0) {
                 requireLeftAlignment = this.config.isLeftAlignEnabled();
                 keyFields = createVariantsFromInsertionEmptyRef(position, currentAlternate);
             } else if (alternateLen == 0) {
@@ -932,7 +957,6 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
     /**
      * Non normalizable variants
-     * TODO: Add {@link VariantType#SYMBOLIC} variants?
      */
     private boolean isNormalizable(Variant variant) {
         return !variant.getType().equals(VariantType.NO_VARIATION) && !variant.getType().equals(VariantType.SYMBOLIC);
@@ -1323,18 +1347,15 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         return secondaryAlternates;
     }
 
-    public List<AlternateCoordinate> getSecondaryAlternates(VariantKeyFields alternate, List<VariantKeyFields> reorderedKeyFields) {
+    public List<AlternateCoordinate> getSecondaryAlternates(String chromosome, VariantKeyFields alternate, List<VariantKeyFields> reorderedKeyFields) {
         List<AlternateCoordinate> secondaryAlternates = new ArrayList<>(reorderedKeyFields.size());
         for (VariantKeyFields keyFields : reorderedKeyFields) {
             if (!keyFields.equals(alternate)) {
                 secondaryAlternates.add(new AlternateCoordinate(
-                        // Chromosome is always the same, do not set
-                        null,
-                        //Set position only if is different from the original one
-                        alternate.getStart() == keyFields.getStart() ? null : keyFields.getStart(),
-                        alternate.getEnd() == keyFields.getEnd() ? null : keyFields.getEnd(),
-                        //Set reference only if is different from the original one
-                        alternate.getReference().equals(keyFields.getReference()) ? null : keyFields.getReference(),
+                        chromosome,
+                        keyFields.getStart(),
+                        keyFields.getEnd(),
+                        keyFields.getReference(),
                         keyFields.getAlternate(),
                         VariantBuilder.inferType(keyFields.getReference(), keyFields.getAlternate())
                 ));
