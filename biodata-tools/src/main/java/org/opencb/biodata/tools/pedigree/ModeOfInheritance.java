@@ -4,17 +4,20 @@ import org.opencb.biodata.models.commons.Phenotype;
 import org.opencb.biodata.models.core.pedigree.Individual;
 import org.opencb.biodata.models.core.pedigree.Pedigree;
 import org.opencb.biodata.models.core.pedigree.PedigreeManager;
+import org.opencb.biodata.models.feature.Genotype;
+import org.opencb.biodata.models.variant.StudyEntry;
+import org.opencb.biodata.models.variant.Variant;
 
 import java.util.*;
 
 public class ModeOfInheritance {
 
-    public static final int GENOTYPE_0_0 = 0;
-    public static final int GENOTYPE_0_1 = 1;
-    public static final int GENOTYPE_1_1 = 2;
+    private static final int GENOTYPE_0_0 = 0;
+    private static final int GENOTYPE_0_1 = 1;
+    private static final int GENOTYPE_1_1 = 2;
 
-    public static final int GENOTYPE_0 = 3;
-    public static final int GENOTYPE_1 = 4;
+    private static final int GENOTYPE_0 = 3;
+    private static final int GENOTYPE_1 = 4;
 
 
     public static Map<String, List<String>> dominant(Pedigree pedigree, Phenotype phenotype, boolean incompletePenetrance) {
@@ -130,6 +133,75 @@ public class ModeOfInheritance {
         // Return a readable output, i.e., returning "-", "0", "1"
         return prepareOutput(genotypes);
     }
+
+    public List<String> compoundHeterozygosity(Pedigree pedigree, Iterator<Variant> variantIterator) throws Exception {
+        if (pedigree.getMembers().size() > 3 || pedigree.getMembers().size() < 3) {
+            throw new Exception("Only trios can be studied for the compound heterozygous mode");
+        }
+
+        PedigreeManager pedigreeManager = new PedigreeManager(pedigree);
+
+        List<Individual> childList = pedigreeManager.getWithoutChildren();
+        if (childList.size() > 1) {
+            throw new Exception("Only one child is expected");
+        }
+
+        Individual child = childList.get(0);
+        if (child.getFather() == null) {
+            throw new Exception("Missing father for " + child.getId());
+        }
+        if (child.getMother() == null) {
+            throw new Exception("Missing mother for " + child.getId());
+        }
+
+        Individual father = child.getFather();
+        Individual mother = child.getMother();
+
+        // Here we will put all the variant ids that would match parents (0/0 0/1) -> child (1/1)
+        List<String> fatherExplainedVariantList = new ArrayList<>();
+        List<String> motherExplainedVariantList = new ArrayList<>();
+
+        while (variantIterator.hasNext()) {
+            Variant variant = variantIterator.next();
+
+            // We assume the variant iterator will always contain information for one study
+            StudyEntry study = variant.getStudies().get(0);
+
+            Genotype childGt = new Genotype(study.getSampleData(child.getId(), "GT"));
+
+            // Child is 1/1 or 1|1
+            if (childGt.getAllelesIdx().length == 2 && childGt.getAllelesIdx()[0] == 1 && childGt.getAllelesIdx()[1] == 1) {
+                Genotype fatherGt = new Genotype(study.getSampleData(father.getId(), "GT"));
+                if (fatherGt.getAllelesIdx().length == 2) {
+                    if (fatherGt.getAllelesIdx()[0] == 0 && fatherGt.getAllelesIdx()[1] == 0) {
+                        Genotype motherGt = new Genotype(study.getSampleData(mother.getId(), "GT"));
+                        if (motherGt.getAllelesIdx().length == 2 && ((motherGt.getAllelesIdx()[0] == 0 && motherGt.getAllelesIdx()[1] == 1)
+                                || (motherGt.getAllelesIdx()[0] == 1 && motherGt.getAllelesIdx()[1] == 0))) {
+                            motherExplainedVariantList.add(variant.getId());
+                        }
+                    } else if ((fatherGt.getAllelesIdx()[0] == 0 && fatherGt.getAllelesIdx()[1] == 1)
+                            || (fatherGt.getAllelesIdx()[0] == 1 && fatherGt.getAllelesIdx()[1] == 0)) {
+                        Genotype motherGt = new Genotype(study.getSampleData(mother.getId(), "GT"));
+                        if (motherGt.getAllelesIdx().length == 2 && motherGt.getAllelesIdx()[0] == 0 && motherGt.getAllelesIdx()[1] == 0) {
+                            fatherExplainedVariantList.add(variant.getId());
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!fatherExplainedVariantList.isEmpty() && !motherExplainedVariantList.isEmpty()) {
+            List<String> variantList = new ArrayList<>(fatherExplainedVariantList.size() + motherExplainedVariantList.size());
+            variantList.addAll(fatherExplainedVariantList);
+            variantList.addAll(motherExplainedVariantList);
+            return variantList;
+        }
+
+        // No variants support the model
+        return Collections.emptyList();
+    }
+
+
 
     private static Set<Integer> calculateDominant(boolean affected, boolean incompletePenetrance) {
         Set<Integer> gt = new HashSet<>();
