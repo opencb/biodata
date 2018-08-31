@@ -57,8 +57,48 @@ public class ModeOfInheritance {
         return prepareOutput(genotypes);
     }
 
-    public static Map<String, List<String>> xLinked(Pedigree pedigree, Phenotype phenotype) {
-        return null;
+    public static Map<String, List<String>> xLinked(Pedigree pedigree, Phenotype phenotype, boolean isDominant) {
+        PedigreeManager pedigreeManager = new PedigreeManager(pedigree);
+
+        // Get affected individuals for that phenotype
+        Set<Individual> affectedIndividuals = pedigreeManager.getAffectedIndividuals(phenotype);
+
+        // Get all possible genotypes for each individual
+        Map<String, Set<Integer>> genotypes = new HashMap<>();
+
+        for (Individual individual: pedigree.getMembers()) {
+            if (affectedIndividuals.contains(individual)) {
+                if (individual.getSex() == Individual.Sex.MALE) {
+                    Set<Integer> genotype = new HashSet<>();
+                    genotype.add(GENOTYPE_1);
+                    genotypes.put(individual.getId(), genotype);
+                } else {
+                    // Female
+                    Set<Integer> genotype = new HashSet<>();
+                    if (isDominant) {
+                        genotype.add(GENOTYPE_0_1);
+                    }
+                    genotype.add(GENOTYPE_1_1);
+                    genotypes.put(individual.getId(), genotype);
+                }
+            } else {
+                if (individual.getSex() == Individual.Sex.MALE) {
+                    Set<Integer> genotype = new HashSet<>();
+                    genotype.add(GENOTYPE_0);
+                    genotypes.put(individual.getId(), genotype);
+                } else {
+                    Set<Integer> genotype = new HashSet<>();
+                    genotype.add(GENOTYPE_0_0);
+                    genotypes.put(individual.getId(), genotype);
+                }
+            }
+        }
+
+        // Validate genotypes using relationships
+        validateGenotypes(genotypes, pedigreeManager);
+
+        // Return a readable output
+        return prepareOutput(genotypes);
     }
 
     public static Map<String, List<String>> yLinked(Pedigree pedigree, Phenotype phenotype) {
@@ -70,23 +110,19 @@ public class ModeOfInheritance {
         // Get all possible genotypes for each individual
         Map<String, Set<Integer>> genotypes = new HashMap<>();
 
-        Set<Integer> genotype0 = new HashSet<>();
-        genotype0.add(GENOTYPE_0);
-
-        Set<Integer> genotype1 = new HashSet<>();
-        genotype1.add(GENOTYPE_1);
-
-        Set<Integer> noGenotype = new HashSet<>();
-
         for (Individual individual: pedigree.getMembers()) {
             if (affectedIndividuals.contains(individual)) {
                 // TODO: Individual must be male. Do we check it here?
-                genotypes.put(individual.getId(), genotype1);
+                Set<Integer> genotype = new HashSet<>();
+                genotype.add(GENOTYPE_1);
+                genotypes.put(individual.getId(), genotype);
             } else {
                 if (individual.getSex() == Individual.Sex.MALE) {
-                    genotypes.put(individual.getId(), genotype0);
+                    Set<Integer> genotype = new HashSet<>();
+                    genotype.add(GENOTYPE_0);
+                    genotypes.put(individual.getId(), genotype);
                 } else {
-                    genotypes.put(individual.getId(), noGenotype);
+                    genotypes.put(individual.getId(), new HashSet<>());
                 }
             }
         }
@@ -124,6 +160,14 @@ public class ModeOfInheritance {
         return gt;
     }
 
+    /**
+     * Validate and removes and genotypes that does not make sense given the parent - child relation.
+     * This method should only be called under dominant, recessive and x-linked modes of inheritance. It does not support y-linked modes
+     * where the mother does not have a possible genotype.
+     *
+     * @param gt Map of individual id - set of possible genotypes.
+     * @param pedigreeManager Pedigree manager.
+     */
     private static void validateGenotypes(Map<String, Set<Integer>> gt, PedigreeManager pedigreeManager) {
         List<Individual> withoutChildren = pedigreeManager.getWithoutChildren();
 
@@ -176,7 +220,6 @@ public class ModeOfInheritance {
         }
     }
 
-
     private static Set<Integer> validate(Set<Integer> from, Set<Integer> to) {
         Set<Integer> validGt = new HashSet<>();
         for (int gtFrom: from) {
@@ -186,14 +229,42 @@ public class ModeOfInheritance {
                     if (gtTo == GENOTYPE_0_0 || gtTo == GENOTYPE_0_1) {
                         validGt.add(gtTo);
                     }
+                    // This case should only happen if the gtFrom is from the mother and the gtTo from her son (x-linked)
+                    if (gtTo == GENOTYPE_0) {
+                        validGt.add(gtTo);
+                    }
                 } else if (gtFrom == GENOTYPE_1_1) {
                     // 1/1 in parent should be 0/1 or 1/1 in child
                     if (gtTo == GENOTYPE_0_1 || gtTo == GENOTYPE_1_1) {
                         validGt.add(gtTo);
                     }
-                } else {
+                    // This case should only happen if the gtFrom is from the mother and the gtTo from her son (x-linked)
+                    if (gtTo == GENOTYPE_1) {
+                        validGt.add(gtTo);
+                    }
+                } else if (gtFrom == GENOTYPE_0_1) {
                     // 0/1 in parent can be whatever in child
                     validGt.add(gtTo);
+                } else if (gtFrom == GENOTYPE_0) {
+                    // Comparison of son (gtFrom) with mother (gtTo)
+                    if (gtTo == GENOTYPE_0_0 || gtTo == GENOTYPE_0_1) {
+                        validGt.add(gtTo);
+                    }
+                    // Comparison of son (gtFrom) with father (gtTo)
+                    if (gtTo == GENOTYPE_0 || gtTo == GENOTYPE_1) {
+                        // The father is not affected by the x-linked genotype
+                        validGt.add(gtTo);
+                    }
+                } else if (gtFrom == GENOTYPE_1) {
+                    // Comparison of son (gtFrom) with mother (gtTo)
+                    if (gtTo == GENOTYPE_0_1 || gtTo == GENOTYPE_1_1) {
+                        validGt.add(gtTo);
+                    }
+                    // Comparison of son (gtFrom) with father (gtTo)
+                    if (gtTo == GENOTYPE_0 || gtTo == GENOTYPE_1) {
+                        // The father is not affected by the x-linked genotype
+                        validGt.add(gtTo);
+                    }
                 }
             }
         }
