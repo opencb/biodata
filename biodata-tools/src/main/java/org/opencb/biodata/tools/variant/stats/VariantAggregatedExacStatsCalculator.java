@@ -23,6 +23,7 @@ import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.formats.variant.vcf4.VariantVcfFactory;
+import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
 import java.util.LinkedHashMap;
@@ -65,13 +66,26 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
     }
 
     @Override
-    protected void parseStats(Variant variant, StudyEntry fileMetadata, int numAllele, String reference, String[] alternateAlleles, Map<String, String> info) {
-        StudyEntry studyentry = variant.getStudy(fileMetadata.getStudyId());
-        VariantStats stats = new VariantStats(variant);
+    protected void parseStats(Variant variant, StudyEntry studyEntry, int numAllele, String reference, String[] alternateAlleles, Map<String, String> info) {
+            VariantStats stats = new VariantStats();
 
         if (info.containsKey(AC_HET)) {   // heterozygous genotype count
+            // Het count is a non standard field that can not be rearranged when decomposing multi-allelic variants.
+            // Get the original variant call to parse this field
+            FileEntry fileEntry = studyEntry.getFiles().get(0);
+            int numAlleleOri;
+            String[] alternateAllelesOri;
+            if (fileEntry.getCall() != null && !fileEntry.getCall().isEmpty()) {
+                String[] ori = fileEntry.getCall().split(":");
+                numAlleleOri = Integer.parseInt(ori[3]);
+                alternateAllelesOri = ori[2].split(",");
+            } else {
+                numAlleleOri = numAllele;
+                alternateAllelesOri = alternateAlleles;
+            }
+
             String[] hetCounts = info.get(AC_HET).split(COMMA);
-            addHeterozygousGenotypes(variant, numAllele, alternateAlleles, stats, hetCounts);
+            addHeterozygousGenotypes(variant, numAlleleOri, alternateAllelesOri, stats, hetCounts);
         }
 
         if (info.containsKey(AC_HOM)) {   // homozygous genotype count
@@ -98,10 +112,10 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
 
         if (info.containsKey(AC_ADJ) && info.containsKey(AN_ADJ)) {
             int an = Integer.parseInt(info.get(AN_ADJ));
-            setMaf(an, acCounts, alternateAlleles, stats);
+            setMaf(an, acCounts, variant.getReference(), alternateAlleles, stats);
         }
 
-        studyentry.setStats(StudyEntry.DEFAULT_COHORT, stats);
+        studyEntry.setStats(StudyEntry.DEFAULT_COHORT, stats);
     }
 
     @Override
@@ -120,7 +134,7 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
                 String cohortName = opencgaTagSplit[0];
                 VariantStats cohortStats = studyEntry.getStats(cohortName);
                 if (cohortStats == null) {
-                    cohortStats = new VariantStats(variant);
+                    cohortStats = new VariantStats();
                     studyEntry.setStats(cohortName, cohortStats);
                 }
                 switch (opencgaTagSplit[1]) {
@@ -132,7 +146,20 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
                         ans.put(cohortName, Integer.parseInt(values[0]));
                         break;
                     case "HET":
-                        addHeterozygousGenotypes(variant, numAllele, alternateAlleles, cohortStats, values);
+                        // Het count is a non standard field that can not be rearranged when decomposing multi-allelic variants.
+                        // Get the original variant call to parse this field
+                        FileEntry fileEntry = studyEntry.getFiles().get(0);
+                        int numAlleleOri;
+                        String[] alternateAllelesOri;
+                        if (fileEntry.getCall() != null && !fileEntry.getCall().isEmpty()) {
+                            String[] ori = fileEntry.getCall().split(":");
+                            numAlleleOri = Integer.parseInt(ori[3]);
+                            alternateAllelesOri = ori[2].split(",");
+                        } else {
+                            numAlleleOri = numAllele;
+                            alternateAllelesOri = alternateAlleles;
+                        }
+                        addHeterozygousGenotypes(variant, numAlleleOri, alternateAllelesOri, cohortStats, values);
                         break;
                     case "HOM":
                         addHomozygousGenotype(variant, numAllele, alternateAlleles, cohortStats, values);
@@ -146,7 +173,7 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
                 Integer alleleNumber = ans.get(cohortName);
                 addReferenceGenotype(variant, cohortStats, alleleNumber);
                 setRefAlleleCount(cohortStats, alleleNumber, acs.get(cohortName));
-                setMaf(alleleNumber, acs.get(cohortName), alternateAlleles, cohortStats);
+                setMaf(alleleNumber, acs.get(cohortName), variant.getReference(), alternateAlleles, cohortStats);
             }
         }
     }
@@ -167,7 +194,7 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
      */
     private static void addReferenceGenotype(Variant variant, VariantStats stats, int alleleNumber) {
         int gtSum = 0;
-        for (Integer gtCounts : stats.getGenotypesCount().values()) {
+        for (Integer gtCounts : stats.getGenotypeCount().values()) {
             gtSum += gtCounts;
         }
         Genotype genotype = new Genotype("0/0", variant.getReference(), variant.getAlternate());
@@ -218,13 +245,13 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
         }
     }
 
-    private void setMaf(int totalAlleleCount, String alleleCounts[], String alternateAlleles[], VariantStats stats) {
+    private void setMaf(int totalAlleleCount, String[] alleleCounts, String refAllele, String[] alternateAlleles, VariantStats stats) {
         if (stats.getMaf() == -1) {
 
             int referenceCount = stats.getRefAlleleCount();
             float maf = (float) referenceCount / totalAlleleCount;
 
-            String mafAllele = stats.getRefAllele();
+            String mafAllele = refAllele;
             for (int i = 0; i < alleleCounts.length; i++) {
                 float auxMaf = (float) Integer.parseInt(alleleCounts[i]) / totalAlleleCount;
                 if (auxMaf < maf) {

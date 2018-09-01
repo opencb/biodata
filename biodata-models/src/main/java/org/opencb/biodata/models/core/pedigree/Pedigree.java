@@ -20,6 +20,7 @@
 package org.opencb.biodata.models.core.pedigree;
 
 import org.codehaus.jackson.map.ObjectMapper;
+import org.opencb.biodata.models.commons.Phenotype;
 
 import java.util.*;
 
@@ -29,7 +30,7 @@ import java.util.*;
 public class Pedigree {
     private String name;
 
-    //private List<OntologyTerm> diseases;
+    private List<Phenotype> phenotypes;
     private List<Individual> members;
 
     private Map<String, Object> attributes;
@@ -57,24 +58,36 @@ public class Pedigree {
         return name;
     }
 
-    public void setName(String name) {
+    public Pedigree setName(String name) {
         this.name = name;
+        return this;
+    }
+
+    public List<Phenotype> getPhenotypes() {
+        return phenotypes;
+    }
+
+    public Pedigree setPhenotypes(List<Phenotype> phenotypes) {
+        this.phenotypes = phenotypes;
+        return this;
     }
 
     public List<Individual> getMembers() {
         return members;
     }
 
-    public void setMembers(List<Individual> members) {
+    public Pedigree setMembers(List<Individual> members) {
         this.members = members;
+        return this;
     }
 
     public Map<String, Object> getAttributes() {
         return attributes;
     }
 
-    public void setAttributes(Map<String, Object> attributes) {
+    public Pedigree setAttributes(Map<String, Object> attributes) {
         this.attributes = attributes;
+        return this;
     }
 
     public String toJSON() {

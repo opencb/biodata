@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,6 +43,8 @@ public class VariantBuilder {
     public static final String INS_ALT = "<INS>";
     private static final String CNV_PREFIX_ALT = "<CN";
     private static final Pattern CNV_ALT_PATTERN = Pattern.compile("<CN([0-9]+)>");
+    public static final String NON_REF_ALT = Allele.NON_REF_STRING;
+    public static final String REF_ONLY_ALT = "<*>";
 
     private static final Set<String> VALID_NTS = new HashSet<>(Arrays.asList("A", "C", "G", "T", "N"));
     protected static final String VARIANT_STRING_FORMAT
@@ -513,7 +514,7 @@ public class VariantBuilder {
             if (alternates.size() > 0) {
                 List<AlternateCoordinate> secondaryAlternates = new ArrayList<>(alternates.size() - 1);
                 for (int i = 1; i < alternates.size(); i++) {
-                    secondaryAlternates.add(new AlternateCoordinate(chromosome, start, end, reference, alternates.get(i), type));
+                    secondaryAlternates.add(new AlternateCoordinate(chromosome, start, end, reference, alternates.get(i), inferType(reference, alternates.get(i))));
                 }
                 studyEntry.setSecondaryAlternates(secondaryAlternates);
             }
@@ -598,7 +599,7 @@ public class VariantBuilder {
                         .setEnd(end)
                         .setReference(reference)
                         .setAlternate(alternates.get(i))
-                        .setType(builder.getType()));
+                        .setType(getProtoVariantType(inferType(reference, alternates.get(i)))));
             }
 
             if (format != null) {
@@ -751,6 +752,8 @@ public class VariantBuilder {
             } else if (alternate.contains("[") || alternate.contains("]")  // mated breakend
                     || alternateBytes[0] == '.' || alternateBytes[alternateBytes.length - 1] == '.') { // single breakend
                 return VariantType.BREAKEND;
+            } else if (alternate.equals(Allele.NON_REF_STRING) || alternate.equals(REF_ONLY_ALT)) {
+                return VariantType.NO_VARIATION;
             } else {
                 return VariantType.SYMBOLIC;
             }

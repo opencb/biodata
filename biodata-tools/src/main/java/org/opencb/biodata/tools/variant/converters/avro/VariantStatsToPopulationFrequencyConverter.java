@@ -37,8 +37,8 @@ public class VariantStatsToPopulationFrequencyConverter {
         Float hetGenotypeFreq = 0F;
         Float altHomGenotypeFreq = 0F;
 
-        if (stats.getGenotypesFreq() != null && !stats.getGenotypesFreq().isEmpty()) {
-            for (Map.Entry<Genotype, Float> entry : stats.getGenotypesFreq().entrySet()) {
+        if (stats.getGenotypeFreq() != null && !stats.getGenotypeFreq().isEmpty()) {
+            for (Map.Entry<Genotype, Float> entry : stats.getGenotypeFreq().entrySet()) {
                 Genotype gt = entry.getKey();
                 boolean anyRef = false;
                 boolean anyAlt = false;

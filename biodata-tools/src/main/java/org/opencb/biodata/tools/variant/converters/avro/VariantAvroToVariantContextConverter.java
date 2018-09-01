@@ -196,7 +196,7 @@ public class VariantAvroToVariantContextConverter extends VariantContextConverte
 
             if (cohortName.equals(StudyEntry.DEFAULT_COHORT)) {
                 cohortName = "";
-                int an = stats.getAltAlleleCount() + stats.getRefAlleleCount();
+                int an = stats.getAltAlleleCount();
                 if (an >= 0) {
                     attributes.put(cohortName + VCFConstants.ALLELE_NUMBER_KEY, String.valueOf(an));
                 }

@@ -16,6 +16,9 @@
 
 package org.opencb.biodata.tools.variant.stats;
 
+import htsjdk.variant.vcf.VCFHeaderLineCount;
+import htsjdk.variant.vcf.VCFHeaderLineType;
+import org.junit.Before;
 import org.junit.Test;
 import org.opencb.biodata.formats.variant.VariantFactory;
 import org.opencb.biodata.formats.variant.vcf4.VariantAggregatedVcfFactory;
@@ -47,7 +50,30 @@ public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
     private VariantStudyMetadata metadata = fileMetadata.toVariantStudyMetadata("Exac");
     private VariantFactory factory = new VariantAggregatedVcfFactory();
     private VariantNormalizer normalizer = new VariantNormalizer();
-    ;
+
+    @Before
+    public void setUp() throws Exception {
+        normalizer.configure("AC_Hom", VCFHeaderLineCount.A, VCFHeaderLineType.Integer);
+//        normalizer.configure("AC_Het", VCFHeaderLineCount.A, VCFHeaderLineType.Integer);
+        normalizer.configure("AC_Hemi", VCFHeaderLineCount.A, VCFHeaderLineType.Integer);
+        normalizer.configure("AC_Adj", VCFHeaderLineCount.A, VCFHeaderLineType.Integer);
+
+        normalizer.configure("AC_AFR", VCFHeaderLineCount.A, VCFHeaderLineType.Integer);
+        normalizer.configure("Hom_AFR", VCFHeaderLineCount.A, VCFHeaderLineType.Integer);
+        normalizer.configure("Hemi_AFR", VCFHeaderLineCount.A, VCFHeaderLineType.Integer);
+
+        normalizer.configure("AC_AMR", VCFHeaderLineCount.A, VCFHeaderLineType.Integer);
+        normalizer.configure("Hom_AMR", VCFHeaderLineCount.A, VCFHeaderLineType.Integer);
+        normalizer.configure("Hemi_AMR", VCFHeaderLineCount.A, VCFHeaderLineType.Integer);
+
+        normalizer.configure("AC_SAS", VCFHeaderLineCount.A, VCFHeaderLineType.Integer);
+        normalizer.configure("Hom_SAS", VCFHeaderLineCount.A, VCFHeaderLineType.Integer);
+        normalizer.configure("Hemi_SAS", VCFHeaderLineCount.A, VCFHeaderLineType.Integer);
+
+        normalizer.configure("AC_NFE", VCFHeaderLineCount.A, VCFHeaderLineType.Integer);
+        normalizer.configure("Hom_NFE", VCFHeaderLineCount.A, VCFHeaderLineType.Integer);
+        normalizer.configure("Hemi_NFE", VCFHeaderLineCount.A, VCFHeaderLineType.Integer);
+    }
 
     @Test
     public void basicLine() {
@@ -85,7 +111,7 @@ public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
         genotypes.put(new Genotype("1/1", "G", "T"), 0);
 
         VariantStats stats = studyEntry.getStats(StudyEntry.DEFAULT_COHORT);
-        assertEquals(genotypes, stats.getGenotypesCount());
+        assertEquals(genotypes, stats.getGenotypeCount());
         assertEquals(22, stats.getAltAlleleCount().longValue());
         assertEquals(10890 - 22, stats.getRefAlleleCount().longValue());
         assertEquals(22.0 / 10890, stats.getMaf(), 0.00001);
@@ -141,7 +167,7 @@ public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
         genotypes.put(new Genotype("2/3", "G", "T"), 0);
         genotypes.put(new Genotype("3/3", "G", "T"), 0);
 
-        assertEquals(genotypes, studyEntry.getStats(StudyEntry.DEFAULT_COHORT).getGenotypesCount());
+        assertEquals(genotypes, studyEntry.getStats(StudyEntry.DEFAULT_COHORT).getGenotypeCount());
         assertEquals(3, studyEntry.getStats(StudyEntry.DEFAULT_COHORT).getAltAlleleCount().longValue());
         assertEquals(79012 - 1 - 2 - 1 - 2, studyEntry.getStats(StudyEntry.DEFAULT_COHORT).getRefAlleleCount().longValue());
         assertEquals(0, studyEntry.getStats(StudyEntry.DEFAULT_COHORT).getMaf(), 0.00001);   // how can a multiallelic variant have an allele count of 0? the "Adjusted" just removed it
@@ -160,7 +186,7 @@ public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
 
         studyEntry = res.get(1).getStudy(metadata.getId());
 
-        assertEquals(genotypes, studyEntry.getStats(StudyEntry.DEFAULT_COHORT).getGenotypesCount());
+        assertEquals(genotypes, studyEntry.getStats(StudyEntry.DEFAULT_COHORT).getGenotypeCount());
         assertEquals(3, studyEntry.getStats(StudyEntry.DEFAULT_COHORT).getAltAlleleCount().longValue());
         assertEquals(79012 - 1 - 2 - 1 - 2, studyEntry.getStats(StudyEntry.DEFAULT_COHORT).getRefAlleleCount().longValue());
 
@@ -178,7 +204,7 @@ public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
 
         studyEntry = res.get(2).getStudy(metadata.getId());
 
-        assertEquals(genotypes, studyEntry.getStats(StudyEntry.DEFAULT_COHORT).getGenotypesCount());
+        assertEquals(genotypes, studyEntry.getStats(StudyEntry.DEFAULT_COHORT).getGenotypeCount());
         assertEquals(0, studyEntry.getStats(StudyEntry.DEFAULT_COHORT).getAltAlleleCount().longValue());
         assertEquals(79012 - 1 - 2 - 1 - 2, studyEntry.getStats(StudyEntry.DEFAULT_COHORT).getRefAlleleCount().longValue());
     }
@@ -266,13 +292,13 @@ public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
         // Allele and genotype counts
         assertEquals(12, studyEntry.getStats("AFR").getAltAlleleCount().longValue());
         Genotype genotype = new Genotype("0/1", v.getReference(), v.getAlternate());
-        assertEquals(12, (int) studyEntry.getStats("AFR").getGenotypesCount().get(genotype));
+        assertEquals(12, (int) studyEntry.getStats("AFR").getGenotypeCount().get(genotype));
         genotype = new Genotype("0/2", v.getReference(), v.getAlternate());
-        assertEquals(7, (int) studyEntry.getStats("SAS").getGenotypesCount().get(genotype));
+        assertEquals(7, (int) studyEntry.getStats("SAS").getGenotypeCount().get(genotype));
         genotype = new Genotype("1/1", v.getReference(), v.getAlternate());
-        assertEquals(0, (int) studyEntry.getStats("SAS").getGenotypesCount().get(genotype));
+        assertEquals(0, (int) studyEntry.getStats("SAS").getGenotypeCount().get(genotype));
         genotype = new Genotype("0/1", v.getReference(), v.getAlternate());
-        assertEquals(0, (int) studyEntry.getStats("SAS").getGenotypesCount().get(genotype));
+        assertEquals(0, (int) studyEntry.getStats("SAS").getGenotypeCount().get(genotype));
         assertEquals(7025, studyEntry.getStats("SAS").getRefAlleleCount().longValue());
         assertEquals(0, studyEntry.getStats("SAS").getAltAlleleCount().longValue());
         
@@ -282,21 +308,21 @@ public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
         assertEquals(0, studyEntry.getStats("AFR").getMaf(), 0.00001);
         assertEquals(0, studyEntry.getStats("AMR").getMaf(), 0.00001);
 
-        System.out.println("genotypes for C -> G in SAS: " + studyEntry.getStats("SAS").getGenotypesCount());
+        System.out.println("genotypes for C -> G in SAS: " + studyEntry.getStats("SAS").getGenotypeCount());
 
         v = res.get(1);
         studyEntry = v.getStudy(metadata.getId());
 
         assertEquals(2, studyEntry.getStats("NFE").getAltAlleleCount().longValue());
         genotype = new Genotype("0/2", v.getReference(), v.getAlternate());
-        assertEquals(12, (int) studyEntry.getStats("AFR").getGenotypesCount().get(genotype));
+        assertEquals(12, (int) studyEntry.getStats("AFR").getGenotypeCount().get(genotype));
         genotype = new Genotype("0/1", v.getReference(), v.getAlternate());
-        assertEquals(7, (int) studyEntry.getStats("SAS").getGenotypesCount().get(genotype));
+        assertEquals(7, (int) studyEntry.getStats("SAS").getGenotypeCount().get(genotype));
         assertEquals(7025, studyEntry.getStats("SAS").getRefAlleleCount().longValue());
         assertEquals(7, studyEntry.getStats("SAS").getAltAlleleCount().longValue());
         genotype = new Genotype("0/0", v.getReference(), v.getAlternate());
-        assertEquals(7018 / 2, (int) studyEntry.getStats("SAS").getGenotypesCount().get(genotype));
-        System.out.println("genotypes for C -> T in SAS: " + studyEntry.getStats("SAS").getGenotypesCount());
+        assertEquals(7018 / 2, (int) studyEntry.getStats("SAS").getGenotypeCount().get(genotype));
+        System.out.println("genotypes for C -> T in SAS: " + studyEntry.getStats("SAS").getGenotypeCount());
     }
 
     @Test
