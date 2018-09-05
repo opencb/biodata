@@ -37,10 +37,13 @@ public class ModeOfInheritance {
         // Validate genotypes using relationships
         validateGenotypes(genotypes, pedigreeManager);
 
+        if (!isValidModeOfInheritance(genotypes, pedigree, affectedIndividuals)) {
+            return null;
+        }
+
         // Return a readable output, i.e., returning "0/0, "0/1", "1/1"
         return prepareOutput(genotypes);
     }
-
 
     public static Map<String, List<String>> recessive(Pedigree pedigree, Phenotype phenotype, boolean incompletePenetrance) {
         PedigreeManager pedigreeManager = new PedigreeManager(pedigree);
@@ -56,6 +59,10 @@ public class ModeOfInheritance {
 
         // Validate genotypes using relationships
         validateGenotypes(genotypes, pedigreeManager);
+
+        if (!isValidModeOfInheritance(genotypes, pedigree, affectedIndividuals)) {
+            return null;
+        }
 
         // Return a readable output, i.e., returning "0/0, "0/1", "1/1"
         return prepareOutput(genotypes);
@@ -100,6 +107,10 @@ public class ModeOfInheritance {
 
         // Validate genotypes using relationships
         validateGenotypes(genotypes, pedigreeManager);
+
+        if (!isValidModeOfInheritance(genotypes, pedigree, affectedIndividuals)) {
+            return null;
+        }
 
         // Return a readable output
         return prepareOutput(genotypes);
@@ -317,7 +328,6 @@ public class ModeOfInheritance {
                         queue.add(childIndividual.getMother().getId());
                     }
                 }
-
             }
 
             if (!individualIds.isEmpty()) {
@@ -326,6 +336,40 @@ public class ModeOfInheritance {
         }
 
         return retDenovoVariants;
+    }
+
+
+    private static boolean isValidModeOfInheritance(Map<String, Set<Integer>> genotypes, Pedigree pedigree,
+                                                    Set<Individual> affectedIndividuals) {
+        for (Individual individual : pedigree.getMembers()) {
+            if (individual.getMother() != null && individual.getFather() != null) {
+                Set<Integer> childGenotypes = genotypes.get(individual.getId());
+                Set<Integer> motherGenotypes = genotypes.get(individual.getMother().getId());
+                Set<Integer> fatherGenotypes = genotypes.get(individual.getFather().getId());
+
+                if (childGenotypes.size() == 1 && childGenotypes.contains(GENOTYPE_0_0)) {
+                    if (affectedIndividuals.contains(individual)) {
+                        return false;
+                    }
+
+                    if (motherGenotypes.size() == 1 && motherGenotypes.contains(GENOTYPE_1_1) && fatherGenotypes.size() == 1
+                            && fatherGenotypes.contains(GENOTYPE_1_1)) {
+                        return false;
+                    }
+                } else if (childGenotypes.size() == 1 && childGenotypes.contains(GENOTYPE_1_1)) {
+                    if (!affectedIndividuals.contains(individual)) {
+                        return false;
+                    }
+
+                    if (motherGenotypes.size() == 1 && motherGenotypes.contains(GENOTYPE_0_0) && fatherGenotypes.size() == 1
+                            && fatherGenotypes.contains(GENOTYPE_0_0)) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
     }
 
     private static Set<Integer> calculateDominant(boolean affected, boolean incompletePenetrance) {

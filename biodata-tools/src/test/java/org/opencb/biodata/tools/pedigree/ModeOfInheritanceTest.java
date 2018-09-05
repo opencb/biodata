@@ -183,7 +183,7 @@ public class ModeOfInheritanceTest {
         assertTrue("ind15 not 1/1 -> " + genotypes.get("ind15"), Arrays.asList("1/1").containsAll(genotypes.get("ind15")));
         assertTrue("ind16 not 1/1 -> " + genotypes.get("ind16"), Arrays.asList("1/1").containsAll(genotypes.get("ind16")));
         assertTrue("ind18 not 1/1-> " + genotypes.get("ind18"), Arrays.asList("1/1").containsAll(genotypes.get("ind18")));
-        // Impossible case: Ind 17 should also be affected
+        //TODO: Impossible case: Ind 17 should also be affected
         assertTrue("ind17 not 0/1 -> " + genotypes.get("ind17"), Arrays.asList("0/1").containsAll(genotypes.get("ind17")));
     }
 }
