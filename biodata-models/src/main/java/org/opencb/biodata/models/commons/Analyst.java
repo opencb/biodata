@@ -2,15 +2,15 @@ package org.opencb.biodata.models.commons;
 
 public class Analyst {
 
-    private String author;
+    private String name;
     private String email;
     private String company;
 
     public Analyst() {
     }
 
-    public Analyst(String author, String email, String company) {
-        this.author = author;
+    public Analyst(String name, String email, String company) {
+        this.name = name;
         this.email = email;
         this.company = company;
     }
@@ -18,19 +18,19 @@ public class Analyst {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("Analyst{");
-        sb.append("author='").append(author).append('\'');
+        sb.append("author='").append(name).append('\'');
         sb.append(", email='").append(email).append('\'');
         sb.append(", company='").append(company).append('\'');
         sb.append('}');
         return sb.toString();
     }
 
-    public String getAuthor() {
-        return author;
+    public String getName() {
+        return name;
     }
 
-    public Analyst setAuthor(String author) {
-        this.author = author;
+    public Analyst setName(String name) {
+        this.name = name;
         return this;
     }
 
