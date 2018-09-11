@@ -20,6 +20,7 @@
 package org.opencb.biodata.models.core.pedigree;
 
 import org.opencb.biodata.models.commons.Phenotype;
+import org.opencb.biodata.models.pedigree.IndividualProperty;
 import org.opencb.biodata.models.pedigree.Multiples;
 
 import java.util.List;
@@ -37,7 +38,7 @@ public class Individual {
     private Multiples multiples;
 
     private Sex sex;
-    private LifeStatus lifeStatus;
+    private IndividualProperty.LifeStatus lifeStatus;
     private AffectionStatus affectionStatus;
 
     private List<Phenotype> phenotypes;
@@ -99,10 +100,6 @@ public class Individual {
         }
     }
 
-    public enum LifeStatus {
-        ALIVE, ABORTED, DECEASED, UNBORN, STILLBORN, MISCARRIAGE, UNKNOWN
-    }
-
     /**
      * Empty constructor.
      */
@@ -136,6 +133,21 @@ public class Individual {
         this.name = name;
         this.sex = sex;
         this.affectionStatus = affectionStatus;
+    }
+
+    public Individual(String id, String name, Individual father, Individual mother, Multiples multiples, Sex sex,
+                      IndividualProperty.LifeStatus lifeStatus, AffectionStatus affectionStatus, List<Phenotype> phenotypes,
+                      Map<String, Object> attributes) {
+        this.id = id;
+        this.name = name;
+        this.father = father;
+        this.mother = mother;
+        this.multiples = multiples;
+        this.sex = sex;
+        this.lifeStatus = lifeStatus;
+        this.affectionStatus = affectionStatus;
+        this.phenotypes = phenotypes;
+        this.attributes = attributes;
     }
 
     public String getId() {
@@ -192,11 +204,11 @@ public class Individual {
         return this;
     }
 
-    public LifeStatus getLifeStatus() {
+    public IndividualProperty.LifeStatus getLifeStatus() {
         return lifeStatus;
     }
 
-    public Individual setLifeStatus(LifeStatus lifeStatus) {
+    public Individual setLifeStatus(IndividualProperty.LifeStatus lifeStatus) {
         this.lifeStatus = lifeStatus;
         return this;
     }
