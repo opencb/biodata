@@ -24,6 +24,8 @@ import htsjdk.samtools.*;
 import htsjdk.samtools.seekablestream.SeekableStream;
 import htsjdk.samtools.seekablestream.SeekableStreamFactory;
 import htsjdk.samtools.util.Log;
+import org.apache.avro.generic.GenericData;
+import org.apache.commons.lang3.ArrayUtils;
 import org.ga4gh.models.ReadAlignment;
 import org.opencb.biodata.models.alignment.RegionCoverage;
 import org.opencb.biodata.models.core.Region;
@@ -345,6 +347,49 @@ public class BamManager {
         return new RegionCoverage(region, windowSize, avgCoverage);
     }
 
+    /**
+     * Return a list of RegionCoverage with a coverage less than o equal to the input maximum coverage.
+     * @param region
+     * @param maxCoverage
+     * @return
+     * @throws IOException
+     */
+    public List<RegionCoverage> getUncoveredRegions(Region region, int maxCoverage) throws IOException {
+        List<RegionCoverage> uncoveredRegions = new ArrayList<>();
+        RegionCoverage coverageRegion = coverage(region, 1);
+
+        float[] coverages = new float[region.getEnd() - region.getStart() + 1];
+        int i = 0;
+        int pos = coverageRegion.getStart();
+        RegionCoverage uncovered = null;
+        for (float coverage: coverageRegion.getValues()) {
+            if (coverage <= maxCoverage) {
+                if (uncovered == null) {
+                    uncovered = new RegionCoverage(region.getChromosome(), pos, 0);
+                    i = 0;
+                }
+                coverages[i] = coverage;
+                i++;
+            } else {
+                if (uncovered != null) {
+                    uncovered.setEnd(pos);
+                    uncovered.setValues(Arrays.copyOf(coverages, i));
+                    uncoveredRegions.add(uncovered);
+                    uncovered = null;
+                }
+            }
+            pos++;
+        }
+
+        // Check if a uncovered region is still pending
+        if (uncovered != null) {
+            uncovered.setEnd(pos - 1);
+            uncovered.setValues(Arrays.copyOf(coverages, i));
+            uncoveredRegions.add(uncovered);
+        }
+
+        return uncoveredRegions;
+    }
 
     public AlignmentGlobalStats stats() throws IOException {
         return calculateGlobalStats(iterator());
