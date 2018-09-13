@@ -6,6 +6,7 @@ public class Software {
 
     private String name;
     private String version;
+    private String repository;
     private String commit;
     private String website;
     private Map<String, String> params;
@@ -13,9 +14,19 @@ public class Software {
     public Software() {
     }
 
+    @Deprecated
     public Software(String name, String version, String commit, String website, Map<String, String> params) {
         this.name = name;
         this.version = version;
+        this.commit = commit;
+        this.website = website;
+        this.params = params;
+    }
+
+    public Software(String name, String version, String repository, String commit, String website, Map<String, String> params) {
+        this.name = name;
+        this.version = version;
+        this.repository = repository;
         this.commit = commit;
         this.website = website;
         this.params = params;
@@ -26,6 +37,7 @@ public class Software {
         final StringBuilder sb = new StringBuilder("Software{");
         sb.append("name='").append(name).append('\'');
         sb.append(", version='").append(version).append('\'');
+        sb.append(", repository='").append(repository).append('\'');
         sb.append(", commit='").append(commit).append('\'');
         sb.append(", website='").append(website).append('\'');
         sb.append(", params=").append(params);
@@ -48,6 +60,15 @@ public class Software {
 
     public Software setVersion(String version) {
         this.version = version;
+        return this;
+    }
+
+    public String getRepository() {
+        return repository;
+    }
+
+    public Software setRepository(String repository) {
+        this.repository = repository;
         return this;
     }
 
@@ -77,5 +98,4 @@ public class Software {
         this.params = params;
         return this;
     }
-
 }

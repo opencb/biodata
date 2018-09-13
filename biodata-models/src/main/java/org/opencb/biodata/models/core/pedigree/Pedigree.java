@@ -49,8 +49,21 @@ public class Pedigree {
      * @param attributes    Family attributes
      */
     public Pedigree(String name, List<Individual> members, Map<String, Object> attributes) {
+        this(name, members, new ArrayList<>(), attributes);
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param name          Family name
+     * @param members       Individuals belonging to this family
+     * @param phenotypes    List of phenotypes present in the members of the family
+     * @param attributes    Family attributes
+     */
+    public Pedigree(String name, List<Individual> members, List<Phenotype> phenotypes, Map<String, Object> attributes) {
         this.name = name;
         this.members = members;
+        this.phenotypes = phenotypes;
         this.attributes = attributes;
     }
 
