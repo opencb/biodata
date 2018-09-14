@@ -14,12 +14,12 @@ import java.util.stream.Collectors;
 
 public class ModeOfInheritance {
 
-    private static final int GENOTYPE_0_0 = 0;
-    private static final int GENOTYPE_0_1 = 1;
-    private static final int GENOTYPE_1_1 = 2;
+    public static final int GENOTYPE_0_0 = 0;
+    public static final int GENOTYPE_0_1 = 1;
+    public static final int GENOTYPE_1_1 = 2;
 
-    private static final int GENOTYPE_0 = 3;
-    private static final int GENOTYPE_1 = 4;
+    public static final int GENOTYPE_0 = 3;
+    public static final int GENOTYPE_1 = 4;
 
 
     public static Map<String, List<String>> dominant(Pedigree pedigree, Phenotype phenotype, boolean incompletePenetrance) {
@@ -146,19 +146,13 @@ public class ModeOfInheritance {
         return prepareOutput(genotypes);
     }
 
-    public List<String> compoundHeterozygosity(Pedigree pedigree, Iterator<Variant> variantIterator) throws Exception {
-        if (pedigree.getMembers().size() > 3 || pedigree.getMembers().size() < 3) {
-            throw new Exception("Only trios can be studied for the compound heterozygous mode");
+    public static List<Variant> compoundHeterozygosity(Pedigree pedigree, Iterator<Variant> variantIterator) throws Exception {
+        Individual child = pedigree.getProband();
+
+        if (child == null || StringUtils.isEmpty(child.getId())) {
+            throw new Exception("Missing proband in pedigree");
         }
 
-        PedigreeManager pedigreeManager = new PedigreeManager(pedigree);
-
-        List<Individual> childList = pedigreeManager.getWithoutChildren();
-        if (childList.size() > 1) {
-            throw new Exception("Only one child is expected");
-        }
-
-        Individual child = childList.get(0);
         if (child.getFather() == null) {
             throw new Exception("Missing father for " + child.getId());
         }
@@ -170,8 +164,8 @@ public class ModeOfInheritance {
         Individual mother = child.getMother();
 
         // Here we will put all the variant ids that would match parents (0/0 0/1) -> child (1/1)
-        List<String> fatherExplainedVariantList = new ArrayList<>();
-        List<String> motherExplainedVariantList = new ArrayList<>();
+        List<Variant> fatherExplainedVariantList = new ArrayList<>();
+        List<Variant> motherExplainedVariantList = new ArrayList<>();
 
         while (variantIterator.hasNext()) {
             Variant variant = variantIterator.next();
@@ -189,13 +183,13 @@ public class ModeOfInheritance {
                         Genotype motherGt = new Genotype(study.getSampleData(mother.getId(), "GT"));
                         if (motherGt.getAllelesIdx().length == 2 && ((motherGt.getAllelesIdx()[0] == 0 && motherGt.getAllelesIdx()[1] ==
                                 1) || (motherGt.getAllelesIdx()[0] == 1 && motherGt.getAllelesIdx()[1] == 0))) {
-                            motherExplainedVariantList.add(variant.getId());
+                            motherExplainedVariantList.add(variant);
                         }
                     } else if ((fatherGt.getAllelesIdx()[0] == 0 && fatherGt.getAllelesIdx()[1] == 1) || (fatherGt.getAllelesIdx()[0] ==
                             1 && fatherGt.getAllelesIdx()[1] == 0)) {
                         Genotype motherGt = new Genotype(study.getSampleData(mother.getId(), "GT"));
                         if (motherGt.getAllelesIdx().length == 2 && motherGt.getAllelesIdx()[0] == 0 && motherGt.getAllelesIdx()[1] == 0) {
-                            fatherExplainedVariantList.add(variant.getId());
+                            fatherExplainedVariantList.add(variant);
                         }
                     }
                 }
@@ -203,7 +197,7 @@ public class ModeOfInheritance {
         }
 
         if (!fatherExplainedVariantList.isEmpty() && !motherExplainedVariantList.isEmpty()) {
-            List<String> variantList = new ArrayList<>(fatherExplainedVariantList.size() + motherExplainedVariantList.size());
+            List<Variant> variantList = new ArrayList<>(fatherExplainedVariantList.size() + motherExplainedVariantList.size());
             variantList.addAll(fatherExplainedVariantList);
             variantList.addAll(motherExplainedVariantList);
             return variantList;
@@ -218,24 +212,21 @@ public class ModeOfInheritance {
      *
      * @param pedigree        Pedigree object.
      * @param variantIterator Variant iterator.
-     * @return A map of variant id - List of individuals containing a de novo variant.
+     * @return A map of variant - List of individuals containing a de novo variant.
      */
-    public Map<String, List<String>> deNovoVariants(Pedigree pedigree, Iterator<Variant> variantIterator) {
+    public static Map<Variant, List<String>> alldeNovoVariants(Pedigree pedigree, Iterator<Variant> variantIterator) {
         PedigreeManager pedigreeManager = new PedigreeManager(pedigree);
 
         // We get all children so we can check upwards
         List<Individual> allChildren = pedigreeManager.getWithoutChildren();
 
-        Map<String, List<String>> retDenovoVariants = new HashMap<>();
+        Map<Variant, List<String>> retDenovoVariants = new HashMap<>();
 
         while (variantIterator.hasNext()) {
             Variant variant = variantIterator.next();
 
             // List of individuals with de novo variants
             List<String> individualIds = new ArrayList<>();
-
-            // We assume the variant iterator will always contain information for one study
-            StudyEntry study = variant.getStudies().get(0);
 
             Queue<String> queue = new LinkedList<>();
             queue.addAll(allChildren.stream().map(Individual::getId).collect(Collectors.toList()));
@@ -244,76 +235,8 @@ public class ModeOfInheritance {
                 String individualId = queue.remove();
                 Individual childIndividual = pedigreeManager.getIndividualMap().get(individualId);
 
-                Genotype childGt = new Genotype(study.getSampleData(individualId, "GT"));
-
-                int[] childAlleles = childGt.getAllelesIdx();
-                if (childAlleles.length > 0) {
-                    // If the individual has parents
-
-                    if (childIndividual.getFather() != null && StringUtils.isNotEmpty(childIndividual.getFather().getId()) &&
-                            childIndividual.getMother() != null && StringUtils.isNotEmpty(childIndividual.getMother().getId())) {
-                        Genotype fatherGt = new Genotype(study.getSampleData(childIndividual.getFather().getId(), "GT"));
-                        Genotype motherGt = new Genotype(study.getSampleData(childIndividual.getMother().getId(), "GT"));
-
-                        int[] fatherAlleles = fatherGt.getAllelesIdx();
-                        int[] motherAlleles = motherGt.getAllelesIdx();
-
-                        if (fatherAlleles.length == 2 && motherAlleles.length == 2 && childAlleles.length == 2 && childAlleles[0] >= 0 &&
-                                childAlleles[1] >= 0) { // ChildAlleles cannot be -1
-                            Set<Integer> fatherAllelesSet = new HashSet<>();
-                            for (int fatherAllele : fatherAlleles) {
-                                fatherAllelesSet.add(fatherAllele);
-                            }
-                            Set<Integer> motherAllelesSet = new HashSet<>();
-                            for (int motherAllele : motherAlleles) {
-                                motherAllelesSet.add(motherAllele);
-                            }
-
-                            int allele1 = childAlleles[0];
-                            int allele2 = childAlleles[1];
-                            if (fatherAllelesSet.contains(allele1) && motherAllelesSet.contains(allele1)) {
-                                // both parents have the same allele. We need to check for allele 2 in both parents as well
-                                if (!fatherAllelesSet.contains(allele2) && !motherAllelesSet.contains(allele2) && !fatherAllelesSet
-                                        .contains(-1) && !motherAllelesSet.contains(-1)) {
-                                    // None of them have allele 2 -> de novo !
-                                    individualIds.add(individualId);
-                                }
-                            } else if (fatherAllelesSet.contains(allele2) && motherAllelesSet.contains(allele2)) {
-                                // both parents have the same allele. We need to check for allele 1 in both parents as well
-                                if (!fatherAllelesSet.contains(allele1) && !motherAllelesSet.contains(allele1) && !fatherAllelesSet
-                                        .contains(-1) && !motherAllelesSet.contains(-1)) {
-                                    // None of them have allele 2 -> de novo !
-                                    individualIds.add(individualId);
-                                }
-                            }
-                            if (fatherAllelesSet.contains(allele1) && !motherAllelesSet.contains(-1)) {
-                                // only the father has the same allele1
-                                if (!motherAllelesSet.contains(allele2)) {
-                                    // None of them have allele 2 -> de novo !
-                                    individualIds.add(individualId);
-                                }
-                            } else if (motherAllelesSet.contains(allele1) && !fatherAllelesSet.contains(-1)) {
-                                // only the mother has the same allele1
-                                if (!fatherAllelesSet.contains(allele2)) {
-                                    // None of them have allele 2 -> de novo !
-                                    individualIds.add(individualId);
-                                }
-                            } else if (fatherAllelesSet.contains(allele2) && !motherAllelesSet.contains(-1)) {
-                                // only the father has the same allele2
-                                if (!motherAllelesSet.contains(allele1)) {
-                                    // None of them have allele 1 -> de novo !
-                                    individualIds.add(individualId);
-                                }
-                            } else if (motherAllelesSet.contains(allele2) && !fatherAllelesSet.contains(-1)) {
-                                // only the mother has the same allele2
-                                if (!fatherAllelesSet.contains(allele1)) {
-                                    // None of them have allele 1 -> de novo !
-                                    individualIds.add(individualId);
-                                }
-                            }
-
-                        }
-                    }
+                if (isDeNovoVariant(childIndividual, variant)) {
+                    individualIds.add(individualId);
                 }
 
                 // Add parents to the queue
@@ -331,11 +254,109 @@ public class ModeOfInheritance {
             }
 
             if (!individualIds.isEmpty()) {
-                retDenovoVariants.put(variant.getId(), individualIds);
+                retDenovoVariants.put(variant, individualIds);
             }
         }
 
         return retDenovoVariants;
+    }
+
+    /**
+     * Get all the de novo variants identified for the proband.
+     *
+     * @param individual      Child proband.
+     * @param variantIterator Variant iterator.
+     * @return A list of variants.
+     */
+    public static List<Variant> deNovoVariants(Individual individual, Iterator<Variant> variantIterator) {
+        List<Variant> variantList = new ArrayList<>();
+
+        while (variantIterator.hasNext()) {
+            Variant variant = variantIterator.next();
+
+            if (isDeNovoVariant(individual, variant)) {
+                variantList.add(variant);
+            }
+        }
+
+        return variantList;
+    }
+
+    /**
+     * Method to check whether a variant is de novo.
+     *
+     * @param individual      Child proband.
+     * @param variant         Variant to be checked.
+     * @return a boolean indicating whether the variant is de novo.
+     */
+    private static boolean isDeNovoVariant(Individual individual, Variant variant) {
+        // We assume the variant iterator will always contain information for one study
+        StudyEntry study = variant.getStudies().get(0);
+
+        Genotype childGt = new Genotype(study.getSampleData(individual.getId(), "GT"));
+
+        int[] childAlleles = childGt.getAllelesIdx();
+        if (childAlleles.length > 0) {
+            // If the individual has parents
+
+            if (individual.getFather() != null && StringUtils.isNotEmpty(individual.getFather().getId()) && individual.getMother() != null
+                    && StringUtils.isNotEmpty(individual.getMother().getId())) {
+                Genotype fatherGt = new Genotype(study.getSampleData(individual.getFather().getId(), "GT"));
+                Genotype motherGt = new Genotype(study.getSampleData(individual.getMother().getId(), "GT"));
+
+                int[] fatherAlleles = fatherGt.getAllelesIdx();
+                int[] motherAlleles = motherGt.getAllelesIdx();
+
+                if (fatherAlleles.length == 2 && motherAlleles.length == 2 && childAlleles.length == 2 && childAlleles[0] >= 0
+                        && childAlleles[1] >= 0) { // ChildAlleles cannot be -1
+                    Set<Integer> fatherAllelesSet = new HashSet<>();
+                    for (int fatherAllele : fatherAlleles) {
+                        fatherAllelesSet.add(fatherAllele);
+                    }
+                    Set<Integer> motherAllelesSet = new HashSet<>();
+                    for (int motherAllele : motherAlleles) {
+                        motherAllelesSet.add(motherAllele);
+                    }
+
+                    int allele1 = childAlleles[0];
+                    int allele2 = childAlleles[1];
+                    if (fatherAllelesSet.contains(allele1) && motherAllelesSet.contains(allele1)) {
+                        // both parents have the same allele. We need to check for allele 2 in both parents as well
+                        if (!fatherAllelesSet.contains(allele2) && !motherAllelesSet.contains(allele2) && !fatherAllelesSet.contains(-1)
+                                && !motherAllelesSet.contains(-1)) {
+                            // None of them have allele 2 -> de novo !
+                            return true;
+                        }
+                    } else if (fatherAllelesSet.contains(allele2) && motherAllelesSet.contains(allele2)) {
+                        // both parents have the same allele. We need to check for allele 1 in both parents as well
+                        if (!fatherAllelesSet.contains(allele1) && !motherAllelesSet.contains(allele1) && !fatherAllelesSet.contains(-1)
+                                && !motherAllelesSet.contains(-1)) {
+                            // None of them have allele 2 -> de novo !
+                            return true;
+                        }
+                    }
+                    if (fatherAllelesSet.contains(allele1) && !motherAllelesSet.contains(-1)) {
+                        // only the father has the same allele1
+                        // None of them have allele 2 -> de novo !
+                        return !motherAllelesSet.contains(allele2);
+                    } else if (motherAllelesSet.contains(allele1) && !fatherAllelesSet.contains(-1)) {
+                        // only the mother has the same allele1
+                        // None of them have allele 2 -> de novo !
+                        return !fatherAllelesSet.contains(allele2);
+                    } else if (fatherAllelesSet.contains(allele2) && !motherAllelesSet.contains(-1)) {
+                        // only the father has the same allele2
+                        // None of them have allele 1 -> de novo !
+                        return !motherAllelesSet.contains(allele1);
+                    } else if (motherAllelesSet.contains(allele2) && !fatherAllelesSet.contains(-1)) {
+                        // only the mother has the same allele2
+                        // None of them have allele 1 -> de novo !
+                        return !fatherAllelesSet.contains(allele1);
+                    }
+
+                }
+            }
+        }
+        return false;
     }
 
 
@@ -525,7 +546,7 @@ public class ModeOfInheritance {
         return output;
     }
 
-    private static String toGenotypeString(int gt) {
+    public static String toGenotypeString(int gt) {
         switch (gt) {
             case GENOTYPE_0_0:
                 return "0/0";
