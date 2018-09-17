@@ -24,12 +24,11 @@ import htsjdk.samtools.*;
 import htsjdk.samtools.seekablestream.SeekableStream;
 import htsjdk.samtools.seekablestream.SeekableStreamFactory;
 import htsjdk.samtools.util.Log;
-import org.apache.avro.generic.GenericData;
-import org.apache.commons.lang3.ArrayUtils;
 import org.ga4gh.models.ReadAlignment;
 import org.opencb.biodata.models.alignment.RegionCoverage;
 import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.tools.alignment.coverage.SamRecordRegionCoverageCalculator;
+import org.opencb.biodata.tools.alignment.exceptions.AlignmentCoverageException;
 import org.opencb.biodata.tools.alignment.filters.AlignmentFilters;
 import org.opencb.biodata.tools.alignment.iterators.BamIterator;
 import org.opencb.biodata.tools.alignment.iterators.SAMRecordToAvroReadAlignmentBamIterator;
@@ -60,22 +59,18 @@ public class BamManager {
     private Path bamFile;
     private SamReader samReader;
 
-    private static final String COVERAGE_BIGWIG_EXTENSION = ".coverage.bw";
-    private static final int DEFAULT_WINDOW_SIZE = 50;
-    private static final int DEFAULT_MAX_NUM_RECORDS = 50000;
+    public static final int DEFAULT_WINDOW_SIZE = 1;
+    public static final int MAX_NUM_RECORDS = 50000;
+    public static final int MAX_REGION_COVERAGE = 100000;
+    public static final String COVERAGE_BIGWIG_EXTENSION = ".coverage.bw";
 
-    protected Logger logger;
-
-    @Deprecated
-    public BamManager() {
-        logger = LoggerFactory.getLogger(BamManager.class);
-    }
+    private Logger logger;
 
     public BamManager(Path bamFilePath) throws IOException {
-        this();
-
         FileUtils.checkFile(bamFilePath);
         this.bamFile = bamFilePath;
+
+        logger = LoggerFactory.getLogger(BamManager.class);
     }
 
     private void init() throws IOException {
@@ -100,7 +95,7 @@ public class BamManager {
 
     /**
      * Creates a BAM/CRAM index file.
-     * @param outputIndex The index created.
+     * @param outputIndex The bai index file to be created.
      * @return
      * @throws IOException
      */
@@ -142,14 +137,20 @@ public class BamManager {
         checkBaiFileExists();
         FileUtils.checkDirectory(bigWigPath.toAbsolutePath().getParent(), true);
 
+        // Check windowsSize is valid, it must be greater or equal than 1
+        if (windowSize < 1) {
+            windowSize = DEFAULT_WINDOW_SIZE;
+        }
+        String windowSizeStr = String.valueOf(windowSize);
+
         // Execute the bamCoverage utility from deepTools package, assuming it is installed in the system
         // deepTools installation: pip install deepTools
         ProcessBuilder processBuilder = new ProcessBuilder(
-                Arrays.asList("bamCoverage", "-b", bamFile.toString(), "-o", bigWigPath.toString(), "-of", "bigwig", "-bs", String.valueOf(windowSize)));
+                Arrays.asList("bamCoverage", "-b", bamFile.toString(), "-o", bigWigPath.toString(), "-of", "bigwig", "-bs", windowSizeStr));
         Process p = processBuilder.start();
-        BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        BufferedReader processBufferedReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
         String line;
-        while ((line = input.readLine()) != null) {
+        while ((line = processBufferedReader.readLine()) != null) {
             logger.info(line);
         }
 
@@ -197,10 +198,10 @@ public class BamManager {
             options = new AlignmentOptions();
         }
 
-        // Set number of returned records up to DEFAULT_MAX_NUM_RECORDS, if not set then DEFAULT_MAX_NUM_RECORDS is returned
-        int maxNumberRecords = DEFAULT_MAX_NUM_RECORDS;
+        // Set number of returned records up to MAX_NUM_RECORDS, if not set then MAX_NUM_RECORDS is returned
+        int maxNumberRecords = MAX_NUM_RECORDS;
         if (options.getLimit() > 0) {
-            maxNumberRecords = Math.min(options.getLimit(), DEFAULT_MAX_NUM_RECORDS);
+            maxNumberRecords = Math.min(options.getLimit(), MAX_NUM_RECORDS);
         }
 
         List<T> results = new ArrayList<>(maxNumberRecords);
@@ -288,8 +289,46 @@ public class BamManager {
         }
     }
 
+    /**
+     * Return the coverage average given a window size from a BigWig file. This is expected to have the same name
+     * that the BAM file with .coverage.bw or .bw suffix.
+     * If no BigWig file is found and windowSize is 1 then we calculate te coverage from the BAM file.
+     * @param region Region from which return the coverage
+     * @param windowSize Window size to average
+     * @return One average score per window size spanning the region
+     * @throws IOException If any error happens reading BigWig file
+     */
+    public RegionCoverage coverage(Region region, int windowSize) throws IOException, AlignmentCoverageException {
+        if (Paths.get(bamFile.toString() + ".bw").toFile().exists()) {
+            return BamUtils.getCoverageFromBigWig(region, windowSize, Paths.get(bamFile.toString() + ".bw"));
+        } else {
+            if (Paths.get(bamFile.toString() + COVERAGE_BIGWIG_EXTENSION).toFile().exists()) {
+                return BamUtils.getCoverageFromBigWig(region, windowSize, Paths.get(this.bamFile.toString() + COVERAGE_BIGWIG_EXTENSION));
+            } else {
+                // If BigWig file is not found and windowSize is 1 then we calculate it from the BAM file
+                if (windowSize == 1) {
+                    return coverage(region, null, new AlignmentOptions());
+                } else {
+                    throw new AlignmentCoverageException("No bigwig file has been found and windowSize is > 1");
+                }
+            }
+        }
+    }
 
-    public RegionCoverage coverage(Region region, AlignmentFilters<SAMRecord> filters, AlignmentOptions options) {
+    /**
+     * This method get some filters and calculate the coverage from the BAM file with the reads filtered.
+     * @param region Region to calculate coverage from
+     * @param filters Filters to be applied to reads
+     * @param options Other possible options
+     * @return The coverage for each position of the region (windowSize == 1)
+     */
+    public RegionCoverage coverage(Region region, AlignmentFilters<SAMRecord> filters, AlignmentOptions options)
+            throws AlignmentCoverageException {
+        // Check region size is smaller than MAX_REGION_COVERAGE
+        if (region.size() > MAX_REGION_COVERAGE) {
+            throw new AlignmentCoverageException("Region size is bigger than MAX_REGION_COVERAGE [" + MAX_REGION_COVERAGE +"]");
+        }
+
         RegionCoverage regionCoverage = new RegionCoverage(region);
         if (options == null) {
             options = new AlignmentOptions();
@@ -309,83 +348,44 @@ public class BamManager {
     }
 
     /**
-     * Return the coverage average given a window size from a BigWig file. This is expected to have the same name
-     * that the BAM file with .coverage.bw or .bw suffix.
-     * If no BigWig file is found and windowSize is 1 then we calculate te coverage from the BAM file.
-     * @param region Region from which return the coverage
-     * @param windowSize Window size to average
-     * @return One average score per window size spanning the region
-     * @throws IOException If any error happens reading BigWig file
-     */
-    public RegionCoverage coverage(Region region, int windowSize) throws IOException {
-        if (Paths.get(bamFile.toString() + ".bw").toFile().exists()) {
-            return coverage(region, windowSize, Paths.get(bamFile.toString() + ".bw"));
-        } else {
-            if (Paths.get(bamFile.toString() + COVERAGE_BIGWIG_EXTENSION).toFile().exists()) {
-                return coverage(region, windowSize, Paths.get(this.bamFile.toString() + COVERAGE_BIGWIG_EXTENSION));
-            } else {
-                // If BigWig file is not found and windowSize is 1 then we calculate it from the BAM file
-                if (windowSize == 1) {
-                    return coverage(region, null, new AlignmentOptions());
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Return the coverage average given a window size from the BigWig file passed.
-     * @param region Region from which return the coverage
-     * @param windowSize Window size to average
-     * @param bigwigPath BigWig path with coverage
-     * @return One average score per window size spanning the region
-     * @throws IOException If any error happens reading BigWig file
-     */
-    public RegionCoverage coverage(Region region, int windowSize, Path bigwigPath) throws IOException {
-        BigWigManager bigWigManager = new BigWigManager(bigwigPath);
-        float[] avgCoverage = bigWigManager.groupBy(region, windowSize);
-        return new RegionCoverage(region, windowSize, avgCoverage);
-    }
-
-    /**
      * Return a list of RegionCoverage with a coverage less than o equal to the input maximum coverage.
      * @param region
      * @param maxCoverage
      * @return
      * @throws IOException
      */
-    public List<RegionCoverage> getUncoveredRegions(Region region, int maxCoverage) throws IOException {
+    public List<RegionCoverage> getUncoveredRegions(Region region, int maxCoverage) throws IOException, AlignmentCoverageException {
         List<RegionCoverage> uncoveredRegions = new ArrayList<>();
         RegionCoverage coverageRegion = coverage(region, 1);
 
-        float[] coverages = new float[region.getEnd() - region.getStart() + 1];
+        float[] coverages = new float[region.size()];
         int i = 0;
         int pos = coverageRegion.getStart();
-        RegionCoverage uncovered = null;
+        RegionCoverage uncoveredRegion = null;
         for (float coverage: coverageRegion.getValues()) {
-            if (coverage <= maxCoverage) {
-                if (uncovered == null) {
-                    uncovered = new RegionCoverage(region.getChromosome(), pos, 0);
+            if (coverage < maxCoverage) {
+                if (uncoveredRegion == null) {
+                    uncoveredRegion = new RegionCoverage(region.getChromosome(), pos, 0);
                     i = 0;
                 }
                 coverages[i] = coverage;
                 i++;
             } else {
-                if (uncovered != null) {
-                    uncovered.setEnd(pos);
-                    uncovered.setValues(Arrays.copyOf(coverages, i));
-                    uncoveredRegions.add(uncovered);
-                    uncovered = null;
+                if (uncoveredRegion != null) {
+                    uncoveredRegion.setEnd(pos);
+                    uncoveredRegion.setValues(Arrays.copyOf(coverages, i));
+                    uncoveredRegions.add(uncoveredRegion);
+                    uncoveredRegion = null;
                 }
             }
             pos++;
         }
 
         // Check if a uncovered region is still pending
-        if (uncovered != null) {
-            uncovered.setEnd(pos - 1);
-            uncovered.setValues(Arrays.copyOf(coverages, i));
-            uncoveredRegions.add(uncovered);
+        if (uncoveredRegion != null) {
+            uncoveredRegion.setEnd(pos - 1);
+            uncoveredRegion.setValues(Arrays.copyOf(coverages, i));
+            uncoveredRegions.add(uncoveredRegion);
         }
 
         return uncoveredRegions;
