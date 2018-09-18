@@ -159,9 +159,9 @@ public class VcfManager {
             options = new VariantOptions();
         }
 
-        // Number of returned records, if not set then DEFAULT_MAX_NUM_RECORDS is returned
+        // Number of returned records, if not set then MAX_NUM_RECORDS is returned
         int maxNumberRecords = DEFAULT_MAX_NUM_RECORDS;
-        if (options.getLimit() > 0) {  // && VariantOptions.getLimit() <= DEFAULT_MAX_NUM_RECORDS
+        if (options.getLimit() > 0) {  // && VariantOptions.getLimit() <= MAX_NUM_RECORDS
             maxNumberRecords = options.getLimit();
         }
 

@@ -30,12 +30,12 @@ import java.util.regex.Pattern;
  */
 public class Region {
 
-    private static final String MITOCHONDRIA_M = "M";
     private String chromosome;
     private int start;
     private int end;
 
     private static final Pattern regionPattern = Pattern.compile("[:-]");
+    private static final String MITOCHONDRIA_M = "M";
 
     public Region() {
         this(null, 0, Integer.MAX_VALUE);
@@ -125,6 +125,9 @@ public class Region {
         return chromosome;
     }
 
+    public int size() {
+        return end - start + 1;
+    }
 
     public boolean contains(String chromosome, int position) {
         return (this.chromosome.equals(chromosome) && this.start <= position && this.end >= position);
@@ -140,7 +143,7 @@ public class Region {
         if (this.end != Integer.MAX_VALUE) {
             sb.append(":").append(this.start).append("-").append(this.end);
         } else {
-            if (this.start != 0 && this.end == Integer.MAX_VALUE) {
+            if (this.start != 0) {
                 sb.append(":").append(this.start);
             }
         }

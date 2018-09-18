@@ -22,12 +22,12 @@ package org.opencb.biodata.tools.alignment;
 import htsjdk.samtools.*;
 import org.opencb.biodata.models.alignment.RegionCoverage;
 import org.opencb.biodata.models.core.Region;
-import org.opencb.biodata.tools.commons.ChunkFrequencyManager;
+import org.opencb.biodata.tools.alignment.exceptions.AlignmentCoverageException;
+import org.opencb.biodata.tools.feature.BigWigManager;
 import org.opencb.commons.utils.FileUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -158,6 +158,22 @@ public class BamUtils {
     }
 
     /**
+     * Return the coverage average given a window size from the BigWig file passed.
+     * @param region Region from which return the coverage
+     * @param windowSize Window size to average
+     * @param bigwigPath BigWig path with coverage
+     * @return One average score per window size spanning the region
+     * @throws IOException If any error happens reading BigWig file
+     */
+    public static RegionCoverage getCoverageFromBigWig(Region region, int windowSize, Path bigwigPath) throws IOException {
+        FileUtils.checkFile(bigwigPath);
+
+        BigWigManager bigWigManager = new BigWigManager(bigwigPath);
+        float[] avgCoverage = bigWigManager.groupBy(region, windowSize);
+        return new RegionCoverage(region, windowSize, avgCoverage);
+    }
+
+    /**
      * Write in wig file format the coverage for the region given. It uses fixedStep with step equals to 1.
      *
      * @param regionCoverage    Region containing the coverage values
@@ -205,7 +221,7 @@ public class BamUtils {
      * @param span              Span (to group coverage contiguous values in a mean coverage)
      * @throws IOException
      */
-    public static void createCoverageWigFile(Path bamPath, Path coveragePath, int span) throws IOException {
+    public static void createCoverageWigFile(Path bamPath, Path coveragePath, int span) throws IOException, AlignmentCoverageException {
         SAMFileHeader fileHeader = BamUtils.getFileHeader(bamPath);
 
         AlignmentOptions options = new AlignmentOptions();
