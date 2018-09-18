@@ -364,8 +364,7 @@ public class ModeOfInheritance {
                             // None of them have allele 2 -> de novo !
                             return true;
                         }
-                    }
-                    if (fatherAllelesSet.contains(allele1) && !motherAllelesSet.contains(-1)) {
+                    } else if (fatherAllelesSet.contains(allele1) && !motherAllelesSet.contains(-1)) {
                         // only the father has the same allele1
                         // None of them have allele 2 -> de novo !
                         return !motherAllelesSet.contains(allele2);
@@ -381,6 +380,8 @@ public class ModeOfInheritance {
                         // only the mother has the same allele2
                         // None of them have allele 1 -> de novo !
                         return !fatherAllelesSet.contains(allele1);
+                    } else {
+                        return true;
                     }
 
                 }
