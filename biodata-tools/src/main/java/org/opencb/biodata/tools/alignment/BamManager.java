@@ -361,28 +361,30 @@ public class BamManager {
         float[] coverages = new float[region.size()];
         int i = 0;
         int pos = coverageRegion.getStart();
+        boolean isProcessing = false;
         RegionCoverage uncoveredRegion = null;
         for (float coverage: coverageRegion.getValues()) {
             if (coverage < maxCoverage) {
-                if (uncoveredRegion == null) {
+                if (!isProcessing) {
                     uncoveredRegion = new RegionCoverage(region.getChromosome(), pos, 0);
+                    isProcessing = true;
                     i = 0;
                 }
                 coverages[i] = coverage;
                 i++;
             } else {
-                if (uncoveredRegion != null) {
+                if (isProcessing) {
                     uncoveredRegion.setEnd(pos);
                     uncoveredRegion.setValues(Arrays.copyOf(coverages, i));
                     uncoveredRegions.add(uncoveredRegion);
-                    uncoveredRegion = null;
+                    isProcessing = false;
                 }
             }
             pos++;
         }
 
-        // Check if a uncovered region is still pending
-        if (uncoveredRegion != null) {
+        // Check if a uncovered region is still processing
+        if (isProcessing) {
             uncoveredRegion.setEnd(pos - 1);
             uncoveredRegion.setValues(Arrays.copyOf(coverages, i));
             uncoveredRegions.add(uncoveredRegion);
