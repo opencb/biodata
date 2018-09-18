@@ -100,6 +100,7 @@ public class ModeOfInheritance {
                 } else {
                     Set<Integer> genotype = new HashSet<>();
                     genotype.add(GENOTYPE_0_0);
+                    genotype.add(GENOTYPE_0_1);
                     genotypes.put(individual.getId(), genotype);
                 }
             }
@@ -127,10 +128,14 @@ public class ModeOfInheritance {
 
         for (Individual individual : pedigree.getMembers()) {
             if (affectedIndividuals.contains(individual)) {
-                // TODO: Individual must be male. Do we check it here?
-                Set<Integer> genotype = new HashSet<>();
-                genotype.add(GENOTYPE_1);
-                genotypes.put(individual.getId(), genotype);
+                if (individual.getSex() == Individual.Sex.MALE) {
+                    Set<Integer> genotype = new HashSet<>();
+                    genotype.add(GENOTYPE_1);
+                    genotypes.put(individual.getId(), genotype);
+                } else {
+                    // Found affected female!!??
+                    return null;
+                }
             } else {
                 if (individual.getSex() == Individual.Sex.MALE) {
                     Set<Integer> genotype = new HashSet<>();
@@ -139,6 +144,30 @@ public class ModeOfInheritance {
                 } else {
                     genotypes.put(individual.getId(), new HashSet<>());
                 }
+            }
+        }
+
+        // Check for impossible situations
+        Queue<Individual> queue = new LinkedList<>(pedigreeManager.getWithoutChildren());
+        while (!queue.isEmpty()) {
+            Individual child = queue.remove();
+
+            if (child.getSex() == Individual.Sex.MALE && child.getFather() != null && StringUtils.isNotEmpty(child.getFather().getId())) {
+                // Both or none of them should be affected
+                Set<Integer> childGenotypes = genotypes.get(child.getId());
+                Set<Integer> fatherGenotypes = genotypes.get(child.getFather().getId());
+
+                if (!childGenotypes.containsAll(fatherGenotypes)) {
+                    // Father and son have different genotypes, which shouldn't be possible
+                    return null;
+                }
+            }
+
+            if (child.getFather() != null && StringUtils.isNotEmpty(child.getFather().getId())) {
+                queue.add(child.getFather());
+            }
+            if (child.getMother() != null && StringUtils.isNotEmpty(child.getMother().getId())) {
+                queue.add(child.getMother());
             }
         }
 
@@ -163,7 +192,7 @@ public class ModeOfInheritance {
         Individual father = child.getFather();
         Individual mother = child.getMother();
 
-        // Here we will put all the variant ids that would match parents (0/0 0/1) -> child (1/1)
+        // Here we will put all the variant ids that would match parents (0/0 0/1) -> child (0/1)
         List<Variant> fatherExplainedVariantList = new ArrayList<>();
         List<Variant> motherExplainedVariantList = new ArrayList<>();
 
@@ -175,8 +204,9 @@ public class ModeOfInheritance {
 
             Genotype childGt = new Genotype(study.getSampleData(child.getId(), "GT"));
 
-            // Child is 1/1 or 1|1
-            if (childGt.getAllelesIdx().length == 2 && childGt.getAllelesIdx()[0] == 1 && childGt.getAllelesIdx()[1] == 1) {
+            // Child is 0/1 or 0|1
+            if (childGt.getAllelesIdx().length == 2 && ((childGt.getAllelesIdx()[0] == 0 && childGt.getAllelesIdx()[1] == 1)
+                    || (childGt.getAllelesIdx()[0] == 1 && childGt.getAllelesIdx()[1] == 0))) {
                 Genotype fatherGt = new Genotype(study.getSampleData(father.getId(), "GT"));
                 if (fatherGt.getAllelesIdx().length == 2) {
                     if (fatherGt.getAllelesIdx()[0] == 0 && fatherGt.getAllelesIdx()[1] == 0) {
@@ -368,6 +398,10 @@ public class ModeOfInheritance {
                 Set<Integer> motherGenotypes = genotypes.get(individual.getMother().getId());
                 Set<Integer> fatherGenotypes = genotypes.get(individual.getFather().getId());
 
+                if (childGenotypes.isEmpty()) {
+                    return false;
+                }
+
                 if (childGenotypes.size() == 1 && childGenotypes.contains(GENOTYPE_0_0)) {
                     if (affectedIndividuals.contains(individual)) {
                         return false;
@@ -461,6 +495,67 @@ public class ModeOfInheritance {
     }
 
     private static void processIndividual(Individual individual, Map<String, Set<Integer>> gt) {
+        // 1. We first process them independently so the possible genotypes are reduced
+
+        // From father to child
+        if (individual.getFather() != null) {
+            gt.put(individual.getId(), validate(gt.get(individual.getFather().getId()), gt.get(individual.getId())));
+        }
+
+        // From mother to child
+        if (individual.getMother() != null) {
+            gt.put(individual.getId(), validate(gt.get(individual.getMother().getId()), gt.get(individual.getId())));
+        }
+
+        // From child to father
+        if (individual.getFather() != null) {
+            gt.put(individual.getFather().getId(), validate(gt.get(individual.getId()), gt.get(individual.getFather().getId())));
+        }
+
+        // From child to mother
+        if (individual.getMother() != null) {
+            gt.put(individual.getMother().getId(), validate(gt.get(individual.getId()), gt.get(individual.getMother().getId())));
+        }
+
+        // 2. We now perform a comparison having a look at both parents
+        if (individual.getMother() != null && individual.getFather() != null) {
+            Set<Integer> fatherGenotypes = gt.get(individual.getFather().getId());
+            Set<Integer> motherGenotypes = gt.get(individual.getMother().getId());
+            Set<Integer> childGenotypes = gt.get(individual.getId());
+
+            Set<Integer> finalGenotypes = new HashSet<>();
+            for (int childGenotype : childGenotypes) {
+                if (childGenotype == GENOTYPE_0_0) {
+                    if ((fatherGenotypes.contains(GENOTYPE_0_0) || fatherGenotypes.contains(GENOTYPE_0_1)
+                            || fatherGenotypes.contains(GENOTYPE_0))
+                            && (motherGenotypes.contains(GENOTYPE_0_0) || motherGenotypes.contains(GENOTYPE_0_1))) {
+                        finalGenotypes.add(GENOTYPE_0_0);
+                    }
+                } else if (childGenotype == GENOTYPE_0_1) {
+                    if (((fatherGenotypes.contains(GENOTYPE_0_0) || fatherGenotypes.contains(GENOTYPE_0_1)
+                            || fatherGenotypes.contains(GENOTYPE_0))
+                            && (motherGenotypes.contains(GENOTYPE_0_1) || motherGenotypes.contains(GENOTYPE_1_1)))
+                            || ((motherGenotypes.contains(GENOTYPE_0_0) || motherGenotypes.contains(GENOTYPE_0_1))
+                            && (fatherGenotypes.contains(GENOTYPE_0_1) || fatherGenotypes.contains(GENOTYPE_1_1)
+                            || fatherGenotypes.contains(GENOTYPE_1)))) {
+                        finalGenotypes.add(GENOTYPE_0_1);
+                    }
+                } else if (childGenotype == GENOTYPE_1_1) {
+                    if ((fatherGenotypes.contains(GENOTYPE_0_1) || fatherGenotypes.contains(GENOTYPE_1_1)
+                            || fatherGenotypes.contains(GENOTYPE_1))
+                            && (motherGenotypes.contains(GENOTYPE_0_1) || motherGenotypes.contains(GENOTYPE_1_1))) {
+                        finalGenotypes.add(GENOTYPE_1_1);
+                    }
+                } else {
+                    finalGenotypes.add(childGenotype);
+                }
+            }
+
+            gt.put(individual.getId(), finalGenotypes);
+        }
+    }
+
+    private static void processIndividualCopy(Individual individual, Map<String, Set<Integer>> gt) {
         // From father to child
         if (individual.getFather() != null) {
             gt.put(individual.getId(), validate(gt.get(individual.getFather().getId()), gt.get(individual.getId())));
