@@ -7,6 +7,7 @@ import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.tools.alignment.AlignmentOptions;
 import org.opencb.biodata.tools.alignment.BamManager;
 import org.opencb.biodata.tools.alignment.BamUtils;
+import org.opencb.biodata.tools.alignment.exceptions.AlignmentCoverageException;
 import org.opencb.commons.utils.FileUtils;
 
 import java.io.BufferedReader;
@@ -32,7 +33,7 @@ public class CoverageSQLiteUtils {
      * @param sqlPath       Output dir where to store the SQLite database
      * @throws IOException  IO exception
      */
-    public static void calculateCoverate(Path bamPath, Path sqlPath) throws IOException {
+    public static void calculateCoverate(Path bamPath, Path sqlPath) throws IOException, AlignmentCoverageException {
         BamManager bamManager = new BamManager(bamPath);
 
         // Check if the bam index (.bai) does not exit, then create it

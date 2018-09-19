@@ -33,6 +33,8 @@ public class Pedigree {
     private List<Phenotype> phenotypes;
     private List<Individual> members;
 
+    private Individual proband;
+
     private Map<String, Object> attributes;
 
     /**
@@ -49,7 +51,7 @@ public class Pedigree {
      * @param attributes    Family attributes
      */
     public Pedigree(String name, List<Individual> members, Map<String, Object> attributes) {
-        this(name, members, new ArrayList<>(), attributes);
+        this(name, members, null, new ArrayList<>(), attributes);
     }
 
     /**
@@ -61,8 +63,22 @@ public class Pedigree {
      * @param attributes    Family attributes
      */
     public Pedigree(String name, List<Individual> members, List<Phenotype> phenotypes, Map<String, Object> attributes) {
+        this(name, members, null, phenotypes, attributes);
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param name          Family name
+     * @param members       Individuals belonging to this family
+     * @param proband       Proband individual
+     * @param phenotypes    List of phenotypes present in the members of the family
+     * @param attributes    Family attributes
+     */
+    public Pedigree(String name, List<Individual> members, Individual proband, List<Phenotype> phenotypes, Map<String, Object> attributes) {
         this.name = name;
         this.members = members;
+        this.proband = proband;
         this.phenotypes = phenotypes;
         this.attributes = attributes;
     }
@@ -91,6 +107,15 @@ public class Pedigree {
 
     public Pedigree setMembers(List<Individual> members) {
         this.members = members;
+        return this;
+    }
+
+    public Individual getProband() {
+        return proband;
+    }
+
+    public Pedigree setProband(Individual proband) {
+        this.proband = proband;
         return this;
     }
 
