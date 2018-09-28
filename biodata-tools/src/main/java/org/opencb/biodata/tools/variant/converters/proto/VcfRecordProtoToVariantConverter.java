@@ -133,7 +133,11 @@ public class VcfRecordProtoToVariantConverter implements Converter<VcfSliceProto
         Integer gtPosition = formatPositions.get("GT");
         if (gtPosition == null) {
             for (VcfSliceProtos.VcfSample vcfSample : vcfRecord.getSamplesList()) {
-                samplesData.add(vcfSample.getSampleValuesList());
+                if (vcfSample.getSampleValuesCount() == 0) {
+                    samplesData.add(vcfSample.getSampleValuesList());
+                } else {
+                    samplesData.add(Collections.emptyList());
+                }
             }
         } else {
             if (gtPosition != 0) {
@@ -142,7 +146,9 @@ public class VcfRecordProtoToVariantConverter implements Converter<VcfSliceProto
             for (VcfSliceProtos.VcfSample vcfSample : vcfRecord.getSamplesList()) {
                 List<String> data = new ArrayList<>(formatPositions.size());
                 data.add(fields.getGts(vcfSample.getGtIndex()));
-                data.addAll(vcfSample.getSampleValuesList());
+                if (vcfSample.getSampleValuesCount() > 0) {
+                    data.addAll(vcfSample.getSampleValuesList());
+                }
                 samplesData.add(data);
             }
         }
@@ -167,8 +173,16 @@ public class VcfRecordProtoToVariantConverter implements Converter<VcfSliceProto
             attributes.put(fields.getInfoKeys(keyIdxIterator.next()), valueIterator.next());
         }
 
-        attributes.put(StudyEntry.QUAL, getQuality(vcfRecord));
-        attributes.put(StudyEntry.FILTER, getFilter(vcfRecord));
+        String quality = getQuality(vcfRecord);
+        if (quality != null) {
+            attributes.put(StudyEntry.QUAL, quality);
+        }
+
+        String filter = getFilter(vcfRecord);
+        if (filter != null) {
+            attributes.put(StudyEntry.FILTER, filter);
+        }
+
         return attributes;
     }
 
@@ -202,12 +216,20 @@ public class VcfRecordProtoToVariantConverter implements Converter<VcfSliceProto
     }
 
     private String getFilter(VcfSliceProtos.VcfRecord vcfRecord) {
-        return fields.getFilters(vcfRecord.getFilterIndex());
+        if (fields.getFiltersCount() > 0) {
+            return fields.getFilters(vcfRecord.getFilterIndex());
+        } else {
+            return null;
+        }
     }
 
     private List<String> getFormat(VcfSliceProtos.VcfRecord vcfRecord) {
-        String format = fields.getFormats(vcfRecord.getFormatIndex());
-        return Arrays.asList(format.split(":"));
+        if (fields.getFormatsCount() > 0) {
+            String format = fields.getFormats(vcfRecord.getFormatIndex());
+            return Arrays.asList(format.split(":"));
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     public static VariantType getVariantType(VariantProto.VariantType type) {

@@ -16,14 +16,46 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.opencb.biodata.models.variant.*;
-import org.opencb.biodata.models.variant.protobuf.VcfMeta;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfRecord;
 
 public class VariantToVcfRecordTest {
 
+    private List<String> ids = Arrays.asList("id123", "id432");
+    private String formatGt = "GT:AB:EF:CD";
+    private String format = "AB:EF:CD";
+    private String qual = "321.12";
+    private String filter = "PASS;low30";
+
+    private Variant v_gt;
+    private Variant v;
+
     @Before
     public void setUp() throws Exception {
+        v_gt = Variant.newBuilder("4:1234565-1234568:X:A")
+                .setIds(ids)
+                .setStudyId("s")
+                .setFileId("file_123")
+                .setQuality(qual)
+                .setFilter(filter)
+                .addAttribute("X", "x")
+                .addAttribute("A", "ab")
+                .addAttribute(StudyEntry.SRC, ":src-stuff")
+                .setFormat(formatGt.split(VCFConstants.FORMAT_FIELD_SEPARATOR))
+                .addSample("Sample_0A", "0/0", "ab1", "ef1", "cd1")
+                .addSample("Sample_0B", "0/1", "ab2", "ef2", "cd2").build();
+        v = Variant.newBuilder("4:1234565-1234568:X:A")
+                .setIds(ids)
+                .setStudyId("s")
+                .setFileId("file_123")
+                .setQuality(qual)
+                .setFilter(filter)
+                .addAttribute("X", "x")
+                .addAttribute("A", "ab")
+                .addAttribute(StudyEntry.SRC, ":src-stuff")
+                .setFormat(format.split(VCFConstants.FORMAT_FIELD_SEPARATOR))
+                .addSample("Sample_0A", "ab1", "ef1", "cd1")
+                .addSample("Sample_0B", "ab2", "ef2", "cd2").build();
     }
 
     @After
@@ -31,69 +63,36 @@ public class VariantToVcfRecordTest {
     }
 
     @Test
-    public void testConvertVariantInt() {
-
-        List<String> sampleList = Arrays.asList("Sample_03", "Sample_01");
-
-        // Variant
-        String chr = "4";
-        int start = 1234565;
-        int end = start + 3;
-        List<String> ids = Arrays.asList("id123", "id432");
-        String ref = "X";
-        String alt = "A";
-        Variant v = createVariant(chr, start, end, ids, ref, alt);
-
-
-        String fileName = "file_123";
-        String format = "AB:EF:CD";
-        String qual = "321.12";
-        String filter = "PASS;low30";
-        StudyEntry study = new StudyEntry();
-        study.setFileId(fileName);
-        study.setFormat(Arrays.asList(format.split(VCFConstants.FORMAT_FIELD_SEPARATOR)));
-        study.setAttributes(
-                buildMap(
-                        "X:x", "A:ab",
-                        StudyEntry.SRC + ":src-stuff",
-                        StudyEntry.QUAL + ":" + qual,
-                        StudyEntry.FILTER + ":" + filter));
-//        study.setSamplesData(new HashMap<String, Map<String,String>>());
-//        study.getSamplesDataAsMap().put(sampleList.get(0), buildMap("EF:ef","AB:sample_03"));
-//        study.getSamplesDataAsMap().put(sampleList.get(1), buildMap("EF:ef","AB:sample_01","CD:cd"));
-        study.setSamplesData(new ArrayList<>());
-        study.getSamplesData().add(Arrays.asList("ab1", "ef1", "cd1"));
-        study.getSamplesData().add(Arrays.asList("ab2", "ef2", "cd2"));
-
-//        Map<String, VariantSourceEntry> studyMap = new HashMap<>();
-//        studyMap.put("1", study );
-        v.setStudies(Collections.singletonList(study));
-
+    public void testConvertVariant() {
         // META
-
-        // BiConverter
-        VariantToProtoVcfRecord con = new VariantToProtoVcfRecord();
         VcfSliceProtos.Fields fields = VcfSliceProtos.Fields.newBuilder()
                 .addAllInfoKeys(Arrays.asList("X", "AB", "A"))
-                .addFormats("AB:EF:CD")
+                .addFormats("GT")
+                .addFormats(format)
                 .addFilters("PASS")
                 .addFilters("low30")
                 .addFilters("PASS;low30")
                 .addAllDefaultInfoKeys(Arrays.asList(0, 1)).build();
-        con.updateMeta(fields);
+        // Converter
+        VariantToProtoVcfRecord con = new VariantToProtoVcfRecord(fields);
         VcfRecord rec = con.convert(v, 100);
 
         assertArrayEquals(rec.getIdNonDefaultList().toArray(), ids.toArray());
-        assertEquals(ref, rec.getReference());
-        assertEquals(alt, rec.getAlternate());
+        assertEquals(v.getReference(), rec.getReference());
+        assertEquals(v.getAlternate(), rec.getAlternate());
         assertEquals(65, rec.getRelativeStart());
         assertEquals(65 + 3, rec.getRelativeEnd());
-        assertEquals(sampleList.size(), rec.getSamplesList().size());
-        assertEquals(Arrays.asList("ab2", "ef2", "cd2"), new ArrayList<CharSequence>(rec.getSamples(1).getSampleValuesList()));
+        assertEquals(1, rec.getFormatIndex());
+        assertEquals(2, rec.getSamplesList().size());
         assertEquals(Arrays.asList("ab1", "ef1", "cd1"), new ArrayList<CharSequence>(rec.getSamples(0).getSampleValuesList()));
+        assertEquals(0, rec.getSamples(0).getGtIndex());
+        assertEquals(Arrays.asList("ab2", "ef2", "cd2"), new ArrayList<CharSequence>(rec.getSamples(1).getSampleValuesList()));
+        assertEquals(0, rec.getSamples(1).getGtIndex());
         assertEquals(Float.parseFloat(qual) + 1, rec.getQuality(), 0);
         assertEquals(Arrays.asList(0, 2), new ArrayList<>(rec.getInfoKeyIndexList()));
         assertEquals(2, rec.getFilterIndex());
+
+        System.out.println(new VcfRecordProtoToVariantConverter(fields, v.getStudy("s").getSamplesPosition(), "f", "s").convert(rec).toJson());
 
         // change default FILTER
         con.updateMeta(VcfSliceProtos.Fields.newBuilder(fields).setFilters(0, filter).setFilters(2, "PASS").build());
@@ -101,17 +100,212 @@ public class VariantToVcfRecordTest {
         assertEquals(0, rec.getFilterIndex());
     }
 
-    private Map<String, String> buildMap(String... entries) {
-        Map<String, String> m = new HashMap<>();
-        Arrays.asList(entries).forEach(x -> m.put(x.split(":")[0], x.split(":")[1]));
-        return m;
+    @Test
+    public void testConvertVariantGT() {
+        // META
+        VcfSliceProtos.Fields fields = VcfSliceProtos.Fields.newBuilder()
+                .addAllInfoKeys(Arrays.asList("X", "AB", "A"))
+                .addFormats(formatGt)
+                .addFilters("PASS")
+                .addFilters("low30")
+                .addFilters("PASS;low30")
+                .addAllDefaultInfoKeys(Arrays.asList(0, 1))
+                .addGts("0/0")
+                .addGts("0/1")
+                .build();
+
+//        VcfSliceProtos.Fields actualFields = VariantToVcfSliceConverter.buildDefaultFields(Collections.singletonList(v_gt));
+//        assertEquals("\n" + expectedFields.toString() + "\n" + fields.toString(), expectedFields, fields);
+
+        // Converter
+        VariantToProtoVcfRecord con = new VariantToProtoVcfRecord(fields);
+        VcfRecord rec = con.convert(v_gt, 100);
+
+        assertEquals(0, rec.getFormatIndex());
+        assertEquals(2, rec.getSamplesList().size());
+        assertEquals(Arrays.asList("ab1", "ef1", "cd1"), new ArrayList<CharSequence>(rec.getSamples(0).getSampleValuesList()));
+        assertEquals(0, rec.getSamples(0).getGtIndex());
+        assertEquals(Arrays.asList("ab2", "ef2", "cd2"), new ArrayList<CharSequence>(rec.getSamples(1).getSampleValuesList()));
+        assertEquals(1, rec.getSamples(1).getGtIndex());
+        assertEquals(Float.parseFloat(qual) + 1, rec.getQuality(), 0);
+        assertEquals(Arrays.asList(0, 2), new ArrayList<>(rec.getInfoKeyIndexList()));
+        assertEquals(2, rec.getFilterIndex());
+
+        System.out.println(new VcfRecordProtoToVariantConverter(fields, v.getStudy("s").getSamplesPosition(), "f", "s").convert(rec).toJson());
+
+        // change default FILTER
+        con.updateMeta(VcfSliceProtos.Fields.newBuilder(fields).setFilters(0, filter).setFilters(2, "PASS").build());
+        rec = con.convert(v_gt, 100);
+        assertEquals(0, rec.getFilterIndex());
     }
 
-    private Variant createVariant(String chr, int start, int end,
-                                  List<String> ids, String ref, String alt) {
-        Variant v = new Variant(chr, start, end, ref, alt);
-        v.setIds(ids);
-        return v;
+    @Test
+    public void testConvertVariantSkipAllFields() {
+        // META
+        VcfSliceProtos.Fields fields = VcfSliceProtos.Fields.newBuilder().build();
+
+        // Converter
+        VariantToProtoVcfRecord con = new VariantToProtoVcfRecord(fields, Collections.emptySet(), Collections.emptySet());
+
+        VcfRecord rec = con.convert(v, 100);
+
+        assertEquals(0, rec.getFormatIndex());
+        assertEquals(0, rec.getSamplesList().size());
+        assertEquals(0, rec.getQuality(), 0);
+        assertEquals(Collections.emptyList(), new ArrayList<>(rec.getInfoKeyIndexList()));
+        assertEquals(0, rec.getFilterIndex());
+
+        System.out.println(new VcfRecordProtoToVariantConverter(fields, v.getStudy("s").getSamplesPosition(), "f", "s").convert(rec).toJson());
+    }
+
+    @Test
+    public void testConvertVariantSkipAllFieldsGt() {
+        // META
+        VcfSliceProtos.Fields fields = VcfSliceProtos.Fields.newBuilder().build();
+
+        // Converter
+        VariantToProtoVcfRecord con = new VariantToProtoVcfRecord(fields, Collections.emptySet(), Collections.emptySet());
+
+        VcfRecord rec = con.convert(v_gt, 100);
+        assertEquals(0, rec.getFormatIndex());
+        assertEquals(0, rec.getSamplesList().size());
+        assertEquals(0, rec.getQuality(), 0);
+        assertEquals(Collections.emptyList(), new ArrayList<>(rec.getInfoKeyIndexList()));
+        assertEquals(0, rec.getFilterIndex());
+
+        System.out.println(new VcfRecordProtoToVariantConverter(fields, v.getStudy("s").getSamplesPosition(), "f", "s").convert(rec).toJson());
+    }
+
+    @Test
+    public void testConvertVariantSkipSomeFields() {
+        // META
+        VcfSliceProtos.Fields fields = VcfSliceProtos.Fields.newBuilder()
+                .addAllInfoKeys(Arrays.asList("AB", "A"))
+                .addAllDefaultInfoKeys(Collections.singletonList(0))
+                .addFormats("EF")
+                .addFilters("PASS")
+                .addFilters("low30")
+                .addFilters("PASS;low30")
+                .build();
+        // Converter
+        VariantToProtoVcfRecord con = new VariantToProtoVcfRecord(fields,
+                new HashSet<>(Arrays.asList(StudyEntry.FILTER, "A")),
+                new HashSet<>(Arrays.asList("EF", "GT")));
+//                Collections.singleton("EF"));
+
+        VcfRecord rec = con.convert(v, 100);
+
+        assertEquals(0, rec.getFormatIndex());
+        assertEquals(2, rec.getSamplesList().size());
+        assertEquals(Collections.singletonList("ef2"), new ArrayList<CharSequence>(rec.getSamples(1).getSampleValuesList()));
+        assertEquals(0, rec.getSamples(0).getGtIndex());
+        assertEquals(Collections.singletonList("ef1"), new ArrayList<CharSequence>(rec.getSamples(0).getSampleValuesList()));
+        assertEquals(0, rec.getSamples(1).getGtIndex());
+
+        assertEquals(0, rec.getQuality(), 0);
+        assertEquals(Arrays.asList(1), new ArrayList<>(rec.getInfoKeyIndexList()));
+        assertEquals(2, rec.getFilterIndex());
+
+        System.out.println(new VcfRecordProtoToVariantConverter(fields, v.getStudy("s").getSamplesPosition(), "f", "s").convert(rec).toJson());
+    }
+
+    @Test
+    public void testConvertVariantSkipSomeFieldsGt() {
+        // META
+        VcfSliceProtos.Fields fields = VcfSliceProtos.Fields.newBuilder()
+                .addAllInfoKeys(Arrays.asList("AB", "A"))
+                .addAllDefaultInfoKeys(Collections.singletonList(0))
+                .addFormats("GT:EF")
+                .addFilters("PASS")
+                .addFilters("low30")
+                .addFilters("PASS;low30")
+                .addGts("0/0")
+                .addGts("0/1")
+                .build();
+        // Converter
+        VariantToProtoVcfRecord con = new VariantToProtoVcfRecord(fields,
+                new HashSet<>(Arrays.asList(StudyEntry.FILTER, "A")),
+                new HashSet<>(Arrays.asList("GT", "EF")));
+
+        VcfRecord rec = con.convert(v_gt, 100);
+
+        assertEquals(0, rec.getFormatIndex());
+        assertEquals(2, rec.getSamplesList().size());
+        assertEquals(Collections.singletonList("ef2"), new ArrayList<CharSequence>(rec.getSamples(1).getSampleValuesList()));
+        assertEquals(0, rec.getSamples(0).getGtIndex());
+        assertEquals(Collections.singletonList("ef1"), new ArrayList<CharSequence>(rec.getSamples(0).getSampleValuesList()));
+        assertEquals(1, rec.getSamples(1).getGtIndex());
+
+        assertEquals(0, rec.getQuality(), 0);
+        assertEquals(Arrays.asList(1), new ArrayList<>(rec.getInfoKeyIndexList()));
+        assertEquals(2, rec.getFilterIndex());
+
+        System.out.println(new VcfRecordProtoToVariantConverter(fields, v.getStudy("s").getSamplesPosition(), "f", "s").convert(rec).toJson());
+    }
+
+    @Test
+    public void testConvertVariantSkipSomeFieldsSkipGt() {
+        // META
+        VcfSliceProtos.Fields fields = VcfSliceProtos.Fields.newBuilder()
+                .addAllInfoKeys(Arrays.asList("AB", "A"))
+                .addAllDefaultInfoKeys(Collections.singletonList(0))
+                .addFormats("EF")
+                .addFilters("PASS")
+                .addFilters("low30")
+                .addFilters("PASS;low30")
+                .build();
+        // Converter
+        VariantToProtoVcfRecord con = new VariantToProtoVcfRecord(fields,
+                new HashSet<>(Arrays.asList(StudyEntry.FILTER, "A")), Collections.singleton("EF"));
+
+        VcfRecord rec = con.convert(v_gt, 100);
+
+        assertEquals(0, rec.getFormatIndex());
+        assertEquals(2, rec.getSamplesList().size());
+        assertEquals(Collections.singletonList("ef2"), new ArrayList<CharSequence>(rec.getSamples(1).getSampleValuesList()));
+        assertEquals(0, rec.getSamples(0).getGtIndex());
+        assertEquals(Collections.singletonList("ef1"), new ArrayList<CharSequence>(rec.getSamples(0).getSampleValuesList()));
+        assertEquals(0, rec.getSamples(1).getGtIndex());
+
+        assertEquals(0, rec.getQuality(), 0);
+        assertEquals(Arrays.asList(1), new ArrayList<>(rec.getInfoKeyIndexList()));
+        assertEquals(2, rec.getFilterIndex());
+
+        System.out.println(new VcfRecordProtoToVariantConverter(fields, v.getStudy("s").getSamplesPosition(), "f", "s").convert(rec).toJson());
+    }
+
+    @Test
+    public void testConvertVariantIncludeMissingFields() {
+        // META
+        VcfSliceProtos.Fields fields = VcfSliceProtos.Fields.newBuilder()
+                .addAllInfoKeys(Arrays.asList("AB", "A"))
+                .addAllDefaultInfoKeys(Collections.singletonList(0))
+                .addFormats("GT:EF")
+                .addFilters("PASS")
+                .addFilters("low30")
+                .addFilters("PASS;low30")
+                .addGts("0/0")
+                .addGts("0/1")
+                .build();
+        // Converter
+        VariantToProtoVcfRecord con = new VariantToProtoVcfRecord(fields,
+                new HashSet<>(Arrays.asList(StudyEntry.FILTER, "A", "NON_EXISTING_1", "NON_EXISTING_2")),
+                new HashSet<>(Arrays.asList("GT", "EF", "NON_EXISTING_3", "NON_EXISTING_4")));
+
+        VcfRecord rec = con.convert(v_gt, 100);
+
+        assertEquals(0, rec.getFormatIndex());
+        assertEquals(2, rec.getSamplesList().size());
+        assertEquals(Collections.singletonList("ef2"), new ArrayList<CharSequence>(rec.getSamples(1).getSampleValuesList()));
+        assertEquals(0, rec.getSamples(0).getGtIndex());
+        assertEquals(Collections.singletonList("ef1"), new ArrayList<CharSequence>(rec.getSamples(0).getSampleValuesList()));
+        assertEquals(1, rec.getSamples(1).getGtIndex());
+
+        assertEquals(0, rec.getQuality(), 0);
+        assertEquals(Arrays.asList(1), new ArrayList<>(rec.getInfoKeyIndexList()));
+        assertEquals(2, rec.getFilterIndex());
+
+        System.out.println(new VcfRecordProtoToVariantConverter(fields, v.getStudy("s").getSamplesPosition(), "f", "s").convert(rec).toJson());
     }
 
     @Test
@@ -163,17 +357,17 @@ public class VariantToVcfRecordTest {
         formatPositions.put("A", 0);
         formatPositions.put("B", 1);
         assertEquals(
-                new ArrayList<>(con.encodeSamples(formatPositions, data).get(0).getSampleValuesList()),
+                new ArrayList<>(con.encodeSamples(formatPositions, null, data).get(0).getSampleValuesList()),
                 Arrays.asList("a"));
 
         data.set(0, Arrays.asList("a", "b"));
         assertEquals(
-                new ArrayList<>(con.encodeSamples(formatPositions, data).get(0).getSampleValuesList()),
+                new ArrayList<>(con.encodeSamples(formatPositions, null, data).get(0).getSampleValuesList()),
                 Arrays.asList("a", "b"));
 
         data.set(0, Arrays.asList("a", "b", "c"));
         assertEquals(
-                new ArrayList<>(con.encodeSamples(formatPositions, data).get(0).getSampleValuesList()),
+                new ArrayList<>(con.encodeSamples(formatPositions, null, data).get(0).getSampleValuesList()),
                 Arrays.asList("a", "b", "c"));
 
     }
