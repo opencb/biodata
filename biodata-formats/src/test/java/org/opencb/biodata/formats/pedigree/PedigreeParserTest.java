@@ -1,7 +1,7 @@
 package org.opencb.biodata.formats.pedigree;
 
 import org.junit.Test;
-import org.opencb.biodata.models.core.pedigree.Pedigree;
+import org.opencb.biodata.models.clinical.pedigree.Pedigree;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

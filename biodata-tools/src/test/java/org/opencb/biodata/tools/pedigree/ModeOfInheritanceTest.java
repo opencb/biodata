@@ -3,9 +3,9 @@ package org.opencb.biodata.tools.pedigree;
 import org.junit.Before;
 import org.junit.Test;
 import org.opencb.biodata.models.commons.Phenotype;
-import org.opencb.biodata.models.core.pedigree.Individual;
-import org.opencb.biodata.models.core.pedigree.Pedigree;
-import org.opencb.biodata.models.core.pedigree.PedigreeManager;
+import org.opencb.biodata.models.clinical.pedigree.Member;
+import org.opencb.biodata.models.clinical.pedigree.Pedigree;
+import org.opencb.biodata.models.clinical.pedigree.PedigreeManager;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
 import org.opencb.biodata.models.variant.VariantTestUtils;
@@ -35,65 +35,65 @@ public class ModeOfInheritanceTest {
         phenotype3 = new Phenotype("disease3", "disease2", "");
         phenotype4 = new Phenotype("disease4", "disease2", "");
 
-        Individual father = new Individual().setId("father").setSex(Individual.Sex.MALE)
+        Member father = new Member().setId("father").setSex(Member.Sex.MALE)
                 .setPhenotypes(Arrays.asList(phenotype1, phenotype3));
-        Individual mother = new Individual().setId("mother").setSex(Individual.Sex.FEMALE)
+        Member mother = new Member().setId("mother").setSex(Member.Sex.FEMALE)
                 .setPhenotypes(Collections.singletonList(phenotype2));
-        Individual daughter = new Individual().setId("daughter").setSex(Individual.Sex.FEMALE)
+        Member daughter = new Member().setId("daughter").setSex(Member.Sex.FEMALE)
                 .setPhenotypes(Collections.singletonList(phenotype2))
                 .setMother(mother).setFather(father);
-        Individual son = new Individual().setId("son").setSex(Individual.Sex.MALE)
+        Member son = new Member().setId("son").setSex(Member.Sex.MALE)
                 .setPhenotypes(Arrays.asList(phenotype1, phenotype4))
                 .setMother(mother).setFather(father);
         family1 = new Pedigree()
                 .setMembers(Arrays.asList(father, mother, daughter, son))
                 .setPhenotypes(Arrays.asList(phenotype1, phenotype2, phenotype3, phenotype4));
 
-        Individual ind1 = new Individual().setId("ind1").setSex(Individual.Sex.FEMALE)
+        Member ind1 = new Member().setId("ind1").setSex(Member.Sex.FEMALE)
                 .setPhenotypes(Collections.singletonList(phenotype1));
-        Individual ind2 = new Individual().setId("ind2").setSex(Individual.Sex.MALE);
-        Individual ind3 = new Individual().setId("ind3").setSex(Individual.Sex.MALE);
-        Individual ind4 = new Individual().setId("ind4").setSex(Individual.Sex.FEMALE)
+        Member ind2 = new Member().setId("ind2").setSex(Member.Sex.MALE);
+        Member ind3 = new Member().setId("ind3").setSex(Member.Sex.MALE);
+        Member ind4 = new Member().setId("ind4").setSex(Member.Sex.FEMALE)
                 .setPhenotypes(Collections.singletonList(phenotype1));
-        Individual ind5 = new Individual().setId("ind5").setSex(Individual.Sex.MALE)
+        Member ind5 = new Member().setId("ind5").setSex(Member.Sex.MALE)
                 .setMother(ind1).setFather(ind2);
-        Individual ind6 = new Individual().setId("ind6").setSex(Individual.Sex.FEMALE)
+        Member ind6 = new Member().setId("ind6").setSex(Member.Sex.FEMALE)
                 .setMother(ind1).setFather(ind2);
-        Individual ind7 = new Individual().setId("ind7").setSex(Individual.Sex.MALE)
+        Member ind7 = new Member().setId("ind7").setSex(Member.Sex.MALE)
                 .setPhenotypes(Collections.singletonList(phenotype1))
                 .setMother(ind4).setFather(ind3);
-        Individual ind8 = new Individual().setId("ind8").setSex(Individual.Sex.MALE)
+        Member ind8 = new Member().setId("ind8").setSex(Member.Sex.MALE)
                 .setMother(ind4).setFather(ind3);
-        Individual ind9 = new Individual().setId("ind9").setSex(Individual.Sex.FEMALE);
-        Individual ind10 = new Individual().setId("ind10").setSex(Individual.Sex.FEMALE)
+        Member ind9 = new Member().setId("ind9").setSex(Member.Sex.FEMALE);
+        Member ind10 = new Member().setId("ind10").setSex(Member.Sex.FEMALE)
                 .setPhenotypes(Collections.singletonList(phenotype1));
-        Individual ind11 = new Individual().setId("ind11").setSex(Individual.Sex.MALE)
+        Member ind11 = new Member().setId("ind11").setSex(Member.Sex.MALE)
                 .setPhenotypes(Collections.singletonList(phenotype1))
                 .setMother(ind6).setFather(ind7);
-        Individual ind12 = new Individual().setId("ind12").setSex(Individual.Sex.FEMALE)
+        Member ind12 = new Member().setId("ind12").setSex(Member.Sex.FEMALE)
                 .setMother(ind6).setFather(ind7);
-        Individual ind13 = new Individual().setId("ind13").setSex(Individual.Sex.MALE)
+        Member ind13 = new Member().setId("ind13").setSex(Member.Sex.MALE)
                 .setMother(ind6).setFather(ind7);
-        Individual ind14 = new Individual().setId("ind14").setSex(Individual.Sex.FEMALE)
+        Member ind14 = new Member().setId("ind14").setSex(Member.Sex.FEMALE)
                 .setMother(ind9).setFather(ind8);
-        Individual ind15 = new Individual().setId("ind15").setSex(Individual.Sex.MALE)
+        Member ind15 = new Member().setId("ind15").setSex(Member.Sex.MALE)
                 .setPhenotypes(Collections.singletonList(phenotype1))
                 .setMother(ind9).setFather(ind8);
-        Individual ind16 = new Individual().setId("ind16").setSex(Individual.Sex.FEMALE)
+        Member ind16 = new Member().setId("ind16").setSex(Member.Sex.FEMALE)
                 .setPhenotypes(Collections.singletonList(phenotype1))
                 .setMother(ind10).setFather(ind11);
-        Individual ind17 = new Individual().setId("ind17").setSex(Individual.Sex.MALE)
+        Member ind17 = new Member().setId("ind17").setSex(Member.Sex.MALE)
                 .setMother(ind10).setFather(ind11);
-        Individual ind18 = new Individual().setId("ind18").setSex(Individual.Sex.MALE)
+        Member ind18 = new Member().setId("ind18").setSex(Member.Sex.MALE)
                 .setPhenotypes(Collections.singletonList(phenotype1));
         family2 = new Pedigree()
                 .setMembers(Arrays.asList(ind1, ind2, ind3, ind4, ind5, ind6, ind7, ind8, ind9, ind10, ind11, ind12, ind13, ind14, ind15,
                         ind16, ind17, ind18))
                 .setPhenotypes(Arrays.asList(phenotype1));
 
-        father = new Individual().setId("NA12877").setSex(Individual.Sex.MALE);
-        mother = new Individual().setId("NA12878").setSex(Individual.Sex.FEMALE);
-        daughter = new Individual().setId("NA12879").setSex(Individual.Sex.FEMALE)
+        father = new Member().setId("NA12877").setSex(Member.Sex.MALE);
+        mother = new Member().setId("NA12878").setSex(Member.Sex.FEMALE);
+        daughter = new Member().setId("NA12879").setSex(Member.Sex.FEMALE)
                 .setMother(mother).setFather(father);
         family3 = new Pedigree()
                 .setMembers(Arrays.asList(father, mother, daughter))

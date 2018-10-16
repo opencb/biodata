@@ -24,9 +24,9 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import htsjdk.variant.vcf.VCFHeader;
 import org.apache.commons.lang3.StringUtils;
-import org.opencb.biodata.models.core.pedigree.Individual;
+import org.opencb.biodata.models.clinical.pedigree.Member;
 import org.opencb.biodata.models.pedigree.Multiples;
-import org.opencb.biodata.models.core.pedigree.Pedigree;
+import org.opencb.biodata.models.clinical.pedigree.Pedigree;
 import org.opencb.biodata.models.metadata.Cohort;
 import org.opencb.biodata.models.metadata.Sample;
 import org.opencb.biodata.models.metadata.Species;
@@ -351,16 +351,16 @@ public class VariantMetadataManager {
     /**
      * Remove an individual of a given variant study metadata (from study ID).
      *
-     * @param individual Individual
+     * @param member Individual
      * @param studyId    Study ID
      */
-    public void removeIndividual(Individual individual, String studyId) {
+    public void removeIndividual(Member member, String studyId) {
         // Sanity check
-        if (individual == null) {
+        if (member == null) {
             logger.error("Individual is null.");
             return;
         }
-        removeIndividual(individual.getName(), studyId);
+        removeIndividual(member.getName(), studyId);
     }
 
     /**
@@ -542,7 +542,7 @@ public class VariantMetadataManager {
         if (variantStudyMetadata != null) {
             boolean found;
             org.opencb.biodata.models.metadata.Individual dest = null;
-            for (Individual src: pedigree.getMembers()) {
+            for (Member src: pedigree.getMembers()) {
                 found = false;
                 for (int i = 0; i < variantStudyMetadata.getIndividuals().size(); i++) {
                     dest = variantStudyMetadata.getIndividuals().get(i);
@@ -623,9 +623,9 @@ public class VariantMetadataManager {
      * @return            List of Pedigree objects
      */
     public List<Pedigree> getPedigree(String studyId) {
-        Individual dest;
+        Member dest;
         Map<String, Pedigree> pedigreeMap = new HashMap<>();
-        Map<String, Individual> individualMap = new HashMap<>();
+        Map<String, Member> individualMap = new HashMap<>();
 
         VariantStudyMetadata variantStudyMetadata = getVariantStudyMetadata(studyId);
         if (variantStudyMetadata != null) {
@@ -639,8 +639,8 @@ public class VariantMetadataManager {
                 }
 
                 // main fields
-                dest = new Individual(src.getId(), Individual.Sex.getEnum(src.getSex()),
-                        Individual.AffectionStatus.getEnum(src.getPhenotype()));
+                dest = new Member(src.getId(), Member.Sex.getEnum(src.getSex()),
+                        Member.AffectionStatus.getEnum(src.getPhenotype()));
 
                 // attributes
                 if (src.getSamples() != null && src.getSamples().size() > 0) {
@@ -682,9 +682,9 @@ public class VariantMetadataManager {
             // second loop: setting fathers, mothers, partners and children
             for (org.opencb.biodata.models.metadata.Individual src: variantStudyMetadata.getIndividuals()) {
                 // update father, mother and child
-                Individual father = individualMap.get(src.getFamily() + "_" + src.getFather());
-                Individual mother = individualMap.get(src.getFamily() + "_" + src.getMother());
-                Individual child = individualMap.get(src.getFamily() + "_" + src.getId());
+                Member father = individualMap.get(src.getFamily() + "_" + src.getFather());
+                Member mother = individualMap.get(src.getFamily() + "_" + src.getMother());
+                Member child = individualMap.get(src.getFamily() + "_" + src.getId());
 
                 // setting father and children
                 if (father != null) {

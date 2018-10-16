@@ -17,7 +17,7 @@
  *
  */
 
-package org.opencb.biodata.models.core.pedigree;
+package org.opencb.biodata.models.clinical.pedigree;
 
 import org.opencb.biodata.models.commons.Phenotype;
 import org.opencb.biodata.models.pedigree.IndividualProperty;
@@ -29,12 +29,13 @@ import java.util.Map;
 /**
  * Created by imedina on 10/10/16.
  */
-public class Individual {
+public class Member {
+
     private String id;
     private String name;
 
-    private Individual father;
-    private Individual mother;
+    private Member father;
+    private Member mother;
     private Multiples multiples;
 
     private Sex sex;
@@ -103,7 +104,7 @@ public class Individual {
     /**
      * Empty constructor.
      */
-    public Individual() {
+    public Member() {
     }
 
     /**
@@ -114,7 +115,7 @@ public class Individual {
      * @param sex               Individual sex
      * @param affectionStatus   Individual affection status
      */
-    public Individual(String id, String name, Sex sex, AffectionStatus affectionStatus) {
+    public Member(String id, String name, Sex sex, AffectionStatus affectionStatus) {
         this.id = id;
         this.name = name;
         this.sex = sex;
@@ -128,16 +129,16 @@ public class Individual {
      * @param sex               Individual sex
      * @param affectionStatus   Individual affection status
      */
-    public Individual(String name, Sex sex, AffectionStatus affectionStatus) {
+    public Member(String name, Sex sex, AffectionStatus affectionStatus) {
         this.id = id;
         this.name = name;
         this.sex = sex;
         this.affectionStatus = affectionStatus;
     }
 
-    public Individual(String id, String name, Individual father, Individual mother, Multiples multiples, Sex sex,
-                      IndividualProperty.LifeStatus lifeStatus, AffectionStatus affectionStatus, List<Phenotype> phenotypes,
-                      Map<String, Object> attributes) {
+    public Member(String id, String name, Member father, Member mother, Multiples multiples, Sex sex,
+                  IndividualProperty.LifeStatus lifeStatus, AffectionStatus affectionStatus, List<Phenotype> phenotypes,
+                  Map<String, Object> attributes) {
         this.id = id;
         this.name = name;
         this.father = father;
@@ -154,7 +155,7 @@ public class Individual {
         return id;
     }
 
-    public Individual setId(String id) {
+    public Member setId(String id) {
         this.id = id;
         return this;
     }
@@ -163,25 +164,25 @@ public class Individual {
         return name;
     }
 
-    public Individual setName(String name) {
+    public Member setName(String name) {
         this.name = name;
         return this;
     }
 
-    public Individual getFather() {
+    public Member getFather() {
         return father;
     }
 
-    public Individual setFather(Individual father) {
+    public Member setFather(Member father) {
         this.father = father;
         return this;
     }
 
-    public Individual getMother() {
+    public Member getMother() {
         return mother;
     }
 
-    public Individual setMother(Individual mother) {
+    public Member setMother(Member mother) {
         this.mother = mother;
         return this;
     }
@@ -190,7 +191,7 @@ public class Individual {
         return multiples;
     }
 
-    public Individual setMultiples(Multiples multiples) {
+    public Member setMultiples(Multiples multiples) {
         this.multiples = multiples;
         return this;
     }
@@ -199,7 +200,7 @@ public class Individual {
         return sex;
     }
 
-    public Individual setSex(Sex sex) {
+    public Member setSex(Sex sex) {
         this.sex = sex;
         return this;
     }
@@ -208,7 +209,7 @@ public class Individual {
         return lifeStatus;
     }
 
-    public Individual setLifeStatus(IndividualProperty.LifeStatus lifeStatus) {
+    public Member setLifeStatus(IndividualProperty.LifeStatus lifeStatus) {
         this.lifeStatus = lifeStatus;
         return this;
     }
@@ -217,7 +218,7 @@ public class Individual {
         return affectionStatus;
     }
 
-    public Individual setAffectionStatus(AffectionStatus affectionStatus) {
+    public Member setAffectionStatus(AffectionStatus affectionStatus) {
         this.affectionStatus = affectionStatus;
         return this;
     }
@@ -226,7 +227,7 @@ public class Individual {
         return phenotypes;
     }
 
-    public Individual setPhenotypes(List<Phenotype> phenotypes) {
+    public Member setPhenotypes(List<Phenotype> phenotypes) {
         this.phenotypes = phenotypes;
         return this;
     }
@@ -235,7 +236,7 @@ public class Individual {
         return attributes;
     }
 
-    public Individual setAttributes(Map<String, Object> attributes) {
+    public Member setAttributes(Map<String, Object> attributes) {
         this.attributes = attributes;
         return this;
     }
