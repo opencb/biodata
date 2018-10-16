@@ -19,9 +19,9 @@
 
 package org.opencb.biodata.formats.pedigree;
 
-import org.opencb.biodata.models.core.pedigree.Individual;
+import org.opencb.biodata.models.clinical.pedigree.Member;
 import org.opencb.biodata.models.pedigree.Multiples;
-import org.opencb.biodata.models.core.pedigree.Pedigree;
+import org.opencb.biodata.models.clinical.pedigree.Pedigree;
 import org.opencb.commons.utils.FileUtils;
 
 import java.io.*;
@@ -48,15 +48,15 @@ public class PedigreeParser {
         FileUtils.checkFile(pedigreePath);
 
         Map<String, Pedigree> pedigreeMap = new HashMap<>();
-        Map<String, Individual> individualMap = new HashMap<>();
+        Map<String, Member> individualMap = new HashMap<>();
 
         String pedigreeName, individualName;
-        Individual.Sex sex;
-        Individual.AffectionStatus affectionStatus;
+        Member.Sex sex;
+        Member.AffectionStatus affectionStatus;
         //String line, key;
         String[] fields, labels = null;
 
-        Individual individual;
+        Member member;
 
         // Read the whole pedigree file
         List<String> individualStringLines = Files.readAllLines(pedigreePath);
@@ -77,13 +77,13 @@ public class PedigreeParser {
                     // normal line
                     pedigreeName = fields[0];
                     individualName = fields[1];
-                    sex = Individual.Sex.getEnum(fields[4]);
-                    affectionStatus = Individual.AffectionStatus.getEnum(fields[5]);
+                    sex = Member.Sex.getEnum(fields[4]);
+                    affectionStatus = Member.AffectionStatus.getEnum(fields[5]);
                     if (!pedigreeMap.containsKey(pedigreeName)) {
                         pedigreeMap.put(pedigreeName, new Pedigree(pedigreeName, new ArrayList<>(), new HashMap<>()));
                     }
 
-                    individual = new Individual(individualName, sex, affectionStatus);
+                    member = new Member(individualName, sex, affectionStatus);
 
                     // labels are optional
                     if (labels != null && fields.length > 6 && labels.length == fields.length) {
@@ -91,10 +91,10 @@ public class PedigreeParser {
                         for (int j = 6; j < fields.length; j++) {
                             attributes.put(labels[j], fields[j]);
                         }
-                        individual.setAttributes(attributes);
+                        member.setAttributes(attributes);
                     }
-                    pedigreeMap.get(pedigreeName).getMembers().add(individual);
-                    individualMap.put(pedigreeName + "_" + individualName, individual);
+                    pedigreeMap.get(pedigreeName).getMembers().add(member);
+                    individualMap.put(pedigreeName + "_" + individualName, member);
                 }
             }
         }
@@ -106,9 +106,9 @@ public class PedigreeParser {
                 fields = line.split("[ \t]");
                 if (!line.startsWith("#")) {
                     // update father, mother and child
-                    Individual father = individualMap.get(fields[0] + "_" + fields[2]);
-                    Individual mother = individualMap.get(fields[0] + "_" + fields[3]);
-                    Individual child = individualMap.get(fields[0] + "_" + fields[1]);
+                    Member father = individualMap.get(fields[0] + "_" + fields[2]);
+                    Member mother = individualMap.get(fields[0] + "_" + fields[3]);
+                    Member child = individualMap.get(fields[0] + "_" + fields[1]);
 
                     // setting father and children
                     if (father != null) {
@@ -185,18 +185,18 @@ public class PedigreeParser {
         StringBuilder line = new StringBuilder();
 
         // main lines (individual data)
-        for (Individual individual: pedigree.getMembers()) {
+        for (Member member : pedigree.getMembers()) {
             // mandatory fields
             line.setLength(0);
-            line.append(pedigree.getName()).append("\t").append(individual.getName()).append("\t")
-                    .append(individual.getFather() != null ? individual.getFather().getName() : 0).append("\t")
-                    .append(individual.getMother() != null ? individual.getMother().getName() : 0).append("\t")
-                    .append(individual.getSex().getValue()).append("\t")
-                    .append(individual.getAffectionStatus().getValue());
+            line.append(pedigree.getName()).append("\t").append(member.getName()).append("\t")
+                    .append(member.getFather() != null ? member.getFather().getName() : 0).append("\t")
+                    .append(member.getMother() != null ? member.getMother().getName() : 0).append("\t")
+                    .append(member.getSex().getValue()).append("\t")
+                    .append(member.getAffectionStatus().getValue());
 
             // custom fields (optional)
-            if (individual.getAttributes() != null) {
-                individual.getAttributes().forEach(((k, v) -> line.append("\t").append(v)));
+            if (member.getAttributes() != null) {
+                member.getAttributes().forEach(((k, v) -> line.append("\t").append(v)));
             }
 
             // write line

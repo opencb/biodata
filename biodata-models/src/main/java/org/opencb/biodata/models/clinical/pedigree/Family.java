@@ -17,7 +17,7 @@
  *
  */
 
-package org.opencb.biodata.models.core.pedigree;
+package org.opencb.biodata.models.clinical.pedigree;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -29,11 +29,11 @@ import java.util.Set;
 public class Family {
 
     private String id;
-    private Individual father;
-    private Individual mother;
+    private Member father;
+    private Member mother;
 
     private int numGenerations;
-    private Set<Individual> members;
+    private Set<Member> members;
 
     public Family() {
         this(null, null, null);
@@ -43,7 +43,7 @@ public class Family {
         this(id, null, null);
     }
 
-    public Family(String id, Individual father, Individual mother) {
+    public Family(String id, Member father, Member mother) {
         this.id = id;
         this.father = father;
         this.mother = mother;
@@ -76,20 +76,20 @@ public class Family {
         return this;
     }
 
-    public Individual getFather() {
+    public Member getFather() {
         return father;
     }
 
-    public Family setFather(Individual father) {
+    public Family setFather(Member father) {
         this.father = father;
         return this;
     }
 
-    public Individual getMother() {
+    public Member getMother() {
         return mother;
     }
 
-    public Family setMother(Individual mother) {
+    public Family setMother(Member mother) {
         this.mother = mother;
         return this;
     }
@@ -103,11 +103,11 @@ public class Family {
         return this;
     }
 
-    public Set<Individual> getMembers() {
+    public Set<Member> getMembers() {
         return members;
     }
 
-    public Family setMembers(Set<Individual> members) {
+    public Family setMembers(Set<Member> members) {
         this.members = members;
         return this;
     }

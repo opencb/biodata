@@ -12,6 +12,7 @@ import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.opencb.biodata.models.variant.VariantTestUtils.generateVariantWithFormat;
 
 /**
@@ -62,15 +63,50 @@ public class VcfSliceToVariantListConverterTest {
 
     @Test
     public void buildFields() {
-
-        VcfSliceProtos.Fields fields = VariantToVcfSliceConverter.buildDefaultFields(variants, null).build();
+        VcfSliceProtos.Fields fields = VariantToVcfSliceConverter.buildDefaultFields(variants);
 
         assertEquals(Arrays.asList("PASS", "PASS:LowGQX", "LowGQX"), fields.getFiltersList());
         assertEquals(Arrays.asList("GT:X", "GT:T"), fields.getFormatsList());
         assertEquals(Arrays.asList("K2", "K3", "K4", "K5", "K1"), fields.getInfoKeysList());
         assertEquals(Arrays.asList(0, 1), fields.getDefaultInfoKeysList());
         assertEquals(Arrays.asList("0/0", "0/1"), fields.getGtsList());
+    }
 
+    @Test
+    public void buildFieldsSkipAll() {
+        VcfSliceProtos.Fields fields = VariantToVcfSliceConverter.buildDefaultFields(variants, Collections.emptySet(), Collections.emptySet());
+
+        assertEquals(Collections.emptyList(), fields.getFiltersList());
+        assertEquals(Collections.emptyList(), fields.getFormatsList());
+        assertEquals(Collections.emptyList(), fields.getInfoKeysList());
+        assertEquals(Collections.emptyList(), fields.getDefaultInfoKeysList());
+        assertEquals(Arrays.asList("0/0", "0/1"), fields.getGtsList());
+    }
+
+    @Test
+    public void buildFieldsSkipSome() {
+        VcfSliceProtos.Fields fields = VariantToVcfSliceConverter.buildDefaultFields(variants,
+                new HashSet<>(Arrays.asList(StudyEntry.FILTER, "K2", "K4", "K1")),
+                new HashSet<>(Arrays.asList("GT", "T")));
+
+        assertEquals(Arrays.asList("PASS", "PASS:LowGQX", "LowGQX"), fields.getFiltersList());
+        assertEquals(Arrays.asList("GT", "GT:T"), fields.getFormatsList());
+        assertEquals(Arrays.asList("K2", "K4",  "K1"), fields.getInfoKeysList());
+        assertEquals(Arrays.asList(0), fields.getDefaultInfoKeysList());
+        assertEquals(Arrays.asList("0/0", "0/1"), fields.getGtsList());
+    }
+
+    @Test
+    public void buildFieldsSkipSomeNoGT() {
+        VcfSliceProtos.Fields fields = VariantToVcfSliceConverter.buildDefaultFields(variants,
+                new HashSet<>(Arrays.asList(StudyEntry.FILTER, "K2", "K4", "K1")),
+                new HashSet<>(Arrays.asList("T")));
+
+        assertEquals(Arrays.asList("PASS", "PASS:LowGQX", "LowGQX"), fields.getFiltersList());
+        assertEquals(Arrays.asList("T"), fields.getFormatsList());
+        assertEquals(Arrays.asList("K2", "K4",  "K1"), fields.getInfoKeysList());
+        assertEquals(Arrays.asList(0), fields.getDefaultInfoKeysList());
+        assertEquals(Arrays.asList("0/0", "0/1"), fields.getGtsList());
     }
 
     @Test
@@ -91,14 +127,14 @@ public class VcfSliceToVariantListConverterTest {
         assertEquals(1000, convert.get(1).getEnd().intValue());
         assertEquals(1100, convert.get(6).getEnd().intValue());
         assertEquals("0", convert.get(3).getStudy("").getFile("").getAttributes().get(StudyEntry.QUAL));
-        assertEquals(null, convert.get(4).getStudy("").getFile("").getAttributes().get(StudyEntry.QUAL));
-        assertEquals(null, convert.get(5).getStudy("").getFile("").getAttributes().get(StudyEntry.QUAL));
+        assertNull(convert.get(4).getStudy("").getFile("").getAttributes().get(StudyEntry.QUAL));
+        assertNull(convert.get(5).getStudy("").getFile("").getAttributes().get(StudyEntry.QUAL));
 
 
         for (int i = 0; i < convert.size(); i++) {
             // Set qual to NULL if required.
             if (".".equals(variants.get(i).getStudy("").getFile("").getAttributes().get(StudyEntry.QUAL))) {
-                variants.get(i).getStudy("").getFile("").getAttributes().put(StudyEntry.QUAL, null);
+                variants.get(i).getStudy("").getFile("").getAttributes().remove(StudyEntry.QUAL);
             }
 
             System.out.println("Expected  : " + variants.get(i).toJson());

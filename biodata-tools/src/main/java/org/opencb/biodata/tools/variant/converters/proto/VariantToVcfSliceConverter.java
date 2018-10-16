@@ -37,7 +37,16 @@ import java.util.stream.Collectors;
  */
 public class VariantToVcfSliceConverter implements Converter<List<Variant>, VcfSliceProtos.VcfSlice> {
 
+    private final Set<String> attributeFields;
+    private final Set<String> formatFields;
+
     public VariantToVcfSliceConverter() {
+        this(null, null);
+    }
+
+    public VariantToVcfSliceConverter(Set<String> attributeFields, Set<String> formatFields) {
+        this.attributeFields = attributeFields;
+        this.formatFields = formatFields;
     }
 
     public VcfSliceProtos.VcfSlice convert(Variant variant) {
@@ -51,15 +60,15 @@ public class VariantToVcfSliceConverter implements Converter<List<Variant>, VcfS
 
     public VcfSliceProtos.VcfSlice convert(List<Variant> variants, int slicePosition) {
         //Sort variants
-        variants.sort((v1, v2) -> Integer.compare(v1.getStart(), v2.getStart()));
+        variants.sort(Comparator.comparingInt(Variant::getStart));
 
         VcfSliceProtos.VcfSlice.Builder builder = VcfSliceProtos.VcfSlice.newBuilder();
 
-        VcfSliceProtos.Fields fields = buildDefaultFields(variants, VcfSliceProtos.Fields.newBuilder()).build();
+        VcfSliceProtos.Fields fields = buildDefaultFields(variants, attributeFields, formatFields);
 
         String chromosome = variants.isEmpty() ? "" : variants.get(0).getChromosome();
 
-        VariantToProtoVcfRecord converter = new VariantToProtoVcfRecord(fields);
+        VariantToProtoVcfRecord converter = new VariantToProtoVcfRecord(fields, attributeFields, formatFields);
 
         List<VcfSliceProtos.VcfRecord> vcfRecords = new ArrayList<>(variants.size());
         for (Variant variant : variants) {
@@ -76,10 +85,19 @@ public class VariantToVcfSliceConverter implements Converter<List<Variant>, VcfS
     }
 
     //With test visibility
-    static VcfSliceProtos.Fields.Builder buildDefaultFields(List<Variant> variants, VcfSliceProtos.Fields.Builder fieldsBuilder) {
-        if (fieldsBuilder == null) {
-            fieldsBuilder = VcfSliceProtos.Fields.newBuilder();
-        }
+    static VcfSliceProtos.Fields buildDefaultFields(List<Variant> variants) {
+        return buildDefaultFields(variants, null, null);
+    }
+
+    static VcfSliceProtos.Fields buildDefaultFields(List<Variant> variants,
+                                                            Set<String> attributeFields, Set<String> formatFields) {
+        VcfSliceProtos.Fields.Builder fieldsBuilder = VcfSliceProtos.Fields.newBuilder();
+
+        boolean includeAllAttributes = attributeFields == null;
+        boolean includeNoneAttributes = attributeFields != null && attributeFields.isEmpty();
+        boolean includeAllFormats = formatFields == null;
+        boolean includeNoneFormats = formatFields != null && formatFields.isEmpty();
+
 
         Map<String, Integer> filters = new HashMap<>();
         Map<String, Integer> keys = new HashMap<>();
@@ -90,31 +108,47 @@ public class VariantToVcfSliceConverter implements Converter<List<Variant>, VcfS
         for (Variant variant : variants) {
             for (StudyEntry studyEntry : variant.getStudies()) {
 
-                String formatAsString = studyEntry.getFormatAsString();
-                formats.put(formatAsString, formats.getOrDefault(formatAsString, 0) + 1);
+                if (!includeNoneFormats) {
+                    String formatAsString;
+                    if (includeAllFormats) {
+                        formatAsString = studyEntry.getFormatAsString();
+                    } else {
+                        formatAsString = studyEntry.getFormat()
+                                .stream()
+                                .filter(formatFields::contains)
+                                .collect(Collectors.joining(":"));
+                    }
+                    if (!formatAsString.isEmpty()) {
+                        formats.put(formatAsString, formats.getOrDefault(formatAsString, 0) + 1);
+                    }
+                }
 
-                for (FileEntry fileEntry : studyEntry.getFiles()) {
-                    Map<String, String> attributes = fileEntry.getAttributes();
-                    List<String> keySet = attributes.keySet().stream().sorted().collect(Collectors.toList());
-                    keySets.put(keySet, keySets.getOrDefault(keySet, 0) + 1);
+                if (!includeNoneAttributes) {
+                    for (FileEntry fileEntry : studyEntry.getFiles()) {
+                        Map<String, String> attributes = fileEntry.getAttributes();
+                        List<String> keySet = attributes.keySet().stream().sorted().collect(Collectors.toList());
+                        keySets.put(keySet, keySets.getOrDefault(keySet, 0) + 1);
 
-                    for (Map.Entry<String, String> entry : attributes.entrySet()) {
-                        String key = entry.getKey();
-                        switch (key) {
-                            case StudyEntry.FILTER:
-                                String filter = entry.getValue();
-                                if (filter != null) {
-                                    filters.put(filter, filters.getOrDefault(filter, 0) + 1);
+                        for (Map.Entry<String, String> entry : attributes.entrySet()) {
+                            String key = entry.getKey();
+                            if (includeAllAttributes || attributeFields.contains(key)) {
+                                switch (key) {
+                                    case StudyEntry.FILTER:
+                                        String filter = entry.getValue();
+                                        if (filter != null) {
+                                            filters.put(filter, filters.getOrDefault(filter, 0) + 1);
+                                        }
+                                        break;
+                                    case StudyEntry.QUAL:
+                                    case StudyEntry.SRC:
+                                    case "END":
+                                        // Ignore
+                                        break;
+                                    default:
+                                        keys.put(key, keys.getOrDefault(key, 0) + 1);
+                                        break;
                                 }
-                                break;
-                            case StudyEntry.QUAL:
-                            case StudyEntry.SRC:
-                            case "END":
-                                // Ignore
-                                break;
-                            default:
-                                keys.put(key, keys.getOrDefault(key, 0) + 1);
-                                break;
+                            }
                         }
                     }
                 }
@@ -158,7 +192,7 @@ public class VariantToVcfSliceConverter implements Converter<List<Variant>, VcfS
             fieldsBuilder.addAllDefaultInfoKeys(defaultKeySet);
         }
 
-        return fieldsBuilder;
+        return fieldsBuilder.build();
     }
 
     private static void addDefaultValues(Map<String, Integer> map, Consumer<String> consumer) {

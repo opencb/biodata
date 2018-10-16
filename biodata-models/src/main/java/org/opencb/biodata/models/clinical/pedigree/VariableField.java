@@ -17,7 +17,7 @@
  *
  */
 
-package org.opencb.biodata.models.core.pedigree;
+package org.opencb.biodata.models.clinical.pedigree;
 
 /**
  * Created by imedina on 10/10/16.
