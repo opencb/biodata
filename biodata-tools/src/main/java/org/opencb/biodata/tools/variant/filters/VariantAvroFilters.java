@@ -215,9 +215,9 @@ public class VariantAvroFilters extends VariantFilters<Variant> {
                 case "INFO":
                 case "FILE":
                     if (key.equals(FILTER)) {
-                        if (op.equals("=") || op.equals("==")) {
+                        if (op.equals("=") || op.equals("!=") || op.equals("==")) {
                             boolean containsFilter;
-                            if (value.startsWith("!")) {
+                            if (value.startsWith("!") || op.equals("!=")) {
                                 value = value.replace("!", "");
                                 containsFilter = false;
                             } else {
