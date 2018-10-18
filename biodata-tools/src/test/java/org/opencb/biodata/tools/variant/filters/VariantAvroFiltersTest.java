@@ -37,16 +37,16 @@ public class VariantAvroFiltersTest {
                 Variant.newBuilder("1:20:A:-")
                         .setId("v2")
                         .setStudyId(STUDY_ID)
-                        .setFormat("GT", "DP")
-                        .addSample("s1", "0/0", "20")
+                        .setFormat("GT", "DP", "DP2")
+                        .addSample("s1", "0/0", "20", "20")
                         .setFileId(FILE_ID)
                         .setFilter("noPass")
                         .setQuality(321.0).build(),
                 Variant.newBuilder("1:30:A:.")
                         .setId("v3")
                         .setStudyId(STUDY_ID)
-                        .setFormat("GT", "DP")
-                        .addSample("s1", "1/1", "60")
+                        .setFormat("GT", "DP", "DP2")
+                        .addSample("s1", "1/1", "60", "60")
                         .setFileId(FILE_ID)
                         .setFilter("filter1;filter2")
                         .setQuality(1234.0).build()
@@ -72,6 +72,15 @@ public class VariantAvroFiltersTest {
         assertEquals(Arrays.asList("v1", "v3"), filter(new VariantAvroFilters().addFilter("FILE:FILTER=PASS,filter1,filter2")));
         assertEquals(Arrays.asList("v1"), filter(new VariantAvroFilters().addFilter("FILE:FILTER=PASS,noPass;QUAL>500")));
         assertEquals(Arrays.asList("v2"), filter(new VariantAvroFilters().addFilter("FILE:FILTER=PASS,noPass;QUAL<500")));
+
+        // Negated filter
+        assertEquals(Arrays.asList("v2", "v3"), filter(new VariantAvroFilters().addFilter("FILTER=!PASS")));
+        assertEquals(Arrays.asList("v2"), filter(new VariantAvroFilters().addFilter("FILTER=!PASS,!filter1")));
+
+        // Missing value
+        assertEquals(Arrays.asList("v2", "v3"), filter(new VariantAvroFilters().addFilter("FORMAT:DP2<100")));
+        assertEquals(Arrays.asList("v2", "v3"), filter(new VariantAvroFilters().addFilter("FORMAT:DP2>10")));
+        assertEquals(Arrays.asList("v1", "v2", "v3"), filter(new VariantAvroFilters().addFilter(true, true, "FORMAT:DP2<100")));
 
     }
 

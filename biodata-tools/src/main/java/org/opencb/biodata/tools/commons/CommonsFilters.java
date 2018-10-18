@@ -126,14 +126,21 @@ public class CommonsFilters<T> implements Predicate<T> {
     }
 
     protected static Predicate<String> buildPredicate(String op, String value) {
+        return buildPredicate(op, value, false);
+    }
+
+    protected static Predicate<String> buildPredicate(String op, String value, boolean acceptNull) {
         Predicate<String> predicate;
         Double numValue;
         switch (op) {
             case "=":
             case "==":
                 Set<String> values;
-                if (value.contains(",")) {
+                if (value.contains(",") || acceptNull) {
                     values = new HashSet<>(Arrays.asList(value.split(",")));
+                    if (acceptNull) {
+                        values.add(null);
+                    }
                 } else {
                     values = Collections.singleton(value);
                 }
@@ -143,12 +150,26 @@ public class CommonsFilters<T> implements Predicate<T> {
                 numValue = Double.valueOf(value);
                 predicate = v -> {
                     if (StringUtils.isEmpty(v) || v.equals(".")) {
-                        return false;
+                        return acceptNull;
                     } else {
                         try {
                             return Double.valueOf(v) > numValue;
                         } catch (NumberFormatException e) {
-                            return false;
+                            return acceptNull;
+                        }
+                    }
+                };
+                break;
+            case ">=":
+                numValue = Double.valueOf(value);
+                predicate = v -> {
+                    if (StringUtils.isEmpty(v) || v.equals(".")) {
+                        return acceptNull;
+                    } else {
+                        try {
+                            return Double.valueOf(v) >= numValue;
+                        } catch (NumberFormatException e) {
+                            return acceptNull;
                         }
                     }
                 };
@@ -157,12 +178,26 @@ public class CommonsFilters<T> implements Predicate<T> {
                 numValue = Double.valueOf(value);
                 predicate = v -> {
                     if (StringUtils.isEmpty(v) || v.equals(".")) {
-                        return false;
+                        return acceptNull;
                     } else {
                         try {
                             return Double.valueOf(v) < numValue;
                         } catch (NumberFormatException e) {
-                            return false;
+                            return acceptNull;
+                        }
+                    }
+                };
+                break;
+            case "<=":
+                numValue = Double.valueOf(value);
+                predicate = v -> {
+                    if (StringUtils.isEmpty(v) || v.equals(".")) {
+                        return acceptNull;
+                    } else {
+                        try {
+                            return Double.valueOf(v) <= numValue;
+                        } catch (NumberFormatException e) {
+                            return acceptNull;
                         }
                     }
                 };

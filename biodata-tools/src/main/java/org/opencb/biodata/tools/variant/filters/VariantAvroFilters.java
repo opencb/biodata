@@ -168,6 +168,21 @@ public class VariantAvroFilters extends VariantFilters<Variant> {
      * @param filters          Filters
      */
     public VariantAvroFilters addFilter(boolean mustPassAll, String... filters) {
+        return addFilter(mustPassAll, false, filters);
+    }
+
+    /**
+     * Add a list of filters. Each filter can be defined with {type}:{key}[>|<|=]{value}
+     * Example:
+     *  FORMAT:GQ>10
+     *  INFO:DP>40
+     *  FILTER=lowGQ,lowDP
+     *
+     * @param mustPassAll      Must pass all filters
+     * @param acceptNull       Pass filter if the value is null
+     * @param filters          Filters
+     */
+    public VariantAvroFilters addFilter(boolean mustPassAll, boolean acceptNull, String... filters) {
         List<Predicate<Variant>> filtersList = new ArrayList<>(filters.length);
 
         for (String filter : filters) {
@@ -194,33 +209,43 @@ public class VariantAvroFilters extends VariantFilters<Variant> {
             Predicate<String> predicate;
             switch (type) {
                 case "FORMAT":
-                    predicate = buildPredicate(op, value);
+                    predicate = buildPredicate(op, value, acceptNull);
                     filtersList.add(v -> filterSampleFormat(v, key, true, predicate));
                     break;
                 case "INFO":
                 case "FILE":
                     if (key.equals(FILTER)) {
                         if (op.equals("=") || op.equals("==")) {
+                            boolean containsFilter;
+                            if (value.startsWith("!")) {
+                                value = value.replace("!", "");
+                                containsFilter = false;
+                            } else {
+                                containsFilter = true;
+                            }
                             Set<String> values;
-                            if (value.contains(",")) {
+                            if (value.contains(",") || acceptNull) {
                                 values = new HashSet<>(Arrays.asList(value.split(",")));
+                                if (acceptNull) {
+                                    values.add(null);
+                                }
                             } else {
                                 values = Collections.singleton(value);
                             }
                             predicate = filterValue -> {
                                 for (String v : filterValue.split(VCFConstants.FILTER_CODE_SEPARATOR)) {
                                     if (values.contains(v)) {
-                                        return true;
+                                        return containsFilter;
                                     }
                                 }
-                                return false;
+                                return !containsFilter;
                             };
 
                         } else {
                             throw new IllegalArgumentException("Invalid operator " + op + " for FILE:FILTER");
                         }
                     } else {
-                        predicate = buildPredicate(op, value);
+                        predicate = buildPredicate(op, value, acceptNull);
                     }
                     filtersList.add(v -> filterFileAttribute(v, key, predicate));
                     break;
