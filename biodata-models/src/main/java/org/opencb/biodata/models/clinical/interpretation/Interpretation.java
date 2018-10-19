@@ -32,6 +32,8 @@ public class Interpretation {
     private String clinicalAnalysisId;
     private List<DiseasePanel> panels;
 
+    private String status;
+
     /**
      * Interpretation algorithm tool used to generate this interpretation.
      */
@@ -51,19 +53,21 @@ public class Interpretation {
      * OpenCGA uses this field to store the Clinical Analysis object in key 'OPENCGA_CLINICAL_ANALYSIS'
      */
     private Map<String, Object> attributes;
+    private int version;
 
 
     public Interpretation() {
     }
 
-    public Interpretation(String id, String description, String clinicalAnalysisId, List<DiseasePanel> panels, Software software,
-                          Analyst analyst, List<Software> dependencies, Map<String, Object> filters, String creationDate,
-                          List<ReportedVariant> reportedVariants, List<ReportedLowCoverage> reportedLowCoverages,
-                          List<Comment> comments, Map<String, Object> attributes) {
+    public Interpretation(String id, String description, String clinicalAnalysisId, List<DiseasePanel> panels, String status,
+                          Software software, Analyst analyst, List<Software> dependencies, Map<String, Object> filters,
+                          String creationDate, List<ReportedVariant> reportedVariants, List<ReportedLowCoverage> reportedLowCoverages,
+                          List<Comment> comments, Map<String, Object> attributes, int version) {
         this.id = id;
         this.description = description;
         this.clinicalAnalysisId = clinicalAnalysisId;
         this.panels = panels;
+        this.status = status;
         this.software = software;
         this.analyst = analyst;
         this.dependencies = dependencies;
@@ -73,15 +77,17 @@ public class Interpretation {
         this.reportedLowCoverages = reportedLowCoverages;
         this.comments = comments;
         this.attributes = attributes;
+        this.version = version;
     }
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("Interpretation{");
+        final StringBuilder sb = new StringBuilder("Interpretation{");
         sb.append("id='").append(id).append('\'');
         sb.append(", description='").append(description).append('\'');
         sb.append(", clinicalAnalysisId='").append(clinicalAnalysisId).append('\'');
         sb.append(", panels=").append(panels);
+        sb.append(", status='").append(status).append('\'');
         sb.append(", software=").append(software);
         sb.append(", analyst=").append(analyst);
         sb.append(", dependencies=").append(dependencies);
@@ -91,6 +97,7 @@ public class Interpretation {
         sb.append(", reportedLowCoverages=").append(reportedLowCoverages);
         sb.append(", comments=").append(comments);
         sb.append(", attributes=").append(attributes);
+        sb.append(", version=").append(version);
         sb.append('}');
         return sb.toString();
     }
@@ -128,6 +135,15 @@ public class Interpretation {
 
     public Interpretation setPanels(List<DiseasePanel> panels) {
         this.panels = panels;
+        return this;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public Interpretation setStatus(String status) {
+        this.status = status;
         return this;
     }
 
@@ -209,6 +225,15 @@ public class Interpretation {
 
     public Interpretation setAttributes(Map<String, Object> attributes) {
         this.attributes = attributes;
+        return this;
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
+    public Interpretation setVersion(int version) {
+        this.version = version;
         return this;
     }
 }
