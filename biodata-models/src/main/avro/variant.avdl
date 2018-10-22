@@ -35,19 +35,58 @@ protocol Variants {
     }
 
     record VariantStats {
+        /**
+         * Total number of alleles in called genotypes. Does not include missing alleles
+         **/
         union { null, int } alleleCount;
+        /**
+         * Number of reference alleles found in this variant
+         **/
         union { null, int } refAlleleCount;
+        /**
+         * Number of main alternate alleles found in this variants. Does not include secondary alternates
+         **/
         union { null, int } altAlleleCount;
+        /**
+         * Reference allele frequency calculated from refAlleleCount and alleleCount, in the range (0,1)
+         **/
         union { null, float } refAlleleFreq;
+        /**
+         * Alternate allele frequency calculated from altAlleleCount and alleleCount, in the range (0,1)
+         **/
         union { null, float } altAlleleFreq;
 
+        /**
+         * Count for each genotype found
+         **/
         @java-key-class("org.opencb.biodata.models.feature.Genotype") map<int> genotypeCount;
+        /**
+         * Genotype frequency for each genotype found
+         **/
         @java-key-class("org.opencb.biodata.models.feature.Genotype") map<float> genotypeFreq;
+        /**
+         * Number of missing alleles
+         **/
         union { null, int } missingAlleleCount;
+        /**
+         * Number of missing genotypes
+         **/
         union { null, int } missingGenotypeCount;
+        /**
+         * Minor allele frequency
+         **/
         union { null, float } maf;
+        /**
+         * Minor genotype frequency
+         **/
         union { null, float } mgf;
+        /**
+         * Allele with minor frequency
+         **/
         union { null, string } mafAllele;
+        /**
+         * Genotype with minor frequency
+         **/
         union { null, string } mgfGenotype;
     }
 
