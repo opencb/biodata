@@ -477,15 +477,14 @@ public class VariantMerger {
         List<AlternateCoordinate> altList = buildAltsList(current, varToAlts);
 //        Map<AlternateCoordinate, Integer> altIdx = index(altList);
 
-        // Update SecALt list
-        List<AlternateCoordinate> currentSecondaryAlternates = currentStudy.getSecondaryAlternates();
-        currentStudy.setSecondaryAlternates(altList.subList(1, altList.size()));
-
         // Check if the number of secondary alternates has increased. If so, rearrange the current study (files + samples)
         VariantAlternateRearranger currentStudyrearranger = null;
-        if (currentSecondaryAlternates.size() != currentStudy.getSecondaryAlternates().size()) {
+        if (altList.size() - 1 != currentStudy.getSecondaryAlternates().size()) {
             currentStudyrearranger = new VariantAlternateRearranger(buildAltList(current), altList);
         }
+
+        // Update SecALt list
+        currentStudy.setSecondaryAlternates(altList.subList(1, altList.size()));
 
         // Find new formats
         final Map<String, Integer> newFormatPositions;
@@ -561,7 +560,9 @@ public class VariantMerger {
                         String data = currentSampleData.get(formatIdx);
                         if (currentStudyrearranger != null) {
                             if (format.equals(VCFConstants.GENOTYPE_KEY)) {
-                                ploidy = new Genotype(data).getPloidy();
+                                Genotype genotype = new Genotype(data);
+                                ploidy = genotype.getPloidy();
+                                data = currentStudyrearranger.rearrangeGenotype(genotype).toString();
                             } else {
                                 data = currentStudyrearranger.rearrange(format, data, ploidy);
                             }
@@ -833,6 +834,14 @@ public class VariantMerger {
         // remove current alts
         altSets.removeAll(currAlts);
         currAlts.addAll(altSets);
+        for (Iterator<AlternateCoordinate> iterator = currAlts.iterator(); iterator.hasNext();) {
+            AlternateCoordinate alt = iterator.next();
+            if (alt.getType().equals(VariantType.NO_VARIATION)) {
+                iterator.remove();
+                currAlts.add(alt);
+                break;
+            }
+        }
         return currAlts;
     }
 
