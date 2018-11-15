@@ -94,7 +94,7 @@ public class StudyEntry implements Serializable {
     @Deprecated
     public StudyEntry(String fileId, String studyId, List<String> secondaryAlternates, List<String> format) {
         this.impl = new org.opencb.biodata.models.variant.avro.StudyEntry(studyId,
-                new LinkedList<>(), null, format, new LinkedList<>(), new LinkedHashMap<>(), new LinkedList<>());
+                new ArrayList<>(), null, format, new ArrayList<>(), new LinkedHashMap<>(), new ArrayList<>());
         setSecondaryAlternatesAlleles(secondaryAlternates);
         if (fileId != null) {
             setFileId(fileId);
@@ -103,7 +103,7 @@ public class StudyEntry implements Serializable {
 
     public StudyEntry(String studyId, List<AlternateCoordinate> secondaryAlternates, List<String> format) {
         this.impl = new org.opencb.biodata.models.variant.avro.StudyEntry(studyId,
-                new LinkedList<>(), null, format, new LinkedList<>(), new LinkedHashMap<>(), new LinkedList<>());
+                new ArrayList<>(), null, format, new ArrayList<>(), new LinkedHashMap<>(), new ArrayList<>());
         setSecondaryAlternates(secondaryAlternates);
     }
 

@@ -78,7 +78,8 @@ public class VariantAlternateRearranger {
     }
 
     public String rearrangeNumberR(String data, String missingValue) {
-        List<String> values = Arrays.asList(StringUtils.splitPreserveAllTokens(data, ','));
+//        List<String> values = Arrays.asList(StringUtils.splitPreserveAllTokens(data, ','));
+        List<String> values = Arrays.asList(data.split(",", -1));
         return rearrange(values, missingValue, true, ",", map);
     }
 
@@ -91,7 +92,8 @@ public class VariantAlternateRearranger {
     }
 
     public String rearrangeNumberA(String data, String missingValue) {
-        List<String> values = Arrays.asList(StringUtils.splitPreserveAllTokens(data, ','));
+//        List<String> values = Arrays.asList(StringUtils.splitPreserveAllTokens(data, ','));
+        List<String> values = Arrays.asList(data.split(",", -1));
         return rearrange(values, missingValue, false, ",", map);
     }
 
@@ -101,7 +103,8 @@ public class VariantAlternateRearranger {
 
     public String rearrangeNumberG(String data, String missingValue, @Nullable Integer ploidy) {
         int[] gMap = getGenotypeReorderingMap(ploidy);
-        List<String> values = Arrays.asList(StringUtils.splitPreserveAllTokens(data, ','));
+//        List<String> values = Arrays.asList(StringUtils.splitPreserveAllTokens(data, ','));
+        List<String> values = Arrays.asList(data.split(",", -1));
         return rearrange(values, missingValue, false, ",", gMap);
     }
 

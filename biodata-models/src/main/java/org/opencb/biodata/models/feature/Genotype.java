@@ -64,7 +64,6 @@ public class Genotype {
     public Genotype(String genotype, String ref, List<String> alternates) {
         this.reference = ref;
         this.alternates = alternates;
-        this.phased = genotype.contains("|");
         this.count = 0;
         parseGenotype(genotype);
     }
@@ -74,10 +73,33 @@ public class Genotype {
         /*REGEX*/
 //        List<String> alleles = Arrays.asList(genotypePattern.split(genotype, -1));
 
+        switch (genotype) {
+            case HOM_REF:
+                this.code = AllelesCode.ALLELES_OK;
+                this.allelesIdx = new int[]{0, 0};
+                this.phased = false;
+                break;
+            case HET_REF:
+                this.code = AllelesCode.ALLELES_OK;
+                this.allelesIdx = new int[]{0, 1};
+                this.phased = false;
+                break;
+            case HOM_VAR:
+                this.code = AllelesCode.ALLELES_OK;
+                this.allelesIdx = new int[]{1, 1};
+                this.phased = false;
+                break;
+            default:
+                parseOtherGenotype(genotype);
+                break;
+        }
+    }
+
+    private void parseOtherGenotype(String genotype) {
         /*CUSTOM PARSER*/
         ArrayList<String> alleles = new ArrayList<>(2);
         int lastIdx = 0;
-
+        int allelesLength;
         for (int i = 0; i < genotype.length(); i++) {
             char c = genotype.charAt(i);
             if (c == '/' || c == '|') {
@@ -88,10 +110,8 @@ public class Genotype {
         if (lastIdx != genotype.length() + 1) {
             alleles.add(genotype.substring(lastIdx));
         }
-
-
-
         allelesLength = alleles.size();
+        this.phased = genotype.contains("|");
         this.code = AllelesCode.ALLELES_OK;
         this.allelesIdx = new int[allelesLength];
 
@@ -350,5 +370,15 @@ public class Genotype {
             return Collections.emptyList();
         }
         return Arrays.stream(genotype.split(",")).map(Genotype::new).collect(Collectors.toList());
+    }
+
+    public static int getPloidy(String gt) {
+        if (gt.length() == 3 && (gt.charAt(1) == '/' || gt.charAt(1) == '|')) {
+            return 2;
+        } else if (gt.length() == 1) {
+            return 1;
+        } else {
+            return new Genotype(gt).getPloidy();
+        }
     }
 }
