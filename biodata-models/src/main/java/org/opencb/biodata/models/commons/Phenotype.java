@@ -1,6 +1,5 @@
 package org.opencb.biodata.models.commons;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
@@ -8,8 +7,6 @@ public class Phenotype extends OntologyTerm {
 
     private String ageOfOnset;
     private Status status;
-
-    private Map<String, String> attributes;
 
     public enum Status {
         OBSERVED,
@@ -29,10 +26,9 @@ public class Phenotype extends OntologyTerm {
     }
 
     public Phenotype(String id, String name, String source, String ageOfOnset, Status status, Map<String, String> attributes) {
-        super(id, name, source);
+        super(id, name, source, attributes);
         this.ageOfOnset = ageOfOnset;
         this.status = status;
-        this.attributes = attributes;
     }
 
     @Override
@@ -93,12 +89,4 @@ public class Phenotype extends OntologyTerm {
         return this;
     }
 
-    public Map<String, String> getAttributes() {
-        return attributes;
-    }
-
-    public Phenotype setAttributes(Map<String, String> attributes) {
-        this.attributes = attributes;
-        return this;
-    }
 }
