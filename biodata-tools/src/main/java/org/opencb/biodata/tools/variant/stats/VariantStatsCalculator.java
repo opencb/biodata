@@ -42,9 +42,6 @@ public class VariantStatsCalculator {
     public static VariantStats calculate(Variant variant, StudyEntry study, Collection<String> sampleNames) {
         VariantStats variantStats = new VariantStats();
 
-        variantStats.setMissingAlleleCount(0);
-        variantStats.setMissingGenotypeCount(0);
-
         Integer gtIdx = study.getFormatPositions().get("GT");
         LinkedHashMap<String, Integer> samplesPosition = study.getSamplesPosition();
 
@@ -114,7 +111,10 @@ public class VariantStatsCalculator {
                                  String refAllele, String altAllele) {
 //        Map<String, Genotype> gts = new TreeMap<>(String::compareTo);
         int[] allelesCount = new int[2];
-        int totalAllelesCount = 0, totalGenotypesCount = 0;
+        int totalAllelesCount = 0;
+        int totalGenotypesCount = 0;
+        int missingGenotypes = 0;
+        int missingAlleles = 0;
 
         for (Map.Entry<Genotype, Integer> entry : genotypeCount.entrySet()) {
             Genotype g = entry.getKey();
@@ -149,10 +149,10 @@ public class VariantStatsCalculator {
                     break;
                 case ALLELES_MISSING:
                     // Missing genotype (one or both alleles missing)
-                    variantStats.setMissingGenotypeCount(variantStats.getMissingGenotypeCount() + numGt);
+                    missingGenotypes += numGt;
                     for (int i = 0; i < g.getPloidy(); i++) {
                         if (g.getAllele(i) < 0) {
-                            variantStats.setMissingAlleleCount(variantStats.getMissingAlleleCount() + numGt);
+                            missingAlleles += numGt;
                         } else {
                             allelesCount[g.getAllele(i)] += numGt;
                             totalAllelesCount += numGt;
@@ -169,6 +169,8 @@ public class VariantStatsCalculator {
         // Set counts for each allele
         variantStats.setRefAlleleCount(allelesCount[0]);
         variantStats.setAltAlleleCount(allelesCount[1]);
+        variantStats.setMissingAlleleCount(missingAlleles);
+        variantStats.setMissingGenotypeCount(missingGenotypes);
 
         // Calculate MAF and MGF
         calculateAlleleFrequencies(totalAllelesCount, variantStats, refAllele, altAllele);
