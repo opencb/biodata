@@ -43,19 +43,58 @@ enum VariantType {
 }
 
 message VariantStats {
+    /**
+     * Total number of alleles in called genotypes. Does not include missing alleles
+     **/
     int32 alleleCount = 1;
+    /**
+     * Number of reference alleles found in this variant
+     **/
     int32 refAlleleCount = 2;
+    /**
+     * Number of main alternate alleles found in this variants. Does not include secondary alternates
+     **/
     int32 altAlleleCount = 3;
+    /**
+     * Reference allele frequency calculated from refAlleleCount and alleleCount, in the range (0,1)
+     **/
     float refAlleleFreq = 4;
+    /**
+     * Alternate allele frequency calculated from altAlleleCount and alleleCount, in the range (0,1)
+     **/
     float altAlleleFreq = 5;
 
+    /**
+     * Count for each genotype found
+     **/
     map<string, int32> genotypeCount = 6;
+    /**
+     * Genotype frequency for each genotype found
+     **/
     map<string, float> genotypeFreq = 7;
+    /**
+     * Number of missing alleles
+     **/
     int32 missingAlleleCount = 8;
+    /**
+     * Number of missing genotypes
+     **/
     int32 missingGenotypeCount = 9;
+    /**
+     * Minor allele frequency
+     **/
     float maf = 10;
+    /**
+     * Minor genotype frequency
+     **/
     float mgf = 11;
+    /**
+     * Allele with minor frequency
+     **/
     string mafAllele = 12;
+    /**
+     * Genotype with minor frequency
+     **/
     string mgfGenotype = 13;
 }
 

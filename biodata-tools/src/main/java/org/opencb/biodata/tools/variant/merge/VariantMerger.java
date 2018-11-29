@@ -475,17 +475,18 @@ public class VariantMerger {
 
         // Build ALT index
         List<AlternateCoordinate> altList = buildAltsList(current, varToAlts);
+        // Create a list of alternates as Integers to speed up the creation of the VariantAlternateRearranger
+        List<Integer> altListHash = alternatesToHash(altList);
 //        Map<AlternateCoordinate, Integer> altIdx = index(altList);
 
-        // Update SecALt list
-        List<AlternateCoordinate> currentSecondaryAlternates = currentStudy.getSecondaryAlternates();
-        currentStudy.setSecondaryAlternates(altList.subList(1, altList.size()));
-
         // Check if the number of secondary alternates has increased. If so, rearrange the current study (files + samples)
-        VariantAlternateRearranger currentStudyrearranger = null;
-        if (currentSecondaryAlternates.size() != currentStudy.getSecondaryAlternates().size()) {
-            currentStudyrearranger = new VariantAlternateRearranger(buildAltList(current), altList);
+        VariantAlternateRearranger currentStudyRearranger = null;
+        if (altList.size() - 1 != currentStudy.getSecondaryAlternates().size()) {
+            currentStudyRearranger = new VariantAlternateRearranger(alternatesToHash(buildAltList(current)), altListHash);
         }
+
+        // Update SecALt list
+        currentStudy.setSecondaryAlternates(altList.subList(1, altList.size()));
 
         // Find new formats
         final Map<String, Integer> newFormatPositions;
@@ -559,11 +560,13 @@ public class VariantMerger {
                 if (newFormatIdx != null) {
                     if (currentSampleData.size() > formatIdx) {
                         String data = currentSampleData.get(formatIdx);
-                        if (currentStudyrearranger != null) {
+                        if (currentStudyRearranger != null) {
                             if (format.equals(VCFConstants.GENOTYPE_KEY)) {
-                                ploidy = new Genotype(data).getPloidy();
+                                Genotype genotype = new Genotype(data);
+                                ploidy = genotype.getPloidy();
+                                data = currentStudyRearranger.rearrangeGenotype(genotype).toString();
                             } else {
-                                data = currentStudyrearranger.rearrange(format, data, ploidy);
+                                data = currentStudyRearranger.rearrange(format, data, ploidy);
                             }
                         }
                         newSampleData.set(newFormatIdx, data);
@@ -579,9 +582,9 @@ public class VariantMerger {
             }
             currentSampleIdx++;
         }
-        if (currentStudyrearranger != null) {
+        if (currentStudyRearranger != null) {
             for (FileEntry file : currentStudy.getFiles()) {
-                file.getAttributes().replaceAll(currentStudyrearranger::rearrange);
+                file.getAttributes().replaceAll(currentStudyRearranger::rearrange);
             }
         }
 
@@ -597,12 +600,15 @@ public class VariantMerger {
             checkForDuplicates(current, other, currentStudy, otherStudy, otherAlternates);
 
             VariantAlternateRearranger rearranger;
+            Map<String, String> rearrangedGenotypesCache = new HashMap<>(5);
             // It may happen that the new list of alternates does not contains some of the other alternates.
             // In that case, use the rearranger
             if (altList.size() == 1 && altList.equals(otherAlternates)) {
                 rearranger = null;
             } else {
-                rearranger = new VariantAlternateRearranger(otherAlternates, altList, rearrangerConf);
+                rearranger = new VariantAlternateRearranger(
+                        alternatesToHash(otherAlternates),
+                        altListHash, rearrangerConf);
             }
             // Add GT data for each sample to current Variant
 
@@ -628,27 +634,35 @@ public class VariantMerger {
                                 getGtKey(), sampleName, other.getImpl(), otherStudy.getSamplesData(),
                                 otherStudy.getSamplesPosition()));
                     }
-                    String updatedGt;
-                    Genotype genotype;
-                    if (rearranger != null) {
-                        genotype = rearranger.rearrangeGenotype(new Genotype(gt));
-                    } else {
-                        genotype = new Genotype(gt);
-                    }
-                    if (!genotype.isPhased()) {
-                        genotype.normalizeAllelesIdx();
-                    }
-                    if (collapseDeletions) {
-                        int[] allelesIdx = genotype.getAllelesIdx();
-                        for (int i = 0; i < allelesIdx.length; i++) {
-                            if (allelesIdx[i] < 0) {
-                                allelesIdx[i] = 0; // change to '0' for 'missing' reference (missing because change to '0' GT)
+                    // Use a cache with rearranged genotypes to reuse rearranged genotypes
+                    String updatedGt = rearrangedGenotypesCache.get(gt);
+                    if (updatedGt == null) {
+                        Genotype genotype;
+                        if (rearranger != null) {
+                            genotype = rearranger.rearrangeGenotype(new Genotype(gt));
+                        } else {
+                            genotype = new Genotype(gt);
+                        }
+                        if (!genotype.isPhased()) {
+                            genotype.normalizeAllelesIdx();
+                        }
+                        if (collapseDeletions) {
+                            int[] allelesIdx = genotype.getAllelesIdx();
+                            for (int i = 0; i < allelesIdx.length; i++) {
+                                if (allelesIdx[i] < 0) {
+                                    allelesIdx[i] = 0; // change to '0' for 'missing' reference (missing because change to '0' GT)
+                                }
                             }
                         }
-                    }
-                    updatedGt = genotype.toString();
+
 //                    updatedGt = updateGT(gt, altIdx, otherAltIdx);
-                    ploidy = genotype.getPloidy();
+                        updatedGt = genotype.toString();
+                        rearrangedGenotypesCache.put(gt, updatedGt);
+                        ploidy = genotype.getPloidy();
+                    } else {
+                        ploidy = Genotype.getPloidy(gt);
+                    }
+
                     if (alreadyMergedSample) {
                         String currGT = newSampleData.get(newGtIdx);
                         List<String> gtlst;
@@ -717,6 +731,30 @@ public class VariantMerger {
         currentStudy.setSamplesData(newSamplesData);
         currentStudy.setSortedSamplesPosition(newSamplesPosition);
         currentStudy.setFormat(newFormat);
+    }
+
+    /**
+     * Create a list of alternates as Integers to speed up the creation of the VariantAlternateRearranger.
+     *
+     * The creation of the VariantAlternateRearranger makes a lot of comparitions among elements from the list of alternates.
+     * Creating a list of hashCodes from the alternates, speeds up significantly the creation of the rearrangers.
+     * @param alternates List of alternates
+     * @return           List of hashCodes for each alternate
+     */
+    private List<Integer> alternatesToHash(List<AlternateCoordinate> alternates) {
+        List<Integer> list = new ArrayList<>(alternates.size());
+        for (AlternateCoordinate a : alternates) {
+//            list.add(Objects.hash(a.getChromosome(), a.getStart(), a.getEnd(), a.getReference(), a.getAlternate(), a.getType()));
+            int result = 1;
+            result = 31 * result + a.getChromosome().hashCode();
+            result = 31 * result + a.getStart().hashCode();
+            result = 31 * result + a.getEnd().hashCode();
+            result = 31 * result + a.getReference().hashCode();
+            result = 31 * result + a.getAlternate().hashCode();
+            result = 31 * result + a.getType().hashCode();
+            list.add(result);
+        }
+        return list;
     }
 
     private List<List<String>> newSamplesData(int samplesSize, Map<String, Integer> formats) {
@@ -833,6 +871,14 @@ public class VariantMerger {
         // remove current alts
         altSets.removeAll(currAlts);
         currAlts.addAll(altSets);
+        for (Iterator<AlternateCoordinate> iterator = currAlts.iterator(); iterator.hasNext();) {
+            AlternateCoordinate alt = iterator.next();
+            if (alt.getType().equals(VariantType.NO_VARIATION)) {
+                iterator.remove();
+                currAlts.add(alt);
+                break;
+            }
+        }
         return currAlts;
     }
 

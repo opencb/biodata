@@ -202,28 +202,18 @@ public class ModeOfInheritance {
             // We assume the variant iterator will always contain information for one study
             StudyEntry study = variant.getStudies().get(0);
 
-            Genotype childGt = new Genotype(study.getSampleData(child.getId(), "GT"));
-
-            // Child is 0/1 or 0|1
-            if (childGt.getAllelesIdx().length == 2 && ((childGt.getAllelesIdx()[0] == 0 && childGt.getAllelesIdx()[1] == 1)
-                    || (childGt.getAllelesIdx()[0] == 1 && childGt.getAllelesIdx()[1] == 0))) {
-                Genotype fatherGt = new Genotype(study.getSampleData(father.getId(), "GT"));
-                if (fatherGt.getAllelesIdx().length == 2) {
-                    if (fatherGt.getAllelesIdx()[0] == 0 && fatherGt.getAllelesIdx()[1] == 0) {
-                        Genotype motherGt = new Genotype(study.getSampleData(mother.getId(), "GT"));
-                        if (motherGt.getAllelesIdx().length == 2 && ((motherGt.getAllelesIdx()[0] == 0 && motherGt.getAllelesIdx()[1] ==
-                                1) || (motherGt.getAllelesIdx()[0] == 1 && motherGt.getAllelesIdx()[1] == 0))) {
-                            motherExplainedVariantList.add(variant);
-                        }
-                    } else if ((fatherGt.getAllelesIdx()[0] == 0 && fatherGt.getAllelesIdx()[1] == 1) || (fatherGt.getAllelesIdx()[0] ==
-                            1 && fatherGt.getAllelesIdx()[1] == 0)) {
-                        Genotype motherGt = new Genotype(study.getSampleData(mother.getId(), "GT"));
-                        if (motherGt.getAllelesIdx().length == 2 && motherGt.getAllelesIdx()[0] == 0 && motherGt.getAllelesIdx()[1] == 0) {
-                            fatherExplainedVariantList.add(variant);
-                        }
-                    }
-                }
+            switch (compoundHeterozygosityVariantExplainType(
+                    study.getSampleData(child.getId(), "GT"),
+                    study.getSampleData(father.getId(), "GT"),
+                    study.getSampleData(mother.getId(), "GT"))) {
+                case 1:
+                    fatherExplainedVariantList.add(variant);
+                    break;
+                case 2:
+                    motherExplainedVariantList.add(variant);
+                    break;
             }
+
         }
 
         if (!fatherExplainedVariantList.isEmpty() && !motherExplainedVariantList.isEmpty()) {
@@ -235,6 +225,35 @@ public class ModeOfInheritance {
 
         // No variants support the model
         return Collections.emptyList();
+    }
+
+    public static int compoundHeterozygosityVariantExplainType(String childGtStr, String fatherGtStr, String motherGtStr) {
+        Genotype childGt = new Genotype(childGtStr);
+
+        // Child is 0/1 or 0|1
+        if (childGt.getAllelesIdx().length == 2 && ((childGt.getAllelesIdx()[0] == 0 && childGt.getAllelesIdx()[1] == 1)
+                || (childGt.getAllelesIdx()[0] == 1 && childGt.getAllelesIdx()[1] == 0))) {
+            Genotype fatherGt = new Genotype(fatherGtStr);
+            if (fatherGt.getAllelesIdx().length == 2) {
+                if (fatherGt.getAllelesIdx()[0] == 0 && fatherGt.getAllelesIdx()[1] == 0) {
+                    Genotype motherGt = new Genotype(motherGtStr);
+                    if (motherGt.getAllelesIdx().length == 2
+                            && ((motherGt.getAllelesIdx()[0] == 0 && motherGt.getAllelesIdx()[1] == 1)
+                            || (motherGt.getAllelesIdx()[0] == 1 && motherGt.getAllelesIdx()[1] == 0))) {
+                        // Mother explained variant
+                        return 2;
+                    }
+                } else if ((fatherGt.getAllelesIdx()[0] == 0 && fatherGt.getAllelesIdx()[1] == 1)
+                        || (fatherGt.getAllelesIdx()[0] == 1 && fatherGt.getAllelesIdx()[1] == 0)) {
+                    Genotype motherGt = new Genotype(motherGtStr);
+                    if (motherGt.getAllelesIdx().length == 2 && motherGt.getAllelesIdx()[0] == 0 && motherGt.getAllelesIdx()[1] == 0) {
+                        // Father explained variant
+                        return 1;
+                    }
+                }
+            }
+        }
+        return 0;
     }
 
     /**

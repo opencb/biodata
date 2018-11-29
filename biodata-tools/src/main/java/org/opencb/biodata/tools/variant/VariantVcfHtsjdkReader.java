@@ -24,6 +24,7 @@ import htsjdk.tribble.readers.LineIteratorImpl;
 import htsjdk.tribble.readers.LineReader;
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFHeader;
+import htsjdk.variant.vcf.VCFHeaderVersion;
 import org.opencb.biodata.formats.variant.io.VariantReader;
 import org.opencb.biodata.formats.variant.vcf4.FullVcfCodec;
 import org.opencb.biodata.models.variant.Variant;
@@ -31,12 +32,14 @@ import org.opencb.biodata.models.variant.VariantFileMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 import org.opencb.biodata.tools.variant.converters.avro.VCFHeaderToVariantFileHeaderConverter;
 import org.opencb.biodata.tools.variant.converters.avro.VariantContextToVariantConverter;
+import org.opencb.commons.utils.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.function.BiConsumer;
 
@@ -53,9 +56,10 @@ public class VariantVcfHtsjdkReader implements VariantReader {
 
     private final Logger logger = LoggerFactory.getLogger(VariantVcfHtsjdkReader.class);
 
+    private final Path input;
+    private InputStream inputStream;
     private final VariantStudyMetadata metadata;
     private final VariantFileMetadata fileMetadata;
-    private final InputStream inputStream;
     private final VariantNormalizer normalizer;
     private FullVcfCodec codec;
     private VCFHeader header;
@@ -64,16 +68,32 @@ public class VariantVcfHtsjdkReader implements VariantReader {
     private List<String> headerLines;
     private Set<BiConsumer<String, RuntimeException>> malformHandlerSet = new HashSet<>();
     private boolean failOnError = false;
+    private final boolean closeInputStream;   // Do not close inputStream if is provided in constructor. Respect symmetrical open/close
 
     public VariantVcfHtsjdkReader(InputStream inputStream, VariantStudyMetadata metadata) {
         this(inputStream, metadata, null);
     }
 
     public VariantVcfHtsjdkReader(InputStream inputStream, VariantStudyMetadata metadata, VariantNormalizer normalizer) {
-        this.metadata = metadata;
+        this.input = null;
+        this.inputStream = Objects.requireNonNull(inputStream);
+        this.metadata = Objects.requireNonNull(metadata);
         this.fileMetadata = new VariantFileMetadata(metadata.getFiles().get(0));
-        this.inputStream = inputStream;
         this.normalizer = normalizer;
+        this.closeInputStream = false; // Do not close input stream
+    }
+
+    public VariantVcfHtsjdkReader(Path input, VariantStudyMetadata metadata) {
+        this(input, metadata, null);
+    }
+
+    public VariantVcfHtsjdkReader(Path input, VariantStudyMetadata metadata, VariantNormalizer normalizer) {
+        this.input = Objects.requireNonNull(input);
+        this.inputStream = null;
+        this.metadata = Objects.requireNonNull(metadata);
+        this.fileMetadata = new VariantFileMetadata(metadata.getFiles().get(0));
+        this.normalizer = normalizer;
+        this.closeInputStream = true; // Close input stream
     }
 
     public VariantVcfHtsjdkReader registerMalformatedVcfHandler(BiConsumer<String, RuntimeException> handler) {
@@ -88,6 +108,13 @@ public class VariantVcfHtsjdkReader implements VariantReader {
 
     @Override
     public boolean open() {
+        if (inputStream == null) {
+            try {
+                inputStream = FileUtils.newInputStream(input);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
         return true;
     }
 
@@ -179,7 +206,9 @@ public class VariantVcfHtsjdkReader implements VariantReader {
     @Override
     public boolean close() {
         try {
-            inputStream.close();
+            if (closeInputStream) {
+                inputStream.close();
+            }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -194,6 +223,14 @@ public class VariantVcfHtsjdkReader implements VariantReader {
     @Override
     public String getHeader() {
         return String.join("\n", headerLines);
+    }
+
+    public VCFHeader getVCFHeader() {
+        return header;
+    }
+
+    public VCFHeaderVersion getVCFHeaderVersion() {
+        return codec.getVCFHeaderVersion();
     }
 
     @Override

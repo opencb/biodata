@@ -16,6 +16,8 @@
 
 package org.opencb.biodata.models.commons;
 
+import java.util.Map;
+
 /**
  * Created by imedina on 03/07/16.
  */
@@ -25,13 +27,16 @@ public class OntologyTerm {
     protected String name;
     protected String source;
 
+    protected Map<String, String> attributes;
+
     public OntologyTerm() {
     }
 
-    public OntologyTerm(String id, String name, String source) {
+    public OntologyTerm(String id, String name, String source, Map<String, String> attributes) {
         this.id = id;
         this.name = name;
         this.source = source;
+        this.attributes = attributes;
     }
 
     @Override
@@ -40,6 +45,7 @@ public class OntologyTerm {
         sb.append("id='").append(id).append('\'');
         sb.append(", name='").append(name).append('\'');
         sb.append(", source='").append(source).append('\'');
+        sb.append(", attributes=").append(attributes);
         sb.append('}');
         return sb.toString();
     }
@@ -71,4 +77,12 @@ public class OntologyTerm {
         return this;
     }
 
+    public Map<String, String> getAttributes() {
+        return attributes;
+    }
+
+    public OntologyTerm setAttributes(Map<String, String> attributes) {
+        this.attributes = attributes;
+        return this;
+    }
 }
