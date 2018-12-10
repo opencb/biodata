@@ -51,13 +51,13 @@ public class VariantStudyMetadataToVCFHeaderConverter implements Converter<Varia
             String cohortName = cohort.getId();
             if (cohortName.equals(StudyEntry.DEFAULT_COHORT)) {
                 vcfHeader.addMetaDataLine(new VCFInfoHeaderLine(VCFConstants.ALLELE_COUNT_KEY, VCFHeaderLineCount.A,
-                        VCFHeaderLineType.Integer, "Total number of alternate alleles in called genotypes,"
+                        VCFHeaderLineType.Integer, "Total number of alternate alleles in called genotypeCounters,"
                         + " for each ALT allele, in the same order as listed"));
                 vcfHeader.addMetaDataLine(new VCFInfoHeaderLine(VCFConstants.ALLELE_FREQUENCY_KEY, VCFHeaderLineCount.A,
                         VCFHeaderLineType.Float, "Allele Frequency, for each ALT allele, calculated from AC and AN, in the range (0,1),"
                         + " in the same order as listed"));
                 vcfHeader.addMetaDataLine(new VCFInfoHeaderLine(VCFConstants.ALLELE_NUMBER_KEY, 1,
-                        VCFHeaderLineType.Integer, "Total number of alleles in called genotypes"));
+                        VCFHeaderLineType.Integer, "Total number of alleles in called genotypeCounters"));
             } else {
                 vcfHeader.addMetaDataLine(new VCFInfoHeaderLine(cohortName + "_" + VCFConstants.ALLELE_FREQUENCY_KEY, VCFHeaderLineCount.A,
                         VCFHeaderLineType.Float,

@@ -125,7 +125,7 @@ public class VariantSourceStats {
                 
                 Genotype g = new Genotype(sample.getValue().get("GT"), v.getReference(), v.getAlternate());
                 
-                // Count missing genotypes (one or both alleles missing)
+                // Count missing genotypeCounters (one or both alleles missing)
                 if (g.getCode() != AllelesCode.ALLELES_OK) { 
                     sampleStats.incrementMissingGenotypes();
                 }

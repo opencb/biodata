@@ -121,7 +121,7 @@ public class VariantStatsCalculator {
             Integer numGt = entry.getValue();
             variantStats.addGenotype(g, numGt, false);
 
-            // Check missing alleles and genotypes
+            // Check missing alleles and genotypeCounters
             switch (g.getCode()) {
                 case MULTIPLE_ALTERNATES:
                 case ALLELES_OK:
@@ -135,7 +135,7 @@ public class VariantStatsCalculator {
                     totalAllelesCount += g.getPloidy() * numGt;
                     totalGenotypesCount += numGt;
 
-                    // Counting genotypes for Hardy-Weinberg (all phenotypes)
+                    // Counting genotypeCounters for Hardy-Weinberg (all phenotypes)
                     //FIXME//FIXME//FIXME//FIXME
 //                    if (g.isAlleleRef(0) && g.isAlleleRef(1)) { // 0|0
 //                        variantStats.getHw().incN_AA();
@@ -234,7 +234,7 @@ public class VariantStatsCalculator {
 
     private static void calculateGenotypeFrequencies(int totalGenotypesCount, VariantStats variantStats) {
         if (totalGenotypesCount < 0) {
-            throw new IllegalArgumentException("The number of genotypes must be equals or greater than zero");
+            throw new IllegalArgumentException("The number of genotypeCounters must be equals or greater than zero");
         }
 
         if (variantStats.getGenotypeCount().isEmpty() || totalGenotypesCount == 0) {
@@ -244,16 +244,16 @@ public class VariantStatsCalculator {
             return;
         }
 
-        // Set all combinations of genotypes to zero
+        // Set all combinations of genotypeCounters to zero
         Map<Genotype, Float> genotypesFreq = variantStats.getGenotypeFreq();
         genotypesFreq.put(new Genotype("0/0"), 0.0f);
         genotypesFreq.put(new Genotype("0/1"), 0.0f);
         genotypesFreq.put(new Genotype("1/1"), 0.0f);
 
-        // Insert the genotypes found in the file
+        // Insert the genotypeCounters found in the file
         for (Map.Entry<Genotype, Integer> gtCount : variantStats.getGenotypeCount().entrySet()) {
             if (gtCount.getKey().getCode() == AllelesCode.ALLELES_MISSING) {
-                // Missing genotypes shouldn't have frequencies calculated
+                // Missing genotypeCounters shouldn't have frequencies calculated
                 continue;
             }
 
@@ -261,7 +261,7 @@ public class VariantStatsCalculator {
             genotypesFreq.put(gtCount.getKey(), freq);
         }
 
-        // Traverse the genotypes to see which one has the MGF
+        // Traverse the genotypeCounters to see which one has the MGF
         float currMgf = Float.MAX_VALUE;
         Genotype currMgfGenotype = null;
 

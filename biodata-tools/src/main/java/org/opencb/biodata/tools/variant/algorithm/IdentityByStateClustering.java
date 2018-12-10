@@ -132,7 +132,7 @@ public class IdentityByStateClustering {
 
     /**
      * Distance in genotype space. 
-     * As it is categorical, currently it is just computed as a ratio between shared genotypes and total genotypes.
+     * As it is categorical, currently it is just computed as a ratio between shared genotypeCounters and total genotypeCounters.
      * Could also be euclidian distance with formula (taken from plink):
      * sqrt((IBSg.z1*0.5 + IBSg.z2*2)/(IBSg.z0+IBSg.z1+IBSg.z2*2));
      * @param counts

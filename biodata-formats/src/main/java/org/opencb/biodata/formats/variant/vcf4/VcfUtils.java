@@ -131,13 +131,13 @@ public class VcfUtils {
         for (String cohortName : cohortNames) {
             if (cohortName.toUpperCase().equals("ALL")) {
 //                meta.add(new VCFInfoHeaderLine(VCFConstants.ALLELE_COUNT_KEY, VCFHeaderLineCount.A,
-//                        VCFHeaderLineType.Integer, "Total number of alternate alleles in called genotypes,"
+//                        VCFHeaderLineType.Integer, "Total number of alternate alleles in called genotypeCounters,"
 //                        + " for each ALT allele, in the same order as listed"));
                 meta.add(new VCFInfoHeaderLine(VCFConstants.ALLELE_FREQUENCY_KEY, VCFHeaderLineCount.A,
                         VCFHeaderLineType.Float, "Allele Frequency, for each ALT allele, calculated from AC and AN, in the range (0,1),"
                         + " in the same order as listed"));
 //                meta.add(new VCFInfoHeaderLine(VCFConstants.ALLELE_NUMBER_KEY, 1,
-//                        VCFHeaderLineType.Integer, "Total number of alleles in called genotypes"));
+//                        VCFHeaderLineType.Integer, "Total number of alleles in called genotypeCounters"));
             } else {
                 meta.add(new VCFInfoHeaderLine(cohortName + "_" + VCFConstants.ALLELE_FREQUENCY_KEY, VCFHeaderLineCount.A,
                         VCFHeaderLineType.Float,
@@ -177,7 +177,7 @@ public class VcfUtils {
                         break;
                     case "PL":
                         meta.add(new VCFFormatHeaderLine(formatFields.get(i), 1, VCFHeaderLineType.Integer,
-                                "Normalized, Phred-scaled likelihoods for genotypes as defined in the VCF specification"));
+                                "Normalized, Phred-scaled likelihoods for genotypeCounters as defined in the VCF specification"));
                         break;
                     default:
                         meta.add(new VCFFormatHeaderLine(formatFields.get(i), 1, VCFHeaderLineType.valueOf(formatFieldsType.get(i)), formatFieldsDescr.get(i)));

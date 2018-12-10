@@ -78,8 +78,8 @@ public class FullVcfCodec extends VCFCodec implements Serializable {
         int nParts = ParsingUtils.split(str, genotypeParts, VCFConstants.FIELD_SEPARATOR_CHAR);
         if (nParts != genotypeParts.length) {
             generateException("there are " + (nParts - 1)
-                    + " genotypes while the header requires that " + (genotypeParts.length - 1)
-                    + " genotypes be present for all records at " + chr + ":" + pos, lineNo);
+                    + " genotypeCounters while the header requires that " + (genotypeParts.length - 1)
+                    + " genotypeCounters be present for all records at " + chr + ":" + pos, lineNo);
         }
 
         ArrayList<Genotype> genotypes = new ArrayList<>(nParts);
@@ -163,7 +163,7 @@ public class FullVcfCodec extends VCFCodec implements Serializable {
             }
             if (genotypeAlleleLocation > 0) {
                 generateException("Saw GT field at position "
-                        + genotypeAlleleLocation + ", but it must be at the first position for genotypes when present");
+                        + genotypeAlleleLocation + ", but it must be at the first position for genotypeCounters when present");
             }
 
             final List<Allele> gTalleles = (genotypeAlleleLocation == -1

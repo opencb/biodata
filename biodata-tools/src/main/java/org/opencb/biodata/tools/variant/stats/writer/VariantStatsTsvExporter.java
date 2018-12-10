@@ -39,8 +39,8 @@ import java.util.List;
  *
  * For each cohort defines a set of 5 columns.
  * Each column will be prefixed with the name of the cohort.
- *  - {cohort}_AN    : Allele number, with the number of alleles in called genotypes in the cohort
- *  - {cohort}_AC    : Allele count, total number of alternate alleles in called genotypes
+ *  - {cohort}_AN    : Allele number, with the number of alleles in called genotypeCounters in the cohort
+ *  - {cohort}_AC    : Allele count, total number of alternate alleles in called genotypeCounters
  *  - {cohort}_AF    : Allele frequency in the cohort calculated from AC and AN, in the range (0,1)
  *  - {cohort}_HET   : Heterozygous genotype frequency
  *  - {cohort}_HOM   : Homozygous alternate genotype frequency
