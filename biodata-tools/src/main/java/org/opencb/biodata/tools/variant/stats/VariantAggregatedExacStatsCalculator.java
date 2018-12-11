@@ -202,13 +202,13 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
     }
 
     /**
-     * Adds the heterozygous genotypes to a variant stats. Those are (in this order):
+     * Adds the heterozygous genotypeCounters to a variant stats. Those are (in this order):
      * 0/1, 0/2, 0/3, 0/4... 1/2, 1/3, 1/4... 2/3, 2/4... 3/4...
      * for a given amount n of alleles, the number of combinations is (latex): \sum_{i=1}^n( \sum_{j=i}^n( 1 ) ), which resolved is n*(n+1)/2
      * @param variant to retrieve the alleles to construct the genotype
      * @param numAllele
      * @param alternateAlleles
-     * @param stats where to add the genotypes count
+     * @param stats where to add the genotypeCounters count
      * @param hetCounts parsed string
      */
     private static void addHeterozygousGenotypes(Variant variant, int numAllele, String[] alternateAlleles, VariantStats stats, String[] hetCounts) {
@@ -225,7 +225,7 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
     }
 
     /**
-     * Adds the homozygous genotypes to a variant stats. Those are (in this order):
+     * Adds the homozygous genotypeCounters to a variant stats. Those are (in this order):
      * 1/1, 2/2, 3/3...
      * @param variant
      * @param numAllele

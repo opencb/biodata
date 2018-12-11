@@ -19,34 +19,49 @@
 
 package org.opencb.biodata.tools.commons;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.*;
 import java.util.function.Predicate;
 
 /**
  * Created by joaquin on 11/14/16.
  */
-public class CommonsFilters<T> {
+public class CommonsFilters<T> implements Predicate<T> {
 
     protected List<Predicate<T>> filters;
+    protected boolean mustPassAll;
 
     public CommonsFilters() {
         this(new ArrayList<>());
     }
 
     public CommonsFilters(List<Predicate<T>> filters) {
-        this.filters = filters;
+        this(filters, true);
     }
 
+    public CommonsFilters(List<Predicate<T>> filters, boolean mustPassAll) {
+        this.filters = filters == null ? new ArrayList<>() : filters;
+        this.mustPassAll = mustPassAll;
+    }
+
+    @Override
     public boolean test(T elem) {
-        if (filters != null && filters.size() > 0) {
+        if (mustPassAll) {
             for (Predicate<T> filter : filters) {
                 if (!filter.test(elem)) {
                     return false;
                 }
             }
+            return true;
+        } else {
+            for (Predicate<T> filter : filters) {
+                if (filter.test(elem)) {
+                    return true;
+                }
+            }
+            return false;
         }
-        return true;
     }
 
     public CommonsFilters<T> addFilter(Predicate<T> predicate) {
@@ -85,7 +100,111 @@ public class CommonsFilters<T> {
     }
 
     public CommonsFilters setFilters(List<Predicate<T>> filters) {
-        this.filters = filters;
+        this.filters = filters == null ? new ArrayList<>() : filters;
         return this;
+    }
+
+    public CommonsFilters<T> setMustPassAll(boolean mustPassAll) {
+        this.mustPassAll = mustPassAll;
+        return this;
+    }
+
+    public CommonsFilters<T> setMustPassAny(boolean mustPassAny) {
+        this.mustPassAll = !mustPassAny;
+        return this;
+    }
+
+    protected static String[] splitOperator(String value) {
+        int first = StringUtils.indexOfAny(value, '=', '>', '<');
+        int last = StringUtils.lastIndexOfAny(value, "=", ">", "<");
+
+        if (first == StringUtils.INDEX_NOT_FOUND) {
+            throw new IllegalArgumentException("Malformed filter. Expected <KEY><OP><VALUE>");
+        }
+
+        return new String[]{value.substring(0, first), value.substring(first, last + 1), value.substring(last + 1)};
+    }
+
+    protected static Predicate<String> buildPredicate(String op, String value) {
+        return buildPredicate(op, value, false);
+    }
+
+    protected static Predicate<String> buildPredicate(String op, String value, boolean acceptNull) {
+        Predicate<String> predicate;
+        Double numValue;
+        switch (op) {
+            case "=":
+            case "==":
+                Set<String> values;
+                if (value.contains(",") || acceptNull) {
+                    values = new HashSet<>(Arrays.asList(value.split(",")));
+                    if (acceptNull) {
+                        values.add(null);
+                    }
+                } else {
+                    values = Collections.singleton(value);
+                }
+                predicate = values::contains;
+                break;
+            case ">":
+                numValue = Double.valueOf(value);
+                predicate = v -> {
+                    if (StringUtils.isEmpty(v) || v.equals(".")) {
+                        return acceptNull;
+                    } else {
+                        try {
+                            return Double.valueOf(v) > numValue;
+                        } catch (NumberFormatException e) {
+                            return acceptNull;
+                        }
+                    }
+                };
+                break;
+            case ">=":
+                numValue = Double.valueOf(value);
+                predicate = v -> {
+                    if (StringUtils.isEmpty(v) || v.equals(".")) {
+                        return acceptNull;
+                    } else {
+                        try {
+                            return Double.valueOf(v) >= numValue;
+                        } catch (NumberFormatException e) {
+                            return acceptNull;
+                        }
+                    }
+                };
+                break;
+            case "<":
+                numValue = Double.valueOf(value);
+                predicate = v -> {
+                    if (StringUtils.isEmpty(v) || v.equals(".")) {
+                        return acceptNull;
+                    } else {
+                        try {
+                            return Double.valueOf(v) < numValue;
+                        } catch (NumberFormatException e) {
+                            return acceptNull;
+                        }
+                    }
+                };
+                break;
+            case "<=":
+                numValue = Double.valueOf(value);
+                predicate = v -> {
+                    if (StringUtils.isEmpty(v) || v.equals(".")) {
+                        return acceptNull;
+                    } else {
+                        try {
+                            return Double.valueOf(v) <= numValue;
+                        } catch (NumberFormatException e) {
+                            return acceptNull;
+                        }
+                    }
+                };
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported operator " + op);
+        }
+        return predicate;
     }
 }

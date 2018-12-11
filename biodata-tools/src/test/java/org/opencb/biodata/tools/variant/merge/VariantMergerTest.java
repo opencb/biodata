@@ -594,6 +594,29 @@ public class VariantMergerTest {
     }
 
     @Test
+    public void testMergeAndReorderNonRefAllele() {
+        String format = VCFConstants.GENOTYPE_KEY + "," + VCFConstants.GENOTYPE_FILTER_KEY + "," + VCFConstants.GENOTYPE_ALLELE_DEPTHS;
+        Variant variant = VariantTestUtils.generateVariantWithFormat("1:10:A:T,<*>",
+                format,
+                "S1", "0/2", "PASS", "10,11,1");
+
+        Variant ref1 = VariantTestUtils.generateVariantWithFormat("1:10:A:C,<*>",
+                format,
+                "S2", "0/1", "PASS", "16,7,1");
+
+        Variant mergeVar = variantMerger.merge(variant, ref1);
+        System.out.println("mergeVar = " + mergeVar.toJson());
+        assertEquals(2, mergeVar.getStudies().get(0).getSecondaryAlternates().size());
+        assertEquals(new AlternateCoordinate("1", 10, 10, "A", "C", VariantType.SNV), mergeVar.getStudies().get(0).getSecondaryAlternates().get(0));
+        assertEquals(new AlternateCoordinate("1", 10, 10, "A", "<*>", VariantType.NO_VARIATION), mergeVar.getStudies().get(0).getSecondaryAlternates().get(1));
+        assertEquals("10,11,0,1", mergeVar.getStudies().get(0).getSampleData("S1", VCFConstants.GENOTYPE_ALLELE_DEPTHS));
+        assertEquals("0/3", mergeVar.getStudies().get(0).getSampleData("S1", VCFConstants.GENOTYPE_KEY));
+        assertEquals("0/2", mergeVar.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_KEY));
+        assertEquals("PASS", mergeVar.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_FILTER_KEY));
+        assertEquals("16,0,7,1", mergeVar.getStudies().get(0).getSampleData("S2", VCFConstants.GENOTYPE_ALLELE_DEPTHS));
+    }
+
+    @Test
     public void testMergeIndel() {
         Variant v1 = VariantTestUtils.generateVariantWithFormat("1:10:ATGTA:-",
                 VCFConstants.GENOTYPE_KEY + "," + VCFConstants.GENOTYPE_FILTER_KEY,
@@ -1054,12 +1077,12 @@ public class VariantMergerTest {
     }
 
     /**
-     * Check if the merge of the two variants is done well. Assumes that the variants can be merged and the genotypes of
+     * Check if the merge of the two variants is done well. Assumes that the variants can be merged and the genotypeCounters of
      * the first variant are not going to be modified.
      *
      * @param var1  First variant to be merged
      * @param var2  Second variant to be merged
-     * @param expectedVar2Gts Expected genotypes of the second variant
+     * @param expectedVar2Gts Expected genotypeCounters of the second variant
      * @return  The merged variant, for additional checks
      */
     public Variant checkMergeVariants(Variant var1, Variant var2, List<String> expectedSecondaryAlternates, String ...expectedVar2Gts) {

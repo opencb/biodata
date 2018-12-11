@@ -1,7 +1,11 @@
 package org.opencb.biodata.models.commons;
 
+import java.util.Collections;
+import java.util.Map;
+
 public class Phenotype extends OntologyTerm {
 
+    private String ageOfOnset;
     private Status status;
 
     public enum Status {
@@ -14,14 +18,18 @@ public class Phenotype extends OntologyTerm {
     }
 
     public Phenotype(String id, String name, String source) {
-        this(id, name, source, Status.UNKNOWN);
+        this(id, name, source, "", Status.UNKNOWN, Collections.emptyMap());
     }
 
     public Phenotype(String id, String name, String source, Status status) {
-        super(id, name, source);
-        this.status = status;
+        this(id, name, source, "", status, Collections.emptyMap());
     }
 
+    public Phenotype(String id, String name, String source, String ageOfOnset, Status status, Map<String, String> attributes) {
+        super(id, name, source, attributes);
+        this.ageOfOnset = ageOfOnset;
+        this.status = status;
+    }
 
     @Override
     public String toString() {
@@ -30,6 +38,8 @@ public class Phenotype extends OntologyTerm {
         sb.append(", name='").append(name).append('\'');
         sb.append(", source='").append(source).append('\'');
         sb.append(", status=").append(status);
+        sb.append(", ageOfOnset='").append(ageOfOnset).append('\'');
+        sb.append(", attributes=").append(attributes);
         sb.append('}');
         return sb.toString();
     }
@@ -69,4 +79,14 @@ public class Phenotype extends OntologyTerm {
         this.status = status;
         return this;
     }
+
+    public String getAgeOfOnset() {
+        return ageOfOnset;
+    }
+
+    public Phenotype setAgeOfOnset(String ageOfOnset) {
+        this.ageOfOnset = ageOfOnset;
+        return this;
+    }
+
 }

@@ -1,97 +1,176 @@
-/*
- * <!--
- *   ~ Copyright 2015-2017 OpenCB
- *   ~
- *   ~ Licensed under the Apache License, Version 2.0 (the "License");
- *   ~ you may not use this file except in compliance with the License.
- *   ~ You may obtain a copy of the License at
- *   ~
- *   ~     http://www.apache.org/licenses/LICENSE-2.0
- *   ~
- *   ~ Unless required by applicable law or agreed to in writing, software
- *   ~ distributed under the License is distributed on an "AS IS" BASIS,
- *   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *   ~ See the License for the specific language governing permissions and
- *   ~ limitations under the License.
- *   -->
- *
- */
-
 package org.opencb.biodata.models.variant.stats;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import javafx.util.Pair;
 
-/**
- * Created with IntelliJ IDEA.
- * User: aaleman
- * Date: 8/29/13
- * Time: 10:20 AM
- * To change this template use File | Settings | File Templates.
- */
+import java.util.*;
+
 public class VariantSampleStats {
+    private int numVariants;
 
-    private Map<String, VariantSingleSampleStats> samplesStats;
+    // Stats counters
+    private Map<String, Integer> chromosomeCounter;
+    private Map<String, Integer> consequenceTypeCounter;
+    private Map<String, Integer> biotypeCounter;
+    private Map<String, Integer> typeCounter;
+    private Map<String, Integer> genotypeCounter;
 
+    // ti/tv ratio
+    private double tiTvRatio;
 
-    public VariantSampleStats(List<String> sampleNames) {
-        samplesStats = new LinkedHashMap<>(sampleNames.size());
-        VariantSingleSampleStats s;
+    // Heterozigosity, missingness scores
+    private double heterozigosityScore;
+    private double missingnessScore;
 
-        for (String name : sampleNames) {
-            s = new VariantSingleSampleStats(name);
-            samplesStats.put(name, s);
-        }
+    // Most affected genes
+    private List<Pair<String, Integer>> mostMutatedGenes;
+
+    // Indel length
+    private List<Integer> indelLength;
+
+    // Loss of function genes
+    private LoF lof;
+
+    // Most affected genes
+    private List<Pair<String, Integer>> mostFrequentVarTraits;
+
+    // Mendelian error counters
+    private Map<Integer, Integer> mendelianErrorCounters;
+
+    public VariantSampleStats() {
+        chromosomeCounter = new HashMap<>();
+        consequenceTypeCounter = new HashMap<>();
+        biotypeCounter = new HashMap<>();
+        typeCounter = new HashMap<>();
+        genotypeCounter = new HashMap<>();
+
+        indelLength = Arrays.asList(new Integer[]{0, 0, 0, 0, 0, 0, 0, 0, 0});
+
+        mendelianErrorCounters = new HashMap<>();
     }
 
-    public VariantSampleStats(List<String> sampleNames, List<VariantSampleStats> variantSampleStatses) {
-        this(sampleNames);
-        String sampleName;
-        VariantSingleSampleStats ss, ssAux;
-        Map<String, VariantSingleSampleStats> map;
-        for (VariantSampleStats variantSampleStat : variantSampleStatses) {
-            map = variantSampleStat.getSamplesStats();
-            for (Map.Entry<String, VariantSingleSampleStats> entry : map.entrySet()) {
-                sampleName = entry.getKey();
-                ss = entry.getValue();
-                ssAux = this.getSamplesStats().get(sampleName);
-                ssAux.incrementMendelianErrors(ss.getNumMendelianErrors());
-                ssAux.incrementMissingGenotypes(ss.getNumMissingGenotypes());
-                ssAux.incrementHomozygotesNumber(ss.getNumHomozygous());
-            }
-        }
+    public int getNumVariants() {
+        return numVariants;
     }
 
-    public Map<String, VariantSingleSampleStats> getSamplesStats() {
-        return samplesStats;
+    public VariantSampleStats setNumVariants(int numVariants) {
+        this.numVariants = numVariants;
+        return this;
     }
 
-    public void incrementMendelianErrors(String sampleName) {
-        VariantSingleSampleStats s = samplesStats.get(sampleName);
-        s.incrementMendelianErrors();
+    public Map<String, Integer> getChromosomeCounter() {
+        return chromosomeCounter;
     }
 
-    public void incrementMissingGenotypes(String sampleName) {
-        VariantSingleSampleStats s = samplesStats.get(sampleName);
-        s.incrementMissingGenotypes();
+    public VariantSampleStats setChromosomeCounter(Map<String, Integer> chromosomeCounter) {
+        this.chromosomeCounter = chromosomeCounter;
+        return this;
     }
 
-    public void incrementHomozygotesNumber(String sampleName) {
-        VariantSingleSampleStats s = samplesStats.get(sampleName);
-        s.incrementHomozygous();
+    public Map<String, Integer> getConsequenceTypeCounter() {
+        return consequenceTypeCounter;
     }
 
-    @Override
-    public String toString() {
-        VariantSingleSampleStats s;
-        StringBuilder sb = new StringBuilder();
-        sb.append(String.format("%-10s%-10s%-10s%-10s\n", "Sample", "MissGt", "Mendel Err", "Homoz Count"));
-        for (Map.Entry<String, VariantSingleSampleStats> entry : samplesStats.entrySet()) {
-            s = entry.getValue();
-            sb.append(String.format("%-10s%-10d%-10d%10d\n", s.getId(), s.getNumMissingGenotypes(), s.getNumMendelianErrors(), s.getNumHomozygous()));
+    public VariantSampleStats setConsequenceTypeCounter(Map<String, Integer> consequenceTypeCounter) {
+        this.consequenceTypeCounter = consequenceTypeCounter;
+        return this;
+    }
 
-        }
-        return sb.toString();
+    public Map<String, Integer> getBiotypeCounter() {
+        return biotypeCounter;
+    }
+
+    public VariantSampleStats setBiotypeCounter(Map<String, Integer> biotypeCounter) {
+        this.biotypeCounter = biotypeCounter;
+        return this;
+    }
+
+    public Map<String, Integer> getTypeCounter() {
+        return typeCounter;
+    }
+
+    public VariantSampleStats setTypeCounter(Map<String, Integer> typeCounter) {
+        this.typeCounter = typeCounter;
+        return this;
+    }
+
+    public Map<String, Integer> getGenotypeCounter() {
+        return genotypeCounter;
+    }
+
+    public VariantSampleStats setGenotypeCounter(Map<String, Integer> genotypeCounter) {
+        this.genotypeCounter = genotypeCounter;
+        return this;
+    }
+
+    public double getTiTvRatio() {
+        return tiTvRatio;
+    }
+
+    public VariantSampleStats setTiTvRatio(double tiTvRatio) {
+        this.tiTvRatio = tiTvRatio;
+        return this;
+    }
+
+    public double getHeterozigosityScore() {
+        return heterozigosityScore;
+    }
+
+    public VariantSampleStats setHeterozigosityScore(double heterozigosityScore) {
+        this.heterozigosityScore = heterozigosityScore;
+        return this;
+    }
+
+    public double getMissingnessScore() {
+        return missingnessScore;
+    }
+
+    public VariantSampleStats setMissingnessScore(double missingnessScore) {
+        this.missingnessScore = missingnessScore;
+        return this;
+    }
+
+    public List<Pair<String, Integer>> getMostMutatedGenes() {
+        return mostMutatedGenes;
+    }
+
+    public VariantSampleStats setMostMutatedGenes(List<Pair<String, Integer>> mostMutatedGenes) {
+        this.mostMutatedGenes = mostMutatedGenes;
+        return this;
+    }
+
+    public List<Pair<String, Integer>> getMostFrequentVarTraits() {
+        return mostFrequentVarTraits;
+    }
+
+    public VariantSampleStats setMostFrequentVarTraits(List<Pair<String, Integer>> mostFrequentVarTraits) {
+        this.mostFrequentVarTraits = mostFrequentVarTraits;
+        return this;
+    }
+
+    public List<Integer> getIndelLength() {
+        return indelLength;
+    }
+
+    public VariantSampleStats setIndelLength(List<Integer> indelLength) {
+        this.indelLength = indelLength;
+        return this;
+    }
+
+    public LoF getLof() {
+        return lof;
+    }
+
+    public VariantSampleStats setLof(LoF lof) {
+        this.lof = lof;
+        return this;
+    }
+
+    public Map<Integer, Integer> getMendelianErrorCounters() {
+        return mendelianErrorCounters;
+    }
+
+    public VariantSampleStats setMendelianErrorCounters(Map<Integer, Integer> mendelianErrorCounters) {
+        this.mendelianErrorCounters = mendelianErrorCounters;
+        return this;
     }
 }

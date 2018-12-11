@@ -64,7 +64,6 @@ public class Genotype {
     public Genotype(String genotype, String ref, List<String> alternates) {
         this.reference = ref;
         this.alternates = alternates;
-        this.phased = genotype.contains("|");
         this.count = 0;
         parseGenotype(genotype);
     }
@@ -74,10 +73,33 @@ public class Genotype {
         /*REGEX*/
 //        List<String> alleles = Arrays.asList(genotypePattern.split(genotype, -1));
 
+        switch (genotype) {
+            case HOM_REF:
+                this.code = AllelesCode.ALLELES_OK;
+                this.allelesIdx = new int[]{0, 0};
+                this.phased = false;
+                break;
+            case HET_REF:
+                this.code = AllelesCode.ALLELES_OK;
+                this.allelesIdx = new int[]{0, 1};
+                this.phased = false;
+                break;
+            case HOM_VAR:
+                this.code = AllelesCode.ALLELES_OK;
+                this.allelesIdx = new int[]{1, 1};
+                this.phased = false;
+                break;
+            default:
+                parseOtherGenotype(genotype);
+                break;
+        }
+    }
+
+    private void parseOtherGenotype(String genotype) {
         /*CUSTOM PARSER*/
         ArrayList<String> alleles = new ArrayList<>(2);
         int lastIdx = 0;
-
+        int allelesLength;
         for (int i = 0; i < genotype.length(); i++) {
             char c = genotype.charAt(i);
             if (c == '/' || c == '|') {
@@ -88,10 +110,8 @@ public class Genotype {
         if (lastIdx != genotype.length() + 1) {
             alleles.add(genotype.substring(lastIdx));
         }
-
-
-
         allelesLength = alleles.size();
+        this.phased = genotype.contains("|");
         this.code = AllelesCode.ALLELES_OK;
         this.allelesIdx = new int[allelesLength];
 
@@ -106,9 +126,9 @@ public class Genotype {
                 char ch;
                 if (allele.length() == 1 && ((ch = allele.charAt(0)) >= '0' && ch <= '9')) {
                     this.allelesIdx[i] = ch - '0';
-                } else if (StringUtils.isNumeric(allele)) { // Accepts genotypes with form 0/0, 0/1, and so on
+                } else if (StringUtils.isNumeric(allele)) { // Accepts genotypeCounters with form 0/0, 0/1, and so on
                     this.allelesIdx[i] = Integer.parseInt(allele);
-                } else { // Accepts genotypes with form A/A, A/T, and so on
+                } else { // Accepts genotypeCounters with form A/A, A/T, and so on
                     if (allele.equalsIgnoreCase(reference)) {
                         this.allelesIdx[i] = 0;
                     } else {
@@ -256,7 +276,7 @@ public class Genotype {
      * Each allele is encoded as the ith-power of 10, being i the index where it is placed. Then its value 
      * (0,1,2...) is multiplied by that power.
      * 
-     * Two genotypes with the same alleles but different phase will have different sign. Phased genotypes
+     * Two genotypeCounters with the same alleles but different phase will have different sign. Phased genotypeCounters
      * have positive encoding, whereas unphased ones have negative encoding.
      * 
      * For instance, genotype 1/0 would be -10, 1|0 would be 10 and 2/1 would be -21.
@@ -264,7 +284,7 @@ public class Genotype {
      * @return A numerical encoding of the genotype
      */
     public int encode() {
-        // TODO Support missing genotypes
+        // TODO Support missing genotypeCounters
         int encoding = 0;
         for (int i = 0; i < allelesIdx.length; i++) {
             encoding += Math.pow(10, allelesIdx.length - i - 1) * allelesIdx[i]; 
@@ -274,7 +294,7 @@ public class Genotype {
     }
     
     public static Genotype decode(int encoding) {
-        // TODO Support missing genotypes
+        // TODO Support missing genotypeCounters
         boolean unphased = encoding < 0;
         if (unphased) {
             encoding = Math.abs(encoding);
@@ -350,5 +370,15 @@ public class Genotype {
             return Collections.emptyList();
         }
         return Arrays.stream(genotype.split(",")).map(Genotype::new).collect(Collectors.toList());
+    }
+
+    public static int getPloidy(String gt) {
+        if (gt.length() == 3 && (gt.charAt(1) == '/' || gt.charAt(1) == '|')) {
+            return 2;
+        } else if (gt.length() == 1) {
+            return 1;
+        } else {
+            return new Genotype(gt).getPloidy();
+        }
     }
 }
