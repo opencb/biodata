@@ -36,24 +36,11 @@ public class VariantSampleStatsCalculator {
     }
 
     public List<VariantSampleStats> compute(List<Variant> variants) {
-        return compute(variants, null);
+        return compute(variants.iterator(), null);
     }
 
     public List<VariantSampleStats> compute(List<Variant> variants, Pedigree pedigree) {
-        if (pedigree != null) {
-            pedigreeManager = new PedigreeManager(pedigree);
-            validChildren = getValidChildren(pedigreeManager);
-        }
-
-        // Main loop
-        for (Variant variant: variants) {
-            update(variant, pedigree);
-        }
-
-        // Post-processing
-        post(variantSampleStatsList);
-
-        return variantSampleStatsList;
+        return compute(variants.iterator(), pedigree);
     }
 
     public List<VariantSampleStats> compute(Iterator<Variant> variantIterator) {
