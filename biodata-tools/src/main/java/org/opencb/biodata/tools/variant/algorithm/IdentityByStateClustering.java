@@ -47,7 +47,12 @@ public class IdentityByStateClustering {
      * which is samples.size() choose 2
      */
     public List<IdentityByState> countIBS(List<Variant> variants, List<String> samples) {
-        return countIBS(variants.iterator(), samples);
+        return countIBS(variants.iterator(), samples, null);
+    }
+
+    public List<IdentityByState> countIBS(List<Variant> variants, List<String> samples,
+                                          IBDExpectedFrequencies expectedFreqs) {
+        return countIBS(variants.iterator(), samples, expectedFreqs);
     }
 
     /**
@@ -55,7 +60,11 @@ public class IdentityByStateClustering {
      * which is samples.size() choose 2
      */
     public List<IdentityByState> countIBS(Variant variant, List<String> samples) {
-        return countIBS(Collections.singletonList(variant).iterator(), samples);
+        return countIBS(Collections.singletonList(variant).iterator(), samples, null);
+    }
+
+    public List<IdentityByState> countIBS(Variant variant, List<String> samples, IBDExpectedFrequencies expectedFreqs) {
+        return countIBS(Collections.singletonList(variant).iterator(), samples, expectedFreqs);
     }
 
     /**
@@ -63,6 +72,11 @@ public class IdentityByStateClustering {
      * which is samples.size() choose 2
      */
     public List<IdentityByState> countIBS(Iterator<Variant> iterator, List<String> samples) {
+        return countIBS(iterator, samples, null);
+    }
+
+    public List<IdentityByState> countIBS(Iterator<Variant> iterator, List<String> samples,
+                                          IBDExpectedFrequencies expectedFreqs) {
 
         // assumptions
         if (samples.size() < 1 || samples.size() > MAX_SAMPLES_ALLOWED) {
@@ -80,16 +94,22 @@ public class IdentityByStateClustering {
 
         while (iterator.hasNext()) {
             Variant variant = iterator.next();
+            if (expectedFreqs != null) {
+                expectedFreqs.update(variant);
+            }
+
             forEachPair(samples, (int i, int j, int compoundIndex) -> {
                 StudyEntry studyEntry = variant.getStudies().get(studyIndex);
                 String gtI = studyEntry.getSampleData(samples.get(i), "GT");
                 String gtJ = studyEntry.getSampleData(samples.get(j), "GT");
                 Genotype genotypeI = new Genotype(gtI);
                 Genotype genotypeJ = new Genotype(gtJ);
-
                 int whichIBS = countSharedAlleles(genotypeI.getAllelesIdx().length, genotypeI, genotypeJ);
                 counts.get(compoundIndex).ibs[whichIBS]++;
             });
+        }
+        if (expectedFreqs != null) {
+            expectedFreqs.done();
         }
         return counts;
     }
