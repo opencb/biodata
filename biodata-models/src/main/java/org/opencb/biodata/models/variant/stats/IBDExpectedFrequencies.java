@@ -1,5 +1,6 @@
 package org.opencb.biodata.models.variant.stats;
 
+import org.apache.commons.lang.StringUtils;
 import org.opencb.biodata.models.feature.AllelesCode;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.Variant;
@@ -36,9 +37,14 @@ public class IBDExpectedFrequencies {
     }
 
     public void update(Variant variant) {
-        // TODO: Chromosome sex or haploid
-//            if ( par::chr_sex[locus[l]->chr] ||
-//            par::chr_haploid[locus[l]->chr] ) continue;
+        // Check chromosome sex or haploid, then return
+        String chrom = variant.getChromosome();
+        if (StringUtils.isNotEmpty(chrom)) {
+            chrom = chrom.toUpperCase();
+            if (chrom.equals("X") || chrom.equals("Y") || chrom.equals("MT")) {
+                return;
+            }
+        }
 
         double x = 0;
         double Na = 0; // = # alleles = 2N where N is number of individuals
