@@ -8,10 +8,10 @@ import org.opencb.biodata.models.clinical.pedigree.Pedigree;
 import org.opencb.biodata.models.clinical.pedigree.PedigreeManager;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.*;
-import org.opencb.biodata.models.variant.stats.LoF;
-import org.opencb.biodata.models.variant.stats.VariantSampleStats;
+import org.opencb.biodata.models.variant.stats.*;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 import org.opencb.biodata.tools.pedigree.MendelianError;
+import org.opencb.biodata.tools.variant.algorithm.IdentityByDescentClustering;
 import org.opencb.commons.utils.ListUtils;
 import org.opencb.biodata.models.feature.Genotype;
 
@@ -19,7 +19,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class VariantSampleStatsCalculator {
-    private List<VariantSampleStats> variantSampleStatsList;
+    private List<VariantSampleStats> statsList;
     private List<Map<String, Integer>> geneCounters;
     private List<Map<String, Integer>> varTraitCounters;
 
@@ -33,6 +33,8 @@ public class VariantSampleStatsCalculator {
     private List<Member> validChildren;
 
     public VariantSampleStatsCalculator() {
+        pedigreeManager = null;
+        validChildren = null;
     }
 
     public List<VariantSampleStats> compute(List<Variant> variants) {
@@ -48,24 +50,58 @@ public class VariantSampleStatsCalculator {
     }
 
     public List<VariantSampleStats> compute(Iterator<Variant> variantIterator, Pedigree pedigree) {
+        List<IdentityByState> identityByStates = null;
+        IBDExpectedFrequencies ibdExpFreqs = new IBDExpectedFrequencies();
+        IdentityByDescentClustering ibdc = new IdentityByDescentClustering();
+        List<String> samples = null;
+
         if (pedigree != null) {
             pedigreeManager = new PedigreeManager(pedigree);
+
+            samples = new ArrayList<>(pedigreeManager.getIndividualMap().keySet());
             validChildren = getValidChildren(pedigreeManager);
+            identityByStates = ibdc.getIbsClustering().initCounts(samples);
+
         }
 
         // Main loop
+        Variant variant = null;
         while (variantIterator.hasNext()) {
-            update(variantIterator.next(), pedigree);
+            variant = variantIterator.next();
+
+            update(variant);
+
+            if (pedigree != null) {
+                ibdExpFreqs.update(variant);
+                ibdc.getIbsClustering().countIBS(variant, samples, identityByStates);
+            }
+        }
+
+        if (pedigree != null) {
+            ibdExpFreqs.done();
+            List<IdentityByDescent> identityByDescents = ibdc.countIBD(identityByStates, ibdExpFreqs);
+
+            // TODO: check samples vs samples data size!
+            // (samples.size() != variant.getStudies().get(0).getSamplesData().size())
+
+            List<String> finalSamples = samples;
+            ibdc.getIbsClustering()
+                    .forEachPair(samples, (int firstSampleIndex, int secondSampleIndex, int compoundIndex) -> {
+                        statsList.get(firstSampleIndex).getRelatednessScores()
+                                .put(finalSamples.get(secondSampleIndex), identityByDescents.get(compoundIndex));
+                        statsList.get(secondSampleIndex).getRelatednessScores()
+                                .put(finalSamples.get(firstSampleIndex), identityByDescents.get(compoundIndex));
+            });
         }
 
         // Post-processing
-        post(variantSampleStatsList);
+        post(statsList);
 
-        return variantSampleStatsList;
+        return statsList;
     }
 
-    private void update(Variant variant, Pedigree pedigree) {
-        if (ListUtils.isEmpty(variantSampleStatsList)) {
+    private void update(Variant variant) {
+        if (ListUtils.isEmpty(statsList)) {
             init(variant);
         }
 
@@ -73,7 +109,7 @@ public class VariantSampleStatsCalculator {
         int size = variant.getStudies().get(0).getSamplesData().size();
 
         for (int i = 0; i < size; i++) {
-            VariantSampleStats stats = variantSampleStatsList.get(i);
+            VariantSampleStats stats = statsList.get(i);
 
             // Update genotype: missing or non-variation or ... ?
             String gt = samplesData.get(i).get(0);
@@ -210,7 +246,12 @@ public class VariantSampleStatsCalculator {
 
             // Compute heterozigosity and missigness scores
             stats.setHeterozigosityScore(1.0D * numHet / numVariants);
-            stats.setMissingnessScore(1.0D * stats.getGenotypeCounter().get("./.") / numVariants);
+            if (stats.getGenotypeCounter().containsKey("./.")) {
+                stats.setMissingnessScore(1.0D * stats.getGenotypeCounter().get("./.") / numVariants);
+            } else {
+                stats.setMissingnessScore(0.0D);
+            }
+
 
             // Compute ti/tv ratio
             stats.setTiTvRatio(1.D * ti.get(i) / tv.get(i));
@@ -300,7 +341,7 @@ public class VariantSampleStatsCalculator {
     private void init(Variant variant) {
         int numSamples = variant.getStudies().get(0).getSamplesData().size();
 
-        variantSampleStatsList = new ArrayList<>(numSamples);
+        statsList = new ArrayList<>(numSamples);
         geneCounters = new ArrayList<>(numSamples);
         varTraitCounters = new ArrayList<>(numSamples);
 
@@ -311,7 +352,7 @@ public class VariantSampleStatsCalculator {
         numAltAlleles = new ArrayList<>();
 
         for (int i = 0; i < numSamples; i++) {
-            variantSampleStatsList.add(new VariantSampleStats());
+            statsList.add(new VariantSampleStats());
             geneCounters.add(new HashMap<>());
             varTraitCounters.add(new HashMap<>());
 

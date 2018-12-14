@@ -36,6 +36,9 @@ public class VariantSampleStats {
     // Mendelian error counters
     private Map<Integer, Integer> mendelianErrorCounters;
 
+    // Relatedness scores (IBD/IBS scores)
+    private Map<String, IdentityByDescent> relatednessScores;
+
     public VariantSampleStats() {
         chromosomeCounter = new HashMap<>();
         consequenceTypeCounter = new HashMap<>();
@@ -46,6 +49,29 @@ public class VariantSampleStats {
         indelLength = Arrays.asList(new Integer[]{0, 0, 0, 0, 0, 0, 0, 0, 0});
 
         mendelianErrorCounters = new HashMap<>();
+        relatednessScores = new HashMap<>();
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("VariantSampleStats{");
+        sb.append("numVariants=").append(numVariants);
+        sb.append(", chromosomeCounter=").append(chromosomeCounter);
+        sb.append(", consequenceTypeCounter=").append(consequenceTypeCounter);
+        sb.append(", biotypeCounter=").append(biotypeCounter);
+        sb.append(", typeCounter=").append(typeCounter);
+        sb.append(", genotypeCounter=").append(genotypeCounter);
+        sb.append(", tiTvRatio=").append(tiTvRatio);
+        sb.append(", heterozigosityScore=").append(heterozigosityScore);
+        sb.append(", missingnessScore=").append(missingnessScore);
+        sb.append(", mostMutatedGenes=").append(mostMutatedGenes);
+        sb.append(", indelLength=").append(indelLength);
+        sb.append(", lof=").append(lof);
+        sb.append(", mostFrequentVarTraits=").append(mostFrequentVarTraits);
+        sb.append(", mendelianErrorCounters=").append(mendelianErrorCounters);
+        sb.append(", relatednessScores=").append(relatednessScores);
+        sb.append('}');
+        return sb.toString();
     }
 
     public int getNumVariants() {
@@ -171,6 +197,15 @@ public class VariantSampleStats {
 
     public VariantSampleStats setMendelianErrorCounters(Map<Integer, Integer> mendelianErrorCounters) {
         this.mendelianErrorCounters = mendelianErrorCounters;
+        return this;
+    }
+
+    public Map<String, IdentityByDescent> getRelatednessScores() {
+        return relatednessScores;
+    }
+
+    public VariantSampleStats setRelatednessScores(Map<String, IdentityByDescent> relatednessScores) {
+        this.relatednessScores = relatednessScores;
         return this;
     }
 }

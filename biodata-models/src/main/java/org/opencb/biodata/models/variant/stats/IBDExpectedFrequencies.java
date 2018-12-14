@@ -1,4 +1,4 @@
-package org.opencb.biodata.tools.variant.algorithm;
+package org.opencb.biodata.models.variant.stats;
 
 import org.opencb.biodata.models.feature.AllelesCode;
 import org.opencb.biodata.models.feature.Genotype;
@@ -7,7 +7,6 @@ import org.opencb.biodata.models.variant.Variant;
 import java.util.List;
 
 // Expected frequencies for IBS|IBD
-
 
 public class IBDExpectedFrequencies {
     public double E00;
@@ -129,5 +128,95 @@ public class IBDExpectedFrequencies {
         sb.append(", counter=").append(counter);
         sb.append('}');
         return sb.toString();
+    }
+
+    public double getE00() {
+        return E00;
+    }
+
+    public IBDExpectedFrequencies setE00(double e00) {
+        E00 = e00;
+        return this;
+    }
+
+    public double getE10() {
+        return E10;
+    }
+
+    public IBDExpectedFrequencies setE10(double e10) {
+        E10 = e10;
+        return this;
+    }
+
+    public double getE20() {
+        return E20;
+    }
+
+    public IBDExpectedFrequencies setE20(double e20) {
+        E20 = e20;
+        return this;
+    }
+
+    public double getE01() {
+        return E01;
+    }
+
+    public IBDExpectedFrequencies setE01(double e01) {
+        E01 = e01;
+        return this;
+    }
+
+    public double getE11() {
+        return E11;
+    }
+
+    public IBDExpectedFrequencies setE11(double e11) {
+        E11 = e11;
+        return this;
+    }
+
+    public double getE21() {
+        return E21;
+    }
+
+    public IBDExpectedFrequencies setE21(double e21) {
+        E21 = e21;
+        return this;
+    }
+
+    public double getE02() {
+        return E02;
+    }
+
+    public IBDExpectedFrequencies setE02(double e02) {
+        E02 = e02;
+        return this;
+    }
+
+    public double getE12() {
+        return E12;
+    }
+
+    public IBDExpectedFrequencies setE12(double e12) {
+        E12 = e12;
+        return this;
+    }
+
+    public double getE22() {
+        return E22;
+    }
+
+    public IBDExpectedFrequencies setE22(double e22) {
+        E22 = e22;
+        return this;
+    }
+
+    public int getCounter() {
+        return counter;
+    }
+
+    public IBDExpectedFrequencies setCounter(int counter) {
+        this.counter = counter;
+        return this;
     }
 }

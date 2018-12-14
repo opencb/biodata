@@ -5,6 +5,8 @@ import org.opencb.biodata.formats.variant.vcf4.io.VariantVcfReader;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
+import org.opencb.biodata.models.variant.stats.IdentityByDescent;
+import org.opencb.biodata.models.variant.stats.IdentityByState;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -62,8 +64,7 @@ public class IdentityByDescentClusteringTest {
             assertEquals(message, Integer.parseInt(split[14]), ibd.getIbs()[0]);
             assertEquals(message, Integer.parseInt(split[15]), ibd.getIbs()[1]);
             assertEquals(message, Integer.parseInt(split[16]), ibd.getIbs()[2]);
-            assertEquals(message, Float.parseFloat(split[11]),
-                    ibdc.getIbsClustering().getDistance(new IdentityByState().setIbs(ibd.getIbs())), delta);
+            assertEquals(message, Float.parseFloat(split[11]), ibd.getDistance(), delta);
             line = reader.readLine();
         }
     }

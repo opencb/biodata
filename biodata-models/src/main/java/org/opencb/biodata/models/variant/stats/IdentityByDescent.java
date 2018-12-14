@@ -1,4 +1,4 @@
-package org.opencb.biodata.tools.variant.algorithm;
+package org.opencb.biodata.models.variant.stats;
 
 import java.util.Arrays;
 
@@ -30,7 +30,7 @@ public class IdentityByDescent extends IdentityByState {
         sb.append("ibd=").append(Arrays.toString(ibd));
         sb.append(", pihat=").append(pihat);
         sb.append(", ibs=").append(Arrays.toString(ibs));
-        sb.append(", distance=").append(new IdentityByStateClustering().getDistance(this));
+        sb.append(", distance=").append(this.getDistance());
         sb.append('}');
         return sb.toString();
     }
