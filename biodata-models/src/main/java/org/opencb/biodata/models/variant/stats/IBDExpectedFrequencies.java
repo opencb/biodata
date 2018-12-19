@@ -5,11 +5,12 @@ import org.opencb.biodata.models.feature.AllelesCode;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.Variant;
 
+import java.io.Serializable;
 import java.util.List;
 
 // Expected frequencies for IBS|IBD
 
-public class IBDExpectedFrequencies {
+public class IBDExpectedFrequencies implements Serializable {
     public double E00;
     public double E10;
     public double E20;
