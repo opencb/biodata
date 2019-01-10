@@ -61,49 +61,6 @@ public class BigWigManagerTest {
 //        assertEquals(region.getEnd() - region.getStart() + 1, coverage.length);
     }
 
-    @Deprecated
-    public void index() throws Exception {
-        // this reads a file from src/test/resources folder
-        Path bamPath = Paths.get(getClass().getResource("/HG00096.chrom20.small.bam").toURI());
-        Path bwPath = Paths.get(getClass().getResource("/wigVarStepExampleSmallChr21.bw").toURI());
-        Path dbPath = Paths.get(bamPath + ".db");
-
-        dbPath.toFile().delete();
-
-
-        // now, we can index
-        BigWigManager bigWigManager = new BigWigManager(bwPath);
-        dbPath = bigWigManager.index();
-
-//        Region region = new Region("chr21", 10000000 - 1000, 10001000 - 1000);
-//        float[] values = bigWigManager.query(region);
-//        int total = 0;
-//        for (float v : values) {
-//            System.out.println(v);
-//            total += v;
-//        }
-//        System.out.println("**** mean = " + (total / 1000));
-//
-
-        // initialize chunkFrequencyManager and DB to query
-        int chunkSize = 1000;
-        ChunkFrequencyManager chunkFrequencyManager = new ChunkFrequencyManager(dbPath, chunkSize);
-        Region region = new Region("chr21", 10000000 - 1000, 10001000 - 1000);
-        ChunkFrequencyManager.ChunkFrequency res = chunkFrequencyManager.query(region, bwPath, 1000);
-        for (short i : res.getValues()) {
-            System.out.println("---> " + i);
-        }
-
-        //        // this reads a file from src/test/resources folder
-//        Path inputPath = Paths.get(getClass().getResource("/wigVarStepExampleSmallChr21.bw").toURI());
-//
-//        BigWigManager bigWigManager = new BigWigManager(inputPath);
-//        List<Float> chr21 = bigWigManager.query(new Region("chr21", 9411190, 9411291));
-//        bigWigManager.close();
-//
-//        assertEquals(20, chr21.size());
-    }
-
     @Test
     public void zoom() throws Exception {
 //        Path bwPath = Paths.get("~/data150/coverage.bw");
