@@ -50,6 +50,7 @@ public class VariantAvroFilters extends VariantFilters<Variant> {
 
     public VariantAvroFilters(String studyId, String fileId) {
         super();
+
         this.studyId = studyId;
         this.fileId = fileId;
     }
