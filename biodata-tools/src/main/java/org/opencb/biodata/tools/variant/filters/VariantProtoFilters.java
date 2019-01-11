@@ -42,40 +42,40 @@ public class VariantProtoFilters extends VariantFilters<VariantProto.Variant> {
     }
 
     @Override
-    public VariantFilters<VariantProto.Variant> addTypeFilter(String type) {
+    public VariantProtoFilters addTypeFilter(String type) {
         filters.add(variant -> variant.getType().equals(type));
         return this;
     }
 
     @Override
-    public VariantFilters<VariantProto.Variant> addSNPFilter() {
+    public VariantProtoFilters addSNPFilter() {
         filters.add(variant -> !variant.getId().equalsIgnoreCase(".")
                 && !variant.getId().equalsIgnoreCase(""));
         return this;
     }
 
     @Override
-    public VariantFilters<VariantProto.Variant> addQualFilter(double minQual) {
+    public VariantProtoFilters addQualFilter(double minQual) {
         throw new UnsupportedOperationException("Filter VariantProto.Variant by quality not supported yet!");
     }
 
     @Override
-    public VariantFilters<VariantProto.Variant> addPassFilter() {
+    public VariantProtoFilters addPassFilter() {
         return addPassFilter("PASS");
     }
 
     @Override
-    public VariantFilters<VariantProto.Variant> addPassFilter(String name) {
+    public VariantProtoFilters addPassFilter(String name) {
         throw new UnsupportedOperationException("Filter VariantProto.Variant by PASS not supported yet!");
     }
 
     @Override
-    public VariantFilters<VariantProto.Variant> addRegionFilter(Region region, boolean contained) {
+    public VariantProtoFilters addRegionFilter(Region region, boolean contained) {
         return addRegionFilter(Arrays.asList(region), contained);
     }
 
     @Override
-    public VariantFilters<VariantProto.Variant> addRegionFilter(List<Region> regions, boolean contained) {
+    public VariantProtoFilters addRegionFilter(List<Region> regions, boolean contained) {
         List<Predicate<VariantProto.Variant>> predicates = new ArrayList<>();
         for (Region region: regions) {
             if (contained) {
