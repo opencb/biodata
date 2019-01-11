@@ -30,37 +30,43 @@ import java.util.function.Predicate;
 public class CommonsFilters<T> implements Predicate<T> {
 
     protected List<Predicate<T>> filters;
-    protected boolean mustPassAll;
+
 
     public CommonsFilters() {
         this(new ArrayList<>());
     }
 
     public CommonsFilters(List<Predicate<T>> filters) {
-        this(filters, true);
+        this.setFilters(filters);
     }
 
-    public CommonsFilters(List<Predicate<T>> filters, boolean mustPassAll) {
-        this.filters = filters == null ? new ArrayList<>() : filters;
-        this.mustPassAll = mustPassAll;
-    }
-
+    /**
+     * This method executes a logical AND.
+     * @param elem
+     * @return true when all filters are satisfied
+     */
     @Override
     public boolean test(T elem) {
-        if (mustPassAll) {
-            for (Predicate<T> filter : filters) {
-                if (!filter.test(elem)) {
-                    return false;
-                }
-            }
-            return true;
-        } else {
+        return this.test(elem, false);
+    }
+
+    public boolean test(T elem, boolean or) {
+        if (or) {
+            // This is equivalent to a logical OR
             for (Predicate<T> filter : filters) {
                 if (filter.test(elem)) {
                     return true;
                 }
             }
             return false;
+        } else {
+            // This is equivalent to a logical AND
+            for (Predicate<T> filter : filters) {
+                if (!filter.test(elem)) {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 
@@ -68,6 +74,12 @@ public class CommonsFilters<T> implements Predicate<T> {
         filters.add(predicate);
         return this;
     }
+
+    public CommonsFilters<T> addFilters(List<Predicate<T>> predicates) {
+        filters.addAll(predicates);
+        return this;
+    }
+
 
     public CommonsFilters<T> addFilterList(List<Predicate<T>> predicates) {
         return addFilterList(predicates, true);
@@ -90,31 +102,8 @@ public class CommonsFilters<T> implements Predicate<T> {
         return this;
     }
 
-    @Override
-    public String toString() {
-        return "Filters{" + "filters=" + filters + "}";
-    }
 
-    public List<Predicate<T>> getFilters() {
-        return filters;
-    }
-
-    public CommonsFilters setFilters(List<Predicate<T>> filters) {
-        this.filters = filters == null ? new ArrayList<>() : filters;
-        return this;
-    }
-
-    public CommonsFilters<T> setMustPassAll(boolean mustPassAll) {
-        this.mustPassAll = mustPassAll;
-        return this;
-    }
-
-    public CommonsFilters<T> setMustPassAny(boolean mustPassAny) {
-        this.mustPassAll = !mustPassAny;
-        return this;
-    }
-
-    protected static String[] splitOperator(String value) {
+    protected String[] splitOperator(String value) {
         int first = StringUtils.indexOfAny(value, '=', '>', '<');
         int last = StringUtils.lastIndexOfAny(value, "=", ">", "<");
 
@@ -207,4 +196,19 @@ public class CommonsFilters<T> implements Predicate<T> {
         }
         return predicate;
     }
+
+    @Override
+    public String toString() {
+        return "Filters{" + "filters=" + filters + "}";
+    }
+
+    public List<Predicate<T>> getFilters() {
+        return filters;
+    }
+
+    public CommonsFilters setFilters(List<Predicate<T>> filters) {
+        this.filters = filters == null ? new ArrayList<>() : filters;
+        return this;
+    }
+
 }

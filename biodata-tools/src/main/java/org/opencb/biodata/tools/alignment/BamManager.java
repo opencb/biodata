@@ -36,7 +36,6 @@ import org.opencb.biodata.tools.alignment.iterators.SAMRecordToProtoReadAlignmen
 import org.opencb.biodata.tools.alignment.iterators.SamRecordBamIterator;
 import org.opencb.biodata.tools.alignment.stats.AlignmentGlobalStats;
 import org.opencb.biodata.tools.alignment.stats.SamRecordAlignmentGlobalStatsCalculator;
-import org.opencb.biodata.tools.feature.BigWigManager;
 import org.opencb.commons.utils.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,15 +61,14 @@ public class BamManager {
     public static final int DEFAULT_WINDOW_SIZE = 1;
     public static final int MAX_NUM_RECORDS = 50000;
     public static final int MAX_REGION_COVERAGE = 100000;
-    public static final String COVERAGE_BIGWIG_EXTENSION = ".coverage.bw";
+    public static final String COVERAGE_BIGWIG_EXTENSION = ".bw";
 
     private Logger logger;
 
     public BamManager(Path bamFilePath) throws IOException {
-        FileUtils.checkFile(bamFilePath);
         this.bamFile = bamFilePath;
 
-        logger = LoggerFactory.getLogger(BamManager.class);
+        this.init();
     }
 
     private void init() throws IOException {
@@ -81,6 +79,8 @@ public class BamManager {
             srf.validationStringency(ValidationStringency.LENIENT);
             this.samReader = srf.open(SamInputResource.of(bamFile.toFile()));
         }
+
+        logger = LoggerFactory.getLogger(BamManager.class);
     }
 
     /**
@@ -129,8 +129,8 @@ public class BamManager {
         return outputIndex;
     }
 
-    public Path calculateBigWigCoverage(int windowSize) throws IOException {
-        return calculateBigWigCoverage(Paths.get(this.bamFile.toFile().getAbsolutePath() + COVERAGE_BIGWIG_EXTENSION), windowSize);
+    public Path calculateBigWigCoverage() throws IOException {
+        return calculateBigWigCoverage(Paths.get(this.bamFile.toFile().getAbsolutePath() + COVERAGE_BIGWIG_EXTENSION), DEFAULT_WINDOW_SIZE);
     }
 
     public Path calculateBigWigCoverage(Path bigWigPath, int windowSize) throws IOException {
@@ -158,8 +158,7 @@ public class BamManager {
     }
 
 
-    public String header() throws IOException {
-        init();
+    public String header() {
         return samReader.getFileHeader().getTextHeader();
     }
 
@@ -233,7 +232,6 @@ public class BamManager {
     }
 
     public <T> BamIterator<T> iterator(AlignmentFilters<SAMRecord> filters, AlignmentOptions options, Class<T> clazz) throws IOException {
-        init();
         checkBaiFileExists();
 
         SAMRecordIterator samRecordIterator = samReader.iterator();
@@ -254,7 +252,6 @@ public class BamManager {
 
     public <T> BamIterator<T> iterator(Region region, AlignmentFilters<SAMRecord> filters, AlignmentOptions options, Class<T> clazz)
             throws IOException {
-        init();
         checkBaiFileExists();
 
         if (options == null) {
@@ -291,7 +288,7 @@ public class BamManager {
 
     /**
      * Return the coverage average given a window size from a BigWig file. This is expected to have the same name
-     * that the BAM file with .coverage.bw or .bw suffix.
+     * that the BAM file with .bw suffix.
      * If no BigWig file is found and windowSize is 1 then we calculate te coverage from the BAM file.
      * @param region Region from which return the coverage
      * @param windowSize Window size to average
@@ -299,18 +296,14 @@ public class BamManager {
      * @throws IOException If any error happens reading BigWig file
      */
     public RegionCoverage coverage(Region region, int windowSize) throws IOException, AlignmentCoverageException {
-        if (Paths.get(bamFile.toString() + ".bw").toFile().exists()) {
-            return BamUtils.getCoverageFromBigWig(region, windowSize, Paths.get(bamFile.toString() + ".bw"));
+        if (Paths.get(bamFile.toString() + COVERAGE_BIGWIG_EXTENSION).toFile().exists()) {
+            return BamUtils.getCoverageFromBigWig(region, windowSize, Paths.get(this.bamFile.toString() + COVERAGE_BIGWIG_EXTENSION));
         } else {
-            if (Paths.get(bamFile.toString() + COVERAGE_BIGWIG_EXTENSION).toFile().exists()) {
-                return BamUtils.getCoverageFromBigWig(region, windowSize, Paths.get(this.bamFile.toString() + COVERAGE_BIGWIG_EXTENSION));
+            // If BigWig file is not found and windowSize is 1 then we calculate it from the BAM file
+            if (windowSize == 1) {
+                return coverage(region, null, new AlignmentOptions());
             } else {
-                // If BigWig file is not found and windowSize is 1 then we calculate it from the BAM file
-                if (windowSize == 1) {
-                    return coverage(region, null, new AlignmentOptions());
-                } else {
-                    throw new AlignmentCoverageException("No bigwig file has been found and windowSize is > 1");
-                }
+                throw new AlignmentCoverageException("No bigwig file has been found and windowSize is > 1");
             }
         }
     }

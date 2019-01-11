@@ -24,6 +24,7 @@ import org.opencb.biodata.models.variant.protobuf.VariantProto;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -32,12 +33,13 @@ import java.util.function.Predicate;
  */
 public class VariantProtoFilters extends VariantFilters<VariantProto.Variant> {
 
-    private String datasetId;
+    private String studyId;
     private String fileId;
 
-    public VariantProtoFilters(String datasetId, String fileId) {
+    public VariantProtoFilters(String studyId, String fileId) {
         super();
-        this.datasetId = datasetId;
+
+        this.studyId = studyId;
         this.fileId = fileId;
     }
 
@@ -49,8 +51,7 @@ public class VariantProtoFilters extends VariantFilters<VariantProto.Variant> {
 
     @Override
     public VariantProtoFilters addSNPFilter() {
-        filters.add(variant -> !variant.getId().equalsIgnoreCase(".")
-                && !variant.getId().equalsIgnoreCase(""));
+        filters.add(variant -> !variant.getId().equalsIgnoreCase(".") && !variant.getId().equalsIgnoreCase(""));
         return this;
     }
 
@@ -71,7 +72,7 @@ public class VariantProtoFilters extends VariantFilters<VariantProto.Variant> {
 
     @Override
     public VariantProtoFilters addRegionFilter(Region region, boolean contained) {
-        return addRegionFilter(Arrays.asList(region), contained);
+        return addRegionFilter(Collections.singletonList(region), contained);
     }
 
     @Override
@@ -92,12 +93,12 @@ public class VariantProtoFilters extends VariantFilters<VariantProto.Variant> {
         return this;
     }
 
-    public String getDatasetId() {
-        return datasetId;
+    public String getStudyId() {
+        return studyId;
     }
 
-    public void setDatasetId(String datasetId) {
-        this.datasetId = datasetId;
+    public void setStudyId(String studyId) {
+        this.studyId = studyId;
     }
 
     public String getFileId() {

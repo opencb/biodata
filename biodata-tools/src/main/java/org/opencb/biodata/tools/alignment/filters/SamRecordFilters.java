@@ -24,7 +24,6 @@ import htsjdk.samtools.SAMTag;
 import org.opencb.biodata.models.core.Region;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
