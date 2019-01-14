@@ -167,6 +167,7 @@ conflicting evidences should be classified as uncertain_significance
     Pharmacogenomics drug response variant classification
     */
     enum DrugResponseClassification {
+        responsive, // DEPRECATED: kept just for retrocompatibility purposes
         altered_sensitivity,
         reduced_sensitivity,
         increased_sensitivity,
