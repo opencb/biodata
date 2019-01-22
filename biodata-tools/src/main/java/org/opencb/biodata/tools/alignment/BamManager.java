@@ -21,6 +21,8 @@ package org.opencb.biodata.tools.alignment;
 
 import ga4gh.Reads;
 import htsjdk.samtools.*;
+import htsjdk.samtools.cram.ref.CRAMReferenceSource;
+import htsjdk.samtools.reference.FastaSequenceIndexCreator;
 import htsjdk.samtools.seekablestream.SeekableStream;
 import htsjdk.samtools.seekablestream.SeekableStreamFactory;
 import htsjdk.samtools.util.Log;
@@ -40,10 +42,8 @@ import org.opencb.commons.utils.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -56,6 +56,7 @@ import java.util.List;
 public class BamManager {
 
     private Path bamFile;
+    private Path refFile;
     private SamReader samReader;
 
     public static final int DEFAULT_WINDOW_SIZE = 1;
@@ -66,7 +67,12 @@ public class BamManager {
     private Logger logger;
 
     public BamManager(Path bamFilePath) throws IOException {
+        this(bamFilePath, null);
+    }
+
+    public BamManager(Path bamFilePath, Path refFilePath) throws IOException {
         this.bamFile = bamFilePath;
+        this.refFile = refFilePath;
 
         this.init();
     }
@@ -77,7 +83,16 @@ public class BamManager {
         if (this.samReader == null) {
             SamReaderFactory srf = SamReaderFactory.make();
             srf.validationStringency(ValidationStringency.LENIENT);
+            if (bamFile.toString().endsWith("cram")) {
+                if (refFile == null) {
+                    throw new IOException("Missing reference file for CRAM file " + bamFile);
+                } else {
+                    FileUtils.checkFile(refFile);
+                    srf.referenceSequence(refFile);
+                }
+            }
             this.samReader = srf.open(SamInputResource.of(bamFile.toFile()));
+
         }
 
         logger = LoggerFactory.getLogger(BamManager.class);
@@ -89,7 +104,11 @@ public class BamManager {
      * @throws IOException
      */
     public Path createIndex() throws IOException {
-        Path indexPath = bamFile.getParent().resolve(bamFile.getFileName().toString() + ".bai");
+        String ext = ".bai";
+        if (bamFile.toString().endsWith(".cram")) {
+            ext = ".crai";
+        }
+        Path indexPath = bamFile.getParent().resolve(bamFile.getFileName().toString() + ext);
         return createIndex(indexPath);
     }
 
@@ -104,8 +123,15 @@ public class BamManager {
 
         SamReaderFactory srf = SamReaderFactory.make().enable(SamReaderFactory.Option.INCLUDE_SOURCE_IN_RECORDS);
         srf.validationStringency(ValidationStringency.LENIENT);
-        try (SamReader reader = srf.open(SamInputResource.of(bamFile.toFile()))) {
 
+        // If a reference file is provided, use it (this is mandatory for CRAM files)
+        // If the input file is CRAM, at this point, we are sure that refFile is not null (this condition is checked
+        // in the init function)
+        if (refFile != null) {
+            srf.referenceSequence(refFile);
+        }
+
+        try (SamReader reader = srf.open(SamInputResource.of(bamFile.toFile()))) {
             // Files need to be sorted by coordinates to create the index
             SAMFileHeader.SortOrder sortOrder = reader.getFileHeader().getSortOrder();
             if (!sortOrder.equals(SAMFileHeader.SortOrder.coordinate)) {
@@ -117,10 +143,12 @@ public class BamManager {
                 BAMIndexer.createIndex(reader, outputIndex.toFile(), Log.getInstance(BamManager.class));
             } else {
                 if (reader.type().equals(SamReader.Type.CRAM_TYPE)) {
-                    // TODO This really needs to be tested!
+                    // First, index the CRAM file, it will produce a CRAI file
                     SeekableStream streamFor = SeekableStreamFactory.getInstance().getStreamFor(bamFile.toString());
-                    CRAMBAIIndexer.createIndex(streamFor, outputIndex.toFile(), Log.getInstance(BamManager.class),
-                            ValidationStringency.DEFAULT_STRINGENCY);
+                    CRAMCRAIIndexer.writeIndex(streamFor, new FileOutputStream(outputIndex.toFile()));
+
+                    // Second, index the reference FASTA file, it will produce a FAI file
+                    FastaSequenceIndexCreator.create(refFile, true);
                 } else {
                     throw new IOException("This is not a BAM or CRAM file. SAM files cannot be indexed");
                 }
@@ -413,8 +441,10 @@ public class BamManager {
     }
 
     private void checkBaiFileExists() throws IOException {
-        if (!new File(bamFile.toString() + ".bai").exists()) {
+        if (bamFile.toString().endsWith(".bam") && !new File(bamFile.toString() + ".bai").exists()) {
             throw new IOException("Missing BAM index (.bai file) for " + bamFile.toString());
+        } else if (bamFile.toString().endsWith(".cram") && !new File(bamFile.toString() + ".crai").exists()) {
+            throw new IOException("Missing CRAM index (.crai file) for " + bamFile.toString());
         }
     }
 
