@@ -217,17 +217,18 @@ public class VariantClassification {
             }
         }
 
-        for (EvidenceEntry evidenceEntry : variant.getAnnotation().getTraitAssociation()) {
-            if ("clinvar".equals(evidenceEntry.getSource().getName())
-                    && (evidenceEntry.getVariantClassification().getClinicalSignificance() == org.opencb.biodata.models.variant.avro.ClinicalSignificance.benign
-                    || evidenceEntry.getVariantClassification().getClinicalSignificance() == org.opencb.biodata.models.variant.avro.ClinicalSignificance.likely_benign)) {
-                acmg.add("BP6");
-            } else if ("clinvar".equals(evidenceEntry.getSource().getName())
-                    && (evidenceEntry.getVariantClassification().getClinicalSignificance() == org.opencb.biodata.models.variant.avro.ClinicalSignificance.pathogenic
-                    || evidenceEntry.getVariantClassification().getClinicalSignificance() == org.opencb.biodata.models.variant.avro.ClinicalSignificance.likely_pathogenic)) {
-                acmg.add("PP5");
+        if (variant.getAnnotation().getTraitAssociation() != null) {
+            for (EvidenceEntry evidenceEntry : variant.getAnnotation().getTraitAssociation()) {
+                if ("clinvar".equals(evidenceEntry.getSource().getName())
+                        && (evidenceEntry.getVariantClassification().getClinicalSignificance() == org.opencb.biodata.models.variant.avro.ClinicalSignificance.benign
+                        || evidenceEntry.getVariantClassification().getClinicalSignificance() == org.opencb.biodata.models.variant.avro.ClinicalSignificance.likely_benign)) {
+                    acmg.add("BP6");
+                } else if ("clinvar".equals(evidenceEntry.getSource().getName())
+                        && (evidenceEntry.getVariantClassification().getClinicalSignificance() == org.opencb.biodata.models.variant.avro.ClinicalSignificance.pathogenic
+                        || evidenceEntry.getVariantClassification().getClinicalSignificance() == org.opencb.biodata.models.variant.avro.ClinicalSignificance.likely_pathogenic)) {
+                    acmg.add("PP5");
+                }
             }
-
         }
 
         return new ArrayList<>(acmg);

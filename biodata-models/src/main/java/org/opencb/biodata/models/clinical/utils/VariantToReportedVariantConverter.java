@@ -57,6 +57,7 @@ public class VariantToReportedVariantConverter {
                     }
                 }
             }
+            reportedVariants.add(reportedVariant);
         }
         return reportedVariants;
     }
