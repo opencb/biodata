@@ -114,7 +114,7 @@ public class VariantClassification {
                 }
 
                 // PS1
-                if ("synonymous_variant".equals(so.getName())) {
+                if ("synonymous_variant".equals(so.getName()) && variant.getAnnotation().getTraitAssociation() != null) {
                     for (EvidenceEntry evidenceEntry : variant.getAnnotation().getTraitAssociation()) {
                         if ("clinvar".equals(evidenceEntry.getSource().getName())
                                 && (evidenceEntry.getVariantClassification().getClinicalSignificance() == org.opencb.biodata.models.variant.avro.ClinicalSignificance.pathogenic
