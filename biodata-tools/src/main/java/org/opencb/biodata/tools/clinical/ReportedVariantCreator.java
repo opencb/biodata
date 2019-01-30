@@ -20,34 +20,88 @@
 package org.opencb.biodata.tools.clinical;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.opencb.biodata.models.clinical.interpretation.DiseasePanel;
-import org.opencb.biodata.models.clinical.interpretation.ReportedVariant;
+import org.opencb.biodata.models.clinical.interpretation.*;
+import org.opencb.biodata.models.clinical.interpretation.exceptions.InterpretationAnalysisException;
+import org.opencb.biodata.models.commons.Phenotype;
 import org.opencb.biodata.models.variant.Variant;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class ReportedVariantCreator {
 
-    public abstract List<ReportedVariant> create(List<Variant> variants);
+    public abstract List<ReportedVariant> create(List<Variant> variants) throws InterpretationAnalysisException;
 
     protected Map<String, List<String>> getGeneToPanelIdMap(List<DiseasePanel> diseasePanels) {
-        Map<String, List<String>> geneToPanelIdMap = new HashMap<>();
+        return getIdToPanelIdMap(diseasePanels, true);
+    }
+
+    protected Map<String, List<String>> getIdToPanelIdMap(List<DiseasePanel> diseasePanels) {
+        return getIdToPanelIdMap(diseasePanels, false);
+    }
+
+    protected Map<String, List<String>> getIdToPanelIdMap(List<DiseasePanel> diseasePanels, boolean excludeVariants) {
+        Map<String, List<String>> idToPanelIdMap = new HashMap<>();
         if (CollectionUtils.isNotEmpty(diseasePanels)) {
             for (DiseasePanel panel: diseasePanels) {
-                for (DiseasePanel.GenePanel genePanel : panel.getGenes()) {
-                    if (genePanel.getId() != null) {
-                        if (!geneToPanelIdMap.containsKey(genePanel.getId())) {
-                            geneToPanelIdMap.put(genePanel.getId(), new ArrayList<>());
+                // Put gene IDs
+                if (CollectionUtils.isNotEmpty(panel.getGenes())) {
+                    for (DiseasePanel.GenePanel panelGene : panel.getGenes()) {
+                        if (panelGene.getId() != null) {
+                            if (!idToPanelIdMap.containsKey(panelGene.getId())) {
+                                idToPanelIdMap.put(panelGene.getId(), new ArrayList<>());
+                            }
+                            idToPanelIdMap.get(panelGene.getId()).add(panel.getId());
                         }
-                        geneToPanelIdMap.get(genePanel.getId()).add(panel.getId());
                     }
-                    geneToPanelIdMap.put(genePanel.getId(), null);
+                }
+
+                if (!excludeVariants) {
+                    // Put variant IDs
+                    if (CollectionUtils.isNotEmpty(panel.getVariants())) {
+                        for (DiseasePanel.VariantPanel panelVariant : panel.getVariants()) {
+                            if (panelVariant.getId() != null) {
+                                if (!idToPanelIdMap.containsKey(panelVariant.getId())) {
+                                    idToPanelIdMap.put(panelVariant.getId(), new ArrayList<>());
+                                }
+                                idToPanelIdMap.get(panelVariant.getId()).add(panel.getId());
+                            }
+                        }
+                    }
                 }
             }
         }
-        return geneToPanelIdMap;
+        return idToPanelIdMap;
+    }
+
+    protected ReportedEvent createReportedEvent(Phenotype phenotype, List<String> soNames, GenomicFeature genomicFeature, String panelId,
+                                                ClinicalProperty.ModeOfInheritance moi, ClinicalProperty.Penetrance penetrance,
+                                                Variant variant) {
+        ReportedEvent reportedEvent = new ReportedEvent()
+                .setId("OPENCB-" + UUID.randomUUID());
+        if (phenotype != null) {
+            reportedEvent.setPhenotypes(Collections.singletonList(phenotype));
+        }
+        if (CollectionUtils.isNotEmpty(soNames)) {
+            // Set consequence type
+            reportedEvent.setConsequenceTypeIds(soNames);
+        }
+        if (genomicFeature != null) {
+            reportedEvent.setGenomicFeature(genomicFeature);
+        }
+        if (panelId != null) {
+            reportedEvent.setPanelId(panelId);
+        }
+        if (moi != null) {
+            reportedEvent.setModeOfInheritance(moi);
+        }
+        if (penetrance != null) {
+            reportedEvent.setPenetrance(penetrance);
+        }
+
+        List<String> acmg = VariantClassification.calculateAcmgClassification(variant, reportedEvent);
+        VariantClassification variantClassification = new VariantClassification().setAcmg(acmg);
+        reportedEvent.setClassification(variantClassification);
+
+        return reportedEvent;
     }
 }
