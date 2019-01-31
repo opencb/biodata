@@ -29,6 +29,10 @@ import java.util.*;
 
 public abstract class ReportedVariantCreator {
 
+    public final String TIER_1 = "Tier1";
+    public final String TIER_2 = "Tier2";
+    public final String TIER_3 = "Tier3";
+
     public abstract List<ReportedVariant> create(List<Variant> variants) throws InterpretationAnalysisException;
 
     protected Map<String, List<String>> getGeneToPanelIdMap(List<DiseasePanel> diseasePanels) {

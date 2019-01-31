@@ -86,11 +86,11 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
                         // Tier 1: variant found in panel
                         // 2) create the reported event for each panel
                         for (String panelId : geneToPanelIdMap.get(ct.getEnsemblGeneId())) {
-                            addReportedEvents(ct, panelId, "Tier 1", variant, reportedVariant);
+                            addReportedEvents(ct, panelId, TIER_1, variant, reportedVariant);
                         }
                     } else {
                         // Tier 2: variant not found in panel
-                        addReportedEvents(ct, null, "Tier 2", variant, reportedVariant);
+                        addReportedEvents(ct, null, TIER_2, variant, reportedVariant);
                     }
                 }
             }
