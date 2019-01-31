@@ -63,86 +63,34 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
 
     @Override
     public List<ReportedVariant> create(List<Variant> variants) throws InterpretationAnalysisException {
+        // Panels are mandatory in Tiering analysis
         if (CollectionUtils.isEmpty(diseasePanels)) {
             throw new InterpretationAnalysisException("Missing gene panels for Tiering analysis");
         }
-
         Map<String, List<String>> geneToPanelIdMap = getGeneToPanelIdMap(diseasePanels);
         if (MapUtils.isEmpty(geneToPanelIdMap)) {
             throw new InterpretationAnalysisException("Tiering analysis: no genes found in gene panels: "
                     + StringUtils.join(diseasePanels.stream().map(DiseasePanel::getId).collect(Collectors.toList()), ","));
         }
 
-        ReportedEvent reportedEvent;
+        // Create the list of reported variants, with a reported event for each 1) transcript, 2) panel and 3) consequence type (SO name)
         List<ReportedVariant> reportedVariants = new ArrayList<>();
         for (Variant variant : variants) {
             ReportedVariant reportedVariant = new ReportedVariant(variant.getImpl(), 0, new ArrayList<>(),
                     Collections.emptyList(), Collections.emptyMap());
 
             if (variant.getAnnotation() != null && CollectionUtils.isNotEmpty(variant.getAnnotation().getConsequenceTypes())) {
-                // Create the reported event for each consequence type
+                // 1) create the reported event for each transcript
                 for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
-                    GenomicFeature genomicFeature = new GenomicFeature(ct.getEnsemblGeneId(), ct.getEnsemblTranscriptId(),
-                            ct.getGeneName(), null, null);
-
-                    List<String> soNames;
                     if (geneToPanelIdMap.containsKey(ct.getEnsemblGeneId())) {
                         // Tier 1: variant found in panel
-
-                        // Create the reported event for each gene panel and consequence type (SO name)
+                        // 2) create the reported event for each panel
                         for (String panelId : geneToPanelIdMap.get(ct.getEnsemblGeneId())) {
-                            if (CollectionUtils.isNotEmpty(ct.getSequenceOntologyTerms())) {
-                                for (SequenceOntologyTerm soTerm : ct.getSequenceOntologyTerms()) {
-                                    soNames = null;
-                                    if (StringUtils.isNotEmpty(soTerm.getName())) {
-                                        soNames = Collections.singletonList(soTerm.getName());
-                                    }
-                                    reportedEvent = createReportedEvent(phenotype, soNames, genomicFeature, panelId, modeOfInheritance,
-                                            penetrance, variant);
-                                    reportedEvent.setTier("Tier1");
-
-                                    // Add reported event to the reported variant
-                                    reportedVariant.getReportedEvents().add(reportedEvent);
-                                }
-                            } else {
-                                // TODO: what to do?
-                                // No sequence ontoloy terms
-                                reportedEvent = createReportedEvent(phenotype, null, genomicFeature, panelId, modeOfInheritance,
-                                        penetrance, variant);
-                                reportedEvent.setTier("Tier1");
-
-                                // Add reported event to the reported variant
-                                reportedVariant.getReportedEvents().add(reportedEvent);
-                            }
+                            addReportedEvents(ct, panelId, "Tier 1", variant, reportedVariant);
                         }
                     } else {
                         // Tier 2: variant not found in panel
-
-                        // Create a reported event for each consequence type (SO name)
-                        if (CollectionUtils.isNotEmpty(ct.getSequenceOntologyTerms())) {
-                            for (SequenceOntologyTerm soTerm : ct.getSequenceOntologyTerms()) {
-                                soNames = null;
-                                if (StringUtils.isNotEmpty(soTerm.getName())) {
-                                    soNames = Collections.singletonList(soTerm.getName());
-                                }
-
-                                reportedEvent = createReportedEvent(phenotype, soNames, genomicFeature, null, modeOfInheritance,
-                                        penetrance, variant);
-                                reportedEvent.setTier("Tier2");
-
-                                // Add reported event to the reported variant
-                                reportedVariant.getReportedEvents().add(reportedEvent);
-                            }
-                        } else {
-                            // TODO: what to do?
-                            // No sequence ontoloy terms
-                            reportedEvent = createReportedEvent(phenotype, null, genomicFeature, null, modeOfInheritance,
-                                    penetrance, variant);
-                            reportedEvent.setTier("Tier2");
-
-                            // Add reported event to the reported variant
-                            reportedVariant.getReportedEvents().add(reportedEvent);
-                        }
+                        addReportedEvents(ct, null, "Tier 2", variant, reportedVariant);
                     }
                 }
             }
@@ -151,5 +99,39 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
         }
 
         return reportedVariants;
+    }
+
+    private void addReportedEvents(ConsequenceType ct, String panelId, String tier, Variant variant,
+                                                  ReportedVariant reportedVariant) {
+        List<String> soNames;
+        ReportedEvent reportedEvent;
+
+        GenomicFeature genomicFeature = new GenomicFeature(ct.getEnsemblGeneId(), ct.getEnsemblTranscriptId(),
+                ct.getGeneName(), null, null);
+
+        if (CollectionUtils.isNotEmpty(ct.getSequenceOntologyTerms())) {
+            // 3) create the reported event for consequence type (SO term)
+            for (SequenceOntologyTerm soTerm : ct.getSequenceOntologyTerms()) {
+                soNames = null;
+                if (StringUtils.isNotEmpty(soTerm.getName())) {
+                    soNames = Collections.singletonList(soTerm.getName());
+                }
+                reportedEvent = createReportedEvent(phenotype, soNames, genomicFeature, panelId, modeOfInheritance,
+                        penetrance, variant);
+                reportedEvent.setTier(tier);
+
+                // Add reported event to the reported variant
+                reportedVariant.getReportedEvents().add(reportedEvent);
+            }
+        } else {
+            // TODO: what to do?
+            // No sequence ontoloy terms
+            reportedEvent = createReportedEvent(phenotype, null, genomicFeature, panelId, modeOfInheritance,
+                    penetrance, variant);
+            reportedEvent.setTier(tier);
+
+            // Add reported event to the reported variant
+            reportedVariant.getReportedEvents().add(reportedEvent);
+        }
     }
 }
