@@ -35,46 +35,44 @@ public abstract class ReportedVariantCreator {
 
     public abstract List<ReportedVariant> create(List<Variant> variants) throws InterpretationAnalysisException;
 
-    protected Map<String, List<String>> getGeneToPanelIdMap(List<DiseasePanel> diseasePanels) {
-        return getIdToPanelIdMap(diseasePanels, true);
-    }
-
-    protected Map<String, List<String>> getIdToPanelIdMap(List<DiseasePanel> diseasePanels) {
-        return getIdToPanelIdMap(diseasePanels, false);
-    }
-
-    protected Map<String, List<String>> getIdToPanelIdMap(List<DiseasePanel> diseasePanels, boolean excludeVariants) {
-        Map<String, List<String>> idToPanelIdMap = new HashMap<>();
+    protected Map<String, List<DiseasePanel.GenePanel>> getGeneToPanelMap(List<DiseasePanel> diseasePanels) {
+        Map<String, List<DiseasePanel.GenePanel>> idToPanelMap = new HashMap<>();
         if (CollectionUtils.isNotEmpty(diseasePanels)) {
-            for (DiseasePanel panel: diseasePanels) {
+            for (DiseasePanel panel : diseasePanels) {
                 // Put gene IDs
                 if (CollectionUtils.isNotEmpty(panel.getGenes())) {
                     for (DiseasePanel.GenePanel panelGene : panel.getGenes()) {
                         if (panelGene.getId() != null) {
-                            if (!idToPanelIdMap.containsKey(panelGene.getId())) {
-                                idToPanelIdMap.put(panelGene.getId(), new ArrayList<>());
+                            if (!idToPanelMap.containsKey(panelGene.getId())) {
+                                idToPanelMap.put(panelGene.getId(), new ArrayList<>());
                             }
-                            idToPanelIdMap.get(panelGene.getId()).add(panel.getId());
-                        }
-                    }
-                }
-
-                if (!excludeVariants) {
-                    // Put variant IDs
-                    if (CollectionUtils.isNotEmpty(panel.getVariants())) {
-                        for (DiseasePanel.VariantPanel panelVariant : panel.getVariants()) {
-                            if (panelVariant.getId() != null) {
-                                if (!idToPanelIdMap.containsKey(panelVariant.getId())) {
-                                    idToPanelIdMap.put(panelVariant.getId(), new ArrayList<>());
-                                }
-                                idToPanelIdMap.get(panelVariant.getId()).add(panel.getId());
-                            }
+                            idToPanelMap.get(panelGene.getId()).add(panelGene);
                         }
                     }
                 }
             }
         }
-        return idToPanelIdMap;
+        return idToPanelMap;
+    }
+
+    protected Map<String, List<DiseasePanel.VariantPanel>> getVariantToPanelMap(List<DiseasePanel> diseasePanels) {
+        Map<String, List<DiseasePanel.VariantPanel>> idToPanelMap = new HashMap<>();
+        if (CollectionUtils.isNotEmpty(diseasePanels)) {
+            for (DiseasePanel panel : diseasePanels) {
+                // Put gene IDs
+                if (CollectionUtils.isNotEmpty(panel.getGenes())) {
+                    for (DiseasePanel.VariantPanel variantPanel : panel.getVariants()) {
+                        if (variantPanel.getId() != null) {
+                            if (!idToPanelMap.containsKey(variantPanel.getId())) {
+                                idToPanelMap.put(variantPanel.getId(), new ArrayList<>());
+                            }
+                            idToPanelMap.get(variantPanel.getId()).add(variantPanel);
+                        }
+                    }
+                }
+            }
+        }
+        return idToPanelMap;
     }
 
     protected ReportedEvent createReportedEvent(Phenotype phenotype, List<String> soNames, GenomicFeature genomicFeature, String panelId,
