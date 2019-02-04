@@ -20,7 +20,6 @@
 package org.opencb.biodata.tools.clinical;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.ModeOfInheritance;
 import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.Penetrance;
@@ -29,31 +28,21 @@ import org.opencb.biodata.models.commons.Phenotype;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.ConsequenceType;
 import org.opencb.biodata.models.variant.avro.SequenceOntologyTerm;
-import org.opencb.biodata.models.variant.avro.Xref;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class DefaultReportedVariantCreator extends ReportedVariantCreator {
 
-    private List<DiseasePanel> diseasePanels;
-    private Set<String> findings;
     private Phenotype phenotype;
     private ModeOfInheritance modeOfInheritance;
     private Penetrance penetrance;
 
-    public DefaultReportedVariantCreator(List<DiseasePanel> diseasePanels) {
-        this(diseasePanels, null, null, null, null);
+    public DefaultReportedVariantCreator() {
+        this(null, null, null);
     }
 
-    public DefaultReportedVariantCreator(List<DiseasePanel> diseasePanels, Set<String> findings) {
-        this(diseasePanels, findings, null, null, null);
-    }
 
-    public DefaultReportedVariantCreator(List<DiseasePanel> diseasePanels, Set<String> findings, Phenotype phenotype,
-                                         ModeOfInheritance modeOfInheritance, Penetrance penetrance) {
-        this.diseasePanels = diseasePanels;
-        this.findings = findings;
+    public DefaultReportedVariantCreator(Phenotype phenotype, ModeOfInheritance modeOfInheritance, Penetrance penetrance) {
         this.phenotype = phenotype;
         this.modeOfInheritance = modeOfInheritance;
         this.penetrance = penetrance;
@@ -61,96 +50,32 @@ public class DefaultReportedVariantCreator extends ReportedVariantCreator {
 
     @Override
     public List<ReportedVariant> create(List<Variant> variants) {
-        Map<String, List<DiseasePanel.GenePanel>> geneToPanelMap = getGeneToPanelMap(diseasePanels);
-        Map<String, List<DiseasePanel.VariantPanel>> variantToPanelMap = getVariantToPanelMap(diseasePanels);
-
         List<ReportedVariant> reportedVariants = new ArrayList<>();
         for (Variant variant : variants) {
             List<ReportedEvent> reportedEvents = new ArrayList<>();
 
-            // SO names, panels IDs and genomic feature
+            // SO names and genomic feature
             List<String> soNames;
             GenomicFeature genomicFeature;
 
-            if (MapUtils.isNotEmpty(variantToPanelMap) && variantToPanelMap.containsKey(variant.getId())
-                    && CollectionUtils.isNotEmpty(variantToPanelMap.get(variant.getId()))) {
-                // Tier 1, variant in panel
-                List<DiseasePanel.VariantPanel> panels = variantToPanelMap.get(variant.getId());
-                List<String> panelIds = panels.stream().map(DiseasePanel.VariantPanel::getId).collect(Collectors.toList());
+            // Sanity check
+            if (variant.getAnnotation() != null && CollectionUtils.isNotEmpty(variant.getAnnotation().getConsequenceTypes())) {
 
-                if (variant.getAnnotation() != null && CollectionUtils.isNotEmpty(variant.getAnnotation().getConsequenceTypes())) {
-
-                    for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
-                        soNames = getSoNames(ct);
+                for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
+                    soNames = getSoNames(ct);
+                    if (isLOF(soNames)) {
                         genomicFeature = new GenomicFeature(ct.getEnsemblGeneId(), ct.getEnsemblTranscriptId(), ct.getGeneName(),
                                 null, null);
 
-                        reportedEvents.addAll(createReportedEvents(panelIds, TIER_1, soNames, genomicFeature, variant));
-                    }
-                } else {
-                    // We create the reported events, anyway
-                    reportedEvents.addAll(createReportedEvents(panelIds, TIER_1, null, null, variant));
-                }
-            } else {
-                // Check Tier 2 and Tier 3
-                boolean isTier2 = false;
-                if (variant.getAnnotation() != null && CollectionUtils.isNotEmpty(variant.getAnnotation().getConsequenceTypes())) {
-
-                    for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
-                        if (MapUtils.isNotEmpty(geneToPanelMap) && geneToPanelMap.containsKey(ct.getEnsemblGeneId())
-                                && CollectionUtils.isNotEmpty(geneToPanelMap.get(ct.getEnsemblGeneId()))) {
-                            // Tier 2, gene in panel
-                            List<DiseasePanel.GenePanel> panels = geneToPanelMap.get(ct.getEnsemblGeneId());
-                            List<String> panelIds = panels.stream().map(DiseasePanel.GenePanel::getId).collect(Collectors.toList());
-
-                            soNames = getSoNames(ct);
-                            genomicFeature = new GenomicFeature(ct.getEnsemblGeneId(), ct.getEnsemblTranscriptId(), ct.getGeneName(),
-                                    null, null);
-
-                            reportedEvents.addAll(createReportedEvents(panelIds, TIER_2, soNames, genomicFeature, variant));
-                            isTier2 = true;
-                        }
-                    }
-                }
-
-                if (!isTier2 && CollectionUtils.isNotEmpty(findings)) {
-                    // Check for findings, i.e.: tier 3
-                    boolean isTier3 = false;
-                    if (findings.contains(variant.getId())) {
-                    } else {
-                        if (CollectionUtils.isNotEmpty(variant.getNames())) {
-                            // Second, check variant names
-                            for (String name : variant.getNames()) {
-                                if (findings.contains(name)) {
-                                    isTier3 = true;
-                                    break;
-                                }
-                            }
-                        } else {
-                            // Third, check xrefs for that variant
-                            if (variant.getAnnotation() != null && CollectionUtils.isNotEmpty(variant.getAnnotation().getXrefs())) {
-                                for (Xref xref : variant.getAnnotation().getXrefs()) {
-                                    if (StringUtils.isNotEmpty(xref.getId()) && findings.contains(xref.getId())) {
-                                        isTier3 = true;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if (isTier3) {
-                        // TODO: should we set consequence types and genomic feature for these findings?
-                        ReportedEvent reportedEvent = createReportedEvent(phenotype, null, null, null, modeOfInheritance, penetrance,
-                                variant);
-                        reportedEvent.setTier(TIER_3);
-
-
+                        ReportedEvent reportedEvent = createReportedEvent(phenotype, soNames, genomicFeature, null, modeOfInheritance,
+                                penetrance, variant);
+                        setTier(reportedEvent);
                         reportedEvents.add(reportedEvent);
                     }
                 }
             }
 
-            // If we have reported events, then we have to create the reported variant
+            // Create a reported variant only if we have reported events
             if (CollectionUtils.isNotEmpty(reportedEvents)) {
                 ReportedVariant reportedVariant = new ReportedVariant(variant.getImpl(), 0, new ArrayList<>(),
                         Collections.emptyList(), Collections.emptyMap());
@@ -163,22 +88,41 @@ public class DefaultReportedVariantCreator extends ReportedVariantCreator {
         return reportedVariants;
     }
 
-    private List<ReportedEvent> createReportedEvents(List<String> panelIds, String tier, List<String> soAccessions,
-                                                     GenomicFeature genomicFeature, Variant variant) {
-        List<ReportedEvent> reportedEvents = new ArrayList<>();
-        for (String panelId : panelIds) {
-            ReportedEvent reportedEvent = createReportedEvent(phenotype, soAccessions, genomicFeature, panelId, modeOfInheritance,
-                    penetrance, variant);
-            if (reportedEvent != null) {
-                reportedEvent.setTier(tier);
-                reportedEvents.add(reportedEvent);
+    private void setTier(ReportedEvent reportedEvent) {
+        // Sanity check
+        if (reportedEvent != null && reportedEvent.getClassification() != null
+                && CollectionUtils.isNotEmpty(reportedEvent.getClassification().getAcmg())) {
+            for (String acmg : reportedEvent.getClassification().getAcmg()) {
+                if (acmg.startsWith("PVS") || acmg.startsWith("PS")) {
+                    // PVS = Very strong evidence of pathogenicity
+                    // PS = Strong evidence of pathogenicity
+                    reportedEvent.setTier(TIER_2);
+                    return;
+                } else if (acmg.startsWith("PM") || acmg.startsWith("PP")) {
+                    // PM = Moderate evidence of pathogenicity
+                    // PP = Supporting evidence of pathogenicity
+                    reportedEvent.setTier(TIER_3);
+                    return;
+                }
             }
         }
-        return reportedEvents;
+    }
+
+    private boolean isLOF(List<String> soNames) {
+        // Sanity check
+        if (CollectionUtils.isNotEmpty(soNames)) {
+            for (String soName : soNames) {
+                if (LOF_EXTENDED_SET.contains(soName)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private List<String> getSoNames(ConsequenceType ct) {
         List<String> soNames = new ArrayList<>();
+        // Sanity check
         if (CollectionUtils.isNotEmpty(ct.getSequenceOntologyTerms())) {
             for (SequenceOntologyTerm soTerm : ct.getSequenceOntologyTerms()) {
                 if (StringUtils.isNotEmpty(soTerm.getName())) {

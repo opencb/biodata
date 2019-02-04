@@ -33,6 +33,15 @@ public abstract class ReportedVariantCreator {
     public final String TIER_2 = "Tier2";
     public final String TIER_3 = "Tier3";
 
+    public static final Set<String> LOF_SET = new HashSet<>(Arrays.asList("transcript_ablation", "splice_acceptor_variant",
+            "splice_donor_variant", "stop_gained", "frameshift_variant", "stop_lost", "start_lost", "transcript_amplification",
+            "inframe_insertion", "inframe_deletion"));
+
+    public static final Set<String> LOF_EXTENDED_SET = new HashSet<>(Arrays.asList("transcript_ablation", "splice_acceptor_variant",
+            "splice_donor_variant", "stop_gained", "frameshift_variant", "stop_lost", "start_lost", "initiator_codon_variant",
+            "transcript_amplification", "inframe_insertion", "inframe_deletion", "missense_variant", "splice_region_variant",
+            "incomplete_terminal_codon_variant"));
+
     public abstract List<ReportedVariant> create(List<Variant> variants) throws InterpretationAnalysisException;
 
     protected Map<String, List<DiseasePanel.GenePanel>> getGeneToPanelMap(List<DiseasePanel> diseasePanels) {

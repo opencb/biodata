@@ -44,13 +44,11 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
     private ModeOfInheritance modeOfInheritance;
     private Penetrance penetrance;
 
-    private static final String[] TIER_1_CONSEQUENCE_TYPES = new String[] {"SO:0001893", "SO:0001574", "SO:0001575", "SO:0001587",
-            "SO:0001589", "SO:0001578", "SO:0001582"};
-    private static final Set<String> TIER_1_CONSEQUENCE_TYPES_SET = new HashSet<>(Arrays.asList(TIER_1_CONSEQUENCE_TYPES));
+    public static final Set<String> TIER_1_CONSEQUENCE_TYPES_SET = new HashSet<>(Arrays.asList("SO:0001893", "SO:0001574", "SO:0001575",
+            "SO:0001587", "SO:0001589", "SO:0001578", "SO:0001582"));
 
-    public static final String[] TIER_2_CONSEQUENCE_TYPES = new String[] {"SO:0001889", "SO:0001821", "SO:0001822", "SO:0001583",
-            "SO:0001630", "SO:0001626"};
-    private static final Set<String> TIER_2_CONSEQUENCE_TYPES_SET = new HashSet<>(Arrays.asList(TIER_2_CONSEQUENCE_TYPES));
+    private static final Set<String> TIER_2_CONSEQUENCE_TYPES_SET = new HashSet<>(Arrays.asList("SO:0001889", "SO:0001821", "SO:0001822",
+            "SO:0001583", "SO:0001630", "SO:0001626"));
 
     public TieringReportedVariantCreator(List<DiseasePanel> diseasePanels, ModeOfInheritance modeOfInheritance, Penetrance penetrance) {
         this.diseasePanels = diseasePanels;
