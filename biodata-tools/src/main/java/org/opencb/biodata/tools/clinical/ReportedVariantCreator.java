@@ -29,6 +29,8 @@ import java.util.*;
 
 public abstract class ReportedVariantCreator {
 
+    protected boolean includeNoTier = false;
+
     public final String TIER_1 = "Tier1";
     public final String TIER_2 = "Tier2";
     public final String TIER_3 = "Tier3";
@@ -114,5 +116,14 @@ public abstract class ReportedVariantCreator {
         reportedEvent.setClassification(variantClassification);
 
         return reportedEvent;
+    }
+
+    public boolean isIncludeNoTier() {
+        return includeNoTier;
+    }
+
+    public ReportedVariantCreator setIncludeNoTier(boolean includeNoTier) {
+        this.includeNoTier = includeNoTier;
+        return this;
     }
 }
