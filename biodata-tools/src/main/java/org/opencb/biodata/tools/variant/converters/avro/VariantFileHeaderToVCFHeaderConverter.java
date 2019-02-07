@@ -54,6 +54,10 @@ public class VariantFileHeaderToVCFHeaderConverter implements Converter<VariantF
                     putIfNotEmpty(map, "Type", line.getType());
                     map.putAll(line.getGenericFields());
                     if (line.getKey().equals("contig")) {
+                        String length = map.get("length");
+                        if (StringUtils.isEmpty(length) || !StringUtils.isNumeric(length)) {
+                            map.remove("length");
+                        }
                         headerLine = new VCFContigHeaderLine(map, contigIndex++);
                     } else {
                         headerLine = new VCFSimpleHeaderLine(line.getKey(), map);
