@@ -95,8 +95,10 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
         //     - Tier 2: gene panel + mode of inheritance + TIER_2_CONSEQUENCE_TYPES
         //     - Tier 3: gene panel + mode of inheritance + other consequence types
         //               gene panel + mode of inheritance
+        boolean reported;
         List<ReportedVariant> reportedVariants = new ArrayList<>();
         for (Variant variant : variants) {
+            reported = false;
             List<ReportedEvent> reportedEvents = new ArrayList<>();
 
             if (variant.getAnnotation() != null && CollectionUtils.isNotEmpty(variant.getAnnotation().getConsequenceTypes())) {
@@ -129,29 +131,51 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
                                                         reportedEvents.add(createReportedEvent(phenotype, getSoNameAsList(soTerm),
                                                                 genomicFeature, genePanel.getId(), moi, penetrance, variant)
                                                                 .setTier(TIER_1));
+                                                        reported = true;
                                                     } else if (TIER_2_CONSEQUENCE_TYPES_SET.contains(soTerm.getAccession())) {
                                                         // Tier 2
                                                         reportedEvents.add(createReportedEvent(phenotype, getSoNameAsList(soTerm),
                                                                 genomicFeature, genePanel.getId(), moi, penetrance, variant)
                                                                 .setTier(TIER_2));
+                                                        reported = true;
                                                     } else {
                                                         // Tier 3
                                                         reportedEvents.add(createReportedEvent(phenotype, getSoNameAsList(soTerm),
                                                                 genomicFeature, genePanel.getId(), moi, penetrance, variant)
                                                                 .setTier(TIER_3));
+                                                        reported = true;
                                                     }
                                                 } else {
                                                     // Tier 3
                                                     reportedEvents.add(createReportedEvent(phenotype, getSoNameAsList(soTerm),
                                                             genomicFeature, genePanel.getId(), moi, penetrance, variant).setTier(TIER_3));
+                                                    reported = true;
                                                 }
                                             }
                                         } else {
                                             // Tier 3
                                             reportedEvents.add(createReportedEvent(phenotype, null, genomicFeature, genePanel.getId(),
                                                     moi, penetrance, variant).setTier(TIER_3));
+                                            reported = true;
                                         }
                                     }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (!reported && includeNoTier) {
+                    // Not reported variant, reported it anyway but without tier
+                    for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
+                        GenomicFeature genomicFeature = new GenomicFeature(ct.getEnsemblGeneId(),
+                                ct.getEnsemblTranscriptId(), ct.getGeneName(), null, null);
+
+                        if (CollectionUtils.isNotEmpty(ct.getSequenceOntologyTerms())) {
+                            for (SequenceOntologyTerm soTerm : ct.getSequenceOntologyTerms()) {
+                                if (StringUtils.isNotEmpty(soTerm.getAccession())) {
+                                    reportedEvents.add(createReportedEvent(phenotype, getSoNameAsList(soTerm),
+                                            genomicFeature, null, null, null, variant));
                                 }
                             }
                         }

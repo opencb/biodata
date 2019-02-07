@@ -96,7 +96,6 @@ public class TeamReportedVariantCreator extends ReportedVariantCreator {
                 }
             } else {
                 // Check Tier 2 and Tier 3
-                boolean isTier2 = false;
                 if (variant.getAnnotation() != null && CollectionUtils.isNotEmpty(variant.getAnnotation().getConsequenceTypes())) {
 
                     for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
@@ -111,21 +110,20 @@ public class TeamReportedVariantCreator extends ReportedVariantCreator {
                                     null, null);
 
                             reportedEvents.addAll(createReportedEvents(panelIds, TIER_2, soNames, genomicFeature, variant));
-                            isTier2 = true;
                         }
                     }
                 }
 
-                if (!isTier2 && CollectionUtils.isNotEmpty(findings)) {
+                if (CollectionUtils.isEmpty(reportedEvents) && CollectionUtils.isNotEmpty(findings)) {
                     // Check for findings, i.e.: tier 3
-                    boolean isTier3 = false;
+                    boolean tier3 = false;
                     if (findings.contains(variant.getId())) {
                     } else {
                         if (CollectionUtils.isNotEmpty(variant.getNames())) {
                             // Second, check variant names
                             for (String name : variant.getNames()) {
                                 if (findings.contains(name)) {
-                                    isTier3 = true;
+                                    tier3 = true;
                                     break;
                                 }
                             }
@@ -134,21 +132,36 @@ public class TeamReportedVariantCreator extends ReportedVariantCreator {
                             if (variant.getAnnotation() != null && CollectionUtils.isNotEmpty(variant.getAnnotation().getXrefs())) {
                                 for (Xref xref : variant.getAnnotation().getXrefs()) {
                                     if (StringUtils.isNotEmpty(xref.getId()) && findings.contains(xref.getId())) {
-                                        isTier3 = true;
+                                        tier3 = true;
                                         break;
                                     }
                                 }
                             }
                         }
                     }
-                    if (isTier3) {
+                    if (tier3) {
                         // TODO: should we set consequence types and genomic feature for these findings?
                         ReportedEvent reportedEvent = createReportedEvent(phenotype, null, null, null, modeOfInheritance, penetrance,
                                 variant);
                         reportedEvent.setTier(TIER_3);
 
-
                         reportedEvents.add(reportedEvent);
+                    }
+                }
+            }
+
+            if (CollectionUtils.isEmpty(reportedEvents) && includeNoTier) {
+                if (variant.getAnnotation() != null && CollectionUtils.isNotEmpty(variant.getAnnotation().getConsequenceTypes())) {
+                    for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
+                        soNames = getSoNames(ct);
+                        genomicFeature = new GenomicFeature(ct.getEnsemblGeneId(), ct.getEnsemblTranscriptId(), ct.getGeneName(),
+                                null, null);
+
+                        ReportedEvent reportedEvent = createReportedEvent(phenotype, soNames, genomicFeature, null, null,
+                                null, variant);
+                        if (reportedEvent != null) {
+                            reportedEvents.add(reportedEvent);
+                        }
                     }
                 }
             }

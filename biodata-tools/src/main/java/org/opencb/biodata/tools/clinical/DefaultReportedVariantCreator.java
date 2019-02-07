@@ -63,13 +63,16 @@ public class DefaultReportedVariantCreator extends ReportedVariantCreator {
 
                 for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
                     soNames = getSoNames(ct);
-                    if (isLOF(soNames)) {
-                        genomicFeature = new GenomicFeature(ct.getEnsemblGeneId(), ct.getEnsemblTranscriptId(), ct.getGeneName(),
-                                null, null);
+                    genomicFeature = new GenomicFeature(ct.getEnsemblGeneId(), ct.getEnsemblTranscriptId(), ct.getGeneName(),
+                            null, null);
 
+                    boolean lof = isLOF(soNames);
+                    if (lof || includeNoTier) {
                         ReportedEvent reportedEvent = createReportedEvent(phenotype, soNames, genomicFeature, null, modeOfInheritance,
                                 penetrance, variant);
-                        setTier(reportedEvent);
+                        if (lof) {
+                            setTier(reportedEvent);
+                        }
                         reportedEvents.add(reportedEvent);
                     }
                 }
