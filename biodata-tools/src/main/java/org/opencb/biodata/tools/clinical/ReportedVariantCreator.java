@@ -24,8 +24,12 @@ import org.opencb.biodata.models.clinical.interpretation.*;
 import org.opencb.biodata.models.clinical.interpretation.exceptions.InterpretationAnalysisException;
 import org.opencb.biodata.models.commons.Phenotype;
 import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.avro.EvidenceEntry;
 
 import java.util.*;
+
+import static org.opencb.biodata.models.clinical.interpretation.VariantClassification.ClinicalSignificance;
+import static org.opencb.biodata.models.clinical.interpretation.VariantClassification.calculateAcmgClassification;
 
 public abstract class ReportedVariantCreator {
 
@@ -89,8 +93,8 @@ public abstract class ReportedVariantCreator {
     protected ReportedEvent createReportedEvent(Phenotype phenotype, List<String> soNames, GenomicFeature genomicFeature, String panelId,
                                                 ClinicalProperty.ModeOfInheritance moi, ClinicalProperty.Penetrance penetrance,
                                                 Variant variant) {
-        ReportedEvent reportedEvent = new ReportedEvent()
-                .setId("OPENCB-" + UUID.randomUUID());
+        ReportedEvent reportedEvent = new ReportedEvent().setId("OPENCB-" + UUID.randomUUID());
+
         if (phenotype != null) {
             reportedEvent.setPhenotypes(Collections.singletonList(phenotype));
         }
@@ -111,11 +115,56 @@ public abstract class ReportedVariantCreator {
             reportedEvent.setPenetrance(penetrance);
         }
 
-        List<String> acmg = VariantClassification.calculateAcmgClassification(variant, reportedEvent);
-        VariantClassification variantClassification = new VariantClassification().setAcmg(acmg);
-        reportedEvent.setClassification(variantClassification);
+        updateVariantClassification(reportedEvent, variant);
 
         return reportedEvent;
+    }
+
+    public void updateVariantClassification(ReportedEvent reportedEvent, Variant variant) {
+        List<String> acmg = calculateAcmgClassification(variant, reportedEvent);
+        VariantClassification variantClassification = new VariantClassification().setAcmg(acmg);
+
+        // Clinical significance management, this is stored in the trait association
+        if (variant.getAnnotation() != null && CollectionUtils.isNotEmpty(variant.getAnnotation().getTraitAssociation())) {
+            List<EvidenceEntry> traitAssociations = variant.getAnnotation().getTraitAssociation();
+            String ensemblTranscriptId = reportedEvent.getGenomicFeature().getEnsemblTranscriptId();
+
+            // Iterate across the list of evidences
+            for (EvidenceEntry evidenceEntry : traitAssociations) {
+
+                // We are interested in the clinical significance from the clinvar annotation
+                if (evidenceEntry.getSource() != null && "clinvar".equals(evidenceEntry.getSource().getName())) {
+
+                    if (evidenceEntry.getVariantClassification() != null
+                            && evidenceEntry.getVariantClassification().getClinicalSignificance() != null
+                            && evidenceEntry.getVariantClassification().getClinicalSignificance().name() != null) {
+                        String clinicalSignificance = evidenceEntry.getVariantClassification().getClinicalSignificance().name();
+                        List<org.opencb.biodata.models.variant.avro.GenomicFeature> genomicFeatures = evidenceEntry.getGenomicFeatures();
+
+                        // And check if we are in the proper reported event, i.e., the transcript matches
+                        if (CollectionUtils.isNotEmpty(genomicFeatures)) {
+                            for (org.opencb.biodata.models.variant.avro.GenomicFeature genomicFeature : genomicFeatures) {
+                                if (genomicFeature.getFeatureType() != null && "transcript".equals(genomicFeature.getFeatureType().name())
+                                        && ensemblTranscriptId.equals(genomicFeature.getEnsemblId())) {
+
+                                    try {
+                                        variantClassification.setClinicalSignificance(ClinicalSignificance.valueOf(clinicalSignificance));
+                                        break;
+                                    } catch (IllegalArgumentException e) {
+                                        // Do nothing
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (variantClassification.getClinicalSignificance() != null) {
+                    break;
+                }
+            }
+        }
+
+        reportedEvent.setClassification(variantClassification);
     }
 
     public boolean isIncludeNoTier() {
