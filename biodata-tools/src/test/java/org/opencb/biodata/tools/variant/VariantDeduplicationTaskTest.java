@@ -118,7 +118,7 @@ public class VariantDeduplicationTaskTest {
         l.add(2);
         l.add(2);
         thrown.expect(IllegalStateException.class);
-        thrown.expectMessage("New element below than any other");
+        thrown.expectMessage("New element '1' below than any other");
         l.add(1);
 
     }

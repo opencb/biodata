@@ -189,7 +189,7 @@ public class VariantDeduplicationTask implements Task<Variant, Variant> {
                 swap = checkSorted(elem, position);
                 if (position == this.tail) {
                     // Something really exceptional happened
-                    throw new IllegalStateException("New element below than any other");
+                    throw new IllegalStateException("New element '" + elem + "' below than any other");
                 }
             }
             incrementHead();
