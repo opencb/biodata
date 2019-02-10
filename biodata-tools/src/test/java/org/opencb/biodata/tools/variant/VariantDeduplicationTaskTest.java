@@ -60,7 +60,7 @@ public class VariantDeduplicationTaskTest {
     public void testCircularQueue() {
         VariantDeduplicationTask.CircularSortedArrayQueue<Integer> l = new VariantDeduplicationTask.CircularSortedArrayQueue<>(4, Integer::compare);
 
-        List<Integer> v = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 4, 5, 6, 8, 7, 8, 9));
+        List<Integer> v = new ArrayList<>(Arrays.asList(1, 0, 2, 3, 4, 4, 5, 6, 8, 7, 8, 9));
 
         for (int i = 0; i < 20; i++) {
             v.add(i + 10);
