@@ -206,7 +206,7 @@ public class VariantVcfHtsjdkReader implements VariantReader {
     @Override
     public boolean close() {
         try {
-            if (closeInputStream) {
+            if (closeInputStream && inputStream != null) {
                 inputStream.close();
             }
         } catch (IOException e) {
