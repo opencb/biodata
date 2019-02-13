@@ -1,5 +1,7 @@
 package org.opencb.biodata.tools.feature;
 
+import org.broad.igv.bbfile.BBFileReader;
+import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.tools.commons.ChunkFrequencyManager;
 import org.opencb.commons.utils.FileUtils;
 
@@ -223,6 +225,16 @@ public class WigUtils {
                 meanValues.add(v / chunkSize);
             }
             chunkFrequencyManager.insert(filePath, chromosome, meanValues);
+        }
+    }
+
+    public static void validateRegion(Region region, BBFileReader bbFileReader) {
+        String chrom = region.getChromosome();
+        if (bbFileReader.getChromosomeID(chrom) == -1) {
+            if (bbFileReader.getChromosomeID("chr" + chrom) == -1) {
+                throw new IllegalArgumentException("Unknown chromosome: " + region.getChromosome());
+            }
+            region.setChromosome("chr" + chrom);
         }
     }
 

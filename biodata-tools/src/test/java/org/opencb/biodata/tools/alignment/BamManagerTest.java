@@ -5,6 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opencb.biodata.models.alignment.RegionCoverage;
 import org.opencb.biodata.models.core.Region;
+import org.opencb.biodata.tools.alignment.exceptions.AlignmentCoverageException;
 
 import java.io.File;
 import java.io.IOException;
@@ -161,5 +162,18 @@ public class BamManagerTest {
         System.out.println("\nTotal time: " + (totalStopTime - totalStartTime)/1000.0 + " seconds.");
 
         writer.close();
+    }
+
+//    @Test
+    public void uncoveredRegions() throws IOException, AlignmentCoverageException {
+        bamPath = Paths.get("/mnt/data/hgva/datasets/bams/NA12877_S1.bam");
+        BamManager bamManager = new BamManager(bamPath);
+
+        Region region = new Region("13", 32000000, 32000004);
+        List<RegionCoverage> uncoveredRegions = bamManager.getUncoveredRegions(region, 36);
+        SAMFileHeader samFileHeader = new SAMFileHeader();
+        for (RegionCoverage uncoveredRegion : uncoveredRegions) {
+            System.out.println(uncoveredRegion);
+        }
     }
 }

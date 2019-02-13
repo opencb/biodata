@@ -242,4 +242,15 @@ public class BamUtils {
         }
         writer.close();
     }
+
+    public static void validateRegion(Region region, SamReader samReader) {
+        String chrom = region.getChromosome();
+        SAMSequenceDictionary sequenceDictionary = samReader.getFileHeader().getSequenceDictionary();
+        if (sequenceDictionary.getSequenceIndex(chrom) == -1) {
+            if (sequenceDictionary.getSequenceIndex("chr" + chrom) == -1) {
+                throw new IllegalArgumentException("Unknown chromosome: " + region.getChromosome());
+            }
+            region.setChromosome("chr" + chrom);
+        }
+    }
 }

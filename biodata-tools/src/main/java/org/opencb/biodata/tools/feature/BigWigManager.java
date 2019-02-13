@@ -1,5 +1,6 @@
 package org.opencb.biodata.tools.feature;
 
+import htsjdk.samtools.SAMSequenceDictionary;
 import org.broad.igv.bbfile.*;
 import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.tools.commons.ChunkFrequencyManager;
@@ -82,10 +83,16 @@ public class BigWigManager {
      * @return          Big Wig file iterator
      */
     public BigWigIterator iterator(Region region) {
+        // Sanity check
+        WigUtils.validateRegion(region, bbFileReader);
+
         return bbFileReader.getBigWigIterator(region.getChromosome(), region.getStart(), region.getChromosome(), region.getEnd(), false);
     }
 
     public ZoomLevelIterator iterator(Region region, int zoomLevel) {
+        // Sanity check
+        WigUtils.validateRegion(region, bbFileReader);
+
         return bbFileReader.getZoomLevelIterator(zoomLevel, region.getChromosome(), region.getStart(), region.getChromosome(), region.getEnd(), false);
     }
 

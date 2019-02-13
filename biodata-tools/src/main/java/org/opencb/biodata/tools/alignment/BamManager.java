@@ -285,6 +285,9 @@ public class BamManager {
         if (options == null) {
             options = new AlignmentOptions();
         }
+        // Sanity check
+        BamUtils.validateRegion(region, samReader);
+
         SAMRecordIterator samRecordIterator =
                 samReader.query(region.getChromosome(), region.getStart(), region.getEnd(), options.isContained());
         return getAlignmentIterator(filters, options, clazz, samRecordIterator);
@@ -350,22 +353,23 @@ public class BamManager {
             throw new AlignmentCoverageException("Region size is bigger than MAX_REGION_COVERAGE [" + MAX_REGION_COVERAGE +"]");
         }
 
-        RegionCoverage regionCoverage = new RegionCoverage(region);
         if (options == null) {
             options = new AlignmentOptions();
         }
+
         SamRecordRegionCoverageCalculator calculator = new SamRecordRegionCoverageCalculator(options.getMinBaseQuality());
         try (BamIterator<SAMRecord> iterator = iterator(region, filters, options)) {
+            RegionCoverage regionCoverage = new RegionCoverage(region);
             while (iterator.hasNext()) {
                 SAMRecord next = iterator.next();
                 if (!next.getReadUnmappedFlag()) {
                     calculator.update(next, regionCoverage);
                 }
             }
+            return regionCoverage;
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new AlignmentCoverageException(e.getMessage(), e);
         }
-        return regionCoverage;
     }
 
     /**
@@ -377,7 +381,8 @@ public class BamManager {
      */
     public List<RegionCoverage> getUncoveredRegions(Region region, int maxCoverage) throws IOException, AlignmentCoverageException {
         List<RegionCoverage> uncoveredRegions = new ArrayList<>();
-        RegionCoverage coverageRegion = coverage(region, 1);
+        // Compute coverage from BAM file
+        RegionCoverage coverageRegion = coverage(region, null, new AlignmentOptions());
 
         float[] coverages = new float[region.size()];
         int i = 0;
@@ -385,7 +390,7 @@ public class BamManager {
         boolean isProcessing = false;
         RegionCoverage uncoveredRegion = null;
         for (float coverage: coverageRegion.getValues()) {
-            if (coverage < maxCoverage) {
+            if (coverage <= maxCoverage) {
                 if (!isProcessing) {
                     uncoveredRegion = new RegionCoverage(region.getChromosome(), pos, 0);
                     isProcessing = true;
@@ -395,7 +400,7 @@ public class BamManager {
                 i++;
             } else {
                 if (isProcessing) {
-                    uncoveredRegion.setEnd(pos);
+                    uncoveredRegion.setEnd(pos - 1);
                     uncoveredRegion.setValues(Arrays.copyOf(coverages, i));
                     uncoveredRegions.add(uncoveredRegion);
                     isProcessing = false;
