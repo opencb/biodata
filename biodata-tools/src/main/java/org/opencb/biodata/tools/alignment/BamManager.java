@@ -429,7 +429,7 @@ public class BamManager {
     public List<RegionCoverage> getUncoveredRegions(Region region, int maxCoverage) throws IOException, AlignmentCoverageException {
         List<RegionCoverage> uncoveredRegions = new ArrayList<>();
         // Compute coverage from BAM file
-        RegionCoverage coverageRegion = coverage(region, null, new AlignmentOptions());
+        RegionCoverage coverageRegion = coverage(region, 1);
 
         float[] coverages = new float[region.size()];
         int i = 0;
