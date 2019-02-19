@@ -29,6 +29,7 @@ import htsjdk.samtools.util.BlockCompressedFilePointerUtil;
 import htsjdk.samtools.util.BlockCompressedInputStream;
 import htsjdk.samtools.util.BlockCompressedOutputStream;
 import htsjdk.samtools.util.Log;
+import org.apache.commons.collections.CollectionUtils;
 import org.ga4gh.models.ReadAlignment;
 import org.opencb.biodata.models.alignment.RegionCoverage;
 import org.opencb.biodata.models.core.Region;
@@ -327,39 +328,33 @@ public class BamManager {
         }
     }
 
-    public List<String> getBreakpoints(Region region) {
+    public List<Chunk> getChunks(Region region) {
         if (samReader.hasIndex()) {
             int sequenceIndex = samReader.getFileHeader().getSequenceIndex(region.getChromosome());
             int start = region.getStart();
             int end = region.getEnd();
 
             BAMIndex index = samReader.indexing().getIndex();
-            List<Chunk> originalChunks = index.getSpanOverlapping(sequenceIndex, start, end).getChunks();
+            return index.getSpanOverlapping(sequenceIndex, start, end).getChunks();
+        }
+        return null;
+    }
 
-//            // We will add 20kbps to the end to get more chunks so we can easily get the last end chunk
-//            List<Chunk> finalChunks;
-//            do {
-//                end += 20000;
-//                finalChunks = index.getSpanOverlapping(sequenceIndex, start, end).getChunks();
-//            } while (finalChunks.size() == originalChunks.size());
-
-            List<String> byteRanges = new ArrayList<>(originalChunks.size());
-//            for (int i = 0; i < originalChunks.size(); i++) {
-//                if (i == originalChunks.size() - 1) {
-//                    break;
-//                }
-//                byteRanges.add(BlockCompressedFilePointerUtil.getBlockAddress(originalChunks.get(i).getChunkStart()) + "-"
-//                        + (BlockCompressedFilePointerUtil.getBlockAddress(originalChunks.get(i+1).getChunkStart()) - 1));
-//            }
-            for (Chunk originalChunk : originalChunks) {
-                long byte_start = BlockCompressedFilePointerUtil.getBlockAddress(originalChunk.getChunkStart());
-                long byte_end = BlockCompressedFilePointerUtil.getBlockAddress(originalChunk.getChunkEnd());
-                if (byte_start != byte_end) {
-                    byteRanges.add(byte_start + "-" + (byte_end - 1));
+    public List<String> getBreakpoints(Region region) {
+        if (samReader.hasIndex()) {
+            List<Chunk> originalChunks = getChunks(region);
+            if (CollectionUtils.isNotEmpty(originalChunks)) {
+                List<String> byteRanges = new ArrayList<>(originalChunks.size());
+                for (Chunk originalChunk : originalChunks) {
+                    long byte_start = BlockCompressedFilePointerUtil.getBlockAddress(originalChunk.getChunkStart());
+                    long byte_end = BlockCompressedFilePointerUtil.getBlockAddress(originalChunk.getChunkEnd()) - 1;
+                    if (byte_start != byte_end) {
+                        byteRanges.add(byte_start + "-" + byte_end);
+                    }
                 }
-            }
 
-            return byteRanges;
+                return byteRanges;
+            }
         }
         return null;
     }

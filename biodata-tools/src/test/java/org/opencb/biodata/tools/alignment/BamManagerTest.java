@@ -176,4 +176,29 @@ public class BamManagerTest {
             System.out.println(uncoveredRegion);
         }
     }
+
+//    @Test
+    public void testRanges() throws IOException {
+        int refID = 1; // 22; //14;
+        int beg = 13000; // 10000; //24375199;
+        int end = 13986; // 10100; //24378544;
+
+        bamPath = Paths.get("/mnt/data/hgva/datasets/bams/NA12877_S1.bam");
+        BamManager bamManager = new BamManager(bamPath);
+        Region region = new Region("chr" + refID, 10000, 10100);
+
+
+        List<Chunk> chunks = bamManager.getChunks(region);
+        for (Chunk chunk : chunks) {
+            System.out.println(chunk);
+        }
+
+        System.out.println();
+
+        List<String> breakpoints = bamManager.getBreakpoints(region);
+        for (String breakpoint : breakpoints) {
+            System.out.println(breakpoint);
+        }
+
+    }
 }
