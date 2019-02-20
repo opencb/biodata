@@ -18,6 +18,7 @@ package org.opencb.biodata.tools.variant.stats;
 
 import org.junit.Test;
 import org.opencb.biodata.formats.variant.vcf4.VariantVcfFactory;
+import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
@@ -130,6 +131,42 @@ public class VariantStatsCalculatorTest {
         assertEquals(multiallelicStats_GC.getRefAlleleCount().intValue(), 4);
         assertEquals(multiallelicStats_GC.getAltAlleleCount().intValue(), 3);
 
+    }
+
+    @Test
+    public void testCalculateFromCounts() {
+        VariantStats stats = VariantStatsCalculator.calculate(
+                new Variant("1:100:A:C"), new GtMap()
+                        .append("0/0", 10)
+                        .append("0/1", 20)
+                        .append("1/2", 20), true);
+
+        assertEquals(100, stats.getAlleleCount().intValue());
+        assertEquals(40, stats.getRefAlleleCount().intValue());
+        assertEquals(40, stats.getAltAlleleCount().intValue());
+
+        assertEquals(new HashSet<>(Arrays.asList(new Genotype("0/0"), new Genotype("0/1"), new Genotype("1/2"))),
+                stats.getGenotypeCount().keySet());
+
+        stats = VariantStatsCalculator.calculate(
+                new Variant("1:100:A:C"), new GtMap()
+                        .append("0/0", 10)
+                        .append("0/1", 20)
+                        .append("1/2", 20), false);
+
+        assertEquals(100, stats.getAlleleCount().intValue());
+        assertEquals(40, stats.getRefAlleleCount().intValue());
+        assertEquals(40, stats.getAltAlleleCount().intValue());
+
+        assertEquals(new HashSet<>(Arrays.asList(new Genotype("0/0"), new Genotype("0/1"))), stats.getGenotypeCount().keySet());
+
+    }
+
+    public static class GtMap extends HashMap<Genotype, Integer> {
+        public GtMap append(String gt, Integer count) {
+            super.put(new Genotype(gt), count);
+            return this;
+        }
     }
 
 
