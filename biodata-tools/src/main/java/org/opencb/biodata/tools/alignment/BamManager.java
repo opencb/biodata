@@ -21,13 +21,10 @@ package org.opencb.biodata.tools.alignment;
 
 import ga4gh.Reads;
 import htsjdk.samtools.*;
-import htsjdk.samtools.cram.structure.BlockCompressionMethod;
 import htsjdk.samtools.reference.FastaSequenceIndexCreator;
 import htsjdk.samtools.seekablestream.SeekableStream;
 import htsjdk.samtools.seekablestream.SeekableStreamFactory;
 import htsjdk.samtools.util.BlockCompressedFilePointerUtil;
-import htsjdk.samtools.util.BlockCompressedInputStream;
-import htsjdk.samtools.util.BlockCompressedOutputStream;
 import htsjdk.samtools.util.Log;
 import org.apache.commons.collections.CollectionUtils;
 import org.ga4gh.models.ReadAlignment;
@@ -51,9 +48,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Created by imedina on 14/09/15.
@@ -348,8 +343,10 @@ public class BamManager {
                 for (Chunk originalChunk : originalChunks) {
                     long byte_start = BlockCompressedFilePointerUtil.getBlockAddress(originalChunk.getChunkStart());
                     long byte_end = BlockCompressedFilePointerUtil.getBlockAddress(originalChunk.getChunkEnd()) - 1;
-                    if (byte_start != byte_end) {
+                    if (byte_start <= byte_end) {
                         byteRanges.add(byte_start + "-" + byte_end);
+                    } else {
+                        throw new IllegalArgumentException("Start offset is greater than end: " + byte_start + "-" + byte_end);
                     }
                 }
 
