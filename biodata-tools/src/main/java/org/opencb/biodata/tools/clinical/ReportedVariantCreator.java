@@ -168,10 +168,15 @@ public abstract class ReportedVariantCreator {
         }
 
         // Actionable
-        if (StringUtils.isEmpty(tier)) {
-            updateActionableInfo(reportedEvent, variant);
-        } else {
-            reportedEvent.setTier(tier);
+        // DefaultReportedVariantCreator sets tier to null in order to avoid setting actionable info,
+        // on the other hand TeamReportedVariantCreator sets tier to "" in order to set actionable info,
+        // otherwise, set the provided tier
+        if (tier != null) {
+            if (StringUtils.isEmpty(tier)) {
+                updateActionableInfo(reportedEvent, variant);
+            } else {
+                reportedEvent.setTier(tier);
+            }
         }
 
         return reportedEvent;
@@ -231,12 +236,15 @@ public abstract class ReportedVariantCreator {
     }
 
     protected void updateActionableInfo(ReportedEvent reportedEvent, Variant variant) {
-        if (MapUtils.isNotEmpty(actionableVariants)) {
-            reportedEvent.setActionable(actionableVariants.containsKey(variant.getId()));
+        if (MapUtils.isNotEmpty(actionableVariants) && actionableVariants.containsKey(variant.getId())) {
+            // Set actionable
+            reportedEvent.setActionable(true);
 
-            List<String> phenotypeIds = actionableVariants.get(variant.getId());
+            // Set Tier3
+            reportedEvent.setTier(TIER_3);
 
             // Set phenotypes for that variant
+            List<String> phenotypeIds = actionableVariants.get(variant.getId());
             if (CollectionUtils.isNotEmpty(phenotypeIds)) {
                 Disorder disorder = new Disorder();
                 List<Phenotype> evidences = new ArrayList<>();
@@ -247,9 +255,6 @@ public abstract class ReportedVariantCreator {
 
                 reportedEvent.setDisorder(disorder);
             }
-
-            // Set Tier3
-            reportedEvent.setTier(TIER_3);
         }
     }
 
@@ -265,6 +270,21 @@ public abstract class ReportedVariantCreator {
         }
         return soNames;
     }
+
+    protected boolean containSoName(ConsequenceType ct, Set<String> soNameSet) {
+        List<String> soNames = getSoNames(ct);
+        if (CollectionUtils.isNotEmpty(soNameSet) && CollectionUtils.isNotEmpty(soNames)) {
+            for (String soName : soNames) {
+                if (soNameSet.contains(soName)) {
+                    return true;
+                }
+            }
+
+        }
+        return false;
+    }
+
+
 
     protected List<ReportedEvent> createReportedEvents(String tier, List<String> panelIds, ConsequenceType ct, Variant variant) {
         List<ReportedEvent> reportedEvents = new ArrayList<>();

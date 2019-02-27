@@ -100,11 +100,11 @@ public class TeamReportedVariantCreator extends ReportedVariantCreator {
                 if (variant.getAnnotation() != null && actionableVariants.containsKey(variant.getId())) {
                     if (CollectionUtils.isNotEmpty(variant.getAnnotation().getConsequenceTypes())) {
                         for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
-                            reportedEvents.addAll(createReportedEvents(null, null, ct, variant));
+                            reportedEvents.addAll(createReportedEvents("", null, ct, variant));
                         }
                     } else {
                         // We create the reported events anyway!
-                        reportedEvents.addAll(createReportedEvents(null, null, null, variant));
+                        reportedEvents.addAll(createReportedEvents("", null, null, variant));
                     }
                 }
             }
