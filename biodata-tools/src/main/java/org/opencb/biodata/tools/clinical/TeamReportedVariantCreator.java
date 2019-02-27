@@ -21,147 +21,90 @@ package org.opencb.biodata.tools.clinical;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
 import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.ModeOfInheritance;
 import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.Penetrance;
+import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.RoleInCancer;
 import org.opencb.biodata.models.clinical.interpretation.DiseasePanel;
 import org.opencb.biodata.models.clinical.interpretation.GenomicFeature;
 import org.opencb.biodata.models.clinical.interpretation.ReportedEvent;
 import org.opencb.biodata.models.clinical.interpretation.ReportedVariant;
-import org.opencb.biodata.models.commons.Phenotype;
+import org.opencb.biodata.models.clinical.interpretation.exceptions.InterpretationAnalysisException;
+import org.opencb.biodata.models.commons.Disorder;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.ConsequenceType;
-import org.opencb.biodata.models.variant.avro.SequenceOntologyTerm;
-import org.opencb.biodata.models.variant.avro.Xref;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class TeamReportedVariantCreator extends ReportedVariantCreator {
 
-    private List<DiseasePanel> diseasePanels;
-    private Set<String> findings;
-    private Phenotype phenotype;
-    private ModeOfInheritance modeOfInheritance;
-    private Penetrance penetrance;
-
-    public TeamReportedVariantCreator(List<DiseasePanel> diseasePanels) {
-        this(diseasePanels, null, null, null, null);
-    }
-
-    public TeamReportedVariantCreator(List<DiseasePanel> diseasePanels, Set<String> findings) {
-        this(diseasePanels, findings, null, null, null);
-    }
-
-    public TeamReportedVariantCreator(List<DiseasePanel> diseasePanels, Set<String> findings, Phenotype phenotype,
-                                      ModeOfInheritance modeOfInheritance, Penetrance penetrance) {
-        this.diseasePanels = diseasePanels;
-        this.findings = findings;
-        this.phenotype = phenotype;
-        this.modeOfInheritance = modeOfInheritance;
-        this.penetrance = penetrance;
+    public TeamReportedVariantCreator(List<DiseasePanel> diseasePanels, Map<String, RoleInCancer> roleInCancer,
+                                      Map<String, List<String>> actionableVariants, Disorder disorder, ModeOfInheritance modeOfInheritance,
+                                      Penetrance penetrance) {
+        super(diseasePanels, disorder, modeOfInheritance, penetrance, roleInCancer, actionableVariants);
     }
 
     @Override
-    public List<ReportedVariant> create(List<Variant> variants) {
+    public List<ReportedVariant> create(List<Variant> variants) throws InterpretationAnalysisException {
+        // Panels are mandatory in Tiering analysis
+        if (CollectionUtils.isEmpty(diseasePanels)) {
+            throw new InterpretationAnalysisException("Missing gene panels for TEAM analysis");
+        }
+
         Map<String, List<DiseasePanel.GenePanel>> geneToPanelMap = getGeneToPanelMap(diseasePanels);
         Map<String, List<DiseasePanel.VariantPanel>> variantToPanelMap = getVariantToPanelMap(diseasePanels);
 
+        boolean hasTier;
+
         List<ReportedVariant> reportedVariants = new ArrayList<>();
         for (Variant variant : variants) {
+            hasTier = false;
             List<ReportedEvent> reportedEvents = new ArrayList<>();
-
-            // SO names, panels IDs and genomic feature
-            List<String> soNames;
-            GenomicFeature genomicFeature;
 
             if (MapUtils.isNotEmpty(variantToPanelMap) && variantToPanelMap.containsKey(variant.getId())
                     && CollectionUtils.isNotEmpty(variantToPanelMap.get(variant.getId()))) {
                 // Tier 1, variant in panel
+                hasTier = true;
+
                 List<DiseasePanel.VariantPanel> panels = variantToPanelMap.get(variant.getId());
                 List<String> panelIds = panels.stream().map(DiseasePanel.VariantPanel::getId).collect(Collectors.toList());
 
                 if (variant.getAnnotation() != null && CollectionUtils.isNotEmpty(variant.getAnnotation().getConsequenceTypes())) {
 
                     for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
-                        soNames = getSoNames(ct);
-                        genomicFeature = new GenomicFeature(ct.getEnsemblGeneId(), ct.getEnsemblTranscriptId(), ct.getGeneName(),
-                                null, null);
-
-                        reportedEvents.addAll(createReportedEvents(panelIds, TIER_1, soNames, genomicFeature, variant));
+                        reportedEvents.addAll(createReportedEvents(TIER_1, panelIds, ct, variant));
                     }
                 } else {
-                    // We create the reported events, anyway
-                    reportedEvents.addAll(createReportedEvents(panelIds, TIER_1, null, null, variant));
+                    // We create the reported events anyway!
+                    reportedEvents.addAll(createReportedEvents(TIER_1, panelIds, null, variant));
                 }
             } else {
-                // Check Tier 2 and Tier 3
+                // Tier 2
                 if (variant.getAnnotation() != null && CollectionUtils.isNotEmpty(variant.getAnnotation().getConsequenceTypes())) {
-
                     for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
                         if (MapUtils.isNotEmpty(geneToPanelMap) && geneToPanelMap.containsKey(ct.getEnsemblGeneId())
                                 && CollectionUtils.isNotEmpty(geneToPanelMap.get(ct.getEnsemblGeneId()))) {
                             // Tier 2, gene in panel
+                            hasTier = true;
                             List<DiseasePanel.GenePanel> panels = geneToPanelMap.get(ct.getEnsemblGeneId());
                             List<String> panelIds = panels.stream().map(DiseasePanel.GenePanel::getId).collect(Collectors.toList());
 
-                            soNames = getSoNames(ct);
-                            genomicFeature = new GenomicFeature(ct.getEnsemblGeneId(), ct.getEnsemblTranscriptId(), ct.getGeneName(),
-                                    null, null);
-
-                            reportedEvents.addAll(createReportedEvents(panelIds, TIER_2, soNames, genomicFeature, variant));
+                            reportedEvents.addAll(createReportedEvents(TIER_2, panelIds, ct, variant));
                         }
-                    }
-                }
-
-                if (CollectionUtils.isEmpty(reportedEvents) && CollectionUtils.isNotEmpty(findings)) {
-                    // Check for findings, i.e.: tier 3
-                    boolean tier3 = false;
-                    if (findings.contains(variant.getId())) {
-                    } else {
-                        if (CollectionUtils.isNotEmpty(variant.getNames())) {
-                            // Second, check variant names
-                            for (String name : variant.getNames()) {
-                                if (findings.contains(name)) {
-                                    tier3 = true;
-                                    break;
-                                }
-                            }
-                        } else {
-                            // Third, check xrefs for that variant
-                            if (variant.getAnnotation() != null && CollectionUtils.isNotEmpty(variant.getAnnotation().getXrefs())) {
-                                for (Xref xref : variant.getAnnotation().getXrefs()) {
-                                    if (StringUtils.isNotEmpty(xref.getId()) && findings.contains(xref.getId())) {
-                                        tier3 = true;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if (tier3) {
-                        // TODO: should we set consequence types and genomic feature for these findings?
-                        ReportedEvent reportedEvent = createReportedEvent(phenotype, null, null, null, modeOfInheritance, penetrance,
-                                variant);
-                        reportedEvent.setTier(TIER_3);
-
-                        reportedEvents.add(reportedEvent);
                     }
                 }
             }
 
-            if (CollectionUtils.isEmpty(reportedEvents) && includeNoTier) {
-                if (variant.getAnnotation() != null && CollectionUtils.isNotEmpty(variant.getAnnotation().getConsequenceTypes())) {
-                    for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
-                        soNames = getSoNames(ct);
-                        genomicFeature = new GenomicFeature(ct.getEnsemblGeneId(), ct.getEnsemblTranscriptId(), ct.getGeneName(),
-                                null, null);
-
-                        ReportedEvent reportedEvent = createReportedEvent(phenotype, soNames, genomicFeature, null, null,
-                                null, variant);
-                        if (reportedEvent != null) {
-                            reportedEvents.add(reportedEvent);
+            // Tier 3, actionable variants
+            if (!hasTier && MapUtils.isNotEmpty(actionableVariants)) {
+                if (variant.getAnnotation() != null && actionableVariants.containsKey(variant.getId())) {
+                    if (CollectionUtils.isNotEmpty(variant.getAnnotation().getConsequenceTypes())) {
+                        for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
+                            reportedEvents.addAll(createReportedEvents(null, null, ct, variant));
                         }
+                    } else {
+                        // We create the reported events anyway!
+                        reportedEvents.addAll(createReportedEvents(null, null, null, variant));
                     }
                 }
             }
@@ -177,31 +120,5 @@ public class TeamReportedVariantCreator extends ReportedVariantCreator {
             }
         }
         return reportedVariants;
-    }
-
-    private List<ReportedEvent> createReportedEvents(List<String> panelIds, String tier, List<String> soAccessions,
-                                                     GenomicFeature genomicFeature, Variant variant) {
-        List<ReportedEvent> reportedEvents = new ArrayList<>();
-        for (String panelId : panelIds) {
-            ReportedEvent reportedEvent = createReportedEvent(phenotype, soAccessions, genomicFeature, panelId, modeOfInheritance,
-                    penetrance, variant);
-            if (reportedEvent != null) {
-                reportedEvent.setTier(tier);
-                reportedEvents.add(reportedEvent);
-            }
-        }
-        return reportedEvents;
-    }
-
-    private List<String> getSoNames(ConsequenceType ct) {
-        List<String> soNames = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(ct.getSequenceOntologyTerms())) {
-            for (SequenceOntologyTerm soTerm : ct.getSequenceOntologyTerms()) {
-                if (StringUtils.isNotEmpty(soTerm.getName())) {
-                    soNames.add(soTerm.getName());
-                }
-            }
-        }
-        return soNames;
     }
 }
