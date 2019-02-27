@@ -167,14 +167,20 @@ public class BamManagerTest {
         writer.close();
     }
 
-//    @Test
+    @Test
     public void uncoveredRegions() throws IOException, AlignmentCoverageException {
         bamPath = Paths.get("/mnt/data/hgva/datasets/bams/NA12877_S1.bam");
         BamManager bamManager = new BamManager(bamPath);
 
-        Region region = new Region("13", 32000000, 32000004);
-        List<RegionCoverage> uncoveredRegions = bamManager.getUncoveredRegions(region, 36);
-        SAMFileHeader samFileHeader = new SAMFileHeader();
+        int maxCoverage;
+
+        Region region = new Region("chr13", 32889311, 32974105);
+        maxCoverage = 20;
+
+//        Region region = new Region("13", 32000000, 32000004);
+//        maxCoverage = 36;
+
+        List<RegionCoverage> uncoveredRegions = bamManager.getUncoveredRegions(region, maxCoverage);
         for (RegionCoverage uncoveredRegion : uncoveredRegions) {
             System.out.println(uncoveredRegion);
         }
