@@ -77,6 +77,38 @@ public abstract class ReportedVariantCreator {
 
     public abstract List<ReportedVariant> create(List<Variant> variants) throws InterpretationAnalysisException;
 
+    public List<ReportedVariant> createSecondaryFindings(List<Variant> variants) {
+        List<ReportedVariant> reportedVariants = new ArrayList<>();
+        for (Variant variant : variants) {
+            List<ReportedEvent> reportedEvents = new ArrayList<>();
+
+            // Tier 3, actionable variants
+            if (MapUtils.isNotEmpty(actionableVariants)) {
+                if (variant.getAnnotation() != null && actionableVariants.containsKey(variant.getId())) {
+                    if (CollectionUtils.isNotEmpty(variant.getAnnotation().getConsequenceTypes())) {
+                        for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
+                            reportedEvents.addAll(createReportedEvents("", null, ct, variant));
+                        }
+                    } else {
+                        // We create the reported events anyway!
+                        reportedEvents.addAll(createReportedEvents("", null, null, variant));
+                    }
+                }
+            }
+
+            // If we have reported events, then we have to create the reported variant
+            if (CollectionUtils.isNotEmpty(reportedEvents)) {
+                ReportedVariant reportedVariant = new ReportedVariant(variant.getImpl(), 0, new ArrayList<>(),
+                        Collections.emptyList(), Collections.emptyMap());
+                reportedVariant.setReportedEvents(reportedEvents);
+
+                // Add variant to the list
+                reportedVariants.add(reportedVariant);
+            }
+        }
+        return reportedVariants;
+    }
+
     protected Map<String, List<DiseasePanel.GenePanel>> getGeneToPanelMap(List<DiseasePanel> diseasePanels) {
         Map<String, List<DiseasePanel.GenePanel>> idToPanelMap = new HashMap<>();
         if (CollectionUtils.isNotEmpty(diseasePanels)) {

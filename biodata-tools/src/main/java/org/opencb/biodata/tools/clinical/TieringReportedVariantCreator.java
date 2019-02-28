@@ -22,12 +22,9 @@ package org.opencb.biodata.tools.clinical;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.opencb.biodata.models.clinical.interpretation.*;
 import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.ModeOfInheritance;
 import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.Penetrance;
-import org.opencb.biodata.models.clinical.interpretation.DiseasePanel;
-import org.opencb.biodata.models.clinical.interpretation.GenomicFeature;
-import org.opencb.biodata.models.clinical.interpretation.ReportedEvent;
-import org.opencb.biodata.models.clinical.interpretation.ReportedVariant;
 import org.opencb.biodata.models.clinical.interpretation.exceptions.InterpretationAnalysisException;
 import org.opencb.biodata.models.commons.Disorder;
 import org.opencb.biodata.models.commons.Phenotype;
@@ -101,7 +98,7 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
                             if (StringUtils.isNotEmpty(genePanel.getModeOfInheritance())) {
                                 List<ModeOfInheritance> modeOfInheritances = variantMoIMap.get(variant.getId());
                                 for (ModeOfInheritance moi : modeOfInheritances) {
-                                    if (ModeOfInheritance.valueOf(genePanel.getModeOfInheritance()) == moi) {
+                                    if (getMoiFromGenePanel(genePanel.getModeOfInheritance()) == moi) {
                                         GenomicFeature genomicFeature = new GenomicFeature(ct.getEnsemblGeneId(),
                                                 ct.getEnsemblTranscriptId(), ct.getGeneName(), null, null);
 
@@ -155,6 +152,47 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
         }
 
         return reportedVariants;
+    }
+
+    private ClinicalProperty.ModeOfInheritance getMoiFromGenePanel(String inputMoi) {
+        if (StringUtils.isEmpty(inputMoi)) {
+            return ModeOfInheritance.UNKNOWN;
+        }
+
+        String moi = inputMoi.toUpperCase();
+
+        if (moi.startsWith("BIALLELIC")) {
+            return ModeOfInheritance.BIALLELIC;
+        }
+        if (moi.startsWith("MONOALLELIC")) {
+            if (moi.contains("NOT")) {
+                return ModeOfInheritance.MONOALLELIC_NOT_IMPRINTED;
+            } else if (moi.contains("MATERNALLY")) {
+                return ModeOfInheritance.MONOALLELIC_MATERNALLY_IMPRINTED;
+            } else if (moi.contains("PATERNALLY")) {
+                return ModeOfInheritance.MONOALLELIC_PATERNALLY_IMPRINTED;
+            } else {
+                return ModeOfInheritance.MONOALLELIC;
+            }
+        }
+        if (moi.startsWith("BOTH")) {
+            if (moi.contains("SEVERE")) {
+                return ModeOfInheritance.MONOALLELIC_AND_MORE_SEVERE_BIALLELIC;
+            } else if (moi.contains("")) {
+                return ModeOfInheritance.MONOALLELIC_AND_BIALLELIC;
+            }
+        }
+        if (moi.startsWith("MITOCHONDRIAL")) {
+            return ModeOfInheritance.MITOCHRONDRIAL;
+        }
+        if (moi.startsWith("X-LINKED")) {
+            if (moi.contains("BIALLELIC")) {
+                return ModeOfInheritance.XLINKED_BIALLELIC;
+            } else {
+                return ModeOfInheritance.XLINKED_MONOALLELIC;
+            }
+        }
+        return ModeOfInheritance.UNKNOWN;
     }
 
     private List<String> getSoNameAsList(SequenceOntologyTerm soTerm) {

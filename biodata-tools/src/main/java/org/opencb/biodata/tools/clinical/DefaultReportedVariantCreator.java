@@ -48,8 +48,14 @@ public class DefaultReportedVariantCreator extends ReportedVariantCreator {
                                          boolean includeUntieredVariants) {
         super(diseasePanels, disorder, modeOfInheritance, penetrance, roleInCancer, actionableVariants);
 
-        this.biotypeSet = new HashSet<>(biotypes);
-        this.soNameSet = new HashSet<>(soNames);
+        this.biotypeSet = new HashSet<>();
+        if (CollectionUtils.isNotEmpty(biotypes)) {
+            biotypeSet.addAll(biotypes);
+        }
+        this.soNameSet = new HashSet<>();
+        if (CollectionUtils.isNotEmpty(soNames)) {
+            soNameSet.addAll(soNames);
+        }
 
         this.includeUntieredVariants = includeUntieredVariants;
     }
@@ -98,7 +104,6 @@ public class DefaultReportedVariantCreator extends ReportedVariantCreator {
                                 List<DiseasePanel.GenePanel> panels = geneToPanelMap.get(ct.getEnsemblGeneId());
                                 List<String> panelIds = panels.stream().map(DiseasePanel.GenePanel::getId).collect(Collectors.toList());
                                 tier2 = isTier2(ct);
-                                System.out.println("isTier2 ?? " + tier2);
                                 if (tier2 || includeUntieredVariants) {
                                     reportedEvents.addAll(createReportedEvents(tier2 ? TIER_2 : null, panelIds, ct, variant));
                                 }
@@ -108,7 +113,6 @@ public class DefaultReportedVariantCreator extends ReportedVariantCreator {
                         // No gene panels provided
                         for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
                             tier2 = isTier2(ct);
-                            System.out.println("isTier2 ???? " + tier2);
                             if (tier2 || includeUntieredVariants) {
                                 reportedEvents.addAll(createReportedEvents(tier2 ? TIER_2 : null, null, ct, variant));
                             }
