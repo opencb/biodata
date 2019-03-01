@@ -149,7 +149,7 @@ public abstract class ReportedVariantCreator {
         return idToPanelMap;
     }
 
-    protected ReportedEvent createReportedEvent(Disorder disorder, List<String> soNames, GenomicFeature genomicFeature, String panelId,
+    protected ReportedEvent createReportedEvent(Disorder disorder, List<SequenceOntologyTerm> consequenceTypes, GenomicFeature genomicFeature, String panelId,
                                                 ModeOfInheritance moi, Penetrance penetrance, String tier, Variant variant) {
         ReportedEvent reportedEvent = new ReportedEvent().setId("OPENCB-" + UUID.randomUUID());
 
@@ -159,9 +159,9 @@ public abstract class ReportedVariantCreator {
         }
 
         // Consequence types
-        if (CollectionUtils.isNotEmpty(soNames)) {
+        if (CollectionUtils.isNotEmpty(consequenceTypes)) {
             // Set consequence type
-            reportedEvent.setConsequenceTypeIds(soNames);
+            reportedEvent.setConsequenceTypes(consequenceTypes);
         }
 
         // Genomic feature
@@ -291,23 +291,22 @@ public abstract class ReportedVariantCreator {
     }
 
 
-    protected List<String> getSoNames(ConsequenceType ct) {
-        List<String> soNames = new ArrayList<>();
+    protected List<SequenceOntologyTerm> getSOTerms(ConsequenceType ct) {
+        List<SequenceOntologyTerm> soTerms = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(ct.getSequenceOntologyTerms())) {
             for (SequenceOntologyTerm soTerm : ct.getSequenceOntologyTerms()) {
-                if (StringUtils.isNotEmpty(soTerm.getName())) {
-                    soNames.add(soTerm.getName());
-                }
+                    soTerms.add(soTerm);
             }
         }
-        return soNames;
+        return soTerms;
     }
 
-    protected boolean containSoName(ConsequenceType ct, Set<String> soNameSet) {
-        List<String> soNames = getSoNames(ct);
-        if (CollectionUtils.isNotEmpty(soNameSet) && CollectionUtils.isNotEmpty(soNames)) {
-            for (String soName : soNames) {
-                if (soNameSet.contains(soName)) {
+
+    protected boolean containSOName(ConsequenceType ct, Set<String> soNameSet) {
+        List<SequenceOntologyTerm> sots = getSOTerms(ct);
+        if (CollectionUtils.isNotEmpty(sots) && CollectionUtils.isNotEmpty(soNameSet)) {
+            for (SequenceOntologyTerm sot : sots) {
+                if (StringUtils.isNotEmpty(sot.getName()) && soNameSet.contains(sot.getName())) {
                     return true;
                 }
             }
@@ -317,21 +316,20 @@ public abstract class ReportedVariantCreator {
     }
 
 
-
     protected List<ReportedEvent> createReportedEvents(String tier, List<String> panelIds, ConsequenceType ct, Variant variant) {
         List<ReportedEvent> reportedEvents = new ArrayList<>();
 
         // Sanity check
-        List<String> soNames = null;
+        List<SequenceOntologyTerm> soTerms = null;
         GenomicFeature genomicFeature = null;
         if (ct != null) {
-            soNames = getSoNames(ct);
+            soTerms = getSOTerms(ct);
             genomicFeature = new GenomicFeature(ct.getEnsemblGeneId(), ct.getEnsemblTranscriptId(), ct.getGeneName(), null, null);
         }
 
         if (CollectionUtils.isNotEmpty(panelIds)) {
             for (String panelId : panelIds) {
-                ReportedEvent reportedEvent = createReportedEvent(disorder, soNames, genomicFeature, panelId, modeOfInheritance,
+                ReportedEvent reportedEvent = createReportedEvent(disorder, soTerms, genomicFeature, panelId, modeOfInheritance,
                         penetrance, tier, variant);
                 if (reportedEvent != null) {
                     reportedEvents.add(reportedEvent);
@@ -339,7 +337,7 @@ public abstract class ReportedVariantCreator {
             }
         } else {
             // We report events without panels, e.g., actionable variants (tier 3)
-            ReportedEvent reportedEvent = createReportedEvent(disorder, soNames, genomicFeature, null, modeOfInheritance,
+            ReportedEvent reportedEvent = createReportedEvent(disorder, soTerms, genomicFeature, null, modeOfInheritance,
                     penetrance, tier, variant);
             if (reportedEvent != null) {
                 reportedEvents.add(reportedEvent);

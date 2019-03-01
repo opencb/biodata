@@ -21,7 +21,6 @@ package org.opencb.biodata.tools.clinical;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.ModeOfInheritance;
 import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.Penetrance;
 import org.opencb.biodata.models.clinical.interpretation.*;
@@ -116,7 +115,6 @@ public class DefaultReportedVariantCreator extends ReportedVariantCreator {
                             if (tier2 || includeUntieredVariants) {
                                 reportedEvents.addAll(createReportedEvents(tier2 ? TIER_2 : null, null, ct, variant));
                             }
-
                         }
                     }
                 }
@@ -137,12 +135,12 @@ public class DefaultReportedVariantCreator extends ReportedVariantCreator {
 
     private boolean isTier2(ConsequenceType ct) {
         if (CollectionUtils.isNotEmpty(biotypeSet) && CollectionUtils.isNotEmpty(soNameSet)) {
-            if (biotypeSet.contains(ct.getBiotype()) && containSoName(ct, soNameSet)) {
+            if (biotypeSet.contains(ct.getBiotype()) && containSOName(ct, soNameSet)) {
                 return true;
             }
         } else if (CollectionUtils.isNotEmpty(biotypeSet) && biotypeSet.contains(ct.getBiotype())) {
             return true;
-        } else if (CollectionUtils.isNotEmpty(soNameSet) && containSoName(ct, soNameSet)) {
+        } else if (CollectionUtils.isNotEmpty(soNameSet) && containSOName(ct, soNameSet)) {
             return true;
         }
         return false;

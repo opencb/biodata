@@ -110,20 +110,20 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
                                                 if (StringUtils.isNotEmpty(soTerm.getAccession())) {
                                                     if (TIER_1_CONSEQUENCE_TYPES_SET.contains(soTerm.getAccession())) {
                                                         // Tier 1
-                                                        reportedEvents.add(createReportedEvent(disorder, getSoNameAsList(soTerm),
+                                                        reportedEvents.add(createReportedEvent(disorder, Collections.singletonList(soTerm),
                                                                 genomicFeature, genePanel.getId(), moi, penetrance, TIER_1, variant));
                                                     } else if (TIER_2_CONSEQUENCE_TYPES_SET.contains(soTerm.getAccession())) {
                                                         // Tier 2
-                                                        reportedEvents.add(createReportedEvent(disorder, getSoNameAsList(soTerm),
+                                                        reportedEvents.add(createReportedEvent(disorder, Collections.singletonList(soTerm),
                                                                 genomicFeature, genePanel.getId(), moi, penetrance, TIER_2, variant));
                                                     } else {
                                                         // Tier 3
-                                                        reportedEvents.add(createReportedEvent(disorder, getSoNameAsList(soTerm),
+                                                        reportedEvents.add(createReportedEvent(disorder, Collections.singletonList(soTerm),
                                                                 genomicFeature, genePanel.getId(), moi, penetrance, TIER_3, variant));
                                                     }
                                                 } else {
                                                     // Tier 3
-                                                    reportedEvents.add(createReportedEvent(disorder, getSoNameAsList(soTerm),
+                                                    reportedEvents.add(createReportedEvent(disorder, Collections.singletonList(soTerm),
                                                             genomicFeature, genePanel.getId(), moi, penetrance, TIER_3, variant));
                                                 }
                                             }
@@ -193,12 +193,5 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
             }
         }
         return ModeOfInheritance.UNKNOWN;
-    }
-
-    private List<String> getSoNameAsList(SequenceOntologyTerm soTerm) {
-        if (soTerm != null && StringUtils.isNotEmpty(soTerm.getName())) {
-            return Collections.singletonList(soTerm.getName());
-        }
-        return null;
     }
 }
