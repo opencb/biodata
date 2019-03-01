@@ -26,6 +26,7 @@ import org.opencb.biodata.models.clinical.interpretation.*;
 import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.ModeOfInheritance;
 import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.Penetrance;
 import org.opencb.biodata.models.clinical.interpretation.exceptions.InterpretationAnalysisException;
+import org.opencb.biodata.models.commons.Disorder;
 import org.opencb.biodata.models.commons.Phenotype;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.ConsequenceType;
@@ -34,12 +35,9 @@ import org.opencb.biodata.models.variant.avro.SequenceOntologyTerm;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class TieringReportedVariantCreator extends ReportedVariantCreator {
+import static org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.RoleInCancer;
 
-    private List<DiseasePanel> diseasePanels;
-    private Phenotype phenotype;
-    private ModeOfInheritance modeOfInheritance;
-    private Penetrance penetrance;
+public class TieringReportedVariantCreator extends ReportedVariantCreator {
 
     public static final Set<String> TIER_1_CONSEQUENCE_TYPES_SET = new HashSet<>(Arrays.asList("SO:0001893", "SO:0001574", "SO:0001575",
             "SO:0001587", "SO:0001589", "SO:0001578", "SO:0001582"));
@@ -47,36 +45,22 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
     private static final Set<String> TIER_2_CONSEQUENCE_TYPES_SET = new HashSet<>(Arrays.asList("SO:0001889", "SO:0001821", "SO:0001822",
             "SO:0001583", "SO:0001630", "SO:0001626"));
 
-    public TieringReportedVariantCreator(List<DiseasePanel> diseasePanels, ModeOfInheritance modeOfInheritance, Penetrance penetrance) {
-        this.diseasePanels = diseasePanels;
-        this.modeOfInheritance = modeOfInheritance;
-        this.penetrance = penetrance;
-    }
-
-    public TieringReportedVariantCreator(List<DiseasePanel> diseasePanels, Phenotype phenotype, ModeOfInheritance modeOfInheritance,
+    public TieringReportedVariantCreator(List<DiseasePanel> diseasePanels, Map<String, RoleInCancer> roleInCancer,
+                                         Map<String, List<String>> actionableVariants, Disorder disorder, ModeOfInheritance modeOfInheritance,
                                          Penetrance penetrance) {
-        this.diseasePanels = diseasePanels;
-        this.phenotype = phenotype;
-        this.modeOfInheritance = modeOfInheritance;
-        this.penetrance = penetrance;
-    }
-
-    public TieringReportedVariantCreator(List<DiseasePanel> diseasePanels, Phenotype phenotype, Penetrance penetrance) {
-        this.diseasePanels = diseasePanels;
-        this.phenotype = phenotype;
-        this.penetrance = penetrance;
+        super(diseasePanels, disorder, modeOfInheritance, penetrance, roleInCancer, actionableVariants);
     }
 
     @Override
     public List<ReportedVariant> create(List<Variant> variants) throws InterpretationAnalysisException {
-        Map<String, List<ClinicalProperty.ModeOfInheritance>> moiMap = new HashMap<>();
+        Map<String, List<ModeOfInheritance>> moiMap = new HashMap<>();
         for (Variant variant : variants) {
             moiMap.put(variant.getId(), modeOfInheritance != null ? Collections.singletonList(modeOfInheritance) : Collections.emptyList());
         }
         return create(variants, moiMap);
     }
 
-    public List<ReportedVariant> create(List<Variant> variants, Map<String, List<ClinicalProperty.ModeOfInheritance>> variantMoIMap)
+    public List<ReportedVariant> create(List<Variant> variants, Map<String, List<ModeOfInheritance>> variantMoIMap)
             throws InterpretationAnalysisException {
         // Panels are mandatory in Tiering analysis
         if (CollectionUtils.isEmpty(diseasePanels)) {
@@ -95,10 +79,8 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
         //     - Tier 2: gene panel + mode of inheritance + TIER_2_CONSEQUENCE_TYPES
         //     - Tier 3: gene panel + mode of inheritance + other consequence types
         //               gene panel + mode of inheritance
-        boolean reported;
         List<ReportedVariant> reportedVariants = new ArrayList<>();
         for (Variant variant : variants) {
-            reported = false;
             List<ReportedEvent> reportedEvents = new ArrayList<>();
 
             if (variant.getAnnotation() != null && CollectionUtils.isNotEmpty(variant.getAnnotation().getConsequenceTypes())) {
@@ -116,7 +98,7 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
                             if (StringUtils.isNotEmpty(genePanel.getModeOfInheritance())) {
                                 List<ModeOfInheritance> modeOfInheritances = variantMoIMap.get(variant.getId());
                                 for (ModeOfInheritance moi : modeOfInheritances) {
-                                    if (ModeOfInheritance.valueOf(genePanel.getModeOfInheritance()) == moi) {
+                                    if (getMoiFromGenePanel(genePanel.getModeOfInheritance()) == moi) {
                                         GenomicFeature genomicFeature = new GenomicFeature(ct.getEnsemblGeneId(),
                                                 ct.getEnsemblTranscriptId(), ct.getGeneName(), null, null);
 
@@ -128,54 +110,29 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
                                                 if (StringUtils.isNotEmpty(soTerm.getAccession())) {
                                                     if (TIER_1_CONSEQUENCE_TYPES_SET.contains(soTerm.getAccession())) {
                                                         // Tier 1
-                                                        reportedEvents.add(createReportedEvent(phenotype, getSoNameAsList(soTerm),
-                                                                genomicFeature, genePanel.getId(), moi, penetrance, variant)
-                                                                .setTier(TIER_1));
-                                                        reported = true;
+                                                        reportedEvents.add(createReportedEvent(disorder, getSoNameAsList(soTerm),
+                                                                genomicFeature, genePanel.getId(), moi, penetrance, TIER_1, variant));
                                                     } else if (TIER_2_CONSEQUENCE_TYPES_SET.contains(soTerm.getAccession())) {
                                                         // Tier 2
-                                                        reportedEvents.add(createReportedEvent(phenotype, getSoNameAsList(soTerm),
-                                                                genomicFeature, genePanel.getId(), moi, penetrance, variant)
-                                                                .setTier(TIER_2));
-                                                        reported = true;
+                                                        reportedEvents.add(createReportedEvent(disorder, getSoNameAsList(soTerm),
+                                                                genomicFeature, genePanel.getId(), moi, penetrance, TIER_2, variant));
                                                     } else {
                                                         // Tier 3
-                                                        reportedEvents.add(createReportedEvent(phenotype, getSoNameAsList(soTerm),
-                                                                genomicFeature, genePanel.getId(), moi, penetrance, variant)
-                                                                .setTier(TIER_3));
-                                                        reported = true;
+                                                        reportedEvents.add(createReportedEvent(disorder, getSoNameAsList(soTerm),
+                                                                genomicFeature, genePanel.getId(), moi, penetrance, TIER_3, variant));
                                                     }
                                                 } else {
                                                     // Tier 3
-                                                    reportedEvents.add(createReportedEvent(phenotype, getSoNameAsList(soTerm),
-                                                            genomicFeature, genePanel.getId(), moi, penetrance, variant).setTier(TIER_3));
-                                                    reported = true;
+                                                    reportedEvents.add(createReportedEvent(disorder, getSoNameAsList(soTerm),
+                                                            genomicFeature, genePanel.getId(), moi, penetrance, TIER_3, variant));
                                                 }
                                             }
                                         } else {
                                             // Tier 3
-                                            reportedEvents.add(createReportedEvent(phenotype, null, genomicFeature, genePanel.getId(),
-                                                    moi, penetrance, variant).setTier(TIER_3));
-                                            reported = true;
+                                            reportedEvents.add(createReportedEvent(disorder, null, genomicFeature, genePanel.getId(),
+                                                    moi, penetrance, TIER_3, variant));
                                         }
                                     }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (!reported && includeNoTier) {
-                    // Not reported variant, reported it anyway but without tier
-                    for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
-                        GenomicFeature genomicFeature = new GenomicFeature(ct.getEnsemblGeneId(),
-                                ct.getEnsemblTranscriptId(), ct.getGeneName(), null, null);
-
-                        if (CollectionUtils.isNotEmpty(ct.getSequenceOntologyTerms())) {
-                            for (SequenceOntologyTerm soTerm : ct.getSequenceOntologyTerms()) {
-                                if (StringUtils.isNotEmpty(soTerm.getAccession())) {
-                                    reportedEvents.add(createReportedEvent(phenotype, getSoNameAsList(soTerm),
-                                            genomicFeature, null, null, null, variant));
                                 }
                             }
                         }
@@ -195,6 +152,47 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
         }
 
         return reportedVariants;
+    }
+
+    private ClinicalProperty.ModeOfInheritance getMoiFromGenePanel(String inputMoi) {
+        if (StringUtils.isEmpty(inputMoi)) {
+            return ModeOfInheritance.UNKNOWN;
+        }
+
+        String moi = inputMoi.toUpperCase();
+
+        if (moi.startsWith("BIALLELIC")) {
+            return ModeOfInheritance.BIALLELIC;
+        }
+        if (moi.startsWith("MONOALLELIC")) {
+            if (moi.contains("NOT")) {
+                return ModeOfInheritance.MONOALLELIC_NOT_IMPRINTED;
+            } else if (moi.contains("MATERNALLY")) {
+                return ModeOfInheritance.MONOALLELIC_MATERNALLY_IMPRINTED;
+            } else if (moi.contains("PATERNALLY")) {
+                return ModeOfInheritance.MONOALLELIC_PATERNALLY_IMPRINTED;
+            } else {
+                return ModeOfInheritance.MONOALLELIC;
+            }
+        }
+        if (moi.startsWith("BOTH")) {
+            if (moi.contains("SEVERE")) {
+                return ModeOfInheritance.MONOALLELIC_AND_MORE_SEVERE_BIALLELIC;
+            } else if (moi.contains("")) {
+                return ModeOfInheritance.MONOALLELIC_AND_BIALLELIC;
+            }
+        }
+        if (moi.startsWith("MITOCHONDRIAL")) {
+            return ModeOfInheritance.MITOCHRONDRIAL;
+        }
+        if (moi.startsWith("X-LINKED")) {
+            if (moi.contains("BIALLELIC")) {
+                return ModeOfInheritance.XLINKED_BIALLELIC;
+            } else {
+                return ModeOfInheritance.XLINKED_MONOALLELIC;
+            }
+        }
+        return ModeOfInheritance.UNKNOWN;
     }
 
     private List<String> getSoNameAsList(SequenceOntologyTerm soTerm) {

@@ -19,6 +19,7 @@
 
 package org.opencb.biodata.models.clinical.interpretation;
 
+import org.opencb.biodata.models.commons.Disorder;
 import org.opencb.biodata.models.commons.Phenotype;
 
 import java.util.List;
@@ -28,6 +29,7 @@ import static org.opencb.biodata.models.clinical.interpretation.ClinicalProperty
 public class ReportedEvent {
 
     private String id;
+    private Disorder disorder;
     private List<Phenotype> phenotypes;
     private List<String> consequenceTypeIds;
     private GenomicFeature genomicFeature;
@@ -50,11 +52,9 @@ public class ReportedEvent {
     public ReportedEvent() {
     }
 
-    public ReportedEvent(String id, List<Phenotype> phenotypes, List<String> consequenceTypeIds, GenomicFeature genomicFeature,
-                         ModeOfInheritance modeOfInheritance, String panelId, VariantClassification classification,
-                         Penetrance penetrance, double score, boolean fullyExplainPhenotypes, int groupOfVariants,
-                         RoleInCancer roleInCancer, boolean actionable, String justification, String tier) {
+    public ReportedEvent(String id, Disorder disorder, List<Phenotype> phenotypes, List<String> consequenceTypeIds, GenomicFeature genomicFeature, ModeOfInheritance modeOfInheritance, String panelId, VariantClassification classification, Penetrance penetrance, double score, boolean fullyExplainPhenotypes, int groupOfVariants, RoleInCancer roleInCancer, boolean actionable, String justification, String tier) {
         this.id = id;
+        this.disorder = disorder;
         this.phenotypes = phenotypes;
         this.consequenceTypeIds = consequenceTypeIds;
         this.genomicFeature = genomicFeature;
@@ -75,6 +75,7 @@ public class ReportedEvent {
     public String toString() {
         final StringBuilder sb = new StringBuilder("ReportedEvent{");
         sb.append("id='").append(id).append('\'');
+        sb.append(", disorder=").append(disorder);
         sb.append(", phenotypes=").append(phenotypes);
         sb.append(", consequenceTypeIds=").append(consequenceTypeIds);
         sb.append(", genomicFeature=").append(genomicFeature);
@@ -99,6 +100,15 @@ public class ReportedEvent {
 
     public ReportedEvent setId(String id) {
         this.id = id;
+        return this;
+    }
+
+    public Disorder getDisorder() {
+        return disorder;
+    }
+
+    public ReportedEvent setDisorder(Disorder disorder) {
+        this.disorder = disorder;
         return this;
     }
 

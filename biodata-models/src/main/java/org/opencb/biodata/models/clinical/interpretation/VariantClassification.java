@@ -99,7 +99,7 @@ public class VariantClassification {
         return calculateAcmgClassification(variant, null);
     }
 
-    public static List<String> calculateAcmgClassification(Variant variant, ReportedEvent reportedEvent) {
+    public static List<String> calculateAcmgClassification(Variant variant, ClinicalProperty.ModeOfInheritance moi) {
         Set<String> acmg = new HashSet<>();
 
         // TODO: PM1
@@ -179,10 +179,10 @@ public class VariantClassification {
             }
         }
 
-        if (reportedEvent != null) {
-            if (reportedEvent.getModeOfInheritance() == ClinicalProperty.ModeOfInheritance.DE_NOVO) {
+        if (moi != null) {
+            if (moi == ClinicalProperty.ModeOfInheritance.DE_NOVO) {
                 acmg.add("PS2");
-            } else if (reportedEvent.getModeOfInheritance() == ClinicalProperty.ModeOfInheritance.COMPOUND_HETEROZYGOUS) {
+            } else if (moi == ClinicalProperty.ModeOfInheritance.COMPOUND_HETEROZYGOUS) {
                 acmg.add("PM3");
             }
         }

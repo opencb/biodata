@@ -21,11 +21,12 @@ package org.opencb.biodata.tools.alignment;
 
 import ga4gh.Reads;
 import htsjdk.samtools.*;
-import htsjdk.samtools.cram.ref.CRAMReferenceSource;
 import htsjdk.samtools.reference.FastaSequenceIndexCreator;
 import htsjdk.samtools.seekablestream.SeekableStream;
 import htsjdk.samtools.seekablestream.SeekableStreamFactory;
+import htsjdk.samtools.util.BlockCompressedFilePointerUtil;
 import htsjdk.samtools.util.Log;
+import org.apache.commons.collections.CollectionUtils;
 import org.ga4gh.models.ReadAlignment;
 import org.opencb.biodata.models.alignment.RegionCoverage;
 import org.opencb.biodata.models.core.Region;
@@ -43,7 +44,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -190,6 +190,12 @@ public class BamManager {
         return samReader.getFileHeader().getTextHeader();
     }
 
+    public byte[] compressedHeader() {
+        OutputStream outputStream = new ByteArrayOutputStream();
+        BAMFileWriter.writeHeader(outputStream, samReader.getFileHeader());
+        return ((ByteArrayOutputStream) outputStream).toByteArray();
+    }
+
     /*
      * These methods aim to provide a very simple, safe and quick way of accessing to a small fragment of the BAM/CRAM file.
      * This must not be used in production for reading big data files. It returns a maximum of 50,000 SAM records,
@@ -315,6 +321,39 @@ public class BamManager {
         } else {
             throw new IllegalArgumentException("Unknown alignment model class: " + clazz);
         }
+    }
+
+    public List<Chunk> getChunks(Region region) {
+        if (samReader.hasIndex()) {
+            int sequenceIndex = samReader.getFileHeader().getSequenceIndex(region.getChromosome());
+            int start = region.getStart();
+            int end = region.getEnd();
+
+            BAMIndex index = samReader.indexing().getIndex();
+            return index.getSpanOverlapping(sequenceIndex, start, end).getChunks();
+        }
+        return null;
+    }
+
+    public List<String> getBreakpoints(Region region) {
+        if (samReader.hasIndex()) {
+            List<Chunk> originalChunks = getChunks(region);
+            if (CollectionUtils.isNotEmpty(originalChunks)) {
+                List<String> byteRanges = new ArrayList<>(originalChunks.size());
+                for (Chunk originalChunk : originalChunks) {
+                    long byte_start = BlockCompressedFilePointerUtil.getBlockAddress(originalChunk.getChunkStart());
+                    long byte_end = BlockCompressedFilePointerUtil.getBlockAddress(originalChunk.getChunkEnd()) - 1;
+                    if (byte_start <= byte_end) {
+                        byteRanges.add(byte_start + "-" + byte_end);
+                    } else {
+                        throw new IllegalArgumentException("Start offset is greater than end: " + byte_start + "-" + byte_end);
+                    }
+                }
+
+                return byteRanges;
+            }
+        }
+        return null;
     }
 
     /**

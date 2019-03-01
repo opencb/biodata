@@ -86,7 +86,7 @@ public class BigWigManager {
         // Sanity check
         WigUtils.validateRegion(region, bbFileReader);
 
-        return bbFileReader.getBigWigIterator(region.getChromosome(), region.getStart(), region.getChromosome(), region.getEnd(), false);
+        return bbFileReader.getBigWigIterator(region.getChromosome(), region.getStart(), region.getChromosome(), region.getEnd() + 1, false);
     }
 
     public ZoomLevelIterator iterator(Region region, int zoomLevel) {
@@ -107,7 +107,7 @@ public class BigWigManager {
 
         // Calculate the number of needed windows, ensure windowSize => 1
         windowSize = Math.max(1, windowSize);
-        int numWindows = (region.getEnd() - region.getStart()) / windowSize;
+        int numWindows = (region.getEnd() - region.getStart() + 1) / windowSize;
         if ((region.getEnd() - region.getStart()) % windowSize != 0) {
             numWindows++;
         }
@@ -121,7 +121,7 @@ public class BigWigManager {
             while (bigWigIterator.hasNext()) {
                 wItem = bigWigIterator.next();
                 chunkStart = (Math.max(region.getStart(), wItem.getStartBase()) - region.getStart()) / windowSize;
-                chunkEnd = (Math.min(region.getEnd(), wItem.getEndBase()) - region.getStart() - 1) / windowSize;
+                chunkEnd = (Math.min(region.getEnd(), wItem.getEndBase()) - region.getStart()) / windowSize;
                 for (int chunk = chunkStart; chunk <= chunkEnd; chunk++) {
                     length = Math.min(wItem.getEndBase() - region.getStart(), chunk * windowSize + windowSize)
                             - Math.max(wItem.getStartBase() - region.getStart(), chunk * windowSize);
