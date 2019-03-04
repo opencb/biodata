@@ -1,6 +1,7 @@
 package org.opencb.biodata.tools.pedigree;
 
 import org.apache.commons.lang3.StringUtils;
+import org.opencb.biodata.models.commons.Disorder;
 import org.opencb.biodata.models.commons.Phenotype;
 import org.opencb.biodata.models.clinical.pedigree.Member;
 import org.opencb.biodata.models.clinical.pedigree.Pedigree;
@@ -22,11 +23,11 @@ public class ModeOfInheritance {
     public static final int GENOTYPE_1 = 4;
 
 
-    public static Map<String, List<String>> dominant(Pedigree pedigree, Phenotype phenotype, boolean incompletePenetrance) {
+    public static Map<String, List<String>> dominant(Pedigree pedigree, Disorder disorder, boolean incompletePenetrance) {
         PedigreeManager pedigreeManager = new PedigreeManager(pedigree);
 
         // Get affected individuals for that phenotype
-        Set<Member> affectedMembers = pedigreeManager.getAffectedIndividuals(phenotype);
+        Set<Member> affectedMembers = pedigreeManager.getAffectedIndividuals(disorder);
 
         // Get all possible genotypeCounters for each individual
         Map<String, Set<Integer>> genotypes = new HashMap<>();
@@ -45,11 +46,11 @@ public class ModeOfInheritance {
         return prepareOutput(genotypes);
     }
 
-    public static Map<String, List<String>> recessive(Pedigree pedigree, Phenotype phenotype, boolean incompletePenetrance) {
+    public static Map<String, List<String>> recessive(Pedigree pedigree, Disorder disorder, boolean incompletePenetrance) {
         PedigreeManager pedigreeManager = new PedigreeManager(pedigree);
 
         // Get affected individuals for that phenotype
-        Set<Member> affectedMembers = pedigreeManager.getAffectedIndividuals(phenotype);
+        Set<Member> affectedMembers = pedigreeManager.getAffectedIndividuals(disorder);
 
         // Get all possible genotypeCounters for each individual
         Map<String, Set<Integer>> genotypes = new HashMap<>();
@@ -68,11 +69,11 @@ public class ModeOfInheritance {
         return prepareOutput(genotypes);
     }
 
-    public static Map<String, List<String>> xLinked(Pedigree pedigree, Phenotype phenotype, boolean isDominant) {
+    public static Map<String, List<String>> xLinked(Pedigree pedigree, Disorder disorder, boolean isDominant) {
         PedigreeManager pedigreeManager = new PedigreeManager(pedigree);
 
         // Get affected individuals for that phenotype
-        Set<Member> affectedMembers = pedigreeManager.getAffectedIndividuals(phenotype);
+        Set<Member> affectedMembers = pedigreeManager.getAffectedIndividuals(disorder);
 
         // Get all possible genotypeCounters for each individual
         Map<String, Set<Integer>> genotypes = new HashMap<>();
@@ -117,11 +118,11 @@ public class ModeOfInheritance {
         return prepareOutput(genotypes);
     }
 
-    public static Map<String, List<String>> yLinked(Pedigree pedigree, Phenotype phenotype) {
+    public static Map<String, List<String>> yLinked(Pedigree pedigree, Disorder disorder) {
         PedigreeManager pedigreeManager = new PedigreeManager(pedigree);
 
         // Get affected individuals for that phenotype
-        Set<Member> affectedMembers = pedigreeManager.getAffectedIndividuals(phenotype);
+        Set<Member> affectedMembers = pedigreeManager.getAffectedIndividuals(disorder);
 
         // Get all possible genotypeCounters for each individual
         Map<String, Set<Integer>> genotypes = new HashMap<>();
