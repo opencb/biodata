@@ -169,16 +169,14 @@ public class BamManagerTest {
 
     @Test
     public void uncoveredRegions() throws IOException, AlignmentCoverageException {
-        bamPath = Paths.get("/mnt/data/hgva/datasets/bams/NA12877_S1.bam");
-        BamManager bamManager = new BamManager(bamPath);
+        System.out.println("inputPath = " + inputPath);
+        BamManager bamManager = new BamManager(inputPath);
 
-        int maxCoverage;
+        AlignmentOptions options = new AlignmentOptions();
+        options.setContained(false);
+        Region region = new Region("20", 62000, 62200);
 
-        Region region = new Region("chr13", 32889311, 32974105);
-        maxCoverage = 20;
-
-//        Region region = new Region("13", 32000000, 32000004);
-//        maxCoverage = 36;
+        int maxCoverage = 3;
 
         List<RegionCoverage> uncoveredRegions = bamManager.getUncoveredRegions(region, maxCoverage);
         for (RegionCoverage uncoveredRegion : uncoveredRegions) {
@@ -186,7 +184,6 @@ public class BamManagerTest {
         }
     }
 
-    @Test
     public void testRanges() throws IOException {
         int refID = 1; // 1; // 22; //14;
         int beg = 114000; // 13000; // 10000; //24375199;
@@ -264,7 +261,7 @@ public class BamManagerTest {
 
     }
 
-    @Test
+//    @Test
     public void testChunks() throws IOException {
         int refID = 1; // 1; // 22; //14;
         int beg = 114000; // 13000; // 10000; //24375199;

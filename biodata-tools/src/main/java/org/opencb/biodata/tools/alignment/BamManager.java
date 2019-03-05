@@ -405,6 +405,7 @@ public class BamManager {
                     calculator.update(next, regionCoverage);
                 }
             }
+            regionCoverage.updateStats();
             return regionCoverage;
         } catch (Exception e) {
             throw new AlignmentCoverageException(e.getMessage(), e);
@@ -441,6 +442,7 @@ public class BamManager {
                 if (isProcessing) {
                     uncoveredRegion.setEnd(pos - 1);
                     uncoveredRegion.setValues(Arrays.copyOf(coverages, i));
+                    uncoveredRegion.updateStats();
                     uncoveredRegions.add(uncoveredRegion);
                     isProcessing = false;
                 }
@@ -452,6 +454,7 @@ public class BamManager {
         if (isProcessing) {
             uncoveredRegion.setEnd(pos - 1);
             uncoveredRegion.setValues(Arrays.copyOf(coverages, i));
+            uncoveredRegion.updateStats();
             uncoveredRegions.add(uncoveredRegion);
         }
 
