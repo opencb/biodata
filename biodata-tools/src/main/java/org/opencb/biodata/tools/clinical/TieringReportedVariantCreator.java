@@ -89,6 +89,8 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
                 for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
 
                     if (geneToPanelMap.containsKey(ct.getEnsemblGeneId())) {
+                        logger.debug("--> " + variant.getId() + ": IN PANEL : ct (" + ct.getEnsemblGeneId() + ", "
+                                + ct.getEnsemblTranscriptId() + ")");
 
                         // 2) create the reported event for each panel
                         List<DiseasePanel.GenePanel> genePanels = geneToPanelMap.get(ct.getEnsemblGeneId());
@@ -99,6 +101,9 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
                                 List<ModeOfInheritance> modeOfInheritances = variantMoIMap.get(variant.getId());
                                 for (ModeOfInheritance moi : modeOfInheritances) {
                                     if (getMoiFromGenePanel(genePanel.getModeOfInheritance()) == moi) {
+
+                                        logger.debug("----> " + variant.getId() + ": MOI " + moi.name());
+
                                         GenomicFeature genomicFeature = new GenomicFeature(ct.getEnsemblGeneId(),
                                                 ct.getEnsemblTranscriptId(), ct.getGeneName(), null, null);
 
@@ -112,30 +117,43 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
                                                         // Tier 1
                                                         reportedEvents.add(createReportedEvent(disorder, Collections.singletonList(soTerm),
                                                                 genomicFeature, genePanel.getId(), moi, penetrance, TIER_1, variant));
+                                                        logger.debug("------> " + variant.getId() + ": TIER 1, " + soTerm.getName());
                                                     } else if (TIER_2_CONSEQUENCE_TYPES_SET.contains(soTerm.getAccession())) {
                                                         // Tier 2
                                                         reportedEvents.add(createReportedEvent(disorder, Collections.singletonList(soTerm),
                                                                 genomicFeature, genePanel.getId(), moi, penetrance, TIER_2, variant));
+                                                        logger.debug("------> " + variant.getId() + ": TIER 2, " + soTerm.getName());
                                                     } else {
                                                         // Tier 3
                                                         reportedEvents.add(createReportedEvent(disorder, Collections.singletonList(soTerm),
                                                                 genomicFeature, genePanel.getId(), moi, penetrance, TIER_3, variant));
+                                                        logger.debug("------> " + variant.getId() + ": TIER 2, " + soTerm.getName());
                                                     }
                                                 } else {
                                                     // Tier 3
                                                     reportedEvents.add(createReportedEvent(disorder, Collections.singletonList(soTerm),
                                                             genomicFeature, genePanel.getId(), moi, penetrance, TIER_3, variant));
+                                                    logger.debug("------> " + variant.getId() + ": TIER 3, SO EMPTY");
                                                 }
                                             }
                                         } else {
                                             // Tier 3
                                             reportedEvents.add(createReportedEvent(disorder, null, genomicFeature, genePanel.getId(),
                                                     moi, penetrance, TIER_3, variant));
+                                            logger.debug("------> " + variant.getId() + ": TIER 3, SO MISSING)");
                                         }
+                                    } else {
+                                        logger.debug("----> " + variant.getId() + ": MOI MISMATCH " + moi.name() + " vs panel gene moi " +
+                                                genePanel.getModeOfInheritance());
                                     }
                                 }
+                            } else {
+                                logger.debug("----> " + variant.getId() + ": MOI MISSING for panel gene " + genePanel.getId());
                             }
                         }
+                    } else {
+                        logger.debug("--> " + variant.getId() + ": NOT IN PANEL : ct (" + ct.getEnsemblGeneId() + ", "
+                                + ct.getEnsemblTranscriptId() + ")");
                     }
                 }
             }

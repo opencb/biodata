@@ -31,6 +31,8 @@ import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.ConsequenceType;
 import org.opencb.biodata.models.variant.avro.EvidenceEntry;
 import org.opencb.biodata.models.variant.avro.SequenceOntologyTerm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -54,6 +56,8 @@ public abstract class ReportedVariantCreator {
             "transcript_amplification", "inframe_insertion", "inframe_deletion", "missense_variant", "splice_region_variant",
             "incomplete_terminal_codon_variant"));
 
+    // logger
+    protected Logger logger = LoggerFactory.getLogger(this.getClass().toString());
 
     protected List<DiseasePanel> diseasePanels;
     protected Disorder disorder;
