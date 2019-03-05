@@ -142,7 +142,14 @@ public class Variant implements Serializable, Comparable<Variant> {
     }
 
     public void resetType() {
+        VariantType prevType = getType();
         setType(VariantBuilder.inferType(getReference(), getAlternate()));
+        if (getSv() != null && getType().equals(VariantType.INDEL) && !prevType.equals(VariantType.INDEL)) {
+            // The variant was SV. Remove StructuralVariant information if any, and if empty
+            if (getSv().equals(new StructuralVariation())) {
+                setSv(null);
+            }
+        }
     }
 
     public void resetLength() {

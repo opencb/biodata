@@ -1299,13 +1299,10 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                 normalizedVariant.getSv().setCiEndLeft(sv.getCiEndLeft());
                 normalizedVariant.getSv().setCiEndRight(sv.getCiEndRight());
 
-            } else {
-                normalizedVariant.setSv(sv);
+                // Variant will never have CopyNumber, because the Alternate is normalized from <CNxx> to <CNV>
+                normalizedVariant.getSv().setCopyNumber(keyFields.getCopyNumber());
+                normalizedVariant.getSv().setType(VariantBuilder.getCNVSubtype(keyFields.getCopyNumber()));
             }
-
-            // Variant will never have CopyNumber, because the Alternate is normalized from <CNxx> to <CNV>
-            normalizedVariant.getSv().setCopyNumber(keyFields.getCopyNumber());
-            normalizedVariant.getSv().setType(VariantBuilder.getCNVSubtype(keyFields.getCopyNumber()));
         }
         return normalizedVariant;
 //        normalizedVariant.setAnnotation(variant.getAnnotation());
