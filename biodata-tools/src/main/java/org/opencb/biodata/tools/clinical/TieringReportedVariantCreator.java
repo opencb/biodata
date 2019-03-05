@@ -67,9 +67,9 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
             throw new InterpretationAnalysisException("Missing gene panels for Tiering analysis");
         }
         Map<String, Set<DiseasePanel>> geneToPanelMap = getGeneToPanelMap(diseasePanels);
-        for (String key : geneToPanelMap.keySet()) {
-            logger.debug("----> {} : {}", key, geneToPanelMap.get(key).stream().map(DiseasePanel::getId).collect(Collectors.joining(",")));
-        }
+//        for (String key : geneToPanelMap.keySet()) {
+//            logger.debug("----> {} : {}", key, geneToPanelMap.get(key).stream().map(DiseasePanel::getId).collect(Collectors.joining(",")));
+//        }
 
         if (MapUtils.isEmpty(geneToPanelMap)) {
             throw new InterpretationAnalysisException("Tiering analysis: no genes found in gene panels: "
@@ -86,16 +86,21 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
         //               gene panel + mode of inheritance
         List<ReportedVariant> reportedVariants = new ArrayList<>();
         for (Variant variant : variants) {
+
             List<ReportedEvent> reportedEvents = new ArrayList<>();
+            List<ModeOfInheritance> modeOfInheritances = variantMoIMap.get(variant.getId());
 
             if (variant.getAnnotation() != null && CollectionUtils.isNotEmpty(variant.getAnnotation().getConsequenceTypes())) {
 
                 // 1) create the reported event for each transcript
                 for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
 
+                    GenomicFeature genomicFeature = new GenomicFeature(ct.getEnsemblGeneId(), ct.getEnsemblTranscriptId(), ct.getGeneName(),
+                            null, null);
+
                     if (geneToPanelMap.containsKey(ct.getEnsemblGeneId())) {
-                        logger.debug("--> " + variant.getId() + ": IN PANEL : ct (" + ct.getEnsemblGeneId() + ", "
-                                + ct.getEnsemblTranscriptId() + ")");
+//                        logger.debug("--> " + variant.getId() + ": IN PANEL : ct (" + ct.getEnsemblGeneId() + ", "
+//                                + ct.getEnsemblTranscriptId() + ")");
 
                         // 2) create the reported event for each panel
                         Set<DiseasePanel> genePanels = geneToPanelMap.get(ct.getEnsemblGeneId());
@@ -103,14 +108,10 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
 
                             // In addition to the panel, the mode of inheritance must match too!
                             if (geneToPanelMoiMap.containsKey(ct.getEnsemblGeneId())) {
-                                List<ModeOfInheritance> modeOfInheritances = variantMoIMap.get(variant.getId());
                                 for (ModeOfInheritance moi : modeOfInheritances) {
                                     if (geneToPanelMoiMap.get(ct.getEnsemblGeneId()).contains(moi)) {
 
-                                        logger.debug("----> " + variant.getId() + ": MOI " + moi.name());
-
-                                        GenomicFeature genomicFeature = new GenomicFeature(ct.getEnsemblGeneId(),
-                                                ct.getEnsemblTranscriptId(), ct.getGeneName(), null, null);
+//                                        logger.debug("----> " + variant.getId() + ": MOI " + moi.name());
 
                                         if (CollectionUtils.isNotEmpty(ct.getSequenceOntologyTerms())) {
 
@@ -122,46 +123,66 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
                                                         // Tier 1
                                                         reportedEvents.add(createReportedEvent(disorder, Collections.singletonList(soTerm),
                                                                 genomicFeature, genePanel.getId(), moi, penetrance, TIER_1, variant));
-                                                        logger.debug("------> " + variant.getId() + ": TIER 1, " + soTerm.getName());
+//                                                        logger.debug("------> " + variant.getId() + ": TIER 1, " + soTerm.getName());
                                                     } else if (TIER_2_CONSEQUENCE_TYPES_SET.contains(soTerm.getAccession())) {
                                                         // Tier 2
                                                         reportedEvents.add(createReportedEvent(disorder, Collections.singletonList(soTerm),
                                                                 genomicFeature, genePanel.getId(), moi, penetrance, TIER_2, variant));
-                                                        logger.debug("------> " + variant.getId() + ": TIER 2, " + soTerm.getName());
+//                                                        logger.debug("------> " + variant.getId() + ": TIER 2, " + soTerm.getName());
                                                     } else {
                                                         // Tier 3
                                                         reportedEvents.add(createReportedEvent(disorder, Collections.singletonList(soTerm),
                                                                 genomicFeature, genePanel.getId(), moi, penetrance, TIER_3, variant));
-                                                        logger.debug("------> " + variant.getId() + ": TIER 2, " + soTerm.getName());
+//                                                        logger.debug("------> " + variant.getId() + ": TIER 2, " + soTerm.getName());
                                                     }
                                                 } else {
                                                     // Tier 3
                                                     reportedEvents.add(createReportedEvent(disorder, Collections.singletonList(soTerm),
                                                             genomicFeature, genePanel.getId(), moi, penetrance, TIER_3, variant));
-                                                    logger.debug("------> " + variant.getId() + ": TIER 3, SO EMPTY");
+//                                                    logger.debug("------> " + variant.getId() + ": TIER 3, SO EMPTY");
                                                 }
                                             }
                                         } else {
                                             // Tier 3
                                             reportedEvents.add(createReportedEvent(disorder, null, genomicFeature, genePanel.getId(),
                                                     moi, penetrance, TIER_3, variant));
-                                            logger.debug("------> " + variant.getId() + ": TIER 3, SO MISSING)");
+//                                            logger.debug("------> " + variant.getId() + ": TIER 3, SO MISSING)");
                                         }
-                                    } else {
-                                        logger.debug("----> " + variant.getId() + ": MOI MISMATCH " + moi.name() + " vs panel gene moi " +
-                                                geneToPanelMoiMap.get(ct.getEnsemblGeneId()).stream().map(Enum::name).collect(Collectors.joining(",")));
+//                                    } else {
+//                                        logger.debug("----> " + variant.getId() + ": MOI MISMATCH " + moi.name() + " vs panel gene moi " +
+//                                                geneToPanelMoiMap.get(ct.getEnsemblGeneId()).stream().map(Enum::name).collect(Collectors.joining(",")));
                                     }
                                 }
                             } else {
                                 logger.debug("----> " + variant.getId() + ": MOI MISSING, UNTIERED, for panel gene " + genePanel.getId());
-                                reportedEvents.add(createReportedEvent(disorder, null, null, null, null, penetrance, "", variant));
+                                for (ModeOfInheritance moi : modeOfInheritances) {
+                                    if (CollectionUtils.isNotEmpty(ct.getSequenceOntologyTerms())) {
+                                        for (SequenceOntologyTerm soTerm : ct.getSequenceOntologyTerms()) {
+                                            reportedEvents.add(createReportedEvent(disorder, Collections.singletonList(soTerm),
+                                                    genomicFeature, null, moi, penetrance, "", variant));
+                                        }
+                                    } else {
+                                        reportedEvents.add(createReportedEvent(disorder, null,
+                                                genomicFeature, null, moi, penetrance, "", variant));
+                                    }
+                                }
                             }
                         }
                     } else {
                         // Tier 3
                         logger.debug("--> " + variant.getId() + ": NOT IN PANEL, TIER 3: ct (" + ct.getEnsemblGeneId() + ", "
                                 + ct.getEnsemblTranscriptId() + ")");
-                        reportedEvents.add(createReportedEvent(disorder, null, null, null, null, penetrance, TIER_3, variant));
+                        for (ModeOfInheritance moi : modeOfInheritances) {
+                            if (CollectionUtils.isNotEmpty(ct.getSequenceOntologyTerms())) {
+                                for (SequenceOntologyTerm soTerm : ct.getSequenceOntologyTerms()) {
+                                    reportedEvents.add(createReportedEvent(disorder, Collections.singletonList(soTerm),
+                                            genomicFeature, null, moi, penetrance, TIER_3, variant));
+                                }
+                            } else {
+                                reportedEvents.add(createReportedEvent(disorder, null,
+                                        genomicFeature, null, moi, penetrance, TIER_3, variant));
+                            }
+                        }
                     }
                 }
             }
