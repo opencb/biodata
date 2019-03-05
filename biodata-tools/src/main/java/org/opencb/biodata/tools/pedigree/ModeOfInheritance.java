@@ -665,15 +665,15 @@ public class ModeOfInheritance {
     public static String toGenotypeString(int gt) {
         switch (gt) {
             case GENOTYPE_0_0:
-                return "0/0";
+                return "0/0,0|0";
             case GENOTYPE_0_1:
-                return "0/1";
+                return "0/1,0|1,1|0";
             case GENOTYPE_1_1:
-                return "1/1";
+                return "1/1,1|1";
             case GENOTYPE_0:
-                return "0";
+                return "0,0/0,0|0";
             case GENOTYPE_1:
-                return "1";
+                return "1,1/1,0/1,0|1,1|0";
             default:
                 return "-";
         }

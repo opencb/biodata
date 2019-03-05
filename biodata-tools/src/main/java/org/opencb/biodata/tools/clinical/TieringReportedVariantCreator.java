@@ -67,6 +67,9 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
             throw new InterpretationAnalysisException("Missing gene panels for Tiering analysis");
         }
         Map<String, Set<DiseasePanel>> geneToPanelMap = getGeneToPanelMap(diseasePanels);
+        for (String key : geneToPanelMap.keySet()) {
+            logger.debug("----> {} : {}", key, geneToPanelMap.get(key).stream().map(DiseasePanel::getId).collect(Collectors.joining(",")));
+        }
 
         if (MapUtils.isEmpty(geneToPanelMap)) {
             throw new InterpretationAnalysisException("Tiering analysis: no genes found in gene panels: "
@@ -150,12 +153,15 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
                                     }
                                 }
                             } else {
-                                logger.debug("----> " + variant.getId() + ": MOI MISSING for panel gene " + genePanel.getId());
+                                logger.debug("----> " + variant.getId() + ": MOI MISSING, UNTIERED, for panel gene " + genePanel.getId());
+                                reportedEvents.add(createReportedEvent(disorder, null, null, null, null, penetrance, "", variant));
                             }
                         }
                     } else {
-                        logger.debug("--> " + variant.getId() + ": NOT IN PANEL : ct (" + ct.getEnsemblGeneId() + ", "
+                        // Tier 3
+                        logger.debug("--> " + variant.getId() + ": NOT IN PANEL, TIER 3: ct (" + ct.getEnsemblGeneId() + ", "
                                 + ct.getEnsemblTranscriptId() + ")");
+                        reportedEvents.add(createReportedEvent(disorder, null, null, null, null, penetrance, TIER_3, variant));
                     }
                 }
             }

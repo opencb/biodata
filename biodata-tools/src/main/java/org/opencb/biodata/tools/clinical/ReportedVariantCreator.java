@@ -248,7 +248,7 @@ public abstract class ReportedVariantCreator {
         if (variant.getAnnotation() != null) {
 
             // Clinical significance, this is stored in the trait association
-            if (CollectionUtils.isNotEmpty(variant.getAnnotation().getTraitAssociation())) {
+            if (CollectionUtils.isNotEmpty(variant.getAnnotation().getTraitAssociation()) && reportedEvent.getGenomicFeature() != null) {
                 List<EvidenceEntry> traitAssociations = variant.getAnnotation().getTraitAssociation();
                 String ensemblTranscriptId = reportedEvent.getGenomicFeature().getEnsemblTranscriptId();
 
