@@ -113,18 +113,18 @@ public abstract class ReportedVariantCreator {
         return reportedVariants;
     }
 
-    protected Map<String, List<DiseasePanel.GenePanel>> getGeneToPanelMap(List<DiseasePanel> diseasePanels) {
-        Map<String, List<DiseasePanel.GenePanel>> idToPanelMap = new HashMap<>();
+    protected Map<String, Set<DiseasePanel>> getVariantToPanelMap(List<DiseasePanel> diseasePanels) {
+        Map<String, Set<DiseasePanel>> idToPanelMap = new HashMap<>();
         if (CollectionUtils.isNotEmpty(diseasePanels)) {
             for (DiseasePanel panel : diseasePanels) {
                 // Put gene IDs
                 if (CollectionUtils.isNotEmpty(panel.getGenes())) {
-                    for (DiseasePanel.GenePanel panelGene : panel.getGenes()) {
-                        if (panelGene.getId() != null) {
-                            if (!idToPanelMap.containsKey(panelGene.getId())) {
-                                idToPanelMap.put(panelGene.getId(), new ArrayList<>());
+                    for (DiseasePanel.VariantPanel variantPanel : panel.getVariants()) {
+                        if (variantPanel.getId() != null) {
+                            if (!idToPanelMap.containsKey(variantPanel.getId())) {
+                                idToPanelMap.put(variantPanel.getId(), new HashSet<>());
                             }
-                            idToPanelMap.get(panelGene.getId()).add(panelGene);
+                            idToPanelMap.get(variantPanel.getId()).add(panel);
                         }
                     }
                 }
@@ -133,24 +133,44 @@ public abstract class ReportedVariantCreator {
         return idToPanelMap;
     }
 
-    protected Map<String, List<DiseasePanel.VariantPanel>> getVariantToPanelMap(List<DiseasePanel> diseasePanels) {
-        Map<String, List<DiseasePanel.VariantPanel>> idToPanelMap = new HashMap<>();
+    protected Map<String, Set<DiseasePanel>> getGeneToPanelMap(List<DiseasePanel> diseasePanels) {
+        Map<String, Set<DiseasePanel>> idToPanelMap = new HashMap<>();
         if (CollectionUtils.isNotEmpty(diseasePanels)) {
             for (DiseasePanel panel : diseasePanels) {
                 // Put gene IDs
                 if (CollectionUtils.isNotEmpty(panel.getGenes())) {
-                    for (DiseasePanel.VariantPanel variantPanel : panel.getVariants()) {
-                        if (variantPanel.getId() != null) {
-                            if (!idToPanelMap.containsKey(variantPanel.getId())) {
-                                idToPanelMap.put(variantPanel.getId(), new ArrayList<>());
+                    for (DiseasePanel.GenePanel genePanel : panel.getGenes()) {
+                        if (genePanel.getId() != null) {
+                            if (!idToPanelMap.containsKey(genePanel.getId())) {
+                                idToPanelMap.put(genePanel.getId(), new HashSet<>());
                             }
-                            idToPanelMap.get(variantPanel.getId()).add(variantPanel);
+                            idToPanelMap.get(genePanel.getId()).add(panel);
                         }
                     }
                 }
             }
         }
         return idToPanelMap;
+    }
+
+    protected Map<String, Set<ClinicalProperty.ModeOfInheritance>> getGeneToPanelMoiMap(List<DiseasePanel> diseasePanels) {
+        Map<String, Set<ClinicalProperty.ModeOfInheritance>> idToPanelMoiMap = new HashMap<>();
+        if (CollectionUtils.isNotEmpty(diseasePanels)) {
+            for (DiseasePanel panel : diseasePanels) {
+                // Put gene IDs
+                if (CollectionUtils.isNotEmpty(panel.getGenes())) {
+                    for (DiseasePanel.GenePanel panelGene : panel.getGenes()) {
+                        if (StringUtils.isNotEmpty(panelGene.getId()) && StringUtils.isNotEmpty(panelGene.getModeOfInheritance())) {
+                            if (!idToPanelMoiMap.containsKey(panelGene.getId())) {
+                                idToPanelMoiMap.put(panelGene.getId(), new HashSet<>());
+                            }
+                            idToPanelMoiMap.get(panelGene.getId()).add(getMoiFromGenePanel(panelGene.getModeOfInheritance()));
+                        }
+                    }
+                }
+            }
+        }
+        return idToPanelMoiMap;
     }
 
     protected ReportedEvent createReportedEvent(Disorder disorder, List<SequenceOntologyTerm> consequenceTypes, GenomicFeature genomicFeature, String panelId,
@@ -348,6 +368,47 @@ public abstract class ReportedVariantCreator {
             }
         }
         return reportedEvents;
+    }
+
+    private ClinicalProperty.ModeOfInheritance getMoiFromGenePanel(String inputMoi) {
+        if (org.apache.commons.lang3.StringUtils.isEmpty(inputMoi)) {
+            return ModeOfInheritance.UNKNOWN;
+        }
+
+        String moi = inputMoi.toUpperCase();
+
+        if (moi.startsWith("BIALLELIC")) {
+            return ModeOfInheritance.BIALLELIC;
+        }
+        if (moi.startsWith("MONOALLELIC")) {
+            if (moi.contains("NOT")) {
+                return ModeOfInheritance.MONOALLELIC_NOT_IMPRINTED;
+            } else if (moi.contains("MATERNALLY")) {
+                return ModeOfInheritance.MONOALLELIC_MATERNALLY_IMPRINTED;
+            } else if (moi.contains("PATERNALLY")) {
+                return ModeOfInheritance.MONOALLELIC_PATERNALLY_IMPRINTED;
+            } else {
+                return ModeOfInheritance.MONOALLELIC;
+            }
+        }
+        if (moi.startsWith("BOTH")) {
+            if (moi.contains("SEVERE")) {
+                return ModeOfInheritance.MONOALLELIC_AND_MORE_SEVERE_BIALLELIC;
+            } else if (moi.contains("")) {
+                return ModeOfInheritance.MONOALLELIC_AND_BIALLELIC;
+            }
+        }
+        if (moi.startsWith("MITOCHONDRIAL")) {
+            return ModeOfInheritance.MITOCHRONDRIAL;
+        }
+        if (moi.startsWith("X-LINKED")) {
+            if (moi.contains("BIALLELIC")) {
+                return ModeOfInheritance.XLINKED_BIALLELIC;
+            } else {
+                return ModeOfInheritance.XLINKED_MONOALLELIC;
+            }
+        }
+        return ModeOfInheritance.UNKNOWN;
     }
 
 }

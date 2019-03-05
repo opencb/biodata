@@ -64,8 +64,8 @@ public class DefaultReportedVariantCreator extends ReportedVariantCreator {
         List<ReportedVariant> reportedVariants = new ArrayList<>();
 
         // Disease panels are optional in custom interpretation analysis
-        Map<String, List<DiseasePanel.GenePanel>> geneToPanelMap = null;
-        Map<String, List<DiseasePanel.VariantPanel>> variantToPanelMap = null;
+        Map<String, Set<DiseasePanel>> geneToPanelMap = null;
+        Map<String, Set<DiseasePanel>> variantToPanelMap = null;
         if (CollectionUtils.isNotEmpty(diseasePanels)) {
             geneToPanelMap = getGeneToPanelMap(diseasePanels);
             variantToPanelMap = getVariantToPanelMap(diseasePanels);
@@ -79,8 +79,8 @@ public class DefaultReportedVariantCreator extends ReportedVariantCreator {
                     && CollectionUtils.isNotEmpty(variantToPanelMap.get(variant.getId()))) {
                 // Tier 1, variant in panel
 
-                List<DiseasePanel.VariantPanel> panels = variantToPanelMap.get(variant.getId());
-                List<String> panelIds = panels.stream().map(DiseasePanel.VariantPanel::getId).collect(Collectors.toList());
+                Set<DiseasePanel> panels = variantToPanelMap.get(variant.getId());
+                List<String> panelIds = panels.stream().map(DiseasePanel::getId).collect(Collectors.toList());
 
                 if (variant.getAnnotation() != null && CollectionUtils.isNotEmpty(variant.getAnnotation().getConsequenceTypes())) {
                     for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
@@ -100,8 +100,8 @@ public class DefaultReportedVariantCreator extends ReportedVariantCreator {
                             if (geneToPanelMap.containsKey(ct.getEnsemblGeneId())
                                     && CollectionUtils.isNotEmpty(geneToPanelMap.get(ct.getEnsemblGeneId()))) {
                                 // Gene in panel
-                                List<DiseasePanel.GenePanel> panels = geneToPanelMap.get(ct.getEnsemblGeneId());
-                                List<String> panelIds = panels.stream().map(DiseasePanel.GenePanel::getId).collect(Collectors.toList());
+                                Set<DiseasePanel> panels = geneToPanelMap.get(ct.getEnsemblGeneId());
+                                List<String> panelIds = panels.stream().map(DiseasePanel::getId).collect(Collectors.toList());
                                 tier2 = isTier2(ct);
                                 if (tier2 || includeUntieredVariants) {
                                     reportedEvents.addAll(createReportedEvents(tier2 ? TIER_2 : null, panelIds, ct, variant));

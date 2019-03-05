@@ -66,12 +66,14 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
         if (CollectionUtils.isEmpty(diseasePanels)) {
             throw new InterpretationAnalysisException("Missing gene panels for Tiering analysis");
         }
-        Map<String, List<DiseasePanel.GenePanel>> geneToPanelMap = getGeneToPanelMap(diseasePanels);
+        Map<String, Set<DiseasePanel>> geneToPanelMap = getGeneToPanelMap(diseasePanels);
 
         if (MapUtils.isEmpty(geneToPanelMap)) {
             throw new InterpretationAnalysisException("Tiering analysis: no genes found in gene panels: "
                     + StringUtils.join(diseasePanels.stream().map(DiseasePanel::getId).collect(Collectors.toList()), ","));
         }
+
+        Map<String, Set<ModeOfInheritance>> geneToPanelMoiMap = getGeneToPanelMoiMap(diseasePanels);
 
         // Create the list of reported variants, with a reported event for each 1) transcript, 2) panel and 3) consequence type (SO name)
         // Tiers classification:
@@ -93,14 +95,14 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
                                 + ct.getEnsemblTranscriptId() + ")");
 
                         // 2) create the reported event for each panel
-                        List<DiseasePanel.GenePanel> genePanels = geneToPanelMap.get(ct.getEnsemblGeneId());
-                        for (DiseasePanel.GenePanel genePanel : genePanels) {
+                        Set<DiseasePanel> genePanels = geneToPanelMap.get(ct.getEnsemblGeneId());
+                        for (DiseasePanel genePanel : genePanels) {
 
                             // In addition to the panel, the mode of inheritance must match too!
-                            if (StringUtils.isNotEmpty(genePanel.getModeOfInheritance())) {
+                            if (geneToPanelMoiMap.containsKey(ct.getEnsemblGeneId())) {
                                 List<ModeOfInheritance> modeOfInheritances = variantMoIMap.get(variant.getId());
                                 for (ModeOfInheritance moi : modeOfInheritances) {
-                                    if (getMoiFromGenePanel(genePanel.getModeOfInheritance()) == moi) {
+                                    if (geneToPanelMoiMap.get(ct.getEnsemblGeneId()).contains(moi)) {
 
                                         logger.debug("----> " + variant.getId() + ": MOI " + moi.name());
 
@@ -144,7 +146,7 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
                                         }
                                     } else {
                                         logger.debug("----> " + variant.getId() + ": MOI MISMATCH " + moi.name() + " vs panel gene moi " +
-                                                genePanel.getModeOfInheritance());
+                                                geneToPanelMoiMap.get(ct.getEnsemblGeneId()).stream().map(Enum::name).collect(Collectors.joining(",")));
                                     }
                                 }
                             } else {
@@ -170,46 +172,5 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
         }
 
         return reportedVariants;
-    }
-
-    private ClinicalProperty.ModeOfInheritance getMoiFromGenePanel(String inputMoi) {
-        if (StringUtils.isEmpty(inputMoi)) {
-            return ModeOfInheritance.UNKNOWN;
-        }
-
-        String moi = inputMoi.toUpperCase();
-
-        if (moi.startsWith("BIALLELIC")) {
-            return ModeOfInheritance.BIALLELIC;
-        }
-        if (moi.startsWith("MONOALLELIC")) {
-            if (moi.contains("NOT")) {
-                return ModeOfInheritance.MONOALLELIC_NOT_IMPRINTED;
-            } else if (moi.contains("MATERNALLY")) {
-                return ModeOfInheritance.MONOALLELIC_MATERNALLY_IMPRINTED;
-            } else if (moi.contains("PATERNALLY")) {
-                return ModeOfInheritance.MONOALLELIC_PATERNALLY_IMPRINTED;
-            } else {
-                return ModeOfInheritance.MONOALLELIC;
-            }
-        }
-        if (moi.startsWith("BOTH")) {
-            if (moi.contains("SEVERE")) {
-                return ModeOfInheritance.MONOALLELIC_AND_MORE_SEVERE_BIALLELIC;
-            } else if (moi.contains("")) {
-                return ModeOfInheritance.MONOALLELIC_AND_BIALLELIC;
-            }
-        }
-        if (moi.startsWith("MITOCHONDRIAL")) {
-            return ModeOfInheritance.MITOCHRONDRIAL;
-        }
-        if (moi.startsWith("X-LINKED")) {
-            if (moi.contains("BIALLELIC")) {
-                return ModeOfInheritance.XLINKED_BIALLELIC;
-            } else {
-                return ModeOfInheritance.XLINKED_MONOALLELIC;
-            }
-        }
-        return ModeOfInheritance.UNKNOWN;
     }
 }
