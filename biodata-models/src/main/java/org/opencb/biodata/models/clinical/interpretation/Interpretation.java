@@ -43,7 +43,8 @@ public class Interpretation {
     private Map<String, Object> filters;
     private String creationDate;
 
-    private List<ReportedVariant> reportedVariants;
+    private List<ReportedVariant> primaryFindings;
+    private List<ReportedVariant> secondaryFindings;
     private List<ReportedLowCoverage> reportedLowCoverages;
 
     private List<Comment> comments;
@@ -60,9 +61,10 @@ public class Interpretation {
     }
 
     public Interpretation(String id, String description, String clinicalAnalysisId, List<DiseasePanel> panels, String status,
-                          Software software, Analyst analyst, List<Software> dependencies, Map<String, Object> filters,
-                          String creationDate, List<ReportedVariant> reportedVariants, List<ReportedLowCoverage> reportedLowCoverages,
-                          List<Comment> comments, Map<String, Object> attributes, int version) {
+                          Software software, Analyst analyst, List<Software> dependencies, Map<String, Object> filters, String creationDate,
+                          List<ReportedVariant> primaryFindings, List<ReportedVariant> secondaryFindings,
+                          List<ReportedLowCoverage> reportedLowCoverages, List<Comment> comments, Map<String, Object> attributes,
+                          int version) {
         this.id = id;
         this.description = description;
         this.clinicalAnalysisId = clinicalAnalysisId;
@@ -73,7 +75,8 @@ public class Interpretation {
         this.dependencies = dependencies;
         this.filters = filters;
         this.creationDate = creationDate;
-        this.reportedVariants = reportedVariants;
+        this.primaryFindings = primaryFindings;
+        this.secondaryFindings = secondaryFindings;
         this.reportedLowCoverages = reportedLowCoverages;
         this.comments = comments;
         this.attributes = attributes;
@@ -93,7 +96,8 @@ public class Interpretation {
         sb.append(", dependencies=").append(dependencies);
         sb.append(", filters=").append(filters);
         sb.append(", creationDate='").append(creationDate).append('\'');
-        sb.append(", reportedVariants=").append(reportedVariants);
+        sb.append(", primaryFindings=").append(primaryFindings);
+        sb.append(", secondaryFindings=").append(secondaryFindings);
         sb.append(", reportedLowCoverages=").append(reportedLowCoverages);
         sb.append(", comments=").append(comments);
         sb.append(", attributes=").append(attributes);
@@ -192,12 +196,21 @@ public class Interpretation {
         return this;
     }
 
-    public List<ReportedVariant> getReportedVariants() {
-        return reportedVariants;
+    public List<ReportedVariant> getPrimaryFindings() {
+        return primaryFindings;
     }
 
-    public Interpretation setReportedVariants(List<ReportedVariant> reportedVariants) {
-        this.reportedVariants = reportedVariants;
+    public Interpretation setPrimaryFindings(List<ReportedVariant> primaryFindings) {
+        this.primaryFindings = primaryFindings;
+        return this;
+    }
+
+    public List<ReportedVariant> getSecondaryFindings() {
+        return secondaryFindings;
+    }
+
+    public Interpretation setSecondaryFindings(List<ReportedVariant> secondaryFindings) {
+        this.secondaryFindings = secondaryFindings;
         return this;
     }
 
