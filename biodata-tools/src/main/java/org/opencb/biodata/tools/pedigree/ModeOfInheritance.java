@@ -176,6 +176,38 @@ public class ModeOfInheritance {
         return prepareOutput(genotypes);
     }
 
+    public static Map<String, List<String>> mtLinked(Pedigree pedigree, Disorder disorder) {
+        PedigreeManager pedigreeManager = new PedigreeManager(pedigree);
+
+        // Get affected individuals for that phenotype
+        Set<Member> affectedMembers = pedigreeManager.getAffectedIndividuals(disorder);
+
+        // Get all possible genotypeCounters for each individual
+        Map<String, Set<Integer>> genotypes = new HashMap<>();
+
+        for (Member member : pedigree.getMembers()) {
+            if (affectedMembers.contains(member)) {
+                Set<Integer> genotype = new HashSet<>();
+                genotype.add(GENOTYPE_1);
+                genotypes.put(member.getId(), genotype);
+            } else {
+                Set<Integer> genotype = new HashSet<>();
+                genotype.add(GENOTYPE_0);
+                genotypes.put(member.getId(), genotype);
+            }
+        }
+
+        // Validate genotypeCounters using relationships
+        validateGenotypes(genotypes, pedigreeManager);
+
+        if (!isValidModeOfInheritance(genotypes, pedigree, affectedMembers)) {
+            return null;
+        }
+
+        // Return a readable output
+        return prepareOutput(genotypes);
+    }
+
     public static List<Variant> compoundHeterozygosity(Pedigree pedigree, Iterator<Variant> variantIterator) throws Exception {
         Member child = pedigree.getProband();
 
@@ -511,8 +543,6 @@ public class ModeOfInheritance {
                 }
             }
         }
-
-
     }
 
     private static void processIndividual(Member member, Map<String, Set<Integer>> gt) {
@@ -567,7 +597,15 @@ public class ModeOfInheritance {
                             && (motherGenotypes.contains(GENOTYPE_0_1) || motherGenotypes.contains(GENOTYPE_1_1))) {
                         finalGenotypes.add(GENOTYPE_1_1);
                     }
-                } else {
+                } else if (childGenotype == GENOTYPE_0) {
+                    if (fatherGenotypes.contains(GENOTYPE_0) && motherGenotypes.contains(GENOTYPE_0)) {
+                        finalGenotypes.add(GENOTYPE_0);
+                    }
+                } else if (childGenotype == GENOTYPE_1) {
+                    if (fatherGenotypes.contains(GENOTYPE_1) || motherGenotypes.contains(GENOTYPE_1)) {
+                        finalGenotypes.add(GENOTYPE_1);
+                    }
+                }  else {
                     finalGenotypes.add(childGenotype);
                 }
             }
