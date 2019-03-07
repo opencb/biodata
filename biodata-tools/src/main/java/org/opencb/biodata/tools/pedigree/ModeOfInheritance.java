@@ -176,7 +176,7 @@ public class ModeOfInheritance {
         return prepareOutput(genotypes);
     }
 
-    public static Map<String, List<String>> mtLinked(Pedigree pedigree, Disorder disorder) {
+    public static Map<String, List<String>> mitochondrial(Pedigree pedigree, Disorder disorder) {
         PedigreeManager pedigreeManager = new PedigreeManager(pedigree);
 
         // Get affected individuals for that phenotype
@@ -202,6 +202,23 @@ public class ModeOfInheritance {
 
         if (!isValidModeOfInheritance(genotypes, pedigree, affectedMembers)) {
             return null;
+        }
+
+        // Return a readable output
+        return prepareOutput(genotypes);
+    }
+
+    public static Map<String, List<String>> compoundHeterozygous(Pedigree pedigree) {
+        Map<String, Set<Integer>> genotypes = new HashMap<>();
+
+        if (pedigree.getProband() != null) {
+            genotypes.put(pedigree.getProband().getId(), new HashSet<>(Collections.singletonList(GENOTYPE_0_1)));
+            if (pedigree.getProband().getFather() != null) {
+                genotypes.put(pedigree.getProband().getFather().getId(), new HashSet<>(Arrays.asList(GENOTYPE_0_0, GENOTYPE_0_1)));
+            }
+            if (pedigree.getProband().getMother() != null) {
+                genotypes.put(pedigree.getProband().getMother().getId(), new HashSet<>(Arrays.asList(GENOTYPE_0_0, GENOTYPE_0_1)));
+            }
         }
 
         // Return a readable output
@@ -596,14 +613,6 @@ public class ModeOfInheritance {
                             || fatherGenotypes.contains(GENOTYPE_1))
                             && (motherGenotypes.contains(GENOTYPE_0_1) || motherGenotypes.contains(GENOTYPE_1_1))) {
                         finalGenotypes.add(GENOTYPE_1_1);
-                    }
-                } else if (childGenotype == GENOTYPE_0) {
-                    if (fatherGenotypes.contains(GENOTYPE_0) && motherGenotypes.contains(GENOTYPE_0)) {
-                        finalGenotypes.add(GENOTYPE_0);
-                    }
-                } else if (childGenotype == GENOTYPE_1) {
-                    if (fatherGenotypes.contains(GENOTYPE_1) || motherGenotypes.contains(GENOTYPE_1)) {
-                        finalGenotypes.add(GENOTYPE_1);
                     }
                 }  else {
                     finalGenotypes.add(childGenotype);
