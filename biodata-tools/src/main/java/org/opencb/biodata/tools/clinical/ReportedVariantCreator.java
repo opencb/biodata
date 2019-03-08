@@ -399,7 +399,7 @@ public abstract class ReportedVariantCreator {
             }
         }
         if (moi.startsWith("MITOCHONDRIAL")) {
-            return ModeOfInheritance.MITOCHRONDRIAL;
+            return ModeOfInheritance.MITOCHONDRIAL;
         }
         if (moi.startsWith("X-LINKED")) {
             if (moi.contains("BIALLELIC")) {

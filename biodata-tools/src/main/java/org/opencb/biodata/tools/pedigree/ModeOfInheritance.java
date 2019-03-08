@@ -1,14 +1,15 @@
 package org.opencb.biodata.tools.pedigree;
 
 import org.apache.commons.lang3.StringUtils;
-import org.opencb.biodata.models.commons.Disorder;
-import org.opencb.biodata.models.commons.Phenotype;
 import org.opencb.biodata.models.clinical.pedigree.Member;
 import org.opencb.biodata.models.clinical.pedigree.Pedigree;
 import org.opencb.biodata.models.clinical.pedigree.PedigreeManager;
+import org.opencb.biodata.models.commons.Disorder;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -21,6 +22,8 @@ public class ModeOfInheritance {
 
     public static final int GENOTYPE_0 = 3;
     public static final int GENOTYPE_1 = 4;
+
+    private static Logger logger = LoggerFactory.getLogger(ModeOfInheritance.class.toString());
 
 
     public static Map<String, List<String>> dominant(Pedigree pedigree, Disorder disorder, boolean incompletePenetrance) {
@@ -179,29 +182,31 @@ public class ModeOfInheritance {
     public static Map<String, List<String>> mitochondrial(Pedigree pedigree, Disorder disorder) {
         PedigreeManager pedigreeManager = new PedigreeManager(pedigree);
 
-        // Get affected individuals for that phenotype
-        Set<Member> affectedMembers = pedigreeManager.getAffectedIndividuals(disorder);
+        // Get affected individual ids for that phenotype
+        Set<String> affectedMembers = pedigreeManager.getAffectedIndividuals(disorder).stream().map(Member::getId)
+                .collect(Collectors.toSet());
 
-        // Get all possible genotypeCounters for each individual
         Map<String, Set<Integer>> genotypes = new HashMap<>();
 
-        for (Member member : pedigree.getMembers()) {
-            if (affectedMembers.contains(member)) {
-                Set<Integer> genotype = new HashSet<>();
+        if (pedigree.getProband() != null) {
+            Set<Integer> genotype = new HashSet<>();
+            if (affectedMembers.contains(pedigree.getProband().getId())) {
                 genotype.add(GENOTYPE_1);
-                genotypes.put(member.getId(), genotype);
             } else {
-                Set<Integer> genotype = new HashSet<>();
                 genotype.add(GENOTYPE_0);
-                genotypes.put(member.getId(), genotype);
             }
-        }
+            genotypes.put(pedigree.getProband().getId(), genotype);
 
-        // Validate genotypeCounters using relationships
-        validateGenotypes(genotypes, pedigreeManager);
+            if (pedigree.getProband().getMother() != null) {
+                genotype = new HashSet<>();
+                if (affectedMembers.contains(pedigree.getProband().getMother().getId())) {
+                    genotype.add(GENOTYPE_1);
+                } else {
+                    genotype.add(GENOTYPE_0);
+                }
+                genotypes.put(pedigree.getProband().getMother().getId(), genotype);
+            }
 
-        if (!isValidModeOfInheritance(genotypes, pedigree, affectedMembers)) {
-            return null;
         }
 
         // Return a readable output
@@ -306,159 +311,42 @@ public class ModeOfInheritance {
         return 0;
     }
 
-    /**
-     * Get all the de novo variants identified.
-     *
-     * @param pedigree        Pedigree object.
-     * @param variantIterator Variant iterator.
-     * @return A map of variant - List of individuals containing a de novo variant.
-     */
-    public static Map<Variant, List<String>> alldeNovoVariants(Pedigree pedigree, Iterator<Variant> variantIterator) {
-        PedigreeManager pedigreeManager = new PedigreeManager(pedigree);
+    public static Map<String, List<String>> deNovo(Pedigree pedigree) {
+        Map<String, Set<Integer>> genotypes = new HashMap<>();
 
-        // We get all children so we can check upwards
-        List<Member> allChildren = pedigreeManager.getWithoutChildren();
+        if (pedigree.getProband() != null) {
+            genotypes.put(pedigree.getProband().getId(), new HashSet<>(Arrays.asList(GENOTYPE_0_1, GENOTYPE_1_1, GENOTYPE_1)));
+        }
 
-        Map<Variant, List<String>> retDenovoVariants = new HashMap<>();
+        // Return a readable output
+        return prepareOutput(genotypes);
+    }
 
-        while (variantIterator.hasNext()) {
-            Variant variant = variantIterator.next();
+    public static List<Variant> deNovo(Iterator<Variant> iterator, int probandSampleIdx, int motherSampleIdx, int fatherSampleIdx) {
+        List<Variant> variants = new ArrayList<>();
 
-            // List of individuals with de novo variants
-            List<String> individualIds = new ArrayList<>();
+        int variantsRetrieved = 0;
+        while (iterator.hasNext()) {
+            Variant variant = iterator.next();
+            variantsRetrieved += 1;
 
-            Queue<String> queue = new LinkedList<>();
-            queue.addAll(allChildren.stream().map(Member::getId).collect(Collectors.toList()));
+            StudyEntry studyEntry = variant.getStudies().get(0);
+            int gtIdx = studyEntry.getFormat().indexOf("GT");
 
-            while (!queue.isEmpty()) {
-                String individualId = queue.remove();
-                Member childMember = pedigreeManager.getIndividualMap().get(individualId);
+            Genotype probandGenotype = new Genotype(studyEntry.getSampleData(probandSampleIdx).get(gtIdx));
+            Genotype motherGenotype = new Genotype(studyEntry.getSampleData(motherSampleIdx).get(gtIdx));
+            Genotype fatherGenotype = new Genotype(studyEntry.getSampleData(fatherSampleIdx).get(gtIdx));
 
-                if (isDeNovoVariant(childMember, variant)) {
-                    individualIds.add(individualId);
-                }
-
-                // Add parents to the queue
-                if (childMember.getFather() != null) {
-                    if (!queue.contains(childMember.getFather().getId())) {
-                        queue.add(childMember.getFather().getId());
-                    }
-                }
-
-                if (childMember.getMother() != null) {
-                    if (!queue.contains(childMember.getMother().getId())) {
-                        queue.add(childMember.getMother().getId());
-                    }
-                }
-            }
-
-            if (!individualIds.isEmpty()) {
-                retDenovoVariants.put(variant, individualIds);
+            if (MendelianError.isDeNovo(fatherGenotype, motherGenotype, probandGenotype, variant.getChromosome())) {
+                variants.add(variant);
             }
         }
 
-        return retDenovoVariants;
+        logger.debug("De novo - Number of variants retrieved: {}; Number of de novo variants: {}", variantsRetrieved, variants.size());
+
+        // Return
+        return variants;
     }
-
-    /**
-     * Get all the de novo variants identified for the proband.
-     *
-     * @param member      Child proband.
-     * @param variantIterator Variant iterator.
-     * @return A list of variants.
-     */
-    public static List<Variant> deNovoVariants(Member member, Iterator<Variant> variantIterator) {
-        List<Variant> variantList = new ArrayList<>();
-
-        while (variantIterator.hasNext()) {
-            Variant variant = variantIterator.next();
-
-            if (isDeNovoVariant(member, variant)) {
-                variantList.add(variant);
-            }
-        }
-
-        return variantList;
-    }
-
-    /**
-     * Method to check whether a variant is de novo.
-     *
-     * @param member      Child proband.
-     * @param variant         Variant to be checked.
-     * @return a boolean indicating whether the variant is de novo.
-     */
-    private static boolean isDeNovoVariant(Member member, Variant variant) {
-        // We assume the variant iterator will always contain information for one study
-        StudyEntry study = variant.getStudies().get(0);
-
-        Genotype childGt = new Genotype(study.getSampleData(member.getId(), "GT"));
-
-        int[] childAlleles = childGt.getAllelesIdx();
-        if (childAlleles.length > 0) {
-            // If the individual has parents
-
-            if (member.getFather() != null && StringUtils.isNotEmpty(member.getFather().getId()) && member.getMother() != null
-                    && StringUtils.isNotEmpty(member.getMother().getId())) {
-                Genotype fatherGt = new Genotype(study.getSampleData(member.getFather().getId(), "GT"));
-                Genotype motherGt = new Genotype(study.getSampleData(member.getMother().getId(), "GT"));
-
-                int[] fatherAlleles = fatherGt.getAllelesIdx();
-                int[] motherAlleles = motherGt.getAllelesIdx();
-
-                if (fatherAlleles.length == 2 && motherAlleles.length == 2 && childAlleles.length == 2 && childAlleles[0] >= 0
-                        && childAlleles[1] >= 0) { // ChildAlleles cannot be -1
-                    Set<Integer> fatherAllelesSet = new HashSet<>();
-                    for (int fatherAllele : fatherAlleles) {
-                        fatherAllelesSet.add(fatherAllele);
-                    }
-                    Set<Integer> motherAllelesSet = new HashSet<>();
-                    for (int motherAllele : motherAlleles) {
-                        motherAllelesSet.add(motherAllele);
-                    }
-
-                    int allele1 = childAlleles[0];
-                    int allele2 = childAlleles[1];
-                    if (fatherAllelesSet.contains(allele1) && motherAllelesSet.contains(allele1)) {
-                        // both parents have the same allele. We need to check for allele 2 in both parents as well
-                        if (!fatherAllelesSet.contains(allele2) && !motherAllelesSet.contains(allele2) && !fatherAllelesSet.contains(-1)
-                                && !motherAllelesSet.contains(-1)) {
-                            // None of them have allele 2 -> de novo !
-                            return true;
-                        }
-                    } else if (fatherAllelesSet.contains(allele2) && motherAllelesSet.contains(allele2)) {
-                        // both parents have the same allele. We need to check for allele 1 in both parents as well
-                        if (!fatherAllelesSet.contains(allele1) && !motherAllelesSet.contains(allele1) && !fatherAllelesSet.contains(-1)
-                                && !motherAllelesSet.contains(-1)) {
-                            // None of them have allele 2 -> de novo !
-                            return true;
-                        }
-                    } else if (fatherAllelesSet.contains(allele1) && !motherAllelesSet.contains(-1)) {
-                        // only the father has the same allele1
-                        // None of them have allele 2 -> de novo !
-                        return !motherAllelesSet.contains(allele2);
-                    } else if (motherAllelesSet.contains(allele1) && !fatherAllelesSet.contains(-1)) {
-                        // only the mother has the same allele1
-                        // None of them have allele 2 -> de novo !
-                        return !fatherAllelesSet.contains(allele2);
-                    } else if (fatherAllelesSet.contains(allele2) && !motherAllelesSet.contains(-1)) {
-                        // only the father has the same allele2
-                        // None of them have allele 1 -> de novo !
-                        return !motherAllelesSet.contains(allele1);
-                    } else if (motherAllelesSet.contains(allele2) && !fatherAllelesSet.contains(-1)) {
-                        // only the mother has the same allele2
-                        // None of them have allele 1 -> de novo !
-                        return !fatherAllelesSet.contains(allele1);
-                    } else {
-                        return true;
-                    }
-
-                }
-            }
-        }
-        return false;
-    }
-
 
     private static boolean isValidModeOfInheritance(Map<String, Set<Integer>> genotypes, Pedigree pedigree,
                                                     Set<Member> affectedMembers) {
@@ -720,7 +608,7 @@ public class ModeOfInheritance {
             case GENOTYPE_0:
                 return "0,0/0,0|0";
             case GENOTYPE_1:
-                return "1,1/1,0/1,0|1,1|0";
+                return "1,1/1,1|1,0/1,0|1,1|0";
             default:
                 return "-";
         }

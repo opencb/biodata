@@ -32,7 +32,7 @@ public class ClinicalProperty {
         XLINKED_BIALLELIC,
         XLINKED_MONOALLELIC,
         YLINKED,
-        MITOCHRONDRIAL,
+        MITOCHONDRIAL,
 
         // Not modes of inheritance, but...
         DE_NOVO,

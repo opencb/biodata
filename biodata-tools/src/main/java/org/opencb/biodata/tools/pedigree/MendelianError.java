@@ -3,10 +3,17 @@ package org.opencb.biodata.tools.pedigree;
 import org.opencb.biodata.models.feature.AllelesCode;
 import org.opencb.biodata.models.feature.Genotype;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 public class MendelianError {
 
     public static final String CHROMOSOME_X = "X";
     public static final String CHROMOSOME_Y = "Y";
+    public static final Set<String> CHROMOSOME_MT = new HashSet<>(Arrays.asList("MT", "Mt", "mt", "M", "m"));
+
+    public static final Set<Integer> deNovoCodes = new HashSet(Arrays.asList(2, 3, 4, 5, 10, 12));
 
     public enum GenotypeCode {
         HOM_REF, HOM_VAR, HET
@@ -15,7 +22,7 @@ public class MendelianError {
     public static Integer compute(Genotype fatherGt, Genotype motherGt, Genotype childGt, String chromosome) {
         // The error classification is available at:
         // https://www.cog-genomics.org/plink2/basic_stats#mendel
-        // HOM_VAR = 0/0, HOM_REF = 1/1, HOM_VAR = 1/0, 0/1
+        // HOM_REF = 0/0, HOM_VAR = 1/1, HET = 1/0, 0/1
         //
         // Code Father    Mother    Child   Copy State  Implicated
         //
@@ -58,6 +65,14 @@ public class MendelianError {
                 } else {
                     code = 0;
                 }
+            } else if (CHROMOSOME_MT.contains(chrom)) {
+                if (motherCode == GenotypeCode.HOM_VAR && childCode == GenotypeCode.HOM_REF) {
+                    code = 9;
+                } else if (motherCode == GenotypeCode.HOM_REF && childCode == GenotypeCode.HOM_VAR) {
+                    code = 10;
+                } else {
+                    code = 0;
+                }
             } else {
                 if (childCode == GenotypeCode.HET) {
                     if (fatherCode == GenotypeCode.HOM_VAR && motherCode == GenotypeCode.HOM_VAR) {
@@ -96,6 +111,10 @@ public class MendelianError {
         }
 
         return code;
+    }
+
+    public static boolean isDeNovo(Genotype fatherGt, Genotype motherGt, Genotype childGt, String chromosome) {
+        return deNovoCodes.contains(compute(fatherGt, motherGt, childGt, chromosome));
     }
 
     public static GenotypeCode getAlternateAlleleCount(Genotype gt) {
