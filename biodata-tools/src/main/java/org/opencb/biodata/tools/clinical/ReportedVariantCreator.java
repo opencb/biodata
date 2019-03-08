@@ -88,7 +88,7 @@ public abstract class ReportedVariantCreator {
 
             // Tier 3, actionable variants
             if (MapUtils.isNotEmpty(actionableVariants)) {
-                if (variant.getAnnotation() != null && actionableVariants.containsKey(variant.getId())) {
+                if (variant.getAnnotation() != null && actionableVariants.containsKey(variant.toString())) {
                     if (CollectionUtils.isNotEmpty(variant.getAnnotation().getConsequenceTypes())) {
                         for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
                             reportedEvents.addAll(createReportedEvents("", null, ct, variant));
