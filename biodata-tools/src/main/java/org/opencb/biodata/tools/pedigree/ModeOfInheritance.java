@@ -587,30 +587,30 @@ public class ModeOfInheritance {
     private static Map<String, List<String>> prepareOutput(Map<String, Set<Integer>> genotypes) {
         Map<String, List<String>> output = new HashMap<>();
         for (String key : genotypes.keySet()) {
-            List<String> gtList = new ArrayList<>();
+            Set<String> gtList = new HashSet<>();
             Iterator<Integer> it = genotypes.get(key).iterator();
             while (it.hasNext()) {
-                gtList.add(toGenotypeString(it.next()));
+                gtList.addAll(toGenotypeString(it.next()));
             }
-            output.put(key, gtList);
+            output.put(key, new ArrayList<>(gtList));
         }
         return output;
     }
 
-    public static String toGenotypeString(int gt) {
+    public static List<String> toGenotypeString(int gt) {
         switch (gt) {
             case GENOTYPE_0_0:
-                return "0/0,0|0";
+                return Arrays.asList("0/0", "0|0");
             case GENOTYPE_0_1:
-                return "0/1,0|1,1|0";
+                return Arrays.asList("0/1", "0|1", "1|0");
             case GENOTYPE_1_1:
-                return "1/1,1|1";
+                return Arrays.asList("1/1", "1|1");
             case GENOTYPE_0:
-                return "0,0/0,0|0";
+                return Arrays.asList("0", "0/0", "0|0");
             case GENOTYPE_1:
-                return "1,1/1,1|1,0/1,0|1,1|0";
+                return Arrays.asList("1", "1/1", "1|1", "0/1", "0|1", "1|0");
             default:
-                return "-";
+                return Collections.singletonList("-");
         }
     }
 }
