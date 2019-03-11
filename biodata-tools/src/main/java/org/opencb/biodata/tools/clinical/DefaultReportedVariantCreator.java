@@ -49,6 +49,11 @@ public class DefaultReportedVariantCreator extends ReportedVariantCreator {
 
     @Override
     public List<ReportedVariant> create(List<Variant> variants) {
+        // Sanity check
+        if (variants == null || variants.isEmpty()) {
+            return Collections.emptyList();
+        }
+
         List<ReportedVariant> reportedVariants = new ArrayList<>();
 
         // Disease panels are optional in custom interpretation analysis

@@ -22,12 +22,14 @@ package org.opencb.biodata.tools.clinical;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.opencb.biodata.models.clinical.interpretation.*;
 import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.ModeOfInheritance;
 import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.Penetrance;
+import org.opencb.biodata.models.clinical.interpretation.DiseasePanel;
+import org.opencb.biodata.models.clinical.interpretation.GenomicFeature;
+import org.opencb.biodata.models.clinical.interpretation.ReportedEvent;
+import org.opencb.biodata.models.clinical.interpretation.ReportedVariant;
 import org.opencb.biodata.models.clinical.interpretation.exceptions.InterpretationAnalysisException;
 import org.opencb.biodata.models.commons.Disorder;
-import org.opencb.biodata.models.commons.Phenotype;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.ConsequenceType;
 import org.opencb.biodata.models.variant.avro.SequenceOntologyTerm;
@@ -36,6 +38,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.RoleInCancer;
+import static org.opencb.biodata.tools.pedigree.ModeOfInheritance.extendedLof;
+import static org.opencb.biodata.tools.pedigree.ModeOfInheritance.proteinCoding;
 
 public class TieringReportedVariantCreator extends ReportedVariantCreator {
 
@@ -64,6 +68,11 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
 
     public List<ReportedVariant> create(List<Variant> variants, Map<String, List<ModeOfInheritance>> variantMoIMap)
             throws InterpretationAnalysisException {
+        // Sanity check
+        if (variants == null || variants.isEmpty()) {
+            return Collections.emptyList();
+        }
+
         // Panels are mandatory in Tiering analysis
         if (CollectionUtils.isEmpty(diseasePanels)) {
             throw new InterpretationAnalysisException("Missing gene panels for Tiering analysis");
@@ -224,4 +233,6 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
 
         return reportedVariants;
     }
+
+
 }

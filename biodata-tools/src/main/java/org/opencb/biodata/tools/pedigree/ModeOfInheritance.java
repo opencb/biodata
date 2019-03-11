@@ -1,6 +1,9 @@
 package org.opencb.biodata.tools.pedigree;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.ListUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.opencb.biodata.models.clinical.pedigree.Member;
 import org.opencb.biodata.models.clinical.pedigree.Pedigree;
 import org.opencb.biodata.models.clinical.pedigree.PedigreeManager;
@@ -8,6 +11,8 @@ import org.opencb.biodata.models.commons.Disorder;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.avro.ConsequenceType;
+import org.opencb.biodata.models.variant.avro.SequenceOntologyTerm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,9 +26,29 @@ public class ModeOfInheritance {
     public static final int GENOTYPE_1_1 = 2;
 
     public static final int GENOTYPE_0 = 3;
-    public static final int GENOTYPE_1 = 4;
+    public static final int GENOTYPE_1 =4;
 
-    private static Logger logger = LoggerFactory.getLogger(ModeOfInheritance.class.toString());
+    public static Set<String> lof;
+    public static Set<String> extendedLof;
+    public static Set<String> proteinCoding;
+
+    private static Logger logger;
+
+    static {
+        proteinCoding = new HashSet<>(Arrays.asList("protein_coding", "IG_C_gene", "IG_D_gene", "IG_J_gene", "IG_V_gene",
+                "nonsense_mediated_decay", "non_stop_decay", "TR_C_gene", "TR_D_gene", "TR_J_gene", "TR_V_gene"));
+
+        lof = new HashSet<>(Arrays.asList("SO:0001893", "transcript_ablation", "SO:0001574", "splice_acceptor_variant",
+                "SO:0001575", "splice_donor_variant", "SO:0001587", "stop_gained", "SO:0001589", "frameshift_variant",
+                "SO:0001578", "stop_lost", "SO:0002012", "start_lost", "SO:0001889", "transcript_amplification",
+                "SO:0001821", "inframe_insertion", "SO:0001822", "inframe_deletion"));
+
+        extendedLof = new HashSet<>(lof);
+        extendedLof.addAll(Arrays.asList("SO:0001582", "initiator_codon_variant", "SO:0001583", "missense_variant",
+                "SO:0001630", "splice_region_variant", "SO:0001626", "incomplete_terminal_codon_variant"));
+
+        logger = LoggerFactory.getLogger(ModeOfInheritance.class.toString());
+    }
 
 
     public static Map<String, List<String>> dominant(Pedigree pedigree, Disorder disorder, boolean incompletePenetrance) {
@@ -230,6 +255,92 @@ public class ModeOfInheritance {
         return prepareOutput(genotypes);
     }
 
+    /**
+     * Return a truly compound heterozygous variants grouped by transcript.
+     *
+     * @param iterator  Variant iterator
+     * @param probandSampleIdx  Proband sample index
+     * @param motherSampleIdx  Mother sample index
+     * @param fatherSampleIdx  Father sample index
+     * @return Map of transcript - variant list
+     */
+    public static Map<String, List<Variant>> compoundHeterozygous(Iterator<Variant> iterator, int probandSampleIdx, int motherSampleIdx,
+                                                     int fatherSampleIdx) {
+        int variantsRetrieved = 0;
+
+        // Map: transcript to pair (pair-left for mother and pair-right for father)
+        Map<String, Pair<List<Variant>, List<Variant>>> transcriptToVariantsMap = new HashMap<>();
+
+        while (iterator.hasNext()) {
+            Variant variant = iterator.next();
+            variantsRetrieved += 1;
+
+            StudyEntry studyEntry = variant.getStudies().get(0);
+            int gtIdx = studyEntry.getFormat().indexOf("GT");
+
+            String probandGenotype = studyEntry.getSampleData(probandSampleIdx).get(gtIdx);
+            String motherGenotype = studyEntry.getSampleData(motherSampleIdx).get(gtIdx);
+            String fatherGenotype = studyEntry.getSampleData(fatherSampleIdx).get(gtIdx);
+
+            if (!probandGenotype.contains("0") || !probandGenotype.contains("1")) {
+                logger.debug("Skipping variant '{}'. The proband is '{}' and not 0/1", variant, probandGenotype);
+                continue;
+            }
+
+            if ((fatherGenotype.contains("1") && motherGenotype.contains("1"))
+                    || (!fatherGenotype.contains("1") && !motherGenotype.contains("1"))) {
+                logger.debug("Skipping variant '{}'. The parents are both 0/0 or 0/1", variant);
+                continue;
+            }
+
+            int pairIndex;
+            if (fatherGenotype.contains("1") && !motherGenotype.contains("1")) {
+                pairIndex = 0;
+            } else if (motherGenotype.contains("1") && !fatherGenotype.contains("1")) {
+                pairIndex = 1;
+            } else {
+                logger.warn("This should never happen!!!");
+                continue;
+            }
+
+            for (ConsequenceType consequenceType : variant.getAnnotation().getConsequenceTypes()) {
+                if (proteinCoding.contains(consequenceType.getBiotype())) {
+                    String transcriptId = consequenceType.getEnsemblTranscriptId();
+                    if (CollectionUtils.isNotEmpty(consequenceType.getSequenceOntologyTerms())) {
+                        for (SequenceOntologyTerm soTerm : consequenceType.getSequenceOntologyTerms()) {
+                            if (extendedLof.contains(soTerm.getAccession())) {
+                                transcriptToVariantsMap.computeIfAbsent(transcriptId, k -> Pair.of(new ArrayList<>(), new ArrayList<>()));
+                                if (pairIndex == 0) {
+                                    // From mother
+                                    transcriptToVariantsMap.get(transcriptId).getLeft().add(variant);
+                                } else {
+                                    // From father
+                                    transcriptToVariantsMap.get(transcriptId).getRight().add(variant);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        Map<String, List<Variant>> variantMap = new HashMap<>();
+        int totalVariants = 0;
+        for (Map.Entry<String, Pair<List<Variant>, List<Variant>>> entry : transcriptToVariantsMap.entrySet()) {
+            if (entry.getValue().getLeft().size() > 0 && entry.getValue().getRight().size() > 0) {
+                variantMap.put(entry.getKey(), ListUtils.union(entry.getValue().getLeft(), entry.getValue().getRight()));
+                totalVariants += variantMap.get(entry.getKey()).size();
+            }
+        }
+
+        logger.debug("CH - Number of variants retrieved: {}; Found {} CH variants in {} transcripts", variantsRetrieved, totalVariants,
+                variantMap.size());
+
+        // Return
+        return variantMap;
+    }
+
+    @Deprecated
     public static List<Variant> compoundHeterozygosity(Pedigree pedigree, Iterator<Variant> variantIterator) throws Exception {
         Member child = pedigree.getProband();
 
@@ -282,6 +393,7 @@ public class ModeOfInheritance {
         return Collections.emptyList();
     }
 
+    @Deprecated
     public static int compoundHeterozygosityVariantExplainType(String childGtStr, String fatherGtStr, String motherGtStr) {
         Genotype childGt = new Genotype(childGtStr);
 

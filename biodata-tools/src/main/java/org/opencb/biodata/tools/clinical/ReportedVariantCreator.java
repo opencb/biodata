@@ -22,8 +22,8 @@ package org.opencb.biodata.tools.clinical;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
-import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.ModeOfInheritance;
 import org.opencb.biodata.models.clinical.interpretation.*;
+import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.ModeOfInheritance;
 import org.opencb.biodata.models.clinical.interpretation.exceptions.InterpretationAnalysisException;
 import org.opencb.biodata.models.commons.Disorder;
 import org.opencb.biodata.models.commons.Phenotype;
@@ -35,11 +35,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.Penetrance;
 import static org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.RoleInCancer;
 import static org.opencb.biodata.models.clinical.interpretation.VariantClassification.ClinicalSignificance;
 import static org.opencb.biodata.models.clinical.interpretation.VariantClassification.calculateAcmgClassification;
+import static org.opencb.biodata.tools.pedigree.ModeOfInheritance.extendedLof;
+import static org.opencb.biodata.tools.pedigree.ModeOfInheritance.proteinCoding;
 
 public abstract class ReportedVariantCreator {
 
@@ -49,10 +52,6 @@ public abstract class ReportedVariantCreator {
     public final String TIER_1 = "Tier1";
     public final String TIER_2 = "Tier2";
     public final String TIER_3 = "Tier3";
-
-    public static Set<String> lof;
-    public static Set<String> extendedLof;
-    public static Set<String> proteinCoding;
 
     // logger
     protected Logger logger = LoggerFactory.getLogger(this.getClass().toString());
@@ -64,20 +63,6 @@ public abstract class ReportedVariantCreator {
 
     protected Map<String, RoleInCancer> roleInCancer;
     protected Map<String, List<String>> actionableVariants;
-
-    static {
-        proteinCoding = new HashSet<>(Arrays.asList("protein_coding", "IG_C_gene", "IG_D_gene", "IG_J_gene", "IG_V_gene",
-                "nonsense_mediated_decay", "non_stop_decay", "TR_C_gene", "TR_D_gene", "TR_J_gene", "TR_V_gene"));
-
-        lof = new HashSet<>(Arrays.asList("SO:0001893", "transcript_ablation", "SO:0001574", "splice_acceptor_variant",
-                "SO:0001575", "splice_donor_variant", "SO:0001587", "stop_gained", "SO:0001589", "frameshift_variant",
-                "SO:0001578", "stop_lost", "SO:0002012", "start_lost", "SO:0001889", "transcript_amplification",
-                "SO:0001821", "inframe_insertion", "SO:0001822", "inframe_deletion"));
-
-        extendedLof = new HashSet<>(lof);
-        extendedLof.addAll(Arrays.asList("SO:0001582", "initiator_codon_variant", "SO:0001583", "missense_variant",
-                "SO:0001630", "splice_region_variant", "SO:0001626", "incomplete_terminal_codon_variant"));
-    }
 
     public ReportedVariantCreator(List<DiseasePanel> diseasePanels, Disorder disorder, ModeOfInheritance modeOfInheritance,
                                   Penetrance penetrance, Map<String, RoleInCancer> roleInCancer,
@@ -109,6 +94,11 @@ public abstract class ReportedVariantCreator {
     }
 
     public abstract List<ReportedVariant> create(List<Variant> variants) throws InterpretationAnalysisException;
+
+    public List<ReportedVariant> create(List<Variant> variants, ModeOfInheritance moi) throws InterpretationAnalysisException {
+        this.modeOfInheritance = moi;
+        return create(variants);
+    }
 
     public List<ReportedVariant> createSecondaryFindings(List<Variant> variants) {
         List<ReportedVariant> reportedVariants = new ArrayList<>();
@@ -447,4 +437,36 @@ public abstract class ReportedVariantCreator {
         return ModeOfInheritance.UNKNOWN;
     }
 
+    public List<ReportedVariant> groupCHVariants(Map<String, List<ReportedVariant>> reportedVariantMap) {
+        List<ReportedVariant> reportedVariants = new ArrayList<>();
+
+        for (Map.Entry<String, List<ReportedVariant>> entry : reportedVariantMap.entrySet()) {
+            Set<String> variantIds = entry.getValue().stream().map(Variant::toString).collect(Collectors.toSet());
+            for (ReportedVariant reportedVariant : entry.getValue()) {
+                Set<String> tmpVariantIds = new HashSet<>(variantIds);
+                tmpVariantIds.remove(reportedVariant.toString());
+
+                for (ReportedEvent reportedEvent : reportedVariant.getReportedEvents()) {
+                    reportedEvent.setCompoundHeterozygousVariantIds(new ArrayList<>(tmpVariantIds));
+                }
+
+                reportedVariants.add(reportedVariant);
+            }
+        }
+
+        return reportedVariants;
+    }
+
+    public List<ReportedVariant> mergeReportedVariants(List<ReportedVariant> reportedVariants) {
+        Map<String, ReportedVariant> reportedVariantMap = new HashMap<>();
+        for (ReportedVariant reportedVariant : reportedVariants) {
+            if (reportedVariantMap.containsKey(reportedVariant.getId())) {
+                reportedVariantMap.get(reportedVariant.getId()).getReportedEvents().addAll(reportedVariant.getReportedEvents());
+            } else {
+                reportedVariantMap.put(reportedVariant.getId(), reportedVariant);
+            }
+        }
+
+        return new ArrayList<>(reportedVariantMap.values());
+    }
 }

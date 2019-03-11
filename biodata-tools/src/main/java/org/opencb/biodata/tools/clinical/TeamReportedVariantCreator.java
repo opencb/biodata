@@ -20,6 +20,7 @@
 package org.opencb.biodata.tools.clinical;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.ListUtils;
 import org.apache.commons.collections.MapUtils;
 import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.ModeOfInheritance;
 import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.Penetrance;
@@ -35,6 +36,8 @@ import org.opencb.biodata.models.variant.avro.ConsequenceType;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.opencb.biodata.tools.pedigree.ModeOfInheritance.proteinCoding;
+
 public class TeamReportedVariantCreator extends ReportedVariantCreator {
 
     public TeamReportedVariantCreator(List<DiseasePanel> diseasePanels, Map<String, RoleInCancer> roleInCancer,
@@ -45,6 +48,11 @@ public class TeamReportedVariantCreator extends ReportedVariantCreator {
 
     @Override
     public List<ReportedVariant> create(List<Variant> variants) throws InterpretationAnalysisException {
+        // Sanity check
+        if (variants == null || variants.isEmpty()) {
+            return Collections.emptyList();
+        }
+
         // Panels are mandatory in Tiering analysis
         if (CollectionUtils.isEmpty(diseasePanels)) {
             throw new InterpretationAnalysisException("Missing gene panels for TEAM analysis");

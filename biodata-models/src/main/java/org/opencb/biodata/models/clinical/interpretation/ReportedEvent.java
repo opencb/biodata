@@ -45,7 +45,7 @@ public class ReportedEvent {
     private Penetrance penetrance;
     private double score;
     private boolean fullyExplainPhenotypes;
-    private int groupOfVariants;
+    private List<String> compoundHeterozygousVariantIds;
     private RoleInCancer roleInCancer;
     private boolean actionable;
     private String justification;
@@ -54,7 +54,11 @@ public class ReportedEvent {
     public ReportedEvent() {
     }
 
-    public ReportedEvent(String id, Disorder disorder, List<Phenotype> phenotypes, List<SequenceOntologyTerm> consequenceTypes, GenomicFeature genomicFeature, ModeOfInheritance modeOfInheritance, String panelId, VariantClassification classification, Penetrance penetrance, double score, boolean fullyExplainPhenotypes, int groupOfVariants, RoleInCancer roleInCancer, boolean actionable, String justification, String tier) {
+    public ReportedEvent(String id, Disorder disorder, List<Phenotype> phenotypes, List<SequenceOntologyTerm> consequenceTypes,
+                         GenomicFeature genomicFeature, ModeOfInheritance modeOfInheritance, String panelId,
+                         VariantClassification classification, Penetrance penetrance, double score, boolean fullyExplainPhenotypes,
+                         List<String> compoundHeterozygousVariantIds, RoleInCancer roleInCancer, boolean actionable, String justification
+            , String tier) {
         this.id = id;
         this.disorder = disorder;
         this.phenotypes = phenotypes;
@@ -66,7 +70,7 @@ public class ReportedEvent {
         this.penetrance = penetrance;
         this.score = score;
         this.fullyExplainPhenotypes = fullyExplainPhenotypes;
-        this.groupOfVariants = groupOfVariants;
+        this.compoundHeterozygousVariantIds = compoundHeterozygousVariantIds;
         this.roleInCancer = roleInCancer;
         this.actionable = actionable;
         this.justification = justification;
@@ -87,7 +91,7 @@ public class ReportedEvent {
         sb.append(", penetrance=").append(penetrance);
         sb.append(", score=").append(score);
         sb.append(", fullyExplainPhenotypes=").append(fullyExplainPhenotypes);
-        sb.append(", groupOfVariants=").append(groupOfVariants);
+        sb.append(", compoundHeterozygousVariantIds=").append(compoundHeterozygousVariantIds);
         sb.append(", roleInCancer=").append(roleInCancer);
         sb.append(", actionable=").append(actionable);
         sb.append(", justification='").append(justification).append('\'');
@@ -195,12 +199,12 @@ public class ReportedEvent {
         return this;
     }
 
-    public int getGroupOfVariants() {
-        return groupOfVariants;
+    public List<String> getCompoundHeterozygousVariantIds() {
+        return compoundHeterozygousVariantIds;
     }
 
-    public ReportedEvent setGroupOfVariants(int groupOfVariants) {
-        this.groupOfVariants = groupOfVariants;
+    public ReportedEvent setCompoundHeterozygousVariantIds(List<String> compoundHeterozygousVariantIds) {
+        this.compoundHeterozygousVariantIds = compoundHeterozygousVariantIds;
         return this;
     }
 
