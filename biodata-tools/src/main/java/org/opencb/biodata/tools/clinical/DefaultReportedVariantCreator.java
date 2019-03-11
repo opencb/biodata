@@ -35,9 +35,6 @@ import static org.opencb.biodata.models.clinical.interpretation.VariantClassific
 
 public class DefaultReportedVariantCreator extends ReportedVariantCreator {
 
-    private Set<String> biotypeSet;
-    private Set<String> soNameSet;
-
     private boolean includeUntieredVariants;
 
     public DefaultReportedVariantCreator(Map<String, ClinicalProperty.RoleInCancer> roleInCancer,
@@ -45,16 +42,7 @@ public class DefaultReportedVariantCreator extends ReportedVariantCreator {
                                          ModeOfInheritance modeOfInheritance, Penetrance penetrance, List<DiseasePanel> diseasePanels,
                                          List<String> biotypes, List<String> soNames,
                                          boolean includeUntieredVariants) {
-        super(diseasePanels, disorder, modeOfInheritance, penetrance, roleInCancer, actionableVariants);
-
-        this.biotypeSet = new HashSet<>();
-        if (CollectionUtils.isNotEmpty(biotypes)) {
-            biotypeSet.addAll(biotypes);
-        }
-        this.soNameSet = new HashSet<>();
-        if (CollectionUtils.isNotEmpty(soNames)) {
-            soNameSet.addAll(soNames);
-        }
+        super(diseasePanels, disorder, modeOfInheritance, penetrance, roleInCancer, actionableVariants, biotypes, soNames);
 
         this.includeUntieredVariants = includeUntieredVariants;
     }
@@ -102,7 +90,7 @@ public class DefaultReportedVariantCreator extends ReportedVariantCreator {
                                 // Gene in panel
                                 Set<DiseasePanel> panels = geneToPanelMap.get(ct.getEnsemblGeneId());
                                 List<String> panelIds = panels.stream().map(DiseasePanel::getId).collect(Collectors.toList());
-                                tier2 = isTier2(ct);
+                                tier2 = isTier2(ct, soNameSet);
                                 if (tier2 || includeUntieredVariants) {
                                     reportedEvents.addAll(createReportedEvents(tier2 ? TIER_2 : null, panelIds, ct, variant));
                                 }
@@ -111,7 +99,7 @@ public class DefaultReportedVariantCreator extends ReportedVariantCreator {
                     } else {
                         // No gene panels provided
                         for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
-                            tier2 = isTier2(ct);
+                            tier2 = isTier2(ct, soNameSet);
                             if (tier2 || includeUntieredVariants) {
                                 reportedEvents.addAll(createReportedEvents(tier2 ? TIER_2 : null, null, ct, variant));
                             }
@@ -133,14 +121,14 @@ public class DefaultReportedVariantCreator extends ReportedVariantCreator {
         return reportedVariants;
     }
 
-    private boolean isTier2(ConsequenceType ct) {
+    private boolean isTier2(ConsequenceType ct, Set<String> includeSoTerms) {
         if (CollectionUtils.isNotEmpty(biotypeSet) && CollectionUtils.isNotEmpty(soNameSet)) {
-            if (biotypeSet.contains(ct.getBiotype()) && containSOName(ct, soNameSet)) {
+            if (biotypeSet.contains(ct.getBiotype()) && containSOName(ct, soNameSet, includeSoTerms)) {
                 return true;
             }
         } else if (CollectionUtils.isNotEmpty(biotypeSet) && biotypeSet.contains(ct.getBiotype())) {
             return true;
-        } else if (CollectionUtils.isNotEmpty(soNameSet) && containSOName(ct, soNameSet)) {
+        } else if (CollectionUtils.isNotEmpty(soNameSet) && containSOName(ct, soNameSet, includeSoTerms)) {
             return true;
         }
         return false;

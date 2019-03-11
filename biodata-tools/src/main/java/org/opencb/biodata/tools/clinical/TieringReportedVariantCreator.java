@@ -39,11 +39,13 @@ import static org.opencb.biodata.models.clinical.interpretation.ClinicalProperty
 
 public class TieringReportedVariantCreator extends ReportedVariantCreator {
 
-    public static final Set<String> TIER_1_CONSEQUENCE_TYPES_SET = new HashSet<>(Arrays.asList("SO:0001893", "SO:0001574", "SO:0001575",
-            "SO:0001587", "SO:0001589", "SO:0001578", "SO:0001582"));
+    public static final Set<String> TIER_1_CONSEQUENCE_TYPES_SET = new HashSet<>(Arrays.asList("SO:0001893", "transcript_ablation",
+            "SO:0001574", "splice_acceptor_variant", "SO:0001575", "splice_donor_variant", "SO:0001587", "stop_gained",
+            "SO:0001589", "frameshift_variant", "SO:0001578", "stop_lost", "SO:0001582", "initiator_codon_variant"));
 
-    private static final Set<String> TIER_2_CONSEQUENCE_TYPES_SET = new HashSet<>(Arrays.asList("SO:0001889", "SO:0001821", "SO:0001822",
-            "SO:0001583", "SO:0001630", "SO:0001626"));
+    private static final Set<String> TIER_2_CONSEQUENCE_TYPES_SET = new HashSet<>(Arrays.asList("SO:0001889", "transcript_amplification",
+            "SO:0001821", "inframe_insertion", "SO:0001822", "inframe_deletion", "SO:0001583", "missense_variant",
+            "SO:0001630", "splice_region_variant", "SO:0001626", "incomplete_terminal_codon_variant"));
 
     public TieringReportedVariantCreator(List<DiseasePanel> diseasePanels, Map<String, RoleInCancer> roleInCancer,
                                          Map<String, List<String>> actionableVariants, Disorder disorder, ModeOfInheritance modeOfInheritance,
@@ -95,6 +97,11 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
                 // 1) create the reported event for each transcript
                 for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
 
+                    // Only protein coding
+                    if (ct.getBiotype() == null || !proteinCoding.contains(ct.getBiotype())) {
+                        continue;
+                    }
+
                     GenomicFeature genomicFeature = new GenomicFeature(ct.getEnsemblGeneId(), ct.getEnsemblTranscriptId(), ct.getGeneName(),
                             null, null);
 
@@ -117,6 +124,12 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
 
                                             // 3) create the reported event for consequence type (SO term)
                                             for (SequenceOntologyTerm soTerm : ct.getSequenceOntologyTerms()) {
+
+                                                // Only LOF extended SO terms are reported
+                                                if ((soTerm.getName() != null && !extendedLof.contains(soTerm.getName()))
+                                                        || (soTerm.getAccession() != null && !extendedLof.contains(soTerm.getAccession()))) {
+                                                    continue;
+                                                }
 
                                                 if (StringUtils.isNotEmpty(soTerm.getAccession())) {
                                                     if (TIER_1_CONSEQUENCE_TYPES_SET.contains(soTerm.getAccession())) {
@@ -158,6 +171,11 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
                                 for (ModeOfInheritance moi : modeOfInheritances) {
                                     if (CollectionUtils.isNotEmpty(ct.getSequenceOntologyTerms())) {
                                         for (SequenceOntologyTerm soTerm : ct.getSequenceOntologyTerms()) {
+                                            // Only LOF extended SO terms are reported
+                                            if ((soTerm.getName() != null && !extendedLof.contains(soTerm.getName()))
+                                                    || (soTerm.getAccession() != null && !extendedLof.contains(soTerm.getAccession()))) {
+                                                continue;
+                                            }
                                             reportedEvents.add(createReportedEvent(disorder, Collections.singletonList(soTerm),
                                                     genomicFeature, null, moi, penetrance, "", variant));
                                         }
@@ -175,6 +193,12 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
                         for (ModeOfInheritance moi : modeOfInheritances) {
                             if (CollectionUtils.isNotEmpty(ct.getSequenceOntologyTerms())) {
                                 for (SequenceOntologyTerm soTerm : ct.getSequenceOntologyTerms()) {
+                                    // Only LOF extended SO terms are reported
+                                    if ((soTerm.getName() != null && !extendedLof.contains(soTerm.getName()))
+                                            || (soTerm.getAccession() != null && !extendedLof.contains(soTerm.getAccession()))) {
+                                        continue;
+                                    }
+
                                     reportedEvents.add(createReportedEvent(disorder, Collections.singletonList(soTerm),
                                             genomicFeature, null, moi, penetrance, TIER_3, variant));
                                 }

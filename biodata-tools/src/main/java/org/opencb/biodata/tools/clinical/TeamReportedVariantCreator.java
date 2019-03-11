@@ -25,7 +25,6 @@ import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.ModeOf
 import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.Penetrance;
 import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.RoleInCancer;
 import org.opencb.biodata.models.clinical.interpretation.DiseasePanel;
-import org.opencb.biodata.models.clinical.interpretation.GenomicFeature;
 import org.opencb.biodata.models.clinical.interpretation.ReportedEvent;
 import org.opencb.biodata.models.clinical.interpretation.ReportedVariant;
 import org.opencb.biodata.models.clinical.interpretation.exceptions.InterpretationAnalysisException;
@@ -70,9 +69,10 @@ public class TeamReportedVariantCreator extends ReportedVariantCreator {
                 List<String> panelIds = panels.stream().map(DiseasePanel::getId).collect(Collectors.toList());
 
                 if (variant.getAnnotation() != null && CollectionUtils.isNotEmpty(variant.getAnnotation().getConsequenceTypes())) {
-
                     for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
-                        reportedEvents.addAll(createReportedEvents(TIER_1, panelIds, ct, variant));
+                        if (ct.getBiotype() != null && proteinCoding.contains(ct.getBiotype())) {
+                            reportedEvents.addAll(createReportedEvents(TIER_1, panelIds, ct, variant));
+                        }
                     }
                 } else {
                     // We create the reported events anyway!
@@ -82,14 +82,16 @@ public class TeamReportedVariantCreator extends ReportedVariantCreator {
                 // Tier 2
                 if (variant.getAnnotation() != null && CollectionUtils.isNotEmpty(variant.getAnnotation().getConsequenceTypes())) {
                     for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
-                        if (MapUtils.isNotEmpty(geneToPanelMap) && geneToPanelMap.containsKey(ct.getEnsemblGeneId())
-                                && CollectionUtils.isNotEmpty(geneToPanelMap.get(ct.getEnsemblGeneId()))) {
-                            // Tier 2, gene in panel
-                            hasTier = true;
-                            Set<DiseasePanel> panels = geneToPanelMap.get(ct.getEnsemblGeneId());
-                            List<String> panelIds = panels.stream().map(DiseasePanel::getId).collect(Collectors.toList());
+                        if (ct.getBiotype() != null && proteinCoding.contains(ct.getBiotype())) {
+                            if (MapUtils.isNotEmpty(geneToPanelMap) && geneToPanelMap.containsKey(ct.getEnsemblGeneId())
+                                    && CollectionUtils.isNotEmpty(geneToPanelMap.get(ct.getEnsemblGeneId()))) {
+                                // Tier 2, gene in panel
+                                hasTier = true;
+                                Set<DiseasePanel> panels = geneToPanelMap.get(ct.getEnsemblGeneId());
+                                List<String> panelIds = panels.stream().map(DiseasePanel::getId).collect(Collectors.toList());
 
-                            reportedEvents.addAll(createReportedEvents(TIER_2, panelIds, ct, variant));
+                                reportedEvents.addAll(createReportedEvents(TIER_2, panelIds, ct, variant));
+                            }
                         }
                     }
                 }
@@ -100,7 +102,9 @@ public class TeamReportedVariantCreator extends ReportedVariantCreator {
                 if (variant.getAnnotation() != null && actionableVariants.containsKey(variant.getId())) {
                     if (CollectionUtils.isNotEmpty(variant.getAnnotation().getConsequenceTypes())) {
                         for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
-                            reportedEvents.addAll(createReportedEvents("", null, ct, variant));
+                            if (ct.getBiotype() != null && proteinCoding.contains(ct.getBiotype())) {
+                                reportedEvents.addAll(createReportedEvents("", null, ct, variant));
+                            }
                         }
                     } else {
                         // We create the reported events anyway!
