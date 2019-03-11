@@ -441,10 +441,10 @@ public abstract class ReportedVariantCreator {
         List<ReportedVariant> reportedVariants = new ArrayList<>();
 
         for (Map.Entry<String, List<ReportedVariant>> entry : reportedVariantMap.entrySet()) {
-            Set<String> variantIds = entry.getValue().stream().map(Variant::toString).collect(Collectors.toSet());
+            Set<String> variantIds = entry.getValue().stream().map(Variant::toStringSimple).collect(Collectors.toSet());
             for (ReportedVariant reportedVariant : entry.getValue()) {
                 Set<String> tmpVariantIds = new HashSet<>(variantIds);
-                tmpVariantIds.remove(reportedVariant.toString());
+                tmpVariantIds.remove(reportedVariant.toStringSimple());
 
                 for (ReportedEvent reportedEvent : reportedVariant.getReportedEvents()) {
                     reportedEvent.setCompoundHeterozygousVariantIds(new ArrayList<>(tmpVariantIds));
