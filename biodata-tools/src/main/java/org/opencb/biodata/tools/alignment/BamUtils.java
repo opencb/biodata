@@ -20,6 +20,7 @@
 package org.opencb.biodata.tools.alignment;
 
 import htsjdk.samtools.*;
+import org.apache.commons.lang.StringUtils;
 import org.opencb.biodata.models.alignment.RegionCoverage;
 import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.tools.alignment.exceptions.AlignmentCoverageException;
@@ -245,12 +246,26 @@ public class BamUtils {
 
     public static void validateRegion(Region region, SamReader samReader) {
         String chrom = region.getChromosome();
+        if (StringUtils.isEmpty(chrom)) {
+            throw new IllegalArgumentException("Unknown chromosome for region: " + region.toString());
+        }
+
         SAMSequenceDictionary sequenceDictionary = samReader.getFileHeader().getSequenceDictionary();
         if (sequenceDictionary.getSequenceIndex(chrom) == -1) {
-            if (sequenceDictionary.getSequenceIndex("chr" + chrom) == -1) {
-                throw new IllegalArgumentException("Unknown chromosome: " + region.getChromosome());
+            if (chrom.startsWith("chr")) {
+                chrom = chrom.replace("chr", "");
+                if (sequenceDictionary.getSequenceIndex(chrom) == -1) {
+                    throw new IllegalArgumentException("Unknown chromosome: " + region.getChromosome());
+                } else {
+                    region.setChromosome(chrom);
+                }
+            } else {
+                if (sequenceDictionary.getSequenceIndex("chr" + chrom) == -1) {
+                    throw new IllegalArgumentException("Unknown chromosome: " + region.getChromosome());
+                } else {
+                    region.setChromosome("chr" + chrom);
+                }
             }
-            region.setChromosome("chr" + chrom);
         }
     }
 }

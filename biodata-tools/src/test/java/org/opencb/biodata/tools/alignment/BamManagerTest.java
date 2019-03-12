@@ -174,7 +174,7 @@ public class BamManagerTest {
 
         AlignmentOptions options = new AlignmentOptions();
         options.setContained(false);
-        Region region = new Region("20", 62000, 62200);
+        Region region = new Region("chr20", 62000, 62200);
 
         int maxCoverage = 3;
 
