@@ -248,7 +248,7 @@ public class BamUtils {
     public static void validateRegion(Region region, SamReader samReader) {
         String chrom = region.getChromosome();
         if (StringUtils.isEmpty(chrom)) {
-            throw new IllegalArgumentException("Unknown chromosome for region: " + region.toString());
+            throw new IllegalArgumentException("Missing chromosome for region: " + region.toString());
         }
 
         SAMSequenceDictionary sequenceDictionary = samReader.getFileHeader().getSequenceDictionary();

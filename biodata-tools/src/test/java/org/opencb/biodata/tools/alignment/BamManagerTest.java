@@ -340,13 +340,13 @@ public class BamManagerTest {
     }
 
     public void testZoom() throws IOException {
-        Path path = Paths.get("~/data150/bw/NA12877_S1.bam.coverage.bw");
+//        Path path = Paths.get("~/data150/bw/NA12877_S1.bam.coverage.bw");
+        Path path = Paths.get("~/data150/bw/coverage.bw");
         BigWigManager bigWigManager = new BigWigManager(path);
 
         for (Integer windowSize : bigWigManager.getZoomWindowSizes()) {
             System.out.println(windowSize);
         }
-
 
         Region region = new Region("20", 60000, 60230);
         float[] values = bigWigManager.groupBy(region, 20);

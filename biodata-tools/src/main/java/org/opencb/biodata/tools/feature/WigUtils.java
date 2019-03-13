@@ -1,5 +1,8 @@
 package org.opencb.biodata.tools.feature;
 
+import htsjdk.samtools.SAMSequenceDictionary;
+import htsjdk.samtools.SamReader;
+import org.apache.commons.lang.StringUtils;
 import org.broad.igv.bbfile.BBFileReader;
 import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.tools.commons.ChunkFrequencyManager;
@@ -230,11 +233,25 @@ public class WigUtils {
 
     public static void validateRegion(Region region, BBFileReader bbFileReader) {
         String chrom = region.getChromosome();
+        if (StringUtils.isEmpty(chrom)) {
+            throw new IllegalArgumentException("Missing chromosome for region: " + region.toString());
+        }
+
         if (bbFileReader.getChromosomeID(chrom) == -1) {
-            if (bbFileReader.getChromosomeID("chr" + chrom) == -1) {
-                throw new IllegalArgumentException("Unknown chromosome: " + region.getChromosome());
+            if (chrom.startsWith("chr")) {
+                chrom = chrom.replace("chr", "");
+                if (bbFileReader.getChromosomeID(chrom) == -1) {
+                    throw new IllegalArgumentException("Unknown chromosome: " + region.getChromosome());
+                } else {
+                    region.setChromosome(chrom);
+                }
+            } else {
+                if (bbFileReader.getChromosomeID("chr" + chrom) == -1) {
+                    throw new IllegalArgumentException("Unknown chromosome: " + region.getChromosome());
+                } else {
+                    region.setChromosome("chr" + chrom);
+                }
             }
-            region.setChromosome("chr" + chrom);
         }
     }
 
