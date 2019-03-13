@@ -1,11 +1,8 @@
 package org.opencb.biodata.tools.feature;
 
-import htsjdk.samtools.SAMSequenceDictionary;
 import org.broad.igv.bbfile.*;
 import org.opencb.biodata.models.core.Region;
-import org.opencb.biodata.tools.commons.ChunkFrequencyManager;
 import org.opencb.commons.utils.FileUtils;
-import org.opencb.commons.utils.ListUtils;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -110,6 +107,9 @@ public class BigWigManager {
         int start = region.getStart();
         int end = region.getEnd() % windowSize == 0 ? region.getEnd() : (region.getEnd() / windowSize + 1) * windowSize;
         int numWindows = (end - start + 1) / windowSize;
+        if ((end - start + 1) % windowSize != 0) {
+            numWindows++;
+        }
         float[] chunks = new float[numWindows];
 
         if (zoomLevel == -1) {
@@ -124,7 +124,9 @@ public class BigWigManager {
                 for (int chunk = chunkStart; chunk <= chunkEnd; chunk++) {
                     length = Math.min(wItem.getEndBase() - start, chunk * windowSize + windowSize)
                             - Math.max(wItem.getStartBase() - start, chunk * windowSize);
-                    chunks[chunk] += (wItem.getWigValue() * length);
+                    if (chunk < chunks.length) {
+                        chunks[chunk] += (wItem.getWigValue() * length);
+                    }
                 }
             }
         } else {
@@ -139,7 +141,9 @@ public class BigWigManager {
                 for (int chunk = chunkStart; chunk <= chunkEnd; chunk++) {
                     length = Math.min(wItem.getChromEnd() - start, chunk * windowSize + windowSize)
                             - Math.max(wItem.getChromStart() - start, chunk * windowSize);
-                    chunks[chunk] += (wItem.getMeanVal() * length);
+                    if (chunk < chunks.length) {
+                        chunks[chunk] += (wItem.getMeanVal() * length);
+                    }
                 }
             }
         }
