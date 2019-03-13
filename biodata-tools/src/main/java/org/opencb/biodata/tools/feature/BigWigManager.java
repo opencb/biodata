@@ -107,39 +107,38 @@ public class BigWigManager {
 
         // Calculate the number of needed windows, ensure windowSize => 1
         windowSize = Math.max(1, windowSize);
-        int numWindows = (region.getEnd() - region.getStart() + 1) / windowSize;
-        if ((region.getEnd() - region.getStart()) % windowSize != 0) {
-            numWindows++;
-        }
+        int start = region.getStart();
+        int end = region.getEnd() % windowSize == 0 ? region.getEnd() : (region.getEnd() / windowSize + 1) * windowSize;
+        int numWindows = (end - start + 1) / windowSize;
         float[] chunks = new float[numWindows];
 
         if (zoomLevel == -1) {
             // No zoom level available. This can happen because there are not zoom levels or the window size is too small
-            BigWigIterator bigWigIterator = iterator(region);
+            BigWigIterator bigWigIterator = iterator(new Region(region.getChromosome(), start, end));
             WigItem wItem;
             int length, chunkStart, chunkEnd;
             while (bigWigIterator.hasNext()) {
                 wItem = bigWigIterator.next();
-                chunkStart = (Math.max(region.getStart(), wItem.getStartBase()) - region.getStart()) / windowSize;
-                chunkEnd = (Math.min(region.getEnd(), wItem.getEndBase()) - region.getStart()) / windowSize;
+                chunkStart = (Math.max(start, wItem.getStartBase()) - start) / windowSize;
+                chunkEnd = (Math.min(end, wItem.getEndBase()) - start - 1) / windowSize;
                 for (int chunk = chunkStart; chunk <= chunkEnd; chunk++) {
-                    length = Math.min(wItem.getEndBase() - region.getStart(), chunk * windowSize + windowSize)
-                            - Math.max(wItem.getStartBase() - region.getStart(), chunk * windowSize);
+                    length = Math.min(wItem.getEndBase() - start, chunk * windowSize + windowSize)
+                            - Math.max(wItem.getStartBase() - start, chunk * windowSize);
                     chunks[chunk] += (wItem.getWigValue() * length);
                 }
             }
         } else {
             // We get the zoom iterator, we need to increment by 1.
-            ZoomLevelIterator zoomIterator = iterator(region, zoomLevel + 1);
+            ZoomLevelIterator zoomIterator = iterator(new Region(region.getChromosome(), start, end), zoomLevel + 1);
             ZoomDataRecord wItem;
             int length, chunkStart, chunkEnd;
             while (zoomIterator.hasNext()) {
                 wItem = zoomIterator.next();
-                chunkStart = (Math.max(region.getStart(), wItem.getChromStart()) - region.getStart()) / windowSize;
-                chunkEnd = (Math.min(region.getEnd(), wItem.getChromEnd()) - region.getStart() - 1) / windowSize;
+                chunkStart = (Math.max(start, wItem.getChromStart()) - start) / windowSize;
+                chunkEnd = (Math.min(end, wItem.getChromEnd()) - start - 1) / windowSize;
                 for (int chunk = chunkStart; chunk <= chunkEnd; chunk++) {
-                    length = Math.min(wItem.getChromEnd() - region.getStart(), chunk * windowSize + windowSize)
-                            - Math.max(wItem.getChromStart() - region.getStart(), chunk * windowSize);
+                    length = Math.min(wItem.getChromEnd() - start, chunk * windowSize + windowSize)
+                            - Math.max(wItem.getChromStart() - start, chunk * windowSize);
                     chunks[chunk] += (wItem.getMeanVal() * length);
                 }
             }
@@ -155,6 +154,5 @@ public class BigWigManager {
     public List<Integer> getZoomWindowSizes() {
         return zoomWindowSizes;
     }
-
 }
 

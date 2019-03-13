@@ -6,6 +6,8 @@ import org.junit.Test;
 import org.opencb.biodata.models.alignment.RegionCoverage;
 import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.tools.alignment.exceptions.AlignmentCoverageException;
+import org.opencb.biodata.tools.feature.BigWigManager;
+import org.sqlite.util.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,10 +17,7 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 
@@ -337,5 +336,21 @@ public class BamManagerTest {
 //            System.out.println(breakpoint);
 //        }
 
+    }
+
+    public void testZoom() throws IOException {
+        Path path = Paths.get("~/data150/bw/NA12877_S1.bam.coverage.bw");
+        BigWigManager bigWigManager = new BigWigManager(path);
+
+        for (Integer windowSize : bigWigManager.getZoomWindowSizes()) {
+            System.out.println(windowSize);
+        }
+
+
+        Region region = new Region("20", 60000, 60230);
+        float[] values = bigWigManager.groupBy(region, 20);
+        for (float value : values) {
+            System.out.print(value + ", ");
+        }
     }
 }
