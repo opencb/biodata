@@ -178,7 +178,8 @@ public class BamManagerTest {
 
         int maxCoverage = 3;
 
-        List<RegionCoverage> uncoveredRegions = bamManager.getUncoveredRegions(region, maxCoverage);
+        RegionCoverage regionCoverage = bamManager.coverage(region, 1);
+        List<RegionCoverage> uncoveredRegions = BamUtils.getUncoveredRegions(regionCoverage, maxCoverage);
         for (RegionCoverage uncoveredRegion : uncoveredRegions) {
             System.out.println(uncoveredRegion);
         }

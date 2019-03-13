@@ -412,55 +412,6 @@ public class BamManager {
         }
     }
 
-    /**
-     * Return a list of RegionCoverage with a coverage less than o equal to the input maximum coverage.
-     * @param region
-     * @param maxCoverage
-     * @return
-     * @throws IOException
-     */
-    public List<RegionCoverage> getUncoveredRegions(Region region, int maxCoverage) throws IOException, AlignmentCoverageException {
-        List<RegionCoverage> uncoveredRegions = new ArrayList<>();
-        // Compute coverage from BAM file
-        RegionCoverage coverageRegion = coverage(region, 1);
-
-        float[] coverages = new float[region.size()];
-        int i = 0;
-        int pos = coverageRegion.getStart();
-        boolean isProcessing = false;
-        RegionCoverage uncoveredRegion = null;
-        for (float coverage: coverageRegion.getValues()) {
-            if (coverage <= maxCoverage) {
-                if (!isProcessing) {
-                    uncoveredRegion = new RegionCoverage(region.getChromosome(), pos, 0);
-                    isProcessing = true;
-                    i = 0;
-                }
-                coverages[i] = coverage;
-                i++;
-            } else {
-                if (isProcessing) {
-                    uncoveredRegion.setEnd(pos - 1);
-                    uncoveredRegion.setValues(Arrays.copyOf(coverages, i));
-                    uncoveredRegion.updateStats();
-                    uncoveredRegions.add(uncoveredRegion);
-                    isProcessing = false;
-                }
-            }
-            pos++;
-        }
-
-        // Check if a uncovered region is still processing
-        if (isProcessing) {
-            uncoveredRegion.setEnd(pos - 1);
-            uncoveredRegion.setValues(Arrays.copyOf(coverages, i));
-            uncoveredRegion.updateStats();
-            uncoveredRegions.add(uncoveredRegion);
-        }
-
-        return uncoveredRegions;
-    }
-
     public AlignmentGlobalStats stats() throws IOException {
         return calculateGlobalStats(iterator());
     }

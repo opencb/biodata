@@ -32,6 +32,7 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -268,4 +269,52 @@ public class BamUtils {
             }
         }
     }
+
+    /**
+     * Return a list of RegionCoverage with a coverage less than or equal to the input maximum coverage.
+     * @param coverageRegion
+     * @param maxCoverage
+     * @return
+     * @throws IOException
+     */
+    public static List<RegionCoverage> getUncoveredRegions(RegionCoverage coverageRegion, int maxCoverage) {
+        List<RegionCoverage> uncoveredRegions = new ArrayList<>();
+
+        float[] coverages = new float[coverageRegion.size()];
+        int i = 0;
+        int pos = coverageRegion.getStart();
+        boolean isProcessing = false;
+        RegionCoverage uncoveredRegion = null;
+        for (float coverage: coverageRegion.getValues()) {
+            if (coverage <= maxCoverage) {
+                if (!isProcessing) {
+                    uncoveredRegion = new RegionCoverage(coverageRegion.getChromosome(), pos, 0);
+                    isProcessing = true;
+                    i = 0;
+                }
+                coverages[i] = coverage;
+                i++;
+            } else {
+                if (isProcessing) {
+                    uncoveredRegion.setEnd(pos - 1);
+                    uncoveredRegion.setValues(Arrays.copyOf(coverages, i));
+                    uncoveredRegion.updateStats();
+                    uncoveredRegions.add(uncoveredRegion);
+                    isProcessing = false;
+                }
+            }
+            pos++;
+        }
+
+        // Check if a uncovered region is still processing
+        if (isProcessing) {
+            uncoveredRegion.setEnd(pos - 1);
+            uncoveredRegion.setValues(Arrays.copyOf(coverages, i));
+            uncoveredRegion.updateStats();
+            uncoveredRegions.add(uncoveredRegion);
+        }
+
+        return uncoveredRegions;
+    }
+
 }
