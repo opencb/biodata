@@ -172,8 +172,9 @@ public abstract class ReportedVariantCreator {
         return idToPanelMap;
     }
 
-    protected Map<String, Set<ClinicalProperty.ModeOfInheritance>> getGeneToPanelMoiMap(List<DiseasePanel> diseasePanels) {
-        Map<String, Set<ClinicalProperty.ModeOfInheritance>> idToPanelMoiMap = new HashMap<>();
+    protected Map<String, Map<String, ClinicalProperty.ModeOfInheritance>> getGeneToPanelMoiMap(List<DiseasePanel> diseasePanels) {
+        // Map<Ensembl gene ID, Map<Panel Id, MoI>>
+        Map<String, Map<String, ClinicalProperty.ModeOfInheritance>> idToPanelMoiMap = new HashMap<>();
         if (CollectionUtils.isNotEmpty(diseasePanels)) {
             for (DiseasePanel panel : diseasePanels) {
                 // Put gene IDs
@@ -181,9 +182,9 @@ public abstract class ReportedVariantCreator {
                     for (DiseasePanel.GenePanel panelGene : panel.getGenes()) {
                         if (StringUtils.isNotEmpty(panelGene.getId()) && StringUtils.isNotEmpty(panelGene.getModeOfInheritance())) {
                             if (!idToPanelMoiMap.containsKey(panelGene.getId())) {
-                                idToPanelMoiMap.put(panelGene.getId(), new HashSet<>());
+                                idToPanelMoiMap.put(panelGene.getId(), new HashMap());
                             }
-                            idToPanelMoiMap.get(panelGene.getId()).add(getMoiFromGenePanel(panelGene.getModeOfInheritance()));
+                            idToPanelMoiMap.get(panelGene.getId()).put(panel.getId(), getMoiFromGenePanel(panelGene.getModeOfInheritance()));
                         }
                     }
                 }
