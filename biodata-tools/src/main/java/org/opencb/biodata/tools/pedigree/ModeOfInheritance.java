@@ -273,6 +273,8 @@ public class ModeOfInheritance {
 
         while (iterator.hasNext()) {
             Variant variant = iterator.next();
+            logger.debug("Variant: '{}'", variant.toStringSimple());
+
             variantsRetrieved += 1;
 
             StudyEntry studyEntry = variant.getStudies().get(0);
@@ -332,6 +334,20 @@ public class ModeOfInheritance {
                 totalVariants += variantMap.get(entry.getKey()).size();
             }
         }
+
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        objectMapper.configure(MapperFeature.REQUIRE_SETTERS_FOR_GETTERS, true);
+//        objectMapper.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);
+//        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+//        objectMapper.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
+//        objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+//
+//        try {
+//            logger.debug("TranscriptToVariantsMap: {}", objectMapper.writer().writeValueAsString(transcriptToVariantsMap));
+//            logger.debug("VariantMap: {}", objectMapper.writer().writeValueAsString(variantMap));
+//        } catch (Exception e) {
+//            logger.error("{}", e.getMessage());
+//        }
 
         logger.debug("CH - Number of variants retrieved: {}; Found {} CH variants in {} transcripts", variantsRetrieved, totalVariants,
                 variantMap.size());
