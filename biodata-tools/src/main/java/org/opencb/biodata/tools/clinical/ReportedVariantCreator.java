@@ -389,10 +389,11 @@ public abstract class ReportedVariantCreator {
             }
         } else {
             // We report events without panels, e.g., actionable variants (tier 3)
-            ReportedEvent reportedEvent = createReportedEvent(disorder, soTerms, genomicFeature, null, modeOfInheritance,
-                    penetrance, tier, variant);
-            if (reportedEvent != null) {
-                reportedEvents.add(reportedEvent);
+            if (CollectionUtils.isNotEmpty(soTerms)) {
+                ReportedEvent reportedEvent = createReportedEvent(disorder, soTerms, genomicFeature, null, modeOfInheritance, penetrance, tier, variant);
+                if (reportedEvent != null) {
+                    reportedEvents.add(reportedEvent);
+                }
             }
         }
         return reportedEvents;
