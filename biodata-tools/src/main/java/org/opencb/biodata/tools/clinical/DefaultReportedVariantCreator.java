@@ -77,11 +77,11 @@ public class DefaultReportedVariantCreator extends ReportedVariantCreator {
 
                 if (variant.getAnnotation() != null && CollectionUtils.isNotEmpty(variant.getAnnotation().getConsequenceTypes())) {
                     for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
-                        reportedEvents.addAll(createReportedEvents(TIER_1, panelIds, ct, variant));
+                        reportedEvents.addAll(createReportedEvents(TIER_1, panelIds, ct, variant, soNameSet));
                     }
                 } else {
                     // We create the reported events anyway!
-                    reportedEvents.addAll(createReportedEvents(TIER_1, panelIds, null, variant));
+                    reportedEvents.addAll(createReportedEvents(TIER_1, panelIds, null, variant, soNameSet));
                 }
             } else {
                 // Sanity check
@@ -97,7 +97,7 @@ public class DefaultReportedVariantCreator extends ReportedVariantCreator {
                                 List<String> panelIds = panels.stream().map(DiseasePanel::getId).collect(Collectors.toList());
                                 tier2 = isTier2(ct, soNameSet);
                                 if (tier2 || includeUntieredVariants) {
-                                    reportedEvents.addAll(createReportedEvents(tier2 ? TIER_2 : null, panelIds, ct, variant));
+                                    reportedEvents.addAll(createReportedEvents(tier2 ? TIER_2 : null, panelIds, ct, variant, soNameSet));
                                 }
                             }
                         }
@@ -106,7 +106,7 @@ public class DefaultReportedVariantCreator extends ReportedVariantCreator {
                         for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
                             tier2 = isTier2(ct, soNameSet);
                             if (tier2 || includeUntieredVariants) {
-                                reportedEvents.addAll(createReportedEvents(tier2 ? TIER_2 : null, null, ct, variant));
+                                reportedEvents.addAll(createReportedEvents(tier2 ? TIER_2 : null, null, ct, variant, soNameSet));
                             }
                         }
                     }

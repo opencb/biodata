@@ -21,6 +21,7 @@ package org.opencb.biodata.tools.clinical;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections.SetUtils;
 import org.apache.commons.lang.StringUtils;
 import org.opencb.biodata.models.clinical.interpretation.*;
 import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.ModeOfInheritance;
@@ -339,7 +340,7 @@ public abstract class ReportedVariantCreator {
         List<SequenceOntologyTerm> soTerms = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(ct.getSequenceOntologyTerms())) {
             for (SequenceOntologyTerm soTerm : ct.getSequenceOntologyTerms()) {
-                if (includeSoTerms.contains(soTerm.getName())) {
+                if (CollectionUtils.isEmpty(includeSoTerms) || includeSoTerms.contains(soTerm.getName())) {
                     soTerms.add(soTerm);
                 }
             }
