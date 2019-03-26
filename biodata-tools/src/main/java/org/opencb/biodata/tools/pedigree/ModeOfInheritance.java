@@ -129,14 +129,20 @@ public class ModeOfInheritance {
                 } else {
                     Set<Integer> genotype = new HashSet<>();
                     genotype.add(GENOTYPE_0_0);
-                    genotype.add(GENOTYPE_0_1);
+                    if (!isDominant) {
+                        genotype.add(GENOTYPE_0_1);
+                    }
                     genotypes.put(member.getId(), genotype);
                 }
             }
         }
 
+        logger.debug("Genotypes before validating: {}", genotypes);
+
         // Validate genotypeCounters using relationships
         validateGenotypes(genotypes, pedigreeManager);
+
+        logger.debug("Genotypes after validating: {}", genotypes);
 
         if (!isValidModeOfInheritance(genotypes, pedigree, affectedMembers)) {
             return null;
@@ -722,6 +728,8 @@ public class ModeOfInheritance {
             }
             output.put(key, new ArrayList<>(gtList));
         }
+
+        logger.debug("Final map of genotypes: {}", output);
         return output;
     }
 

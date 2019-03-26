@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opencb.biodata.models.clinical.pedigree.Member;
 import org.opencb.biodata.models.clinical.pedigree.Pedigree;
+import org.opencb.biodata.models.clinical.pedigree.PedigreeManager;
 import org.opencb.biodata.models.commons.Disorder;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
@@ -22,6 +23,9 @@ public class ModeOfInheritanceTest {
     Pedigree family1;
     Pedigree family2;
     Pedigree family3;
+
+    // Incomplete family with proband and mother only
+    Pedigree family4;
 
     Disorder disorder1;
     Disorder disorder2;
@@ -98,6 +102,14 @@ public class ModeOfInheritanceTest {
         family3 = new Pedigree()
                 .setMembers(Arrays.asList(father, mother, daughter))
                 .setProband(daughter);
+
+        mother = new Member().setId("mother").setSex(Member.Sex.FEMALE);
+        daughter = new Member().setId("daughter").setSex(Member.Sex.FEMALE).setDisorders(Collections.singletonList(disorder1))
+                .setMother(mother);
+        family4 = new Pedigree()
+                .setMembers(Arrays.asList(mother, daughter))
+                .setProband(daughter)
+                .setDisorders(Collections.singletonList(disorder1));
     }
 
     @Test
@@ -231,6 +243,12 @@ public class ModeOfInheritanceTest {
 
         genotypes = ModeOfInheritance.xLinked(family2, disorder1, false);
         assertEquals("Some cases where the mother is affected and their sons are not. That doesn't follow the xLinked moi", null, genotypes);
+
+        genotypes = ModeOfInheritance.xLinked(family4, disorder1, true);
+        assertEquals("daughter not 0/1, 0|1, 1|0 -> " + genotypes.get("daughter"), 3,
+                ListUtils.intersection(ModeOfInheritance.toGenotypeString(GENOTYPE_0_1), genotypes.get("daughter")).size());
+        assertTrue("mother not 0/0 -> " + genotypes.get("mother"),
+                ModeOfInheritance.toGenotypeString(GENOTYPE_0_0).containsAll(genotypes.get("mother")));
     }
 
     @Test
