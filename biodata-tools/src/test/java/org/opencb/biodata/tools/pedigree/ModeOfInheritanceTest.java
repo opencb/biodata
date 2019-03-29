@@ -4,7 +4,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opencb.biodata.models.clinical.pedigree.Member;
 import org.opencb.biodata.models.clinical.pedigree.Pedigree;
-import org.opencb.biodata.models.clinical.pedigree.PedigreeManager;
 import org.opencb.biodata.models.commons.Disorder;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
@@ -16,6 +15,7 @@ import org.opencb.commons.utils.ListUtils;
 import java.util.*;
 
 import static org.junit.Assert.*;
+import static org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.Penetrance;
 import static org.opencb.biodata.tools.pedigree.ModeOfInheritance.*;
 
 public class ModeOfInheritanceTest {
@@ -114,7 +114,7 @@ public class ModeOfInheritanceTest {
 
     @Test
     public void dominant() {
-        Map<String, List<String>> genotypes = ModeOfInheritance.dominant(family1, disorder1, false);
+        Map<String, List<String>> genotypes = ModeOfInheritance.dominant(family1, disorder1, Penetrance.COMPLETE);
         assertTrue("son not 0/1 -> " + genotypes.get("son"),
                 ModeOfInheritance.toGenotypeString(GENOTYPE_0_1).containsAll(genotypes.get("son")));
         assertTrue("daughter not 0/0 -> " + genotypes.get("daughter"),
@@ -124,7 +124,7 @@ public class ModeOfInheritanceTest {
         assertTrue("father not 0/1 -> " + genotypes.get("father"),
                 ModeOfInheritance.toGenotypeString(GENOTYPE_0_1).containsAll(genotypes.get("father")));
 
-        genotypes = ModeOfInheritance.dominant(family1, disorder2, false);
+        genotypes = ModeOfInheritance.dominant(family1, disorder2, Penetrance.COMPLETE);
         assertTrue("son not 0/0 -> " + genotypes.get("son"),
                 ModeOfInheritance.toGenotypeString(GENOTYPE_0_0).containsAll(genotypes.get("son")));
         assertTrue("daughter not 0/1 -> " + genotypes.get("daughter"),
@@ -134,7 +134,7 @@ public class ModeOfInheritanceTest {
         assertTrue("father not 0/0 -> " + genotypes.get("father"),
                 ModeOfInheritance.toGenotypeString(GENOTYPE_0_0).containsAll(genotypes.get("father")));
 
-        genotypes = ModeOfInheritance.dominant(family1, disorder3, false);
+        genotypes = ModeOfInheritance.dominant(family1, disorder3, Penetrance.COMPLETE);
         assertTrue("son not 0/0 -> " + genotypes.get("son"),
                 ModeOfInheritance.toGenotypeString(GENOTYPE_0_0).containsAll(genotypes.get("son")));
         assertTrue("daughter not 0/0 -> " + genotypes.get("daughter"),
@@ -144,17 +144,17 @@ public class ModeOfInheritanceTest {
         assertTrue("father not 0/1 -> " + genotypes.get("father"),
                 ModeOfInheritance.toGenotypeString(GENOTYPE_0_1).containsAll(genotypes.get("father")));
 
-        genotypes = ModeOfInheritance.dominant(family1, disorder4, false);
+        genotypes = ModeOfInheritance.dominant(family1, disorder4, Penetrance.COMPLETE);
         // This case is impossible. Son cannot be affected by a dominant disease if none of the parents have the disease.
         assertNull("At least one of the parents should be affected if the son is affected ", genotypes);
 
-        genotypes = ModeOfInheritance.dominant(family2, disorder1, false);
+        genotypes = ModeOfInheritance.dominant(family2, disorder1, Penetrance.COMPLETE);
         assertNull("At least one of the parents should be affected if the son is affected ", genotypes);
     }
 
     @Test
     public void recessive() {
-        Map<String, List<String>> genotypes = ModeOfInheritance.recessive(family1, disorder1, false);
+        Map<String, List<String>> genotypes = ModeOfInheritance.recessive(family1, disorder1, Penetrance.COMPLETE);
         assertTrue("son not 1/1 -> " + genotypes.get("son"),
                 ModeOfInheritance.toGenotypeString(GENOTYPE_1_1).containsAll(genotypes.get("son")));
         assertTrue("daughter not 0/1 -> " + genotypes.get("daughter"),
@@ -164,7 +164,7 @@ public class ModeOfInheritanceTest {
         assertTrue("father not 1/1 -> " + genotypes.get("father"),
                 ModeOfInheritance.toGenotypeString(GENOTYPE_1_1).containsAll(genotypes.get("father")));
 
-        genotypes = ModeOfInheritance.recessive(family1, disorder2, false);
+        genotypes = ModeOfInheritance.recessive(family1, disorder2, Penetrance.COMPLETE);
         assertTrue("son not 0/1 -> " + genotypes.get("son"),
                 ModeOfInheritance.toGenotypeString(GENOTYPE_0_1).containsAll(genotypes.get("son")));
         assertTrue("daughter not 1/1 -> " + genotypes.get("daughter"),
@@ -174,7 +174,7 @@ public class ModeOfInheritanceTest {
         assertTrue("father not 0/1 -> " + genotypes.get("father"),
                 ModeOfInheritance.toGenotypeString(GENOTYPE_0_1).containsAll(genotypes.get("father")));
 
-        genotypes = ModeOfInheritance.recessive(family1, disorder3, false);
+        genotypes = ModeOfInheritance.recessive(family1, disorder3, Penetrance.COMPLETE);
         assertTrue("son not 0/1 -> " + genotypes.get("son"),
                 ModeOfInheritance.toGenotypeString(GENOTYPE_0_1).containsAll(genotypes.get("son")));
         assertTrue("daughter not 0/1 -> " + genotypes.get("daughter"),
@@ -186,7 +186,7 @@ public class ModeOfInheritanceTest {
         assertTrue("father not 1/1 -> " + genotypes.get("father"),
                 ModeOfInheritance.toGenotypeString(GENOTYPE_1_1).containsAll(genotypes.get("father")));
 
-        genotypes = ModeOfInheritance.recessive(family1, disorder4, false);
+        genotypes = ModeOfInheritance.recessive(family1, disorder4, Penetrance.COMPLETE);
         assertTrue("son not 1/1 -> " + genotypes.get("son"),
                 ModeOfInheritance.toGenotypeString(GENOTYPE_1_1).containsAll(genotypes.get("son")));
         assertEquals("daughter not 0/0, 0/1 -> " + genotypes.get("daughter"), 2,
@@ -198,13 +198,13 @@ public class ModeOfInheritanceTest {
         assertTrue("father not 0/1 -> " + genotypes.get("father"),
                 ModeOfInheritance.toGenotypeString(GENOTYPE_0_1).containsAll(genotypes.get("father")));
 
-        genotypes = ModeOfInheritance.recessive(family2, disorder1, false);
+        genotypes = ModeOfInheritance.recessive(family2, disorder1, Penetrance.COMPLETE);
         assertNull("Individual 17 should be affected if both parents are affected", genotypes);
     }
 
     @Test
     public void xLinkedTest() {
-        Map<String, List<String>> genotypes = ModeOfInheritance.xLinked(family1, disorder1, false);
+        Map<String, List<String>> genotypes = ModeOfInheritance.xLinked(family1, disorder1, false, Penetrance.COMPLETE);
         assertTrue("son not 1 -> " + genotypes.get("son"),
                 ModeOfInheritance.toGenotypeString(GENOTYPE_1).containsAll(genotypes.get("son")));
         assertTrue("daughter not 0/1 -> " + genotypes.get("daughter"),
@@ -214,10 +214,10 @@ public class ModeOfInheritanceTest {
         assertTrue("father not 1 -> " + genotypes.get("father"),
                 ModeOfInheritance.toGenotypeString(GENOTYPE_1).containsAll(genotypes.get("father")));
 
-        genotypes = ModeOfInheritance.xLinked(family1, disorder2, false);
+        genotypes = ModeOfInheritance.xLinked(family1, disorder2, false, Penetrance.COMPLETE);
         assertEquals("Son should also be affected to follow the xLinked moi", null, genotypes);
 
-        genotypes = ModeOfInheritance.xLinked(family1, disorder3, false);
+        genotypes = ModeOfInheritance.xLinked(family1, disorder3, false, Penetrance.COMPLETE);
         assertTrue("son not 0 -> " + genotypes.get("son"),
                 ModeOfInheritance.toGenotypeString(GENOTYPE_0).containsAll(genotypes.get("son")));
         assertTrue("daughter not 0/1 -> " + genotypes.get("daughter"),
@@ -229,7 +229,7 @@ public class ModeOfInheritanceTest {
         assertTrue("father not 1 -> " + genotypes.get("father"),
                 ModeOfInheritance.toGenotypeString(GENOTYPE_1).containsAll(genotypes.get("father")) );
 
-        genotypes = ModeOfInheritance.xLinked(family1, disorder4, false);
+        genotypes = ModeOfInheritance.xLinked(family1, disorder4, false, Penetrance.COMPLETE);
         assertTrue("son not 1 -> " + genotypes.get("son"),
                 ModeOfInheritance.toGenotypeString(GENOTYPE_1).containsAll(genotypes.get("son")));
         assertEquals("daughter not 0/0, 0/1 -> " + genotypes.get("daughter"), 2,
@@ -241,10 +241,10 @@ public class ModeOfInheritanceTest {
         assertTrue("father not 0 -> " + genotypes.get("father"),
                 ModeOfInheritance.toGenotypeString(GENOTYPE_0).containsAll(genotypes.get("father")));
 
-        genotypes = ModeOfInheritance.xLinked(family2, disorder1, false);
+        genotypes = ModeOfInheritance.xLinked(family2, disorder1, false, Penetrance.COMPLETE);
         assertEquals("Some cases where the mother is affected and their sons are not. That doesn't follow the xLinked moi", null, genotypes);
 
-        genotypes = ModeOfInheritance.xLinked(family4, disorder1, true);
+        genotypes = ModeOfInheritance.xLinked(family4, disorder1, true, Penetrance.COMPLETE);
         assertEquals("daughter not 0/1, 0|1, 1|0 -> " + genotypes.get("daughter"), 3,
                 ListUtils.intersection(ModeOfInheritance.toGenotypeString(GENOTYPE_0_1), genotypes.get("daughter")).size());
         assertTrue("mother not 0/0 -> " + genotypes.get("mother"),
@@ -253,7 +253,7 @@ public class ModeOfInheritanceTest {
 
     @Test
     public void yLinkedTest() {
-        Map<String, List<String>> genotypes = ModeOfInheritance.yLinked(family1, disorder1);
+        Map<String, List<String>> genotypes = ModeOfInheritance.yLinked(family1, disorder1, Penetrance.COMPLETE);
         assertTrue("son not 1 -> " + genotypes.get("son"),
                 ModeOfInheritance.toGenotypeString(GENOTYPE_1).containsAll(genotypes.get("son")));
         assertEquals("daughter not [] -> " + genotypes.get("daughter"), 0, genotypes.get("daughter").size());
@@ -261,16 +261,16 @@ public class ModeOfInheritanceTest {
         assertTrue("father not 1 -> " + genotypes.get("father"),
                 ModeOfInheritance.toGenotypeString(GENOTYPE_1).containsAll(genotypes.get("father")));
 
-        genotypes = ModeOfInheritance.yLinked(family1, disorder2);
+        genotypes = ModeOfInheritance.yLinked(family1, disorder2, Penetrance.COMPLETE);
         assertEquals("Girls cannot be affected in a Y-linked moi", null, genotypes);
 
-        genotypes = ModeOfInheritance.yLinked(family1, disorder3);
+        genotypes = ModeOfInheritance.yLinked(family1, disorder3, Penetrance.COMPLETE);
         assertEquals("If the father is affected, the son should also be affected", null, genotypes);
 
-        genotypes = ModeOfInheritance.yLinked(family1, disorder4);
+        genotypes = ModeOfInheritance.yLinked(family1, disorder4, Penetrance.COMPLETE);
         assertEquals("If the son is affected, the father should also be affected", null, genotypes);
 
-        genotypes = ModeOfInheritance.yLinked(family2, disorder1);
+        genotypes = ModeOfInheritance.yLinked(family2, disorder1, Penetrance.COMPLETE);
         assertEquals("Some cases where the father is affected and sons are not. That doesn't follow the xLinked moi", null, genotypes);
     }
 
