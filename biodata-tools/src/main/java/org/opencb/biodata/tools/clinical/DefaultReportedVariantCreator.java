@@ -116,7 +116,7 @@ public class DefaultReportedVariantCreator extends ReportedVariantCreator {
             // Create a reported variant only if we have reported events
             if (CollectionUtils.isNotEmpty(reportedEvents)) {
                 ReportedVariant reportedVariant = new ReportedVariant(variant.getImpl(), 0, new ArrayList<>(),
-                        Collections.emptyList(), Collections.emptyMap());
+                        Collections.emptyList(), ReportedVariant.Status.NOT_REVIEWED, Collections.emptyMap());
                 reportedVariant.setReportedEvents(reportedEvents);
 
                 // Add variant to the list

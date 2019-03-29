@@ -123,7 +123,7 @@ public abstract class ReportedVariantCreator {
             // If we have reported events, then we have to create the reported variant
             if (CollectionUtils.isNotEmpty(reportedEvents)) {
                 ReportedVariant reportedVariant = new ReportedVariant(variant.getImpl(), 0, new ArrayList<>(),
-                        Collections.emptyList(), Collections.emptyMap());
+                        Collections.emptyList(), ReportedVariant.Status.NOT_REVIEWED, Collections.emptyMap());
                 reportedVariant.setReportedEvents(reportedEvents);
 
                 // Add variant to the list

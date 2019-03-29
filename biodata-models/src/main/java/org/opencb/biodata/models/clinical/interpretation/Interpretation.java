@@ -32,7 +32,7 @@ public class Interpretation {
     private String clinicalAnalysisId;
     private List<DiseasePanel> panels;
 
-    private String status;
+    private Status status;
 
     /**
      * Interpretation algorithm tool used to generate this interpretation.
@@ -56,11 +56,18 @@ public class Interpretation {
     private Map<String, Object> attributes;
     private int version;
 
-
-    public Interpretation() {
+    public enum Status {
+        NOT_REVIEWED,
+        UNDER_REVIEWED,
+        REVIEWED,
+        REJECTED
     }
 
-    public Interpretation(String id, String description, String clinicalAnalysisId, List<DiseasePanel> panels, String status,
+    public Interpretation() {
+        this.status = Status.NOT_REVIEWED;
+    }
+
+    public Interpretation(String id, String description, String clinicalAnalysisId, List<DiseasePanel> panels, Status status,
                           Software software, Analyst analyst, List<Software> dependencies, Map<String, Object> filters, String creationDate,
                           List<ReportedVariant> primaryFindings, List<ReportedVariant> secondaryFindings,
                           List<ReportedLowCoverage> reportedLowCoverages, List<Comment> comments, Map<String, Object> attributes,
@@ -142,11 +149,11 @@ public class Interpretation {
         return this;
     }
 
-    public String getStatus() {
+    public Status getStatus() {
         return status;
     }
 
-    public Interpretation setStatus(String status) {
+    public Interpretation setStatus(Status status) {
         this.status = status;
         return this;
     }

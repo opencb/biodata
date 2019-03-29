@@ -31,8 +31,18 @@ public class ReportedVariant extends Variant {
     private List<ReportedEvent> reportedEvents;
     private List<Comment> comments;
 
+    private Status status;
+
     // TODO maybe this parameter should be in Variant
     private Map<String, Object> attributes;
+
+    public enum Status {
+        NOT_REVIEWED,
+        UNDER_REVIEWED,
+        REVIEWED,
+        REJECTED,
+        TO_BE_REPORTED
+    }
 
     public ReportedVariant() {
     }
@@ -42,24 +52,14 @@ public class ReportedVariant extends Variant {
     }
 
     public ReportedVariant(VariantAvro avro, double deNovoQualityScore, List<ReportedEvent> reportedEvents, List<Comment> comments,
-                           Map<String, Object> attributes) {
+                           Status status, Map<String, Object> attributes) {
         super(avro);
 
         this.deNovoQualityScore = deNovoQualityScore;
         this.reportedEvents = reportedEvents;
         this.comments = comments;
+        this.status = status;
         this.attributes = attributes;
-    }
-
-    @Override
-    public String toString() {
-        final StringBuffer sb = new StringBuffer("ReportedVariant{");
-        sb.append("deNovoQualityScore=").append(deNovoQualityScore);
-        sb.append(", reportedEvents=").append(reportedEvents);
-        sb.append(", comments=").append(comments);
-        sb.append(", attributes=").append(attributes);
-        sb.append('}');
-        return sb.toString();
     }
 
     public double getDeNovoQualityScore() {
@@ -86,6 +86,15 @@ public class ReportedVariant extends Variant {
 
     public ReportedVariant setComments(List<Comment> comments) {
         this.comments = comments;
+        return this;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public ReportedVariant setStatus(Status status) {
+        this.status = status;
         return this;
     }
 
