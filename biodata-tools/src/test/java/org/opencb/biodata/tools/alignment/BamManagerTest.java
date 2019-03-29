@@ -87,8 +87,14 @@ public class BamManagerTest {
 
         BamManager bamManager = new BamManager(bamPath);
 
-        Region region = new Region("20", 62000, 62031);
-        RegionCoverage coverage = bamManager.coverage(region, 15);
+        Region region = new Region("20", 62100, 62105);
+        RegionCoverage coverage = bamManager.coverage(region, 1);
+//        List<RegionCoverage> uncoveredRegions = BamUtils.getUncoveredRegions(coverage, 4);
+//        for (RegionCoverage uncoveredRegion : uncoveredRegions) {
+//            System.out.println(uncoveredRegion);
+//        }
+
+
 //        System.out.println(coverage.toString());
         System.out.println(coverage.toJSON());
         System.out.println("mean coverage = " + coverage.meanCoverage());
@@ -177,7 +183,7 @@ public class BamManagerTest {
 
         int maxCoverage = 3;
 
-        RegionCoverage regionCoverage = bamManager.coverage(region, 1);
+        RegionCoverage regionCoverage = bamManager.coverage(region, 20);
         List<RegionCoverage> uncoveredRegions = BamUtils.getUncoveredRegions(regionCoverage, maxCoverage);
         for (RegionCoverage uncoveredRegion : uncoveredRegions) {
             System.out.println(uncoveredRegion);

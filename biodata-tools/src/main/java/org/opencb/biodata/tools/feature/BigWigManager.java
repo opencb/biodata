@@ -121,7 +121,7 @@ public class BigWigManager {
             while (bigWigIterator.hasNext()) {
                 wItem = bigWigIterator.next();
                 chunkStart = (Math.max(start, wItem.getStartBase()) - start) / windowSize;
-                chunkEnd = (Math.min(end, wItem.getEndBase()) - start - 1) / windowSize;
+                chunkEnd = (Math.min(end, wItem.getEndBase()) - start) / windowSize;
                 for (int chunk = chunkStart; chunk <= chunkEnd; chunk++) {
                     length = Math.min(wItem.getEndBase() - start, chunk * windowSize + windowSize)
                             - Math.max(wItem.getStartBase() - start, chunk * windowSize);
@@ -138,7 +138,7 @@ public class BigWigManager {
             while (zoomIterator.hasNext()) {
                 wItem = zoomIterator.next();
                 chunkStart = (Math.max(start, wItem.getChromStart()) - start) / windowSize;
-                chunkEnd = (Math.min(end, wItem.getChromEnd()) - start - 1) / windowSize;
+                chunkEnd = (Math.min(end, wItem.getChromEnd()) - start) / windowSize;
                 for (int chunk = chunkStart; chunk <= chunkEnd; chunk++) {
                     length = Math.min(wItem.getChromEnd() - start, chunk * windowSize + windowSize)
                             - Math.max(wItem.getChromStart() - start, chunk * windowSize);
