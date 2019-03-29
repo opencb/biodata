@@ -105,10 +105,11 @@ public class BigWigManager {
         // Calculate the number of needed windows, ensure windowSize => 1
         windowSize = Math.max(1, windowSize);
         int start = region.getStart();
-        int end = region.getEnd() % windowSize == 0 ? region.getEnd() : (region.getEnd() / windowSize + 1) * windowSize;
+        int end = region.getEnd();
         int numWindows = (end - start + 1) / windowSize;
         if ((end - start + 1) % windowSize != 0) {
             numWindows++;
+            end = start + (numWindows * windowSize - 1);
         }
         float[] chunks = new float[numWindows];
 
