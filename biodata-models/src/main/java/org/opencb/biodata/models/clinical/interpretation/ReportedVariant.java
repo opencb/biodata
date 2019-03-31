@@ -38,7 +38,7 @@ public class ReportedVariant extends Variant {
 
     public enum Status {
         NOT_REVIEWED,
-        UNDER_REVIEWED,
+        UNDER_REVIEW,
         REVIEWED,
         REJECTED,
         TO_BE_REPORTED
@@ -60,6 +60,19 @@ public class ReportedVariant extends Variant {
         this.comments = comments;
         this.status = status;
         this.attributes = attributes;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("ReportedVariant{");
+        sb.append("variant=").append(super.toString());
+        sb.append(", deNovoQualityScore=").append(deNovoQualityScore);
+        sb.append(", reportedEvents=").append(reportedEvents);
+        sb.append(", comments=").append(comments);
+        sb.append(", status=").append(status);
+        sb.append(", attributes=").append(attributes);
+        sb.append('}');
+        return sb.toString();
     }
 
     public double getDeNovoQualityScore() {
