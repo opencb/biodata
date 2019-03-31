@@ -21,7 +21,6 @@ package org.opencb.biodata.tools.clinical;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.collections.SetUtils;
 import org.apache.commons.lang.StringUtils;
 import org.opencb.biodata.models.clinical.interpretation.*;
 import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.ModeOfInheritance;
@@ -124,7 +123,7 @@ public abstract class ReportedVariantCreator {
             if (CollectionUtils.isNotEmpty(reportedEvents)) {
                 ReportedVariant reportedVariant = new ReportedVariant(variant.getImpl(), 0, new ArrayList<>(),
                         Collections.emptyList(), ReportedVariant.Status.NOT_REVIEWED, Collections.emptyMap());
-                reportedVariant.setReportedEvents(reportedEvents);
+                reportedVariant.setEvidences(reportedEvents);
 
                 // Add variant to the list
                 reportedVariants.add(reportedVariant);
@@ -449,7 +448,7 @@ public abstract class ReportedVariantCreator {
                 Set<String> tmpVariantIds = new HashSet<>(variantIds);
                 tmpVariantIds.remove(reportedVariant.toStringSimple());
 
-                for (ReportedEvent reportedEvent : reportedVariant.getReportedEvents()) {
+                for (ReportedEvent reportedEvent : reportedVariant.getEvidences()) {
                     reportedEvent.setCompoundHeterozygousVariantIds(new ArrayList<>(tmpVariantIds));
                 }
 
@@ -464,7 +463,7 @@ public abstract class ReportedVariantCreator {
         Map<String, ReportedVariant> reportedVariantMap = new HashMap<>();
         for (ReportedVariant reportedVariant : reportedVariants) {
             if (reportedVariantMap.containsKey(reportedVariant.getId())) {
-                reportedVariantMap.get(reportedVariant.getId()).getReportedEvents().addAll(reportedVariant.getReportedEvents());
+                reportedVariantMap.get(reportedVariant.getId()).getEvidences().addAll(reportedVariant.getEvidences());
             } else {
                 reportedVariantMap.put(reportedVariant.getId(), reportedVariant);
             }

@@ -30,9 +30,6 @@ public class Interpretation {
     private String id;
     private String description;
     private String clinicalAnalysisId;
-    private List<DiseasePanel> panels;
-
-    private Status status;
 
     /**
      * Interpretation algorithm tool used to generate this interpretation.
@@ -41,24 +38,27 @@ public class Interpretation {
     private Analyst analyst;
     private List<Software> dependencies;
     private Map<String, Object> filters;
-    private String creationDate;
 
+    private List<DiseasePanel> panels;
     private List<ReportedVariant> primaryFindings;
     private List<ReportedVariant> secondaryFindings;
-    private List<ReportedLowCoverage> reportedLowCoverages;
+    private List<ReportedLowCoverage> lowCoverageRegions;
 
     private List<Comment> comments;
+
+    private Status status;
+    private String creationDate;
+    private int version;
 
     /**
      * Users can add custom information in this field.
      * OpenCGA uses this field to store the Clinical Analysis object in key 'OPENCGA_CLINICAL_ANALYSIS'
      */
     private Map<String, Object> attributes;
-    private int version;
 
     public enum Status {
         NOT_REVIEWED,
-        UNDER_REVIEWED,
+        UNDER_REVIEW,
         REVIEWED,
         REJECTED
     }
@@ -67,27 +67,27 @@ public class Interpretation {
         this.status = Status.NOT_REVIEWED;
     }
 
-    public Interpretation(String id, String description, String clinicalAnalysisId, List<DiseasePanel> panels, Status status,
-                          Software software, Analyst analyst, List<Software> dependencies, Map<String, Object> filters, String creationDate,
+    public Interpretation(String id, String description, String clinicalAnalysisId, Software software, Analyst analyst,
+                          List<Software> dependencies, Map<String, Object> filters, List<DiseasePanel> panels,
                           List<ReportedVariant> primaryFindings, List<ReportedVariant> secondaryFindings,
-                          List<ReportedLowCoverage> reportedLowCoverages, List<Comment> comments, Map<String, Object> attributes,
-                          int version) {
+                          List<ReportedLowCoverage> lowCoverageRegions, List<Comment> comments, Status status, String creationDate,
+                          int version, Map<String, Object> attributes) {
         this.id = id;
         this.description = description;
         this.clinicalAnalysisId = clinicalAnalysisId;
-        this.panels = panels;
-        this.status = status;
         this.software = software;
         this.analyst = analyst;
         this.dependencies = dependencies;
         this.filters = filters;
-        this.creationDate = creationDate;
+        this.panels = panels;
         this.primaryFindings = primaryFindings;
         this.secondaryFindings = secondaryFindings;
-        this.reportedLowCoverages = reportedLowCoverages;
+        this.lowCoverageRegions = lowCoverageRegions;
         this.comments = comments;
-        this.attributes = attributes;
+        this.status = status;
+        this.creationDate = creationDate;
         this.version = version;
+        this.attributes = attributes;
     }
 
     @Override
@@ -96,19 +96,19 @@ public class Interpretation {
         sb.append("id='").append(id).append('\'');
         sb.append(", description='").append(description).append('\'');
         sb.append(", clinicalAnalysisId='").append(clinicalAnalysisId).append('\'');
-        sb.append(", panels=").append(panels);
-        sb.append(", status='").append(status).append('\'');
         sb.append(", software=").append(software);
         sb.append(", analyst=").append(analyst);
         sb.append(", dependencies=").append(dependencies);
         sb.append(", filters=").append(filters);
-        sb.append(", creationDate='").append(creationDate).append('\'');
+        sb.append(", panels=").append(panels);
         sb.append(", primaryFindings=").append(primaryFindings);
         sb.append(", secondaryFindings=").append(secondaryFindings);
-        sb.append(", reportedLowCoverages=").append(reportedLowCoverages);
+        sb.append(", lowCoverageRegions=").append(lowCoverageRegions);
         sb.append(", comments=").append(comments);
-        sb.append(", attributes=").append(attributes);
+        sb.append(", status=").append(status);
+        sb.append(", creationDate='").append(creationDate).append('\'');
         sb.append(", version=").append(version);
+        sb.append(", attributes=").append(attributes);
         sb.append('}');
         return sb.toString();
     }
@@ -137,24 +137,6 @@ public class Interpretation {
 
     public Interpretation setClinicalAnalysisId(String clinicalAnalysisId) {
         this.clinicalAnalysisId = clinicalAnalysisId;
-        return this;
-    }
-
-    public List<DiseasePanel> getPanels() {
-        return panels;
-    }
-
-    public Interpretation setPanels(List<DiseasePanel> panels) {
-        this.panels = panels;
-        return this;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public Interpretation setStatus(Status status) {
-        this.status = status;
         return this;
     }
 
@@ -194,12 +176,12 @@ public class Interpretation {
         return this;
     }
 
-    public String getCreationDate() {
-        return creationDate;
+    public List<DiseasePanel> getPanels() {
+        return panels;
     }
 
-    public Interpretation setCreationDate(String creationDate) {
-        this.creationDate = creationDate;
+    public Interpretation setPanels(List<DiseasePanel> panels) {
+        this.panels = panels;
         return this;
     }
 
@@ -221,12 +203,12 @@ public class Interpretation {
         return this;
     }
 
-    public List<ReportedLowCoverage> getReportedLowCoverages() {
-        return reportedLowCoverages;
+    public List<ReportedLowCoverage> getLowCoverageRegions() {
+        return lowCoverageRegions;
     }
 
-    public Interpretation setReportedLowCoverages(List<ReportedLowCoverage> reportedLowCoverages) {
-        this.reportedLowCoverages = reportedLowCoverages;
+    public Interpretation setLowCoverageRegions(List<ReportedLowCoverage> lowCoverageRegions) {
+        this.lowCoverageRegions = lowCoverageRegions;
         return this;
     }
 
@@ -239,12 +221,21 @@ public class Interpretation {
         return this;
     }
 
-    public Map<String, Object> getAttributes() {
-        return attributes;
+    public Status getStatus() {
+        return status;
     }
 
-    public Interpretation setAttributes(Map<String, Object> attributes) {
-        this.attributes = attributes;
+    public Interpretation setStatus(Status status) {
+        this.status = status;
+        return this;
+    }
+
+    public String getCreationDate() {
+        return creationDate;
+    }
+
+    public Interpretation setCreationDate(String creationDate) {
+        this.creationDate = creationDate;
         return this;
     }
 
@@ -254,6 +245,15 @@ public class Interpretation {
 
     public Interpretation setVersion(int version) {
         this.version = version;
+        return this;
+    }
+
+    public Map<String, Object> getAttributes() {
+        return attributes;
+    }
+
+    public Interpretation setAttributes(Map<String, Object> attributes) {
+        this.attributes = attributes;
         return this;
     }
 }
