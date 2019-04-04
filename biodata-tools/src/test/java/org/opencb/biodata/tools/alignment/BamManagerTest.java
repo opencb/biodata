@@ -79,7 +79,7 @@ public class BamManagerTest {
         assertEquals(3, query.size());
     }
 
-    //@Test
+    @Test
     public void testQueryBigWigCoverage() throws Exception {
         if (!bwPath.toFile().exists()) {
             testIndexBigWigCoverage();
@@ -87,8 +87,14 @@ public class BamManagerTest {
 
         BamManager bamManager = new BamManager(bamPath);
 
-        Region region = new Region("20", 62000, 62200);
-        RegionCoverage coverage = bamManager.coverage(region, 20);
+        Region region = new Region("20", 62100, 62105);
+        RegionCoverage coverage = bamManager.coverage(region, 1);
+//        List<RegionCoverage> uncoveredRegions = BamUtils.getUncoveredRegions(coverage, 4);
+//        for (RegionCoverage uncoveredRegion : uncoveredRegions) {
+//            System.out.println(uncoveredRegion);
+//        }
+
+
 //        System.out.println(coverage.toString());
         System.out.println(coverage.toJSON());
         System.out.println("mean coverage = " + coverage.meanCoverage());
@@ -177,7 +183,7 @@ public class BamManagerTest {
 
         int maxCoverage = 3;
 
-        RegionCoverage regionCoverage = bamManager.coverage(region, 1);
+        RegionCoverage regionCoverage = bamManager.coverage(region, 20);
         List<RegionCoverage> uncoveredRegions = BamUtils.getUncoveredRegions(regionCoverage, maxCoverage);
         for (RegionCoverage uncoveredRegion : uncoveredRegions) {
             System.out.println(uncoveredRegion);
@@ -339,6 +345,7 @@ public class BamManagerTest {
 
     }
 
+//    @Test
     public void testZoom() throws IOException {
 //        Path path = Paths.get("~/data150/bw/NA12877_S1.bam.coverage.bw");
         Path path = Paths.get("~/data150/bw/coverage.bw");
@@ -348,11 +355,11 @@ public class BamManagerTest {
             System.out.println(windowSize);
         }
 
-        int windowSize = 385;
-        Region region = new Region("1", 67686000, 68669999);
+//        int windowSize = 385;
+//        Region region = new Region("1", 67686000, 68669999);
 
-//        int windowSize = 20;
-//        Region region = new Region("20", 60000, 60230);
+        int windowSize = 100;
+        Region region = new Region("20", 60200, 60431);
         float[] values = bigWigManager.groupBy(region, windowSize);
         for (float value : values) {
             System.out.print(value + ", ");

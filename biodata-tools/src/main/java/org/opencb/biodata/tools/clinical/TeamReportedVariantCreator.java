@@ -20,7 +20,6 @@
 package org.opencb.biodata.tools.clinical;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.ListUtils;
 import org.apache.commons.collections.MapUtils;
 import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.ModeOfInheritance;
 import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.Penetrance;
@@ -124,8 +123,8 @@ public class TeamReportedVariantCreator extends ReportedVariantCreator {
             // If we have reported events, then we have to create the reported variant
             if (CollectionUtils.isNotEmpty(reportedEvents)) {
                 ReportedVariant reportedVariant = new ReportedVariant(variant.getImpl(), 0, new ArrayList<>(),
-                        Collections.emptyList(), Collections.emptyMap());
-                reportedVariant.setReportedEvents(reportedEvents);
+                        Collections.emptyList(), ReportedVariant.Status.NOT_REVIEWED, Collections.emptyMap());
+                reportedVariant.setEvidences(reportedEvents);
 
                 // Add variant to the list
                 reportedVariants.add(reportedVariant);

@@ -3,6 +3,7 @@ package org.opencb.biodata.tools.pedigree;
 import org.opencb.biodata.models.feature.AllelesCode;
 import org.opencb.biodata.models.feature.Genotype;
 
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -19,7 +20,8 @@ public class MendelianError {
         HOM_REF, HOM_VAR, HET
     }
 
-    public static Integer compute(Genotype fatherGt, Genotype motherGt, Genotype childGt, String chromosome) {
+    public static Integer compute(@Nullable Genotype fatherGt, @Nullable Genotype motherGt, Genotype childGt,
+                                  String chromosome) {
         // The error classification is available at:
         // https://www.cog-genomics.org/plink2/basic_stats#mendel
         // HOM_REF = 0/0, HOM_VAR = 1/1, HET = 1/0, 0/1
@@ -38,6 +40,15 @@ public class MendelianError {
         // 10   Any       HomRef    HomVar  HemiX       Mother, child
         // 11   HomVar    Any       HomRef  HemiY       Father, child
         // 12   HomRef    Any       HomVar  HemiY       Father, child
+
+        // If any of the parents do not exist, we set a generic Genotype (0/1) to the other parent so the Mendelian
+        // error only depends on the known parent genotype
+        if (fatherGt == null) {
+            fatherGt = new Genotype("0/1");
+        }
+        if (motherGt == null) {
+            motherGt = new Genotype("0/1");
+        }
 
         final int code;
 

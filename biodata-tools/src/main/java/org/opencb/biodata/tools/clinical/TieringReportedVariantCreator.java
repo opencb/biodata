@@ -244,8 +244,8 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
             if (CollectionUtils.isNotEmpty(reportedEvents)) {
                 logger.debug(variant.toStringSimple() + ": reported, num. events: " + reportedEvents.size());
                 ReportedVariant reportedVariant = new ReportedVariant(variant.getImpl(), 0, new ArrayList<>(),
-                        Collections.emptyList(), Collections.emptyMap());
-                reportedVariant.setReportedEvents(reportedEvents);
+                        Collections.emptyList(), ReportedVariant.Status.NOT_REVIEWED, Collections.emptyMap());
+                reportedVariant.setEvidences(reportedEvents);
 
                 // Add variant to the list
                 reportedVariants.add(reportedVariant);
