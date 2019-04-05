@@ -7,7 +7,6 @@ import org.opencb.biodata.models.alignment.RegionCoverage;
 import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.tools.alignment.exceptions.AlignmentCoverageException;
 import org.opencb.biodata.tools.feature.BigWigManager;
-import org.sqlite.util.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -87,17 +86,23 @@ public class BamManagerTest {
 
         BamManager bamManager = new BamManager(bamPath);
 
-        Region region = new Region("20", 62100, 62105);
+        int minCoverage = 4;
+        int maxCoverage = 6;
+
+        Region region = new Region("20", 62200, 62405);
         RegionCoverage coverage = bamManager.coverage(region, 1);
-//        List<RegionCoverage> uncoveredRegions = BamUtils.getUncoveredRegions(coverage, 4);
-//        for (RegionCoverage uncoveredRegion : uncoveredRegions) {
-//            System.out.println(uncoveredRegion);
-//        }
 
-
-//        System.out.println(coverage.toString());
+        System.out.println("Coverage");
         System.out.println(coverage.toJSON());
         System.out.println("mean coverage = " + coverage.meanCoverage());
+
+        System.out.println("Filter coverage, range " + minCoverage + "-" + maxCoverage + ":");
+        List<RegionCoverage> filterRegionByCoverage = BamUtils.filterByCoverage(coverage, minCoverage, maxCoverage);
+        for (RegionCoverage uncoveredRegion : filterRegionByCoverage) {
+            System.out.println(uncoveredRegion.toJSON());
+        }
+
+
     }
 
     @Test
@@ -173,7 +178,7 @@ public class BamManagerTest {
     }
 
     @Test
-    public void uncoveredRegions() throws IOException, AlignmentCoverageException {
+    public void filterRegionByCoverage() throws IOException, AlignmentCoverageException {
         System.out.println("inputPath = " + inputPath);
         BamManager bamManager = new BamManager(inputPath);
 
@@ -181,10 +186,11 @@ public class BamManagerTest {
         options.setContained(false);
         Region region = new Region("chr20", 62000, 62200);
 
+        int minCoverage = 2;
         int maxCoverage = 3;
 
         RegionCoverage regionCoverage = bamManager.coverage(region, 20);
-        List<RegionCoverage> uncoveredRegions = BamUtils.getUncoveredRegions(regionCoverage, maxCoverage);
+        List<RegionCoverage> uncoveredRegions = BamUtils.filterByCoverage(regionCoverage, minCoverage, maxCoverage);
         for (RegionCoverage uncoveredRegion : uncoveredRegions) {
             System.out.println(uncoveredRegion);
         }

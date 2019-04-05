@@ -277,8 +277,8 @@ public class BamUtils {
      * @return
      * @throws IOException
      */
-    public static List<RegionCoverage> getUncoveredRegions(RegionCoverage coverageRegion, int maxCoverage) {
-        List<RegionCoverage> uncoveredRegions = new ArrayList<>();
+    public static List<RegionCoverage> filterByCoverage(RegionCoverage coverageRegion, int minCoverage, int maxCoverage) {
+        List<RegionCoverage> selectedRegions = new ArrayList<>();
 
         float[] coverages = new float[coverageRegion.size()];
         int i = 0;
@@ -286,7 +286,7 @@ public class BamUtils {
         boolean isProcessing = false;
         RegionCoverage uncoveredRegion = null;
         for (float coverage: coverageRegion.getValues()) {
-            if (coverage <= maxCoverage) {
+            if (coverage >= minCoverage && coverage <= maxCoverage) {
                 if (!isProcessing) {
                     uncoveredRegion = new RegionCoverage(coverageRegion.getChromosome(), pos, 0);
                     isProcessing = true;
@@ -299,7 +299,7 @@ public class BamUtils {
                     uncoveredRegion.setEnd(pos - 1);
                     uncoveredRegion.setValues(Arrays.copyOf(coverages, i));
                     uncoveredRegion.updateStats();
-                    uncoveredRegions.add(uncoveredRegion);
+                    selectedRegions.add(uncoveredRegion);
                     isProcessing = false;
                 }
             }
@@ -311,10 +311,9 @@ public class BamUtils {
             uncoveredRegion.setEnd(pos - 1);
             uncoveredRegion.setValues(Arrays.copyOf(coverages, i));
             uncoveredRegion.updateStats();
-            uncoveredRegions.add(uncoveredRegion);
+            selectedRegions.add(uncoveredRegion);
         }
 
-        return uncoveredRegions;
+        return selectedRegions;
     }
-
 }
