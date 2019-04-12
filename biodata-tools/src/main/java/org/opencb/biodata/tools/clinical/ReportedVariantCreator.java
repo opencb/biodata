@@ -49,6 +49,9 @@ public abstract class ReportedVariantCreator {
     protected Set<String> biotypeSet;
     protected Set<String> soNameSet;
 
+    protected Map<String, Set<DiseasePanel>> geneToPanelMap;
+    protected Map<String, Set<DiseasePanel>> variantToPanelMap;
+
     public final String TIER_1 = "Tier1";
     public final String TIER_2 = "Tier2";
     public final String TIER_3 = "Tier3";
@@ -90,6 +93,9 @@ public abstract class ReportedVariantCreator {
         if (CollectionUtils.isNotEmpty(soNames)) {
             soNameSet.addAll(soNames);
         }
+
+        this.geneToPanelMap = null;
+        this.variantToPanelMap = null;
 
     }
 
@@ -228,8 +234,20 @@ public abstract class ReportedVariantCreator {
             reportedEvent.setPenetrance(penetrance);
         }
 
-        // Variant classification
-        updateVariantClassification(reportedEvent, variant);
+        // Variant classification:
+        reportedEvent.setClassification(new VariantClassification());
+
+        // Variant classification: ACMG
+        List<String> acmgs = VariantClassification.calculateAcmgClassification(variant, moi);
+        reportedEvent.getClassification().setAcmg(acmgs);
+
+        // Variant classification: clinical significance
+        if (MapUtils.isNotEmpty(variantToPanelMap) && variantToPanelMap.containsKey(variant.getId())
+                && CollectionUtils.isNotEmpty(variantToPanelMap.get(variant.getId()))) {
+            reportedEvent.getClassification().setClinicalSignificance(ClinicalSignificance.PATHOGENIC_VARIANT);
+        } else {
+            reportedEvent.getClassification().setClinicalSignificance(VariantClassification.computeClinicalSignificance(acmgs));
+        }
 
         // Role in cancer
         if (variant.getAnnotation() != null) {
@@ -258,6 +276,7 @@ public abstract class ReportedVariantCreator {
         return reportedEvent;
     }
 
+    @Deprecated
     public void updateVariantClassification(ReportedEvent reportedEvent, Variant variant) {
         VariantClassification variantClassification = new VariantClassification();
 

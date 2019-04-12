@@ -57,8 +57,8 @@ public class TeamReportedVariantCreator extends ReportedVariantCreator {
             throw new InterpretationAnalysisException("Missing gene panels for TEAM analysis");
         }
 
-        Map<String, Set<DiseasePanel>> geneToPanelMap = getGeneToPanelMap(diseasePanels);
-        Map<String, Set<DiseasePanel>> variantToPanelMap = getVariantToPanelMap(diseasePanels);
+        geneToPanelMap = getGeneToPanelMap(diseasePanels);
+        variantToPanelMap = getVariantToPanelMap(diseasePanels);
 
         boolean hasTier;
 

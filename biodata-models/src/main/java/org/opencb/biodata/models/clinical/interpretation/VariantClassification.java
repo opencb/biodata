@@ -19,6 +19,7 @@
 
 package org.opencb.biodata.models.clinical.interpretation;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.*;
 import org.opencb.commons.utils.ListUtils;
@@ -232,6 +233,67 @@ public class VariantClassification {
         }
 
         return new ArrayList<>(acmg);
+    }
+
+    public static VariantClassification.ClinicalSignificance computeClinicalSignificance(Variant variant, List<DiseasePanel> panels) {
+        if (CollectionUtils.isNotEmpty(panels)) {
+            for (DiseasePanel panel : panels) {
+                if (CollectionUtils.isNotEmpty(panel.getVariants())) {
+                    for (DiseasePanel.VariantPanel panelVariant : panel.getVariants()) {
+                        if (variant.getId().equals(panelVariant.getId())) {
+                            return ClinicalSignificance.PATHOGENIC_VARIANT;
+                        }
+                    }
+                }
+            }
+        }
+
+        return computeClinicalSignificance(calculateAcmgClassification(variant));
+    }
+
+    public static VariantClassification.ClinicalSignificance computeClinicalSignificance(List<String> acmgs) {
+        if (CollectionUtils.isEmpty(acmgs)) {
+            return ClinicalSignificance.VARIANT_OF_UNKNOWN_CLINICAL_SIGNIFICANCE;
+        }
+
+        List<String> prefixes = Arrays.asList("PVS,PS,PP,PM,BS,BP,BA".split(","));
+        Map<String, Integer> acmgCounter = new HashMap<>();
+        for (String prefix : prefixes) {
+            acmgCounter.put(prefix, 0);
+        }
+
+        for (String acmg : acmgs) {
+            String prefix = acmg.split("[1-9]")[0];
+            acmgCounter.put(prefix, acmgCounter.get(prefix) + 1);
+        }
+
+        // ACMG rules for clinical significance
+        if ((acmgCounter.get("PVS") > 0 && (acmgCounter.get("PS") >= 1 || acmgCounter.get("PM") >= 2 || (acmgCounter.get("PM") == 1
+                && acmgCounter.get("PP") == 1) || acmgCounter.get("PP") >= 2)
+                ||
+                (acmgCounter.get("PS") >= 2)
+                ||
+                (acmgCounter.get("PS") == 1 && (acmgCounter.get("PM") >=3 || (acmgCounter.get("PM") >= 2 && acmgCounter.get("PP") >= 2)
+                        || (acmgCounter.get("PM") == 1 && acmgCounter.get("PP") >= 4))))) {
+            return ClinicalSignificance.PATHOGENIC_VARIANT;
+        } else if ((acmgCounter.get("PVS") == 1 && acmgCounter.get("PM") == 1)
+                ||
+                (acmgCounter.get("PS") == 1 && acmgCounter.get("PM") >= 1)
+                ||
+                (acmgCounter.get("PS") == 1 && acmgCounter.get("PP") >= 2)
+                ||
+                (acmgCounter.get("PM") >= 3)
+                ||
+                (acmgCounter.get("PM") == 2 && acmgCounter.get("PP") >= 2)
+                ||
+                (acmgCounter.get("PM") == 1 && acmgCounter.get("PP") >= 4)) {
+            return ClinicalSignificance.LIKELY_PATHOGENIC_VARIANT;
+        } else if (acmgCounter.get("BA") == 1 || acmgCounter.get("BS") >= 2) {
+            return  ClinicalSignificance.BENIGN_VARIANT;
+        } else if ((acmgCounter.get("BS") == 1 && acmgCounter.get("BP") == 1) || (acmgCounter.get("BP") >= 2)) {
+            return ClinicalSignificance.LINKELY_BENIGN_VARIANT;
+        }
+        return ClinicalSignificance.VARIANT_OF_UNKNOWN_CLINICAL_SIGNIFICANCE;
     }
 
     public VariantClassification() {
