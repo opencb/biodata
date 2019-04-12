@@ -2,6 +2,7 @@ package org.opencb.biodata.tools.pedigree;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.ListUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.Penetrance;
@@ -68,7 +69,7 @@ public class ModeOfInheritance {
         validateGenotypes(genotypes, pedigreeManager);
 
         if (!isValidModeOfInheritance(genotypes, pedigree, affectedMembers)) {
-            return null;
+            return emptyMapOfGenotypes(genotypes);
         }
 
         // Return a readable output, i.e., returning "0/0, "0/1", "1/1"
@@ -91,7 +92,7 @@ public class ModeOfInheritance {
         validateGenotypes(genotypes, pedigreeManager);
 
         if (!isValidModeOfInheritance(genotypes, pedigree, affectedMembers)) {
-            return null;
+            return emptyMapOfGenotypes(genotypes);
         }
 
         // Return a readable output, i.e., returning "0/0, "0/1", "1/1"
@@ -153,7 +154,7 @@ public class ModeOfInheritance {
         logger.debug("Genotypes after validating: {}", genotypes);
 
         if (!isValidModeOfInheritance(genotypes, pedigree, affectedMembers)) {
-            return null;
+            return emptyMapOfGenotypes(genotypes);
         }
 
         // Return a readable output
@@ -177,7 +178,12 @@ public class ModeOfInheritance {
                     genotypes.put(member.getId(), genotype);
                 } else {
                     // Found affected female!!??
-                    return null;
+
+                    // We fill the rest of the genotypes map
+                    for (Member pedigreeMember : pedigree.getMembers()) {
+                        genotypes.put(pedigreeMember.getId(), Collections.emptySet());
+                    }
+                    return emptyMapOfGenotypes(genotypes);
                 }
             } else {
                 if (member.getSex() == Member.Sex.MALE) {
@@ -205,7 +211,7 @@ public class ModeOfInheritance {
 
                 if (!childGenotypes.containsAll(fatherGenotypes)) {
                     // Father and son have different genotypeCounters, which shouldn't be possible
-                    return null;
+                    return emptyMapOfGenotypes(genotypes);
                 }
             }
 
@@ -576,6 +582,13 @@ public class ModeOfInheritance {
         return true;
     }
 
+    public static boolean isEmptyMapOfGenotypes(Map<String, List<String>> genotypes) {
+        return MapUtils.isEmpty(genotypes) || genotypes.entrySet().stream()
+                .filter(entry -> org.opencb.commons.utils.ListUtils.isNotEmpty(entry.getValue()))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList()).isEmpty();
+    }
+
     private static Set<Integer> calculateDominant(boolean affected, Penetrance penetrance) {
         Set<Integer> gt = new HashSet<>();
         if (affected) {
@@ -773,6 +786,14 @@ public class ModeOfInheritance {
             }
         }
         return validGt;
+    }
+
+    private static Map<String, List<String>> emptyMapOfGenotypes(Map<String, Set<Integer>> genotypes) {
+        Map<String, List<String>> output = new HashMap<>();
+        for (String key : genotypes.keySet()) {
+            output.put(key, Collections.emptyList());
+        }
+        return output;
     }
 
     private static Map<String, List<String>> prepareOutput(Map<String, Set<Integer>> genotypes) {

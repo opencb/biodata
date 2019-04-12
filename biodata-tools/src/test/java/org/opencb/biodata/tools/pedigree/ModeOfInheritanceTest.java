@@ -13,6 +13,7 @@ import org.opencb.biodata.tools.variant.VariantVcfHtsjdkReader;
 import org.opencb.commons.utils.ListUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 import static org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.Penetrance;
@@ -146,10 +147,14 @@ public class ModeOfInheritanceTest {
 
         genotypes = ModeOfInheritance.dominant(family1, disorder4, Penetrance.COMPLETE);
         // This case is impossible. Son cannot be affected by a dominant disease if none of the parents have the disease.
-        assertNull("At least one of the parents should be affected if the son is affected ", genotypes);
+        assertTrue("At least one of the parents should be affected if the son is affected ", genotypes.size() == 4
+                && genotypes.entrySet().stream().filter(entry -> ListUtils.isNotEmpty(entry.getValue()))
+                .collect(Collectors.toList()).isEmpty());
 
         genotypes = ModeOfInheritance.dominant(family2, disorder1, Penetrance.COMPLETE);
-        assertNull("At least one of the parents should be affected if the son is affected ", genotypes);
+        assertTrue("At least one of the parents should be affected if the son is affected ", genotypes.size() == 18
+                && genotypes.entrySet().stream().filter(entry -> ListUtils.isNotEmpty(entry.getValue()))
+                .collect(Collectors.toList()).isEmpty());
     }
 
     @Test
@@ -199,7 +204,9 @@ public class ModeOfInheritanceTest {
                 ModeOfInheritance.toGenotypeString(GENOTYPE_0_1).containsAll(genotypes.get("father")));
 
         genotypes = ModeOfInheritance.recessive(family2, disorder1, Penetrance.COMPLETE);
-        assertNull("Individual 17 should be affected if both parents are affected", genotypes);
+        assertTrue("Individual 17 should be affected if both parents are affected", genotypes.size() == 18
+                && genotypes.entrySet().stream().filter(entry -> ListUtils.isNotEmpty(entry.getValue()))
+                .collect(Collectors.toList()).isEmpty());
     }
 
     @Test
@@ -215,7 +222,9 @@ public class ModeOfInheritanceTest {
                 ModeOfInheritance.toGenotypeString(GENOTYPE_1).containsAll(genotypes.get("father")));
 
         genotypes = ModeOfInheritance.xLinked(family1, disorder2, false, Penetrance.COMPLETE);
-        assertEquals("Son should also be affected to follow the xLinked moi", null, genotypes);
+        assertTrue("Son should also be affected to follow the xLinked moi", genotypes.size() == 4
+                && genotypes.entrySet().stream().filter(entry -> ListUtils.isNotEmpty(entry.getValue()))
+                .collect(Collectors.toList()).isEmpty());
 
         genotypes = ModeOfInheritance.xLinked(family1, disorder3, false, Penetrance.COMPLETE);
         assertTrue("son not 0 -> " + genotypes.get("son"),
@@ -242,7 +251,9 @@ public class ModeOfInheritanceTest {
                 ModeOfInheritance.toGenotypeString(GENOTYPE_0).containsAll(genotypes.get("father")));
 
         genotypes = ModeOfInheritance.xLinked(family2, disorder1, false, Penetrance.COMPLETE);
-        assertEquals("Some cases where the mother is affected and their sons are not. That doesn't follow the xLinked moi", null, genotypes);
+        assertTrue("Some cases where the mother is affected and their sons are not. That doesn't follow the xLinked moi",
+                genotypes.size() == 18 && genotypes.entrySet().stream()
+                        .filter(entry -> ListUtils.isNotEmpty(entry.getValue())).collect(Collectors.toList()).isEmpty());
 
         genotypes = ModeOfInheritance.xLinked(family4, disorder1, true, Penetrance.COMPLETE);
         assertEquals("daughter not 0/1, 0|1, 1|0 -> " + genotypes.get("daughter"), 3,
@@ -262,16 +273,23 @@ public class ModeOfInheritanceTest {
                 ModeOfInheritance.toGenotypeString(GENOTYPE_1).containsAll(genotypes.get("father")));
 
         genotypes = ModeOfInheritance.yLinked(family1, disorder2, Penetrance.COMPLETE);
-        assertEquals("Girls cannot be affected in a Y-linked moi", null, genotypes);
+        assertTrue("Girls cannot be affected in a Y-linked moi", genotypes.size() == 4 && genotypes.entrySet().stream()
+                .filter(entry -> ListUtils.isNotEmpty(entry.getValue())).collect(Collectors.toList()).isEmpty());
 
         genotypes = ModeOfInheritance.yLinked(family1, disorder3, Penetrance.COMPLETE);
-        assertEquals("If the father is affected, the son should also be affected", null, genotypes);
+        assertTrue("If the father is affected, the son should also be affected", genotypes.size() == 4
+                && genotypes.entrySet().stream().filter(entry -> ListUtils.isNotEmpty(entry.getValue()))
+                .collect(Collectors.toList()).isEmpty());
 
         genotypes = ModeOfInheritance.yLinked(family1, disorder4, Penetrance.COMPLETE);
-        assertEquals("If the son is affected, the father should also be affected", null, genotypes);
+        assertTrue("If the son is affected, the father should also be affected", genotypes.size() == 4
+                && genotypes.entrySet().stream().filter(entry -> ListUtils.isNotEmpty(entry.getValue()))
+                .collect(Collectors.toList()).isEmpty());
 
         genotypes = ModeOfInheritance.yLinked(family2, disorder1, Penetrance.COMPLETE);
-        assertEquals("Some cases where the father is affected and sons are not. That doesn't follow the xLinked moi", null, genotypes);
+        assertTrue("Some cases where the father is affected and sons are not. That doesn't follow the xLinked moi",
+                genotypes.size() == 18  && genotypes.entrySet().stream()
+                        .filter(entry -> ListUtils.isNotEmpty(entry.getValue())).collect(Collectors.toList()).isEmpty());
     }
 
     @Test
