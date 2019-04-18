@@ -68,6 +68,15 @@ public class Genotype {
         parseGenotype(genotype);
     }
 
+    public Genotype(Genotype other) {
+        this.reference = other.reference;
+        this.alternates = other.alternates;
+        this.count = other.count;
+        this.allelesIdx = other.allelesIdx;
+        this.phased = other.phased;
+        this.code = other.code;
+    }
+
     private void parseGenotype(String genotype) {
         int allelesLength;
         /*REGEX*/
@@ -240,7 +249,7 @@ public class Genotype {
         return phased;
     }
 
-    void setPhased(boolean phased) {
+    public void setPhased(boolean phased) {
         this.phased = phased;
     }
 
