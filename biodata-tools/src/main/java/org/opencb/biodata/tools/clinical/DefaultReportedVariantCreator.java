@@ -77,7 +77,9 @@ public class DefaultReportedVariantCreator extends ReportedVariantCreator {
 
                 if (variant.getAnnotation() != null && CollectionUtils.isNotEmpty(variant.getAnnotation().getConsequenceTypes())) {
                     for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
-                        reportedEvents.addAll(createReportedEvents(TIER_1, panelIds, ct, variant, soNameSet));
+                        if (CollectionUtils.isEmpty(biotypeSet) || biotypeSet.contains(ct.getBiotype())) {
+                            reportedEvents.addAll(createReportedEvents(TIER_1, panelIds, ct, variant, soNameSet));
+                        }
                     }
                 } else {
                     // We create the reported events anyway!
@@ -90,23 +92,27 @@ public class DefaultReportedVariantCreator extends ReportedVariantCreator {
                     if (MapUtils.isNotEmpty(geneToPanelMap)) {
                         // Gene panels are present
                         for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
-                            if (geneToPanelMap.containsKey(ct.getEnsemblGeneId())
-                                    && CollectionUtils.isNotEmpty(geneToPanelMap.get(ct.getEnsemblGeneId()))) {
-                                // Gene in panel
-                                Set<DiseasePanel> panels = geneToPanelMap.get(ct.getEnsemblGeneId());
-                                List<String> panelIds = panels.stream().map(DiseasePanel::getId).collect(Collectors.toList());
-                                tier2 = isTier2(ct, soNameSet);
-                                if (tier2 || includeUntieredVariants) {
-                                    reportedEvents.addAll(createReportedEvents(tier2 ? TIER_2 : null, panelIds, ct, variant, soNameSet));
+                            if (CollectionUtils.isEmpty(biotypeSet) || biotypeSet.contains(ct.getBiotype())) {
+                                if (geneToPanelMap.containsKey(ct.getEnsemblGeneId())
+                                        && CollectionUtils.isNotEmpty(geneToPanelMap.get(ct.getEnsemblGeneId()))) {
+                                    // Gene in panel
+                                    Set<DiseasePanel> panels = geneToPanelMap.get(ct.getEnsemblGeneId());
+                                    List<String> panelIds = panels.stream().map(DiseasePanel::getId).collect(Collectors.toList());
+                                    tier2 = isTier2(ct, soNameSet);
+                                    if (tier2 || includeUntieredVariants) {
+                                        reportedEvents.addAll(createReportedEvents(tier2 ? TIER_2 : null, panelIds, ct, variant, soNameSet));
+                                    }
                                 }
                             }
                         }
                     } else {
                         // No gene panels provided
                         for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
-                            tier2 = isTier2(ct, soNameSet);
-                            if (tier2 || includeUntieredVariants) {
-                                reportedEvents.addAll(createReportedEvents(tier2 ? TIER_2 : null, null, ct, variant, soNameSet));
+                            if (CollectionUtils.isEmpty(biotypeSet) || biotypeSet.contains(ct.getBiotype())) {
+                                tier2 = isTier2(ct, soNameSet);
+                                if (tier2 || includeUntieredVariants) {
+                                    reportedEvents.addAll(createReportedEvents(tier2 ? TIER_2 : null, null, ct, variant, soNameSet));
+                                }
                             }
                         }
                     }
