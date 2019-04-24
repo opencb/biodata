@@ -3,9 +3,10 @@ package org.opencb.biodata.tools.feature;
 import htsjdk.samtools.SAMSequenceDictionary;
 import htsjdk.samtools.SamReader;
 import org.apache.commons.lang.StringUtils;
-import org.broad.igv.bbfile.BBFileReader;
+import org.broad.igv.bbfile.*;
 import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.tools.commons.ChunkFrequencyManager;
+import org.opencb.commons.utils.CollectionUtils;
 import org.opencb.commons.utils.FileUtils;
 
 import java.io.BufferedReader;
@@ -253,6 +254,27 @@ public class WigUtils {
                 }
             }
         }
+    }
+
+    public static long getTotalCounts(BBFileReader bbFileReader) throws IOException {
+        long totalCounts = 0;
+
+        if (bbFileReader.getZoomLevelCount() == 0) {
+            BigWigIterator bigWigIterator = bbFileReader.getBigWigIterator();
+            while (bigWigIterator.hasNext()) {
+                WigItem next = bigWigIterator.next();
+                totalCounts += ((next.getEndBase() - next.getStartBase()) * next.getWigValue());
+            }
+        } else {
+            int zoom = bbFileReader.getZoomLevelCount();
+            ZoomLevelIterator zoomLevelIterator = bbFileReader.getZoomLevelIterator(zoom);
+            while (zoomLevelIterator.hasNext()) {
+                ZoomDataRecord next = zoomLevelIterator.next();
+                totalCounts += next.getSumData();
+            }
+        }
+
+        return totalCounts;
     }
 
     /**
