@@ -34,6 +34,13 @@ public class ModeOfInheritance {
     public static Set<String> extendedLof;
     public static Set<String> proteinCoding;
 
+    protected static final Comparator<Variant> VARIANT_COMPARATOR = Comparator.comparing(Variant::getChromosome)
+            .thenComparing(Variant::getStart)
+            .thenComparing(Variant::getEnd)
+            .thenComparing(Variant::getReference)
+            .thenComparing(Variant::getAlternate)
+            .thenComparing(Variant::toString);
+
     private static Logger logger;
 
     static {
@@ -292,6 +299,34 @@ public class ModeOfInheritance {
      */
     public static Map<String, List<Variant>> compoundHeterozygous(Iterator<Variant> iterator, int probandSampleIdx, int motherSampleIdx,
                                                                   int fatherSampleIdx) {
+        return compoundHeterozygousPrivate(iterator, probandSampleIdx, motherSampleIdx, fatherSampleIdx, Integer.MAX_VALUE).getRight();
+    }
+
+    /**
+     * Return a truly compound heterozygous variants grouped by transcript.
+     *
+     * @param iterator         Variant iterator
+     * @param probandSampleIdx Proband sample index
+     * @param motherSampleIdx  Mother sample index
+     * @param fatherSampleIdx  Father sample index
+     * @param limit            limit number of different variants
+     * @return Map of transcript - variant list
+     */
+    public static List<Variant> compoundHeterozygous(Iterator<Variant> iterator, int probandSampleIdx, int motherSampleIdx,
+                                                                  int fatherSampleIdx, int limit) {
+        if (limit <= 0) {
+            limit = Integer.MAX_VALUE;
+        }
+        List<Variant> variants = new ArrayList<>(compoundHeterozygousPrivate(iterator, probandSampleIdx, motherSampleIdx, fatherSampleIdx, limit).getLeft());
+        if (variants.size() > limit) {
+            variants = variants.subList(0, limit);
+        }
+        return variants;
+    }
+
+    private static Pair<Set<Variant>, Map<String, List<Variant>>> compoundHeterozygousPrivate(Iterator<Variant> iterator, int probandSampleIdx, int motherSampleIdx,
+                                                                  int fatherSampleIdx, int limit) {
+        Set<Variant> variants = new TreeSet<>(VARIANT_COMPARATOR);
         int variantsRetrieved = 0;
 
         // Map: transcript to pair (pair-left for mother and pair-right for father)
@@ -300,7 +335,7 @@ public class ModeOfInheritance {
         String motherGenotype;
         String fatherGenotype;
 
-        while (iterator.hasNext()) {
+        while (iterator.hasNext() && variants.size() < limit) {
             Variant variant = iterator.next();
             logger.debug("Variant: '{}'", variant.toStringSimple());
 
@@ -323,7 +358,7 @@ public class ModeOfInheritance {
                 fatherGenotype = studyEntry.getSampleData(fatherSampleIdx).get(gtIdx);
             } else {
                 logger.error("This should not happen");
-                return Collections.emptyMap();
+                return Pair.of(Collections.emptySet(), Collections.emptyMap());
             }
 
             if (!probandGenotype.contains("0") || !probandGenotype.contains("1")) {
@@ -354,12 +389,13 @@ public class ModeOfInheritance {
                         for (SequenceOntologyTerm soTerm : consequenceType.getSequenceOntologyTerms()) {
                             if (extendedLof.contains(soTerm.getAccession())) {
                                 transcriptToVariantsMap.computeIfAbsent(transcriptId, k -> Pair.of(new ArrayList<>(), new ArrayList<>()));
+                                Pair<List<Variant>, List<Variant>> pair = transcriptToVariantsMap.get(transcriptId);
                                 if (pairIndex == 0) {
                                     // From mother
-                                    transcriptToVariantsMap.get(transcriptId).getLeft().add(variant);
+                                    addParentVariant(variant, pair.getLeft(), pair.getRight(), variants);
                                 } else {
                                     // From father
-                                    transcriptToVariantsMap.get(transcriptId).getRight().add(variant);
+                                    addParentVariant(variant, pair.getRight(), pair.getLeft(), variants);
                                 }
                             }
                         }
@@ -391,11 +427,22 @@ public class ModeOfInheritance {
 //            logger.error("{}", e.getMessage());
 //        }
 
-        logger.debug("CH - Number of variants retrieved: {}; Found {} CH variants in {} transcripts", variantsRetrieved, totalVariants,
-                variantMap.size());
+        logger.debug("CH - Number of variants retrieved: {}; Found {} CH variants in {} transcripts",
+                variantsRetrieved, totalVariants, variantMap.size());
 
         // Return
-        return variantMap;
+        return Pair.of(variants, variantMap);
+    }
+
+    private static void addParentVariant(Variant variant, List<Variant> currentParentList, List<Variant> otherParentList, Set<Variant> variants) {
+        currentParentList.add(variant);
+        if (!otherParentList.isEmpty()) {
+            variants.add(variant); // Add current variant to totalVariants count
+            if (currentParentList.size() == 1) { // current variants was the first in the group, sum all other
+                // variants
+                variants.addAll(otherParentList);
+            }
+        }
     }
 
     private static String getComplementaryCHGenotype(String parentGenotype) {
