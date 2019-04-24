@@ -292,7 +292,26 @@ public class ModeOfInheritance {
      */
     public static Map<String, List<Variant>> compoundHeterozygous(Iterator<Variant> iterator, int probandSampleIdx, int motherSampleIdx,
                                                                   int fatherSampleIdx) {
+        return compoundHeterozygous(iterator, probandSampleIdx, motherSampleIdx, fatherSampleIdx, Integer.MAX_VALUE);
+    }
+
+    /**
+     * Return a truly compound heterozygous variants grouped by transcript.
+     *
+     * @param iterator         Variant iterator
+     * @param probandSampleIdx Proband sample index
+     * @param motherSampleIdx  Mother sample index
+     * @param fatherSampleIdx  Father sample index
+     * @param limit            limit number of variants
+     * @return Map of transcript - variant list
+     */
+    public static Map<String, List<Variant>> compoundHeterozygous(Iterator<Variant> iterator, int probandSampleIdx, int motherSampleIdx,
+                                                                  int fatherSampleIdx, int limit) {
+        if (limit <= 0) {
+            limit = Integer.MAX_VALUE;
+        }
         int variantsRetrieved = 0;
+        int totalVariants = 0;
 
         // Map: transcript to pair (pair-left for mother and pair-right for father)
         Map<String, Pair<List<Variant>, List<Variant>>> transcriptToVariantsMap = new HashMap<>();
@@ -300,7 +319,7 @@ public class ModeOfInheritance {
         String motherGenotype;
         String fatherGenotype;
 
-        while (iterator.hasNext()) {
+        while (iterator.hasNext() && totalVariants < limit) {
             Variant variant = iterator.next();
             logger.debug("Variant: '{}'", variant.toStringSimple());
 
@@ -354,12 +373,13 @@ public class ModeOfInheritance {
                         for (SequenceOntologyTerm soTerm : consequenceType.getSequenceOntologyTerms()) {
                             if (extendedLof.contains(soTerm.getAccession())) {
                                 transcriptToVariantsMap.computeIfAbsent(transcriptId, k -> Pair.of(new ArrayList<>(), new ArrayList<>()));
+                                Pair<List<Variant>, List<Variant>> pair = transcriptToVariantsMap.get(transcriptId);
                                 if (pairIndex == 0) {
                                     // From mother
-                                    transcriptToVariantsMap.get(transcriptId).getLeft().add(variant);
+                                    totalVariants += addParentVariant(variant, pair.getLeft(), pair.getRight());
                                 } else {
                                     // From father
-                                    transcriptToVariantsMap.get(transcriptId).getRight().add(variant);
+                                    totalVariants += addParentVariant(variant, pair.getRight(), pair.getLeft());
                                 }
                             }
                         }
@@ -369,11 +389,11 @@ public class ModeOfInheritance {
         }
 
         Map<String, List<Variant>> variantMap = new HashMap<>();
-        int totalVariants = 0;
+//        int totalVariants = 0;
         for (Map.Entry<String, Pair<List<Variant>, List<Variant>>> entry : transcriptToVariantsMap.entrySet()) {
             if (entry.getValue().getLeft().size() > 0 && entry.getValue().getRight().size() > 0) {
                 variantMap.put(entry.getKey(), ListUtils.union(entry.getValue().getLeft(), entry.getValue().getRight()));
-                totalVariants += variantMap.get(entry.getKey()).size();
+//                totalVariants += variantMap.get(entry.getKey()).size();
             }
         }
 
@@ -396,6 +416,19 @@ public class ModeOfInheritance {
 
         // Return
         return variantMap;
+    }
+
+    private static int addParentVariant(Variant variant, List<Variant> currentParentList, List<Variant> otherParentList) {
+        int totalVariants = 0;
+        currentParentList.add(variant);
+        if (!otherParentList.isEmpty()) {
+            totalVariants++; // Add current variant to totalVariants count
+            if (currentParentList.size() == 1) { // current variants was the first in the group, sum all other
+                // variants
+                totalVariants += otherParentList.size();
+            }
+        }
+        return totalVariants;
     }
 
     private static String getComplementaryCHGenotype(String parentGenotype) {
