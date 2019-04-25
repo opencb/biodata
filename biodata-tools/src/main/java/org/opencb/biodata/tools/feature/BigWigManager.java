@@ -15,6 +15,7 @@ import java.util.List;
 public class BigWigManager {
 
     private Path bigWigFilePath;
+
     private BBFileReader bbFileReader;
     private List<Integer> zoomWindowSizes;
 
@@ -158,6 +159,10 @@ public class BigWigManager {
 
     public List<Integer> getZoomWindowSizes() {
         return zoomWindowSizes;
+    }
+
+    public BBFileReader getBbFileReader() {
+        return bbFileReader;
     }
 }
 
