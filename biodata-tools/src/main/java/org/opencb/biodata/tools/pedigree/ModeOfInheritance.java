@@ -299,7 +299,7 @@ public class ModeOfInheritance {
      */
     public static Map<String, List<Variant>> compoundHeterozygous(Iterator<Variant> iterator, int probandSampleIdx, int motherSampleIdx,
                                                                   int fatherSampleIdx) {
-        return compoundHeterozygousPrivate(iterator, probandSampleIdx, motherSampleIdx, fatherSampleIdx, Integer.MAX_VALUE).getRight();
+        return compoundHeterozygousPrivate(iterator, probandSampleIdx, motherSampleIdx, fatherSampleIdx, Integer.MAX_VALUE, extendedLof).getRight();
     }
 
     /**
@@ -313,11 +313,27 @@ public class ModeOfInheritance {
      * @return Map of transcript - variant list
      */
     public static List<Variant> compoundHeterozygous(Iterator<Variant> iterator, int probandSampleIdx, int motherSampleIdx,
-                                                                  int fatherSampleIdx, int limit) {
+                                                     int fatherSampleIdx, int limit) {
+        return compoundHeterozygous(iterator, probandSampleIdx, motherSampleIdx, fatherSampleIdx, limit, Collections.emptySet());
+    }
+
+    /**
+     * Return a truly compound heterozygous variants grouped by transcript.
+     *
+     * @param iterator         Variant iterator
+     * @param probandSampleIdx Proband sample index
+     * @param motherSampleIdx  Mother sample index
+     * @param fatherSampleIdx  Father sample index
+     * @param limit            limit number of different variants
+     * @param acceptedSoTerm   Accepted SequenceOntologyTerm
+     * @return Map of transcript - variant list
+     */
+    public static List<Variant> compoundHeterozygous(Iterator<Variant> iterator, int probandSampleIdx, int motherSampleIdx,
+                                                     int fatherSampleIdx, int limit, Set<String> acceptedSoTerm) {
         if (limit <= 0) {
             limit = Integer.MAX_VALUE;
         }
-        List<Variant> variants = new ArrayList<>(compoundHeterozygousPrivate(iterator, probandSampleIdx, motherSampleIdx, fatherSampleIdx, limit).getLeft());
+        List<Variant> variants = new ArrayList<>(compoundHeterozygousPrivate(iterator, probandSampleIdx, motherSampleIdx, fatherSampleIdx, limit, acceptedSoTerm).getLeft());
         if (variants.size() > limit) {
             variants = variants.subList(0, limit);
         }
@@ -325,7 +341,7 @@ public class ModeOfInheritance {
     }
 
     private static Pair<Set<Variant>, Map<String, List<Variant>>> compoundHeterozygousPrivate(Iterator<Variant> iterator, int probandSampleIdx, int motherSampleIdx,
-                                                                  int fatherSampleIdx, int limit) {
+                                                                                              int fatherSampleIdx, int limit, Set<String> acceptedSoTerm) {
         Set<Variant> variants = new TreeSet<>(VARIANT_COMPARATOR);
         int variantsRetrieved = 0;
 
@@ -387,7 +403,9 @@ public class ModeOfInheritance {
                     String transcriptId = consequenceType.getEnsemblTranscriptId();
                     if (CollectionUtils.isNotEmpty(consequenceType.getSequenceOntologyTerms())) {
                         for (SequenceOntologyTerm soTerm : consequenceType.getSequenceOntologyTerms()) {
-                            if (extendedLof.contains(soTerm.getAccession())) {
+                            if (acceptedSoTerm.isEmpty()
+                                    || acceptedSoTerm.contains(soTerm.getName())
+                                    || acceptedSoTerm.contains(soTerm.getAccession())) {
                                 transcriptToVariantsMap.computeIfAbsent(transcriptId, k -> Pair.of(new ArrayList<>(), new ArrayList<>()));
                                 Pair<List<Variant>, List<Variant>> pair = transcriptToVariantsMap.get(transcriptId);
                                 if (pairIndex == 0) {
