@@ -308,8 +308,15 @@ public class VariantStatsCalculator {
 
             if (gt.isPhased()) {
                 gt = new Genotype(gt);
+                // Clean ref/alt if any
+                gt.setReference(null);
+                gt.setAlternates(Collections.emptyList());
                 gt.setPhased(false);
                 gt.normalizeAllelesIdx();
+            } else if (gt.getReference() != null) {
+                gt = new Genotype(gt);
+                gt.setReference(null);
+                gt.setAlternates(Collections.emptyList());
             }
 
             unphasedGenotypeCount.merge(gt, entry.getValue(), Integer::sum);

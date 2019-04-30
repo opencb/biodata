@@ -169,7 +169,7 @@ public class Genotype {
         return reference;
     }
 
-    void setReference(String reference) {
+    public void setReference(String reference) {
         this.reference = reference;
     }
 
@@ -177,7 +177,7 @@ public class Genotype {
         return alternates == null || alternates.isEmpty() ? null : alternates.get(0);
     }
 
-    void setAlternate(String alternate) {
+    public void setAlternate(String alternate) {
         this.alternates = Collections.singletonList(alternate);
     }
 

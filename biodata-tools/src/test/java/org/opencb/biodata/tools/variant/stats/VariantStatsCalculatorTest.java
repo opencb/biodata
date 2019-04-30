@@ -194,8 +194,10 @@ public class VariantStatsCalculatorTest {
 
         stats = VariantStatsCalculator.calculate(
                 new Variant("1:100:A:C"), new GtMap()
-                        .append("0/0", 5)
-                        .append("0|0", 5)
+                        .append("0/0", 2)
+                        .append(new Genotype("0/0", "A", "T"), 3)
+                        .append("0|0", 2)
+                        .append(new Genotype("0|0", "A", "T"), 3)
                         .append("0/1", 10)
                         .append("0|1", 5)
                         .append(".|1", 5)
@@ -230,7 +232,11 @@ public class VariantStatsCalculatorTest {
 
     public static class GtMap extends HashMap<Genotype, Integer> {
         public GtMap append(String gt, Integer count) {
-            super.put(new Genotype(gt), count);
+            return append(new Genotype(gt), count);
+        }
+
+        public GtMap append(Genotype gt, Integer count) {
+            super.put(gt, count);
             return this;
         }
     }
