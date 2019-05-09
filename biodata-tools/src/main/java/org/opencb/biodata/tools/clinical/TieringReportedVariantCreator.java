@@ -30,6 +30,7 @@ import org.opencb.biodata.models.clinical.interpretation.ReportedEvent;
 import org.opencb.biodata.models.clinical.interpretation.ReportedVariant;
 import org.opencb.biodata.models.clinical.interpretation.exceptions.InterpretationAnalysisException;
 import org.opencb.biodata.models.commons.Disorder;
+import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.ConsequenceType;
 import org.opencb.biodata.models.variant.avro.SequenceOntologyTerm;
@@ -125,7 +126,9 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
                             // In addition to the panel, the mode of inheritance must match too!
                             if (geneToPanelMoiMap.containsKey(ct.getEnsemblGeneId())) {
                                 for (ModeOfInheritance moi : modeOfInheritances) {
-                                    if (geneToPanelMoiMap.get(ct.getEnsemblGeneId()).get(genePanel.getId()) == moi) {
+                                    if (moi == ModeOfInheritance.UNKNOWN) {
+                                        processPanelRegion(genePanel, ct, variant, reportedEvents);
+                                    } else if (geneToPanelMoiMap.get(ct.getEnsemblGeneId()).get(genePanel.getId()) == moi) {
                                         logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId() + ", moi match");
 
                                         if (CollectionUtils.isNotEmpty(ct.getSequenceOntologyTerms())) {
@@ -274,6 +277,43 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
         }
 
         return reportedVariants;
+    }
+
+    private void processPanelRegion(DiseasePanel genePanel, ConsequenceType ct, Variant variant, List<ReportedEvent> reportedEvents) {
+        if (genePanel != null && CollectionUtils.isNotEmpty(genePanel.getRegions())) {
+            for (DiseasePanel.RegionPanel panelRegion : genePanel.getRegions()) {
+                if (CollectionUtils.isNotEmpty(genePanel.getRegions())) {
+                    for (DiseasePanel.Coordinate coordinate : panelRegion.getCoordinates()) {
+                        if (assembly.equals(coordinate.getAssembly())) {
+                            if (StringUtils.isNotEmpty(coordinate.getLocation())) {
+                                Region region = Region.parseRegion(coordinate.getLocation());
+                                GenomicFeature genomicFeature = new GenomicFeature(region.toString(), "REGION",
+                                        ct.getEnsemblTranscriptId(), ct.getGeneName(), panelRegion.getXrefs());
+
+                                int overlapPercentage = getOverlapPercentage(region, variant);
+                                if (overlapPercentage >= panelRegion.getRequiredOverlapPercentage()) {
+                                    for (SequenceOntologyTerm soTerm : ct.getSequenceOntologyTerms()) {
+                                        reportedEvents.add(createReportedEvent(disorder, Collections.singletonList(soTerm),
+                                                genomicFeature, genePanel.getId(), ModeOfInheritance.UNKNOWN, penetrance, TIER_1, variant));
+                                    }
+                                } else {
+                                    for (SequenceOntologyTerm soTerm : ct.getSequenceOntologyTerms()) {
+                                        reportedEvents.add(createReportedEvent(disorder, Collections.singletonList(soTerm),
+                                                genomicFeature, genePanel.getId(), ModeOfInheritance.UNKNOWN, penetrance, TIER_2, variant));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private int getOverlapPercentage(Region region, Variant variant) {
+        int start = Math.max(region.getStart(), variant.getStart());
+        int end = Math.min(region.getEnd(), variant.getEnd());
+        return 100 * (end - start + 1) / region.size();
     }
 
 
