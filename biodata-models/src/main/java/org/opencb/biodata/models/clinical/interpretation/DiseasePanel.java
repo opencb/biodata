@@ -216,56 +216,54 @@ public class DiseasePanel {
         }
     }
 
-    public static class VariantPanel {
+    public static class VariantPanel extends Common {
 
-        private String id;
-        private List<String> evidences;
-        private List<String> publications;
+        private String reference;
+        private String alternate;
 
         public VariantPanel() {
         }
 
-        public VariantPanel(String id, String phenotype, List<String> evidences, List<String> publications) {
-            this.id = id;
-            this.evidences = evidences;
-            this.publications = publications;
+        public VariantPanel(String id, List<Xref> xrefs, String modeOfInheritance, Penetrance penetrance,
+                            String confidence, List<String> evidences, List<String> publications,
+                            List<OntologyTerm> phenotypes, List<Coordinate> coordinates, String reference,
+                            String alternate) {
+            super(id, xrefs, modeOfInheritance, penetrance, confidence, evidences, publications, phenotypes, coordinates);
+            this.reference = reference;
+            this.alternate = alternate;
         }
 
         @Override
         public String toString() {
-            final StringBuilder sb = new StringBuilder("VariantPanel{");
-            sb.append("id='").append(id).append('\'');
-            sb.append(", evidences=").append(evidences);
-            sb.append(", publications=").append(publications);
-            sb.append('}');
-            return sb.toString();
+            return "VariantPanel{" +
+                    "id='" + id + '\'' +
+                    ", xrefs=" + xrefs +
+                    ", modeOfInheritance='" + modeOfInheritance + '\'' +
+                    ", penetrance=" + penetrance +
+                    ", confidence='" + confidence + '\'' +
+                    ", evidences=" + evidences +
+                    ", publications=" + publications +
+                    ", phenotypes=" + phenotypes +
+                    ", coordinates=" + coordinates +
+                    ", reference='" + reference + '\'' +
+                    ", alternate='" + alternate + '\'' +
+                    '}';
         }
 
-        public String getId() {
-            return id;
+        public String getReference() {
+            return reference;
         }
 
-        public VariantPanel setId(String id) {
-            this.id = id;
-            return this;
+        public void setReference(String reference) {
+            this.reference = reference;
         }
 
-        public List<String> getEvidences() {
-            return evidences;
+        public String getAlternate() {
+            return alternate;
         }
 
-        public VariantPanel setEvidences(List<String> evidences) {
-            this.evidences = evidences;
-            return this;
-        }
-
-        public List<String> getPublications() {
-            return publications;
-        }
-
-        public VariantPanel setPublications(List<String> publications) {
-            this.publications = publications;
-            return this;
+        public void setAlternate(String alternate) {
+            this.alternate = alternate;
         }
     }
 
