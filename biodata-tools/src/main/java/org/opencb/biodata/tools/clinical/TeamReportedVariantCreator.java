@@ -42,7 +42,7 @@ public class TeamReportedVariantCreator extends ReportedVariantCreator {
     public TeamReportedVariantCreator(List<DiseasePanel> diseasePanels, Map<String, RoleInCancer> roleInCancer,
                                       Map<String, List<String>> actionableVariants, Disorder disorder, ModeOfInheritance modeOfInheritance,
                                       Penetrance penetrance) {
-        super(diseasePanels, disorder, modeOfInheritance, penetrance, roleInCancer, actionableVariants);
+        super(diseasePanels, disorder, modeOfInheritance, penetrance, roleInCancer, actionableVariants, null);
     }
 
     @Override

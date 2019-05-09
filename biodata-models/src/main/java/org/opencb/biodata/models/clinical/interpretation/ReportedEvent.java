@@ -31,6 +31,7 @@ import static org.opencb.biodata.models.clinical.interpretation.ClinicalProperty
 public class ReportedEvent {
 
     private String id;
+    @Deprecated
     private Disorder disorder;
     private List<Phenotype> phenotypes;
     private List<SequenceOntologyTerm> consequenceTypes;
@@ -49,7 +50,6 @@ public class ReportedEvent {
     private RoleInCancer roleInCancer;
     private boolean actionable;
     private String justification;
-    private String tier;
 
     public ReportedEvent() {
     }
@@ -74,7 +74,6 @@ public class ReportedEvent {
         this.roleInCancer = roleInCancer;
         this.actionable = actionable;
         this.justification = justification;
-        this.tier = tier;
     }
 
     @Override
@@ -95,7 +94,6 @@ public class ReportedEvent {
         sb.append(", roleInCancer=").append(roleInCancer);
         sb.append(", actionable=").append(actionable);
         sb.append(", justification='").append(justification).append('\'');
-        sb.append(", tier='").append(tier).append('\'');
         sb.append('}');
         return sb.toString();
     }
@@ -232,15 +230,6 @@ public class ReportedEvent {
 
     public ReportedEvent setJustification(String justification) {
         this.justification = justification;
-        return this;
-    }
-
-    public String getTier() {
-        return tier;
-    }
-
-    public ReportedEvent setTier(String tier) {
-        this.tier = tier;
         return this;
     }
 }

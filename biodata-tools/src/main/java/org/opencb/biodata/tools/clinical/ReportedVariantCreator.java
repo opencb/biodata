@@ -67,16 +67,19 @@ public abstract class ReportedVariantCreator {
     protected Map<String, RoleInCancer> roleInCancer;
     protected Map<String, List<String>> actionableVariants;
 
+    protected String assembly;
+
     public ReportedVariantCreator(List<DiseasePanel> diseasePanels, Disorder disorder, ModeOfInheritance modeOfInheritance,
                                   Penetrance penetrance, Map<String, RoleInCancer> roleInCancer,
-                                  Map<String, List<String>> actionableVariants) {
-        this(diseasePanels, disorder, modeOfInheritance, penetrance, roleInCancer, actionableVariants,
+                                  Map<String, List<String>> actionableVariants, String assembly) {
+        this(diseasePanels, disorder, modeOfInheritance, penetrance, roleInCancer, actionableVariants, assembly,
                 new ArrayList<>(proteinCoding), new ArrayList<>(extendedLof));
     }
 
     public ReportedVariantCreator(List<DiseasePanel> diseasePanels, Disorder disorder, ModeOfInheritance modeOfInheritance,
                                   Penetrance penetrance, Map<String, RoleInCancer> roleInCancer,
-                                  Map<String, List<String>> actionableVariants, List<String> biotypes, List<String> soNames) {
+                                  Map<String, List<String>> actionableVariants, String assembly, List<String> biotypes,
+                                  List<String> soNames) {
 
         this.diseasePanels = diseasePanels;
         this.disorder = disorder;
@@ -84,6 +87,7 @@ public abstract class ReportedVariantCreator {
         this.penetrance = penetrance;
         this.roleInCancer = roleInCancer;
         this.actionableVariants = actionableVariants;
+        this.assembly = assembly;
 
         this.biotypeSet = new HashSet<>();
         if (CollectionUtils.isNotEmpty(biotypes)) {
@@ -269,65 +273,11 @@ public abstract class ReportedVariantCreator {
             if (StringUtils.isEmpty(tier)) {
                 updateActionableInfo(reportedEvent, variant);
             } else {
-                reportedEvent.setTier(tier);
+                reportedEvent.getClassification().setTier(tier);
             }
         }
 
         return reportedEvent;
-    }
-
-    @Deprecated
-    public void updateVariantClassification(ReportedEvent reportedEvent, Variant variant) {
-        VariantClassification variantClassification = new VariantClassification();
-
-        // ACMG
-        variantClassification.setAcmg(calculateAcmgClassification(variant, reportedEvent.getModeOfInheritance()));
-
-        // Role in cancer and clinical significance
-        if (variant.getAnnotation() != null) {
-
-            // Clinical significance, this is stored in the trait association
-            if (CollectionUtils.isNotEmpty(variant.getAnnotation().getTraitAssociation()) && reportedEvent.getGenomicFeature() != null) {
-                List<EvidenceEntry> traitAssociations = variant.getAnnotation().getTraitAssociation();
-                String ensemblTranscriptId = reportedEvent.getGenomicFeature().getEnsemblTranscriptId();
-
-                // Iterate across the list of evidences
-                for (EvidenceEntry evidenceEntry : traitAssociations) {
-
-                    // We are interested in the clinical significance from the clinvar annotation
-                    if (evidenceEntry.getSource() != null && "clinvar".equals(evidenceEntry.getSource().getName())) {
-
-                        if (evidenceEntry.getVariantClassification() != null
-                                && evidenceEntry.getVariantClassification().getClinicalSignificance() != null
-                                && evidenceEntry.getVariantClassification().getClinicalSignificance().name() != null) {
-                            String clinicalSignificance = evidenceEntry.getVariantClassification().getClinicalSignificance().name();
-                            List<org.opencb.biodata.models.variant.avro.GenomicFeature> genomicFeatures = evidenceEntry.getGenomicFeatures();
-
-                            // And check if we are in the proper reported event, i.e., the transcript matches
-                            if (CollectionUtils.isNotEmpty(genomicFeatures)) {
-                                for (org.opencb.biodata.models.variant.avro.GenomicFeature genomicFeature : genomicFeatures) {
-                                    if (genomicFeature.getFeatureType() != null && "transcript".equals(genomicFeature.getFeatureType().name())
-                                            && ensemblTranscriptId.equals(genomicFeature.getEnsemblId())) {
-
-                                        try {
-                                            variantClassification.setClinicalSignificance(ClinicalSignificance.valueOf(clinicalSignificance));
-                                            break;
-                                        } catch (IllegalArgumentException e) {
-                                            // Do nothing
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if (variantClassification.getClinicalSignificance() != null) {
-                        break;
-                    }
-                }
-            }
-        }
-
-        reportedEvent.setClassification(variantClassification);
     }
 
     protected void updateActionableInfo(ReportedEvent reportedEvent, Variant variant) {
@@ -336,7 +286,7 @@ public abstract class ReportedVariantCreator {
             reportedEvent.setActionable(true);
 
             // Set Tier3
-            reportedEvent.setTier(TIER_3);
+            reportedEvent.getClassification().setTier(TIER_3);
 
             // Set phenotypes for that variant
             List<String> phenotypeIds = actionableVariants.get(variant.getId());

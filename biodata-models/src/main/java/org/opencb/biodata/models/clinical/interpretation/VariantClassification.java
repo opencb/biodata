@@ -28,6 +28,7 @@ import java.util.*;
 
 public class VariantClassification {
 
+    private String tier;
     private List<String> acmg;
     private ClinicalSignificance clinicalSignificance;
     private DrugResponse drugResponse;
@@ -300,9 +301,9 @@ public class VariantClassification {
         this.acmg = new ArrayList<>();
     }
 
-    public VariantClassification(List<String> acmg, ClinicalSignificance clinicalSignificance, DrugResponse drugResponse,
-                                 TraitAssociation traitAssociation, FunctionalEffect functionalEffect, Tumorigenesis tumorigenesis,
-                                 List<String> other) {
+    public VariantClassification(String tier, List<String> acmg, ClinicalSignificance clinicalSignificance, DrugResponse drugResponse,
+                                 TraitAssociation traitAssociation, FunctionalEffect functionalEffect, Tumorigenesis tumorigenesis, List<String> other) {
+        this.tier = tier;
         this.acmg = acmg;
         this.clinicalSignificance = clinicalSignificance;
         this.drugResponse = drugResponse;
@@ -310,6 +311,15 @@ public class VariantClassification {
         this.functionalEffect = functionalEffect;
         this.tumorigenesis = tumorigenesis;
         this.other = other;
+    }
+
+    public String getTier() {
+        return tier;
+    }
+
+    public VariantClassification setTier(String tier) {
+        this.tier = tier;
+        return this;
     }
 
     public List<String> getAcmg() {
@@ -373,5 +383,21 @@ public class VariantClassification {
     public VariantClassification setOther(List<String> other) {
         this.other = other;
         return this;
+    }
+
+    public static Set<String> getLOF() {
+        return LOF;
+    }
+
+    public static void setLOF(Set<String> LOF) {
+        VariantClassification.LOF = LOF;
+    }
+
+    public static Set<String> getProteinLengthChanging() {
+        return PROTEIN_LENGTH_CHANGING;
+    }
+
+    public static void setProteinLengthChanging(Set<String> proteinLengthChanging) {
+        PROTEIN_LENGTH_CHANGING = proteinLengthChanging;
     }
 }

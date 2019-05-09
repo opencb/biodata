@@ -42,7 +42,7 @@ public class DefaultReportedVariantCreator extends ReportedVariantCreator {
                                          ModeOfInheritance modeOfInheritance, Penetrance penetrance, List<DiseasePanel> diseasePanels,
                                          List<String> biotypes, List<String> soNames,
                                          boolean includeUntieredVariants) {
-        super(diseasePanels, disorder, modeOfInheritance, penetrance, roleInCancer, actionableVariants, biotypes, soNames);
+        super(diseasePanels, disorder, modeOfInheritance, penetrance, roleInCancer, actionableVariants, null, biotypes, soNames);
 
         this.includeUntieredVariants = includeUntieredVariants;
     }
@@ -64,7 +64,6 @@ public class DefaultReportedVariantCreator extends ReportedVariantCreator {
             variantToPanelMap = getVariantToPanelMap(diseasePanels);
         }
 
-        boolean untiered;
         for (Variant variant : variants) {
             List<ReportedEvent> reportedEvents = new ArrayList<>();
 
