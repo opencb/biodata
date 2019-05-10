@@ -54,7 +54,7 @@ import java.util.List;
 /**
  * Created by imedina on 14/09/15.
  */
-public class BamManager {
+public class BamManager implements AutoCloseable {
 
     private Path bamFile;
     private Path refFile;
@@ -337,40 +337,40 @@ public class BamManager {
     }
 
     public List<String> getBreakpoints(Region region) throws IOException {
-        BlockCompressedInputStream blockCompressedInputStream = new BlockCompressedInputStream(bamFile.toFile());
+        try (BlockCompressedInputStream blockCompressedInputStream = new BlockCompressedInputStream(bamFile.toFile())) {
+            if (samReader.hasIndex()) {
+                List<Chunk> originalChunks = getChunks(region);
+                long lastEndPosition = -1;
 
-        if (samReader.hasIndex()) {
-            List<Chunk> originalChunks = getChunks(region);
-            long lastEndPosition = -1;
+                if (CollectionUtils.isNotEmpty(originalChunks)) {
+                    List<String> byteRanges = new ArrayList<>(originalChunks.size());
+                    for (Chunk originalChunk : originalChunks) {
 
-            if (CollectionUtils.isNotEmpty(originalChunks)) {
-                List<String> byteRanges = new ArrayList<>(originalChunks.size());
-                for (Chunk originalChunk : originalChunks) {
+                        long seekInitialPos = originalChunk.getChunkEnd();
+                        if (seekInitialPos < lastEndPosition) {
+                            // Skip, this chunk has already been included
+                            continue;
+                        }
+                        // We put the file pointer at the beginning of the end chunk
+                        blockCompressedInputStream.seek(seekInitialPos);
 
-                    long seekInitialPos = originalChunk.getChunkEnd();
-                    if (seekInitialPos < lastEndPosition) {
-                        // Skip, this chunk has already been included
-                        continue;
+                        // And start reading bytes until we reach the end of the block
+                        long virtualEndPos = seekInitialPos;
+                        while (!blockCompressedInputStream.endOfBlock()) {
+                            blockCompressedInputStream.read();
+                            virtualEndPos = blockCompressedInputStream.getPosition();
+                        }
+
+                        // Update the lastEndPosition retrieved to avoid duplication breakpoints
+                        lastEndPosition = virtualEndPos;
+
+                        // Write the start and the retrieved end addresses
+                        byteRanges.add(BlockCompressedFilePointerUtil.getBlockAddress(originalChunk.getChunkStart())
+                                + "-" + (BlockCompressedFilePointerUtil.getBlockAddress(virtualEndPos) - 1));
                     }
-                    // We put the file pointer at the beginning of the end chunk
-                    blockCompressedInputStream.seek(seekInitialPos);
 
-                    // And start reading bytes until we reach the end of the block
-                    long virtualEndPos = seekInitialPos;
-                    while (!blockCompressedInputStream.endOfBlock()) {
-                        blockCompressedInputStream.read();
-                        virtualEndPos = blockCompressedInputStream.getPosition();
-                    }
-
-                    // Update the lastEndPosition retrieved to avoid duplication breakpoints
-                    lastEndPosition = virtualEndPos;
-
-                    // Write the start and the retrieved end addresses
-                    byteRanges.add(BlockCompressedFilePointerUtil.getBlockAddress(originalChunk.getChunkStart())+ "-"
-                            + (BlockCompressedFilePointerUtil.getBlockAddress(virtualEndPos) - 1));
+                    return byteRanges;
                 }
-
-                return byteRanges;
             }
         }
         return null;
@@ -451,7 +451,7 @@ public class BamManager {
         return alignmentGlobalStats;
     }
 
-
+    @Override
     public void close() throws IOException {
         if (samReader != null) {
             samReader.close();
