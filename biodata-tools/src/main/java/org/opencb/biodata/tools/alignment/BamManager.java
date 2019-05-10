@@ -25,6 +25,7 @@ import htsjdk.samtools.reference.FastaSequenceIndexCreator;
 import htsjdk.samtools.seekablestream.SeekableStream;
 import htsjdk.samtools.seekablestream.SeekableStreamFactory;
 import htsjdk.samtools.util.BlockCompressedFilePointerUtil;
+import htsjdk.samtools.util.BlockCompressedInputStream;
 import htsjdk.samtools.util.Log;
 import org.apache.commons.collections.CollectionUtils;
 import org.ga4gh.models.ReadAlignment;
@@ -335,19 +336,38 @@ public class BamManager {
         return null;
     }
 
-    public List<String> getBreakpoints(Region region) {
+    public List<String> getBreakpoints(Region region) throws IOException {
+        BlockCompressedInputStream blockCompressedInputStream = new BlockCompressedInputStream(bamFile.toFile());
+
         if (samReader.hasIndex()) {
             List<Chunk> originalChunks = getChunks(region);
+            long lastEndPosition = -1;
+
             if (CollectionUtils.isNotEmpty(originalChunks)) {
                 List<String> byteRanges = new ArrayList<>(originalChunks.size());
                 for (Chunk originalChunk : originalChunks) {
-                    long byte_start = BlockCompressedFilePointerUtil.getBlockAddress(originalChunk.getChunkStart());
-                    long byte_end = BlockCompressedFilePointerUtil.getBlockAddress(originalChunk.getChunkEnd()) - 1;
-                    if (byte_start <= byte_end) {
-                        byteRanges.add(byte_start + "-" + byte_end);
-                    } else {
-                        throw new IllegalArgumentException("Start offset is greater than end: " + byte_start + "-" + byte_end);
+
+                    long seekInitialPos = originalChunk.getChunkEnd();
+                    if (seekInitialPos < lastEndPosition) {
+                        // Skip, this chunk has already been included
+                        continue;
                     }
+                    // We put the file pointer at the beginning of the end chunk
+                    blockCompressedInputStream.seek(seekInitialPos);
+
+                    // And start reading bytes until we reach the end of the block
+                    long virtualEndPos = seekInitialPos;
+                    while (!blockCompressedInputStream.endOfBlock()) {
+                        blockCompressedInputStream.read();
+                        virtualEndPos = blockCompressedInputStream.getPosition();
+                    }
+
+                    // Update the lastEndPosition retrieved to avoid duplication breakpoints
+                    lastEndPosition = virtualEndPos;
+
+                    // Write the start and the retrieved end addresses
+                    byteRanges.add(BlockCompressedFilePointerUtil.getBlockAddress(originalChunk.getChunkStart())+ "-"
+                            + (BlockCompressedFilePointerUtil.getBlockAddress(virtualEndPos) - 1));
                 }
 
                 return byteRanges;
