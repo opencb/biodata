@@ -299,7 +299,7 @@ public class ModeOfInheritance {
      */
     public static Map<String, List<Variant>> compoundHeterozygous(Iterator<Variant> iterator, int probandSampleIdx, int motherSampleIdx,
                                                                   int fatherSampleIdx) {
-        return compoundHeterozygousPrivate(iterator, probandSampleIdx, motherSampleIdx, fatherSampleIdx, Integer.MAX_VALUE, extendedLof).getRight();
+        return compoundHeterozygousPrivate(iterator, probandSampleIdx, motherSampleIdx, fatherSampleIdx, Integer.MAX_VALUE, extendedLof, proteinCoding).getRight();
     }
 
     /**
@@ -312,9 +312,9 @@ public class ModeOfInheritance {
      * @param limit            limit number of different variants
      * @return Map of transcript - variant list
      */
-    public static List<Variant> compoundHeterozygous(Iterator<Variant> iterator, int probandSampleIdx, int motherSampleIdx,
-                                                     int fatherSampleIdx, int limit) {
-        return compoundHeterozygous(iterator, probandSampleIdx, motherSampleIdx, fatherSampleIdx, limit, Collections.emptySet());
+    public static List<Variant> compoundHeterozygous(Iterator<Variant> iterator,
+                                                     int probandSampleIdx, int motherSampleIdx, int fatherSampleIdx, int limit) {
+        return compoundHeterozygous(iterator, probandSampleIdx, motherSampleIdx, fatherSampleIdx, limit, extendedLof, proteinCoding);
     }
 
     /**
@@ -326,22 +326,25 @@ public class ModeOfInheritance {
      * @param fatherSampleIdx  Father sample index
      * @param limit            limit number of different variants
      * @param acceptedSoTerm   Accepted SequenceOntologyTerm
+     * @param acceptedBiotypes Accepted Biotypes
      * @return Map of transcript - variant list
      */
     public static List<Variant> compoundHeterozygous(Iterator<Variant> iterator, int probandSampleIdx, int motherSampleIdx,
-                                                     int fatherSampleIdx, int limit, Set<String> acceptedSoTerm) {
+                                                     int fatherSampleIdx, int limit, Set<String> acceptedSoTerm, Set<String> acceptedBiotypes) {
         if (limit <= 0) {
             limit = Integer.MAX_VALUE;
         }
-        List<Variant> variants = new ArrayList<>(compoundHeterozygousPrivate(iterator, probandSampleIdx, motherSampleIdx, fatherSampleIdx, limit, acceptedSoTerm).getLeft());
+        List<Variant> variants = new ArrayList<>(compoundHeterozygousPrivate(
+                iterator, probandSampleIdx, motherSampleIdx, fatherSampleIdx, limit, acceptedSoTerm, acceptedBiotypes).getLeft());
         if (variants.size() > limit) {
             variants = variants.subList(0, limit);
         }
         return variants;
     }
 
-    private static Pair<Set<Variant>, Map<String, List<Variant>>> compoundHeterozygousPrivate(Iterator<Variant> iterator, int probandSampleIdx, int motherSampleIdx,
-                                                                                              int fatherSampleIdx, int limit, Set<String> acceptedSoTerm) {
+    private static Pair<Set<Variant>, Map<String, List<Variant>>> compoundHeterozygousPrivate(
+            Iterator<Variant> iterator, int probandSampleIdx, int motherSampleIdx, int fatherSampleIdx,
+            int limit, Set<String> acceptedSoTerm, Set<String> acceptedBiotypes) {
         Set<Variant> variants = new TreeSet<>(VARIANT_COMPARATOR);
         int variantsRetrieved = 0;
 
@@ -399,8 +402,9 @@ public class ModeOfInheritance {
             }
 
             for (ConsequenceType consequenceType : variant.getAnnotation().getConsequenceTypes()) {
-                if (proteinCoding.contains(consequenceType.getBiotype())) {
-                    String transcriptId = consequenceType.getEnsemblTranscriptId();
+                String transcriptId = consequenceType.getEnsemblTranscriptId();
+                if (StringUtils.isNotEmpty(transcriptId)
+                        && (acceptedSoTerm.isEmpty() || acceptedBiotypes.contains(consequenceType.getBiotype()))) {
                     if (CollectionUtils.isNotEmpty(consequenceType.getSequenceOntologyTerms())) {
                         for (SequenceOntologyTerm soTerm : consequenceType.getSequenceOntologyTerms()) {
                             if (acceptedSoTerm.isEmpty()
