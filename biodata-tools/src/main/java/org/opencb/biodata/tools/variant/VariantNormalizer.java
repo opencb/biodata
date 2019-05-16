@@ -60,6 +60,7 @@ import java.util.stream.Collectors;
  */
 public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Variant> {
 
+    private static final char VARIANT_STRING_SEPARATOR = ',';
     protected Logger logger = LoggerFactory.getLogger(this.getClass().toString());
 
     public static class VariantNormalizerConfig {
@@ -715,9 +716,11 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                         || (keyFields.getAlternate().length() > 1 && keyFields.getReference().length() >= 1);
                 if (this.config.isDecomposeMNVs() && isMnv && alternates.size() == 1) {
                     // decomposition of MNVs
-                    for (VariantKeyFields keyFields1 : decomposeMNVSingleVariants(keyFields)) {
-                        keyFields1.numAllele = numAllelesIdx;
-                        keyFields1.phaseSet = chromosome + ":" + position + ":" + reference + ":" + currentAlternate;
+                    List<VariantKeyFields> simpleVariantKeyFieldList = decomposeMNVSingleVariants(keyFields);
+                    String phaseSet = getPhaseSet(chromosome, simpleVariantKeyFieldList);
+                    for (VariantKeyFields keyFields1 : simpleVariantKeyFieldList) {
+                        keyFields1.setNumAllele(numAllelesIdx);
+                        keyFields1.phaseSet = phaseSet;
                         list.add(keyFields1);
                     }
                 } else {
@@ -741,6 +744,15 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         // Sort by numAllele, then by start.
         list.sort(Comparator.comparingInt(VariantKeyFields::getNumAllele).thenComparingInt(VariantKeyFields::getStart));
         return list;
+    }
+
+    private String getPhaseSet(String chromosome, List<VariantKeyFields> keyFieldList) {
+        return StringUtils.join(keyFieldList.stream().map(keyField
+                -> (new Variant(chromosome,
+                keyField.getStart(),
+                keyField.getEnd(),
+                keyField.getReference(),
+                keyField.getAlternate())).toString()).collect(Collectors.toList()), VARIANT_STRING_SEPARATOR);
     }
 
     /**
