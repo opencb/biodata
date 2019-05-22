@@ -164,7 +164,7 @@ public class VariantVcfHtsjdkReaderTest {
         assertEquals(1, variantList.size());
         variant = variantList.get(0);
         assertEquals("1", variant.getChromosome());
-        assertEquals(Integer.valueOf(99180), variant.getStart());
+        assertEquals(Integer.valueOf(99580), variant.getStart());
         assertEquals("T", variant.getReference());
         assertEquals("C", variant.getAlternate());
         assertEquals("99166",

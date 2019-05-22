@@ -11,10 +11,7 @@ import org.opencb.biodata.models.variant.VariantFileMetadata;
 import org.opencb.biodata.models.variant.avro.VariantAvro;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -130,9 +127,7 @@ public class VariantJsonReader implements VariantReader {
         try {
             line = reader.readLine();
         } catch (IOException e) {
-            logger.warn("Error while reading line {}. Skipping line and continuing with the rest of the file.",
-                    lineNumber);
-            e.printStackTrace();
+            throw new UncheckedIOException(e);
         }
 
         return line;

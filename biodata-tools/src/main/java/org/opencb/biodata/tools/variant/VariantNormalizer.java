@@ -60,7 +60,7 @@ import java.util.stream.Collectors;
  */
 public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Variant> {
 
-    private static final char VARIANT_STRING_SEPARATOR = ',';
+    private static final String VARIANT_STRING_SEPARATOR = ",";
     protected Logger logger = LoggerFactory.getLogger(this.getClass().toString());
 
     public static class VariantNormalizerConfig {
@@ -720,7 +720,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                     String phaseSet = getPhaseSet(chromosome, simpleVariantKeyFieldList);
                     for (VariantKeyFields keyFields1 : simpleVariantKeyFieldList) {
                         keyFields1.setNumAllele(numAllelesIdx);
-                        keyFields1.phaseSet = phaseSet;
+                        keyFields1.setPhaseSet(phaseSet);
                         list.add(keyFields1);
                     }
                 } else {
@@ -747,12 +747,12 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
     }
 
     private String getPhaseSet(String chromosome, List<VariantKeyFields> keyFieldList) {
-        return StringUtils.join(keyFieldList.stream().map(keyField
+        return keyFieldList.stream().map(keyField
                 -> (new Variant(chromosome,
                 keyField.getStart(),
                 keyField.getEnd(),
                 keyField.getReference(),
-                keyField.getAlternate())).toString()).collect(Collectors.toList()), VARIANT_STRING_SEPARATOR);
+                keyField.getAlternate())).toString()).collect(Collectors.joining(VARIANT_STRING_SEPARATOR));
     }
 
     /**
@@ -1319,6 +1319,9 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             normalizedVariant.getSv().setCopyNumber(keyFields.getCopyNumber());
             normalizedVariant.getSv().setType(VariantBuilder.getCNVSubtype(keyFields.getCopyNumber()));
         }
+
+        normalizedVariant.setAnnotation(variant.getAnnotation());
+
         return normalizedVariant;
 //        normalizedVariant.setAnnotation(variant.getAnnotation());
 //        if (isSymbolic(variant)) {

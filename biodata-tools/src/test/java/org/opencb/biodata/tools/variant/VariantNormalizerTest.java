@@ -144,8 +144,8 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
 
         assertTrue(snp.getStudies().get(0).getFormat().contains("PS"));
         assertTrue(indel.getStudies().get(0).getFormat().contains("PS"));
-        assertEquals("1:100:ACTCGTAAA:ATTCGAAA", snp.getStudies().get(0).getSampleData("S1", "PS"));
-        assertEquals("1:100:ACTCGTAAA:ATTCGAAA", indel.getStudies().get(0).getSampleData("S1", "PS"));
+        assertEquals("1:101:C:T,1:105:T:-", snp.getStudies().get(0).getSampleData("S1", "PS"));
+        assertEquals("1:101:C:T,1:105:T:-", indel.getStudies().get(0).getSampleData("S1", "PS"));
 
         for (Variant refBlock : refBlocks) {
             assertFalse(refBlock.getStudies().get(0).getFormat().contains("PS"));

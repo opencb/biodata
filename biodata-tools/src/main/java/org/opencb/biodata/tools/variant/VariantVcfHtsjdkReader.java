@@ -63,7 +63,7 @@ public class VariantVcfHtsjdkReader implements VariantReader {
 
     private static final String MATEID = "MATEID";
     private static final String MATE_CIPOS = "MATE_CIPOS";
-    private static final int SAME_PHASESET_DISTANCE_THRESHOLD = 100;
+    private static final int INTERACTING_DISTANCE_THRESHOLD = 300;
     private static final String PHASE_SET_TAG = "PS";
     private static final String VCF_MISSING_STRING = ".";
     private final Logger logger = LoggerFactory.getLogger(VariantVcfHtsjdkReader.class);
@@ -357,7 +357,21 @@ public class VariantVcfHtsjdkReader implements VariantReader {
             } else {
                 // Assumes variantContexts.size() > 0
                 VariantContext lastSavedVariantContext = variantContexts.get(variantContexts.size() - 1);
-                return samePhaseSet(lastSavedVariantContext, lastVariantContext);
+
+                // Rationale for including a distance threshold in here regardless of the phase set:
+                //   Variants within a certain distance might be jointly reported in databases, e.g MNVs in ClinVar and
+                //   pop frequency datasets. Two variants with different PS are not necessarily in a different
+                //   chromosome copy; the fact of having a different PS simply states that the caller was able to
+                //   determine the phase within two non-overlapping genomic regions, and WITHIN each of those regions,
+                //   the chromosome copy location can be inferred for corresponding alleles. Alleles of variants each
+                //   in a different region (different PS) could actually be located in the same copy.
+                //   Since this logic is included for supporting phased variant annotation use case, not including this
+                //   distance check could mean that two variants in the same chromosome copy, with different PS, being
+                //   reported together by ClinVar (as an MNV, for example) could be missed.
+                // Obviously if the phase set is the same the batch is incomplete
+                return (abs(lastVariantContext.getStart() - lastSavedVariantContext.getStart())
+                            < INTERACTING_DISTANCE_THRESHOLD)
+                        || samePhaseSet(lastSavedVariantContext, lastVariantContext);
             }
         }
 
@@ -367,13 +381,11 @@ public class VariantVcfHtsjdkReader implements VariantReader {
     }
 
     private boolean samePhaseSet(VariantContext variantContext, VariantContext variantContext1) {
-        if (abs(variantContext1.getStart() - variantContext.getStart()) < SAME_PHASESET_DISTANCE_THRESHOLD) {
-            String phaseSet = getPhaseSet(variantContext);
-            if (phaseSet != null) {
-                String phaseSet1 = getPhaseSet(variantContext1);
-                if (phaseSet1 != null) {
-                    return phaseSet.equals(phaseSet1);
-                }
+        String phaseSet = getPhaseSet(variantContext);
+        if (phaseSet != null) {
+            String phaseSet1 = getPhaseSet(variantContext1);
+            if (phaseSet1 != null) {
+                return phaseSet.equals(phaseSet1);
             }
         }
         return false;
