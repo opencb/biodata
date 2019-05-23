@@ -235,6 +235,8 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         this.config.disableLeftAlign();
         return this;
     }
+                // Also, for variants part of an MVN, only the original MNV call will be added, i.e. one single
+                // alternate per MNV
 
     public VariantNormalizer setAcceptAmbiguousBasesInReference(boolean acceptAmbiguousBasesInReference)  {
         this.config.setAcceptAmbiguousBasesInReference(acceptAmbiguousBasesInReference);
@@ -664,7 +666,8 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         } else {
             newAlternate = alternate;
         }
-        return new VariantKeyFields(newStart, end, numAllelesIdx, newReference, newAlternate, cn, false);
+        return new VariantKeyFields(newStart, end, numAllelesIdx, newReference, newAlternate,
+                null, cn, false);
     }
 
 
@@ -714,7 +717,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                 // To deal with cases such as A>GT
                 boolean isMnv = (keyFields.getReference().length() > 1 && keyFields.getAlternate().length() >= 1)
                         || (keyFields.getAlternate().length() > 1 && keyFields.getReference().length() >= 1);
-                if (this.config.isDecomposeMNVs() && isMnv && alternates.size() == 1) {
+                if (this.config.isDecomposeMNVs() && isMnv) {
                     // decomposition of MNVs
                     List<VariantKeyFields> simpleVariantKeyFieldList = decomposeMNVSingleVariants(keyFields);
                     String phaseSet = getPhaseSet(chromosome, simpleVariantKeyFieldList);
@@ -888,11 +891,13 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
     private List<VariantKeyFields> decomposeMNVSingleVariants(VariantKeyFields keyFields) {
         SequencePair<DNASequence, NucleotideCompound> sequenceAlignment = getPairwiseAlignment(keyFields.getReference(),
                 keyFields.getAlternate());
-        return decomposeAlignmentSingleVariants(sequenceAlignment, keyFields.getStart());
+        return decomposeAlignmentSingleVariants(sequenceAlignment, keyFields.getStart(), keyFields);
     }
 
-    private List<VariantKeyFields> decomposeAlignmentSingleVariants(SequencePair<DNASequence, NucleotideCompound> sequenceAlignment,
-                                                                    int genomicStart) {
+    private List<VariantKeyFields> decomposeAlignmentSingleVariants(SequencePair<DNASequence,
+            NucleotideCompound> sequenceAlignment,
+            int genomicStart,
+            VariantKeyFields originalKeyFields) {
 
         String reference = sequenceAlignment.getTarget().getSequenceAsString();
         String alternate = sequenceAlignment.getQuery().getSequenceAsString();
@@ -917,7 +922,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                 // New insertion found, create new keyFields
                 } else {
                     keyFields = new VariantKeyFields(genomicStart + i, genomicStart + i, "",
-                            String.valueOf(alternateChar));
+                            String.valueOf(alternateChar), originalKeyFields);
                     keyFieldsList.add(keyFields);
                 }
             // Deletion
@@ -928,14 +933,14 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                     keyFields.setEnd(keyFields.getEnd()+1);
                 // New deletion found, create new keyFields
                 } else {
-                    keyFields = new VariantKeyFields(genomicStart + i, genomicStart + i, String.valueOf(referenceChar),
-                            "");
+                    keyFields = new VariantKeyFields(genomicStart + i, genomicStart + i,
+                            String.valueOf(referenceChar),"", originalKeyFields);
                     keyFieldsList.add(keyFields);
                 }
             // SNV
             } else if (referenceChar != alternateChar) {
-                keyFields = new VariantKeyFields(genomicStart + i, genomicStart + i, String.valueOf(referenceChar),
-                        String.valueOf(alternateChar));
+                keyFields = new VariantKeyFields(genomicStart + i, genomicStart + i,
+                        String.valueOf(referenceChar), String.valueOf(alternateChar), originalKeyFields);
                 keyFieldsList.add(keyFields);
             }
             previousReferenceChar = referenceChar;
@@ -1337,27 +1342,34 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             // Reference blocks do not have secondary alternates
             secondaryAlternates = Collections.emptyList();
         } else if (alternate.getPhaseSet() != null) {
+            Set<VariantKeyFields> originalAlternateSet = new HashSet<>();
             for (VariantKeyFields variantKeyFields : alternates) {
-                if (variantKeyFields.getNumAllele() > 0) {
-                    throw new IllegalStateException("Unable to resolve multiallelic with MNV variants -> "
-                            + alternates.stream()
-                            .map((v) -> chromosome + ":" + v.toString())
-                            .collect(Collectors.joining(" , ")));
+                // Other alternates obtained as a result this MNV decomposition should not be part of the secondary
+                // alternates for this particular alternate
+                if (variantKeyFields.getNumAllele() != alternate.getNumAllele()) {
+                    originalAlternateSet.add(variantKeyFields.getOriginalKeyFields());
                 }
             }
-            secondaryAlternates = Collections.emptyList();
-        } else {
             secondaryAlternates = new ArrayList<>(alternates.size());
             // Move the current alternate to the first position
             secondaryAlternates.add(alternate);
+            secondaryAlternates.addAll(originalAlternateSet);
+        } else {
+            Set<VariantKeyFields> originalAlternateSet = new HashSet<>();
             for (VariantKeyFields keyFields : alternates) {
                 if (keyFields.isReferenceBlock()) {
                     continue;
                 }
+                // For variants part of an MVN, only the original MNV call will be added, i.e. one single
+                // alternate per MNV. That's why the getOriginalKeyFields is used
                 if (!keyFields.equals(alternate)) {
-                    secondaryAlternates.add(keyFields);
+                    originalAlternateSet.add(keyFields.getOriginalKeyFields());
                 }
             }
+            secondaryAlternates = new ArrayList<>(alternates.size());
+            // Move the current alternate to the first position
+            secondaryAlternates.add(alternate);
+            secondaryAlternates.addAll(originalAlternateSet);
         }
         return secondaryAlternates;
     }
@@ -1399,6 +1411,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         private String phaseSet;
         private String reference;
         private String alternate;
+        private VariantKeyFields originalKeyFields;
         private StructuralVariation sv;
         boolean referenceBlock;
 
@@ -1406,20 +1419,32 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             this(start, end, 0, reference, alternate, false);
         }
 
+        public VariantKeyFields(int start, int end, String reference, String alternate,
+                                VariantKeyFields originalKeyfields) {
+            this(start, end, 0, reference, alternate, originalKeyfields,false);
+        }
+
         public VariantKeyFields(int start, int end, int numAllele, String reference, String alternate) {
             this(start, end, numAllele, reference, alternate, false);
         }
 
         public VariantKeyFields(int start, int end, int numAllele, String reference, String alternate, boolean referenceBlock) {
-            this(start, end, numAllele, reference, alternate, null, referenceBlock);
+            this(start, end, numAllele, reference, alternate, null,null, referenceBlock);
         }
 
-        public VariantKeyFields(int start, int end, int numAllele, String reference, String alternate, Integer copyNumber, boolean referenceBlock) {
+        public VariantKeyFields(int start, int end, int numAllele, String reference, String alternate,
+                                VariantKeyFields originalKeyFields, boolean referenceBlock) {
+            this(start, end, numAllele, reference, alternate, originalKeyFields, null, referenceBlock);
+        }
+
+        public VariantKeyFields(int start, int end, int numAllele, String reference, String alternate,
+                                VariantKeyFields originalKeyFields, Integer copyNumber, boolean referenceBlock) {
             this.start = start;
             this.end = end;
             this.numAllele = numAllele;
             this.reference = reference;
             this.alternate = alternate;
+            this.originalKeyFields = originalKeyFields == null ? this : originalKeyFields;
             this.referenceBlock = referenceBlock;
             this.sv = new StructuralVariation();
             setCopyNumber(copyNumber);
@@ -1477,10 +1502,21 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             return alternate;
         }
 
+
         public VariantKeyFields setAlternate(String alternate) {
             this.alternate = alternate;
             return this;
         }
+
+        public VariantKeyFields getOriginalKeyFields() {
+            return originalKeyFields;
+        }
+
+        public VariantKeyFields setOriginalKeyFields(VariantKeyFields keyFields) {
+            this.originalKeyFields = keyFields;
+            return this;
+        }
+
 
         public Integer getCopyNumber() {
             return sv == null ? null : sv.getCopyNumber();
