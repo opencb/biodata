@@ -19,15 +19,14 @@
 
 package org.opencb.biodata.formats.alignment.sam.io;
 
-import htsjdk.samtools.SAMFileHeader;
-import htsjdk.samtools.SAMFileReader;
-import htsjdk.samtools.SAMRecord;
-import htsjdk.samtools.SAMRecordIterator;
+import htsjdk.samtools.*;
 import org.opencb.biodata.formats.alignment.AlignmentConverter;
 import org.opencb.biodata.formats.alignment.io.AlignmentDataReader;
 import org.opencb.biodata.models.alignment.Alignment;
 import org.opencb.biodata.models.alignment.AlignmentHeader;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -46,7 +45,7 @@ public class AlignmentSamDataReader implements AlignmentDataReader {
 
     private final Path input;
     private final String studyName;
-    private SAMFileReader reader;
+    private SamReader reader;
     public SAMFileHeader samHeader;
     public AlignmentHeader header;
     private SAMRecordIterator iterator;
@@ -67,11 +66,12 @@ public class AlignmentSamDataReader implements AlignmentDataReader {
         if(!Files.exists(input))
             return false;
 
-        reader = new SAMFileReader(input.toFile());
-        if(enableFileSource){
-            reader.enableFileSource(true);
-        }
-        reader.setValidationStringency(SAMFileReader.getDefaultValidationStringency().LENIENT);
+        reader = SamReaderFactory.make().validationStringency(ValidationStringency.LENIENT).open(input.toFile());
+//
+//        if(enableFileSource){
+//            reader.enableFileSource(true);
+//        }
+//        reader.setValidationStringency(SAMFileReader.getDefaultValidationStringency().LENIENT);
         iterator = reader.iterator();
 
         return true;
@@ -79,7 +79,11 @@ public class AlignmentSamDataReader implements AlignmentDataReader {
 
     @Override
     public boolean close() {
-        reader.close();
+        try {
+            reader.close();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
         return true;
     }
 

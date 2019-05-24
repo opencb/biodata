@@ -111,7 +111,7 @@ public class BamManagerTest {
 //        short[] values;
         int chunkSize = 100000;
 
-        SAMFileReader sfr = new SAMFileReader(inputPath.toFile());
+        SamReader sfr = SamReaderFactory.makeDefault().open(inputPath.toFile());
         SAMFileHeader h = sfr.getFileHeader();
         SAMSequenceDictionary dict = h.getSequenceDictionary();
         long totalStartTime = System.currentTimeMillis();
@@ -157,5 +157,14 @@ public class BamManagerTest {
         System.out.println("\nTotal time: " + (totalStopTime - totalStartTime)/1000.0 + " seconds.");
 
         writer.close();
+    }
+
+    @Test
+    public void readCram() throws IOException {
+        String cram = getClass().getResource("/cram/cram_with_crai_index.cram").getFile();
+        String reference = getClass().getResource("/cram/hg19mini.fasta").getFile();
+
+        BamManager bamManager = new BamManager(Paths.get(cram), Paths.get(reference));
+        System.out.println(bamManager.getHeader("study"));
     }
 }
