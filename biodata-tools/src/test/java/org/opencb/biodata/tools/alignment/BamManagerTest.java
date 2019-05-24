@@ -16,7 +16,10 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 
@@ -370,5 +373,14 @@ public class BamManagerTest {
         for (float value : values) {
             System.out.print(value + ", ");
         }
+    }
+
+    @Test
+    public void readCram() throws IOException {
+        String cram = getClass().getResource("/cram/cram_with_crai_index.cram").getFile();
+        String reference = getClass().getResource("/cram/hg19mini.fasta").getFile();
+
+        BamManager bamManager = new BamManager(Paths.get(cram), Paths.get(reference));
+        System.out.println(bamManager.getHeader("study"));
     }
 }
