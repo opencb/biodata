@@ -177,7 +177,7 @@ public class VariantStats {
         if (normalize) {
             g = normalizeGenotypeAlleles(g);
         }
-        getGenotypeCount().compute(g, (key, prev) -> prev == null ? addedCount : prev + addedCount);
+        getGenotypeCount().merge(g, addedCount, Integer::sum);
         return this;
     }
 

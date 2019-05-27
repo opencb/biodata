@@ -24,7 +24,6 @@ import htsjdk.samtools.SAMTag;
 import org.opencb.biodata.models.core.Region;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
@@ -41,18 +40,18 @@ public class SamRecordFilters extends AlignmentFilters<SAMRecord> {
         this.filters = filters;
     }
 
-    public static AlignmentFilters<SAMRecord> create() {
+    public static SamRecordFilters create() {
         return new SamRecordFilters();
     }
 
     @Override
-    public AlignmentFilters<SAMRecord> addMappingQualityFilter(int mappingQuality) {
+    public SamRecordFilters addMappingQualityFilter(int mappingQuality) {
         filters.add(samRecord -> samRecord.getMappingQuality() >= mappingQuality);
         return this;
     }
 
     @Override
-    public AlignmentFilters<SAMRecord> addMaxNumberMismatchesFilter(int maxNumberMismatches) {
+    public SamRecordFilters addMaxNumberMismatchesFilter(int maxNumberMismatches) {
         filters.add(samRecord -> {
             Object nmAttribute = samRecord.getAttribute(SAMTag.NM.name());
             if (nmAttribute != null) {
@@ -71,7 +70,7 @@ public class SamRecordFilters extends AlignmentFilters<SAMRecord> {
     }
 
     @Override
-    public AlignmentFilters<SAMRecord> addMaxNumberHitsFilter(int maxNumberHits) {
+    public SamRecordFilters addMaxNumberHitsFilter(int maxNumberHits) {
         filters.add(samRecord -> {
             Object nhAttribute = samRecord.getAttribute(SAMTag.NH.name());
             if (nhAttribute != null) {
@@ -90,36 +89,36 @@ public class SamRecordFilters extends AlignmentFilters<SAMRecord> {
     }
 
     @Override
-    public AlignmentFilters<SAMRecord> addProperlyPairedFilter() {
+    public SamRecordFilters addProperlyPairedFilter() {
         filters.add(samRecord -> samRecord.getProperPairFlag());
         return this;
     }
 
     @Override
-    public AlignmentFilters<SAMRecord> addInsertSizeFilter(int maxInsertSize) {
+    public SamRecordFilters addInsertSizeFilter(int maxInsertSize) {
         filters.add(samRecord -> samRecord.getInferredInsertSize() <= maxInsertSize);
         return this;
     }
 
     @Override
-    public AlignmentFilters<SAMRecord> addUnmappedFilter() {
+    public SamRecordFilters addUnmappedFilter() {
         filters.add(samRecord -> samRecord.getReadUnmappedFlag());
         return this;
     }
 
     @Override
-    public AlignmentFilters<SAMRecord> addDuplicatedFilter() {
+    public SamRecordFilters addDuplicatedFilter() {
         filters.add(samRecord -> !samRecord.getDuplicateReadFlag());
         return this;
     }
 
     @Override
-    public AlignmentFilters<SAMRecord> addRegionFilter(Region region, boolean contained) {
+    public SamRecordFilters addRegionFilter(Region region, boolean contained) {
         return addRegionFilter(Collections.singletonList(region), contained);
     }
 
     @Override
-    public AlignmentFilters<SAMRecord> addRegionFilter(List<Region> regions, boolean contained) {
+    public SamRecordFilters addRegionFilter(List<Region> regions, boolean contained) {
         List<Predicate<SAMRecord>> predicates = new ArrayList<>();
         for (Region region: regions) {
             if (contained) {

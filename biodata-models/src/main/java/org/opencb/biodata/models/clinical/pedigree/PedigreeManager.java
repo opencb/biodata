@@ -1,6 +1,7 @@
 package org.opencb.biodata.models.clinical.pedigree;
 
 import org.apache.commons.lang.StringUtils;
+import org.opencb.biodata.models.commons.Disorder;
 import org.opencb.biodata.models.commons.Phenotype;
 import org.opencb.commons.utils.ListUtils;
 
@@ -69,12 +70,12 @@ public class PedigreeManager {
         }
     }
 
-    public Set<Member> getAffectedIndividuals(Phenotype phenotype) {
+    public Set<Member> getAffectedIndividuals(Disorder disorder) {
         Set<Member> members = new HashSet<>();
         for (Member member : pedigree.getMembers()) {
-            if (ListUtils.isNotEmpty(member.getPhenotypes())) {
-                for (Phenotype pheno: member.getPhenotypes()) {
-                    if (StringUtils.isNotEmpty(pheno.getId()) && pheno.getId().equals(phenotype.getId())) {
+            if (ListUtils.isNotEmpty(member.getDisorders())) {
+                for (Disorder tmpDisorder: member.getDisorders()) {
+                    if (StringUtils.isNotEmpty(tmpDisorder.getId()) && tmpDisorder.getId().equals(disorder.getId())) {
                         members.add(member);
                         break;
                     }
@@ -84,13 +85,13 @@ public class PedigreeManager {
         return members;
     }
 
-    public Set<Member> getUnaffectedIndividuals(Phenotype phenotype) {
+    public Set<Member> getUnaffectedIndividuals(Disorder disorder) {
         Set<Member> members = new HashSet<>();
         for (Member member : pedigree.getMembers()) {
             boolean affected = false;
-            if (ListUtils.isNotEmpty(member.getPhenotypes())) {
-                for (Phenotype pheno: member.getPhenotypes()) {
-                    if (StringUtils.isNotEmpty(pheno.getId()) && pheno.getId().equals(phenotype.getId())) {
+            if (ListUtils.isNotEmpty(member.getDisorders())) {
+                for (Disorder tmpDisorder: member.getDisorders()) {
+                    if (StringUtils.isNotEmpty(tmpDisorder.getId()) && tmpDisorder.getId().equals(disorder.getId())) {
                         affected = true;
                         break;
                     }

@@ -1,6 +1,12 @@
 package org.opencb.biodata.tools.feature;
 
+import htsjdk.samtools.SAMSequenceDictionary;
+import htsjdk.samtools.SamReader;
+import org.apache.commons.lang.StringUtils;
+import org.broad.igv.bbfile.*;
+import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.tools.commons.ChunkFrequencyManager;
+import org.opencb.commons.utils.CollectionUtils;
 import org.opencb.commons.utils.FileUtils;
 
 import java.io.BufferedReader;
@@ -224,6 +230,51 @@ public class WigUtils {
             }
             chunkFrequencyManager.insert(filePath, chromosome, meanValues);
         }
+    }
+
+    public static void validateRegion(Region region, BBFileReader bbFileReader) {
+        String chrom = region.getChromosome();
+        if (StringUtils.isEmpty(chrom)) {
+            throw new IllegalArgumentException("Missing chromosome for region: " + region.toString());
+        }
+
+        if (bbFileReader.getChromosomeID(chrom) == -1) {
+            if (chrom.startsWith("chr")) {
+                chrom = chrom.replace("chr", "");
+                if (bbFileReader.getChromosomeID(chrom) == -1) {
+                    throw new IllegalArgumentException("Unknown chromosome: " + region.getChromosome());
+                } else {
+                    region.setChromosome(chrom);
+                }
+            } else {
+                if (bbFileReader.getChromosomeID("chr" + chrom) == -1) {
+                    throw new IllegalArgumentException("Unknown chromosome: " + region.getChromosome());
+                } else {
+                    region.setChromosome("chr" + chrom);
+                }
+            }
+        }
+    }
+
+    public static long getTotalCounts(BBFileReader bbFileReader) throws IOException {
+        long totalCounts = 0;
+
+        if (bbFileReader.getZoomLevelCount() == 0) {
+            BigWigIterator bigWigIterator = bbFileReader.getBigWigIterator();
+            while (bigWigIterator.hasNext()) {
+                WigItem next = bigWigIterator.next();
+                totalCounts += ((next.getEndBase() - next.getStartBase()) * next.getWigValue());
+            }
+        } else {
+            int zoom = bbFileReader.getZoomLevelCount();
+            ZoomLevelIterator zoomLevelIterator = bbFileReader.getZoomLevelIterator(zoom);
+            while (zoomLevelIterator.hasNext()) {
+                ZoomDataRecord next = zoomLevelIterator.next();
+                totalCounts += next.getSumData();
+            }
+        }
+
+        return totalCounts;
     }
 
     /**

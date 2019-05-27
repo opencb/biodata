@@ -16,7 +16,7 @@
  *   -->
  *
  */
-package org.opencb.biodata.tools.variant.algorithm;
+package org.opencb.biodata.models.variant.stats;
 
 import java.util.Arrays;
 
@@ -28,13 +28,21 @@ import java.util.Arrays;
 public class IdentityByState {
     public int[] ibs = {0, 0, 0};
 
-//        public IBS() {
-//        }
-
     public void add(IdentityByState param) {
         for (int i = 0; i < ibs.length; i++) {
             ibs[i] += param.ibs[i];
         }
+    }
+
+    /**
+     * Distance in genotype space.
+     * As it is categorical, currently it is just computed as a ratio between shared genotypeCounters and total genotypeCounters.
+     * Could also be euclidian distance with formula (taken from plink):
+     * sqrt((IBSg.z1*0.5 + IBSg.z2*2)/(IBSg.z0+IBSg.z1+IBSg.z2*2));
+     * @return
+     */
+    public double getDistance() {
+        return (ibs[1] * 0.5 + ibs[2]) / (ibs[0] + ibs[1] + ibs[2]);
     }
 
     @Override
@@ -42,5 +50,14 @@ public class IdentityByState {
         return "IBS{" +
                 "ibs=" + Arrays.toString(ibs) +
                 '}';
+    }
+
+    public int[] getIbs() {
+        return ibs;
+    }
+
+    public IdentityByState setIbs(int[] ibs) {
+        this.ibs = ibs;
+        return this;
     }
 }

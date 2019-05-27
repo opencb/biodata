@@ -69,6 +69,4 @@ public abstract class VariantFilters<T> extends CommonsFilters<T> {
 
     public abstract VariantFilters<T> addRegionFilter(List<Region> regions, boolean contained);
 
-    //( vaiant -> variant.getStudies().forEach(studyEntry -> studyEntry.getFiles().forEach(fileEntry -> fileEntry.get("FILTER").equals("PASS"))); //
-    //( vaiant -> variant.getStudies().forEach(studyEntry -> studyEntry.getFiles().forEach(fileEntry -> Integer.parseInt(fileEntry.get("QUAL")) > 20)); //
 }

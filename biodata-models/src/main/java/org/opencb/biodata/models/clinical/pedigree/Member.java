@@ -19,6 +19,7 @@
 
 package org.opencb.biodata.models.clinical.pedigree;
 
+import org.opencb.biodata.models.commons.Disorder;
 import org.opencb.biodata.models.commons.Phenotype;
 import org.opencb.biodata.models.pedigree.IndividualProperty;
 import org.opencb.biodata.models.pedigree.Multiples;
@@ -40,9 +41,11 @@ public class Member {
 
     private Sex sex;
     private IndividualProperty.LifeStatus lifeStatus;
+    @Deprecated
     private AffectionStatus affectionStatus;
 
     private List<Phenotype> phenotypes;
+    private List<Disorder> disorders;
 
     private Map<String, Object> attributes;
 
@@ -138,7 +141,7 @@ public class Member {
 
     public Member(String id, String name, Member father, Member mother, Multiples multiples, Sex sex,
                   IndividualProperty.LifeStatus lifeStatus, AffectionStatus affectionStatus, List<Phenotype> phenotypes,
-                  Map<String, Object> attributes) {
+                  List<Disorder> disorders, Map<String, Object> attributes) {
         this.id = id;
         this.name = name;
         this.father = father;
@@ -147,8 +150,28 @@ public class Member {
         this.sex = sex;
         this.lifeStatus = lifeStatus;
         this.affectionStatus = affectionStatus;
+        this.disorders = disorders;
         this.phenotypes = phenotypes;
         this.attributes = attributes;
+    }
+
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Member{");
+        sb.append("id='").append(id).append('\'');
+        sb.append(", name='").append(name).append('\'');
+        sb.append(", father=").append(father);
+        sb.append(", mother=").append(mother);
+        sb.append(", multiples=").append(multiples);
+        sb.append(", sex=").append(sex);
+        sb.append(", lifeStatus=").append(lifeStatus);
+        sb.append(", affectionStatus=").append(affectionStatus);
+        sb.append(", phenotypes=").append(phenotypes);
+        sb.append(", disorders=").append(disorders);
+        sb.append(", attributes=").append(attributes);
+        sb.append('}');
+        return sb.toString();
     }
 
     public String getId() {
@@ -229,6 +252,15 @@ public class Member {
 
     public Member setPhenotypes(List<Phenotype> phenotypes) {
         this.phenotypes = phenotypes;
+        return this;
+    }
+
+    public List<Disorder> getDisorders() {
+        return disorders;
+    }
+
+    public Member setDisorders(List<Disorder> disorders) {
+        this.disorders = disorders;
         return this;
     }
 
