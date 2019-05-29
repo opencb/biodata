@@ -35,10 +35,12 @@ public class VariantAggregatedStatsCalculatorTest extends GenericTest {
         calculator.calculate(variants);
 
         VariantStats stats = variants.get(0).getStudy(metadata.getId()).getStats(StudyEntry.DEFAULT_COHORT);
+        assertEquals(2904 + 889, stats.getAlleleCount().longValue());
         assertEquals(2904, stats.getRefAlleleCount().longValue());
         assertEquals(889, stats.getAltAlleleCount().longValue());
 
         stats = variants.get(1).getStudy(metadata.getId()).getStats(StudyEntry.DEFAULT_COHORT);
+        assertEquals(2904 + 889, stats.getAlleleCount().longValue());
         assertEquals(2904, stats.getRefAlleleCount().longValue());
         assertEquals(61, stats.getAltAlleleCount().longValue());
         assertEquals(0.015827711, stats.getMaf(), 0.0001);
@@ -70,6 +72,9 @@ public class VariantAggregatedStatsCalculatorTest extends GenericTest {
         assertEquals(new Integer(304), stats.getGenotypeCount().get(new Genotype("0/0", "C", "T")));
         assertEquals(new Integer(163), stats.getGenotypeCount().get(new Genotype("0/1", "C", "T")));
         assertEquals(new Integer(31),  stats.getGenotypeCount().get(new Genotype("T/T", "C", "T")));
+        assertEquals(304 / 498.0, stats.getGenotypeFreq().get(new Genotype("0/0", "C", "T")).floatValue(), 0.0001);
+        assertEquals(163 / 498.0, stats.getGenotypeFreq().get(new Genotype("0/1", "C", "T")).floatValue(), 0.0001);
+        assertEquals(31 / 498.0, stats.getGenotypeFreq().get(new Genotype("T/T", "C", "T")).floatValue(), 0.0001);
         assertEquals(0.225903614, stats.getMaf(), 0.0001);
     }
 
