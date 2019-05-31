@@ -344,7 +344,8 @@ public abstract class ReportedVariantCreator {
         GenomicFeature genomicFeature = null;
         if (ct != null) {
             soTerms = getSOTerms(ct, includeSoTerms);
-            genomicFeature = new GenomicFeature(ct.getEnsemblGeneId(), ct.getEnsemblTranscriptId(), ct.getGeneName(), null, null);
+
+            genomicFeature = new GenomicFeature(ct.getEnsemblGeneId(), "GENE", ct.getEnsemblTranscriptId(), ct.getGeneName(), null);
         }
 
         if (CollectionUtils.isNotEmpty(panelIds)) {
