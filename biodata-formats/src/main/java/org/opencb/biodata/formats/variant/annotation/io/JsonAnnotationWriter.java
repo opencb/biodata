@@ -79,7 +79,11 @@ public class JsonAnnotationWriter implements DataWriter<Variant> {
     @Override
     public boolean open() {
         try {
-            bw = FileUtils.newBufferedWriter(Paths.get(filename));
+            OutputStream os = Files.newOutputStream(Paths.get(filename), openMode);
+            if (filename.endsWith(".gz") || filename.endsWith(".gzip")) {
+                os = new GZIPOutputStream(os);
+            }
+            bw = new BufferedWriter(new OutputStreamWriter(os));
         } catch (IOException e) {
             throw Throwables.propagate(e);
         }

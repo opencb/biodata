@@ -29,8 +29,8 @@ import java.util.zip.GZIPInputStream;
 public class VariantJsonReader implements VariantReader {
 
     private final VariantNormalizer normalizer;
+    private final VariantFileMetadata variantFileMetadata;
     private BufferedReader reader;
-    private Path path;
 
     private static ObjectMapper jsonObjectMapper;
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(VariantJsonReader.class);
@@ -56,7 +56,8 @@ public class VariantJsonReader implements VariantReader {
     }
 
     public VariantJsonReader(Path input, VariantNormalizer normalizer) {
-        this.path = input;
+        this.variantFileMetadata = new VariantFileMetadata(input.getFileName().toString(),
+                input.toAbsolutePath().toString());
         this.normalizer = normalizer;
     }
 
@@ -64,7 +65,8 @@ public class VariantJsonReader implements VariantReader {
     public boolean open() {
 
         try {
-            Files.exists(this.path);
+            Path path = Paths.get(this.variantFileMetadata.getPath());
+            Files.exists(path);
 
             if (path.toFile().getName().endsWith(".gz")) {
                 this.reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(path.toFile()))));
@@ -140,6 +142,6 @@ public class VariantJsonReader implements VariantReader {
 
     @Override
     public VariantFileMetadata getVariantFileMetadata() {
-        return null;
+        return variantFileMetadata;
     }
 }

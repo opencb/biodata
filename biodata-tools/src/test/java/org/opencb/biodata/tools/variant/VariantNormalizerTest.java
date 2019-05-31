@@ -167,30 +167,53 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
         variant.getStudies().get(0).addSampleData("S3", Collections.singletonList("0/2"));
         List<Variant> variants = normalizer.apply(Collections.singletonList(variant));
 
-        assertEquals(2, variants.size());
-        assertEquals("1:101:CTCGT:TTCG", variants.get(0).toString());
+        assertEquals(3, variants.size());
+        assertEquals("1:101:C:T", variants.get(0).toString());
         assertEquals("1:104:G:C", variants.get(1).toString());
+        assertEquals("1:105:T:-", variants.get(2).toString());
 
 //        variants.forEach(System.out::println);
 //        variants.forEach((v) -> System.out.println(v.toJson()));
-//        assertEquals("1:101:C:T", variants.get(0).toString());
-//        assertEquals("1:105:T:-", variants.get(1).toString());
-//        assertEquals("1:104:G:C", variants.get(2).toString());
-//
-//        assertEquals(true, variants.get(0).getStudies().get(0).getFormat().contains("PS"));
-//        assertEquals(true, variants.get(1).getStudies().get(0).getFormat().contains("PS"));
-//        assertEquals(false, variants.get(2).getStudies().get(0).getFormat().contains("PS"));
-//
-//        assertEquals(????, variants.get(0).getStudies().get(0).getSecondaryAlternates().size());
-//        assertEquals(????, variants.get(1).getStudies().get(0).getSecondaryAlternates().size());
-//        assertEquals(????, variants.get(2).getStudies().get(0).getSecondaryAlternates().size());
-//
-//        assertEquals("1:100:ACTCGTA:ATTCGA", variants.get(0).getStudies().get(0).getSampleData("S1", "PS"));
-//        assertEquals("1:100:ACTCGTA:ATTCGA", variants.get(1).getStudies().get(0).getSampleData("S1", "PS"));
-//        assertEquals("0/2", variants.get(0).getStudies().get(0).getSampleData("S3", "GT"));
-//        assertEquals("0/2", variants.get(1).getStudies().get(0).getSampleData("S3", "GT"));
-//        assertEquals("0/1", variants.get(2).getStudies().get(0).getSampleData("S3", "GT"));
+        assertEquals("1:101:C:T", variants.get(0).toString());
+        assertEquals("1:104:G:C", variants.get(1).toString());
+        assertEquals("1:105:T:-", variants.get(2).toString());
 
+        assertEquals(true, variants.get(0).getStudies().get(0).getFormat().contains("PS"));
+        assertEquals(false, variants.get(1).getStudies().get(0).getFormat().contains("PS"));
+        assertEquals(true, variants.get(2).getStudies().get(0).getFormat().contains("PS"));
+
+        assertEquals("1:101:C:T,1:105:T:-", variants.get(0).getStudies().get(0).getSampleData("S1", "PS"));
+        assertEquals("1:101:C:T,1:105:T:-", variants.get(0).getStudies().get(0).getSampleData("S2", "PS"));
+        assertEquals("1:101:C:T,1:105:T:-", variants.get(0).getStudies().get(0).getSampleData("S3", "PS"));
+        assertEquals("1:101:C:T,1:105:T:-", variants.get(2).getStudies().get(0).getSampleData("S1", "PS"));
+        assertEquals("1:101:C:T,1:105:T:-", variants.get(2).getStudies().get(0).getSampleData("S2", "PS"));
+        assertEquals("1:101:C:T,1:105:T:-", variants.get(2).getStudies().get(0).getSampleData("S3", "PS"));
+
+        assertEquals(1, variants.get(0).getStudies().get(0).getSecondaryAlternates().size());
+        assertEquals(1, variants.get(1).getStudies().get(0).getSecondaryAlternates().size());
+        assertEquals(1, variants.get(2).getStudies().get(0).getSecondaryAlternates().size());
+
+        assertEquals(new AlternateCoordinate("1",
+                        104,
+                        104,
+                        "G",
+                        "C",
+                        VariantType.SNV),
+                variants.get(0).getStudies().get(0).getSecondaryAlternates().get(0));
+        assertEquals(new AlternateCoordinate("1",
+                        101,
+                        105,
+                        "CTCGT",
+                        "TTCG",
+                        VariantType.INDEL),
+                variants.get(1).getStudies().get(0).getSecondaryAlternates().get(0));
+        assertEquals(new AlternateCoordinate("1",
+                104,
+                104,
+                "G",
+                "C",
+                VariantType.SNV),
+                variants.get(2).getStudies().get(0).getSecondaryAlternates().get(0));
     }
 
 
