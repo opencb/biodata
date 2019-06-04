@@ -347,7 +347,16 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                     } else {
                         keyFieldsList = normalize(chromosome, start, reference, alternates);
                     }
-                    originalKeyFieldsList = keyFieldsList.stream().filter(k -> !k.isReferenceBlock()).collect(Collectors.toList());
+                    originalKeyFieldsList = keyFieldsList
+                            .stream()
+                            .filter(k -> !k.isReferenceBlock())
+                            .map(k -> k.originalKeyFields)
+                            .collect(Collectors.toList());
+                    boolean decomposedMnv = originalKeyFieldsList.size() != alternates.size(); // indicate if there has been any MNV decomposition
+                    if (decomposedMnv) {
+                        // If so, remove duplicated keyFields from list of originals
+                        originalKeyFieldsList = new ArrayList<>(new LinkedHashSet<>(originalKeyFieldsList));
+                    }
                     boolean sameVariant = keyFieldsList.size() == 1
                             && keyFieldsList.get(0).getStart() == start
                             && keyFieldsList.get(0).getReference().equals(reference)
@@ -418,8 +427,20 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                         normalizedEntry.setSecondaryAlternates(getSecondaryAlternates(chromosome, keyFields, reorderedKeyFields));
 
                         VariantAlternateRearranger rearranger = null;
-                        if (originalKeyFieldsList.size() > 1 && !reorderedKeyFields.isEmpty()) {
-                            rearranger = new VariantAlternateRearranger(originalKeyFieldsList, reorderedKeyFields, rearrangerConf);
+                        if (alternates.size() > 1 && !reorderedKeyFields.isEmpty()) {
+                            // Ensure rearranger is created with the reordered list of original fields,
+                            // to match up with the originalKeyFieldsList
+                            List<VariantKeyFields> reorderedKeyFieldsOriginal;
+                            if (decomposedMnv) {
+                                reorderedKeyFieldsOriginal = new ArrayList<>(reorderedKeyFields.size());
+                                for (VariantKeyFields variantKeyFields : reorderedKeyFields) {
+                                    reorderedKeyFieldsOriginal.add(variantKeyFields.originalKeyFields);
+                                }
+                            } else {
+                                reorderedKeyFieldsOriginal = reorderedKeyFields;
+                            }
+                            rearranger = new VariantAlternateRearranger(
+                                    originalKeyFieldsList, reorderedKeyFieldsOriginal, rearrangerConf);
                         }
 
                         //Set normalized samples data
