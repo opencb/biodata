@@ -15,7 +15,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
-import static org.opencb.biodata.models.variant.VariantTestUtils.FILE_ID;
 import static org.opencb.biodata.models.variant.VariantTestUtils.STUDY_ID;
 import static org.opencb.biodata.models.variant.VariantTestUtils.generateVariantWithFormat;
 
@@ -216,6 +215,65 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
                 variants.get(2).getStudies().get(0).getSecondaryAlternates().get(0));
     }
 
+    @Test
+    public void testNormalizeMNV() throws NonStandardCompliantSampleField {
+        normalizer.setDecomposeMNVs(true);
+        normalizer.setGenerateReferenceBlocks(false);
+        Variant variant = generateVariantWithFormat("X:100:ATG:ACC", "GT:AD:GL", "S01", "0/0", "1,2", "1,2,3");
+        List<Variant> normalize = normalizer.normalize(Collections.singletonList(variant), false);
+        for (Variant v : normalize) {
+            System.out.println(v);
+        }
+        for (Variant v : normalize) {
+            System.out.println(v.toJson());
+        }
+        assertEquals(2, normalize.size());
+        Map<String, Variant> map = normalize.stream().collect(Collectors.toMap(Variant::toString, v -> v));
+
+        assertEquals("1,2,3", map.get("X:101:T:C").getStudies().get(0).getSampleData("S01", "GL"));
+        assertEquals("1,2,3", map.get("X:102:G:C").getStudies().get(0).getSampleData("S01", "GL"));
+
+        assertEquals("1,2", map.get("X:101:T:C").getStudies().get(0).getSampleData("S01", "AD"));
+        assertEquals("1,2", map.get("X:102:G:C").getStudies().get(0).getSampleData("S01", "AD"));
+    }
+
+    @Test
+    public void testNormalizeMultiAllelicMNV() throws NonStandardCompliantSampleField {
+        normalizer.setDecomposeMNVs(true);
+        normalizer.setGenerateReferenceBlocks(false);
+        Variant variant = generateVariantWithFormat("X:100:ACGT:TCGA,ATGT", "GT:AD:GL", "S01", "0/0", "1,2,3", "1,2,3,4,5,6");
+        List<Variant> normalize = normalizer.normalize(Collections.singletonList(variant), false);
+
+        assertEquals(3, normalize.size());
+        Map<String, Variant> map = normalize.stream().collect(Collectors.toMap(Variant::toString, v -> v));
+
+        assertEquals("1,2,3,4,5,6", map.get("X:100:A:T").getStudies().get(0).getSampleData("S01", "GL"));
+        assertEquals("1,2,3,4,5,6", map.get("X:103:T:A").getStudies().get(0).getSampleData("S01", "GL"));
+        assertEquals("1,4,6,2,5,3", map.get("X:101:C:T").getStudies().get(0).getSampleData("S01", "GL"));
+
+        assertEquals("1,2,3", map.get("X:100:A:T").getStudies().get(0).getSampleData("S01", "AD"));
+        assertEquals("1,2,3", map.get("X:103:T:A").getStudies().get(0).getSampleData("S01", "AD"));
+        assertEquals("1,3,2", map.get("X:101:C:T").getStudies().get(0).getSampleData("S01", "AD"));
+
+    }
+
+    @Test
+    public void testNormalizeMultiAllelicDuplicatedMNV() throws NonStandardCompliantSampleField {
+        normalizer.setDecomposeMNVs(true);
+        normalizer.setGenerateReferenceBlocks(false);
+        Variant variant = generateVariantWithFormat("X:100:ACGT:TCGA,ATGA", "GT:AD:GL", "S01", "1/2", "1,2,3", "1,2,3,4,5,6");
+
+        List<Variant> normalize = normalizer.normalize(Collections.singletonList(variant), false);
+        for (Variant v : normalize) {
+            System.out.println(v);
+        }
+        for (Variant v : normalize) {
+            System.out.println(v.toJson());
+        }
+
+        // FIXME
+        assertEquals(3, normalize.size());
+    }
 
     @Test
     public void testNormalizeNoVariation() throws NonStandardCompliantSampleField {
