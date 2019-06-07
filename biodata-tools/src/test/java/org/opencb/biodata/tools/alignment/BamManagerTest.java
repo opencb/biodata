@@ -1,6 +1,7 @@
 package org.opencb.biodata.tools.alignment;
 
 import htsjdk.samtools.*;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.opencb.biodata.models.alignment.RegionCoverage;
@@ -33,12 +34,20 @@ public class BamManagerTest {
 
     @Before
     public void init() throws URISyntaxException, IOException {
+        Assume.assumeTrue(bamCoverageExists());
+
         inputPath = Paths.get(getClass().getResource("/HG00096.chrom20.small.bam").toURI());
         bamPath = Paths.get("/tmp/" + inputPath.toFile().getName());
         bwPath = Paths.get("/tmp/" + inputPath.toFile().getName() + ".bw");
     }
 
-    //@Test
+    public boolean bamCoverageExists() throws IOException {
+        String cmd = "which bamCoverage";
+        java.util.Scanner s = new java.util.Scanner(Runtime.getRuntime().exec(cmd).getInputStream()).useDelimiter("\\A");
+        return s.hasNext();
+    }
+
+    @Test
     public void testIndex() throws IOException {
         try {
             Files.copy(inputPath, bamPath);
@@ -50,7 +59,7 @@ public class BamManagerTest {
         bamManager.createIndex();
     }
 
-    //@Test
+    @Test
     public void testIndexBigWigCoverage() throws Exception {
         try {
             Files.copy(inputPath, bamPath);
@@ -182,15 +191,15 @@ public class BamManagerTest {
 
     @Test
     public void filterRegionByCoverage() throws IOException, AlignmentCoverageException {
-        System.out.println("inputPath = " + inputPath);
-        BamManager bamManager = new BamManager(inputPath);
+        System.out.println("bamPath = " + bamPath);
+        BamManager bamManager = new BamManager(bamPath);
 
         AlignmentOptions options = new AlignmentOptions();
         options.setContained(false);
         Region region = new Region("chr20", 62000, 62200);
 
-        int minCoverage = 2;
-        int maxCoverage = 3;
+        int minCoverage = 4;
+        int maxCoverage = 6;
 
         RegionCoverage regionCoverage = bamManager.coverage(region, 20);
         List<RegionCoverage> uncoveredRegions = BamUtils.filterByCoverage(regionCoverage, minCoverage, maxCoverage);
@@ -276,7 +285,7 @@ public class BamManagerTest {
 
     }
 
-//    @Test
+    //    @Test
     public void testChunks() throws IOException {
         int refID = 1; // 1; // 22; //14;
         int beg = 114000; // 13000; // 10000; //24375199;
@@ -354,7 +363,7 @@ public class BamManagerTest {
 
     }
 
-//    @Test
+    //    @Test
     public void testZoom() throws IOException {
 //        Path path = Paths.get("~/data150/bw/NA12877_S1.bam.coverage.bw");
         Path path = Paths.get("~/data150/bw/coverage.bw");
