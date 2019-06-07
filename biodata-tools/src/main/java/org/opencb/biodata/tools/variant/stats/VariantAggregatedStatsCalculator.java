@@ -196,6 +196,7 @@ public class VariantAggregatedStatsCalculator {
 
         if (attributes.containsKey("AN") && attributes.containsKey("AC")) {
             int total = Integer.parseInt(attributes.get("AN"));
+            variantStats.setAlleleCount(total);
             String[] alleleCountString = attributes.get("AC").split(COMMA);
 
             if (alleleCountString.length != alternateAlleles.length) {
@@ -235,6 +236,7 @@ public class VariantAggregatedStatsCalculator {
             if (afs.length == alternateAlleles.length) {
                 float value = parseFloat(afs[numAllele], -1);
                 variantStats.setAltAlleleFreq(value);
+                variantStats.setRefAlleleFreq(1 - variantStats.getAltAlleleFreq());
                 if (variantStats.getMaf() == -1) {  // in case that we receive AFs but no ACs
                     if (variantStats.getRefAlleleFreq() < 0) {
                         variantStats.setRefAlleleFreq(1 - variantStats.getAltAlleleFreq());
@@ -335,6 +337,8 @@ public class VariantAggregatedStatsCalculator {
                         variantStats.addGenotype(genotype, gtc);
                     }
                 }
+
+                VariantStatsCalculator.calculateGenotypeFrequencies(variantStats);
             }
         }
     }

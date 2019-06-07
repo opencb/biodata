@@ -28,19 +28,35 @@ public class VariantAggregatedStatsCalculatorTest extends GenericTest {
 
     @Test
     public void parseAC_AN() {
-        String line = "1\t54722\t.\tTTC\tT,TCTC\t999\tPASS\tDP4=3122,3282,891,558;DP=22582;INDEL;IS=3,0.272727;VQSLOD=6.76;AN=3854;AC=889,61;TYPE=del,ins;HWE=0;ICF=-0.155251";   // structure like uk10k
+        int an = 3854;
+        int ac1 = 889;
+        int ac2 = 61;
+        int rc = an - ac1 - ac2;
+        String line = "1\t54722\t.\tTTC\tT,TCTC\t999\tPASS\t" +
+                "DP4=3122,3282,891,558;" +
+                "DP=22582;" +
+                "INDEL;" +
+                "IS=3,0.272727;" +
+                "VQSLOD=6.76;" +
+                "AN=" + an + ";" +
+                "AC=" + ac1 + "," + ac2 + ";" +
+                "TYPE=del,ins;" +
+                "HWE=0;" +
+                "ICF=-0.155251";   // structure like uk10k
 
         List<Variant> variants = readLine(line);
         VariantAggregatedStatsCalculator calculator = new VariantAggregatedStatsCalculator();
         calculator.calculate(variants);
 
         VariantStats stats = variants.get(0).getStudy(metadata.getId()).getStats(StudyEntry.DEFAULT_COHORT);
-        assertEquals(2904, stats.getRefAlleleCount().longValue());
-        assertEquals(889, stats.getAltAlleleCount().longValue());
+        assertEquals(an, stats.getAlleleCount().longValue());
+        assertEquals(rc, stats.getRefAlleleCount().longValue());
+        assertEquals(ac1, stats.getAltAlleleCount().longValue());
 
         stats = variants.get(1).getStudy(metadata.getId()).getStats(StudyEntry.DEFAULT_COHORT);
-        assertEquals(2904, stats.getRefAlleleCount().longValue());
-        assertEquals(61, stats.getAltAlleleCount().longValue());
+        assertEquals(an, stats.getAlleleCount().longValue());
+        assertEquals(rc, stats.getRefAlleleCount().longValue());
+        assertEquals(ac2, stats.getAltAlleleCount().longValue());
         assertEquals(0.015827711, stats.getMaf(), 0.0001);
     }
 
@@ -70,6 +86,9 @@ public class VariantAggregatedStatsCalculatorTest extends GenericTest {
         assertEquals(new Integer(304), stats.getGenotypeCount().get(new Genotype("0/0", "C", "T")));
         assertEquals(new Integer(163), stats.getGenotypeCount().get(new Genotype("0/1", "C", "T")));
         assertEquals(new Integer(31),  stats.getGenotypeCount().get(new Genotype("T/T", "C", "T")));
+        assertEquals(304 / 498.0, stats.getGenotypeFreq().get(new Genotype("0/0", "C", "T")).floatValue(), 0.0001);
+        assertEquals(163 / 498.0, stats.getGenotypeFreq().get(new Genotype("0/1", "C", "T")).floatValue(), 0.0001);
+        assertEquals(31 / 498.0, stats.getGenotypeFreq().get(new Genotype("T/T", "C", "T")).floatValue(), 0.0001);
         assertEquals(0.225903614, stats.getMaf(), 0.0001);
     }
 
