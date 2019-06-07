@@ -67,7 +67,7 @@ public class BigWigManager {
         float[] values = new float[region.getEnd() - region.getStart() + 1];
         while (bigWigIterator.hasNext()) {
             WigItem wigItem = bigWigIterator.next();
-            for (int i = wigItem.getStartBase(), j = wigItem.getStartBase() - region.getStart(); i <= wigItem.getEndBase(); i++, j++) {
+            for (int i = wigItem.getStartBase(), j = wigItem.getStartBase() - region.getStart(); i <= region.getEnd(); i++, j++) {
                 values[j] = wigItem.getWigValue();
             }
         }

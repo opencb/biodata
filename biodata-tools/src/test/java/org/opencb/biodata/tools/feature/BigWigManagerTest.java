@@ -32,13 +32,7 @@ public class BigWigManagerTest {
     @Test
     public void query1() throws Exception {
         Path bwPath = Paths.get(getClass().getResource("/wigVarStepExampleSmallChr21.bw").toURI());
-        query(bwPath, "chr21", 9411190, 9411290, true);
-    }
-
-    //@Test
-    public void query2() throws Exception {
-        Path bwPath = Paths.get("/tmp/test/HG00096.chrom20.small.bam.sort.bam.coverage.bw");
-        query(bwPath, "20", 60000, 60200, true);
+        query(bwPath, "chr21", 9411190, 9411200, true);
     }
 
 
