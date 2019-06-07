@@ -917,16 +917,17 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
     private List<VariantKeyFields> decomposeMNVSingleVariants(VariantKeyFields keyFields) {
         SequencePair<DNASequence, NucleotideCompound> sequenceAlignment = getPairwiseAlignment(keyFields.getReference(),
                 keyFields.getAlternate());
-        return decomposeAlignmentSingleVariants(sequenceAlignment, keyFields.getStart(), keyFields);
+        return decomposeAlignmentSingleVariants(sequenceAlignment.getTarget().getSequenceAsString(),
+                sequenceAlignment.getQuery().getSequenceAsString(),
+                keyFields.getStart(),
+                keyFields);
     }
 
-    private List<VariantKeyFields> decomposeAlignmentSingleVariants(SequencePair<DNASequence,
-            NucleotideCompound> sequenceAlignment,
-            int genomicStart,
-            VariantKeyFields originalKeyFields) {
+    public static List<VariantKeyFields> decomposeAlignmentSingleVariants(String reference,
+                                                                          String alternate,
+                                                                          int genomicStart,
+                                                                          VariantKeyFields originalKeyFields) {
 
-        String reference = sequenceAlignment.getTarget().getSequenceAsString();
-        String alternate = sequenceAlignment.getQuery().getSequenceAsString();
         List<VariantKeyFields> keyFieldsList = new ArrayList<>();
         VariantKeyFields keyFields = null;
         char previousReferenceChar = 0;
@@ -939,8 +940,8 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             if (referenceChar == '-') {
                 // Assume there cannot be a '-' at the reference and alternate aligned sequences at the same position
                 if (alternateChar == '-') {
-                    logger.error("Unhandled case found after pairwise alignment of MNVs. Alignment result: "
-                            + reference + "/" + alternate);
+                    throw new IllegalArgumentException("Unhandled case found after pairwise alignment of MNVs. "
+                            + "Alignment result:  " + reference + "/" + alternate);
                 }
                 // Current character is a continuation of an insertion
                 if (previousReferenceChar == '-') {
