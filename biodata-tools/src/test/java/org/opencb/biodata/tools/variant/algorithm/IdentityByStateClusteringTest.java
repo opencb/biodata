@@ -7,6 +7,7 @@ import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
+import org.opencb.biodata.models.variant.stats.IdentityByState;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -150,7 +151,7 @@ public class IdentityByStateClusteringTest {
             assertEquals(message, Integer.parseInt(split[14]), ibs.ibs[0]);
             assertEquals(message, Integer.parseInt(split[15]), ibs.ibs[1]);
             assertEquals(message, Integer.parseInt(split[16]), ibs.ibs[2]);
-            assertEquals(message, Float.parseFloat(split[11]), ibsc.getDistance(ibs), 0.0001);
+            assertEquals(message, Float.parseFloat(split[11]), ibs.getDistance(), 0.0001);
             line = reader.readLine();
         }
     }

@@ -32,20 +32,20 @@ import java.util.function.Predicate;
 public class VariantContextFilters extends VariantFilters<VariantContext> {
 
     @Override
-    public VariantFilters<VariantContext> addTypeFilter(String type) {
+    public VariantContextFilters addTypeFilter(String type) {
         filters.add(variantContext -> variantContext.getType().equals(type));
         return this;
     }
 
     @Override
-    public VariantFilters<VariantContext> addSNPFilter() {
+    public VariantContextFilters addSNPFilter() {
         filters.add(variantContext -> !variantContext.getID().equalsIgnoreCase(".")
                 && !variantContext.getID().equalsIgnoreCase(""));
         return this;
     }
 
     @Override
-    public VariantFilters<VariantContext> addQualFilter(double minQual) {
+    public VariantContextFilters addQualFilter(double minQual) {
         filters.add(variantContext -> variantContext.getPhredScaledQual() >= minQual);
         return this;
     }
@@ -70,23 +70,23 @@ public class VariantContextFilters extends VariantFilters<VariantContext> {
     }
 
     @Override
-    public VariantFilters<VariantContext> addPassFilter() {
+    public VariantContextFilters addPassFilter() {
         return addPassFilter("PASS");
     }
 
     @Override
-    public VariantFilters<VariantContext> addPassFilter(String name) {
+    public VariantContextFilters addPassFilter(String name) {
         filters.add(variantContext -> containFilter(variantContext, name));
         return this;
     }
 
     @Override
-    public VariantFilters<VariantContext> addRegionFilter(Region region, boolean contained) {
+    public VariantContextFilters addRegionFilter(Region region, boolean contained) {
         return addRegionFilter(Arrays.asList(region), contained);
     }
 
     @Override
-    public VariantFilters<VariantContext> addRegionFilter(List<Region> regions, boolean contained) {
+    public VariantContextFilters addRegionFilter(List<Region> regions, boolean contained) {
         List<Predicate<VariantContext>> predicates = new ArrayList<>();
         for (Region region: regions) {
             if (contained) {

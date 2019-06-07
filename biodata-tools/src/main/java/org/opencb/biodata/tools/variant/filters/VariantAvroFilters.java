@@ -37,7 +37,7 @@ import static org.opencb.biodata.models.variant.StudyEntry.QUAL;
  */
 public class VariantAvroFilters extends VariantFilters<Variant> {
 
-    private String datasetId;
+    private String studyId;
     private String fileId;
 
     public VariantAvroFilters() {
@@ -48,9 +48,10 @@ public class VariantAvroFilters extends VariantFilters<Variant> {
         super(Arrays.asList(filters));
     }
 
-    public VariantAvroFilters(String datasetId, String fileId) {
+    public VariantAvroFilters(String studyId, String fileId) {
         super();
-        this.datasetId = datasetId;
+
+        this.studyId = studyId;
         this.fileId = fileId;
     }
 
@@ -113,22 +114,6 @@ public class VariantAvroFilters extends VariantFilters<Variant> {
         }
         addFilterList(predicates);
         return this;
-    }
-
-    public String getDatasetId() {
-        return datasetId;
-    }
-
-    public void setDatasetId(String datasetId) {
-        this.datasetId = datasetId;
-    }
-
-    public String getFileId() {
-        return fileId;
-    }
-
-    public void setFileId(String fileId) {
-        this.fileId = fileId;
     }
 
     /**
@@ -260,7 +245,7 @@ public class VariantAvroFilters extends VariantFilters<Variant> {
     private boolean filterQuality(Variant variant, double minQual) {
         try {
             double qual;
-            if (datasetId == null || datasetId.isEmpty()) {
+            if (studyId == null || studyId.isEmpty()) {
                 if (fileId == null || fileId.isEmpty()) {
                     for (StudyEntry studyEntry : variant.getStudies()) {
                         for (FileEntry fileEntry : studyEntry.getFiles()) {
@@ -281,7 +266,7 @@ public class VariantAvroFilters extends VariantFilters<Variant> {
                     }
                 }
             } else {
-                StudyEntry studyEntry = variant.getStudy(datasetId);
+                StudyEntry studyEntry = variant.getStudy(studyId);
                 if (fileId == null || fileId.isEmpty()) {
                     for (FileEntry fileEntry : studyEntry.getFiles()) {
                         qual = Double.parseDouble(fileEntry.getAttributes().get(QUAL));
@@ -303,7 +288,7 @@ public class VariantAvroFilters extends VariantFilters<Variant> {
     }
 
     private boolean filterFilter(Variant variant, String pass) {
-        if (datasetId == null || datasetId.isEmpty()) {
+        if (studyId == null || studyId.isEmpty()) {
             if (fileId == null || fileId.isEmpty()) {
                 for (StudyEntry studyEntry : variant.getStudies()) {
                     for (FileEntry fileEntry : studyEntry.getFiles()) {
@@ -322,7 +307,7 @@ public class VariantAvroFilters extends VariantFilters<Variant> {
                 }
             }
         } else {
-            StudyEntry studyEntry = variant.getStudy(datasetId);
+            StudyEntry studyEntry = variant.getStudy(studyId);
             if (fileId == null || fileId.isEmpty()) {
                 for (FileEntry fileEntry : studyEntry.getFiles()) {
                     if (inString(fileEntry.getAttributes().get(FILTER), pass)) {
@@ -350,7 +335,7 @@ public class VariantAvroFilters extends VariantFilters<Variant> {
     }
 
     private boolean filterSampleFormat(Variant variant, String formatKey, boolean mustPassAll, Predicate<String> valueValidator) {
-        StudyEntry studyEntry = getStudyEntry(variant, datasetId);
+        StudyEntry studyEntry = getStudyEntry(variant, studyId);
         Integer idx = studyEntry.getFormatPositions().get(formatKey);
         if (idx == null || idx < 0) {
             return valueValidator.test(null);
@@ -375,7 +360,7 @@ public class VariantAvroFilters extends VariantFilters<Variant> {
     }
 
     private boolean filterFileAttribute(Variant variant, String attributeKey, Predicate<String> valueValidator) {
-        FileEntry fileEntry = getFileEntry(variant, datasetId, fileId);
+        FileEntry fileEntry = getFileEntry(variant, studyId, fileId);
         String value = fileEntry == null ? null : fileEntry.getAttributes().get(attributeKey);
 
         return valueValidator.test(value);
@@ -409,5 +394,21 @@ public class VariantAvroFilters extends VariantFilters<Variant> {
         } else {
             return studyEntry.getFile(fileId);
         }
+    }
+
+    public String getStudyId() {
+        return studyId;
+    }
+
+    public void setStudyId(String studyId) {
+        this.studyId = studyId;
+    }
+
+    public String getFileId() {
+        return fileId;
+    }
+
+    public void setFileId(String fileId) {
+        this.fileId = fileId;
     }
 }

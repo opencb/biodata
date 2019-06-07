@@ -23,16 +23,19 @@ public class Comment {
 
     private String author;
     private String type;
+    @Deprecated
     private String text;
+    private String message;
     private String date;
 
     public Comment() {
     }
 
-    public Comment(String author, String type, String text, String date) {
+    public Comment(String author, String type, String message, String date) {
         this.author = author;
         this.type = type;
-        this.text = text;
+        this.message = message;
+        this.text = message;
         this.date = date;
     }
 
@@ -41,7 +44,7 @@ public class Comment {
         final StringBuilder sb = new StringBuilder("Comment{");
         sb.append("author='").append(author).append('\'');
         sb.append(", type='").append(type).append('\'');
-        sb.append(", text='").append(text).append('\'');
+        sb.append(", message='").append(message).append('\'');
         sb.append(", date='").append(date).append('\'');
         sb.append('}');
         return sb.toString();
@@ -65,12 +68,23 @@ public class Comment {
         return this;
     }
 
+    @Deprecated
     public String getText() {
         return text;
     }
 
+    @Deprecated
     public Comment setText(String text) {
         this.text = text;
+        return this;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public Comment setMessage(String message) {
+        this.message = message;
         return this;
     }
 

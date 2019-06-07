@@ -22,6 +22,8 @@ package org.opencb.biodata.tools.variant.algorithm;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.stats.IBDExpectedFrequencies;
+import org.opencb.biodata.models.variant.stats.IdentityByState;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -47,7 +49,12 @@ public class IdentityByStateClustering {
      * which is samples.size() choose 2
      */
     public List<IdentityByState> countIBS(List<Variant> variants, List<String> samples) {
-        return countIBS(variants.iterator(), samples);
+        return countIBS(variants.iterator(), samples, null);
+    }
+
+    public List<IdentityByState> countIBS(List<Variant> variants, List<String> samples,
+                                          IBDExpectedFrequencies expectedFreqs) {
+        return countIBS(variants.iterator(), samples, expectedFreqs);
     }
 
     /**
@@ -55,7 +62,11 @@ public class IdentityByStateClustering {
      * which is samples.size() choose 2
      */
     public List<IdentityByState> countIBS(Variant variant, List<String> samples) {
-        return countIBS(Collections.singletonList(variant).iterator(), samples);
+        return countIBS(Collections.singletonList(variant).iterator(), samples, null);
+    }
+
+    public List<IdentityByState> countIBS(Variant variant, List<String> samples, IBDExpectedFrequencies expectedFreqs) {
+        return countIBS(Collections.singletonList(variant).iterator(), samples, expectedFreqs);
     }
 
     /**
@@ -63,6 +74,11 @@ public class IdentityByStateClustering {
      * which is samples.size() choose 2
      */
     public List<IdentityByState> countIBS(Iterator<Variant> iterator, List<String> samples) {
+        return countIBS(iterator, samples, null);
+    }
+
+    public List<IdentityByState> countIBS(Iterator<Variant> iterator, List<String> samples,
+                                          IBDExpectedFrequencies expectedFreqs) {
 
         // assumptions
         if (samples.size() < 1 || samples.size() > MAX_SAMPLES_ALLOWED) {
@@ -80,18 +96,55 @@ public class IdentityByStateClustering {
 
         while (iterator.hasNext()) {
             Variant variant = iterator.next();
+            if (expectedFreqs != null) {
+                expectedFreqs.update(variant);
+            }
+
             forEachPair(samples, (int i, int j, int compoundIndex) -> {
                 StudyEntry studyEntry = variant.getStudies().get(studyIndex);
                 String gtI = studyEntry.getSampleData(samples.get(i), "GT");
                 String gtJ = studyEntry.getSampleData(samples.get(j), "GT");
                 Genotype genotypeI = new Genotype(gtI);
                 Genotype genotypeJ = new Genotype(gtJ);
-
                 int whichIBS = countSharedAlleles(genotypeI.getAllelesIdx().length, genotypeI, genotypeJ);
                 counts.get(compoundIndex).ibs[whichIBS]++;
             });
         }
+        if (expectedFreqs != null) {
+            expectedFreqs.done();
+        }
         return counts;
+    }
+
+    public List<IdentityByState> initCounts(List<String> samples) {
+        // loops
+        List<IdentityByState> counts = new ArrayList<>(getAmountOfPairs(samples.size()));
+
+        for (int i = 0; i < getAmountOfPairs(samples.size()); i++) {
+            counts.add(new IdentityByState());
+        }
+
+        // assumptions
+        if (samples.size() < 1 || samples.size() > MAX_SAMPLES_ALLOWED) {
+            throw new IllegalArgumentException("samples.size() is " + samples.size()
+                    + " and it should be between 1 and" + MAX_SAMPLES_ALLOWED);
+        }
+
+        return counts;
+    }
+
+    public void countIBS(Variant variant, List<String> samples, List<IdentityByState> counts) {
+        final int studyIndex = 0;
+
+        forEachPair(samples, (int i, int j, int compoundIndex) -> {
+            StudyEntry studyEntry = variant.getStudies().get(studyIndex);
+            String gtI = studyEntry.getSampleData(samples.get(i), "GT");
+            String gtJ = studyEntry.getSampleData(samples.get(j), "GT");
+            Genotype genotypeI = new Genotype(gtI);
+            Genotype genotypeJ = new Genotype(gtJ);
+            int whichIBS = countSharedAlleles(genotypeI.getAllelesIdx().length, genotypeI, genotypeJ);
+            counts.get(compoundIndex).ibs[whichIBS]++;
+        });
     }
 
     /**
@@ -128,18 +181,6 @@ public class IdentityByStateClustering {
                 + Math.min(allelesCountsFirst[1], allelesCountsSecond[1]);
 
         return whichIBS;
-    }
-
-    /**
-     * Distance in genotype space. 
-     * As it is categorical, currently it is just computed as a ratio between shared genotypes and total genotypes.
-     * Could also be euclidian distance with formula (taken from plink):
-     * sqrt((IBSg.z1*0.5 + IBSg.z2*2)/(IBSg.z0+IBSg.z1+IBSg.z2*2));
-     * @param counts
-     * @return
-     */
-    public double getDistance(IdentityByState counts) {
-        return (counts.ibs[1]*0.5 + counts.ibs[2])/(counts.ibs[0]+counts.ibs[1]+ counts.ibs[2]);
     }
 
     /**
@@ -226,7 +267,7 @@ public class IdentityByStateClustering {
     }
 
     @FunctionalInterface
-    interface SamplePairConsumer<E extends Exception> { void apply(int sampleI, int sampleJ, int compoundIndex) throws E; }
+    public interface SamplePairConsumer<E extends Exception> { void apply(int sampleI, int sampleJ, int compoundIndex) throws E; }
 
     public <E extends Exception> void forEachPair(List<String> samples, SamplePairConsumer<E> loopBody) throws E {
         int compound = 0;
@@ -246,7 +287,7 @@ public class IdentityByStateClustering {
             outputStreamWriter.write("\t");
             outputStreamWriter.write(samples.get(secondSampleIndex));
             outputStreamWriter.write("\t");
-            outputStreamWriter.write(String.valueOf(getDistance(ibsList.get(compoundIndex))));
+            outputStreamWriter.write(String.valueOf(ibsList.get(compoundIndex).getDistance()));
             for (int i = 0; i < 3; i++) {
                 outputStreamWriter.write("\t");
                 outputStreamWriter.write(String.valueOf(ibsList.get(compoundIndex).ibs[i]));

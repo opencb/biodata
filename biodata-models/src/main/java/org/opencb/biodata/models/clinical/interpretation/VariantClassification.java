@@ -19,6 +19,7 @@
 
 package org.opencb.biodata.models.clinical.interpretation;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.*;
 import org.opencb.commons.utils.ListUtils;
@@ -27,6 +28,7 @@ import java.util.*;
 
 public class VariantClassification {
 
+    private String tier;
     private List<String> acmg;
     private ClinicalSignificance clinicalSignificance;
     private DrugResponse drugResponse;
@@ -99,7 +101,7 @@ public class VariantClassification {
         return calculateAcmgClassification(variant, null);
     }
 
-    public static List<String> calculateAcmgClassification(Variant variant, ReportedEvent reportedEvent) {
+    public static List<String> calculateAcmgClassification(Variant variant, ClinicalProperty.ModeOfInheritance moi) {
         Set<String> acmg = new HashSet<>();
 
         // TODO: PM1
@@ -114,7 +116,7 @@ public class VariantClassification {
                 }
 
                 // PS1
-                if ("synonymous_variant".equals(so.getName())) {
+                if ("synonymous_variant".equals(so.getName()) && variant.getAnnotation().getTraitAssociation() != null) {
                     for (EvidenceEntry evidenceEntry : variant.getAnnotation().getTraitAssociation()) {
                         if ("clinvar".equals(evidenceEntry.getSource().getName())
                                 && (evidenceEntry.getVariantClassification().getClinicalSignificance() == org.opencb.biodata.models.variant.avro.ClinicalSignificance.pathogenic
@@ -179,10 +181,10 @@ public class VariantClassification {
             }
         }
 
-        if (reportedEvent != null) {
-            if (reportedEvent.getModeOfInheritance() == ClinicalProperty.ModeOfInheritance.DE_NOVO) {
+        if (moi != null) {
+            if (moi == ClinicalProperty.ModeOfInheritance.DE_NOVO) {
                 acmg.add("PS2");
-            } else if (reportedEvent.getModeOfInheritance() == ClinicalProperty.ModeOfInheritance.COMPOUND_HETEROZYGOUS) {
+            } else if (moi == ClinicalProperty.ModeOfInheritance.COMPOUND_HETEROZYGOUS) {
                 acmg.add("PM3");
             }
         }
@@ -217,29 +219,91 @@ public class VariantClassification {
             }
         }
 
-        for (EvidenceEntry evidenceEntry : variant.getAnnotation().getTraitAssociation()) {
-            if ("clinvar".equals(evidenceEntry.getSource().getName())
-                    && (evidenceEntry.getVariantClassification().getClinicalSignificance() == org.opencb.biodata.models.variant.avro.ClinicalSignificance.benign
-                    || evidenceEntry.getVariantClassification().getClinicalSignificance() == org.opencb.biodata.models.variant.avro.ClinicalSignificance.likely_benign)) {
-                acmg.add("BP6");
-            } else if ("clinvar".equals(evidenceEntry.getSource().getName())
-                    && (evidenceEntry.getVariantClassification().getClinicalSignificance() == org.opencb.biodata.models.variant.avro.ClinicalSignificance.pathogenic
-                    || evidenceEntry.getVariantClassification().getClinicalSignificance() == org.opencb.biodata.models.variant.avro.ClinicalSignificance.likely_pathogenic)) {
-                acmg.add("PP5");
+        if (variant.getAnnotation().getTraitAssociation() != null) {
+            for (EvidenceEntry evidenceEntry : variant.getAnnotation().getTraitAssociation()) {
+                if ("clinvar".equals(evidenceEntry.getSource().getName())
+                        && (evidenceEntry.getVariantClassification().getClinicalSignificance() == org.opencb.biodata.models.variant.avro.ClinicalSignificance.benign
+                        || evidenceEntry.getVariantClassification().getClinicalSignificance() == org.opencb.biodata.models.variant.avro.ClinicalSignificance.likely_benign)) {
+                    acmg.add("BP6");
+                } else if ("clinvar".equals(evidenceEntry.getSource().getName())
+                        && (evidenceEntry.getVariantClassification().getClinicalSignificance() == org.opencb.biodata.models.variant.avro.ClinicalSignificance.pathogenic
+                        || evidenceEntry.getVariantClassification().getClinicalSignificance() == org.opencb.biodata.models.variant.avro.ClinicalSignificance.likely_pathogenic)) {
+                    acmg.add("PP5");
+                }
             }
-
         }
 
         return new ArrayList<>(acmg);
+    }
+
+    public static VariantClassification.ClinicalSignificance computeClinicalSignificance(Variant variant, List<DiseasePanel> panels) {
+        if (CollectionUtils.isNotEmpty(panels)) {
+            for (DiseasePanel panel : panels) {
+                if (CollectionUtils.isNotEmpty(panel.getVariants())) {
+                    for (DiseasePanel.VariantPanel panelVariant : panel.getVariants()) {
+                        if (variant.getId().equals(panelVariant.getId())) {
+                            return ClinicalSignificance.PATHOGENIC_VARIANT;
+                        }
+                    }
+                }
+            }
+        }
+
+        return computeClinicalSignificance(calculateAcmgClassification(variant));
+    }
+
+    public static VariantClassification.ClinicalSignificance computeClinicalSignificance(List<String> acmgs) {
+        if (CollectionUtils.isEmpty(acmgs)) {
+            return ClinicalSignificance.VARIANT_OF_UNKNOWN_CLINICAL_SIGNIFICANCE;
+        }
+
+        List<String> prefixes = Arrays.asList("PVS,PS,PP,PM,BS,BP,BA".split(","));
+        Map<String, Integer> acmgCounter = new HashMap<>();
+        for (String prefix : prefixes) {
+            acmgCounter.put(prefix, 0);
+        }
+
+        for (String acmg : acmgs) {
+            String prefix = acmg.split("[1-9]")[0];
+            acmgCounter.put(prefix, acmgCounter.get(prefix) + 1);
+        }
+
+        // ACMG rules for clinical significance
+        if ((acmgCounter.get("PVS") > 0 && (acmgCounter.get("PS") >= 1 || acmgCounter.get("PM") >= 2 || (acmgCounter.get("PM") == 1
+                && acmgCounter.get("PP") == 1) || acmgCounter.get("PP") >= 2)
+                ||
+                (acmgCounter.get("PS") >= 2)
+                ||
+                (acmgCounter.get("PS") == 1 && (acmgCounter.get("PM") >=3 || (acmgCounter.get("PM") >= 2 && acmgCounter.get("PP") >= 2)
+                        || (acmgCounter.get("PM") == 1 && acmgCounter.get("PP") >= 4))))) {
+            return ClinicalSignificance.PATHOGENIC_VARIANT;
+        } else if ((acmgCounter.get("PVS") == 1 && acmgCounter.get("PM") == 1)
+                ||
+                (acmgCounter.get("PS") == 1 && acmgCounter.get("PM") >= 1)
+                ||
+                (acmgCounter.get("PS") == 1 && acmgCounter.get("PP") >= 2)
+                ||
+                (acmgCounter.get("PM") >= 3)
+                ||
+                (acmgCounter.get("PM") == 2 && acmgCounter.get("PP") >= 2)
+                ||
+                (acmgCounter.get("PM") == 1 && acmgCounter.get("PP") >= 4)) {
+            return ClinicalSignificance.LIKELY_PATHOGENIC_VARIANT;
+        } else if (acmgCounter.get("BA") == 1 || acmgCounter.get("BS") >= 2) {
+            return  ClinicalSignificance.BENIGN_VARIANT;
+        } else if ((acmgCounter.get("BS") == 1 && acmgCounter.get("BP") == 1) || (acmgCounter.get("BP") >= 2)) {
+            return ClinicalSignificance.LINKELY_BENIGN_VARIANT;
+        }
+        return ClinicalSignificance.VARIANT_OF_UNKNOWN_CLINICAL_SIGNIFICANCE;
     }
 
     public VariantClassification() {
         this.acmg = new ArrayList<>();
     }
 
-    public VariantClassification(List<String> acmg, ClinicalSignificance clinicalSignificance, DrugResponse drugResponse,
-                                 TraitAssociation traitAssociation, FunctionalEffect functionalEffect, Tumorigenesis tumorigenesis,
-                                 List<String> other) {
+    public VariantClassification(String tier, List<String> acmg, ClinicalSignificance clinicalSignificance, DrugResponse drugResponse,
+                                 TraitAssociation traitAssociation, FunctionalEffect functionalEffect, Tumorigenesis tumorigenesis, List<String> other) {
+        this.tier = tier;
         this.acmg = acmg;
         this.clinicalSignificance = clinicalSignificance;
         this.drugResponse = drugResponse;
@@ -247,6 +311,15 @@ public class VariantClassification {
         this.functionalEffect = functionalEffect;
         this.tumorigenesis = tumorigenesis;
         this.other = other;
+    }
+
+    public String getTier() {
+        return tier;
+    }
+
+    public VariantClassification setTier(String tier) {
+        this.tier = tier;
+        return this;
     }
 
     public List<String> getAcmg() {
@@ -310,5 +383,21 @@ public class VariantClassification {
     public VariantClassification setOther(List<String> other) {
         this.other = other;
         return this;
+    }
+
+    public static Set<String> getLOF() {
+        return LOF;
+    }
+
+    public static void setLOF(Set<String> LOF) {
+        VariantClassification.LOF = LOF;
+    }
+
+    public static Set<String> getProteinLengthChanging() {
+        return PROTEIN_LENGTH_CHANGING;
+    }
+
+    public static void setProteinLengthChanging(Set<String> proteinLengthChanging) {
+        PROTEIN_LENGTH_CHANGING = proteinLengthChanging;
     }
 }

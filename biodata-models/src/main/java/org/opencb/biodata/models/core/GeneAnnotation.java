@@ -47,7 +47,7 @@ public class GeneAnnotation {
     public String toString() {
         final StringBuilder sb = new StringBuilder("GeneAnnotation{");
         sb.append("expression=").append(expression);
-        sb.append(", diseases=").append(diseases);
+        sb.append(", geneTraits=").append(diseases);
         sb.append(", drugs=").append(drugs);
         sb.append('}');
         return sb.toString();

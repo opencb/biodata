@@ -634,7 +634,7 @@ public class VariantMerger {
                                 getGtKey(), sampleName, other.getImpl(), otherStudy.getSamplesData(),
                                 otherStudy.getSamplesPosition()));
                     }
-                    // Use a cache with rearranged genotypes to reuse rearranged genotypes
+                    // Use a cache with rearranged genotypeCounters to reuse rearranged genotypeCounters
                     String updatedGt = rearrangedGenotypesCache.get(gt);
                     if (updatedGt == null) {
                         Genotype genotype;

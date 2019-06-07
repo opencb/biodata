@@ -36,7 +36,7 @@ protocol Variants {
 
     record VariantStats {
         /**
-         * Total number of alleles in called genotypes. Does not include missing alleles
+         * Total number of alleles in called genotypeCounters. Does not include missing alleles
          **/
         union { null, int } alleleCount;
         /**
@@ -69,7 +69,7 @@ protocol Variants {
          **/
         union { null, int } missingAlleleCount;
         /**
-         * Number of missing genotypes
+         * Number of missing genotypeCounters
          **/
         union { null, int } missingGenotypeCount;
         /**
@@ -191,7 +191,7 @@ protocol Variants {
         array<array<string>> samplesData;
 
         /**
-         * Statistics of the genomic variation, such as its alleles/genotypes count
+         * Statistics of the genomic variation, such as its alleles/genotypeCounters count
          * or its minimum allele frequency, grouped by cohort name.
          */
         map<VariantStats> stats;

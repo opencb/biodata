@@ -20,6 +20,7 @@
 package org.opencb.biodata.models.clinical.pedigree;
 
 import org.codehaus.jackson.map.ObjectMapper;
+import org.opencb.biodata.models.commons.Disorder;
 import org.opencb.biodata.models.commons.Phenotype;
 
 import java.util.*;
@@ -31,6 +32,8 @@ public class Pedigree {
     private String name;
 
     private List<Phenotype> phenotypes;
+    private List<Disorder> disorders;
+
     private List<Member> members;
 
     private Member proband;
@@ -51,36 +54,52 @@ public class Pedigree {
      * @param attributes    Family attributes
      */
     public Pedigree(String name, List<Member> members, Map<String, Object> attributes) {
-        this(name, members, null, new ArrayList<>(), attributes);
+        this(name, members, null, Collections.emptyList(), Collections.emptyList(), attributes);
     }
 
     /**
      * Constructor.
-     *
-     * @param name          Family name
+     *  @param name          Family name
      * @param members       Individuals belonging to this family
      * @param phenotypes    List of phenotypes present in the members of the family
+     * @param disorders     List of disorders present in the members of the family
      * @param attributes    Family attributes
      */
-    public Pedigree(String name, List<Member> members, List<Phenotype> phenotypes, Map<String, Object> attributes) {
-        this(name, members, null, phenotypes, attributes);
+    public Pedigree(String name, List<Member> members, List<Phenotype> phenotypes, List<Disorder> disorders,
+                    Map<String, Object> attributes) {
+        this(name, members, null, phenotypes, disorders, attributes);
     }
 
     /**
      * Constructor.
-     *
-     * @param name          Family name
+     *  @param name          Family name
      * @param members       Individuals belonging to this family
      * @param proband       Proband individual
      * @param phenotypes    List of phenotypes present in the members of the family
+     * @param disorders     List of disorders present in the members of the family
      * @param attributes    Family attributes
      */
-    public Pedigree(String name, List<Member> members, Member proband, List<Phenotype> phenotypes, Map<String, Object> attributes) {
+    public Pedigree(String name, List<Member> members, Member proband, List<Phenotype> phenotypes, List<Disorder> disorders,
+                    Map<String, Object> attributes) {
         this.name = name;
         this.members = members;
         this.proband = proband;
         this.phenotypes = phenotypes;
+        this.disorders = disorders;
         this.attributes = attributes;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Pedigree{");
+        sb.append("name='").append(name).append('\'');
+        sb.append(", phenotypes=").append(phenotypes);
+        sb.append(", disorders=").append(disorders);
+        sb.append(", members=").append(members);
+        sb.append(", proband=").append(proband);
+        sb.append(", attributes=").append(attributes);
+        sb.append('}');
+        return sb.toString();
     }
 
     public String getName() {
@@ -98,6 +117,15 @@ public class Pedigree {
 
     public Pedigree setPhenotypes(List<Phenotype> phenotypes) {
         this.phenotypes = phenotypes;
+        return this;
+    }
+
+    public List<Disorder> getDisorders() {
+        return disorders;
+    }
+
+    public Pedigree setDisorders(List<Disorder> disorders) {
+        this.disorders = disorders;
         return this;
     }
 

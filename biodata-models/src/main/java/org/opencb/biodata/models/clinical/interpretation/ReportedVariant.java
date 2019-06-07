@@ -22,41 +22,57 @@ package org.opencb.biodata.models.clinical.interpretation;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.VariantAvro;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class ReportedVariant extends Variant {
 
     private double deNovoQualityScore;
-    private List<ReportedEvent> reportedEvents;
+    private List<ReportedEvent> evidences;
     private List<Comment> comments;
+
+    private Status status;
 
     // TODO maybe this parameter should be in Variant
     private Map<String, Object> attributes;
 
+    public enum Status {
+        NOT_REVIEWED,
+        UNDER_REVIEW,
+        REVIEWED,
+        REJECTED,
+        TO_BE_REPORTED
+    }
+
     public ReportedVariant() {
+        this.status = Status.NOT_REVIEWED;
     }
 
     public ReportedVariant(VariantAvro avro) {
-        super(avro);
+        this(avro, 0.0, new ArrayList<>(), new ArrayList<>(), Status.NOT_REVIEWED, new HashMap<>());
     }
 
-    public ReportedVariant(VariantAvro avro, double deNovoQualityScore, List<ReportedEvent> reportedEvents, List<Comment> comments,
-                           Map<String, Object> attributes) {
+    public ReportedVariant(VariantAvro avro, double deNovoQualityScore, List<ReportedEvent> evidences, List<Comment> comments,
+                           Status status, Map<String, Object> attributes) {
         super(avro);
 
         this.deNovoQualityScore = deNovoQualityScore;
-        this.reportedEvents = reportedEvents;
+        this.evidences = evidences;
         this.comments = comments;
+        this.status = status;
         this.attributes = attributes;
     }
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("ReportedVariant{");
-        sb.append("deNovoQualityScore=").append(deNovoQualityScore);
-        sb.append(", reportedEvents=").append(reportedEvents);
+        final StringBuilder sb = new StringBuilder("ReportedVariant{");
+        sb.append("variant=").append(super.toString());
+        sb.append(", deNovoQualityScore=").append(deNovoQualityScore);
+        sb.append(", evidences=").append(evidences);
         sb.append(", comments=").append(comments);
+        sb.append(", status=").append(status);
         sb.append(", attributes=").append(attributes);
         sb.append('}');
         return sb.toString();
@@ -71,12 +87,12 @@ public class ReportedVariant extends Variant {
         return this;
     }
 
-    public List<ReportedEvent> getReportedEvents() {
-        return reportedEvents;
+    public List<ReportedEvent> getEvidences() {
+        return evidences;
     }
 
-    public ReportedVariant setReportedEvents(List<ReportedEvent> reportedEvents) {
-        this.reportedEvents = reportedEvents;
+    public ReportedVariant setEvidences(List<ReportedEvent> evidences) {
+        this.evidences = evidences;
         return this;
     }
 
@@ -86,6 +102,15 @@ public class ReportedVariant extends Variant {
 
     public ReportedVariant setComments(List<Comment> comments) {
         this.comments = comments;
+        return this;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public ReportedVariant setStatus(Status status) {
+        this.status = status;
         return this;
     }
 

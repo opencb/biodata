@@ -187,9 +187,10 @@ public class VariantDeduplicationTask implements Task<Variant, Variant> {
             while (swap) {
                 position = prevPosition(position);
                 swap = checkSorted(elem, position);
-                if (position == this.tail) {
+                if (position == this.tail && size == array.length) {
                     // Something really exceptional happened
-                    throw new IllegalStateException("New element below than any other");
+                    // The inserted element is below any other. This is not a problem  if the queue is not full.
+                    throw new IllegalStateException("New element '" + elem + "' below than any other");
                 }
             }
             incrementHead();

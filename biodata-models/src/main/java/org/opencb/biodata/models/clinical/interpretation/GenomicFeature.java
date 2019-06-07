@@ -19,56 +19,52 @@
 
 package org.opencb.biodata.models.clinical.interpretation;
 
-import java.util.Map;
+import org.opencb.biodata.models.core.Xref;
+
+import java.util.List;
 
 public class GenomicFeature {
-
-    private String ensemblGeneId;
-    private String ensemblTranscriptId;
+    private String id;
+    private String type; // GENE, VARIANT, REGION,...
+    private String transcriptId;
     private String geneName;
-    private Map<String, String> xrefs;
-
-    private String ensemblRegulatoryId;
+    private List<Xref> xrefs;
 
     public GenomicFeature() {
     }
 
-    public GenomicFeature(String ensemblGeneId, String ensemblTranscriptId, String geneName, Map<String, String> xrefs,
-                          String ensemblRegulatoryId) {
-        this.ensemblGeneId = ensemblGeneId;
-        this.ensemblTranscriptId = ensemblTranscriptId;
+    public GenomicFeature(String id, String type, String transcriptId, String geneName, List<Xref> xrefs) {
+        this.id = id;
+        this.type = type;
+        this.transcriptId = transcriptId;
         this.geneName = geneName;
         this.xrefs = xrefs;
-        this.ensemblRegulatoryId = ensemblRegulatoryId;
     }
 
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("GenomicFeature{");
-        sb.append("ensemblGeneId='").append(ensemblGeneId).append('\'');
-        sb.append(", ensemblTranscriptId='").append(ensemblTranscriptId).append('\'');
-        sb.append(", geneName='").append(geneName).append('\'');
-        sb.append(", xrefs=").append(xrefs);
-        sb.append(", ensemblRegulatoryId='").append(ensemblRegulatoryId).append('\'');
-        sb.append('}');
-        return sb.toString();
+    public String getId() {
+        return id;
     }
 
-    public String getEnsemblGeneId() {
-        return ensemblGeneId;
-    }
-
-    public GenomicFeature setEnsemblGeneId(String ensemblGeneId) {
-        this.ensemblGeneId = ensemblGeneId;
+    public GenomicFeature setId(String id) {
+        this.id = id;
         return this;
     }
 
-    public String getEnsemblTranscriptId() {
-        return ensemblTranscriptId;
+    public String getType() {
+        return type;
     }
 
-    public GenomicFeature setEnsemblTranscriptId(String ensemblTranscriptId) {
-        this.ensemblTranscriptId = ensemblTranscriptId;
+    public GenomicFeature setType(String type) {
+        this.type = type;
+        return this;
+    }
+
+    public String getTranscriptId() {
+        return transcriptId;
+    }
+
+    public GenomicFeature setTranscriptId(String transcriptId) {
+        this.transcriptId = transcriptId;
         return this;
     }
 
@@ -81,21 +77,12 @@ public class GenomicFeature {
         return this;
     }
 
-    public Map<String, String> getXrefs() {
+    public List<Xref> getXrefs() {
         return xrefs;
     }
 
-    public GenomicFeature setXrefs(Map<String, String> xrefs) {
+    public GenomicFeature setXrefs(List<Xref> xrefs) {
         this.xrefs = xrefs;
-        return this;
-    }
-
-    public String getEnsemblRegulatoryId() {
-        return ensemblRegulatoryId;
-    }
-
-    public GenomicFeature setEnsemblRegulatoryId(String ensemblRegulatoryId) {
-        this.ensemblRegulatoryId = ensemblRegulatoryId;
         return this;
     }
 }

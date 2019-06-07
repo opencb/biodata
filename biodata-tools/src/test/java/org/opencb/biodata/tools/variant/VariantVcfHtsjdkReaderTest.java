@@ -184,7 +184,7 @@ public class VariantVcfHtsjdkReaderTest {
 
         assertEquals(Arrays.asList("s0", "s1", "s2", "s3", "s4", "s5"), reader.getSampleNames());
         assertEquals("##fileformat=VCFv4.1\n" +
-                "##INFO=<ID=AC,Number=1,Type=Integer,Description=\"Alele count in genotypes\">\n" +
+                "##INFO=<ID=AC,Number=1,Type=Integer,Description=\"Alele count in genotypeCounters\">\n" +
                 "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\ts0\ts1\ts2\ts3\ts4\ts5", reader.getHeader());
         List<Variant> read;
         int i = 0;

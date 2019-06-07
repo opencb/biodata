@@ -78,14 +78,16 @@ public class Variant implements Serializable, Comparable<Variant> {
     }
 
     public Variant(String chromosome, int start, int end, String reference, String alternate, String strand) {
-        this();
-        new VariantBuilder(chromosome, start, end, reference, alternate).setStrand(strand).build(this);
+        this(VariantBuilder.buildAvroVariant(chromosome, start, end, reference, alternate));
+        setStrand(strand);
+        setStudies(null);
     }
 
     private Variant(String chromosome, int start, @Nullable Integer end, String reference, String alternate, String strand) {
-        this();
         // Nullable end. The builder will infer the end (and length) if null.
-        new VariantBuilder(chromosome, start, end, reference, alternate).setStrand(strand).build(this);
+        this(VariantBuilder.buildAvroVariant(chromosome, start, end, reference, alternate));
+        setStrand(strand);
+        setStudies(null);
     }
 
     public static VariantBuilder newBuilder() {
@@ -142,7 +144,14 @@ public class Variant implements Serializable, Comparable<Variant> {
     }
 
     public void resetType() {
+        VariantType prevType = getType();
         setType(VariantBuilder.inferType(getReference(), getAlternate()));
+        if (getSv() != null && getType().equals(VariantType.INDEL) && !prevType.equals(VariantType.INDEL)) {
+            // The variant was SV. Remove StructuralVariant information if any, and if empty
+            if (getSv().equals(new StructuralVariation())) {
+                setSv(null);
+            }
+        }
     }
 
     public void resetLength() {

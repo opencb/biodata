@@ -19,7 +19,10 @@
 
 package org.opencb.biodata.models.clinical.interpretation;
 
+import org.opencb.biodata.models.commons.Disorder;
 import org.opencb.biodata.models.commons.Phenotype;
+import org.opencb.biodata.models.variant.avro.SequenceOntologyTerm;
+import org.opencb.biodata.models.variation.ConsequenceType;
 
 import java.util.List;
 
@@ -28,8 +31,10 @@ import static org.opencb.biodata.models.clinical.interpretation.ClinicalProperty
 public class ReportedEvent {
 
     private String id;
+    @Deprecated
+    private Disorder disorder;
     private List<Phenotype> phenotypes;
-    private List<String> consequenceTypeIds;
+    private List<SequenceOntologyTerm> consequenceTypes;
     private GenomicFeature genomicFeature;
     private ModeOfInheritance modeOfInheritance;
 
@@ -41,22 +46,23 @@ public class ReportedEvent {
     private Penetrance penetrance;
     private double score;
     private boolean fullyExplainPhenotypes;
-    private int groupOfVariants;
+    private List<String> compoundHeterozygousVariantIds;
     private RoleInCancer roleInCancer;
     private boolean actionable;
     private String justification;
-    private String tier;
 
     public ReportedEvent() {
     }
 
-    public ReportedEvent(String id, List<Phenotype> phenotypes, List<String> consequenceTypeIds, GenomicFeature genomicFeature,
-                         ModeOfInheritance modeOfInheritance, String panelId, VariantClassification classification,
-                         Penetrance penetrance, double score, boolean fullyExplainPhenotypes, int groupOfVariants,
-                         RoleInCancer roleInCancer, boolean actionable, String justification, String tier) {
+    public ReportedEvent(String id, Disorder disorder, List<Phenotype> phenotypes, List<SequenceOntologyTerm> consequenceTypes,
+                         GenomicFeature genomicFeature, ModeOfInheritance modeOfInheritance, String panelId,
+                         VariantClassification classification, Penetrance penetrance, double score, boolean fullyExplainPhenotypes,
+                         List<String> compoundHeterozygousVariantIds, RoleInCancer roleInCancer, boolean actionable, String justification
+            , String tier) {
         this.id = id;
+        this.disorder = disorder;
         this.phenotypes = phenotypes;
-        this.consequenceTypeIds = consequenceTypeIds;
+        this.consequenceTypes = consequenceTypes;
         this.genomicFeature = genomicFeature;
         this.modeOfInheritance = modeOfInheritance;
         this.panelId = panelId;
@@ -64,19 +70,19 @@ public class ReportedEvent {
         this.penetrance = penetrance;
         this.score = score;
         this.fullyExplainPhenotypes = fullyExplainPhenotypes;
-        this.groupOfVariants = groupOfVariants;
+        this.compoundHeterozygousVariantIds = compoundHeterozygousVariantIds;
         this.roleInCancer = roleInCancer;
         this.actionable = actionable;
         this.justification = justification;
-        this.tier = tier;
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("ReportedEvent{");
         sb.append("id='").append(id).append('\'');
+        sb.append(", disorder=").append(disorder);
         sb.append(", phenotypes=").append(phenotypes);
-        sb.append(", consequenceTypeIds=").append(consequenceTypeIds);
+        sb.append(", consequenceTypes=").append(consequenceTypes);
         sb.append(", genomicFeature=").append(genomicFeature);
         sb.append(", modeOfInheritance=").append(modeOfInheritance);
         sb.append(", panelId='").append(panelId).append('\'');
@@ -84,11 +90,10 @@ public class ReportedEvent {
         sb.append(", penetrance=").append(penetrance);
         sb.append(", score=").append(score);
         sb.append(", fullyExplainPhenotypes=").append(fullyExplainPhenotypes);
-        sb.append(", groupOfVariants=").append(groupOfVariants);
+        sb.append(", compoundHeterozygousVariantIds=").append(compoundHeterozygousVariantIds);
         sb.append(", roleInCancer=").append(roleInCancer);
         sb.append(", actionable=").append(actionable);
         sb.append(", justification='").append(justification).append('\'');
-        sb.append(", tier='").append(tier).append('\'');
         sb.append('}');
         return sb.toString();
     }
@@ -102,6 +107,15 @@ public class ReportedEvent {
         return this;
     }
 
+    public Disorder getDisorder() {
+        return disorder;
+    }
+
+    public ReportedEvent setDisorder(Disorder disorder) {
+        this.disorder = disorder;
+        return this;
+    }
+
     public List<Phenotype> getPhenotypes() {
         return phenotypes;
     }
@@ -111,12 +125,12 @@ public class ReportedEvent {
         return this;
     }
 
-    public List<String> getConsequenceTypeIds() {
-        return consequenceTypeIds;
+    public List<SequenceOntologyTerm> getConsequenceTypes() {
+        return consequenceTypes;
     }
 
-    public ReportedEvent setConsequenceTypeIds(List<String> consequenceTypeIds) {
-        this.consequenceTypeIds = consequenceTypeIds;
+    public ReportedEvent setConsequenceTypes(List<SequenceOntologyTerm> consequenceTypes) {
+        this.consequenceTypes = consequenceTypes;
         return this;
     }
 
@@ -183,12 +197,12 @@ public class ReportedEvent {
         return this;
     }
 
-    public int getGroupOfVariants() {
-        return groupOfVariants;
+    public List<String> getCompoundHeterozygousVariantIds() {
+        return compoundHeterozygousVariantIds;
     }
 
-    public ReportedEvent setGroupOfVariants(int groupOfVariants) {
-        this.groupOfVariants = groupOfVariants;
+    public ReportedEvent setCompoundHeterozygousVariantIds(List<String> compoundHeterozygousVariantIds) {
+        this.compoundHeterozygousVariantIds = compoundHeterozygousVariantIds;
         return this;
     }
 
@@ -216,15 +230,6 @@ public class ReportedEvent {
 
     public ReportedEvent setJustification(String justification) {
         this.justification = justification;
-        return this;
-    }
-
-    public String getTier() {
-        return tier;
-    }
-
-    public ReportedEvent setTier(String tier) {
-        this.tier = tier;
         return this;
     }
 }

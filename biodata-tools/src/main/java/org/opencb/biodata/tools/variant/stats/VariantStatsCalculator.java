@@ -102,13 +102,22 @@ public class VariantStatsCalculator {
     }
 
     public static VariantStats calculate(Variant variant, Map<Genotype, Integer> genotypeCount) {
+        return calculate(variant, genotypeCount, true);
+    }
+
+    public static VariantStats calculate(Variant variant, Map<Genotype, Integer> genotypeCount, boolean multiAllelic) {
         VariantStats variantStats = new VariantStats();
-        calculate(genotypeCount, variantStats, variant.getReference(), variant.getAlternate());
+        calculate(genotypeCount, variantStats, variant.getReference(), variant.getAlternate(), multiAllelic);
         return variantStats;
     }
 
     public static void calculate(Map<Genotype, Integer> genotypeCount, VariantStats variantStats,
                                  String refAllele, String altAllele) {
+        calculate(genotypeCount, variantStats, refAllele, altAllele, true);
+    }
+
+    public static void calculate(Map<Genotype, Integer> genotypeCount, VariantStats variantStats,
+                                 String refAllele, String altAllele, boolean multiAllelic) {
 //        Map<String, Genotype> gts = new TreeMap<>(String::compareTo);
         int[] allelesCount = new int[2];
         int totalAllelesCount = 0;
@@ -116,12 +125,21 @@ public class VariantStatsCalculator {
         int missingGenotypes = 0;
         int missingAlleles = 0;
 
+        genotypeCount = removePhaseFromGenotypeCount(genotypeCount);
+
         for (Map.Entry<Genotype, Integer> entry : genotypeCount.entrySet()) {
             Genotype g = entry.getKey();
             Integer numGt = entry.getValue();
-            variantStats.addGenotype(g, numGt, false);
 
-            // Check missing alleles and genotypes
+            if (g.getCode().equals(AllelesCode.MULTIPLE_ALTERNATES)) {
+                if (multiAllelic) {
+                    variantStats.addGenotype(g, numGt, false);
+                }
+            } else {
+                variantStats.addGenotype(g, numGt, false);
+            }
+
+            // Check missing alleles and genotypeCounters
             switch (g.getCode()) {
                 case MULTIPLE_ALTERNATES:
                 case ALLELES_OK:
@@ -135,7 +153,7 @@ public class VariantStatsCalculator {
                     totalAllelesCount += g.getPloidy() * numGt;
                     totalGenotypesCount += numGt;
 
-                    // Counting genotypes for Hardy-Weinberg (all phenotypes)
+                    // Counting genotypeCounters for Hardy-Weinberg (all phenotypes)
                     //FIXME//FIXME//FIXME//FIXME
 //                    if (g.isAlleleRef(0) && g.isAlleleRef(1)) { // 0|0
 //                        variantStats.getHw().incN_AA();
@@ -169,6 +187,7 @@ public class VariantStatsCalculator {
         // Set counts for each allele
         variantStats.setRefAlleleCount(allelesCount[0]);
         variantStats.setAltAlleleCount(allelesCount[1]);
+        variantStats.setAlleleCount(totalAllelesCount);
         variantStats.setMissingAlleleCount(missingAlleles);
         variantStats.setMissingGenotypeCount(missingGenotypes);
 
@@ -234,7 +253,7 @@ public class VariantStatsCalculator {
 
     private static void calculateGenotypeFrequencies(int totalGenotypesCount, VariantStats variantStats) {
         if (totalGenotypesCount < 0) {
-            throw new IllegalArgumentException("The number of genotypes must be equals or greater than zero");
+            throw new IllegalArgumentException("The number of genotypeCounters must be equals or greater than zero");
         }
 
         if (variantStats.getGenotypeCount().isEmpty() || totalGenotypesCount == 0) {
@@ -244,39 +263,65 @@ public class VariantStatsCalculator {
             return;
         }
 
-        // Set all combinations of genotypes to zero
-        Map<Genotype, Float> genotypesFreq = variantStats.getGenotypeFreq();
+        // Set all combinations of genotypeCounters to zero
+        Map<Genotype, Float> genotypesFreq = new HashMap<>(variantStats.getGenotypeCount().size());
         genotypesFreq.put(new Genotype("0/0"), 0.0f);
         genotypesFreq.put(new Genotype("0/1"), 0.0f);
         genotypesFreq.put(new Genotype("1/1"), 0.0f);
 
-        // Insert the genotypes found in the file
-        for (Map.Entry<Genotype, Integer> gtCount : variantStats.getGenotypeCount().entrySet()) {
-            if (gtCount.getKey().getCode() == AllelesCode.ALLELES_MISSING) {
-                // Missing genotypes shouldn't have frequencies calculated
+
+        float mgf = Float.MAX_VALUE;
+        Genotype mgfGenotype = null;
+
+        for (Map.Entry<Genotype, Integer> entry : variantStats.getGenotypeCount().entrySet()) {
+            Genotype gt = entry.getKey();
+            if (gt.getCode() == AllelesCode.ALLELES_MISSING) {
+                // Missing genotypeCounters shouldn't have frequencies calculated
                 continue;
             }
 
-            float freq = gtCount.getValue() /  (float) totalGenotypesCount;
-            genotypesFreq.put(gtCount.getKey(), freq);
-        }
+            float freq = entry.getValue() /  (float) totalGenotypesCount;
+            genotypesFreq.put(gt, freq);
 
-        // Traverse the genotypes to see which one has the MGF
-        float currMgf = Float.MAX_VALUE;
-        Genotype currMgfGenotype = null;
-
-        for (Map.Entry<Genotype, Float> gtCount : genotypesFreq.entrySet()) {
-            float freq = gtCount.getValue();
-            if (freq < currMgf) {
-                currMgf = freq;
-                currMgfGenotype = gtCount.getKey();
+            // Only use valid genotypes for calculating MGF
+            if (gt.getCode() == AllelesCode.ALLELES_OK && freq < mgf) {
+                mgf = freq;
+                mgfGenotype = gt;
             }
         }
 
-        if (currMgfGenotype != null) {
-            variantStats.setMgf(currMgf);
-            variantStats.setMgfGenotype(currMgfGenotype.toString());
+        variantStats.setGenotypeFreq(genotypesFreq);
+        if (mgfGenotype != null) {
+            variantStats.setMgf(mgf);
+            variantStats.setMgfGenotype(mgfGenotype.toString());
         }
+    }
+
+    private static Map<Genotype, Integer> removePhaseFromGenotypeCount(Map<Genotype, Integer> genotypeCount) {
+        Map<Genotype, Integer> unphasedGenotypeCount = new HashMap<>();
+        unphasedGenotypeCount.put(new Genotype("0/0"), 0);
+        unphasedGenotypeCount.put(new Genotype("0/1"), 0);
+        unphasedGenotypeCount.put(new Genotype("1/1"), 0);
+
+        for (Map.Entry<Genotype, Integer> entry : genotypeCount.entrySet()) {
+            Genotype gt = entry.getKey();
+
+            if (gt.isPhased()) {
+                gt = new Genotype(gt);
+                // Clean ref/alt if any
+                gt.setReference(null);
+                gt.setAlternates(Collections.emptyList());
+                gt.setPhased(false);
+                gt.normalizeAllelesIdx();
+            } else if (gt.getReference() != null) {
+                gt = new Genotype(gt);
+                gt.setReference(null);
+                gt.setAlternates(Collections.emptyList());
+            }
+
+            unphasedGenotypeCount.merge(gt, entry.getValue(), Integer::sum);
+        }
+        return unphasedGenotypeCount;
     }
 
 

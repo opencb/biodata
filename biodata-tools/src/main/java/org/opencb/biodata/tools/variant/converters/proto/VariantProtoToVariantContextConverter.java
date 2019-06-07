@@ -321,7 +321,7 @@ public class VariantProtoToVariantContextConverter extends VariantContextConvert
         ObjectMap attributes = new ObjectMap();
 
         List<String> allelesArray = Arrays.asList(reference, alternate);  // TODO jmmut: multiallelic
-        ArrayList<Genotype> genotypes = new ArrayList<>();
+        ArrayList<Genotype> genotypeCounters = new ArrayList<>();
         Integer originalPosition = null;
         List<String> originalAlleles = null;
         for (VariantProto.StudyEntry studyEntry : variant.getStudiesList()) {
@@ -413,7 +413,7 @@ public class VariantProtoToVariantContextConverter extends VariantContextConvert
 //                        builder.attribute(id, value);
 //                    }
 //
-//                    genotypes.add(builder.make());
+//                    genotypeCounters.add(builder.make());
 //                }
 //            }
 
@@ -430,10 +430,10 @@ public class VariantProtoToVariantContextConverter extends VariantContextConvert
                 .chr(variant.getChromosome())
                 .filter(filter); // TODO jmmut: join attributes from different source entries? what to do on a collision?
 
-        if (genotypes.isEmpty()) {
+        if (genotypeCounters.isEmpty()) {
             variantContextBuilder.noGenotypes();
         } else {
-            variantContextBuilder.genotypes(genotypes);
+            variantContextBuilder.genotypeCounters(genotypeCounters);
         }
 
         if (type.equals(VariantProto.VariantType.NO_VARIATION) && alternate.isEmpty()) {

@@ -1077,12 +1077,12 @@ public class VariantMergerTest {
     }
 
     /**
-     * Check if the merge of the two variants is done well. Assumes that the variants can be merged and the genotypes of
+     * Check if the merge of the two variants is done well. Assumes that the variants can be merged and the genotypeCounters of
      * the first variant are not going to be modified.
      *
      * @param var1  First variant to be merged
      * @param var2  Second variant to be merged
-     * @param expectedVar2Gts Expected genotypes of the second variant
+     * @param expectedVar2Gts Expected genotypeCounters of the second variant
      * @return  The merged variant, for additional checks
      */
     public Variant checkMergeVariants(Variant var1, Variant var2, List<String> expectedSecondaryAlternates, String ...expectedVar2Gts) {

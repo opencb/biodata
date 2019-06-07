@@ -629,6 +629,31 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
     }
 
     @Test
+    public void testNormalizeSvToIndel() throws NonStandardCompliantSampleField {
+        // This variant, after normalizing, looses the StructuralVariant field
+        String seq = "C" + StringUtils.repeat("A", Variant.SV_THRESHOLD);
+        Variant variant = newVariant(100, 101, "C", seq);
+        assertEquals(VariantType.INSERTION, variant.getType());
+        assertEquals(Variant.SV_THRESHOLD + 1, variant.getLengthAlternate().intValue());
+        assertNotNull(variant.getSv());
+
+        Variant normVar = new VariantNormalizer().normalize(Collections.singletonList(variant), false).get(0);
+        assertEquals(VariantType.INDEL, normVar.getType());
+        assertEquals(Variant.SV_THRESHOLD, normVar.getLengthAlternate().intValue());
+        assertNull(normVar.getSv());
+
+        // Check that the original variant has not been modified, and check again, but reusing the input variant
+        assertEquals(VariantType.INSERTION, variant.getType());
+        assertEquals(Variant.SV_THRESHOLD + 1, variant.getLengthAlternate().intValue());
+        assertNotNull(variant.getSv());
+        Variant normVarReuse = new VariantNormalizer().normalize(Collections.singletonList(variant), true).get(0);
+        assertEquals(VariantType.INDEL, normVarReuse.getType());
+        assertEquals(Variant.SV_THRESHOLD, normVarReuse.getLengthAlternate().intValue());
+        assertNull(normVarReuse.getSv());
+
+    }
+
+    @Test
     public void testNormalizeBND() throws NonStandardCompliantSampleField {
         normalizeBnd(newVariant(101, 100, "", ".[9:10["),  newVariant(100, 99, "A", "A[chr9:10["));
         normalizeBnd(newVariant(100, 99, "", "[22:10[."),  newVariant(100, 99, "A", "[chr22:10[A"));

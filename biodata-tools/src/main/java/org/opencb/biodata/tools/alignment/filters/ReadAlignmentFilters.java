@@ -39,19 +39,19 @@ public class ReadAlignmentFilters extends AlignmentFilters<ReadAlignment> {
         this.filters = filters;
     }
 
-    public static AlignmentFilters<ReadAlignment> create() {
+    public static ReadAlignmentFilters create() {
         return new ReadAlignmentFilters();
     }
 
     @Override
-    public AlignmentFilters<ReadAlignment> addMappingQualityFilter(int mappingQuality) {
+    public ReadAlignmentFilters addMappingQualityFilter(int mappingQuality) {
         filters.add(readAlignment ->
                 readAlignment.getAlignment() != null && readAlignment.getAlignment().getMappingQuality() >= mappingQuality);
         return this;
     }
 
     @Override
-    public AlignmentFilters<ReadAlignment> addMaxNumberMismatchesFilter(int maxNumberMismatches) {
+    public ReadAlignmentFilters addMaxNumberMismatchesFilter(int maxNumberMismatches) {
         filters.add(readAlignment -> {
             List<String> nmFields = readAlignment.getInfo().get("NM");
             if (nmFields != null && nmFields.size() == 2) {
@@ -65,7 +65,7 @@ public class ReadAlignmentFilters extends AlignmentFilters<ReadAlignment> {
     }
 
     @Override
-    public AlignmentFilters<ReadAlignment> addMaxNumberHitsFilter(int maxNumberHits) {
+    public ReadAlignmentFilters addMaxNumberHitsFilter(int maxNumberHits) {
         filters.add(readAlignment -> {
             List<String> nhFields = readAlignment.getInfo().get("NH");
             if (nhFields != null && nhFields.size() == 2) {
@@ -79,13 +79,13 @@ public class ReadAlignmentFilters extends AlignmentFilters<ReadAlignment> {
     }
 
     @Override
-    public AlignmentFilters<ReadAlignment> addProperlyPairedFilter() {
+    public ReadAlignmentFilters addProperlyPairedFilter() {
         filters.add(readAlignment -> !readAlignment.getImproperPlacement());
         return this;
     }
 
     @Override
-    public AlignmentFilters<ReadAlignment> addInsertSizeFilter(int maxInsertSize) {
+    public ReadAlignmentFilters addInsertSizeFilter(int maxInsertSize) {
         filters.add(readAlignment -> {
             if (readAlignment.getNextMatePosition() != null) {
                 int end = readAlignment.getAlignment().getPosition().getPosition().intValue() + readAlignment.getAlignedSequence().length();
@@ -98,24 +98,24 @@ public class ReadAlignmentFilters extends AlignmentFilters<ReadAlignment> {
     }
 
     @Override
-    public AlignmentFilters<ReadAlignment> addUnmappedFilter() {
+    public ReadAlignmentFilters addUnmappedFilter() {
         filters.add(readAlignment -> readAlignment.getAlignment() == null);
         return this;
     }
 
     @Override
-    public AlignmentFilters<ReadAlignment> addDuplicatedFilter() {
+    public ReadAlignmentFilters addDuplicatedFilter() {
         filters.add(readAlignment -> !readAlignment.getDuplicateFragment());
         return this;
     }
 
     @Override
-    public AlignmentFilters<ReadAlignment> addRegionFilter(Region region, boolean contained) {
+    public ReadAlignmentFilters addRegionFilter(Region region, boolean contained) {
         return addRegionFilter(Arrays.asList(region), contained);
     }
 
     @Override
-    public AlignmentFilters<ReadAlignment> addRegionFilter(List<Region> regions, boolean contained) {
+    public ReadAlignmentFilters addRegionFilter(List<Region> regions, boolean contained) {
         List<Predicate<ReadAlignment>> predicates = new ArrayList<>();
         for (Region region: regions) {
             // estimate the end position of the alignment, it does not take into account the CIGAR code

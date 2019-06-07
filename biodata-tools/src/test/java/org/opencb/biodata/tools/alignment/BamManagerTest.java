@@ -1,10 +1,13 @@
 package org.opencb.biodata.tools.alignment;
 
 import htsjdk.samtools.*;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.opencb.biodata.models.alignment.RegionCoverage;
 import org.opencb.biodata.models.core.Region;
+import org.opencb.biodata.tools.alignment.exceptions.AlignmentCoverageException;
+import org.opencb.biodata.tools.feature.BigWigManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,7 +17,10 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 
@@ -28,12 +34,20 @@ public class BamManagerTest {
 
     @Before
     public void init() throws URISyntaxException, IOException {
+        Assume.assumeTrue(bamCoverageExists());
+
         inputPath = Paths.get(getClass().getResource("/HG00096.chrom20.small.bam").toURI());
         bamPath = Paths.get("/tmp/" + inputPath.toFile().getName());
         bwPath = Paths.get("/tmp/" + inputPath.toFile().getName() + ".bw");
     }
 
-    //@Test
+    public boolean bamCoverageExists() throws IOException {
+        String cmd = "which bamCoverage";
+        java.util.Scanner s = new java.util.Scanner(Runtime.getRuntime().exec(cmd).getInputStream()).useDelimiter("\\A");
+        return s.hasNext();
+    }
+
+    @Test
     public void testIndex() throws IOException {
         try {
             Files.copy(inputPath, bamPath);
@@ -45,7 +59,7 @@ public class BamManagerTest {
         bamManager.createIndex();
     }
 
-    //@Test
+    @Test
     public void testIndexBigWigCoverage() throws Exception {
         try {
             Files.copy(inputPath, bamPath);
@@ -76,7 +90,7 @@ public class BamManagerTest {
         assertEquals(3, query.size());
     }
 
-    //@Test
+    @Test
     public void testQueryBigWigCoverage() throws Exception {
         if (!bwPath.toFile().exists()) {
             testIndexBigWigCoverage();
@@ -84,11 +98,23 @@ public class BamManagerTest {
 
         BamManager bamManager = new BamManager(bamPath);
 
-        Region region = new Region("20", 62000, 62200);
-        RegionCoverage coverage = bamManager.coverage(region, 20);
-//        System.out.println(coverage.toString());
+        int minCoverage = 4;
+        int maxCoverage = 6;
+
+        Region region = new Region("20", 62200, 62405);
+        RegionCoverage coverage = bamManager.coverage(region, 1);
+
+        System.out.println("Coverage");
         System.out.println(coverage.toJSON());
         System.out.println("mean coverage = " + coverage.meanCoverage());
+
+        System.out.println("Filter coverage, range " + minCoverage + "-" + maxCoverage + ":");
+        List<RegionCoverage> filterRegionByCoverage = BamUtils.filterByCoverage(coverage, minCoverage, maxCoverage);
+        for (RegionCoverage uncoveredRegion : filterRegionByCoverage) {
+            System.out.println(uncoveredRegion.toJSON());
+        }
+
+
     }
 
     @Test
@@ -161,5 +187,209 @@ public class BamManagerTest {
         System.out.println("\nTotal time: " + (totalStopTime - totalStartTime)/1000.0 + " seconds.");
 
         writer.close();
+    }
+
+    @Test
+    public void filterRegionByCoverage() throws IOException, AlignmentCoverageException {
+        System.out.println("bamPath = " + bamPath);
+        BamManager bamManager = new BamManager(bamPath);
+
+        AlignmentOptions options = new AlignmentOptions();
+        options.setContained(false);
+        Region region = new Region("chr20", 62000, 62200);
+
+        int minCoverage = 4;
+        int maxCoverage = 6;
+
+        RegionCoverage regionCoverage = bamManager.coverage(region, 20);
+        List<RegionCoverage> uncoveredRegions = BamUtils.filterByCoverage(regionCoverage, minCoverage, maxCoverage);
+        for (RegionCoverage uncoveredRegion : uncoveredRegions) {
+            System.out.println(uncoveredRegion);
+        }
+    }
+
+    public void testRanges() throws IOException {
+        int refID = 1; // 1; // 22; //14;
+        int beg = 114000; // 13000; // 10000; //24375199;
+        int end = 200000; //13986; // 10100; //24378544;
+
+
+        bamPath = Paths.get("/mnt/data/hgva/datasets/bams/NA12877_S1.bam");
+        BamManager bamManager = new BamManager(bamPath);
+        Region region = new Region("chr" + refID, beg, end);
+
+
+        Region region1 = new Region(region.getChromosome(), region.getStart(), region.getEnd() + 32000);
+
+        Set<String> breakSet = new HashSet<>(bamManager.getBreakpoints(region));
+        Set<String> breakSet1 = new HashSet<>(bamManager.getBreakpoints(region1));
+
+        System.out.println(breakSet.size() + " vs " + breakSet1.size());
+
+
+        System.out.println("Commons:");
+        Iterator<String> iterator = breakSet.iterator();
+        while (iterator.hasNext()) {
+            String breakpoint = iterator.next();
+            if (breakSet1.contains(breakpoint)) {
+                System.out.println("\t" + breakpoint);
+            }
+        }
+
+        System.out.println("Only at region " + region);
+        iterator = breakSet.iterator();
+        while (iterator.hasNext()) {
+            String breakpoint = iterator.next();
+            if (!breakSet1.contains(breakpoint)) {
+                System.out.println("\t" + breakpoint);
+            }
+        }
+
+        System.out.println("Only at region " + region1);
+        iterator = breakSet1.iterator();
+        while (iterator.hasNext()) {
+            String breakpoint = iterator.next();
+            if (!breakSet.contains(breakpoint)) {
+                System.out.println("\t" + breakpoint);
+            }
+        }
+
+        //        Set<String> chunkSet = new HashSet<>();
+//
+//        List<Chunk> chunks = bamManager.getChunks(region);
+//        for (Chunk chunk : chunks) {
+//            chunkSet.add(chunk.toString());
+//            System.out.println(chunk);
+//        }
+
+//        boolean keepGoing = true;
+//        int blockSize = 65000;
+//        while (keepGoing) {
+//            region.setEnd(region.getEnd() + blockSize);
+//            chunks = bamManager.getChunks(region);
+//            for (Chunk chunk : chunks) {
+//                if (!chunkSet.contains(chunk.toString())) {
+//                    System.out.println("not found: " + chunk);
+//                    keepGoing = false;
+//                    break;
+//                }
+//            }
+//        }
+
+//        System.out.println();
+//
+//        List<String> breakpoints = bamManager.getBreakpoints(region);
+//        for (String breakpoint : breakpoints) {
+//            System.out.println(breakpoint);
+//        }
+
+    }
+
+    //    @Test
+    public void testChunks() throws IOException {
+        int refID = 1; // 1; // 22; //14;
+        int beg = 114000; // 13000; // 10000; //24375199;
+        int end = 200000; //13986; // 10100; //24378544;
+
+
+        bamPath = Paths.get("/mnt/data/hgva/datasets/bams/NA12877_S1.bam");
+        BamManager bamManager = new BamManager(bamPath);
+        Region region = new Region("chr" + refID, beg, end);
+
+
+        Region region1 = new Region(region.getChromosome(), region.getStart(), region.getEnd() + 32000);
+
+        Set<Chunk> chunkSet = new HashSet<>(bamManager.getChunks(region));
+        Set<Chunk> chunkSet1 = new HashSet<>(bamManager.getChunks(region1));
+
+        System.out.println(chunkSet.size() + " vs " + chunkSet1.size());
+
+
+        System.out.println("Commons:");
+        Iterator<Chunk> iterator = chunkSet.iterator();
+        while (iterator.hasNext()) {
+            Chunk chunk = iterator.next();
+            if (chunkSet1.contains(chunk)) {
+                System.out.println("\t" + chunk);
+            }
+        }
+
+        System.out.println("Only at region " + region);
+        iterator = chunkSet.iterator();
+        while (iterator.hasNext()) {
+            Chunk chunk = iterator.next();
+            if (!chunkSet1.contains(chunk)) {
+                System.out.println("\t" + chunk);
+            }
+        }
+
+        System.out.println("Only at region " + region1);
+        iterator = chunkSet1.iterator();
+        while (iterator.hasNext()) {
+            Chunk chunk = iterator.next();
+            if (!chunkSet.contains(chunk)) {
+                System.out.println("\t" + chunk);
+            }
+        }
+
+        //        Set<String> chunkSet = new HashSet<>();
+//
+//        List<Chunk> chunks = bamManager.getChunks(region);
+//        for (Chunk chunk : chunks) {
+//            chunkSet.add(chunk.toString());
+//            System.out.println(chunk);
+//        }
+
+//        boolean keepGoing = true;
+//        int blockSize = 65000;
+//        while (keepGoing) {
+//            region.setEnd(region.getEnd() + blockSize);
+//            chunks = bamManager.getChunks(region);
+//            for (Chunk chunk : chunks) {
+//                if (!chunkSet.contains(chunk.toString())) {
+//                    System.out.println("not found: " + chunk);
+//                    keepGoing = false;
+//                    break;
+//                }
+//            }
+//        }
+
+//        System.out.println();
+//
+//        List<String> breakpoints = bamManager.getBreakpoints(region);
+//        for (String breakpoint : breakpoints) {
+//            System.out.println(breakpoint);
+//        }
+
+    }
+
+    //    @Test
+    public void testZoom() throws IOException {
+//        Path path = Paths.get("~/data150/bw/NA12877_S1.bam.coverage.bw");
+        Path path = Paths.get("~/data150/bw/coverage.bw");
+        BigWigManager bigWigManager = new BigWigManager(path);
+
+        for (Integer windowSize : bigWigManager.getZoomWindowSizes()) {
+            System.out.println(windowSize);
+        }
+
+//        int windowSize = 385;
+//        Region region = new Region("1", 67686000, 68669999);
+
+        int windowSize = 100;
+        Region region = new Region("20", 60200, 60431);
+        float[] values = bigWigManager.groupBy(region, windowSize);
+        for (float value : values) {
+            System.out.print(value + ", ");
+        }
+    }
+
+    @Test
+    public void readCram() throws IOException {
+        String cram = getClass().getResource("/cram/cram_with_crai_index.cram").getFile();
+        String reference = getClass().getResource("/cram/hg19mini.fasta").getFile();
+
+        BamManager bamManager = new BamManager(Paths.get(cram), Paths.get(reference));
+        System.out.println(bamManager.getHeader("study"));
     }
 }

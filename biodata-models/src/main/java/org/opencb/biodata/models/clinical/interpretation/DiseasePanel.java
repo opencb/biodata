@@ -20,6 +20,7 @@
 package org.opencb.biodata.models.clinical.interpretation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.opencb.biodata.models.commons.OntologyTerm;
 import org.opencb.biodata.models.commons.Phenotype;
 import org.opencb.biodata.models.core.Xref;
 
@@ -28,7 +29,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
-import static org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.*;
+import static org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.Penetrance;
 
 public class DiseasePanel {
 
@@ -41,6 +42,7 @@ public class DiseasePanel {
 
     private List<VariantPanel> variants;
     private List<GenePanel> genes;
+    private List<STR> strs;
     private List<RegionPanel> regions;
     private Map<String, Integer> stats;
 
@@ -64,10 +66,10 @@ public class DiseasePanel {
         this.name = name;
     }
 
-    public DiseasePanel(String id, String name, List<PanelCategory> categories, List<Phenotype> phenotypes, List<String> tags,
-                        List<VariantPanel> variants, List<GenePanel> genes, List<RegionPanel> regions, Map<String, Integer> stats,
-                        SourcePanel source, String creationDate, String modificationDate, String description,
-                        Map<String, Object> attributes) {
+    public DiseasePanel(String id, String name, List<PanelCategory> categories, List<Phenotype> phenotypes,
+                        List<String> tags, List<VariantPanel> variants, List<GenePanel> genes, List<STR> strs,
+                        List<RegionPanel> regions, Map<String, Integer> stats, SourcePanel source, String creationDate,
+                        String modificationDate, String description, Map<String, Object> attributes) {
         this.id = id;
         this.name = name;
         this.categories = categories;
@@ -75,6 +77,7 @@ public class DiseasePanel {
         this.tags = tags;
         this.variants = variants;
         this.genes = genes;
+        this.strs = strs;
         this.regions = regions;
         this.stats = stats;
         this.source = source;
@@ -213,37 +216,188 @@ public class DiseasePanel {
         }
     }
 
-    public static class VariantPanel {
+    public static class VariantPanel extends Common {
 
-        private String id;
-        private List<String> evidences;
-        private List<String> publications;
+        private String reference;
+        private String alternate;
 
         public VariantPanel() {
         }
 
-        public VariantPanel(String id, String phenotype, List<String> evidences, List<String> publications) {
-            this.id = id;
-            this.evidences = evidences;
-            this.publications = publications;
+        public VariantPanel(String id, List<Xref> xrefs, String modeOfInheritance, Penetrance penetrance,
+                            String confidence, List<String> evidences, List<String> publications,
+                            List<OntologyTerm> phenotypes, List<Coordinate> coordinates, String reference,
+                            String alternate) {
+            super(id, xrefs, modeOfInheritance, penetrance, confidence, evidences, publications, phenotypes, coordinates);
+            this.reference = reference;
+            this.alternate = alternate;
         }
 
         @Override
         public String toString() {
-            final StringBuilder sb = new StringBuilder("VariantPanel{");
-            sb.append("id='").append(id).append('\'');
-            sb.append(", evidences=").append(evidences);
-            sb.append(", publications=").append(publications);
-            sb.append('}');
-            return sb.toString();
+            return "VariantPanel{" +
+                    "id='" + id + '\'' +
+                    ", xrefs=" + xrefs +
+                    ", modeOfInheritance='" + modeOfInheritance + '\'' +
+                    ", penetrance=" + penetrance +
+                    ", confidence='" + confidence + '\'' +
+                    ", evidences=" + evidences +
+                    ", publications=" + publications +
+                    ", phenotypes=" + phenotypes +
+                    ", coordinates=" + coordinates +
+                    ", reference='" + reference + '\'' +
+                    ", alternate='" + alternate + '\'' +
+                    '}';
+        }
+
+        public String getReference() {
+            return reference;
+        }
+
+        public void setReference(String reference) {
+            this.reference = reference;
+        }
+
+        public String getAlternate() {
+            return alternate;
+        }
+
+        public void setAlternate(String alternate) {
+            this.alternate = alternate;
+        }
+    }
+
+
+    public static class Coordinate {
+
+        private String assembly;
+        private String location;
+        private String source;
+
+        public Coordinate() {
+        }
+
+        public Coordinate(String assembly, String location, String source) {
+            this.assembly = assembly;
+            this.location = location;
+            this.source = source;
+        }
+
+        @Override
+        public String toString() {
+            return "Coordinate{" +
+                    "assembly='" + assembly + '\'' +
+                    ", location='" + location + '\'' +
+                    ", source='" + source + '\'' +
+                    '}';
+        }
+
+        public String getAssembly() {
+            return assembly;
+        }
+
+        public Coordinate setAssembly(String assembly) {
+            this.assembly = assembly;
+            return this;
+        }
+
+        public String getLocation() {
+            return location;
+        }
+
+        public Coordinate setLocation(String location) {
+            this.location = location;
+            return this;
+        }
+
+        public String getSource() {
+            return source;
+        }
+
+        public Coordinate setSource(String source) {
+            this.source = source;
+            return this;
+        }
+    }
+
+
+    public static class Common {
+
+        protected String id;
+        protected List<Xref> xrefs;
+        protected String modeOfInheritance;
+        protected Penetrance penetrance;
+        protected String confidence;
+        protected List<String> evidences;
+        protected List<String> publications;
+        protected List<OntologyTerm> phenotypes;
+        protected List<Coordinate> coordinates;
+
+        public Common() {
+        }
+
+        public Common(String id, List<Xref> xrefs, String modeOfInheritance, Penetrance penetrance, String confidence,
+                      List<String> evidences, List<String> publications, List<OntologyTerm> phenotypes,
+                      List<Coordinate> coordinates) {
+            this.id = id;
+            this.xrefs = xrefs;
+            this.modeOfInheritance = modeOfInheritance;
+            this.penetrance = penetrance;
+            this.confidence = confidence;
+            this.evidences = evidences;
+            this.publications = publications;
+            this.phenotypes = phenotypes;
+            this.coordinates = coordinates;
+        }
+
+        @Override
+        public String toString() {
+            return "Common{" +
+                    "id='" + id + '\'' +
+                    ", xrefs=" + xrefs +
+                    ", modeOfInheritance='" + modeOfInheritance + '\'' +
+                    ", penetrance=" + penetrance +
+                    ", confidence='" + confidence + '\'' +
+                    ", evidences=" + evidences +
+                    ", publications=" + publications +
+                    ", phenotypes=" + phenotypes +
+                    ", coordinates=" + coordinates +
+                    '}';
         }
 
         public String getId() {
             return id;
         }
 
-        public VariantPanel setId(String id) {
+        public Common setId(String id) {
             this.id = id;
+            return this;
+        }
+
+        public String getModeOfInheritance() {
+            return modeOfInheritance;
+        }
+
+        public Common setModeOfInheritance(String modeOfInheritance) {
+            this.modeOfInheritance = modeOfInheritance;
+            return this;
+        }
+
+        public Penetrance getPenetrance() {
+            return penetrance;
+        }
+
+        public Common setPenetrance(Penetrance penetrance) {
+            this.penetrance = penetrance;
+            return this;
+        }
+
+        public String getConfidence() {
+            return confidence;
+        }
+
+        public Common setConfidence(String confidence) {
+            this.confidence = confidence;
             return this;
         }
 
@@ -251,7 +405,7 @@ public class DiseasePanel {
             return evidences;
         }
 
-        public VariantPanel setEvidences(List<String> evidences) {
+        public Common setEvidences(List<String> evidences) {
             this.evidences = evidences;
             return this;
         }
@@ -260,44 +414,219 @@ public class DiseasePanel {
             return publications;
         }
 
-        public VariantPanel setPublications(List<String> publications) {
+        public Common setPublications(List<String> publications) {
             this.publications = publications;
+            return this;
+        }
+
+        public List<OntologyTerm> getPhenotypes() {
+            return phenotypes;
+        }
+
+        public Common setPhenotypes(List<OntologyTerm> phenotypes) {
+            this.phenotypes = phenotypes;
+            return this;
+        }
+
+        public List<Xref> getXrefs() {
+            return xrefs;
+        }
+
+        public Common setXrefs(List<Xref> xrefs) {
+            this.xrefs = xrefs;
+            return this;
+        }
+
+        public List<Coordinate> getCoordinates() {
+            return coordinates;
+        }
+
+        public Common setCoordinates(List<Coordinate> coordinates) {
+            this.coordinates = coordinates;
             return this;
         }
     }
 
+    public static class RegionPanel extends Common {
 
-    public static class GenePanel {
+        private String description;
+        private VariantType typeOfVariants;
+        private String haploinsufficiencyScore;
+        private String triplosensitivityScore;
+        private int requiredOverlapPercentage;
 
-        /**
-         * Ensembl ID is used as id.
-         */
-        private String id;
+        public RegionPanel() {
+        }
+
+        public RegionPanel(String name, List<Xref> xrefs, String modeOfInheritance, Penetrance penetrance,
+                           String confidence, List<String> evidences, List<String> publications,
+                           List<OntologyTerm> phenotypes, List<Coordinate> coordinates, String description,
+                           VariantType typeOfVariants, String haploinsufficiencyScore, String triplosensitivityScore,
+                           int requiredOverlapPercentage) {
+            super(name, xrefs, modeOfInheritance, penetrance, confidence, evidences, publications, phenotypes,
+                    coordinates);
+            this.description = description;
+            this.typeOfVariants = typeOfVariants;
+            this.haploinsufficiencyScore = haploinsufficiencyScore;
+            this.triplosensitivityScore = triplosensitivityScore;
+            this.requiredOverlapPercentage = requiredOverlapPercentage;
+        }
+
+        @Override
+        public String toString() {
+            return "RegionPanel{" +
+                    "id='" + id + '\'' +
+                    ", xrefs=" + xrefs +
+                    ", modeOfInheritance='" + modeOfInheritance + '\'' +
+                    ", penetrance=" + penetrance +
+                    ", confidence='" + confidence + '\'' +
+                    ", evidences=" + evidences +
+                    ", publications=" + publications +
+                    ", phenotypes=" + phenotypes +
+                    ", coordinates=" + coordinates +
+                    ", description='" + description + '\'' +
+                    ", typeOfVariants=" + typeOfVariants +
+                    ", haploinsufficiencyScore='" + haploinsufficiencyScore + '\'' +
+                    ", triplosensitivityScore='" + triplosensitivityScore + '\'' +
+                    ", requiredOverlapPercentage=" + requiredOverlapPercentage +
+                    '}';
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public RegionPanel setDescription(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public VariantType getTypeOfVariants() {
+            return typeOfVariants;
+        }
+
+        public RegionPanel setTypeOfVariants(VariantType typeOfVariants) {
+            this.typeOfVariants = typeOfVariants;
+            return this;
+        }
+
+        public String getHaploinsufficiencyScore() {
+            return haploinsufficiencyScore;
+        }
+
+        public RegionPanel setHaploinsufficiencyScore(String haploinsufficiencyScore) {
+            this.haploinsufficiencyScore = haploinsufficiencyScore;
+            return this;
+        }
+
+        public String getTriplosensitivityScore() {
+            return triplosensitivityScore;
+        }
+
+        public RegionPanel setTriplosensitivityScore(String triplosensitivityScore) {
+            this.triplosensitivityScore = triplosensitivityScore;
+            return this;
+        }
+
+        public int getRequiredOverlapPercentage() {
+            return requiredOverlapPercentage;
+        }
+
+        public RegionPanel setRequiredOverlapPercentage(int requiredOverlapPercentage) {
+            this.requiredOverlapPercentage = requiredOverlapPercentage;
+            return this;
+        }
+
+    }
+
+    public enum VariantType {
+        LOSS,
+        GAIN,
+        INDEL
+    }
+
+    public static class STR extends Common {
+
+        private String repeatedSequence;
+        private int normalRepeats;
+        private int pathogenicRepeats;
+
+        public STR() {
+        }
+
+        public STR(String id, List<Xref> xrefs, String modeOfInheritance, Penetrance penetrance, String confidence,
+                   List<String> evidences, List<String> publications, List<OntologyTerm> phenotypes,
+                   List<Coordinate> coordinates, String repeatedSequence, int normalRepeats, int pathogenicRepeats) {
+            super(id, xrefs, modeOfInheritance, penetrance, confidence, evidences, publications, phenotypes,
+                    coordinates);
+            this.repeatedSequence = repeatedSequence;
+            this.normalRepeats = normalRepeats;
+            this.pathogenicRepeats = pathogenicRepeats;
+        }
+
+        @Override
+        public String toString() {
+            final StringBuilder sb = new StringBuilder("STR{");
+            sb.append("id='").append(id).append('\'');
+            sb.append(", xrefs=").append(xrefs);
+            sb.append(", modeOfInheritance='").append(modeOfInheritance).append('\'');
+            sb.append(", penetrance=").append(penetrance);
+            sb.append(", confidence='").append(confidence).append('\'');
+            sb.append(", evidences=").append(evidences);
+            sb.append(", publications=").append(publications);
+            sb.append(", phenotypes=").append(phenotypes);
+            sb.append(", coordinates=").append(coordinates);
+            sb.append(", repeatedSequence='").append(repeatedSequence).append('\'');
+            sb.append(", normalRepeats=").append(normalRepeats);
+            sb.append(", pathogenicRepeats=").append(pathogenicRepeats);
+            sb.append('}');
+            return sb.toString();
+        }
+
+        public String getRepeatedSequence() {
+            return repeatedSequence;
+        }
+
+        public STR setRepeatedSequence(String repeatedSequence) {
+            this.repeatedSequence = repeatedSequence;
+            return this;
+        }
+
+        public int getNormalRepeats() {
+            return normalRepeats;
+        }
+
+        public STR setNormalRepeats(int normalRepeats) {
+            this.normalRepeats = normalRepeats;
+            return this;
+        }
+
+        public int getPathogenicRepeats() {
+            return pathogenicRepeats;
+        }
+
+        public STR setPathogenicRepeats(int pathogenicRepeats) {
+            this.pathogenicRepeats = pathogenicRepeats;
+            return this;
+        }
+    }
+
+    public static class GenePanel extends Common {
 
         /**
          * HGNC Gene Symbol is used as name.
          */
         private String name;
-        private List<Xref> xrefs;
-        private String modeOfInheritance;
-        private Penetrance penetrance;
-        private String confidence;
-        private List<String> evidences;
-        private List<String> publications;
 
         public GenePanel() {
         }
 
         public GenePanel(String id, String name, List<Xref> xrefs, String modeOfInheritance, Penetrance penetrance,
-                         String confidence, List<String> evidences, List<String> publications) {
-            this.id = id;
+                         String confidence, List<String> evidences, List<String> publications,
+                         List<OntologyTerm> phenotypes, List<Coordinate> coordinates) {
+            super(id, xrefs, modeOfInheritance, penetrance, confidence, evidences, publications, phenotypes,
+                    coordinates);
             this.name = name;
-            this.xrefs = xrefs;
-            this.modeOfInheritance = modeOfInheritance;
-            this.penetrance = penetrance;
-            this.confidence = confidence;
-            this.evidences = evidences;
-            this.publications = publications;
         }
 
         @Override
@@ -315,15 +644,6 @@ public class DiseasePanel {
             return sb.toString();
         }
 
-        public String getId() {
-            return id;
-        }
-
-        public GenePanel setId(String id) {
-            this.id = id;
-            return this;
-        }
-
         public String getName() {
             return name;
         }
@@ -333,100 +653,6 @@ public class DiseasePanel {
             return this;
         }
 
-        public List<Xref> getXrefs() {
-            return xrefs;
-        }
-
-        public GenePanel setXrefs(List<Xref> xrefs) {
-            this.xrefs = xrefs;
-            return this;
-        }
-
-        public String getModeOfInheritance() {
-            return modeOfInheritance;
-        }
-
-        public GenePanel setModeOfInheritance(String modeOfInheritance) {
-            this.modeOfInheritance = modeOfInheritance;
-            return this;
-        }
-
-        public Penetrance getPenetrance() {
-            return penetrance;
-        }
-
-        public GenePanel setPenetrance(Penetrance penetrance) {
-            this.penetrance = penetrance;
-            return this;
-        }
-
-        public String getConfidence() {
-            return confidence;
-        }
-
-        public GenePanel setConfidence(String confidence) {
-            this.confidence = confidence;
-            return this;
-        }
-
-        public List<String> getEvidences() {
-            return evidences;
-        }
-
-        public GenePanel setEvidences(List<String> evidences) {
-            this.evidences = evidences;
-            return this;
-        }
-
-        public List<String> getPublications() {
-            return publications;
-        }
-
-        public GenePanel setPublications(List<String> publications) {
-            this.publications = publications;
-            return this;
-        }
-    }
-
-    public static class RegionPanel {
-
-        private String location;
-        private float score;
-
-        public RegionPanel() {
-        }
-
-        public RegionPanel(String location, float score) {
-            this.location = location;
-            this.score = score;
-        }
-
-        @Override
-        public String toString() {
-            final StringBuilder sb = new StringBuilder("RegionPanel{");
-            sb.append("location='").append(location).append('\'');
-            sb.append(", score=").append(score);
-            sb.append('}');
-            return sb.toString();
-        }
-
-        public String getLocation() {
-            return location;
-        }
-
-        public RegionPanel setLocation(String location) {
-            this.location = location;
-            return this;
-        }
-
-        public float getScore() {
-            return score;
-        }
-
-        public RegionPanel setScore(float score) {
-            this.score = score;
-            return this;
-        }
     }
 
     @Override
@@ -439,6 +665,7 @@ public class DiseasePanel {
         sb.append(", tags=").append(tags);
         sb.append(", variants=").append(variants);
         sb.append(", genes=").append(genes);
+        sb.append(", strs=").append(strs);
         sb.append(", regions=").append(regions);
         sb.append(", stats=").append(stats);
         sb.append(", source=").append(source);
@@ -519,6 +746,15 @@ public class DiseasePanel {
 
     public DiseasePanel setRegions(List<RegionPanel> regions) {
         this.regions = regions;
+        return this;
+    }
+
+    public List<STR> getStrs() {
+        return strs;
+    }
+
+    public DiseasePanel setStrs(List<STR> strs) {
+        this.strs = strs;
         return this;
     }
 
