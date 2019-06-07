@@ -229,7 +229,7 @@ public class VariantVcfHtsjdkReader implements VariantReader {
     private List<Variant> runCombineBreakends(List<Variant> variants) {
         List<Variant> variantListToReturn = new ArrayList<>(variants.size());
         for (Variant variant : variants) {
-            if (org.apache.commons.lang.StringUtils.isNotBlank(variant.getAlternate())) {
+            if (StringUtils.isNotBlank(variant.getAlternate())) {
                 byte[] alternateBytes = variant.getAlternate().getBytes();
                 // Symbolic allele: CNV, DEL, DUP, INS, INV, BND
                 if (Allele.wouldBeSymbolicAllele(alternateBytes)) {
@@ -330,7 +330,7 @@ public class VariantVcfHtsjdkReader implements VariantReader {
                         FileEntry fileEntry = studyEntry.getFiles().get(0);
 
                         if (fileEntry.getAttributes() != null
-                                && org.apache.commons.lang.StringUtils.isNotBlank(
+                                && StringUtils.isNotBlank(
                                         fileEntry.getAttributes().get(MATEID))) {
                             return fileEntry.getAttributes().get(MATEID);
 
@@ -411,7 +411,7 @@ public class VariantVcfHtsjdkReader implements VariantReader {
     }
 
     private boolean isMissing(String vcfFormatFieldValue) {
-        return org.apache.commons.lang.StringUtils.isBlank(vcfFormatFieldValue)
+        return StringUtils.isBlank(vcfFormatFieldValue)
                 || vcfFormatFieldValue.equals(VCF_MISSING_STRING);
     }
 
@@ -419,9 +419,7 @@ public class VariantVcfHtsjdkReader implements VariantReader {
         String line;
         while (lineIterator.hasNext()) {
             line = lineIterator.next();
-            if (org.apache.commons.lang.StringUtils.isNotBlank(line)
-                    && !line.startsWith("#")
-                    && !line.trim().isEmpty()) {
+            if (StringUtils.isNotBlank(line) && !line.startsWith("#")) {
                 try {
                     return codec.decode(line);
                 } catch (RuntimeException e) {
