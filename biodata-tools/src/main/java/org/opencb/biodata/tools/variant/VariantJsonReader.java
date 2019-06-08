@@ -122,10 +122,10 @@ public class VariantJsonReader implements VariantReader {
             i++;
         }
 
-        return normaliseIfappropriate(variants);
+        return normaliseIfAppropriate(variants);
     }
 
-    private List<Variant> normaliseIfappropriate(List<Variant> variants) {
+    private List<Variant> normaliseIfAppropriate(List<Variant> variants) {
         // Need to normalise one by one so that if one of them raises error while normalising we can easily notify which
         // one and skip it
         List<Variant> finalVariantList;
