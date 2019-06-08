@@ -736,6 +736,14 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                             String.join(",", alternates));
                     this.logger.warn(ex.getMessage());
                 }
+                catch (RuntimeException ex) {
+                    logger.warn("Problem found when left aligning {}:{}:{}:{}. Skipping left aligning.",
+                            chromosome,
+                            position,
+                            reference,
+                            String.join(",", alternates));
+                    this.logger.warn(ex.getMessage());
+                }
             }
 
             if (keyFields != null) {

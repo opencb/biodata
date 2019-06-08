@@ -117,11 +117,28 @@ public class VariantJsonReader implements VariantReader {
             i++;
         }
 
-        if (normalizer != null) {
-            variants = normalizer.apply(variants);
-        }
+        return normaliseIfappropriate(variants);
+    }
 
-        return variants;
+    private List<Variant> normaliseIfappropriate(List<Variant> variants) {
+        // Need to normalise one by one so that if one of them raises error while normalising we can easily notify which
+        // one and skip it
+        List<Variant> finalVariantList;
+        if (normalizer != null) {
+            finalVariantList = new ArrayList<>(variants.size());
+            for (Variant variant : variants) {
+                try {
+                    finalVariantList.addAll(normalizer.apply(Collections.singletonList(variant)));
+                } catch (RuntimeException e) {
+                    logger.warn("Error found during variant normalization. Variant: {}. This variant will be skipped "
+                            + "and process will continue", variant.toString());
+                    e.printStackTrace();
+                }
+            }
+        } else {
+            finalVariantList = variants;
+        }
+        return finalVariantList;
     }
 
     private String readLine() {
