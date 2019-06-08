@@ -63,9 +63,10 @@ public class VariantVcfHtsjdkReader implements VariantReader {
 
     private static final String MATEID = "MATEID";
     private static final String MATE_CIPOS = "MATE_CIPOS";
-    private static final int INTERACTING_DISTANCE_THRESHOLD = 300;
+    private static final int INTERACTING_DISTANCE_THRESHOLD = 50;
     private static final String PHASE_SET_TAG = "PS";
     private static final String VCF_MISSING_STRING = ".";
+    private static final int MAXIMUM_ALLOWED_BATCH_SIZE = 1000;
     private final Logger logger = LoggerFactory.getLogger(VariantVcfHtsjdkReader.class);
 
     private final Path input;
@@ -219,11 +220,31 @@ public class VariantVcfHtsjdkReader implements VariantReader {
             }
         }
 
-        if (normalizer != null) {
-            variants = normalizer.apply(variants);
-        }
+        return normaliseIfappropriate(variants);
+    }
 
-        return variants;
+    private List<Variant> normaliseIfappropriate(List<Variant> variants) {
+        // Need to normalise one by one so that if one of them raises error while normalising we can easily notify which
+        // one and skip it
+        List<Variant> finalVariantList;
+        if (normalizer != null) {
+            finalVariantList = new ArrayList<>(variants.size());
+            for (Variant variant : variants) {
+                try {
+                    finalVariantList.addAll(normalizer.apply(Collections.singletonList(variant)));
+                } catch (RuntimeException e) {
+                    logger.warn("Error found during variant normalization. Variant: {}. This variant will be skipped "
+                            + "and process will continue", variant.toString());
+                    logMalformatedLine(variant.toString(), e);
+                    if (failOnError) {
+                        throw e;
+                    }
+                }
+            }
+        } else {
+            finalVariantList = variants;
+        }
+        return finalVariantList;
     }
 
     private List<Variant> runCombineBreakends(List<Variant> variants) {
@@ -347,7 +368,7 @@ public class VariantVcfHtsjdkReader implements VariantReader {
     private boolean incompleteBatch(List<VariantContext> variantContexts, int batchSize) {
         // batchSize must be > 0
         // If batch already reached required batch size, check phase
-        if (variantContexts.size() == batchSize) {
+        if (variantContexts.size() >= batchSize) {
             // if phase should be ignored the batch is complete
             if (ignorePhaseSet) {
                 return false;
@@ -355,6 +376,14 @@ public class VariantVcfHtsjdkReader implements VariantReader {
             // of current variant context. In such a case, the batch is incomplete since all variant contexts with
             // the same PS must be part of the same batch regardless of the batch size
             } else {
+
+                if (variantContexts.size() == MAXIMUM_ALLOWED_BATCH_SIZE) {
+                    logger.error("Reached {} variants in one single batch. Truncating batch at variant {}",
+                            variantContexts.size(),
+                            variantContexts.get(variantContexts.size() - 1).toString());
+                    return false;
+                }
+
                 // Assumes variantContexts.size() > 0
                 VariantContext lastSavedVariantContext = variantContexts.get(variantContexts.size() - 1);
 
@@ -393,18 +422,21 @@ public class VariantVcfHtsjdkReader implements VariantReader {
 
     private String getPhaseSet(VariantContext variantContext) {
         htsjdk.variant.variantcontext.Genotype genotype = variantContext.getGenotype(0);
-        Object attribute = genotype.getAnyAttribute(PHASE_SET_TAG);
 
-        if (attribute != null) {
-            if (attribute instanceof Collection) {
-                throw new RuntimeException("Unexpected PS value: Phase set field found containing multiple values. " +
-                        "See: " + variantContext.toString());
-            } else if (isMissing(attribute.toString())) {
-                return null;
-            } else {
-                return attribute.toString();
+        if (genotype != null) {
+            Object attribute = genotype.getAnyAttribute(PHASE_SET_TAG);
+            if (attribute != null) {
+                if (attribute instanceof Collection) {
+                    throw new RuntimeException("Unexpected PS value: Phase set field found containing multiple values. " +
+                            "See: " + variantContext.toString());
+                } else if (isMissing(attribute.toString())) {
+                    return null;
+                } else {
+                    return attribute.toString();
+                }
             }
         }
+
         //Can hts return null fields?
         //ABSOLUTELY, for missing values
         return null;

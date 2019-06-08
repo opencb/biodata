@@ -728,8 +728,8 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                 try {
                     this.config.leftAligner.leftAlign(keyFields, chromosome);
                 }
-                catch (SAMException ex) {
-                    logger.warn("Problem found when left aligning {}:{}:{}:{}",
+                catch (RuntimeException ex) {
+                    logger.warn("Problem found when left aligning {}:{}:{}:{}. Skipping left aligning.",
                             chromosome,
                             position,
                             reference,
