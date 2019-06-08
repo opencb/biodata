@@ -235,7 +235,10 @@ public class VariantVcfHtsjdkReader implements VariantReader {
                 } catch (RuntimeException e) {
                     logger.warn("Error found during variant normalization. Variant: {}. This variant will be skipped "
                             + "and process will continue", variant.toString());
-                    e.printStackTrace();
+                    logMalformatedLine(variant.toString(), e);
+                    if (failOnError) {
+                        throw e;
+                    }
                 }
             }
         } else {

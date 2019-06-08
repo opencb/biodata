@@ -42,6 +42,7 @@ public class VariantJsonReader implements VariantReader {
     }
 
     private int lineNumber=1;
+    private boolean failOnError = false;
 
     public VariantJsonReader(String filename) {
         this(filename, null);
@@ -59,6 +60,10 @@ public class VariantJsonReader implements VariantReader {
         this.variantFileMetadata = new VariantFileMetadata(input.getFileName().toString(),
                 input.toAbsolutePath().toString());
         this.normalizer = normalizer;
+    }
+
+    public void setFailOnError(boolean failOnError) {
+        this.failOnError = failOnError;
     }
 
     @Override
@@ -132,7 +137,10 @@ public class VariantJsonReader implements VariantReader {
                 } catch (RuntimeException e) {
                     logger.warn("Error found during variant normalization. Variant: {}. This variant will be skipped "
                             + "and process will continue", variant.toString());
-                    e.printStackTrace();
+                    logger.error("Error found {}", e);
+                    if (failOnError) {
+                        throw e;
+                    }
                 }
             }
         } else {
