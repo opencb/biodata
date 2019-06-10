@@ -363,7 +363,9 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                             && keyFieldsList.get(0).getAlternate().equals(alternate);
 
                     String callPrefix;
-                    if (entry.getFiles() != null && StringUtils.isNotEmpty(entry.getFiles().get(0).getCall())) {
+                    if (entry.getFiles() != null
+                            && !entry.getFiles().isEmpty()
+                            && StringUtils.isNotEmpty(entry.getFiles().get(0).getCall())) {
                         String call = entry.getFiles().get(0).getCall();
                         // Remove allele index
                         callPrefix = call.substring(0, call.lastIndexOf(':') + 1);
