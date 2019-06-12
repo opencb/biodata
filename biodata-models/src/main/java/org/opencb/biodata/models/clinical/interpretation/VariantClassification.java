@@ -28,6 +28,18 @@ import java.util.*;
 
 public class VariantClassification {
 
+    public static Set<String> LOF = new HashSet<>(Arrays.asList("transcript_ablation", "splice_acceptor_variant", "splice_donor_variant",
+            "stop_gained", "frameshift_variant", "stop_lost", "start_lost", "transcript_amplification", "inframe_insertion",
+            "inframe_deletion"));
+
+    public static Set<String> PROTEIN_LENGTH_CHANGING = new HashSet<>(Arrays.asList("stop_gained", "stop_lost", "frameshift_variant",
+            "inframe_insertion", "inframe_deletion", "splice_acceptor_variant", "splice_donor_variant"));
+
+    public static final String TIER_1 = "Tier1";
+    public static final String TIER_2 = "Tier2";
+    public static final String TIER_3 = "Tier3";
+    public static final String UNTIERED = "none";
+
     private String tier;
     private List<String> acmg;
     private ClinicalSignificance clinicalSignificance;
@@ -89,13 +101,6 @@ public class VariantClassification {
         PASSENGER,
         MODIFIER
     }
-
-    public static Set<String> LOF = new HashSet<>(Arrays.asList("transcript_ablation", "splice_acceptor_variant", "splice_donor_variant",
-            "stop_gained", "frameshift_variant", "stop_lost", "start_lost", "transcript_amplification", "inframe_insertion",
-            "inframe_deletion"));
-
-    public static Set<String> PROTEIN_LENGTH_CHANGING = new HashSet<>(Arrays.asList("stop_gained", "stop_lost", "frameshift_variant",
-            "inframe_insertion", "inframe_deletion", "splice_acceptor_variant", "splice_donor_variant"));
 
     public static List<String> calculateAcmgClassification(Variant variant) {
         return calculateAcmgClassification(variant, null);
@@ -298,6 +303,7 @@ public class VariantClassification {
     }
 
     public VariantClassification() {
+        this.tier = UNTIERED;
         this.acmg = new ArrayList<>();
     }
 

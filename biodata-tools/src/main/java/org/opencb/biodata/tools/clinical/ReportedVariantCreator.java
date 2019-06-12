@@ -55,6 +55,7 @@ public abstract class ReportedVariantCreator {
     public final String TIER_1 = "Tier1";
     public final String TIER_2 = "Tier2";
     public final String TIER_3 = "Tier3";
+    public final String UNTIERED = "";
 
     // logger
     protected Logger logger = LoggerFactory.getLogger(this.getClass().toString());
