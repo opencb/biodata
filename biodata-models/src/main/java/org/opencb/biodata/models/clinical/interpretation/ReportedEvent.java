@@ -22,7 +22,6 @@ package org.opencb.biodata.models.clinical.interpretation;
 import org.opencb.biodata.models.commons.Disorder;
 import org.opencb.biodata.models.commons.Phenotype;
 import org.opencb.biodata.models.variant.avro.SequenceOntologyTerm;
-import org.opencb.biodata.models.variation.ConsequenceType;
 
 import java.util.List;
 
@@ -52,13 +51,14 @@ public class ReportedEvent {
     private String justification;
 
     public ReportedEvent() {
+        this.fullyExplainPhenotypes = false;
+        this.actionable = false;
     }
 
     public ReportedEvent(String id, Disorder disorder, List<Phenotype> phenotypes, List<SequenceOntologyTerm> consequenceTypes,
                          GenomicFeature genomicFeature, ModeOfInheritance modeOfInheritance, String panelId,
                          VariantClassification classification, Penetrance penetrance, double score, boolean fullyExplainPhenotypes,
-                         List<String> compoundHeterozygousVariantIds, RoleInCancer roleInCancer, boolean actionable, String justification
-            , String tier) {
+                         List<String> compoundHeterozygousVariantIds, RoleInCancer roleInCancer, boolean actionable, String justification) {
         this.id = id;
         this.disorder = disorder;
         this.phenotypes = phenotypes;

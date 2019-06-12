@@ -29,7 +29,6 @@ import org.opencb.biodata.models.commons.Disorder;
 import org.opencb.biodata.models.commons.Phenotype;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.ConsequenceType;
-import org.opencb.biodata.models.variant.avro.EvidenceEntry;
 import org.opencb.biodata.models.variant.avro.SequenceOntologyTerm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,8 +38,7 @@ import java.util.stream.Collectors;
 
 import static org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.Penetrance;
 import static org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.RoleInCancer;
-import static org.opencb.biodata.models.clinical.interpretation.VariantClassification.ClinicalSignificance;
-import static org.opencb.biodata.models.clinical.interpretation.VariantClassification.calculateAcmgClassification;
+import static org.opencb.biodata.models.clinical.interpretation.VariantClassification.*;
 import static org.opencb.biodata.tools.pedigree.ModeOfInheritance.extendedLof;
 import static org.opencb.biodata.tools.pedigree.ModeOfInheritance.proteinCoding;
 
@@ -51,11 +49,6 @@ public abstract class ReportedVariantCreator {
 
     protected Map<String, Set<DiseasePanel>> geneToPanelMap;
     protected Map<String, Set<DiseasePanel>> variantToPanelMap;
-
-    public final String TIER_1 = "Tier1";
-    public final String TIER_2 = "Tier2";
-    public final String TIER_3 = "Tier3";
-    public final String UNTIERED = "";
 
     // logger
     protected Logger logger = LoggerFactory.getLogger(this.getClass().toString());
@@ -195,7 +188,8 @@ public abstract class ReportedVariantCreator {
                             if (!idToPanelMoiMap.containsKey(panelGene.getId())) {
                                 idToPanelMoiMap.put(panelGene.getId(), new HashMap());
                             }
-                            idToPanelMoiMap.get(panelGene.getId()).put(panel.getId(), getMoiFromGenePanel(panelGene.getModeOfInheritance()));
+                            idToPanelMoiMap.get(panelGene.getId()).put(panel.getId(),
+                                    getMoiFromGenePanel(panelGene.getModeOfInheritance()));
                         }
                     }
                 }
@@ -204,8 +198,9 @@ public abstract class ReportedVariantCreator {
         return idToPanelMoiMap;
     }
 
-    protected ReportedEvent createReportedEvent(Disorder disorder, List<SequenceOntologyTerm> consequenceTypes, GenomicFeature genomicFeature, String panelId,
-                                                ModeOfInheritance moi, Penetrance penetrance, String tier, Variant variant) {
+    protected ReportedEvent createReportedEvent(Disorder disorder, List<SequenceOntologyTerm> consequenceTypes,
+                                                GenomicFeature genomicFeature, String panelId, ModeOfInheritance moi, Penetrance penetrance,
+                                                String tier, Variant variant) {
         ReportedEvent reportedEvent = new ReportedEvent().setId("OPENCB-" + UUID.randomUUID());
 
         // Disorder
@@ -243,7 +238,7 @@ public abstract class ReportedVariantCreator {
         reportedEvent.setClassification(new VariantClassification());
 
         // Variant classification: ACMG
-        List<String> acmgs = VariantClassification.calculateAcmgClassification(variant, moi);
+        List<String> acmgs = calculateAcmgClassification(variant, moi);
         reportedEvent.getClassification().setAcmg(acmgs);
 
         // Variant classification: clinical significance
@@ -251,7 +246,7 @@ public abstract class ReportedVariantCreator {
                 && CollectionUtils.isNotEmpty(variantToPanelMap.get(variant.getId()))) {
             reportedEvent.getClassification().setClinicalSignificance(ClinicalSignificance.PATHOGENIC_VARIANT);
         } else {
-            reportedEvent.getClassification().setClinicalSignificance(VariantClassification.computeClinicalSignificance(acmgs));
+            reportedEvent.getClassification().setClinicalSignificance(computeClinicalSignificance(acmgs));
         }
 
         // Role in cancer
@@ -266,42 +261,28 @@ public abstract class ReportedVariantCreator {
             }
         }
 
-        // Actionable
-        // DefaultReportedVariantCreator sets tier to null in order to avoid setting actionable info,
-        // on the other hand TeamReportedVariantCreator sets tier to "" in order to set actionable info,
-        // otherwise, set the provided tier
-        if (tier != null) {
-            if (StringUtils.isEmpty(tier)) {
-                updateActionableInfo(reportedEvent, variant);
+        // Actionable management
+        if (MapUtils.isNotEmpty(actionableVariants) && actionableVariants.containsKey(variant.getId())) {
+            reportedEvent.setActionable(true);
+            // Set tier 3 only if it is null or untiered
+            if (tier == null || UNTIERED.equals(tier)) {
+                reportedEvent.getClassification().setTier(TIER_3);
             } else {
                 reportedEvent.getClassification().setTier(tier);
+            }
+            // Add 'actionable' phenotypes
+            if (CollectionUtils.isNotEmpty(actionableVariants.get(variant.getId()))) {
+                List<Phenotype> evidences = new ArrayList<>();
+                for (String phenotypeId : actionableVariants.get(variant.getId())) {
+                    evidences.add(new Phenotype(phenotypeId, phenotypeId, ""));
+                }
+                if (CollectionUtils.isNotEmpty(evidences)) {
+                    reportedEvent.setPhenotypes(evidences);
+                }
             }
         }
 
         return reportedEvent;
-    }
-
-    protected void updateActionableInfo(ReportedEvent reportedEvent, Variant variant) {
-        if (MapUtils.isNotEmpty(actionableVariants) && actionableVariants.containsKey(variant.getId())) {
-            // Set actionable
-            reportedEvent.setActionable(true);
-
-            // Set Tier3
-            reportedEvent.getClassification().setTier(TIER_3);
-
-            // Set phenotypes for that variant
-            List<String> phenotypeIds = actionableVariants.get(variant.getId());
-            if (CollectionUtils.isNotEmpty(phenotypeIds)) {
-                Disorder disorder = new Disorder();
-                List<Phenotype> evidences = new ArrayList<>();
-                for (String phenotypeId : phenotypeIds) {
-                    evidences.add(new Phenotype(phenotypeId, phenotypeId, ""));
-                }
-                disorder.setEvidences(evidences);
-
-                reportedEvent.setDisorder(disorder);
-            }
-        }
     }
 
 
@@ -360,7 +341,8 @@ public abstract class ReportedVariantCreator {
         } else {
             // We report events without panels, e.g., actionable variants (tier 3)
             if (CollectionUtils.isNotEmpty(soTerms)) {
-                ReportedEvent reportedEvent = createReportedEvent(disorder, soTerms, genomicFeature, null, modeOfInheritance, penetrance, tier, variant);
+                ReportedEvent reportedEvent = createReportedEvent(disorder, soTerms, genomicFeature, null, modeOfInheritance,
+                        penetrance, tier, variant);
                 if (reportedEvent != null) {
                     reportedEvents.add(reportedEvent);
                 }

@@ -21,9 +21,12 @@ package org.opencb.biodata.tools.clinical;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty;
 import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.ModeOfInheritance;
 import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.Penetrance;
-import org.opencb.biodata.models.clinical.interpretation.*;
+import org.opencb.biodata.models.clinical.interpretation.DiseasePanel;
+import org.opencb.biodata.models.clinical.interpretation.ReportedEvent;
+import org.opencb.biodata.models.clinical.interpretation.ReportedVariant;
 import org.opencb.biodata.models.commons.Disorder;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.ConsequenceType;
@@ -31,7 +34,8 @@ import org.opencb.biodata.models.variant.avro.ConsequenceType;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.opencb.biodata.models.clinical.interpretation.VariantClassification.calculateAcmgClassification;
+import static org.opencb.biodata.models.clinical.interpretation.VariantClassification.TIER_1;
+import static org.opencb.biodata.models.clinical.interpretation.VariantClassification.TIER_2;
 
 public class DefaultReportedVariantCreator extends ReportedVariantCreator {
 
@@ -99,7 +103,8 @@ public class DefaultReportedVariantCreator extends ReportedVariantCreator {
                                     List<String> panelIds = panels.stream().map(DiseasePanel::getId).collect(Collectors.toList());
                                     tier2 = isTier2(ct, soNameSet);
                                     if (tier2 || includeUntieredVariants) {
-                                        reportedEvents.addAll(createReportedEvents(tier2 ? TIER_2 : null, panelIds, ct, variant, soNameSet));
+                                        reportedEvents.addAll(createReportedEvents(tier2 ? TIER_2 : null, panelIds, ct, variant,
+                                                soNameSet));
                                     }
                                 }
                             }
@@ -110,7 +115,8 @@ public class DefaultReportedVariantCreator extends ReportedVariantCreator {
                             if (CollectionUtils.isEmpty(biotypeSet) || biotypeSet.contains(ct.getBiotype())) {
                                 tier2 = isTier2(ct, soNameSet);
                                 if (tier2 || includeUntieredVariants) {
-                                    reportedEvents.addAll(createReportedEvents(tier2 ? TIER_2 : null, null, ct, variant, soNameSet));
+                                    reportedEvents.addAll(createReportedEvents(tier2 ? TIER_2 : null, null, ct, variant,
+                                            soNameSet));
                                 }
                             }
                         }

@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
 
 import static org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.ModeOfInheritance.UNKNOWN;
 import static org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.RoleInCancer;
+import static org.opencb.biodata.models.clinical.interpretation.VariantClassification.*;
 import static org.opencb.biodata.tools.pedigree.ModeOfInheritance.extendedLof;
 import static org.opencb.biodata.tools.pedigree.ModeOfInheritance.proteinCoding;
 

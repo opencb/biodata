@@ -35,6 +35,7 @@ import org.opencb.biodata.models.variant.avro.ConsequenceType;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.opencb.biodata.models.clinical.interpretation.VariantClassification.*;
 import static org.opencb.biodata.tools.pedigree.ModeOfInheritance.proteinCoding;
 
 public class TeamReportedVariantCreator extends ReportedVariantCreator {
@@ -110,12 +111,12 @@ public class TeamReportedVariantCreator extends ReportedVariantCreator {
                     if (CollectionUtils.isNotEmpty(variant.getAnnotation().getConsequenceTypes())) {
                         for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
                             if (ct.getBiotype() != null && proteinCoding.contains(ct.getBiotype())) {
-                                reportedEvents.addAll(createReportedEvents("", null, ct, variant));
+                                reportedEvents.addAll(createReportedEvents(UNTIERED, null, ct, variant));
                             }
                         }
                     } else {
                         // We create the reported events anyway!
-                        reportedEvents.addAll(createReportedEvents("", null, null, variant));
+                        reportedEvents.addAll(createReportedEvents(UNTIERED, null, null, variant));
                     }
                 }
             }
