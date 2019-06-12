@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 
 import static org.opencb.biodata.models.clinical.interpretation.VariantClassification.TIER_1;
 import static org.opencb.biodata.models.clinical.interpretation.VariantClassification.TIER_2;
+import static org.opencb.biodata.models.clinical.interpretation.VariantClassification.UNTIERED;
 
 public class DefaultReportedVariantCreator extends ReportedVariantCreator {
 
@@ -91,7 +92,7 @@ public class DefaultReportedVariantCreator extends ReportedVariantCreator {
             } else {
                 // Sanity check
                 if (variant.getAnnotation() != null && CollectionUtils.isNotEmpty(variant.getAnnotation().getConsequenceTypes())) {
-                    boolean tier2;
+                    String tier;
                     if (MapUtils.isNotEmpty(geneToPanelMap)) {
                         // Gene panels are present
                         for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
@@ -101,10 +102,9 @@ public class DefaultReportedVariantCreator extends ReportedVariantCreator {
                                     // Gene in panel
                                     Set<DiseasePanel> panels = geneToPanelMap.get(ct.getEnsemblGeneId());
                                     List<String> panelIds = panels.stream().map(DiseasePanel::getId).collect(Collectors.toList());
-                                    tier2 = isTier2(ct, soNameSet);
-                                    if (tier2 || includeUntieredVariants) {
-                                        reportedEvents.addAll(createReportedEvents(tier2 ? TIER_2 : null, panelIds, ct, variant,
-                                                soNameSet));
+                                    tier = getTier(ct, soNameSet);
+                                    if (includeUntieredVariants || !UNTIERED.equals(tier)) {
+                                        reportedEvents.addAll(createReportedEvents(tier, panelIds, ct, variant, soNameSet));
                                     }
                                 }
                             }
@@ -113,9 +113,9 @@ public class DefaultReportedVariantCreator extends ReportedVariantCreator {
                         // No gene panels provided
                         for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
                             if (CollectionUtils.isEmpty(biotypeSet) || biotypeSet.contains(ct.getBiotype())) {
-                                tier2 = isTier2(ct, soNameSet);
-                                if (tier2 || includeUntieredVariants) {
-                                    reportedEvents.addAll(createReportedEvents(tier2 ? TIER_2 : null, null, ct, variant,
+                                tier = getTier(ct, soNameSet);
+                                if (includeUntieredVariants || !UNTIERED.equals(tier)) {
+                                    reportedEvents.addAll(createReportedEvents(tier, null, ct, variant,
                                             soNameSet));
                                 }
                             }
@@ -137,16 +137,16 @@ public class DefaultReportedVariantCreator extends ReportedVariantCreator {
         return reportedVariants;
     }
 
-    private boolean isTier2(ConsequenceType ct, Set<String> includeSoTerms) {
+    private String getTier(ConsequenceType ct, Set<String> includeSoTerms) {
         if (CollectionUtils.isNotEmpty(biotypeSet) && CollectionUtils.isNotEmpty(soNameSet)) {
             if (biotypeSet.contains(ct.getBiotype()) && containSOName(ct, soNameSet, includeSoTerms)) {
-                return true;
+                return TIER_2;
             }
         } else if (CollectionUtils.isNotEmpty(biotypeSet) && biotypeSet.contains(ct.getBiotype())) {
-            return true;
+            return TIER_2;
         } else if (CollectionUtils.isNotEmpty(soNameSet) && containSOName(ct, soNameSet, includeSoTerms)) {
-            return true;
+            return TIER_2;
         }
-        return false;
+        return UNTIERED;
     }
 }
