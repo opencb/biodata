@@ -19,6 +19,7 @@
 
 package org.opencb.biodata.models.feature;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -72,7 +73,7 @@ public class Genotype {
         this.reference = other.reference;
         this.alternates = other.alternates;
         this.count = other.count;
-        this.allelesIdx = other.allelesIdx;
+        this.allelesIdx = Arrays.copyOf(other.allelesIdx, other.allelesIdx.length);
         this.phased = other.phased;
         this.code = other.code;
     }

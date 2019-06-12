@@ -489,6 +489,27 @@ public class VariantBuilder {
         return buildAvroVariant(reuse);
     }
 
+    protected static VariantAvro buildAvroVariant(String chromosome, int start, Integer end, String reference, String alternate) {
+        chromosome = Region.normalizeChromosome(chromosome);
+        reference = checkEmptySequence(reference);
+        alternate = checkEmptySequence(alternate);
+
+        VariantType type = VariantBuilder.inferType(reference, alternate);
+        if (isSV(type)) {
+            // Skip shortcut for structural variants
+            return new VariantBuilder(chromosome, start, end, reference, alternate).setType(type).build().getImpl();
+        } else {
+            if (end == null) {
+                end = start + inferLengthReference(reference, alternate, type, null, null) - 1;
+            }
+            int length = VariantBuilder.inferLength(reference, alternate, start, end, type);
+            return new VariantAvro(null,
+                    new ArrayList<>(),
+                    chromosome, start, end, reference, alternate, "+", null, length, type,
+                    new HashMap<>(), null, null);
+        }
+    }
+
     public Variant buildAvroVariant(Variant reuse) {
         prepare();
 
@@ -691,6 +712,10 @@ public class VariantBuilder {
     }
 
     private Integer inferLengthReference(String reference, String alternate, VariantType type, Integer length) {
+        return inferLengthReference(reference, alternate, type, length, this);
+    }
+
+    private static Integer inferLengthReference(String reference, String alternate, VariantType type, Integer length, Object variant) {
         if (hasIncompleteReference(alternate, type)) {
             if (length == null) {
                 // Default length 1 for type NO_VARIATION
@@ -700,7 +725,7 @@ public class VariantBuilder {
                     return Variant.UNKNOWN_LENGTH;
                 } else {
 //                    return Variant.UNKNOWN_LENGTH;
-                    throw new IllegalArgumentException("Unknown end or length of the variant '" + this + "', type '" + type + "'");
+                    throw new IllegalArgumentException("Unknown end or length of the variant '" + variant + "', type '" + type + "'");
                 }
             } else {
                 return length;
@@ -735,6 +760,10 @@ public class VariantBuilder {
     }
 
     public static VariantType inferType(String reference, String alternate) {
+        if (alternate.length() == 1 && reference.length() == 1 && !alternate.equals(Allele.NO_CALL_STRING)) {
+            // Shortcut for 99% of scenarios
+            return VariantType.SNV;
+        }
         byte[] alternateBytes = alternate.getBytes();
 //        if (Allele.wouldBeSymbolicAllele(alternateBytes) || Allele.wouldBeSymbolicAllele(reference.getBytes())) {
         // Symbolic variants shall contain empty reference, no need to check
@@ -1026,7 +1055,7 @@ public class VariantBuilder {
 
     public static boolean hasIncompleteReference(String alternate, VariantType type) {
         if (alternate != null) {
-            return Allele.wouldBeSymbolicAllele(alternate.getBytes()) && hasIncompleteReference(type);
+            return hasIncompleteReference(type) && Allele.wouldBeSymbolicAllele(alternate.getBytes());
         } else {
             return hasIncompleteReference(type);
         }

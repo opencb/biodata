@@ -240,7 +240,7 @@ public class VariantStatsCalculator {
         }
     }
 
-    private static void calculateGenotypeFrequencies(VariantStats variantStats) {
+    public static void calculateGenotypeFrequencies(VariantStats variantStats) {
         int totalGenotypesCount = 0;
         for (Map.Entry<Genotype, Integer> entry : variantStats.getGenotypeCount().entrySet()) {
             if (!entry.getKey().getCode().equals(AllelesCode.ALLELES_MISSING)) {
