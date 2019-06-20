@@ -20,19 +20,20 @@
 package org.opencb.biodata.models.clinical.interpretation;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.*;
 import org.opencb.commons.utils.ListUtils;
 
 import java.util.*;
 
+import static org.opencb.biodata.models.variant.avro.ClinicalSignificance.*;
+
 public class VariantClassification {
 
-    public static Set<String> LOF = new HashSet<>(Arrays.asList("transcript_ablation", "splice_acceptor_variant", "splice_donor_variant",
+    public static final Set<String> LOF = new HashSet<>(Arrays.asList("transcript_ablation", "splice_acceptor_variant", "splice_donor_variant",
             "stop_gained", "frameshift_variant", "stop_lost", "start_lost", "transcript_amplification", "inframe_insertion",
             "inframe_deletion"));
 
-    public static Set<String> PROTEIN_LENGTH_CHANGING = new HashSet<>(Arrays.asList("stop_gained", "stop_lost", "frameshift_variant",
+    public static final Set<String> PROTEIN_LENGTH_CHANGING = new HashSet<>(Arrays.asList("stop_gained", "stop_lost", "frameshift_variant",
             "inframe_insertion", "inframe_deletion", "splice_acceptor_variant", "splice_donor_variant"));
 
     public static final String TIER_1 = "Tier1";
@@ -102,86 +103,85 @@ public class VariantClassification {
         MODIFIER
     }
 
-    public static List<String> calculateAcmgClassification(Variant variant) {
-        return calculateAcmgClassification(variant, null);
+    public static List<String> calculateAcmgClassification(ConsequenceType consequenceType, VariantAnnotation annotation) {
+        return calculateAcmgClassification(consequenceType, annotation, null);
     }
 
-    public static List<String> calculateAcmgClassification(Variant variant, ClinicalProperty.ModeOfInheritance moi) {
+    public static List<String> calculateAcmgClassification(ConsequenceType consequenceType, VariantAnnotation annotation,
+                                                           ClinicalProperty.ModeOfInheritance moi) {
         Set<String> acmg = new HashSet<>();
 
         // TODO: PM1
         //   Manual: PS3, PS4, PM3
         //   ?? PM6, PP1 (Cosegregation),
 
-        for (ConsequenceType consequenceType: variant.getAnnotation().getConsequenceTypes()) {
-            for (SequenceOntologyTerm so: consequenceType.getSequenceOntologyTerms()) {
-                // PVS1
-                if (LOF.contains(so.getName())) {
-                    acmg.add("PVS1");
-                }
+        for (SequenceOntologyTerm so: consequenceType.getSequenceOntologyTerms()) {
+            // PVS1
+            if (LOF.contains(so.getName())) {
+                acmg.add("PVS1");
+            }
 
-                // PS1
-                if ("synonymous_variant".equals(so.getName()) && variant.getAnnotation().getTraitAssociation() != null) {
-                    for (EvidenceEntry evidenceEntry : variant.getAnnotation().getTraitAssociation()) {
-                        if ("clinvar".equals(evidenceEntry.getSource().getName())
-                                && (evidenceEntry.getVariantClassification().getClinicalSignificance() == org.opencb.biodata.models.variant.avro.ClinicalSignificance.pathogenic
-                                || evidenceEntry.getVariantClassification().getClinicalSignificance() == org.opencb.biodata.models.variant.avro.ClinicalSignificance.likely_pathogenic)) {
-                            acmg.add("PS1");
-                        } else {
-                            acmg.add("BP7");
-                        }
+            // PS1, BP7 (dependes on annotation)
+            if (annotation != null && "synonymous_variant".equals(so.getName())) {
+                for (EvidenceEntry evidenceEntry : annotation.getTraitAssociation()) {
+                    if ("clinvar".equals(evidenceEntry.getSource().getName())
+                            && (evidenceEntry.getVariantClassification().getClinicalSignificance() == pathogenic
+                            || evidenceEntry.getVariantClassification().getClinicalSignificance() == likely_pathogenic)) {
+                        acmg.add("PS1");
+                    } else {
+                        acmg.add("BP7");
                     }
                 }
+            }
 
-                // PM4
-                if (PROTEIN_LENGTH_CHANGING.contains(so.getName()) && "protein_coding".equals(consequenceType.getBiotype())) {
-                    acmg.add("PM4");
-                }
+            // PM4
+            if (PROTEIN_LENGTH_CHANGING.contains(so.getName()) && "protein_coding".equals(consequenceType.getBiotype())) {
+                acmg.add("PM4");
+            }
+        }
 
-                // PM5 or PP2
+        // PM5 or PP2
 //                if ("missense_variant".equals(so.getName())) {
 //                    acmg.add("PM5");
 //                }
+        //  PP3, BP4
+        if (consequenceType.getProteinVariantAnnotation() != null
+                && ListUtils.isNotEmpty(consequenceType.getProteinVariantAnnotation().getSubstitutionScores())
+                && ListUtils.isNotEmpty(annotation.getFunctionalScore())
+                && ListUtils.isNotEmpty(annotation.getConservation())) {
+            double sift = Double.MIN_VALUE;
+            double polyphen = Double.MIN_VALUE;
+            double scaledCadd = Double.MIN_VALUE;
+            double gerp = Double.MIN_VALUE;
+            for (Score score: consequenceType.getProteinVariantAnnotation().getSubstitutionScores()) {
+                switch (score.getSource()) {
+                    case "sift":
+                        sift = score.getScore();
+                        break;
+                    case "polyphen":
+                        polyphen = score.getScore();
+                        break;
+                }
             }
-            //  PP3, BP4
-            if (consequenceType.getProteinVariantAnnotation() != null
-                    && ListUtils.isNotEmpty(consequenceType.getProteinVariantAnnotation().getSubstitutionScores())
-                    && ListUtils.isNotEmpty(variant.getAnnotation().getFunctionalScore())
-                    && ListUtils.isNotEmpty(variant.getAnnotation().getConservation())) {
-                double sift = Double.MIN_VALUE;
-                double polyphen = Double.MIN_VALUE;
-                double scaledCadd = Double.MIN_VALUE;
-                double gerp = Double.MIN_VALUE;
-                for (Score score: consequenceType.getProteinVariantAnnotation().getSubstitutionScores()) {
-                    switch (score.getSource()) {
-                        case "sift":
-                            sift = score.getScore();
-                            break;
-                        case "polyphen":
-                            polyphen = score.getScore();
-                            break;
-                    }
+            for (Score score: annotation.getFunctionalScore()) {
+                if ("cadd_scaled".equals(score.getSource())) {
+                    scaledCadd = score.getScore();
+                    break;
                 }
-                for (Score score: variant.getAnnotation().getFunctionalScore()) {
-                    if ("cadd_scaled".equals(score.getSource())) {
-                        scaledCadd = score.getScore();
-                        break;
-                    }
+            }
+            for (Score score: annotation.getConservation()) {
+                if ("gerp".equals(score.getSource())) {
+                    gerp = score.getScore();
+                    break;
                 }
-                for (Score score: variant.getAnnotation().getConservation()) {
-                    if ("gerp".equals(score.getSource())) {
-                        gerp = score.getScore();
-                        break;
-                    }
-                }
+            }
 
-                if (sift != Double.MIN_VALUE && polyphen != Double.MIN_VALUE && scaledCadd != Double.MIN_VALUE
-                        && gerp != Double.MIN_VALUE) {
-                    if (sift < 0.05 && polyphen > 0.91 && scaledCadd > 15 && gerp > 2) {
-                        acmg.add("PP3");
-                    } else {
-                        acmg.add("BP4");
-                    }
+            if (sift != Double.MIN_VALUE && polyphen != Double.MIN_VALUE && scaledCadd != Double.MIN_VALUE
+                    && gerp != Double.MIN_VALUE) {
+                if (sift < 0.05 && polyphen > 0.91 && scaledCadd > 15 && gerp > 2) {
+                    acmg.add("PP3");
+                } else {
+                    acmg.add("BP4");
                 }
             }
         }
@@ -195,45 +195,47 @@ public class VariantClassification {
         }
 
         // PM2, BA1
-        if (ListUtils.isEmpty(variant.getAnnotation().getPopulationFrequencies())) {
-            acmg.add("PM2");
-        } else {
-            boolean above5 = false;
-            boolean hasPopFreq = false;
-            for (PopulationFrequency populationFrequency: variant.getAnnotation().getPopulationFrequencies()) {
-                // TODO: check it!
-                if (populationFrequency.getAltAlleleFreq() != 0) {
-                    hasPopFreq = true;
-                }
-                if ("EXAC".equals(populationFrequency.getStudy())
-                        || "1kG_phase3".equals(populationFrequency.getStudy())
-                        || "GNOMAD_EXOMES".equals(populationFrequency.getStudy())) {
-                    if (populationFrequency.getAltAlleleFreq() > 0.05) {
-                        above5 = true;
+        if (annotation != null) {
+            if (ListUtils.isEmpty(annotation.getPopulationFrequencies())) {
+                acmg.add("PM2");
+            } else {
+                boolean above5 = false;
+                boolean hasPopFreq = false;
+                for (PopulationFrequency populationFrequency : annotation.getPopulationFrequencies()) {
+                    // TODO: check it!
+                    if (populationFrequency.getAltAlleleFreq() != 0) {
+                        hasPopFreq = true;
+                    }
+                    if ("EXAC".equals(populationFrequency.getStudy())
+                            || "1kG_phase3".equals(populationFrequency.getStudy())
+                            || "GNOMAD_EXOMES".equals(populationFrequency.getStudy())) {
+                        if (populationFrequency.getAltAlleleFreq() > 0.05) {
+                            above5 = true;
+                        }
+                    }
+                    if (hasPopFreq && above5) {
+                        break;
                     }
                 }
-                if (hasPopFreq && above5) {
-                    break;
+                if (!hasPopFreq) {
+                    acmg.add("PM2");
+                }
+                if (above5) {
+                    acmg.add("BA1");
                 }
             }
-            if (!hasPopFreq) {
-                acmg.add("PM2");
-            }
-            if (above5) {
-                acmg.add("BA1");
-            }
-        }
 
-        if (variant.getAnnotation().getTraitAssociation() != null) {
-            for (EvidenceEntry evidenceEntry : variant.getAnnotation().getTraitAssociation()) {
-                if ("clinvar".equals(evidenceEntry.getSource().getName())
-                        && (evidenceEntry.getVariantClassification().getClinicalSignificance() == org.opencb.biodata.models.variant.avro.ClinicalSignificance.benign
-                        || evidenceEntry.getVariantClassification().getClinicalSignificance() == org.opencb.biodata.models.variant.avro.ClinicalSignificance.likely_benign)) {
-                    acmg.add("BP6");
-                } else if ("clinvar".equals(evidenceEntry.getSource().getName())
-                        && (evidenceEntry.getVariantClassification().getClinicalSignificance() == org.opencb.biodata.models.variant.avro.ClinicalSignificance.pathogenic
-                        || evidenceEntry.getVariantClassification().getClinicalSignificance() == org.opencb.biodata.models.variant.avro.ClinicalSignificance.likely_pathogenic)) {
-                    acmg.add("PP5");
+            if (annotation.getTraitAssociation() != null) {
+                for (EvidenceEntry evidenceEntry : annotation.getTraitAssociation()) {
+                    if ("clinvar".equals(evidenceEntry.getSource().getName())
+                            && (evidenceEntry.getVariantClassification().getClinicalSignificance() == benign
+                            || evidenceEntry.getVariantClassification().getClinicalSignificance() == likely_benign)) {
+                        acmg.add("BP6");
+                    } else if ("clinvar".equals(evidenceEntry.getSource().getName())
+                            && (evidenceEntry.getVariantClassification().getClinicalSignificance() == pathogenic
+                            || evidenceEntry.getVariantClassification().getClinicalSignificance() == likely_pathogenic)) {
+                        acmg.add("PP5");
+                    }
                 }
             }
         }
@@ -241,21 +243,21 @@ public class VariantClassification {
         return new ArrayList<>(acmg);
     }
 
-    public static VariantClassification.ClinicalSignificance computeClinicalSignificance(Variant variant, List<DiseasePanel> panels) {
-        if (CollectionUtils.isNotEmpty(panels)) {
-            for (DiseasePanel panel : panels) {
-                if (CollectionUtils.isNotEmpty(panel.getVariants())) {
-                    for (DiseasePanel.VariantPanel panelVariant : panel.getVariants()) {
-                        if (variant.getId().equals(panelVariant.getId())) {
-                            return ClinicalSignificance.PATHOGENIC_VARIANT;
-                        }
-                    }
-                }
-            }
-        }
-
-        return computeClinicalSignificance(calculateAcmgClassification(variant));
-    }
+//    public static VariantClassification.ClinicalSignificance computeClinicalSignificance(Variant variant, List<DiseasePanel> panels) {
+//        if (CollectionUtils.isNotEmpty(panels)) {
+//            for (DiseasePanel panel : panels) {
+//                if (CollectionUtils.isNotEmpty(panel.getVariants())) {
+//                    for (DiseasePanel.VariantPanel panelVariant : panel.getVariants()) {
+//                        if (variant.getId().equals(panelVariant.getId())) {
+//                            return ClinicalSignificance.PATHOGENIC_VARIANT;
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//
+//        return computeClinicalSignificance(calculateAcmgClassification(variant));
+//    }
 
     public static VariantClassification.ClinicalSignificance computeClinicalSignificance(List<String> acmgs) {
         if (CollectionUtils.isEmpty(acmgs)) {
@@ -395,15 +397,7 @@ public class VariantClassification {
         return LOF;
     }
 
-    public static void setLOF(Set<String> LOF) {
-        VariantClassification.LOF = LOF;
-    }
-
     public static Set<String> getProteinLengthChanging() {
         return PROTEIN_LENGTH_CHANGING;
-    }
-
-    public static void setProteinLengthChanging(Set<String> proteinLengthChanging) {
-        PROTEIN_LENGTH_CHANGING = proteinLengthChanging;
     }
 }
