@@ -177,10 +177,18 @@ public class VariantVcfHtsjdkReader implements VariantReader {
             @Override public void close() {}
         }));
 
+        // htsjdk automatically and inevitably sorts sample data in alphabetical order. Need to recover the original
+        // order in the VCF from the header and initialise the converter with the original order so that the order
+        // of samplesdata in CellBase output is exactly the same as in the original VCF
+        List<String> samplesInOriginalOrder = Arrays.asList(new String[header.getSampleNameToOffset().size()]);
+        for (Map.Entry<String, Integer> entry : header.getSampleNameToOffset().entrySet()) {
+            samplesInOriginalOrder.set(entry.getValue(), entry.getKey());
+        }
+
         // Create converters and fill VariantSource
-        converter = new VariantContextToVariantConverter(metadata.getId(), fileMetadata.getId(), header.getSampleNamesInOrder());
+        converter = new VariantContextToVariantConverter(metadata.getId(), fileMetadata.getId(), samplesInOriginalOrder);
         fileMetadata.setHeader(new VCFHeaderToVariantFileHeaderConverter().convert(header));
-        fileMetadata.setSampleIds(header.getSampleNamesInOrder());
+        fileMetadata.setSampleIds(samplesInOriginalOrder);
 
         if (normalizer != null) {
             normalizer.configure(fileMetadata.getHeader());
