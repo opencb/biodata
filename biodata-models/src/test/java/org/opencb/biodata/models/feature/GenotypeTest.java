@@ -16,14 +16,13 @@
 
 package org.opencb.biodata.models.feature;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.util.Arrays;
+
+import static org.junit.Assert.*;
 
 /**
  *
@@ -115,5 +114,58 @@ public class GenotypeTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Empty allele");
         new Genotype("|C", "A", Arrays.asList("G", "C", "T")).getAllelesIdx();
+    }
+
+    @Test
+    public void testHomHet() {
+        assertFalse(Genotype.isHom("."));
+        assertFalse(Genotype.isHet("."));
+        assertFalse(Genotype.isHom("./."));
+        assertFalse(Genotype.isHet("./."));
+        assertFalse(Genotype.isHom("1/."));
+        assertFalse(Genotype.isHet("1/."));
+
+        testHom("0");
+        testHom("1");
+        testHom("1/1");
+        testHom("1/1/1");
+        testHom("1|1");
+        testHom("10|10");
+        testHom("2|2");
+
+        testHet("1/2");
+        testHet("0/1");
+        testHet("1/2/3");
+        testHet("2/10");
+
+    }
+
+    private void testHet(String s) {
+        assertTrue(Genotype.isHet(s));
+        assertFalse(Genotype.isHom(s));
+    }
+
+    private void testHom(String s) {
+        assertTrue(Genotype.isHom(s));
+        assertFalse(Genotype.isHet(s));
+    }
+
+    @Test
+    public void testHasMainAlternate() {
+        assertTrue(Genotype.hasMainAlternate("1"));
+        assertTrue(Genotype.hasMainAlternate("1/1"));
+        assertTrue(Genotype.hasMainAlternate("1/1/1"));
+        assertTrue(Genotype.hasMainAlternate("1|1"));
+        assertTrue(Genotype.hasMainAlternate("1/2"));
+        assertTrue(Genotype.hasMainAlternate("0/1"));
+        assertTrue(Genotype.hasMainAlternate("./1"));
+        assertTrue(Genotype.hasMainAlternate("2/2/1"));
+
+        assertFalse(Genotype.hasMainAlternate("."));
+        assertFalse(Genotype.hasMainAlternate("0"));
+        assertFalse(Genotype.hasMainAlternate("./."));
+        assertFalse(Genotype.hasMainAlternate("10|10"));
+        assertFalse(Genotype.hasMainAlternate("2|2"));
+        assertFalse(Genotype.hasMainAlternate("2/10"));
     }
 }

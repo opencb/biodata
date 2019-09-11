@@ -17,6 +17,7 @@ import org.opencb.commons.utils.ListUtils;
 import org.opencb.biodata.models.feature.Genotype;
 
 import java.util.*;
+import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 
 public class VariantSampleStatsCalculator implements Task<Variant, Variant> {
@@ -91,7 +92,7 @@ public class VariantSampleStatsCalculator implements Task<Variant, Variant> {
         pre();
 
         // Main loop
-        Variant variant = null;
+        Variant variant;
         while (variantIterator.hasNext()) {
             variant = variantIterator.next();
 
@@ -104,19 +105,74 @@ public class VariantSampleStatsCalculator implements Task<Variant, Variant> {
         return variantSampleStatsList;
     }
 
-    private void update(Variant variant) {
+    public void update(Variant variant) {
+        List<List<String>> samplesData = variant.getStudies().get(0).getSamplesData();
+        update(variant, variant.getAnnotation(),
+                variant.getStudies().get(0).getSamplesData().size(),
+                idx -> samplesData.get(idx).get(0),
+                variant.getStudies().get(0).getSamplesPosition());
+    }
+
+    public void update(Variant variant, VariantAnnotation annotation, LinkedHashMap<String, Integer> samplesPos, List<String> gts) {
+        update(variant, annotation, gts.size(), gts::get, samplesPos);
+    }
+
+    private void update(Variant variant, VariantAnnotation annotation, int numSamples, IntFunction<String> gts,
+                        LinkedHashMap<String, Integer> samplesPos) {
+        // TODO: Remove need of full Variant object, so it is more handy to use from schema-less frameworks
         if (variantSampleStatsList == null) {
-            init(variant);
+            init(numSamples);
         }
 
-        List<List<String>> samplesData = variant.getStudies().get(0).getSamplesData();
-        int size = variant.getStudies().get(0).getSamplesData().size();
+        boolean transition = VariantStats.isTransition(variant.getReference(), variant.getAlternate());
+        boolean transversion = VariantStats.isTransversion(variant.getReference(), variant.getAlternate());
+        Set<String> biotypes = new HashSet<>();
+        Set<String> genes = new HashSet<>();
+        Set<String> cts = new HashSet<>();
+        Set<String> traits = new HashSet<>();
 
-        for (int i = 0; i < size; i++) {
+        boolean isLof = false;
+        String ensemblGeneId = null;
+        if (annotation != null) {
+            if (ListUtils.isNotEmpty(annotation.getConsequenceTypes())) {
+                for (ConsequenceType ct : annotation.getConsequenceTypes()) {
+                    ensemblGeneId = ct.getEnsemblGeneId();
+
+                    if (StringUtils.isNotEmpty(ct.getBiotype())) {
+                        biotypes.add(ct.getBiotype());
+                    }
+                    if (StringUtils.isNotEmpty(ensemblGeneId)) {
+                        genes.add(ensemblGeneId);
+                    }
+
+                    if (ListUtils.isNotEmpty(ct.getSequenceOntologyTerms())) {
+                        for (SequenceOntologyTerm so : ct.getSequenceOntologyTerms()) {
+                            cts.add(so.getAccession());
+
+                            if (VariantClassification.LOF.contains(so.getName())) {
+                                isLof = true;
+                            }
+                        }
+                    }
+                }
+
+                // Update trait association counters
+                if (ListUtils.isNotEmpty(annotation.getTraitAssociation())) {
+                    for (EvidenceEntry evidenceEntry : annotation.getTraitAssociation()) {
+                        if (StringUtils.isNotEmpty(evidenceEntry.getId())) {
+                            traits.add(evidenceEntry.getId());
+                        }
+                    }
+                }
+            }
+        }
+
+        for (int i = 0; i < numSamples; i++) {
             VariantSampleStats stats = variantSampleStatsList.get(i);
 
+            String gt = gts.apply(i);
+            boolean hasMainAlternate = Genotype.hasMainAlternate(gt);
             // Update genotype: missing or non-variation or ... ?
-            String gt = samplesData.get(i).get(0);
             if (gt.equals("0/0") || gt.equals("0|0")) {
                 incCounter(stats.getGenotypeCounter(), "0/0");
             } else if (gt.equals("./.") || gt.equals(".|.") || gt.equals(".")) {
@@ -125,93 +181,12 @@ public class VariantSampleStatsCalculator implements Task<Variant, Variant> {
                 incCounter(stats.getGenotypeCounter(), gt);
             }
 
-            // Chromosome counter
-            incCounter(stats.getChromosomeCounter(), variant.getChromosome());
-
-            // Type counter
-            incCounter(stats.getTypeCounter(), variant.getType().name());
-
-            // Biotype and consequence type counters
-            if (variant.getAnnotation() != null) {
-                boolean isLof = false;
-                String ensemblGeneId = null;
-                if (ListUtils.isNotEmpty(variant.getAnnotation().getConsequenceTypes())) {
-                    for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
-                        ensemblGeneId = ct.getEnsemblGeneId();
-
-                        // Biotype counter
-                        incCounter(stats.getBiotypeCounter(), ct.getBiotype());
-
-                        // Gene counter
-                        incCounter(geneCounters.get(i), ensemblGeneId);
-
-                        if (ListUtils.isNotEmpty(ct.getSequenceOntologyTerms())) {
-                            for (SequenceOntologyTerm so : ct.getSequenceOntologyTerms()) {
-                                // Consequence type counter by SO accession
-                                incCounter(stats.getConsequenceTypeCounter(), so.getAccession());
-
-                                if (VariantClassification.LOF.contains(so.getName())) {
-                                    isLof = true;
-                                }
-                            }
-                        }
-                    }
-
-                    // Update trait association counters
-                    if (ListUtils.isNotEmpty(variant.getAnnotation().getTraitAssociation())) {
-                        for (EvidenceEntry evidenceEntry : variant.getAnnotation().getTraitAssociation()) {
-                            if (StringUtils.isNotEmpty(evidenceEntry.getId())) {
-                                incCounter(varTraitCounters.get(i), evidenceEntry.getId());
-                            }
-                        }
-                    }
-                }
-                if (isLof) {
-                    if (ensemblGeneId != null) {
-                        if (!numAltAlleles.get(i).containsKey(ensemblGeneId)) {
-                            numAltAlleles.get(i).put(ensemblGeneId, 0);
-                            hpos.get(i).put(ensemblGeneId, new HashSet<>());
-                        }
-                        // Update HPO and number of alternate alleles
-                        numAltAlleles.get(i).put(ensemblGeneId,
-                                getNumAltAlleles(gt) + numAltAlleles.get(i).get(ensemblGeneId));
-
-                        if (ListUtils.isNotEmpty(variant.getAnnotation().getGeneTraitAssociation())) {
-                            for (GeneTraitAssociation trait : variant.getAnnotation().getGeneTraitAssociation()) {
-                                if (StringUtils.isNotEmpty(trait.getHpo())) {
-                                    hpos.get(i).get(ensemblGeneId).add(trait.getHpo());
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Indel length
-            if (variant.getType() == VariantType.INDEL) {
-                int index;
-                if (variant.getLength() > 20) {
-                    index = 5;
-                } else {
-                    index = variant.getLength() % 5;
-                }
-                stats.getIndelLength().set(index, stats.getIndelLength().get(index) + 1);
-            }
-
-            // Accumulate transitions and transversions in order to compute ti/tv ratio later
-            if (VariantStats.isTransition(variant.getReference(), variant.getAlternate())) {
-                ti.set(i, ti.get(i) + 1);
-            } else if (VariantStats.isTransversion(variant.getReference(), variant.getAlternate())) {
-                tv.set(i, tv.get(i) + 1);
-            }
-
             // Compute mendelian error
             if (ListUtils.isNotEmpty(validChildren)) {
-                LinkedHashMap<String, Integer> samplesPos = variant.getStudies().get(0).getSamplesPosition();
                 for (Member child: validChildren) {
-                    Genotype childGt = new Genotype(samplesData.get(samplesPos.get(child.getId())).get(0));
-                    Genotype fatherGt = new Genotype(samplesData.get(samplesPos.get(child.getFather().getId())).get(0));
-                    Genotype motherGt = new Genotype(samplesData.get(samplesPos.get(child.getMother().getId())).get(0));
+                    Genotype childGt = new Genotype(gts.apply(samplesPos.get(child.getId())));
+                    Genotype fatherGt = new Genotype(gts.apply(samplesPos.get(child.getFather().getId())));
+                    Genotype motherGt = new Genotype(gts.apply(samplesPos.get(child.getMother().getId())));
 
                     int errorCode = MendelianError.compute(fatherGt, motherGt, childGt, variant.getChromosome());
                     if (errorCode > 0) {
@@ -220,6 +195,67 @@ public class VariantSampleStatsCalculator implements Task<Variant, Variant> {
                             mendelianErrors.put(errorCode, 0);
                         } else {
                             mendelianErrors.put(errorCode, 1 + mendelianErrors.get(errorCode));
+                        }
+                    }
+                }
+            }
+
+            // Only increase these counters if this sample has the mutation (i.e. has the main allele in the genotype)
+            if (hasMainAlternate) {
+                stats.setNumVariants(stats.getNumVariants() + 1);
+
+                // Chromosome counter
+                incCounter(stats.getChromosomeCounter(), variant.getChromosome());
+
+                // Type counter
+                incCounter(stats.getTypeCounter(), variant.getType().name());
+
+                // Indel length
+                if (variant.getType() == VariantType.INDEL) {
+                    int index;
+                    if (variant.getLength() > 20) {
+                        index = 5;
+                    } else {
+                        index = variant.getLength() % 5;
+                    }
+                    stats.getIndelLength().set(index, stats.getIndelLength().get(index) + 1);
+                }
+
+                // Accumulate transitions and transversions in order to compute ti/tv ratio later
+                if (transition) {
+                    ti.set(i, ti.get(i) + 1);
+                } else if (transversion) {
+                    tv.set(i, tv.get(i) + 1);
+                }
+
+                // Biotype and consequence type counters
+                // Biotype counter
+                for (String biotype : biotypes) {
+                    incCounter(stats.getBiotypeCounter(), biotype);
+                }
+
+                // Gene counter
+                for (String gene : genes) {
+                    incCounter(geneCounters.get(i), gene);
+                }
+
+                for (String ct : cts) {
+                    incCounter(stats.getConsequenceTypeCounter(), ct);
+                }
+
+                for (String trait : traits) {
+                    incCounter(varTraitCounters.get(i), trait);
+                }
+
+                if (isLof && (ensemblGeneId != null)) {
+                    // Update HPO and number of alternate alleles
+                    numAltAlleles.get(i).compute(ensemblGeneId, (k, v) -> (v == null ? 0 : v) + getNumAltAlleles(gt));
+
+                    if (ListUtils.isNotEmpty(annotation.getGeneTraitAssociation())) {
+                        for (GeneTraitAssociation trait : annotation.getGeneTraitAssociation()) {
+                            if (StringUtils.isNotEmpty(trait.getHpo())) {
+                                hpos.get(i).computeIfAbsent(ensemblGeneId, v -> new HashSet<>()).add(trait.getHpo());
+                            }
                         }
                     }
                 }
@@ -255,15 +291,14 @@ public class VariantSampleStatsCalculator implements Task<Variant, Variant> {
             VariantSampleStats stats = variantSampleStatsList.get(i);
 
             // Compute number of variants from genotype counters
-            int numVariants = 0;
+            int numVariants = stats.getNumVariants();
             int numHet = 0;
             for (String gt: stats.getGenotypeCounter().keySet()) {
-                numVariants += stats.getGenotypeCounter().get(gt);
-                if (isHet(gt)) {
+//                numVariants += stats.getGenotypeCounter().get(gt);
+                if (Genotype.isHet(gt)) {
                     numHet += stats.getGenotypeCounter().get(gt);
                 }
             }
-            stats.setNumVariants(numVariants);
 
             // Set most affected genes (top 50)
             stats.setMostMutatedGenes(getTop50(geneCounters.get(i)));
@@ -271,8 +306,8 @@ public class VariantSampleStatsCalculator implements Task<Variant, Variant> {
             // Set most frequent variant traits (top 50)
             stats.setMostFrequentVarTraits(getTop50(varTraitCounters.get(i)));
 
-            // Compute heterozigosity and missigness scores
-            stats.setHeterozigosityScore(1.0D * numHet / numVariants);
+            // Compute heterozygosity and missigness scores
+            stats.setHeterozygosityScore(1.0D * numHet / numVariants);
             if (stats.getGenotypeCounter().containsKey("./.")) {
                 stats.setMissingnessScore(1.0D * stats.getGenotypeCounter().get("./.") / numVariants);
             } else {
@@ -320,30 +355,27 @@ public class VariantSampleStatsCalculator implements Task<Variant, Variant> {
             return;
         }
 
-        if (map.containsKey(key)) {
-            map.put(key, map.get(key) + 1);
-        } else {
-            map.put(key, 1);
-        }
-    }
-
-    private boolean isHet(String gt) {
-        return !isHom(gt);
-    }
-
-    private boolean isHom(String gt) {
-        String[] split = gt.split("[|/]");
-        return (split[0].equals(split[1]));
+        map.compute(key, (k, v) -> v == null ? 1 : v + 1);
     }
 
     private int getNumAltAlleles(String gt) {
-        String[] split = gt.split("[|/]");
-        int num = 0;
-        if (!split[0].equals("0")) {
-            num++;
+        switch (gt) {
+            case "0/0":
+                return 0;
+            case "0/1":
+            case "0|1":
+            case "1|0":
+                return 1;
+            case "1/1":
+            case "1|1":
+                return 2;
         }
-        if (!split[1].equals("0")) {
-            num++;
+        int num = 0;
+        for (int allelesIdx : new Genotype(gt).getAllelesIdx()) {
+            if (allelesIdx != 1) {
+                // TODO: Should count only main alternates?
+                num++;
+            }
         }
         return num;
     }
@@ -365,8 +397,7 @@ public class VariantSampleStatsCalculator implements Task<Variant, Variant> {
         return top50;
     }
 
-    private void init(Variant variant) {
-        int numSamples = variant.getStudies().get(0).getSamplesData().size();
+    private void init(int numSamples) {
 
         variantSampleStatsList = new ArrayList<>(numSamples);
         geneCounters = new ArrayList<>(numSamples);
