@@ -7,6 +7,8 @@ import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -20,6 +22,10 @@ import static org.junit.Assert.assertNotNull;
  * @author Jacobo Coll &lt;jacobo167@gmail.com&gt;
  */
 public class VariantVcfHtsjdkReaderTest {
+
+    private static final String DP_TAG = "DP";
+    private static final String AU_TAG = "AU";
+    private static final String FDP_TAG = "FDP";
 
     @Test
     public void missingPhaseTest() throws Exception {
@@ -226,5 +232,40 @@ public class VariantVcfHtsjdkReaderTest {
 
         assertEquals(1, malformated.size());
         assertEquals(malformatedLine, malformated.get(0));
+    }
+
+    @Test
+    public void sampleDataKeepsOriginalOrderTest() throws Exception {
+
+        InputStream inputStream = getClass().getResourceAsStream("/sample1_sample2.vcf");
+        VariantStudyMetadata metadata = new VariantFileMetadata("sample1_sample2.vcf", "2")
+                .toVariantStudyMetadata("sid");
+        VariantVcfHtsjdkReader reader = new VariantVcfHtsjdkReader(inputStream, metadata).setIgnorePhaseSet(true);
+        reader.open();
+        reader.pre();
+        // The third variant contains missing value - must not be included as part of the first batch
+        List<Variant> variantList = reader.read(2);
+
+        reader.post();
+        reader.close();
+
+        assertEquals(1, variantList.size());
+        Variant variant = variantList.get(0);
+        assertEquals(1, variant.getStudies().size());
+        List<String> format = variant.getStudies().get(0).getFormat();
+        List<List<String>> samplesData = variant.getStudies().get(0).getSamplesData();
+
+        // Check samples data is exactly in the same order as in the VCF (not alphabetical!)
+        assertEquals(2, samplesData.size());
+        int dpPosition = format.indexOf(DP_TAG);
+        assertEquals("54", samplesData.get(0).get(dpPosition));
+        assertEquals("152", samplesData.get(1).get(dpPosition));
+        int auPosition = format.indexOf(AU_TAG);
+        assertEquals("0,5", samplesData.get(0).get(auPosition));
+        assertEquals("3,26", samplesData.get(1).get(auPosition));
+        int fdpPosition = format.indexOf(FDP_TAG);
+        assertEquals("14", samplesData.get(0).get(fdpPosition));
+        assertEquals("42", samplesData.get(1).get(fdpPosition));
+
     }
 }
