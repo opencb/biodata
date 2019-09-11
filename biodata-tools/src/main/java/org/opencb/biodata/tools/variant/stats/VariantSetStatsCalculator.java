@@ -34,6 +34,7 @@ import org.opencb.biodata.models.variant.metadata.VariantStudyStats;
 import org.opencb.biodata.models.variant.stats.VariantSetStats;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 import org.opencb.commons.run.ParallelTaskRunner;
+import org.opencb.commons.run.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +46,7 @@ import java.util.stream.Collectors;
  *
  * @author Jacobo Coll &lt;jacobo167@gmail.com&gt;
  */
-public class VariantSetStatsCalculator implements ParallelTaskRunner.Task<Variant, Variant> {
+public class VariantSetStatsCalculator implements Task<Variant, Variant> {
 
     private final VariantStudyMetadata metadata;
     private final String studyId;
