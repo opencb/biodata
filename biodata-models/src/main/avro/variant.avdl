@@ -99,11 +99,11 @@ protocol Variants {
         /**
          * Main cohort used for calculating the score.
          */
-        string cohortId;
+        string cohort1;
         /**
          * Optional secondary cohort used for calculating the score.
          */
-        union { null, string } secondCohortId = null;
+        union { null, string } cohort2 = null;
         /**
          * Score value
          */
