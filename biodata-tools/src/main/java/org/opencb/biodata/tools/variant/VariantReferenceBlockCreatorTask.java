@@ -81,14 +81,14 @@ public class VariantReferenceBlockCreatorTask implements Task<Variant, Variant> 
                 if (!variant.getChromosome().equals(chromosome)) {
                     // Change chromosome
                     // Create first and last telomere ref block (if needed)
-                    fixedList.addAll(createContigFirstBlock());
-                    init(variant);
                     fixedList.addAll(createContigLastBlock());
+                    init(variant);
+                    fixedList.addAll(createContigFirstBlock());
                 } else {
                     if (variant.getStart() != position) {
                         // Check if need to create a block
 
-                        if ((end + 1) != variant.getStart()) {
+                        if ((end + 1) < variant.getStart()) {
                             // Create ref block
                             fixedList.add(createRefBlock(chromosome, end + 1, variant.getStart() - 1));
                         }
@@ -153,6 +153,7 @@ public class VariantReferenceBlockCreatorTask implements Task<Variant, Variant> 
             builder.setStudyId(studyId)
                     .setFileId(fileId)
                     .setSamplesPosition(samplesPosition)
+                    .setFilter(VCFConstants.UNFILTERED)
                     .setFormat("GT")
                     .setSamplesData(missingGtSamplesData);
         }
