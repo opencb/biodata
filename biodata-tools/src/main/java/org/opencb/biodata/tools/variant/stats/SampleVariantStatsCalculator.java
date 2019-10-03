@@ -22,21 +22,20 @@ import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 
 public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
-    private List<SampleVariantStats> statsList;
+    protected List<SampleVariantStats> statsList;
 
-    private int[] ti;
-    private int[] tv;
-    private int[] qualCount;
-    private double[] qualSum;
-    private double[] qualSumSq;
-    private int[] numPass;
+    protected int[] ti;
+    protected int[] tv;
+    protected int[] qualCount;
+    protected double[] qualSum;
+    protected double[] qualSumSq;
 
-    private List<Pedigree> pedigrees;
-    private Map<String, Member> validChildren;
-    private Map<String, String> sampleFileMap;
-    private Map<Integer, String> samplePosFileMap;
-    private List<String> samples;
-    private LinkedHashMap<String, Integer> samplesPos;
+    protected List<Pedigree> pedigrees;
+    protected Map<String, Member> validChildren;
+    protected Map<String, String> sampleFileMap;
+    protected Map<Integer, String> samplePosFileMap;
+    protected List<String> samples;
+    protected LinkedHashMap<String, Integer> samplesPos;
 
     /**
      * Create a sample stats calculator.
@@ -84,6 +83,9 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
 
     }
 
+    public List<SampleVariantStats> getSampleVariantStats() {
+        return statsList;
+    }
 
     @Override
     public synchronized List<Variant> apply(List<Variant> batch) {
@@ -144,28 +146,6 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
                 studyEntry.getSamplesPosition());
     }
 
-    private Map<String, String> getFileAttributes(StudyEntry studyEntry, int samplePos) {
-        FileEntry fileEntry = getFileEntry(studyEntry, samplePos);
-        if (fileEntry == null) {
-            return Collections.emptyMap();
-        } else {
-            return fileEntry.getAttributes();
-        }
-    }
-
-    private FileEntry getFileEntry(StudyEntry studyEntry, int samplePos) {
-        if (samplePosFileMap != null) {
-            String file = samplePosFileMap.get(samplePos);
-            if (file != null) {
-                return studyEntry.getFile(file);
-            } else {
-                return null;
-            }
-        } else {
-            return studyEntry.getFiles().get(0);
-        }
-    }
-
     /**
      * Update the stats given only the required elements.
      * @param variant    Minimal version of the variant. Only chr,pos,ref,alt
@@ -202,7 +182,7 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
 
                     if (ListUtils.isNotEmpty(ct.getSequenceOntologyTerms())) {
                         for (SequenceOntologyTerm so : ct.getSequenceOntologyTerms()) {
-                            cts.add(so.getAccession());
+                            cts.add(so.getName());
                         }
                     }
                 }
@@ -211,9 +191,11 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
 
         for (int samplePos = 0; samplePos < numSamples; samplePos++) {
             String gt = gts.apply(samplePos);
-            String qual = getQual.apply(samplePos);
-            String filter = getFilter.apply(samplePos);
-            updateSample(variant, transition, transversion, samplePos, gts, gt, qual, filter, biotypes, cts);
+            if (gt != null) {
+                String qual = getQual.apply(samplePos);
+                String filter = getFilter.apply(samplePos);
+                updateSample(variant, transition, transversion, samplePos, gts, gt, qual, filter, biotypes, cts);
+            }
         }
     }
 
@@ -254,15 +236,18 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
             incCount(stats.getTypeCount(), variant.getType().name());
 
             // Indel length
-            if (variant.getType() == VariantType.INDEL) {
+            if (variant.getType() == VariantType.INDEL
+                    || variant.getType() == VariantType.INSERTION
+                    || variant.getType() == VariantType.DELETION) {
                 IndelLength indel = stats.getIndelLengthCount();
-                if (variant.getLength() < 5) {
+                Integer length = variant.getLength();
+                if (length < 5) {
                     indel.setLt5(indel.getLt5() + 1);
-                } else if (variant.getLength() < 10) {
+                } else if (length < 10) {
                     indel.setLt10(indel.getLt10() + 1);
-                } else if (variant.getLength() < 15) {
+                } else if (length < 15) {
                     indel.setLt15(indel.getLt15() + 1);
-                } else if (variant.getLength() < 20) {
+                } else if (length < 20) {
                     indel.setLt20(indel.getLt20() + 1);
                 } else {
                     indel.setGte20(indel.getGte20() + 1);
@@ -283,7 +268,7 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
                 qualSumSq[samplePos] += qualValue * qualValue;
             }
             if (VCFConstants.PASSES_FILTERS_v4.equalsIgnoreCase(filter)) {
-                numPass[samplePos]++;
+                stats.setNumPass(stats.getNumPass() + 1);
             }
 
             // Biotype counter
@@ -296,6 +281,56 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
                 incCount(stats.getConsequenceTypeCount(), ct);
             }
 
+        }
+    }
+
+    public static SampleVariantStats merge(SampleVariantStats stats, SampleVariantStats otherStats) {
+        stats.setNumVariants(stats.getNumVariants() + otherStats.getNumVariants());
+        stats.setNumPass(stats.getNumPass() + otherStats.getNumPass());
+        stats.setMissingPositions(stats.getMissingPositions() + otherStats.getMissingPositions());
+
+        mergeCounts(stats.getGenotypeCount(), otherStats.getGenotypeCount());
+        mergeCounts(stats.getTypeCount(), otherStats.getTypeCount());
+        mergeCounts(stats.getChromosomeCount(), otherStats.getChromosomeCount());
+        mergeCounts(stats.getBiotypeCount(), otherStats.getBiotypeCount());
+        mergeCounts(stats.getConsequenceTypeCount(), otherStats.getConsequenceTypeCount());
+        mergeCounts(stats.getMendelianErrorCount(), otherStats.getMendelianErrorCount());
+
+        IndelLength indelLength = stats.getIndelLengthCount();
+        IndelLength otherIndelLength = otherStats.getIndelLengthCount();
+
+        indelLength.setLt5(indelLength.getLt5() + otherIndelLength.getLt5());
+        indelLength.setLt10(indelLength.getLt10() + otherIndelLength.getLt10());
+        indelLength.setLt15(indelLength.getLt15() + otherIndelLength.getLt15());
+        indelLength.setLt20(indelLength.getLt20() + otherIndelLength.getLt20());
+        indelLength.setGte20(indelLength.getGte20() + otherIndelLength.getGte20());
+
+        return stats;
+    }
+
+    private static void mergeCounts(Map<String, Integer> map, Map<String, Integer> otherMap) {
+        otherMap.forEach((key, count) -> map.merge(key, count, Integer::sum));
+    }
+
+    private Map<String, String> getFileAttributes(StudyEntry studyEntry, int samplePos) {
+        FileEntry fileEntry = getFileEntry(studyEntry, samplePos);
+        if (fileEntry == null) {
+            return Collections.emptyMap();
+        } else {
+            return fileEntry.getAttributes();
+        }
+    }
+
+    private FileEntry getFileEntry(StudyEntry studyEntry, int samplePos) {
+        if (samplePosFileMap != null) {
+            String file = samplePosFileMap.get(samplePos);
+            if (file != null) {
+                return studyEntry.getFile(file);
+            } else {
+                return null;
+            }
+        } else {
+            return studyEntry.getFiles().get(0);
         }
     }
 
@@ -335,8 +370,6 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
 
             // Compute ti/tv ratio
             stats.setTiTvRatio(((float) ti[i]) / tv[i]);
-
-            stats.setNumPass(numPass[i]);
 
             float meanQuality = (float) (qualSum[i] / qualCount[i]);
             stats.setMeanQuality(meanQuality);
@@ -420,7 +453,6 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
         qualCount = new int[numSamples];
         qualSum = new double[numSamples];
         qualSumSq = new double[numSamples];
-        numPass = new int[numSamples];
 
         for (String sample : samples) {
             SampleVariantStats stats = new SampleVariantStats(
