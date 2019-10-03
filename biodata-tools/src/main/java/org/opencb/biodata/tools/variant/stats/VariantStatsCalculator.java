@@ -297,7 +297,7 @@ public class VariantStatsCalculator {
         }
     }
 
-    private static Map<Genotype, Integer> removePhaseFromGenotypeCount(Map<Genotype, Integer> genotypeCount) {
+    public static Map<Genotype, Integer> removePhaseFromGenotypeCount(Map<Genotype, Integer> genotypeCount) {
         Map<Genotype, Integer> unphasedGenotypeCount = new HashMap<>();
         unphasedGenotypeCount.put(new Genotype("0/0"), 0);
         unphasedGenotypeCount.put(new Genotype("0/1"), 0);

@@ -133,7 +133,7 @@ public class Member {
      * @param affectionStatus   Individual affection status
      */
     public Member(String name, Sex sex, AffectionStatus affectionStatus) {
-        this.id = id;
+        this.id = name;
         this.name = name;
         this.sex = sex;
         this.affectionStatus = affectionStatus;

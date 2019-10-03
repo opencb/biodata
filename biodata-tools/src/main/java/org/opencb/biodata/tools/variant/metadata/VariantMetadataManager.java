@@ -25,11 +25,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import htsjdk.variant.vcf.VCFHeader;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.clinical.pedigree.Member;
-import org.opencb.biodata.models.pedigree.Multiples;
 import org.opencb.biodata.models.clinical.pedigree.Pedigree;
 import org.opencb.biodata.models.metadata.Cohort;
+import org.opencb.biodata.models.metadata.Individual;
 import org.opencb.biodata.models.metadata.Sample;
 import org.opencb.biodata.models.metadata.Species;
+import org.opencb.biodata.models.pedigree.Multiples;
 import org.opencb.biodata.models.variant.metadata.VariantFileMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
@@ -86,6 +87,11 @@ public class VariantMetadataManager {
         logger = LoggerFactory.getLogger(VariantMetadataManager.class);
     }
 
+    public VariantMetadataManager(VariantStudyMetadata studyMetadata) {
+        this();
+        addVariantStudyMetadata(studyMetadata);
+    }
+
     /**
      * Load variant metadata file.
      *
@@ -100,7 +106,7 @@ public class VariantMetadataManager {
         // We need to add Individual info fields to their sample annotations to allow more complex queries
         for (VariantStudyMetadata variantStudyMetadata: variantMetadata.getStudies()) {
             if (variantStudyMetadata.getIndividuals() != null) {
-                for (org.opencb.biodata.models.metadata.Individual individual : variantStudyMetadata.getIndividuals()) {
+                for (Individual individual : variantStudyMetadata.getIndividuals()) {
                     for (Sample sample : individual.getSamples()) {
                         sample.getAnnotations().put(INDIVIDUAL_ID, individual.getId());
                         sample.getAnnotations().put(INDIVIDUAL_FAMILY, individual.getFamily());
@@ -137,12 +143,34 @@ public class VariantMetadataManager {
         return null;
     }
 
+    @Deprecated
+    public void addVariantDatasetMetadata(VariantStudyMetadata variantStudyMetadata) {
+        addVariantStudyMetadata(variantStudyMetadata);
+    }
+
+    /**
+     * Add a variant study metadata. Study ID must not exist.
+     *
+     * @param studyId    Variant study to add
+     * @return VariantStudyMetadata
+     */
+    public VariantStudyMetadata addVariantStudyMetadata(String studyId) {
+        VariantStudyMetadata variantStudyMetadata = new VariantStudyMetadata();
+        variantStudyMetadata.setId(studyId);
+        variantStudyMetadata.setIndividuals(new ArrayList<>());
+        variantStudyMetadata.setFiles(new ArrayList<>());
+        variantStudyMetadata.setCohorts(new ArrayList<>());
+        variantStudyMetadata.setAttributes(new HashMap<>());
+        addVariantStudyMetadata(variantStudyMetadata);
+        return variantStudyMetadata;
+    }
+
     /**
      * Add a variant study metadata. Study ID must not exist.
      *
      * @param variantStudyMetadata    Variant study metadata to add
      */
-    public void addVariantDatasetMetadata(VariantStudyMetadata variantStudyMetadata) {
+    public void addVariantStudyMetadata(VariantStudyMetadata variantStudyMetadata) {
         if (variantStudyMetadata != null) {
             VariantStudyMetadata found = getVariantStudyMetadata(variantStudyMetadata.getId());
             // if there is not any study with that ID then we add the new one
@@ -217,7 +245,7 @@ public class VariantMetadataManager {
         if (!variantStudyMetadata.getIndividuals().isEmpty()) {
             // check if samples are already in study
             for (String sampleId: fileMetadata.getSampleIds()) {
-                for (org.opencb.biodata.models.metadata.Individual individual: variantStudyMetadata.getIndividuals()) {
+                for (Individual individual: variantStudyMetadata.getIndividuals()) {
                     for (Sample sample: individual.getSamples()) {
                         if (sampleId.equals(sample.getId())) {
                             logger.error("Sample '{}' from file {} already exists in study '{}'",
@@ -237,7 +265,7 @@ public class VariantMetadataManager {
             sample.setAnnotations(new HashMap<>());
             samples.add(sample);
 
-            org.opencb.biodata.models.metadata.Individual individual = new org.opencb.biodata.models.metadata.Individual();
+            Individual individual = new Individual();
             individual.setId(sampleId);
             individual.setSamples(samples);
 
@@ -250,20 +278,20 @@ public class VariantMetadataManager {
 
     /**
      * Add a variant file metadata (from VCF file and header) to a given variant study metadata (from study ID).
-     *
      * @param filename      VCF filename (as an ID)
      * @param vcfHeader     VCF header
      * @param studyId       Study ID
+     * @return Created file metadata
      */
-    public void addFile(String filename, VCFHeader vcfHeader, String studyId) {
+    public VariantFileMetadata addFile(String filename, VCFHeader vcfHeader, String studyId) {
         // sanity check
         if (StringUtils.isEmpty(filename)) {
             logger.error("VCF filename is empty or null: '{}'", filename);
-            return;
+            return null;
         }
         if (vcfHeader == null) {
             logger.error("VCF header is missingDataset not found. Check your study ID: '{}'", studyId);
-            return;
+            return null;
         }
 
         VCFHeaderToVariantFileHeaderConverter headerConverter = new VCFHeaderToVariantFileHeaderConverter();
@@ -272,6 +300,7 @@ public class VariantMetadataManager {
         variantFileMetadata.setSampleIds(vcfHeader.getSampleNamesInOrder());
         variantFileMetadata.setHeader(headerConverter.convert(vcfHeader));
         addFile(variantFileMetadata, studyId);
+        return variantFileMetadata;
     }
 
     /**
@@ -320,10 +349,27 @@ public class VariantMetadataManager {
     /**
      * Add an individual to a given variant study metadata (from study ID).
      *
+     * @param individualId  Individual to add
+     * @param sampleId      Sample from this individual
+     * @param studyId   Study ID
+     * @return Individual added
+     */
+    public Individual addIndividual(String individualId, String sampleId, String studyId) {
+        Individual individual = new Individual();
+        individual.setId(individualId);
+        individual.setSamples(new ArrayList<>());
+        individual.getSamples().add(new Sample(sampleId, new HashMap<>()));
+        addIndividual(individual, studyId);
+        return individual;
+    }
+
+    /**
+     * Add an individual to a given variant study metadata (from study ID).
+     *
      * @param individual  Individual to add
      * @param studyId   Study ID
      */
-    public void addIndividual(org.opencb.biodata.models.metadata.Individual individual, String studyId) {
+    public void addIndividual(Individual individual, String studyId) {
         // Sanity check
         if (individual == null || StringUtils.isEmpty(individual.getId())) {
             logger.error("Individual (or its ID) is null or empty.");
@@ -338,7 +384,7 @@ public class VariantMetadataManager {
         if (variantStudyMetadata.getIndividuals() == null) {
             variantStudyMetadata.setIndividuals(new ArrayList<>());
         }
-        for (org.opencb.biodata.models.metadata.Individual indi: variantStudyMetadata.getIndividuals()) {
+        for (Individual indi: variantStudyMetadata.getIndividuals()) {
             if (indi.getId() != null && indi.getId().equals(individual.getId())) {
                 logger.error("Individual with id '{}' already exists in study '{}'", individual.getId(),
                         studyId);
@@ -480,7 +526,7 @@ public class VariantMetadataManager {
 
         List<Sample> samples = new ArrayList<>();
         if (variantStudyMetadata.getIndividuals() != null) {
-            for (org.opencb.biodata.models.metadata.Individual individual : variantStudyMetadata.getIndividuals()) {
+            for (Individual individual : variantStudyMetadata.getIndividuals()) {
                 for (Sample sample : individual.getSamples()) {
                     if (sample.getAnnotations() == null) {
                         sample.setAnnotations(new HashMap<>());
@@ -541,7 +587,7 @@ public class VariantMetadataManager {
         VariantStudyMetadata variantStudyMetadata = getVariantStudyMetadata(studyId);
         if (variantStudyMetadata != null) {
             boolean found;
-            org.opencb.biodata.models.metadata.Individual dest = null;
+            Individual dest = null;
             for (Member src: pedigree.getMembers()) {
                 found = false;
                 for (int i = 0; i < variantStudyMetadata.getIndividuals().size(); i++) {
@@ -631,7 +677,7 @@ public class VariantMetadataManager {
         if (variantStudyMetadata != null) {
 
             // first loop
-            for (org.opencb.biodata.models.metadata.Individual src: variantStudyMetadata.getIndividuals()) {
+            for (Individual src: variantStudyMetadata.getIndividuals()) {
 
                 String pedigreeName = src.getFamily();
                 if (!pedigreeMap.containsKey(pedigreeName)) {
@@ -639,8 +685,8 @@ public class VariantMetadataManager {
                 }
 
                 // main fields
-                dest = new Member(src.getId(), Member.Sex.getEnum(src.getSex()),
-                        Member.AffectionStatus.getEnum(src.getPhenotype()));
+                dest = new Member(src.getId(), StringUtils.isEmpty(src.getSex()) ? null : Member.Sex.getEnum(src.getSex()),
+                        StringUtils.isEmpty(src.getPhenotype()) ? null : Member.AffectionStatus.getEnum(src.getPhenotype()));
 
                 // attributes
                 if (src.getSamples() != null && src.getSamples().size() > 0) {
@@ -680,7 +726,7 @@ public class VariantMetadataManager {
             }
 
             // second loop: setting fathers, mothers, partners and children
-            for (org.opencb.biodata.models.metadata.Individual src: variantStudyMetadata.getIndividuals()) {
+            for (Individual src: variantStudyMetadata.getIndividuals()) {
                 // update father, mother and child
                 Member father = individualMap.get(src.getFamily() + "_" + src.getFather());
                 Member mother = individualMap.get(src.getFamily() + "_" + src.getMother());
