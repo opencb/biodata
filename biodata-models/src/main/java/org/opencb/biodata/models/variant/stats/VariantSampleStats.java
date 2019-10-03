@@ -4,6 +4,10 @@ import javafx.util.Pair;
 
 import java.util.*;
 
+/**
+ * @deprecated use {@link org.opencb.biodata.models.variant.metadata.SampleVariantStats}
+ */
+@Deprecated
 public class VariantSampleStats {
 
     /**

@@ -3,6 +3,10 @@ package org.opencb.biodata.models.variant.stats;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @deprecated use {@link org.opencb.biodata.models.variant.metadata.SampleVariantStats}
+ */
+@Deprecated
 public class LoF {
     private List<Gene> genes;
     private List<String> hpos;

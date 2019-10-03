@@ -110,6 +110,82 @@ protocol VariantMetadataProtocol {
         map<ChromosomeStats> chromosomeStats = {};
     }
 
+    record IndelLength {
+        int lt5;
+        int lt10;
+        int lt15;
+        int lt20;
+        int gte20;
+    }
+
+    record SampleVariantStats {
+        
+        /** Sample identifier **/
+        string id;
+
+        /** Number of variants where the sample has the main allele (i.e. 0/1, 1/1, ./1, 1/2, ...) */
+        int numVariants;
+
+        /** Number of variants per chromosome **/
+        // TODO: Should include chromosome density?
+        map<int> chromosomeCount = {};
+
+        /** Variants count group by type. e.g. SNP, INDEL, MNP, SNV, ... */
+        map<int> typeCount = {};
+
+        /** Number of variants per genotype. Only counts genotypes with the main allele. Phase is ignored. **/
+        map<int> genotypeCount = {};
+
+        /** Indel length grouped in ranges **/
+        IndelLength indelLengthCount;
+
+        /** Number of variants with PASS filter */
+        int numPass;
+
+        /** TiTvRatio = num. transitions / num. transversions */
+        float tiTvRatio;
+
+        /** Mean Quality for all the variants with quality */
+        float meanQuality;
+
+        /** Standard Deviation of the quality */
+        float stdDevQuality;
+
+        /** Number of positions not sequenced **/
+        int missingPositions;
+
+        //double missingnessScore ??
+        
+        /**
+         * Heterozygosity rate as defined by PLINK: (N–O)/N
+         *
+         * N is the number of non-missing genotypes
+         * O is the observed number of homozygous genotypes for a given individual
+         **/
+        // TODO: Rate or Freq?
+        float heterozygosityRate;
+
+        /** Number of mendelian errors grouped by PLINK error codes. **/
+        map<int> mendelianErrorCount = {};
+
+        /**
+         * Variants count group by consequence type. e.g. missense_variant, synonymous_variant, stop_lost, ...
+         * Each counter is increased at most one per variant. If multiple overlapping transcripts have the same consequence type, it will count as one.
+         */
+        map<int> consequenceTypeCount = {};
+
+        /**
+         * Variants count group by biotype. e.g. protein-coding, miRNA, lncRNA, ...
+         * Each counter is increased at most one per variant. If multiple overlapping genes have the same biotypes, it will count as one.
+         */
+        map<int> biotypeCount = {};
+    }
+
+
+
+// - En el VariantSetStats, los maps de contadores tienen el sufijo "counts", por ejemplo "variantTypeCounts". Habría que renombrarlos a "count" ?
+
+
     record VariantFileHeaderComplexLine {
         /** Key of group of the Complex Header Line, e.g. INFO, FORMAT, FILTER, ALT, ... */
         string key;
