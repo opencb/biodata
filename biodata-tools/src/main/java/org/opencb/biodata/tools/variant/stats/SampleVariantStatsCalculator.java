@@ -158,19 +158,26 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
         update(variant, annotation, gts::get, quals::get, filters::get, samplesPos);
     }
 
+    /**
+     * Update the stats given only the required elements.
+     * @param variant    Minimal version of the variant. Only chr,pos,ref,alt
+     * @param gts        List of genotypes
+     * @param quals      List of quals
+     * @param filters    List of filters
+     * @param cts        Set with consequence types in this variant
+     * @param biotypes   Set with biotypes in this variant
+     */
+    public void update(Variant variant, List<String> gts, List<String> quals, List<String> filters, Set<String> cts, Set<String> biotypes) {
+        update(variant, gts::get, quals::get, filters::get, samplesPos, cts, biotypes);
+    }
+
     private void update(Variant variant,
                         VariantAnnotation annotation,
                         IntFunction<String> gts,
                         IntFunction<String> getQual,
                         IntFunction<String> getFilter,
                         LinkedHashMap<String, Integer> samplesPos) {
-        int numSamples = samplesPos.size();
-        if (statsList == null) {
-            init(new ArrayList<>(samplesPos.keySet()));
-        }
 
-        boolean transition = VariantStats.isTransition(variant.getReference(), variant.getAlternate());
-        boolean transversion = VariantStats.isTransversion(variant.getReference(), variant.getAlternate());
         Set<String> biotypes = new HashSet<>();
         Set<String> cts = new HashSet<>();
         if (annotation != null) {
@@ -188,6 +195,21 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
                 }
             }
         }
+        update(variant, gts, getQual, getFilter, samplesPos, cts, biotypes);
+    }
+
+    private void update(Variant variant,
+                        IntFunction<String> gts,
+                        IntFunction<String> getQual,
+                        IntFunction<String> getFilter,
+                        LinkedHashMap<String, Integer> samplesPos, Set<String> cts, Set<String> biotypes) {
+        int numSamples = samplesPos.size();
+        if (statsList == null) {
+            init(new ArrayList<>(samplesPos.keySet()));
+        }
+
+        boolean transition = VariantStats.isTransition(variant.getReference(), variant.getAlternate());
+        boolean transversion = VariantStats.isTransversion(variant.getReference(), variant.getAlternate());
 
         for (int samplePos = 0; samplePos < numSamples; samplePos++) {
             String gt = gts.apply(samplePos);
@@ -233,7 +255,13 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
             incCount(stats.getChromosomeCount(), variant.getChromosome());
 
             // Type counter
-            incCount(stats.getTypeCount(), variant.getType().name());
+            VariantType type = variant.getType();
+            if (type == VariantType.SNP) {
+                type = VariantType.SNV;
+            } else if (type == VariantType.MNP) {
+                type = VariantType.MNV;
+            }
+            incCount(stats.getTypeCount(), type.name());
 
             // Indel length
             if (variant.getType() == VariantType.INDEL
