@@ -33,6 +33,7 @@ public class GeneAnnotation {
     private List<Expression> expression;
     private List<GeneTraitAssociation> diseases;
     private List<GeneDrugInteraction> drugs;
+    private List<ConstraintScore> constraintScores;
 
     public GeneAnnotation() {
     }
@@ -75,5 +76,13 @@ public class GeneAnnotation {
 
     public void setDrugs(List<GeneDrugInteraction> drugs) {
         this.drugs = drugs;
+    }
+
+    public List<ConstraintScore> getConstraintScoreList() {
+        return constraintScores;
+    }
+
+    public void setConstraintScoreList(List<ConstraintScore> constraintScoreList) {
+        this.constraintScores = constraintScores;
     }
 }

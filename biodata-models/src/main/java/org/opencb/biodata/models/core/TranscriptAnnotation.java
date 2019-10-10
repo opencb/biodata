@@ -40,5 +40,4 @@ public class TranscriptAnnotation {
         this.constraintScores = constraintScores;
     }
 
-
 }
