@@ -39,5 +39,4 @@ public class TranscriptAnnotation {
     public void setConstraintScores(List<ConstraintScore> constraintScoreList) {
         this.constraintScores = constraintScores;
     }
-
 }

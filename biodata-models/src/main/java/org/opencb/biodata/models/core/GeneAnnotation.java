@@ -38,10 +38,12 @@ public class GeneAnnotation {
     public GeneAnnotation() {
     }
 
-    public GeneAnnotation(List<Expression> expression, List<GeneTraitAssociation> diseases, List<GeneDrugInteraction> drugs) {
+    public GeneAnnotation(List<Expression> expression, List<GeneTraitAssociation> diseases, List<GeneDrugInteraction> drugs,
+                          List<ConstraintScore> constraintScores) {
         this.expression = expression;
         this.diseases = diseases;
         this.drugs = drugs;
+        this.constraintScores = constraintScores;
     }
 
     @Override
