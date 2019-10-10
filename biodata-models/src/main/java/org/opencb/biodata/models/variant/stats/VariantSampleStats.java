@@ -1,6 +1,8 @@
 package org.opencb.biodata.models.variant.stats;
 
-import javafx.util.Pair;
+//import javafx.util.Pair;
+
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 

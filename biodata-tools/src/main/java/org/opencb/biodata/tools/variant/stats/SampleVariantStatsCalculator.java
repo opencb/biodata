@@ -1,8 +1,8 @@
 package org.opencb.biodata.tools.variant.stats;
 
 import htsjdk.variant.vcf.VCFConstants;
-import javafx.util.Pair;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.opencb.biodata.models.clinical.pedigree.Member;
 import org.opencb.biodata.models.clinical.pedigree.Pedigree;
 import org.opencb.biodata.models.feature.Genotype;
@@ -20,6 +20,8 @@ import org.opencb.commons.utils.ListUtils;
 import java.util.*;
 import java.util.function.IntFunction;
 import java.util.stream.Collectors;
+
+//import javafx.util.Pair;
 
 public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
     protected List<SampleVariantStats> statsList;
@@ -446,7 +448,7 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
         int j = 0;
         List<Pair<String, Integer>> top50 = new LinkedList<>();
         for (Map.Entry<String, Integer> entry: sorted.entrySet()) {
-            top50.add(new Pair<>(entry.getKey(), entry.getValue()));
+            top50.add(Pair.of(entry.getKey(), entry.getValue()));
             if (++j >= 50) {
                 break;
             }
