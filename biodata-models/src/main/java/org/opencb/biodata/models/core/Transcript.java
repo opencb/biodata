@@ -52,12 +52,16 @@ public class Transcript implements Serializable {
 	private List<TranscriptTfbs> tfbs;
 	private List<Exon> exons;
 	private Set<String> annotationFlags;
+	private TranscriptAnnotation annotation;
 
 	public Transcript() {
 		
 	}
 
-	public Transcript(String id, String name, String biotype, String status, String chromosome, Integer start, Integer end, String strand, Integer codingRegionStart, Integer codingRegionEnd, Integer cdnaCodingStart, Integer cdnaCodingEnd, Integer cdsLength, String proteinId, String description, ArrayList<Xref> xrefs, ArrayList<Exon> exons, ArrayList<TranscriptTfbs> tfbs) {
+	public Transcript(String id, String name, String biotype, String status, String chromosome, Integer start, Integer end,
+					  String strand, Integer codingRegionStart, Integer codingRegionEnd, Integer cdnaCodingStart,
+					  Integer cdnaCodingEnd, Integer cdsLength, String proteinId, String description,
+					  ArrayList<Xref> xrefs, ArrayList<Exon> exons, ArrayList<TranscriptTfbs> tfbs, TranscriptAnnotation annotation) {
 		this.id = id;
 		this.name = name;
 		this.biotype = biotype;
@@ -76,10 +80,9 @@ public class Transcript implements Serializable {
 		this.xrefs = xrefs;
 		this.exons = exons;
 		this.tfbs = tfbs;
+		this.annotation = annotation;
 	}
 
-	
-	
 	@Override
 	public String toString() {
 		return "Transcript [id=" + id + ", name=" + name + ", biotype="
@@ -90,7 +93,7 @@ public class Transcript implements Serializable {
 				+ ", cdnaCodingStart=" + cdnaCodingStart + ", cdnaCodingEnd="
 				+ cdnaCodingEnd + ", cdsLength=" + cdsLength + ", proteinID="
 				+ proteinID + ", description=" + description + ", xrefs="
-				+ xrefs + ", tfbs=" + tfbs + ", exons=" + exons + "]";
+				+ xrefs + ", tfbs=" + tfbs + ", exons=" + exons + ", annotation=" + annotation + "]";
 	}
 
 	public String getId() {
@@ -257,5 +260,13 @@ public class Transcript implements Serializable {
 	public boolean unconfirmedEnd() {
 		return (this.getAnnotationFlags()!=null &&
 				this.getAnnotationFlags().contains("cds_end_NF"));
+	}
+
+	public TranscriptAnnotation getAnnotation() {
+		return annotation;
+	}
+
+	public void setAnnotation(TranscriptAnnotation annotation) {
+		this.annotation = annotation;
 	}
 }
