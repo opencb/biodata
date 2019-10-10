@@ -32,11 +32,11 @@ public class TranscriptAnnotation {
         this.constraintScores = constraintScores;
     }
 
-    public List<ConstraintScore> getConstraintScoreList() {
+    public List<ConstraintScore> getConstraintScores() {
         return constraintScores;
     }
 
-    public void setConstraintScoreList(List<ConstraintScore> constraintScoreList) {
+    public void setConstraintScores(List<ConstraintScore> constraintScoreList) {
         this.constraintScores = constraintScores;
     }
 

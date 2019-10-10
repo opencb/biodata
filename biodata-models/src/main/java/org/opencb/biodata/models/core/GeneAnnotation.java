@@ -78,11 +78,11 @@ public class GeneAnnotation {
         this.drugs = drugs;
     }
 
-    public List<ConstraintScore> getConstraintScoreList() {
+    public List<ConstraintScore> getConstraintScores() {
         return constraintScores;
     }
 
-    public void setConstraintScoreList(List<ConstraintScore> constraintScoreList) {
+    public void setConstraintScores(List<ConstraintScore> constraintScores) {
         this.constraintScores = constraintScores;
     }
 }
