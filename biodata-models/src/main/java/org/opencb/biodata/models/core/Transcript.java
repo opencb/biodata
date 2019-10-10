@@ -83,8 +83,6 @@ public class Transcript implements Serializable {
 		this.annotation = annotation;
 	}
 
-	
-	
 	@Override
 	public String toString() {
 		return "Transcript [id=" + id + ", name=" + name + ", biotype="
@@ -95,7 +93,7 @@ public class Transcript implements Serializable {
 				+ ", cdnaCodingStart=" + cdnaCodingStart + ", cdnaCodingEnd="
 				+ cdnaCodingEnd + ", cdsLength=" + cdsLength + ", proteinID="
 				+ proteinID + ", description=" + description + ", xrefs="
-				+ xrefs + ", tfbs=" + tfbs + ", exons=" + exons + "]";
+				+ xrefs + ", tfbs=" + tfbs + ", exons=" + exons + ", annotation=" + annotation + "]";
 	}
 
 	public String getId() {

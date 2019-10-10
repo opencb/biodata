@@ -19,50 +19,67 @@
 
 package org.opencb.biodata.models.core;
 
-public class ConstraintScore {
+public class Constraint {
 
     private String source;
     private String method;
     private String name;
-    private Double value;
+    private double value;
 
-    public ConstraintScore(String source, String method, String name, Double value) {
+    public Constraint() {
+
+    }
+
+    public Constraint(String source, String method, String name, double value) {
         this.source = source;
         this.method = method;
         this.name = name;
         this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return "Constraint{" +
+                "source='" + source + '\'' +
+                ", method='" + method + '\'' +
+                ", name='" + name + '\'' +
+                ", value=" + value +
+                '}';
     }
 
     public String getSource() {
         return source;
     }
 
-    public void setSource(String source) {
+    public Constraint setSource(String source) {
         this.source = source;
+        return this;
     }
 
     public String getMethod() {
         return method;
     }
 
-    public void setMethod(String method) {
+    public Constraint setMethod(String method) {
         this.method = method;
+        return this;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public Constraint setName(String name) {
         this.name = name;
+        return this;
     }
 
-    public Double getValue() {
+    public double getValue() {
         return value;
     }
 
-    public void setValue(Double value) {
+    public Constraint setValue(double value) {
         this.value = value;
+        return this;
     }
-
 }

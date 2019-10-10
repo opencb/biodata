@@ -23,20 +23,28 @@ import java.util.List;
 
 public class TranscriptAnnotation {
 
-    private List<ConstraintScore> constraintScores;
+    private List<Constraint> constraints;
 
     public TranscriptAnnotation() {
     }
 
-    public TranscriptAnnotation(List<ConstraintScore> constraintScores) {
-        this.constraintScores = constraintScores;
+    public TranscriptAnnotation(List<Constraint> constraints) {
+        this.constraints = constraints;
     }
 
-    public List<ConstraintScore> getConstraintScores() {
-        return constraintScores;
+    @Override
+    public String toString() {
+        return "TranscriptAnnotation{" +
+                "constraints=" + constraints +
+                '}';
     }
 
-    public void setConstraintScores(List<ConstraintScore> constraintScoreList) {
-        this.constraintScores = constraintScores;
+    public List<Constraint> getConstraints() {
+        return constraints;
+    }
+
+    public TranscriptAnnotation setConstraints(List<Constraint> constraints) {
+        this.constraints = constraints;
+        return this;
     }
 }
