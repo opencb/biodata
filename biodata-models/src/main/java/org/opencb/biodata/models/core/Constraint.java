@@ -19,6 +19,8 @@
 
 package org.opencb.biodata.models.core;
 
+import java.util.Objects;
+
 public class Constraint {
 
     private String source;
@@ -45,6 +47,22 @@ public class Constraint {
                 ", name='" + name + '\'' +
                 ", value=" + value +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Constraint that = (Constraint) o;
+        return Double.compare(that.value, value) == 0 &&
+                Objects.equals(source, that.source) &&
+                Objects.equals(method, that.method) &&
+                Objects.equals(name, that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(source, method, name, value);
     }
 
     public String getSource() {
