@@ -148,7 +148,7 @@ public class VariantStatsToTsvConverter implements Converter<Variant, String> {
                 genes = String.join(",", annotation.getConsequenceTypes()
                         .stream()
                         .map(ConsequenceType::getGeneName)
-                        .filter(Objects::nonNull)
+                        .filter(StringUtils::isNotEmpty)
                         .collect(Collectors.toSet()));
                 if (genes.isEmpty()) {
                     genes = MISSING_VALUE;
