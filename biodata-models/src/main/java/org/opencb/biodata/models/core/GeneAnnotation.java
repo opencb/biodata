@@ -33,14 +33,17 @@ public class GeneAnnotation {
     private List<Expression> expression;
     private List<GeneTraitAssociation> diseases;
     private List<GeneDrugInteraction> drugs;
+    private List<Constraint> constraints;
 
     public GeneAnnotation() {
     }
 
-    public GeneAnnotation(List<Expression> expression, List<GeneTraitAssociation> diseases, List<GeneDrugInteraction> drugs) {
+    public GeneAnnotation(List<Expression> expression, List<GeneTraitAssociation> diseases, List<GeneDrugInteraction> drugs,
+                          List<Constraint> constraints) {
         this.expression = expression;
         this.diseases = diseases;
         this.drugs = drugs;
+        this.constraints = constraints;
     }
 
     @Override
@@ -49,6 +52,7 @@ public class GeneAnnotation {
         sb.append("expression=").append(expression);
         sb.append(", geneTraits=").append(diseases);
         sb.append(", drugs=").append(drugs);
+        sb.append(", constraints=").append(constraints);
         sb.append('}');
         return sb.toString();
     }
@@ -75,5 +79,14 @@ public class GeneAnnotation {
 
     public void setDrugs(List<GeneDrugInteraction> drugs) {
         this.drugs = drugs;
+    }
+
+    public List<Constraint> getConstraints() {
+        return constraints;
+    }
+
+    public GeneAnnotation setConstraints(List<Constraint> constraints) {
+        this.constraints = constraints;
+        return this;
     }
 }
