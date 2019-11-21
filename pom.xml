@@ -35,16 +35,16 @@
 
     <properties>
         <biodata.version>2.0.0-SNAPSHOT</biodata.version>
-        <compileSource>1.8</compileSource>
         <commons.version>4.0.0-SNAPSHOT</commons.version>
         <ga4gh.version>0.6.0a5</ga4gh.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <avro.version>1.7.7</avro.version>
         <protobuf.version>3.9.0</protobuf.version>
         <grpc.version>1.23.0</grpc.version>
         <!--<htsjdk.version>2.6.1</htsjdk.version>-->
         <htsjdk.version>2.16.0</htsjdk.version>
         <sqlite.version>3.15.1</sqlite.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <compileSource>1.8</compileSource>
     </properties>
 
     <scm>
