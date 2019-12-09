@@ -14,6 +14,58 @@ public class RegionCoverage extends Region {
     private float[] values;
     private Stats stats;
 
+    public class Stats {
+        private int min;
+        private int max;
+        private float average;
+
+        public Stats() {
+        }
+
+        public Stats(int min, int max, float average) {
+            this.min = min;
+            this.max = max;
+            this.average = average;
+        }
+
+        @Override
+        public String toString() {
+            final StringBuilder sb = new StringBuilder("Stats{");
+            sb.append("min=").append(min);
+            sb.append(", max=").append(max);
+            sb.append(", average=").append(average);
+            sb.append('}');
+            return sb.toString();
+        }
+
+        public int getMin() {
+            return min;
+        }
+
+        public Stats setMin(int min) {
+            this.min = min;
+            return this;
+        }
+
+        public int getMax() {
+            return max;
+        }
+
+        public Stats setMax(int max) {
+            this.max = max;
+            return this;
+        }
+
+        public float getAverage() {
+            return average;
+        }
+
+        public Stats setAverage(float average) {
+            this.average = average;
+            return this;
+        }
+    }
+
     public RegionCoverage() {
     }
 
@@ -72,55 +124,6 @@ public class RegionCoverage extends Region {
     public String toJSON() throws IOException {
         ObjectWriter objectWriter = new ObjectMapper().writer();
         return objectWriter.writeValueAsString(this);
-    }
-
-    private class Stats {
-        private int min;
-        private int max;
-        private float average;
-
-        public Stats(int min, int max, float average) {
-            this.min = min;
-            this.max = max;
-            this.average = average;
-        }
-
-        @Override
-        public String toString() {
-            final StringBuilder sb = new StringBuilder("Stats{");
-            sb.append("min=").append(min);
-            sb.append(", max=").append(max);
-            sb.append(", average=").append(average);
-            sb.append('}');
-            return sb.toString();
-        }
-
-        public int getMin() {
-            return min;
-        }
-
-        public Stats setMin(int min) {
-            this.min = min;
-            return this;
-        }
-
-        public int getMax() {
-            return max;
-        }
-
-        public Stats setMax(int max) {
-            this.max = max;
-            return this;
-        }
-
-        public float getAverage() {
-            return average;
-        }
-
-        public Stats setAverage(float average) {
-            this.average = average;
-            return this;
-        }
     }
 
     @Override
