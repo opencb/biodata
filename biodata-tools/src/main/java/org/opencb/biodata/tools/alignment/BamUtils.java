@@ -490,13 +490,13 @@ def bw_line_to_dict(bw_line):
 
             float values[] = new float[coverage1.getValues().length];
 
-            //float factor = 1000.0f * coverage1.getWindowSize();
+            double log10_2 = Math.log10(2);
 
             for (int i = 0; i < values.length; i++) {
                 // Checking if tumour or normal coverage are low, raw mean cov is >= 15
                 // Rescaling both coverages
-                float rescaledCoverage1 = /*factor **/ coverage1.getValues()[i] / totalCounts1;
-                float rescaledCoverage2 = /*factor **/ coverage2.getValues()[i] / totalCounts2;
+                float rescaledCoverage1 = coverage1.getValues()[i] / totalCounts1;
+                float rescaledCoverage2 = coverage2.getValues()[i] / totalCounts2;
 
                 if (rescaledCoverage1 > 0 && rescaledCoverage2 > 0) {
                     // Getting coverage ratio
@@ -504,7 +504,8 @@ def bw_line_to_dict(bw_line):
                     if (applyLog) {
                         // Getting normalised coverage (log2)
                         // log2(x) = log10(x) / log10(2)
-                        values[i] = (float) (Math.log10(covRatio) / Math.log10(2));
+
+                        values[i] = (float) (Math.log10(covRatio) / log10_2);
                     } else {
                         values[i] = covRatio;
                     }
