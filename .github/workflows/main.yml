@@ -1,14 +1,13 @@
-name: CellBase Main
+name: biodata Main
 
 on:
   push:
     branches:
       - develop
-      - next
 
 jobs:
   build:
-    name: Build and test CellBase
+    name: Build and Test biodata
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v1
@@ -16,12 +15,12 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
-#      - name: Clone and build java-common-libs
-#        run: cd ~ && git clone -b develop https://github.com/opencb/java-common-libs.git && cd ~/java-common-libs && mvn -T 2 clean install -DskipTests && cd $GITHUB_WORKSPACE
+      - name: Clone and build java-common-libs
+        run: cd ~ && git clone -b develop https://github.com/opencb/java-common-libs.git && cd ~/java-common-libs && mvn -T 2 clean install -DskipTests && cd $GITHUB_WORKSPACE
       - name: Build with Maven
         run: mvn -T 2 clean install
   deploy:
-    name: Build and deploy CellBase libs, Java docs and Docker images in Maven Central and DockerHub repositories
+    name: Deploy biodata libs and Java docs
     runs-on: ubuntu-18.04
     needs: build
     steps:
@@ -30,8 +29,8 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
-#      - name: Clone and build java-common-libs
-#        run: cd ~ && git clone -b develop https://github.com/opencb/java-common-libs.git && cd ~/java-common-libs && mvn -T 2 clean install -DskipTests && cd $GITHUB_WORKSPACE
+      - name: Clone and build java-common-libs
+        run: cd ~ && git clone -b develop https://github.com/opencb/java-common-libs.git && cd ~/java-common-libs && mvn -T 2 clean install -DskipTests && cd $GITHUB_WORKSPACE
       - name: Build with Maven CLI
         run: mvn -T 2 clean install -DskipTests
       - name: Deploy to Maven Central respository
