@@ -33,8 +33,8 @@ jobs:
           java-version: 1.8
       - name: Clone and build java-common-libs
         run: cd ~ && git clone -b develop https://github.com/opencb/java-common-libs.git && cd ~/java-common-libs && mvn -T 2 clean install -DskipTests && cd $GITHUB_WORKSPACE
-      - name: Build with Maven CLI
-        run: mvn -T 2 clean install -DskipTests
+#      - name: Build with Maven CLI
+#        run: mvn -T 2 clean install -DskipTests
       - name: Deploy to Maven Central respository
         uses: samuelmeuli/action-maven-publish@v1
         with:
