@@ -42,6 +42,7 @@ jobs:
           nexus_password: ${{ secrets.MAVEN_NEXUS_PASSWORD }}
           gpg_private_key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
           gpg_passphrase: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+          maven_args: -DskipTests
 #      - name: Get CellBase version
 #        id: get_version
 #        run: echo ::set-output name=VERSION::2.0.0-SNAPSHOT
