@@ -103,6 +103,16 @@
 
     <repositories>
         <repository>
+            <id>central</id>
+            <url>https://repo1.maven.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
             <id>opencb-ext-libs</id>
             <url>http://bioinfo.hpc.cam.ac.uk/downloads/ext-libs/</url>
         </repository>

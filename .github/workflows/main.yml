@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: biodata Build
+    name: Build biodata
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v1
@@ -22,7 +22,7 @@ jobs:
       - name: Maven Validate
         run: mvn validate
   test:
-    name: biodata Test
+    name: Test biodata
     runs-on: ubuntu-18.04
     needs: build
     steps:
@@ -35,7 +35,7 @@ jobs:
 #        run: cd ~ && git clone -b develop https://github.com/opencb/java-common-libs.git && cd ~/java-common-libs && mvn -T 2 clean install -DskipTests && cd $GITHUB_WORKSPACE
       - name: Install Samtools
         run: sudo apt-get install samtools
-      - name: Build with Maven
+      - name: Run tests with Maven
         run: mvn -T 2 clean install
   deploy:
     name: Deploy biodata libs and Java docs
