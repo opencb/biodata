@@ -42,14 +42,6 @@ protocol VariantMetadataProtocol {
         EXAC
     }
 
-    record ChromosomeStats {
-        /** Number of variants within this chromosome */
-        int count;
-
-        /** Total density of variants within the chromosome. counts / chromosome.length */
-        float density;
-    }
-
     /**
      Counts the number of variants within a certain frequency range.
     */
@@ -106,8 +98,11 @@ protocol VariantMetadataProtocol {
         /** Variants count group by consequence type. e.g. synonymous_variant, missense_variant, stop_lost, ... */
         map<int> consequenceTypesCounts = {};
 
-        /** Statistics per chromosome. */
-        map<ChromosomeStats> chromosomeStats = {};
+        /** Number of variants per chromosome */
+        map<int> chromosomeCounts = {};
+
+        /** Total density of variants within the chromosome. counts / chromosome.length */
+        map<float> chromosomeDensity = {};
     }
 
     record IndelLength {

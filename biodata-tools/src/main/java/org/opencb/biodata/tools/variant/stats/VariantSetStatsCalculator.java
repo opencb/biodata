@@ -202,10 +202,10 @@ public class VariantSetStatsCalculator implements Task<Variant, Variant> {
         //Var = SumSq / n - mean * mean
         stats.setStdDevQuality((float) Math.sqrt(qualSumSq / qualCount - meanQuality * meanQuality));
         stats.setTiTvRatio(transitionsCount, transversionsCount);
-        stats.getChromosomeStats().forEach((chr, stats) -> {
+        stats.getChromosomeCounts().forEach((chr, count) -> {
             Integer length = chrLengthMap.get(chr);
             if (length != null && length > 0) {
-                stats.setDensity(stats.getCount() / (float) length);
+                stats.getChromosomeDensity().put(chr, count / (float) length);
             }
         });
     }
@@ -233,12 +233,8 @@ public class VariantSetStatsCalculator implements Task<Variant, Variant> {
         mergeCounts(thisStats.getVariantBiotypeCounts(), otherStats.getVariantBiotypeCounts());
         mergeCounts(thisStats.getConsequenceTypesCounts(), otherStats.getConsequenceTypesCounts());
 
-        otherStats.getChromosomeStats()
-                .forEach((key, count) -> thisStats.getChromosomeStats()
-                        .merge(key, count, (c1, c2) -> {
-                            c1.setCount(c1.getCount() + c2.getCount());
-                            return c1;
-                        }));
+        otherStats.getChromosomeCounts()
+                .forEach((key, count) -> thisStats.getChromosomeCounts().merge(key, count, Integer::sum));
     }
 
     private static void mergeCounts(Map<String, Integer> map, Map<String, Integer> otherMap) {
