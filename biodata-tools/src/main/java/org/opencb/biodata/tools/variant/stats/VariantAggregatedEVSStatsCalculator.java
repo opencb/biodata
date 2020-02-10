@@ -83,6 +83,8 @@ public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsC
             String splitsGTC[] = info.get("GTC").split(",");
             addGenotypeWithGTS(study.getAttributes(), splitsGTC, reference, alternateAlleles, numAllele, stats);
         }
+        calculateFilterQualStats(fileEntry.getAttributes(), stats);
+
         study.setStats(StudyEntry.DEFAULT_COHORT, stats);
     }
 
@@ -149,6 +151,9 @@ public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsC
                 }
             }
             // TODO reprocess stats to complete inferable values. A StatsHolder may be needed to keep values not storables in VariantStats
+        }
+        for (VariantStats stats : studyEntry.getStats().values()) {
+            calculateFilterQualStats(info, stats);
         }
     }
 

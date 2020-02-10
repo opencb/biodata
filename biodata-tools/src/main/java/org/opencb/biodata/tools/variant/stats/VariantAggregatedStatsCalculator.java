@@ -19,6 +19,7 @@
 
 package org.opencb.biodata.tools.variant.stats;
 
+import org.apache.commons.lang.StringUtils;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.formats.variant.vcf4.VariantAggregatedVcfFactory;
@@ -165,11 +166,7 @@ public class VariantAggregatedStatsCalculator {
                 String[] tagSplit = opencgaTag.split(DOT);
                 String cohortName = tagSplit[0];
                 String statName = tagSplit[1];
-                Map<String, String> parsedValues = cohortStats.get(cohortName);
-                if (parsedValues == null) {
-                    parsedValues = new LinkedHashMap<>();
-                    cohortStats.put(cohortName, parsedValues);
-                }
+                Map<String, String> parsedValues = cohortStats.computeIfAbsent(cohortName, k -> new LinkedHashMap<>());
                 parsedValues.put(statName, entry.getValue());
             }
         }
@@ -340,6 +337,21 @@ public class VariantAggregatedStatsCalculator {
 
                 VariantStatsCalculator.calculateGenotypeFrequencies(variantStats);
             }
+        }
+
+        calculateFilterQualStats(attributes, variantStats);
+    }
+
+    protected void calculateFilterQualStats(Map<String, String> attributes, VariantStats variantStats) {
+        String filter = attributes.get(StudyEntry.FILTER);
+        if (StringUtils.isNotEmpty(filter)) {
+            VariantStatsCalculator.addFileFilter(filter, variantStats.getFilterCount());
+            VariantStatsCalculator.calculateFilterFreq(variantStats, 1);
+        }
+
+        String qual = attributes.get(StudyEntry.QUAL);
+        if (StringUtils.isNotEmpty(qual) && !qual.equals(".")) {
+            variantStats.setQualityAvg(Float.valueOf(qual));
         }
     }
 

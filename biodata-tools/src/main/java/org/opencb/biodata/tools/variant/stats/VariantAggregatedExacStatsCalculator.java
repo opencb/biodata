@@ -114,6 +114,7 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
             int an = Integer.parseInt(info.get(AN_ADJ));
             setMaf(an, acCounts, variant.getReference(), alternateAlleles, stats);
         }
+        calculateFilterQualStats(info, stats);
 
         studyEntry.setStats(StudyEntry.DEFAULT_COHORT, stats);
     }
@@ -170,6 +171,7 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
         for (String cohortName : studyEntry.getStats().keySet()) {
             if (ans.containsKey(cohortName)) {
                 VariantStats cohortStats = studyEntry.getStats(cohortName);
+                calculateFilterQualStats(info, cohortStats);
                 Integer alleleNumber = ans.get(cohortName);
                 addReferenceGenotype(variant, cohortStats, alleleNumber);
                 setRefAlleleCount(cohortStats, alleleNumber, acs.get(cohortName));

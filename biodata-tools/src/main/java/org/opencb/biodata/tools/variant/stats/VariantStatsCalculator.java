@@ -19,11 +19,13 @@
 
 package org.opencb.biodata.tools.variant.stats;
 
+import org.apache.commons.lang.StringUtils;
 import org.opencb.biodata.models.feature.AllelesCode;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.pedigree.Pedigree;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
 import java.util.*;
@@ -59,6 +61,24 @@ public class VariantStatsCalculator {
         }  // Finish all samples loop
 
         calculate(gtCount, variantStats, variant.getReference(), variant.getAlternate());
+
+        int numFilterFiles = 0;
+        int numQualFiles = 0;
+        double qualSum = 0;
+        for (FileEntry file : study.getFiles()) {
+            String filter = file.getAttributes().get(StudyEntry.FILTER);
+            if (StringUtils.isNotEmpty(filter)) {
+                addFileFilter(filter, variantStats.getFilterCount());
+                numFilterFiles++;
+            }
+            String qual = file.getAttributes().get(StudyEntry.QUAL);
+            if (StringUtils.isNotEmpty(qual) && !qual.equals(".")) {
+                qualSum += Double.parseDouble(qual);
+                numQualFiles++;
+            }
+        }
+        calculateFilterFreq(variantStats, numFilterFiles, variantStats.getFilterCount());
+        variantStats.setQualityAvg((float) (qualSum / numQualFiles));
 
         // Calculate Hardy-Weinberg statistic       //FIXME
 //        variantStats.getHw().calculate();
@@ -114,6 +134,33 @@ public class VariantStatsCalculator {
     public static void calculate(Map<Genotype, Integer> genotypeCount, VariantStats variantStats,
                                  String refAllele, String altAllele) {
         calculate(genotypeCount, variantStats, refAllele, altAllele, true);
+    }
+
+    public static void calculateFilterFreq(VariantStats variantStats, final int numFiles) {
+        calculateFilterFreq(variantStats, numFiles, variantStats.getFilterCount());
+    }
+
+    public static void calculateFilterFreq(VariantStats variantStats, final int numFiles, Map<String, Integer> filterCount) {
+        variantStats.setFilterCount(filterCount);
+        if (numFiles > 0) {
+            Map<String, Float> filterFreq = variantStats.getFilterFreq();
+            filterCount.forEach((filter, count) -> filterFreq.put(filter, count / (float) numFiles));
+        } // else -> do not fill freqs
+    }
+
+    public static void addFileFilter(String filter, Map<String, Integer> filterCount) {
+        int endIndex = 0;
+        do {
+            int startIndex = endIndex;
+            endIndex = filter.indexOf(";", endIndex);
+            if (endIndex < 0) {
+                filterCount.merge(filter.substring(startIndex), 1, Integer::sum);
+                break;
+            } else {
+                filterCount.merge(filter.substring(startIndex, endIndex), 1, Integer::sum);
+            }
+            endIndex++;
+        } while (true);
     }
 
     public static void calculate(Map<Genotype, Integer> genotypeCount, VariantStats variantStats,
