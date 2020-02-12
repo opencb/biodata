@@ -141,6 +141,7 @@ public class VariantStatsCalculator {
     }
 
     public static void calculateFilterFreq(VariantStats variantStats, final int numFiles, Map<String, Integer> filterCount) {
+        filterCount.putIfAbsent("PASS", 0);
         variantStats.setFilterCount(filterCount);
         if (numFiles > 0) {
             Map<String, Float> filterFreq = variantStats.getFilterFreq();
