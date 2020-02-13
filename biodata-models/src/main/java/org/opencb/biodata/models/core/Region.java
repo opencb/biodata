@@ -21,7 +21,6 @@ package org.opencb.biodata.models.core;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * @author Ignacio Medina
@@ -34,15 +33,14 @@ public class Region {
     private int start;
     private int end;
 
-    private static final Pattern regionPattern = Pattern.compile("[:-]");
     private static final String MITOCHONDRIA_M = "M";
 
     public Region() {
         this(null, 0, Integer.MAX_VALUE);
     }
 
-    public Region(String chromosome, int start) {
-        this(chromosome, start, Integer.MAX_VALUE);
+    public Region(String chromosome, int position) {
+        this(chromosome, position, position);
     }
 
     public Region(String chromosome, int start, int end) {
@@ -53,19 +51,16 @@ public class Region {
 
     public Region(String region) {
         if (region != null && !region.isEmpty()) {
-            // now we use contains instead of (region.indexOf(':') != -1)
-            if (region.contains(":")) {
-                String[] fields = regionPattern.split(region, -1);
-                if (fields.length == 3) {
-                    this.chromosome = fields[0];
-                    this.start = Integer.parseInt(fields[1]);
-                    this.end = Integer.parseInt(fields[2]);
+            int idx1 = region.indexOf(':');
+            if (idx1 > 0) {
+                this.chromosome = region.substring(0, idx1);
+                int idx2 = region.indexOf('-', idx1);
+                if (idx2 > 0) {
+                    this.start = Integer.parseInt(region.substring(idx1 + 1, idx2));
+                    this.end = Integer.parseInt(region.substring(idx2 + 1));
                 } else {
-                    if (fields.length == 2) {
-                        this.chromosome = fields[0];
-                        this.start = Integer.parseInt(fields[1]);
-                        this.end = Integer.MAX_VALUE;
-                    }
+                    this.start = Integer.parseInt(region.substring(idx1 + 1));
+                    this.end = this.start;
                 }
             } else {
                 this.chromosome = region;
@@ -140,12 +135,8 @@ public class Region {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(this.chromosome);
-        if (this.end != Integer.MAX_VALUE) {
+        if (this.end != Integer.MAX_VALUE && this.start != 0) {
             sb.append(":").append(this.start).append("-").append(this.end);
-        } else {
-            if (this.start != 0) {
-                sb.append(":").append(this.start);
-            }
         }
         return sb.toString();
     }
