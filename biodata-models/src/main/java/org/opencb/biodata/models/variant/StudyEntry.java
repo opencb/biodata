@@ -51,6 +51,8 @@ public class StudyEntry implements Serializable {
     public static final String DEFAULT_COHORT = "ALL";
     public static final String QUAL = "QUAL";
     public static final String FILTER = "FILTER";
+    public static final String VCF_ID = "VCF_ID";
+    @Deprecated
     public static final String SRC = "src";
 
     public StudyEntry() {

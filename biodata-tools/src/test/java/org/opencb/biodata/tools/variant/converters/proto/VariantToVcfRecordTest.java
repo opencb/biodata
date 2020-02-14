@@ -33,7 +33,7 @@ public class VariantToVcfRecordTest {
     @Before
     public void setUp() throws Exception {
         v_gt = Variant.newBuilder("4:1234565-1234568:X:A")
-                .setIds(ids)
+                .setNames(ids)
                 .setStudyId("s")
                 .setFileId("file_123")
                 .setQuality(qual)
@@ -45,7 +45,7 @@ public class VariantToVcfRecordTest {
                 .addSample("Sample_0A", "0/0", "ab1", "ef1", "cd1")
                 .addSample("Sample_0B", "0/1", "ab2", "ef2", "cd2").build();
         v = Variant.newBuilder("4:1234565-1234568:X:A")
-                .setIds(ids)
+                .setNames(ids)
                 .setStudyId("s")
                 .setFileId("file_123")
                 .setQuality(qual)
