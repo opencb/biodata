@@ -602,7 +602,10 @@ public class VariantMetadataManager {
                     dest.setFather(src.getFather() != null ? src.getFather().getName() : null);
                     dest.setMother(src.getMother() != null ? src.getMother().getName() : null);
                     dest.setSex(src.getSex().toString());
-                    dest.setPhenotype(src.getAffectionStatus().toString());
+                    if (src.getPhenotypes() != null && !src.getPhenotypes().isEmpty()) {
+                        // TODO: What if there is more than one phenotype?
+                        dest.setPhenotype(src.getPhenotypes().get(0).getId());
+                    }
                     Sample sample = null;
                     // sanity check
                     if (dest.getSamples() == null) {
@@ -640,8 +643,8 @@ public class VariantMetadataManager {
                     if (src.getSex() != null) {
                         sample.getAnnotations().put(INDIVIDUAL_SEX, src.getSex().toString());
                     }
-                    if (src.getAffectionStatus() != null) {
-                        sample.getAnnotations().put(INDIVIDUAL_PHENOTYPE, src.getAffectionStatus().toString());
+                    if (dest.getPhenotype() != null) {
+                        sample.getAnnotations().put(INDIVIDUAL_PHENOTYPE, dest.getPhenotype());
                     }
 
                     if (src.getAttributes() != null && src.getAttributes().size() > 0) {
@@ -685,8 +688,8 @@ public class VariantMetadataManager {
                 }
 
                 // main fields
-                dest = new Member(src.getId(), StringUtils.isEmpty(src.getSex()) ? null : Member.Sex.getEnum(src.getSex()),
-                        StringUtils.isEmpty(src.getPhenotype()) ? null : Member.AffectionStatus.getEnum(src.getPhenotype()));
+                dest = new Member(src.getId(), StringUtils.isEmpty(src.getSex()) ? null : Member.Sex.getEnum(src.getSex())
+                );
 
                 // attributes
                 if (src.getSamples() != null && src.getSamples().size() > 0) {

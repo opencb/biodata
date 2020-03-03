@@ -38,12 +38,12 @@ public class SampleVariantStatsCalculatorTest {
         );
 
         pedigree = new Pedigree();
-        Member s0 = new Member("s0", "s0", Member.Sex.MALE, Member.AffectionStatus.AFFECTED);
-        Member s1 = new Member("s1", "s1", Member.Sex.FEMALE, Member.AffectionStatus.AFFECTED);
-        Member s2 = new Member("s2", "s2", Member.Sex.MALE, Member.AffectionStatus.AFFECTED).setFather(null).setMother(s1); // Only mother
-        Member s3 = new Member("s3", "s3", Member.Sex.FEMALE, Member.AffectionStatus.UNAFFECTED).setFather(s0).setMother(null); // Only father
-        Member s4 = new Member("s4", "s4", Member.Sex.MALE, Member.AffectionStatus.AFFECTED).setFather(s0).setMother(s1);
-        Member s5 = new Member("s5", "s5", Member.Sex.MALE, Member.AffectionStatus.UNAFFECTED).setFather(s0).setMother(s1);
+        Member s0 = new Member("s0", "s0", Member.Sex.MALE);
+        Member s1 = new Member("s1", "s1", Member.Sex.FEMALE);
+        Member s2 = new Member("s2", "s2", Member.Sex.MALE).setFather(null).setMother(s1); // Only mother
+        Member s3 = new Member("s3", "s3", Member.Sex.FEMALE).setFather(s0).setMother(null); // Only father
+        Member s4 = new Member("s4", "s4", Member.Sex.MALE).setFather(s0).setMother(s1);
+        Member s5 = new Member("s5", "s5", Member.Sex.MALE).setFather(s0).setMother(s1);
         pedigree.setMembers(Arrays.asList(s0, s1, s2, s3, s4, s5));
     }
 
