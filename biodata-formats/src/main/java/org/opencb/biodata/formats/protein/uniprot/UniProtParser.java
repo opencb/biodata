@@ -29,11 +29,11 @@ import java.io.FileOutputStream;
  */
 public class UniProtParser {
 
-    public final static String UNIPROT_CONTEXT_v201504 = "org.opencb.biodata.formats.protein.uniprot.v201504jaxb";
+    public final static String UNIPROT_CONTEXT = "org.opencb.biodata.formats.protein.uniprot.v202003jaxb";
 
     public static void saveXMLInfo(Object obj, String filename) throws FileNotFoundException, JAXBException {
         JAXBContext jaxbContext;
-        jaxbContext = JAXBContext.newInstance(UNIPROT_CONTEXT_v201504);
+        jaxbContext = JAXBContext.newInstance(UNIPROT_CONTEXT);
         Marshaller marshaller = jaxbContext.createMarshaller();
         marshaller.marshal(obj, new FileOutputStream(filename));
     }
@@ -46,7 +46,7 @@ public class UniProtParser {
      */
     public static Object loadXMLInfo(String filename) throws JAXBException {
         Object obj = null;
-        JAXBContext jaxbContext = JAXBContext.newInstance(UNIPROT_CONTEXT_v201504);
+        JAXBContext jaxbContext = JAXBContext.newInstance(UNIPROT_CONTEXT);
         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
         obj = unmarshaller.unmarshal(new File(filename));
         return obj;
