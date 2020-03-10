@@ -4,9 +4,7 @@ import org.opencb.biodata.models.feature.AllelesCode;
 import org.opencb.biodata.models.feature.Genotype;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class MendelianError {
 
@@ -14,13 +12,25 @@ public class MendelianError {
     public static final String CHROMOSOME_Y = "Y";
     public static final Set<String> CHROMOSOME_MT = new HashSet<>(Arrays.asList("MT", "Mt", "mt", "M", "m"));
 
+    // Use static method "isDeNovo"
+    @Deprecated
     public static final Set<Integer> deNovoCodes = new HashSet(Arrays.asList(2, 3, 4, 5, 10, 12));
+    private static final boolean[] deNovoCodesMap = new boolean[13];
+
+    static {
+        deNovoCodesMap[2] = true;
+        deNovoCodesMap[3] = true;
+        deNovoCodesMap[4] = true;
+        deNovoCodesMap[5] = true;
+        deNovoCodesMap[10] = true;
+        deNovoCodesMap[12] = true;
+    }
 
     public enum GenotypeCode {
         HOM_REF, HOM_VAR, HET
     }
 
-    public static Integer compute(@Nullable Genotype fatherGt, @Nullable Genotype motherGt, Genotype childGt,
+    public static int compute(@Nullable Genotype fatherGt, @Nullable Genotype motherGt, Genotype childGt,
                                   String chromosome) {
         // The error classification is available at:
         // https://www.cog-genomics.org/plink2/basic_stats#mendel
@@ -126,6 +136,10 @@ public class MendelianError {
 
     public static boolean isDeNovo(Genotype fatherGt, Genotype motherGt, Genotype childGt, String chromosome) {
         return deNovoCodes.contains(compute(fatherGt, motherGt, childGt, chromosome));
+    }
+
+    public static boolean isDeNovo(int code) {
+        return deNovoCodesMap[code];
     }
 
     public static GenotypeCode getAlternateAlleleCount(Genotype gt) {

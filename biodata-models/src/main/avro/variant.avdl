@@ -189,6 +189,27 @@ protocol Variants {
         VariantType type;
     }
 
+    record SampleEntry {
+        union { null, string } sampleId;
+
+        union { null, int } fileIndex;
+
+        array<string> data;
+    }
+
+    enum IssueType {
+        DUPLICATION,
+        DISCREPANCY,
+        MENDELIAN_ERROR,
+        DE_NOVO
+    }
+
+    record IssueEntry {
+        IssueType type;
+
+        SampleEntry sample;
+    }
+
     record StudyEntry {
         /**
          * Unique identifier of the study.
@@ -217,6 +238,8 @@ protocol Variants {
          * format array. The length of this lists must be the same as the format field.
          */
         array<array<string>> samplesData;
+
+        array<IssueEntry> issues = [];
 
         /**
          * Statistics of the genomic variation, such as its alleles/genotypeCounters count
