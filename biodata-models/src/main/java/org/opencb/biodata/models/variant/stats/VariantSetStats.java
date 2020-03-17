@@ -21,11 +21,9 @@ package org.opencb.biodata.models.variant.stats;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.opencb.biodata.models.variant.avro.VariantType;
-import org.opencb.biodata.models.variant.metadata.ChromosomeStats;
 import org.opencb.biodata.models.variant.metadata.VariantsByFrequency;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
@@ -52,7 +50,8 @@ public class VariantSetStats {
     public VariantSetStats() {
         this.impl = new org.opencb.biodata.models.variant.metadata.VariantSetStats();
         this.impl.setVariantTypeCounts(new HashMap<>());
-        this.impl.setChromosomeStats(new HashMap<>());
+        this.impl.setChromosomeCounts(new HashMap<>());
+        this.impl.setChromosomeDensity(new HashMap<>());
         this.impl.setNumRareVariants(new ArrayList<>());
         this.impl.setVariantBiotypeCounts(new HashMap<>());
         this.setNumVariants(0);
@@ -68,7 +67,8 @@ public class VariantSetStats {
                            int passCount, float meanQuality, Map<String, Integer> consequenceTypesCount) {
         this.impl = new org.opencb.biodata.models.variant.metadata.VariantSetStats();
         this.impl.setVariantTypeCounts(new HashMap<>());
-        this.impl.setChromosomeStats(new HashMap<>());
+        this.impl.setChromosomeCounts(new HashMap<>());
+        this.impl.setChromosomeDensity(new HashMap<>());
         this.setNumVariants(numRecords);
         this.setNumSamples(samplesCount);
         this.setSnpsCount(snpsCount);
@@ -195,47 +195,40 @@ public class VariantSetStats {
         impl.getVariantTypeCounts().put(key.toString(), getVariantTypeCount(key) + count);
     }
 
-    public Map<String, ChromosomeStats> getChromosomeStats() {
-        return impl.getChromosomeStats();
+//    public Map<String, ChromosomeStats> getChromosomeStats() {
+//        return impl.getChromosomeStats();
+//    }
+//
+//    public void setChromosomeStats(Map<String, ChromosomeStats> chromosomeStats) {
+//        impl.setChromosomeStats(chromosomeStats);
+//    }
+
+    public Map<String, Float> getChromosomeDensity() {
+        return impl.getChromosomeDensity();
     }
 
-    public void setChromosomeStats(Map<String, ChromosomeStats> chromosomeStats) {
-        impl.setChromosomeStats(chromosomeStats);
+    public void setChromosomeDensity(Map<String, Float> counts) {
+        impl.setChromosomeDensity(counts);
     }
 
     public Map<String, Integer> getChromosomeCounts() {
-        return impl.getChromosomeStats().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, o -> o.getValue().getCount()));
+        return impl.getChromosomeCounts();
     }
 
     public void setChromosomeCounts(Map<String, Integer> counts) {
-        counts.forEach(this::setChromosomeCount);
+        impl.setChromosomeCounts(counts);
     }
 
     private int getChromosomeCount(String chromosome) {
-        ChromosomeStats chromosomeStats = impl.getChromosomeStats().get(chromosome);
-        return chromosomeStats == null ? 0 : chromosomeStats.getCount();
+        return getChromosomeCounts().get(chromosome);
     }
 
     public void setChromosomeCount(String chromosome, int count) {
-        impl.getChromosomeStats().compute(chromosome, (key, chromosomeStats) ->  {
-            if (chromosomeStats == null) {
-                return new ChromosomeStats(count, 0F);
-            } else {
-                chromosomeStats.setCount(count);
-                return chromosomeStats;
-            }
-        });
+        this.getChromosomeCounts().put(chromosome, count);
     }
 
-    public void addChromosomeCount(String chromosome, int count) {
-        impl.getChromosomeStats().compute(chromosome, (key, chromosomeStats) -> {
-            if (chromosomeStats == null) {
-                return new ChromosomeStats(count, 0F);
-            } else {
-                chromosomeStats.setCount(chromosomeStats.getCount() + count);
-                return chromosomeStats;
-            }
-        });
+    public void addChromosomeCount(String chromosome, int countIncrement) {
+        this.getChromosomeCounts().merge(chromosome, countIncrement, Integer::sum);
     }
 
     public float getTiTvRatio() {

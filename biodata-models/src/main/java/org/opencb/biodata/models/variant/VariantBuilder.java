@@ -228,6 +228,7 @@ public class VariantBuilder {
         return this;
     }
 
+    @Deprecated
     public VariantBuilder setIds(List<String> ids) {
         if (CollectionUtils.isEmpty(ids)) {
             id = null;
@@ -241,6 +242,9 @@ public class VariantBuilder {
 
     public VariantBuilder setNames(List<String> names) {
         this.names = names;
+        if (names != null && !names.isEmpty()) {
+            addAttribute(StudyEntry.VCF_ID, String.join(",", names));
+        }
         return this;
     }
 

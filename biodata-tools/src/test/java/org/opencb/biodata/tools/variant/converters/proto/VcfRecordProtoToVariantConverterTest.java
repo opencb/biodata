@@ -86,6 +86,49 @@ public class VcfRecordProtoToVariantConverterTest {
     }
 
     @Test
+    public void testConvertNoSamples() throws Exception {
+        Variant variant = Variant.newBuilder("1", 5000, 5000, "A", "C").setStudyId(studyId)
+                .setFilter("nopass")
+                .setQuality("50")
+                .setFormat(Collections.emptyList())
+                .setSamplesData(Collections.emptyList())
+                .setFileId(fileId)
+                .setCall("5:A:C:0")
+                .addAttribute("Key1", "V1")
+                .addAttribute("Key2", "V2")
+                .build();
+        Variant variantWithFormat = Variant.newBuilder("1", 5000, 5000, "A", "C").setStudyId(studyId)
+                .setFilter("nopass")
+                .setQuality("50")
+                .setFormat("GT", "DP")
+                .setSamplesData(Collections.emptyList())
+                .setFileId(fileId)
+                .setCall("5:A:C:0")
+                .addAttribute("Key1", "V1")
+                .addAttribute("Key2", "V2")
+                .build();
+
+        VcfSliceProtos.Fields fields = VariantToVcfSliceConverter.buildDefaultFields(Arrays.asList(variant, variantWithFormat), null, null);
+        assertEquals("", fields.getFormats(0));
+        assertEquals("GT:DP", fields.getFormats(1));
+
+        VariantToProtoVcfRecord toProto = new VariantToProtoVcfRecord();
+        toProto.updateMeta(fields);
+
+
+        VcfSliceProtos.VcfRecord vcfRecord = toProto.convert(variant);
+        assertEquals(0, vcfRecord.getFormatIndex());
+        assertNotEquals("", vcfRecord.getFilterIndex());
+        assertEquals(0, vcfRecord.getInfoKeyIndexCount());
+        VcfRecordProtoToVariantConverter converter = new VcfRecordProtoToVariantConverter(fields, Collections.emptyMap(), fileId, studyId);
+        Variant convertedVariant = converter.convert(vcfRecord, "1", 0);
+
+//        System.out.println("variant          = " + variant.toJson());
+//        System.out.println("convertedVariant = " + convertedVariant.toJson());
+        assertEquals(variant, convertedVariant);
+    }
+
+    @Test
     public void testConvertDefaultValues() throws Exception {
 
         VariantToProtoVcfRecord toProto = new VariantToProtoVcfRecord();

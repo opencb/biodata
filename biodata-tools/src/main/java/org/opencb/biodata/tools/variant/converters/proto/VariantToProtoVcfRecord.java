@@ -259,7 +259,7 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
         formatAsString = String.join(":", formatList);
         Integer formatIndex = formatIndexMap.get(formatAsString);
         if (formatIndex == null || formatIndex < 0) {
-            throw new IllegalArgumentException("Unknown format " + formatAsString);
+            throw new IllegalArgumentException("Unknown format '" + formatAsString + "'");
         }
         recordBuilder.setFormatIndex(formatIndex);
         return formatList;
@@ -332,7 +332,7 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
             index = filterIndexMap.get(".");
         }
         if (index == null || index < 0) {
-            throw new IllegalArgumentException("Unknown filter " + filter);
+            throw new IllegalArgumentException("Unknown filter '" + filter + "'");
         }
         return index;
     }
@@ -364,7 +364,7 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
                 if (idx != null) {
                     idxKeys.add(idx);
                 } else {
-                    throw new IllegalArgumentException("Unknown key value " + key);
+                    throw new IllegalArgumentException("Unknown key value '" + key + "'");
                 }
             }
         }

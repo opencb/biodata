@@ -147,7 +147,7 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
                 ids.add(id);
             }
         }
-        builder.setIds(ids);
+        builder.setNames(ids);
 
         if (variantContext.getType().equals(VariantContext.Type.NO_VARIATION)) {
             builder.setType(VariantType.NO_VARIATION);

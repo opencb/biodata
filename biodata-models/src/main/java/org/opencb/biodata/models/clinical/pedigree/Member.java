@@ -41,8 +41,6 @@ public class Member {
 
     private Sex sex;
     private IndividualProperty.LifeStatus lifeStatus;
-    @Deprecated
-    private AffectionStatus affectionStatus;
 
     private List<Phenotype> phenotypes;
     private List<Disorder> disorders;
@@ -112,35 +110,29 @@ public class Member {
 
     /**
      * Constructor.
-     *
-     * @param id                Individual ID
+     *  @param id                Individual ID
      * @param name              Individual name
      * @param sex               Individual sex
-     * @param affectionStatus   Individual affection status
      */
-    public Member(String id, String name, Sex sex, AffectionStatus affectionStatus) {
+    public Member(String id, String name, Sex sex) {
         this.id = id;
         this.name = name;
         this.sex = sex;
-        this.affectionStatus = affectionStatus;
     }
 
     /**
      * Constructor.
-     *
-     * @param name              Individual name
+     *  @param name              Individual name
      * @param sex               Individual sex
-     * @param affectionStatus   Individual affection status
      */
-    public Member(String name, Sex sex, AffectionStatus affectionStatus) {
-        this.id = id;
+    public Member(String name, Sex sex) {
+        this.id = name;
         this.name = name;
         this.sex = sex;
-        this.affectionStatus = affectionStatus;
     }
 
     public Member(String id, String name, Member father, Member mother, Multiples multiples, Sex sex,
-                  IndividualProperty.LifeStatus lifeStatus, AffectionStatus affectionStatus, List<Phenotype> phenotypes,
+                  IndividualProperty.LifeStatus lifeStatus, List<Phenotype> phenotypes,
                   List<Disorder> disorders, Map<String, Object> attributes) {
         this.id = id;
         this.name = name;
@@ -149,7 +141,6 @@ public class Member {
         this.multiples = multiples;
         this.sex = sex;
         this.lifeStatus = lifeStatus;
-        this.affectionStatus = affectionStatus;
         this.disorders = disorders;
         this.phenotypes = phenotypes;
         this.attributes = attributes;
@@ -166,7 +157,6 @@ public class Member {
         sb.append(", multiples=").append(multiples);
         sb.append(", sex=").append(sex);
         sb.append(", lifeStatus=").append(lifeStatus);
-        sb.append(", affectionStatus=").append(affectionStatus);
         sb.append(", phenotypes=").append(phenotypes);
         sb.append(", disorders=").append(disorders);
         sb.append(", attributes=").append(attributes);
@@ -234,15 +224,6 @@ public class Member {
 
     public Member setLifeStatus(IndividualProperty.LifeStatus lifeStatus) {
         this.lifeStatus = lifeStatus;
-        return this;
-    }
-
-    public AffectionStatus getAffectionStatus() {
-        return affectionStatus;
-    }
-
-    public Member setAffectionStatus(AffectionStatus affectionStatus) {
-        this.affectionStatus = affectionStatus;
         return this;
     }
 

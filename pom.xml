@@ -20,7 +20,7 @@
 
     <groupId>org.opencb.biodata</groupId>
     <artifactId>biodata</artifactId>
-    <version>1.5.2</version>
+    <version>2.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Biodata</name>
@@ -34,17 +34,17 @@
     </modules>
 
     <properties>
-        <biodata.version>1.5.2</biodata.version>
-        <compileSource>1.8</compileSource>
-        <commons.version>3.7.3</commons.version>
+        <biodata.version>2.0.0-SNAPSHOT</biodata.version>
+        <commons.version>4.0.0-SNAPSHOT</commons.version>
         <ga4gh.version>0.6.0a5</ga4gh.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <avro.version>1.7.7</avro.version>
-        <protobuf.version>3.5.1</protobuf.version>
-        <grpc.version>1.9.1</grpc.version>
+        <protobuf.version>3.9.0</protobuf.version>
+        <grpc.version>1.23.0</grpc.version>
         <!--<htsjdk.version>2.6.1</htsjdk.version>-->
         <htsjdk.version>2.16.0</htsjdk.version>
         <sqlite.version>3.15.1</sqlite.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <compileSource>1.8</compileSource>
     </properties>
 
     <scm>
@@ -87,24 +87,9 @@
             <email>joaquintarraga@gmail.com</email>
         </developer>
         <developer>
-            <id>mh11</id>
-            <name>Matthias</name>
-            <email>mh719+git@cam.ac.uk</email>
-        </developer>
-        <developer>
-            <id>cyenyxe</id>
-            <name>Cristina</name>
-            <email>cyenyxe@ebi.ac.uk</email>
-        </developer>
-        <developer>
-            <id>jmmut</id>
-            <name>Josemi</name>
-            <email>jomutlo@gmail.com</email>
-        </developer>
-        <developer>
-            <id>pabarcgar</id>
-            <name>Pablo</name>
-            <email>pablo.arce.garcia@gmail.com</email>
+            <id>julie-sullivan</id>
+            <name>Julie</name>
+            <email>julie.sullivan@gmail.com</email>
         </developer>
     </developers>
 
@@ -117,6 +102,14 @@
     </mailingLists>
 
     <repositories>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </snapshots>
+        </repository>
         <repository>
             <id>opencb-ext-libs</id>
             <url>http://bioinfo.hpc.cam.ac.uk/downloads/ext-libs/</url>
@@ -344,6 +337,13 @@
                                 <goals>
                                     <goal>sign</goal>
                                 </goals>
+                                <configuration>
+                                    <!-- Prevent `gpg` from using pinentry programs -->
+                                    <gpgArguments>
+                                        <arg>--pinentry-mode</arg>
+                                        <arg>loopback</arg>
+                                    </gpgArguments>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
@@ -364,14 +364,14 @@
     </profiles>
 
     <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
         <repository>
             <id>ossrh</id>
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
     </distributionManagement>
 
 </project>

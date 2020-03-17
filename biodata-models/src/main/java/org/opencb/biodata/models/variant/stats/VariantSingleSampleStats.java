@@ -27,6 +27,10 @@ package org.opencb.biodata.models.variant.stats;
  *
  * @author Jose Miguel Mut Lopez &lt;jmmut@ebi.ac.uk&gt;
  */
+/**
+ * @deprecated use {@link org.opencb.biodata.models.variant.metadata.SampleVariantStats}
+ */
+@Deprecated
 public class VariantSingleSampleStats {
 
     private String id;

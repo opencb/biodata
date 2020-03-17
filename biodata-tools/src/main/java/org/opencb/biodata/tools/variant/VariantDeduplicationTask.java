@@ -40,8 +40,12 @@ public class VariantDeduplicationTask implements Task<Variant, Variant> {
     }
 
     public VariantDeduplicationTask(DuplicatedVariantsResolver duplicatedVariantsResolver) {
+        this(duplicatedVariantsResolver, 100);
+    }
+
+    public VariantDeduplicationTask(DuplicatedVariantsResolver duplicatedVariantsResolver, int bufferSize) {
         resolver = duplicatedVariantsResolver;
-        queue = new CircularSortedArrayQueue<>(100, VARIANT_COMPARATOR);
+        queue = new CircularSortedArrayQueue<>(bufferSize, VARIANT_COMPARATOR);
     }
 
     @FunctionalInterface

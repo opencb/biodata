@@ -33,7 +33,7 @@ import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantStudyStats;
 import org.opencb.biodata.models.variant.stats.VariantSetStats;
 import org.opencb.biodata.models.variant.stats.VariantStats;
-import org.opencb.commons.run.ParallelTaskRunner;
+import org.opencb.commons.run.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,21 +45,21 @@ import java.util.stream.Collectors;
  *
  * @author Jacobo Coll &lt;jacobo167@gmail.com&gt;
  */
-public class VariantSetStatsCalculator implements ParallelTaskRunner.Task<Variant, Variant> {
+public class VariantSetStatsCalculator implements Task<Variant, Variant> {
 
-    private final VariantStudyMetadata metadata;
     private final String studyId;
     private final Set<String> files;
-    private final Set<String> samples;
-    private final VariantSetStats stats;
+    private final int numSamples;
+    private final Map<String, Integer> chrLengthMap;
     private static Logger logger = LoggerFactory.getLogger(VariantSetStatsCalculator.class);
 
-    private int transitionsCount = 0;
-    private int transversionsCount = 0;
-    private double qualCount = 0;
-    private double qualSum = 0;
-    private double qualSumSq = 0;
-    private VariantFileHeader header;
+    protected VariantSetStats stats;
+
+    protected int transitionsCount = 0;
+    protected int transversionsCount = 0;
+    protected double qualCount = 0;
+    protected double qualSum = 0;
+    protected double qualSumSq = 0;
 
     /**
      * Calculate global statistics for the whole study. i.e. cohort ALL
@@ -67,16 +67,15 @@ public class VariantSetStatsCalculator implements ParallelTaskRunner.Task<Varian
      */
     public VariantSetStatsCalculator(VariantStudyMetadata metadata) {
         this.studyId = metadata.getId();
-        this.metadata = metadata;
         files = metadata.getFiles()
                 .stream()
                 .map(org.opencb.biodata.models.variant.metadata.VariantFileMetadata::getId)
                 .collect(Collectors.toSet());
-        samples = metadata.getFiles()
+        numSamples = metadata.getFiles()
                 .stream()
                 .flatMap(fileMetadata -> fileMetadata.getSampleIds().stream())
-                .collect(Collectors.toSet());
-        header = metadata.getAggregatedHeader();
+                .collect(Collectors.toSet()).size();
+        chrLengthMap = getChromosomeLengthsMap(metadata.getAggregatedHeader());
         stats = new VariantSetStats();
         if (metadata.getStats() == null) {
             metadata.setStats(new VariantStudyStats(new HashMap<>(), new HashMap<>()));
@@ -93,18 +92,21 @@ public class VariantSetStatsCalculator implements ParallelTaskRunner.Task<Varian
      * @param fileMetadata  VariantFileMetadata
      */
     public VariantSetStatsCalculator(String studyId, VariantFileMetadata fileMetadata) {
-        this.studyId = studyId;
-        this.metadata = fileMetadata.toVariantStudyMetadata(studyId);
-        files = Collections.singleton(fileMetadata.getId());
-        samples = new HashSet<>(fileMetadata.getSampleIds());
-        header = fileMetadata.getHeader();
-        stats = new VariantSetStats();
+        this(studyId, Collections.singleton(fileMetadata.getId()), fileMetadata.getSampleIds().size(),
+                getChromosomeLengthsMap(fileMetadata.getHeader()));
         fileMetadata.setStats(stats);
     }
 
+    public VariantSetStatsCalculator(String studyId, Set<String> files, int numSamples, Map<String, Integer> chrLengthMap) {
+        this.studyId = studyId;
+        this.files = files;
+        this.numSamples = numSamples;
+        this.chrLengthMap = chrLengthMap == null ? Collections.emptyMap() : chrLengthMap;
+        stats = new VariantSetStats();
+    }
+
     @Override
-    public synchronized void pre() {
-        stats.setNumSamples(samples.size());
+    public void pre() {
     }
 
     @Override
@@ -121,14 +123,18 @@ public class VariantSetStatsCalculator implements ParallelTaskRunner.Task<Varian
             return;
         }
         boolean validVariant = false;
-        List<FileEntry> fileEntries = new ArrayList<>(files.size());
-        for (String fileId : files) {
-            FileEntry fileEntry = study.getFile(fileId);
-            if (fileEntry == null) {
+        List<FileEntry> fileEntries;
+        if (files == null) {
+            fileEntries = study.getFiles();
+        } else {
+            fileEntries = new ArrayList<>(files.size());
+            for (FileEntry fileEntry : study.getFiles()) {
+                if (!files.contains(fileEntry.getFileId())) {
 //                logger.warn("File \"{}\" not found in variant {}. Skip variant", fileId, variant);
-                continue;
+                    continue;
+                }
+                fileEntries.add(fileEntry);
             }
-            fileEntries.add(fileEntry);
         }
         if (!fileEntries.isEmpty()) {
             validVariant = true;
@@ -181,7 +187,7 @@ public class VariantSetStatsCalculator implements ParallelTaskRunner.Task<Varian
                 }
                 if (consequenceType.getSequenceOntologyTerms() != null) {
                     for (SequenceOntologyTerm term : consequenceType.getSequenceOntologyTerms()) {
-                        stats.addConsequenceTypeCounts(term.getAccession(), 1);
+                        stats.getConsequenceTypesCounts().merge(term.getName(), 1, Integer::sum);
                     }
                 }
             }
@@ -190,12 +196,53 @@ public class VariantSetStatsCalculator implements ParallelTaskRunner.Task<Varian
 
     @Override
     public synchronized void post() {
+        stats.setNumSamples(numSamples);
         float meanQuality = (float) (qualSum / qualCount);
         stats.setMeanQuality(meanQuality);
         //Var = SumSq / n - mean * mean
         stats.setStdDevQuality((float) Math.sqrt(qualSumSq / qualCount - meanQuality * meanQuality));
         stats.setTiTvRatio(transitionsCount, transversionsCount);
-        Map<String, Integer> chrLengthMap = header.getComplexLines()
+        stats.getChromosomeCounts().forEach((chr, count) -> {
+            Integer length = chrLengthMap.get(chr);
+            if (length != null && length > 0) {
+                stats.getChromosomeDensity().put(chr, count / (float) length);
+            }
+        });
+    }
+
+    public VariantSetStats getStats() {
+        return stats;
+    }
+
+    public static void merge(VariantSetStats thisStats, VariantSetStats otherStats) {
+        merge(thisStats.getImpl(), otherStats.getImpl());
+    }
+
+    public static void merge(org.opencb.biodata.models.variant.metadata.VariantSetStats thisStats,
+                                        org.opencb.biodata.models.variant.metadata.VariantSetStats otherStats) {
+
+        thisStats.setNumVariants(thisStats.getNumVariants() + otherStats.getNumVariants());
+//        thisStats.setNumSamples(thisStats.getNumSamples() + otherStats.getNumSamples());
+        thisStats.setNumPass(thisStats.getNumPass() + otherStats.getNumPass());
+//        thisStats.setTiTvRatio(thisStats.getTiTvRatio() + otherStats.getTiTvRatio());
+//        thisStats.setMeanQuality(thisStats.getMeanQuality() + otherStats.getMeanQuality());
+//        thisStats.setStdDevQuality(thisStats.getStdDevQuality() + otherStats.getStdDevQuality());
+
+//        mergeCounts(thisStats.getNumRareVariants(), otherStats.getNumRareVariants());
+        mergeCounts(thisStats.getVariantTypeCounts(), otherStats.getVariantTypeCounts());
+        mergeCounts(thisStats.getVariantBiotypeCounts(), otherStats.getVariantBiotypeCounts());
+        mergeCounts(thisStats.getConsequenceTypesCounts(), otherStats.getConsequenceTypesCounts());
+
+        otherStats.getChromosomeCounts()
+                .forEach((key, count) -> thisStats.getChromosomeCounts().merge(key, count, Integer::sum));
+    }
+
+    private static void mergeCounts(Map<String, Integer> map, Map<String, Integer> otherMap) {
+        otherMap.forEach((key, count) -> map.merge(key, count, Integer::sum));
+    }
+
+    private static Map<String, Integer> getChromosomeLengthsMap(VariantFileHeader header) {
+        return header.getComplexLines()
                 .stream()
                 .filter(line -> line.getKey().equalsIgnoreCase("contig"))
                 .collect(Collectors.toMap(line -> Region.normalizeChromosome(line.getId()), line -> {
@@ -206,15 +253,5 @@ public class VariantSetStatsCalculator implements ParallelTaskRunner.Task<Varian
                         return -1;
                     }
                 }));
-        stats.getChromosomeStats().forEach((chr, stats) -> {
-            Integer length = chrLengthMap.get(chr);
-            if (length != null && length > 0) {
-                stats.setDensity(stats.getCount() / (float) length);
-            }
-        });
-    }
-
-    public VariantSetStats getStats() {
-        return stats;
     }
 }

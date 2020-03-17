@@ -78,6 +78,78 @@ public class Genotype {
         this.code = other.code;
     }
 
+    public static boolean isHet(String gt) {
+        if (gt.length() == 3 && (gt.charAt(1) == '/' || gt.charAt(1) == '|')) {
+            return gt.charAt(0) != gt.charAt(2) && gt.charAt(0) != '.'&& gt.charAt(2) != '.';
+        } else if (gt.length() == 1) {
+            return false;
+        }
+        int[] alleles = new Genotype(gt).getAllelesIdx();
+        int firstAllele = alleles[0];
+        if (firstAllele < 0 || alleles.length == 1) {
+            // Discard if first allele is missing, or if haploid
+            return false;
+        }
+        for (int i = 1; i < alleles.length; i++) {
+            int allele = alleles[i];
+            if (allele == firstAllele || allele < 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean isHom(String gt) {
+        if (gt.length() == 3 && (gt.charAt(1) == '/' || gt.charAt(1) == '|')) {
+            return gt.charAt(0) == gt.charAt(2) && gt.charAt(0) != '.';
+        } else if (gt.length() == 1) {
+            return gt.charAt(0) != '.';
+        }
+        int[] alleles = new Genotype(gt).getAllelesIdx();
+        int firstAllele = alleles[0];
+        if (firstAllele < 0) {
+            // Discard if missing
+            return false;
+        }
+        for (int i = 1; i < alleles.length; i++) {
+            if (alleles[i] != firstAllele) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Return true if the given genotype has the main allele.
+     *
+     * e.g. 0/1, 1/1, 1/2, ...
+     *
+     * @param gt the genotype to test
+     * @return if has the main allele
+     */
+    public static boolean hasMainAlternate(String gt) {
+        switch (gt) {
+            case HOM_REF:
+            case "0":
+            case ".":
+            case "./.":
+                return false;
+            case HET_REF:
+            case HOM_VAR:
+            case "1|1":
+            case "0|1":
+            case "1|0":
+                return true;
+            default:
+                for (int allelesIdx : new Genotype(gt).getAllelesIdx()) {
+                    if (allelesIdx == 1) {
+                        return true;
+                    }
+                }
+                return false;
+        }
+    }
+
     private void parseGenotype(String genotype) {
         int allelesLength;
         /*REGEX*/

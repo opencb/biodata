@@ -1,10 +1,20 @@
 package org.opencb.biodata.models.variant.stats;
 
-import javafx.util.Pair;
+//import javafx.util.Pair;
+
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 
+/**
+ * @deprecated use {@link org.opencb.biodata.models.variant.metadata.SampleVariantStats}
+ */
+@Deprecated
 public class VariantSampleStats {
+
+    /**
+     * Number of nonreference variants.
+     */
     private int numVariants;
 
     // Stats counters
@@ -17,8 +27,10 @@ public class VariantSampleStats {
     // ti/tv ratio
     private double tiTvRatio;
 
-    // Heterozigosity, missingness scores
-    private double heterozigosityScore;
+    // Heterozygosity score
+    private double heterozygosityScore;
+
+    // Missingness scores
     private double missingnessScore;
 
     // Most affected genes
@@ -62,7 +74,7 @@ public class VariantSampleStats {
         sb.append(", typeCounter=").append(typeCounter);
         sb.append(", genotypeCounter=").append(genotypeCounter);
         sb.append(", tiTvRatio=").append(tiTvRatio);
-        sb.append(", heterozigosityScore=").append(heterozigosityScore);
+        sb.append(", heterozygosityScore=").append(heterozygosityScore);
         sb.append(", missingnessScore=").append(missingnessScore);
         sb.append(", mostMutatedGenes=").append(mostMutatedGenes);
         sb.append(", indelLength=").append(indelLength);
@@ -137,12 +149,12 @@ public class VariantSampleStats {
         return this;
     }
 
-    public double getHeterozigosityScore() {
-        return heterozigosityScore;
+    public double getHeterozygosityScore() {
+        return heterozygosityScore;
     }
 
-    public VariantSampleStats setHeterozigosityScore(double heterozigosityScore) {
-        this.heterozigosityScore = heterozigosityScore;
+    public VariantSampleStats setHeterozygosityScore(double heterozygosityScore) {
+        this.heterozygosityScore = heterozygosityScore;
         return this;
     }
 

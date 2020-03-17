@@ -46,7 +46,7 @@ public class Interpretation {
 
     private List<Comment> comments;
 
-    private Status status;
+    private String status;
     private String creationDate;
     private int version;
 
@@ -56,22 +56,14 @@ public class Interpretation {
      */
     private Map<String, Object> attributes;
 
-    public enum Status {
-        NOT_REVIEWED,
-        UNDER_REVIEW,
-        REVIEWED,
-        REJECTED
-    }
-
     public Interpretation() {
-        this.status = Status.NOT_REVIEWED;
     }
 
     public Interpretation(String id, String description, String clinicalAnalysisId, Software software, Analyst analyst,
                           List<Software> dependencies, Map<String, Object> filters, List<DiseasePanel> panels,
                           List<ReportedVariant> primaryFindings, List<ReportedVariant> secondaryFindings,
-                          List<ReportedLowCoverage> lowCoverageRegions, List<Comment> comments, Status status, String creationDate,
-                          int version, Map<String, Object> attributes) {
+                          List<ReportedLowCoverage> lowCoverageRegions, List<Comment> comments, String status,
+                          String creationDate, int version, Map<String, Object> attributes) {
         this.id = id;
         this.description = description;
         this.clinicalAnalysisId = clinicalAnalysisId;
@@ -221,11 +213,11 @@ public class Interpretation {
         return this;
     }
 
-    public Status getStatus() {
+    public String getStatus() {
         return status;
     }
 
-    public Interpretation setStatus(Status status) {
+    public Interpretation setStatus(String status) {
         this.status = status;
         return this;
     }

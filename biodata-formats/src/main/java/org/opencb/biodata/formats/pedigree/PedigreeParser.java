@@ -83,7 +83,7 @@ public class PedigreeParser {
                         pedigreeMap.put(pedigreeName, new Pedigree(pedigreeName, new ArrayList<>(), new HashMap<>()));
                     }
 
-                    member = new Member(individualName, sex, affectionStatus);
+                    member = new Member(individualName, sex);
 
                     // labels are optional
                     if (labels != null && fields.length > 6 && labels.length == fields.length) {
@@ -191,8 +191,7 @@ public class PedigreeParser {
             line.append(pedigree.getName()).append("\t").append(member.getName()).append("\t")
                     .append(member.getFather() != null ? member.getFather().getName() : 0).append("\t")
                     .append(member.getMother() != null ? member.getMother().getName() : 0).append("\t")
-                    .append(member.getSex().getValue()).append("\t")
-                    .append(member.getAffectionStatus().getValue());
+                    .append(member.getSex().getValue());
 
             // custom fields (optional)
             if (member.getAttributes() != null) {

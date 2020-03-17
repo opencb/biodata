@@ -30,6 +30,7 @@ import htsjdk.variant.vcf.VCFHeaderVersion;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.formats.variant.io.VariantReader;
 import org.opencb.biodata.formats.variant.vcf4.FullVcfCodec;
+import org.opencb.biodata.models.metadata.Individual;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
@@ -37,6 +38,7 @@ import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 import org.opencb.biodata.tools.variant.converters.avro.VCFHeaderToVariantFileHeaderConverter;
 import org.opencb.biodata.tools.variant.converters.avro.VariantContextToVariantConverter;
+import org.opencb.biodata.tools.variant.metadata.VariantMetadataManager;
 import org.opencb.commons.utils.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -189,6 +191,13 @@ public class VariantVcfHtsjdkReader implements VariantReader {
         converter = new VariantContextToVariantConverter(metadata.getId(), fileMetadata.getId(), samplesInOriginalOrder);
         fileMetadata.setHeader(new VCFHeaderToVariantFileHeaderConverter().convert(header));
         fileMetadata.setSampleIds(samplesInOriginalOrder);
+        if (metadata.getIndividuals() == null) {
+            metadata.setIndividuals(new ArrayList<>(samplesInOriginalOrder.size()));
+        }
+        VariantMetadataManager metadataManager = new VariantMetadataManager(metadata);
+        for (String sample : samplesInOriginalOrder) {
+            metadataManager.addIndividual(sample, sample, metadata.getId());
+        }
 
         if (normalizer != null) {
             normalizer.configure(fileMetadata.getHeader());

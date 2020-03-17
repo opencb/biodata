@@ -49,8 +49,9 @@ public class VariantStats {
     public VariantStats(float maf, float mgf, String mafAllele, String mgfGenotype,
                         int missingAlleleCount, int missingGenotypeCount) {
         impl = new org.opencb.biodata.models.variant.avro.VariantStats(-1, -1, -1, -1F, -1F,
-                new HashMap<>(), new HashMap<>(),
                 missingAlleleCount, missingGenotypeCount,
+                new HashMap<>(), new HashMap<>(),
+                new HashMap<>(), new HashMap<>(), -1F,
                 maf, mgf, mafAllele, mgfGenotype);
     }
 
@@ -179,6 +180,30 @@ public class VariantStats {
         }
         getGenotypeCount().merge(g, addedCount, Integer::sum);
         return this;
+    }
+
+    public java.util.Map<java.lang.String,java.lang.Integer> getFilterCount() {
+        return impl.getFilterCount();
+    }
+
+    public void setFilterCount(java.util.Map<java.lang.String,java.lang.Integer> value) {
+        this.impl.setFilterCount(value);
+    }
+
+    public java.util.Map<java.lang.String,java.lang.Float> getFilterFreq() {
+        return impl.getFilterFreq();
+    }
+
+    public void setFilterFreq(java.util.Map<java.lang.String,java.lang.Float> value) {
+        this.impl.setFilterFreq(value);
+    }
+
+    public java.lang.Float getQualityAvg() {
+        return impl.getQualityAvg();
+    }
+
+    public void setQualityAvg(java.lang.Float value) {
+        this.impl.setQualityAvg(value);
     }
 
     private Genotype normalizeGenotypeAlleles(Genotype g) {

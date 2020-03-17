@@ -103,7 +103,7 @@ public class VcfSliceToVariantListConverterTest {
                 new HashSet<>(Arrays.asList("T")));
 
         assertEquals(Arrays.asList("PASS", "PASS:LowGQX", "LowGQX"), fields.getFiltersList());
-        assertEquals(Arrays.asList("T"), fields.getFormatsList());
+        assertEquals(Arrays.asList("", "T"), fields.getFormatsList());
         assertEquals(Arrays.asList("K2", "K4",  "K1"), fields.getInfoKeysList());
         assertEquals(Arrays.asList(0), fields.getDefaultInfoKeysList());
         assertEquals(Arrays.asList("0/0", "0/1"), fields.getGtsList());

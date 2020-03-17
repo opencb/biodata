@@ -365,6 +365,24 @@ public class VariantStatsCalculatorTest {
 //        System.out.println(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(s.getStats()));
     }
 
+    @Test
+    public void testAddFilter() {
+        HashMap<String, Integer> map = new HashMap<>();
+        VariantStatsCalculator.addFileFilter("PASS", map);
+        assertEquals("PASS", Integer.valueOf(1), map.get("PASS"));
+
+        VariantStatsCalculator.addFileFilter("PASS", map);
+        assertEquals("PASS", Integer.valueOf(2), map.get("PASS"));
+
+        VariantStatsCalculator.addFileFilter("PASS;other", map);
+        assertEquals("PASS", Integer.valueOf(3), map.get("PASS"));
+        assertEquals("other", Integer.valueOf(1), map.get("other"));
+
+        VariantStatsCalculator.addFileFilter("other", map);
+        assertEquals("PASS", Integer.valueOf(3), map.get("PASS"));
+        assertEquals("other", Integer.valueOf(2), map.get("other"));
+    }
+
     private Properties get1000gLiftOverTagMap() {
         Properties tagMap = new Properties();
         tagMap.put("ALL.MAF", "MAF");

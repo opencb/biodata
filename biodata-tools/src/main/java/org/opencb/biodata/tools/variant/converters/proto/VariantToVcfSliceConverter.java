@@ -118,16 +118,14 @@ public class VariantToVcfSliceConverter implements Converter<List<Variant>, VcfS
                                 .filter(formatFields::contains)
                                 .collect(Collectors.joining(":"));
                     }
-                    if (!formatAsString.isEmpty()) {
-                        formats.put(formatAsString, formats.getOrDefault(formatAsString, 0) + 1);
-                    }
+                    formats.merge(formatAsString, 1, Integer::sum);
                 }
 
                 if (!includeNoneAttributes) {
                     for (FileEntry fileEntry : studyEntry.getFiles()) {
                         Map<String, String> attributes = fileEntry.getAttributes();
                         List<String> keySet = attributes.keySet().stream().sorted().collect(Collectors.toList());
-                        keySets.put(keySet, keySets.getOrDefault(keySet, 0) + 1);
+                        keySets.merge(keySet, 1, Integer::sum);
 
                         for (Map.Entry<String, String> entry : attributes.entrySet()) {
                             String key = entry.getKey();
@@ -136,7 +134,7 @@ public class VariantToVcfSliceConverter implements Converter<List<Variant>, VcfS
                                     case StudyEntry.FILTER:
                                         String filter = entry.getValue();
                                         if (filter != null) {
-                                            filters.put(filter, filters.getOrDefault(filter, 0) + 1);
+                                            filters.merge(filter, 1, Integer::sum);
                                         }
                                         break;
                                     case StudyEntry.QUAL:
@@ -145,7 +143,7 @@ public class VariantToVcfSliceConverter implements Converter<List<Variant>, VcfS
                                         // Ignore
                                         break;
                                     default:
-                                        keys.put(key, keys.getOrDefault(key, 0) + 1);
+                                        keys.merge(key, 1, Integer::sum);
                                         break;
                                 }
                             }
@@ -157,7 +155,8 @@ public class VariantToVcfSliceConverter implements Converter<List<Variant>, VcfS
                 if (gtPosition != null) {
                     for (List<String> sampleData : studyEntry.getSamplesData()) {
                         String gt = sampleData.get(gtPosition);
-                        gts.put(gt, gts.getOrDefault(gt, 0) + 1);
+//                        gts.put(gt, gts.getOrDefault(gt, 0) + 1);
+                        gts.merge(gt, 1, Integer::sum);
                     }
                 }
 

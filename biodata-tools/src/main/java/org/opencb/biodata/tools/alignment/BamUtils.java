@@ -483,36 +483,34 @@ def bw_line_to_dict(bw_line):
     return bw_line_data
      */
 
-    public static RegionCoverage log2CoverageRatio(RegionCoverage coverage1, long totalCounts1,
-                                                   RegionCoverage coverage2, long totalCounts2) throws AlignmentCoverageException {
+    public static RegionCoverage coverageRatio(RegionCoverage coverage1, long totalCounts1, RegionCoverage coverage2, long totalCounts2,
+                                               boolean applyLog) throws AlignmentCoverageException {
         if (coverage1 != null && coverage1.getValues() != null && coverage2 != null && coverage2.getValues() != null
                 && coverage1.getWindowSize() == coverage2.getWindowSize() && coverage1.getValues().length == coverage2.getValues().length) {
 
             float values[] = new float[coverage1.getValues().length];
 
-            float factor = 1000.0f * coverage1.getWindowSize();
+            double log10_2 = Math.log10(2);
 
             for (int i = 0; i < values.length; i++) {
                 // Checking if tumour or normal coverage are low, raw mean cov is >= 15
-                if (coverage2.getValues()[i] /* coverage2.getWindowSize() / 100000.0f */ >= 15) {
-                    // Rescaling both coverages
-                    float rescaledCoverage1 = factor * coverage1.getValues()[i] / totalCounts1;
-                    float rescaledCoverage2 = factor * coverage2.getValues()[i] / totalCounts2;
+                // Rescaling both coverages
+                float rescaledCoverage1 = coverage1.getValues()[i] / totalCounts1;
+                float rescaledCoverage2 = coverage2.getValues()[i] / totalCounts2;
 
-                    if (rescaledCoverage2 > 0) {
-                        // Getting coverage ratio
-                        float covRatio = rescaledCoverage1 / rescaledCoverage2;
-                        if (covRatio > 0) {
-                            // Getting normalised coverage (log2)
-                            // log2(x) = log10(x) / log10(2)
-                            float covLog2 = (float) (Math.log10(covRatio) / Math.log10(2));
-                            if (covLog2 > 4) {
-                                // cov_ratio > 16
-                                covLog2 = 4;
-                            }
-                            values[i] = covLog2;
-                        }
+                if (rescaledCoverage1 > 0 && rescaledCoverage2 > 0) {
+                    // Getting coverage ratio
+                    float covRatio = rescaledCoverage1 / rescaledCoverage2;
+                    if (applyLog) {
+                        // Getting normalised coverage (log2)
+                        // log2(x) = log10(x) / log10(2)
+
+                        values[i] = (float) (Math.log10(covRatio) / log10_2);
+                    } else {
+                        values[i] = covRatio;
                     }
+                } else {
+                    values[i] = Float.NaN;
                 }
             }
 

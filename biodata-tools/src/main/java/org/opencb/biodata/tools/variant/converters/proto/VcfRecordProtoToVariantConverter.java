@@ -226,7 +226,11 @@ public class VcfRecordProtoToVariantConverter implements Converter<VcfSliceProto
     private List<String> getFormat(VcfSliceProtos.VcfRecord vcfRecord) {
         if (fields.getFormatsCount() > 0) {
             String format = fields.getFormats(vcfRecord.getFormatIndex());
-            return Arrays.asList(format.split(":"));
+            if (format.isEmpty()) {
+                return Collections.emptyList();
+            } else {
+                return Arrays.asList(format.split(":"));
+            }
         } else {
             return Collections.emptyList();
         }
