@@ -22,7 +22,7 @@ public class OboTerm {
 
     private String id;
     private String name;
-    private String definition;
+    private String description;
     private String namespace;
     private String comment;
     private List<String> synonyms;
@@ -38,7 +38,7 @@ public class OboTerm {
         final StringBuilder sb = new StringBuilder("OboTerm{");
         sb.append("id='").append(id).append('\'');
         sb.append(", name='").append(name).append('\'');
-        sb.append(", definition='").append(definition).append('\'');
+        sb.append(", definition='").append(description).append('\'');
         sb.append(", namespace='").append(namespace).append('\'');
         sb.append(", comment='").append(comment).append('\'');
         sb.append(", synonyms=").append(synonyms);
@@ -66,12 +66,12 @@ public class OboTerm {
         return this;
     }
 
-    public String getDefinition() {
-        return definition;
+    public String getDescription() {
+        return description;
     }
 
-    public OboTerm setDefinition(String definition) {
-        this.definition = definition;
+    public OboTerm setDescription(String description) {
+        this.description = description;
         return this;
     }
 

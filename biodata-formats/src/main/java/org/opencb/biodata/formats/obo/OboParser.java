@@ -46,7 +46,7 @@ public class OboParser {
                         oboTerm.setName((String) frame.getTagValue(tag));
                         break;
                     case "def":
-                        oboTerm.setDefinition((String) frame.getTagValue(tag));
+                        oboTerm.setDescription((String) frame.getTagValue(tag));
                         break;
                     case "namespace":
                         oboTerm.setNamespace((String) frame.getTagValue(tag));
