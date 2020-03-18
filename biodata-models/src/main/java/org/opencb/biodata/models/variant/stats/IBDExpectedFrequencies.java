@@ -4,6 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import org.opencb.biodata.models.feature.AllelesCode;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.avro.SampleEntry;
 
 import java.io.Serializable;
 import java.util.List;
@@ -50,8 +51,8 @@ public class IBDExpectedFrequencies implements Serializable {
         double x = 0;
         double Na = 0; // = # alleles = 2N where N is number of individuals
 
-        for (List<String> samplesData: variant.getStudies().get(0).getSamplesData()) {
-            Genotype gt = new Genotype(samplesData.get(0)); // first element: genotype
+        for (SampleEntry samples: variant.getStudies().get(0).getSamples()) {
+            Genotype gt = new Genotype(samples.getData().get(0)); // first element: genotype
             if (gt.getCode() == AllelesCode.ALLELES_MISSING) {
                 continue;
             }

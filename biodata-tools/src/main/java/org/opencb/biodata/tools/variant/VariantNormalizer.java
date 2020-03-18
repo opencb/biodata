@@ -19,7 +19,6 @@
 
 package org.opencb.biodata.tools.variant;
 
-import htsjdk.samtools.SAMException;
 import htsjdk.variant.variantcontext.Allele;
 import htsjdk.variant.vcf.*;
 import org.apache.commons.lang3.ArrayUtils;
@@ -318,8 +317,8 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                     Variant normalizedVariant = newVariant(variant, keyFields, sv);
                     if (keyFields.getPhaseSet() != null) {
                         StudyEntry studyEntry = new StudyEntry();
-                        studyEntry.setSamplesData(
-                                Collections.singletonList(Collections.singletonList(keyFields.getPhaseSet())));
+                        studyEntry.setSamples(
+                                Collections.singletonList(new SampleEntry(null, null, Collections.singletonList(keyFields.getPhaseSet()))));
                         studyEntry.setFormat(Collections.singletonList("PS"));
                         // Use mnv string as file Id so that it can be later identified. It is also used
                         // as the genotype call since we don't have an actual call and to avoid confusion
@@ -383,7 +382,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
                         final Variant normalizedVariant;
                         final StudyEntry normalizedEntry;
-                        final List<List<String>> samplesData;
+                        final List<SampleEntry> samples;
                         if (reuse && keyFieldsList.size() == 1) {   //Only reuse for non multiallelic variants
                             //Reuse variant. Set new fields.
                             normalizedVariant = variant;
@@ -399,7 +398,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 //                            }
                             normalizedEntry = entry;
                             entry.getFiles().forEach(fileEntry -> fileEntry.setCall(sameVariant ? null : call));
-                            samplesData = entry.getSamplesData();
+                            samples = entry.getSamples();
                         } else {
                             normalizedVariant = newVariant(variant, keyFields, sv);
 
@@ -415,7 +414,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                             }
                             normalizedEntry.setFiles(files);
                             normalizedVariant.addStudyEntry(normalizedEntry);
-                            samplesData = newSamplesData(entry.getSamplesData().size(), entry.getFormat().size());
+                            samples = newSamples(entry.getSamples().size(), entry.getFormat().size());
                         }
 
                         if (keyFields.isReferenceBlock()) {
@@ -465,9 +464,9 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                                     normalizedEntry.setFiles(Collections.singletonList(new FileEntry(keyFields.getPhaseSet(), call, null)));
                                 }
                             }
-                            List<List<String>> normalizedSamplesData = normalizeSamplesData(keyFields,
-                                    entry.getSamplesData(), format, reference, alternates, rearranger, samplesData);
-                            normalizedEntry.setSamplesData(normalizedSamplesData);
+                            List<SampleEntry> normalizedSamplesData = normalizeSamplesData(keyFields,
+                                    entry.getSamples(), format, reference, alternates, rearranger, samples);
+                            normalizedEntry.setSamples(normalizedSamplesData);
                             normalizedVariants.add(normalizedVariant);
 
                         } catch (Exception e) {
@@ -1153,18 +1152,19 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         return StringUtils.INDEX_NOT_FOUND;
     }
 
-    public List<List<String>> normalizeSamplesData(VariantKeyFields variantKeyFields, final List<List<String>> samplesData, List<String> format,
-                                                   String reference, List<String> alternateAlleles, VariantAlternateRearranger rearranger) throws NonStandardCompliantSampleField {
+    public List<SampleEntry> normalizeSamplesData(VariantKeyFields variantKeyFields, final List<SampleEntry> samplesData, List<String> format,
+                                                   String reference, List<String> alternateAlleles, VariantAlternateRearranger rearranger)
+            throws NonStandardCompliantSampleField {
         return normalizeSamplesData(variantKeyFields, samplesData, format, reference, alternateAlleles, rearranger, null);
     }
 
-    public List<List<String>> normalizeSamplesData(VariantKeyFields variantKeyFields, final List<List<String>> samplesData, List<String> format,
-                                                   String reference, List<String> alternateAlleles, VariantAlternateRearranger rearranger, List<List<String>> reuseSampleData)
+    public List<SampleEntry> normalizeSamplesData(VariantKeyFields variantKeyFields, final List<SampleEntry> samplesData, List<String> format,
+                                                   String reference, List<String> alternateAlleles, VariantAlternateRearranger rearranger, List<SampleEntry> reuseSampleData)
             throws NonStandardCompliantSampleField {
 
-        List<List<String>> newSampleData;
+        List<SampleEntry> newSampleData;
         if (reuseSampleData == null) {
-            newSampleData = newSamplesData(samplesData.size(), format.size());
+            newSampleData = newSamples(samplesData.size(), format.size());
         } else {
             newSampleData = reuseSampleData;
         }
@@ -1173,7 +1173,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         // indicate the phase set
         if (variantKeyFields.getPhaseSet() != null && samplesData.size() == 0) {
             if (format.equals(Collections.singletonList("PS"))) {
-                newSampleData.add(Collections.singletonList(variantKeyFields.getPhaseSet()));
+                newSampleData.add(new SampleEntry(null, null, Collections.singletonList(variantKeyFields.getPhaseSet())));
             } else {
                 List<String> sampleData = new ArrayList<>(format.size());
                 for (String f : format) {
@@ -1183,11 +1183,11 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                         sampleData.add("");
                     }
                 }
-                newSampleData.add(sampleData);
+                newSampleData.add(new SampleEntry(null, null, sampleData));
             }
         } else {
             for (int sampleIdx = 0; sampleIdx < samplesData.size(); sampleIdx++) {
-                List<String> sampleData = samplesData.get(sampleIdx);
+                SampleEntry sampleData = samplesData.get(sampleIdx);
 
                 // TODO we could check that format and sampleData sizes are equals
                 //            if (sampleData.size() == 1 && sampleData.get(0).equals(".")) {
@@ -1203,7 +1203,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                     // or that some sampleData array is smaller than the format list.
                     // If the variant was a splitted MNV, a new field 'PS' is added to the format (if missing), so it may
                     // not be in the original sampleData.
-                    String sampleField = sampleData.size() > formatFieldIdx ? sampleData.get(formatFieldIdx) : "";
+                    String sampleField = sampleData.getData().size() > formatFieldIdx ? sampleData.getData().get(formatFieldIdx) : "";
 
                     if (formatField.equalsIgnoreCase("GT")) {
                         // Save alleles just in case they are necessary for GL/PL/GP transformation
@@ -1233,12 +1233,11 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                             sampleField = rearranger.rearrange(formatField, sampleField, genotype == null ? null : genotype.getPloidy());
                         }
                     }
-                    List<String> data = newSampleData.get(sampleIdx);
-                    int finalSampleIdx = sampleIdx;
-                    if (data.size() > formatFieldIdx) {
-                        secureSet(data, formatFieldIdx, sampleField, list -> newSampleData.set(finalSampleIdx, list));
+                    SampleEntry newSample = newSampleData.get(sampleIdx);
+                    if (newSample.getData().size() > formatFieldIdx) {
+                        secureSet(newSample.getData(), formatFieldIdx, sampleField, newSample::setData);
                     } else {
-                        secureAdd(data, sampleField, list -> newSampleData.set(finalSampleIdx, list));
+                        secureAdd(newSample.getData(), sampleField, newSample::setData);
                     }
                 }
             }
@@ -1417,13 +1416,13 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         return secondaryAlternates;
     }
 
-    private List<List<String>> newSamplesData(int samplesSize, int formatSize) {
-        List<List<String>> newSampleData;
-        newSampleData = new ArrayList<>(samplesSize);
+    private List<SampleEntry> newSamples(int samplesSize, int formatSize) {
+        List<SampleEntry> newSamples;
+        newSamples = new ArrayList<>(samplesSize);
         for (int i = 0; i < samplesSize; i++) {
-            newSampleData.add(Arrays.asList(new String[formatSize]));
+            newSamples.add(new SampleEntry(null, null, Arrays.asList(new String[formatSize])));
         }
-        return newSampleData;
+        return newSamples;
     }
 
 

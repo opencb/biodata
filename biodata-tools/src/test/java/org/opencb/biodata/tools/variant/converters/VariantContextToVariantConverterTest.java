@@ -103,9 +103,9 @@ public class VariantContextToVariantConverterTest {
         };
         VariantContext variantContext = vcfCodec.decode(vcfLine);
 
-        VariantContextToVariantConverter converter = new VariantContextToVariantConverter(studyId, studyId);
+        VariantContextToVariantConverter converter = new VariantContextToVariantConverter(studyId, studyId, sampleNames);
         Variant variant = converter.convert(variantContext);
-        assertEquals(Arrays.asList(sampleNames.get(1), sampleNames.get(0), sampleNames.get(2)),
+        assertEquals(sampleNames,
                 new LinkedList<>(variant.getStudy(studyId).getSamplesPosition().keySet()));
         checkVariant.accept(variant);
 
@@ -255,7 +255,7 @@ public class VariantContextToVariantConverterTest {
         VCFHeader fileHeader = reader.getFileHeader();
 
         //Task
-        VariantContextToVariantConverter converter = new VariantContextToVariantConverter(studyId, fileId);
+        VariantContextToVariantConverter converter = new VariantContextToVariantConverter(studyId, fileId, Collections.emptyList());
         VariantNormalizer normalizer = new VariantNormalizer();
 
         //Writer

@@ -103,9 +103,9 @@ public class VariantProtoToVariantContextConverter extends VariantContextConvert
 
     public String getSampleData(VariantProto.StudyEntry studyEntry, Map<String, Integer> formatPositions, String sampleName, String field) {
         if (samplePositions.containsKey(sampleName) && formatPositions.containsKey(field)) {
-            VariantProto.StudyEntry.SamplesDataInfoEntry info = studyEntry.getSamplesData(samplePositions.get(sampleName));
+            VariantProto.SampleEntry sample = studyEntry.getSamples(samplePositions.get(sampleName));
             int formatPos = formatPositions.get(field);
-            return formatPos < info.getInfoCount() ? info.getInfo(formatPos) : null;
+            return formatPos < sample.getDataCount() ? sample.getData(formatPos) : null;
         }
         return null;
     }

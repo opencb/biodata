@@ -20,11 +20,7 @@
 package org.opencb.biodata.models.variant;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
-import org.opencb.biodata.models.variant.avro.FileEntry;
-import org.opencb.biodata.models.variant.avro.IssueEntry;
-import org.opencb.biodata.models.variant.avro.VariantScore;
-import org.opencb.biodata.models.variant.avro.VariantType;
+import org.opencb.biodata.models.variant.avro.*;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
 import java.io.Serializable;
@@ -137,9 +133,12 @@ public class StudyEntry implements Serializable {
             //Sort samples position
             this.samplesPosition = sortSamplesPositionMap(samplesPosition);
         }
-        if (getSamplesData() == null || getSamplesData().isEmpty()) {
+        if (getSamples() == null) {
+            setSamples(new ArrayList<>(samplesPosition.size()));
+        }
+        if (getSamples().isEmpty()) {
             for (int size = samplesPosition.size(); size > 0; size--) {
-                getSamplesData().add(null);
+                getSamples().add(null);
             }
         }
     }
@@ -239,12 +238,79 @@ public class StudyEntry implements Serializable {
         return formatPosition.get();
     }
 
-    public List<List<String>> getSamplesData() {
-        return impl.getSamplesData();
+    public List<SampleEntry> getSamples() {
+        return impl.getSamples();
     }
 
+    public StudyEntry setSamples(List<SampleEntry> samples) {
+        impl.setSamples(samples);
+        return this;
+    }
+
+    public SampleEntry getSample(String sample) {
+        requireSamplesPosition();
+        if (samplesPosition.containsKey(sample)) {
+            return getSamples().get(samplesPosition.get(sample));
+        }
+        return null;
+    }
+
+    public SampleEntry getSample(int samplePosition) {
+        if (samplePosition >= 0 && samplePosition < impl.getSamples().size()) {
+            return impl.getSamples().get(samplePosition);
+        } else {
+            return null;
+        }
+    }
+
+    public List<String> getSampleData(String sample) {
+        SampleEntry sampleEntry = getSample(sample);
+        if (sampleEntry == null) {
+            return null;
+        } else {
+            return sampleEntry.getData();
+        }
+
+    }
+
+    public String getSampleData(String sample, String field) {
+        SampleEntry sampleEntry = getSample(sample);
+        if (sampleEntry != null) {
+            Map<String, Integer> formatPositions = getFormatPositions();
+            if (formatPositions.containsKey(field)) {
+                Integer formatIdx = formatPositions.get(field);
+                return  formatIdx < sampleEntry.getData().size() ? sampleEntry.getData().get(formatIdx) : null;
+            }
+        }
+        return null;
+    }
+
+    public List<String> getSampleData(int samplePosition) {
+        SampleEntry sampleEntry = getSample(samplePosition);
+        if (sampleEntry == null) {
+            return null;
+        } else {
+            return sampleEntry.getData();
+        }
+    }
+
+    @Deprecated
+    public List<List<String>> getSamplesData() {
+        List<SampleEntry> samples = impl.getSamples();
+        if (samples == null) {
+            return null;
+        } else {
+            return samples.stream().map(SampleEntry::getData).collect(Collectors.toList());
+        }
+    }
+
+    @Deprecated
     public void setSamplesData(List<List<String>> value) {
-        impl.setSamplesData(value);
+        if (value == null) {
+            impl.setSamples(null);
+        } else {
+            impl.setSamples(value.stream().map(s -> new SampleEntry(null, null, s)).collect(Collectors.toList()));
+        }
     }
 
     @Deprecated
@@ -259,44 +325,13 @@ public class StudyEntry implements Serializable {
         return Collections.unmodifiableMap(samplesDataMap);
     }
 
-    public String getSampleData(String sampleName, String field) {
-        requireSamplesPosition();
-        if (samplesPosition.containsKey(sampleName)) {
-            Map<String, Integer> formatPositions = getFormatPositions();
-            if (formatPositions.containsKey(field)) {
-                List<String> sampleData = impl.getSamplesData().get(samplesPosition.get(sampleName));
-                Integer formatIdx = formatPositions.get(field);
-                return  formatIdx < sampleData.size() ? sampleData.get(formatIdx) : null;
-            }
-        }
-        return null;
-    }
-
-    public List<String> getSampleData(String sampleName) {
-        requireSamplesPosition();
-        Integer samplePosition = samplesPosition.get(sampleName);
-        if (samplePosition == null) {
-            return null;
-        } else {
-            return getSampleData(samplePosition);
-        }
-
-    }
-
-    public List<String> getSampleData(int samplePosition) {
-        if (samplePosition >= 0 && samplePosition < impl.getSamplesData().size()) {
-            return impl.getSamplesData().get(samplePosition);
-        } else {
-            return null;
-        }
-    }
-
+    @Deprecated
     public Map<String, String> getSampleDataAsMap(String sampleName) {
         requireSamplesPosition();
         if (samplesPosition.containsKey(sampleName)) {
             HashMap<String, String> sampleDataMap = new HashMap<>();
             Iterator<String> iterator = getFormat().iterator();
-            List<String> sampleDataList = impl.getSamplesData().get(samplesPosition.get(sampleName));
+            List<String> sampleDataList = getSampleData(sampleName);
             for (String data : sampleDataList) {
                 sampleDataMap.put(iterator.next(), data);
             }
@@ -322,30 +357,31 @@ public class StudyEntry implements Serializable {
         return this;
     }
 
-    public StudyEntry addSampleData(String sampleName, List<String> sampleDataList) {
-        if (samplesPosition == null && impl.getSamplesData().isEmpty()) {
+    public StudyEntry addSampleData(String sampleId, List<String> sampleDataList) {
+        if (samplesPosition == null && impl.getSamples().isEmpty()) {
             samplesPosition = new LinkedHashMap<>();
         }
+        SampleEntry sampleEntry = new SampleEntry(null, null, sampleDataList);
         if (samplesPosition != null) {
-            if (samplesPosition.containsKey(sampleName)) {
-                int position = samplesPosition.get(sampleName);
-                addSampleData(position, sampleDataList);
+            if (samplesPosition.containsKey(sampleId)) {
+                int position = samplesPosition.get(sampleId);
+                addSampleData(position, sampleEntry);
             } else {
                 int position = samplesPosition.size();
-                samplesPosition.put(sampleName, position);
-                actOnSamplesDataList((l) -> l.add(sampleDataList));
+                samplesPosition.put(sampleId, position);
+                actOnSamplesList((l) -> l.add(sampleEntry));
             }
         } else {
-            actOnSamplesDataList((l) -> l.add(sampleDataList));
+            actOnSamplesList((l) -> l.add(sampleEntry));
         }
         return this;
     }
 
-    public StudyEntry addSampleData(int samplePosition, List<String> sampleDataList) {
-        while (impl.getSamplesData().size() <= samplePosition) {
-            actOnSamplesDataList((l) -> l.add(null));
+    public StudyEntry addSampleData(int samplePosition, SampleEntry sampleEntry) {
+        while (impl.getSamples().size() <= samplePosition) {
+            actOnSamplesList((l) -> l.add(null));
         }
-        actOnSamplesDataList((l) -> l.set(samplePosition, sampleDataList));
+        actOnSamplesList((l) -> l.set(samplePosition, sampleEntry));
         return this;
     }
 
@@ -355,8 +391,8 @@ public class StudyEntry implements Serializable {
      *
      * @param action Action to execute
      */
-    private void actOnSamplesDataList(Consumer<List<List<String>>> action) {
-        actOnList(impl.getSamplesData(), action, impl::setSamplesData);
+    private void actOnSamplesList(Consumer<List<SampleEntry>> action) {
+        actOnList(impl.getSamples(), action, impl::setSamples);
     }
 
     private <T> List<T> actOnList(List<T> list, Consumer<List<T>> action, Consumer<List<T>> update) {
@@ -384,21 +420,19 @@ public class StudyEntry implements Serializable {
     }
 
     public StudyEntry addSampleData(Integer samplePosition, Integer formatIdx, String value, String defaultValue) {
-        Consumer<List<String>> update = sampleData -> getSamplesData().set(samplePosition, sampleData);
-
         if (formatIdx != null && samplePosition != null) {
-            List<String> sampleData = getSamplesData().get(samplePosition);
-            if (sampleData == null) {
-                sampleData = new ArrayList<>(getFormat().size());
-                getSamplesData().set(samplePosition, sampleData);
+            SampleEntry sampleEntry = getSample(samplePosition);
+            if (sampleEntry == null) {
+                sampleEntry = new SampleEntry(null, null, new ArrayList<>(getFormat().size()));
+                addSampleData(samplePosition, sampleEntry);
             }
-            if (formatIdx < sampleData.size()) {
-                actOnList(sampleData, l -> l.set(formatIdx, value), update);
+            if (formatIdx < sampleEntry.getData().size()) {
+                actOnList(sampleEntry.getData(), l -> l.set(formatIdx, value), sampleEntry::setData);
             } else {
-                while (formatIdx > sampleData.size()) {
-                    sampleData = actOnList(sampleData, l -> l.add(defaultValue), update);
+                while (formatIdx > sampleEntry.getData().size()) {
+                    actOnList(sampleEntry.getData(), l -> l.add(defaultValue), sampleEntry::setData);
                 }
-                actOnList(sampleData, l -> l.add(value), update);
+                actOnList(sampleEntry.getData(), l -> l.add(value), sampleEntry::setData);
             }
         } else {
             throw new IndexOutOfBoundsException();

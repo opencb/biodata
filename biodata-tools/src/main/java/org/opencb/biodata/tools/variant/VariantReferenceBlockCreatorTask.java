@@ -9,6 +9,7 @@ import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantBuilder;
+import org.opencb.biodata.models.variant.avro.SampleEntry;
 import org.opencb.biodata.models.variant.metadata.VariantFileHeader;
 import org.opencb.biodata.models.variant.metadata.VariantFileHeaderComplexLine;
 import org.opencb.commons.run.Task;
@@ -24,7 +25,7 @@ public class VariantReferenceBlockCreatorTask implements Task<Variant, Variant> 
     private String studyId;
     private String fileId;
     private LinkedHashMap<String, Integer> samplesPosition;
-    private List<List<String>> missingGtSamplesData;
+    private List<SampleEntry> missingGtSamplesData;
     private Map<String, Integer> contigs;
 
     public VariantReferenceBlockCreatorTask() {
@@ -122,7 +123,7 @@ public class VariantReferenceBlockCreatorTask implements Task<Variant, Variant> 
             samplesPosition = studyEntry.getSamplesPosition();
             missingGtSamplesData = new ArrayList<>(samplesPosition.size());
             for (int i = 0; i < samplesPosition.size(); i++) {
-                missingGtSamplesData.add(Collections.singletonList("./."));
+                missingGtSamplesData.add(new SampleEntry(null, null, Collections.singletonList("./.")));
             }
         }
     }
@@ -155,7 +156,7 @@ public class VariantReferenceBlockCreatorTask implements Task<Variant, Variant> 
                     .setSamplesPosition(samplesPosition)
                     .setFilter(VCFConstants.UNFILTERED)
                     .setFormat("GT")
-                    .setSamplesData(missingGtSamplesData);
+                    .setSamples(missingGtSamplesData);
         }
         return builder.build();
     }

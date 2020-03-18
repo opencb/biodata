@@ -54,7 +54,7 @@ public class VariantStatsCalculator {
             if (sampleIdx == null) {
                 continue;
             }
-            String genotype = study.getSamplesData().get(sampleIdx).get(gtIdx);
+            String genotype = study.getSamples().get(sampleIdx).getData().get(gtIdx);
             Genotype g = gts.computeIfAbsent(genotype, key -> new Genotype(genotype));
             gtCount.compute(g, (s, prev) -> prev == null ? 1 : prev + 1);
 

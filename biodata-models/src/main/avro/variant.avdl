@@ -237,7 +237,9 @@ protocol Variants {
          * with one sample. The content are lists of values in the same order than the
          * format array. The length of this lists must be the same as the format field.
          */
-        array<array<string>> samplesData;
+//        array<array<string>> samplesData;
+
+        array<SampleEntry> samples;
 
         array<IssueEntry> issues = [];
 

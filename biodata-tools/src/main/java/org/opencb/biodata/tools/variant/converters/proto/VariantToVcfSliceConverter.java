@@ -23,6 +23,7 @@ import com.google.protobuf.ProtocolStringList;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.FileEntry;
+import org.opencb.biodata.models.variant.avro.SampleEntry;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
 import org.opencb.biodata.tools.Converter;
 
@@ -153,8 +154,8 @@ public class VariantToVcfSliceConverter implements Converter<List<Variant>, VcfS
 
                 Integer gtPosition = studyEntry.getFormatPositions().get("GT");
                 if (gtPosition != null) {
-                    for (List<String> sampleData : studyEntry.getSamplesData()) {
-                        String gt = sampleData.get(gtPosition);
+                    for (SampleEntry sample : studyEntry.getSamples()) {
+                        String gt = sample.getData().get(gtPosition);
 //                        gts.put(gt, gts.getOrDefault(gt, 0) + 1);
                         gts.merge(gt, 1, Integer::sum);
                     }

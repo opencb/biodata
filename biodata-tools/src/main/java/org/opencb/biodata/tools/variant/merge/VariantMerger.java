@@ -34,6 +34,7 @@ import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantBuilder;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.FileEntry;
+import org.opencb.biodata.models.variant.avro.SampleEntry;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.metadata.VariantFileHeader;
 import org.slf4j.Logger;
@@ -269,7 +270,7 @@ public class VariantMerger {
             se.setFiles(Collections.singletonList(new FileEntry("", "", new HashMap<>())));
             se.setFormat(Arrays.asList(getGtKey(), getFilterKey()));
             se.setSamplesPosition(new HashMap<>());
-            se.setSamplesData(new ArrayList<>());
+            se.setSamples(new ArrayList<>());
             var.addStudyEntry(se);
         }
         return var;
@@ -449,15 +450,15 @@ public class VariantMerger {
         sb.append(v.getReference().isEmpty() ? "-" : v.getReference());
         sb.append(":").append(v.getAlternate().isEmpty() ? "-" : v.getAlternate()).append("[");
         StudyEntry se = getStudy(v);
-        List<List<String>> sd = se.getSamplesData();
+        List<SampleEntry> samples = se.getSamples();
         for(String sn : se.getSamplesName()){
             Integer pos = se.getSamplesPosition().get(sn);
-            if (pos >= sd.size()) {
+            if (pos >= samples.size()) {
                 sb.append(sn).append(":S;");
-            } else if (null == sd.get(pos) || sd.get(pos).size() < 1) {
+            } else if (null == samples.get(pos) || samples.get(pos).getData().size() < 1) {
                 sb.append(sn).append(":G;");
             } else {
-                String gt = sd.get(pos).get(0); // GT
+                String gt = samples.get(pos).getData().get(0); // GT
                 sb.append(sn).append(":").append(gt).append(";");
             }
         }
@@ -537,10 +538,10 @@ public class VariantMerger {
         Integer newFilterIdx = newFormatPositions.get(getFilterKey());
 
         // Create new Samples data
-        List<List<String>> newSamplesData = newSamplesData(newSamplesPosition.size(), newFormatPositions);
+        List<SampleEntry> newSamplesData = newSamples(newSamplesPosition.size(), newFormatPositions);
         boolean[] alreadyMergedSamples = new boolean[newSamplesPosition.size()];
         // Copy current samples data into new samples data
-        List<List<String>> currentSamplesData = currentStudy.getSamplesData();
+        List<SampleEntry> currentSamples = currentStudy.getSamples();
         // If FT is required, but missing in the input variant, get FILTER from the File Attributes.
         String currentFilterValue = null;
         if (!currentStudy.getFormatPositions().containsKey(getFilterKey()) && newFormatPositions.containsKey(getFilterKey())) {
@@ -549,17 +550,17 @@ public class VariantMerger {
         }
         int currentSampleIdx = 0;
         for (String sample : currentStudy.getOrderedSamplesName()) {
-            List<String> currentSampleData = currentSamplesData.get(currentSampleIdx);
+            SampleEntry currentSample = currentSamples.get(currentSampleIdx);
             Integer newSampleIdx = newSamplesPosition.get(sample);
             alreadyMergedSamples[newSampleIdx] = true;
-            List<String> newSampleData = newSamplesData.get(newSampleIdx);
+            List<String> newSampleData = newSamplesData.get(newSampleIdx).getData();
             int formatIdx = 0;
             int ploidy = 2; // Default ploidy. Required for the rearranger
             for (String format : currentStudy.getFormat()) {
                 Integer newFormatIdx = newFormatPositions.get(format);
                 if (newFormatIdx != null) {
-                    if (currentSampleData.size() > formatIdx) {
-                        String data = currentSampleData.get(formatIdx);
+                    if (currentSample.getData().size() > formatIdx) {
+                        String data = currentSample.getData().get(formatIdx);
                         if (currentStudyRearranger != null) {
                             if (format.equals(VCFConstants.GENOTYPE_KEY)) {
                                 Genotype genotype = new Genotype(data);
@@ -615,9 +616,9 @@ public class VariantMerger {
             List<String> otherOrderedSamplesName = otherStudy.getOrderedSamplesName();
             for (int sampleIdx = 0; sampleIdx < otherOrderedSamplesName.size(); sampleIdx++) {
                 String sampleName = otherOrderedSamplesName.get(sampleIdx);
-                List<String> otherSampleData = otherStudy.getSamplesData().get(sampleIdx);
+                List<String> otherSampleData = otherStudy.getSamples().get(sampleIdx).getData();
                 Integer newSampleIdx = newSamplesPosition.get(sampleName);
-                List<String> newSampleData = newSamplesData.get(newSampleIdx);
+                List<String> newSampleData = newSamplesData.get(newSampleIdx).getData();
 
                 boolean alreadyMergedSample = alreadyMergedSamples[newSampleIdx];
                 alreadyMergedSamples[newSampleIdx] = true;
@@ -631,7 +632,7 @@ public class VariantMerger {
                     if (StringUtils.isBlank(gt)) {
                         throw new IllegalStateException(String.format(
                                 "No GT [%s] found for sample %s in \nVariant: %s\nOtherSe:%s\nOtherSp:%s",
-                                getGtKey(), sampleName, other.getImpl(), otherStudy.getSamplesData(),
+                                getGtKey(), sampleName, other.getImpl(), otherStudy.getSamples(),
                                 otherStudy.getSamplesPosition()));
                     }
                     // Use a cache with rearranged genotypeCounters to reuse rearranged genotypeCounters
@@ -728,7 +729,7 @@ public class VariantMerger {
             }
             mergeFile(current, other, rearranger, currentStudy, otherStudy);
         }
-        currentStudy.setSamplesData(newSamplesData);
+        currentStudy.setSamples(newSamplesData);
         currentStudy.setSortedSamplesPosition(newSamplesPosition);
         currentStudy.setFormat(newFormat);
     }
@@ -757,15 +758,15 @@ public class VariantMerger {
         return list;
     }
 
-    private List<List<String>> newSamplesData(int samplesSize, Map<String, Integer> formats) {
-        List<List<String>> newSampleData;
+    private List<SampleEntry> newSamples(int samplesSize, Map<String, Integer> formats) {
+        List<SampleEntry> newSamples;
         List<String> defaultSamplesData = Arrays.asList(new String[formats.size()]);
         formats.forEach((format, formatIdx) -> defaultSamplesData.set(formatIdx, getDefaultValue(format)));
-        newSampleData = new ArrayList<>(samplesSize);
+        newSamples = new ArrayList<>(samplesSize);
         for (int i = 0; i < samplesSize; i++) {
-            newSampleData.add(new ArrayList<>(defaultSamplesData));
+            newSamples.add(new SampleEntry(null, null, new ArrayList<>(defaultSamplesData)));
         }
-        return newSampleData;
+        return newSamples;
     }
 
     private <T> List<Integer> getMatchingPositions(List<T> list, Predicate<T> p){

@@ -16,6 +16,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.opencb.biodata.models.variant.*;
+import org.opencb.biodata.models.variant.avro.SampleEntry;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfRecord;
 
@@ -350,24 +351,24 @@ public class VariantToVcfRecordTest {
     @Test
     public void testDecodeSample() {
         VariantToProtoVcfRecord con = new VariantToProtoVcfRecord();
-        List<List<String>> data = new LinkedList<>();
+        List<SampleEntry> samples = new LinkedList<>();
 
-        data.add(Arrays.asList("a"));
+        samples.add(new SampleEntry(null, null, Arrays.asList("a")));
         Map<String, Integer> formatPositions = new HashMap<>();
         formatPositions.put("A", 0);
         formatPositions.put("B", 1);
         assertEquals(
-                new ArrayList<>(con.encodeSamples(formatPositions, null, data).get(0).getSampleValuesList()),
+                new ArrayList<>(con.encodeSamples(formatPositions, null, samples).get(0).getSampleValuesList()),
                 Arrays.asList("a"));
 
-        data.set(0, Arrays.asList("a", "b"));
+        samples.set(0, new SampleEntry(null, null, Arrays.asList("a", "b")));
         assertEquals(
-                new ArrayList<>(con.encodeSamples(formatPositions, null, data).get(0).getSampleValuesList()),
+                new ArrayList<>(con.encodeSamples(formatPositions, null, samples).get(0).getSampleValuesList()),
                 Arrays.asList("a", "b"));
 
-        data.set(0, Arrays.asList("a", "b", "c"));
+        samples.set(0, new SampleEntry(null, null, Arrays.asList("a", "b", "c")));
         assertEquals(
-                new ArrayList<>(con.encodeSamples(formatPositions, null, data).get(0).getSampleValuesList()),
+                new ArrayList<>(con.encodeSamples(formatPositions, null, samples).get(0).getSampleValuesList()),
                 Arrays.asList("a", "b", "c"));
 
     }

@@ -73,17 +73,12 @@ public class VcfUtils {
     }
 
     public static String getJoinedSampleFields(StudyEntry file, String sampleName) {
-        Map<String, String> data = file.getSampleDataAsMap(sampleName);
-        if (data == null) {
+        List<String> data = file.getSampleData(sampleName);
+        if (data == null || data.isEmpty()) {
             return "";
         }
 
-        StringBuilder info = new StringBuilder();
-        for (String formatField : file.getFormatAsString().split(":")) {
-            info.append(data.get(formatField)).append(":");
-        }
-
-        return info.toString().isEmpty() ? "." : info.toString();
+        return String.join(":", data);
     }
 
     public static String getJoinedSampleFields(Variant variant, StudyEntry file, String sampleName) {

@@ -3,9 +3,11 @@ package org.opencb.biodata.tools.variant;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
+import org.opencb.biodata.models.metadata.Sample;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantBuilder;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
+import org.opencb.biodata.models.variant.avro.SampleEntry;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.biodata.tools.variant.merge.VariantAlternateRearranger;
@@ -64,15 +66,15 @@ public class VariantNormalizerGenericTest extends GenericTest {
                                          Boolean normalizeSamplesData)
             throws NonStandardCompliantSampleField {
 
-        List<List<String>> samplesData = Arrays.asList(
-                Collections.singletonList(ref + "/" + alt),
-                Collections.singletonList(ref + "/" + ref),
-                Collections.singletonList(alt + "/" + ref),
-                Collections.singletonList(alt + "/" + alt),
-                Collections.singletonList("0" + "/" + "1"),
-                Collections.singletonList("0" + "/" + "0"),
-                Collections.singletonList("1" + "/" + "0"),
-                Collections.singletonList("1" + "/" + "1")
+        List<SampleEntry> samplesData = Arrays.asList(
+                new SampleEntry(null, null, Collections.singletonList(ref + "/" + alt)),
+                new SampleEntry(null, null, Collections.singletonList(ref + "/" + ref)),
+                new SampleEntry(null, null, Collections.singletonList(alt + "/" + ref)),
+                new SampleEntry(null, null, Collections.singletonList(alt + "/" + alt)),
+                new SampleEntry(null, null, Collections.singletonList("0" + "/" + "1")),
+                new SampleEntry(null, null, Collections.singletonList("0" + "/" + "0")),
+                new SampleEntry(null, null, Collections.singletonList("1" + "/" + "0")),
+                new SampleEntry(null, null, Collections.singletonList("1" + "/" + "1"))
         );
         System.out.println("-----------------");
         System.out.println("orig: " + position + ":" + ref + ":" + alt);
@@ -90,14 +92,14 @@ public class VariantNormalizerGenericTest extends GenericTest {
             samplesData = normalizer.normalizeSamplesData(keyFields, samplesData, Collections.singletonList("GT"), ref,
                     Collections.singletonList(alt), null);
 
-            assertEquals("0/1", samplesData.get(0).get(0));
-            assertEquals("0/0", samplesData.get(1).get(0));
-            assertEquals("1/0", samplesData.get(2).get(0));
-            assertEquals("1/1", samplesData.get(3).get(0));
-            assertEquals("0/1", samplesData.get(4).get(0));
-            assertEquals("0/0", samplesData.get(5).get(0));
-            assertEquals("1/0", samplesData.get(6).get(0));
-            assertEquals("1/1", samplesData.get(7).get(0));
+            assertEquals("0/1", samplesData.get(0).getData().get(0));
+            assertEquals("0/0", samplesData.get(1).getData().get(0));
+            assertEquals("1/0", samplesData.get(2).getData().get(0));
+            assertEquals("1/1", samplesData.get(3).getData().get(0));
+            assertEquals("0/1", samplesData.get(4).getData().get(0));
+            assertEquals("0/0", samplesData.get(5).getData().get(0));
+            assertEquals("1/0", samplesData.get(6).getData().get(0));
+            assertEquals("1/1", samplesData.get(7).getData().get(0));
         }
     }
 
@@ -170,17 +172,17 @@ public class VariantNormalizerGenericTest extends GenericTest {
 
             String alt = altsList.get(numAllele);
             int alleleCode = expectedKeyFields.getNumAllele() + 1;
-            List<List<String>> normalizedSamplesData;
-            final List<List<String>> samplesData = Arrays.asList(
-                    Collections.singletonList(ref + "/" + alt),
-                    Collections.singletonList(ref + "/" + ref),
-                    Collections.singletonList(alt + "/" + ref),
-                    Collections.singletonList(alt + "/" + alt),
-                    Collections.singletonList("0" + "/" + alleleCode),
-                    Collections.singletonList("0" + "/" + "0"),
-                    Collections.singletonList(alleleCode + "/" + "0"),
-                    Collections.singletonList(alleleCode + "/" + alleleCode),
-                    Collections.singletonList(alleleCode + "|" + "0")
+            List<SampleEntry> normalizedSamplesData;
+            final List<SampleEntry> samplesData = Arrays.asList(
+                    new SampleEntry(null, null, Collections.singletonList(ref + "/" + alt)),
+                    new SampleEntry(null, null, Collections.singletonList(ref + "/" + ref)),
+                    new SampleEntry(null, null, Collections.singletonList(alt + "/" + ref)),
+                    new SampleEntry(null, null, Collections.singletonList(alt + "/" + alt)),
+                    new SampleEntry(null, null, Collections.singletonList("0" + "/" + alleleCode)),
+                    new SampleEntry(null, null, Collections.singletonList("0" + "/" + "0")),
+                    new SampleEntry(null, null, Collections.singletonList(alleleCode + "/" + "0")),
+                    new SampleEntry(null, null, Collections.singletonList(alleleCode + "/" + alleleCode)),
+                    new SampleEntry(null, null, Collections.singletonList(alleleCode + "|" + "0"))
             );
 
             VariantAlternateRearranger rearranger = null;
@@ -199,29 +201,29 @@ public class VariantNormalizerGenericTest extends GenericTest {
             normalizedSamplesData = normalizer.normalizeSamplesData(normalizedKeyFields, samplesData, Collections.singletonList("GT"), ref,
                     altsList, rearranger);
 
-            assertEquals("0/1", normalizedSamplesData.get(0).get(0));
-            assertEquals("0/0", normalizedSamplesData.get(1).get(0));
-            assertEquals("0/1", normalizedSamplesData.get(2).get(0));
-            assertEquals("1/1", normalizedSamplesData.get(3).get(0));
-            assertEquals("0/1", normalizedSamplesData.get(4).get(0));
-            assertEquals("0/0", normalizedSamplesData.get(5).get(0));
-            assertEquals("0/1", normalizedSamplesData.get(6).get(0));
-            assertEquals("1/1", normalizedSamplesData.get(7).get(0));
-            assertEquals("1|0", normalizedSamplesData.get(8).get(0));
+            assertEquals("0/1", normalizedSamplesData.get(0).getData().get(0));
+            assertEquals("0/0", normalizedSamplesData.get(1).getData().get(0));
+            assertEquals("0/1", normalizedSamplesData.get(2).getData().get(0));
+            assertEquals("1/1", normalizedSamplesData.get(3).getData().get(0));
+            assertEquals("0/1", normalizedSamplesData.get(4).getData().get(0));
+            assertEquals("0/0", normalizedSamplesData.get(5).getData().get(0));
+            assertEquals("0/1", normalizedSamplesData.get(6).getData().get(0));
+            assertEquals("1/1", normalizedSamplesData.get(7).getData().get(0));
+            assertEquals("1|0", normalizedSamplesData.get(8).getData().get(0));
 
             normalizer.setNormalizeAlleles(false);
             normalizedSamplesData = normalizer.normalizeSamplesData(normalizedKeyFields, samplesData, Collections.singletonList("GT"), ref,
                     altsList, rearranger);
 
-            assertEquals("0/1", normalizedSamplesData.get(0).get(0));
-            assertEquals("0/0", normalizedSamplesData.get(1).get(0));
-            assertEquals("1/0", normalizedSamplesData.get(2).get(0));
-            assertEquals("1/1", normalizedSamplesData.get(3).get(0));
-            assertEquals("0/1", normalizedSamplesData.get(4).get(0));
-            assertEquals("0/0", normalizedSamplesData.get(5).get(0));
-            assertEquals("1/0", normalizedSamplesData.get(6).get(0));
-            assertEquals("1/1", normalizedSamplesData.get(7).get(0));
-            assertEquals("1|0", normalizedSamplesData.get(8).get(0));
+            assertEquals("0/1", normalizedSamplesData.get(0).getData().get(0));
+            assertEquals("0/0", normalizedSamplesData.get(1).getData().get(0));
+            assertEquals("1/0", normalizedSamplesData.get(2).getData().get(0));
+            assertEquals("1/1", normalizedSamplesData.get(3).getData().get(0));
+            assertEquals("0/1", normalizedSamplesData.get(4).getData().get(0));
+            assertEquals("0/0", normalizedSamplesData.get(5).getData().get(0));
+            assertEquals("1/0", normalizedSamplesData.get(6).getData().get(0));
+            assertEquals("1/1", normalizedSamplesData.get(7).getData().get(0));
+            assertEquals("1|0", normalizedSamplesData.get(8).getData().get(0));
 
             numAllele++;
         }
@@ -247,7 +249,7 @@ public class VariantNormalizerGenericTest extends GenericTest {
         return Variant.newBuilder("1", position, end, ref, String.join(",", altsList))
                 .setStudyId(studyId)
                 .setFormat("GT")
-                .setSamplesData(new ArrayList<>())
+                .setSamples(new ArrayList<>())
                 .setFileId("1");
     }
 }

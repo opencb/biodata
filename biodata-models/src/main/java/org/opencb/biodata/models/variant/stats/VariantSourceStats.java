@@ -19,15 +19,15 @@
 
 package org.opencb.biodata.models.variant.stats;
 
-import java.util.*;
-
-import org.opencb.biodata.models.feature.AllelesCode;
-import org.opencb.biodata.models.feature.Genotype;
-import org.opencb.biodata.models.pedigree.Pedigree;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
@@ -105,45 +105,6 @@ public class VariantSourceStats {
     
     public void setSamplesStats(Map<String, VariantSingleSampleStats> variantSampleStats) {
         this.samplesStats = variantSampleStats;
-    }
-    
-    public void updateSampleStats(List<Variant> variants, Pedigree pedigree) {
-        for (Variant v : variants) {
-            StudyEntry file = v.getSourceEntry(fileId, studyId);
-            if (file == null) {
-                // The variant is not contained in this file
-                continue;
-            }
-            
-            for (Map.Entry<String, Map<String, String>> sample : file.getSamplesDataAsMap().entrySet()) {
-                String sampleName = sample.getKey();
-                VariantSingleSampleStats sampleStats = samplesStats.get(sampleName);
-                if (sampleStats == null) {
-                    sampleStats = new VariantSingleSampleStats(sampleName);
-                    samplesStats.put(sampleName, sampleStats);
-                }
-                
-                Genotype g = new Genotype(sample.getValue().get("GT"), v.getReference(), v.getAlternate());
-                
-                // Count missing genotypeCounters (one or both alleles missing)
-                if (g.getCode() != AllelesCode.ALLELES_OK) { 
-                    sampleStats.incrementMissingGenotypes();
-                }
-                
-//                // TODO Check mendelian errors
-//                if (pedigree != null) {
-//                    Individual ind = pedigree.getIndividual(sampleName);
-//                    if (g.getCode() == AllelesCode.ALLELES_OK && isMendelianError(ind, g, record)) {
-//                        sampleStats.incrementMendelianErrors();
-//                    }
-//                }
-                
-                // Count homozygous (not haploid)
-                if (!g.isHaploid() && g.getAllele(0) == g.getAllele(1)) {
-                    sampleStats.incrementHomozygous();
-                }
-            }
-        }
     }
 
     public String getFileId() {

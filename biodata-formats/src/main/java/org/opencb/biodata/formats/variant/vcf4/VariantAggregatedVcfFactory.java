@@ -113,7 +113,7 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
 //                        break;
                 case "NS":
                     // Count the number of samples that are associated with the allele
-                    file.addAttribute(infoTag, String.valueOf(file.getSamplesData().size()));
+                    file.addAttribute(infoTag, String.valueOf(file.getSamples().size()));
                     break;
                 case "DP":
                     int dp = 0;

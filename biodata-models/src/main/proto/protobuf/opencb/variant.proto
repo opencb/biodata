@@ -149,10 +149,13 @@ message AlternateCoordinate {
     VariantType type = 6;
 }
 
+message SampleEntry {
+    string sampleId = 1;
+    int32 fileIndex = 2;
+    repeated string data = 3;
+}
+
 message StudyEntry {
-    message SamplesDataInfoEntry {
-        repeated string info = 1;
-    }
     string studyId = 1;
     repeated FileEntry files = 2;
     /**
@@ -160,7 +163,7 @@ message StudyEntry {
      */
     repeated AlternateCoordinate secondaryAlternates = 3;
     repeated string format = 4;
-    repeated SamplesDataInfoEntry samplesData = 5;
+    repeated SampleEntry samples = 5;
     map<string, VariantStats> stats = 6;
 }
 

@@ -27,6 +27,7 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
 /**
@@ -131,18 +132,18 @@ public class VariantVcfDataWriter implements VariantWriter {
         StringBuilder sb = new StringBuilder();
 
         Iterator<String> sampleIt = elem.getSampleNames(file.getStudyId()).iterator();
-        Iterator<String> formatIt;
-        Map<String, String> data;
-        String sampleName, formatElem;
+        Iterator<String> dataIt;
+        List<String> data;
+        String sampleName;
         while (sampleIt.hasNext()) {
             sampleName = sampleIt.next();
-            data = file.getSampleDataAsMap(sampleName);
-            formatIt = format.iterator();
+            data = file.getSampleData(sampleName);
+            dataIt = data.iterator();
 
-            while (formatIt.hasNext()) {
-                formatElem = formatIt.next();
-                sb.append(data.get(formatElem));
-                if (formatIt.hasNext()) {
+            while (dataIt.hasNext()) {
+                String next = dataIt.next();
+                sb.append(next);
+                if (dataIt.hasNext()) {
                     sb.append(":");
                 }
             }

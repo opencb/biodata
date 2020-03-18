@@ -157,7 +157,7 @@ public class VariantContextToVariantProtoConverter implements Converter<VariantC
 
         // set sample data parameters Eg: GT:GQ:GQX:DP:DPF:AD 1/1:63:29:22:7:0,22
 //        List<List<String>> sampleDataList = new ArrayList<>(variantContext.getSamplesName().size());
-        List<VariantProto.StudyEntry.SamplesDataInfoEntry> sampleDataList = new ArrayList<>(formatFields.size());
+        List<VariantProto.SampleEntry> samples = new ArrayList<>(variantContext.getSampleNames().size());
         for (String sampleName : variantContext.getSampleNames()) {
             htsjdk.variant.variantcontext.Genotype genotype = variantContext.getGenotype(sampleName);
             List<String> sampleList = new ArrayList<>(formatFields.size());
@@ -186,9 +186,9 @@ public class VariantContextToVariantProtoConverter implements Converter<VariantC
                 sampleList.add(value);
             }
 //            sampleDataList.add(sampleList);
-            sampleDataList.add(VariantProto.StudyEntry.SamplesDataInfoEntry.newBuilder().addAllInfo(sampleList).build());
+            samples.add(VariantProto.SampleEntry.newBuilder().addAllData(sampleList).build());
         }
-        variantSourceEntry.addAllSamplesData(sampleDataList);
+        variantSourceEntry.addAllSamples(samples);
 
 
         /*

@@ -88,7 +88,7 @@ public class VariantBuilder {
     private String studyId;
     private String fileId;
     private LinkedHashMap<String, Integer> samplesPosition;
-    private List<List<String>> samplesData;
+    private List<SampleEntry> samples;
     private Map<String, String> attributes;
     private String call;
     private List<String> format;
@@ -445,9 +445,9 @@ public class VariantBuilder {
         return this;
     }
 
-    public VariantBuilder setSamplesData(List<List<String>> samplesData) {
+    public VariantBuilder setSamples(List<SampleEntry> samples) {
         checkStudy("set samples data");
-        this.samplesData = samplesData;
+        this.samples = samples;
         return this;
     }
 
@@ -457,8 +457,8 @@ public class VariantBuilder {
 
     public VariantBuilder addSample(String sampleName, List<String> data) {
         checkStudy("add sample");
-        if (samplesData == null) {
-            samplesData = new ArrayList<>(samplesPosition != null ? samplesPosition.size() : 1);
+        if (samples == null) {
+            samples = new ArrayList<>(samplesPosition != null ? samplesPosition.size() : 1);
         }
         if (samplesPosition == null) {
             samplesPosition = new LinkedHashMap<>();
@@ -470,18 +470,18 @@ public class VariantBuilder {
 
     public void addSample(Integer idx, List<String> data) {
         checkStudy("add sample");
-        if (samplesData.size() == idx) {
+        if (samples.size() == idx) {
             // Append
-            samplesData.add(data);
-        } else if (samplesData.size() < idx) {
+            samples.add(new SampleEntry(null, null, data));
+        } else if (samples.size() < idx) {
             // Replace
-            samplesData.set(idx, data);
+            samples.set(idx, new SampleEntry(null, null, data));
         } else {
             // Fill with nulls
-            for (int i = samplesData.size(); i < idx; i++) {
-                samplesData.add(null);
+            for (int i = samples.size(); i < idx; i++) {
+                samples.add(null);
             }
-            samplesData.add(data);
+            samples.add(new SampleEntry(null, null, data));
         }
     }
 
@@ -544,7 +544,7 @@ public class VariantBuilder {
                 studyEntry.setSecondaryAlternates(secondaryAlternates);
             }
             studyEntry.setSortedSamplesPosition(samplesPosition);
-            studyEntry.setSamplesData(samplesData);
+            studyEntry.setSamples(samples);
             variant.addStudyEntry(studyEntry);
         } else {
             variant.setStudies(null);
@@ -630,8 +630,8 @@ public class VariantBuilder {
             if (format != null) {
                 studyBuilder.addAllFormat(format);
             }
-            for (List<String> samplesDatum : samplesData) {
-                studyBuilder.addSamplesData(VariantProto.StudyEntry.SamplesDataInfoEntry.newBuilder().addAllInfo(samplesDatum));
+            for (SampleEntry sample : samples) {
+                studyBuilder.addSamples(VariantProto.SampleEntry.newBuilder().addAllData(sample.getData()));
             }
 
             builder.addStudies(studyBuilder.build());
@@ -698,7 +698,7 @@ public class VariantBuilder {
         Objects.requireNonNull(alternates, "Alternate required");
 
         if (samplesPosition != null && samplesPosition.size() > 0) {
-            int dataSize = samplesData == null ? 0 : samplesData.size();
+            int dataSize = samples == null ? 0 : samples.size();
             if (samplesPosition.size() > dataSize) {
                 throw new IllegalArgumentException("Missing data from " + (samplesPosition.size() - dataSize) + " samples at variant " + this);
             } else if (samplesPosition.size() < dataSize) {
@@ -1207,8 +1207,8 @@ public class VariantBuilder {
             return null;
         }
         Integer cn = null;
-        for (List<String> samplesDatum : samplesData) {
-            String cdStr = samplesDatum.get(cnIdx);
+        for (SampleEntry sample : samples) {
+            String cdStr = sample.getData().get(cnIdx);
             if (StringUtils.isNumeric(cdStr)) {
                 Integer aux = Integer.valueOf(cdStr);
                 if (cn == null) {

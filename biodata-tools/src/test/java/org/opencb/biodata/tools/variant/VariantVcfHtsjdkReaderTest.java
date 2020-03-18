@@ -3,6 +3,7 @@ package org.opencb.biodata.tools.variant;
 import org.junit.Test;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
+import org.opencb.biodata.models.variant.avro.SampleEntry;
 import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 
 import java.io.ByteArrayInputStream;
@@ -253,19 +254,19 @@ public class VariantVcfHtsjdkReaderTest {
         Variant variant = variantList.get(0);
         assertEquals(1, variant.getStudies().size());
         List<String> format = variant.getStudies().get(0).getFormat();
-        List<List<String>> samplesData = variant.getStudies().get(0).getSamplesData();
+        List<SampleEntry> samples = variant.getStudies().get(0).getSamples();
 
         // Check samples data is exactly in the same order as in the VCF (not alphabetical!)
-        assertEquals(2, samplesData.size());
+        assertEquals(2, samples.size());
         int dpPosition = format.indexOf(DP_TAG);
-        assertEquals("54", samplesData.get(0).get(dpPosition));
-        assertEquals("152", samplesData.get(1).get(dpPosition));
+        assertEquals("54", samples.get(0).getData().get(dpPosition));
+        assertEquals("152", samples.get(1).getData().get(dpPosition));
         int auPosition = format.indexOf(AU_TAG);
-        assertEquals("0,5", samplesData.get(0).get(auPosition));
-        assertEquals("3,26", samplesData.get(1).get(auPosition));
+        assertEquals("0,5", samples.get(0).getData().get(auPosition));
+        assertEquals("3,26", samples.get(1).getData().get(auPosition));
         int fdpPosition = format.indexOf(FDP_TAG);
-        assertEquals("14", samplesData.get(0).get(fdpPosition));
-        assertEquals("42", samplesData.get(1).get(fdpPosition));
+        assertEquals("14", samples.get(0).getData().get(fdpPosition));
+        assertEquals("42", samples.get(1).getData().get(fdpPosition));
 
     }
 }

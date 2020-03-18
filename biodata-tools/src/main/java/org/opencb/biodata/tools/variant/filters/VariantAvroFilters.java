@@ -24,6 +24,7 @@ import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.FileEntry;
+import org.opencb.biodata.models.variant.avro.SampleEntry;
 import org.opencb.biodata.models.variant.avro.VariantType;
 
 import java.util.*;
@@ -341,16 +342,16 @@ public class VariantAvroFilters extends VariantFilters<Variant> {
             return valueValidator.test(null);
         }
         if (mustPassAll) {
-            for (List<String> data : studyEntry.getSamplesData()) {
-                String value = data.get(idx);
+            for (SampleEntry sampleEntry : studyEntry.getSamples()) {
+                String value = sampleEntry.getData().get(idx);
                 if (!valueValidator.test(value)) {
                     return false;
                 }
             }
             return true;
         } else {
-            for (List<String> data : studyEntry.getSamplesData()) {
-                String value = data.get(idx);
+            for (SampleEntry sampleEntry : studyEntry.getSamples()) {
+                String value = sampleEntry.getData().get(idx);
                 if (valueValidator.test(value)) {
                     return true;
                 }

@@ -5,10 +5,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
-import org.opencb.biodata.models.variant.avro.StructuralVariantType;
-import org.opencb.biodata.models.variant.avro.StructuralVariation;
-import org.opencb.biodata.models.variant.avro.VariantType;
+import org.opencb.biodata.models.variant.avro.*;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 
 import java.util.*;
@@ -299,7 +296,7 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
     public void testNormalizeMultiallelicNoVariationSymbolic() throws NonStandardCompliantSampleField {
         Variant variant = Variant.newBuilder("2", 10, 10, "A", "C,<*>").setStudyId("s").setFileId("f")
                 .setFormat(Collections.emptyList())
-                .setSamplesData(Collections.emptyList()).build();
+                .setSamples(Collections.emptyList()).build();
 
         List<Variant> variants = normalizer.normalize(Collections.singletonList(variant), false);
         assertEquals(1, variants.size());
@@ -314,7 +311,7 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
     public void testNormalizeMultiallelicNoVariationSymbolicNonRef() throws NonStandardCompliantSampleField {
         Variant variant = Variant.newBuilder("2", 10, 10, "A", "C,<NON_REF>").setStudyId("s").setFileId("f")
                 .setFormat(Collections.emptyList())
-                .setSamplesData(Collections.emptyList()).build();
+                .setSamples(Collections.emptyList()).build();
 
         List<Variant> variants = normalizer.normalize(Collections.singletonList(variant), false);
         assertEquals(1, variants.size());
@@ -335,7 +332,7 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
         Map<String, Integer> map = new HashMap<>();
         map.put("S1",0);
         se.setSamplesPosition(map);
-        se.setSamplesData(Collections.singletonList(Collections.singletonList("1/2")));
+        se.setSamples(Collections.singletonList(new SampleEntry(null, null, Collections.singletonList("1/2"))));
         System.out.println("v1.getStudies().get(0) = " + v1.getStudies().get(0));
         List<AlternateCoordinate> secalt = se.getSecondaryAlternates();
         System.out.println("v1.toJson() = " + v1.toJson());

@@ -25,6 +25,7 @@ import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.FileEntry;
+import org.opencb.biodata.models.variant.avro.SampleEntry;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.biodata.models.variant.exceptions.NotAVariantException;
 import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
@@ -121,14 +122,14 @@ public class VariantVcfFactory implements VariantFactory {
 //        List<String> formatFields = variant.getSourceEntry(fileMetadata.getFileId(), fileMetadata.getStudyId()).getFormat();
 
         if (fields.length < 9) {
-            entry.setSamplesData(Collections.emptyList());
+            entry.setSamples(Collections.emptyList());
             entry.setSamplesPosition(Collections.emptyMap());
             return;
         }
         List<String> formatFields = Arrays.asList(fields[8].split(":"));
         entry.setSamplesPosition(fileMetadata.getSamplesPosition());
 
-        List<List<String>> samplesData = Arrays.asList(new List[fields.length - 9]);
+        List<SampleEntry> samplesData = Arrays.asList(new SampleEntry[fields.length - 9]);
         for (int i = 9; i < fields.length; i++) {
             List<String> data = Arrays.asList(fields[i].split(":"));
             if (data.size() < formatFields.size()) {
@@ -139,13 +140,13 @@ public class VariantVcfFactory implements VariantFactory {
                 }
                 data = correctSizeData;
             }
-            samplesData.set(i - 9, data);
+            samplesData.set(i - 9, new SampleEntry(null, null, data));
         }
 
 //        samplesData = variantNormalizer.normalizeSamplesData(variantKeyFields, samplesData, formatFields, reference, Arrays.asList(alternateAlleles), null);
 
         // Add samples data to the variant entry in the fileMetadata file
-        entry.setSamplesData(samplesData);
+        entry.setSamples(samplesData);
     }
 
     /**

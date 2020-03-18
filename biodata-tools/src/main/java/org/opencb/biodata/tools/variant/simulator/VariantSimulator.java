@@ -21,6 +21,7 @@ package org.opencb.biodata.tools.variant.simulator;
 import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.avro.SampleEntry;
 import org.opencb.biodata.models.variant.avro.VariantType;
 
 import java.math.RoundingMode;
@@ -291,11 +292,11 @@ public class VariantSimulator {
         Map<String, String> attributes = genAttributes();
         studyEntry.setAttributes(attributes);
         studyEntry.setFormat(getFormat());
-        List<List<String>> sampleList = new ArrayList<>(getFormat().size());
+        List<SampleEntry> sampleList = new ArrayList<>(n);
         for (int i = 0; i < n; i++) {
             sampleList.add(getRandomample());
         }
-        studyEntry.setSamplesData(sampleList);
+        studyEntry.setSamples(sampleList);
         studyEntryList.add(studyEntry);
         return studyEntryList;
     }
@@ -303,7 +304,7 @@ public class VariantSimulator {
     /**
      * @return sample
      */
-    private List<String> getRandomample() {
+    private SampleEntry getRandomample() {
         List<String> sample = new ArrayList<>();
         int gqValue = rand.nextInt(100 - 0 + 100) + 0;
         int dpValue = rand.nextInt(100 - 0 + 100) + 0;
@@ -318,7 +319,7 @@ public class VariantSimulator {
         sample.add(Integer.toString(gqValue));
         sample.add(Integer.toString(dpValue));
         sample.add(Integer.toString(hqValue));
-        return sample;
+        return new SampleEntry(null, null, sample);
     }
 
     /**

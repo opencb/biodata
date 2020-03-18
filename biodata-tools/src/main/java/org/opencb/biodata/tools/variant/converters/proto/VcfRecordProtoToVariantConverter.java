@@ -23,6 +23,7 @@ import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.FileEntry;
+import org.opencb.biodata.models.variant.avro.SampleEntry;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.protobuf.VariantProto;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
@@ -94,7 +95,7 @@ public class VcfRecordProtoToVariantConverter implements Converter<VcfSliceProto
         StudyEntry studyEntry = new StudyEntry(studyId);
         studyEntry.setFiles(Collections.singletonList(fileEntry));
         studyEntry.setFormat(getFormat(vcfRecord));
-        studyEntry.setSamplesData(getSamplesData(vcfRecord, studyEntry.getFormatPositions()));
+        studyEntry.setSamples(getSamples(vcfRecord, studyEntry.getFormatPositions()));
         studyEntry.setSamplesPosition(retrieveSamplePosition());
         studyEntry.getFormatPositions(); // Initialize the map
 
@@ -128,15 +129,15 @@ public class VcfRecordProtoToVariantConverter implements Converter<VcfSliceProto
         return end;
     }
 
-    private List<List<String>> getSamplesData(VcfSliceProtos.VcfRecord vcfRecord, Map<String, Integer> formatPositions) {
-        List<List<String>> samplesData = new ArrayList<>(vcfRecord.getSamplesCount());
+    private List<SampleEntry> getSamples(VcfSliceProtos.VcfRecord vcfRecord, Map<String, Integer> formatPositions) {
+        List<SampleEntry> samples = new ArrayList<>(vcfRecord.getSamplesCount());
         Integer gtPosition = formatPositions.get("GT");
         if (gtPosition == null) {
             for (VcfSliceProtos.VcfSample vcfSample : vcfRecord.getSamplesList()) {
                 if (vcfSample.getSampleValuesCount() == 0) {
-                    samplesData.add(vcfSample.getSampleValuesList());
+                    samples.add(new SampleEntry(null, null, vcfSample.getSampleValuesList()));
                 } else {
-                    samplesData.add(Collections.emptyList());
+                    samples.add(new SampleEntry(null, null, Collections.emptyList()));
                 }
             }
         } else {
@@ -149,11 +150,11 @@ public class VcfRecordProtoToVariantConverter implements Converter<VcfSliceProto
                 if (vcfSample.getSampleValuesCount() > 0) {
                     data.addAll(vcfSample.getSampleValuesList());
                 }
-                samplesData.add(data);
+                samples.add(new SampleEntry(null, null, data));
             }
         }
 
-        return samplesData;
+        return samples;
     }
 
     private Map<String, String> getFileAttributes(VcfSliceProtos.VcfRecord vcfRecord) {

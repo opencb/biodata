@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opencb.biodata.models.variant.*;
 import org.opencb.biodata.models.variant.avro.FileEntry;
+import org.opencb.biodata.models.variant.avro.SampleEntry;
 import org.opencb.biodata.models.variant.protobuf.VcfMeta;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
 
@@ -62,11 +63,11 @@ public class VcfRecordProtoToVariantConverterTest {
         StudyEntry studyEntry = new StudyEntry();
         studyEntry.setFormat(Collections.singletonList("GT"));
         studyEntry.setStudyId(studyId);
-        studyEntry.setSamplesData(Arrays.asList(
-                Arrays.asList("0|0"),
-                Arrays.asList("0|1"),
-                Arrays.asList("1|0"),
-                Arrays.asList("1|1")));
+        studyEntry.setSamples(Arrays.asList(
+                new SampleEntry(null, null, Arrays.asList("0|0")),
+                new SampleEntry(null, null, Arrays.asList("0|1")),
+                new SampleEntry(null, null, Arrays.asList("1|0")),
+                new SampleEntry(null, null, Arrays.asList("1|1"))));
         Map<String, String> attributes = new HashMap<>();
         attributes.put(StudyEntry.FILTER, "nopass");
         attributes.put(StudyEntry.QUAL, "50");
@@ -91,7 +92,7 @@ public class VcfRecordProtoToVariantConverterTest {
                 .setFilter("nopass")
                 .setQuality("50")
                 .setFormat(Collections.emptyList())
-                .setSamplesData(Collections.emptyList())
+                .setSamples(Collections.emptyList())
                 .setFileId(fileId)
                 .setCall("5:A:C:0")
                 .addAttribute("Key1", "V1")
@@ -101,7 +102,7 @@ public class VcfRecordProtoToVariantConverterTest {
                 .setFilter("nopass")
                 .setQuality("50")
                 .setFormat("GT", "DP")
-                .setSamplesData(Collections.emptyList())
+                .setSamples(Collections.emptyList())
                 .setFileId(fileId)
                 .setCall("5:A:C:0")
                 .addAttribute("Key1", "V1")
@@ -138,11 +139,11 @@ public class VcfRecordProtoToVariantConverterTest {
         StudyEntry studyEntry = new StudyEntry();
         studyEntry.setFormat(Arrays.asList("GT", "DP"));
         studyEntry.setStudyId(studyId);
-        studyEntry.setSamplesData(Arrays.asList(
-                Arrays.asList("0|0", "10"),
-                Arrays.asList("0|1", "20"),
-                Arrays.asList("1|0", "30"),
-                Arrays.asList("1|1", "40")));
+        studyEntry.setSamples(Arrays.asList(
+                new SampleEntry(null, null, Arrays.asList("0|0", "10")),
+                new SampleEntry(null, null, Arrays.asList("0|1", "20")),
+                new SampleEntry(null, null, Arrays.asList("1|0", "30")),
+                new SampleEntry(null, null, Arrays.asList("1|1", "40"))));
         Map<String, String> attributes = new HashMap<>();
         attributes.put(StudyEntry.FILTER, "PASS");
         attributes.put(StudyEntry.QUAL, "57");

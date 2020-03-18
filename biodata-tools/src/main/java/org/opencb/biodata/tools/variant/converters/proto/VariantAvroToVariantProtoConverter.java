@@ -28,6 +28,7 @@ import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantBuilder;
 import org.opencb.biodata.models.variant.avro.FileEntry;
+import org.opencb.biodata.models.variant.avro.SampleEntry;
 import org.opencb.biodata.models.variant.protobuf.VariantAnnotationProto;
 import org.opencb.biodata.models.variant.protobuf.VariantProto;
 import org.opencb.biodata.models.variant.stats.VariantStats;
@@ -79,8 +80,8 @@ public class VariantAvroToVariantProtoConverter implements Converter<Variant, Va
         studyBuilder.setStudyId(study.getStudyId());
         set(study::getStudyId, studyBuilder::setStudyId);
         set(study::getFormat, studyBuilder::addAllFormat);
-        for (List<String> sampleData : study.getSamplesData()) {
-            studyBuilder.addSamplesData(VariantProto.StudyEntry.SamplesDataInfoEntry.newBuilder().addAllInfo(sampleData));
+        for (SampleEntry sampleEntry : study.getSamples()) {
+            studyBuilder.addSamples(VariantProto.SampleEntry.newBuilder().addAllData(sampleEntry.getData()));
         }
 
         for (Map.Entry<String, VariantStats> entry : study.getStats().entrySet()) {

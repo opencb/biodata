@@ -26,6 +26,7 @@ import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantBuilder;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.FileEntry;
+import org.opencb.biodata.models.variant.avro.SampleEntry;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.protobuf.VariantProto;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
@@ -208,7 +209,7 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
 		/* FORMAT */
         if (!includeNoneFormats) {
             List<String> format = setFormat(recordBuilder, study);
-            recordBuilder.addAllSamples(encodeSamples(study.getFormatPositions(), format, study.getSamplesData()));
+            recordBuilder.addAllSamples(encodeSamples(study.getFormatPositions(), format, study.getSamples()));
         }
 
         /* TYPE */
@@ -384,19 +385,19 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
         return fields.getFormats(0).equals(format);
     }
 
-    public List<VcfSample> encodeSamples(Map<String, Integer> formatPositions, List<String> format, List<List<String>> samplesData) {
-        List<VcfSample> ret = new ArrayList<>(samplesData.size());
+    public List<VcfSample> encodeSamples(Map<String, Integer> formatPositions, List<String> format, List<SampleEntry> samples) {
+        List<VcfSample> ret = new ArrayList<>(samples.size());
         Integer gtPosition = formatPositions.get("GT");
-        // samplesData should have fields in the same order than formatLst
+        // samples should have fields in the same order than formatLst
         if (gtPosition == null || gtIndexMap.isEmpty()) {
-            for (List<String> sampleData : samplesData) {
+            for (SampleEntry sample : samples) {
                 if (includeAllFormats) {
-                    ret.add(VcfSample.newBuilder().addAllSampleValues(sampleData).build());
+                    ret.add(VcfSample.newBuilder().addAllSampleValues(sample.getData()).build());
                 } else {
                     List<String> filteredSampleData = new ArrayList<>(formatFields.size());
                     for (String formatField : format) {
                         Integer formatIdx = formatPositions.get(formatField);
-                        filteredSampleData.add(sampleData.get(formatIdx));
+                        filteredSampleData.add(sample.getData().get(formatIdx));
                     }
                     ret.add(VcfSample.newBuilder().addAllSampleValues(filteredSampleData).build());
                 }
@@ -405,18 +406,19 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
             if (gtPosition != 0) {
                 throw new IllegalArgumentException("GT must be in the first position or missing");
             }
-            for (List<String> sampleData : samplesData) {
-                String gt = sampleData.get(gtPosition);
+            for (SampleEntry sample : samples) {
+                List<String> data = sample.getData();
+                String gt = data.get(gtPosition);
                 int gtIndex = gtIndexMap.get(gt);
                 if (includeAllFormats) {
                     ret.add(VcfSample.newBuilder().setGtIndex(gtIndex)
-                            .addAllSampleValues(sampleData.subList(1, sampleData.size())).build());
+                            .addAllSampleValues(data.subList(1, data.size())).build());
                 } else {
                     List<String> filteredSampleData = new ArrayList<>(formatFields.size());
                     for (String formatField : format) {
                         Integer formatIdx = formatPositions.get(formatField);
                         if (!formatIdx.equals(gtPosition)) {
-                            filteredSampleData.add(sampleData.get(formatIdx));
+                            filteredSampleData.add(data.get(formatIdx));
                         }
                     }
                     ret.add(VcfSample.newBuilder().setGtIndex(gtIndex)
