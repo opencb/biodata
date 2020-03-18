@@ -119,7 +119,7 @@ public class VariantVcfHtsjdkReaderTest {
 
     private Variant getVariant(List<Variant> variantList, String id) {
         for (Variant variant : variantList) {
-            if (variant.getId().equals(id)) {
+            if (variant.getNames().contains(id)) {
                 return variant;
             }
         }

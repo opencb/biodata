@@ -66,7 +66,7 @@ public class VariantToVcfRecordTest {
     public void testConvertVariant() {
         // META
         VcfSliceProtos.Fields fields = VcfSliceProtos.Fields.newBuilder()
-                .addAllInfoKeys(Arrays.asList("X", "AB", "A"))
+                .addAllInfoKeys(Arrays.asList("X", "AB", "A", StudyEntry.VCF_ID))
                 .addFormats("GT")
                 .addFormats(format)
                 .addFilters("PASS")
@@ -89,7 +89,7 @@ public class VariantToVcfRecordTest {
         assertEquals(Arrays.asList("ab2", "ef2", "cd2"), new ArrayList<CharSequence>(rec.getSamples(1).getSampleValuesList()));
         assertEquals(0, rec.getSamples(1).getGtIndex());
         assertEquals(Float.parseFloat(qual) + 1, rec.getQuality(), 0);
-        assertEquals(Arrays.asList(0, 2), new ArrayList<>(rec.getInfoKeyIndexList()));
+        assertEquals(Arrays.asList(0, 2, 3), new ArrayList<>(rec.getInfoKeyIndexList()));
         assertEquals(2, rec.getFilterIndex());
 
         System.out.println(new VcfRecordProtoToVariantConverter(fields, v.getStudy("s").getSamplesPosition(), "f", "s").convert(rec).toJson());
@@ -104,7 +104,7 @@ public class VariantToVcfRecordTest {
     public void testConvertVariantGT() {
         // META
         VcfSliceProtos.Fields fields = VcfSliceProtos.Fields.newBuilder()
-                .addAllInfoKeys(Arrays.asList("X", "AB", "A"))
+                .addAllInfoKeys(Arrays.asList("X", "AB", "A", StudyEntry.VCF_ID))
                 .addFormats(formatGt)
                 .addFilters("PASS")
                 .addFilters("low30")
@@ -128,7 +128,7 @@ public class VariantToVcfRecordTest {
         assertEquals(Arrays.asList("ab2", "ef2", "cd2"), new ArrayList<CharSequence>(rec.getSamples(1).getSampleValuesList()));
         assertEquals(1, rec.getSamples(1).getGtIndex());
         assertEquals(Float.parseFloat(qual) + 1, rec.getQuality(), 0);
-        assertEquals(Arrays.asList(0, 2), new ArrayList<>(rec.getInfoKeyIndexList()));
+        assertEquals(Arrays.asList(0, 2, 3), new ArrayList<>(rec.getInfoKeyIndexList()));
         assertEquals(2, rec.getFilterIndex());
 
         System.out.println(new VcfRecordProtoToVariantConverter(fields, v.getStudy("s").getSamplesPosition(), "f", "s").convert(rec).toJson());

@@ -279,7 +279,7 @@ public class VariantVcfHtsjdkReader implements VariantReader {
                         String mateId = getMateId(variant);
                         // If there's no mate specified, add BND
                         if (mateId != null) {
-                            String breakendPairId = getBreakendPairId(variant.getId(), mateId);
+                            String breakendPairId = getBreakendPairId(variant.getNames().get(0), mateId);
                             // Mate was previously seen and stored, create Variant with the pair info, remove
                             // variantContext from sharedContext and continue
                             // WARNING: assuming BND positions cannot be multiallelic positions - there will always
