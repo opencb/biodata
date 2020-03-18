@@ -26,7 +26,7 @@ public class OboFileParserTest {
         OboTerm term0 = terms.get(0);
         assertEquals("HP:0000001", term0.getId());
         assertEquals("All", term0.getName());
-        assertNull(term0.getDefinition());
+        assertNull(term0.getDescription());
         assertEquals("Root of all terms in the Human Phenotype Ontology.", term0.getComment());
 
 //        [Term]
@@ -40,7 +40,7 @@ public class OboFileParserTest {
         OboTerm term1 = terms.get(1);
         assertEquals("HP:0000002", term1.getId());
         assertEquals("Abnormality of body height", term1.getName());
-        assertEquals("Deviation from the norm of height with respect to that which is expected according to age and gender norms.", term1.getDefinition());
+        assertEquals("Deviation from the norm of height with respect to that which is expected according to age and gender norms.", term1.getDescription());
         assertEquals("Abnormality of body height", term1.getSynonyms().get(0));
         assertEquals("UMLS:C4025901", term1.getXrefs().get(0));
         assertEquals("HP:0001507", term1.getParents().get(0));
