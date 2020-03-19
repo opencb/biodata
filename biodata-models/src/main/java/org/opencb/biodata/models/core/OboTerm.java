@@ -28,6 +28,7 @@ public class OboTerm {
     private List<String> synonyms;
     private List<String> xrefs;
     private List<String> parents;
+    private List<String> children;
 
     public OboTerm() {
 
@@ -44,6 +45,7 @@ public class OboTerm {
         sb.append(", synonyms=").append(synonyms);
         sb.append(", xrefs=").append(xrefs);
         sb.append(", parents=").append(parents);
+        sb.append(", children=").append(children);
         sb.append('}');
         return sb.toString();
     }
@@ -117,6 +119,15 @@ public class OboTerm {
 
     public OboTerm setParents(List<String> parents) {
         this.parents = parents;
+        return this;
+    }
+
+    public List<String> getChildren() {
+        return children;
+    }
+
+    public OboTerm setChildren(List<String> children) {
+        this.children = children;
         return this;
     }
 }

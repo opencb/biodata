@@ -16,6 +16,7 @@
 
 package org.opencb.biodata.formats.obo;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.obolibrary.oboformat.model.Frame;
 import org.obolibrary.oboformat.model.OBODoc;
 import org.obolibrary.oboformat.model.Xref;
@@ -28,6 +29,8 @@ import java.util.*;
 
 public class OboParser {
 
+    Map<String, OboTerm> oboTerms;
+
     public OboParser() {
 
     }
@@ -36,10 +39,10 @@ public class OboParser {
         OBOFormatParser parser = new OBOFormatParser();
         OBODoc oboDoc = parser.parse(bufferedReader);
         Collection<Frame> frames = oboDoc.getTermFrames();
-        List<OboTerm> oboTerms = new ArrayList<>();
+        oboTerms = new HashMap<>();
         for (Frame frame : frames) {
-            OboTerm oboTerm = new OboTerm();
-            oboTerm.setId(frame.getId());
+            String oboId = frame.getId();
+            OboTerm oboTerm = getOboTerm(oboId);
             for (String tag : frame.getTags()) {
                 switch(tag) {
                     case "name":
@@ -84,25 +87,36 @@ public class OboParser {
                         Collection<Object> parents = frame.getTagValues(tag);
                         for (Object parent : parents) {
                             existingParents.add(String.valueOf(parent));
+                            addChild(String.valueOf(parent), oboId);
                         }
                         oboTerm.setParents(existingParents);
                         break;
                     default:
-                        // code block
+                        // new tag we don't parse ignore
                 }
             }
-            oboTerms.add(oboTerm);
+
         }
-        return oboTerms;
+        return new ArrayList<>(oboTerms.values());
     }
 
-//    private OboTerm getOboTerm(String id) {
-//        OboTerm oboTerm = oboTermMap.get(id);
-//        if (oboTerm == null) {
-//            oboTerm = new OboTerm();
-//            oboTerm.setId(id);
-//            oboTermMap.put(id, oboTerm);
-//        }
-//        return oboTerm;
-//    }
+    private void addChild(String parentId, String childId) {
+        OboTerm parentTerm = getOboTerm(parentId);
+        List<String> children = parentTerm.getChildren();
+        if (CollectionUtils.isEmpty(children)) {
+            children = new ArrayList<>();
+        }
+        children.add(childId);
+        parentTerm.setChildren(children);
+    }
+
+    private OboTerm getOboTerm(String id) {
+        OboTerm oboTerm = oboTerms.get(id);
+        if (oboTerm == null) {
+            oboTerm = new OboTerm();
+            oboTerm.setId(id);
+            oboTerms.put(id, oboTerm);
+        }
+        return oboTerm;
+    }
 }
