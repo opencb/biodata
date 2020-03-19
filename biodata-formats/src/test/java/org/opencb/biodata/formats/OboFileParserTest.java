@@ -42,7 +42,10 @@ public class OboFileParserTest {
         assertEquals("Abnormality of body height", term1.getName());
         assertEquals("Deviation from the norm of height with respect to that which is expected according to age and gender norms.", term1.getDescription());
         assertEquals("Abnormality of body height", term1.getSynonyms().get(0));
+        assertEquals("Testing A", term1.getSynonyms().get(1));
         assertEquals("UMLS:C4025901", term1.getXrefs().get(0));
+        assertEquals("UMLS:test", term1.getXrefs().get(1));
         assertEquals("HP:0001507", term1.getParents().get(0));
+        assertEquals("HP:0000000", term1.getParents().get(1));
     }
 }

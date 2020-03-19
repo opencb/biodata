@@ -52,33 +52,40 @@ public class OboParser {
                         oboTerm.setNamespace((String) frame.getTagValue(tag));
                         break;
                     case "xref":
-                        List<String> xrefs = oboTerm.getXrefs();
-                        if (xrefs == null) {
-                            xrefs = new ArrayList<>();
+                        List<String> existingXrefs = oboTerm.getXrefs();
+                        if (existingXrefs == null) {
+                            existingXrefs = new ArrayList<>();
                         }
-                        Xref xref = (Xref) frame.getTagValue(tag);
-                        xrefs.add(xref.getIdref());
-                        oboTerm.setXrefs(xrefs);
+                        Collection<Object> xrefs = frame.getTagValues(tag);
+                        for (Object xref : xrefs) {
+                            existingXrefs.add(((Xref) xref).getIdref());
+                        }
+                        oboTerm.setXrefs(existingXrefs);
                         break;
                     case "comment":
                         oboTerm.setComment((String) frame.getTagValue(tag));
                         break;
                     case "synonym":
-                        List<String> synonyms = oboTerm.getSynonyms();
-                        if (synonyms == null) {
-                            synonyms = new ArrayList<>();
+                        List<String> existingSynonyms = oboTerm.getSynonyms();
+                        if (existingSynonyms == null) {
+                            existingSynonyms = new ArrayList<>();
                         }
-                        synonyms.add((String) frame.getTagValue(tag));
-                        oboTerm.setSynonyms(synonyms);
+                        Collection<Object> synonyms = frame.getTagValues(tag);
+                        for (Object synonym : synonyms) {
+                            existingSynonyms.add(String.valueOf(synonym));
+                        }
+                        oboTerm.setSynonyms(existingSynonyms);
                         break;
                     case "is_a":
-                        List<String> parents = oboTerm.getParents();
-                        if (parents == null) {
-                            parents = new ArrayList<>();
+                        List<String> existingParents = oboTerm.getParents();
+                        if (existingParents == null) {
+                            existingParents = new ArrayList<>();
                         }
-                        String parentId = (String) frame.getTagValue(tag);
-                        parents.add(parentId);
-                        oboTerm.setParents(parents);
+                        Collection<Object> parents = frame.getTagValues(tag);
+                        for (Object parent : parents) {
+                            existingParents.add(String.valueOf(parent));
+                        }
+                        oboTerm.setParents(existingParents);
                         break;
                     default:
                         // code block

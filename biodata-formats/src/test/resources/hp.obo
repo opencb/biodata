@@ -34,7 +34,11 @@ id: HP:0000002
 name: Abnormality of body height
 def: "Deviation from the norm of height with respect to that which is expected according to age and gender norms." [HPO:probinson]
 synonym: "Abnormality of body height" EXACT layperson []
+synonym: "Testing A" EXACT layperson []
+synonym: "Testing B" EXACT layperson []
 xref: UMLS:C4025901
+xref: UMLS:test
 is_a: HP:0001507 ! Growth abnormality
+is_a: HP:0000000 ! Test
 created_by: peter
 creation_date: 2008-02-27T02:20:00Z
