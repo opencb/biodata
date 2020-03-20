@@ -131,7 +131,7 @@ public class VariantAggregatedStatsCalculator {
      * @param info
      */
     protected void parseStats(Variant variant, StudyEntry file, int numAllele, String reference, String[] alternateAlleles, Map<String, String> info) {
-        VariantStats vs = new VariantStats();
+        VariantStats vs = new VariantStats(StudyEntry.DEFAULT_COHORT);
         Map<String, String> stats = new LinkedHashMap<>();
         for (Map.Entry<String, String> entry : info.entrySet()) {
 
@@ -145,7 +145,7 @@ public class VariantAggregatedStatsCalculator {
 
         calculate(variant, file, numAllele, reference, alternateAlleles, stats, vs);
 
-        file.setStats(StudyEntry.DEFAULT_COHORT, vs);
+        file.addStats(vs);
     }
 
     /**
@@ -172,9 +172,9 @@ public class VariantAggregatedStatsCalculator {
         }
 
         for (String cohortName : cohortStats.keySet()) {
-            VariantStats vs = new VariantStats();
+            VariantStats vs = new VariantStats(cohortName);
             calculate(variant, file, numAllele, reference, alternateAlleles, cohortStats.get(cohortName), vs);
-            file.setStats(cohortName, vs);
+            file.addStats(vs);
         }
     }
 

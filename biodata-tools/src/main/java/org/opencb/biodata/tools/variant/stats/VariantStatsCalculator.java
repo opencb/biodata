@@ -257,7 +257,8 @@ public class VariantStatsCalculator {
         for (Variant variant : variants) {
             for (StudyEntry entry : variant.getStudies()) {
                 VariantStats stats = calculate(variant, entry);
-                entry.setStats(StudyEntry.DEFAULT_COHORT, stats);
+                stats.setCohortId(StudyEntry.DEFAULT_COHORT);
+                entry.addStats(stats);
             }
         }
     }

@@ -165,20 +165,18 @@ public class VariantProtoToVariantContextConverter extends VariantContextConvert
         }
 
         List<String> statsList = new ArrayList<>();
-        for (Map.Entry<String, VariantProto.VariantStats> entry : studyEntry.getStats().entrySet()) {
-            String cohortName = entry.getKey();
-            VariantProto.VariantStats stats = entry.getValue();
-
-//            if (cohortName.equals(StudyEntry.DEFAULT_COHORT)) {
+        for (VariantProto.VariantStats stats : studyEntry.getStatsList()) {
+            String cohortId = stats.getCohortId();
+//            if (cohortId.equals(StudyEntry.DEFAULT_COHORT)) {
 //                int an = stats.getAlleleCount();
 //                if (an >= 0) {
-//                    attributes.put(cohortName + VCFConstants.ALLELE_NUMBER_KEY, String.valueOf(an));
+//                    attributes.put(cohortId + VCFConstants.ALLELE_NUMBER_KEY, String.valueOf(an));
 //                }
 //                if (stats.getAltAlleleCount() >= 0) {
-//                    attributes.put(cohortName + VCFConstants.ALLELE_COUNT_KEY, String.valueOf(stats.getAltAlleleCount()));
+//                    attributes.put(cohortId + VCFConstants.ALLELE_COUNT_KEY, String.valueOf(stats.getAltAlleleCount()));
 //                }
 //            }
-            statsList.add(cohortName + ":" + DECIMAL_FORMAT_7.format(stats.getAltAlleleFreq()));
+            statsList.add(cohortId + ":" + DECIMAL_FORMAT_7.format(stats.getAltAlleleFreq()));
         }
         // set cohort stats attributes
         attributes.put(STATS_INFO_KEY, String.join(FIELD_SEPARATOR, statsList));

@@ -42,7 +42,8 @@ public class StudyEntry implements Serializable {
 
     private volatile LinkedHashMap<String, Integer> samplesPosition = null;
     private final AtomicReference<Map<String, Integer>> sampleDataKeysPosition = new AtomicReference<>();
-    private volatile Map<String, VariantStats> cohortStats = null;
+//    private volatile Map<String, VariantStats> cohortStats = null;
+    private volatile List<VariantStats> stats = null;
     private final org.opencb.biodata.models.variant.avro.StudyEntry impl;
 
     public static final String DEFAULT_COHORT = "ALL";
@@ -73,7 +74,7 @@ public class StudyEntry implements Serializable {
 
     public StudyEntry(String studyId, List<AlternateCoordinate> secondaryAlternates, List<String> format) {
         this.impl = new org.opencb.biodata.models.variant.avro.StudyEntry(studyId,
-                new ArrayList<>(), null, format, new ArrayList<>(), new ArrayList<>(), new LinkedHashMap<>(), new ArrayList<>());
+                new ArrayList<>(), null, format, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         setSecondaryAlternates(secondaryAlternates);
     }
 
@@ -430,53 +431,46 @@ public class StudyEntry implements Serializable {
         return this;
     }
 
-    public Map<String, VariantStats> getStats() {
-        resetStatsMap();
-        return Collections.unmodifiableMap(cohortStats);
+    public List<VariantStats> getStats() {
+        resetStatsList();
+        return Collections.unmodifiableList(stats);
     }
 
-    private void resetStatsMap() {
-        if (cohortStats == null) {
-            cohortStats = new HashMap<>();
-            impl.getStats().forEach((k, v) -> cohortStats.put(k, new VariantStats(v)));
+    public void setStats(List<VariantStats> stats) {
+        impl.setStats(new ArrayList<>(stats.size()));
+        stats.forEach((v) -> impl.getStats().add(v.getImpl()));
+        this.stats = stats;
+    }
+
+    public void addStats(VariantStats stats) {
+        resetStatsList();
+        impl.getStats().add(stats.getImpl());
+        this.stats.add(stats);
+
+    }
+
+    public VariantStats getStats(String cohortId) {
+        resetStatsList();
+        for (VariantStats stats : stats) {
+            if (stats.getCohortId().equals(cohortId)) {
+                return stats;
+            }
         }
+        return null;
     }
 
-    public void setStats(Map<String, VariantStats> stats) {
-        this.cohortStats = stats;
-        impl.setStats(new HashMap<>(stats.size()));
-        stats.forEach((k, v) -> impl.getStats().put(k, v.getImpl()));
-    }
-
-    public void setStats(String cohortName, VariantStats stats) {
-        resetStatsMap();
-        cohortStats.put(cohortName, stats);
-        impl.getStats().put(cohortName, stats.getImpl());
-    }
-
-    public VariantStats getStats(String cohortName) {
-        resetStatsMap();
-        return cohortStats.get(cohortName);
-    }
-
-    @Deprecated
-    public VariantStats getCohortStats(String cohortName) {
-        return getStats(cohortName);
-    }
-
-    @Deprecated
-    public void setCohortStats(String cohortName, VariantStats stats) {
-        setStats(cohortName, stats);
-    }
-
-    @Deprecated
-    public Map<String, VariantStats> getCohortStats() {
-        return getStats();
-    }
-
-    @Deprecated
-    public void setCohortStats(Map<String, VariantStats> cohortStats) {
-        setStats(cohortStats);
+    private void resetStatsList() {
+        if (stats == null) {
+            if (impl.getStats() == null) {
+                impl.setStats(new ArrayList<>());
+                stats = new ArrayList<>();
+            } else {
+                stats = new ArrayList<>(impl.getStats().size());
+                for (org.opencb.biodata.models.variant.avro.VariantStats v : impl.getStats()) {
+                    stats.add(new VariantStats(v));
+                }
+            }
+        }
     }
 
     public void addFileData(String fileId, String key, String value) {

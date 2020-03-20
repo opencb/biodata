@@ -196,14 +196,14 @@ public class VariantContextToVariantProtoConverter implements Converter<VariantC
          * being as these value will not be getting from HTSJDK
          * currently.
          */
-        Map<String, VariantProto.VariantStats> stats = new HashMap<>();
+        List<VariantProto.VariantStats> stats = new ArrayList<>();
         //TODO: Call to the Variant Aggregated Stats Parser
 //        stats.put(
 //                "2",
 //                setVariantStatsParams(
 //                        setVariantHardyWeinbergStatsParams(),
 //                        variantContext));
-        variantSourceEntry.putAllStats(stats);
+        variantSourceEntry.addAllStats(stats);
 
         studies.add(variantSourceEntry.build());
         variant.addAllStudies(studies);

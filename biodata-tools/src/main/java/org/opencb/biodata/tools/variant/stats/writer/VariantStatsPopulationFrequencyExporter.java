@@ -37,7 +37,6 @@ import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Exports the given variant stats into a Json format.
@@ -91,12 +90,11 @@ public class VariantStatsPopulationFrequencyExporter implements DataWriter<Varia
     public boolean write(Variant variant) {
         ArrayList<PopulationFrequency> frequencies = new ArrayList<>();
         for (StudyEntry studyEntry : variant.getStudies()) {
-            for (Map.Entry<String, VariantStats> cohortEntry : studyEntry.getStats().entrySet()) {
+            for (VariantStats variantStats : studyEntry.getStats()) {
                 String studyId = studyEntry.getStudyId();
                 studyId = studyId.substring(studyId.lastIndexOf(":") + 1);
                 PopulationFrequency populationFrequency = converter.convert(studyId,
-                        cohortEntry.getKey(),
-                        cohortEntry.getValue(), variant.getReference(), variant.getAlternate());
+                        variantStats, variant.getReference(), variant.getAlternate());
                 // Write only frequencies non zero
                 if (populationFrequency.getAltAlleleFreq() > 0 && !populationFrequency.getAltAlleleFreq().isNaN()) {
                     frequencies.add(populationFrequency);

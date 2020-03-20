@@ -36,6 +36,11 @@ protocol Variants {
 
     record VariantStats {
         /**
+         * Cohort identifier
+         **/
+        string cohortId;
+
+        /**
          * Total number of alleles in called genotypeCounters. Does not include missing alleles
          **/
         union { null, int } alleleCount;
@@ -244,7 +249,7 @@ protocol Variants {
          * Statistics of the genomic variation, such as its alleles/genotypeCounters count
          * or its minimum allele frequency, grouped by cohort name.
          */
-        map<VariantStats> stats;
+        array<VariantStats> stats;
 
         array<VariantScore> scores = [];
     }

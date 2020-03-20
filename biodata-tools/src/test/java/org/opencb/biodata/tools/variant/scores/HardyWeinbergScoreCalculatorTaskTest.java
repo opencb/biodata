@@ -30,7 +30,8 @@ public class HardyWeinbergScoreCalculatorTaskTest {
                 .setStudyId(STUDY)
                 .build();
 
-        variant.getStudy(STUDY).setStats(Collections.singletonMap("ALL", new VariantStats()
+        variant.getStudy(STUDY).setStats(Collections.singletonList(new VariantStats()
+                .setCohortId("ALL")
                 .addGenotype(new Genotype("0/0"), 50)
                 .addGenotype(new Genotype("0/1"), 20)
                 .addGenotype(new Genotype("1/1"), 5)

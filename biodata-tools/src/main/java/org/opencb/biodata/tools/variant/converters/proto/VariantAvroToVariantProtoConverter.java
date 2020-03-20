@@ -84,10 +84,9 @@ public class VariantAvroToVariantProtoConverter implements Converter<Variant, Va
             studyBuilder.addSamples(VariantProto.SampleEntry.newBuilder().addAllData(sampleEntry.getData()));
         }
 
-        for (Map.Entry<String, VariantStats> entry : study.getStats().entrySet()) {
-            VariantStats stats = entry.getValue();
+        for (VariantStats stats : study.getStats()) {
             VariantProto.VariantStats.Builder variantStats = toProto(stats);
-            studyBuilder.putStats(entry.getKey(), variantStats.build());
+            studyBuilder.addStats(variantStats.build());
         }
         for (FileEntry fileEntry : study.getFiles()) {
             VariantProto.FileEntry.Builder fileBuilder = toProto(fileEntry);

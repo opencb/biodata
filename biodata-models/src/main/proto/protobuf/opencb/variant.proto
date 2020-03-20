@@ -44,6 +44,11 @@ enum VariantType {
 
 message VariantStats {
     /**
+     * Cohort identifier
+     **/
+    string cohortId = 17;
+
+    /**
      * Total number of alleles in called genotypeCounters. Does not include missing alleles
      **/
     int32 alleleCount = 1;
@@ -164,7 +169,7 @@ message StudyEntry {
     repeated AlternateCoordinate secondaryAlternates = 3;
     repeated string sampleDataKeys = 4;
     repeated SampleEntry samples = 5;
-    map<string, VariantStats> stats = 6;
+    repeated VariantStats stats = 6;
 }
 
 /**

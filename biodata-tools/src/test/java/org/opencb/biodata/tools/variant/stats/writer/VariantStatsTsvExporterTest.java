@@ -41,9 +41,9 @@ public class VariantStatsTsvExporterTest {
     private Variant getVariant(String s, String gt1, String gt2, String gt3) {
         Variant variant = VariantTestUtils.generateVariant(s, "s1", gt1, "s2", gt2, "s3", gt3);
         StudyEntry study = variant.getStudy("");
-        study.setStats("ALL", VariantStatsCalculator.calculate(variant, study));
-        study.setStats("C1", VariantStatsCalculator.calculate(variant, study, Arrays.asList("s1", "s2")));
-        study.setStats("C2", VariantStatsCalculator.calculate(variant, study, Arrays.asList("s2", "s3")));
+        study.addStats(VariantStatsCalculator.calculate(variant, study).setCohortId("ALL"));
+        study.addStats(VariantStatsCalculator.calculate(variant, study, Arrays.asList("s1", "s2")).setCohortId("C1"));
+        study.addStats(VariantStatsCalculator.calculate(variant, study, Arrays.asList("s2", "s3")).setCohortId("C2"));
 
         VariantAnnotation annotation = new VariantAnnotation();
         annotation.setId("rs" + RandomUtils.nextInt());
