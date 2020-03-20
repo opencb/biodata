@@ -66,12 +66,12 @@ public class VariantStatsCalculator {
         int numQualFiles = 0;
         double qualSum = 0;
         for (FileEntry file : study.getFiles()) {
-            String filter = file.getAttributes().get(StudyEntry.FILTER);
+            String filter = file.getData().get(StudyEntry.FILTER);
             if (StringUtils.isNotEmpty(filter)) {
                 addFileFilter(filter, variantStats.getFilterCount());
                 numFilterFiles++;
             }
-            String qual = file.getAttributes().get(StudyEntry.QUAL);
+            String qual = file.getData().get(StudyEntry.QUAL);
             if (StringUtils.isNotEmpty(qual) && !qual.equals(".")) {
                 qualSum += Double.parseDouble(qual);
                 numQualFiles++;

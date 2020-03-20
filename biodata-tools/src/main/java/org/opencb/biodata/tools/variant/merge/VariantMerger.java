@@ -546,7 +546,7 @@ public class VariantMerger {
         String currentFilterValue = null;
         if (!currentStudy.getSampleDataKeySet().contains(getFilterKey()) && newFormatPositions.containsKey(getFilterKey())) {
             currentFilterValue = currentStudy.getFiles().isEmpty() ? getDefaultValue(getFilterKey())
-                    : currentStudy.getFiles().get(0).getAttributes().getOrDefault(getAnnotationFilterKey(), getDefaultValue(getFilterKey()));
+                    : currentStudy.getFiles().get(0).getData().getOrDefault(getAnnotationFilterKey(), getDefaultValue(getFilterKey()));
         }
         int currentSampleIdx = 0;
         for (String sample : currentStudy.getOrderedSamplesName()) {
@@ -585,7 +585,7 @@ public class VariantMerger {
         }
         if (currentStudyRearranger != null) {
             for (FileEntry file : currentStudy.getFiles()) {
-                file.getAttributes().replaceAll(currentStudyRearranger::rearrange);
+                file.getData().replaceAll(currentStudyRearranger::rearrange);
             }
         }
 
@@ -691,7 +691,7 @@ public class VariantMerger {
                     if (otherFilterIdx != null) {
                         filter = otherSampleData.get(otherFilterIdx);
                     } else {
-                        filter = otherStudy.getFiles().get(0).getAttributes()
+                        filter = otherStudy.getFiles().get(0).getData()
                                 .getOrDefault(StudyEntry.FILTER, getDefaultValue(getFilterKey()));
                     }
 
@@ -1031,7 +1031,7 @@ public class VariantMerger {
             }
         }
         for (FileEntry file : files) {
-            for (Map.Entry<String, String> entry : file.getAttributes().entrySet()) {
+            for (Map.Entry<String, String> entry : file.getData().entrySet()) {
                 String data = entry.getValue();
                 if (rearranger != null) {
                     data = rearranger.rearrange(entry.getKey(), data);

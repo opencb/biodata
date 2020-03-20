@@ -49,7 +49,7 @@ public class VariantAvroToVariantContextConverter extends VariantContextConverte
 
         StudyEntry studyEntry = getStudy(variant);
         List<Map<String, String>> fileAttributes = studyEntry.getFiles().stream()
-                .map(FileEntry::getAttributes)
+                .map(FileEntry::getData)
                 .collect(Collectors.toList());
 
         // CHROM START END REFERENCE ALTERNATE

@@ -81,9 +81,9 @@ public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsC
 
         if (info.containsKey("GTS") && info.containsKey("GTC")) {
             String splitsGTC[] = info.get("GTC").split(",");
-            addGenotypeWithGTS(study.getAttributes(), splitsGTC, reference, alternateAlleles, numAllele, stats);
+            addGenotypeWithGTS(study.getFile(0).getData(), splitsGTC, reference, alternateAlleles, numAllele, stats);
         }
-        calculateFilterQualStats(fileEntry.getAttributes(), stats);
+        calculateFilterQualStats(fileEntry.getData(), stats);
 
         study.setStats(StudyEntry.DEFAULT_COHORT, stats);
     }
@@ -125,7 +125,7 @@ public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsC
                                 // TODO implement this. also, take into account that needed fields may not be processed yet
                                 break;
                             case "GTC":
-                                addGenotypeWithGTS(studyEntry.getAttributes(), values, reference, alternateAlleles, numAllele, cohortStats);
+                                addGenotypeWithGTS(studyEntry.getFile(0).getData(), values, reference, alternateAlleles, numAllele, cohortStats);
                                 break;
                             default:
                                 break;

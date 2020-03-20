@@ -27,7 +27,7 @@ public class VariantTestUtils {
         return generateVariantWithFormat(var, filter, qual, Collections.emptyMap(), format, samplesDataArray);
     }
 
-    public static Variant generateVariantWithFormat(String var, String filter, Float qual, Map<String, String> attributes, String format, String... samplesDataArray) {
+    public static Variant generateVariantWithFormat(String var, String filter, Float qual, Map<String, String> fileData, String format, String... samplesDataArray) {
         String qualStr;
         if (qual == null) {
             qualStr = ".";
@@ -41,7 +41,7 @@ public class VariantTestUtils {
         String[] formats = format.split("[:,]");
 
         VariantBuilder variantBuilder = Variant.newBuilder(var)
-                .setAttributes(attributes)
+                .setFileData(fileData)
                 .setQuality(qualStr)
                 .setFilter(filter)
                 .setSampleDataKeys(formats)

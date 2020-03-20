@@ -71,35 +71,6 @@ public class StudyEntry implements Serializable {
         }
     }
 
-    /**
-     * @deprecated Use {@link #StudyEntry(String, List, List)}
-     */
-    @Deprecated
-    public StudyEntry(String fileId, String studyId, String[] secondaryAlternates, String format) {
-        this(fileId, studyId, secondaryAlternates, format == null ? null : Arrays.asList(format.split(":")));
-    }
-
-    /**
-     * @deprecated Use {@link #StudyEntry(String, List, List)}
-     */
-    @Deprecated
-    public StudyEntry(String fileId, String studyId, String[] secondaryAlternates, List<String> format) {
-        this(fileId, studyId, Arrays.asList(secondaryAlternates), format);
-    }
-
-    /**
-     * @deprecated Use {@link #StudyEntry(String, List, List)}
-     */
-    @Deprecated
-    public StudyEntry(String fileId, String studyId, List<String> secondaryAlternates, List<String> format) {
-        this.impl = new org.opencb.biodata.models.variant.avro.StudyEntry(studyId,
-                new ArrayList<>(), null, format, new ArrayList<>(), new ArrayList<>(), new LinkedHashMap<>(), new ArrayList<>());
-        setSecondaryAlternatesAlleles(secondaryAlternates);
-        if (fileId != null) {
-            setFileId(fileId);
-        }
-    }
-
     public StudyEntry(String studyId, List<AlternateCoordinate> secondaryAlternates, List<String> format) {
         this.impl = new org.opencb.biodata.models.variant.avro.StudyEntry(studyId,
                 new ArrayList<>(), null, format, new ArrayList<>(), new ArrayList<>(), new LinkedHashMap<>(), new ArrayList<>());
@@ -508,28 +479,12 @@ public class StudyEntry implements Serializable {
         setStats(cohortStats);
     }
 
-    @Deprecated
-    public String getAttribute(String key) {
-        Map<String, String> attributes = getAttributes();
-        return attributes == null ? null : attributes.get(key);
+    public void addFileData(String fileId, String key, String value) {
+        getFile(fileId).getData().put(key, value);
     }
 
-    @Deprecated
-    public void addAttribute(String key, String value) {
-        getAttributes().put(key, value);
-    }
-
-    public void addAttribute(String fileId, String key, String value) {
-        getFile(fileId).getAttributes().put(key, value);
-    }
-
-    public void addAttributes(String fileId, Map<String, String> attributes) {
-        getFile(fileId).getAttributes().putAll(attributes);
-    }
-
-    @Deprecated
-    public boolean hasAttribute(String key) {
-        return getAttributes().containsKey(key);
+    public void addFileData(String fileId, Map<String, String> data) {
+        getFile(fileId).getData().putAll(data);
     }
 
     private void requireSamplesPosition() {
@@ -554,6 +509,10 @@ public class StudyEntry implements Serializable {
     public StudyEntry setFiles(List<FileEntry> files) {
         impl.setFiles(files);
         return this;
+    }
+
+    public FileEntry getFile(int fileIndex) {
+        return impl.getFiles().get(fileIndex);
     }
 
     public FileEntry getFile(String fileId) {
@@ -609,30 +568,6 @@ public class StudyEntry implements Serializable {
 
     public void setSecondaryAlternates(List<AlternateCoordinate> value) {
         impl.setSecondaryAlternates(value);
-    }
-
-    @Deprecated
-    public Map<String, String> getAttributes() {
-        return !impl.getFiles().isEmpty() ? impl.getFiles().get(0).getAttributes() : null;
-    }
-
-    public Map<String, String> getAllAttributes() {
-        Map<String, String> attributes = new HashMap<>();
-        impl.getFiles().stream().forEach(fileEntry ->
-                attributes.putAll(fileEntry.getAttributes().entrySet().stream()
-                        .collect(Collectors.toMap(entry -> fileEntry.getFileId() + "_" + entry.getKey(), Map.Entry::getValue))
-                )
-        );
-        return Collections.unmodifiableMap(attributes);
-    }
-
-    @Deprecated
-    public void setAttributes(Map<String, String> attributes) {
-        if (impl.getFiles().isEmpty()) {
-            impl.getFiles().add(new FileEntry("", null, attributes));
-        } else {
-            impl.getFiles().get(0).setAttributes(attributes);
-        }
     }
 
     public List<VariantScore> getScores() {

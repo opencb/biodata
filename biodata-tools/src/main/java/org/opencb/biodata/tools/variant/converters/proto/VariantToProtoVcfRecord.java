@@ -182,7 +182,7 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
         }
 
         FileEntry file = study.getFiles().get(0);
-        Map<String, String> attr = Collections.unmodifiableMap(file.getAttributes());   //DO NOT MODIFY
+        Map<String, String> fileData = Collections.unmodifiableMap(file.getData());   //DO NOT MODIFY
 
         if ( !variant.getType().equals(VariantType.NO_VARIATION)
                 && file.getCall() != null && !file.getCall().isEmpty()
@@ -192,18 +192,18 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
 
 		/* Filter */
         if (includeFilter) {
-            int filter = encodeFilter(attr.get(StudyEntry.FILTER));
+            int filter = encodeFilter(fileData.get(StudyEntry.FILTER));
             recordBuilder.setFilterIndex(filter);
         }
 
 		/* QUAL */
         if (includeQual) {
-            recordBuilder.setQuality(encodeQuality(attr.get(StudyEntry.QUAL)));
+            recordBuilder.setQuality(encodeQuality(fileData.get(StudyEntry.QUAL)));
         }
 
 		/* INFO */
         if (!includeNoneAttributes) {
-            setInfoKeyValues(recordBuilder, attr);
+            setInfoKeyValues(recordBuilder, fileData);
         }
 
 		/* FORMAT */

@@ -159,9 +159,9 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
             // Do not use "getAttributeAsString" for lists.
             // It will add brackets surrounding the values
             if (variantContext.getAttribute(key, "") instanceof List) {
-                builder.addAttribute(key, variantContext.getAttributeAsList(key));
+                builder.addFileData(key, variantContext.getAttributeAsList(key));
             } else {
-                builder.addAttribute(key, variantContext.getAttributeAsString(key, ""));
+                builder.addFileData(key, variantContext.getAttributeAsString(key, ""));
             }
         }
 
@@ -205,7 +205,7 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
                 }
             }
         }
-        builder.setFormat(formatFields);
+        builder.setSampleDataKeys(formatFields);
 
         Map<Allele, String> allelesMap = getAlleleStringMap(variantContext);
 

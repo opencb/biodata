@@ -409,8 +409,8 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
                             List<FileEntry> files = new ArrayList<>(entry.getFiles().size());
                             for (FileEntry file : entry.getFiles()) {
-                                HashMap<String, String> attributes = new HashMap<>(file.getAttributes());
-                                files.add(new FileEntry(file.getFileId(), sameVariant ? null : call, attributes));
+                                HashMap<String, String> fileData = new HashMap<>(file.getData());
+                                files.add(new FileEntry(file.getFileId(), sameVariant ? null : call, fileData));
                             }
                             normalizedEntry.setFiles(files);
                             normalizedVariant.addStudyEntry(normalizedEntry);
@@ -419,7 +419,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
                         if (keyFields.isReferenceBlock()) {
                             normalizedVariant.setType(VariantType.NO_VARIATION);
-                            normalizedEntry.getFiles().forEach(fileEntry -> fileEntry.getAttributes().put("END", Integer.toString(keyFields.getEnd())));
+                            normalizedEntry.getFiles().forEach(fileEntry -> fileEntry.getData().put("END", Integer.toString(keyFields.getEnd())));
                         }
 
 
@@ -495,7 +495,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         }
 
         for (FileEntry file : files) {
-            for (Map.Entry<String, String> entry : file.getAttributes().entrySet()) {
+            for (Map.Entry<String, String> entry : file.getData().entrySet()) {
                 String data = rearranger.rearrange(entry.getKey(), entry.getValue());
                 entry.setValue(data);
             }

@@ -85,11 +85,11 @@ public class VcfRecordProtoToVariantConverter implements Converter<VcfSliceProto
 
         FileEntry fileEntry = new FileEntry();
         fileEntry.setFileId(fileId);
-        Map<String, String> attributes = getFileAttributes(vcfRecord);
-        fileEntry.setAttributes(attributes);
+        Map<String, String> fileData = getFileData(vcfRecord);
+        fileEntry.setData(fileData);
         fileEntry.setCall(vcfRecord.getCall().isEmpty() ? null : vcfRecord.getCall());
         if (vcfRecord.getType().equals(VariantProto.VariantType.NO_VARIATION)) {
-            attributes.put("END", Integer.toString(end));
+            fileData.put("END", Integer.toString(end));
         }
 
         StudyEntry studyEntry = new StudyEntry(studyId);
@@ -155,8 +155,8 @@ public class VcfRecordProtoToVariantConverter implements Converter<VcfSliceProto
         return samples;
     }
 
-    private Map<String, String> getFileAttributes(VcfSliceProtos.VcfRecord vcfRecord) {
-        Map<String, String> attributes = new HashMap<>(vcfRecord.getInfoKeyIndexCount());
+    private Map<String, String> getFileData(VcfSliceProtos.VcfRecord vcfRecord) {
+        Map<String, String> fileData = new HashMap<>(vcfRecord.getInfoKeyIndexCount());
         Iterator<Integer> keyIdxIterator;
         if (vcfRecord.getInfoKeyIndexCount() != vcfRecord.getInfoValueCount()) {
             if (fields.getDefaultInfoKeysCount() != vcfRecord.getInfoValueCount()) {
@@ -169,20 +169,20 @@ public class VcfRecordProtoToVariantConverter implements Converter<VcfSliceProto
         Iterator<String> valueIterator = vcfRecord.getInfoValueList().iterator();
 
         while (keyIdxIterator.hasNext()) {
-            attributes.put(fields.getInfoKeys(keyIdxIterator.next()), valueIterator.next());
+            fileData.put(fields.getInfoKeys(keyIdxIterator.next()), valueIterator.next());
         }
 
         String quality = getQuality(vcfRecord);
         if (quality != null) {
-            attributes.put(StudyEntry.QUAL, quality);
+            fileData.put(StudyEntry.QUAL, quality);
         }
 
         String filter = getFilter(vcfRecord);
         if (filter != null) {
-            attributes.put(StudyEntry.FILTER, filter);
+            fileData.put(StudyEntry.FILTER, filter);
         }
 
-        return attributes;
+        return fileData;
     }
 
     private String getQuality(VcfSliceProtos.VcfRecord vcfRecord) {

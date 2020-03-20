@@ -25,6 +25,7 @@ import org.opencb.biodata.formats.variant.vcf4.VariantVcfFactory;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
+import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 
@@ -553,23 +554,25 @@ public class VariantVcfFactoryTest {
 
         Variant variant0 = result.get(0);
         StudyEntry study0 = variant0.getStudy(metadata.getId());
-        assertEquals(4, Integer.parseInt(study0.getAttribute("NS")));
-//        assertEquals(2, Integer.parseInt(study0.getAttribute("AN")));
-        assertEquals(1, Integer.parseInt(study0.getAttribute("AC").split(",")[0]));
-        assertEquals(0.125, Double.parseDouble(study0.getAttribute("AF").split(",")[0]), 1e-8);
-        assertEquals(63, Integer.parseInt(study0.getAttribute("DP")));
-        assertEquals(10685, Integer.parseInt(study0.getAttribute("MQ")));
-//        assertEquals(1, Integer.parseInt(study0.getAttribute("MQ0")));
+        Map<String, String> data0 = study0.getFile(0).getData();
+        assertEquals(4, Integer.parseInt(data0.get("NS")));
+//        assertEquals(2, Integer.parseInt(data0.get("AN")));
+        assertEquals(1, Integer.parseInt(data0.get("AC").split(",")[0]));
+        assertEquals(0.125, Double.parseDouble(data0.get("AF").split(",")[0]), 1e-8);
+        assertEquals(63, Integer.parseInt(data0.get("DP")));
+        assertEquals(10685, Integer.parseInt(data0.get("MQ")));
+//        assertEquals(1, Integer.parseInt(data0.get("MQ0")));
 
         Variant variant1 = result.get(1);
         StudyEntry study1 = variant1.getStudy(metadata.getId());
-        assertEquals(4, Integer.parseInt(study1.getAttribute("NS")));
-//        assertEquals(2, Integer.parseInt(study1.getAttribute("AN")));
-        assertEquals(2, Integer.parseInt(study1.getAttribute("AC").split(",")[0]));
-        assertEquals(0.25, Double.parseDouble(study1.getAttribute("AF").split(",")[0]), 1e-8);
-        assertEquals(63, Integer.parseInt(study1.getAttribute("DP")));
-        assertEquals(10685, Integer.parseInt(study1.getAttribute("MQ")));
-//        assertEquals(1, Integer.parseInt(study1.getAttribute("MQ0")));
+        Map<String, String> data1 = study1.getFile(0).getData();
+        assertEquals(4, Integer.parseInt(data1.get("NS")));
+//        assertEquals(2, Integer.parseInt(data1.get("AN")));
+        assertEquals(2, Integer.parseInt(data1.get("AC").split(",")[0]));
+        assertEquals(0.25, Double.parseDouble(data1.get("AF").split(",")[0]), 1e-8);
+        assertEquals(63, Integer.parseInt(data1.get("DP")));
+        assertEquals(10685, Integer.parseInt(data1.get("MQ")));
+//        assertEquals(1, Integer.parseInt(data1.get("MQ0")));
     }
 
     private List<Variant> createAndNormalize(String line) {

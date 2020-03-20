@@ -48,7 +48,7 @@ public class VariantProtoToVariantContextConverter extends VariantContextConvert
         VariantProto.StudyEntry studyEntry = getStudy(variant);
 
         List<Map<String, String>> fileAttributes = studyEntry.getFilesList().stream()
-                .map(VariantProto.FileEntry::getAttributesMap)
+                .map(VariantProto.FileEntry::getDataMap)
                 .collect(Collectors.toList());
 
         // CHROM START END REFERENCE ALTERNATE

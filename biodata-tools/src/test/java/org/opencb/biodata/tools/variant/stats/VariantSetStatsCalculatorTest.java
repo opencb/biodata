@@ -113,10 +113,10 @@ public class VariantSetStatsCalculatorTest {
     }
 
     private FileEntry file(String fileId, String filter, float qual) {
-        HashMap<String, String> attributes = new HashMap<>(2);
-        attributes.put(StudyEntry.FILTER, filter);
-        attributes.put(StudyEntry.QUAL, String.valueOf(qual));
-        return new FileEntry(fileId, null, attributes);
+        HashMap<String, String> data = new HashMap<>(2);
+        data.put(StudyEntry.FILTER, filter);
+        data.put(StudyEntry.QUAL, String.valueOf(qual));
+        return new FileEntry(fileId, null, data);
     }
 
     @Test

@@ -295,7 +295,7 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
     @Test
     public void testNormalizeMultiallelicNoVariationSymbolic() throws NonStandardCompliantSampleField {
         Variant variant = Variant.newBuilder("2", 10, 10, "A", "C,<*>").setStudyId("s").setFileId("f")
-                .setFormat(Collections.emptyList())
+                .setSampleDataKeys(Collections.emptyList())
                 .setSamples(Collections.emptyList()).build();
 
         List<Variant> variants = normalizer.normalize(Collections.singletonList(variant), false);
@@ -310,7 +310,7 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
     @Test
     public void testNormalizeMultiallelicNoVariationSymbolicNonRef() throws NonStandardCompliantSampleField {
         Variant variant = Variant.newBuilder("2", 10, 10, "A", "C,<NON_REF>").setStudyId("s").setFileId("f")
-                .setFormat(Collections.emptyList())
+                .setSampleDataKeys(Collections.emptyList())
                 .setSamples(Collections.emptyList()).build();
 
         List<Variant> variants = normalizer.normalize(Collections.singletonList(variant), false);
@@ -485,8 +485,8 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
     @Test
     public void testCNVsNormalization() throws Exception {
         Variant variant = newVariantBuilder(100, 200, "C", Collections.singletonList("<CN0>"), "2")
-                .addAttribute("CIPOS", "-14,50")
-                .addAttribute("CIEND", "-50,11")
+                .addFileData("CIPOS", "-14,50")
+                .addFileData("CIEND", "-50,11")
                 .addSample("HG00096", "0|0")
                 .build();
 
@@ -509,8 +509,8 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
                 .addSample("HG00097", "0|2")
                 .addSample("HG00098", "0|3")
                 .addSample("HG00099", "0|4")
-                .addAttribute("AF", "0.1,0.2,0.3,0.4")
-                .addAttribute("CIPOS", "-10,10")
+                .addFileData("AF", "0.1,0.2,0.3,0.4")
+                .addFileData("CIPOS", "-10,10")
                 .build();
         List<Variant> normalizedVariantList = normalizer.normalize(Collections.singletonList(variant), true);
         assertEquals(4, normalizedVariantList.size());
@@ -608,7 +608,7 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
 
         String seq = "ACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTG";
         Variant variant = newVariantBuilder(100, 100, "N", Collections.singletonList("<INS>"), STUDY_ID)
-                .addAttribute("SVINSSEQ", seq)
+                .addFileData("SVINSSEQ", seq)
                 .build();
         List<Variant> list = new VariantNormalizer().normalize(Collections.singletonList(variant), false);
 

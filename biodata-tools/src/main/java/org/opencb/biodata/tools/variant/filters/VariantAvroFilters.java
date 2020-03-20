@@ -250,7 +250,7 @@ public class VariantAvroFilters extends VariantFilters<Variant> {
                 if (fileId == null || fileId.isEmpty()) {
                     for (StudyEntry studyEntry : variant.getStudies()) {
                         for (FileEntry fileEntry : studyEntry.getFiles()) {
-                            qual = Double.parseDouble(fileEntry.getAttributes().get(QUAL));
+                            qual = Double.parseDouble(fileEntry.getData().get(QUAL));
                             if (qual >= minQual) {
                                 return true;
                             }
@@ -259,7 +259,7 @@ public class VariantAvroFilters extends VariantFilters<Variant> {
                 } else {
                     for (StudyEntry studyEntry : variant.getStudies()) {
                         if (studyEntry.getFile(fileId) != null) {
-                            qual = Double.parseDouble(studyEntry.getFile(fileId).getAttributes().get(QUAL));
+                            qual = Double.parseDouble(studyEntry.getFile(fileId).getData().get(QUAL));
                             if (qual >= minQual) {
                                 return true;
                             }
@@ -270,14 +270,14 @@ public class VariantAvroFilters extends VariantFilters<Variant> {
                 StudyEntry studyEntry = variant.getStudy(studyId);
                 if (fileId == null || fileId.isEmpty()) {
                     for (FileEntry fileEntry : studyEntry.getFiles()) {
-                        qual = Double.parseDouble(fileEntry.getAttributes().get(QUAL));
+                        qual = Double.parseDouble(fileEntry.getData().get(QUAL));
                         if (qual >= minQual) {
                             return true;
                         }
                     }
                 } else {
                     FileEntry fileEntry = studyEntry.getFile(fileId);
-                    qual = Double.parseDouble(fileEntry.getAttributes().get(QUAL));
+                    qual = Double.parseDouble(fileEntry.getData().get(QUAL));
                     return (qual >= minQual);
                 }
             }
@@ -293,7 +293,7 @@ public class VariantAvroFilters extends VariantFilters<Variant> {
             if (fileId == null || fileId.isEmpty()) {
                 for (StudyEntry studyEntry : variant.getStudies()) {
                     for (FileEntry fileEntry : studyEntry.getFiles()) {
-                        if (inString(fileEntry.getAttributes().get(FILTER), pass)) {
+                        if (inString(fileEntry.getData().get(FILTER), pass)) {
                             return true;
                         }
                     }
@@ -301,7 +301,7 @@ public class VariantAvroFilters extends VariantFilters<Variant> {
             } else {
                 for (StudyEntry studyEntry : variant.getStudies()) {
                     if (studyEntry.getFile(fileId) != null) {
-                        if (inString(studyEntry.getFile(fileId).getAttributes().get(FILTER), pass)) {
+                        if (inString(studyEntry.getFile(fileId).getData().get(FILTER), pass)) {
                             return true;
                         }
                     }
@@ -311,13 +311,13 @@ public class VariantAvroFilters extends VariantFilters<Variant> {
             StudyEntry studyEntry = variant.getStudy(studyId);
             if (fileId == null || fileId.isEmpty()) {
                 for (FileEntry fileEntry : studyEntry.getFiles()) {
-                    if (inString(fileEntry.getAttributes().get(FILTER), pass)) {
+                    if (inString(fileEntry.getData().get(FILTER), pass)) {
                         return true;
                     }
                 }
             } else {
                 FileEntry fileEntry = studyEntry.getFile(fileId);
-                return inString(fileEntry.getAttributes().get(FILTER), pass);
+                return inString(fileEntry.getData().get(FILTER), pass);
             }
         }
         return false;
@@ -362,7 +362,7 @@ public class VariantAvroFilters extends VariantFilters<Variant> {
 
     private boolean filterFileAttribute(Variant variant, String attributeKey, Predicate<String> valueValidator) {
         FileEntry fileEntry = getFileEntry(variant, studyId, fileId);
-        String value = fileEntry == null ? null : fileEntry.getAttributes().get(attributeKey);
+        String value = fileEntry == null ? null : fileEntry.getData().get(attributeKey);
 
         return valueValidator.test(value);
     }

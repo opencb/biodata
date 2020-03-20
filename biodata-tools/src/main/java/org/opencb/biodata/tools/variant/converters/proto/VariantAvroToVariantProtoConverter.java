@@ -99,7 +99,7 @@ public class VariantAvroToVariantProtoConverter implements Converter<Variant, Va
     private VariantProto.FileEntry.Builder toProto(FileEntry fileEntry) {
         VariantProto.FileEntry.Builder fileBuilder = VariantProto.FileEntry.newBuilder();
         set(fileEntry::getFileId, fileBuilder::setFileId);
-        set(fileEntry::getAttributes, fileBuilder::putAllAttributes);
+        set(fileEntry::getData, fileBuilder::putAllData);
         set(fileEntry::getCall, fileBuilder::setCall);
         return fileBuilder;
     }

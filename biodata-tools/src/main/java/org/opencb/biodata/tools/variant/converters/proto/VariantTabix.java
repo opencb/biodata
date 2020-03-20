@@ -92,7 +92,7 @@ public class VariantTabix implements Converter<Variant, VcfRecord> {
 //        VariantSourceEntry study = entry.getValue();
 		StudyEntry study = sourceEntries.get(0);
 
-		Map<String, String> attr = study.getAttributes();
+		Map<String, String> attr = study.getFile(0).getData();
 		/* Filter */
 		recordBuilder.setFilterNonDefault(decodeFilter(attr.remove(ATTRIBUTE_FILTER)));
 

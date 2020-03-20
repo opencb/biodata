@@ -88,10 +88,10 @@ public class VariantBuilder {
     private String studyId;
     private String fileId;
     private LinkedHashMap<String, Integer> samplesPosition;
-    private List<SampleEntry> samples;
-    private Map<String, String> attributes;
-    private String call;
     private List<String> sampleDataKeys;
+    private List<SampleEntry> samples;
+    private Map<String, String> fileData;
+    private String call;
 
     private String variantString;
 
@@ -243,7 +243,7 @@ public class VariantBuilder {
     public VariantBuilder setNames(List<String> names) {
         this.names = names;
         if (names != null && !names.isEmpty()) {
-            addAttribute(StudyEntry.VCF_ID, String.join(",", names));
+            addFileData(StudyEntry.VCF_ID, String.join(",", names));
         }
         return this;
     }
@@ -349,20 +349,20 @@ public class VariantBuilder {
     }
 
     public VariantBuilder setFilter(String filter) {
-        addAttribute(StudyEntry.FILTER, filter);
+        addFileData(StudyEntry.FILTER, filter);
         return this;
     }
 
     public VariantBuilder setQuality(String quality) {
-        addAttribute(StudyEntry.QUAL, quality);
+        addFileData(StudyEntry.QUAL, quality);
         return this;
     }
 
     public VariantBuilder setQuality(Double quality) {
         if (quality == null || quality == VariantContext.NO_LOG10_PERROR) {
-            addAttribute(StudyEntry.QUAL, ".");
+            addFileData(StudyEntry.QUAL, ".");
         } else {
-            addAttribute(StudyEntry.QUAL, quality.toString());
+            addFileData(StudyEntry.QUAL, quality.toString());
         }
         return this;
     }
@@ -386,30 +386,30 @@ public class VariantBuilder {
         return fileId != null;
     }
 
-    public VariantBuilder setAttributes(Map<String, String> attributes) {
-        checkFile("set attributes");
-        this.attributes = attributes;
+    public VariantBuilder setFileData(Map<String, String> fileData) {
+        checkFile("set file data");
+        this.fileData = fileData;
         return this;
     }
 
-    public VariantBuilder addAttribute(String key, List<?> values) {
-        return addAttribute(key, StringUtils.join(values, VCFConstants.INFO_FIELD_ARRAY_SEPARATOR));
+    public VariantBuilder addFileData(String key, List<?> values) {
+        return addFileData(key, StringUtils.join(values, VCFConstants.INFO_FIELD_ARRAY_SEPARATOR));
     }
 
-    public VariantBuilder addAttribute(String key, Number value) {
-        return addAttribute(key, value.toString());
+    public VariantBuilder addFileData(String key, Number value) {
+        return addFileData(key, value.toString());
     }
 
-    public VariantBuilder addAttribute(String key, String value) {
-        checkFile("add attribute");
-        if (attributes == null) {
-            attributes = new HashMap<>();
+    public VariantBuilder addFileData(String key, String value) {
+        checkFile("add file data");
+        if (fileData == null) {
+            fileData = new HashMap<>();
         }
         try {
-            attributes.put(key, value);
+            fileData.put(key, value);
         } catch (UnsupportedOperationException e) {
-            attributes = new HashMap<>(attributes);
-            attributes.put(key, value);
+            fileData = new HashMap<>(fileData);
+            fileData.put(key, value);
         }
         return this;
     }
@@ -421,12 +421,12 @@ public class VariantBuilder {
     }
 
     public VariantBuilder setSampleDataKeys(String... sampleDataKeys) {
-        return setFormat(Arrays.asList(sampleDataKeys));
+        return setSampleDataKeys(Arrays.asList(sampleDataKeys));
     }
 
-    public VariantBuilder setFormat(List<String> format) {
-        checkStudy("set format");
-        this.sampleDataKeys = format;
+    public VariantBuilder setSampleDataKeys(List<String> sampleDataKeys) {
+        checkStudy("set sampleDataKeys");
+        this.sampleDataKeys = sampleDataKeys;
         return this;
     }
 
@@ -532,7 +532,7 @@ public class VariantBuilder {
         if (hasStudyId()) {
             StudyEntry studyEntry = new StudyEntry(studyId);
             if (fileId != null) {
-                FileEntry fileEntry = new FileEntry(fileId, call, attributes);
+                FileEntry fileEntry = new FileEntry(fileId, call, fileData);
                 studyEntry.setFiles(Collections.singletonList(fileEntry));
             }
             studyEntry.setSampleDataKeys(sampleDataKeys);
@@ -615,7 +615,7 @@ public class VariantBuilder {
             if (fileId != null) {
                 studyBuilder.addFiles(VariantProto.FileEntry.newBuilder()
                         .setFileId(fileId)
-                        .putAllAttributes(attributes));
+                        .putAllData(fileData));
             }
 
             for (int i = 1; i < alternates.size(); i++) {
@@ -657,20 +657,20 @@ public class VariantBuilder {
             alternates.set(0, "");
         }
 
-        if (attributes != null) {
-            String attributeEndStr = attributes.get(END_INFO);
-            if (StringUtils.isNumeric(attributeEndStr)) {
-                Integer attributeEnd = Integer.valueOf(attributeEndStr);
+        if (fileData != null) {
+            String fileDataEndStr = fileData.get(END_INFO);
+            if (StringUtils.isNumeric(fileDataEndStr)) {
+                Integer fileDataEnd = Integer.valueOf(fileDataEndStr);
                 if (end == null) {
-                    end = attributeEnd;
-                } else if (!Objects.equals(end, attributeEnd)) {
+                    end = fileDataEnd;
+                } else if (!Objects.equals(end, fileDataEnd)) {
                     throw new IllegalArgumentException("Conflict END position at variant " + toString() + ". "
                             + "Variant end = '" + end + "', "
-                            + "file attribute END = '" + attributeEnd + "'");
+                            + "file data END = '" + fileDataEnd + "'");
                 }
             }
         } else {
-            attributes = new HashMap<>();
+            fileData = new HashMap<>();
         }
 
         if (end == null) {
@@ -852,7 +852,7 @@ public class VariantBuilder {
             if (!Allele.wouldBeSymbolicAllele(alternate.getBytes())) {
                 length = alternate.length();
             } else {
-                // TODO: Check attribute SVLEN?
+                // TODO: Check file data SVLEN?
                 length = Variant.UNKNOWN_LENGTH;
             }
         } else if (type.equals(VariantType.BREAKEND) || type.equals(VariantType.TRANSLOCATION)) {
@@ -1105,8 +1105,8 @@ public class VariantBuilder {
                     break;
             }
 
-            if (attributes != null) {
-                attributes.forEach(this::parseStructuralVariationAttributes);
+            if (fileData != null) {
+                fileData.forEach(this::parseStructuralVariationFileData);
             }
         }
 
@@ -1140,7 +1140,7 @@ public class VariantBuilder {
      * @param key
      * @param value
      */
-    private void parseStructuralVariationAttributes(String key, String value) {
+    private void parseStructuralVariationFileData(String key, String value) {
         if (key == null || value == null) {
             return;
         }
@@ -1295,11 +1295,11 @@ public class VariantBuilder {
         if (variant.getStudies()!= null
                 && !variant.getStudies().isEmpty()
                 && !variant.getStudies().get(0).getFiles().isEmpty()) {
-            if (variant.getStudies().get(0).getFiles().get(0).getAttributes().containsKey(LEFT_SVINSSEQ_INFO)) {
-                leftSvInsSeq = variant.getStudies().get(0).getFiles().get(0).getAttributes().get(LEFT_SVINSSEQ_INFO);
+            if (variant.getStudies().get(0).getFiles().get(0).getData().containsKey(LEFT_SVINSSEQ_INFO)) {
+                leftSvInsSeq = variant.getStudies().get(0).getFiles().get(0).getData().get(LEFT_SVINSSEQ_INFO);
             }
-            if (variant.getStudies().get(0).getFiles().get(0).getAttributes().containsKey(RIGHT_SVINSSEQ_INFO)) {
-                rightSvInsSeq = variant.getStudies().get(0).getFiles().get(0).getAttributes().get(RIGHT_SVINSSEQ_INFO);
+            if (variant.getStudies().get(0).getFiles().get(0).getData().containsKey(RIGHT_SVINSSEQ_INFO)) {
+                rightSvInsSeq = variant.getStudies().get(0).getFiles().get(0).getData().get(RIGHT_SVINSSEQ_INFO);
             }
         }
 
@@ -1311,8 +1311,8 @@ public class VariantBuilder {
         if (variant.getStudies()!= null
                 && !variant.getStudies().isEmpty()
                 && !variant.getStudies().get(0).getFiles().isEmpty()
-                && variant.getStudies().get(0).getFiles().get(0).getAttributes().containsKey(CIPOS_INFO)) {
-            String[] parts = variant.getStudies().get(0).getFiles().get(0).getAttributes().get(CIPOS_INFO).split(",", 2);
+                && variant.getStudies().get(0).getFiles().get(0).getData().containsKey(CIPOS_INFO)) {
+            String[] parts = variant.getStudies().get(0).getFiles().get(0).getData().get(CIPOS_INFO).split(",", 2);
             return new int[]{variant.getStart() + Integer.parseInt(parts[0]),
                     variant.getStart() + Integer.parseInt(parts[1])};
         } else {
@@ -1325,8 +1325,8 @@ public class VariantBuilder {
         if (variant.getStudies()!= null
                 && !variant.getStudies().isEmpty()
                 && !variant.getStudies().get(0).getFiles().isEmpty()
-                && variant.getStudies().get(0).getFiles().get(0).getAttributes().containsKey(CIEND_INFO)) {
-            String[] parts = variant.getStudies().get(0).getFiles().get(0).getAttributes().get(CIEND_INFO).split(",", 2);
+                && variant.getStudies().get(0).getFiles().get(0).getData().containsKey(CIEND_INFO)) {
+            String[] parts = variant.getStudies().get(0).getFiles().get(0).getData().get(CIEND_INFO).split(",", 2);
             return new int[]{variant.getEnd() + Integer.parseInt(parts[0]),
                     variant.getEnd() + Integer.parseInt(parts[1])};
         } else {

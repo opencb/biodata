@@ -124,11 +124,11 @@ public class VariantToVcfSliceConverter implements Converter<List<Variant>, VcfS
 
                 if (!includeNoneAttributes) {
                     for (FileEntry fileEntry : studyEntry.getFiles()) {
-                        Map<String, String> attributes = fileEntry.getAttributes();
-                        List<String> keySet = attributes.keySet().stream().sorted().collect(Collectors.toList());
+                        Map<String, String> fileData = fileEntry.getData();
+                        List<String> keySet = fileData.keySet().stream().sorted().collect(Collectors.toList());
                         keySets.merge(keySet, 1, Integer::sum);
 
-                        for (Map.Entry<String, String> entry : attributes.entrySet()) {
+                        for (Map.Entry<String, String> entry : fileData.entrySet()) {
                             String key = entry.getKey();
                             if (includeAllAttributes || attributeFields.contains(key)) {
                                 switch (key) {

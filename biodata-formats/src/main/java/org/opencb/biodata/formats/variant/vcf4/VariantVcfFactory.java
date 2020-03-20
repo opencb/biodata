@@ -184,15 +184,15 @@ public class VariantVcfFactory implements VariantFactory {
             variant.setIds(ids);
         }
         if (quality > -1) {
-            study.addAttribute(fileMetadata.getId(), StudyEntry.QUAL, String.valueOf(quality));
+            study.addFileData(fileMetadata.getId(), StudyEntry.QUAL, String.valueOf(quality));
         }
         if (!filter.isEmpty()) {
-            study.addAttribute(fileMetadata.getId(), StudyEntry.FILTER, filter);
+            study.addFileData(fileMetadata.getId(), StudyEntry.FILTER, filter);
         }
         if (!info.isEmpty()) {
             parseInfo(variant, fileMetadata.getId(), study.getStudyId(), info);
         }
-        study.addAttribute(fileMetadata.getId(), StudyEntry.SRC, line);
+        study.addFileData(fileMetadata.getId(), StudyEntry.SRC, line);
     }
 
     protected void parseInfo(Variant variant, String fileId, String studyId, String info) {
@@ -202,7 +202,7 @@ public class VariantVcfFactory implements VariantFactory {
         for (String var : info.split(";")) {
             String[] splits = var.split("=");
             if (splits.length == 2) {
-                file.getAttributes().put(splits[0], splits[1]);
+                file.getData().put(splits[0], splits[1]);
 //                switch (splits[0]) {
 //                    case "ACC":
 //                        // Managing accession ID for the allele
@@ -260,7 +260,7 @@ public class VariantVcfFactory implements VariantFactory {
 //                        break;
 //                }
             } else {
-                file.getAttributes().put(splits[0], "");
+                file.getData().put(splits[0], "");
             }
         }
     }

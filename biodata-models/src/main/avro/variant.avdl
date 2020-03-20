@@ -156,10 +156,10 @@ protocol Variants {
         union { null, string } call;
 
         /**
-         * Optional attributes that probably depend on the format of the file the
+         * Optional data that probably depend on the format of the file the
          * variant was initially read from.
          */
-        map<string> attributes;
+        map<string> data;
     }
 
     record AlternateCoordinate {
@@ -224,7 +224,6 @@ protocol Variants {
         /**
          * Alternate alleles that appear along with a variant alternate.
          */
-        //union { null, array<string> } secondaryAlternates = null;
         union { null, array<AlternateCoordinate> } secondaryAlternates = null;
 
         /**

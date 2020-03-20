@@ -347,7 +347,7 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
         if (fileEntry == null) {
             return Collections.emptyMap();
         } else {
-            return fileEntry.getAttributes();
+            return fileEntry.getData();
         }
     }
 

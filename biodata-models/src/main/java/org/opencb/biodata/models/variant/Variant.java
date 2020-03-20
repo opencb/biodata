@@ -356,11 +356,6 @@ public class Variant implements Serializable, Comparable<Variant> {
         }
     }
 
-    @Deprecated
-    public Map<String, StudyEntry> getSourceEntries() {
-        return getStudiesMap();
-    }
-
     public Map<String, StudyEntry> getStudiesMap() {
         if (impl.getStudies() != null) {
             if (studyEntries == null) {
@@ -374,16 +369,6 @@ public class Variant implements Serializable, Comparable<Variant> {
             return Collections.unmodifiableMap(studyEntries);
         }
         return null;
-    }
-
-    @Deprecated
-    public StudyEntry getSourceEntry(String studyId) {
-        return getStudy(studyId);
-    }
-
-    @Deprecated
-    public StudyEntry getSourceEntry(String fileId, String studyId) {
-        return getStudy(studyId);
     }
 
     public StudyEntry getStudy(String studyId) {
