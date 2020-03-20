@@ -44,7 +44,7 @@ public class VariantStatsCalculator {
     public static VariantStats calculate(Variant variant, StudyEntry study, Collection<String> sampleNames) {
         VariantStats variantStats = new VariantStats();
 
-        Integer gtIdx = study.getFormatPositions().get("GT");
+        Integer gtIdx = study.getSampleDataKeyPosition("GT");
         LinkedHashMap<String, Integer> samplesPosition = study.getSamplesPosition();
 
         Map<Genotype, Integer> gtCount = new HashMap<>();

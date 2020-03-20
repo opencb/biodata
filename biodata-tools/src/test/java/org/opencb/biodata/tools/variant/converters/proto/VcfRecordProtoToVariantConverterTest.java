@@ -5,7 +5,6 @@ import org.junit.Test;
 import org.opencb.biodata.models.variant.*;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.SampleEntry;
-import org.opencb.biodata.models.variant.protobuf.VcfMeta;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
 
 import java.util.*;
@@ -61,7 +60,7 @@ public class VcfRecordProtoToVariantConverterTest {
 
         Variant variant = new Variant("1", 5000, "A", "C");
         StudyEntry studyEntry = new StudyEntry();
-        studyEntry.setFormat(Collections.singletonList("GT"));
+        studyEntry.setSampleDataKeys(Collections.singletonList("GT"));
         studyEntry.setStudyId(studyId);
         studyEntry.setSamples(Arrays.asList(
                 new SampleEntry(null, null, Arrays.asList("0|0")),
@@ -101,7 +100,7 @@ public class VcfRecordProtoToVariantConverterTest {
         Variant variantWithFormat = Variant.newBuilder("1", 5000, 5000, "A", "C").setStudyId(studyId)
                 .setFilter("nopass")
                 .setQuality("50")
-                .setFormat("GT", "DP")
+                .setSampleDataKeys("GT", "DP")
                 .setSamples(Collections.emptyList())
                 .setFileId(fileId)
                 .setCall("5:A:C:0")
@@ -137,7 +136,7 @@ public class VcfRecordProtoToVariantConverterTest {
 
         Variant variant = new Variant("1", 5, "A", "C");
         StudyEntry studyEntry = new StudyEntry();
-        studyEntry.setFormat(Arrays.asList("GT", "DP"));
+        studyEntry.setSampleDataKeys(Arrays.asList("GT", "DP"));
         studyEntry.setStudyId(studyId);
         studyEntry.setSamples(Arrays.asList(
                 new SampleEntry(null, null, Arrays.asList("0|0", "10")),

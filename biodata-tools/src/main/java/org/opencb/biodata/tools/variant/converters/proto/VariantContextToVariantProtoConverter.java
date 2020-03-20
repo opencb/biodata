@@ -151,7 +151,7 @@ public class VariantContextToVariantProtoConverter implements Converter<VariantC
                 }
             }
         }
-        variantSourceEntry.addAllFormat(formatFields);
+        variantSourceEntry.addAllSampleDataKeys(formatFields);
 
         Map<Allele, String> allelesMap = VariantContextToVariantConverter.getAlleleStringMap(variantContext);
 

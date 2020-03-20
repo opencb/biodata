@@ -42,7 +42,7 @@ public class VariantReferenceBlockCreatorTaskTest {
         task.init(new VariantBuilder("1:1:A:C")
                 .setStudyId("myStudy")
                 .setFileId("myFile")
-                .setFormat("GT", "DP")
+                .setSampleDataKeys("GT", "DP")
                 .addSample("s1", "1/0", "10")
                 .addSample("s2", "0/0", "30")
                 .addSample("s3", "0/1", "20")

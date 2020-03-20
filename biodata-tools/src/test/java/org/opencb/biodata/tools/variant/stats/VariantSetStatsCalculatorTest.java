@@ -90,7 +90,7 @@ public class VariantSetStatsCalculatorTest {
         Variant variant = new Variant(var);
         StudyEntry studyEntry = new StudyEntry(STUDY_ID);
         studyEntry.setFiles(Arrays.asList(files));
-        studyEntry.setFormatAsString("GT");
+        studyEntry.setSampleDataKeys(Arrays.asList("GT"));
         for (FileEntry file : files) {
             Integer fileId = Integer.valueOf(file.getFileId().substring(1));
             for (Integer i = 0; i < fileId; i++) {

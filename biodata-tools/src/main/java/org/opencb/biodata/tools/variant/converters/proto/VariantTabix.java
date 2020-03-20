@@ -116,7 +116,7 @@ public class VariantTabix implements Converter<Variant, VcfRecord> {
 		recordBuilder.addAllInfoValue(infoValues);
 
 		/* FORMAT */
-		List<String> formatLst = decodeFormat(study.getFormat().stream().collect(Collectors.joining(","))); // FORMAT column
+		List<String> formatLst = decodeFormat(study.getSampleDataKeys().stream().collect(Collectors.joining(","))); // FORMAT column
 		if (!isDefaultFormat(formatLst)) {
 			recordBuilder.addAllSampleFormatNonDefault(formatLst); // maybe empty if default
 		}

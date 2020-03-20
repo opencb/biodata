@@ -361,7 +361,7 @@ public class ModeOfInheritance {
             variantsRetrieved += 1;
 
             StudyEntry studyEntry = variant.getStudies().get(0);
-            int gtIdx = studyEntry.getFormat().indexOf("GT");
+            int gtIdx = studyEntry.getSampleDataKeys().indexOf("GT");
 
             String probandGenotype = studyEntry.getSampleData(probandSampleIdx).get(gtIdx);
             if (motherSampleIdx < 0 && fatherSampleIdx >= 0) {
@@ -588,7 +588,7 @@ public class ModeOfInheritance {
             variantsRetrieved += 1;
 
             StudyEntry studyEntry = variant.getStudies().get(0);
-            int gtIdx = studyEntry.getFormat().indexOf("GT");
+            int gtIdx = studyEntry.getSampleDataKeys().indexOf("GT");
 
             Genotype probandGenotype = new Genotype(studyEntry.getSampleData(probandSampleIdx).get(gtIdx));
 

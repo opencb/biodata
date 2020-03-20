@@ -208,8 +208,9 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
 
 		/* FORMAT */
         if (!includeNoneFormats) {
-            List<String> format = setFormat(recordBuilder, study);
-            recordBuilder.addAllSamples(encodeSamples(study.getFormatPositions(), format, study.getSamples()));
+            List<String> expectedSampleDataKeys = getSampleDataKeys(study);
+            setSampleFormatIndex(recordBuilder, expectedSampleDataKeys);
+            recordBuilder.addAllSamples(encodeSamples(study.getSampleDataKeys(), expectedSampleDataKeys, study.getSamples()));
         }
 
         /* TYPE */
@@ -246,24 +247,28 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
         recordBuilder.addAllInfoValue(infoValues);
     }
 
-    private List<String> setFormat(Builder recordBuilder, StudyEntry study) {
+    private List<String> getSampleDataKeys(StudyEntry study) {
         String formatAsString;
         List<String> formatList;
         if (includeAllFormats) {
-            formatList = study.getFormat();
+            formatList = study.getSampleDataKeys();
         } else {
-            formatList = study.getFormat()
+            formatList = study.getSampleDataKeys()
                     .stream()
                     .filter(formatFields::contains)
                     .collect(Collectors.toList());
         }
+        return formatList;
+    }
+
+    private void setSampleFormatIndex(Builder recordBuilder, List<String> formatList) {
+        String formatAsString;
         formatAsString = String.join(":", formatList);
         Integer formatIndex = formatIndexMap.get(formatAsString);
         if (formatIndex == null || formatIndex < 0) {
             throw new IllegalArgumentException("Unknown format '" + formatAsString + "'");
         }
         recordBuilder.setFormatIndex(formatIndex);
-        return formatList;
     }
 
     public void updateMeta(VcfSliceProtos.Fields fields) {
@@ -385,19 +390,28 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
         return fields.getFormats(0).equals(format);
     }
 
-    public List<VcfSample> encodeSamples(Map<String, Integer> formatPositions, List<String> format, List<SampleEntry> samples) {
+    public List<VcfSample> encodeSamples(List<String> sampleDataKeys, List<String> expectedSampleDataKeys, List<SampleEntry> samples) {
         List<VcfSample> ret = new ArrayList<>(samples.size());
-        Integer gtPosition = formatPositions.get("GT");
+        Integer gtPosition = !sampleDataKeys.isEmpty() && sampleDataKeys.get(0).equals("GT") ? 0 : null;
+
         // samples should have fields in the same order than formatLst
         if (gtPosition == null || gtIndexMap.isEmpty()) {
+            int[] sampleDataKeysRemap;
+            if (includeAllFormats) {
+                sampleDataKeysRemap = null;
+            } else {
+                sampleDataKeysRemap = new int[expectedSampleDataKeys.size()];
+                for (int i = 0; i < expectedSampleDataKeys.size(); i++) {
+                    sampleDataKeysRemap[i] = sampleDataKeys.indexOf(expectedSampleDataKeys.get(i));
+                }
+            }
             for (SampleEntry sample : samples) {
                 if (includeAllFormats) {
                     ret.add(VcfSample.newBuilder().addAllSampleValues(sample.getData()).build());
                 } else {
                     List<String> filteredSampleData = new ArrayList<>(formatFields.size());
-                    for (String formatField : format) {
-                        Integer formatIdx = formatPositions.get(formatField);
-                        filteredSampleData.add(sample.getData().get(formatIdx));
+                    for (int i : sampleDataKeysRemap) {
+                        filteredSampleData.add(sample.getData().get(i));
                     }
                     ret.add(VcfSample.newBuilder().addAllSampleValues(filteredSampleData).build());
                 }
@@ -405,6 +419,15 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
         } else {
             if (gtPosition != 0) {
                 throw new IllegalArgumentException("GT must be in the first position or missing");
+            }
+            int[] sampleDataKeysRemap;
+            if (includeAllFormats) {
+                sampleDataKeysRemap = null;
+            } else {
+                sampleDataKeysRemap = new int[expectedSampleDataKeys.size() - 1];
+                for (int i = 1; i < expectedSampleDataKeys.size(); i++) {
+                    sampleDataKeysRemap[i - 1] = sampleDataKeys.indexOf(expectedSampleDataKeys.get(i));
+                }
             }
             for (SampleEntry sample : samples) {
                 List<String> data = sample.getData();
@@ -415,11 +438,8 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
                             .addAllSampleValues(data.subList(1, data.size())).build());
                 } else {
                     List<String> filteredSampleData = new ArrayList<>(formatFields.size());
-                    for (String formatField : format) {
-                        Integer formatIdx = formatPositions.get(formatField);
-                        if (!formatIdx.equals(gtPosition)) {
-                            filteredSampleData.add(data.get(formatIdx));
-                        }
+                    for (int i : sampleDataKeysRemap) {
+                        filteredSampleData.add(data.get(i));
                     }
                     ret.add(VcfSample.newBuilder().setGtIndex(gtIndex)
                             .addAllSampleValues(filteredSampleData).build());

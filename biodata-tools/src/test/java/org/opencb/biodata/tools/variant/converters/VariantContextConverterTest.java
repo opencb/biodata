@@ -60,7 +60,7 @@ public class VariantContextConverterTest {
         Variant origVariant = Variant.newBuilder(varStr)
                 .setStudyId("S")
                 .setFileId("F")
-                .setFormat("GT")
+                .setSampleDataKeys("GT")
                 .addSample("S1", "0/1").build();
 
         List<Variant> normalized = new VariantNormalizer().normalize(Collections.singletonList(origVariant), false);

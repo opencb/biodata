@@ -120,7 +120,7 @@ public class SampleVariantStatsCalculatorTest {
         Variant variant = Variant.newBuilder(v)
                 .setStudyId("study")
                 .setFileId("file")
-                .setFormat("GT")
+                .setSampleDataKeys("GT")
                 .setSampleNames(samples)
                 .addSample("s0", s0Gt)
                 .addSample("s1", s1Gt)

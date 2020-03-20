@@ -68,7 +68,7 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
             studyEntry.addAttribute(fileMetadata.getId(), StudyEntry.FILTER, filter);
         }
         Map<String, String> infoMap = getInfoMap(info);
-        studyEntry.setFormatAsString(format);
+        studyEntry.setSampleDataKeys(Arrays.asList(format.split(":")));
         studyEntry.addAttribute(fileMetadata.getId(), StudyEntry.SRC, line);
         studyEntry.addAttributes(fileMetadata.getId(), infoMap);
     }

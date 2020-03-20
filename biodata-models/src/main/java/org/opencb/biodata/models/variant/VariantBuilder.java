@@ -91,7 +91,7 @@ public class VariantBuilder {
     private List<SampleEntry> samples;
     private Map<String, String> attributes;
     private String call;
-    private List<String> format;
+    private List<String> sampleDataKeys;
 
     private String variantString;
 
@@ -420,13 +420,13 @@ public class VariantBuilder {
         return this;
     }
 
-    public VariantBuilder setFormat(String... format) {
-        return setFormat(Arrays.asList(format));
+    public VariantBuilder setSampleDataKeys(String... sampleDataKeys) {
+        return setFormat(Arrays.asList(sampleDataKeys));
     }
 
     public VariantBuilder setFormat(List<String> format) {
         checkStudy("set format");
-        this.format = format;
+        this.sampleDataKeys = format;
         return this;
     }
 
@@ -535,7 +535,7 @@ public class VariantBuilder {
                 FileEntry fileEntry = new FileEntry(fileId, call, attributes);
                 studyEntry.setFiles(Collections.singletonList(fileEntry));
             }
-            studyEntry.setFormat(format);
+            studyEntry.setSampleDataKeys(sampleDataKeys);
             if (alternates.size() > 0) {
                 List<AlternateCoordinate> secondaryAlternates = new ArrayList<>(alternates.size() - 1);
                 for (int i = 1; i < alternates.size(); i++) {
@@ -627,8 +627,8 @@ public class VariantBuilder {
                         .setType(getProtoVariantType(inferType(reference, alternates.get(i)))));
             }
 
-            if (format != null) {
-                studyBuilder.addAllFormat(format);
+            if (sampleDataKeys != null) {
+                studyBuilder.addAllSampleDataKeys(sampleDataKeys);
             }
             for (SampleEntry sample : samples) {
                 studyBuilder.addSamples(VariantProto.SampleEntry.newBuilder().addAllData(sample.getData()));
@@ -1199,10 +1199,10 @@ public class VariantBuilder {
     }
 
     public Integer getCopyNumberFromFormat() {
-        if (format == null) {
+        if (sampleDataKeys == null) {
             return null;
         }
-        int cnIdx = format.indexOf(COPY_NUMBER_FORMAT);
+        int cnIdx = sampleDataKeys.indexOf(COPY_NUMBER_FORMAT);
         if (cnIdx < 0) {
             return null;
         }

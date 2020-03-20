@@ -42,7 +42,7 @@ public class VariantToVcfRecordTest {
                 .addAttribute("X", "x")
                 .addAttribute("A", "ab")
                 .addAttribute(StudyEntry.SRC, ":src-stuff")
-                .setFormat(formatGt.split(VCFConstants.FORMAT_FIELD_SEPARATOR))
+                .setSampleDataKeys(formatGt.split(VCFConstants.FORMAT_FIELD_SEPARATOR))
                 .addSample("Sample_0A", "0/0", "ab1", "ef1", "cd1")
                 .addSample("Sample_0B", "0/1", "ab2", "ef2", "cd2").build();
         v = Variant.newBuilder("4:1234565-1234568:X:A")
@@ -54,7 +54,7 @@ public class VariantToVcfRecordTest {
                 .addAttribute("X", "x")
                 .addAttribute("A", "ab")
                 .addAttribute(StudyEntry.SRC, ":src-stuff")
-                .setFormat(format.split(VCFConstants.FORMAT_FIELD_SEPARATOR))
+                .setSampleDataKeys(format.split(VCFConstants.FORMAT_FIELD_SEPARATOR))
                 .addSample("Sample_0A", "ab1", "ef1", "cd1")
                 .addSample("Sample_0B", "ab2", "ef2", "cd2").build();
     }
@@ -354,9 +354,7 @@ public class VariantToVcfRecordTest {
         List<SampleEntry> samples = new LinkedList<>();
 
         samples.add(new SampleEntry(null, null, Arrays.asList("a")));
-        Map<String, Integer> formatPositions = new HashMap<>();
-        formatPositions.put("A", 0);
-        formatPositions.put("B", 1);
+        List<String> formatPositions = Arrays.asList("A", "B");
         assertEquals(
                 new ArrayList<>(con.encodeSamples(formatPositions, null, samples).get(0).getSampleValuesList()),
                 Arrays.asList("a"));

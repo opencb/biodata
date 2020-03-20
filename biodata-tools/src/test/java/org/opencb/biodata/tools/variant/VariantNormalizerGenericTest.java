@@ -3,7 +3,6 @@ package org.opencb.biodata.tools.variant;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
-import org.opencb.biodata.models.metadata.Sample;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantBuilder;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
@@ -13,8 +12,6 @@ import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleFi
 import org.opencb.biodata.tools.variant.merge.VariantAlternateRearranger;
 import org.opencb.commons.test.GenericTest;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -248,7 +245,7 @@ public class VariantNormalizerGenericTest extends GenericTest {
     protected VariantBuilder newVariantBuilder(int position, int end, String ref, List<String> altsList, String studyId) {
         return Variant.newBuilder("1", position, end, ref, String.join(",", altsList))
                 .setStudyId(studyId)
-                .setFormat("GT")
+                .setSampleDataKeys("GT")
                 .setSamples(new ArrayList<>())
                 .setFileId("1");
     }

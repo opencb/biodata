@@ -99,7 +99,7 @@ public class VariantAvroToVariantContextConverter extends VariantContextConverte
         }
 
         // SAMPLES
-        List<Genotype> genotypes = getGenotypes(alleleList, studyEntry.getFormat(), getSampleData);
+        List<Genotype> genotypes = getGenotypes(alleleList, studyEntry.getSampleDataKeys(), getSampleData);
 
         return makeVariantContext(chromosome, start, end, idForVcf, alleleList, isNoVariation, filters, qual, attributes, genotypes);
     }

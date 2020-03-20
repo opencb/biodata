@@ -162,7 +162,7 @@ message StudyEntry {
      * Alternate alleles that appear along with a variant alternate.
      */
     repeated AlternateCoordinate secondaryAlternates = 3;
-    repeated string format = 4;
+    repeated string sampleDataKeys = 4;
     repeated SampleEntry samples = 5;
     map<string, VariantStats> stats = 6;
 }

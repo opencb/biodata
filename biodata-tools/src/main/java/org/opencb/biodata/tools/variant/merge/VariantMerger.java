@@ -268,7 +268,7 @@ public class VariantMerger {
         for(StudyEntry tse : target.getStudies()){
             StudyEntry se = new StudyEntry(tse.getStudyId());
             se.setFiles(Collections.singletonList(new FileEntry("", "", new HashMap<>())));
-            se.setFormat(Arrays.asList(getGtKey(), getFilterKey()));
+            se.setSampleDataKeys(Arrays.asList(getGtKey(), getFilterKey()));
             se.setSamplesPosition(new HashMap<>());
             se.setSamples(new ArrayList<>());
             var.addStudyEntry(se);
@@ -283,7 +283,7 @@ public class VariantMerger {
 
         // Validate variant information
 //        ensureGtFormat(current);
-        if (getStudy(current).getFormat() == null || getStudy(current).getFormat().isEmpty()) {
+        if (getStudy(current).getSampleDataKeys() == null || getStudy(current).getSampleDataKeys().isEmpty()) {
             throw new IllegalArgumentException("Format of sample data is empty!!!!!!");
         }
     }
@@ -497,10 +497,10 @@ public class VariantMerger {
             Set<String> allFormats = varToAlts.stream()
                     .map(Pair::getKey)
                     .map(this::getStudy)
-                    .map(StudyEntry::getFormat)
+                    .map(StudyEntry::getSampleDataKeys)
                     .flatMap(Collection::stream)
                     .collect(Collectors.toSet());
-            newFormatPositions = new HashMap<>(currentStudy.getFormatPositions());
+            newFormatPositions = new HashMap<>(currentStudy.getSampleDataKeyPositions());
 //            newFormatPositions.putIfAbsent(getFilterKey(), newFormatPositions.size());
             for (String format : allFormats) {
                 newFormatPositions.putIfAbsent(format, newFormatPositions.size());
@@ -544,7 +544,7 @@ public class VariantMerger {
         List<SampleEntry> currentSamples = currentStudy.getSamples();
         // If FT is required, but missing in the input variant, get FILTER from the File Attributes.
         String currentFilterValue = null;
-        if (!currentStudy.getFormatPositions().containsKey(getFilterKey()) && newFormatPositions.containsKey(getFilterKey())) {
+        if (!currentStudy.getSampleDataKeySet().contains(getFilterKey()) && newFormatPositions.containsKey(getFilterKey())) {
             currentFilterValue = currentStudy.getFiles().isEmpty() ? getDefaultValue(getFilterKey())
                     : currentStudy.getFiles().get(0).getAttributes().getOrDefault(getAnnotationFilterKey(), getDefaultValue(getFilterKey()));
         }
@@ -556,7 +556,7 @@ public class VariantMerger {
             List<String> newSampleData = newSamplesData.get(newSampleIdx).getData();
             int formatIdx = 0;
             int ploidy = 2; // Default ploidy. Required for the rearranger
-            for (String format : currentStudy.getFormat()) {
+            for (String format : currentStudy.getSampleDataKeys()) {
                 Integer newFormatIdx = newFormatPositions.get(format);
                 if (newFormatIdx != null) {
                     if (currentSample.getData().size() > formatIdx) {
@@ -597,7 +597,7 @@ public class VariantMerger {
 //            Map<Integer, AlternateCoordinate> otherAltIdx = index(alternates).entrySet().stream()
 //                    .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
             final StudyEntry otherStudy = getStudy(other);
-            Map<String, Integer> otherStudyFormatPositions = otherStudy.getFormatPositions();
+            Map<String, Integer> otherStudyFormatPositions = otherStudy.getSampleDataKeyPositions();
             checkForDuplicates(current, other, currentStudy, otherStudy, otherAlternates);
 
             VariantAlternateRearranger rearranger;
@@ -731,7 +731,7 @@ public class VariantMerger {
         }
         currentStudy.setSamples(newSamplesData);
         currentStudy.setSortedSamplesPosition(newSamplesPosition);
-        currentStudy.setFormat(newFormat);
+        currentStudy.setSampleDataKeys(newFormat);
     }
 
     /**

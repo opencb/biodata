@@ -167,7 +167,7 @@ public class VariantBuilderTest {
     public void buildCNV() {
         Variant v = new VariantBuilder("1:1000:A:<CNV>")
                 .setStudyId("1")
-                .setFormat("GT", "CN")
+                .setSampleDataKeys("GT", "CN")
                 .addSample("S1", "0/1", "5")
                 .addAttribute("END", 1100)
                 .addAttribute("CIPOS", "-10,20")

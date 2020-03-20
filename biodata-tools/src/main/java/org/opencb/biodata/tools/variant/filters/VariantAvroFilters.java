@@ -337,7 +337,7 @@ public class VariantAvroFilters extends VariantFilters<Variant> {
 
     private boolean filterSampleFormat(Variant variant, String formatKey, boolean mustPassAll, Predicate<String> valueValidator) {
         StudyEntry studyEntry = getStudyEntry(variant, studyId);
-        Integer idx = studyEntry.getFormatPositions().get(formatKey);
+        Integer idx = studyEntry.getSampleDataKeyPosition(formatKey);
         if (idx == null || idx < 0) {
             return valueValidator.test(null);
         }

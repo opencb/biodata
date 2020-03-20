@@ -44,7 +44,7 @@ public class VariantTestUtils {
                 .setAttributes(attributes)
                 .setQuality(qualStr)
                 .setFilter(filter)
-                .setFormat(formats)
+                .setSampleDataKeys(formats)
                 .setStudyId(STUDY_ID)
                 .setFileId(FILE_ID);
 

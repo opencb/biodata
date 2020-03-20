@@ -79,7 +79,7 @@ public class VariantAvroToVariantProtoConverter implements Converter<Variant, Va
         VariantProto.StudyEntry.Builder studyBuilder = VariantProto.StudyEntry.newBuilder();
         studyBuilder.setStudyId(study.getStudyId());
         set(study::getStudyId, studyBuilder::setStudyId);
-        set(study::getFormat, studyBuilder::addAllFormat);
+        set(study::getSampleDataKeys, studyBuilder::addAllSampleDataKeys);
         for (SampleEntry sampleEntry : study.getSamples()) {
             studyBuilder.addSamples(VariantProto.SampleEntry.newBuilder().addAllData(sampleEntry.getData()));
         }

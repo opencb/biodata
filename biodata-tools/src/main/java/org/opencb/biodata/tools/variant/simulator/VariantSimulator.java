@@ -291,7 +291,7 @@ public class VariantSimulator {
         studyEntry.setFileId(Integer.toString(fieldID));
         Map<String, String> attributes = genAttributes();
         studyEntry.setAttributes(attributes);
-        studyEntry.setFormat(getFormat());
+        studyEntry.setSampleDataKeys(getFormat());
         List<SampleEntry> sampleList = new ArrayList<>(n);
         for (int i = 0; i < n; i++) {
             sampleList.add(getRandomample());

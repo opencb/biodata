@@ -474,7 +474,7 @@ public class VariantMergerTest {
                 onlyField(se.getSamples(), 0));
         assertEquals(Arrays.asList("S01", "S02"), se.getOrderedSamplesName());
         for (SampleEntry sample : se.getSamples()) {
-            assertEquals(se.getFormat().size(), sample.getData().size());
+            assertEquals(se.getSampleDataKeys().size(), sample.getData().size());
         }
     }
 
@@ -488,7 +488,7 @@ public class VariantMergerTest {
                 onlyField(se.getSamples(), 0));
         assertEquals(Arrays.asList("S02", "S01"), se.getOrderedSamplesName());
         for (SampleEntry sample : se.getSamples()) {
-            assertEquals(se.getFormat().size(), sample.getData().size());
+            assertEquals(se.getSampleDataKeys().size(), sample.getData().size());
         }
     }
 
@@ -867,7 +867,7 @@ public class VariantMergerTest {
         var2.getStudy(VariantTestUtils.STUDY_ID).getSecondaryAlternates().add(new AlternateCoordinate("1", 10, 10, "A", "C", VariantType.SNV));
         Variant mergedVariant = checkMergeVariants(var1, var2, Arrays.asList("1:10:A:G", "1:10:A:C"), "2/3");
         StudyEntry studyEntry = mergedVariant.getStudies().get(0);
-        assertEquals("GT:DP", studyEntry.getFormatAsString());
+        assertEquals("GT:DP", studyEntry.getSampleDataKeysAsString());
         assertEquals("4", studyEntry.getSampleData("S01", "DP"));
         assertEquals("5", studyEntry.getSampleData("S02", "DP"));
     }
@@ -881,7 +881,7 @@ public class VariantMergerTest {
         var2.getStudy(VariantTestUtils.STUDY_ID).getSecondaryAlternates().add(new AlternateCoordinate("1", 10, 10, "A", "C", VariantType.SNV));
         Variant mergedVariant = checkMergeVariants(var1, var2, Arrays.asList("1:10:A:G", "1:10:A:C"), "2/3");
         StudyEntry studyEntry = mergedVariant.getStudies().get(0);
-        assertEquals("GT:DP:GQ", studyEntry.getFormatAsString());
+        assertEquals("GT:DP:GQ", studyEntry.getSampleDataKeysAsString());
         assertEquals("4", studyEntry.getSampleData("S01", "DP"));
 //        assertEquals("PASS1", studyEntry.getSampleData("S01", "FT"));
         assertEquals(".", studyEntry.getSampleData("S01", "GQ"));
@@ -896,7 +896,7 @@ public class VariantMergerTest {
         Variant var2 = VariantTestUtils.generateVariantWithFormat("1:10:A:G,C", "PASS2", 100F, "GT:DP:FT", "S02", "1/2", "5", "MyFilter2");
         Variant mergedVariant = checkMergeVariants(var1, var2, Arrays.asList("1:10:A:G", "1:10:A:C"), "2/3");
         StudyEntry studyEntry = mergedVariant.getStudies().get(0);
-        assertEquals("GT:DP:FT", studyEntry.getFormatAsString());
+        assertEquals("GT:DP:FT", studyEntry.getSampleDataKeysAsString());
         assertEquals("4", studyEntry.getSampleData("S01", "DP"));
         assertEquals("MyFilter1", studyEntry.getSampleData("S01", "FT"));
         assertEquals("5", studyEntry.getSampleData("S02", "DP"));
@@ -910,7 +910,7 @@ public class VariantMergerTest {
         variantMerger.setExpectedFormats(Arrays.asList("GT", "DP", "AD", "FT"));
         Variant mergedVariant = checkMergeVariants(var1, var2, Arrays.asList("1:10:A:G", "1:10:A:C"), "2/3");
         StudyEntry studyEntry = mergedVariant.getStudies().get(0);
-        assertEquals("GT:DP:AD:FT", studyEntry.getFormatAsString());
+        assertEquals("GT:DP:AD:FT", studyEntry.getSampleDataKeysAsString());
         assertEquals("4", studyEntry.getSampleData("S01", "DP"));
         assertEquals("PASS1", studyEntry.getSampleData("S01", "FT"));
         assertEquals("5", studyEntry.getSampleData("S02", "DP"));
@@ -933,7 +933,7 @@ public class VariantMergerTest {
         variantMerger.setExpectedFormats(Arrays.asList("GT", "DP"));
         Variant mergedVariant = checkMergeVariants(var1, var2, Arrays.asList("1:10:A:G", "1:10:A:C"), "2/3");
         StudyEntry studyEntry = mergedVariant.getStudies().get(0);
-        assertEquals("GT:DP", studyEntry.getFormatAsString());
+        assertEquals("GT:DP", studyEntry.getSampleDataKeysAsString());
         assertEquals("4", studyEntry.getSampleData("S01", "DP"));
         assertEquals("5", studyEntry.getSampleData("S02", "DP"));
     }
@@ -945,7 +945,7 @@ public class VariantMergerTest {
         variantMerger.setExpectedFormats(Arrays.asList("DP", "FT"));
         Variant mergedVariant = variantMerger.merge(var1, var2);
         StudyEntry studyEntry = mergedVariant.getStudies().get(0);
-        assertEquals("DP:FT", studyEntry.getFormatAsString());
+        assertEquals("DP:FT", studyEntry.getSampleDataKeysAsString());
         assertEquals("4", studyEntry.getSampleData("S01", "DP"));
         assertEquals(variantMerger.getDefaultValue("DP"), studyEntry.getSampleData("S02", "DP"));
         assertEquals("MyFilter1", studyEntry.getSampleData("S01", "FT"));

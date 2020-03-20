@@ -198,7 +198,7 @@ public class Ga4ghVariantConverter<V> implements Converter<Variant, V> {
             List<Double> genotypeLikelihood = Collections.emptyList();
             String phaseSet = "";
 
-            for (String formatField : study.getFormat()) {
+            for (String formatField : study.getSampleDataKeys()) {
                 String sampleData = study.getSampleData(sample, formatField);
                 switch (formatField) {
                     case "GT":

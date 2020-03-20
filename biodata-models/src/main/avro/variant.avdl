@@ -230,15 +230,13 @@ protocol Variants {
         /**
          * Fields stored for each sample.
          */
-        array<string> format;
+        array<string> sampleDataKeys;
 
         /**
          * Genotypes and other sample-related information. Each position is related
          * with one sample. The content are lists of values in the same order than the
-         * format array. The length of this lists must be the same as the format field.
+         * sampleDataKeys array. The length of this lists must be the same as the sampleDataKeys field.
          */
-//        array<array<string>> samplesData;
-
         array<SampleEntry> samples;
 
         array<IssueEntry> issues = [];

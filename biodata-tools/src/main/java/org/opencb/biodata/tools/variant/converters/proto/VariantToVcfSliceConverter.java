@@ -112,9 +112,9 @@ public class VariantToVcfSliceConverter implements Converter<List<Variant>, VcfS
                 if (!includeNoneFormats) {
                     String formatAsString;
                     if (includeAllFormats) {
-                        formatAsString = studyEntry.getFormatAsString();
+                        formatAsString = studyEntry.getSampleDataKeysAsString();
                     } else {
-                        formatAsString = studyEntry.getFormat()
+                        formatAsString = studyEntry.getSampleDataKeys()
                                 .stream()
                                 .filter(formatFields::contains)
                                 .collect(Collectors.joining(":"));
@@ -152,7 +152,7 @@ public class VariantToVcfSliceConverter implements Converter<List<Variant>, VcfS
                     }
                 }
 
-                Integer gtPosition = studyEntry.getFormatPositions().get("GT");
+                Integer gtPosition = studyEntry.getSampleDataKeyPosition("GT");
                 if (gtPosition != null) {
                     for (SampleEntry sample : studyEntry.getSamples()) {
                         String gt = sample.getData().get(gtPosition);

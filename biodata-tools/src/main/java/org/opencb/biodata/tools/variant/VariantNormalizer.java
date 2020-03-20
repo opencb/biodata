@@ -319,7 +319,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                         StudyEntry studyEntry = new StudyEntry();
                         studyEntry.setSamples(
                                 Collections.singletonList(new SampleEntry(null, null, Collections.singletonList(keyFields.getPhaseSet()))));
-                        studyEntry.setFormat(Collections.singletonList("PS"));
+                        studyEntry.setSampleDataKeys(Collections.singletonList("PS"));
                         // Use mnv string as file Id so that it can be later identified. It is also used
                         // as the genotype call since we don't have an actual call and to avoid confusion
                         studyEntry.setFiles(Collections.singletonList(new FileEntry(keyFields.getPhaseSet(), call, null)));
@@ -405,7 +405,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                             normalizedEntry = new StudyEntry();
                             normalizedEntry.setStudyId(entry.getStudyId());
                             normalizedEntry.setSamplesPosition(entry.getSamplesPosition());
-                            normalizedEntry.setFormat(entry.getFormat());
+                            normalizedEntry.setSampleDataKeys(entry.getSampleDataKeys());
 
                             List<FileEntry> files = new ArrayList<>(entry.getFiles().size());
                             for (FileEntry file : entry.getFiles()) {
@@ -414,7 +414,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                             }
                             normalizedEntry.setFiles(files);
                             normalizedVariant.addStudyEntry(normalizedEntry);
-                            samples = newSamples(entry.getSamples().size(), entry.getFormat().size());
+                            samples = newSamples(entry.getSamples().size(), entry.getSampleDataKeys().size());
                         }
 
                         if (keyFields.isReferenceBlock()) {
@@ -446,16 +446,16 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
                         //Set normalized samples data
                         try {
-                            List<String> format = entry.getFormat();
+                            List<String> format = entry.getSampleDataKeys();
                             if (!normalizedEntry.getFiles().isEmpty()) {
                                 List<FileEntry> files = normalizeFilesInfo(normalizedEntry.getFiles(), rearranger);
                                 normalizedEntry.setFiles(files);
                             }
 
                             if (keyFields.getPhaseSet() != null) {
-                                if (!normalizedEntry.getFormatPositions().containsKey("PS")) {
-                                    normalizedEntry.addFormat("PS");
-                                    format = new ArrayList<>(normalizedEntry.getFormat());
+                                if (!normalizedEntry.getSampleDataKeySet().contains("PS")) {
+                                    normalizedEntry.addSampleDataKey("PS");
+                                    format = new ArrayList<>(normalizedEntry.getSampleDataKeys());
                                 }
                                 // If no files are provided one must be created to ensure genotype calls are the same
                                 // for all mnv-phased variants

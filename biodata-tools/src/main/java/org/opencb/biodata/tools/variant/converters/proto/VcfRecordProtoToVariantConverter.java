@@ -94,15 +94,13 @@ public class VcfRecordProtoToVariantConverter implements Converter<VcfSliceProto
 
         StudyEntry studyEntry = new StudyEntry(studyId);
         studyEntry.setFiles(Collections.singletonList(fileEntry));
-        studyEntry.setFormat(getFormat(vcfRecord));
-        studyEntry.setSamples(getSamples(vcfRecord, studyEntry.getFormatPositions()));
+        studyEntry.setSampleDataKeys(getFormat(vcfRecord));
+        studyEntry.setSamples(getSamples(vcfRecord, studyEntry.getSampleDataKeys()));
         studyEntry.setSamplesPosition(retrieveSamplePosition());
-        studyEntry.getFormatPositions(); // Initialize the map
 
         List<VariantProto.AlternateCoordinate> alts = vcfRecord.getSecondaryAlternatesList();
         studyEntry.setSecondaryAlternates(getAlternateCoordinates(alts));
         variant.addStudyEntry(studyEntry);
-        studyEntry.getFormatPositions(); // Initialize the map
 
         return variant;
     }
@@ -129,9 +127,9 @@ public class VcfRecordProtoToVariantConverter implements Converter<VcfSliceProto
         return end;
     }
 
-    private List<SampleEntry> getSamples(VcfSliceProtos.VcfRecord vcfRecord, Map<String, Integer> formatPositions) {
+    private List<SampleEntry> getSamples(VcfSliceProtos.VcfRecord vcfRecord, List<String> sampleDataKeys) {
         List<SampleEntry> samples = new ArrayList<>(vcfRecord.getSamplesCount());
-        Integer gtPosition = formatPositions.get("GT");
+        Integer gtPosition = !sampleDataKeys.isEmpty() && sampleDataKeys.get(0).equals("GT") ? 0 : null;
         if (gtPosition == null) {
             for (VcfSliceProtos.VcfSample vcfSample : vcfRecord.getSamplesList()) {
                 if (vcfSample.getSampleValuesCount() == 0) {
@@ -145,7 +143,7 @@ public class VcfRecordProtoToVariantConverter implements Converter<VcfSliceProto
                 throw new IllegalArgumentException("GT must be in the first position or missing");
             }
             for (VcfSliceProtos.VcfSample vcfSample : vcfRecord.getSamplesList()) {
-                List<String> data = new ArrayList<>(formatPositions.size());
+                List<String> data = new ArrayList<>(sampleDataKeys.size());
                 data.add(fields.getGts(vcfSample.getGtIndex()));
                 if (vcfSample.getSampleValuesCount() > 0) {
                     data.addAll(vcfSample.getSampleValuesList());

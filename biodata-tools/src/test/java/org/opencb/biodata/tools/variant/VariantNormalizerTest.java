@@ -138,13 +138,13 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
         assertEquals(0, snp.getStudies().get(0).getSecondaryAlternates().size());
         assertEquals(0, indel.getStudies().get(0).getSecondaryAlternates().size());
 
-        assertTrue(snp.getStudies().get(0).getFormat().contains("PS"));
-        assertTrue(indel.getStudies().get(0).getFormat().contains("PS"));
+        assertTrue(snp.getStudies().get(0).getSampleDataKeys().contains("PS"));
+        assertTrue(indel.getStudies().get(0).getSampleDataKeys().contains("PS"));
         assertEquals("1:101:C:T,1:105:T:-", snp.getStudies().get(0).getSampleData("S1", "PS"));
         assertEquals("1:101:C:T,1:105:T:-", indel.getStudies().get(0).getSampleData("S1", "PS"));
 
         for (Variant refBlock : refBlocks) {
-            assertFalse(refBlock.getStudies().get(0).getFormat().contains("PS"));
+            assertFalse(refBlock.getStudies().get(0).getSampleDataKeys().contains("PS"));
             assertEquals("0/0", refBlock.getStudies().get(0).getSampleData("S1", "GT"));
             assertEquals("0/0", refBlock.getStudies().get(0).getSampleData("S2", "GT"));
             assertEquals("./.", refBlock.getStudies().get(0).getSampleData("S3", "GT"));
@@ -174,9 +174,9 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
         assertEquals("1:104:G:C", variants.get(1).toString());
         assertEquals("1:105:T:-", variants.get(2).toString());
 
-        assertEquals(true, variants.get(0).getStudies().get(0).getFormat().contains("PS"));
-        assertEquals(false, variants.get(1).getStudies().get(0).getFormat().contains("PS"));
-        assertEquals(true, variants.get(2).getStudies().get(0).getFormat().contains("PS"));
+        assertEquals(true, variants.get(0).getStudies().get(0).getSampleDataKeys().contains("PS"));
+        assertEquals(false, variants.get(1).getStudies().get(0).getSampleDataKeys().contains("PS"));
+        assertEquals(true, variants.get(2).getStudies().get(0).getSampleDataKeys().contains("PS"));
 
         assertEquals("1:101:C:T,1:105:T:-", variants.get(0).getStudies().get(0).getSampleData("S1", "PS"));
         assertEquals("1:101:C:T,1:105:T:-", variants.get(0).getStudies().get(0).getSampleData("S2", "PS"));
@@ -504,7 +504,7 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
         Variant variant = Variant.newBuilder("1", 100, 200, "C", "<CN0>,<CN2>,<CN3>,<CN4>")
                 .setStudyId("1")
                 .setFileId("1")
-                .setFormat("GT")
+                .setSampleDataKeys("GT")
                 .addSample("HG00096", "0|1")
                 .addSample("HG00097", "0|2")
                 .addSample("HG00098", "0|3")
@@ -540,7 +540,7 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
         Variant variant;
         List<Variant> normalizedVariantList;
         variant = newVariantBuilder(100, 200, "C", Arrays.asList("<CNV>"), "2")
-                .setFormat("GT", "CN")
+                .setSampleDataKeys("GT", "CN")
                 .addSample("HG00096", "0|1","3")
                 .build();
         normalizedVariantList = normalizer.normalize(Collections.singletonList(variant), true);
@@ -563,7 +563,7 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
         Variant variant;
         List<Variant> normalizedVariantList;
         variant = newVariant(100, 200, "C", Arrays.asList("<CNV>"), "2");
-        variant.getStudies().get(0).addFormat("CN");
+        variant.getStudies().get(0).addSampleDataKey("CN");
         variant.getStudies().get(0).addSampleData("HG00096", Arrays.asList("0|1","3"));
         variant.getStudies().get(0).addSampleData("HG00097", Arrays.asList("0|1","2"));
         normalizedVariantList = normalizer.normalize(Collections.singletonList(variant), false);

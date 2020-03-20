@@ -155,7 +155,7 @@ public class VariantReferenceBlockCreatorTask implements Task<Variant, Variant> 
                     .setFileId(fileId)
                     .setSamplesPosition(samplesPosition)
                     .setFilter(VCFConstants.UNFILTERED)
-                    .setFormat("GT")
+                    .setSampleDataKeys("GT")
                     .setSamples(missingGtSamplesData);
         }
         return builder.build();

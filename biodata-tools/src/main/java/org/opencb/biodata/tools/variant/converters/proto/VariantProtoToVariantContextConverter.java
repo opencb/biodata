@@ -88,15 +88,15 @@ public class VariantProtoToVariantContextConverter extends VariantContextConvert
 
         // FORMAT
         // Each variant can have different FORMAT so we need to recalculate the positions.
-        final Map<String, Integer> formatPositions = new HashMap<>(studyEntry.getFormatList().size());
-        for (int i = 0; i < studyEntry.getFormatList().size(); i++) {
-            formatPositions.put(studyEntry.getFormatList().get(i), i);
+        final Map<String, Integer> formatPositions = new HashMap<>(studyEntry.getSampleDataKeysList().size());
+        for (int i = 0; i < studyEntry.getSampleDataKeysList().size(); i++) {
+            formatPositions.put(studyEntry.getSampleDataKeysList().get(i), i);
         }
 
         // SAMPLES
         BiFunction<String, String, String> getSampleData = (sampleName, id) -> getSampleData(studyEntry, formatPositions, sampleName, id);
 
-        List<Genotype> genotypes = getGenotypes(alleleList, studyEntry.getFormatList(), getSampleData);
+        List<Genotype> genotypes = getGenotypes(alleleList, studyEntry.getSampleDataKeysList(), getSampleData);
 
         return makeVariantContext(chromosome, start, end, idForVcf, alleleList, isNoVariation, filters, qual, attributes, genotypes);
     }

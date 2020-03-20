@@ -8,8 +8,6 @@ import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -253,7 +251,7 @@ public class VariantVcfHtsjdkReaderTest {
         assertEquals(1, variantList.size());
         Variant variant = variantList.get(0);
         assertEquals(1, variant.getStudies().size());
-        List<String> format = variant.getStudies().get(0).getFormat();
+        List<String> format = variant.getStudies().get(0).getSampleDataKeys();
         List<SampleEntry> samples = variant.getStudies().get(0).getSamples();
 
         // Check samples data is exactly in the same order as in the VCF (not alphabetical!)

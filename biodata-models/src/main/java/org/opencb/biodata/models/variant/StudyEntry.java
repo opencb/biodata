@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 public class StudyEntry implements Serializable {
 
     private volatile LinkedHashMap<String, Integer> samplesPosition = null;
-    private final AtomicReference<Map<String, Integer>> formatPosition = new AtomicReference<>();
+    private final AtomicReference<Map<String, Integer>> sampleDataKeysPosition = new AtomicReference<>();
     private volatile Map<String, VariantStats> cohortStats = null;
     private final org.opencb.biodata.models.variant.avro.StudyEntry impl;
 
@@ -106,6 +106,10 @@ public class StudyEntry implements Serializable {
         setSecondaryAlternates(secondaryAlternates);
     }
 
+    public org.opencb.biodata.models.variant.avro.StudyEntry getImpl() {
+        return impl;
+    }
+
     public LinkedHashMap<String, Integer> getSamplesPosition() {
         return samplesPosition;
     }
@@ -143,7 +147,6 @@ public class StudyEntry implements Serializable {
         }
     }
 
-
     public static boolean isSamplesPositionMapSorted(LinkedHashMap<String, Integer> samplesPosition) {
         int idx = 0;
         for (Map.Entry<String, Integer> entry : samplesPosition.entrySet()) {
@@ -167,75 +170,72 @@ public class StudyEntry implements Serializable {
         return map;
     }
 
-    public org.opencb.biodata.models.variant.avro.StudyEntry getImpl() {
-        return impl;
+    public String getSampleDataKeysAsString() {
+        return impl.getSampleDataKeys() == null ? null : String.join(":", impl.getSampleDataKeys());
     }
 
-//    public void setSamplePositions(List<String> samplePositions) {
-//        this.samplePositions = new HashMap<>(samplePositions.size());
-//        int position = 0;
-//        for (String sample : samplePositions) {
-//            this.samplePositions.put(sample, position++);
-//        }
-//    }
-//
-//    @Deprecated
-//    public void setSecondaryAlternates(String[] secondaryAlternates) {
-//        impl.setSecondaryAlternates(Arrays.asList(secondaryAlternates));
-//    }
-
-    public String getFormatAsString() {
-        return impl.getFormat() == null ? null : String.join(":", impl.getFormat());
+    @Deprecated
+    public List<String> getFormat() {
+        return getSampleDataKeys();
     }
 
-    public void setFormatAsString(String format) {
-        setFormat(Arrays.asList(format.split(":")));
+    @Deprecated
+    public StudyEntry setFormat(List<String> value) {
+        return setSampleDataKeys(value);
     }
 
     /**
      * Do not modify this list
      * @return
      */
-    public List<String> getFormat() {
-        return impl.getFormat() == null? null : Collections.unmodifiableList(impl.getFormat());
+    public List<String> getSampleDataKeys() {
+        return impl.getSampleDataKeys() == null? null : Collections.unmodifiableList(impl.getSampleDataKeys());
     }
 
-    public StudyEntry setFormat(List<String> value) {
-        this.formatPosition.set(null);
-        impl.setFormat(value);
+    public StudyEntry setSampleDataKeys(List<String> value) {
+        this.sampleDataKeysPosition.set(null);
+        impl.setSampleDataKeys(value);
         return this;
     }
 
-    public StudyEntry addFormat(String value) {
-        Map<String, Integer> formatPositions = getFormatPositions();
+    public StudyEntry addSampleDataKey(String value) {
+        Map<String, Integer> formatPositions = getSampleDataKeyPositions();
         if (formatPositions.containsKey(value)) {
             return this;
         } else {
-            List<String> format = impl.getFormat();
+            List<String> format = impl.getSampleDataKeys();
             if (format == null) {
                 format = new ArrayList<>(1);
                 format.add(value);
-                impl.setFormat(format);
+                impl.setSampleDataKeys(format);
             } else {
-                actOnList(format, f -> f.add(value), impl::setFormat);
+                actOnList(format, f -> f.add(value), impl::setSampleDataKeys);
             }
             formatPositions.put(value, formatPositions.size());
         }
         return this;
     }
 
-    public Map<String, Integer> getFormatPositions() {
-        if (Objects.isNull(this.formatPosition.get())) {
+    public Set<String> getSampleDataKeySet() {
+        return getSampleDataKeyPositions().keySet();
+    }
+
+    public Integer getSampleDataKeyPosition(String key) {
+        return getSampleDataKeyPositions().get(key);
+    }
+
+    public Map<String, Integer> getSampleDataKeyPositions() {
+        if (Objects.isNull(this.sampleDataKeysPosition.get())) {
             Map<String, Integer> map = new HashMap<>();
             int pos = 0;
-            if (getFormat() != null) {
-                for (String format : getFormat()) {
+            if (getSampleDataKeys() != null) {
+                for (String format : getSampleDataKeys()) {
                     map.put(format, pos++);
                 }
             }
-            this.formatPosition.compareAndSet(null, map);
+            this.sampleDataKeysPosition.compareAndSet(null, map);
         }
-        return formatPosition.get();
+        return sampleDataKeysPosition.get();
     }
 
     public List<SampleEntry> getSamples() {
@@ -276,7 +276,7 @@ public class StudyEntry implements Serializable {
     public String getSampleData(String sample, String field) {
         SampleEntry sampleEntry = getSample(sample);
         if (sampleEntry != null) {
-            Map<String, Integer> formatPositions = getFormatPositions();
+            Map<String, Integer> formatPositions = getSampleDataKeyPositions();
             if (formatPositions.containsKey(field)) {
                 Integer formatIdx = formatPositions.get(field);
                 return  formatIdx < sampleEntry.getData().size() ? sampleEntry.getData().get(formatIdx) : null;
@@ -330,7 +330,7 @@ public class StudyEntry implements Serializable {
         requireSamplesPosition();
         if (samplesPosition.containsKey(sampleName)) {
             HashMap<String, String> sampleDataMap = new HashMap<>();
-            Iterator<String> iterator = getFormat().iterator();
+            Iterator<String> iterator = getSampleDataKeys().iterator();
             List<String> sampleDataList = getSampleData(sampleName);
             for (String data : sampleDataList) {
                 sampleDataMap.put(iterator.next(), data);
@@ -342,15 +342,15 @@ public class StudyEntry implements Serializable {
     }
 
     public StudyEntry addSampleData(String sampleName, Map<String, String> sampleData) {
-        if (getFormat() == null) {
-            setFormat(new ArrayList<>(sampleData.keySet()));
+        if (getSampleDataKeys() == null) {
+            setSampleDataKeys(new ArrayList<>(sampleData.keySet()));
         }
-        List<String> sampleDataList = new ArrayList<>(getFormat().size());
-        for (String field : getFormat()) {
+        List<String> sampleDataList = new ArrayList<>(getSampleDataKeys().size());
+        for (String field : getSampleDataKeys()) {
             sampleDataList.add(sampleData.get(field));
         }
         if (sampleData.size() != sampleDataList.size()) {
-            List<String> extraFields = sampleData.keySet().stream().filter(f -> getFormat().contains(f)).collect(Collectors.toList());
+            List<String> extraFields = sampleData.keySet().stream().filter(f -> getSampleDataKeys().contains(f)).collect(Collectors.toList());
             throw new IllegalArgumentException("Some sample data fields were not in the format field: " + extraFields);
         }
         addSampleData(sampleName, sampleDataList);
@@ -414,7 +414,7 @@ public class StudyEntry implements Serializable {
 
     public StudyEntry addSampleData(String sampleName, String format, String value, String defaultValue) {
         requireSamplesPosition();
-        Integer formatIdx = getFormatPositions().get(format);
+        Integer formatIdx = getSampleDataKeyPositions().get(format);
         Integer samplePosition = getSamplesPosition().get(sampleName);
         return addSampleData(samplePosition, formatIdx, value, defaultValue);
     }
@@ -423,7 +423,7 @@ public class StudyEntry implements Serializable {
         if (formatIdx != null && samplePosition != null) {
             SampleEntry sampleEntry = getSample(samplePosition);
             if (sampleEntry == null) {
-                sampleEntry = new SampleEntry(null, null, new ArrayList<>(getFormat().size()));
+                sampleEntry = new SampleEntry(null, null, new ArrayList<>(getSampleDataKeys().size()));
                 addSampleData(samplePosition, sampleEntry);
             }
             if (formatIdx < sampleEntry.getData().size()) {

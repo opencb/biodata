@@ -30,7 +30,7 @@ public class VariantStatsPedigree {
         double mendelianErrors = 0;
 
 
-        Integer gtIdx = study.getFormatPositions().get("GT");
+        Integer gtIdx = study.getSampleDataKeyPosition("GT");
         LinkedHashMap<String, Integer> samplesPosition = study.getSamplesPosition();
 
         Map<String, Genotype> gts = new TreeMap<>(String::compareTo);
