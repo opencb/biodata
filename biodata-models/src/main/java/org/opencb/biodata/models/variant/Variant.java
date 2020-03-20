@@ -46,7 +46,7 @@ public class Variant implements Serializable, Comparable<Variant> {
     public static final int UNKNOWN_LENGTH = 0;
 
     public Variant() {
-        impl = new VariantAvro(null, new LinkedList<>(), "", -1, -1, "", "", "+", null, 0, null, new HashMap<>(), new LinkedList<>(), null);
+        impl = new VariantAvro(null, new LinkedList<>(), "", -1, -1, "", "", "+", null, 0, null, new LinkedList<>(), null);
     }
 
     public Variant(VariantAvro avro) {
@@ -310,32 +310,12 @@ public class Variant implements Serializable, Comparable<Variant> {
         return this;
     }
 
-    public Map<String, List<String>> getHgvs() {
-        return impl.getHgvs();
-    }
-
-    public void setHgvs(Map<String, List<String>> value) {
-        impl.setHgvs(value);
-    }
-
     public VariantAnnotation getAnnotation() {
         return impl.getAnnotation();
     }
 
     public void setAnnotation(VariantAnnotation value) {
         impl.setAnnotation(value);
-    }
-
-    public boolean addHgvs(String type, String value) {
-        List<String> listByType = getHgvs().get(type);
-        if (listByType == null) {
-            listByType = new LinkedList<>();
-        }
-        if (!listByType.contains(value)) {
-            return listByType.add(value);
-        } else {
-            return false; //Collection has not changed
-        }
     }
 
     public List<StudyEntry> getStudies() {

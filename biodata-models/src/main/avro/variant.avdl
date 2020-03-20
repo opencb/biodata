@@ -404,11 +404,6 @@ protocol Variants {
         VariantType type;
 
         /**
-         * Unique identifier following the HGVS nomenclature.
-         */
-        union { null, map<array<string>> } hgvs = null;
-
-        /**
          * Information specific to each study the variant was read from, such as
          * samples or statistics.
          */

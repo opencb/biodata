@@ -144,7 +144,6 @@ public class VariantSimulator {
         variant.setStrand(strand);
         variant.setType(VariantType.valueOf(variantType));
         variant.setAnnotation(null);
-        variant.setHgvs(null);
         return variant;
     }
 

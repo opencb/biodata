@@ -315,14 +315,6 @@ message Variant {
     VariantType type = 9;
 
     /**
-     * Unique identifier following the HGVS nomenclature.
-     */
-    message HgvsEntry {
-        repeated string info = 1;
-    }
-    map<string, HgvsEntry> hgvss = 10;
-
-    /**
      * Information specific to each study the variant was read from, such as
      * samples or statistics.
      */

@@ -509,8 +509,7 @@ public class VariantBuilder {
             int length = VariantBuilder.inferLength(reference, alternate, start, end, type);
             return new VariantAvro(null,
                     new ArrayList<>(),
-                    chromosome, start, end, reference, alternate, "+", null, length, type,
-                    new HashMap<>(), null, null);
+                    chromosome, start, end, reference, alternate, "+", null, length, type, null, null);
         }
     }
 
@@ -1096,7 +1095,7 @@ public class VariantBuilder {
                 case CNV:
                     Integer copyNumber = getCopyNumberFromAlternate(alternates.get(0));
                     if (copyNumber == null) {
-                        copyNumber = getCopyNumberFromFormat();
+                        copyNumber = getCopyNumberFromSampleData();
                     }
                     if (copyNumber != null) {
                         sv.setCopyNumber(copyNumber);
@@ -1198,7 +1197,7 @@ public class VariantBuilder {
         }
     }
 
-    public Integer getCopyNumberFromFormat() {
+    public Integer getCopyNumberFromSampleData() {
         if (sampleDataKeys == null) {
             return null;
         }
