@@ -146,16 +146,6 @@ public class StudyEntry implements Serializable {
         return impl.getSampleDataKeys() == null ? null : String.join(":", impl.getSampleDataKeys());
     }
 
-    @Deprecated
-    public List<String> getFormat() {
-        return getSampleDataKeys();
-    }
-
-    @Deprecated
-    public StudyEntry setFormat(List<String> value) {
-        return setSampleDataKeys(value);
-    }
-
     /**
      * Do not modify this list
      * @return
@@ -264,53 +254,6 @@ public class StudyEntry implements Serializable {
         } else {
             return sampleEntry.getData();
         }
-    }
-
-    @Deprecated
-    public List<List<String>> getSamplesData() {
-        List<SampleEntry> samples = impl.getSamples();
-        if (samples == null) {
-            return null;
-        } else {
-            return samples.stream().map(SampleEntry::getData).collect(Collectors.toList());
-        }
-    }
-
-    @Deprecated
-    public void setSamplesData(List<List<String>> value) {
-        if (value == null) {
-            impl.setSamples(null);
-        } else {
-            impl.setSamples(value.stream().map(s -> new SampleEntry(null, null, s)).collect(Collectors.toList()));
-        }
-    }
-
-    @Deprecated
-    public Map<String, Map<String, String>> getSamplesDataAsMap() {
-        requireSamplesPosition();
-
-        Map<String, Map<String, String>> samplesDataMap = new HashMap<>();
-        for (Map.Entry<String, Integer> entry : samplesPosition.entrySet()) {
-            samplesDataMap.put(entry.getKey(), getSampleDataAsMap(entry.getKey()));
-        }
-
-        return Collections.unmodifiableMap(samplesDataMap);
-    }
-
-    @Deprecated
-    public Map<String, String> getSampleDataAsMap(String sampleName) {
-        requireSamplesPosition();
-        if (samplesPosition.containsKey(sampleName)) {
-            HashMap<String, String> sampleDataMap = new HashMap<>();
-            Iterator<String> iterator = getSampleDataKeys().iterator();
-            List<String> sampleDataList = getSampleData(sampleName);
-            for (String data : sampleDataList) {
-                sampleDataMap.put(iterator.next(), data);
-            }
-
-            return Collections.unmodifiableMap(sampleDataMap);
-        }
-        return null;
     }
 
     public StudyEntry addSampleData(String sampleName, Map<String, String> sampleData) {
@@ -524,7 +467,7 @@ public class StudyEntry implements Serializable {
 
     public void setFileId(String fileId) {
         if (impl.getFiles().isEmpty()) {
-            impl.getFiles().add(new FileEntry(fileId, "", new HashMap<>()));
+            impl.getFiles().add(new FileEntry(fileId, null, new HashMap<>()));
         } else {
             impl.getFiles().get(0).setFileId(fileId);
         }

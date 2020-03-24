@@ -32,10 +32,7 @@ import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantBuilder;
-import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
-import org.opencb.biodata.models.variant.avro.FileEntry;
-import org.opencb.biodata.models.variant.avro.SampleEntry;
-import org.opencb.biodata.models.variant.avro.VariantType;
+import org.opencb.biodata.models.variant.avro.*;
 import org.opencb.biodata.models.variant.metadata.VariantFileHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -267,7 +264,7 @@ public class VariantMerger {
         var.setType(target.getType());
         for(StudyEntry tse : target.getStudies()){
             StudyEntry se = new StudyEntry(tse.getStudyId());
-            se.setFiles(Collections.singletonList(new FileEntry("", "", new HashMap<>())));
+            se.setFiles(Collections.singletonList(new FileEntry("", null, new HashMap<>())));
             se.setSampleDataKeys(Arrays.asList(getGtKey(), getFilterKey()));
             se.setSamplesPosition(new HashMap<>());
             se.setSamples(new ArrayList<>());
@@ -1018,15 +1015,14 @@ public class VariantMerger {
 
     private void mergeFile(Variant current, Variant other, VariantAlternateRearranger rearranger,
                            StudyEntry currentStudy, StudyEntry otherStudy) {
-        String call = other.getStart() + ":" + other.getReference() + ":" + other.getAlternate() + ":0";
 
         List<FileEntry> files = otherStudy.getFiles().stream()
                 .map(fileEntry -> FileEntry.newBuilder(fileEntry).build())
                 .collect(Collectors.toList());
         if (!current.toString().equals(other.toString())) {
             for (FileEntry file : files) {
-                if (StringUtils.isEmpty(file.getCall())) {
-                    file.setCall(call);
+                if (file.getCall() != null) {
+                    file.setCall(new OriginalCall(other.toString(), 0));
                 }
             }
         }

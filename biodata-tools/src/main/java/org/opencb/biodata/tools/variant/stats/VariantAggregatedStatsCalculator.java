@@ -20,11 +20,11 @@
 package org.opencb.biodata.tools.variant.stats;
 
 import org.apache.commons.lang.StringUtils;
-import org.opencb.biodata.models.feature.Genotype;
-import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.formats.variant.vcf4.VariantAggregatedVcfFactory;
-import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.formats.variant.vcf4.VariantVcfFactory;
+import org.opencb.biodata.models.feature.Genotype;
+import org.opencb.biodata.models.variant.StudyEntry;
+import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.stats.VariantStats;
@@ -291,14 +291,10 @@ public class VariantAggregatedStatsCalculator {
                 // Get the original variant call to parse this field
                 FileEntry fileEntry = studyEntry.getFiles().get(0);
                 int numAlleleOri;
-                String[] alternateAllelesOri;
-                if (fileEntry.getCall() != null && !fileEntry.getCall().isEmpty()) {
-                    String[] ori = fileEntry.getCall().split(":");
-                    numAlleleOri = Integer.parseInt(ori[3]);
-                    alternateAllelesOri = ori[2].split(",");
+                if (fileEntry.getCall() != null) {
+                    numAlleleOri = fileEntry.getCall().getAlleleIndex();
                 } else {
                     numAlleleOri = numAllele;
-                    alternateAllelesOri = alternateAlleles;
                 }
 
                 for (int i = 0; i < gtcs.length; i++) {

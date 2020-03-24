@@ -91,7 +91,7 @@ public class VariantBuilder {
     private List<String> sampleDataKeys;
     private List<SampleEntry> samples;
     private Map<String, String> fileData;
-    private String call;
+    private OriginalCall call;
 
     private String variantString;
 
@@ -414,7 +414,7 @@ public class VariantBuilder {
         return this;
     }
 
-    public VariantBuilder setCall(String call) {
+    public VariantBuilder setCall(OriginalCall call) {
         checkFile("set call");
         this.call = call;
         return this;
@@ -612,9 +612,16 @@ public class VariantBuilder {
                     .setStudyId(studyId);
 
             if (fileId != null) {
-                studyBuilder.addFiles(VariantProto.FileEntry.newBuilder()
+                VariantProto.FileEntry.Builder fileBuilder = VariantProto.FileEntry.newBuilder()
                         .setFileId(fileId)
-                        .putAllData(fileData));
+                        .putAllData(fileData);
+                if (call != null) {
+                    fileBuilder.setCall(VariantProto.OriginalCall
+                            .newBuilder()
+                            .setVariantId(call.getVariantId())
+                            .setAlleleIndex(call.getAlleleIndex()));
+                }
+                studyBuilder.addFiles(fileBuilder);
             }
 
             for (int i = 1; i < alternates.size(); i++) {
@@ -1153,7 +1160,7 @@ public class VariantBuilder {
                     if (alternates.size() > 1) {
                         throw new IllegalArgumentException("Found SVINSSEQ in a multi allelic variant!");
                     } else {
-                        setCall(start + ":" + reference + ":" + alternates.get(0) + ":" + 0);
+                        setCall(new OriginalCall(toString(), 0));
                         setAlternate(reference + value);
                     }
                 }
@@ -1344,7 +1351,7 @@ public class VariantBuilder {
                     + start + "-"
                     + end + ":"
                     + reference + ":"
-                    + (alternates == null ? "null" : String.join(",", alternates));
+                    + (alternates == null ? "-" : String.join(",", alternates));
     }
 
     private static <T> void ifNotNull(T value, Consumer<T> setter) {

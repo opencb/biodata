@@ -313,7 +313,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                 }
                 // Iterate keyFields sorting by position, so the generated variants are ordered. Do not modify original order!
                 for (VariantKeyFields keyFields : sortByPosition(keyFieldsList)) {
-                    String call = start + ":" + reference + ":" + alternate + ":" + keyFields.getNumAllele();
+                    OriginalCall call = new OriginalCall(variant.toString(), keyFields.getNumAllele());
                     Variant normalizedVariant = newVariant(variant, keyFields, sv);
                     if (keyFields.getPhaseSet() != null) {
                         StudyEntry studyEntry = new StudyEntry();
@@ -361,15 +361,18 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                             && keyFieldsList.get(0).getReference().equals(reference)
                             && keyFieldsList.get(0).getAlternate().equals(alternate);
 
-                    String callPrefix;
+                    String originalCall;
                     if (entry.getFiles() != null
                             && !entry.getFiles().isEmpty()
-                            && StringUtils.isNotEmpty(entry.getFiles().get(0).getCall())) {
-                        String call = entry.getFiles().get(0).getCall();
-                        // Remove allele index
-                        callPrefix = call.substring(0, call.lastIndexOf(':') + 1);
+                            && entry.getFiles().get(0).getCall() != null
+                            && StringUtils.isNotEmpty(entry.getFiles().get(0).getCall().getVariantId())) {
+                        originalCall = entry.getFiles().get(0).getCall().getVariantId();
                     } else {
-                        callPrefix = start + ":" + reference + ":" + String.join(",", originalAlternates) + ":";
+                        StringBuilder sb = new StringBuilder(variant.toString());
+                        for (int i = 1; i < originalAlternates.size(); i++) {
+                            sb.append(",").append(originalAlternates.get(i));
+                        }
+                        originalCall = sb.toString();
                     }
 
                     // Iterate keyFields sorting by position, so the generated variants are ordered. Do not modify original order!
@@ -378,13 +381,12 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                         if (keyFields.alternate.equals(VariantBuilder.REF_ONLY_ALT)) {
                             continue;
                         }
-                        String call = callPrefix + keyFields.getNumAllele();
 
                         final Variant normalizedVariant;
                         final StudyEntry normalizedEntry;
                         final List<SampleEntry> samples;
                         if (reuse && keyFieldsList.size() == 1) {   //Only reuse for non multiallelic variants
-                            //Reuse variant. Set new fields.
+                            //callReuse variant. Set new fields.
                             normalizedVariant = variant;
                             variant.setStart(keyFields.getStart());
                             variant.setEnd(keyFields.getEnd());
@@ -397,7 +399,12 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 //                                variant.setSv(sv);
 //                            }
                             normalizedEntry = entry;
-                            entry.getFiles().forEach(fileEntry -> fileEntry.setCall(sameVariant ? null : call));
+                            if (!sameVariant) {
+                                OriginalCall call = new OriginalCall(originalCall.toString(), keyFields.numAllele);
+                                entry.getFiles().forEach(fileEntry -> {
+                                    fileEntry.setCall(call);
+                                });
+                            }
                             samples = entry.getSamples();
                         } else {
                             normalizedVariant = newVariant(variant, keyFields, sv);
@@ -408,9 +415,15 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                             normalizedEntry.setSampleDataKeys(entry.getSampleDataKeys());
 
                             List<FileEntry> files = new ArrayList<>(entry.getFiles().size());
+                            OriginalCall call;
+                            if (sameVariant) {
+                                call = null;
+                            } else {
+                                call = new OriginalCall(originalCall, keyFields.numAllele);
+                            }
                             for (FileEntry file : entry.getFiles()) {
                                 HashMap<String, String> fileData = new HashMap<>(file.getData());
-                                files.add(new FileEntry(file.getFileId(), sameVariant ? null : call, fileData));
+                                files.add(new FileEntry(file.getFileId(), call, fileData));
                             }
                             normalizedEntry.setFiles(files);
                             normalizedVariant.addStudyEntry(normalizedEntry);
@@ -461,6 +474,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                                 // for all mnv-phased variants
                                 if (normalizedEntry.getFiles().size() == 0) {
                                     // Use mnv string as file Id so that it can be later identified.
+                                    OriginalCall call = new OriginalCall(originalCall, keyFields.numAllele);
                                     normalizedEntry.setFiles(Collections.singletonList(new FileEntry(keyFields.getPhaseSet(), call, null)));
                                 }
                             }
@@ -470,7 +484,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                             normalizedVariants.add(normalizedVariant);
 
                         } catch (Exception e) {
-                            logger.warn("Error parsing variant " + call + ", numAllele " + keyFields.getNumAllele(), e);
+                            logger.warn("Error parsing variant " + originalCall + ", numAllele " + keyFields.getNumAllele(), e);
                             throw e;
                         }
                     }

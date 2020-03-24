@@ -143,7 +143,7 @@ public class VariantNormalizerGenericTest extends GenericTest {
                 assertEquals(expected.getStart(), v.getStart().intValue());
                 assertEquals(expected.getAlternate(), v.getAlternate());
                 assertEquals(expected.getReference(), v.getReference());
-                int actual = Integer.parseInt(v.getStudies().get(0).getFiles().get(0).getCall().split(":")[3]);
+                int actual = v.getStudies().get(0).getFiles().get(0).getCall().getAlleleIndex();
                 assertEquals(expected.getNumAllele(), actual);
                 for (AlternateCoordinate alternate : v.getStudy(studyId).getSecondaryAlternates()) {
                     assertNotNull(alternate);

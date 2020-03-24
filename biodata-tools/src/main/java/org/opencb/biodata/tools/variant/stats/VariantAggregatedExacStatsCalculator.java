@@ -75,10 +75,10 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
             FileEntry fileEntry = studyEntry.getFiles().get(0);
             int numAlleleOri;
             String[] alternateAllelesOri;
-            if (fileEntry.getCall() != null && !fileEntry.getCall().isEmpty()) {
-                String[] ori = fileEntry.getCall().split(":");
-                numAlleleOri = Integer.parseInt(ori[3]);
-                alternateAllelesOri = ori[2].split(",");
+            if (fileEntry.getCall() != null) {
+                numAlleleOri = fileEntry.getCall().getAlleleIndex();
+                alternateAllelesOri = fileEntry.getCall().getVariantId().split(",");
+                alternateAllelesOri[0] = new Variant(alternateAllelesOri[0]).getAlternate();
             } else {
                 numAlleleOri = numAllele;
                 alternateAllelesOri = alternateAlleles;
@@ -152,10 +152,10 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
                         FileEntry fileEntry = studyEntry.getFiles().get(0);
                         int numAlleleOri;
                         String[] alternateAllelesOri;
-                        if (fileEntry.getCall() != null && !fileEntry.getCall().isEmpty()) {
-                            String[] ori = fileEntry.getCall().split(":");
-                            numAlleleOri = Integer.parseInt(ori[3]);
-                            alternateAllelesOri = ori[2].split(",");
+                        if (fileEntry.getCall() != null) {
+                            numAlleleOri = fileEntry.getCall().getAlleleIndex();
+                            alternateAllelesOri = fileEntry.getCall().getVariantId().split(",");
+                            alternateAllelesOri[0] = new Variant(alternateAllelesOri[0]).getAlternate();
                         } else {
                             numAlleleOri = numAllele;
                             alternateAllelesOri = alternateAlleles;

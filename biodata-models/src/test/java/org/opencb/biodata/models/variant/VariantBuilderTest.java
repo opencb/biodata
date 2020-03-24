@@ -99,7 +99,7 @@ public class VariantBuilderTest {
         assertEquals(length, v.getLength().intValue());
         assertEquals(length, v.getLengthAlternate().intValue());
         assertEquals(1, v.getLengthReference().intValue());
-        assertEquals("1000:A:<INS>:0", v.getStudies().get(0).getFiles().get(0).getCall());
+        assertEquals(new OriginalCall("1:1000:A:<INS>", 0), v.getStudies().get(0).getFiles().get(0).getCall());
 
     }
 

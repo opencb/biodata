@@ -55,7 +55,7 @@ public class VariantProtoToVariantContextConverter extends VariantContextConvert
         String chromosome = variant.getChromosome();
         VariantProto.VariantType type = variant.getType();
         Map<Integer, Character> referenceAlleles = buildReferenceAllelesMap(studyEntry.getFilesList().stream()
-                .map(VariantProto.FileEntry::getCall).iterator());
+                .map(fileEntry -> fileEntry.getCall()==null?null:fileEntry.getCall().getVariantId()).iterator());
         Pair<Integer, Integer> adjustedStartEndPositions = adjustedVariantStart(variant, studyEntry.getSecondaryAlternatesList(), referenceAlleles);
         int start = adjustedStartEndPositions.getLeft();
         int end = adjustedStartEndPositions.getRight();

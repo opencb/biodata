@@ -154,7 +154,7 @@ public class Ga4ghVariantConverter<V> implements Converter<Variant, V> {
         int fileIdx = 0;
         for (FileEntry file : files) {
             fileIds.add(file.getFileId() == null ? "" : file.getFileId());
-            ori.add(file.getCall() == null ? "" : file.getCall());
+            ori.add(file.getCall() == null ? "" : file.getCall().getVariantId());
             Map<String, String> fileData = file.getData();
             for (Map.Entry<String, String> field : fileData.entrySet()) {
                 List<String> value;

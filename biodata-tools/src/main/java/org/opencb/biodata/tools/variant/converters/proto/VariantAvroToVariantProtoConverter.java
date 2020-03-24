@@ -99,7 +99,11 @@ public class VariantAvroToVariantProtoConverter implements Converter<Variant, Va
         VariantProto.FileEntry.Builder fileBuilder = VariantProto.FileEntry.newBuilder();
         set(fileEntry::getFileId, fileBuilder::setFileId);
         set(fileEntry::getData, fileBuilder::putAllData);
-        set(fileEntry::getCall, fileBuilder::setCall);
+        set(fileEntry::getCall, originalCall -> {
+            fileBuilder.setCall(VariantProto.OriginalCall.newBuilder()
+                    .setVariantId(originalCall.getVariantId())
+                    .setAlleleIndex(originalCall.getAlleleIndex()));
+        });
         return fileBuilder;
     }
 

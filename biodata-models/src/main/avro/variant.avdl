@@ -147,6 +147,18 @@ protocol Variants {
         union { null, float } pValue = null;
     }
 
+    record OriginalCall {
+        /**
+         * Original variant ID before normalization including all secondary alternates.
+         */
+        string variantId;
+
+        /**
+         * Alternate allele index of the original multi-allellic variant call in which was decomposed.
+         */
+        union {null, int} alleleIndex;
+    }
+
     record FileEntry {
         /**
          * Unique identifier of the source file.
@@ -158,7 +170,7 @@ protocol Variants {
          *
          * {position}:{reference}:{alternate}(,{other_alternate})*:{allele_index}
          */
-        union { null, string } call;
+        union { null, OriginalCall } call;
 
         /**
          * Optional data that probably depend on the format of the file the

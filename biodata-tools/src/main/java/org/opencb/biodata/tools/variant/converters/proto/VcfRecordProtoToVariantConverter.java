@@ -21,10 +21,7 @@ package org.opencb.biodata.tools.variant.converters.proto;
 
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
-import org.opencb.biodata.models.variant.avro.FileEntry;
-import org.opencb.biodata.models.variant.avro.SampleEntry;
-import org.opencb.biodata.models.variant.avro.VariantType;
+import org.opencb.biodata.models.variant.avro.*;
 import org.opencb.biodata.models.variant.protobuf.VariantProto;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
 import org.opencb.biodata.tools.Converter;
@@ -87,7 +84,13 @@ public class VcfRecordProtoToVariantConverter implements Converter<VcfSliceProto
         fileEntry.setFileId(fileId);
         Map<String, String> fileData = getFileData(vcfRecord);
         fileEntry.setData(fileData);
-        fileEntry.setCall(vcfRecord.getCall().isEmpty() ? null : vcfRecord.getCall());
+        if (!vcfRecord.getCall().isEmpty()) {
+            int idx = vcfRecord.getCall().lastIndexOf(":");
+            OriginalCall call = new OriginalCall(
+                    vcfRecord.getCall().substring(0, idx),
+                    Integer.valueOf(vcfRecord.getCall().substring(idx + 1)));
+            fileEntry.setCall(call);
+        }
         if (vcfRecord.getType().equals(VariantProto.VariantType.NO_VARIATION)) {
             fileData.put("END", Integer.toString(end));
         }

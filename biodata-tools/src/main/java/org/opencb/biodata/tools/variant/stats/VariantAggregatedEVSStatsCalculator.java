@@ -64,11 +64,12 @@ public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsC
     protected void parseStats(Variant variant, StudyEntry study, int numAllele, String reference, String[] alternateAlleles, Map<String, String> info) {
         FileEntry fileEntry = study.getFiles().get(0);
         // EVS params are not rearranged when normalizing. Use original call
-        if (fileEntry.getCall() != null && !fileEntry.getCall().isEmpty()) {
-            String[] ori = fileEntry.getCall().split(":");
-            numAllele = Integer.parseInt(ori[3]);
-            alternateAlleles = ori[2].split(",");
-            reference = ori[1];
+        if (fileEntry.getCall() != null) {
+            numAllele = fileEntry.getCall().getAlleleIndex();
+            alternateAlleles = fileEntry.getCall().getVariantId().split(",");
+            Variant ori = new Variant(alternateAlleles[0]);
+            alternateAlleles[0] = ori.getAlternate();
+            reference = ori.getReference();
         }
         VariantStats stats = new VariantStats(StudyEntry.DEFAULT_COHORT);
         if (info.containsKey("MAF")) {
@@ -92,11 +93,12 @@ public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsC
     protected void parseMappedStats(Variant variant, StudyEntry studyEntry,
                                     int numAllele, String reference, String[] alternateAlleles, Map<String, String> info) {
         FileEntry fileEntry = studyEntry.getFiles().get(0);
-        if (fileEntry.getCall() != null && !fileEntry.getCall().isEmpty()) {
-            String[] ori = fileEntry.getCall().split(":");
-            numAllele = Integer.parseInt(ori[3]);
-            alternateAlleles = ori[2].split(",");
-            reference = ori[1];
+        if (fileEntry.getCall() != null) {
+            numAllele = fileEntry.getCall().getAlleleIndex();
+            alternateAlleles = fileEntry.getCall().getVariantId().split(",");
+            Variant ori = new Variant(alternateAlleles[0]);
+            alternateAlleles[0] = ori.getAlternate();
+            reference = ori.getReference();
         }
 
         if (tagMap != null) {

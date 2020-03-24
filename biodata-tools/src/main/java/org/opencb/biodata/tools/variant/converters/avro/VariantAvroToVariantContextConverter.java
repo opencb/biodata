@@ -55,7 +55,10 @@ public class VariantAvroToVariantContextConverter extends VariantContextConverte
         // CHROM START END REFERENCE ALTERNATE
         String chromosome = variant.getChromosome();
         VariantType type = variant.getType();
-        Map<Integer, Character> referenceAlleles = buildReferenceAllelesMap(studyEntry.getFiles().stream().map(FileEntry::getCall).iterator());
+        Map<Integer, Character> referenceAlleles = buildReferenceAllelesMap(studyEntry.getFiles()
+                .stream()
+                .map(entry -> entry.getCall() == null ? null : entry.getCall().getVariantId())
+                .iterator());
         Pair<Integer, Integer> adjustedStartEndPositions = adjustedVariantStart(variant, studyEntry, referenceAlleles);
         int start = adjustedStartEndPositions.getLeft();
         int end = adjustedStartEndPositions.getRight();
@@ -475,18 +478,6 @@ public class VariantAvroToVariantContextConverter extends VariantContextConverte
         attributes.put(ANNOTATION_INFO_KEY, stringBuilder.toString());
 //        infoAnnotations.put("CSQ", stringBuilder.toString().replaceAll("&|$", ""));
         return attributes;
-    }
-
-    protected static String[] getOri(StudyEntry studyEntry) {
-
-        List<FileEntry> files = studyEntry.getFiles();
-        if (!files.isEmpty()) {
-            String call = files.get(0).getCall();
-            if (call != null && !call.isEmpty()) {
-                return call.split(":");
-            }
-        }
-        return null;
     }
 
     @Override

@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opencb.biodata.models.variant.*;
 import org.opencb.biodata.models.variant.avro.FileEntry;
+import org.opencb.biodata.models.variant.avro.OriginalCall;
 import org.opencb.biodata.models.variant.avro.SampleEntry;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
 
@@ -73,7 +74,7 @@ public class VcfRecordProtoToVariantConverterTest {
         fileData.put("Key1", "V1");
         fileData.put("Key2", "V2");
 
-        studyEntry.setFiles(Collections.singletonList(new FileEntry(fileId, "5:A:C:0", fileData)));
+        studyEntry.setFiles(Collections.singletonList(new FileEntry(fileId, new OriginalCall("1:5:A:C", 0), fileData)));
         variant.setStudies(Collections.singletonList(studyEntry));
 
         VcfSliceProtos.VcfRecord vcfRecord = toProto.convert(variant);
@@ -93,7 +94,7 @@ public class VcfRecordProtoToVariantConverterTest {
                 .setSampleDataKeys(Collections.emptyList())
                 .setSamples(Collections.emptyList())
                 .setFileId(fileId)
-                .setCall("5:A:C:0")
+                .setCall(new OriginalCall("1:5:A:C", 0))
                 .addFileData("Key1", "V1")
                 .addFileData("Key2", "V2")
                 .build();
@@ -103,7 +104,7 @@ public class VcfRecordProtoToVariantConverterTest {
                 .setSampleDataKeys("GT", "DP")
                 .setSamples(Collections.emptyList())
                 .setFileId(fileId)
-                .setCall("5:A:C:0")
+                .setCall(new OriginalCall("1:5:A:C", 0))
                 .addFileData("Key1", "V1")
                 .addFileData("Key2", "V2")
                 .build();
@@ -148,7 +149,7 @@ public class VcfRecordProtoToVariantConverterTest {
         fileData.put(StudyEntry.QUAL, "57");
         fileData.put("Key", "Value");
 
-        studyEntry.setFiles(Collections.singletonList(new FileEntry(fileId, "5:A:C:0", fileData)));
+        studyEntry.setFiles(Collections.singletonList(new FileEntry(fileId, null, fileData)));
         variant.setStudies(Collections.singletonList(studyEntry));
 
         VcfSliceProtos.VcfRecord vcfRecord = toProto.convert(variant, 100);

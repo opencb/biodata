@@ -127,9 +127,22 @@ message VariantStats {
     string mgfGenotype = 13;
 }
 
+message OriginalCall {
+    /**
+     * Original variant ID before normalization including all secondary alternates.
+     */
+    string variantId = 1;
+
+    /**
+     * Alternate allele index of the original multi-allellic variant call in which was decomposed.
+     */
+    int32 alleleIndex = 2;
+}
+
+
 message FileEntry {
     string fileId = 1;
-    string call = 2;
+    OriginalCall call = 2;
     map<string, string> data = 3;
 }
 

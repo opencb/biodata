@@ -185,9 +185,9 @@ public class VariantToProtoVcfRecord implements Converter<Variant, VcfRecord> {
         Map<String, String> fileData = Collections.unmodifiableMap(file.getData());   //DO NOT MODIFY
 
         if ( !variant.getType().equals(VariantType.NO_VARIATION)
-                && file.getCall() != null && !file.getCall().isEmpty()
-                && !file.getCall().equals(variant.toString() + ":0" ) ) {
-            recordBuilder.setCall(file.getCall());
+                && file.getCall() != null
+                && !file.getCall().getVariantId().equals(variant.toString())) {
+            recordBuilder.setCall(file.getCall().getVariantId()+":"+file.getCall().getAlleleIndex());
         }
 
 		/* Filter */

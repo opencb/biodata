@@ -112,9 +112,6 @@ public class VariantContextToVariantProtoConverter implements Converter<VariantC
 
         VariantProto.FileEntry.Builder fileEntry = VariantProto.FileEntry.newBuilder();
         fileEntry.setFileId(fileId);
-        fileEntry.setCall(variantContext.getStart()
-                + ":" + variantContext.getReference()
-                + ":" + StringUtils.join(variantContext.getAlternateAlleles(), ","));
         Map<String, String> fileData = new HashMap<>();
         for (String key : variantContext.getAttributes().keySet()) {
             fileData.put(key, variantContext.getAttributeAsString(key, ""));
