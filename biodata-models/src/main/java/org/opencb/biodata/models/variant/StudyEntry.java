@@ -20,11 +20,7 @@
 package org.opencb.biodata.models.variant;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
-import org.opencb.biodata.models.variant.avro.FileEntry;
-import org.opencb.biodata.models.variant.avro.IssueEntry;
-import org.opencb.biodata.models.variant.avro.VariantScore;
-import org.opencb.biodata.models.variant.avro.VariantType;
+import org.opencb.biodata.models.variant.avro.*;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
 import java.io.Serializable;
@@ -45,8 +41,9 @@ import java.util.stream.Collectors;
 public class StudyEntry implements Serializable {
 
     private volatile LinkedHashMap<String, Integer> samplesPosition = null;
-    private final AtomicReference<Map<String, Integer>> formatPosition = new AtomicReference<>();
-    private volatile Map<String, VariantStats> cohortStats = null;
+    private final AtomicReference<Map<String, Integer>> sampleDataKeysPosition = new AtomicReference<>();
+//    private volatile Map<String, VariantStats> cohortStats = null;
+    private volatile List<VariantStats> stats = null;
     private final org.opencb.biodata.models.variant.avro.StudyEntry impl;
 
     public static final String DEFAULT_COHORT = "ALL";
@@ -75,39 +72,14 @@ public class StudyEntry implements Serializable {
         }
     }
 
-    /**
-     * @deprecated Use {@link #StudyEntry(String, List, List)}
-     */
-    @Deprecated
-    public StudyEntry(String fileId, String studyId, String[] secondaryAlternates, String format) {
-        this(fileId, studyId, secondaryAlternates, format == null ? null : Arrays.asList(format.split(":")));
-    }
-
-    /**
-     * @deprecated Use {@link #StudyEntry(String, List, List)}
-     */
-    @Deprecated
-    public StudyEntry(String fileId, String studyId, String[] secondaryAlternates, List<String> format) {
-        this(fileId, studyId, Arrays.asList(secondaryAlternates), format);
-    }
-
-    /**
-     * @deprecated Use {@link #StudyEntry(String, List, List)}
-     */
-    @Deprecated
-    public StudyEntry(String fileId, String studyId, List<String> secondaryAlternates, List<String> format) {
-        this.impl = new org.opencb.biodata.models.variant.avro.StudyEntry(studyId,
-                new ArrayList<>(), null, format, new ArrayList<>(), new ArrayList<>(), new LinkedHashMap<>(), new ArrayList<>());
-        setSecondaryAlternatesAlleles(secondaryAlternates);
-        if (fileId != null) {
-            setFileId(fileId);
-        }
-    }
-
     public StudyEntry(String studyId, List<AlternateCoordinate> secondaryAlternates, List<String> format) {
         this.impl = new org.opencb.biodata.models.variant.avro.StudyEntry(studyId,
-                new ArrayList<>(), null, format, new ArrayList<>(), new ArrayList<>(), new LinkedHashMap<>(), new ArrayList<>());
+                new ArrayList<>(), null, format, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         setSecondaryAlternates(secondaryAlternates);
+    }
+
+    public org.opencb.biodata.models.variant.avro.StudyEntry getImpl() {
+        return impl;
     }
 
     public LinkedHashMap<String, Integer> getSamplesPosition() {
@@ -137,13 +109,15 @@ public class StudyEntry implements Serializable {
             //Sort samples position
             this.samplesPosition = sortSamplesPositionMap(samplesPosition);
         }
-        if (getSamplesData() == null || getSamplesData().isEmpty()) {
+        if (getSamples() == null) {
+            setSamples(new ArrayList<>(samplesPosition.size()));
+        }
+        if (getSamples().isEmpty()) {
             for (int size = samplesPosition.size(); size > 0; size--) {
-                getSamplesData().add(null);
+                getSamples().add(null);
             }
         }
     }
-
 
     public static boolean isSamplesPositionMapSorted(LinkedHashMap<String, Integer> samplesPosition) {
         int idx = 0;
@@ -168,184 +142,161 @@ public class StudyEntry implements Serializable {
         return map;
     }
 
-    public org.opencb.biodata.models.variant.avro.StudyEntry getImpl() {
-        return impl;
-    }
-
-//    public void setSamplePositions(List<String> samplePositions) {
-//        this.samplePositions = new HashMap<>(samplePositions.size());
-//        int position = 0;
-//        for (String sample : samplePositions) {
-//            this.samplePositions.put(sample, position++);
-//        }
-//    }
-//
-//    @Deprecated
-//    public void setSecondaryAlternates(String[] secondaryAlternates) {
-//        impl.setSecondaryAlternates(Arrays.asList(secondaryAlternates));
-//    }
-
-    public String getFormatAsString() {
-        return impl.getFormat() == null ? null : String.join(":", impl.getFormat());
-    }
-
-    public void setFormatAsString(String format) {
-        setFormat(Arrays.asList(format.split(":")));
+    public String getSampleDataKeysAsString() {
+        return impl.getSampleDataKeys() == null ? null : String.join(":", impl.getSampleDataKeys());
     }
 
     /**
      * Do not modify this list
      * @return
      */
-    public List<String> getFormat() {
-        return impl.getFormat() == null? null : Collections.unmodifiableList(impl.getFormat());
+    public List<String> getSampleDataKeys() {
+        return impl.getSampleDataKeys() == null? null : Collections.unmodifiableList(impl.getSampleDataKeys());
     }
 
-    public StudyEntry setFormat(List<String> value) {
-        this.formatPosition.set(null);
-        impl.setFormat(value);
+    public StudyEntry setSampleDataKeys(List<String> value) {
+        this.sampleDataKeysPosition.set(null);
+        impl.setSampleDataKeys(value);
         return this;
     }
 
-    public StudyEntry addFormat(String value) {
-        Map<String, Integer> formatPositions = getFormatPositions();
+    public StudyEntry addSampleDataKey(String value) {
+        Map<String, Integer> formatPositions = getSampleDataKeyPositions();
         if (formatPositions.containsKey(value)) {
             return this;
         } else {
-            List<String> format = impl.getFormat();
+            List<String> format = impl.getSampleDataKeys();
             if (format == null) {
                 format = new ArrayList<>(1);
                 format.add(value);
-                impl.setFormat(format);
+                impl.setSampleDataKeys(format);
             } else {
-                actOnList(format, f -> f.add(value), impl::setFormat);
+                actOnList(format, f -> f.add(value), impl::setSampleDataKeys);
             }
             formatPositions.put(value, formatPositions.size());
         }
         return this;
     }
 
-    public Map<String, Integer> getFormatPositions() {
-        if (Objects.isNull(this.formatPosition.get())) {
+    public Set<String> getSampleDataKeySet() {
+        return getSampleDataKeyPositions().keySet();
+    }
+
+    public Integer getSampleDataKeyPosition(String key) {
+        return getSampleDataKeyPositions().get(key);
+    }
+
+    public Map<String, Integer> getSampleDataKeyPositions() {
+        if (Objects.isNull(this.sampleDataKeysPosition.get())) {
             Map<String, Integer> map = new HashMap<>();
             int pos = 0;
-            if (getFormat() != null) {
-                for (String format : getFormat()) {
+            if (getSampleDataKeys() != null) {
+                for (String format : getSampleDataKeys()) {
                     map.put(format, pos++);
                 }
             }
-            this.formatPosition.compareAndSet(null, map);
+            this.sampleDataKeysPosition.compareAndSet(null, map);
         }
-        return formatPosition.get();
+        return sampleDataKeysPosition.get();
     }
 
-    public List<List<String>> getSamplesData() {
-        return impl.getSamplesData();
+    public List<SampleEntry> getSamples() {
+        return impl.getSamples();
     }
 
-    public void setSamplesData(List<List<String>> value) {
-        impl.setSamplesData(value);
+    public StudyEntry setSamples(List<SampleEntry> samples) {
+        impl.setSamples(samples);
+        return this;
     }
 
-    @Deprecated
-    public Map<String, Map<String, String>> getSamplesDataAsMap() {
+    public SampleEntry getSample(String sample) {
         requireSamplesPosition();
-
-        Map<String, Map<String, String>> samplesDataMap = new HashMap<>();
-        for (Map.Entry<String, Integer> entry : samplesPosition.entrySet()) {
-            samplesDataMap.put(entry.getKey(), getSampleDataAsMap(entry.getKey()));
-        }
-
-        return Collections.unmodifiableMap(samplesDataMap);
-    }
-
-    public String getSampleData(String sampleName, String field) {
-        requireSamplesPosition();
-        if (samplesPosition.containsKey(sampleName)) {
-            Map<String, Integer> formatPositions = getFormatPositions();
-            if (formatPositions.containsKey(field)) {
-                List<String> sampleData = impl.getSamplesData().get(samplesPosition.get(sampleName));
-                Integer formatIdx = formatPositions.get(field);
-                return  formatIdx < sampleData.size() ? sampleData.get(formatIdx) : null;
-            }
+        if (samplesPosition.containsKey(sample)) {
+            return getSamples().get(samplesPosition.get(sample));
         }
         return null;
     }
 
-    public List<String> getSampleData(String sampleName) {
-        requireSamplesPosition();
-        Integer samplePosition = samplesPosition.get(sampleName);
-        if (samplePosition == null) {
+    public SampleEntry getSample(int samplePosition) {
+        if (samplePosition >= 0 && samplePosition < impl.getSamples().size()) {
+            return impl.getSamples().get(samplePosition);
+        } else {
+            return null;
+        }
+    }
+
+    public List<String> getSampleData(String sample) {
+        SampleEntry sampleEntry = getSample(sample);
+        if (sampleEntry == null) {
             return null;
         } else {
-            return getSampleData(samplePosition);
+            return sampleEntry.getData();
         }
 
+    }
+
+    public String getSampleData(String sample, String field) {
+        SampleEntry sampleEntry = getSample(sample);
+        if (sampleEntry != null) {
+            Map<String, Integer> formatPositions = getSampleDataKeyPositions();
+            if (formatPositions.containsKey(field)) {
+                Integer formatIdx = formatPositions.get(field);
+                return  formatIdx < sampleEntry.getData().size() ? sampleEntry.getData().get(formatIdx) : null;
+            }
+        }
+        return null;
     }
 
     public List<String> getSampleData(int samplePosition) {
-        if (samplePosition >= 0 && samplePosition < impl.getSamplesData().size()) {
-            return impl.getSamplesData().get(samplePosition);
-        } else {
+        SampleEntry sampleEntry = getSample(samplePosition);
+        if (sampleEntry == null) {
             return null;
+        } else {
+            return sampleEntry.getData();
         }
-    }
-
-    public Map<String, String> getSampleDataAsMap(String sampleName) {
-        requireSamplesPosition();
-        if (samplesPosition.containsKey(sampleName)) {
-            HashMap<String, String> sampleDataMap = new HashMap<>();
-            Iterator<String> iterator = getFormat().iterator();
-            List<String> sampleDataList = impl.getSamplesData().get(samplesPosition.get(sampleName));
-            for (String data : sampleDataList) {
-                sampleDataMap.put(iterator.next(), data);
-            }
-
-            return Collections.unmodifiableMap(sampleDataMap);
-        }
-        return null;
     }
 
     public StudyEntry addSampleData(String sampleName, Map<String, String> sampleData) {
-        if (getFormat() == null) {
-            setFormat(new ArrayList<>(sampleData.keySet()));
+        if (getSampleDataKeys() == null) {
+            setSampleDataKeys(new ArrayList<>(sampleData.keySet()));
         }
-        List<String> sampleDataList = new ArrayList<>(getFormat().size());
-        for (String field : getFormat()) {
+        List<String> sampleDataList = new ArrayList<>(getSampleDataKeys().size());
+        for (String field : getSampleDataKeys()) {
             sampleDataList.add(sampleData.get(field));
         }
         if (sampleData.size() != sampleDataList.size()) {
-            List<String> extraFields = sampleData.keySet().stream().filter(f -> getFormat().contains(f)).collect(Collectors.toList());
+            List<String> extraFields = sampleData.keySet().stream().filter(f -> getSampleDataKeys().contains(f)).collect(Collectors.toList());
             throw new IllegalArgumentException("Some sample data fields were not in the format field: " + extraFields);
         }
         addSampleData(sampleName, sampleDataList);
         return this;
     }
 
-    public StudyEntry addSampleData(String sampleName, List<String> sampleDataList) {
-        if (samplesPosition == null && impl.getSamplesData().isEmpty()) {
+    public StudyEntry addSampleData(String sampleId, List<String> sampleDataList) {
+        if (samplesPosition == null && impl.getSamples().isEmpty()) {
             samplesPosition = new LinkedHashMap<>();
         }
+        SampleEntry sampleEntry = new SampleEntry(null, null, sampleDataList);
         if (samplesPosition != null) {
-            if (samplesPosition.containsKey(sampleName)) {
-                int position = samplesPosition.get(sampleName);
-                addSampleData(position, sampleDataList);
+            if (samplesPosition.containsKey(sampleId)) {
+                int position = samplesPosition.get(sampleId);
+                addSampleData(position, sampleEntry);
             } else {
                 int position = samplesPosition.size();
-                samplesPosition.put(sampleName, position);
-                actOnSamplesDataList((l) -> l.add(sampleDataList));
+                samplesPosition.put(sampleId, position);
+                actOnSamplesList((l) -> l.add(sampleEntry));
             }
         } else {
-            actOnSamplesDataList((l) -> l.add(sampleDataList));
+            actOnSamplesList((l) -> l.add(sampleEntry));
         }
         return this;
     }
 
-    public StudyEntry addSampleData(int samplePosition, List<String> sampleDataList) {
-        while (impl.getSamplesData().size() <= samplePosition) {
-            actOnSamplesDataList((l) -> l.add(null));
+    public StudyEntry addSampleData(int samplePosition, SampleEntry sampleEntry) {
+        while (impl.getSamples().size() <= samplePosition) {
+            actOnSamplesList((l) -> l.add(null));
         }
-        actOnSamplesDataList((l) -> l.set(samplePosition, sampleDataList));
+        actOnSamplesList((l) -> l.set(samplePosition, sampleEntry));
         return this;
     }
 
@@ -355,8 +306,8 @@ public class StudyEntry implements Serializable {
      *
      * @param action Action to execute
      */
-    private void actOnSamplesDataList(Consumer<List<List<String>>> action) {
-        actOnList(impl.getSamplesData(), action, impl::setSamplesData);
+    private void actOnSamplesList(Consumer<List<SampleEntry>> action) {
+        actOnList(impl.getSamples(), action, impl::setSamples);
     }
 
     private <T> List<T> actOnList(List<T> list, Consumer<List<T>> action, Consumer<List<T>> update) {
@@ -378,27 +329,25 @@ public class StudyEntry implements Serializable {
 
     public StudyEntry addSampleData(String sampleName, String format, String value, String defaultValue) {
         requireSamplesPosition();
-        Integer formatIdx = getFormatPositions().get(format);
+        Integer formatIdx = getSampleDataKeyPositions().get(format);
         Integer samplePosition = getSamplesPosition().get(sampleName);
         return addSampleData(samplePosition, formatIdx, value, defaultValue);
     }
 
     public StudyEntry addSampleData(Integer samplePosition, Integer formatIdx, String value, String defaultValue) {
-        Consumer<List<String>> update = sampleData -> getSamplesData().set(samplePosition, sampleData);
-
         if (formatIdx != null && samplePosition != null) {
-            List<String> sampleData = getSamplesData().get(samplePosition);
-            if (sampleData == null) {
-                sampleData = new ArrayList<>(getFormat().size());
-                getSamplesData().set(samplePosition, sampleData);
+            SampleEntry sampleEntry = getSample(samplePosition);
+            if (sampleEntry == null) {
+                sampleEntry = new SampleEntry(null, null, new ArrayList<>(getSampleDataKeys().size()));
+                addSampleData(samplePosition, sampleEntry);
             }
-            if (formatIdx < sampleData.size()) {
-                actOnList(sampleData, l -> l.set(formatIdx, value), update);
+            if (formatIdx < sampleEntry.getData().size()) {
+                actOnList(sampleEntry.getData(), l -> l.set(formatIdx, value), sampleEntry::setData);
             } else {
-                while (formatIdx > sampleData.size()) {
-                    sampleData = actOnList(sampleData, l -> l.add(defaultValue), update);
+                while (formatIdx > sampleEntry.getData().size()) {
+                    actOnList(sampleEntry.getData(), l -> l.add(defaultValue), sampleEntry::setData);
                 }
-                actOnList(sampleData, l -> l.add(value), update);
+                actOnList(sampleEntry.getData(), l -> l.add(value), sampleEntry::setData);
             }
         } else {
             throw new IndexOutOfBoundsException();
@@ -425,77 +374,54 @@ public class StudyEntry implements Serializable {
         return this;
     }
 
-    public Map<String, VariantStats> getStats() {
-        resetStatsMap();
-        return Collections.unmodifiableMap(cohortStats);
+    public List<VariantStats> getStats() {
+        resetStatsList();
+        return Collections.unmodifiableList(stats);
     }
 
-    private void resetStatsMap() {
-        if (cohortStats == null) {
-            cohortStats = new HashMap<>();
-            impl.getStats().forEach((k, v) -> cohortStats.put(k, new VariantStats(v)));
+    public void setStats(List<VariantStats> stats) {
+        impl.setStats(new ArrayList<>(stats.size()));
+        stats.forEach((v) -> impl.getStats().add(v.getImpl()));
+        this.stats = stats;
+    }
+
+    public void addStats(VariantStats stats) {
+        resetStatsList();
+        impl.getStats().add(stats.getImpl());
+        this.stats.add(stats);
+
+    }
+
+    public VariantStats getStats(String cohortId) {
+        resetStatsList();
+        for (VariantStats stats : stats) {
+            if (stats.getCohortId().equals(cohortId)) {
+                return stats;
+            }
+        }
+        return null;
+    }
+
+    private void resetStatsList() {
+        if (stats == null) {
+            if (impl.getStats() == null) {
+                impl.setStats(new ArrayList<>());
+                stats = new ArrayList<>();
+            } else {
+                stats = new ArrayList<>(impl.getStats().size());
+                for (org.opencb.biodata.models.variant.avro.VariantStats v : impl.getStats()) {
+                    stats.add(new VariantStats(v));
+                }
+            }
         }
     }
 
-    public void setStats(Map<String, VariantStats> stats) {
-        this.cohortStats = stats;
-        impl.setStats(new HashMap<>(stats.size()));
-        stats.forEach((k, v) -> impl.getStats().put(k, v.getImpl()));
+    public void addFileData(String fileId, String key, String value) {
+        getFile(fileId).getData().put(key, value);
     }
 
-    public void setStats(String cohortName, VariantStats stats) {
-        resetStatsMap();
-        cohortStats.put(cohortName, stats);
-        impl.getStats().put(cohortName, stats.getImpl());
-    }
-
-    public VariantStats getStats(String cohortName) {
-        resetStatsMap();
-        return cohortStats.get(cohortName);
-    }
-
-    @Deprecated
-    public VariantStats getCohortStats(String cohortName) {
-        return getStats(cohortName);
-    }
-
-    @Deprecated
-    public void setCohortStats(String cohortName, VariantStats stats) {
-        setStats(cohortName, stats);
-    }
-
-    @Deprecated
-    public Map<String, VariantStats> getCohortStats() {
-        return getStats();
-    }
-
-    @Deprecated
-    public void setCohortStats(Map<String, VariantStats> cohortStats) {
-        setStats(cohortStats);
-    }
-
-    @Deprecated
-    public String getAttribute(String key) {
-        Map<String, String> attributes = getAttributes();
-        return attributes == null ? null : attributes.get(key);
-    }
-
-    @Deprecated
-    public void addAttribute(String key, String value) {
-        getAttributes().put(key, value);
-    }
-
-    public void addAttribute(String fileId, String key, String value) {
-        getFile(fileId).getAttributes().put(key, value);
-    }
-
-    public void addAttributes(String fileId, Map<String, String> attributes) {
-        getFile(fileId).getAttributes().putAll(attributes);
-    }
-
-    @Deprecated
-    public boolean hasAttribute(String key) {
-        return getAttributes().containsKey(key);
+    public void addFileData(String fileId, Map<String, String> data) {
+        getFile(fileId).getData().putAll(data);
     }
 
     private void requireSamplesPosition() {
@@ -522,6 +448,10 @@ public class StudyEntry implements Serializable {
         return this;
     }
 
+    public FileEntry getFile(int fileIndex) {
+        return impl.getFiles().get(fileIndex);
+    }
+
     public FileEntry getFile(String fileId) {
         for (FileEntry fileEntry : impl.getFiles()) {
             if (fileEntry.getFileId().equals(fileId)) {
@@ -537,7 +467,7 @@ public class StudyEntry implements Serializable {
 
     public void setFileId(String fileId) {
         if (impl.getFiles().isEmpty()) {
-            impl.getFiles().add(new FileEntry(fileId, "", new HashMap<>()));
+            impl.getFiles().add(new FileEntry(fileId, null, new HashMap<>()));
         } else {
             impl.getFiles().get(0).setFileId(fileId);
         }
@@ -575,30 +505,6 @@ public class StudyEntry implements Serializable {
 
     public void setSecondaryAlternates(List<AlternateCoordinate> value) {
         impl.setSecondaryAlternates(value);
-    }
-
-    @Deprecated
-    public Map<String, String> getAttributes() {
-        return !impl.getFiles().isEmpty() ? impl.getFiles().get(0).getAttributes() : null;
-    }
-
-    public Map<String, String> getAllAttributes() {
-        Map<String, String> attributes = new HashMap<>();
-        impl.getFiles().stream().forEach(fileEntry ->
-                attributes.putAll(fileEntry.getAttributes().entrySet().stream()
-                        .collect(Collectors.toMap(entry -> fileEntry.getFileId() + "_" + entry.getKey(), Map.Entry::getValue))
-                )
-        );
-        return Collections.unmodifiableMap(attributes);
-    }
-
-    @Deprecated
-    public void setAttributes(Map<String, String> attributes) {
-        if (impl.getFiles().isEmpty()) {
-            impl.getFiles().add(new FileEntry("", null, attributes));
-        } else {
-            impl.getFiles().get(0).setAttributes(attributes);
-        }
     }
 
     public List<VariantScore> getScores() {

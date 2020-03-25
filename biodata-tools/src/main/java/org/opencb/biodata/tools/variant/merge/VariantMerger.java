@@ -32,9 +32,7 @@ import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantBuilder;
-import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
-import org.opencb.biodata.models.variant.avro.FileEntry;
-import org.opencb.biodata.models.variant.avro.VariantType;
+import org.opencb.biodata.models.variant.avro.*;
 import org.opencb.biodata.models.variant.metadata.VariantFileHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -266,10 +264,10 @@ public class VariantMerger {
         var.setType(target.getType());
         for(StudyEntry tse : target.getStudies()){
             StudyEntry se = new StudyEntry(tse.getStudyId());
-            se.setFiles(Collections.singletonList(new FileEntry("", "", new HashMap<>())));
-            se.setFormat(Arrays.asList(getGtKey(), getFilterKey()));
+            se.setFiles(Collections.singletonList(new FileEntry("", null, new HashMap<>())));
+            se.setSampleDataKeys(Arrays.asList(getGtKey(), getFilterKey()));
             se.setSamplesPosition(new HashMap<>());
-            se.setSamplesData(new ArrayList<>());
+            se.setSamples(new ArrayList<>());
             var.addStudyEntry(se);
         }
         return var;
@@ -282,7 +280,7 @@ public class VariantMerger {
 
         // Validate variant information
 //        ensureGtFormat(current);
-        if (getStudy(current).getFormat() == null || getStudy(current).getFormat().isEmpty()) {
+        if (getStudy(current).getSampleDataKeys() == null || getStudy(current).getSampleDataKeys().isEmpty()) {
             throw new IllegalArgumentException("Format of sample data is empty!!!!!!");
         }
     }
@@ -449,15 +447,15 @@ public class VariantMerger {
         sb.append(v.getReference().isEmpty() ? "-" : v.getReference());
         sb.append(":").append(v.getAlternate().isEmpty() ? "-" : v.getAlternate()).append("[");
         StudyEntry se = getStudy(v);
-        List<List<String>> sd = se.getSamplesData();
+        List<SampleEntry> samples = se.getSamples();
         for(String sn : se.getSamplesName()){
             Integer pos = se.getSamplesPosition().get(sn);
-            if (pos >= sd.size()) {
+            if (pos >= samples.size()) {
                 sb.append(sn).append(":S;");
-            } else if (null == sd.get(pos) || sd.get(pos).size() < 1) {
+            } else if (null == samples.get(pos) || samples.get(pos).getData().size() < 1) {
                 sb.append(sn).append(":G;");
             } else {
-                String gt = sd.get(pos).get(0); // GT
+                String gt = samples.get(pos).getData().get(0); // GT
                 sb.append(sn).append(":").append(gt).append(";");
             }
         }
@@ -496,10 +494,10 @@ public class VariantMerger {
             Set<String> allFormats = varToAlts.stream()
                     .map(Pair::getKey)
                     .map(this::getStudy)
-                    .map(StudyEntry::getFormat)
+                    .map(StudyEntry::getSampleDataKeys)
                     .flatMap(Collection::stream)
                     .collect(Collectors.toSet());
-            newFormatPositions = new HashMap<>(currentStudy.getFormatPositions());
+            newFormatPositions = new HashMap<>(currentStudy.getSampleDataKeyPositions());
 //            newFormatPositions.putIfAbsent(getFilterKey(), newFormatPositions.size());
             for (String format : allFormats) {
                 newFormatPositions.putIfAbsent(format, newFormatPositions.size());
@@ -537,29 +535,29 @@ public class VariantMerger {
         Integer newFilterIdx = newFormatPositions.get(getFilterKey());
 
         // Create new Samples data
-        List<List<String>> newSamplesData = newSamplesData(newSamplesPosition.size(), newFormatPositions);
+        List<SampleEntry> newSamplesData = newSamples(newSamplesPosition.size(), newFormatPositions);
         boolean[] alreadyMergedSamples = new boolean[newSamplesPosition.size()];
         // Copy current samples data into new samples data
-        List<List<String>> currentSamplesData = currentStudy.getSamplesData();
+        List<SampleEntry> currentSamples = currentStudy.getSamples();
         // If FT is required, but missing in the input variant, get FILTER from the File Attributes.
         String currentFilterValue = null;
-        if (!currentStudy.getFormatPositions().containsKey(getFilterKey()) && newFormatPositions.containsKey(getFilterKey())) {
+        if (!currentStudy.getSampleDataKeySet().contains(getFilterKey()) && newFormatPositions.containsKey(getFilterKey())) {
             currentFilterValue = currentStudy.getFiles().isEmpty() ? getDefaultValue(getFilterKey())
-                    : currentStudy.getFiles().get(0).getAttributes().getOrDefault(getAnnotationFilterKey(), getDefaultValue(getFilterKey()));
+                    : currentStudy.getFiles().get(0).getData().getOrDefault(getAnnotationFilterKey(), getDefaultValue(getFilterKey()));
         }
         int currentSampleIdx = 0;
         for (String sample : currentStudy.getOrderedSamplesName()) {
-            List<String> currentSampleData = currentSamplesData.get(currentSampleIdx);
+            SampleEntry currentSample = currentSamples.get(currentSampleIdx);
             Integer newSampleIdx = newSamplesPosition.get(sample);
             alreadyMergedSamples[newSampleIdx] = true;
-            List<String> newSampleData = newSamplesData.get(newSampleIdx);
+            List<String> newSampleData = newSamplesData.get(newSampleIdx).getData();
             int formatIdx = 0;
             int ploidy = 2; // Default ploidy. Required for the rearranger
-            for (String format : currentStudy.getFormat()) {
+            for (String format : currentStudy.getSampleDataKeys()) {
                 Integer newFormatIdx = newFormatPositions.get(format);
                 if (newFormatIdx != null) {
-                    if (currentSampleData.size() > formatIdx) {
-                        String data = currentSampleData.get(formatIdx);
+                    if (currentSample.getData().size() > formatIdx) {
+                        String data = currentSample.getData().get(formatIdx);
                         if (currentStudyRearranger != null) {
                             if (format.equals(VCFConstants.GENOTYPE_KEY)) {
                                 Genotype genotype = new Genotype(data);
@@ -584,7 +582,7 @@ public class VariantMerger {
         }
         if (currentStudyRearranger != null) {
             for (FileEntry file : currentStudy.getFiles()) {
-                file.getAttributes().replaceAll(currentStudyRearranger::rearrange);
+                file.getData().replaceAll(currentStudyRearranger::rearrange);
             }
         }
 
@@ -596,7 +594,7 @@ public class VariantMerger {
 //            Map<Integer, AlternateCoordinate> otherAltIdx = index(alternates).entrySet().stream()
 //                    .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
             final StudyEntry otherStudy = getStudy(other);
-            Map<String, Integer> otherStudyFormatPositions = otherStudy.getFormatPositions();
+            Map<String, Integer> otherStudyFormatPositions = otherStudy.getSampleDataKeyPositions();
             checkForDuplicates(current, other, currentStudy, otherStudy, otherAlternates);
 
             VariantAlternateRearranger rearranger;
@@ -615,9 +613,9 @@ public class VariantMerger {
             List<String> otherOrderedSamplesName = otherStudy.getOrderedSamplesName();
             for (int sampleIdx = 0; sampleIdx < otherOrderedSamplesName.size(); sampleIdx++) {
                 String sampleName = otherOrderedSamplesName.get(sampleIdx);
-                List<String> otherSampleData = otherStudy.getSamplesData().get(sampleIdx);
+                List<String> otherSampleData = otherStudy.getSamples().get(sampleIdx).getData();
                 Integer newSampleIdx = newSamplesPosition.get(sampleName);
-                List<String> newSampleData = newSamplesData.get(newSampleIdx);
+                List<String> newSampleData = newSamplesData.get(newSampleIdx).getData();
 
                 boolean alreadyMergedSample = alreadyMergedSamples[newSampleIdx];
                 alreadyMergedSamples[newSampleIdx] = true;
@@ -631,7 +629,7 @@ public class VariantMerger {
                     if (StringUtils.isBlank(gt)) {
                         throw new IllegalStateException(String.format(
                                 "No GT [%s] found for sample %s in \nVariant: %s\nOtherSe:%s\nOtherSp:%s",
-                                getGtKey(), sampleName, other.getImpl(), otherStudy.getSamplesData(),
+                                getGtKey(), sampleName, other.getImpl(), otherStudy.getSamples(),
                                 otherStudy.getSamplesPosition()));
                     }
                     // Use a cache with rearranged genotypeCounters to reuse rearranged genotypeCounters
@@ -690,7 +688,7 @@ public class VariantMerger {
                     if (otherFilterIdx != null) {
                         filter = otherSampleData.get(otherFilterIdx);
                     } else {
-                        filter = otherStudy.getFiles().get(0).getAttributes()
+                        filter = otherStudy.getFiles().get(0).getData()
                                 .getOrDefault(StudyEntry.FILTER, getDefaultValue(getFilterKey()));
                     }
 
@@ -728,9 +726,9 @@ public class VariantMerger {
             }
             mergeFile(current, other, rearranger, currentStudy, otherStudy);
         }
-        currentStudy.setSamplesData(newSamplesData);
+        currentStudy.setSamples(newSamplesData);
         currentStudy.setSortedSamplesPosition(newSamplesPosition);
-        currentStudy.setFormat(newFormat);
+        currentStudy.setSampleDataKeys(newFormat);
     }
 
     /**
@@ -757,15 +755,15 @@ public class VariantMerger {
         return list;
     }
 
-    private List<List<String>> newSamplesData(int samplesSize, Map<String, Integer> formats) {
-        List<List<String>> newSampleData;
+    private List<SampleEntry> newSamples(int samplesSize, Map<String, Integer> formats) {
+        List<SampleEntry> newSamples;
         List<String> defaultSamplesData = Arrays.asList(new String[formats.size()]);
         formats.forEach((format, formatIdx) -> defaultSamplesData.set(formatIdx, getDefaultValue(format)));
-        newSampleData = new ArrayList<>(samplesSize);
+        newSamples = new ArrayList<>(samplesSize);
         for (int i = 0; i < samplesSize; i++) {
-            newSampleData.add(new ArrayList<>(defaultSamplesData));
+            newSamples.add(new SampleEntry(null, null, new ArrayList<>(defaultSamplesData)));
         }
-        return newSampleData;
+        return newSamples;
     }
 
     private <T> List<Integer> getMatchingPositions(List<T> list, Predicate<T> p){
@@ -1017,20 +1015,19 @@ public class VariantMerger {
 
     private void mergeFile(Variant current, Variant other, VariantAlternateRearranger rearranger,
                            StudyEntry currentStudy, StudyEntry otherStudy) {
-        String call = other.getStart() + ":" + other.getReference() + ":" + other.getAlternate() + ":0";
 
         List<FileEntry> files = otherStudy.getFiles().stream()
                 .map(fileEntry -> FileEntry.newBuilder(fileEntry).build())
                 .collect(Collectors.toList());
         if (!current.toString().equals(other.toString())) {
             for (FileEntry file : files) {
-                if (StringUtils.isEmpty(file.getCall())) {
-                    file.setCall(call);
+                if (file.getCall() != null) {
+                    file.setCall(new OriginalCall(other.toString(), 0));
                 }
             }
         }
         for (FileEntry file : files) {
-            for (Map.Entry<String, String> entry : file.getAttributes().entrySet()) {
+            for (Map.Entry<String, String> entry : file.getData().entrySet()) {
                 String data = entry.getValue();
                 if (rearranger != null) {
                     data = rearranger.rearrange(entry.getKey(), data);

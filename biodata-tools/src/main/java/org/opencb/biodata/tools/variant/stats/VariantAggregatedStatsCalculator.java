@@ -20,11 +20,11 @@
 package org.opencb.biodata.tools.variant.stats;
 
 import org.apache.commons.lang.StringUtils;
-import org.opencb.biodata.models.feature.Genotype;
-import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.formats.variant.vcf4.VariantAggregatedVcfFactory;
-import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.formats.variant.vcf4.VariantVcfFactory;
+import org.opencb.biodata.models.feature.Genotype;
+import org.opencb.biodata.models.variant.StudyEntry;
+import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.stats.VariantStats;
@@ -102,7 +102,7 @@ public class VariantAggregatedStatsCalculator {
             return;
         }
         FileEntry fileEntry = study.getFiles().get(0);
-        Map<String, String> infoMap = fileEntry.getAttributes();
+        Map<String, String> infoMap = fileEntry.getData();
         int numAllele = 0;
         String reference = variant.getReference();
         String[] alternateAlleles;
@@ -131,7 +131,7 @@ public class VariantAggregatedStatsCalculator {
      * @param info
      */
     protected void parseStats(Variant variant, StudyEntry file, int numAllele, String reference, String[] alternateAlleles, Map<String, String> info) {
-        VariantStats vs = new VariantStats();
+        VariantStats vs = new VariantStats(StudyEntry.DEFAULT_COHORT);
         Map<String, String> stats = new LinkedHashMap<>();
         for (Map.Entry<String, String> entry : info.entrySet()) {
 
@@ -145,7 +145,7 @@ public class VariantAggregatedStatsCalculator {
 
         calculate(variant, file, numAllele, reference, alternateAlleles, stats, vs);
 
-        file.setStats(StudyEntry.DEFAULT_COHORT, vs);
+        file.addStats(vs);
     }
 
     /**
@@ -172,29 +172,29 @@ public class VariantAggregatedStatsCalculator {
         }
 
         for (String cohortName : cohortStats.keySet()) {
-            VariantStats vs = new VariantStats();
+            VariantStats vs = new VariantStats(cohortName);
             calculate(variant, file, numAllele, reference, alternateAlleles, cohortStats.get(cohortName), vs);
-            file.setStats(cohortName, vs);
+            file.addStats(vs);
         }
     }
 
     /**
-     * sets (if the map of attributes contains AF, AC, AF and GTC) alleleCount, refAlleleCount, maf, mafAllele, alleleFreq and genotypeCounts,
+     * sets (if the map of fileData contains AF, AC, AF and GTC) alleleCount, refAlleleCount, maf, mafAllele, alleleFreq and genotypeCounts,
      * @param variant
      * @param studyEntry
      * @param numAllele
      * @param reference
      * @param alternateAlleles
-     * @param attributes
+     * @param fileData
      * @param variantStats results are returned by reference here
      */
     protected void calculate(Variant variant, StudyEntry studyEntry, int numAllele, String reference, String[] alternateAlleles,
-                             Map<String, String> attributes, VariantStats variantStats) {
+                             Map<String, String> fileData, VariantStats variantStats) {
 
-        if (attributes.containsKey("AN") && attributes.containsKey("AC")) {
-            int total = Integer.parseInt(attributes.get("AN"));
+        if (fileData.containsKey("AN") && fileData.containsKey("AC")) {
+            int total = Integer.parseInt(fileData.get("AN"));
             variantStats.setAlleleCount(total);
-            String[] alleleCountString = attributes.get("AC").split(COMMA);
+            String[] alleleCountString = fileData.get("AC").split(COMMA);
 
             if (alleleCountString.length != alternateAlleles.length) {
                 return;
@@ -228,8 +228,8 @@ public class VariantAggregatedStatsCalculator {
             variantStats.setMafAllele(mafAllele);
         }
 
-        if (attributes.containsKey("AF")) {
-            String[] afs = attributes.get("AF").split(COMMA);
+        if (fileData.containsKey("AF")) {
+            String[] afs = fileData.get("AF").split(COMMA);
             if (afs.length == alternateAlleles.length) {
                 float value = parseFloat(afs[numAllele], -1);
                 variantStats.setAltAlleleFreq(value);
@@ -259,13 +259,13 @@ public class VariantAggregatedStatsCalculator {
             }
         }
 
-        if (attributes.containsKey("MAF")) {
-            String[] mafs = attributes.get("MAF").split(COMMA);
+        if (fileData.containsKey("MAF")) {
+            String[] mafs = fileData.get("MAF").split(COMMA);
             if (mafs.length == alternateAlleles.length) {
                 float maf = parseFloat(mafs[numAllele], -1);
                 variantStats.setMaf(maf);
-                if (attributes.containsKey("MA")) { // Get the minor allele
-                    String ma = attributes.get("MA");
+                if (fileData.containsKey("MA")) { // Get the minor allele
+                    String ma = fileData.get("MA");
                     if (ma.equals("-")) {
                         ma = "";
                     }
@@ -282,23 +282,19 @@ public class VariantAggregatedStatsCalculator {
                 }
             }
         }
-        if (attributes.containsKey("GTC")) {
-            String[] gtcs = attributes.get("GTC").split(COMMA);
-            if (attributes.containsKey("GTS")) {    // GTS contains the format like: GTS=GG,GT,TT or GTS=A1A1,A1R,RR
-                addGenotypeWithGTS(attributes, gtcs, reference, alternateAlleles, numAllele, variantStats);
+        if (fileData.containsKey("GTC")) {
+            String[] gtcs = fileData.get("GTC").split(COMMA);
+            if (fileData.containsKey("GTS")) {    // GTS contains the format like: GTS=GG,GT,TT or GTS=A1A1,A1R,RR
+                addGenotypeWithGTS(fileData, gtcs, reference, alternateAlleles, numAllele, variantStats);
             } else {
                 // Het count is a non standard field that can not be rearranged when decomposing multi-allelic variants.
                 // Get the original variant call to parse this field
                 FileEntry fileEntry = studyEntry.getFiles().get(0);
                 int numAlleleOri;
-                String[] alternateAllelesOri;
-                if (fileEntry.getCall() != null && !fileEntry.getCall().isEmpty()) {
-                    String[] ori = fileEntry.getCall().split(":");
-                    numAlleleOri = Integer.parseInt(ori[3]);
-                    alternateAllelesOri = ori[2].split(",");
+                if (fileEntry.getCall() != null) {
+                    numAlleleOri = fileEntry.getCall().getAlleleIndex();
                 } else {
                     numAlleleOri = numAllele;
-                    alternateAllelesOri = alternateAlleles;
                 }
 
                 for (int i = 0; i < gtcs.length; i++) {
@@ -339,17 +335,17 @@ public class VariantAggregatedStatsCalculator {
             }
         }
 
-        calculateFilterQualStats(attributes, variantStats);
+        calculateFilterQualStats(fileData, variantStats);
     }
 
-    protected void calculateFilterQualStats(Map<String, String> attributes, VariantStats variantStats) {
-        String filter = attributes.get(StudyEntry.FILTER);
+    protected void calculateFilterQualStats(Map<String, String> fileData, VariantStats variantStats) {
+        String filter = fileData.get(StudyEntry.FILTER);
         if (StringUtils.isNotEmpty(filter)) {
             VariantStatsCalculator.addFileFilter(filter, variantStats.getFilterCount());
             VariantStatsCalculator.calculateFilterFreq(variantStats, 1);
         }
 
-        String qual = attributes.get(StudyEntry.QUAL);
+        String qual = fileData.get(StudyEntry.QUAL);
         if (StringUtils.isNotEmpty(qual) && !qual.equals(".")) {
             variantStats.setQualityAvg(Float.valueOf(qual));
         }
@@ -363,10 +359,10 @@ public class VariantAggregatedStatsCalculator {
         }
     }
 
-    public static void addGenotypeWithGTS(Map<String, String> attributes, String[] splitsGTC,
+    public static void addGenotypeWithGTS(Map<String, String> fileData, String[] splitsGTC,
                                           String reference, String[] alternateAlleles, int numAllele, VariantStats cohortStats) {
-        if (attributes.containsKey("GTS")) {
-            String splitsGTS[] = attributes.get("GTS").split(COMMA);
+        if (fileData.containsKey("GTS")) {
+            String splitsGTS[] = fileData.get("GTS").split(COMMA);
             if (splitsGTC.length == splitsGTS.length) {
                 for (int i = 0; i < splitsGTC.length; i++) {
                     String gt = splitsGTS[i];

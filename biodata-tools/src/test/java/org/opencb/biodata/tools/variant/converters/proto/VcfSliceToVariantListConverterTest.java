@@ -53,7 +53,7 @@ public class VcfSliceToVariantListConverterTest {
                 generateVariantWithFormat("1:11211::A,C", "PASS", 102f,
                         toMap(), "GT:X", "S1", "0/0", "1")
         );
-        variants.get(5).getStudy("").getFile("").getAttributes().put(StudyEntry.QUAL, ".");
+        variants.get(5).getStudy("").getFile("").getData().put(StudyEntry.QUAL, ".");
 //        variants.get(0).setEnd(1000);
 //        variants.get(6).setEnd(1100);
 
@@ -126,15 +126,15 @@ public class VcfSliceToVariantListConverterTest {
         assertEquals(1000, convert.get(0).getEnd().intValue());
         assertEquals(1000, convert.get(1).getEnd().intValue());
         assertEquals(1100, convert.get(6).getEnd().intValue());
-        assertEquals("0", convert.get(3).getStudy("").getFile("").getAttributes().get(StudyEntry.QUAL));
-        assertNull(convert.get(4).getStudy("").getFile("").getAttributes().get(StudyEntry.QUAL));
-        assertNull(convert.get(5).getStudy("").getFile("").getAttributes().get(StudyEntry.QUAL));
+        assertEquals("0", convert.get(3).getStudy("").getFile("").getData().get(StudyEntry.QUAL));
+        assertNull(convert.get(4).getStudy("").getFile("").getData().get(StudyEntry.QUAL));
+        assertNull(convert.get(5).getStudy("").getFile("").getData().get(StudyEntry.QUAL));
 
 
         for (int i = 0; i < convert.size(); i++) {
             // Set qual to NULL if required.
-            if (".".equals(variants.get(i).getStudy("").getFile("").getAttributes().get(StudyEntry.QUAL))) {
-                variants.get(i).getStudy("").getFile("").getAttributes().remove(StudyEntry.QUAL);
+            if (".".equals(variants.get(i).getStudy("").getFile("").getData().get(StudyEntry.QUAL))) {
+                variants.get(i).getStudy("").getFile("").getData().remove(StudyEntry.QUAL);
             }
 
             System.out.println("Expected  : " + variants.get(i).toJson());

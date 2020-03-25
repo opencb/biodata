@@ -36,6 +36,11 @@ protocol Variants {
 
     record VariantStats {
         /**
+         * Cohort identifier
+         **/
+        string cohortId;
+
+        /**
          * Total number of alleles in called genotypeCounters. Does not include missing alleles
          **/
         union { null, int } alleleCount;
@@ -142,6 +147,18 @@ protocol Variants {
         union { null, float } pValue = null;
     }
 
+    record OriginalCall {
+        /**
+         * Original variant ID before normalization including all secondary alternates.
+         */
+        string variantId;
+
+        /**
+         * Alternate allele index of the original multi-allellic variant call in which was decomposed.
+         */
+        union {null, int} alleleIndex;
+    }
+
     record FileEntry {
         /**
          * Unique identifier of the source file.
@@ -153,13 +170,13 @@ protocol Variants {
          *
          * {position}:{reference}:{alternate}(,{other_alternate})*:{allele_index}
          */
-        union { null, string } call;
+        union { null, OriginalCall } call;
 
         /**
-         * Optional attributes that probably depend on the format of the file the
+         * Optional data that probably depend on the format of the file the
          * variant was initially read from.
          */
-        map<string> attributes;
+        map<string> data;
     }
 
     record AlternateCoordinate {
@@ -224,20 +241,19 @@ protocol Variants {
         /**
          * Alternate alleles that appear along with a variant alternate.
          */
-        //union { null, array<string> } secondaryAlternates = null;
         union { null, array<AlternateCoordinate> } secondaryAlternates = null;
 
         /**
          * Fields stored for each sample.
          */
-        array<string> format;
+        array<string> sampleDataKeys;
 
         /**
          * Genotypes and other sample-related information. Each position is related
          * with one sample. The content are lists of values in the same order than the
-         * format array. The length of this lists must be the same as the format field.
+         * sampleDataKeys array. The length of this lists must be the same as the sampleDataKeys field.
          */
-        array<array<string>> samplesData;
+        array<SampleEntry> samples;
 
         array<IssueEntry> issues = [];
 
@@ -245,7 +261,7 @@ protocol Variants {
          * Statistics of the genomic variation, such as its alleles/genotypeCounters count
          * or its minimum allele frequency, grouped by cohort name.
          */
-        map<VariantStats> stats;
+        array<VariantStats> stats;
 
         array<VariantScore> scores = [];
     }
@@ -398,11 +414,6 @@ protocol Variants {
          * Type of variation: single nucleotide, indel or structural variation.
          */
         VariantType type;
-
-        /**
-         * Unique identifier following the HGVS nomenclature.
-         */
-        union { null, map<array<string>> } hgvs = null;
 
         /**
          * Information specific to each study the variant was read from, such as

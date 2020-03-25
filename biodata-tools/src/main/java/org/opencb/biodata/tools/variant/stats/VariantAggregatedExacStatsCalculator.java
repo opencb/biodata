@@ -67,7 +67,7 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
 
     @Override
     protected void parseStats(Variant variant, StudyEntry studyEntry, int numAllele, String reference, String[] alternateAlleles, Map<String, String> info) {
-            VariantStats stats = new VariantStats();
+            VariantStats stats = new VariantStats(StudyEntry.DEFAULT_COHORT);
 
         if (info.containsKey(AC_HET)) {   // heterozygous genotype count
             // Het count is a non standard field that can not be rearranged when decomposing multi-allelic variants.
@@ -75,10 +75,10 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
             FileEntry fileEntry = studyEntry.getFiles().get(0);
             int numAlleleOri;
             String[] alternateAllelesOri;
-            if (fileEntry.getCall() != null && !fileEntry.getCall().isEmpty()) {
-                String[] ori = fileEntry.getCall().split(":");
-                numAlleleOri = Integer.parseInt(ori[3]);
-                alternateAllelesOri = ori[2].split(",");
+            if (fileEntry.getCall() != null) {
+                numAlleleOri = fileEntry.getCall().getAlleleIndex();
+                alternateAllelesOri = fileEntry.getCall().getVariantId().split(",");
+                alternateAllelesOri[0] = new Variant(alternateAllelesOri[0]).getAlternate();
             } else {
                 numAlleleOri = numAllele;
                 alternateAllelesOri = alternateAlleles;
@@ -116,7 +116,7 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
         }
         calculateFilterQualStats(info, stats);
 
-        studyEntry.setStats(StudyEntry.DEFAULT_COHORT, stats);
+        studyEntry.addStats(stats);
     }
 
     @Override
@@ -135,8 +135,8 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
                 String cohortName = opencgaTagSplit[0];
                 VariantStats cohortStats = studyEntry.getStats(cohortName);
                 if (cohortStats == null) {
-                    cohortStats = new VariantStats();
-                    studyEntry.setStats(cohortName, cohortStats);
+                    cohortStats = new VariantStats(cohortName);
+                    studyEntry.addStats(cohortStats);
                 }
                 switch (opencgaTagSplit[1]) {
                     case "AC":
@@ -152,10 +152,10 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
                         FileEntry fileEntry = studyEntry.getFiles().get(0);
                         int numAlleleOri;
                         String[] alternateAllelesOri;
-                        if (fileEntry.getCall() != null && !fileEntry.getCall().isEmpty()) {
-                            String[] ori = fileEntry.getCall().split(":");
-                            numAlleleOri = Integer.parseInt(ori[3]);
-                            alternateAllelesOri = ori[2].split(",");
+                        if (fileEntry.getCall() != null) {
+                            numAlleleOri = fileEntry.getCall().getAlleleIndex();
+                            alternateAllelesOri = fileEntry.getCall().getVariantId().split(",");
+                            alternateAllelesOri[0] = new Variant(alternateAllelesOri[0]).getAlternate();
                         } else {
                             numAlleleOri = numAllele;
                             alternateAllelesOri = alternateAlleles;
@@ -168,14 +168,15 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
                 }
             }
         }
-        for (String cohortName : studyEntry.getStats().keySet()) {
-            if (ans.containsKey(cohortName)) {
-                VariantStats cohortStats = studyEntry.getStats(cohortName);
+        for (VariantStats variantStats : studyEntry.getStats()) {
+            String cohortId = variantStats.getCohortId();
+            if (ans.containsKey(cohortId)) {
+                VariantStats cohortStats = studyEntry.getStats(cohortId);
                 calculateFilterQualStats(info, cohortStats);
-                Integer alleleNumber = ans.get(cohortName);
+                Integer alleleNumber = ans.get(cohortId);
                 addReferenceGenotype(variant, cohortStats, alleleNumber);
-                setRefAlleleCount(cohortStats, alleleNumber, acs.get(cohortName));
-                setMaf(alleleNumber, acs.get(cohortName), variant.getReference(), alternateAlleles, cohortStats);
+                setRefAlleleCount(cohortStats, alleleNumber, acs.get(cohortId));
+                setMaf(alleleNumber, acs.get(cohortId), variant.getReference(), alternateAlleles, cohortStats);
             }
         }
     }

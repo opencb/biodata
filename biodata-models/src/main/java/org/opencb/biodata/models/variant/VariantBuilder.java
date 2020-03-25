@@ -88,10 +88,10 @@ public class VariantBuilder {
     private String studyId;
     private String fileId;
     private LinkedHashMap<String, Integer> samplesPosition;
-    private List<List<String>> samplesData;
-    private Map<String, String> attributes;
-    private String call;
-    private List<String> format;
+    private List<String> sampleDataKeys;
+    private List<SampleEntry> samples;
+    private Map<String, String> fileData;
+    private OriginalCall call;
 
     private String variantString;
 
@@ -243,7 +243,7 @@ public class VariantBuilder {
     public VariantBuilder setNames(List<String> names) {
         this.names = names;
         if (names != null && !names.isEmpty()) {
-            addAttribute(StudyEntry.VCF_ID, String.join(",", names));
+            addFileData(StudyEntry.VCF_ID, String.join(",", names));
         }
         return this;
     }
@@ -349,20 +349,20 @@ public class VariantBuilder {
     }
 
     public VariantBuilder setFilter(String filter) {
-        addAttribute(StudyEntry.FILTER, filter);
+        addFileData(StudyEntry.FILTER, filter);
         return this;
     }
 
     public VariantBuilder setQuality(String quality) {
-        addAttribute(StudyEntry.QUAL, quality);
+        addFileData(StudyEntry.QUAL, quality);
         return this;
     }
 
     public VariantBuilder setQuality(Double quality) {
         if (quality == null || quality == VariantContext.NO_LOG10_PERROR) {
-            addAttribute(StudyEntry.QUAL, ".");
+            addFileData(StudyEntry.QUAL, ".");
         } else {
-            addAttribute(StudyEntry.QUAL, quality.toString());
+            addFileData(StudyEntry.QUAL, quality.toString());
         }
         return this;
     }
@@ -386,47 +386,47 @@ public class VariantBuilder {
         return fileId != null;
     }
 
-    public VariantBuilder setAttributes(Map<String, String> attributes) {
-        checkFile("set attributes");
-        this.attributes = attributes;
+    public VariantBuilder setFileData(Map<String, String> fileData) {
+        checkFile("set file data");
+        this.fileData = fileData;
         return this;
     }
 
-    public VariantBuilder addAttribute(String key, List<?> values) {
-        return addAttribute(key, StringUtils.join(values, VCFConstants.INFO_FIELD_ARRAY_SEPARATOR));
+    public VariantBuilder addFileData(String key, List<?> values) {
+        return addFileData(key, StringUtils.join(values, VCFConstants.INFO_FIELD_ARRAY_SEPARATOR));
     }
 
-    public VariantBuilder addAttribute(String key, Number value) {
-        return addAttribute(key, value.toString());
+    public VariantBuilder addFileData(String key, Number value) {
+        return addFileData(key, value.toString());
     }
 
-    public VariantBuilder addAttribute(String key, String value) {
-        checkFile("add attribute");
-        if (attributes == null) {
-            attributes = new HashMap<>();
+    public VariantBuilder addFileData(String key, String value) {
+        checkFile("add file data");
+        if (fileData == null) {
+            fileData = new HashMap<>();
         }
         try {
-            attributes.put(key, value);
+            fileData.put(key, value);
         } catch (UnsupportedOperationException e) {
-            attributes = new HashMap<>(attributes);
-            attributes.put(key, value);
+            fileData = new HashMap<>(fileData);
+            fileData.put(key, value);
         }
         return this;
     }
 
-    public VariantBuilder setCall(String call) {
+    public VariantBuilder setCall(OriginalCall call) {
         checkFile("set call");
         this.call = call;
         return this;
     }
 
-    public VariantBuilder setFormat(String... format) {
-        return setFormat(Arrays.asList(format));
+    public VariantBuilder setSampleDataKeys(String... sampleDataKeys) {
+        return setSampleDataKeys(Arrays.asList(sampleDataKeys));
     }
 
-    public VariantBuilder setFormat(List<String> format) {
-        checkStudy("set format");
-        this.format = format;
+    public VariantBuilder setSampleDataKeys(List<String> sampleDataKeys) {
+        checkStudy("set sampleDataKeys");
+        this.sampleDataKeys = sampleDataKeys;
         return this;
     }
 
@@ -445,9 +445,9 @@ public class VariantBuilder {
         return this;
     }
 
-    public VariantBuilder setSamplesData(List<List<String>> samplesData) {
+    public VariantBuilder setSamples(List<SampleEntry> samples) {
         checkStudy("set samples data");
-        this.samplesData = samplesData;
+        this.samples = samples;
         return this;
     }
 
@@ -457,8 +457,8 @@ public class VariantBuilder {
 
     public VariantBuilder addSample(String sampleName, List<String> data) {
         checkStudy("add sample");
-        if (samplesData == null) {
-            samplesData = new ArrayList<>(samplesPosition != null ? samplesPosition.size() : 1);
+        if (samples == null) {
+            samples = new ArrayList<>(samplesPosition != null ? samplesPosition.size() : 1);
         }
         if (samplesPosition == null) {
             samplesPosition = new LinkedHashMap<>();
@@ -470,18 +470,18 @@ public class VariantBuilder {
 
     public void addSample(Integer idx, List<String> data) {
         checkStudy("add sample");
-        if (samplesData.size() == idx) {
+        if (samples.size() == idx) {
             // Append
-            samplesData.add(data);
-        } else if (samplesData.size() < idx) {
+            samples.add(new SampleEntry(null, null, data));
+        } else if (samples.size() < idx) {
             // Replace
-            samplesData.set(idx, data);
+            samples.set(idx, new SampleEntry(null, null, data));
         } else {
             // Fill with nulls
-            for (int i = samplesData.size(); i < idx; i++) {
-                samplesData.add(null);
+            for (int i = samples.size(); i < idx; i++) {
+                samples.add(null);
             }
-            samplesData.add(data);
+            samples.add(new SampleEntry(null, null, data));
         }
     }
 
@@ -509,8 +509,7 @@ public class VariantBuilder {
             int length = VariantBuilder.inferLength(reference, alternate, start, end, type);
             return new VariantAvro(null,
                     new ArrayList<>(),
-                    chromosome, start, end, reference, alternate, "+", null, length, type,
-                    new HashMap<>(), null, null);
+                    chromosome, start, end, reference, alternate, "+", null, length, type, null, null);
         }
     }
 
@@ -532,10 +531,10 @@ public class VariantBuilder {
         if (hasStudyId()) {
             StudyEntry studyEntry = new StudyEntry(studyId);
             if (fileId != null) {
-                FileEntry fileEntry = new FileEntry(fileId, call, attributes);
+                FileEntry fileEntry = new FileEntry(fileId, call, fileData);
                 studyEntry.setFiles(Collections.singletonList(fileEntry));
             }
-            studyEntry.setFormat(format);
+            studyEntry.setSampleDataKeys(sampleDataKeys);
             if (alternates.size() > 0) {
                 List<AlternateCoordinate> secondaryAlternates = new ArrayList<>(alternates.size() - 1);
                 for (int i = 1; i < alternates.size(); i++) {
@@ -544,7 +543,7 @@ public class VariantBuilder {
                 studyEntry.setSecondaryAlternates(secondaryAlternates);
             }
             studyEntry.setSortedSamplesPosition(samplesPosition);
-            studyEntry.setSamplesData(samplesData);
+            studyEntry.setSamples(samples);
             variant.addStudyEntry(studyEntry);
         } else {
             variant.setStudies(null);
@@ -613,9 +612,16 @@ public class VariantBuilder {
                     .setStudyId(studyId);
 
             if (fileId != null) {
-                studyBuilder.addFiles(VariantProto.FileEntry.newBuilder()
+                VariantProto.FileEntry.Builder fileBuilder = VariantProto.FileEntry.newBuilder()
                         .setFileId(fileId)
-                        .putAllAttributes(attributes));
+                        .putAllData(fileData);
+                if (call != null) {
+                    fileBuilder.setCall(VariantProto.OriginalCall
+                            .newBuilder()
+                            .setVariantId(call.getVariantId())
+                            .setAlleleIndex(call.getAlleleIndex()));
+                }
+                studyBuilder.addFiles(fileBuilder);
             }
 
             for (int i = 1; i < alternates.size(); i++) {
@@ -627,11 +633,11 @@ public class VariantBuilder {
                         .setType(getProtoVariantType(inferType(reference, alternates.get(i)))));
             }
 
-            if (format != null) {
-                studyBuilder.addAllFormat(format);
+            if (sampleDataKeys != null) {
+                studyBuilder.addAllSampleDataKeys(sampleDataKeys);
             }
-            for (List<String> samplesDatum : samplesData) {
-                studyBuilder.addSamplesData(VariantProto.StudyEntry.SamplesDataInfoEntry.newBuilder().addAllInfo(samplesDatum));
+            for (SampleEntry sample : samples) {
+                studyBuilder.addSamples(VariantProto.SampleEntry.newBuilder().addAllData(sample.getData()));
             }
 
             builder.addStudies(studyBuilder.build());
@@ -657,20 +663,20 @@ public class VariantBuilder {
             alternates.set(0, "");
         }
 
-        if (attributes != null) {
-            String attributeEndStr = attributes.get(END_INFO);
-            if (StringUtils.isNumeric(attributeEndStr)) {
-                Integer attributeEnd = Integer.valueOf(attributeEndStr);
+        if (fileData != null) {
+            String fileDataEndStr = fileData.get(END_INFO);
+            if (StringUtils.isNumeric(fileDataEndStr)) {
+                Integer fileDataEnd = Integer.valueOf(fileDataEndStr);
                 if (end == null) {
-                    end = attributeEnd;
-                } else if (!Objects.equals(end, attributeEnd)) {
+                    end = fileDataEnd;
+                } else if (!Objects.equals(end, fileDataEnd)) {
                     throw new IllegalArgumentException("Conflict END position at variant " + toString() + ". "
                             + "Variant end = '" + end + "', "
-                            + "file attribute END = '" + attributeEnd + "'");
+                            + "file data END = '" + fileDataEnd + "'");
                 }
             }
         } else {
-            attributes = new HashMap<>();
+            fileData = new HashMap<>();
         }
 
         if (end == null) {
@@ -698,7 +704,7 @@ public class VariantBuilder {
         Objects.requireNonNull(alternates, "Alternate required");
 
         if (samplesPosition != null && samplesPosition.size() > 0) {
-            int dataSize = samplesData == null ? 0 : samplesData.size();
+            int dataSize = samples == null ? 0 : samples.size();
             if (samplesPosition.size() > dataSize) {
                 throw new IllegalArgumentException("Missing data from " + (samplesPosition.size() - dataSize) + " samples at variant " + this);
             } else if (samplesPosition.size() < dataSize) {
@@ -852,7 +858,7 @@ public class VariantBuilder {
             if (!Allele.wouldBeSymbolicAllele(alternate.getBytes())) {
                 length = alternate.length();
             } else {
-                // TODO: Check attribute SVLEN?
+                // TODO: Check file data SVLEN?
                 length = Variant.UNKNOWN_LENGTH;
             }
         } else if (type.equals(VariantType.BREAKEND) || type.equals(VariantType.TRANSLOCATION)) {
@@ -1096,7 +1102,7 @@ public class VariantBuilder {
                 case CNV:
                     Integer copyNumber = getCopyNumberFromAlternate(alternates.get(0));
                     if (copyNumber == null) {
-                        copyNumber = getCopyNumberFromFormat();
+                        copyNumber = getCopyNumberFromSampleData();
                     }
                     if (copyNumber != null) {
                         sv.setCopyNumber(copyNumber);
@@ -1105,8 +1111,8 @@ public class VariantBuilder {
                     break;
             }
 
-            if (attributes != null) {
-                attributes.forEach(this::parseStructuralVariationAttributes);
+            if (fileData != null) {
+                fileData.forEach(this::parseStructuralVariationFileData);
             }
         }
 
@@ -1140,7 +1146,7 @@ public class VariantBuilder {
      * @param key
      * @param value
      */
-    private void parseStructuralVariationAttributes(String key, String value) {
+    private void parseStructuralVariationFileData(String key, String value) {
         if (key == null || value == null) {
             return;
         }
@@ -1154,7 +1160,7 @@ public class VariantBuilder {
                     if (alternates.size() > 1) {
                         throw new IllegalArgumentException("Found SVINSSEQ in a multi allelic variant!");
                     } else {
-                        setCall(start + ":" + reference + ":" + alternates.get(0) + ":" + 0);
+                        setCall(new OriginalCall(toString(), 0));
                         setAlternate(reference + value);
                     }
                 }
@@ -1198,17 +1204,17 @@ public class VariantBuilder {
         }
     }
 
-    public Integer getCopyNumberFromFormat() {
-        if (format == null) {
+    public Integer getCopyNumberFromSampleData() {
+        if (sampleDataKeys == null) {
             return null;
         }
-        int cnIdx = format.indexOf(COPY_NUMBER_FORMAT);
+        int cnIdx = sampleDataKeys.indexOf(COPY_NUMBER_FORMAT);
         if (cnIdx < 0) {
             return null;
         }
         Integer cn = null;
-        for (List<String> samplesDatum : samplesData) {
-            String cdStr = samplesDatum.get(cnIdx);
+        for (SampleEntry sample : samples) {
+            String cdStr = sample.getData().get(cnIdx);
             if (StringUtils.isNumeric(cdStr)) {
                 Integer aux = Integer.valueOf(cdStr);
                 if (cn == null) {
@@ -1295,11 +1301,11 @@ public class VariantBuilder {
         if (variant.getStudies()!= null
                 && !variant.getStudies().isEmpty()
                 && !variant.getStudies().get(0).getFiles().isEmpty()) {
-            if (variant.getStudies().get(0).getFiles().get(0).getAttributes().containsKey(LEFT_SVINSSEQ_INFO)) {
-                leftSvInsSeq = variant.getStudies().get(0).getFiles().get(0).getAttributes().get(LEFT_SVINSSEQ_INFO);
+            if (variant.getStudies().get(0).getFiles().get(0).getData().containsKey(LEFT_SVINSSEQ_INFO)) {
+                leftSvInsSeq = variant.getStudies().get(0).getFiles().get(0).getData().get(LEFT_SVINSSEQ_INFO);
             }
-            if (variant.getStudies().get(0).getFiles().get(0).getAttributes().containsKey(RIGHT_SVINSSEQ_INFO)) {
-                rightSvInsSeq = variant.getStudies().get(0).getFiles().get(0).getAttributes().get(RIGHT_SVINSSEQ_INFO);
+            if (variant.getStudies().get(0).getFiles().get(0).getData().containsKey(RIGHT_SVINSSEQ_INFO)) {
+                rightSvInsSeq = variant.getStudies().get(0).getFiles().get(0).getData().get(RIGHT_SVINSSEQ_INFO);
             }
         }
 
@@ -1311,8 +1317,8 @@ public class VariantBuilder {
         if (variant.getStudies()!= null
                 && !variant.getStudies().isEmpty()
                 && !variant.getStudies().get(0).getFiles().isEmpty()
-                && variant.getStudies().get(0).getFiles().get(0).getAttributes().containsKey(CIPOS_INFO)) {
-            String[] parts = variant.getStudies().get(0).getFiles().get(0).getAttributes().get(CIPOS_INFO).split(",", 2);
+                && variant.getStudies().get(0).getFiles().get(0).getData().containsKey(CIPOS_INFO)) {
+            String[] parts = variant.getStudies().get(0).getFiles().get(0).getData().get(CIPOS_INFO).split(",", 2);
             return new int[]{variant.getStart() + Integer.parseInt(parts[0]),
                     variant.getStart() + Integer.parseInt(parts[1])};
         } else {
@@ -1325,8 +1331,8 @@ public class VariantBuilder {
         if (variant.getStudies()!= null
                 && !variant.getStudies().isEmpty()
                 && !variant.getStudies().get(0).getFiles().isEmpty()
-                && variant.getStudies().get(0).getFiles().get(0).getAttributes().containsKey(CIEND_INFO)) {
-            String[] parts = variant.getStudies().get(0).getFiles().get(0).getAttributes().get(CIEND_INFO).split(",", 2);
+                && variant.getStudies().get(0).getFiles().get(0).getData().containsKey(CIEND_INFO)) {
+            String[] parts = variant.getStudies().get(0).getFiles().get(0).getData().get(CIEND_INFO).split(",", 2);
             return new int[]{variant.getEnd() + Integer.parseInt(parts[0]),
                     variant.getEnd() + Integer.parseInt(parts[1])};
         } else {
@@ -1345,7 +1351,7 @@ public class VariantBuilder {
                     + start + "-"
                     + end + ":"
                     + reference + ":"
-                    + (alternates == null ? "null" : String.join(",", alternates));
+                    + (alternates == null ? "-" : String.join(",", alternates));
     }
 
     private static <T> void ifNotNull(T value, Consumer<T> setter) {

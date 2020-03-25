@@ -30,7 +30,6 @@ import htsjdk.variant.vcf.VCFHeaderVersion;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.formats.variant.io.VariantReader;
 import org.opencb.biodata.formats.variant.vcf4.FullVcfCodec;
-import org.opencb.biodata.models.metadata.Individual;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
@@ -332,8 +331,8 @@ public class VariantVcfHtsjdkReader implements VariantReader {
             String ciposString = ciPositionLeft + VCFConstants.INFO_FIELD_ARRAY_SEPARATOR + ciPositionRight;
 
             // Set CIPOS string of the sencond BND as part of the file INFO field in the first BND
-            Map<String, String> attributesMap = variant.getStudies().get(0).getFiles().get(0).getAttributes();
-            attributesMap.put(MATE_CIPOS, ciposString);
+            Map<String, String> fileData = variant.getStudies().get(0).getFiles().get(0).getData();
+            fileData.put(MATE_CIPOS, ciposString);
 
             // CIPOS of the second breakend
             variant.getSv()
@@ -367,10 +366,10 @@ public class VariantVcfHtsjdkReader implements VariantReader {
                         }
                         FileEntry fileEntry = studyEntry.getFiles().get(0);
 
-                        if (fileEntry.getAttributes() != null
+                        if (fileEntry.getData() != null
                                 && StringUtils.isNotBlank(
-                                        fileEntry.getAttributes().get(MATEID))) {
-                            return fileEntry.getAttributes().get(MATEID);
+                                        fileEntry.getData().get(MATEID))) {
+                            return fileEntry.getData().get(MATEID);
 
                         }
                     }

@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opencb.biodata.models.variant.StudyEntry;
+import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.protobuf.VariantProto;
 import org.opencb.biodata.tools.Converter;
 import org.opencb.commons.datastore.core.ObjectMap;
@@ -202,10 +203,10 @@ public abstract class VariantContextConverter<T> implements Converter<T, Variant
     protected static Map<Integer, Character> buildReferenceAllelesMap(Iterator<String> callsIterator) {
         Map<Integer, Character> referenceAlleles = new HashMap<>();
         callsIterator.forEachRemaining(call -> {
-            String[] split = splitCall(call);
-            if (split != null) {
-                String originalReference = VariantContextConverter.getOriginalReference(split);
-                Integer originalPosition = VariantContextConverter.getOriginalPosition(split);
+            if (call != null) {
+                Variant originalVariant = new Variant(call.split(",")[0]);
+                String originalReference = originalVariant.getReference();
+                Integer originalPosition = originalVariant.getStart();
                 for (int i = 0; i < originalReference.length(); i++) {
                     referenceAlleles.put(originalPosition + i, originalReference.charAt(i));
                 }
@@ -373,74 +374,6 @@ public abstract class VariantContextConverter<T> implements Converter<T, Variant
         variantContextBuilder.id(idForVcf);
 
         return variantContextBuilder.make();
-    }
-
-    protected static String[] splitCall(String call) {
-        if (StringUtils.isNotEmpty(call)) {
-            int idx1 = call.indexOf(':');
-            int idx2 = call.indexOf(':', idx1 + 1);
-            int idx3 = call.lastIndexOf(':'); // Get lastIndexOf, as it may be other intermediate ':' from symbolic or breakend alleles
-            return new String[]{
-                    call.substring(0, idx1),
-                    call.substring(idx1 + 1, idx2),
-                    call.substring(idx2 + 1, idx3),
-                    call.substring(idx3 + 1)
-            };
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Assumes that ori is in the form "POS:REF:ALT_0(,ALT_N)*:ALT_IDX".
-     * ALT_N is the n-th allele if this is the n-th variant resultant of a multiallelic vcf row
-     *
-     * @param ori
-     * @return
-     */
-    protected static List<String> getOriginalAlleles(String[] ori) {
-        if (ori != null && ori.length == 4) {
-            String[] multiAllele = ori[2].split(",");
-            if (multiAllele.length != 1) {
-                ArrayList<String> alleles = new ArrayList<>(multiAllele.length + 1);
-                alleles.add(ori[1]);
-                alleles.addAll(Arrays.asList(multiAllele));
-                return alleles;
-            } else {
-                return Arrays.asList(ori[1], ori[2]);
-            }
-        }
-
-        return null;
-    }
-
-    protected static String getOriginalReference(String[] ori) {
-        if (ori != null && ori.length == 4) {
-            return ori[1];
-        }
-        return null;
-    }
-
-    protected static String getOriginalAlleleIndex(String[] ori) {
-        if (ori != null && ori.length == 4) {
-            return ori[3];
-        }
-        return null;
-    }
-
-    /**
-     * Assumes that ori is in the form "POS:REF:ALT_0(,ALT_N)*:ALT_IDX".
-     *
-     * @param ori
-     * @return
-     */
-    protected static Integer getOriginalPosition(String[] ori) {
-
-        if (ori != null && ori.length == 4) {
-            return Integer.parseInt(ori[0]);
-        }
-
-        return null;
     }
 
     protected abstract Object getStudy(T variant);

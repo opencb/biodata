@@ -22,11 +22,13 @@ import org.opencb.biodata.formats.variant.io.VariantReader;
 import org.opencb.biodata.formats.variant.io.VariantWriter;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.StudyEntry;
+import org.opencb.biodata.models.variant.avro.FileEntry;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
 /**
@@ -95,33 +97,29 @@ public class VariantVcfDataWriter implements VariantWriter {
         sb.append(elem.getReference()).append("\t");
         sb.append(elem.getAlternate()).append("\t");
 
-        StudyEntry file = elem.getSourceEntries().values().iterator().next();
+        StudyEntry study = elem.getStudies().get(0);
+        if (study == null) {
+            // There must be a file associated with this variant
+            return false;
+        }
+        FileEntry file = study.getFiles().get(0);
         if (file == null) {
             // There must be a file associated with this variant
             return false;
         }
-
-        if (file.hasAttribute("QUAL")) {
-            sb.append(file.getAttribute("QUAL"));
-        } else {
-            sb.append(".");
-        }
+        sb.append(file.getData().getOrDefault(StudyEntry.QUAL, "."));
         sb.append("\t");
 
-        if (file.hasAttribute("FILTER")) {
-            sb.append(file.getAttribute("FILTER"));
-        } else {
-            sb.append(".");
-        }
+        sb.append(file.getData().getOrDefault(StudyEntry.FILTER, "."));
         sb.append("\t");
 
         if (format == null) {
-            format = getFormatOrder(file);
+            format = getFormatOrder(study);
         }
 
-        sb.append(generateInfo(file.getAttributes())).append("\t");
+        sb.append(generateInfo(file.getData())).append("\t");
         sb.append(Joiner.on(":").join(format)).append("\t");
-        sb.append(generateSampleInfo(elem, file, format));
+        sb.append(generateSampleInfo(elem, study, format));
 
         printer.append(sb.toString()).append("\n"); // TODO aaleman: Create a Variant2Vcf converters.
         return true;
@@ -131,18 +129,18 @@ public class VariantVcfDataWriter implements VariantWriter {
         StringBuilder sb = new StringBuilder();
 
         Iterator<String> sampleIt = elem.getSampleNames(file.getStudyId()).iterator();
-        Iterator<String> formatIt;
-        Map<String, String> data;
-        String sampleName, formatElem;
+        Iterator<String> dataIt;
+        List<String> data;
+        String sampleName;
         while (sampleIt.hasNext()) {
             sampleName = sampleIt.next();
-            data = file.getSampleDataAsMap(sampleName);
-            formatIt = format.iterator();
+            data = file.getSampleData(sampleName);
+            dataIt = data.iterator();
 
-            while (formatIt.hasNext()) {
-                formatElem = formatIt.next();
-                sb.append(data.get(formatElem));
-                if (formatIt.hasNext()) {
+            while (dataIt.hasNext()) {
+                String next = dataIt.next();
+                sb.append(next);
+                if (dataIt.hasNext()) {
                     sb.append(":");
                 }
             }
@@ -155,13 +153,13 @@ public class VariantVcfDataWriter implements VariantWriter {
     }
 
     private List<String> getFormatOrder(StudyEntry file) {
-        return Lists.newArrayList(file.getFormatAsString().split(":"));
+        return file.getSampleDataKeys();
     }
 
-    private String generateInfo(Map<String, String> attributes) {
+    private String generateInfo(Map<String, String> fileData) {
         StringBuilder sb = new StringBuilder();
 
-        Iterator<Map.Entry<String, String>> it = attributes.entrySet().iterator();
+        Iterator<Map.Entry<String, String>> it = fileData.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<String, String> entry = it.next();
 

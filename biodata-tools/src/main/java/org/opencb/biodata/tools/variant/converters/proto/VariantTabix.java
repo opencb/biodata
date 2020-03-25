@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.avro.SampleEntry;
 import org.opencb.biodata.models.variant.protobuf.VcfTabixProto.VcfRecord;
 import org.opencb.biodata.models.variant.protobuf.VcfTabixProto.VcfRecord.Builder;
 import org.opencb.biodata.models.variant.protobuf.VcfTabixProto.VcfSample;
@@ -91,7 +92,7 @@ public class VariantTabix implements Converter<Variant, VcfRecord> {
 //        VariantSourceEntry study = entry.getValue();
 		StudyEntry study = sourceEntries.get(0);
 
-		Map<String, String> attr = study.getAttributes();
+		Map<String, String> attr = study.getFile(0).getData();
 		/* Filter */
 		recordBuilder.setFilterNonDefault(decodeFilter(attr.remove(ATTRIBUTE_FILTER)));
 
@@ -115,11 +116,11 @@ public class VariantTabix implements Converter<Variant, VcfRecord> {
 		recordBuilder.addAllInfoValue(infoValues);
 
 		/* FORMAT */
-		List<String> formatLst = decodeFormat(study.getFormat().stream().collect(Collectors.joining(","))); // FORMAT column
+		List<String> formatLst = decodeFormat(study.getSampleDataKeys().stream().collect(Collectors.joining(","))); // FORMAT column
 		if (!isDefaultFormat(formatLst)) {
 			recordBuilder.addAllSampleFormatNonDefault(formatLst); // maybe empty if default
 		}
-		recordBuilder.addAllSamples(decodeSamples(formatLst, study.getSamplesData()));
+		recordBuilder.addAllSamples(decodeSamples(formatLst, study.getSamples()));
 
 		// TODO check all worked
 		return recordBuilder.build();
@@ -215,7 +216,7 @@ public class VariantTabix implements Converter<Variant, VcfRecord> {
 		return getDefaultFormatKeys().equals(keyList);
 	}
 
-	public List<VcfSample> decodeSamples(List<String> formatLst, List<List<String>> samplesData) {
+	public List<VcfSample> decodeSamples(List<String> formatLst, List<SampleEntry> samplesData) {
 		List<String> samples = getSamples(); // samplesData.keySet()
 		List<VcfSample> ret = new ArrayList<>(samples.size());
 //        for(String s : samples){
@@ -224,7 +225,7 @@ public class VariantTabix implements Converter<Variant, VcfRecord> {
 //        }
 		for (int i = 0; i < samples.size(); i++) {
 			// samplesData should have fields in the same order than formatLst
-			ret.add(VcfSample.newBuilder().addAllSampleValues(samplesData.get(i)).build());
+			ret.add(VcfSample.newBuilder().addAllSampleValues(samplesData.get(i).getData()).build());
 		}
 
 		return ret;

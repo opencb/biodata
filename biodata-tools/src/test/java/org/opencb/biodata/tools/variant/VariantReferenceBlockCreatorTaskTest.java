@@ -3,6 +3,7 @@ package org.opencb.biodata.tools.variant;
 import org.junit.Test;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantBuilder;
+import org.opencb.biodata.models.variant.avro.SampleEntry;
 import org.opencb.biodata.models.variant.avro.VariantType;
 
 import java.util.Arrays;
@@ -11,8 +12,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.util.Arrays.*;
-import static org.junit.Assert.*;
+import static java.util.Arrays.asList;
+import static org.junit.Assert.assertEquals;
 
 public class VariantReferenceBlockCreatorTaskTest {
 
@@ -41,7 +42,7 @@ public class VariantReferenceBlockCreatorTaskTest {
         task.init(new VariantBuilder("1:1:A:C")
                 .setStudyId("myStudy")
                 .setFileId("myFile")
-                .setFormat("GT", "DP")
+                .setSampleDataKeys("GT", "DP")
                 .addSample("s1", "1/0", "10")
                 .addSample("s2", "0/0", "30")
                 .addSample("s3", "0/1", "20")
@@ -53,7 +54,11 @@ public class VariantReferenceBlockCreatorTaskTest {
         assertEquals("myStudy", variant.getStudies().get(0).getStudyId());
         assertEquals("myFile", variant.getStudies().get(0).getFileId());
         assertEquals(Arrays.asList("s1", "s2", "s3"), variant.getStudies().get(0).getOrderedSamplesName());
-        assertEquals(Arrays.asList(Collections.singletonList("./."), Collections.singletonList("./."), Collections.singletonList("./.")), variant.getStudies().get(0).getSamplesData());
+        assertEquals(Arrays.asList(
+                new SampleEntry(null, null, Collections.singletonList("./.")),
+                new SampleEntry(null, null, Collections.singletonList("./.")),
+                new SampleEntry(null, null, Collections.singletonList("./."))),
+                variant.getStudies().get(0).getSamples());
 
     }
 

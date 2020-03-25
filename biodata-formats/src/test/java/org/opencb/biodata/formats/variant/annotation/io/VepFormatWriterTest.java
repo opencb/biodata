@@ -19,8 +19,6 @@
 
 package org.opencb.biodata.formats.variant.annotation.io;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.MapperFeature;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
 import org.mortbay.util.ajax.JSON;
@@ -33,7 +31,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by fjlopez on 31/01/17.

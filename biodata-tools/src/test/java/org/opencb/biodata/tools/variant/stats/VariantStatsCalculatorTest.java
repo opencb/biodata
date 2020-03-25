@@ -278,7 +278,7 @@ public class VariantStatsCalculatorTest {
         freqs.put("EUR", 0.4056);
         freqs.put("SAS", 0.4949);
 
-        freqs.forEach((coh, freq) -> assertEquals(freq, s.getStats().get(coh).getAltAlleleFreq(), 0.0001));
+        freqs.forEach((coh, freq) -> assertEquals(freq, s.getStats(coh).getAltAlleleFreq(), 0.0001));
 //        System.out.println(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(s.getStats()));
     }
 
@@ -319,7 +319,7 @@ public class VariantStatsCalculatorTest {
         freqs.put("EUR", -1.0);
         freqs.put("SAS", -1.0);
 
-        freqs.forEach((coh, freq) -> assertEquals(freq, s.getStats().get(coh).getAltAlleleFreq(), 0.0001));
+        freqs.forEach((coh, freq) -> assertEquals(freq, s.getStats(coh).getAltAlleleFreq(), 0.0001));
 
 //        System.out.println(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(s.getStats()));
     }
@@ -360,7 +360,7 @@ public class VariantStatsCalculatorTest {
         freqs.put("EUR", 0.0);
         freqs.put("SAS", 0.0);
 
-        freqs.forEach((coh, freq) -> assertEquals(freq, s.getStats().get(coh).getAltAlleleFreq(), 0.0001));
+        freqs.forEach((coh, freq) -> assertEquals(freq, s.getStats(coh).getAltAlleleFreq(), 0.0001));
 
 //        System.out.println(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(s.getStats()));
     }

@@ -44,6 +44,11 @@ enum VariantType {
 
 message VariantStats {
     /**
+     * Cohort identifier
+     **/
+    string cohortId = 17;
+
+    /**
      * Total number of alleles in called genotypeCounters. Does not include missing alleles
      **/
     int32 alleleCount = 1;
@@ -122,10 +127,23 @@ message VariantStats {
     string mgfGenotype = 13;
 }
 
+message OriginalCall {
+    /**
+     * Original variant ID before normalization including all secondary alternates.
+     */
+    string variantId = 1;
+
+    /**
+     * Alternate allele index of the original multi-allellic variant call in which was decomposed.
+     */
+    int32 alleleIndex = 2;
+}
+
+
 message FileEntry {
     string fileId = 1;
-    string call = 2;
-    map<string, string> attributes = 3;
+    OriginalCall call = 2;
+    map<string, string> data = 3;
 }
 
 message AlternateCoordinate {
@@ -149,19 +167,22 @@ message AlternateCoordinate {
     VariantType type = 6;
 }
 
+message SampleEntry {
+    string sampleId = 1;
+    int32 fileIndex = 2;
+    repeated string data = 3;
+}
+
 message StudyEntry {
-    message SamplesDataInfoEntry {
-        repeated string info = 1;
-    }
     string studyId = 1;
     repeated FileEntry files = 2;
     /**
      * Alternate alleles that appear along with a variant alternate.
      */
     repeated AlternateCoordinate secondaryAlternates = 3;
-    repeated string format = 4;
-    repeated SamplesDataInfoEntry samplesData = 5;
-    map<string, VariantStats> stats = 6;
+    repeated string sampleDataKeys = 4;
+    repeated SampleEntry samples = 5;
+    repeated VariantStats stats = 6;
 }
 
 /**
@@ -305,14 +326,6 @@ message Variant {
      * Type of variation: single nucleotide, indel or structural variation.
      */
     VariantType type = 9;
-
-    /**
-     * Unique identifier following the HGVS nomenclature.
-     */
-    message HgvsEntry {
-        repeated string info = 1;
-    }
-    map<string, HgvsEntry> hgvss = 10;
 
     /**
      * Information specific to each study the variant was read from, such as

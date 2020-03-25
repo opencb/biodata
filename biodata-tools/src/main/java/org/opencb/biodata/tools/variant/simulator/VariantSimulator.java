@@ -21,6 +21,7 @@ package org.opencb.biodata.tools.variant.simulator;
 import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.avro.SampleEntry;
 import org.opencb.biodata.models.variant.avro.VariantType;
 
 import java.math.RoundingMode;
@@ -143,7 +144,6 @@ public class VariantSimulator {
         variant.setStrand(strand);
         variant.setType(VariantType.valueOf(variantType));
         variant.setAnnotation(null);
-        variant.setHgvs(null);
         return variant;
     }
 
@@ -285,17 +285,17 @@ public class VariantSimulator {
         int fieldID = 3;
 
         List<StudyEntry> studyEntryList = new ArrayList<>();
-        StudyEntry studyEntry = new StudyEntry();
+        StudyEntry studyEntry = new StudyEntry(Integer.toString(studyID), Integer.toString(fieldID));
         studyEntry.setStudyId(Integer.toString(studyID));
         studyEntry.setFileId(Integer.toString(fieldID));
-        Map<String, String> attributes = genAttributes();
-        studyEntry.setAttributes(attributes);
-        studyEntry.setFormat(getFormat());
-        List<List<String>> sampleList = new ArrayList<>(getFormat().size());
+        Map<String, String> fileData = genFileData();
+        studyEntry.getFile(0).setData(fileData);
+        studyEntry.setSampleDataKeys(getFormat());
+        List<SampleEntry> sampleList = new ArrayList<>(n);
         for (int i = 0; i < n; i++) {
             sampleList.add(getRandomample());
         }
-        studyEntry.setSamplesData(sampleList);
+        studyEntry.setSamples(sampleList);
         studyEntryList.add(studyEntry);
         return studyEntryList;
     }
@@ -303,7 +303,7 @@ public class VariantSimulator {
     /**
      * @return sample
      */
-    private List<String> getRandomample() {
+    private SampleEntry getRandomample() {
         List<String> sample = new ArrayList<>();
         int gqValue = rand.nextInt(100 - 0 + 100) + 0;
         int dpValue = rand.nextInt(100 - 0 + 100) + 0;
@@ -318,7 +318,7 @@ public class VariantSimulator {
         sample.add(Integer.toString(gqValue));
         sample.add(Integer.toString(dpValue));
         sample.add(Integer.toString(hqValue));
-        return sample;
+        return new SampleEntry(null, null, sample);
     }
 
     /**
@@ -336,9 +336,9 @@ public class VariantSimulator {
     /**
      * @return attributeMap attributeMap
      */
-    public Map<String, String> genAttributes() {
+    public Map<String, String> genFileData() {
 
-        Map<String, String> attributeMap = new HashMap<>();
+        Map<String, String> fileData = new HashMap<>();
 
         int acLength = alternateAllele.length();
         //int afLength = alternateAllele.length();
@@ -350,12 +350,12 @@ public class VariantSimulator {
         String alleleANVal = String.valueOf(anLength);
         String alleleDPVal = String.valueOf(rand.nextInt(200 - 100 + 0) + 100);
 
-        attributeMap.put("AC", alleleACVal);
-        attributeMap.put("AF", alleleAFVal);
-        attributeMap.put("AN", alleleANVal);
-        attributeMap.put("DP", alleleDPVal);
+        fileData.put("AC", alleleACVal);
+        fileData.put("AF", alleleAFVal);
+        fileData.put("AN", alleleANVal);
+        fileData.put("DP", alleleDPVal);
 
-        return attributeMap;
+        return fileData;
     }
 
 }

@@ -23,6 +23,7 @@ import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
+import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.apache.commons.lang3.StringUtils;
 
@@ -62,15 +63,15 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
         // Fields not affected by the structure of REF and ALT fields
         variant.setIds(ids);
         if (quality > -1) {
-            studyEntry.addAttribute(fileMetadata.getId(), StudyEntry.QUAL, String.valueOf(quality));
+            studyEntry.addFileData(fileMetadata.getId(), StudyEntry.QUAL, String.valueOf(quality));
         }
         if (!filter.isEmpty()) {
-            studyEntry.addAttribute(fileMetadata.getId(), StudyEntry.FILTER, filter);
+            studyEntry.addFileData(fileMetadata.getId(), StudyEntry.FILTER, filter);
         }
         Map<String, String> infoMap = getInfoMap(info);
-        studyEntry.setFormatAsString(format);
-        studyEntry.addAttribute(fileMetadata.getId(), StudyEntry.SRC, line);
-        studyEntry.addAttributes(fileMetadata.getId(), infoMap);
+        studyEntry.setSampleDataKeys(Arrays.asList(format.split(":")));
+        studyEntry.addFileData(fileMetadata.getId(), StudyEntry.SRC, line);
+        studyEntry.addFileData(fileMetadata.getId(), infoMap);
     }
 
     public static Map<String, String> getInfoMap(String info) {
@@ -87,7 +88,7 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
         return map;
     }
 
-    protected void addInfo(Variant variant, StudyEntry file, int numAllele, Map<String, String> info) {
+    protected void addInfo(Variant variant, StudyEntry study, FileEntry file, int numAllele, Map<String, String> info) {
         for (Map.Entry<String, String> infoElement : info.entrySet()) {
 
             String infoTag = infoElement.getKey();
@@ -97,9 +98,9 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
                 case "ACC":
                     // Managing accession ID for the allele
                     String[] ids = infoValue.split(COMMA);
-                    file.addAttribute(infoTag, ids[numAllele]);
+                    file.getData().put(infoTag, ids[numAllele]);
                     break;
-                // next is commented to store the AC, AF and AN as-is, to be able to compute stats from the DB using the attributes, and "ori" tag
+                // next is commented to store the AC, AF and AN as-is, to be able to compute stats from the DB using the file data, and "ori" tag
 //                case "AC":
 //                    String[] counts = infoValue.split(COMMA);
 //                    file.addAttribute(infoTag, counts[numAllele]);
@@ -113,36 +114,36 @@ public class VariantAggregatedVcfFactory extends VariantVcfFactory {
 //                        break;
                 case "NS":
                     // Count the number of samples that are associated with the allele
-                    file.addAttribute(infoTag, String.valueOf(file.getSamplesData().size()));
+                    file.getData().put(infoTag, String.valueOf(study.getSamples().size()));
                     break;
                 case "DP":
                     int dp = 0;
-                    for (String sampleName : file.getSamplesName()) {
-                        String sampleDp = file.getSampleData(sampleName, "DP");
+                    for (String sampleName : study.getSamplesName()) {
+                        String sampleDp = study.getSampleData(sampleName, "DP");
                         if (StringUtils.isNumeric(sampleDp)) {
                             dp += Integer.parseInt(sampleDp);
                         }
                     }
-                    file.addAttribute(infoTag, String.valueOf(dp));
+                    file.getData().put(infoTag, String.valueOf(dp));
                     break;
                 case "MQ":
                 case "MQ0":
                     int mq = 0;
                     int mq0 = 0;
-                    for (String sampleName : file.getSamplesName()) {
-                        if (StringUtils.isNumeric(file.getSampleData(sampleName, "GQ"))) {
-                            int gq = Integer.parseInt(file.getSampleData(sampleName, "GQ"));
+                    for (String sampleName : study.getSamplesName()) {
+                        if (StringUtils.isNumeric(study.getSampleData(sampleName, "GQ"))) {
+                            int gq = Integer.parseInt(study.getSampleData(sampleName, "GQ"));
                             mq += gq * gq;
                             if (gq == 0) {
                                 mq0++;
                             }
                         }
                     }
-                    file.addAttribute("MQ", String.valueOf(mq));
-                    file.addAttribute("MQ0", String.valueOf(mq0));
+                    file.getData().put("MQ", String.valueOf(mq));
+                    file.getData().put("MQ0", String.valueOf(mq0));
                     break;
                 default:
-                    file.addAttribute(infoTag, infoValue);
+                    file.getData().put(infoTag, infoValue);
                     break;
             }
         }

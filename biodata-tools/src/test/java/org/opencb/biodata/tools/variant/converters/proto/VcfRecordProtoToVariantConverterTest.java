@@ -4,7 +4,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opencb.biodata.models.variant.*;
 import org.opencb.biodata.models.variant.avro.FileEntry;
-import org.opencb.biodata.models.variant.protobuf.VcfMeta;
+import org.opencb.biodata.models.variant.avro.OriginalCall;
+import org.opencb.biodata.models.variant.avro.SampleEntry;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
 
 import java.util.*;
@@ -60,20 +61,20 @@ public class VcfRecordProtoToVariantConverterTest {
 
         Variant variant = new Variant("1", 5000, "A", "C");
         StudyEntry studyEntry = new StudyEntry();
-        studyEntry.setFormat(Collections.singletonList("GT"));
+        studyEntry.setSampleDataKeys(Collections.singletonList("GT"));
         studyEntry.setStudyId(studyId);
-        studyEntry.setSamplesData(Arrays.asList(
-                Arrays.asList("0|0"),
-                Arrays.asList("0|1"),
-                Arrays.asList("1|0"),
-                Arrays.asList("1|1")));
-        Map<String, String> attributes = new HashMap<>();
-        attributes.put(StudyEntry.FILTER, "nopass");
-        attributes.put(StudyEntry.QUAL, "50");
-        attributes.put("Key1", "V1");
-        attributes.put("Key2", "V2");
+        studyEntry.setSamples(Arrays.asList(
+                new SampleEntry(null, null, Arrays.asList("0|0")),
+                new SampleEntry(null, null, Arrays.asList("0|1")),
+                new SampleEntry(null, null, Arrays.asList("1|0")),
+                new SampleEntry(null, null, Arrays.asList("1|1"))));
+        Map<String, String> fileData = new HashMap<>();
+        fileData.put(StudyEntry.FILTER, "nopass");
+        fileData.put(StudyEntry.QUAL, "50");
+        fileData.put("Key1", "V1");
+        fileData.put("Key2", "V2");
 
-        studyEntry.setFiles(Collections.singletonList(new FileEntry(fileId, "5:A:C:0", attributes)));
+        studyEntry.setFiles(Collections.singletonList(new FileEntry(fileId, new OriginalCall("1:5:A:C", 0), fileData)));
         variant.setStudies(Collections.singletonList(studyEntry));
 
         VcfSliceProtos.VcfRecord vcfRecord = toProto.convert(variant);
@@ -90,22 +91,22 @@ public class VcfRecordProtoToVariantConverterTest {
         Variant variant = Variant.newBuilder("1", 5000, 5000, "A", "C").setStudyId(studyId)
                 .setFilter("nopass")
                 .setQuality("50")
-                .setFormat(Collections.emptyList())
-                .setSamplesData(Collections.emptyList())
+                .setSampleDataKeys(Collections.emptyList())
+                .setSamples(Collections.emptyList())
                 .setFileId(fileId)
-                .setCall("5:A:C:0")
-                .addAttribute("Key1", "V1")
-                .addAttribute("Key2", "V2")
+                .setCall(new OriginalCall("1:5:A:C", 0))
+                .addFileData("Key1", "V1")
+                .addFileData("Key2", "V2")
                 .build();
         Variant variantWithFormat = Variant.newBuilder("1", 5000, 5000, "A", "C").setStudyId(studyId)
                 .setFilter("nopass")
                 .setQuality("50")
-                .setFormat("GT", "DP")
-                .setSamplesData(Collections.emptyList())
+                .setSampleDataKeys("GT", "DP")
+                .setSamples(Collections.emptyList())
                 .setFileId(fileId)
-                .setCall("5:A:C:0")
-                .addAttribute("Key1", "V1")
-                .addAttribute("Key2", "V2")
+                .setCall(new OriginalCall("1:5:A:C", 0))
+                .addFileData("Key1", "V1")
+                .addFileData("Key2", "V2")
                 .build();
 
         VcfSliceProtos.Fields fields = VariantToVcfSliceConverter.buildDefaultFields(Arrays.asList(variant, variantWithFormat), null, null);
@@ -136,19 +137,19 @@ public class VcfRecordProtoToVariantConverterTest {
 
         Variant variant = new Variant("1", 5, "A", "C");
         StudyEntry studyEntry = new StudyEntry();
-        studyEntry.setFormat(Arrays.asList("GT", "DP"));
+        studyEntry.setSampleDataKeys(Arrays.asList("GT", "DP"));
         studyEntry.setStudyId(studyId);
-        studyEntry.setSamplesData(Arrays.asList(
-                Arrays.asList("0|0", "10"),
-                Arrays.asList("0|1", "20"),
-                Arrays.asList("1|0", "30"),
-                Arrays.asList("1|1", "40")));
-        Map<String, String> attributes = new HashMap<>();
-        attributes.put(StudyEntry.FILTER, "PASS");
-        attributes.put(StudyEntry.QUAL, "57");
-        attributes.put("Key", "Value");
+        studyEntry.setSamples(Arrays.asList(
+                new SampleEntry(null, null, Arrays.asList("0|0", "10")),
+                new SampleEntry(null, null, Arrays.asList("0|1", "20")),
+                new SampleEntry(null, null, Arrays.asList("1|0", "30")),
+                new SampleEntry(null, null, Arrays.asList("1|1", "40"))));
+        Map<String, String> fileData = new HashMap<>();
+        fileData.put(StudyEntry.FILTER, "PASS");
+        fileData.put(StudyEntry.QUAL, "57");
+        fileData.put("Key", "Value");
 
-        studyEntry.setFiles(Collections.singletonList(new FileEntry(fileId, "5:A:C:0", attributes)));
+        studyEntry.setFiles(Collections.singletonList(new FileEntry(fileId, null, fileData)));
         variant.setStudies(Collections.singletonList(studyEntry));
 
         VcfSliceProtos.VcfRecord vcfRecord = toProto.convert(variant, 100);

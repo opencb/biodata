@@ -21,8 +21,6 @@ package org.opencb.biodata.models.variant.stats;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.opencb.biodata.models.feature.Genotype;
-import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.avro.VariantType;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,6 +36,11 @@ public class VariantStats {
 
     private final org.opencb.biodata.models.variant.avro.VariantStats impl;
 
+    public VariantStats(String cohortId) {
+        this();
+        impl.setCohortId(cohortId);
+    }
+
     public VariantStats() {
         this(-1f, -1f, null, null, -1, -1);
     }
@@ -48,7 +51,7 @@ public class VariantStats {
 
     public VariantStats(float maf, float mgf, String mafAllele, String mgfGenotype,
                         int missingAlleleCount, int missingGenotypeCount) {
-        impl = new org.opencb.biodata.models.variant.avro.VariantStats(-1, -1, -1, -1F, -1F,
+        impl = new org.opencb.biodata.models.variant.avro.VariantStats("", -1, -1, -1, -1F, -1F,
                 missingAlleleCount, missingGenotypeCount,
                 new HashMap<>(), new HashMap<>(),
                 new HashMap<>(), new HashMap<>(), -1F,
@@ -59,6 +62,14 @@ public class VariantStats {
         return impl;
     }
 
+    public VariantStats setCohortId(String cohortId) {
+        impl.setCohortId(cohortId);
+        return this;
+    }
+
+    public String getCohortId() {
+        return impl.getCohortId();
+    }
 
     public Integer getAlleleCount() {
         return impl.getAlleleCount();
@@ -182,27 +193,27 @@ public class VariantStats {
         return this;
     }
 
-    public java.util.Map<java.lang.String,java.lang.Integer> getFilterCount() {
+    public Map<String, Integer> getFilterCount() {
         return impl.getFilterCount();
     }
 
-    public void setFilterCount(java.util.Map<java.lang.String,java.lang.Integer> value) {
+    public void setFilterCount(Map<String, Integer> value) {
         this.impl.setFilterCount(value);
     }
 
-    public java.util.Map<java.lang.String,java.lang.Float> getFilterFreq() {
+    public Map<String, Float> getFilterFreq() {
         return impl.getFilterFreq();
     }
 
-    public void setFilterFreq(java.util.Map<java.lang.String,java.lang.Float> value) {
+    public void setFilterFreq(Map<String, Float> value) {
         this.impl.setFilterFreq(value);
     }
 
-    public java.lang.Float getQualityAvg() {
+    public Float getQualityAvg() {
         return impl.getQualityAvg();
     }
 
-    public void setQualityAvg(java.lang.Float value) {
+    public void setQualityAvg(Float value) {
         this.impl.setQualityAvg(value);
     }
 

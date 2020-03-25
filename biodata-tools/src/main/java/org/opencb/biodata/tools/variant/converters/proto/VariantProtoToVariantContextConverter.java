@@ -48,14 +48,14 @@ public class VariantProtoToVariantContextConverter extends VariantContextConvert
         VariantProto.StudyEntry studyEntry = getStudy(variant);
 
         List<Map<String, String>> fileAttributes = studyEntry.getFilesList().stream()
-                .map(VariantProto.FileEntry::getAttributesMap)
+                .map(VariantProto.FileEntry::getDataMap)
                 .collect(Collectors.toList());
 
         // CHROM START END REFERENCE ALTERNATE
         String chromosome = variant.getChromosome();
         VariantProto.VariantType type = variant.getType();
         Map<Integer, Character> referenceAlleles = buildReferenceAllelesMap(studyEntry.getFilesList().stream()
-                .map(VariantProto.FileEntry::getCall).iterator());
+                .map(fileEntry -> fileEntry.getCall()==null?null:fileEntry.getCall().getVariantId()).iterator());
         Pair<Integer, Integer> adjustedStartEndPositions = adjustedVariantStart(variant, studyEntry.getSecondaryAlternatesList(), referenceAlleles);
         int start = adjustedStartEndPositions.getLeft();
         int end = adjustedStartEndPositions.getRight();
@@ -88,24 +88,24 @@ public class VariantProtoToVariantContextConverter extends VariantContextConvert
 
         // FORMAT
         // Each variant can have different FORMAT so we need to recalculate the positions.
-        final Map<String, Integer> formatPositions = new HashMap<>(studyEntry.getFormatList().size());
-        for (int i = 0; i < studyEntry.getFormatList().size(); i++) {
-            formatPositions.put(studyEntry.getFormatList().get(i), i);
+        final Map<String, Integer> formatPositions = new HashMap<>(studyEntry.getSampleDataKeysList().size());
+        for (int i = 0; i < studyEntry.getSampleDataKeysList().size(); i++) {
+            formatPositions.put(studyEntry.getSampleDataKeysList().get(i), i);
         }
 
         // SAMPLES
         BiFunction<String, String, String> getSampleData = (sampleName, id) -> getSampleData(studyEntry, formatPositions, sampleName, id);
 
-        List<Genotype> genotypes = getGenotypes(alleleList, studyEntry.getFormatList(), getSampleData);
+        List<Genotype> genotypes = getGenotypes(alleleList, studyEntry.getSampleDataKeysList(), getSampleData);
 
         return makeVariantContext(chromosome, start, end, idForVcf, alleleList, isNoVariation, filters, qual, attributes, genotypes);
     }
 
     public String getSampleData(VariantProto.StudyEntry studyEntry, Map<String, Integer> formatPositions, String sampleName, String field) {
         if (samplePositions.containsKey(sampleName) && formatPositions.containsKey(field)) {
-            VariantProto.StudyEntry.SamplesDataInfoEntry info = studyEntry.getSamplesData(samplePositions.get(sampleName));
+            VariantProto.SampleEntry sample = studyEntry.getSamples(samplePositions.get(sampleName));
             int formatPos = formatPositions.get(field);
-            return formatPos < info.getInfoCount() ? info.getInfo(formatPos) : null;
+            return formatPos < sample.getDataCount() ? sample.getData(formatPos) : null;
         }
         return null;
     }
@@ -165,20 +165,18 @@ public class VariantProtoToVariantContextConverter extends VariantContextConvert
         }
 
         List<String> statsList = new ArrayList<>();
-        for (Map.Entry<String, VariantProto.VariantStats> entry : studyEntry.getStats().entrySet()) {
-            String cohortName = entry.getKey();
-            VariantProto.VariantStats stats = entry.getValue();
-
-//            if (cohortName.equals(StudyEntry.DEFAULT_COHORT)) {
+        for (VariantProto.VariantStats stats : studyEntry.getStatsList()) {
+            String cohortId = stats.getCohortId();
+//            if (cohortId.equals(StudyEntry.DEFAULT_COHORT)) {
 //                int an = stats.getAlleleCount();
 //                if (an >= 0) {
-//                    attributes.put(cohortName + VCFConstants.ALLELE_NUMBER_KEY, String.valueOf(an));
+//                    attributes.put(cohortId + VCFConstants.ALLELE_NUMBER_KEY, String.valueOf(an));
 //                }
 //                if (stats.getAltAlleleCount() >= 0) {
-//                    attributes.put(cohortName + VCFConstants.ALLELE_COUNT_KEY, String.valueOf(stats.getAltAlleleCount()));
+//                    attributes.put(cohortId + VCFConstants.ALLELE_COUNT_KEY, String.valueOf(stats.getAltAlleleCount()));
 //                }
 //            }
-            statsList.add(cohortName + ":" + DECIMAL_FORMAT_7.format(stats.getAltAlleleFreq()));
+            statsList.add(cohortId + ":" + DECIMAL_FORMAT_7.format(stats.getAltAlleleFreq()));
         }
         // set cohort stats attributes
         attributes.put(STATS_INFO_KEY, String.join(FIELD_SEPARATOR, statsList));

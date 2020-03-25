@@ -47,10 +47,10 @@ public class VcfUtils {
 
     public static final List<String> DEFAULT_SAMPLE_FORMAT = Arrays.asList("GT", "AD", "DP", "GQ", "PL");
 
-    public static String getInfoColumn(StudyEntry file) {
+    public static String getInfoColumn(StudyEntry study) {
         StringBuilder info = new StringBuilder();
 
-        for (Map.Entry<String, String> entry : file.getAttributes().entrySet()) {
+        for (Map.Entry<String, String> entry : study.getFile(0).getData().entrySet()) {
             String key = entry.getKey();
             if (!key.equalsIgnoreCase("QUAL") && !key.equalsIgnoreCase("FILTER")) {
                 info.append(key);
@@ -69,25 +69,20 @@ public class VcfUtils {
     }
 
     public static String getInfoColumn(Variant variant, String fileId, String studyId) {
-        return VcfUtils.getInfoColumn(variant.getSourceEntry(fileId, studyId));
+        return VcfUtils.getInfoColumn(variant.getStudy(studyId));
     }
 
     public static String getJoinedSampleFields(StudyEntry file, String sampleName) {
-        Map<String, String> data = file.getSampleDataAsMap(sampleName);
-        if (data == null) {
+        List<String> data = file.getSampleData(sampleName);
+        if (data == null || data.isEmpty()) {
             return "";
         }
 
-        StringBuilder info = new StringBuilder();
-        for (String formatField : file.getFormatAsString().split(":")) {
-            info.append(data.get(formatField)).append(":");
-        }
-
-        return info.toString().isEmpty() ? "." : info.toString();
+        return String.join(":", data);
     }
 
     public static String getJoinedSampleFields(Variant variant, StudyEntry file, String sampleName) {
-        return VcfUtils.getJoinedSampleFields(variant.getSourceEntry(file.getFileId(), file.getStudyId()), sampleName);
+        return VcfUtils.getJoinedSampleFields(file, sampleName);
     }
 
     /**

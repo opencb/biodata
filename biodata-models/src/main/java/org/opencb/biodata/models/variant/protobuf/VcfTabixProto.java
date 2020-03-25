@@ -22,6 +22,7 @@
 
 package org.opencb.biodata.models.variant.protobuf;
 
+@Deprecated
 public final class VcfTabixProto {
   private VcfTabixProto() {}
   public static void registerAllExtensions(

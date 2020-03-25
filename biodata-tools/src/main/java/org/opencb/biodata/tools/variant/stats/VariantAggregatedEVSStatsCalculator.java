@@ -64,13 +64,14 @@ public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsC
     protected void parseStats(Variant variant, StudyEntry study, int numAllele, String reference, String[] alternateAlleles, Map<String, String> info) {
         FileEntry fileEntry = study.getFiles().get(0);
         // EVS params are not rearranged when normalizing. Use original call
-        if (fileEntry.getCall() != null && !fileEntry.getCall().isEmpty()) {
-            String[] ori = fileEntry.getCall().split(":");
-            numAllele = Integer.parseInt(ori[3]);
-            alternateAlleles = ori[2].split(",");
-            reference = ori[1];
+        if (fileEntry.getCall() != null) {
+            numAllele = fileEntry.getCall().getAlleleIndex();
+            alternateAlleles = fileEntry.getCall().getVariantId().split(",");
+            Variant ori = new Variant(alternateAlleles[0]);
+            alternateAlleles[0] = ori.getAlternate();
+            reference = ori.getReference();
         }
-        VariantStats stats = new VariantStats();
+        VariantStats stats = new VariantStats(StudyEntry.DEFAULT_COHORT);
         if (info.containsKey("MAF")) {
             String splitsMAF[] = info.get("MAF").split(",");
             if (splitsMAF.length == 3) {
@@ -81,22 +82,23 @@ public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsC
 
         if (info.containsKey("GTS") && info.containsKey("GTC")) {
             String splitsGTC[] = info.get("GTC").split(",");
-            addGenotypeWithGTS(study.getAttributes(), splitsGTC, reference, alternateAlleles, numAllele, stats);
+            addGenotypeWithGTS(study.getFile(0).getData(), splitsGTC, reference, alternateAlleles, numAllele, stats);
         }
-        calculateFilterQualStats(fileEntry.getAttributes(), stats);
+        calculateFilterQualStats(fileEntry.getData(), stats);
 
-        study.setStats(StudyEntry.DEFAULT_COHORT, stats);
+        study.addStats(stats);
     }
 
     @Override
     protected void parseMappedStats(Variant variant, StudyEntry studyEntry,
                                     int numAllele, String reference, String[] alternateAlleles, Map<String, String> info) {
         FileEntry fileEntry = studyEntry.getFiles().get(0);
-        if (fileEntry.getCall() != null && !fileEntry.getCall().isEmpty()) {
-            String[] ori = fileEntry.getCall().split(":");
-            numAllele = Integer.parseInt(ori[3]);
-            alternateAlleles = ori[2].split(",");
-            reference = ori[1];
+        if (fileEntry.getCall() != null) {
+            numAllele = fileEntry.getCall().getAlleleIndex();
+            alternateAlleles = fileEntry.getCall().getVariantId().split(",");
+            Variant ori = new Variant(alternateAlleles[0]);
+            alternateAlleles[0] = ori.getAlternate();
+            reference = ori.getReference();
         }
 
         if (tagMap != null) {
@@ -109,8 +111,8 @@ public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsC
                         String cohort = opencgaTagSplit[0];
                         VariantStats cohortStats = studyEntry.getStats(cohort);
                         if (cohortStats == null) {
-                            cohortStats = new VariantStats();
-                            studyEntry.setStats(cohort, cohortStats);
+                            cohortStats = new VariantStats(cohort);
+                            studyEntry.addStats(cohortStats);
                         }
                         switch (opencgaTagSplit[1]) {
                             case "AC":
@@ -125,7 +127,7 @@ public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsC
                                 // TODO implement this. also, take into account that needed fields may not be processed yet
                                 break;
                             case "GTC":
-                                addGenotypeWithGTS(studyEntry.getAttributes(), values, reference, alternateAlleles, numAllele, cohortStats);
+                                addGenotypeWithGTS(studyEntry.getFile(0).getData(), values, reference, alternateAlleles, numAllele, cohortStats);
                                 break;
                             default:
                                 break;
@@ -141,8 +143,8 @@ public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsC
                                 float maf = Float.parseFloat(values[i]) / 100;  // from [0, 100] (%) to [0, 1]
                                 VariantStats cohortStats = studyEntry.getStats(populations[i]);
                                 if (cohortStats == null) {
-                                    cohortStats = new VariantStats();
-                                    studyEntry.setStats(populations[i], cohortStats);
+                                    cohortStats = new VariantStats(populations[i]);
+                                    studyEntry.addStats(cohortStats);
                                 }
                                 cohortStats.setMaf(maf);
                             }
@@ -152,7 +154,7 @@ public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsC
             }
             // TODO reprocess stats to complete inferable values. A StatsHolder may be needed to keep values not storables in VariantStats
         }
-        for (VariantStats stats : studyEntry.getStats().values()) {
+        for (VariantStats stats : studyEntry.getStats()) {
             calculateFilterQualStats(info, stats);
         }
     }

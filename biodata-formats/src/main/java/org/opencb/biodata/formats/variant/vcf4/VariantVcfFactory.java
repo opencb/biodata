@@ -25,6 +25,7 @@ import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
 import org.opencb.biodata.models.variant.avro.FileEntry;
+import org.opencb.biodata.models.variant.avro.SampleEntry;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.biodata.models.variant.exceptions.NotAVariantException;
 import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
@@ -121,14 +122,14 @@ public class VariantVcfFactory implements VariantFactory {
 //        List<String> formatFields = variant.getSourceEntry(fileMetadata.getFileId(), fileMetadata.getStudyId()).getFormat();
 
         if (fields.length < 9) {
-            entry.setSamplesData(Collections.emptyList());
+            entry.setSamples(Collections.emptyList());
             entry.setSamplesPosition(Collections.emptyMap());
             return;
         }
         List<String> formatFields = Arrays.asList(fields[8].split(":"));
         entry.setSamplesPosition(fileMetadata.getSamplesPosition());
 
-        List<List<String>> samplesData = Arrays.asList(new List[fields.length - 9]);
+        List<SampleEntry> samplesData = Arrays.asList(new SampleEntry[fields.length - 9]);
         for (int i = 9; i < fields.length; i++) {
             List<String> data = Arrays.asList(fields[i].split(":"));
             if (data.size() < formatFields.size()) {
@@ -139,13 +140,13 @@ public class VariantVcfFactory implements VariantFactory {
                 }
                 data = correctSizeData;
             }
-            samplesData.set(i - 9, data);
+            samplesData.set(i - 9, new SampleEntry(null, null, data));
         }
 
 //        samplesData = variantNormalizer.normalizeSamplesData(variantKeyFields, samplesData, formatFields, reference, Arrays.asList(alternateAlleles), null);
 
         // Add samples data to the variant entry in the fileMetadata file
-        entry.setSamplesData(samplesData);
+        entry.setSamples(samplesData);
     }
 
     /**
@@ -183,15 +184,15 @@ public class VariantVcfFactory implements VariantFactory {
             variant.setIds(ids);
         }
         if (quality > -1) {
-            study.addAttribute(fileMetadata.getId(), StudyEntry.QUAL, String.valueOf(quality));
+            study.addFileData(fileMetadata.getId(), StudyEntry.QUAL, String.valueOf(quality));
         }
         if (!filter.isEmpty()) {
-            study.addAttribute(fileMetadata.getId(), StudyEntry.FILTER, filter);
+            study.addFileData(fileMetadata.getId(), StudyEntry.FILTER, filter);
         }
         if (!info.isEmpty()) {
             parseInfo(variant, fileMetadata.getId(), study.getStudyId(), info);
         }
-        study.addAttribute(fileMetadata.getId(), StudyEntry.SRC, line);
+        study.addFileData(fileMetadata.getId(), StudyEntry.SRC, line);
     }
 
     protected void parseInfo(Variant variant, String fileId, String studyId, String info) {
@@ -201,7 +202,7 @@ public class VariantVcfFactory implements VariantFactory {
         for (String var : info.split(";")) {
             String[] splits = var.split("=");
             if (splits.length == 2) {
-                file.getAttributes().put(splits[0], splits[1]);
+                file.getData().put(splits[0], splits[1]);
 //                switch (splits[0]) {
 //                    case "ACC":
 //                        // Managing accession ID for the allele
@@ -259,7 +260,7 @@ public class VariantVcfFactory implements VariantFactory {
 //                        break;
 //                }
             } else {
-                file.getAttributes().put(splits[0], "");
+                file.getData().put(splits[0], "");
             }
         }
     }

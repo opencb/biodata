@@ -49,13 +49,16 @@ public class VariantAvroToVariantContextConverter extends VariantContextConverte
 
         StudyEntry studyEntry = getStudy(variant);
         List<Map<String, String>> fileAttributes = studyEntry.getFiles().stream()
-                .map(FileEntry::getAttributes)
+                .map(FileEntry::getData)
                 .collect(Collectors.toList());
 
         // CHROM START END REFERENCE ALTERNATE
         String chromosome = variant.getChromosome();
         VariantType type = variant.getType();
-        Map<Integer, Character> referenceAlleles = buildReferenceAllelesMap(studyEntry.getFiles().stream().map(FileEntry::getCall).iterator());
+        Map<Integer, Character> referenceAlleles = buildReferenceAllelesMap(studyEntry.getFiles()
+                .stream()
+                .map(entry -> entry.getCall() == null ? null : entry.getCall().getVariantId())
+                .iterator());
         Pair<Integer, Integer> adjustedStartEndPositions = adjustedVariantStart(variant, studyEntry, referenceAlleles);
         int start = adjustedStartEndPositions.getLeft();
         int end = adjustedStartEndPositions.getRight();
@@ -99,7 +102,7 @@ public class VariantAvroToVariantContextConverter extends VariantContextConverte
         }
 
         // SAMPLES
-        List<Genotype> genotypes = getGenotypes(alleleList, studyEntry.getFormat(), getSampleData);
+        List<Genotype> genotypes = getGenotypes(alleleList, studyEntry.getSampleDataKeys(), getSampleData);
 
         return makeVariantContext(chromosome, start, end, idForVcf, alleleList, isNoVariation, filters, qual, attributes, genotypes);
     }
@@ -190,23 +193,22 @@ public class VariantAvroToVariantContextConverter extends VariantContextConverte
         if (studyEntry.getStats() == null || studyEntry.getStats().size() == 0) {
             return;
         }
-        for (Map.Entry<String, VariantStats> entry : studyEntry.getStats().entrySet()) {
-            String cohortName = entry.getKey();
-            VariantStats stats = entry.getValue();
+        for (VariantStats stats : studyEntry.getStats()) {
+            String cohortId = stats.getCohortId();
 
-            if (cohortName.equals(StudyEntry.DEFAULT_COHORT)) {
-                cohortName = "";
+            if (cohortId.equals(StudyEntry.DEFAULT_COHORT)) {
+                cohortId = "";
                 int an = stats.getAltAlleleCount();
                 if (an >= 0) {
-                    attributes.put(cohortName + VCFConstants.ALLELE_NUMBER_KEY, String.valueOf(an));
+                    attributes.put(cohortId + VCFConstants.ALLELE_NUMBER_KEY, String.valueOf(an));
                 }
                 if (stats.getAltAlleleCount() >= 0) {
-                    attributes.put(cohortName + VCFConstants.ALLELE_COUNT_KEY, String.valueOf(stats.getAltAlleleCount()));
+                    attributes.put(cohortId + VCFConstants.ALLELE_COUNT_KEY, String.valueOf(stats.getAltAlleleCount()));
                 }
             } else {
-                cohortName = cohortName + "_";
+                cohortId = cohortId + "_";
             }
-            attributes.put(cohortName + VCFConstants.ALLELE_FREQUENCY_KEY, DECIMAL_FORMAT_7.format(stats.getAltAlleleFreq()));
+            attributes.put(cohortId + VCFConstants.ALLELE_FREQUENCY_KEY, DECIMAL_FORMAT_7.format(stats.getAltAlleleFreq()));
         }
     }
 
@@ -217,20 +219,18 @@ public class VariantAvroToVariantContextConverter extends VariantContextConverte
         }
 
         List<String> statsList = new ArrayList<>();
-        for (Map.Entry<String, VariantStats> entry : studyEntry.getStats().entrySet()) {
-            String cohortName = entry.getKey();
-            VariantStats stats = entry.getValue();
-
-//            if (cohortName.equals(StudyEntry.DEFAULT_COHORT)) {
+        for (VariantStats stats : studyEntry.getStats()) {
+            String cohortId = stats.getCohortId();
+//            if (cohortId.equals(StudyEntry.DEFAULT_COHORT)) {
 //                int an = stats.getAltAlleleCount() + stats.getRefAlleleCount();
 //                if (an >= 0) {
-//                    attributes.put(cohortName + VCFConstants.ALLELE_NUMBER_KEY, String.valueOf(an));
+//                    attributes.put(cohortId + VCFConstants.ALLELE_NUMBER_KEY, String.valueOf(an));
 //                }
 //                if (stats.getAltAlleleCount() >= 0) {
-//                    attributes.put(cohortName + VCFConstants.ALLELE_COUNT_KEY, String.valueOf(stats.getAltAlleleCount()));
+//                    attributes.put(cohortId + VCFConstants.ALLELE_COUNT_KEY, String.valueOf(stats.getAltAlleleCount()));
 //                }
 //            }
-            statsList.add(cohortName + ":" + DECIMAL_FORMAT_7.format(stats.getAltAlleleFreq()));
+            statsList.add(cohortId + ":" + DECIMAL_FORMAT_7.format(stats.getAltAlleleFreq()));
         }
         // set cohort stats attributes
         attributes.put(STATS_INFO_KEY, String.join(FIELD_SEPARATOR, statsList));
@@ -478,18 +478,6 @@ public class VariantAvroToVariantContextConverter extends VariantContextConverte
         attributes.put(ANNOTATION_INFO_KEY, stringBuilder.toString());
 //        infoAnnotations.put("CSQ", stringBuilder.toString().replaceAll("&|$", ""));
         return attributes;
-    }
-
-    protected static String[] getOri(StudyEntry studyEntry) {
-
-        List<FileEntry> files = studyEntry.getFiles();
-        if (!files.isEmpty()) {
-            String call = files.get(0).getCall();
-            if (call != null && !call.isEmpty()) {
-                return call.split(":");
-            }
-        }
-        return null;
     }
 
     @Override

@@ -30,7 +30,7 @@ public class VariantStatsPedigree {
         double mendelianErrors = 0;
 
 
-        Integer gtIdx = study.getFormatPositions().get("GT");
+        Integer gtIdx = study.getSampleDataKeyPosition("GT");
         LinkedHashMap<String, Integer> samplesPosition = study.getSamplesPosition();
 
         Map<String, Genotype> gts = new TreeMap<>(String::compareTo);
@@ -39,7 +39,7 @@ public class VariantStatsPedigree {
             if (sampleIdx == null) {
                 continue;
             }
-            String genotype = study.getSamplesData().get(sampleIdx).get(gtIdx);
+            String genotype = study.getSamples().get(sampleIdx).getData().get(gtIdx);
             Genotype g = gts.computeIfAbsent(genotype, key -> new Genotype(genotype));
 
             // Include statistics that depend on pedigree information

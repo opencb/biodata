@@ -98,14 +98,14 @@ public class VariantContextToVariantConverterTest {
             assertEquals("-0.05,-0.95,-5.00", variant.getStudy(studyId).getSampleData(sampleNames.get(1), "GL"));
             assertEquals("-0.02,-1.45,-5.00", variant.getStudy(studyId).getSampleData(sampleNames.get(2), "GL"));
 
-            assertEquals("PASS", variant.getStudy(studyId).getFile(studyId).getAttributes().get(StudyEntry.FILTER));
-            assertEquals(new HashSet<>(Arrays.asList("GT", "DS", "GL")), new HashSet<>(variant.getStudy(studyId).getFormat()));
+            assertEquals("PASS", variant.getStudy(studyId).getFile(studyId).getData().get(StudyEntry.FILTER));
+            assertEquals(new HashSet<>(Arrays.asList("GT", "DS", "GL")), new HashSet<>(variant.getStudy(studyId).getSampleDataKeys()));
         };
         VariantContext variantContext = vcfCodec.decode(vcfLine);
 
-        VariantContextToVariantConverter converter = new VariantContextToVariantConverter(studyId, studyId);
+        VariantContextToVariantConverter converter = new VariantContextToVariantConverter(studyId, studyId, sampleNames);
         Variant variant = converter.convert(variantContext);
-        assertEquals(Arrays.asList(sampleNames.get(1), sampleNames.get(0), sampleNames.get(2)),
+        assertEquals(sampleNames,
                 new LinkedList<>(variant.getStudy(studyId).getSamplesPosition().keySet()));
         checkVariant.accept(variant);
 
@@ -128,7 +128,7 @@ public class VariantContextToVariantConverterTest {
         VariantContextToVariantConverter converter = new VariantContextToVariantConverter(studyId, studyId, Collections.emptyList());
         Variant variant = converter.convert(variantContext);
 
-        assertEquals(".", variant.getStudy(studyId).getFile(studyId).getAttributes().get(StudyEntry.FILTER));
+        assertEquals(".", variant.getStudy(studyId).getFile(studyId).getData().get(StudyEntry.FILTER));
 
     }
 
@@ -144,7 +144,7 @@ public class VariantContextToVariantConverterTest {
         VariantContextToVariantConverter converter = new VariantContextToVariantConverter(studyId, studyId, Collections.emptyList());
         Variant variant = converter.convert(variantContext);
 
-        assertEquals("GT:AD", variant.getStudy(studyId).getFormatAsString());
+        assertEquals("GT:AD", variant.getStudy(studyId).getSampleDataKeysAsString());
 
     }
 
@@ -255,7 +255,7 @@ public class VariantContextToVariantConverterTest {
         VCFHeader fileHeader = reader.getFileHeader();
 
         //Task
-        VariantContextToVariantConverter converter = new VariantContextToVariantConverter(studyId, fileId);
+        VariantContextToVariantConverter converter = new VariantContextToVariantConverter(studyId, fileId, Collections.emptyList());
         VariantNormalizer normalizer = new VariantNormalizer();
 
         //Writer

@@ -32,6 +32,10 @@ import java.util.Map;
  */
 public class VariantStatsToPopulationFrequencyConverter {
 
+    public PopulationFrequency convert(String study, VariantStats stats, String reference, String alternate) {
+        return convert(study, stats.getCohortId(), stats, reference, alternate);
+    }
+
     public PopulationFrequency convert(String study, String population, VariantStats stats, String reference, String alternate) {
         Float refHomGenotypeFreq = 0F;
         Float hetGenotypeFreq = 0F;

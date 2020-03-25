@@ -60,19 +60,24 @@ public class VariantContextConverterTest {
         Variant origVariant = Variant.newBuilder(varStr)
                 .setStudyId("S")
                 .setFileId("F")
-                .setFormat("GT")
+                .setSampleDataKeys("GT")
                 .addSample("S1", "0/1").build();
 
         List<Variant> normalized = new VariantNormalizer().normalize(Collections.singletonList(origVariant), false);
         Variant v = normalized
                 .stream()
-                .filter(var -> StringUtils.endsWith(var.getStudies().get(0).getFiles().get(0).getCall(), "0"))
+                .filter(var -> var.getStudies().get(0).getFiles().get(0).getCall() != null)
+                .filter(var -> var.getStudies().get(0).getFiles().get(0).getCall().getAlleleIndex() == 0)
                 .findAny()
                 .orElse(origVariant);
 
         assertNotNull(v);
 
-        Map<Integer, Character> referenceMap = VariantContextConverter.buildReferenceAllelesMap(v.getStudies().get(0).getFiles().stream().map(FileEntry::getCall).iterator());
+        Map<Integer, Character> referenceMap = VariantContextConverter.buildReferenceAllelesMap(
+                v.getStudies().get(0).getFiles()
+                        .stream()
+                        .map(entry -> entry.getCall() == null ? null : entry.getCall().getVariantId())
+                        .iterator());
 
         Pair<Integer, Integer> adjustedRange = VariantAvroToVariantContextConverter.adjustedVariantStart(v, v.getStudy("S"), referenceMap);
         System.out.println("");

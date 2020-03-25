@@ -140,9 +140,9 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
 
     public void update(Variant variant) {
         StudyEntry studyEntry = variant.getStudies().get(0);
-        List<List<String>> samplesData = studyEntry.getSamplesData();
+        List<SampleEntry> samples = studyEntry.getSamples();
         update(variant, variant.getAnnotation(),
-                samplePos -> samplesData.get(samplePos).get(0),
+                samplePos -> samples.get(samplePos).getData().get(0),
                 samplePos -> getFileAttributes(studyEntry, samplePos).get(StudyEntry.QUAL),
                 samplePos -> getFileAttributes(studyEntry, samplePos).get(StudyEntry.FILTER),
                 studyEntry.getSamplesPosition());
@@ -347,7 +347,7 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
         if (fileEntry == null) {
             return Collections.emptyMap();
         } else {
-            return fileEntry.getAttributes();
+            return fileEntry.getData();
         }
     }
 

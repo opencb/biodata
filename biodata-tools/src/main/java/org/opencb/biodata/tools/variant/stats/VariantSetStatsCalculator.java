@@ -158,15 +158,15 @@ public class VariantSetStatsCalculator implements Task<Variant, Variant> {
 
         int numPass = 0;
         for (FileEntry file : files) {
-            Map<String, String> attributes = file.getAttributes();
+            Map<String, String> fileData = file.getData();
 
-            if (attributes.containsKey(StudyEntry.QUAL) && !(".").equals(attributes.get(StudyEntry.QUAL))) {
-                float qual = Float.valueOf(attributes.get(StudyEntry.QUAL));
+            if (fileData.containsKey(StudyEntry.QUAL) && !(".").equals(fileData.get(StudyEntry.QUAL))) {
+                float qual = Float.valueOf(fileData.get(StudyEntry.QUAL));
                 qualCount++;
                 qualSum += qual;
                 qualSumSq += qual * qual;
             }
-            if ("PASS".equalsIgnoreCase(attributes.get(StudyEntry.FILTER))) {
+            if ("PASS".equalsIgnoreCase(fileData.get(StudyEntry.FILTER))) {
                 numPass++;
             }
         }

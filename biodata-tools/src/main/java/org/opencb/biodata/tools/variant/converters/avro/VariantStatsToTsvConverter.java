@@ -116,7 +116,7 @@ public class VariantStatsToTsvConverter implements Converter<Variant, String> {
         return sb.toString();
     }
 
-    public String convert(Variant variant, Map<String, VariantStats> statsMap, VariantAnnotation annotation) {
+    public String convert(Variant variant, List<VariantStats> statsList, VariantAnnotation annotation) {
         sb.setLength(0);
 
         sb.append(variant.getChromosome());
@@ -163,7 +163,7 @@ public class VariantStatsToTsvConverter implements Converter<Variant, String> {
         }
         for (Iterator<String> cohortIterator = cohorts.iterator(); cohortIterator.hasNext(); ) {
             String cohort = cohortIterator.next();
-            VariantStats stats = statsMap.get(cohort);
+            VariantStats stats = statsList.stream().filter(s -> s.getCohortId().equals(cohort)).findFirst().orElse(null);
             if (stats == null) {
                 for (int i = 0; i < STATS_COLUMNS.size() - 1; i++) {
                     sb.append(".\t");

@@ -25,6 +25,7 @@ import htsjdk.variant.vcf.VCFConstants;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantBuilder;
+import org.opencb.biodata.models.variant.avro.SampleEntry;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.protobuf.VariantProto;
 import org.opencb.biodata.tools.Converter;
@@ -158,9 +159,9 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
             // Do not use "getAttributeAsString" for lists.
             // It will add brackets surrounding the values
             if (variantContext.getAttribute(key, "") instanceof List) {
-                builder.addAttribute(key, variantContext.getAttributeAsList(key));
+                builder.addFileData(key, variantContext.getAttributeAsList(key));
             } else {
-                builder.addAttribute(key, variantContext.getAttributeAsString(key, ""));
+                builder.addFileData(key, variantContext.getAttributeAsString(key, ""));
             }
         }
 
@@ -204,7 +205,7 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
                 }
             }
         }
-        builder.setFormat(formatFields);
+        builder.setSampleDataKeys(formatFields);
 
         Map<Allele, String> allelesMap = getAlleleStringMap(variantContext);
 
@@ -213,10 +214,10 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
             logger.warn("Using alphabetical order for samples position!");
             samplesPosition = createSamplesPositionMap(variantContext.getSampleNamesOrderedByName());
         }
-        List<List<String>> sampleDataList = new ArrayList<>(samplesPosition.size());
+        List<SampleEntry> samples = new ArrayList<>(samplesPosition.size());
         for (String sampleName : samplesPosition.keySet()) {
             htsjdk.variant.variantcontext.Genotype genotype = variantContext.getGenotype(sampleName);
-            List<String> sampleList = new ArrayList<>(formatFields.size());
+            List<String> sampleData = new ArrayList<>(formatFields.size());
 
             for (String formatField : formatFields) {
                 final String value;
@@ -245,12 +246,12 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
                         }
                         break;
                 }
-                sampleList.add(value);
+                sampleData.add(value);
             }
-            sampleDataList.add(sampleList);
+            samples.add(new SampleEntry(null, null, sampleData));
         }
         builder.setSamplesPosition(samplesPosition);
-        builder.setSamplesData(sampleDataList);
+        builder.setSamples(samples);
 
         return builder;
     }

@@ -16,6 +16,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.opencb.biodata.models.variant.*;
+import org.opencb.biodata.models.variant.avro.SampleEntry;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfRecord;
 
@@ -38,10 +39,10 @@ public class VariantToVcfRecordTest {
                 .setFileId("file_123")
                 .setQuality(qual)
                 .setFilter(filter)
-                .addAttribute("X", "x")
-                .addAttribute("A", "ab")
-                .addAttribute(StudyEntry.SRC, ":src-stuff")
-                .setFormat(formatGt.split(VCFConstants.FORMAT_FIELD_SEPARATOR))
+                .addFileData("X", "x")
+                .addFileData("A", "ab")
+                .addFileData(StudyEntry.SRC, ":src-stuff")
+                .setSampleDataKeys(formatGt.split(VCFConstants.FORMAT_FIELD_SEPARATOR))
                 .addSample("Sample_0A", "0/0", "ab1", "ef1", "cd1")
                 .addSample("Sample_0B", "0/1", "ab2", "ef2", "cd2").build();
         v = Variant.newBuilder("4:1234565-1234568:X:A")
@@ -50,10 +51,10 @@ public class VariantToVcfRecordTest {
                 .setFileId("file_123")
                 .setQuality(qual)
                 .setFilter(filter)
-                .addAttribute("X", "x")
-                .addAttribute("A", "ab")
-                .addAttribute(StudyEntry.SRC, ":src-stuff")
-                .setFormat(format.split(VCFConstants.FORMAT_FIELD_SEPARATOR))
+                .addFileData("X", "x")
+                .addFileData("A", "ab")
+                .addFileData(StudyEntry.SRC, ":src-stuff")
+                .setSampleDataKeys(format.split(VCFConstants.FORMAT_FIELD_SEPARATOR))
                 .addSample("Sample_0A", "ab1", "ef1", "cd1")
                 .addSample("Sample_0B", "ab2", "ef2", "cd2").build();
     }
@@ -350,24 +351,22 @@ public class VariantToVcfRecordTest {
     @Test
     public void testDecodeSample() {
         VariantToProtoVcfRecord con = new VariantToProtoVcfRecord();
-        List<List<String>> data = new LinkedList<>();
+        List<SampleEntry> samples = new LinkedList<>();
 
-        data.add(Arrays.asList("a"));
-        Map<String, Integer> formatPositions = new HashMap<>();
-        formatPositions.put("A", 0);
-        formatPositions.put("B", 1);
+        samples.add(new SampleEntry(null, null, Arrays.asList("a")));
+        List<String> formatPositions = Arrays.asList("A", "B");
         assertEquals(
-                new ArrayList<>(con.encodeSamples(formatPositions, null, data).get(0).getSampleValuesList()),
+                new ArrayList<>(con.encodeSamples(formatPositions, null, samples).get(0).getSampleValuesList()),
                 Arrays.asList("a"));
 
-        data.set(0, Arrays.asList("a", "b"));
+        samples.set(0, new SampleEntry(null, null, Arrays.asList("a", "b")));
         assertEquals(
-                new ArrayList<>(con.encodeSamples(formatPositions, null, data).get(0).getSampleValuesList()),
+                new ArrayList<>(con.encodeSamples(formatPositions, null, samples).get(0).getSampleValuesList()),
                 Arrays.asList("a", "b"));
 
-        data.set(0, Arrays.asList("a", "b", "c"));
+        samples.set(0, new SampleEntry(null, null, Arrays.asList("a", "b", "c")));
         assertEquals(
-                new ArrayList<>(con.encodeSamples(formatPositions, null, data).get(0).getSampleValuesList()),
+                new ArrayList<>(con.encodeSamples(formatPositions, null, samples).get(0).getSampleValuesList()),
                 Arrays.asList("a", "b", "c"));
 
     }

@@ -25,6 +25,7 @@ import org.opencb.biodata.formats.variant.vcf4.VariantVcfFactory;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
+import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 
@@ -202,15 +203,15 @@ public class VariantVcfFactoryTest {
         var0.addStudyEntry(file0);
 
         // Initialize expected samples
-        Map<String, String> na001 = new HashMap<>();
+        Map<String, String> na001 = new LinkedHashMap<>();
         na001.put("GT", "0/0");
-        Map<String, String> na002 = new HashMap<>();
+        Map<String, String> na002 = new LinkedHashMap<>();
         na002.put("GT", "0/1");
-        Map<String, String> na003 = new HashMap<>();
+        Map<String, String> na003 = new LinkedHashMap<>();
         na003.put("GT", "0/.");
-        Map<String, String> na004 = new HashMap<>();
+        Map<String, String> na004 = new LinkedHashMap<>();
         na004.put("GT", "./1");
-        Map<String, String> na005 = new HashMap<>();
+        Map<String, String> na005 = new LinkedHashMap<>();
         na005.put("GT", "1/1");
 
         var0.getStudy(metadata.getId()).addSampleData(sampleNames.get(0), na001);
@@ -224,7 +225,7 @@ public class VariantVcfFactoryTest {
         assertEquals(1, result.size());
 
         Variant getVar0 = result.get(0);
-        assertEquals(var0.getStudy(metadata.getId()).getSamplesData(), getVar0.getStudy(metadata.getId()).getSamplesData());
+        assertEquals(var0.getStudy(metadata.getId()).getSamples(), getVar0.getStudy(metadata.getId()).getSamples());
     }
 
     @Test
@@ -248,25 +249,25 @@ public class VariantVcfFactoryTest {
 
 
         // Initialize expected samples in variant 1 (alt allele C)
-        Map<String, String> na001_C = new HashMap<>();
+        Map<String, String> na001_C = new LinkedHashMap<>();
         na001_C.put("GT", "0/1");
         na001_C.put("AD", "10,5,0");
         na001_C.put("DP", "17");
         na001_C.put("GQ", "94");
         na001_C.put("PL", "94,0,286,4,5,6");
-        Map<String, String> na002_C = new HashMap<>();
+        Map<String, String> na002_C = new LinkedHashMap<>();
         na002_C.put("GT", "0/2");
         na002_C.put("AD", "0,1,8");
         na002_C.put("DP", "15");
         na002_C.put("GQ", "43");
         na002_C.put("PL", "222,0,43,4,5,6");
-        Map<String, String> na003_C = new HashMap<>();
+        Map<String, String> na003_C = new LinkedHashMap<>();
         na003_C.put("GT", "0/0");
         na003_C.put("AD", ".");
         na003_C.put("DP", "18");
         na003_C.put("GQ", ".");
         na003_C.put("PL", ".");
-        Map<String, String> na004_C = new HashMap<>();
+        Map<String, String> na004_C = new LinkedHashMap<>();
         na004_C.put("GT", "1/2");
         na004_C.put("AD", "1,6,5");
         na004_C.put("DP", "13");
@@ -279,25 +280,25 @@ public class VariantVcfFactoryTest {
         var0.getStudy(metadata.getId()).addSampleData(sampleNames.get(3), na004_C);
 
         // Initialize expected samples in variant 2 (alt allele G)
-        Map<String, String> na001_G = new HashMap<>();
+        Map<String, String> na001_G = new LinkedHashMap<>();
         na001_G.put("GT", "0/2");
         na001_G.put("AD", "10,0,5");
         na001_G.put("DP", "17");
         na001_G.put("GQ", "94");
         na001_G.put("PL", "94,4,6,0,5,286");
-        Map<String, String> na002_G = new HashMap<>();
+        Map<String, String> na002_G = new LinkedHashMap<>();
         na002_G.put("GT", "0/1");
         na002_G.put("AD", "0,8,1");
         na002_G.put("DP", "15");
         na002_G.put("GQ", "43");
         na002_G.put("PL", "222,4,6,0,5,43");
-        Map<String, String> na003_G = new HashMap<>();
+        Map<String, String> na003_G = new LinkedHashMap<>();
         na003_G.put("GT", "0/0");
         na003_G.put("AD", ".");
         na003_G.put("DP", "18");
         na003_G.put("GQ", ".");
         na003_G.put("PL", ".");
-        Map<String, String> na004_G = new HashMap<>();
+        Map<String, String> na004_G = new LinkedHashMap<>();
         na004_G.put("GT", "2/1");
         na004_G.put("AD", "1,5,6");
         na004_G.put("DP", "13");
@@ -315,14 +316,14 @@ public class VariantVcfFactoryTest {
 
         Variant getVar0 = result.get(0);
         assertEquals(
-                var0.getStudy(metadata.getId()).getSamplesDataAsMap(),
-                getVar0.getStudy(metadata.getId()).getSamplesDataAsMap());
+                var0.getStudy(metadata.getId()).getSamples(),
+                getVar0.getStudy(metadata.getId()).getSamples());
         assertEquals(Collections.singletonList("G"), getVar0.getStudy(metadata.getId()).getSecondaryAlternatesAlleles());
 
         Variant getVar1 = result.get(1);
         assertEquals(
-                var1.getStudy(metadata.getId()).getSamplesDataAsMap(),
-                getVar1.getStudy(metadata.getId()).getSamplesDataAsMap());
+                var1.getStudy(metadata.getId()).getSamples(),
+                getVar1.getStudy(metadata.getId()).getSamples());
         assertEquals(Collections.singletonList("C"), getVar1.getStudy(metadata.getId()).getSecondaryAlternatesAlleles());
     }
 
@@ -348,22 +349,22 @@ public class VariantVcfFactoryTest {
         var1.addStudyEntry(file1);
 
         // Initialize expected samples in variant 1 (alt allele C)
-        Map<String, String> na001_C = new HashMap<>();
+        Map<String, String> na001_C = new LinkedHashMap<>();
         na001_C.put("GT", "0/0");
         na001_C.put("GL", "1,2,3,4,5,6");
-        Map<String, String> na002_C = new HashMap<>();
+        Map<String, String> na002_C = new LinkedHashMap<>();
         na002_C.put("GT", "0/1");
         na002_C.put("GL", "1,2,3,4,5,6");
-        Map<String, String> na003_C = new HashMap<>();
+        Map<String, String> na003_C = new LinkedHashMap<>();
         na003_C.put("GT", "0/2");
         na003_C.put("GL", "1,2,3,4,5,6");
-        Map<String, String> na004_C = new HashMap<>();
+        Map<String, String> na004_C = new LinkedHashMap<>();
         na004_C.put("GT", "1/1");
         na004_C.put("GL", "1,2,3,4,5,6");
-        Map<String, String> na005_C = new HashMap<>();
+        Map<String, String> na005_C = new LinkedHashMap<>();
         na005_C.put("GT", "1/2");
         na005_C.put("GL", "1,2,3,4,5,6");
-        Map<String, String> na006_C = new HashMap<>();
+        Map<String, String> na006_C = new LinkedHashMap<>();
         na006_C.put("GT", "2/2");
         na006_C.put("GL", "1,2,3,4,5,6");
 
@@ -375,22 +376,22 @@ public class VariantVcfFactoryTest {
         var0.getStudy(metadata.getId()).addSampleData(sampleNames.get(5), na006_C);
 
         // TODO Initialize expected samples in variant 2 (alt allele GC)
-        Map<String, String> na001_GC = new HashMap<>();
+        Map<String, String> na001_GC = new LinkedHashMap<>();
         na001_GC.put("GT", "0/0");
         na001_GC.put("GL", "1,4,6,2,5,3");
-        Map<String, String> na002_GC = new HashMap<>();
+        Map<String, String> na002_GC = new LinkedHashMap<>();
         na002_GC.put("GT", "0/2");
         na002_GC.put("GL", "1,4,6,2,5,3");
-        Map<String, String> na003_GC = new HashMap<>();
+        Map<String, String> na003_GC = new LinkedHashMap<>();
         na003_GC.put("GT", "0/1");
         na003_GC.put("GL", "1,4,6,2,5,3");
-        Map<String, String> na004_GC = new HashMap<>();
+        Map<String, String> na004_GC = new LinkedHashMap<>();
         na004_GC.put("GT", "2/2");
         na004_GC.put("GL", "1,4,6,2,5,3");
-        Map<String, String> na005_GC = new HashMap<>();
+        Map<String, String> na005_GC = new LinkedHashMap<>();
         na005_GC.put("GT", "2/1");
         na005_GC.put("GL", "1,4,6,2,5,3");
-        Map<String, String> na006_GC = new HashMap<>();
+        Map<String, String> na006_GC = new LinkedHashMap<>();
         na006_GC.put("GT", "1/1");
         na006_GC.put("GL", "1,4,6,2,5,3");
 
@@ -407,14 +408,14 @@ public class VariantVcfFactoryTest {
 
         Variant getVar0 = result.get(0);
         assertEquals(
-                var0.getStudy(metadata.getId()).getSamplesDataAsMap(),
-                getVar0.getStudy(metadata.getId()).getSamplesDataAsMap());
+                var0.getStudy(metadata.getId()).getSamples(),
+                getVar0.getStudy(metadata.getId()).getSamples());
         assertEquals(Collections.singletonList("GC"), getVar0.getStudy(metadata.getId()).getSecondaryAlternatesAlleles());
 
         Variant getVar1 = result.get(1);
         assertEquals(
-                var1.getStudy(metadata.getId()).getSamplesDataAsMap(),
-                getVar1.getStudy(metadata.getId()).getSamplesDataAsMap());
+                var1.getStudy(metadata.getId()).getSamples(),
+                getVar1.getStudy(metadata.getId()).getSamples());
         assertEquals(Collections.singletonList("C"), getVar1.getStudy(metadata.getId()).getSecondaryAlternatesAlleles());
     }
 
@@ -430,25 +431,25 @@ public class VariantVcfFactoryTest {
         var0.addStudyEntry(file0);
 
         // Initialize expected samples
-        Map<String, String> na001 = new HashMap<>();
+        Map<String, String> na001 = new LinkedHashMap<>();
         na001.put("GT", "./.");
         na001.put("AD", ".");
         na001.put("DP", ".");
         na001.put("GQ", ".");
         na001.put("PL", ".");
-        Map<String, String> na002 = new HashMap<>();
+        Map<String, String> na002 = new LinkedHashMap<>();
         na002.put("GT", "1/1");
         na002.put("AD", "0,2");
         na002.put("DP", "2");
         na002.put("GQ", "6");
         na002.put("PL", "71,6,0");
-        Map<String, String> na003 = new HashMap<>();
+        Map<String, String> na003 = new LinkedHashMap<>();
         na003.put("GT", "./.");
         na003.put("AD", ".");
         na003.put("DP", ".");
         na003.put("GQ", ".");
         na003.put("PL", ".");
-        Map<String, String> na004 = new HashMap<>();
+        Map<String, String> na004 = new LinkedHashMap<>();
         na004.put("GT", "./.");
         na004.put("AD", ".");
         na004.put("DP", ".");
@@ -466,35 +467,31 @@ public class VariantVcfFactoryTest {
         assertEquals(1, result.size());
 
         Variant getVar0 = result.get(0);
-        StudyEntry getFile0 = getVar0.getStudy(metadata.getId());
+        StudyEntry study = getVar0.getStudy(metadata.getId());
 
-        Map<String, String> na001Data = getFile0.getSampleDataAsMap("NA001");
-        assertEquals("./.", na001Data.get("GT"));
-        assertEquals(".", na001Data.get("AD"));
-        assertEquals(".", na001Data.get("DP"));
-        assertEquals(".", na001Data.get("GQ"));
-        assertEquals(".", na001Data.get("PL"));
+        assertEquals("./.", study.getSampleData("NA001", "GT"));
+        assertEquals(".", study.getSampleData("NA001", "AD"));
+        assertEquals(".", study.getSampleData("NA001", "DP"));
+        assertEquals(".", study.getSampleData("NA001", "GQ"));
+        assertEquals(".", study.getSampleData("NA001", "PL"));
 
-        Map<String, String> na002Data = getFile0.getSampleDataAsMap("NA002");
-        assertEquals("1/1", na002Data.get("GT"));
-        assertEquals("0,2", na002Data.get("AD"));
-        assertEquals("2", na002Data.get("DP"));
-        assertEquals("6", na002Data.get("GQ"));
-        assertEquals("71,6,0", na002Data.get("PL"));
+        assertEquals("1/1", study.getSampleData("NA002", "GT"));
+        assertEquals("0,2", study.getSampleData("NA002", "AD"));
+        assertEquals("2", study.getSampleData("NA002", "DP"));
+        assertEquals("6", study.getSampleData("NA002", "GQ"));
+        assertEquals("71,6,0", study.getSampleData("NA002", "PL"));
 
-        Map<String, String> na003Data = getFile0.getSampleDataAsMap("NA003");
-        assertEquals("./.", na003Data.get("GT"));
-        assertEquals(".", na003Data.get("AD"));
-        assertEquals(".", na003Data.get("DP"));
-        assertEquals(".", na003Data.get("GQ"));
-        assertEquals(".", na003Data.get("PL"));
+        assertEquals("./.", study.getSampleData("NA003", "GT"));
+        assertEquals(".", study.getSampleData("NA003", "AD"));
+        assertEquals(".", study.getSampleData("NA003", "DP"));
+        assertEquals(".", study.getSampleData("NA003", "GQ"));
+        assertEquals(".", study.getSampleData("NA003", "PL"));
 
-        Map<String, String> na004Data = getFile0.getSampleDataAsMap("NA004");
-        assertEquals("./.", na004Data.get("GT"));
-        assertEquals(".", na004Data.get("AD"));
-        assertEquals(".", na004Data.get("DP"));
-        assertEquals(".", na004Data.get("GQ"));
-        assertEquals(".", na004Data.get("PL"));
+        assertEquals("./.", study.getSampleData("NA004", "GT"));
+        assertEquals(".", study.getSampleData("NA004", "AD"));
+        assertEquals(".", study.getSampleData("NA004", "DP"));
+        assertEquals(".", study.getSampleData("NA004", "GQ"));
+        assertEquals(".", study.getSampleData("NA004", "PL"));
     }
 
     @Test
@@ -515,25 +512,25 @@ public class VariantVcfFactoryTest {
 
 
         // Initialize expected samples
-        Map<String, String> na001 = new HashMap<>();
+        Map<String, String> na001 = new LinkedHashMap<>();
         na001.put("GT", "0/1");
         na001.put("AD", "10,5");
         na001.put("DP", "17");
         na001.put("GQ", "94");
         na001.put("PL", "94,0,286");
-        Map<String, String> na002 = new HashMap<>();
+        Map<String, String> na002 = new LinkedHashMap<>();
         na002.put("GT", "0/1");
         na002.put("AD", "3,8");
         na002.put("DP", "15");
         na002.put("GQ", "43");
         na002.put("PL", "222,0,43");
-        Map<String, String> na003 = new HashMap<>();
+        Map<String, String> na003 = new LinkedHashMap<>();
         na003.put("GT", "0/0");
         na003.put("AD", ".");
         na003.put("DP", "18");
         na003.put("GQ", ".");
         na003.put("PL", ".");
-        Map<String, String> na004 = new HashMap<>();
+        Map<String, String> na004 = new LinkedHashMap<>();
         na004.put("GT", "0/1");
         na004.put("AD", "7,6");
         na004.put("DP", "13");
@@ -557,23 +554,25 @@ public class VariantVcfFactoryTest {
 
         Variant variant0 = result.get(0);
         StudyEntry study0 = variant0.getStudy(metadata.getId());
-        assertEquals(4, Integer.parseInt(study0.getAttribute("NS")));
-//        assertEquals(2, Integer.parseInt(study0.getAttribute("AN")));
-        assertEquals(1, Integer.parseInt(study0.getAttribute("AC").split(",")[0]));
-        assertEquals(0.125, Double.parseDouble(study0.getAttribute("AF").split(",")[0]), 1e-8);
-        assertEquals(63, Integer.parseInt(study0.getAttribute("DP")));
-        assertEquals(10685, Integer.parseInt(study0.getAttribute("MQ")));
-//        assertEquals(1, Integer.parseInt(study0.getAttribute("MQ0")));
+        Map<String, String> data0 = study0.getFile(0).getData();
+        assertEquals(4, Integer.parseInt(data0.get("NS")));
+//        assertEquals(2, Integer.parseInt(data0.get("AN")));
+        assertEquals(1, Integer.parseInt(data0.get("AC").split(",")[0]));
+        assertEquals(0.125, Double.parseDouble(data0.get("AF").split(",")[0]), 1e-8);
+        assertEquals(63, Integer.parseInt(data0.get("DP")));
+        assertEquals(10685, Integer.parseInt(data0.get("MQ")));
+//        assertEquals(1, Integer.parseInt(data0.get("MQ0")));
 
         Variant variant1 = result.get(1);
         StudyEntry study1 = variant1.getStudy(metadata.getId());
-        assertEquals(4, Integer.parseInt(study1.getAttribute("NS")));
-//        assertEquals(2, Integer.parseInt(study1.getAttribute("AN")));
-        assertEquals(2, Integer.parseInt(study1.getAttribute("AC").split(",")[0]));
-        assertEquals(0.25, Double.parseDouble(study1.getAttribute("AF").split(",")[0]), 1e-8);
-        assertEquals(63, Integer.parseInt(study1.getAttribute("DP")));
-        assertEquals(10685, Integer.parseInt(study1.getAttribute("MQ")));
-//        assertEquals(1, Integer.parseInt(study1.getAttribute("MQ0")));
+        Map<String, String> data1 = study1.getFile(0).getData();
+        assertEquals(4, Integer.parseInt(data1.get("NS")));
+//        assertEquals(2, Integer.parseInt(data1.get("AN")));
+        assertEquals(2, Integer.parseInt(data1.get("AC").split(",")[0]));
+        assertEquals(0.25, Double.parseDouble(data1.get("AF").split(",")[0]), 1e-8);
+        assertEquals(63, Integer.parseInt(data1.get("DP")));
+        assertEquals(10685, Integer.parseInt(data1.get("MQ")));
+//        assertEquals(1, Integer.parseInt(data1.get("MQ0")));
     }
 
     private List<Variant> createAndNormalize(String line) {

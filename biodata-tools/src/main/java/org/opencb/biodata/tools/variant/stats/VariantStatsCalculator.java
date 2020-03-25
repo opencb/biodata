@@ -44,7 +44,7 @@ public class VariantStatsCalculator {
     public static VariantStats calculate(Variant variant, StudyEntry study, Collection<String> sampleNames) {
         VariantStats variantStats = new VariantStats();
 
-        Integer gtIdx = study.getFormatPositions().get("GT");
+        Integer gtIdx = study.getSampleDataKeyPosition("GT");
         LinkedHashMap<String, Integer> samplesPosition = study.getSamplesPosition();
 
         Map<Genotype, Integer> gtCount = new HashMap<>();
@@ -54,7 +54,7 @@ public class VariantStatsCalculator {
             if (sampleIdx == null) {
                 continue;
             }
-            String genotype = study.getSamplesData().get(sampleIdx).get(gtIdx);
+            String genotype = study.getSamples().get(sampleIdx).getData().get(gtIdx);
             Genotype g = gts.computeIfAbsent(genotype, key -> new Genotype(genotype));
             gtCount.compute(g, (s, prev) -> prev == null ? 1 : prev + 1);
 
@@ -66,12 +66,12 @@ public class VariantStatsCalculator {
         int numQualFiles = 0;
         double qualSum = 0;
         for (FileEntry file : study.getFiles()) {
-            String filter = file.getAttributes().get(StudyEntry.FILTER);
+            String filter = file.getData().get(StudyEntry.FILTER);
             if (StringUtils.isNotEmpty(filter)) {
                 addFileFilter(filter, variantStats.getFilterCount());
                 numFilterFiles++;
             }
-            String qual = file.getAttributes().get(StudyEntry.QUAL);
+            String qual = file.getData().get(StudyEntry.QUAL);
             if (StringUtils.isNotEmpty(qual) && !qual.equals(".")) {
                 qualSum += Double.parseDouble(qual);
                 numQualFiles++;
@@ -257,7 +257,8 @@ public class VariantStatsCalculator {
         for (Variant variant : variants) {
             for (StudyEntry entry : variant.getStudies()) {
                 VariantStats stats = calculate(variant, entry);
-                entry.setStats(StudyEntry.DEFAULT_COHORT, stats);
+                stats.setCohortId(StudyEntry.DEFAULT_COHORT);
+                entry.addStats(stats);
             }
         }
     }

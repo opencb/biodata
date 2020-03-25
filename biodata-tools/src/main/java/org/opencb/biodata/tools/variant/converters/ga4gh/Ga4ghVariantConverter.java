@@ -154,9 +154,9 @@ public class Ga4ghVariantConverter<V> implements Converter<Variant, V> {
         int fileIdx = 0;
         for (FileEntry file : files) {
             fileIds.add(file.getFileId() == null ? "" : file.getFileId());
-            ori.add(file.getCall() == null ? "" : file.getCall());
-            Map<String, String> attributes = file.getAttributes();
-            for (Map.Entry<String, String> field : attributes.entrySet()) {
+            ori.add(file.getCall() == null ? "" : file.getCall().getVariantId());
+            Map<String, String> fileData = file.getData();
+            for (Map.Entry<String, String> field : fileData.entrySet()) {
                 List<String> value;
                 if (parsedInfo.containsKey(field.getKey())) {
                     value = parsedInfo.get(field.getKey());
@@ -198,7 +198,7 @@ public class Ga4ghVariantConverter<V> implements Converter<Variant, V> {
             List<Double> genotypeLikelihood = Collections.emptyList();
             String phaseSet = "";
 
-            for (String formatField : study.getFormat()) {
+            for (String formatField : study.getSampleDataKeys()) {
                 String sampleData = study.getSampleData(sample, formatField);
                 switch (formatField) {
                     case "GT":

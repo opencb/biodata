@@ -23,6 +23,7 @@ import com.google.protobuf.ProtocolStringList;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.FileEntry;
+import org.opencb.biodata.models.variant.avro.SampleEntry;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
 import org.opencb.biodata.tools.Converter;
 
@@ -111,9 +112,9 @@ public class VariantToVcfSliceConverter implements Converter<List<Variant>, VcfS
                 if (!includeNoneFormats) {
                     String formatAsString;
                     if (includeAllFormats) {
-                        formatAsString = studyEntry.getFormatAsString();
+                        formatAsString = studyEntry.getSampleDataKeysAsString();
                     } else {
-                        formatAsString = studyEntry.getFormat()
+                        formatAsString = studyEntry.getSampleDataKeys()
                                 .stream()
                                 .filter(formatFields::contains)
                                 .collect(Collectors.joining(":"));
@@ -123,11 +124,11 @@ public class VariantToVcfSliceConverter implements Converter<List<Variant>, VcfS
 
                 if (!includeNoneAttributes) {
                     for (FileEntry fileEntry : studyEntry.getFiles()) {
-                        Map<String, String> attributes = fileEntry.getAttributes();
-                        List<String> keySet = attributes.keySet().stream().sorted().collect(Collectors.toList());
+                        Map<String, String> fileData = fileEntry.getData();
+                        List<String> keySet = fileData.keySet().stream().sorted().collect(Collectors.toList());
                         keySets.merge(keySet, 1, Integer::sum);
 
-                        for (Map.Entry<String, String> entry : attributes.entrySet()) {
+                        for (Map.Entry<String, String> entry : fileData.entrySet()) {
                             String key = entry.getKey();
                             if (includeAllAttributes || attributeFields.contains(key)) {
                                 switch (key) {
@@ -151,10 +152,10 @@ public class VariantToVcfSliceConverter implements Converter<List<Variant>, VcfS
                     }
                 }
 
-                Integer gtPosition = studyEntry.getFormatPositions().get("GT");
+                Integer gtPosition = studyEntry.getSampleDataKeyPosition("GT");
                 if (gtPosition != null) {
-                    for (List<String> sampleData : studyEntry.getSamplesData()) {
-                        String gt = sampleData.get(gtPosition);
+                    for (SampleEntry sample : studyEntry.getSamples()) {
+                        String gt = sample.getData().get(gtPosition);
 //                        gts.put(gt, gts.getOrDefault(gt, 0) + 1);
                         gts.merge(gt, 1, Integer::sum);
                     }

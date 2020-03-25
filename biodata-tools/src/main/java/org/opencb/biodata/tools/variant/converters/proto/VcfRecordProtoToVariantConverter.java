@@ -21,9 +21,7 @@ package org.opencb.biodata.tools.variant.converters.proto;
 
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
-import org.opencb.biodata.models.variant.avro.FileEntry;
-import org.opencb.biodata.models.variant.avro.VariantType;
+import org.opencb.biodata.models.variant.avro.*;
 import org.opencb.biodata.models.variant.protobuf.VariantProto;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
 import org.opencb.biodata.tools.Converter;
@@ -84,24 +82,28 @@ public class VcfRecordProtoToVariantConverter implements Converter<VcfSliceProto
 
         FileEntry fileEntry = new FileEntry();
         fileEntry.setFileId(fileId);
-        Map<String, String> attributes = getFileAttributes(vcfRecord);
-        fileEntry.setAttributes(attributes);
-        fileEntry.setCall(vcfRecord.getCall().isEmpty() ? null : vcfRecord.getCall());
+        Map<String, String> fileData = getFileData(vcfRecord);
+        fileEntry.setData(fileData);
+        if (!vcfRecord.getCall().isEmpty()) {
+            int idx = vcfRecord.getCall().lastIndexOf(":");
+            OriginalCall call = new OriginalCall(
+                    vcfRecord.getCall().substring(0, idx),
+                    Integer.valueOf(vcfRecord.getCall().substring(idx + 1)));
+            fileEntry.setCall(call);
+        }
         if (vcfRecord.getType().equals(VariantProto.VariantType.NO_VARIATION)) {
-            attributes.put("END", Integer.toString(end));
+            fileData.put("END", Integer.toString(end));
         }
 
         StudyEntry studyEntry = new StudyEntry(studyId);
         studyEntry.setFiles(Collections.singletonList(fileEntry));
-        studyEntry.setFormat(getFormat(vcfRecord));
-        studyEntry.setSamplesData(getSamplesData(vcfRecord, studyEntry.getFormatPositions()));
+        studyEntry.setSampleDataKeys(getFormat(vcfRecord));
+        studyEntry.setSamples(getSamples(vcfRecord, studyEntry.getSampleDataKeys()));
         studyEntry.setSamplesPosition(retrieveSamplePosition());
-        studyEntry.getFormatPositions(); // Initialize the map
 
         List<VariantProto.AlternateCoordinate> alts = vcfRecord.getSecondaryAlternatesList();
         studyEntry.setSecondaryAlternates(getAlternateCoordinates(alts));
         variant.addStudyEntry(studyEntry);
-        studyEntry.getFormatPositions(); // Initialize the map
 
         return variant;
     }
@@ -128,15 +130,15 @@ public class VcfRecordProtoToVariantConverter implements Converter<VcfSliceProto
         return end;
     }
 
-    private List<List<String>> getSamplesData(VcfSliceProtos.VcfRecord vcfRecord, Map<String, Integer> formatPositions) {
-        List<List<String>> samplesData = new ArrayList<>(vcfRecord.getSamplesCount());
-        Integer gtPosition = formatPositions.get("GT");
+    private List<SampleEntry> getSamples(VcfSliceProtos.VcfRecord vcfRecord, List<String> sampleDataKeys) {
+        List<SampleEntry> samples = new ArrayList<>(vcfRecord.getSamplesCount());
+        Integer gtPosition = !sampleDataKeys.isEmpty() && sampleDataKeys.get(0).equals("GT") ? 0 : null;
         if (gtPosition == null) {
             for (VcfSliceProtos.VcfSample vcfSample : vcfRecord.getSamplesList()) {
                 if (vcfSample.getSampleValuesCount() == 0) {
-                    samplesData.add(vcfSample.getSampleValuesList());
+                    samples.add(new SampleEntry(null, null, vcfSample.getSampleValuesList()));
                 } else {
-                    samplesData.add(Collections.emptyList());
+                    samples.add(new SampleEntry(null, null, Collections.emptyList()));
                 }
             }
         } else {
@@ -144,20 +146,20 @@ public class VcfRecordProtoToVariantConverter implements Converter<VcfSliceProto
                 throw new IllegalArgumentException("GT must be in the first position or missing");
             }
             for (VcfSliceProtos.VcfSample vcfSample : vcfRecord.getSamplesList()) {
-                List<String> data = new ArrayList<>(formatPositions.size());
+                List<String> data = new ArrayList<>(sampleDataKeys.size());
                 data.add(fields.getGts(vcfSample.getGtIndex()));
                 if (vcfSample.getSampleValuesCount() > 0) {
                     data.addAll(vcfSample.getSampleValuesList());
                 }
-                samplesData.add(data);
+                samples.add(new SampleEntry(null, null, data));
             }
         }
 
-        return samplesData;
+        return samples;
     }
 
-    private Map<String, String> getFileAttributes(VcfSliceProtos.VcfRecord vcfRecord) {
-        Map<String, String> attributes = new HashMap<>(vcfRecord.getInfoKeyIndexCount());
+    private Map<String, String> getFileData(VcfSliceProtos.VcfRecord vcfRecord) {
+        Map<String, String> fileData = new HashMap<>(vcfRecord.getInfoKeyIndexCount());
         Iterator<Integer> keyIdxIterator;
         if (vcfRecord.getInfoKeyIndexCount() != vcfRecord.getInfoValueCount()) {
             if (fields.getDefaultInfoKeysCount() != vcfRecord.getInfoValueCount()) {
@@ -170,20 +172,20 @@ public class VcfRecordProtoToVariantConverter implements Converter<VcfSliceProto
         Iterator<String> valueIterator = vcfRecord.getInfoValueList().iterator();
 
         while (keyIdxIterator.hasNext()) {
-            attributes.put(fields.getInfoKeys(keyIdxIterator.next()), valueIterator.next());
+            fileData.put(fields.getInfoKeys(keyIdxIterator.next()), valueIterator.next());
         }
 
         String quality = getQuality(vcfRecord);
         if (quality != null) {
-            attributes.put(StudyEntry.QUAL, quality);
+            fileData.put(StudyEntry.QUAL, quality);
         }
 
         String filter = getFilter(vcfRecord);
         if (filter != null) {
-            attributes.put(StudyEntry.FILTER, filter);
+            fileData.put(StudyEntry.FILTER, filter);
         }
 
-        return attributes;
+        return fileData;
     }
 
     private String getQuality(VcfSliceProtos.VcfRecord vcfRecord) {

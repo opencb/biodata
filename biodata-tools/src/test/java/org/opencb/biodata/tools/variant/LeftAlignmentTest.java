@@ -947,7 +947,7 @@ public class LeftAlignmentTest  extends VariantNormalizerGenericTest{
         this.normalizer.setDecomposeMNVs(false);
         Variant variant = Variant.newBuilder("2:110855123:GCAGGGGCCG:TCAGGGGCCA,TCAGGGGCCG")
                 .setStudyId("s").setFileId("f")
-                .setFormat("GT", "AD")
+                .setSampleDataKeys("GT", "AD")
                 .addSample("S1", "0/0", "1,2,8")
                 .addSample("S2", "1/2", "3,4,8")
                 .addSample("S3", "2/2", "5,6,8")

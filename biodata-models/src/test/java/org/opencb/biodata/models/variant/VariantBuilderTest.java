@@ -73,7 +73,7 @@ public class VariantBuilderTest {
     public void buildSVDeletion() {
         Variant v = new VariantBuilder("1:1000:A:<DEL>")
                 .setStudyId("1")
-                .addAttribute("END", 1100)
+                .addFileData("END", 1100)
                 .build();
 
         assertEquals("A", v.getReference());
@@ -90,7 +90,7 @@ public class VariantBuilderTest {
         String alt = RandomStringUtils.random(length - 1, 'A', 'C', 'G', 'T');
         Variant v = new VariantBuilder("1:1000:A:<INS>")
                 .setStudyId("1")
-                .addAttribute("SVINSSEQ", alt)
+                .addFileData("SVINSSEQ", alt)
                 .build();
 
         assertEquals(VariantType.INSERTION, v.getType());
@@ -99,7 +99,7 @@ public class VariantBuilderTest {
         assertEquals(length, v.getLength().intValue());
         assertEquals(length, v.getLengthAlternate().intValue());
         assertEquals(1, v.getLengthReference().intValue());
-        assertEquals("1000:A:<INS>:0", v.getStudies().get(0).getFiles().get(0).getCall());
+        assertEquals(new OriginalCall("1:1000:A:<INS>", 0), v.getStudies().get(0).getFiles().get(0).getCall());
 
     }
 
@@ -126,8 +126,8 @@ public class VariantBuilderTest {
         String rightSeq = RandomStringUtils.random(20, 'A', 'C', 'G', 'T');
         Variant v = new VariantBuilder("1:1000:A:<INS>")
                 .setStudyId("1")
-                .addAttribute("LEFT_SVINSSEQ", leftSeq)
-                .addAttribute("RIGHT_SVINSSEQ", rightSeq)
+                .addFileData("LEFT_SVINSSEQ", leftSeq)
+                .addFileData("RIGHT_SVINSSEQ", rightSeq)
                 .build();
 
         assertEquals(VariantType.INSERTION, v.getType());
@@ -148,8 +148,8 @@ public class VariantBuilderTest {
         Variant v = new VariantBuilder("1:1000:A:<INS>")
                 .setLength(1000)
                 .setStudyId("1")
-                .addAttribute("LEFT_SVINSSEQ", leftSeq)
-                .addAttribute("RIGHT_SVINSSEQ", rightSeq)
+                .addFileData("LEFT_SVINSSEQ", leftSeq)
+                .addFileData("RIGHT_SVINSSEQ", rightSeq)
                 .build();
 
         assertEquals(VariantType.INSERTION, v.getType());
@@ -167,11 +167,11 @@ public class VariantBuilderTest {
     public void buildCNV() {
         Variant v = new VariantBuilder("1:1000:A:<CNV>")
                 .setStudyId("1")
-                .setFormat("GT", "CN")
+                .setSampleDataKeys("GT", "CN")
                 .addSample("S1", "0/1", "5")
-                .addAttribute("END", 1100)
-                .addAttribute("CIPOS", "-10,20")
-                .addAttribute("CIEND", "-5,7")
+                .addFileData("END", 1100)
+                .addFileData("CIPOS", "-10,20")
+                .addFileData("CIEND", "-5,7")
                 .build();
 
         assertEquals(VariantType.CNV, v.getType());

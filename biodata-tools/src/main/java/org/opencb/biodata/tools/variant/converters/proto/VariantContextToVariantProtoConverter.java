@@ -112,14 +112,11 @@ public class VariantContextToVariantProtoConverter implements Converter<VariantC
 
         VariantProto.FileEntry.Builder fileEntry = VariantProto.FileEntry.newBuilder();
         fileEntry.setFileId(fileId);
-        fileEntry.setCall(variantContext.getStart()
-                + ":" + variantContext.getReference()
-                + ":" + StringUtils.join(variantContext.getAlternateAlleles(), ","));
-        Map<String, String> attributes = new HashMap<>();
+        Map<String, String> fileData = new HashMap<>();
         for (String key : variantContext.getAttributes().keySet()) {
-            attributes.put(key, variantContext.getAttributeAsString(key, ""));
+            fileData.put(key, variantContext.getAttributeAsString(key, ""));
         }
-        fileEntry.putAllAttributes(attributes);
+        fileEntry.putAllData(fileData);
         variantSourceEntry.addAllFiles(Arrays.asList(fileEntry.build()));
 //        variantSourceEntry.setFiles(0, fileEntry);
 
@@ -151,13 +148,13 @@ public class VariantContextToVariantProtoConverter implements Converter<VariantC
                 }
             }
         }
-        variantSourceEntry.addAllFormat(formatFields);
+        variantSourceEntry.addAllSampleDataKeys(formatFields);
 
         Map<Allele, String> allelesMap = VariantContextToVariantConverter.getAlleleStringMap(variantContext);
 
         // set sample data parameters Eg: GT:GQ:GQX:DP:DPF:AD 1/1:63:29:22:7:0,22
 //        List<List<String>> sampleDataList = new ArrayList<>(variantContext.getSamplesName().size());
-        List<VariantProto.StudyEntry.SamplesDataInfoEntry> sampleDataList = new ArrayList<>(formatFields.size());
+        List<VariantProto.SampleEntry> samples = new ArrayList<>(variantContext.getSampleNames().size());
         for (String sampleName : variantContext.getSampleNames()) {
             htsjdk.variant.variantcontext.Genotype genotype = variantContext.getGenotype(sampleName);
             List<String> sampleList = new ArrayList<>(formatFields.size());
@@ -186,9 +183,9 @@ public class VariantContextToVariantProtoConverter implements Converter<VariantC
                 sampleList.add(value);
             }
 //            sampleDataList.add(sampleList);
-            sampleDataList.add(VariantProto.StudyEntry.SamplesDataInfoEntry.newBuilder().addAllInfo(sampleList).build());
+            samples.add(VariantProto.SampleEntry.newBuilder().addAllData(sampleList).build());
         }
-        variantSourceEntry.addAllSamplesData(sampleDataList);
+        variantSourceEntry.addAllSamples(samples);
 
 
         /*
@@ -196,14 +193,14 @@ public class VariantContextToVariantProtoConverter implements Converter<VariantC
          * being as these value will not be getting from HTSJDK
          * currently.
          */
-        Map<String, VariantProto.VariantStats> stats = new HashMap<>();
+        List<VariantProto.VariantStats> stats = new ArrayList<>();
         //TODO: Call to the Variant Aggregated Stats Parser
 //        stats.put(
 //                "2",
 //                setVariantStatsParams(
 //                        setVariantHardyWeinbergStatsParams(),
 //                        variantContext));
-        variantSourceEntry.putAllStats(stats);
+        variantSourceEntry.addAllStats(stats);
 
         studies.add(variantSourceEntry.build());
         variant.addAllStudies(studies);
