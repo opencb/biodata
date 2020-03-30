@@ -37,7 +37,7 @@ public class OboFileParserTest {
 //        xref: UMLS:C4025901
 //        is_a: HP:0001507 ! Growth abnormality
 
-        OboTerm term1 = terms.get(1);
+        OboTerm term1 = terms.get(3);
         assertEquals("HP:0000002", term1.getId());
         assertEquals("Abnormality of body height", term1.getName());
         assertEquals("Deviation from the norm of height with respect to that which is expected according to age and gender norms.", term1.getDescription());
