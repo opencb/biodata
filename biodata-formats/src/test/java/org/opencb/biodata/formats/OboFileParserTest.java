@@ -21,7 +21,7 @@ public class OboFileParserTest {
 
         OboParser parser = new OboParser();
         List<OboTerm> terms = parser.parseOBO(bufferedReader);
-        assertEquals(2, terms.size());
+        assertEquals(4, terms.size());
 
         OboTerm term0 = terms.get(0);
         assertEquals("HP:0000001", term0.getId());
