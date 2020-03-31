@@ -24,6 +24,7 @@ import java.util.List;
 public class TranscriptAnnotation {
 
     private List<Constraint> constraints;
+    private List<OntologyAnnotation> ontologyAnnotations;
 
     public TranscriptAnnotation() {
     }
@@ -34,9 +35,11 @@ public class TranscriptAnnotation {
 
     @Override
     public String toString() {
-        return "TranscriptAnnotation{" +
-                "constraints=" + constraints +
-                '}';
+        final StringBuilder sb = new StringBuilder("TranscriptAnnotation{");
+        sb.append("constraints=").append(constraints);
+        sb.append(", ontologyAnnotations=").append(ontologyAnnotations);
+        sb.append('}');
+        return sb.toString();
     }
 
     public List<Constraint> getConstraints() {
@@ -45,6 +48,15 @@ public class TranscriptAnnotation {
 
     public TranscriptAnnotation setConstraints(List<Constraint> constraints) {
         this.constraints = constraints;
+        return this;
+    }
+
+    public List<OntologyAnnotation> getOntologyAnnotations() {
+        return ontologyAnnotations;
+    }
+
+    public TranscriptAnnotation setOntologyAnnotations(List<OntologyAnnotation> ontologyAnnotations) {
+        this.ontologyAnnotations = ontologyAnnotations;
         return this;
     }
 }
