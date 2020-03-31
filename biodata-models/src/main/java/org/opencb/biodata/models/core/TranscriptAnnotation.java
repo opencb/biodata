@@ -29,8 +29,9 @@ public class TranscriptAnnotation {
     public TranscriptAnnotation() {
     }
 
-    public TranscriptAnnotation(List<Constraint> constraints) {
+    public TranscriptAnnotation(List<Constraint> constraints, List<OntologyAnnotation> ontologyAnnotations) {
         this.constraints = constraints;
+        this.ontologyAnnotations = ontologyAnnotations;
     }
 
     @Override
