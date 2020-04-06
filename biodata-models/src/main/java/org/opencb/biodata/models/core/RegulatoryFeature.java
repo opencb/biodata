@@ -37,17 +37,33 @@ public class RegulatoryFeature {
     private int end;
     private String score;
     private String strand;
+    @Deprecated
     private String frame;
+    @Deprecated
     private String itemRGB;
+    @Deprecated
     private String name;
+    @Deprecated
     private String featureClass;
+    @Deprecated
     private String alias;
+    @Deprecated
     private List<String> cellTypes = new ArrayList<>();
+    @Deprecated
     private String matrix;
 
     public RegulatoryFeature() {
     }
 
+    public RegulatoryFeature(String id, String chromosome, String featureType, int start, int end) {
+        this.id = id;
+        this.chromosome = chromosome;
+        this.featureType = featureType;
+        this.start = start;
+        this.end = end;
+    }
+
+    @Deprecated
     public RegulatoryFeature(String id, String chromosome, String source, String featureType, int start, int end, String score,
                              String strand, String frame, String itemRGB, String name, String featureClass, String alias,
                              List<String> cellTypes, String matrix) {

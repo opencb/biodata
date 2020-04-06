@@ -19,108 +19,182 @@
 
 package org.opencb.biodata.models.core;
 
+import java.util.List;
+
 public class TranscriptTfbs {
-	private String tfName;
-	private String pwm;
-	private String chromosome;
-	private int start;
-	private int end;
-	private String strand;
-	private int relativeStart;
-	private int relativeEnd;
-	private float score;
+
+    private String id;      // stable_id ENSM00209489825
+    private String pfmId;   // binding_matrix_stable_id ENSPFM0571
+    private String type;    // always TF_binding_site
+    private String regulatory;  // ENSRXXX - get from API
+    private List<String> transcriptionFactors;
+    @Deprecated
+    private String tfName;
+    @Deprecated
+    private String pwm;
+    private String chromosome;
+    private int start;
+    private int end;
+    @Deprecated
+    private String strand;
+    private int relativeStart;
+    private int relativeEnd;
+    private float score;
 
     public TranscriptTfbs() {
 
     }
 
+    public TranscriptTfbs(String id, String pfmId, List<String> transcriptionFactors, String chromosome, Integer start, Integer end,
+                          Integer relativeStart, Integer relativeEnd, Float score) {
+        super();
+        this.id = id;
+        this.pfmId = pfmId;
+        this.transcriptionFactors = transcriptionFactors;
+        this.chromosome = chromosome;
+        this.start = start;
+        this.end = end;
+        this.relativeStart = relativeStart;
+        this.relativeEnd = relativeEnd;
+        this.score = score;
+    }
+
     public TranscriptTfbs(String tfName, String pwm, String chromosome,
-			Integer start, Integer end, String strand, Integer relativeStart,
-			Integer relativeEnd, Float score) {
-		super();
-		this.tfName = tfName;
-		this.pwm = pwm;
-		this.chromosome = chromosome;
-		this.start = start;
-		this.end = end;
-		this.strand = strand;
-		this.relativeStart = relativeStart;
-		this.relativeEnd = relativeEnd;
-		this.score = score;
-	}
+            Integer start, Integer end, String strand, Integer relativeStart,
+            Integer relativeEnd, Float score) {
+        super();
+        this.tfName = tfName;
+        this.pwm = pwm;
+        this.chromosome = chromosome;
+        this.start = start;
+        this.end = end;
+        this.strand = strand;
+        this.relativeStart = relativeStart;
+        this.relativeEnd = relativeEnd;
+        this.score = score;
+    }
 
-	public String getTfName() {
-		return tfName;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public void setTfName(String tfName) {
-		this.tfName = tfName;
-	}
+    public TranscriptTfbs setId(String id) {
+        this.id = id;
+        return this;
+    }
 
-	public String getPwm() {
-		return pwm;
-	}
+    public String getPfmId() {
+        return pfmId;
+    }
 
-	public void setPwm(String pwm) {
-		this.pwm = pwm;
-	}
+    public TranscriptTfbs setPfmId(String pfmId) {
+        this.pfmId = pfmId;
+        return this;
+    }
 
-	public String getChromosome() {
-		return chromosome;
-	}
+    public String getType() {
+        return type;
+    }
 
-	public void setChromosome(String chromosome) {
-		this.chromosome = chromosome;
-	}
+    public TranscriptTfbs setType(String type) {
+        this.type = type;
+        return this;
+    }
 
-	public int getStart() {
-		return start;
-	}
+    public String getRegulatory() {
+        return regulatory;
+    }
 
-	public void setStart(int start) {
-		this.start = start;
-	}
+    public TranscriptTfbs setRegulatory(String regulatory) {
+        this.regulatory = regulatory;
+        return this;
+    }
 
-	public int getEnd() {
-		return end;
-	}
+    public List<String> getTranscriptionFactors() {
+        return transcriptionFactors;
+    }
 
-	public void setEnd(int end) {
-		this.end = end;
-	}
+    public TranscriptTfbs setTranscriptionFactors(List<String> transcriptionFactors) {
+        this.transcriptionFactors = transcriptionFactors;
+        return this;
+    }
 
-	public String getStrand() {
-		return strand;
-	}
+    @Deprecated
+    public String getTfName() {
+        return tfName;
+    }
 
-	public void setStrand(String strand) {
-		this.strand = strand;
-	}
+    @Deprecated
+    public void setTfName(String tfName) {
+        this.tfName = tfName;
+    }
 
-	public int getRelativeStart() {
-		return relativeStart;
-	}
+    @Deprecated
+    public String getPwm() {
+        return pwm;
+    }
 
-	public void setRelativeStart(int relativeStart) {
-		this.relativeStart = relativeStart;
-	}
+    @Deprecated
+    public void setPwm(String pwm) {
+        this.pwm = pwm;
+    }
 
-	public int getRelativeEnd() {
-		return relativeEnd;
-	}
+    public String getChromosome() {
+        return chromosome;
+    }
 
-	public void setRelativeEnd(int relativeEnd) {
-		this.relativeEnd = relativeEnd;
-	}
+    public void setChromosome(String chromosome) {
+        this.chromosome = chromosome;
+    }
 
-	public float getScore() {
-		return score;
-	}
+    public int getStart() {
+        return start;
+    }
 
-	public void setScore(float score) {
-		this.score = score;
-	}
-	
-	
-	
+    public void setStart(int start) {
+        this.start = start;
+    }
+
+    public int getEnd() {
+        return end;
+    }
+
+    public void setEnd(int end) {
+        this.end = end;
+    }
+
+    public String getStrand() {
+        return strand;
+    }
+
+    public void setStrand(String strand) {
+        this.strand = strand;
+    }
+
+    public int getRelativeStart() {
+        return relativeStart;
+    }
+
+    public void setRelativeStart(int relativeStart) {
+        this.relativeStart = relativeStart;
+    }
+
+    public int getRelativeEnd() {
+        return relativeEnd;
+    }
+
+    public void setRelativeEnd(int relativeEnd) {
+        this.relativeEnd = relativeEnd;
+    }
+
+    public float getScore() {
+        return score;
+    }
+
+    public void setScore(float score) {
+        this.score = score;
+    }
+
+
+
 }
