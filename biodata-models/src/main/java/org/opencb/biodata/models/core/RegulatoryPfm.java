@@ -2,10 +2,8 @@ package org.opencb.biodata.models.core;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class RegulatoryPfm {
 
@@ -40,30 +38,6 @@ public class RegulatoryPfm {
         this.elements = elements;
         this.elementsString = elementsString;
     }
-
-//    protected class Element {
-//
-//        private String base;
-//        private int count;
-//
-//        public String getBase() {
-//            return base;
-//        }
-//
-//        public Element setBase(String base) {
-//            this.base = base;
-//            return this;
-//        }
-//
-//        public int getCount() {
-//            return count;
-//        }
-//
-//        public Element setCount(int count) {
-//            this.count = count;
-//            return this;
-//        }
-//    }
 
     public String getId() {
         return id;
