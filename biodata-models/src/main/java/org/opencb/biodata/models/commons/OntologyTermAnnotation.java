@@ -21,7 +21,7 @@ import java.util.Map;
 /**
  * Created by imedina on 03/07/16.
  */
-public class OntologyTerm {
+public class OntologyTermAnnotation {
 
     protected String id;
     protected String name;
@@ -29,10 +29,10 @@ public class OntologyTerm {
 
     protected Map<String, String> attributes;
 
-    public OntologyTerm() {
+    public OntologyTermAnnotation() {
     }
 
-    public OntologyTerm(String id, String name, String source, Map<String, String> attributes) {
+    public OntologyTermAnnotation(String id, String name, String source, Map<String, String> attributes) {
         this.id = id;
         this.name = name;
         this.source = source;
@@ -54,7 +54,7 @@ public class OntologyTerm {
         return id;
     }
 
-    public OntologyTerm setId(String id) {
+    public OntologyTermAnnotation setId(String id) {
         this.id = id;
         return this;
     }
@@ -63,7 +63,7 @@ public class OntologyTerm {
         return name;
     }
 
-    public OntologyTerm setName(String name) {
+    public OntologyTermAnnotation setName(String name) {
         this.name = name;
         return this;
     }
@@ -72,7 +72,7 @@ public class OntologyTerm {
         return source;
     }
 
-    public OntologyTerm setSource(String source) {
+    public OntologyTermAnnotation setSource(String source) {
         this.source = source;
         return this;
     }
@@ -81,7 +81,7 @@ public class OntologyTerm {
         return attributes;
     }
 
-    public OntologyTerm setAttributes(Map<String, String> attributes) {
+    public OntologyTermAnnotation setAttributes(Map<String, String> attributes) {
         this.attributes = attributes;
         return this;
     }

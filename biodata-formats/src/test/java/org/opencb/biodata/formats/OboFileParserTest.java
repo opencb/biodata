@@ -2,7 +2,7 @@ package org.opencb.biodata.formats;
 
 import org.junit.Test;
 import org.opencb.biodata.formats.obo.OboParser;
-import org.opencb.biodata.models.core.OboTerm;
+import org.opencb.biodata.models.core.OntologyTerm;
 import org.opencb.commons.utils.FileUtils;
 
 import java.io.*;
@@ -20,10 +20,10 @@ public class OboFileParserTest {
                 .getResource("/hp.obo").getPath()));
 
         OboParser parser = new OboParser();
-        List<OboTerm> terms = parser.parseOBO(bufferedReader);
+        List<OntologyTerm> terms = parser.parseOBO(bufferedReader);
         assertEquals(4, terms.size());
 
-        OboTerm term0 = terms.get(0);
+        OntologyTerm term0 = terms.get(0);
         assertEquals("HP:0000001", term0.getId());
         assertEquals("All", term0.getName());
         assertNull(term0.getDescription());
@@ -37,7 +37,7 @@ public class OboFileParserTest {
 //        xref: UMLS:C4025901
 //        is_a: HP:0001507 ! Growth abnormality
 
-        OboTerm term1 = terms.get(3);
+        OntologyTerm term1 = terms.get(3);
         assertEquals("HP:0000002", term1.getId());
         assertEquals("Abnormality of body height", term1.getName());
         assertEquals("Deviation from the norm of height with respect to that which is expected according to age and gender norms.", term1.getDescription());

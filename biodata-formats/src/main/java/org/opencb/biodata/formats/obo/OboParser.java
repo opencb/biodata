@@ -21,7 +21,7 @@ import org.obolibrary.oboformat.model.Frame;
 import org.obolibrary.oboformat.model.OBODoc;
 import org.obolibrary.oboformat.model.Xref;
 import org.obolibrary.oboformat.parser.OBOFormatParser;
-import org.opencb.biodata.models.core.OboTerm;
+import org.opencb.biodata.models.core.OntologyTerm;
 
 import java.io.*;
 import java.util.*;
@@ -29,33 +29,33 @@ import java.util.*;
 
 public class OboParser {
 
-    Map<String, OboTerm> oboTerms;
+    Map<String, OntologyTerm> oboTerms;
 
     public OboParser() {
 
     }
 
-    public List<OboTerm> parseOBO(BufferedReader bufferedReader) throws IOException {
+    public List<OntologyTerm> parseOBO(BufferedReader bufferedReader) throws IOException {
         OBOFormatParser parser = new OBOFormatParser();
         OBODoc oboDoc = parser.parse(bufferedReader);
         Collection<Frame> frames = oboDoc.getTermFrames();
         oboTerms = new HashMap<>();
         for (Frame frame : frames) {
             String oboId = frame.getId();
-            OboTerm oboTerm = getOboTerm(oboId);
+            OntologyTerm ontologyTerm = getOboTerm(oboId);
             for (String tag : frame.getTags()) {
                 switch(tag) {
                     case "name":
-                        oboTerm.setName((String) frame.getTagValue(tag));
+                        ontologyTerm.setName((String) frame.getTagValue(tag));
                         break;
                     case "def":
-                        oboTerm.setDescription((String) frame.getTagValue(tag));
+                        ontologyTerm.setDescription((String) frame.getTagValue(tag));
                         break;
                     case "namespace":
-                        oboTerm.setNamespace((String) frame.getTagValue(tag));
+                        ontologyTerm.setNamespace((String) frame.getTagValue(tag));
                         break;
                     case "xref":
-                        List<String> existingXrefs = oboTerm.getXrefs();
+                        List<String> existingXrefs = ontologyTerm.getXrefs();
                         if (existingXrefs == null) {
                             existingXrefs = new ArrayList<>();
                         }
@@ -63,13 +63,13 @@ public class OboParser {
                         for (Object xref : xrefs) {
                             existingXrefs.add(((Xref) xref).getIdref());
                         }
-                        oboTerm.setXrefs(existingXrefs);
+                        ontologyTerm.setXrefs(existingXrefs);
                         break;
                     case "comment":
-                        oboTerm.setComment((String) frame.getTagValue(tag));
+                        ontologyTerm.setComment((String) frame.getTagValue(tag));
                         break;
                     case "synonym":
-                        List<String> existingSynonyms = oboTerm.getSynonyms();
+                        List<String> existingSynonyms = ontologyTerm.getSynonyms();
                         if (existingSynonyms == null) {
                             existingSynonyms = new ArrayList<>();
                         }
@@ -77,10 +77,10 @@ public class OboParser {
                         for (Object synonym : synonyms) {
                             existingSynonyms.add(String.valueOf(synonym));
                         }
-                        oboTerm.setSynonyms(existingSynonyms);
+                        ontologyTerm.setSynonyms(existingSynonyms);
                         break;
                     case "is_a":
-                        List<String> existingParents = oboTerm.getParents();
+                        List<String> existingParents = ontologyTerm.getParents();
                         if (existingParents == null) {
                             existingParents = new ArrayList<>();
                         }
@@ -89,7 +89,7 @@ public class OboParser {
                             existingParents.add(String.valueOf(parent));
                             addChild(String.valueOf(parent), oboId);
                         }
-                        oboTerm.setParents(existingParents);
+                        ontologyTerm.setParents(existingParents);
                         break;
                     default:
                         // new tag we don't parse ignore
@@ -101,7 +101,7 @@ public class OboParser {
     }
 
     private void addChild(String parentId, String childId) {
-        OboTerm parentTerm = getOboTerm(parentId);
+        OntologyTerm parentTerm = getOboTerm(parentId);
         List<String> children = parentTerm.getChildren();
         if (CollectionUtils.isEmpty(children)) {
             children = new ArrayList<>();
@@ -110,13 +110,13 @@ public class OboParser {
         parentTerm.setChildren(children);
     }
 
-    private OboTerm getOboTerm(String id) {
-        OboTerm oboTerm = oboTerms.get(id);
-        if (oboTerm == null) {
-            oboTerm = new OboTerm();
-            oboTerm.setId(id);
-            oboTerms.put(id, oboTerm);
+    private OntologyTerm getOboTerm(String id) {
+        OntologyTerm ontologyTerm = oboTerms.get(id);
+        if (ontologyTerm == null) {
+            ontologyTerm = new OntologyTerm();
+            ontologyTerm.setId(id);
+            oboTerms.put(id, ontologyTerm);
         }
-        return oboTerm;
+        return ontologyTerm;
     }
 }

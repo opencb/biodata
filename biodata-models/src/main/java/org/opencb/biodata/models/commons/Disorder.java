@@ -22,7 +22,7 @@ package org.opencb.biodata.models.commons;
 import java.util.List;
 import java.util.Map;
 
-public class Disorder extends OntologyTerm {
+public class Disorder extends OntologyTermAnnotation {
 
     private String description;
     private List<Phenotype> evidences;
@@ -30,7 +30,14 @@ public class Disorder extends OntologyTerm {
     public Disorder() {
     }
 
+    @Deprecated
     public Disorder(String id, String name, String source, String description, List<Phenotype> evidences, Map<String, String> attributes) {
+        super(id, name, source, attributes);
+        this.description = description;
+        this.evidences = evidences;
+    }
+
+    public Disorder(String id, String name, String source, Map<String, String> attributes, String description, List<Phenotype> evidences) {
         super(id, name, source, attributes);
         this.description = description;
         this.evidences = evidences;
@@ -39,31 +46,14 @@ public class Disorder extends OntologyTerm {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("Disorder{");
-        sb.append("id='").append(id).append('\'');
+        sb.append("description='").append(description).append('\'');
+        sb.append(", evidences=").append(evidences);
+        sb.append(", id='").append(id).append('\'');
         sb.append(", name='").append(name).append('\'');
         sb.append(", source='").append(source).append('\'');
-        sb.append(", description='").append(description).append('\'');
-        sb.append(", evidences=").append(evidences);
+        sb.append(", attributes=").append(attributes);
         sb.append('}');
         return sb.toString();
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public Disorder setDescription(String description) {
-        this.description = description;
-        return this;
-    }
-
-    public List<Phenotype> getEvidences() {
-        return evidences;
-    }
-
-    public Disorder setEvidences(List<Phenotype> evidences) {
-        this.evidences = evidences;
-        return this;
     }
 
     @Override
@@ -87,6 +77,24 @@ public class Disorder extends OntologyTerm {
     @Override
     public Disorder setAttributes(Map<String, String> attributes) {
         this.attributes = attributes;
+        return this;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public Disorder setDescription(String description) {
+        this.description = description;
+        return this;
+    }
+
+    public List<Phenotype> getEvidences() {
+        return evidences;
+    }
+
+    public Disorder setEvidences(List<Phenotype> evidences) {
+        this.evidences = evidences;
         return this;
     }
 }

@@ -16,56 +16,49 @@
 
 package org.opencb.biodata.models.core;
 
-import java.util.ArrayList;
+import org.opencb.biodata.models.commons.OntologyTermAnnotation;
+
 import java.util.List;
+import java.util.Map;
 
-public class OntologyAnnotation {
 
-    private String oboTermId;
-    private String oboTermName;
+public class TranscriptOntologyTermAnnotation extends OntologyTermAnnotation {
+
     private List<String> evidenceCodes;
     private List<String> publications;
     private String qualifier;
 
-    public OntologyAnnotation() {
+    public TranscriptOntologyTermAnnotation() {
+    }
 
+    public TranscriptOntologyTermAnnotation(String id, String name, String source, Map<String, String> attributes,
+                                            List<String> evidenceCodes, List<String> publications, String qualifier) {
+        super(id, name, source, attributes);
+
+        this.evidenceCodes = evidenceCodes;
+        this.publications = publications;
+        this.qualifier = qualifier;
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("OntologyAnnotation{");
-        sb.append("oboTermId='").append(oboTermId).append('\'');
-        sb.append(", oboTermName='").append(oboTermName).append('\'');
+        final StringBuilder sb = new StringBuilder("TranscriptOntologyTermAnnotation{");
+        sb.append("id='").append(id).append('\'');
+        sb.append(", name='").append(name).append('\'');
+        sb.append(", source='").append(source).append('\'');
+        sb.append(", attributes=").append(attributes);
         sb.append(", evidenceCodes=").append(evidenceCodes);
         sb.append(", publications=").append(publications);
-        sb.append(", qualifier=").append(qualifier);
+        sb.append(", qualifier='").append(qualifier).append('\'');
         sb.append('}');
         return sb.toString();
-    }
-
-    public String getOboTermId() {
-        return oboTermId;
-    }
-
-    public OntologyAnnotation setOboTermId(String oboTermId) {
-        this.oboTermId = oboTermId;
-        return this;
-    }
-
-    public String getOboTermName() {
-        return oboTermName;
-    }
-
-    public OntologyAnnotation setOboTermName(String oboTermName) {
-        this.oboTermName = oboTermName;
-        return this;
     }
 
     public List<String> getEvidenceCodes() {
         return evidenceCodes;
     }
 
-    public OntologyAnnotation setEvidenceCodes(List<String> evidenceCodes) {
+    public TranscriptOntologyTermAnnotation setEvidenceCodes(List<String> evidenceCodes) {
         this.evidenceCodes = evidenceCodes;
         return this;
     }
@@ -74,7 +67,7 @@ public class OntologyAnnotation {
         return publications;
     }
 
-    public OntologyAnnotation setPublications(List<String> publications) {
+    public TranscriptOntologyTermAnnotation setPublications(List<String> publications) {
         this.publications = publications;
         return this;
     }
@@ -83,9 +76,8 @@ public class OntologyAnnotation {
         return qualifier;
     }
 
-    public OntologyAnnotation setQualifier(String qualifier) {
+    public TranscriptOntologyTermAnnotation setQualifier(String qualifier) {
         this.qualifier = qualifier;
         return this;
     }
-
 }

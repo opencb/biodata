@@ -18,10 +18,11 @@ package org.opencb.biodata.models.core;
 
 import java.util.List;
 
-public class OboTerm {
+public class OntologyTerm {
 
     private String id;
     private String name;
+    private String source;
     private String description;
     private String namespace;
     private String comment;
@@ -30,16 +31,30 @@ public class OboTerm {
     private List<String> parents;
     private List<String> children;
 
-    public OboTerm() {
+    public OntologyTerm() {
+    }
 
+    public OntologyTerm(String id, String name, String source, String description, String namespace, String comment,
+                        List<String> synonyms, List<String> xrefs, List<String> parents, List<String> children) {
+        this.id = id;
+        this.name = name;
+        this.source = source;
+        this.description = description;
+        this.namespace = namespace;
+        this.comment = comment;
+        this.synonyms = synonyms;
+        this.xrefs = xrefs;
+        this.parents = parents;
+        this.children = children;
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("OboTerm{");
+        final StringBuilder sb = new StringBuilder("OntologyTerm{");
         sb.append("id='").append(id).append('\'');
         sb.append(", name='").append(name).append('\'');
-        sb.append(", definition='").append(description).append('\'');
+        sb.append(", source='").append(source).append('\'');
+        sb.append(", description='").append(description).append('\'');
         sb.append(", namespace='").append(namespace).append('\'');
         sb.append(", comment='").append(comment).append('\'');
         sb.append(", synonyms=").append(synonyms);
@@ -54,7 +69,7 @@ public class OboTerm {
         return id;
     }
 
-    public OboTerm setId(String id) {
+    public OntologyTerm setId(String id) {
         this.id = id;
         return this;
     }
@@ -63,8 +78,17 @@ public class OboTerm {
         return name;
     }
 
-    public OboTerm setName(String name) {
+    public OntologyTerm setName(String name) {
         this.name = name;
+        return this;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public OntologyTerm setSource(String source) {
+        this.source = source;
         return this;
     }
 
@@ -72,7 +96,7 @@ public class OboTerm {
         return description;
     }
 
-    public OboTerm setDescription(String description) {
+    public OntologyTerm setDescription(String description) {
         this.description = description;
         return this;
     }
@@ -81,7 +105,7 @@ public class OboTerm {
         return namespace;
     }
 
-    public OboTerm setNamespace(String namespace) {
+    public OntologyTerm setNamespace(String namespace) {
         this.namespace = namespace;
         return this;
     }
@@ -90,7 +114,7 @@ public class OboTerm {
         return comment;
     }
 
-    public OboTerm setComment(String comment) {
+    public OntologyTerm setComment(String comment) {
         this.comment = comment;
         return this;
     }
@@ -99,7 +123,7 @@ public class OboTerm {
         return synonyms;
     }
 
-    public OboTerm setSynonyms(List<String> synonyms) {
+    public OntologyTerm setSynonyms(List<String> synonyms) {
         this.synonyms = synonyms;
         return this;
     }
@@ -108,7 +132,7 @@ public class OboTerm {
         return xrefs;
     }
 
-    public OboTerm setXrefs(List<String> xrefs) {
+    public OntologyTerm setXrefs(List<String> xrefs) {
         this.xrefs = xrefs;
         return this;
     }
@@ -117,7 +141,7 @@ public class OboTerm {
         return parents;
     }
 
-    public OboTerm setParents(List<String> parents) {
+    public OntologyTerm setParents(List<String> parents) {
         this.parents = parents;
         return this;
     }
@@ -126,7 +150,7 @@ public class OboTerm {
         return children;
     }
 
-    public OboTerm setChildren(List<String> children) {
+    public OntologyTerm setChildren(List<String> children) {
         this.children = children;
         return this;
     }

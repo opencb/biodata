@@ -25,9 +25,7 @@ import org.opencb.biodata.models.variant.avro.GeneTraitAssociation;
 
 import java.util.List;
 
-/**
- * Created by imedina on 12/11/15.
- */
+
 public class GeneAnnotation {
 
     private List<Expression> expression;
@@ -61,24 +59,27 @@ public class GeneAnnotation {
         return expression;
     }
 
-    public void setExpression(List<Expression> expression) {
+    public GeneAnnotation setExpression(List<Expression> expression) {
         this.expression = expression;
+        return this;
     }
 
     public List<GeneTraitAssociation> getDiseases() {
         return diseases;
     }
 
-    public void setDiseases(List<GeneTraitAssociation> diseases) {
+    public GeneAnnotation setDiseases(List<GeneTraitAssociation> diseases) {
         this.diseases = diseases;
+        return this;
     }
 
     public List<GeneDrugInteraction> getDrugs() {
         return drugs;
     }
 
-    public void setDrugs(List<GeneDrugInteraction> drugs) {
+    public GeneAnnotation setDrugs(List<GeneDrugInteraction> drugs) {
         this.drugs = drugs;
+        return this;
     }
 
     public List<Constraint> getConstraints() {

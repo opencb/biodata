@@ -22,21 +22,17 @@ package org.opencb.biodata.models.core;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * User: fsalavert.
- * Date: 4/10/13
- * Time: 12:09 PM
- */
+
 public class RegulatoryFeature {
 
     private String id;
     private String chromosome;
-    private String source;
-    private String featureType;
     private int start;
     private int end;
-    private String score;
     private String strand;
+    private String source;
+    private String featureType;
+    private String score;
     @Deprecated
     private String frame;
     @Deprecated
@@ -84,146 +80,179 @@ public class RegulatoryFeature {
         this.matrix = matrix;
     }
 
+    public RegulatoryFeature(String id, String chromosome, int start, int end, String strand, String source, String featureType,
+                             String score) {
+        this.id = id;
+        this.chromosome = chromosome;
+        this.start = start;
+        this.end = end;
+        this.strand = strand;
+        this.source = source;
+        this.featureType = featureType;
+        this.score = score;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("RegulatoryFeature{");
         sb.append("id='").append(id).append('\'');
         sb.append(", chromosome='").append(chromosome).append('\'');
-        sb.append(", source='").append(source).append('\'');
-        sb.append(", featureType='").append(featureType).append('\'');
         sb.append(", start=").append(start);
         sb.append(", end=").append(end);
-        sb.append(", score='").append(score).append('\'');
         sb.append(", strand='").append(strand).append('\'');
-        sb.append(", frame='").append(frame).append('\'');
-        sb.append(", itemRGB='").append(itemRGB).append('\'');
-        sb.append(", name='").append(name).append('\'');
-        sb.append(", featureClass='").append(featureClass).append('\'');
-        sb.append(", alias='").append(alias).append('\'');
-        sb.append(", cellTypes=").append(cellTypes);
-        sb.append(", matrix='").append(matrix).append('\'');
+        sb.append(", source='").append(source).append('\'');
+        sb.append(", featureType='").append(featureType).append('\'');
+        sb.append(", score='").append(score).append('\'');
         sb.append('}');
         return sb.toString();
-    }
-
-    public String getChromosome() {
-        return chromosome;
-    }
-
-    public void setChromosome(String chromosome) {
-        this.chromosome = chromosome;
-    }
-
-    public int getStart() {
-        return start;
-    }
-
-    public void setStart(int start) {
-        this.start = start;
-    }
-
-    public int getEnd() {
-        return end;
-    }
-
-    public void setEnd(int end) {
-        this.end = end;
-    }
-
-    public String getStrand() {
-        return strand;
-    }
-
-    public void setStrand(String strand) {
-        this.strand = strand;
-    }
-
-    public String getSource() {
-        return source;
-    }
-
-    public void setSource(String source) {
-        this.source = source;
-    }
-
-    public String getScore() {
-        return score;
-    }
-
-    public void setScore(String score) {
-        this.score = score;
-    }
-
-    public String getItemRGB() {
-        return itemRGB;
-    }
-
-    public void setItemRGB(String itemRGB) {
-        this.itemRGB = itemRGB;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getFeatureType() {
-        return featureType;
-    }
-
-    public void setFeatureType(String featureType) {
-        this.featureType = featureType;
     }
 
     public String getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public RegulatoryFeature setId(String id) {
         this.id = id;
+        return this;
     }
 
-    public String getFeatureClass() {
-        return featureClass;
+    public String getChromosome() {
+        return chromosome;
     }
 
-    public void setFeatureClass(String featureClass) {
-        this.featureClass = featureClass;
+    public RegulatoryFeature setChromosome(String chromosome) {
+        this.chromosome = chromosome;
+        return this;
     }
 
-    public String getAlias() {
-        return alias;
+    public int getStart() {
+        return start;
     }
 
-    public void setAlias(String alias) {
-        this.alias = alias;
+    public RegulatoryFeature setStart(int start) {
+        this.start = start;
+        return this;
     }
 
+    public int getEnd() {
+        return end;
+    }
+
+    public RegulatoryFeature setEnd(int end) {
+        this.end = end;
+        return this;
+    }
+
+    public String getStrand() {
+        return strand;
+    }
+
+    public RegulatoryFeature setStrand(String strand) {
+        this.strand = strand;
+        return this;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public RegulatoryFeature setSource(String source) {
+        this.source = source;
+        return this;
+    }
+
+    public String getFeatureType() {
+        return featureType;
+    }
+
+    public RegulatoryFeature setFeatureType(String featureType) {
+        this.featureType = featureType;
+        return this;
+    }
+
+    public String getScore() {
+        return score;
+    }
+
+    public RegulatoryFeature setScore(String score) {
+        this.score = score;
+        return this;
+    }
+
+    @Deprecated
     public String getFrame() {
         return frame;
     }
 
-    public void setFrame(String frame) {
+    @Deprecated
+    public RegulatoryFeature setFrame(String frame) {
         this.frame = frame;
+        return this;
     }
 
+    @Deprecated
+    public String getItemRGB() {
+        return itemRGB;
+    }
+
+    @Deprecated
+    public RegulatoryFeature setItemRGB(String itemRGB) {
+        this.itemRGB = itemRGB;
+        return this;
+    }
+
+    @Deprecated
+    public String getName() {
+        return name;
+    }
+
+    @Deprecated
+    public RegulatoryFeature setName(String name) {
+        this.name = name;
+        return this;
+    }
+
+    @Deprecated
+    public String getFeatureClass() {
+        return featureClass;
+    }
+
+    @Deprecated
+    public RegulatoryFeature setFeatureClass(String featureClass) {
+        this.featureClass = featureClass;
+        return this;
+    }
+
+    @Deprecated
+    public String getAlias() {
+        return alias;
+    }
+
+    @Deprecated
+    public RegulatoryFeature setAlias(String alias) {
+        this.alias = alias;
+        return this;
+    }
+
+    @Deprecated
     public List<String> getCellTypes() {
         return cellTypes;
     }
 
-    public void setCellTypes(List<String> cellTypes) {
+    @Deprecated
+    public RegulatoryFeature setCellTypes(List<String> cellTypes) {
         this.cellTypes = cellTypes;
+        return this;
     }
 
+    @Deprecated
     public String getMatrix() {
         return matrix;
     }
 
-    public void setMatrix(String matrix) {
+    @Deprecated
+    public RegulatoryFeature setMatrix(String matrix) {
         this.matrix = matrix;
+        return this;
     }
-
 }

@@ -23,31 +23,41 @@ import java.util.List;
 
 public class TranscriptTfbs {
 
-    private String id;      // stable_id ENSM00209489825
-    private String pfmId;   // binding_matrix_stable_id ENSPFM0571
-    private String type;    // always TF_binding_site
-    private String regulatory;  // ENSRXXX - get from API
-    private List<String> transcriptionFactors;
-    @Deprecated
-    private String tfName;
-    @Deprecated
-    private String pwm;
+    /**
+     * Ensembl motif feature ID, eg. ENSM00209489825
+     */
+    private String id;
+
+    /**
+     * Ensembl PFM binding matrix ID, eg. ENSPFM0571
+     */
+    private String pfmId;
     private String chromosome;
     private int start;
     private int end;
-    @Deprecated
     private String strand;
+
+    /**
+     * At the moment always TF_binding_site
+     */
+    private String type;
+    private String regulatoryId;  // ENSRXXX - get from API
+    private List<String> transcriptionFactors;
     private int relativeStart;
     private int relativeEnd;
     private float score;
 
-    public TranscriptTfbs() {
+    @Deprecated
+    private String tfName;
+    @Deprecated
+    private String pwm;
 
+
+    public TranscriptTfbs() {
     }
 
     public TranscriptTfbs(String id, String pfmId, List<String> transcriptionFactors, String chromosome, Integer start, Integer end,
                           Integer relativeStart, Integer relativeEnd, Float score) {
-        super();
         this.id = id;
         this.pfmId = pfmId;
         this.transcriptionFactors = transcriptionFactors;
@@ -59,8 +69,8 @@ public class TranscriptTfbs {
         this.score = score;
     }
 
-    public TranscriptTfbs(String tfName, String pwm, String chromosome,
-            Integer start, Integer end, String strand, Integer relativeStart,
+    @Deprecated
+    public TranscriptTfbs(String tfName, String pwm, String chromosome, Integer start, Integer end, String strand, Integer relativeStart,
             Integer relativeEnd, Float score) {
         super();
         this.tfName = tfName;
@@ -72,6 +82,41 @@ public class TranscriptTfbs {
         this.relativeStart = relativeStart;
         this.relativeEnd = relativeEnd;
         this.score = score;
+    }
+
+    public TranscriptTfbs(String id, String pfmId, String chromosome, int start, int end, String strand, String type, String regulatoryId,
+                          List<String> transcriptionFactors, int relativeStart, int relativeEnd, float score) {
+        this.id = id;
+        this.pfmId = pfmId;
+        this.chromosome = chromosome;
+        this.start = start;
+        this.end = end;
+        this.strand = strand;
+        this.type = type;
+        this.regulatoryId = regulatoryId;
+        this.transcriptionFactors = transcriptionFactors;
+        this.relativeStart = relativeStart;
+        this.relativeEnd = relativeEnd;
+        this.score = score;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("TranscriptTfbs{");
+        sb.append("id='").append(id).append('\'');
+        sb.append(", pfmId='").append(pfmId).append('\'');
+        sb.append(", chromosome='").append(chromosome).append('\'');
+        sb.append(", start=").append(start);
+        sb.append(", end=").append(end);
+        sb.append(", strand='").append(strand).append('\'');
+        sb.append(", type='").append(type).append('\'');
+        sb.append(", regulatoryId='").append(regulatoryId).append('\'');
+        sb.append(", transcriptionFactors=").append(transcriptionFactors);
+        sb.append(", relativeStart=").append(relativeStart);
+        sb.append(", relativeEnd=").append(relativeEnd);
+        sb.append(", score=").append(score);
+        sb.append('}');
+        return sb.toString();
     }
 
     public String getId() {
@@ -101,12 +146,12 @@ public class TranscriptTfbs {
         return this;
     }
 
-    public String getRegulatory() {
-        return regulatory;
+    public String getRegulatoryId() {
+        return regulatoryId;
     }
 
-    public TranscriptTfbs setRegulatory(String regulatory) {
-        this.regulatory = regulatory;
+    public TranscriptTfbs setRegulatoryId(String regulatoryId) {
+        this.regulatoryId = regulatoryId;
         return this;
     }
 
@@ -194,7 +239,5 @@ public class TranscriptTfbs {
     public void setScore(float score) {
         this.score = score;
     }
-
-
 
 }

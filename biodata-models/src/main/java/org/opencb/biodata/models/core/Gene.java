@@ -28,31 +28,26 @@ import java.util.List;
 
 public class Gene implements Serializable {
 
-    private static final long serialVersionUID = 5804770440067183880L;
-
     private String id;
     private String name;
-    private String biotype;
-    private String status;
     private String chromosome;
     private int start;
     private int end;
     private String strand;
+    private String biotype;
+    private String status;
     private String source;
     private String description;
     private List<Transcript> transcripts;
     private MiRNAGene mirna;
     private GeneAnnotation annotation;
 
-    @Deprecated
-    private List<Expression> expressionValues;
-    @Deprecated
-    private List<GeneDrugInteraction> drugInteractions;
+    private static final long serialVersionUID = 5804770440067183880L;
 
     public Gene() {
-
     }
 
+    @Deprecated
     public Gene(String id, String name, String biotype, String status, String chromosome, Integer start, Integer end,
                 String strand, String source, String description, List<Transcript> transcripts, MiRNAGene mirna,
                 List<Expression> expressionValues, List<GeneDrugInteraction> drugInteractions) {
@@ -70,10 +65,9 @@ public class Gene implements Serializable {
         this.transcripts = transcripts;
         this.mirna = mirna;
 //        this.annotation = annotation;
-		this.expressionValues = expressionValues;
-		this.drugInteractions = drugInteractions;
     }
 
+    @Deprecated
 	public Gene(String id, String name, String biotype, String status, String chromosome, Integer start, Integer end,
 				String strand, String source, String description, List<Transcript> transcripts, MiRNAGene mirna,
 				List<Expression> expressionValueList) {
@@ -81,130 +75,164 @@ public class Gene implements Serializable {
 				expressionValueList, null);
 	}
 
+    @Deprecated
     public Gene(String id, String name, String biotype, String status, String chromosome, Integer start, Integer end,
                 String strand, String source, String description, List<Transcript> transcripts, MiRNAGene mirna, GeneAnnotation annotation) {
         this(id, name, biotype, status, chromosome, start, end, strand, source, description, transcripts, mirna, null, null);
         this.annotation = annotation;
     }
 
+    public Gene(String id, String name, String chromosome, int start, int end, String strand, String biotype, String status, String source,
+                String description, List<Transcript> transcripts, MiRNAGene mirna, GeneAnnotation annotation) {
+        this.id = id;
+        this.name = name;
+        this.chromosome = chromosome;
+        this.start = start;
+        this.end = end;
+        this.strand = strand;
+        this.biotype = biotype;
+        this.status = status;
+        this.source = source;
+        this.description = description;
+        this.transcripts = transcripts;
+        this.mirna = mirna;
+        this.annotation = annotation;
+    }
 
     @Override
     public String toString() {
-        return "Gene [id=" + id + ", name=" + name
-                + ", biotype=" + biotype + ", status=" + status
-                + ", chromosome=" + chromosome + ", start=" + start + ", end="
-                + end + ", strand=" + strand + ", source=" + source
-                + ", description=" + description + ", transcripts="
-                + transcripts + ", mirna=" + mirna + "]";
+        final StringBuilder sb = new StringBuilder("Gene{");
+        sb.append("id='").append(id).append('\'');
+        sb.append(", name='").append(name).append('\'');
+        sb.append(", chromosome='").append(chromosome).append('\'');
+        sb.append(", start=").append(start);
+        sb.append(", end=").append(end);
+        sb.append(", strand='").append(strand).append('\'');
+        sb.append(", biotype='").append(biotype).append('\'');
+        sb.append(", status='").append(status).append('\'');
+        sb.append(", source='").append(source).append('\'');
+        sb.append(", description='").append(description).append('\'');
+        sb.append(", transcripts=").append(transcripts);
+        sb.append(", mirna=").append(mirna);
+        sb.append(", annotation=").append(annotation);
+        sb.append('}');
+        return sb.toString();
     }
 
     public String getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public Gene setId(String id) {
         this.id = id;
+        return this;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public Gene setName(String name) {
         this.name = name;
-    }
-
-    public String getBiotype() {
-        return biotype;
-    }
-
-    public void setBiotype(String biotype) {
-        this.biotype = biotype;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
+        return this;
     }
 
     public String getChromosome() {
         return chromosome;
     }
 
-    public void setChromosome(String chromosome) {
+    public Gene setChromosome(String chromosome) {
         this.chromosome = chromosome;
+        return this;
     }
 
     public int getStart() {
         return start;
     }
 
-    public void setStart(int start) {
+    public Gene setStart(int start) {
         this.start = start;
+        return this;
     }
 
     public int getEnd() {
         return end;
     }
 
-    public void setEnd(int end) {
+    public Gene setEnd(int end) {
         this.end = end;
+        return this;
     }
 
     public String getStrand() {
         return strand;
     }
 
-    public void setStrand(String strand) {
+    public Gene setStrand(String strand) {
         this.strand = strand;
+        return this;
+    }
+
+    public String getBiotype() {
+        return biotype;
+    }
+
+    public Gene setBiotype(String biotype) {
+        this.biotype = biotype;
+        return this;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public Gene setStatus(String status) {
+        this.status = status;
+        return this;
     }
 
     public String getSource() {
         return source;
     }
 
-    public void setSource(String source) {
+    public Gene setSource(String source) {
         this.source = source;
+        return this;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
+    public Gene setDescription(String description) {
         this.description = description;
+        return this;
     }
 
     public List<Transcript> getTranscripts() {
         return transcripts;
     }
 
-    public void setTranscripts(List<Transcript> transcripts) {
+    public Gene setTranscripts(List<Transcript> transcripts) {
         this.transcripts = transcripts;
+        return this;
     }
 
     public MiRNAGene getMirna() {
         return mirna;
     }
 
-    public void setMirna(MiRNAGene mirna) {	this.mirna = mirna; }
+    public Gene setMirna(MiRNAGene mirna) {
+        this.mirna = mirna;
+        return this;
+    }
 
     public GeneAnnotation getAnnotation() {
         return annotation;
     }
 
-    public void setAnnotation(GeneAnnotation annotation) {
+    public Gene setAnnotation(GeneAnnotation annotation) {
         this.annotation = annotation;
+        return this;
     }
-
-    public List<Expression> getExpressionValues() { return expressionValues; }
-
-    public void setExpressionValues(List<Expression> expressionValues) { this.expressionValues = expressionValues;	}
-
-    public List<GeneDrugInteraction> getDrugInteractions() { return drugInteractions; }
-
-    public void setDrugInteractions(List<GeneDrugInteraction> drugInteractions) { this.drugInteractions = drugInteractions; }
 }

@@ -63,40 +63,30 @@ public class Position {
         return positions;
     }
 
-
     @Override
     public String toString() {
-        return chromosome + ":" + position;
+        final StringBuilder sb = new StringBuilder("Position{");
+        sb.append("chromosome='").append(chromosome).append('\'');
+        sb.append(", position=").append(position);
+        sb.append('}');
+        return sb.toString();
     }
 
-
-    /**
-     * @return the chromosome
-     */
     public String getChromosome() {
         return chromosome;
     }
 
-    /**
-     * @param chromosome the chromosome to set
-     */
-    public void setChromosome(String chromosome) {
+    public Position setChromosome(String chromosome) {
         this.chromosome = chromosome;
+        return this;
     }
 
-
-    /**
-     * @return the position
-     */
     public int getPosition() {
         return position;
     }
 
-    /**
-     * @param position the position to set
-     */
-    public void setPosition(int position) {
+    public Position setPosition(int position) {
         this.position = position;
+        return this;
     }
-
 }

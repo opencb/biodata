@@ -20,7 +20,7 @@
 package org.opencb.biodata.models.clinical.interpretation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.opencb.biodata.models.commons.OntologyTerm;
+import org.opencb.biodata.models.commons.OntologyTermAnnotation;
 import org.opencb.biodata.models.commons.Phenotype;
 import org.opencb.biodata.models.core.Xref;
 
@@ -226,7 +226,7 @@ public class DiseasePanel {
 
         public VariantPanel(String id, List<Xref> xrefs, String modeOfInheritance, Penetrance penetrance,
                             String confidence, List<String> evidences, List<String> publications,
-                            List<OntologyTerm> phenotypes, List<Coordinate> coordinates, String reference,
+                            List<OntologyTermAnnotation> phenotypes, List<Coordinate> coordinates, String reference,
                             String alternate) {
             super(id, xrefs, modeOfInheritance, penetrance, confidence, evidences, publications, phenotypes, coordinates);
             this.reference = reference;
@@ -330,14 +330,14 @@ public class DiseasePanel {
         protected String confidence;
         protected List<String> evidences;
         protected List<String> publications;
-        protected List<OntologyTerm> phenotypes;
+        protected List<OntologyTermAnnotation> phenotypes;
         protected List<Coordinate> coordinates;
 
         public Common() {
         }
 
         public Common(String id, List<Xref> xrefs, String modeOfInheritance, Penetrance penetrance, String confidence,
-                      List<String> evidences, List<String> publications, List<OntologyTerm> phenotypes,
+                      List<String> evidences, List<String> publications, List<OntologyTermAnnotation> phenotypes,
                       List<Coordinate> coordinates) {
             this.id = id;
             this.xrefs = xrefs;
@@ -419,11 +419,11 @@ public class DiseasePanel {
             return this;
         }
 
-        public List<OntologyTerm> getPhenotypes() {
+        public List<OntologyTermAnnotation> getPhenotypes() {
             return phenotypes;
         }
 
-        public Common setPhenotypes(List<OntologyTerm> phenotypes) {
+        public Common setPhenotypes(List<OntologyTermAnnotation> phenotypes) {
             this.phenotypes = phenotypes;
             return this;
         }
@@ -460,7 +460,7 @@ public class DiseasePanel {
 
         public RegionPanel(String name, List<Xref> xrefs, String modeOfInheritance, Penetrance penetrance,
                            String confidence, List<String> evidences, List<String> publications,
-                           List<OntologyTerm> phenotypes, List<Coordinate> coordinates, String description,
+                           List<OntologyTermAnnotation> phenotypes, List<Coordinate> coordinates, String description,
                            VariantType typeOfVariants, String haploinsufficiencyScore, String triplosensitivityScore,
                            int requiredOverlapPercentage) {
             super(name, xrefs, modeOfInheritance, penetrance, confidence, evidences, publications, phenotypes,
@@ -555,7 +555,7 @@ public class DiseasePanel {
         }
 
         public STR(String id, List<Xref> xrefs, String modeOfInheritance, Penetrance penetrance, String confidence,
-                   List<String> evidences, List<String> publications, List<OntologyTerm> phenotypes,
+                   List<String> evidences, List<String> publications, List<OntologyTermAnnotation> phenotypes,
                    List<Coordinate> coordinates, String repeatedSequence, int normalRepeats, int pathogenicRepeats) {
             super(id, xrefs, modeOfInheritance, penetrance, confidence, evidences, publications, phenotypes,
                     coordinates);
@@ -623,7 +623,7 @@ public class DiseasePanel {
 
         public GenePanel(String id, String name, List<Xref> xrefs, String modeOfInheritance, Penetrance penetrance,
                          String confidence, List<String> evidences, List<String> publications,
-                         List<OntologyTerm> phenotypes, List<Coordinate> coordinates) {
+                         List<OntologyTermAnnotation> phenotypes, List<Coordinate> coordinates) {
             super(id, xrefs, modeOfInheritance, penetrance, confidence, evidences, publications, phenotypes,
                     coordinates);
             this.name = name;

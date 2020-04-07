@@ -22,11 +22,7 @@ package org.opencb.biodata.models.core;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author Ignacio Medina
- * @author Cristina Yenyxe Gonzalez Garcia
- * @author Joaquin Tarraga
- */
+
 public class Region {
 
     private String chromosome;
@@ -170,29 +166,30 @@ public class Region {
         return result;
     }
 
-
     public String getChromosome() {
         return chromosome;
     }
 
-    public void setChromosome(String chromosome) {
+    public Region setChromosome(String chromosome) {
         this.chromosome = chromosome;
+        return this;
     }
 
     public int getStart() {
         return start;
     }
 
-    public void setStart(int start) {
+    public Region setStart(int start) {
         this.start = start;
+        return this;
     }
 
     public int getEnd() {
         return end;
     }
 
-    public void setEnd(int end) {
+    public Region setEnd(int end) {
         this.end = end;
+        return this;
     }
-
 }

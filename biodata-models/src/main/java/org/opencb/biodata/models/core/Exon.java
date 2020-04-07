@@ -21,13 +21,9 @@ package org.opencb.biodata.models.core;
 
 import java.io.Serializable;
 
+
 public class Exon implements Serializable{
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -6453125614383801773L;
-	
 	private String id;
 	private String chromosome;
 	private int start;
@@ -42,12 +38,16 @@ public class Exon implements Serializable{
 	private int phase;
 	private int exonNumber;
 	private String sequence;
-	
+
+	private static final long serialVersionUID = -6453125614383801773L;
+
 	public Exon() {
-		
 	}
 
-	public Exon(String id, String chromosome, Integer start, Integer end, String strand, Integer genomicCodingStart, Integer genomicCodingEnd, Integer cdnaCodingStart, Integer cdnaCodingEnd, Integer cdsStart, Integer cdsEnd, Integer phase, Integer exonNumber, String sequence) {
+	@Deprecated
+	public Exon(String id, String chromosome, Integer start, Integer end, String strand, Integer genomicCodingStart,
+				Integer genomicCodingEnd, Integer cdnaCodingStart, Integer cdnaCodingEnd, Integer cdsStart, Integer cdsEnd,
+				Integer phase, Integer exonNumber, String sequence) {
 		super();
 		this.id = id;
 		this.chromosome = chromosome;
@@ -65,117 +65,172 @@ public class Exon implements Serializable{
 		this.sequence = sequence;
 	}
 
+	public Exon(String id, String chromosome, int start, int end, String strand, int genomicCodingStart, int genomicCodingEnd,
+				int cdnaCodingStart, int cdnaCodingEnd, int cdsStart, int cdsEnd, int phase, int exonNumber, String sequence) {
+		this.id = id;
+		this.chromosome = chromosome;
+		this.start = start;
+		this.end = end;
+		this.strand = strand;
+		this.genomicCodingStart = genomicCodingStart;
+		this.genomicCodingEnd = genomicCodingEnd;
+		this.cdnaCodingStart = cdnaCodingStart;
+		this.cdnaCodingEnd = cdnaCodingEnd;
+		this.cdsStart = cdsStart;
+		this.cdsEnd = cdsEnd;
+		this.phase = phase;
+		this.exonNumber = exonNumber;
+		this.sequence = sequence;
+	}
+
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder("Exon{");
+		sb.append("id='").append(id).append('\'');
+		sb.append(", chromosome='").append(chromosome).append('\'');
+		sb.append(", start=").append(start);
+		sb.append(", end=").append(end);
+		sb.append(", strand='").append(strand).append('\'');
+		sb.append(", genomicCodingStart=").append(genomicCodingStart);
+		sb.append(", genomicCodingEnd=").append(genomicCodingEnd);
+		sb.append(", cdnaCodingStart=").append(cdnaCodingStart);
+		sb.append(", cdnaCodingEnd=").append(cdnaCodingEnd);
+		sb.append(", cdsStart=").append(cdsStart);
+		sb.append(", cdsEnd=").append(cdsEnd);
+		sb.append(", phase=").append(phase);
+		sb.append(", exonNumber=").append(exonNumber);
+		sb.append(", sequence='").append(sequence).append('\'');
+		sb.append('}');
+		return sb.toString();
+	}
+
 	public String getId() {
 		return id;
 	}
 
-	public void setId(String id) {
+	public Exon setId(String id) {
 		this.id = id;
+		return this;
 	}
 
 	public String getChromosome() {
 		return chromosome;
 	}
 
-	public void setChromosome(String chromosome) {
+	public Exon setChromosome(String chromosome) {
 		this.chromosome = chromosome;
+		return this;
 	}
 
 	public int getStart() {
 		return start;
 	}
 
-	public void setStart(int start) {
+	public Exon setStart(int start) {
 		this.start = start;
+		return this;
 	}
 
 	public int getEnd() {
 		return end;
 	}
 
-	public void setEnd(int end) {
+	public Exon setEnd(int end) {
 		this.end = end;
+		return this;
 	}
 
 	public String getStrand() {
 		return strand;
 	}
 
-	public void setStrand(String strand) {
+	public Exon setStrand(String strand) {
 		this.strand = strand;
-	}
-
-	public int getExonNumber() {
-		return exonNumber;
-	}
-
-	public void setExonNumber(int exonNumber) {
-		this.exonNumber = exonNumber;
-	}
-
-	public int getPhase() {
-		return phase;
-	}
-
-	public void setPhase(int phase) {
-		this.phase = phase;
+		return this;
 	}
 
 	public int getGenomicCodingStart() {
 		return genomicCodingStart;
 	}
 
-	public void setGenomicCodingStart(int codingRegionStart) {
-		this.genomicCodingStart = codingRegionStart;
+	public Exon setGenomicCodingStart(int genomicCodingStart) {
+		this.genomicCodingStart = genomicCodingStart;
+		return this;
 	}
 
 	public int getGenomicCodingEnd() {
 		return genomicCodingEnd;
 	}
 
-	public void setGenomicCodingEnd(int codingRegionEnd) {
-		this.genomicCodingEnd = codingRegionEnd;
+	public Exon setGenomicCodingEnd(int genomicCodingEnd) {
+		this.genomicCodingEnd = genomicCodingEnd;
+		return this;
 	}
 
 	public int getCdnaCodingStart() {
 		return cdnaCodingStart;
 	}
 
-	public void setCdnaCodingStart(int cdnaCodingStart) {
+	public Exon setCdnaCodingStart(int cdnaCodingStart) {
 		this.cdnaCodingStart = cdnaCodingStart;
+		return this;
 	}
 
 	public int getCdnaCodingEnd() {
 		return cdnaCodingEnd;
 	}
 
-	public void setCdnaCodingEnd(int cdnaCodingEnd) {
+	public Exon setCdnaCodingEnd(int cdnaCodingEnd) {
 		this.cdnaCodingEnd = cdnaCodingEnd;
+		return this;
 	}
 
 	public int getCdsStart() {
 		return cdsStart;
 	}
 
-	public void setCdsStart(int cdsStart) {
+	public Exon setCdsStart(int cdsStart) {
 		this.cdsStart = cdsStart;
+		return this;
 	}
 
 	public int getCdsEnd() {
 		return cdsEnd;
 	}
 
-	public void setCdsEnd(int cdsEnd) {
+	public Exon setCdsEnd(int cdsEnd) {
 		this.cdsEnd = cdsEnd;
+		return this;
+	}
+
+	public int getPhase() {
+		return phase;
+	}
+
+	public Exon setPhase(int phase) {
+		this.phase = phase;
+		return this;
+	}
+
+	public int getExonNumber() {
+		return exonNumber;
+	}
+
+	public Exon setExonNumber(int exonNumber) {
+		this.exonNumber = exonNumber;
+		return this;
 	}
 
 	public String getSequence() {
 		return sequence;
 	}
 
-	public void setSequence(String sequence) {
+	public Exon setSequence(String sequence) {
 		this.sequence = sequence;
+		return this;
 	}
-	
-	
+
+	public static long getSerialVersionUID() {
+		return serialVersionUID;
+	}
 }

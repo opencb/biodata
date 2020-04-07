@@ -29,7 +29,6 @@ public class Constraint {
     private double value;
 
     public Constraint() {
-
     }
 
     public Constraint(String source, String method, String name, double value) {
@@ -41,12 +40,13 @@ public class Constraint {
 
     @Override
     public String toString() {
-        return "Constraint{" +
-                "source='" + source + '\'' +
-                ", method='" + method + '\'' +
-                ", name='" + name + '\'' +
-                ", value=" + value +
-                '}';
+        final StringBuilder sb = new StringBuilder("Constraint{");
+        sb.append("source='").append(source).append('\'');
+        sb.append(", method='").append(method).append('\'');
+        sb.append(", name='").append(name).append('\'');
+        sb.append(", value=").append(value);
+        sb.append('}');
+        return sb.toString();
     }
 
     @Override

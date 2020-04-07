@@ -17,10 +17,7 @@
 package org.opencb.biodata.formats.gaf;
 
 import org.apache.commons.lang3.StringUtils;
-import org.opencb.biodata.formats.io.FileFormatException;
-import org.opencb.biodata.formats.sequence.fasta.Fasta;
-import org.opencb.biodata.models.core.OboTerm;
-import org.opencb.biodata.models.core.OntologyAnnotation;
+import org.opencb.biodata.models.core.TranscriptOntologyTermAnnotation;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -28,9 +25,9 @@ import java.util.*;
 
 public class GafParser {
 
-    public Map<String, List<OntologyAnnotation>> parseGaf(BufferedReader bufferedReader) throws IOException {
+    public Map<String, List<TranscriptOntologyTermAnnotation>> parseGaf(BufferedReader bufferedReader) throws IOException {
 
-        Map<String, List<OntologyAnnotation>> annotations = new HashMap<>();
+        Map<String, List<TranscriptOntologyTermAnnotation>> annotations = new HashMap<>();
 
         String line = null;
         while ((line = bufferedReader.readLine()) != null) {
@@ -49,14 +46,14 @@ public class GafParser {
             String evidenceCode = array[6];
             String pubmeds = array[7];
 
-            OntologyAnnotation ontologyAnnotation = new OntologyAnnotation();
-            ontologyAnnotation.setOboTermId(goId);
-            ontologyAnnotation.setEvidenceCodes(Collections.singletonList(evidenceCode));
+            TranscriptOntologyTermAnnotation transcriptOntologyAnnotation = new TranscriptOntologyTermAnnotation();
+            transcriptOntologyAnnotation.setId(goId);
+            transcriptOntologyAnnotation.setEvidenceCodes(Collections.singletonList(evidenceCode));
             if (StringUtils.isNotEmpty(qualifier)) {
-                ontologyAnnotation.setQualifier(qualifier);
+                transcriptOntologyAnnotation.setQualifier(qualifier);
             }
-            ontologyAnnotation.setPublications(Arrays.asList(pubmeds.split(",")));
-            annotations.computeIfAbsent(dbObjectId, k -> new ArrayList<>()).add(ontologyAnnotation);
+            transcriptOntologyAnnotation.setPublications(Arrays.asList(pubmeds.split(",")));
+            annotations.computeIfAbsent(dbObjectId, k -> new ArrayList<>()).add(transcriptOntologyAnnotation);
         }
         return annotations;
     }

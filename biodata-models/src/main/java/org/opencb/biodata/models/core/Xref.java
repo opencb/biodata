@@ -27,7 +27,6 @@ public class Xref {
 	private String description;
 
     public Xref() {
-
     }
 
     public Xref(String id, String dbName, String dbDisplayName) {
@@ -51,41 +50,52 @@ public class Xref {
 	public int hashCode() {
 		return (id+ dbName).hashCode();
 	}
-	
-	
+
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder("Xref{");
+		sb.append("id='").append(id).append('\'');
+		sb.append(", dbName='").append(dbName).append('\'');
+		sb.append(", dbDisplayName='").append(dbDisplayName).append('\'');
+		sb.append(", description='").append(description).append('\'');
+		sb.append('}');
+		return sb.toString();
+	}
+
 	public String getId() {
 		return id;
 	}
-	
-	public void setId(String id) {
+
+	public Xref setId(String id) {
 		this.id = id;
+		return this;
 	}
-	
-	
+
 	public String getDbName() {
 		return dbName;
 	}
-	
-	public void setDbName(String dbName) {
+
+	public Xref setDbName(String dbName) {
 		this.dbName = dbName;
+		return this;
 	}
-	
-	
+
 	public String getDbDisplayName() {
 		return dbDisplayName;
 	}
-	
-	public void setDbDisplayName(String dbDisplayName) {
+
+	public Xref setDbDisplayName(String dbDisplayName) {
 		this.dbDisplayName = dbDisplayName;
+		return this;
 	}
-	
-	
+
 	public String getDescription() {
 		return description;
 	}
-	
-	public void setDescription(String description) {
+
+	public Xref setDescription(String description) {
 		this.description = description;
+		return this;
 	}
 }
 

@@ -4,16 +4,80 @@ import java.util.List;
 
 public class RegulatoryPfm {
 
+    private String id;
     private String name;
-    private Float threshold;
-    private List<String> associatedTranscriptionFactorComplexes;
+    private List<String> transcriptionFactors;
+    private float threshold;
     private String source;
     private String unit;
-    private Integer maxPositionSum;
-    private Integer length;
-    private String stableId;
-    private String elementsString;
+    private int maxPositionSum;
+    private int length;
     private List<Element> elements;
+
+    public RegulatoryPfm() {
+    }
+
+    public RegulatoryPfm(String id, String name, List<String> transcriptionFactors, float threshold, String source, String unit,
+                         int maxPositionSum, int length, List<Element> elements) {
+        this.id = id;
+        this.name = name;
+        this.transcriptionFactors = transcriptionFactors;
+        this.threshold = threshold;
+        this.source = source;
+        this.unit = unit;
+        this.maxPositionSum = maxPositionSum;
+        this.length = length;
+        this.elements = elements;
+    }
+
+    static class Element {
+
+        private char base;
+        private int count;
+
+        public char getBase() {
+            return base;
+        }
+
+        public Element setBase(char base) {
+            this.base = base;
+            return this;
+        }
+
+        public int getCount() {
+            return count;
+        }
+
+        public Element setCount(int count) {
+            this.count = count;
+            return this;
+        }
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("RegulatoryPfm{");
+        sb.append("id='").append(id).append('\'');
+        sb.append(", name='").append(name).append('\'');
+        sb.append(", transcriptionFactors=").append(transcriptionFactors);
+        sb.append(", threshold=").append(threshold);
+        sb.append(", source='").append(source).append('\'');
+        sb.append(", unit='").append(unit).append('\'');
+        sb.append(", maxPositionSum=").append(maxPositionSum);
+        sb.append(", length=").append(length);
+        sb.append(", elements=").append(elements);
+        sb.append('}');
+        return sb.toString();
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public RegulatoryPfm setId(String id) {
+        this.id = id;
+        return this;
+    }
 
     public String getName() {
         return name;
@@ -24,21 +88,21 @@ public class RegulatoryPfm {
         return this;
     }
 
-    public Float getThreshold() {
-        return threshold;
+    public List<String> getTranscriptionFactors() {
+        return transcriptionFactors;
     }
 
-    public RegulatoryPfm setThreshold(Float threshold) {
-        this.threshold = threshold;
+    public RegulatoryPfm setTranscriptionFactors(List<String> transcriptionFactors) {
+        this.transcriptionFactors = transcriptionFactors;
         return this;
     }
 
-    public List<String> getAssociatedTranscriptionFactorComplexes() {
-        return associatedTranscriptionFactorComplexes;
+    public float getThreshold() {
+        return threshold;
     }
 
-    public RegulatoryPfm setAssociatedTranscriptionFactorComplexes(List<String> associatedTranscriptionFactorComplexes) {
-        this.associatedTranscriptionFactorComplexes = associatedTranscriptionFactorComplexes;
+    public RegulatoryPfm setThreshold(float threshold) {
+        this.threshold = threshold;
         return this;
     }
 
@@ -60,39 +124,21 @@ public class RegulatoryPfm {
         return this;
     }
 
-    public Integer getMaxPositionSum() {
+    public int getMaxPositionSum() {
         return maxPositionSum;
     }
 
-    public RegulatoryPfm setMaxPositionSum(Integer maxPositionSum) {
+    public RegulatoryPfm setMaxPositionSum(int maxPositionSum) {
         this.maxPositionSum = maxPositionSum;
         return this;
     }
 
-    public Integer getLength() {
+    public int getLength() {
         return length;
     }
 
-    public RegulatoryPfm setLength(Integer length) {
+    public RegulatoryPfm setLength(int length) {
         this.length = length;
-        return this;
-    }
-
-    public String getStableId() {
-        return stableId;
-    }
-
-    public RegulatoryPfm setStableId(String stableId) {
-        this.stableId = stableId;
-        return this;
-    }
-
-    public String getElementsString() {
-        return elementsString;
-    }
-
-    public RegulatoryPfm setElementsString(String elementsString) {
-        this.elementsString = elementsString;
         return this;
     }
 
@@ -105,29 +151,3 @@ public class RegulatoryPfm {
         return this;
     }
 }
-
-
-class Element {
-    private char base;
-    private int count;
-
-    public char getBase() {
-        return base;
-    }
-
-    public Element setBase(char base) {
-        this.base = base;
-        return this;
-    }
-
-    public int getCount() {
-        return count;
-    }
-
-    public Element setCount(int count) {
-        this.count = count;
-        return this;
-    }
-}
-
-
