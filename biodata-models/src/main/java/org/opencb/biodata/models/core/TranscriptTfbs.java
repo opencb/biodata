@@ -56,10 +56,11 @@ public class TranscriptTfbs {
     public TranscriptTfbs() {
     }
 
-    public TranscriptTfbs(String id, String pfmId, List<String> transcriptionFactors, String chromosome, Integer start, Integer end,
-                          Integer relativeStart, Integer relativeEnd, Float score) {
+    public TranscriptTfbs(String id, String pfmId, String type, List<String> transcriptionFactors, String chromosome, Integer start,
+                          Integer end, Integer relativeStart, Integer relativeEnd, Float score) {
         this.id = id;
         this.pfmId = pfmId;
+        this.type = type;
         this.transcriptionFactors = transcriptionFactors;
         this.chromosome = chromosome;
         this.start = start;
