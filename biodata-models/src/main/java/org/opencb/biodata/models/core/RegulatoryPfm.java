@@ -1,24 +1,34 @@
 package org.opencb.biodata.models.core;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class RegulatoryPfm {
 
+    @JsonProperty("stable_id")
     private String id;
     private String name;
+    @JsonProperty("associated_transcription_factor_complexes")
     private List<String> transcriptionFactors;
     private float threshold;
     private String source;
     private String unit;
+    @JsonProperty("max_position_sum")
     private int maxPositionSum;
     private int length;
-    private List<Element> elements;
+    private Map<String, Map<String, Integer>> elements;
+    @JsonProperty("elements_string")
+    private String elementsString;
 
     public RegulatoryPfm() {
     }
 
     public RegulatoryPfm(String id, String name, List<String> transcriptionFactors, float threshold, String source, String unit,
-                         int maxPositionSum, int length, List<Element> elements) {
+                         int maxPositionSum, int length, Map<String, Map<String, Integer>> elements, String elementsString) {
         this.id = id;
         this.name = name;
         this.transcriptionFactors = transcriptionFactors;
@@ -28,47 +38,32 @@ public class RegulatoryPfm {
         this.maxPositionSum = maxPositionSum;
         this.length = length;
         this.elements = elements;
+        this.elementsString = elementsString;
     }
 
-    static class Element {
-
-        private char base;
-        private int count;
-
-        public char getBase() {
-            return base;
-        }
-
-        public Element setBase(char base) {
-            this.base = base;
-            return this;
-        }
-
-        public int getCount() {
-            return count;
-        }
-
-        public Element setCount(int count) {
-            this.count = count;
-            return this;
-        }
-    }
-
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("RegulatoryPfm{");
-        sb.append("id='").append(id).append('\'');
-        sb.append(", name='").append(name).append('\'');
-        sb.append(", transcriptionFactors=").append(transcriptionFactors);
-        sb.append(", threshold=").append(threshold);
-        sb.append(", source='").append(source).append('\'');
-        sb.append(", unit='").append(unit).append('\'');
-        sb.append(", maxPositionSum=").append(maxPositionSum);
-        sb.append(", length=").append(length);
-        sb.append(", elements=").append(elements);
-        sb.append('}');
-        return sb.toString();
-    }
+//    protected class Element {
+//
+//        private String base;
+//        private int count;
+//
+//        public String getBase() {
+//            return base;
+//        }
+//
+//        public Element setBase(String base) {
+//            this.base = base;
+//            return this;
+//        }
+//
+//        public int getCount() {
+//            return count;
+//        }
+//
+//        public Element setCount(int count) {
+//            this.count = count;
+//            return this;
+//        }
+//    }
 
     public String getId() {
         return id;
@@ -142,12 +137,21 @@ public class RegulatoryPfm {
         return this;
     }
 
-    public List<Element> getElements() {
+    public Map<String, Map<String, Integer>> getElements() {
         return elements;
     }
 
-    public RegulatoryPfm setElements(List<Element> elements) {
+    public RegulatoryPfm setElements(Map<String, Map<String, Integer>> elements) {
         this.elements = elements;
+        return this;
+    }
+
+    public String getElementsString() {
+        return elementsString;
+    }
+
+    public RegulatoryPfm setElementsString(String elementsString) {
+        this.elementsString = elementsString;
         return this;
     }
 }
