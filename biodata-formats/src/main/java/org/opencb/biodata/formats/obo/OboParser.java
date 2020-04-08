@@ -17,14 +17,17 @@
 package org.opencb.biodata.formats.obo;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.obolibrary.oboformat.model.Frame;
 import org.obolibrary.oboformat.model.OBODoc;
 import org.obolibrary.oboformat.model.Xref;
 import org.obolibrary.oboformat.parser.OBOFormatParser;
 import org.opencb.biodata.models.core.OntologyTerm;
+import org.opencb.commons.utils.FileUtils;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.*;
 
 
@@ -39,14 +42,19 @@ public class OboParser {
         return parseOBO(bufferedReader, null);
     }
 
+    public List<OntologyTerm> parseOBO(Path path, String ontologyName) throws IOException {
+        BufferedReader bufferedReader = FileUtils.newBufferedReader(path);
+        return parseOBO(bufferedReader, ontologyName);
+    }
+
     public List<OntologyTerm> parseOBO(BufferedReader bufferedReader, String ontologyName) throws IOException {
         OBOFormatParser parser = new OBOFormatParser();
         OBODoc oboDoc = parser.parse(bufferedReader);
         Collection<Frame> frames = oboDoc.getTermFrames();
-        oboTerms = new HashMap<>();
+        oboTerms = new LinkedHashMap<>();
         for (Frame frame : frames) {
             String oboId = frame.getId();
-            OntologyTerm ontologyTerm = getOboTerm(oboId);
+            OntologyTerm ontologyTerm = getOOntologyTerm(oboId);
             if (StringUtils.isNotEmpty(ontologyName)) {
                 ontologyTerm.setSource(ontologyName);
             }
@@ -108,7 +116,7 @@ public class OboParser {
     }
 
     private void addChild(String parentId, String childId) {
-        OntologyTerm parentTerm = getOboTerm(parentId);
+        OntologyTerm parentTerm = getOOntologyTerm(parentId);
         List<String> children = parentTerm.getChildren();
         if (CollectionUtils.isEmpty(children)) {
             children = new ArrayList<>();
@@ -117,7 +125,7 @@ public class OboParser {
         parentTerm.setChildren(children);
     }
 
-    private OntologyTerm getOboTerm(String id) {
+    private OntologyTerm getOOntologyTerm(String id) {
         OntologyTerm ontologyTerm = oboTerms.get(id);
         if (ontologyTerm == null) {
             ontologyTerm = new OntologyTerm();
