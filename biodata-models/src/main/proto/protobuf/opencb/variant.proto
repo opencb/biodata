@@ -44,32 +44,45 @@ enum VariantType {
 
 message VariantStats {
     /**
-     * Cohort identifier
+     * Unique cohort identifier within the study.
      **/
     string cohortId = 17;
 
     /**
-     * Total number of alleles in called genotypeCounters. Does not include missing alleles
+     * Count of samples with non-missing genotypes in this variant from the cohort.
+     * This value is used as denominator for genotypeFreq.
+     **/
+    int32 samplesCount = 18;
+
+    /**
+     * Count of files with samples from the cohort that reported this variant.
+     * This value is used as denominator for filterFreq.
+     **/
+    int32 filesCount = 19;
+
+    /**
+     * Total number of alleles in called genotypeCounters. It does not include missing alleles.
+     * This value is used as denominator for refAlleleFreq and altAlleleFreq.
      **/
     int32 alleleCount = 1;
 
     /**
-     * Number of reference alleles found in this variant
+     * Number of reference alleles found in this variant.
      **/
     int32 refAlleleCount = 2;
 
     /**
-     * Number of main alternate alleles found in this variants. Does not include secondary alternates
+     * Number of main alternate alleles found in this variants. It does not include secondary alternates.
      **/
     int32 altAlleleCount = 3;
 
     /**
-     * Reference allele frequency calculated from refAlleleCount and alleleCount, in the range (0,1)
+     * Reference allele frequency calculated from refAlleleCount and alleleCount, in the range [0,1]
      **/
     float refAlleleFreq = 4;
 
     /**
-     * Alternate allele frequency calculated from altAlleleCount and alleleCount, in the range (0,1)
+     * Alternate allele frequency calculated from altAlleleCount and alleleCount, in the range [0,1]
      **/
     float altAlleleFreq = 5;
 
@@ -79,48 +92,63 @@ message VariantStats {
     int32 missingAlleleCount = 8;
 
     /**
-     * Number of missing genotypeCounters
+     * Number of genotypes with all alleles missing (e.g. ./.). It does not count partially missing genotypes like "./0" or "./1".
      **/
     int32 missingGenotypeCount = 9;
 
     /**
-     * Count for each genotype found
+     * Number of occurrences for each genotype.
+     * This does not include genotype with all alleles missing (e.g. ./.), but it includes partially missing genotypes like "./0" or "./1".
+     * Total sum of counts should be equal to the count of samples.
      **/
     map<string, int32> genotypeCount = 6;
 
     /**
-     * Genotype frequency for each genotype found
+     * Genotype frequency for each genotype found calculated from the genotypeCount and samplesCount, in the range [0,1]
+     * The sum of frequencies should be 1.
      **/
     map<string, float> genotypeFreq = 7;
 
     /**
-     * Number of samples with non-missing genotype with that specific filter.
+     * The number of occurrences for each FILTER value in files from samples in this cohort reporting this variant.
+     * As each file can contain more than one filter value (usually separated by ';'), the total sum of counts could be greater than to the count of files.
      **/
     map<string, int32> filterCount = 14;
 
     /**
-     * Frequency of each filter. Count divided by the number of non-missing samples.
+     * Frequency of each filter calculated from the filterCount and filesCount, in the range [0,1]
      **/
     map<string, float> filterFreq = 15;
 
     /**
-     * The weighted average of the Quality, computed only for non-missing samples.
+     * The number of files from samples in this cohort reporting this variant with valid QUAL values.
+     * This value is used as denominator to obtain the qualityAvg.
+     */
+    int32 qualityValuesCount = 20;
+
+    /**
+     * The average Quality value for files with valid QUAL values from samples in this cohort reporting this variant.
+     * Some files may not have defined the QUAL value, so the sampling could be less than the filesCount.
      **/
     float qualityAvg = 16;
 
     /**
-     * Minor allele frequency
+     * Minor allele frequency. Frequency of the less common allele between the reference and the main alternate alleles.
+     * This value does not take into acconunt secondary alternates.
      **/
     float maf = 10;
 
     /**
-     * Minor genotype frequency
+     * Minor genotype frequency. Frequency of the less common genotype seen in this variant.
+     * This value takes into account all values from the genotypeFreq map.
      **/
     float mgf = 11;
+
     /**
      * Allele with minor frequency
      **/
     string mafAllele = 12;
+
     /**
      * Genotype with minor frequency
      **/

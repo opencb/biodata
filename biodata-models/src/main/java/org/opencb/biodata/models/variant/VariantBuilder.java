@@ -678,6 +678,12 @@ public class VariantBuilder {
         } else {
             fileData = new HashMap<>();
         }
+        if (samples == null) {
+            samples = Collections.emptyList();
+        }
+        if (sampleDataKeys == null) {
+            sampleDataKeys = Collections.emptyList();
+        }
 
         if (end == null) {
             end = start + inferLengthReference(reference, alternates.get(0), type, length) - 1;

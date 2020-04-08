@@ -36,89 +36,113 @@ protocol Variants {
 
     record VariantStats {
         /**
-         * Cohort identifier
+         * Unique cohort identifier within the study.
          **/
         string cohortId;
 
         /**
-         * Total number of alleles in called genotypeCounters. Does not include missing alleles
+         * Count of samples with non-missing genotypes in this variant from the cohort.
+         * This value is used as denominator for genotypeFreq.
+         **/
+        union { null, int } samplesCount;
+
+        /**
+         * Count of files with samples from the cohort that reported this variant.
+         * This value is used as denominator for filterFreq.
+         **/
+        union { null, int } filesCount;
+
+        /**
+         * Total number of alleles in called genotypeCounters. It does not include missing alleles.
+         * This value is used as denominator for refAlleleFreq and altAlleleFreq.
          **/
         union { null, int } alleleCount;
 
         /**
-         * Number of reference alleles found in this variant
+         * Number of reference alleles found in this variant.
          **/
         union { null, int } refAlleleCount;
 
         /**
-         * Number of main alternate alleles found in this variants. Does not include secondary alternates
+         * Number of main alternate alleles found in this variants. It does not include secondary alternates.
          **/
         union { null, int } altAlleleCount;
 
         /**
-         * Reference allele frequency calculated from refAlleleCount and alleleCount, in the range (0,1)
+         * Reference allele frequency calculated from refAlleleCount and alleleCount, in the range [0,1]
          **/
         union { null, float } refAlleleFreq;
 
         /**
-         * Alternate allele frequency calculated from altAlleleCount and alleleCount, in the range (0,1)
+         * Alternate allele frequency calculated from altAlleleCount and alleleCount, in the range [0,1]
          **/
         union { null, float } altAlleleFreq;
 
         /**
-         * Number of missing alleles
+         * Number of missing alleles.
          **/
         union { null, int } missingAlleleCount;
 
         /**
-         * Number of missing genotypeCounters
+         * Number of genotypes with all alleles missing (e.g. ./.). It does not count partially missing genotypes like "./0" or "./1".
          **/
         union { null, int } missingGenotypeCount;
 
         /**
-         * Count for each genotype found
+         * Number of occurrences for each genotype.
+         * This does not include genotype with all alleles missing (e.g. ./.), but it includes partially missing genotypes like "./0" or "./1".
+         * Total sum of counts should be equal to the count of samples.
          **/
-        @java-key-class("org.opencb.biodata.models.variant.Genotype")
         map<int> genotypeCount = {};
 
         /**
-         * Genotype frequency for each genotype found
+         * Genotype frequency for each genotype found calculated from the genotypeCount and samplesCount, in the range [0,1]
+         * The sum of frequencies should be 1.
          **/
-        @java-key-class("org.opencb.biodata.models.variant.Genotype")
         map<float> genotypeFreq = {};
 
         /**
-          Number of samples with non-missing genotype with that specific filter.
+         * The number of occurrences for each FILTER value in files from samples in this cohort reporting this variant.
+         * As each file can contain more than one filter value (usually separated by ';'), the total sum of counts could be greater than to the count of files.
          **/
         map<int> filterCount;
 
         /**
-          Frequency of each filter. Count divided by the number of non-missing samples.
+         * Frequency of each filter calculated from the filterCount and filesCount, in the range [0,1]
          **/
         map<float> filterFreq;
 
         /**
-          The weighted average of the Quality, computed only for non-missing samples.
+         * The number of files from samples in this cohort reporting this variant with valid QUAL values.
+         * This value is used as denominator to obtain the qualityAvg.
+         */
+        union { null, int } qualityValuesCount;
+
+        /**
+         * The average Quality value for files with valid QUAL values from samples in this cohort reporting this variant.
+         * Some files may not have defined the QUAL value, so the sampling could be less than the filesCount.
          **/
         union { null, float } qualityAvg;
 
         /**
-         * Minor allele frequency
+         * Minor allele frequency. Frequency of the less common allele between the reference and the main alternate alleles.
+         * This value does not take into acconunt secondary alternates.
          **/
         union { null, float } maf;
 
         /**
-         * Minor genotype frequency
+         * Minor genotype frequency. Frequency of the less common genotype seen in this variant.
+         * This value takes into account all values from the genotypeFreq map.
          **/
         union { null, float } mgf;
 
         /**
-         * Allele with minor frequency
+         * Allele with minor frequency.
          **/
         union { null, string } mafAllele;
 
         /**
-         * Genotype with minor frequency
+         * Genotype with minor frequency.
          **/
         union { null, string } mgfGenotype;
     }

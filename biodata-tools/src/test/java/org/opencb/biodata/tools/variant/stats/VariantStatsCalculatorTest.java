@@ -137,35 +137,46 @@ public class VariantStatsCalculatorTest {
     public void testCalculateFromCounts() {
         VariantStats stats = VariantStatsCalculator.calculate(
                 new Variant("1:100:A:C"), new GtMap()
+                        .append("./.", 10)
                         .append("0/0", 10)
                         .append("0/1", 20)
-                        .append("1/2", 20), true);
+                        .append("1/2", 20)
+                        .append("1/3", 20), true);
 
-        assertEquals(100, stats.getAlleleCount().intValue());
+        assertEquals(140, stats.getAlleleCount().intValue());
         assertEquals(40, stats.getRefAlleleCount().intValue());
-        assertEquals(40, stats.getAltAlleleCount().intValue());
+        assertEquals(60, stats.getAltAlleleCount().intValue());
+        assertEquals(20, stats.getMissingAlleleCount().intValue());
+        assertEquals(10, stats.getMissingGenotypeCount().intValue());
 
         assertEquals(new HashSet<>(Arrays.asList(
-                new Genotype("0/0"),
-                new Genotype("0/1"),
-                new Genotype("1/1"),
-                new Genotype("1/2"))),
+                "0/0",
+                "0/1",
+                "1/1",
+                "1/2",
+                "1/3")),
                 stats.getGenotypeCount().keySet());
 
         stats = VariantStatsCalculator.calculate(
                 new Variant("1:100:A:C"), new GtMap()
+                        .append("./.", 10)
                         .append("0/0", 10)
                         .append("0/1", 20)
-                        .append("1/2", 20), false);
+                        .append("1/2", 20)
+                        .append("1/3", 20), false);
 
-        assertEquals(100, stats.getAlleleCount().intValue());
+        assertEquals(140, stats.getAlleleCount().intValue());
         assertEquals(40, stats.getRefAlleleCount().intValue());
-        assertEquals(40, stats.getAltAlleleCount().intValue());
+        assertEquals(60, stats.getAltAlleleCount().intValue());
+        assertEquals(20, stats.getMissingAlleleCount().intValue());
+        assertEquals(10, stats.getMissingGenotypeCount().intValue());
 
         assertEquals(new HashSet<>(Arrays.asList(
-                new Genotype("0/0"),
-                new Genotype("0/1"),
-                new Genotype("1/1"))), stats.getGenotypeCount().keySet());
+                "0/0",
+                "0/1",
+                "1/1",
+                "1/*")), stats.getGenotypeCount().keySet());
+        assertEquals(40, stats.getGenotypeCount().get("1/*").intValue());
 
     }
 
@@ -185,11 +196,10 @@ public class VariantStatsCalculatorTest {
         assertEquals(40, stats.getAltAlleleCount().intValue());
 
         assertEquals(stats.getGenotypeCount().keySet(), stats.getGenotypeFreq().keySet());
-        assertEquals(new HashSet<>(Arrays.asList(new Genotype("0/0"), new Genotype("0/1"), new Genotype("1/1"), new Genotype("1/2"))),
+        assertEquals(new HashSet<>(Arrays.asList("0/0", "0/1", "1/1", "1/2")),
                 stats.getGenotypeCount().keySet());
         assertEquals(0.0, stats.getMgf().doubleValue(), 0.00001);
         assertEquals("1/1", stats.getMgfGenotype());
-
 
 
         stats = VariantStatsCalculator.calculate(
@@ -216,17 +226,21 @@ public class VariantStatsCalculatorTest {
                         .append("0/0", 10)
                         .append("0/1", 20)
                         .append("1/1", 5)
-                        .append("./.", 200)
                         .append("./1", 10)
-                        .append("1/2", 20),
+                        .append("1/2", 20)
+                        .toStringMap(),
                 stats.getGenotypeCount());
         assertEquals(new HashSet<>(Arrays.asList(
-                new Genotype("0/0"),
-                new Genotype("0/1"),
-                new Genotype("1/1"),
-                new Genotype("1/2"))),
+                "0/0",
+                "0/1",
+                "./1",
+                "1/1",
+                "1/2")),
                 stats.getGenotypeFreq().keySet());
-        assertEquals(5.0 / 55.0, stats.getMgf().doubleValue(), 0.00001);
+        assertEquals(200, stats.getMissingGenotypeCount().intValue());
+        assertEquals(410, stats.getMissingAlleleCount().intValue());
+        assertEquals(65, stats.getSamplesCount().intValue());
+        assertEquals(5.0 / 65.0, stats.getMgf().doubleValue(), 0.00001);
         assertEquals("1/1", stats.getMgfGenotype());
     }
 
@@ -238,6 +252,12 @@ public class VariantStatsCalculatorTest {
         public GtMap append(Genotype gt, Integer count) {
             super.put(gt, count);
             return this;
+        }
+
+        public Map<String, Integer> toStringMap() {
+            Map<String, Integer> map = new HashMap<>();
+            forEach((k, v) -> map.put(k.toString(), v));
+            return map;
         }
     }
 

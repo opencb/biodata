@@ -64,9 +64,9 @@ public class VariantStatsToTsvConverter implements Converter<Variant, String> {
         STATS_COLUMNS.put(AN, VariantStats::getAlleleCount);
         STATS_COLUMNS.put(MISS_AC, VariantStats::getMissingAlleleCount);
 
-        Genotype homRefGt = new Genotype("0/0");
-        Genotype hetGt = new Genotype("0/1");
-        Genotype homAltGt = new Genotype("1/1");
+        String homRefGt = "0/0";
+        String hetGt = "0/1";
+        String homAltGt = "1/1";
 
         STATS_COLUMNS.put(HOM_REF_F, variantStats -> variantStats.getGenotypeFreq().get(homRefGt));
         STATS_COLUMNS.put(HOM_REF_C, variantStats -> variantStats.getGenotypeCount().get(homRefGt));
@@ -172,7 +172,9 @@ public class VariantStatsToTsvConverter implements Converter<Variant, String> {
             } else {
                 if (stats.getGenotypeCount().keySet().stream().anyMatch(Genotype::isPhased)) {
                     // Remove phase of genotypes
-                    stats = VariantStatsCalculator.calculate(variant, stats.getGenotypeCount(), false);
+                    Map<Genotype, Integer> genotypeCount = new HashMap<>();
+                    stats.getGenotypeCount().forEach((k, v) -> genotypeCount.put(new Genotype(k), v));
+                    stats = VariantStatsCalculator.calculate(variant, genotypeCount, false);
                 }
 
                 Iterator<Function<VariantStats, Number>> iterator = STATS_COLUMNS.values().iterator();
