@@ -17,7 +17,7 @@
 package org.opencb.biodata.formats.gaf;
 
 import org.apache.commons.lang3.StringUtils;
-import org.opencb.biodata.models.core.TranscriptOntologyTermAnnotation;
+import org.opencb.biodata.models.core.FeatureOntologyTermAnnotation;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -25,9 +25,9 @@ import java.util.*;
 
 public class GafParser {
 
-    public Map<String, List<TranscriptOntologyTermAnnotation>> parseGaf(BufferedReader bufferedReader) throws IOException {
+    public Map<String, List<FeatureOntologyTermAnnotation>> parseGaf(BufferedReader bufferedReader) throws IOException {
 
-        Map<String, List<TranscriptOntologyTermAnnotation>> annotations = new HashMap<>();
+        Map<String, List<FeatureOntologyTermAnnotation>> annotations = new HashMap<>();
 
         String line = null;
         while ((line = bufferedReader.readLine()) != null) {
@@ -46,7 +46,7 @@ public class GafParser {
             String evidenceCode = array[6];
             String pubmeds = array[7];
 
-            TranscriptOntologyTermAnnotation transcriptOntologyAnnotation = new TranscriptOntologyTermAnnotation();
+            FeatureOntologyTermAnnotation transcriptOntologyAnnotation = new FeatureOntologyTermAnnotation();
             transcriptOntologyAnnotation.setId(goId);
             transcriptOntologyAnnotation.setEvidenceCodes(Collections.singletonList(evidenceCode));
             if (StringUtils.isNotEmpty(qualifier)) {

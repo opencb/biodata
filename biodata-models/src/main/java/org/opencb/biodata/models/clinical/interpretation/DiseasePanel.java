@@ -20,8 +20,8 @@
 package org.opencb.biodata.models.clinical.interpretation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.opencb.biodata.models.commons.OntologyTermAnnotation;
-import org.opencb.biodata.models.commons.Phenotype;
+import org.opencb.biodata.models.core.OntologyTermAnnotation;
+import org.opencb.biodata.models.clinical.Phenotype;
 import org.opencb.biodata.models.core.Xref;
 
 import java.io.IOException;

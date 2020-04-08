@@ -17,7 +17,9 @@
  *
  */
 
-package org.opencb.biodata.models.commons;
+package org.opencb.biodata.models.clinical;
+
+import org.opencb.biodata.models.core.OntologyTermAnnotation;
 
 import java.util.List;
 import java.util.Map;

@@ -19,7 +19,6 @@
 
 package org.opencb.biodata.models.feature;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;

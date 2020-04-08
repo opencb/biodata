@@ -27,7 +27,7 @@ import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.Penetr
 import org.opencb.biodata.models.clinical.interpretation.DiseasePanel;
 import org.opencb.biodata.models.clinical.interpretation.ReportedEvent;
 import org.opencb.biodata.models.clinical.interpretation.ReportedVariant;
-import org.opencb.biodata.models.commons.Disorder;
+import org.opencb.biodata.models.clinical.Disorder;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.ConsequenceType;
 

@@ -9,7 +9,7 @@ import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.Penetr
 import org.opencb.biodata.models.clinical.pedigree.Member;
 import org.opencb.biodata.models.clinical.pedigree.Pedigree;
 import org.opencb.biodata.models.clinical.pedigree.PedigreeManager;
-import org.opencb.biodata.models.commons.Disorder;
+import org.opencb.biodata.models.clinical.Disorder;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;

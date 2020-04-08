@@ -16,23 +16,21 @@
 
 package org.opencb.biodata.models.core;
 
-import org.opencb.biodata.models.commons.OntologyTermAnnotation;
-
 import java.util.List;
 import java.util.Map;
 
 
-public class TranscriptOntologyTermAnnotation extends OntologyTermAnnotation {
+public class FeatureOntologyTermAnnotation extends OntologyTermAnnotation {
 
     private List<String> evidenceCodes;
     private List<String> publications;
     private String qualifier;
 
-    public TranscriptOntologyTermAnnotation() {
+    public FeatureOntologyTermAnnotation() {
     }
 
-    public TranscriptOntologyTermAnnotation(String id, String name, String source, Map<String, String> attributes,
-                                            List<String> evidenceCodes, List<String> publications, String qualifier) {
+    public FeatureOntologyTermAnnotation(String id, String name, String source, Map<String, String> attributes,
+                                         List<String> evidenceCodes, List<String> publications, String qualifier) {
         super(id, name, source, attributes);
 
         this.evidenceCodes = evidenceCodes;
@@ -42,7 +40,7 @@ public class TranscriptOntologyTermAnnotation extends OntologyTermAnnotation {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("TranscriptOntologyTermAnnotation{");
+        final StringBuilder sb = new StringBuilder("FeatureOntologyTermAnnotation{");
         sb.append("id='").append(id).append('\'');
         sb.append(", name='").append(name).append('\'');
         sb.append(", source='").append(source).append('\'');
@@ -54,11 +52,55 @@ public class TranscriptOntologyTermAnnotation extends OntologyTermAnnotation {
         return sb.toString();
     }
 
+    @Override
+    public String getId() {
+        return id;
+    }
+
+    @Override
+    public FeatureOntologyTermAnnotation setId(String id) {
+        this.id = id;
+        return this;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public FeatureOntologyTermAnnotation setName(String name) {
+        this.name = name;
+        return this;
+    }
+
+    @Override
+    public String getSource() {
+        return source;
+    }
+
+    @Override
+    public FeatureOntologyTermAnnotation setSource(String source) {
+        this.source = source;
+        return this;
+    }
+
+    @Override
+    public Map<String, String> getAttributes() {
+        return attributes;
+    }
+
+    @Override
+    public FeatureOntologyTermAnnotation setAttributes(Map<String, String> attributes) {
+        this.attributes = attributes;
+        return this;
+    }
+
     public List<String> getEvidenceCodes() {
         return evidenceCodes;
     }
 
-    public TranscriptOntologyTermAnnotation setEvidenceCodes(List<String> evidenceCodes) {
+    public FeatureOntologyTermAnnotation setEvidenceCodes(List<String> evidenceCodes) {
         this.evidenceCodes = evidenceCodes;
         return this;
     }
@@ -67,7 +109,7 @@ public class TranscriptOntologyTermAnnotation extends OntologyTermAnnotation {
         return publications;
     }
 
-    public TranscriptOntologyTermAnnotation setPublications(List<String> publications) {
+    public FeatureOntologyTermAnnotation setPublications(List<String> publications) {
         this.publications = publications;
         return this;
     }
@@ -76,7 +118,7 @@ public class TranscriptOntologyTermAnnotation extends OntologyTermAnnotation {
         return qualifier;
     }
 
-    public TranscriptOntologyTermAnnotation setQualifier(String qualifier) {
+    public FeatureOntologyTermAnnotation setQualifier(String qualifier) {
         this.qualifier = qualifier;
         return this;
     }
