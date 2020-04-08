@@ -22,7 +22,7 @@ package org.opencb.biodata.tools.variant.converters.avro;
 import htsjdk.variant.variantcontext.Allele;
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFConstants;
-import org.opencb.biodata.models.feature.Genotype;
+import org.opencb.biodata.models.variant.Genotype;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantBuilder;
 import org.opencb.biodata.models.variant.avro.SampleEntry;

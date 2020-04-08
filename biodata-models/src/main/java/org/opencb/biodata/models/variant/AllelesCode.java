@@ -17,7 +17,7 @@
  *
  */
 
-package org.opencb.biodata.models.feature;
+package org.opencb.biodata.models.variant;
 
 /**
  * Created with IntelliJ IDEA.

@@ -1,8 +1,7 @@
 package org.opencb.biodata.tools.variant.scores;
 
-import htsjdk.tribble.util.popgen.HardyWeinbergCalculation;
 import org.junit.Test;
-import org.opencb.biodata.models.feature.Genotype;
+import org.opencb.biodata.models.variant.Genotype;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantBuilder;
 import org.opencb.biodata.models.variant.avro.VariantScore;

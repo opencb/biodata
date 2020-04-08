@@ -19,6 +19,7 @@ package org.opencb.biodata.models.feature;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.opencb.biodata.models.variant.Genotype;
 
 import java.util.Arrays;
 

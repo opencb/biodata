@@ -20,8 +20,8 @@
 package org.opencb.biodata.tools.variant.stats;
 
 import org.apache.commons.lang.StringUtils;
-import org.opencb.biodata.models.feature.AllelesCode;
-import org.opencb.biodata.models.feature.Genotype;
+import org.opencb.biodata.models.variant.AllelesCode;
+import org.opencb.biodata.models.variant.Genotype;
 import org.opencb.biodata.models.pedigree.Pedigree;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;

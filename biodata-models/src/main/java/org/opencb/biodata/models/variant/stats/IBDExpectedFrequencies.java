@@ -1,13 +1,12 @@
 package org.opencb.biodata.models.variant.stats;
 
 import org.apache.commons.lang.StringUtils;
-import org.opencb.biodata.models.feature.AllelesCode;
-import org.opencb.biodata.models.feature.Genotype;
+import org.opencb.biodata.models.variant.AllelesCode;
+import org.opencb.biodata.models.variant.Genotype;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.SampleEntry;
 
 import java.io.Serializable;
-import java.util.List;
 
 // Expected frequencies for IBS|IBD
 

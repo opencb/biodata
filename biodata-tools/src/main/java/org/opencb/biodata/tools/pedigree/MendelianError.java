@@ -1,7 +1,7 @@
 package org.opencb.biodata.tools.pedigree;
 
-import org.opencb.biodata.models.feature.AllelesCode;
-import org.opencb.biodata.models.feature.Genotype;
+import org.opencb.biodata.models.variant.AllelesCode;
+import org.opencb.biodata.models.variant.Genotype;
 
 import javax.annotation.Nullable;
 import java.util.*;

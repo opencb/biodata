@@ -377,8 +377,8 @@ public class VariantProtoToVariantContextConverter extends VariantContextConvert
 //                    String gt = gtSplit.get(0);
 //                    String ft = ftSplit.get(0);
 //
-//                    org.opencb.biodata.models.feature.Genotype genotype =
-//                            new org.opencb.biodata.models.feature.Genotype(gt, reference, alternate);
+//                    org.opencb.biodata.models.variant.Genotype genotype =
+//                            new org.opencb.biodata.models.variant.Genotype(gt, reference, alternate);
 //                    List<Allele> alleles = new ArrayList<>();
 //                    for (int gtIdx : genotype.getAllelesIdx()) {
 //                        if (gtIdx < originalAlleles.size() && gtIdx >= 0) {

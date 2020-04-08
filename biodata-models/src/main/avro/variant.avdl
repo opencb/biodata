@@ -78,13 +78,13 @@ protocol Variants {
         /**
          * Count for each genotype found
          **/
-        @java-key-class("org.opencb.biodata.models.feature.Genotype")
+        @java-key-class("org.opencb.biodata.models.variant.Genotype")
         map<int> genotypeCount = {};
 
         /**
          * Genotype frequency for each genotype found
          **/
-        @java-key-class("org.opencb.biodata.models.feature.Genotype")
+        @java-key-class("org.opencb.biodata.models.variant.Genotype")
         map<float> genotypeFreq = {};
 
         /**
