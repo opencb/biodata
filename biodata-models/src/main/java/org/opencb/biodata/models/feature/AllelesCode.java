@@ -29,10 +29,8 @@ package org.opencb.biodata.models.feature;
 public enum AllelesCode {
     ALLELES_OK,
     ALLELES_MISSING,
-//    FIRST_ALLELE_MISSING,
+    PARTIAL_ALLELES_MISSING,
 //    SECOND_ALLELE_MISSING,
 //    ALL_ALLELES_MISSING,
-    MULTIPLE_ALTERNATES,
-    /** @deprecated Ask for ploidy or use {@link Genotype#isHaploid()} */
-    @Deprecated HAPLOID
+    MULTIPLE_ALTERNATES
 }

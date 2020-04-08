@@ -151,10 +151,6 @@ public class Genotype {
     }
 
     private void parseGenotype(String genotype) {
-        int allelesLength;
-        /*REGEX*/
-//        List<String> alleles = Arrays.asList(genotypePattern.split(genotype, -1));
-
         switch (genotype) {
             case HOM_REF:
                 this.code = AllelesCode.ALLELES_OK;
@@ -193,18 +189,21 @@ public class Genotype {
             alleles.add(genotype.substring(lastIdx));
         }
         allelesLength = alleles.size();
-        this.phased = genotype.contains("|");
-        this.code = AllelesCode.ALLELES_OK;
+        this.phased = isPhased(genotype);
         this.allelesIdx = new int[allelesLength];
+        boolean missingAlleles = false;
+        boolean allelesOk = false;
+        boolean multipleAlternates = false;
 
         for (int i = 0, allelesSize = allelesLength; i < allelesSize; i++) {
             String allele = alleles.get(i);
 //            String allele = alleles[i];
 
             if (allele.equals(".") || allele.equals("-1")) {
-                this.code = AllelesCode.ALLELES_MISSING;
+                missingAlleles = true;
                 this.allelesIdx[i] = -1;
             } else {
+                allelesOk = true;
                 char ch;
                 if (allele.length() == 1 && ((ch = allele.charAt(0)) >= '0' && ch <= '9')) {
                     this.allelesIdx[i] = ch - '0';
@@ -232,10 +231,23 @@ public class Genotype {
                 }
 
                 if (allelesIdx[i] > 1) {
-                    this.code = AllelesCode.MULTIPLE_ALTERNATES;
+                    multipleAlternates = true;
                 }
             }
         }
+
+        if (allelesOk && !missingAlleles) {
+            if (multipleAlternates) {
+                this.code = AllelesCode.MULTIPLE_ALTERNATES;
+            } else {
+                this.code = AllelesCode.ALLELES_OK;
+            }
+        } else if (!allelesOk && missingAlleles) {
+            this.code = AllelesCode.ALLELES_MISSING;
+        } else {
+            this.code = AllelesCode.PARTIAL_ALLELES_MISSING;
+        }
+
     }
 
     public String getReference() {
@@ -320,6 +332,10 @@ public class Genotype {
 
     public boolean isPhased() {
         return phased;
+    }
+
+    public static boolean isPhased(String genotype) {
+        return genotype.contains("|");
     }
 
     public void setPhased(boolean phased) {

@@ -51,10 +51,10 @@ public class VariantStats {
 
     public VariantStats(float maf, float mgf, String mafAllele, String mgfGenotype,
                         int missingAlleleCount, int missingGenotypeCount) {
-        impl = new org.opencb.biodata.models.variant.avro.VariantStats("", -1, -1, -1, -1F, -1F,
+        impl = new org.opencb.biodata.models.variant.avro.VariantStats("", -1, -1, -1, -1, -1, -1F, -1F,
                 missingAlleleCount, missingGenotypeCount,
                 new HashMap<>(), new HashMap<>(),
-                new HashMap<>(), new HashMap<>(), -1F,
+                new HashMap<>(), new HashMap<>(), -1, -1F,
                 maf, mgf, mafAllele, mgfGenotype);
     }
 
@@ -79,6 +79,22 @@ public class VariantStats {
         impl.setAlleleCount(value);
     }
 
+    public Integer getSamplesCount() {
+        return impl.getSamplesCount();
+    }
+
+    public void setSamplesCount(Integer value) {
+        impl.setSamplesCount(value);
+    }
+
+    public Integer getFilesCount() {
+        return impl.getFilesCount();
+    }
+
+    public void setFilesCount(Integer value) {
+        impl.setFilesCount(value);
+    }
+
     public Integer getRefAlleleCount() {
         return impl.getRefAlleleCount();
     }
@@ -95,19 +111,19 @@ public class VariantStats {
         impl.setAltAlleleCount(value);
     }
 
-    public Map<Genotype, Integer> getGenotypeCount() {
+    public Map<String, Integer> getGenotypeCount() {
         return impl.getGenotypeCount();
     }
 
-    public void setGenotypeCount(Map<Genotype, Integer> value) {
+    public void setGenotypeCount(Map<String, Integer> value) {
         impl.setGenotypeCount(value);
     }
 
-    public Map<Genotype, Float> getGenotypeFreq() {
+    public Map<String, Float> getGenotypeFreq() {
         return impl.getGenotypeFreq();
     }
 
-    public void setGenotypeFreq(Map<Genotype, Float> value) {
+    public void setGenotypeFreq(Map<String, Float> value) {
         impl.setGenotypeFreq(value);
     }
 
@@ -189,7 +205,17 @@ public class VariantStats {
         if (normalize) {
             g = normalizeGenotypeAlleles(g);
         }
-        getGenotypeCount().merge(g, addedCount, Integer::sum);
+        getGenotypeCount().merge(g.toString(), addedCount, Integer::sum);
+        return this;
+    }
+
+    public VariantStats addGenotype(String genotype) {
+        this.addGenotype(genotype, 1);
+        return this;
+    }
+
+    public VariantStats addGenotype(String genotype, int addedCount) {
+        getGenotypeCount().merge(genotype, addedCount, Integer::sum);
         return this;
     }
 
@@ -215,6 +241,14 @@ public class VariantStats {
 
     public void setQualityAvg(Float value) {
         this.impl.setQualityAvg(value);
+    }
+
+    public Integer getQualityValuesCount() {
+        return impl.getQualityValuesCount();
+    }
+
+    public void setQualityValuesCount(Integer value) {
+        this.impl.setQualityValuesCount(value);
     }
 
     private Genotype normalizeGenotypeAlleles(Genotype g) {
