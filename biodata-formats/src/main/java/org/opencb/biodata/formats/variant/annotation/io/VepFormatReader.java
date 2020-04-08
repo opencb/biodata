@@ -29,7 +29,7 @@ import org.opencb.biodata.models.variant.annotation.ConsequenceTypeMappings;
 import org.opencb.biodata.models.variant.annotation.ProteinSubstitutionScores;
 import org.opencb.biodata.models.variant.avro.*;
 //import org.opencb.biodata.models.variation.PopulationFrequency;
-//import org.opencb.biodata.models.variation.ProteinVariantAnnotation;
+//import org.opencb.biodata.models.variant.annotation.ProteinVariantAnnotation;
 import org.opencb.commons.io.DataReader;
 
 import java.io.BufferedReader;

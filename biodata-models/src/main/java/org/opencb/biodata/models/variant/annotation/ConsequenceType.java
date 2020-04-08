@@ -19,8 +19,6 @@
 
 package org.opencb.biodata.models.variant.annotation;
 
-import org.opencb.biodata.models.variation.ProteinVariantAnnotation;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
