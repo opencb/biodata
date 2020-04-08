@@ -17,6 +17,7 @@
 package org.opencb.biodata.formats.obo;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.obolibrary.oboformat.model.Frame;
 import org.obolibrary.oboformat.model.OBODoc;
 import org.obolibrary.oboformat.model.Xref;
@@ -29,13 +30,16 @@ import java.util.*;
 
 public class OboParser {
 
-    Map<String, OntologyTerm> oboTerms;
+    private Map<String, OntologyTerm> oboTerms;
 
     public OboParser() {
-
     }
 
     public List<OntologyTerm> parseOBO(BufferedReader bufferedReader) throws IOException {
+        return parseOBO(bufferedReader, null);
+    }
+
+    public List<OntologyTerm> parseOBO(BufferedReader bufferedReader, String ontologyName) throws IOException {
         OBOFormatParser parser = new OBOFormatParser();
         OBODoc oboDoc = parser.parse(bufferedReader);
         Collection<Frame> frames = oboDoc.getTermFrames();
@@ -43,6 +47,9 @@ public class OboParser {
         for (Frame frame : frames) {
             String oboId = frame.getId();
             OntologyTerm ontologyTerm = getOboTerm(oboId);
+            if (StringUtils.isNotEmpty(ontologyName)) {
+                ontologyTerm.setSource(ontologyName);
+            }
             for (String tag : frame.getTags()) {
                 switch(tag) {
                     case "name":

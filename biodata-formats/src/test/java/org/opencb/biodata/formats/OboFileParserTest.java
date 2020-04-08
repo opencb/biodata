@@ -20,7 +20,7 @@ public class OboFileParserTest {
                 .getResource("/hp.obo").getPath()));
 
         OboParser parser = new OboParser();
-        List<OntologyTerm> terms = parser.parseOBO(bufferedReader);
+        List<OntologyTerm> terms = parser.parseOBO(bufferedReader, "Human Phenotype Ontology");
         assertEquals(4, terms.size());
 
         OntologyTerm term0 = terms.get(0);
@@ -28,6 +28,7 @@ public class OboFileParserTest {
         assertEquals("All", term0.getName());
         assertNull(term0.getDescription());
         assertEquals("Root of all terms in the Human Phenotype Ontology.", term0.getComment());
+        assertEquals("Human Phenotype Ontology", term0.getSource());
 
 //        [Term]
 //        id: HP:0000002
