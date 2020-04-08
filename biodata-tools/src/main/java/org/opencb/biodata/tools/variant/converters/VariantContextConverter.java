@@ -255,25 +255,22 @@ public abstract class VariantContextConverter<T> implements Converter<T, Variant
         return (qual == Double.MAX_VALUE ? VariantContext.NO_LOG10_PERROR : (-0.1 * qual));
     }
 
-    protected List<Genotype> getGenotypes(List<String> alleleList, List<String> variantFormats, BiFunction<String, String, String> getSampleData) {
+    protected List<Genotype> getGenotypes(List<String> alleleList, List<String> sampleDataKeys, BiFunction<String, String, String> getSampleData) {
         String refAllele = alleleList.get(0);
         Set<Integer> noCallAlleles = getNoCallAlleleIdx(alleleList);
 
         List<Genotype> genotypes = new ArrayList<>();
         if (this.sampleNames != null) {
 
-            List<String> formats;
             if (this.sampleFormats != null) {
-                formats = this.sampleFormats;
-            } else {
-                formats = variantFormats;
+                sampleDataKeys = this.sampleFormats;
             }
 
             for (String sampleName : this.sampleNames) {
                 GenotypeBuilder genotypeBuilder = new GenotypeBuilder().name(sampleName);
-                for (String id : formats) {
-                    String value = getSampleData.apply(sampleName, id);
-                    switch (id) {
+                for (String key : sampleDataKeys) {
+                    String value = getSampleData.apply(sampleName, key);
+                    switch (key) {
                         case "GT":
                             if (value == null) {
                                 value = NO_CALL_ALLELE;
@@ -321,7 +318,7 @@ public abstract class VariantContextConverter<T> implements Converter<T, Variant
                             }
                             break;
                         default:
-                            genotypeBuilder.attribute(id, value);
+                            genotypeBuilder.attribute(key, value);
                             break;
                     }
                 }

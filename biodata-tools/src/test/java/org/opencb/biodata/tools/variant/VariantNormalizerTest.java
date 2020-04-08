@@ -34,6 +34,27 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
     }
 
     @Test
+    public void testSimpleNormalize() {
+        Variant v = new Variant("1:100:A:C,AC");
+        List<Variant> l = normalizer.apply(Collections.singletonList(v));
+
+        v = l.get(0);
+        OriginalCall call = v.getStudies().get(0).getFiles().get(0).getCall();
+        assertEquals("1:100:A:C", v.toString());
+        assertEquals("1:100:A:C,AC", call.getVariantId());
+        assertEquals(0, call.getAlleleIndex().intValue());
+        assertEquals(v, normalizer.apply(new Variant(call.getVariantId())).get(call.getAlleleIndex()));
+
+        v = l.get(1);
+        call = v.getStudies().get(0).getFiles().get(0).getCall();
+        assertEquals("1:101:-:C", v.toString());
+        assertEquals("1:100:A:C,AC", call.getVariantId());
+        assertEquals(1, call.getAlleleIndex().intValue());
+        assertEquals(v, normalizer.apply(new Variant(call.getVariantId())).get(call.getAlleleIndex()));
+
+    }
+
+    @Test
     public void testNormalizedSamplesDataSame() throws NonStandardCompliantSampleField {
         // C -> A  === C -> A
         testSampleNormalization("1", 100, "C", "A", 100, "C", "A");

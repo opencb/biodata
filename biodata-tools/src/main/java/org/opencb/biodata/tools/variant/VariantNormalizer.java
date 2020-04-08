@@ -276,6 +276,14 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             return config;
     }
 
+    public List<Variant> apply(Variant... variants) {
+        return apply(Arrays.asList(variants));
+    }
+
+    public List<Variant> apply(Variant variant) {
+        return apply(Collections.singletonList(variant));
+    }
+
     @Override
     public List<Variant> apply(List<Variant> batch) {
         try {
@@ -421,9 +429,13 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                             } else {
                                 call = new OriginalCall(originalCall, keyFields.numAllele);
                             }
-                            for (FileEntry file : entry.getFiles()) {
-                                HashMap<String, String> fileData = new HashMap<>(file.getData());
-                                files.add(new FileEntry(file.getFileId(), call, fileData));
+                            if (entry.getFiles().isEmpty()) {
+                                files.add(new FileEntry("", call, Collections.emptyMap()));
+                            } else {
+                                for (FileEntry file : entry.getFiles()) {
+                                    HashMap<String, String> fileData = new HashMap<>(file.getData());
+                                    files.add(new FileEntry(file.getFileId(), call, fileData));
+                                }
                             }
                             normalizedEntry.setFiles(files);
                             normalizedVariant.addStudyEntry(normalizedEntry);
