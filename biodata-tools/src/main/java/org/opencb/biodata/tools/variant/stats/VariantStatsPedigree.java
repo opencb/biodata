@@ -1,12 +1,11 @@
 package org.opencb.biodata.tools.variant.stats;
 
-import org.opencb.biodata.models.feature.AllelesCode;
-import org.opencb.biodata.models.feature.Genotype;
+import org.opencb.biodata.models.variant.AllelesCode;
+import org.opencb.biodata.models.variant.Genotype;
 import org.opencb.biodata.models.pedigree.Condition;
 import org.opencb.biodata.models.pedigree.Individual;
 import org.opencb.biodata.models.pedigree.Pedigree;
 import org.opencb.biodata.models.variant.StudyEntry;
-import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
 import java.util.*;

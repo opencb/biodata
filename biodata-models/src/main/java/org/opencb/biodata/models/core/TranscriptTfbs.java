@@ -138,6 +138,42 @@ public class TranscriptTfbs {
         return this;
     }
 
+    public String getChromosome() {
+        return chromosome;
+    }
+
+    public TranscriptTfbs setChromosome(String chromosome) {
+        this.chromosome = chromosome;
+        return this;
+    }
+
+    public int getStart() {
+        return start;
+    }
+
+    public TranscriptTfbs setStart(int start) {
+        this.start = start;
+        return this;
+    }
+
+    public int getEnd() {
+        return end;
+    }
+
+    public TranscriptTfbs setEnd(int end) {
+        this.end = end;
+        return this;
+    }
+
+    public String getStrand() {
+        return strand;
+    }
+
+    public TranscriptTfbs setStrand(String strand) {
+        this.strand = strand;
+        return this;
+    }
+
     public String getType() {
         return type;
     }
@@ -165,14 +201,42 @@ public class TranscriptTfbs {
         return this;
     }
 
+    public int getRelativeStart() {
+        return relativeStart;
+    }
+
+    public TranscriptTfbs setRelativeStart(int relativeStart) {
+        this.relativeStart = relativeStart;
+        return this;
+    }
+
+    public int getRelativeEnd() {
+        return relativeEnd;
+    }
+
+    public TranscriptTfbs setRelativeEnd(int relativeEnd) {
+        this.relativeEnd = relativeEnd;
+        return this;
+    }
+
+    public float getScore() {
+        return score;
+    }
+
+    public TranscriptTfbs setScore(float score) {
+        this.score = score;
+        return this;
+    }
+
     @Deprecated
     public String getTfName() {
         return tfName;
     }
 
     @Deprecated
-    public void setTfName(String tfName) {
+    public TranscriptTfbs setTfName(String tfName) {
         this.tfName = tfName;
+        return this;
     }
 
     @Deprecated
@@ -181,64 +245,8 @@ public class TranscriptTfbs {
     }
 
     @Deprecated
-    public void setPwm(String pwm) {
+    public TranscriptTfbs setPwm(String pwm) {
         this.pwm = pwm;
+        return this;
     }
-
-    public String getChromosome() {
-        return chromosome;
-    }
-
-    public void setChromosome(String chromosome) {
-        this.chromosome = chromosome;
-    }
-
-    public int getStart() {
-        return start;
-    }
-
-    public void setStart(int start) {
-        this.start = start;
-    }
-
-    public int getEnd() {
-        return end;
-    }
-
-    public void setEnd(int end) {
-        this.end = end;
-    }
-
-    public String getStrand() {
-        return strand;
-    }
-
-    public void setStrand(String strand) {
-        this.strand = strand;
-    }
-
-    public int getRelativeStart() {
-        return relativeStart;
-    }
-
-    public void setRelativeStart(int relativeStart) {
-        this.relativeStart = relativeStart;
-    }
-
-    public int getRelativeEnd() {
-        return relativeEnd;
-    }
-
-    public void setRelativeEnd(int relativeEnd) {
-        this.relativeEnd = relativeEnd;
-    }
-
-    public float getScore() {
-        return score;
-    }
-
-    public void setScore(float score) {
-        this.score = score;
-    }
-
 }

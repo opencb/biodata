@@ -19,9 +19,6 @@
 
 package org.opencb.biodata.models.clinical.interpretation;
 
-import org.opencb.biodata.models.commons.Analyst;
-import org.opencb.biodata.models.commons.Software;
-
 import java.util.List;
 import java.util.Map;
 

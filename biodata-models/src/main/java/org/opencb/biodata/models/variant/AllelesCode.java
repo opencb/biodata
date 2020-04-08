@@ -17,23 +17,20 @@
  *
  */
 
-package org.opencb.biodata.formats.alignment.io;
-
-
-import org.opencb.biodata.models.alignment.Alignment;
-import org.opencb.biodata.models.alignment.AlignmentHeader;
-import org.opencb.commons.io.DataWriter;
-
+package org.opencb.biodata.models.variant;
 
 /**
  * Created with IntelliJ IDEA.
- * User: jcoll
- * Date: 12/3/13
- * Time: 5:17 PM
+ * User: aleman
+ * Date: 8/26/13
+ * Time: 6:10 PM
  * To change this template use File | Settings | File Templates.
  */
-public interface AlignmentDataWriter extends DataWriter<Alignment> {
-
-    boolean writeHeader(AlignmentHeader head);
-
+public enum AllelesCode {
+    ALLELES_OK,
+    ALLELES_MISSING,
+    PARTIAL_ALLELES_MISSING,
+//    SECOND_ALLELE_MISSING,
+//    ALL_ALLELES_MISSING,
+    MULTIPLE_ALTERNATES
 }

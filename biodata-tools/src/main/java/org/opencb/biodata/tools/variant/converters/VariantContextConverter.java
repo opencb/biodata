@@ -26,7 +26,6 @@ import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.protobuf.VariantProto;
 import org.opencb.biodata.tools.Converter;
 import org.opencb.commons.datastore.core.ObjectMap;
 
@@ -275,8 +274,8 @@ public abstract class VariantContextConverter<T> implements Converter<T, Variant
                             if (value == null) {
                                 value = NO_CALL_ALLELE;
                             }
-                            org.opencb.biodata.models.feature.Genotype genotype =
-                                    new org.opencb.biodata.models.feature.Genotype(value, refAllele, alleleList.subList(1, alleleList.size()));
+                            org.opencb.biodata.models.variant.Genotype genotype =
+                                    new org.opencb.biodata.models.variant.Genotype(value, refAllele, alleleList.subList(1, alleleList.size()));
                             List<Allele> alleles = new ArrayList<>();
                             for (int gtIdx : genotype.getAllelesIdx()) {
                                 if (gtIdx < alleleList.size() && gtIdx >= 0 && !noCallAlleles.contains(gtIdx)) { // .. AND NOT a nocall allele

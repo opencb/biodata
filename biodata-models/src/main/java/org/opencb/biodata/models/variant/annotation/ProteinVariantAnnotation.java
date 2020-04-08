@@ -17,7 +17,7 @@
  *
  */
 
-package org.opencb.biodata.models.variation;
+package org.opencb.biodata.models.variant.annotation;
 
 import org.opencb.biodata.models.protein.ProteinFeature;
 import org.opencb.biodata.models.variant.annotation.Score;

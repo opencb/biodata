@@ -19,7 +19,7 @@
 
 package org.opencb.biodata.tools.variant.algorithm;
 
-import org.opencb.biodata.models.feature.Genotype;
+import org.opencb.biodata.models.variant.Genotype;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.stats.IBDExpectedFrequencies;

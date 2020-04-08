@@ -1,10 +1,9 @@
 package org.opencb.biodata.tools.variant.merge;
 
 import org.junit.Test;
-import org.opencb.biodata.models.feature.Genotype;
+import org.opencb.biodata.models.variant.Genotype;
 
 import java.util.Arrays;
-import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 

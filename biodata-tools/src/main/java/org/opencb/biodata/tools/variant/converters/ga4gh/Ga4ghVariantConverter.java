@@ -21,7 +21,7 @@ package org.opencb.biodata.tools.variant.converters.ga4gh;
 
 import ga4gh.Variants;
 import org.apache.commons.lang.StringUtils;
-import org.opencb.biodata.models.feature.Genotype;
+import org.opencb.biodata.models.variant.Genotype;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.FileEntry;

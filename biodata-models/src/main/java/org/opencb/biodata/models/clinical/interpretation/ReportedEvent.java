@@ -19,8 +19,8 @@
 
 package org.opencb.biodata.models.clinical.interpretation;
 
-import org.opencb.biodata.models.commons.Disorder;
-import org.opencb.biodata.models.commons.Phenotype;
+import org.opencb.biodata.models.clinical.Disorder;
+import org.opencb.biodata.models.clinical.Phenotype;
 import org.opencb.biodata.models.variant.avro.SequenceOntologyTerm;
 
 import java.util.List;

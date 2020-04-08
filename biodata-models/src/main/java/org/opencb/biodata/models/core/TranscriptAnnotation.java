@@ -24,13 +24,13 @@ import java.util.List;
 
 public class TranscriptAnnotation {
 
-    private List<TranscriptOntologyTermAnnotation> ontologies;
+    private List<FeatureOntologyTermAnnotation> ontologies;
     private List<Constraint> constraints;
 
     public TranscriptAnnotation() {
     }
 
-    public TranscriptAnnotation(List<TranscriptOntologyTermAnnotation> ontologies, List<Constraint> constraints) {
+    public TranscriptAnnotation(List<FeatureOntologyTermAnnotation> ontologies, List<Constraint> constraints) {
         this.constraints = constraints;
         this.ontologies = ontologies;
     }
@@ -44,11 +44,11 @@ public class TranscriptAnnotation {
         return sb.toString();
     }
 
-    public List<TranscriptOntologyTermAnnotation> getOntologies() {
+    public List<FeatureOntologyTermAnnotation> getOntologies() {
         return ontologies;
     }
 
-    public TranscriptAnnotation setOntologies(List<TranscriptOntologyTermAnnotation> ontologies) {
+    public TranscriptAnnotation setOntologies(List<FeatureOntologyTermAnnotation> ontologies) {
         this.ontologies = ontologies;
         return this;
     }
