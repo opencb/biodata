@@ -20,15 +20,12 @@
 package org.opencb.biodata.formats.variant.clinvar;
 
 import org.junit.Test;
-import org.opencb.biodata.formats.variant.clinvar.v24jaxb.ObjectFactory;
-import org.opencb.biodata.formats.variant.clinvar.v24jaxb.PublicSetType;
-import org.opencb.biodata.formats.variant.clinvar.v24jaxb.ReleaseType;
+import org.opencb.biodata.formats.variant.clinvar.v59jaxb.PublicSetType;
+import org.opencb.biodata.formats.variant.clinvar.v59jaxb.ReleaseType;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
-
-import static org.junit.Assert.*;
 
 public class ClinvarParserTest {
 
@@ -36,16 +33,14 @@ public class ClinvarParserTest {
     public void loadXMLInfo() {
         try {
             JAXBElement<ReleaseType> objectFactory = (JAXBElement<ReleaseType>)ClinvarParser
-                    .loadXMLInfo("/home/imedina/Downloads/ClinVarFullRelease_00-latest.xml.gz", ClinvarParser.CLINVAR_CONTEXT_v53);
+                    .loadXMLInfo("/home/imedina/Downloads/ClinVarFullRelease_00-latest.xml.gz", ClinvarParser.CLINVAR_CONTEXT_v59);
             for (PublicSetType publicSetType : objectFactory.getValue().getClinVarSet()) {
                 System.out.println("publicSetType.getTitle() = " + publicSetType.getTitle());
                 break;
             }
             System.out.println(objectFactory.getValue().getClinVarSet().size());
 
-        } catch (JAXBException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (JAXBException | IOException e) {
             e.printStackTrace();
         }
     }
