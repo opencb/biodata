@@ -44,13 +44,13 @@ protocol Variants {
          * Count of samples with non-missing genotypes in this variant from the cohort.
          * This value is used as denominator for genotypeFreq.
          **/
-        union { null, int } samplesCount;
+        union { null, int } sampleCount;
 
         /**
          * Count of files with samples from the cohort that reported this variant.
          * This value is used as denominator for filterFreq.
          **/
-        union { null, int } filesCount;
+        union { null, int } fileCount;
 
         /**
          * Total number of alleles in called genotypeCounters. It does not include missing alleles.
@@ -116,7 +116,7 @@ protocol Variants {
          * The number of files from samples in this cohort reporting this variant with valid QUAL values.
          * This value is used as denominator to obtain the qualityAvg.
          */
-        union { null, int } qualityValuesCount;
+        union { null, int } qualityCount;
 
         /**
          * The average Quality value for files with valid QUAL values from samples in this cohort reporting this variant.

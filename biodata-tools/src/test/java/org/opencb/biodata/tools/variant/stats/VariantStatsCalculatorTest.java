@@ -239,7 +239,7 @@ public class VariantStatsCalculatorTest {
                 stats.getGenotypeFreq().keySet());
         assertEquals(200, stats.getMissingGenotypeCount().intValue());
         assertEquals(410, stats.getMissingAlleleCount().intValue());
-        assertEquals(65, stats.getSamplesCount().intValue());
+        assertEquals(65, stats.getSampleCount().intValue());
         assertEquals(5.0 / 65.0, stats.getMgf().doubleValue(), 0.00001);
         assertEquals("1/1", stats.getMgfGenotype());
     }
