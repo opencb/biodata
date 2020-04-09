@@ -12,7 +12,7 @@ import "protobuf/opencb/variant.proto";
 message VcfSample {
   repeated string sample_values = 1;
 
-  // GT is mandatory. Saving it separately can create a map of genotypeCounters in Fields
+  // GT is mandatory. Saving it separately can create a map of genotypes in Fields
   uint32 gt_index = 2;
 }
 
@@ -55,7 +55,7 @@ message Fields {
   // Where the first format is the default one
   repeated string formats = 5;
 
-  // Possible genotypeCounters seen on the slice.
+  // Possible genotypes seen on the slice.
   // Where the first GT is the default one
   repeated string gts = 6;
 

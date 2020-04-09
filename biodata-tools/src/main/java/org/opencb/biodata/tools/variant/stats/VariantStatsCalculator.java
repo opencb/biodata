@@ -189,7 +189,7 @@ public class VariantStatsCalculator {
                     break;
             }
 
-            // Check missing alleles and genotypeCounters
+            // Check missing alleles and genotypes
             switch (g.getCode()) {
                 case MULTIPLE_ALTERNATES:
                 case ALLELES_OK:
@@ -309,7 +309,7 @@ public class VariantStatsCalculator {
 
     private static void calculateGenotypeFrequencies(VariantStats variantStats, final int totalGenotypesCount) {
         if (totalGenotypesCount < 0) {
-            throw new IllegalArgumentException("The number of genotypeCounters must be equals or greater than zero");
+            throw new IllegalArgumentException("The number of genotypes must be equals or greater than zero");
         }
 
         variantStats.setSampleCount(totalGenotypesCount);
@@ -320,7 +320,7 @@ public class VariantStatsCalculator {
             return;
         }
 
-        // Set all combinations of genotypeCounters to zero
+        // Set all combinations of genotypes to zero
         Map<String, Float> genotypesFreq = new HashMap<>(variantStats.getGenotypeCount().size());
         genotypesFreq.put("0/0", 0.0f);
         genotypesFreq.put("0/1", 0.0f);

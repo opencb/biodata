@@ -61,7 +61,7 @@ message VariantStats {
     int32 fileCount = 19;
 
     /**
-     * Total number of alleles in called genotypeCounters. It does not include missing alleles.
+     * Total number of alleles in called genotypes. It does not include missing alleles.
      * This value is used as denominator for refAlleleFreq and altAlleleFreq.
      **/
     int32 alleleCount = 1;
