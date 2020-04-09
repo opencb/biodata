@@ -27,10 +27,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ReportedVariant extends Variant {
+public class ClinicalVariant extends Variant {
 
     private double deNovoQualityScore;
-    private List<ReportedEvent> evidences;
+    private List<ClinicalVariantEvidence> evidences;
     private List<Comment> comments;
 
     private Status status;
@@ -46,15 +46,15 @@ public class ReportedVariant extends Variant {
         TO_BE_REPORTED
     }
 
-    public ReportedVariant() {
+    public ClinicalVariant() {
         this.status = Status.NOT_REVIEWED;
     }
 
-    public ReportedVariant(VariantAvro avro) {
+    public ClinicalVariant(VariantAvro avro) {
         this(avro, 0.0, new ArrayList<>(), new ArrayList<>(), Status.NOT_REVIEWED, new HashMap<>());
     }
 
-    public ReportedVariant(VariantAvro avro, double deNovoQualityScore, List<ReportedEvent> evidences, List<Comment> comments,
+    public ClinicalVariant(VariantAvro avro, double deNovoQualityScore, List<ClinicalVariantEvidence> evidences, List<Comment> comments,
                            Status status, Map<String, Object> attributes) {
         super(avro);
 
@@ -67,7 +67,7 @@ public class ReportedVariant extends Variant {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("ReportedVariant{");
+        final StringBuilder sb = new StringBuilder("ClinicalVariant{");
         sb.append("variant=").append(super.toString());
         sb.append(", deNovoQualityScore=").append(deNovoQualityScore);
         sb.append(", evidences=").append(evidences);
@@ -82,16 +82,16 @@ public class ReportedVariant extends Variant {
         return deNovoQualityScore;
     }
 
-    public ReportedVariant setDeNovoQualityScore(double deNovoQualityScore) {
+    public ClinicalVariant setDeNovoQualityScore(double deNovoQualityScore) {
         this.deNovoQualityScore = deNovoQualityScore;
         return this;
     }
 
-    public List<ReportedEvent> getEvidences() {
+    public List<ClinicalVariantEvidence> getEvidences() {
         return evidences;
     }
 
-    public ReportedVariant setEvidences(List<ReportedEvent> evidences) {
+    public ClinicalVariant setEvidences(List<ClinicalVariantEvidence> evidences) {
         this.evidences = evidences;
         return this;
     }
@@ -100,7 +100,7 @@ public class ReportedVariant extends Variant {
         return comments;
     }
 
-    public ReportedVariant setComments(List<Comment> comments) {
+    public ClinicalVariant setComments(List<Comment> comments) {
         this.comments = comments;
         return this;
     }
@@ -109,7 +109,7 @@ public class ReportedVariant extends Variant {
         return status;
     }
 
-    public ReportedVariant setStatus(Status status) {
+    public ClinicalVariant setStatus(Status status) {
         this.status = status;
         return this;
     }
@@ -118,7 +118,7 @@ public class ReportedVariant extends Variant {
         return attributes;
     }
 
-    public ReportedVariant setAttributes(Map<String, Object> attributes) {
+    public ClinicalVariant setAttributes(Map<String, Object> attributes) {
         this.attributes = attributes;
         return this;
     }

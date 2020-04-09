@@ -27,7 +27,7 @@ import java.util.List;
 
 import static org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.*;
 
-public class ReportedEvent {
+public class ClinicalVariantEvidence {
 
     private String id;
     @Deprecated
@@ -50,15 +50,15 @@ public class ReportedEvent {
     private boolean actionable;
     private String justification;
 
-    public ReportedEvent() {
+    public ClinicalVariantEvidence() {
         this.fullyExplainPhenotypes = false;
         this.actionable = false;
     }
 
-    public ReportedEvent(String id, Disorder disorder, List<Phenotype> phenotypes, List<SequenceOntologyTerm> consequenceTypes,
-                         GenomicFeature genomicFeature, ModeOfInheritance modeOfInheritance, String panelId,
-                         VariantClassification classification, Penetrance penetrance, double score, boolean fullyExplainPhenotypes,
-                         List<String> compoundHeterozygousVariantIds, RoleInCancer roleInCancer, boolean actionable, String justification) {
+    public ClinicalVariantEvidence(String id, Disorder disorder, List<Phenotype> phenotypes, List<SequenceOntologyTerm> consequenceTypes,
+                                   GenomicFeature genomicFeature, ModeOfInheritance modeOfInheritance, String panelId,
+                                   VariantClassification classification, Penetrance penetrance, double score, boolean fullyExplainPhenotypes,
+                                   List<String> compoundHeterozygousVariantIds, RoleInCancer roleInCancer, boolean actionable, String justification) {
         this.id = id;
         this.disorder = disorder;
         this.phenotypes = phenotypes;
@@ -78,7 +78,7 @@ public class ReportedEvent {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("ReportedEvent{");
+        final StringBuilder sb = new StringBuilder("ClinicalVariantEvidence{");
         sb.append("id='").append(id).append('\'');
         sb.append(", disorder=").append(disorder);
         sb.append(", phenotypes=").append(phenotypes);
@@ -102,7 +102,7 @@ public class ReportedEvent {
         return id;
     }
 
-    public ReportedEvent setId(String id) {
+    public ClinicalVariantEvidence setId(String id) {
         this.id = id;
         return this;
     }
@@ -111,7 +111,7 @@ public class ReportedEvent {
         return disorder;
     }
 
-    public ReportedEvent setDisorder(Disorder disorder) {
+    public ClinicalVariantEvidence setDisorder(Disorder disorder) {
         this.disorder = disorder;
         return this;
     }
@@ -120,7 +120,7 @@ public class ReportedEvent {
         return phenotypes;
     }
 
-    public ReportedEvent setPhenotypes(List<Phenotype> phenotypes) {
+    public ClinicalVariantEvidence setPhenotypes(List<Phenotype> phenotypes) {
         this.phenotypes = phenotypes;
         return this;
     }
@@ -129,7 +129,7 @@ public class ReportedEvent {
         return consequenceTypes;
     }
 
-    public ReportedEvent setConsequenceTypes(List<SequenceOntologyTerm> consequenceTypes) {
+    public ClinicalVariantEvidence setConsequenceTypes(List<SequenceOntologyTerm> consequenceTypes) {
         this.consequenceTypes = consequenceTypes;
         return this;
     }
@@ -138,7 +138,7 @@ public class ReportedEvent {
         return genomicFeature;
     }
 
-    public ReportedEvent setGenomicFeature(GenomicFeature genomicFeature) {
+    public ClinicalVariantEvidence setGenomicFeature(GenomicFeature genomicFeature) {
         this.genomicFeature = genomicFeature;
         return this;
     }
@@ -147,7 +147,7 @@ public class ReportedEvent {
         return modeOfInheritance;
     }
 
-    public ReportedEvent setModeOfInheritance(ModeOfInheritance modeOfInheritance) {
+    public ClinicalVariantEvidence setModeOfInheritance(ModeOfInheritance modeOfInheritance) {
         this.modeOfInheritance = modeOfInheritance;
         return this;
     }
@@ -156,7 +156,7 @@ public class ReportedEvent {
         return panelId;
     }
 
-    public ReportedEvent setPanelId(String panelId) {
+    public ClinicalVariantEvidence setPanelId(String panelId) {
         this.panelId = panelId;
         return this;
     }
@@ -165,7 +165,7 @@ public class ReportedEvent {
         return classification;
     }
 
-    public ReportedEvent setClassification(VariantClassification classification) {
+    public ClinicalVariantEvidence setClassification(VariantClassification classification) {
         this.classification = classification;
         return this;
     }
@@ -174,7 +174,7 @@ public class ReportedEvent {
         return penetrance;
     }
 
-    public ReportedEvent setPenetrance(Penetrance penetrance) {
+    public ClinicalVariantEvidence setPenetrance(Penetrance penetrance) {
         this.penetrance = penetrance;
         return this;
     }
@@ -183,7 +183,7 @@ public class ReportedEvent {
         return score;
     }
 
-    public ReportedEvent setScore(double score) {
+    public ClinicalVariantEvidence setScore(double score) {
         this.score = score;
         return this;
     }
@@ -192,7 +192,7 @@ public class ReportedEvent {
         return fullyExplainPhenotypes;
     }
 
-    public ReportedEvent setFullyExplainPhenotypes(boolean fullyExplainPhenotypes) {
+    public ClinicalVariantEvidence setFullyExplainPhenotypes(boolean fullyExplainPhenotypes) {
         this.fullyExplainPhenotypes = fullyExplainPhenotypes;
         return this;
     }
@@ -201,7 +201,7 @@ public class ReportedEvent {
         return compoundHeterozygousVariantIds;
     }
 
-    public ReportedEvent setCompoundHeterozygousVariantIds(List<String> compoundHeterozygousVariantIds) {
+    public ClinicalVariantEvidence setCompoundHeterozygousVariantIds(List<String> compoundHeterozygousVariantIds) {
         this.compoundHeterozygousVariantIds = compoundHeterozygousVariantIds;
         return this;
     }
@@ -210,7 +210,7 @@ public class ReportedEvent {
         return roleInCancer;
     }
 
-    public ReportedEvent setRoleInCancer(RoleInCancer roleInCancer) {
+    public ClinicalVariantEvidence setRoleInCancer(RoleInCancer roleInCancer) {
         this.roleInCancer = roleInCancer;
         return this;
     }
@@ -219,7 +219,7 @@ public class ReportedEvent {
         return actionable;
     }
 
-    public ReportedEvent setActionable(boolean actionable) {
+    public ClinicalVariantEvidence setActionable(boolean actionable) {
         this.actionable = actionable;
         return this;
     }
@@ -228,7 +228,7 @@ public class ReportedEvent {
         return justification;
     }
 
-    public ReportedEvent setJustification(String justification) {
+    public ClinicalVariantEvidence setJustification(String justification) {
         this.justification = justification;
         return this;
     }

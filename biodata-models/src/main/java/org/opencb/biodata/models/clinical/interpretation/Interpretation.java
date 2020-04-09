@@ -37,8 +37,8 @@ public class Interpretation {
     private Map<String, Object> filters;
 
     private List<DiseasePanel> panels;
-    private List<ReportedVariant> primaryFindings;
-    private List<ReportedVariant> secondaryFindings;
+    private List<ClinicalVariant> primaryFindings;
+    private List<ClinicalVariant> secondaryFindings;
     private List<ReportedLowCoverage> lowCoverageRegions;
 
     private List<Comment> comments;
@@ -58,7 +58,7 @@ public class Interpretation {
 
     public Interpretation(String id, String description, String clinicalAnalysisId, Software software, Analyst analyst,
                           List<Software> dependencies, Map<String, Object> filters, List<DiseasePanel> panels,
-                          List<ReportedVariant> primaryFindings, List<ReportedVariant> secondaryFindings,
+                          List<ClinicalVariant> primaryFindings, List<ClinicalVariant> secondaryFindings,
                           List<ReportedLowCoverage> lowCoverageRegions, List<Comment> comments, String status,
                           String creationDate, int version, Map<String, Object> attributes) {
         this.id = id;
@@ -174,20 +174,20 @@ public class Interpretation {
         return this;
     }
 
-    public List<ReportedVariant> getPrimaryFindings() {
+    public List<ClinicalVariant> getPrimaryFindings() {
         return primaryFindings;
     }
 
-    public Interpretation setPrimaryFindings(List<ReportedVariant> primaryFindings) {
+    public Interpretation setPrimaryFindings(List<ClinicalVariant> primaryFindings) {
         this.primaryFindings = primaryFindings;
         return this;
     }
 
-    public List<ReportedVariant> getSecondaryFindings() {
+    public List<ClinicalVariant> getSecondaryFindings() {
         return secondaryFindings;
     }
 
-    public Interpretation setSecondaryFindings(List<ReportedVariant> secondaryFindings) {
+    public Interpretation setSecondaryFindings(List<ClinicalVariant> secondaryFindings) {
         this.secondaryFindings = secondaryFindings;
         return this;
     }

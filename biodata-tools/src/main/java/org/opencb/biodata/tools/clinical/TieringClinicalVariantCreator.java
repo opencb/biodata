@@ -24,10 +24,10 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.ModeOfInheritance;
 import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.Penetrance;
+import org.opencb.biodata.models.clinical.interpretation.ClinicalVariant;
 import org.opencb.biodata.models.clinical.interpretation.DiseasePanel;
 import org.opencb.biodata.models.clinical.interpretation.GenomicFeature;
-import org.opencb.biodata.models.clinical.interpretation.ReportedEvent;
-import org.opencb.biodata.models.clinical.interpretation.ReportedVariant;
+import org.opencb.biodata.models.clinical.interpretation.ClinicalVariantEvidence;
 import org.opencb.biodata.models.clinical.interpretation.exceptions.InterpretationAnalysisException;
 import org.opencb.biodata.models.clinical.Disorder;
 import org.opencb.biodata.models.core.Region;
@@ -44,7 +44,7 @@ import static org.opencb.biodata.models.clinical.interpretation.VariantClassific
 import static org.opencb.biodata.tools.pedigree.ModeOfInheritance.extendedLof;
 import static org.opencb.biodata.tools.pedigree.ModeOfInheritance.proteinCoding;
 
-public class TieringReportedVariantCreator extends ReportedVariantCreator {
+public class TieringClinicalVariantCreator extends ClinicalVariantCreator {
 
     public static final Set<String> TIER_1_CONSEQUENCE_TYPES_SET = new HashSet<>(Arrays.asList("SO:0001893", "transcript_ablation",
             "SO:0001574", "splice_acceptor_variant", "SO:0001575", "splice_donor_variant", "SO:0001587", "stop_gained",
@@ -54,14 +54,14 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
             "SO:0001821", "inframe_insertion", "SO:0001822", "inframe_deletion", "SO:0001583", "missense_variant",
             "SO:0001630", "splice_region_variant", "SO:0001626", "incomplete_terminal_codon_variant"));
 
-    public TieringReportedVariantCreator(List<DiseasePanel> diseasePanels, Map<String, RoleInCancer> roleInCancer,
+    public TieringClinicalVariantCreator(List<DiseasePanel> diseasePanels, Map<String, RoleInCancer> roleInCancer,
                                          Map<String, List<String>> actionableVariants, Disorder disorder,
                                          ModeOfInheritance modeOfInheritance, Penetrance penetrance, String assembly) {
         super(diseasePanels, disorder, modeOfInheritance, penetrance, roleInCancer, actionableVariants, assembly);
     }
 
     @Override
-    public List<ReportedVariant> create(List<Variant> variants) throws InterpretationAnalysisException {
+    public List<ClinicalVariant> create(List<Variant> variants) throws InterpretationAnalysisException {
         Map<String, List<ModeOfInheritance>> moiMap = new HashMap<>();
         for (Variant variant : variants) {
             moiMap.put(variant.getId(), modeOfInheritance != null ? Collections.singletonList(modeOfInheritance) : Collections.emptyList());
@@ -69,7 +69,7 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
         return create(variants, moiMap);
     }
 
-    public List<ReportedVariant> create(List<Variant> variants, Map<String, List<ModeOfInheritance>> variantMoIMap)
+    public List<ClinicalVariant> create(List<Variant> variants, Map<String, List<ModeOfInheritance>> variantMoIMap)
             throws InterpretationAnalysisException {
         // Sanity check
         if (variants == null || variants.isEmpty()) {
@@ -90,22 +90,22 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
         //   Gene        Panel       Moi
         Map<String, Map<String, ModeOfInheritance>> geneToPanelMoiMap = getGeneToPanelMoiMap(diseasePanels);
 
-        // Create the list of reported variants, with a reported event for each 1) transcript, 2) panel and 3) consequence type (SO name)
+        // Create the list of clinical variants, with a evidence event for each 1) transcript, 2) panel and 3) consequence type (SO name)
         // Tiers classification:
         //     - Tier 1: gene panel + mode of inheritance + TIER_1_CONSEQUENCE_TYPES
         //     - Tier 2: gene panel + mode of inheritance + TIER_2_CONSEQUENCE_TYPES
         //     - Tier 3: gene panel + mode of inheritance + other consequence types
         //               gene panel + mode of inheritance
         //               not in panel
-        List<ReportedVariant> reportedVariants = new ArrayList<>();
+        List<ClinicalVariant> clinicalVariants = new ArrayList<>();
         for (Variant variant : variants) {
 
-            List<ReportedEvent> reportedEvents = new ArrayList<>();
+            List<ClinicalVariantEvidence> clinicalVariantEvidences = new ArrayList<>();
             List<ModeOfInheritance> modeOfInheritances = variantMoIMap.get(variant.getId());
 
             if (variant.getAnnotation() != null && CollectionUtils.isNotEmpty(variant.getAnnotation().getConsequenceTypes())) {
 
-                // 1) create the reported event for each transcript
+                // 1) create the clinical variant evidence for each transcript
                 for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
 
                     // Only protein coding
@@ -121,20 +121,20 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
                     if (geneToPanelMap.containsKey(ct.getEnsemblGeneId())) {
                         logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId() + ", gene in panel");
 
-                        // 2) create the reported event for each panel
+                        // 2) create the clinical variant evidence for each panel
                         Set<DiseasePanel> genePanels = geneToPanelMap.get(ct.getEnsemblGeneId());
                         for (DiseasePanel genePanel : genePanels) {
                             // In addition to the panel, the mode of inheritance must match too!
                             if (geneToPanelMoiMap.containsKey(ct.getEnsemblGeneId())) {
                                 for (ModeOfInheritance moi : modeOfInheritances) {
                                     if (moi == ModeOfInheritance.UNKNOWN) {
-                                        processPanelRegion(genePanel, ct, variant, reportedEvents);
+                                        processPanelRegion(genePanel, ct, variant, clinicalVariantEvidences);
                                     } else if (geneToPanelMoiMap.get(ct.getEnsemblGeneId()).get(genePanel.getId()) == moi) {
                                         logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId() + ", moi match");
 
                                         if (CollectionUtils.isNotEmpty(ct.getSequenceOntologyTerms())) {
 
-                                            // 3) create the reported event for consequence type (SO term)
+                                            // 3) create the clinical variant evidence for consequence type (SO term)
                                             for (SequenceOntologyTerm soTerm : ct.getSequenceOntologyTerms()) {
 
                                                 // Only LOF extended SO terms are reported
@@ -151,34 +151,38 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
                                                         // Tier 1
                                                         logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId()
                                                                 + ", reported, TIER 1, " + soTerm.getName());
-                                                        reportedEvents.add(createReportedEvent(disorder, Collections.singletonList(soTerm),
-                                                                genomicFeature, genePanel.getId(), moi, penetrance, TIER_1, variant));
+                                                        clinicalVariantEvidences.add(createClinicalVariantEvidence(disorder,
+                                                                Collections.singletonList(soTerm), genomicFeature, genePanel.getId(), moi,
+                                                                penetrance, TIER_1, variant));
                                                     } else if (TIER_2_CONSEQUENCE_TYPES_SET.contains(soTerm.getAccession())) {
                                                         // Tier 2
                                                         logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId()
                                                                 + ", reported, TIER 2, " + soTerm.getName());
-                                                        reportedEvents.add(createReportedEvent(disorder, Collections.singletonList(soTerm),
-                                                                genomicFeature, genePanel.getId(), moi, penetrance, TIER_2, variant));
+                                                        clinicalVariantEvidences.add(createClinicalVariantEvidence(disorder,
+                                                                Collections.singletonList(soTerm), genomicFeature, genePanel.getId(), moi,
+                                                                penetrance, TIER_2, variant));
                                                     } else {
                                                         // Tier 3
                                                         logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId()
                                                                 + ", reported, TIER 3, " + soTerm.getName());
-                                                        reportedEvents.add(createReportedEvent(disorder, Collections.singletonList(soTerm),
-                                                                genomicFeature, genePanel.getId(), moi, penetrance, TIER_3, variant));
+                                                        clinicalVariantEvidences.add(createClinicalVariantEvidence(disorder,
+                                                                Collections.singletonList(soTerm), genomicFeature, genePanel.getId(), moi,
+                                                                penetrance, TIER_3, variant));
                                                     }
                                                 } else {
                                                     // Tier 3
                                                     logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId()
                                                             + ", reported, TIER 3, empty SO");
-                                                    reportedEvents.add(createReportedEvent(disorder, Collections.singletonList(soTerm),
-                                                            genomicFeature, genePanel.getId(), moi, penetrance, TIER_3, variant));
+                                                    clinicalVariantEvidences.add(createClinicalVariantEvidence(disorder,
+                                                            Collections.singletonList(soTerm), genomicFeature, genePanel.getId(), moi,
+                                                            penetrance, TIER_3, variant));
                                                 }
                                             }
                                         } else {
                                             // Tier 3
                                             logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId() + ", reported, "
                                                     + "TIER 3, empty SO list");
-                                            reportedEvents.add(createReportedEvent(disorder, null, genomicFeature,
+                                            clinicalVariantEvidences.add(createClinicalVariantEvidence(disorder, null, genomicFeature,
                                                     genePanel.getId(), moi, penetrance, TIER_3, variant));
                                         }
                                     } else {
@@ -198,8 +202,9 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
                                                     }
                                                     logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId()
                                                             + ", reported, TIER 3");
-                                                    reportedEvents.add(createReportedEvent(disorder, Collections.singletonList(soTerm),
-                                                            genomicFeature, genePanel.getId(), moi, penetrance, TIER_3, variant));
+                                                    clinicalVariantEvidences.add(createClinicalVariantEvidence(disorder,
+                                                            Collections.singletonList(soTerm), genomicFeature, genePanel.getId(), moi,
+                                                            penetrance, TIER_3, variant));
                                                 }
                                             } else {
                                                 logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId() + ", discarded,"
@@ -223,13 +228,13 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
                                             }
                                             logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId()
                                                     + ", reported, UNTIERED, LOF: " + soTerm.getName());
-                                            reportedEvents.add(createReportedEvent(disorder, Collections.singletonList(soTerm),
-                                                    genomicFeature, null, moi, penetrance, "", variant));
+                                            clinicalVariantEvidences.add(createClinicalVariantEvidence(disorder,
+                                                    Collections.singletonList(soTerm), genomicFeature, null, moi, penetrance, "", variant));
                                         }
                                     } else {
                                         logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId()
                                                 + ", reported, UNTIERED, missing LOF");
-                                        reportedEvents.add(createReportedEvent(disorder, null,
+                                        clinicalVariantEvidences.add(createClinicalVariantEvidence(disorder, null,
                                                 genomicFeature, null, moi, penetrance, "", variant));
                                     }
                                 }
@@ -251,13 +256,13 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
 
                                     logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId() + ", reported, TIER 3, LOF: "
                                             + soTerm.getName());
-                                    reportedEvents.add(createReportedEvent(disorder, Collections.singletonList(soTerm),
+                                    clinicalVariantEvidences.add(createClinicalVariantEvidence(disorder, Collections.singletonList(soTerm),
                                             genomicFeature, null, moi, penetrance, TIER_3, variant));
                                 }
                             } else {
                                 logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId()
                                         + ", reported, TIER 3, missing LOF");
-                                reportedEvents.add(createReportedEvent(disorder, null,
+                                clinicalVariantEvidences.add(createClinicalVariantEvidence(disorder, null,
                                         genomicFeature, null, moi, penetrance, TIER_3, variant));
                             }
                         }
@@ -265,22 +270,23 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
                 }
             }
 
-            // If we have reported events, then we have to create the reported variant
-            if (CollectionUtils.isNotEmpty(reportedEvents)) {
-                logger.debug(variant.toStringSimple() + ": reported, num. events: " + reportedEvents.size());
-                ReportedVariant reportedVariant = new ReportedVariant(variant.getImpl(), 0, new ArrayList<>(),
-                        Collections.emptyList(), ReportedVariant.Status.NOT_REVIEWED, Collections.emptyMap());
-                reportedVariant.setEvidences(reportedEvents);
+            // If we have clinical variant evidence, then we have to create the clinical variant
+            if (CollectionUtils.isNotEmpty(clinicalVariantEvidences)) {
+                logger.debug(variant.toStringSimple() + ": reported, num. evidences: " + clinicalVariantEvidences.size());
+                ClinicalVariant clinicalVariant = new ClinicalVariant(variant.getImpl(), 0, new ArrayList<>(),
+                        Collections.emptyList(), ClinicalVariant.Status.NOT_REVIEWED, Collections.emptyMap());
+                clinicalVariant.setEvidences(clinicalVariantEvidences);
 
                 // Add variant to the list
-                reportedVariants.add(reportedVariant);
+                clinicalVariants.add(clinicalVariant);
             }
         }
 
-        return reportedVariants;
+        return clinicalVariants;
     }
 
-    private void processPanelRegion(DiseasePanel genePanel, ConsequenceType ct, Variant variant, List<ReportedEvent> reportedEvents) {
+    private void processPanelRegion(DiseasePanel genePanel, ConsequenceType ct, Variant variant,
+                                    List<ClinicalVariantEvidence> clinicalVariantEvidences) {
         if (genePanel != null && CollectionUtils.isNotEmpty(genePanel.getRegions())) {
             for (DiseasePanel.RegionPanel panelRegion : genePanel.getRegions()) {
                 if (CollectionUtils.isNotEmpty(genePanel.getRegions())) {
@@ -294,13 +300,15 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
                                 int overlapPercentage = getOverlapPercentage(region, variant);
                                 if (overlapPercentage >= panelRegion.getRequiredOverlapPercentage()) {
                                     for (SequenceOntologyTerm soTerm : ct.getSequenceOntologyTerms()) {
-                                        reportedEvents.add(createReportedEvent(disorder, Collections.singletonList(soTerm),
-                                                genomicFeature, genePanel.getId(), ModeOfInheritance.UNKNOWN, penetrance, TIER_1, variant));
+                                        clinicalVariantEvidences.add(createClinicalVariantEvidence(disorder,
+                                                Collections.singletonList(soTerm), genomicFeature, genePanel.getId(),
+                                                ModeOfInheritance.UNKNOWN, penetrance, TIER_1, variant));
                                     }
                                 } else {
                                     for (SequenceOntologyTerm soTerm : ct.getSequenceOntologyTerms()) {
-                                        reportedEvents.add(createReportedEvent(disorder, Collections.singletonList(soTerm),
-                                                genomicFeature, genePanel.getId(), ModeOfInheritance.UNKNOWN, penetrance, TIER_2, variant));
+                                        clinicalVariantEvidences.add(createClinicalVariantEvidence(disorder,
+                                                Collections.singletonList(soTerm), genomicFeature, genePanel.getId(),
+                                                ModeOfInheritance.UNKNOWN, penetrance, TIER_2, variant));
                                     }
                                 }
                             }
@@ -316,6 +324,4 @@ public class TieringReportedVariantCreator extends ReportedVariantCreator {
         int end = Math.min(region.getEnd(), variant.getEnd());
         return 100 * (end - start + 1) / region.size();
     }
-
-
 }

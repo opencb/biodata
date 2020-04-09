@@ -24,9 +24,9 @@ import org.apache.commons.collections.MapUtils;
 import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty;
 import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.ModeOfInheritance;
 import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.Penetrance;
+import org.opencb.biodata.models.clinical.interpretation.ClinicalVariantEvidence;
 import org.opencb.biodata.models.clinical.interpretation.DiseasePanel;
-import org.opencb.biodata.models.clinical.interpretation.ReportedEvent;
-import org.opencb.biodata.models.clinical.interpretation.ReportedVariant;
+import org.opencb.biodata.models.clinical.interpretation.ClinicalVariant;
 import org.opencb.biodata.models.clinical.Disorder;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.ConsequenceType;
@@ -38,11 +38,11 @@ import static org.opencb.biodata.models.clinical.interpretation.VariantClassific
 import static org.opencb.biodata.models.clinical.interpretation.VariantClassification.TIER_2;
 import static org.opencb.biodata.models.clinical.interpretation.VariantClassification.UNTIERED;
 
-public class DefaultReportedVariantCreator extends ReportedVariantCreator {
+public class DefaultClinicalVariantCreator extends ClinicalVariantCreator {
 
     private boolean includeUntieredVariants;
 
-    public DefaultReportedVariantCreator(Map<String, ClinicalProperty.RoleInCancer> roleInCancer,
+    public DefaultClinicalVariantCreator(Map<String, ClinicalProperty.RoleInCancer> roleInCancer,
                                          Map<String, List<String>> actionableVariants, Disorder disorder,
                                          ModeOfInheritance modeOfInheritance, Penetrance penetrance, List<DiseasePanel> diseasePanels,
                                          List<String> biotypes, List<String> soNames,
@@ -53,13 +53,13 @@ public class DefaultReportedVariantCreator extends ReportedVariantCreator {
     }
 
     @Override
-    public List<ReportedVariant> create(List<Variant> variants) {
+    public List<ClinicalVariant> create(List<Variant> variants) {
         // Sanity check
         if (variants == null || variants.isEmpty()) {
             return Collections.emptyList();
         }
 
-        List<ReportedVariant> reportedVariants = new ArrayList<>();
+        List<ClinicalVariant> clinicalVariants = new ArrayList<>();
 
         // Disease panels are optional in custom interpretation analysis
         Map<String, Set<DiseasePanel>> geneToPanelMap = null;
@@ -70,7 +70,7 @@ public class DefaultReportedVariantCreator extends ReportedVariantCreator {
         }
 
         for (Variant variant : variants) {
-            List<ReportedEvent> reportedEvents = new ArrayList<>();
+            List<ClinicalVariantEvidence> clinicalVariantEvidences = new ArrayList<>();
 
             if (MapUtils.isNotEmpty(variantToPanelMap) && variantToPanelMap.containsKey(variant.getId())
                     && CollectionUtils.isNotEmpty(variantToPanelMap.get(variant.getId()))) {
@@ -82,12 +82,12 @@ public class DefaultReportedVariantCreator extends ReportedVariantCreator {
                 if (variant.getAnnotation() != null && CollectionUtils.isNotEmpty(variant.getAnnotation().getConsequenceTypes())) {
                     for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
                         if (CollectionUtils.isEmpty(biotypeSet) || biotypeSet.contains(ct.getBiotype())) {
-                            reportedEvents.addAll(createReportedEvents(TIER_1, panelIds, ct, variant, soNameSet));
+                            clinicalVariantEvidences.addAll(createClinicalVariantEvidences(TIER_1, panelIds, ct, variant, soNameSet));
                         }
                     }
                 } else {
-                    // We create the reported events anyway!
-                    reportedEvents.addAll(createReportedEvents(TIER_1, panelIds, null, variant, soNameSet));
+                    // We create the clinical variant evidences anyway!
+                    clinicalVariantEvidences.addAll(createClinicalVariantEvidences(TIER_1, panelIds, null, variant, soNameSet));
                 }
             } else {
                 // Sanity check
@@ -104,7 +104,7 @@ public class DefaultReportedVariantCreator extends ReportedVariantCreator {
                                     List<String> panelIds = panels.stream().map(DiseasePanel::getId).collect(Collectors.toList());
                                     tier = getTier(ct, soNameSet);
                                     if (includeUntieredVariants || !UNTIERED.equals(tier)) {
-                                        reportedEvents.addAll(createReportedEvents(tier, panelIds, ct, variant, soNameSet));
+                                        clinicalVariantEvidences.addAll(createClinicalVariantEvidences(tier, panelIds, ct, variant, soNameSet));
                                     }
                                 }
                             }
@@ -115,7 +115,7 @@ public class DefaultReportedVariantCreator extends ReportedVariantCreator {
                             if (CollectionUtils.isEmpty(biotypeSet) || biotypeSet.contains(ct.getBiotype())) {
                                 tier = getTier(ct, soNameSet);
                                 if (includeUntieredVariants || !UNTIERED.equals(tier)) {
-                                    reportedEvents.addAll(createReportedEvents(tier, null, ct, variant,
+                                    clinicalVariantEvidences.addAll(createClinicalVariantEvidences(tier, null, ct, variant,
                                             soNameSet));
                                 }
                             }
@@ -124,17 +124,17 @@ public class DefaultReportedVariantCreator extends ReportedVariantCreator {
                 }
             }
 
-            // Create a reported variant only if we have reported events
-            if (CollectionUtils.isNotEmpty(reportedEvents)) {
-                ReportedVariant reportedVariant = new ReportedVariant(variant.getImpl(), 0, new ArrayList<>(),
-                        Collections.emptyList(), ReportedVariant.Status.NOT_REVIEWED, Collections.emptyMap());
-                reportedVariant.setEvidences(reportedEvents);
+            // Create a clinical variant only if we have evidences
+            if (CollectionUtils.isNotEmpty(clinicalVariantEvidences)) {
+                ClinicalVariant clinicalVariant = new ClinicalVariant(variant.getImpl(), 0, new ArrayList<>(),
+                        Collections.emptyList(), ClinicalVariant.Status.NOT_REVIEWED, Collections.emptyMap());
+                clinicalVariant.setEvidences(clinicalVariantEvidences);
 
                 // Add variant to the list
-                reportedVariants.add(reportedVariant);
+                clinicalVariants.add(clinicalVariant);
             }
         }
-        return reportedVariants;
+        return clinicalVariants;
     }
 
     private String getTier(ConsequenceType ct, Set<String> includeSoTerms) {

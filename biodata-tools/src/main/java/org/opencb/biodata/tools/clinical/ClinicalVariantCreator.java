@@ -22,11 +22,11 @@ package org.opencb.biodata.tools.clinical;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
+import org.opencb.biodata.models.clinical.Disorder;
+import org.opencb.biodata.models.clinical.Phenotype;
 import org.opencb.biodata.models.clinical.interpretation.*;
 import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.ModeOfInheritance;
 import org.opencb.biodata.models.clinical.interpretation.exceptions.InterpretationAnalysisException;
-import org.opencb.biodata.models.clinical.Disorder;
-import org.opencb.biodata.models.clinical.Phenotype;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.ConsequenceType;
 import org.opencb.biodata.models.variant.avro.SequenceOntologyTerm;
@@ -42,7 +42,7 @@ import static org.opencb.biodata.models.clinical.interpretation.VariantClassific
 import static org.opencb.biodata.tools.pedigree.ModeOfInheritance.extendedLof;
 import static org.opencb.biodata.tools.pedigree.ModeOfInheritance.proteinCoding;
 
-public abstract class ReportedVariantCreator {
+public abstract class ClinicalVariantCreator {
 
     protected Set<String> biotypeSet;
     protected Set<String> soNameSet;
@@ -63,14 +63,14 @@ public abstract class ReportedVariantCreator {
 
     protected String assembly;
 
-    public ReportedVariantCreator(List<DiseasePanel> diseasePanels, Disorder disorder, ModeOfInheritance modeOfInheritance,
+    public ClinicalVariantCreator(List<DiseasePanel> diseasePanels, Disorder disorder, ModeOfInheritance modeOfInheritance,
                                   Penetrance penetrance, Map<String, RoleInCancer> roleInCancer,
                                   Map<String, List<String>> actionableVariants, String assembly) {
         this(diseasePanels, disorder, modeOfInheritance, penetrance, roleInCancer, actionableVariants, assembly,
                 new ArrayList<>(proteinCoding), new ArrayList<>(extendedLof));
     }
 
-    public ReportedVariantCreator(List<DiseasePanel> diseasePanels, Disorder disorder, ModeOfInheritance modeOfInheritance,
+    public ClinicalVariantCreator(List<DiseasePanel> diseasePanels, Disorder disorder, ModeOfInheritance modeOfInheritance,
                                   Penetrance penetrance, Map<String, RoleInCancer> roleInCancer,
                                   Map<String, List<String>> actionableVariants, String assembly, List<String> biotypes,
                                   List<String> soNames) {
@@ -97,43 +97,43 @@ public abstract class ReportedVariantCreator {
 
     }
 
-    public abstract List<ReportedVariant> create(List<Variant> variants) throws InterpretationAnalysisException;
+    public abstract List<ClinicalVariant> create(List<Variant> variants) throws InterpretationAnalysisException;
 
-    public List<ReportedVariant> create(List<Variant> variants, ModeOfInheritance moi) throws InterpretationAnalysisException {
+    public List<ClinicalVariant> create(List<Variant> variants, ModeOfInheritance moi) throws InterpretationAnalysisException {
         this.modeOfInheritance = moi;
         return create(variants);
     }
 
-    public List<ReportedVariant> createSecondaryFindings(List<Variant> variants) {
-        List<ReportedVariant> reportedVariants = new ArrayList<>();
+    public List<ClinicalVariant> createSecondaryFindings(List<Variant> variants) {
+        List<ClinicalVariant> clinicalVariants = new ArrayList<>();
         for (Variant variant : variants) {
-            List<ReportedEvent> reportedEvents = new ArrayList<>();
+            List<ClinicalVariantEvidence> clinicalVariantEvidences = new ArrayList<>();
 
             // Tier 3, actionable variants
             if (MapUtils.isNotEmpty(actionableVariants)) {
                 if (variant.getAnnotation() != null && actionableVariants.containsKey(variant.toString())) {
                     if (CollectionUtils.isNotEmpty(variant.getAnnotation().getConsequenceTypes())) {
                         for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
-                            reportedEvents.addAll(createReportedEvents("", null, ct, variant));
+                            clinicalVariantEvidences.addAll(createClinicalVariantEvidences("", null, ct, variant));
                         }
                     } else {
-                        // We create the reported events anyway!
-                        reportedEvents.addAll(createReportedEvents("", null, null, variant));
+                        // We create the evidences anyway!
+                        clinicalVariantEvidences.addAll(createClinicalVariantEvidences("", null, null, variant));
                     }
                 }
             }
 
-            // If we have reported events, then we have to create the reported variant
-            if (CollectionUtils.isNotEmpty(reportedEvents)) {
-                ReportedVariant reportedVariant = new ReportedVariant(variant.getImpl(), 0, new ArrayList<>(),
-                        Collections.emptyList(), ReportedVariant.Status.NOT_REVIEWED, Collections.emptyMap());
-                reportedVariant.setEvidences(reportedEvents);
+            // If we have clinical variant evidences, then we have to create the clinical variant
+            if (CollectionUtils.isNotEmpty(clinicalVariantEvidences)) {
+                ClinicalVariant clinicalVariant = new ClinicalVariant(variant.getImpl(), 0, new ArrayList<>(),
+                        Collections.emptyList(), ClinicalVariant.Status.NOT_REVIEWED, Collections.emptyMap());
+                clinicalVariant.setEvidences(clinicalVariantEvidences);
 
                 // Add variant to the list
-                reportedVariants.add(reportedVariant);
+                clinicalVariants.add(clinicalVariant);
             }
         }
-        return reportedVariants;
+        return clinicalVariants;
     }
 
     protected Map<String, Set<DiseasePanel>> getVariantToPanelMap(List<DiseasePanel> diseasePanels) {
@@ -198,55 +198,55 @@ public abstract class ReportedVariantCreator {
         return idToPanelMoiMap;
     }
 
-    protected ReportedEvent createReportedEvent(Disorder disorder, List<SequenceOntologyTerm> consequenceTypes,
-                                                GenomicFeature genomicFeature, String panelId, ModeOfInheritance moi, Penetrance penetrance,
-                                                String tier, Variant variant) {
-        ReportedEvent reportedEvent = new ReportedEvent().setId("OPENCB-" + UUID.randomUUID());
+    protected ClinicalVariantEvidence createClinicalVariantEvidence(Disorder disorder, List<SequenceOntologyTerm> consequenceTypes,
+                                                                    GenomicFeature genomicFeature, String panelId, ModeOfInheritance moi,
+                                                                    Penetrance penetrance, String tier, Variant variant) {
+        ClinicalVariantEvidence clinicalVariantEvidence = new ClinicalVariantEvidence().setId("OPENCB-" + UUID.randomUUID());
 
         // Disorder
         if (disorder != null) {
-            reportedEvent.setDisorder(disorder);
+            clinicalVariantEvidence.setDisorder(disorder);
         }
 
         // Consequence types
         if (CollectionUtils.isNotEmpty(consequenceTypes)) {
             // Set consequence type
-            reportedEvent.setConsequenceTypes(consequenceTypes);
+            clinicalVariantEvidence.setConsequenceTypes(consequenceTypes);
         }
 
         // Genomic feature
         if (genomicFeature != null) {
-            reportedEvent.setGenomicFeature(genomicFeature);
+            clinicalVariantEvidence.setGenomicFeature(genomicFeature);
         }
 
         // Panel ID
         if (panelId != null) {
-            reportedEvent.setPanelId(panelId);
+            clinicalVariantEvidence.setPanelId(panelId);
         }
 
         // Mode of inheritance
         if (moi != null) {
-            reportedEvent.setModeOfInheritance(moi);
+            clinicalVariantEvidence.setModeOfInheritance(moi);
         }
 
         // Penetrance
         if (penetrance != null) {
-            reportedEvent.setPenetrance(penetrance);
+            clinicalVariantEvidence.setPenetrance(penetrance);
         }
 
         // Variant classification:
-        reportedEvent.setClassification(new VariantClassification());
+        clinicalVariantEvidence.setClassification(new VariantClassification());
 
         // Variant classification: ACMG
         List<String> acmgs = calculateAcmgClassification(variant, moi);
-        reportedEvent.getClassification().setAcmg(acmgs);
+        clinicalVariantEvidence.getClassification().setAcmg(acmgs);
 
         // Variant classification: clinical significance
         if (MapUtils.isNotEmpty(variantToPanelMap) && variantToPanelMap.containsKey(variant.getId())
                 && CollectionUtils.isNotEmpty(variantToPanelMap.get(variant.getId()))) {
-            reportedEvent.getClassification().setClinicalSignificance(ClinicalSignificance.PATHOGENIC_VARIANT);
+            clinicalVariantEvidence.getClassification().setClinicalSignificance(ClinicalSignificance.PATHOGENIC_VARIANT);
         } else {
-            reportedEvent.getClassification().setClinicalSignificance(computeClinicalSignificance(acmgs));
+            clinicalVariantEvidence.getClassification().setClinicalSignificance(computeClinicalSignificance(acmgs));
         }
 
         // Role in cancer
@@ -254,7 +254,7 @@ public abstract class ReportedVariantCreator {
             if (MapUtils.isNotEmpty(roleInCancer) && CollectionUtils.isNotEmpty(variant.getAnnotation().getConsequenceTypes())) {
                 for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
                     if (StringUtils.isNotEmpty(ct.getGeneName()) && roleInCancer.containsKey(ct.getGeneName())) {
-                        reportedEvent.setRoleInCancer(roleInCancer.get(ct.getGeneName()));
+                        clinicalVariantEvidence.setRoleInCancer(roleInCancer.get(ct.getGeneName()));
                         break;
                     }
                 }
@@ -263,12 +263,12 @@ public abstract class ReportedVariantCreator {
 
         // Actionable management
         if (MapUtils.isNotEmpty(actionableVariants) && actionableVariants.containsKey(variant.getId())) {
-            reportedEvent.setActionable(true);
+            clinicalVariantEvidence.setActionable(true);
             // Set tier 3 only if it is null or untiered
             if (tier == null || UNTIERED.equals(tier)) {
-                reportedEvent.getClassification().setTier(TIER_3);
+                clinicalVariantEvidence.getClassification().setTier(TIER_3);
             } else {
-                reportedEvent.getClassification().setTier(tier);
+                clinicalVariantEvidence.getClassification().setTier(tier);
             }
             // Add 'actionable' phenotypes
             if (CollectionUtils.isNotEmpty(actionableVariants.get(variant.getId()))) {
@@ -277,12 +277,12 @@ public abstract class ReportedVariantCreator {
                     evidences.add(new Phenotype(phenotypeId, phenotypeId, ""));
                 }
                 if (CollectionUtils.isNotEmpty(evidences)) {
-                    reportedEvent.setPhenotypes(evidences);
+                    clinicalVariantEvidence.setPhenotypes(evidences);
                 }
             }
         }
 
-        return reportedEvent;
+        return clinicalVariantEvidence;
     }
 
 
@@ -313,13 +313,14 @@ public abstract class ReportedVariantCreator {
     }
 
 
-    protected List<ReportedEvent> createReportedEvents(String tier, List<String> panelIds, ConsequenceType ct, Variant variant) {
-        return createReportedEvents(tier, panelIds, ct, variant, extendedLof);
+    protected List<ClinicalVariantEvidence> createClinicalVariantEvidences(String tier, List<String> panelIds, ConsequenceType ct,
+                                                                           Variant variant) {
+        return createClinicalVariantEvidences(tier, panelIds, ct, variant, extendedLof);
     }
 
-    protected List<ReportedEvent> createReportedEvents(String tier, List<String> panelIds, ConsequenceType ct, Variant variant,
-                                                       Set<String> includeSoTerms) {
-        List<ReportedEvent> reportedEvents = new ArrayList<>();
+    protected List<ClinicalVariantEvidence> createClinicalVariantEvidences(String tier, List<String> panelIds, ConsequenceType ct,
+                                                                           Variant variant, Set<String> includeSoTerms) {
+        List<ClinicalVariantEvidence> clinicalVariantEvidences = new ArrayList<>();
 
         // Sanity check
         List<SequenceOntologyTerm> soTerms = null;
@@ -332,23 +333,23 @@ public abstract class ReportedVariantCreator {
 
         if (CollectionUtils.isNotEmpty(panelIds)) {
             for (String panelId : panelIds) {
-                ReportedEvent reportedEvent = createReportedEvent(disorder, soTerms, genomicFeature, panelId, modeOfInheritance,
-                        penetrance, tier, variant);
-                if (reportedEvent != null) {
-                    reportedEvents.add(reportedEvent);
+                ClinicalVariantEvidence clinicalVariantEvidence = createClinicalVariantEvidence(disorder, soTerms, genomicFeature, panelId,
+                        modeOfInheritance, penetrance, tier, variant);
+                if (clinicalVariantEvidence != null) {
+                    clinicalVariantEvidences.add(clinicalVariantEvidence);
                 }
             }
         } else {
             // We report events without panels, e.g., actionable variants (tier 3)
             if (CollectionUtils.isNotEmpty(soTerms)) {
-                ReportedEvent reportedEvent = createReportedEvent(disorder, soTerms, genomicFeature, null, modeOfInheritance,
-                        penetrance, tier, variant);
-                if (reportedEvent != null) {
-                    reportedEvents.add(reportedEvent);
+                ClinicalVariantEvidence clinicalVariantEvidence = createClinicalVariantEvidence(disorder, soTerms, genomicFeature, null,
+                        modeOfInheritance, penetrance, tier, variant);
+                if (clinicalVariantEvidence != null) {
+                    clinicalVariantEvidences.add(clinicalVariantEvidence);
                 }
             }
         }
-        return reportedEvents;
+        return clinicalVariantEvidences;
     }
 
     private ClinicalProperty.ModeOfInheritance getMoiFromGenePanel(String inputMoi) {
@@ -392,36 +393,36 @@ public abstract class ReportedVariantCreator {
         return ModeOfInheritance.UNKNOWN;
     }
 
-    public List<ReportedVariant> groupCHVariants(Map<String, List<ReportedVariant>> reportedVariantMap) {
-        List<ReportedVariant> reportedVariants = new ArrayList<>();
+    public List<ClinicalVariant> groupCHVariants(Map<String, List<ClinicalVariant>> clinicalVariantMap) {
+        List<ClinicalVariant> clinicalVariants = new ArrayList<>();
 
-        for (Map.Entry<String, List<ReportedVariant>> entry : reportedVariantMap.entrySet()) {
+        for (Map.Entry<String, List<ClinicalVariant>> entry : clinicalVariantMap.entrySet()) {
             Set<String> variantIds = entry.getValue().stream().map(Variant::toStringSimple).collect(Collectors.toSet());
-            for (ReportedVariant reportedVariant : entry.getValue()) {
+            for (ClinicalVariant clinicalVariant : entry.getValue()) {
                 Set<String> tmpVariantIds = new HashSet<>(variantIds);
-                tmpVariantIds.remove(reportedVariant.toStringSimple());
+                tmpVariantIds.remove(clinicalVariant.toStringSimple());
 
-                for (ReportedEvent reportedEvent : reportedVariant.getEvidences()) {
-                    reportedEvent.setCompoundHeterozygousVariantIds(new ArrayList<>(tmpVariantIds));
+                for (ClinicalVariantEvidence clinicalVariantEvidence : clinicalVariant.getEvidences()) {
+                    clinicalVariantEvidence.setCompoundHeterozygousVariantIds(new ArrayList<>(tmpVariantIds));
                 }
 
-                reportedVariants.add(reportedVariant);
+                clinicalVariants.add(clinicalVariant);
             }
         }
 
-        return reportedVariants;
+        return clinicalVariants;
     }
 
-    public List<ReportedVariant> mergeReportedVariants(List<ReportedVariant> reportedVariants) {
-        Map<String, ReportedVariant> reportedVariantMap = new HashMap<>();
-        for (ReportedVariant reportedVariant : reportedVariants) {
-            if (reportedVariantMap.containsKey(reportedVariant.getId())) {
-                reportedVariantMap.get(reportedVariant.getId()).getEvidences().addAll(reportedVariant.getEvidences());
+    public List<ClinicalVariant> mergeClinicalVariants(List<ClinicalVariant> clinicalVariants) {
+        Map<String, ClinicalVariant> clinicalVariantMap = new HashMap<>();
+        for (ClinicalVariant clinicalVariant : clinicalVariants) {
+            if (clinicalVariantMap.containsKey(clinicalVariant.getId())) {
+                clinicalVariantMap.get(clinicalVariant.getId()).getEvidences().addAll(clinicalVariant.getEvidences());
             } else {
-                reportedVariantMap.put(reportedVariant.getId(), reportedVariant);
+                clinicalVariantMap.put(clinicalVariant.getId(), clinicalVariant);
             }
         }
 
-        return new ArrayList<>(reportedVariantMap.values());
+        return new ArrayList<>(clinicalVariantMap.values());
     }
 }
