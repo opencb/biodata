@@ -20,10 +20,7 @@ import htsjdk.tribble.TribbleException;
 import htsjdk.tribble.util.ParsingUtils;
 import htsjdk.variant.variantcontext.*;
 import htsjdk.variant.variantcontext.LazyGenotypesContext.LazyData;
-import htsjdk.variant.vcf.VCFCodec;
-import htsjdk.variant.vcf.VCFConstants;
-import htsjdk.variant.vcf.VCFHeader;
-import htsjdk.variant.vcf.VCFHeaderVersion;
+import htsjdk.variant.vcf.*;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -36,21 +33,37 @@ import java.util.List;
  */
 public class FullVcfCodec extends VCFCodec implements Serializable {
 
-    private final String[] INT_DECODE_ARRAY = new String[10000];
+    private static final VCFTextTransformer percentEncodingTextTransformer = new VCFPercentEncodedTextTransformer();
+    private static final VCFTextTransformer passThruTextTransformer = new VCFPassThruTextTransformer();
+    private VCFTextTransformer vcfTextTransformer;
 
     public FullVcfCodec() {
     }
 
     public FullVcfCodec(final VCFHeader header, final VCFHeaderVersion version) {
         this.setVCFHeader(header, version);
+        this.vcfTextTransformer = getTextTransformerForVCFVersion(version);
     }
 
-    private int[] decodeInts(final String string) {
-        final int nValues = ParsingUtils.split(string, INT_DECODE_ARRAY, ',');
-        final int[] values = new int[nValues];
+    @Override
+    public VCFHeader setVCFHeader(VCFHeader newHeader, VCFHeaderVersion newVersion) {
+        VCFHeader vcfHeader = super.setVCFHeader(newHeader, newVersion);
+        this.vcfTextTransformer = this.getTextTransformerForVCFVersion(newVersion);
+        return vcfHeader;
+    }
+
+    private VCFTextTransformer getTextTransformerForVCFVersion(VCFHeaderVersion targetVersion) {
+        return targetVersion != null && targetVersion.isAtLeastAsRecentAs(VCFHeaderVersion.VCF4_3)
+                ? percentEncodingTextTransformer
+                : passThruTextTransformer;
+    }
+
+    private static final int[] decodeInts(final String string) {
+        List<String> split = ParsingUtils.split(string, ',');
+        int [] values = new int[split.size()];
         try {
-            for (int i = 0; i < nValues; i++) {
-                values[i] = Integer.valueOf(INT_DECODE_ARRAY[i]);
+            for (int i = 0; i < values.length; i++) {
+                values[i] = Integer.parseInt(split.get(i));
             }
         } catch (final NumberFormatException e) {
             return null;
@@ -63,14 +76,16 @@ public class FullVcfCodec extends VCFCodec implements Serializable {
     }
 
     /**
-     * Create a genotype map.
+     * create a genotype map
      *
      * @param str the string
      * @param alleles the list of alleles
      * @return a mapping of sample name to genotype object
      */
-    @Override
-    public LazyData createGenotypeMap(String str, List<Allele> alleles, String chr, int pos) {
+    public LazyGenotypesContext.LazyData createGenotypeMap(final String str,
+                                                           final List<Allele> alleles,
+                                                           final String chr,
+                                                           final int pos) {
         if (genotypeParts == null) {
             genotypeParts = new String[header.getColumnCount() - NUM_STANDARD_FIELDS];
         }
@@ -78,11 +93,12 @@ public class FullVcfCodec extends VCFCodec implements Serializable {
         int nParts = ParsingUtils.split(str, genotypeParts, VCFConstants.FIELD_SEPARATOR_CHAR);
         if (nParts != genotypeParts.length) {
             generateException("there are " + (nParts - 1)
-                    + " genotypeCounters while the header requires that " + (genotypeParts.length - 1)
-                    + " genotypeCounters be present for all records at " + chr + ":" + pos, lineNo);
+                    + " genotypes while the header requires that " + (genotypeParts.length - 1)
+                    + " genotypes be present for all records at " + chr + ":" + pos, lineNo);
         }
 
         ArrayList<Genotype> genotypes = new ArrayList<>(nParts);
+
         // get the format keys
         List<String> genotypeKeys = ParsingUtils.split(genotypeParts[0], VCFConstants.GENOTYPE_FIELD_SEPARATOR_CHAR);
 
@@ -93,8 +109,10 @@ public class FullVcfCodec extends VCFCodec implements Serializable {
         alleleMap.clear();
 
         // cycle through the genotype strings
+        boolean PlIsSet = false;
         for (int genotypeOffset = 1; genotypeOffset < nParts; genotypeOffset++) {
             List<String> genotypeValues = ParsingUtils.split(genotypeParts[genotypeOffset], VCFConstants.GENOTYPE_FIELD_SEPARATOR_CHAR);
+            genotypeValues = vcfTextTransformer.decodeText(genotypeValues);
 
             final String sampleName = sampleNameIterator.next();
             final GenotypeBuilder gb = new GenotypeBuilder(sampleName);
@@ -109,7 +127,6 @@ public class FullVcfCodec extends VCFCodec implements Serializable {
             int genotypeAlleleLocation = -1;
             if (!genotypeKeys.isEmpty()) {
                 gb.maxAttributes(genotypeKeys.size() - 1);
-
 
                 for (int i = 0; i < genotypeKeys.size(); i++) {
                     final String gtKey = genotypeKeys.get(i);
@@ -140,16 +157,20 @@ public class FullVcfCodec extends VCFCodec implements Serializable {
                             if (genotypeValues.get(i).equals(VCFConstants.MISSING_GENOTYPE_QUALITY_v3)) {
                                 gb.noGQ();
                             } else {
-                                gb.GQ((int)Math.round(Double.valueOf(genotypeValues.get(i))));
+                                gb.GQ((int) Math.round(VCFUtils.parseVcfDouble(genotypeValues.get(i))));
                             }
                         } else if (gtKey.equals(VCFConstants.GENOTYPE_ALLELE_DEPTHS)) {
                             gb.AD(decodeInts(genotypeValues.get(i)));
                         } else if (gtKey.equals(VCFConstants.GENOTYPE_PL_KEY)) {
                             gb.PL(decodeInts(genotypeValues.get(i)));
+                            PlIsSet = true;
                         } else if (gtKey.equals(VCFConstants.GENOTYPE_LIKELIHOODS_KEY)) {
-                            gb.PL(GenotypeLikelihoods.fromGLField(genotypeValues.get(i)).getAsPLs());
+                            // Do not overwrite PL with data from GL
+                            if (!PlIsSet) {
+                                gb.PL(GenotypeLikelihoods.fromGLField(genotypeValues.get(i)).getAsPLs());
+                            }
                         } else if (gtKey.equals(VCFConstants.DEPTH_KEY)) {
-                            gb.DP(Integer.valueOf(genotypeValues.get(i)));
+                            gb.DP(Integer.parseInt(genotypeValues.get(i)));
                         }
                         // opencb modification: add ALL the fields to the attributes. null for missing values!
                         gb.attribute(gtKey, genotypeValues.get(i));
@@ -158,18 +179,16 @@ public class FullVcfCodec extends VCFCodec implements Serializable {
             }
 
             // check to make sure we found a genotype field if our version is less than 4.1 file
-            if (!version.isAtLeastAsRecentAs(VCFHeaderVersion.VCF4_1) && genotypeAlleleLocation == -1) {
+            if ( ! version.isAtLeastAsRecentAs(VCFHeaderVersion.VCF4_1) && genotypeAlleleLocation == -1 )
                 generateException("Unable to find the GT field for the record; the GT field is required before VCF4.1");
-            }
-            if (genotypeAlleleLocation > 0) {
+            if ( genotypeAlleleLocation > 0 )
                 generateException("Saw GT field at position "
-                        + genotypeAlleleLocation + ", but it must be at the first position for genotypeCounters when present");
-            }
+                        + genotypeAlleleLocation + ", but it must be at the first position for genotypes when present");
 
-            final List<Allele> gTalleles = (genotypeAlleleLocation == -1
+            final List<Allele> GTalleles = (genotypeAlleleLocation == -1
                     ? new ArrayList<>(0)
                     : parseGenotypeAlleles(genotypeValues.get(genotypeAlleleLocation), alleles, alleleMap));
-            gb.alleles(gTalleles);
+            gb.alleles(GTalleles);
             gb.phased(genotypeAlleleLocation != -1
                     && genotypeValues.get(genotypeAlleleLocation).indexOf(VCFConstants.PHASED) != -1);
 
