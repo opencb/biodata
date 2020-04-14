@@ -54,7 +54,7 @@ public class OboParser {
         oboTerms = new LinkedHashMap<>();
         for (Frame frame : frames) {
             String oboId = frame.getId();
-            OntologyTerm ontologyTerm = getOOntologyTerm(oboId);
+            OntologyTerm ontologyTerm = getOntologyTerm(oboId);
             if (StringUtils.isNotEmpty(ontologyName)) {
                 ontologyTerm.setSource(ontologyName);
             }
@@ -71,9 +71,6 @@ public class OboParser {
                         break;
                     case "xref":
                         List<String> existingXrefs = ontologyTerm.getXrefs();
-                        if (existingXrefs == null) {
-                            existingXrefs = new ArrayList<>();
-                        }
                         Collection<Object> xrefs = frame.getTagValues(tag);
                         for (Object xref : xrefs) {
                             existingXrefs.add(((Xref) xref).getIdref());
@@ -85,9 +82,6 @@ public class OboParser {
                         break;
                     case "synonym":
                         List<String> existingSynonyms = ontologyTerm.getSynonyms();
-                        if (existingSynonyms == null) {
-                            existingSynonyms = new ArrayList<>();
-                        }
                         Collection<Object> synonyms = frame.getTagValues(tag);
                         for (Object synonym : synonyms) {
                             existingSynonyms.add(String.valueOf(synonym));
@@ -96,9 +90,6 @@ public class OboParser {
                         break;
                     case "is_a":
                         List<String> existingParents = ontologyTerm.getParents();
-                        if (existingParents == null) {
-                            existingParents = new ArrayList<>();
-                        }
                         Collection<Object> parents = frame.getTagValues(tag);
                         for (Object parent : parents) {
                             existingParents.add(String.valueOf(parent));
@@ -116,20 +107,17 @@ public class OboParser {
     }
 
     private void addChild(String parentId, String childId) {
-        OntologyTerm parentTerm = getOOntologyTerm(parentId);
+        OntologyTerm parentTerm = getOntologyTerm(parentId);
         List<String> children = parentTerm.getChildren();
-        if (CollectionUtils.isEmpty(children)) {
-            children = new ArrayList<>();
-        }
         children.add(childId);
         parentTerm.setChildren(children);
     }
 
-    private OntologyTerm getOOntologyTerm(String id) {
+    private OntologyTerm getOntologyTerm(String id) {
         OntologyTerm ontologyTerm = oboTerms.get(id);
         if (ontologyTerm == null) {
-            ontologyTerm = new OntologyTerm();
-            ontologyTerm.setId(id);
+            ontologyTerm = new OntologyTerm(id, null, null, null, null, null,
+                    new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
             oboTerms.put(id, ontologyTerm);
         }
         return ontologyTerm;
