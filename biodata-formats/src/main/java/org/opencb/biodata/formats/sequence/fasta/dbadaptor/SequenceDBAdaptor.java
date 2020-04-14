@@ -27,6 +27,7 @@ import java.nio.file.Path;
 /**
  * Created by jacobo on 14/08/14.
  */
+@Deprecated
 public abstract class SequenceDBAdaptor {
 
     protected Path credentialsPath;

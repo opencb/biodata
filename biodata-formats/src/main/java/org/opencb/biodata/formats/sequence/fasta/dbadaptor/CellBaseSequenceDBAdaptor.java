@@ -33,6 +33,7 @@ import java.util.Properties;
 /**
  * Created by jacobo on 14/08/14.
  */
+@Deprecated
 public class CellBaseSequenceDBAdaptor extends SequenceDBAdaptor {
 
     private static final String DEFAULT_CELLBASEHOST = "http://ws.bioinfo.cipf.es/cellbase/rest/latest";

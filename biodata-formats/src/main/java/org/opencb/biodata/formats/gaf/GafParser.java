@@ -44,7 +44,7 @@ public class GafParser {
             String goId = array[4];
             String qualifier = array[3];
             String evidenceCode = array[6];
-            String pubmeds = array[7];
+            String pubmeds = array[5];
 
             FeatureOntologyTermAnnotation transcriptOntologyAnnotation = new FeatureOntologyTermAnnotation();
             transcriptOntologyAnnotation.setId(goId);

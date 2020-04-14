@@ -16,33 +16,34 @@
 
 package org.opencb.biodata.formats.io;
 
+import org.apache.commons.lang.StringUtils;
+import org.opencb.commons.utils.FileUtils;
+
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
-import java.util.zip.GZIPInputStream;
 
 
 public class BeanReader<T> {
+
+    private Path path;
+    private Class<T> clazz;
+    private String separator;
 
     private BufferedReader bufferedReader;
     @SuppressWarnings("rawtypes")
     private Class[] argsClass;
     @SuppressWarnings("rawtypes")
     private Constructor constructor;
-
-    private String separator;
-    private String comment;
-
     private String commentLines;
+
+    private static final String COMMENT_CHARACTER = "#";
 
 //    public BeanReader(String filename, Class<T> c) throws IOException, SecurityException, NoSuchMethodException {
 //        this(new File(filename), c);
@@ -52,50 +53,49 @@ public class BeanReader<T> {
         this(path, c, "\t");
     }
 
-    public BeanReader(Path path, Class<T> c, String separator) throws IOException, SecurityException, NoSuchMethodException {
-        Files.exists(path);
+    public BeanReader(Path path, Class<T> clazz, String separator) throws IOException, SecurityException {
+        this.path = path;
+        this.clazz = clazz;
         this.separator = separator;
-        this.comment = "#";
         this.commentLines = "";
-        createConstructor(path, c);
+
+        init();
     }
 
     @SuppressWarnings("rawtypes")
-    private void createConstructor(Path path, Class beanClass) throws IOException, SecurityException, NoSuchMethodException {
-        String firstLine = getFirstLineUncommented(path);
-        if (firstLine != null) {
-            if (beanClass.getConstructors().length == 1) {
-                constructor = beanClass.getConstructors()[0];
+    private void init() throws IOException, SecurityException {
+        FileUtils.checkFile(path);
+        String firstLine = getFirstLineUncommented();
+        if (StringUtils.isNotEmpty(firstLine)) {
+            Constructor[] constructors = clazz.getConstructors();
+            if (constructors.length == 1) {
+                constructor = constructors[0];
             } else {
-                Constructor[] constructors = beanClass.getConstructors();
                 boolean hasPrimitive;
-                for (int i = 0; i < constructors.length; i++) {
-                    if (firstLine.split(separator, -1).length == constructors[i].getParameterTypes().length) {
+                for (Constructor constructor : constructors) {
+                    if (firstLine.split(separator, -1).length == constructor.getParameterTypes().length) {
                         hasPrimitive = false;
-                        for (Class c : constructors[i].getParameterTypes()) {
+                        for (Class c : constructor.getParameterTypes()) {
                             if (c.isPrimitive()) {
                                 hasPrimitive = true;
                                 break;
                             }
                         }
                         if (!hasPrimitive) {
-                            constructor = constructors[i];
+                            this.constructor = constructor;
                             break;
                         }
                     }
                 }
             }
+
+            // Init argClass array
             if (constructor != null) {
                 argsClass = constructor.getParameterTypes();
             }
-//            bufferedReader = Files.newBufferedReader(path, Charset.defaultCharset());
-//            bufferedReader = Files.newBufferedReader(path, Charset.forName("ISO-8859-1"));
-            if (path.toFile().getName().endsWith(".gz")) {
-                bufferedReader = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(path.toFile()))));
-            } else {
-                bufferedReader = Files.newBufferedReader(path, Charset.defaultCharset());
-            }
 
+            // FileUtils method already checks if file ends with .gz
+            bufferedReader = FileUtils.newBufferedReader(path, Charset.defaultCharset());
         } else {
             new IOException("Empty path provided");
         }
@@ -104,7 +104,7 @@ public class BeanReader<T> {
 
     public T read() throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException, IOException {
         String line = "";
-        while ((line = bufferedReader.readLine()) != null && (line.trim().equals("") || line.startsWith(comment))) {
+        while ((line = bufferedReader.readLine()) != null && (line.trim().equals("") || line.startsWith(COMMENT_CHARACTER))) {
             ;
         }
         return stringLineToObject(line);
@@ -115,44 +115,44 @@ public class BeanReader<T> {
     }
 
     public List<T> read(int number) throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException, IOException {
-        List<T> records = new ArrayList<T>(number);
-        T t = null;
+        List<T> records = new ArrayList<>(number);
+        T record;
         int cont = 0;
         // read() method already avoids empty and commentLines
-        while ((t = read()) != null && cont < number) {
-            records.add(t);
+        while ((record = read()) != null && cont < number) {
+            records.add(record);
             cont++;
         }
         return records;
     }
 
     public List<T> readAll() throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException, IOException {
-        List<T> records = new ArrayList<T>();
-        T t = null;
-        while ((t = read()) != null) {
-            records.add(t);
+        List<T> records = new ArrayList<>();
+        T record;
+        while ((record = read()) != null) {
+            records.add(record);
         }
         return records;
     }
 
     public List<T> readAll(String pattern) throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException, IOException {
-        List<T> records = new ArrayList<T>();
-        T t = null;
+        List<T> records = new ArrayList<>();
+        T record;
         Pattern pat = Pattern.compile(pattern);
-        while ((t = read(pat)) != null) {
-            records.add(t);
+        while ((record = read(pat)) != null) {
+            records.add(record);
         }
         return records;
     }
 
     public List<T> readAllForced() throws IOException {
-        List<T> records = new ArrayList<T>();
-        String line = null;
-        T t = null;
+        List<T> records = new ArrayList<>();
+        String line;
+        T t;
         int cont = 0;
         while ((line = bufferedReader.readLine()) != null) {
             cont++;
-            if (!line.startsWith(comment) && !line.trim().equals("")) {
+            if (!line.startsWith(COMMENT_CHARACTER) && !line.trim().isEmpty()) {
                 try {
                     t = stringLineToObject(line);
                     if (t != null) {
@@ -172,44 +172,33 @@ public class BeanReader<T> {
 
 
     @SuppressWarnings("unchecked")
-    private T stringLineToObject(String line) throws IllegalArgumentException, IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
-        if (constructor == null && argsClass == null) {
+    private T stringLineToObject(String line) throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
+        if (constructor == null) {
             return null;
         }
         if (line != null) {
             String[] fields = line.split(separator, -1);
             Object[] obj = new Object[fields.length];
-            if (constructor != null && argsClass == null) {
+            if (argsClass == null) {
                 argsClass = constructor.getParameterTypes();
             }
             try {
                 for (int i = 0; i < fields.length; i++) {
                     obj[i] = argsClass[i].getConstructor(String.class).newInstance(fields[i]);
                 }
-                //	return (T) constructor.newInstance((Object[])line.split(separator, -1));
                 return (T) constructor.newInstance(obj);
-            } catch (SecurityException e) {
-                e.printStackTrace();
-            } catch (NoSuchMethodException e) {
+            } catch (SecurityException | NoSuchMethodException e) {
                 e.printStackTrace();
             }
         }
         return null;
     }
 
-    private String getFirstLineUncommented(Path path) throws IOException {
+    private String getFirstLineUncommented() throws IOException {
         String line = "";
         StringBuilder commentLineBuilder = new StringBuilder();
-//        BufferedReader reader = Files.newBufferedReader(path, Charset.defaultCharset());
-//        BufferedReader reader = Files.newBufferedReader(path, Charset.forName("ISO-8859-1"));
-        BufferedReader reader;
-        if (path.toFile().getName().endsWith(".gz")) {
-            reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(path.toFile()))));
-        } else {
-            reader = Files.newBufferedReader(path, Charset.defaultCharset());
-        }
-
-        while ((line = reader.readLine()) != null && line.startsWith(comment)) {
+        BufferedReader reader = FileUtils.newBufferedReader(path, Charset.defaultCharset());
+        while ((line = reader.readLine()) != null && line.startsWith(COMMENT_CHARACTER)) {
             commentLineBuilder.append(line).append("\n");
         }
         reader.close();
@@ -219,7 +208,7 @@ public class BeanReader<T> {
 
     private T read(Pattern pat) throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException, IOException {
         String line = "";
-        while ((line = bufferedReader.readLine()) != null && (line.trim().equals("") || line.startsWith(comment) || !pat.matcher(line).matches())) {
+        while ((line = bufferedReader.readLine()) != null && (line.trim().equals("") || line.startsWith(COMMENT_CHARACTER) || !pat.matcher(line).matches())) {
             ;
         }
         return stringLineToObject(line);
@@ -237,54 +226,47 @@ public class BeanReader<T> {
      * @param constructor the constructor to set
      */
     @SuppressWarnings("rawtypes")
-    public void setConstructor(Constructor constructor) {
+    public BeanReader<T> setConstructor(Constructor constructor) {
         this.constructor = constructor;
         if (constructor != null) {
             argsClass = constructor.getParameterTypes();
         }
+        return this;
     }
 
-
-    /**
-     * @param separator the separator to set
-     */
-    public void setSeparator(String separator) {
-        this.separator = separator;
+    public Path getPath() {
+        return path;
     }
 
-    /**
-     * @return the separator
-     */
+    public BeanReader<T> setPath(Path path) {
+        this.path = path;
+        return this;
+    }
+
+    public Class<T> getClazz() {
+        return clazz;
+    }
+
+    public BeanReader<T> setClazz(Class<T> clazz) {
+        this.clazz = clazz;
+        return this;
+    }
+
     public String getSeparator() {
         return separator;
     }
 
-    /**
-     * @param comment the comment to set
-     */
-    public void setComment(String comment) {
-        this.comment = comment;
+    public BeanReader<T> setSeparator(String separator) {
+        this.separator = separator;
+        return this;
     }
 
-    /**
-     * @return the comment
-     */
-    public String getComment() {
-        return comment;
-    }
-
-    /**
-     * @param commentLines the commentLines to set
-     */
-    public void setCommentLines(String commentLines) {
-        this.commentLines = commentLines;
-    }
-
-    /**
-     * @return the commentLines
-     */
     public String getCommentLines() {
         return commentLines;
     }
 
+    public BeanReader<T> setCommentLines(String commentLines) {
+        this.commentLines = commentLines;
+        return this;
+    }
 }

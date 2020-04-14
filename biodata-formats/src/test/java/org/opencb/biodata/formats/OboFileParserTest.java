@@ -20,7 +20,7 @@ public class OboFileParserTest {
                 .getResource("/hp.obo").getPath()));
 
         OboParser parser = new OboParser();
-        List<OntologyTerm> terms = parser.parseOBO(bufferedReader);
+        List<OntologyTerm> terms = parser.parseOBO(bufferedReader, "Human Phenotype Ontology");
         assertEquals(4, terms.size());
 
         OntologyTerm term0 = terms.get(0);
@@ -28,6 +28,7 @@ public class OboFileParserTest {
         assertEquals("All", term0.getName());
         assertNull(term0.getDescription());
         assertEquals("Root of all terms in the Human Phenotype Ontology.", term0.getComment());
+        assertEquals("Human Phenotype Ontology", term0.getSource());
 
 //        [Term]
 //        id: HP:0000002
@@ -37,7 +38,7 @@ public class OboFileParserTest {
 //        xref: UMLS:C4025901
 //        is_a: HP:0001507 ! Growth abnormality
 
-        OntologyTerm term1 = terms.get(3);
+        OntologyTerm term1 = terms.get(1);
         assertEquals("HP:0000002", term1.getId());
         assertEquals("Abnormality of body height", term1.getName());
         assertEquals("Deviation from the norm of height with respect to that which is expected according to age and gender norms.", term1.getDescription());

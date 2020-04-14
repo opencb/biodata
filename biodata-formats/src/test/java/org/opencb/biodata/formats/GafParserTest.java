@@ -32,6 +32,6 @@ public class GafParserTest {
         assertEquals("GO:0003723", annotation0.getId());
         assertEquals("IEA", annotation0.getEvidenceCodes().get(0));
         assertNull(annotation0.getQualifier());
-        assertEquals("UniProtKB-KW:KW-0694", annotation0.getPublications().get(0));
+        assertEquals("GO_REF:0000043", annotation0.getPublications().get(0));
     }
 }
