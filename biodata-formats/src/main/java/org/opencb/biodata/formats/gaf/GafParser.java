@@ -16,7 +16,8 @@
 
 package org.opencb.biodata.formats.gaf;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.collections.keyvalue.MultiKey;
+import org.opencb.biodata.models.core.AnnotationEvidence;
 import org.opencb.biodata.models.core.FeatureOntologyTermAnnotation;
 
 import java.io.BufferedReader;
@@ -27,7 +28,8 @@ public class GafParser {
 
     public Map<String, List<FeatureOntologyTermAnnotation>> parseGaf(BufferedReader bufferedReader) throws IOException {
 
-        Map<String, List<FeatureOntologyTermAnnotation>> annotations = new HashMap<>();
+        // protein + term --> evidence code + qualifier --> publications
+        Map<MultiKey, Map<MultiKey, Set<String>>> transcriptTermToAnnotation = new HashMap();
 
         String line = null;
         while ((line = bufferedReader.readLine()) != null) {
@@ -40,21 +42,61 @@ public class GafParser {
                         + array.length + ") in line: " + line);
             }
 
-            String dbObjectId = array[1]; // protein
+            String dbObjectId = array[1]; // eg protein, transcript
             String goId = array[4];
             String qualifier = array[3];
             String evidenceCode = array[6];
             String pubmeds = array[5];
+            Set<String> publications = new HashSet(Arrays.asList(pubmeds.split(",")));
 
-            FeatureOntologyTermAnnotation transcriptOntologyAnnotation = new FeatureOntologyTermAnnotation();
-            transcriptOntologyAnnotation.setId(goId);
-            transcriptOntologyAnnotation.setEvidenceCodes(Collections.singletonList(evidenceCode));
-            if (StringUtils.isNotEmpty(qualifier)) {
-                transcriptOntologyAnnotation.setQualifier(qualifier);
+            MultiKey featureTermMultiKey = new MultiKey(dbObjectId, goId);
+            MultiKey codeQualifierMultiKey = new MultiKey(evidenceCode, qualifier);
+
+            Map<MultiKey, Set<String>> codeToPublications = transcriptTermToAnnotation.get(featureTermMultiKey);
+
+            // new protein + term pair
+            if (codeToPublications == null) {
+                codeToPublications = new HashMap<>();
+                codeToPublications.put(codeQualifierMultiKey, publications);
+                transcriptTermToAnnotation.put(featureTermMultiKey, codeToPublications);
+            } else {
+                // we've seen this protein + term before
+                Set<String> alreadySeenPublications = codeToPublications.get(codeQualifierMultiKey);
+                // new evidence code + qualifier
+                if (alreadySeenPublications == null) {
+                    alreadySeenPublications = new HashSet<>();
+                }
+                alreadySeenPublications.addAll(publications);
+                codeToPublications.put(codeQualifierMultiKey, alreadySeenPublications);
+                // annotations.computeIfAbsent(dbObjectId, k -> new ArrayList<>()).add(featureOntologyTermAnnotation);
             }
-            transcriptOntologyAnnotation.setPublications(Arrays.asList(pubmeds.split(",")));
-            annotations.computeIfAbsent(dbObjectId, k -> new ArrayList<>()).add(transcriptOntologyAnnotation);
+        }
+        Map<String, List<FeatureOntologyTermAnnotation>> annotations = new HashMap<>();
+
+        // for every protein + term
+        for (Map.Entry<MultiKey, Map<MultiKey, Set<String>>> entry : transcriptTermToAnnotation.entrySet()) {
+            MultiKey featureTermMultiKey = entry.getKey();
+            String dbObjectId = featureTermMultiKey.getKeys()[0].toString();
+            String goId = featureTermMultiKey.getKeys()[1].toString();
+            Map<MultiKey, Set<String>> codeToPublications = entry.getValue();
+            List<AnnotationEvidence> evidenceList = new ArrayList<>();
+            // for this protein + term, every evidence code + qualifier pair
+            for (Map.Entry<MultiKey, Set<String>> evidenceEntry : codeToPublications.entrySet()) {
+                MultiKey codeQualifierMultiKey = evidenceEntry.getKey();
+                String evidenceCode = codeQualifierMultiKey.getKeys()[0].toString();
+                String qualifier = codeQualifierMultiKey.getKeys()[1].toString();
+                if (qualifier.isEmpty()) {
+                    qualifier = null;
+                }
+                Set<String> publications = evidenceEntry.getValue();
+                AnnotationEvidence annotationEvidence = new AnnotationEvidence(evidenceCode, publications, qualifier);
+                evidenceList.add(annotationEvidence);
+            }
+            FeatureOntologyTermAnnotation featureOntologyTermAnnotation = new FeatureOntologyTermAnnotation(goId, null, "GO", null,
+                    evidenceList);
+            annotations.computeIfAbsent(dbObjectId, k -> new ArrayList<>()).add(featureOntologyTermAnnotation);
         }
         return annotations;
     }
 }
+

@@ -19,23 +19,18 @@ package org.opencb.biodata.models.core;
 import java.util.List;
 import java.util.Map;
 
-
 public class FeatureOntologyTermAnnotation extends OntologyTermAnnotation {
 
-    private List<String> evidenceCodes;
-    private List<String> publications;
-    private String qualifier;
+    private List<AnnotationEvidence> evidence;
 
     public FeatureOntologyTermAnnotation() {
     }
 
     public FeatureOntologyTermAnnotation(String id, String name, String source, Map<String, String> attributes,
-                                         List<String> evidenceCodes, List<String> publications, String qualifier) {
+                                         List<AnnotationEvidence> evidence) {
         super(id, name, source, attributes);
 
-        this.evidenceCodes = evidenceCodes;
-        this.publications = publications;
-        this.qualifier = qualifier;
+        this.evidence = evidence;
     }
 
     @Override
@@ -45,9 +40,7 @@ public class FeatureOntologyTermAnnotation extends OntologyTermAnnotation {
         sb.append(", name='").append(name).append('\'');
         sb.append(", source='").append(source).append('\'');
         sb.append(", attributes=").append(attributes);
-        sb.append(", evidenceCodes=").append(evidenceCodes);
-        sb.append(", publications=").append(publications);
-        sb.append(", qualifier='").append(qualifier).append('\'');
+        sb.append(", evidence=").append(evidence);
         sb.append('}');
         return sb.toString();
     }
@@ -96,30 +89,12 @@ public class FeatureOntologyTermAnnotation extends OntologyTermAnnotation {
         return this;
     }
 
-    public List<String> getEvidenceCodes() {
-        return evidenceCodes;
+    public List<AnnotationEvidence> getEvidence() {
+        return evidence;
     }
 
-    public FeatureOntologyTermAnnotation setEvidenceCodes(List<String> evidenceCodes) {
-        this.evidenceCodes = evidenceCodes;
-        return this;
-    }
-
-    public List<String> getPublications() {
-        return publications;
-    }
-
-    public FeatureOntologyTermAnnotation setPublications(List<String> publications) {
-        this.publications = publications;
-        return this;
-    }
-
-    public String getQualifier() {
-        return qualifier;
-    }
-
-    public FeatureOntologyTermAnnotation setQualifier(String qualifier) {
-        this.qualifier = qualifier;
+    public FeatureOntologyTermAnnotation setEvidence(List<AnnotationEvidence> evidence) {
+        this.evidence = evidence;
         return this;
     }
 }

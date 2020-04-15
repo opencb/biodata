@@ -2,6 +2,7 @@ package org.opencb.biodata.formats;
 
 import org.junit.Test;
 import org.opencb.biodata.formats.gaf.GafParser;
+import org.opencb.biodata.models.core.AnnotationEvidence;
 import org.opencb.biodata.models.core.FeatureOntologyTermAnnotation;
 import org.opencb.commons.utils.FileUtils;
 
@@ -29,9 +30,10 @@ public class GafParserTest {
         assertEquals(4, annotations.size());
 
         FeatureOntologyTermAnnotation annotation0 = annotations.get(0);
-        assertEquals("GO:0003723", annotation0.getId());
-        assertEquals("IEA", annotation0.getEvidenceCodes().get(0));
-        assertNull(annotation0.getQualifier());
-        assertEquals("GO_REF:0000043", annotation0.getPublications().get(0));
+        AnnotationEvidence evidence = annotation0.getEvidence().get(0);
+        assertEquals("GO:0005829", annotation0.getId());
+        assertEquals("IDA", evidence.getCode());
+        assertNull(evidence.getQualifier());
+        assertEquals("GO_REF:0000052", evidence.getPublications().toArray()[0]);
     }
 }
