@@ -303,7 +303,7 @@ public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
         assertEquals(0, studyEntry.getStats("AFR").getMaf(), 0.00001);
         assertEquals(0, studyEntry.getStats("AMR").getMaf(), 0.00001);
 
-        System.out.println("genotypeCounters for C -> G in SAS: " + studyEntry.getStats("SAS").getGenotypeCount());
+        System.out.println("genotypes for C -> G in SAS: " + studyEntry.getStats("SAS").getGenotypeCount());
 
         v = res.get(1);
         studyEntry = v.getStudy(metadata.getId());
@@ -314,7 +314,7 @@ public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
         assertEquals(7025, studyEntry.getStats("SAS").getRefAlleleCount().longValue());
         assertEquals(7, studyEntry.getStats("SAS").getAltAlleleCount().longValue());
         assertEquals(7018 / 2, (int) studyEntry.getStats("SAS").getGenotypeCount().get("0/0"));
-        System.out.println("genotypeCounters for C -> T in SAS: " + studyEntry.getStats("SAS").getGenotypeCount());
+        System.out.println("genotypes for C -> T in SAS: " + studyEntry.getStats("SAS").getGenotypeCount());
     }
 
     @Test

@@ -66,13 +66,13 @@ public class ModeOfInheritance {
         // Get affected individuals for that phenotype
         Set<Member> affectedMembers = pedigreeManager.getAffectedIndividuals(disorder);
 
-        // Get all possible genotypeCounters for each individual
+        // Get all possible genotypes for each individual
         Map<String, Set<Integer>> genotypes = new HashMap<>();
         for (Member member : pedigree.getMembers()) {
             genotypes.put(member.getId(), calculateDominant(affectedMembers.contains(member), penetrance));
         }
 
-        // Validate genotypeCounters using relationships
+        // Validate genotypes using relationships
         validateGenotypes(genotypes, pedigreeManager);
 
         if (!isValidModeOfInheritance(genotypes, pedigree, affectedMembers)) {
@@ -89,13 +89,13 @@ public class ModeOfInheritance {
         // Get affected individuals for that phenotype
         Set<Member> affectedMembers = pedigreeManager.getAffectedIndividuals(disorder);
 
-        // Get all possible genotypeCounters for each individual
+        // Get all possible genotypes for each individual
         Map<String, Set<Integer>> genotypes = new HashMap<>();
         for (Member member : pedigree.getMembers()) {
             genotypes.put(member.getId(), calculateRecessive(affectedMembers.contains(member), penetrance));
         }
 
-        // Validate genotypeCounters using relationships
+        // Validate genotypes using relationships
         validateGenotypes(genotypes, pedigreeManager);
 
         if (!isValidModeOfInheritance(genotypes, pedigree, affectedMembers)) {
@@ -113,7 +113,7 @@ public class ModeOfInheritance {
         // Get affected individuals for that phenotype
         Set<Member> affectedMembers = pedigreeManager.getAffectedIndividuals(disorder);
 
-        // Get all possible genotypeCounters for each individual
+        // Get all possible genotypes for each individual
         Map<String, Set<Integer>> genotypes = new HashMap<>();
 
         for (Member member : pedigree.getMembers()) {
@@ -155,7 +155,7 @@ public class ModeOfInheritance {
 
         logger.debug("Genotypes before validating: {}", genotypes);
 
-        // Validate genotypeCounters using relationships
+        // Validate genotypes using relationships
         validateGenotypes(genotypes, pedigreeManager);
 
         logger.debug("Genotypes after validating: {}", genotypes);
@@ -174,7 +174,7 @@ public class ModeOfInheritance {
         // Get affected individuals for that phenotype
         Set<Member> affectedMembers = pedigreeManager.getAffectedIndividuals(disorder);
 
-        // Get all possible genotypeCounters for each individual
+        // Get all possible genotypes for each individual
         Map<String, Set<Integer>> genotypes = new HashMap<>();
 
         for (Member member : pedigree.getMembers()) {
@@ -217,7 +217,7 @@ public class ModeOfInheritance {
                 Set<Integer> fatherGenotypes = genotypes.get(child.getFather().getId());
 
                 if (!childGenotypes.containsAll(fatherGenotypes)) {
-                    // Father and son have different genotypeCounters, which shouldn't be possible
+                    // Father and son have different genotypes, which shouldn't be possible
                     return emptyMapOfGenotypes(genotypes);
                 }
             }
@@ -688,11 +688,11 @@ public class ModeOfInheritance {
     }
 
     /**
-     * Validate and removes and genotypeCounters that does not make sense given the parent - child relation.
+     * Validate and removes and genotypes that does not make sense given the parent - child relation.
      * This method should only be called under dominant, recessive and x-linked modes of inheritance. It does not support y-linked modes
      * where the mother does not have a possible genotype.
      *
-     * @param gt              Map of individual id - set of possible genotypeCounters.
+     * @param gt              Map of individual id - set of possible genotypes.
      * @param pedigreeManager Pedigree manager.
      */
     private static void validateGenotypes(Map<String, Set<Integer>> gt, PedigreeManager pedigreeManager) {
@@ -724,7 +724,7 @@ public class ModeOfInheritance {
     }
 
     private static void processIndividual(Member member, Map<String, Set<Integer>> gt) {
-        // 1. We first process them independently so the possible genotypeCounters are reduced
+        // 1. We first process them independently so the possible genotypes are reduced
 
         // From father to child
         if (member.getFather() != null) {

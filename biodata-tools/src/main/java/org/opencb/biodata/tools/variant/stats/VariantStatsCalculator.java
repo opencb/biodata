@@ -81,7 +81,7 @@ public class VariantStatsCalculator {
         }
         calculateFilterFreq(variantStats, numFilterFiles, variantStats.getFilterCount());
         variantStats.setQualityAvg((float) (qualSum / numQualFiles));
-        variantStats.setQualityValuesCount(numQualFiles);
+        variantStats.setQualityCount(numQualFiles);
 
         return variantStats;
     }
@@ -135,7 +135,7 @@ public class VariantStatsCalculator {
             Map<String, Float> filterFreq = variantStats.getFilterFreq();
             filterCount.forEach((filter, count) -> filterFreq.put(filter, count / (float) numFiles));
         } // else -> do not fill freqs
-        variantStats.setFilesCount(numFiles);
+        variantStats.setFileCount(numFiles);
     }
 
     public static void addFileFilter(String filter, Map<String, Integer> filterCount) {
@@ -189,7 +189,7 @@ public class VariantStatsCalculator {
                     break;
             }
 
-            // Check missing alleles and genotypeCounters
+            // Check missing alleles and genotypes
             switch (g.getCode()) {
                 case MULTIPLE_ALTERNATES:
                 case ALLELES_OK:
@@ -295,24 +295,24 @@ public class VariantStatsCalculator {
     }
 
     public static void calculateGenotypeFrequencies(VariantStats variantStats) {
-        if (variantStats.getSamplesCount() == null || variantStats.getSamplesCount() < 0) {
+        if (variantStats.getSampleCount() == null || variantStats.getSampleCount() < 0) {
             int totalGenotypesCount = 0;
             for (Map.Entry<String, Integer> entry : variantStats.getGenotypeCount().entrySet()) {
                 if (!new Genotype(entry.getKey()).getCode().equals(AllelesCode.ALLELES_MISSING)) {
                     totalGenotypesCount += entry.getValue();
                 }
             }
-            variantStats.setSamplesCount(totalGenotypesCount);
+            variantStats.setSampleCount(totalGenotypesCount);
         }
-        calculateGenotypeFrequencies(variantStats, variantStats.getSamplesCount());
+        calculateGenotypeFrequencies(variantStats, variantStats.getSampleCount());
     }
 
     private static void calculateGenotypeFrequencies(VariantStats variantStats, final int totalGenotypesCount) {
         if (totalGenotypesCount < 0) {
-            throw new IllegalArgumentException("The number of genotypeCounters must be equals or greater than zero");
+            throw new IllegalArgumentException("The number of genotypes must be equals or greater than zero");
         }
 
-        variantStats.setSamplesCount(totalGenotypesCount);
+        variantStats.setSampleCount(totalGenotypesCount);
         if (variantStats.getGenotypeCount().isEmpty() || totalGenotypesCount == 0) {
             // Nothing to calculate here
             variantStats.setMgf((float) -1);
@@ -320,7 +320,7 @@ public class VariantStatsCalculator {
             return;
         }
 
-        // Set all combinations of genotypeCounters to zero
+        // Set all combinations of genotypes to zero
         Map<String, Float> genotypesFreq = new HashMap<>(variantStats.getGenotypeCount().size());
         genotypesFreq.put("0/0", 0.0f);
         genotypesFreq.put("0/1", 0.0f);

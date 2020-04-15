@@ -206,9 +206,9 @@ public class Genotype {
                 char ch;
                 if (allele.length() == 1 && ((ch = allele.charAt(0)) >= '0' && ch <= '9')) {
                     this.allelesIdx[i] = ch - '0';
-                } else if (StringUtils.isNumeric(allele)) { // Accepts genotypeCounters with form 0/0, 0/1, and so on
+                } else if (StringUtils.isNumeric(allele)) { // Accepts genotypes with form 0/0, 0/1, and so on
                     this.allelesIdx[i] = Integer.parseInt(allele);
-                } else { // Accepts genotypeCounters with form A/A, A/T, and so on
+                } else { // Accepts genotypes with form A/A, A/T, and so on
                     if (allele.equalsIgnoreCase(reference)) {
                         this.allelesIdx[i] = 0;
                     } else {
@@ -373,7 +373,7 @@ public class Genotype {
      * Each allele is encoded as the ith-power of 10, being i the index where it is placed. Then its value 
      * (0,1,2...) is multiplied by that power.
      * 
-     * Two genotypeCounters with the same alleles but different phase will have different sign. Phased genotypeCounters
+     * Two genotypes with the same alleles but different phase will have different sign. Phased genotypes
      * have positive encoding, whereas unphased ones have negative encoding.
      * 
      * For instance, genotype 1/0 would be -10, 1|0 would be 10 and 2/1 would be -21.
@@ -381,7 +381,7 @@ public class Genotype {
      * @return A numerical encoding of the genotype
      */
     public int encode() {
-        // TODO Support missing genotypeCounters
+        // TODO Support missing genotypes
         int encoding = 0;
         for (int i = 0; i < allelesIdx.length; i++) {
             encoding += Math.pow(10, allelesIdx.length - i - 1) * allelesIdx[i]; 
@@ -391,7 +391,7 @@ public class Genotype {
     }
     
     public static Genotype decode(int encoding) {
-        // TODO Support missing genotypeCounters
+        // TODO Support missing genotypes
         boolean unphased = encoding < 0;
         if (unphased) {
             encoding = Math.abs(encoding);

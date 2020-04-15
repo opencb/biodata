@@ -52,16 +52,16 @@ message VariantStats {
      * Count of samples with non-missing genotypes in this variant from the cohort.
      * This value is used as denominator for genotypeFreq.
      **/
-    int32 samplesCount = 18;
+    int32 sampleCount = 18;
 
     /**
      * Count of files with samples from the cohort that reported this variant.
      * This value is used as denominator for filterFreq.
      **/
-    int32 filesCount = 19;
+    int32 fileCount = 19;
 
     /**
-     * Total number of alleles in called genotypeCounters. It does not include missing alleles.
+     * Total number of alleles in called genotypes. It does not include missing alleles.
      * This value is used as denominator for refAlleleFreq and altAlleleFreq.
      **/
     int32 alleleCount = 1;
@@ -124,7 +124,7 @@ message VariantStats {
      * The number of files from samples in this cohort reporting this variant with valid QUAL values.
      * This value is used as denominator to obtain the qualityAvg.
      */
-    int32 qualityValuesCount = 20;
+    int32 qualityCount = 20;
 
     /**
      * The average Quality value for files with valid QUAL values from samples in this cohort reporting this variant.

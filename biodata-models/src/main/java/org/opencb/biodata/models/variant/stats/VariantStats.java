@@ -79,20 +79,20 @@ public class VariantStats {
         impl.setAlleleCount(value);
     }
 
-    public Integer getSamplesCount() {
-        return impl.getSamplesCount();
+    public Integer getSampleCount() {
+        return impl.getSampleCount();
     }
 
-    public void setSamplesCount(Integer value) {
-        impl.setSamplesCount(value);
+    public void setSampleCount(Integer value) {
+        impl.setSampleCount(value);
     }
 
-    public Integer getFilesCount() {
-        return impl.getFilesCount();
+    public Integer getFileCount() {
+        return impl.getFileCount();
     }
 
-    public void setFilesCount(Integer value) {
-        impl.setFilesCount(value);
+    public void setFileCount(Integer value) {
+        impl.setFileCount(value);
     }
 
     public Integer getRefAlleleCount() {
@@ -243,12 +243,12 @@ public class VariantStats {
         this.impl.setQualityAvg(value);
     }
 
-    public Integer getQualityValuesCount() {
-        return impl.getQualityValuesCount();
+    public Integer getQualityCount() {
+        return impl.getQualityCount();
     }
 
-    public void setQualityValuesCount(Integer value) {
-        this.impl.setQualityValuesCount(value);
+    public void setQualityCount(Integer value) {
+        this.impl.setQualityCount(value);
     }
 
     private Genotype normalizeGenotypeAlleles(Genotype g) {

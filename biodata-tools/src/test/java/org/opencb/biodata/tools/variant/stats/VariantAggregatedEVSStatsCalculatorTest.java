@@ -113,7 +113,7 @@ public class VariantAggregatedEVSStatsCalculatorTest extends GenericTest {
 
         genotypes.put("1/1", 1);
         genotypes.put("0/1", 1);
-//        genotypeCounters.put("0/0", 6253);
+//        genotypes.put("0/0", 6253);
         genotypes.put("0/0", 3947);
         genotypes.put("0", 2306);
 
@@ -142,11 +142,11 @@ public class VariantAggregatedEVSStatsCalculatorTest extends GenericTest {
 
         Map<String, Integer> genotypes = new HashMap<>();
 
-//        genotypeCounters.put("1/1", 1697);
+//        genotypes.put("1/1", 1697);
         genotypes.put("1/1", 960);
         genotypes.put("1", 737);
         genotypes.put("0/1", 1298);
-//        genotypeCounters.put("0/0", 3261);
+//        genotypes.put("0/0", 3261);
         genotypes.put("0/0", 1691);
         genotypes.put("0", 1570);
 
@@ -174,15 +174,15 @@ public class VariantAggregatedEVSStatsCalculatorTest extends GenericTest {
 
         Map<String, Integer> genotypes = new HashMap<>();
 
-//        genotypeCounters.put(new Genotype("1/1", "CA", Arrays.asList("CAA", "C")), 162);
+//        genotypes.put(new Genotype("1/1", "CA", Arrays.asList("CAA", "C")), 162);
         genotypes.put("1/1", 0);
         genotypes.put("1", 162);
         genotypes.put("1/2", 0);
         genotypes.put("0/1", 134);
-//        genotypeCounters.put(new Genotype("0/0", "CA", Arrays.asList("CAA", "C")), 5734);
+//        genotypes.put(new Genotype("0/0", "CA", Arrays.asList("CAA", "C")), 5734);
         genotypes.put("0/0", 3707);
         genotypes.put("0", 2027);
-//        genotypeCounters.put(new Genotype("2/2", "CA", Arrays.asList("CAA", "C")), 111);
+//        genotypes.put(new Genotype("2/2", "CA", Arrays.asList("CAA", "C")), 111);
         genotypes.put("2/2", 4);
         genotypes.put("2", 107);
         genotypes.put("0/2", 92);
@@ -200,15 +200,15 @@ public class VariantAggregatedEVSStatsCalculatorTest extends GenericTest {
 
         genotypes = new HashMap<>();
 
-//        genotypeCounters.put(new Genotype("1/1", "CA", Arrays.asList("CAA", "C")), 111);
+//        genotypes.put(new Genotype("1/1", "CA", Arrays.asList("CAA", "C")), 111);
         genotypes.put("1/1", 4);
         genotypes.put("1", 107);
         genotypes.put("1/2", 0);
         genotypes.put("0/1", 92);
-//        genotypeCounters.put(new Genotype("0/0", "CA", Arrays.asList("CAA", "C")), 5734);
+//        genotypes.put(new Genotype("0/0", "CA", Arrays.asList("CAA", "C")), 5734);
         genotypes.put("0/0", 3707);
         genotypes.put("0", 2027);
-//        genotypeCounters.put(new Genotype("2/2", "CA", Arrays.asList("CAA", "C")), 162);
+//        genotypes.put(new Genotype("2/2", "CA", Arrays.asList("CAA", "C")), 162);
         genotypes.put("2/2", 0);
         genotypes.put("2", 162);
         genotypes.put("0/2", 134);
@@ -335,8 +335,8 @@ public class VariantAggregatedEVSStatsCalculatorTest extends GenericTest {
         for (int i = 0; i < genotypes.size(); i++) {
             assertEquals(counts.get(i), genotypesCount.get(genotypes.get(i)));
         }
-//        genotypeCounters.add("2/0");
-//        genotypeCounters.add("0/0");
+//        genotypes.add("2/0");
+//        genotypes.add("0/0");
 
         // second allele variant
         genotypes = new LinkedList<>();

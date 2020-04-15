@@ -190,9 +190,9 @@ public class VariantAlternateRearranger {
      * Gets an array for reordering the positions of a format field with Number=G and ploidy=2.
      *
      * In those fields where there is a value per genotype, if we change the order of the alleles,
-     * the order of the genotypeCounters will also change.
+     * the order of the genotypes will also change.
      *
-     * The genotypeCounters ordering is defined in the Vcf spec : https://samtools.github.io/hts-specs/VCFv4.3.pdf as "Genotype Ordering"
+     * The genotypes ordering is defined in the Vcf spec : https://samtools.github.io/hts-specs/VCFv4.3.pdf as "Genotype Ordering"
      * Given a number of alleles N and a ploidy of P, the order algorithm is:
      *   for (a_p = 0; a_p < N: a_p++)
      *      for (a_p-1 = 0; a_p-1 <= a_p: a_p-1++)
@@ -304,7 +304,7 @@ public class VariantAlternateRearranger {
      *
      * @param p     ploidy
      * @param n     Number of alternates
-     * @param list  List where to store the genotypeCounters
+     * @param list  List where to store the genotypes
      * @param gt    Shared array
      * @param pos   Position where to write in the array
      * @param map   Map from reordered allele position to original allele position
