@@ -25,7 +25,7 @@ import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.SampleEntry;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
-import org.opencb.biodata.tools.Converter;
+import org.opencb.biodata.tools.commons.Converter;
 
 import java.util.*;
 import java.util.function.Consumer;

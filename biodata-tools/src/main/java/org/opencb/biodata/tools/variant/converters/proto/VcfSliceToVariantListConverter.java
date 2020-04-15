@@ -24,7 +24,7 @@ import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
-import org.opencb.biodata.tools.Converter;
+import org.opencb.biodata.tools.commons.Converter;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

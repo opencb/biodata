@@ -32,7 +32,7 @@ import org.opencb.biodata.models.variant.avro.SampleEntry;
 import org.opencb.biodata.models.variant.protobuf.VariantAnnotationProto;
 import org.opencb.biodata.models.variant.protobuf.VariantProto;
 import org.opencb.biodata.models.variant.stats.VariantStats;
-import org.opencb.biodata.tools.Converter;
+import org.opencb.biodata.tools.commons.Converter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

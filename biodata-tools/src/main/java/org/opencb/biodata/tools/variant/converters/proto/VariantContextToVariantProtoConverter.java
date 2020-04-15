@@ -23,14 +23,13 @@ import htsjdk.variant.variantcontext.Allele;
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFConstants;
 
-import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.core.protobuf.CommonModel;
 import org.opencb.biodata.models.variant.protobuf.VariantAnnotationProto;
 import org.opencb.biodata.models.variant.protobuf.VariantAnnotationProto.ConsequenceType;
 import org.opencb.biodata.models.variant.protobuf.VariantAnnotationProto.ProteinVariantAnnotation;
 import org.opencb.biodata.models.variant.protobuf.VariantProto;
 import org.opencb.biodata.models.variant.protobuf.VariantProto.AlternateCoordinate;
-import org.opencb.biodata.tools.Converter;
+import org.opencb.biodata.tools.commons.Converter;
 import org.opencb.biodata.tools.variant.converters.avro.VariantContextToVariantConverter;
 
 import java.util.*;

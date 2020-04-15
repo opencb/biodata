@@ -28,7 +28,7 @@ import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.tools.variant.converters.ga4gh.factories.AvroGa4GhVariantFactory;
 import org.opencb.biodata.tools.variant.converters.ga4gh.factories.Ga4ghVariantFactory;
 import org.opencb.biodata.tools.variant.converters.ga4gh.factories.ProtoGa4GhVariantFactory;
-import org.opencb.biodata.tools.Converter;
+import org.opencb.biodata.tools.commons.Converter;
 
 import java.util.*;
 

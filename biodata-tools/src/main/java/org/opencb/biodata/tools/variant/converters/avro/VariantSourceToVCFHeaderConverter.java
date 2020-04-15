@@ -25,7 +25,7 @@ import htsjdk.variant.vcf.VCFCodec;
 import htsjdk.variant.vcf.VCFHeader;
 import org.opencb.biodata.models.variant.avro.legacy.VariantSource;
 import org.opencb.biodata.tools.variant.metadata.VariantMetadataUtils;
-import org.opencb.biodata.tools.Converter;
+import org.opencb.biodata.tools.commons.Converter;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

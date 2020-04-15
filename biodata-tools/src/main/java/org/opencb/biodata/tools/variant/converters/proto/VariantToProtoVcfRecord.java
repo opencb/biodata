@@ -33,7 +33,7 @@ import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfRecord;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfRecord.Builder;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos.VcfSample;
-import org.opencb.biodata.tools.Converter;
+import org.opencb.biodata.tools.commons.Converter;
 
 import java.util.*;
 import java.util.stream.Collectors;

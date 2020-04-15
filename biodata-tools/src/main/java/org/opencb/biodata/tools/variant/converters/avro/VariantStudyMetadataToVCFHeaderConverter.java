@@ -9,7 +9,7 @@ import org.opencb.biodata.models.metadata.Sample;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.metadata.VariantFileHeader;
 import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
-import org.opencb.biodata.tools.Converter;
+import org.opencb.biodata.tools.commons.Converter;
 
 import java.util.ArrayList;
 import java.util.Collections;
