@@ -25,6 +25,7 @@ import java.util.Map;
 public class Interpretation {
 
     private String id;
+    private String uuid;
     private String description;
     private String clinicalAnalysisId;
 
@@ -56,12 +57,14 @@ public class Interpretation {
     public Interpretation() {
     }
 
-    public Interpretation(String id, String description, String clinicalAnalysisId, Software software, Analyst analyst,
-                          List<Software> dependencies, Map<String, Object> filters, List<DiseasePanel> panels,
-                          List<ClinicalVariant> primaryFindings, List<ClinicalVariant> secondaryFindings,
-                          List<ReportedLowCoverage> lowCoverageRegions, List<Comment> comments, String status,
-                          String creationDate, int version, Map<String, Object> attributes) {
+    public Interpretation(String id, String uuid, String description, String clinicalAnalysisId, Software software,
+                          Analyst analyst, List<Software> dependencies, Map<String, Object> filters,
+                          List<DiseasePanel> panels, List<ClinicalVariant> primaryFindings,
+                          List<ClinicalVariant> secondaryFindings, List<ReportedLowCoverage> lowCoverageRegions,
+                          List<Comment> comments, String status, String creationDate, int version,
+                          Map<String, Object> attributes) {
         this.id = id;
+        this.uuid = uuid;
         this.description = description;
         this.clinicalAnalysisId = clinicalAnalysisId;
         this.software = software;
@@ -83,6 +86,7 @@ public class Interpretation {
     public String toString() {
         final StringBuilder sb = new StringBuilder("Interpretation{");
         sb.append("id='").append(id).append('\'');
+        sb.append(", uuid='").append(uuid).append('\'');
         sb.append(", description='").append(description).append('\'');
         sb.append(", clinicalAnalysisId='").append(clinicalAnalysisId).append('\'');
         sb.append(", software=").append(software);
@@ -94,7 +98,7 @@ public class Interpretation {
         sb.append(", secondaryFindings=").append(secondaryFindings);
         sb.append(", lowCoverageRegions=").append(lowCoverageRegions);
         sb.append(", comments=").append(comments);
-        sb.append(", status=").append(status);
+        sb.append(", status='").append(status).append('\'');
         sb.append(", creationDate='").append(creationDate).append('\'');
         sb.append(", version=").append(version);
         sb.append(", attributes=").append(attributes);
@@ -108,6 +112,15 @@ public class Interpretation {
 
     public Interpretation setId(String id) {
         this.id = id;
+        return this;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public Interpretation setUuid(String uuid) {
+        this.uuid = uuid;
         return this;
     }
 
