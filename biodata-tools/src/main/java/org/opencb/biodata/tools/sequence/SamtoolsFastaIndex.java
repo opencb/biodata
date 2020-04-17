@@ -20,14 +20,14 @@
 package org.opencb.biodata.tools.sequence;
 
 import htsjdk.samtools.SAMSequenceDictionary;
-import htsjdk.samtools.reference.ReferenceSequence;
-import htsjdk.samtools.reference.ReferenceSequenceFile;
-import htsjdk.samtools.reference.ReferenceSequenceFileFactory;
+import htsjdk.samtools.reference.*;
 import htsjdk.samtools.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.commons.utils.FileUtils;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -40,7 +40,6 @@ public class SamtoolsFastaIndex implements SequenceAdaptor {
     private String samtoolsBin;
 
     public SamtoolsFastaIndex() {
-
     }
 
     public SamtoolsFastaIndex(String fastaFileName) throws IOException {
@@ -48,6 +47,25 @@ public class SamtoolsFastaIndex implements SequenceAdaptor {
             throw new IOException("Fasta file '" + fastaFileName + "' is not indexed.");
         }
         this.indexedFastaSequenceFile = ReferenceSequenceFileFactory.getReferenceSequenceFile(Paths.get(fastaFileName));
+    }
+
+    /**
+     * Creates a IndexedFastaSequenceFile. if the fasta index (.fai) doesn't exist, it will be created.
+     *
+     * @param fastaFile fasta file
+     * @throws IOException if fasta file can't be read
+     */
+    public SamtoolsFastaIndex(Path fastaFile) throws IOException {
+        Path fastaIndexFilePath =  Paths.get(fastaFile.toAbsolutePath().toString() + ".fai");
+        if (!Files.exists(fastaIndexFilePath)) {
+            index(fastaFile, true);
+        }
+        FastaSequenceIndex fastaSequenceIndex = new FastaSequenceIndex(fastaIndexFilePath);
+        this.indexedFastaSequenceFile = new IndexedFastaSequenceFile(fastaFile, fastaSequenceIndex);
+    }
+
+    public SamtoolsFastaIndex(Path fastaFile, FastaSequenceIndex indexFile) throws IOException {
+        this.indexedFastaSequenceFile = new IndexedFastaSequenceFile(fastaFile, indexFile);
     }
 
 //    public void index(Path fastaFilePath) throws IOException, RocksDBException {
@@ -58,8 +76,8 @@ public class SamtoolsFastaIndex implements SequenceAdaptor {
      * Checks if the set FASTA file is indexed
      * @return
      */
+    @Deprecated
     public Boolean hasIndex() {
-
         Boolean hasIndex = false;
         if (this.indexedFastaSequenceFile != null) {
             hasIndex = this.indexedFastaSequenceFile.isIndexed();
@@ -67,6 +85,20 @@ public class SamtoolsFastaIndex implements SequenceAdaptor {
         return hasIndex;
     }
 
+    /**
+     * Will write a .fai index file for provided fasta file. Replaces the old fasta index that used rocksdb.
+     *
+     * If overwrite is FALSE and there is already a file, samtools will throw an exception.
+     *
+     * @param fastaFilePath Path to the fasta file to be indexed.
+     * @param overwrite if TRUE, will overwrite the .fai file if present
+     * @throws IOException if fasta file can't be read or index file can't be written.
+     */
+    public static void index(Path fastaFilePath, boolean overwrite) throws IOException {
+        FastaSequenceIndexCreator.create(fastaFilePath, overwrite);
+    }
+
+    @Deprecated
     public void index(Path fastaFilePath) throws IOException {
         FileUtils.checkFile(fastaFilePath);
 
