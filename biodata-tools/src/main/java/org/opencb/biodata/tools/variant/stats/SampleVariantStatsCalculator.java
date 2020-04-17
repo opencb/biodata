@@ -1,12 +1,13 @@
 package org.opencb.biodata.tools.variant.stats;
 
 import htsjdk.variant.vcf.VCFConstants;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opencb.biodata.models.clinical.pedigree.Member;
 import org.opencb.biodata.models.clinical.pedigree.Pedigree;
-import org.opencb.biodata.models.variant.Genotype;
 import org.opencb.biodata.models.metadata.Sample;
+import org.opencb.biodata.models.variant.Genotype;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.*;
@@ -15,7 +16,6 @@ import org.opencb.biodata.models.variant.stats.VariantStats;
 import org.opencb.biodata.tools.pedigree.MendelianError;
 import org.opencb.biodata.tools.variant.metadata.VariantMetadataManager;
 import org.opencb.commons.run.Task;
-import org.opencb.commons.utils.ListUtils;
 
 import java.util.*;
 import java.util.function.IntFunction;
@@ -183,13 +183,13 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
         Set<String> biotypes = new HashSet<>();
         Set<String> cts = new HashSet<>();
         if (annotation != null) {
-            if (ListUtils.isNotEmpty(annotation.getConsequenceTypes())) {
+            if (CollectionUtils.isNotEmpty(annotation.getConsequenceTypes())) {
                 for (ConsequenceType ct : annotation.getConsequenceTypes()) {
                     if (StringUtils.isNotEmpty(ct.getBiotype())) {
                         biotypes.add(ct.getBiotype());
                     }
 
-                    if (ListUtils.isNotEmpty(ct.getSequenceOntologyTerms())) {
+                    if (CollectionUtils.isNotEmpty(ct.getSequenceOntologyTerms())) {
                         for (SequenceOntologyTerm so : ct.getSequenceOntologyTerms()) {
                             cts.add(so.getName());
                         }
@@ -229,9 +229,9 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
                               Set<String> biotypes, Set<String> cts) {
         SampleVariantStats stats = statsList.get(samplePos);
 
-        if (gt.contains(".")) {
-            stats.setMissingPositions(stats.getMissingPositions() + variant.getLengthReference());
-        }
+//        if (gt.contains(".")) {
+//            stats.setMissingPositions(stats.getMissingPositions() + variant.getLengthReference());
+//        }
 
         // Compute mendelian error
         Member child = validChildren.get(stats.getId());
@@ -250,7 +250,7 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
 
         // Only increase these counters if this sample has the mutation (i.e. has the main allele in the genotype)
         if (Genotype.hasMainAlternate(gt)) {
-            stats.setNumVariants(stats.getNumVariants() + 1);
+            stats.setVariantCount(stats.getVariantCount() + 1);
             incCount(stats.getGenotypeCount(), gt);
 
             // Chromosome counter
@@ -297,8 +297,13 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
                 qualSum[samplePos] += qualValue;
                 qualSumSq[samplePos] += qualValue * qualValue;
             }
+            if (filter == null || filter.isEmpty()) {
+                filter = ".";
+            }
+            for (String subFilter : filter.split(";")) {
+                stats.getFilterCount().merge(subFilter, 1, Integer::sum);
+            }
             if (VCFConstants.PASSES_FILTERS_v4.equalsIgnoreCase(filter)) {
-                stats.setNumPass(stats.getNumPass() + 1);
             }
 
             // Biotype counter
@@ -315,10 +320,11 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
     }
 
     public static SampleVariantStats merge(SampleVariantStats stats, SampleVariantStats otherStats) {
-        stats.setNumVariants(stats.getNumVariants() + otherStats.getNumVariants());
-        stats.setNumPass(stats.getNumPass() + otherStats.getNumPass());
-        stats.setMissingPositions(stats.getMissingPositions() + otherStats.getMissingPositions());
+        stats.setVariantCount(stats.getVariantCount() + otherStats.getVariantCount());
+//        stats.setNumPass(stats.getNumPass() + otherStats.getNumPass());
+//        stats.setMissingPositions(stats.getMissingPositions() + otherStats.getMissingPositions());
 
+        mergeCounts(stats.getFilterCount(), otherStats.getFilterCount());
         mergeCounts(stats.getGenotypeCount(), otherStats.getGenotypeCount());
         mergeCounts(stats.getTypeCount(), otherStats.getTypeCount());
         mergeCounts(stats.getChromosomeCount(), otherStats.getChromosomeCount());
@@ -380,7 +386,7 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
             stats.getGenotypeCount().remove("0/0"); // RemovePhase method may add genotype 0/0, even if it's not present
 
             // Compute number of variants from genotype counters
-            int numVariants = stats.getNumVariants();
+            int numVariants = stats.getVariantCount();
             int numHet = 0;
 
             for (Map.Entry<String, Integer> entry : stats.getGenotypeCount().entrySet()) {
@@ -402,9 +408,9 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
             stats.setTiTvRatio(((float) ti[i]) / tv[i]);
 
             float meanQuality = (float) (qualSum[i] / qualCount[i]);
-            stats.setMeanQuality(meanQuality);
+            stats.setQualityAvg(meanQuality);
             //Var = SumSq / n - mean * mean
-            stats.setStdDevQuality((float) Math.sqrt(qualSumSq[i] / qualCount[i] - meanQuality * meanQuality));
+            stats.setQualityStdDev((float) Math.sqrt(qualSumSq[i] / qualCount[i] - meanQuality * meanQuality));
         }
     }
 
@@ -492,11 +498,10 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
                     new HashMap<>(),
                     new HashMap<>(),
                     new IndelLength(0, 0, 0, 0, 0),
-                    0,
+                    new HashMap<>(),
                     0f,
                     0f,
                     0f,
-                    0,
                     0f,
                     new HashMap<>(),
                     new HashMap<>(),

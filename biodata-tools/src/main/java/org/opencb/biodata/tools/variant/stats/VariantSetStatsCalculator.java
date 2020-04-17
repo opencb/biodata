@@ -29,9 +29,9 @@ import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.SequenceOntologyTerm;
 import org.opencb.biodata.models.variant.avro.VariantAnnotation;
 import org.opencb.biodata.models.variant.metadata.VariantFileHeader;
+import org.opencb.biodata.models.variant.metadata.VariantSetStats;
 import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantStudyStats;
-import org.opencb.biodata.models.variant.stats.VariantSetStats;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 import org.opencb.commons.run.Task;
 import org.slf4j.Logger;
@@ -49,7 +49,7 @@ public class VariantSetStatsCalculator implements Task<Variant, Variant> {
 
     private final String studyId;
     private final Set<String> files;
-    private final int numSamples;
+    private final int sampleCount;
     private final Map<String, Integer> chrLengthMap;
     private static Logger logger = LoggerFactory.getLogger(VariantSetStatsCalculator.class);
 
@@ -71,19 +71,32 @@ public class VariantSetStatsCalculator implements Task<Variant, Variant> {
                 .stream()
                 .map(org.opencb.biodata.models.variant.metadata.VariantFileMetadata::getId)
                 .collect(Collectors.toSet());
-        numSamples = metadata.getFiles()
+        sampleCount = metadata.getFiles()
                 .stream()
                 .flatMap(fileMetadata -> fileMetadata.getSampleIds().stream())
                 .collect(Collectors.toSet()).size();
         chrLengthMap = getChromosomeLengthsMap(metadata.getAggregatedHeader());
-        stats = new VariantSetStats();
+        stats = new VariantSetStats(
+                0,
+                0,
+                new HashMap<String, Integer>(),
+                0,
+                0f,
+                0f,
+                0f,
+                new HashMap<String, Integer>(),
+                new HashMap<String, Integer>(),
+                new HashMap<String, Integer>(),
+                new HashMap<String, Integer>(),
+                new HashMap<String, Float>()
+        );
         if (metadata.getStats() == null) {
             metadata.setStats(new VariantStudyStats(new HashMap<>(), new HashMap<>()));
         }
         if (metadata.getStats().getCohortStats() == null) {
             metadata.getStats().setCohortStats(new HashMap<>());
         }
-        metadata.getStats().getCohortStats().put(StudyEntry.DEFAULT_COHORT, stats.getImpl());
+        metadata.getStats().getCohortStats().put(StudyEntry.DEFAULT_COHORT, stats);
     }
 
     /**
@@ -97,12 +110,25 @@ public class VariantSetStatsCalculator implements Task<Variant, Variant> {
         fileMetadata.setStats(stats);
     }
 
-    public VariantSetStatsCalculator(String studyId, Set<String> files, int numSamples, Map<String, Integer> chrLengthMap) {
+    public VariantSetStatsCalculator(String studyId, Set<String> files, int sampleCount, Map<String, Integer> chrLengthMap) {
         this.studyId = studyId;
         this.files = files;
-        this.numSamples = numSamples;
+        this.sampleCount = sampleCount;
         this.chrLengthMap = chrLengthMap == null ? Collections.emptyMap() : chrLengthMap;
-        stats = new VariantSetStats();
+        stats = new VariantSetStats(
+                0,
+                0,
+                new HashMap<String, Integer>(),
+                0,
+                0f,
+                0f,
+                0f,
+                new HashMap<String, Integer>(),
+                new HashMap<String, Integer>(),
+                new HashMap<String, Integer>(),
+                new HashMap<String, Integer>(),
+                new HashMap<String, Float>()
+        );
     }
 
     @Override
@@ -141,9 +167,9 @@ public class VariantSetStatsCalculator implements Task<Variant, Variant> {
             updateVariantSetStats(fileEntries);
         }
         if (validVariant) {
-            stats.setNumVariants(stats.getNumVariants() + 1);
-            stats.addChromosomeCount(variant.getChromosome(), 1);
-            stats.addVariantTypeCount(variant.getType(), 1);
+            stats.setVariantCount(stats.getVariantCount() + 1);
+            stats.getChromosomeCount().merge(variant.getChromosome(), 1, Integer::sum);
+            stats.getTypeCount().merge(variant.getType().toString(), 1, Integer::sum);
             if (VariantStats.isTransition(variant.getReference(), variant.getAlternate())) {
                 transitionsCount++;
             }
@@ -155,27 +181,24 @@ public class VariantSetStatsCalculator implements Task<Variant, Variant> {
     }
 
     private void updateVariantSetStats(List<FileEntry> files) {
-
-        int numPass = 0;
         for (FileEntry file : files) {
             Map<String, String> fileData = file.getData();
 
             if (fileData.containsKey(StudyEntry.QUAL) && !(".").equals(fileData.get(StudyEntry.QUAL))) {
-                float qual = Float.valueOf(fileData.get(StudyEntry.QUAL));
+                float qual = Float.parseFloat(fileData.get(StudyEntry.QUAL));
                 qualCount++;
                 qualSum += qual;
                 qualSumSq += qual * qual;
             }
-            if ("PASS".equalsIgnoreCase(fileData.get(StudyEntry.FILTER))) {
-                numPass++;
+            String filter = fileData.get(StudyEntry.FILTER);
+            if (filter == null || filter.isEmpty()) {
+
+            } else {
+                for (String f : filter.split(";")) {
+                    stats.getFilterCount().merge(f, 1, Integer::sum);
+                }
             }
         }
-
-        // Count +1 PASS variant if ANY of the files is PASS
-        if (numPass > 0) {
-            stats.addNumPass(1);
-        }
-
     }
 
     private void updateVariantSetStats(VariantAnnotation annotation) {
@@ -183,11 +206,11 @@ public class VariantSetStatsCalculator implements Task<Variant, Variant> {
             for (ConsequenceType consequenceType : annotation.getConsequenceTypes()) {
                 String biotype = consequenceType.getBiotype();
                 if (StringUtils.isNotEmpty(biotype)) {
-                    stats.addVariantBiotypeCounts(biotype, 1);
+                    stats.getBiotypeCount().merge(biotype, 1, Integer::sum);
                 }
                 if (consequenceType.getSequenceOntologyTerms() != null) {
                     for (SequenceOntologyTerm term : consequenceType.getSequenceOntologyTerms()) {
-                        stats.getConsequenceTypesCounts().merge(term.getName(), 1, Integer::sum);
+                        stats.getConsequenceTypeCount().merge(term.getName(), 1, Integer::sum);
                     }
                 }
             }
@@ -196,13 +219,16 @@ public class VariantSetStatsCalculator implements Task<Variant, Variant> {
 
     @Override
     public synchronized void post() {
-        stats.setNumSamples(numSamples);
-        float meanQuality = (float) (qualSum / qualCount);
-        stats.setMeanQuality(meanQuality);
+        stats.setSampleCount(sampleCount);
+        if (files != null) {
+            stats.setFilesCount(files.size());
+        }
+        float qualityAvg = (float) (qualSum / qualCount);
+        stats.setQualityAvg(qualityAvg);
         //Var = SumSq / n - mean * mean
-        stats.setStdDevQuality((float) Math.sqrt(qualSumSq / qualCount - meanQuality * meanQuality));
-        stats.setTiTvRatio(transitionsCount, transversionsCount);
-        stats.getChromosomeCounts().forEach((chr, count) -> {
+        stats.setQualityStdDev((float) Math.sqrt(qualSumSq / qualCount - qualityAvg * qualityAvg));
+        stats.setTiTvRatio(((float) transitionsCount) / ((float) transversionsCount));
+        stats.getChromosomeCount().forEach((chr, count) -> {
             Integer length = chrLengthMap.get(chr);
             if (length != null && length > 0) {
                 stats.getChromosomeDensity().put(chr, count / (float) length);
@@ -215,26 +241,20 @@ public class VariantSetStatsCalculator implements Task<Variant, Variant> {
     }
 
     public static void merge(VariantSetStats thisStats, VariantSetStats otherStats) {
-        merge(thisStats.getImpl(), otherStats.getImpl());
-    }
 
-    public static void merge(org.opencb.biodata.models.variant.metadata.VariantSetStats thisStats,
-                                        org.opencb.biodata.models.variant.metadata.VariantSetStats otherStats) {
-
-        thisStats.setNumVariants(thisStats.getNumVariants() + otherStats.getNumVariants());
+        thisStats.setVariantCount(thisStats.getVariantCount() + otherStats.getVariantCount());
 //        thisStats.setNumSamples(thisStats.getNumSamples() + otherStats.getNumSamples());
-        thisStats.setNumPass(thisStats.getNumPass() + otherStats.getNumPass());
+//        thisStats.setNumPass(thisStats.getNumPass() + otherStats.getNumPass());
 //        thisStats.setTiTvRatio(thisStats.getTiTvRatio() + otherStats.getTiTvRatio());
 //        thisStats.setMeanQuality(thisStats.getMeanQuality() + otherStats.getMeanQuality());
 //        thisStats.setStdDevQuality(thisStats.getStdDevQuality() + otherStats.getStdDevQuality());
 
 //        mergeCounts(thisStats.getNumRareVariants(), otherStats.getNumRareVariants());
-        mergeCounts(thisStats.getVariantTypeCounts(), otherStats.getVariantTypeCounts());
-        mergeCounts(thisStats.getVariantBiotypeCounts(), otherStats.getVariantBiotypeCounts());
-        mergeCounts(thisStats.getConsequenceTypesCounts(), otherStats.getConsequenceTypesCounts());
-
-        otherStats.getChromosomeCounts()
-                .forEach((key, count) -> thisStats.getChromosomeCounts().merge(key, count, Integer::sum));
+        mergeCounts(thisStats.getTypeCount(), otherStats.getTypeCount());
+        mergeCounts(thisStats.getFilterCount(), otherStats.getFilterCount());
+        mergeCounts(thisStats.getBiotypeCount(), otherStats.getBiotypeCount());
+        mergeCounts(thisStats.getConsequenceTypeCount(), otherStats.getConsequenceTypeCount());
+        mergeCounts(thisStats.getChromosomeCount(), otherStats.getChromosomeCount());
     }
 
     private static void mergeCounts(Map<String, Integer> map, Map<String, Integer> otherMap) {

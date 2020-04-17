@@ -22,7 +22,7 @@ package org.opencb.biodata.models.variant;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.opencb.biodata.models.pedigree.Pedigree;
 import org.opencb.biodata.models.variant.avro.legacy.VcfHeader;
-import org.opencb.biodata.models.variant.stats.VariantSetStats;
+import org.opencb.biodata.models.variant.metadata.VariantSetStats;
 
 import java.util.*;
 

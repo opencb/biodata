@@ -12,8 +12,8 @@ import org.opencb.biodata.models.variant.avro.SequenceOntologyTerm;
 import org.opencb.biodata.models.variant.avro.VariantAnnotation;
 import org.opencb.biodata.models.variant.metadata.VariantFileHeader;
 import org.opencb.biodata.models.variant.metadata.VariantFileHeaderComplexLine;
+import org.opencb.biodata.models.variant.metadata.VariantSetStats;
 import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
-import org.opencb.biodata.models.variant.stats.VariantSetStats;
 import org.opencb.commons.run.ParallelTaskRunner;
 
 import java.util.*;
@@ -141,12 +141,12 @@ public class VariantSetStatsCalculatorTest {
         }
         stDev = Math.sqrt(stDev / quals.length);
 
-        assertEquals(4, stats.getNumVariants());
-        assertEquals(3, stats.getNumPass());
-        assertEquals(2, stats.getNumSamples());
+        assertEquals(4, stats.getVariantCount().intValue());
+        assertEquals(3, stats.getFilterCount().get("PASS").intValue());
+        assertEquals(2, stats.getSampleCount().intValue());
 
-        assertEquals(mean, stats.getMeanQuality(), 0.000001);
-        assertEquals(stDev, stats.getStdDevQuality(), 0.000001);
+        assertEquals(mean, stats.getQualityAvg(), 0.000001);
+        assertEquals(stDev, stats.getQualityStdDev(), 0.000001);
         assertEquals(3, stats.getTiTvRatio(), 0.000001);
 
     }

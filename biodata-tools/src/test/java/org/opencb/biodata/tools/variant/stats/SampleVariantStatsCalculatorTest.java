@@ -105,8 +105,8 @@ public class SampleVariantStatsCalculatorTest {
         Assert.assertFalse(sampleStats.get(5).getMendelianErrorCount().isEmpty());
 
         for (SampleVariantStats sampleStat : sampleStats) {
-            Assert.assertFalse(Float.isNaN(sampleStat.getMeanQuality()));
-            Assert.assertFalse(Float.isInfinite(sampleStat.getMeanQuality()));
+            Assert.assertFalse(Float.isNaN(sampleStat.getQualityAvg()));
+            Assert.assertFalse(Float.isInfinite(sampleStat.getQualityAvg()));
         }
     }
 
