@@ -29,8 +29,6 @@ import htsjdk.samtools.util.BlockCompressedInputStream;
 import htsjdk.samtools.util.Log;
 import org.apache.commons.collections.CollectionUtils;
 import org.ga4gh.models.ReadAlignment;
-import org.opencb.biodata.formats.alignment.AlignmentConverter;
-import org.opencb.biodata.models.alignment.AlignmentHeader;
 import org.opencb.biodata.models.alignment.RegionCoverage;
 import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.tools.alignment.coverage.SamRecordRegionCoverageCalculator;
@@ -160,9 +158,9 @@ public class BamManager implements AutoCloseable {
         return outputIndex;
     }
 
-    public AlignmentHeader getHeader(String studyId) throws IOException {
+    public SAMFileHeader getHeader() throws IOException {
         init();
-        return AlignmentConverter.buildAlignmentHeader(samReader.getFileHeader(), studyId);
+        return samReader.getFileHeader();
     }
 
     public Path calculateBigWigCoverage() throws IOException {

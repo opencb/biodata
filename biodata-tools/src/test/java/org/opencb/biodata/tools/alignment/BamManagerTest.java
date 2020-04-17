@@ -390,6 +390,6 @@ public class BamManagerTest {
         String reference = getClass().getResource("/cram/hg19mini.fasta").getFile();
 
         BamManager bamManager = new BamManager(Paths.get(cram), Paths.get(reference));
-        System.out.println(bamManager.getHeader("study"));
+        System.out.println(bamManager.getHeader());
     }
 }

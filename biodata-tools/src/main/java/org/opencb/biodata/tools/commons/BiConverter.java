@@ -17,7 +17,7 @@
  *
  */
 
-package org.opencb.biodata.tools;
+package org.opencb.biodata.tools.commons;
 
 /**
  * Bidirectional Converter between two Java classes.

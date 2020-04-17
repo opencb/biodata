@@ -20,7 +20,7 @@
 /**
  * 
  */
-package org.opencb.biodata.tools;
+package org.opencb.biodata.tools.commons;
 
 import org.opencb.commons.run.ParallelTaskRunner;
 

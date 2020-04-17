@@ -24,7 +24,7 @@ import htsjdk.samtools.SAMRecord;
 import htsjdk.samtools.TagValueAndUnsignedArrayFlag;
 import htsjdk.samtools.TextTagCodec;
 import htsjdk.samtools.util.StringUtil;
-import org.opencb.biodata.tools.BiConverter;
+import org.opencb.biodata.tools.commons.BiConverter;
 
 import java.util.Map;
 

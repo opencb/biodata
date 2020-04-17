@@ -2,7 +2,7 @@ package org.opencb.biodata.tools.sequence;
 
 import htsjdk.samtools.fastq.FastqRecord;
 import org.opencb.biodata.models.sequence.Read;
-import org.opencb.biodata.tools.BiConverter;
+import org.opencb.biodata.tools.commons.BiConverter;
 
 /**
  * Created by joaquin on 9/5/17.
