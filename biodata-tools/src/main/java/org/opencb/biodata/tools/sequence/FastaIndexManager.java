@@ -36,6 +36,7 @@ import java.nio.file.Paths;
 /**
  * Created by imedina on 19/01/16.
  */
+@Deprecated
 public class FastaIndexManager implements SequenceAdaptor {
 
     public static final String INDEX_EXTENSION = ".rdb";

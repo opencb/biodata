@@ -5,10 +5,12 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
+import static org.junit.Assert.fail;
 import org.junit.rules.ExpectedException;
 import org.opencb.biodata.tools.sequence.SamtoolsFastaIndex;
 import org.opencb.biodata.tools.sequence.SequenceAdaptor;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,8 +32,42 @@ public class SamtoolsFastaIndexTest {
     public static void setUp() throws Exception {
         rootDir = Paths.get("target/test-data", "junit-" + RandomStringUtils.randomAlphabetic(5));
         Files.createDirectories(rootDir);
-        fastaFile = rootDir.resolve("homo_sapiens_grch37_small.fa.gz");
-        Files.copy(SamtoolsFastaIndexTest.class.getResourceAsStream("/homo_sapiens_grch37_small.fa.gz"), fastaFile);
+//        fastaFile = rootDir.resolve("homo_sapiens_grch38_small.fa.gz");
+//        Files.copy(SamtoolsFastaIndexTest.class.getResourceAsStream("/homo_sapiens_grch38_small.fa.gz"), fastaFile);
+        fastaFile = rootDir.resolve("homo_sapiens_grch38_small.fa");
+        Files.copy(SamtoolsFastaIndexTest.class.getResourceAsStream("/homo_sapiens_grch38_small.fa"), fastaFile);
+    }
+
+    @Test
+    public void testIndex() throws Exception {
+        SamtoolsFastaIndex samtoolsFastaIndex = new SamtoolsFastaIndex();
+        samtoolsFastaIndex.index(fastaFile, true);
+
+        File file = new File(fastaFile.toAbsolutePath() + ".fai");
+        if (!file.exists()) {
+            fail(".fai file does not exist!");
+        }
+
+        samtoolsFastaIndex = new SamtoolsFastaIndex(fastaFile);
+        long l = System.currentTimeMillis();
+        System.out.println(samtoolsFastaIndex.query("21", 10001, 10011));
+        System.out.println(samtoolsFastaIndex.query("21", 10001, 10011));
+        System.out.println(samtoolsFastaIndex.query("21", 10001, 10011));
+        System.out.println(samtoolsFastaIndex.query("21", 10001, 10011));
+        System.out.println(samtoolsFastaIndex.query("21", 10001, 10011));
+        System.out.println(samtoolsFastaIndex.query("21", 10001, 10011));
+        System.out.println(samtoolsFastaIndex.query("21", 10001, 10011));
+        System.out.println(samtoolsFastaIndex.query("21", 10001, 10011));
+        System.out.println(samtoolsFastaIndex.query("21", 10001, 10011));
+        System.out.println(samtoolsFastaIndex.query("21", 10001, 10011));
+        System.out.println(samtoolsFastaIndex.query("21", 10001, 10011));
+        System.out.println(samtoolsFastaIndex.query("21", 10001, 10011));
+        System.out.println(samtoolsFastaIndex.query("21", 10001, 10011));
+        System.out.println(samtoolsFastaIndex.query("21", 10001, 10011));
+        System.out.println(samtoolsFastaIndex.query("21", 10001, 10011));
+        System.out.println(samtoolsFastaIndex.query("21", 10001, 10011));
+        long l1 = System.currentTimeMillis();
+        System.out.println(l1 - l);
     }
 
     @Test
