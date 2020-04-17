@@ -32,8 +32,24 @@ public class SamtoolsFastaIndexTest {
     public static void setUp() throws Exception {
         rootDir = Paths.get("target/test-data", "junit-" + RandomStringUtils.randomAlphabetic(5));
         Files.createDirectories(rootDir);
+
+        /**
+         * compressed files seem to be indexing compressed file and return this for queries:
+         * Ë~`#{Y-F=
+         * Ë~`#{Y-F=
+         * Ë~`#{Y-F=
+         * Ë~`#{Y-F=
+         */
+//        fastaFile = rootDir.resolve("homo_sapiens_grch38_small-gzipped.fa.gz");
+//        Files.copy(SamtoolsFastaIndexTest.class.getResourceAsStream("/homo_sapiens_grch38_small-gzipped.fa.gz"), fastaFile);
+
+        // bgz files generate ERROR:
+        // htsjdk.samtools.SAMException: Indexed block-compressed FASTA file cannot be handled:
+        // target/test-data/junit-eDwHJ/homo_sapiens_grch38_small.fa.gz
+
 //        fastaFile = rootDir.resolve("homo_sapiens_grch38_small.fa.gz");
 //        Files.copy(SamtoolsFastaIndexTest.class.getResourceAsStream("/homo_sapiens_grch38_small.fa.gz"), fastaFile);
+
         fastaFile = rootDir.resolve("homo_sapiens_grch38_small.fa");
         Files.copy(SamtoolsFastaIndexTest.class.getResourceAsStream("/homo_sapiens_grch38_small.fa"), fastaFile);
     }
@@ -68,6 +84,7 @@ public class SamtoolsFastaIndexTest {
         System.out.println(samtoolsFastaIndex.query("21", 10001, 10011));
         long l1 = System.currentTimeMillis();
         System.out.println(l1 - l);
+
     }
 
     @Test
