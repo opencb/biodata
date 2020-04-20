@@ -1,73 +1,83 @@
 package org.opencb.biodata.tools.sequence.fasta;
 
 import htsjdk.samtools.SAMException;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.RandomStringUtils;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.opencb.biodata.tools.sequence.FastaIndex;
 import org.opencb.biodata.tools.sequence.SamtoolsFastaIndex;
 import org.opencb.biodata.tools.sequence.SequenceAdaptor;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * Created by imedina on 21/10/16.
  */
-public class SamtoolsFastaIndexTest {
-
-    private static Path rootDir;
-    private static Path fastaFile;
+public class FastaIndexTest {
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    @BeforeClass
-    public static void setUp() throws Exception {
-        rootDir = Paths.get("target/test-data", "junit-" + RandomStringUtils.randomAlphabetic(5));
+    @Test
+    public void testIndex() throws Exception {
+        Path rootDir = Paths.get("target/test-data", "junit-" + RandomStringUtils.randomAlphabetic(5));
         Files.createDirectories(rootDir);
-        fastaFile = rootDir.resolve("homo_sapiens_grch37_small.fa.gz");
-        Files.copy(SamtoolsFastaIndexTest.class.getResourceAsStream("/homo_sapiens_grch37_small.fa.gz"), fastaFile);
+        Path fastaFile = rootDir.resolve("homo_sapiens_grch38_small.fa");
+        Files.copy(FastaIndexTest.class.getResourceAsStream("/homo_sapiens_grch38_small.fa"), fastaFile);
+        runQueries(fastaFile);
     }
 
     @Test
-    public void index() throws Exception {
-        SamtoolsFastaIndex samtoolsFastaIndex = new SamtoolsFastaIndex();
-        samtoolsFastaIndex.index(fastaFile);
-
-//        File file = new File(fastaFile.toAbsolutePath() + ".fai");
-//        if (!file.exists()) {
-//            fail(".fai file does not exist!");
-//        }
-
-//        samtoolsFastaIndex = new SamtoolsFastaIndex(fastaFile.toString());
-//        long l = System.currentTimeMillis();
-//        System.out.println(samtoolsFastaIndex.query("21", 1000000, 1000010));
-//        System.out.println(samtoolsFastaIndex.query("21", 10000000, 10000010));
-//        System.out.println(samtoolsFastaIndex.query("21", 10000000, 10000010));
-//        System.out.println(samtoolsFastaIndex.query("21", 10000000, 10000010));
-//        System.out.println(samtoolsFastaIndex.query("21", 10000000, 10000010));
-//        System.out.println(samtoolsFastaIndex.query("21", 10000000, 10000010));
-//        System.out.println(samtoolsFastaIndex.query("21", 10000000, 10000010));
-//        System.out.println(samtoolsFastaIndex.query("21", 10000000, 10000010));
-//        System.out.println(samtoolsFastaIndex.query("21", 10000000, 10000010));
-//        System.out.println(samtoolsFastaIndex.query("21", 10000000, 10000010));
-//        System.out.println(samtoolsFastaIndex.query("21", 10000000, 10000010));
-//        System.out.println(samtoolsFastaIndex.query("21", 10000000, 10000010));
-//        System.out.println(samtoolsFastaIndex.query("21", 10000000, 10000010));
-//        System.out.println(samtoolsFastaIndex.query("21", 10000000, 10000010));
-//        System.out.println(samtoolsFastaIndex.query("21", 10000000, 10000010));
-//        System.out.println(samtoolsFastaIndex.query("21", 10000100, 10000200));
-//        long l1 = System.currentTimeMillis();
-//        System.out.println(l1 - l);
-
-        assertEquals("", "", "");
+    public void testIndexBlockCompressed() throws Exception {
+        Path rootDir = Paths.get("target/test-data", "junit-" + RandomStringUtils.randomAlphabetic(5));
+        Files.createDirectories(rootDir);
+        Path destination = rootDir.resolve("homo_sapiens_grch38_small.fa.gz");
+        Path source = Paths.get(getClass().getResource("/homo_sapiens_grch38_small.fa.gz").toURI());
+        FileUtils.copyFile(source.toFile(), destination.toFile());
+        runQueries(destination);
     }
 
+    private void runQueries(Path fastaFile) throws IOException {
+        FastaIndex samtoolsFastaIndex = new FastaIndex(fastaFile);
+
+        File file = new File(fastaFile.toAbsolutePath() + ".fai");
+        if (!file.exists()) {
+            fail(".fai file does not exist!");
+        }
+
+        samtoolsFastaIndex = new FastaIndex(fastaFile);
+        long l = System.currentTimeMillis();
+        System.out.println(samtoolsFastaIndex.query("10", 10001, 10011));
+        System.out.println(samtoolsFastaIndex.query("21", 10001, 10011));
+        System.out.println(samtoolsFastaIndex.query("21", 10001, 10011));
+        System.out.println(samtoolsFastaIndex.query("21", 10001, 10011));
+        System.out.println(samtoolsFastaIndex.query("21", 10001, 10011));
+        System.out.println(samtoolsFastaIndex.query("21", 10001, 10011));
+        System.out.println(samtoolsFastaIndex.query("21", 10001, 10011));
+        System.out.println(samtoolsFastaIndex.query("21", 10001, 10011));
+        System.out.println(samtoolsFastaIndex.query("21", 10001, 10011));
+        System.out.println(samtoolsFastaIndex.query("21", 10001, 10011));
+        System.out.println(samtoolsFastaIndex.query("21", 10001, 10011));
+        System.out.println(samtoolsFastaIndex.query("21", 10001, 10011));
+        System.out.println(samtoolsFastaIndex.query("21", 10001, 10011));
+        System.out.println(samtoolsFastaIndex.query("21", 10001, 10011));
+        System.out.println(samtoolsFastaIndex.query("21", 10001, 10011));
+        System.out.println(samtoolsFastaIndex.query("21", 10001, 10011));
+        long l1 = System.currentTimeMillis();
+        System.out.println(l1 - l);
+
+
+        assertEquals("CTAACCCTAAC", samtoolsFastaIndex.query("10", 10001, 10011));
+    }
 
     @Test
     public void testGenomicSequenceChromosomeNotPresent() throws Exception {
