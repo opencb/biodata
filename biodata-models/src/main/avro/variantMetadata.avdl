@@ -42,64 +42,70 @@ protocol VariantMetadataProtocol {
         EXAC
     }
 
-    /**
-     Counts the number of variants within a certain frequency range.
-    */
-    record VariantsByFrequency {
-        /** Inclusive frequency range start */
-        float startFrequency;
-
-        /** Exclusive frequency range end */
-        float endFrequency;
-
-        /** Number of variants with this frequency */
-        int count;
-    }
+//    /**
+//     Counts the number of variants within a certain frequency range.
+//    */
+//    record VariantsByFrequency {
+//        /** Inclusive frequency range start */
+//        float startFrequency;
+//
+//        /** Exclusive frequency range end */
+//        float endFrequency;
+//
+//        /** Number of variants with this frequency */
+//        int count;
+//    }
 
     /**
      Variant statistics for a set of variants.
      The variants set can be contain a whole study, a cohort, a sample, a region, ...
     */
     record VariantSetStats {
-        /** Number of variants in the variants set */
-        int numVariants;
+        /** Number of variants in the variant set */
+        int variantCount;
 
-        /** Number of samples in the variants set */
-        int numSamples;
+        /** Number of samples in the variant set */
+        int sampleCount;
 
-        /** Number of variants with PASS filter */
-        int numPass;
+        /**
+         * The number of occurrences for each FILTER value in files from this set.
+         * Each file can contain more than one filter value (usually separated by ';').
+         **/
+        map<int> filterCount;
+
+        /** Number of files in the variant set */
+        int filesCount;
 
         /** TiTvRatio = num. transitions / num. transversions */
         float tiTvRatio;
 
         /** Mean Quality for all the variants with quality */
-        float meanQuality;
+        float qualityAvg;
 
         /** Standard Deviation of the quality */
-        float stdDevQuality;
+        float qualityStdDev;
 
-        /**
-         array of elements to classify variants according to their 'rarity'
-         Typical frequency ranges:
-          - very rare     -> from 0 to 0.001
-          - rare          -> from 0.001 to 0.005
-          - low frequency -> from 0.005 to 0.05
-          - common        -> from 0.05
-        */
-        array<VariantsByFrequency> numRareVariants = [];
+//        /**
+//         array of elements to classify variants according to their 'rarity'
+//         Typical frequency ranges:
+//          - very rare     -> from 0 to 0.001
+//          - rare          -> from 0.001 to 0.005
+//          - low frequency -> from 0.005 to 0.05
+//          - common        -> from 0.05
+//        */
+//        array<VariantsByFrequency> numRareVariants = [];
 
         /** Variants count group by type. e.g. SNP, INDEL, MNP, SNV, ... */
-        map<int> variantTypeCounts = {};
+        map<int> typeCount = {};
 
         /** Variants count group by biotype. e.g. protein-coding, miRNA, lncRNA, ... */
-        map<int> variantBiotypeCounts = {};
+        map<int> biotypeCount = {};
 
         /** Variants count group by consequence type. e.g. synonymous_variant, missense_variant, stop_lost, ... */
-        map<int> consequenceTypesCounts = {};
+        map<int> consequenceTypeCount = {};
 
         /** Number of variants per chromosome */
-        map<int> chromosomeCounts = {};
+        map<int> chromosomeCount = {};
 
         /** Total density of variants within the chromosome. counts / chromosome.length */
         map<float> chromosomeDensity = {};
@@ -119,7 +125,7 @@ protocol VariantMetadataProtocol {
         string id;
 
         /** Number of variants where the sample has the main allele (i.e. 0/1, 1/1, ./1, 1/2, ...) */
-        int numVariants;
+        int variantCount;
 
         /** Number of variants per chromosome **/
         // TODO: Should include chromosome density?
@@ -134,20 +140,24 @@ protocol VariantMetadataProtocol {
         /** Indel length grouped in ranges **/
         IndelLength indelLengthCount;
 
-        /** Number of variants with PASS filter */
-        int numPass;
+        /**
+         * The number of occurrences for each FILTER value in files from this set.
+         * Each file can contain more than one filter value (usually separated by ';').
+         **/
+        map<int> filterCount;
 
         /** TiTvRatio = num. transitions / num. transversions */
         float tiTvRatio;
 
         /** Mean Quality for all the variants with quality */
-        float meanQuality;
+        float qualityAvg;
 
         /** Standard Deviation of the quality */
-        float stdDevQuality;
+        float qualityStdDev;
 
-        /** Number of positions not sequenced **/
-        int missingPositions;
+        // TODO ?
+//        /** Number of positions not sequenced **/
+//        int missingPositions;
 
         //double missingnessScore ??
         
@@ -157,7 +167,6 @@ protocol VariantMetadataProtocol {
          * N is the number of non-missing genotypes
          * O is the observed number of homozygous genotypes for a given individual
          **/
-        // TODO: Rate or Freq?
         float heterozygosityRate;
 
         /** Number of mendelian errors grouped by PLINK error codes. **/

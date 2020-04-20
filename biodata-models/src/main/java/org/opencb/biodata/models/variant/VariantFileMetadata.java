@@ -3,8 +3,8 @@ package org.opencb.biodata.models.variant;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.opencb.biodata.models.metadata.SampleSetType;
 import org.opencb.biodata.models.variant.metadata.VariantFileHeader;
+import org.opencb.biodata.models.variant.metadata.VariantSetStats;
 import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
-import org.opencb.biodata.models.variant.stats.VariantSetStats;
 
 import java.util.*;
 
@@ -125,11 +125,11 @@ public class VariantFileMetadata {
     }
 
     public VariantSetStats getStats() {
-        return impl.getStats() == null ? null : new VariantSetStats(impl.getStats());
+        return impl.getStats();
     }
 
     public void setStats(VariantSetStats stats) {
-        impl.setStats(stats == null ? null : stats.getImpl());
+        impl.setStats(stats);
     }
 
     public VariantFileHeader getHeader() {
