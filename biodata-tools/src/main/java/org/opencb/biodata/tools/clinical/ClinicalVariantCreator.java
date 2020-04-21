@@ -244,7 +244,7 @@ public abstract class ClinicalVariantCreator {
         // Variant classification: clinical significance
         if (MapUtils.isNotEmpty(variantToPanelMap) && variantToPanelMap.containsKey(variant.getId())
                 && CollectionUtils.isNotEmpty(variantToPanelMap.get(variant.getId()))) {
-            clinicalVariantEvidence.getClassification().setClinicalSignificance(ClinicalSignificance.PATHOGENIC_VARIANT);
+            clinicalVariantEvidence.getClassification().setClinicalSignificance(ClinicalSignificance.PATHOGENIC);
         } else {
             clinicalVariantEvidence.getClassification().setClinicalSignificance(computeClinicalSignificance(acmgs));
         }

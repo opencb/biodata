@@ -50,11 +50,11 @@ public class VariantClassification {
     private List<String> other;
 
     public enum ClinicalSignificance {
-        PATHOGENIC_VARIANT,
-        LIKELY_PATHOGENIC_VARIANT,
-        VARIANT_OF_UNKNOWN_CLINICAL_SIGNIFICANCE,
-        LINKELY_BENIGN_VARIANT,
-        BENIGN_VARIANT,
+        PATHOGENIC,
+        LIKELY_PATHOGENIC,
+        UNCERTAIN_SIGNIFICANCE,
+        LIKELY_BENIGN,
+        BENIGN,
         NOT_ASSESSED
     }
 
@@ -247,7 +247,7 @@ public class VariantClassification {
                 if (CollectionUtils.isNotEmpty(panel.getVariants())) {
                     for (DiseasePanel.VariantPanel panelVariant : panel.getVariants()) {
                         if (variant.getId().equals(panelVariant.getId())) {
-                            return ClinicalSignificance.PATHOGENIC_VARIANT;
+                            return ClinicalSignificance.PATHOGENIC;
                         }
                     }
                 }
@@ -259,7 +259,7 @@ public class VariantClassification {
 
     public static VariantClassification.ClinicalSignificance computeClinicalSignificance(List<String> acmgs) {
         if (CollectionUtils.isEmpty(acmgs)) {
-            return ClinicalSignificance.VARIANT_OF_UNKNOWN_CLINICAL_SIGNIFICANCE;
+            return ClinicalSignificance.UNCERTAIN_SIGNIFICANCE;
         }
 
         List<String> prefixes = Arrays.asList("PVS,PS,PP,PM,BS,BP,BA".split(","));
@@ -281,7 +281,7 @@ public class VariantClassification {
                 ||
                 (acmgCounter.get("PS") == 1 && (acmgCounter.get("PM") >=3 || (acmgCounter.get("PM") >= 2 && acmgCounter.get("PP") >= 2)
                         || (acmgCounter.get("PM") == 1 && acmgCounter.get("PP") >= 4))))) {
-            return ClinicalSignificance.PATHOGENIC_VARIANT;
+            return ClinicalSignificance.PATHOGENIC;
         } else if ((acmgCounter.get("PVS") == 1 && acmgCounter.get("PM") == 1)
                 ||
                 (acmgCounter.get("PS") == 1 && acmgCounter.get("PM") >= 1)
@@ -293,13 +293,13 @@ public class VariantClassification {
                 (acmgCounter.get("PM") == 2 && acmgCounter.get("PP") >= 2)
                 ||
                 (acmgCounter.get("PM") == 1 && acmgCounter.get("PP") >= 4)) {
-            return ClinicalSignificance.LIKELY_PATHOGENIC_VARIANT;
+            return ClinicalSignificance.LIKELY_PATHOGENIC;
         } else if (acmgCounter.get("BA") == 1 || acmgCounter.get("BS") >= 2) {
-            return  ClinicalSignificance.BENIGN_VARIANT;
+            return  ClinicalSignificance.BENIGN;
         } else if ((acmgCounter.get("BS") == 1 && acmgCounter.get("BP") == 1) || (acmgCounter.get("BP") >= 2)) {
-            return ClinicalSignificance.LINKELY_BENIGN_VARIANT;
+            return ClinicalSignificance.LIKELY_BENIGN;
         }
-        return ClinicalSignificance.VARIANT_OF_UNKNOWN_CLINICAL_SIGNIFICANCE;
+        return ClinicalSignificance.UNCERTAIN_SIGNIFICANCE;
     }
 
     public VariantClassification() {
