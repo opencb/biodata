@@ -28,10 +28,7 @@ import org.opencb.biodata.models.variant.avro.ConsequenceType;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.SequenceOntologyTerm;
 import org.opencb.biodata.models.variant.avro.VariantAnnotation;
-import org.opencb.biodata.models.variant.metadata.VariantFileHeader;
-import org.opencb.biodata.models.variant.metadata.VariantSetStats;
-import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
-import org.opencb.biodata.models.variant.metadata.VariantStudyStats;
+import org.opencb.biodata.models.variant.metadata.*;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 import org.opencb.commons.run.Task;
 import org.slf4j.Logger;
@@ -262,16 +259,18 @@ public class VariantSetStatsCalculator implements Task<Variant, Variant> {
     }
 
     private static Map<String, Integer> getChromosomeLengthsMap(VariantFileHeader header) {
-        return header.getComplexLines()
-                .stream()
-                .filter(line -> line.getKey().equalsIgnoreCase("contig"))
-                .collect(Collectors.toMap(line -> Region.normalizeChromosome(line.getId()), line -> {
-                    String length = line.getGenericFields().get("length");
-                    if (StringUtils.isNumeric(length)) {
-                        return Integer.parseInt(length);
-                    } else {
-                        return -1;
-                    }
-                }));
+        Map<String, Integer> lengths = new HashMap<>();
+        for (VariantFileHeaderComplexLine line : header.getComplexLines()) {
+            if (line.getKey().equalsIgnoreCase("contig")) {
+                String length = line.getGenericFields().get("length");
+                String chr = Region.normalizeChromosome(line.getId());
+                if (StringUtils.isNumeric(length)) {
+                    lengths.put(chr, Integer.parseInt(length));
+                } else {
+                    lengths.put(chr, -1);
+                }
+            }
+        }
+        return lengths;
     }
 }
