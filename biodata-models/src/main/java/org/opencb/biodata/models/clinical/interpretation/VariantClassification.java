@@ -43,21 +43,12 @@ public class VariantClassification {
 
     private String tier;
     private List<String> acmg;
-    private ClinicalSignificance clinicalSignificance;
+    private ClinicalProperty.ClinicalSignificance clinicalSignificance;
     private DrugResponse drugResponse;
     private TraitAssociation traitAssociation;
     private FunctionalEffect functionalEffect;
     private Tumorigenesis tumorigenesis;
     private List<String> other;
-
-    public enum ClinicalSignificance {
-        PATHOGENIC,
-        LIKELY_PATHOGENIC,
-        UNCERTAIN_SIGNIFICANCE,
-        LIKELY_BENIGN,
-        BENIGN,
-        NOT_ASSESSED
-    }
 
     public enum DrugResponse {
         ALTERED_SENSITIVITY,
@@ -382,13 +373,13 @@ public class VariantClassification {
         return new ArrayList<>(acmg);
     }
 
-    public static VariantClassification.ClinicalSignificance computeClinicalSignificance(Variant variant, List<DiseasePanel> panels) {
+    public static ClinicalProperty.ClinicalSignificance computeClinicalSignificance(Variant variant, List<DiseasePanel> panels) {
         if (CollectionUtils.isNotEmpty(panels)) {
             for (DiseasePanel panel : panels) {
                 if (CollectionUtils.isNotEmpty(panel.getVariants())) {
                     for (DiseasePanel.VariantPanel panelVariant : panel.getVariants()) {
                         if (variant.getId().equals(panelVariant.getId())) {
-                            return ClinicalSignificance.PATHOGENIC;
+                            return ClinicalProperty.ClinicalSignificance.PATHOGENIC;
                         }
                     }
                 }
@@ -398,9 +389,9 @@ public class VariantClassification {
         return computeClinicalSignificance(calculateAcmgClassification(variant));
     }
 
-    public static VariantClassification.ClinicalSignificance computeClinicalSignificance(List<String> acmgs) {
+    public static ClinicalProperty.ClinicalSignificance computeClinicalSignificance(List<String> acmgs) {
         if (CollectionUtils.isEmpty(acmgs)) {
-            return ClinicalSignificance.UNCERTAIN_SIGNIFICANCE;
+            return ClinicalProperty.ClinicalSignificance.UNCERTAIN_SIGNIFICANCE;
         }
 
         List<String> prefixes = Arrays.asList("PVS,PS,PP,PM,BS,BP,BA".split(","));
@@ -422,7 +413,7 @@ public class VariantClassification {
                 ||
                 (acmgCounter.get("PS") == 1 && (acmgCounter.get("PM") >=3 || (acmgCounter.get("PM") >= 2 && acmgCounter.get("PP") >= 2)
                         || (acmgCounter.get("PM") == 1 && acmgCounter.get("PP") >= 4))))) {
-            return ClinicalSignificance.PATHOGENIC;
+            return ClinicalProperty.ClinicalSignificance.PATHOGENIC;
         } else if ((acmgCounter.get("PVS") == 1 && acmgCounter.get("PM") == 1)
                 ||
                 (acmgCounter.get("PS") == 1 && acmgCounter.get("PM") >= 1)
@@ -434,13 +425,13 @@ public class VariantClassification {
                 (acmgCounter.get("PM") == 2 && acmgCounter.get("PP") >= 2)
                 ||
                 (acmgCounter.get("PM") == 1 && acmgCounter.get("PP") >= 4)) {
-            return ClinicalSignificance.LIKELY_PATHOGENIC;
+            return ClinicalProperty.ClinicalSignificance.LIKELY_PATHOGENIC;
         } else if (acmgCounter.get("BA") == 1 || acmgCounter.get("BS") >= 2) {
-            return  ClinicalSignificance.BENIGN;
+            return  ClinicalProperty.ClinicalSignificance.BENIGN;
         } else if ((acmgCounter.get("BS") == 1 && acmgCounter.get("BP") == 1) || (acmgCounter.get("BP") >= 2)) {
-            return ClinicalSignificance.LIKELY_BENIGN;
+            return ClinicalProperty.ClinicalSignificance.LIKELY_BENIGN;
         }
-        return ClinicalSignificance.UNCERTAIN_SIGNIFICANCE;
+        return ClinicalProperty.ClinicalSignificance.UNCERTAIN_SIGNIFICANCE;
     }
 
     public VariantClassification() {
@@ -448,9 +439,9 @@ public class VariantClassification {
         this.acmg = new ArrayList<>();
     }
 
-    public VariantClassification(String tier, List<String> acmg, ClinicalSignificance clinicalSignificance, DrugResponse drugResponse,
-                                 TraitAssociation traitAssociation, FunctionalEffect functionalEffect, Tumorigenesis tumorigenesis,
-                                 List<String> other) {
+    public VariantClassification(String tier, List<String> acmg, ClinicalProperty.ClinicalSignificance clinicalSignificance,
+                                 DrugResponse drugResponse, TraitAssociation traitAssociation, FunctionalEffect functionalEffect,
+                                 Tumorigenesis tumorigenesis, List<String> other) {
         this.tier = tier;
         this.acmg = acmg;
         this.clinicalSignificance = clinicalSignificance;
@@ -479,11 +470,11 @@ public class VariantClassification {
         return this;
     }
 
-    public ClinicalSignificance getClinicalSignificance() {
+    public ClinicalProperty.ClinicalSignificance getClinicalSignificance() {
         return clinicalSignificance;
     }
 
-    public VariantClassification setClinicalSignificance(ClinicalSignificance clinicalSignificance) {
+    public VariantClassification setClinicalSignificance(ClinicalProperty.ClinicalSignificance clinicalSignificance) {
         this.clinicalSignificance = clinicalSignificance;
         return this;
     }

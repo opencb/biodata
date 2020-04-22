@@ -41,6 +41,15 @@ public class ClinicalProperty {
         UNKNOWN
     }
 
+    public enum ClinicalSignificance {
+        PATHOGENIC,
+        LIKELY_PATHOGENIC,
+        UNCERTAIN_SIGNIFICANCE,
+        LIKELY_BENIGN,
+        BENIGN,
+        NOT_ASSESSED
+    }
+
     public enum Penetrance {
         COMPLETE,
         INCOMPLETE
