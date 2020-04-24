@@ -16,21 +16,20 @@
 
 package org.opencb.biodata.models.core;
 
-import java.util.List;
 import java.util.Set;
 
 public class AnnotationEvidence {
 
     private String code;
-    private Set<String> publications;
+    private Set<String> references;
     private String qualifier;
 
     public AnnotationEvidence() {
     }
 
-    public AnnotationEvidence(String code, Set<String> publications, String qualifier) {
+    public AnnotationEvidence(String code, Set<String> references, String qualifier) {
         this.code = code;
-        this.publications = publications;
+        this.references = references;
         this.qualifier = qualifier;
     }
 
@@ -38,7 +37,7 @@ public class AnnotationEvidence {
     public String toString() {
         final StringBuilder sb = new StringBuilder("AnnotationEvidence{");
         sb.append("code='").append(code).append('\'');
-        sb.append(", publications=").append(publications);
+        sb.append(", references=").append(references);
         sb.append(", qualifier='").append(qualifier).append('\'');
         sb.append('}');
         return sb.toString();
@@ -53,12 +52,12 @@ public class AnnotationEvidence {
         return this;
     }
 
-    public Set<String> getPublications() {
-        return publications;
+    public Set<String> getReferences() {
+        return references;
     }
 
-    public AnnotationEvidence setPublications(Set<String> publications) {
-        this.publications = publications;
+    public AnnotationEvidence setReferences(Set<String> references) {
+        this.references = references;
         return this;
     }
 
