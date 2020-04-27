@@ -46,6 +46,9 @@ protocol VariantAnnotations {
         union { null, string } source;
         union { null, string } studyType;
         union { null, string } type;
+        union { null, string } interactionType;
+        union { null, string } chemblId;
+        union { null, array<string> } publications;
     }
 
     record Expression {
