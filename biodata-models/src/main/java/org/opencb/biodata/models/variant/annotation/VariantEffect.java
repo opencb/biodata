@@ -29,6 +29,7 @@ import java.util.Objects;
  * TODO IND - individual name
  * TODO ZYG - zygosity of individual genotype at this locus
  */
+@Deprecated
 public class VariantEffect {
 
     /**

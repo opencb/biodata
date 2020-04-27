@@ -22,6 +22,7 @@ package org.opencb.biodata.models.variant.annotation;
 /**
  * Created by fjlopez on 19/11/14.
  */
+@Deprecated
 public class Score {
 
     private Double score;

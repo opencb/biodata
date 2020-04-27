@@ -24,6 +24,7 @@ import java.util.List;
 /**
  * Created by fjlopez on 16/07/15.
  */
+@Deprecated
 public class GeneDrugInteraction {
 
     private String geneName;

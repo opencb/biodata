@@ -28,6 +28,7 @@ import java.util.List;
 /**
  * Created by fjlopez on 18/09/15.
  */
+@Deprecated
 public class ProteinVariantAnnotation {
 
     private String uniprotAccession;

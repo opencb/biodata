@@ -22,6 +22,7 @@ package org.opencb.biodata.models.variant.annotation;
 /**
  * Created by antonior on 21/11/14.
  */
+@Deprecated
 public class Cosmic {
     private String mutationID;
     private String primarySite;

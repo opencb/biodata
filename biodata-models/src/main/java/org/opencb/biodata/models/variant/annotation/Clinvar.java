@@ -24,6 +24,7 @@ import java.util.List;
 /**
  * Created by antonior on 21/11/14.
  */
+@Deprecated
 public class Clinvar {
 
     private String acc;

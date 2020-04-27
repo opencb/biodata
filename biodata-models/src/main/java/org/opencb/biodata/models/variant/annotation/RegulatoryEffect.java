@@ -23,6 +23,7 @@ package org.opencb.biodata.models.variant.annotation;
  *
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
+@Deprecated
 public class RegulatoryEffect {
     
     /**

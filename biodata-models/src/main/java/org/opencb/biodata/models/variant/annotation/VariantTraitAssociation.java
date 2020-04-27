@@ -24,6 +24,7 @@ import java.util.List;
 /**
  * Created by fjlopez on 16/09/15.
  */
+@Deprecated
 public class VariantTraitAssociation {
 
     private List<Cosmic> cosmicList;

@@ -25,6 +25,7 @@ import java.util.Objects;
  *
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
+@Deprecated
 public class Frequency {
 
     private String study;

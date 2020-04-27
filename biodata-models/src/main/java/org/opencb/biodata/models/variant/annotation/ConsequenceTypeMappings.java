@@ -32,6 +32,7 @@ import java.util.Map;
  * TODO Handle duplicated terms in tmpTermToAccession (synonymous_variant...)
  * TODO Load using ontology file: http://song.cvs.sourceforge.net/viewvc/song/ontology/so.obo
  */
+@Deprecated
 public class ConsequenceTypeMappings {
 
     public static final Map<String, Integer> termToAccession;
