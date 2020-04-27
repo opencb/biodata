@@ -22,22 +22,22 @@ package org.opencb.biodata.models.clinical.interpretation;
 public class ClinicalProperty {
 
     public enum ModeOfInheritance {
-        MONOALLELIC,
+        AUTOSOMAL_DOMINANT,
         MONOALLELIC_NOT_IMPRINTED,
         MONOALLELIC_MATERNALLY_IMPRINTED,
         MONOALLELIC_PATERNALLY_IMPRINTED,
-        BIALLELIC,
+        AUTOSOMAL_RECESSIVE,
         MONOALLELIC_AND_BIALLELIC,
         MONOALLELIC_AND_MORE_SEVERE_BIALLELIC,
-        XLINKED_BIALLELIC,
-        XLINKED_MONOALLELIC,
-        YLINKED,
+        X_LINKED_DOMINANT,
+        X_LINKED_RECESSIVE,
+        Y_LINKED,
         MITOCHONDRIAL,
 
         // Not modes of inheritance, but...
         DE_NOVO,
         COMPOUND_HETEROZYGOUS,
-
+        MENDELIAN_ERROR,
         UNKNOWN
     }
 
@@ -53,6 +53,13 @@ public class ClinicalProperty {
     public enum Penetrance {
         COMPLETE,
         INCOMPLETE
+    }
+
+    public enum Confidence {
+        HIGH,
+        MEDIUM,
+        LOW,
+        REJECTED
     }
 
     public enum RoleInCancer {

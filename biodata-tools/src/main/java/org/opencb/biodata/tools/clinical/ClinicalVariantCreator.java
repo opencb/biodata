@@ -184,12 +184,11 @@ public abstract class ClinicalVariantCreator {
                 // Put gene IDs
                 if (CollectionUtils.isNotEmpty(panel.getGenes())) {
                     for (DiseasePanel.GenePanel panelGene : panel.getGenes()) {
-                        if (StringUtils.isNotEmpty(panelGene.getId()) && StringUtils.isNotEmpty(panelGene.getModeOfInheritance())) {
+                        if (StringUtils.isNotEmpty(panelGene.getId()) && panelGene.getModeOfInheritance() != null) {
                             if (!idToPanelMoiMap.containsKey(panelGene.getId())) {
                                 idToPanelMoiMap.put(panelGene.getId(), new HashMap());
                             }
-                            idToPanelMoiMap.get(panelGene.getId()).put(panel.getId(),
-                                    getMoiFromGenePanel(panelGene.getModeOfInheritance()));
+                            idToPanelMoiMap.get(panelGene.getId()).put(panel.getId(), panelGene.getModeOfInheritance());
                         }
                     }
                 }
@@ -350,47 +349,6 @@ public abstract class ClinicalVariantCreator {
             }
         }
         return clinicalVariantEvidences;
-    }
-
-    private ClinicalProperty.ModeOfInheritance getMoiFromGenePanel(String inputMoi) {
-        if (org.apache.commons.lang3.StringUtils.isEmpty(inputMoi)) {
-            return ModeOfInheritance.UNKNOWN;
-        }
-
-        String moi = inputMoi.toUpperCase();
-
-        if (moi.startsWith("BIALLELIC")) {
-            return ModeOfInheritance.BIALLELIC;
-        }
-        if (moi.startsWith("MONOALLELIC")) {
-            if (moi.contains("NOT")) {
-                return ModeOfInheritance.MONOALLELIC_NOT_IMPRINTED;
-            } else if (moi.contains("MATERNALLY")) {
-                return ModeOfInheritance.MONOALLELIC_MATERNALLY_IMPRINTED;
-            } else if (moi.contains("PATERNALLY")) {
-                return ModeOfInheritance.MONOALLELIC_PATERNALLY_IMPRINTED;
-            } else {
-                return ModeOfInheritance.MONOALLELIC;
-            }
-        }
-        if (moi.startsWith("BOTH")) {
-            if (moi.contains("SEVERE")) {
-                return ModeOfInheritance.MONOALLELIC_AND_MORE_SEVERE_BIALLELIC;
-            } else if (moi.contains("")) {
-                return ModeOfInheritance.MONOALLELIC_AND_BIALLELIC;
-            }
-        }
-        if (moi.startsWith("MITOCHONDRIAL")) {
-            return ModeOfInheritance.MITOCHONDRIAL;
-        }
-        if (moi.startsWith("X-LINKED")) {
-            if (moi.contains("BIALLELIC")) {
-                return ModeOfInheritance.XLINKED_BIALLELIC;
-            } else {
-                return ModeOfInheritance.XLINKED_MONOALLELIC;
-            }
-        }
-        return ModeOfInheritance.UNKNOWN;
     }
 
     public List<ClinicalVariant> groupCHVariants(Map<String, List<ClinicalVariant>> clinicalVariantMap) {
