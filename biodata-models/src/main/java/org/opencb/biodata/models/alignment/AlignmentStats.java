@@ -1,8 +1,10 @@
 package org.opencb.biodata.models.alignment;
 
+import java.util.List;
+
 public class AlignmentStats {
     private String fileId;
-    private String sampleId;
+    private List<String> sampleIds;
     private int rawTotalSequences;
     private int filteredSequences;
     private int sequences;
@@ -49,7 +51,7 @@ public class AlignmentStats {
     public String toString() {
         final StringBuilder sb = new StringBuilder("AlignmentStats{");
         sb.append("fileId='").append(fileId).append('\'');
-        sb.append(", sampleId='").append(sampleId).append('\'');
+        sb.append(", sampleIds=").append(sampleIds);
         sb.append(", rawTotalSequences=").append(rawTotalSequences);
         sb.append(", filteredSequences=").append(filteredSequences);
         sb.append(", sequences=").append(sequences);
@@ -101,12 +103,12 @@ public class AlignmentStats {
         return this;
     }
 
-    public String getSampleId() {
-        return sampleId;
+    public List<String> getSampleIds() {
+        return sampleIds;
     }
 
-    public AlignmentStats setSampleId(String sampleId) {
-        this.sampleId = sampleId;
+    public AlignmentStats setSampleIds(List<String> sampleIds) {
+        this.sampleIds = sampleIds;
         return this;
     }
 
