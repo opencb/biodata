@@ -23,6 +23,7 @@ import org.opencb.biodata.models.clinical.Disorder;
 import org.opencb.biodata.models.clinical.Phenotype;
 import org.opencb.biodata.models.variant.avro.SequenceOntologyTerm;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.*;
@@ -30,8 +31,8 @@ import static org.opencb.biodata.models.clinical.interpretation.ClinicalProperty
 public class ClinicalVariantEvidence {
 
     private String id;
-    @Deprecated
-    private Disorder disorder;
+    private String priorizationMethodName;
+
     private List<Phenotype> phenotypes;
     private List<SequenceOntologyTerm> consequenceTypes;
     private GenomicFeature genomicFeature;
@@ -51,16 +52,21 @@ public class ClinicalVariantEvidence {
     private String justification;
 
     public ClinicalVariantEvidence() {
-        this.fullyExplainPhenotypes = false;
-        this.actionable = false;
+        phenotypes = Collections.emptyList();
+        consequenceTypes = Collections.emptyList();
+        compoundHeterozygousVariantIds = Collections.emptyList();
+        fullyExplainPhenotypes = false;
+        actionable = false;
     }
 
-    public ClinicalVariantEvidence(String id, Disorder disorder, List<Phenotype> phenotypes, List<SequenceOntologyTerm> consequenceTypes,
-                                   GenomicFeature genomicFeature, ModeOfInheritance modeOfInheritance, String panelId,
-                                   VariantClassification classification, Penetrance penetrance, double score, boolean fullyExplainPhenotypes,
-                                   List<String> compoundHeterozygousVariantIds, RoleInCancer roleInCancer, boolean actionable, String justification) {
+    public ClinicalVariantEvidence(String id, String priorizationMethodName, List<Phenotype> phenotypes,
+                                   List<SequenceOntologyTerm> consequenceTypes, GenomicFeature genomicFeature,
+                                   ModeOfInheritance modeOfInheritance, String panelId, VariantClassification classification,
+                                   Penetrance penetrance, double score, boolean fullyExplainPhenotypes,
+                                   List<String> compoundHeterozygousVariantIds, RoleInCancer roleInCancer, boolean actionable,
+                                   String justification) {
         this.id = id;
-        this.disorder = disorder;
+        this.priorizationMethodName = priorizationMethodName;
         this.phenotypes = phenotypes;
         this.consequenceTypes = consequenceTypes;
         this.genomicFeature = genomicFeature;
@@ -76,28 +82,6 @@ public class ClinicalVariantEvidence {
         this.justification = justification;
     }
 
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("ClinicalVariantEvidence{");
-        sb.append("id='").append(id).append('\'');
-        sb.append(", disorder=").append(disorder);
-        sb.append(", phenotypes=").append(phenotypes);
-        sb.append(", consequenceTypes=").append(consequenceTypes);
-        sb.append(", genomicFeature=").append(genomicFeature);
-        sb.append(", modeOfInheritance=").append(modeOfInheritance);
-        sb.append(", panelId='").append(panelId).append('\'');
-        sb.append(", classification=").append(classification);
-        sb.append(", penetrance=").append(penetrance);
-        sb.append(", score=").append(score);
-        sb.append(", fullyExplainPhenotypes=").append(fullyExplainPhenotypes);
-        sb.append(", compoundHeterozygousVariantIds=").append(compoundHeterozygousVariantIds);
-        sb.append(", roleInCancer=").append(roleInCancer);
-        sb.append(", actionable=").append(actionable);
-        sb.append(", justification='").append(justification).append('\'');
-        sb.append('}');
-        return sb.toString();
-    }
-
     public String getId() {
         return id;
     }
@@ -107,12 +91,12 @@ public class ClinicalVariantEvidence {
         return this;
     }
 
-    public Disorder getDisorder() {
-        return disorder;
+    public String getPriorizationMethodName() {
+        return priorizationMethodName;
     }
 
-    public ClinicalVariantEvidence setDisorder(Disorder disorder) {
-        this.disorder = disorder;
+    public ClinicalVariantEvidence setPriorizationMethodName(String priorizationMethodName) {
+        this.priorizationMethodName = priorizationMethodName;
         return this;
     }
 
