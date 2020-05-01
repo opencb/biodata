@@ -4,7 +4,7 @@ import java.util.List;
 
 public class AlignmentStats {
     private String fileId;
-    private List<String> sampleIds;
+    private String sampleId;
     private int rawTotalSequences;
     private int filteredSequences;
     private int sequences;
@@ -51,7 +51,7 @@ public class AlignmentStats {
     public String toString() {
         final StringBuilder sb = new StringBuilder("AlignmentStats{");
         sb.append("fileId='").append(fileId).append('\'');
-        sb.append(", sampleIds=").append(sampleIds);
+        sb.append(", sampleId=").append(sampleId);
         sb.append(", rawTotalSequences=").append(rawTotalSequences);
         sb.append(", filteredSequences=").append(filteredSequences);
         sb.append(", sequences=").append(sequences);
@@ -103,12 +103,12 @@ public class AlignmentStats {
         return this;
     }
 
-    public List<String> getSampleIds() {
-        return sampleIds;
+    public String getSampleId() {
+        return sampleId;
     }
 
-    public AlignmentStats setSampleIds(List<String> sampleIds) {
-        this.sampleIds = sampleIds;
+    public AlignmentStats setSampleId(String sampleId) {
+        this.sampleId = sampleId;
         return this;
     }
 
