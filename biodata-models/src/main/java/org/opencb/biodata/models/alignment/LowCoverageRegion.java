@@ -4,17 +4,17 @@ public class LowCoverageRegion {
 
     private int start;
     private int end;
-    private float meanDepth;
-    private float minimumDepth;
+    private double depthAvg;
+    private double depthMin;
 
     public LowCoverageRegion() {
     }
 
-    public LowCoverageRegion(int start, int end, float meanDepth, float minimumDepth) {
+    public LowCoverageRegion(int start, int end, double depthAvg, double depthMin) {
         this.start = start;
         this.end = end;
-        this.meanDepth = meanDepth;
-        this.minimumDepth = minimumDepth;
+        this.depthAvg = depthAvg;
+        this.depthMin = depthMin;
     }
 
     @Override
@@ -22,8 +22,8 @@ public class LowCoverageRegion {
         final StringBuilder sb = new StringBuilder("LowCoverageRegion{");
         sb.append("start=").append(start);
         sb.append(", end=").append(end);
-        sb.append(", meanDepth=").append(meanDepth);
-        sb.append(", minimumDepth=").append(minimumDepth);
+        sb.append(", depthAvg=").append(depthAvg);
+        sb.append(", depthMin=").append(depthMin);
         sb.append('}');
         return sb.toString();
     }
@@ -46,21 +46,21 @@ public class LowCoverageRegion {
         return this;
     }
 
-    public float getMeanDepth() {
-        return meanDepth;
+    public double getDepthAvg() {
+        return depthAvg;
     }
 
-    public LowCoverageRegion setMeanDepth(float meanDepth) {
-        this.meanDepth = meanDepth;
+    public LowCoverageRegion setDepthAvg(double depthAvg) {
+        this.depthAvg = depthAvg;
         return this;
     }
 
-    public float getMinimumDepth() {
-        return minimumDepth;
+    public double getDepthMin() {
+        return depthMin;
     }
 
-    public LowCoverageRegion setMinimumDepth(float minimumDepth) {
-        this.minimumDepth = minimumDepth;
+    public LowCoverageRegion setDepthMin(double depthMin) {
+        this.depthMin = depthMin;
         return this;
     }
 }

@@ -38,8 +38,8 @@ public class ReportedLowCoverage {
         this.start = regionCoverage.getStart();
         this.end = regionCoverage.getEnd();
 
-        float coverage = 0;
-        for (float value: regionCoverage.getValues()) {
+        double coverage = 0;
+        for (double value: regionCoverage.getValues()) {
             coverage += value;
         }
         this.meanCoverage = coverage / regionCoverage.getValues().length;

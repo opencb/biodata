@@ -5,14 +5,15 @@ import java.util.List;
 public class TranscriptCoverageStats {
 
     private String transcriptId;
-    private List<Float> depths; // % coverage for 1x, 5x, 10x, 15x, 20x, 25x, 30x, 40x, 50x
+    private double[] depths; // % coverage for 1x, 5x, 10x, 15x, 20x, 25x, 30x, 40x, 50x, 60x
     private int lowCoverageThreshold;
     private List<LowCoverageRegion> lowCoverageRegions;
 
     public TranscriptCoverageStats() {
+        depths = new double[10];
     }
 
-    public TranscriptCoverageStats(String transcriptId, List<Float> depths, int lowCoverageThreshold,
+    public TranscriptCoverageStats(String transcriptId, double[] depths, int lowCoverageThreshold,
                                    List<LowCoverageRegion> lowCoverageRegions) {
         this.transcriptId = transcriptId;
         this.depths = depths;
@@ -40,11 +41,11 @@ public class TranscriptCoverageStats {
         return this;
     }
 
-    public List<Float> getDepths() {
+    public double[] getDepths() {
         return depths;
     }
 
-    public TranscriptCoverageStats setDepths(List<Float> depths) {
+    public TranscriptCoverageStats setDepths(double[] depths) {
         this.depths = depths;
         return this;
     }

@@ -52,7 +52,7 @@ public class AvroRegionCoverageCalculator extends RegionCoverageCalculator<ReadA
         int qualityPos = 0;
 
         List<Integer> qualities = ra.getAlignedQuality();
-        float[] values = dest.getValues();
+        double[] values = dest.getValues();
 
         for (CigarUnit cu: la.getCigar()) {
             switch (cu.getOperation()) {
