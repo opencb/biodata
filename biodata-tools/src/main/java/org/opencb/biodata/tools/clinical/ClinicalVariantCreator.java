@@ -200,7 +200,7 @@ public abstract class ClinicalVariantCreator {
     protected ClinicalVariantEvidence createClinicalVariantEvidence(List<SequenceOntologyTerm> consequenceTypes,
                                                                     GenomicFeature genomicFeature, String panelId, ModeOfInheritance moi,
                                                                     Penetrance penetrance, String tier, Variant variant) {
-        ClinicalVariantEvidence clinicalVariantEvidence = new ClinicalVariantEvidence().setId("OPENCB-" + UUID.randomUUID());
+        ClinicalVariantEvidence clinicalVariantEvidence = new ClinicalVariantEvidence();
 
         // Consequence types
         if (CollectionUtils.isNotEmpty(consequenceTypes)) {

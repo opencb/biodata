@@ -33,11 +33,10 @@ public class Interpretation {
      * Interpretation algorithm tool used to generate this interpretation.
      */
     private Analyst analyst;
-    private PrioritizationMethod prioritizationMethod;
+    private InterpretationMethod method;
 
     private List<ClinicalVariant> primaryFindings;
     private List<ClinicalVariant> secondaryFindings;
-//    private List<ReportedLowCoverage> lowCoverageRegions;
 
     private List<Comment> comments;
 
@@ -55,7 +54,7 @@ public class Interpretation {
     }
 
     public Interpretation(String id, String uuid, String description, String clinicalAnalysisId, Analyst analyst,
-                          PrioritizationMethod prioritizationMethod, List<ClinicalVariant> primaryFindings,
+                          InterpretationMethod method, List<ClinicalVariant> primaryFindings,
                           List<ClinicalVariant> secondaryFindings, List<Comment> comments, String status, String creationDate,
                           int version, Map<String, Object> attributes) {
         this.id = id;
@@ -63,7 +62,7 @@ public class Interpretation {
         this.description = description;
         this.clinicalAnalysisId = clinicalAnalysisId;
         this.analyst = analyst;
-        this.prioritizationMethod = prioritizationMethod;
+        this.method = method;
         this.primaryFindings = primaryFindings;
         this.secondaryFindings = secondaryFindings;
         this.comments = comments;
@@ -81,7 +80,7 @@ public class Interpretation {
         sb.append(", description='").append(description).append('\'');
         sb.append(", clinicalAnalysisId='").append(clinicalAnalysisId).append('\'');
         sb.append(", analyst=").append(analyst);
-        sb.append(", prioritizationMethod=").append(prioritizationMethod);
+        sb.append(", method=").append(method);
         sb.append(", primaryFindings=").append(primaryFindings);
         sb.append(", secondaryFindings=").append(secondaryFindings);
         sb.append(", comments=").append(comments);
@@ -138,12 +137,12 @@ public class Interpretation {
         return this;
     }
 
-    public PrioritizationMethod getPrioritizationMethod() {
-        return prioritizationMethod;
+    public InterpretationMethod getMethod() {
+        return method;
     }
 
-    public Interpretation setPrioritizationMethod(PrioritizationMethod prioritizationMethod) {
-        this.prioritizationMethod = prioritizationMethod;
+    public Interpretation setMethod(InterpretationMethod method) {
+        this.method = method;
         return this;
     }
 

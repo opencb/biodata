@@ -3,17 +3,17 @@ package org.opencb.biodata.models.clinical.interpretation;
 import java.util.List;
 import java.util.Map;
 
-public class PrioritizationMethod {
+public class InterpretationMethod {
 
     private String name;
     private Map<String, Object> filters;
     private List<DiseasePanel> panels;
     private List<Software> dependencies;
 
-    public PrioritizationMethod() {
+    public InterpretationMethod() {
     }
 
-    public PrioritizationMethod(String name, Map<String, Object> filters, List<DiseasePanel> panels, List<Software> dependencies) {
+    public InterpretationMethod(String name, Map<String, Object> filters, List<DiseasePanel> panels, List<Software> dependencies) {
         this.name = name;
         this.filters = filters;
         this.panels = panels;
@@ -22,7 +22,7 @@ public class PrioritizationMethod {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("PrioritizationMethod{");
+        final StringBuilder sb = new StringBuilder("InterpretationMethod{");
         sb.append("name='").append(name).append('\'');
         sb.append(", filters=").append(filters);
         sb.append(", panels=").append(panels);
@@ -35,7 +35,7 @@ public class PrioritizationMethod {
         return name;
     }
 
-    public PrioritizationMethod setName(String name) {
+    public InterpretationMethod setName(String name) {
         this.name = name;
         return this;
     }
@@ -44,7 +44,7 @@ public class PrioritizationMethod {
         return filters;
     }
 
-    public PrioritizationMethod setFilters(Map<String, Object> filters) {
+    public InterpretationMethod setFilters(Map<String, Object> filters) {
         this.filters = filters;
         return this;
     }
@@ -53,7 +53,7 @@ public class PrioritizationMethod {
         return panels;
     }
 
-    public PrioritizationMethod setPanels(List<DiseasePanel> panels) {
+    public InterpretationMethod setPanels(List<DiseasePanel> panels) {
         this.panels = panels;
         return this;
     }
@@ -62,7 +62,7 @@ public class PrioritizationMethod {
         return dependencies;
     }
 
-    public PrioritizationMethod setDependencies(List<Software> dependencies) {
+    public InterpretationMethod setDependencies(List<Software> dependencies) {
         this.dependencies = dependencies;
         return this;
     }
