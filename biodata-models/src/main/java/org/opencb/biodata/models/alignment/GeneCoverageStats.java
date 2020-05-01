@@ -2,7 +2,7 @@ package org.opencb.biodata.models.alignment;
 
 import java.util.List;
 
-public class CoverageStats {
+public class GeneCoverageStats {
 
     private String fileId;
     private String sampleId;
@@ -10,10 +10,10 @@ public class CoverageStats {
     private String geneName;
     List<TranscriptCoverageStats> stats;
 
-    public CoverageStats() {
+    public GeneCoverageStats() {
     }
 
-    public CoverageStats(String fileId, String sampleId, String geneName, List<TranscriptCoverageStats> stats) {
+    public GeneCoverageStats(String fileId, String sampleId, String geneName, List<TranscriptCoverageStats> stats) {
         this.fileId = fileId;
         this.sampleId = sampleId;
         this.geneName = geneName;
@@ -22,7 +22,7 @@ public class CoverageStats {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("CoverageStats{");
+        final StringBuilder sb = new StringBuilder("GeneCoverageStats{");
         sb.append("fileId='").append(fileId).append('\'');
         sb.append(", sampleId='").append(sampleId).append('\'');
         sb.append(", geneName='").append(geneName).append('\'');
@@ -35,7 +35,7 @@ public class CoverageStats {
         return fileId;
     }
 
-    public CoverageStats setFileId(String fileId) {
+    public GeneCoverageStats setFileId(String fileId) {
         this.fileId = fileId;
         return this;
     }
@@ -44,7 +44,7 @@ public class CoverageStats {
         return sampleId;
     }
 
-    public CoverageStats setSampleId(String sampleId) {
+    public GeneCoverageStats setSampleId(String sampleId) {
         this.sampleId = sampleId;
         return this;
     }
@@ -53,7 +53,7 @@ public class CoverageStats {
         return geneName;
     }
 
-    public CoverageStats setGeneName(String geneName) {
+    public GeneCoverageStats setGeneName(String geneName) {
         this.geneName = geneName;
         return this;
     }
@@ -62,7 +62,7 @@ public class CoverageStats {
         return stats;
     }
 
-    public CoverageStats setStats(List<TranscriptCoverageStats> stats) {
+    public GeneCoverageStats setStats(List<TranscriptCoverageStats> stats) {
         this.stats = stats;
         return this;
     }
