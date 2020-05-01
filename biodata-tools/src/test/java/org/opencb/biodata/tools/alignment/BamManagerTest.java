@@ -378,8 +378,8 @@ public class BamManagerTest {
 
         int windowSize = 100;
         Region region = new Region("20", 60200, 60431);
-        float[] values = bigWigManager.groupBy(region, windowSize);
-        for (float value : values) {
+        double[] values = bigWigManager.groupBy(region, windowSize);
+        for (double value : values) {
             System.out.print(value + ", ");
         }
     }
