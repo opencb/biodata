@@ -42,8 +42,8 @@ public class ClinicalVariant extends Variant {
         NOT_REVIEWED,
         UNDER_REVIEW,
         REVIEWED,
-        REJECTED,
-        TO_BE_REPORTED
+        DISCARDED,
+        REPORTED
     }
 
     public ClinicalVariant() {
