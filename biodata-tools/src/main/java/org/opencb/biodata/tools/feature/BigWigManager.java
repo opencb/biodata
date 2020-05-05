@@ -59,12 +59,12 @@ public class BigWigManager {
      * Query by a given region.
      *
      * @param region    Region target
-     * @return          Array of floating values for that region
+     * @return          Array of double values for that region
      * @throws IOException
      */
-    public float[] query(Region region) throws IOException {
+    public double[] query(Region region) throws IOException {
         BigWigIterator bigWigIterator = iterator(region);
-        float[] values = new float[region.getEnd() - region.getStart() + 1];
+        double[] values = new double[region.getEnd() - region.getStart() + 1];
         while (bigWigIterator.hasNext()) {
             WigItem wigItem = bigWigIterator.next();
             for (int i = wigItem.getStartBase(), j = wigItem.getStartBase() - region.getStart(); i <= region.getEnd(); i++, j++) {
@@ -94,7 +94,7 @@ public class BigWigManager {
         return bbFileReader.getZoomLevelIterator(zoomLevel, region.getChromosome(), region.getStart(), region.getChromosome(), region.getEnd(), false);
     }
 
-    public float[] groupBy(Region region, int windowSize) {
+    public double[] groupBy(Region region, int windowSize) {
         int zoomLevel = -1;
         for (int level = 0; level < zoomWindowSizes.size(); level++) {
             if (windowSize < zoomWindowSizes.get(level)) {
@@ -112,7 +112,7 @@ public class BigWigManager {
             numWindows++;
             end = start + (numWindows * windowSize - 1);
         }
-        float[] chunks = new float[numWindows];
+        double[] chunks = new double[numWindows];
 
         if (zoomLevel == -1) {
             // No zoom level available. This can happen because there are not zoom levels or the window size is too small
