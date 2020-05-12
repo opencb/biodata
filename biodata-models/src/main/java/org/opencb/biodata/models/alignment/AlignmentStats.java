@@ -20,13 +20,13 @@ public class AlignmentStats {
     private int readsMq0;
     private int readsQcFailed;
     private int nonPrimaryAlignments;
-    private int totalLength;
-    private int totalFirstFragmentLength;
-    private int totalLastFragmentLength;
-    private int basesMapped;
-    private int basesMappedCigar;
-    private int basesTrimmed;
-    private int basesDuplicated;
+    private long totalLength;
+    private long totalFirstFragmentLength;
+    private long totalLastFragmentLength;
+    private long basesMapped;
+    private long basesMappedCigar;
+    private long basesTrimmed;
+    private long basesDuplicated;
     private int mismatches;
     private double errorRate;
     private double averageLength;
@@ -51,7 +51,7 @@ public class AlignmentStats {
     public String toString() {
         final StringBuilder sb = new StringBuilder("AlignmentStats{");
         sb.append("fileId='").append(fileId).append('\'');
-        sb.append(", sampleId=").append(sampleId);
+        sb.append(", sampleId='").append(sampleId).append('\'');
         sb.append(", rawTotalSequences=").append(rawTotalSequences);
         sb.append(", filteredSequences=").append(filteredSequences);
         sb.append(", sequences=").append(sequences);
@@ -247,65 +247,65 @@ public class AlignmentStats {
         return this;
     }
 
-    public int getTotalLength() {
+    public long getTotalLength() {
         return totalLength;
     }
 
-    public AlignmentStats setTotalLength(int totalLength) {
+    public AlignmentStats setTotalLength(long totalLength) {
         this.totalLength = totalLength;
         return this;
     }
 
-    public int getTotalFirstFragmentLength() {
+    public long getTotalFirstFragmentLength() {
         return totalFirstFragmentLength;
     }
 
-    public AlignmentStats setTotalFirstFragmentLength(int totalFirstFragmentLength) {
+    public AlignmentStats setTotalFirstFragmentLength(long totalFirstFragmentLength) {
         this.totalFirstFragmentLength = totalFirstFragmentLength;
         return this;
     }
 
-    public int getTotalLastFragmentLength() {
+    public long getTotalLastFragmentLength() {
         return totalLastFragmentLength;
     }
 
-    public AlignmentStats setTotalLastFragmentLength(int totalLastFragmentLength) {
+    public AlignmentStats setTotalLastFragmentLength(long totalLastFragmentLength) {
         this.totalLastFragmentLength = totalLastFragmentLength;
         return this;
     }
 
-    public int getBasesMapped() {
+    public long getBasesMapped() {
         return basesMapped;
     }
 
-    public AlignmentStats setBasesMapped(int basesMapped) {
+    public AlignmentStats setBasesMapped(long basesMapped) {
         this.basesMapped = basesMapped;
         return this;
     }
 
-    public int getBasesMappedCigar() {
+    public long getBasesMappedCigar() {
         return basesMappedCigar;
     }
 
-    public AlignmentStats setBasesMappedCigar(int basesMappedCigar) {
+    public AlignmentStats setBasesMappedCigar(long basesMappedCigar) {
         this.basesMappedCigar = basesMappedCigar;
         return this;
     }
 
-    public int getBasesTrimmed() {
+    public long getBasesTrimmed() {
         return basesTrimmed;
     }
 
-    public AlignmentStats setBasesTrimmed(int basesTrimmed) {
+    public AlignmentStats setBasesTrimmed(long basesTrimmed) {
         this.basesTrimmed = basesTrimmed;
         return this;
     }
 
-    public int getBasesDuplicated() {
+    public long getBasesDuplicated() {
         return basesDuplicated;
     }
 
-    public AlignmentStats setBasesDuplicated(int basesDuplicated) {
+    public AlignmentStats setBasesDuplicated(long basesDuplicated) {
         this.basesDuplicated = basesDuplicated;
         return this;
     }
