@@ -48,7 +48,7 @@ public class SamRecordRegionCoverageCalculator extends RegionCoverageCalculator<
         int qualityPos = 0;
 
         byte[] qualities = sr.getBaseQualities();
-        float[] values = dest.getValues();
+        double[] values = dest.getValues();
 
         for (CigarElement ce: sr.getCigar().getCigarElements()) {
             switch (ce.getOperator().toString()) {

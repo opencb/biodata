@@ -174,7 +174,7 @@ public class BamUtils {
         FileUtils.checkFile(bigwigPath);
 
         BigWigManager bigWigManager = new BigWigManager(bigwigPath);
-        float[] avgCoverage = bigWigManager.groupBy(region, windowSize);
+        double[] avgCoverage = bigWigManager.groupBy(region, windowSize);
         return new RegionCoverage(region, windowSize, avgCoverage);
     }
 
@@ -194,7 +194,7 @@ public class BamUtils {
         if (header) {
             writer.println("fixedStep chrom=" + regionCoverage.getChromosome() + " start=1 step=1 span=" + span);
         }
-        float[] values = regionCoverage.getValues();
+        double[] values = regionCoverage.getValues();
         if (span == 1) {
             for (int i = 0; i < values.length; i++) {
                 writer.println(values[i]);
@@ -283,12 +283,12 @@ public class BamUtils {
     public static List<RegionCoverage> filterByCoverage(RegionCoverage coverageRegion, int minCoverage, int maxCoverage) {
         List<RegionCoverage> selectedRegions = new ArrayList<>();
 
-        float[] coverages = new float[coverageRegion.size()];
+        double[] coverages = new double[coverageRegion.size()];
         int i = 0;
         int pos = coverageRegion.getStart();
         boolean isProcessing = false;
         RegionCoverage uncoveredRegion = null;
-        for (float coverage: coverageRegion.getValues()) {
+        for (double coverage: coverageRegion.getValues()) {
             if (coverage >= minCoverage && coverage <= maxCoverage) {
                 if (!isProcessing) {
                     uncoveredRegion = new RegionCoverage(coverageRegion.getChromosome(), pos, 0);
@@ -488,29 +488,29 @@ def bw_line_to_dict(bw_line):
         if (coverage1 != null && coverage1.getValues() != null && coverage2 != null && coverage2.getValues() != null
                 && coverage1.getWindowSize() == coverage2.getWindowSize() && coverage1.getValues().length == coverage2.getValues().length) {
 
-            float values[] = new float[coverage1.getValues().length];
+            double values[] = new double[coverage1.getValues().length];
 
             double log10_2 = Math.log10(2);
 
             for (int i = 0; i < values.length; i++) {
                 // Checking if tumour or normal coverage are low, raw mean cov is >= 15
                 // Rescaling both coverages
-                float rescaledCoverage1 = coverage1.getValues()[i] / totalCounts1;
-                float rescaledCoverage2 = coverage2.getValues()[i] / totalCounts2;
+                double rescaledCoverage1 = coverage1.getValues()[i] / totalCounts1;
+                double rescaledCoverage2 = coverage2.getValues()[i] / totalCounts2;
 
                 if (rescaledCoverage1 > 0 && rescaledCoverage2 > 0) {
                     // Getting coverage ratio
-                    float covRatio = rescaledCoverage1 / rescaledCoverage2;
+                    double covRatio = rescaledCoverage1 / rescaledCoverage2;
                     if (applyLog) {
                         // Getting normalised coverage (log2)
                         // log2(x) = log10(x) / log10(2)
 
-                        values[i] = (float) (Math.log10(covRatio) / log10_2);
+                        values[i] = Math.log10(covRatio) / log10_2;
                     } else {
                         values[i] = covRatio;
                     }
                 } else {
-                    values[i] = Float.NaN;
+                    values[i] = Double.NaN;
                 }
             }
 

@@ -237,8 +237,8 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
         Member child = validChildren.get(stats.getId());
         if (child != null) {
             Genotype childGt = new Genotype(gts.apply(samplePos));
-            Genotype fatherGt = child.getFather() == null ? null : new Genotype(gts.apply(samplesPos.get(child.getFather().getId())));
-            Genotype motherGt = child.getMother() == null ? null : new Genotype(gts.apply(samplesPos.get(child.getMother().getId())));
+            Genotype fatherGt = getParentGt(gts, child.getFather());
+            Genotype motherGt = getParentGt(gts, child.getMother());
 
             int errorCode = MendelianError.compute(fatherGt, motherGt, childGt, variant.getChromosome());
             if (errorCode > 0) {
@@ -316,6 +316,19 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
                 incCount(stats.getConsequenceTypeCount(), ct);
             }
 
+        }
+    }
+
+    private Genotype getParentGt(IntFunction<String> gts, Member parent) {
+        if (parent == null) {
+            return null;
+        } else {
+            String gtStr = gts.apply(samplesPos.get(parent.getId()));
+            if (gtStr == null) {
+                return null;
+            } else {
+                return new Genotype(gtStr);
+            }
         }
     }
 

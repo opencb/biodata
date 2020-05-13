@@ -18,10 +18,10 @@ public class BigWigManagerTest {
     public void query(Path inputPath, String chrom, int start, int end, boolean display) throws Exception {
         BigWigManager bigWigManager = new BigWigManager(inputPath);
         Region region = new Region(chrom, start, end);
-        float[] coverage = bigWigManager.query(region);
+        double[] coverage = bigWigManager.query(region);
 
         if (display) {
-            for (float v : coverage) {
+            for (double v : coverage) {
                 System.out.println((start++) + " :" + v);
             }
         }
@@ -47,7 +47,7 @@ public class BigWigManagerTest {
 
         BigWigManager bigWigManager = new BigWigManager(bwPath);
         Region region = new Region(chrom, start, end);
-        float[] coverage = bigWigManager.groupBy(region, windowSize);
+        double[] coverage = bigWigManager.groupBy(region, windowSize);
 
         for (int i = 0; i < coverage.length ; i++) {
             System.out.println(i + ": " + coverage[i]);

@@ -19,27 +19,22 @@
 
 package org.opencb.biodata.models.clinical.interpretation;
 
-import org.opencb.biodata.models.clinical.Disorder;
 import org.opencb.biodata.models.clinical.Phenotype;
 import org.opencb.biodata.models.variant.avro.SequenceOntologyTerm;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.*;
 
 public class ClinicalVariantEvidence {
 
-    private String id;
-    @Deprecated
-    private Disorder disorder;
+    private String interpretationMethodName;
+
     private List<Phenotype> phenotypes;
     private List<SequenceOntologyTerm> consequenceTypes;
     private GenomicFeature genomicFeature;
     private ModeOfInheritance modeOfInheritance;
-
-    /**
-     * This must be an ID of a panel exixting in Intepretation.panels.
-     */
     private String panelId;
     private VariantClassification classification;
     private Penetrance penetrance;
@@ -51,16 +46,19 @@ public class ClinicalVariantEvidence {
     private String justification;
 
     public ClinicalVariantEvidence() {
-        this.fullyExplainPhenotypes = false;
-        this.actionable = false;
+        phenotypes = Collections.emptyList();
+        consequenceTypes = Collections.emptyList();
+        compoundHeterozygousVariantIds = Collections.emptyList();
+        fullyExplainPhenotypes = false;
+        actionable = false;
     }
 
-    public ClinicalVariantEvidence(String id, Disorder disorder, List<Phenotype> phenotypes, List<SequenceOntologyTerm> consequenceTypes,
+    public ClinicalVariantEvidence(String interpretationMethodName, List<Phenotype> phenotypes, List<SequenceOntologyTerm> consequenceTypes,
                                    GenomicFeature genomicFeature, ModeOfInheritance modeOfInheritance, String panelId,
-                                   VariantClassification classification, Penetrance penetrance, double score, boolean fullyExplainPhenotypes,
-                                   List<String> compoundHeterozygousVariantIds, RoleInCancer roleInCancer, boolean actionable, String justification) {
-        this.id = id;
-        this.disorder = disorder;
+                                   VariantClassification classification, Penetrance penetrance, double score,
+                                   boolean fullyExplainPhenotypes, List<String> compoundHeterozygousVariantIds, RoleInCancer roleInCancer,
+                                   boolean actionable, String justification) {
+        this.interpretationMethodName = interpretationMethodName;
         this.phenotypes = phenotypes;
         this.consequenceTypes = consequenceTypes;
         this.genomicFeature = genomicFeature;
@@ -79,8 +77,7 @@ public class ClinicalVariantEvidence {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("ClinicalVariantEvidence{");
-        sb.append("id='").append(id).append('\'');
-        sb.append(", disorder=").append(disorder);
+        sb.append("interpretationMethodName='").append(interpretationMethodName).append('\'');
         sb.append(", phenotypes=").append(phenotypes);
         sb.append(", consequenceTypes=").append(consequenceTypes);
         sb.append(", genomicFeature=").append(genomicFeature);
@@ -98,21 +95,12 @@ public class ClinicalVariantEvidence {
         return sb.toString();
     }
 
-    public String getId() {
-        return id;
+    public String getInterpretationMethodName() {
+        return interpretationMethodName;
     }
 
-    public ClinicalVariantEvidence setId(String id) {
-        this.id = id;
-        return this;
-    }
-
-    public Disorder getDisorder() {
-        return disorder;
-    }
-
-    public ClinicalVariantEvidence setDisorder(Disorder disorder) {
-        this.disorder = disorder;
+    public ClinicalVariantEvidence setInterpretationMethodName(String interpretationMethodName) {
+        this.interpretationMethodName = interpretationMethodName;
         return this;
     }
 

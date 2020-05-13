@@ -11,21 +11,21 @@ import java.util.Arrays;
 public class RegionCoverage extends Region {
 
     private int windowSize;
-    private float[] values;
+    private double[] values;
     private Stats stats;
 
     public class Stats {
         private int min;
         private int max;
-        private float average;
+        private double avg;
 
         public Stats() {
         }
 
-        public Stats(int min, int max, float average) {
+        public Stats(int min, int max, double avg) {
             this.min = min;
             this.max = max;
-            this.average = average;
+            this.avg = avg;
         }
 
         @Override
@@ -33,7 +33,7 @@ public class RegionCoverage extends Region {
             final StringBuilder sb = new StringBuilder("Stats{");
             sb.append("min=").append(min);
             sb.append(", max=").append(max);
-            sb.append(", average=").append(average);
+            sb.append(", avg=").append(avg);
             sb.append('}');
             return sb.toString();
         }
@@ -56,12 +56,12 @@ public class RegionCoverage extends Region {
             return this;
         }
 
-        public float getAverage() {
-            return average;
+        public double getAvg() {
+            return avg;
         }
 
-        public Stats setAverage(float average) {
-            this.average = average;
+        public Stats setAvg(double avg) {
+            this.avg = avg;
             return this;
         }
     }
@@ -78,13 +78,13 @@ public class RegionCoverage extends Region {
 
         windowSize = 1;
         if (end >= start) {
-            this.values = new float[end - start + 1];
+            this.values = new double[end - start + 1];
         } else {
-            this.values = new float[0];
+            this.values = new double[0];
         }
     }
 
-    public RegionCoverage(Region region, int windowSize, float[] values) {
+    public RegionCoverage(Region region, int windowSize, double[] values) {
         super(region.getChromosome(), region.getStart(), region.getEnd());
         this.windowSize = windowSize;
         this.values = values;
@@ -93,10 +93,10 @@ public class RegionCoverage extends Region {
 
     public void updateStats() {
         if (values.length > 0) {
-            float min = Float.MAX_VALUE;
-            float max = Float.MIN_VALUE;
-            float agg = 0;
-            for (float value : values) {
+            double min = Double.MAX_VALUE;
+            double max = Double.MIN_VALUE;
+            double agg = 0;
+            for (double value : values) {
                 if (value < min) {
                     min = value;
                 }
@@ -105,7 +105,7 @@ public class RegionCoverage extends Region {
                 }
                 agg += value;
             }
-            stats = new Stats(Math.round(min), Math.round(max), agg / values.length);
+            stats = new Stats((int) Math.round(min), (int) Math.round(max), agg / values.length);
         }
     }
 
@@ -115,7 +115,7 @@ public class RegionCoverage extends Region {
             return mean;
         }
 
-        for (float value: values) {
+        for (double value: values) {
             mean += value;
         }
         return Math.round(1.0f * mean / values.length);
@@ -145,11 +145,11 @@ public class RegionCoverage extends Region {
         return this;
     }
 
-    public float[] getValues() {
+    public double[] getValues() {
         return values;
     }
 
-    public RegionCoverage setValues(float[] values) {
+    public RegionCoverage setValues(double[] values) {
         this.values = values;
         return this;
     }

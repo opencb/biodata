@@ -67,7 +67,7 @@ public class AlignmentGlobalStats {
 
 	@Override
 	public String toString() {
-		final StringBuilder sb = new StringBuilder("AlignmentStats{");
+		final StringBuilder sb = new StringBuilder("AlignmentGlobalStats{");
 		sb.append("numMapped=").append(numMapped);
 		sb.append(", numUnmapped=").append(numUnmapped);
 		sb.append(", numPaired=").append(numPaired);

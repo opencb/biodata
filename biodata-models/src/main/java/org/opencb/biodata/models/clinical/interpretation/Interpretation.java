@@ -32,15 +32,11 @@ public class Interpretation {
     /**
      * Interpretation algorithm tool used to generate this interpretation.
      */
-    private Software software;
     private Analyst analyst;
-    private List<Software> dependencies;
-    private Map<String, Object> filters;
+    private InterpretationMethod method;
 
-    private List<DiseasePanel> panels;
     private List<ClinicalVariant> primaryFindings;
     private List<ClinicalVariant> secondaryFindings;
-    private List<ReportedLowCoverage> lowCoverageRegions;
 
     private List<Comment> comments;
 
@@ -57,24 +53,18 @@ public class Interpretation {
     public Interpretation() {
     }
 
-    public Interpretation(String id, String uuid, String description, String clinicalAnalysisId, Software software,
-                          Analyst analyst, List<Software> dependencies, Map<String, Object> filters,
-                          List<DiseasePanel> panels, List<ClinicalVariant> primaryFindings,
-                          List<ClinicalVariant> secondaryFindings, List<ReportedLowCoverage> lowCoverageRegions,
-                          List<Comment> comments, String status, String creationDate, int version,
-                          Map<String, Object> attributes) {
+    public Interpretation(String id, String uuid, String description, String clinicalAnalysisId, Analyst analyst,
+                          InterpretationMethod method, List<ClinicalVariant> primaryFindings,
+                          List<ClinicalVariant> secondaryFindings, List<Comment> comments, String status, String creationDate,
+                          int version, Map<String, Object> attributes) {
         this.id = id;
         this.uuid = uuid;
         this.description = description;
         this.clinicalAnalysisId = clinicalAnalysisId;
-        this.software = software;
         this.analyst = analyst;
-        this.dependencies = dependencies;
-        this.filters = filters;
-        this.panels = panels;
+        this.method = method;
         this.primaryFindings = primaryFindings;
         this.secondaryFindings = secondaryFindings;
-        this.lowCoverageRegions = lowCoverageRegions;
         this.comments = comments;
         this.status = status;
         this.creationDate = creationDate;
@@ -89,14 +79,10 @@ public class Interpretation {
         sb.append(", uuid='").append(uuid).append('\'');
         sb.append(", description='").append(description).append('\'');
         sb.append(", clinicalAnalysisId='").append(clinicalAnalysisId).append('\'');
-        sb.append(", software=").append(software);
         sb.append(", analyst=").append(analyst);
-        sb.append(", dependencies=").append(dependencies);
-        sb.append(", filters=").append(filters);
-        sb.append(", panels=").append(panels);
+        sb.append(", method=").append(method);
         sb.append(", primaryFindings=").append(primaryFindings);
         sb.append(", secondaryFindings=").append(secondaryFindings);
-        sb.append(", lowCoverageRegions=").append(lowCoverageRegions);
         sb.append(", comments=").append(comments);
         sb.append(", status='").append(status).append('\'');
         sb.append(", creationDate='").append(creationDate).append('\'');
@@ -142,15 +128,6 @@ public class Interpretation {
         return this;
     }
 
-    public Software getSoftware() {
-        return software;
-    }
-
-    public Interpretation setSoftware(Software software) {
-        this.software = software;
-        return this;
-    }
-
     public Analyst getAnalyst() {
         return analyst;
     }
@@ -160,30 +137,12 @@ public class Interpretation {
         return this;
     }
 
-    public List<Software> getDependencies() {
-        return dependencies;
+    public InterpretationMethod getMethod() {
+        return method;
     }
 
-    public Interpretation setDependencies(List<Software> dependencies) {
-        this.dependencies = dependencies;
-        return this;
-    }
-
-    public Map<String, Object> getFilters() {
-        return filters;
-    }
-
-    public Interpretation setFilters(Map<String, Object> filters) {
-        this.filters = filters;
-        return this;
-    }
-
-    public List<DiseasePanel> getPanels() {
-        return panels;
-    }
-
-    public Interpretation setPanels(List<DiseasePanel> panels) {
-        this.panels = panels;
+    public Interpretation setMethod(InterpretationMethod method) {
+        this.method = method;
         return this;
     }
 
@@ -202,15 +161,6 @@ public class Interpretation {
 
     public Interpretation setSecondaryFindings(List<ClinicalVariant> secondaryFindings) {
         this.secondaryFindings = secondaryFindings;
-        return this;
-    }
-
-    public List<ReportedLowCoverage> getLowCoverageRegions() {
-        return lowCoverageRegions;
-    }
-
-    public Interpretation setLowCoverageRegions(List<ReportedLowCoverage> lowCoverageRegions) {
-        this.lowCoverageRegions = lowCoverageRegions;
         return this;
     }
 
