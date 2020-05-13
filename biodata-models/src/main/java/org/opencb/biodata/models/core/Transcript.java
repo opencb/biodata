@@ -111,8 +111,8 @@ public class Transcript implements Serializable {
 		this.annotation = annotation;
 	}
 
-	public Transcript(String id, String name, String biotype, String status, String chromosome, Integer start, Integer end,
-					  String strand, int version, String source, String supportLevel, Integer codingRegionStart, Integer codingRegionEnd,
+	public Transcript(String id, String name, String biotype, String status, String source, String chromosome, Integer start, Integer end,
+					  String strand, int version, String supportLevel, Integer codingRegionStart, Integer codingRegionEnd,
 					  Integer cdnaCodingStart, Integer cdnaCodingEnd, Integer cdsLength, String proteinId, String description,
 					  List<Xref> xrefs, List<Exon> exons, List<TranscriptTfbs> tfbs, TranscriptAnnotation annotation) {
 		this.id = id;
