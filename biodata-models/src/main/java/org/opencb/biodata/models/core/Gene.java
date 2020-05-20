@@ -37,6 +37,7 @@ public class Gene implements Serializable {
     private String biotype;
     private String status;
     private String source;
+    private int version;
     private String description;
     private List<Transcript> transcripts;
     private MiRNAGene mirna;
@@ -82,6 +83,7 @@ public class Gene implements Serializable {
         this.annotation = annotation;
     }
 
+    @Deprecated
     public Gene(String id, String name, String chromosome, int start, int end, String strand, String biotype, String status, String source,
                 String description, List<Transcript> transcripts, MiRNAGene mirna, GeneAnnotation annotation) {
         this.id = id;
@@ -90,6 +92,24 @@ public class Gene implements Serializable {
         this.start = start;
         this.end = end;
         this.strand = strand;
+        this.biotype = biotype;
+        this.status = status;
+        this.source = source;
+        this.description = description;
+        this.transcripts = transcripts;
+        this.mirna = mirna;
+        this.annotation = annotation;
+    }
+
+    public Gene(String id, String name, String chromosome, int start, int end, String strand, int version, String biotype, String status,
+                String source, String description, List<Transcript> transcripts, MiRNAGene mirna, GeneAnnotation annotation) {
+        this.id = id;
+        this.name = name;
+        this.chromosome = chromosome;
+        this.start = start;
+        this.end = end;
+        this.strand = strand;
+        this.version = version;
         this.biotype = biotype;
         this.status = status;
         this.source = source;
@@ -111,6 +131,7 @@ public class Gene implements Serializable {
         sb.append(", biotype='").append(biotype).append('\'');
         sb.append(", status='").append(status).append('\'');
         sb.append(", source='").append(source).append('\'');
+        sb.append(", version=").append(version);
         sb.append(", description='").append(description).append('\'');
         sb.append(", transcripts=").append(transcripts);
         sb.append(", mirna=").append(mirna);
@@ -170,6 +191,15 @@ public class Gene implements Serializable {
 
     public Gene setStrand(String strand) {
         this.strand = strand;
+        return this;
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
+    public Gene setVersion(int version) {
+        this.version = version;
         return this;
     }
 

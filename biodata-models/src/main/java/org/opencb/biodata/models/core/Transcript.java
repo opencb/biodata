@@ -43,6 +43,9 @@ public class Transcript implements Serializable {
 	private String proteinId;
 	private String proteinSequence;
 	private String description;
+	private int version;
+	private String source;
+	private String supportLevel;
 	private List<Exon> exons;
 	private List<Xref> xrefs;
 	private List<TranscriptTfbs> tfbs;
@@ -54,6 +57,7 @@ public class Transcript implements Serializable {
 	public Transcript() {
 	}
 
+	@Deprecated
 	public Transcript(String id, String name, String biotype, String status, String chromosome, Integer start, Integer end,
 					  String strand, Integer codingRegionStart, Integer codingRegionEnd, Integer cdnaCodingStart,
 					  Integer cdnaCodingEnd, Integer cdsLength, String proteinId, String description, List<Xref> xrefs,
@@ -107,6 +111,34 @@ public class Transcript implements Serializable {
 		this.annotation = annotation;
 	}
 
+	public Transcript(String id, String name, String biotype, String status, String source, String chromosome, Integer start, Integer end,
+					  String strand, int version, String supportLevel, Integer codingRegionStart, Integer codingRegionEnd,
+					  Integer cdnaCodingStart, Integer cdnaCodingEnd, Integer cdsLength, String proteinId, String description,
+					  List<Xref> xrefs, List<Exon> exons, List<TranscriptTfbs> tfbs, TranscriptAnnotation annotation) {
+		this.id = id;
+		this.name = name;
+		this.biotype = biotype;
+		this.status = status;
+		this.chromosome = chromosome;
+		this.start = start;
+		this.end = end;
+		this.strand = strand;
+		this.version = version;
+		this.source = source;
+		this.supportLevel = supportLevel;
+		this.genomicCodingStart = codingRegionStart;
+		this.genomicCodingEnd = codingRegionEnd;
+		this.cdnaCodingStart = cdnaCodingStart;
+		this.cdnaCodingEnd = cdnaCodingEnd;
+		this.cdsLength = cdsLength;
+		this.proteinId = proteinId;
+		this.description = description;
+		this.xrefs = xrefs;
+		this.exons = exons;
+		this.tfbs = tfbs;
+		this.annotation = annotation;
+	}
+
 	public boolean unconfirmedStart() {
 		return (this.getAnnotationFlags() != null && this.getAnnotationFlags().contains("cds_start_NF"));
 	}
@@ -120,24 +152,27 @@ public class Transcript implements Serializable {
 		final StringBuilder sb = new StringBuilder("Transcript{");
 		sb.append("id='").append(id).append('\'');
 		sb.append(", name='").append(name).append('\'');
-		sb.append(", biotype='").append(biotype).append('\'');
-		sb.append(", status='").append(status).append('\'');
 		sb.append(", chromosome='").append(chromosome).append('\'');
 		sb.append(", start=").append(start);
 		sb.append(", end=").append(end);
 		sb.append(", strand='").append(strand).append('\'');
+		sb.append(", biotype='").append(biotype).append('\'');
+		sb.append(", status='").append(status).append('\'');
 		sb.append(", genomicCodingStart=").append(genomicCodingStart);
 		sb.append(", genomicCodingEnd=").append(genomicCodingEnd);
 		sb.append(", cdnaCodingStart=").append(cdnaCodingStart);
 		sb.append(", cdnaCodingEnd=").append(cdnaCodingEnd);
 		sb.append(", cdsLength=").append(cdsLength);
-		sb.append(", proteinId='").append(proteinId).append('\'');
-		sb.append(", description='").append(description).append('\'');
-		sb.append(", proteinSequence='").append(proteinSequence).append('\'');
 		sb.append(", cDnaSequence='").append(cDnaSequence).append('\'');
+		sb.append(", proteinId='").append(proteinId).append('\'');
+		sb.append(", proteinSequence='").append(proteinSequence).append('\'');
+		sb.append(", description='").append(description).append('\'');
+		sb.append(", version=").append(version);
+		sb.append(", source='").append(source).append('\'');
+		sb.append(", supportLevel='").append(supportLevel).append('\'');
+		sb.append(", exons=").append(exons);
 		sb.append(", xrefs=").append(xrefs);
 		sb.append(", tfbs=").append(tfbs);
-		sb.append(", exons=").append(exons);
 		sb.append(", annotationFlags=").append(annotationFlags);
 		sb.append(", annotation=").append(annotation);
 		sb.append('}');
@@ -213,6 +248,33 @@ public class Transcript implements Serializable {
 
 	public Transcript setStrand(String strand) {
 		this.strand = strand;
+		return this;
+	}
+
+	public int getVersion() {
+		return version;
+	}
+
+	public Transcript setVersion(int version) {
+		this.version = version;
+		return this;
+	}
+
+	public String getSource() {
+		return source;
+	}
+
+	public Transcript setSource(String source) {
+		this.source = source;
+		return this;
+	}
+
+	public String getSupportLevel() {
+		return supportLevel;
+	}
+
+	public Transcript setSupportLevel(String supportLevel) {
+		this.supportLevel = supportLevel;
 		return this;
 	}
 
