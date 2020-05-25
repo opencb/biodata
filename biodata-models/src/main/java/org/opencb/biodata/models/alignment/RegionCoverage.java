@@ -12,59 +12,7 @@ public class RegionCoverage extends Region {
 
     private int windowSize;
     private double[] values;
-    private Stats stats;
-
-    public class Stats {
-        private int min;
-        private int max;
-        private double avg;
-
-        public Stats() {
-        }
-
-        public Stats(int min, int max, double avg) {
-            this.min = min;
-            this.max = max;
-            this.avg = avg;
-        }
-
-        @Override
-        public String toString() {
-            final StringBuilder sb = new StringBuilder("Stats{");
-            sb.append("min=").append(min);
-            sb.append(", max=").append(max);
-            sb.append(", avg=").append(avg);
-            sb.append('}');
-            return sb.toString();
-        }
-
-        public int getMin() {
-            return min;
-        }
-
-        public Stats setMin(int min) {
-            this.min = min;
-            return this;
-        }
-
-        public int getMax() {
-            return max;
-        }
-
-        public Stats setMax(int max) {
-            this.max = max;
-            return this;
-        }
-
-        public double getAvg() {
-            return avg;
-        }
-
-        public Stats setAvg(double avg) {
-            this.avg = avg;
-            return this;
-        }
-    }
+    private RegionCoverageStats stats;
 
     public RegionCoverage() {
     }
@@ -86,9 +34,18 @@ public class RegionCoverage extends Region {
 
     public RegionCoverage(Region region, int windowSize, double[] values) {
         super(region.getChromosome(), region.getStart(), region.getEnd());
+
         this.windowSize = windowSize;
         this.values = values;
         updateStats();
+    }
+
+    public RegionCoverage(Region region, int windowSize, double[] values, RegionCoverageStats stats) {
+        super(region.getChromosome(), region.getStart(), region.getEnd());
+
+        this.windowSize = windowSize;
+        this.values = values;
+        this.stats = stats;
     }
 
     public void updateStats() {
@@ -105,7 +62,7 @@ public class RegionCoverage extends Region {
                 }
                 agg += value;
             }
-            stats = new Stats((int) Math.round(min), (int) Math.round(max), agg / values.length);
+            stats = new RegionCoverageStats((int) Math.round(min), (int) Math.round(max), agg / values.length);
         }
     }
 
@@ -154,11 +111,11 @@ public class RegionCoverage extends Region {
         return this;
     }
 
-    public Stats getStats() {
+    public RegionCoverageStats getStats() {
         return stats;
     }
 
-    public RegionCoverage setStats(Stats stats) {
+    public RegionCoverage setStats(RegionCoverageStats stats) {
         this.stats = stats;
         return this;
     }

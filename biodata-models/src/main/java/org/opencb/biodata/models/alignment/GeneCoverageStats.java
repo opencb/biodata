@@ -8,7 +8,7 @@ public class GeneCoverageStats {
     private String sampleId;
 
     private String geneName;
-    List<TranscriptCoverageStats> stats;
+    private List<TranscriptCoverageStats> stats;
 
     public GeneCoverageStats() {
     }

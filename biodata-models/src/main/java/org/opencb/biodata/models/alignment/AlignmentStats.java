@@ -3,6 +3,7 @@ package org.opencb.biodata.models.alignment;
 import java.util.List;
 
 public class AlignmentStats {
+    
     private String fileId;
     private String sampleId;
     private int rawTotalSequences;
