@@ -1,7 +1,6 @@
 package org.opencb.biodata.models.clinical;
 
 public class MutationalSignature {
-
     private Signature signature;
     private Fitting fitting;
 
