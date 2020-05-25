@@ -227,10 +227,10 @@ public class DiseasePanel {
 
         public VariantPanel(String id, List<Xref> xrefs, ModeOfInheritance modeOfInheritance, Penetrance penetrance,
                             Confidence confidence, List<String> evidences, List<String> publications,
-                            List<OntologyTerm> phenotypes, List<Coordinate> coordinates, Cancer cancer,
+                            List<OntologyTerm> phenotypes, List<Coordinate> coordinates, CancerPanel cancerPanel,
                             String reference, String alternate) {
             super(id, xrefs, modeOfInheritance, penetrance, confidence, evidences, publications, phenotypes,
-                    coordinates, cancer);
+                    coordinates, cancerPanel);
             this.reference = reference;
             this.alternate = alternate;
         }
@@ -334,14 +334,14 @@ public class DiseasePanel {
         protected List<String> publications;
         protected List<OntologyTerm> phenotypes;
         protected List<Coordinate> coordinates;
-        protected Cancer cancer;
+        protected CancerPanel cancer;
 
         public Common() {
         }
 
         public Common(String id, List<Xref> xrefs, ModeOfInheritance modeOfInheritance, Penetrance penetrance,
                       Confidence confidence, List<String> evidences, List<String> publications,
-                      List<OntologyTerm> phenotypes, List<Coordinate> coordinates, Cancer cancer) {
+                      List<OntologyTerm> phenotypes, List<Coordinate> coordinates, CancerPanel cancerPanel) {
             this.id = id;
             this.xrefs = xrefs;
             this.modeOfInheritance = modeOfInheritance;
@@ -351,7 +351,7 @@ public class DiseasePanel {
             this.publications = publications;
             this.phenotypes = phenotypes;
             this.coordinates = coordinates;
-            this.cancer = cancer;
+            this.cancer = cancerPanel;
         }
 
         @Override
@@ -452,12 +452,12 @@ public class DiseasePanel {
             return this;
         }
 
-        public Cancer getCancer() {
+        public CancerPanel getCancer() {
             return cancer;
         }
 
-        public Common setCancer(Cancer cancer) {
-            this.cancer = cancer;
+        public Common setCancer(CancerPanel cancerPanel) {
+            this.cancer = cancerPanel;
             return this;
         }
     }
@@ -475,11 +475,11 @@ public class DiseasePanel {
 
         public RegionPanel(String name, List<Xref> xrefs, ModeOfInheritance modeOfInheritance, Penetrance penetrance,
                            Confidence confidence, List<String> evidences, List<String> publications,
-                           List<OntologyTerm> phenotypes, List<Coordinate> coordinates, Cancer cancer,
+                           List<OntologyTerm> phenotypes, List<Coordinate> coordinates, CancerPanel cancerPanel,
                            String description, VariantType typeOfVariants, String haploinsufficiencyScore,
                            String triplosensitivityScore, int requiredOverlapPercentage) {
             super(name, xrefs, modeOfInheritance, penetrance, confidence, evidences, publications, phenotypes,
-                    coordinates, cancer);
+                    coordinates, cancerPanel);
             this.description = description;
             this.typeOfVariants = typeOfVariants;
             this.haploinsufficiencyScore = haploinsufficiencyScore;
@@ -571,10 +571,10 @@ public class DiseasePanel {
 
         public STR(String id, List<Xref> xrefs, ModeOfInheritance modeOfInheritance, Penetrance penetrance,
                    Confidence confidence, List<String> evidences, List<String> publications,
-                   List<OntologyTerm> phenotypes, List<Coordinate> coordinates, Cancer cancer, String repeatedSequence,
+                   List<OntologyTerm> phenotypes, List<Coordinate> coordinates, CancerPanel cancerPanel, String repeatedSequence,
                    int normalRepeats, int pathogenicRepeats) {
             super(id, xrefs, modeOfInheritance, penetrance, confidence, evidences, publications, phenotypes,
-                    coordinates, cancer);
+                    coordinates, cancerPanel);
             this.repeatedSequence = repeatedSequence;
             this.normalRepeats = normalRepeats;
             this.pathogenicRepeats = pathogenicRepeats;
@@ -640,9 +640,9 @@ public class DiseasePanel {
         public GenePanel(String id, String name, List<Xref> xrefs, ModeOfInheritance modeOfInheritance,
                          Penetrance penetrance, Confidence confidence, List<String> evidences,
                          List<String> publications, List<OntologyTerm> phenotypes, List<Coordinate> coordinates,
-                         Cancer cancer) {
+                         CancerPanel cancerPanel) {
             super(id, xrefs, modeOfInheritance, penetrance, confidence, evidences, publications, phenotypes,
-                    coordinates, cancer);
+                    coordinates, cancerPanel);
             this.name = name;
         }
 

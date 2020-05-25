@@ -4,7 +4,7 @@ import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.RoleIn
 
 import java.util.List;
 
-public class Cancer {
+public class CancerPanel {
 
     private boolean somatic;
     private boolean germline;
@@ -14,11 +14,11 @@ public class Cancer {
     private List<String> germlineTumourTypes;
     private List<String> fusionPartners;
 
-    public Cancer() {
+    public CancerPanel() {
     }
 
-    public Cancer(boolean somatic, boolean germline, RoleInCancer role, List<String> tissues,
-                  List<String> somaticTumourTypes, List<String> germlineTumourTypes, List<String> fusionPartners) {
+    public CancerPanel(boolean somatic, boolean germline, RoleInCancer role, List<String> tissues,
+                       List<String> somaticTumourTypes, List<String> germlineTumourTypes, List<String> fusionPartners) {
         this.somatic = somatic;
         this.germline = germline;
         this.role = role;
@@ -46,7 +46,7 @@ public class Cancer {
         return somatic;
     }
 
-    public Cancer setSomatic(boolean somatic) {
+    public CancerPanel setSomatic(boolean somatic) {
         this.somatic = somatic;
         return this;
     }
@@ -55,7 +55,7 @@ public class Cancer {
         return germline;
     }
 
-    public Cancer setGermline(boolean germline) {
+    public CancerPanel setGermline(boolean germline) {
         this.germline = germline;
         return this;
     }
@@ -64,7 +64,7 @@ public class Cancer {
         return role;
     }
 
-    public Cancer setRole(RoleInCancer role) {
+    public CancerPanel setRole(RoleInCancer role) {
         this.role = role;
         return this;
     }
@@ -73,7 +73,7 @@ public class Cancer {
         return tissues;
     }
 
-    public Cancer setTissues(List<String> tissues) {
+    public CancerPanel setTissues(List<String> tissues) {
         this.tissues = tissues;
         return this;
     }
@@ -82,7 +82,7 @@ public class Cancer {
         return somaticTumourTypes;
     }
 
-    public Cancer setSomaticTumourTypes(List<String> somaticTumourTypes) {
+    public CancerPanel setSomaticTumourTypes(List<String> somaticTumourTypes) {
         this.somaticTumourTypes = somaticTumourTypes;
         return this;
     }
@@ -91,7 +91,7 @@ public class Cancer {
         return germlineTumourTypes;
     }
 
-    public Cancer setGermlineTumourTypes(List<String> germlineTumourTypes) {
+    public CancerPanel setGermlineTumourTypes(List<String> germlineTumourTypes) {
         this.germlineTumourTypes = germlineTumourTypes;
         return this;
     }
@@ -100,7 +100,7 @@ public class Cancer {
         return fusionPartners;
     }
 
-    public Cancer setFusionPartners(List<String> fusionPartners) {
+    public CancerPanel setFusionPartners(List<String> fusionPartners) {
         this.fusionPartners = fusionPartners;
         return this;
     }

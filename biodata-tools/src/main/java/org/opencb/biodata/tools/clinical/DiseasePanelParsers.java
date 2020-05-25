@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
-import org.opencb.biodata.models.clinical.interpretation.Cancer;
+import org.opencb.biodata.models.clinical.interpretation.CancerPanel;
 import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty;
 import org.opencb.biodata.models.clinical.interpretation.DiseasePanel;
 import org.opencb.biodata.models.core.OntologyTerm;
@@ -49,7 +49,7 @@ public class DiseasePanelParsers {
 
                 DiseasePanel.GenePanel genePanel = new DiseasePanel.GenePanel("", "", new LinkedList<>(),
                         ClinicalProperty.ModeOfInheritance.UNKNOWN, null, null, new LinkedList<>(), new LinkedList<>(),
-                        new LinkedList<>(), new LinkedList<>(), new Cancer(false, false, null, new LinkedList<>(),
+                        new LinkedList<>(), new LinkedList<>(), new CancerPanel(false, false, null, new LinkedList<>(),
                         new LinkedList<>(), new LinkedList<>(), new LinkedList<>()));
                 for (int i = 0; i < splittedLine.length; i++) {
                     String value = StringUtils.strip(splittedLine[i], "\"'");
