@@ -40,7 +40,7 @@ public class Gene implements Serializable {
     private int version;
     private String description;
     private List<Transcript> transcripts;
-    private MiRNAGene mirna;
+    private MiRnaGene mirna;
     private GeneAnnotation annotation;
 
     private static final long serialVersionUID = 5804770440067183880L;
@@ -50,7 +50,7 @@ public class Gene implements Serializable {
 
     @Deprecated
     public Gene(String id, String name, String biotype, String status, String chromosome, Integer start, Integer end,
-                String strand, String source, String description, List<Transcript> transcripts, MiRNAGene mirna,
+                String strand, String source, String description, List<Transcript> transcripts, MiRnaGene mirna,
                 List<Expression> expressionValues, List<GeneDrugInteraction> drugInteractions) {
         super();
         this.id = id;
@@ -70,7 +70,7 @@ public class Gene implements Serializable {
 
     @Deprecated
 	public Gene(String id, String name, String biotype, String status, String chromosome, Integer start, Integer end,
-				String strand, String source, String description, List<Transcript> transcripts, MiRNAGene mirna,
+				String strand, String source, String description, List<Transcript> transcripts, MiRnaGene mirna,
 				List<Expression> expressionValueList) {
 		this(id, name, biotype, status, chromosome, start, end, strand, source, description, transcripts, mirna,
 				expressionValueList, null);
@@ -78,14 +78,14 @@ public class Gene implements Serializable {
 
     @Deprecated
     public Gene(String id, String name, String biotype, String status, String chromosome, Integer start, Integer end,
-                String strand, String source, String description, List<Transcript> transcripts, MiRNAGene mirna, GeneAnnotation annotation) {
+                String strand, String source, String description, List<Transcript> transcripts, MiRnaGene mirna, GeneAnnotation annotation) {
         this(id, name, biotype, status, chromosome, start, end, strand, source, description, transcripts, mirna, null, null);
         this.annotation = annotation;
     }
 
     @Deprecated
     public Gene(String id, String name, String chromosome, int start, int end, String strand, String biotype, String status, String source,
-                String description, List<Transcript> transcripts, MiRNAGene mirna, GeneAnnotation annotation) {
+                String description, List<Transcript> transcripts, MiRnaGene mirna, GeneAnnotation annotation) {
         this.id = id;
         this.name = name;
         this.chromosome = chromosome;
@@ -102,7 +102,7 @@ public class Gene implements Serializable {
     }
 
     public Gene(String id, String name, String chromosome, int start, int end, String strand, int version, String biotype, String status,
-                String source, String description, List<Transcript> transcripts, MiRNAGene mirna, GeneAnnotation annotation) {
+                String source, String description, List<Transcript> transcripts, MiRnaGene mirna, GeneAnnotation annotation) {
         this.id = id;
         this.name = name;
         this.chromosome = chromosome;
@@ -248,11 +248,11 @@ public class Gene implements Serializable {
         return this;
     }
 
-    public MiRNAGene getMirna() {
+    public MiRnaGene getMirna() {
         return mirna;
     }
 
-    public Gene setMirna(MiRNAGene mirna) {
+    public Gene setMirna(MiRnaGene mirna) {
         this.mirna = mirna;
         return this;
     }

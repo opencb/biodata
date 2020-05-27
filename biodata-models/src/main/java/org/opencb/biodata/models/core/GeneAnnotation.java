@@ -37,8 +37,8 @@ public class GeneAnnotation {
     public GeneAnnotation() {
     }
 
-    public GeneAnnotation(List<Expression> expression, List<GeneTraitAssociation> diseases, List<GeneDrugInteraction> drugs,
-                          List<Constraint> constraints, List<MiRnaTarget> targets) {
+    public GeneAnnotation(List<Expression> expression, List<GeneTraitAssociation> diseases,
+                          List<GeneDrugInteraction> drugs, List<Constraint> constraints, List<MiRnaTarget> targets) {
         this.expression = expression;
         this.diseases = diseases;
         this.drugs = drugs;

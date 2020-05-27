@@ -23,28 +23,33 @@ import java.util.List;
 
 public class MiRnaTarget {
 
-    String id;
-    String sourceId; // tarbase ID
-    List<TargetGene> targets;
-    String source; // mirTarbase
+    private String id;
 
-    public MiRnaTarget(String id, String sourceId, List<TargetGene> targets, String source) {
-        this.id = id;
-        this.sourceId = sourceId;
-        this.targets = targets;
-        this.source = source;
-    }
+    /**
+     * The TarBase ID
+     */
+    private String source; // mirTarbase
+    private String sourceId;
+    private List<TargetGene> targets;
 
     public MiRnaTarget() {
+
+    }
+
+    public MiRnaTarget(String id, String source, String sourceId, List<TargetGene> targets) {
+        this.id = id;
+        this.source = source;
+        this.sourceId = sourceId;
+        this.targets = targets;
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("MiRnaTarget{");
         sb.append("id='").append(id).append('\'');
+        sb.append(", source='").append(source).append('\'');
         sb.append(", sourceId='").append(sourceId).append('\'');
         sb.append(", targets=").append(targets);
-        sb.append(", source='").append(source).append('\'');
         sb.append('}');
         return sb.toString();
     }
@@ -55,6 +60,15 @@ public class MiRnaTarget {
 
     public MiRnaTarget setId(String id) {
         this.id = id;
+        return this;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public MiRnaTarget setSource(String source) {
+        this.source = source;
         return this;
     }
 
@@ -73,15 +87,6 @@ public class MiRnaTarget {
 
     public MiRnaTarget setTargets(List<TargetGene> targets) {
         this.targets = targets;
-        return this;
-    }
-
-    public String getSource() {
-        return source;
-    }
-
-    public MiRnaTarget setSource(String source) {
-        this.source = source;
         return this;
     }
 }

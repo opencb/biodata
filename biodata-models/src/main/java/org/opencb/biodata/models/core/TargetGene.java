@@ -22,9 +22,9 @@ package org.opencb.biodata.models.core;
 
 public class TargetGene {
 
-    String experiment;
-    String evidence; // support type
-    String pubmed;
+    private String experiment;
+    private String evidence; // support type
+    private String pubmed;
 
     public TargetGene() {
 
