@@ -59,40 +59,44 @@ public class GenomicScoreRegion<T> {
         return chromosome;
     }
 
-    public void setChromosome(String chromosome) {
+    public GenomicScoreRegion<T> setChromosome(String chromosome) {
         this.chromosome = chromosome;
+        return this;
     }
 
     public int getStart() {
         return start;
     }
 
-    public void setStart(int start) {
+    public GenomicScoreRegion<T> setStart(int start) {
         this.start = start;
+        return this;
     }
 
     public int getEnd() {
         return end;
     }
 
-    public void setEnd(int end) {
+    public GenomicScoreRegion<T> setEnd(int end) {
         this.end = end;
+        return this;
     }
 
     public String getSource() {
         return source;
     }
 
-    public void setSource(String source) {
+    public GenomicScoreRegion<T> setSource(String source) {
         this.source = source;
+        return this;
     }
 
     public List<T> getValues() {
         return values;
     }
 
-    public void setValues(List<T> values) {
+    public GenomicScoreRegion<T> setValues(List<T> values) {
         this.values = values;
+        return this;
     }
-
 }

@@ -43,63 +43,67 @@ public class GenomeSequenceChunk {
         this.assembly = assembly;
 		this.sequence = sequence;
 	}
-	
-	
+
 	public String getSequenceName() {
 		return sequenceName;
 	}
-	public void setSequenceName(String sequenceName) {
+
+	public GenomeSequenceChunk setSequenceName(String sequenceName) {
 		this.sequenceName = sequenceName;
+		return this;
 	}
 
-	
 	public String getChunkId() {
 		return chunkId;
 	}
 
-	public void setChunkId(String chunkId) {
+	public GenomeSequenceChunk setChunkId(String chunkId) {
 		this.chunkId = chunkId;
+		return this;
 	}
 
-	
 	public int getStart() {
 		return start;
 	}
-	public void setStart(int start) {
+
+	public GenomeSequenceChunk setStart(int start) {
 		this.start = start;
+		return this;
 	}
 
-	
 	public int getEnd() {
 		return end;
 	}
-	public void setEnd(int end) {
+
+	public GenomeSequenceChunk setEnd(int end) {
 		this.end = end;
+		return this;
 	}
 
+	public String getSequenceType() {
+		return sequenceType;
+	}
 
-    public String getSequenceType() {
-        return sequenceType;
-    }
+	public GenomeSequenceChunk setSequenceType(String sequenceType) {
+		this.sequenceType = sequenceType;
+		return this;
+	}
 
-    public void setSequenceType(String sequenceType) {
-        this.sequenceType = sequenceType;
-    }
+	public String getAssembly() {
+		return assembly;
+	}
 
-    public String getAssembly() {
-        return assembly;
-    }
-
-    public void setAssembly(String assembly) {
-        this.assembly = assembly;
-    }
+	public GenomeSequenceChunk setAssembly(String assembly) {
+		this.assembly = assembly;
+		return this;
+	}
 
 	public String getSequence() {
 		return sequence;
 	}
 
-	public void setSequence(String sequence) {
+	public GenomeSequenceChunk setSequence(String sequence) {
 		this.sequence = sequence;
+		return this;
 	}
-
 }

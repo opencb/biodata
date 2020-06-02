@@ -71,48 +71,66 @@ public class GenomeSequenceFeature {
         return sb.toString();
     }
 
+    public String getSequenceName() {
+        return sequenceName;
+    }
+
+    public GenomeSequenceFeature setSequenceName(String sequenceName) {
+        this.sequenceName = sequenceName;
+        return this;
+    }
+
     public int getStart() {
         return start;
     }
 
-    public String getSequenceName() {
-        return sequenceName;
+    public GenomeSequenceFeature setStart(int start) {
+        this.start = start;
+        return this;
     }
 
     public int getEnd() {
         return end;
     }
 
+    public GenomeSequenceFeature setEnd(int end) {
+        this.end = end;
+        return this;
+    }
+
     public int getStrand() {
         return strand;
     }
 
-    public void setStrand(int strand) {
+    public GenomeSequenceFeature setStrand(int strand) {
         this.strand = strand;
-    }
-
-    public String getSequence() {
-        return sequence;
-    }
-
-    public void setSequence(String value) {
-        sequence = value;
+        return this;
     }
 
     public String getSequenceType() {
         return sequenceType;
     }
 
-    public void setSequenceType(String sequenceType) {
+    public GenomeSequenceFeature setSequenceType(String sequenceType) {
         this.sequenceType = sequenceType;
+        return this;
     }
 
     public String getAssembly() {
         return assembly;
     }
 
-    public void setAssembly(String assembly) {
+    public GenomeSequenceFeature setAssembly(String assembly) {
         this.assembly = assembly;
+        return this;
     }
 
+    public String getSequence() {
+        return sequence;
+    }
+
+    public GenomeSequenceFeature setSequence(String sequence) {
+        this.sequence = sequence;
+        return this;
+    }
 }
