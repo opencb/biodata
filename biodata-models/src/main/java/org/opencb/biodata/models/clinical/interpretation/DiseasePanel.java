@@ -20,8 +20,8 @@
 package org.opencb.biodata.models.clinical.interpretation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.Confidence;
-import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.ModeOfInheritance;
+import org.opencb.biodata.models.clinical.ClinicalProperty.Confidence;
+import org.opencb.biodata.models.clinical.ClinicalProperty.ModeOfInheritance;
 import org.opencb.biodata.models.core.OntologyTerm;
 import org.opencb.biodata.models.core.Xref;
 
@@ -30,7 +30,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
-import static org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.Penetrance;
+import static org.opencb.biodata.models.clinical.ClinicalProperty.Penetrance;
 
 public class DiseasePanel {
 

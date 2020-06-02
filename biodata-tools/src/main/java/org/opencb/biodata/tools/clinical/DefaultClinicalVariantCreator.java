@@ -21,9 +21,9 @@ package org.opencb.biodata.tools.clinical;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty;
-import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.ModeOfInheritance;
-import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.Penetrance;
+import org.opencb.biodata.models.clinical.ClinicalProperty;
+import org.opencb.biodata.models.clinical.ClinicalProperty.ModeOfInheritance;
+import org.opencb.biodata.models.clinical.ClinicalProperty.Penetrance;
 import org.opencb.biodata.models.clinical.interpretation.ClinicalVariantEvidence;
 import org.opencb.biodata.models.clinical.interpretation.DiseasePanel;
 import org.opencb.biodata.models.clinical.interpretation.ClinicalVariant;

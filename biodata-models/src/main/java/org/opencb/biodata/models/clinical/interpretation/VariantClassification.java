@@ -20,6 +20,7 @@
 package org.opencb.biodata.models.clinical.interpretation;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.opencb.biodata.models.clinical.ClinicalProperty;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.*;
 

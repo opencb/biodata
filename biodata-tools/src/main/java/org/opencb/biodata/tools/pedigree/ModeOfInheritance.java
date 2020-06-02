@@ -5,7 +5,7 @@ import org.apache.commons.collections.ListUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.Penetrance;
+import org.opencb.biodata.models.clinical.ClinicalProperty.Penetrance;
 import org.opencb.biodata.models.clinical.pedigree.Member;
 import org.opencb.biodata.models.clinical.pedigree.Pedigree;
 import org.opencb.biodata.models.clinical.pedigree.PedigreeManager;

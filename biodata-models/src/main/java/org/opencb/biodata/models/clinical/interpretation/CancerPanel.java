@@ -1,6 +1,6 @@
 package org.opencb.biodata.models.clinical.interpretation;
 
-import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.RoleInCancer;
+import org.opencb.biodata.models.clinical.ClinicalProperty.RoleInCancer;
 
 import java.util.List;
 

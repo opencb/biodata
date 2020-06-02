@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.clinical.interpretation.CancerPanel;
-import org.opencb.biodata.models.clinical.interpretation.ClinicalProperty;
+import org.opencb.biodata.models.clinical.ClinicalProperty;
 import org.opencb.biodata.models.clinical.interpretation.DiseasePanel;
 import org.opencb.biodata.models.core.OntologyTerm;
 import org.opencb.biodata.models.core.Xref;

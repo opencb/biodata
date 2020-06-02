@@ -2,6 +2,7 @@ package org.opencb.biodata.models.clinical.interpretation;
 
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
+import org.opencb.biodata.models.clinical.ClinicalProperty;
 
 import java.util.Arrays;
 import java.util.List;

@@ -16,7 +16,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
-import static org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.Penetrance;
+import static org.opencb.biodata.models.clinical.ClinicalProperty.Penetrance;
 import static org.opencb.biodata.tools.pedigree.ModeOfInheritance.*;
 
 public class ModeOfInheritanceTest {

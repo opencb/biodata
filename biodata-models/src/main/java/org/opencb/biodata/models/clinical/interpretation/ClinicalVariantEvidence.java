@@ -25,7 +25,7 @@ import org.opencb.biodata.models.variant.avro.SequenceOntologyTerm;
 import java.util.Collections;
 import java.util.List;
 
-import static org.opencb.biodata.models.clinical.interpretation.ClinicalProperty.*;
+import static org.opencb.biodata.models.clinical.ClinicalProperty.*;
 
 public class ClinicalVariantEvidence {
 
