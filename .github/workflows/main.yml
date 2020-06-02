@@ -61,7 +61,7 @@ jobs:
           maven_args: -DskipTests
 #      - name: Get biodata version
 #        id: get_version
-#        run: echo ::set-output name=VERSION::2.0.0-SNAPSHOT
+#        run: echo ::set-output name=VERSION::2.0.0
 #      - name: Generate Javadocs
 #        run: mvn javadoc:aggregate
 #      - name: Deploy Javadocs
