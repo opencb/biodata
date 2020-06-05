@@ -24,8 +24,17 @@ import java.util.List;
 
 public class MiRnaGene {
 
+	/**
+	 * miRBase accession, e.g. MI0000001
+	 */
 	private String accession;
+	/**
+	 * miRBase id, example: hsa-let-7a-1
+	 */
 	private String id;
+	/**
+	 * status, e.g. UNCHANGED
+	 */
 	private String status;
 	private String sequence;
 	private List<MiRnaMature> matures;

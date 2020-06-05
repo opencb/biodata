@@ -23,14 +23,24 @@ import java.util.List;
 
 public class MiRnaTarget {
 
-    private String id;
-
     /**
-     * The TarBase ID
+     * miRTarBase ID, e.g. MIRT735377
      */
-    private String source; // mirTarbase
+    private String id;
+    /**
+     * Always miRTarBase right now
+     */
+    private String source;
+    /**
+     * The ID, e.g. hsa-miR-17-5p
+     */
     private String sourceId;
+    /**
+     * evidence
+     */
     private List<TargetGene> targets;
+
+
 
     public MiRnaTarget() {
 

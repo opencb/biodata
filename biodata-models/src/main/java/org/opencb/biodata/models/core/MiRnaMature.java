@@ -21,7 +21,13 @@ package org.opencb.biodata.models.core;
 
 public class MiRnaMature {
 
+    /**
+     * miRBase accession, e.g. MIMAT0000062
+     */
     private String accession;
+    /**
+     * miRBase id, e.g. hsa-let-7a-5p
+     */
     private String id;
     private String sequence;
     private int start;
