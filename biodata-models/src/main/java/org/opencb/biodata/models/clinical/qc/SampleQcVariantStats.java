@@ -25,6 +25,7 @@ public class SampleQcVariantStats {
 
     private String id;
     private String sampleId;
+    private String description;
     private Map<String, Object> query;
 
     private Signature signature;
@@ -33,10 +34,11 @@ public class SampleQcVariantStats {
     public SampleQcVariantStats() {
     }
 
-    public SampleQcVariantStats(String id, String sampleId, Map<String, Object> query, Signature signature,
+    public SampleQcVariantStats(String id, String sampleId, String description, Map<String, Object> query, Signature signature,
                                 QcVariantStats qcVariantStats) {
         this.id = id;
         this.sampleId = sampleId;
+        this.description = description;
         this.query = query;
         this.signature = signature;
         this.qcVariantStats = qcVariantStats;
@@ -47,6 +49,7 @@ public class SampleQcVariantStats {
         final StringBuilder sb = new StringBuilder("SampleQcVariantStats{");
         sb.append("id='").append(id).append('\'');
         sb.append(", sampleId='").append(sampleId).append('\'');
+        sb.append(", description='").append(description).append('\'');
         sb.append(", query=").append(query);
         sb.append(", signature=").append(signature);
         sb.append(", qcVariantStats=").append(qcVariantStats);
@@ -69,6 +72,15 @@ public class SampleQcVariantStats {
 
     public SampleQcVariantStats setSampleId(String sampleId) {
         this.sampleId = sampleId;
+        return this;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public SampleQcVariantStats setDescription(String description) {
+        this.description = description;
         return this;
     }
 
