@@ -2,6 +2,7 @@ package org.opencb.biodata.models.alignment;
 
 public class LowCoverageRegion {
 
+    private String chromosome;
     private int start;
     private int end;
     private double depthAvg;
@@ -10,7 +11,8 @@ public class LowCoverageRegion {
     public LowCoverageRegion() {
     }
 
-    public LowCoverageRegion(int start, int end, double depthAvg, double depthMin) {
+    public LowCoverageRegion(String chromosome, int start, int end, double depthAvg, double depthMin) {
+        this.chromosome = chromosome;
         this.start = start;
         this.end = end;
         this.depthAvg = depthAvg;
@@ -20,12 +22,22 @@ public class LowCoverageRegion {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("LowCoverageRegion{");
-        sb.append("start=").append(start);
+        sb.append("chromosome='").append(chromosome).append('\'');
+        sb.append(", start=").append(start);
         sb.append(", end=").append(end);
         sb.append(", depthAvg=").append(depthAvg);
         sb.append(", depthMin=").append(depthMin);
         sb.append('}');
         return sb.toString();
+    }
+
+    public String getChromosome() {
+        return chromosome;
+    }
+
+    public LowCoverageRegion setChromosome(String chromosome) {
+        this.chromosome = chromosome;
+        return this;
     }
 
     public int getStart() {
