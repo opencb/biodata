@@ -48,5 +48,12 @@ public class OboFileParserTest {
         assertEquals("UMLS:test", term1.getXrefs().get(1));
         assertEquals("HP:0001507", term1.getParents().get(0));
         assertEquals("HP:0000000", term1.getParents().get(1));
+
+
+        bufferedReader = FileUtils.newBufferedReader(Paths.get(getClass()
+                .getResource("/go-basic.obo").getPath()));
+        parser = new OboParser();
+        terms = parser.parseOBO(bufferedReader, "GO");
+        assertEquals(3112, terms.size());
     }
 }

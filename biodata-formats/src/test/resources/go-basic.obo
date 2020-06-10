@@ -21485,3 +21485,8 @@ synonym: "cytoplasmic PRR signaling pathway" EXACT []
 is_a: GO:0002221 ! pattern recognition receptor signaling pathway
 is_a: GO:0030522 ! intracellular receptor signaling pathway
 is_a: GO:0035556 ! intracellular signal transduction
+
+[Term]
+id: GO:0005829
+name: cytosol
+namespace: cellular_component
