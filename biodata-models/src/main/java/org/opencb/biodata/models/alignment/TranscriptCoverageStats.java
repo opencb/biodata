@@ -12,16 +12,18 @@ public class TranscriptCoverageStats {
     private int start;
     private int end;
     private int length; // as the sum of lengths of the exons
-    private double[] depths; // % coverage for 1x, 5x, 10x, 15x, 20x, 25x, 30x, 40x, 50x, 60x
+    private double[] depths; // % coverage for 1x, 5x, 10x, 15x, 20x, 25x, 30x, 40x, 50x, 60x, 75x, 100x
     private int lowCoverageThreshold;
     private List<LowCoverageRegion> lowCoverageRegions;
+    private List<ExonCoverageStats> exonStats;
 
     public TranscriptCoverageStats() {
-        depths = new double[10];
+        depths = new double[12];
     }
 
     public TranscriptCoverageStats(String id, String name, String biotype, String chromosome, int start, int end, int length,
-                                   double[] depths, int lowCoverageThreshold, List<LowCoverageRegion> lowCoverageRegions) {
+                                   double[] depths, int lowCoverageThreshold, List<LowCoverageRegion> lowCoverageRegions,
+                                   List<ExonCoverageStats> exonStats) {
         this.id = id;
         this.name = name;
         this.biotype = biotype;
@@ -32,6 +34,7 @@ public class TranscriptCoverageStats {
         this.depths = depths;
         this.lowCoverageThreshold = lowCoverageThreshold;
         this.lowCoverageRegions = lowCoverageRegions;
+        this.exonStats = exonStats;
     }
 
     @Override
@@ -47,6 +50,7 @@ public class TranscriptCoverageStats {
         sb.append(", depths=").append(Arrays.toString(depths));
         sb.append(", lowCoverageThreshold=").append(lowCoverageThreshold);
         sb.append(", lowCoverageRegions=").append(lowCoverageRegions);
+        sb.append(", exonStats=").append(exonStats);
         sb.append('}');
         return sb.toString();
     }
@@ -138,6 +142,15 @@ public class TranscriptCoverageStats {
 
     public TranscriptCoverageStats setLowCoverageRegions(List<LowCoverageRegion> lowCoverageRegions) {
         this.lowCoverageRegions = lowCoverageRegions;
+        return this;
+    }
+
+    public List<ExonCoverageStats> getExonStats() {
+        return exonStats;
+    }
+
+    public TranscriptCoverageStats setExonStats(List<ExonCoverageStats> exonStats) {
+        this.exonStats = exonStats;
         return this;
     }
 }
