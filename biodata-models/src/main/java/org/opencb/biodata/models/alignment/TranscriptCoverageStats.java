@@ -14,7 +14,7 @@ public class TranscriptCoverageStats {
     private int length; // as the sum of lengths of the exons
     private double[] depths; // % coverage for 1x, 5x, 10x, 15x, 20x, 25x, 30x, 40x, 50x, 60x, 75x, 100x
     private int lowCoverageThreshold;
-    private List<LowCoverageRegion> lowCoverageRegions;
+    private List<LowCoverageRegionStats> lowCoverageRegionStats;
     private List<ExonCoverageStats> exonStats;
 
     public TranscriptCoverageStats() {
@@ -22,7 +22,7 @@ public class TranscriptCoverageStats {
     }
 
     public TranscriptCoverageStats(String id, String name, String biotype, String chromosome, int start, int end, int length,
-                                   double[] depths, int lowCoverageThreshold, List<LowCoverageRegion> lowCoverageRegions,
+                                   double[] depths, int lowCoverageThreshold, List<LowCoverageRegionStats> lowCoverageRegionStats,
                                    List<ExonCoverageStats> exonStats) {
         this.id = id;
         this.name = name;
@@ -33,7 +33,7 @@ public class TranscriptCoverageStats {
         this.length = length;
         this.depths = depths;
         this.lowCoverageThreshold = lowCoverageThreshold;
-        this.lowCoverageRegions = lowCoverageRegions;
+        this.lowCoverageRegionStats = lowCoverageRegionStats;
         this.exonStats = exonStats;
     }
 
@@ -49,7 +49,7 @@ public class TranscriptCoverageStats {
         sb.append(", length=").append(length);
         sb.append(", depths=").append(Arrays.toString(depths));
         sb.append(", lowCoverageThreshold=").append(lowCoverageThreshold);
-        sb.append(", lowCoverageRegions=").append(lowCoverageRegions);
+        sb.append(", lowCoverageRegionStats=").append(lowCoverageRegionStats);
         sb.append(", exonStats=").append(exonStats);
         sb.append('}');
         return sb.toString();
@@ -136,12 +136,12 @@ public class TranscriptCoverageStats {
         return this;
     }
 
-    public List<LowCoverageRegion> getLowCoverageRegions() {
-        return lowCoverageRegions;
+    public List<LowCoverageRegionStats> getLowCoverageRegionStats() {
+        return lowCoverageRegionStats;
     }
 
-    public TranscriptCoverageStats setLowCoverageRegions(List<LowCoverageRegion> lowCoverageRegions) {
-        this.lowCoverageRegions = lowCoverageRegions;
+    public TranscriptCoverageStats setLowCoverageRegionStats(List<LowCoverageRegionStats> lowCoverageRegionStats) {
+        this.lowCoverageRegionStats = lowCoverageRegionStats;
         return this;
     }
 

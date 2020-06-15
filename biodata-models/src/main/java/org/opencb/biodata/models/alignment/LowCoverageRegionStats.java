@@ -1,6 +1,6 @@
 package org.opencb.biodata.models.alignment;
 
-public class LowCoverageRegion {
+public class LowCoverageRegionStats {
 
     private String chromosome;
     private int start;
@@ -8,10 +8,10 @@ public class LowCoverageRegion {
     private double depthAvg;
     private double depthMin;
 
-    public LowCoverageRegion() {
+    public LowCoverageRegionStats() {
     }
 
-    public LowCoverageRegion(String chromosome, int start, int end, double depthAvg, double depthMin) {
+    public LowCoverageRegionStats(String chromosome, int start, int end, double depthAvg, double depthMin) {
         this.chromosome = chromosome;
         this.start = start;
         this.end = end;
@@ -21,7 +21,7 @@ public class LowCoverageRegion {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("LowCoverageRegion{");
+        final StringBuilder sb = new StringBuilder("LowCoverageRegionStats{");
         sb.append("chromosome='").append(chromosome).append('\'');
         sb.append(", start=").append(start);
         sb.append(", end=").append(end);
@@ -35,7 +35,7 @@ public class LowCoverageRegion {
         return chromosome;
     }
 
-    public LowCoverageRegion setChromosome(String chromosome) {
+    public LowCoverageRegionStats setChromosome(String chromosome) {
         this.chromosome = chromosome;
         return this;
     }
@@ -44,7 +44,7 @@ public class LowCoverageRegion {
         return start;
     }
 
-    public LowCoverageRegion setStart(int start) {
+    public LowCoverageRegionStats setStart(int start) {
         this.start = start;
         return this;
     }
@@ -53,7 +53,7 @@ public class LowCoverageRegion {
         return end;
     }
 
-    public LowCoverageRegion setEnd(int end) {
+    public LowCoverageRegionStats setEnd(int end) {
         this.end = end;
         return this;
     }
@@ -62,7 +62,7 @@ public class LowCoverageRegion {
         return depthAvg;
     }
 
-    public LowCoverageRegion setDepthAvg(double depthAvg) {
+    public LowCoverageRegionStats setDepthAvg(double depthAvg) {
         this.depthAvg = depthAvg;
         return this;
     }
@@ -71,7 +71,7 @@ public class LowCoverageRegion {
         return depthMin;
     }
 
-    public LowCoverageRegion setDepthMin(double depthMin) {
+    public LowCoverageRegionStats setDepthMin(double depthMin) {
         this.depthMin = depthMin;
         return this;
     }
