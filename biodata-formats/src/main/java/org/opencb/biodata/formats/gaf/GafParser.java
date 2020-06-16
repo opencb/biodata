@@ -17,20 +17,51 @@
 package org.opencb.biodata.formats.gaf;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
+import org.opencb.biodata.formats.obo.OboParser;
 import org.opencb.biodata.models.core.AnnotationEvidence;
 import org.opencb.biodata.models.core.FeatureOntologyTermAnnotation;
+import org.opencb.biodata.models.core.OntologyTerm;
+import org.opencb.commons.utils.FileUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 public class GafParser {
 
-    public Map<String, List<FeatureOntologyTermAnnotation>> parseGaf(BufferedReader bufferedReader) throws IOException {
+    /**
+     * Assumes OBO file is next to the GAF file. If this is not true, the annotation will only include term
+     * ids. If you want term names, put the OBO file (go-basic.obo) in the same directory as the GAF.
+     *
+     * @param gaf go annotation file
+     * @return map from feature (e.g. transcript or protein) to the list of annotations
+     * @throws IOException if file can't be read
+     */
+    public Map<String, List<FeatureOntologyTermAnnotation>> parseGaf(Path gaf) throws IOException {
+        return parseGaf(gaf, null);
+    }
+
+    /**
+     * If no OBO file is provided, term.name will be empty.
+     *
+     * @param gaf go annotation file
+     * @param oboFile location of go-basic obo. if this is NULL, term.name will be empty
+     * @return map from feature (e.g. transcript or protein) to the list of annotations
+     * @throws IOException if file can't be read
+     */
+    public Map<String, List<FeatureOntologyTermAnnotation>> parseGaf(Path gaf, Path oboFile) throws IOException {
+
+        // if oboFile isn't specified, try to guess.
+        if (oboFile == null) {
+            gaf.getParent().getParent().resolve("go-basic.obo");
+        }
+        Map<String, String> goTerms = indexGO(oboFile);
 
         // protein + term --> evidence code + qualifier --> publications
         Map<MultiKey, Map<MultiKey, Set<String>>> transcriptTermToAnnotation = new HashMap();
-
+        BufferedReader bufferedReader = FileUtils.newBufferedReader(gaf);
         String line = null;
         while ((line = bufferedReader.readLine()) != null) {
             if (line.startsWith("!")) {
@@ -78,6 +109,7 @@ public class GafParser {
             MultiKey featureTermMultiKey = entry.getKey();
             String dbObjectId = featureTermMultiKey.getKeys()[0].toString();
             String goId = featureTermMultiKey.getKeys()[1].toString();
+            String goName = goTerms.get(goId);
             Map<MultiKey, Set<String>> codeToPublications = entry.getValue();
             List<AnnotationEvidence> evidenceList = new ArrayList<>();
             // for this protein + term, every evidence code + qualifier pair
@@ -92,11 +124,27 @@ public class GafParser {
                 AnnotationEvidence annotationEvidence = new AnnotationEvidence(evidenceCode, publications, qualifier);
                 evidenceList.add(annotationEvidence);
             }
-            FeatureOntologyTermAnnotation featureOntologyTermAnnotation = new FeatureOntologyTermAnnotation(goId, null, "GO", null,
+            FeatureOntologyTermAnnotation featureOntologyTermAnnotation = new FeatureOntologyTermAnnotation(goId, goName, "GO", null,
                     evidenceList);
             annotations.computeIfAbsent(dbObjectId, k -> new ArrayList<>()).add(featureOntologyTermAnnotation);
         }
         return annotations;
     }
+
+    private Map<String, String> indexGO(Path oboFile) throws IOException {
+        List<OntologyTerm> terms = new ArrayList<>();
+        Map<String, String> idToName = new HashMap<>();
+        if (oboFile != null && Files.exists(oboFile) && Files.size(oboFile) > 0) {
+            OboParser parser = new OboParser();
+            BufferedReader bufferedReader = FileUtils.newBufferedReader(oboFile);
+            terms = parser.parseOBO(bufferedReader, "Gene Ontology");
+        }
+
+        for (OntologyTerm term : terms) {
+            idToName.put(term.getId(), term.getName());
+        }
+        return idToName;
+    }
+
 }
 

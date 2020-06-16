@@ -38,10 +38,6 @@ public class OboParser {
     public OboParser() {
     }
 
-    public List<OntologyTerm> parseOBO(BufferedReader bufferedReader) throws IOException {
-        return parseOBO(bufferedReader, null);
-    }
-
     public List<OntologyTerm> parseOBO(Path path, String ontologyName) throws IOException {
         BufferedReader bufferedReader = FileUtils.newBufferedReader(path);
         return parseOBO(bufferedReader, ontologyName);

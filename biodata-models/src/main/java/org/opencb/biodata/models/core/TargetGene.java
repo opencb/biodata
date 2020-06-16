@@ -21,9 +21,17 @@
 package org.opencb.biodata.models.core;
 
 public class TargetGene {
-
+    /**
+     * Experiment information, e.g. Immunohistochemistry//Luciferase reporter assay//qRT-PCR//Western blot
+     */
     private String experiment;
+    /**
+     * support type, e.g. Functional MTI
+     */
     private String evidence; // support type
+    /**
+     * Pubmed ID
+     */
     private String pubmed;
 
     public TargetGene() {
