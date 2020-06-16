@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
-import org.opencb.biodata.models.clinical.interpretation.CancerPanel;
 import org.opencb.biodata.models.clinical.ClinicalProperty;
+import org.opencb.biodata.models.clinical.interpretation.CancerPanel;
 import org.opencb.biodata.models.clinical.interpretation.DiseasePanel;
 import org.opencb.biodata.models.core.OntologyTerm;
 import org.opencb.biodata.models.core.Xref;
@@ -182,6 +182,9 @@ public class DiseasePanelParsers {
                 }
                 panel.getGenes().add(genePanel);
             }
+
+            fillDefaultStats(panel);
+
             return panel;
         }
     }
@@ -218,15 +221,18 @@ public class DiseasePanelParsers {
             List<DiseasePanel.Coordinate> coordinates = new ArrayList<>();
 
             Map<String, Object> geneData = (Map) gene.get("gene_data");
-            Map<String, Object> ensemblGenes = (Map) geneData.get("ensembl_genes");
-            // Read coordinates
-            for (String assembly : ensemblGenes.keySet()) {
-                Map<String, Object> assemblyObject = (Map<String, Object>) ensemblGenes.get(assembly);
-                for (String version : assemblyObject.keySet()) {
-                    Map<String, Object> coordinateObject = (Map<String, Object>) assemblyObject.get(version);
-                    String correctAssembly = "GRch37".equals(assembly) ? "GRCh37" : "GRCh38";
-                    coordinates.add(new DiseasePanel.Coordinate(correctAssembly, String.valueOf(coordinateObject.get("location")),
-                            "Ensembl v" + version));
+            Object ensemblGenesObject = geneData.get("ensembl_genes");
+            if (ensemblGenesObject instanceof Map) {
+                Map<String, Object> ensemblGenes = (Map) geneData.get("ensembl_genes");
+                // Read coordinates
+                for (String assembly : ensemblGenes.keySet()) {
+                    Map<String, Object> assemblyObject = (Map<String, Object>) ensemblGenes.get(assembly);
+                    for (String version : assemblyObject.keySet()) {
+                        Map<String, Object> coordinateObject = (Map<String, Object>) assemblyObject.get(version);
+                        String correctAssembly = "GRch37".equals(assembly) ? "GRCh37" : "GRCh38";
+                        coordinates.add(new DiseasePanel.Coordinate(correctAssembly, String.valueOf(coordinateObject.get("location")),
+                                "Ensembl v" + version));
+                    }
                 }
             }
 
@@ -329,7 +335,20 @@ public class DiseasePanelParsers {
             diseasePanel.setTags(Collections.singletonList("cancer"));
         }
 
+        fillDefaultStats(diseasePanel);
+
         return diseasePanel;
+    }
+
+    static void fillDefaultStats(DiseasePanel panel) {
+        if (panel.getStats() == null || panel.getStats().isEmpty()) {
+            Map<String, Integer> stats = new HashMap<>();
+            stats.put("numberOfVariants", panel.getVariants() != null ? panel.getVariants().size() : 0);
+            stats.put("numberOfGenes", panel.getGenes() != null ? panel.getGenes().size() : 0);
+            stats.put("numberOfRegions", panel.getRegions() != null ? panel.getRegions().size() : 0);
+
+            panel.setStats(stats);
+        }
     }
 
     private static <T extends DiseasePanel.Common> void extractCommonInformationFromPanelApp(Map<String, Object> panelAppCommonMap, T common) {
@@ -341,21 +360,24 @@ public class DiseasePanelParsers {
 
         Map<String, Object> geneData = (Map) panelAppCommonMap.get("gene_data");
         if (geneData != null) {
-            Map<String, Object> ensemblGenes = (Map) geneData.get("ensembl_genes");
+            Object ensemblGenesObject = geneData.get("ensembl_genes");
+            if (ensemblGenesObject instanceof Map) {
+                Map<String, Object> ensemblGenes = (Map) geneData.get("ensembl_genes");
 
-            if (ensemblGenes.containsKey("GRch37")) {
-                ensemblGeneId = String.valueOf(((Map) ((Map) ensemblGenes.get("GRch37")).get("82")).get("ensembl_id"));
-            } else if (ensemblGenes.containsKey("GRch38")) {
-                ensemblGeneId = String.valueOf(((Map) ((Map) ensemblGenes.get("GRch38")).get("90")).get("ensembl_id"));
-            }
-
-            // read OMIM ID
-            if (geneData.containsKey("omim_gene") && geneData.get("omim_gene") != null) {
-                for (String omim : (List<String>) geneData.get("omim_gene")) {
-                    xrefs.add(new Xref(omim, "OMIM", "OMIM"));
+                if (ensemblGenes.containsKey("GRch37")) {
+                    ensemblGeneId = String.valueOf(((Map) ((Map) ensemblGenes.get("GRch37")).get("82")).get("ensembl_id"));
+                } else if (ensemblGenes.containsKey("GRch38")) {
+                    ensemblGeneId = String.valueOf(((Map) ((Map) ensemblGenes.get("GRch38")).get("90")).get("ensembl_id"));
                 }
+
+                // read OMIM ID
+                if (geneData.containsKey("omim_gene") && geneData.get("omim_gene") != null) {
+                    for (String omim : (List<String>) geneData.get("omim_gene")) {
+                        xrefs.add(new Xref(omim, "OMIM", "OMIM"));
+                    }
+                }
+                xrefs.add(new Xref(String.valueOf(geneData.get("gene_name")), "GeneName", "GeneName"));
             }
-            xrefs.add(new Xref(String.valueOf(geneData.get("gene_name")), "GeneName", "GeneName"));
         }
 
         // Add coordinates
@@ -401,7 +423,7 @@ public class DiseasePanelParsers {
 
         // Read penetrance
         String panelAppPenetrance = String.valueOf(panelAppCommonMap.get("penetrance"));
-        ClinicalProperty.Penetrance penetrance = null;
+        ClinicalProperty.Penetrance penetrance = ClinicalProperty.Penetrance.UNKNOWN;
         if (StringUtils.isNotEmpty(panelAppPenetrance)) {
             try {
                 penetrance = ClinicalProperty.Penetrance.valueOf(panelAppPenetrance.toUpperCase());

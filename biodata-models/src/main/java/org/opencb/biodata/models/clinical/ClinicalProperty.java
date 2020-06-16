@@ -52,7 +52,8 @@ public class ClinicalProperty {
 
     public enum Penetrance {
         COMPLETE,
-        INCOMPLETE
+        INCOMPLETE,
+        UNKNOWN
     }
 
     public enum Confidence {
