@@ -33,8 +33,7 @@ public class SignatureFitting {
     public SignatureFitting() {
     }
 
-    public SignatureFitting(String method, String signatureSource, String signatureVersion, Score[] scores,
-                            double coeff, String image) {
+    public SignatureFitting(String method, String signatureSource, String signatureVersion, Score[] scores, double coeff, String image) {
         this.method = method;
         this.signatureSource = signatureSource;
         this.signatureVersion = signatureVersion;

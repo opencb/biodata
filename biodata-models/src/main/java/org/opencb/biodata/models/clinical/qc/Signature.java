@@ -20,30 +20,65 @@
 package org.opencb.biodata.models.clinical.qc;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 public class Signature {
 
+    private String id;
+    private Map<String, String> query;
     /**
      * Variant type, e.g. SNV, INDEL, ...
      */
     private String type;
-    private Count[] counts;
+    private SignatureCount[] counts;
+    private List<String> files;
 
     public Signature() {
     }
 
-    public Signature(String type, Count[] counts) {
+    @Deprecated
+    public Signature(String type, SignatureCount[] counts) {
         this.type = type;
         this.counts = counts;
+    }
+
+    public Signature(String id, Map<String, String> query, String type, SignatureCount[] counts, List<String> files) {
+        this.id = id;
+        this.query = query;
+        this.type = type;
+        this.counts = counts;
+        this.files = files;
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("Signature{");
-        sb.append("type='").append(type).append('\'');
+        sb.append("id='").append(id).append('\'');
+        sb.append(", query=").append(query);
+        sb.append(", type='").append(type).append('\'');
         sb.append(", counts=").append(Arrays.toString(counts));
+        sb.append(", files=").append(files);
         sb.append('}');
         return sb.toString();
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public Signature setId(String id) {
+        this.id = id;
+        return this;
+    }
+
+    public Map<String, String> getQuery() {
+        return query;
+    }
+
+    public Signature setQuery(Map<String, String> query) {
+        this.query = query;
+        return this;
     }
 
     public String getType() {
@@ -55,24 +90,33 @@ public class Signature {
         return this;
     }
 
-    public Count[] getCounts() {
+    public SignatureCount[] getCounts() {
         return counts;
     }
 
-    public Signature setCounts(Count[] counts) {
+    public Signature setCounts(SignatureCount[] counts) {
         this.counts = counts;
         return this;
     }
 
-    public static class Count {
+    public List<String> getFiles() {
+        return files;
+    }
+
+    public Signature setFiles(List<String> files) {
+        this.files = files;
+        return this;
+    }
+
+    public static class SignatureCount {
 
         private String context;
         private int total;
 
-        public Count() {
+        public SignatureCount() {
         }
 
-        public Count(String context, int total) {
+        public SignatureCount(String context, int total) {
             this.context = context;
             this.total = total;
         }
@@ -90,7 +134,7 @@ public class Signature {
             return context;
         }
 
-        public Count setContext(String context) {
+        public SignatureCount setContext(String context) {
             this.context = context;
             return this;
         }
@@ -99,7 +143,7 @@ public class Signature {
             return total;
         }
 
-        public Count setTotal(int total) {
+        public SignatureCount setTotal(int total) {
             this.total = total;
             return this;
         }

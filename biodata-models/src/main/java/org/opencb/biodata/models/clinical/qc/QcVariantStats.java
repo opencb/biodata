@@ -21,6 +21,7 @@ package org.opencb.biodata.models.clinical.qc;
 
 import java.util.Map;
 
+@Deprecated
 public class QcVariantStats {
 
     private int variantCount;

@@ -19,22 +19,29 @@
 
 package org.opencb.biodata.models.clinical.qc;
 
+import org.opencb.biodata.models.variant.metadata.SampleVariantStats;
+
 import java.util.Map;
 
 public class SampleQcVariantStats {
 
     private String id;
-    private String sampleId;
     private String description;
-    private Map<String, Object> query;
+    private Map<String, String> query;
+    private SampleVariantStats stats;
 
+    @Deprecated
+    private String sampleId;
+    @Deprecated
     private Signature signature;
+    @Deprecated
     private QcVariantStats qcVariantStats;
 
     public SampleQcVariantStats() {
     }
 
-    public SampleQcVariantStats(String id, String sampleId, String description, Map<String, Object> query, Signature signature,
+    @Deprecated
+    public SampleQcVariantStats(String id, String sampleId, String description, Map<String, String> query, Signature signature,
                                 QcVariantStats qcVariantStats) {
         this.id = id;
         this.sampleId = sampleId;
@@ -44,15 +51,20 @@ public class SampleQcVariantStats {
         this.qcVariantStats = qcVariantStats;
     }
 
+    public SampleQcVariantStats(String id, String description, Map<String, String> query, SampleVariantStats stats) {
+        this.id = id;
+        this.description = description;
+        this.query = query;
+        this.stats = stats;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("SampleQcVariantStats{");
         sb.append("id='").append(id).append('\'');
-        sb.append(", sampleId='").append(sampleId).append('\'');
         sb.append(", description='").append(description).append('\'');
         sb.append(", query=").append(query);
-        sb.append(", signature=").append(signature);
-        sb.append(", qcVariantStats=").append(qcVariantStats);
+        sb.append(", stats=").append(stats);
         sb.append('}');
         return sb.toString();
     }
@@ -66,15 +78,6 @@ public class SampleQcVariantStats {
         return this;
     }
 
-    public String getSampleId() {
-        return sampleId;
-    }
-
-    public SampleQcVariantStats setSampleId(String sampleId) {
-        this.sampleId = sampleId;
-        return this;
-    }
-
     public String getDescription() {
         return description;
     }
@@ -84,30 +87,21 @@ public class SampleQcVariantStats {
         return this;
     }
 
-    public Map<String, Object> getQuery() {
+    public Map<String, String> getQuery() {
         return query;
     }
 
-    public SampleQcVariantStats setQuery(Map<String, Object> query) {
+    public SampleQcVariantStats setQuery(Map<String, String> query) {
         this.query = query;
         return this;
     }
 
-    public Signature getSignature() {
-        return signature;
+    public SampleVariantStats getStats() {
+        return stats;
     }
 
-    public SampleQcVariantStats setSignature(Signature signature) {
-        this.signature = signature;
-        return this;
-    }
-
-    public QcVariantStats getQcVariantStats() {
-        return qcVariantStats;
-    }
-
-    public SampleQcVariantStats setQcVariantStats(QcVariantStats qcVariantStats) {
-        this.qcVariantStats = qcVariantStats;
+    public SampleQcVariantStats setStats(SampleVariantStats stats) {
+        this.stats = stats;
         return this;
     }
 }

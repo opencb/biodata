@@ -4,7 +4,8 @@ import java.util.List;
 
 public class GeneCoverageStats {
 
-    private String fileId;
+    private String file;
+    @Deprecated
     private String sampleId;
 
     private String geneName;
@@ -13,8 +14,8 @@ public class GeneCoverageStats {
     public GeneCoverageStats() {
     }
 
-    public GeneCoverageStats(String fileId, String sampleId, String geneName, List<TranscriptCoverageStats> stats) {
-        this.fileId = fileId;
+    public GeneCoverageStats(String file, String sampleId, String geneName, List<TranscriptCoverageStats> stats) {
+        this.file = file;
         this.sampleId = sampleId;
         this.geneName = geneName;
         this.stats = stats;
@@ -23,7 +24,7 @@ public class GeneCoverageStats {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("GeneCoverageStats{");
-        sb.append("fileId='").append(fileId).append('\'');
+        sb.append("fileId='").append(file).append('\'');
         sb.append(", sampleId='").append(sampleId).append('\'');
         sb.append(", geneName='").append(geneName).append('\'');
         sb.append(", stats=").append(stats);
@@ -31,19 +32,21 @@ public class GeneCoverageStats {
         return sb.toString();
     }
 
-    public String getFileId() {
-        return fileId;
+    public String getFile() {
+        return file;
     }
 
-    public GeneCoverageStats setFileId(String fileId) {
-        this.fileId = fileId;
+    public GeneCoverageStats setFile(String file) {
+        this.file = file;
         return this;
     }
 
+    @Deprecated
     public String getSampleId() {
         return sampleId;
     }
 
+    @Deprecated
     public GeneCoverageStats setSampleId(String sampleId) {
         this.sampleId = sampleId;
         return this;
