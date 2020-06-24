@@ -17,7 +17,7 @@
  *
  */
 
-package org.opencb.biodata.models.clinical.interpretation;
+package org.opencb.biodata.models.clinical;
 
 public class Comment {
 

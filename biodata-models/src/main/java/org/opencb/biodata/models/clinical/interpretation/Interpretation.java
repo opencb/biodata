@@ -19,6 +19,8 @@
 
 package org.opencb.biodata.models.clinical.interpretation;
 
+import org.opencb.biodata.models.clinical.Comment;
+
 import java.util.List;
 import java.util.Map;
 
