@@ -17,7 +17,7 @@
  *
  */
 
-package org.opencb.biodata.models.clinical.qc;
+package org.opencb.biodata.models.clinical.qc.sample;
 
 import java.util.Map;
 
@@ -65,7 +65,7 @@ public class QcVariantStats {
         return variantCount;
     }
 
-    public org.opencb.biodata.models.clinical.qc.QcVariantStats setVariantCount(int variantCount) {
+    public QcVariantStats setVariantCount(int variantCount) {
         this.variantCount = variantCount;
         return this;
     }
@@ -74,7 +74,7 @@ public class QcVariantStats {
         return passCount;
     }
 
-    public org.opencb.biodata.models.clinical.qc.QcVariantStats setPassCount(int passCount) {
+    public QcVariantStats setPassCount(int passCount) {
         this.passCount = passCount;
         return this;
     }
@@ -83,7 +83,7 @@ public class QcVariantStats {
         return chromosomeCount;
     }
 
-    public org.opencb.biodata.models.clinical.qc.QcVariantStats setChromosomeCount(Map<String, Integer> chromosomeCount) {
+    public QcVariantStats setChromosomeCount(Map<String, Integer> chromosomeCount) {
         this.chromosomeCount = chromosomeCount;
         return this;
     }
@@ -92,7 +92,7 @@ public class QcVariantStats {
         return typeCount;
     }
 
-    public org.opencb.biodata.models.clinical.qc.QcVariantStats setTypeCount(Map<String, Integer> typeCount) {
+    public QcVariantStats setTypeCount(Map<String, Integer> typeCount) {
         this.typeCount = typeCount;
         return this;
     }
@@ -101,7 +101,7 @@ public class QcVariantStats {
         return biotypeCount;
     }
 
-    public org.opencb.biodata.models.clinical.qc.QcVariantStats setBiotypeCount(Map<String, Integer> biotypeCount) {
+    public QcVariantStats setBiotypeCount(Map<String, Integer> biotypeCount) {
         this.biotypeCount = biotypeCount;
         return this;
     }
@@ -110,7 +110,7 @@ public class QcVariantStats {
         return consequenceTypeCount;
     }
 
-    public org.opencb.biodata.models.clinical.qc.QcVariantStats setConsequenceTypeCount(Map<String, Integer> consequenceTypeCount) {
+    public QcVariantStats setConsequenceTypeCount(Map<String, Integer> consequenceTypeCount) {
         this.consequenceTypeCount = consequenceTypeCount;
         return this;
     }
@@ -119,7 +119,7 @@ public class QcVariantStats {
         return genotypeCount;
     }
 
-    public org.opencb.biodata.models.clinical.qc.QcVariantStats setGenotypeCount(Map<String, Integer> genotypeCount) {
+    public QcVariantStats setGenotypeCount(Map<String, Integer> genotypeCount) {
         this.genotypeCount = genotypeCount;
         return this;
     }
