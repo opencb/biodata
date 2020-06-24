@@ -1,11 +1,8 @@
-package org.opencb.biodata.models.alignment;
+package org.opencb.biodata.formats.samtools;
 
-import java.util.List;
-
-public class AlignmentStats {
+public class SamtoolsStats {
     
-    private String fileId;
-    private String sampleId;
+    private String file;
     private int rawTotalSequences;
     private int filteredSequences;
     private int sequences;
@@ -45,14 +42,13 @@ public class AlignmentStats {
     private int pairsOnDifferentChromosomes;
     private double percentageOfProperlyPairedReads;
 
-    public AlignmentStats() {
+    public SamtoolsStats() {
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("AlignmentStats{");
-        sb.append("fileId='").append(fileId).append('\'');
-        sb.append(", sampleId='").append(sampleId).append('\'');
+        final StringBuilder sb = new StringBuilder("SamtoolsStats{");
+        sb.append("file='").append(file).append('\'');
         sb.append(", rawTotalSequences=").append(rawTotalSequences);
         sb.append(", filteredSequences=").append(filteredSequences);
         sb.append(", sequences=").append(sequences);
@@ -95,21 +91,12 @@ public class AlignmentStats {
         return sb.toString();
     }
 
-    public String getFileId() {
-        return fileId;
+    public String getFile() {
+        return file;
     }
 
-    public AlignmentStats setFileId(String fileId) {
-        this.fileId = fileId;
-        return this;
-    }
-
-    public String getSampleId() {
-        return sampleId;
-    }
-
-    public AlignmentStats setSampleId(String sampleId) {
-        this.sampleId = sampleId;
+    public SamtoolsStats setFileId(String file) {
+        this.file = file;
         return this;
     }
 
@@ -117,7 +104,7 @@ public class AlignmentStats {
         return rawTotalSequences;
     }
 
-    public AlignmentStats setRawTotalSequences(int rawTotalSequences) {
+    public SamtoolsStats setRawTotalSequences(int rawTotalSequences) {
         this.rawTotalSequences = rawTotalSequences;
         return this;
     }
@@ -126,7 +113,7 @@ public class AlignmentStats {
         return filteredSequences;
     }
 
-    public AlignmentStats setFilteredSequences(int filteredSequences) {
+    public SamtoolsStats setFilteredSequences(int filteredSequences) {
         this.filteredSequences = filteredSequences;
         return this;
     }
@@ -135,7 +122,7 @@ public class AlignmentStats {
         return sequences;
     }
 
-    public AlignmentStats setSequences(int sequences) {
+    public SamtoolsStats setSequences(int sequences) {
         this.sequences = sequences;
         return this;
     }
@@ -144,7 +131,7 @@ public class AlignmentStats {
         return isSorted;
     }
 
-    public AlignmentStats setIsSorted(int isSorted) {
+    public SamtoolsStats setIsSorted(int isSorted) {
         this.isSorted = isSorted;
         return this;
     }
@@ -153,7 +140,7 @@ public class AlignmentStats {
         return firstFragments;
     }
 
-    public AlignmentStats setFirstFragments(int firstFragments) {
+    public SamtoolsStats setFirstFragments(int firstFragments) {
         this.firstFragments = firstFragments;
         return this;
     }
@@ -162,7 +149,7 @@ public class AlignmentStats {
         return lastFragments;
     }
 
-    public AlignmentStats setLastFragments(int lastFragments) {
+    public SamtoolsStats setLastFragments(int lastFragments) {
         this.lastFragments = lastFragments;
         return this;
     }
@@ -171,7 +158,7 @@ public class AlignmentStats {
         return readsMapped;
     }
 
-    public AlignmentStats setReadsMapped(int readsMapped) {
+    public SamtoolsStats setReadsMapped(int readsMapped) {
         this.readsMapped = readsMapped;
         return this;
     }
@@ -180,7 +167,7 @@ public class AlignmentStats {
         return readsMappedAndPaired;
     }
 
-    public AlignmentStats setReadsMappedAndPaired(int readsMappedAndPaired) {
+    public SamtoolsStats setReadsMappedAndPaired(int readsMappedAndPaired) {
         this.readsMappedAndPaired = readsMappedAndPaired;
         return this;
     }
@@ -189,7 +176,7 @@ public class AlignmentStats {
         return readsUnmapped;
     }
 
-    public AlignmentStats setReadsUnmapped(int readsUnmapped) {
+    public SamtoolsStats setReadsUnmapped(int readsUnmapped) {
         this.readsUnmapped = readsUnmapped;
         return this;
     }
@@ -198,7 +185,7 @@ public class AlignmentStats {
         return readsProperlyPaired;
     }
 
-    public AlignmentStats setReadsProperlyPaired(int readsProperlyPaired) {
+    public SamtoolsStats setReadsProperlyPaired(int readsProperlyPaired) {
         this.readsProperlyPaired = readsProperlyPaired;
         return this;
     }
@@ -207,7 +194,7 @@ public class AlignmentStats {
         return readsPaired;
     }
 
-    public AlignmentStats setReadsPaired(int readsPaired) {
+    public SamtoolsStats setReadsPaired(int readsPaired) {
         this.readsPaired = readsPaired;
         return this;
     }
@@ -216,7 +203,7 @@ public class AlignmentStats {
         return readsDuplicated;
     }
 
-    public AlignmentStats setReadsDuplicated(int readsDuplicated) {
+    public SamtoolsStats setReadsDuplicated(int readsDuplicated) {
         this.readsDuplicated = readsDuplicated;
         return this;
     }
@@ -225,7 +212,7 @@ public class AlignmentStats {
         return readsMq0;
     }
 
-    public AlignmentStats setReadsMq0(int readsMq0) {
+    public SamtoolsStats setReadsMq0(int readsMq0) {
         this.readsMq0 = readsMq0;
         return this;
     }
@@ -234,7 +221,7 @@ public class AlignmentStats {
         return readsQcFailed;
     }
 
-    public AlignmentStats setReadsQcFailed(int readsQcFailed) {
+    public SamtoolsStats setReadsQcFailed(int readsQcFailed) {
         this.readsQcFailed = readsQcFailed;
         return this;
     }
@@ -243,7 +230,7 @@ public class AlignmentStats {
         return nonPrimaryAlignments;
     }
 
-    public AlignmentStats setNonPrimaryAlignments(int nonPrimaryAlignments) {
+    public SamtoolsStats setNonPrimaryAlignments(int nonPrimaryAlignments) {
         this.nonPrimaryAlignments = nonPrimaryAlignments;
         return this;
     }
@@ -252,7 +239,7 @@ public class AlignmentStats {
         return totalLength;
     }
 
-    public AlignmentStats setTotalLength(long totalLength) {
+    public SamtoolsStats setTotalLength(long totalLength) {
         this.totalLength = totalLength;
         return this;
     }
@@ -261,7 +248,7 @@ public class AlignmentStats {
         return totalFirstFragmentLength;
     }
 
-    public AlignmentStats setTotalFirstFragmentLength(long totalFirstFragmentLength) {
+    public SamtoolsStats setTotalFirstFragmentLength(long totalFirstFragmentLength) {
         this.totalFirstFragmentLength = totalFirstFragmentLength;
         return this;
     }
@@ -270,7 +257,7 @@ public class AlignmentStats {
         return totalLastFragmentLength;
     }
 
-    public AlignmentStats setTotalLastFragmentLength(long totalLastFragmentLength) {
+    public SamtoolsStats setTotalLastFragmentLength(long totalLastFragmentLength) {
         this.totalLastFragmentLength = totalLastFragmentLength;
         return this;
     }
@@ -279,7 +266,7 @@ public class AlignmentStats {
         return basesMapped;
     }
 
-    public AlignmentStats setBasesMapped(long basesMapped) {
+    public SamtoolsStats setBasesMapped(long basesMapped) {
         this.basesMapped = basesMapped;
         return this;
     }
@@ -288,7 +275,7 @@ public class AlignmentStats {
         return basesMappedCigar;
     }
 
-    public AlignmentStats setBasesMappedCigar(long basesMappedCigar) {
+    public SamtoolsStats setBasesMappedCigar(long basesMappedCigar) {
         this.basesMappedCigar = basesMappedCigar;
         return this;
     }
@@ -297,7 +284,7 @@ public class AlignmentStats {
         return basesTrimmed;
     }
 
-    public AlignmentStats setBasesTrimmed(long basesTrimmed) {
+    public SamtoolsStats setBasesTrimmed(long basesTrimmed) {
         this.basesTrimmed = basesTrimmed;
         return this;
     }
@@ -306,7 +293,7 @@ public class AlignmentStats {
         return basesDuplicated;
     }
 
-    public AlignmentStats setBasesDuplicated(long basesDuplicated) {
+    public SamtoolsStats setBasesDuplicated(long basesDuplicated) {
         this.basesDuplicated = basesDuplicated;
         return this;
     }
@@ -315,7 +302,7 @@ public class AlignmentStats {
         return mismatches;
     }
 
-    public AlignmentStats setMismatches(int mismatches) {
+    public SamtoolsStats setMismatches(int mismatches) {
         this.mismatches = mismatches;
         return this;
     }
@@ -324,7 +311,7 @@ public class AlignmentStats {
         return errorRate;
     }
 
-    public AlignmentStats setErrorRate(double errorRate) {
+    public SamtoolsStats setErrorRate(double errorRate) {
         this.errorRate = errorRate;
         return this;
     }
@@ -333,7 +320,7 @@ public class AlignmentStats {
         return averageLength;
     }
 
-    public AlignmentStats setAverageLength(double averageLength) {
+    public SamtoolsStats setAverageLength(double averageLength) {
         this.averageLength = averageLength;
         return this;
     }
@@ -342,7 +329,7 @@ public class AlignmentStats {
         return averageFirstFragmentLength;
     }
 
-    public AlignmentStats setAverageFirstFragmentLength(double averageFirstFragmentLength) {
+    public SamtoolsStats setAverageFirstFragmentLength(double averageFirstFragmentLength) {
         this.averageFirstFragmentLength = averageFirstFragmentLength;
         return this;
     }
@@ -351,7 +338,7 @@ public class AlignmentStats {
         return averageLastFragmentLength;
     }
 
-    public AlignmentStats setAverageLastFragmentLength(double averageLastFragmentLength) {
+    public SamtoolsStats setAverageLastFragmentLength(double averageLastFragmentLength) {
         this.averageLastFragmentLength = averageLastFragmentLength;
         return this;
     }
@@ -360,7 +347,7 @@ public class AlignmentStats {
         return maximumLength;
     }
 
-    public AlignmentStats setMaximumLength(int maximumLength) {
+    public SamtoolsStats setMaximumLength(int maximumLength) {
         this.maximumLength = maximumLength;
         return this;
     }
@@ -369,7 +356,7 @@ public class AlignmentStats {
         return maximumFirstFragmentLength;
     }
 
-    public AlignmentStats setMaximumFirstFragmentLength(int maximumFirstFragmentLength) {
+    public SamtoolsStats setMaximumFirstFragmentLength(int maximumFirstFragmentLength) {
         this.maximumFirstFragmentLength = maximumFirstFragmentLength;
         return this;
     }
@@ -378,7 +365,7 @@ public class AlignmentStats {
         return maximumLastFragmentLength;
     }
 
-    public AlignmentStats setMaximumLastFragmentLength(int maximumLastFragmentLength) {
+    public SamtoolsStats setMaximumLastFragmentLength(int maximumLastFragmentLength) {
         this.maximumLastFragmentLength = maximumLastFragmentLength;
         return this;
     }
@@ -387,7 +374,7 @@ public class AlignmentStats {
         return averageQuality;
     }
 
-    public AlignmentStats setAverageQuality(double averageQuality) {
+    public SamtoolsStats setAverageQuality(double averageQuality) {
         this.averageQuality = averageQuality;
         return this;
     }
@@ -396,7 +383,7 @@ public class AlignmentStats {
         return insertSizeAverage;
     }
 
-    public AlignmentStats setInsertSizeAverage(double insertSizeAverage) {
+    public SamtoolsStats setInsertSizeAverage(double insertSizeAverage) {
         this.insertSizeAverage = insertSizeAverage;
         return this;
     }
@@ -405,7 +392,7 @@ public class AlignmentStats {
         return insertSizeStandardDeviation;
     }
 
-    public AlignmentStats setInsertSizeStandardDeviation(double insertSizeStandardDeviation) {
+    public SamtoolsStats setInsertSizeStandardDeviation(double insertSizeStandardDeviation) {
         this.insertSizeStandardDeviation = insertSizeStandardDeviation;
         return this;
     }
@@ -414,7 +401,7 @@ public class AlignmentStats {
         return inwardOrientedPairs;
     }
 
-    public AlignmentStats setInwardOrientedPairs(int inwardOrientedPairs) {
+    public SamtoolsStats setInwardOrientedPairs(int inwardOrientedPairs) {
         this.inwardOrientedPairs = inwardOrientedPairs;
         return this;
     }
@@ -423,7 +410,7 @@ public class AlignmentStats {
         return outwardOrientedPairs;
     }
 
-    public AlignmentStats setOutwardOrientedPairs(int outwardOrientedPairs) {
+    public SamtoolsStats setOutwardOrientedPairs(int outwardOrientedPairs) {
         this.outwardOrientedPairs = outwardOrientedPairs;
         return this;
     }
@@ -432,7 +419,7 @@ public class AlignmentStats {
         return pairsWithOtherOrientation;
     }
 
-    public AlignmentStats setPairsWithOtherOrientation(int pairsWithOtherOrientation) {
+    public SamtoolsStats setPairsWithOtherOrientation(int pairsWithOtherOrientation) {
         this.pairsWithOtherOrientation = pairsWithOtherOrientation;
         return this;
     }
@@ -441,7 +428,7 @@ public class AlignmentStats {
         return pairsOnDifferentChromosomes;
     }
 
-    public AlignmentStats setPairsOnDifferentChromosomes(int pairsOnDifferentChromosomes) {
+    public SamtoolsStats setPairsOnDifferentChromosomes(int pairsOnDifferentChromosomes) {
         this.pairsOnDifferentChromosomes = pairsOnDifferentChromosomes;
         return this;
     }
@@ -450,7 +437,7 @@ public class AlignmentStats {
         return percentageOfProperlyPairedReads;
     }
 
-    public AlignmentStats setPercentageOfProperlyPairedReads(double percentageOfProperlyPairedReads) {
+    public SamtoolsStats setPercentageOfProperlyPairedReads(double percentageOfProperlyPairedReads) {
         this.percentageOfProperlyPairedReads = percentageOfProperlyPairedReads;
         return this;
     }
