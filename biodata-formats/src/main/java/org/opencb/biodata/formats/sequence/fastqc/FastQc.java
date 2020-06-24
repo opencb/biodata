@@ -6,51 +6,51 @@ public class FastQc {
 
     private Summary summary;
     private Map<String, String> basicStats;
-    private List<PerBaseSeqQuality> perBaseSeqQualities;
-    private Map<Integer, Double> perSeqQualityScores;
-    private List<PerTileSeqQuality> perTileSeqQuality;
-    private List<PerBaseSeqContent> perBaseSeqContent;
-    private double[] perSeqGcContent;
-    private Map<String, Double> perBaseNContent;
-    private Map<Integer, Double> seqLengthDistribution;
-    private List<SeqDuplicationLevel> seqDuplicationLevels;
-    private List<OverrepresentedSeq> overrepresentedSeqs;
-    private List<AdapterContent> adapterContent;
-    private List<KmerContent> kmerContent;
+    private PerBaseSeqQuality perBaseSeqQuality;
+    private PerSeqQualityScore perSeqQualityScore;
+    private PerTileSeqQuality perTileSeqQuality;
+    private PerBaseSeqContent perBaseSeqContent;
+    private PerSeqGcContent perSeqGcContent;
+    private PerBaseNContent perBaseNContent;
+    private SeqLengthDistribution seqLengthDistribution;
+    private SeqDuplicationLevel seqDuplicationLevel;
+    private List<OverrepresentedSeq> overrepresentedSeq;
+    private AdapterContent adapterContent;
+    private KmerContent kmerContent;
 
     public FastQc() {
         summary = new Summary();
         basicStats = new LinkedHashMap<>();
-        perBaseSeqQualities = new LinkedList<>();
-        perSeqQualityScores = new LinkedHashMap<>();
-        perTileSeqQuality = new LinkedList<>();
-        perBaseSeqContent = new LinkedList<>();
-        perSeqGcContent = new double[101];
-        perBaseNContent = new LinkedHashMap<>();
-        seqLengthDistribution = new LinkedHashMap<>();
-        seqDuplicationLevels = new LinkedList<>();
-        overrepresentedSeqs = new LinkedList<>();
-        adapterContent = new LinkedList<>();
-        kmerContent = new LinkedList<>();
+        perBaseSeqQuality = new PerBaseSeqQuality();
+        perSeqQualityScore = new PerSeqQualityScore();
+        perTileSeqQuality = new PerTileSeqQuality();
+        perBaseSeqContent = new PerBaseSeqContent();
+        perSeqGcContent = new PerSeqGcContent();
+        perBaseNContent = new PerBaseNContent();
+        seqLengthDistribution = new SeqLengthDistribution();
+        seqDuplicationLevel = new SeqDuplicationLevel();
+        overrepresentedSeq = new LinkedList<>();
+        adapterContent = new AdapterContent();
+        kmerContent = new KmerContent();
     }
 
-    public FastQc(Summary summary, Map<String, String> basicStats, List<PerBaseSeqQuality> perBaseSeqQualities,
-                  Map<Integer, Double> perSeqQualityScores, List<PerTileSeqQuality> perTileSeqQuality,
-                  List<PerBaseSeqContent> perBaseSeqContent, double[] perSeqGcContent, Map<String, Double> perBaseNContent,
-                  Map<Integer, Double> seqLengthDistribution, List<SeqDuplicationLevel> seqDuplicationLevels,
-                  List<OverrepresentedSeq> overrepresentedSeqs, List<AdapterContent> adapterContent,
-                  List<KmerContent> kmerContent) {
+    public FastQc(Summary summary, Map<String, String> basicStats, PerBaseSeqQuality perBaseSeqQuality,
+                  PerSeqQualityScore perSeqQualityScore, PerTileSeqQuality perTileSeqQuality,
+                  PerBaseSeqContent perBaseSeqContent, PerSeqGcContent perSeqGcContent, PerBaseNContent perBaseNContent,
+                  SeqLengthDistribution seqLengthDistribution, SeqDuplicationLevel seqDuplicationLevel,
+                  List<OverrepresentedSeq> overrepresentedSeq, AdapterContent adapterContent,
+                  KmerContent kmerContent) {
         this.summary = summary;
         this.basicStats = basicStats;
-        this.perBaseSeqQualities = perBaseSeqQualities;
-        this.perSeqQualityScores = perSeqQualityScores;
+        this.perBaseSeqQuality = perBaseSeqQuality;
+        this.perSeqQualityScore = perSeqQualityScore;
         this.perTileSeqQuality = perTileSeqQuality;
         this.perBaseSeqContent = perBaseSeqContent;
         this.perSeqGcContent = perSeqGcContent;
         this.perBaseNContent = perBaseNContent;
         this.seqLengthDistribution = seqLengthDistribution;
-        this.seqDuplicationLevels = seqDuplicationLevels;
-        this.overrepresentedSeqs = overrepresentedSeqs;
+        this.seqDuplicationLevel = seqDuplicationLevel;
+        this.overrepresentedSeq = overrepresentedSeq;
         this.adapterContent = adapterContent;
         this.kmerContent = kmerContent;
     }
@@ -60,15 +60,15 @@ public class FastQc {
         final StringBuilder sb = new StringBuilder("FastQc{");
         sb.append("summary=").append(summary);
         sb.append(", basicStats=").append(basicStats);
-        sb.append(", perBaseSeqQualities=").append(perBaseSeqQualities);
-        sb.append(", perSeqQualityScores=").append(perSeqQualityScores);
+        sb.append(", perBaseSeqQuality=").append(perBaseSeqQuality);
+        sb.append(", perSeqQualityScore=").append(perSeqQualityScore);
         sb.append(", perTileSeqQuality=").append(perTileSeqQuality);
         sb.append(", perBaseSeqContent=").append(perBaseSeqContent);
-        sb.append(", perSeqGcContent=").append(Arrays.toString(perSeqGcContent));
+        sb.append(", perSeqGcContent=").append(perSeqGcContent);
         sb.append(", perBaseNContent=").append(perBaseNContent);
         sb.append(", seqLengthDistribution=").append(seqLengthDistribution);
-        sb.append(", seqDuplicationLevels=").append(seqDuplicationLevels);
-        sb.append(", overrepresentedSeqs=").append(overrepresentedSeqs);
+        sb.append(", seqDuplicationLevel=").append(seqDuplicationLevel);
+        sb.append(", overrepresentedSeq=").append(overrepresentedSeq);
         sb.append(", adapterContent=").append(adapterContent);
         sb.append(", kmerContent=").append(kmerContent);
         sb.append('}');
@@ -93,101 +93,101 @@ public class FastQc {
         return this;
     }
 
-    public List<PerBaseSeqQuality> getPerBaseSeqQualities() {
-        return perBaseSeqQualities;
+    public PerBaseSeqQuality getPerBaseSeqQuality() {
+        return perBaseSeqQuality;
     }
 
-    public FastQc setPerBaseSeqQualities(List<PerBaseSeqQuality> perBaseSeqQualities) {
-        this.perBaseSeqQualities = perBaseSeqQualities;
+    public FastQc setPerBaseSeqQuality(PerBaseSeqQuality perBaseSeqQuality) {
+        this.perBaseSeqQuality = perBaseSeqQuality;
         return this;
     }
 
-    public Map<Integer, Double> getPerSeqQualityScores() {
-        return perSeqQualityScores;
+    public PerSeqQualityScore getPerSeqQualityScore() {
+        return perSeqQualityScore;
     }
 
-    public FastQc setPerSeqQualityScores(Map<Integer, Double> perSeqQualityScores) {
-        this.perSeqQualityScores = perSeqQualityScores;
+    public FastQc setPerSeqQualityScore(PerSeqQualityScore perSeqQualityScore) {
+        this.perSeqQualityScore = perSeqQualityScore;
         return this;
     }
 
-    public List<PerTileSeqQuality> getPerTileSeqQualities() {
+    public PerTileSeqQuality getPerTileSeqQuality() {
         return perTileSeqQuality;
     }
 
-    public FastQc setPerTileSeqQuality(List<PerTileSeqQuality> perTileSeqQuality) {
+    public FastQc setPerTileSeqQuality(PerTileSeqQuality perTileSeqQuality) {
         this.perTileSeqQuality = perTileSeqQuality;
         return this;
     }
 
-    public List<PerBaseSeqContent> getPerBaseSeqContent() {
+    public PerBaseSeqContent getPerBaseSeqContent() {
         return perBaseSeqContent;
     }
 
-    public FastQc setPerBaseSeqContent(List<PerBaseSeqContent> perBaseSeqContent) {
+    public FastQc setPerBaseSeqContent(PerBaseSeqContent perBaseSeqContent) {
         this.perBaseSeqContent = perBaseSeqContent;
         return this;
     }
 
-    public double[] getPerSeqGcContent() {
+    public PerSeqGcContent getPerSeqGcContent() {
         return perSeqGcContent;
     }
 
-    public FastQc setPerSeqGcContent(double[] perSeqGcContent) {
+    public FastQc setPerSeqGcContent(PerSeqGcContent perSeqGcContent) {
         this.perSeqGcContent = perSeqGcContent;
         return this;
     }
 
-    public Map<String, Double> getPerBaseNContent() {
+    public PerBaseNContent getPerBaseNContent() {
         return perBaseNContent;
     }
 
-    public FastQc setPerBaseNContent(Map<String, Double> perBaseNContent) {
+    public FastQc setPerBaseNContent(PerBaseNContent perBaseNContent) {
         this.perBaseNContent = perBaseNContent;
         return this;
     }
 
-    public Map<Integer, Double> getSeqLengthDistribution() {
+    public SeqLengthDistribution getSeqLengthDistribution() {
         return seqLengthDistribution;
     }
 
-    public FastQc setSeqLengthDistribution(Map<Integer, Double> seqLengthDistribution) {
+    public FastQc setSeqLengthDistribution(SeqLengthDistribution seqLengthDistribution) {
         this.seqLengthDistribution = seqLengthDistribution;
         return this;
     }
 
-    public List<SeqDuplicationLevel> getSeqDuplicationLevels() {
-        return seqDuplicationLevels;
+    public SeqDuplicationLevel getSeqDuplicationLevel() {
+        return seqDuplicationLevel;
     }
 
-    public FastQc setSeqDuplicationLevels(List<SeqDuplicationLevel> seqDuplicationLevels) {
-        this.seqDuplicationLevels = seqDuplicationLevels;
+    public FastQc setSeqDuplicationLevel(SeqDuplicationLevel seqDuplicationLevel) {
+        this.seqDuplicationLevel = seqDuplicationLevel;
         return this;
     }
 
-    public List<OverrepresentedSeq> getOverrepresentedSeqs() {
-        return overrepresentedSeqs;
+    public List<OverrepresentedSeq> getOverrepresentedSeq() {
+        return overrepresentedSeq;
     }
 
-    public FastQc setOverrepresentedSeqs(List<OverrepresentedSeq> overrepresentedSeqs) {
-        this.overrepresentedSeqs = overrepresentedSeqs;
+    public FastQc setOverrepresentedSeq(List<OverrepresentedSeq> overrepresentedSeq) {
+        this.overrepresentedSeq = overrepresentedSeq;
         return this;
     }
 
-    public List<AdapterContent> getAdapterContent() {
+    public AdapterContent getAdapterContent() {
         return adapterContent;
     }
 
-    public FastQc setAdapterContent(List<AdapterContent> adapterContent) {
+    public FastQc setAdapterContent(AdapterContent adapterContent) {
         this.adapterContent = adapterContent;
         return this;
     }
 
-    public List<KmerContent> getKmerContent() {
+    public KmerContent getKmerContent() {
         return kmerContent;
     }
 
-    public FastQc setKmerContent(List<KmerContent> kmerContent) {
+    public FastQc setKmerContent(KmerContent kmerContent) {
         this.kmerContent = kmerContent;
         return this;
     }
