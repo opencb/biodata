@@ -1,4 +1,4 @@
-package org.opencb.biodata.formats.samtools;
+package org.opencb.biodata.formats.alignment.samtools;
 
 public class SamtoolsStats {
     

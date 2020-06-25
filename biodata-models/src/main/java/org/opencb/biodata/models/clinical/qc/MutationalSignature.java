@@ -17,7 +17,7 @@
  *
  */
 
-package org.opencb.biodata.models.clinical.qc.sample;
+package org.opencb.biodata.models.clinical.qc;
 
 public class MutationalSignature {
 
