@@ -23,6 +23,10 @@ public class SamtoolsFlagstats {
     private int secondaryAlignments;
 
     /**
+     * Total number of reads which are supplementary (0x800 bit set)
+     */
+    private int supplementary;
+    /**
      * Total number of reads which are duplicates (0x400 bit set)
      */
     private int duplicates;
@@ -31,6 +35,17 @@ public class SamtoolsFlagstats {
      * Total number of reads which are paired in sequencing (0x1 bit set)
      */
     private int pairedInSequencing;
+
+    /**
+     * Total number of reads with both 0x1 and 0x40 bits set
+     */
+    private int read1;
+
+
+    /**
+     * Total number reads with both 0x1 and 0x80 bits set
+     */
+    private int read2;
 
     /**
      * Total number of reads which are properly paired (both 0x1 and 0x2 bits set and 0x4 bit not set)
@@ -70,8 +85,11 @@ public class SamtoolsFlagstats {
         sb.append(", totalQcPassed=").append(totalQcPassed);
         sb.append(", mapped=").append(mapped);
         sb.append(", secondaryAlignments=").append(secondaryAlignments);
+        sb.append(", supplementary=").append(supplementary);
         sb.append(", duplicates=").append(duplicates);
         sb.append(", pairedInSequencing=").append(pairedInSequencing);
+        sb.append(", read1=").append(read1);
+        sb.append(", read2=").append(read2);
         sb.append(", properlyPaired=").append(properlyPaired);
         sb.append(", selfAndMateMapped=").append(selfAndMateMapped);
         sb.append(", singletons=").append(singletons);
@@ -117,6 +135,15 @@ public class SamtoolsFlagstats {
         return this;
     }
 
+    public int getSupplementary() {
+        return supplementary;
+    }
+
+    public SamtoolsFlagstats setSupplementary(int supplementary) {
+        this.supplementary = supplementary;
+        return this;
+    }
+
     public int getDuplicates() {
         return duplicates;
     }
@@ -132,6 +159,24 @@ public class SamtoolsFlagstats {
 
     public SamtoolsFlagstats setPairedInSequencing(int pairedInSequencing) {
         this.pairedInSequencing = pairedInSequencing;
+        return this;
+    }
+
+    public int getRead1() {
+        return read1;
+    }
+
+    public SamtoolsFlagstats setRead1(int read1) {
+        this.read1 = read1;
+        return this;
+    }
+
+    public int getRead2() {
+        return read2;
+    }
+
+    public SamtoolsFlagstats setRead2(int read2) {
+        this.read2 = read2;
         return this;
     }
 
