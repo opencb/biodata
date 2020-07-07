@@ -20,6 +20,7 @@
 package org.opencb.biodata.models.core;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by imedina on 06/11/15.
@@ -98,5 +99,22 @@ public class GenomicScoreRegion<T> {
     public GenomicScoreRegion<T> setValues(List<T> values) {
         this.values = values;
         return this;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof GenomicScoreRegion)) return false;
+        GenomicScoreRegion<?> that = (GenomicScoreRegion<?>) o;
+        return getStart() == that.getStart() &&
+                getEnd() == that.getEnd() &&
+                getChromosome().equals(that.getChromosome()) &&
+                getSource().equals(that.getSource()) &&
+                getValues().equals(that.getValues());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getChromosome(), getStart(), getEnd(), getSource(), getValues());
     }
 }
