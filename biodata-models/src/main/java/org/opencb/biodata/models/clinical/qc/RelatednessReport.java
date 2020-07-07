@@ -29,16 +29,20 @@ public class RelatednessReport {
     // Method., e.g.: Plink/IBD
     private String method;
 
+    // Minor allele frequency to filter variants, e.g.: 1kg_phase3:CEU>0.35, cohort:ALL>0.05")
+    private String maf;
+
     // Relatedness scores for pair of samples
     private List<RelatednessScore> scores;
     private List<String> files;
 
     public RelatednessReport() {
-        this("Plink/IBD", new ArrayList<>(), new ArrayList<>());
+        this("PLINK/IBD", "cohort:ALL>0.05", new ArrayList<>(), new ArrayList<>());
     }
 
-    public RelatednessReport(String method, List<RelatednessScore> scores, List<String> files) {
+    public RelatednessReport(String method, String maf, List<RelatednessScore> scores, List<String> files) {
         this.method = method;
+        this.maf = maf;
         this.scores = scores;
         this.files = files;
     }
@@ -112,12 +116,13 @@ public class RelatednessReport {
         }
     }
 
-
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("RelatednessReport{");
         sb.append("method='").append(method).append('\'');
+        sb.append(", maf='").append(maf).append('\'');
         sb.append(", scores=").append(scores);
+        sb.append(", files=").append(files);
         sb.append('}');
         return sb.toString();
     }
@@ -131,12 +136,30 @@ public class RelatednessReport {
         return this;
     }
 
+    public String getMaf() {
+        return maf;
+    }
+
+    public RelatednessReport setMaf(String maf) {
+        this.maf = maf;
+        return this;
+    }
+
     public List<RelatednessScore> getScores() {
         return scores;
     }
 
     public RelatednessReport setScores(List<RelatednessScore> scores) {
         this.scores = scores;
+        return this;
+    }
+
+    public List<String> getFiles() {
+        return files;
+    }
+
+    public RelatednessReport setFiles(List<String> files) {
+        this.files = files;
         return this;
     }
 }
