@@ -42,7 +42,8 @@ public class DiseasePanelParsers {
 
             DiseasePanel panel = new DiseasePanel("gene-census", "gene-census", new LinkedList<>(), new LinkedList<>(),
                     new LinkedList<>(), new LinkedList<>(), new LinkedList<>(), new LinkedList<>(), new LinkedList<>(),
-                    new HashMap<>(), new DiseasePanel.SourcePanel("", "", "", "", ""), "", "", "", new HashMap<>());
+                    new HashMap<>(), new DiseasePanel.SourcePanel("gene-census", "gene-census", "", "Cosmic",
+                    "Cancer Gene Census"), "", "", "", new HashMap<>());
             String line;
             while ((line = bufferedReader.readLine()) != null) {
                 String[] splittedLine = line.split("\t");
@@ -325,7 +326,8 @@ public class DiseasePanelParsers {
                 .setId(String.valueOf(panelInfo.get("id")))
                 .setName(String.valueOf(panelInfo.get("name")))
                 .setVersion(String.valueOf(panelInfo.get("version")))
-                .setProject("PanelApp (GEL)")
+                .setAuthor("Genomics England")
+                .setProject("PanelApp")
         );
         diseasePanel.setDescription(panelInfo.get("disease_sub_group")
                 + " (" + panelInfo.get("disease_group") + ")");

@@ -330,7 +330,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                         studyEntry.setSampleDataKeys(Collections.singletonList("PS"));
                         // Use mnv string as file Id so that it can be later identified. It is also used
                         // as the genotype call since we don't have an actual call and to avoid confusion
-                        studyEntry.setFiles(Collections.singletonList(new FileEntry(keyFields.getPhaseSet(), call, null)));
+                        studyEntry.setFiles(Collections.singletonList(new FileEntry(keyFields.getPhaseSet(), call, new HashMap<>())));
                         normalizedVariant.setStudies(Collections.singletonList(studyEntry));
                     }
                     normalizedVariants.add(normalizedVariant);
@@ -487,7 +487,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                                 if (normalizedEntry.getFiles().size() == 0) {
                                     // Use mnv string as file Id so that it can be later identified.
                                     OriginalCall call = new OriginalCall(originalCall, keyFields.numAllele);
-                                    normalizedEntry.setFiles(Collections.singletonList(new FileEntry(keyFields.getPhaseSet(), call, null)));
+                                    normalizedEntry.setFiles(Collections.singletonList(new FileEntry(keyFields.getPhaseSet(), call, new HashMap<>())));
                                 }
                             }
                             List<SampleEntry> normalizedSamplesData = normalizeSamplesData(keyFields,
