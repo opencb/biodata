@@ -46,8 +46,8 @@ public class VariantSetStatsCalculator implements Task<Variant, Variant> {
 
     private final String studyId;
     private final Set<String> files;
-    private final int sampleCount;
-    private final Map<String, Integer> chrLengthMap;
+    private final long sampleCount;
+    private final Map<String, Long> chrLengthMap;
     private static Logger logger = LoggerFactory.getLogger(VariantSetStatsCalculator.class);
 
     protected VariantSetStats stats;
@@ -74,17 +74,17 @@ public class VariantSetStatsCalculator implements Task<Variant, Variant> {
                 .collect(Collectors.toSet()).size();
         chrLengthMap = getChromosomeLengthsMap(metadata.getAggregatedHeader());
         stats = new VariantSetStats(
-                0,
-                0,
-                new HashMap<String, Integer>(),
-                0,
+                0L,
+                0L,
+                new HashMap<String, Long>(),
+                0L,
                 0f,
                 0f,
                 0f,
-                new HashMap<String, Integer>(),
-                new HashMap<String, Integer>(),
-                new HashMap<String, Integer>(),
-                new HashMap<String, Integer>(),
+                new HashMap<String, Long>(),
+                new HashMap<String, Long>(),
+                new HashMap<String, Long>(),
+                new HashMap<String, Long>(),
                 new HashMap<String, Float>()
         );
         if (metadata.getStats() == null) {
@@ -107,23 +107,23 @@ public class VariantSetStatsCalculator implements Task<Variant, Variant> {
         fileMetadata.setStats(stats);
     }
 
-    public VariantSetStatsCalculator(String studyId, Set<String> files, int sampleCount, Map<String, Integer> chrLengthMap) {
+    public VariantSetStatsCalculator(String studyId, Set<String> files, int sampleCount, Map<String, Long> chrLengthMap) {
         this.studyId = studyId;
         this.files = files;
         this.sampleCount = sampleCount;
         this.chrLengthMap = chrLengthMap == null ? Collections.emptyMap() : chrLengthMap;
         stats = new VariantSetStats(
-                0,
-                0,
-                new HashMap<String, Integer>(),
-                0,
+                0L,
+                0L,
+                new HashMap<String, Long>(),
+                0L,
                 0f,
                 0f,
                 0f,
-                new HashMap<String, Integer>(),
-                new HashMap<String, Integer>(),
-                new HashMap<String, Integer>(),
-                new HashMap<String, Integer>(),
+                new HashMap<String, Long>(),
+                new HashMap<String, Long>(),
+                new HashMap<String, Long>(),
+                new HashMap<String, Long>(),
                 new HashMap<String, Float>()
         );
     }
@@ -165,8 +165,8 @@ public class VariantSetStatsCalculator implements Task<Variant, Variant> {
         }
         if (validVariant) {
             stats.setVariantCount(stats.getVariantCount() + 1);
-            stats.getChromosomeCount().merge(variant.getChromosome(), 1, Integer::sum);
-            stats.getTypeCount().merge(variant.getType().toString(), 1, Integer::sum);
+            stats.getChromosomeCount().merge(variant.getChromosome(), 1L, Long::sum);
+            stats.getTypeCount().merge(variant.getType().toString(), 1L, Long::sum);
             if (VariantStats.isTransition(variant.getReference(), variant.getAlternate())) {
                 transitionsCount++;
             }
@@ -192,7 +192,7 @@ public class VariantSetStatsCalculator implements Task<Variant, Variant> {
 
             } else {
                 for (String f : filter.split(";")) {
-                    stats.getFilterCount().merge(f, 1, Integer::sum);
+                    stats.getFilterCount().merge(f, 1L, Long::sum);
                 }
             }
         }
@@ -203,11 +203,11 @@ public class VariantSetStatsCalculator implements Task<Variant, Variant> {
             for (ConsequenceType consequenceType : annotation.getConsequenceTypes()) {
                 String biotype = consequenceType.getBiotype();
                 if (StringUtils.isNotEmpty(biotype)) {
-                    stats.getBiotypeCount().merge(biotype, 1, Integer::sum);
+                    stats.getBiotypeCount().merge(biotype, 1L, Long::sum);
                 }
                 if (consequenceType.getSequenceOntologyTerms() != null) {
                     for (SequenceOntologyTerm term : consequenceType.getSequenceOntologyTerms()) {
-                        stats.getConsequenceTypeCount().merge(term.getName(), 1, Integer::sum);
+                        stats.getConsequenceTypeCount().merge(term.getName(), 1L, Long::sum);
                     }
                 }
             }
@@ -218,7 +218,7 @@ public class VariantSetStatsCalculator implements Task<Variant, Variant> {
     public synchronized void post() {
         stats.setSampleCount(sampleCount);
         if (files != null) {
-            stats.setFilesCount(files.size());
+            stats.setFilesCount((long) files.size());
         }
         float qualityAvg = (float) (qualSum / qualCount);
         stats.setQualityAvg(qualityAvg);
@@ -226,7 +226,7 @@ public class VariantSetStatsCalculator implements Task<Variant, Variant> {
         stats.setQualityStdDev((float) Math.sqrt(qualSumSq / qualCount - qualityAvg * qualityAvg));
         stats.setTiTvRatio(((float) transitionsCount) / ((float) transversionsCount));
         stats.getChromosomeCount().forEach((chr, count) -> {
-            Integer length = chrLengthMap.get(chr);
+            Long length = chrLengthMap.get(chr);
             if (length != null && length > 0) {
                 stats.getChromosomeDensity().put(chr, count / (float) length);
             }
@@ -254,20 +254,20 @@ public class VariantSetStatsCalculator implements Task<Variant, Variant> {
         mergeCounts(thisStats.getChromosomeCount(), otherStats.getChromosomeCount());
     }
 
-    private static void mergeCounts(Map<String, Integer> map, Map<String, Integer> otherMap) {
-        otherMap.forEach((key, count) -> map.merge(key, count, Integer::sum));
+    private static void mergeCounts(Map<String, Long> map, Map<String, Long> otherMap) {
+        otherMap.forEach((key, count) -> map.merge(key, count, Long::sum));
     }
 
-    private static Map<String, Integer> getChromosomeLengthsMap(VariantFileHeader header) {
-        Map<String, Integer> lengths = new HashMap<>();
+    private static Map<String, Long> getChromosomeLengthsMap(VariantFileHeader header) {
+        Map<String, Long> lengths = new HashMap<>();
         for (VariantFileHeaderComplexLine line : header.getComplexLines()) {
             if (line.getKey().equalsIgnoreCase("contig")) {
                 String length = line.getGenericFields().get("length");
                 String chr = Region.normalizeChromosome(line.getId());
                 if (StringUtils.isNumeric(length)) {
-                    lengths.put(chr, Integer.parseInt(length));
+                    lengths.put(chr, Long.valueOf(length));
                 } else {
-                    lengths.put(chr, -1);
+                    lengths.put(chr, -1L);
                 }
             }
         }

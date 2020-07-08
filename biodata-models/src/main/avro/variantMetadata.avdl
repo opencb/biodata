@@ -62,19 +62,19 @@ protocol VariantMetadataProtocol {
     */
     record VariantSetStats {
         /** Number of variants in the variant set */
-        int variantCount;
+        long variantCount;
 
         /** Number of samples in the variant set */
-        int sampleCount;
+        long sampleCount;
 
         /**
          * The number of occurrences for each FILTER value in files from this set.
          * Each file can contain more than one filter value (usually separated by ';').
          **/
-        map<int> filterCount;
+        map<long> filterCount;
 
         /** Number of files in the variant set */
-        int filesCount;
+        long filesCount;
 
         /** TiTvRatio = num. transitions / num. transversions */
         float tiTvRatio;
@@ -96,16 +96,16 @@ protocol VariantMetadataProtocol {
 //        array<VariantsByFrequency> numRareVariants = [];
 
         /** Variants count group by type. e.g. SNP, INDEL, MNP, SNV, ... */
-        map<int> typeCount = {};
+        map<long> typeCount = {};
 
         /** Variants count group by biotype. e.g. protein-coding, miRNA, lncRNA, ... */
-        map<int> biotypeCount = {};
+        map<long> biotypeCount = {};
 
         /** Variants count group by consequence type. e.g. synonymous_variant, missense_variant, stop_lost, ... */
-        map<int> consequenceTypeCount = {};
+        map<long> consequenceTypeCount = {};
 
         /** Number of variants per chromosome */
-        map<int> chromosomeCount = {};
+        map<long> chromosomeCount = {};
 
         /** Total density of variants within the chromosome. counts / chromosome.length */
         map<float> chromosomeDensity = {};
@@ -184,11 +184,6 @@ protocol VariantMetadataProtocol {
          */
         map<int> biotypeCount = {};
     }
-
-
-
-// - En el VariantSetStats, los maps de contadores tienen el sufijo "counts", por ejemplo "variantTypeCounts". Habría que renombrarlos a "count" ?
-
 
     record VariantFileHeaderComplexLine {
         /** Key of group of the Complex Header Line, e.g. INFO, FORMAT, FILTER, ALT, ... */
