@@ -183,6 +183,12 @@ protocol VariantMetadataProtocol {
          * Each counter is increased at most one per variant. If multiple overlapping genes have the same biotypes, it will count as one.
          */
         map<int> biotypeCount = {};
+
+        /**
+         * Variants count group by clinical significance. e.g. benign, likely_benign, likely_pathogenic, pathogenic, uncertain_significance  ...
+         * Each counter is increased at most one per variant. If multiple variant traits have the same clinical significance, it will count as one.
+         */
+        map<int> clinicalSignificanceCount = {};
     }
 
     record VariantFileHeaderComplexLine {
