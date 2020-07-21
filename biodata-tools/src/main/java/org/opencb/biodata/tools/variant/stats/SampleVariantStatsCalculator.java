@@ -169,8 +169,24 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
      * @param cts        Set with consequence types in this variant
      * @param biotypes   Set with biotypes in this variant
      */
+    @Deprecated
     public void update(Variant variant, List<String> gts, List<String> quals, List<String> filters, Set<String> cts, Set<String> biotypes) {
-        update(variant, gts::get, quals::get, filters::get, samplesPos, cts, biotypes);
+        update(variant, gts, quals, filters, cts, biotypes, Collections.emptySet());
+    }
+
+    /**
+     * Update the stats given only the required elements.
+     * @param variant    Minimal version of the variant. Only chr,pos,ref,alt
+     * @param gts        List of genotypes
+     * @param quals      List of quals
+     * @param filters    List of filters
+     * @param cts        Set with consequence types in this variant
+     * @param biotypes   Set with biotypes in this variant
+     * @param clinicalSignificance Set with clinicalSignificances in this variant
+     */
+    public void update(Variant variant, List<String> gts, List<String> quals, List<String> filters, Set<String> cts, Set<String> biotypes,
+                       Set<String> clinicalSignificance) {
+        update(variant, gts::get, quals::get, filters::get, samplesPos, cts, biotypes, clinicalSignificance);
     }
 
     private void update(Variant variant,
@@ -182,6 +198,7 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
 
         Set<String> biotypes = new HashSet<>();
         Set<String> cts = new HashSet<>();
+        Set<String> clinicalSignificance = new HashSet<>();
         if (annotation != null) {
             if (CollectionUtils.isNotEmpty(annotation.getConsequenceTypes())) {
                 for (ConsequenceType ct : annotation.getConsequenceTypes()) {
@@ -196,15 +213,23 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
                     }
                 }
             }
+            if (annotation.getTraitAssociation() != null) {
+                for (EvidenceEntry evidenceEntry : annotation.getTraitAssociation()) {
+                    if (evidenceEntry.getVariantClassification() != null
+                            && evidenceEntry.getVariantClassification().getClinicalSignificance() != null) {
+                        clinicalSignificance.add(evidenceEntry.getVariantClassification().getClinicalSignificance().name());
+                    }
+                }
+            }
         }
-        update(variant, gts, getQual, getFilter, samplesPos, cts, biotypes);
+        update(variant, gts, getQual, getFilter, samplesPos, cts, biotypes, clinicalSignificance);
     }
 
     private void update(Variant variant,
                         IntFunction<String> gts,
                         IntFunction<String> getQual,
                         IntFunction<String> getFilter,
-                        LinkedHashMap<String, Integer> samplesPos, Set<String> cts, Set<String> biotypes) {
+                        LinkedHashMap<String, Integer> samplesPos, Set<String> cts, Set<String> biotypes, Set<String> clinicalSignificance) {
         int numSamples = samplesPos.size();
         if (statsList == null) {
             init(new ArrayList<>(samplesPos.keySet()));
@@ -218,7 +243,7 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
             if (gt != null) {
                 String qual = getQual.apply(samplePos);
                 String filter = getFilter.apply(samplePos);
-                updateSample(variant, transition, transversion, samplePos, gts, gt, qual, filter, biotypes, cts);
+                updateSample(variant, transition, transversion, samplePos, gts, gt, qual, filter, biotypes, cts, clinicalSignificance);
             }
         }
     }
@@ -226,7 +251,7 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
     private void updateSample(Variant variant, boolean transition, boolean transversion,
                               int samplePos, IntFunction<String> gts, String gt,
                               String qual, String filter,
-                              Set<String> biotypes, Set<String> cts) {
+                              Set<String> biotypes, Set<String> cts, Set<String> clinicalSignificance) {
         SampleVariantStats stats = statsList.get(samplePos);
 
 //        if (gt.contains(".")) {
@@ -314,6 +339,10 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
             // ConsequenceType counter
             for (String ct : cts) {
                 incCount(stats.getConsequenceTypeCount(), ct);
+            }
+            // ConsequenceType counter
+            for (String cs : clinicalSignificance) {
+                incCount(stats.getClinicalSignificanceCount(), cs);
             }
 
         }
@@ -516,6 +545,7 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
                     0f,
                     0f,
                     0f,
+                    new HashMap<>(),
                     new HashMap<>(),
                     new HashMap<>(),
                     new HashMap<>()

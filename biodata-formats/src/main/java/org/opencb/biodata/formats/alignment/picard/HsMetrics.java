@@ -13,7 +13,7 @@ public class HsMetrics {
     private double atDropout;
 
     /**
-     * Target terrirtoy / bait territory. 1 == perfectly efficient, 0.5 = half of baited bases are not target
+     * Target territory / bait territory. 1 == perfectly efficient, 0.5 = half of baited bases are not target
      */
     private double baitDesignEfficiency;
 
@@ -169,9 +169,22 @@ public class HsMetrics {
     */
     private double[] hsPenalty;
 
+    /**
+     * Histogram: array of 201 values, from 0 to 200, first is coverage or base quality 0; second, 1; third, 2;...
+     */
+    private int[] highQualityCoverageCount;
+
+    /**
+     * Histogram: array of 201 values, from 0 to 200, first is coverage or base quality 0; second, 1; third, 2;...
+     */
+    private int[] unfilteredBaseQCount;
+
     public HsMetrics() {
         pctTargetBases = new double[8];
         hsPenalty = new double[6];
+
+        highQualityCoverageCount = new int[201];
+        unfilteredBaseQCount = new int[201];
     }
 
     @Override
@@ -204,12 +217,13 @@ public class HsMetrics {
         sb.append(", onBaitVsSelected=").append(onBaitVsSelected);
         sb.append(", targetTerritory=").append(targetTerritory);
         sb.append(", zeroCvgTargetsPct=").append(zeroCvgTargetsPct);
-        sb.append(", zeroCvgTargetsPct=").append(zeroCvgTargetsPct);
         sb.append(", hsLibrarySize=").append(hsLibrarySize);
         sb.append(", baitSet='").append(baitSet).append('\'');
         sb.append(", genomeSize=").append(genomeSize);
         sb.append(", pctTargetBases=").append(Arrays.toString(pctTargetBases));
         sb.append(", hsPenalty=").append(Arrays.toString(hsPenalty));
+        sb.append(", highQualityCoverageCount=").append(Arrays.toString(highQualityCoverageCount));
+        sb.append(", unfilteredBaseQCount=").append(Arrays.toString(unfilteredBaseQCount));
         sb.append('}');
         return sb.toString();
     }
@@ -452,7 +466,7 @@ public class HsMetrics {
         return zeroCvgTargetsPct;
     }
 
-    public HsMetrics setZeroCvgTargetsPct(int zeroCvgTargetsPct) {
+    public HsMetrics setZeroCvgTargetsPct(double zeroCvgTargetsPct) {
         this.zeroCvgTargetsPct = zeroCvgTargetsPct;
         return this;
     }
@@ -502,8 +516,21 @@ public class HsMetrics {
         return this;
     }
 
-    public HsMetrics setZeroCvgTargetsPct(double zeroCvgTargetsPct) {
-        this.zeroCvgTargetsPct = zeroCvgTargetsPct;
+    public int[] getHighQualityCoverageCount() {
+        return highQualityCoverageCount;
+    }
+
+    public HsMetrics setHighQualityCoverageCount(int[] highQualityCoverageCount) {
+        this.highQualityCoverageCount = highQualityCoverageCount;
+        return this;
+    }
+
+    public int[] getUnfilteredBaseQCount() {
+        return unfilteredBaseQCount;
+    }
+
+    public HsMetrics setUnfilteredBaseQCount(int[] unfilteredBaseQCount) {
+        this.unfilteredBaseQCount = unfilteredBaseQCount;
         return this;
     }
 }
