@@ -20,6 +20,7 @@
 package org.opencb.biodata.models.core;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 
 public class Exon implements Serializable{
@@ -232,5 +233,31 @@ public class Exon implements Serializable{
 
 	public static long getSerialVersionUID() {
 		return serialVersionUID;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof Exon)) return false;
+		Exon exon = (Exon) o;
+		return getStart() == exon.getStart() &&
+				getEnd() == exon.getEnd() &&
+				getGenomicCodingStart() == exon.getGenomicCodingStart() &&
+				getGenomicCodingEnd() == exon.getGenomicCodingEnd() &&
+				getCdnaCodingStart() == exon.getCdnaCodingStart() &&
+				getCdnaCodingEnd() == exon.getCdnaCodingEnd() &&
+				getCdsStart() == exon.getCdsStart() &&
+				getCdsEnd() == exon.getCdsEnd() &&
+				getPhase() == exon.getPhase() &&
+				getExonNumber() == exon.getExonNumber() &&
+				Objects.equals(getId(), exon.getId()) &&
+				Objects.equals(getChromosome(), exon.getChromosome()) &&
+				Objects.equals(getStrand(), exon.getStrand()) &&
+				Objects.equals(getSequence(), exon.getSequence());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(getId(), getChromosome(), getStart(), getEnd(), getStrand(), getGenomicCodingStart(), getGenomicCodingEnd(), getCdnaCodingStart(), getCdnaCodingEnd(), getCdsStart(), getCdsEnd(), getPhase(), getExonNumber(), getSequence());
 	}
 }
