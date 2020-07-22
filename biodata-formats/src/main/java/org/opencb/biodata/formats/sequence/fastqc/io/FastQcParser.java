@@ -153,7 +153,7 @@ public class FastQcParser {
 
             String[] fields = line.split("\t");
             // #Length	Count
-            seqLengthDistribution.getValues().put(Integer.parseInt(fields[0]), Double.parseDouble(fields[1]));
+            seqLengthDistribution.getValues().put(fields[0], Double.parseDouble(fields[1]));
         }
     }
 

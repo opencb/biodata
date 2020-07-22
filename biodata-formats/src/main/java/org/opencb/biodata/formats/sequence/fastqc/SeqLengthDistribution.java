@@ -5,14 +5,14 @@ import java.util.Map;
 
 public class SeqLengthDistribution {
 
-    private Map<Integer, Double> values;
+    private Map<String, Double> values;
     private String file;
 
     public SeqLengthDistribution() {
-        this(new LinkedHashMap(), "");
+        this(new LinkedHashMap<>(), "");
     }
 
-    public SeqLengthDistribution(Map<Integer, Double> values, String file) {
+    public SeqLengthDistribution(Map<String, Double> values, String file) {
         this.values = values;
         this.file = file;
     }
@@ -26,11 +26,11 @@ public class SeqLengthDistribution {
         return sb.toString();
     }
 
-    public Map<Integer, Double> getValues() {
+    public Map<String, Double> getValues() {
         return values;
     }
 
-    public SeqLengthDistribution setValues(Map<Integer, Double> values) {
+    public SeqLengthDistribution setValues(Map<String, Double> values) {
         this.values = values;
         return this;
     }
