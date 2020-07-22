@@ -24,6 +24,7 @@ import org.opencb.biodata.models.variant.avro.GeneDrugInteraction;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 
 public class Gene implements Serializable {
@@ -37,7 +38,7 @@ public class Gene implements Serializable {
     private String biotype;
     private String status;
     private String source;
-    private int version;
+    private String version;
     private String description;
     private List<Transcript> transcripts;
     private MiRnaGene mirna;
@@ -101,7 +102,7 @@ public class Gene implements Serializable {
         this.annotation = annotation;
     }
 
-    public Gene(String id, String name, String chromosome, int start, int end, String strand, int version, String biotype, String status,
+    public Gene(String id, String name, String chromosome, int start, int end, String strand, String version, String biotype, String status,
                 String source, String description, List<Transcript> transcripts, MiRnaGene mirna, GeneAnnotation annotation) {
         this.id = id;
         this.name = name;
@@ -194,11 +195,11 @@ public class Gene implements Serializable {
         return this;
     }
 
-    public int getVersion() {
+    public String getVersion() {
         return version;
     }
 
-    public Gene setVersion(int version) {
+    public Gene setVersion(String version) {
         this.version = version;
         return this;
     }
@@ -264,5 +265,31 @@ public class Gene implements Serializable {
     public Gene setAnnotation(GeneAnnotation annotation) {
         this.annotation = annotation;
         return this;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Gene)) return false;
+        Gene gene = (Gene) o;
+        return getStart() == gene.getStart() &&
+                getEnd() == gene.getEnd() &&
+                getVersion() == gene.getVersion() &&
+                Objects.equals(getId(), gene.getId()) &&
+                Objects.equals(getName(), gene.getName()) &&
+                Objects.equals(getChromosome(), gene.getChromosome()) &&
+                Objects.equals(getStrand(), gene.getStrand()) &&
+                Objects.equals(getBiotype(), gene.getBiotype()) &&
+                Objects.equals(getStatus(), gene.getStatus()) &&
+                Objects.equals(getSource(), gene.getSource()) &&
+                Objects.equals(getDescription(), gene.getDescription()) &&
+                Objects.equals(getTranscripts(), gene.getTranscripts()) &&
+                Objects.equals(getMirna(), gene.getMirna()) &&
+                Objects.equals(getAnnotation(), gene.getAnnotation());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getName(), getChromosome(), getStart(), getEnd(), getStrand(), getBiotype(), getStatus(), getSource(), getVersion(), getDescription(), getTranscripts(), getMirna(), getAnnotation());
     }
 }

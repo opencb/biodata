@@ -16,6 +16,7 @@
 
 package org.opencb.biodata.formats.feature.gtf.io;
 
+import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.formats.feature.gtf.Gtf;
 import org.opencb.biodata.formats.io.FileFormatException;
 import org.opencb.commons.utils.FileUtils;
@@ -72,8 +73,8 @@ public class GtfReader implements AutoCloseable {
                         } else {
                             attributes.put(k, v);
                         }
-                    } else {
-                        System.err.println("GTF attribute '" + attrFields[i] + "' size must be 2. At line:\n\t"+line);
+                    } else if (StringUtils.isNotEmpty(attrFields[i].trim())) {
+                        System.err.println("GTF attribute '" + attrFields[i] + "' at index " + i + ": size must be 2. At line:\n\t"+line);
                     }
                 }
                 return new Gtf(fields[0], fields[1], fields[2], Integer.parseInt(fields[3]), Integer.parseInt(fields[4]), fields[5], fields[6], fields[7], attributes);

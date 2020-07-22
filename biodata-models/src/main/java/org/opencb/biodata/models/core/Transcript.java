@@ -21,6 +21,7 @@ package org.opencb.biodata.models.core;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 
@@ -43,7 +44,7 @@ public class Transcript implements Serializable {
 	private String proteinId;
 	private String proteinSequence;
 	private String description;
-	private int version;
+	private String version;
 	private String source;
 	private String supportLevel;
 	private List<Exon> exons;
@@ -112,7 +113,7 @@ public class Transcript implements Serializable {
 	}
 
 	public Transcript(String id, String name, String biotype, String status, String source, String chromosome, Integer start, Integer end,
-					  String strand, int version, String supportLevel, Integer codingRegionStart, Integer codingRegionEnd,
+					  String strand, String version, String supportLevel, Integer codingRegionStart, Integer codingRegionEnd,
 					  Integer cdnaCodingStart, Integer cdnaCodingEnd, Integer cdsLength, String proteinId, String description,
 					  List<Xref> xrefs, List<Exon> exons, List<TranscriptTfbs> tfbs, TranscriptAnnotation annotation) {
 		this.id = id;
@@ -251,11 +252,11 @@ public class Transcript implements Serializable {
 		return this;
 	}
 
-	public int getVersion() {
+	public String getVersion() {
 		return version;
 	}
 
-	public Transcript setVersion(int version) {
+	public Transcript setVersion(String version) {
 		this.version = version;
 		return this;
 	}
@@ -402,5 +403,42 @@ public class Transcript implements Serializable {
 	public Transcript setAnnotation(TranscriptAnnotation annotation) {
 		this.annotation = annotation;
 		return this;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof Transcript)) return false;
+		Transcript that = (Transcript) o;
+		return getStart() == that.getStart() &&
+				getEnd() == that.getEnd() &&
+				getGenomicCodingStart() == that.getGenomicCodingStart() &&
+				getGenomicCodingEnd() == that.getGenomicCodingEnd() &&
+				getCdnaCodingStart() == that.getCdnaCodingStart() &&
+				getCdnaCodingEnd() == that.getCdnaCodingEnd() &&
+				getCdsLength() == that.getCdsLength() &&
+				getVersion() == that.getVersion() &&
+				Objects.equals(getId(), that.getId()) &&
+				Objects.equals(getName(), that.getName()) &&
+				Objects.equals(getChromosome(), that.getChromosome()) &&
+				Objects.equals(getStrand(), that.getStrand()) &&
+				Objects.equals(getBiotype(), that.getBiotype()) &&
+				Objects.equals(getStatus(), that.getStatus()) &&
+				Objects.equals(getcDnaSequence(), that.getcDnaSequence()) &&
+				Objects.equals(getProteinId(), that.getProteinId()) &&
+				Objects.equals(getProteinSequence(), that.getProteinSequence()) &&
+				Objects.equals(getDescription(), that.getDescription()) &&
+				Objects.equals(getSource(), that.getSource()) &&
+				Objects.equals(getSupportLevel(), that.getSupportLevel()) &&
+				Objects.equals(getExons(), that.getExons()) &&
+				Objects.equals(getXrefs(), that.getXrefs()) &&
+				Objects.equals(getTfbs(), that.getTfbs()) &&
+				Objects.equals(getAnnotationFlags(), that.getAnnotationFlags()) &&
+				Objects.equals(getAnnotation(), that.getAnnotation());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(getId(), getName(), getChromosome(), getStart(), getEnd(), getStrand(), getBiotype(), getStatus(), getGenomicCodingStart(), getGenomicCodingEnd(), getCdnaCodingStart(), getCdnaCodingEnd(), getCdsLength(), getcDnaSequence(), getProteinId(), getProteinSequence(), getDescription(), getVersion(), getSource(), getSupportLevel(), getExons(), getXrefs(), getTfbs(), getAnnotationFlags(), getAnnotation());
 	}
 }
