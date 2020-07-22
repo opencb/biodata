@@ -5,15 +5,19 @@ import org.opencb.biodata.formats.alignment.samtools.SamtoolsFlagstats;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.nio.file.Path;
 
 public class SamtoolsFlagstatsParser {
 
     public static SamtoolsFlagstats parse(Path path) throws IOException {
+        try (FileReader fr = new FileReader(path.toFile())) {
+            return parse(fr);
+        }
+    }
 
+    public static SamtoolsFlagstats parse(Reader fr) throws IOException {
         SamtoolsFlagstats flagstats = new SamtoolsFlagstats();
-
-        FileReader fr = new FileReader(path.toFile());
         BufferedReader br = new BufferedReader(fr);
 
         String line;
@@ -31,8 +35,6 @@ public class SamtoolsFlagstatsParser {
                 flagstats.setSupplementary(passed);
             } else if (line.contains("duplicates")) {
                 flagstats.setDuplicates(passed);
-            } else if (line.contains("mapped")) {
-                flagstats.setMapped(passed);
             } else if (line.contains("paired in sequencing")) {
                 flagstats.setPairedInSequencing(passed);
             } else if (line.contains("read1")) {
@@ -49,6 +51,9 @@ public class SamtoolsFlagstatsParser {
                 flagstats.setDiffChrMapQ5(passed);
             } else if (line.contains("with mate mapped")) {
                 flagstats.setMateMappedToDiffChr(passed);
+            } else if (line.contains("mapped")) {
+                // This must be the last if-else, as other lines may contain the key "mapped"
+                flagstats.setMapped(passed);
             }
         }
 

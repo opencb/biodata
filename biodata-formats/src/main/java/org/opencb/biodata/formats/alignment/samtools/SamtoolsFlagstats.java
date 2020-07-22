@@ -1,5 +1,7 @@
 package org.opencb.biodata.formats.alignment.samtools;
 
+import java.util.Objects;
+
 public class SamtoolsFlagstats {
 
     /**
@@ -97,6 +99,32 @@ public class SamtoolsFlagstats {
         sb.append(", diffChrMapQ5=").append(diffChrMapQ5);
         sb.append('}');
         return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SamtoolsFlagstats that = (SamtoolsFlagstats) o;
+        return totalReads == that.totalReads &&
+                totalQcPassed == that.totalQcPassed &&
+                mapped == that.mapped &&
+                secondaryAlignments == that.secondaryAlignments &&
+                supplementary == that.supplementary &&
+                duplicates == that.duplicates &&
+                pairedInSequencing == that.pairedInSequencing &&
+                read1 == that.read1 &&
+                read2 == that.read2 &&
+                properlyPaired == that.properlyPaired &&
+                selfAndMateMapped == that.selfAndMateMapped &&
+                singletons == that.singletons &&
+                mateMappedToDiffChr == that.mateMappedToDiffChr &&
+                diffChrMapQ5 == that.diffChrMapQ5;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(totalReads, totalQcPassed, mapped, secondaryAlignments, supplementary, duplicates, pairedInSequencing, read1, read2, properlyPaired, selfAndMateMapped, singletons, mateMappedToDiffChr, diffChrMapQ5);
     }
 
     public int getTotalReads() {
