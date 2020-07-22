@@ -48,7 +48,6 @@ public class GtfReader implements AutoCloseable {
         Files.exists(path);
         this.file = file;
         bufferedReader = FileUtils.newBufferedReader(path);
-//        bufferedReader = new BufferedReader(new FileReader(file));
     }
 
     public Gtf read() throws FileFormatException {
@@ -56,12 +55,12 @@ public class GtfReader implements AutoCloseable {
         try {
             String line = "";
             while ((line = bufferedReader.readLine()) != null && (line.trim().equals("") || line.startsWith("#"))) {
-                ;
+                // skip headers
             }
             if (line != null) {
                 String[] fields = line.split("\t");
                 Map<String, String> attributes = new HashMap<String, String>();
-                String[] attrFields = fields[8].split(";");
+                String[] attrFields = fields[8].split(";(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
                 String k, v;
                 for (int i = 0; i < attrFields.length; i++) {
                     final Matcher matcher = kvpattern.matcher(attrFields[i].trim());
