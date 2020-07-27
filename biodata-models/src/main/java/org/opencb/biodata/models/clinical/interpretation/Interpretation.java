@@ -35,7 +35,7 @@ public class Interpretation {
      * Interpretation algorithm tool used to generate this interpretation.
      */
     private Analyst analyst;
-    private InterpretationMethod method;
+    private List<InterpretationMethod> methods;
 
     private List<ClinicalVariant> primaryFindings;
     private List<ClinicalVariant> secondaryFindings;
@@ -56,7 +56,7 @@ public class Interpretation {
     }
 
     public Interpretation(String id, String uuid, String description, String clinicalAnalysisId, Analyst analyst,
-                          InterpretationMethod method, List<ClinicalVariant> primaryFindings,
+                          List<InterpretationMethod> methods, List<ClinicalVariant> primaryFindings,
                           List<ClinicalVariant> secondaryFindings, List<Comment> comments, String status, String creationDate,
                           int version, Map<String, Object> attributes) {
         this.id = id;
@@ -64,7 +64,7 @@ public class Interpretation {
         this.description = description;
         this.clinicalAnalysisId = clinicalAnalysisId;
         this.analyst = analyst;
-        this.method = method;
+        this.methods = methods;
         this.primaryFindings = primaryFindings;
         this.secondaryFindings = secondaryFindings;
         this.comments = comments;
@@ -82,7 +82,7 @@ public class Interpretation {
         sb.append(", description='").append(description).append('\'');
         sb.append(", clinicalAnalysisId='").append(clinicalAnalysisId).append('\'');
         sb.append(", analyst=").append(analyst);
-        sb.append(", method=").append(method);
+        sb.append(", methods=").append(methods);
         sb.append(", primaryFindings=").append(primaryFindings);
         sb.append(", secondaryFindings=").append(secondaryFindings);
         sb.append(", comments=").append(comments);
@@ -139,12 +139,12 @@ public class Interpretation {
         return this;
     }
 
-    public InterpretationMethod getMethod() {
-        return method;
+    public List<InterpretationMethod> getMethods() {
+        return methods;
     }
 
-    public Interpretation setMethod(InterpretationMethod method) {
-        this.method = method;
+    public Interpretation setMethods(List<InterpretationMethod> methods) {
+        this.methods = methods;
         return this;
     }
 
