@@ -271,7 +271,7 @@ public abstract class VariantContextConverter<T> implements Converter<T, Variant
                     String value = getSampleData.apply(sampleName, key);
                     switch (key) {
                         case "GT":
-                            if (value == null) {
+                            if (value == null || value.equals("?/?") || value.equals("NA")) {
                                 value = NO_CALL_ALLELE;
                             }
                             org.opencb.biodata.models.variant.Genotype genotype =
