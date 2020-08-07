@@ -27,7 +27,7 @@ public class MissenseVariantFunctionalScore {
     private String chromosome;
     private int position;
     private String reference;
-    private String source = "Revel";
+    private String source;
     private List<TranscriptMissenseVariantFunctionalScore> scores;
 
     public MissenseVariantFunctionalScore() {
