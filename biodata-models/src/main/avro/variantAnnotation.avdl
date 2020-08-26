@@ -127,8 +127,11 @@ protocol VariantAnnotations {
         union { null, string } geneName;
         union { null, string } ensemblGeneId;
         union { null, string } ensemblTranscriptId;
+        union { null, string } geneId;
+        union { null, string } transcriptId;
         union { null, string } strand;
         union { null, string } biotype;
+        union { null, string } source;
         union { null, array<ExonOverlap> } exonOverlap;
         union { null, array<string> } transcriptAnnotationFlags;
         union { null, int } cdnaPosition;
