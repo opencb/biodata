@@ -42,7 +42,7 @@
         <grpc.version>1.23.0</grpc.version>
         <!--<htsjdk.version>2.6.1</htsjdk.version>-->
         <htsjdk.version>2.21.3</htsjdk.version>
-        <sqlite.version>3.15.1</sqlite.version>
+<!--        <sqlite.version>3.15.1</sqlite.version>-->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <compileSource>1.8</compileSource>
     </properties>
@@ -150,11 +150,6 @@
                 <version>${htsjdk.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.xerial</groupId>
-                <artifactId>sqlite-jdbc</artifactId>
-                <version>${sqlite.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.avro</groupId>
                 <artifactId>avro</artifactId>
                 <version>${avro.version}</version>
@@ -180,19 +175,6 @@
                 <version>1.0</version>
             </dependency>
             <dependency>
-                <groupId>org.spockframework</groupId>
-                <artifactId>spock-core</artifactId>
-                <version>0.7-groovy-2.0</version>
-                <scope>test</scope>
-            </dependency>
-            <!--<dependency>-->
-                <!--<groupId>igv</groupId>-->
-                <!--<artifactId>igv</artifactId>-->
-                <!--<version>2.3.88</version>-->
-                <!--<scope>system</scope>-->
-                <!--<systemPath>/tmp/igv.jar</systemPath>-->
-            <!--</dependency>-->
-            <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>4.12</version>
@@ -206,7 +188,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.6.0</version>
+                <version>3.8.1</version>
                 <configuration>
                     <source>${compileSource}</source>
                     <target>${compileSource}</target>
@@ -222,33 +204,6 @@
                 <configuration>
                     <encoding>UTF-8</encoding>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.gmaven</groupId>
-                <artifactId>gmaven-plugin</artifactId>
-                <version>1.5</version>
-                <configuration>
-                    <providerSelection>2.0</providerSelection>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>testCompile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.codehaus.gmaven.runtime</groupId>
-                        <artifactId>gmaven-runtime-2.0</artifactId>
-                        <version>1.5</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.codehaus.groovy</groupId>
-                        <artifactId>groovy-all</artifactId>
-                        <version>2.0.8</version>
-                    </dependency>
-                </dependencies>
             </plugin>
         </plugins>
 
