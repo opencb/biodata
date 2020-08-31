@@ -19,7 +19,7 @@
 
 package org.opencb.biodata.models.clinical.interpretation;
 
-import org.opencb.biodata.models.clinical.Comment;
+import org.opencb.biodata.models.clinical.ClinicalComment;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.VariantAvro;
 
@@ -32,7 +32,7 @@ public class ClinicalVariant extends Variant {
 
     private double deNovoQualityScore;
     private List<ClinicalVariantEvidence> evidences;
-    private List<Comment> comments;
+    private List<ClinicalComment> comments;
 
     private Status status;
 
@@ -55,8 +55,8 @@ public class ClinicalVariant extends Variant {
         this(avro, 0.0, new ArrayList<>(), new ArrayList<>(), Status.NOT_REVIEWED, new HashMap<>());
     }
 
-    public ClinicalVariant(VariantAvro avro, double deNovoQualityScore, List<ClinicalVariantEvidence> evidences, List<Comment> comments,
-                           Status status, Map<String, Object> attributes) {
+    public ClinicalVariant(VariantAvro avro, double deNovoQualityScore, List<ClinicalVariantEvidence> evidences,
+                           List<ClinicalComment> comments, Status status, Map<String, Object> attributes) {
         super(avro);
 
         this.deNovoQualityScore = deNovoQualityScore;
@@ -97,11 +97,11 @@ public class ClinicalVariant extends Variant {
         return this;
     }
 
-    public List<Comment> getComments() {
+    public List<ClinicalComment> getComments() {
         return comments;
     }
 
-    public ClinicalVariant setComments(List<Comment> comments) {
+    public ClinicalVariant setComments(List<ClinicalComment> comments) {
         this.comments = comments;
         return this;
     }
