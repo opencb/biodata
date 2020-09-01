@@ -32,7 +32,6 @@ public class ClinicalVariantEvidence {
     private String interpretationMethodName;
 
     private List<Phenotype> phenotypes;
-    private List<SequenceOntologyTerm> consequenceTypes;
     private GenomicFeature genomicFeature;
     private ModeOfInheritance modeOfInheritance;
     private String panelId;
@@ -47,20 +46,18 @@ public class ClinicalVariantEvidence {
 
     public ClinicalVariantEvidence() {
         phenotypes = Collections.emptyList();
-        consequenceTypes = Collections.emptyList();
         compoundHeterozygousVariantIds = Collections.emptyList();
         fullyExplainPhenotypes = false;
         actionable = false;
     }
 
-    public ClinicalVariantEvidence(String interpretationMethodName, List<Phenotype> phenotypes, List<SequenceOntologyTerm> consequenceTypes,
-                                   GenomicFeature genomicFeature, ModeOfInheritance modeOfInheritance, String panelId,
-                                   VariantClassification classification, Penetrance penetrance, double score,
-                                   boolean fullyExplainPhenotypes, List<String> compoundHeterozygousVariantIds, RoleInCancer roleInCancer,
-                                   boolean actionable, String justification) {
+    public ClinicalVariantEvidence(String interpretationMethodName, List<Phenotype> phenotypes, GenomicFeature genomicFeature,
+                                   ModeOfInheritance modeOfInheritance, String panelId, VariantClassification classification,
+                                   Penetrance penetrance, double score, boolean fullyExplainPhenotypes,
+                                   List<String> compoundHeterozygousVariantIds, RoleInCancer roleInCancer, boolean actionable,
+                                   String justification) {
         this.interpretationMethodName = interpretationMethodName;
         this.phenotypes = phenotypes;
-        this.consequenceTypes = consequenceTypes;
         this.genomicFeature = genomicFeature;
         this.modeOfInheritance = modeOfInheritance;
         this.panelId = panelId;
@@ -79,7 +76,6 @@ public class ClinicalVariantEvidence {
         final StringBuilder sb = new StringBuilder("ClinicalVariantEvidence{");
         sb.append("interpretationMethodName='").append(interpretationMethodName).append('\'');
         sb.append(", phenotypes=").append(phenotypes);
-        sb.append(", consequenceTypes=").append(consequenceTypes);
         sb.append(", genomicFeature=").append(genomicFeature);
         sb.append(", modeOfInheritance=").append(modeOfInheritance);
         sb.append(", panelId='").append(panelId).append('\'');
@@ -110,15 +106,6 @@ public class ClinicalVariantEvidence {
 
     public ClinicalVariantEvidence setPhenotypes(List<Phenotype> phenotypes) {
         this.phenotypes = phenotypes;
-        return this;
-    }
-
-    public List<SequenceOntologyTerm> getConsequenceTypes() {
-        return consequenceTypes;
-    }
-
-    public ClinicalVariantEvidence setConsequenceTypes(List<SequenceOntologyTerm> consequenceTypes) {
-        this.consequenceTypes = consequenceTypes;
         return this;
     }
 
