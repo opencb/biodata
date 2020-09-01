@@ -45,6 +45,7 @@ public class Interpretation {
 
     private String status;
     private String creationDate;
+    private String modificationDate;
     private int version;
 
     /**
@@ -59,7 +60,7 @@ public class Interpretation {
     public Interpretation(String id, String uuid, String description, String clinicalAnalysisId, ClinicalAnalyst analyst,
                           List<InterpretationMethod> methods, List<ClinicalVariant> primaryFindings,
                           List<ClinicalVariant> secondaryFindings, List<ClinicalComment> comments, String status, String creationDate,
-                          int version, Map<String, Object> attributes) {
+                          String modificationDate, int version, Map<String, Object> attributes) {
         this.id = id;
         this.uuid = uuid;
         this.description = description;
@@ -71,6 +72,7 @@ public class Interpretation {
         this.comments = comments;
         this.status = status;
         this.creationDate = creationDate;
+        this.modificationDate = modificationDate;
         this.version = version;
         this.attributes = attributes;
     }
@@ -89,6 +91,7 @@ public class Interpretation {
         sb.append(", comments=").append(comments);
         sb.append(", status='").append(status).append('\'');
         sb.append(", creationDate='").append(creationDate).append('\'');
+        sb.append(", modificationDate='").append(modificationDate).append('\'');
         sb.append(", version=").append(version);
         sb.append(", attributes=").append(attributes);
         sb.append('}');
@@ -191,6 +194,15 @@ public class Interpretation {
 
     public Interpretation setCreationDate(String creationDate) {
         this.creationDate = creationDate;
+        return this;
+    }
+
+    public String getModificationDate() {
+        return modificationDate;
+    }
+
+    public Interpretation setModificationDate(String modificationDate) {
+        this.modificationDate = modificationDate;
         return this;
     }
 
