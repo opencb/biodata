@@ -30,9 +30,10 @@ import java.util.Map;
 
 public class ClinicalVariant extends Variant {
 
-    private double deNovoQualityScore;
     private List<ClinicalVariantEvidence> evidences;
+    private List<String> interpretationMethodNames;
     private List<ClinicalComment> comments;
+    private String discussion;
 
     private Status status;
 
@@ -41,7 +42,7 @@ public class ClinicalVariant extends Variant {
 
     public enum Status {
         NOT_REVIEWED,
-        UNDER_REVIEW,
+        REVIEW_REQUESTED,
         REVIEWED,
         DISCARDED,
         REPORTED
@@ -52,16 +53,17 @@ public class ClinicalVariant extends Variant {
     }
 
     public ClinicalVariant(VariantAvro avro) {
-        this(avro, 0.0, new ArrayList<>(), new ArrayList<>(), Status.NOT_REVIEWED, new HashMap<>());
+        this(avro, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), "", Status.NOT_REVIEWED, new HashMap<>());
     }
 
-    public ClinicalVariant(VariantAvro avro, double deNovoQualityScore, List<ClinicalVariantEvidence> evidences,
-                           List<ClinicalComment> comments, Status status, Map<String, Object> attributes) {
+    public ClinicalVariant(VariantAvro avro, List<ClinicalVariantEvidence> evidences, List<String> interpretationMethodNames,
+                           List<ClinicalComment> comments, String discussion, Status status, Map<String, Object> attributes) {
         super(avro);
 
-        this.deNovoQualityScore = deNovoQualityScore;
         this.evidences = evidences;
+        this.interpretationMethodNames = interpretationMethodNames;
         this.comments = comments;
+        this.discussion = discussion;
         this.status = status;
         this.attributes = attributes;
     }
@@ -69,23 +71,14 @@ public class ClinicalVariant extends Variant {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("ClinicalVariant{");
-        sb.append("variant=").append(super.toString());
-        sb.append(", deNovoQualityScore=").append(deNovoQualityScore);
-        sb.append(", evidences=").append(evidences);
+        sb.append("evidences=").append(evidences);
+        sb.append(", interpretationMethodNames=").append(interpretationMethodNames);
         sb.append(", comments=").append(comments);
+        sb.append(", discussion='").append(discussion).append('\'');
         sb.append(", status=").append(status);
         sb.append(", attributes=").append(attributes);
         sb.append('}');
         return sb.toString();
-    }
-
-    public double getDeNovoQualityScore() {
-        return deNovoQualityScore;
-    }
-
-    public ClinicalVariant setDeNovoQualityScore(double deNovoQualityScore) {
-        this.deNovoQualityScore = deNovoQualityScore;
-        return this;
     }
 
     public List<ClinicalVariantEvidence> getEvidences() {
@@ -97,12 +90,30 @@ public class ClinicalVariant extends Variant {
         return this;
     }
 
+    public List<String> getInterpretationMethodNames() {
+        return interpretationMethodNames;
+    }
+
+    public ClinicalVariant setInterpretationMethodNames(List<String> interpretationMethodNames) {
+        this.interpretationMethodNames = interpretationMethodNames;
+        return this;
+    }
+
     public List<ClinicalComment> getComments() {
         return comments;
     }
 
     public ClinicalVariant setComments(List<ClinicalComment> comments) {
         this.comments = comments;
+        return this;
+    }
+
+    public String getDiscussion() {
+        return discussion;
+    }
+
+    public ClinicalVariant setDiscussion(String discussion) {
+        this.discussion = discussion;
         return this;
     }
 
