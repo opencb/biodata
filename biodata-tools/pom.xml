@@ -26,50 +26,23 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <groupId>org.opencb.biodata</groupId>
     <artifactId>biodata-tools</artifactId>
     <version>${biodata.version}</version>
+    <packaging>jar</packaging>
 
     <dependencies>
-        <dependency>
-            <groupId>org.opencb.commons</groupId>
-            <artifactId>commons-datastore-core</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.opencb.biodata</groupId>
             <artifactId>biodata-formats</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.opencb.commons</groupId>
+            <artifactId>commons-datastore-core</artifactId>
+        </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>log4j</groupId>-->
-<!--            <artifactId>log4j</artifactId>-->
-<!--            <version>1.2.15</version>-->
-<!--            <exclusions>-->
-<!--                <exclusion>-->
-<!--                    <artifactId>jms</artifactId>-->
-<!--                    <groupId>javax.jms</groupId>-->
-<!--                </exclusion>-->
-<!--                <exclusion>-->
-<!--                    <artifactId>jmxtools</artifactId>-->
-<!--                    <groupId>com.sun.jdmk</groupId>-->
-<!--                </exclusion>-->
-<!--                <exclusion>-->
-<!--                    <artifactId>jmxri</artifactId>-->
-<!--                    <groupId>com.sun.jmx</groupId>-->
-<!--                </exclusion>-->
-<!--            </exclusions>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>BigWig</groupId>
             <artifactId>BigWig</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.github.samtools</groupId>
-            <artifactId>htsjdk</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.xerial</groupId>
-            <artifactId>sqlite-jdbc</artifactId>
         </dependency>
         <dependency>
             <groupId>org.rocksdb</groupId>
@@ -87,10 +60,6 @@
             </exclusions>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>igv</groupId>-->
-            <!--<artifactId>igv</artifactId>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>org.opencb.biodata</groupId>
             <artifactId>biodata-models</artifactId>
@@ -101,6 +70,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
