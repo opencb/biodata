@@ -9,6 +9,9 @@ public class ClinicalAnalyst {
     private String assignedBy;
     private String date;
 
+    public ClinicalAnalyst() {
+    }
+
     public ClinicalAnalyst(String id, String name, String email, String assignedBy, String date) {
         this.id = id;
         this.name = name;

@@ -19,6 +19,7 @@
 
 package org.opencb.biodata.models.clinical.interpretation;
 
+import org.opencb.biodata.models.clinical.ClinicalAnalyst;
 import org.opencb.biodata.models.clinical.ClinicalComment;
 
 import java.util.List;
@@ -34,7 +35,7 @@ public class Interpretation {
     /**
      * Interpretation algorithm tool used to generate this interpretation.
      */
-    private Analyst analyst;
+    private ClinicalAnalyst analyst;
     private List<InterpretationMethod> methods;
 
     private List<ClinicalVariant> primaryFindings;
@@ -55,7 +56,7 @@ public class Interpretation {
     public Interpretation() {
     }
 
-    public Interpretation(String id, String uuid, String description, String clinicalAnalysisId, Analyst analyst,
+    public Interpretation(String id, String uuid, String description, String clinicalAnalysisId, ClinicalAnalyst analyst,
                           List<InterpretationMethod> methods, List<ClinicalVariant> primaryFindings,
                           List<ClinicalVariant> secondaryFindings, List<ClinicalComment> comments, String status, String creationDate,
                           int version, Map<String, Object> attributes) {
@@ -130,11 +131,11 @@ public class Interpretation {
         return this;
     }
 
-    public Analyst getAnalyst() {
+    public ClinicalAnalyst getAnalyst() {
         return analyst;
     }
 
-    public Interpretation setAnalyst(Analyst analyst) {
+    public Interpretation setAnalyst(ClinicalAnalyst analyst) {
         this.analyst = analyst;
         return this;
     }
