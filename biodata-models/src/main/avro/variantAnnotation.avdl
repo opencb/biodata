@@ -125,7 +125,9 @@ protocol VariantAnnotations {
 
     record ConsequenceType {
         union { null, string } geneName;
+        // deprecated, to be removed next release
         union { null, string } ensemblGeneId;
+        // deprecated, to be removed next release
         union { null, string } ensemblTranscriptId;
         union { null, string } geneId;
         union { null, string } transcriptId;

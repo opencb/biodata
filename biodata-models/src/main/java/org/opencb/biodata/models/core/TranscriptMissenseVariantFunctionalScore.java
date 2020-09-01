@@ -23,7 +23,7 @@ import java.util.Objects;
 
 public class TranscriptMissenseVariantFunctionalScore {
 
-    private String ensemblTranscriptId;
+    private String transcriptId;
     private String alternate;
     private String aaReference;
     private String aaAlternate;
@@ -32,8 +32,8 @@ public class TranscriptMissenseVariantFunctionalScore {
     public TranscriptMissenseVariantFunctionalScore() {
     }
 
-    public TranscriptMissenseVariantFunctionalScore(String ensemblTranscriptId, String alternate, String aaReference, String aaAlternate, double score) {
-        this.ensemblTranscriptId = ensemblTranscriptId;
+    public TranscriptMissenseVariantFunctionalScore(String transcriptId, String alternate, String aaReference, String aaAlternate, double score) {
+        this.transcriptId = transcriptId;
         this.alternate = alternate;
         this.aaReference = aaReference;
         this.aaAlternate = aaAlternate;
@@ -43,7 +43,7 @@ public class TranscriptMissenseVariantFunctionalScore {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("MissensePredictedScore{");
-        sb.append("ensemblTranscriptId='").append(ensemblTranscriptId).append('\'');
+        sb.append("transcriptId='").append(transcriptId).append('\'');
         sb.append(", alternate='").append(alternate).append('\'');
         sb.append(", aaReference='").append(aaReference).append('\'');
         sb.append(", aaAlternate='").append(aaAlternate).append('\'');
@@ -52,12 +52,12 @@ public class TranscriptMissenseVariantFunctionalScore {
         return sb.toString();
     }
 
-    public String getEnsemblTranscriptId() {
-        return ensemblTranscriptId;
+    public String getTranscriptId() {
+        return transcriptId;
     }
 
-    public TranscriptMissenseVariantFunctionalScore setEnsemblTranscriptId(String ensemblTranscriptId) {
-        this.ensemblTranscriptId = ensemblTranscriptId;
+    public TranscriptMissenseVariantFunctionalScore setTranscriptId(String transcriptId) {
+        this.transcriptId = transcriptId;
         return this;
     }
 
@@ -103,7 +103,7 @@ public class TranscriptMissenseVariantFunctionalScore {
         if (!(o instanceof TranscriptMissenseVariantFunctionalScore)) return false;
         TranscriptMissenseVariantFunctionalScore that = (TranscriptMissenseVariantFunctionalScore) o;
         return Double.compare(that.getScore(), getScore()) == 0 &&
-                Objects.equals(getEnsemblTranscriptId(), that.getEnsemblTranscriptId()) &&
+                Objects.equals(getTranscriptId(), that.getTranscriptId()) &&
                 Objects.equals(getAlternate(), that.getAlternate()) &&
                 Objects.equals(getAaReference(), that.getAaReference()) &&
                 Objects.equals(getAaAlternate(), that.getAaAlternate());
@@ -111,6 +111,6 @@ public class TranscriptMissenseVariantFunctionalScore {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getEnsemblTranscriptId(), getAlternate(), getAaReference(), getAaAlternate(), getScore());
+        return Objects.hash(getTranscriptId(), getAlternate(), getAaReference(), getAaAlternate(), getScore());
     }
 }
