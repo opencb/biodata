@@ -23,10 +23,10 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.opencb.biodata.models.clinical.ClinicalProperty;
+import org.opencb.biodata.models.clinical.ClinicalProperty.ModeOfInheritance;
 import org.opencb.biodata.models.clinical.Disorder;
 import org.opencb.biodata.models.clinical.Phenotype;
 import org.opencb.biodata.models.clinical.interpretation.*;
-import org.opencb.biodata.models.clinical.ClinicalProperty.ModeOfInheritance;
 import org.opencb.biodata.models.clinical.interpretation.exceptions.InterpretationAnalysisException;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.ConsequenceType;
@@ -126,8 +126,8 @@ public abstract class ClinicalVariantCreator {
 
             // If we have clinical variant evidences, then we have to create the clinical variant
             if (CollectionUtils.isNotEmpty(clinicalVariantEvidences)) {
-                ClinicalVariant clinicalVariant = new ClinicalVariant(variant.getImpl(), 0, new ArrayList<>(),
-                        Collections.emptyList(), ClinicalVariant.Status.NOT_REVIEWED, Collections.emptyMap());
+                ClinicalVariant clinicalVariant = new ClinicalVariant(variant.getImpl(), Collections.emptyList(), Collections.emptyList(),
+                        Collections.emptyList(), "", ClinicalVariant.Status.NOT_REVIEWED, Collections.emptyMap());
                 clinicalVariant.setEvidences(clinicalVariantEvidences);
 
                 // Add variant to the list
@@ -198,16 +198,15 @@ public abstract class ClinicalVariantCreator {
         return idToPanelMoiMap;
     }
 
-    protected ClinicalVariantEvidence createClinicalVariantEvidence(List<SequenceOntologyTerm> consequenceTypes,
-                                                                    GenomicFeature genomicFeature, String panelId, ModeOfInheritance moi,
+    protected ClinicalVariantEvidence createClinicalVariantEvidence(GenomicFeature genomicFeature, String panelId, ModeOfInheritance moi,
                                                                     Penetrance penetrance, String tier, Variant variant) {
         ClinicalVariantEvidence clinicalVariantEvidence = new ClinicalVariantEvidence();
 
-        // Consequence types
-        if (CollectionUtils.isNotEmpty(consequenceTypes)) {
-            // Set consequence type
-            clinicalVariantEvidence.setConsequenceTypes(consequenceTypes);
-        }
+//        // Consequence types
+//        if (CollectionUtils.isNotEmpty(consequenceTypes)) {
+//            // Set consequence type
+//            clinicalVariantEvidence.setConsequenceTypes(consequenceTypes);
+//        }
 
         // Genomic feature
         if (genomicFeature != null) {
@@ -323,13 +322,14 @@ public abstract class ClinicalVariantCreator {
         if (ct != null) {
             soTerms = getSOTerms(ct, includeSoTerms);
 
-            genomicFeature = new GenomicFeature(ct.getEnsemblGeneId(), "GENE", ct.getEnsemblTranscriptId(), ct.getGeneName(), null);
+            genomicFeature = new GenomicFeature(ct.getEnsemblGeneId(), "GENE", ct.getEnsemblTranscriptId(), ct.getGeneName(), soTerms,
+                    null);
         }
 
         if (CollectionUtils.isNotEmpty(panelIds)) {
             for (String panelId : panelIds) {
-                ClinicalVariantEvidence clinicalVariantEvidence = createClinicalVariantEvidence(soTerms, genomicFeature, panelId,
-                        modeOfInheritance, penetrance, tier, variant);
+                ClinicalVariantEvidence clinicalVariantEvidence = createClinicalVariantEvidence(genomicFeature, panelId, modeOfInheritance,
+                        penetrance, tier, variant);
                 if (clinicalVariantEvidence != null) {
                     clinicalVariantEvidences.add(clinicalVariantEvidence);
                 }
@@ -337,8 +337,8 @@ public abstract class ClinicalVariantCreator {
         } else {
             // We report events without panels, e.g., actionable variants (tier 3)
             if (CollectionUtils.isNotEmpty(soTerms)) {
-                ClinicalVariantEvidence clinicalVariantEvidence = createClinicalVariantEvidence(soTerms, genomicFeature, null,
-                        modeOfInheritance, penetrance, tier, variant);
+                ClinicalVariantEvidence clinicalVariantEvidence = createClinicalVariantEvidence(genomicFeature, null, modeOfInheritance,
+                        penetrance, tier, variant);
                 if (clinicalVariantEvidence != null) {
                     clinicalVariantEvidences.add(clinicalVariantEvidence);
                 }
