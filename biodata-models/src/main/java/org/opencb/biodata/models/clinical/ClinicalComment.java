@@ -1,6 +1,5 @@
 package org.opencb.biodata.models.clinical;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ClinicalComment {
@@ -8,6 +7,9 @@ public class ClinicalComment {
     private String message;
     private List<String> tags;
     private String date;
+
+    public ClinicalComment() {
+    }
 
     public ClinicalComment(String author, String message, List<String> tags, String date) {
         this.author = author;
