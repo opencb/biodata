@@ -49,7 +49,7 @@ public class DiseasePanelParsers {
                 String[] splittedLine = line.split("\t");
 
                 DiseasePanel.GenePanel genePanel = new DiseasePanel.GenePanel("", "", new LinkedList<>(),
-                        ClinicalProperty.ModeOfInheritance.UNKNOWN, null, null, new LinkedList<>(), new LinkedList<>(),
+                        ClinicalProperty.ModeOfInheritance.UNKNOWN, null, ClinicalProperty.Imprinted.UNKNOWN, null, new LinkedList<>(), new LinkedList<>(),
                         new LinkedList<>(), new LinkedList<>(), new CancerPanel(false, false, null, new LinkedList<>(),
                         new LinkedList<>(), new LinkedList<>(), new LinkedList<>()));
                 for (int i = 0; i < splittedLine.length; i++) {
@@ -436,8 +436,10 @@ public class DiseasePanelParsers {
 
         common.setId(ensemblGeneId);
         common.setXrefs(xrefs);
-        common.setModeOfInheritance(getMoiFromGenePanel(String.valueOf(panelAppCommonMap.get("mode_of_inheritance"))));
+        String moi = String.valueOf(panelAppCommonMap.get("mode_of_inheritance"));
+        common.setModeOfInheritance(getMoiFromGenePanel(moi));
         common.setPenetrance(penetrance);
+        common.setImprinted(getImprintedFromGenePanel(moi));
         ClinicalProperty.Confidence confidence = ClinicalProperty.Confidence.LOW;
         int confidenceLevel = Integer.valueOf(String.valueOf(panelAppCommonMap.get("confidence_level")));
         if (confidenceLevel == 2) {
@@ -463,23 +465,15 @@ public class DiseasePanelParsers {
             return ClinicalProperty.ModeOfInheritance.AUTOSOMAL_RECESSIVE;
         }
         if (moi.startsWith("MONOALLELIC")) {
-            if (moi.contains("NOT")) {
-                return ClinicalProperty.ModeOfInheritance.MONOALLELIC_NOT_IMPRINTED;
-            } else if (moi.contains("MATERNALLY")) {
-                return ClinicalProperty.ModeOfInheritance.MONOALLELIC_MATERNALLY_IMPRINTED;
-            } else if (moi.contains("PATERNALLY")) {
-                return ClinicalProperty.ModeOfInheritance.MONOALLELIC_PATERNALLY_IMPRINTED;
-            } else {
-                return ClinicalProperty.ModeOfInheritance.AUTOSOMAL_DOMINANT;
-            }
+            return ClinicalProperty.ModeOfInheritance.AUTOSOMAL_DOMINANT;
         }
-        if (moi.startsWith("BOTH")) {
-            if (moi.contains("SEVERE")) {
-                return ClinicalProperty.ModeOfInheritance.MONOALLELIC_AND_MORE_SEVERE_BIALLELIC;
-            } else if (moi.contains("")) {
-                return ClinicalProperty.ModeOfInheritance.MONOALLELIC_AND_BIALLELIC;
-            }
-        }
+//        if (moi.startsWith("BOTH")) {
+//            if (moi.contains("SEVERE")) {
+//                return ClinicalProperty.ModeOfInheritance.MONOALLELIC_AND_MORE_SEVERE_BIALLELIC;
+//            } else if (moi.contains("")) {
+//                return ClinicalProperty.ModeOfInheritance.MONOALLELIC_AND_BIALLELIC;
+//            }
+//        }
         if (moi.startsWith("MITOCHONDRIAL")) {
             return ClinicalProperty.ModeOfInheritance.MITOCHONDRIAL;
         }
@@ -493,4 +487,23 @@ public class DiseasePanelParsers {
         return ClinicalProperty.ModeOfInheritance.UNKNOWN;
     }
 
+    private static ClinicalProperty.Imprinted getImprintedFromGenePanel(String inputMoi) {
+        if (org.apache.commons.lang3.StringUtils.isEmpty(inputMoi)) {
+            return ClinicalProperty.Imprinted.UNKNOWN;
+        }
+
+        String moi = inputMoi.toUpperCase();
+
+        if (moi.startsWith("MONOALLELIC")) {
+            if (moi.contains("NOT")) {
+                return ClinicalProperty.Imprinted.NOT;
+            } else if (moi.contains("MATERNALLY")) {
+                return ClinicalProperty.Imprinted.MATERNALLY;
+            } else if (moi.contains("PATERNALLY")) {
+                return ClinicalProperty.Imprinted.PATERNALLY;
+            }
+        }
+
+        return ClinicalProperty.Imprinted.UNKNOWN;
+    }
 }
