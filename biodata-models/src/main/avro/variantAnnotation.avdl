@@ -229,7 +229,7 @@ protocol VariantAnnotations {
         union { null, array<GeneTraitAssociation> } geneTraitAssociation;
         union { null, array<GeneDrugInteraction> } geneDrugInteraction;
         union { null, array<Constraint> } geneConstraints;
-        union { null, array<MiRnaTarget> } geneMirnaTargets;
+        union { null, array<string> } geneMirnaTargets;
         union { null, VariantTraitAssociation } variantTraitAssociation;
         union { null, array<EvidenceEntry> } traitAssociation;
         union { null, array<Score> } functionalScore;
