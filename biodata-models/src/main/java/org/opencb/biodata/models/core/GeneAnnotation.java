@@ -23,7 +23,7 @@ import org.opencb.biodata.models.variant.avro.Expression;
 import org.opencb.biodata.models.variant.avro.GeneDrugInteraction;
 import org.opencb.biodata.models.variant.avro.GeneTraitAssociation;
 import org.opencb.biodata.models.variant.avro.Constraint;
-import org.opencb.biodata.models.variant.avro.MiRnaTarget;
+
 
 import java.util.List;
 
@@ -34,13 +34,13 @@ public class GeneAnnotation {
     private List<GeneTraitAssociation> diseases;
     private List<GeneDrugInteraction> drugs;
     private List<Constraint> constraints;
-    private List<MiRnaTarget> targets;
+    private List<MirnaTarget> targets;
 
     public GeneAnnotation() {
     }
 
     public GeneAnnotation(List<Expression> expression, List<GeneTraitAssociation> diseases,
-                          List<GeneDrugInteraction> drugs, List<Constraint> constraints, List<MiRnaTarget> targets) {
+                          List<GeneDrugInteraction> drugs, List<Constraint> constraints, List<MirnaTarget> targets) {
         this.expression = expression;
         this.diseases = diseases;
         this.drugs = drugs;
@@ -96,11 +96,11 @@ public class GeneAnnotation {
         return this;
     }
 
-    public List<MiRnaTarget> getTargets() {
+    public List<MirnaTarget> getTargets() {
         return targets;
     }
 
-    public GeneAnnotation setTargets(List<MiRnaTarget> targets) {
+    public GeneAnnotation setTargets(List<MirnaTarget> targets) {
         this.targets = targets;
         return this;
     }

@@ -73,19 +73,11 @@ protocol VariantAnnotations {
         union { null, double } value;
     }
 
-   record TargetGene {
-        union { null, string } experiment;
-        union { null, string } evidence;
-        union { null, string } pubmed;
-   }
-
-    record MiRnaTarget {
+    record GeneMirnaTarget {
         union { null, string } id;
-        union { null, string } source;
-        union { null, string } sourceId;
-        union { null, array<TargetGene> } targets;
+        union { null, string } name;
+        union { null, string } biotype;
     }
-
 
     record GeneTraitAssociation {
         string id;
@@ -229,7 +221,7 @@ protocol VariantAnnotations {
         union { null, array<GeneTraitAssociation> } geneTraitAssociation;
         union { null, array<GeneDrugInteraction> } geneDrugInteraction;
         union { null, array<Constraint> } geneConstraints;
-        union { null, array<string> } geneMirnaTargets;
+        union { null, array<GeneMirnaTarget> } geneMirnaTargets;
         union { null, VariantTraitAssociation } variantTraitAssociation;
         union { null, array<EvidenceEntry> } traitAssociation;
         union { null, array<Score> } functionalScore;
