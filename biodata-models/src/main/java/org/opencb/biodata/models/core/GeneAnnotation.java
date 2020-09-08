@@ -34,18 +34,18 @@ public class GeneAnnotation {
     private List<GeneTraitAssociation> diseases;
     private List<GeneDrugInteraction> drugs;
     private List<Constraint> constraints;
-    private List<MirnaTarget> targets;
+    private List<MirnaTarget> mirnaTargets;
 
     public GeneAnnotation() {
     }
 
     public GeneAnnotation(List<Expression> expression, List<GeneTraitAssociation> diseases,
-                          List<GeneDrugInteraction> drugs, List<Constraint> constraints, List<MirnaTarget> targets) {
+                          List<GeneDrugInteraction> drugs, List<Constraint> constraints, List<MirnaTarget> mirnaTargets) {
         this.expression = expression;
         this.diseases = diseases;
         this.drugs = drugs;
         this.constraints = constraints;
-        this.targets = targets;
+        this.mirnaTargets = mirnaTargets;
     }
 
     @Override
@@ -55,7 +55,7 @@ public class GeneAnnotation {
         sb.append(", geneTraits=").append(diseases);
         sb.append(", drugs=").append(drugs);
         sb.append(", constraints=").append(constraints);
-        sb.append(", targets=").append(targets);
+        sb.append(", targets=").append(mirnaTargets);
         sb.append('}');
         return sb.toString();
     }
@@ -96,12 +96,12 @@ public class GeneAnnotation {
         return this;
     }
 
-    public List<MirnaTarget> getTargets() {
-        return targets;
+    public List<MirnaTarget> getMirnaTargets() {
+        return mirnaTargets;
     }
 
-    public GeneAnnotation setTargets(List<MirnaTarget> targets) {
-        this.targets = targets;
+    public GeneAnnotation setMirnaTargets(List<MirnaTarget> mirnaTargets) {
+        this.mirnaTargets = mirnaTargets;
         return this;
     }
 }
