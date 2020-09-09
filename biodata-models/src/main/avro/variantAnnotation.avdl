@@ -7,6 +7,7 @@ protocol VariantAnnotations {
 
     enum ExpressionCall {UP, DOWN}
 
+    // deprecated
     record ClinVar {
         union { null, string } accession;
         union { null, string } clinicalSignificance;
@@ -15,6 +16,7 @@ protocol VariantAnnotations {
         union { null, string } reviewStatus;
     }
 
+    // deprecated
     record Gwas {
         union { null, string } snpIdCurrent;
         union { null, array<string> } traits;
@@ -22,6 +24,7 @@ protocol VariantAnnotations {
         union { null, string } reportedGenes;
     }
 
+    // deprecated
     record Cosmic {
         union { null, string } mutationId;
         union { null, string } primarySite;
@@ -34,6 +37,7 @@ protocol VariantAnnotations {
         union { null, string } mutationSomaticStatus;
     }
 
+    // deprecated
     record VariantTraitAssociation {
         union { null, array<ClinVar> } clinvar;
         union { null, array<Gwas> } gwas;
@@ -60,6 +64,19 @@ protocol VariantAnnotations {
         union { null, string } technologyPlatform;        
         union { null, ExpressionCall} expression;
         union { null, float } pvalue;
+    }
+
+    record Constraint {
+        union { null, string } source;
+        union { null, string } method;
+        union { null, string } name;
+        union { null, double } value;
+    }
+
+    record GeneMirnaTarget {
+        union { null, string } id;
+        union { null, string } name;
+        union { null, string } biotype;
     }
 
     record GeneTraitAssociation {
@@ -203,6 +220,8 @@ protocol VariantAnnotations {
         union { null, array<Expression> } geneExpression;
         union { null, array<GeneTraitAssociation> } geneTraitAssociation;
         union { null, array<GeneDrugInteraction> } geneDrugInteraction;
+        union { null, array<Constraint> } geneConstraints;
+        union { null, array<GeneMirnaTarget> } geneMirnaTargets;
         union { null, VariantTraitAssociation } variantTraitAssociation;
         union { null, array<EvidenceEntry> } traitAssociation;
         union { null, array<Score> } functionalScore;

@@ -21,7 +21,7 @@ package org.opencb.biodata.models.core;
 
 import java.util.List;
 
-public class MiRnaTarget {
+public class MirnaTarget {
 
     /**
      * miRTarBase ID, e.g. MIRT735377
@@ -42,11 +42,11 @@ public class MiRnaTarget {
 
 
 
-    public MiRnaTarget() {
+    public MirnaTarget() {
 
     }
 
-    public MiRnaTarget(String id, String source, String sourceId, List<TargetGene> targets) {
+    public MirnaTarget(String id, String source, String sourceId, List<TargetGene> targets) {
         this.id = id;
         this.source = source;
         this.sourceId = sourceId;
@@ -68,7 +68,7 @@ public class MiRnaTarget {
         return id;
     }
 
-    public MiRnaTarget setId(String id) {
+    public MirnaTarget setId(String id) {
         this.id = id;
         return this;
     }
@@ -77,7 +77,7 @@ public class MiRnaTarget {
         return source;
     }
 
-    public MiRnaTarget setSource(String source) {
+    public MirnaTarget setSource(String source) {
         this.source = source;
         return this;
     }
@@ -86,7 +86,7 @@ public class MiRnaTarget {
         return sourceId;
     }
 
-    public MiRnaTarget setSourceId(String sourceId) {
+    public MirnaTarget setSourceId(String sourceId) {
         this.sourceId = sourceId;
         return this;
     }
@@ -95,7 +95,7 @@ public class MiRnaTarget {
         return targets;
     }
 
-    public MiRnaTarget setTargets(List<TargetGene> targets) {
+    public MirnaTarget setTargets(List<TargetGene> targets) {
         this.targets = targets;
         return this;
     }
