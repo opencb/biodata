@@ -49,7 +49,7 @@ public class Transcript implements Serializable {
 	private List<Exon> exons;
 	private List<Xref> xrefs;
 	private List<TranscriptTfbs> tfbs;
-	private Set<String> annotationFlags;
+	private Set<String> flags;
 	private TranscriptAnnotation annotation;
 
 	private static final long serialVersionUID = 2069002722080532350L;
@@ -86,7 +86,7 @@ public class Transcript implements Serializable {
 	public Transcript(String id, String name, String chromosome, int start, int end, String strand, String biotype, String status,
 					  int genomicCodingStart, int genomicCodingEnd, int cdnaCodingStart, int cdnaCodingEnd, int cdsLength,
 					  String cDnaSequence, String proteinId, String proteinSequence, String description, List<Exon> exons,
-					  List<Xref> xrefs, List<TranscriptTfbs> tfbs, Set<String> annotationFlags, TranscriptAnnotation annotation) {
+					  List<Xref> xrefs, List<TranscriptTfbs> tfbs, Set<String> flags, TranscriptAnnotation annotation) {
 		this.id = id;
 		this.name = name;
 		this.chromosome = chromosome;
@@ -107,7 +107,7 @@ public class Transcript implements Serializable {
 		this.exons = exons;
 		this.xrefs = xrefs;
 		this.tfbs = tfbs;
-		this.annotationFlags = annotationFlags;
+		this.flags = flags;
 		this.annotation = annotation;
 	}
 
@@ -139,11 +139,11 @@ public class Transcript implements Serializable {
 	}
 
 	public boolean unconfirmedStart() {
-		return (this.getAnnotationFlags() != null && this.getAnnotationFlags().contains("cds_start_NF"));
+		return (this.getFlags() != null && this.getFlags().contains("cds_start_NF"));
 	}
 
 	public boolean unconfirmedEnd() {
-		return (this.getAnnotationFlags() != null && this.getAnnotationFlags().contains("cds_end_NF"));
+		return (this.getFlags() != null && this.getFlags().contains("cds_end_NF"));
 	}
 
 	@Override
@@ -171,7 +171,7 @@ public class Transcript implements Serializable {
 		sb.append(", exons=").append(exons);
 		sb.append(", xrefs=").append(xrefs);
 		sb.append(", tfbs=").append(tfbs);
-		sb.append(", annotationFlags=").append(annotationFlags);
+		sb.append(", annotationFlags=").append(flags);
 		sb.append(", annotation=").append(annotation);
 		sb.append('}');
 		return sb.toString();
@@ -375,12 +375,12 @@ public class Transcript implements Serializable {
 		return this;
 	}
 
-	public Set<String> getAnnotationFlags() {
-		return annotationFlags;
+	public Set<String> getFlags() {
+		return flags;
 	}
 
-	public Transcript setAnnotationFlags(Set<String> annotationFlags) {
-		this.annotationFlags = annotationFlags;
+	public Transcript setFlags(Set<String> flags) {
+		this.flags = flags;
 		return this;
 	}
 
@@ -420,12 +420,12 @@ public class Transcript implements Serializable {
 				Objects.equals(getExons(), that.getExons()) &&
 				Objects.equals(getXrefs(), that.getXrefs()) &&
 				Objects.equals(getTfbs(), that.getTfbs()) &&
-				Objects.equals(getAnnotationFlags(), that.getAnnotationFlags()) &&
+				Objects.equals(getFlags(), that.getFlags()) &&
 				Objects.equals(getAnnotation(), that.getAnnotation());
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(getId(), getName(), getChromosome(), getStart(), getEnd(), getStrand(), getBiotype(), getStatus(), getGenomicCodingStart(), getGenomicCodingEnd(), getCdnaCodingStart(), getCdnaCodingEnd(), getCdsLength(), getcDnaSequence(), getProteinId(), getProteinSequence(), getDescription(), getVersion(), getSource(), getExons(), getXrefs(), getTfbs(), getAnnotationFlags(), getAnnotation());
+		return Objects.hash(getId(), getName(), getChromosome(), getStart(), getEnd(), getStrand(), getBiotype(), getStatus(), getGenomicCodingStart(), getGenomicCodingEnd(), getCdnaCodingStart(), getCdnaCodingEnd(), getCdsLength(), getcDnaSequence(), getProteinId(), getProteinSequence(), getDescription(), getVersion(), getSource(), getExons(), getXrefs(), getTfbs(), getFlags(), getAnnotation());
 	}
 }
