@@ -46,7 +46,6 @@ public class Transcript implements Serializable {
 	private String description;
 	private String version;
 	private String source;
-	private String supportLevel;
 	private List<Exon> exons;
 	private List<Xref> xrefs;
 	private List<TranscriptTfbs> tfbs;
@@ -113,7 +112,7 @@ public class Transcript implements Serializable {
 	}
 
 	public Transcript(String id, String name, String biotype, String status, String source, String chromosome, Integer start, Integer end,
-					  String strand, String version, String supportLevel, Integer codingRegionStart, Integer codingRegionEnd,
+					  String strand, String version, Integer codingRegionStart, Integer codingRegionEnd,
 					  Integer cdnaCodingStart, Integer cdnaCodingEnd, Integer cdsLength, String proteinId, String description,
 					  List<Xref> xrefs, List<Exon> exons, List<TranscriptTfbs> tfbs, TranscriptAnnotation annotation) {
 		this.id = id;
@@ -126,7 +125,6 @@ public class Transcript implements Serializable {
 		this.strand = strand;
 		this.version = version;
 		this.source = source;
-		this.supportLevel = supportLevel;
 		this.genomicCodingStart = codingRegionStart;
 		this.genomicCodingEnd = codingRegionEnd;
 		this.cdnaCodingStart = cdnaCodingStart;
@@ -170,7 +168,6 @@ public class Transcript implements Serializable {
 		sb.append(", description='").append(description).append('\'');
 		sb.append(", version=").append(version);
 		sb.append(", source='").append(source).append('\'');
-		sb.append(", supportLevel='").append(supportLevel).append('\'');
 		sb.append(", exons=").append(exons);
 		sb.append(", xrefs=").append(xrefs);
 		sb.append(", tfbs=").append(tfbs);
@@ -267,15 +264,6 @@ public class Transcript implements Serializable {
 
 	public Transcript setSource(String source) {
 		this.source = source;
-		return this;
-	}
-
-	public String getSupportLevel() {
-		return supportLevel;
-	}
-
-	public Transcript setSupportLevel(String supportLevel) {
-		this.supportLevel = supportLevel;
 		return this;
 	}
 
@@ -429,7 +417,6 @@ public class Transcript implements Serializable {
 				Objects.equals(getProteinSequence(), that.getProteinSequence()) &&
 				Objects.equals(getDescription(), that.getDescription()) &&
 				Objects.equals(getSource(), that.getSource()) &&
-				Objects.equals(getSupportLevel(), that.getSupportLevel()) &&
 				Objects.equals(getExons(), that.getExons()) &&
 				Objects.equals(getXrefs(), that.getXrefs()) &&
 				Objects.equals(getTfbs(), that.getTfbs()) &&
@@ -439,6 +426,6 @@ public class Transcript implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(getId(), getName(), getChromosome(), getStart(), getEnd(), getStrand(), getBiotype(), getStatus(), getGenomicCodingStart(), getGenomicCodingEnd(), getCdnaCodingStart(), getCdnaCodingEnd(), getCdsLength(), getcDnaSequence(), getProteinId(), getProteinSequence(), getDescription(), getVersion(), getSource(), getSupportLevel(), getExons(), getXrefs(), getTfbs(), getAnnotationFlags(), getAnnotation());
+		return Objects.hash(getId(), getName(), getChromosome(), getStart(), getEnd(), getStrand(), getBiotype(), getStatus(), getGenomicCodingStart(), getGenomicCodingEnd(), getCdnaCodingStart(), getCdnaCodingEnd(), getCdsLength(), getcDnaSequence(), getProteinId(), getProteinSequence(), getDescription(), getVersion(), getSource(), getExons(), getXrefs(), getTfbs(), getAnnotationFlags(), getAnnotation());
 	}
 }
