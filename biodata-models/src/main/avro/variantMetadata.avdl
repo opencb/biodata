@@ -119,8 +119,17 @@ protocol VariantMetadataProtocol {
         int gte20;
     }
 
+    record DepthCount {
+        int na;
+        int lt5;
+        int lt10;
+        int lt15;
+        int lt20;
+        int gte20;
+    }
+
     record SampleVariantStats {
-        
+
         /** Sample identifier **/
         string id;
 
@@ -169,8 +178,10 @@ protocol VariantMetadataProtocol {
          **/
         float heterozygosityRate;
 
-        /** Number of mendelian errors grouped by PLINK error codes. **/
-        map<int> mendelianErrorCount = {};
+        /** Number of mendelian errors grouped by PLINK error codes grouped by Chromosome. **/
+        map<map<int>> mendelianErrorCount = {};
+
+        DepthCount depthCount;
 
         /**
          * Variants count group by consequence type. e.g. missense_variant, synonymous_variant, stop_lost, ...

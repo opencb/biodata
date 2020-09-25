@@ -24,19 +24,17 @@ import org.apache.commons.collections.MapUtils;
 import org.opencb.biodata.models.clinical.ClinicalProperty;
 import org.opencb.biodata.models.clinical.ClinicalProperty.ModeOfInheritance;
 import org.opencb.biodata.models.clinical.ClinicalProperty.Penetrance;
+import org.opencb.biodata.models.clinical.Disorder;
+import org.opencb.biodata.models.clinical.interpretation.ClinicalVariant;
 import org.opencb.biodata.models.clinical.interpretation.ClinicalVariantEvidence;
 import org.opencb.biodata.models.clinical.interpretation.DiseasePanel;
-import org.opencb.biodata.models.clinical.interpretation.ClinicalVariant;
-import org.opencb.biodata.models.clinical.Disorder;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.ConsequenceType;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.opencb.biodata.models.clinical.interpretation.VariantClassification.TIER_1;
-import static org.opencb.biodata.models.clinical.interpretation.VariantClassification.TIER_2;
-import static org.opencb.biodata.models.clinical.interpretation.VariantClassification.UNTIERED;
+import static org.opencb.biodata.models.clinical.interpretation.VariantClassification.*;
 
 public class DefaultClinicalVariantCreator extends ClinicalVariantCreator {
 
@@ -126,8 +124,8 @@ public class DefaultClinicalVariantCreator extends ClinicalVariantCreator {
 
             // Create a clinical variant only if we have evidences
             if (CollectionUtils.isNotEmpty(clinicalVariantEvidences)) {
-                ClinicalVariant clinicalVariant = new ClinicalVariant(variant.getImpl(), 0, new ArrayList<>(),
-                        Collections.emptyList(), ClinicalVariant.Status.NOT_REVIEWED, Collections.emptyMap());
+                ClinicalVariant clinicalVariant = new ClinicalVariant(variant.getImpl(), Collections.emptyList(), Collections.emptyList(),
+                        Collections.emptyList(), "", ClinicalVariant.Status.NOT_REVIEWED, Collections.emptyMap());
                 clinicalVariant.setEvidences(clinicalVariantEvidences);
 
                 // Add variant to the list

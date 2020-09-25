@@ -20,6 +20,7 @@
 package org.opencb.biodata.models.clinical.interpretation;
 
 import org.opencb.biodata.models.core.Xref;
+import org.opencb.biodata.models.variant.avro.SequenceOntologyTerm;
 
 import java.util.List;
 
@@ -28,17 +29,33 @@ public class GenomicFeature {
     private String type; // GENE, VARIANT, REGION,...
     private String transcriptId;
     private String geneName;
+    private List<SequenceOntologyTerm> consequenceTypes;
     private List<Xref> xrefs;
 
     public GenomicFeature() {
     }
 
-    public GenomicFeature(String id, String type, String transcriptId, String geneName, List<Xref> xrefs) {
+    public GenomicFeature(String id, String type, String transcriptId, String geneName, List<SequenceOntologyTerm> consequenceTypes,
+                          List<Xref> xrefs) {
         this.id = id;
         this.type = type;
         this.transcriptId = transcriptId;
         this.geneName = geneName;
+        this.consequenceTypes = consequenceTypes;
         this.xrefs = xrefs;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("GenomicFeature{");
+        sb.append("id='").append(id).append('\'');
+        sb.append(", type='").append(type).append('\'');
+        sb.append(", transcriptId='").append(transcriptId).append('\'');
+        sb.append(", geneName='").append(geneName).append('\'');
+        sb.append(", consequenceTypes=").append(consequenceTypes);
+        sb.append(", xrefs=").append(xrefs);
+        sb.append('}');
+        return sb.toString();
     }
 
     public String getId() {
@@ -74,6 +91,15 @@ public class GenomicFeature {
 
     public GenomicFeature setGeneName(String geneName) {
         this.geneName = geneName;
+        return this;
+    }
+
+    public List<SequenceOntologyTerm> getConsequenceTypes() {
+        return consequenceTypes;
+    }
+
+    public GenomicFeature setConsequenceTypes(List<SequenceOntologyTerm> consequenceTypes) {
+        this.consequenceTypes = consequenceTypes;
         return this;
     }
 

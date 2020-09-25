@@ -18,6 +18,7 @@ import org.opencb.biodata.tools.variant.metadata.VariantMetadataManager;
 import org.opencb.commons.run.Task;
 
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 
@@ -141,8 +142,16 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
     public void update(Variant variant) {
         StudyEntry studyEntry = variant.getStudies().get(0);
         List<SampleEntry> samples = studyEntry.getSamples();
+        Integer dpPos = studyEntry.getSampleDataKeyPosition(VCFConstants.DEPTH_KEY);
+        IntFunction<String> getDp;
+        if (dpPos != null) {
+            getDp = samplePos -> samples.get(samplePos).getData().get(0);
+        } else {
+            getDp = samplePos -> getFileAttributes(studyEntry, samplePos).get(VCFConstants.DEPTH_KEY);
+        }
         update(variant, variant.getAnnotation(),
                 samplePos -> samples.get(samplePos).getData().get(0),
+                getDp,
                 samplePos -> getFileAttributes(studyEntry, samplePos).get(StudyEntry.QUAL),
                 samplePos -> getFileAttributes(studyEntry, samplePos).get(StudyEntry.FILTER),
                 studyEntry.getSamplesPosition());
@@ -153,45 +162,34 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
      * @param variant    Minimal version of the variant. Only chr,pos,ref,alt
      * @param annotation Full annotation
      * @param gts        List of genotypes
+     * @param dps        List of DP values
      * @param quals      List of quals
      * @param filters    List of filters
      */
-    public void update(Variant variant, VariantAnnotation annotation, List<String> gts, List<String> quals, List<String> filters) {
-        update(variant, annotation, gts::get, quals::get, filters::get, samplesPos);
+    public void update(Variant variant, VariantAnnotation annotation, List<String> gts, List<String> dps, List<String> quals, List<String> filters) {
+        update(variant, annotation, gts::get, dps::get, quals::get, filters::get, samplesPos);
     }
 
     /**
      * Update the stats given only the required elements.
      * @param variant    Minimal version of the variant. Only chr,pos,ref,alt
      * @param gts        List of genotypes
-     * @param quals      List of quals
-     * @param filters    List of filters
-     * @param cts        Set with consequence types in this variant
-     * @param biotypes   Set with biotypes in this variant
-     */
-    @Deprecated
-    public void update(Variant variant, List<String> gts, List<String> quals, List<String> filters, Set<String> cts, Set<String> biotypes) {
-        update(variant, gts, quals, filters, cts, biotypes, Collections.emptySet());
-    }
-
-    /**
-     * Update the stats given only the required elements.
-     * @param variant    Minimal version of the variant. Only chr,pos,ref,alt
-     * @param gts        List of genotypes
+     * @param dps        List of DP values
      * @param quals      List of quals
      * @param filters    List of filters
      * @param cts        Set with consequence types in this variant
      * @param biotypes   Set with biotypes in this variant
      * @param clinicalSignificance Set with clinicalSignificances in this variant
      */
-    public void update(Variant variant, List<String> gts, List<String> quals, List<String> filters, Set<String> cts, Set<String> biotypes,
-                       Set<String> clinicalSignificance) {
-        update(variant, gts::get, quals::get, filters::get, samplesPos, cts, biotypes, clinicalSignificance);
+    public void update(Variant variant, List<String> gts, List<String> dps, List<String> quals, List<String> filters, Set<String> cts,
+                       Set<String> biotypes, Set<String> clinicalSignificance) {
+        update(variant, gts::get,  dps::get, quals::get, filters::get, samplesPos, cts, biotypes, clinicalSignificance);
     }
 
     private void update(Variant variant,
                         VariantAnnotation annotation,
                         IntFunction<String> gts,
+                        IntFunction<String> getDp,
                         IntFunction<String> getQual,
                         IntFunction<String> getFilter,
                         LinkedHashMap<String, Integer> samplesPos) {
@@ -222,11 +220,12 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
                 }
             }
         }
-        update(variant, gts, getQual, getFilter, samplesPos, cts, biotypes, clinicalSignificance);
+        update(variant, gts, getDp, getQual, getFilter, samplesPos, cts, biotypes, clinicalSignificance);
     }
 
     private void update(Variant variant,
                         IntFunction<String> gts,
+                        IntFunction<String> getDp,
                         IntFunction<String> getQual,
                         IntFunction<String> getFilter,
                         LinkedHashMap<String, Integer> samplesPos, Set<String> cts, Set<String> biotypes, Set<String> clinicalSignificance) {
@@ -243,13 +242,14 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
             if (gt != null) {
                 String qual = getQual.apply(samplePos);
                 String filter = getFilter.apply(samplePos);
-                updateSample(variant, transition, transversion, samplePos, gts, gt, qual, filter, biotypes, cts, clinicalSignificance);
+                String dp = getDp.apply(samplePos);
+                updateSample(variant, transition, transversion, samplePos, gts, gt, dp, qual, filter, biotypes, cts, clinicalSignificance);
             }
         }
     }
 
     private void updateSample(Variant variant, boolean transition, boolean transversion,
-                              int samplePos, IntFunction<String> gts, String gt,
+                              int samplePos, IntFunction<String> gts, String gt, String dpStr,
                               String qual, String filter,
                               Set<String> biotypes, Set<String> cts, Set<String> clinicalSignificance) {
         SampleVariantStats stats = statsList.get(samplePos);
@@ -267,9 +267,10 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
 
             int errorCode = MendelianError.compute(fatherGt, motherGt, childGt, variant.getChromosome());
             if (errorCode > 0) {
-                Map<String, Integer> mendelianErrors = stats.getMendelianErrorCount();
+                Map<String, Map<String, Integer>> mendelianErrors = stats.getMendelianErrorCount();
                 String errorCodeKey = String.valueOf(errorCode);
-                incCount(mendelianErrors, errorCodeKey);
+                Map<String, Integer> map = mendelianErrors.computeIfAbsent(variant.getChromosome(), (key) -> new HashMap<>());
+                incCount(map, errorCodeKey);
             }
         }
 
@@ -309,6 +310,24 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
                 }
             }
 
+            if (StringUtils.isNumeric(dpStr)) {
+                int dp = Integer.parseInt(dpStr);
+                DepthCount dpCount = stats.getDepthCount();
+                if (dp < 5) {
+                    dpCount.setLt5(dpCount.getLt5() + 1);
+                } else if (dp < 10) {
+                    dpCount.setLt10(dpCount.getLt10() + 1);
+                } else if (dp < 15) {
+                    dpCount.setLt15(dpCount.getLt15() + 1);
+                } else if (dp < 20) {
+                    dpCount.setLt20(dpCount.getLt20() + 1);
+                } else {
+                    dpCount.setGte20(dpCount.getGte20() + 1);
+                }
+            } else {
+                stats.getDepthCount().setNa(stats.getDepthCount().getNa() + 1);
+            }
+
             // Accumulate transitions and transversions in order to compute ti/tv ratio later
             if (transition) {
                 ti[samplePos]++;
@@ -317,7 +336,7 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
             }
 
             if (qual != null && !(".").equals(qual)) {
-                float qualValue = Float.valueOf(qual);
+                float qualValue = Float.parseFloat(qual);
                 qualCount[samplePos]++;
                 qualSum[samplePos] += qualValue;
                 qualSumSq[samplePos] += qualValue * qualValue;
@@ -327,8 +346,6 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
             }
             for (String subFilter : filter.split(";")) {
                 stats.getFilterCount().merge(subFilter, 1, Integer::sum);
-            }
-            if (VCFConstants.PASSES_FILTERS_v4.equalsIgnoreCase(filter)) {
             }
 
             // Biotype counter
@@ -372,7 +389,8 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
         mergeCounts(stats.getChromosomeCount(), otherStats.getChromosomeCount());
         mergeCounts(stats.getBiotypeCount(), otherStats.getBiotypeCount());
         mergeCounts(stats.getConsequenceTypeCount(), otherStats.getConsequenceTypeCount());
-        mergeCounts(stats.getMendelianErrorCount(), otherStats.getMendelianErrorCount());
+        mergeCounts(stats.getConsequenceTypeCount(), otherStats.getConsequenceTypeCount());
+        mergeMaps(stats.getMendelianErrorCount(), otherStats.getMendelianErrorCount(), SampleVariantStatsCalculator::mergeCounts);
 
         IndelLength indelLength = stats.getIndelLengthCount();
         IndelLength otherIndelLength = otherStats.getIndelLengthCount();
@@ -383,11 +401,27 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
         indelLength.setLt20(indelLength.getLt20() + otherIndelLength.getLt20());
         indelLength.setGte20(indelLength.getGte20() + otherIndelLength.getGte20());
 
+
+        DepthCount depthCount = stats.getDepthCount();
+        DepthCount otherDepthCount = otherStats.getDepthCount();
+
+        depthCount.setNa(depthCount.getNa() + otherDepthCount.getNa());
+        depthCount.setLt5(depthCount.getLt5() + otherDepthCount.getLt5());
+        depthCount.setLt10(depthCount.getLt10() + otherDepthCount.getLt10());
+        depthCount.setLt15(depthCount.getLt15() + otherDepthCount.getLt15());
+        depthCount.setLt20(depthCount.getLt20() + otherDepthCount.getLt20());
+        depthCount.setGte20(depthCount.getGte20() + otherDepthCount.getGte20());
+
         return stats;
     }
 
-    private static void mergeCounts(Map<String, Integer> map, Map<String, Integer> otherMap) {
+    private static Map<String, Integer> mergeCounts(Map<String, Integer> map, Map<String, Integer> otherMap) {
         otherMap.forEach((key, count) -> map.merge(key, count, Integer::sum));
+        return map;
+    }
+
+    private static <T> void mergeMaps(Map<String, T> map, Map<String, T> otherMap, BiFunction<? super T, ? super T, ? extends T> merge) {
+        otherMap.forEach((key, v) -> map.merge(key, v, merge));
     }
 
     private Map<String, String> getFileAttributes(StudyEntry studyEntry, int samplePos) {
@@ -546,6 +580,7 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
                     0f,
                     0f,
                     new HashMap<>(),
+                    new DepthCount(0, 0, 0, 0, 0, 0),
                     new HashMap<>(),
                     new HashMap<>(),
                     new HashMap<>()

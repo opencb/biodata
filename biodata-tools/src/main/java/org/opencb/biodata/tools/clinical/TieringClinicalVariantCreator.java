@@ -116,7 +116,7 @@ public class TieringClinicalVariantCreator extends ClinicalVariantCreator {
                     }
 
                     GenomicFeature genomicFeature = new GenomicFeature(ct.getEnsemblGeneId(), "GENE", ct.getEnsemblTranscriptId(),
-                            ct.getGeneName(), null);
+                            ct.getGeneName(), ct.getSequenceOntologyTerms(), null);
 
                     if (geneToPanelMap.containsKey(ct.getEnsemblGeneId())) {
                         logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId() + ", gene in panel");
@@ -151,39 +151,35 @@ public class TieringClinicalVariantCreator extends ClinicalVariantCreator {
                                                         // Tier 1
                                                         logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId()
                                                                 + ", reported, TIER 1, " + soTerm.getName());
-                                                        clinicalVariantEvidences.add(createClinicalVariantEvidence(
-                                                                Collections.singletonList(soTerm), genomicFeature, genePanel.getId(), moi,
-                                                                penetrance, TIER_1, variant));
+                                                        clinicalVariantEvidences.add(createClinicalVariantEvidence(genomicFeature,
+                                                                genePanel.getId(), moi, penetrance, TIER_1, variant));
                                                     } else if (TIER_2_CONSEQUENCE_TYPES_SET.contains(soTerm.getAccession())) {
                                                         // Tier 2
                                                         logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId()
                                                                 + ", reported, TIER 2, " + soTerm.getName());
-                                                        clinicalVariantEvidences.add(createClinicalVariantEvidence(
-                                                                Collections.singletonList(soTerm), genomicFeature, genePanel.getId(), moi,
-                                                                penetrance, TIER_2, variant));
+                                                        clinicalVariantEvidences.add(createClinicalVariantEvidence(genomicFeature,
+                                                                genePanel.getId(), moi, penetrance, TIER_2, variant));
                                                     } else {
                                                         // Tier 3
                                                         logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId()
                                                                 + ", reported, TIER 3, " + soTerm.getName());
-                                                        clinicalVariantEvidences.add(createClinicalVariantEvidence(
-                                                                Collections.singletonList(soTerm), genomicFeature, genePanel.getId(), moi,
-                                                                penetrance, TIER_3, variant));
+                                                        clinicalVariantEvidences.add(createClinicalVariantEvidence(genomicFeature,
+                                                                genePanel.getId(), moi, penetrance, TIER_3, variant));
                                                     }
                                                 } else {
                                                     // Tier 3
                                                     logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId()
                                                             + ", reported, TIER 3, empty SO");
-                                                    clinicalVariantEvidences.add(createClinicalVariantEvidence(
-                                                            Collections.singletonList(soTerm), genomicFeature, genePanel.getId(), moi,
-                                                            penetrance, TIER_3, variant));
+                                                    clinicalVariantEvidences.add(createClinicalVariantEvidence(genomicFeature,
+                                                            genePanel.getId(), moi, penetrance, TIER_3, variant));
                                                 }
                                             }
                                         } else {
                                             // Tier 3
                                             logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId() + ", reported, "
                                                     + "TIER 3, empty SO list");
-                                            clinicalVariantEvidences.add(createClinicalVariantEvidence(null, genomicFeature,
-                                                    genePanel.getId(), moi, penetrance, TIER_3, variant));
+                                            clinicalVariantEvidences.add(createClinicalVariantEvidence(genomicFeature, genePanel.getId(),
+                                                    moi, penetrance, TIER_3, variant));
                                         }
                                     } else {
                                         if (geneToPanelMoiMap.get(ct.getEnsemblGeneId()).get(genePanel.getId()) == UNKNOWN) {
@@ -202,9 +198,8 @@ public class TieringClinicalVariantCreator extends ClinicalVariantCreator {
                                                     }
                                                     logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId()
                                                             + ", reported, TIER 3");
-                                                    clinicalVariantEvidences.add(createClinicalVariantEvidence(
-                                                            Collections.singletonList(soTerm), genomicFeature, genePanel.getId(), moi,
-                                                            penetrance, TIER_3, variant));
+                                                    clinicalVariantEvidences.add(createClinicalVariantEvidence(genomicFeature,
+                                                            genePanel.getId(), moi, penetrance, TIER_3, variant));
                                                 }
                                             } else {
                                                 logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId() + ", discarded,"
@@ -228,14 +223,14 @@ public class TieringClinicalVariantCreator extends ClinicalVariantCreator {
                                             }
                                             logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId()
                                                     + ", reported, UNTIERED, LOF: " + soTerm.getName());
-                                            clinicalVariantEvidences.add(createClinicalVariantEvidence(Collections.singletonList(soTerm),
-                                                    genomicFeature, null, moi, penetrance, "", variant));
+                                            clinicalVariantEvidences.add(createClinicalVariantEvidence(genomicFeature, null, moi,
+                                                    penetrance, "", variant));
                                         }
                                     } else {
                                         logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId()
                                                 + ", reported, UNTIERED, missing LOF");
-                                        clinicalVariantEvidences.add(createClinicalVariantEvidence(null, genomicFeature, null, moi,
-                                                penetrance, "", variant));
+                                        clinicalVariantEvidences.add(createClinicalVariantEvidence(genomicFeature, null, moi, penetrance,
+                                                "", variant));
                                     }
                                 }
                             }
@@ -256,13 +251,13 @@ public class TieringClinicalVariantCreator extends ClinicalVariantCreator {
 
                                     logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId() + ", reported, TIER 3, LOF: "
                                             + soTerm.getName());
-                                    clinicalVariantEvidences.add(createClinicalVariantEvidence(Collections.singletonList(soTerm),
-                                            genomicFeature, null, moi, penetrance, TIER_3, variant));
+                                    clinicalVariantEvidences.add(createClinicalVariantEvidence(genomicFeature, null, moi, penetrance,
+                                            TIER_3, variant));
                                 }
                             } else {
                                 logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId()
                                         + ", reported, TIER 3, missing LOF");
-                                clinicalVariantEvidences.add(createClinicalVariantEvidence(null, genomicFeature, null, moi, penetrance,
+                                clinicalVariantEvidences.add(createClinicalVariantEvidence(genomicFeature, null, moi, penetrance,
                                         TIER_3, variant));
                             }
                         }
@@ -273,8 +268,8 @@ public class TieringClinicalVariantCreator extends ClinicalVariantCreator {
             // If we have clinical variant evidence, then we have to create the clinical variant
             if (CollectionUtils.isNotEmpty(clinicalVariantEvidences)) {
                 logger.debug(variant.toStringSimple() + ": reported, num. evidences: " + clinicalVariantEvidences.size());
-                ClinicalVariant clinicalVariant = new ClinicalVariant(variant.getImpl(), 0, new ArrayList<>(),
-                        Collections.emptyList(), ClinicalVariant.Status.NOT_REVIEWED, Collections.emptyMap());
+                ClinicalVariant clinicalVariant = new ClinicalVariant(variant.getImpl(), Collections.emptyList(), Collections.emptyList(),
+                        Collections.emptyList(), "", ClinicalVariant.Status.NOT_REVIEWED, Collections.emptyMap());
                 clinicalVariant.setEvidences(clinicalVariantEvidences);
 
                 // Add variant to the list
@@ -295,18 +290,18 @@ public class TieringClinicalVariantCreator extends ClinicalVariantCreator {
                             if (StringUtils.isNotEmpty(coordinate.getLocation())) {
                                 Region region = Region.parseRegion(coordinate.getLocation());
                                 GenomicFeature genomicFeature = new GenomicFeature(region.toString(), "REGION",
-                                        ct.getEnsemblTranscriptId(), ct.getGeneName(), panelRegion.getXrefs());
+                                        ct.getEnsemblTranscriptId(), ct.getGeneName(), Collections.emptyList(), panelRegion.getXrefs());
 
                                 int overlapPercentage = getOverlapPercentage(region, variant);
                                 if (overlapPercentage >= panelRegion.getRequiredOverlapPercentage()) {
                                     for (SequenceOntologyTerm soTerm : ct.getSequenceOntologyTerms()) {
-                                        clinicalVariantEvidences.add(createClinicalVariantEvidence(Collections.singletonList(soTerm),
-                                                genomicFeature, genePanel.getId(), ModeOfInheritance.UNKNOWN, penetrance, TIER_1, variant));
+                                        clinicalVariantEvidences.add(createClinicalVariantEvidence(genomicFeature, genePanel.getId(),
+                                                ModeOfInheritance.UNKNOWN, penetrance, TIER_1, variant));
                                     }
                                 } else {
                                     for (SequenceOntologyTerm soTerm : ct.getSequenceOntologyTerms()) {
-                                        clinicalVariantEvidences.add(createClinicalVariantEvidence(Collections.singletonList(soTerm),
-                                                genomicFeature, genePanel.getId(), ModeOfInheritance.UNKNOWN, penetrance, TIER_2, variant));
+                                        clinicalVariantEvidences.add(createClinicalVariantEvidence(genomicFeature, genePanel.getId(),
+                                                ModeOfInheritance.UNKNOWN, penetrance, TIER_2, variant));
                                     }
                                 }
                             }

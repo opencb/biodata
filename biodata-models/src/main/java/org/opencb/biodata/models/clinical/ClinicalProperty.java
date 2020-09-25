@@ -19,26 +19,62 @@
 
 package org.opencb.biodata.models.clinical;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.security.InvalidParameterException;
+import java.util.HashMap;
+import java.util.Map;
+
 public class ClinicalProperty {
 
     public enum ModeOfInheritance {
-        AUTOSOMAL_DOMINANT,
-        MONOALLELIC_NOT_IMPRINTED,
-        MONOALLELIC_MATERNALLY_IMPRINTED,
-        MONOALLELIC_PATERNALLY_IMPRINTED,
-        AUTOSOMAL_RECESSIVE,
-        MONOALLELIC_AND_BIALLELIC,
-        MONOALLELIC_AND_MORE_SEVERE_BIALLELIC,
+        AUTOSOMAL_DOMINANT("monoallelic"),
+        AUTOSOMAL_RECESSIVE("biallelic"),
         X_LINKED_DOMINANT,
         X_LINKED_RECESSIVE,
         Y_LINKED,
         MITOCHONDRIAL,
 
-        // Not modes of inheritance, but...
         DE_NOVO,
-        COMPOUND_HETEROZYGOUS,
-        MENDELIAN_ERROR,
-        UNKNOWN
+        MENDELIAN_ERROR("me"),
+        COMPOUND_HETEROZYGOUS("ch"),
+
+        UNKNOWN;
+
+        private static Map<String, ModeOfInheritance> namesMap;
+
+        static {
+            namesMap = new HashMap<>();
+            for (ModeOfInheritance mode : values()) {
+                namesMap.put(mode.name().toLowerCase(), mode);
+                namesMap.put(mode.name().replace("_", "").toLowerCase(), mode);
+                if (mode.names != null) {
+                    for (String name : mode.names) {
+                        namesMap.put(name.toLowerCase(), mode);
+                    }
+                }
+            }
+        }
+
+        private final String[] names;
+
+        ModeOfInheritance(String... names) {
+            this.names = names;
+        }
+
+        @Nullable
+        public static ModeOfInheritance parseOrNull(String name) {
+            return namesMap.get(name.toLowerCase());
+        }
+
+        @Nonnull
+        public static ModeOfInheritance parse(String name) {
+            ModeOfInheritance moi = namesMap.get(name.toLowerCase());
+            if (moi == null) {
+                throw new InvalidParameterException("Unknown ModeOfInheritance value: '" + name + "'");
+            }
+            return moi;
+        }
     }
 
     public enum ClinicalSignificance {
@@ -56,6 +92,13 @@ public class ClinicalProperty {
         UNKNOWN
     }
 
+    public enum Imprinted {
+        NOT,
+        MATERNALLY,
+        PATERNALLY,
+        UNKNOWN
+    }
+
     public enum Confidence {
         HIGH,
         MEDIUM,
@@ -66,7 +109,9 @@ public class ClinicalProperty {
     public enum RoleInCancer {
         ONCOGENE,
         TUMOR_SUPPRESSOR_GENE,
-        BOTH
+        BOTH,
+        NA,
+        UNKNOWN
     }
 
 }
