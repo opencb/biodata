@@ -1372,7 +1372,10 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
                 // Variant will never have CopyNumber, because the Alternate is normalized from <CNxx> to <CNV>
                 normalizedVariant.getSv().setCopyNumber(keyFields.getCopyNumber());
-                normalizedVariant.getSv().setType(VariantBuilder.getCNVSubtype(keyFields.getCopyNumber()));
+                VariantType cnvSubtype = VariantBuilder.getCopyNumberSubtype(keyFields.getCopyNumber());
+                if (cnvSubtype != null) {
+                    normalizedVariant.setType(cnvSubtype);
+                }
             }
         }
 

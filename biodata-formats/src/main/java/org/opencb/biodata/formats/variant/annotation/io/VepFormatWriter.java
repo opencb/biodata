@@ -52,6 +52,9 @@ public class VepFormatWriter implements DataWriter<Variant> {
 
     static {
         SymbolicToVepTag.put(VariantType.CNV, "CNV");
+        SymbolicToVepTag.put(VariantType.COPY_NUMBER, "CNV");
+        SymbolicToVepTag.put(VariantType.COPY_NUMBER_GAIN, "CNV");
+        SymbolicToVepTag.put(VariantType.COPY_NUMBER_LOSS, "CNV");
         SymbolicToVepTag.put(VariantType.DELETION, "deletion");
         SymbolicToVepTag.put(VariantType.INSERTION, "insertion");
         SymbolicToVepTag.put(VariantType.INVERSION, "INV");

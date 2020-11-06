@@ -33,7 +33,6 @@ import org.junit.rules.TemporaryFolder;
 import org.opencb.biodata.formats.variant.vcf4.FullVcfCodec;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.avro.StructuralVariantType;
 import org.opencb.biodata.models.variant.avro.StructuralVariation;
 import org.opencb.biodata.models.variant.avro.VariantAvro;
 import org.opencb.biodata.models.variant.avro.VariantType;
@@ -189,9 +188,9 @@ public class VariantContextToVariantConverterTest {
         vcfLine = "22\t16050984\trs188945759\tC\t<DUP:TANDEM>\t100\t.\tEND=16050988;CIPOS=-10,10\tGT:AD\t./0:.\t0/1:10\t1/1:20";
         variantContext = vcfCodec.decode(vcfLine);
         variant = converter.convert(variantContext);
-        assertEquals(VariantType.DUPLICATION, variant.getType());
+        assertEquals(VariantType.TANDEM_DUPLICATION, variant.getType());
         assertEquals(new StructuralVariation(16050974, 16050994, null, null, null, null, null,
-                        StructuralVariantType.TANDEM_DUPLICATION, null),
+                        null, null),
                 variant.getSv());
 
     }

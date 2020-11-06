@@ -37,8 +37,11 @@ import java.util.*;
 public class Variant implements Serializable, Comparable<Variant> {
 
     public static final EnumSet<VariantType> SV_SUBTYPES = EnumSet.of(VariantType.INSERTION, VariantType.DELETION,
-            VariantType.TRANSLOCATION, VariantType.INVERSION, VariantType.CNV, VariantType.DUPLICATION,
+            VariantType.TRANSLOCATION, VariantType.INVERSION,
+            VariantType.CNV, VariantType.COPY_NUMBER, VariantType.COPY_NUMBER_GAIN, VariantType.COPY_NUMBER_LOSS,
+            VariantType.DUPLICATION, VariantType.TANDEM_DUPLICATION,
             VariantType.BREAKEND);
+    public static final EnumSet<VariantType> COPY_NUMBER_SUBTYPES = EnumSet.of(VariantType.COPY_NUMBER_GAIN, VariantType.COPY_NUMBER_LOSS);
     private final VariantAvro impl;
     private volatile Map<String, StudyEntry> studyEntries = null;
 
@@ -134,8 +137,8 @@ public class Variant implements Serializable, Comparable<Variant> {
     }
 
     @Deprecated
-    public static StructuralVariantType getCNVSubtype(Integer copyNumber) {
-        return VariantBuilder.getCNVSubtype(copyNumber);
+    public static VariantType getCNVSubtype(Integer copyNumber) {
+        return VariantBuilder.getCopyNumberSubtype(copyNumber);
     }
 
     public void reset() {
@@ -464,7 +467,7 @@ public class Variant implements Serializable, Comparable<Variant> {
 //            } else {
 //                sb.append(getAlternate());
 //            }
-        } else if (sv != null && sv.getType() == StructuralVariantType.TANDEM_DUPLICATION) {
+        } else if (getType() == VariantType.TANDEM_DUPLICATION) {
             sb.append("<DUP:TANDEM>");
         } else {
             sb.append(getAlternate());
@@ -576,6 +579,8 @@ public class Variant implements Serializable, Comparable<Variant> {
             return Collections.singleton(VariantType.MNP);
         } else if (variantType.equals(VariantType.SV)) {
             return  SV_SUBTYPES;
+        } else if (variantType.equals(VariantType.COPY_NUMBER) || variantType.equals(VariantType.CNV)) {
+            return COPY_NUMBER_SUBTYPES;
         } else {
             return Collections.emptySet();
         }

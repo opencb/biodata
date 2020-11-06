@@ -7,6 +7,7 @@ import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.*;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -548,16 +549,19 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
 
         assertEquals("1:90<100<110-200:C:<CN0>,<CN2>,<CN3>,<CN4>", normalizedVariantList.get(0).getStudies().get(0).getFiles().get(0).getCall().getVariantId());
         assertEquals(0, normalizedVariantList.get(0).getStudies().get(0).getFiles().get(0).getCall().getAlleleIndex().intValue());
+        assertEquals(VariantType.COPY_NUMBER_LOSS, normalizedVariantList.get(0).getType());
         assertEquals("1:90<100<110-200:C:<CN0>,<CN2>,<CN3>,<CN4>", normalizedVariantList.get(1).getStudies().get(0).getFiles().get(0).getCall().getVariantId());
         assertEquals(1, normalizedVariantList.get(1).getStudies().get(0).getFiles().get(0).getCall().getAlleleIndex().intValue());
+        assertEquals(VariantType.COPY_NUMBER, normalizedVariantList.get(1).getType());
         assertEquals("1:90<100<110-200:C:<CN0>,<CN2>,<CN3>,<CN4>", normalizedVariantList.get(2).getStudies().get(0).getFiles().get(0).getCall().getVariantId());
         assertEquals(2, normalizedVariantList.get(2).getStudies().get(0).getFiles().get(0).getCall().getAlleleIndex().intValue());
+        assertEquals(VariantType.COPY_NUMBER_GAIN, normalizedVariantList.get(2).getType());
         assertEquals("1:90<100<110-200:C:<CN0>,<CN2>,<CN3>,<CN4>", normalizedVariantList.get(3).getStudies().get(0).getFiles().get(0).getCall().getVariantId());
         assertEquals(3, normalizedVariantList.get(3).getStudies().get(0).getFiles().get(0).getCall().getAlleleIndex().intValue());
+        assertEquals(VariantType.COPY_NUMBER_GAIN, normalizedVariantList.get(3).getType());
 
         for (Variant v : normalizedVariantList) {
             assertEquals(101, v.getStart().intValue());
-            assertEquals(VariantType.CNV, v.getType());
         }
     }
 
@@ -596,7 +600,7 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
         normalizedVariantList = normalizer.normalize(Collections.singletonList(variant), false);
         assertEquals(2, normalizedVariantList.size());
         assertEquals(new StructuralVariation(100, 100, 200, 200, 3,
-                null, null, StructuralVariantType.COPY_NUMBER_GAIN, null), normalizedVariantList.get(0).getSv());
+                null, null, null, null), normalizedVariantList.get(0).getSv());
         assertEquals(new StructuralVariation(100, 100, 200, 200, 2,
                 null, null, null, null), normalizedVariantList.get(1).getSv());
     }
