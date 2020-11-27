@@ -46,7 +46,9 @@ public class VariantBuilder {
     private static final String CNV_PREFIX_ALT = "<CN";
     private static final Pattern CNV_ALT_PATTERN = Pattern.compile("<CN([0-9]+)>");
     public static final String NON_REF_ALT = Allele.NON_REF_STRING;
-    public static final String REF_ONLY_ALT = "<*>";
+    public static final String NO_CALL = Allele.NO_CALL_STRING;
+    public static final String REF_ONLY_ALT = Allele.UNSPECIFIED_ALTERNATE_ALLELE_STRING;
+    public static final String SPAN_DELETION = Allele.SPAN_DEL_STRING;
 
     private static final Set<String> VALID_NTS = new HashSet<>(Arrays.asList("A", "C", "G", "T", "N"));
     protected static final String VARIANT_STRING_FORMAT
@@ -661,7 +663,7 @@ public class VariantBuilder {
             type = inferType(reference, alternates.get(0));
         }
 
-        if (type.equals(VariantType.NO_VARIATION) && alternates.get(0).equals(Allele.NO_CALL_STRING)) {
+        if (type.equals(VariantType.NO_VARIATION) && alternates.get(0).equals(NO_CALL)) {
             alternates.set(0, "");
         }
 
@@ -778,7 +780,9 @@ public class VariantBuilder {
     }
 
     public static VariantType inferType(String reference, String alternate) {
-        if (alternate.length() == 1 && reference.length() == 1 && !alternate.equals(Allele.NO_CALL_STRING)) {
+        if (alternate.length() == 1 && reference.length() == 1
+                && !alternate.equals(NO_CALL)
+                && !alternate.equals(SPAN_DELETION)) {
             // Shortcut for 99% of scenarios
             return VariantType.SNV;
         }
@@ -801,12 +805,14 @@ public class VariantBuilder {
             } else if (alternate.contains("[") || alternate.contains("]")  // mated breakend
                     || alternateBytes[0] == '.' || alternateBytes[alternateBytes.length - 1] == '.') { // single breakend
                 return VariantType.BREAKEND;
-            } else if (alternate.equals(Allele.NON_REF_STRING) || alternate.equals(REF_ONLY_ALT)) {
+            } else if (alternate.equals(Allele.NON_REF_STRING) || alternate.equals(Allele.UNSPECIFIED_ALTERNATE_ALLELE_STRING)) {
                 return VariantType.NO_VARIATION;
             } else {
                 return VariantType.SYMBOLIC;
             }
-        } else if (alternate.equals(Allele.NO_CALL_STRING)) {
+        } else if (alternate.equals(SPAN_DELETION)) {
+            return VariantType.DELETION;
+        } else if (alternate.equals(NO_CALL)) {
             return VariantType.NO_VARIATION;
         } else {
             if (reference.length() == alternate.length()) {

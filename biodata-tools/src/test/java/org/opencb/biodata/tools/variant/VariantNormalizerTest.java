@@ -7,7 +7,6 @@ import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.*;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -301,7 +300,22 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
 
         assertEquals(VariantType.NO_VARIATION, variant.getType());
         Variant normalizedVariant = normalizer.normalize(Collections.singletonList(variant), false).get(0);
+        assertNotSame(variant, normalizedVariant);
         assertEquals(variant, normalizedVariant);
+    }
+
+    @Test
+    public void testNormalizeNoVariationWithSamples() throws NonStandardCompliantSampleField {
+        Variant variant = Variant.newBuilder("2:10-1000:A:.")
+                .setStudyId("study")
+                .setSampleDataKeys("GT")
+                .addSample("sample", "0/0")
+                .build();
+
+        assertEquals(VariantType.NO_VARIATION, variant.getType());
+        Variant normalizedVariant = normalizer.normalize(Collections.singletonList(variant), false).get(0);
+        assertEquals(variant, normalizedVariant);
+        assertEquals(VariantType.NO_VARIATION, variant.getType());
     }
 
     @Test
@@ -311,6 +325,24 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
         Variant normalizedVariant = normalizer.normalize(Collections.singletonList(variant), false).get(0);
         assertEquals("<*>", normalizedVariant.getAlternate());
         variant.setAlternate("<*>");
+        assertNotSame(variant, normalizedVariant);
+        assertEquals(variant, normalizedVariant);
+    }
+
+    @Test
+    public void testNormalizeNoVariationSymbolicWithSample() throws NonStandardCompliantSampleField {
+        Variant variant = Variant.newBuilder("2", 10, 1000, "A", "<NON_REF>")
+                .setStudyId("study")
+                .setFileId("file")
+                .setSampleDataKeys("GT")
+                .addSample("sample", "0/0")
+                .build();
+
+        Variant normalizedVariant = normalizer.normalize(Collections.singletonList(variant), false).get(0);
+        assertEquals("<*>", normalizedVariant.getAlternate());
+        variant.getStudies().get(0).getFile(0).setCall(new OriginalCall(variant.toString(), 0));
+        variant.setAlternate("<*>");
+        assertNotSame(variant, normalizedVariant);
         assertEquals(variant, normalizedVariant);
     }
 
@@ -342,6 +374,76 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
         assertEquals("2:10:A:C,<NON_REF>", call);
         variant.getStudies().get(0).getFiles().get(0).setCall(new OriginalCall("2:10:A:C,<NON_REF>", 0));
         variant.getStudies().get(0).getSecondaryAlternates().get(0).setAlternate("<*>");
+        assertEquals(variant.toJson(), normalizedVariant.toJson());
+    }
+
+    @Test
+    public void testNormalizeSymbolicNonRefAlone() throws NonStandardCompliantSampleField {
+        Variant variant = Variant.newBuilder("2", 10, 10, "A", "<NON_REF>").setStudyId("s")
+                .setFileId("f")
+                .setSampleDataKeys(Collections.emptyList())
+                .setSamples(Collections.emptyList()).build();
+
+
+        List<Variant> variants = normalizer.normalize(Collections.singletonList(variant), false);
+        assertEquals(1, variants.size());
+        Variant normalizedVariant = variants.get(0);
+
+        Variant expected = Variant.newBuilder("2", 10, 10, "A", "<*>").setStudyId("s")
+                .setFileId("f")
+                .setSampleDataKeys(Collections.emptyList())
+                .setCall(new OriginalCall("2:10:A:<NON_REF>", 0))
+                .setSamples(Collections.emptyList()).build();
+        assertEquals(expected.toJson(), normalizedVariant.toJson());
+    }
+
+    @Test
+    public void testNormalizeMultiallelicSpanningDeletion() throws NonStandardCompliantSampleField {
+        Variant variant = Variant.newBuilder("2", 10, 10, "A", "C,*").setStudyId("s")
+                .setFileId("f")
+                .setSampleDataKeys("GT", "AD")
+                .addSample("S1", "1/2", "0,1,2").build();
+
+        List<Variant> variants = normalizer.normalize(Collections.singletonList(variant), false);
+        assertEquals(1, variants.size());
+        Variant normalizedVariant = variants.get(0);
+        String call = normalizedVariant.getStudies().get(0).getFiles().get(0).getCall().getVariantId();
+        assertEquals("2:10:A:C,*", call);
+        variant.getStudies().get(0).getFiles().get(0).setCall(new OriginalCall("2:10:A:C,*", 0));
+        assertEquals(variant.toJson(), normalizedVariant.toJson());
+    }
+
+    @Test
+    public void testNormalizeMultiallelicSpanningDeletionInverseOrder() throws NonStandardCompliantSampleField {
+        Variant spanDelFirst = Variant.newBuilder("2", 10, 10, "A", "*,C").setStudyId("s")
+                .setFileId("f")
+                .setSampleDataKeys("GT", "AD")
+                .addSample("S1", "1/2", "0,1,2").build();
+
+        List<Variant> variants = normalizer.normalize(Collections.singletonList(spanDelFirst), false);
+        assertEquals(1, variants.size());
+        Variant normalizedVariant = variants.get(0);
+        String call = normalizedVariant.getStudies().get(0).getFiles().get(0).getCall().getVariantId();
+        assertEquals("2:10:A:*,C", call);
+
+        Variant expected = Variant.newBuilder("2", 10, 10, "A", "C,*").setStudyId("s")
+                .setFileId("f")
+                .setSampleDataKeys("GT", "AD")
+                .setCall(new OriginalCall("2:10:A:*,C", 1))
+                .addSample("S1", "2/1", "0,2,1").build();
+        assertEquals(expected.toJson(), normalizedVariant.toJson());
+    }
+
+    @Test
+    public void testNormalizeSpanningDeletionAlone() throws NonStandardCompliantSampleField {
+        Variant variant = Variant.newBuilder("2", 10, 10, "A", "*").setStudyId("s")
+                .setFileId("f")
+                .setSampleDataKeys("GT", "AD")
+                .addSample("S1", "1/2", "0,1,2").build();
+
+        List<Variant> variants = normalizer.normalize(Collections.singletonList(variant), false);
+        assertEquals(1, variants.size());
+        Variant normalizedVariant = variants.get(0);
         assertEquals(variant.toJson(), normalizedVariant.toJson());
     }
 
