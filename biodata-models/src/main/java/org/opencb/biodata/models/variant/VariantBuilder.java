@@ -16,6 +16,8 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.opencb.biodata.models.variant.avro.VariantType.*;
+
 /**
  * Variant builder.
  * <p>
@@ -44,7 +46,9 @@ public class VariantBuilder {
     private static final String CNV_PREFIX_ALT = "<CN";
     private static final Pattern CNV_ALT_PATTERN = Pattern.compile("<CN([0-9]+)>");
     public static final String NON_REF_ALT = Allele.NON_REF_STRING;
-    public static final String REF_ONLY_ALT = "<*>";
+    public static final String NO_CALL = Allele.NO_CALL_STRING;
+    public static final String REF_ONLY_ALT = Allele.UNSPECIFIED_ALTERNATE_ALLELE_STRING;
+    public static final String SPAN_DELETION = Allele.SPAN_DEL_STRING;
 
     private static final Set<String> VALID_NTS = new HashSet<>(Arrays.asList("A", "C", "G", "T", "N"));
     protected static final String VARIANT_STRING_FORMAT
@@ -333,6 +337,7 @@ public class VariantBuilder {
         initSv();
         sv.setCopyNumber(copyNumber);
         sv.setType(getCNVSubtype(copyNumber));
+        type = getCopyNumberSubtype(copyNumber);
         return this;
     }
 
@@ -587,7 +592,6 @@ public class VariantBuilder {
             ifNotNull(sv.getCopyNumber(), svBuilder::setCopyNumber);
             ifNotNull(sv.getRightSvInsSeq(), svBuilder::setRightSvInsSeq);
             ifNotNull(sv.getLeftSvInsSeq(), svBuilder::setLeftSvInsSeq);
-            ifNotNull(sv.getType(), type -> svBuilder.setType(VariantProto.StructuralVariantType.valueOf(sv.getType().toString())));
             if (sv.getBreakend() != null) {
                 Breakend bnd = sv.getBreakend();
                 VariantProto.Breakend.Builder bndBuilder = VariantProto.Breakend.newBuilder();
@@ -659,7 +663,7 @@ public class VariantBuilder {
             type = inferType(reference, alternates.get(0));
         }
 
-        if (type.equals(VariantType.NO_VARIATION) && alternates.get(0).equals(Allele.NO_CALL_STRING)) {
+        if (type.equals(VariantType.NO_VARIATION) && alternates.get(0).equals(NO_CALL)) {
             alternates.set(0, "");
         }
 
@@ -776,7 +780,9 @@ public class VariantBuilder {
     }
 
     public static VariantType inferType(String reference, String alternate) {
-        if (alternate.length() == 1 && reference.length() == 1 && !alternate.equals(Allele.NO_CALL_STRING)) {
+        if (alternate.length() == 1 && reference.length() == 1
+                && !alternate.equals(NO_CALL)
+                && !alternate.equals(SPAN_DELETION)) {
             // Shortcut for 99% of scenarios
             return VariantType.SNV;
         }
@@ -785,7 +791,9 @@ public class VariantBuilder {
         // Symbolic variants shall contain empty reference, no need to check
         if (Allele.wouldBeSymbolicAllele(alternateBytes)) {
             if (alternate.startsWith(CNV_PREFIX_ALT)) {
-                return VariantType.CNV;
+                return VariantType.COPY_NUMBER;
+            } else if (alternate.equals(DUP_TANDEM_ALT)){
+                return TANDEM_DUPLICATION;
             } else if (alternate.equals(DUP_ALT) || alternate.startsWith(DUP_ALT_EXTENDED)){
                 return VariantType.DUPLICATION;
             } else if (alternate.equals(DEL_ALT) || alternate.startsWith(DEL_ALT_EXTENDED)) {
@@ -797,12 +805,14 @@ public class VariantBuilder {
             } else if (alternate.contains("[") || alternate.contains("]")  // mated breakend
                     || alternateBytes[0] == '.' || alternateBytes[alternateBytes.length - 1] == '.') { // single breakend
                 return VariantType.BREAKEND;
-            } else if (alternate.equals(Allele.NON_REF_STRING) || alternate.equals(REF_ONLY_ALT)) {
+            } else if (alternate.equals(Allele.NON_REF_STRING) || alternate.equals(Allele.UNSPECIFIED_ALTERNATE_ALLELE_STRING)) {
                 return VariantType.NO_VARIATION;
             } else {
                 return VariantType.SYMBOLIC;
             }
-        } else if (alternate.equals(Allele.NO_CALL_STRING)) {
+        } else if (alternate.equals(SPAN_DELETION)) {
+            return VariantType.DELETION;
+        } else if (alternate.equals(NO_CALL)) {
             return VariantType.NO_VARIATION;
         } else {
             if (reference.length() == alternate.length()) {
@@ -1102,10 +1112,16 @@ public class VariantBuilder {
                 case DUPLICATION:
                     if (alternates.get(0).equals(DUP_TANDEM_ALT)) {
                         alternates.set(0, DUP_ALT);
+                        type = TANDEM_DUPLICATION;
+                        // TODO: Remove this
                         sv.setType(StructuralVariantType.TANDEM_DUPLICATION);
                     }
                     break;
+                case TANDEM_DUPLICATION:
+                        sv.setType(StructuralVariantType.TANDEM_DUPLICATION);
+                    break;
                 case CNV:
+                case COPY_NUMBER:
                     Integer copyNumber = getCopyNumberFromAlternate(alternates.get(0));
                     if (copyNumber == null) {
                         copyNumber = getCopyNumberFromSampleData();
@@ -1113,6 +1129,7 @@ public class VariantBuilder {
                     if (copyNumber != null) {
                         sv.setCopyNumber(copyNumber);
                         sv.setType(getCNVSubtype(copyNumber));
+                        type = getCopyNumberSubtype(copyNumber);
                     }
                     break;
             }
@@ -1234,6 +1251,20 @@ public class VariantBuilder {
         return cn;
     }
 
+    public static VariantType getCopyNumberSubtype(Integer copyNumber) {
+        if (copyNumber != null) {
+            if (copyNumber > 2) {
+                return VariantType.COPY_NUMBER_GAIN;
+            } else if (copyNumber < 2) {
+                return VariantType.COPY_NUMBER_LOSS;
+            } else {
+                return COPY_NUMBER;
+            }
+        }
+        return null;
+    }
+
+    @Deprecated
     public static StructuralVariantType getCNVSubtype(Integer copyNumber) {
         if (copyNumber != null) {
             if (copyNumber > 2) {
@@ -1261,17 +1292,21 @@ public class VariantBuilder {
             case TRANSLOCATION: return VariantProto.VariantType.TRANSLOCATION;
             case INVERSION: return VariantProto.VariantType.INVERSION;
             case CNV: return VariantProto.VariantType.CNV;
+            case COPY_NUMBER: return VariantProto.VariantType.COPY_NUMBER;
+            case COPY_NUMBER_GAIN: return VariantProto.VariantType.COPY_NUMBER_GAIN;
+            case COPY_NUMBER_LOSS: return VariantProto.VariantType.COPY_NUMBER_LOSS;
             case NO_VARIATION: return VariantProto.VariantType.NO_VARIATION;
             case SYMBOLIC: return VariantProto.VariantType.SYMBOLIC;
             case MIXED: return VariantProto.VariantType.MIXED;
             case DUPLICATION: return VariantProto.VariantType.DUPLICATION;
+            case TANDEM_DUPLICATION: return VariantProto.VariantType.TANDEM_DUPLICATION;
             case BREAKEND: return VariantProto.VariantType.BREAKEND;
             default: throw new EnumConstantNotPresentException(VariantProto.VariantType.class, type.name());
         }
     }
 
     @Deprecated
-    public static StructuralVariation getStructuralVariation(Variant variant, StructuralVariantType tandemDuplication) {
+    public static StructuralVariation getStructuralVariation(Variant variant) {
         int[] impreciseStart = getImpreciseStart(variant);
         int[] impreciseEnd = getImpreciseEnd(variant);
         String[] svInsSeq = getSvInsSeq(variant);
@@ -1285,15 +1320,11 @@ public class VariantBuilder {
         sv.setLeftSvInsSeq(svInsSeq[0]);
         sv.setRightSvInsSeq(svInsSeq[1]);
 
-        // If it's not a tandem duplication, this will set the type to null
-        sv.setType(tandemDuplication);
-
         // Will properly set the type if it's a CNV
-        if (variant.getType().equals(VariantType.CNV)) {
+        if (variant.getType().equals(VariantType.COPY_NUMBER)) {
             Integer copyNumber = getCopyNumberFromAlternate(variant.getAlternate());
             if (copyNumber != null) {
                 sv.setCopyNumber(copyNumber);
-                sv.setType(getCNVSubtype(copyNumber));
             }
         }
         return sv;

@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.opencb.biodata</groupId>
         <artifactId>biodata</artifactId>
-        <version>2.0.3</version>
+        <version>2.0.4</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -52,12 +52,6 @@
         <dependency>
             <groupId>org.biojava</groupId>
             <artifactId>biojava-alignment</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.logging.log4j</groupId>
-                    <artifactId>log4j-slf4j-impl</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.opencb.biodata</groupId>
@@ -69,6 +63,11 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

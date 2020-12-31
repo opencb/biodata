@@ -135,7 +135,7 @@ public class VariantAvroToVariantContextConverter extends VariantContextConverte
     public List<String> buildAlleles(Variant variant, Pair<Integer, Integer> adjustedRange, Map<Integer, Character> referenceAlleles) {
         String reference = variant.getReference();
         String alternate = variant.getAlternate();
-        if (variant.getSv() != null && variant.getSv().getType() == StructuralVariantType.TANDEM_DUPLICATION && alternate.equals(VariantBuilder.DUP_ALT)) {
+        if (variant.getType() == VariantType.TANDEM_DUPLICATION && alternate.equals(VariantBuilder.DUP_ALT)) {
             alternate = VariantBuilder.DUP_TANDEM_ALT;
         }
         if (variant.getType().equals(VariantType.NO_VARIATION)) {

@@ -137,7 +137,7 @@ public class VariantProtoToVariantContextConverter extends VariantContextConvert
                                      Pair<Integer, Integer> adjustedRange, Map<Integer, Character> referenceAlleles) {
         String reference = variant.getReference();
         String alternate = variant.getAlternate();
-        if (variant.getSv() != null && variant.getSv().getType() == VariantProto.StructuralVariantType.TANDEM_DUPLICATION && alternate.equals(VariantBuilder.DUP_ALT)) {
+        if (variant.getType() == VariantProto.VariantType.TANDEM_DUPLICATION && alternate.equals(VariantBuilder.DUP_ALT)) {
             alternate = VariantBuilder.DUP_TANDEM_ALT;
         }
         List<VariantProto.AlternateCoordinate> secAlts = getStudy(variant).getSecondaryAlternatesList();

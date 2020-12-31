@@ -20,7 +20,7 @@
 
     <groupId>org.opencb.biodata</groupId>
     <artifactId>biodata</artifactId>
-    <version>2.0.3</version>
+    <version>2.0.4</version>
     <packaging>pom</packaging>
 
     <name>Biodata</name>
@@ -34,13 +34,14 @@
     </modules>
 
     <properties>
-        <biodata.version>2.0.3</biodata.version>
-        <commons.version>4.0.3</commons.version>
+        <biodata.version>2.0.4</biodata.version>
+        <commons.version>4.0.4</commons.version>
         <ga4gh.version>0.6.0a5</ga4gh.version>
         <avro.version>1.7.7</avro.version>
         <protobuf.version>3.9.0</protobuf.version>
         <grpc.version>1.23.0</grpc.version>
         <htsjdk.version>2.21.3</htsjdk.version>
+        <slf4j.version>1.7.25</slf4j.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <compileSource>1.8</compileSource>
     </properties>
@@ -130,11 +131,23 @@
                 <groupId>org.opencb.commons</groupId>
                 <artifactId>commons-lib</artifactId>
                 <version>${commons.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.logging.log4j</groupId>
+                        <artifactId>log4j-slf4j-impl</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.opencb.commons</groupId>
                 <artifactId>commons-datastore-core</artifactId>
                 <version>${commons.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.logging.log4j</groupId>
+                        <artifactId>log4j-slf4j-impl</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.opencb.ga4gh</groupId>
@@ -166,6 +179,20 @@
                 <groupId>org.biojava</groupId>
                 <artifactId>biojava-alignment</artifactId>
                 <version>4.1.0</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.logging.log4j</groupId>
+                        <artifactId>log4j-slf4j-impl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.logging.log4j</groupId>
+                        <artifactId>log4j-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.logging.log4j</groupId>
+                        <artifactId>log4j-core</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>BigWig</groupId>
@@ -178,6 +205,21 @@
                 <version>4.12</version>
                 <scope>test</scope>
             </dependency>
+            <!-- Better use slf4j-simple instead of logj4 for testing, as it doesn't require any configuration -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-simple</artifactId>
+                <version>${slf4j.version}</version>
+                <scope>test</scope>
+                <optional>true</optional>
+            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>org.apache.logging.log4j</groupId>-->
+<!--                <artifactId>log4j-slf4j-impl</artifactId>-->
+<!--                <version>${log4j2.version}</version>-->
+<!--                <scope>test</scope>-->
+<!--                <optional>true</optional>-->
+<!--            </dependency>-->
         </dependencies>
     </dependencyManagement>
 

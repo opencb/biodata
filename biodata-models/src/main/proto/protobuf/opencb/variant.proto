@@ -24,13 +24,13 @@ enum VariantType {
     // protobuf will use this as default value and save some space.
     NO_VARIATION   = 0;  // Defined in HTSJDK
 
-    SNP            = 1;  // SO:0000694
     SNV            = 2;  // SO:0001483
-    MNP            = 3;  // SO:0001013
     MNV            = 4;  // SO:0002007
     INDEL          = 5;  // SO:1000032
     SV             = 6;  // SO:0001537
-    CNV            = 7;  // SO:0001019
+    COPY_NUMBER    = 7;  // SO:0001019
+    COPY_NUMBER_GAIN     = 16;  // SO:0001742
+    COPY_NUMBER_LOSS     = 17;  // SO:0001743
     SYMBOLIC       = 8;  // Defined in HTSJDK
     MIXED          = 9;  // Defined in HTSJDK
 
@@ -39,7 +39,13 @@ enum VariantType {
     TRANSLOCATION  = 12;  // SO:0000199
     INVERSION      = 13;  // SO:1000036
     DUPLICATION    = 14;  // SO:1000035
+    TANDEM_DUPLICATION   = 18;  // SO:1000173
     BREAKEND       = 15;
+
+    // Deprecated
+    CNV            = 20; // Deprecated. Renamed to COPY_NUMBER
+    SNP            = 1;  // Deprecated
+    MNP            = 3;  // Deprecated
 }
 
 message VariantStats {
@@ -213,19 +219,20 @@ message StudyEntry {
     repeated VariantStats stats = 6;
 }
 
-/**
- * Type of structural variation
- * <ul>
- * <li>COPY_NUMBER_GAIN for CNVs</li>
- * <li>COPY_NUMBER_LOSS for CNVs</li>
- * <li>TANDEM_DUPLICATION for DUP</li>
- * </ul>
- */
-enum StructuralVariantType {
-    COPY_NUMBER_GAIN   = 0;            // SO:0001742
-    COPY_NUMBER_LOSS   = 1;            // SO:0001743
-    TANDEM_DUPLICATION = 2;            // SO:1000173
-}
+///**
+// * Type of structural variation
+// * <ul>
+// * <li>COPY_NUMBER_GAIN for CNVs</li>
+// * <li>COPY_NUMBER_LOSS for CNVs</li>
+// * <li>TANDEM_DUPLICATION for DUP</li>
+// * </ul>
+// */
+//enum StructuralVariantType {
+//    unused   = 0;            // SO:0001742
+////    COPY_NUMBER_GAIN   = 0;            // SO:0001742
+////    COPY_NUMBER_LOSS   = 1;            // SO:0001743
+////    TANDEM_DUPLICATION = 2;            // SO:1000173
+//}
 
 
 /*
@@ -276,7 +283,7 @@ message StructuralVariation {
     /**
     * Structural variation type: COPY_NUMBER_GAIN, COPY_NUMBER_LOSS, TANDEM_DUPLICATION, ...
     */
-    StructuralVariantType type = 8;
+//    StructuralVariantType type = 8;
 
     Breakend breakend = 9;
 }

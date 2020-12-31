@@ -355,8 +355,8 @@ public class VariantMerger {
                 a.setStart(start);
                 a.setEnd(end);
                 a.setReference(current.getReference());
-                a.setAlternate("*"); // set deletion to * Alternate
-                a.setType(VariantType.MIXED); // set all to the same
+                a.setAlternate(VariantBuilder.SPAN_DELETION); // set deletion to * Alternate
+                a.setType(VariantType.DELETION); // set all to the same
             };
             if (current.getType().equals(VariantType.SNP)
                     || current.getType().equals(VariantType.SNV)

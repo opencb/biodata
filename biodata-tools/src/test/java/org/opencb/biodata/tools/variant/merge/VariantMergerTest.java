@@ -277,6 +277,7 @@ public class VariantMergerTest {
         assertEquals(Arrays.asList("S01", "S02", "S03", "S04"), se.getOrderedSamplesName());
         assertEquals(2, se.getSecondaryAlternates().size());
         assertEquals("*", se.getSecondaryAlternates().get(0).getAlternate());
+        assertEquals(VariantType.DELETION, se.getSecondaryAlternates().get(0).getType());
         assertEquals("0/1", se.getSampleData("S01", "GT"));
         assertEquals("0/2", se.getSampleData("S02", "GT"));
         assertEquals("0/3", se.getSampleData("S03", "GT")); // NOT * for MNV
