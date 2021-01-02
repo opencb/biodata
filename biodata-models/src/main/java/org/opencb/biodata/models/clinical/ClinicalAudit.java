@@ -13,7 +13,16 @@ public class ClinicalAudit {
         CREATE_CLINICAL_ANALYSIS,
         CREATE_INTERPRETATION,
         UPDATE_CLINICAL_ANALYSIS,
-        UPDTATE_INTERPRETATION
+        DELETE_CLINICAL_ANALYSIS,
+        UPDATE_INTERPRETATION,
+        REVERT_INTERPRETATION,
+        CLEAR_INTERPRETATION,
+        MERGE_INTERPRETATION,
+        SWAP_INTERPRETATION,
+        DELETE_INTERPRETATION
+    }
+
+    public ClinicalAudit() {
     }
 
     public ClinicalAudit(String author, Action action, String message, String date) {

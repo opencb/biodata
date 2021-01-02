@@ -17,21 +17,26 @@ protocol Variants {
      */
     enum VariantType {
         SNV,                   // SO:0001483
-        SNP,                   // SO:0000694
         MNV,                   // SO:0002007
-        MNP,                   // SO:0001013
         INDEL,                 // SO:1000032
         SV,                    // SO:0001537
         INSERTION,             // SO:0000667
         DELETION,              // SO:0000159
         TRANSLOCATION,         // SO:0000199
         INVERSION,             // SO:1000036
-        CNV,                   // SO:0001019
+        COPY_NUMBER,           // SO:0001019
+        COPY_NUMBER_GAIN,      // SO:0001742
+        COPY_NUMBER_LOSS,      // SO:0001743
         DUPLICATION,           // SO:1000035
+        TANDEM_DUPLICATION,    // SO:1000173
         BREAKEND,
         NO_VARIATION,          // Defined in HTSJDK
         SYMBOLIC,              // Defined in HTSJDK
-        MIXED                  // Defined in HTSJDK
+        MIXED,                 // Defined in HTSJDK
+
+        SNP,                   // @Deprecated
+        MNP,                   // @Deprecated
+        CNV                    // @Deprecated
     }
 
     record VariantStats {
@@ -301,13 +306,9 @@ protocol Variants {
 //    }
 
     /**
-     * Type of structural variation
-     * <ul>
-     * <li>COPY_NUMBER_GAIN for CNVs</li>
-     * <li>COPY_NUMBER_LOSS for CNVs</li>
-     * <li>TANDEM_DUPLICATION for DUP</li>
-     * </ul>
+     * @Deprecated, use VariantType instead
      */
+    @javaAnnotation("Deprecated")
     enum StructuralVariantType {
         COPY_NUMBER_GAIN,            // SO:0001742
         COPY_NUMBER_LOSS,            // SO:0001743
@@ -357,9 +358,9 @@ protocol Variants {
         union { null, string } rightSvInsSeq;
 
         /**
-        * Structural variation type: COPY_NUMBER_GAIN, COPY_NUMBER_LOSS, TANDEM_DUPLICATION, ...
+        * @deprecated
         */
-        union {null, StructuralVariantType} type;
+        union {null, StructuralVariantType} @javaAnnotation("Deprecated") type;
 
         union { null, Breakend } breakend = null;
     }

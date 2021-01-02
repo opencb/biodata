@@ -297,11 +297,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         List<Variant> normalizedVariants = new ArrayList<>(batch.size());
 
         for (Variant variant : batch) {
-            if (variant.getType().equals(VariantType.NO_VARIATION)) {
-                variant.setAlternate(normalizeNoVariationAlternate(variant.getAlternate()));
-                normalizedVariants.add(variant);
-                continue;
-            } else if (!isNormalizable(variant)) {
+            if (!isNormalizable(variant)) {
                 normalizedVariants.add(variant);
                 continue;
             }
@@ -314,7 +310,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
             if (variant.getStudies() == null || variant.getStudies().isEmpty()) {
                 List<VariantKeyFields> keyFieldsList;
-                if (variant.isSymbolic()) {
+                if (isSymbolic(variant)) {
                     keyFieldsList = normalizeSymbolic(start, end, reference, alternate, sv);
                 } else {
                     keyFieldsList = normalize(chromosome, start, reference, alternate);
@@ -342,14 +338,14 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                     alternates.add(alternate);
                     originalAlternates.add(alternate);
                     for (String secondaryAlternatesAllele : entry.getSecondaryAlternatesAlleles()) {
-                        alternates.add(normalizeNoVariationAlternate(secondaryAlternatesAllele));
+                        alternates.add(secondaryAlternatesAllele);
                         originalAlternates.add(secondaryAlternatesAllele);
                     }
 
                     // FIXME: assumes there wont be multinucleotide positions with CNVs and short variants mixed
                     List<VariantKeyFields> keyFieldsList;
                     List<VariantKeyFields> originalKeyFieldsList;
-                    if (variant.isSymbolic()) {
+                    if (isSymbolic(variant)) {
                         keyFieldsList = normalizeSymbolic(start, end, reference, alternates, sv);
                     } else {
                         keyFieldsList = normalize(chromosome, start, reference, alternates);
@@ -385,8 +381,12 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
                     // Iterate keyFields sorting by position, so the generated variants are ordered. Do not modify original order!
                     for (VariantKeyFields keyFields : sortByPosition(keyFieldsList)) {
-                        // Skip symbolic NO_VARIATION
-                        if (keyFields.alternate.equals(VariantBuilder.REF_ONLY_ALT)) {
+                        // Skip symbolic NO_VARIATION (unless it's not in a multi-allelic variant)
+                        if (keyFields.alternate.equals(VariantBuilder.REF_ONLY_ALT) && keyFieldsList.size() != 1) {
+                            continue;
+                        }
+                        // Skip spanning deletions (unless it's not in a multi-allelic variant)
+                        if (keyFields.alternate.equals(VariantBuilder.SPAN_DELETION) && keyFieldsList.size() != 1) {
                             continue;
                         }
 
@@ -408,7 +408,7 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 //                            }
                             normalizedEntry = entry;
                             if (!sameVariant) {
-                                OriginalCall call = new OriginalCall(originalCall.toString(), keyFields.numAllele);
+                                OriginalCall call = new OriginalCall(originalCall, keyFields.numAllele);
                                 entry.getFiles().forEach(fileEntry -> {
                                     fileEntry.setCall(call);
                                 });
@@ -505,6 +505,10 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         }
 
         return normalizedVariants;
+    }
+
+    private boolean isSymbolic(Variant variant) {
+        return isNonRef(variant.getAlternate()) || variant.isSymbolic();
     }
 
     private String normalizeNoVariationAlternate(String alternate) {
@@ -614,6 +618,8 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             VariantKeyFields keyFields;
             if (VariantBuilder.isMateBreakend(alternate)) {
                 keyFields = normalizeMateBreakend(start, reference, alternate, alternates, numAllelesIdx);
+            } else if (isNonRef(alternate)) {
+                keyFields = normalizeNonRef(start, end, reference, numAllelesIdx, alternate);
             } else {
                 Integer copyNumber = sv == null ? null : sv.getCopyNumber();
                 keyFields = normalizeSymbolic(start, end, reference, alternate, alternates, copyNumber, numAllelesIdx);
@@ -622,6 +628,16 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         }
 
         return list;
+    }
+
+    private boolean isNonRef(String alternate) {
+        return alternate.equals(Allele.NO_CALL_STRING)
+                || alternate.equals(VariantBuilder.NON_REF_ALT)
+                || alternate.equals(VariantBuilder.REF_ONLY_ALT);
+    }
+
+    private VariantKeyFields normalizeNonRef(Integer start, Integer end, String reference, int numAllelesIdx, String alternate) {
+        return new VariantKeyFields(start, end, numAllelesIdx, reference, normalizeNoVariationAlternate(alternate), false);
     }
 
     private static VariantKeyFields normalizeMateBreakend(
@@ -736,7 +752,10 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
             VariantKeyFields keyFields;
             final boolean requireLeftAlignment;
             // left and right trimming
-            if (Allele.wouldBeSymbolicAllele(currentAlternate.getBytes())) {
+            if (isNonRef(currentAlternate)) {
+                keyFields = normalizeNonRef(position, position + referenceLen - 1, reference, numAllelesIdx, currentAlternate);
+                requireLeftAlignment = false;
+            } else if (Allele.wouldBeSymbolicAllele(currentAlternate.getBytes())) {
                 keyFields = new VariantKeyFields(position, position + referenceLen - 1, numAllelesIdx, reference, currentAlternate, false);
                 requireLeftAlignment = false;
             } else if (referenceLen == 0) {
@@ -1030,7 +1049,13 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
      * Non normalizable variants
      */
     private boolean isNormalizable(Variant variant) {
-        return !variant.getType().equals(VariantType.NO_VARIATION) && !variant.getType().equals(VariantType.SYMBOLIC);
+        if (variant.getType().equals(VariantType.NO_VARIATION) && variant.getAlternate().isEmpty()) {
+            return false;
+        }
+        if (variant.getType().equals(VariantType.SYMBOLIC)) {
+            return false;
+        }
+        return true;
     }
 
     protected VariantKeyFields createVariantsFromInsertionEmptyRef(int position, String alt) {
@@ -1372,7 +1397,10 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
 
                 // Variant will never have CopyNumber, because the Alternate is normalized from <CNxx> to <CNV>
                 normalizedVariant.getSv().setCopyNumber(keyFields.getCopyNumber());
-                normalizedVariant.getSv().setType(VariantBuilder.getCNVSubtype(keyFields.getCopyNumber()));
+                VariantType cnvSubtype = VariantBuilder.getCopyNumberSubtype(keyFields.getCopyNumber());
+                if (cnvSubtype != null) {
+                    normalizedVariant.setType(cnvSubtype);
+                }
             }
         }
 

@@ -21,6 +21,7 @@ package org.opencb.biodata.models.clinical.interpretation;
 
 import org.opencb.biodata.models.clinical.ClinicalAnalyst;
 import org.opencb.biodata.models.clinical.ClinicalComment;
+import org.opencb.biodata.models.common.Status;
 
 import java.util.List;
 import java.util.Map;
@@ -43,7 +44,7 @@ public class Interpretation {
 
     private List<ClinicalComment> comments;
 
-    private String status;
+    private Status status;
     private String creationDate;
     private String modificationDate;
     private int version;
@@ -59,8 +60,8 @@ public class Interpretation {
 
     public Interpretation(String id, String uuid, String description, String clinicalAnalysisId, ClinicalAnalyst analyst,
                           List<InterpretationMethod> methods, List<ClinicalVariant> primaryFindings,
-                          List<ClinicalVariant> secondaryFindings, List<ClinicalComment> comments, String status, String creationDate,
-                          String modificationDate, int version, Map<String, Object> attributes) {
+                          List<ClinicalVariant> secondaryFindings, List<ClinicalComment> comments, Status status,
+                          String creationDate, String modificationDate, int version, Map<String, Object> attributes) {
         this.id = id;
         this.uuid = uuid;
         this.description = description;
@@ -179,11 +180,11 @@ public class Interpretation {
         return this;
     }
 
-    public String getStatus() {
+    public Status getStatus() {
         return status;
     }
 
-    public Interpretation setStatus(String status) {
+    public Interpretation setStatus(Status status) {
         this.status = status;
         return this;
     }

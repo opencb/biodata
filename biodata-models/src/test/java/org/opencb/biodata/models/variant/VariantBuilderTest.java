@@ -21,7 +21,6 @@ public class VariantBuilderTest {
     public void parseVariantTest() {
         Map<String, Variant> map = new LinkedHashMap<>();
         map.put("1:1000:A:C", new Variant("1", 1000, 1000, "A", "C"));
-        map.put("1:1000:A:C", new Variant("1", 1000, 1000, "A", "C"));
         map.put("chr1:1000:A:C", new Variant("1", 1000, 1000, "A", "C"));
         map.put("1:1000-2000:<DEL>", new Variant("1", 1000, 2000, "", "<DEL>").setType(VariantType.DELETION).setSv(new StructuralVariation()));
         map.put("1:1000-1010:A:<DEL>", new Variant("1", 1000, 1010, "A", "<DEL>").setType(VariantType.DELETION).setSv(new StructuralVariation()).setLength(11));
@@ -29,18 +28,21 @@ public class VariantBuilderTest {
         map.put("1:1000-1010:<DEL:ME:ALU>", new Variant("1", 1000, 1010, "", "<DEL:ME:ALU>").setType(VariantType.DELETION).setSv(new StructuralVariation()).setLength(11));
 //        map.put("1:1000:A:<DEL>", new Variant("1", 1000, 1000, "A", "<DEL>").setType(VariantType.DELETION).setSv(new StructuralVariation(1000, 1000, 1000, 1000, null, null, null, null)).setLength(Variant.UNKNOWN_LENGTH));
 //        map.put("1:1000:<DEL>", new Variant("1", 1000, 999, "", "<DEL>").setType(VariantType.DELETION).setSv(new StructuralVariation(1000, 1000, 999, 999, null, null, null, null)).setLength(Variant.UNKNOWN_LENGTH));
-        map.put("1:1000-2000:<CNV>", new Variant("1", 1000, 2000, "", "<CNV>").setType(VariantType.CNV).setSv(new StructuralVariation()));
-        map.put("1:1000-2000:<CN0>", new Variant("1", 1000, 2000, "", "<CN0>").setType(VariantType.CNV).setSv(new StructuralVariation(null, null, null, null, 0, null, null, StructuralVariantType.COPY_NUMBER_LOSS, null)));
-        map.put("1:1000-2000:<CN5>", new Variant("1", 1000, 2000, "", "<CN5>").setType(VariantType.CNV).setSv(new StructuralVariation(null, null, null, null, 5, null, null, StructuralVariantType.COPY_NUMBER_GAIN, null)));
-        map.put("1:1000-2000::<DUP:TANDEM>", new Variant("1", 1000, 2000, "", "<DUP>").setType(VariantType.DUPLICATION).setSv(new StructuralVariation(null, null, null, null, null, null, null, StructuralVariantType.TANDEM_DUPLICATION, null)));
-        map.put("1:1000-2000:<DUP:TANDEM>", new Variant("1", 1000, 2000, "", "<DUP>").setType(VariantType.DUPLICATION).setSv(new StructuralVariation(null, null, null, null, null, null, null, StructuralVariantType.TANDEM_DUPLICATION, null)));
-        map.put("1:999<1000<1001-2000:<CN5>", new Variant("1", 1000, 2000, "", "<CN5>").setType(VariantType.CNV).setSv(new StructuralVariation(999, 1001, null, null, 5, null, null, StructuralVariantType.COPY_NUMBER_GAIN, null)));
-        map.put("1:1000-1999<2000<2001:<CN5>", new Variant("1", 1000, 2000, "", "<CN5>").setType(VariantType.CNV).setSv(new StructuralVariation(null, null, 1999, 2001, 5, null, null, StructuralVariantType.COPY_NUMBER_GAIN, null)));
-        map.put("1:999<1000<1001-1999<2000<2001:<CN5>", new Variant("1", 1000, 2000, "", "<CN5>").setType(VariantType.CNV).setSv(new StructuralVariation(999, 1001, 1999, 2001, 5, null, null, StructuralVariantType.COPY_NUMBER_GAIN, null)));
+        map.put("1:1000-2000:<CNV>", new Variant("1", 1000, 2000, "", "<CNV>").setType(VariantType.COPY_NUMBER).setSv(new StructuralVariation()));
+        map.put("1:1000-2000:<CN0>", new Variant("1", 1000, 2000, "", "<CN0>").setType(VariantType.COPY_NUMBER_LOSS).setSv(new StructuralVariation(null, null, null, null, 0, null, null, StructuralVariantType.COPY_NUMBER_LOSS, null)));
+        map.put("1:1000-2000:<CN5>", new Variant("1", 1000, 2000, "", "<CN5>").setType(VariantType.COPY_NUMBER_GAIN).setSv(new StructuralVariation(null, null, null, null, 5, null, null, StructuralVariantType.COPY_NUMBER_GAIN, null)));
+        map.put("1:1000-2000::<DUP:TANDEM>", new Variant("1", 1000, 2000, "", "<DUP:TANDEM>").setType(VariantType.TANDEM_DUPLICATION).setSv(new StructuralVariation(null, null, null, null, null, null, null, StructuralVariantType.TANDEM_DUPLICATION, null)));
+        map.put("1:1000-2000:<DUP:TANDEM>", new Variant("1", 1000, 2000, "", "<DUP:TANDEM>").setType(VariantType.TANDEM_DUPLICATION).setSv(new StructuralVariation(null, null, null, null, null, null, null, StructuralVariantType.TANDEM_DUPLICATION, null)));
+        map.put("1:999<1000<1001-2000:<CN5>", new Variant("1", 1000, 2000, "", "<CN5>").setType(VariantType.COPY_NUMBER_GAIN).setSv(new StructuralVariation(999, 1001, null, null, 5, null, null, StructuralVariantType.COPY_NUMBER_GAIN, null)));
+        map.put("1:1000-1999<2000<2001:<CN5>", new Variant("1", 1000, 2000, "", "<CN5>").setType(VariantType.COPY_NUMBER_GAIN).setSv(new StructuralVariation(null, null, 1999, 2001, 5, null, null, StructuralVariantType.COPY_NUMBER_GAIN, null)));
+        map.put("1:999<1000<1001-1999<2000<2001:<CN5>", new Variant("1", 1000, 2000, "", "<CN5>").setType(VariantType.COPY_NUMBER_GAIN).setSv(new StructuralVariation(999, 1001, 1999, 2001, 5, null, null, StructuralVariantType.COPY_NUMBER_GAIN, null)));
+
         map.put("1:1000:A:.", new Variant("1", 1000, 1000, "A", "").setType(VariantType.NO_VARIATION));
         map.put("1:1000-1005:A:.", new Variant("1", 1000, 1005, "A", "").setLength(6).setType(VariantType.NO_VARIATION));
         map.put("1:1000-1005:A:<*>", new Variant("1", 1000, 1005, "A", "<*>").setLength(6).setType(VariantType.NO_VARIATION));
         map.put("1:1000-1005:A:<NON_REF>", new Variant("1", 1000, 1005, "A", "<NON_REF>").setLength(6).setType(VariantType.NO_VARIATION));
+        map.put("1:1000:A:*", new Variant("1", 1000, 1000, "A", "*").setType(VariantType.DELETION));
+
         map.put("1:1000:ACACAC...GTGTGTGT", new Variant("1", 1000, 999, "", "<INS>").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.INSERTION).setSv(new StructuralVariation(null, null, null, null, null, "ACACAC", "GTGTGTGT", null, null)));
         map.put("1:1000:...GTGTGTGT", new Variant("1", 1000, 999, "", "<INS>").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.INSERTION).setSv(new StructuralVariation(null, null, null, null, null, "", "GTGTGTGT", null, null)));
         map.put("1:1000:ACACAC...", new Variant("1", 1000, 999, "", "<INS>").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.INSERTION).setSv(new StructuralVariation(null, null, null, null, null, "ACACAC", "", null, null)));
@@ -174,12 +176,11 @@ public class VariantBuilderTest {
                 .addFileData("CIEND", "-5,7")
                 .build();
 
-        assertEquals(VariantType.CNV, v.getType());
+        assertEquals(VariantType.COPY_NUMBER_GAIN, v.getType());
         assertEquals("A", v.getReference());
         assertEquals("<CNV>", v.getAlternate());
         assertEquals(1100, v.getEnd().intValue());
         assertEquals(101, v.getLength().intValue());
-        assertEquals(StructuralVariantType.COPY_NUMBER_GAIN, v.getSv().getType());
         assertEquals(5, v.getSv().getCopyNumber().intValue());
         assertEquals(1000-10, v.getSv().getCiStartLeft().intValue());
         assertEquals(1000+20, v.getSv().getCiStartRight().intValue());
