@@ -35,7 +35,7 @@
 
     <properties>
         <biodata.version>2.1.0-SNAPSHOT</biodata.version>
-        <commons.version>4.0.4-SNAPSHOT</commons.version>
+        <commons.version>4.1.0-SNAPSHOT</commons.version>
         <ga4gh.version>0.6.0a5</ga4gh.version>
         <avro.version>1.7.7</avro.version>
         <protobuf.version>3.9.0</protobuf.version>
