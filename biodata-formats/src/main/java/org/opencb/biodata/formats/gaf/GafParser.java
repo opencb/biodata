@@ -16,7 +16,7 @@
 
 package org.opencb.biodata.formats.gaf;
 
-import org.apache.commons.collections.keyvalue.MultiKey;
+import org.apache.commons.collections4.keyvalue.MultiKey;
 import org.opencb.biodata.formats.obo.OboParser;
 import org.opencb.biodata.models.core.AnnotationEvidence;
 import org.opencb.biodata.models.core.FeatureOntologyTermAnnotation;

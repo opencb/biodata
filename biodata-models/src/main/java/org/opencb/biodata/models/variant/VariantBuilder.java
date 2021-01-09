@@ -3,7 +3,7 @@ package org.opencb.biodata.models.variant;
 import htsjdk.variant.variantcontext.Allele;
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFConstants;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.models.variant.avro.*;
@@ -16,7 +16,8 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.opencb.biodata.models.variant.avro.VariantType.*;
+import static org.opencb.biodata.models.variant.avro.VariantType.COPY_NUMBER;
+import static org.opencb.biodata.models.variant.avro.VariantType.TANDEM_DUPLICATION;
 
 /**
  * Variant builder.

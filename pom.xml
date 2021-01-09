@@ -36,7 +36,7 @@
     <properties>
         <biodata.version>2.1.0-SNAPSHOT</biodata.version>
         <commons.version>4.1.0-SNAPSHOT</commons.version>
-        <ga4gh.version>0.6.0a5</ga4gh.version>
+        <collections.version>4.4</collections.version>
         <avro.version>1.7.7</avro.version>
         <protobuf.version>3.9.0</protobuf.version>
         <grpc.version>1.23.0</grpc.version>
@@ -149,11 +149,6 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            <dependency>
-                <groupId>org.opencb.ga4gh</groupId>
-                <artifactId>ga4gh</artifactId>
-                <version>${ga4gh.version}</version>
-            </dependency>
 
             <dependency>
                 <groupId>com.github.samtools</groupId>
@@ -164,6 +159,11 @@
                 <groupId>org.apache.avro</groupId>
                 <artifactId>avro</artifactId>
                 <version>${avro.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-collections4</artifactId>
+                <version>${collections.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.protobuf</groupId>
