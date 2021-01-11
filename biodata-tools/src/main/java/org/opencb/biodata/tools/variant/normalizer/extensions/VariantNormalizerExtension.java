@@ -1,5 +1,6 @@
 package org.opencb.biodata.tools.variant.normalizer.extensions;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
@@ -9,44 +10,47 @@ import org.opencb.biodata.models.variant.metadata.VariantFileHeaderComplexLine;
 import org.opencb.biodata.models.variant.metadata.VariantFileHeaderSimpleLine;
 import org.opencb.commons.run.Task;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 public abstract class VariantNormalizerExtension implements Task<Variant, Variant> {
 
-    private VariantFileMetadata metadata;
+    protected VariantFileMetadata fileMetadata;
 
-    public final VariantNormalizerExtension init(VariantFileMetadata metadata) {
-        this.metadata = metadata;
+    public VariantNormalizerExtension init(VariantFileMetadata fileMetadata) {
+        this.fileMetadata = fileMetadata;
+
+        // Execute private extension init() method
+        this.init();
+
         return this;
     }
 
     @Override
     public void pre() throws Exception {
-        normalizeHeader(metadata);
+        normalizeHeader(fileMetadata);
     }
 
     @Override
     public final List<Variant> apply(List<Variant> list) throws Exception {
         for (Variant variant : list) {
             normalizeVariant(variant);
-            if (variant.getStudies() == null || variant.getStudies().isEmpty()) {
-                continue;
-            }
-            // Only one study expected
-            StudyEntry study = variant.getStudies().get(0);
-            FileEntry fileEntry;
-            if (study.getFiles() != null && !study.getFiles().isEmpty()) {
-               // Only one file expected
-                fileEntry = study.getFiles().get(0);
-                normalizeFile(variant, study, fileEntry);
-                if (study.getSamples() != null) {
-                    for (Map.Entry<String, Integer> entry : study.getSamplesPosition().entrySet()) {
-                        normalizeSample(variant, study, fileEntry, entry.getKey(), study.getSample(entry.getValue()));
-                    }
-                    for (FileEntry file : study.getFiles()) {
-                        normalizeFile(variant, study, file);
+            if (CollectionUtils.isNotEmpty(variant.getStudies())) {
+                // Only one study expected
+                StudyEntry study = variant.getStudies().get(0);
+                if (CollectionUtils.isNotEmpty(study.getFiles())) {
+                    // Only one file expected
+                    FileEntry fileEntry = study.getFiles().get(0);
+                    normalizeFile(variant, study, fileEntry);
+                    if (study.getSamples() != null) {
+                        for (Map.Entry<String, Integer> entry : study.getSamplesPosition().entrySet()) {
+                            normalizeSample(variant, study, fileEntry, entry.getKey(), study.getSample(entry.getValue()));
+                        }
+                        for (FileEntry file : study.getFiles()) {
+                            normalizeFile(variant, study, file);
+                        }
                     }
                 }
             }
@@ -76,6 +80,8 @@ public abstract class VariantNormalizerExtension implements Task<Variant, Varian
     }
 
     protected abstract boolean canUseExtension(VariantFileMetadata fileMetadata);
+
+    protected void init() {}
 
     protected void normalizeHeader(VariantFileMetadata fileMetadata) {}
 

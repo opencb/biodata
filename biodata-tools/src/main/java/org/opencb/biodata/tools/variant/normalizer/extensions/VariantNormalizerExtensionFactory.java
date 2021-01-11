@@ -1,6 +1,5 @@
 package org.opencb.biodata.tools.variant.normalizer.extensions;
 
-import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantFileHeaderComplexLine;
@@ -15,7 +14,8 @@ public class VariantNormalizerExtensionFactory {
 
     public static final Set<String> ALL_EXTENSIONS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
             "FILE_DP_TO_SAMPLE",
-            "SAMPLE_DP_TO_FORMAT"
+            "SAMPLE_DP_TO_FORMAT",
+            "VAF"
     )));
     private final Set<String> enabledExtensions;
 
@@ -29,7 +29,7 @@ public class VariantNormalizerExtensionFactory {
 
 
     public Task<Variant, Variant> buildExtensions(VariantFileMetadata fileMetadata) {
-        Task<Variant, Variant> extensions = null;
+        Task<Variant, Variant> extensionTask = null;
         for (String normalizerExtension : enabledExtensions) {
             VariantNormalizerExtension extension;
             switch (normalizerExtension) {
@@ -48,19 +48,25 @@ public class VariantNormalizerExtensionFactory {
                                 return String.valueOf(dp);
                             });
                     break;
+                case "VAF":
+                    extension = new VafVariantNormalizerExtension();
+                    break;
                 default:
                     throw new IllegalArgumentException("Unknown normalizer extension " + normalizerExtension);
             }
+
+            // Init the extension
+            extension.init(fileMetadata);
+            // Check is the extension can be applied
             if (extension.canUseExtension(fileMetadata)) {
-                extension.init(fileMetadata);
-                if (extensions == null) {
-                    extensions = extension;
+                if (extensionTask == null) {
+                    extensionTask = extension;
                 } else {
-                    extensions = extensions.then(extension);
+                    extensionTask = extensionTask.then(extension);
                 }
             }
         }
-        return extensions;
+        return extensionTask;
     }
 
 }
