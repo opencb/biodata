@@ -84,11 +84,11 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
             boolean containsInfoDP = false;
             boolean containsFormatExtVaf = false;
             for (VariantFileHeaderComplexLine complexLine : fileMetadata.getHeader().getComplexLines()) {
-                if (complexLine.getKey().equalsIgnoreCase("INFO") && complexLine.getId().equals("DP")) {
-                    containsInfoDP = true;
-                    break;
-                }
-                if (complexLine.getKey().equalsIgnoreCase("FORMAT")) {
+                if (complexLine.getKey().equalsIgnoreCase("INFO")) {
+                    if (complexLine.getId().equals("DP")) {
+                        containsInfoDP = true;
+                    }
+                } else if (complexLine.getKey().equalsIgnoreCase("FORMAT")) {
                     switch (complexLine.getId()) {
                         case "AD":
                             containsFormatAD = true;
@@ -139,7 +139,7 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
         MutablePair<Float, Integer> pair = calculateVaf(variant, study, file, sample);
         if (pair != null) {
             study.addSampleDataKey("EXT_VAF");
-            sample.getData().add(String.valueOf(pair.getLeft()));
+            study.addSampleData(sampleId, "EXT_VAF", String.valueOf(pair.getLeft()));
         }
     }
 
@@ -176,7 +176,7 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
                 }
             } else {
                 // Second, search in the INFO field
-                String depthString = study.getFile(sample.getFileIndex()).getData().getOrDefault("DP", "");
+                String depthString = file.getData().getOrDefault("DP", "");
                 if (StringUtils.isNotEmpty(depthString)) {
                     DP = Integer.parseInt(depthString);
                 }
