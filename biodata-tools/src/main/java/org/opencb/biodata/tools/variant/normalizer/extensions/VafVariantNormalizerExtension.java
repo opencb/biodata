@@ -36,10 +36,12 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
     private boolean canCalculateVaf;
     private static final Map<String, List<String>> supportedCallers;
 
+    private static final String EXT_VAF = "EXT_VAF";
+
     static {
         supportedCallers = new LinkedHashMap<>();
-        supportedCallers.put("caveman", Arrays.asList("ASMD", "CLPM"));
-        supportedCallers.put("pindel", Arrays.asList("PC", "VT"));
+        supportedCallers.put("CAVEMAN", Arrays.asList("ASMD", "CLPM"));
+        supportedCallers.put("PINDEL", Arrays.asList("PC", "VT"));
     }
 
     public VafVariantNormalizerExtension() {
@@ -47,7 +49,7 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
     }
 
     public VafVariantNormalizerExtension(String caller) {
-        this.caller= caller;
+        this.caller = caller.toUpperCase();
     }
 
 
@@ -96,7 +98,7 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
                         case "DP":
                             containsFormatDP = true;
                             break;
-                        case "EXT_VAF":
+                        case EXT_VAF:
                             containsFormatExtVaf = true;
                             break;
                     }
@@ -138,8 +140,8 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
     protected void normalizeSample(Variant variant, StudyEntry study, FileEntry file, String sampleId, SampleEntry sample) {
         MutablePair<Float, Integer> pair = calculateVaf(variant, study, file, sample);
         if (pair != null) {
-            study.addSampleDataKey("EXT_VAF");
-            sample.getData().add(String.valueOf(pair.getLeft()));
+            study.addSampleDataKey(EXT_VAF);
+            study.addSampleData(sample.getSampleId(), EXT_VAF, String.valueOf(pair.getLeft()));
         }
     }
 
@@ -176,8 +178,8 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
                 }
             } else {
                 // Second, search in the INFO field
-                String depthString = study.getFile(sample.getFileIndex()).getData().getOrDefault("DP", "");
-                if (StringUtils.isNotEmpty(depthString)) {
+                String depthString = file.getData().getOrDefault("DP", "");
+                if (StringUtils.isNotEmpty(depthString) && !depthString.equals(".")) {
                     DP = Integer.parseInt(depthString);
                 }
             }
@@ -188,7 +190,7 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
         } else {
             List<String> formatFields;
             Integer index;
-            switch (caller.toUpperCase()) {
+            switch (caller) {
                 case "CAVEMAN":
                     // DEPTH
                     formatFields = Arrays.asList("FAZ", "FCZ", "FGZ", "FTZ", "RAZ", "RCZ", "RGZ", "RTZ");
@@ -234,7 +236,7 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
         Set<String> keySet = new HashSet<>(keys);
         int counter = 0;
         for (VariantFileHeaderComplexLine complexLine : fileMetadata.getHeader().getComplexLines()) {
-            if (keySet.contains(complexLine.getId())) {
+            if (complexLine.getKey().equals("INFO") && keySet.contains(complexLine.getId())) {
                 counter++;
 
                 // Return when all needed keys have been found

@@ -19,7 +19,7 @@ public abstract class VariantNormalizerExtension implements Task<Variant, Varian
 
     protected VariantFileMetadata fileMetadata;
 
-    public VariantNormalizerExtension init(VariantFileMetadata fileMetadata) {
+    public final VariantNormalizerExtension init(VariantFileMetadata fileMetadata) {
         this.fileMetadata = fileMetadata;
 
         // Execute private extension init() method
