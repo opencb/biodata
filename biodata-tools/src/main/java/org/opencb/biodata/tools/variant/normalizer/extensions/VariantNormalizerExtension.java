@@ -10,7 +10,6 @@ import org.opencb.biodata.models.variant.metadata.VariantFileHeaderComplexLine;
 import org.opencb.biodata.models.variant.metadata.VariantFileHeaderSimpleLine;
 import org.opencb.commons.run.Task;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -77,6 +76,10 @@ public abstract class VariantNormalizerExtension implements Task<Variant, Varian
             }
         }
         return lines;
+    }
+
+    public final boolean canUseExtension() {
+        return canUseExtension(fileMetadata);
     }
 
     protected abstract boolean canUseExtension(VariantFileMetadata fileMetadata);
