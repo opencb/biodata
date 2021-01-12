@@ -33,7 +33,8 @@ import java.util.*;
 public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
 
     private String caller;
-    private boolean canCalculateVaf;
+    private boolean calculateVaf;
+    private boolean calculateDp;
     private static final Map<String, List<String>> supportedCallers;
 
     private static final String EXT_VAF = "EXT_VAF";
@@ -55,11 +56,11 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
 
     @Override
     public void init() {
-        this.canCalculateVaf = false;
+        this.calculateVaf = false;
 
         // Check if a supported variant caller parameter has been provided in the constructor
         if (StringUtils.isNotEmpty(caller) && supportedCallers.containsKey(caller)) {
-            canCalculateVaf = true;
+            calculateVaf = true;
             return;
         }
 
@@ -75,7 +76,7 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
         // Check if we can calculate the VAF
         if (StringUtils.isNotEmpty(caller)) {
             // Good news, a valid caller found
-            canCalculateVaf = true;
+            calculateVaf = true;
         } else {
             // No caller found, but we can still calculate VAF if standard fields AD and DP are found
             // let's check if can find the fields needed to calculate the VAF
@@ -106,12 +107,15 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
             }
 
             if (containsFormatAD && (containsFormatDP || containsInfoDP)) {
-                canCalculateVaf = true;
+                calculateVaf = true;
+                if (!containsFormatDP) {
+                    calculateDp = true;
+                }
             }
 
             // Important: If EXT_VAF filter already exist in the VCF header we cannot do anything
             if (containsFormatExtVaf) {
-                canCalculateVaf = false;
+                calculateVaf = false;
             }
         }
     }
@@ -119,20 +123,31 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
     @Override
     protected boolean canUseExtension(VariantFileMetadata fileMetadata) {
         // canCalculateVaf is calculated in the init() method after checking the VCF header fields
-        return canCalculateVaf;
+        return calculateVaf;
     }
 
     @Override
     protected void normalizeHeader(VariantFileMetadata fileMetadata) {
-        if (canCalculateVaf) {
+        if (calculateVaf) {
             // Add EXT_VAF
             VariantFileHeaderComplexLine newSampleMetadataLine = new VariantFileHeaderComplexLine( "FORMAT",
                     "EXT_VAF",
-                    "Variant Allele Fraction (VAF), several variant callers supported. This is a OpenCB extension field.",
+                    "Variant Allele Fraction (VAF), several variant callers supported. NOTE: this is a OpenCB extension field.",
                     "1",
                     "Float",
                     Collections.emptyMap());
             fileMetadata.getHeader().getComplexLines().add(newSampleMetadataLine);
+
+            if (calculateDp) {
+                // Add DP to FORMAT
+                newSampleMetadataLine = new VariantFileHeaderComplexLine( "FORMAT",
+                        "DP",
+                        "Variant Depth (DP), several variant callers supported. NOTE: this is a OpenCB extension field.",
+                        "1",
+                        "Integer",
+                        Collections.emptyMap());
+                fileMetadata.getHeader().getComplexLines().add(newSampleMetadataLine);
+            }
         }
     }
 
@@ -142,6 +157,11 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
         if (pair != null) {
             study.addSampleDataKey(EXT_VAF);
             study.addSampleData(sampleId, EXT_VAF, String.valueOf(pair.getLeft()));
+
+            if (calculateDp) {
+                study.addSampleDataKey("DP");
+                study.addSampleData(sampleId, "DP", String.valueOf(pair.getRight()));
+            }
         }
     }
 
@@ -153,9 +173,9 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
         MutablePair<Float, Integer> pair = null;
         if (StringUtils.isEmpty(caller)) {
             // We assume AD and DP fields exist because canCalculateVaf is true and no caller has been found
-            // Get AD
+            // 1. Get AD
             int AD = 0;
-            Integer adIndex = study.getSampleDataKeyPositions().get("AD");
+            Integer adIndex = study.getSampleDataKeyPosition("AD");
             if (adIndex != null && adIndex >= 0) {
                 String adString = sample.getData().get(adIndex);
                 if (StringUtils.isNotEmpty(adString) && !adString.equals(".")) {
@@ -166,7 +186,9 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
                 }
             }
 
-            // Get DEPTH
+            // 2. Get DEPTH
+            // DP field can be located in the FORMAT (preferred) or in the INFO columns.
+            // If DP is not found we can calculate it from AD
             // First, search in the FORMAT field
             if (study.getSampleDataKeyPositions().containsKey("DP")) {
                 Integer depthIndex = study.getSampleDataKeyPosition("DP");
@@ -177,10 +199,23 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
                     }
                 }
             } else {
-                // Second, search in the INFO field
-                String depthString = file.getData().getOrDefault("DP", "");
-                if (StringUtils.isNotEmpty(depthString) && !depthString.equals(".")) {
-                    DP = Integer.parseInt(depthString);
+                // Second, some callers store DP in the INFO field when there is ONLY one sample per VCF
+                if (study.getSamples().size() == 1 && file.getData().containsKey("DP")) {
+                    String depthString = file.getData().getOrDefault("DP", "");
+                    if (StringUtils.isNotEmpty(depthString) && !depthString.equals(".")) {
+                        DP = Integer.parseInt(depthString);
+                    }
+                } else {
+                    // Third, try to calculate DP from AD field
+                    if (adIndex != null && adIndex >= 0) {
+                        String adString = sample.getData().get(adIndex);
+                        if (StringUtils.isNotEmpty(adString) && !adString.equals(".")) {
+                            String[] ads = adString.split(",");
+                            for (String ad : ads) {
+                                DP += Integer.parseInt(ad);
+                            }
+                        }
+                    }
                 }
             }
 
@@ -218,7 +253,7 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
         }
 
         // Create pair object with VAF and DEPTH
-        if (VAF >=0 && DP >= 0) {
+        if (VAF >= 0 && DP >= 0) {
             pair = new MutablePair<>(VAF, DP);
         }
 
@@ -252,7 +287,8 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
     public String toString() {
         final StringBuilder sb = new StringBuilder("VafVariantNormalizerExtension{");
         sb.append("caller='").append(caller).append('\'');
-        sb.append(", canCalculateVaf=").append(canCalculateVaf);
+        sb.append(", calculateVaf=").append(calculateVaf);
+        sb.append(", calculateDp=").append(calculateDp);
         sb.append('}');
         return sb.toString();
     }
