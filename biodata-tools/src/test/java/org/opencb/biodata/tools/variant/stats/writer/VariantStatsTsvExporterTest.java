@@ -46,7 +46,7 @@ public class VariantStatsTsvExporterTest {
         study.setStats("C2", VariantStatsCalculator.calculate(variant, study, Arrays.asList("s2", "s3")));
 
         VariantAnnotation annotation = new VariantAnnotation();
-        annotation.setId("rs" + RandomUtils.nextInt());
+        annotation.setId("rs" + RandomUtils.nextInt(1000, 2000));
         annotation.setConsequenceTypes(Arrays.asList(ct("G1"), ct("G1"), ct("G2")));
         variant.setAnnotation(annotation);
 //        System.out.println("variant.toJson() = " + variant.toJson());
