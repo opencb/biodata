@@ -1,6 +1,6 @@
 package org.opencb.biodata.tools.variant.stats;
 
-import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang.StringUtils;
 import org.opencb.biodata.models.clinical.interpretation.VariantClassification;
 import org.opencb.biodata.models.clinical.pedigree.Member;
@@ -329,7 +329,7 @@ public class VariantSampleStatsCalculator {
         int j = 0;
         List<Pair<String, Integer>> top50 = new LinkedList<>();
         for (Map.Entry<String, Integer> entry: sorted.entrySet()) {
-            top50.add(new Pair<>(entry.getKey(), entry.getValue()));
+            top50.add(Pair.of(entry.getKey(), entry.getValue()));
             if (++j >= 50) {
                 break;
             }
