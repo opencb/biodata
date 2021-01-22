@@ -207,7 +207,7 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
         assertEquals("T", normalizedVariant.getAlternate());
     }
 
-    // clinvar ID 266834
+
     @Test
     public void testWrongId() {
 
@@ -218,7 +218,7 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
                 .setDecomposeMNVs(true);
 
         VariantNormalizer variantNormalizer = new VariantNormalizer(variantNormalizerConfig);
-
+        // clinvar ID 266834
 //        chr13:32316508:GAC:ATCGATCGAT
 //        chr13:32316508:G:ATCGATCG
 //        chr13:32316510:C:T
@@ -311,6 +311,30 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
         assertEquals("T", normalizedVariant.getReference());
         assertEquals("", normalizedVariant.getAlternate());
 
+
+        //clinvarID 584850
+
+//        chr13:32336521:AAG:A
+//        chr13:32336524:C:CT
+
+        variant = new Variant("13:32336522:AGC:CT");
+        normalizedVariantList = variantNormalizer.apply(Collections.singletonList(variant));
+        assertEquals(2, normalizedVariantList.size());
+
+        normalizedVariant = normalizedVariantList.get(0);
+        assertEquals(VariantType.INDEL, normalizedVariant.getType());
+        assertEquals("13", normalizedVariant.getChromosome());
+        assertEquals(Integer.valueOf(32336522), normalizedVariant.getStart());
+        assertEquals("AG", normalizedVariant.getReference());
+        assertEquals("", normalizedVariant.getAlternate());
+
+        normalizedVariant = normalizedVariantList.get(1);
+        assertEquals(VariantType.INDEL, normalizedVariant.getType());
+        assertEquals("13", normalizedVariant.getChromosome());
+        assertEquals(Integer.valueOf(32336525), normalizedVariant.getStart());
+        assertEquals("", normalizedVariant.getReference());
+        assertEquals("T", normalizedVariant.getAlternate());
+
     }
 
     @Test
@@ -390,7 +414,7 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
         assertEquals("C", normalizedVariant.getAlternate());
 
         // 419158
-        variant = new Variant("chr2:108907934:AGCCCTG:CGGGCTCCTCATCA");
+        variant = new Variant("2:108907934:AGCCCTG:CGGGCTCCTCATCA");
         normalizedVariantList = variantNormalizer.apply(Collections.singletonList(variant));
         assertEquals(5, normalizedVariantList.size());
 
@@ -434,6 +458,67 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
         assertEquals(Integer.valueOf(108907940), normalizedVariant.getStart());
         assertEquals("G", normalizedVariant.getReference());
         assertEquals("A", normalizedVariant.getAlternate());
+
+
+        // 141142
+        variant = new Variant("17:43063370:ACCCCTAAAGAGATCATAGA:TATT");
+        normalizedVariantList = variantNormalizer.apply(Collections.singletonList(variant));
+        assertEquals(4, normalizedVariantList.size());
+
+//        chr17:43063369:CACCCC:C
+//        chr17:43063375:TAAAGAG:T
+//        chr17:43063383:TCA:T
+//        chr17:43063386:TAGA:T
+
+        normalizedVariant = normalizedVariantList.get(0);
+        assertEquals(VariantType.INDEL, normalizedVariant.getType());
+        assertEquals("17", normalizedVariant.getChromosome());
+        assertEquals(Integer.valueOf(43063370), normalizedVariant.getStart());
+        assertEquals("ACCCC", normalizedVariant.getReference());
+        assertEquals("", normalizedVariant.getAlternate());
+
+        normalizedVariant = normalizedVariantList.get(1);
+        assertEquals(VariantType.INDEL, normalizedVariant.getType());
+        assertEquals("17", normalizedVariant.getChromosome());
+        assertEquals(Integer.valueOf(43063376), normalizedVariant.getStart());
+        assertEquals("AAAGAG", normalizedVariant.getReference());
+        assertEquals("", normalizedVariant.getAlternate());
+
+        normalizedVariant = normalizedVariantList.get(2);
+        assertEquals(VariantType.INDEL, normalizedVariant.getType());
+        assertEquals("17", normalizedVariant.getChromosome());
+        assertEquals(Integer.valueOf(43063384), normalizedVariant.getStart());
+        assertEquals("CA", normalizedVariant.getReference());
+        assertEquals("", normalizedVariant.getAlternate());
+
+        normalizedVariant = normalizedVariantList.get(3);
+        assertEquals(VariantType.INDEL, normalizedVariant.getType());
+        assertEquals("17", normalizedVariant.getChromosome());
+        assertEquals(Integer.valueOf(43063387), normalizedVariant.getStart());
+        assertEquals("AGA", normalizedVariant.getReference());
+        assertEquals("", normalizedVariant.getAlternate());
+
+        // ClinVarID 90202
+        variant = new Variant("3:37006995:AG:GTT");
+        normalizedVariantList = variantNormalizer.apply(Collections.singletonList(variant));
+        assertEquals(2, normalizedVariantList.size());
+
+//        chr3:37006994:AA:A
+//        chr3:37006996:G:GTT
+
+        normalizedVariant = normalizedVariantList.get(0);
+        assertEquals(VariantType.INDEL, normalizedVariant.getType());
+        assertEquals("3", normalizedVariant.getChromosome());
+        assertEquals(Integer.valueOf(37006995), normalizedVariant.getStart());
+        assertEquals("A", normalizedVariant.getReference());
+        assertEquals("", normalizedVariant.getAlternate());
+
+        normalizedVariant = normalizedVariantList.get(1);
+        assertEquals(VariantType.INDEL, normalizedVariant.getType());
+        assertEquals("3", normalizedVariant.getChromosome());
+        assertEquals(Integer.valueOf(37006997), normalizedVariant.getStart());
+        assertEquals("", normalizedVariant.getReference());
+        assertEquals("TT", normalizedVariant.getAlternate());
 
     }
 
