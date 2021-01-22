@@ -954,7 +954,8 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                     keyFields.setAlternate(keyFields.getAlternate() + alternateChar);
                 // New insertion found, create new keyFields
                 } else {
-                    keyFields = new VariantKeyFields(genomicStart + i, genomicStart + i - 1, "",
+                    int originalPosition = genomicStart + originalKeyFieldsIndex;
+                    keyFields = new VariantKeyFields(originalPosition, originalPosition - 1, "",
                             String.valueOf(alternateChar), originalKeyFields);
                     keyFieldsList.add(keyFields);
                 }
