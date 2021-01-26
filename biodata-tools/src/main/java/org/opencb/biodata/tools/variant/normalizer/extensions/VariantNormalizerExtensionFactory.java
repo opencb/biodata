@@ -4,6 +4,8 @@ import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantFileHeaderComplexLine;
 import org.opencb.commons.run.Task;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -11,6 +13,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class VariantNormalizerExtensionFactory {
+
+    private final Logger logger = LoggerFactory.getLogger(VariantNormalizerExtensionFactory.class);
 
     public static final Set<String> ALL_EXTENSIONS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
             "FILE_DP_TO_SAMPLE",
@@ -59,6 +63,7 @@ public class VariantNormalizerExtensionFactory {
             extension.init(fileMetadata);
             // Check is the extension can be applied
             if (extension.canUseExtension(fileMetadata)) {
+                logger.info("Using VariantNormalizerExtension : " + normalizerExtension);
                 if (extensionTask == null) {
                     extensionTask = extension;
                 } else {

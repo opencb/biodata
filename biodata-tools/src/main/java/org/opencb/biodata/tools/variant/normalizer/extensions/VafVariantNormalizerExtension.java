@@ -37,7 +37,7 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
     private boolean calculateDp;
     private static final Map<String, List<String>> supportedCallers;
 
-    private static final String EXT_VAF = "EXT_VAF";
+    public static final String EXT_VAF = "EXT_VAF";
 
     static {
         supportedCallers = new LinkedHashMap<>();
