@@ -57,10 +57,12 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
     @Override
     public void init() {
         this.calculateVaf = false;
+        this.calculateDp = false;
 
         // Check if a supported variant caller parameter has been provided in the constructor
         if (StringUtils.isNotEmpty(caller) && supportedCallers.containsKey(caller)) {
             calculateVaf = true;
+            calculateDp = true;
             return;
         }
 
@@ -77,6 +79,7 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
         if (StringUtils.isNotEmpty(caller)) {
             // Good news, a valid caller found
             calculateVaf = true;
+            calculateDp = true;
         } else {
             // No caller found, but we can still calculate VAF if standard fields AD and DP are found
             // let's check if can find the fields needed to calculate the VAF
