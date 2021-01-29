@@ -227,10 +227,12 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
                     VAF = (float) (PU + NU) / (PR + NR);
                     break;
                 case "BRASS":
-                    int TRDS = Integer.parseInt(sample.getData().get(study.getSampleDataKeyPosition("TRDS")));
-                    int RC = Integer.parseInt(sample.getData().get(study.getSampleDataKeyPosition("RC")));
-                    DP = RC;
-                    VAF = (float) TRDS / RC;
+                    int TRDS = Integer.parseInt(file.getData().getOrDefault("TRDS", "0"));
+                    if (TRDS > 0) {
+                        int RC = Integer.parseInt(sample.getData().get(study.getSampleDataKeyPosition("RC")));
+                        DP = RC;
+                        VAF = (float) TRDS / RC;
+                    }
                     break;
                 default:
                     break;
