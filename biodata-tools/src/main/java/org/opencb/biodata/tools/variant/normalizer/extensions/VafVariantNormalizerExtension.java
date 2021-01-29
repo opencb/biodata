@@ -26,6 +26,7 @@ import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.SampleEntry;
+import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.metadata.VariantFileHeaderComplexLine;
 
 import java.util.*;
@@ -36,13 +37,19 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
     private boolean calculateVaf;
     private boolean calculateDp;
     private static final Map<String, List<String>> supportedCallers;
+    private static final Map<String, String> supportedSvTypeCallers;
 
     public static final String EXT_VAF = "EXT_VAF";
+    public static final String EXT_SVTYPE = "EXT_SVTYPE";
 
     static {
         supportedCallers = new LinkedHashMap<>();
         supportedCallers.put("CAVEMAN", Arrays.asList("ASMD", "CLPM"));
         supportedCallers.put("PINDEL", Arrays.asList("PC", "VT"));
+        supportedCallers.put("BRASS", Arrays.asList("BAS", "BKDIST"));
+
+        supportedSvTypeCallers = new HashMap<>();
+        supportedSvTypeCallers.put("BRASS", "SVCLASS");
     }
 
     public VafVariantNormalizerExtension() {
@@ -77,7 +84,7 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
 
         // Check if we can calculate the VAF
         if (StringUtils.isNotEmpty(caller)) {
-            // Good news, a valid caller found
+            // Good news, a supported caller found
             calculateVaf = true;
             calculateDp = true;
         } else {
@@ -134,7 +141,7 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
         if (calculateVaf) {
             // Add EXT_VAF
             VariantFileHeaderComplexLine newSampleMetadataLine = new VariantFileHeaderComplexLine( "FORMAT",
-                    "EXT_VAF",
+                    EXT_VAF,
                     "Variant Allele Fraction (VAF), several variant callers supported. NOTE: this is a OpenCB extension field.",
                     "1",
                     "Float",
@@ -152,6 +159,18 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
                 fileMetadata.getHeader().getComplexLines().add(newSampleMetadataLine);
             }
         }
+
+        if (supportedSvTypeCallers.containsKey(caller)) {
+            // Add EXT_SVTYPE
+            VariantFileHeaderComplexLine newSampleMetadataLine = new VariantFileHeaderComplexLine( "INFO",
+                    EXT_SVTYPE,
+                    "Variant SVTYPE obtained from " + supportedSvTypeCallers.get(caller)
+                            + ", several variant callers supported. NOTE: this is a OpenCB extension field.",
+                    "1",
+                    "String",
+                    Collections.emptyMap());
+            fileMetadata.getHeader().getComplexLines().add(newSampleMetadataLine);
+        }
     }
 
     @Override
@@ -166,6 +185,15 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
                 study.addSampleData(sampleId, "DP", String.valueOf(pair.getRight()));
             }
         }
+
+        // Check if we can get SVTYPE from this caller
+        if (supportedSvTypeCallers.containsKey(caller)) {
+            VariantType svtype = parseSvtype(file, sample);
+            // Check returned svtype, some variants could miss the svtype
+            if (svtype != null) {
+                study.addFileData(file.getFileId(), EXT_SVTYPE, svtype.name());
+            }
+        }
     }
 
     private MutablePair<Float, Integer> calculateVaf(Variant variant, StudyEntry study, FileEntry file, SampleEntry sample) {
@@ -173,8 +201,41 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
         // Init internal variables, this method calculates VAF and DEPTH and return them in a Pair tuple
         float VAF = -1f;
         int DP = 0;
-        MutablePair<Float, Integer> pair = null;
-        if (StringUtils.isEmpty(caller)) {
+        if (StringUtils.isNotEmpty(caller)) {
+            List<String> formatFields;
+            Integer index;
+            switch (caller) {
+                case "CAVEMAN":
+                    // DEPTH
+                    formatFields = Arrays.asList("FAZ", "FCZ", "FGZ", "FTZ", "RAZ", "RCZ", "RGZ", "RTZ");
+                    for (String formatField : formatFields) {
+                        index = study.getSampleDataKeyPositions().get(formatField);
+                        if (index != null && index >= 0) {
+                            DP += Integer.parseInt(sample.getData().get(index));
+                        }
+                    }
+                    // VAF
+                    VAF = Float.parseFloat(sample.getData().get(study.getSampleDataKeyPosition("PM")));
+                    break;
+                case "PINDEL":
+                    int PU = Integer.parseInt(sample.getData().get(study.getSampleDataKeyPosition("PU")));
+                    int NU = Integer.parseInt(sample.getData().get(study.getSampleDataKeyPosition("NU")));
+                    int PR = Integer.parseInt(sample.getData().get(study.getSampleDataKeyPosition("PR")));
+                    int NR = Integer.parseInt(sample.getData().get(study.getSampleDataKeyPosition("NR")));
+
+                    DP = PR + NR;
+                    VAF = (float) (PU + NU) / (PR + NR);
+                    break;
+                case "BRASS":
+                    int TRDS = Integer.parseInt(sample.getData().get(study.getSampleDataKeyPosition("TRDS")));
+                    int RC = Integer.parseInt(sample.getData().get(study.getSampleDataKeyPosition("RC")));
+                    DP = RC;
+                    VAF = (float) TRDS / RC;
+                    break;
+                default:
+                    break;
+            }
+        } else {
             // We assume AD and DP fields exist because canCalculateVaf is true and no caller has been found
             // 1. Get AD
             int AD = 0;
@@ -225,42 +286,61 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
             if (AD != 0 && DP > 0) {
                 VAF = (float) AD / DP;
             }
-        } else {
-            List<String> formatFields;
-            Integer index;
-            switch (caller) {
-                case "CAVEMAN":
-                    // DEPTH
-                    formatFields = Arrays.asList("FAZ", "FCZ", "FGZ", "FTZ", "RAZ", "RCZ", "RGZ", "RTZ");
-                    for (String formatField : formatFields) {
-                        index = study.getSampleDataKeyPositions().get(formatField);
-                        if (index != null && index >= 0) {
-                            DP += Integer.parseInt(sample.getData().get(index));
-                        }
-                    }
-                    // VAF
-                    VAF = Float.parseFloat(sample.getData().get(study.getSampleDataKeyPosition("PM")));
-                    break;
-                case "PINDEL":
-                    int PU = Integer.parseInt(sample.getData().get(study.getSampleDataKeyPosition("PU")));
-                    int NU = Integer.parseInt(sample.getData().get(study.getSampleDataKeyPosition("NU")));
-                    int PR = Integer.parseInt(sample.getData().get(study.getSampleDataKeyPosition("PR")));
-                    int NR = Integer.parseInt(sample.getData().get(study.getSampleDataKeyPosition("NR")));
+        }
 
-                    DP = PR + NR;
-                    VAF = (float) (PU + NU) / (PR + NR);
+        // Create pair object with VAF and DEPTH
+        MutablePair<Float, Integer> pair = null;
+        if (VAF >= 0 && DP >= 0) {
+            pair = new MutablePair<>(VAF, DP);
+        }
+
+        return pair;
+    }
+
+    private VariantType parseSvtype(FileEntry file, SampleEntry sample) {
+        VariantType SVTYPE = null;
+        String fileSvType = file.getData().get(supportedSvTypeCallers.get(caller));
+
+        if (StringUtils.isNotEmpty(fileSvType)) {
+            switch (fileSvType.toUpperCase()) {
+                case "INS":
+                case "INSERTION":
+                    SVTYPE = VariantType.INSERTION;
+                    break;
+                case "DEL":
+                case "DELETION":
+                    SVTYPE = VariantType.DELETION;
+                    break;
+                case "DUP":
+                case "DUPLICATION":
+                    SVTYPE = VariantType.DUPLICATION;
+                    break;
+                case "INV":
+                case "INVERSION":
+                    SVTYPE = VariantType.INVERSION;
+                    break;
+                case "CNV":
+                case "COPY_NUMBER":
+                    SVTYPE = VariantType.COPY_NUMBER;
+                    break;
+                case "BND":
+                case "BREAKEND":
+                    SVTYPE = VariantType.BREAKEND;
+                    break;
+                case "TRANS":
+                case "TRANSLOCATION":
+                    SVTYPE = VariantType.TRANSLOCATION;
+                    break;
+                case "TANDEM-DUPLICATION":
+                case "TANDEM_DUPLICATION":
+                    SVTYPE = VariantType.TANDEM_DUPLICATION;
                     break;
                 default:
                     break;
             }
         }
 
-        // Create pair object with VAF and DEPTH
-        if (VAF >= 0 && DP >= 0) {
-            pair = new MutablePair<>(VAF, DP);
-        }
-
-        return pair;
+        return SVTYPE;
     }
 
     /**
