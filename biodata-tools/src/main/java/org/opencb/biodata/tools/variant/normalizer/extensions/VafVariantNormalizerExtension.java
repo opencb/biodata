@@ -19,6 +19,7 @@
 
 package org.opencb.biodata.tools.variant.normalizer.extensions;
 
+import htsjdk.variant.vcf.VCFConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.opencb.biodata.models.variant.StudyEntry;
@@ -176,19 +177,26 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
     @Override
     protected void normalizeSample(Variant variant, StudyEntry study, FileEntry file, String sampleId, SampleEntry sample) {
         MutablePair<Float, Integer> pair = calculateVaf(variant, study, file, sample);
-        if (pair != null) {
-            study.addSampleDataKey(EXT_VAF);
-            study.addSampleData(sampleId, EXT_VAF, String.valueOf(pair.getLeft()));
 
-            if (calculateDp) {
-                study.addSampleDataKey("DP");
-                study.addSampleData(sampleId, "DP", String.valueOf(pair.getRight()));
-            }
+        // VAF
+        study.addSampleDataKey(EXT_VAF);
+        study.addSampleData(sampleId, EXT_VAF, pair.getLeft() >= 0
+                ? String.valueOf(pair.getLeft())
+                : VCFConstants.MISSING_VALUE_v4);
+
+        if (calculateDp) {
+            study.addSampleDataKey(VCFConstants.DEPTH_KEY);
+            study.addSampleData(sampleId, VCFConstants.DEPTH_KEY, pair.getRight() >= 0
+                    ? String.valueOf(pair.getRight())
+                    : VCFConstants.MISSING_VALUE_v4);
         }
+    }
 
+    @Override
+    protected void normalizeFile(Variant variant, StudyEntry study, FileEntry file) {
         // Check if we can get SVTYPE from this caller
         if (supportedSvTypeCallers.containsKey(caller)) {
-            VariantType svtype = parseSvtype(file, sample);
+            VariantType svtype = parseSvtype(file);
             // Check returned svtype, some variants could miss the svtype
             if (svtype != null) {
                 study.addFileData(file.getFileId(), EXT_SVTYPE, svtype.name());
@@ -200,7 +208,7 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
         // If we reach this point is because canCalculateVaf is true and therefore we know we can calculate VAF
         // Init internal variables, this method calculates VAF and DEPTH and return them in a Pair tuple
         float VAF = -1f;
-        int DP = 0;
+        int DP = -1;
         if (StringUtils.isNotEmpty(caller)) {
             List<String> formatFields;
             Integer index;
@@ -235,7 +243,7 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
                     }
                     break;
                 default:
-                    break;
+                    throw new IllegalStateException("Unexpected variant caller: " + caller);
             }
         } else {
             // We assume AD and DP fields exist because canCalculateVaf is true and no caller has been found
@@ -290,16 +298,10 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
             }
         }
 
-        // Create pair object with VAF and DEPTH
-        MutablePair<Float, Integer> pair = null;
-        if (VAF >= 0 && DP >= 0) {
-            pair = new MutablePair<>(VAF, DP);
-        }
-
-        return pair;
+        return new MutablePair<>(VAF, DP);
     }
 
-    private VariantType parseSvtype(FileEntry file, SampleEntry sample) {
+    private VariantType parseSvtype(FileEntry file) {
         VariantType SVTYPE = null;
         String fileSvType = file.getData().get(supportedSvTypeCallers.get(caller));
 
