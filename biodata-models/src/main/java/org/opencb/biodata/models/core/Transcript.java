@@ -40,7 +40,7 @@ public class Transcript implements Serializable {
 	private int cdnaCodingStart;
 	private int cdnaCodingEnd;
 	private int cdsLength;
-	private String cDnaSequence;
+	private String cdnaSequence;
 	private String proteinId;
 	private String proteinSequence;
 	private String description;
@@ -83,9 +83,10 @@ public class Transcript implements Serializable {
 		this.annotation = annotation;
 	}
 
+	@Deprecated
 	public Transcript(String id, String name, String chromosome, int start, int end, String strand, String biotype, String status,
 					  int genomicCodingStart, int genomicCodingEnd, int cdnaCodingStart, int cdnaCodingEnd, int cdsLength,
-					  String cDnaSequence, String proteinId, String proteinSequence, String description, List<Exon> exons,
+					  String cdnaSequence, String proteinId, String proteinSequence, String description, List<Exon> exons,
 					  List<Xref> xrefs, List<TranscriptTfbs> tfbs, Set<String> flags, TranscriptAnnotation annotation) {
 		this.id = id;
 		this.name = name;
@@ -100,7 +101,7 @@ public class Transcript implements Serializable {
 		this.cdnaCodingStart = cdnaCodingStart;
 		this.cdnaCodingEnd = cdnaCodingEnd;
 		this.cdsLength = cdsLength;
-		this.cDnaSequence = cDnaSequence;
+		this.cdnaSequence = cdnaSequence;
 		this.proteinId = proteinId;
 		this.proteinSequence = proteinSequence;
 		this.description = description;
@@ -111,6 +112,7 @@ public class Transcript implements Serializable {
 		this.annotation = annotation;
 	}
 
+	@Deprecated
 	public Transcript(String id, String name, String biotype, String status, String source, String chromosome, Integer start, Integer end,
 					  String strand, String version, Integer codingRegionStart, Integer codingRegionEnd,
 					  Integer cdnaCodingStart, Integer cdnaCodingEnd, Integer cdsLength, String proteinId, String description,
@@ -138,6 +140,36 @@ public class Transcript implements Serializable {
 		this.annotation = annotation;
 	}
 
+	public Transcript(String id, String name, String chromosome, int start, int end, String strand, String biotype, String status,
+					  int genomicCodingStart, int genomicCodingEnd, int cdnaCodingStart, int cdnaCodingEnd, int cdsLength,
+					  String cdnaSequence, String proteinId, String proteinSequence, String description, String version, String source,
+					  List<Exon> exons, List<Xref> xrefs, List<TranscriptTfbs> tfbs, Set<String> flags, TranscriptAnnotation annotation) {
+		this.id = id;
+		this.name = name;
+		this.chromosome = chromosome;
+		this.start = start;
+		this.end = end;
+		this.strand = strand;
+		this.biotype = biotype;
+		this.status = status;
+		this.genomicCodingStart = genomicCodingStart;
+		this.genomicCodingEnd = genomicCodingEnd;
+		this.cdnaCodingStart = cdnaCodingStart;
+		this.cdnaCodingEnd = cdnaCodingEnd;
+		this.cdsLength = cdsLength;
+		this.cdnaSequence = cdnaSequence;
+		this.proteinId = proteinId;
+		this.proteinSequence = proteinSequence;
+		this.description = description;
+		this.version = version;
+		this.source = source;
+		this.exons = exons;
+		this.xrefs = xrefs;
+		this.tfbs = tfbs;
+		this.flags = flags;
+		this.annotation = annotation;
+	}
+
 	public boolean unconfirmedStart() {
 		return (this.getFlags() != null && this.getFlags().contains("cds_start_NF"));
 	}
@@ -162,7 +194,7 @@ public class Transcript implements Serializable {
 		sb.append(", cdnaCodingStart=").append(cdnaCodingStart);
 		sb.append(", cdnaCodingEnd=").append(cdnaCodingEnd);
 		sb.append(", cdsLength=").append(cdsLength);
-		sb.append(", cDnaSequence='").append(cDnaSequence).append('\'');
+		sb.append(", cdnaSequence='").append(cdnaSequence).append('\'');
 		sb.append(", proteinId='").append(proteinId).append('\'');
 		sb.append(", proteinSequence='").append(proteinSequence).append('\'');
 		sb.append(", description='").append(description).append('\'');
@@ -339,12 +371,12 @@ public class Transcript implements Serializable {
 		return this;
 	}
 
-	public String getcDnaSequence() {
-		return cDnaSequence;
+	public String getCdnaSequence() {
+		return cdnaSequence;
 	}
 
-	public Transcript setcDnaSequence(String cDnaSequence) {
-		this.cDnaSequence = cDnaSequence;
+	public Transcript setCdnaSequence(String cdnaSequence) {
+		this.cdnaSequence = cdnaSequence;
 		return this;
 	}
 
@@ -412,7 +444,7 @@ public class Transcript implements Serializable {
 				Objects.equals(getStrand(), that.getStrand()) &&
 				Objects.equals(getBiotype(), that.getBiotype()) &&
 				Objects.equals(getStatus(), that.getStatus()) &&
-				Objects.equals(getcDnaSequence(), that.getcDnaSequence()) &&
+				Objects.equals(getCdnaSequence(), that.getCdnaSequence()) &&
 				Objects.equals(getProteinId(), that.getProteinId()) &&
 				Objects.equals(getProteinSequence(), that.getProteinSequence()) &&
 				Objects.equals(getDescription(), that.getDescription()) &&
@@ -426,6 +458,9 @@ public class Transcript implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(getId(), getName(), getChromosome(), getStart(), getEnd(), getStrand(), getBiotype(), getStatus(), getGenomicCodingStart(), getGenomicCodingEnd(), getCdnaCodingStart(), getCdnaCodingEnd(), getCdsLength(), getcDnaSequence(), getProteinId(), getProteinSequence(), getDescription(), getVersion(), getSource(), getExons(), getXrefs(), getTfbs(), getFlags(), getAnnotation());
+		return Objects.hash(getId(), getName(), getChromosome(), getStart(), getEnd(), getStrand(), getBiotype(), getStatus(),
+				getGenomicCodingStart(), getGenomicCodingEnd(), getCdnaCodingStart(), getCdnaCodingEnd(), getCdsLength(),
+				getCdnaSequence(), getProteinId(), getProteinSequence(), getDescription(), getVersion(), getSource(), getExons(),
+				getXrefs(), getTfbs(), getFlags(), getAnnotation());
 	}
 }
