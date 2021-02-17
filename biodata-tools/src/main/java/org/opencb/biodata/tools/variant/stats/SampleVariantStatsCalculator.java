@@ -389,7 +389,7 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
         mergeCounts(stats.getChromosomeCount(), otherStats.getChromosomeCount());
         mergeCounts(stats.getBiotypeCount(), otherStats.getBiotypeCount());
         mergeCounts(stats.getConsequenceTypeCount(), otherStats.getConsequenceTypeCount());
-        mergeCounts(stats.getConsequenceTypeCount(), otherStats.getConsequenceTypeCount());
+        mergeCounts(stats.getClinicalSignificanceCount(), otherStats.getClinicalSignificanceCount());
         mergeMaps(stats.getMendelianErrorCount(), otherStats.getMendelianErrorCount(), SampleVariantStatsCalculator::mergeCounts);
 
         IndelLength indelLength = stats.getIndelLengthCount();
