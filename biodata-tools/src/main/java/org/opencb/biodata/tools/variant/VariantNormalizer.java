@@ -19,7 +19,6 @@
 
 package org.opencb.biodata.tools.variant;
 
-import htsjdk.samtools.SAMException;
 import htsjdk.variant.variantcontext.Allele;
 import htsjdk.variant.vcf.*;
 import org.apache.commons.lang3.ArrayUtils;
@@ -934,10 +933,15 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
         VariantKeyFields keyFields = null;
         char previousReferenceChar = 0;
         char previousAlternateChar = 0;
+        int originalKeyFieldsIndex = 0;
         // Assume that as a result of the alignment "reference" and "alternate" Strings are of the same length
         for (int i = 0; i < reference.length(); i++) {
             char referenceChar = reference.charAt(i);
             char alternateChar = alternate.charAt(i);
+            if (referenceChar != '-') {
+                // keep track where we are in the original reference
+                originalKeyFieldsIndex++;
+            }
             // Insertion
             if (referenceChar == '-') {
                 // Assume there cannot be a '-' at the reference and alternate aligned sequences at the same position
@@ -950,7 +954,8 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                     keyFields.setAlternate(keyFields.getAlternate() + alternateChar);
                 // New insertion found, create new keyFields
                 } else {
-                    keyFields = new VariantKeyFields(genomicStart + i, genomicStart + i - 1, "",
+                    int originalPosition = genomicStart + originalKeyFieldsIndex;
+                    keyFields = new VariantKeyFields(originalPosition, originalPosition - 1, "",
                             String.valueOf(alternateChar), originalKeyFields);
                     keyFieldsList.add(keyFields);
                 }
@@ -959,16 +964,18 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
                 // Current character is a continuation of a deletion
                 if (previousAlternateChar == '-') {
                     keyFields.setReference(keyFields.getReference() + referenceChar);
-                    keyFields.setEnd(keyFields.getEnd()+1);
+                    keyFields.setEnd(keyFields.getEnd() + 1);
                 // New deletion found, create new keyFields
                 } else {
-                    keyFields = new VariantKeyFields(genomicStart + i, genomicStart + i,
+                    int originalPosition = genomicStart + originalKeyFieldsIndex - 1;
+                    keyFields = new VariantKeyFields(originalPosition, originalPosition,
                             String.valueOf(referenceChar),"", originalKeyFields);
                     keyFieldsList.add(keyFields);
                 }
             // SNV
             } else if (referenceChar != alternateChar) {
-                keyFields = new VariantKeyFields(genomicStart + i, genomicStart + i,
+                int originalPosition = genomicStart + originalKeyFieldsIndex - 1;
+                keyFields = new VariantKeyFields(originalPosition, originalPosition,
                         String.valueOf(referenceChar), String.valueOf(alternateChar), originalKeyFields);
                 keyFieldsList.add(keyFields);
             }
