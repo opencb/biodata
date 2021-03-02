@@ -2,7 +2,7 @@ package org.opencb.biodata.formats.alignment.samtools;
 
 public class SamtoolsStats {
     
-    private String file;
+    private String fileId;
     private int rawTotalSequences;
     private int filteredSequences;
     private int sequences;
@@ -48,7 +48,7 @@ public class SamtoolsStats {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("SamtoolsStats{");
-        sb.append("file='").append(file).append('\'');
+        sb.append("fileId='").append(fileId).append('\'');
         sb.append(", rawTotalSequences=").append(rawTotalSequences);
         sb.append(", filteredSequences=").append(filteredSequences);
         sb.append(", sequences=").append(sequences);
@@ -91,12 +91,12 @@ public class SamtoolsStats {
         return sb.toString();
     }
 
-    public String getFile() {
-        return file;
+    public String getFileId() {
+        return fileId;
     }
 
-    public SamtoolsStats setFileId(String file) {
-        this.file = file;
+    public SamtoolsStats setFileId(String fileId) {
+        this.fileId = fileId;
         return this;
     }
 
