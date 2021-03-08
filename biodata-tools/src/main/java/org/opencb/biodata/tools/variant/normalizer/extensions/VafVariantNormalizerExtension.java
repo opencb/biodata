@@ -39,9 +39,11 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
     private boolean calculateDp;
     private static final Map<String, List<String>> supportedCallers;
     private static final Map<String, String> supportedSvTypeCallers;
+    private static final Map<String, String> supportedSvLenCallers;
 
     public static final String EXT_VAF = "EXT_VAF";
     public static final String EXT_SVTYPE = "EXT_SVTYPE";
+    public static final String EXT_SVLEN = "EXT_SVLEN";
 
     static {
         supportedCallers = new LinkedHashMap<>();
@@ -51,6 +53,9 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
 
         supportedSvTypeCallers = new HashMap<>();
         supportedSvTypeCallers.put("BRASS", "SVCLASS");
+
+        supportedSvLenCallers = new HashMap<>();
+        supportedSvLenCallers.put("PINDEL", "LEN");
     }
 
     public VafVariantNormalizerExtension() {
@@ -172,6 +177,18 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
                     Collections.emptyMap());
             fileMetadata.getHeader().getComplexLines().add(newSampleMetadataLine);
         }
+
+        if (supportedSvLenCallers.containsKey(caller)) {
+            // Add EXT_SVLEN
+            VariantFileHeaderComplexLine newSampleMetadataLine = new VariantFileHeaderComplexLine( "INFO",
+                    EXT_SVLEN,
+                    "Variant SVLEN obtained from " + supportedSvLenCallers.get(caller)
+                            + ", several variant callers supported. NOTE: this is a OpenCB extension field.",
+                    "1",
+                    "Integer",
+                    Collections.emptyMap());
+            fileMetadata.getHeader().getComplexLines().add(newSampleMetadataLine);
+        }
     }
 
     @Override
@@ -200,6 +217,15 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
             // Check returned svtype, some variants could miss the svtype
             if (svtype != null) {
                 study.addFileData(file.getFileId(), EXT_SVTYPE, svtype.name());
+            }
+        }
+
+        // Check if we can get SVLEN from this caller
+        if (supportedSvLenCallers.containsKey(caller)) {
+            String svlen = file.getData().get(supportedSvLenCallers.get(caller));
+            // Check returned svlen, some variants could miss the svlen
+            if (StringUtils.isNotEmpty(svlen)) {
+                study.addFileData(file.getFileId(), EXT_SVLEN, svlen);
             }
         }
     }
