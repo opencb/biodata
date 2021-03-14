@@ -55,6 +55,9 @@ public class VariantNormalizerExtensionFactory {
                 case "VAF":
                     extension = new VafVariantNormalizerExtension();
                     break;
+                case "SV":
+                    extension = new SvVariantNormalizerExtension();
+                    break;
                 default:
                     throw new IllegalArgumentException("Unknown normalizer extension " + normalizerExtension);
             }
