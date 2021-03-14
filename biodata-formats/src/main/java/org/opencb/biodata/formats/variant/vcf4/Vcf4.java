@@ -21,7 +21,7 @@ import com.google.common.base.Joiner;
 
 import java.util.*;
 
-
+@Deprecated
 public class Vcf4 {
 
     private String fileFormat;

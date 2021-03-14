@@ -19,6 +19,7 @@ package org.opencb.biodata.formats.variant.vcf4;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Deprecated
 public class VcfFilterHeader {
     private String id;
     private String description;
