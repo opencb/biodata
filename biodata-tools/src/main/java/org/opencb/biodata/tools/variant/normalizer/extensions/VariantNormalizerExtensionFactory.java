@@ -19,7 +19,8 @@ public class VariantNormalizerExtensionFactory {
     public static final Set<String> ALL_EXTENSIONS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
             "FILE_DP_TO_SAMPLE",
             "SAMPLE_DP_TO_FORMAT",
-            "VAF"
+            "VAF",
+            "SV"
     )));
     private final Set<String> enabledExtensions;
 
