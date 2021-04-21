@@ -25,7 +25,7 @@ public class FastQcParser {
         String line;
 
         while ((line = br.readLine()) != null) {
-            if (line.startsWith(">>")) {
+            if (line.startsWith(">>") && !line.contains("END_MODULE")) {
                 String status = line.split("\t")[1].toUpperCase();
                 if (line.startsWith(">>Basic Statistics")) {
                     fastQcMetrics.getSummary().setBasicStatistics(status);
