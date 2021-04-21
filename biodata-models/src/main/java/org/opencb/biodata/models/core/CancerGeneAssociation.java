@@ -28,15 +28,13 @@ public class CancerGeneAssociation {
     private String id;
     private String name;
     private String source;
-    private String chromosome;
-    private int start;
-    private int end;
+    private String location;
     private String cytoband;
     private String tier;
     private boolean somatic;
     private boolean germline;
     private List<String> somaticTumourTypes;
-    private List<String> germlineTumourTypes;;
+    private List<String> germlineTumourTypes;
     private List<String> syndromes;
     private List<String> tissues;
     private List<ClinicalProperty.ModeOfInheritance> modeOfInheritance;
@@ -44,20 +42,21 @@ public class CancerGeneAssociation {
     private List<String> mutationTypes;
     private List<String> translocationPartners;
     private List<String> otherSyndromes;
-    private String synonyms;
+    private List<String> synonyms;
 
 
-    public CancerGeneAssociation(String id, String name, String source, String chromosome, int start, int end, String cytoband, String tier,
+    public CancerGeneAssociation() {
+    }
+
+    public CancerGeneAssociation(String id, String name, String source, String location, String cytoband, String tier,
                                  boolean somatic, boolean germline, List<String> somaticTumourTypes, List<String> germlineTumourTypes,
                                  List<String> syndromes, List<String> tissues, List<ClinicalProperty.ModeOfInheritance> modeOfInheritance,
                                  List<ClinicalProperty.RoleInCancer> roleInCancer, List<String> mutationTypes,
-                                 List<String> translocationPartners, List<String> otherSyndromes, String synonyms) {
+                                 List<String> translocationPartners, List<String> otherSyndromes, List<String> synonyms) {
         this.id = id;
         this.name = name;
         this.source = source;
-        this.chromosome = chromosome;
-        this.start = start;
-        this.end = end;
+        this.location = location;
         this.cytoband = cytoband;
         this.tier = tier;
         this.somatic = somatic;
@@ -76,13 +75,11 @@ public class CancerGeneAssociation {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("GeneCancerCensus{");
+        final StringBuilder sb = new StringBuilder("CancerGeneAssociation{");
         sb.append("id='").append(id).append('\'');
         sb.append(", name='").append(name).append('\'');
         sb.append(", source='").append(source).append('\'');
-        sb.append(", chromosome='").append(chromosome).append('\'');
-        sb.append(", start=").append(start);
-        sb.append(", end=").append(end);
+        sb.append(", location='").append(location).append('\'');
         sb.append(", cytoband='").append(cytoband).append('\'');
         sb.append(", tier='").append(tier).append('\'');
         sb.append(", somatic=").append(somatic);
@@ -96,7 +93,7 @@ public class CancerGeneAssociation {
         sb.append(", mutationTypes=").append(mutationTypes);
         sb.append(", translocationPartners=").append(translocationPartners);
         sb.append(", otherSyndromes=").append(otherSyndromes);
-        sb.append(", synonyms='").append(synonyms).append('\'');
+        sb.append(", synonyms=").append(synonyms);
         sb.append('}');
         return sb.toString();
     }
@@ -128,30 +125,12 @@ public class CancerGeneAssociation {
         return this;
     }
 
-    public String getChromosome() {
-        return chromosome;
+    public String getLocation() {
+        return location;
     }
 
-    public CancerGeneAssociation setChromosome(String chromosome) {
-        this.chromosome = chromosome;
-        return this;
-    }
-
-    public int getStart() {
-        return start;
-    }
-
-    public CancerGeneAssociation setStart(int start) {
-        this.start = start;
-        return this;
-    }
-
-    public int getEnd() {
-        return end;
-    }
-
-    public CancerGeneAssociation setEnd(int end) {
-        this.end = end;
+    public CancerGeneAssociation setLocation(String location) {
+        this.location = location;
         return this;
     }
 
@@ -272,11 +251,11 @@ public class CancerGeneAssociation {
         return this;
     }
 
-    public String getSynonyms() {
+    public List<String> getSynonyms() {
         return synonyms;
     }
 
-    public CancerGeneAssociation setSynonyms(String synonyms) {
+    public CancerGeneAssociation setSynonyms(List<String> synonyms) {
         this.synonyms = synonyms;
         return this;
     }

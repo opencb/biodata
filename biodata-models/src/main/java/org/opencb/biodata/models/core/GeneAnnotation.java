@@ -35,10 +35,12 @@ public class GeneAnnotation {
     private List<GeneDrugInteraction> drugs;
     private List<Constraint> constraints;
     private List<MirnaTarget> mirnaTargets;
+    private List<CancerGeneAssociation> cancerAssociations;
 
     public GeneAnnotation() {
     }
 
+    @Deprecated
     public GeneAnnotation(List<Expression> expression, List<GeneTraitAssociation> diseases,
                           List<GeneDrugInteraction> drugs, List<Constraint> constraints, List<MirnaTarget> mirnaTargets) {
         this.expression = expression;
@@ -48,14 +50,25 @@ public class GeneAnnotation {
         this.mirnaTargets = mirnaTargets;
     }
 
+    public GeneAnnotation(List<Expression> expression, List<GeneTraitAssociation> diseases, List<GeneDrugInteraction> drugs,
+                          List<Constraint> constraints, List<MirnaTarget> mirnaTargets, List<CancerGeneAssociation> cancerAssociations) {
+        this.expression = expression;
+        this.diseases = diseases;
+        this.drugs = drugs;
+        this.constraints = constraints;
+        this.mirnaTargets = mirnaTargets;
+        this.cancerAssociations = cancerAssociations;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("GeneAnnotation{");
         sb.append("expression=").append(expression);
-        sb.append(", geneTraits=").append(diseases);
+        sb.append(", diseases=").append(diseases);
         sb.append(", drugs=").append(drugs);
         sb.append(", constraints=").append(constraints);
-        sb.append(", targets=").append(mirnaTargets);
+        sb.append(", mirnaTargets=").append(mirnaTargets);
+        sb.append(", cancerAssociations=").append(cancerAssociations);
         sb.append('}');
         return sb.toString();
     }
@@ -102,6 +115,15 @@ public class GeneAnnotation {
 
     public GeneAnnotation setMirnaTargets(List<MirnaTarget> mirnaTargets) {
         this.mirnaTargets = mirnaTargets;
+        return this;
+    }
+
+    public List<CancerGeneAssociation> getCancerAssociations() {
+        return cancerAssociations;
+    }
+
+    public GeneAnnotation setCancerAssociations(List<CancerGeneAssociation> cancerAssociations) {
+        this.cancerAssociations = cancerAssociations;
         return this;
     }
 }

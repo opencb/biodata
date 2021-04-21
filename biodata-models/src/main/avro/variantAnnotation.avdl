@@ -87,6 +87,7 @@ protocol VariantAnnotations {
     record ProteinVariantAnnotation {
         union { null, string } uniprotAccession = null;
         union { null, string } uniprotName = null;
+        union { null, string } proteinId = null;    // Ensembl or RefSeq prootein ID
         int position;
         //string aaChange;
         union { null, string } reference;
@@ -107,9 +108,11 @@ protocol VariantAnnotations {
         union { null, string } geneName;
         // deprecated, to be removed next release
         // duplicate of geneId
+        @javaAnnotation("Deprecated")
         union { null, string } ensemblGeneId;
         // deprecated, to be removed next release
         // duplicate of transcriptId
+        @javaAnnotation("Deprecated")
         union { null, string } ensemblTranscriptId;
         union { null, string } geneId;
         union { null, string } transcriptId;
@@ -164,6 +167,22 @@ protocol VariantAnnotations {
         union { null, array<string> } bibliography;
     }
 
+    record CancerGeneAssociation {
+        union { null, string } id;
+        union { null, string } source;
+        union { null, string } tier;
+        union { null, boolean } somatic;
+        union { null, boolean } germline;
+        union { null, array<string> } somaticTumourTypes;
+        union { null, array<string> } germlineTumourTypes;
+        union { null, array<string> } syndromes;
+        union { null, array<string> } tissues;
+        union { null, array<string> } modeOfInheritance;
+        union { null, array<string> } roleInCancer;
+        union { null, array<string> } mutationTypes;
+        union { null, array<string> } translocationPartners;
+    }
+
     record AdditionalAttribute {
         map<string> attribute;
     }
@@ -190,6 +209,7 @@ protocol VariantAnnotations {
         union { null, array<GeneDrugInteraction> } geneDrugInteraction;
         union { null, array<Constraint> } geneConstraints;
         union { null, array<GeneMirnaTarget> } geneMirnaTargets;
+        union { null, array<CancerGeneAssociation> } cancerGeneAssociations;
         union { null, array<EvidenceEntry> } traitAssociation;
         union { null, array<Score> } functionalScore;
         union { null, array<Cytoband> } cytoband;
