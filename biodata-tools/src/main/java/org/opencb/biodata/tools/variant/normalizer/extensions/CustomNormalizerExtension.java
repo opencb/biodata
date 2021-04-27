@@ -107,9 +107,13 @@ public class CustomNormalizerExtension extends VariantNormalizerExtension {
 //                logger.warn(msg);
 //                isVCustomFileValid = false;
             } else {
-                // TODO: What if mixed INFO and FORMAT?
-                normalizeFile = header.get(0).startsWith(VCFConstants.INFO_HEADER_START);
-                normalizeSample = header.get(0).startsWith(VCFConstants.FORMAT_HEADER_START);
+                for (String line : header) {
+                    normalizeFile |= line.startsWith(VCFConstants.INFO_HEADER_START);
+                    normalizeSample |= line.startsWith(VCFConstants.FORMAT_HEADER_START);
+                }
+                if (normalizeFile && normalizeSample) {
+                    throw new IOException("Unable to mix FORMAT and INFO in the same custom normalizer extension file.");
+                }
             }
         } catch (IOException e) {
             isVCustomFileValid = false;
@@ -173,16 +177,11 @@ public class CustomNormalizerExtension extends VariantNormalizerExtension {
     private String getVariantValue(Variant variant, FileEntry file) {
         String variantId;
         if (file.getCall() == null || file.getCall().getVariantId() == null) {
-            variantId = variant.toString();
-        } else {
-            variantId = file.getCall().getVariantId();
-        }
-        String value = variantValuesMap.get(variantId);
-        if (value == null) {
             variantId = variant.toStringSimple();
-            value = variantValuesMap.get(variantId);
+        } else {
+            variantId = new Variant(file.getCall().getVariantId()).toStringSimple();
         }
-        return value;
+        return variantValuesMap.get(variantId);
     }
 
 }
