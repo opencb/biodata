@@ -20,7 +20,8 @@ public class VariantNormalizerExtensionFactory {
             "FILE_DP_TO_SAMPLE",
             "SAMPLE_DP_TO_FORMAT",
             "VAF",
-            "SV"
+            "SV",
+            "CUSTOM"
     )));
     private final Set<String> enabledExtensions;
 
@@ -31,7 +32,6 @@ public class VariantNormalizerExtensionFactory {
     public VariantNormalizerExtensionFactory(Set<String> enabledExtensions) {
         this.enabledExtensions = enabledExtensions;
     }
-
 
     public Task<Variant, Variant> buildExtensions(VariantFileMetadata fileMetadata) {
         Task<Variant, Variant> extensionTask = null;
@@ -58,6 +58,9 @@ public class VariantNormalizerExtensionFactory {
                     break;
                 case "SV":
                     extension = new SvVariantNormalizerExtension();
+                    break;
+                case "CUSTOM":
+                    extension = new CustomNormalizerExtension();
                     break;
                 default:
                     throw new IllegalArgumentException("Unknown normalizer extension " + normalizerExtension);
