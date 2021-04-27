@@ -61,8 +61,8 @@ public class CustomNormalizerExtension extends VariantNormalizerExtension {
     @Override
     public void init() {
         // Custom annotation file must end with ".custom.annotation.txt"
-        Path customFilePath = Paths.get(fileMetadata.getPath()).resolve(CUSTOM_FILE_EXTENSION);
-        if (Files.notExists(customFilePath)) {
+        Path customFilePath = Paths.get(fileMetadata.getPath() + CUSTOM_FILE_EXTENSION);
+        if (!Files.exists(customFilePath)) {
             // File doesn't exist. Skip using extension
             logger.info("Not using " + getClass().getSimpleName() + " as file {} does not exist.", customFilePath);
             isVCustomFileValid = false;
