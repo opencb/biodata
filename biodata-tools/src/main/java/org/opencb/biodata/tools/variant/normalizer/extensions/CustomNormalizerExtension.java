@@ -19,10 +19,7 @@
 
 package org.opencb.biodata.tools.variant.normalizer.extensions;
 
-import htsjdk.variant.vcf.VCFConstants;
-import htsjdk.variant.vcf.VCFFormatHeaderLine;
-import htsjdk.variant.vcf.VCFHeaderVersion;
-import htsjdk.variant.vcf.VCFInfoHeaderLine;
+import htsjdk.variant.vcf.*;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
@@ -30,64 +27,94 @@ import org.opencb.biodata.models.variant.VariantFileMetadata;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.SampleEntry;
 import org.opencb.biodata.models.variant.metadata.VariantFileHeaderComplexLine;
+import org.opencb.biodata.tools.variant.converters.avro.VCFHeaderToVariantFileHeaderConverter;
 import org.opencb.commons.utils.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class CustomNormalizerExtension extends VariantNormalizerExtension {
+
+    protected static Logger logger = LoggerFactory.getLogger(CustomNormalizerExtension.class);
 
     private List<String> header;
     private Map<String, String> variantValuesMap;
     private boolean isVCustomFileValid;
 
     public static final String CUSTOM_FILE_EXTENSION = ".custom.annotation.txt";
+    private boolean normalizeFile;
+    private boolean normalizeSample;
 
     public CustomNormalizerExtension() {
     }
 
     @Override
     public void init() {
+        // Custom annotation file must end with ".custom.annotation.txt"
+        Path customFilePath = Paths.get(fileMetadata.getPath()).resolve(CUSTOM_FILE_EXTENSION);
+        if (Files.notExists(customFilePath)) {
+            // File doesn't exist. Skip using extension
+            logger.info("Not using " + getClass().getSimpleName() + " as file {} does not exist.", customFilePath);
+            isVCustomFileValid = false;
+            return;
+        }
         try {
-            // Custom annotation file must end with ".custom.annotation.txt"
-            Path customFilePath = Paths.get(fileMetadata.getPath()).resolve(CUSTOM_FILE_EXTENSION);
             FileUtils.checkFile(customFilePath);
 
             // Store the INFO and FORMAT lines
             header = new ArrayList<>();
             variantValuesMap = new HashMap<>();
-
+            int lines = 0;
             // Init valid variable and check is all good
             isVCustomFileValid = true;
-            BufferedReader bufferedReader = FileUtils.newBufferedReader(customFilePath);
-            String line = bufferedReader.readLine();
-            while(StringUtils.isNotEmpty(line)) {
-                if (line.startsWith("##")) {
-                    header.add(line);
-                } else {
-                    String[] split = line.split("\t");
-                    if (split.length == 2) {
-                        variantValuesMap.put(split[0], split[1]);
+            try (BufferedReader bufferedReader = FileUtils.newBufferedReader(customFilePath)) {
+                String line = bufferedReader.readLine();
+                while (StringUtils.isNotEmpty(line)) {
+                    lines++;
+                    if (line.startsWith("##")) {
+                        header.add(line);
                     } else {
-                        isVCustomFileValid = false;
-                        break;
+                        String[] split = line.split("\t");
+                        if (split.length == 2) {
+                            variantValuesMap.put(split[0], split[1]);
+                        } else {
+                            String msg = "Malformed custom normalization file " + customFilePath + " in line: " + lines;
+                            throw new IOException(msg);
+//                            logger.warn(msg);
+//                            isVCustomFileValid = false;
+//                            break;
+                        }
                     }
+                    // read next line
+                    line = bufferedReader.readLine();
                 }
-                // read next line
-                line = bufferedReader.readLine();
             }
-            bufferedReader.close();
 
             // Header is mandatory
-            if (header.size() == 0) {
-                isVCustomFileValid = false;
+            if (header.isEmpty()) {
+                String msg = "Missing header in custom normalization file " + customFilePath;
+                throw new IOException(msg);
+//                logger.warn(msg);
+//                isVCustomFileValid = false;
+            } else {
+                // TODO: What if mixed INFO and FORMAT?
+                normalizeFile = header.get(0).startsWith(VCFConstants.INFO_HEADER_START);
+                normalizeSample = header.get(0).startsWith(VCFConstants.FORMAT_HEADER_START);
             }
         } catch (IOException e) {
             isVCustomFileValid = false;
-            e.printStackTrace();
+//            logger.warn("Error reading custom file " + customFilePath, e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -99,51 +126,25 @@ public class CustomNormalizerExtension extends VariantNormalizerExtension {
     @Override
     protected void normalizeHeader(VariantFileMetadata fileMetadata) {
         for (String line : header) {
-            if (line.startsWith("##INFO")) {
-                VCFInfoHeaderLine vcfInfoHeaderLine =
-                        new VCFInfoHeaderLine(line.substring(VCFConstants.INFO_HEADER_START.length() + 1), VCFHeaderVersion.VCF4_2);
-                String count;
-                if (vcfInfoHeaderLine.getCountType().name().equalsIgnoreCase("INTEGER")) {
-                    count = String.valueOf(vcfInfoHeaderLine.getCount());
-                } else {
-                    count = vcfInfoHeaderLine.getCountType().name();
-                }
-                VariantFileHeaderComplexLine newSampleMetadataLine = new VariantFileHeaderComplexLine( "INFO",
-                        vcfInfoHeaderLine.getID(),
-                        vcfInfoHeaderLine.getDescription(),
-                        count,
-                        vcfInfoHeaderLine.getType().name(),
-                        Collections.emptyMap());
-                fileMetadata.getHeader().getComplexLines().add(newSampleMetadataLine);
+            VCFCompoundHeaderLine vcfCompoundHeaderLine;
+            if (line.startsWith(VCFConstants.INFO_HEADER_START)) {
+                vcfCompoundHeaderLine = new VCFInfoHeaderLine(line.substring(VCFConstants.INFO_HEADER_START.length() + 1), VCFHeaderVersion.VCF4_2);
+            } else if (line.startsWith(VCFConstants.FORMAT_HEADER_START)) {
+                vcfCompoundHeaderLine = new VCFFormatHeaderLine(line.substring(VCFConstants.FORMAT_HEADER_START.length() + 1), VCFHeaderVersion.VCF4_2);
             } else {
-                if (line.startsWith("##FORMAT")) {
-                    VCFFormatHeaderLine vcfFormatHeaderLine =
-                            new VCFFormatHeaderLine(line.substring(VCFConstants.FORMAT_HEADER_START.length() + 1), VCFHeaderVersion.VCF4_2);
-                    String count;
-                    if (vcfFormatHeaderLine.getCountType().name().equalsIgnoreCase("INTEGER")) {
-                        count = String.valueOf(vcfFormatHeaderLine.getCount());
-                    } else {
-                        count = vcfFormatHeaderLine.getCountType().name();
-                    }
-                    VariantFileHeaderComplexLine newSampleMetadataLine = new VariantFileHeaderComplexLine( "FORMAT",
-                            vcfFormatHeaderLine.getID(),
-                            vcfFormatHeaderLine.getDescription(),
-                            count,
-                            vcfFormatHeaderLine.getType().name(),
-                            Collections.emptyMap());
-                    fileMetadata.getHeader().getComplexLines().add(newSampleMetadataLine);
-                } else {
-                    System.out.println("Ignore custom header line: " + line);
-                }
+                logger.info("Ignore custom header line: " + line);
+                continue;
             }
+            VariantFileHeaderComplexLine newSampleMetadataLine = VCFHeaderToVariantFileHeaderConverter.convertComplexLine(vcfCompoundHeaderLine);
+            fileMetadata.getHeader().getComplexLines().add(newSampleMetadataLine);
         }
     }
 
     @Override
     protected void normalizeFile(Variant variant, StudyEntry study, FileEntry file) {
         // Check if we can get SVTYPE from this caller
-        if (header.get(0).startsWith("##INFO")) {
-            String value = variantValuesMap.get(variant.getId());
+        if (normalizeFile) {
+            String value = getVariantValue(variant, file);
             if (value != null) {
                 String[] split = value.split(";");
                 for (String s : split) {
@@ -156,8 +157,8 @@ public class CustomNormalizerExtension extends VariantNormalizerExtension {
 
     @Override
     protected void normalizeSample(Variant variant, StudyEntry study, FileEntry file, String sampleId, SampleEntry sample) {
-        if (header.get(0).startsWith("##FORMAT")) {
-            String value = variantValuesMap.get(variant.getId());
+        if (normalizeSample) {
+            String value = getVariantValue(variant, file);
             if (value != null) {
                 String[] split = value.split(";");
                 for (String s : split) {
@@ -167,6 +168,21 @@ public class CustomNormalizerExtension extends VariantNormalizerExtension {
                 }
             }
         }
+    }
+
+    private String getVariantValue(Variant variant, FileEntry file) {
+        String variantId;
+        if (file.getCall() == null || file.getCall().getVariantId() == null) {
+            variantId = variant.toString();
+        } else {
+            variantId = file.getCall().getVariantId();
+        }
+        String value = variantValuesMap.get(variantId);
+        if (value == null) {
+            variantId = variant.toStringSimple();
+            value = variantValuesMap.get(variantId);
+        }
+        return value;
     }
 
 }
