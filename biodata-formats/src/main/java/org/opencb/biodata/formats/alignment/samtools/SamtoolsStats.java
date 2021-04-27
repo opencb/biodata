@@ -1,5 +1,7 @@
 package org.opencb.biodata.formats.alignment.samtools;
 
+import java.util.List;
+
 public class SamtoolsStats {
     
     private String fileId;
@@ -41,6 +43,8 @@ public class SamtoolsStats {
     private int pairsWithOtherOrientation;
     private int pairsOnDifferentChromosomes;
     private double percentageOfProperlyPairedReads;
+
+    private List<String> images;
 
     public SamtoolsStats() {
     }
@@ -87,6 +91,7 @@ public class SamtoolsStats {
         sb.append(", pairsWithOtherOrientation=").append(pairsWithOtherOrientation);
         sb.append(", pairsOnDifferentChromosomes=").append(pairsOnDifferentChromosomes);
         sb.append(", percentageOfProperlyPairedReads=").append(percentageOfProperlyPairedReads);
+        sb.append(", images=").append(images);
         sb.append('}');
         return sb.toString();
     }
@@ -439,6 +444,15 @@ public class SamtoolsStats {
 
     public SamtoolsStats setPercentageOfProperlyPairedReads(double percentageOfProperlyPairedReads) {
         this.percentageOfProperlyPairedReads = percentageOfProperlyPairedReads;
+        return this;
+    }
+
+    public List<String> getImages() {
+        return images;
+    }
+
+    public SamtoolsStats setImages(List<String> images) {
+        this.images = images;
         return this;
     }
 }
