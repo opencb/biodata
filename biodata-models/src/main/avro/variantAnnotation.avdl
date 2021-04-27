@@ -87,7 +87,7 @@ protocol VariantAnnotations {
     record ProteinVariantAnnotation {
         union { null, string } uniprotAccession = null;
         union { null, string } uniprotName = null;
-        union { null, string } proteinId = null;    // Ensembl or RefSeq prootein ID
+//        union { null, string } proteinId = null;    // Ensembl or RefSeq prootein ID
         int position;
         //string aaChange;
         union { null, string } reference;
