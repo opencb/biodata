@@ -45,15 +45,14 @@ import java.util.Map;
 
 public class CustomNormalizerExtension extends VariantNormalizerExtension {
 
-    protected static Logger logger = LoggerFactory.getLogger(CustomNormalizerExtension.class);
-
     private List<String> header;
     private Map<String, String> variantValuesMap;
     private boolean isVCustomFileValid;
-
-    public static final String CUSTOM_FILE_EXTENSION = ".custom.annotation.txt";
     private boolean normalizeFile;
     private boolean normalizeSample;
+    public static final String CUSTOM_FILE_EXTENSION = ".custom.annotation.txt";
+
+    private static Logger logger = LoggerFactory.getLogger(CustomNormalizerExtension.class);
 
     public CustomNormalizerExtension() {
     }
@@ -75,7 +74,7 @@ public class CustomNormalizerExtension extends VariantNormalizerExtension {
             header = new ArrayList<>();
             variantValuesMap = new HashMap<>();
             int lines = 0;
-            // Init valid variable and check is all good
+            // Init valid variable and check everything is good
             isVCustomFileValid = true;
             try (BufferedReader bufferedReader = FileUtils.newBufferedReader(customFilePath)) {
                 String line = bufferedReader.readLine();
@@ -88,11 +87,7 @@ public class CustomNormalizerExtension extends VariantNormalizerExtension {
                         if (split.length == 2) {
                             variantValuesMap.put(split[0], split[1]);
                         } else {
-                            String msg = "Malformed custom normalization file " + customFilePath + " in line: " + lines;
-                            throw new IOException(msg);
-//                            logger.warn(msg);
-//                            isVCustomFileValid = false;
-//                            break;
+                            throw new IOException("Malformed custom normalization file " + customFilePath + " in line: " + lines);
                         }
                     }
                     // read next line
@@ -102,10 +97,7 @@ public class CustomNormalizerExtension extends VariantNormalizerExtension {
 
             // Header is mandatory
             if (header.isEmpty()) {
-                String msg = "Missing header in custom normalization file " + customFilePath;
-                throw new IOException(msg);
-//                logger.warn(msg);
-//                isVCustomFileValid = false;
+                throw new IOException("Missing header in custom normalization file " + customFilePath);
             } else {
                 for (String line : header) {
                     normalizeFile |= line.startsWith(VCFConstants.INFO_HEADER_START);
@@ -117,7 +109,6 @@ public class CustomNormalizerExtension extends VariantNormalizerExtension {
             }
         } catch (IOException e) {
             isVCustomFileValid = false;
-//            logger.warn("Error reading custom file " + customFilePath, e);
             throw new UncheckedIOException(e);
         }
     }
@@ -132,14 +123,17 @@ public class CustomNormalizerExtension extends VariantNormalizerExtension {
         for (String line : header) {
             VCFCompoundHeaderLine vcfCompoundHeaderLine;
             if (line.startsWith(VCFConstants.INFO_HEADER_START)) {
-                vcfCompoundHeaderLine = new VCFInfoHeaderLine(line.substring(VCFConstants.INFO_HEADER_START.length() + 1), VCFHeaderVersion.VCF4_2);
+                vcfCompoundHeaderLine =
+                        new VCFInfoHeaderLine(line.substring(VCFConstants.INFO_HEADER_START.length() + 1), VCFHeaderVersion.VCF4_2);
             } else if (line.startsWith(VCFConstants.FORMAT_HEADER_START)) {
-                vcfCompoundHeaderLine = new VCFFormatHeaderLine(line.substring(VCFConstants.FORMAT_HEADER_START.length() + 1), VCFHeaderVersion.VCF4_2);
+                vcfCompoundHeaderLine =
+                        new VCFFormatHeaderLine(line.substring(VCFConstants.FORMAT_HEADER_START.length() + 1), VCFHeaderVersion.VCF4_2);
             } else {
                 logger.info("Ignore custom header line: " + line);
                 continue;
             }
-            VariantFileHeaderComplexLine newSampleMetadataLine = VCFHeaderToVariantFileHeaderConverter.convertComplexLine(vcfCompoundHeaderLine);
+            VariantFileHeaderComplexLine newSampleMetadataLine = VCFHeaderToVariantFileHeaderConverter
+                    .convertComplexLine(vcfCompoundHeaderLine);
             fileMetadata.getHeader().getComplexLines().add(newSampleMetadataLine);
         }
     }
