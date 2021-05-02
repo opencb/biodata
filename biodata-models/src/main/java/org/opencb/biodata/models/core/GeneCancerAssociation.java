@@ -23,7 +23,7 @@ import org.opencb.biodata.models.clinical.ClinicalProperty;
 
 import java.util.List;
 
-public class CancerGeneAssociation {
+public class GeneCancerAssociation {
 
     private String id;
     private String name;
@@ -45,10 +45,10 @@ public class CancerGeneAssociation {
     private List<String> synonyms;
 
 
-    public CancerGeneAssociation() {
+    public GeneCancerAssociation() {
     }
 
-    public CancerGeneAssociation(String id, String name, String source, String location, String cytoband, String tier,
+    public GeneCancerAssociation(String id, String name, String source, String location, String cytoband, String tier,
                                  boolean somatic, boolean germline, List<String> somaticTumourTypes, List<String> germlineTumourTypes,
                                  List<String> syndromes, List<String> tissues, List<ClinicalProperty.ModeOfInheritance> modeOfInheritance,
                                  List<ClinicalProperty.RoleInCancer> roleInCancer, List<String> mutationTypes,
@@ -102,7 +102,7 @@ public class CancerGeneAssociation {
         return id;
     }
 
-    public CancerGeneAssociation setId(String id) {
+    public GeneCancerAssociation setId(String id) {
         this.id = id;
         return this;
     }
@@ -111,7 +111,7 @@ public class CancerGeneAssociation {
         return name;
     }
 
-    public CancerGeneAssociation setName(String name) {
+    public GeneCancerAssociation setName(String name) {
         this.name = name;
         return this;
     }
@@ -120,7 +120,7 @@ public class CancerGeneAssociation {
         return source;
     }
 
-    public CancerGeneAssociation setSource(String source) {
+    public GeneCancerAssociation setSource(String source) {
         this.source = source;
         return this;
     }
@@ -129,7 +129,7 @@ public class CancerGeneAssociation {
         return location;
     }
 
-    public CancerGeneAssociation setLocation(String location) {
+    public GeneCancerAssociation setLocation(String location) {
         this.location = location;
         return this;
     }
@@ -138,7 +138,7 @@ public class CancerGeneAssociation {
         return cytoband;
     }
 
-    public CancerGeneAssociation setCytoband(String cytoband) {
+    public GeneCancerAssociation setCytoband(String cytoband) {
         this.cytoband = cytoband;
         return this;
     }
@@ -147,7 +147,7 @@ public class CancerGeneAssociation {
         return tier;
     }
 
-    public CancerGeneAssociation setTier(String tier) {
+    public GeneCancerAssociation setTier(String tier) {
         this.tier = tier;
         return this;
     }
@@ -156,7 +156,7 @@ public class CancerGeneAssociation {
         return somatic;
     }
 
-    public CancerGeneAssociation setSomatic(boolean somatic) {
+    public GeneCancerAssociation setSomatic(boolean somatic) {
         this.somatic = somatic;
         return this;
     }
@@ -165,7 +165,7 @@ public class CancerGeneAssociation {
         return germline;
     }
 
-    public CancerGeneAssociation setGermline(boolean germline) {
+    public GeneCancerAssociation setGermline(boolean germline) {
         this.germline = germline;
         return this;
     }
@@ -174,7 +174,7 @@ public class CancerGeneAssociation {
         return somaticTumourTypes;
     }
 
-    public CancerGeneAssociation setSomaticTumourTypes(List<String> somaticTumourTypes) {
+    public GeneCancerAssociation setSomaticTumourTypes(List<String> somaticTumourTypes) {
         this.somaticTumourTypes = somaticTumourTypes;
         return this;
     }
@@ -183,7 +183,7 @@ public class CancerGeneAssociation {
         return germlineTumourTypes;
     }
 
-    public CancerGeneAssociation setGermlineTumourTypes(List<String> germlineTumourTypes) {
+    public GeneCancerAssociation setGermlineTumourTypes(List<String> germlineTumourTypes) {
         this.germlineTumourTypes = germlineTumourTypes;
         return this;
     }
@@ -192,7 +192,7 @@ public class CancerGeneAssociation {
         return syndromes;
     }
 
-    public CancerGeneAssociation setSyndromes(List<String> syndromes) {
+    public GeneCancerAssociation setSyndromes(List<String> syndromes) {
         this.syndromes = syndromes;
         return this;
     }
@@ -201,7 +201,7 @@ public class CancerGeneAssociation {
         return tissues;
     }
 
-    public CancerGeneAssociation setTissues(List<String> tissues) {
+    public GeneCancerAssociation setTissues(List<String> tissues) {
         this.tissues = tissues;
         return this;
     }
@@ -210,7 +210,7 @@ public class CancerGeneAssociation {
         return modeOfInheritance;
     }
 
-    public CancerGeneAssociation setModeOfInheritance(List<ClinicalProperty.ModeOfInheritance> modeOfInheritance) {
+    public GeneCancerAssociation setModeOfInheritance(List<ClinicalProperty.ModeOfInheritance> modeOfInheritance) {
         this.modeOfInheritance = modeOfInheritance;
         return this;
     }
@@ -219,7 +219,7 @@ public class CancerGeneAssociation {
         return roleInCancer;
     }
 
-    public CancerGeneAssociation setRoleInCancer(List<ClinicalProperty.RoleInCancer> roleInCancer) {
+    public GeneCancerAssociation setRoleInCancer(List<ClinicalProperty.RoleInCancer> roleInCancer) {
         this.roleInCancer = roleInCancer;
         return this;
     }
@@ -228,7 +228,7 @@ public class CancerGeneAssociation {
         return mutationTypes;
     }
 
-    public CancerGeneAssociation setMutationTypes(List<String> mutationTypes) {
+    public GeneCancerAssociation setMutationTypes(List<String> mutationTypes) {
         this.mutationTypes = mutationTypes;
         return this;
     }
@@ -237,7 +237,7 @@ public class CancerGeneAssociation {
         return translocationPartners;
     }
 
-    public CancerGeneAssociation setTranslocationPartners(List<String> translocationPartners) {
+    public GeneCancerAssociation setTranslocationPartners(List<String> translocationPartners) {
         this.translocationPartners = translocationPartners;
         return this;
     }
@@ -246,7 +246,7 @@ public class CancerGeneAssociation {
         return otherSyndromes;
     }
 
-    public CancerGeneAssociation setOtherSyndromes(List<String> otherSyndromes) {
+    public GeneCancerAssociation setOtherSyndromes(List<String> otherSyndromes) {
         this.otherSyndromes = otherSyndromes;
         return this;
     }
@@ -255,7 +255,7 @@ public class CancerGeneAssociation {
         return synonyms;
     }
 
-    public CancerGeneAssociation setSynonyms(List<String> synonyms) {
+    public GeneCancerAssociation setSynonyms(List<String> synonyms) {
         this.synonyms = synonyms;
         return this;
     }

@@ -35,7 +35,7 @@ public class GeneAnnotation {
     private List<GeneDrugInteraction> drugs;
     private List<Constraint> constraints;
     private List<MirnaTarget> mirnaTargets;
-    private List<CancerGeneAssociation> cancerAssociations;
+    private List<GeneCancerAssociation> cancerAssociations;
 
     public GeneAnnotation() {
     }
@@ -51,7 +51,7 @@ public class GeneAnnotation {
     }
 
     public GeneAnnotation(List<Expression> expression, List<GeneTraitAssociation> diseases, List<GeneDrugInteraction> drugs,
-                          List<Constraint> constraints, List<MirnaTarget> mirnaTargets, List<CancerGeneAssociation> cancerAssociations) {
+                          List<Constraint> constraints, List<MirnaTarget> mirnaTargets, List<GeneCancerAssociation> cancerAssociations) {
         this.expression = expression;
         this.diseases = diseases;
         this.drugs = drugs;
@@ -118,11 +118,11 @@ public class GeneAnnotation {
         return this;
     }
 
-    public List<CancerGeneAssociation> getCancerAssociations() {
+    public List<GeneCancerAssociation> getCancerAssociations() {
         return cancerAssociations;
     }
 
-    public GeneAnnotation setCancerAssociations(List<CancerGeneAssociation> cancerAssociations) {
+    public GeneAnnotation setCancerAssociations(List<GeneCancerAssociation> cancerAssociations) {
         this.cancerAssociations = cancerAssociations;
         return this;
     }

@@ -87,9 +87,8 @@ protocol VariantAnnotations {
     record ProteinVariantAnnotation {
         union { null, string } uniprotAccession = null;
         union { null, string } uniprotName = null;
-//        union { null, string } proteinId = null;    // Ensembl or RefSeq prootein ID
-        int position;
-        //string aaChange;
+        union { null, string } proteinId = null;    // Ensembl or RefSeq protein ID
+        union { null, int } position;
         union { null, string } reference;
         union { null, string } alternate;
         union { null, string } uniprotVariantId;
@@ -105,23 +104,26 @@ protocol VariantAnnotations {
     }
 
     record ConsequenceType {
+        union { null, string } geneId;
         union { null, string } geneName;
-        // deprecated, to be removed next release
-        // duplicate of geneId
+
+        // DEPRECATED: duplicate of geneId, to be removed next release
         @javaAnnotation("Deprecated")
         union { null, string } ensemblGeneId;
-        // deprecated, to be removed next release
-        // duplicate of transcriptId
+        // DEPRECATED: duplicate of transcriptId, to be removed next release
         @javaAnnotation("Deprecated")
         union { null, string } ensemblTranscriptId;
-        union { null, string } geneId;
-        union { null, string } transcriptId;
+
+        union { null, string } transcriptId;    // Ensembl or RefSeq ID depending on field 'source'
         union { null, string } strand;
         union { null, string } biotype;
         union { null, string } source;
         union { null, array<ExonOverlap> } exonOverlap;
-        // deprecated, replaced with transcriptFlags
+
+        // DEPRECATED: replaced by transcriptFlags
+        @javaAnnotation("Deprecated")
         union { null, array<string> } transcriptAnnotationFlags;
+
         union { null, array<string> } transcriptFlags;
         union { null, int } cdnaPosition;
         union { null, int } cdsPosition;
@@ -167,7 +169,7 @@ protocol VariantAnnotations {
         union { null, array<string> } bibliography;
     }
 
-    record CancerGeneAssociation {
+    record GeneCancerAssociation {
         union { null, string } id;
         union { null, string } source;
         union { null, string } tier;
@@ -193,8 +195,11 @@ protocol VariantAnnotations {
         union { null, int } end;
         union { null, string } reference;
         union { null, string } alternate;
-        // deprecated, to be removed next release
+
+        // DEPRECATED: to be removed next release
+        @javaAnnotation("Deprecated")
         union { null, string } ancestralAllele;
+
         union { null, string } id;
         union { null, array<Xref> } xrefs;
         union { null, array<string> } hgvs;
@@ -209,7 +214,7 @@ protocol VariantAnnotations {
         union { null, array<GeneDrugInteraction> } geneDrugInteraction;
         union { null, array<Constraint> } geneConstraints;
         union { null, array<GeneMirnaTarget> } geneMirnaTargets;
-        union { null, array<CancerGeneAssociation> } cancerGeneAssociations;
+        union { null, array<GeneCancerAssociation> } geneCancerAssociations;
         union { null, array<EvidenceEntry> } traitAssociation;
         union { null, array<Score> } functionalScore;
         union { null, array<Cytoband> } cytoband;
