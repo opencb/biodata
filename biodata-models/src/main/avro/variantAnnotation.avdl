@@ -5,6 +5,8 @@ protocol VariantAnnotations {
 
     import idl "evidence.avdl";
 
+    // DEPRECATED: to be removed next release
+    @javaAnnotation("Deprecated")
     enum ExpressionCall {UP, DOWN}
 
     record GeneDrugInteraction {
@@ -209,7 +211,11 @@ protocol VariantAnnotations {
         union { null, string } minorAllele;
         union { null, float } minorAlleleFreq;
         union { null, array<Score> } conservation;
+
+        // DEPRECATED: to be removed next release
+        @javaAnnotation("Deprecated")
         union { null, array<Expression> } geneExpression;
+
         union { null, array<GeneTraitAssociation> } geneTraitAssociation;
         union { null, array<GeneDrugInteraction> } geneDrugInteraction;
         union { null, array<Constraint> } geneConstraints;
