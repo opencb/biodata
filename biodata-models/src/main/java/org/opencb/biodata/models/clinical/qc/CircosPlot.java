@@ -26,15 +26,15 @@ public class CircosPlot {
     private String id;
     private Map<String, String> query;
 
-    private String b64Image;
+    private String file;
 
     public CircosPlot() {
     }
 
-    public CircosPlot(String id, Map<String, String> query, String b64Image) {
+    public CircosPlot(String id, Map<String, String> query, String file) {
         this.id = id;
         this.query = query;
-        this.b64Image = b64Image;
+        this.file = file;
     }
 
     @Override
@@ -42,7 +42,7 @@ public class CircosPlot {
         final StringBuilder sb = new StringBuilder("CircosPlot{");
         sb.append("id='").append(id).append('\'');
         sb.append(", query=").append(query);
-        sb.append(", b64Image='").append(b64Image).append('\'');
+        sb.append(", file='").append(file).append('\'');
         sb.append('}');
         return sb.toString();
     }
@@ -65,12 +65,12 @@ public class CircosPlot {
         return this;
     }
 
-    public String getB64Image() {
-        return b64Image;
+    public String getFile() {
+        return file;
     }
 
-    public CircosPlot setB64Image(String b64Image) {
-        this.b64Image = b64Image;
+    public CircosPlot setFile(String file) {
+        this.file = file;
         return this;
     }
 }
