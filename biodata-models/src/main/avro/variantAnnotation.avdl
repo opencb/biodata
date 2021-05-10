@@ -62,9 +62,14 @@ protocol VariantAnnotations {
         string altAllele;
         float refAlleleFreq;
         float altAlleleFreq;
+        union { null, int } refAlleleCount;
+        union { null, int } altAlleleCount;
         union { null, float } refHomGenotypeFreq;
         union { null, float } hetGenotypeFreq;
         union { null, float } altHomGenotypeFreq;
+        union { null, int } refHomGenotypeCount;
+        union { null, int } hetGenotypeCount;
+        union { null, int } altHomGenotypeCount;
     }
 
     record SequenceOntologyTerm {
