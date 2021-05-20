@@ -19,29 +19,29 @@
 
 package org.opencb.biodata.models.clinical.qc;
 
-import java.util.Map;
-
-public class CircosPlot {
+public class GenomePlot {
 
     private String id;
-    private Map<String, String> query;
-
+    private String description;
+    private GenomePlotConfig config;
     private String file;
 
-    public CircosPlot() {
+    public GenomePlot() {
     }
 
-    public CircosPlot(String id, Map<String, String> query, String file) {
+    public GenomePlot(String id, String description, GenomePlotConfig config, String file) {
         this.id = id;
-        this.query = query;
+        this.description = description;
+        this.config = config;
         this.file = file;
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("CircosPlot{");
+        final StringBuilder sb = new StringBuilder("GenomePlot{");
         sb.append("id='").append(id).append('\'');
-        sb.append(", query=").append(query);
+        sb.append(", description='").append(description).append('\'');
+        sb.append(", config=").append(config);
         sb.append(", file='").append(file).append('\'');
         sb.append('}');
         return sb.toString();
@@ -51,17 +51,26 @@ public class CircosPlot {
         return id;
     }
 
-    public CircosPlot setId(String id) {
+    public GenomePlot setId(String id) {
         this.id = id;
         return this;
     }
 
-    public Map<String, String> getQuery() {
-        return query;
+    public String getDescription() {
+        return description;
     }
 
-    public CircosPlot setQuery(Map<String, String> query) {
-        this.query = query;
+    public GenomePlot setDescription(String description) {
+        this.description = description;
+        return this;
+    }
+
+    public GenomePlotConfig getConfig() {
+        return config;
+    }
+
+    public GenomePlot setConfig(GenomePlotConfig config) {
+        this.config = config;
         return this;
     }
 
@@ -69,7 +78,7 @@ public class CircosPlot {
         return file;
     }
 
-    public CircosPlot setFile(String file) {
+    public GenomePlot setFile(String file) {
         this.file = file;
         return this;
     }
