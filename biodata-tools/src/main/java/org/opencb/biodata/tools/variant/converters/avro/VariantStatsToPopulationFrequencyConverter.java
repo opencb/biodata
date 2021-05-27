@@ -60,13 +60,13 @@ public class VariantStatsToPopulationFrequencyConverter {
                 }
                 if (anyRef && !anyAlt) {
                     refHomGenotypeFreq += entry.getValue();
-                    refHomGenotypeCount = stats.getGenotypeCount().get(entry.getKey());
+                    refHomGenotypeCount += stats.getGenotypeCount().getOrDefault(entry.getKey(), 0);
                 } else if (anyRef) {
                     hetGenotypeFreq += entry.getValue();
-                    hetGenotypeCount = stats.getGenotypeCount().get(entry.getKey());
+                    hetGenotypeCount += stats.getGenotypeCount().getOrDefault(entry.getKey(), 0);
                 } else {
                     altHomGenotypeFreq += entry.getValue();
-                    altHomGenotypeCount = stats.getGenotypeCount().get(entry.getKey());
+                    altHomGenotypeCount += stats.getGenotypeCount().getOrDefault(entry.getKey(), 0);
                 }
             }
         } else {
