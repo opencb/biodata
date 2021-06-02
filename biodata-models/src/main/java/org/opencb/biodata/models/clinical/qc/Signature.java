@@ -36,16 +36,20 @@ public class Signature {
     private GenomeContextCount[] counts;
     private List<String> files;
 
+    private SignatureFitting fitting;
+
     public Signature() {
     }
 
-    public Signature(String id, String description, ObjectMap query, String type, GenomeContextCount[] counts, List<String> files) {
+    public Signature(String id, String description, ObjectMap query, String type, GenomeContextCount[] counts, List<String> files,
+                     SignatureFitting fitting) {
         this.id = id;
         this.description = description;
         this.query = query;
         this.type = type;
         this.counts = counts;
         this.files = files;
+        this.fitting = fitting;
     }
 
     @Override
@@ -57,6 +61,7 @@ public class Signature {
         sb.append(", type='").append(type).append('\'');
         sb.append(", counts=").append(Arrays.toString(counts));
         sb.append(", files=").append(files);
+        sb.append(", fitting=").append(fitting);
         sb.append('}');
         return sb.toString();
     }
@@ -112,6 +117,15 @@ public class Signature {
 
     public Signature setFiles(List<String> files) {
         this.files = files;
+        return this;
+    }
+
+    public SignatureFitting getFitting() {
+        return fitting;
+    }
+
+    public Signature setFitting(SignatureFitting fitting) {
+        this.fitting = fitting;
         return this;
     }
 
