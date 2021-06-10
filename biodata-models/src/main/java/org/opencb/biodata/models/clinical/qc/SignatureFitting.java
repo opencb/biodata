@@ -19,21 +19,21 @@
 
 package org.opencb.biodata.models.clinical.qc;
 
-import java.util.Arrays;
+import java.util.List;
 
 public class SignatureFitting {
 
     private String method;
     private String signatureSource;
     private String signatureVersion;
-    private Score[] scores;
+    private List<Score> scores;
     private double coeff;
     private String image;
 
     public SignatureFitting() {
     }
 
-    public SignatureFitting(String method, String signatureSource, String signatureVersion, Score[] scores, double coeff, String image) {
+    public SignatureFitting(String method, String signatureSource, String signatureVersion, List<Score> scores, double coeff, String image) {
         this.method = method;
         this.signatureSource = signatureSource;
         this.signatureVersion = signatureVersion;
@@ -48,7 +48,7 @@ public class SignatureFitting {
         sb.append("method='").append(method).append('\'');
         sb.append(", signatureSource='").append(signatureSource).append('\'');
         sb.append(", signatureVersion='").append(signatureVersion).append('\'');
-        sb.append(", scores=").append(Arrays.toString(scores));
+        sb.append(", scores=").append(scores);
         sb.append(", coeff=").append(coeff);
         sb.append(", image='").append(image).append('\'');
         sb.append('}');
@@ -82,11 +82,11 @@ public class SignatureFitting {
         return this;
     }
 
-    public Score[] getScores() {
+    public List<Score> getScores() {
         return scores;
     }
 
-    public SignatureFitting setScores(Score[] scores) {
+    public SignatureFitting setScores(List<Score> scores) {
         this.scores = scores;
         return this;
     }
