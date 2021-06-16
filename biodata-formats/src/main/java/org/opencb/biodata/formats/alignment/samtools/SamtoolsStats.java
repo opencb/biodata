@@ -4,7 +4,6 @@ import java.util.List;
 
 public class SamtoolsStats {
     
-    private String fileId;
     private int rawTotalSequences;
     private int filteredSequences;
     private int sequences;
@@ -52,7 +51,6 @@ public class SamtoolsStats {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("SamtoolsStats{");
-        sb.append("fileId='").append(fileId).append('\'');
         sb.append(", rawTotalSequences=").append(rawTotalSequences);
         sb.append(", filteredSequences=").append(filteredSequences);
         sb.append(", sequences=").append(sequences);
@@ -94,15 +92,6 @@ public class SamtoolsStats {
         sb.append(", images=").append(images);
         sb.append('}');
         return sb.toString();
-    }
-
-    public String getFileId() {
-        return fileId;
-    }
-
-    public SamtoolsStats setFileId(String fileId) {
-        this.fileId = fileId;
-        return this;
     }
 
     public int getRawTotalSequences() {

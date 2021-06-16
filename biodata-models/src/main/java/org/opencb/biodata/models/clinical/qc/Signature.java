@@ -21,7 +21,6 @@ package org.opencb.biodata.models.clinical.qc;
 
 import org.opencb.commons.datastore.core.ObjectMap;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class Signature {
@@ -33,19 +32,23 @@ public class Signature {
      * Variant type, e.g. SNV, INDEL, ...
      */
     private String type;
-    private GenomeContextCount[] counts;
+    private List<GenomeContextCount> counts;
     private List<String> files;
+
+    private SignatureFitting fitting;
 
     public Signature() {
     }
 
-    public Signature(String id, String description, ObjectMap query, String type, GenomeContextCount[] counts, List<String> files) {
+    public Signature(String id, String description, ObjectMap query, String type, List<GenomeContextCount> counts, List<String> files,
+                     SignatureFitting fitting) {
         this.id = id;
         this.description = description;
         this.query = query;
         this.type = type;
         this.counts = counts;
         this.files = files;
+        this.fitting = fitting;
     }
 
     @Override
@@ -55,8 +58,9 @@ public class Signature {
         sb.append(", description='").append(description).append('\'');
         sb.append(", query=").append(query);
         sb.append(", type='").append(type).append('\'');
-        sb.append(", counts=").append(Arrays.toString(counts));
+        sb.append(", counts=").append(counts);
         sb.append(", files=").append(files);
+        sb.append(", fitting=").append(fitting);
         sb.append('}');
         return sb.toString();
     }
@@ -97,11 +101,11 @@ public class Signature {
         return this;
     }
 
-    public GenomeContextCount[] getCounts() {
+    public List<GenomeContextCount> getCounts() {
         return counts;
     }
 
-    public Signature setCounts(GenomeContextCount[] counts) {
+    public Signature setCounts(List<GenomeContextCount> counts) {
         this.counts = counts;
         return this;
     }
@@ -112,6 +116,15 @@ public class Signature {
 
     public Signature setFiles(List<String> files) {
         this.files = files;
+        return this;
+    }
+
+    public SignatureFitting getFitting() {
+        return fitting;
+    }
+
+    public Signature setFitting(SignatureFitting fitting) {
+        this.fitting = fitting;
         return this;
     }
 
