@@ -41,6 +41,11 @@ public class VariantStatsToPopulationFrequencyConverter {
         Float hetGenotypeFreq = 0F;
         Float altHomGenotypeFreq = 0F;
 
+        Integer refHomGenotypeCount = 0;
+        Integer hetGenotypeCount = 0;
+        Integer altHomGenotypeCount = 0;
+
+        // This code assumes that if genotypeFreq exists then genotypeCount is also valid
         if (stats.getGenotypeFreq() != null && !stats.getGenotypeFreq().isEmpty()) {
             for (Map.Entry<String, Float> entry : stats.getGenotypeFreq().entrySet()) {
                 Genotype gt = new Genotype(entry.getKey());
@@ -55,16 +60,23 @@ public class VariantStatsToPopulationFrequencyConverter {
                 }
                 if (anyRef && !anyAlt) {
                     refHomGenotypeFreq += entry.getValue();
-                } else if (anyRef && anyAlt) {
+                    refHomGenotypeCount += stats.getGenotypeCount().getOrDefault(entry.getKey(), 0);
+                } else if (anyRef) {
                     hetGenotypeFreq += entry.getValue();
+                    hetGenotypeCount += stats.getGenotypeCount().getOrDefault(entry.getKey(), 0);
                 } else {
                     altHomGenotypeFreq += entry.getValue();
+                    altHomGenotypeCount += stats.getGenotypeCount().getOrDefault(entry.getKey(), 0);
                 }
             }
         } else {
             refHomGenotypeFreq = null;
             hetGenotypeFreq = null;
             altHomGenotypeFreq = null;
+
+            refHomGenotypeCount = null;
+            hetGenotypeCount = null;
+            altHomGenotypeCount = null;
         }
 
         return new PopulationFrequency(
@@ -74,7 +86,9 @@ public class VariantStatsToPopulationFrequencyConverter {
                 alternate,
                 stats.getRefAlleleFreq(),
                 stats.getAltAlleleFreq(),
-                refHomGenotypeFreq, hetGenotypeFreq, altHomGenotypeFreq);
+                stats.getRefAlleleCount(), stats.getAltAlleleCount(),
+                refHomGenotypeFreq, hetGenotypeFreq, altHomGenotypeFreq,
+                refHomGenotypeCount, hetGenotypeCount, altHomGenotypeCount);
     }
 
 }

@@ -85,7 +85,7 @@ public class VariantNormalizerExtensionFileToSample extends VariantNormalizerExt
             return;
         }
 
-        if (study.getSampleDataKeySet().contains(sampleDataKey)) {
+        if (!study.getSampleDataKeySet().contains(sampleDataKey)) {
             study.addSampleDataKey(sampleDataKey);
         }
 

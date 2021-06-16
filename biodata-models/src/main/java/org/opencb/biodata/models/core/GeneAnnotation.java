@@ -22,6 +22,8 @@ package org.opencb.biodata.models.core;
 import org.opencb.biodata.models.variant.avro.Expression;
 import org.opencb.biodata.models.variant.avro.GeneDrugInteraction;
 import org.opencb.biodata.models.variant.avro.GeneTraitAssociation;
+import org.opencb.biodata.models.variant.avro.Constraint;
+
 
 import java.util.List;
 
@@ -32,28 +34,41 @@ public class GeneAnnotation {
     private List<GeneTraitAssociation> diseases;
     private List<GeneDrugInteraction> drugs;
     private List<Constraint> constraints;
-    private List<MiRnaTarget> targets;
+    private List<MirnaTarget> mirnaTargets;
+    private List<GeneCancerAssociation> cancerAssociations;
 
     public GeneAnnotation() {
     }
 
+    @Deprecated
     public GeneAnnotation(List<Expression> expression, List<GeneTraitAssociation> diseases,
-                          List<GeneDrugInteraction> drugs, List<Constraint> constraints, List<MiRnaTarget> targets) {
+                          List<GeneDrugInteraction> drugs, List<Constraint> constraints, List<MirnaTarget> mirnaTargets) {
         this.expression = expression;
         this.diseases = diseases;
         this.drugs = drugs;
         this.constraints = constraints;
-        this.targets = targets;
+        this.mirnaTargets = mirnaTargets;
+    }
+
+    public GeneAnnotation(List<Expression> expression, List<GeneTraitAssociation> diseases, List<GeneDrugInteraction> drugs,
+                          List<Constraint> constraints, List<MirnaTarget> mirnaTargets, List<GeneCancerAssociation> cancerAssociations) {
+        this.expression = expression;
+        this.diseases = diseases;
+        this.drugs = drugs;
+        this.constraints = constraints;
+        this.mirnaTargets = mirnaTargets;
+        this.cancerAssociations = cancerAssociations;
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("GeneAnnotation{");
         sb.append("expression=").append(expression);
-        sb.append(", geneTraits=").append(diseases);
+        sb.append(", diseases=").append(diseases);
         sb.append(", drugs=").append(drugs);
         sb.append(", constraints=").append(constraints);
-        sb.append(", targets=").append(targets);
+        sb.append(", mirnaTargets=").append(mirnaTargets);
+        sb.append(", cancerAssociations=").append(cancerAssociations);
         sb.append('}');
         return sb.toString();
     }
@@ -94,12 +109,21 @@ public class GeneAnnotation {
         return this;
     }
 
-    public List<MiRnaTarget> getTargets() {
-        return targets;
+    public List<MirnaTarget> getMirnaTargets() {
+        return mirnaTargets;
     }
 
-    public GeneAnnotation setTargets(List<MiRnaTarget> targets) {
-        this.targets = targets;
+    public GeneAnnotation setMirnaTargets(List<MirnaTarget> mirnaTargets) {
+        this.mirnaTargets = mirnaTargets;
+        return this;
+    }
+
+    public List<GeneCancerAssociation> getCancerAssociations() {
+        return cancerAssociations;
+    }
+
+    public GeneAnnotation setCancerAssociations(List<GeneCancerAssociation> cancerAssociations) {
+        this.cancerAssociations = cancerAssociations;
         return this;
     }
 }

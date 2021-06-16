@@ -20,8 +20,9 @@
 package org.opencb.biodata.formats.variant.clinvar;
 
 import org.junit.Test;
-import org.opencb.biodata.formats.variant.clinvar.v59jaxb.PublicSetType;
-import org.opencb.biodata.formats.variant.clinvar.v59jaxb.ReleaseType;
+import org.opencb.biodata.formats.variant.clinvar.rcv.ClinvarParser;
+import org.opencb.biodata.formats.variant.clinvar.rcv.v64jaxb.PublicSetType;
+import org.opencb.biodata.formats.variant.clinvar.rcv.v64jaxb.ReleaseType;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -32,8 +33,8 @@ public class ClinvarParserTest {
     @Test
     public void loadXMLInfo() {
         try {
-            JAXBElement<ReleaseType> objectFactory = (JAXBElement<ReleaseType>)ClinvarParser
-                    .loadXMLInfo("/home/imedina/Downloads/ClinVarFullRelease_00-latest.xml.gz", ClinvarParser.CLINVAR_CONTEXT_v59);
+            JAXBElement<ReleaseType> objectFactory = (JAXBElement<ReleaseType>) ClinvarParser
+                    .loadXMLInfo("/home/imedina/Downloads/ClinVarFullRelease_00-latest.xml.gz", ClinvarParser.CLINVAR_CONTEXT_v64);
             for (PublicSetType publicSetType : objectFactory.getValue().getClinVarSet()) {
                 System.out.println("publicSetType.getTitle() = " + publicSetType.getTitle());
                 break;

@@ -6,13 +6,14 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
 public class FastQcParser {
 
-    public static FastQc parse(File file) throws IOException {
-        FastQc fastQc = new FastQc();
+    public static FastQcMetrics parse(File file) throws IOException {
+        FastQcMetrics fastQcMetrics = new FastQcMetrics();
 
         FileReader fr = new FileReader(file);
 
@@ -24,51 +25,60 @@ public class FastQcParser {
         String line;
 
         while ((line = br.readLine()) != null) {
-            if (line.startsWith(">>")) {
+            if (line.startsWith(">>") && !line.contains("END_MODULE")) {
                 String status = line.split("\t")[1].toUpperCase();
                 if (line.startsWith(">>Basic Statistics")) {
-                    fastQc.getSummary().setBasicStatistics(status);
-                    parseBasicStatistics(fastQc.getBasicStats(), br);
+                    fastQcMetrics.getSummary().setBasicStatistics(status);
+                    parseBasicStatistics(fastQcMetrics.getBasicStats(), br);
                 } else if (line.startsWith(">>Per base sequence quality")) {
-                    fastQc.getSummary().setPerBaseSeqQuality(status);
-                    parsePerBaseSeqQuality(fastQc.getPerBaseSeqQuality(), br);
+                    fastQcMetrics.getSummary().setPerBaseSeqQuality(status);
+//                    parsePerBaseSeqQuality(fastQc.getPerBaseSeqQuality(), br);
                 } else if (line.startsWith(">>Per tile sequence quality")) {
-                    fastQc.getSummary().setPerTileSeqQuality(status);
-                    parsePerTileSeqQuality(fastQc.getPerTileSeqQuality(), br);
+                    fastQcMetrics.getSummary().setPerTileSeqQuality(status);
+//                    parsePerTileSeqQuality(fastQc.getPerTileSeqQuality(), br);
                 } else if (line.startsWith(">>Per sequence quality scores")) {
-                    fastQc.getSummary().setPerSeqQualityScores(status);
-                    parsePerSeqQualityScores(fastQc.getPerSeqQualityScore(), br);
+                    fastQcMetrics.getSummary().setPerSeqQualityScores(status);
+//                    parsePerSeqQualityScores(fastQc.getPerSeqQualityScore(), br);
                 } else if (line.startsWith(">>Per base sequence content")) {
-                    fastQc.getSummary().setPerBaseSeqContent(status);
-                    parsePerBaseSeqContent(fastQc.getPerBaseSeqContent(), br);
+                    fastQcMetrics.getSummary().setPerBaseSeqContent(status);
+//                    parsePerBaseSeqContent(fastQc.getPerBaseSeqContent(), br);
                 } else if (line.startsWith(">>Per sequence GC content")) {
-                    fastQc.getSummary().setPerSeqGcContent(status);
-                    parsePerSeqGcContent(fastQc.getPerSeqGcContent(), br);
+                    fastQcMetrics.getSummary().setPerSeqGcContent(status);
+//                    parsePerSeqGcContent(fastQc.getPerSeqGcContent(), br);
                 } else if (line.startsWith(">>Per base N content")) {
-                    fastQc.getSummary().setPerBaseNContent(status);
-                    parsePerBaseNContent(fastQc.getPerBaseNContent(), br);
+                    fastQcMetrics.getSummary().setPerBaseNContent(status);
+//                    parsePerBaseNContent(fastQc.getPerBaseNContent(), br);
                 } else if (line.startsWith(">>Sequence Length Distribution")) {
-                    fastQc.getSummary().setSeqLengthDistribution(status);
-                    parseSeqLengthDistribution(fastQc.getSeqLengthDistribution(), br);
+                    fastQcMetrics.getSummary().setSeqLengthDistribution(status);
+//                    parseSeqLengthDistribution(fastQc.getSeqLengthDistribution(), br);
                 } else if (line.startsWith(">>Sequence Duplication Levels")) {
-                    fastQc.getSummary().setSeqDuplicationLevels(status);
-                    parseSeqDuplicationLevels(fastQc.getSeqDuplicationLevel(), br);
+                    fastQcMetrics.getSummary().setSeqDuplicationLevels(status);
+//                    parseSeqDuplicationLevels(fastQc.getSeqDuplicationLevel(), br);
                 } else if (line.startsWith(">>Overrepresented sequences")) {
-                    fastQc.getSummary().setOverrepresentedSeqs(status);
-                    parseOverrepresentedSeqs(fastQc.getOverrepresentedSeq(), br);
+                    fastQcMetrics.getSummary().setOverrepresentedSeqs(status);
+//                    parseOverrepresentedSeqs(fastQc.getOverrepresentedSeq(), br);
                 } else if (line.startsWith(">>Adapter Content")) {
-                    fastQc.getSummary().setAdapterContent(status);
-                    parseAdapterContent(fastQc.getAdapterContent(), br);
+                    fastQcMetrics.getSummary().setAdapterContent(status);
+//                    parseAdapterContent(fastQc.getAdapterContent(), br);
                 } else if (line.startsWith(">>Kmer Content")) {
-                    fastQc.getSummary().setKmerContent(status);
-                    parseKmerContent(fastQc.getKmerContent(), br);
+                    fastQcMetrics.getSummary().setKmerContent(status);
+//                    parseKmerContent(fastQc.getKmerContent(), br);
                 }
             }
         }
         fr.close();
 
-        return fastQc;
+        return fastQcMetrics;
+    }
 
+    public static void addImages(Path path, FastQcMetrics fastQcMetrics) throws IOException {
+        if (path.toFile().exists() && path.toFile().isDirectory()) {
+            for (File imgFile : path.toFile().listFiles()) {
+                if (imgFile.isFile() && imgFile.getName().endsWith("png")) {
+                    fastQcMetrics.getImages().add(imgFile.getAbsolutePath());
+                }
+            }
+        }
     }
 
     private static void parseKmerContent(KmerContent kmerContent, BufferedReader br) throws IOException {

@@ -40,17 +40,16 @@ public class Transcript implements Serializable {
 	private int cdnaCodingStart;
 	private int cdnaCodingEnd;
 	private int cdsLength;
-	private String cDnaSequence;
+	private String cdnaSequence;
 	private String proteinId;
 	private String proteinSequence;
 	private String description;
 	private String version;
 	private String source;
-	private String supportLevel;
 	private List<Exon> exons;
 	private List<Xref> xrefs;
 	private List<TranscriptTfbs> tfbs;
-	private Set<String> annotationFlags;
+	private Set<String> flags;
 	private TranscriptAnnotation annotation;
 
 	private static final long serialVersionUID = 2069002722080532350L;
@@ -84,10 +83,11 @@ public class Transcript implements Serializable {
 		this.annotation = annotation;
 	}
 
+	@Deprecated
 	public Transcript(String id, String name, String chromosome, int start, int end, String strand, String biotype, String status,
 					  int genomicCodingStart, int genomicCodingEnd, int cdnaCodingStart, int cdnaCodingEnd, int cdsLength,
-					  String cDnaSequence, String proteinId, String proteinSequence, String description, List<Exon> exons,
-					  List<Xref> xrefs, List<TranscriptTfbs> tfbs, Set<String> annotationFlags, TranscriptAnnotation annotation) {
+					  String cdnaSequence, String proteinId, String proteinSequence, String description, List<Exon> exons,
+					  List<Xref> xrefs, List<TranscriptTfbs> tfbs, Set<String> flags, TranscriptAnnotation annotation) {
 		this.id = id;
 		this.name = name;
 		this.chromosome = chromosome;
@@ -101,19 +101,20 @@ public class Transcript implements Serializable {
 		this.cdnaCodingStart = cdnaCodingStart;
 		this.cdnaCodingEnd = cdnaCodingEnd;
 		this.cdsLength = cdsLength;
-		this.cDnaSequence = cDnaSequence;
+		this.cdnaSequence = cdnaSequence;
 		this.proteinId = proteinId;
 		this.proteinSequence = proteinSequence;
 		this.description = description;
 		this.exons = exons;
 		this.xrefs = xrefs;
 		this.tfbs = tfbs;
-		this.annotationFlags = annotationFlags;
+		this.flags = flags;
 		this.annotation = annotation;
 	}
 
+	@Deprecated
 	public Transcript(String id, String name, String biotype, String status, String source, String chromosome, Integer start, Integer end,
-					  String strand, String version, String supportLevel, Integer codingRegionStart, Integer codingRegionEnd,
+					  String strand, String version, Integer codingRegionStart, Integer codingRegionEnd,
 					  Integer cdnaCodingStart, Integer cdnaCodingEnd, Integer cdsLength, String proteinId, String description,
 					  List<Xref> xrefs, List<Exon> exons, List<TranscriptTfbs> tfbs, TranscriptAnnotation annotation) {
 		this.id = id;
@@ -126,7 +127,6 @@ public class Transcript implements Serializable {
 		this.strand = strand;
 		this.version = version;
 		this.source = source;
-		this.supportLevel = supportLevel;
 		this.genomicCodingStart = codingRegionStart;
 		this.genomicCodingEnd = codingRegionEnd;
 		this.cdnaCodingStart = cdnaCodingStart;
@@ -140,12 +140,42 @@ public class Transcript implements Serializable {
 		this.annotation = annotation;
 	}
 
+	public Transcript(String id, String name, String chromosome, int start, int end, String strand, String biotype, String status,
+					  int genomicCodingStart, int genomicCodingEnd, int cdnaCodingStart, int cdnaCodingEnd, int cdsLength,
+					  String cdnaSequence, String proteinId, String proteinSequence, String description, String version, String source,
+					  List<Exon> exons, List<Xref> xrefs, List<TranscriptTfbs> tfbs, Set<String> flags, TranscriptAnnotation annotation) {
+		this.id = id;
+		this.name = name;
+		this.chromosome = chromosome;
+		this.start = start;
+		this.end = end;
+		this.strand = strand;
+		this.biotype = biotype;
+		this.status = status;
+		this.genomicCodingStart = genomicCodingStart;
+		this.genomicCodingEnd = genomicCodingEnd;
+		this.cdnaCodingStart = cdnaCodingStart;
+		this.cdnaCodingEnd = cdnaCodingEnd;
+		this.cdsLength = cdsLength;
+		this.cdnaSequence = cdnaSequence;
+		this.proteinId = proteinId;
+		this.proteinSequence = proteinSequence;
+		this.description = description;
+		this.version = version;
+		this.source = source;
+		this.exons = exons;
+		this.xrefs = xrefs;
+		this.tfbs = tfbs;
+		this.flags = flags;
+		this.annotation = annotation;
+	}
+
 	public boolean unconfirmedStart() {
-		return (this.getAnnotationFlags() != null && this.getAnnotationFlags().contains("cds_start_NF"));
+		return (this.getFlags() != null && this.getFlags().contains("cds_start_NF"));
 	}
 
 	public boolean unconfirmedEnd() {
-		return (this.getAnnotationFlags() != null && this.getAnnotationFlags().contains("cds_end_NF"));
+		return (this.getFlags() != null && this.getFlags().contains("cds_end_NF"));
 	}
 
 	@Override
@@ -164,17 +194,16 @@ public class Transcript implements Serializable {
 		sb.append(", cdnaCodingStart=").append(cdnaCodingStart);
 		sb.append(", cdnaCodingEnd=").append(cdnaCodingEnd);
 		sb.append(", cdsLength=").append(cdsLength);
-		sb.append(", cDnaSequence='").append(cDnaSequence).append('\'');
+		sb.append(", cdnaSequence='").append(cdnaSequence).append('\'');
 		sb.append(", proteinId='").append(proteinId).append('\'');
 		sb.append(", proteinSequence='").append(proteinSequence).append('\'');
 		sb.append(", description='").append(description).append('\'');
 		sb.append(", version=").append(version);
 		sb.append(", source='").append(source).append('\'');
-		sb.append(", supportLevel='").append(supportLevel).append('\'');
 		sb.append(", exons=").append(exons);
 		sb.append(", xrefs=").append(xrefs);
 		sb.append(", tfbs=").append(tfbs);
-		sb.append(", annotationFlags=").append(annotationFlags);
+		sb.append(", annotationFlags=").append(flags);
 		sb.append(", annotation=").append(annotation);
 		sb.append('}');
 		return sb.toString();
@@ -270,15 +299,6 @@ public class Transcript implements Serializable {
 		return this;
 	}
 
-	public String getSupportLevel() {
-		return supportLevel;
-	}
-
-	public Transcript setSupportLevel(String supportLevel) {
-		this.supportLevel = supportLevel;
-		return this;
-	}
-
 	public int getGenomicCodingStart() {
 		return genomicCodingStart;
 	}
@@ -351,12 +371,12 @@ public class Transcript implements Serializable {
 		return this;
 	}
 
-	public String getcDnaSequence() {
-		return cDnaSequence;
+	public String getCdnaSequence() {
+		return cdnaSequence;
 	}
 
-	public Transcript setcDnaSequence(String cDnaSequence) {
-		this.cDnaSequence = cDnaSequence;
+	public Transcript setCdnaSequence(String cdnaSequence) {
+		this.cdnaSequence = cdnaSequence;
 		return this;
 	}
 
@@ -387,12 +407,12 @@ public class Transcript implements Serializable {
 		return this;
 	}
 
-	public Set<String> getAnnotationFlags() {
-		return annotationFlags;
+	public Set<String> getFlags() {
+		return flags;
 	}
 
-	public Transcript setAnnotationFlags(Set<String> annotationFlags) {
-		this.annotationFlags = annotationFlags;
+	public Transcript setFlags(Set<String> flags) {
+		this.flags = flags;
 		return this;
 	}
 
@@ -424,21 +444,23 @@ public class Transcript implements Serializable {
 				Objects.equals(getStrand(), that.getStrand()) &&
 				Objects.equals(getBiotype(), that.getBiotype()) &&
 				Objects.equals(getStatus(), that.getStatus()) &&
-				Objects.equals(getcDnaSequence(), that.getcDnaSequence()) &&
+				Objects.equals(getCdnaSequence(), that.getCdnaSequence()) &&
 				Objects.equals(getProteinId(), that.getProteinId()) &&
 				Objects.equals(getProteinSequence(), that.getProteinSequence()) &&
 				Objects.equals(getDescription(), that.getDescription()) &&
 				Objects.equals(getSource(), that.getSource()) &&
-				Objects.equals(getSupportLevel(), that.getSupportLevel()) &&
 				Objects.equals(getExons(), that.getExons()) &&
 				Objects.equals(getXrefs(), that.getXrefs()) &&
 				Objects.equals(getTfbs(), that.getTfbs()) &&
-				Objects.equals(getAnnotationFlags(), that.getAnnotationFlags()) &&
+				Objects.equals(getFlags(), that.getFlags()) &&
 				Objects.equals(getAnnotation(), that.getAnnotation());
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(getId(), getName(), getChromosome(), getStart(), getEnd(), getStrand(), getBiotype(), getStatus(), getGenomicCodingStart(), getGenomicCodingEnd(), getCdnaCodingStart(), getCdnaCodingEnd(), getCdsLength(), getcDnaSequence(), getProteinId(), getProteinSequence(), getDescription(), getVersion(), getSource(), getSupportLevel(), getExons(), getXrefs(), getTfbs(), getAnnotationFlags(), getAnnotation());
+		return Objects.hash(getId(), getName(), getChromosome(), getStart(), getEnd(), getStrand(), getBiotype(), getStatus(),
+				getGenomicCodingStart(), getGenomicCodingEnd(), getCdnaCodingStart(), getCdnaCodingEnd(), getCdsLength(),
+				getCdnaSequence(), getProteinId(), getProteinSequence(), getDescription(), getVersion(), getSource(), getExons(),
+				getXrefs(), getTfbs(), getFlags(), getAnnotation());
 	}
 }

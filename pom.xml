@@ -20,7 +20,7 @@
 
     <groupId>org.opencb.biodata</groupId>
     <artifactId>biodata</artifactId>
-    <version>2.0.5</version>
+    <version>2.1.0</version>
     <packaging>pom</packaging>
 
     <name>Biodata</name>
@@ -34,13 +34,13 @@
     </modules>
 
     <properties>
-        <biodata.version>2.0.5</biodata.version>
-        <commons.version>4.0.5</commons.version>
-        <ga4gh.version>0.6.0a5</ga4gh.version>
+        <biodata.version>2.1.0</biodata.version>
+        <commons.version>4.1.0</commons.version>
+        <collections.version>4.4</collections.version>
         <avro.version>1.7.7</avro.version>
         <protobuf.version>3.9.0</protobuf.version>
         <grpc.version>1.23.0</grpc.version>
-        <htsjdk.version>2.21.3</htsjdk.version>
+        <htsjdk.version>2.23.0</htsjdk.version>
         <slf4j.version>1.7.25</slf4j.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <compileSource>1.8</compileSource>
@@ -149,11 +149,6 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            <dependency>
-                <groupId>org.opencb.ga4gh</groupId>
-                <artifactId>ga4gh</artifactId>
-                <version>${ga4gh.version}</version>
-            </dependency>
 
             <dependency>
                 <groupId>com.github.samtools</groupId>
@@ -164,6 +159,11 @@
                 <groupId>org.apache.avro</groupId>
                 <artifactId>avro</artifactId>
                 <version>${avro.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-collections4</artifactId>
+                <version>${collections.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.protobuf</groupId>
@@ -228,7 +228,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.6.0</version>
+                <version>3.8.1</version>
                 <configuration>
                     <source>${compileSource}</source>
                     <target>${compileSource}</target>

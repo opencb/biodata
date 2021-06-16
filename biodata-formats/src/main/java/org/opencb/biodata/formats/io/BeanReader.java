@@ -16,7 +16,7 @@
 
 package org.opencb.biodata.formats.io;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.opencb.commons.utils.FileUtils;
 
 import java.io.BufferedReader;

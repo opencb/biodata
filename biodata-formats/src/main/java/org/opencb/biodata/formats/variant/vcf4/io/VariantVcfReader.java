@@ -41,6 +41,7 @@ import java.util.zip.GZIPInputStream;
  * @author Alejandro Aleman Ramos &lt;aaleman@cipf.es&gt;
  * @author Cristina Yenyxe Gonzalez Garcia &lt;cyenyxe@ebi.ac.uk&gt;
  */
+@Deprecated
 public class VariantVcfReader implements VariantReader {
 
     private Vcf4 vcf4;

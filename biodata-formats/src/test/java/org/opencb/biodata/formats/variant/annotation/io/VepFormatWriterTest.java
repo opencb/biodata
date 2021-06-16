@@ -21,7 +21,6 @@ package org.opencb.biodata.formats.variant.annotation.io;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
-import org.mortbay.util.ajax.JSON;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.VariantAvro;
 import org.opencb.commons.utils.FileUtils;
@@ -39,8 +38,8 @@ import static org.junit.Assert.assertEquals;
 public class VepFormatWriterTest {
     @Test
     public void write() throws Exception {
-        BufferedReader bufferedReader = FileUtils.newBufferedReader(Paths.get(getClass()
-                .getResource("/variant-test.json.gz").getPath()));
+        BufferedReader bufferedReader = FileUtils
+                .newBufferedReader(Paths.get(getClass().getResource("/variant-test.json.gz").getPath()));
         ObjectMapper jsonObjectMapper;
         jsonObjectMapper = new ObjectMapper();
 //        jsonObjectMapper.configure(MapperFeature.REQUIRE_SETTERS_FOR_GETTERS, true);
@@ -50,7 +49,8 @@ public class VepFormatWriterTest {
         String line = bufferedReader.readLine();
         List<Variant> variantList = new ArrayList<>(3);
         while (line != null) {
-            Variant variant = new Variant(jsonObjectMapper.convertValue(JSON.parse(line), VariantAvro.class));
+//            Variant variant = new Variant(jsonObjectMapper.convertValue(JSON.parse(line), VariantAvro.class));
+            Variant variant = new Variant(jsonObjectMapper.readValue(line, VariantAvro.class));
             variantList.add(variant);
             line = bufferedReader.readLine();
         }

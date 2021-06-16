@@ -5,40 +5,9 @@ protocol VariantAnnotations {
 
     import idl "evidence.avdl";
 
+    // DEPRECATED: to be removed next release
+    @javaAnnotation("Deprecated")
     enum ExpressionCall {UP, DOWN}
-
-    record ClinVar {
-        union { null, string } accession;
-        union { null, string } clinicalSignificance;
-        union { null, array<string> } traits;
-        union { null, array<string> } geneNames;
-        union { null, string } reviewStatus;
-    }
-
-    record Gwas {
-        union { null, string } snpIdCurrent;
-        union { null, array<string> } traits;
-        union { null, double } riskAlleleFrequency;
-        union { null, string } reportedGenes;
-    }
-
-    record Cosmic {
-        union { null, string } mutationId;
-        union { null, string } primarySite;
-        union { null, string } siteSubtype;
-        union { null, string } primaryHistology;
-        union { null, string } histologySubtype;
-        union { null, string } sampleSource;
-        union { null, string } tumourOrigin;
-        union { null, string } geneName;
-        union { null, string } mutationSomaticStatus;
-    }
-
-    record VariantTraitAssociation {
-        union { null, array<ClinVar> } clinvar;
-        union { null, array<Gwas> } gwas;
-        union { null, array<Cosmic> } cosmic;
-    }
 
     record GeneDrugInteraction {
         union { null, string } geneName;
@@ -62,6 +31,19 @@ protocol VariantAnnotations {
         union { null, float } pvalue;
     }
 
+    record Constraint {
+        union { null, string } source;
+        union { null, string } method;
+        union { null, string } name;
+        union { null, double } value;
+    }
+
+    record GeneMirnaTarget {
+        union { null, string } id;
+        union { null, string } name;
+        union { null, string } biotype;
+    }
+
     record GeneTraitAssociation {
         string id;
         string name;
@@ -80,9 +62,14 @@ protocol VariantAnnotations {
         string altAllele;
         float refAlleleFreq;
         float altAlleleFreq;
+        union { null, int } refAlleleCount;
+        union { null, int } altAlleleCount;
         union { null, float } refHomGenotypeFreq;
         union { null, float } hetGenotypeFreq;
         union { null, float } altHomGenotypeFreq;
+        union { null, int } refHomGenotypeCount;
+        union { null, int } hetGenotypeCount;
+        union { null, int } altHomGenotypeCount;
     }
 
     record SequenceOntologyTerm {
@@ -107,8 +94,8 @@ protocol VariantAnnotations {
     record ProteinVariantAnnotation {
         union { null, string } uniprotAccession = null;
         union { null, string } uniprotName = null;
-        int position;
-        //string aaChange;
+        union { null, string } proteinId = null;    // Ensembl or RefSeq protein ID
+        union { null, int } position;
         union { null, string } reference;
         union { null, string } alternate;
         union { null, string } uniprotVariantId;
@@ -124,13 +111,27 @@ protocol VariantAnnotations {
     }
 
     record ConsequenceType {
+        union { null, string } geneId;
         union { null, string } geneName;
+
+        // DEPRECATED: duplicate of geneId, to be removed next release
+        @javaAnnotation("Deprecated")
         union { null, string } ensemblGeneId;
+        // DEPRECATED: duplicate of transcriptId, to be removed next release
+        @javaAnnotation("Deprecated")
         union { null, string } ensemblTranscriptId;
+
+        union { null, string } transcriptId;    // Ensembl or RefSeq ID depending on field 'source'
         union { null, string } strand;
         union { null, string } biotype;
+        union { null, string } source;
         union { null, array<ExonOverlap> } exonOverlap;
+
+        // DEPRECATED: replaced by transcriptFlags
+        @javaAnnotation("Deprecated")
         union { null, array<string> } transcriptAnnotationFlags;
+
+        union { null, array<string> } transcriptFlags;
         union { null, int } cdnaPosition;
         union { null, int } cdsPosition;
         union { null, string } codon;
@@ -175,6 +176,22 @@ protocol VariantAnnotations {
         union { null, array<string> } bibliography;
     }
 
+    record GeneCancerAssociation {
+        union { null, string } id;
+        union { null, string } source;
+        union { null, string } tier;
+        union { null, boolean } somatic;
+        union { null, boolean } germline;
+        union { null, array<string> } somaticTumourTypes;
+        union { null, array<string> } germlineTumourTypes;
+        union { null, array<string> } syndromes;
+        union { null, array<string> } tissues;
+        union { null, array<string> } modeOfInheritance;
+        union { null, array<string> } roleInCancer;
+        union { null, array<string> } mutationTypes;
+        union { null, array<string> } translocationPartners;
+    }
+
     record AdditionalAttribute {
         map<string> attribute;
     }
@@ -185,7 +202,11 @@ protocol VariantAnnotations {
         union { null, int } end;
         union { null, string } reference;
         union { null, string } alternate;
+
+        // DEPRECATED: to be removed next release
+        @javaAnnotation("Deprecated")
         union { null, string } ancestralAllele;
+
         union { null, string } id;
         union { null, array<Xref> } xrefs;
         union { null, array<string> } hgvs;
@@ -195,10 +216,16 @@ protocol VariantAnnotations {
         union { null, string } minorAllele;
         union { null, float } minorAlleleFreq;
         union { null, array<Score> } conservation;
+
+        // DEPRECATED: to be removed next release
+        @javaAnnotation("Deprecated")
         union { null, array<Expression> } geneExpression;
+
         union { null, array<GeneTraitAssociation> } geneTraitAssociation;
         union { null, array<GeneDrugInteraction> } geneDrugInteraction;
-        union { null, VariantTraitAssociation } variantTraitAssociation;
+        union { null, array<Constraint> } geneConstraints;
+        union { null, array<GeneMirnaTarget> } geneMirnaTargets;
+        union { null, array<GeneCancerAssociation> } geneCancerAssociations;
         union { null, array<EvidenceEntry> } traitAssociation;
         union { null, array<Score> } functionalScore;
         union { null, array<Cytoband> } cytoband;

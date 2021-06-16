@@ -19,17 +19,11 @@
 
 package org.opencb.biodata.formats.variant.annotation.io;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.formats.variant.vcf4.io.VariantVcfReader;
-//import org.opencb.biodata.models.variant.annotation.ConsequenceType;
-//import org.opencb.biodata.models.variant.annotation.Score;
-//import org.opencb.biodata.models.variant.annotation.VariantAnnotation;
 import org.opencb.biodata.models.variant.annotation.ConsequenceTypeMappings;
-import org.opencb.biodata.models.variant.annotation.ProteinSubstitutionScores;
 import org.opencb.biodata.models.variant.avro.*;
-//import org.opencb.biodata.models.variation.PopulationFrequency;
-//import org.opencb.biodata.models.variant.annotation.ProteinVariantAnnotation;
 import org.opencb.commons.io.DataReader;
 
 import java.io.BufferedReader;
@@ -40,7 +34,6 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.ParseException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;

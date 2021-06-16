@@ -20,7 +20,7 @@
 package org.opencb.biodata.models.core;
 
 import java.util.List;
-
+import org.opencb.biodata.models.variant.avro.Constraint;
 
 public class TranscriptAnnotation {
 

@@ -1,10 +1,11 @@
 package org.opencb.biodata.tools.variant.normalizer.extensions;
 
-import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantFileHeaderComplexLine;
 import org.opencb.commons.run.Task;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -13,9 +14,14 @@ import java.util.Set;
 
 public class VariantNormalizerExtensionFactory {
 
+    private final Logger logger = LoggerFactory.getLogger(VariantNormalizerExtensionFactory.class);
+
     public static final Set<String> ALL_EXTENSIONS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
             "FILE_DP_TO_SAMPLE",
-            "SAMPLE_DP_TO_FORMAT"
+            "SAMPLE_DP_TO_FORMAT",
+            "VAF",
+            "SV",
+            "CUSTOM"
     )));
     private final Set<String> enabledExtensions;
 
@@ -27,9 +33,8 @@ public class VariantNormalizerExtensionFactory {
         this.enabledExtensions = enabledExtensions;
     }
 
-
     public Task<Variant, Variant> buildExtensions(VariantFileMetadata fileMetadata) {
-        Task<Variant, Variant> extensions = null;
+        Task<Variant, Variant> extensionTask = null;
         for (String normalizerExtension : enabledExtensions) {
             VariantNormalizerExtension extension;
             switch (normalizerExtension) {
@@ -48,19 +53,32 @@ public class VariantNormalizerExtensionFactory {
                                 return String.valueOf(dp);
                             });
                     break;
+                case "VAF":
+                    extension = new VafVariantNormalizerExtension();
+                    break;
+                case "SV":
+                    extension = new SvVariantNormalizerExtension();
+                    break;
+                case "CUSTOM":
+                    extension = new CustomNormalizerExtension();
+                    break;
                 default:
                     throw new IllegalArgumentException("Unknown normalizer extension " + normalizerExtension);
             }
+
+            // Init the extension
+            extension.init(fileMetadata);
+            // Check is the extension can be applied
             if (extension.canUseExtension(fileMetadata)) {
-                extension.init(fileMetadata);
-                if (extensions == null) {
-                    extensions = extension;
+                logger.info("Using VariantNormalizerExtension : " + normalizerExtension);
+                if (extensionTask == null) {
+                    extensionTask = extension;
                 } else {
-                    extensions = extensions.then(extension);
+                    extensionTask = extensionTask.then(extension);
                 }
             }
         }
-        return extensions;
+        return extensionTask;
     }
 
 }

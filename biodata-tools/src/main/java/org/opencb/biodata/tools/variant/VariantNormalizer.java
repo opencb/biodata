@@ -42,7 +42,7 @@ import org.opencb.biodata.models.variant.metadata.VariantFileHeader;
 import org.opencb.biodata.tools.sequence.SequenceAdaptor;
 import org.opencb.biodata.tools.variant.exceptions.VariantNormalizerException;
 import org.opencb.biodata.tools.variant.merge.VariantAlternateRearranger;
-import org.opencb.commons.run.ParallelTaskRunner;
+import org.opencb.commons.run.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +57,7 @@ import java.util.stream.Collectors;
  *
  * @author Jacobo Coll &lt;jacobo167@gmail.com&gt;
  */
-public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Variant> {
+public class VariantNormalizer implements Task<Variant, Variant> {
 
     private static final String VARIANT_STRING_SEPARATOR = ",";
     protected Logger logger = LoggerFactory.getLogger(this.getClass().toString());

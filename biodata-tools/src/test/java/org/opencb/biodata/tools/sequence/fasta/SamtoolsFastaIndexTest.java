@@ -1,7 +1,7 @@
 package org.opencb.biodata.tools.sequence.fasta;
 
 import htsjdk.samtools.SAMException;
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
