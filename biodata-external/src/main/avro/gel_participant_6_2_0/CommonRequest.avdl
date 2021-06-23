@@ -1,0 +1,169 @@
+@namespace("org.gel.models.report.avro")
+/**
+This protocol defines the Commons for GEL models
+*/
+protocol CommonRequest {
+
+    /*
+Types of files:
+
+* `BAM`: alignment
+* `gVCF`: genomic VCF for variants
+* `VCF_small`: VCF file for SNV and indel
+* `VCF_somatic_small`: VCF file for somatic SNV and indel
+* `VCF_CNV`: VCF file for copy number variants
+* `VCF_somatic_CNV`: VCF file somatic for copy number variants
+* `VCF_SV`: VCF file for structural variants only
+* `VCF_somatic_SV`: VCF file for somatic structural variants only
+* `VCF_SV_CNV`: VCF file for CNV and SVs
+* `SVG`: an SVG for example of a pedigree
+* `ANN`: a Json File for the annotation file from openCBschema/IDLs/variantAnnotation.avdl
+* `BigWig`: a bigwig file with the genome coverage
+* `MD5Sum`: a MD5Sum file
+* `ROH`: a BED file with Regions of homozygosity
+* `OTHER`: other unspecified file type
+* `PARTITION`: Canvas output of coverage in high density areas
+* `VARIANT_FREQUENCIES`: b-allele frequencies
+* `COVERAGE`: whole genome coverage metrics in JSON format
+    **/
+    enum FileType {
+        BAM,
+        gVCF,
+        VCF_small,
+        VCF_somatic_small,
+        VCF_CNV,
+        VCF_somatic_CNV,
+        VCF_SV,
+        VCF_somatic_SV,
+        VCF_SV_CNV,
+        SVG,
+        ANN,
+        BigWig,
+        MD5Sum,
+        ROH,
+        OTHER,
+        PARTITION,
+        VARIANT_FREQUENCIES,
+        COVERAGE
+        }
+
+    /**
+    This defines a file
+    This record is uniquely defined by the sample identfier and an URI
+    Currently sample identifier can be a single string or a list of strings if multiple samples are associated with the same file
+    **/
+    record File {
+        /**
+        Unique identifier(s) of the sample. For example in a multisample vcf this would have an array of all the sample identifiers
+        */
+        union {null, array<string>} sampleId;
+
+        /**
+        URI path of the file
+        */
+        string uriFile;
+
+        /**
+        The type of the file
+        */
+        FileType fileType;
+
+        /**
+        The MD5 checksum
+        */
+        union {null, string} md5Sum;
+
+    }
+
+    /**
+    Family history for secondary findings.
+    Arrays of strings describing discrete family history phenotypes.
+    Usually: `EndocrineTumours`, `colorectal`, `BreastOvarian` and `HDOrStroke` but can be others
+    */
+    record OtherFamilyHistory {
+        /**
+        Relevant Maternal family history
+        */
+        union {null, array<string>} maternalFamilyHistory;
+        /**
+        Relevant Maternal family history
+        */
+        union {null, array<string>} paternalFamilyHistory;
+    }
+
+    /**
+    The Genomics England program
+    */
+    enum Program {
+        cancer,
+        rare_disease
+    }
+
+    /**
+    Some flags relevant to the interpretation of a case
+    */
+    enum InterpretationFlags {
+        mixed_chemistries,
+        mixedLab_preparation,
+        low_tumour_purity,
+        uniparental_isodisomy,
+        uniparental_heterodisomy,
+        unusual_karyotype,
+        high_cnv_count,
+        high_estimate_human_contamination_fraction,
+        mixed_recruiting_gmc,
+        suspected_mosaicism,
+        low_quality_sample,
+        ffpe_tumour_sample,
+        ff_nano_tumour_sample,
+        missing_values_for_proband_in_reported_variant,
+        reissued,
+        supplementary_report_errors,
+        internal_use_only,
+        high_priority,
+        suspected_increased_number_of_false_positive_heterozygous_loss_calls,
+        suspected_poor_quality_cnv_calls,
+        cnv_calls_assumed_xx_karyo,
+        cnv_calls_assumed_xy_karyo,
+        other
+    }
+
+    /**
+    A given interpretation flag together with an optional description
+    */
+    record InterpretationFlag{
+        /**
+        The interpretation flag
+        */
+        InterpretationFlags  interpretationFlag;
+        /**
+        The description for the flag
+        */
+        union {null, string} additionalDescription;
+    }
+
+    /**
+    Interpretation flags at the participant level
+    */
+    record ParticipantInterpretationFlags{
+        /**
+        The interpretation flag
+        */
+        InterpretationFlags  interpretationFlag;
+        /**
+        The description for the flag
+        */
+        union {null, string} additionalDescription;
+        /**
+        Sample Id fron which this flag was reported
+        */
+        string SampleId;
+        /**
+        Participant Id as appeared in the pedigree
+        */
+        union {null, string} participantId;
+
+    }
+
+
+}
