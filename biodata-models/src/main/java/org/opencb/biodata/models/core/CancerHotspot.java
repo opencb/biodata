@@ -25,63 +25,53 @@ import java.util.Map;
 public class CancerHotspot {
 
     private String geneName;
+    private String proteinId;
     private int aminoacidPosition;
     private String aminoacidReference;
     private int numMutations;
     private String cancerType;
+    private Map<String, Double> scores;
     private Map<String, Integer> cancerTypeCount;
     private Map<String, Integer> organCount;
     private List<String> analysis;
-    private double log10Pvalue;
-    private double mutability;
-    private double muProtein;
-    private double qvalue;
-    private double qvaluePancan;
-    private double qvalueCancerType;
     private List<CancerHotspotVariant> variants;
+    private String source;
 
     public CancerHotspot() {
     }
 
-    public CancerHotspot(String geneName, int aminoacidPosition, String aminoacidReference, int numMutations, String cancerType,
-                         Map<String, Integer> cancerTypeCount, Map<String, Integer> organCount, List<String> analysis, double log10Pvalue,
-                         double mutability, double muProtein, double qvalue, double qvaluePancan, double qvalueCancerType,
-                         List<CancerHotspotVariant> variants) {
+    public CancerHotspot(String geneName, String proteinId, int aminoacidPosition, String aminoacidReference, int numMutations,
+                         String cancerType, Map<String, Double> scores, Map<String, Integer> cancerTypeCount,
+                         Map<String, Integer> organCount, List<String> analysis, List<CancerHotspotVariant> variants, String source) {
         this.geneName = geneName;
+        this.proteinId = proteinId;
         this.aminoacidPosition = aminoacidPosition;
         this.aminoacidReference = aminoacidReference;
         this.numMutations = numMutations;
         this.cancerType = cancerType;
+        this.scores = scores;
         this.cancerTypeCount = cancerTypeCount;
         this.organCount = organCount;
         this.analysis = analysis;
-        this.log10Pvalue = log10Pvalue;
-        this.mutability = mutability;
-        this.muProtein = muProtein;
-        this.qvalue = qvalue;
-        this.qvaluePancan = qvaluePancan;
-        this.qvalueCancerType = qvalueCancerType;
         this.variants = variants;
+        this.source = source;
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("CancerHotspot{");
         sb.append("geneName='").append(geneName).append('\'');
+        sb.append(", proteinId='").append(proteinId).append('\'');
         sb.append(", aminoacidPosition=").append(aminoacidPosition);
         sb.append(", aminoacidReference='").append(aminoacidReference).append('\'');
         sb.append(", numMutations=").append(numMutations);
         sb.append(", cancerType='").append(cancerType).append('\'');
+        sb.append(", scores=").append(scores);
         sb.append(", cancerTypeCount=").append(cancerTypeCount);
         sb.append(", organCount=").append(organCount);
         sb.append(", analysis=").append(analysis);
-        sb.append(", log10Pvalue=").append(log10Pvalue);
-        sb.append(", mutability=").append(mutability);
-        sb.append(", muProtein=").append(muProtein);
-        sb.append(", qvalue=").append(qvalue);
-        sb.append(", qvaluePancan=").append(qvaluePancan);
-        sb.append(", qvalueCancerType=").append(qvalueCancerType);
         sb.append(", variants=").append(variants);
+        sb.append(", source='").append(source).append('\'');
         sb.append('}');
         return sb.toString();
     }
@@ -92,6 +82,15 @@ public class CancerHotspot {
 
     public CancerHotspot setGeneName(String geneName) {
         this.geneName = geneName;
+        return this;
+    }
+
+    public String getProteinId() {
+        return proteinId;
+    }
+
+    public CancerHotspot setProteinId(String proteinId) {
+        this.proteinId = proteinId;
         return this;
     }
 
@@ -131,6 +130,15 @@ public class CancerHotspot {
         return this;
     }
 
+    public Map<String, Double> getScores() {
+        return scores;
+    }
+
+    public CancerHotspot setScores(Map<String, Double> scores) {
+        this.scores = scores;
+        return this;
+    }
+
     public Map<String, Integer> getCancerTypeCount() {
         return cancerTypeCount;
     }
@@ -158,66 +166,21 @@ public class CancerHotspot {
         return this;
     }
 
-    public double getLog10Pvalue() {
-        return log10Pvalue;
-    }
-
-    public CancerHotspot setLog10Pvalue(double log10Pvalue) {
-        this.log10Pvalue = log10Pvalue;
-        return this;
-    }
-
-    public double getMutability() {
-        return mutability;
-    }
-
-    public CancerHotspot setMutability(double mutability) {
-        this.mutability = mutability;
-        return this;
-    }
-
-    public double getMuProtein() {
-        return muProtein;
-    }
-
-    public CancerHotspot setMuProtein(double muProtein) {
-        this.muProtein = muProtein;
-        return this;
-    }
-
-    public double getQvalue() {
-        return qvalue;
-    }
-
-    public CancerHotspot setQvalue(double qvalue) {
-        this.qvalue = qvalue;
-        return this;
-    }
-
-    public double getQvaluePancan() {
-        return qvaluePancan;
-    }
-
-    public CancerHotspot setQvaluePancan(double qvaluePancan) {
-        this.qvaluePancan = qvaluePancan;
-        return this;
-    }
-
-    public double getQvalueCancerType() {
-        return qvalueCancerType;
-    }
-
-    public CancerHotspot setQvalueCancerType(double qvalueCancerType) {
-        this.qvalueCancerType = qvalueCancerType;
-        return this;
-    }
-
     public List<CancerHotspotVariant> getVariants() {
         return variants;
     }
 
     public CancerHotspot setVariants(List<CancerHotspotVariant> variants) {
         this.variants = variants;
+        return this;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public CancerHotspot setSource(String source) {
+        this.source = source;
         return this;
     }
 }
