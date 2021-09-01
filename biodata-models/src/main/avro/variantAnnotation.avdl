@@ -192,6 +192,25 @@ protocol VariantAnnotations {
         union { null, array<string> } translocationPartners;
     }
 
+    record CancerHotspotAlternateAnnotation {
+        union { null, string } aminoacidAlternate;
+        union { null, int } count;
+        union { null, map<int> } sampleCount;
+    }
+
+    record CancerHotspotVariantAnnotation {
+        union { null, string } geneName;
+        union { null, string } proteinId;
+        union { null, int } aminoacidPosition;
+        union { null, string } aminoacidReference;
+        union { null, string } cancerType;
+        union { null, map<double> } scores;
+        union { null, map<int> } cancerTypeCount;
+        union { null, map<int> } organCount;
+        union { null, array<CancerHotspotAlternateAnnotation> } variants;
+        union { null, string } source;
+    }
+
     record AdditionalAttribute {
         map<string> attribute;
     }
@@ -227,6 +246,7 @@ protocol VariantAnnotations {
         union { null, array<GeneMirnaTarget> } geneMirnaTargets;
         union { null, array<GeneCancerAssociation> } geneCancerAssociations;
         union { null, array<EvidenceEntry> } traitAssociation;
+        union { null, array<CancerHotspotVariantAnnotation> } cancerHotspots;
         union { null, array<Score> } functionalScore;
         union { null, array<Cytoband> } cytoband;
         union { null, array<Repeat> } repeat;
