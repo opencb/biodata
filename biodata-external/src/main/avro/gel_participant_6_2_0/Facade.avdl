@@ -51,6 +51,10 @@ protocol Facade {
 
     union {null, array<string>} labkey_links;
 
+    string created_at;
+
+    string last_modified;
+
     string proband;
 
     array<DummyStatus> status;
