@@ -19,8 +19,8 @@
 
 package org.opencb.biodata.tools.clinical;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.clinical.ClinicalProperty.ModeOfInheritance;
 import org.opencb.biodata.models.clinical.ClinicalProperty.Penetrance;
@@ -109,7 +109,7 @@ public class TieringClinicalVariantCreator extends ClinicalVariantCreator {
                 for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
 
                     // Only protein coding
-                    if (ct.getBiotype() == null || !proteinCoding.contains(ct.getBiotype())) {
+                    if (StringUtils.isEmpty(ct.getBiotype()) || !proteinCoding.contains(ct.getBiotype())) {
                         logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId() + ", discarded, biotype: "
                                 + ct.getBiotype());
                         continue;
@@ -223,14 +223,14 @@ public class TieringClinicalVariantCreator extends ClinicalVariantCreator {
                                             }
                                             logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId()
                                                     + ", reported, UNTIERED, LOF: " + soTerm.getName());
-                                            clinicalVariantEvidences.add(createClinicalVariantEvidence(genomicFeature, null, moi,
-                                                    penetrance, "", variant));
+                                            clinicalVariantEvidences.add(createClinicalVariantEvidence(genomicFeature,
+                                                    genePanel.getId(), moi, penetrance, "", variant));
                                         }
                                     } else {
                                         logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId()
                                                 + ", reported, UNTIERED, missing LOF");
-                                        clinicalVariantEvidences.add(createClinicalVariantEvidence(genomicFeature, null, moi, penetrance,
-                                                "", variant));
+                                        clinicalVariantEvidences.add(createClinicalVariantEvidence(genomicFeature,
+                                                genePanel.getId(), moi, penetrance, "", variant));
                                     }
                                 }
                             }
