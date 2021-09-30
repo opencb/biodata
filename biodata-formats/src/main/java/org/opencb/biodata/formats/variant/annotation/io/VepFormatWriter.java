@@ -43,6 +43,7 @@ import java.util.Map;
 /**
  * Created by fjlopez on 12/02/15.
  */
+@Deprecated
 public class VepFormatWriter implements DataWriter<Variant> {
 
     String filename;

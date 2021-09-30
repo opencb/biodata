@@ -19,13 +19,12 @@
 
 package org.opencb.biodata.tools.variant.stats.writer;
 
-import org.mortbay.io.RuntimeIOException;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.tools.variant.converters.avro.VariantStatsToTsvConverter;
 import org.opencb.commons.io.DataWriter;
 
 import java.io.*;
-import java.util.*;
+import java.util.List;
 
 /**
  * Exports the given variant stats into a TSV format.
@@ -72,7 +71,7 @@ public class VariantStatsTsvExporter implements DataWriter<Variant> {
             try {
                 dataOutputStream.close();
             } catch (IOException e) {
-                throw new RuntimeIOException(e);
+                throw new UncheckedIOException(e);
             }
         }
         return true;
