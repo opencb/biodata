@@ -403,6 +403,27 @@ public class VariantStatsCalculatorTest {
         assertEquals("other", Integer.valueOf(2), map.get("other"));
     }
 
+    @Test
+    public void testNullGenotypes() {
+        HashMap<Genotype, Integer> gts = new HashMap<>();
+        gts.put(new Genotype("0/0"), 2);
+        gts.put(new Genotype("0/1"), 2);
+        gts.put(new Genotype("1/1"), 1);
+        gts.put(new Genotype("./."), 1);
+        gts.put(null, 1);
+        VariantStats variantStats = VariantStatsCalculator.calculate(new Variant("1:1:A:C"), gts);
+//        System.out.println(variantStats.getImpl());
+        assertEquals(5, variantStats.getSampleCount().intValue());
+        assertEquals(10, variantStats.getAlleleCount().intValue());
+        assertEquals(2, variantStats.getMissingAlleleCount().intValue());
+
+        assertEquals(2, variantStats.getGenotypeCount().get("0/0").intValue());
+        assertEquals(2, variantStats.getGenotypeCount().get("0/1").intValue());
+        assertEquals(1, variantStats.getGenotypeCount().get("1/1").intValue());
+        assertNull(variantStats.getGenotypeCount().get("./."));
+        assertEquals(1, variantStats.getGenotypeCount().get(Genotype.NA).intValue());
+    }
+
     private Properties get1000gLiftOverTagMap() {
         Properties tagMap = new Properties();
         tagMap.put("ALL.MAF", "MAF");
