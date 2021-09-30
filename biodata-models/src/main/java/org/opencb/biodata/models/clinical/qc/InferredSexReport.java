@@ -27,15 +27,17 @@ import java.util.Map;
 public class InferredSexReport {
 
     private String method;
+    private String sampleId;
     private String inferredKaryotypicSex;
     private Map<String, Object> values;
     private List<String> files;
 
     public InferredSexReport() {
-        this("CoverageRatio", "", new LinkedHashMap<>(), new ArrayList<>());
+        this("","CoverageRatio", "", new LinkedHashMap<>(), new ArrayList<>());
     }
 
-    public InferredSexReport(String method, String inferredKaryotypicSex, Map<String, Object> values, List<String> files) {
+    public InferredSexReport(String sampleId,String method, String inferredKaryotypicSex, Map<String, Object> values, List<String> files) {
+        this.sampleId = sampleId;
         this.method = method;
         this.inferredKaryotypicSex = inferredKaryotypicSex;
         this.values = values;
@@ -46,6 +48,7 @@ public class InferredSexReport {
     public String toString() {
         final StringBuilder sb = new StringBuilder("InferredSexReport{");
         sb.append("method='").append(method).append('\'');
+        sb.append(", sampleId='").append(sampleId).append('\'');
         sb.append(", inferredKaryotypicSex='").append(inferredKaryotypicSex).append('\'');
         sb.append(", values=").append(values);
         sb.append(", files=").append(files);
@@ -86,6 +89,15 @@ public class InferredSexReport {
 
     public InferredSexReport setFiles(List<String> files) {
         this.files = files;
+        return this;
+    }
+
+    public String getSampleId() {
+        return sampleId;
+    }
+
+    public InferredSexReport setSampleId(String sampleId) {
+        this.sampleId = sampleId;
         return this;
     }
 }
