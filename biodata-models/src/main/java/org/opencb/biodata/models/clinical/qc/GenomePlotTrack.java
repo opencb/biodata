@@ -25,25 +25,39 @@ import java.util.List;
 import java.util.Map;
 
 public class GenomePlotTrack {
+
     private String type;
+    private String description;
     private Map<String, String> query;
 
     public GenomePlotTrack() {
     }
 
-    public GenomePlotTrack(String type, Map<String, String> query) {
+    public GenomePlotTrack(String type, String description, Map<String, String> query) {
         this.type = type;
+        this.description = description;
         this.query = query;
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Track{");
+        final StringBuilder sb = new StringBuilder("GenomePlotTrack{");
         sb.append("type='").append(type).append('\'');
+        sb.append(", description='").append(description).append('\'');
         sb.append(", query=").append(query);
         sb.append('}');
         return sb.toString();
     }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public GenomePlotTrack setDescription(String description) {
+        this.description = description;
+        return this;
+    }
+
 
     public String getType() {
         return type;

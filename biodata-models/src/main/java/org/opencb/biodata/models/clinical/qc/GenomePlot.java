@@ -19,9 +19,7 @@
 
 package org.opencb.biodata.models.clinical.qc;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+
 
 public class GenomePlot {
 
@@ -29,18 +27,17 @@ public class GenomePlot {
     private String description;
     private GenomePlotConfig config;
     private String file;
-    private List<String> tracks;
 
     public GenomePlot() {
-        this(null,null,null,null, new ArrayList<>());
+
     }
 
-    public GenomePlot(String id, String description, GenomePlotConfig config, String file, List<String> tracks) {
+    public GenomePlot(String id, String description, GenomePlotConfig config, String file) {
         this.id = id;
         this.description = description;
         this.config = config;
         this.file = file;
-        this.tracks = tracks;
+
     }
 
     @Override
@@ -50,19 +47,10 @@ public class GenomePlot {
         sb.append(", description='").append(description).append('\'');
         sb.append(", config=").append(config);
         sb.append(", file='").append(file).append('\'');
-        sb.append(", tracks=").append(tracks);
         sb.append('}');
         return sb.toString();
     }
 
-    public List<String> getTracks() {
-        return tracks;
-    }
-
-    public GenomePlot setTracks(List<String> tracks) {
-        this.tracks = tracks;
-        return this;
-    }
 
     public String getId() {
         return id;
