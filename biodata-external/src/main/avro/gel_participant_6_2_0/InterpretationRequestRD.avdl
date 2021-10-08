@@ -1,0 +1,117 @@
+@namespace("org.gel.models.report.avro")
+
+/**
+This protocol defines the mechanism that Genomics England uses to trigger a clinical interpretation process from a third party
+The record report is the top level class. This includes clinical information + various version
+The annotation provided by Genomics England is created using CellBase https://github.com/opencb/cellbase/wiki
+All annotations are against Ensembl gene models
+*/
+protocol InterpretationRequestsRD {
+
+    import idl "CommonRequest.avdl";
+    import idl "ReportVersionControl.avdl";
+    import idl "CommonInterpreted.avdl";
+    import idl "RDParticipant.avdl";
+
+    /**
+    This record represents basic information for this report
+    */
+    record InterpretationRequestRD {
+        /**
+        Model version number
+        */
+        ReportVersionControl versionControl;
+
+        /**
+        Identifier for this interpretation request
+        */
+        string interpretationRequestId;
+
+        /**
+        Version for this interpretation request
+        */
+        int interpretationRequestVersion;
+
+        /**
+        Internal study identifier
+        */
+        string internalStudyId;
+
+        /**
+        Family internal identifier
+        */
+        union {null, string} familyInternalId;
+
+        /**
+        This is the version of the assembly used to align the reads
+        */
+        Assembly genomeAssembly;
+
+        /**
+        The genome shall be assigned to the workspaces(projects or domains with a predefined set of users) to control user access
+        */
+        array<string> workspace;
+
+        /**
+        BAMs Files
+        */
+        union {null, array<File>} bams;
+
+        /**
+        VCFs Files where SVs and CNVs are represented
+        */
+        union {null, array<File>} vcfs;
+
+        /**
+        BigWig Files
+        */
+        union {null, array<File>} bigWigs;
+
+        /**
+        Pedigree Diagram Files as an SGV
+        */
+        union {null, File} pedigreeDiagram;
+
+        /**
+        Variant Annotation File
+        */
+        union {null, File} annotationFile;
+
+        /**
+        Other files that may be vendor specific
+        map of key: type of file, value: record of type File
+        */
+        union {null, map<File>} otherFiles;
+
+        /**
+        Pedigree of the family.
+        */
+        union {null, org.gel.models.participant.avro.Pedigree} pedigree;
+
+        /**
+        It is paternal or maternal with reference to the participant.
+        */
+        union {null, OtherFamilyHistory} otherFamilyHistory;
+
+        /**
+        This map of key: panel_name, value: (map of key: gene, value: (map of metrics of key: metric name, value: float))
+        That is: a map of tables of genes and metrics
+        */
+        union {null, map<map<map<float>>>} genePanelsCoverage;
+
+        /**
+        Flags for this case relevant for interpretation
+        */
+        union {null, array<InterpretationFlag>} interpretationFlags;
+
+        /**
+        Flags for this case relevant for interpretation per participant
+        */
+        union {null, array<ParticipantInterpretationFlags>} participantsInterpretationFlags;
+
+        /**
+        Additional information
+        */
+        union {null, map<string>} additionalInfo;
+    }
+}

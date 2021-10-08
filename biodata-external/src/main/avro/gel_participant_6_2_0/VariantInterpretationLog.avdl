@@ -1,0 +1,289 @@
+@namespace("org.gel.models.report.avro")
+
+protocol VariantInterpretationLogProtocol {
+
+    import idl "CommonInterpreted.avdl";
+
+    enum ValidationResult{NotPerformed, Confirmed, NotConfirmed, Pending}
+
+    record VariantValidation{
+        /**
+        Technology used to perform secondary confirmation of this variant (e.g. Sanger)
+        */
+        string validationTechnology;
+        /**
+        Status/outcome of validation
+        */
+        ValidationResult validationResult;
+    }
+
+    record StructuralVariantDetails{
+        /**
+        Strctural variant type
+        */
+        StructuralVariantType variantType;
+        /**
+        Structural variant coordinates
+        */
+        Coordinates structuralVariantCoordinates;
+        /**
+        Number of copies (required for copy number variants)
+        */
+        union {null, array<NumberOfCopies>} numberOfCopies;
+    }
+
+    record ShortTandemRepeatDetails{
+        /**
+        Short tandem repeat coordinates
+        */
+        Coordinates shortTandemRepeatCoordinates;
+        /**
+        Short tandem repeat copy number for each allele
+        */
+        union {null, array<NumberOfCopies>} numberOfCopies;
+    }
+
+    record UniparentalDisomyDetails{
+        /**
+        Reference assembly
+        */
+        Assembly assembly;
+        /**
+        Chromosome where two homologues were inherited from one parent
+        */
+        string chromosome;
+        /**
+        indicates whether UPD event involves an entire chromosome
+        */
+        union {null, boolean} complete;
+        /**
+        The parent who contributed two chromosomes was the mother (maternal) or the father (paternal)
+        */
+        UniparentalDisomyOrigin origin;
+        /**
+        List of all of the UPD fragments for this UPD event
+        */
+        union {null, array<UniparentalDisomyFragment>} uniparentalDisomyFragments;
+
+    }
+
+    record VariantInterpretationLog{
+        /**
+        Variant coordinates
+        */
+        VariantCoordinates variantCoordinates;
+        /**
+        User who set classification
+        */
+        User user;
+        /**
+        Date of classification. Format YYYY-MM-DD (e.g. 2020-01-31)
+        */
+        string timestamp;
+        /**
+        GeL group ID. For GMS cases this will be the referral ID. For 100k rare disease cases this will be the family ID. For 100k cancer cases this will be the participant ID.
+        */
+        string groupId;
+        /**
+        Interpretation request ID including CIP prefix and version suffix (e.g. SAP-1234-1)
+        */
+        string caseId;
+        /**
+        Independent validation of variant
+        */
+        union {null, VariantValidation} variantValidation;
+        /**
+        User comments attached to this variant in this case
+        */
+        union {null, array<UserComment>} comments;
+        /**
+        Guideline-based variant classification
+        */
+        GuidelineBasedVariantClassification variantClassification;
+        /**
+        User has marked the variant as an artefact
+        */
+        union {null, boolean} Artifact;
+        /**
+        Filter settings applied at time variant was classified
+        */
+        union {null, map<string>} decisionSupportSystemFilters;
+
+    }
+
+    record StructuralVariantInterpretationLog{
+        /**
+        Variant details
+        */
+        StructuralVariantDetails variant;
+        /**
+        User who set classification
+        */
+        User user;
+        /**
+        Date of classification. Format YYYY-MM-DD (e.g. 2020-01-31)
+        */
+        string timestamp;
+        /**
+        GeL group ID. For GMS cases this will be the referral ID. For 100k rare disease cases this will be the family ID. For 100k cancer cases this will be the participant ID.
+        */
+        string groupId;
+        /**
+        Interpretation request ID including CIP prefix and version suffix (e.g. SAP-1234-1)
+        */
+        string caseId;
+        /**
+        Independent validation of variant
+        */
+        union {null, VariantValidation} variantValidation;
+        /**
+        User comments attached to this variant in this case
+        */
+        union {null, array<UserComment>} comments;
+        /**
+        Variant classification
+        */
+        ClinicalSignificance variantClassification;
+        /**
+        User has marked the variant as an artefact
+        */
+        union {null, boolean} Artifact;
+        /**
+        Filter settings applied at time variant was classified
+        */
+        union {null, map<string>} decisionSupportSystemFilters;
+
+    }
+
+    record ChromosomalRearrangementInterpretationLog{
+        /**
+        Chromosomal rearrangement breakpoints
+        */
+        union {null, array<BreakPoint>} breakPoints;
+        /**
+        User who set classification
+        */
+        User user;
+        /**
+        Date of classification. Format YYYY-MM-DD (e.g. 2020-01-31)
+        */
+        string timestamp;
+        /**
+        GeL group ID. For GMS cases this will be the referral ID. For 100k rare disease cases this will be the family ID. For 100k cancer cases this will be the participant ID.
+        */
+        string groupId;
+        /**
+        Interpretation request ID including CIP prefix and version suffix (e.g. SAP-1234-1)
+        */
+        string caseId;
+        /**
+        Independent validation of variant
+        */
+        union {null, VariantValidation} variantValidation;
+        /**
+        User comments attached to this variant in this case
+        */
+        union {null, array<UserComment>} comments;
+        /**
+        Variant classification
+        */
+        ClinicalSignificance variantClassification;
+        /**
+        User has marked the variant as an artefact
+        */
+        union {null, boolean} Artifact;
+        /**
+        Filter settings applied at time variant was classified
+        */
+        union {null, map<string>} decisionSupportSystemFilters;
+
+    }
+
+   record ShortTandemRepeatInterpretationLog{
+        /**
+        Variant details
+        */
+        ShortTandemRepeatDetails variant;
+        /**
+        User who set classification
+        */
+        User user;
+        /**
+        Date of classification. Format YYYY-MM-DD (e.g. 2020-01-31)
+        */
+        string timestamp;
+        /**
+        GeL group ID. For GMS cases this will be the referral ID. For 100k rare disease cases this will be the family ID. For 100k cancer cases this will be the participant ID.
+        */
+        string groupId;
+        /**
+        Interpretation request ID including CIP prefix and version suffix (e.g. SAP-1234-1)
+        */
+        string caseId;
+        /**
+        Independent validation of variant
+        */
+        union {null, VariantValidation} variantValidation;
+        /**
+        User comments attached to this variant in this case
+        */
+        union {null, array<UserComment>} comments;
+        /**
+        Variant classification
+        */
+        ClinicalSignificance variantClassification;
+        /**
+        User has marked the variant as an artefact
+        */
+        union {null, boolean} Artifact;
+        /**
+        Filter settings applied at time variant was classified
+        */
+        union {null, map<string>} decisionSupportSystemFilters;
+
+    }
+
+   record UniparentalDisomyInterpretationLog{
+        /**
+        Variant details
+        */
+        UniparentalDisomyDetails variant;
+        /**
+        User who set classification
+        */
+        User user;
+        /**
+        Date of classification. Format YYYY-MM-DD (e.g. 2020-01-31)
+        */
+        string timestamp;
+        /**
+        GeL group ID. For GMS cases this will be the referral ID. For 100k rare disease cases this will be the family ID. For 100k cancer cases this will be the participant ID.
+        */
+        string groupId;
+        /**
+        Interpretation request ID including CIP prefix and version suffix (e.g. SAP-1234-1)
+        */
+        string caseId;
+        /**
+        Independent validation of variant
+        */
+        union {null, VariantValidation} variantValidation;
+        /**
+        User comments attached to this variant in this case
+        */
+        union {null, array<UserComment>} comments;
+        /**
+        Variant classification
+        */
+        ClinicalSignificance variantClassification;
+        /**
+        User has marked the variant as an artefact
+        */
+        union {null, boolean} Artifact;
+        /**
+        Filter settings applied at time variant was classified
+        */
+        union {null, map<string>} decisionSupportSystemFilters;
+
+    }
+}

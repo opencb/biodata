@@ -1,0 +1,79 @@
+@namespace("org.dummy.avro")
+
+protocol Facade {
+
+  import idl "ExitQuestionnaire.avdl";
+  import idl "InterpretationRequestRD.avdl";
+  import idl "InterpretedGenome.avdl";
+
+  record DummyFile{
+    string url;
+    string file_name;
+    string file_type;
+  }
+
+  record DummyStatus{
+    string status;
+    string created_at;
+    string user;
+  }
+
+  record DummyExit{
+    string created_at;
+    org.gel.models.report.avro.RareDiseaseExitQuestionnaire exit_questionnaire_data;
+  }
+
+  record DummyClinicalReport{
+    boolean valid;
+
+    DummyExit exit_questionnaire;
+  }
+
+  record DummyInterpretationRequest{
+    org.gel.models.report.avro.InterpretationRequestRD json_request;
+  }
+
+  record DummyInterpretedGenome{
+    union {null, array<DummyStatus>} status;
+    string cva_variants_status;
+    string created_at;
+    org.gel.models.report.avro.InterpretedGenome interpreted_genome_data;
+  }
+
+  record CipapiFacade{
+    array<DummyFile> files;
+
+    int number_of_samples;
+
+    string program;
+
+    string family_id;
+
+    union {null, array<string>} labkey_links;
+
+    string created_at;
+
+    string last_modified;
+
+    string proband;
+
+    array<DummyStatus> status;
+
+    string case_priority;
+
+    string assembly;
+
+    string case_id;
+
+    int interpretation_request_id;
+
+    string cohort_id;
+
+    array<DummyClinicalReport> clinical_report;
+
+    DummyInterpretationRequest interpretation_request_data;
+
+    array<DummyInterpretedGenome> interpreted_genome;
+  }
+
+}

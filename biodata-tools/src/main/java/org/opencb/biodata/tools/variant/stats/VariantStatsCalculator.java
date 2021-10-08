@@ -20,9 +20,9 @@
 package org.opencb.biodata.tools.variant.stats;
 
 import org.apache.commons.lang3.StringUtils;
+import org.opencb.biodata.models.pedigree.Pedigree;
 import org.opencb.biodata.models.variant.AllelesCode;
 import org.opencb.biodata.models.variant.Genotype;
-import org.opencb.biodata.models.pedigree.Pedigree;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.FileEntry;
@@ -56,9 +56,14 @@ public class VariantStatsCalculator {
             if (sampleIdx == null) {
                 continue;
             }
-            String genotype = study.getSamples().get(sampleIdx).getData().get(gtIdx);
-            Genotype g = gts.computeIfAbsent(genotype, key -> new Genotype(genotype));
-            gtCount.compute(g, (s, prev) -> prev == null ? 1 : prev + 1);
+            Genotype genotype;
+            if (gtIdx != null) {
+                String g = study.getSamples().get(sampleIdx).getData().get(gtIdx);
+                genotype = gts.computeIfAbsent(g, key -> new Genotype(g));
+            } else {
+                genotype = null;
+            }
+            gtCount.merge(genotype, 1, Integer::sum);
 
         }  // Finish all samples loop
 
@@ -161,7 +166,7 @@ public class VariantStatsCalculator {
 //        Map<String, Genotype> gts = new TreeMap<>(String::compareTo);
         int[] allelesCount = new int[2];
         int totalAllelesCount = 0;
-        int totalGenotypesCount = 0;
+        int nonMissingGenotypes = 0;
         int missingGenotypes = 0;
         int missingAlleles = 0;
 
@@ -173,20 +178,11 @@ public class VariantStatsCalculator {
             Genotype g = entry.getKey();
             Integer numGt = entry.getValue();
 
-            switch (g.getCode()) {
-                case ALLELES_OK:
-                case PARTIAL_ALLELES_MISSING:
-                    variantStats.addGenotype(g, numGt, false);
-                    break;
-                case MULTIPLE_ALTERNATES:
-                    if (multiAllelic) {
-                        variantStats.addGenotype(g, numGt, false);
-                    } else {
-                        variantStats.addGenotype(multiAllelicToStringSimple(g), numGt);
-                    }
-                    break;
-                case ALLELES_MISSING:
-                    break;
+            if (g == null) {
+                // Do not count NA samples for samplesCount
+                variantStats.addGenotype(genotypeToStringSimple(g, multiAllelic), numGt);
+                // Skip rest of the loop
+                continue;
             }
 
             // Check missing alleles and genotypes
@@ -194,6 +190,8 @@ public class VariantStatsCalculator {
                 case MULTIPLE_ALTERNATES:
                 case ALLELES_OK:
                 case PARTIAL_ALLELES_MISSING:
+                    nonMissingGenotypes += numGt;
+                    variantStats.addGenotype(genotypeToStringSimple(g, multiAllelic), numGt);
                     for (int allele : g.getAllelesIdx()) {
                         if (allele < 0) {
                             missingAlleles += numGt;
@@ -205,7 +203,6 @@ public class VariantStatsCalculator {
                             totalAllelesCount += numGt;
                         }
                     }
-                    totalGenotypesCount += numGt;
                     break;
                 case ALLELES_MISSING:
                     iterator.remove();
@@ -232,11 +229,34 @@ public class VariantStatsCalculator {
         variantStats.setAlleleCount(totalAllelesCount);
         variantStats.setMissingAlleleCount(missingAlleles);
         variantStats.setMissingGenotypeCount(missingGenotypes);
+        variantStats.setSampleCount(nonMissingGenotypes);
 
         // Calculate MAF and MGF
         calculateAlleleFrequencies(totalAllelesCount, variantStats, refAllele, altAllele);
-        calculateGenotypeFrequencies(variantStats, totalGenotypesCount);
+        calculateGenotypeFrequencies(variantStats, nonMissingGenotypes);
 
+    }
+
+    private static String genotypeToStringSimple(Genotype g, boolean multiAllelic) {
+        if (g == null) {
+            return Genotype.NA;
+        } else {
+            switch (g.getCode()) {
+                case ALLELES_OK:
+                case PARTIAL_ALLELES_MISSING:
+                    return g.toString();
+                case MULTIPLE_ALTERNATES:
+                    if (multiAllelic) {
+                        return g.toString();
+                    } else {
+                        return multiAllelicToStringSimple(g);
+                    }
+                case ALLELES_MISSING:
+                    return null;
+                default:
+                    throw new IllegalArgumentException("Unknown allele code " + g.getCode());
+            }
+        }
     }
 
     private static String multiAllelicToStringSimple(Genotype g) {
@@ -298,7 +318,8 @@ public class VariantStatsCalculator {
         if (variantStats.getSampleCount() == null || variantStats.getSampleCount() < 0) {
             int totalGenotypesCount = 0;
             for (Map.Entry<String, Integer> entry : variantStats.getGenotypeCount().entrySet()) {
-                if (!new Genotype(entry.getKey()).getCode().equals(AllelesCode.ALLELES_MISSING)) {
+                String gtStr = entry.getKey();
+                if (!gtStr.equals(Genotype.NA) && !new Genotype(gtStr).getCode().equals(AllelesCode.ALLELES_MISSING)) {
                     totalGenotypesCount += entry.getValue();
                 }
             }
@@ -312,7 +333,6 @@ public class VariantStatsCalculator {
             throw new IllegalArgumentException("The number of genotypes must be equals or greater than zero");
         }
 
-        variantStats.setSampleCount(totalGenotypesCount);
         if (variantStats.getGenotypeCount().isEmpty() || totalGenotypesCount == 0) {
             // Nothing to calculate here
             variantStats.setMgf((float) -1);
@@ -331,7 +351,10 @@ public class VariantStatsCalculator {
 
         for (Map.Entry<String, Integer> entry : variantStats.getGenotypeCount().entrySet()) {
             String gtStr = entry.getKey();
-
+            if (gtStr.equals(Genotype.NA)) {
+                // Ignore gt NA from genotype freq
+                continue;
+            }
             float freq = entry.getValue() /  (float) totalGenotypesCount;
             genotypesFreq.put(gtStr, freq);
 
@@ -357,20 +380,20 @@ public class VariantStatsCalculator {
 
         for (Map.Entry<Genotype, Integer> entry : genotypeCount.entrySet()) {
             Genotype gt = entry.getKey();
-
-            if (gt.isPhased()) {
-                gt = new Genotype(gt);
-                // Clean ref/alt if any
-                gt.setReference(null);
-                gt.setAlternates(Collections.emptyList());
-                gt.setPhased(false);
-                gt.normalizeAllelesIdx();
-            } else if (gt.getReference() != null) {
-                gt = new Genotype(gt);
-                gt.setReference(null);
-                gt.setAlternates(Collections.emptyList());
+            if (gt != null) {
+                if (gt.isPhased()) {
+                    gt = new Genotype(gt);
+                    // Clean ref/alt if any
+                    gt.setReference(null);
+                    gt.setAlternates(Collections.emptyList());
+                    gt.setPhased(false);
+                    gt.normalizeAllelesIdx();
+                } else if (gt.getReference() != null) {
+                    gt = new Genotype(gt);
+                    gt.setReference(null);
+                    gt.setAlternates(Collections.emptyList());
+                }
             }
-
             unphasedGenotypeCount.merge(gt, entry.getValue(), Integer::sum);
         }
         return unphasedGenotypeCount;

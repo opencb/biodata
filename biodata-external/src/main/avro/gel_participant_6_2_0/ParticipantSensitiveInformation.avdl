@@ -1,0 +1,32 @@
+@namespace("org.gel.models.participant.avro")
+/**
+This protocol defines the Participants and Pedigree
+*/
+
+protocol SensitiveInformation {
+
+    import idl "VersionControl.avdl";
+
+    record SensitiveInformation {
+
+        /**
+        Model version number
+        */
+        VersionControl versionControl;
+
+        string gelID;
+
+        union {null, array<string>} externalIds; //should be hidden for external companies
+
+        union {null, string} genomicMedicineCenter;
+        union {null, string} fullNameOfResponsibleConsultant;
+        union {null, string} contactNumber;
+        union {null, string} hospitalOfResponsibleConsultant;
+
+        union {null, string} centerSampleId;
+
+        union {null, string} originatingCenter;
+
+        union {null, string} centerPatientId;
+    }
+}
