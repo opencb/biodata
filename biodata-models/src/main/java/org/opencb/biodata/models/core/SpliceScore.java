@@ -1,5 +1,7 @@
 package org.opencb.biodata.models.core;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +18,7 @@ public class SpliceScore {
     private List<AlternateSpliceScore> alternates;
 
     public SpliceScore() {
+        this.alternates = new ArrayList<>();
     }
 
     public SpliceScore(String chromosome, int position, String refAllele, String geneId, String geneName, String transcritptId,
@@ -32,11 +35,12 @@ public class SpliceScore {
         this.alternates = alternates;
     }
 
-    public class AlternateSpliceScore {
+    public static class AlternateSpliceScore {
         private String altAllele;
         private Map<String, Object> scores;
 
         public AlternateSpliceScore() {
+            this.scores = new HashMap<>();
         }
 
         public AlternateSpliceScore(String altAllele, Map<String, Object> scores) {
