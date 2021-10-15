@@ -19,6 +19,8 @@
 
 package org.opencb.biodata.models.clinical.qc;
 
+
+
 public class GenomePlot {
 
     private String id;
@@ -27,6 +29,7 @@ public class GenomePlot {
     private String file;
 
     public GenomePlot() {
+
     }
 
     public GenomePlot(String id, String description, GenomePlotConfig config, String file) {
@@ -34,6 +37,7 @@ public class GenomePlot {
         this.description = description;
         this.config = config;
         this.file = file;
+
     }
 
     @Override
@@ -46,6 +50,7 @@ public class GenomePlot {
         sb.append('}');
         return sb.toString();
     }
+
 
     public String getId() {
         return id;
