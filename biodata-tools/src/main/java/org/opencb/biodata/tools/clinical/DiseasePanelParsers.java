@@ -366,10 +366,17 @@ public class DiseasePanelParsers {
             if (ensemblGenesObject instanceof Map) {
                 Map<String, Object> ensemblGenes = (Map) geneData.get("ensembl_genes");
 
-                if (ensemblGenes.containsKey("GRch37")) {
-                    ensemblGeneId = String.valueOf(((Map) ((Map) ensemblGenes.get("GRch37")).get("82")).get("ensembl_id"));
-                } else if (ensemblGenes.containsKey("GRch38")) {
+                // JT: commented
+//                if (ensemblGenes.containsKey("GRch37")) {
+//                    ensemblGeneId = String.valueOf(((Map) ((Map) ensemblGenes.get("GRch37")).get("82")).get("ensembl_id"));
+//                } else if (ensemblGenes.containsKey("GRch38")) {
+//                    ensemblGeneId = String.valueOf(((Map) ((Map) ensemblGenes.get("GRch38")).get("90")).get("ensembl_id"));
+//                }
+                // JT: change order
+                if (ensemblGenes.containsKey("GRch38")) {
                     ensemblGeneId = String.valueOf(((Map) ((Map) ensemblGenes.get("GRch38")).get("90")).get("ensembl_id"));
+                } else if (ensemblGenes.containsKey("GRch37")) {
+                    ensemblGeneId = String.valueOf(((Map) ((Map) ensemblGenes.get("GRch37")).get("82")).get("ensembl_id"));
                 }
 
                 // read OMIM ID
@@ -444,7 +451,7 @@ public class DiseasePanelParsers {
         int confidenceLevel = Integer.valueOf(String.valueOf(panelAppCommonMap.get("confidence_level")));
         if (confidenceLevel == 2) {
             confidence = ClinicalProperty.Confidence.MEDIUM;
-        } else if (confidenceLevel == 3) {
+        } else if (confidenceLevel >= 3) {
             confidence = ClinicalProperty.Confidence.HIGH;
         }
         common.setConfidence(confidence);
@@ -465,15 +472,23 @@ public class DiseasePanelParsers {
             return ClinicalProperty.ModeOfInheritance.AUTOSOMAL_RECESSIVE;
         }
         if (moi.startsWith("MONOALLELIC")) {
-            return ClinicalProperty.ModeOfInheritance.AUTOSOMAL_DOMINANT;
+            if (moi.contains("NOT IMPRINTED")) {
+                return ClinicalProperty.ModeOfInheritance.AUTOSOMAL_DOMINANT_NOT_IMPRINTED;
+            } else if (moi.contains("MATERNALLY")) {
+                return ClinicalProperty.ModeOfInheritance.AUTOSOMAL_DOMINANT_MATERNALLY_IMPRINTED;
+            } else if (moi.contains("PATERNALLY")) {
+                return ClinicalProperty.ModeOfInheritance.AUTOSOMAL_DOMINANT_PATERNALLY_IMPRINTED;
+            } else {
+                return ClinicalProperty.ModeOfInheritance.AUTOSOMAL_DOMINANT;
+            }
         }
-//        if (moi.startsWith("BOTH")) {
-//            if (moi.contains("SEVERE")) {
-//                return ClinicalProperty.ModeOfInheritance.MONOALLELIC_AND_MORE_SEVERE_BIALLELIC;
-//            } else if (moi.contains("")) {
-//                return ClinicalProperty.ModeOfInheritance.MONOALLELIC_AND_BIALLELIC;
-//            }
-//        }
+        if (moi.startsWith("BOTH")) {
+            if (moi.contains("SEVERE")) {
+                return ClinicalProperty.ModeOfInheritance.AUTOSOMAL_DOMINANT_AND_MORE_SEVERE_RECESSIVE;
+            } else if (moi.contains("")) {
+                return ClinicalProperty.ModeOfInheritance.AUTOSOMAL_DOMINANT_AND_RECESSIVE;
+            }
+        }
         if (moi.startsWith("MITOCHONDRIAL")) {
             return ClinicalProperty.ModeOfInheritance.MITOCHONDRIAL;
         }
@@ -481,7 +496,7 @@ public class DiseasePanelParsers {
             if (moi.contains("BIALLELIC")) {
                 return ClinicalProperty.ModeOfInheritance.X_LINKED_RECESSIVE;
             } else {
-                return ClinicalProperty.ModeOfInheritance.X_LINKED_RECESSIVE;
+                return ClinicalProperty.ModeOfInheritance.X_LINKED_DOMINANT;
             }
         }
         return ClinicalProperty.ModeOfInheritance.UNKNOWN;

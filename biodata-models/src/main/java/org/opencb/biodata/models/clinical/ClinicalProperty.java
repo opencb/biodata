@@ -28,6 +28,7 @@ import java.util.Map;
 public class ClinicalProperty {
 
     public enum ModeOfInheritance {
+        AUTOSOMAL_DOMINANT_NOT_IMPRINTED("monoallelic_not_imprinted"),
         AUTOSOMAL_DOMINANT("monoallelic"),
         AUTOSOMAL_RECESSIVE("biallelic"),
         X_LINKED_DOMINANT,
@@ -39,7 +40,26 @@ public class ClinicalProperty {
         MENDELIAN_ERROR("me"),
         COMPOUND_HETEROZYGOUS("ch"),
 
-        UNKNOWN;
+        UNKNOWN,
+
+        // to be deleted
+        AUTOSOMAL_DOMINANT_MATERNALLY_IMPRINTED,
+        AUTOSOMAL_DOMINANT_MATERNALLY_IMPRINTED__DE_NOVO,
+        AUTOSOMAL_DOMINANT_PATERNALLY_IMPRINTED,
+        AUTOSOMAL_DOMINANT_PATERNALLY_IMPRINTED__DE_NOVO,
+        AUTOSOMAL_DOMINANT_AND_MORE_SEVERE_RECESSIVE,
+        AUTOSOMAL_DOMINANT_AND_MORE_SEVERE_RECESSIVE___DE_NOVO,
+        AUTOSOMAL_DOMINANT_AND_RECESSIVE,
+        AUTOSOMAL_DOMINANT_AND_RECESSIVE___DE_NOVO,
+        AUTOSOMAL_DOMINANT_NOT_IMPRINTED__DE_NOVO,
+        AUTOSOMAL_DOMINANT__DE_NOVO,
+        AUTOSOMAL_RECESSIVE__DE_NOVO,
+        X_LINKED_DOMINANT__DE_NOVO,
+        X_LINKED_RECESSIVE__DE_NOVO,
+        Y_LINKED__DE_NOVO,
+        MITOCHONDRIAL__DE_NOVO,
+        UNKNOWN__DE_NOVO;
+
 
         private static Map<String, ModeOfInheritance> namesMap;
 

@@ -22,12 +22,10 @@ package org.opencb.biodata.tools.clinical;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.opencb.biodata.models.clinical.ClinicalProperty;
 import org.opencb.biodata.models.clinical.ClinicalProperty.ModeOfInheritance;
 import org.opencb.biodata.models.clinical.ClinicalProperty.Penetrance;
-import org.opencb.biodata.models.clinical.interpretation.ClinicalVariant;
-import org.opencb.biodata.models.clinical.interpretation.DiseasePanel;
-import org.opencb.biodata.models.clinical.interpretation.GenomicFeature;
-import org.opencb.biodata.models.clinical.interpretation.ClinicalVariantEvidence;
+import org.opencb.biodata.models.clinical.interpretation.*;
 import org.opencb.biodata.models.clinical.interpretation.exceptions.InterpretationAnalysisException;
 import org.opencb.biodata.models.clinical.Disorder;
 import org.opencb.biodata.models.core.Region;
@@ -38,7 +36,6 @@ import org.opencb.biodata.models.variant.avro.SequenceOntologyTerm;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.opencb.biodata.models.clinical.ClinicalProperty.ModeOfInheritance.UNKNOWN;
 import static org.opencb.biodata.models.clinical.ClinicalProperty.RoleInCancer;
 import static org.opencb.biodata.models.clinical.interpretation.VariantClassification.*;
 import static org.opencb.biodata.tools.pedigree.ModeOfInheritance.extendedLof;
@@ -46,13 +43,25 @@ import static org.opencb.biodata.tools.pedigree.ModeOfInheritance.proteinCoding;
 
 public class TieringClinicalVariantCreator extends ClinicalVariantCreator {
 
-    public static final Set<String> TIER_1_CONSEQUENCE_TYPES_SET = new HashSet<>(Arrays.asList("SO:0001893", "transcript_ablation",
-            "SO:0001574", "splice_acceptor_variant", "SO:0001575", "splice_donor_variant", "SO:0001587", "stop_gained",
-            "SO:0001589", "frameshift_variant", "SO:0001578", "stop_lost", "SO:0001582", "initiator_codon_variant"));
+    public static final Set<String> TIER_1_CONSEQUENCE_TYPES_SET = new HashSet<>(Arrays.asList(
+            "SO:0001893", "transcript_ablation",
+            "SO:0001574", "splice_acceptor_variant",
+            "SO:0001575", "splice_donor_variant",
+            "SO:0001587", "stop_gained",
+            "SO:0001589", "frameshift_variant",
+            "SO:0001578", "stop_lost",
 
-    private static final Set<String> TIER_2_CONSEQUENCE_TYPES_SET = new HashSet<>(Arrays.asList("SO:0001889", "transcript_amplification",
-            "SO:0001821", "inframe_insertion", "SO:0001822", "inframe_deletion", "SO:0001583", "missense_variant",
-            "SO:0001630", "splice_region_variant", "SO:0001626", "incomplete_terminal_codon_variant"));
+            "SO:0002012", "start_lost", // to be deleted
+
+            "SO:0001582", "initiator_codon_variant"));
+
+    private static final Set<String> TIER_2_CONSEQUENCE_TYPES_SET = new HashSet<>(Arrays.asList(
+            "SO:0001889", "transcript_amplification",
+            "SO:0001821", "inframe_insertion",
+            "SO:0001822", "inframe_deletion",
+            "SO:0001583", "missense_variant",
+            "SO:0001630", "splice_region_variant",
+            "SO:0001626", "incomplete_terminal_codon_variant"));
 
     public TieringClinicalVariantCreator(List<DiseasePanel> diseasePanels, Map<String, RoleInCancer> roleInCancer,
                                          Map<String, List<String>> actionableVariants, Disorder disorder,
@@ -115,150 +124,77 @@ public class TieringClinicalVariantCreator extends ClinicalVariantCreator {
                         continue;
                     }
 
+                    // Only LOF extended SO terms are reported
+                    boolean lof = false;
+                    for (SequenceOntologyTerm soTerm : ct.getSequenceOntologyTerms()) {
+                        if ((soTerm.getName() != null && extendedLof.contains(soTerm.getName()))
+                                || (soTerm.getAccession() != null && extendedLof.contains(soTerm.getAccession()))) {
+                            lof = true;
+                            break;
+                        }
+                    }
+//                    if (!lof) {
+//                        continue;
+//                    }
+
                     GenomicFeature genomicFeature = new GenomicFeature(ct.getEnsemblGeneId(), "GENE", ct.getEnsemblTranscriptId(),
                             ct.getGeneName(), ct.getSequenceOntologyTerms(), null);
 
-                    if (geneToPanelMap.containsKey(ct.getEnsemblGeneId())) {
-                        logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId() + ", gene in panel");
+                    for (DiseasePanel diseasePanel : diseasePanels) {
+                        ModeOfInheritance panelMoi = getMoIFromPanel(diseasePanel, ct);
+                        if (panelMoi != null && isGreen(diseasePanel, ct)) {
+                            for (ModeOfInheritance moi1 : modeOfInheritances) {
+                                boolean isDeNovo = false;
+                                ModeOfInheritance moi = moi1;
+                                if (moi1.name().endsWith("__DE_NOVO")) {
+                                    isDeNovo = true;
+                                    moi = ModeOfInheritance.valueOf(moi1.name().split("__DE_NOVO")[0]);
+                                }
+//                                    if (moi == ModeOfInheritance.UNKNOWN) {
+//                                        processPanelRegion(genePanel, ct, variant, clinicalVariantEvidences);
+//                                    } else
+                                if (isCompatible(moi, panelMoi)) {
+                                    logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId() + ", moi match");
 
-                        // 2) create the clinical variant evidence for each panel
-                        Set<DiseasePanel> genePanels = geneToPanelMap.get(ct.getEnsemblGeneId());
-                        for (DiseasePanel genePanel : genePanels) {
-                            // In addition to the panel, the mode of inheritance must match too!
-                            if (geneToPanelMoiMap.containsKey(ct.getEnsemblGeneId())) {
-                                for (ModeOfInheritance moi : modeOfInheritances) {
-                                    if (moi == ModeOfInheritance.UNKNOWN) {
-                                        processPanelRegion(genePanel, ct, variant, clinicalVariantEvidences);
-                                    } else if (geneToPanelMoiMap.get(ct.getEnsemblGeneId()).get(genePanel.getId()) == moi) {
-                                        logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId() + ", moi match");
-
-                                        if (CollectionUtils.isNotEmpty(ct.getSequenceOntologyTerms())) {
-
-                                            // 3) create the clinical variant evidence for consequence type (SO term)
-                                            for (SequenceOntologyTerm soTerm : ct.getSequenceOntologyTerms()) {
-
-                                                // Only LOF extended SO terms are reported
-                                                if ((soTerm.getName() != null && !extendedLof.contains(soTerm.getName()))
-                                                        || (soTerm.getAccession() != null
-                                                        && !extendedLof.contains(soTerm.getAccession()))) {
-                                                    logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId()
-                                                            + ", discarded, LOF: " + soTerm.getName());
-                                                    continue;
-                                                }
-
-                                                if (StringUtils.isNotEmpty(soTerm.getAccession())) {
-                                                    if (TIER_1_CONSEQUENCE_TYPES_SET.contains(soTerm.getAccession())) {
-                                                        // Tier 1
-                                                        logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId()
-                                                                + ", reported, TIER 1, " + soTerm.getName());
-                                                        clinicalVariantEvidences.add(createClinicalVariantEvidence(genomicFeature,
-                                                                genePanel.getId(), moi, penetrance, TIER_1, variant));
-                                                    } else if (TIER_2_CONSEQUENCE_TYPES_SET.contains(soTerm.getAccession())) {
-                                                        // Tier 2
-                                                        logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId()
-                                                                + ", reported, TIER 2, " + soTerm.getName());
-                                                        clinicalVariantEvidences.add(createClinicalVariantEvidence(genomicFeature,
-                                                                genePanel.getId(), moi, penetrance, TIER_2, variant));
-                                                    } else {
-                                                        // Tier 3
-                                                        logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId()
-                                                                + ", reported, TIER 3, " + soTerm.getName());
-                                                        clinicalVariantEvidences.add(createClinicalVariantEvidence(genomicFeature,
-                                                                genePanel.getId(), moi, penetrance, TIER_3, variant));
-                                                    }
-                                                } else {
-                                                    // Tier 3
-                                                    logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId()
-                                                            + ", reported, TIER 3, empty SO");
-                                                    clinicalVariantEvidences.add(createClinicalVariantEvidence(genomicFeature,
-                                                            genePanel.getId(), moi, penetrance, TIER_3, variant));
-                                                }
-                                            }
-                                        } else {
-                                            // Tier 3
-                                            logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId() + ", reported, "
-                                                    + "TIER 3, empty SO list");
-                                            clinicalVariantEvidences.add(createClinicalVariantEvidence(genomicFeature, genePanel.getId(),
-                                                    moi, penetrance, TIER_3, variant));
-                                        }
+                                    // 3) create the clinical variant evidence for consequence type (SO term)
+                                    String tier = null;
+                                    if (isDeNovo) {
+                                        tier = TIER_1;
                                     } else {
-                                        if (geneToPanelMoiMap.get(ct.getEnsemblGeneId()).get(genePanel.getId()) == UNKNOWN) {
-                                            // Tier 3
-                                            logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId() + ", reported,"
-                                                    + " TIER 3, UNKNOWN moi");
-                                            if (CollectionUtils.isNotEmpty(ct.getSequenceOntologyTerms())) {
-                                                for (SequenceOntologyTerm soTerm : ct.getSequenceOntologyTerms()) {
-                                                    // Only LOF extended SO terms are reported
-                                                    if ((soTerm.getName() != null && !extendedLof.contains(soTerm.getName()))
-                                                            || (soTerm.getAccession() != null
-                                                            && !extendedLof.contains(soTerm.getAccession()))) {
-                                                        logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId()
-                                                                + ", discarded, LOF: " + soTerm.getName());
-                                                        continue;
-                                                    }
-                                                    logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId()
-                                                            + ", reported, TIER 3");
-                                                    clinicalVariantEvidences.add(createClinicalVariantEvidence(genomicFeature,
-                                                            genePanel.getId(), moi, penetrance, TIER_3, variant));
-                                                }
-                                            } else {
-                                                logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId() + ", discarded,"
-                                                        + " moi mismatch " + moi.name() + " vs panel gene moi "
-                                                        + geneToPanelMoiMap.get(ct.getEnsemblGeneId()).get(genePanel.getId()).name());
+                                        for (SequenceOntologyTerm soTerm : ct.getSequenceOntologyTerms()) {
+                                            if (TIER_1_CONSEQUENCE_TYPES_SET.contains(soTerm.getAccession())) {
+                                                // Tier 1
+                                                tier = TIER_1;
+                                                break;
+                                            } else if (TIER_2_CONSEQUENCE_TYPES_SET.contains(soTerm.getAccession())) {
+                                                tier = TIER_2;
                                             }
                                         }
                                     }
-                                }
-                            } else {
-                                logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId() + ", moi missing (UNTIERED)");
-                                for (ModeOfInheritance moi : modeOfInheritances) {
-                                    if (CollectionUtils.isNotEmpty(ct.getSequenceOntologyTerms())) {
-                                        for (SequenceOntologyTerm soTerm : ct.getSequenceOntologyTerms()) {
-                                            // Only LOF extended SO terms are reported
-                                            if ((soTerm.getName() != null && !extendedLof.contains(soTerm.getName()))
-                                                    || (soTerm.getAccession() != null && !extendedLof.contains(soTerm.getAccession()))) {
-                                                logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId()
-                                                        + ", discarded, LOF: " + soTerm.getName());
-                                                continue;
-                                            }
-                                            logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId()
-                                                    + ", reported, UNTIERED, LOF: " + soTerm.getName());
-                                            clinicalVariantEvidences.add(createClinicalVariantEvidence(genomicFeature,
-                                                    genePanel.getId(), moi, penetrance, "", variant));
-                                        }
-                                    } else {
-                                        logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId()
-                                                + ", reported, UNTIERED, missing LOF");
+
+                                    if (tier != null) {
                                         clinicalVariantEvidences.add(createClinicalVariantEvidence(genomicFeature,
-                                                genePanel.getId(), moi, penetrance, "", variant));
+                                                diseasePanel.getId(), moi, penetrance, tier, variant));
+                                    } else {
+                                        System.out.println("Something wrong, no so-tier1 nor so-tier2 for " + variant.toStringSimple()
+                                                + ": " + ct.getEnsemblTranscriptId());
+//                                        System.exit(-1);
                                     }
                                 }
                             }
-                        }
-                    } else {
-                        // Tier 3
-                        logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId() + ", not in panel");
-                        for (ModeOfInheritance moi : modeOfInheritances) {
-                            if (CollectionUtils.isNotEmpty(ct.getSequenceOntologyTerms())) {
-                                for (SequenceOntologyTerm soTerm : ct.getSequenceOntologyTerms()) {
-                                    // Only LOF extended SO terms are reported
-                                    if ((soTerm.getName() != null && !extendedLof.contains(soTerm.getName()))
-                                            || (soTerm.getAccession() != null && !extendedLof.contains(soTerm.getAccession()))) {
-                                        logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId() + ", discarded, LOF: "
-                                                + soTerm.getName());
-                                        continue;
-                                    }
-
-                                    logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId() + ", reported, TIER 3, LOF: "
-                                            + soTerm.getName());
-                                    clinicalVariantEvidences.add(createClinicalVariantEvidence(genomicFeature, null, moi, penetrance,
-                                            TIER_3, variant));
+                        } else {
+                            // Tier 3
+                            logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId() + ", not in panel");
+                            for (ModeOfInheritance moi1 : modeOfInheritances) {
+                                logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId() + ", reported, TIER 3, LOF: ");
+                                ModeOfInheritance moi = moi1;
+                                if (moi1.name().endsWith("__DE_NOVO")) {
+                                    moi = ModeOfInheritance.valueOf(moi1.name().split("__DE_NOVO")[0]);
                                 }
-                            } else {
-                                logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId()
-                                        + ", reported, TIER 3, missing LOF");
-                                clinicalVariantEvidences.add(createClinicalVariantEvidence(genomicFeature, null, moi, penetrance,
-                                        TIER_3, variant));
+                                if (lof && moi != ModeOfInheritance.UNKNOWN) {
+                                    clinicalVariantEvidences.add(createClinicalVariantEvidence(genomicFeature, diseasePanel.getId(), moi,
+                                            penetrance, TIER_3, variant));
+                                }
                             }
                         }
                     }
@@ -278,6 +214,210 @@ public class TieringClinicalVariantCreator extends ClinicalVariantCreator {
         }
 
         return clinicalVariants;
+    }
+
+    private ModeOfInheritance getMoIFromPanel(DiseasePanel diseasePanel, ConsequenceType ct) {
+        for (DiseasePanel.GenePanel panelGene : diseasePanel.getGenes()) {
+            if (StringUtils.isNotEmpty(ct.getGeneId())) {
+                if (ct.getGeneId().equals(panelGene.getId()) || ct.getGeneId().equals(panelGene.getName())) {
+                    return panelGene.getModeOfInheritance();
+                }
+            }
+            if (StringUtils.isNotEmpty(ct.getGeneName())) {
+                if (ct.getGeneName().equals(panelGene.getId()) || ct.getGeneName().equals(panelGene.getName())) {
+                    return panelGene.getModeOfInheritance();
+                }
+            }
+            if (StringUtils.isNotEmpty(ct.getEnsemblGeneId())) {
+                if (ct.getEnsemblGeneId().equals(panelGene.getId()) || ct.getEnsemblGeneId().equals(panelGene.getName())) {
+                    return panelGene.getModeOfInheritance();
+                }
+            }
+        }
+        return null;
+    }
+
+    private boolean inDiseasePanel(DiseasePanel diseasePanel, ConsequenceType ct) {
+        for (DiseasePanel.GenePanel panelGene : diseasePanel.getGenes()) {
+            if (StringUtils.isNotEmpty(ct.getGeneId())) {
+                if (ct.getGeneId().equals(panelGene.getId()) || ct.getGeneId().equals(panelGene.getName())) {
+                    return true;
+                }
+            }
+            if (StringUtils.isNotEmpty(ct.getGeneName())) {
+                if (ct.getGeneName().equals(panelGene.getId()) || ct.getGeneName().equals(panelGene.getName())) {
+                    return true;
+                }
+            }
+            if (StringUtils.isNotEmpty(ct.getEnsemblGeneId())) {
+                if (ct.getEnsemblGeneId().equals(panelGene.getId()) || ct.getEnsemblGeneId().equals(panelGene.getName())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+
+    private boolean isCompatible(ModeOfInheritance variantMoi, ModeOfInheritance panelMoi) {
+        if (variantMoi == null || panelMoi == null) {
+            return false;
+        }
+        switch (variantMoi) {
+//            case AUTOSOMAL_DOMINANT_NOT_IMPRINTED: {
+//                switch (panelMoi) {
+//                    case AUTOSOMAL_DOMINANT:
+//                    case X_LINKED_DOMINANT:
+//                    case X_LINKED_RECESSIVE:
+//                    case MITOCHONDRIAL:
+//                    case UNKNOWN:
+//                        return true;
+//                    default:
+//                        return false;
+//                }
+//            }
+
+            case AUTOSOMAL_DOMINANT: {
+                switch (panelMoi) {
+                    case AUTOSOMAL_DOMINANT:
+                    case AUTOSOMAL_DOMINANT_AND_RECESSIVE:
+                    case AUTOSOMAL_DOMINANT_AND_MORE_SEVERE_RECESSIVE:
+//                    case X_LINKED_RECESSIVE:
+                    case UNKNOWN:
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+            case AUTOSOMAL_DOMINANT_NOT_IMPRINTED: {
+                switch (panelMoi) {
+                    case AUTOSOMAL_DOMINANT_NOT_IMPRINTED:
+                    case AUTOSOMAL_DOMINANT:
+                    case AUTOSOMAL_DOMINANT_AND_RECESSIVE:
+                    case AUTOSOMAL_DOMINANT_AND_MORE_SEVERE_RECESSIVE:
+                    case X_LINKED_RECESSIVE:
+                    case X_LINKED_DOMINANT:
+                    case MITOCHONDRIAL:
+                    case UNKNOWN:
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+            case AUTOSOMAL_DOMINANT_PATERNALLY_IMPRINTED: {
+                switch (panelMoi) {
+                    case AUTOSOMAL_DOMINANT_PATERNALLY_IMPRINTED:
+                    case UNKNOWN:
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+            case AUTOSOMAL_DOMINANT_MATERNALLY_IMPRINTED:_: {
+                switch (panelMoi) {
+                    case AUTOSOMAL_DOMINANT_MATERNALLY_IMPRINTED:
+                    case UNKNOWN:
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+            case AUTOSOMAL_RECESSIVE: {
+                switch (panelMoi) {
+                    case AUTOSOMAL_RECESSIVE:
+                    case AUTOSOMAL_DOMINANT_AND_RECESSIVE:
+                    case AUTOSOMAL_DOMINANT_AND_MORE_SEVERE_RECESSIVE:
+                    case UNKNOWN:
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+            case X_LINKED_DOMINANT: {
+                switch (panelMoi) {
+                    case X_LINKED_DOMINANT:
+//                    case X_LINKED_RECESSIVE:
+                    case UNKNOWN:
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+            case X_LINKED_RECESSIVE: {
+                switch (panelMoi) {
+                    case X_LINKED_RECESSIVE:
+                    case UNKNOWN:
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+            case DE_NOVO: {
+                switch (panelMoi) {
+                    case AUTOSOMAL_DOMINANT:
+//                    case AUTOSOMAL_RECESSIVE:
+                    case X_LINKED_DOMINANT:
+                    case X_LINKED_RECESSIVE:
+                    case MITOCHONDRIAL:
+                    case UNKNOWN:
+                        return true;
+                    default:
+                        return false;
+                }
+
+            }
+            case MITOCHONDRIAL: {
+                switch (panelMoi) {
+                    case MITOCHONDRIAL:
+                    case UNKNOWN:
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+
+            case UNKNOWN: {
+                return true;
+            }
+
+            default: {
+                System.out.println(variantMoi + " vs " + panelMoi);
+                System.exit(-1);
+            }
+
+        }
+        return false;
+    }
+
+    private boolean isGreen(DiseasePanel diseasePanel, ConsequenceType ct) {
+        for (DiseasePanel.GenePanel panelGene : diseasePanel.getGenes()) {
+            boolean matchName = false;
+            if (StringUtils.isNotEmpty(ct.getGeneId())) {
+                if (ct.getGeneId().equals(panelGene.getId()) || ct.getGeneId().equals(panelGene.getName())) {
+                    matchName = true;
+                }
+            }
+            if (StringUtils.isNotEmpty(ct.getGeneName())) {
+                if (ct.getGeneName().equals(panelGene.getId()) || ct.getGeneName().equals(panelGene.getName())) {
+                    matchName = true;
+                }
+            }
+            if (StringUtils.isNotEmpty(ct.getEnsemblGeneId())) {
+                if (ct.getEnsemblGeneId().equals(panelGene.getId()) || ct.getEnsemblGeneId().equals(panelGene.getName())) {
+                    matchName = true;
+                }
+            }
+
+            if (matchName) {
+                for (String evidence : panelGene.getEvidences()) {
+                    if (evidence.contains("Expert Review Green")) {
+                        return true;
+                    }
+                }
+                return (panelGene.getConfidence() == ClinicalProperty.Confidence.HIGH);
+            }
+        }
+        return false;
     }
 
     private void processPanelRegion(DiseasePanel genePanel, ConsequenceType ct, Variant variant,

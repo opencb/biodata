@@ -231,6 +231,9 @@ public abstract class ClinicalVariantCreator {
         // Variant classification:
         clinicalVariantEvidence.setClassification(new VariantClassification());
 
+        // Variant classification: Tier
+        clinicalVariantEvidence.getClassification().setTier(tier);
+
         // Variant classification: ACMG
         List<String> acmgs = calculateAcmgClassification(variant, moi);
         clinicalVariantEvidence.getClassification().setAcmg(acmgs);

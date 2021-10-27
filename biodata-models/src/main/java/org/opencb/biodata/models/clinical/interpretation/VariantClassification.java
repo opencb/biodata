@@ -37,9 +37,9 @@ public class VariantClassification {
     public static Set<String> PROTEIN_LENGTH_CHANGING = new HashSet<>(Arrays.asList("stop_gained", "stop_lost", "frameshift_variant",
             "inframe_insertion", "inframe_deletion", "splice_acceptor_variant", "splice_donor_variant"));
 
-    public static final String TIER_1 = "Tier1";
-    public static final String TIER_2 = "Tier2";
-    public static final String TIER_3 = "Tier3";
+    public static final String TIER_1 = "TIER1";
+    public static final String TIER_2 = "TIER2";
+    public static final String TIER_3 = "TIER3";
     public static final String UNTIERED = "none";
 
     private String tier;
