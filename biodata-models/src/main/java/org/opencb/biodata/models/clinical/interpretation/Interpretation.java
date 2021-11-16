@@ -37,7 +37,7 @@ public class Interpretation {
      * Interpretation algorithm tool used to generate this interpretation.
      */
     private ClinicalAnalyst analyst;
-    private List<InterpretationMethod> methods;
+    private InterpretationMethod method;
 
     private List<ClinicalVariant> primaryFindings;
     private List<ClinicalVariant> secondaryFindings;
@@ -59,15 +59,15 @@ public class Interpretation {
     }
 
     public Interpretation(String id, String uuid, String description, String clinicalAnalysisId, ClinicalAnalyst analyst,
-                          List<InterpretationMethod> methods, List<ClinicalVariant> primaryFindings,
-                          List<ClinicalVariant> secondaryFindings, List<ClinicalComment> comments, Status status,
-                          String creationDate, String modificationDate, int version, Map<String, Object> attributes) {
+                          InterpretationMethod method, List<ClinicalVariant> primaryFindings, List<ClinicalVariant> secondaryFindings,
+                          List<ClinicalComment> comments, Status status, String creationDate, String modificationDate, int version,
+                          Map<String, Object> attributes) {
         this.id = id;
         this.uuid = uuid;
         this.description = description;
         this.clinicalAnalysisId = clinicalAnalysisId;
         this.analyst = analyst;
-        this.methods = methods;
+        this.method = method;
         this.primaryFindings = primaryFindings;
         this.secondaryFindings = secondaryFindings;
         this.comments = comments;
@@ -86,7 +86,7 @@ public class Interpretation {
         sb.append(", description='").append(description).append('\'');
         sb.append(", clinicalAnalysisId='").append(clinicalAnalysisId).append('\'');
         sb.append(", analyst=").append(analyst);
-        sb.append(", methods=").append(methods);
+        sb.append(", method=").append(method);
         sb.append(", primaryFindings=").append(primaryFindings);
         sb.append(", secondaryFindings=").append(secondaryFindings);
         sb.append(", comments=").append(comments);
@@ -144,12 +144,12 @@ public class Interpretation {
         return this;
     }
 
-    public List<InterpretationMethod> getMethods() {
-        return methods;
+    public InterpretationMethod getMethod() {
+        return method;
     }
 
-    public Interpretation setMethods(List<InterpretationMethod> methods) {
-        this.methods = methods;
+    public Interpretation setMethod(InterpretationMethod method) {
+        this.method = method;
         return this;
     }
 
