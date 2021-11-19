@@ -43,7 +43,7 @@ public class SamtoolsStats {
     private int pairsOnDifferentChromosomes;
     private double percentageOfProperlyPairedReads;
 
-    private List<String> images;
+    private List<String> files;
 
     public SamtoolsStats() {
     }
@@ -89,7 +89,7 @@ public class SamtoolsStats {
         sb.append(", pairsWithOtherOrientation=").append(pairsWithOtherOrientation);
         sb.append(", pairsOnDifferentChromosomes=").append(pairsOnDifferentChromosomes);
         sb.append(", percentageOfProperlyPairedReads=").append(percentageOfProperlyPairedReads);
-        sb.append(", images=").append(images);
+        sb.append(", files=").append(files);
         sb.append('}');
         return sb.toString();
     }
@@ -436,12 +436,12 @@ public class SamtoolsStats {
         return this;
     }
 
-    public List<String> getImages() {
-        return images;
+    public List<String> getFiles() {
+        return files;
     }
 
-    public SamtoolsStats setImages(List<String> images) {
-        this.images = images;
+    public SamtoolsStats setFiles(List<String> files) {
+        this.files = files;
         return this;
     }
 }
