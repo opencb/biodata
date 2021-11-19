@@ -28,18 +28,18 @@ public class SignatureFitting {
     private String signatureVersion;
     private List<Score> scores;
     private double coeff;
-    private String image;
+    private String file;
 
     public SignatureFitting() {
     }
 
-    public SignatureFitting(String method, String signatureSource, String signatureVersion, List<Score> scores, double coeff, String image) {
+    public SignatureFitting(String method, String signatureSource, String signatureVersion, List<Score> scores, double coeff, String file) {
         this.method = method;
         this.signatureSource = signatureSource;
         this.signatureVersion = signatureVersion;
         this.scores = scores;
         this.coeff = coeff;
-        this.image = image;
+        this.file = file;
     }
 
     @Override
@@ -50,7 +50,7 @@ public class SignatureFitting {
         sb.append(", signatureVersion='").append(signatureVersion).append('\'');
         sb.append(", scores=").append(scores);
         sb.append(", coeff=").append(coeff);
-        sb.append(", image='").append(image).append('\'');
+        sb.append(", file='").append(file).append('\'');
         sb.append('}');
         return sb.toString();
     }
@@ -100,12 +100,12 @@ public class SignatureFitting {
         return this;
     }
 
-    public String getImage() {
-        return image;
+    public String getFile() {
+        return file;
     }
 
-    public SignatureFitting setImage(String image) {
-        this.image = image;
+    public SignatureFitting setFile(String file) {
+        this.file = file;
         return this;
     }
 

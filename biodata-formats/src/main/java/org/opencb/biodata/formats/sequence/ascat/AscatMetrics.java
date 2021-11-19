@@ -8,16 +8,16 @@ public class AscatMetrics {
 
     private int ploidy;
     private double aberrantCellFraction;
-    private List<String> images;
+    private List<String> files;
 
     public AscatMetrics() {
         this(0,0,new ArrayList<>());
     }
 
-    public AscatMetrics(int ploidy, double aberrantCellFraction, List<String> images) {
+    public AscatMetrics(int ploidy, double aberrantCellFraction, List<String> files) {
         this.ploidy = ploidy;
         this.aberrantCellFraction = aberrantCellFraction;
-        this.images = images;
+        this.files = files;
     }
 
     @Override
@@ -25,7 +25,7 @@ public class AscatMetrics {
         final StringBuilder sb = new StringBuilder("AscatMetrics{");
         sb.append("ploidy=").append(ploidy);
         sb.append(", aberrantCellFraction=").append(aberrantCellFraction);
-        sb.append(", images=").append(images);
+        sb.append(", files=").append(files);
         sb.append('}');
         return sb.toString();
     }
@@ -48,12 +48,12 @@ public class AscatMetrics {
         return this;
     }
 
-    public List<String> getImages() {
-        return images;
+    public List<String> getFiles() {
+        return files;
     }
 
-    public AscatMetrics setImages(List<String> images) {
-        this.images = images;
+    public AscatMetrics setFiles(List<String> files) {
+        this.files = files;
         return this;
     }
 }
