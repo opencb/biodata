@@ -91,6 +91,25 @@ protocol VariantAnnotations {
         union { null, string } description;
     }
 
+    record AlternateSpliceScore {
+        string altAllele;
+        map<double> scores;
+    }
+
+    record SpliceScore {
+        string chromosome;
+        int start;
+        int end;
+        string refAllele;
+        string geneId;
+        string geneName;
+        string transcriptId;
+        string exonId;
+        int exonNumber;
+        string source;
+        array<AlternateSpliceScore> alternates;
+    }
+
     record ProteinVariantAnnotation {
         union { null, string } uniprotAccession = null;
         union { null, string } uniprotName = null;
@@ -235,6 +254,7 @@ protocol VariantAnnotations {
         union { null, string } minorAllele;
         union { null, float } minorAlleleFreq;
         union { null, array<Score> } conservation;
+        union { null, array<SpliceScore> } splice;
 
         // DEPRECATED: to be removed next release
         @javaAnnotation("Deprecated")
