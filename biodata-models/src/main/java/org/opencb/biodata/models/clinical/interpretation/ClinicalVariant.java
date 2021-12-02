@@ -31,8 +31,8 @@ import java.util.Map;
 public class ClinicalVariant extends Variant {
 
     private List<ClinicalVariantEvidence> evidences;
-    private List<String> interpretationMethodNames;
     private List<ClinicalComment> comments;
+    private Map<String, Object> filters;
     private String discussion;
 
     private Status status;
@@ -53,16 +53,16 @@ public class ClinicalVariant extends Variant {
     }
 
     public ClinicalVariant(VariantAvro avro) {
-        this(avro, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), "", Status.NOT_REVIEWED, new HashMap<>());
+        this(avro, new ArrayList<>(), new ArrayList<>(), new HashMap<>(), "", Status.NOT_REVIEWED, new HashMap<>());
     }
 
-    public ClinicalVariant(VariantAvro avro, List<ClinicalVariantEvidence> evidences, List<String> interpretationMethodNames,
-                           List<ClinicalComment> comments, String discussion, Status status, Map<String, Object> attributes) {
+    public ClinicalVariant(VariantAvro avro, List<ClinicalVariantEvidence> evidences, List<ClinicalComment> comments,
+                           Map<String, Object> filters, String discussion, Status status, Map<String, Object> attributes) {
         super(avro);
 
         this.evidences = evidences;
-        this.interpretationMethodNames = interpretationMethodNames;
         this.comments = comments;
+        this.filters = filters;
         this.discussion = discussion;
         this.status = status;
         this.attributes = attributes;
@@ -72,8 +72,8 @@ public class ClinicalVariant extends Variant {
     public String toString() {
         final StringBuilder sb = new StringBuilder("ClinicalVariant{");
         sb.append("evidences=").append(evidences);
-        sb.append(", interpretationMethodNames=").append(interpretationMethodNames);
         sb.append(", comments=").append(comments);
+        sb.append(", filters=").append(filters);
         sb.append(", discussion='").append(discussion).append('\'');
         sb.append(", status=").append(status);
         sb.append(", attributes=").append(attributes);
@@ -90,21 +90,21 @@ public class ClinicalVariant extends Variant {
         return this;
     }
 
-    public List<String> getInterpretationMethodNames() {
-        return interpretationMethodNames;
-    }
-
-    public ClinicalVariant setInterpretationMethodNames(List<String> interpretationMethodNames) {
-        this.interpretationMethodNames = interpretationMethodNames;
-        return this;
-    }
-
     public List<ClinicalComment> getComments() {
         return comments;
     }
 
     public ClinicalVariant setComments(List<ClinicalComment> comments) {
         this.comments = comments;
+        return this;
+    }
+
+    public Map<String, Object> getFilters() {
+        return filters;
+    }
+
+    public ClinicalVariant setFilters(Map<String, Object> filters) {
+        this.filters = filters;
         return this;
     }
 

@@ -1,23 +1,26 @@
 package org.opencb.biodata.formats.sequence.fastqc;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public class FastQcMetrics {
 
     private Summary summary;
     private Map<String, String> basicStats;
-    private List<String> images;
+    private List<String> files;
 
     public FastQcMetrics() {
         summary = new Summary();
         basicStats = new LinkedHashMap<>();
-        images = new ArrayList<>();
+        files = new ArrayList<>();
     }
 
-    public FastQcMetrics(Summary summary, Map<String, String> basicStats, List<String> images) {
+    public FastQcMetrics(Summary summary, Map<String, String> basicStats, List<String> files) {
         this.summary = summary;
         this.basicStats = basicStats;
-        this.images = images;
+        this.files = files;
     }
 
     @Override
@@ -25,7 +28,7 @@ public class FastQcMetrics {
         final StringBuilder sb = new StringBuilder("FastQcMetrics{");
         sb.append("summary=").append(summary);
         sb.append(", basicStats=").append(basicStats);
-        sb.append(", images=").append(images);
+        sb.append(", files=").append(files);
         sb.append('}');
         return sb.toString();
     }
@@ -48,12 +51,12 @@ public class FastQcMetrics {
         return this;
     }
 
-    public List<String> getImages() {
-        return images;
+    public List<String> getFiles() {
+        return files;
     }
 
-    public FastQcMetrics setImages(List<String> images) {
-        this.images = images;
+    public FastQcMetrics setFiles(List<String> files) {
+        this.files = files;
         return this;
     }
 }

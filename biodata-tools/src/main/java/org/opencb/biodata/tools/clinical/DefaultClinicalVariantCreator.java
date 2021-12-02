@@ -125,7 +125,7 @@ public class DefaultClinicalVariantCreator extends ClinicalVariantCreator {
             // Create a clinical variant only if we have evidences
             if (CollectionUtils.isNotEmpty(clinicalVariantEvidences)) {
                 ClinicalVariant clinicalVariant = new ClinicalVariant(variant.getImpl(), Collections.emptyList(), Collections.emptyList(),
-                        Collections.emptyList(), "", ClinicalVariant.Status.NOT_REVIEWED, Collections.emptyMap());
+                        Collections.emptyMap(), "", ClinicalVariant.Status.NOT_REVIEWED, Collections.emptyMap());
                 clinicalVariant.setEvidences(clinicalVariantEvidences);
 
                 // Add variant to the list
