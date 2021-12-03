@@ -19,6 +19,7 @@
 
 package org.opencb.biodata.models.core;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -35,6 +36,7 @@ public class OntologyTermAnnotation {
     protected Map<String, String> attributes;
 
     public OntologyTermAnnotation() {
+        this("", "", "", "", "", new HashMap<>());
     }
 
     public OntologyTermAnnotation(String id, String name, String description, String source, String url, Map<String, String> attributes) {

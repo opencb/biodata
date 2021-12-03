@@ -26,6 +26,7 @@ import htsjdk.variant.vcf.VCFHeader;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.clinical.pedigree.Member;
 import org.opencb.biodata.models.clinical.pedigree.Pedigree;
+import org.opencb.biodata.models.core.SexOntologyTermAnnotation;
 import org.opencb.biodata.models.metadata.Cohort;
 import org.opencb.biodata.models.metadata.Individual;
 import org.opencb.biodata.models.metadata.Sample;
@@ -688,8 +689,9 @@ public class VariantMetadataManager {
                 }
 
                 // main fields
-                dest = new Member(src.getId(), StringUtils.isEmpty(src.getSex()) ? null : Member.Sex.getEnum(src.getSex())
-                );
+                dest = new Member(src.getId(), StringUtils.isEmpty(src.getSex())
+                        ? null
+                        : new SexOntologyTermAnnotation().setId(src.getSex()));
 
                 // attributes
                 if (src.getSamples() != null && src.getSamples().size() > 0) {
