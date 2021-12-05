@@ -20,6 +20,8 @@
 package org.opencb.biodata.formats.pedigree;
 
 import org.opencb.biodata.models.clinical.pedigree.Member;
+import org.opencb.biodata.models.core.SexOntologyTermAnnotation;
+import org.opencb.biodata.models.pedigree.IndividualProperty;
 import org.opencb.biodata.models.pedigree.Multiples;
 import org.opencb.biodata.models.clinical.pedigree.Pedigree;
 import org.opencb.commons.utils.FileUtils;
@@ -51,7 +53,7 @@ public class PedigreeParser {
         Map<String, Member> individualMap = new HashMap<>();
 
         String pedigreeName, individualName;
-        Member.Sex sex;
+        String sex;
         Member.AffectionStatus affectionStatus;
         //String line, key;
         String[] fields, labels = null;
@@ -77,13 +79,13 @@ public class PedigreeParser {
                     // normal line
                     pedigreeName = fields[0];
                     individualName = fields[1];
-                    sex = Member.Sex.getEnum(fields[4]);
+                    sex = IndividualProperty.Sex.UNKNOWN.name();
                     affectionStatus = Member.AffectionStatus.getEnum(fields[5]);
                     if (!pedigreeMap.containsKey(pedigreeName)) {
                         pedigreeMap.put(pedigreeName, new Pedigree(pedigreeName, new ArrayList<>(), new HashMap<>()));
                     }
 
-                    member = new Member(individualName, sex);
+                    member = new Member(individualName, new SexOntologyTermAnnotation().setId(sex));
 
                     // labels are optional
                     if (labels != null && fields.length > 6 && labels.length == fields.length) {
@@ -191,7 +193,7 @@ public class PedigreeParser {
             line.append(pedigree.getName()).append("\t").append(member.getName()).append("\t")
                     .append(member.getFather() != null ? member.getFather().getName() : 0).append("\t")
                     .append(member.getMother() != null ? member.getMother().getName() : 0).append("\t")
-                    .append(member.getSex().getValue());
+                    .append(member.getSex() != null ? member.getSex().getId() : "");
 
             // custom fields (optional)
             if (member.getAttributes() != null) {

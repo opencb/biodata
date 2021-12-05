@@ -26,7 +26,6 @@ import java.util.Map;
 
 public class Disorder extends OntologyTermAnnotation {
 
-    private String description;
     private List<Phenotype> evidences;
 
     public Disorder() {
@@ -34,25 +33,28 @@ public class Disorder extends OntologyTermAnnotation {
 
     @Deprecated
     public Disorder(String id, String name, String source, String description, List<Phenotype> evidences, Map<String, String> attributes) {
-        super(id, name, source, attributes);
-        this.description = description;
-        this.evidences = evidences;
+        this(id, name, description, source, "", attributes, evidences);
     }
 
     public Disorder(String id, String name, String source, Map<String, String> attributes, String description, List<Phenotype> evidences) {
-        super(id, name, source, attributes);
-        this.description = description;
+        this(id, name, description, source, "", attributes, evidences);
+    }
+
+    public Disorder(String id, String name, String description, String source, String url, Map<String, String> attributes,
+                    List<Phenotype> evidences) {
+        super(id, name, description, source, url, attributes);
         this.evidences = evidences;
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("Disorder{");
-        sb.append("description='").append(description).append('\'');
-        sb.append(", evidences=").append(evidences);
+        sb.append("evidences=").append(evidences);
         sb.append(", id='").append(id).append('\'');
         sb.append(", name='").append(name).append('\'');
+        sb.append(", description='").append(description).append('\'');
         sb.append(", source='").append(source).append('\'');
+        sb.append(", url='").append(url).append('\'');
         sb.append(", attributes=").append(attributes);
         sb.append('}');
         return sb.toString();

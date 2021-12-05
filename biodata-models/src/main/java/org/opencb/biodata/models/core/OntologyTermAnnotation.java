@@ -19,6 +19,7 @@
 
 package org.opencb.biodata.models.core;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -28,26 +29,33 @@ public class OntologyTermAnnotation {
 
     protected String id;
     protected String name;
+    protected String description;
     protected String source;
+    protected String url;
 
     protected Map<String, String> attributes;
 
     public OntologyTermAnnotation() {
+        this("", "", "", "", "", new HashMap<>());
     }
 
-    public OntologyTermAnnotation(String id, String name, String source, Map<String, String> attributes) {
+    public OntologyTermAnnotation(String id, String name, String description, String source, String url, Map<String, String> attributes) {
         this.id = id;
         this.name = name;
+        this.description = description;
         this.source = source;
+        this.url = url;
         this.attributes = attributes;
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("OntologyTerm{");
+        final StringBuilder sb = new StringBuilder("OntologyTermAnnotation{");
         sb.append("id='").append(id).append('\'');
         sb.append(", name='").append(name).append('\'');
+        sb.append(", description='").append(description).append('\'');
         sb.append(", source='").append(source).append('\'');
+        sb.append(", url='").append(url).append('\'');
         sb.append(", attributes=").append(attributes);
         sb.append('}');
         return sb.toString();
@@ -71,12 +79,30 @@ public class OntologyTermAnnotation {
         return this;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public OntologyTermAnnotation setDescription(String description) {
+        this.description = description;
+        return this;
+    }
+
     public String getSource() {
         return source;
     }
 
     public OntologyTermAnnotation setSource(String source) {
         this.source = source;
+        return this;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public OntologyTermAnnotation setUrl(String url) {
+        this.url = url;
         return this;
     }
 
