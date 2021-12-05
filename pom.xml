@@ -112,7 +112,7 @@
         </repository>
         <repository>
             <id>opencb-ext-libs</id>
-            <url>http://bioinfo.hpc.cam.ac.uk/downloads/ext-libs/</url>
+            <url>http://bioinfo.hpc.cam.ac.uk/downloads/ext-libs</url>
         </repository>
     </repositories>
 
