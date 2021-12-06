@@ -24,6 +24,11 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '8'
+      - name: Setup Maven Action
+        uses: s4u/setup-maven-action@v1.3.1
+        with:
+          java-version: 8
+          maven-version: 3.6.3
       - name: Cache Maven packages
         uses: actions/cache@v2
         with:
