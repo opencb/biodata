@@ -48,14 +48,5 @@ jobs:
       MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
       MAVEN_GPG_PRIVATE_KEY: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
   release:
-    name: GitHub Release
-    runs-on: ubuntu-20.04
+    uses: opencb/java-common-libs/.github/workflows/release-github-workflow.yml@develop
     needs: deploy
-    steps:
-      - name: GitHub Release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          name: ${{ github.ref }}
-          tag_name: ${{ github.ref }}
-          generate_release_notes: true
