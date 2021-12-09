@@ -75,7 +75,7 @@ public class FastQcParser {
         if (path.toFile().exists() && path.toFile().isDirectory()) {
             for (File imgFile : path.toFile().listFiles()) {
                 if (imgFile.isFile() && imgFile.getName().endsWith("png")) {
-                    fastQcMetrics.getImages().add(imgFile.getAbsolutePath());
+                    fastQcMetrics.getFiles().add(imgFile.getAbsolutePath());
                 }
             }
         }
