@@ -91,25 +91,6 @@ protocol VariantAnnotations {
         union { null, string } description;
     }
 
-    record AlternateSpliceScore {
-        string altAllele;
-        map<double> scores;
-    }
-
-    record SpliceScore {
-        string chromosome;
-        int start;
-        int end;
-        string refAllele;
-        string geneId;
-        string geneName;
-        string transcriptId;
-        string exonId;
-        int exonNumber;
-        string source;
-        array<AlternateSpliceScore> alternates;
-    }
-
     record ProteinVariantAnnotation {
         union { null, string } uniprotAccession = null;
         union { null, string } uniprotName = null;
@@ -129,6 +110,10 @@ protocol VariantAnnotations {
         union { null, float } percentage;
     }
 
+    record SpliceScores {
+        string altAllele;
+        map<double> scores;
+    }
     record ConsequenceType {
         union { null, string } geneId;
         union { null, string } geneName;
@@ -145,6 +130,8 @@ protocol VariantAnnotations {
         union { null, string } biotype;
         union { null, string } source;
         union { null, array<ExonOverlap> } exonOverlap;
+
+        union { null, array<SpliceScores> } spliceScores;
 
         // DEPRECATED: replaced by transcriptFlags
         @javaAnnotation("Deprecated")
@@ -254,7 +241,6 @@ protocol VariantAnnotations {
         union { null, string } minorAllele;
         union { null, float } minorAlleleFreq;
         union { null, array<Score> } conservation;
-        union { null, array<SpliceScore> } splice;
 
         // DEPRECATED: to be removed next release
         @javaAnnotation("Deprecated")
