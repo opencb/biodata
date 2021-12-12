@@ -43,6 +43,10 @@
         <grpc.version>1.23.1</grpc.version>
         <htsjdk.version>2.23.0</htsjdk.version>
         <slf4j.version>1.7.25</slf4j.version>
+
+        <sonar.organization>opencb</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+
         <compileSource>1.8</compileSource>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>

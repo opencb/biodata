@@ -8,6 +8,15 @@ on:
 jobs:
   build:
     uses: opencb/java-common-libs/.github/workflows/build-java-app-workflow.yml@develop
+
+  sonar:
+    uses: opencb/java-common-libs/.github/workflows/sonar-analysis-workflow.yml@develop
+    needs: build
+    with:
+      sonarProjectKey: opencb_biodata
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
   test:
     name: Test java-common-libs
     runs-on: ubuntu-20.04
@@ -39,6 +48,7 @@ jobs:
         run: sudo apt-get install samtools
       - name: Run tests with Maven
         run: mvn -T 2 clean install
+
   deploy:
     uses: opencb/java-common-libs/.github/workflows/deploy-maven-repository-workflow.yml@develop
     needs: test
@@ -47,6 +57,7 @@ jobs:
       MAVEN_NEXUS_PASSWORD: ${{ secrets.MAVEN_NEXUS_PASSWORD }}
       MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
       MAVEN_GPG_PRIVATE_KEY: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+
   release:
     uses: opencb/java-common-libs/.github/workflows/release-github-workflow.yml@develop
     needs: deploy
