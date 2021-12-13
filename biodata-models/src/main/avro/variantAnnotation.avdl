@@ -128,8 +128,8 @@ protocol VariantAnnotations {
         union { null, array<ExonOverlap> } exonOverlap;
 
         // DEPRECATED: replaced by transcriptFlags
-        @javaAnnotation("Deprecated")
-        union { null, array<string> } transcriptAnnotationFlags;
+        //@javaAnnotation("Deprecated")
+        //union { null, array<string> } transcriptAnnotationFlags;
 
         union { null, array<string> } transcriptFlags;
         union { null, int } cdnaPosition;
