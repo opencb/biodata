@@ -19,6 +19,9 @@
 
 package org.opencb.biodata.models.core;
 
+import org.opencb.biodata.models.constants.FieldConstants;
+import org.opencb.commons.annotations.DataField;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,12 +30,29 @@ import java.util.Map;
  */
 public class OntologyTermAnnotation {
 
+    @DataField(id = "id", indexed = true,
+            description = FieldConstants.GENERIC_ID_DESCRIPTION)
     protected String id;
+
+    @DataField(id = "name", indexed = true,
+            description = FieldConstants.GENERIC_NAME_DESCRIPTION)
     protected String name;
+
+    @DataField(id = "description", indexed = true,
+            description = FieldConstants.GENERIC_DESCRIPTION_DESCRIPTION)
     protected String description;
+
+
+    @DataField(id = "source", indexed = true,
+            description = FieldConstants.ONTOLOGY_SOURCE_DESCRIPTION)
     protected String source;
+
+    @DataField(id = "url", indexed = true,
+            description = FieldConstants.ONTOLOGY_URL_DESCRIPTION)
     protected String url;
 
+    @DataField(id = "attributes",
+            description = FieldConstants.GENERIC_ATTRIBUTES_DESCRIPTION)
     protected Map<String, String> attributes;
 
     public OntologyTermAnnotation() {

@@ -20,12 +20,25 @@
 package org.opencb.biodata.models.clinical.qc;
 
 
+import org.opencb.biodata.models.constants.FieldConstants;
+import org.opencb.commons.annotations.DataField;
 
 public class GenomePlot {
 
+    @DataField(id = "id", indexed = true,
+            description = FieldConstants.GENERIC_ID_DESCRIPTION)
     private String id;
+
+    @DataField(id = "description", indexed = true,
+            description = FieldConstants.GENERIC_DESCRIPTION_DESCRIPTION)
     private String description;
+
+    @DataField(id = "config", indexed = true,
+            description = FieldConstants.GENOMEPLOT_CONFIG_DESCRIPTION)
     private GenomePlotConfig config;
+
+    @DataField(id = "file", indexed = true,
+            description = FieldConstants.GENOMEPLOT_FILE_DESCRIPTION)
     private String file;
 
     public GenomePlot() {

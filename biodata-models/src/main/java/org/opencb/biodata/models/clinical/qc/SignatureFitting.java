@@ -19,15 +19,36 @@
 
 package org.opencb.biodata.models.clinical.qc;
 
+import org.opencb.biodata.models.constants.FieldConstants;
+import org.opencb.commons.annotations.DataField;
+
 import java.util.List;
 
 public class SignatureFitting {
 
+
+    @DataField(id = "method", indexed = true,
+            description = FieldConstants.SIGNATURE_FITTING_METHOD_DESCRIPTION)
     private String method;
+
+    @DataField(id = "signatureSource", indexed = true,
+            description = FieldConstants.SIGNATURE_FITTING_SOURCE_DESCRIPTION)
     private String signatureSource;
+
+    @DataField(id = "signatureVersion", indexed = true,
+            description = FieldConstants.SIGNATURE_FITTING_SIGNATURE_VERSION_DESCRIPTION)
     private String signatureVersion;
+
+    @DataField(id = "scores", indexed = true, uncommentedClasses = {"Score"},
+            description = FieldConstants.SIGNATURE_FITTING_SCORES_DESCRIPTION)
     private List<Score> scores;
+
+    @DataField(id = "coeff", indexed = true,
+            description = FieldConstants.SIGNATURE_FITTING_COEFF_DESCRIPTION)
     private double coeff;
+
+    @DataField(id = "file", indexed = true,
+            description = FieldConstants.SIGNATURE_FITTING_FILE_DESCRIPTION)
     private String file;
 
     public SignatureFitting() {

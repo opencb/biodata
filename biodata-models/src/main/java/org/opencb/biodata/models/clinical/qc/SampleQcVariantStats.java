@@ -19,17 +19,32 @@
 
 package org.opencb.biodata.models.clinical.qc;
 
+import org.opencb.biodata.models.constants.FieldConstants;
 import org.opencb.biodata.models.variant.metadata.SampleVariantStats;
+import org.opencb.commons.annotations.DataField;
 
 import java.util.Map;
 
 public class SampleQcVariantStats {
 
+    @DataField(id = "id", indexed = true,
+            description = FieldConstants.GENERIC_ID_DESCRIPTION)
     private String id;
+
+    @DataField(id = "description", indexed = true,
+            description = FieldConstants.GENERIC_DESCRIPTION_DESCRIPTION)
     private String description;
+
+    @DataField(id = "query", indexed = true,
+            description = FieldConstants.GENERIC_QUERY_DESCRIPTION)
     private Map<String, String> query;
+
+    @DataField(id = "stats", indexed = true, uncommentedClasses = {"SampleVariantStats"},
+            description = FieldConstants.SAMPLE_QC_VARIANT_STATS_STATS)
     private SampleVariantStats stats;
 
+    @DataField(id = "sampleId", indexed = true,
+            description = FieldConstants.SAMPLE_QC_VARIANT_STATS_STATS)
     @Deprecated
     private String sampleId;
     @Deprecated
