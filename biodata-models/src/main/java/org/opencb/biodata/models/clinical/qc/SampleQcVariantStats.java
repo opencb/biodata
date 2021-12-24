@@ -25,6 +25,7 @@ import org.opencb.commons.annotations.DataField;
 
 import java.util.Map;
 
+//To force github actions to compile
 public class SampleQcVariantStats {
 
     @DataField(id = "id", indexed = true,
