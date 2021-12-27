@@ -57,14 +57,15 @@ public class TieringClinicalVariantCreator extends ClinicalVariantCreator {
     public TieringClinicalVariantCreator(List<DiseasePanel> diseasePanels, Map<String, RoleInCancer> roleInCancer,
                                          Map<String, List<String>> actionableVariants, Disorder disorder,
                                          ModeOfInheritance modeOfInheritance, Penetrance penetrance, String assembly) {
-        super(diseasePanels, disorder, modeOfInheritance, penetrance, roleInCancer, actionableVariants, assembly);
+        super(diseasePanels, disorder, Collections.singletonList(modeOfInheritance), penetrance, roleInCancer,
+                actionableVariants, assembly);
     }
 
     @Override
     public List<ClinicalVariant> create(List<Variant> variants) throws InterpretationAnalysisException {
         Map<String, List<ModeOfInheritance>> moiMap = new HashMap<>();
         for (Variant variant : variants) {
-            moiMap.put(variant.getId(), modeOfInheritance != null ? Collections.singletonList(modeOfInheritance) : Collections.emptyList());
+            moiMap.put(variant.getId(), modeOfInheritances != null ? modeOfInheritances : Collections.emptyList());
         }
         return create(variants, moiMap);
     }

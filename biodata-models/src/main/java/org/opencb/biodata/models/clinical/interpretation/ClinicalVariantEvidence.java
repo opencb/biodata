@@ -33,7 +33,7 @@ public class ClinicalVariantEvidence {
 
     private List<Phenotype> phenotypes;
     private GenomicFeature genomicFeature;
-    private ModeOfInheritance modeOfInheritance;
+    private List<ModeOfInheritance> modeOfInheritances;
     private String panelId;
     private VariantClassification classification;
     private Penetrance penetrance;
@@ -52,14 +52,14 @@ public class ClinicalVariantEvidence {
     }
 
     public ClinicalVariantEvidence(String interpretationMethodName, List<Phenotype> phenotypes, GenomicFeature genomicFeature,
-                                   ModeOfInheritance modeOfInheritance, String panelId, VariantClassification classification,
+                                   List<ModeOfInheritance> modeOfInheritances, String panelId, VariantClassification classification,
                                    Penetrance penetrance, double score, boolean fullyExplainPhenotypes,
                                    List<String> compoundHeterozygousVariantIds, RoleInCancer roleInCancer, boolean actionable,
                                    String justification) {
         this.interpretationMethodName = interpretationMethodName;
         this.phenotypes = phenotypes;
         this.genomicFeature = genomicFeature;
-        this.modeOfInheritance = modeOfInheritance;
+        this.modeOfInheritances = modeOfInheritances;
         this.panelId = panelId;
         this.classification = classification;
         this.penetrance = penetrance;
@@ -77,7 +77,7 @@ public class ClinicalVariantEvidence {
         sb.append("interpretationMethodName='").append(interpretationMethodName).append('\'');
         sb.append(", phenotypes=").append(phenotypes);
         sb.append(", genomicFeature=").append(genomicFeature);
-        sb.append(", modeOfInheritance=").append(modeOfInheritance);
+        sb.append(", modeOfInheritance=").append(modeOfInheritances);
         sb.append(", panelId='").append(panelId).append('\'');
         sb.append(", classification=").append(classification);
         sb.append(", penetrance=").append(penetrance);
@@ -118,12 +118,12 @@ public class ClinicalVariantEvidence {
         return this;
     }
 
-    public ModeOfInheritance getModeOfInheritance() {
-        return modeOfInheritance;
+    public List<ModeOfInheritance> getModeOfInheritances() {
+        return modeOfInheritances;
     }
 
-    public ClinicalVariantEvidence setModeOfInheritance(ModeOfInheritance modeOfInheritance) {
-        this.modeOfInheritance = modeOfInheritance;
+    public ClinicalVariantEvidence setModeOfInheritances(List<ModeOfInheritance> modeOfInheritances) {
+        this.modeOfInheritances = modeOfInheritances;
         return this;
     }
 
