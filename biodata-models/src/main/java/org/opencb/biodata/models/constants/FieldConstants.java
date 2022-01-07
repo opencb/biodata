@@ -43,4 +43,22 @@ public class FieldConstants {
     public static final String RELATEDNESS_REPORT_SCORES_DESCRIPTION = "Relatedness scores for pair of samples";
     public static final String RELATEDNESS_REPORT_FILES_DESCRIPTION = "List of files of Relatedness Report";
 
+    public static final String CLINICAL_ANALYST_DATE_DESCRIPTION = "Date of the clinical analyst";
+    public static final String CLINICAL_ANALYST_ASSIGNED_BY_DESCRIPTION = "Assigned by field";
+
+    public static final String CLINICAL_ANALYST_EMAIL_DESCRIPTION = "Email of the analyst";
+    public static final String AUDIT_AUTHOR_DESCRIPTION = "Audit author";
+    public static final String AUDIT_MESSAGE_DESCRIPTION = "Audit message";
+    public static final String AUDIT_ACTION_DESCRIPTION = "Enum action that can have the values "
+            + " CREATE_CLINICAL_ANALYSIS, CREATE_INTERPRETATION, UPDATE_CLINICAL_ANALYSIS, DELETE_CLINICAL_ANALYSIS,"
+            + " UPDATE_INTERPRETATION, REVERT_INTERPRETATION, CLEAR_INTERPRETATION, MERGE_INTERPRETATION, SWAP_INTERPRETATION and DELETE_INTERPRETATION";
+    public static final String AUDIT_DATE_DESCRIPTION = "Date of the audit";
+
+    public static final String SOFTWARE_NAME = "Software name";
+    public static final String SOFTWARE_VERSION = "Software version";
+    public static final String SOFTWARE_REPOSITORY = "Software repository";
+    public static final String SOFTWARE_COMMIT = "Software commit";
+    public static final String SOFTWARE_WEBSITE = "Software website";
+    public static final String SOFTWARE_PARAMS = "Software params";
+    
 }

@@ -1,26 +1,25 @@
 package org.opencb.biodata.models.clinical;
 
-public class ClinicalAudit {
-    private String author;
-    private Action action; {
+import org.opencb.biodata.models.constants.FieldConstants;
+import org.opencb.commons.annotations.DataField;
 
-    }
+public class ClinicalAudit {
+    @DataField(id = "author", indexed = true,
+            description = FieldConstants.AUDIT_AUTHOR_DESCRIPTION)
+    private String author;
+
+    @DataField(id = "action", indexed = true,
+            description = FieldConstants.AUDIT_ACTION_DESCRIPTION)
+    private Action action;
+
+    @DataField(id = "message", indexed = true,
+            description = FieldConstants.AUDIT_MESSAGE_DESCRIPTION)
     private String message;
+
+    @DataField(id = "date", indexed = true,
+            description = FieldConstants.AUDIT_DATE_DESCRIPTION)
     private String date;
 
-
-    public enum Action {
-        CREATE_CLINICAL_ANALYSIS,
-        CREATE_INTERPRETATION,
-        UPDATE_CLINICAL_ANALYSIS,
-        DELETE_CLINICAL_ANALYSIS,
-        UPDATE_INTERPRETATION,
-        REVERT_INTERPRETATION,
-        CLEAR_INTERPRETATION,
-        MERGE_INTERPRETATION,
-        SWAP_INTERPRETATION,
-        DELETE_INTERPRETATION
-    }
 
     public ClinicalAudit() {
     }
@@ -77,5 +76,18 @@ public class ClinicalAudit {
     public ClinicalAudit setDate(String date) {
         this.date = date;
         return this;
+    }
+
+    public enum Action {
+        CREATE_CLINICAL_ANALYSIS,
+        CREATE_INTERPRETATION,
+        UPDATE_CLINICAL_ANALYSIS,
+        DELETE_CLINICAL_ANALYSIS,
+        UPDATE_INTERPRETATION,
+        REVERT_INTERPRETATION,
+        CLEAR_INTERPRETATION,
+        MERGE_INTERPRETATION,
+        SWAP_INTERPRETATION,
+        DELETE_INTERPRETATION
     }
 }
