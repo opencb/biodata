@@ -20,7 +20,6 @@
 package org.opencb.biodata.models.clinical.interpretation;
 
 import org.opencb.biodata.models.clinical.Phenotype;
-import org.opencb.biodata.models.variant.avro.SequenceOntologyTerm;
 
 import java.util.Collections;
 import java.util.List;
@@ -97,103 +96,116 @@ public class ClinicalVariantEvidence {
         return interpretationMethodName;
     }
 
-    public void setInterpretationMethodName(String interpretationMethodName) {
+    public ClinicalVariantEvidence setInterpretationMethodName(String interpretationMethodName) {
         this.interpretationMethodName = interpretationMethodName;
+        return this;
     }
 
     public List<Phenotype> getPhenotypes() {
         return phenotypes;
     }
 
-    public void setPhenotypes(List<Phenotype> phenotypes) {
+    public ClinicalVariantEvidence setPhenotypes(List<Phenotype> phenotypes) {
         this.phenotypes = phenotypes;
+        return this;
     }
 
     public GenomicFeature getGenomicFeature() {
         return genomicFeature;
     }
 
-    public void setGenomicFeature(GenomicFeature genomicFeature) {
+    public ClinicalVariantEvidence setGenomicFeature(GenomicFeature genomicFeature) {
         this.genomicFeature = genomicFeature;
+        return this;
     }
 
     public List<ModeOfInheritance> getModeOfInheritances() {
         return modeOfInheritances;
     }
 
-    public void setModeOfInheritances(List<ModeOfInheritance> modeOfInheritances) {
+    public ClinicalVariantEvidence setModeOfInheritances(List<ModeOfInheritance> modeOfInheritances) {
         this.modeOfInheritances = modeOfInheritances;
+        return this;
     }
 
     public String getPanelId() {
         return panelId;
     }
 
-    public void setPanelId(String panelId) {
+    public ClinicalVariantEvidence setPanelId(String panelId) {
         this.panelId = panelId;
+        return this;
     }
 
     public VariantClassification getClassification() {
         return classification;
     }
 
-    public void setClassification(VariantClassification classification) {
+    public ClinicalVariantEvidence setClassification(VariantClassification classification) {
         this.classification = classification;
+        return this;
     }
 
     public Penetrance getPenetrance() {
         return penetrance;
     }
 
-    public void setPenetrance(Penetrance penetrance) {
+    public ClinicalVariantEvidence setPenetrance(Penetrance penetrance) {
         this.penetrance = penetrance;
+        return this;
     }
 
     public double getScore() {
         return score;
     }
 
-    public void setScore(double score) {
+    public ClinicalVariantEvidence setScore(double score) {
         this.score = score;
+        return this;
     }
 
     public boolean isFullyExplainPhenotypes() {
         return fullyExplainPhenotypes;
     }
 
-    public void setFullyExplainPhenotypes(boolean fullyExplainPhenotypes) {
+    public ClinicalVariantEvidence setFullyExplainPhenotypes(boolean fullyExplainPhenotypes) {
         this.fullyExplainPhenotypes = fullyExplainPhenotypes;
+        return this;
     }
 
     public List<String> getCompoundHeterozygousVariantIds() {
         return compoundHeterozygousVariantIds;
     }
 
-    public void setCompoundHeterozygousVariantIds(List<String> compoundHeterozygousVariantIds) {
+    public ClinicalVariantEvidence setCompoundHeterozygousVariantIds(List<String> compoundHeterozygousVariantIds) {
         this.compoundHeterozygousVariantIds = compoundHeterozygousVariantIds;
+        return this;
     }
 
     public RoleInCancer getRoleInCancer() {
         return roleInCancer;
     }
 
-    public void setRoleInCancer(RoleInCancer roleInCancer) {
+    public ClinicalVariantEvidence setRoleInCancer(RoleInCancer roleInCancer) {
         this.roleInCancer = roleInCancer;
+        return this;
     }
 
     public boolean isActionable() {
         return actionable;
     }
 
-    public void setActionable(boolean actionable) {
+    public ClinicalVariantEvidence setActionable(boolean actionable) {
         this.actionable = actionable;
+        return this;
     }
 
     public ClinicalEvidenceReview getReview() {
         return review;
     }
 
-    public void setReview(ClinicalEvidenceReview review) {
+    public ClinicalVariantEvidence setReview(ClinicalEvidenceReview review) {
         this.review = review;
+        return this;
     }
 }
