@@ -42,20 +42,22 @@ public class ClinicalVariantEvidence {
     private List<String> compoundHeterozygousVariantIds;
     private RoleInCancer roleInCancer;
     private boolean actionable;
-    private String justification;
+
+    private ClinicalEvidenceReview review;
 
     public ClinicalVariantEvidence() {
         phenotypes = Collections.emptyList();
         compoundHeterozygousVariantIds = Collections.emptyList();
         fullyExplainPhenotypes = false;
         actionable = false;
+        review = new ClinicalEvidenceReview();
     }
 
     public ClinicalVariantEvidence(String interpretationMethodName, List<Phenotype> phenotypes, GenomicFeature genomicFeature,
                                    List<ModeOfInheritance> modeOfInheritances, String panelId, VariantClassification classification,
                                    Penetrance penetrance, double score, boolean fullyExplainPhenotypes,
                                    List<String> compoundHeterozygousVariantIds, RoleInCancer roleInCancer, boolean actionable,
-                                   String justification) {
+                                   ClinicalEvidenceReview review) {
         this.interpretationMethodName = interpretationMethodName;
         this.phenotypes = phenotypes;
         this.genomicFeature = genomicFeature;
@@ -68,7 +70,7 @@ public class ClinicalVariantEvidence {
         this.compoundHeterozygousVariantIds = compoundHeterozygousVariantIds;
         this.roleInCancer = roleInCancer;
         this.actionable = actionable;
-        this.justification = justification;
+        this.review = review;
     }
 
     @Override
@@ -77,7 +79,7 @@ public class ClinicalVariantEvidence {
         sb.append("interpretationMethodName='").append(interpretationMethodName).append('\'');
         sb.append(", phenotypes=").append(phenotypes);
         sb.append(", genomicFeature=").append(genomicFeature);
-        sb.append(", modeOfInheritance=").append(modeOfInheritances);
+        sb.append(", modeOfInheritances=").append(modeOfInheritances);
         sb.append(", panelId='").append(panelId).append('\'');
         sb.append(", classification=").append(classification);
         sb.append(", penetrance=").append(penetrance);
@@ -86,7 +88,7 @@ public class ClinicalVariantEvidence {
         sb.append(", compoundHeterozygousVariantIds=").append(compoundHeterozygousVariantIds);
         sb.append(", roleInCancer=").append(roleInCancer);
         sb.append(", actionable=").append(actionable);
-        sb.append(", justification='").append(justification).append('\'');
+        sb.append(", review=").append(review);
         sb.append('}');
         return sb.toString();
     }
@@ -95,116 +97,103 @@ public class ClinicalVariantEvidence {
         return interpretationMethodName;
     }
 
-    public ClinicalVariantEvidence setInterpretationMethodName(String interpretationMethodName) {
+    public void setInterpretationMethodName(String interpretationMethodName) {
         this.interpretationMethodName = interpretationMethodName;
-        return this;
     }
 
     public List<Phenotype> getPhenotypes() {
         return phenotypes;
     }
 
-    public ClinicalVariantEvidence setPhenotypes(List<Phenotype> phenotypes) {
+    public void setPhenotypes(List<Phenotype> phenotypes) {
         this.phenotypes = phenotypes;
-        return this;
     }
 
     public GenomicFeature getGenomicFeature() {
         return genomicFeature;
     }
 
-    public ClinicalVariantEvidence setGenomicFeature(GenomicFeature genomicFeature) {
+    public void setGenomicFeature(GenomicFeature genomicFeature) {
         this.genomicFeature = genomicFeature;
-        return this;
     }
 
     public List<ModeOfInheritance> getModeOfInheritances() {
         return modeOfInheritances;
     }
 
-    public ClinicalVariantEvidence setModeOfInheritances(List<ModeOfInheritance> modeOfInheritances) {
+    public void setModeOfInheritances(List<ModeOfInheritance> modeOfInheritances) {
         this.modeOfInheritances = modeOfInheritances;
-        return this;
     }
 
     public String getPanelId() {
         return panelId;
     }
 
-    public ClinicalVariantEvidence setPanelId(String panelId) {
+    public void setPanelId(String panelId) {
         this.panelId = panelId;
-        return this;
     }
 
     public VariantClassification getClassification() {
         return classification;
     }
 
-    public ClinicalVariantEvidence setClassification(VariantClassification classification) {
+    public void setClassification(VariantClassification classification) {
         this.classification = classification;
-        return this;
     }
 
     public Penetrance getPenetrance() {
         return penetrance;
     }
 
-    public ClinicalVariantEvidence setPenetrance(Penetrance penetrance) {
+    public void setPenetrance(Penetrance penetrance) {
         this.penetrance = penetrance;
-        return this;
     }
 
     public double getScore() {
         return score;
     }
 
-    public ClinicalVariantEvidence setScore(double score) {
+    public void setScore(double score) {
         this.score = score;
-        return this;
     }
 
     public boolean isFullyExplainPhenotypes() {
         return fullyExplainPhenotypes;
     }
 
-    public ClinicalVariantEvidence setFullyExplainPhenotypes(boolean fullyExplainPhenotypes) {
+    public void setFullyExplainPhenotypes(boolean fullyExplainPhenotypes) {
         this.fullyExplainPhenotypes = fullyExplainPhenotypes;
-        return this;
     }
 
     public List<String> getCompoundHeterozygousVariantIds() {
         return compoundHeterozygousVariantIds;
     }
 
-    public ClinicalVariantEvidence setCompoundHeterozygousVariantIds(List<String> compoundHeterozygousVariantIds) {
+    public void setCompoundHeterozygousVariantIds(List<String> compoundHeterozygousVariantIds) {
         this.compoundHeterozygousVariantIds = compoundHeterozygousVariantIds;
-        return this;
     }
 
     public RoleInCancer getRoleInCancer() {
         return roleInCancer;
     }
 
-    public ClinicalVariantEvidence setRoleInCancer(RoleInCancer roleInCancer) {
+    public void setRoleInCancer(RoleInCancer roleInCancer) {
         this.roleInCancer = roleInCancer;
-        return this;
     }
 
     public boolean isActionable() {
         return actionable;
     }
 
-    public ClinicalVariantEvidence setActionable(boolean actionable) {
+    public void setActionable(boolean actionable) {
         this.actionable = actionable;
-        return this;
     }
 
-    public String getJustification() {
-        return justification;
+    public ClinicalEvidenceReview getReview() {
+        return review;
     }
 
-    public ClinicalVariantEvidence setJustification(String justification) {
-        this.justification = justification;
-        return this;
+    public void setReview(ClinicalEvidenceReview review) {
+        this.review = review;
     }
 }
