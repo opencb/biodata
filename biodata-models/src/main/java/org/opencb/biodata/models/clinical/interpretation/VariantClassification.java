@@ -101,7 +101,7 @@ public class VariantClassification {
     }
 
     public static List<String> calculateAcmgClassification(ConsequenceType consequenceType, VariantAnnotation annotation,
-                                                           ClinicalProperty.ModeOfInheritance moi) {
+                                                           List<ClinicalProperty.ModeOfInheritance> mois) {
         Set<String> acmg = new HashSet<>();
 
         // TODO: PM1
@@ -181,10 +181,10 @@ public class VariantClassification {
             }
         }
 
-        if (moi != null) {
-            if (moi == ClinicalProperty.ModeOfInheritance.DE_NOVO) {
+        if (mois != null) {
+            if (mois.contains(ClinicalProperty.ModeOfInheritance.DE_NOVO)) {
                 acmg.add("PS2");
-            } else if (moi == ClinicalProperty.ModeOfInheritance.COMPOUND_HETEROZYGOUS) {
+            } else if (mois.contains(ClinicalProperty.ModeOfInheritance.COMPOUND_HETEROZYGOUS)) {
                 acmg.add("PM3");
             }
         }
@@ -239,7 +239,8 @@ public class VariantClassification {
     }
 
     @Deprecated
-    public static List<String> calculateAcmgClassification(Variant variant, ClinicalProperty.ModeOfInheritance moi) {
+    public static List<String> calculateAcmgClassification(Variant variant,
+                                                           List<ClinicalProperty.ModeOfInheritance> mois) {
         Set<String> acmg = new HashSet<>();
 
         // TODO: PM1
@@ -319,10 +320,10 @@ public class VariantClassification {
             }
         }
 
-        if (moi != null) {
-            if (moi == ClinicalProperty.ModeOfInheritance.DE_NOVO) {
+        if (mois != null) {
+            if (mois.contains(ClinicalProperty.ModeOfInheritance.DE_NOVO)) {
                 acmg.add("PS2");
-            } else if (moi == ClinicalProperty.ModeOfInheritance.COMPOUND_HETEROZYGOUS) {
+            } else if (mois.contains(ClinicalProperty.ModeOfInheritance.COMPOUND_HETEROZYGOUS)) {
                 acmg.add("PM3");
             }
         }

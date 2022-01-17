@@ -36,15 +36,19 @@
 
     <properties>
         <biodata.version>2.2.0-SNAPSHOT</biodata.version>
-        <commons.version>4.1.1</commons.version>
+        <commons.version>4.2.0-SNAPSHOT</commons.version>
         <collections.version>4.4</collections.version>
         <avro.version>1.7.7</avro.version>
-        <protobuf.version>3.9.0</protobuf.version>
-        <grpc.version>1.23.0</grpc.version>
+        <protobuf.version>3.9.2</protobuf.version>
+        <grpc.version>1.23.1</grpc.version>
         <htsjdk.version>2.23.0</htsjdk.version>
         <slf4j.version>1.7.25</slf4j.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <sonar.organization>opencb</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+
         <compileSource>1.8</compileSource>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <scm>
@@ -112,7 +116,7 @@
         </repository>
         <repository>
             <id>opencb-ext-libs</id>
-            <url>http://bioinfo.hpc.cam.ac.uk/downloads/ext-libs/</url>
+            <url>http://bioinfo.hpc.cam.ac.uk/downloads/ext-libs</url>
         </repository>
     </repositories>
 
@@ -203,7 +207,7 @@
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.12</version>
+                <version>4.13.2</version>
                 <scope>test</scope>
             </dependency>
             <!-- Better use slf4j-simple instead of logj4 for testing, as it doesn't require any configuration -->

@@ -20,14 +20,28 @@
 package org.opencb.biodata.models.clinical.qc;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.opencb.biodata.models.constants.FieldConstants;
+import org.opencb.commons.annotations.DataField;
 
 import java.util.List;
 import java.util.Map;
 
 public class GenomePlotConfig {
+
+    @DataField(id = "title", indexed = true,
+            description = FieldConstants.GENOME_PLOT_CONFIG_TITLE_DESCRIPTION)
     private String title;
+
+    @DataField(id = "density", indexed = true,
+            description = FieldConstants.GENOME_PLOT_CONFIG_DENSITY_DESCRIPTION)
     private String density;
+
+    @DataField(id = "generalQuery", indexed = true,
+            description = FieldConstants.GENOME_PLOT_CONFIG_GENERAL_QUERY_DESCRIPTION)
     private Map<String, String> generalQuery;
+
+    @DataField(id = "tracks", indexed = true,
+            description = FieldConstants.GENOME_PLOT_CONFIG_TRACKS_DESCRIPTION)
     private List<GenomePlotTrack> tracks;
 
     public GenomePlotConfig() {

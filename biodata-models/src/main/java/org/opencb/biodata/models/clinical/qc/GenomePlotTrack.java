@@ -19,15 +19,24 @@
 
 package org.opencb.biodata.models.clinical.qc;
 
-import org.apache.commons.collections4.CollectionUtils;
+import org.opencb.biodata.models.constants.FieldConstants;
+import org.opencb.commons.annotations.DataField;
 
-import java.util.List;
 import java.util.Map;
 
 public class GenomePlotTrack {
 
+
+    @DataField(id = "type", indexed = true,
+            description = FieldConstants.GENOME_PLOT_TRACK_TYPE_DESCRIPTION)
     private String type;
+
+    @DataField(id = "description", indexed = true,
+            description = FieldConstants.GENOME_PLOT_TRACK_DESCRIPTION_DESCRIPTION)
     private String description;
+
+    @DataField(id = "query", indexed = true,
+            description = FieldConstants.GENOME_PLOT_TRACK_QUERY_DESCRIPTION)
     private Map<String, String> query;
 
     public GenomePlotTrack() {

@@ -2,9 +2,11 @@ package org.opencb.biodata.tools.pedigree;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.opencb.biodata.models.clinical.Disorder;
 import org.opencb.biodata.models.clinical.pedigree.Member;
 import org.opencb.biodata.models.clinical.pedigree.Pedigree;
-import org.opencb.biodata.models.clinical.Disorder;
+import org.opencb.biodata.models.core.SexOntologyTermAnnotation;
+import org.opencb.biodata.models.pedigree.IndividualProperty;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
 import org.opencb.biodata.models.variant.VariantTestUtils;
@@ -15,7 +17,8 @@ import org.opencb.commons.utils.ListUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.opencb.biodata.models.clinical.ClinicalProperty.Penetrance;
 import static org.opencb.biodata.tools.pedigree.ModeOfInheritance.*;
 
@@ -40,73 +43,75 @@ public class ModeOfInheritanceTest {
         disorder3 = new Disorder("disease3", "disease2", "", "", Collections.emptyList(), Collections.emptyMap());
         disorder4 = new Disorder("disease4", "disease2", "", "", Collections.emptyList(), Collections.emptyMap());
 
-        Member father = new Member().setId("father").setSex(Member.Sex.MALE)
+        Member father = new Member().setId("father").setSex(new SexOntologyTermAnnotation().setId(IndividualProperty.Sex.MALE.name()))
                 .setDisorders(Arrays.asList(disorder1, disorder3));
-        Member mother = new Member().setId("mother").setSex(Member.Sex.FEMALE)
+        Member mother = new Member().setId("mother").setSex(new SexOntologyTermAnnotation().setId(IndividualProperty.Sex.FEMALE.name()))
                 .setDisorders(Collections.singletonList(disorder2));
-        Member daughter = new Member().setId("daughter").setSex(Member.Sex.FEMALE)
+        Member daughter = new Member().setId("daughter").setSex(new SexOntologyTermAnnotation().setId(IndividualProperty.Sex.FEMALE.name()))
                 .setDisorders(Collections.singletonList(disorder2))
                 .setMother(mother).setFather(father);
-        Member son = new Member().setId("son").setSex(Member.Sex.MALE)
+        Member son = new Member().setId("son").setSex(new SexOntologyTermAnnotation().setId(IndividualProperty.Sex.MALE.name()))
                 .setDisorders(Arrays.asList(disorder1, disorder4))
                 .setMother(mother).setFather(father);
         family1 = new Pedigree()
                 .setMembers(Arrays.asList(father, mother, daughter, son))
                 .setDisorders(Arrays.asList(disorder1, disorder2, disorder3, disorder4));
 
-        Member ind1 = new Member().setId("ind1").setSex(Member.Sex.FEMALE)
+        Member ind1 = new Member().setId("ind1").setSex(new SexOntologyTermAnnotation().setId(IndividualProperty.Sex.FEMALE.name()))
                 .setDisorders(Collections.singletonList(disorder1));
-        Member ind2 = new Member().setId("ind2").setSex(Member.Sex.MALE);
-        Member ind3 = new Member().setId("ind3").setSex(Member.Sex.MALE);
-        Member ind4 = new Member().setId("ind4").setSex(Member.Sex.FEMALE)
+        Member ind2 = new Member().setId("ind2").setSex(new SexOntologyTermAnnotation().setId(IndividualProperty.Sex.MALE.name()));
+        Member ind3 = new Member().setId("ind3").setSex(new SexOntologyTermAnnotation().setId(IndividualProperty.Sex.MALE.name()));
+        Member ind4 = new Member().setId("ind4").setSex(new SexOntologyTermAnnotation().setId(IndividualProperty.Sex.FEMALE.name()))
                 .setDisorders(Collections.singletonList(disorder1));
-        Member ind5 = new Member().setId("ind5").setSex(Member.Sex.MALE)
+        Member ind5 = new Member().setId("ind5").setSex(new SexOntologyTermAnnotation().setId(IndividualProperty.Sex.MALE.name()))
                 .setMother(ind1).setFather(ind2);
-        Member ind6 = new Member().setId("ind6").setSex(Member.Sex.FEMALE)
+        Member ind6 = new Member().setId("ind6").setSex(new SexOntologyTermAnnotation().setId(IndividualProperty.Sex.FEMALE.name()))
                 .setMother(ind1).setFather(ind2);
-        Member ind7 = new Member().setId("ind7").setSex(Member.Sex.MALE)
+        Member ind7 = new Member().setId("ind7").setSex(new SexOntologyTermAnnotation().setId(IndividualProperty.Sex.MALE.name()))
                 .setDisorders(Collections.singletonList(disorder1))
                 .setMother(ind4).setFather(ind3);
-        Member ind8 = new Member().setId("ind8").setSex(Member.Sex.MALE)
+        Member ind8 = new Member().setId("ind8").setSex(new SexOntologyTermAnnotation().setId(IndividualProperty.Sex.MALE.name()))
                 .setMother(ind4).setFather(ind3);
-        Member ind9 = new Member().setId("ind9").setSex(Member.Sex.FEMALE);
-        Member ind10 = new Member().setId("ind10").setSex(Member.Sex.FEMALE)
+        Member ind9 = new Member().setId("ind9").setSex(new SexOntologyTermAnnotation().setId(IndividualProperty.Sex.FEMALE.name()));
+        Member ind10 = new Member().setId("ind10").setSex(new SexOntologyTermAnnotation().setId(IndividualProperty.Sex.FEMALE.name()))
                 .setDisorders(Collections.singletonList(disorder1));
-        Member ind11 = new Member().setId("ind11").setSex(Member.Sex.MALE)
+        Member ind11 = new Member().setId("ind11").setSex(new SexOntologyTermAnnotation().setId(IndividualProperty.Sex.MALE.name()))
                 .setDisorders(Collections.singletonList(disorder1))
                 .setMother(ind6).setFather(ind7);
-        Member ind12 = new Member().setId("ind12").setSex(Member.Sex.FEMALE)
+        Member ind12 = new Member().setId("ind12").setSex(new SexOntologyTermAnnotation().setId(IndividualProperty.Sex.FEMALE.name()))
                 .setMother(ind6).setFather(ind7);
-        Member ind13 = new Member().setId("ind13").setSex(Member.Sex.MALE)
+        Member ind13 = new Member().setId("ind13").setSex(new SexOntologyTermAnnotation().setId(IndividualProperty.Sex.MALE.name()))
                 .setMother(ind6).setFather(ind7);
-        Member ind14 = new Member().setId("ind14").setSex(Member.Sex.FEMALE)
+        Member ind14 = new Member().setId("ind14").setSex(new SexOntologyTermAnnotation().setId(IndividualProperty.Sex.FEMALE.name()))
                 .setMother(ind9).setFather(ind8);
-        Member ind15 = new Member().setId("ind15").setSex(Member.Sex.MALE)
+        Member ind15 = new Member().setId("ind15").setSex(new SexOntologyTermAnnotation().setId(IndividualProperty.Sex.MALE.name()))
                 .setDisorders(Collections.singletonList(disorder1))
                 .setMother(ind9).setFather(ind8);
-        Member ind16 = new Member().setId("ind16").setSex(Member.Sex.FEMALE)
+        Member ind16 = new Member().setId("ind16").setSex(new SexOntologyTermAnnotation().setId(IndividualProperty.Sex.FEMALE.name()))
                 .setDisorders(Collections.singletonList(disorder1))
                 .setMother(ind10).setFather(ind11);
-        Member ind17 = new Member().setId("ind17").setSex(Member.Sex.MALE)
+        Member ind17 = new Member().setId("ind17").setSex(new SexOntologyTermAnnotation().setId(IndividualProperty.Sex.MALE.name()))
                 .setMother(ind10).setFather(ind11);
-        Member ind18 = new Member().setId("ind18").setSex(Member.Sex.MALE)
+        Member ind18 = new Member().setId("ind18").setSex(new SexOntologyTermAnnotation().setId(IndividualProperty.Sex.MALE.name()))
                 .setDisorders(Collections.singletonList(disorder1));
         family2 = new Pedigree()
                 .setMembers(Arrays.asList(ind1, ind2, ind3, ind4, ind5, ind6, ind7, ind8, ind9, ind10, ind11, ind12, ind13, ind14, ind15,
                         ind16, ind17, ind18))
                 .setDisorders(Arrays.asList(disorder1));
 
-        father = new Member().setId("NA12877").setSex(Member.Sex.MALE);
-        mother = new Member().setId("NA12878").setSex(Member.Sex.FEMALE);
-        daughter = new Member().setId("NA12879").setSex(Member.Sex.FEMALE)
+        father = new Member().setId("NA12877").setSex(new SexOntologyTermAnnotation().setId(IndividualProperty.Sex.MALE.name()));
+        mother = new Member().setId("NA12878").setSex(new SexOntologyTermAnnotation().setId(IndividualProperty.Sex.FEMALE.name()));
+        daughter = new Member().setId("NA12879").setSex(new SexOntologyTermAnnotation().setId(IndividualProperty.Sex.FEMALE.name()))
                 .setMother(mother).setFather(father);
         family3 = new Pedigree()
                 .setMembers(Arrays.asList(father, mother, daughter))
                 .setProband(daughter);
 
-        mother = new Member().setId("mother").setSex(Member.Sex.FEMALE);
-        daughter = new Member().setId("daughter").setSex(Member.Sex.FEMALE).setDisorders(Collections.singletonList(disorder1))
-                .setMother(mother);
+        mother = new Member().setId("mother").setSex(new SexOntologyTermAnnotation().setId(IndividualProperty.Sex.FEMALE.name()));
+        daughter =
+                new Member().setId("daughter").setSex(new SexOntologyTermAnnotation().setId(IndividualProperty.Sex.FEMALE.name()))
+                        .setDisorders(Collections.singletonList(disorder1))
+                        .setMother(mother);
         family4 = new Pedigree()
                 .setMembers(Arrays.asList(mother, daughter))
                 .setProband(daughter)
