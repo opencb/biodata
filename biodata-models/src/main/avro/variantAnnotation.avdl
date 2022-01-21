@@ -111,7 +111,7 @@ protocol VariantAnnotations {
     }
 
     record SpliceScores {
-        string altAllele;
+        string source;
         map<double> scores;
     }
     record ConsequenceType {
