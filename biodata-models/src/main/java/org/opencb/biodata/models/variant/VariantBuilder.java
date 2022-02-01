@@ -84,6 +84,7 @@ public class VariantBuilder {
     private String chromosome;
     private Integer start;
     private Integer end;
+    private boolean ignoreMissingEnd = false;
     private Integer length;
     private String reference;
     private ArrayList<String> alternates;
@@ -274,6 +275,18 @@ public class VariantBuilder {
             throw new IllegalArgumentException("End must be positive");
         }
         this.end = end;
+        return this;
+    }
+
+    /**
+     * Ignore missing end position for structural variants.
+     * The resulting variant might be incomplete.
+     *
+     * @param ignoreMissingEnd ignore missing end
+     * @return this
+     */
+    public VariantBuilder ignoreMissingEnd(boolean ignoreMissingEnd) {
+        this.ignoreMissingEnd = ignoreMissingEnd;
         return this;
     }
 
@@ -510,7 +523,7 @@ public class VariantBuilder {
             return new VariantBuilder(chromosome, start, end, reference, alternate).setType(type).build().getImpl();
         } else {
             if (end == null) {
-                end = start + inferLengthReference(reference, alternate, type, null, null) - 1;
+                end = start + inferLengthReference(reference, alternate, type, null, false, null) - 1;
             }
             int length = VariantBuilder.inferLength(reference, alternate, start, end, type);
             return new VariantAvro(null,
@@ -733,10 +746,10 @@ public class VariantBuilder {
     }
 
     private Integer inferLengthReference(String reference, String alternate, VariantType type, Integer length) {
-        return inferLengthReference(reference, alternate, type, length, this);
+        return inferLengthReference(reference, alternate, type, length, ignoreMissingEnd, this);
     }
 
-    private static Integer inferLengthReference(String reference, String alternate, VariantType type, Integer length, Object variant) {
+    private static Integer inferLengthReference(String reference, String alternate, VariantType type, Integer length, boolean ignoreMissingEnd, Object variant) {
         if (hasIncompleteReference(alternate, type)) {
             if (length == null) {
                 // Default length 1 for type NO_VARIATION
@@ -745,8 +758,11 @@ public class VariantBuilder {
                 } else if (type == VariantType.BREAKEND || type == VariantType.TRANSLOCATION) {
                     return Variant.UNKNOWN_LENGTH;
                 } else {
-//                    return Variant.UNKNOWN_LENGTH;
-                    throw new IllegalArgumentException("Unknown end or length of the variant '" + variant + "', type '" + type + "'");
+                    if (ignoreMissingEnd) {
+                        return Variant.UNKNOWN_LENGTH;
+                    } else {
+                        throw new IllegalArgumentException("Unknown end or length of the variant '" + variant + "', type '" + type + "'");
+                    }
                 }
             } else {
                 return length;
