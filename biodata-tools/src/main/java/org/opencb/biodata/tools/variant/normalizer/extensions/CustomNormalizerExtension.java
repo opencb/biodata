@@ -23,6 +23,7 @@ import htsjdk.variant.vcf.*;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
+import org.opencb.biodata.models.variant.VariantBuilder;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.SampleEntry;
@@ -85,7 +86,9 @@ public class CustomNormalizerExtension extends VariantNormalizerExtension {
                     } else {
                         String[] split = line.split("\t");
                         if (split.length == 2) {
-                            variantValuesMap.put(split[0], split[1]);
+//                            Variant variant = new Variant(split[0]);
+                            Variant variant = new VariantBuilder(split[0]).ignoreMissingEnd(true).build();
+                            variantValuesMap.put(variant.toString(), split[1]);
                         } else {
                             throw new IOException("Malformed custom normalization file " + customFilePath + " in line: " + lines);
                         }
