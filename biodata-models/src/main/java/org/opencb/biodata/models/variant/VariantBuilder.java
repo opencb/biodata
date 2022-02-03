@@ -66,8 +66,35 @@ public class VariantBuilder {
     protected static final String INV_ALT_EXTENDED = "<INV:";
     protected static final String INS_ALT_EXTENDED = "<INS:";
     private static final Pattern BREAKEND_MATED_PATTERN = Pattern.compile("(.*)([\\[\\]])(.+):(\\p{Digit}+)([\\[\\]])(.*)");
+    private static final String PARTIAL_INS_SEQ_SEPARATOR = "...";
+    private static final String[] EMPTY_ARRAY = new String[0];
 
     protected static Logger logger = LoggerFactory.getLogger(VariantBuilder.class);
+
+    private static final String CHROMOSOME_REGGEX = "[0-9A-Za-z!#$%&+./:;?@^_|~-][0-9A-Za-z!#$%&*+./:;=?@^_|~-]*";
+    private static final String POSITION_REGGEX = "("
+            + "\\p{Digit}+|\\p{Digit}+<\\p{Digit}+<\\p{Digit}+"
+            + ")";
+    private static final String REFERENCE_REGGEX = "("
+            + "[ACGTN]+|" // Simple reference
+            + "-" // No reference
+            + ")";
+    private static final String ALTERNATE_REGGEX = "("
+            + "\\.|" // No variation
+            + "-|" // No alternate
+            + "[ACGTN]+|" // Simple alternate
+            + "[ACGTN]+" + PARTIAL_INS_SEQ_SEPARATOR + "[ACGTN]+|" // Partial long insertion, optinal end
+            + "[ACGTN]+" + PARTIAL_INS_SEQ_SEPARATOR + "|" // Partial long insertion, no right
+            + PARTIAL_INS_SEQ_SEPARATOR + "[ACGT]+|" // Partial long insertion, no left
+            + "\\*|" // Span deletion
+            + "<[^<>]+>|" // Symbolic alternate
+            + "([ACGTN]*|\\.)([\\[\\]])(" + CHROMOSOME_REGGEX + "):(\\p{Digit}+)([\\[\\]])([ACGTN]*|\\.)" // Breakend
+            + ")";
+    private static final Pattern ALTERNATE_PATTERN = Pattern.compile(ALTERNATE_REGGEX);
+    protected static final Pattern VARIANT_PATTERN = Pattern.compile("(?<chromosome>" + CHROMOSOME_REGGEX + ")"
+            + ":(?<start>" + POSITION_REGGEX + ")(-(?<end>" + POSITION_REGGEX + "))?"
+            + "(:(?<reference>" + REFERENCE_REGGEX +")?)?"
+            + ":(?<alternate>" + ALTERNATE_REGGEX + "(,"+ALTERNATE_REGGEX+")*)");
 
     static {
         SV_TYPES = EnumSet.copyOf(Variant.SV_SUBTYPES);
@@ -121,13 +148,19 @@ public class VariantBuilder {
             // Symbolic and breakend variants may use ':' within the alternate.
             //  If contains '>', is a symbolic variant
             //  If contains ']' or "[", is a breakend
-            // Split in 4 segments. If reference (field[2]) contains a '<', '>', ']', '[', the reference was missing,
-            // so it has to split in 3 segments.
-            // Get last index of '<'. Start and end may use '<' for imprecise positions.
+            // Split in 4 segments. If the last segment is not a valid alternate, parsed with regex.
             if (StringUtils.containsAny(variantString, '>', ']', '[')) {
+                // Suspicious alternate. Need extra validation
                 fields = variantString.split(":", 4);
-                if (fields.length == 4 && StringUtils.containsAny(fields[2], '<', '>', ']', '[')) {
-                    fields = variantString.split(":", 3);
+                if (fields.length == 4 || fields.length == 3) {
+                    Matcher matcher = ALTERNATE_PATTERN.matcher(fields[fields.length - 1]);
+                    if (!matcher.matches()) {
+                        // Invalid alternate. Parse with regex
+                        fields = EMPTY_ARRAY;
+                    }
+                } else {
+                    // Invalid. Parse with regex
+                    fields = EMPTY_ARRAY;
                 }
             } else {
                 fields = variantString.split(":", -1);
@@ -161,14 +194,32 @@ public class VariantBuilder {
                     parseStart(fields[1], variantString);
                 }
             } else {
-                throw new IllegalArgumentException("Variant " + variantString + " needs 3 or 4 fields separated by ':'. "
-                        + "Format: \"" + VARIANT_STRING_FORMAT + "\"");
+                regexParse(variantString);
             }
         }
     }
 
+    protected VariantBuilder regexParse(String variantString) {
+        this.variantString = variantString;
+        Matcher matcher = VARIANT_PATTERN.matcher(variantString);
+        if (matcher.matches()) {
+            setChromosome(matcher.group("chromosome"));
+            parseStart(matcher.group("start"), variantString);
+            String end = matcher.group("end");
+            if (end != null) {
+                parseEnd(end, variantString);
+            }
+            setReference(matcher.group("reference"));
+            parseAlternate(matcher.group("alternate"));
+        } else {
+            throw new IllegalArgumentException("Variant " + variantString + " needs 3 or 4 fields separated by ':'. "
+                    + "Format: \"" + VARIANT_STRING_FORMAT + "\"");
+        }
+        return this;
+    }
+
     private void parseAlternate(String alternate) {
-        int idx = alternate.indexOf("...");
+        int idx = alternate.indexOf(PARTIAL_INS_SEQ_SEPARATOR);
         if (idx >= 0) {
             setAlternate(INS_ALT);
             initSv();

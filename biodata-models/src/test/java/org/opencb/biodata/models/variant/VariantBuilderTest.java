@@ -7,9 +7,10 @@ import org.opencb.biodata.models.variant.protobuf.VariantProto;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
+import static org.opencb.biodata.models.variant.VariantBuilder.VARIANT_PATTERN;
 import static org.opencb.biodata.models.variant.VariantBuilder.getProtoVariantType;
 
 /**
@@ -57,9 +58,15 @@ public class VariantBuilderTest {
         map.put("1:800001:G:GTATTG[2:321681[", new Variant("1", 800001, 800000, "G", "GTATTG[2:321681[").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.BREAKEND).setSv(new StructuralVariation(null, null, null, null, null, null, null, null, new Breakend(new BreakendMate("2", 321681, null, null), BreakendOrientation.SE, "TATTG"))));
         map.put("1:800001:G:[2:321681[GTATTG", new Variant("1", 800001, 800000, "G", "[2:321681[GTATTG").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.BREAKEND).setSv(new StructuralVariation(null, null, null, null, null, null, null, null, new Breakend(new BreakendMate("2", 321681, null, null), BreakendOrientation.EE, "GTATT"))));
 
+        // Weird contig names
+        map.put("HLA-DRB1*10:01:01:11575:A:T", new Variant("HLA-DRB1*10:01:01", 11575, 11575, "A", "T").setLength(1).setType(VariantType.SNV));
+        map.put("HLA-DRB1*10:01:01:10000<10100<10200:-:[HLA-DRB8*10:01:01:20000[GTATTG", new Variant("HLA-DRB1*10:01:01", 10100, "", "[HLA-DRB8*10:01:01:20000[GTATTG").setType(VariantType.BREAKEND).setSv(new StructuralVariation(10000, 10200, null, null, null, null, null, null, new Breakend(new BreakendMate("HLA-DRB8*10:01:01", 20000, null, null), BreakendOrientation.EE, "GTATTG"))));
+
+
         for (Map.Entry<String, Variant> entry : map.entrySet()) {
             String expected = entry.getKey().replace(":-:", ":").replace("::", ":").replace("chr", "");
             String actual = entry.getValue().toString().replace(":-:", ":");
+            String actualFromRegex = regexParse(entry.getKey()).toString().replace(":-:", ":");
 
             System.out.println("Original : " + entry.getKey() + " \t-->\t " + entry.getValue());
             try {
@@ -70,7 +77,14 @@ public class VariantBuilderTest {
                 throw e;
             }
             assertEquals(expected, actual);
+            assertEquals(expected, actualFromRegex);
         }
+    }
+
+    private Variant regexParse(String variantId) {
+        Matcher matcher = VARIANT_PATTERN.matcher(variantId);
+        assertTrue(variantId, matcher.matches());
+        return new VariantBuilder().regexParse(variantId).build();
     }
 
     @Test

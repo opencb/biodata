@@ -49,7 +49,7 @@ public class VariantContextConverterTest {
         testBuildAllele("1:1000:A:ANNN]3:1234]");
         testBuildAllele("1:1000:A:NNN]3:1234]");
 
-        testBuildAllele("1:1000:A:ANNN]3:1234],ANNK]3:1234]");
+        testBuildAllele("1:1000:A:ANNN]3:1234],ANNN]3:1234]");
         testBuildAllele("1:1000:A:]3:1234]NNNNA,ANNN]3:1234]");
         testBuildAllele("1:1000:A:ANNN]3:1234],NNN]3:1234]");
         testBuildAllele("1:1000:A:NNN]3:1234],ANNN]3:1234]");
