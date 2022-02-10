@@ -110,6 +110,10 @@ protocol VariantAnnotations {
         union { null, float } percentage;
     }
 
+    record SpliceScores {
+        string source;
+        map<double> scores;
+    }
     record ConsequenceType {
         union { null, string } geneId;
         union { null, string } geneName;
@@ -126,6 +130,8 @@ protocol VariantAnnotations {
         union { null, string } biotype;
         union { null, string } source;
         union { null, array<ExonOverlap> } exonOverlap;
+
+        union { null, array<SpliceScores> } spliceScores;
 
         // DEPRECATED: replaced by transcriptFlags
         //@javaAnnotation("Deprecated")
