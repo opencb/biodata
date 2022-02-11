@@ -1,11 +1,26 @@
 package org.opencb.biodata.models.clinical;
 
+import org.opencb.biodata.models.constants.FieldConstants;
+import org.opencb.commons.annotations.DataField;
+
 import java.util.List;
 
 public class ClinicalComment {
+
+    @DataField(id = "author", indexed = true,
+            description = FieldConstants.CLINICAL_COMMENT_AUTHOR_DESCRIPTION)
     private String author;
+
+    @DataField(id = "message", indexed = true,
+            description = FieldConstants.CLINICAL_COMMENT_MESSAGE_DESCRIPTION)
     private String message;
+
+    @DataField(id = "tags", indexed = true,
+            description = FieldConstants.CLINICAL_COMMENT_TAGS_DESCRIPTION)
     private List<String> tags;
+
+    @DataField(id = "date", indexed = true,
+            description = FieldConstants.CLINICAL_COMMENT_DATE_DESCRIPTION)
     private String date;
 
     public ClinicalComment() {

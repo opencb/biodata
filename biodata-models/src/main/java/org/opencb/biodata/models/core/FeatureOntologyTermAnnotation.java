@@ -28,8 +28,12 @@ public class FeatureOntologyTermAnnotation extends OntologyTermAnnotation {
 
     public FeatureOntologyTermAnnotation(String id, String name, String source, Map<String, String> attributes,
                                          List<AnnotationEvidence> evidence) {
-        super(id, name, source, attributes);
+        this(id, name, "", source, "", attributes, evidence);
+    }
 
+    public FeatureOntologyTermAnnotation(String id, String name, String description, String source, String url,
+                                         Map<String, String> attributes, List<AnnotationEvidence> evidence) {
+        super(id, name, description, source, url, attributes);
         this.evidence = evidence;
     }
 

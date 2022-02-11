@@ -166,7 +166,12 @@ public class Variant implements Serializable, Comparable<Variant> {
     }
 
     public boolean isSymbolic() {
-        return Allele.wouldBeSymbolicAllele(getAlternate().getBytes());
+//        return Allele.wouldBeSymbolicAllele(getAlternate().getBytes());
+        String alternate = getAlternate();
+        if (alternate.length() <= 1) {
+            return false;
+        }
+        return getType().equals(VariantType.BREAKEND) || alternate.charAt(0) == '<' && alternate.charAt(alternate.length() - 1) == '>';
     }
 
     public VariantAvro getImpl() {
@@ -431,7 +436,8 @@ public class Variant implements Serializable, Comparable<Variant> {
         }
 
         // Optional end
-        if (start != end && getLengthReference() != getReference().length() && getLength() != UNKNOWN_LENGTH) {
+        if (start != end && getLengthReference() != getReference().length() && getLength() != UNKNOWN_LENGTH
+                || isSymbolic() && end >= start && getType() != VariantType.NO_VARIATION) {
             sb.append("-");
             if (sv != null && (sv.getCiEndLeft() != null || sv.getCiEndRight() != null)) {
                 sb.append(sv.getCiEndLeft() == null ? end : sv.getCiEndLeft())

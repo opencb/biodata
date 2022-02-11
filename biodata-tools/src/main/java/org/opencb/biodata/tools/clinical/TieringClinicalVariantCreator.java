@@ -19,8 +19,8 @@
 
 package org.opencb.biodata.tools.clinical;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.clinical.ClinicalProperty.ModeOfInheritance;
 import org.opencb.biodata.models.clinical.ClinicalProperty.Penetrance;
@@ -57,14 +57,15 @@ public class TieringClinicalVariantCreator extends ClinicalVariantCreator {
     public TieringClinicalVariantCreator(List<DiseasePanel> diseasePanels, Map<String, RoleInCancer> roleInCancer,
                                          Map<String, List<String>> actionableVariants, Disorder disorder,
                                          ModeOfInheritance modeOfInheritance, Penetrance penetrance, String assembly) {
-        super(diseasePanels, disorder, modeOfInheritance, penetrance, roleInCancer, actionableVariants, assembly);
+        super(diseasePanels, disorder, Collections.singletonList(modeOfInheritance), penetrance, roleInCancer,
+                actionableVariants, assembly);
     }
 
     @Override
     public List<ClinicalVariant> create(List<Variant> variants) throws InterpretationAnalysisException {
         Map<String, List<ModeOfInheritance>> moiMap = new HashMap<>();
         for (Variant variant : variants) {
-            moiMap.put(variant.getId(), modeOfInheritance != null ? Collections.singletonList(modeOfInheritance) : Collections.emptyList());
+            moiMap.put(variant.getId(), modeOfInheritances != null ? modeOfInheritances : Collections.emptyList());
         }
         return create(variants, moiMap);
     }
@@ -109,7 +110,7 @@ public class TieringClinicalVariantCreator extends ClinicalVariantCreator {
                 for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
 
                     // Only protein coding
-                    if (ct.getBiotype() == null || !proteinCoding.contains(ct.getBiotype())) {
+                    if (StringUtils.isEmpty(ct.getBiotype()) || !proteinCoding.contains(ct.getBiotype())) {
                         logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId() + ", discarded, biotype: "
                                 + ct.getBiotype());
                         continue;
@@ -223,14 +224,14 @@ public class TieringClinicalVariantCreator extends ClinicalVariantCreator {
                                             }
                                             logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId()
                                                     + ", reported, UNTIERED, LOF: " + soTerm.getName());
-                                            clinicalVariantEvidences.add(createClinicalVariantEvidence(genomicFeature, null, moi,
-                                                    penetrance, "", variant));
+                                            clinicalVariantEvidences.add(createClinicalVariantEvidence(genomicFeature,
+                                                    genePanel.getId(), moi, penetrance, "", variant));
                                         }
                                     } else {
                                         logger.debug(variant.toStringSimple() + ": " + ct.getEnsemblTranscriptId()
                                                 + ", reported, UNTIERED, missing LOF");
-                                        clinicalVariantEvidences.add(createClinicalVariantEvidence(genomicFeature, null, moi, penetrance,
-                                                "", variant));
+                                        clinicalVariantEvidences.add(createClinicalVariantEvidence(genomicFeature,
+                                                genePanel.getId(), moi, penetrance, "", variant));
                                     }
                                 }
                             }
@@ -269,7 +270,7 @@ public class TieringClinicalVariantCreator extends ClinicalVariantCreator {
             if (CollectionUtils.isNotEmpty(clinicalVariantEvidences)) {
                 logger.debug(variant.toStringSimple() + ": reported, num. evidences: " + clinicalVariantEvidences.size());
                 ClinicalVariant clinicalVariant = new ClinicalVariant(variant.getImpl(), Collections.emptyList(), Collections.emptyList(),
-                        Collections.emptyList(), "", ClinicalVariant.Status.NOT_REVIEWED, Collections.emptyMap());
+                        Collections.emptyMap(), "", ClinicalVariant.Status.NOT_REVIEWED, Collections.emptyMap());
                 clinicalVariant.setEvidences(clinicalVariantEvidences);
 
                 // Add variant to the list

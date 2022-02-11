@@ -1,31 +1,35 @@
 package org.opencb.biodata.models.clinical.interpretation;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 public class InterpretationMethod {
 
     private String name;
-    private Map<String, Object> filters;
-    private List<DiseasePanel> panels;
+    private String version;
+    private String commit;
     private List<Software> dependencies;
 
     public InterpretationMethod() {
     }
 
-    public InterpretationMethod(String name, Map<String, Object> filters, List<DiseasePanel> panels, List<Software> dependencies) {
+    public InterpretationMethod(String name, String version, String commit, List<Software> dependencies) {
         this.name = name;
-        this.filters = filters;
-        this.panels = panels;
+        this.version = version;
+        this.commit = commit;
         this.dependencies = dependencies;
+    }
+
+    public static InterpretationMethod init() {
+        return new InterpretationMethod("", "", "", Collections.emptyList());
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("InterpretationMethod{");
         sb.append("name='").append(name).append('\'');
-        sb.append(", filters=").append(filters);
-        sb.append(", panels=").append(panels);
+        sb.append(", version='").append(version).append('\'');
+        sb.append(", commit='").append(commit).append('\'');
         sb.append(", dependencies=").append(dependencies);
         sb.append('}');
         return sb.toString();
@@ -40,21 +44,21 @@ public class InterpretationMethod {
         return this;
     }
 
-    public Map<String, Object> getFilters() {
-        return filters;
+    public String getVersion() {
+        return version;
     }
 
-    public InterpretationMethod setFilters(Map<String, Object> filters) {
-        this.filters = filters;
+    public InterpretationMethod setVersion(String version) {
+        this.version = version;
         return this;
     }
 
-    public List<DiseasePanel> getPanels() {
-        return panels;
+    public String getCommit() {
+        return commit;
     }
 
-    public InterpretationMethod setPanels(List<DiseasePanel> panels) {
-        this.panels = panels;
+    public InterpretationMethod setCommit(String commit) {
+        this.commit = commit;
         return this;
     }
 

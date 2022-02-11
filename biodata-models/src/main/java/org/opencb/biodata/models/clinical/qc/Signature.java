@@ -19,22 +19,40 @@
 
 package org.opencb.biodata.models.clinical.qc;
 
+import org.opencb.biodata.models.constants.FieldConstants;
+import org.opencb.commons.annotations.DataField;
 import org.opencb.commons.datastore.core.ObjectMap;
 
 import java.util.List;
 
 public class Signature {
 
+    @DataField(id = "id", indexed = true,
+            description = FieldConstants.GENERIC_ID_DESCRIPTION)
     private String id;
+
+    @DataField(id = "description", indexed = true,
+            description = FieldConstants.GENERIC_DESCRIPTION_DESCRIPTION)
     private String description;
+
+    @DataField(id = "query", indexed = true, uncommentedClasses = {"ObjectMap"},
+            description = FieldConstants.GENERIC_QUERY_DESCRIPTION)
     private ObjectMap query;
-    /**
-     * Variant type, e.g. SNV, INDEL, ...
-     */
+
+    @DataField(id = "type", indexed = true,
+            description = FieldConstants.SIGNATURE_TYPE_DESCRIPTION)
     private String type;
+
+    @DataField(id = "counts", indexed = true,
+            description = FieldConstants.SIGNATURE_COUNTS_DESCRIPTION)
     private List<GenomeContextCount> counts;
+
+    @DataField(id = "files", indexed = true,
+            description = FieldConstants.SIGNATURE_FILES_DESCRIPTION)
     private List<String> files;
 
+    @DataField(id = "fitting", indexed = true,
+            description = FieldConstants.SIGNATURE_SIGNATURE_FITTING_DESCRIPTION)
     private SignatureFitting fitting;
 
     public Signature() {
@@ -130,7 +148,11 @@ public class Signature {
 
     public static class GenomeContextCount {
 
+        @DataField(id = "context", indexed = true,
+                description = FieldConstants.GENOME_CONTEXT_COUNT_CONTEXT_DESCRIPTION)
         private String context;
+        @DataField(id = "total", indexed = true,
+                description = FieldConstants.GENOME_CONTEXT_COUNT_TOTAL_DESCRIPTION)
         private int total;
 
         public GenomeContextCount() {

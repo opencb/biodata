@@ -19,8 +19,8 @@
 
 package org.opencb.biodata.tools.clinical;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.clinical.ClinicalProperty;
 import org.opencb.biodata.models.clinical.ClinicalProperty.ModeOfInheritance;
@@ -56,7 +56,7 @@ public abstract class ClinicalVariantCreator {
 
     protected List<DiseasePanel> diseasePanels;
     protected Disorder disorder;
-    protected ModeOfInheritance modeOfInheritance;
+    protected List<ModeOfInheritance> modeOfInheritances;
     protected Penetrance penetrance;
 
     protected Map<String, RoleInCancer> roleInCancer;
@@ -64,21 +64,22 @@ public abstract class ClinicalVariantCreator {
 
     protected String assembly;
 
-    public ClinicalVariantCreator(List<DiseasePanel> diseasePanels, Disorder disorder, ModeOfInheritance modeOfInheritance,
-                                  Penetrance penetrance, Map<String, RoleInCancer> roleInCancer,
-                                  Map<String, List<String>> actionableVariants, String assembly) {
-        this(diseasePanels, disorder, modeOfInheritance, penetrance, roleInCancer, actionableVariants, assembly,
+    public ClinicalVariantCreator(List<DiseasePanel> diseasePanels, Disorder disorder,
+                                  List<ModeOfInheritance> modeOfInheritances, Penetrance penetrance,
+                                  Map<String, RoleInCancer> roleInCancer, Map<String, List<String>> actionableVariants,
+                                  String assembly) {
+        this(diseasePanels, disorder, modeOfInheritances, penetrance, roleInCancer, actionableVariants, assembly,
                 new ArrayList<>(proteinCoding), new ArrayList<>(extendedLof));
     }
 
-    public ClinicalVariantCreator(List<DiseasePanel> diseasePanels, Disorder disorder, ModeOfInheritance modeOfInheritance,
-                                  Penetrance penetrance, Map<String, RoleInCancer> roleInCancer,
-                                  Map<String, List<String>> actionableVariants, String assembly, List<String> biotypes,
-                                  List<String> soNames) {
+    public ClinicalVariantCreator(List<DiseasePanel> diseasePanels, Disorder disorder,
+                                  List<ModeOfInheritance> modeOfInheritances, Penetrance penetrance,
+                                  Map<String, RoleInCancer> roleInCancer, Map<String, List<String>> actionableVariants,
+                                  String assembly, List<String> biotypes, List<String> soNames) {
 
         this.diseasePanels = diseasePanels;
         this.disorder = disorder;
-        this.modeOfInheritance = modeOfInheritance;
+        this.modeOfInheritances = modeOfInheritances;
         this.penetrance = penetrance;
         this.roleInCancer = roleInCancer;
         this.actionableVariants = actionableVariants;
@@ -101,7 +102,11 @@ public abstract class ClinicalVariantCreator {
     public abstract List<ClinicalVariant> create(List<Variant> variants) throws InterpretationAnalysisException;
 
     public List<ClinicalVariant> create(List<Variant> variants, ModeOfInheritance moi) throws InterpretationAnalysisException {
-        this.modeOfInheritance = moi;
+        return create(variants, Collections.singletonList(moi));
+    }
+
+    public List<ClinicalVariant> create(List<Variant> variants, List<ModeOfInheritance> mois) throws InterpretationAnalysisException {
+        this.modeOfInheritances = mois;
         return create(variants);
     }
 
@@ -127,7 +132,7 @@ public abstract class ClinicalVariantCreator {
             // If we have clinical variant evidences, then we have to create the clinical variant
             if (CollectionUtils.isNotEmpty(clinicalVariantEvidences)) {
                 ClinicalVariant clinicalVariant = new ClinicalVariant(variant.getImpl(), Collections.emptyList(), Collections.emptyList(),
-                        Collections.emptyList(), "", ClinicalVariant.Status.NOT_REVIEWED, Collections.emptyMap());
+                        Collections.emptyMap(), "", ClinicalVariant.Status.NOT_REVIEWED, Collections.emptyMap());
                 clinicalVariant.setEvidences(clinicalVariantEvidences);
 
                 // Add variant to the list
@@ -198,7 +203,15 @@ public abstract class ClinicalVariantCreator {
         return idToPanelMoiMap;
     }
 
-    protected ClinicalVariantEvidence createClinicalVariantEvidence(GenomicFeature genomicFeature, String panelId, ModeOfInheritance moi,
+    protected ClinicalVariantEvidence createClinicalVariantEvidence(GenomicFeature genomicFeature, String panelId,
+                                                                    ModeOfInheritance moi, Penetrance penetrance,
+                                                                    String tier, Variant variant) {
+        return  createClinicalVariantEvidence(genomicFeature, panelId, Collections.singletonList(moi), penetrance,
+                tier, variant);
+    }
+
+    protected ClinicalVariantEvidence createClinicalVariantEvidence(GenomicFeature genomicFeature, String panelId,
+                                                                    List<ModeOfInheritance> mois,
                                                                     Penetrance penetrance, String tier, Variant variant) {
         ClinicalVariantEvidence clinicalVariantEvidence = new ClinicalVariantEvidence();
 
@@ -219,8 +232,8 @@ public abstract class ClinicalVariantCreator {
         }
 
         // Mode of inheritance
-        if (moi != null) {
-            clinicalVariantEvidence.setModeOfInheritance(moi);
+        if (mois != null) {
+            clinicalVariantEvidence.setModeOfInheritances(mois);
         }
 
         // Penetrance
@@ -232,7 +245,7 @@ public abstract class ClinicalVariantCreator {
         clinicalVariantEvidence.setClassification(new VariantClassification());
 
         // Variant classification: ACMG
-        List<String> acmgs = calculateAcmgClassification(variant, moi);
+        List<String> acmgs = calculateAcmgClassification(variant, mois);
         clinicalVariantEvidence.getClassification().setAcmg(acmgs);
 
         // Variant classification: clinical significance
@@ -328,7 +341,7 @@ public abstract class ClinicalVariantCreator {
 
         if (CollectionUtils.isNotEmpty(panelIds)) {
             for (String panelId : panelIds) {
-                ClinicalVariantEvidence clinicalVariantEvidence = createClinicalVariantEvidence(genomicFeature, panelId, modeOfInheritance,
+                ClinicalVariantEvidence clinicalVariantEvidence = createClinicalVariantEvidence(genomicFeature, panelId, modeOfInheritances,
                         penetrance, tier, variant);
                 if (clinicalVariantEvidence != null) {
                     clinicalVariantEvidences.add(clinicalVariantEvidence);
@@ -337,7 +350,7 @@ public abstract class ClinicalVariantCreator {
         } else {
             // We report events without panels, e.g., actionable variants (tier 3)
             if (CollectionUtils.isNotEmpty(soTerms)) {
-                ClinicalVariantEvidence clinicalVariantEvidence = createClinicalVariantEvidence(genomicFeature, null, modeOfInheritance,
+                ClinicalVariantEvidence clinicalVariantEvidence = createClinicalVariantEvidence(genomicFeature, null, modeOfInheritances,
                         penetrance, tier, variant);
                 if (clinicalVariantEvidence != null) {
                     clinicalVariantEvidences.add(clinicalVariantEvidence);

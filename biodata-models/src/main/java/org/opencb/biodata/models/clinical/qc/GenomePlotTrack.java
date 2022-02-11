@@ -19,31 +19,54 @@
 
 package org.opencb.biodata.models.clinical.qc;
 
-import org.apache.commons.collections4.CollectionUtils;
+import org.opencb.biodata.models.constants.FieldConstants;
+import org.opencb.commons.annotations.DataField;
 
-import java.util.List;
 import java.util.Map;
 
 public class GenomePlotTrack {
+
+
+    @DataField(id = "type", indexed = true,
+            description = FieldConstants.GENOME_PLOT_TRACK_TYPE_DESCRIPTION)
     private String type;
+
+    @DataField(id = "description", indexed = true,
+            description = FieldConstants.GENOME_PLOT_TRACK_DESCRIPTION_DESCRIPTION)
+    private String description;
+
+    @DataField(id = "query", indexed = true,
+            description = FieldConstants.GENOME_PLOT_TRACK_QUERY_DESCRIPTION)
     private Map<String, String> query;
 
     public GenomePlotTrack() {
     }
 
-    public GenomePlotTrack(String type, Map<String, String> query) {
+    public GenomePlotTrack(String type, String description, Map<String, String> query) {
         this.type = type;
+        this.description = description;
         this.query = query;
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Track{");
+        final StringBuilder sb = new StringBuilder("GenomePlotTrack{");
         sb.append("type='").append(type).append('\'');
+        sb.append(", description='").append(description).append('\'');
         sb.append(", query=").append(query);
         sb.append('}');
         return sb.toString();
     }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public GenomePlotTrack setDescription(String description) {
+        this.description = description;
+        return this;
+    }
+
 
     public String getType() {
         return type;

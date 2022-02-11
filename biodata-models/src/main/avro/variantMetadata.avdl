@@ -73,6 +73,9 @@ protocol VariantMetadataProtocol {
          **/
         map<long> filterCount;
 
+        /** Number of genotypes found for all samples in variants set */
+        map<long> genotypeCount = {};
+
         /** Number of files in the variant set */
         long filesCount;
 
