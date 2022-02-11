@@ -20,7 +20,6 @@
 package org.opencb.biodata.models.clinical.interpretation;
 
 import org.opencb.biodata.models.clinical.Phenotype;
-import org.opencb.biodata.models.variant.avro.SequenceOntologyTerm;
 
 import java.util.Collections;
 import java.util.List;
@@ -42,20 +41,22 @@ public class ClinicalVariantEvidence {
     private List<String> compoundHeterozygousVariantIds;
     private RoleInCancer roleInCancer;
     private boolean actionable;
-    private String justification;
+
+    private ClinicalEvidenceReview review;
 
     public ClinicalVariantEvidence() {
         phenotypes = Collections.emptyList();
         compoundHeterozygousVariantIds = Collections.emptyList();
         fullyExplainPhenotypes = false;
         actionable = false;
+        review = new ClinicalEvidenceReview();
     }
 
     public ClinicalVariantEvidence(String interpretationMethodName, List<Phenotype> phenotypes, GenomicFeature genomicFeature,
                                    List<ModeOfInheritance> modeOfInheritances, String panelId, VariantClassification classification,
                                    Penetrance penetrance, double score, boolean fullyExplainPhenotypes,
                                    List<String> compoundHeterozygousVariantIds, RoleInCancer roleInCancer, boolean actionable,
-                                   String justification) {
+                                   ClinicalEvidenceReview review) {
         this.interpretationMethodName = interpretationMethodName;
         this.phenotypes = phenotypes;
         this.genomicFeature = genomicFeature;
@@ -68,7 +69,7 @@ public class ClinicalVariantEvidence {
         this.compoundHeterozygousVariantIds = compoundHeterozygousVariantIds;
         this.roleInCancer = roleInCancer;
         this.actionable = actionable;
-        this.justification = justification;
+        this.review = review;
     }
 
     @Override
@@ -77,7 +78,7 @@ public class ClinicalVariantEvidence {
         sb.append("interpretationMethodName='").append(interpretationMethodName).append('\'');
         sb.append(", phenotypes=").append(phenotypes);
         sb.append(", genomicFeature=").append(genomicFeature);
-        sb.append(", modeOfInheritance=").append(modeOfInheritances);
+        sb.append(", modeOfInheritances=").append(modeOfInheritances);
         sb.append(", panelId='").append(panelId).append('\'');
         sb.append(", classification=").append(classification);
         sb.append(", penetrance=").append(penetrance);
@@ -86,7 +87,7 @@ public class ClinicalVariantEvidence {
         sb.append(", compoundHeterozygousVariantIds=").append(compoundHeterozygousVariantIds);
         sb.append(", roleInCancer=").append(roleInCancer);
         sb.append(", actionable=").append(actionable);
-        sb.append(", justification='").append(justification).append('\'');
+        sb.append(", review=").append(review);
         sb.append('}');
         return sb.toString();
     }
@@ -199,12 +200,12 @@ public class ClinicalVariantEvidence {
         return this;
     }
 
-    public String getJustification() {
-        return justification;
+    public ClinicalEvidenceReview getReview() {
+        return review;
     }
 
-    public ClinicalVariantEvidence setJustification(String justification) {
-        this.justification = justification;
+    public ClinicalVariantEvidence setReview(ClinicalEvidenceReview review) {
+        this.review = review;
         return this;
     }
 }
