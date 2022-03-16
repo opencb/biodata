@@ -203,4 +203,8 @@ public class FullVcfCodec extends VCFCodec implements Serializable {
         return new LazyGenotypesContext.LazyData(genotypes, header.getSampleNamesInOrder(), header.getSampleNameToOffset());
     }
 
+    public void setLineNumber(int lineNumber) {
+        lineNo = lineNumber;
+    }
+
 }
