@@ -3,7 +3,7 @@ name: Push biodata develop
 on:
   push:
     branches:
-      - task-*
+      - TASK-*
 
 jobs:
   build:
