@@ -76,11 +76,6 @@
             <email>jacobo167@gmail.com</email>
         </developer>
         <developer>
-            <id>javild</id>
-            <name>Javier</name>
-            <email>javild@gmail.com</email>
-        </developer>
-        <developer>
             <id>pfurio</id>
             <name>Pedro</name>
             <email>pedrofurio@gmail.com</email>
@@ -89,6 +84,11 @@
             <id>jtarraga</id>
             <name>Joaquin</name>
             <email>joaquintarraga@gmail.com</email>
+        </developer>
+        <developer>
+            <id>javild</id>
+            <name>Javier</name>
+            <email>javild@gmail.com</email>
         </developer>
         <developer>
             <id>julie-sullivan</id>
@@ -114,10 +114,10 @@
                 <updatePolicy>daily</updatePolicy>
             </snapshots>
         </repository>
-        <repository>
-            <id>opencb-ext-libs</id>
-            <url>http://bioinfo.hpc.cam.ac.uk/downloads/ext-libs</url>
-        </repository>
+<!--        <repository>-->
+<!--            <id>opencb-ext-libs</id>-->
+<!--            <url>http://bioinfo.hpc.cam.ac.uk/downloads/ext-libs</url>-->
+<!--        </repository>-->
     </repositories>
 
     <dependencyManagement>
@@ -199,11 +199,11 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            <dependency>
-                <groupId>BigWig</groupId>
-                <artifactId>BigWig</artifactId>
-                <version>1.0</version>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>BigWig</groupId>-->
+<!--                <artifactId>BigWig</artifactId>-->
+<!--                <version>1.0</version>-->
+<!--            </dependency>-->
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
