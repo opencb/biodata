@@ -50,14 +50,16 @@
             <artifactId>log4j</artifactId>
             <version>1.2.17</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>BigWig</groupId>-->
-<!--            <artifactId>BigWig</artifactId>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>com.databricks</groupId>
             <artifactId>SnpEff</artifactId>
             <version>4.3.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.rocksdb</groupId>
