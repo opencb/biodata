@@ -20,7 +20,7 @@
 
     <groupId>org.opencb.biodata</groupId>
     <artifactId>biodata</artifactId>
-    <version>2.2.2-SNAPSHOT</version>
+    <version>2.2.2</version>
     <packaging>pom</packaging>
 
     <name>Biodata</name>
@@ -35,8 +35,8 @@
     </modules>
 
     <properties>
-        <biodata.version>2.2.2-SNAPSHOT</biodata.version>
-        <commons.version>4.2.0</commons.version>
+        <biodata.version>2.2.2</biodata.version>
+        <commons.version>4.2.1</commons.version>
         <collections.version>4.4</collections.version>
         <avro.version>1.7.7</avro.version>
         <protobuf.version>3.9.2</protobuf.version>
@@ -113,10 +113,6 @@
                 <enabled>true</enabled>
                 <updatePolicy>daily</updatePolicy>
             </snapshots>
-        </repository>
-        <repository>
-            <id>opencb-ext-libs</id>
-            <url>http://bioinfo.hpc.cam.ac.uk/downloads/ext-libs</url>
         </repository>
     </repositories>
 
@@ -198,11 +194,6 @@
                         <artifactId>log4j-core</artifactId>
                     </exclusion>
                 </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>BigWig</groupId>
-                <artifactId>BigWig</artifactId>
-                <version>1.0</version>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>
