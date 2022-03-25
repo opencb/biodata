@@ -71,53 +71,62 @@ public class SvVariantNormalizerExtension extends VariantNormalizerExtension {
 
     @Override
     protected boolean canUseExtension(VariantFileMetadata fileMetadata) {
-        // canCalculateVaf is calculated in the init() method after checking the VCF header fields
-        return SUPPORTED_SVTYPE_CALLERS.containsKey(caller) || SUPPORTED_SVLEN_CALLERS.containsKey(caller);
+        // First, check if the caller is registered because it does not use standard names
+        if (SUPPORTED_SVTYPE_CALLERS.containsKey(caller) || SUPPORTED_SVLEN_CALLERS.containsKey(caller)) {
+            return true;
+        }
+
+        // Second, if the VCF header contains standard SV info fields, in this case we always add EXT fields
+        for (VariantFileHeaderComplexLine complexLine : fileMetadata.getHeader().getComplexLines()) {
+            if (complexLine.getKey().equals("INFO")) {
+                if (complexLine.getId().equals("SVTYPE") || complexLine.getId().equals("SVLEN")) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     @Override
     protected void normalizeHeader(VariantFileMetadata fileMetadata) {
-        if (SUPPORTED_SVTYPE_CALLERS.containsKey(caller)) {
-            // Add EXT_SVTYPE
-            VariantFileHeaderComplexLine newSampleMetadataLine = new VariantFileHeaderComplexLine( "INFO",
-                    EXT_SVTYPE,
-                    "Variant SVTYPE obtained from " + SUPPORTED_SVTYPE_CALLERS.get(caller)
-                            + ", several variant callers supported. NOTE: this is a OpenCB extension field.",
-                    "1",
-                    "String",
-                    Collections.emptyMap());
-            fileMetadata.getHeader().getComplexLines().add(newSampleMetadataLine);
-        }
+        // Add EXT_SVTYPE
+        VariantFileHeaderComplexLine extSvtypeFileMetadataLine = new VariantFileHeaderComplexLine( "INFO",
+                EXT_SVTYPE,
+                "Variant SVTYPE obtained from " + SUPPORTED_SVTYPE_CALLERS.getOrDefault(caller, "SVTYPE")
+                        + ", several variant callers supported. NOTE: this is a OpenCB extension field.",
+                "1",
+                "String",
+                Collections.emptyMap());
+        fileMetadata.getHeader().getComplexLines().add(extSvtypeFileMetadataLine);
 
-        if (SUPPORTED_SVLEN_CALLERS.containsKey(caller)) {
-            // Add EXT_SVLEN
-            VariantFileHeaderComplexLine newSampleMetadataLine = new VariantFileHeaderComplexLine( "INFO",
-                    EXT_SVLEN,
-                    "Variant SVLEN obtained from " + SUPPORTED_SVLEN_CALLERS.get(caller)
-                            + ", several variant callers supported. NOTE: this is a OpenCB extension field.",
-                    "1",
-                    "Integer",
-                    Collections.emptyMap());
-            fileMetadata.getHeader().getComplexLines().add(newSampleMetadataLine);
-        }
+        // Add EXT_SVLEN
+        VariantFileHeaderComplexLine extSvlenFileMetadataLine = new VariantFileHeaderComplexLine( "INFO",
+                EXT_SVLEN,
+                "Variant SVLEN obtained from " + SUPPORTED_SVLEN_CALLERS.getOrDefault(caller, "SVLEN")
+                        + ", several variant callers supported. NOTE: this is a OpenCB extension field.",
+                "1",
+                "Integer",
+                Collections.emptyMap());
+        fileMetadata.getHeader().getComplexLines().add(extSvlenFileMetadataLine);
     }
 
     @Override
     protected void normalizeFile(Variant variant, StudyEntry study, FileEntry file) {
-        // Check if we can get SVTYPE from this caller
-        if (SUPPORTED_SVTYPE_CALLERS.containsKey(caller)) {
-            VariantType svtype = parseSvtype(file);
-            // Check returned svtype, some variants could miss the svtype
-            if (svtype != null) {
-                study.addFileData(file.getFileId(), EXT_SVTYPE, svtype.name());
-            }
+        // GET SVTYPE and check value, some variants could miss the SVTYPE
+        VariantType svtype = parseSvtype(file);
+        if (svtype != null) {
+            study.addFileData(file.getFileId(), EXT_SVTYPE, svtype.name());
         }
 
-        // Check if we can get SVLEN from this caller
-        if (SUPPORTED_SVLEN_CALLERS.containsKey(caller)) {
-            String svlen = file.getData().get(SUPPORTED_SVLEN_CALLERS.get(caller));
-            // Check returned svlen, some variants could miss the svlen
-            if (StringUtils.isNotEmpty(svlen)) {
+        // Get SVLEN and check value, some variants could miss the SVLEN
+        String svlen = file.getData().get(SUPPORTED_SVLEN_CALLERS.getOrDefault(caller, "SVLEN"));
+        if (StringUtils.isNotEmpty(svlen)) {
+            try {
+                // Make sure SVLEN is a positive number
+                int i = Math.abs(Integer.parseInt(svlen));
+                study.addFileData(file.getFileId(), EXT_SVLEN, String.valueOf(i));
+            } catch (NumberFormatException e) {
                 study.addFileData(file.getFileId(), EXT_SVLEN, svlen);
             }
         }
@@ -125,7 +134,7 @@ public class SvVariantNormalizerExtension extends VariantNormalizerExtension {
 
     private VariantType parseSvtype(FileEntry file) {
         VariantType SVTYPE = null;
-        String fileSvType = file.getData().get(SUPPORTED_SVTYPE_CALLERS.get(caller));
+        String fileSvType = file.getData().get(SUPPORTED_SVTYPE_CALLERS.getOrDefault(caller, "SVTYPE"));
 
         if (StringUtils.isNotEmpty(fileSvType)) {
             switch (fileSvType.toUpperCase()) {
