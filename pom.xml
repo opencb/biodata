@@ -39,15 +39,15 @@
         <commons.version>4.3.0-SNAPSHOT</commons.version>
         <collections.version>4.4</collections.version>
         <avro.version>1.7.7</avro.version>
-        <protobuf.version>3.9.2</protobuf.version>
-        <grpc.version>1.23.1</grpc.version>
+        <protobuf.version>3.11.4</protobuf.version>
+        <grpc.version>1.28.1</grpc.version>
         <htsjdk.version>2.23.0</htsjdk.version>
-        <slf4j.version>1.7.25</slf4j.version>
+        <slf4j.version>1.7.32</slf4j.version>
 
         <sonar.organization>opencb</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
 
-        <compileSource>1.8</compileSource>
+        <maven.compiler.source>11</maven.compiler.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -224,21 +224,23 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <version>3.10.1</version>
                 <configuration>
-                    <source>${compileSource}</source>
-                    <target>${compileSource}</target>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.source}</target>
                     <showDeprecation>true</showDeprecation>
                     <showWarnings>true</showWarnings>
-                    <encoding>UTF-8</encoding>
+                    <meminitial>128m</meminitial>
+                    <maxmem>512m</maxmem>
+                    <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>3.0.1</version>
+                <version>3.2.0</version>
                 <configuration>
-                    <encoding>UTF-8</encoding>
+                    <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
             </plugin>
         </plugins>
@@ -252,7 +254,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>3.0.1</version>
+                        <version>3.2.0</version>
                         <executions>
                             <execution>
                                 <id>attach-sources</id>
@@ -265,7 +267,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>2.10.4</version>
+                        <version>3.3.2</version>
                         <executions>
                             <execution>
                                 <id>attach-javadocs</id>
@@ -275,10 +277,7 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <additionalparam>-Xdoclint:none</additionalparam>
-                            <excludePackageNames>
-                                org.opencb.biodata.formats.protein.uniprot:org.opencb.biodata.formats.drug.drugbank:org.opencb.biodata.formats.variant.clinvar
-                            </excludePackageNames>
+                            <doclint>none</doclint>
                         </configuration>
                     </plugin>
                     <plugin>
@@ -305,7 +304,7 @@
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
                         <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <version>1.6.5</version>
+                        <version>1.6.8</version>
                         <extensions>true</extensions>
                         <configuration>
                             <serverId>ossrh</serverId>
