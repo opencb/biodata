@@ -46,6 +46,7 @@ public class Interpretation {
 
     private InterpretationStats stats;
 
+    private boolean locked;
     private Status status;
     private String creationDate;
     private String modificationDate;
@@ -63,7 +64,7 @@ public class Interpretation {
     public Interpretation(String id, String uuid, String description, String clinicalAnalysisId, ClinicalAnalyst analyst,
                           InterpretationMethod method, List<ClinicalVariant> primaryFindings, List<ClinicalVariant> secondaryFindings,
                           List<ClinicalComment> comments, InterpretationStats stats, Status status, String creationDate,
-                          String modificationDate, int version, Map<String, Object> attributes) {
+                          String modificationDate, boolean locked, int version, Map<String, Object> attributes) {
         this.id = id;
         this.uuid = uuid;
         this.description = description;
@@ -77,6 +78,7 @@ public class Interpretation {
         this.status = status;
         this.creationDate = creationDate;
         this.modificationDate = modificationDate;
+        this.locked = locked;
         this.version = version;
         this.attributes = attributes;
     }
@@ -97,6 +99,7 @@ public class Interpretation {
         sb.append(", status=").append(status);
         sb.append(", creationDate='").append(creationDate).append('\'');
         sb.append(", modificationDate='").append(modificationDate).append('\'');
+        sb.append(", locked='").append(locked).append('\'');
         sb.append(", version=").append(version);
         sb.append(", attributes=").append(attributes);
         sb.append('}');
@@ -217,6 +220,15 @@ public class Interpretation {
 
     public Interpretation setModificationDate(String modificationDate) {
         this.modificationDate = modificationDate;
+        return this;
+    }
+
+    public boolean isLocked() {
+        return locked;
+    }
+
+    public Interpretation setLocked(boolean locked) {
+        this.locked = locked;
         return this;
     }
 
