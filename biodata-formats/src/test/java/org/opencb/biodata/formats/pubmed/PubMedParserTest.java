@@ -1,6 +1,5 @@
 package org.opencb.biodata.formats.pubmed;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Assert;
 import org.junit.Test;
@@ -8,6 +7,7 @@ import org.opencb.biodata.formats.pubmed.generated.PubmedArticle;
 import org.opencb.biodata.formats.pubmed.generated.PubmedArticleSet;
 
 import javax.xml.bind.JAXBException;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -15,7 +15,7 @@ import java.util.List;
 public class PubMedParserTest {
 
     @Test
-    public void loadXml() throws JAXBException, JsonProcessingException {
+    public void loadXml() throws JAXBException, IOException {
         Path pubmedFile = Paths.get(getClass().getResource("/pubmed.test.xml").getPath());
 
         PubmedArticleSet res = (PubmedArticleSet) PubMedParser.loadXMLInfo(pubmedFile.toAbsolutePath().toString());
