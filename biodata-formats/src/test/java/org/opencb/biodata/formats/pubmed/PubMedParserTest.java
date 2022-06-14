@@ -3,9 +3,10 @@ package org.opencb.biodata.formats.pubmed;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Assert;
 import org.junit.Test;
-import org.opencb.biodata.formats.pubmed.generated.PubmedArticle;
-import org.opencb.biodata.formats.pubmed.generated.PubmedArticleSet;
+import org.opencb.biodata.formats.pubmed.v233jaxb.PubmedArticle;
+import org.opencb.biodata.formats.pubmed.v233jaxb.PubmedArticleSet;
 
+import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -16,6 +17,16 @@ public class PubMedParserTest {
 
     @Test
     public void loadXml() throws JAXBException, IOException {
+
+        JAXBContext jaxbCtx = JAXBContext.newInstance(PubMedParser.PUBMED_CONTEXT);
+        if (jaxbCtx instanceof com.sun.xml.bind.v2.runtime.JAXBContextImpl) {
+            System.out.println("JAXB Version: " +
+                    ((com.sun.xml.bind.v2.runtime.JAXBContextImpl) jaxbCtx).getBuildId());
+        }
+        else {
+            System.out.println("Unknown JAXB implementation: " + jaxbCtx.getClass().getName());
+        }
+
         Path pubmedFile = Paths.get(getClass().getResource("/pubmed.test.xml").getPath());
 
         PubmedArticleSet res = (PubmedArticleSet) PubMedParser.loadXMLInfo(pubmedFile.toAbsolutePath().toString());

@@ -10,7 +10,7 @@ import java.util.zip.GZIPInputStream;
 public class PubMedParser {
 
 
-    public final static String PUBMED_CONTEXT = "org.opencb.biodata.formats.pubmed.generated";
+    public final static String PUBMED_CONTEXT = "org.opencb.biodata.formats.pubmed.v233jaxb";
 
     public static void saveXMLInfo(Object obj, String filename) throws FileNotFoundException, JAXBException {
         JAXBContext jaxbContext;
