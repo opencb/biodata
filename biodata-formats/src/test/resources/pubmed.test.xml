@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE PubmedArticleSet SYSTEM "http://dtd.nlm.nih.gov/ncbi/pubmed/out/pubmed_190101.dtd">
+<PubmedArticleSet>
+  <PubmedArticle>
+    <MedlineCitation Status="In-Process" Owner="NLM">
+      <PMID Version="1">34878743</PMID>
+      <DateRevised>
+        <Year>2021</Year>
+        <Month>12</Month>
+        <Day>09</Day>
+      </DateRevised>
+      <Article PubModel="Print">
+        <Journal>
+          <ISSN IssnType="Print">1660-9379</ISSN>
+          <JournalIssue CitedMedium="Print">
+            <Volume>17</Volume>
+            <Issue>762</Issue>
+            <PubDate>
+              <Year>2021</Year>
+              <Month>Dec</Month>
+              <Day>08</Day>
+            </PubDate>
+          </JournalIssue>
+          <Title>Revue medicale suisse</Title>
+          <ISOAbbreviation>Rev Med Suisse</ISOAbbreviation>
+        </Journal>
+        <ArticleTitle>[COVID-19, anticoagulation and venous thromboembolism: what have we learned ?]</ArticleTitle>
+        <Pagination>
+          <MedlinePgn>2140-2144</MedlinePgn>
+        </Pagination>
+        <Abstract>
+          <AbstractText>Severe COVID-19 is associated with venous thromboembolic events and and immuno-thrombotic phenomena, responsible for pulmonary vascular damage. This review summarizes the current knowledge on thrombotic risk in COVID-19 inpatients, the potential predictive factors (including D-dimer) and the randomized trials studying the effect of intermediate or therapeutic-dose anticoagulation on the clinical and thrombotic prognosis. Despite the initial hope, therapeutic anticoagulation does not improve the clinical prognosis in critically ill inpatients, and standard prophylactic anticoagulation is therefore recommended. In non-critical inpatients, the use of therapeutic anticoagulation may help reduce the risk of severe clinical deterioration, but its risk-benefit will be clarified in ongoing studies and meta-analyzes.</AbstractText>
+        </Abstract>
+        <AuthorList CompleteYN="Y">
+          <Author ValidYN="Y">
+            <LastName>Blondon</LastName>
+            <ForeName>Marc</ForeName>
+            <Initials>M</Initials>
+            <AffiliationInfo>
+              <Affiliation>Service d'angiologie et d'hémostase, Hôpitaux universitaires de Genève, 1211 Genève 14.</Affiliation>
+            </AffiliationInfo>
+          </Author>
+          <Author ValidYN="Y">
+            <LastName>Robert-Ebadi</LastName>
+            <ForeName>Helia</ForeName>
+            <Initials>H</Initials>
+            <AffiliationInfo>
+              <Affiliation>Service d'angiologie et d'hémostase, Hôpitaux universitaires de Genève, 1211 Genève 14.</Affiliation>
+            </AffiliationInfo>
+          </Author>
+        </AuthorList>
+        <Language>fre</Language>
+        <PublicationTypeList>
+          <PublicationType UI="D004740">English Abstract</PublicationType>
+          <PublicationType UI="D016428">Journal Article</PublicationType>
+        </PublicationTypeList>
+        <VernacularTitle>Covid-19, anticoagulation et maladie thromboembolique veineuse : qu’a-t-on appris ?</VernacularTitle>
+      </Article>
+      <MedlineJournalInfo>
+        <Country>Switzerland</Country>
+        <MedlineTA>Rev Med Suisse</MedlineTA>
+        <NlmUniqueID>101219148</NlmUniqueID>
+        <ISSNLinking>1660-9379</ISSNLinking>
+      </MedlineJournalInfo>
+      <CitationSubset>IM</CitationSubset>
+      <OtherAbstract Type="Publisher" Language="fre">
+        <AbstractText>Le Covid-19 sévère se complique fréquemment d’événements thromboemboliques veineux et de phénomènes d’immunothrombose responsables d’altérations vasculaires pulmonaires. Cet article résume les connaissances actuelles du risque thrombotique lié au Covid-19 hospitalier, les facteurs prédictifs (dont les D-dimères) et les résultats des essais randomisés d’anticoagulation à doses intermédiaire ou thérapeutique. Malgré l’espoir initial, une anticoagulation thérapeutique n’améliore pas le pronostic clinique aux soins intensifs et une anticoagulation prophylactique standard est donc préconisée. En médecine, l’utilisation d’une anticoagulation thérapeutique pourrait contribuer à réduire le risque de détérioration clinique, mais le rapport bénéfice-risque d’une telle stratégie sera précisé dans les résultats des études et méta-analyses en cours.</AbstractText>
+      </OtherAbstract>
+      <CoiStatement>Les auteurs n’ont déclaré aucun conflit d’intérêts en relation avec cet article.</CoiStatement>
+    </MedlineCitation>
+    <PubmedData>
+      <History>
+        <PubMedPubDate PubStatus="entrez">
+          <Year>2021</Year>
+          <Month>12</Month>
+          <Day>8</Day>
+          <Hour>12</Hour>
+          <Minute>33</Minute>
+        </PubMedPubDate>
+        <PubMedPubDate PubStatus="pubmed">
+          <Year>2021</Year>
+          <Month>12</Month>
+          <Day>9</Day>
+          <Hour>6</Hour>
+          <Minute>0</Minute>
+        </PubMedPubDate>
+        <PubMedPubDate PubStatus="medline">
+          <Year>2021</Year>
+          <Month>12</Month>
+          <Day>9</Day>
+          <Hour>6</Hour>
+          <Minute>0</Minute>
+        </PubMedPubDate>
+      </History>
+      <PublicationStatus>ppublish</PublicationStatus>
+      <ArticleIdList>
+        <ArticleId IdType="pubmed">34878743</ArticleId>
+        <ArticleId IdType="pii">RMS0762-007</ArticleId>
+      </ArticleIdList>
+    </PubmedData>
+  </PubmedArticle>
+  <PubmedArticle>
+    <MedlineCitation Status="In-Process" Owner="NLM">
+      <PMID Version="1">34878744</PMID>
+      <DateRevised>
+        <Year>2021</Year>
+        <Month>12</Month>
+        <Day>09</Day>
+      </DateRevised>
+      <Article PubModel="Print">
+        <Journal>
+          <ISSN IssnType="Print">1660-9379</ISSN>
+          <JournalIssue CitedMedium="Print">
+            <Volume>17</Volume>
+            <Issue>762</Issue>
+            <PubDate>
+              <Year>2021</Year>
+              <Month>Dec</Month>
+              <Day>08</Day>
+            </PubDate>
+          </JournalIssue>
+          <Title>Revue medicale suisse</Title>
+          <ISOAbbreviation>Rev Med Suisse</ISOAbbreviation>
+        </Journal>
+        <ArticleTitle>[Preoperative rehabilitation before lower limb arthroplasty : Knowledge and perspectives].</ArticleTitle>
+        <Pagination>
+          <MedlinePgn>2147-2150</MedlinePgn>
+        </Pagination>
+        <Abstract>
+          <AbstractText>The shortening of hospital stays implies rethinking the pre- and post-operative management of lower limb arthroplasty. Optimal preparation of the patient and anticipation of the postoperative process are necessary to limit the length of stay and ensure quality, safety and patient satisfaction. This article summarises what is known about preoperative information, education and rehabilitation for primary care physicians. Physical rehabilitation is not recommended in isolation. However, patient-centred information and education is recommended for those at risk of complicated postoperative outcomes. Interdisciplinary collaboration is needed to coordinate the whole process effectively in a context of shortened lengths of stay.</AbstractText>
+        </Abstract>
+        <AuthorList CompleteYN="Y">
+          <Author ValidYN="Y" EqualContrib="Y">
+            <LastName>Philippossian</LastName>
+            <ForeName>Robin</ForeName>
+            <Initials>R</Initials>
+            <AffiliationInfo>
+              <Affiliation>Service d'orthopédie et de traumatologie, Département de l'appareil locomoteur, Centre hospitalier universitaire vaudois et Université de Lausanne, 1011 Lausanne.</Affiliation>
+            </AffiliationInfo>
+          </Author>
+          <Author ValidYN="Y" EqualContrib="Y">
+            <LastName>Luthi</LastName>
+            <ForeName>François</ForeName>
+            <Initials>F</Initials>
+            <AffiliationInfo>
+              <Affiliation>Service d'orthopédie et de traumatologie, Département de l'appareil locomoteur, Centre hospitalier universitaire vaudois et Université de Lausanne, 1011 Lausanne.</Affiliation>
+            </AffiliationInfo>
+            <AffiliationInfo>
+              <Affiliation>Service de réadaptation de l'appareil locomoteur, Clinique romande de réadaptation, 1950 Sion.</Affiliation>
+            </AffiliationInfo>
+          </Author>
+          <Author ValidYN="Y" EqualContrib="Y">
+            <LastName>Pichonnaz</LastName>
+            <ForeName>Claude</ForeName>
+            <Initials>C</Initials>
+            <AffiliationInfo>
+              <Affiliation>Service d'orthopédie et de traumatologie, Département de l'appareil locomoteur, Centre hospitalier universitaire vaudois et Université de Lausanne, 1011 Lausanne.</Affiliation>
+            </AffiliationInfo>
+            <AffiliationInfo>
+              <Affiliation>Haute École de santé Vaud (HESAV), Haute École spécialisée de Suisse occidentale (HES-SO), 1001 Lausanne.</Affiliation>
+            </AffiliationInfo>
+          </Author>
+        </AuthorList>
+        <Language>fre</Language>
+        <PublicationTypeList>
+          <PublicationType UI="D004740">English Abstract</PublicationType>
+          <PublicationType UI="D016428">Journal Article</PublicationType>
+        </PublicationTypeList>
+        <VernacularTitle>Réadaptation préopératoire avant arthroplastie du membre inférieur : connaissances et perspectives.</VernacularTitle>
+      </Article>
+      <MedlineJournalInfo>
+        <Country>Switzerland</Country>
+        <MedlineTA>Rev Med Suisse</MedlineTA>
+        <NlmUniqueID>101219148</NlmUniqueID>
+        <ISSNLinking>1660-9379</ISSNLinking>
+      </MedlineJournalInfo>
+      <CitationSubset>IM</CitationSubset>
+      <OtherAbstract Type="Publisher" Language="fre">
+        <AbstractText>Le raccourcissement des séjours hospitaliers implique de repenser la prise en charge pré et postopératoire après arthroplastie du membre inférieur. Une préparation optimale du patient et une anticipation du processus postopératoire sont nécessaires pour limiter le séjour et assurer la qualité, la sécurité et la satisfaction des patients. Cet article synthétise, à l’intention des médecins de premier recours, les connaissances concernant l’information, l’éducation et la réadaptation préopératoires. Une réadaptation physique n’est pas recommandée isolément. En revanche, l’information et l’éducation centrées sur le patient sont recommandées chez les sujets à risque de suites opératoires compliquées. Une collaboration interdisciplinaire est nécessaire pour coordonner efficacement l’ensemble du processus avec des durées de séjours réduites.</AbstractText>
+      </OtherAbstract>
+      <CoiStatement>Les auteurs n’ont déclaré aucun conflit d’intérêts en relation avec cet article.</CoiStatement>
+    </MedlineCitation>
+    <PubmedData>
+      <History>
+        <PubMedPubDate PubStatus="entrez">
+          <Year>2021</Year>
+          <Month>12</Month>
+          <Day>8</Day>
+          <Hour>12</Hour>
+          <Minute>33</Minute>
+        </PubMedPubDate>
+        <PubMedPubDate PubStatus="pubmed">
+          <Year>2021</Year>
+          <Month>12</Month>
+          <Day>9</Day>
+          <Hour>6</Hour>
+          <Minute>0</Minute>
+        </PubMedPubDate>
+        <PubMedPubDate PubStatus="medline">
+          <Year>2021</Year>
+          <Month>12</Month>
+          <Day>9</Day>
+          <Hour>6</Hour>
+          <Minute>0</Minute>
+        </PubMedPubDate>
+      </History>
+      <PublicationStatus>ppublish</PublicationStatus>
+      <ArticleIdList>
+        <ArticleId IdType="pubmed">34878744</ArticleId>
+        <ArticleId IdType="pii">RMS0762-008</ArticleId>
+      </ArticleIdList>
+    </PubmedData>
+  </PubmedArticle>
+</PubmedArticleSet>
