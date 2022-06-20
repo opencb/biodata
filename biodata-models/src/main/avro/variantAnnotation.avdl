@@ -296,7 +296,7 @@ protocol VariantAnnotations {
         union { null, array<GeneMirnaTarget> } geneMirnaTargets;
         union { null, array<GeneCancerAssociation> } geneCancerAssociations;
         union { null, array<EvidenceEntry> } traitAssociation;
-        union { null, GwasAssociation } gwas;
+        union { null, array<GwasAssociation> } gwas;
         union { null, array<CancerHotspotVariantAnnotation> } cancerHotspots;
         union { null, array<Score> } functionalScore;
         union { null, array<Cytoband> } cytoband;
