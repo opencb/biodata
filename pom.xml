@@ -35,7 +35,6 @@
     </modules>
 
     <properties>
-        <biodata.version>2.4.0-SNAPSHOT</biodata.version>
         <commons.version>4.4.0-SNAPSHOT</commons.version>
         <collections.version>4.4</collections.version>
         <avro.version>1.7.7</avro.version>
@@ -95,6 +94,11 @@
             <name>Julie</name>
             <email>julie.sullivan@gmail.com</email>
         </developer>
+        <developer>
+            <id>juanfeSanahuja</id>
+            <name>Juanfe</name>
+            <email>juanfesanahuja@gmail.com</email>
+        </developer>
     </developers>
 
     <mailingLists>
@@ -121,12 +125,12 @@
             <dependency>
                 <groupId>org.opencb.biodata</groupId>
                 <artifactId>biodata-formats</artifactId>
-                <version>${biodata.version}</version>
+                <version>${project.parent.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.opencb.biodata</groupId>
                 <artifactId>biodata-models</artifactId>
-                <version>${biodata.version}</version>
+                <version>${project.parent.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.opencb.commons</groupId>

@@ -27,7 +27,6 @@
     </parent>
 
     <artifactId>biodata-formats</artifactId>
-    <version>${biodata.version}</version>
     <packaging>jar</packaging>
 
     <dependencies>

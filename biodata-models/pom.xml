@@ -27,7 +27,6 @@
     </parent>
 
     <artifactId>biodata-models</artifactId>
-    <version>${biodata.version}</version>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -36,10 +35,14 @@
             <artifactId>commons-lib</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.opencb.commons</groupId>
+            <artifactId>commons-datastore-core</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.github.samtools</groupId>
             <artifactId>htsjdk</artifactId>
@@ -65,10 +68,6 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.opencb.commons</groupId>
-            <artifactId>commons-datastore-core</artifactId>
         </dependency>
     </dependencies>
 
