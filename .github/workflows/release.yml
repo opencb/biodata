@@ -29,23 +29,17 @@ jobs:
         with:
           fetch-depth: '10'
       - name: Set up JDK 8
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '8'
           cache: 'maven'
-      - name: Cache Maven packages
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven
       - name: Install Samtools
         run: sudo apt-get install samtools
       - name: Run tests with Maven
         run: mvn -T 2 clean install
 
-  deploy:
+  deploy-maven:
     uses: opencb/java-common-libs/.github/workflows/deploy-maven-repository-workflow.yml@develop
     needs: test
     secrets:
@@ -56,4 +50,4 @@ jobs:
 
   release:
     uses: opencb/java-common-libs/.github/workflows/release-github-workflow.yml@develop
-    needs: deploy
+    needs: deploy-maven

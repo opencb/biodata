@@ -198,6 +198,50 @@ protocol VariantAnnotations {
         union { null, array<string> } translocationPartners;
     }
 
+    record GwasAssociationStudyTraitScores {
+        union { null, double } pValue;
+        union { null, double } pValueMlog;
+        union { null, string } pValueText;
+        union { null, double } orBeta;
+        union { null, string } percentCI;
+    }
+
+    record OntologyTermAnnotation {
+        union { null, string } id;
+        union { null, string } name;
+        union { null, string } description;
+        union { null, string } source;
+        union { null, string } url;
+        union { null, map<string> } attributes;
+    }
+
+    record GwasAssociationStudyTrait {
+        union { null, string } diseaseTrait;
+        union { null, array<string> } strongestSnpRiskAllele;
+        union { null, array<OntologyTermAnnotation> } ontologies;
+        union { null, array<GwasAssociationStudyTraitScores> } scores;
+    }
+
+    record GwasAssociationStudy {
+        union { null, string } pubmedid;
+        union { null, string } study;
+        union { null, string } studyAccession;
+        union { null, string } initialSampleSizeDescription;
+        union { null, int } initialSampleSize;
+        union { null, string } platform;
+        union { null, string } genotypingTechnology;
+        union { null, array<GwasAssociationStudyTrait> } traits;
+    }
+
+    record GwasAssociation {
+        union { null, string } source;
+        union { null, string } region;
+        union { null, string } snpId;
+        union { null, string } riskAllele;
+        union { null, double } riskAlleleFrequency;
+        union { null, array<GwasAssociationStudy> } studies;
+    }
+
     record CancerHotspotAlternateAnnotation {
         union { null, string } aminoacidAlternate;
         union { null, int } count;
@@ -252,6 +296,7 @@ protocol VariantAnnotations {
         union { null, array<GeneMirnaTarget> } geneMirnaTargets;
         union { null, array<GeneCancerAssociation> } geneCancerAssociations;
         union { null, array<EvidenceEntry> } traitAssociation;
+        union { null, array<GwasAssociation> } gwas;
         union { null, array<CancerHotspotVariantAnnotation> } cancerHotspots;
         union { null, array<Score> } functionalScore;
         union { null, array<Cytoband> } cytoband;

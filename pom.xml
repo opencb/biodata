@@ -20,7 +20,7 @@
 
     <groupId>org.opencb.biodata</groupId>
     <artifactId>biodata</artifactId>
-    <version>2.3.0</version>
+    <version>2.4.0</version>
     <packaging>pom</packaging>
 
     <name>Biodata</name>
@@ -35,8 +35,7 @@
     </modules>
 
     <properties>
-        <biodata.version>2.3.0</biodata.version>
-        <commons.version>4.3.0</commons.version>
+        <java-common-libs.version>4.4.0</java-common-libs.version>
         <collections.version>4.4</collections.version>
         <avro.version>1.7.7</avro.version>
         <protobuf.version>3.11.4</protobuf.version>
@@ -95,6 +94,11 @@
             <name>Julie</name>
             <email>julie.sullivan@gmail.com</email>
         </developer>
+        <developer>
+            <id>juanfeSanahuja</id>
+            <name>Juanfe</name>
+            <email>juanfesanahuja@gmail.com</email>
+        </developer>
     </developers>
 
     <mailingLists>
@@ -121,17 +125,17 @@
             <dependency>
                 <groupId>org.opencb.biodata</groupId>
                 <artifactId>biodata-formats</artifactId>
-                <version>${biodata.version}</version>
+                <version>${project.parent.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.opencb.biodata</groupId>
                 <artifactId>biodata-models</artifactId>
-                <version>${biodata.version}</version>
+                <version>${project.parent.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.opencb.commons</groupId>
                 <artifactId>commons-lib</artifactId>
-                <version>${commons.version}</version>
+                <version>${java-common-libs.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.apache.logging.log4j</groupId>
@@ -142,7 +146,7 @@
             <dependency>
                 <groupId>org.opencb.commons</groupId>
                 <artifactId>commons-datastore-core</artifactId>
-                <version>${commons.version}</version>
+                <version>${java-common-libs.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.apache.logging.log4j</groupId>
