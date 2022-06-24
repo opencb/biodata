@@ -40,7 +40,7 @@ jobs:
       - name: Deploy tests web recursively to remote
         uses: garygrossgarten/github-action-scp@release
         with:
-          local: biodata-tools/target/site
+          local: biodata-tools/target
           remote: /mnt/data/opencb/biodata/tests/${{ needs.build.outputs.version }}/${{ github.ref_name }}/${{ github.sha }}
           host: ${{ secrets.SSH_SWDEV_IP }}
           username: ${{ secrets.SSH_SWDEV_USER }}
