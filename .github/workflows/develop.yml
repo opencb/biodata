@@ -42,9 +42,9 @@ jobs:
         with:
           local: target/site
           remote: /mnt/resources/opencb/biodata/tests/${{ github.ref_name }}/${{ github.sha }}
-          host: 128.232.224.128
-          username: ${{ secrets.SCP_SITE_USER }}
-          password: ${{ secrets.SCP_SITE_PASSWORD }}
+          host: ${{ secrets.SSH_SWDEV_IP }}
+          username: ${{ secrets.SSH_SWDEV_USER }}
+          password: ${{ secrets.SSH_SWDEV_PASSWORD }}
 
   deploy-maven:
     uses: opencb/java-common-libs/.github/workflows/deploy-maven-repository-workflow.yml@develop
