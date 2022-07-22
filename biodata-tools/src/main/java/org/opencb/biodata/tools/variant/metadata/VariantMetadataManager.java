@@ -36,6 +36,7 @@ import org.opencb.biodata.models.variant.metadata.VariantFileMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 import org.opencb.biodata.tools.variant.converters.avro.VCFHeaderToVariantFileHeaderConverter;
+import org.opencb.biodata.tools.variant.converters.avro.VCFHeaderToVariantFileMetadataConverter;
 import org.opencb.commons.datastore.core.Query;
 import org.opencb.commons.utils.FileUtils;
 import org.slf4j.Logger;
@@ -295,11 +296,8 @@ public class VariantMetadataManager {
             return null;
         }
 
-        VCFHeaderToVariantFileHeaderConverter headerConverter = new VCFHeaderToVariantFileHeaderConverter();
-        VariantFileMetadata variantFileMetadata = new VariantFileMetadata();
-        variantFileMetadata.setId(filename);
-        variantFileMetadata.setSampleIds(vcfHeader.getSampleNamesInOrder());
-        variantFileMetadata.setHeader(headerConverter.convert(vcfHeader));
+        VariantFileMetadata variantFileMetadata = new VCFHeaderToVariantFileMetadataConverter()
+                .convert(vcfHeader, filename, null).getImpl();
         addFile(variantFileMetadata, studyId);
         return variantFileMetadata;
     }
