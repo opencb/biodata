@@ -21,6 +21,7 @@ package org.opencb.biodata.tools.clinical;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.opencb.biodata.models.clinical.ClinicalDiscussion;
 import org.opencb.biodata.models.clinical.ClinicalProperty;
 import org.opencb.biodata.models.clinical.ClinicalProperty.ModeOfInheritance;
 import org.opencb.biodata.models.clinical.ClinicalProperty.Penetrance;
@@ -126,7 +127,7 @@ public class DefaultClinicalVariantCreator extends ClinicalVariantCreator {
             // Create a clinical variant only if we have evidences
             if (CollectionUtils.isNotEmpty(clinicalVariantEvidences)) {
                 ClinicalVariant clinicalVariant = new ClinicalVariant(variant.getImpl(), Collections.emptyList(), Collections.emptyList(),
-                        Collections.emptyMap(), "", ClinicalVariant.Status.NOT_REVIEWED, Collections.emptyMap());
+                        Collections.emptyMap(), new ClinicalDiscussion(), ClinicalVariant.Status.NOT_REVIEWED, Collections.emptyMap());
                 clinicalVariant.setEvidences(clinicalVariantEvidences);
 
                 // Add variant to the list
