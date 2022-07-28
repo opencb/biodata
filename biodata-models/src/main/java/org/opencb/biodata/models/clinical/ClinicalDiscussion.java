@@ -4,15 +4,15 @@ public class ClinicalDiscussion {
 
     private String author;
     private String date;
-    private String message;
+    private String text;
 
     public ClinicalDiscussion() {
     }
 
-    public ClinicalDiscussion(String author, String date, String message) {
+    public ClinicalDiscussion(String author, String date, String text) {
         this.author = author;
         this.date = date;
-        this.message = message;
+        this.text = text;
     }
 
     @Override
@@ -20,7 +20,7 @@ public class ClinicalDiscussion {
         final StringBuilder sb = new StringBuilder("ClinicalDiscussion{");
         sb.append("author='").append(author).append('\'');
         sb.append(", date='").append(date).append('\'');
-        sb.append(", message='").append(message).append('\'');
+        sb.append(", text='").append(text).append('\'');
         sb.append('}');
         return sb.toString();
     }
@@ -43,12 +43,12 @@ public class ClinicalDiscussion {
         return this;
     }
 
-    public String getMessage() {
-        return message;
+    public String getText() {
+        return text;
     }
 
-    public ClinicalDiscussion setMessage(String message) {
-        this.message = message;
+    public ClinicalDiscussion setText(String text) {
+        this.text = text;
         return this;
     }
 }
