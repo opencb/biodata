@@ -19,6 +19,7 @@
 
 package org.opencb.biodata.models.clinical.interpretation;
 
+import org.opencb.biodata.models.clinical.ClinicalDiscussion;
 import org.opencb.biodata.models.clinical.ClinicalProperty;
 
 import java.util.ArrayList;
@@ -32,7 +33,7 @@ public class ClinicalEvidenceReview {
     private String tier;
     private List<String> acmg;
     private ClinicalProperty.ClinicalSignificance clinicalSignificance;
-    private String discussion;
+    private ClinicalDiscussion discussion;
 
     public ClinicalEvidenceReview() {
         this.select = false;
@@ -40,7 +41,7 @@ public class ClinicalEvidenceReview {
     }
 
     public ClinicalEvidenceReview(boolean select, String tier, List<String> acmg, ClinicalSignificance clinicalSignificance,
-                                  String discussion) {
+                                  ClinicalDiscussion discussion) {
         this.select = select;
         this.tier = tier;
         this.acmg = acmg;
@@ -96,11 +97,11 @@ public class ClinicalEvidenceReview {
         return this;
     }
 
-    public String getDiscussion() {
+    public ClinicalDiscussion getDiscussion() {
         return discussion;
     }
 
-    public ClinicalEvidenceReview setDiscussion(String discussion) {
+    public ClinicalEvidenceReview setDiscussion(ClinicalDiscussion discussion) {
         this.discussion = discussion;
         return this;
     }
