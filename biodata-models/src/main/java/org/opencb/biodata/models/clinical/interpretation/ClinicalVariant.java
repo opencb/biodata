@@ -20,6 +20,7 @@
 package org.opencb.biodata.models.clinical.interpretation;
 
 import org.opencb.biodata.models.clinical.ClinicalComment;
+import org.opencb.biodata.models.clinical.ClinicalDiscussion;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.VariantAvro;
 
@@ -33,7 +34,7 @@ public class ClinicalVariant extends Variant {
     private List<ClinicalVariantEvidence> evidences;
     private List<ClinicalComment> comments;
     private Map<String, Object> filters;
-    private String discussion;
+    private ClinicalDiscussion discussion;
 
     private Status status;
 
@@ -54,11 +55,13 @@ public class ClinicalVariant extends Variant {
     }
 
     public ClinicalVariant(VariantAvro avro) {
-        this(avro, new ArrayList<>(), new ArrayList<>(), new HashMap<>(), "", Status.NOT_REVIEWED, new HashMap<>());
+        this(avro, new ArrayList<>(), new ArrayList<>(), new HashMap<>(), new ClinicalDiscussion(), Status.NOT_REVIEWED,
+                new HashMap<>());
     }
 
     public ClinicalVariant(VariantAvro avro, List<ClinicalVariantEvidence> evidences, List<ClinicalComment> comments,
-                           Map<String, Object> filters, String discussion, Status status, Map<String, Object> attributes) {
+                           Map<String, Object> filters, ClinicalDiscussion discussion, Status status,
+                           Map<String, Object> attributes) {
         super(avro);
 
         this.evidences = evidences;
@@ -109,11 +112,11 @@ public class ClinicalVariant extends Variant {
         return this;
     }
 
-    public String getDiscussion() {
+    public ClinicalDiscussion getDiscussion() {
         return discussion;
     }
 
-    public ClinicalVariant setDiscussion(String discussion) {
+    public ClinicalVariant setDiscussion(ClinicalDiscussion discussion) {
         this.discussion = discussion;
         return this;
     }
