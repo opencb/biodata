@@ -102,7 +102,7 @@ public class VariantClassification {
         return calculateAcmgClassification(variant, null);
     }
 
-    public static List<String> calculateAcmgClassification(ConsequenceType consequenceType, VariantAnnotation annotation,
+    public static List<ClinicalAcmg> calculateAcmgClassification(ConsequenceType consequenceType, VariantAnnotation annotation,
                                                            List<ClinicalProperty.ModeOfInheritance> mois) {
         Set<String> acmg = new HashSet<>();
 
@@ -237,7 +237,7 @@ public class VariantClassification {
             }
         }
 
-        return new ArrayList<>(acmg);
+        return acmg.stream().map(a -> new ClinicalAcmg(a, "", "", "", "")).collect(Collectors.toList());
     }
 
     @Deprecated
