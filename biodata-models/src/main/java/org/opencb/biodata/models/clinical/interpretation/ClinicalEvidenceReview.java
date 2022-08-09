@@ -35,19 +35,23 @@ public class ClinicalEvidenceReview {
     private List<ClinicalAcmg> acmg;
     private ClinicalProperty.ClinicalSignificance clinicalSignificance;
     private ClinicalDiscussion discussion;
+    private List<String> tags;
 
     public ClinicalEvidenceReview() {
         this.select = false;
         this.acmg = new ArrayList<>();
+        this.tags = new ArrayList<>();
     }
 
     public ClinicalEvidenceReview(boolean select, String tier, List<ClinicalAcmg> acmg,
-                                  ClinicalSignificance clinicalSignificance, ClinicalDiscussion discussion) {
+                                  ClinicalSignificance clinicalSignificance, ClinicalDiscussion discussion,
+                                  List<String> tags) {
         this.select = select;
         this.tier = tier;
         this.acmg = acmg;
         this.clinicalSignificance = clinicalSignificance;
         this.discussion = discussion;
+        this.tags = tags;
     }
 
     @Override
@@ -57,7 +61,8 @@ public class ClinicalEvidenceReview {
         sb.append(", tier='").append(tier).append('\'');
         sb.append(", acmg=").append(acmg);
         sb.append(", clinicalSignificance=").append(clinicalSignificance);
-        sb.append(", discussion='").append(discussion).append('\'');
+        sb.append(", discussion=").append(discussion);
+        sb.append(", tags=").append(tags);
         sb.append('}');
         return sb.toString();
     }
@@ -104,6 +109,15 @@ public class ClinicalEvidenceReview {
 
     public ClinicalEvidenceReview setDiscussion(ClinicalDiscussion discussion) {
         this.discussion = discussion;
+        return this;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public ClinicalEvidenceReview setTags(List<String> tags) {
+        this.tags = tags;
         return this;
     }
 }
