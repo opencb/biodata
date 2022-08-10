@@ -2,9 +2,11 @@ package org.opencb.biodata.models.clinical.interpretation;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
+import org.opencb.biodata.models.clinical.ClinicalAcmg;
 import org.opencb.biodata.models.clinical.ClinicalProperty;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -13,104 +15,176 @@ public class VariantClassificationTest {
 
     @Test
     public void clinicalSignificanceTest() {
-        List<String> acmgs;
+        List<ClinicalAcmg> acmgs;
         ClinicalProperty.ClinicalSignificance clinicalSignificance;
 
 
         // PATHOGENIC_VARIANT
 
-        acmgs = Arrays.asList("PVS1,PS1,PS2".split(","));
+        acmgs = Arrays.asList(
+                new ClinicalAcmg("PVS1", "", "", "", ""),
+                new ClinicalAcmg("PS1", "", "", "", ""),
+                new ClinicalAcmg("PS2", "", "", "", "")
+        );
         clinicalSignificance = VariantClassification.computeClinicalSignificance(acmgs);
         System.out.println(StringUtils.join(acmgs, ",") + " -> " + clinicalSignificance);
         assertEquals(clinicalSignificance, ClinicalProperty.ClinicalSignificance.PATHOGENIC);
 
-        acmgs = Arrays.asList("PVS1,PM1,PM2,PM3".split(","));
+        acmgs = Arrays.asList(
+                new ClinicalAcmg("PVS1", "", "", "", ""),
+                new ClinicalAcmg("PM1", "", "", "", ""),
+                new ClinicalAcmg("PM2", "", "", "", ""),
+                new ClinicalAcmg("PM3", "", "", "", "")
+        );
         clinicalSignificance = VariantClassification.computeClinicalSignificance(acmgs);
         System.out.println(StringUtils.join(acmgs, ",") + " -> " + clinicalSignificance);
         assertEquals(clinicalSignificance, ClinicalProperty.ClinicalSignificance.PATHOGENIC);
 
-        acmgs = Arrays.asList("PVS1,PM1,PP2".split(","));
+        acmgs = Arrays.asList(
+                new ClinicalAcmg("PVS1", "", "", "", ""),
+                new ClinicalAcmg("PM1", "", "", "", ""),
+                new ClinicalAcmg("PP2", "", "", "", "")
+        );
         clinicalSignificance = VariantClassification.computeClinicalSignificance(acmgs);
         System.out.println(StringUtils.join(acmgs, ",") + " -> " + clinicalSignificance);
         assertEquals(clinicalSignificance, ClinicalProperty.ClinicalSignificance.PATHOGENIC);
 
-        acmgs = Arrays.asList("PVS1,PP1,PP2".split(","));
+        acmgs = Arrays.asList(
+                new ClinicalAcmg("PVS1", "", "", "", ""),
+                new ClinicalAcmg("PP1", "", "", "", ""),
+                new ClinicalAcmg("PP2", "", "", "", "")
+        );
         clinicalSignificance = VariantClassification.computeClinicalSignificance(acmgs);
         System.out.println(StringUtils.join(acmgs, ",") + " -> " + clinicalSignificance);
         assertEquals(clinicalSignificance, ClinicalProperty.ClinicalSignificance.PATHOGENIC);
 
-        acmgs = Arrays.asList("PS1,PS2".split(","));
+        acmgs = Arrays.asList(
+                new ClinicalAcmg("PS1", "", "", "", ""),
+                new ClinicalAcmg("PS2", "", "", "", "")
+        );
         clinicalSignificance = VariantClassification.computeClinicalSignificance(acmgs);
         System.out.println(StringUtils.join(acmgs, ",") + " -> " + clinicalSignificance);
         assertEquals(clinicalSignificance, ClinicalProperty.ClinicalSignificance.PATHOGENIC);
 
-        acmgs = Arrays.asList("PS1,PM1,PM2,PM3".split(","));
+        acmgs = Arrays.asList(
+                new ClinicalAcmg("PS1", "", "", "", ""),
+                new ClinicalAcmg("PM1", "", "", "", ""),
+                new ClinicalAcmg("PM2", "", "", "", ""),
+                new ClinicalAcmg("PM3", "", "", "", "")
+        );
         clinicalSignificance = VariantClassification.computeClinicalSignificance(acmgs);
         System.out.println(StringUtils.join(acmgs, ",") + " -> " + clinicalSignificance);
         assertEquals(clinicalSignificance, ClinicalProperty.ClinicalSignificance.PATHOGENIC);
 
-        acmgs = Arrays.asList("PS1,PM1,PM2,PP1,PP2".split(","));
+        acmgs = Arrays.asList(
+                new ClinicalAcmg("PS1", "", "", "", ""),
+                new ClinicalAcmg("PM1", "", "", "", ""),
+                new ClinicalAcmg("PM2", "", "", "", ""),
+                new ClinicalAcmg("PP1", "", "", "", ""),
+                new ClinicalAcmg("PP2", "", "", "", "")
+        );
         clinicalSignificance = VariantClassification.computeClinicalSignificance(acmgs);
         System.out.println(StringUtils.join(acmgs, ",") + " -> " + clinicalSignificance);
         assertEquals(clinicalSignificance, ClinicalProperty.ClinicalSignificance.PATHOGENIC);
 
-        acmgs = Arrays.asList("PS1,PM1,PP1,PP2,PP3,PP4".split(","));
+        acmgs = Arrays.asList(
+                new ClinicalAcmg("PS1", "", "", "", ""),
+                new ClinicalAcmg("PM1", "", "", "", ""),
+                new ClinicalAcmg("PP1", "", "", "", ""),
+                new ClinicalAcmg("PP2", "", "", "", ""),
+                new ClinicalAcmg("PP3", "", "", "", ""),
+                new ClinicalAcmg("PP4", "", "", "", "")
+        );
         clinicalSignificance = VariantClassification.computeClinicalSignificance(acmgs);
         System.out.println(StringUtils.join(acmgs, ",") + " -> " + clinicalSignificance);
         assertEquals(clinicalSignificance, ClinicalProperty.ClinicalSignificance.PATHOGENIC);
 
         // LIKELY_PATHOGENIC_VARIANT
 
-        acmgs = Arrays.asList("PVS1,PM2".split(","));
+        acmgs = Arrays.asList(
+                new ClinicalAcmg("PVS1", "", "", "", ""),
+                new ClinicalAcmg("PM2", "", "", "", "")
+        );
         clinicalSignificance = VariantClassification.computeClinicalSignificance(acmgs);
         System.out.println(StringUtils.join(acmgs, ",") + " -> " + clinicalSignificance);
         assertEquals(clinicalSignificance, ClinicalProperty.ClinicalSignificance.LIKELY_PATHOGENIC);
 
-        acmgs = Arrays.asList("PS1,PM1".split(","));
+        acmgs = Arrays.asList(
+                new ClinicalAcmg("PS1", "", "", "", ""),
+                new ClinicalAcmg("PM1", "", "", "", "")
+        );
         clinicalSignificance = VariantClassification.computeClinicalSignificance(acmgs);
         System.out.println(StringUtils.join(acmgs, ",") + " -> " + clinicalSignificance);
         assertEquals(clinicalSignificance, ClinicalProperty.ClinicalSignificance.LIKELY_PATHOGENIC);
 
-        acmgs = Arrays.asList("PS1,PM1,PM2".split(","));
+        acmgs = Arrays.asList(
+                new ClinicalAcmg("PS1", "", "", "", ""),
+                new ClinicalAcmg("PM1", "", "", "", ""),
+                new ClinicalAcmg("PM2", "", "", "", "")
+        );
         clinicalSignificance = VariantClassification.computeClinicalSignificance(acmgs);
         System.out.println(StringUtils.join(acmgs, ",") + " -> " + clinicalSignificance);
         assertEquals(clinicalSignificance, ClinicalProperty.ClinicalSignificance.LIKELY_PATHOGENIC);
 
-        acmgs = Arrays.asList("PM1,PM2,PM3".split(","));
+        acmgs = Arrays.asList(
+                new ClinicalAcmg("PM1", "", "", "", ""),
+                new ClinicalAcmg("PM2", "", "", "", ""),
+                new ClinicalAcmg("PM3", "", "", "", "")
+        );
         clinicalSignificance = VariantClassification.computeClinicalSignificance(acmgs);
         System.out.println(StringUtils.join(acmgs, ",") + " -> " + clinicalSignificance);
         assertEquals(clinicalSignificance, ClinicalProperty.ClinicalSignificance.LIKELY_PATHOGENIC);
 
-        acmgs = Arrays.asList("PM1,PM2,PP1,PP2".split(","));
+        acmgs = Arrays.asList(
+                new ClinicalAcmg("PM1", "", "", "", ""),
+                new ClinicalAcmg("PM2", "", "", "", ""),
+                new ClinicalAcmg("PP1", "", "", "", ""),
+                new ClinicalAcmg("PP2", "", "", "", "")
+        );
         clinicalSignificance = VariantClassification.computeClinicalSignificance(acmgs);
         System.out.println(StringUtils.join(acmgs, ",") + " -> " + clinicalSignificance);
         assertEquals(clinicalSignificance, ClinicalProperty.ClinicalSignificance.LIKELY_PATHOGENIC);
 
-        acmgs = Arrays.asList("PM1,PP1,PP2,PP3,PP4".split(","));
+        acmgs = Arrays.asList(
+                new ClinicalAcmg("PM1", "", "", "", ""),
+                new ClinicalAcmg("PP1", "", "", "", ""),
+                new ClinicalAcmg("PP2", "", "", "", ""),
+                new ClinicalAcmg("PP3", "", "", "", ""),
+                new ClinicalAcmg("PP4", "", "", "", "")
+        );
         clinicalSignificance = VariantClassification.computeClinicalSignificance(acmgs);
         System.out.println(StringUtils.join(acmgs, ",") + " -> " + clinicalSignificance);
         assertEquals(clinicalSignificance, ClinicalProperty.ClinicalSignificance.LIKELY_PATHOGENIC);
 
         // BENIGN_VARIANT
 
-        acmgs = Arrays.asList("BA1".split(","));
+        acmgs = Collections.singletonList(new ClinicalAcmg("BA1", "", "", "", ""));
         clinicalSignificance = VariantClassification.computeClinicalSignificance(acmgs);
         System.out.println(StringUtils.join(acmgs, ",") + " -> " + clinicalSignificance);
         assertEquals(clinicalSignificance, ClinicalProperty.ClinicalSignificance.BENIGN);
 
-        acmgs = Arrays.asList("BS1,BS2".split(","));
+        acmgs = Arrays.asList(
+                new ClinicalAcmg("BS1", "", "", "", ""),
+                new ClinicalAcmg("BS2", "", "", "", "")
+        );
         clinicalSignificance = VariantClassification.computeClinicalSignificance(acmgs);
         System.out.println(StringUtils.join(acmgs, ",") + " -> " + clinicalSignificance);
         assertEquals(clinicalSignificance, ClinicalProperty.ClinicalSignificance.BENIGN);
 
         // LIKELY_BENIGN_VARIANT
 
-        acmgs = Arrays.asList("BS1,BP2".split(","));
+        acmgs = Arrays.asList(
+                new ClinicalAcmg("BS1", "", "", "", ""),
+                new ClinicalAcmg("BP2", "", "", "", "")
+        );
         clinicalSignificance = VariantClassification.computeClinicalSignificance(acmgs);
         System.out.println(StringUtils.join(acmgs, ",") + " -> " + clinicalSignificance);
         assertEquals(clinicalSignificance, ClinicalProperty.ClinicalSignificance.LIKELY_BENIGN);
 
-        acmgs = Arrays.asList("BP1,BP2".split(","));
+        acmgs = Arrays.asList(
+                new ClinicalAcmg("BP1", "", "", "", ""),
+                new ClinicalAcmg("BP2", "", "", "", "")
+        );
         clinicalSignificance = VariantClassification.computeClinicalSignificance(acmgs);
         System.out.println(StringUtils.join(acmgs, ",") + " -> " + clinicalSignificance);
         assertEquals(clinicalSignificance, ClinicalProperty.ClinicalSignificance.LIKELY_BENIGN);

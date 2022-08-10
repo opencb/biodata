@@ -35,6 +35,7 @@ public class ClinicalVariant extends Variant {
     private List<ClinicalComment> comments;
     private Map<String, Object> filters;
     private ClinicalDiscussion discussion;
+    private List<String> tags;
 
     private Status status;
 
@@ -56,11 +57,11 @@ public class ClinicalVariant extends Variant {
 
     public ClinicalVariant(VariantAvro avro) {
         this(avro, new ArrayList<>(), new ArrayList<>(), new HashMap<>(), new ClinicalDiscussion(), Status.NOT_REVIEWED,
-                new HashMap<>());
+                new ArrayList<>(), new HashMap<>());
     }
 
     public ClinicalVariant(VariantAvro avro, List<ClinicalVariantEvidence> evidences, List<ClinicalComment> comments,
-                           Map<String, Object> filters, ClinicalDiscussion discussion, Status status,
+                           Map<String, Object> filters, ClinicalDiscussion discussion, Status status, List<String> tags,
                            Map<String, Object> attributes) {
         super(avro);
 
@@ -69,6 +70,7 @@ public class ClinicalVariant extends Variant {
         this.filters = filters;
         this.discussion = discussion;
         this.status = status;
+        this.tags = tags;
         this.attributes = attributes;
     }
 
@@ -78,7 +80,8 @@ public class ClinicalVariant extends Variant {
         sb.append("evidences=").append(evidences);
         sb.append(", comments=").append(comments);
         sb.append(", filters=").append(filters);
-        sb.append(", discussion='").append(discussion).append('\'');
+        sb.append(", discussion=").append(discussion);
+        sb.append(", tags=").append(tags);
         sb.append(", status=").append(status);
         sb.append(", attributes=").append(attributes);
         sb.append('}');
@@ -127,6 +130,15 @@ public class ClinicalVariant extends Variant {
 
     public ClinicalVariant setStatus(Status status) {
         this.status = status;
+        return this;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public ClinicalVariant setTags(List<String> tags) {
+        this.tags = tags;
         return this;
     }
 
