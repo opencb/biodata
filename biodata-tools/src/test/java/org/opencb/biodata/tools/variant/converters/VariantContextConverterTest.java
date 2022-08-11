@@ -1,6 +1,6 @@
 package org.opencb.biodata.tools.variant.converters;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
 import org.opencb.biodata.models.variant.Variant;

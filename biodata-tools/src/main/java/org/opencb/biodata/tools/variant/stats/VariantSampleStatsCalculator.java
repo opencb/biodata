@@ -1,7 +1,7 @@
 package org.opencb.biodata.tools.variant.stats;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.clinical.interpretation.VariantClassification;
 import org.opencb.biodata.models.clinical.pedigree.Member;
 import org.opencb.biodata.models.clinical.pedigree.Pedigree;

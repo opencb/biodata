@@ -2,7 +2,7 @@ package org.opencb.biodata.tools.feature;
 
 import htsjdk.samtools.SAMSequenceDictionary;
 import htsjdk.samtools.SamReader;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.broad.igv.bbfile.*;
 import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.tools.commons.ChunkFrequencyManager;

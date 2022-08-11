@@ -1,7 +1,7 @@
 package org.opencb.biodata.tools.variant.converters.avro;
 
 import htsjdk.variant.vcf.*;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.variant.metadata.VariantFileHeader;
 import org.opencb.biodata.models.variant.metadata.VariantFileHeaderComplexLine;
 import org.opencb.biodata.tools.Converter;

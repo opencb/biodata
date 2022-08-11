@@ -1,6 +1,6 @@
 package org.opencb.biodata.models.clinical.interpretation;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
 import java.util.Arrays;
