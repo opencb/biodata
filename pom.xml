@@ -35,7 +35,7 @@
     </modules>
 
     <properties>
-        <java-common-libs.version>4.4.1-SNAPSHOT</java-common-libs.version>
+        <java-common-libs.version>4.4.1</java-common-libs.version>
         <collections.version>4.4</collections.version>
         <avro.version>1.7.7</avro.version>
         <protobuf.version>3.11.4</protobuf.version>
