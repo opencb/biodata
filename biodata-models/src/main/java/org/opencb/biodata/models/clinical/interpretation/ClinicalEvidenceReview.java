@@ -19,6 +19,8 @@
 
 package org.opencb.biodata.models.clinical.interpretation;
 
+import org.opencb.biodata.models.clinical.ClinicalAcmg;
+import org.opencb.biodata.models.clinical.ClinicalDiscussion;
 import org.opencb.biodata.models.clinical.ClinicalProperty;
 
 import java.util.ArrayList;
@@ -30,17 +32,17 @@ public class ClinicalEvidenceReview {
 
     private boolean select;
     private String tier;
-    private List<String> acmg;
+    private List<ClinicalAcmg> acmg;
     private ClinicalProperty.ClinicalSignificance clinicalSignificance;
-    private String discussion;
+    private ClinicalDiscussion discussion;
 
     public ClinicalEvidenceReview() {
         this.select = false;
         this.acmg = new ArrayList<>();
     }
 
-    public ClinicalEvidenceReview(boolean select, String tier, List<String> acmg, ClinicalSignificance clinicalSignificance,
-                                  String discussion) {
+    public ClinicalEvidenceReview(boolean select, String tier, List<ClinicalAcmg> acmg,
+                                  ClinicalSignificance clinicalSignificance, ClinicalDiscussion discussion) {
         this.select = select;
         this.tier = tier;
         this.acmg = acmg;
@@ -78,11 +80,11 @@ public class ClinicalEvidenceReview {
         return this;
     }
 
-    public List<String> getAcmg() {
+    public List<ClinicalAcmg> getAcmg() {
         return acmg;
     }
 
-    public ClinicalEvidenceReview setAcmg(List<String> acmg) {
+    public ClinicalEvidenceReview setAcmg(List<ClinicalAcmg> acmg) {
         this.acmg = acmg;
         return this;
     }
@@ -96,11 +98,11 @@ public class ClinicalEvidenceReview {
         return this;
     }
 
-    public String getDiscussion() {
+    public ClinicalDiscussion getDiscussion() {
         return discussion;
     }
 
-    public ClinicalEvidenceReview setDiscussion(String discussion) {
+    public ClinicalEvidenceReview setDiscussion(ClinicalDiscussion discussion) {
         this.discussion = discussion;
         return this;
     }

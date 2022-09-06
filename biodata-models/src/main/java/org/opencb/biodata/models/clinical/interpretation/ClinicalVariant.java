@@ -20,6 +20,7 @@
 package org.opencb.biodata.models.clinical.interpretation;
 
 import org.opencb.biodata.models.clinical.ClinicalComment;
+import org.opencb.biodata.models.clinical.ClinicalDiscussion;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.VariantAvro;
 
@@ -33,7 +34,8 @@ public class ClinicalVariant extends Variant {
     private List<ClinicalVariantEvidence> evidences;
     private List<ClinicalComment> comments;
     private Map<String, Object> filters;
-    private String discussion;
+    private ClinicalDiscussion discussion;
+    private List<String> tags;
 
     private Status status;
 
@@ -54,11 +56,13 @@ public class ClinicalVariant extends Variant {
     }
 
     public ClinicalVariant(VariantAvro avro) {
-        this(avro, new ArrayList<>(), new ArrayList<>(), new HashMap<>(), "", Status.NOT_REVIEWED, new HashMap<>());
+        this(avro, new ArrayList<>(), new ArrayList<>(), new HashMap<>(), new ClinicalDiscussion(), Status.NOT_REVIEWED,
+                new ArrayList<>(), new HashMap<>());
     }
 
     public ClinicalVariant(VariantAvro avro, List<ClinicalVariantEvidence> evidences, List<ClinicalComment> comments,
-                           Map<String, Object> filters, String discussion, Status status, Map<String, Object> attributes) {
+                           Map<String, Object> filters, ClinicalDiscussion discussion, Status status, List<String> tags,
+                           Map<String, Object> attributes) {
         super(avro);
 
         this.evidences = evidences;
@@ -66,6 +70,7 @@ public class ClinicalVariant extends Variant {
         this.filters = filters;
         this.discussion = discussion;
         this.status = status;
+        this.tags = tags;
         this.attributes = attributes;
     }
 
@@ -75,7 +80,8 @@ public class ClinicalVariant extends Variant {
         sb.append("evidences=").append(evidences);
         sb.append(", comments=").append(comments);
         sb.append(", filters=").append(filters);
-        sb.append(", discussion='").append(discussion).append('\'');
+        sb.append(", discussion=").append(discussion);
+        sb.append(", tags=").append(tags);
         sb.append(", status=").append(status);
         sb.append(", attributes=").append(attributes);
         sb.append('}');
@@ -109,11 +115,11 @@ public class ClinicalVariant extends Variant {
         return this;
     }
 
-    public String getDiscussion() {
+    public ClinicalDiscussion getDiscussion() {
         return discussion;
     }
 
-    public ClinicalVariant setDiscussion(String discussion) {
+    public ClinicalVariant setDiscussion(ClinicalDiscussion discussion) {
         this.discussion = discussion;
         return this;
     }
@@ -124,6 +130,15 @@ public class ClinicalVariant extends Variant {
 
     public ClinicalVariant setStatus(Status status) {
         this.status = status;
+        return this;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public ClinicalVariant setTags(List<String> tags) {
+        this.tags = tags;
         return this;
     }
 
