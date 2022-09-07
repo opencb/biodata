@@ -57,14 +57,14 @@ public abstract class ClinicalVariantCreator {
     protected List<ModeOfInheritance> modeOfInheritances;
     protected Penetrance penetrance;
 
-    protected Map<String, RoleInCancer> roleInCancer;
+    protected Map<String, List<RoleInCancer>> roleInCancer;
     protected Map<String, List<String>> actionableVariants;
 
     protected String assembly;
 
     public ClinicalVariantCreator(List<DiseasePanel> diseasePanels, Disorder disorder,
                                   List<ModeOfInheritance> modeOfInheritances, Penetrance penetrance,
-                                  Map<String, RoleInCancer> roleInCancer, Map<String, List<String>> actionableVariants,
+                                  Map<String, List<RoleInCancer>> roleInCancer, Map<String, List<String>> actionableVariants,
                                   String assembly) {
         this(diseasePanels, disorder, modeOfInheritances, penetrance, roleInCancer, actionableVariants, assembly,
                 new ArrayList<>(proteinCoding), new ArrayList<>(extendedLof));
@@ -72,7 +72,7 @@ public abstract class ClinicalVariantCreator {
 
     public ClinicalVariantCreator(List<DiseasePanel> diseasePanels, Disorder disorder,
                                   List<ModeOfInheritance> modeOfInheritances, Penetrance penetrance,
-                                  Map<String, RoleInCancer> roleInCancer, Map<String, List<String>> actionableVariants,
+                                  Map<String, List<RoleInCancer>> roleInCancer, Map<String, List<String>> actionableVariants,
                                   String assembly, List<String> biotypes, List<String> soNames) {
 
         this.diseasePanels = diseasePanels;

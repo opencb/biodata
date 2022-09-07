@@ -55,7 +55,7 @@ public class TieringClinicalVariantCreator extends ClinicalVariantCreator {
             "SO:0001821", "inframe_insertion", "SO:0001822", "inframe_deletion", "SO:0001583", "missense_variant",
             "SO:0001630", "splice_region_variant", "SO:0001626", "incomplete_terminal_codon_variant"));
 
-    public TieringClinicalVariantCreator(List<DiseasePanel> diseasePanels, Map<String, RoleInCancer> roleInCancer,
+    public TieringClinicalVariantCreator(List<DiseasePanel> diseasePanels, Map<String, List<RoleInCancer>> roleInCancer,
                                          Map<String, List<String>> actionableVariants, Disorder disorder,
                                          ModeOfInheritance modeOfInheritance, Penetrance penetrance, String assembly) {
         super(diseasePanels, disorder, Collections.singletonList(modeOfInheritance), penetrance, roleInCancer,

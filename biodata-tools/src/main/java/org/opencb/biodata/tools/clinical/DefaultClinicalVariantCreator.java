@@ -41,7 +41,7 @@ public class DefaultClinicalVariantCreator extends ClinicalVariantCreator {
 
     private boolean includeUntieredVariants;
 
-    public DefaultClinicalVariantCreator(Map<String, ClinicalProperty.RoleInCancer> roleInCancer,
+    public DefaultClinicalVariantCreator(Map<String, List<ClinicalProperty.RoleInCancer>> roleInCancer,
                                          Map<String, List<String>> actionableVariants, Disorder disorder,
                                          List<ModeOfInheritance> modeOfInheritances, Penetrance penetrance,
                                          List<DiseasePanel> diseasePanels, List<String> biotypes, List<String> soNames,
