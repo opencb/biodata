@@ -36,6 +36,7 @@ import org.opencb.biodata.models.variant.VariantFileMetadata;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 import org.opencb.biodata.tools.variant.converters.avro.VCFHeaderToVariantFileHeaderConverter;
+import org.opencb.biodata.tools.variant.converters.avro.VCFHeaderToVariantFileMetadataConverter;
 import org.opencb.biodata.tools.variant.converters.avro.VariantContextToVariantConverter;
 import org.opencb.biodata.tools.variant.metadata.VariantMetadataManager;
 import org.opencb.commons.utils.FileUtils;
@@ -178,23 +179,20 @@ public class VariantVcfHtsjdkReader implements VariantReader {
             @Override public void close() {}
         }));
 
-        // htsjdk automatically and inevitably sorts sample data in alphabetical order. Need to recover the original
-        // order in the VCF from the header and initialise the converter with the original order so that the order
-        // of samplesdata in CellBase output is exactly the same as in the original VCF
-        List<String> samplesInOriginalOrder = Arrays.asList(new String[header.getSampleNameToOffset().size()]);
-        for (Map.Entry<String, Integer> entry : header.getSampleNameToOffset().entrySet()) {
-            samplesInOriginalOrder.set(entry.getValue(), entry.getKey());
-        }
+        VCFHeaderToVariantFileMetadataConverter fileMetadataConverter = new VCFHeaderToVariantFileMetadataConverter();
+        fileMetadataConverter.convert(header, fileMetadata);
+        List<String> samples = fileMetadata.getSampleIds();
 
-        // Create converters and fill VariantSource
-        converter = new VariantContextToVariantConverter(metadata.getId(), fileMetadata.getId(), samplesInOriginalOrder);
-        fileMetadata.setHeader(new VCFHeaderToVariantFileHeaderConverter().convert(header));
-        fileMetadata.setSampleIds(samplesInOriginalOrder);
+        header = new VCFHeader(header.getMetaDataInInputOrder(), samples);
+        codec.setVCFHeader(header, codec.getVCFHeaderVersion());
+
+        // Create converters
+        converter = new VariantContextToVariantConverter(metadata.getId(), fileMetadata.getId(), samples);
         if (metadata.getIndividuals() == null) {
-            metadata.setIndividuals(new ArrayList<>(samplesInOriginalOrder.size()));
+            metadata.setIndividuals(new ArrayList<>(samples.size()));
         }
         VariantMetadataManager metadataManager = new VariantMetadataManager(metadata);
-        for (String sample : samplesInOriginalOrder) {
+        for (String sample : samples) {
             metadataManager.addIndividual(sample, sample, metadata.getId());
         }
 
