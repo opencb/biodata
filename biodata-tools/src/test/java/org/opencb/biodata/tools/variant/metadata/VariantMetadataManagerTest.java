@@ -1,4 +1,4 @@
-package org.opencb.biodata.tools.variant;
+package org.opencb.biodata.tools.variant.metadata;
 
 import org.apache.commons.collections.map.HashedMap;
 import org.junit.Before;
