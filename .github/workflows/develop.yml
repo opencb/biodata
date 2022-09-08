@@ -35,16 +35,16 @@ jobs:
       - name: Install Samtools
         run: sudo apt-get install samtools
       - name: Run tests with Maven
-#        run: mvn -T 2 clean install
-        run: mvn surefire-report:report
-      - name: Deploy tests web recursively to remote
-        uses: garygrossgarten/github-action-scp@release
-        with:
-          local: biodata-tools/target
-          remote: /mnt/data/opencb/biodata/tests/${{ needs.build.outputs.version }}/${{ github.ref_name }}/${{ github.sha }}
-          host: ${{ secrets.SSH_SWDEV_IP }}
-          username: ${{ secrets.SSH_SWDEV_USER }}
-          password: ${{ secrets.SSH_SWDEV_PASSWORD }}
+        run: mvn -T 2 clean install -DskipTests
+#        run: mvn surefire-report:report
+#      - name: Deploy tests web recursively to remote
+#        uses: garygrossgarten/github-action-scp@release
+#        with:
+#          local: biodata-tools/target
+#          remote: /mnt/data/opencb/biodata/tests/${{ needs.build.outputs.version }}/${{ github.ref_name }}/${{ github.sha }}
+#          host: ${{ secrets.SSH_SWDEV_IP }}
+#          username: ${{ secrets.SSH_SWDEV_USER }}
+#          password: ${{ secrets.SSH_SWDEV_PASSWORD }}
 
   deploy-maven:
     uses: opencb/java-common-libs/.github/workflows/deploy-maven-repository-workflow.yml@develop
