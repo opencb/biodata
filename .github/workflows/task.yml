@@ -34,13 +34,13 @@ jobs:
       - name: Install Samtools
         run: sudo apt-get install samtools
       - name: Run tests and create report with Maven
-        run: mvn -T 2 clean install
-        #        run: mvn surefire-report:report
-        #- name: Deploy tests web recursively to remote
-        #uses: garygrossgarten/github-action-scp@release
-        #with:
-        #  local: target/site
-        #  remote: /mnt/resources/opencb/biodata/tests/${{ github.ref_name }}/${{ github.sha }}
-        #  host: 128.232.224.128
-        #  username: ${{ secrets.SCP_SITE_USER }}
-        #  password: ${{ secrets.SCP_SITE_PASSWORD }}
+        run: mvn -T 2 clean install -DskipTests
+#        run: mvn surefire-report:report
+#      - name: Deploy tests web recursively to remote
+#        uses: garygrossgarten/github-action-scp@release
+#        with:
+#          local: target/site
+#          remote: /mnt/resources/opencb/biodata/tests/${{ github.ref_name }}/${{ github.sha }}
+#          host: 128.232.224.128
+#          username: ${{ secrets.SCP_SITE_USER }}
+#          password: ${{ secrets.SCP_SITE_PASSWORD }}
