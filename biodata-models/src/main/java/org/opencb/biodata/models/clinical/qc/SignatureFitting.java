@@ -21,6 +21,7 @@ package org.opencb.biodata.models.clinical.qc;
 
 import org.opencb.biodata.models.constants.FieldConstants;
 import org.opencb.commons.annotations.DataField;
+import org.opencb.commons.datastore.core.ObjectMap;
 
 import java.util.List;
 
@@ -51,16 +52,22 @@ public class SignatureFitting {
             description = FieldConstants.SIGNATURE_FITTING_FILE_DESCRIPTION)
     private String file;
 
+    @DataField(id = "params", indexed = false,
+            description = FieldConstants.SIGNATURE_FITTING_PARAMS_DESCRIPTION)
+    private ObjectMap params;
+
     public SignatureFitting() {
     }
 
-    public SignatureFitting(String method, String signatureSource, String signatureVersion, List<Score> scores, double coeff, String file) {
+    public SignatureFitting(String method, String signatureSource, String signatureVersion, List<Score> scores, double coeff, String file,
+                            ObjectMap params) {
         this.method = method;
         this.signatureSource = signatureSource;
         this.signatureVersion = signatureVersion;
         this.scores = scores;
         this.coeff = coeff;
         this.file = file;
+        this.params = params;
     }
 
     @Override
@@ -72,6 +79,7 @@ public class SignatureFitting {
         sb.append(", scores=").append(scores);
         sb.append(", coeff=").append(coeff);
         sb.append(", file='").append(file).append('\'');
+        sb.append(", params=").append(params);
         sb.append('}');
         return sb.toString();
     }
@@ -127,6 +135,15 @@ public class SignatureFitting {
 
     public SignatureFitting setFile(String file) {
         this.file = file;
+        return this;
+    }
+
+    public ObjectMap getParams() {
+        return params;
+    }
+
+    public SignatureFitting setParams(ObjectMap params) {
+        this.params = params;
         return this;
     }
 
