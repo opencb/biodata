@@ -39,6 +39,9 @@ public class FieldConstants {
     public static final String CLINICAL_COMMENT_TAGS_DESCRIPTION = "List of tags for the clinical comment";
     public static final String CLINICAL_COMMENT_DATE_DESCRIPTION = "Date of the clinical comment";
     public static final String RELATEDNESS_REPORT_METHOD_DESCRIPTION = "Method of the relatedness report";
+    public static final String CLINICAL_CONFIDENCE_AUTHOR_DESCRIPTION = "Clinical confidence author";
+    public static final String CLINICAL_CONFIDENCE_DATE_DESCRIPTION = "Date of the clinical confidence";
+    public static final String CLINICAL_CONFIDENCE_VALUE_DESCRIPTION = "Date of the clinical confidence";
 
     public static final String RELATEDNESS_REPORT_MAF_DESCRIPTION = "Minor allele frequency to filter variants, e.g.: 1kg_phase3:CEU>0.35, cohort:ALL>0.05";
     public static final String RELATEDNESS_REPORT_SCORES_DESCRIPTION = "Relatedness scores for pair of samples";
