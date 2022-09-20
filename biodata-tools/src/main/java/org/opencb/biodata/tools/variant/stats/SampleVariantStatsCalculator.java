@@ -145,7 +145,7 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
         Integer dpPos = studyEntry.getSampleDataKeyPosition(VCFConstants.DEPTH_KEY);
         IntFunction<String> getDp;
         if (dpPos != null) {
-            getDp = samplePos -> samples.get(samplePos).getData().get(0);
+            getDp = samplePos -> samples.get(samplePos).getData().get(dpPos);
         } else {
             getDp = samplePos -> getFileAttributes(studyEntry, samplePos).get(VCFConstants.DEPTH_KEY);
         }

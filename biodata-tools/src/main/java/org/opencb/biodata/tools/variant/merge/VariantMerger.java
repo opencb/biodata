@@ -686,7 +686,9 @@ public class VariantMerger {
                     Integer otherFilterIdx = otherStudyFormatPositions.get(getFilterKey());
                     String filter;
                     if (otherFilterIdx != null) {
-                        filter = otherSampleData.get(otherFilterIdx);
+                        filter = otherFilterIdx >= otherSampleData.size()
+                                ? getDefaultValue(getFilterKey())
+                                : otherSampleData.get(otherFilterIdx);
                     } else {
                         filter = otherStudy.getFiles().get(0).getData()
                                 .getOrDefault(StudyEntry.FILTER, getDefaultValue(getFilterKey()));

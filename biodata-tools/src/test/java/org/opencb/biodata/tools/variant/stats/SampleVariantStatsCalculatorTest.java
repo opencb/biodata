@@ -117,6 +117,19 @@ public class SampleVariantStatsCalculatorTest {
         for (SampleVariantStats sampleStat : sampleStats) {
             Assert.assertFalse(Float.isNaN(sampleStat.getQualityAvg()));
             Assert.assertFalse(Float.isInfinite(sampleStat.getQualityAvg()));
+            Assert.assertEquals(0, sampleStat.getDepthCount().getNa().intValue());
+            int dp = Integer.parseInt(sampleStat.getId().substring(1)) * 10;
+            if (dp < 5) {
+                Assert.assertNotEquals(0, sampleStat.getDepthCount().getLt5().intValue());
+            } else if (dp < 10) {
+                Assert.assertNotEquals(0, sampleStat.getDepthCount().getLt10().intValue());
+            } else if (dp < 15) {
+                Assert.assertNotEquals(0, sampleStat.getDepthCount().getLt15().intValue());
+            } else if (dp < 20) {
+                Assert.assertNotEquals(0, sampleStat.getDepthCount().getLt20().intValue());
+            } else {
+                Assert.assertNotEquals(0, sampleStat.getDepthCount().getGte20().intValue());
+            }
         }
     }
 
@@ -130,14 +143,14 @@ public class SampleVariantStatsCalculatorTest {
         Variant variant = Variant.newBuilder(v)
                 .setStudyId("study")
                 .setFileId("file")
-                .setSampleDataKeys("GT")
+                .setSampleDataKeys("GT", "DP")
                 .setSampleNames(samples)
-                .addSample("s0", s0Gt)
-                .addSample("s1", s1Gt)
-                .addSample("s2", s2Gt)
-                .addSample("s3", s3Gt)
-                .addSample("s4", s4Gt)
-                .addSample("s5", s5Gt)
+                .addSample("s0", s0Gt, "0")
+                .addSample("s1", s1Gt, "10")
+                .addSample("s2", s2Gt, "20")
+                .addSample("s3", s3Gt, "30")
+                .addSample("s4", s4Gt, "40")
+                .addSample("s5", s5Gt, "50")
                 .setQuality(qual)
                 .setFilter(filter)
                 .build();
