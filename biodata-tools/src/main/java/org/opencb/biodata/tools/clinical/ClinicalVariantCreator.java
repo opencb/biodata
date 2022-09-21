@@ -57,7 +57,7 @@ public abstract class ClinicalVariantCreator {
     protected List<ModeOfInheritance> modeOfInheritances;
     protected Penetrance penetrance;
 
-    protected Map<String, List<RoleInCancer>> roleInCancer;
+    protected Map<String, List<RoleInCancer>> rolesInCancerMap;
     protected Map<String, List<String>> actionableVariants;
 
     protected String assembly;
@@ -72,14 +72,14 @@ public abstract class ClinicalVariantCreator {
 
     public ClinicalVariantCreator(List<DiseasePanel> diseasePanels, Disorder disorder,
                                   List<ModeOfInheritance> modeOfInheritances, Penetrance penetrance,
-                                  Map<String, List<RoleInCancer>> roleInCancer, Map<String, List<String>> actionableVariants,
+                                  Map<String, List<RoleInCancer>> rolesInCancerMap, Map<String, List<String>> actionableVariants,
                                   String assembly, List<String> biotypes, List<String> soNames) {
 
         this.diseasePanels = diseasePanels;
         this.disorder = disorder;
         this.modeOfInheritances = modeOfInheritances;
         this.penetrance = penetrance;
-        this.roleInCancer = roleInCancer;
+        this.rolesInCancerMap = rolesInCancerMap;
         this.actionableVariants = actionableVariants;
         this.assembly = assembly;
 
@@ -257,10 +257,10 @@ public abstract class ClinicalVariantCreator {
 
         // Role in cancer
         if (variant.getAnnotation() != null) {
-            if (MapUtils.isNotEmpty(roleInCancer) && CollectionUtils.isNotEmpty(variant.getAnnotation().getConsequenceTypes())) {
+            if (MapUtils.isNotEmpty(rolesInCancerMap) && CollectionUtils.isNotEmpty(variant.getAnnotation().getConsequenceTypes())) {
                 for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
-                    if (StringUtils.isNotEmpty(ct.getGeneName()) && roleInCancer.containsKey(ct.getGeneName())) {
-                        clinicalVariantEvidence.setRoleInCancer(roleInCancer.get(ct.getGeneName()));
+                    if (StringUtils.isNotEmpty(ct.getGeneName()) && rolesInCancerMap.containsKey(ct.getGeneName())) {
+                        clinicalVariantEvidence.setRolesInCancer(rolesInCancerMap.get(ct.getGeneName()));
                         break;
                     }
                 }
