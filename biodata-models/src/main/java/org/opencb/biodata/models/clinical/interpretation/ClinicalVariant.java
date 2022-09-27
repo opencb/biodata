@@ -35,6 +35,7 @@ public class ClinicalVariant extends Variant {
     private List<ClinicalComment> comments;
     private Map<String, Object> filters;
     private ClinicalDiscussion discussion;
+    private ClinicalVariantConfidence confidence;
     private List<String> tags;
 
     private Status status;
@@ -56,10 +57,11 @@ public class ClinicalVariant extends Variant {
     }
 
     public ClinicalVariant(VariantAvro avro) {
-        this(avro, new ArrayList<>(), new ArrayList<>(), new HashMap<>(), new ClinicalDiscussion(), Status.NOT_REVIEWED,
-                new ArrayList<>(), new HashMap<>());
+        this(avro, new ArrayList<>(), new ArrayList<>(), new HashMap<>(), new ClinicalDiscussion(), null,
+                Status.NOT_REVIEWED, new ArrayList<>(), new HashMap<>());
     }
 
+    @Deprecated
     public ClinicalVariant(VariantAvro avro, List<ClinicalVariantEvidence> evidences, List<ClinicalComment> comments,
                            Map<String, Object> filters, ClinicalDiscussion discussion, Status status, List<String> tags,
                            Map<String, Object> attributes) {
@@ -74,6 +76,22 @@ public class ClinicalVariant extends Variant {
         this.attributes = attributes;
     }
 
+    public ClinicalVariant(VariantAvro avro, List<ClinicalVariantEvidence> evidences, List<ClinicalComment> comments,
+                           Map<String, Object> filters, ClinicalDiscussion discussion,
+                           ClinicalVariantConfidence confidence, Status status, List<String> tags,
+                           Map<String, Object> attributes) {
+        super(avro);
+
+        this.evidences = evidences;
+        this.comments = comments;
+        this.filters = filters;
+        this.discussion = discussion;
+        this.status = status;
+        this.tags = tags;
+        this.confidence = confidence;
+        this.attributes = attributes;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("ClinicalVariant{");
@@ -81,6 +99,7 @@ public class ClinicalVariant extends Variant {
         sb.append(", comments=").append(comments);
         sb.append(", filters=").append(filters);
         sb.append(", discussion=").append(discussion);
+        sb.append(", confidence=").append(confidence);
         sb.append(", tags=").append(tags);
         sb.append(", status=").append(status);
         sb.append(", attributes=").append(attributes);
@@ -121,6 +140,15 @@ public class ClinicalVariant extends Variant {
 
     public ClinicalVariant setDiscussion(ClinicalDiscussion discussion) {
         this.discussion = discussion;
+        return this;
+    }
+
+    public ClinicalVariantConfidence getConfidence() {
+        return confidence;
+    }
+
+    public ClinicalVariant setConfidence(ClinicalVariantConfidence confidence) {
+        this.confidence = confidence;
         return this;
     }
 
