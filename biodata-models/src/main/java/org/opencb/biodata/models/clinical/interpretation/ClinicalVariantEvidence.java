@@ -40,6 +40,7 @@ public class ClinicalVariantEvidence {
     private boolean fullyExplainPhenotypes;
     private List<String> compoundHeterozygousVariantIds;
     private RoleInCancer roleInCancer;
+    @Deprecated
     private boolean actionable;
 
     private ClinicalEvidenceReview review;
@@ -52,6 +53,7 @@ public class ClinicalVariantEvidence {
         review = new ClinicalEvidenceReview();
     }
 
+    @Deprecated
     public ClinicalVariantEvidence(String interpretationMethodName, List<Phenotype> phenotypes, GenomicFeature genomicFeature,
                                    List<ModeOfInheritance> modeOfInheritances, String panelId, VariantClassification classification,
                                    Penetrance penetrance, double score, boolean fullyExplainPhenotypes,
@@ -69,6 +71,25 @@ public class ClinicalVariantEvidence {
         this.compoundHeterozygousVariantIds = compoundHeterozygousVariantIds;
         this.roleInCancer = roleInCancer;
         this.actionable = actionable;
+        this.review = review;
+    }
+
+    public ClinicalVariantEvidence(String interpretationMethodName, List<Phenotype> phenotypes, GenomicFeature genomicFeature,
+                                   List<ModeOfInheritance> modeOfInheritances, String panelId, VariantClassification classification,
+                                   Penetrance penetrance, double score, boolean fullyExplainPhenotypes,
+                                   List<String> compoundHeterozygousVariantIds, RoleInCancer roleInCancer,
+                                   ClinicalEvidenceReview review) {
+        this.interpretationMethodName = interpretationMethodName;
+        this.phenotypes = phenotypes;
+        this.genomicFeature = genomicFeature;
+        this.modeOfInheritances = modeOfInheritances;
+        this.panelId = panelId;
+        this.classification = classification;
+        this.penetrance = penetrance;
+        this.score = score;
+        this.fullyExplainPhenotypes = fullyExplainPhenotypes;
+        this.compoundHeterozygousVariantIds = compoundHeterozygousVariantIds;
+        this.roleInCancer = roleInCancer;
         this.review = review;
     }
 

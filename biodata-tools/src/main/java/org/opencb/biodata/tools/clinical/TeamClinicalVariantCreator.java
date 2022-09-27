@@ -41,10 +41,9 @@ import static org.opencb.biodata.tools.pedigree.ModeOfInheritance.proteinCoding;
 
 public class TeamClinicalVariantCreator extends ClinicalVariantCreator {
 
-    public TeamClinicalVariantCreator(List<DiseasePanel> diseasePanels, Map<String, RoleInCancer> roleInCancer,
-                                      Map<String, List<String>> actionableVariants, Disorder disorder,
+    public TeamClinicalVariantCreator(List<DiseasePanel> diseasePanels, Map<String, RoleInCancer> roleInCancer, Disorder disorder,
                                       List<ModeOfInheritance> modeOfInheritances, Penetrance penetrance) {
-        super(diseasePanels, disorder, modeOfInheritances, penetrance, roleInCancer, actionableVariants, null);
+        super(diseasePanels, disorder, modeOfInheritances, penetrance, roleInCancer, null);
     }
 
     @Override
@@ -102,22 +101,6 @@ public class TeamClinicalVariantCreator extends ClinicalVariantCreator {
                                 clinicalVariantEvidences.addAll(createClinicalVariantEvidences(TIER_2, panelIds, ct, variant));
                             }
                         }
-                    }
-                }
-            }
-
-            // Tier 3, actionable variants
-            if (!hasTier && MapUtils.isNotEmpty(actionableVariants)) {
-                if (variant.getAnnotation() != null && actionableVariants.containsKey(variant.getId())) {
-                    if (CollectionUtils.isNotEmpty(variant.getAnnotation().getConsequenceTypes())) {
-                        for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
-                            if (ct.getBiotype() != null && proteinCoding.contains(ct.getBiotype())) {
-                                clinicalVariantEvidences.addAll(createClinicalVariantEvidences(UNTIERED, null, ct, variant));
-                            }
-                        }
-                    } else {
-                        // We create the clinical variant evidences anyway!
-                        clinicalVariantEvidences.addAll(createClinicalVariantEvidences(UNTIERED, null, null, variant));
                     }
                 }
             }
