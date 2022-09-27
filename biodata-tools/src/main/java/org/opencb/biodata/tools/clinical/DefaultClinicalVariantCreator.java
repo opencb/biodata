@@ -41,13 +41,11 @@ public class DefaultClinicalVariantCreator extends ClinicalVariantCreator {
 
     private boolean includeUntieredVariants;
 
-    public DefaultClinicalVariantCreator(Map<String, ClinicalProperty.RoleInCancer> roleInCancer,
-                                         Map<String, List<String>> actionableVariants, Disorder disorder,
+    public DefaultClinicalVariantCreator(Map<String, ClinicalProperty.RoleInCancer> roleInCancer, Disorder disorder,
                                          List<ModeOfInheritance> modeOfInheritances, Penetrance penetrance,
                                          List<DiseasePanel> diseasePanels, List<String> biotypes, List<String> soNames,
                                          boolean includeUntieredVariants) {
-        super(diseasePanels, disorder, modeOfInheritances, penetrance, roleInCancer, actionableVariants, null,
-                biotypes, soNames);
+        super(diseasePanels, disorder, modeOfInheritances, penetrance, roleInCancer, null, biotypes, soNames);
 
         this.includeUntieredVariants = includeUntieredVariants;
     }
