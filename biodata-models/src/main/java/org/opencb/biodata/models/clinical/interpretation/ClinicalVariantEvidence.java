@@ -64,7 +64,11 @@ public class ClinicalVariantEvidence {
                 fullyExplainPhenotypes, compoundHeterozygousVariantIds, roleInCancer, null, actionable, review);
     }
 
-    public ClinicalVariantEvidence(String interpretationMethodName, List<Phenotype> phenotypes, GenomicFeature genomicFeature, List<ModeOfInheritance> modeOfInheritances, String panelId, VariantClassification classification, Penetrance penetrance, double score, boolean fullyExplainPhenotypes, List<String> compoundHeterozygousVariantIds, RoleInCancer roleInCancer, List<RoleInCancer> rolesInCancer, boolean actionable, ClinicalEvidenceReview review) {
+    public ClinicalVariantEvidence(String interpretationMethodName, List<Phenotype> phenotypes, GenomicFeature genomicFeature,
+                                   List<ModeOfInheritance> modeOfInheritances, String panelId, VariantClassification classification,
+                                   Penetrance penetrance, double score, boolean fullyExplainPhenotypes,
+                                   List<String> compoundHeterozygousVariantIds, RoleInCancer roleInCancer, List<RoleInCancer> rolesInCancer,
+                                   boolean actionable, ClinicalEvidenceReview review) {
         this.interpretationMethodName = interpretationMethodName;
         this.phenotypes = phenotypes;
         this.genomicFeature = genomicFeature;
