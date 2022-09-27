@@ -222,7 +222,7 @@ public class ClinicalVariantEvidence {
     }
 
     @Deprecated
-    public ClinicalVariantEvidence setRolesnCancer(RoleInCancer roleInCancer) {
+    public ClinicalVariantEvidence setRoleInCancer(RoleInCancer roleInCancer) {
         this.roleInCancer = roleInCancer;
         return this;
     }
