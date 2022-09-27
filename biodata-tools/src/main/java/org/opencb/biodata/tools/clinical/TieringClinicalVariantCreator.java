@@ -25,12 +25,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.clinical.ClinicalDiscussion;
 import org.opencb.biodata.models.clinical.ClinicalProperty.ModeOfInheritance;
 import org.opencb.biodata.models.clinical.ClinicalProperty.Penetrance;
+import org.opencb.biodata.models.clinical.Disorder;
 import org.opencb.biodata.models.clinical.interpretation.ClinicalVariant;
+import org.opencb.biodata.models.clinical.interpretation.ClinicalVariantEvidence;
 import org.opencb.biodata.models.clinical.interpretation.DiseasePanel;
 import org.opencb.biodata.models.clinical.interpretation.GenomicFeature;
-import org.opencb.biodata.models.clinical.interpretation.ClinicalVariantEvidence;
 import org.opencb.biodata.models.clinical.interpretation.exceptions.InterpretationAnalysisException;
-import org.opencb.biodata.models.clinical.Disorder;
 import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.ConsequenceType;
@@ -55,11 +55,15 @@ public class TieringClinicalVariantCreator extends ClinicalVariantCreator {
             "SO:0001821", "inframe_insertion", "SO:0001822", "inframe_deletion", "SO:0001583", "missense_variant",
             "SO:0001630", "splice_region_variant", "SO:0001626", "incomplete_terminal_codon_variant"));
 
-    public TieringClinicalVariantCreator(List<DiseasePanel> diseasePanels, Map<String, List<RoleInCancer>> roleInCancer,
-                                         Map<String, List<String>> actionableVariants, Disorder disorder,
+    @Deprecated
+    public TieringClinicalVariantCreator(List<DiseasePanel> diseasePanels, Map<String, RoleInCancer> roleInCancer, Disorder disorder,
                                          ModeOfInheritance modeOfInheritance, Penetrance penetrance, String assembly) {
-        super(diseasePanels, disorder, Collections.singletonList(modeOfInheritance), penetrance, roleInCancer,
-                actionableVariants, assembly);
+        super(diseasePanels, disorder, Collections.singletonList(modeOfInheritance), penetrance, roleInCancer, assembly);
+    }
+
+    public TieringClinicalVariantCreator(List<DiseasePanel> diseasePanels, Disorder disorder, ModeOfInheritance modeOfInheritance,
+                                         Penetrance penetrance, String assembly) {
+        super(diseasePanels, disorder, Collections.singletonList(modeOfInheritance), penetrance, assembly);
     }
 
     @Override

@@ -42,6 +42,7 @@ public class ClinicalVariantEvidence {
     @Deprecated
     private RoleInCancer roleInCancer;
     private List<RoleInCancer> rolesInCancer;
+    @Deprecated
     private boolean actionable;
 
     private ClinicalEvidenceReview review;
@@ -82,6 +83,25 @@ public class ClinicalVariantEvidence {
         this.roleInCancer = roleInCancer;
         this.rolesInCancer = rolesInCancer;
         this.actionable = actionable;
+        this.review = review;
+    }
+    @Deprecated
+    public ClinicalVariantEvidence(String interpretationMethodName, List<Phenotype> phenotypes, GenomicFeature genomicFeature,
+                                   List<ModeOfInheritance> modeOfInheritances, String panelId, VariantClassification classification,
+                                   Penetrance penetrance, double score, boolean fullyExplainPhenotypes,
+                                   List<String> compoundHeterozygousVariantIds, RoleInCancer roleInCancer,
+                                   ClinicalEvidenceReview review) {
+        this.interpretationMethodName = interpretationMethodName;
+        this.phenotypes = phenotypes;
+        this.genomicFeature = genomicFeature;
+        this.modeOfInheritances = modeOfInheritances;
+        this.panelId = panelId;
+        this.classification = classification;
+        this.penetrance = penetrance;
+        this.score = score;
+        this.fullyExplainPhenotypes = fullyExplainPhenotypes;
+        this.compoundHeterozygousVariantIds = compoundHeterozygousVariantIds;
+        this.roleInCancer = roleInCancer;
         this.review = review;
     }
 
