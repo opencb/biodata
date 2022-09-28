@@ -19,8 +19,8 @@
 
 package org.opencb.biodata.formats.variant.annotation.io;
 
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.opencb.biodata.formats.variant.vcf4.io.VariantVcfReader;
 //import org.opencb.biodata.models.variant.annotation.ConsequenceType;
 //import org.opencb.biodata.models.variant.annotation.Score;

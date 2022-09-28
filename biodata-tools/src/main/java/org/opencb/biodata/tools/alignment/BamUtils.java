@@ -20,7 +20,7 @@
 package org.opencb.biodata.tools.alignment;
 
 import htsjdk.samtools.*;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.broad.igv.bbfile.*;
 import org.opencb.biodata.models.alignment.RegionCoverage;

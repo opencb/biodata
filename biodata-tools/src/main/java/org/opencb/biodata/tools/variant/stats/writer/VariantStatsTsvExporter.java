@@ -20,7 +20,7 @@
 package org.opencb.biodata.tools.variant.stats.writer;
 
 import htsjdk.variant.vcf.VCFConstants;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.opencb.biodata.models.feature.Genotype;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
