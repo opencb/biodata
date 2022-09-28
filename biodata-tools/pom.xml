@@ -60,10 +60,6 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>BigWig</groupId>
-            <artifactId>BigWig</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.github.samtools</groupId>
             <artifactId>htsjdk</artifactId>
         </dependency>

@@ -119,13 +119,6 @@
         </mailingList>
     </mailingLists>
 
-    <repositories>
-        <repository>
-            <id>opencb-ext-libs</id>
-            <url>http://bioinfo.hpc.cam.ac.uk/downloads/ext-libs/</url>
-        </repository>
-    </repositories>
-
     <dependencyManagement>
         <dependencies>
             <dependency>

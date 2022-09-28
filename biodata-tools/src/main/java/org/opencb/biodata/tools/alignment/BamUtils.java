@@ -20,14 +20,11 @@
 package org.opencb.biodata.tools.alignment;
 
 import htsjdk.samtools.*;
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.time.StopWatch;
-import org.broad.igv.bbfile.*;
 import org.opencb.biodata.models.alignment.RegionCoverage;
 import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.tools.alignment.exceptions.AlignmentCoverageException;
-import org.opencb.biodata.tools.feature.BigWigManager;
-import org.opencb.commons.utils.CollectionUtils;
 import org.opencb.commons.utils.FileUtils;
 
 import java.io.IOException;
@@ -172,10 +169,7 @@ public class BamUtils {
      */
     public static RegionCoverage getCoverageFromBigWig(Region region, int windowSize, Path bigwigPath) throws IOException {
         FileUtils.checkFile(bigwigPath);
-
-        BigWigManager bigWigManager = new BigWigManager(bigwigPath);
-        float[] avgCoverage = bigWigManager.groupBy(region, windowSize);
-        return new RegionCoverage(region, windowSize, avgCoverage);
+        throw new NotImplementedException("Shouldn't be accessing BigWig");
     }
 
     /**

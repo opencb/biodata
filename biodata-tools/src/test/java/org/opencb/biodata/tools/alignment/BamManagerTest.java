@@ -7,7 +7,6 @@ import org.junit.Test;
 import org.opencb.biodata.models.alignment.RegionCoverage;
 import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.tools.alignment.exceptions.AlignmentCoverageException;
-import org.opencb.biodata.tools.feature.BigWigManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -361,27 +360,6 @@ public class BamManagerTest {
 //            System.out.println(breakpoint);
 //        }
 
-    }
-
-    //    @Test
-    public void testZoom() throws IOException {
-//        Path path = Paths.get("~/data150/bw/NA12877_S1.bam.coverage.bw");
-        Path path = Paths.get("~/data150/bw/coverage.bw");
-        BigWigManager bigWigManager = new BigWigManager(path);
-
-        for (Integer windowSize : bigWigManager.getZoomWindowSizes()) {
-            System.out.println(windowSize);
-        }
-
-//        int windowSize = 385;
-//        Region region = new Region("1", 67686000, 68669999);
-
-        int windowSize = 100;
-        Region region = new Region("20", 60200, 60431);
-        float[] values = bigWigManager.groupBy(region, windowSize);
-        for (float value : values) {
-            System.out.print(value + ", ");
-        }
     }
 
     @Test
