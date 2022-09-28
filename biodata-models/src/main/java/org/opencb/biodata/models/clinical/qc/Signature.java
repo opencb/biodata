@@ -19,46 +19,66 @@
 
 package org.opencb.biodata.models.clinical.qc;
 
-import java.util.Arrays;
+import org.opencb.biodata.models.constants.FieldConstants;
+import org.opencb.commons.annotations.DataField;
+import org.opencb.commons.datastore.core.ObjectMap;
+
 import java.util.List;
-import java.util.Map;
 
 public class Signature {
 
+    @DataField(id = "id", indexed = true,
+            description = FieldConstants.GENERIC_ID_DESCRIPTION)
     private String id;
-    private Map<String, String> query;
-    /**
-     * Variant type, e.g. SNV, INDEL, ...
-     */
+
+    @DataField(id = "description", indexed = true,
+            description = FieldConstants.GENERIC_DESCRIPTION_DESCRIPTION)
+    private String description;
+
+    @DataField(id = "query", indexed = true, uncommentedClasses = {"ObjectMap"},
+            description = FieldConstants.GENERIC_QUERY_DESCRIPTION)
+    private ObjectMap query;
+
+    @DataField(id = "type", indexed = true,
+            description = FieldConstants.SIGNATURE_TYPE_DESCRIPTION)
     private String type;
-    private SignatureCount[] counts;
+
+    @DataField(id = "counts", indexed = true,
+            description = FieldConstants.SIGNATURE_COUNTS_DESCRIPTION)
+    private List<GenomeContextCount> counts;
+
+    @DataField(id = "files", indexed = true,
+            description = FieldConstants.SIGNATURE_FILES_DESCRIPTION)
     private List<String> files;
+
+    @DataField(id = "fitting", indexed = true,
+            description = FieldConstants.SIGNATURE_SIGNATURE_FITTING_DESCRIPTION)
+    private SignatureFitting fitting;
 
     public Signature() {
     }
 
-    @Deprecated
-    public Signature(String type, SignatureCount[] counts) {
-        this.type = type;
-        this.counts = counts;
-    }
-
-    public Signature(String id, Map<String, String> query, String type, SignatureCount[] counts, List<String> files) {
+    public Signature(String id, String description, ObjectMap query, String type, List<GenomeContextCount> counts, List<String> files,
+                     SignatureFitting fitting) {
         this.id = id;
+        this.description = description;
         this.query = query;
         this.type = type;
         this.counts = counts;
         this.files = files;
+        this.fitting = fitting;
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("Signature{");
         sb.append("id='").append(id).append('\'');
+        sb.append(", description='").append(description).append('\'');
         sb.append(", query=").append(query);
         sb.append(", type='").append(type).append('\'');
-        sb.append(", counts=").append(Arrays.toString(counts));
+        sb.append(", counts=").append(counts);
         sb.append(", files=").append(files);
+        sb.append(", fitting=").append(fitting);
         sb.append('}');
         return sb.toString();
     }
@@ -72,11 +92,20 @@ public class Signature {
         return this;
     }
 
-    public Map<String, String> getQuery() {
+    public String getDescription() {
+        return description;
+    }
+
+    public Signature setDescription(String description) {
+        this.description = description;
+        return this;
+    }
+
+    public ObjectMap getQuery() {
         return query;
     }
 
-    public Signature setQuery(Map<String, String> query) {
+    public Signature setQuery(ObjectMap query) {
         this.query = query;
         return this;
     }
@@ -90,11 +119,11 @@ public class Signature {
         return this;
     }
 
-    public SignatureCount[] getCounts() {
+    public List<GenomeContextCount> getCounts() {
         return counts;
     }
 
-    public Signature setCounts(SignatureCount[] counts) {
+    public Signature setCounts(List<GenomeContextCount> counts) {
         this.counts = counts;
         return this;
     }
@@ -108,15 +137,28 @@ public class Signature {
         return this;
     }
 
-    public static class SignatureCount {
+    public SignatureFitting getFitting() {
+        return fitting;
+    }
 
+    public Signature setFitting(SignatureFitting fitting) {
+        this.fitting = fitting;
+        return this;
+    }
+
+    public static class GenomeContextCount {
+
+        @DataField(id = "context", indexed = true,
+                description = FieldConstants.GENOME_CONTEXT_COUNT_CONTEXT_DESCRIPTION)
         private String context;
+        @DataField(id = "total", indexed = true,
+                description = FieldConstants.GENOME_CONTEXT_COUNT_TOTAL_DESCRIPTION)
         private int total;
 
-        public SignatureCount() {
+        public GenomeContextCount() {
         }
 
-        public SignatureCount(String context, int total) {
+        public GenomeContextCount(String context, int total) {
             this.context = context;
             this.total = total;
         }
@@ -134,7 +176,7 @@ public class Signature {
             return context;
         }
 
-        public SignatureCount setContext(String context) {
+        public GenomeContextCount setContext(String context) {
             this.context = context;
             return this;
         }
@@ -143,7 +185,7 @@ public class Signature {
             return total;
         }
 
-        public SignatureCount setTotal(int total) {
+        public GenomeContextCount setTotal(int total) {
             this.total = total;
             return this;
         }

@@ -19,6 +19,9 @@
 
 package org.opencb.biodata.models.clinical.qc;
 
+import org.opencb.biodata.models.constants.FieldConstants;
+import org.opencb.commons.annotations.DataField;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -27,13 +30,22 @@ import java.util.Map;
 public class RelatednessReport {
 
     // Method., e.g.: Plink/IBD
+    @DataField(id = "method",
+            description = FieldConstants.RELATEDNESS_REPORT_METHOD_DESCRIPTION)
     private String method;
 
     // Minor allele frequency to filter variants, e.g.: 1kg_phase3:CEU>0.35, cohort:ALL>0.05")
+    @DataField(id = "maf",
+            description = FieldConstants.RELATEDNESS_REPORT_MAF_DESCRIPTION)
     private String maf;
 
     // Relatedness scores for pair of samples
+    @DataField(id = "scores", uncommentedClasses = {"RelatednessScore"},
+            description = FieldConstants.RELATEDNESS_REPORT_SCORES_DESCRIPTION)
     private List<RelatednessScore> scores;
+
+    @DataField(id = "files",
+            description = FieldConstants.RELATEDNESS_REPORT_FILES_DESCRIPTION)
     private List<String> files;
 
     public RelatednessReport() {
@@ -47,6 +59,53 @@ public class RelatednessReport {
         this.files = files;
     }
 
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("RelatednessReport{");
+        sb.append("method='").append(method).append('\'');
+        sb.append(", maf='").append(maf).append('\'');
+        sb.append(", scores=").append(scores);
+        sb.append(", files=").append(files);
+        sb.append('}');
+        return sb.toString();
+    }
+
+    public String getMethod() {
+        return method;
+    }
+
+    public RelatednessReport setMethod(String method) {
+        this.method = method;
+        return this;
+    }
+
+    public String getMaf() {
+        return maf;
+    }
+
+    public RelatednessReport setMaf(String maf) {
+        this.maf = maf;
+        return this;
+    }
+
+    public List<RelatednessScore> getScores() {
+        return scores;
+    }
+
+    public RelatednessReport setScores(List<RelatednessScore> scores) {
+        this.scores = scores;
+        return this;
+    }
+
+    public List<String> getFiles() {
+        return files;
+    }
+
+    public RelatednessReport setFiles(List<String> files) {
+        this.files = files;
+        return this;
+    }
+
     public static class RelatednessScore {
         // Pair of samples
         private String sampleId1;
@@ -58,7 +117,7 @@ public class RelatednessReport {
         private Map<String, Object> values;
 
         public RelatednessScore() {
-             this("", "", "", new LinkedHashMap<>());
+            this("", "", "", new LinkedHashMap<>());
         }
 
         public RelatednessScore(String sampleId1, String sampleId2, String inferredRelationship, Map<String, Object> values) {
@@ -114,52 +173,5 @@ public class RelatednessReport {
             this.values = values;
             return this;
         }
-    }
-
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("RelatednessReport{");
-        sb.append("method='").append(method).append('\'');
-        sb.append(", maf='").append(maf).append('\'');
-        sb.append(", scores=").append(scores);
-        sb.append(", files=").append(files);
-        sb.append('}');
-        return sb.toString();
-    }
-
-    public String getMethod() {
-        return method;
-    }
-
-    public RelatednessReport setMethod(String method) {
-        this.method = method;
-        return this;
-    }
-
-    public String getMaf() {
-        return maf;
-    }
-
-    public RelatednessReport setMaf(String maf) {
-        this.maf = maf;
-        return this;
-    }
-
-    public List<RelatednessScore> getScores() {
-        return scores;
-    }
-
-    public RelatednessReport setScores(List<RelatednessScore> scores) {
-        this.scores = scores;
-        return this;
-    }
-
-    public List<String> getFiles() {
-        return files;
-    }
-
-    public RelatednessReport setFiles(List<String> files) {
-        this.files = files;
-        return this;
     }
 }

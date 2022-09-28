@@ -1,20 +1,19 @@
 package org.opencb.biodata.tools.pedigree;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.ListUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opencb.biodata.models.clinical.ClinicalProperty.Penetrance;
+import org.opencb.biodata.models.clinical.Disorder;
 import org.opencb.biodata.models.clinical.pedigree.Member;
 import org.opencb.biodata.models.clinical.pedigree.Pedigree;
 import org.opencb.biodata.models.clinical.pedigree.PedigreeManager;
-import org.opencb.biodata.models.clinical.Disorder;
+import org.opencb.biodata.models.pedigree.IndividualProperty;
 import org.opencb.biodata.models.variant.Genotype;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
-import org.opencb.biodata.models.variant.avro.ConsequenceType;
-import org.opencb.biodata.models.variant.avro.SequenceOntologyTerm;
+import org.opencb.biodata.models.variant.avro.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +28,10 @@ public class ModeOfInheritance {
 
     public static final int GENOTYPE_0 = 3;
     public static final int GENOTYPE_1 =4;
+    public static final String TRANSCRIPTS_LIST = "transcripts";
+    public static final String PARENTAL_ORIGIN = "parentalOrigin";
+    public static final String MATERNAL = "maternal";
+    public static final String PATERNAL = "paternal";
 
     public static Set<String> lof;
     public static Set<String> extendedLof;
@@ -118,7 +121,7 @@ public class ModeOfInheritance {
 
         for (Member member : pedigree.getMembers()) {
             if (affectedMembers.contains(member)) {
-                if (member.getSex() == Member.Sex.MALE) {
+                if (member.getSex().getSex() == IndividualProperty.Sex.MALE) {
                     Set<Integer> genotype = new HashSet<>();
                     genotype.add(GENOTYPE_1);
                     genotypes.put(member.getId(), genotype);
@@ -132,7 +135,7 @@ public class ModeOfInheritance {
                     genotypes.put(member.getId(), genotype);
                 }
             } else {
-                if (member.getSex() == Member.Sex.MALE) {
+                if (member.getSex().getSex() == IndividualProperty.Sex.MALE) {
                     Set<Integer> genotype = new HashSet<>();
                     genotype.add(GENOTYPE_0);
                     if (penetrance == Penetrance.INCOMPLETE) {
@@ -179,7 +182,7 @@ public class ModeOfInheritance {
 
         for (Member member : pedigree.getMembers()) {
             if (affectedMembers.contains(member)) {
-                if (member.getSex() == Member.Sex.MALE) {
+                if (member.getSex().getSex() == IndividualProperty.Sex.MALE) {
                     Set<Integer> genotype = new HashSet<>();
                     genotype.add(GENOTYPE_1);
                     genotypes.put(member.getId(), genotype);
@@ -193,7 +196,7 @@ public class ModeOfInheritance {
                     return emptyMapOfGenotypes(genotypes);
                 }
             } else {
-                if (member.getSex() == Member.Sex.MALE) {
+                if (member.getSex().getSex() == IndividualProperty.Sex.MALE) {
                     Set<Integer> genotype = new HashSet<>();
                     genotype.add(GENOTYPE_0);
                     if (penetrance == Penetrance.INCOMPLETE) {
@@ -211,7 +214,7 @@ public class ModeOfInheritance {
         while (!queue.isEmpty()) {
             Member child = queue.remove();
 
-            if (child.getSex() == Member.Sex.MALE && child.getFather() != null && StringUtils.isNotEmpty(child.getFather().getId())) {
+            if (child.getSex().getSex() == IndividualProperty.Sex.MALE && child.getFather() != null && StringUtils.isNotEmpty(child.getFather().getId())) {
                 // Both or none of them should be affected
                 Set<Integer> childGenotypes = genotypes.get(child.getId());
                 Set<Integer> fatherGenotypes = genotypes.get(child.getFather().getId());
@@ -351,6 +354,11 @@ public class ModeOfInheritance {
         // Map: transcript to pair (pair-left for mother and pair-right for father)
         Map<String, Pair<List<Variant>, List<Variant>>> transcriptToVariantsMap = new HashMap<>();
 
+        if (motherSampleIdx < 0 && fatherSampleIdx < 0) {
+            logger.error("Missing mother and father computing CompoundHet");
+            return Pair.of(Collections.emptySet(), Collections.emptyMap());
+        }
+
         String motherGenotype;
         String fatherGenotype;
 
@@ -364,20 +372,17 @@ public class ModeOfInheritance {
             int gtIdx = studyEntry.getSampleDataKeys().indexOf("GT");
 
             String probandGenotype = studyEntry.getSampleData(probandSampleIdx).get(gtIdx);
-            if (motherSampleIdx < 0 && fatherSampleIdx >= 0) {
+            if (motherSampleIdx < 0) {
                 // Missing mother
                 fatherGenotype = studyEntry.getSampleData(fatherSampleIdx).get(gtIdx);
                 motherGenotype = getComplementaryCHGenotype(fatherGenotype);
-            } else if (fatherSampleIdx < 0 && motherSampleIdx >= 0) {
+            } else if (fatherSampleIdx < 0) {
                 // Missing father
                 motherGenotype = studyEntry.getSampleData(motherSampleIdx).get(gtIdx);
                 fatherGenotype = getComplementaryCHGenotype(motherGenotype);
-            } else if (motherSampleIdx >= 0 && fatherSampleIdx >= 0) {
+            } else {
                 motherGenotype = studyEntry.getSampleData(motherSampleIdx).get(gtIdx);
                 fatherGenotype = studyEntry.getSampleData(fatherSampleIdx).get(gtIdx);
-            } else {
-                logger.error("This should not happen");
-                return Pair.of(Collections.emptySet(), Collections.emptyMap());
             }
 
             if (!probandGenotype.contains("0") || !probandGenotype.contains("1")) {
@@ -410,8 +415,8 @@ public class ModeOfInheritance {
                             if (acceptedSoTerm.isEmpty()
                                     || acceptedSoTerm.contains(soTerm.getName())
                                     || acceptedSoTerm.contains(soTerm.getAccession())) {
-                                transcriptToVariantsMap.computeIfAbsent(transcriptId, k -> Pair.of(new ArrayList<>(), new ArrayList<>()));
-                                Pair<List<Variant>, List<Variant>> pair = transcriptToVariantsMap.get(transcriptId);
+                                Pair<List<Variant>, List<Variant>> pair = transcriptToVariantsMap
+                                        .computeIfAbsent(transcriptId, k -> Pair.of(new ArrayList<>(), new ArrayList<>()));
                                 if (pairIndex == 0) {
                                     // From mother
                                     addParentVariant(variant, pair.getLeft(), pair.getRight(), variants);
@@ -430,7 +435,18 @@ public class ModeOfInheritance {
         int totalVariants = 0;
         for (Map.Entry<String, Pair<List<Variant>, List<Variant>>> entry : transcriptToVariantsMap.entrySet()) {
             if (entry.getValue().getLeft().size() > 0 && entry.getValue().getRight().size() > 0) {
-                variantMap.put(entry.getKey(), ListUtils.union(entry.getValue().getLeft(), entry.getValue().getRight()));
+                List<Variant> transcriptVariants = new ArrayList<>(entry.getValue().getLeft().size() + entry.getValue().getRight().size());
+                for (Variant variant : entry.getValue().getLeft()) {
+                    // From mother
+                    addIssueEntry(variant, probandSampleIdx, entry.getKey(), MATERNAL);
+                    transcriptVariants.add(variant);
+                }
+                for (Variant variant : entry.getValue().getRight()) {
+                    // From father
+                    addIssueEntry(variant, probandSampleIdx, entry.getKey(), PATERNAL);
+                    transcriptVariants.add(variant);
+                }
+                variantMap.put(entry.getKey(), transcriptVariants);
                 totalVariants += variantMap.get(entry.getKey()).size();
             }
         }
@@ -454,6 +470,31 @@ public class ModeOfInheritance {
 
         // Return
         return Pair.of(variants, variantMap);
+    }
+
+    private static void addIssueEntry(Variant variant, int probandSampleIdx, String transcript, String parentalOrigin) {
+        StudyEntry studyEntry = variant.getStudies().get(0);
+        IssueEntry issueEntry = null;
+        if (studyEntry.getIssues() == null) {
+            studyEntry.setIssues(new ArrayList<>(1));
+        } else {
+            for (IssueEntry issue : studyEntry.getIssues()) {
+                if (issue.getType().equals(IssueType.COMPOUND_HETEROZYGOUS)) {
+                    issueEntry = issue;
+                    break;
+                }
+            }
+        }
+        if (issueEntry == null) {
+            SampleEntry sampleEntry = studyEntry.getSample(probandSampleIdx);
+            issueEntry = new IssueEntry(IssueType.COMPOUND_HETEROZYGOUS,
+                    new SampleEntry(sampleEntry.getSampleId(), sampleEntry.getFileIndex(), null), new HashMap<>());
+            studyEntry.getIssues().add(issueEntry);
+        }
+        issueEntry.getData().compute(TRANSCRIPTS_LIST, (k, transcripts) -> {
+            return transcripts == null ? transcript : (transcripts + "," + transcript);
+        });
+        issueEntry.getData().put(PARENTAL_ORIGIN, parentalOrigin);
     }
 
     private static void addParentVariant(Variant variant, List<Variant> currentParentList, List<Variant> otherParentList, Set<Variant> variants) {

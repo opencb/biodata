@@ -21,6 +21,7 @@ import org.opencb.biodata.models.variant.Genotype;
 import org.opencb.biodata.models.variant.annotation.VariantEffect;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 
+@Deprecated
 public class VcfRecord {
 
     private String chromosome;

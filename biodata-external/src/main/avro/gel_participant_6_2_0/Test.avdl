@@ -1,0 +1,13 @@
+@namespace("org.dummy.avro")
+
+protocol Test {
+
+  record DummyInnerString{
+    string myId;
+  }
+
+  record DummyTest{
+    array<DummyInnerString> my_id;
+  }
+
+}

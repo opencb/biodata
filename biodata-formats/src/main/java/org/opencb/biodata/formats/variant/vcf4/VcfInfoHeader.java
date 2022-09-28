@@ -16,7 +16,7 @@
 
 package org.opencb.biodata.formats.variant.vcf4;
 
-
+@Deprecated
 public class VcfInfoHeader {
 
     private String id;

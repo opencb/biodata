@@ -1,8 +1,9 @@
 package org.opencb.biodata.formats.alignment.samtools;
 
+import java.util.List;
+
 public class SamtoolsStats {
     
-    private String file;
     private int rawTotalSequences;
     private int filteredSequences;
     private int sequences;
@@ -42,13 +43,14 @@ public class SamtoolsStats {
     private int pairsOnDifferentChromosomes;
     private double percentageOfProperlyPairedReads;
 
+    private List<String> files;
+
     public SamtoolsStats() {
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("SamtoolsStats{");
-        sb.append("file='").append(file).append('\'');
         sb.append(", rawTotalSequences=").append(rawTotalSequences);
         sb.append(", filteredSequences=").append(filteredSequences);
         sb.append(", sequences=").append(sequences);
@@ -87,17 +89,9 @@ public class SamtoolsStats {
         sb.append(", pairsWithOtherOrientation=").append(pairsWithOtherOrientation);
         sb.append(", pairsOnDifferentChromosomes=").append(pairsOnDifferentChromosomes);
         sb.append(", percentageOfProperlyPairedReads=").append(percentageOfProperlyPairedReads);
+        sb.append(", files=").append(files);
         sb.append('}');
         return sb.toString();
-    }
-
-    public String getFile() {
-        return file;
-    }
-
-    public SamtoolsStats setFileId(String file) {
-        this.file = file;
-        return this;
     }
 
     public int getRawTotalSequences() {
@@ -439,6 +433,15 @@ public class SamtoolsStats {
 
     public SamtoolsStats setPercentageOfProperlyPairedReads(double percentageOfProperlyPairedReads) {
         this.percentageOfProperlyPairedReads = percentageOfProperlyPairedReads;
+        return this;
+    }
+
+    public List<String> getFiles() {
+        return files;
+    }
+
+    public SamtoolsStats setFiles(List<String> files) {
+        this.files = files;
         return this;
     }
 }

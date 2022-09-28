@@ -247,13 +247,16 @@ protocol Variants {
         DUPLICATION,
         DISCREPANCY,
         MENDELIAN_ERROR,
-        DE_NOVO
+        DE_NOVO,
+        COMPOUND_HETEROZYGOUS
     }
 
     record IssueEntry {
         IssueType type;
 
         SampleEntry sample;
+
+        map<string> data;
     }
 
     record StudyEntry {

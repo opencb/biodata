@@ -1,0 +1,219 @@
+@namespace("org.gel.models.participant.avro")
+/**
+This protocol defines the `CancerParticipant`
+*/
+protocol CancerParticipants {
+
+    import idl "CommonParticipant.avdl";
+    import idl "VersionControl.avdl";
+
+    /**
+    This defines a pair of germline and tumor, this pair should/must be analyzed together
+    */
+    record MatchedSamples{
+
+        /**
+        Sample identifier (e.g, LP00012645_5GH)) for the germline
+        */
+        union {null, string} germlineSampleId;
+
+        /**
+        Sample identifier (e.g, LP00012643_7JS)) for the tumor
+        */
+        union {null, string} tumourSampleId;
+
+    }
+
+
+    record Tumour{
+
+        /**
+        TumourId in GMS
+        */
+        string tumourId;
+
+        /**
+        Local hospital tumour ID from the GLH Laboratory Information Management System (LIMS) in GMS
+        */
+        string tumourLocalId;
+
+        /**
+        tumourType
+        */
+        TumourType tumourType;
+
+        /**
+        Parent Tumour UID if this tumour is metastatic
+        */
+        union {null, string} tumourParentId;
+
+        /**
+        Date of Diagnosis of the specific tumour
+        */
+        union {null, Date} tumourDiagnosisDate;
+
+        /**
+        Description of the tumour
+        */
+        union {null, string} tumourDescription;
+
+        /**
+        Morphology of the tumour
+        */
+        union {null, array<Morphology>} tumourMorphologies;
+
+        /**
+        Topography of the tumour
+        */
+        union {null, array<Topography>} tumourTopographies;
+
+        /**
+        Associated primary topography for metastatic tumours
+        */
+        union {null, array<Topography>} tumourPrimaryTopographies;
+
+        /**
+        Grade of the Tumour
+        */
+        union {null, string} tumourGrade;
+
+        /**
+        Stage of the Tumour
+        */
+        union {null, string} tumourStage;
+
+        /**
+        Prognostic Score of the Tumour
+        */
+        union {null, string} tumourPrognosticScore;
+
+        /**
+        In GMS, tumour presentation
+        */
+        union {null, TumourPresentation} tumourPresentation;
+
+        /**
+        In GMS, primary or metastatic
+        */
+        union {null, PrimaryOrMetastatic} primaryOrMetastatic;
+
+    }
+
+
+    /**
+    This defines a Cancer Participant
+    */
+    record CancerParticipant{
+
+        /**
+        Year of birth for the cancer participant
+        */
+        union {null, int} yearOfBirth;
+
+        /**
+        Morphology of any tumours
+        NOTE: In GMS, this field is deprecated as morphology will be in sample or with respect to a tumour record
+        */
+        union {null, array<string>}  morphology;
+
+        /**
+        Flag indicating if the participant is ready for analysis
+        NOTE: In GMS, this will default to true
+        */
+        boolean readyForAnalysis;
+
+        /**
+        What has this participant consented to?
+        A participant that has been consented to the programme should also have sequence data associated with them; however
+        this needs to be programmatically checked
+        */
+        union {null, ConsentStatus} consentStatus;
+
+        /**
+        What has this participant consented in the context of a Genomic Test?
+        */
+        union {null, GmsConsentStatus} testConsentStatus;
+
+        /**
+        Center
+        NOTE: In GMS, this will be taken from the ReferralTest and duplicated here
+        */
+        union {null, string} center;
+
+        /**
+        Individual identifier
+        */
+        union {null, string} individualId;
+
+
+        /**
+        This is a human readable participant ID
+        */
+        union {null, string} participantId;
+
+
+        /**
+        This should be an enumeration when it is well defined
+        blood, breast, prostate, colorectal, cll, aml, renal, ovarian, skin, lymphNode, bone, saliva //for individual - there could be more than I have listed here, in fact there definitely will.
+        In GMS, this field is deprecated
+        */
+        union {null, array<string>} primaryDiagnosisDisease;
+
+        /**
+        This should be an enumeration when it is well defined
+        blood, breast, prostate, colorectal, cll, aml, renal, ovarian, skin, lymphNode, bone, saliva //for individual - there could be more than I have listed here, in fact there definitely will.
+        In GMS, this field is deprecated
+        */
+        union {null, array<string>} primaryDiagnosisSubDisease;
+
+        /**
+        Sex
+        */
+        Sex sex;
+
+        /**
+        We could add a map here to store additional information for example URIs to images, ECGs, etc
+        */
+        union {null, map<string>} additionalInformation;
+
+        /**
+        assigned ICD10 code
+        IN GMS, this is deprecated
+        */
+        union {null, array<string>} assignedICD10;
+
+        /**
+        List of tumour samples
+        IN GMS, this is deprecated and moved to ReferralTest
+        */
+        union {null, array<TumourSample>} tumourSamples;
+
+        /**
+        List of germline samples
+        IN GMS, this is deprecated and moved to ReferralTest
+        */
+        union {null, array<GermlineSample>} germlineSamples;
+
+        /**
+        Model version number
+        */
+        union {null, VersionControl} versionControl;
+
+        /**
+        Individual UID in GMS
+        */
+        union {null, string} participantUid;
+
+        /**
+        In GMS, for all tumours for the CancerParticipant, independent of any samples
+        */
+        union {null, array<Tumour>} tumours;
+
+        /**
+        In GMS, any previous treatment recorded in TOMs
+        */
+        union {null, array<PreviousTreatment>} previousTreatment;
+
+
+    }
+}

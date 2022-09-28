@@ -27,31 +27,20 @@ import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.SampleEntry;
-import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.metadata.VariantFileHeaderComplexLine;
+import org.opencb.biodata.tools.variant.VcfUtils;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
 
     private String caller;
     private boolean calculateVaf;
     private boolean calculateDp;
-    private static final Map<String, List<String>> supportedCallers;
-    private static final Map<String, String> supportedSvTypeCallers;
 
     public static final String EXT_VAF = "EXT_VAF";
-    public static final String EXT_SVTYPE = "EXT_SVTYPE";
-
-    static {
-        supportedCallers = new LinkedHashMap<>();
-        supportedCallers.put("CAVEMAN", Arrays.asList("ASMD", "CLPM"));
-        supportedCallers.put("PINDEL", Arrays.asList("PC", "VT"));
-        supportedCallers.put("BRASS", Arrays.asList("BAS", "BKDIST"));
-
-        supportedSvTypeCallers = new HashMap<>();
-        supportedSvTypeCallers.put("BRASS", "SVCLASS");
-    }
 
     public VafVariantNormalizerExtension() {
         this("");
@@ -61,27 +50,20 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
         this.caller = caller.toUpperCase();
     }
 
-
     @Override
     public void init() {
         this.calculateVaf = false;
         this.calculateDp = false;
 
         // Check if a supported variant caller parameter has been provided in the constructor
-        if (StringUtils.isNotEmpty(caller) && supportedCallers.containsKey(caller)) {
+        if (StringUtils.isNotEmpty(caller) && VcfUtils.checkCaller(caller, fileMetadata)) {
             calculateVaf = true;
             calculateDp = true;
             return;
         }
 
-        // Try to find the variant caller if it is not provided
-        // Check if any of the supported callers contains the INFO fields needed
-        for (Map.Entry<String, List<String>> entry : supportedCallers.entrySet()) {
-            if (checkCaller(entry.getKey(), entry.getValue())) {
-                caller = entry.getKey();
-                break;
-            }
-        }
+        // Guess the caller from the VCF header
+        caller = VcfUtils.getCaller(fileMetadata);
 
         // Check if we can calculate the VAF
         if (StringUtils.isNotEmpty(caller)) {
@@ -148,27 +130,15 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
                     "Float",
                     Collections.emptyMap());
             fileMetadata.getHeader().getComplexLines().add(newSampleMetadataLine);
-
-            if (calculateDp) {
-                // Add DP to FORMAT
-                newSampleMetadataLine = new VariantFileHeaderComplexLine( "FORMAT",
-                        "DP",
-                        "Variant Depth (DP), several variant callers supported. NOTE: this is a OpenCB extension field.",
-                        "1",
-                        "Integer",
-                        Collections.emptyMap());
-                fileMetadata.getHeader().getComplexLines().add(newSampleMetadataLine);
-            }
         }
 
-        if (supportedSvTypeCallers.containsKey(caller)) {
-            // Add EXT_SVTYPE
-            VariantFileHeaderComplexLine newSampleMetadataLine = new VariantFileHeaderComplexLine( "INFO",
-                    EXT_SVTYPE,
-                    "Variant SVTYPE obtained from " + supportedSvTypeCallers.get(caller)
-                            + ", several variant callers supported. NOTE: this is a OpenCB extension field.",
+        if (calculateDp) {
+            // Add DP to FORMAT
+            VariantFileHeaderComplexLine newSampleMetadataLine = new VariantFileHeaderComplexLine( "FORMAT",
+                    "DP",
+                    "Variant Depth (DP), several variant callers supported. NOTE: this is a OpenCB extension field.",
                     "1",
-                    "String",
+                    "Integer",
                     Collections.emptyMap());
             fileMetadata.getHeader().getComplexLines().add(newSampleMetadataLine);
         }
@@ -189,18 +159,6 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
             study.addSampleData(sampleId, VCFConstants.DEPTH_KEY, pair.getRight() >= 0
                     ? String.valueOf(pair.getRight())
                     : VCFConstants.MISSING_VALUE_v4);
-        }
-    }
-
-    @Override
-    protected void normalizeFile(Variant variant, StudyEntry study, FileEntry file) {
-        // Check if we can get SVTYPE from this caller
-        if (supportedSvTypeCallers.containsKey(caller)) {
-            VariantType svtype = parseSvtype(file);
-            // Check returned svtype, some variants could miss the svtype
-            if (svtype != null) {
-                study.addFileData(file.getFileId(), EXT_SVTYPE, svtype.name());
-            }
         }
     }
 
@@ -299,75 +257,6 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
         }
 
         return new MutablePair<>(VAF, DP);
-    }
-
-    private VariantType parseSvtype(FileEntry file) {
-        VariantType SVTYPE = null;
-        String fileSvType = file.getData().get(supportedSvTypeCallers.get(caller));
-
-        if (StringUtils.isNotEmpty(fileSvType)) {
-            switch (fileSvType.toUpperCase()) {
-                case "INS":
-                case "INSERTION":
-                    SVTYPE = VariantType.INSERTION;
-                    break;
-                case "DEL":
-                case "DELETION":
-                    SVTYPE = VariantType.DELETION;
-                    break;
-                case "DUP":
-                case "DUPLICATION":
-                    SVTYPE = VariantType.DUPLICATION;
-                    break;
-                case "INV":
-                case "INVERSION":
-                    SVTYPE = VariantType.INVERSION;
-                    break;
-                case "CNV":
-                case "COPY_NUMBER":
-                    SVTYPE = VariantType.COPY_NUMBER;
-                    break;
-                case "BND":
-                case "BREAKEND":
-                    SVTYPE = VariantType.BREAKEND;
-                    break;
-                case "TRANS":
-                case "TRANSLOCATION":
-                    SVTYPE = VariantType.TRANSLOCATION;
-                    break;
-                case "TANDEM-DUPLICATION":
-                case "TANDEM_DUPLICATION":
-                    SVTYPE = VariantType.TANDEM_DUPLICATION;
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        return SVTYPE;
-    }
-
-    /**
-     * Checks if all header fields passed exists.
-     * @param caller Variant caller name to check
-     * @param keys VCF header fields to check
-     * @return true if the name is found or all the field exist
-     */
-    private boolean checkCaller(String caller, List<String> keys) {
-        // TODO we need to use caller param for some callers
-        Set<String> keySet = new HashSet<>(keys);
-        int counter = 0;
-        for (VariantFileHeaderComplexLine complexLine : fileMetadata.getHeader().getComplexLines()) {
-            if (complexLine.getKey().equals("INFO") && keySet.contains(complexLine.getId())) {
-                counter++;
-
-                // Return when all needed keys have been found
-                if (keys.size() == counter) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     @Override

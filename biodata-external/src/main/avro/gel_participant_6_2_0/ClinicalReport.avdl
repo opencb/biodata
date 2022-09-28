@@ -1,0 +1,184 @@
+@namespace("org.gel.models.report.avro")
+
+protocol ClinicalReports {
+
+    import idl "CommonInterpreted.avdl";
+    import idl "ReportVersionControl.avdl";
+
+    /**
+    A panel of genes and the specific disease that it assesses
+    */
+    record AdditionalAnalysisPanel {
+        /*
+        The specific disease
+        */
+        string specificDisease;
+        /*
+        The panel of genes
+        */
+        GenePanel panel;
+    }
+
+    /**
+    A clinical report. This holds the list of reported variants by an expert together with all
+    the relevant information that identify the case and how these conclusions were reached.
+    */
+    record ClinicalReport {
+        /**
+        This is the interpretation request identifier (i.e.: first number in 123-1)
+        */
+        string interpretationRequestId;
+
+        /**
+        This is the version of the interpretation request identifier (i.e.: second number in 123-1)
+        */
+        int interpretationRequestVersion;
+
+        /**
+        Date of this report in format YYYY-MM-DD
+        */
+        string reportingDate;
+
+        /**
+        Author of this report
+        */
+        string user;
+
+        /**
+        List of small reported variants
+        */
+        union {null, array<SmallVariant>} variants;
+
+        /**
+        List of simple structural reported variants (duplications, deletions, insertions, inversions, CNVs)
+        */
+        union {null, array<StructuralVariant>} structuralVariants;
+
+        /**
+        List of complex structural reported variants (chomosomal rearrangement)
+        */
+        union {null, array<ChromosomalRearrangement>} chromosomalRearrangements;
+
+        /**
+        List of short tandem repeat variants
+        */
+        union {null, array<ShortTandemRepeat>} shortTandemRepeats;
+
+        /**
+        List of uniparental disomies across all the individuals in this report
+        */
+        union {null, array<UniparentalDisomy>} uniparentalDisomies;
+
+        /**
+        List of inferred karyotypes across all the individuals in this report
+        */
+        union {null, array<Karyotype>} karyotypes;
+
+        /**
+        Summary of the interpretation, this should reflect the positive conclusions of this interpretation
+        */
+        string genomicInterpretation;
+
+        /**
+        The list of panels analysed to generate this report
+        */
+        union {null, array<AdditionalAnalysisPanel>} additionalAnalysisPanels;
+
+        /**
+        Supporting evidence (pubmed identifiers)
+        */
+        union {null, array<string>} references;
+
+        /**
+        This map contains the versions of the different databases used in the process, being the database names the
+        keys and the versions the values.
+        */
+        map<string> referenceDatabasesVersions;
+
+        /**
+        This map contains the versions of the different software systems used in the process, being the software
+        names the keys and the versions the values.
+        */
+        map<string> softwareVersions;
+    }
+
+    /*
+    -------------------------------------------------
+    ADDITIONAL FINDINGS CLINICAL REPORT
+    -------------------------------------------------
+    */
+
+    record AdditionalFindingsClinicalReport{
+        /**
+        This is the unique identifier (i.e.: in case of additionalFindings can be participantId)
+        */
+        string participantId;
+
+        /**
+        Date of this report in format YYYY-MM-DD
+        */
+        string reportingDate;
+
+        /**
+        Author of this report
+        */
+        string user;
+
+        /**
+        List of small reported variants
+        */
+        union {null, array<SmallVariant>} variants;
+
+        /**
+        List of simple structural reported variants (duplications, deletions, insertions, inversions, CNVs)
+        */
+        union {null, array<StructuralVariant>} structuralVariants;
+
+        /**
+        List of complex structural reported variants (chomosomal rearrangement)
+        */
+        union {null, array<ChromosomalRearrangement>} chromosomalRearrangements;
+
+        /**
+        List of short tandem repeat variants
+        */
+        union {null, array<ShortTandemRepeat>} shortTandemRepeats;
+
+        /**
+        List of uniparental disomies across all the individuals in this report
+        */
+        union {null, array<UniparentalDisomy>} uniparentalDisomies;
+
+        /**
+        List of inferred karyotypes across all the individuals in this report
+        */
+        union {null, array<Karyotype>} karyotypes;
+
+        /**
+        Summary of the interpretation, this should reflect the positive conclusions of this interpretation
+        */
+        string genomicInterpretation;
+
+        /**
+        The list of panels analysed to generate this report
+        */
+        union {null, array<AdditionalAnalysisPanel>} additionalAnalysisPanels;
+
+        /**
+        Supporting evidence (pubmed identifiers)
+        */
+        union {null, array<string>} references;
+
+        /**
+        This map contains the versions of the different databases used in the process, being the database names the
+        keys and the versions the values.
+        */
+        map<string> referenceDatabasesVersions;
+
+        /**
+        This map contains the versions of the different software systems used in the process, being the software
+        names the keys and the versions the values.
+        */
+        map<string> softwareVersions;
+    }
+}

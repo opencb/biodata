@@ -1,12 +1,28 @@
 package org.opencb.biodata.models.clinical;
 
-import java.util.List;
+import org.opencb.biodata.models.constants.FieldConstants;
+import org.opencb.commons.annotations.DataField;
 
 public class ClinicalAnalyst {
+
+    @DataField(id = "id", indexed = true,
+            description = FieldConstants.GENERIC_ID_DESCRIPTION)
     private String id;
+
+    @DataField(id = "name", indexed = true,
+            description = FieldConstants.GENERIC_NAME_DESCRIPTION)
     private String name;
+
+    @DataField(id = "email", indexed = true,
+            description = FieldConstants.CLINICAL_ANALYST_EMAIL_DESCRIPTION)
     private String email;
+
+    @DataField(id = "assignedBy", indexed = true,
+            description = FieldConstants.CLINICAL_ANALYST_ASSIGNED_BY_DESCRIPTION)
     private String assignedBy;
+
+    @DataField(id = "date", indexed = true,
+            description = FieldConstants.CLINICAL_ANALYST_DATE_DESCRIPTION)
     private String date;
 
     public ClinicalAnalyst() {

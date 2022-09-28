@@ -5,6 +5,8 @@ protocol VariantAnnotations {
 
     import idl "evidence.avdl";
 
+    // DEPRECATED: to be removed next release
+    @javaAnnotation("Deprecated")
     enum ExpressionCall {UP, DOWN}
 
     record GeneDrugInteraction {
@@ -60,9 +62,14 @@ protocol VariantAnnotations {
         string altAllele;
         float refAlleleFreq;
         float altAlleleFreq;
+        union { null, int } refAlleleCount;
+        union { null, int } altAlleleCount;
         union { null, float } refHomGenotypeFreq;
         union { null, float } hetGenotypeFreq;
         union { null, float } altHomGenotypeFreq;
+        union { null, int } refHomGenotypeCount;
+        union { null, int } hetGenotypeCount;
+        union { null, int } altHomGenotypeCount;
     }
 
     record SequenceOntologyTerm {
@@ -87,8 +94,8 @@ protocol VariantAnnotations {
     record ProteinVariantAnnotation {
         union { null, string } uniprotAccession = null;
         union { null, string } uniprotName = null;
-        int position;
-        //string aaChange;
+        union { null, string } proteinId = null;    // Ensembl or RefSeq protein ID
+        union { null, int } position;
         union { null, string } reference;
         union { null, string } alternate;
         union { null, string } uniprotVariantId;
@@ -103,22 +110,33 @@ protocol VariantAnnotations {
         union { null, float } percentage;
     }
 
+    record SpliceScores {
+        string source;
+        map<double> scores;
+    }
     record ConsequenceType {
-        union { null, string } geneName;
-        // deprecated, to be removed next release
-        // duplicate of geneId
-        union { null, string } ensemblGeneId;
-        // deprecated, to be removed next release
-        // duplicate of transcriptId
-        union { null, string } ensemblTranscriptId;
         union { null, string } geneId;
-        union { null, string } transcriptId;
+        union { null, string } geneName;
+
+        // DEPRECATED: duplicate of geneId, to be removed next release
+        @javaAnnotation("Deprecated")
+        union { null, string } ensemblGeneId;
+        // DEPRECATED: duplicate of transcriptId, to be removed next release
+        @javaAnnotation("Deprecated")
+        union { null, string } ensemblTranscriptId;
+
+        union { null, string } transcriptId;    // Ensembl or RefSeq ID depending on field 'source'
         union { null, string } strand;
         union { null, string } biotype;
         union { null, string } source;
         union { null, array<ExonOverlap> } exonOverlap;
-        // deprecated, replaced with transcriptFlags
-        union { null, array<string> } transcriptAnnotationFlags;
+
+        union { null, array<SpliceScores> } spliceScores;
+
+        // DEPRECATED: replaced by transcriptFlags
+        //@javaAnnotation("Deprecated")
+        //union { null, array<string> } transcriptAnnotationFlags;
+
         union { null, array<string> } transcriptFlags;
         union { null, int } cdnaPosition;
         union { null, int } cdsPosition;
@@ -164,6 +182,85 @@ protocol VariantAnnotations {
         union { null, array<string> } bibliography;
     }
 
+    record GeneCancerAssociation {
+        union { null, string } id;
+        union { null, string } source;
+        union { null, string } tier;
+        union { null, boolean } somatic;
+        union { null, boolean } germline;
+        union { null, array<string> } somaticTumourTypes;
+        union { null, array<string> } germlineTumourTypes;
+        union { null, array<string> } syndromes;
+        union { null, array<string> } tissues;
+        union { null, array<string> } modeOfInheritance;
+        union { null, array<string> } roleInCancer;
+        union { null, array<string> } mutationTypes;
+        union { null, array<string> } translocationPartners;
+    }
+
+    record GwasAssociationStudyTraitScores {
+        union { null, double } pValue;
+        union { null, double } pValueMlog;
+        union { null, string } pValueText;
+        union { null, double } orBeta;
+        union { null, string } percentCI;
+    }
+
+    record OntologyTermAnnotation {
+        union { null, string } id;
+        union { null, string } name;
+        union { null, string } description;
+        union { null, string } source;
+        union { null, string } url;
+        union { null, map<string> } attributes;
+    }
+
+    record GwasAssociationStudyTrait {
+        union { null, string } diseaseTrait;
+        union { null, array<string> } strongestSnpRiskAllele;
+        union { null, array<OntologyTermAnnotation> } ontologies;
+        union { null, array<GwasAssociationStudyTraitScores> } scores;
+    }
+
+    record GwasAssociationStudy {
+        union { null, string } pubmedid;
+        union { null, string } study;
+        union { null, string } studyAccession;
+        union { null, string } initialSampleSizeDescription;
+        union { null, int } initialSampleSize;
+        union { null, string } platform;
+        union { null, string } genotypingTechnology;
+        union { null, array<GwasAssociationStudyTrait> } traits;
+    }
+
+    record GwasAssociation {
+        union { null, string } source;
+        union { null, string } region;
+        union { null, string } snpId;
+        union { null, string } riskAllele;
+        union { null, double } riskAlleleFrequency;
+        union { null, array<GwasAssociationStudy> } studies;
+    }
+
+    record CancerHotspotAlternateAnnotation {
+        union { null, string } aminoacidAlternate;
+        union { null, int } count;
+        union { null, map<int> } sampleCount;
+    }
+
+    record CancerHotspotVariantAnnotation {
+        union { null, string } geneName;
+        union { null, string } proteinId;
+        union { null, int } aminoacidPosition;
+        union { null, string } aminoacidReference;
+        union { null, string } cancerType;
+        union { null, map<double> } scores;
+        union { null, map<int> } cancerTypeCount;
+        union { null, map<int> } organCount;
+        union { null, array<CancerHotspotAlternateAnnotation> } variants;
+        union { null, string } source;
+    }
+
     record AdditionalAttribute {
         map<string> attribute;
     }
@@ -174,8 +271,11 @@ protocol VariantAnnotations {
         union { null, int } end;
         union { null, string } reference;
         union { null, string } alternate;
-        // deprecated, to be removed next release
+
+        // DEPRECATED: to be removed next release
+        @javaAnnotation("Deprecated")
         union { null, string } ancestralAllele;
+
         union { null, string } id;
         union { null, array<Xref> } xrefs;
         union { null, array<string> } hgvs;
@@ -185,12 +285,19 @@ protocol VariantAnnotations {
         union { null, string } minorAllele;
         union { null, float } minorAlleleFreq;
         union { null, array<Score> } conservation;
+
+        // DEPRECATED: to be removed next release
+        @javaAnnotation("Deprecated")
         union { null, array<Expression> } geneExpression;
+
         union { null, array<GeneTraitAssociation> } geneTraitAssociation;
         union { null, array<GeneDrugInteraction> } geneDrugInteraction;
         union { null, array<Constraint> } geneConstraints;
         union { null, array<GeneMirnaTarget> } geneMirnaTargets;
+        union { null, array<GeneCancerAssociation> } geneCancerAssociations;
         union { null, array<EvidenceEntry> } traitAssociation;
+        union { null, array<GwasAssociation> } gwas;
+        union { null, array<CancerHotspotVariantAnnotation> } cancerHotspots;
         union { null, array<Score> } functionalScore;
         union { null, array<Cytoband> } cytoband;
         union { null, array<Repeat> } repeat;

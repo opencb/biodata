@@ -19,21 +19,19 @@
 
 package org.opencb.biodata.tools.variant.metadata;
 
-import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.formats.variant.io.VariantReader;
-import org.opencb.biodata.formats.variant.vcf4.io.VariantVcfReader;
 import org.opencb.biodata.models.metadata.Sample;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 import org.opencb.biodata.tools.variant.VariantVcfHtsjdkReader;
 import org.opencb.commons.utils.FileUtils;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -51,7 +49,7 @@ public class VariantMetadataUtils {
     public static final String VARIANT_FILE_HEADER = "variantFileHeader";
 
     /**
-     * Reads the VariantSource from a Vcf file given a file Path
+     * Reads the VariantFileMetadata from a Vcf file given a file Path
      *
      * @param path    Path to the Vcf file
      * @param fileMetadata  Optional fileMetadata to fill up
@@ -61,8 +59,21 @@ public class VariantMetadataUtils {
     public static VariantFileMetadata readVariantFileMetadata(Path path, VariantFileMetadata fileMetadata) throws IOException {
         Objects.requireNonNull(path);
         try (InputStream is = FileUtils.newInputStream(path)) {
-            return readVariantFileMetadata(new VariantVcfHtsjdkReader(is, fileMetadata.toVariantStudyMetadata("")), fileMetadata);
+            return readVariantFileMetadata(is, fileMetadata);
         }
+    }
+
+    /**
+     * Reads the VariantFileMetadata from a Vcf file given a input stream
+     *
+     * @param is    Vcf input stream
+     * @param fileMetadata  Optional fileMetadata to fill up
+     * @return        The read variant fileMetadata
+     * @throws IOException if an I/O error occurs
+     */
+    public static VariantFileMetadata readVariantFileMetadata(InputStream is, VariantFileMetadata fileMetadata) throws IOException {
+        Objects.requireNonNull(is);
+        return readVariantFileMetadata(new VariantVcfHtsjdkReader(is, fileMetadata.toVariantStudyMetadata("")), fileMetadata);
     }
 
     /**
@@ -82,10 +93,18 @@ public class VariantMetadataUtils {
         try {
             reader.open();
             reader.pre();
-
-            metadata.setHeader(reader.getVariantFileMetadata().getHeader());
-            metadata.setSampleIds(reader.getVariantFileMetadata().getSampleIds());
-            metadata.setStats(reader.getVariantFileMetadata().getStats());
+            if (reader.getVariantFileMetadata() != metadata) {
+                metadata.setHeader(reader.getVariantFileMetadata().getHeader());
+                metadata.setSampleIds(reader.getVariantFileMetadata().getSampleIds());
+                metadata.setStats(reader.getVariantFileMetadata().getStats());
+                if (reader.getVariantFileMetadata().getAttributes() != null) {
+                    if (metadata.getAttributes() == null) {
+                        metadata.setAttributes(reader.getVariantFileMetadata().getAttributes());
+                    } else {
+                        metadata.getAttributes().putAll(reader.getVariantFileMetadata().getAttributes());
+                    }
+                }
+            }
 
             reader.post();
         } finally {

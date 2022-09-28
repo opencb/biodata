@@ -6,7 +6,9 @@ import org.opencb.biodata.models.variant.metadata.VariantFileHeaderComplexLine;
 import org.opencb.biodata.models.variant.metadata.VariantFileHeaderSimpleLine;
 import org.opencb.biodata.tools.commons.Converter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -31,32 +33,9 @@ public class VCFHeaderToVariantFileHeaderConverter  implements Converter<VCFHead
 
             if (line.getValue().isEmpty()) {
                 if ( line instanceof VCFCompoundHeaderLine)  {
-                    VCFCompoundHeaderLine vcfLine = (VCFCompoundHeaderLine) line;
-                    String number;
-                    if (vcfLine.isFixedCount()) {
-                        number = String.valueOf(vcfLine.getCount());
-                    } else if (vcfLine.getCountType().equals(VCFHeaderLineCount.UNBOUNDED)) {
-                        number = ".";
-                    } else {
-                        number = vcfLine.getCountType().toString();
-                    }
-                    complexLines.add(VariantFileHeaderComplexLine.newBuilder()
-                            .setKey(vcfLine.getKey())
-                            .setId(vcfLine.getID())
-                            .setDescription(vcfLine.getDescription())
-                            .setType(vcfLine.getType().toString())
-                            .setNumber(number).build());
-
+                    complexLines.add(convertComplexLine((VCFCompoundHeaderLine) line));
                 } else if ( line instanceof VCFSimpleHeaderLine ) {
-                    Map<String, String> map = VCFHeaderLineTranslator.parseLine(VCFHeaderVersion.VCF4_2, line.toString(), null);
-                    VariantFileHeaderComplexLine.Builder builder = VariantFileHeaderComplexLine.newBuilder();
-                    setValue(map, "ID", builder::setId);
-                    setValue(map, "Description", builder::setDescription);
-                    setValue(map, "Number", builder::setNumber);
-                    setValue(map, "Type", builder::setType);
-                    builder.setKey(line.getKey());
-                    builder.setGenericFields(map);
-                    complexLines.add(builder.build());
+                    complexLines.add(convertSimpleLine(line));
                 }
             } else {
                 simpleLines.add(new VariantFileHeaderSimpleLine(line.getKey(), line.getValue()));
@@ -69,13 +48,42 @@ public class VCFHeaderToVariantFileHeaderConverter  implements Converter<VCFHead
         return avroHeader;
     }
 
-    private void setValue(Map<String, String> map, String key, Function<String, VariantFileHeaderComplexLine.Builder> method) {
+    public static VariantFileHeaderComplexLine convertComplexLine(VCFCompoundHeaderLine vcfLine) {
+        String number;
+        if (vcfLine.isFixedCount()) {
+            number = String.valueOf(vcfLine.getCount());
+        } else if (vcfLine.getCountType().equals(VCFHeaderLineCount.UNBOUNDED)) {
+            number = ".";
+        } else {
+            number = vcfLine.getCountType().toString();
+        }
+        return VariantFileHeaderComplexLine.newBuilder()
+                .setKey(vcfLine.getKey())
+                .setId(vcfLine.getID())
+                .setDescription(vcfLine.getDescription())
+                .setType(vcfLine.getType().toString())
+                .setNumber(number).build();
+    }
+
+    public static VariantFileHeaderComplexLine convertSimpleLine(VCFHeaderLine line) {
+        Map<String, String> map = VCFHeaderLineTranslator.parseLine(VCFHeaderVersion.VCF4_2, line.toString(), null);
+        VariantFileHeaderComplexLine.Builder builder = VariantFileHeaderComplexLine.newBuilder();
+        setValue(map, "ID", builder::setId);
+        setValue(map, "Description", builder::setDescription);
+        setValue(map, "Number", builder::setNumber);
+        setValue(map, "Type", builder::setType);
+        builder.setKey(line.getKey());
+        builder.setGenericFields(map);
+        return builder.build();
+    }
+
+    private static void setValue(Map<String, String> map, String key, Function<String, VariantFileHeaderComplexLine.Builder> method) {
         if (map.containsKey(key)) {
             method.apply(map.remove(key));
         }
     }
 
-    private void putNotNull(Map<String, String> map, String key, Object value) {
+    private static void putNotNull(Map<String, String> map, String key, Object value) {
         if (value != null) {
             map.put(key, value.toString());
         }

@@ -1,0 +1,689 @@
+@namespace("org.gel.models.participant.avro")
+/**
+This protocol defines the Common things between participant models
+*/
+protocol CommonParticipant {
+
+    enum TissueSource {BMA_TUMOUR_SORTED_CELLS, CT_GUIDED_BIOPSY, ENDOSCOPIC_BIOPSY, ENDOSCOPIC_ULTRASOUND_GUIDED_BIOPSY,
+        ENDOSCOPIC_ULTRASOUND_GUIDED_FNA, LAPAROSCOPIC_BIOPSY, LAPAROSCOPIC_EXCISION, MRI_GUIDED_BIOPSY, NON_GUIDED_BIOPSY,
+        SURGICAL_RESECTION, STEREOTACTICALLY_GUIDED_BIOPSY, USS_GUIDED_BIOPSY, NON_STANDARD_BIOPSY, NOT_SPECIFIED}
+
+    enum diseaseType {ADULT_GLIOMA, BLADDER, BREAST, CARCINOMA_OF_UNKNOWN_PRIMARY, CHILDHOOD, COLORECTAL, ENDOCRINE,
+        ENDOMETRIAL_CARCINOMA, HAEMONC, HEPATOPANCREATOBILIARY, LUNG, MALIGNANT_MELANOMA, NASOPHARYNGEAL, ORAL_OROPHARYNGEAL,
+        OVARIAN, PROSTATE, RENAL, SARCOMA, SINONASAL, TESTICULAR_GERM_CELL_TUMOURS, UPPER_GASTROINTESTINAL, OTHER,
+        NON_HODGKINS_B_CELL_LYMPHOMA_LOW_MOD_GRADE, CLASSICAL_HODGKINS, NODULAR_LYMPHOCYTE_PREDOMINANT_HODGKINS, T_CELL_LYMPHOMA}
+
+/**
+    NOTE: This has been changed completely, the previous tumour type has been split into TumourPresentation and PrimaryOrMetastatic
+    */
+    enum TumourType {BRAIN_TUMOUR, HAEMATOLOGICAL_MALIGNANCY_SOLID_SAMPLE, HAEMATOLOGICAL_MALIGNANCY_LIQUID_SAMPLE, SOLID_TUMOUR_METASTATIC, SOLID_TUMOUR_PRIMARY, SOLID_TUMOUR, UNKNOWN}
+
+    enum ProgrammePhase {CRUK, OXFORD, CLL, IIP, MAIN, EXPT}
+
+    enum Product {DNA, RNA}
+
+    enum TumourContent {High, Medium, Low}
+
+    enum HaematologicalCancerLineage {MYELOID, LYMPHOID, UNKNOWN}
+
+    enum TumourPresentation {FIRST_PRESENTATION, RECURRENCE, UNKNOWN}
+
+    enum PrimaryOrMetastatic {PRIMARY, METASTATIC, UNKNOWN, NOT_APPLICABLE}
+
+/**
+    Sex
+    */
+    enum Sex {MALE, FEMALE, UNKNOWN}
+
+/**
+    The source of the sample
+    NOTE: IN GMS, BONE_MARROW_ASPIRATE_TUMOUR_CELLS and BONE_MARROW_ASPIRATE_TUMOUR_SORTED_CELLS are deprecated as they have been separated into their respective biotypes
+    */
+    enum SampleSource {AMNIOTIC_FLUID, BLOOD, BONE_MARROW, BONE_MARROW_ASPIRATE_TUMOUR_CELLS, BONE_MARROW_ASPIRATE_TUMOUR_SORTED_CELLS, BUCCAL_SWAB, CHORIONIC_VILLUS_SAMPLE, FIBROBLAST, FLUID, FRESH_TISSUE_IN_CULTURE_MEDIUM, OTHER, SALIVA, TISSUE, TUMOUR, URINE}
+
+/**
+    Karyotipic Sex
+    */
+    enum PersonKaryotipicSex {UNKNOWN, XX, XY, XO, XXY, XXX, XXYY, XXXY, XXXX, XYY, OTHER}
+
+
+/**
+    In 100K, preparation Method of sample
+    NOTE: In GMS, this field is deprecated in favour of StorageMedium and Method
+    */
+    enum PreparationMethod {ASPIRATE, CD128_SORTED_CELLS, CD138_SORTED_CELLS, EDTA, FF, FFPE, LI_HEP, ORAGENE}
+
+/**
+    In GMS, Method is defined as how the sample was taken directly from the patient
+    */
+    enum Method {ASPIRATE, BIOPSY, NOT_APPLICABLE, RESECTION, SORTED_OTHER, UNKNOWN, UNSORTED, CD138_SORTED}
+
+/**
+    In GMS, storage medium of sample
+    */
+    enum StorageMedium {EDTA, FF, LI_HEP, ORAGENE, FFPE}
+
+/**
+    Penetrance assumed in the analysis
+    */
+    enum Penetrance {complete, incomplete}
+
+/**
+    This defines a yes/no/unknown case
+    */
+    enum TernaryOption {yes, no, unknown}
+
+/**
+    This is the list of ethnicities in ONS16
+
+    * `D`:  Mixed: White and Black Caribbean
+    * `E`:  Mixed: White and Black African
+    * `F`:  Mixed: White and Asian
+    * `G`:  Mixed: Any other mixed background
+    * `A`:  White: British
+    * `B`:  White: Irish
+    * `C`:  White: Any other White background
+    * `L`:  Asian or Asian British: Any other Asian background
+    * `M`:  Black or Black British: Caribbean
+    * `N`:  Black or Black British: African
+    * `H`:  Asian or Asian British: Indian
+    * `J`:  Asian or Asian British: Pakistani
+    * `K`:  Asian or Asian British: Bangladeshi
+    * `P`:  Black or Black British: Any other Black background
+    * `S`:  Other Ethnic Groups: Any other ethnic group
+    * `R`:  Other Ethnic Groups: Chinese
+    * `Z`:  Not stated
+    */
+    enum EthnicCategory {D, E, F, G, A, B, C, L, M, N, H, J, K, P, S, R, Z}
+
+/**
+    * A     British, Mixed British
+    * B     Irish
+    * C     Any other White background
+    * C2    Northern Irish
+    * C3    Other white, white unspecified
+    * CA    English
+    * CB    Scottish
+    * CC    Welsh
+    * CD    Cornish
+    * CE    Cypriot (part not stated)
+    * CF    Greek
+    * CG    Greek Cypriot
+    * CH    Turkish
+    * CJ    Turkish Cypriot
+    * CK    Italian
+    * CL    Irish Traveller
+    * CM    Traveller
+    * CN    Gypsy/Romany
+    * CP    Polish
+    * CQ    All republics which made up the former USSR
+    * CR    Kosovan
+    * CS    Albanian
+    * CT    Bosnian
+    * CU    Croatian
+    * CV    Serbian
+    * CW    Other republics which made up the former Yugoslavia
+    * CX    Mixed white
+    * CY    Other white European, European unspecified, European mixed
+    * D     White and Black Caribbean
+    * E     White and Black African
+    * F     White and Asian
+    * G     Any other mixed background
+    * GA    Black and Asian
+    * GB    Black and Chinese
+    * GC    Black and White
+    * GD    Chinese and White
+    * GE    Asian and Chinese
+    * GF    Other Mixed, Mixed Unspecified
+    * H     Indian or British Indian
+    * J     Pakistani or British Pakistani
+    * K     Bangladeshi or British Bangladeshi
+    * L     Any other Asian background
+    * LA    Mixed Asian
+    * LB    Punjabi
+    * LC    Kashmiri
+    * LD    East African Asian
+    * LE    Sri Lanka
+    * LF    Tamil
+    * LG    Sinhalese
+    * LH    British Asian
+    * LJ    Caribbean Asian
+    * LK    Other Asian, Asian unspecified
+    * M     Caribbean
+    * N     African
+    * P     Any other Black background
+    * PA    Somali
+    * PB    Mixed Black
+    * PC    Nigerian
+    * PD    Black British
+    * PE    Other Black, Black unspecified
+    * R     Chinese
+    * S     Any other ethnic group
+    * S1    Ashkenazi
+    * S2    Sephardi
+    * SA    Vietnamese
+    * SB    Japanese
+    * SC    Filipino
+    * SD    Malaysian
+    * SE    Any Other Group
+    * Z     Not stated
+    */
+    enum ClinicalEthnicity {A,B,C,C2,C3,CA,CB,CC,CD,CE,CF,CG,CH,CJ,CK,CL,CM,CN,CP,CQ,CR,CS,CT,CU,CV,CW,CX,CY,D,E,F,G,GA,GB,GC,GD,GE,GF,H,J,K,L,LA,LB,LC,LD,LE,LF,LG,LH,LJ,LK,M,N,P,PA,PB,PC,PD,PE,R,S,S1,S2,SA,SB,SC,SD,SE,Z}
+
+/**
+    1K Genomes project populations
+    */
+    enum KgPopCategory {ACB, ASW, BEB, CDX, CEU, CHB, CHS, CLM, ESN, FIN, GBR, GIH, GWD, IBS, ITU, JPT, KHV, LWK, MSL, MXL, PEL, PJL, PUR, STU, TSI, YRI}
+/**
+    1K Genomes project super populations
+    */
+    enum KgSuperPopCategory {AFR, AMR, EAS, EUR, SAS}
+
+/**
+    Chi-square test for goodness of fit of this sample to 1000 Genomes Phase 3 populations
+    */
+    record ChiSquare1KGenomesPhase3Pop {
+    /**
+        1K Super Population
+        */
+        KgSuperPopCategory kgSuperPopCategory;
+    /**
+        1K Population
+        */
+        union {null, KgPopCategory} kgPopCategory;
+    /**
+        Chi-square test for goodness of fit of this sample to this 1000 Genomes Phase 3 population
+        */
+        double chiSquare;
+    }
+
+/**
+    This defines a date record
+    */
+    record Date{
+
+    /**
+        Format YYYY
+        */
+        int year;
+
+    /**
+        Format MM. e.g June is 06
+        */
+        union {null, int} month;
+
+    /**
+        Format DD e.g. 12th of October is 12
+        */
+        union {null, int} day;
+    }
+
+/**
+    An analysis panel
+    */
+    record AnalysisPanel {
+    /**
+        The specific disease that a panel tests
+        */
+        string specificDisease;
+    /**
+        The name of the panel
+        */
+        string panelName;
+    /**
+        Id of the panel
+        */
+        union {null, string} panelId;
+    /**
+        The version of the panel
+        */
+        union {null, string} panelVersion;
+    /**
+        Deprecated
+        */
+        union {null, string}  reviewOutcome;
+    /**
+        Deprecated
+        */
+        union {null, string} multipleGeneticOrigins;
+    }
+
+/**
+    Ancestries, defined as Ethnic category(ies) and Chi-square test
+    */
+    record Ancestries {
+    /**
+        Mother's Ethnic Origin
+        */
+        union{null, EthnicCategory} mothersEthnicOrigin;
+    /**
+        Mother's Ethnic Origin Description
+        */
+        union{null, string} mothersOtherRelevantAncestry;
+    /**
+        Father's Ethnic Origin
+        */
+        union{null, EthnicCategory} fathersEthnicOrigin;
+    /**
+        Father's Ethnic Origin Description
+        */
+        union{null, string} fathersOtherRelevantAncestry;
+    /**
+        Chi-square test for goodness of fit of this sample to 1000 Genomes Phase 3 populations
+        */
+        union{null, array<ChiSquare1KGenomesPhase3Pop>} chiSquare1KGenomesPhase3Pop;
+
+
+    }
+
+/**
+    clinicalEthnicities supersedes Ancestries in GMS
+    */
+
+    enum GenericConsent {yes, no, undefined, not_applicable}
+
+
+/**
+    Consent Status for GMS
+    */
+    record GmsConsentStatus {
+    /**
+        Is this individual consented to the programme? It could simply be a family member that is not consented
+        but for whom affection status is known
+        */
+        GenericConsent programmeConsent;
+    /**
+        Consent for feedback of primary findings?
+        RD: Primary Findings
+        Cancer: PrimaryFindings is somatic + pertinent germline findings
+        */
+        GenericConsent primaryFindingConsent;
+    /**
+        Research Consent
+        */
+        GenericConsent researchConsent;
+    /**
+        Consent for secondary health related findings?
+        */
+        GenericConsent healthRelatedFindingConsent;
+    /**
+        Consent for carrier status check?
+        */
+        GenericConsent carrierStatusConsent;
+    /**
+        Consent for pharmacogenomics consent as secondary findings?
+        */
+        GenericConsent pharmacogenomicsFindingConsent;
+    }
+
+
+/**
+    Consent Status for 100k program
+    */
+    record ConsentStatus {
+
+    /**
+        Is this individual consented to the programme?
+        It could simply be a family member that is not consented but for whom affection status is known
+        */
+        boolean programmeConsent=false;
+
+    /**
+        Consent for feedback of primary findings?
+        */
+        boolean primaryFindingConsent=false;
+
+    /**
+        Consent for secondary finding lookup
+        */
+        boolean secondaryFindingConsent=false;
+
+    /**
+        Consent for carrier status check?
+        */
+        boolean carrierStatusConsent=false;
+    }
+
+/**
+    Inbreeding coefficient
+    */
+    record InbreedingCoefficient {
+
+    /**
+        This is the sample id against which the coefficient was estimated
+        */
+        string sampleId;
+    /**
+        Name of program used to calculate the coefficient
+        */
+        string program;
+    /**
+        Version of the programme
+        */
+        string version;
+    /**
+        Where various methods for estimation exist, which method was used.
+        */
+        string estimationMethod;
+    /**
+        Inbreeding coefficient ideally a real number in [0,1]
+        */
+        double coefficient;
+    /**
+        Standard error of the Inbreeding coefficient
+        */
+        union {null, double} standardError;
+    }
+
+/**
+    Familiar relationship from pedrigree
+    */
+    enum FamiliarRelationship {TwinsMonozygous, TwinsDizygous, TwinsUnknown, FullSibling, FullSiblingF,
+        FullSiblingM, Mother, Father, Son, Daughter, ChildOfUnknownSex, MaternalAunt, MaternalUncle,
+        MaternalUncleOrAunt, PaternalAunt, PaternalUncle, PaternalUncleOrAunt, MaternalGrandmother,
+        PaternalGrandmother, MaternalGrandfather, PaternalGrandfather, DoubleFirstCousin, MaternalCousinSister,
+        PaternalCousinSister, MaternalCousinBrother, PaternalCousinBrother, Cousin, Spouse, Other,
+        RelationIsNotClear, Unrelated, Unknown}
+
+/**
+    In GMS, Previous Treatment of Patient
+    */
+    record PreviousTreatment{
+
+        union {null, string} previousTreatmentType;
+
+        union {null, string} previousTreatmentName;
+
+        union {null, Date} previousTreatmentDate;
+
+    }
+
+
+    record ClinicalIndication{
+    /**
+        GUID of Clinical Indication for the Referral
+         */
+        string clinicalIndicationUid;
+    /**
+        Code of Clinical Indication, e.g. (RT-13)
+         */
+        string clinicalIndicationCode;
+    /**
+        Clinical Indication Full Name
+         */
+        string clinicalIndicationFullName;
+    /**
+        Clinical Indication version number
+         */
+        union {null, string} clinicalIndicationVersionNumber;
+    }
+
+    record Morphology{
+        /**
+        The ontology term id or accession in OBO format ${ONTOLOGY_ID}:${TERM_ID} (http://www.obofoundry.org/id-policy.html)
+        */
+        union {null, string} id;
+        /**
+        The ontology term name
+        */
+        union {null, string} name;
+        /**
+        Optional value for the ontology term, the type of the value is not checked
+        (i.e.: we could set the pvalue term to "significant" or to "0.0001")
+        */
+        union {null, string} value;
+        /**
+        Ontology version
+        */
+        union {null, string} version;
+    }
+
+    record Topography{
+
+        /**
+        The ontology term id or accession in OBO format ${ONTOLOGY_ID}:${TERM_ID} (http://www.obofoundry.org/id-policy.html)
+        */
+        union {null, string} id;
+        /**
+        The ontology term name
+        */
+        union {null, string} name;
+        /**
+        Optional value for the ontology term, the type of the value is not checked
+        (i.e.: we could set the pvalue term to "significant" or to "0.0001")
+        */
+        union {null, string} value;
+        /**
+        Ontology version
+        */
+        union {null, string} version;
+
+    }
+
+/**
+    A germline sample
+    */
+    record GermlineSample {
+
+    /**
+        Sample identifier (e.g, LP00012645_5GH))
+        */
+        string sampleId;
+
+    /**
+        Lab sample identifier
+        */
+        string labSampleId;
+
+    /**
+        LDP Code (Local Delivery Partner)
+        */
+        union {null, string} LDPCode;
+
+    /**
+        Source of the sample
+        */
+        union {null, SampleSource} source;
+
+    /**
+        Product of the sample
+        */
+        union {null, Product} product;
+
+    /**
+        Preparation method
+        NOTE: In GMS, this has been deprecated in favour of Method and storageMedium
+        */
+        union {null, PreparationMethod} preparationMethod;
+
+    /**
+        Genomics England programme phase
+        */
+        union {null, ProgrammePhase} programmePhase;
+
+    /**
+        The time when the sample was received. In the format YYYY-MM-DDTHH:MM:SS+0000
+        */
+        union {null,string} clinicalSampleDateTime;
+
+        union {null,string} participantId;
+
+        /**
+        Participant UId of the sample
+        */
+        union {null, string} participantUid;
+
+        union {null,string} sampleUid;
+
+        union {null,string} maskedPid;
+
+    /**
+        In GMS, this is how the sample was extracted from the participant
+        */
+        union {null, Method} method;
+
+    /**
+        In GMS, this is what solvent/medium the sample was stored in
+        */
+        union {null, StorageMedium} storageMedium;
+
+    /**
+        In GMS, this is the sampleType as entered by the clinician in TOMs
+        */
+        union {null, string} sampleType;
+
+    /**
+        In GMS, this is the sampleState as entered by the clinician in TOMs
+        */
+        union {null, string} sampleState;
+
+
+
+    }
+
+/**
+    A tumour sample
+    */
+    record TumourSample {
+
+    /**
+        Sample identifier (e.g, LP00012645_5GH))
+        */
+        string sampleId;
+
+    /**
+        Lab sample identifier
+        */
+        string labSampleId;
+
+    /**
+        LDP Code (Local Delivery Partner)
+        */
+        union {null, string} LDPCode;
+
+    /**
+        This is the ID of the tumour from which this tumour sample was taken from
+        */
+        union {null, string} tumourId;
+
+    /**
+        Genomics England programme phase
+        */
+        union {null, string} programmePhase;
+
+    /**
+        Disease type.
+        NOTE: Deprecated in GMS
+        */
+        union {null, diseaseType} diseaseType;
+
+    /**
+        Disease subtype.
+        NOTE: Deprecated in GMS
+        */
+        union {null, string} diseaseSubType;
+
+    /**
+        True or false if this sample is of type: Haematological Cancer
+        */
+        union {null, boolean} haematologicalCancer;
+
+    /**
+        This is the Haematological cancer lineage of the tumourSample if this sample is from a haematological cancer
+        */
+        union {null, HaematologicalCancerLineage} haematologicalCancerLineage;
+
+    /**
+        The time when the sample was received. In the format YYYY-MM-DDTHH:MM:SS+0000
+        */
+        union {null, string} clinicalSampleDateTime;
+
+    /**
+        Tumor type.
+        NOTE: Deprecated in GMS in tumourSample but available in tumour record
+        */
+        union {null, string} tumourType;
+
+    /**
+        This is the tumour content
+        */
+        union {null, TumourContent} tumourContent;
+
+    /**
+        This is the tumour content percentage
+        */
+        union {null, float} tumourContentPercentage;
+
+    /**
+        Source of the sample
+        */
+        union {null, SampleSource} source;
+
+    /**
+        The preparation method of the sample
+        NOTE: Deprecated in GMS in replace of Method and storageMedium record
+        */
+        union {null, PreparationMethod} preparationMethod;
+
+    /**
+        The tissue source of the sample.
+        NOTE: DEPRECATED IN GMS in replace of method record
+        */
+        union {null, string} tissueSource;
+
+    /**
+        Product of the sample
+        */
+        union {null, Product} product;
+
+    /**
+        Morphology according to the sample taken
+        */
+        union {null, array<Morphology>} sampleMorphologies;
+
+    /**
+        Topography according to the sample taken
+        */
+        union {null, array<Topography>} sampleTopographies;
+
+    /**
+        In GMS, this is the GUID of the sample
+        */
+        union {null, string} sampleUid;
+
+    /**
+        Participant Id of the sample
+        */
+        union {null, string} participantId;
+
+    /**
+        Participant UId of the sample
+        */
+        union {null, string} participantUid;
+
+    /**
+        In GMS, this is the maskedPID
+        */
+        union {null, string} maskedPid;
+
+    /**
+        In GMS, this is how the sample was extracted from the participant
+        */
+        union {null, Method} method;
+
+    /**
+        In GMS, this is what solvent/medium the sample was stored in
+        */
+        union {null, StorageMedium} storageMedium;
+
+    /**
+        In GMS, this is the sampleType as entered by the clinician in TOMs
+        */
+        union {null, string} sampleType;
+
+    /**
+        In GMS, this is the sampleState as entered by the clinician in TOMs
+        */
+        union {null, string} sampleState;
+    }
+}

@@ -19,27 +19,48 @@
 
 package org.opencb.biodata.models.clinical.qc;
 
-import java.util.Arrays;
+import org.opencb.biodata.models.constants.FieldConstants;
+import org.opencb.commons.annotations.DataField;
+
+import java.util.List;
 
 public class SignatureFitting {
 
+
+    @DataField(id = "method", indexed = true,
+            description = FieldConstants.SIGNATURE_FITTING_METHOD_DESCRIPTION)
     private String method;
+
+    @DataField(id = "signatureSource", indexed = true,
+            description = FieldConstants.SIGNATURE_FITTING_SOURCE_DESCRIPTION)
     private String signatureSource;
+
+    @DataField(id = "signatureVersion", indexed = true,
+            description = FieldConstants.SIGNATURE_FITTING_SIGNATURE_VERSION_DESCRIPTION)
     private String signatureVersion;
-    private Score[] scores;
+
+    @DataField(id = "scores", indexed = true, uncommentedClasses = {"Score"},
+            description = FieldConstants.SIGNATURE_FITTING_SCORES_DESCRIPTION)
+    private List<Score> scores;
+
+    @DataField(id = "coeff", indexed = true,
+            description = FieldConstants.SIGNATURE_FITTING_COEFF_DESCRIPTION)
     private double coeff;
-    private String image;
+
+    @DataField(id = "file", indexed = true,
+            description = FieldConstants.SIGNATURE_FITTING_FILE_DESCRIPTION)
+    private String file;
 
     public SignatureFitting() {
     }
 
-    public SignatureFitting(String method, String signatureSource, String signatureVersion, Score[] scores, double coeff, String image) {
+    public SignatureFitting(String method, String signatureSource, String signatureVersion, List<Score> scores, double coeff, String file) {
         this.method = method;
         this.signatureSource = signatureSource;
         this.signatureVersion = signatureVersion;
         this.scores = scores;
         this.coeff = coeff;
-        this.image = image;
+        this.file = file;
     }
 
     @Override
@@ -48,9 +69,9 @@ public class SignatureFitting {
         sb.append("method='").append(method).append('\'');
         sb.append(", signatureSource='").append(signatureSource).append('\'');
         sb.append(", signatureVersion='").append(signatureVersion).append('\'');
-        sb.append(", scores=").append(Arrays.toString(scores));
+        sb.append(", scores=").append(scores);
         sb.append(", coeff=").append(coeff);
-        sb.append(", image='").append(image).append('\'');
+        sb.append(", file='").append(file).append('\'');
         sb.append('}');
         return sb.toString();
     }
@@ -82,11 +103,11 @@ public class SignatureFitting {
         return this;
     }
 
-    public Score[] getScores() {
+    public List<Score> getScores() {
         return scores;
     }
 
-    public SignatureFitting setScores(Score[] scores) {
+    public SignatureFitting setScores(List<Score> scores) {
         this.scores = scores;
         return this;
     }
@@ -100,12 +121,12 @@ public class SignatureFitting {
         return this;
     }
 
-    public String getImage() {
-        return image;
+    public String getFile() {
+        return file;
     }
 
-    public SignatureFitting setImage(String image) {
-        this.image = image;
+    public SignatureFitting setFile(String file) {
+        this.file = file;
         return this;
     }
 

@@ -39,6 +39,7 @@ public class Genotype {
     public static final String HOM_REF = "0/0";
     public static final String HET_REF = "0/1";
     public static final String HOM_VAR = "1/1";
+    public static final String NA = "NA";
 
     private String reference;
     private List<String> alternates;

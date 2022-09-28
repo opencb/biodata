@@ -1,0 +1,386 @@
+@namespace("org.gel.models.participant.avro")
+/**
+This protocol defines the Participants and Pedigree
+*/
+protocol Pedigrees {
+
+    import idl "CommonParticipant.avdl";
+    import idl "VersionControl.avdl";
+
+    /**
+    This is quite GEL specific. This is the way is stored in ModelCatalogue and PanelApp.
+    Currently all specific disease titles are assigned to a disease subgroup so really only specificDisease needs to be
+    completed but we add the others for generality
+    */
+    record Disorder {
+        /**
+        This is Level2 Title for this disorder
+        */
+        union {null,string} diseaseGroup;
+
+        /**
+        This is Level3 Title for this disorder
+        */
+        union {null,string} diseaseSubGroup;
+
+        /**
+        This is Level4 Title for this disorder.
+        In GMS, this is the clinicalIndicationFullName/clinicalIndicationCode.
+        */
+        union {null,string} specificDisease;
+
+        /**
+        Age of onset in years
+        */
+        union {null, float} ageOfOnset;
+    }
+
+    enum Laterality {RIGHT, UNILATERAL, BILATERAL, LEFT}
+
+    enum Progression {PROGRESSIVE, NONPROGRESSIVE}
+
+    enum Severity {BORDERLINE, MILD, MODERATE, SEVERE, PROFOUND}
+
+    enum SpatialPattern {DISTAL, GENERALIZED, LOCALIZED, PROXIMAL}
+
+    /**
+    HPO Modifiers
+    For GMS, hpoModifierCode and hpoModifierVersion will be used
+    */
+    record HpoTermModifiers{
+        union {null, Laterality} laterality;
+        union {null, Progression} progression;
+        union {null, Severity} severity;
+        union {null, SpatialPattern} spatialPattern;
+        union {null, string} hpoModifierCode;
+        union {null, string} hpoModifierVersion;
+    }
+
+
+    enum AgeOfOnset {EMBRYONAL_ONSET, FETAL_ONSET, NEONATAL_ONSET, INFANTILE_ONSET, CHILDHOOD_ONSET, JUVENILE_ONSET, YOUNG_ADULT_ONSET, LATE_ONSET, MIDDLE_AGE_ONSET}
+
+    /**
+    This defines an HPO term and its modifiers (possibly multiple)
+    If HPO term presence is unknown we don't have a entry on the list
+    */
+    record HpoTerm {
+        /**
+        Identifier of the HPO term
+        */
+        string term;
+
+        /**
+        This is whether the term is present in the participant (default is unknown) yes=term is present in participant,
+        no=term is not present
+        */
+        union {null, TernaryOption} termPresence;
+
+        /**
+        hpoBuildNumber
+        */
+        union {null, string} hpoBuildNumber;
+
+        /**
+        Modifier associated with the HPO term
+        */
+        union {null, array<HpoTermModifiers>} modifiers;
+
+        /**
+        Age of onset in months
+        */
+        union {null, AgeOfOnset} ageOfOnset;
+
+    }
+
+
+    /**
+    Affection Status
+    */
+    enum AffectionStatus {UNAFFECTED, AFFECTED, UNCERTAIN}
+
+    /**
+    QCState Status
+    */
+    enum ParticipantQCState {noState, passedMedicalReviewReadyForInterpretation, passedMedicalReviewNotReadyForInterpretation, queryToGel,	queryToGMC, failed}
+
+    /**
+    Life Status
+    */
+    enum LifeStatus {ALIVE, ABORTED, DECEASED, UNBORN, STILLBORN, MISCARRIAGE}
+
+    /**
+    FamilyQCState
+    */
+    enum FamilyQCState {noState, passedMedicalReviewReadyForInterpretation, passedMedicalReviewNotReadyForInterpretation, queryToGel, queryToGMC, failed}
+
+
+    enum Product {DNA, RNA}
+
+
+    /**
+    adoptedin means adopted into the family
+    adoptedout means child belonged to the family and was adopted out
+    */
+    enum AdoptedStatus {notadopted, adoptedin, adoptedout}
+
+
+    record DiagnosticDetail{
+        /**
+        Diagnosis coding system
+        */
+        string diagnosisCodingSystem;
+        /**
+        Diagnosis Coding System Version
+        */
+        union{null, string} diagnosisCodingSystemVersion;
+        /**
+        Diagnosis Code
+        */
+        string diagnosisCode;
+        /**
+        Diagnosis description
+        */
+        union{null, string} diagnosisDescription;
+        /**
+        Diagnosis Certainty
+        */
+        union{null, string} diagnosisCertainty;
+        /**
+        Age at diagnosis
+        */
+        union{null, float} ageAtOnsetInYears;
+    }
+
+    /**
+    This defines a RD Participant (demographics and pedigree information)
+    */
+    record PedigreeMember {
+
+        /**
+        Numbering used to refer to each member of the pedigree
+        */
+        union {null, int} pedigreeId;
+
+        /**
+        If this field is true, the member should be considered the proband of this family
+        */
+        union {null, boolean} isProband;
+
+        /**
+        participantId.  This is the human readable ID in GMS
+        */
+        union {null, string} participantId;
+
+        /**
+        participantQCState
+        */
+        union {null, ParticipantQCState} participantQCState;
+
+        /**
+        superFamily id, this id is built as a concatenation of all
+        families id in this superfamily i.e, fam10024_fam100457.
+        NOTE: Retired for GMS
+        */
+        union {null, string} gelSuperFamilyId;
+
+        /**
+        Sex of the Participant
+        */
+        Sex sex;
+
+        /**
+        Karyotypic sex of the participant as previously established or by looking at the GEL genome
+        */
+        union {null, PersonKaryotipicSex} personKaryotypicSex;
+
+        /**
+        Year of Birth
+        */
+        union {null, int} yearOfBirth;
+
+        /**
+        refers to the pedigreeId of the father
+        Id of the parent, if unknown then no parent is referenced. Parents may need to be entered even if no data is known
+        about them in order to unambiguously reconstruct the pedigree.
+        */
+        union {null, int}  fatherId;
+        /**
+        refers to the pedigreeId of the mother
+        Id of the parent, if unknown then no parent is referenced. Parents may need to be entered even if no data is known
+        about them in order to unambiguously reconstruct the pedigree.
+        */
+        union {null, int}  motherId;
+
+        /**
+        this id is built using the original familyId and the original pedigreeId of the father
+        NOTE: retired for GMS
+        */
+        union {null, int}  superFatherId;
+
+        /**
+        this id is built using the original familyId and the original pedigreeId of the mother
+        NOTE: Retired for GMS
+        */
+        union {null, int}  superMotherId;
+
+        /**
+        Each twin group is numbered, i.e. all members of a group of multiparous births receive the same number
+        */
+        union {null, int} twinGroup;
+
+        /**
+        A property of the twinning group but should be entered for all members
+        */
+        union {null, TernaryOption} monozygotic;
+
+        /**
+        Adopted Status
+        */
+        union {null, AdoptedStatus} adoptedStatus;
+
+        /**
+        Life Status
+        */
+        union {null, LifeStatus} lifeStatus;
+
+        /**
+        The parents of this participant has a consanguineous relationship
+        */
+        union {null, TernaryOption} consanguineousParents;
+
+
+        /**
+        Affection Status
+        */
+        union {null, AffectionStatus} affectionStatus;
+
+        /**
+        Clinical Data (disorders). If the family member is unaffected as per affectionStatus then this list is empty.
+        */
+        union {null, array<Disorder>} disorderList;
+
+        /**
+        Clinical Data (HPO terms)
+        */
+        union {null, array<HpoTerm>} hpoTermList;
+
+        /**
+        Participant's ancestries, defined as Mother's/Father's Ethnic Origin and Chi-square test for goodness of fit of this sample to 1000 Genomes Phase 3 populations.
+        NOTE: for GMS this field has been deprecated in favour of clinicalEthnicities
+        */
+        union {null, Ancestries} ancestries;
+
+        /**
+        What has this participant consented to?
+        A participant that has been consented to the programme should also have sequence data associated with them; however
+        this needs to be programmatically checked
+        */
+        union {null, ConsentStatus} consentStatus;
+
+        /**
+        What has this participant consented in the context of a Genomic Test?
+        */
+        union {null, GmsConsentStatus} testConsentStatus;
+
+        /**
+        This is an array containing all the samples that belong to this individual, e.g ["LP00002255_GA4"]
+        */
+        union {null, array<GermlineSample>} samples;
+
+        /**
+        Inbreeding Coefficient Estimation
+        */
+        union {null, InbreedingCoefficient} inbreedingCoefficient;
+
+        /**
+        We could add a map here to store additional information for example URIs to images, ECGs, etc
+        Null by default
+        */
+        union {null, map<string>} additionalInformation;
+
+        /**
+        Last Menstrual Period
+        */
+        union {null, string} lastMenstrualPeriod;
+
+        /**
+        Additional set of diagnostic ontology terms
+        */
+        union {null, array<DiagnosticDetail>} diagnosticDetails;
+
+        /**
+        ParticipantGUID in GMS
+        */
+        union {null, string} participantUid;
+
+        /**
+        ClinicalEthnicity as defined for GMS
+        */
+        union {null, array<ClinicalEthnicity>} clinicalEthnicities;
+
+        /**
+        For GMS cases, previous Treatment History
+        */
+        union {null, array<PreviousTreatment>} previousTreatment;
+    }
+
+    /**
+    A disease penetrance definition
+    */
+    record DiseasePenetrance {
+        /**
+        The disease to which the penetrance applies
+        */
+        string specificDisease;
+        /**
+        The penetrance
+        */
+        Penetrance penetrance;
+    }
+
+
+    /**
+    This is the concept of a family with associated phenotypes as present in the record RDParticipant
+    */
+    record Pedigree {
+        /**
+        Model version number
+        */
+        union {null, VersionControl} versionControl;
+
+        /**
+        LDP Code (Local Delivery Partner)
+        */
+        union {null, string} LDPCode;
+
+        /**
+        Family identifier which internally translate to a sample set
+        */
+        string familyId;
+
+        /**
+        List of members of a pedigree
+        */
+        array <PedigreeMember> members;
+
+        /**
+        List of panels
+        */
+        union {null, array<AnalysisPanel>} analysisPanels;
+
+        /**
+        List of disease penetrances. Moved to referralTest for GMS
+        */
+        union {null, array<DiseasePenetrance>} diseasePenetrances;
+
+        /**
+        Flag indicating if a pedigree is ready for analysis
+        */
+        boolean readyForAnalysis;
+
+        /**
+        The family quality control status
+        */
+        union {null, FamilyQCState} familyQCState;
+    }
+}

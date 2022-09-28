@@ -20,6 +20,7 @@
 package org.opencb.biodata.models.clinical.interpretation;
 
 import org.opencb.biodata.models.clinical.ClinicalComment;
+import org.opencb.biodata.models.clinical.ClinicalDiscussion;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.VariantAvro;
 
@@ -31,9 +32,10 @@ import java.util.Map;
 public class ClinicalVariant extends Variant {
 
     private List<ClinicalVariantEvidence> evidences;
-    private List<String> interpretationMethodNames;
     private List<ClinicalComment> comments;
-    private String discussion;
+    private Map<String, Object> filters;
+    private ClinicalDiscussion discussion;
+    private List<String> tags;
 
     private Status status;
 
@@ -45,7 +47,8 @@ public class ClinicalVariant extends Variant {
         REVIEW_REQUESTED,
         REVIEWED,
         DISCARDED,
-        REPORTED
+        REPORTED,
+        ARTIFACT
     }
 
     public ClinicalVariant() {
@@ -53,18 +56,21 @@ public class ClinicalVariant extends Variant {
     }
 
     public ClinicalVariant(VariantAvro avro) {
-        this(avro, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), "", Status.NOT_REVIEWED, new HashMap<>());
+        this(avro, new ArrayList<>(), new ArrayList<>(), new HashMap<>(), new ClinicalDiscussion(), Status.NOT_REVIEWED,
+                new ArrayList<>(), new HashMap<>());
     }
 
-    public ClinicalVariant(VariantAvro avro, List<ClinicalVariantEvidence> evidences, List<String> interpretationMethodNames,
-                           List<ClinicalComment> comments, String discussion, Status status, Map<String, Object> attributes) {
+    public ClinicalVariant(VariantAvro avro, List<ClinicalVariantEvidence> evidences, List<ClinicalComment> comments,
+                           Map<String, Object> filters, ClinicalDiscussion discussion, Status status, List<String> tags,
+                           Map<String, Object> attributes) {
         super(avro);
 
         this.evidences = evidences;
-        this.interpretationMethodNames = interpretationMethodNames;
         this.comments = comments;
+        this.filters = filters;
         this.discussion = discussion;
         this.status = status;
+        this.tags = tags;
         this.attributes = attributes;
     }
 
@@ -72,9 +78,10 @@ public class ClinicalVariant extends Variant {
     public String toString() {
         final StringBuilder sb = new StringBuilder("ClinicalVariant{");
         sb.append("evidences=").append(evidences);
-        sb.append(", interpretationMethodNames=").append(interpretationMethodNames);
         sb.append(", comments=").append(comments);
-        sb.append(", discussion='").append(discussion).append('\'');
+        sb.append(", filters=").append(filters);
+        sb.append(", discussion=").append(discussion);
+        sb.append(", tags=").append(tags);
         sb.append(", status=").append(status);
         sb.append(", attributes=").append(attributes);
         sb.append('}');
@@ -90,15 +97,6 @@ public class ClinicalVariant extends Variant {
         return this;
     }
 
-    public List<String> getInterpretationMethodNames() {
-        return interpretationMethodNames;
-    }
-
-    public ClinicalVariant setInterpretationMethodNames(List<String> interpretationMethodNames) {
-        this.interpretationMethodNames = interpretationMethodNames;
-        return this;
-    }
-
     public List<ClinicalComment> getComments() {
         return comments;
     }
@@ -108,11 +106,20 @@ public class ClinicalVariant extends Variant {
         return this;
     }
 
-    public String getDiscussion() {
+    public Map<String, Object> getFilters() {
+        return filters;
+    }
+
+    public ClinicalVariant setFilters(Map<String, Object> filters) {
+        this.filters = filters;
+        return this;
+    }
+
+    public ClinicalDiscussion getDiscussion() {
         return discussion;
     }
 
-    public ClinicalVariant setDiscussion(String discussion) {
+    public ClinicalVariant setDiscussion(ClinicalDiscussion discussion) {
         this.discussion = discussion;
         return this;
     }
@@ -123,6 +130,15 @@ public class ClinicalVariant extends Variant {
 
     public ClinicalVariant setStatus(Status status) {
         this.status = status;
+        return this;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public ClinicalVariant setTags(List<String> tags) {
+        this.tags = tags;
         return this;
     }
 

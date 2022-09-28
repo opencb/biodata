@@ -7,9 +7,10 @@ import org.opencb.biodata.models.variant.protobuf.VariantProto;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
+import static org.opencb.biodata.models.variant.VariantBuilder.VARIANT_PATTERN;
 import static org.opencb.biodata.models.variant.VariantBuilder.getProtoVariantType;
 
 /**
@@ -28,6 +29,7 @@ public class VariantBuilderTest {
         map.put("1:1000-1010:<DEL:ME:ALU>", new Variant("1", 1000, 1010, "", "<DEL:ME:ALU>").setType(VariantType.DELETION).setSv(new StructuralVariation()).setLength(11));
 //        map.put("1:1000:A:<DEL>", new Variant("1", 1000, 1000, "A", "<DEL>").setType(VariantType.DELETION).setSv(new StructuralVariation(1000, 1000, 1000, 1000, null, null, null, null)).setLength(Variant.UNKNOWN_LENGTH));
 //        map.put("1:1000:<DEL>", new Variant("1", 1000, 999, "", "<DEL>").setType(VariantType.DELETION).setSv(new StructuralVariation(1000, 1000, 999, 999, null, null, null, null)).setLength(Variant.UNKNOWN_LENGTH));
+        map.put("1:1000-1000:<CNV>", new Variant("1", 1000, 1000, "", "<CNV>").setType(VariantType.COPY_NUMBER).setSv(new StructuralVariation()));
         map.put("1:1000-2000:<CNV>", new Variant("1", 1000, 2000, "", "<CNV>").setType(VariantType.COPY_NUMBER).setSv(new StructuralVariation()));
         map.put("1:1000-2000:<CN0>", new Variant("1", 1000, 2000, "", "<CN0>").setType(VariantType.COPY_NUMBER_LOSS).setSv(new StructuralVariation(null, null, null, null, 0, null, null, StructuralVariantType.COPY_NUMBER_LOSS, null)));
         map.put("1:1000-2000:<CN5>", new Variant("1", 1000, 2000, "", "<CN5>").setType(VariantType.COPY_NUMBER_GAIN).setSv(new StructuralVariation(null, null, null, null, 5, null, null, StructuralVariantType.COPY_NUMBER_GAIN, null)));
@@ -43,6 +45,7 @@ public class VariantBuilderTest {
         map.put("1:1000-1005:A:<NON_REF>", new Variant("1", 1000, 1005, "A", "<NON_REF>").setLength(6).setType(VariantType.NO_VARIATION));
         map.put("1:1000:A:*", new Variant("1", 1000, 1000, "A", "*").setType(VariantType.DELETION));
 
+        map.put("1:1000:-:<INS>", new Variant("1", 1000, 999, "", "<INS>").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.INSERTION).setSv(new StructuralVariation(null, null, null, null, null, null, null, null, null)));
         map.put("1:1000:ACACAC...GTGTGTGT", new Variant("1", 1000, 999, "", "<INS>").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.INSERTION).setSv(new StructuralVariation(null, null, null, null, null, "ACACAC", "GTGTGTGT", null, null)));
         map.put("1:1000:...GTGTGTGT", new Variant("1", 1000, 999, "", "<INS>").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.INSERTION).setSv(new StructuralVariation(null, null, null, null, null, "", "GTGTGTGT", null, null)));
         map.put("1:1000:ACACAC...", new Variant("1", 1000, 999, "", "<INS>").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.INSERTION).setSv(new StructuralVariation(null, null, null, null, null, "ACACAC", "", null, null)));
@@ -55,9 +58,15 @@ public class VariantBuilderTest {
         map.put("1:800001:G:GTATTG[2:321681[", new Variant("1", 800001, 800000, "G", "GTATTG[2:321681[").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.BREAKEND).setSv(new StructuralVariation(null, null, null, null, null, null, null, null, new Breakend(new BreakendMate("2", 321681, null, null), BreakendOrientation.SE, "TATTG"))));
         map.put("1:800001:G:[2:321681[GTATTG", new Variant("1", 800001, 800000, "G", "[2:321681[GTATTG").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.BREAKEND).setSv(new StructuralVariation(null, null, null, null, null, null, null, null, new Breakend(new BreakendMate("2", 321681, null, null), BreakendOrientation.EE, "GTATT"))));
 
+        // Weird contig names
+        map.put("HLA-DRB1*10:01:01:11575:A:T", new Variant("HLA-DRB1*10:01:01", 11575, 11575, "A", "T").setLength(1).setType(VariantType.SNV));
+        map.put("HLA-DRB1*10:01:01:10000<10100<10200:-:[HLA-DRB8*10:01:01:20000[GTATTG", new Variant("HLA-DRB1*10:01:01", 10100, "", "[HLA-DRB8*10:01:01:20000[GTATTG").setType(VariantType.BREAKEND).setSv(new StructuralVariation(10000, 10200, null, null, null, null, null, null, new Breakend(new BreakendMate("HLA-DRB8*10:01:01", 20000, null, null), BreakendOrientation.EE, "GTATTG"))));
+
+
         for (Map.Entry<String, Variant> entry : map.entrySet()) {
             String expected = entry.getKey().replace(":-:", ":").replace("::", ":").replace("chr", "");
             String actual = entry.getValue().toString().replace(":-:", ":");
+            String actualFromRegex = regexParse(entry.getKey()).toString().replace(":-:", ":");
 
             System.out.println("Original : " + entry.getKey() + " \t-->\t " + entry.getValue());
             try {
@@ -68,7 +77,14 @@ public class VariantBuilderTest {
                 throw e;
             }
             assertEquals(expected, actual);
+            assertEquals(expected, actualFromRegex);
         }
+    }
+
+    private Variant regexParse(String variantId) {
+        Matcher matcher = VARIANT_PATTERN.matcher(variantId);
+        assertTrue(variantId, matcher.matches());
+        return new VariantBuilder().regexParse(variantId).build();
     }
 
     @Test

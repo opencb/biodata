@@ -19,14 +19,22 @@
 
 package org.opencb.biodata.models.clinical;
 
+import org.opencb.biodata.models.constants.FieldConstants;
 import org.opencb.biodata.models.core.OntologyTermAnnotation;
+import org.opencb.commons.annotations.DataField;
 
 import java.util.Collections;
 import java.util.Map;
 
 public class Phenotype extends OntologyTermAnnotation {
 
+
+    @DataField(id = "ageOfOnset", indexed = true,
+            description = FieldConstants.PHENOTYPE_AGE_OF_ON_SET)
     private String ageOfOnset;
+
+    @DataField(id = "status", indexed = true,
+            description = FieldConstants.PHENOTYPE_STATUS)
     private Status status;
 
     public enum Status {
@@ -39,16 +47,20 @@ public class Phenotype extends OntologyTermAnnotation {
     }
 
     public Phenotype(String id, String name, String source) {
-        this(id, name, source, "", Status.UNKNOWN, Collections.emptyMap());
+        this(id, name, "", source, "", Collections.emptyMap(), "", Status.UNKNOWN);
     }
 
     public Phenotype(String id, String name, String source, Status status) {
-        this(id, name, source, "", status, Collections.emptyMap());
+        this(id, name, "", source, "", Collections.emptyMap(), "", status);
     }
 
     public Phenotype(String id, String name, String source, String ageOfOnset, Status status, Map<String, String> attributes) {
-        super(id, name, source, attributes);
+        this(id, name, "", source, "", attributes, ageOfOnset, Status.UNKNOWN);
+    }
 
+    public Phenotype(String id, String name, String description, String source, String url, Map<String, String> attributes,
+                     String ageOfOnset, Status status) {
+        super(id, name, description, source, url, attributes);
         this.ageOfOnset = ageOfOnset;
         this.status = status;
     }

@@ -109,6 +109,7 @@ public class ClinicalProperty {
     public enum RoleInCancer {
         ONCOGENE,
         TUMOR_SUPPRESSOR_GENE,
+        FUSION,
         BOTH,
         NA,
         UNKNOWN

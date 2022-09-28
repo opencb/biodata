@@ -74,7 +74,8 @@ public class VafVariantNormalizerExtensionTest {
                 .build();
 
         normalize(generalHeader, singleSample, variant);
-        assertEquals(Arrays.asList("GT", "DP"), variant.getStudies().get(0).getSampleDataKeys());
+        assertEquals(Arrays.asList("GT", "DP", "EXT_VAF"), variant.getStudies().get(0).getSampleDataKeys());
+        assertEquals(".", variant.getStudies().get(0).getSampleData("SAMPLE_1", "EXT_VAF"));
     }
 
     @Test
@@ -105,7 +106,7 @@ public class VafVariantNormalizerExtensionTest {
         normalize(generalHeader, multiSample, variant);
         assertEquals("GT:AD:DP:EXT_VAF", variant.getStudies().get(0).getSampleDataKeysAsString());
         assertEquals("0.5", variant.getStudies().get(0).getSampleData("SAMPLE_1", "EXT_VAF"));
-        assertEquals(null, variant.getStudies().get(0).getSampleData("SAMPLE_2", "EXT_VAF"));
+        assertEquals(".", variant.getStudies().get(0).getSampleData("SAMPLE_2", "EXT_VAF"));
         assertEquals("0.9", variant.getStudies().get(0).getSampleData("SAMPLE_3", "EXT_VAF"));
     }
 

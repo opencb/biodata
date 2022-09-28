@@ -18,28 +18,53 @@ package org.opencb.biodata.models.common;
 
 public class Status {
 
-    private String id;
-    private String description;
-    private String date;
+    protected String id;
+    protected String name;
+    protected String description;
+    protected String date;
 
     public Status() {
-        this("", "", "");
+        this("", "", "", "");
     }
 
-    public Status(String id, String description, String date) {
+    public Status(String id, String name, String description, String date) {
         this.id = id;
+        this.name = name;
         this.description = description;
         this.date = date;
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("CustomStatus{");
+        final StringBuilder sb = new StringBuilder("Status{");
         sb.append("id='").append(id).append('\'');
+        sb.append(", name='").append(name).append('\'');
         sb.append(", description='").append(description).append('\'');
         sb.append(", date='").append(date).append('\'');
         sb.append('}');
         return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Status)) return false;
+
+        Status status = (Status) o;
+
+        if (!id.equals(status.id)) return false;
+        if (name != null ? !name.equals(status.name) : status.name != null) return false;
+        if (description != null ? !description.equals(status.description) : status.description != null) return false;
+        return date != null ? date.equals(status.date) : status.date == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id.hashCode();
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (description != null ? description.hashCode() : 0);
+        result = 31 * result + (date != null ? date.hashCode() : 0);
+        return result;
     }
 
     public String getId() {
@@ -48,6 +73,15 @@ public class Status {
 
     public Status setId(String id) {
         this.id = id;
+        return this;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Status setName(String name) {
+        this.name = name;
         return this;
     }
 

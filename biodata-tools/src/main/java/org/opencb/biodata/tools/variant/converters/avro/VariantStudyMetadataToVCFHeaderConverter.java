@@ -1,7 +1,7 @@
 package org.opencb.biodata.tools.variant.converters.avro;
 
 import htsjdk.variant.vcf.*;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.opencb.biodata.formats.variant.vcf4.VcfUtils;
 import org.opencb.biodata.models.metadata.Cohort;
 import org.opencb.biodata.models.metadata.Individual;
