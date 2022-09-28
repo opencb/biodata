@@ -58,29 +58,24 @@ public abstract class ClinicalVariantCreator {
     protected Penetrance penetrance;
 
     protected Map<String, RoleInCancer> roleInCancer;
-    protected Map<String, List<String>> actionableVariants;
 
     protected String assembly;
 
-    public ClinicalVariantCreator(List<DiseasePanel> diseasePanels, Disorder disorder,
-                                  List<ModeOfInheritance> modeOfInheritances, Penetrance penetrance,
-                                  Map<String, RoleInCancer> roleInCancer, Map<String, List<String>> actionableVariants,
-                                  String assembly) {
-        this(diseasePanels, disorder, modeOfInheritances, penetrance, roleInCancer, actionableVariants, assembly,
-                new ArrayList<>(proteinCoding), new ArrayList<>(extendedLof));
+    public ClinicalVariantCreator(List<DiseasePanel> diseasePanels, Disorder disorder, List<ModeOfInheritance> modeOfInheritances,
+                                  Penetrance penetrance, Map<String, RoleInCancer> roleInCancer, String assembly) {
+        this(diseasePanels, disorder, modeOfInheritances, penetrance, roleInCancer, assembly, new ArrayList<>(proteinCoding),
+                new ArrayList<>(extendedLof));
     }
 
-    public ClinicalVariantCreator(List<DiseasePanel> diseasePanels, Disorder disorder,
-                                  List<ModeOfInheritance> modeOfInheritances, Penetrance penetrance,
-                                  Map<String, RoleInCancer> roleInCancer, Map<String, List<String>> actionableVariants,
-                                  String assembly, List<String> biotypes, List<String> soNames) {
+    public ClinicalVariantCreator(List<DiseasePanel> diseasePanels, Disorder disorder, List<ModeOfInheritance> modeOfInheritances,
+                                  Penetrance penetrance, Map<String, RoleInCancer> roleInCancer, String assembly, List<String> biotypes,
+                                  List<String> soNames) {
 
         this.diseasePanels = diseasePanels;
         this.disorder = disorder;
         this.modeOfInheritances = modeOfInheritances;
         this.penetrance = penetrance;
         this.roleInCancer = roleInCancer;
-        this.actionableVariants = actionableVariants;
         this.assembly = assembly;
 
         this.biotypeSet = new HashSet<>();
@@ -112,20 +107,6 @@ public abstract class ClinicalVariantCreator {
         List<ClinicalVariant> clinicalVariants = new ArrayList<>();
         for (Variant variant : variants) {
             List<ClinicalVariantEvidence> clinicalVariantEvidences = new ArrayList<>();
-
-            // Tier 3, actionable variants
-            if (MapUtils.isNotEmpty(actionableVariants)) {
-                if (variant.getAnnotation() != null && actionableVariants.containsKey(variant.toString())) {
-                    if (CollectionUtils.isNotEmpty(variant.getAnnotation().getConsequenceTypes())) {
-                        for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
-                            clinicalVariantEvidences.addAll(createClinicalVariantEvidences("", null, ct, variant));
-                        }
-                    } else {
-                        // We create the evidences anyway!
-                        clinicalVariantEvidences.addAll(createClinicalVariantEvidences("", null, null, variant));
-                    }
-                }
-            }
 
             // If we have clinical variant evidences, then we have to create the clinical variant
             if (CollectionUtils.isNotEmpty(clinicalVariantEvidences)) {
@@ -267,27 +248,6 @@ public abstract class ClinicalVariantCreator {
             }
         }
 
-        // Actionable management
-        if (MapUtils.isNotEmpty(actionableVariants) && actionableVariants.containsKey(variant.getId())) {
-            clinicalVariantEvidence.setActionable(true);
-            // Set tier 3 only if it is null or untiered
-            if (tier == null || UNTIERED.equals(tier)) {
-                clinicalVariantEvidence.getClassification().setTier(TIER_3);
-            } else {
-                clinicalVariantEvidence.getClassification().setTier(tier);
-            }
-            // Add 'actionable' phenotypes
-            if (CollectionUtils.isNotEmpty(actionableVariants.get(variant.getId()))) {
-                List<Phenotype> evidences = new ArrayList<>();
-                for (String phenotypeId : actionableVariants.get(variant.getId())) {
-                    evidences.add(new Phenotype(phenotypeId, phenotypeId, ""));
-                }
-                if (CollectionUtils.isNotEmpty(evidences)) {
-                    clinicalVariantEvidence.setPhenotypes(evidences);
-                }
-            }
-        }
-
         return clinicalVariantEvidence;
     }
 
@@ -347,7 +307,7 @@ public abstract class ClinicalVariantCreator {
                 }
             }
         } else {
-            // We report events without panels, e.g., actionable variants (tier 3)
+            // We report events without panels
             if (CollectionUtils.isNotEmpty(soTerms)) {
                 ClinicalVariantEvidence clinicalVariantEvidence = createClinicalVariantEvidence(genomicFeature, null, modeOfInheritances,
                         penetrance, tier, variant);
