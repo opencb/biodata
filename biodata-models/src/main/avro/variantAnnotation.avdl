@@ -126,6 +126,9 @@ protocol VariantAnnotations {
         union { null, string } ensemblTranscriptId;
 
         union { null, string } transcriptId;    // Ensembl or RefSeq ID depending on field 'source'
+
+        union { null, array<string> } hgvs;
+
         union { null, string } strand;
         union { null, string } biotype;
         union { null, string } source;
