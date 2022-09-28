@@ -253,23 +253,24 @@ public abstract class ClinicalVariantCreator {
         }
 
         // Role in cancer
-        if (variant.getAnnotation() != null) {
-            if (CollectionUtils.isNotEmpty(variant.getAnnotation().getGeneCancerAssociations())) {
-                Set<RoleInCancer> roles = new HashSet<>();
-                for (GeneCancerAssociation geneCancerAssociation : variant.getAnnotation().getGeneCancerAssociations()) {
-                    if (CollectionUtils.isNotEmpty(geneCancerAssociation.getRoleInCancer())) {
-                        for (String value : geneCancerAssociation.getRoleInCancer()) {
-                            try {
-                                roles.add(RoleInCancer.valueOf(value.toUpperCase()));
-                            } catch (Exception e) {
-                                logger.info("Unknown role in cancer value: {}. It will be ignored.", value.toUpperCase());
-                            }
+        if (variant.getAnnotation() != null && CollectionUtils.isNotEmpty(variant.getAnnotation().getGeneCancerAssociations())) {
+            Set<RoleInCancer> roles = new HashSet<>();
+            for (GeneCancerAssociation geneCancerAssociation : variant.getAnnotation().getGeneCancerAssociations()) {
+                if (CollectionUtils.isNotEmpty(geneCancerAssociation.getRoleInCancer())) {
+                    for (String value : geneCancerAssociation.getRoleInCancer()) {
+                        try {
+                            roles.add(RoleInCancer.valueOf(value.toUpperCase()));
+                        } catch (Exception e) {
+                            logger.info("Unknown role in cancer value: {}. It will be ignored.", value.toUpperCase());
                         }
                     }
                 }
-                if (CollectionUtils.isNotEmpty(roles)) {
-                    clinicalVariantEvidence.setRolesInCancer(new ArrayList<>(roles));
-                }
+            }
+            if (CollectionUtils.isNotEmpty(roles)) {
+                List<RoleInCancer> rolesInCancer = new ArrayList<>(roles);
+                clinicalVariantEvidence.setRolesInCancer(rolesInCancer);
+                // FIXME Nacho (28/09/22) This has been added to keep backward compatibility. To be removed in 1 year.
+                clinicalVariantEvidence.setRoleInCancer(rolesInCancer.get(0));
             }
         }
 
