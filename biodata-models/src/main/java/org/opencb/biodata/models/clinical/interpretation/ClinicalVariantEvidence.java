@@ -39,7 +39,9 @@ public class ClinicalVariantEvidence {
     private double score;
     private boolean fullyExplainPhenotypes;
     private List<String> compoundHeterozygousVariantIds;
+    @Deprecated
     private RoleInCancer roleInCancer;
+    private List<RoleInCancer> rolesInCancer;
     @Deprecated
     private boolean actionable;
 
@@ -59,6 +61,15 @@ public class ClinicalVariantEvidence {
                                    Penetrance penetrance, double score, boolean fullyExplainPhenotypes,
                                    List<String> compoundHeterozygousVariantIds, RoleInCancer roleInCancer, boolean actionable,
                                    ClinicalEvidenceReview review) {
+        this(interpretationMethodName, phenotypes, genomicFeature, modeOfInheritances, panelId, classification, penetrance, score,
+                fullyExplainPhenotypes, compoundHeterozygousVariantIds, roleInCancer, null, actionable, review);
+    }
+
+    public ClinicalVariantEvidence(String interpretationMethodName, List<Phenotype> phenotypes, GenomicFeature genomicFeature,
+                                   List<ModeOfInheritance> modeOfInheritances, String panelId, VariantClassification classification,
+                                   Penetrance penetrance, double score, boolean fullyExplainPhenotypes,
+                                   List<String> compoundHeterozygousVariantIds, RoleInCancer roleInCancer, List<RoleInCancer> rolesInCancer,
+                                   boolean actionable, ClinicalEvidenceReview review) {
         this.interpretationMethodName = interpretationMethodName;
         this.phenotypes = phenotypes;
         this.genomicFeature = genomicFeature;
@@ -70,10 +81,11 @@ public class ClinicalVariantEvidence {
         this.fullyExplainPhenotypes = fullyExplainPhenotypes;
         this.compoundHeterozygousVariantIds = compoundHeterozygousVariantIds;
         this.roleInCancer = roleInCancer;
+        this.rolesInCancer = rolesInCancer;
         this.actionable = actionable;
         this.review = review;
     }
-
+    @Deprecated
     public ClinicalVariantEvidence(String interpretationMethodName, List<Phenotype> phenotypes, GenomicFeature genomicFeature,
                                    List<ModeOfInheritance> modeOfInheritances, String panelId, VariantClassification classification,
                                    Penetrance penetrance, double score, boolean fullyExplainPhenotypes,
@@ -107,6 +119,7 @@ public class ClinicalVariantEvidence {
         sb.append(", fullyExplainPhenotypes=").append(fullyExplainPhenotypes);
         sb.append(", compoundHeterozygousVariantIds=").append(compoundHeterozygousVariantIds);
         sb.append(", roleInCancer=").append(roleInCancer);
+        sb.append(", rolesInCancer=").append(rolesInCancer);
         sb.append(", actionable=").append(actionable);
         sb.append(", review=").append(review);
         sb.append('}');
@@ -203,12 +216,23 @@ public class ClinicalVariantEvidence {
         return this;
     }
 
+    @Deprecated
     public RoleInCancer getRoleInCancer() {
         return roleInCancer;
     }
 
+    @Deprecated
     public ClinicalVariantEvidence setRoleInCancer(RoleInCancer roleInCancer) {
         this.roleInCancer = roleInCancer;
+        return this;
+    }
+
+    public List<RoleInCancer> getRolesInCancer() {
+        return rolesInCancer;
+    }
+
+    public ClinicalVariantEvidence setRolesInCancer(List<RoleInCancer> rolesInCancer) {
+        this.rolesInCancer = rolesInCancer;
         return this;
     }
 

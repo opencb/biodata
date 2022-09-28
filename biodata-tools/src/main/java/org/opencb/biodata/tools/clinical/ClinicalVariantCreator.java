@@ -22,12 +22,16 @@ package org.opencb.biodata.tools.clinical;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.opencb.biodata.models.clinical.*;
+import org.opencb.biodata.models.clinical.ClinicalAcmg;
+import org.opencb.biodata.models.clinical.ClinicalDiscussion;
+import org.opencb.biodata.models.clinical.ClinicalProperty;
 import org.opencb.biodata.models.clinical.ClinicalProperty.ModeOfInheritance;
+import org.opencb.biodata.models.clinical.Disorder;
 import org.opencb.biodata.models.clinical.interpretation.*;
 import org.opencb.biodata.models.clinical.interpretation.exceptions.InterpretationAnalysisException;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.ConsequenceType;
+import org.opencb.biodata.models.variant.avro.GeneCancerAssociation;
 import org.opencb.biodata.models.variant.avro.SequenceOntologyTerm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +41,8 @@ import java.util.stream.Collectors;
 
 import static org.opencb.biodata.models.clinical.ClinicalProperty.Penetrance;
 import static org.opencb.biodata.models.clinical.ClinicalProperty.RoleInCancer;
-import static org.opencb.biodata.models.clinical.interpretation.VariantClassification.*;
+import static org.opencb.biodata.models.clinical.interpretation.VariantClassification.calculateAcmgClassification;
+import static org.opencb.biodata.models.clinical.interpretation.VariantClassification.computeClinicalSignificance;
 import static org.opencb.biodata.tools.pedigree.ModeOfInheritance.extendedLof;
 import static org.opencb.biodata.tools.pedigree.ModeOfInheritance.proteinCoding;
 
@@ -57,25 +62,37 @@ public abstract class ClinicalVariantCreator {
     protected List<ModeOfInheritance> modeOfInheritances;
     protected Penetrance penetrance;
 
-    protected Map<String, RoleInCancer> roleInCancer;
+    @Deprecated
+    protected Map<String, List<RoleInCancer>> rolesInCancerMap;
 
     protected String assembly;
 
+    @Deprecated
     public ClinicalVariantCreator(List<DiseasePanel> diseasePanels, Disorder disorder, List<ModeOfInheritance> modeOfInheritances,
                                   Penetrance penetrance, Map<String, RoleInCancer> roleInCancer, String assembly) {
-        this(diseasePanels, disorder, modeOfInheritances, penetrance, roleInCancer, assembly, new ArrayList<>(proteinCoding),
+        this(diseasePanels, disorder, modeOfInheritances, penetrance, assembly, new ArrayList<>(proteinCoding),
+                new ArrayList<>(extendedLof));
+    }
+
+    @Deprecated
+    public ClinicalVariantCreator(List<DiseasePanel> diseasePanels, Disorder disorder, List<ModeOfInheritance> modeOfInheritances,
+                                  Map<String, RoleInCancer> roleInCancer, Penetrance penetrance, String assembly, List<String> biotypes,
+                                  List<String> soNames) {
+        this(diseasePanels, disorder, modeOfInheritances, penetrance, assembly, biotypes, soNames);
+    }
+
+    public ClinicalVariantCreator(List<DiseasePanel> diseasePanels, Disorder disorder, List<ModeOfInheritance> modeOfInheritances,
+                                  Penetrance penetrance, String assembly) {
+        this(diseasePanels, disorder, modeOfInheritances, penetrance, assembly, new ArrayList<>(proteinCoding),
                 new ArrayList<>(extendedLof));
     }
 
     public ClinicalVariantCreator(List<DiseasePanel> diseasePanels, Disorder disorder, List<ModeOfInheritance> modeOfInheritances,
-                                  Penetrance penetrance, Map<String, RoleInCancer> roleInCancer, String assembly, List<String> biotypes,
-                                  List<String> soNames) {
-
+                                  Penetrance penetrance, String assembly, List<String> biotypes, List<String> soNames) {
         this.diseasePanels = diseasePanels;
         this.disorder = disorder;
         this.modeOfInheritances = modeOfInheritances;
         this.penetrance = penetrance;
-        this.roleInCancer = roleInCancer;
         this.assembly = assembly;
 
         this.biotypeSet = new HashSet<>();
@@ -89,7 +106,6 @@ public abstract class ClinicalVariantCreator {
 
         this.geneToPanelMap = null;
         this.variantToPanelMap = null;
-
     }
 
     public abstract List<ClinicalVariant> create(List<Variant> variants) throws InterpretationAnalysisException;
@@ -237,14 +253,24 @@ public abstract class ClinicalVariantCreator {
         }
 
         // Role in cancer
-        if (variant.getAnnotation() != null) {
-            if (MapUtils.isNotEmpty(roleInCancer) && CollectionUtils.isNotEmpty(variant.getAnnotation().getConsequenceTypes())) {
-                for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
-                    if (StringUtils.isNotEmpty(ct.getGeneName()) && roleInCancer.containsKey(ct.getGeneName())) {
-                        clinicalVariantEvidence.setRoleInCancer(roleInCancer.get(ct.getGeneName()));
-                        break;
+        if (variant.getAnnotation() != null && CollectionUtils.isNotEmpty(variant.getAnnotation().getGeneCancerAssociations())) {
+            Set<RoleInCancer> roles = new HashSet<>();
+            for (GeneCancerAssociation geneCancerAssociation : variant.getAnnotation().getGeneCancerAssociations()) {
+                if (CollectionUtils.isNotEmpty(geneCancerAssociation.getRoleInCancer())) {
+                    for (String value : geneCancerAssociation.getRoleInCancer()) {
+                        try {
+                            roles.add(RoleInCancer.valueOf(value.toUpperCase()));
+                        } catch (Exception e) {
+                            logger.info("Unknown role in cancer value: {}. It will be ignored.", value.toUpperCase());
+                        }
                     }
                 }
+            }
+            if (CollectionUtils.isNotEmpty(roles)) {
+                List<RoleInCancer> rolesInCancer = new ArrayList<>(roles);
+                clinicalVariantEvidence.setRolesInCancer(rolesInCancer);
+                // FIXME Nacho (28/09/22) This has been added to keep backward compatibility. To be removed in 1 year.
+                clinicalVariantEvidence.setRoleInCancer(rolesInCancer.get(0));
             }
         }
 

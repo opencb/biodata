@@ -41,9 +41,15 @@ import static org.opencb.biodata.tools.pedigree.ModeOfInheritance.proteinCoding;
 
 public class TeamClinicalVariantCreator extends ClinicalVariantCreator {
 
+    @Deprecated
     public TeamClinicalVariantCreator(List<DiseasePanel> diseasePanels, Map<String, RoleInCancer> roleInCancer, Disorder disorder,
                                       List<ModeOfInheritance> modeOfInheritances, Penetrance penetrance) {
         super(diseasePanels, disorder, modeOfInheritances, penetrance, roleInCancer, null);
+    }
+
+    public TeamClinicalVariantCreator(List<DiseasePanel> diseasePanels, Disorder disorder, List<ModeOfInheritance> modeOfInheritances,
+                                      Penetrance penetrance) {
+        super(diseasePanels, disorder, modeOfInheritances, penetrance, null);
     }
 
     @Override
