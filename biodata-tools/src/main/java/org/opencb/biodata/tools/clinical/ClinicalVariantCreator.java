@@ -269,8 +269,6 @@ public abstract class ClinicalVariantCreator {
             if (CollectionUtils.isNotEmpty(roles)) {
                 List<RoleInCancer> rolesInCancer = new ArrayList<>(roles);
                 clinicalVariantEvidence.setRolesInCancer(rolesInCancer);
-                // FIXME Nacho (28/09/22) This has been added to keep backward compatibility. To be removed in 1 year.
-                clinicalVariantEvidence.setRoleInCancer(rolesInCancer.get(0));
             }
         }
 

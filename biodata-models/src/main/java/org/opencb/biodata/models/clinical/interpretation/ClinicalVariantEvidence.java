@@ -19,6 +19,7 @@
 
 package org.opencb.biodata.models.clinical.interpretation;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.opencb.biodata.models.clinical.Phenotype;
 
 import java.util.Collections;
@@ -39,6 +40,20 @@ public class ClinicalVariantEvidence {
     private double score;
     private boolean fullyExplainPhenotypes;
     private List<String> compoundHeterozygousVariantIds;
+    /***************************************************************************
+     * IMPORTANT
+     * roleInCancer is deprecated but it is kept by backward compatibility,
+     * and it is set in the function setRolesInCancer:
+     *
+     *     public ClinicalVariantEvidence setRolesInCancer(List<RoleInCancer> rolesInCancer) {
+     *         this.rolesInCancer = rolesInCancer;
+     *         if (CollectionUtils.isNotEmpty(rolesInCancer)) {
+     *             this.setRoleInCancer(rolesInCancer.get(0));
+     *         }
+     *         return this;
+     *     }
+     *  FIXME (29/09/22) This has been added to keep backward compatibility. To be removed in 1 year.
+     ********************************************************************************/
     @Deprecated
     private RoleInCancer roleInCancer;
     private List<RoleInCancer> rolesInCancer;
@@ -233,6 +248,10 @@ public class ClinicalVariantEvidence {
 
     public ClinicalVariantEvidence setRolesInCancer(List<RoleInCancer> rolesInCancer) {
         this.rolesInCancer = rolesInCancer;
+        // FIXME (29/09/22) This has been added to keep backward compatibility. To be removed in 1 year.
+        if (CollectionUtils.isNotEmpty(rolesInCancer)) {
+            this.setRoleInCancer(rolesInCancer.get(0));
+        }
         return this;
     }
 
