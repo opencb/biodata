@@ -19,8 +19,8 @@
 
 package org.opencb.biodata.tools.clinical;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.opencb.biodata.models.clinical.ClinicalDiscussion;
 import org.opencb.biodata.models.clinical.ClinicalProperty;
 import org.opencb.biodata.models.clinical.ClinicalProperty.ModeOfInheritance;
@@ -41,13 +41,20 @@ public class DefaultClinicalVariantCreator extends ClinicalVariantCreator {
 
     private boolean includeUntieredVariants;
 
-    public DefaultClinicalVariantCreator(Map<String, ClinicalProperty.RoleInCancer> roleInCancer,
-                                         Map<String, List<String>> actionableVariants, Disorder disorder,
+    @Deprecated
+    public DefaultClinicalVariantCreator(Map<String, ClinicalProperty.RoleInCancer> roleInCancer, Disorder disorder,
                                          List<ModeOfInheritance> modeOfInheritances, Penetrance penetrance,
                                          List<DiseasePanel> diseasePanels, List<String> biotypes, List<String> soNames,
                                          boolean includeUntieredVariants) {
-        super(diseasePanels, disorder, modeOfInheritances, penetrance, roleInCancer, actionableVariants, null,
-                biotypes, soNames);
+        super(diseasePanels, disorder, modeOfInheritances, roleInCancer, penetrance, null, biotypes, soNames);
+
+        this.includeUntieredVariants = includeUntieredVariants;
+    }
+
+    public DefaultClinicalVariantCreator(Disorder disorder, List<ModeOfInheritance> modeOfInheritances, Penetrance penetrance,
+                                         List<DiseasePanel> diseasePanels, List<String> biotypes, List<String> soNames,
+                                         boolean includeUntieredVariants) {
+        super(diseasePanels, disorder, modeOfInheritances, penetrance, null, biotypes, soNames);
 
         this.includeUntieredVariants = includeUntieredVariants;
     }

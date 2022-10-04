@@ -1,9 +1,9 @@
 package org.opencb.biodata.tools.variant;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.mortbay.util.ajax.JSON;
 import org.opencb.biodata.formats.variant.io.VariantReader;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantBuilder;
@@ -109,7 +109,12 @@ public class VariantJsonReader implements VariantReader {
         String line;
         int i = 0;
         while ((i < batchSize) && (line = readLine()) != null) {
-            Variant variant = new Variant(jsonObjectMapper.convertValue(JSON.parse(line), VariantAvro.class));
+            Variant variant;
+            try {
+                variant = new Variant(jsonObjectMapper.readValue(line, VariantAvro.class));
+            } catch (JsonProcessingException e) {
+                throw new UncheckedIOException(e);
+            }
 
             // Read variants may not have the variant type set and this might cause NPE
             if (variant.getType() == null) {

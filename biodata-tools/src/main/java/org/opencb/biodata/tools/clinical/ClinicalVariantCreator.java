@@ -22,12 +22,16 @@ package org.opencb.biodata.tools.clinical;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.opencb.biodata.models.clinical.*;
+import org.opencb.biodata.models.clinical.ClinicalAcmg;
+import org.opencb.biodata.models.clinical.ClinicalDiscussion;
+import org.opencb.biodata.models.clinical.ClinicalProperty;
 import org.opencb.biodata.models.clinical.ClinicalProperty.ModeOfInheritance;
+import org.opencb.biodata.models.clinical.Disorder;
 import org.opencb.biodata.models.clinical.interpretation.*;
 import org.opencb.biodata.models.clinical.interpretation.exceptions.InterpretationAnalysisException;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.ConsequenceType;
+import org.opencb.biodata.models.variant.avro.GeneCancerAssociation;
 import org.opencb.biodata.models.variant.avro.SequenceOntologyTerm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +41,8 @@ import java.util.stream.Collectors;
 
 import static org.opencb.biodata.models.clinical.ClinicalProperty.Penetrance;
 import static org.opencb.biodata.models.clinical.ClinicalProperty.RoleInCancer;
-import static org.opencb.biodata.models.clinical.interpretation.VariantClassification.*;
+import static org.opencb.biodata.models.clinical.interpretation.VariantClassification.calculateAcmgClassification;
+import static org.opencb.biodata.models.clinical.interpretation.VariantClassification.computeClinicalSignificance;
 import static org.opencb.biodata.tools.pedigree.ModeOfInheritance.extendedLof;
 import static org.opencb.biodata.tools.pedigree.ModeOfInheritance.proteinCoding;
 
@@ -57,30 +62,37 @@ public abstract class ClinicalVariantCreator {
     protected List<ModeOfInheritance> modeOfInheritances;
     protected Penetrance penetrance;
 
-    protected Map<String, RoleInCancer> roleInCancer;
-    protected Map<String, List<String>> actionableVariants;
+    @Deprecated
+    protected Map<String, List<RoleInCancer>> rolesInCancerMap;
 
     protected String assembly;
 
-    public ClinicalVariantCreator(List<DiseasePanel> diseasePanels, Disorder disorder,
-                                  List<ModeOfInheritance> modeOfInheritances, Penetrance penetrance,
-                                  Map<String, RoleInCancer> roleInCancer, Map<String, List<String>> actionableVariants,
-                                  String assembly) {
-        this(diseasePanels, disorder, modeOfInheritances, penetrance, roleInCancer, actionableVariants, assembly,
-                new ArrayList<>(proteinCoding), new ArrayList<>(extendedLof));
+    @Deprecated
+    public ClinicalVariantCreator(List<DiseasePanel> diseasePanels, Disorder disorder, List<ModeOfInheritance> modeOfInheritances,
+                                  Penetrance penetrance, Map<String, RoleInCancer> roleInCancer, String assembly) {
+        this(diseasePanels, disorder, modeOfInheritances, penetrance, assembly, new ArrayList<>(proteinCoding),
+                new ArrayList<>(extendedLof));
     }
 
-    public ClinicalVariantCreator(List<DiseasePanel> diseasePanels, Disorder disorder,
-                                  List<ModeOfInheritance> modeOfInheritances, Penetrance penetrance,
-                                  Map<String, RoleInCancer> roleInCancer, Map<String, List<String>> actionableVariants,
-                                  String assembly, List<String> biotypes, List<String> soNames) {
+    @Deprecated
+    public ClinicalVariantCreator(List<DiseasePanel> diseasePanels, Disorder disorder, List<ModeOfInheritance> modeOfInheritances,
+                                  Map<String, RoleInCancer> roleInCancer, Penetrance penetrance, String assembly, List<String> biotypes,
+                                  List<String> soNames) {
+        this(diseasePanels, disorder, modeOfInheritances, penetrance, assembly, biotypes, soNames);
+    }
 
+    public ClinicalVariantCreator(List<DiseasePanel> diseasePanels, Disorder disorder, List<ModeOfInheritance> modeOfInheritances,
+                                  Penetrance penetrance, String assembly) {
+        this(diseasePanels, disorder, modeOfInheritances, penetrance, assembly, new ArrayList<>(proteinCoding),
+                new ArrayList<>(extendedLof));
+    }
+
+    public ClinicalVariantCreator(List<DiseasePanel> diseasePanels, Disorder disorder, List<ModeOfInheritance> modeOfInheritances,
+                                  Penetrance penetrance, String assembly, List<String> biotypes, List<String> soNames) {
         this.diseasePanels = diseasePanels;
         this.disorder = disorder;
         this.modeOfInheritances = modeOfInheritances;
         this.penetrance = penetrance;
-        this.roleInCancer = roleInCancer;
-        this.actionableVariants = actionableVariants;
         this.assembly = assembly;
 
         this.biotypeSet = new HashSet<>();
@@ -94,7 +106,6 @@ public abstract class ClinicalVariantCreator {
 
         this.geneToPanelMap = null;
         this.variantToPanelMap = null;
-
     }
 
     public abstract List<ClinicalVariant> create(List<Variant> variants) throws InterpretationAnalysisException;
@@ -112,20 +123,6 @@ public abstract class ClinicalVariantCreator {
         List<ClinicalVariant> clinicalVariants = new ArrayList<>();
         for (Variant variant : variants) {
             List<ClinicalVariantEvidence> clinicalVariantEvidences = new ArrayList<>();
-
-            // Tier 3, actionable variants
-            if (MapUtils.isNotEmpty(actionableVariants)) {
-                if (variant.getAnnotation() != null && actionableVariants.containsKey(variant.toString())) {
-                    if (CollectionUtils.isNotEmpty(variant.getAnnotation().getConsequenceTypes())) {
-                        for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
-                            clinicalVariantEvidences.addAll(createClinicalVariantEvidences("", null, ct, variant));
-                        }
-                    } else {
-                        // We create the evidences anyway!
-                        clinicalVariantEvidences.addAll(createClinicalVariantEvidences("", null, null, variant));
-                    }
-                }
-            }
 
             // If we have clinical variant evidences, then we have to create the clinical variant
             if (CollectionUtils.isNotEmpty(clinicalVariantEvidences)) {
@@ -256,35 +253,22 @@ public abstract class ClinicalVariantCreator {
         }
 
         // Role in cancer
-        if (variant.getAnnotation() != null) {
-            if (MapUtils.isNotEmpty(roleInCancer) && CollectionUtils.isNotEmpty(variant.getAnnotation().getConsequenceTypes())) {
-                for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
-                    if (StringUtils.isNotEmpty(ct.getGeneName()) && roleInCancer.containsKey(ct.getGeneName())) {
-                        clinicalVariantEvidence.setRoleInCancer(roleInCancer.get(ct.getGeneName()));
-                        break;
+        if (variant.getAnnotation() != null && CollectionUtils.isNotEmpty(variant.getAnnotation().getGeneCancerAssociations())) {
+            Set<RoleInCancer> roles = new HashSet<>();
+            for (GeneCancerAssociation geneCancerAssociation : variant.getAnnotation().getGeneCancerAssociations()) {
+                if (CollectionUtils.isNotEmpty(geneCancerAssociation.getRoleInCancer())) {
+                    for (String value : geneCancerAssociation.getRoleInCancer()) {
+                        try {
+                            roles.add(RoleInCancer.valueOf(value.toUpperCase()));
+                        } catch (Exception e) {
+                            logger.info("Unknown role in cancer value: {}. It will be ignored.", value.toUpperCase());
+                        }
                     }
                 }
             }
-        }
-
-        // Actionable management
-        if (MapUtils.isNotEmpty(actionableVariants) && actionableVariants.containsKey(variant.getId())) {
-            clinicalVariantEvidence.setActionable(true);
-            // Set tier 3 only if it is null or untiered
-            if (tier == null || UNTIERED.equals(tier)) {
-                clinicalVariantEvidence.getClassification().setTier(TIER_3);
-            } else {
-                clinicalVariantEvidence.getClassification().setTier(tier);
-            }
-            // Add 'actionable' phenotypes
-            if (CollectionUtils.isNotEmpty(actionableVariants.get(variant.getId()))) {
-                List<Phenotype> evidences = new ArrayList<>();
-                for (String phenotypeId : actionableVariants.get(variant.getId())) {
-                    evidences.add(new Phenotype(phenotypeId, phenotypeId, ""));
-                }
-                if (CollectionUtils.isNotEmpty(evidences)) {
-                    clinicalVariantEvidence.setPhenotypes(evidences);
-                }
+            if (CollectionUtils.isNotEmpty(roles)) {
+                List<RoleInCancer> rolesInCancer = new ArrayList<>(roles);
+                clinicalVariantEvidence.setRolesInCancer(rolesInCancer);
             }
         }
 
@@ -347,7 +331,7 @@ public abstract class ClinicalVariantCreator {
                 }
             }
         } else {
-            // We report events without panels, e.g., actionable variants (tier 3)
+            // We report events without panels
             if (CollectionUtils.isNotEmpty(soTerms)) {
                 ClinicalVariantEvidence clinicalVariantEvidence = createClinicalVariantEvidence(genomicFeature, null, modeOfInheritances,
                         penetrance, tier, variant);

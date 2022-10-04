@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.opencb.biodata</groupId>
         <artifactId>biodata</artifactId>
-        <version>2.4.4</version>
+        <version>2.4.5</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -42,6 +42,12 @@
             <groupId>org.opencb.ga4gh</groupId>
             <artifactId>ga4gh</artifactId>
             <version>0.6.0a5</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.avro</groupId>
+                    <artifactId>avro-ipc</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
