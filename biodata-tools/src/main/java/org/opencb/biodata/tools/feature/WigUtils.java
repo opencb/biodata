@@ -2,7 +2,11 @@ package org.opencb.biodata.tools.feature;
 
 import htsjdk.samtools.SAMSequenceDictionary;
 import htsjdk.samtools.SamReader;
+<<<<<<< HEAD
 import org.apache.commons.lang3.StringUtils;
+=======
+import org.apache.commons.lang.StringUtils;
+>>>>>>> parent of f69d1433... remove bigwig completely from biodata. it's not used by cellbase and the library isn't available anymore
 import org.broad.igv.bbfile.*;
 import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.tools.commons.ChunkFrequencyManager;
