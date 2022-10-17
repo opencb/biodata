@@ -20,7 +20,7 @@
 
     <groupId>org.opencb.biodata</groupId>
     <artifactId>biodata</artifactId>
-    <version>1.5.7</version>
+    <version>1.5.6</version>
     <packaging>pom</packaging>
 
     <name>Biodata</name>
@@ -34,7 +34,7 @@
     </modules>
 
     <properties>
-        <biodata.version>1.5.5</biodata.version>
+        <biodata.version>1.5.6</biodata.version>
         <compileSource>1.8</compileSource>
         <commons.version>3.7.5</commons.version>
         <ga4gh.version>0.6.0a5</ga4gh.version>
@@ -119,6 +119,13 @@
         </mailingList>
     </mailingLists>
 
+    <repositories>
+        <repository>
+            <id>opencb-ext-libs</id>
+            <url>http://bioinfo.hpc.cam.ac.uk/downloads/ext-libs/</url>
+        </repository>
+    </repositories>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -150,6 +157,11 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>3.4</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-collections</groupId>
+                <artifactId>commons-collections</artifactId>
+                <version>3.2.2</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>

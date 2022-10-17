@@ -36,7 +36,6 @@ import java.util.function.BiFunction;
 /**
  * Created by jtarraga on 07/11/16.
  */
-@Deprecated
 public class ChunkFrequencyManager {
 
     private Path databasePath;

@@ -1,6 +1,6 @@
 package org.opencb.biodata.models.clinical.pedigree;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.commons.Disorder;
 import org.opencb.biodata.models.commons.Phenotype;
 import org.opencb.commons.utils.ListUtils;
