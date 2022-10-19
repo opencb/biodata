@@ -17,23 +17,18 @@ public class ClinicalAnalyst {
             description = FieldConstants.CLINICAL_ANALYST_EMAIL_DESCRIPTION)
     private String email;
 
-    @DataField(id = "assignedBy", indexed = true,
-            description = FieldConstants.CLINICAL_ANALYST_ASSIGNED_BY_DESCRIPTION)
-    private String assignedBy;
-
-    @DataField(id = "date", indexed = true,
-            description = FieldConstants.CLINICAL_ANALYST_DATE_DESCRIPTION)
-    private String date;
+    @DataField(id = "signer",
+            description = FieldConstants.CLINICAL_ANALYST_SIGNER_DESCRIPTION)
+    private boolean signer;
 
     public ClinicalAnalyst() {
     }
 
-    public ClinicalAnalyst(String id, String name, String email, String assignedBy, String date) {
+    public ClinicalAnalyst(String id, String name, String email, boolean signer) {
         this.id = id;
         this.name = name;
         this.email = email;
-        this.assignedBy = assignedBy;
-        this.date = date;
+        this.signer = signer;
     }
 
     @Override
@@ -42,8 +37,7 @@ public class ClinicalAnalyst {
         sb.append("id='").append(id).append('\'');
         sb.append(", name='").append(name).append('\'');
         sb.append(", email='").append(email).append('\'');
-        sb.append(", assignedBy='").append(assignedBy).append('\'');
-        sb.append(", date='").append(date).append('\'');
+        sb.append(", signer=").append(signer);
         sb.append('}');
         return sb.toString();
     }
@@ -75,21 +69,4 @@ public class ClinicalAnalyst {
         return this;
     }
 
-    public String getAssignedBy() {
-        return assignedBy;
-    }
-
-    public ClinicalAnalyst setAssignedBy(String assignedBy) {
-        this.assignedBy = assignedBy;
-        return this;
-    }
-
-    public String getDate() {
-        return date;
-    }
-
-    public ClinicalAnalyst setDate(String date) {
-        this.date = date;
-        return this;
-    }
 }

@@ -49,6 +49,7 @@ public class FieldConstants {
 
     public static final String CLINICAL_ANALYST_DATE_DESCRIPTION = "Date of the clinical analyst";
     public static final String CLINICAL_ANALYST_ASSIGNED_BY_DESCRIPTION = "Assigned by field";
+    public static final String CLINICAL_ANALYST_SIGNER_DESCRIPTION = "Flag indicating whether the analyst is authorised to sign off or not.";
 
     public static final String CLINICAL_ANALYST_EMAIL_DESCRIPTION = "Email of the analyst";
     public static final String AUDIT_AUTHOR_DESCRIPTION = "Audit author";
