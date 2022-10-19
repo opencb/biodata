@@ -21,14 +21,18 @@ public class ClinicalAnalyst {
             description = FieldConstants.CLINICAL_ANALYST_SIGNER_DESCRIPTION)
     private boolean signer;
 
+    @DataField(id = "signature", indexed = true, description = FieldConstants.CLINICAL_ANALYST_SIGNATURE_DESCRIPTION)
+    private String signature;
+
     public ClinicalAnalyst() {
     }
 
-    public ClinicalAnalyst(String id, String name, String email, boolean signer) {
+    public ClinicalAnalyst(String id, String name, String email, boolean signer, String signature) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.signer = signer;
+        this.signature = signature;
     }
 
     @Override
@@ -38,6 +42,7 @@ public class ClinicalAnalyst {
         sb.append(", name='").append(name).append('\'');
         sb.append(", email='").append(email).append('\'');
         sb.append(", signer=").append(signer);
+        sb.append(", signature='").append(signature).append('\'');
         sb.append('}');
         return sb.toString();
     }
@@ -69,4 +74,21 @@ public class ClinicalAnalyst {
         return this;
     }
 
+    public boolean isSigner() {
+        return signer;
+    }
+
+    public ClinicalAnalyst setSigner(boolean signer) {
+        this.signer = signer;
+        return this;
+    }
+
+    public String getSignature() {
+        return signature;
+    }
+
+    public ClinicalAnalyst setSignature(String signature) {
+        this.signature = signature;
+        return this;
+    }
 }
