@@ -14,24 +14,28 @@ public class RelatednessScore {
     // Inferred relationship according to relatedness scores
     private String inferredRelationship;
 
+    // Validation
+    private String validation;
+
     // Scores depending on the relatedness method
     private Map<String, Object> values;
 
     public RelatednessScore() {
-        this("", "", "", "", new LinkedHashMap<>());
+        this("", "", "", "", "", new LinkedHashMap<>());
     }
 
     @Deprecated
     public RelatednessScore(String sampleId1, String sampleId2, String inferredRelationship, Map<String, Object> values) {
-        this(sampleId1, sampleId2, "", inferredRelationship, values);
+        this(sampleId1, sampleId2, "", inferredRelationship, "", values);
     }
 
-    public RelatednessScore(String sampleId1, String sampleId2, String reportedRelationship, String inferredRelationship,
+    public RelatednessScore(String sampleId1, String sampleId2, String reportedRelationship, String inferredRelationship, String validation,
                             Map<String, Object> values) {
         this.sampleId1 = sampleId1;
         this.sampleId2 = sampleId2;
         this.reportedRelationship = reportedRelationship;
         this.inferredRelationship = inferredRelationship;
+        this.validation = validation;
         this.values = values;
     }
 
@@ -42,6 +46,7 @@ public class RelatednessScore {
         sb.append(", sampleId2='").append(sampleId2).append('\'');
         sb.append(", reportedRelationship='").append(reportedRelationship).append('\'');
         sb.append(", inferredRelationship='").append(inferredRelationship).append('\'');
+        sb.append(", validation='").append(validation).append('\'');
         sb.append(", values=").append(values);
         sb.append('}');
         return sb.toString();
@@ -80,6 +85,15 @@ public class RelatednessScore {
 
     public RelatednessScore setInferredRelationship(String inferredRelationship) {
         this.inferredRelationship = inferredRelationship;
+        return this;
+    }
+
+    public String getValidation() {
+        return validation;
+    }
+
+    public RelatednessScore setValidation(String validation) {
+        this.validation = validation;
         return this;
     }
 
