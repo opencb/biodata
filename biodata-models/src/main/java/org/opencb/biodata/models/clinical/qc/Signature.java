@@ -51,22 +51,39 @@ public class Signature {
             description = FieldConstants.SIGNATURE_FILES_DESCRIPTION)
     private List<String> files;
 
-    @DataField(id = "fitting", indexed = true,
-            description = FieldConstants.SIGNATURE_SIGNATURE_FITTING_DESCRIPTION)
-    private SignatureFitting fitting;
+    @Deprecated
+    @DataField(id = "fittingScore", indexed = true,
+            description = FieldConstants.SIGNATURE_SIGNATURE_FITTING_SCORE_DESCRIPTION)
+    private SignatureFittingScore fittingScore;
+
+    @DataField(id = "fittingScores", indexed = true,
+            description = FieldConstants.SIGNATURE_SIGNATURE_FITTING_SCORES_DESCRIPTION)
+    private List<SignatureFittingScore> fittingScores;
 
     public Signature() {
     }
 
+    @Deprecated
     public Signature(String id, String description, ObjectMap query, String type, List<GenomeContextCount> counts, List<String> files,
-                     SignatureFitting fitting) {
+                     SignatureFittingScore fittingScore) {
         this.id = id;
         this.description = description;
         this.query = query;
         this.type = type;
         this.counts = counts;
         this.files = files;
-        this.fitting = fitting;
+        this.fittingScore = fittingScore;
+    }
+
+    public Signature(String id, String description, ObjectMap query, String type, List<GenomeContextCount> counts, List<String> files,
+                     List<SignatureFittingScore> fittingScores) {
+        this.id = id;
+        this.description = description;
+        this.query = query;
+        this.type = type;
+        this.counts = counts;
+        this.files = files;
+        this.fittingScores = fittingScores;
     }
 
     @Override
@@ -78,7 +95,7 @@ public class Signature {
         sb.append(", type='").append(type).append('\'');
         sb.append(", counts=").append(counts);
         sb.append(", files=").append(files);
-        sb.append(", fitting=").append(fitting);
+        sb.append(", fittingScores=").append(fittingScores);
         sb.append('}');
         return sb.toString();
     }
@@ -137,12 +154,23 @@ public class Signature {
         return this;
     }
 
-    public SignatureFitting getFitting() {
-        return fitting;
+    @Deprecated
+    public SignatureFittingScore getFittingScore() {
+        return fittingScore;
     }
 
-    public Signature setFitting(SignatureFitting fitting) {
-        this.fitting = fitting;
+    @Deprecated
+    public Signature setFitting(SignatureFittingScore fittingScore) {
+        this.fittingScore = fittingScore;
+        return this;
+    }
+
+    public List<SignatureFittingScore> getFittingScores() {
+        return fittingScores;
+    }
+
+    public Signature setFittingScores(List<SignatureFittingScore> fittingScores) {
+        this.fittingScores = fittingScores;
         return this;
     }
 

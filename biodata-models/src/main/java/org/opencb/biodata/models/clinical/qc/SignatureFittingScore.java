@@ -25,7 +25,7 @@ import org.opencb.commons.datastore.core.ObjectMap;
 
 import java.util.List;
 
-public class SignatureFitting {
+public class SignatureFittingScore {
 
 
     @DataField(id = "method", indexed = true,
@@ -62,11 +62,11 @@ public class SignatureFitting {
             description = FieldConstants.SIGNATURE_FITTING_PARAMS_DESCRIPTION)
     private ObjectMap params;
 
-    public SignatureFitting() {
+    public SignatureFittingScore() {
     }
 
     @Deprecated
-    public SignatureFitting(String method, String signatureSource, String signatureVersion, List<Score> scores, double coeff, String file) {
+    public SignatureFittingScore(String method, String signatureSource, String signatureVersion, List<Score> scores, double coeff, String file) {
         this.method = method;
         this.signatureSource = signatureSource;
         this.signatureVersion = signatureVersion;
@@ -75,8 +75,8 @@ public class SignatureFitting {
         this.file = file;
     }
 
-    public SignatureFitting(String method, String signatureSource, String signatureVersion, List<Score> scores, double coeff, String file,
-                            List<String> files, ObjectMap params) {
+    public SignatureFittingScore(String method, String signatureSource, String signatureVersion, List<Score> scores, double coeff, String file,
+                                 List<String> files, ObjectMap params) {
         this.method = method;
         this.signatureSource = signatureSource;
         this.signatureVersion = signatureVersion;
@@ -106,7 +106,7 @@ public class SignatureFitting {
         return method;
     }
 
-    public SignatureFitting setMethod(String method) {
+    public SignatureFittingScore setMethod(String method) {
         this.method = method;
         return this;
     }
@@ -115,7 +115,7 @@ public class SignatureFitting {
         return signatureSource;
     }
 
-    public SignatureFitting setSignatureSource(String signatureSource) {
+    public SignatureFittingScore setSignatureSource(String signatureSource) {
         this.signatureSource = signatureSource;
         return this;
     }
@@ -124,7 +124,7 @@ public class SignatureFitting {
         return signatureVersion;
     }
 
-    public SignatureFitting setSignatureVersion(String signatureVersion) {
+    public SignatureFittingScore setSignatureVersion(String signatureVersion) {
         this.signatureVersion = signatureVersion;
         return this;
     }
@@ -133,7 +133,7 @@ public class SignatureFitting {
         return scores;
     }
 
-    public SignatureFitting setScores(List<Score> scores) {
+    public SignatureFittingScore setScores(List<Score> scores) {
         this.scores = scores;
         return this;
     }
@@ -142,7 +142,7 @@ public class SignatureFitting {
         return coeff;
     }
 
-    public SignatureFitting setCoeff(double coeff) {
+    public SignatureFittingScore setCoeff(double coeff) {
         this.coeff = coeff;
         return this;
     }
@@ -151,7 +151,7 @@ public class SignatureFitting {
         return file;
     }
 
-    public SignatureFitting setFile(String file) {
+    public SignatureFittingScore setFile(String file) {
         this.file = file;
         return this;
     }
@@ -160,7 +160,7 @@ public class SignatureFitting {
         return files;
     }
 
-    public SignatureFitting setFiles(List<String> files) {
+    public SignatureFittingScore setFiles(List<String> files) {
         this.files = files;
         return this;
     }
@@ -169,7 +169,7 @@ public class SignatureFitting {
         return params;
     }
 
-    public SignatureFitting setParams(ObjectMap params) {
+    public SignatureFittingScore setParams(ObjectMap params) {
         this.params = params;
         return this;
     }
