@@ -13,6 +13,7 @@ public class FieldConstants {
     public static final String SIGNATURE_SIGNATURE_FITTING_SCORES_DESCRIPTION = "List of signature fitting scores";
     public static final String GENOME_CONTEXT_COUNT_CONTEXT_DESCRIPTION = "Genome context to count";
     public static final String GENOME_CONTEXT_COUNT_TOTAL_DESCRIPTION = "Counted integer";
+    public static final String SIGNATURE_FITTING_ID_DESCRIPTION = "Signature fitting ID";
     public static final String SIGNATURE_FITTING_METHOD_DESCRIPTION = "Method used to fit the signature";
     public static final String SIGNATURE_FITTING_SOURCE_DESCRIPTION = "Source of the fitting signature";
     public static final String SIGNATURE_FITTING_SIGNATURE_VERSION_DESCRIPTION = "Signature version of the fitting signature";

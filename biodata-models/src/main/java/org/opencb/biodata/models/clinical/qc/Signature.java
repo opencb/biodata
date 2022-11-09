@@ -54,36 +54,36 @@ public class Signature {
     @Deprecated
     @DataField(id = "fittingScore", indexed = true,
             description = FieldConstants.SIGNATURE_SIGNATURE_FITTING_SCORE_DESCRIPTION)
-    private SignatureFittingScore fittingScore;
+    private SignatureFitting fitting;
 
-    @DataField(id = "fittingScores", indexed = true,
+    @DataField(id = "fittings", indexed = true,
             description = FieldConstants.SIGNATURE_SIGNATURE_FITTING_SCORES_DESCRIPTION)
-    private List<SignatureFittingScore> fittingScores;
+    private List<SignatureFitting> fittings;
 
     public Signature() {
     }
 
     @Deprecated
     public Signature(String id, String description, ObjectMap query, String type, List<GenomeContextCount> counts, List<String> files,
-                     SignatureFittingScore fittingScore) {
+                     SignatureFitting fitting) {
         this.id = id;
         this.description = description;
         this.query = query;
         this.type = type;
         this.counts = counts;
         this.files = files;
-        this.fittingScore = fittingScore;
+        this.fitting = fitting;
     }
 
     public Signature(String id, String description, ObjectMap query, String type, List<GenomeContextCount> counts, List<String> files,
-                     List<SignatureFittingScore> fittingScores) {
+                     List<SignatureFitting> fittings) {
         this.id = id;
         this.description = description;
         this.query = query;
         this.type = type;
         this.counts = counts;
         this.files = files;
-        this.fittingScores = fittingScores;
+        this.fittings = fittings;
     }
 
     @Override
@@ -95,7 +95,7 @@ public class Signature {
         sb.append(", type='").append(type).append('\'');
         sb.append(", counts=").append(counts);
         sb.append(", files=").append(files);
-        sb.append(", fittingScores=").append(fittingScores);
+        sb.append(", fittings=").append(fittings);
         sb.append('}');
         return sb.toString();
     }
@@ -155,22 +155,22 @@ public class Signature {
     }
 
     @Deprecated
-    public SignatureFittingScore getFittingScore() {
-        return fittingScore;
+    public SignatureFitting getFitting() {
+        return fitting;
     }
 
     @Deprecated
-    public Signature setFitting(SignatureFittingScore fittingScore) {
-        this.fittingScore = fittingScore;
+    public Signature setFitting(SignatureFitting fitting) {
+        this.fitting = fitting;
         return this;
     }
 
-    public List<SignatureFittingScore> getFittingScores() {
-        return fittingScores;
+    public List<SignatureFitting> getFittings() {
+        return fittings;
     }
 
-    public Signature setFittingScores(List<SignatureFittingScore> fittingScores) {
-        this.fittingScores = fittingScores;
+    public Signature setFittings(List<SignatureFitting> fittings) {
+        this.fittings = fittings;
         return this;
     }
 
