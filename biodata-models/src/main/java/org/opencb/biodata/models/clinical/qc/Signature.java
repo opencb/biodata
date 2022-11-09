@@ -52,7 +52,7 @@ public class Signature {
     private List<String> files;
 
     @Deprecated
-    @DataField(id = "fittingScore", indexed = true,
+    @DataField(id = "fitting", indexed = true,
             description = FieldConstants.SIGNATURE_SIGNATURE_FITTING_SCORE_DESCRIPTION)
     private SignatureFitting fitting;
 
