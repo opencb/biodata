@@ -61,6 +61,10 @@ public class VariantAggregatedEVSStatsCalculator extends VariantAggregatedStatsC
     }
 
     @Override
+    protected void validateTagMap(Properties tagMap) {
+    }
+
+    @Override
     protected void parseStats(Variant variant, StudyEntry study, int numAllele, String reference, String[] alternateAlleles, Map<String, String> info) {
         FileEntry fileEntry = study.getFiles().get(0);
         // EVS params are not rearranged when normalizing. Use original call

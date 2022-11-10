@@ -9,11 +9,14 @@ import org.opencb.biodata.models.variant.VariantFileMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 import org.opencb.biodata.models.variant.stats.VariantStats;
 import org.opencb.biodata.tools.variant.VariantNormalizer;
+import org.opencb.biodata.tools.variant.VariantVcfHtsjdkReader;
+import org.opencb.commons.io.DataReader;
 import org.opencb.commons.test.GenericTest;
 
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by jmmut on 2015-08-25.
@@ -178,5 +181,100 @@ public class VariantAggregatedStatsCalculatorTest extends GenericTest {
     private List<Variant> readLine(String line) {
         return new VariantNormalizer().apply(factory.create(metadata, line));
     }
+
+    @Test
+    public void testGnomadGenomes_v3_1_2() {
+        Properties properties = new Properties();
+        properties.put("ALL.AC",   "AC");
+        properties.put("ALL.AN",   "AN");
+        properties.put("ALL.AF",   "AF");
+        properties.put("ALL.HOMALT",  "nhomalt");
+        properties.put("AFR.AC",   "AC_afr");
+        properties.put("AFR.AN",   "AN_afr");
+        properties.put("AFR.AF",   "AF_afr");
+        properties.put("AFR.HOMALT",  "nhomalt_afr");
+
+        VariantAggregatedStatsCalculator calculator = new VariantAggregatedStatsCalculator(properties);
+
+        VariantNormalizer normalizer = new VariantNormalizer();
+        VariantVcfHtsjdkReader vcfReader = new VariantVcfHtsjdkReader(
+                this.getClass().getResourceAsStream("/datasets/gnomad_genomes/gnomad.genomes.v3.1.2.sites.small.vcf"), metadata);
+        DataReader<Variant> reader = vcfReader.then(normalizer);
+
+        reader.open();
+        reader.pre();
+        normalizer.configure(vcfReader.getVCFHeader());
+
+        List<Variant> read = reader.read(3);
+        reader.post();
+        reader.close();
+
+        assertEquals(2, read.size());
+
+        org.opencb.biodata.models.variant.avro.VariantStats v1_expected_ALL = new org.opencb.biodata.models.variant.avro.VariantStats("ALL", -1, 1, 28186, 28174, 8, (float) 0.99972, (float) 2.8E-4, -1, -1, map("1/1", 3, "2/2", 4), map(), map("PASS", 1), map("PASS", 1.0), -1, (float) -1.0, (float) 1.4191442E-4, (float) -1.0, "A", null);
+        org.opencb.biodata.models.variant.avro.VariantStats v1_expected_AFR = new org.opencb.biodata.models.variant.avro.VariantStats("AFR", -1, 1,  7616,  7616, 0, (float) 1      , (float) 0     , -1, -1, map("1/1", 0, "2/2", 0), map(), map("PASS", 1), map("PASS", 1.0), -1, (float) -1.0, (float) 0           , (float) -1.0, "C", null);
+        org.opencb.biodata.models.variant.avro.VariantStats v2_expected_ALL = new org.opencb.biodata.models.variant.avro.VariantStats("ALL", -1, 1, 28186, 28174, 4, (float) 0.99986, (float) 1.4E-4, -1, -1, map("1/1", 4, "2/2", 3), map(), map("PASS", 1), map("PASS", 1.0), -1, (float) -1.0, (float) 1.4191442E-4, (float) -1.0, "A", null);
+        org.opencb.biodata.models.variant.avro.VariantStats v2_expected_AFR = new org.opencb.biodata.models.variant.avro.VariantStats("AFR", -1, 1,  7616,  7616, 0, (float) 1      , (float) 0     , -1, -1, map("1/1", 0, "2/2", 0), map(), map("PASS", 1), map("PASS", 1.0), -1, (float) -1.0, (float) 0           , (float) -1.0, "A", null);
+
+        for (Variant variant : read) {
+            calculator.calculate(variant);
+        }
+
+        assertEquals(v1_expected_ALL.toString(), read.get(0).getStudy(metadata.getId()).getStats("ALL").getImpl().toString());
+        assertEquals(v1_expected_AFR.toString(), read.get(0).getStudy(metadata.getId()).getStats("AFR").getImpl().toString());
+        assertEquals(v2_expected_ALL.toString(), read.get(1).getStudy(metadata.getId()).getStats("ALL").getImpl().toString());
+        assertEquals(v2_expected_AFR.toString(), read.get(1).getStudy(metadata.getId()).getStats("AFR").getImpl().toString());
+
+    }
+
+    @Test
+    public void testGnomadExomes_v2_1_1() {
+        Properties properties = new Properties();
+        properties.put("ALL.AC",   "AC");
+        properties.put("ALL.AN",   "AN");
+        properties.put("ALL.AF",   "AF");
+        properties.put("ALL.HOMALT",  "nhomalt");
+        properties.put("AFR.AC",   "AC_afr");
+        properties.put("AFR.AN",   "AN_afr");
+        properties.put("AFR.AF",   "AF_afr");
+        properties.put("AFR.HOMALT",  "nhomalt_afr");
+
+        VariantAggregatedStatsCalculator calculator = new VariantAggregatedStatsCalculator(properties);
+
+        VariantNormalizer normalizer = new VariantNormalizer();
+        VariantVcfHtsjdkReader vcfReader = new VariantVcfHtsjdkReader(
+                this.getClass().getResourceAsStream("/datasets/gnomad_genomes/gnomad.exomes.v2.1.1.sites.small.vcf"), metadata);
+        DataReader<Variant> reader = vcfReader.then(normalizer);
+
+        reader.open();
+        reader.pre();
+        normalizer.configure(vcfReader.getVCFHeader());
+
+        List<Variant> read = reader.read(3);
+        reader.post();
+        reader.close();
+
+        assertEquals(1, read.size());
+
+        org.opencb.biodata.models.variant.avro.VariantStats v1_expected_ALL = new org.opencb.biodata.models.variant.avro.VariantStats("ALL", -1, 1, 248284, 245006, 3278, (float) 0.9867974, (float) 0.0132026, -1, -1, map("1/1", 84), map(), map("PASS", 1), map("PASS", 1.0), -1, (float) 8499682, (float) 0.0132026225, (float) -1.0, "T", null);
+        org.opencb.biodata.models.variant.avro.VariantStats v1_expected_AFR = new org.opencb.biodata.models.variant.avro.VariantStats("AFR", -1, 1,  15962,  15931,   31, (float) 0.9980579, (float) 0.00194211, -1, -1, map("1/1", 0), map(), map("PASS", 1), map("PASS", 1.0), -1, (float) 8499682, (float) 0.0019421125, (float) -1.0, "T", null);
+
+        for (Variant variant : read) {
+            calculator.calculate(variant);
+        }
+
+        assertEquals(v1_expected_ALL.toString(), read.get(0).getStudy(metadata.getId()).getStats("ALL").getImpl().toString());
+        assertEquals(v1_expected_AFR.toString(), read.get(0).getStudy(metadata.getId()).getStats("AFR").getImpl().toString());
+
+    }
+
+    public static <T> Map<String, T> map(Object... objects) {
+        HashMap<String, T> map = new HashMap<>();
+        for (int i = 0; i < objects.length; i += 2) {
+            map.put(objects[i].toString(), (T) objects[i + 1]);
+        }
+        return map;
+    }
+
 }
 

@@ -410,7 +410,7 @@ public class VariantAlternateRearranger {
         }
 
         public Configuration configure(VCFCompoundHeaderLine line) {
-            this.otherFieldsMap.put(line.getKey(), Pair.of(line.getType(), line.getCountType()));
+            this.otherFieldsMap.put(line.getID(), Pair.of(line.getType(), line.getCountType()));
             return this;
         }
 
