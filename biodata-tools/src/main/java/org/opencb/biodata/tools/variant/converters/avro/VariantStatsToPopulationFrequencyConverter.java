@@ -36,6 +36,12 @@ public class VariantStatsToPopulationFrequencyConverter {
         return convert(study, stats.getCohortId(), stats, reference, alternate);
     }
 
+    private enum GtType {
+        ALT_HOM,
+        HOM_REF,
+        HET
+    }
+
     public PopulationFrequency convert(String study, String population, VariantStats stats, String reference, String alternate) {
         Float refHomGenotypeFreq = 0F;
         Float hetGenotypeFreq = 0F;
@@ -45,35 +51,41 @@ public class VariantStatsToPopulationFrequencyConverter {
         Integer hetGenotypeCount = 0;
         Integer altHomGenotypeCount = 0;
 
-        // This code assumes that if genotypeFreq exists then genotypeCount is also valid
         if (stats.getGenotypeFreq() != null && !stats.getGenotypeFreq().isEmpty()) {
             for (Map.Entry<String, Float> entry : stats.getGenotypeFreq().entrySet()) {
-                Genotype gt = new Genotype(entry.getKey());
-                boolean anyRef = false;
-                boolean anyAlt = false;
-                for (int i : gt.getAllelesIdx()) {
-                    if (i == 0) {
-                        anyRef = true;
-                    } else {
-                        anyAlt = true;
-                    }
-                }
-                if (anyRef && !anyAlt) {
-                    refHomGenotypeFreq += entry.getValue();
-                    refHomGenotypeCount += stats.getGenotypeCount().getOrDefault(entry.getKey(), 0);
-                } else if (anyRef) {
-                    hetGenotypeFreq += entry.getValue();
-                    hetGenotypeCount += stats.getGenotypeCount().getOrDefault(entry.getKey(), 0);
-                } else {
-                    altHomGenotypeFreq += entry.getValue();
-                    altHomGenotypeCount += stats.getGenotypeCount().getOrDefault(entry.getKey(), 0);
+                switch (getGtType(entry.getKey())) {
+                    case HOM_REF:
+                        refHomGenotypeFreq += entry.getValue();
+                        break;
+                    case HET:
+                        hetGenotypeFreq += entry.getValue();
+                        break;
+                    case ALT_HOM:
+                        altHomGenotypeFreq += entry.getValue();
+                        break;
                 }
             }
         } else {
             refHomGenotypeFreq = null;
             hetGenotypeFreq = null;
             altHomGenotypeFreq = null;
+        }
 
+        if (stats.getGenotypeCount() != null && !stats.getGenotypeCount().isEmpty()) {
+            for (Map.Entry<String, Integer> entry : stats.getGenotypeCount().entrySet()) {
+                switch (getGtType(entry.getKey())) {
+                    case HOM_REF:
+                        refHomGenotypeCount += entry.getValue();
+                        break;
+                    case HET:
+                        hetGenotypeCount += entry.getValue();
+                        break;
+                    case ALT_HOM:
+                        altHomGenotypeCount += entry.getValue();
+                        break;
+                }
+            }
+        } else {
             refHomGenotypeCount = null;
             hetGenotypeCount = null;
             altHomGenotypeCount = null;
@@ -91,4 +103,23 @@ public class VariantStatsToPopulationFrequencyConverter {
                 refHomGenotypeCount, hetGenotypeCount, altHomGenotypeCount);
     }
 
+    private GtType getGtType(String gtStr) {
+        Genotype gt = new Genotype(gtStr);
+        boolean anyRef = false;
+        boolean anyAlt = false;
+        for (int i : gt.getAllelesIdx()) {
+            if (i == 0) {
+                anyRef = true;
+            } else {
+                anyAlt = true;
+            }
+        }
+        if (anyRef && !anyAlt) {
+            return GtType.HOM_REF;
+        } else if (anyRef) {
+            return GtType.HET;
+        } else {
+            return GtType.ALT_HOM;
+        }
+    }
 }
