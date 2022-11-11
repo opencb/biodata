@@ -27,7 +27,7 @@ import htsjdk.samtools.seekablestream.SeekableStreamFactory;
 import htsjdk.samtools.util.BlockCompressedFilePointerUtil;
 import htsjdk.samtools.util.BlockCompressedInputStream;
 import htsjdk.samtools.util.Log;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.ga4gh.models.ReadAlignment;
 import org.opencb.biodata.models.alignment.RegionCoverage;
 import org.opencb.biodata.models.core.Region;

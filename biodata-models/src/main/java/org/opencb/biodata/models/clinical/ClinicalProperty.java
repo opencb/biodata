@@ -110,6 +110,7 @@ public class ClinicalProperty {
         ONCOGENE,
         TUMOR_SUPPRESSOR_GENE,
         FUSION,
+        // BOTH has to be deprecated (in previous versios BOTH = ONCOGENE + TUMOR_SUPPRESSOR_GENE when only these two values were supported)
         BOTH,
         NA,
         UNKNOWN

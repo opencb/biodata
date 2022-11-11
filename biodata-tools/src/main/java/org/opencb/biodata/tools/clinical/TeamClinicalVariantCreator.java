@@ -19,8 +19,8 @@
 
 package org.opencb.biodata.tools.clinical;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.opencb.biodata.models.clinical.ClinicalDiscussion;
 import org.opencb.biodata.models.clinical.ClinicalProperty.ModeOfInheritance;
 import org.opencb.biodata.models.clinical.ClinicalProperty.Penetrance;
@@ -41,10 +41,15 @@ import static org.opencb.biodata.tools.pedigree.ModeOfInheritance.proteinCoding;
 
 public class TeamClinicalVariantCreator extends ClinicalVariantCreator {
 
-    public TeamClinicalVariantCreator(List<DiseasePanel> diseasePanels, Map<String, RoleInCancer> roleInCancer,
-                                      Map<String, List<String>> actionableVariants, Disorder disorder,
+    @Deprecated
+    public TeamClinicalVariantCreator(List<DiseasePanel> diseasePanels, Map<String, RoleInCancer> roleInCancer, Disorder disorder,
                                       List<ModeOfInheritance> modeOfInheritances, Penetrance penetrance) {
-        super(diseasePanels, disorder, modeOfInheritances, penetrance, roleInCancer, actionableVariants, null);
+        super(diseasePanels, disorder, modeOfInheritances, penetrance, roleInCancer, null);
+    }
+
+    public TeamClinicalVariantCreator(List<DiseasePanel> diseasePanels, Disorder disorder, List<ModeOfInheritance> modeOfInheritances,
+                                      Penetrance penetrance) {
+        super(diseasePanels, disorder, modeOfInheritances, penetrance, null);
     }
 
     @Override
@@ -106,26 +111,10 @@ public class TeamClinicalVariantCreator extends ClinicalVariantCreator {
                 }
             }
 
-            // Tier 3, actionable variants
-            if (!hasTier && MapUtils.isNotEmpty(actionableVariants)) {
-                if (variant.getAnnotation() != null && actionableVariants.containsKey(variant.getId())) {
-                    if (CollectionUtils.isNotEmpty(variant.getAnnotation().getConsequenceTypes())) {
-                        for (ConsequenceType ct : variant.getAnnotation().getConsequenceTypes()) {
-                            if (ct.getBiotype() != null && proteinCoding.contains(ct.getBiotype())) {
-                                clinicalVariantEvidences.addAll(createClinicalVariantEvidences(UNTIERED, null, ct, variant));
-                            }
-                        }
-                    } else {
-                        // We create the clinical variant evidences anyway!
-                        clinicalVariantEvidences.addAll(createClinicalVariantEvidences(UNTIERED, null, null, variant));
-                    }
-                }
-            }
-
             // If we have clinical variant evidences, then we have to create the clinical variant
             if (CollectionUtils.isNotEmpty(clinicalVariantEvidences)) {
                 ClinicalVariant clinicalVariant = new ClinicalVariant(variant.getImpl(), Collections.emptyList(), Collections.emptyList(),
-                        Collections.emptyMap(), new ClinicalDiscussion(), ClinicalVariant.Status.NOT_REVIEWED,
+                        Collections.emptyMap(), new ClinicalDiscussion(), null, ClinicalVariant.Status.NOT_REVIEWED,
                         Collections.emptyList(), Collections.emptyMap());
                 clinicalVariant.setEvidences(clinicalVariantEvidences);
 

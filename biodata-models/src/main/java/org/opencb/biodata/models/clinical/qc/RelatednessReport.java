@@ -23,9 +23,7 @@ import org.opencb.biodata.models.constants.FieldConstants;
 import org.opencb.commons.annotations.DataField;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 public class RelatednessReport {
 
@@ -34,7 +32,7 @@ public class RelatednessReport {
             description = FieldConstants.RELATEDNESS_REPORT_METHOD_DESCRIPTION)
     private String method;
 
-    // Minor allele frequency to filter variants, e.g.: 1kg_phase3:CEU>0.35, cohort:ALL>0.05")
+    // Minor allele frequency to filter variants, e.g.: 1000G:EUR>0.35, cohort:ALL>0.05")
     @DataField(id = "maf",
             description = FieldConstants.RELATEDNESS_REPORT_MAF_DESCRIPTION)
     private String maf;
@@ -104,74 +102,5 @@ public class RelatednessReport {
     public RelatednessReport setFiles(List<String> files) {
         this.files = files;
         return this;
-    }
-
-    public static class RelatednessScore {
-        // Pair of samples
-        private String sampleId1;
-        private String sampleId2;
-
-        // Reported relation according to pedigree
-        private String inferredRelationship;
-
-        private Map<String, Object> values;
-
-        public RelatednessScore() {
-            this("", "", "", new LinkedHashMap<>());
-        }
-
-        public RelatednessScore(String sampleId1, String sampleId2, String inferredRelationship, Map<String, Object> values) {
-            this.sampleId1 = sampleId1;
-            this.sampleId2 = sampleId2;
-            this.inferredRelationship = inferredRelationship;
-            this.values = values;
-        }
-
-        @Override
-        public String toString() {
-            final StringBuilder sb = new StringBuilder("RelatednessScore{");
-            sb.append("sampleId1='").append(sampleId1).append('\'');
-            sb.append(", sampleId2='").append(sampleId2).append('\'');
-            sb.append(", inferredRelationship='").append(inferredRelationship).append('\'');
-            sb.append(", values=").append(values);
-            sb.append('}');
-            return sb.toString();
-        }
-
-        public String getSampleId1() {
-            return sampleId1;
-        }
-
-        public RelatednessScore setSampleId1(String sampleId1) {
-            this.sampleId1 = sampleId1;
-            return this;
-        }
-
-        public String getSampleId2() {
-            return sampleId2;
-        }
-
-        public RelatednessScore setSampleId2(String sampleId2) {
-            this.sampleId2 = sampleId2;
-            return this;
-        }
-
-        public String getInferredRelationship() {
-            return inferredRelationship;
-        }
-
-        public RelatednessScore setInferredRelationship(String inferredRelationship) {
-            this.inferredRelationship = inferredRelationship;
-            return this;
-        }
-
-        public Map<String, Object> getValues() {
-            return values;
-        }
-
-        public RelatednessScore setValues(Map<String, Object> values) {
-            this.values = values;
-            return this;
-        }
     }
 }
