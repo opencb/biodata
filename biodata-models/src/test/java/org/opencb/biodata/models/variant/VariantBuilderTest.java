@@ -51,6 +51,19 @@ public class VariantBuilderTest {
         map.put("1:1000:ACACAC...", new Variant("1", 1000, 999, "", "<INS>").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.INSERTION).setSv(new StructuralVariation(null, null, null, null, null, "ACACAC", "", null, null)));
         map.put("1:799984<800001<800022:-:TGTGGTGTGTGTGGTGTG...ACCACACCCACACAACACACA", new Variant("1", 800001, 800000, "", "<INS>").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.INSERTION).setSv(new StructuralVariation(799984, 800022, null, null, null, "TGTGGTGTGTGTGGTGTG", "ACCACACCCACACAACACACA", null, null)));
 
+        // Negative CIPOS
+        map.put("1:-100<100<200-20<150<200:-:<DEL>", new Variant("1", 100, 150, "", "<DEL>")
+                .setLength(51)
+                .setType(VariantType.DELETION)
+                .setSv(new StructuralVariation(-100, 200, 20, 200, null, null, null, null, null)));
+        map.put("1:-100<100<200--20<150<200:-:<DEL>", new Variant("1", 100, 150, "", "<DEL>")
+                .setLength(51)
+                .setType(VariantType.DELETION)
+                .setSv(new StructuralVariation(-100, 200, -20, 200, null, null, null, null, null)));
+        map.put("1:-100<100<200:-:<INS>", new Variant("1", 100, 99, "", "<INS>")
+                .setType(VariantType.INSERTION)
+                .setSv(new StructuralVariation(-100, 200, null, null, null, null, null, null, null)));
+
         // Breakends
         map.put("1:1000:A:A.", new Variant("1", 1000, 999, "A", "A.").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.BREAKEND).setSv(new StructuralVariation(null, null, null, null, null, null, null, null, null)));
         map.put("1:800001:A:A[2:321681[", new Variant("1", 800001, 800000, "A", "A[2:321681[").setLength(Variant.UNKNOWN_LENGTH).setType(VariantType.BREAKEND).setSv(new StructuralVariation(null, null, null, null, null, null, null, null, new Breakend(new BreakendMate("2", 321681, null, null), BreakendOrientation.SE, null))));
