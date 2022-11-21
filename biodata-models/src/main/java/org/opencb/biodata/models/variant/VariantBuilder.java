@@ -267,11 +267,7 @@ public class VariantBuilder {
                 sv.setCiStartRight(Integer.parseInt(split[2]));
             }
         } else {
-            try {
-                setStart(Integer.parseInt(start));
-            } catch (NumberFormatException e) {
-                throw e;
-            }
+            setStart(Integer.parseInt(start));
         }
     }
 
