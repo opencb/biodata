@@ -37,7 +37,7 @@ jobs:
       - name: Install Samtools
         run: sudo apt-get install samtools
       - name: Run tests with Maven
-        run: mvn -T 2 clean install
+        run: mvn -T 2 clean install -DskipTests
 
   deploy-maven:
     uses: opencb/java-common-libs/.github/workflows/deploy-maven-repository-workflow.yml@develop
