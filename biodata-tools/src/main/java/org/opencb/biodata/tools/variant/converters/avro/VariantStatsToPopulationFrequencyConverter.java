@@ -37,9 +37,10 @@ public class VariantStatsToPopulationFrequencyConverter {
     }
 
     private enum GtType {
-        ALT_HOM,
+        HOM_ALT,
         HOM_REF,
-        HET
+        HET,
+        OTHER
     }
 
     public PopulationFrequency convert(String study, String population, VariantStats stats, String reference, String alternate) {
@@ -60,7 +61,7 @@ public class VariantStatsToPopulationFrequencyConverter {
                     case HET:
                         hetGenotypeFreq += entry.getValue();
                         break;
-                    case ALT_HOM:
+                    case HOM_ALT:
                         altHomGenotypeFreq += entry.getValue();
                         break;
                 }
@@ -80,7 +81,7 @@ public class VariantStatsToPopulationFrequencyConverter {
                     case HET:
                         hetGenotypeCount += entry.getValue();
                         break;
-                    case ALT_HOM:
+                    case HOM_ALT:
                         altHomGenotypeCount += entry.getValue();
                         break;
                 }
@@ -104,22 +105,37 @@ public class VariantStatsToPopulationFrequencyConverter {
     }
 
     private GtType getGtType(String gtStr) {
+        switch (gtStr) {
+            case Genotype.HOM_REF:
+                return GtType.HOM_REF;
+            case Genotype.HET_REF:
+                return GtType.HET;
+            case Genotype.HOM_VAR:
+                return GtType.HOM_ALT;
+        }
+        gtStr = gtStr.replace("*", "2");
         Genotype gt = new Genotype(gtStr);
         boolean anyRef = false;
         boolean anyAlt = false;
+        boolean anyOther = false;
         for (int i : gt.getAllelesIdx()) {
             if (i == 0) {
                 anyRef = true;
-            } else {
+            } else if (i == 1) {
                 anyAlt = true;
+            } else {
+                // Missing or secondary alternates
+                anyOther = true;
             }
         }
-        if (anyRef && !anyAlt) {
+        if (anyOther) {
+            return GtType.OTHER;
+        } else if (anyRef && !anyAlt) {
             return GtType.HOM_REF;
         } else if (anyRef) {
             return GtType.HET;
         } else {
-            return GtType.ALT_HOM;
+            return GtType.HOM_ALT;
         }
     }
 }
