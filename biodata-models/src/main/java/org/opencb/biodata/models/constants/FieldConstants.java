@@ -21,6 +21,15 @@ public class FieldConstants {
     public static final String SIGNATURE_FITTING_COEFF_DESCRIPTION = "Coefficient of the fitting signature";
     public static final String SIGNATURE_FITTING_FILE_DESCRIPTION = "Files of the fitting signature";
     public static final String SIGNATURE_FITTING_PARAMS_DESCRIPTION = "Input parameters of the fitting signature";
+
+    public static final String HRDETECT_SNV_FITTING_ID_DESCRIPTION = "Signature fitting ID for SNV";
+    public static final String HRDETECT_SV_FITTING_ID_DESCRIPTION = "Signature fitting ID for SV";
+    public static final String HRDETECT_CNV_QUERY_DESCRIPTION = "CNV query";
+    public static final String HRDETECT_INDEL_QUERY_DESCRIPTION = "INDEL query";
+    public static final String HRDETECT_PARAMS_DESCRIPTION = "Other HRDetect params";
+    public static final String HRDETECT_SCORES_DESCRIPTION = "HRDetect scores";
+    public static final String HRDETECT_FILES_DESCRIPTION = "HRDetect output files";
+
     public static final String GENOMEPLOT_CONFIG_DESCRIPTION = "Config of the genomePlot";
     public static final String GENOMEPLOT_FILE_DESCRIPTION = "File of the genomePlot";
     public static final String GENOME_PLOT_CONFIG_TITLE_DESCRIPTION = "Title of the genome plot configuration";
