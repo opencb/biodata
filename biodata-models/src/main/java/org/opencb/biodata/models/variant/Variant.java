@@ -510,7 +510,13 @@ public class Variant implements Serializable, Comparable<Variant> {
         if (getAlternate() != null ? !getAlternate().equals(variant.getAlternate()) : variant.getAlternate() != null) {
             return false;
         }
-        return getType() == variant.getType();
+        if (getType() != variant.getType()) {
+            return false;
+        }
+        if (getSv() != null ? !getSv().equals(variant.getSv()) : variant.getSv() != null) {
+            return false;
+        }
+        return true;
 
     }
 
