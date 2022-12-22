@@ -71,15 +71,15 @@ public class VariantBuilder {
 
     protected static Logger logger = LoggerFactory.getLogger(VariantBuilder.class);
 
-    private static final String CHROMOSOME_REGGEX = "[0-9A-Za-z!#$%&+./:;?@^_|~-][0-9A-Za-z!#$%&*+./:;=?@^_|~-]*";
-    private static final String POSITION_REGGEX = "("
-            + "\\p{Digit}+|\\p{Digit}+<\\p{Digit}+<\\p{Digit}+"
+    private static final String CHROMOSOME_REGEX = "[0-9A-Za-z!#$%&+./:;?@^_|~-][0-9A-Za-z!#$%&*+./:;=?@^_|~-]*";
+    private static final String POSITION_REGEX = "("
+            + "\\p{Digit}+|(-)?\\p{Digit}+<\\p{Digit}+<\\p{Digit}+"
             + ")";
-    private static final String REFERENCE_REGGEX = "("
+    private static final String REFERENCE_REGEX = "("
             + "[ACGTN]+|" // Simple reference
             + "-" // No reference
             + ")";
-    private static final String ALTERNATE_REGGEX = "("
+    private static final String ALTERNATE_REGEX = "("
             + "\\.|" // No variation
             + "-|" // No alternate
             + "[ACGTN]+|" // Simple alternate
@@ -88,13 +88,17 @@ public class VariantBuilder {
             + PARTIAL_INS_SEQ_SEPARATOR + "[ACGT]+|" // Partial long insertion, no left
             + "\\*|" // Span deletion
             + "<[^<>]+>|" // Symbolic alternate
-            + "([ACGTN]*|\\.)([\\[\\]])(" + CHROMOSOME_REGGEX + "):(\\p{Digit}+)([\\[\\]])([ACGTN]*|\\.)" // Breakend
+            + "([ACGTN]*|\\.)([\\[\\]])(" + CHROMOSOME_REGEX + "):(\\p{Digit}+)([\\[\\]])([ACGTN]*|\\.)" // Breakend
             + ")";
-    private static final Pattern ALTERNATE_PATTERN = Pattern.compile(ALTERNATE_REGGEX);
-    protected static final Pattern VARIANT_PATTERN = Pattern.compile("(?<chromosome>" + CHROMOSOME_REGGEX + ")"
-            + ":(?<start>" + POSITION_REGGEX + ")(-(?<end>" + POSITION_REGGEX + "))?"
-            + "(:(?<reference>" + REFERENCE_REGGEX +")?)?"
-            + ":(?<alternate>" + ALTERNATE_REGGEX + "(,"+ALTERNATE_REGGEX+")*)");
+    private static final String START_END_REGEX = ""
+            + "(?<start>" + POSITION_REGEX + ")"
+            + "(-(?<end>" + POSITION_REGEX + "))?";
+    private static final Pattern ALTERNATE_PATTERN = Pattern.compile(ALTERNATE_REGEX);
+    private static final Pattern START_END_PATTERN = Pattern.compile(START_END_REGEX);
+    protected static final Pattern VARIANT_PATTERN = Pattern.compile("(?<chromosome>" + CHROMOSOME_REGEX + ")"
+            + ":" + START_END_REGEX
+            + "(:(?<reference>" + REFERENCE_REGEX +")?)?"
+            + ":(?<alternate>" + ALTERNATE_REGEX + "(,"+ALTERNATE_REGEX+")*)");
 
     static {
         SV_TYPES = EnumSet.copyOf(Variant.SV_SUBTYPES);
@@ -186,12 +190,29 @@ public class VariantBuilder {
                 parseAlternate(fields[3]);
 
                 // Structural variant (except <INS>) needs start-end coords (<INS> may be missing end)
-                if (fields[1].contains("-")) {
-                    String[] coordinatesParts = fields[1].split("-");
-                    parseStart(coordinatesParts[0], variantString);
-                    parseEnd(coordinatesParts[1], variantString);
+                String startEnd = fields[1];
+                if (startEnd.contains("-")) {
+                    String[] coordinatesParts = startEnd.split("-");
+                    if (coordinatesParts.length == 2 && !coordinatesParts[0].isEmpty()) {
+                        parseStart(coordinatesParts[0], variantString);
+                        parseEnd(coordinatesParts[1], variantString);
+                    } else {
+                        // Weird scenario. Use REGEX to parse start-end
+                        Matcher matcher = START_END_PATTERN.matcher(startEnd);
+                        if (matcher.matches()) {
+                            parseStart(matcher.group("start"), variantString);
+                            // End might not be defined
+                            String end = matcher.group("end");
+                            if (end != null) {
+                                parseEnd(end, variantString);
+                            }
+                        } else {
+                            throw new IllegalArgumentException("Invalid coordinates position '" + startEnd + "' for variant "
+                                    + variantString);
+                        }
+                    }
                 } else {
-                    parseStart(fields[1], variantString);
+                    parseStart(startEnd, variantString);
                 }
             } else {
                 regexParse(variantString);

@@ -21,9 +21,7 @@
     <groupId>org.opencb.biodata</groupId>
     <artifactId>biodata</artifactId>
     <version>2.6.0-SNAPSHOT</version>
-
     <packaging>pom</packaging>
-
     <name>Biodata</name>
     <description>Biological entities and their equivalents in different file formats typically used in bioinformatics</description>
     <url>https://github.com/opencb/biodata/wiki</url>
