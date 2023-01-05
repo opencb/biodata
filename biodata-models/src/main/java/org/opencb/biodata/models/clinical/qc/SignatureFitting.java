@@ -27,6 +27,9 @@ import java.util.List;
 
 public class SignatureFitting {
 
+    @DataField(id = "id", indexed = true,
+            description = FieldConstants.SIGNATURE_FITTING_ID_DESCRIPTION)
+    private String id;
 
     @DataField(id = "method", indexed = true,
             description = FieldConstants.SIGNATURE_FITTING_METHOD_DESCRIPTION)
@@ -42,7 +45,7 @@ public class SignatureFitting {
 
     @DataField(id = "scores", indexed = true, uncommentedClasses = {"Score"},
             description = FieldConstants.SIGNATURE_FITTING_SCORES_DESCRIPTION)
-    private List<Score> scores;
+    private List<SignatureFittingScore> scores;
 
     @Deprecated
     @DataField(id = "coeff", indexed = true,
@@ -66,7 +69,8 @@ public class SignatureFitting {
     }
 
     @Deprecated
-    public SignatureFitting(String method, String signatureSource, String signatureVersion, List<Score> scores, double coeff, String file) {
+    public SignatureFitting(String method, String signatureSource, String signatureVersion, List<SignatureFittingScore> scores,
+                            double coeff, String file) {
         this.method = method;
         this.signatureSource = signatureSource;
         this.signatureVersion = signatureVersion;
@@ -75,8 +79,21 @@ public class SignatureFitting {
         this.file = file;
     }
 
-    public SignatureFitting(String method, String signatureSource, String signatureVersion, List<Score> scores, double coeff, String file,
-                            List<String> files, ObjectMap params) {
+    @Deprecated
+    public SignatureFitting(String method, String signatureSource, String signatureVersion, List<SignatureFittingScore> scores,
+                            double coeff, String file, List<String> files, ObjectMap params) {
+        this.method = method;
+        this.signatureSource = signatureSource;
+        this.signatureVersion = signatureVersion;
+        this.scores = scores;
+        this.coeff = coeff;
+        this.file = file;
+        this.files = files;
+        this.params = params;
+    }
+
+    public SignatureFitting(String id, String method, String signatureSource, String signatureVersion, List<SignatureFittingScore> scores,
+                            double coeff, String file, List<String> files, ObjectMap params) {
         this.method = method;
         this.signatureSource = signatureSource;
         this.signatureVersion = signatureVersion;
@@ -89,7 +106,8 @@ public class SignatureFitting {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("SignatureFitting{");
+        final StringBuilder sb = new StringBuilder("SignatureFittingScore{");
+        sb.append("id='").append(id).append('\'');
         sb.append("method='").append(method).append('\'');
         sb.append(", signatureSource='").append(signatureSource).append('\'');
         sb.append(", signatureVersion='").append(signatureVersion).append('\'');
@@ -100,6 +118,15 @@ public class SignatureFitting {
         sb.append(", params=").append(params);
         sb.append('}');
         return sb.toString();
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public SignatureFitting setId(String id) {
+        this.id = id;
+        return this;
     }
 
     public String getMethod() {
@@ -129,11 +156,11 @@ public class SignatureFitting {
         return this;
     }
 
-    public List<Score> getScores() {
+    public List<SignatureFittingScore> getScores() {
         return scores;
     }
 
-    public SignatureFitting setScores(List<Score> scores) {
+    public SignatureFitting setScores(List<SignatureFittingScore> scores) {
         this.scores = scores;
         return this;
     }
@@ -172,46 +199,5 @@ public class SignatureFitting {
     public SignatureFitting setParams(ObjectMap params) {
         this.params = params;
         return this;
-    }
-
-    public static class Score {
-
-        private String signatureId;
-        private double value;
-
-        public Score() {
-        }
-
-        public Score(String signatureId, double value) {
-            this.signatureId = signatureId;
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            final StringBuilder sb = new StringBuilder("Score{");
-            sb.append("signatureId='").append(signatureId).append('\'');
-            sb.append(", value=").append(value);
-            sb.append('}');
-            return sb.toString();
-        }
-
-        public String getSignatureId() {
-            return signatureId;
-        }
-
-        public Score setSignatureId(String signatureId) {
-            this.signatureId = signatureId;
-            return this;
-        }
-
-        public double getValue() {
-            return value;
-        }
-
-        public Score setValue(double value) {
-            this.value = value;
-            return this;
-        }
     }
 }
