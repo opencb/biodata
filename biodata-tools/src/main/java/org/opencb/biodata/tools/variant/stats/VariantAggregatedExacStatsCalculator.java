@@ -66,6 +66,10 @@ public class VariantAggregatedExacStatsCalculator extends VariantAggregatedStats
     }
 
     @Override
+    protected void validateTagMap(Properties tagMap) {
+    }
+
+    @Override
     protected void parseStats(Variant variant, StudyEntry studyEntry, int numAllele, String reference, String[] alternateAlleles, Map<String, String> info) {
             VariantStats stats = new VariantStats(StudyEntry.DEFAULT_COHORT);
 
