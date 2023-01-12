@@ -40,12 +40,22 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn -B verify surefire-report:report org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=opencb_biodata
-#        run: mvn surefire-report:report
+      - name: Deploy tests web recursively to remote
+        uses: garygrossgarten/github-action-scp@release
+        with:
+          local: biodata-tools/target/site
+#          remote: /mnt/resources/opencb/biodata/tests/${{ github.ref_name }}/${{ github.sha }}
+          remote: /home/cafetero/cicd-tests/${{ github.ref_name }}/${{ github.sha }}
+          host: 128.232.227.217
+          username: ${{ secrets.SCP_SITE_USER }}
+          password: ${{ secrets.SCP_SITE_PASSWORD }}
 #      - name: Deploy tests web recursively to remote
+#        if: ${{ github.event.inputs.save == 'true' }}
 #        uses: garygrossgarten/github-action-scp@release
 #        with:
-#          local: target/site
-#          remote: /mnt/resources/opencb/biodata/tests/${{ github.ref_name }}/${{ github.sha }}
-#          host: 128.232.224.128
-#          username: ${{ secrets.SCP_SITE_USER }}
-#          password: ${{ secrets.SCP_SITE_PASSWORD }}
+#          local: reports/cucumber_report.html
+#          remote: /var/www/html/reports/${{ steps.package.outputs.version }}/${{ github.event.inputs.name }}/
+#          host: ${{ secrets.SSH_TESTING_SERVER_HOST }}
+#          port: ${{ secrets.SSH_TESTING_SERVER_PORT }}
+#          username: ${{ secrets.SSH_TESTING_SERVER_USER }}
+#          password: ${{ secrets.SSH_TESTING_SERVER_PASSWORD }}
