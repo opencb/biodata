@@ -44,7 +44,7 @@ jobs:
         uses: garygrossgarten/github-action-scp@release
         with:
           local: biodata-tools/target/site
-          remote: /opt/data/reports/${{ github.ref_name }}/${{ github.sha }}
+          remote: /opt/data/reports/${{ github.ref_name }}/biodata/${{ github.sha }}
 #          remote: /home/cafetero/cicd-tests/${{ github.ref_name }}/${{ github.sha }}
           host: ${{ secrets.SSH_TESTING_SERVER_HOST}}
           port: ${{ secrets.SSH_TESTING_SERVER_PORT}}
