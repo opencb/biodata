@@ -44,7 +44,7 @@ jobs:
         uses: garygrossgarten/github-action-scp@release
         with:
           local: biodata-tools/target/site
-          remote: /opt/data/reports/${{ steps.get_project_version.outputs.version }}/${{ github.ref_name }}/biodata/${{ github.sha }}
+          remote: /opt/data/reports/${{ needs.build.outputs.version }}/${{ github.ref_name }}/biodata/${{ github.sha }}
           host: ${{ secrets.SSH_TESTING_SERVER_HOST}}
           port: ${{ secrets.SSH_TESTING_SERVER_PORT}}
           username: ${{ secrets.SSH_TESTING_SERVER_USER }}
