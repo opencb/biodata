@@ -22,12 +22,6 @@ jobs:
     runs-on: ubuntu-20.04
     needs: build
     steps:
-      - id: get_project_version
-        uses: avides/actions-project-version-check@v1.3.0
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          file-to-check: pom.xml
-          only-return-version: true
       - uses: actions/checkout@v2
         with:
           fetch-depth: '0'
