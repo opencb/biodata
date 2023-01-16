@@ -44,11 +44,12 @@ jobs:
         uses: garygrossgarten/github-action-scp@release
         with:
           local: biodata-tools/target/site
-#          remote: /mnt/resources/opencb/biodata/tests/${{ github.ref_name }}/${{ github.sha }}
-          remote: /home/cafetero/cicd-tests/${{ github.ref_name }}/${{ github.sha }}
-          host: ${{ secrets.SSH_SWDEV_IP }}
-          username: ${{ secrets.SSH_SWDEV_USER }}
-          password: ${{ secrets.SSH_SWDEV_PASSWORD }}
+          remote: /opt/data/reports/${{ github.ref_name }}/${{ github.sha }}
+#          remote: /home/cafetero/cicd-tests/${{ github.ref_name }}/${{ github.sha }}
+          host: ${{ secrets.SSH_TESTING_SERVER_HOST}}
+          port: ${{ secrets.SSH_TESTING_SERVER_PORT}}
+          username: ${{ secrets.SSH_TESTING_SERVER_USER }}
+          password: ${{ secrets.SSH_TESTING_SERVER_PASSWORD }}
 #      - name: Deploy tests web recursively to remote
 #        if: ${{ github.event.inputs.save == 'true' }}
 #        uses: garygrossgarten/github-action-scp@release
