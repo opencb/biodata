@@ -22,6 +22,12 @@ jobs:
     runs-on: ubuntu-20.04
     needs: build
     steps:
+      - id: get_project_version
+          uses: avides/actions-project-version-check@v1.3.0
+          with:
+            token: ${{ secrets.GITHUB_TOKEN }}
+            file-to-check: pom.xml
+            only-return-version: true
       - uses: actions/checkout@v2
         with:
           fetch-depth: '0'
@@ -44,8 +50,7 @@ jobs:
         uses: garygrossgarten/github-action-scp@release
         with:
           local: biodata-tools/target/site
-          remote: /opt/data/reports/${{ github.ref_name }}/biodata/${{ github.sha }}
-#          remote: /home/cafetero/cicd-tests/${{ github.ref_name }}/${{ github.sha }}
+          remote: /opt/data/reports/${{ steps.get_project_version.outputs.version }}/${{ github.ref_name }}/biodata/${{ github.sha }}
           host: ${{ secrets.SSH_TESTING_SERVER_HOST}}
           port: ${{ secrets.SSH_TESTING_SERVER_PORT}}
           username: ${{ secrets.SSH_TESTING_SERVER_USER }}
