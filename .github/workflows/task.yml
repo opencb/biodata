@@ -16,6 +16,8 @@ jobs:
 #      sonarProjectKey: opencb_biodata
 #    secrets:
 #      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+env:
+  xb_version: 1.5.0
 
   test:
     name: Test biodata
@@ -43,11 +45,20 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn -B verify surefire-report:report org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=opencb_biodata
-      - name: Deploy tests web recursively to remote
+      - name: Deploy unit tests web recursively to remote
         uses: garygrossgarten/github-action-scp@release
         with:
           local: biodata-${{ matrix.module }}/target/site
-          remote: /var/www/html/reports/development/1.5.0/${{ needs.build.outputs.version }}/${{ github.ref_name }}/biodata-${{ matrix.module }}/${{ github.sha }}
+          remote: /var/www/html/reports/development/$xb_version/${{ github.ref_name }}/unit/biodata-${{ matrix.module }}/${{ github.sha }}
+          host: ${{ secrets.SSH_TESTING_SERVER_HOST}}
+          port: ${{ secrets.SSH_TESTING_SERVER_PORT}}
+          username: ${{ secrets.SSH_TESTING_SERVER_USER }}
+          password: ${{ secrets.SSH_TESTING_SERVER_PASSWORD }}
+      - name: Deploy coverage tests web recursively to remote
+        uses: garygrossgarten/github-action-scp@release
+        with:
+          local: biodata-${{ matrix.module }}/target/site/jacoco
+          remote: /var/www/html/reports/development/$xb_version/${{ github.ref_name }}/coverage/biodata-${{ matrix.module }}/${{ github.sha }}
           host: ${{ secrets.SSH_TESTING_SERVER_HOST}}
           port: ${{ secrets.SSH_TESTING_SERVER_PORT}}
           username: ${{ secrets.SSH_TESTING_SERVER_USER }}
