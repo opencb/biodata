@@ -23,7 +23,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        module: [ "tools", "model" ]
+        module: [ "tools", "models" ]
     steps:
       - uses: actions/checkout@v2
         with:
