@@ -51,7 +51,7 @@ jobs:
         uses: garygrossgarten/github-action-scp@release
         with:
           local: biodata-${{ matrix.module }}/target/site
-          remote: /var/www/html/reports/development/$xb_version/${{ github.ref_name }}/unit/biodata-${{ matrix.module }}/${{ github.sha }}
+          remote: /var/www/html/reports/development/${{ xb_version }}/${{ github.ref_name }}/unit/biodata-${{ matrix.module }}/${{ github.sha }}
           host: ${{ secrets.SSH_TESTING_SERVER_HOST}}
           port: ${{ secrets.SSH_TESTING_SERVER_PORT}}
           username: ${{ secrets.SSH_TESTING_SERVER_USER }}
@@ -60,7 +60,7 @@ jobs:
         uses: garygrossgarten/github-action-scp@release
         with:
           local: biodata-${{ matrix.module }}/target/site/jacoco
-          remote: /var/www/html/reports/development/$xb_version/${{ github.ref_name }}/coverage/biodata-${{ matrix.module }}/${{ github.sha }}
+          remote: /var/www/html/reports/development/${{ xb_version }}/${{ github.ref_name }}/coverage/biodata-${{ matrix.module }}/${{ github.sha }}
           host: ${{ secrets.SSH_TESTING_SERVER_HOST}}
           port: ${{ secrets.SSH_TESTING_SERVER_PORT}}
           username: ${{ secrets.SSH_TESTING_SERVER_USER }}
