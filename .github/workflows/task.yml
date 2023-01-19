@@ -8,13 +8,6 @@ env:
 jobs:
   build:
     uses: opencb/java-common-libs/.github/workflows/build-java-app-workflow.yml@develop
-    #  sonar:
-    #    uses: opencb/java-common-libs/.github/workflows/sonar-analysis-workflow.yml@develop
-    #    needs: build
-    #    with:
-    #      sonarProjectKey: opencb_biodata
-    #    secrets:
-    #      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
   test:
     name: Test biodata
     runs-on: ubuntu-20.04
@@ -34,8 +27,6 @@ jobs:
           cache: 'maven'
       - name: Install Samtools
         run: sudo apt-get install samtools
-        #      - name: Run tests and create report with Maven
-        #        run: mvn -T 2 clean install -DskipTests
       - name: Test and Analyze
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
