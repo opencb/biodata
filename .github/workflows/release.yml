@@ -1,26 +1,27 @@
 name: Release new biodata version
-
 on:
   push:
     tags:
       - '*'
-
+env:
+  xb_version: "1.5.0"
 jobs:
   build:
     uses: opencb/java-common-libs/.github/workflows/build-java-app-workflow.yml@develop
-
-#  sonar:
-#    uses: opencb/java-common-libs/.github/workflows/sonar-analysis-workflow.yml@develop
-#    needs: build
-#    with:
-#      sonarProjectKey: opencb_biodata
-#    secrets:
-#      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
+    #  sonar:
+    #    uses: opencb/java-common-libs/.github/workflows/sonar-analysis-workflow.yml@develop
+    #    needs: build
+    #    with:
+    #      sonarProjectKey: opencb_biodata
+    #    secrets:
+    #      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
   test:
     name: Test biodata
     runs-on: ubuntu-20.04
     needs: build
+    strategy:
+      matrix:
+        module: [ "tools", "models" ]
     steps:
       - uses: actions/checkout@v2
         with:
@@ -33,22 +34,31 @@ jobs:
           cache: 'maven'
       - name: Install Samtools
         run: sudo apt-get install samtools
-      #      - name: Run tests and create report with Maven
-      #        run: mvn -T 2 clean install -DskipTests
+        #      - name: Run tests and create report with Maven
+        #        run: mvn -T 2 clean install -DskipTests
       - name: Test and Analyze
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn -B verify surefire-report:report org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=opencb_biodata
-  #        run: mvn surefire-report:report
-  #      - name: Deploy tests web recursively to remote
-  #        uses: garygrossgarten/github-action-scp@release
-  #        with:
-  #          local: target/site
-  #          remote: /mnt/resources/opencb/biodata/tests/${{ github.ref_name }}/${{ github.sha }}
-  #          host: 128.232.224.128
-  #          username: ${{ secrets.SCP_SITE_USER }}
-  #          password: ${{ secrets.SCP_SITE_PASSWORD }}
+      - name: Deploy unit tests web recursively to remote
+        uses: garygrossgarten/github-action-scp@release
+        with:
+          local: biodata-${{ matrix.module }}/target/site
+          remote: /var/www/html/reports/development/${{ env.xb_version }}/${{ github.ref_name }}/${{ github.sha }}/unit/biodata-${{ matrix.module }}
+          host: ${{ secrets.SSH_TESTING_SERVER_HOST}}
+          port: ${{ secrets.SSH_TESTING_SERVER_PORT}}
+          username: ${{ secrets.SSH_TESTING_SERVER_USER }}
+          password: ${{ secrets.SSH_TESTING_SERVER_PASSWORD }}
+      - name: Deploy coverage tests web recursively to remote
+        uses: garygrossgarten/github-action-scp@release
+        with:
+          local: biodata-${{ matrix.module }}/target/site/jacoco
+          remote: /var/www/html/reports/development/${{ env.xb_version }}/${{ github.ref_name }}/${{ github.sha }}/coverage/biodata-${{ matrix.module }}
+          host: ${{ secrets.SSH_TESTING_SERVER_HOST}}
+          port: ${{ secrets.SSH_TESTING_SERVER_PORT}}
+          username: ${{ secrets.SSH_TESTING_SERVER_USER }}
+          password: ${{ secrets.SSH_TESTING_SERVER_PASSWORD }}
 
   deploy-maven:
     uses: opencb/java-common-libs/.github/workflows/deploy-maven-repository-workflow.yml@develop
@@ -58,7 +68,7 @@ jobs:
       MAVEN_NEXUS_PASSWORD: ${{ secrets.MAVEN_NEXUS_PASSWORD }}
       MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
       MAVEN_GPG_PRIVATE_KEY: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
-
   release:
     uses: opencb/java-common-libs/.github/workflows/release-github-workflow.yml@develop
     needs: deploy-maven
+

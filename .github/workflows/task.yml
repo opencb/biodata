@@ -45,7 +45,7 @@ jobs:
         uses: garygrossgarten/github-action-scp@release
         with:
           local: biodata-${{ matrix.module }}/target/site
-          remote: /var/www/html/reports/development/${{ env.xb_version }}/${{ github.ref_name }}/unit/biodata-${{ matrix.module }}/${{ github.sha }}
+          remote: /var/www/html/reports/development/${{ env.xb_version }}/${{ github.ref_name }}/${{ github.sha }}/unit/biodata-${{ matrix.module }}
           host: ${{ secrets.SSH_TESTING_SERVER_HOST}}
           port: ${{ secrets.SSH_TESTING_SERVER_PORT}}
           username: ${{ secrets.SSH_TESTING_SERVER_USER }}
@@ -54,18 +54,8 @@ jobs:
         uses: garygrossgarten/github-action-scp@release
         with:
           local: biodata-${{ matrix.module }}/target/site/jacoco
-          remote: /var/www/html/reports/development/${{ env.xb_version }}/${{ github.ref_name }}/coverage/biodata-${{ matrix.module }}/${{ github.sha }}
+          remote: /var/www/html/reports/development/${{ env.xb_version }}/${{ github.ref_name }}/${{ github.sha }}/coverage/biodata-${{ matrix.module }}
           host: ${{ secrets.SSH_TESTING_SERVER_HOST}}
           port: ${{ secrets.SSH_TESTING_SERVER_PORT}}
           username: ${{ secrets.SSH_TESTING_SERVER_USER }}
           password: ${{ secrets.SSH_TESTING_SERVER_PASSWORD }}
-#      - name: Deploy tests web recursively to remote
-#        if: ${{ github.event.inputs.save == 'true' }}
-#        uses: garygrossgarten/github-action-scp@release
-#        with:
-#          local: reports/cucumber_report.html
-#          remote: /var/www/html/reports/${{ steps.package.outputs.version }}/${{ github.event.inputs.name }}/
-#          host: ${{ secrets.SSH_TESTING_SERVER_HOST }}
-#          port: ${{ secrets.SSH_TESTING_SERVER_PORT }}
-#          username: ${{ secrets.SSH_TESTING_SERVER_USER }}
-#          password: ${{ secrets.SSH_TESTING_SERVER_PASSWORD }}
