@@ -15,6 +15,7 @@ jobs:
     strategy:
       matrix:
         module: ["tools", "models"]
+        junitFile: ["site/css", "site/images", "site/surefire-report.html", "surefire-reports"]
     steps:
       - uses: actions/checkout@v2
         with:
@@ -35,11 +36,7 @@ jobs:
       - name: Deploy unit tests web recursively to remote
         uses: garygrossgarten/github-action-scp@release
         with:
-          local: |
-            biodata-${{ matrix.module }}/target/site/css
-            biodata-${{ matrix.module }}/target/site/images
-            biodata-${{ matrix.module }}/target/site/surefire-report.html
-            biodata-${{ matrix.module }}/target/surefire-reports
+          local: biodata-${{ matrix.module }}/target/${{ matrix.junitFile }}
           remote: /var/www/html/reports/development/${{ env.xb_version }}/${{ github.ref_name }}/${{ github.sha }}/unit/biodata-${{ matrix.module }}
           host: ${{ secrets.SSH_TESTING_SERVER_HOST}}
           port: ${{ secrets.SSH_TESTING_SERVER_PORT}}
