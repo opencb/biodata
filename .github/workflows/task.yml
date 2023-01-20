@@ -36,6 +36,8 @@ jobs:
         uses: garygrossgarten/github-action-scp@release
         with:
           local: |
+            biodata-${{ matrix.module }}/target/site/css
+            biodata-${{ matrix.module }}/target/site/images
             biodata-${{ matrix.module }}/target/site/surefire-report.html
             biodata-${{ matrix.module }}/target/surefire-reports
           remote: /var/www/html/reports/development/${{ env.xb_version }}/${{ github.ref_name }}/${{ github.sha }}/unit/biodata-${{ matrix.module }}
