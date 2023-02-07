@@ -3,14 +3,17 @@ on:
   push:
     branches:
       - TASK-*
+
 env:
   xb_version: "1.5.0"
+
 jobs:
   build:
     uses: opencb/java-common-libs/.github/workflows/build-java-app-workflow.yml@develop
+
   test:
-    name: Test biodata
-    runs-on: ubuntu-20.04
+    name: Test and push Sonar analysis
+    runs-on: ubuntu-22.04
     needs: build
     steps:
       - uses: actions/checkout@v2
@@ -28,15 +31,16 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B verify -pl ${{ matrix.module }} surefire-report:report org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=opencb_biodata
+        run: mvn -B verify surefire-report:report org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=opencb_biodata
       - name: Upload result dir
         uses: actions/upload-artifact@v3
         with:
           name: workdir
           path: .
+
   publish-test:
     name: Publish test results
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs: test
     strategy:
       matrix:
@@ -55,3 +59,12 @@ jobs:
           port: ${{ secrets.SSH_TESTING_SERVER_PORT}}
           username: ${{ secrets.SSH_TESTING_SERVER_USER }}
           password: ${{ secrets.SSH_TESTING_SERVER_PASSWORD }}
+
+  deploy-maven:
+    uses: opencb/java-common-libs/.github/workflows/deploy-maven-repository-workflow.yml@develop
+    needs: test
+    secrets:
+      MAVEN_NEXUS_USER: ${{ secrets.MAVEN_NEXUS_USER }}
+      MAVEN_NEXUS_PASSWORD: ${{ secrets.MAVEN_NEXUS_PASSWORD }}
+      MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+      MAVEN_GPG_PRIVATE_KEY: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
