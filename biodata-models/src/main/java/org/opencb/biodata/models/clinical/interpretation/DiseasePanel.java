@@ -19,6 +19,7 @@
 
 package org.opencb.biodata.models.clinical.interpretation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections4.CollectionUtils;
 import org.opencb.biodata.models.clinical.ClinicalProperty.Confidence;
@@ -415,11 +416,13 @@ public class DiseasePanel {
         }
 
         @Deprecated
+        @JsonIgnore
         public ModeOfInheritance getModeOfInheritance() {
             return CollectionUtils.isNotEmpty(modesOfInheritance) ? modesOfInheritance.get(0) : null;
         }
 
         @Deprecated
+        @JsonIgnore
         public Common setModeOfInheritance(ModeOfInheritance modeOfInheritance) {
             this.modesOfInheritance = Collections.singletonList(modeOfInheritance);
             return this;

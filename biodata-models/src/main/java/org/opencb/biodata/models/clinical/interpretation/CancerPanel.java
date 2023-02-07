@@ -1,5 +1,6 @@
 package org.opencb.biodata.models.clinical.interpretation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.collections4.CollectionUtils;
 import org.opencb.biodata.models.clinical.ClinicalProperty.RoleInCancer;
 
@@ -75,11 +76,13 @@ public class CancerPanel {
     }
 
     @Deprecated
+    @JsonIgnore
     public RoleInCancer getRole() {
         return CollectionUtils.isNotEmpty(roles) ? roles.get(0) : null;
     }
 
     @Deprecated
+    @JsonIgnore
     public CancerPanel setRole(RoleInCancer role) {
         this.roles = role != null ? Collections.singletonList(role) : null;
         return this;
