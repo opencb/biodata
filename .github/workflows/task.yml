@@ -12,10 +12,6 @@ jobs:
     name: Test biodata
     runs-on: ubuntu-20.04
     needs: build
-    strategy:
-      matrix:
-        module: ["tools", "models"]
-#        junitFile: ["site/css", "site/images", "site/surefire-report.html", "surefire-reports"]
     steps:
       - uses: actions/checkout@v2
         with:
@@ -33,6 +29,23 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn -B verify -pl ${{ matrix.module }} surefire-report:report org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=opencb_biodata
+      - name: Upload result dir
+        uses: actions/upload-artifact@v3
+        with:
+          name: workdir
+          path: .
+  publish-test:
+    name: Publish test results
+    runs-on: ubuntu-20.04
+    needs: test
+    strategy:
+      matrix:
+        module: ["tools", "models"]
+    steps:
+      - name: Download result dir
+        uses: actions/download-artifact@v3
+        with:
+          name: workdir
       - name: Deploy unit tests web recursively to remote
         uses: garygrossgarten/github-action-scp@release
         with:
@@ -42,12 +55,3 @@ jobs:
           port: ${{ secrets.SSH_TESTING_SERVER_PORT}}
           username: ${{ secrets.SSH_TESTING_SERVER_USER }}
           password: ${{ secrets.SSH_TESTING_SERVER_PASSWORD }}
-#      - name: Deploy coverage tests web recursively to remote
-#        uses: garygrossgarten/github-action-scp@release
-#        with:
-#          local: biodata-${{ matrix.module }}/target/site/jacoco
-#          remote: /var/www/html/reports/development/${{ env.xb_version }}/${{ github.ref_name }}/${{ github.sha }}/coverage/biodata-${{ matrix.module }}
-#          host: ${{ secrets.SSH_TESTING_SERVER_HOST}}
-#          port: ${{ secrets.SSH_TESTING_SERVER_PORT}}
-#          username: ${{ secrets.SSH_TESTING_SERVER_USER }}
-#          password: ${{ secrets.SSH_TESTING_SERVER_PASSWORD }}
