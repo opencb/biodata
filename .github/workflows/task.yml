@@ -37,7 +37,7 @@ jobs:
         with:
           name: workdir
           path: |
-            ./target
+            ./target/site
             biodata-models/target
             biodata-tools/target
 
