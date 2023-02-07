@@ -36,7 +36,9 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: workdir
-          path: .
+          path: |
+            biodata-models/target
+            biodata-tools/target
 
   publish-test:
     name: Publish test results
