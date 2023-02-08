@@ -7,7 +7,7 @@ on:
 jobs:
 
   test-report:
-    uses: opencb/biodata/.github/workflows/test.yml@TASK-2270
+    uses: opencb/biodata/.github/workflows/build-test.yml@TASK-2270
 
   deploy-maven:
     uses: opencb/java-common-libs/.github/workflows/deploy-maven-repository-workflow.yml@develop
