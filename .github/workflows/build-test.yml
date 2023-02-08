@@ -1,10 +1,6 @@
 name: Build and test the project
 on:
   workflow_call:
-    inputs:
-      sonarProjectKey:
-        type: string
-        required: true
     secrets:
       SONAR_TOKEN:
         required: true
