@@ -8,7 +8,8 @@ jobs:
 
   test-report:
     uses: opencb/biodata/.github/workflows/build-test.yml@TASK-2270
-    sonarProjectKey: opencb_biodata
+    with:
+      sonarProjectKey: opencb_biodata
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
