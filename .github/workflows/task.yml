@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: build
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: '0'
       - name: Set up JDK 11
@@ -62,6 +62,7 @@ jobs:
           port: ${{ secrets.SSH_TESTING_SERVER_PORT}}
           username: ${{ secrets.SSH_TESTING_SERVER_USER }}
           password: ${{ secrets.SSH_TESTING_SERVER_PASSWORD }}
+          concurrency: 2
 
   deploy-maven:
     uses: opencb/java-common-libs/.github/workflows/deploy-maven-repository-workflow.yml@develop

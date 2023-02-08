@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: build
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: '0'
       - name: Set up JDK 11
@@ -45,7 +45,7 @@ jobs:
     needs: test
     strategy:
       matrix:
-        module: ["tools", "models"]
+        module: [ ".","biodata-tools","biodata-models" ]
     steps:
       - name: Download result dir
         uses: actions/download-artifact@v3
@@ -54,12 +54,13 @@ jobs:
       - name: Deploy unit tests web recursively to remote
         uses: garygrossgarten/github-action-scp@release
         with:
-          local: biodata-${{ matrix.module }}/target/site
-          remote: /var/www/html/reports/development/${{ env.xb_version }}/${{ github.ref_name }}/${{ github.sha }}/unit/biodata-${{ matrix.module }}
+          local: ${{ matrix.module }}/target/site
+          remote: /var/www/html/reports/development/${{ env.xb_version }}/${{ github.ref_name }}/${{ github.sha }}/unit/${{ matrix.module }}
           host: ${{ secrets.SSH_TESTING_SERVER_HOST}}
           port: ${{ secrets.SSH_TESTING_SERVER_PORT}}
           username: ${{ secrets.SSH_TESTING_SERVER_USER }}
           password: ${{ secrets.SSH_TESTING_SERVER_PASSWORD }}
+          concurrency: 2
 
   deploy-maven:
     uses: opencb/java-common-libs/.github/workflows/deploy-maven-repository-workflow.yml@develop
