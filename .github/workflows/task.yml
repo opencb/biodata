@@ -1,4 +1,4 @@
-name: Push biodata develop
+name: Push biodata task
 on:
   push:
     branches:
