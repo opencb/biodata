@@ -5,62 +5,15 @@ on:
       - develop
       - release-*
 
-env:
-  xb_version: "1.5.0"
-
 jobs:
-  build:
-    uses: opencb/java-common-libs/.github/workflows/build-java-app-workflow.yml@develop
-
   test:
-    name: Test and push Sonar analysis
-    runs-on: ubuntu-22.04
-    needs: build
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: '0'
-      - name: Set up JDK 11
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '11'
-          cache: 'maven'
-      - name: Install Samtools
-        run: sudo apt-get install samtools
-      - name: Test and Analyze
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B verify surefire-report:report org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=opencb_biodata
-      - name: Upload result dir
-        uses: actions/upload-artifact@v3
-        with:
-          name: workdir
-          path: .
-
-  publish-test:
-    name: Publish test results
-    runs-on: ubuntu-22.04
-    needs: test
-    strategy:
-      matrix:
-        module: [ ".","biodata-tools","biodata-models" ]
-    steps:
-      - name: Download result dir
-        uses: actions/download-artifact@v3
-        with:
-          name: workdir
-      - name: Deploy unit tests web recursively to remote
-        uses: garygrossgarten/github-action-scp@release
-        with:
-          local: ${{ matrix.module }}/target/site
-          remote: /var/www/html/reports/development/${{ env.xb_version }}/${{ github.ref_name }}/biodata/${{ github.sha }}/unit/${{ matrix.module }}
-          host: ${{ secrets.SSH_TESTING_SERVER_HOST}}
-          port: ${{ secrets.SSH_TESTING_SERVER_PORT}}
-          username: ${{ secrets.SSH_TESTING_SERVER_USER }}
-          password: ${{ secrets.SSH_TESTING_SERVER_PASSWORD }}
-          concurrency: 2
+    uses: opencb/biodata/.github/workflows/build-test.yml@TASK-2270
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SSH_TESTING_SERVER_HOST: ${{ secrets.SSH_TESTING_SERVER_HOST}}
+      SSH_TESTING_SERVER_PORT: ${{ secrets.SSH_TESTING_SERVER_PORT}}
+      SSH_TESTING_SERVER_USER: ${{ secrets.SSH_TESTING_SERVER_USER }}
+      SSH_TESTING_SERVER_PASSWORD: ${{ secrets.SSH_TESTING_SERVER_PASSWORD }}
 
   deploy-maven:
     uses: opencb/java-common-libs/.github/workflows/deploy-maven-repository-workflow.yml@develop
