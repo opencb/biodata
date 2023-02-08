@@ -36,7 +36,9 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: workdir
-          path: .
+          path: |
+            ./target/site
+            ./**/target/site
 
   publish-test:
     name: Publish test results
