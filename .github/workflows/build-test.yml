@@ -8,6 +8,14 @@ on:
     secrets:
       SONAR_TOKEN:
         required: true
+      SSH_TESTING_SERVER_HOST:
+        required: true
+      SSH_TESTING_SERVER_PORT:
+        required: true
+      SSH_TESTING_SERVER_USER:
+        required: true
+      SSH_TESTING_SERVER_PASSWORD:
+        required: true
 
 env:
   xb_version: "1.5.0"
@@ -36,7 +44,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B verify surefire-report:report  org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=${{ inputs.sonarProjectKey }}
+        run: mvn -B verify surefire-report:report  org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=opencb_biodata
       - name: Upload result dir
         uses: actions/upload-artifact@v3
         with:
