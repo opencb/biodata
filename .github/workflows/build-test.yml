@@ -8,6 +8,8 @@ on:
     secrets:
       SONAR_TOKEN:
         required: true
+      GITHUB_TOKEN:
+        required: true
 
 env:
   xb_version: "1.5.0"
@@ -31,7 +33,7 @@ jobs:
         run: sudo apt-get install samtools
       - name: Test and Analyze
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
+          GITHUB_TOKEN: ${{ GITHUB_TOKEN }} # Needed to get PR information, if any
           SONAR_TOKEN: ${{ SONAR_TOKEN }}
         run: mvn -B verify surefire-report:report  org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=${{ inputs.sonarProjectKey }}
       - name: Upload result dir
