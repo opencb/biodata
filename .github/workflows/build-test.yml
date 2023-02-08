@@ -1,14 +1,18 @@
 name: Build and test the project
 on:
   workflow_call:
+    inputs:
+      sonarProjectKey:
+        type: string
+        required: true
+    secrets:
+      SONAR_TOKEN:
+        required: true
 
 env:
   xb_version: "1.5.0"
 
 jobs:
-  build:
-    uses: opencb/java-common-libs/.github/workflows/build-java-app-workflow.yml@develop
-
   test:
     name: Test and push Sonar analysis
     runs-on: ubuntu-22.04
@@ -28,8 +32,8 @@ jobs:
       - name: Test and Analyze
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B verify surefire-report:report  #org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=opencb_biodata
+          SONAR_TOKEN: ${{ SONAR_TOKEN }}
+        run: mvn -B verify surefire-report:report  org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=${{ inputs.sonarProjectKey }}
       - name: Upload result dir
         uses: actions/upload-artifact@v3
         with:
