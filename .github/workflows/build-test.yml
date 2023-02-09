@@ -53,7 +53,7 @@ jobs:
     needs: test
     strategy:
       matrix:
-        module: [ ".","biodata-tools","biodata-models" ]
+        module: [ "biodata-tools","biodata-models" ]
     steps:
       - name: Download result dir
         uses: actions/download-artifact@v3
