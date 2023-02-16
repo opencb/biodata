@@ -22,7 +22,7 @@ jobs:
   deploy-maven:
     uses: opencb/java-common-libs/.github/workflows/deploy-maven-repository-workflow.yml@TASK-2270
     needs: [ build, test ]
-    if: contains( needs.build.outputs.version ,'SNAPSHOT')
+    #if: contains( needs.build.outputs.version ,'TASK')
     secrets:
       MAVEN_NEXUS_USER: ${{ secrets.MAVEN_NEXUS_USER }}
       MAVEN_NEXUS_PASSWORD: ${{ secrets.MAVEN_NEXUS_PASSWORD }}
