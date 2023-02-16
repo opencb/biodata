@@ -50,7 +50,7 @@ public class DiseasePanelParsers {
 
                 DiseasePanel.GenePanel genePanel = new DiseasePanel.GenePanel("", "", new LinkedList<>(),
                         ClinicalProperty.ModeOfInheritance.UNKNOWN, null, ClinicalProperty.Imprinted.UNKNOWN, null, new LinkedList<>(), new LinkedList<>(),
-                        new LinkedList<>(), new LinkedList<>(), new CancerPanel(false, false, null, new LinkedList<>(),
+                        new LinkedList<>(), new LinkedList<>(), new CancerPanel(false, false, new LinkedList<>(), new LinkedList<>(),
                         new LinkedList<>(), new LinkedList<>(), new LinkedList<>()));
                 for (int i = 0; i < splittedLine.length; i++) {
                     String value = StringUtils.strip(splittedLine[i], "\"'");
@@ -120,13 +120,21 @@ public class DiseasePanelParsers {
                         case "Molecular Genetics":
                             if (StringUtils.isNotEmpty(value)) {
                                 if ("Dom".equals(value)) {
-                                    genePanel.setModeOfInheritance(ClinicalProperty.ModeOfInheritance.AUTOSOMAL_DOMINANT);
+                                    genePanel.setModesOfInheritance(Collections.singletonList(
+                                            ClinicalProperty.ModeOfInheritance.AUTOSOMAL_DOMINANT)
+                                    );
                                 } else if ("Rec".equals(value)) {
-                                    genePanel.setModeOfInheritance(ClinicalProperty.ModeOfInheritance.AUTOSOMAL_RECESSIVE);
+                                    genePanel.setModesOfInheritance(Collections.singletonList(
+                                            ClinicalProperty.ModeOfInheritance.AUTOSOMAL_RECESSIVE)
+                                    );
                                 } else if ("Dom/Rec".equals(value)) {
-                                    genePanel.setModeOfInheritance(ClinicalProperty.ModeOfInheritance.AUTOSOMAL_DOMINANT);
+                                    genePanel.setModesOfInheritance(Collections.singletonList(
+                                            ClinicalProperty.ModeOfInheritance.AUTOSOMAL_DOMINANT)
+                                    );
                                 } else if ("Rec/X".equals(value)) {
-                                    genePanel.setModeOfInheritance(ClinicalProperty.ModeOfInheritance.X_LINKED_RECESSIVE);
+                                    genePanel.setModesOfInheritance(Collections.singletonList(
+                                            ClinicalProperty.ModeOfInheritance.X_LINKED_RECESSIVE)
+                                    );
                                 } else {
                                     System.out.println("Unknown moi '" + value + "'");
                                 }
@@ -154,7 +162,7 @@ public class DiseasePanelParsers {
                                     }
                                 }
                                 if (roleInCancer != null) {
-                                    genePanel.getCancer().setRole(roleInCancer);
+                                    genePanel.getCancer().setRoles(Collections.singletonList(roleInCancer));
                                 }
                             }
                             break;
@@ -437,7 +445,7 @@ public class DiseasePanelParsers {
         common.setId(ensemblGeneId);
         common.setXrefs(xrefs);
         String moi = String.valueOf(panelAppCommonMap.get("mode_of_inheritance"));
-        common.setModeOfInheritance(getMoiFromGenePanel(moi));
+        common.setModesOfInheritance(Collections.singletonList(getMoiFromGenePanel(moi)));
         common.setPenetrance(penetrance);
         common.setImprinted(getImprintedFromGenePanel(moi));
         ClinicalProperty.Confidence confidence = ClinicalProperty.Confidence.LOW;
