@@ -11,7 +11,7 @@ jobs:
     uses: opencb/java-common-libs/.github/workflows/build-java-app-workflow.yml@develop
 
   test:
-    uses: opencb/java-common-libs/.github/workflows/build-analysis.yml@develop
+    uses: opencb/biodata/.github/workflows/build-analysis.yml@develop
     needs: build
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
