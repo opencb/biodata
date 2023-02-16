@@ -20,7 +20,7 @@ jobs:
       SSH_TESTING_SERVER_PASSWORD: ${{ secrets.SSH_TESTING_SERVER_PASSWORD }}
 
   deploy-maven:
-    if: contains( needs.build.outputs.version ,'TASK')
+    if: contains( needs.build.outputs.version ,'SNAPSHOT')
     uses: opencb/java-common-libs/.github/workflows/deploy-maven-repository-workflow.yml@develop
     needs: [ build, test ]
     secrets:
