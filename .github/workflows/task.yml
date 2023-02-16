@@ -21,7 +21,7 @@ jobs:
 
   deploy-maven:
     uses: opencb/java-common-libs/.github/workflows/deploy-maven-repository-workflow.yml@TASK-2270
-    needs: [ build, test ]
+    needs: test
     #if: contains( needs.build.outputs.version ,'TASK')
     secrets:
       MAVEN_NEXUS_USER: ${{ secrets.MAVEN_NEXUS_USER }}
@@ -33,7 +33,7 @@ jobs:
   #The following jobs are to see that the previous if does not fail and that the maven deploy is executed because it is true
   snapshot-version:
     name: Check SNAPSHOT version
-    needs: [ build,test ]
+    needs: test
     if: contains(needs.build.outputs.version ,'SNAPSHOT')
     runs-on: ubuntu-22.04
     steps:
@@ -42,7 +42,7 @@ jobs:
 
   task-version:
     name: Check TASK version
-    needs: [ build,test ]
+    needs: test
     if: contains(needs.build.outputs.version ,'TASK')
     runs-on: ubuntu-22.04
     steps:
