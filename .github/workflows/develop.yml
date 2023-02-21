@@ -14,6 +14,8 @@ jobs:
     uses: opencb/biodata/.github/workflows/build-analysis.yml@develop
     needs: build
     secrets: inherit
+    with:
+      report_dir: development
 #      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 #      SSH_TESTING_SERVER_HOST: ${{ secrets.SSH_TESTING_SERVER_HOST}}
 #      SSH_TESTING_SERVER_PORT: ${{ secrets.SSH_TESTING_SERVER_PORT}}
