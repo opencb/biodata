@@ -13,6 +13,8 @@ jobs:
     uses: opencb/java-common-libs/.github/workflows/test-analysis.yml@TASK-3991
     needs: build
     secrets: inherit
+    with:
+      report_dir: development
 #      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 #      SSH_TESTING_SERVER_HOST: ${{ secrets.SSH_TESTING_SERVER_HOST}}
 #      SSH_TESTING_SERVER_PORT: ${{ secrets.SSH_TESTING_SERVER_PORT}}
@@ -25,8 +27,6 @@ jobs:
     needs: [ build, test ]
     if: contains( needs.build.outputs.version ,'TASK')
     secrets: inherit
-    with:
-      report_dir: development
   #      MAVEN_NEXUS_USER: ${{ secrets.MAVEN_NEXUS_USER }}
   #      MAVEN_NEXUS_PASSWORD: ${{ secrets.MAVEN_NEXUS_PASSWORD }}
   #      MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
