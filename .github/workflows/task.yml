@@ -7,14 +7,15 @@ on:
 
 jobs:
   build:
-    uses: opencb/java-common-libs/.github/workflows/build-java-app-workflow.yml@develop
+    uses: opencb/java-common-libs/.github/workflows/build-java-app-workflow.yml@TASK-3991
 
   test:
     uses: opencb/biodata/.github/workflows/test-analysis.yml@TASK-3991
     needs: build
     secrets: inherit
     with:
-      report_dir: development
+      report_context: development
+      report_dir: ${{ github.ref_name }}/biodata/${{ github.sha }}
 #      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 #      SSH_TESTING_SERVER_HOST: ${{ secrets.SSH_TESTING_SERVER_HOST}}
 #      SSH_TESTING_SERVER_PORT: ${{ secrets.SSH_TESTING_SERVER_PORT}}

@@ -6,6 +6,9 @@ on:
       report_dir:
         type: string
         required: true
+      report_context:
+        type: string
+        required: true
     secrets:
       SONAR_TOKEN:
         required: true
@@ -65,7 +68,7 @@ jobs:
         uses: garygrossgarten/github-action-scp@release
         with:
           local: ${{ matrix.module }}/target/site
-          remote: /var/www/html/reports/${{ inputs.report_dir }}/${{ env.xb_version }}/${{ github.ref_name }}/biodata/${{ github.sha }}/unit/${{ matrix.module }}
+          remote: /var/www/html/reports/${{ inputs.report_context }}/${{ env.xb_version }}/${{ inputs.report_dir }}/unit/${{ matrix.module }}
           host: ${{ secrets.SSH_TESTING_SERVER_HOST}}
           port: ${{ secrets.SSH_TESTING_SERVER_PORT}}
           username: ${{ secrets.SSH_TESTING_SERVER_USER }}

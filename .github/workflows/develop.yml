@@ -15,7 +15,9 @@ jobs:
     needs: build
     secrets: inherit
     with:
-      report_dir: development
+      report_context: development
+      report_dir: ${{ github.ref_name }}/biodata/${{ github.sha }}
+
 #      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 #      SSH_TESTING_SERVER_HOST: ${{ secrets.SSH_TESTING_SERVER_HOST}}
 #      SSH_TESTING_SERVER_PORT: ${{ secrets.SSH_TESTING_SERVER_PORT}}
