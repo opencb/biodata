@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    uses: opencb/java-common-libs/.github/workflows/build-java-app-workflow.yml@TASK-3991
+    uses: opencb/java-common-libs/.github/workflows/build-java-app-workflow.yml@develop
 
   test:
     uses: opencb/biodata/.github/workflows/test-analysis.yml@TASK-3991
