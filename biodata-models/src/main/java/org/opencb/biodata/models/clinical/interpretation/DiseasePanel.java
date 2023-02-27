@@ -19,7 +19,9 @@
 
 package org.opencb.biodata.models.clinical.interpretation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.collections4.CollectionUtils;
 import org.opencb.biodata.models.clinical.ClinicalProperty.Confidence;
 import org.opencb.biodata.models.clinical.ClinicalProperty.Imprinted;
 import org.opencb.biodata.models.clinical.ClinicalProperty.ModeOfInheritance;
@@ -28,6 +30,7 @@ import org.opencb.biodata.models.core.Xref;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -226,6 +229,7 @@ public class DiseasePanel {
         public VariantPanel() {
         }
 
+        @Deprecated
         public VariantPanel(String id, List<Xref> xrefs, ModeOfInheritance modeOfInheritance, Penetrance penetrance,
                             Imprinted imprinted, Confidence confidence, List<String> evidences, List<String> publications,
                             List<OntologyTerm> phenotypes, List<Coordinate> coordinates, CancerPanel cancerPanel,
@@ -236,12 +240,22 @@ public class DiseasePanel {
             this.alternate = alternate;
         }
 
+        public VariantPanel(String id, List<Xref> xrefs, List<ModeOfInheritance> modesOfInheritance, Penetrance penetrance,
+                            Imprinted imprinted, Confidence confidence, List<String> evidences, List<String> publications,
+                            List<OntologyTerm> phenotypes, List<Coordinate> coordinates, CancerPanel cancerPanel,
+                            String reference, String alternate) {
+            super(id, xrefs, modesOfInheritance, penetrance, imprinted, confidence, evidences, publications, phenotypes,
+                    coordinates, cancerPanel);
+            this.reference = reference;
+            this.alternate = alternate;
+        }
+
         @Override
         public String toString() {
             return "VariantPanel{" +
                     "id='" + id + '\'' +
                     ", xrefs=" + xrefs +
-                    ", modeOfInheritance='" + modeOfInheritance + '\'' +
+                    ", modesOfInheritance='" + modesOfInheritance + '\'' +
                     ", penetrance=" + penetrance +
                     ", confidence='" + confidence + '\'' +
                     ", evidences=" + evidences +
@@ -328,7 +342,7 @@ public class DiseasePanel {
 
         protected String id;
         protected List<Xref> xrefs;
-        protected ModeOfInheritance modeOfInheritance;
+        protected List<ModeOfInheritance> modesOfInheritance;
         protected Penetrance penetrance;
         protected Imprinted imprinted;
         protected Confidence confidence;
@@ -341,12 +355,29 @@ public class DiseasePanel {
         public Common() {
         }
 
+        @Deprecated
         public Common(String id, List<Xref> xrefs, ModeOfInheritance modeOfInheritance, Penetrance penetrance,
                       Imprinted imprinted, Confidence confidence, List<String> evidences, List<String> publications,
                       List<OntologyTerm> phenotypes, List<Coordinate> coordinates, CancerPanel cancer) {
             this.id = id;
             this.xrefs = xrefs;
-            this.modeOfInheritance = modeOfInheritance;
+            this.modesOfInheritance = modeOfInheritance != null ? Collections.singletonList(modeOfInheritance) : null;
+            this.penetrance = penetrance;
+            this.imprinted = imprinted;
+            this.confidence = confidence;
+            this.evidences = evidences;
+            this.publications = publications;
+            this.phenotypes = phenotypes;
+            this.coordinates = coordinates;
+            this.cancer = cancer;
+        }
+
+        public Common(String id, List<Xref> xrefs, List<ModeOfInheritance> modesOfInheritance, Penetrance penetrance,
+                      Imprinted imprinted, Confidence confidence, List<String> evidences, List<String> publications,
+                      List<OntologyTerm> phenotypes, List<Coordinate> coordinates, CancerPanel cancer) {
+            this.id = id;
+            this.xrefs = xrefs;
+            this.modesOfInheritance = modesOfInheritance;
             this.penetrance = penetrance;
             this.imprinted = imprinted;
             this.confidence = confidence;
@@ -362,7 +393,7 @@ public class DiseasePanel {
             final StringBuilder sb = new StringBuilder("Common{");
             sb.append("id='").append(id).append('\'');
             sb.append(", xrefs=").append(xrefs);
-            sb.append(", modeOfInheritance=").append(modeOfInheritance);
+            sb.append(", modesOfInheritance=").append(modesOfInheritance);
             sb.append(", penetrance=").append(penetrance);
             sb.append(", imprinted=").append(imprinted);
             sb.append(", confidence=").append(confidence);
@@ -384,12 +415,25 @@ public class DiseasePanel {
             return this;
         }
 
+        @Deprecated
+        @JsonIgnore
         public ModeOfInheritance getModeOfInheritance() {
-            return modeOfInheritance;
+            return CollectionUtils.isNotEmpty(modesOfInheritance) ? modesOfInheritance.get(0) : null;
         }
 
+        @Deprecated
+        @JsonIgnore
         public Common setModeOfInheritance(ModeOfInheritance modeOfInheritance) {
-            this.modeOfInheritance = modeOfInheritance;
+            this.modesOfInheritance = Collections.singletonList(modeOfInheritance);
+            return this;
+        }
+
+        public List<ModeOfInheritance> getModesOfInheritance() {
+            return modesOfInheritance;
+        }
+
+        public Common setModesOfInheritance(List<ModeOfInheritance> modesOfInheritance) {
+            this.modesOfInheritance = modesOfInheritance;
             return this;
         }
 
@@ -486,6 +530,7 @@ public class DiseasePanel {
         public RegionPanel() {
         }
 
+        @Deprecated
         public RegionPanel(String name, List<Xref> xrefs, ModeOfInheritance modeOfInheritance, Penetrance penetrance,
                            Imprinted imprinted, Confidence confidence, List<String> evidences, List<String> publications,
                            List<OntologyTerm> phenotypes, List<Coordinate> coordinates, CancerPanel cancerPanel,
@@ -500,12 +545,26 @@ public class DiseasePanel {
             this.requiredOverlapPercentage = requiredOverlapPercentage;
         }
 
+        public RegionPanel(String name, List<Xref> xrefs, List<ModeOfInheritance> modesOfInheritance, Penetrance penetrance,
+                           Imprinted imprinted, Confidence confidence, List<String> evidences, List<String> publications,
+                           List<OntologyTerm> phenotypes, List<Coordinate> coordinates, CancerPanel cancerPanel,
+                           String description, VariantType typeOfVariants, String haploinsufficiencyScore,
+                           String triplosensitivityScore, int requiredOverlapPercentage) {
+            super(name, xrefs, modesOfInheritance, penetrance, imprinted, confidence, evidences, publications, phenotypes,
+                    coordinates, cancerPanel);
+            this.description = description;
+            this.typeOfVariants = typeOfVariants;
+            this.haploinsufficiencyScore = haploinsufficiencyScore;
+            this.triplosensitivityScore = triplosensitivityScore;
+            this.requiredOverlapPercentage = requiredOverlapPercentage;
+        }
+
         @Override
         public String toString() {
             return "RegionPanel{" +
                     "id='" + id + '\'' +
                     ", xrefs=" + xrefs +
-                    ", modeOfInheritance='" + modeOfInheritance + '\'' +
+                    ", modesOfInheritance='" + modesOfInheritance + '\'' +
                     ", penetrance=" + penetrance +
                     ", confidence='" + confidence + '\'' +
                     ", evidences=" + evidences +
@@ -582,6 +641,7 @@ public class DiseasePanel {
         public STR() {
         }
 
+        @Deprecated
         public STR(String id, List<Xref> xrefs, ModeOfInheritance modeOfInheritance, Penetrance penetrance,
                    Imprinted imprinted, Confidence confidence, List<String> evidences, List<String> publications,
                    List<OntologyTerm> phenotypes, List<Coordinate> coordinates, CancerPanel cancerPanel, String repeatedSequence,
@@ -593,12 +653,23 @@ public class DiseasePanel {
             this.pathogenicRepeats = pathogenicRepeats;
         }
 
+        public STR(String id, List<Xref> xrefs, List<ModeOfInheritance> modesOfInheritance, Penetrance penetrance,
+                   Imprinted imprinted, Confidence confidence, List<String> evidences, List<String> publications,
+                   List<OntologyTerm> phenotypes, List<Coordinate> coordinates, CancerPanel cancerPanel, String repeatedSequence,
+                   int normalRepeats, int pathogenicRepeats) {
+            super(id, xrefs, modesOfInheritance, penetrance, imprinted, confidence, evidences, publications, phenotypes,
+                    coordinates, cancerPanel);
+            this.repeatedSequence = repeatedSequence;
+            this.normalRepeats = normalRepeats;
+            this.pathogenicRepeats = pathogenicRepeats;
+        }
+
         @Override
         public String toString() {
             final StringBuilder sb = new StringBuilder("STR{");
             sb.append("id='").append(id).append('\'');
             sb.append(", xrefs=").append(xrefs);
-            sb.append(", modeOfInheritance='").append(modeOfInheritance).append('\'');
+            sb.append(", modesOfInheritance='").append(modesOfInheritance).append('\'');
             sb.append(", penetrance=").append(penetrance);
             sb.append(", confidence='").append(confidence).append('\'');
             sb.append(", evidences=").append(evidences);
@@ -650,11 +721,22 @@ public class DiseasePanel {
         public GenePanel() {
         }
 
+        @Deprecated
         public GenePanel(String id, String name, List<Xref> xrefs, ModeOfInheritance modeOfInheritance,
                          Penetrance penetrance, Imprinted imprinted, Confidence confidence, List<String> evidences,
                          List<String> publications, List<OntologyTerm> phenotypes, List<Coordinate> coordinates,
                          CancerPanel cancerPanel) {
             super(id, xrefs, modeOfInheritance, penetrance, imprinted, confidence, evidences, publications, phenotypes,
+                    coordinates, cancerPanel);
+            this.name = name;
+        }
+
+
+        public GenePanel(String id, String name, List<Xref> xrefs, List<ModeOfInheritance> modesOfInheritance,
+                         Penetrance penetrance, Imprinted imprinted, Confidence confidence, List<String> evidences,
+                         List<String> publications, List<OntologyTerm> phenotypes, List<Coordinate> coordinates,
+                         CancerPanel cancerPanel) {
+            super(id, xrefs, modesOfInheritance, penetrance, imprinted, confidence, evidences, publications, phenotypes,
                     coordinates, cancerPanel);
             this.name = name;
         }
@@ -665,7 +747,7 @@ public class DiseasePanel {
             sb.append("id='").append(id).append('\'');
             sb.append(", name='").append(name).append('\'');
             sb.append(", xrefs=").append(xrefs);
-            sb.append(", modeOfInheritance=").append(modeOfInheritance);
+            sb.append(", modesOfInheritance=").append(modesOfInheritance);
             sb.append(", penetrance=").append(penetrance);
             sb.append(", confidence='").append(confidence).append('\'');
             sb.append(", evidences=").append(evidences);
