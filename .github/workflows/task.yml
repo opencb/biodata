@@ -10,7 +10,7 @@ jobs:
     uses: opencb/java-common-libs/.github/workflows/build-java-app-workflow.yml@develop
 
   test:
-    uses: opencb/biodata/.github/workflows/test-analysis.yml@TASK-3991
+    uses: opencb/biodata/.github/workflows/test-analysis.yml@develop
     needs: build
     secrets: inherit
     with:
