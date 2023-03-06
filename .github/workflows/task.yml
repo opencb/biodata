@@ -6,11 +6,47 @@ on:
       - TASK-*
 
 jobs:
+  build:
+    uses: opencb/java-common-libs/.github/workflows/build-java-app-workflow.yml@develop
+
   test:
-    uses: opencb/biodata/.github/workflows/build-test.yml@develop
-    secrets:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      SSH_TESTING_SERVER_HOST: ${{ secrets.SSH_TESTING_SERVER_HOST}}
-      SSH_TESTING_SERVER_PORT: ${{ secrets.SSH_TESTING_SERVER_PORT}}
-      SSH_TESTING_SERVER_USER: ${{ secrets.SSH_TESTING_SERVER_USER }}
-      SSH_TESTING_SERVER_PASSWORD: ${{ secrets.SSH_TESTING_SERVER_PASSWORD }}
+    uses: opencb/biodata/.github/workflows/build-analysis.yml@develop
+    needs: build
+    secrets: inherit
+#      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+#      SSH_TESTING_SERVER_HOST: ${{ secrets.SSH_TESTING_SERVER_HOST}}
+#      SSH_TESTING_SERVER_PORT: ${{ secrets.SSH_TESTING_SERVER_PORT}}
+#      SSH_TESTING_SERVER_USER: ${{ secrets.SSH_TESTING_SERVER_USER }}
+#      SSH_TESTING_SERVER_PASSWORD: ${{ secrets.SSH_TESTING_SERVER_PASSWORD }}
+
+  deploy-maven:
+    name: Deploy in maven only for renamed versions
+    uses: opencb/java-common-libs/.github/workflows/deploy-maven-repository-workflow.yml@develop
+    needs: [ build, test ]
+    if: contains( needs.build.outputs.version ,'TASK')
+    secrets: inherit
+  #      MAVEN_NEXUS_USER: ${{ secrets.MAVEN_NEXUS_USER }}
+  #      MAVEN_NEXUS_PASSWORD: ${{ secrets.MAVEN_NEXUS_PASSWORD }}
+  #      MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+  #      MAVEN_GPG_PRIVATE_KEY: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+
+
+  #The following jobs are to see that the previous 'if' doesn't fail and that the maven deploy is executed because it is true
+  snapshot-version:
+    name: Check SNAPSHOT version
+    needs: [ build, test ]
+    if: contains(needs.build.outputs.version ,'SNAPSHOT')
+    runs-on: ubuntu-22.04
+    steps:
+      - name: test-version-from-check
+        run: echo "Project version is " ${{ needs.build.outputs.version }}
+
+  task-version:
+    name: Check TASK version
+    needs: [ build, test ]
+    if: contains(needs.build.outputs.version ,'TASK')
+    runs-on: ubuntu-22.04
+    steps:
+      - name: test-version-from-check
+        run: echo "Project version is " ${{ needs.build.outputs.version }}
+
