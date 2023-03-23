@@ -1,5 +1,4 @@
 name: Build and test the project
-
 on:
   workflow_call:
     inputs:
@@ -20,12 +19,9 @@ on:
         required: true
       SSH_TESTING_SERVER_PASSWORD:
         required: true
-
 env:
-  xb_version: "1.5.1"
-
+  xb_version: "1.5.2"
 jobs:
-
   test:
     name: Test and push Sonar analysis
     runs-on: ubuntu-22.04
@@ -51,14 +47,13 @@ jobs:
         with:
           name: workdir
           path: "**/target/site"
-
   publish-test:
     name: Publish test results
     runs-on: ubuntu-22.04
     needs: test
     strategy:
       matrix:
-        module: [ "biodata-tools","biodata-models" ]
+        module: ["biodata-tools", "biodata-models"]
     steps:
       - name: Download result dir
         uses: actions/download-artifact@v3
