@@ -20,11 +20,13 @@
 package org.opencb.biodata.models.clinical.interpretation;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.opencb.biodata.models.clinical.ClinicalAcmg;
 import org.opencb.biodata.models.clinical.ClinicalProperty;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.opencb.biodata.models.variant.avro.ClinicalSignificance.*;
 
@@ -43,7 +45,7 @@ public class VariantClassification {
     public static final String UNTIERED = "none";
 
     private String tier;
-    private List<String> acmg;
+    private List<ClinicalAcmg> acmg;
     private ClinicalProperty.ClinicalSignificance clinicalSignificance;
     private DrugResponse drugResponse;
     private TraitAssociation traitAssociation;
@@ -96,12 +98,12 @@ public class VariantClassification {
     }
 
     @Deprecated
-    public static List<String> calculateAcmgClassification(Variant variant) {
+    public static List<ClinicalAcmg> calculateAcmgClassification(Variant variant) {
         return calculateAcmgClassification(variant, null);
     }
 
-    public static List<String> calculateAcmgClassification(ConsequenceType consequenceType, VariantAnnotation annotation,
-                                                           ClinicalProperty.ModeOfInheritance moi) {
+    public static List<ClinicalAcmg> calculateAcmgClassification(ConsequenceType consequenceType, VariantAnnotation annotation,
+                                                           List<ClinicalProperty.ModeOfInheritance> mois) {
         Set<String> acmg = new HashSet<>();
 
         // TODO: PM1
@@ -181,10 +183,10 @@ public class VariantClassification {
             }
         }
 
-        if (moi != null) {
-            if (moi == ClinicalProperty.ModeOfInheritance.DE_NOVO) {
+        if (mois != null) {
+            if (mois.contains(ClinicalProperty.ModeOfInheritance.DE_NOVO)) {
                 acmg.add("PS2");
-            } else if (moi == ClinicalProperty.ModeOfInheritance.COMPOUND_HETEROZYGOUS) {
+            } else if (mois.contains(ClinicalProperty.ModeOfInheritance.COMPOUND_HETEROZYGOUS)) {
                 acmg.add("PM3");
             }
         }
@@ -235,11 +237,12 @@ public class VariantClassification {
             }
         }
 
-        return new ArrayList<>(acmg);
+        return acmg.stream().map(a -> new ClinicalAcmg(a, "", "", "", "")).collect(Collectors.toList());
     }
 
     @Deprecated
-    public static List<String> calculateAcmgClassification(Variant variant, ClinicalProperty.ModeOfInheritance moi) {
+    public static List<ClinicalAcmg> calculateAcmgClassification(Variant variant,
+                                                           List<ClinicalProperty.ModeOfInheritance> mois) {
         Set<String> acmg = new HashSet<>();
 
         // TODO: PM1
@@ -319,10 +322,10 @@ public class VariantClassification {
             }
         }
 
-        if (moi != null) {
-            if (moi == ClinicalProperty.ModeOfInheritance.DE_NOVO) {
+        if (mois != null) {
+            if (mois.contains(ClinicalProperty.ModeOfInheritance.DE_NOVO)) {
                 acmg.add("PS2");
-            } else if (moi == ClinicalProperty.ModeOfInheritance.COMPOUND_HETEROZYGOUS) {
+            } else if (mois.contains(ClinicalProperty.ModeOfInheritance.COMPOUND_HETEROZYGOUS)) {
                 acmg.add("PM3");
             }
         }
@@ -371,7 +374,7 @@ public class VariantClassification {
             }
         }
 
-        return new ArrayList<>(acmg);
+        return acmg.stream().map(a -> new ClinicalAcmg(a, "", "", "", "")).collect(Collectors.toList());
     }
 
     public static ClinicalProperty.ClinicalSignificance computeClinicalSignificance(Variant variant, List<DiseasePanel> panels) {
@@ -390,7 +393,7 @@ public class VariantClassification {
         return computeClinicalSignificance(calculateAcmgClassification(variant));
     }
 
-    public static ClinicalProperty.ClinicalSignificance computeClinicalSignificance(List<String> acmgs) {
+    public static ClinicalProperty.ClinicalSignificance computeClinicalSignificance(List<ClinicalAcmg> acmgs) {
         if (CollectionUtils.isEmpty(acmgs)) {
             return ClinicalProperty.ClinicalSignificance.UNCERTAIN_SIGNIFICANCE;
         }
@@ -401,8 +404,8 @@ public class VariantClassification {
             acmgCounter.put(prefix, 0);
         }
 
-        for (String acmg : acmgs) {
-            String prefix = acmg.split("[1-9]")[0];
+        for (ClinicalAcmg acmg : acmgs) {
+            String prefix = acmg.getClassification().split("[1-9]")[0];
             acmgCounter.put(prefix, acmgCounter.get(prefix) + 1);
         }
 
@@ -440,7 +443,7 @@ public class VariantClassification {
         this.acmg = new ArrayList<>();
     }
 
-    public VariantClassification(String tier, List<String> acmg, ClinicalProperty.ClinicalSignificance clinicalSignificance,
+    public VariantClassification(String tier, List<ClinicalAcmg> acmg, ClinicalProperty.ClinicalSignificance clinicalSignificance,
                                  DrugResponse drugResponse, TraitAssociation traitAssociation, FunctionalEffect functionalEffect,
                                  Tumorigenesis tumorigenesis, List<String> other) {
         this.tier = tier;
@@ -462,11 +465,11 @@ public class VariantClassification {
         return this;
     }
 
-    public List<String> getAcmg() {
+    public List<ClinicalAcmg> getAcmg() {
         return acmg;
     }
 
-    public VariantClassification setAcmg(List<String> acmg) {
+    public VariantClassification setAcmg(List<ClinicalAcmg> acmg) {
         this.acmg = acmg;
         return this;
     }

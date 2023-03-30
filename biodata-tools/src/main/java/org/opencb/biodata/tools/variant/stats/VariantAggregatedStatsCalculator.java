@@ -40,6 +40,16 @@ import java.util.stream.Collectors;
  * @author Jose Miguel Mut Lopez &lt;jmmut@ebi.ac.uk&gt;
  */
 public class VariantAggregatedStatsCalculator {
+
+    public static final String AF = "AF";
+    public static final String AN = "AN";
+    public static final String AC = "AC";
+    public static final String HOMALT = "HOMALT";
+    public static final String GTC = "GTC";
+    public static final String GTS = "GTS";
+    public static final String MAF = "MAF";
+    public static final String MA = "MA";
+
     protected Properties tagMap;
     protected Map<String, String> reverseTagMap;
 
@@ -47,7 +57,15 @@ public class VariantAggregatedStatsCalculator {
     protected final static String DOT = "\\.";   // a literal dot. extracted to avoid confusion and avoid using the wrong "." with split()
     private final static Pattern numNum = Pattern.compile("^(\\d+)[|/](\\d+)$");
     protected final static String cohortSeparator = "_";
-    protected final List<String> statsTags = new ArrayList<>(Arrays.asList("AC", "AN", "AF", "GTC", "GTS"));
+    protected final Set<String> VALID_TAGS = new HashSet<>(Arrays.asList(
+            AC,
+            AN,
+            AF,
+            GTC,
+            GTS,
+            MAF,
+            MA,
+            HOMALT));
 
     public VariantAggregatedStatsCalculator() {
         this(null);
@@ -75,8 +93,19 @@ public class VariantAggregatedStatsCalculator {
             for (String tag : tagMap.stringPropertyNames()) {
                 this.reverseTagMap.put(tagMap.getProperty(tag), tag);
             }
+            validateTagMap(tagMap);
         } else {
             this.reverseTagMap = null;
+        }
+    }
+
+    protected void validateTagMap(Properties tagMap) {
+        for (String tag : tagMap.stringPropertyNames()) {
+            String[] tagSplit = tag.split(DOT);
+            String tagName = tagSplit[1];
+            if (!VALID_TAGS.contains(tagName)) {
+                throw new IllegalArgumentException("Invalid mapping tag '" + tagName + "'. Accepted tags: " + VALID_TAGS);
+            }
         }
     }
 
@@ -138,7 +167,7 @@ public class VariantAggregatedStatsCalculator {
             String infoTag = entry.getKey();
             String infoValue = entry.getValue();
 
-            if (statsTags.contains(infoTag)) {
+            if (VALID_TAGS.contains(infoTag)) {
                 stats.put(infoTag, infoValue);
             }
         }
@@ -166,8 +195,13 @@ public class VariantAggregatedStatsCalculator {
                 String[] tagSplit = opencgaTag.split(DOT);
                 String cohortName = tagSplit[0];
                 String statName = tagSplit[1];
-                Map<String, String> parsedValues = cohortStats.computeIfAbsent(cohortName, k -> new LinkedHashMap<>());
-                parsedValues.put(statName, entry.getValue());
+                cohortStats.computeIfAbsent(cohortName, k -> {
+                            LinkedHashMap<String, String> cohortInfo = new LinkedHashMap<>();
+                            cohortInfo.put(StudyEntry.FILTER, info.get(StudyEntry.FILTER));
+                            cohortInfo.put(StudyEntry.QUAL, info.get(StudyEntry.QUAL));
+                            return cohortInfo;
+                        })
+                        .put(statName, entry.getValue());
             }
         }
 
@@ -191,10 +225,10 @@ public class VariantAggregatedStatsCalculator {
     protected void calculate(Variant variant, StudyEntry studyEntry, int numAllele, String reference, String[] alternateAlleles,
                              Map<String, String> fileData, VariantStats variantStats) {
 
-        if (fileData.containsKey("AN") && fileData.containsKey("AC")) {
-            int total = Integer.parseInt(fileData.get("AN"));
+        if (fileData.containsKey(AN) && fileData.containsKey(AC)) {
+            int total = Integer.parseInt(fileData.get(AN));
             variantStats.setAlleleCount(total);
-            String[] alleleCountString = fileData.get("AC").split(COMMA);
+            String[] alleleCountString = fileData.get(AC).split(COMMA);
 
             if (alleleCountString.length != alternateAlleles.length) {
                 return;
@@ -228,8 +262,8 @@ public class VariantAggregatedStatsCalculator {
             variantStats.setMafAllele(mafAllele);
         }
 
-        if (fileData.containsKey("AF")) {
-            String[] afs = fileData.get("AF").split(COMMA);
+        if (fileData.containsKey(AF)) {
+            String[] afs = fileData.get(AF).split(COMMA);
             if (afs.length == alternateAlleles.length) {
                 float value = parseFloat(afs[numAllele], -1);
                 variantStats.setAltAlleleFreq(value);
@@ -259,13 +293,13 @@ public class VariantAggregatedStatsCalculator {
             }
         }
 
-        if (fileData.containsKey("MAF")) {
-            String[] mafs = fileData.get("MAF").split(COMMA);
+        if (fileData.containsKey(MAF)) {
+            String[] mafs = fileData.get(MAF).split(COMMA);
             if (mafs.length == alternateAlleles.length) {
                 float maf = parseFloat(mafs[numAllele], -1);
                 variantStats.setMaf(maf);
-                if (fileData.containsKey("MA")) { // Get the minor allele
-                    String ma = fileData.get("MA");
+                if (fileData.containsKey(MA)) { // Get the minor allele
+                    String ma = fileData.get(MA);
                     if (ma.equals("-")) {
                         ma = "";
                     }
@@ -282,12 +316,12 @@ public class VariantAggregatedStatsCalculator {
                 }
             }
         }
-        if (fileData.containsKey("GTC")) {
-            String[] gtcs = fileData.get("GTC").split(COMMA);
-            if (fileData.containsKey("GTS")) {    // GTS contains the format like: GTS=GG,GT,TT or GTS=A1A1,A1R,RR
+        if (fileData.containsKey(GTC)) {
+            String[] gtcs = fileData.get(GTC).split(COMMA);
+            if (fileData.containsKey(GTS)) {    // GTS contains the format like: GTS=GG,GT,TT or GTS=A1A1,A1R,RR
                 addGenotypeWithGTS(fileData, gtcs, reference, alternateAlleles, numAllele, variantStats);
             } else {
-                // Het count is a non standard field that can not be rearranged when decomposing multi-allelic variants.
+                // GTC is a non standard field that can not be rearranged when decomposing multi-allelic variants.
                 // Get the original variant call to parse this field
                 FileEntry fileEntry = studyEntry.getFiles().get(0);
                 int numAlleleOri;
@@ -299,8 +333,8 @@ public class VariantAggregatedStatsCalculator {
 
                 for (int i = 0; i < gtcs.length; i++) {
                     String[] gtcSplit = gtcs[i].split(":");
-                    Integer alleles[] = new Integer[2];
-                    Integer gtc = 0;
+                    Integer[] alleles = new Integer[2];
+                    int gtc = 0;
                     String gt = null;
                     boolean parseable = true;
                     if (gtcSplit.length == 1) { // GTC=0,5,8
@@ -334,6 +368,14 @@ public class VariantAggregatedStatsCalculator {
                 VariantStatsCalculator.calculateGenotypeFrequencies(variantStats);
             }
         }
+        if (fileData.containsKey(HOMALT)) {
+            String[] hom = fileData.get(HOMALT).split(COMMA);
+            for (int i = 0; i < hom.length; i++) {
+                String s = hom[i];
+                int alleleIndex = i + 1;
+                variantStats.addGenotype(alleleIndex + "/" + alleleIndex, Integer.parseInt(s));
+            }
+        }
 
         calculateFilterQualStats(fileData, variantStats);
     }
@@ -361,8 +403,8 @@ public class VariantAggregatedStatsCalculator {
 
     public static void addGenotypeWithGTS(Map<String, String> fileData, String[] splitsGTC,
                                           String reference, String[] alternateAlleles, int numAllele, VariantStats cohortStats) {
-        if (fileData.containsKey("GTS")) {
-            String splitsGTS[] = fileData.get("GTS").split(COMMA);
+        if (fileData.containsKey(GTS)) {
+            String[] splitsGTS = fileData.get(GTS).split(COMMA);
             if (splitsGTC.length == splitsGTS.length) {
                 for (int i = 0; i < splitsGTC.length; i++) {
                     String gt = splitsGTS[i];

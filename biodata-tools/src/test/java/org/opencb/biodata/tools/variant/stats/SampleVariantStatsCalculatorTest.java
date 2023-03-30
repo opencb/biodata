@@ -7,6 +7,8 @@ import org.junit.Test;
 import org.opencb.biodata.formats.variant.io.VariantReader;
 import org.opencb.biodata.models.clinical.pedigree.Member;
 import org.opencb.biodata.models.clinical.pedigree.Pedigree;
+import org.opencb.biodata.models.core.SexOntologyTermAnnotation;
+import org.opencb.biodata.models.pedigree.IndividualProperty;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
 import org.opencb.biodata.models.variant.avro.ConsequenceType;
@@ -38,12 +40,20 @@ public class SampleVariantStatsCalculatorTest {
         );
 
         pedigree = new Pedigree();
-        Member s0 = new Member("s0", "s0", Member.Sex.MALE);
-        Member s1 = new Member("s1", "s1", Member.Sex.FEMALE);
-        Member s2 = new Member("s2", "s2", Member.Sex.MALE).setFather(null).setMother(s1); // Only mother
-        Member s3 = new Member("s3", "s3", Member.Sex.FEMALE).setFather(s0).setMother(null); // Only father
-        Member s4 = new Member("s4", "s4", Member.Sex.MALE).setFather(s0).setMother(s1);
-        Member s5 = new Member("s5", "s5", Member.Sex.MALE).setFather(s0).setMother(s1);
+        Member s0 = new Member("s0", "s0", new SexOntologyTermAnnotation().setId(IndividualProperty.Sex.MALE.name()));
+        Member s1 = new Member("s1", "s1", new SexOntologyTermAnnotation().setId(IndividualProperty.Sex.FEMALE.name()));
+        Member s2 = new Member("s2", "s2",
+                new SexOntologyTermAnnotation().setId(IndividualProperty.Sex.MALE.name())).setFather(null).setMother(s1); //
+        // Only
+        // mother
+        Member s3 = new Member("s3", "s3",
+                new SexOntologyTermAnnotation().setId(IndividualProperty.Sex.FEMALE.name())).setFather(s0).setMother(null); //
+        // Only
+        // father
+        Member s4 =
+                new Member("s4", "s4", new SexOntologyTermAnnotation().setId(IndividualProperty.Sex.MALE.name())).setFather(s0).setMother(s1);
+        Member s5 =
+                new Member("s5", "s5", new SexOntologyTermAnnotation().setId(IndividualProperty.Sex.MALE.name())).setFather(s0).setMother(s1);
         pedigree.setMembers(Arrays.asList(s0, s1, s2, s3, s4, s5));
     }
 
@@ -107,6 +117,19 @@ public class SampleVariantStatsCalculatorTest {
         for (SampleVariantStats sampleStat : sampleStats) {
             Assert.assertFalse(Float.isNaN(sampleStat.getQualityAvg()));
             Assert.assertFalse(Float.isInfinite(sampleStat.getQualityAvg()));
+            Assert.assertEquals(0, sampleStat.getDepthCount().getNa().intValue());
+            int dp = Integer.parseInt(sampleStat.getId().substring(1)) * 10;
+            if (dp < 5) {
+                Assert.assertNotEquals(0, sampleStat.getDepthCount().getLt5().intValue());
+            } else if (dp < 10) {
+                Assert.assertNotEquals(0, sampleStat.getDepthCount().getLt10().intValue());
+            } else if (dp < 15) {
+                Assert.assertNotEquals(0, sampleStat.getDepthCount().getLt15().intValue());
+            } else if (dp < 20) {
+                Assert.assertNotEquals(0, sampleStat.getDepthCount().getLt20().intValue());
+            } else {
+                Assert.assertNotEquals(0, sampleStat.getDepthCount().getGte20().intValue());
+            }
         }
     }
 
@@ -120,14 +143,14 @@ public class SampleVariantStatsCalculatorTest {
         Variant variant = Variant.newBuilder(v)
                 .setStudyId("study")
                 .setFileId("file")
-                .setSampleDataKeys("GT")
+                .setSampleDataKeys("GT", "DP")
                 .setSampleNames(samples)
-                .addSample("s0", s0Gt)
-                .addSample("s1", s1Gt)
-                .addSample("s2", s2Gt)
-                .addSample("s3", s3Gt)
-                .addSample("s4", s4Gt)
-                .addSample("s5", s5Gt)
+                .addSample("s0", s0Gt, "0")
+                .addSample("s1", s1Gt, "10")
+                .addSample("s2", s2Gt, "20")
+                .addSample("s3", s3Gt, "30")
+                .addSample("s4", s4Gt, "40")
+                .addSample("s5", s5Gt, "50")
                 .setQuality(qual)
                 .setFilter(filter)
                 .build();

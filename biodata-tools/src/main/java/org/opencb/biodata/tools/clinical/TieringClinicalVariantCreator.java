@@ -22,12 +22,16 @@ package org.opencb.biodata.tools.clinical;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.opencb.biodata.models.clinical.ClinicalDiscussion;
 import org.opencb.biodata.models.clinical.ClinicalProperty;
 import org.opencb.biodata.models.clinical.ClinicalProperty.ModeOfInheritance;
 import org.opencb.biodata.models.clinical.ClinicalProperty.Penetrance;
-import org.opencb.biodata.models.clinical.interpretation.*;
-import org.opencb.biodata.models.clinical.interpretation.exceptions.InterpretationAnalysisException;
 import org.opencb.biodata.models.clinical.Disorder;
+import org.opencb.biodata.models.clinical.interpretation.ClinicalVariant;
+import org.opencb.biodata.models.clinical.interpretation.ClinicalVariantEvidence;
+import org.opencb.biodata.models.clinical.interpretation.DiseasePanel;
+import org.opencb.biodata.models.clinical.interpretation.GenomicFeature;
+import org.opencb.biodata.models.clinical.interpretation.exceptions.InterpretationAnalysisException;
 import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.ConsequenceType;
@@ -63,17 +67,22 @@ public class TieringClinicalVariantCreator extends ClinicalVariantCreator {
             "SO:0001630", "splice_region_variant",
             "SO:0001626", "incomplete_terminal_codon_variant"));
 
-    public TieringClinicalVariantCreator(List<DiseasePanel> diseasePanels, Map<String, RoleInCancer> roleInCancer,
-                                         Map<String, List<String>> actionableVariants, Disorder disorder,
+    @Deprecated
+    public TieringClinicalVariantCreator(List<DiseasePanel> diseasePanels, Map<String, RoleInCancer> roleInCancer, Disorder disorder,
                                          ModeOfInheritance modeOfInheritance, Penetrance penetrance, String assembly) {
-        super(diseasePanels, disorder, modeOfInheritance, penetrance, roleInCancer, actionableVariants, assembly);
+        super(diseasePanels, disorder, Collections.singletonList(modeOfInheritance), penetrance, roleInCancer, assembly);
+    }
+
+    public TieringClinicalVariantCreator(List<DiseasePanel> diseasePanels, Disorder disorder, ModeOfInheritance modeOfInheritance,
+                                         Penetrance penetrance, String assembly) {
+        super(diseasePanels, disorder, Collections.singletonList(modeOfInheritance), penetrance, assembly);
     }
 
     @Override
     public List<ClinicalVariant> create(List<Variant> variants) throws InterpretationAnalysisException {
         Map<String, List<ModeOfInheritance>> moiMap = new HashMap<>();
         for (Variant variant : variants) {
-            moiMap.put(variant.getId(), modeOfInheritance != null ? Collections.singletonList(modeOfInheritance) : Collections.emptyList());
+            moiMap.put(variant.getId(), modeOfInheritances != null ? modeOfInheritances : Collections.emptyList());
         }
         return create(variants, moiMap);
     }
@@ -205,7 +214,8 @@ public class TieringClinicalVariantCreator extends ClinicalVariantCreator {
             if (CollectionUtils.isNotEmpty(clinicalVariantEvidences)) {
                 logger.debug(variant.toStringSimple() + ": reported, num. evidences: " + clinicalVariantEvidences.size());
                 ClinicalVariant clinicalVariant = new ClinicalVariant(variant.getImpl(), Collections.emptyList(), Collections.emptyList(),
-                        Collections.emptyMap(), "", ClinicalVariant.Status.NOT_REVIEWED, Collections.emptyMap());
+                        Collections.emptyMap(), new ClinicalDiscussion(), null, ClinicalVariant.Status.NOT_REVIEWED,
+                        Collections.emptyList(), Collections.emptyMap());
                 clinicalVariant.setEvidences(clinicalVariantEvidences);
 
                 // Add variant to the list

@@ -1,7 +1,7 @@
 package org.opencb.biodata.tools.variant.stats;
 
 import htsjdk.variant.vcf.VCFConstants;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opencb.biodata.models.clinical.pedigree.Member;
@@ -145,7 +145,7 @@ public class SampleVariantStatsCalculator implements Task<Variant, Variant> {
         Integer dpPos = studyEntry.getSampleDataKeyPosition(VCFConstants.DEPTH_KEY);
         IntFunction<String> getDp;
         if (dpPos != null) {
-            getDp = samplePos -> samples.get(samplePos).getData().get(0);
+            getDp = samplePos -> samples.get(samplePos).getData().get(dpPos);
         } else {
             getDp = samplePos -> getFileAttributes(studyEntry, samplePos).get(VCFConstants.DEPTH_KEY);
         }

@@ -1,7 +1,7 @@
 package org.opencb.biodata.tools.pedigree;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opencb.biodata.models.clinical.ClinicalProperty.Penetrance;
@@ -9,6 +9,7 @@ import org.opencb.biodata.models.clinical.Disorder;
 import org.opencb.biodata.models.clinical.pedigree.Member;
 import org.opencb.biodata.models.clinical.pedigree.Pedigree;
 import org.opencb.biodata.models.clinical.pedigree.PedigreeManager;
+import org.opencb.biodata.models.pedigree.IndividualProperty;
 import org.opencb.biodata.models.variant.Genotype;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
@@ -120,7 +121,7 @@ public class ModeOfInheritance {
 
         for (Member member : pedigree.getMembers()) {
             if (affectedMembers.contains(member)) {
-                if (member.getSex() == Member.Sex.MALE) {
+                if (member.getSex().getSex() == IndividualProperty.Sex.MALE) {
                     Set<Integer> genotype = new HashSet<>();
                     genotype.add(GENOTYPE_1);
                     genotypes.put(member.getId(), genotype);
@@ -134,7 +135,7 @@ public class ModeOfInheritance {
                     genotypes.put(member.getId(), genotype);
                 }
             } else {
-                if (member.getSex() == Member.Sex.MALE) {
+                if (member.getSex().getSex() == IndividualProperty.Sex.MALE) {
                     Set<Integer> genotype = new HashSet<>();
                     genotype.add(GENOTYPE_0);
                     if (penetrance == Penetrance.INCOMPLETE) {
@@ -181,7 +182,7 @@ public class ModeOfInheritance {
 
         for (Member member : pedigree.getMembers()) {
             if (affectedMembers.contains(member)) {
-                if (member.getSex() == Member.Sex.MALE) {
+                if (member.getSex().getSex() == IndividualProperty.Sex.MALE) {
                     Set<Integer> genotype = new HashSet<>();
                     genotype.add(GENOTYPE_1);
                     genotypes.put(member.getId(), genotype);
@@ -195,7 +196,7 @@ public class ModeOfInheritance {
                     return emptyMapOfGenotypes(genotypes);
                 }
             } else {
-                if (member.getSex() == Member.Sex.MALE) {
+                if (member.getSex().getSex() == IndividualProperty.Sex.MALE) {
                     Set<Integer> genotype = new HashSet<>();
                     genotype.add(GENOTYPE_0);
                     if (penetrance == Penetrance.INCOMPLETE) {
@@ -213,7 +214,7 @@ public class ModeOfInheritance {
         while (!queue.isEmpty()) {
             Member child = queue.remove();
 
-            if (child.getSex() == Member.Sex.MALE && child.getFather() != null && StringUtils.isNotEmpty(child.getFather().getId())) {
+            if (child.getSex().getSex() == IndividualProperty.Sex.MALE && child.getFather() != null && StringUtils.isNotEmpty(child.getFather().getId())) {
                 // Both or none of them should be affected
                 Set<Integer> childGenotypes = genotypes.get(child.getId());
                 Set<Integer> fatherGenotypes = genotypes.get(child.getFather().getId());

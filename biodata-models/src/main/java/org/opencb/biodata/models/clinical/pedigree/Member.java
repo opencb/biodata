@@ -21,6 +21,8 @@ package org.opencb.biodata.models.clinical.pedigree;
 
 import org.opencb.biodata.models.clinical.Disorder;
 import org.opencb.biodata.models.clinical.Phenotype;
+import org.opencb.biodata.models.core.OntologyTermAnnotation;
+import org.opencb.biodata.models.core.SexOntologyTermAnnotation;
 import org.opencb.biodata.models.pedigree.IndividualProperty;
 import org.opencb.biodata.models.pedigree.Multiples;
 
@@ -39,40 +41,13 @@ public class Member {
     private Member mother;
     private Multiples multiples;
 
-    private Sex sex;
+    private SexOntologyTermAnnotation sex;
     private IndividualProperty.LifeStatus lifeStatus;
 
     private List<Phenotype> phenotypes;
     private List<Disorder> disorders;
 
     private Map<String, Object> attributes;
-
-    public enum Sex {
-        MALE(1),
-        FEMALE(2),
-        UNKNOWN(0);
-
-        private int value;
-        Sex(int value) {
-            this.value = value;
-        }
-        public int getValue() {
-            return value;
-        }
-
-        public static Sex getEnum(String value) {
-            switch (value) {
-                case "1":
-                case "MALE":
-                    return MALE;
-                case "2":
-                case "FEMALE":
-                    return FEMALE;
-                default:
-                    return UNKNOWN;
-            }
-        }
-    }
 
     public enum AffectionStatus {
         UNKNOWN(0),
@@ -114,7 +89,7 @@ public class Member {
      * @param name              Individual name
      * @param sex               Individual sex
      */
-    public Member(String id, String name, Sex sex) {
+    public Member(String id, String name, SexOntologyTermAnnotation sex) {
         this.id = id;
         this.name = name;
         this.sex = sex;
@@ -125,13 +100,13 @@ public class Member {
      *  @param name              Individual name
      * @param sex               Individual sex
      */
-    public Member(String name, Sex sex) {
+    public Member(String name, SexOntologyTermAnnotation sex) {
         this.id = name;
         this.name = name;
         this.sex = sex;
     }
 
-    public Member(String id, String name, Member father, Member mother, Multiples multiples, Sex sex,
+    public Member(String id, String name, Member father, Member mother, Multiples multiples, SexOntologyTermAnnotation sex,
                   IndividualProperty.LifeStatus lifeStatus, List<Phenotype> phenotypes,
                   List<Disorder> disorders, Map<String, Object> attributes) {
         this.id = id;
@@ -145,7 +120,6 @@ public class Member {
         this.phenotypes = phenotypes;
         this.attributes = attributes;
     }
-
 
     @Override
     public String toString() {
@@ -209,11 +183,11 @@ public class Member {
         return this;
     }
 
-    public Sex getSex() {
+    public SexOntologyTermAnnotation getSex() {
         return sex;
     }
 
-    public Member setSex(Sex sex) {
+    public Member setSex(SexOntologyTermAnnotation sex) {
         this.sex = sex;
         return this;
     }

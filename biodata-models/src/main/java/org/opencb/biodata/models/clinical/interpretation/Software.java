@@ -19,15 +19,35 @@
 
 package org.opencb.biodata.models.clinical.interpretation;
 
+import org.opencb.biodata.models.constants.FieldConstants;
+import org.opencb.commons.annotations.DataField;
+
 import java.util.Map;
 
 public class Software {
 
+    @DataField(id = "name",
+            description = FieldConstants.SOFTWARE_NAME)
     private String name;
+
+    @DataField(id = "version",
+            description = FieldConstants.SOFTWARE_VERSION)
     private String version;
+
+    @DataField(id = "repository",
+            description = FieldConstants.SOFTWARE_REPOSITORY)
     private String repository;
+
+    @DataField(id = "commit",
+            description = FieldConstants.SOFTWARE_COMMIT)
     private String commit;
+
+    @DataField(id = "website",
+            description = FieldConstants.SOFTWARE_WEBSITE)
     private String website;
+
+    @DataField(id = "params",
+            description = FieldConstants.SOFTWARE_PARAMS)
     private Map<String, String> params;
 
     public Software() {

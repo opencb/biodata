@@ -1,0 +1,26 @@
+name: Push biodata develop
+
+on:
+  push:
+    branches:
+      - develop
+      - release-*
+
+jobs:
+  build:
+    uses: opencb/java-common-libs/.github/workflows/build-java-app-workflow.yml@develop
+
+  test:
+    uses: opencb/biodata/.github/workflows/test-analysis.yml@release-2.7.x
+    needs: build
+    secrets: inherit
+    with:
+      report_context: development
+      report_dir: ${{ github.ref_name }}/biodata/${{ github.sha }}
+
+
+  deploy-maven:
+    uses: opencb/java-common-libs/.github/workflows/deploy-maven-repository-workflow.yml@develop
+    needs: test
+    secrets: inherit
+

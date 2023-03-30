@@ -66,8 +66,39 @@ public class VariantBuilder {
     protected static final String INV_ALT_EXTENDED = "<INV:";
     protected static final String INS_ALT_EXTENDED = "<INS:";
     private static final Pattern BREAKEND_MATED_PATTERN = Pattern.compile("(.*)([\\[\\]])(.+):(\\p{Digit}+)([\\[\\]])(.*)");
+    private static final String PARTIAL_INS_SEQ_SEPARATOR = "...";
+    private static final String[] EMPTY_ARRAY = new String[0];
 
     protected static Logger logger = LoggerFactory.getLogger(VariantBuilder.class);
+
+    private static final String CHROMOSOME_REGEX = "[0-9A-Za-z!#$%&+./:;?@^_|~-][0-9A-Za-z!#$%&*+./:;=?@^_|~-]*";
+    private static final String POSITION_REGEX = "("
+            + "\\p{Digit}+|(-)?\\p{Digit}+<\\p{Digit}+<\\p{Digit}+"
+            + ")";
+    private static final String REFERENCE_REGEX = "("
+            + "[ACGTN]+|" // Simple reference
+            + "-" // No reference
+            + ")";
+    private static final String ALTERNATE_REGEX = "("
+            + "\\.|" // No variation
+            + "-|" // No alternate
+            + "[ACGTN]+|" // Simple alternate
+            + "[ACGTN]+" + PARTIAL_INS_SEQ_SEPARATOR + "[ACGTN]+|" // Partial long insertion, optinal end
+            + "[ACGTN]+" + PARTIAL_INS_SEQ_SEPARATOR + "|" // Partial long insertion, no right
+            + PARTIAL_INS_SEQ_SEPARATOR + "[ACGT]+|" // Partial long insertion, no left
+            + "\\*|" // Span deletion
+            + "<[^<>]+>|" // Symbolic alternate
+            + "([ACGTN]*|\\.)([\\[\\]])(" + CHROMOSOME_REGEX + "):(\\p{Digit}+)([\\[\\]])([ACGTN]*|\\.)" // Breakend
+            + ")";
+    private static final String START_END_REGEX = ""
+            + "(?<start>" + POSITION_REGEX + ")"
+            + "(-(?<end>" + POSITION_REGEX + "))?";
+    private static final Pattern ALTERNATE_PATTERN = Pattern.compile(ALTERNATE_REGEX);
+    private static final Pattern START_END_PATTERN = Pattern.compile(START_END_REGEX);
+    protected static final Pattern VARIANT_PATTERN = Pattern.compile("(?<chromosome>" + CHROMOSOME_REGEX + ")"
+            + ":" + START_END_REGEX
+            + "(:(?<reference>" + REFERENCE_REGEX +")?)?"
+            + ":(?<alternate>" + ALTERNATE_REGEX + "(,"+ALTERNATE_REGEX+")*)");
 
     static {
         SV_TYPES = EnumSet.copyOf(Variant.SV_SUBTYPES);
@@ -84,6 +115,7 @@ public class VariantBuilder {
     private String chromosome;
     private Integer start;
     private Integer end;
+    private boolean ignoreMissingEnd = false;
     private Integer length;
     private String reference;
     private ArrayList<String> alternates;
@@ -120,13 +152,19 @@ public class VariantBuilder {
             // Symbolic and breakend variants may use ':' within the alternate.
             //  If contains '>', is a symbolic variant
             //  If contains ']' or "[", is a breakend
-            // Split in 4 segments. If reference (field[2]) contains a '<', '>', ']', '[', the reference was missing,
-            // so it has to split in 3 segments.
-            // Get last index of '<'. Start and end may use '<' for imprecise positions.
+            // Split in 4 segments. If the last segment is not a valid alternate, parsed with regex.
             if (StringUtils.containsAny(variantString, '>', ']', '[')) {
+                // Suspicious alternate. Need extra validation
                 fields = variantString.split(":", 4);
-                if (fields.length == 4 && StringUtils.containsAny(fields[2], '<', '>', ']', '[')) {
-                    fields = variantString.split(":", 3);
+                if (fields.length == 4 || fields.length == 3) {
+                    Matcher matcher = ALTERNATE_PATTERN.matcher(fields[fields.length - 1]);
+                    if (!matcher.matches()) {
+                        // Invalid alternate. Parse with regex
+                        fields = EMPTY_ARRAY;
+                    }
+                } else {
+                    // Invalid. Parse with regex
+                    fields = EMPTY_ARRAY;
                 }
             } else {
                 fields = variantString.split(":", -1);
@@ -152,22 +190,57 @@ public class VariantBuilder {
                 parseAlternate(fields[3]);
 
                 // Structural variant (except <INS>) needs start-end coords (<INS> may be missing end)
-                if (fields[1].contains("-")) {
-                    String[] coordinatesParts = fields[1].split("-");
-                    parseStart(coordinatesParts[0], variantString);
-                    parseEnd(coordinatesParts[1], variantString);
+                String startEnd = fields[1];
+                if (startEnd.contains("-")) {
+                    String[] coordinatesParts = startEnd.split("-");
+                    if (coordinatesParts.length == 2 && !coordinatesParts[0].isEmpty()) {
+                        parseStart(coordinatesParts[0], variantString);
+                        parseEnd(coordinatesParts[1], variantString);
+                    } else {
+                        // Weird scenario. Use REGEX to parse start-end
+                        Matcher matcher = START_END_PATTERN.matcher(startEnd);
+                        if (matcher.matches()) {
+                            parseStart(matcher.group("start"), variantString);
+                            // End might not be defined
+                            String end = matcher.group("end");
+                            if (end != null) {
+                                parseEnd(end, variantString);
+                            }
+                        } else {
+                            throw new IllegalArgumentException("Invalid coordinates position '" + startEnd + "' for variant "
+                                    + variantString);
+                        }
+                    }
                 } else {
-                    parseStart(fields[1], variantString);
+                    parseStart(startEnd, variantString);
                 }
             } else {
-                throw new IllegalArgumentException("Variant " + variantString + " needs 3 or 4 fields separated by ':'. "
-                        + "Format: \"" + VARIANT_STRING_FORMAT + "\"");
+                regexParse(variantString);
             }
         }
     }
 
+    protected VariantBuilder regexParse(String variantString) {
+        this.variantString = variantString;
+        Matcher matcher = VARIANT_PATTERN.matcher(variantString);
+        if (matcher.matches()) {
+            setChromosome(matcher.group("chromosome"));
+            parseStart(matcher.group("start"), variantString);
+            String end = matcher.group("end");
+            if (end != null) {
+                parseEnd(end, variantString);
+            }
+            setReference(matcher.group("reference"));
+            parseAlternate(matcher.group("alternate"));
+        } else {
+            throw new IllegalArgumentException("Variant " + variantString + " needs 3 or 4 fields separated by ':'. "
+                    + "Format: \"" + VARIANT_STRING_FORMAT + "\"");
+        }
+        return this;
+    }
+
     private void parseAlternate(String alternate) {
-        int idx = alternate.indexOf("...");
+        int idx = alternate.indexOf(PARTIAL_INS_SEQ_SEPARATOR);
         if (idx >= 0) {
             setAlternate(INS_ALT);
             initSv();
@@ -274,6 +347,18 @@ public class VariantBuilder {
             throw new IllegalArgumentException("End must be positive");
         }
         this.end = end;
+        return this;
+    }
+
+    /**
+     * Ignore missing end position for structural variants.
+     * The resulting variant might be incomplete.
+     *
+     * @param ignoreMissingEnd ignore missing end
+     * @return this
+     */
+    public VariantBuilder ignoreMissingEnd(boolean ignoreMissingEnd) {
+        this.ignoreMissingEnd = ignoreMissingEnd;
         return this;
     }
 
@@ -510,7 +595,7 @@ public class VariantBuilder {
             return new VariantBuilder(chromosome, start, end, reference, alternate).setType(type).build().getImpl();
         } else {
             if (end == null) {
-                end = start + inferLengthReference(reference, alternate, type, null, null) - 1;
+                end = start + inferLengthReference(reference, alternate, type, null, false, null) - 1;
             }
             int length = VariantBuilder.inferLength(reference, alternate, start, end, type);
             return new VariantAvro(null,
@@ -733,10 +818,10 @@ public class VariantBuilder {
     }
 
     private Integer inferLengthReference(String reference, String alternate, VariantType type, Integer length) {
-        return inferLengthReference(reference, alternate, type, length, this);
+        return inferLengthReference(reference, alternate, type, length, ignoreMissingEnd, this);
     }
 
-    private static Integer inferLengthReference(String reference, String alternate, VariantType type, Integer length, Object variant) {
+    private static Integer inferLengthReference(String reference, String alternate, VariantType type, Integer length, boolean ignoreMissingEnd, Object variant) {
         if (hasIncompleteReference(alternate, type)) {
             if (length == null) {
                 // Default length 1 for type NO_VARIATION
@@ -745,8 +830,11 @@ public class VariantBuilder {
                 } else if (type == VariantType.BREAKEND || type == VariantType.TRANSLOCATION) {
                     return Variant.UNKNOWN_LENGTH;
                 } else {
-//                    return Variant.UNKNOWN_LENGTH;
-                    throw new IllegalArgumentException("Unknown end or length of the variant '" + variant + "', type '" + type + "'");
+                    if (ignoreMissingEnd) {
+                        return Variant.UNKNOWN_LENGTH;
+                    } else {
+                        throw new IllegalArgumentException("Unknown end or length of the variant '" + variant + "', type '" + type + "'");
+                    }
                 }
             } else {
                 return length;

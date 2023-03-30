@@ -19,27 +19,51 @@
 
 package org.opencb.biodata.models.clinical.qc;
 
+import org.opencb.biodata.models.constants.FieldConstants;
+import org.opencb.commons.annotations.DataField;
 import org.opencb.commons.datastore.core.ObjectMap;
 
 import java.util.List;
 
 public class Signature {
 
+    @DataField(id = "id", indexed = true,
+            description = FieldConstants.GENERIC_ID_DESCRIPTION)
     private String id;
+
+    @DataField(id = "description", indexed = true,
+            description = FieldConstants.GENERIC_DESCRIPTION_DESCRIPTION)
     private String description;
+
+    @DataField(id = "query", indexed = true, uncommentedClasses = {"ObjectMap"},
+            description = FieldConstants.GENERIC_QUERY_DESCRIPTION)
     private ObjectMap query;
-    /**
-     * Variant type, e.g. SNV, INDEL, ...
-     */
+
+    @DataField(id = "type", indexed = true,
+            description = FieldConstants.SIGNATURE_TYPE_DESCRIPTION)
     private String type;
+
+    @DataField(id = "counts", indexed = true,
+            description = FieldConstants.SIGNATURE_COUNTS_DESCRIPTION)
     private List<GenomeContextCount> counts;
+
+    @DataField(id = "files", indexed = true,
+            description = FieldConstants.SIGNATURE_FILES_DESCRIPTION)
     private List<String> files;
 
+    @Deprecated
+    @DataField(id = "fitting", indexed = true,
+            description = FieldConstants.SIGNATURE_SIGNATURE_FITTING_SCORE_DESCRIPTION)
     private SignatureFitting fitting;
+
+    @DataField(id = "fittings", indexed = true,
+            description = FieldConstants.SIGNATURE_SIGNATURE_FITTING_SCORES_DESCRIPTION)
+    private List<SignatureFitting> fittings;
 
     public Signature() {
     }
 
+    @Deprecated
     public Signature(String id, String description, ObjectMap query, String type, List<GenomeContextCount> counts, List<String> files,
                      SignatureFitting fitting) {
         this.id = id;
@@ -51,6 +75,17 @@ public class Signature {
         this.fitting = fitting;
     }
 
+    public Signature(String id, String description, ObjectMap query, String type, List<GenomeContextCount> counts, List<String> files,
+                     List<SignatureFitting> fittings) {
+        this.id = id;
+        this.description = description;
+        this.query = query;
+        this.type = type;
+        this.counts = counts;
+        this.files = files;
+        this.fittings = fittings;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("Signature{");
@@ -60,7 +95,7 @@ public class Signature {
         sb.append(", type='").append(type).append('\'');
         sb.append(", counts=").append(counts);
         sb.append(", files=").append(files);
-        sb.append(", fitting=").append(fitting);
+        sb.append(", fittings=").append(fittings);
         sb.append('}');
         return sb.toString();
     }
@@ -119,18 +154,33 @@ public class Signature {
         return this;
     }
 
+    @Deprecated
     public SignatureFitting getFitting() {
         return fitting;
     }
 
+    @Deprecated
     public Signature setFitting(SignatureFitting fitting) {
         this.fitting = fitting;
         return this;
     }
 
+    public List<SignatureFitting> getFittings() {
+        return fittings;
+    }
+
+    public Signature setFittings(List<SignatureFitting> fittings) {
+        this.fittings = fittings;
+        return this;
+    }
+
     public static class GenomeContextCount {
 
+        @DataField(id = "context", indexed = true,
+                description = FieldConstants.GENOME_CONTEXT_COUNT_CONTEXT_DESCRIPTION)
         private String context;
+        @DataField(id = "total", indexed = true,
+                description = FieldConstants.GENOME_CONTEXT_COUNT_TOTAL_DESCRIPTION)
         private int total;
 
         public GenomeContextCount() {

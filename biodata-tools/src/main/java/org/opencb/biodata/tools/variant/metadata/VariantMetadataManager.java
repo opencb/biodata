@@ -26,6 +26,7 @@ import htsjdk.variant.vcf.VCFHeader;
 import org.apache.commons.lang3.StringUtils;
 import org.opencb.biodata.models.clinical.pedigree.Member;
 import org.opencb.biodata.models.clinical.pedigree.Pedigree;
+import org.opencb.biodata.models.core.SexOntologyTermAnnotation;
 import org.opencb.biodata.models.metadata.Cohort;
 import org.opencb.biodata.models.metadata.Individual;
 import org.opencb.biodata.models.metadata.Sample;
@@ -35,6 +36,7 @@ import org.opencb.biodata.models.variant.metadata.VariantFileMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 import org.opencb.biodata.tools.variant.converters.avro.VCFHeaderToVariantFileHeaderConverter;
+import org.opencb.biodata.tools.variant.converters.avro.VCFHeaderToVariantFileMetadataConverter;
 import org.opencb.commons.datastore.core.Query;
 import org.opencb.commons.utils.FileUtils;
 import org.slf4j.Logger;
@@ -294,11 +296,8 @@ public class VariantMetadataManager {
             return null;
         }
 
-        VCFHeaderToVariantFileHeaderConverter headerConverter = new VCFHeaderToVariantFileHeaderConverter();
-        VariantFileMetadata variantFileMetadata = new VariantFileMetadata();
-        variantFileMetadata.setId(filename);
-        variantFileMetadata.setSampleIds(vcfHeader.getSampleNamesInOrder());
-        variantFileMetadata.setHeader(headerConverter.convert(vcfHeader));
+        VariantFileMetadata variantFileMetadata = new VCFHeaderToVariantFileMetadataConverter()
+                .convert(vcfHeader, filename, null).getImpl();
         addFile(variantFileMetadata, studyId);
         return variantFileMetadata;
     }
@@ -688,8 +687,9 @@ public class VariantMetadataManager {
                 }
 
                 // main fields
-                dest = new Member(src.getId(), StringUtils.isEmpty(src.getSex()) ? null : Member.Sex.getEnum(src.getSex())
-                );
+                dest = new Member(src.getId(), StringUtils.isEmpty(src.getSex())
+                        ? null
+                        : new SexOntologyTermAnnotation().setId(src.getSex()));
 
                 // attributes
                 if (src.getSamples() != null && src.getSamples().size() > 0) {

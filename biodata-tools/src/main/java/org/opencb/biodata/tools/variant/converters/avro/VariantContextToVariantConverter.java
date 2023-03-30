@@ -48,7 +48,6 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
     private final String studyId;
     private final String fileId;
     private LinkedHashMap<String, Integer> samplesPosition;
-    private List<String> consequenceTypeFields;
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass().toString());
 
@@ -64,9 +63,6 @@ public class VariantContextToVariantConverter implements Converter<VariantContex
     public VariantContextToVariantConverter(String studyId, String fileId, List<String> samples) {
         this.studyId = studyId;
         this.fileId = fileId;
-
-        // TODO this must be parsed from VCF header
-        consequenceTypeFields = Arrays.asList();
 
         samplesPosition = createSamplesPositionMap(samples);
 
