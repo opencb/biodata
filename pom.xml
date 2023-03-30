@@ -37,7 +37,7 @@
         <java-common-libs.version>4.7.1</java-common-libs.version>
         <collections.version>4.4</collections.version>
         <avro.version>1.7.7</avro.version>
-        <protobuf.version>3.11.4</protobuf.version>
+        <protobuf.version>3.16.3</protobuf.version>
         <grpc.version>1.28.1</grpc.version>
         <htsjdk.version>2.23.0</htsjdk.version>
         <slf4j.version>1.7.32</slf4j.version>
