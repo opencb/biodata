@@ -143,26 +143,18 @@ public class DiseasePanelParsers {
                         case "Role in Cancer":
                             if (StringUtils.isNotEmpty(value)) {
                                 String[] roles = value.split(", ");
-                                ClinicalProperty.RoleInCancer roleInCancer = null;
+                                Set<ClinicalProperty.RoleInCancer> rolesInCancer = new HashSet<>();
                                 for (String role : roles) {
-                                    ClinicalProperty.RoleInCancer tmpRole = null;
                                     if ("TSG".equals(role)) {
-                                        tmpRole = ClinicalProperty.RoleInCancer.TUMOR_SUPPRESSOR_GENE;
+                                        rolesInCancer.add(ClinicalProperty.RoleInCancer.TUMOR_SUPPRESSOR_GENE);
                                     } else if ("oncogene".equals(role)) {
-                                        tmpRole = ClinicalProperty.RoleInCancer.ONCOGENE;
-                                    }
-                                    if (tmpRole != null && roleInCancer == null) {
-                                        roleInCancer = tmpRole;
-                                    } else if (tmpRole != null) {
-                                        if (tmpRole != roleInCancer) {
-                                            roleInCancer = ClinicalProperty.RoleInCancer.BOTH;
-                                        } else {
-                                            System.out.println("Found repeated roles?");
-                                        }
+                                        rolesInCancer.add(ClinicalProperty.RoleInCancer.ONCOGENE);
+                                    } else if ("fusion".equals(role)) {
+                                        rolesInCancer.add(ClinicalProperty.RoleInCancer.FUSION);
                                     }
                                 }
-                                if (roleInCancer != null) {
-                                    genePanel.getCancer().setRoles(Collections.singletonList(roleInCancer));
+                                if (!rolesInCancer.isEmpty()) {
+                                    genePanel.getCancer().setRoles(new ArrayList<>(rolesInCancer));
                                 }
                             }
                             break;
