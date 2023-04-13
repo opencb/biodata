@@ -33,6 +33,7 @@ import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.ConsequenceType;
 import org.opencb.biodata.models.variant.avro.GeneCancerAssociation;
 import org.opencb.biodata.models.variant.avro.SequenceOntologyTerm;
+import org.opencb.commons.utils.PrintUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,6 +95,7 @@ public abstract class ClinicalVariantCreator {
         this.modeOfInheritances = modeOfInheritances;
         this.penetrance = penetrance;
         this.assembly = assembly;
+        PrintUtils.printSpace();
 
         this.biotypeSet = new HashSet<>();
         if (CollectionUtils.isNotEmpty(biotypes)) {
