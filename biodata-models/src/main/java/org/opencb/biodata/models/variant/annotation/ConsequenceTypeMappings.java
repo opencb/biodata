@@ -32,7 +32,6 @@ import java.util.Map;
  * TODO Handle duplicated terms in tmpTermToAccession (synonymous_variant...)
  * TODO Load using ontology file: http://song.cvs.sourceforge.net/viewvc/song/ontology/so.obo
  */
-@Deprecated
 public class ConsequenceTypeMappings {
 
     public static final Map<String, Integer> termToAccession;
@@ -98,6 +97,7 @@ public class ConsequenceTypeMappings {
         tmpTermToAccession.put("polypeptide_variation_site", 336);
         tmpTermToAccession.put("protein_altering_variant", 1818);
         tmpTermToAccession.put("start_lost", 2012);
+        tmpTermToAccession.put("function_uncertain_variant", 2220);
 
         Map<Integer, String> tmpAccessionToTerm = new HashMap<>();
         // Fill the accession to term map
