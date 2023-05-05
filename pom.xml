@@ -46,7 +46,7 @@
         <jsr.version>3.0.2</jsr.version>
         <commons-lang.version>3.12.0</commons-lang.version>
         <jackson-mapper.version>1.9.13</jackson-mapper.version>
-        <guava.version>22.0</guava.version>
+        <guava.version>19.0</guava.version>
         <commons-io.version>2.4</commons-io.version>
         <biojava-core.version>5.0.0</biojava-core.version>
         <ga4gh.version>0.6.0a5</ga4gh.version>
