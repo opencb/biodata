@@ -34,7 +34,7 @@
     </modules>
 
     <properties>
-        <!-- Properties for dependency versions -->
+        <!-- All dependency versions must be defined here -->
         <java-common-libs.version>4.7.2-SNAPSHOT</java-common-libs.version>
         <jackson.version>2.11.4</jackson.version>
         <collections.version>4.4</collections.version>
@@ -56,6 +56,7 @@
         <owlapi-oboformat.version>5.1.13</owlapi-oboformat.version>
         <jaxb-impl.version>2.3.3</jaxb-impl.version>
         <biojava-alignment.version>4.1.0</biojava-alignment.version>
+        <junit.version>4.13.2</junit.version>
         <!-- Other properties -->
         <sonar.organization>opencb</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
@@ -284,7 +285,7 @@
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.13.2</version>
+                <version>${junit.version}</version>
                 <scope>test</scope>
             </dependency>
             <!-- Better use slf4j-simple instead of logj4 for testing, as it doesn't require any configuration -->
@@ -305,34 +306,11 @@
                 <artifactId>owlapi-oboformat</artifactId>
                 <version>${owlapi-oboformat.version}</version>
             </dependency>
-            <!--            <dependency>-->
-<!--                <groupId>org.apache.logging.log4j</groupId>-->
-<!--                <artifactId>log4j-slf4j-impl</artifactId>-->
-<!--                <version>${log4j2.version}</version>-->
-<!--                <scope>test</scope>-->
-<!--                <optional>true</optional>-->
-<!--            </dependency>-->
         </dependencies>
     </dependencyManagement>
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.5.0</version>
-                <executions>
-                    <execution>
-                        <id>analyze</id>
-                        <goals>
-                            <goal>analyze-only</goal>
-                        </goals>
-                        <configuration>
-                            <failOnWarning>true</failOnWarning>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -395,6 +373,22 @@
 <!--                                    </limits>-->
 <!--                                </rule>-->
                             </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <id>analyze</id>
+                        <goals>
+                            <goal>analyze-only</goal>
+                        </goals>
+                        <configuration>
+                            <failOnWarning>true</failOnWarning>
                         </configuration>
                     </execution>
                 </executions>

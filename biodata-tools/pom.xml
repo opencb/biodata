@@ -43,12 +43,12 @@
             <artifactId>commons-datastore-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opencb.ga4gh</groupId>
-            <artifactId>ga4gh</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.opencb.commons</groupId>
             <artifactId>commons-lib</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opencb.ga4gh</groupId>
+            <artifactId>ga4gh</artifactId>
         </dependency>
         <dependency>
             <groupId>com.databricks</groupId>
@@ -72,15 +72,15 @@
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
