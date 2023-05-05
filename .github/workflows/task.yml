@@ -10,13 +10,12 @@ jobs:
     uses: opencb/java-common-libs/.github/workflows/build-java-app-workflow.yml@develop
 
   test:
-    uses: opencb/biodata/.github/workflows/test-analysis.yml@release-2.7.x
+    uses: ./.github/workflows/test-analysis.yml
     needs: build
     secrets: inherit
     with:
       report_context: development
       report_dir: ${{ github.ref_name }}/biodata/${{ github.sha }}
-
 
   deploy-maven:
     name: Deploy in maven only for renamed versions
@@ -24,7 +23,6 @@ jobs:
     needs: [ build, test ]
     if: contains( needs.build.outputs.version ,'TASK')
     secrets: inherit
-
 
   #The following jobs are to see that the previous 'if' doesn't fail and that the maven deploy is executed because it is true
   snapshot-version:
@@ -44,4 +42,3 @@ jobs:
     steps:
       - name: test-version-from-check
         run: echo "Project version is " ${{ needs.build.outputs.version }}
-
