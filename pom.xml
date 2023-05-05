@@ -143,31 +143,7 @@
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>jakarta.xml.bind</groupId>
-                <artifactId>jakarta.xml.bind-api</artifactId>
-                <version>${jakarta.xml.bind-api.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.rocksdb</groupId>
-                <artifactId>rocksdbjni</artifactId>
-                <version>${rocksdbjni.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opencb.ga4gh</groupId>
-                <artifactId>ga4gh</artifactId>
-                <version>${ga4gh.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.rocksdb</groupId>
-                <artifactId>rocksdbjni</artifactId>
-                <version>${rocksdbjni.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.databricks</groupId>
-                <artifactId>SnpEff</artifactId>
-                <version>${SnpEff.version}</version>
-            </dependency>
+            <!-- OpenCB dependencies -->
             <dependency>
                 <groupId>org.opencb.commons</groupId>
                 <artifactId>commons-lib</artifactId>
@@ -194,6 +170,32 @@
                 <version>${java-common-libs.version}</version>
             </dependency>
             <dependency>
+                <groupId>jakarta.xml.bind</groupId>
+                <artifactId>jakarta.xml.bind-api</artifactId>
+                <version>${jakarta.xml.bind-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.rocksdb</groupId>
+                <artifactId>rocksdbjni</artifactId>
+                <version>${rocksdbjni.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opencb.ga4gh</groupId>
+                <artifactId>ga4gh</artifactId>
+                <version>${ga4gh.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.rocksdb</groupId>
+                <artifactId>rocksdbjni</artifactId>
+                <version>${rocksdbjni.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.databricks</groupId>
+                <artifactId>SnpEff</artifactId>
+                <version>${SnpEff.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
@@ -218,7 +220,6 @@
                 <artifactId>jackson-annotations</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
@@ -229,7 +230,6 @@
                 <artifactId>jackson-mapper-asl</artifactId>
                 <version>${jackson-mapper.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.apache.avro</groupId>
                 <artifactId>avro</artifactId>
