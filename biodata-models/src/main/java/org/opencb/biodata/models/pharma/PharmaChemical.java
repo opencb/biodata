@@ -1,4 +1,6 @@
-package org.opencb.biodata.models.core;
+package org.opencb.biodata.models.pharma;
+
+import org.opencb.biodata.models.core.Xref;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +14,9 @@ public class PharmaChemical {
     private List<String> tradeMixtures;
     private List<String> types;
     private List<Xref> xrefs;
+    private String smiles;
+    private String inChI;
+    private List<PharmaClinicalAnnotation> annotations;
 
     public PharmaChemical() {
         genericNames = new ArrayList<>();
@@ -19,10 +24,12 @@ public class PharmaChemical {
         tradeMixtures = new ArrayList<>();
         types = new ArrayList<>();
         xrefs = new ArrayList<>();
+        annotations = new ArrayList<>();
     }
 
     public PharmaChemical(String id, String source, String name, List<String> genericNames, List<String> tradeNames,
-                          List<String> tradeMixtures, List<String> types, List<Xref> xrefs) {
+                          List<String> tradeMixtures, List<String> types, List<Xref> xrefs, String smiles, String inChI,
+                          List<PharmaClinicalAnnotation> annotations) {
         this.id = id;
         this.source = source;
         this.name = name;
@@ -31,6 +38,9 @@ public class PharmaChemical {
         this.tradeMixtures = tradeMixtures;
         this.types = types;
         this.xrefs = xrefs;
+        this.smiles = smiles;
+        this.inChI = inChI;
+        this.annotations = annotations;
     }
 
     @Override
@@ -44,6 +54,9 @@ public class PharmaChemical {
         sb.append(", tradeMixtures=").append(tradeMixtures);
         sb.append(", types=").append(types);
         sb.append(", xrefs=").append(xrefs);
+        sb.append(", smiles='").append(smiles).append('\'');
+        sb.append(", inChI='").append(inChI).append('\'');
+        sb.append(", annotations=").append(annotations);
         sb.append('}');
         return sb.toString();
     }
@@ -117,6 +130,33 @@ public class PharmaChemical {
 
     public PharmaChemical setXrefs(List<Xref> xrefs) {
         this.xrefs = xrefs;
+        return this;
+    }
+
+    public String getSmiles() {
+        return smiles;
+    }
+
+    public PharmaChemical setSmiles(String smiles) {
+        this.smiles = smiles;
+        return this;
+    }
+
+    public String getInChI() {
+        return inChI;
+    }
+
+    public PharmaChemical setInChI(String inChI) {
+        this.inChI = inChI;
+        return this;
+    }
+
+    public List<PharmaClinicalAnnotation> getAnnotations() {
+        return annotations;
+    }
+
+    public PharmaChemical setAnnotations(List<PharmaClinicalAnnotation> annotations) {
+        this.annotations = annotations;
         return this;
     }
 }
