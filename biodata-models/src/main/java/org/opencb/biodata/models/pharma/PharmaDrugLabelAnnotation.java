@@ -1,6 +1,6 @@
 package org.opencb.biodata.models.pharma;
 
-public class PharmaLabelAnnotation {
+public class PharmaDrugLabelAnnotation {
     private String name;
     private String source;
     private String biomarkerFlag;
@@ -10,11 +10,11 @@ public class PharmaLabelAnnotation {
     private String alternateDrug;
     private String cancerGenome;
 
-    public PharmaLabelAnnotation() {
+    public PharmaDrugLabelAnnotation() {
     }
 
-    public PharmaLabelAnnotation(String name, String source, String biomarkerFlag, String testingLevel, String prescribingInfo,
-                                 String dosingInfo, String alternateDrug, String cancerGenome) {
+    public PharmaDrugLabelAnnotation(String name, String source, String biomarkerFlag, String testingLevel, String prescribingInfo,
+                                     String dosingInfo, String alternateDrug, String cancerGenome) {
         this.name = name;
         this.source = source;
         this.biomarkerFlag = biomarkerFlag;
@@ -44,7 +44,7 @@ public class PharmaLabelAnnotation {
         return name;
     }
 
-    public PharmaLabelAnnotation setName(String name) {
+    public PharmaDrugLabelAnnotation setName(String name) {
         this.name = name;
         return this;
     }
@@ -53,7 +53,7 @@ public class PharmaLabelAnnotation {
         return source;
     }
 
-    public PharmaLabelAnnotation setSource(String source) {
+    public PharmaDrugLabelAnnotation setSource(String source) {
         this.source = source;
         return this;
     }
@@ -62,7 +62,7 @@ public class PharmaLabelAnnotation {
         return biomarkerFlag;
     }
 
-    public PharmaLabelAnnotation setBiomarkerFlag(String biomarkerFlag) {
+    public PharmaDrugLabelAnnotation setBiomarkerFlag(String biomarkerFlag) {
         this.biomarkerFlag = biomarkerFlag;
         return this;
     }
@@ -71,7 +71,7 @@ public class PharmaLabelAnnotation {
         return testingLevel;
     }
 
-    public PharmaLabelAnnotation setTestingLevel(String testingLevel) {
+    public PharmaDrugLabelAnnotation setTestingLevel(String testingLevel) {
         this.testingLevel = testingLevel;
         return this;
     }
@@ -80,7 +80,7 @@ public class PharmaLabelAnnotation {
         return prescribingInfo;
     }
 
-    public PharmaLabelAnnotation setPrescribingInfo(String prescribingInfo) {
+    public PharmaDrugLabelAnnotation setPrescribingInfo(String prescribingInfo) {
         this.prescribingInfo = prescribingInfo;
         return this;
     }
@@ -89,7 +89,7 @@ public class PharmaLabelAnnotation {
         return dosingInfo;
     }
 
-    public PharmaLabelAnnotation setDosingInfo(String dosingInfo) {
+    public PharmaDrugLabelAnnotation setDosingInfo(String dosingInfo) {
         this.dosingInfo = dosingInfo;
         return this;
     }
@@ -98,7 +98,7 @@ public class PharmaLabelAnnotation {
         return alternateDrug;
     }
 
-    public PharmaLabelAnnotation setAlternateDrug(String alternateDrug) {
+    public PharmaDrugLabelAnnotation setAlternateDrug(String alternateDrug) {
         this.alternateDrug = alternateDrug;
         return this;
     }
@@ -107,7 +107,7 @@ public class PharmaLabelAnnotation {
         return cancerGenome;
     }
 
-    public PharmaLabelAnnotation setCancerGenome(String cancerGenome) {
+    public PharmaDrugLabelAnnotation setCancerGenome(String cancerGenome) {
         this.cancerGenome = cancerGenome;
         return this;
     }
