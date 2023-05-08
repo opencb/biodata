@@ -8,19 +8,20 @@ public class PharmaClinicalEvidence {
     private String pmid;
     private String summary;
     private String score;
-    private Map<String, Object> studyParameters;
+
+    private PharmaVariantAnnotation annotation;
 
     public PharmaClinicalEvidence() {
     }
 
     public PharmaClinicalEvidence(String type, String url, String pmid, String summary, String score,
-                                  Map<String, Object> studyParameters) {
+                                  PharmaVariantAnnotation annotation) {
         this.type = type;
         this.url = url;
         this.pmid = pmid;
         this.summary = summary;
         this.score = score;
-        this.studyParameters = studyParameters;
+        this.annotation = annotation;
     }
 
     @Override
@@ -31,7 +32,7 @@ public class PharmaClinicalEvidence {
         sb.append(", pmid='").append(pmid).append('\'');
         sb.append(", summary='").append(summary).append('\'');
         sb.append(", score='").append(score).append('\'');
-        sb.append(", studyParameters=").append(studyParameters);
+        sb.append(", annotation=").append(annotation);
         sb.append('}');
         return sb.toString();
     }
@@ -81,12 +82,12 @@ public class PharmaClinicalEvidence {
         return this;
     }
 
-    public Map<String, Object> getStudyParameters() {
-        return studyParameters;
+    public PharmaVariantAnnotation getAnnotation() {
+        return annotation;
     }
 
-    public PharmaClinicalEvidence setStudyParameters(Map<String, Object> studyParameters) {
-        this.studyParameters = studyParameters;
+    public PharmaClinicalEvidence setAnnotation(PharmaVariantAnnotation annotation) {
+        this.annotation = annotation;
         return this;
     }
 }
