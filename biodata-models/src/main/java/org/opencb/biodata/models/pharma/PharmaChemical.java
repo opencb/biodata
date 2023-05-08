@@ -16,7 +16,7 @@ public class PharmaChemical {
     private List<Xref> xrefs;
     private String smiles;
     private String inChI;
-    private List<PharmaClinicalAnnotation> annotations;
+    private List<PharmaClinicalAnnotation> variants;
 
     public PharmaChemical() {
         genericNames = new ArrayList<>();
@@ -24,7 +24,7 @@ public class PharmaChemical {
         tradeMixtures = new ArrayList<>();
         types = new ArrayList<>();
         xrefs = new ArrayList<>();
-        annotations = new ArrayList<>();
+        variants = new ArrayList<>();
     }
 
     public PharmaChemical(String id, String source, String name, List<String> genericNames, List<String> tradeNames,
@@ -40,7 +40,7 @@ public class PharmaChemical {
         this.xrefs = xrefs;
         this.smiles = smiles;
         this.inChI = inChI;
-        this.annotations = annotations;
+        this.variants = annotations;
     }
 
     @Override
@@ -56,7 +56,7 @@ public class PharmaChemical {
         sb.append(", xrefs=").append(xrefs);
         sb.append(", smiles='").append(smiles).append('\'');
         sb.append(", inChI='").append(inChI).append('\'');
-        sb.append(", annotations=").append(annotations);
+        sb.append(", variants=").append(variants);
         sb.append('}');
         return sb.toString();
     }
@@ -151,12 +151,12 @@ public class PharmaChemical {
         return this;
     }
 
-    public List<PharmaClinicalAnnotation> getAnnotations() {
-        return annotations;
+    public List<PharmaClinicalAnnotation> getVariants() {
+        return variants;
     }
 
-    public PharmaChemical setAnnotations(List<PharmaClinicalAnnotation> annotations) {
-        this.annotations = annotations;
+    public PharmaChemical setVariants(List<PharmaClinicalAnnotation> variants) {
+        this.variants = variants;
         return this;
     }
 }
