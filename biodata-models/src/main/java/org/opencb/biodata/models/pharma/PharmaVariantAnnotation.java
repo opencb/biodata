@@ -1,5 +1,6 @@
 package org.opencb.biodata.models.pharma;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -16,13 +17,13 @@ public class PharmaVariantAnnotation {
     private String sentence;
     private String pmid;
     private String discussion;
-    private Map<String, Object> studyParameters;
+    private List<Map<String, Object>> studyParameters;
 
     public PharmaVariantAnnotation() {
     }
 
-    public PharmaVariantAnnotation(String variantId, String gene, List<String> drugs, String alleles,
-                                   String specialtyPopulation, String phenotypeCategory, String significance, String sentence, String pmid, String discussion) {
+    public PharmaVariantAnnotation(String variantId, String gene, List<String> drugs, String alleles, String specialtyPopulation,
+                                   String phenotypeCategory, String significance, String sentence, String pmid, String discussion) {
         this.variantId = variantId;
         this.gene = gene;
         this.drugs = drugs;
@@ -33,10 +34,12 @@ public class PharmaVariantAnnotation {
         this.sentence = sentence;
         this.pmid = pmid;
         this.discussion = discussion;
+        this.studyParameters = new ArrayList<>();
     }
 
-    public PharmaVariantAnnotation(String variantId, String gene, List<String> drugs, String alleles,
-                                   String specialtyPopulation, String phenotypeCategory, String significance, String sentence, String pmid, String discussion, Map<String, Object> studyParameters) {
+    public PharmaVariantAnnotation(String variantId, String gene, List<String> drugs, String alleles, String specialtyPopulation,
+                                   String phenotypeCategory, String significance, String sentence, String pmid, String discussion,
+                                   List<Map<String, Object>> studyParameters) {
         this.variantId = variantId;
         this.gene = gene;
         this.drugs = drugs;
@@ -158,11 +161,11 @@ public class PharmaVariantAnnotation {
         return this;
     }
 
-    public Map<String, Object> getStudyParameters() {
+    public List<Map<String, Object>> getStudyParameters() {
         return studyParameters;
     }
 
-    public PharmaVariantAnnotation setStudyParameters(Map<String, Object> studyParameters) {
+    public PharmaVariantAnnotation setStudyParameters(List<Map<String, Object>> studyParameters) {
         this.studyParameters = studyParameters;
         return this;
     }
