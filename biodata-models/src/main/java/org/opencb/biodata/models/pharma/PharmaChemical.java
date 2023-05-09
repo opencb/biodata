@@ -3,7 +3,9 @@ package org.opencb.biodata.models.pharma;
 import org.opencb.biodata.models.core.Xref;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PharmaChemical {
     private String id;
@@ -18,6 +20,8 @@ public class PharmaChemical {
     private String inChI;
     private List<PharmaClinicalAnnotation> variants;
 
+    private Map<String, Object> attributes;
+
     public PharmaChemical() {
         genericNames = new ArrayList<>();
         tradeNames = new ArrayList<>();
@@ -25,11 +29,12 @@ public class PharmaChemical {
         types = new ArrayList<>();
         xrefs = new ArrayList<>();
         variants = new ArrayList<>();
+        attributes = new HashMap<>();
     }
 
     public PharmaChemical(String id, String source, String name, List<String> genericNames, List<String> tradeNames,
                           List<String> tradeMixtures, List<String> types, List<Xref> xrefs, String smiles, String inChI,
-                          List<PharmaClinicalAnnotation> annotations) {
+                          List<PharmaClinicalAnnotation> variants, Map<String, Object> attributes) {
         this.id = id;
         this.source = source;
         this.name = name;
@@ -40,7 +45,8 @@ public class PharmaChemical {
         this.xrefs = xrefs;
         this.smiles = smiles;
         this.inChI = inChI;
-        this.variants = annotations;
+        this.variants = variants;
+        this.attributes = attributes;
     }
 
     @Override
@@ -57,6 +63,7 @@ public class PharmaChemical {
         sb.append(", smiles='").append(smiles).append('\'');
         sb.append(", inChI='").append(inChI).append('\'');
         sb.append(", variants=").append(variants);
+        sb.append(", attributes=").append(attributes);
         sb.append('}');
         return sb.toString();
     }
@@ -157,6 +164,15 @@ public class PharmaChemical {
 
     public PharmaChemical setVariants(List<PharmaClinicalAnnotation> variants) {
         this.variants = variants;
+        return this;
+    }
+
+    public Map<String, Object> getAttributes() {
+        return attributes;
+    }
+
+    public PharmaChemical setAttributes(Map<String, Object> attributes) {
+        this.attributes = attributes;
         return this;
     }
 }

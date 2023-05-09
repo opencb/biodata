@@ -6,15 +6,19 @@ import java.util.List;
 public class PharmaClinicalEvidence {
     private String type;
     private String url;
-    private String pmid;
+    private String pubmed;
     private String summary;
     private String score;
 
-    private List<PharmaBasicAnnotation> variantAnnotations;
+    private List<PharmaVariantAssociation> variantAssociations;
+    @Deprecated
+    private List<PharmaVariantAssociation> variantAnnotations;
     private List<PharmaGuidelineAnnotation> guidelineAnnotations;
     private List<PharmaDrugLabelAnnotation> drugLabelAnnotations;
-    private List<PharmaBasicAnnotation> phenotypeAnnotations;
-    private List<PharmaFunctionalAnnotation> functionalAnnotations;
+    @Deprecated
+    private List<PharmaVariantAssociation> phenotypeAnnotations;
+    @Deprecated
+    private List<PharmaVariantAssociation> functionalAnnotations;
 
     public PharmaClinicalEvidence() {
         this.variantAnnotations = new ArrayList<>();
@@ -24,15 +28,15 @@ public class PharmaClinicalEvidence {
         this.functionalAnnotations = new ArrayList<>();
     }
 
-    public PharmaClinicalEvidence(String type, String url, String pmid, String summary, String score,
-                                  List<PharmaBasicAnnotation> variantAnnotations,
+    public PharmaClinicalEvidence(String type, String url, String pubmed, String summary, String score,
+                                  List<PharmaVariantAssociation> variantAnnotations,
                                   List<PharmaGuidelineAnnotation> guidelineAnnotations,
                                   List<PharmaDrugLabelAnnotation> drugLabelAnnotations,
-                                  List<PharmaBasicAnnotation> phenotypeAnnotations,
-                                  List<PharmaFunctionalAnnotation> functionalAnnotations) {
+                                  List<PharmaVariantAssociation> phenotypeAnnotations,
+                                  List<PharmaVariantAssociation> functionalAnnotations) {
         this.type = type;
         this.url = url;
-        this.pmid = pmid;
+        this.pubmed = pubmed;
         this.summary = summary;
         this.score = score;
         this.variantAnnotations = variantAnnotations;
@@ -42,14 +46,29 @@ public class PharmaClinicalEvidence {
         this.functionalAnnotations = functionalAnnotations;
     }
 
+    public PharmaClinicalEvidence(String type, String url, String pubmed, String summary, String score,
+                                  List<PharmaVariantAssociation> variantAssociations,
+                                  List<PharmaGuidelineAnnotation> guidelineAnnotations,
+                                  List<PharmaDrugLabelAnnotation> drugLabelAnnotations) {
+        this.type = type;
+        this.url = url;
+        this.pubmed = pubmed;
+        this.summary = summary;
+        this.score = score;
+        this.variantAssociations = variantAssociations;
+        this.guidelineAnnotations = guidelineAnnotations;
+        this.drugLabelAnnotations = drugLabelAnnotations;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("PharmaClinicalEvidence{");
         sb.append("type='").append(type).append('\'');
         sb.append(", url='").append(url).append('\'');
-        sb.append(", pmid='").append(pmid).append('\'');
+        sb.append(", pubmed='").append(pubmed).append('\'');
         sb.append(", summary='").append(summary).append('\'');
         sb.append(", score='").append(score).append('\'');
+        sb.append(", variantAssociations=").append(variantAssociations);
         sb.append(", variantAnnotations=").append(variantAnnotations);
         sb.append(", guidelineAnnotations=").append(guidelineAnnotations);
         sb.append(", drugLabelAnnotations=").append(drugLabelAnnotations);
@@ -77,12 +96,12 @@ public class PharmaClinicalEvidence {
         return this;
     }
 
-    public String getPmid() {
-        return pmid;
+    public String getPubmed() {
+        return pubmed;
     }
 
-    public PharmaClinicalEvidence setPmid(String pmid) {
-        this.pmid = pmid;
+    public PharmaClinicalEvidence setPubmed(String pubmed) {
+        this.pubmed = pubmed;
         return this;
     }
 
@@ -104,11 +123,22 @@ public class PharmaClinicalEvidence {
         return this;
     }
 
-    public List<PharmaBasicAnnotation> getVariantAnnotations() {
+    public List<PharmaVariantAssociation> getVariantAssociations() {
+        return variantAssociations;
+    }
+
+    public PharmaClinicalEvidence setVariantAssociations(List<PharmaVariantAssociation> variantAssociations) {
+        this.variantAssociations = variantAssociations;
+        return this;
+    }
+
+    @Deprecated
+    public List<PharmaVariantAssociation> getVariantAnnotations() {
         return variantAnnotations;
     }
 
-    public PharmaClinicalEvidence setVariantAnnotations(List<PharmaBasicAnnotation> variantAnnotations) {
+    @Deprecated
+    public PharmaClinicalEvidence setVariantAnnotations(List<PharmaVariantAssociation> variantAnnotations) {
         this.variantAnnotations = variantAnnotations;
         return this;
     }
@@ -131,20 +161,24 @@ public class PharmaClinicalEvidence {
         return this;
     }
 
-    public List<PharmaBasicAnnotation> getPhenotypeAnnotations() {
+    @Deprecated
+    public List<PharmaVariantAssociation> getPhenotypeAnnotations() {
         return phenotypeAnnotations;
     }
 
-    public PharmaClinicalEvidence setPhenotypeAnnotations(List<PharmaBasicAnnotation> phenotypeAnnotations) {
+    @Deprecated
+    public PharmaClinicalEvidence setPhenotypeAnnotations(List<PharmaVariantAssociation> phenotypeAnnotations) {
         this.phenotypeAnnotations = phenotypeAnnotations;
         return this;
     }
 
-    public List<PharmaFunctionalAnnotation> getFunctionalAnnotations() {
+    @Deprecated
+    public List<PharmaVariantAssociation> getFunctionalAnnotations() {
         return functionalAnnotations;
     }
 
-    public PharmaClinicalEvidence setFunctionalAnnotations(List<PharmaFunctionalAnnotation> functionalAnnotations) {
+    @Deprecated
+    public PharmaClinicalEvidence setFunctionalAnnotations(List<PharmaVariantAssociation> functionalAnnotations) {
         this.functionalAnnotations = functionalAnnotations;
         return this;
     }

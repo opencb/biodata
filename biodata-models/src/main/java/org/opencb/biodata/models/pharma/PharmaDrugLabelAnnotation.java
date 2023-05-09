@@ -13,8 +13,9 @@ public class PharmaDrugLabelAnnotation {
     public PharmaDrugLabelAnnotation() {
     }
 
-    public PharmaDrugLabelAnnotation(String name, String source, String biomarkerFlag, String testingLevel, String prescribingInfo,
-                                     String dosingInfo, String alternateDrug, String cancerGenome) {
+    public PharmaDrugLabelAnnotation(String name, String source, String biomarkerFlag, String testingLevel,
+                                     String prescribingInfo, String dosingInfo, String alternateDrug,
+                                     String cancerGenome) {
         this.name = name;
         this.source = source;
         this.biomarkerFlag = biomarkerFlag;

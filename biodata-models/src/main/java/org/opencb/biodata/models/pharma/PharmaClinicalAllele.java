@@ -1,19 +1,20 @@
 package org.opencb.biodata.models.pharma;
 
 public class PharmaClinicalAllele {
+    @Deprecated
     private String id;
     private String allele;
     private String annotation;
-    private String function;
+    private String description;
 
     public PharmaClinicalAllele() {
     }
 
-    public PharmaClinicalAllele(String id, String allele, String annotation, String function) {
+    public PharmaClinicalAllele(@Deprecated String id, String allele, String annotation, String description) {
         this.id = id;
         this.allele = allele;
         this.annotation = annotation;
-        this.function = function;
+        this.description = description;
     }
 
     @Override
@@ -22,15 +23,17 @@ public class PharmaClinicalAllele {
         sb.append("id='").append(id).append('\'');
         sb.append(", allele='").append(allele).append('\'');
         sb.append(", annotation='").append(annotation).append('\'');
-        sb.append(", function='").append(function).append('\'');
+        sb.append(", description='").append(description).append('\'');
         sb.append('}');
         return sb.toString();
     }
 
+    @Deprecated
     public String getId() {
         return id;
     }
 
+    @Deprecated
     public PharmaClinicalAllele setId(String id) {
         this.id = id;
         return this;
@@ -54,12 +57,12 @@ public class PharmaClinicalAllele {
         return this;
     }
 
-    public String getFunction() {
-        return function;
+    public String getDescription() {
+        return description;
     }
 
-    public PharmaClinicalAllele setFunction(String function) {
-        this.function = function;
+    public PharmaClinicalAllele setDescription(String description) {
+        this.description = description;
         return this;
     }
 }
