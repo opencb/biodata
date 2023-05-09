@@ -5,6 +5,8 @@ import java.util.List;
 
 public class PharmaClinicalAnnotation {
     private String variantId;
+    private String chromosome;
+    private int position;
     private String gene;
     private List<String> phenotypes;
     private String levelOfEvidence;
@@ -24,11 +26,13 @@ public class PharmaClinicalAnnotation {
         alleles = new ArrayList<>();
     }
 
-    public PharmaClinicalAnnotation(String variantId, String gene, List<String> phenotypes, String levelOfEvidence, String levelOverride,
-                                    String levelModifiers, String score, String phenotypeCategory, String latestUpdateDate, String url,
-                                    String specialtyPopulation, List<PharmaClinicalEvidence> evidences,
-                                    List<PharmaClinicalAllele> alleles) {
+    public PharmaClinicalAnnotation(String variantId, String chromosome, int position, String gene, List<String> phenotypes,
+                                    String levelOfEvidence, String levelOverride, String levelModifiers, String score,
+                                    String phenotypeCategory, String latestUpdateDate, String url, String specialtyPopulation,
+                                    List<PharmaClinicalEvidence> evidences, List<PharmaClinicalAllele> alleles) {
         this.variantId = variantId;
+        this.chromosome = chromosome;
+        this.position = position;
         this.gene = gene;
         this.phenotypes = phenotypes;
         this.levelOfEvidence = levelOfEvidence;
@@ -47,6 +51,8 @@ public class PharmaClinicalAnnotation {
     public String toString() {
         final StringBuilder sb = new StringBuilder("PharmaClinicalAnnotation{");
         sb.append("variantId='").append(variantId).append('\'');
+        sb.append(", chromosome='").append(chromosome).append('\'');
+        sb.append(", position=").append(position);
         sb.append(", gene='").append(gene).append('\'');
         sb.append(", phenotypes=").append(phenotypes);
         sb.append(", levelOfEvidence='").append(levelOfEvidence).append('\'');
@@ -69,6 +75,24 @@ public class PharmaClinicalAnnotation {
 
     public PharmaClinicalAnnotation setVariantId(String variantId) {
         this.variantId = variantId;
+        return this;
+    }
+
+    public String getChromosome() {
+        return chromosome;
+    }
+
+    public PharmaClinicalAnnotation setChromosome(String chromosome) {
+        this.chromosome = chromosome;
+        return this;
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    public PharmaClinicalAnnotation setPosition(int position) {
+        this.position = position;
         return this;
     }
 

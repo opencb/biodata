@@ -1,6 +1,7 @@
 package org.opencb.biodata.models.pharma;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,6 +25,7 @@ public class PharmaVariantAssociation {
     public PharmaVariantAssociation() {
         this.drugs = new ArrayList<>();
         this.studyParameters = new ArrayList<>();
+        this.attributes = new HashMap<>();
     }
 
     @Override
