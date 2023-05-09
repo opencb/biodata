@@ -1,7 +1,9 @@
 package org.opencb.biodata.models.pharma;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PharmaClinicalAnnotation {
     private String variantId;
@@ -10,43 +12,45 @@ public class PharmaClinicalAnnotation {
     private int position;
     private String gene;
     private List<String> phenotypes;
+    private String phenotypeCategory;
     private String levelOfEvidence;
     private String levelOverride;
     private String levelModifiers;
     private String score;
-    private String phenotypeCategory;
-    private String latestUpdateDate;
     private String url;
     private String specialtyPopulation;
     private List<PharmaClinicalEvidence> evidences;
     private List<PharmaClinicalAllele> alleles;
+    private Map<String, Object> attributes;
 
     public PharmaClinicalAnnotation() {
         phenotypes = new ArrayList<>();
         evidences = new ArrayList<>();
         alleles = new ArrayList<>();
+        attributes = new HashMap<>();
     }
 
     public PharmaClinicalAnnotation(String variantId, String location, String chromosome, int position, String gene,
-                                    List<String> phenotypes, String levelOfEvidence, String levelOverride, String levelModifiers,
-                                    String score, String phenotypeCategory, String latestUpdateDate, String url, String specialtyPopulation,
-                                    List<PharmaClinicalEvidence> evidences, List<PharmaClinicalAllele> alleles) {
+                                    List<String> phenotypes, String phenotypeCategory, String levelOfEvidence,
+                                    String levelOverride, String levelModifiers, String score, String url,
+                                    String specialtyPopulation, List<PharmaClinicalEvidence> evidences,
+                                    List<PharmaClinicalAllele> alleles, Map<String, Object> attributes) {
         this.variantId = variantId;
         this.location = location;
         this.chromosome = chromosome;
         this.position = position;
         this.gene = gene;
         this.phenotypes = phenotypes;
+        this.phenotypeCategory = phenotypeCategory;
         this.levelOfEvidence = levelOfEvidence;
         this.levelOverride = levelOverride;
         this.levelModifiers = levelModifiers;
         this.score = score;
-        this.phenotypeCategory = phenotypeCategory;
-        this.latestUpdateDate = latestUpdateDate;
         this.url = url;
         this.specialtyPopulation = specialtyPopulation;
         this.evidences = evidences;
         this.alleles = alleles;
+        this.attributes = attributes;
     }
 
     @Override
@@ -58,16 +62,16 @@ public class PharmaClinicalAnnotation {
         sb.append(", position=").append(position);
         sb.append(", gene='").append(gene).append('\'');
         sb.append(", phenotypes=").append(phenotypes);
+        sb.append(", phenotypeCategory='").append(phenotypeCategory).append('\'');
         sb.append(", levelOfEvidence='").append(levelOfEvidence).append('\'');
         sb.append(", levelOverride='").append(levelOverride).append('\'');
         sb.append(", levelModifiers='").append(levelModifiers).append('\'');
         sb.append(", score='").append(score).append('\'');
-        sb.append(", phenotypeCategory='").append(phenotypeCategory).append('\'');
-        sb.append(", latestUpdateDate='").append(latestUpdateDate).append('\'');
         sb.append(", url='").append(url).append('\'');
         sb.append(", specialtyPopulation='").append(specialtyPopulation).append('\'');
         sb.append(", evidences=").append(evidences);
         sb.append(", alleles=").append(alleles);
+        sb.append(", attributes=").append(attributes);
         sb.append('}');
         return sb.toString();
     }
@@ -126,6 +130,15 @@ public class PharmaClinicalAnnotation {
         return this;
     }
 
+    public String getPhenotypeCategory() {
+        return phenotypeCategory;
+    }
+
+    public PharmaClinicalAnnotation setPhenotypeCategory(String phenotypeCategory) {
+        this.phenotypeCategory = phenotypeCategory;
+        return this;
+    }
+
     public String getLevelOfEvidence() {
         return levelOfEvidence;
     }
@@ -162,24 +175,6 @@ public class PharmaClinicalAnnotation {
         return this;
     }
 
-    public String getPhenotypeCategory() {
-        return phenotypeCategory;
-    }
-
-    public PharmaClinicalAnnotation setPhenotypeCategory(String phenotypeCategory) {
-        this.phenotypeCategory = phenotypeCategory;
-        return this;
-    }
-
-    public String getLatestUpdateDate() {
-        return latestUpdateDate;
-    }
-
-    public PharmaClinicalAnnotation setLatestUpdateDate(String latestUpdateDate) {
-        this.latestUpdateDate = latestUpdateDate;
-        return this;
-    }
-
     public String getUrl() {
         return url;
     }
@@ -213,6 +208,15 @@ public class PharmaClinicalAnnotation {
 
     public PharmaClinicalAnnotation setAlleles(List<PharmaClinicalAllele> alleles) {
         this.alleles = alleles;
+        return this;
+    }
+
+    public Map<String, Object> getAttributes() {
+        return attributes;
+    }
+
+    public PharmaClinicalAnnotation setAttributes(Map<String, Object> attributes) {
+        this.attributes = attributes;
         return this;
     }
 }
