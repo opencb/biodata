@@ -21,6 +21,7 @@ public class PharmaClinicalEvidence {
     private List<PharmaVariantAssociation> functionalAnnotations;
 
     public PharmaClinicalEvidence() {
+        this.variantAssociations = new ArrayList<>();
         this.variantAnnotations = new ArrayList<>();
         this.guidelineAnnotations = new ArrayList<>();
         this.drugLabelAnnotations = new ArrayList<>();
