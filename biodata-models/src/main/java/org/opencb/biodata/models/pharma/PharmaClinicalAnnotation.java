@@ -5,6 +5,7 @@ import java.util.List;
 
 public class PharmaClinicalAnnotation {
     private String variantId;
+    private String location;
     private String chromosome;
     private int position;
     private String gene;
@@ -26,11 +27,12 @@ public class PharmaClinicalAnnotation {
         alleles = new ArrayList<>();
     }
 
-    public PharmaClinicalAnnotation(String variantId, String chromosome, int position, String gene, List<String> phenotypes,
-                                    String levelOfEvidence, String levelOverride, String levelModifiers, String score,
-                                    String phenotypeCategory, String latestUpdateDate, String url, String specialtyPopulation,
+    public PharmaClinicalAnnotation(String variantId, String location, String chromosome, int position, String gene,
+                                    List<String> phenotypes, String levelOfEvidence, String levelOverride, String levelModifiers,
+                                    String score, String phenotypeCategory, String latestUpdateDate, String url, String specialtyPopulation,
                                     List<PharmaClinicalEvidence> evidences, List<PharmaClinicalAllele> alleles) {
         this.variantId = variantId;
+        this.location = location;
         this.chromosome = chromosome;
         this.position = position;
         this.gene = gene;
@@ -51,6 +53,7 @@ public class PharmaClinicalAnnotation {
     public String toString() {
         final StringBuilder sb = new StringBuilder("PharmaClinicalAnnotation{");
         sb.append("variantId='").append(variantId).append('\'');
+        sb.append(", location='").append(location).append('\'');
         sb.append(", chromosome='").append(chromosome).append('\'');
         sb.append(", position=").append(position);
         sb.append(", gene='").append(gene).append('\'');
@@ -75,6 +78,15 @@ public class PharmaClinicalAnnotation {
 
     public PharmaClinicalAnnotation setVariantId(String variantId) {
         this.variantId = variantId;
+        return this;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public PharmaClinicalAnnotation setLocation(String location) {
+        this.location = location;
         return this;
     }
 
