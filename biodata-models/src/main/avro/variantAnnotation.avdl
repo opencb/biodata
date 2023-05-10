@@ -195,6 +195,7 @@ protocol VariantAnnotations {
         union { null, string } variantId;
         union { null, string } geneName;
         union { null, array<string> } phenotypes;
+        union { null, string } phenotypeType;
         union { null, string } levelOfEvidence;
         union { null, string } confidence;
         union { null, string } url;
