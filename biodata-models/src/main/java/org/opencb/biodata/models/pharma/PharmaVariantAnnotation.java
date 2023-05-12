@@ -13,7 +13,7 @@ public class PharmaVariantAnnotation {
     private String geneId;
     private String geneName;
     private List<String> phenotypes;
-    private String phenotypeCategory;
+    private String phenotypeType;
     private String confidence;
     private String score;
     private String url;
@@ -32,7 +32,7 @@ public class PharmaVariantAnnotation {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("PharmaClinicalAnnotation{");
+        final StringBuilder sb = new StringBuilder("PharmaVariantAnnotation{");
         sb.append("variantId='").append(variantId).append('\'');
         sb.append(", location='").append(location).append('\'');
         sb.append(", chromosome='").append(chromosome).append('\'');
@@ -40,7 +40,7 @@ public class PharmaVariantAnnotation {
         sb.append(", geneId='").append(geneId).append('\'');
         sb.append(", geneName='").append(geneName).append('\'');
         sb.append(", phenotypes=").append(phenotypes);
-        sb.append(", phenotypeCategory='").append(phenotypeCategory).append('\'');
+        sb.append(", phenotypeType='").append(phenotypeType).append('\'');
         sb.append(", confidence='").append(confidence).append('\'');
         sb.append(", score='").append(score).append('\'');
         sb.append(", url='").append(url).append('\'');
@@ -115,12 +115,12 @@ public class PharmaVariantAnnotation {
         return this;
     }
 
-    public String getPhenotypeCategory() {
-        return phenotypeCategory;
+    public String getPhenotypeType() {
+        return phenotypeType;
     }
 
-    public PharmaVariantAnnotation setPhenotypeCategory(String phenotypeCategory) {
-        this.phenotypeCategory = phenotypeCategory;
+    public PharmaVariantAnnotation setPhenotypeType(String phenotypeType) {
+        this.phenotypeType = phenotypeType;
         return this;
     }
 

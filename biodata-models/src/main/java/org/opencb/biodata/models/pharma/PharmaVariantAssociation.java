@@ -12,7 +12,7 @@ public class PharmaVariantAssociation {
     private String geneName;
     private List<String> drugs;
     private String pubmed;
-    private String phenotypeCategory;
+    private String phenotypeType;
     private String significance;
     private String assayType;
     private String population;
@@ -30,7 +30,7 @@ public class PharmaVariantAssociation {
     }
 
     public PharmaVariantAssociation(String variantId, String geneId, String geneName, List<String> drugs, String pubmed,
-                                    String phenotypeCategory, String significance, String assayType, String population, String alleles,
+                                    String phenotypeType, String significance, String assayType, String population, String alleles,
                                     String description, String discussion, List<PharmaStudyParameters> studyParameters,
                                     Map<String, Object> attributes) {
         this.variantId = variantId;
@@ -38,7 +38,7 @@ public class PharmaVariantAssociation {
         this.geneName = geneName;
         this.drugs = drugs;
         this.pubmed = pubmed;
-        this.phenotypeCategory = phenotypeCategory;
+        this.phenotypeType = phenotypeType;
         this.significance = significance;
         this.assayType = assayType;
         this.population = population;
@@ -47,27 +47,6 @@ public class PharmaVariantAssociation {
         this.discussion = discussion;
         this.studyParameters = studyParameters;
         this.attributes = attributes;
-    }
-
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("PharmaVariantAssociation{");
-        sb.append("variantId='").append(variantId).append('\'');
-        sb.append(", geneId='").append(geneId).append('\'');
-        sb.append(", geneName='").append(geneName).append('\'');
-        sb.append(", drugs=").append(drugs);
-        sb.append(", pubmed='").append(pubmed).append('\'');
-        sb.append(", phenotypeCategory='").append(phenotypeCategory).append('\'');
-        sb.append(", significance='").append(significance).append('\'');
-        sb.append(", assayType='").append(assayType).append('\'');
-        sb.append(", population='").append(population).append('\'');
-        sb.append(", alleles='").append(alleles).append('\'');
-        sb.append(", description='").append(description).append('\'');
-        sb.append(", discussion='").append(discussion).append('\'');
-        sb.append(", studyParameters=").append(studyParameters);
-        sb.append(", attributes=").append(attributes);
-        sb.append('}');
-        return sb.toString();
     }
 
     public String getVariantId() {
@@ -115,12 +94,12 @@ public class PharmaVariantAssociation {
         return this;
     }
 
-    public String getPhenotypeCategory() {
-        return phenotypeCategory;
+    public String getPhenotypeType() {
+        return phenotypeType;
     }
 
-    public PharmaVariantAssociation setPhenotypeCategory(String phenotypeCategory) {
-        this.phenotypeCategory = phenotypeCategory;
+    public PharmaVariantAssociation setPhenotypeType(String phenotypeType) {
+        this.phenotypeType = phenotypeType;
         return this;
     }
 
