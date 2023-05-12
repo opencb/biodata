@@ -19,22 +19,24 @@ public class PharmaChemical {
     private String smiles;
     private String inChI;
     private List<PharmaClinicalAnnotation> variants;
+    private List<PharmaGeneAnnotation> genes;
 
     private Map<String, Object> attributes;
 
     public PharmaChemical() {
-        genericNames = new ArrayList<>();
-        tradeNames = new ArrayList<>();
-        tradeMixtures = new ArrayList<>();
-        types = new ArrayList<>();
-        xrefs = new ArrayList<>();
-        variants = new ArrayList<>();
-        attributes = new HashMap<>();
+        this.genericNames = new ArrayList<>();
+        this.tradeNames = new ArrayList<>();
+        this.tradeMixtures = new ArrayList<>();
+        this.types = new ArrayList<>();
+        this.xrefs = new ArrayList<>();
+        this.variants = new ArrayList<>();
+        this.genes = new ArrayList<>();
+        this.attributes = new HashMap<>();
     }
 
     public PharmaChemical(String id, String source, String name, List<String> genericNames, List<String> tradeNames,
                           List<String> tradeMixtures, List<String> types, List<Xref> xrefs, String smiles, String inChI,
-                          List<PharmaClinicalAnnotation> variants, Map<String, Object> attributes) {
+                          List<PharmaClinicalAnnotation> variants, List<PharmaGeneAnnotation> genes, Map<String, Object> attributes) {
         this.id = id;
         this.source = source;
         this.name = name;
@@ -46,6 +48,7 @@ public class PharmaChemical {
         this.smiles = smiles;
         this.inChI = inChI;
         this.variants = variants;
+        this.genes = genes;
         this.attributes = attributes;
     }
 
@@ -63,6 +66,7 @@ public class PharmaChemical {
         sb.append(", smiles='").append(smiles).append('\'');
         sb.append(", inChI='").append(inChI).append('\'');
         sb.append(", variants=").append(variants);
+        sb.append(", genes=").append(genes);
         sb.append(", attributes=").append(attributes);
         sb.append('}');
         return sb.toString();
@@ -164,6 +168,15 @@ public class PharmaChemical {
 
     public PharmaChemical setVariants(List<PharmaClinicalAnnotation> variants) {
         this.variants = variants;
+        return this;
+    }
+
+    public List<PharmaGeneAnnotation> getGenes() {
+        return genes;
+    }
+
+    public PharmaChemical setGenes(List<PharmaGeneAnnotation> genes) {
+        this.genes = genes;
         return this;
     }
 
