@@ -199,6 +199,7 @@ protocol VariantAnnotations {
         union { null, string } levelOfEvidence;
         union { null, string } confidence;
         union { null, string } url;
+        union { null, string } summary;
         union { null, array<string> } pubmed;
         union { null, array<PharmacogenomicsAlleles> } alleles;
     }
