@@ -2,6 +2,8 @@ package org.opencb.biodata.models.pharma;
 
 import org.opencb.biodata.models.core.Xref;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +19,11 @@ public class PharmaGeneAnnotation {
     private Map<String, Object> attributes;
 
     public PharmaGeneAnnotation() {
+        this.xrefs = new ArrayList<>();
+        this.evidences = new ArrayList<>();
+        this.pubmed = new ArrayList<>();
+        this.guidelineAnnotations = new ArrayList<>();
+        this.attributes = new HashMap<>();
     }
 
     public PharmaGeneAnnotation(String id, String name, List<Xref> xrefs, boolean hasVariantAnnotation, List<String> evidences,

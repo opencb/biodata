@@ -19,6 +19,9 @@
 
 package org.opencb.biodata.models.pharma;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class PharmaStudyParameters {
     private String studyType;
     private String studyCases;
@@ -36,14 +39,17 @@ public class PharmaStudyParameters {
     private String confidenceIntervalStop;
     private String biogeographicalGroups;
 
+    private Map<String, Object> attributes;
+
     public PharmaStudyParameters() {
+        this.attributes = new HashMap<>();
     }
 
     public PharmaStudyParameters(String studyType, String studyCases, String studyControls, String characteristics,
                                  String characteristicsType, String frequencyInCases, String alleleOfFrequencyInCases,
                                  String frequencyInControls, String alleleOfFrequencyInControls, String pValue, String ratioStatType,
                                  String ratioStat, String confidenceIntervalStart, String confidenceIntervalStop,
-                                 String biogeographicalGroups) {
+                                 String biogeographicalGroups, Map<String, Object> attributes) {
         this.studyType = studyType;
         this.studyCases = studyCases;
         this.studyControls = studyControls;
@@ -59,6 +65,7 @@ public class PharmaStudyParameters {
         this.confidenceIntervalStart = confidenceIntervalStart;
         this.confidenceIntervalStop = confidenceIntervalStop;
         this.biogeographicalGroups = biogeographicalGroups;
+        this.attributes = attributes;
     }
 
     @Override
@@ -79,6 +86,7 @@ public class PharmaStudyParameters {
         sb.append(", confidenceIntervalStart='").append(confidenceIntervalStart).append('\'');
         sb.append(", confidenceIntervalStop='").append(confidenceIntervalStop).append('\'');
         sb.append(", biogeographicalGroups='").append(biogeographicalGroups).append('\'');
+        sb.append(", attributes=").append(attributes);
         sb.append('}');
         return sb.toString();
     }
@@ -215,6 +223,15 @@ public class PharmaStudyParameters {
 
     public PharmaStudyParameters setBiogeographicalGroups(String biogeographicalGroups) {
         this.biogeographicalGroups = biogeographicalGroups;
+        return this;
+    }
+
+    public Map<String, Object> getAttributes() {
+        return attributes;
+    }
+
+    public PharmaStudyParameters setAttributes(Map<String, Object> attributes) {
+        this.attributes = attributes;
         return this;
     }
 }

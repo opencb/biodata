@@ -1,5 +1,6 @@
 package org.opencb.biodata.models.pharma;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class PharmaClinicalAllele {
@@ -10,6 +11,7 @@ public class PharmaClinicalAllele {
     private Map<String, Object> attributes;
 
     public PharmaClinicalAllele() {
+        this.attributes = new HashMap<>();
     }
 
     public PharmaClinicalAllele(String allele, String annotation, String description, Map<String, Object> attributes) {

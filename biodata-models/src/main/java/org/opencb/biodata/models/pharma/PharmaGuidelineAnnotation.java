@@ -8,6 +8,23 @@ public class PharmaGuidelineAnnotation {
     private List<Object> citations;
     private PharmaDosingGuideline guideline;
 
+    public PharmaGuidelineAnnotation() {
+    }
+
+    public PharmaGuidelineAnnotation(List<Object> citations, PharmaDosingGuideline guideline) {
+        this.citations = citations;
+        this.guideline = guideline;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("PharmaGuidelineAnnotation{");
+        sb.append("citations=").append(citations);
+        sb.append(", guideline=").append(guideline);
+        sb.append('}');
+        return sb.toString();
+    }
+
     public List<Object> getCitations() {
         return citations;
     }

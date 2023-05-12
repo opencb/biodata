@@ -20,6 +20,7 @@ public class PharmaVariantAnnotation {
     private String population;
     private List<PharmaClinicalEvidence> evidences;
     private List<PharmaClinicalAllele> alleles;
+
     private Map<String, Object> attributes;
 
     public PharmaVariantAnnotation() {

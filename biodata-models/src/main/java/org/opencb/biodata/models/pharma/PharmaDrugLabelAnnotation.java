@@ -1,5 +1,8 @@
 package org.opencb.biodata.models.pharma;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class PharmaDrugLabelAnnotation {
     private String name;
     private String source;
@@ -10,12 +13,14 @@ public class PharmaDrugLabelAnnotation {
     private String alternateDrug;
     private String cancerGenome;
 
+    private Map<String, Object> attributes;
+
     public PharmaDrugLabelAnnotation() {
+        this.attributes = new HashMap<>();
     }
 
-    public PharmaDrugLabelAnnotation(String name, String source, String biomarkerFlag, String testingLevel,
-                                     String prescribingInfo, String dosingInfo, String alternateDrug,
-                                     String cancerGenome) {
+    public PharmaDrugLabelAnnotation(String name, String source, String biomarkerFlag, String testingLevel, String prescribingInfo,
+                                     String dosingInfo, String alternateDrug, String cancerGenome, Map<String, Object> attributes) {
         this.name = name;
         this.source = source;
         this.biomarkerFlag = biomarkerFlag;
@@ -24,11 +29,12 @@ public class PharmaDrugLabelAnnotation {
         this.dosingInfo = dosingInfo;
         this.alternateDrug = alternateDrug;
         this.cancerGenome = cancerGenome;
+        this.attributes = attributes;
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("PharmaLabelAnnotation{");
+        final StringBuilder sb = new StringBuilder("PharmaDrugLabelAnnotation{");
         sb.append("name='").append(name).append('\'');
         sb.append(", source='").append(source).append('\'');
         sb.append(", biomarkerFlag='").append(biomarkerFlag).append('\'');
@@ -37,6 +43,7 @@ public class PharmaDrugLabelAnnotation {
         sb.append(", dosingInfo='").append(dosingInfo).append('\'');
         sb.append(", alternateDrug='").append(alternateDrug).append('\'');
         sb.append(", cancerGenome='").append(cancerGenome).append('\'');
+        sb.append(", attributes=").append(attributes);
         sb.append('}');
         return sb.toString();
     }
@@ -110,6 +117,15 @@ public class PharmaDrugLabelAnnotation {
 
     public PharmaDrugLabelAnnotation setCancerGenome(String cancerGenome) {
         this.cancerGenome = cancerGenome;
+        return this;
+    }
+
+    public Map<String, Object> getAttributes() {
+        return attributes;
+    }
+
+    public PharmaDrugLabelAnnotation setAttributes(Map<String, Object> attributes) {
+        this.attributes = attributes;
         return this;
     }
 }
