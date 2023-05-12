@@ -1,12 +1,12 @@
 package org.opencb.biodata.models.pharma;
 
-import org.opencb.biodata.models.pharma.guideline.Guideline;
+import org.opencb.biodata.models.pharma.guideline.PharmaDosingGuideline;
 
 import java.util.List;
 
 public class PharmaGuidelineAnnotation {
     private List<Object> citations;
-    private Guideline guideline;
+    private PharmaDosingGuideline guideline;
 
     public List<Object> getCitations() {
         return citations;
@@ -17,12 +17,12 @@ public class PharmaGuidelineAnnotation {
         return this;
     }
 
-    public Guideline getGuideline() {
+    public PharmaDosingGuideline getGuideline() {
         return guideline;
     }
 
-    public PharmaGuidelineAnnotation setGuideline(Guideline guideline) {
-        this.guideline = guideline;
+    public PharmaGuidelineAnnotation setGuideline(PharmaDosingGuideline pharmaDosingGuideline) {
+        this.guideline = pharmaDosingGuideline;
         return this;
     }
 }

@@ -1,34 +1,34 @@
 package org.opencb.biodata.models.pharma;
 
+import org.opencb.biodata.models.core.Xref;
+
 import java.util.List;
 import java.util.Map;
 
 public class PharmaGeneAnnotation {
     private String id;
     private String name;
-    private String symbol;
-    private String ncbiGeneId;
-    private String hgncId;
-    private String ensebmlId;
-    private boolean isVIP;
+    private List<Xref> xrefs;
     private boolean hasVariantAnnotation;
+    private List<String> evidences;
+    private String confidence;
+    private List<String> pubmed;
     private List<PharmaGuidelineAnnotation> guidelineAnnotations;
     private Map<String, Object> attributes;
 
     public PharmaGeneAnnotation() {
     }
 
-    public PharmaGeneAnnotation(String id, String name, String symbol, String ncbiGeneId, String hgncId, String ensebmlId, boolean isVIP,
-                                boolean hasVariantAnnotation, List<PharmaGuidelineAnnotation> guidelineAnnotations,
+    public PharmaGeneAnnotation(String id, String name, List<Xref> xrefs, boolean hasVariantAnnotation, List<String> evidences,
+                                String confidence, List<String> pubmed, List<PharmaGuidelineAnnotation> guidelineAnnotations,
                                 Map<String, Object> attributes) {
         this.id = id;
         this.name = name;
-        this.symbol = symbol;
-        this.ncbiGeneId = ncbiGeneId;
-        this.hgncId = hgncId;
-        this.ensebmlId = ensebmlId;
-        this.isVIP = isVIP;
+        this.xrefs = xrefs;
         this.hasVariantAnnotation = hasVariantAnnotation;
+        this.evidences = evidences;
+        this.confidence = confidence;
+        this.pubmed = pubmed;
         this.guidelineAnnotations = guidelineAnnotations;
         this.attributes = attributes;
     }
@@ -38,12 +38,11 @@ public class PharmaGeneAnnotation {
         final StringBuilder sb = new StringBuilder("PharmaGeneAnnotation{");
         sb.append("id='").append(id).append('\'');
         sb.append(", name='").append(name).append('\'');
-        sb.append(", symbol='").append(symbol).append('\'');
-        sb.append(", ncbiGeneId='").append(ncbiGeneId).append('\'');
-        sb.append(", hgncId='").append(hgncId).append('\'');
-        sb.append(", ensebmlId='").append(ensebmlId).append('\'');
-        sb.append(", isVIP=").append(isVIP);
+        sb.append(", xrefs=").append(xrefs);
         sb.append(", hasVariantAnnotation=").append(hasVariantAnnotation);
+        sb.append(", evidences=").append(evidences);
+        sb.append(", confidence='").append(confidence).append('\'');
+        sb.append(", pubmed=").append(pubmed);
         sb.append(", guidelineAnnotations=").append(guidelineAnnotations);
         sb.append(", attributes=").append(attributes);
         sb.append('}');
@@ -68,48 +67,12 @@ public class PharmaGeneAnnotation {
         return this;
     }
 
-    public String getSymbol() {
-        return symbol;
+    public List<Xref> getXrefs() {
+        return xrefs;
     }
 
-    public PharmaGeneAnnotation setSymbol(String symbol) {
-        this.symbol = symbol;
-        return this;
-    }
-
-    public String getNcbiGeneId() {
-        return ncbiGeneId;
-    }
-
-    public PharmaGeneAnnotation setNcbiGeneId(String ncbiGeneId) {
-        this.ncbiGeneId = ncbiGeneId;
-        return this;
-    }
-
-    public String getHgncId() {
-        return hgncId;
-    }
-
-    public PharmaGeneAnnotation setHgncId(String hgncId) {
-        this.hgncId = hgncId;
-        return this;
-    }
-
-    public String getEnsebmlId() {
-        return ensebmlId;
-    }
-
-    public PharmaGeneAnnotation setEnsebmlId(String ensebmlId) {
-        this.ensebmlId = ensebmlId;
-        return this;
-    }
-
-    public boolean isVIP() {
-        return isVIP;
-    }
-
-    public PharmaGeneAnnotation setVIP(boolean VIP) {
-        isVIP = VIP;
+    public PharmaGeneAnnotation setXrefs(List<Xref> xrefs) {
+        this.xrefs = xrefs;
         return this;
     }
 
@@ -119,6 +82,33 @@ public class PharmaGeneAnnotation {
 
     public PharmaGeneAnnotation setHasVariantAnnotation(boolean hasVariantAnnotation) {
         this.hasVariantAnnotation = hasVariantAnnotation;
+        return this;
+    }
+
+    public List<String> getEvidences() {
+        return evidences;
+    }
+
+    public PharmaGeneAnnotation setEvidences(List<String> evidences) {
+        this.evidences = evidences;
+        return this;
+    }
+
+    public String getConfidence() {
+        return confidence;
+    }
+
+    public PharmaGeneAnnotation setConfidence(String confidence) {
+        this.confidence = confidence;
+        return this;
+    }
+
+    public List<String> getPubmed() {
+        return pubmed;
+    }
+
+    public PharmaGeneAnnotation setPubmed(List<String> pubmed) {
+        this.pubmed = pubmed;
         return this;
     }
 

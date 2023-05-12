@@ -1,7 +1,9 @@
 package org.opencb.biodata.models.pharma;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PharmaClinicalEvidence {
     private String type;
@@ -14,16 +16,18 @@ public class PharmaClinicalEvidence {
     private List<PharmaGuidelineAnnotation> guidelineAnnotations;
     private List<PharmaDrugLabelAnnotation> drugLabelAnnotations;
 
+    private Map<String, Object> attributes;
+
     public PharmaClinicalEvidence() {
         this.variantAssociations = new ArrayList<>();
         this.guidelineAnnotations = new ArrayList<>();
         this.drugLabelAnnotations = new ArrayList<>();
+        this.attributes = new HashMap<>();
     }
 
     public PharmaClinicalEvidence(String type, String url, String pubmed, String summary, String score,
-                                  List<PharmaVariantAssociation> variantAssociations,
-                                  List<PharmaGuidelineAnnotation> guidelineAnnotations,
-                                  List<PharmaDrugLabelAnnotation> drugLabelAnnotations) {
+                                  List<PharmaVariantAssociation> variantAssociations, List<PharmaGuidelineAnnotation> guidelineAnnotations,
+                                  List<PharmaDrugLabelAnnotation> drugLabelAnnotations, Map<String, Object> attributes) {
         this.type = type;
         this.url = url;
         this.pubmed = pubmed;
@@ -32,6 +36,7 @@ public class PharmaClinicalEvidence {
         this.variantAssociations = variantAssociations;
         this.guidelineAnnotations = guidelineAnnotations;
         this.drugLabelAnnotations = drugLabelAnnotations;
+        this.attributes = attributes;
     }
 
     @Override
@@ -45,6 +50,7 @@ public class PharmaClinicalEvidence {
         sb.append(", variantAssociations=").append(variantAssociations);
         sb.append(", guidelineAnnotations=").append(guidelineAnnotations);
         sb.append(", drugLabelAnnotations=").append(drugLabelAnnotations);
+        sb.append(", attributes=").append(attributes);
         sb.append('}');
         return sb.toString();
     }
@@ -118,6 +124,15 @@ public class PharmaClinicalEvidence {
 
     public PharmaClinicalEvidence setDrugLabelAnnotations(List<PharmaDrugLabelAnnotation> drugLabelAnnotations) {
         this.drugLabelAnnotations = drugLabelAnnotations;
+        return this;
+    }
+
+    public Map<String, Object> getAttributes() {
+        return attributes;
+    }
+
+    public PharmaClinicalEvidence setAttributes(Map<String, Object> attributes) {
+        this.attributes = attributes;
         return this;
     }
 }

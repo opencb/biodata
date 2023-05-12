@@ -8,15 +8,16 @@ import java.util.Map;
 public class PharmaVariantAssociation {
 
     private String variantId;
-    private String gene;
+    private String geneId;
+    private String geneName;
     private List<String> drugs;
     private String pubmed;
     private String phenotypeCategory;
     private String significance;
     private String assayType;
-    private String specialtyPopulation;
+    private String population;
     private String alleles;
-    private String sentence;
+    private String description;
     private String discussion;
     private List<PharmaStudyParameters> studyParameters;
 
@@ -28,19 +29,40 @@ public class PharmaVariantAssociation {
         this.attributes = new HashMap<>();
     }
 
+    public PharmaVariantAssociation(String variantId, String geneId, String geneName, List<String> drugs, String pubmed,
+                                    String phenotypeCategory, String significance, String assayType, String population, String alleles,
+                                    String description, String discussion, List<PharmaStudyParameters> studyParameters,
+                                    Map<String, Object> attributes) {
+        this.variantId = variantId;
+        this.geneId = geneId;
+        this.geneName = geneName;
+        this.drugs = drugs;
+        this.pubmed = pubmed;
+        this.phenotypeCategory = phenotypeCategory;
+        this.significance = significance;
+        this.assayType = assayType;
+        this.population = population;
+        this.alleles = alleles;
+        this.description = description;
+        this.discussion = discussion;
+        this.studyParameters = studyParameters;
+        this.attributes = attributes;
+    }
+
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("PharmaBasicAnnotation{");
+        final StringBuilder sb = new StringBuilder("PharmaVariantAssociation{");
         sb.append("variantId='").append(variantId).append('\'');
-        sb.append(", gene='").append(gene).append('\'');
+        sb.append(", geneId='").append(geneId).append('\'');
+        sb.append(", geneName='").append(geneName).append('\'');
         sb.append(", drugs=").append(drugs);
         sb.append(", pubmed='").append(pubmed).append('\'');
         sb.append(", phenotypeCategory='").append(phenotypeCategory).append('\'');
         sb.append(", significance='").append(significance).append('\'');
         sb.append(", assayType='").append(assayType).append('\'');
-        sb.append(", specialtyPopulation='").append(specialtyPopulation).append('\'');
+        sb.append(", population='").append(population).append('\'');
         sb.append(", alleles='").append(alleles).append('\'');
-        sb.append(", sentence='").append(sentence).append('\'');
+        sb.append(", description='").append(description).append('\'');
         sb.append(", discussion='").append(discussion).append('\'');
         sb.append(", studyParameters=").append(studyParameters);
         sb.append(", attributes=").append(attributes);
@@ -57,12 +79,21 @@ public class PharmaVariantAssociation {
         return this;
     }
 
-    public String getGene() {
-        return gene;
+    public String getGeneId() {
+        return geneId;
     }
 
-    public PharmaVariantAssociation setGene(String gene) {
-        this.gene = gene;
+    public PharmaVariantAssociation setGeneId(String geneId) {
+        this.geneId = geneId;
+        return this;
+    }
+
+    public String getGeneName() {
+        return geneName;
+    }
+
+    public PharmaVariantAssociation setGeneName(String geneName) {
+        this.geneName = geneName;
         return this;
     }
 
@@ -111,12 +142,12 @@ public class PharmaVariantAssociation {
         return this;
     }
 
-    public String getSpecialtyPopulation() {
-        return specialtyPopulation;
+    public String getPopulation() {
+        return population;
     }
 
-    public PharmaVariantAssociation setSpecialtyPopulation(String specialtyPopulation) {
-        this.specialtyPopulation = specialtyPopulation;
+    public PharmaVariantAssociation setPopulation(String population) {
+        this.population = population;
         return this;
     }
 
@@ -129,12 +160,12 @@ public class PharmaVariantAssociation {
         return this;
     }
 
-    public String getSentence() {
-        return sentence;
+    public String getDescription() {
+        return description;
     }
 
-    public PharmaVariantAssociation setSentence(String sentence) {
-        this.sentence = sentence;
+    public PharmaVariantAssociation setDescription(String description) {
+        this.description = description;
         return this;
     }
 

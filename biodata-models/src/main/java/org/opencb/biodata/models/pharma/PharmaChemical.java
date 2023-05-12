@@ -18,7 +18,7 @@ public class PharmaChemical {
     private List<Xref> xrefs;
     private String smiles;
     private String inChI;
-    private List<PharmaClinicalAnnotation> variants;
+    private List<PharmaVariantAnnotation> variants;
     private List<PharmaGeneAnnotation> genes;
 
     private Map<String, Object> attributes;
@@ -36,7 +36,7 @@ public class PharmaChemical {
 
     public PharmaChemical(String id, String source, String name, List<String> genericNames, List<String> tradeNames,
                           List<String> tradeMixtures, List<String> types, List<Xref> xrefs, String smiles, String inChI,
-                          List<PharmaClinicalAnnotation> variants, List<PharmaGeneAnnotation> genes, Map<String, Object> attributes) {
+                          List<PharmaVariantAnnotation> variants, List<PharmaGeneAnnotation> genes, Map<String, Object> attributes) {
         this.id = id;
         this.source = source;
         this.name = name;
@@ -162,11 +162,11 @@ public class PharmaChemical {
         return this;
     }
 
-    public List<PharmaClinicalAnnotation> getVariants() {
+    public List<PharmaVariantAnnotation> getVariants() {
         return variants;
     }
 
-    public PharmaChemical setVariants(List<PharmaClinicalAnnotation> variants) {
+    public PharmaChemical setVariants(List<PharmaVariantAnnotation> variants) {
         this.variants = variants;
         return this;
     }

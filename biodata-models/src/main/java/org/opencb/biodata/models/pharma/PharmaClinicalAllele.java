@@ -1,17 +1,22 @@
 package org.opencb.biodata.models.pharma;
 
+import java.util.Map;
+
 public class PharmaClinicalAllele {
     private String allele;
     private String annotation;
     private String description;
 
+    private Map<String, Object> attributes;
+
     public PharmaClinicalAllele() {
     }
 
-    public PharmaClinicalAllele(String allele, String annotation, String description) {
+    public PharmaClinicalAllele(String allele, String annotation, String description, Map<String, Object> attributes) {
         this.allele = allele;
         this.annotation = annotation;
         this.description = description;
+        this.attributes = attributes;
     }
 
     @Override
@@ -20,6 +25,7 @@ public class PharmaClinicalAllele {
         sb.append("allele='").append(allele).append('\'');
         sb.append(", annotation='").append(annotation).append('\'');
         sb.append(", description='").append(description).append('\'');
+        sb.append(", attributes=").append(attributes);
         sb.append('}');
         return sb.toString();
     }
@@ -48,6 +54,15 @@ public class PharmaClinicalAllele {
 
     public PharmaClinicalAllele setDescription(String description) {
         this.description = description;
+        return this;
+    }
+
+    public Map<String, Object> getAttributes() {
+        return attributes;
+    }
+
+    public PharmaClinicalAllele setAttributes(Map<String, Object> attributes) {
+        this.attributes = attributes;
         return this;
     }
 }
