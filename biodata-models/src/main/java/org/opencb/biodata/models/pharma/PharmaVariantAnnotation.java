@@ -13,7 +13,7 @@ public class PharmaVariantAnnotation {
     private String geneId;
     private String geneName;
     private List<String> phenotypes;
-    private String phenotypeType;
+    private List<String> phenotypeTypes;
     private String confidence;
     private String score;
     private String url;
@@ -25,6 +25,7 @@ public class PharmaVariantAnnotation {
 
     public PharmaVariantAnnotation() {
         phenotypes = new ArrayList<>();
+        phenotypeTypes = new ArrayList<>();
         evidences = new ArrayList<>();
         alleles = new ArrayList<>();
         attributes = new HashMap<>();
@@ -40,7 +41,7 @@ public class PharmaVariantAnnotation {
         sb.append(", geneId='").append(geneId).append('\'');
         sb.append(", geneName='").append(geneName).append('\'');
         sb.append(", phenotypes=").append(phenotypes);
-        sb.append(", phenotypeType='").append(phenotypeType).append('\'');
+        sb.append(", phenotypeTypes=").append(phenotypeTypes);
         sb.append(", confidence='").append(confidence).append('\'');
         sb.append(", score='").append(score).append('\'');
         sb.append(", url='").append(url).append('\'');
@@ -115,12 +116,12 @@ public class PharmaVariantAnnotation {
         return this;
     }
 
-    public String getPhenotypeType() {
-        return phenotypeType;
+    public List<String> getPhenotypeTypes() {
+        return phenotypeTypes;
     }
 
-    public PharmaVariantAnnotation setPhenotypeType(String phenotypeType) {
-        this.phenotypeType = phenotypeType;
+    public PharmaVariantAnnotation setPhenotypeTypes(List<String> phenotypeTypes) {
+        this.phenotypeTypes = phenotypeTypes;
         return this;
     }
 
