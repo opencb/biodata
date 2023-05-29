@@ -193,7 +193,7 @@ protocol VariantAnnotations {
 
     record PharmacogenomicsClinicalAnnotation {
         union { null, string } variantId;
-        union { null, string } geneName;
+        union { null, array<string> } geneNames;
         union { null, array<string> } phenotypes;
         union { null, array<string> } phenotypeTypes;
         union { null, string } confidence;

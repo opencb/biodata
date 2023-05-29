@@ -10,8 +10,8 @@ public class PharmaVariantAnnotation {
     private String location;
     private String chromosome;
     private int position;
-    private String geneId;
-    private String geneName;
+    private List<String> haplotypes;
+    private List<String> geneNames;
     private List<String> phenotypes;
     private List<String> phenotypeTypes;
     private String confidence;
@@ -24,6 +24,8 @@ public class PharmaVariantAnnotation {
     private Map<String, Object> attributes;
 
     public PharmaVariantAnnotation() {
+        haplotypes = new ArrayList<>();
+        geneNames = new ArrayList<>();
         phenotypes = new ArrayList<>();
         phenotypeTypes = new ArrayList<>();
         evidences = new ArrayList<>();
@@ -38,8 +40,8 @@ public class PharmaVariantAnnotation {
         sb.append(", location='").append(location).append('\'');
         sb.append(", chromosome='").append(chromosome).append('\'');
         sb.append(", position=").append(position);
-        sb.append(", geneId='").append(geneId).append('\'');
-        sb.append(", geneName='").append(geneName).append('\'');
+        sb.append(", haplotypes=").append(haplotypes);
+        sb.append(", geneNames=").append(geneNames);
         sb.append(", phenotypes=").append(phenotypes);
         sb.append(", phenotypeTypes=").append(phenotypeTypes);
         sb.append(", confidence='").append(confidence).append('\'');
@@ -89,21 +91,21 @@ public class PharmaVariantAnnotation {
         return this;
     }
 
-    public String getGeneId() {
-        return geneId;
+    public List<String> getHaplotypes() {
+        return haplotypes;
     }
 
-    public PharmaVariantAnnotation setGeneId(String geneId) {
-        this.geneId = geneId;
+    public PharmaVariantAnnotation setHaplotypes(List<String> haplotypes) {
+        this.haplotypes = haplotypes;
         return this;
     }
 
-    public String getGeneName() {
-        return geneName;
+    public List<String> getGeneNames() {
+        return geneNames;
     }
 
-    public PharmaVariantAnnotation setGeneName(String geneName) {
-        this.geneName = geneName;
+    public PharmaVariantAnnotation setGeneNames(List<String> geneNames) {
+        this.geneNames = geneNames;
         return this;
     }
 
