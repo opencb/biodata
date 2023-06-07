@@ -29,7 +29,9 @@ public class GenomeSequenceChunk {
     private String assembly;
 	private String sequence;
 
-	
+	public GenomeSequenceChunk() {
+	}
+
 	public GenomeSequenceChunk(String sequenceName, String chunkId, int start, int end, String sequence) {
         this(sequenceName, chunkId, start, end, "", "", sequence);
 	}
