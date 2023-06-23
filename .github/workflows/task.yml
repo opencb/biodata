@@ -13,9 +13,6 @@ jobs:
     uses: ./.github/workflows/test-analysis.yml
     needs: build
     secrets: inherit
-#    with:
-#      report_context: development
-#      report_dir: ${{ github.ref_name }}/biodata/${{ github.sha }}
 
   deploy-maven:
     name: Deploy in maven only for renamed versions
@@ -24,7 +21,7 @@ jobs:
     if: contains( needs.build.outputs.version ,'TASK')
     secrets: inherit
 
-  #The following jobs are to see that the previous 'if' doesn't fail and that the maven deploy is executed because it is true
+  ## The following jobs are to see that the previous 'if' doesn't fail and that the maven deploy is executed because it is true
   snapshot-version:
     name: Check SNAPSHOT version
     needs: [ build, test ]
