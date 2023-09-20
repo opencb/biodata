@@ -20,7 +20,7 @@
 
     <groupId>org.opencb.biodata</groupId>
     <artifactId>biodata</artifactId>
-    <version>1.5.6</version>
+    <version>1.5.7</version>
     <packaging>pom</packaging>
 
     <name>Biodata</name>
@@ -34,7 +34,7 @@
     </modules>
 
     <properties>
-        <biodata.version>1.5.6</biodata.version>
+        <biodata.version>1.5.7</biodata.version>
         <compileSource>1.8</compileSource>
         <commons.version>3.7.5</commons.version>
         <ga4gh.version>0.6.0a5</ga4gh.version>
