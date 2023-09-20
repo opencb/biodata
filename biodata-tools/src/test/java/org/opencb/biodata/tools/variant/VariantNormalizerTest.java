@@ -91,6 +91,17 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
     }
 
     @Test
+    public void testNormalizeSpanningDeletionWithDecomposeDoesNotRaiseError() throws NonStandardCompliantSampleField {
+        Variant variant = new Variant("13:32316508:GCCCC:*");
+        VariantNormalizer.VariantNormalizerConfig variantNormalizerConfig
+                = (new VariantNormalizer.VariantNormalizerConfig())
+                .setDecomposeMNVs(true);
+        VariantNormalizer variantNormalizer = new VariantNormalizer(variantNormalizerConfig);
+        List<Variant> normalizedVariantList = variantNormalizer.normalize(Collections.singletonList(variant), false);
+        assertEquals(variant, normalizedVariantList.get(0));
+    }
+
+    @Test
     public void testNormalizeFalseMNV() throws NonStandardCompliantSampleField {
 
         Variant variant = newVariant(100, "CA", "TA");

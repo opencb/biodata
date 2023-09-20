@@ -1012,7 +1012,9 @@ public class VariantNormalizer implements ParallelTaskRunner.Task<Variant, Varia
      * Non normalizable variants
      */
     private boolean isNormalizable(Variant variant) {
-        return !variant.getType().equals(VariantType.NO_VARIATION) && !variant.getType().equals(VariantType.SYMBOLIC);
+        return !variant.getType().equals(VariantType.NO_VARIATION)
+                && !variant.getType().equals(VariantType.SYMBOLIC)
+                && !variant.isSpanningDeletion();
     }
 
     protected VariantKeyFields createVariantsFromInsertionEmptyRef(int position, String alt) {
