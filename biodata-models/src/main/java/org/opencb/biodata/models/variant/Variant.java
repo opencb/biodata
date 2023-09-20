@@ -44,7 +44,7 @@ public class Variant implements Serializable, Comparable<Variant> {
 
     public static final int SV_THRESHOLD = 50;
     public static final int UNKNOWN_LENGTH = 0;
-    public static final String SPANNING_DELETION = "*"; // Ref allele of a deletion that spans a position of interest
+    public static final String SPANNING_DELETION = "*"; // Alt allele of a deletion that spans a position of interest
     public Variant() {
         impl = new VariantAvro(null, new LinkedList<>(), "", -1, -1, "", "", "+", null, 0, null, new HashMap<>(), new LinkedList<>(), null);
     }
