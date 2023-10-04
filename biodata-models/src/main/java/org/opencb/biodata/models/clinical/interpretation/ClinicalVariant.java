@@ -94,17 +94,7 @@ public class ClinicalVariant extends Variant {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("ClinicalVariant{");
-        sb.append("evidences=").append(evidences);
-        sb.append(", comments=").append(comments);
-        sb.append(", filters=").append(filters);
-        sb.append(", discussion=").append(discussion);
-        sb.append(", confidence=").append(confidence);
-        sb.append(", tags=").append(tags);
-        sb.append(", status=").append(status);
-        sb.append(", attributes=").append(attributes);
-        sb.append('}');
-        return sb.toString();
+        return super.toString();
     }
 
     public List<ClinicalVariantEvidence> getEvidences() {
