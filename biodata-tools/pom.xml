@@ -50,6 +50,7 @@
             <groupId>org.opencb.ga4gh</groupId>
             <artifactId>ga4gh</artifactId>
         </dependency>
+
         <dependency>
             <groupId>com.databricks</groupId>
             <artifactId>SnpEff</artifactId>
