@@ -185,6 +185,35 @@ protocol VariantAnnotations {
         union { null, array<string> } bibliography;
     }
 
+    record PharmacogenomicsAlleles {
+        union { null, string } allele;
+        union { null, string } annotation;
+        union { null, string } description;
+    }
+
+    record PharmacogenomicsClinicalAnnotation {
+        union { null, string } variantId;
+        union { null, array<string> } geneNames;
+        union { null, array<string> } phenotypes;
+        union { null, array<string> } phenotypeTypes;
+        union { null, string } confidence;
+        union { null, string } score;
+        union { null, string } url;
+        union { null, string } summary;
+        union { null, array<string> } pubmed;
+        union { null, array<PharmacogenomicsAlleles> } alleles;
+    }
+
+    record Pharmacogenomics {
+        union { null, string } id;
+        union { null, string } name;
+        union { null, string } source;
+        union { null, array<string> } types;
+        union { null, string } smiles;
+        union { null, string } inChI;
+        union { null, array<PharmacogenomicsClinicalAnnotation> } annotations;
+    }
+
     record GeneCancerAssociation {
         union { null, string } id;
         union { null, string } source;
@@ -299,6 +328,7 @@ protocol VariantAnnotations {
         union { null, array<GeneMirnaTarget> } geneMirnaTargets;
         union { null, array<GeneCancerAssociation> } geneCancerAssociations;
         union { null, array<EvidenceEntry> } traitAssociation;
+        union { null, array<Pharmacogenomics> } pharmacogenomics;
         union { null, array<GwasAssociation> } gwas;
         union { null, array<CancerHotspotVariantAnnotation> } cancerHotspots;
         union { null, array<Score> } functionalScore;

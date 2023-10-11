@@ -16,6 +16,8 @@
 
 package org.opencb.biodata.models.core;
 
+import org.opencb.commons.utils.PrintUtils;
+
 import java.util.Set;
 
 public class AnnotationEvidence {
