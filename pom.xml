@@ -15,13 +15,16 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.opencb.biodata</groupId>
     <artifactId>biodata</artifactId>
     <version>2.12.0-SNAPSHOT</version>
     <packaging>pom</packaging>
+
     <name>Biodata</name>
     <description>Biological entities and their equivalents in different file formats typically used in bioinformatics</description>
     <url>https://github.com/opencb/biodata/wiki</url>
@@ -36,7 +39,6 @@
     <properties>
         <!-- All dependency versions must be defined here -->
         <java-common-libs.version>4.12.0-SNAPSHOT</java-common-libs.version>
-
         <jackson.version>2.11.4</jackson.version>
         <collections.version>4.4</collections.version>
         <avro.version>1.7.7</avro.version>
@@ -201,7 +203,7 @@
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
             </dependency>
-                     <dependency>
+            <dependency>
                 <groupId>com.github.samtools</groupId>
                 <artifactId>htsjdk</artifactId>
                 <version>${htsjdk.version}</version>
@@ -388,7 +390,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.5.0</version>
+                <version>3.6.0</version>
                 <executions>
                     <execution>
                         <id>analyze</id>
