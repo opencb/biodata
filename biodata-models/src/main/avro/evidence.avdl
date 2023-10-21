@@ -157,7 +157,6 @@ conflicting evidences should be classified as uncertain_significance
     enum ClinicalSignificance {
         benign,
         likely_benign,
-        VUS,
         likely_pathogenic,
         pathogenic,
         uncertain_significance
