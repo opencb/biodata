@@ -15,13 +15,16 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.opencb.biodata</groupId>
     <artifactId>biodata</artifactId>
     <version>2.12.0-SNAPSHOT</version>
     <packaging>pom</packaging>
+
     <name>Biodata</name>
     <description>Biological entities and their equivalents in different file formats typically used in bioinformatics</description>
     <url>https://github.com/opencb/biodata/wiki</url>
@@ -34,17 +37,35 @@
     </modules>
 
     <properties>
+        <!-- All dependency versions must be defined here -->
         <java-common-libs.version>4.12.0-SNAPSHOT</java-common-libs.version>
+        <jackson.version>2.11.4</jackson.version>
         <collections.version>4.4</collections.version>
         <avro.version>1.7.7</avro.version>
         <protobuf.version>3.11.4</protobuf.version>
         <grpc.version>1.28.1</grpc.version>
         <htsjdk.version>2.23.0</htsjdk.version>
         <slf4j.version>1.7.32</slf4j.version>
+        <jsr.version>3.0.2</jsr.version>
+        <commons-lang.version>3.12.0</commons-lang.version>
+        <jackson-mapper.version>1.9.13</jackson-mapper.version>
+        <guava.version>19.0</guava.version>
+        <commons-io.version>2.4</commons-io.version>
+        <biojava-core.version>5.0.0</biojava-core.version>
+        <ga4gh.version>0.6.0a5</ga4gh.version>
+        <SnpEff.version>4.3.1</SnpEff.version>
+        <rocksdbjni.version>4.5.1</rocksdbjni.version>
+        <jakarta.xml.bind-api.version>2.3.3</jakarta.xml.bind-api.version>
+        <owlapi-oboformat.version>5.1.13</owlapi-oboformat.version>
+        <jaxb-impl.version>2.3.3</jaxb-impl.version>
+        <biojava-alignment.version>4.1.0</biojava-alignment.version>
+        <junit.version>4.13.2</junit.version>
+        <!-- Other properties -->
         <sonar.organization>opencb</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <maven.compiler.source>1.8</maven.compiler.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <log4j.version>1.2.17</log4j.version>
     </properties>
 
     <scm>
@@ -126,6 +147,12 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- OpenCB dependencies -->
+            <dependency>
+                <groupId>org.opencb.commons</groupId>
+                <artifactId>commons-lib</artifactId>
+                <version>${java-common-libs.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.opencb.biodata</groupId>
                 <artifactId>biodata-formats</artifactId>
@@ -140,29 +167,72 @@
                 <groupId>org.opencb.commons</groupId>
                 <artifactId>commons-lib</artifactId>
                 <version>${java-common-libs.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.logging.log4j</groupId>
-                        <artifactId>log4j-slf4j-impl</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.opencb.commons</groupId>
                 <artifactId>commons-datastore-core</artifactId>
                 <version>${java-common-libs.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.logging.log4j</groupId>
-                        <artifactId>log4j-slf4j-impl</artifactId>
-                    </exclusion>
-                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.xml.bind</groupId>
+                <artifactId>jakarta.xml.bind-api</artifactId>
+                <version>${jakarta.xml.bind-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.rocksdb</groupId>
+                <artifactId>rocksdbjni</artifactId>
+                <version>${rocksdbjni.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opencb.ga4gh</groupId>
+                <artifactId>ga4gh</artifactId>
+                <version>${ga4gh.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.rocksdb</groupId>
+                <artifactId>rocksdbjni</artifactId>
+                <version>${rocksdbjni.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.databricks</groupId>
+                <artifactId>SnpEff</artifactId>
+                <version>${SnpEff.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.github.samtools</groupId>
                 <artifactId>htsjdk</artifactId>
                 <version>${htsjdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.jackson</groupId>
+                <artifactId>jackson-mapper-asl</artifactId>
+                <version>${jackson-mapper.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.avro</groupId>
@@ -185,9 +255,19 @@
                 <version>${grpc.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.code.findbugs</groupId>
+                <artifactId>jsr305</artifactId>
+                <version>${jsr.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.biojava</groupId>
                 <artifactId>biojava-alignment</artifactId>
-                <version>4.1.0</version>
+                <version>${biojava-alignment.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.apache.logging.log4j</groupId>
@@ -204,9 +284,19 @@
                 </exclusions>
             </dependency>
             <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons-io.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.biojava</groupId>
+                <artifactId>biojava-core</artifactId>
+                <version>${biojava-core.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.13.2</version>
+                <version>${junit.version}</version>
                 <scope>test</scope>
             </dependency>
             <!-- Better use slf4j-simple instead of logj4 for testing, as it doesn't require any configuration -->
@@ -217,13 +307,21 @@
                 <scope>test</scope>
                 <optional>true</optional>
             </dependency>
-<!--            <dependency>-->
-<!--                <groupId>org.apache.logging.log4j</groupId>-->
-<!--                <artifactId>log4j-slf4j-impl</artifactId>-->
-<!--                <version>${log4j2.version}</version>-->
-<!--                <scope>test</scope>-->
-<!--                <optional>true</optional>-->
-<!--            </dependency>-->
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-impl</artifactId>
+                <version>${jaxb-impl.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sourceforge.owlapi</groupId>
+                <artifactId>owlapi-oboformat</artifactId>
+                <version>${owlapi-oboformat.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>log4j</groupId>
+                <artifactId>log4j</artifactId>
+                <version>${log4j.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -291,6 +389,25 @@
 <!--                                    </limits>-->
 <!--                                </rule>-->
                             </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.6.0</version>
+                <executions>
+                    <execution>
+                        <id>analyze</id>
+                        <goals>
+                            <goal>analyze-only</goal>
+                        </goals>
+                        <configuration>
+                            <failOnWarning>true</failOnWarning>
+                            <ignoredUnusedDeclaredDependencies>
+                                <ignoredUnusedDeclaredDependency>*</ignoredUnusedDeclaredDependency>
+                            </ignoredUnusedDeclaredDependencies>
                         </configuration>
                     </execution>
                 </executions>
