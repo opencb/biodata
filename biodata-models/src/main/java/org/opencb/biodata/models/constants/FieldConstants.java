@@ -1,5 +1,7 @@
 package org.opencb.biodata.models.constants;
 
+import org.opencb.biodata.models.clinical.qc.RelatednessReport;
+
 public class FieldConstants {
     public static final String PHENOTYPE_AGE_OF_ON_SET = "Indicates the age of on set of the phenotype";
     public static final String PHENOTYPE_STATUS = "Status of phenotype OBSERVED, NOT_OBSERVED, UNKNOWN";
@@ -55,7 +57,11 @@ public class FieldConstants {
     public static final String CLINICAL_CONFIDENCE_DATE_DESCRIPTION = "Date of the clinical confidence";
     public static final String CLINICAL_CONFIDENCE_VALUE_DESCRIPTION = "Date of the clinical confidence";
 
-    public static final String RELATEDNESS_REPORT_MAF_DESCRIPTION = "Minor allele frequency to filter variants, e.g.: 1kg_phase3:CEU>0.35, cohort:ALL>0.05";
+    public static final String RELATEDNESS_REPORT_MAF_DESCRIPTION = "Minor allele frequency to filter variants, e.g.: 1kg_phase3:CEU>0.35,"
+            + " cohort:ALL>0.05";
+    public static final String RELATEDNESS_REPORT_HAPLOID_CALL_MODE_DESCRIPTION = "Haploid call mode, equivalent to the PLINK/IBD parameter"
+            + " vcf-half-call, accepts the following values: " + RelatednessReport.HAPLOID_CALL_MODE_DEFAUT_VALUE + ", "
+            + RelatednessReport.HAPLOID_CALL_MODE_MISSING_VALUE + " and " + RelatednessReport.HAPLOID_CALL_MODE_REF_VALUE;
     public static final String RELATEDNESS_REPORT_SCORES_DESCRIPTION = "Relatedness scores for pair of samples";
     public static final String RELATEDNESS_REPORT_FILES_DESCRIPTION = "List of files of Relatedness Report";
 
@@ -67,7 +73,8 @@ public class FieldConstants {
     public static final String AUDIT_MESSAGE_DESCRIPTION = "Audit message";
     public static final String AUDIT_ACTION_DESCRIPTION = "Enum action that can have the values "
             + " CREATE_CLINICAL_ANALYSIS, CREATE_INTERPRETATION, UPDATE_CLINICAL_ANALYSIS, DELETE_CLINICAL_ANALYSIS,"
-            + " UPDATE_INTERPRETATION, REVERT_INTERPRETATION, CLEAR_INTERPRETATION, MERGE_INTERPRETATION, SWAP_INTERPRETATION and DELETE_INTERPRETATION";
+            + " UPDATE_INTERPRETATION, REVERT_INTERPRETATION, CLEAR_INTERPRETATION, MERGE_INTERPRETATION, SWAP_INTERPRETATION and"
+            + " DELETE_INTERPRETATION";
     public static final String AUDIT_DATE_DESCRIPTION = "Date of the audit";
 
     public static final String SOFTWARE_NAME = "Software name";
@@ -76,5 +83,5 @@ public class FieldConstants {
     public static final String SOFTWARE_COMMIT = "Software commit";
     public static final String SOFTWARE_WEBSITE = "Software website";
     public static final String SOFTWARE_PARAMS = "Software params";
-    
+
 }
