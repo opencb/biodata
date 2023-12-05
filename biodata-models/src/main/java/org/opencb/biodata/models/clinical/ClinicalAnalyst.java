@@ -1,5 +1,6 @@
 package org.opencb.biodata.models.clinical;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.opencb.biodata.models.constants.FieldConstants;
 import org.opencb.commons.annotations.DataField;
 
@@ -26,6 +27,14 @@ public class ClinicalAnalyst {
     @DataField(id = "attributes", indexed = true,
             description = FieldConstants.CLINICAL_ANALYST_ATTRIBUTES_DESCRIPTION)
     private Map<String, Object> attributes;
+
+    @Deprecated
+    @DataField(id = "assignedBy")
+    private String assignedBy;
+
+    @Deprecated
+    @DataField(id = "date")
+    private String date;
 
     public ClinicalAnalyst() {
     }
@@ -92,6 +101,28 @@ public class ClinicalAnalyst {
 
     public ClinicalAnalyst setAttributes(Map<String, Object> attributes) {
         this.attributes = attributes;
+        return this;
+    }
+
+    @JsonIgnore
+    @Deprecated
+    public String getAssignedBy() {
+        return assignedBy;
+    }
+
+    @Deprecated
+    public ClinicalAnalyst setAssignedBy(String assignedBy) {
+        return this;
+    }
+
+    @JsonIgnore
+    @Deprecated
+    public String getDate() {
+        return date;
+    }
+
+    @Deprecated
+    public ClinicalAnalyst setDate(String date) {
         return this;
     }
 }
