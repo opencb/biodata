@@ -1,7 +1,10 @@
 package org.opencb.biodata.models.clinical;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.opencb.biodata.models.constants.FieldConstants;
 import org.opencb.commons.annotations.DataField;
+
+import java.util.Map;
 
 public class ClinicalAnalyst {
 
@@ -17,23 +20,31 @@ public class ClinicalAnalyst {
             description = FieldConstants.CLINICAL_ANALYST_EMAIL_DESCRIPTION)
     private String email;
 
-    @DataField(id = "assignedBy", indexed = true,
-            description = FieldConstants.CLINICAL_ANALYST_ASSIGNED_BY_DESCRIPTION)
+    @DataField(id = "role", indexed = true,
+            description = FieldConstants.CLINICAL_ANALYST_ROLE_DESCRIPTION)
+    private String role;
+
+    @DataField(id = "attributes", indexed = true,
+            description = FieldConstants.CLINICAL_ANALYST_ATTRIBUTES_DESCRIPTION)
+    private Map<String, Object> attributes;
+
+    @Deprecated
+    @DataField(id = "assignedBy")
     private String assignedBy;
 
-    @DataField(id = "date", indexed = true,
-            description = FieldConstants.CLINICAL_ANALYST_DATE_DESCRIPTION)
+    @Deprecated
+    @DataField(id = "date")
     private String date;
 
     public ClinicalAnalyst() {
     }
 
-    public ClinicalAnalyst(String id, String name, String email, String assignedBy, String date) {
+    public ClinicalAnalyst(String id, String name, String email, String role, Map<String, Object> attributes) {
         this.id = id;
         this.name = name;
         this.email = email;
-        this.assignedBy = assignedBy;
-        this.date = date;
+        this.role = role;
+        this.attributes = attributes;
     }
 
     @Override
@@ -42,8 +53,8 @@ public class ClinicalAnalyst {
         sb.append("id='").append(id).append('\'');
         sb.append(", name='").append(name).append('\'');
         sb.append(", email='").append(email).append('\'');
-        sb.append(", assignedBy='").append(assignedBy).append('\'');
-        sb.append(", date='").append(date).append('\'');
+        sb.append(", role='").append(role).append('\'');
+        sb.append(", attributes=").append(attributes);
         sb.append('}');
         return sb.toString();
     }
@@ -75,21 +86,43 @@ public class ClinicalAnalyst {
         return this;
     }
 
+    public String getRole() {
+        return role;
+    }
+
+    public ClinicalAnalyst setRole(String role) {
+        this.role = role;
+        return this;
+    }
+
+    public Map<String, Object> getAttributes() {
+        return attributes;
+    }
+
+    public ClinicalAnalyst setAttributes(Map<String, Object> attributes) {
+        this.attributes = attributes;
+        return this;
+    }
+
+    @JsonIgnore
+    @Deprecated
     public String getAssignedBy() {
         return assignedBy;
     }
 
+    @Deprecated
     public ClinicalAnalyst setAssignedBy(String assignedBy) {
-        this.assignedBy = assignedBy;
         return this;
     }
 
+    @JsonIgnore
+    @Deprecated
     public String getDate() {
         return date;
     }
 
+    @Deprecated
     public ClinicalAnalyst setDate(String date) {
-        this.date = date;
         return this;
     }
 }
