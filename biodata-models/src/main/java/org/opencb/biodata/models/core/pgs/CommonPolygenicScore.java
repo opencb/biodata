@@ -20,7 +20,7 @@
 package org.opencb.biodata.models.core.pgs;
 
 import org.opencb.biodata.models.core.OntologyTermAnnotation;
-import org.opencb.biodata.models.core.PubmedReference;
+import org.opencb.biodata.models.variant.avro.PubmedReference;
 
 import java.util.ArrayList;
 import java.util.List;
