@@ -19,23 +19,26 @@
 
 package org.opencb.biodata.models.core.pgs;
 
-public class Cohort {
+public class PgsCohort {
     private String id;
     private String name;
+    private String description;
 
-    public Cohort() {
+    public PgsCohort() {
     }
 
-    public Cohort(String id, String name) {
+    public PgsCohort(String id, String name, String description) {
         this.id = id;
         this.name = name;
+        this.description = description;
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Cohort{");
+        final StringBuilder sb = new StringBuilder("PgsCohort{");
         sb.append("id='").append(id).append('\'');
         sb.append(", name='").append(name).append('\'');
+        sb.append(", description='").append(description).append('\'');
         sb.append('}');
         return sb.toString();
     }
@@ -44,7 +47,7 @@ public class Cohort {
         return id;
     }
 
-    public Cohort setId(String id) {
+    public PgsCohort setId(String id) {
         this.id = id;
         return this;
     }
@@ -53,8 +56,17 @@ public class Cohort {
         return name;
     }
 
-    public Cohort setName(String name) {
+    public PgsCohort setName(String name) {
         this.name = name;
+        return this;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public PgsCohort setDescription(String description) {
+        this.description = description;
         return this;
     }
 }

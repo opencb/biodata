@@ -17,30 +17,33 @@
  *
  */
 
-package org.opencb.biodata.models.core.pgs;
+package org.opencb.biodata.models.core;
 
-public class EfoTrait {
+public class PubmedReference {
     private String id;
-    private String label;
-    private String description;
+    private String title;
+    private String jounal;
+    private String date;
     private String url;
 
-    public EfoTrait() {
+    public PubmedReference() {
     }
 
-    public EfoTrait(String id, String label, String description, String url) {
+    public PubmedReference(String id, String title, String jounal, String date, String url) {
         this.id = id;
-        this.label = label;
-        this.description = description;
+        this.title = title;
+        this.jounal = jounal;
+        this.date = date;
         this.url = url;
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("EfoTrait{");
+        final StringBuilder sb = new StringBuilder("PubmedReference{");
         sb.append("id='").append(id).append('\'');
-        sb.append(", label='").append(label).append('\'');
-        sb.append(", description='").append(description).append('\'');
+        sb.append(", title='").append(title).append('\'');
+        sb.append(", jounal='").append(jounal).append('\'');
+        sb.append(", date='").append(date).append('\'');
         sb.append(", url='").append(url).append('\'');
         sb.append('}');
         return sb.toString();
@@ -50,26 +53,35 @@ public class EfoTrait {
         return id;
     }
 
-    public EfoTrait setId(String id) {
+    public PubmedReference setId(String id) {
         this.id = id;
         return this;
     }
 
-    public String getLabel() {
-        return label;
+    public String getTitle() {
+        return title;
     }
 
-    public EfoTrait setLabel(String label) {
-        this.label = label;
+    public PubmedReference setTitle(String title) {
+        this.title = title;
         return this;
     }
 
-    public String getDescription() {
-        return description;
+    public String getJounal() {
+        return jounal;
     }
 
-    public EfoTrait setDescription(String description) {
-        this.description = description;
+    public PubmedReference setJounal(String jounal) {
+        this.jounal = jounal;
+        return this;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public PubmedReference setDate(String date) {
+        this.date = date;
         return this;
     }
 
@@ -77,7 +89,7 @@ public class EfoTrait {
         return url;
     }
 
-    public EfoTrait setUrl(String url) {
+    public PubmedReference setUrl(String url) {
         this.url = url;
         return this;
     }

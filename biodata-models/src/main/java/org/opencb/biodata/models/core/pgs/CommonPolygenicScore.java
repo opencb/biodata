@@ -19,24 +19,40 @@
 
 package org.opencb.biodata.models.core.pgs;
 
+import org.opencb.biodata.models.core.OntologyTermAnnotation;
+import org.opencb.biodata.models.core.PubmedReference;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class CommonPolygenicScore {
     private String id;
     private String name;
     private String source;
     private String version;
-    private List<String> pubmedIds;
-    private List<EfoTrait> efoTraits;
-    private List<Cohort> cohorts;
-    private List<PerformanceMetrics> performanceMetrics;
+    private List<PubmedReference> pubmedRefs;
+    private List<OntologyTermAnnotation> traits;
+    private List<PgsCohort> cohorts;
+    private List<Map<String, Object>> values;
 
     public CommonPolygenicScore() {
-        pubmedIds = new ArrayList<>();
-        efoTraits = new ArrayList<>();
-        cohorts = new ArrayList<>();
-        performanceMetrics = new ArrayList<>();
+        this.pubmedRefs = new ArrayList<>();
+        this.traits = new ArrayList<>();
+        this.cohorts = new ArrayList<>();
+        this.values = new ArrayList<>();
+    }
+
+    public CommonPolygenicScore(String id, String name, String source, String version, List<PubmedReference> pubmedRefs,
+                                List<OntologyTermAnnotation> traits, List<PgsCohort> cohorts, List<Map<String, Object>> values) {
+        this.id = id;
+        this.name = name;
+        this.source = source;
+        this.version = version;
+        this.pubmedRefs = pubmedRefs;
+        this.traits = traits;
+        this.cohorts = cohorts;
+        this.values = values;
     }
 
     @Override
@@ -46,10 +62,10 @@ public class CommonPolygenicScore {
         sb.append(", name='").append(name).append('\'');
         sb.append(", source='").append(source).append('\'');
         sb.append(", version='").append(version).append('\'');
-        sb.append(", pubmedIds=").append(pubmedIds);
-        sb.append(", efoTraits=").append(efoTraits);
+        sb.append(", pubmedRefs=").append(pubmedRefs);
+        sb.append(", traits=").append(traits);
         sb.append(", cohorts=").append(cohorts);
-        sb.append(", performanceMetrics=").append(performanceMetrics);
+        sb.append(", values=").append(values);
         sb.append('}');
         return sb.toString();
     }
@@ -90,39 +106,39 @@ public class CommonPolygenicScore {
         return this;
     }
 
-    public List<String> getPubmedIds() {
-        return pubmedIds;
+    public List<PubmedReference> getPubmedRefs() {
+        return pubmedRefs;
     }
 
-    public CommonPolygenicScore setPubmedIds(List<String> pubmedIds) {
-        this.pubmedIds = pubmedIds;
+    public CommonPolygenicScore setPubmedRefs(List<PubmedReference> pubmedRefs) {
+        this.pubmedRefs = pubmedRefs;
         return this;
     }
 
-    public List<EfoTrait> getEfoTraits() {
-        return efoTraits;
+    public List<OntologyTermAnnotation> getTraits() {
+        return traits;
     }
 
-    public CommonPolygenicScore setEfoTraits(List<EfoTrait> efoTraits) {
-        this.efoTraits = efoTraits;
+    public CommonPolygenicScore setTraits(List<OntologyTermAnnotation> traits) {
+        this.traits = traits;
         return this;
     }
 
-    public List<Cohort> getCohorts() {
+    public List<PgsCohort> getCohorts() {
         return cohorts;
     }
 
-    public CommonPolygenicScore setCohorts(List<Cohort> cohorts) {
+    public CommonPolygenicScore setCohorts(List<PgsCohort> cohorts) {
         this.cohorts = cohorts;
         return this;
     }
 
-    public List<PerformanceMetrics> getPerformanceMetrics() {
-        return performanceMetrics;
+    public List<Map<String, Object>> getValues() {
+        return values;
     }
 
-    public CommonPolygenicScore setPerformanceMetrics(List<PerformanceMetrics> performanceMetrics) {
-        this.performanceMetrics = performanceMetrics;
+    public CommonPolygenicScore setValues(List<Map<String, Object>> values) {
+        this.values = values;
         return this;
     }
 }

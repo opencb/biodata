@@ -19,33 +19,28 @@
 
 package org.opencb.biodata.models.core.pgs;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class PolygenicScore {
 
     private String id;
-    private double effectWeight;
-    private double alleleFrequencyEffect;
-    private double Or;
-    private String locusName;
+    private Map<String, Object> values;
 
     public PolygenicScore() {
+        this.values = new HashMap<>();
     }
 
-    public PolygenicScore(String id, double effectWeight, double alleleFrequencyEffect, double or, String locusName) {
+    public PolygenicScore(String id, Map<String, Object> values) {
         this.id = id;
-        this.effectWeight = effectWeight;
-        this.alleleFrequencyEffect = alleleFrequencyEffect;
-        Or = or;
-        this.locusName = locusName;
+        this.values = values;
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("PolygenicScore{");
         sb.append("id='").append(id).append('\'');
-        sb.append(", effectWeight=").append(effectWeight);
-        sb.append(", alleleFrequencyEffect=").append(alleleFrequencyEffect);
-        sb.append(", Or=").append(Or);
-        sb.append(", locusName='").append(locusName).append('\'');
+        sb.append(", values=").append(values);
         sb.append('}');
         return sb.toString();
     }
@@ -59,39 +54,12 @@ public class PolygenicScore {
         return this;
     }
 
-    public double getEffectWeight() {
-        return effectWeight;
+    public Map<String, Object> getValues() {
+        return values;
     }
 
-    public PolygenicScore setEffectWeight(double effectWeight) {
-        this.effectWeight = effectWeight;
-        return this;
-    }
-
-    public double getAlleleFrequencyEffect() {
-        return alleleFrequencyEffect;
-    }
-
-    public PolygenicScore setAlleleFrequencyEffect(double alleleFrequencyEffect) {
-        this.alleleFrequencyEffect = alleleFrequencyEffect;
-        return this;
-    }
-
-    public double getOr() {
-        return Or;
-    }
-
-    public PolygenicScore setOr(double or) {
-        Or = or;
-        return this;
-    }
-
-    public String getLocusName() {
-        return locusName;
-    }
-
-    public PolygenicScore setLocusName(String locusName) {
-        this.locusName = locusName;
+    public PolygenicScore setValues(Map<String, Object> values) {
+        this.values = values;
         return this;
     }
 }
