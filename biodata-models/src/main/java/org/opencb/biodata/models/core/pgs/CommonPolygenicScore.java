@@ -19,7 +19,7 @@
 
 package org.opencb.biodata.models.core.pgs;
 
-import org.opencb.biodata.models.core.OntologyTermAnnotation;
+import org.opencb.biodata.models.variant.avro.OntologyTermAnnotation;
 import org.opencb.biodata.models.variant.avro.PubmedReference;
 
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ public class CommonPolygenicScore {
     private List<PubmedReference> pubmedRefs;
     private List<OntologyTermAnnotation> traits;
     private List<PgsCohort> cohorts;
-    private List<Map<String, Object>> values;
+    private List<Map<String, String>> values;
 
     public CommonPolygenicScore() {
         this.pubmedRefs = new ArrayList<>();
@@ -44,7 +44,7 @@ public class CommonPolygenicScore {
     }
 
     public CommonPolygenicScore(String id, String name, String source, String version, List<PubmedReference> pubmedRefs,
-                                List<OntologyTermAnnotation> traits, List<PgsCohort> cohorts, List<Map<String, Object>> values) {
+                                List<OntologyTermAnnotation> traits, List<PgsCohort> cohorts, List<Map<String, String>> values) {
         this.id = id;
         this.name = name;
         this.source = source;
@@ -133,11 +133,11 @@ public class CommonPolygenicScore {
         return this;
     }
 
-    public List<Map<String, Object>> getValues() {
+    public List<Map<String, String>> getValues() {
         return values;
     }
 
-    public CommonPolygenicScore setValues(List<Map<String, Object>> values) {
+    public CommonPolygenicScore setValues(List<Map<String, String>> values) {
         this.values = values;
         return this;
     }

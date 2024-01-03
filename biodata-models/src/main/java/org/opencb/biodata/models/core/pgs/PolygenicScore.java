@@ -25,13 +25,13 @@ import java.util.Map;
 public class PolygenicScore {
 
     private String id;
-    private Map<String, Object> values;
+    private Map<String, String> values;
 
     public PolygenicScore() {
         this.values = new HashMap<>();
     }
 
-    public PolygenicScore(String id, Map<String, Object> values) {
+    public PolygenicScore(String id, Map<String, String> values) {
         this.id = id;
         this.values = values;
     }
@@ -54,11 +54,11 @@ public class PolygenicScore {
         return this;
     }
 
-    public Map<String, Object> getValues() {
+    public Map<String, String> getValues() {
         return values;
     }
 
-    public PolygenicScore setValues(Map<String, Object> values) {
+    public PolygenicScore setValues(Map<String, String> values) {
         this.values = values;
         return this;
     }

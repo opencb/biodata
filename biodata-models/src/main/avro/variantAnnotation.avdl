@@ -282,7 +282,7 @@ protocol VariantAnnotations {
         union { null, string } url;
     }
 
-    record VariantPolygenicScore {
+    record PolygenicScoreVariant {
         union { null, string } effectAllele;
         union { null, string } otherAllele;
         union { null, map<string> } values;
@@ -292,10 +292,11 @@ protocol VariantAnnotations {
         union { null, string } id;
         union { null, string } name;
         union { null, string } source;
+        union { null, string } version;
         union { null, array<OntologyTermAnnotation> } traits;
         union { null, array<PubmedReference> } pubmedReferences;
-        union { null, map<string> } values;
-        union { null, array<VariantPolygenicScore> } variants;
+        union { null, array<map<string>> } values;
+        union { null, array<PolygenicScoreVariant> } variants;
     }
 
     record CancerHotspotAlternateAnnotation {
