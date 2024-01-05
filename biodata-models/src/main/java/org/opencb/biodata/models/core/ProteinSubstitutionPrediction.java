@@ -24,38 +24,78 @@ import java.util.List;
 
 public class ProteinSubstitutionPrediction {
 
+    private String chromosome;
+    private int position;
+    private String reference;
     private String transcriptId;
     private String uniprotId;
-    private int position;
+    private int aaPosition;
     private String aaReference;
     private String source;
-    private List<ProteinSubstitutionScore> scores;
+    private String version;
+    private List<ProteinSubstitutionPredictionScore> scores;
 
     public ProteinSubstitutionPrediction() {
         this.scores = new ArrayList<>();
     }
 
-    public ProteinSubstitutionPrediction(String transcriptId, String uniprotId, int position, String aaReference, String source,
-                                         List<ProteinSubstitutionScore> scores) {
+    public ProteinSubstitutionPrediction(String chromosome, int position, String reference, String transcriptId, String uniprotId,
+                                         int aaPosition, String aaReference, String source, String version,
+                                         List<ProteinSubstitutionPredictionScore> scores) {
+        this.chromosome = chromosome;
+        this.position = position;
+        this.reference = reference;
         this.transcriptId = transcriptId;
         this.uniprotId = uniprotId;
-        this.position = position;
+        this.aaPosition = aaPosition;
         this.aaReference = aaReference;
         this.source = source;
+        this.version = version;
         this.scores = scores;
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("ProteinSubstitutionPrediction{");
-        sb.append("transcriptId='").append(transcriptId).append('\'');
-        sb.append(", uniprotId='").append(uniprotId).append('\'');
+        sb.append("chromosome='").append(chromosome).append('\'');
         sb.append(", position=").append(position);
+        sb.append(", reference='").append(reference).append('\'');
+        sb.append(", transcriptId='").append(transcriptId).append('\'');
+        sb.append(", uniprotId='").append(uniprotId).append('\'');
+        sb.append(", aaPosition=").append(aaPosition);
         sb.append(", aaReference='").append(aaReference).append('\'');
         sb.append(", source='").append(source).append('\'');
+        sb.append(", version='").append(version).append('\'');
         sb.append(", scores=").append(scores);
         sb.append('}');
         return sb.toString();
+    }
+
+    public String getChromosome() {
+        return chromosome;
+    }
+
+    public ProteinSubstitutionPrediction setChromosome(String chromosome) {
+        this.chromosome = chromosome;
+        return this;
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    public ProteinSubstitutionPrediction setPosition(int position) {
+        this.position = position;
+        return this;
+    }
+
+    public String getReference() {
+        return reference;
+    }
+
+    public ProteinSubstitutionPrediction setReference(String reference) {
+        this.reference = reference;
+        return this;
     }
 
     public String getTranscriptId() {
@@ -76,12 +116,12 @@ public class ProteinSubstitutionPrediction {
         return this;
     }
 
-    public int getPosition() {
-        return position;
+    public int getAaPosition() {
+        return aaPosition;
     }
 
-    public ProteinSubstitutionPrediction setPosition(int position) {
-        this.position = position;
+    public ProteinSubstitutionPrediction setAaPosition(int aaPosition) {
+        this.aaPosition = aaPosition;
         return this;
     }
 
@@ -103,11 +143,20 @@ public class ProteinSubstitutionPrediction {
         return this;
     }
 
-    public List<ProteinSubstitutionScore> getScores() {
+    public String getVersion() {
+        return version;
+    }
+
+    public ProteinSubstitutionPrediction setVersion(String version) {
+        this.version = version;
+        return this;
+    }
+
+    public List<ProteinSubstitutionPredictionScore> getScores() {
         return scores;
     }
 
-    public ProteinSubstitutionPrediction setScores(List<ProteinSubstitutionScore> scores) {
+    public ProteinSubstitutionPrediction setScores(List<ProteinSubstitutionPredictionScore> scores) {
         this.scores = scores;
         return this;
     }

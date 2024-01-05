@@ -19,16 +19,18 @@
 
 package org.opencb.biodata.models.core;
 
-public class ProteinSubstitutionScore {
+public class ProteinSubstitutionPredictionScore {
 
+    private String alternate;
     private String aaAlternate;
     private double score;
     private String effect;
 
-    public ProteinSubstitutionScore() {
+    public ProteinSubstitutionPredictionScore() {
     }
 
-    public ProteinSubstitutionScore(String aaAlternate, double score, String effect) {
+    public ProteinSubstitutionPredictionScore(String alternate, String aaAlternate, double score, String effect) {
+        this.alternate = alternate;
         this.aaAlternate = aaAlternate;
         this.score = score;
         this.effect = effect;
@@ -36,19 +38,29 @@ public class ProteinSubstitutionScore {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("ProteinSubstitutionScore{");
-        sb.append("aaAlternate='").append(aaAlternate).append('\'');
+        final StringBuilder sb = new StringBuilder("ProteinSubstitutionPredictionScore{");
+        sb.append("alternate='").append(alternate).append('\'');
+        sb.append(", aaAlternate='").append(aaAlternate).append('\'');
         sb.append(", score=").append(score);
         sb.append(", effect='").append(effect).append('\'');
         sb.append('}');
         return sb.toString();
     }
 
+    public String getAlternate() {
+        return alternate;
+    }
+
+    public ProteinSubstitutionPredictionScore setAlternate(String alternate) {
+        this.alternate = alternate;
+        return this;
+    }
+
     public String getAaAlternate() {
         return aaAlternate;
     }
 
-    public ProteinSubstitutionScore setAaAlternate(String aaAlternate) {
+    public ProteinSubstitutionPredictionScore setAaAlternate(String aaAlternate) {
         this.aaAlternate = aaAlternate;
         return this;
     }
@@ -57,7 +69,7 @@ public class ProteinSubstitutionScore {
         return score;
     }
 
-    public ProteinSubstitutionScore setScore(double score) {
+    public ProteinSubstitutionPredictionScore setScore(double score) {
         this.score = score;
         return this;
     }
@@ -66,7 +78,7 @@ public class ProteinSubstitutionScore {
         return effect;
     }
 
-    public ProteinSubstitutionScore setEffect(String effect) {
+    public ProteinSubstitutionPredictionScore setEffect(String effect) {
         this.effect = effect;
         return this;
     }
