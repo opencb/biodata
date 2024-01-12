@@ -59,8 +59,8 @@ public class FieldConstants {
     public static final String RELATEDNESS_REPORT_SCORES_DESCRIPTION = "Relatedness scores for pair of samples";
     public static final String RELATEDNESS_REPORT_FILES_DESCRIPTION = "List of files of Relatedness Report";
 
-    public static final String CLINICAL_ANALYST_DATE_DESCRIPTION = "Date of the clinical analyst";
-    public static final String CLINICAL_ANALYST_ASSIGNED_BY_DESCRIPTION = "Assigned by field";
+    public static final String CLINICAL_ANALYST_ROLE_DESCRIPTION = "Analyst role";
+    public static final String CLINICAL_ANALYST_ATTRIBUTES_DESCRIPTION = "Analyst attributes";
 
     public static final String CLINICAL_ANALYST_EMAIL_DESCRIPTION = "Email of the analyst";
     public static final String AUDIT_AUTHOR_DESCRIPTION = "Audit author";
