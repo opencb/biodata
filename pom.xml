@@ -412,9 +412,6 @@
                             <ignoredNonTestScopedDependencies>
                                 <ignoredNonTestScopedDependency>*</ignoredNonTestScopedDependency>
                             </ignoredNonTestScopedDependencies>
-                            <ignoredUsedUndeclaredDependencies>
-                                <usedUndeclaredDependency>org.codehaus.jackson:jackson-mapper-asl*</usedUndeclaredDependency>
-                            </ignoredUsedUndeclaredDependencies>
                         </configuration>
                     </execution>
                 </executions>
