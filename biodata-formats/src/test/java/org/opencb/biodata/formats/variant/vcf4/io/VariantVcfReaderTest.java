@@ -19,7 +19,7 @@
 
 package org.opencb.biodata.formats.variant.vcf4.io;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opencb.biodata.formats.variant.io.VariantReader;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.formats.variant.vcf4.VariantAggregatedVcfFactory;

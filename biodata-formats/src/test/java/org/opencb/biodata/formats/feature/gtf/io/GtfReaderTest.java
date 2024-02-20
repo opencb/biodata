@@ -19,7 +19,7 @@
 
 package org.opencb.biodata.formats.feature.gtf.io;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opencb.biodata.formats.feature.gtf.Gtf;
 
 import java.io.StringReader;

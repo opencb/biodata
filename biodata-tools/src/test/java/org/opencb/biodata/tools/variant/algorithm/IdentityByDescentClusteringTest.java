@@ -1,12 +1,11 @@
 package org.opencb.biodata.tools.variant.algorithm;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opencb.biodata.formats.variant.vcf4.io.VariantVcfReader;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 import org.opencb.biodata.models.variant.stats.IdentityByDescent;
-import org.opencb.biodata.models.variant.stats.IdentityByState;
 
 import java.io.*;
 import java.util.ArrayList;

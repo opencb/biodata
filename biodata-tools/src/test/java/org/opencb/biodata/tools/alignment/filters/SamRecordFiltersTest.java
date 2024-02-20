@@ -1,7 +1,7 @@
 package org.opencb.biodata.tools.alignment.filters;
 
 import htsjdk.samtools.SAMRecord;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.tools.alignment.AlignmentOptions;
 import org.opencb.biodata.tools.alignment.BamManager;

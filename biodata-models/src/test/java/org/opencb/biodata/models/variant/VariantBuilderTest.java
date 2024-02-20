@@ -1,7 +1,8 @@
 package org.opencb.biodata.models.variant;
 
 import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.opencb.biodata.models.variant.avro.*;
 import org.opencb.biodata.models.variant.protobuf.VariantProto;
 
@@ -240,14 +241,19 @@ public class VariantBuilderTest {
         assertEquals(100 + ref.length() - 1, variant.getEnd().intValue());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void buildIncompleteSV() throws Exception {
-        new VariantBuilder("1:1000:<DEL>").build();
+        IllegalArgumentException thrown = Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            new VariantBuilder("1:1000:<DEL>").build();
+        });
+
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void buildIncompleteSV_2() throws Exception {
-        new VariantBuilder("1:1000:A:<DEL>").build();
+        IllegalArgumentException thrown = Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            new VariantBuilder("1:1000:A:<DEL>").build();
+        });
     }
 
 

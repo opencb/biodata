@@ -1,6 +1,6 @@
 package org.opencb.biodata.tools.commons;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.tools.alignment.BamUtils;
 import org.opencb.biodata.tools.feature.WigUtils;
@@ -19,7 +19,7 @@ public class ChunkFrequencyManagerTest {
     int chunkSize = 1000;
     int windowSize = 100;
 
-    @Before
+    @BeforeEach
     public void init() throws Exception {
         bamPath = Paths.get(getClass().getResource("/HG00096.chrom20.small.bam").toURI());
         coverageWigPath = Paths.get("/tmp/" + bamPath.toFile().getName() + ".bam.coverage.wig");

@@ -2,8 +2,8 @@ package org.opencb.biodata.tools.variant.converters;
 
 import htsjdk.variant.variantcontext.writer.Options;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
@@ -18,7 +18,7 @@ public class VCFExporterTest {
 
     private Path outPath;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         outPath = Paths.get("target/test-data", "junit-" + RandomStringUtils.randomAlphabetic(5), "out.vcf");
         Files.createDirectories(outPath.getParent());

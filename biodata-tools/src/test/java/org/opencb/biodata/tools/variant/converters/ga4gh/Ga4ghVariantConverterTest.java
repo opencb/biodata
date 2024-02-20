@@ -4,8 +4,8 @@ import ga4gh.Variants;
 import org.ga4gh.models.CallSet;
 import org.ga4gh.models.Variant;
 import org.ga4gh.models.VariantSet;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
 import org.opencb.biodata.tools.variant.VariantVcfHtsjdkReader;
@@ -27,7 +27,7 @@ public class Ga4ghVariantConverterTest {
     private List<org.opencb.biodata.models.variant.Variant> variants;
     private VariantFileMetadata fileMetadata;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
 
         variants = Arrays.asList(

@@ -1,8 +1,8 @@
 package org.opencb.biodata.tools.variant;
 
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.*;
@@ -276,7 +276,7 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
     }
 
     @Test
-    @Ignore("FIXME: Normalizer should not return duplicated variants")
+    @Disabled("FIXME: Normalizer should not return duplicated variants")
     public void testNormalizeMultiAllelicDuplicatedMNV() throws NonStandardCompliantSampleField {
         normalizer.setDecomposeMNVs(true);
         normalizer.setGenerateReferenceBlocks(false);
@@ -690,7 +690,7 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     // TODO: This should work!
     public void testCNVsNormalizationCopyNumberMultiSample() throws NonStandardCompliantSampleField {
         Variant variant;

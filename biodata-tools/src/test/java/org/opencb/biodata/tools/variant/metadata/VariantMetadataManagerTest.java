@@ -1,13 +1,12 @@
 package org.opencb.biodata.tools.variant.metadata;
 
 import org.apache.commons.collections4.map.HashedMap;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opencb.biodata.models.metadata.Individual;
 import org.opencb.biodata.models.metadata.Sample;
 import org.opencb.biodata.models.variant.metadata.VariantMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
-import org.opencb.biodata.tools.variant.metadata.VariantMetadataManager;
 import org.opencb.commons.datastore.core.Query;
 
 import java.io.IOException;
@@ -27,7 +26,7 @@ public class VariantMetadataManagerTest {
     private VariantMetadataManager manager;
     private VariantMetadata variantMetadata;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         variantMetadata = createMetadata();
         manager = new VariantMetadataManager();

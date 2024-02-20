@@ -16,10 +16,11 @@
 
 package org.opencb.biodata.tools.sequence.fasta;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.rules.TemporaryFolder;
 import org.opencb.biodata.tools.sequence.FastaIndexManager;
 
@@ -33,29 +34,24 @@ import static org.junit.Assert.*;
  */
 public class FastaIndexManagerTest {
 
-    @Rule
-    public TemporaryFolder testFolder = new TemporaryFolder();
+    @TempDir
+    public File testFolder;
     private File rocksdb;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         Path inputPath = Paths.get(getClass().getResource("/homo_sapiens_grch37_small.fa.gz").toURI());
         FastaIndexManager fastaIndexManager = new FastaIndexManager(inputPath);
-        rocksdb = testFolder.newFolder("rocksdb");
+        rocksdb = new File(testFolder.getAbsolutePath()+"rocksdb");
+        rocksdb.mkdir();
         fastaIndexManager.index(inputPath, rocksdb.toPath());
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         testFolder.delete();
     }
 
-    //    @Test
-//    public void testIndex() throws Exception {
-//        Path inputPath = Paths.get(getClass().getResource("/homo_sapiens_grch37_small.fa.gz").toURI());
-//        FastaIndexManager fastaIndexManager = new FastaIndexManager(inputPath);
-//        fastaIndexManager.index(inputPath, Paths.get("/tmp/rocksdb"));
-//    }
 
     @Test
     public void testQuery() throws Exception {

@@ -18,8 +18,8 @@ package org.opencb.biodata.tools.variant.stats;
 
 import htsjdk.variant.vcf.VCFHeaderLineCount;
 import htsjdk.variant.vcf.VCFHeaderLineType;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opencb.biodata.formats.variant.VariantFactory;
 import org.opencb.biodata.formats.variant.vcf4.VariantAggregatedVcfFactory;
 import org.opencb.biodata.models.variant.StudyEntry;
@@ -50,7 +50,7 @@ public class VariantAggregatedExacStatsCalculatorTest extends GenericTest {
     private VariantFactory factory = new VariantAggregatedVcfFactory();
     private VariantNormalizer normalizer = new VariantNormalizer();
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         normalizer.configure("AC_Hom", VCFHeaderLineCount.A, VCFHeaderLineType.Integer);
 //        normalizer.configure("AC_Het", VCFHeaderLineCount.A, VCFHeaderLineType.Integer);

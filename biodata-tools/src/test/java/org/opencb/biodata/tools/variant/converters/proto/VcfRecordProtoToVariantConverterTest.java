@@ -1,7 +1,7 @@
 package org.opencb.biodata.tools.variant.converters.proto;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opencb.biodata.models.variant.*;
 import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.OriginalCall;
@@ -25,7 +25,7 @@ public class VcfRecordProtoToVariantConverterTest {
     private String fileId = "file1";
     private String studyId = "study1";
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
 
         LinkedHashMap<String, Integer> samplePositions = new LinkedHashMap<>();

@@ -1,6 +1,6 @@
 package org.opencb.biodata.formats.pedigree;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opencb.biodata.models.clinical.pedigree.Pedigree;
 
 import java.nio.file.Path;

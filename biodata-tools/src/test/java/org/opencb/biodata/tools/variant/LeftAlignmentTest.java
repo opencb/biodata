@@ -1,7 +1,7 @@
 package org.opencb.biodata.tools.variant;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opencb.biodata.models.variant.Variant;
 
 import java.io.IOException;
@@ -24,7 +24,7 @@ public class LeftAlignmentTest  extends VariantNormalizerGenericTest{
     protected Path referenceGenomeCompressed;
 
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
 
         referenceGenomeUncompressed = Paths.get(

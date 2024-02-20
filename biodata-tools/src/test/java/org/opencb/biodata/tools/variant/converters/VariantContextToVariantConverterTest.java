@@ -28,7 +28,8 @@ import org.apache.avro.io.DatumWriter;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.avro.specific.SpecificDatumWriter;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.rules.TemporaryFolder;
 import org.opencb.biodata.formats.variant.vcf4.FullVcfCodec;
 import org.opencb.biodata.models.variant.StudyEntry;
@@ -60,13 +61,15 @@ import static org.junit.Assert.assertSame;
  */
 public class VariantContextToVariantConverterTest {
 
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    public File temporaryFolder;
 
     @Test
     public void testReadVCFFile() throws Exception {
         Path inputPath = Paths.get(getClass().getResource("/CEU-1409-01_5000.vcf.gz").toURI());
-        File folder = temporaryFolder.newFolder();
+        File folder = new File(temporaryFolder.getAbsolutePath());
+        folder.mkdir();
+       // File folder = temporaryFolder.newFolder();
         Path outPath = Paths.get(folder.getPath()).resolve("CEU-1409-01_5000.vcf.gz.avro");
         writeFile(inputPath, outPath, false);
     }
@@ -213,7 +216,8 @@ public class VariantContextToVariantConverterTest {
     @Test
     public void testRoundTrip() throws Exception {
         Path inputPath = Paths.get(getClass().getResource("/CEU-1409-01_5000.vcf.gz").toURI());
-        File folder = temporaryFolder.newFolder();
+        File folder = new File(temporaryFolder.getAbsolutePath());
+        folder.mkdir();
         Path outPath = Paths.get(folder.getPath()).resolve("CEU-1409-01_5000.vcf.gz.avro");
 
         long cnt = writeFile(inputPath, outPath, false);

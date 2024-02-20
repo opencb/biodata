@@ -1,7 +1,7 @@
 package org.opencb.biodata.tools.variant.stats;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opencb.biodata.formats.variant.io.VariantReader;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
@@ -38,7 +38,7 @@ public class VariantSetStatsCalculatorTest {
     private int variants = 4;
     private double passVariants = 3/4f;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         List<Variant> variants = new ArrayList<>();
         VariantFileHeader header = new VariantFileHeader();

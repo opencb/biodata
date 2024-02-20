@@ -17,7 +17,8 @@
 package org.opencb.biodata.models.feature;
 
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.junit.rules.ExpectedException;
 import org.opencb.biodata.models.variant.Genotype;
 
@@ -98,23 +99,38 @@ public class GenotypeTest {
 
     @Test
     public void testParseFail1() {
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("Unknown allele");
-        new Genotype("AAA|T", "A", Arrays.asList("G", "C", "T")).getAllelesIdx();
+        IllegalArgumentException thrown = Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            new Genotype("AAA|T", "A", Arrays.asList("G", "C", "T")).getAllelesIdx();
+        });
+        Assertions.assertEquals("Unable to parse genotype 'AAA|T'. Unknown allele \"AAA\". REF=A,ALT=G,C,T", thrown.getMessage());
     }
 
     @Test
     public void testParseFail2() {
+        /*
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Empty allele");
         new Genotype("A|T|", "A", Arrays.asList("G", "C", "T")).getAllelesIdx();
+
+         */
+
+        IllegalArgumentException thrown = Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            new Genotype("A|T|", "A", Arrays.asList("G", "C", "T")).getAllelesIdx();
+
+        });
+        Assertions.assertEquals("Unable to parse genotype 'A|T|'. Empty allele: REF=A,ALT=G,C,T", thrown.getMessage());
     }
 
     @Test
     public void testParseFail3() {
-        thrown.expect(IllegalArgumentException.class);
+      /*  thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Empty allele");
-        new Genotype("|C", "A", Arrays.asList("G", "C", "T")).getAllelesIdx();
+        new Genotype("|C", "A", Arrays.asList("G", "C", "T")).getAllelesIdx();*/
+
+        IllegalArgumentException thrown = Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            new Genotype("|C", "A", Arrays.asList("G", "C", "T")).getAllelesIdx();
+        });
+        Assertions.assertEquals("Unable to parse genotype '|C'. Empty allele: REF=A,ALT=G,C,T", thrown.getMessage());
     }
 
     @Test

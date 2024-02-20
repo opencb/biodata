@@ -1,8 +1,8 @@
 package org.opencb.biodata.tools.variant.converters.proto;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.tools.variant.VariantNormalizer;
@@ -25,7 +25,7 @@ public class VcfSliceToVariantListConverterTest {
 
     private List<Variant> variants;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         variants = Arrays.asList(
                 generateVariantWithFormat("1:980:A:.", "PASS", 102f,

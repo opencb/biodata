@@ -16,10 +16,8 @@
 
 package org.opencb.biodata.tools.variant.simulator;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opencb.biodata.models.variant.Variant;
-
-import static org.junit.Assert.*;
 
 /**
  * Created by imedina on 27/10/15.

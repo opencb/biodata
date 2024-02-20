@@ -2,7 +2,7 @@ package org.opencb.biodata.tools.alignment.converters;
 
 import ga4gh.Reads;
 import htsjdk.samtools.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URISyntaxException;

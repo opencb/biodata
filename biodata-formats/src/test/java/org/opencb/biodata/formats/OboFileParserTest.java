@@ -1,6 +1,6 @@
 package org.opencb.biodata.formats;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opencb.biodata.formats.obo.OboParser;
 import org.opencb.biodata.models.core.OntologyTerm;
 import org.opencb.commons.utils.FileUtils;

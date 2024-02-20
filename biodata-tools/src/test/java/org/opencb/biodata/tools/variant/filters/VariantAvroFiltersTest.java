@@ -1,7 +1,7 @@
 package org.opencb.biodata.tools.variant.filters;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.VariantType;
 
@@ -23,7 +23,7 @@ public class VariantAvroFiltersTest {
     protected static final String FILE_ID = "file";
     private List<Variant> variants;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         variants = Arrays.asList(
                 Variant.newBuilder("1:10:A:T")

@@ -1,13 +1,12 @@
 package org.opencb.biodata.tools.variant.metadata;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
 import org.opencb.biodata.tools.variant.VariantVcfHtsjdkReader;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Paths;
 import java.util.Arrays;
 
 import static org.junit.Assert.*;

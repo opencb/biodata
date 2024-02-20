@@ -2,8 +2,8 @@ package org.opencb.biodata.tools.variant.stats;
 
 import htsjdk.variant.vcf.VCFHeader;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opencb.biodata.formats.variant.io.VariantReader;
 import org.opencb.biodata.models.clinical.pedigree.Member;
 import org.opencb.biodata.models.clinical.pedigree.Pedigree;
@@ -29,7 +29,7 @@ public class SampleVariantStatsCalculatorTest {
     private Pedigree pedigree;
     private List<String> samples;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         samples = Arrays.asList(                                "s0",  "s1",  "s2",  "s3",  "s4",  "s5");
         variants = Arrays.asList(

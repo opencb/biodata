@@ -1,6 +1,6 @@
 package org.opencb.biodata.tools.variant;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
 import org.opencb.biodata.models.variant.Variant;
@@ -31,7 +31,7 @@ public class VariantNormalizerGenericTest extends GenericTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         normalizer = new VariantNormalizer();
         normalizer.setGenerateReferenceBlocks(true);

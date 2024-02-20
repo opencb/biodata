@@ -1,7 +1,8 @@
 package org.opencb.biodata.tools.variant;
 
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.junit.rules.ExpectedException;
 import org.opencb.biodata.models.variant.Variant;
 
@@ -103,10 +104,13 @@ public class VariantDeduplicationTaskTest {
         l.add(2);
         l.add(3);
         l.add(4);
-        thrown.expect(IllegalStateException.class);
-        thrown.expectMessage("Queue full");
-        l.add(5);
 
+
+        IllegalStateException thrown = Assertions.assertThrows(IllegalStateException.class, () -> {
+            l.add(5);
+        });
+
+        Assertions.assertEquals("Queue full", thrown.getMessage());
     }
 
     @Test
@@ -117,9 +121,10 @@ public class VariantDeduplicationTaskTest {
         l.add(2);
         l.add(2);
         l.add(2);
-        thrown.expect(IllegalStateException.class);
-        thrown.expectMessage("New element '1' below than any other");
-        l.add(1);
+        IllegalStateException thrown = Assertions.assertThrows(IllegalStateException.class, () -> {
+            l.add(1);
+        });
 
+        Assertions.assertEquals("New element '1' below than any other", thrown.getMessage());
     }
 }

@@ -12,9 +12,9 @@ import htsjdk.variant.vcf.VCFConstants;
 
 import java.util.*;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opencb.biodata.models.variant.*;
 import org.opencb.biodata.models.variant.avro.SampleEntry;
 import org.opencb.biodata.models.variant.protobuf.VcfSliceProtos;
@@ -31,7 +31,7 @@ public class VariantToVcfRecordTest {
     private Variant v_gt;
     private Variant v;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         v_gt = Variant.newBuilder("4:1234565-1234568:X:A")
                 .setNames(ids)
@@ -59,7 +59,7 @@ public class VariantToVcfRecordTest {
                 .addSample("Sample_0B", "ab2", "ef2", "cd2").build();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
     }
 

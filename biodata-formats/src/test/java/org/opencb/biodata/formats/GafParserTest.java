@@ -1,12 +1,10 @@
 package org.opencb.biodata.formats;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opencb.biodata.formats.gaf.GafParser;
 import org.opencb.biodata.models.core.AnnotationEvidence;
 import org.opencb.biodata.models.core.FeatureOntologyTermAnnotation;
-import org.opencb.commons.utils.FileUtils;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;

@@ -1,6 +1,6 @@
 package org.opencb.biodata.formats.alignment.samtools.io;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opencb.biodata.formats.alignment.samtools.SamtoolsFlagstats;
 
 import java.io.ByteArrayInputStream;

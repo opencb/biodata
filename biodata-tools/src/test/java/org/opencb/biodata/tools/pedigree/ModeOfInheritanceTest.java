@@ -1,7 +1,7 @@
 package org.opencb.biodata.tools.pedigree;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opencb.biodata.models.clinical.Disorder;
 import org.opencb.biodata.models.clinical.pedigree.Member;
 import org.opencb.biodata.models.clinical.pedigree.Pedigree;
@@ -36,7 +36,7 @@ public class ModeOfInheritanceTest {
     Disorder disorder3;
     Disorder disorder4;
 
-    @Before
+    @BeforeEach
     public void before() {
         disorder1 = new Disorder("disease1", "disease1", "", "", Collections.emptyList(), Collections.emptyMap());
         disorder2 = new Disorder("disease2", "disease2", "", "", Collections.emptyList(), Collections.emptyMap());

@@ -1,11 +1,10 @@
 package org.opencb.biodata.tools.variant.converters.avro;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opencb.biodata.models.variant.avro.PopulationFrequency;
 import org.opencb.biodata.models.variant.avro.VariantStats;
 import org.opencb.commons.datastore.core.ObjectMap;
-import org.opencb.commons.datastore.core.QueryOptions;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +15,7 @@ public class VariantStatsToPopulationFrequencyConverterTest {
 
     private VariantStatsToPopulationFrequencyConverter converter;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         converter = new VariantStatsToPopulationFrequencyConverter();
     }

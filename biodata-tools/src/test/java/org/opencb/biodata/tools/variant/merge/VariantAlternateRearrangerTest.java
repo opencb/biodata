@@ -1,6 +1,6 @@
 package org.opencb.biodata.tools.variant.merge;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opencb.biodata.models.variant.Genotype;
 
 import java.util.Arrays;

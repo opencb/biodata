@@ -19,8 +19,7 @@
 
 package org.opencb.biodata.formats.annotation.io;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opencb.biodata.formats.variant.annotation.io.VepFormatReader;
 import org.opencb.biodata.models.variant.avro.VariantAnnotation;
 //import org.opencb.biodata.models.variant.annotation.VariantAnnotation;

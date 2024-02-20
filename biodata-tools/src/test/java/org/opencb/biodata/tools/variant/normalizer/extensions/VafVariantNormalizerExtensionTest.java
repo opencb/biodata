@@ -1,7 +1,7 @@
 package org.opencb.biodata.tools.variant.normalizer.extensions;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantFileMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantFileHeader;
@@ -22,7 +22,7 @@ public class VafVariantNormalizerExtensionTest {
     private List<String> singleSample;
     private List<String> multiSample;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         singleSample = Collections.singletonList("SAMPLE_1");
         multiSample = Arrays.asList("SAMPLE_1", "SAMPLE_2", "SAMPLE_3");

@@ -1,7 +1,7 @@
 package org.opencb.biodata.tools.variant;
 
 import htsjdk.variant.variantcontext.VariantContext;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.protobuf.VariantProto;

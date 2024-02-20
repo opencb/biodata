@@ -19,7 +19,7 @@
 
 package org.opencb.biodata.formats.variant.clinvar;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opencb.biodata.formats.variant.clinvar.rcv.ClinvarParser;
 import org.opencb.biodata.formats.variant.clinvar.rcv.v64jaxb.PublicSetType;
 import org.opencb.biodata.formats.variant.clinvar.rcv.v64jaxb.ReleaseType;

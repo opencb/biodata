@@ -2,10 +2,11 @@ package org.opencb.biodata.tools.variant.merge;
 
 import htsjdk.variant.vcf.VCFConstants;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.rules.ExpectedException;
 import org.opencb.biodata.models.variant.Genotype;
 import org.opencb.biodata.models.variant.StudyEntry;
@@ -30,10 +31,7 @@ public class VariantMergerTest {
     private VariantMerger variantMergerCollapse;
     private Variant var;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         variantMerger = new VariantMerger();
         variantMergerCollapse = new VariantMerger(true);
@@ -43,7 +41,7 @@ public class VariantMergerTest {
         variantMerger.merge(var, tempate);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
     }
 
@@ -419,10 +417,16 @@ public class VariantMergerTest {
 
     @Test
     public void testValidateEmptyFields() {
-        thrown.expect(IllegalStateException.class);
-        Variant v = new Variant("1:1050:CTTTC:-");
-        AlternateCoordinate a1 = new AlternateCoordinate(null, 1050, null, "C", "T", VariantType.SNV);
-        variantMerger.validateAlternate(a1);
+         IllegalStateException thrown = Assertions.assertThrows(IllegalStateException.class, () -> {
+            Variant v = new Variant("1:1050:CTTTC:-");
+            AlternateCoordinate a1 = new AlternateCoordinate(null, 1050, null, "C", "T", VariantType.SNV);
+            variantMerger.validateAlternate(a1);
+
+        });
+
+        Assertions.assertEquals("Chromosome of alt is null: {\"chromosome\": null, \"start\": 1050, \"end\": null, \"reference\": \"C\", \"alternate\": \"T\", \"type\": \"SNV\"}", thrown.getMessage());
+
+
     }
 
     @Test
@@ -512,7 +516,6 @@ public class VariantMergerTest {
 
     @Test
     public void testMergeIndelOverlapping() throws NonStandardCompliantSampleField {
-        thrown.expect(IllegalStateException.class);
         Variant v1 = VariantTestUtils.generateVariantWithFormat("1:10:TACACACACAC:TACACAC",
                 VCFConstants.GENOTYPE_KEY + "," + VCFConstants.GENOTYPE_FILTER_KEY,
                 "S1", "1/2","PASS");
@@ -538,8 +541,14 @@ public class VariantMergerTest {
         variants.stream().forEach(v -> System.out.println("v.toJson() = " + v.toJson()));
 
         // Fails down to normalization producing two variants with same GT (1/2 and 2/1)
-        Variant mergeVar = variantMerger.merge(v2, variants);
-        System.out.println("mergeVar = " + mergeVar.toJson());
+        IllegalStateException thrown = Assertions.assertThrows(IllegalStateException.class, () -> {
+            Variant mergeVar = variantMerger.merge(v2, variants);
+            System.out.println("mergeVar = " + mergeVar.toJson());
+        });
+
+        Assertions.assertEquals("Current variant can't be a NO_VARIANT", thrown.getMessage());
+
+
     }
 
     @Test
@@ -792,9 +801,11 @@ public class VariantMergerTest {
 
     @Test
     public void testMergeOverlap_IN_SNP_FAIL() {
-        thrown.expect(AssertionError.class);
         // Should only be merged once - before the inserted gap.
-        checkOverlapNoSecondaries("1:10::AT", "1:10:A:G");
+        AssertionError thrown = Assertions.assertThrows(AssertionError.class, () -> {
+            checkOverlapNoSecondaries("1:10::AT", "1:10:A:G");
+        });
+
     }
 
     @Test
@@ -804,9 +815,12 @@ public class VariantMergerTest {
 
     @Test
     public void testMergeOverlap_SNP_IN_FAIL() {
-        thrown.expect(AssertionError.class);
+
         // Should only be merged once - before the inserted gap.
-        checkOverlapNoSecondaries("1:10:A:G", "1:10::AT");
+
+        AssertionError thrown = Assertions.assertThrows(AssertionError.class, () -> {
+            checkOverlapNoSecondaries("1:10:A:G", "1:10::AT");
+        });
     }
 
 //    @Test
@@ -923,8 +937,12 @@ public class VariantMergerTest {
         variantMerger.setExpectedFormats(Arrays.asList("GT"));
         variantMerger.setExpectedFormats(Arrays.asList("DP"));
         variantMerger.setExpectedFormats(Arrays.asList("GT", "DP"));
-        thrown.expect(IllegalArgumentException.class);
-        variantMerger.setExpectedFormats(Arrays.asList("DP", "GT"));
+
+        IllegalArgumentException thrown = Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            variantMerger.setExpectedFormats(Arrays.asList("DP", "GT"));
+        });
+
+        Assertions.assertEquals("Genotype format field [GT] must be in the first position!", thrown.getMessage());
     }
 
     @Test
@@ -1006,12 +1024,20 @@ public class VariantMergerTest {
 
     @Test
     public void testMergeSameSampleSameVariant() { // TODO check if this can happen and result is correct !!!
-        thrown.expect(IllegalStateException.class);
-        variantMerger.merge(var, VariantTestUtils.generateVariant("1:10:A:T", "S01", "0/1"));
-        StudyEntry se = variantMerger.getStudy(var);
-        assertEquals(1, se.getSecondaryAlternates().size());
+
+        IllegalStateException thrown = Assertions.assertThrows(IllegalStateException.class, () -> {
+            variantMerger.merge(var, VariantTestUtils.generateVariant("1:10:A:T", "S01", "0/1"));
+            StudyEntry se = variantMerger.getStudy(var);
+            assertEquals(1, se.getSecondaryAlternates().size());
 //        // TODO not sure 1/2 is correct if the same individual has a variant with 0/1 and another variant with 0/2 overlapping each other
-        assertEquals("0/1,0/2", se.getSamples().get(0).getData().get(0));
+            assertEquals("0/1,0/2", se.getSamples().get(0).getData().get(0));
+        });
+
+        Assertions.assertEquals("Duplicated entries during merging: Issue with ID S01; Variants: \n" +
+                "{\"chromosome\": \"1\", \"start\": 10, \"end\": 10, \"reference\": \"A\", \"alternate\": \"T\", \"type\": \"SNV\"};", thrown.getMessage());
+
+
+
     }
 
     @Test

@@ -1,9 +1,8 @@
 package org.opencb.biodata.tools.feature;
 
 import org.broad.igv.bbfile.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opencb.biodata.models.core.Region;
-import org.opencb.biodata.tools.commons.ChunkFrequencyManager;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

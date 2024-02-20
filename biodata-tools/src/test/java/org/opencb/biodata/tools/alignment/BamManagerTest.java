@@ -1,9 +1,10 @@
 package org.opencb.biodata.tools.alignment;
 
 import htsjdk.samtools.*;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opencb.biodata.models.alignment.RegionCoverage;
 import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.tools.alignment.exceptions.AlignmentCoverageException;
@@ -32,9 +33,9 @@ public class BamManagerTest {
     Path bamPath;
     Path bwPath;
 
-    @Before
+    @BeforeEach
     public void init() throws URISyntaxException, IOException {
-        Assume.assumeTrue(bamCoverageExists());
+        Assumptions.assumeTrue(bamCoverageExists());
 
         inputPath = Paths.get(getClass().getResource("/HG00096.chrom20.small.bam").toURI());
         bamPath = Paths.get("/tmp/" + inputPath.toFile().getName());
@@ -80,14 +81,14 @@ public class BamManagerTest {
         AlignmentOptions options = new AlignmentOptions().setLimit(5);
         Region region = new Region("20", 60000, 65000);
         List<SAMRecord> query = bamManager.query(region, options);
-        assertEquals(5, query.size());
+        Assertions.assertEquals(5, query.size());
 
         options.setLimit(3);
         query = bamManager.query(region, options);
         for (SAMRecord sam: query) {
             System.out.println(sam.toString());
         }
-        assertEquals(3, query.size());
+        Assertions.assertEquals(3, query.size());
     }
 
     @Test

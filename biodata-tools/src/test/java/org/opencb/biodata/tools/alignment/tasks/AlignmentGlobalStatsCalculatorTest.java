@@ -2,7 +2,7 @@ package org.opencb.biodata.tools.alignment.tasks;
 
 import htsjdk.samtools.SAMRecord;
 import org.ga4gh.models.ReadAlignment;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opencb.biodata.tools.alignment.BamManager;
 import org.opencb.biodata.tools.alignment.AlignmentOptions;
 import org.opencb.biodata.tools.alignment.iterators.BamIterator;
