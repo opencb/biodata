@@ -40,6 +40,8 @@ public class ClinicalVariant extends Variant {
     private ClinicalVariantConfidence confidence;
     private List<String> tags;
 
+    private ClinicalVariantSummary summary;
+
     private Status status;
 
     // TODO maybe this parameter should be in Variant
@@ -95,6 +97,7 @@ public class ClinicalVariant extends Variant {
         this.attributes = attributes;
     }
 
+    @Deprecated
     public ClinicalVariant(VariantAvro avro, List<ClinicalVariantEvidence> evidences, List<ClinicalComment> comments,
                            Map<String, Object> filters, String recommendation, List<MiniPubmed> references,
                            ClinicalDiscussion discussion, ClinicalVariantConfidence confidence, Status status,
@@ -112,6 +115,26 @@ public class ClinicalVariant extends Variant {
         this.confidence = confidence;
         this.attributes = attributes;
     }
+
+    public ClinicalVariant(VariantAvro avro, List<ClinicalVariantEvidence> evidences, List<ClinicalComment> comments,
+                           Map<String, Object> filters, String recommendation, List<MiniPubmed> references,
+                           ClinicalDiscussion discussion, ClinicalVariantConfidence confidence, ClinicalVariantSummary summary,
+                           Status status, List<String> tags, Map<String, Object> attributes) {
+        super(avro);
+
+        this.evidences = evidences;
+        this.comments = comments;
+        this.filters = filters;
+        this.recommendation = recommendation;
+        this.references = references;
+        this.discussion = discussion;
+        this.summary = summary;
+        this.status = status;
+        this.tags = tags;
+        this.confidence = confidence;
+        this.attributes = attributes;
+    }
+
 
     @Override
     public String toString() {
@@ -178,6 +201,15 @@ public class ClinicalVariant extends Variant {
 
     public ClinicalVariant setConfidence(ClinicalVariantConfidence confidence) {
         this.confidence = confidence;
+        return this;
+    }
+
+    public ClinicalVariantSummary getSummary() {
+        return summary;
+    }
+
+    public ClinicalVariant setSummary(ClinicalVariantSummary summary) {
+        this.summary = summary;
         return this;
     }
 
