@@ -21,6 +21,7 @@ package org.opencb.biodata.models.clinical.interpretation;
 
 import org.opencb.biodata.models.clinical.ClinicalComment;
 import org.opencb.biodata.models.clinical.ClinicalDiscussion;
+import org.opencb.biodata.models.clinical.interpretation.stats.ClinicalVariantSummaryStats;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.VariantAvro;
 
@@ -40,7 +41,7 @@ public class ClinicalVariant extends Variant {
     private ClinicalVariantConfidence confidence;
     private List<String> tags;
 
-    private ClinicalVariantSummary summary;
+    private ClinicalVariantSummaryStats summary;
 
     private Status status;
 
@@ -118,7 +119,7 @@ public class ClinicalVariant extends Variant {
 
     public ClinicalVariant(VariantAvro avro, List<ClinicalVariantEvidence> evidences, List<ClinicalComment> comments,
                            Map<String, Object> filters, String recommendation, List<MiniPubmed> references,
-                           ClinicalDiscussion discussion, ClinicalVariantConfidence confidence, ClinicalVariantSummary summary,
+                           ClinicalDiscussion discussion, ClinicalVariantConfidence confidence, ClinicalVariantSummaryStats summary,
                            Status status, List<String> tags, Map<String, Object> attributes) {
         super(avro);
 
@@ -204,11 +205,11 @@ public class ClinicalVariant extends Variant {
         return this;
     }
 
-    public ClinicalVariantSummary getSummary() {
+    public ClinicalVariantSummaryStats getSummary() {
         return summary;
     }
 
-    public ClinicalVariant setSummary(ClinicalVariantSummary summary) {
+    public ClinicalVariant setSummary(ClinicalVariantSummaryStats summary) {
         this.summary = summary;
         return this;
     }
