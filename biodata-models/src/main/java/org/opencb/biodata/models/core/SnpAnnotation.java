@@ -19,37 +19,26 @@
 
 package org.opencb.biodata.models.core;
 
-import org.opencb.biodata.models.variant.avro.EvidenceEntry;
 import org.opencb.biodata.models.variant.avro.PopulationFrequency;
 
 import java.util.List;
+import java.util.Map;
 
 public class SnpAnnotation {
 
     private List<String> flags;
     private String gene;
     private List<PopulationFrequency> populationFrequencies;
-    private List<EvidenceEntry> traitAssociation;
+    private Map<String, Object> additionalAttributes;
 
     public SnpAnnotation() {
     }
 
-    public SnpAnnotation(List<String> flags, String gene, List<PopulationFrequency> populationFrequencies, List<EvidenceEntry> traitAssociation) {
+    public SnpAnnotation(List<String> flags, String gene, List<PopulationFrequency> populationFrequencies, Map<String, Object> additionalAttributes) {
         this.flags = flags;
         this.gene = gene;
         this.populationFrequencies = populationFrequencies;
-        this.traitAssociation = traitAssociation;
-    }
-
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("SnpAnnotation{");
-        sb.append("flags=").append(flags);
-        sb.append(", gene='").append(gene).append('\'');
-        sb.append(", populationFrequencies=").append(populationFrequencies);
-        sb.append(", traitAssociation=").append(traitAssociation);
-        sb.append('}');
-        return sb.toString();
+        this.additionalAttributes = additionalAttributes;
     }
 
     public List<String> getFlags() {
@@ -79,12 +68,12 @@ public class SnpAnnotation {
         return this;
     }
 
-    public List<EvidenceEntry> getTraitAssociation() {
-        return traitAssociation;
+    public Map<String, Object> getAdditionalAttributes() {
+        return additionalAttributes;
     }
 
-    public SnpAnnotation setTraitAssociation(List<EvidenceEntry> traitAssociation) {
-        this.traitAssociation = traitAssociation;
+    public SnpAnnotation setAdditionalAttributes(Map<String, Object> additionalAttributes) {
+        this.additionalAttributes = additionalAttributes;
         return this;
     }
 }
