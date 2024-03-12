@@ -26,7 +26,7 @@ public class Snp {
     private String chromosome;
     private int position;
     private String reference;
-    private List<String> alleles;
+    private List<String> alternates;
     private String type;
     private String source;
     private String version;
@@ -35,13 +35,13 @@ public class Snp {
     public Snp() {
     }
 
-    public Snp(String id, String chromosome, int position, String reference, List<String> alleles, String type,
+    public Snp(String id, String chromosome, int position, String reference, List<String> alternates, String type,
                String source, String version, SnpAnnotation annotation) {
         this.id = id;
         this.chromosome = chromosome;
         this.position = position;
         this.reference = reference;
-        this.alleles = alleles;
+        this.alternates = alternates;
         this.type = type;
         this.source = source;
         this.version = version;
@@ -55,7 +55,7 @@ public class Snp {
         sb.append(", chromosome='").append(chromosome).append('\'');
         sb.append(", position=").append(position);
         sb.append(", reference='").append(reference).append('\'');
-        sb.append(", alleles=").append(alleles);
+        sb.append(", alternates=").append(alternates);
         sb.append(", type='").append(type).append('\'');
         sb.append(", source='").append(source).append('\'');
         sb.append(", version='").append(version).append('\'');
@@ -100,12 +100,12 @@ public class Snp {
         return this;
     }
 
-    public List<String> getAlleles() {
-        return alleles;
+    public List<String> getAlternates() {
+        return alternates;
     }
 
-    public Snp setAlleles(List<String> alleles) {
-        this.alleles = alleles;
+    public Snp setAlternates(List<String> alternates) {
+        this.alternates = alternates;
         return this;
     }
 
