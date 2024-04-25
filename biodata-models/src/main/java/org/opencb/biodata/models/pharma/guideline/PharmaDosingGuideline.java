@@ -15,6 +15,7 @@ public class PharmaDosingGuideline {
     private boolean hasTestingInfo;
     private List<History> history;
     private List<Literature> literature;
+    private boolean otherPrescribingGuidance;
     private boolean pediatric;
     private PediatricMarkdown pediatricMarkdown;
     private boolean recommendation;
@@ -133,6 +134,15 @@ public class PharmaDosingGuideline {
 
     public PharmaDosingGuideline setLiterature(List<Literature> literature) {
         this.literature = literature;
+        return this;
+    }
+
+    public boolean isOtherPrescribingGuidance() {
+        return otherPrescribingGuidance;
+    }
+
+    public PharmaDosingGuideline setOtherPrescribingGuidance(boolean otherPrescribingGuidance) {
+        this.otherPrescribingGuidance = otherPrescribingGuidance;
         return this;
     }
 
