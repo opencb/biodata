@@ -34,6 +34,8 @@ public class ClinicalVariant extends Variant {
     private List<ClinicalVariantEvidence> evidences;
     private List<ClinicalComment> comments;
     private Map<String, Object> filters;
+    private String recommendation;
+    private List<MiniPubmed> references;
     private ClinicalDiscussion discussion;
     private ClinicalVariantConfidence confidence;
     private List<String> tags;
@@ -76,6 +78,7 @@ public class ClinicalVariant extends Variant {
         this.attributes = attributes;
     }
 
+    @Deprecated
     public ClinicalVariant(VariantAvro avro, List<ClinicalVariantEvidence> evidences, List<ClinicalComment> comments,
                            Map<String, Object> filters, ClinicalDiscussion discussion,
                            ClinicalVariantConfidence confidence, Status status, List<String> tags,
@@ -92,19 +95,27 @@ public class ClinicalVariant extends Variant {
         this.attributes = attributes;
     }
 
+    public ClinicalVariant(VariantAvro avro, List<ClinicalVariantEvidence> evidences, List<ClinicalComment> comments,
+                           Map<String, Object> filters, String recommendation, List<MiniPubmed> references,
+                           ClinicalDiscussion discussion, ClinicalVariantConfidence confidence, Status status,
+                           List<String> tags, Map<String, Object> attributes) {
+        super(avro);
+
+        this.evidences = evidences;
+        this.comments = comments;
+        this.filters = filters;
+        this.recommendation = recommendation;
+        this.references = references;
+        this.discussion = discussion;
+        this.status = status;
+        this.tags = tags;
+        this.confidence = confidence;
+        this.attributes = attributes;
+    }
+
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("ClinicalVariant{");
-        sb.append("evidences=").append(evidences);
-        sb.append(", comments=").append(comments);
-        sb.append(", filters=").append(filters);
-        sb.append(", discussion=").append(discussion);
-        sb.append(", confidence=").append(confidence);
-        sb.append(", tags=").append(tags);
-        sb.append(", status=").append(status);
-        sb.append(", attributes=").append(attributes);
-        sb.append('}');
-        return sb.toString();
+        return super.toString();
     }
 
     public List<ClinicalVariantEvidence> getEvidences() {
@@ -131,6 +142,24 @@ public class ClinicalVariant extends Variant {
 
     public ClinicalVariant setFilters(Map<String, Object> filters) {
         this.filters = filters;
+        return this;
+    }
+
+    public String getRecommendation() {
+        return recommendation;
+    }
+
+    public ClinicalVariant setRecommendation(String recommendation) {
+        this.recommendation = recommendation;
+        return this;
+    }
+
+    public List<MiniPubmed> getReferences() {
+        return references;
+    }
+
+    public ClinicalVariant setReferences(List<MiniPubmed> references) {
+        this.references = references;
         return this;
     }
 

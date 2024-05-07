@@ -8,7 +8,9 @@ public class Literature {
     private String _sameAs;
     private List<CrossReference> crossReferences;
     private String objCls;
+    private String pubDate;
     private List<Term> terms;
+    private String type;
 
     public float getId() {
         return id;
@@ -55,12 +57,30 @@ public class Literature {
         return this;
     }
 
+    public String getPubDate() {
+        return pubDate;
+    }
+
+    public Literature setPubDate(String pubDate) {
+        this.pubDate = pubDate;
+        return this;
+    }
+
     public List<Term> getTerms() {
         return terms;
     }
 
     public Literature setTerms(List<Term> terms) {
         this.terms = terms;
+        return this;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public Literature setType(String type) {
+        this.type = type;
         return this;
     }
 }
