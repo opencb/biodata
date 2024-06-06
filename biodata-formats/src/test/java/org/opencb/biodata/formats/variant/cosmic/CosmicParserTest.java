@@ -2,6 +2,7 @@ package org.opencb.biodata.formats.variant.cosmic;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.opencb.biodata.formats.io.FileFormatException;
 import org.opencb.biodata.models.sequence.SequenceLocation;
 import org.opencb.biodata.models.variant.avro.EvidenceEntry;
 
@@ -40,7 +41,7 @@ public class CosmicParserTest {
     }
 
     @Test
-    public void testCosmicParser() throws IOException {
+    public void testCosmicParser() throws IOException, FileFormatException {
         Path cosmicFile = Paths.get(getClass().getResource("/cosmic.small.tsv.gz").getPath());
         String version = "v95";
         String name = "cosmic";

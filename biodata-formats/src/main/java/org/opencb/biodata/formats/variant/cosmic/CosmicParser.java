@@ -20,6 +20,7 @@
 package org.opencb.biodata.formats.variant.cosmic;
 
 import org.apache.commons.lang3.StringUtils;
+import org.opencb.biodata.formats.io.FileFormatException;
 import org.opencb.biodata.formats.variant.VariantAnnotationUtils;
 import org.opencb.biodata.models.sequence.SequenceLocation;
 import org.opencb.biodata.models.variant.avro.*;
@@ -90,7 +91,10 @@ public class CosmicParser {
      * @throws IOException
      */
     public static void parse(Path cosmicFile, String version, String name, String assembly, CosmicParserCallback callback)
-            throws IOException {
+            throws IOException, FileFormatException {
+
+        int numCosmicFields = 39;
+        int assemblyFieldIndex = 24;
 
         int totalNumberRecords = 0;
         int ignoredCosmicLines = 0;
@@ -111,10 +115,27 @@ public class CosmicParser {
 
             String headerLine = cosmicReader.readLine(); // First line is the header -> ignore it
             logger.info("Skipping header line: {}", headerLine);
+            String[] headerFields = headerLine.split("\t", -1);
+            if (headerFields.length != numCosmicFields) {
+                throw new FileFormatException("Invalid COSMIC format file. Expected " + numCosmicFields + " fields, got "
+                        + headerFields.length + " at " + headerLine);
+            }
 
             String line;
             while ((line = cosmicReader.readLine()) != null) {
                 String[] fields = line.split("\t", -1);
+
+                // Check fields number
+                if (headerFields.length != numCosmicFields) {
+                    throw new FileFormatException("Invalid COSMIC format file. Expected " + numCosmicFields + " fields, got "
+                            + headerFields.length + " at " + headerLine);
+                }
+                // Check assembly
+                String cosmicAssembly = headerFields[assemblyFieldIndex] + fields[assemblyFieldIndex];
+                if (!cosmicAssembly.equalsIgnoreCase(assembly)) {
+                    throw new IllegalArgumentException("Mismatch assembly: COSMIC file assembly is " + cosmicAssembly + " but input"
+                            + " assembly is " + assembly);
+                }
 
                 t0 = System.currentTimeMillis();
                 EvidenceEntry evidenceEntry = buildCosmic(name, version, assembly, fields);
