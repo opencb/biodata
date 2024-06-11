@@ -10,6 +10,14 @@ jobs:
     name: Test and push Sonar analysis
     runs-on: ubuntu-22.04
     steps:
+      - name: Retrieve secrets from Keeper
+        id: ksecrets
+        uses: Keeper-Security/ksm-action@master
+        with:
+          keeper-secret-config: ${{ secrets.KEEPER_SM_GH_OPENCB }}
+          secrets: |
+            ID_GITHUB_TOKEN/custom_field/GITHUB_TOKEN > env:GITHUB_TOKEN
+            ID_SONAR_TOKEN/custom_field/SONAR_TOKEN > env:SONAR_TOKEN
       - uses: actions/checkout@v4
         with:
           fetch-depth: '0'
@@ -31,8 +39,8 @@ jobs:
           fi
       - name: Test and Analyze
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }} # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
         run: mvn -B verify surefire-report:report --fail-never org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=opencb_biodata
       - name: Publish Test Report
         uses: scacap/action-surefire-report@v1
