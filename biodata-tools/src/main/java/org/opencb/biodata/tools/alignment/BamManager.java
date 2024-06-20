@@ -80,7 +80,11 @@ public class BamManager implements AutoCloseable {
     }
 
     private void init() throws IOException {
-        FileUtils.checkFile(bamFile);
+        try {
+            FileUtils.checkFile(bamFile);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         if (this.samReader == null) {
             SamReaderFactory srf = SamReaderFactory.make();
@@ -94,7 +98,6 @@ public class BamManager implements AutoCloseable {
                 }
             }
             this.samReader = srf.open(SamInputResource.of(bamFile.toFile()));
-
         }
 
         logger = LoggerFactory.getLogger(BamManager.class);
@@ -121,7 +124,11 @@ public class BamManager implements AutoCloseable {
      * @throws IOException
      */
     public Path createIndex(Path outputIndex) throws IOException {
-        FileUtils.checkDirectory(outputIndex.toAbsolutePath().getParent(), true);
+        try {
+            FileUtils.checkDirectory(outputIndex.toAbsolutePath().getParent(), true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         SamReaderFactory srf = SamReaderFactory.make().enable(SamReaderFactory.Option.INCLUDE_SOURCE_IN_RECORDS);
         srf.validationStringency(ValidationStringency.LENIENT);
