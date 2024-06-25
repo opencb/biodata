@@ -332,19 +332,10 @@ public class CosmicParser {
 
     private static String getPositiveStrandString(String alleleString, String strand) {
         if (strand.equals("-")) {
-            return reverseComplementary(alleleString);
+            return VariantAnnotationUtils.reverseComplement(alleleString, true);
         } else {
             return alleleString;
         }
-    }
-
-    private static String reverseComplementary(String alleleString) {
-        char[] reverseAlleleString = new StringBuilder(alleleString).reverse().toString().toCharArray();
-        for (int i = 0; i < reverseAlleleString.length; i++) {
-            reverseAlleleString[i] = VariantAnnotationUtils.COMPLEMENTARY_NT.get(reverseAlleleString[i]);
-        }
-
-        return String.valueOf(reverseAlleleString);
     }
 
     private static EvidenceEntry buildCosmic(String name, String version, String assembly, String[] fields) {
@@ -478,12 +469,28 @@ public class CosmicParser {
         return new GenomicFeature(featureTypes, null, map);
     }
 
+    private static Map<String, AlleleOrigin> ORIGIN_STRING_TO_ALLELE_ORIGIN = new HashMap<>();
+
+    static {
+
+        ///////////////////////////////////////////////////////////////////////
+        /////   ClinVar and Cosmic allele origins to SO terms   ///////////////
+        ///////////////////////////////////////////////////////////////////////
+        ORIGIN_STRING_TO_ALLELE_ORIGIN.put("germline", AlleleOrigin.germline_variant);
+        ORIGIN_STRING_TO_ALLELE_ORIGIN.put("maternal", AlleleOrigin.maternal_variant);
+        ORIGIN_STRING_TO_ALLELE_ORIGIN.put("de novo", AlleleOrigin.de_novo_variant);
+        ORIGIN_STRING_TO_ALLELE_ORIGIN.put("paternal", AlleleOrigin.paternal_variant);
+        ORIGIN_STRING_TO_ALLELE_ORIGIN.put("somatic", AlleleOrigin.somatic_variant);
+    }
+
+
     private static List<AlleleOrigin> getAlleleOriginList(List<String> sourceOriginList) {
         List<AlleleOrigin> alleleOrigin;
         alleleOrigin = new ArrayList<>(sourceOriginList.size());
         for (String originString : sourceOriginList) {
-            if (VariantAnnotationUtils.ORIGIN_STRING_TO_ALLELE_ORIGIN.containsKey(originString)) {
-                alleleOrigin.add(VariantAnnotationUtils.ORIGIN_STRING_TO_ALLELE_ORIGIN.get(originString));
+            AlleleOrigin alleleOriginValue = VariantAnnotationUtils.parseAlleleOrigin(originString);
+            if (alleleOriginValue != null) {
+                alleleOrigin.add(alleleOriginValue);
             } else {
                 logger.debug("No SO term found for allele origin {}. Skipping.", originString);
             }
