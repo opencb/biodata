@@ -11,11 +11,11 @@ public class SequenceLocation {
     public SequenceLocation() {
     }
 
-    SequenceLocation(String chromosome, int start, int end, String reference, String alternate) {
+    public SequenceLocation(String chromosome, int start, int end, String reference, String alternate) {
         this(chromosome, start, end, reference, alternate, "+");
     }
 
-    SequenceLocation(String chromosome, int start, int end, String reference, String alternate, String strand) {
+    public SequenceLocation(String chromosome, int start, int end, String reference, String alternate, String strand) {
         this.chromosome = chromosome;
         this.start = start;
         this.end = end;
