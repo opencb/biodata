@@ -41,7 +41,7 @@ public class ClinicalVariant extends Variant {
     private ClinicalVariantConfidence confidence;
     private List<String> tags;
 
-    private ClinicalVariantSummaryStats summary;
+    private ClinicalVariantSummaryStats stats;
 
     private Status status;
 
@@ -119,7 +119,7 @@ public class ClinicalVariant extends Variant {
 
     public ClinicalVariant(VariantAvro avro, List<ClinicalVariantEvidence> evidences, List<ClinicalComment> comments,
                            Map<String, Object> filters, String recommendation, List<MiniPubmed> references,
-                           ClinicalDiscussion discussion, ClinicalVariantConfidence confidence, ClinicalVariantSummaryStats summary,
+                           ClinicalDiscussion discussion, ClinicalVariantConfidence confidence, ClinicalVariantSummaryStats stats,
                            Status status, List<String> tags, Map<String, Object> attributes) {
         super(avro);
 
@@ -129,7 +129,7 @@ public class ClinicalVariant extends Variant {
         this.recommendation = recommendation;
         this.references = references;
         this.discussion = discussion;
-        this.summary = summary;
+        this.stats = stats;
         this.status = status;
         this.tags = tags;
         this.confidence = confidence;
@@ -205,12 +205,12 @@ public class ClinicalVariant extends Variant {
         return this;
     }
 
-    public ClinicalVariantSummaryStats getSummary() {
-        return summary;
+    public ClinicalVariantSummaryStats getStats() {
+        return stats;
     }
 
-    public ClinicalVariant setSummary(ClinicalVariantSummaryStats summary) {
-        this.summary = summary;
+    public ClinicalVariant setStats(ClinicalVariantSummaryStats stats) {
+        this.stats = stats;
         return this;
     }
 
