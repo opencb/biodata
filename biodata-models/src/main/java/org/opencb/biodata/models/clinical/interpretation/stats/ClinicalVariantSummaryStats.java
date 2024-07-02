@@ -19,36 +19,52 @@
 
 package org.opencb.biodata.models.clinical.interpretation.stats;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class ClinicalVariantSummaryStats {
 
     private int numCases;
+    private Map<String, Integer> variantStatusCounts;
+    private Map<String, Integer> variantConfidenceCounts;
     private int numPrimaryInterpretations;
     private int numSecondaryInterpretations;
-    private InterpretationSummaryStats primaryInterpretationSummary;
-    private InterpretationSummaryStats secondaryInterpretationsSummary;
+    private InterpretationSummaryStats interpretationSummaryStats;
+    private Map<String, Integer> clinicalAnalysisDisorderCounts;
 
     public ClinicalVariantSummaryStats() {
-        primaryInterpretationSummary = new InterpretationSummaryStats();
-        secondaryInterpretationsSummary = new InterpretationSummaryStats();
+        this.numCases = 0;
+        this.variantStatusCounts = new HashMap<>();
+        this.variantConfidenceCounts = new HashMap<>();
+        this.numPrimaryInterpretations = 0;
+        this.numSecondaryInterpretations = 0;
+        this.interpretationSummaryStats = new InterpretationSummaryStats();
+        this.clinicalAnalysisDisorderCounts = new HashMap<>();
     }
 
-    public ClinicalVariantSummaryStats(int numCases, int numPrimaryInterpretations, int numSecondaryInterpretations,
-                                       InterpretationSummaryStats primaryInterpretationSummary, InterpretationSummaryStats secondaryInterpretationsSummary) {
+    public ClinicalVariantSummaryStats(int numCases, Map<String, Integer> variantStatusCounts, Map<String, Integer> variantConfidenceCounts,
+                                       int numPrimaryInterpretations, int numSecondaryInterpretations,
+                                       InterpretationSummaryStats interpretationSummaryStats,
+                                       Map<String, Integer> clinicalAnalysisDisorderCounts) {
         this.numCases = numCases;
+        this.variantStatusCounts = variantStatusCounts;
+        this.variantConfidenceCounts = variantConfidenceCounts;
         this.numPrimaryInterpretations = numPrimaryInterpretations;
         this.numSecondaryInterpretations = numSecondaryInterpretations;
-        this.primaryInterpretationSummary = primaryInterpretationSummary;
-        this.secondaryInterpretationsSummary = secondaryInterpretationsSummary;
+        this.interpretationSummaryStats = interpretationSummaryStats;
+        this.clinicalAnalysisDisorderCounts = clinicalAnalysisDisorderCounts;
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("ClinicalVariantSummary{");
+        final StringBuilder sb = new StringBuilder("ClinicalVariantSummaryStats{");
         sb.append("numCases=").append(numCases);
+        sb.append(", variantStatusCounts=").append(variantStatusCounts);
+        sb.append(", variantConfidenceCounts=").append(variantConfidenceCounts);
         sb.append(", numPrimaryInterpretations=").append(numPrimaryInterpretations);
         sb.append(", numSecondaryInterpretations=").append(numSecondaryInterpretations);
-        sb.append(", primaryInterpretationSummary=").append(primaryInterpretationSummary);
-        sb.append(", secondaryInterpretationsSummary=").append(secondaryInterpretationsSummary);
+        sb.append(", interpretationSummaryStats=").append(interpretationSummaryStats);
+        sb.append(", clinicalAnalysisDisorderCounts=").append(clinicalAnalysisDisorderCounts);
         sb.append('}');
         return sb.toString();
     }
@@ -59,6 +75,24 @@ public class ClinicalVariantSummaryStats {
 
     public ClinicalVariantSummaryStats setNumCases(int numCases) {
         this.numCases = numCases;
+        return this;
+    }
+
+    public Map<String, Integer> getVariantStatusCounts() {
+        return variantStatusCounts;
+    }
+
+    public ClinicalVariantSummaryStats setVariantStatusCounts(Map<String, Integer> variantStatusCounts) {
+        this.variantStatusCounts = variantStatusCounts;
+        return this;
+    }
+
+    public Map<String, Integer> getVariantConfidenceCounts() {
+        return variantConfidenceCounts;
+    }
+
+    public ClinicalVariantSummaryStats setVariantConfidenceCounts(Map<String, Integer> variantConfidenceCounts) {
+        this.variantConfidenceCounts = variantConfidenceCounts;
         return this;
     }
 
@@ -80,21 +114,21 @@ public class ClinicalVariantSummaryStats {
         return this;
     }
 
-    public InterpretationSummaryStats getPrimaryInterpretationSummary() {
-        return primaryInterpretationSummary;
+    public InterpretationSummaryStats getInterpretationSummaryStats() {
+        return interpretationSummaryStats;
     }
 
-    public ClinicalVariantSummaryStats setPrimaryInterpretationSummary(InterpretationSummaryStats primaryInterpretationSummary) {
-        this.primaryInterpretationSummary = primaryInterpretationSummary;
+    public ClinicalVariantSummaryStats setInterpretationSummaryStats(InterpretationSummaryStats interpretationSummaryStats) {
+        this.interpretationSummaryStats = interpretationSummaryStats;
         return this;
     }
 
-    public InterpretationSummaryStats getSecondaryInterpretationsSummary() {
-        return secondaryInterpretationsSummary;
+    public Map<String, Integer> getClinicalAnalysisDisorderCounts() {
+        return clinicalAnalysisDisorderCounts;
     }
 
-    public ClinicalVariantSummaryStats setSecondaryInterpretationsSummary(InterpretationSummaryStats secondaryInterpretationsSummary) {
-        this.secondaryInterpretationsSummary = secondaryInterpretationsSummary;
+    public ClinicalVariantSummaryStats setClinicalAnalysisDisorderCounts(Map<String, Integer> clinicalAnalysisDisorderCounts) {
+        this.clinicalAnalysisDisorderCounts = clinicalAnalysisDisorderCounts;
         return this;
     }
 }
