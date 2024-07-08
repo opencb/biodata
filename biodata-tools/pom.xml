@@ -53,6 +53,12 @@
         <dependency>
             <groupId>com.databricks</groupId>
             <artifactId>SnpEff</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>distlib</groupId>
+                    <artifactId>distlib</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.rocksdb</groupId>
