@@ -642,8 +642,18 @@ public class VariantNormalizer implements Task<Variant, Variant> {
                 // CI positions may change during the normalization. Update them.
                 normalizedSv.setCiStartLeft(sv.getCiStartLeft());
                 normalizedSv.setCiStartRight(sv.getCiStartRight());
-                normalizedSv.setCiEndLeft(sv.getCiEndLeft());
-                normalizedSv.setCiEndRight(sv.getCiEndRight());
+
+                // Structural variants that affect a single point (INSERTIONS or Breakends) should not have CIEND.
+                // At this point, we're removing the CIEND from the normalized variant.
+                // Do not remove the value from the INFO field (if any).
+                // The END is the same as the start (which, in base-1 means that "end == start -1" , so "end < start")
+                if (keyFields.getEnd() < keyFields.getStart()) {
+                    normalizedSv.setCiEndLeft(null);
+                    normalizedSv.setCiEndRight(null);
+                } else {
+                    normalizedSv.setCiEndLeft(sv.getCiEndLeft());
+                    normalizedSv.setCiEndRight(sv.getCiEndRight());
+                }
                 normalizedSv.setLeftSvInsSeq(sv.getLeftSvInsSeq());
                 normalizedSv.setRightSvInsSeq(sv.getRightSvInsSeq());
 
