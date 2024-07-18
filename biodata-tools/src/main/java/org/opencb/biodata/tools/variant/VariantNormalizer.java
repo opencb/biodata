@@ -301,19 +301,16 @@ public class VariantNormalizer implements Task<Variant, Variant> {
                 normalizedVariants.add(variant);
                 continue;
             }
-            String reference = variant.getReference();  //Save original values, as they can be changed
+            //Save original values, as they can be changed
+            String reference = variant.getReference();
             String alternate = variant.getAlternate();
             Integer start = variant.getStart();
             Integer end = variant.getEnd();
             String chromosome = variant.getChromosome();
 
             if (variant.getStudies() == null || variant.getStudies().isEmpty()) {
-                List<VariantKeyFields> keyFieldsList;
-                if (isSymbolic(variant)) {
-                    keyFieldsList = normalizeSymbolic(start, end, reference, alternate, variant.getSv());
-                } else {
-                    keyFieldsList = normalize(chromosome, start, reference, alternate);
-                }
+                List<VariantKeyFields> keyFieldsList = normalizeAlleles(variant);
+
                 // Iterate keyFields sorting by position, so the generated variants are ordered. Do not modify original order!
                 for (VariantKeyFields keyFields : sortByPosition(keyFieldsList)) {
                     OriginalCall call = new OriginalCall(variant.toString(), keyFields.getNumAllele());
@@ -331,25 +328,16 @@ public class VariantNormalizer implements Task<Variant, Variant> {
                     normalizedVariants.add(normalizedVariant);
                 }
             } else {
-                for (StudyEntry entry : variant.getStudies()) {
-                    List<String> originalAlternates = new ArrayList<>(1 + entry.getSecondaryAlternates().size());
-                    List<String> alternates = new ArrayList<>(1 + entry.getSecondaryAlternates().size());
-                    alternates.add(alternate);
-                    originalAlternates.add(alternate);
-                    for (String secondaryAlternatesAllele : entry.getSecondaryAlternatesAlleles()) {
-                        alternates.add(secondaryAlternatesAllele);
-                        originalAlternates.add(secondaryAlternatesAllele);
-                    }
+                if (variant.getStudies().size() != 1) {
+                    throw new IllegalStateException("Only one study per variant is supported when normalizing variants. Found "
+                            + variant.getStudies().size() + " studies. Variant: " + variant);
+                } else {
+                    StudyEntry entry = variant.getStudies().get(0);
+                    List<String> alternates = getAllAlternates(variant);
 
                     // FIXME: assumes there wont be multinucleotide positions with CNVs and short variants mixed
-                    List<VariantKeyFields> keyFieldsList;
-                    List<VariantKeyFields> originalKeyFieldsList;
-                    if (isSymbolic(variant)) {
-                        keyFieldsList = normalizeSymbolic(start, end, reference, alternates, variant.getSv());
-                    } else {
-                        keyFieldsList = normalize(chromosome, start, reference, alternates);
-                    }
-                    originalKeyFieldsList = keyFieldsList
+                    List<VariantKeyFields> keyFieldsList = normalizeAlleles(variant);
+                    List<VariantKeyFields> originalKeyFieldsList = keyFieldsList
                             .stream()
                             .filter(k -> !k.isReferenceBlock())
                             .map(k -> k.originalKeyFields)
@@ -372,8 +360,8 @@ public class VariantNormalizer implements Task<Variant, Variant> {
                         originalCall = entry.getFiles().get(0).getCall().getVariantId();
                     } else {
                         StringBuilder sb = new StringBuilder(variant.toString());
-                        for (int i = 1; i < originalAlternates.size(); i++) {
-                            sb.append(",").append(originalAlternates.get(i));
+                        for (int i = 1; i < alternates.size(); i++) {
+                            sb.append(",").append(alternates.get(i));
                         }
                         originalCall = sb.toString();
                     }
@@ -600,17 +588,54 @@ public class VariantNormalizer implements Task<Variant, Variant> {
 //        }
 //    }
 
+    protected List<VariantKeyFields> normalizeAlleles(Variant variant) {
+        List<String> alternates = getAllAlternates(variant);
+
+        List<VariantKeyFields> keyFieldsList;
+        if (isSymbolic(variant)) {
+            keyFieldsList = normalizeSymbolic(variant.getStart(), variant.getEnd(), variant.getReference(), alternates, variant.getSv());
+        } else {
+            keyFieldsList = normalize(variant.getChromosome(), variant.getStart(), variant.getReference(), alternates, variant.getSv());
+        }
+        return keyFieldsList;
+    }
+
+    private static List<String> getAllAlternates(Variant variant) {
+        List<String> alternates;
+        if (variant.getStudies() != null && !variant.getStudies().isEmpty()) {
+            StudyEntry entry = variant.getStudies().get(0);
+            String alternate = variant.getAlternate();
+            alternates = new ArrayList<>(1 + entry.getSecondaryAlternates().size());
+            alternates.add(alternate);
+            for (AlternateCoordinate secondaryAlternate : entry.getSecondaryAlternates()) {
+                if (secondaryAlternate.getStart() != null && !secondaryAlternate.getStart().equals(variant.getStart())) {
+                    throw new IllegalStateException("Unable to normalize variant where secondary alternates do not start at the same position. "
+                            + "Variant: " + variant + " , secondaryAlternate: " + secondaryAlternate);
+                }
+                if (secondaryAlternate.getEnd() != null && !secondaryAlternate.getEnd().equals(variant.getEnd())) {
+                    throw new IllegalStateException("Unable to normalize variant where secondary alternates do not end at the same position. "
+                            + "Variant: " + variant + " (end=" + variant.getEnd() + ") , secondaryAlternate: " + secondaryAlternate);
+                }
+                alternates.add(secondaryAlternate.getAlternate());
+            }
+        } else {
+            alternates = Collections.singletonList(variant.getAlternate());
+        }
+        return Collections.unmodifiableList(alternates);
+    }
+
+    @Deprecated // Test purposes only
     public List<VariantKeyFields> normalizeSymbolic(Integer start, Integer end, String reference, String alternate, StructuralVariation sv) {
         return normalizeSymbolic(start, end, reference, Collections.singletonList(alternate), sv);
     }
 
-    @Deprecated
+    @Deprecated // Test purposes only
     public List<VariantKeyFields> normalizeSymbolic(final Integer start, final Integer end, final String reference,
                                                     final List<String> alternates) {
         return normalizeSymbolic(start, end, reference, alternates, null);
     }
 
-    public List<VariantKeyFields> normalizeSymbolic(final Integer start, final Integer end, final String reference,
+    protected List<VariantKeyFields> normalizeSymbolic(final Integer start, final Integer end, final String reference,
                                                     final List<String> alternates, StructuralVariation sv) {
         List<VariantKeyFields> list = new ArrayList<>(alternates.size());
 
@@ -634,42 +659,46 @@ public class VariantNormalizer implements Task<Variant, Variant> {
                 keyFields.getSv().setType(StructuralVariantType.TANDEM_DUPLICATION);
             }
 
-            if (sv != null) {
-                StructuralVariation normalizedSv = keyFields.getSv();
-                if (normalizedSv == null) {
-                    normalizedSv = new StructuralVariation();
-                }
-                // CI positions may change during the normalization. Update them.
-                normalizedSv.setCiStartLeft(sv.getCiStartLeft());
-                normalizedSv.setCiStartRight(sv.getCiStartRight());
-
-                // Structural variants that affect a single point (INSERTIONS or Breakends) should not have CIEND.
-                // At this point, we're removing the CIEND from the normalized variant.
-                // Do not remove the value from the INFO field (if any).
-                // The END is the same as the start (which, in base-1 means that "end == start -1" , so "end < start")
-                if (keyFields.getEnd() < keyFields.getStart()) {
-                    normalizedSv.setCiEndLeft(null);
-                    normalizedSv.setCiEndRight(null);
-                } else {
-                    normalizedSv.setCiEndLeft(sv.getCiEndLeft());
-                    normalizedSv.setCiEndRight(sv.getCiEndRight());
-                }
-                normalizedSv.setLeftSvInsSeq(sv.getLeftSvInsSeq());
-                normalizedSv.setRightSvInsSeq(sv.getRightSvInsSeq());
-
-                if (keyFields.getSv() == null) {
-                    if (normalizedSv.getCiStartLeft() != null || normalizedSv.getCiStartRight() != null
-                            || normalizedSv.getCiEndLeft() != null || normalizedSv.getCiEndRight() != null
-                            || normalizedSv.getLeftSvInsSeq() != null || normalizedSv.getRightSvInsSeq() != null) {
-                        keyFields.setSv(normalizedSv);
-                    }
-                }
-            }
+            normalizeSvField(sv, keyFields);
 
             list.add(keyFields);
         }
 
         return list;
+    }
+
+    private static void normalizeSvField(StructuralVariation sv, VariantKeyFields keyFields) {
+        if (sv != null) {
+            StructuralVariation normalizedSv = keyFields.getSv();
+            if (normalizedSv == null) {
+                normalizedSv = new StructuralVariation();
+            }
+            // CI positions may change during the normalization. Update them.
+            normalizedSv.setCiStartLeft(sv.getCiStartLeft());
+            normalizedSv.setCiStartRight(sv.getCiStartRight());
+
+            // Structural variants that affect a single point (INSERTIONS or Breakends) should not have CIEND.
+            // At this point, we're removing the CIEND from the normalized variant.
+            // Do not remove the value from the INFO field (if any).
+            // The END is the same as the start (which, in base-1 means that "end == start -1" , so "end < start")
+            if (keyFields.getEnd() < keyFields.getStart()) {
+                normalizedSv.setCiEndLeft(null);
+                normalizedSv.setCiEndRight(null);
+            } else {
+                normalizedSv.setCiEndLeft(sv.getCiEndLeft());
+                normalizedSv.setCiEndRight(sv.getCiEndRight());
+            }
+            normalizedSv.setLeftSvInsSeq(sv.getLeftSvInsSeq());
+            normalizedSv.setRightSvInsSeq(sv.getRightSvInsSeq());
+
+            if (keyFields.getSv() == null) {
+                if (normalizedSv.getCiStartLeft() != null || normalizedSv.getCiStartRight() != null
+                        || normalizedSv.getCiEndLeft() != null || normalizedSv.getCiEndRight() != null
+                        || normalizedSv.getLeftSvInsSeq() != null || normalizedSv.getRightSvInsSeq() != null) {
+                    keyFields.setSv(normalizedSv);
+                }
+            }
+        }
     }
 
     private boolean isNonRef(String alternate) {
@@ -780,12 +809,17 @@ public class VariantNormalizer implements Task<Variant, Variant> {
     }
 
 
+    @Deprecated // Test purposes only
     public List<VariantKeyFields> normalize(String chromosome, int position, String reference, String alternate) {
-        return normalize(chromosome, position, reference, Collections.singletonList(alternate));
+        return normalize(chromosome, position, reference, Collections.singletonList(alternate), null);
     }
 
-    public List<VariantKeyFields> normalize(String chromosome, int position, String reference, List<String> alternates)
-    {
+    @Deprecated // Test purposes only
+    public List<VariantKeyFields> normalize(String chromosome, int position, String reference, List<String> alternates) {
+        return normalize(chromosome, position, reference, alternates, null);
+    }
+
+    protected List<VariantKeyFields> normalize(String chromosome, int position, String reference, List<String> alternates, StructuralVariation sv) {
 
         List<VariantKeyFields> list = new ArrayList<>(alternates.size());
         int numAllelesIdx = 0; // This index is necessary for getting the samples where the mutated allele is present
@@ -828,6 +862,8 @@ public class VariantNormalizer implements Task<Variant, Variant> {
                     this.logger.warn(ex.getMessage());
                 }
             }
+
+            normalizeSvField(sv, keyFields);
 
             if (keyFields != null) {
 

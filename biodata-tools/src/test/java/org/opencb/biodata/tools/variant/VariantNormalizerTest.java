@@ -685,6 +685,32 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
     }
 
     @Test
+    public void testNormalizeNonSymbolicInsertion() throws Exception {
+        Variant variant = newVariantBuilder(100, null, "C", Collections.singletonList("CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"), "2")
+                .addFileData("CIPOS", "-14,50")
+                .addFileData("CIEND", "-50,11")
+                .addSample("HG00096", "0|0")
+                .build();
+
+        normalizeOne(variant, normalizedVariant -> {
+            assertEquals(new StructuralVariation(86, 150, null, null, null, null, null, null, null), normalizedVariant.getSv());
+        });
+    }
+
+    @Test
+    public void testNormalizeNonSymbolicDeletion() throws Exception {
+        Variant variant = newVariantBuilder(100, null, "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "C", "2")
+                .addFileData("CIPOS", "-14,50")
+                .addFileData("CIEND", "-1,1")
+                .addSample("HG00096", "0|1")
+                .build();
+
+        normalizeOne(variant, normalizedVariant -> {
+            assertEquals(new StructuralVariation(86, 150, 179, 181, null, null, null, null, null), normalizedVariant.getSv());
+        });
+    }
+
+    @Test
     public void testDUPTANDEMNormalization() throws Exception {
         Variant variant = newVariantBuilder(100, 200, "C", Collections.singletonList("<DUP:TANDEM>"), "2")
                 .addFileData("CIPOS", "-14,50")
