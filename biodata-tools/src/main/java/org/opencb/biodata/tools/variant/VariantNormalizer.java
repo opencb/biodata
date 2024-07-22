@@ -1394,6 +1394,8 @@ public class VariantNormalizer implements Task<Variant, Variant> {
                 normalizedVariant.getSv().setCiStartRight(sv.getCiStartRight());
                 normalizedVariant.getSv().setCiEndLeft(sv.getCiEndLeft());
                 normalizedVariant.getSv().setCiEndRight(sv.getCiEndRight());
+                normalizedVariant.getSv().setLeftSvInsSeq(sv.getLeftSvInsSeq());
+                normalizedVariant.getSv().setRightSvInsSeq(sv.getRightSvInsSeq());
 
                 // Variant will never have CopyNumber, because the Alternate is normalized from <CNxx> to <CNV>
                 normalizedVariant.getSv().setCopyNumber(keyFields.getCopyNumber());
