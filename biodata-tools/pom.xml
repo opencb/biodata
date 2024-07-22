@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.opencb.biodata</groupId>
         <artifactId>biodata</artifactId>
-        <version>3.2.0-SNAPSHOT</version>
+        <version>3.3.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -53,6 +53,12 @@
         <dependency>
             <groupId>com.databricks</groupId>
             <artifactId>SnpEff</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>distlib</groupId>
+                    <artifactId>distlib</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.rocksdb</groupId>
