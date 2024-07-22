@@ -22,7 +22,7 @@
 
     <groupId>org.opencb.biodata</groupId>
     <artifactId>biodata</artifactId>
-    <version>3.2.0-SNAPSHOT</version>
+    <version>3.2.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Biodata</name>
@@ -38,7 +38,7 @@
 
     <properties>
         <!-- All dependency versions must be defined here -->
-        <java-common-libs.version>5.2.0-SNAPSHOT</java-common-libs.version>
+        <java-common-libs.version>5.2.1-SNAPSHOT</java-common-libs.version>
 
         <jackson.version>2.14.3</jackson.version>
         <collections.version>4.4</collections.version>
