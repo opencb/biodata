@@ -53,6 +53,12 @@
         <dependency>
             <groupId>com.databricks</groupId>
             <artifactId>SnpEff</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>distlib</groupId>
+                    <artifactId>distlib</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.rocksdb</groupId>
@@ -90,10 +96,10 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
         </dependency>
-        <dependency>
+<!--        <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-mapper-asl</artifactId>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>

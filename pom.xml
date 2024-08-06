@@ -38,19 +38,20 @@
 
     <properties>
         <!-- All dependency versions must be defined here -->
-        <java-common-libs.version>4.12.0</java-common-libs.version>
-        <jackson.version>2.11.4</jackson.version>
+        <java-common-libs.version>5.2.1-SNAPSHOT</java-common-libs.version>
+
+        <jackson.version>2.14.3</jackson.version>
         <collections.version>4.4</collections.version>
         <avro.version>1.7.7</avro.version>
         <protobuf.version>3.11.4</protobuf.version>
         <grpc.version>1.28.1</grpc.version>
         <htsjdk.version>2.23.0</htsjdk.version>
-        <slf4j.version>1.7.32</slf4j.version>
+        <slf4j.version>1.7.36</slf4j.version>
         <jsr.version>3.0.2</jsr.version>
-        <commons-lang.version>3.12.0</commons-lang.version>
-        <jackson-mapper.version>1.9.13</jackson-mapper.version>
+        <commons-lang.version>3.14.0</commons-lang.version>
+       <!-- <jackson-mapper.version>2.9.9</jackson-mapper.version>-->
         <guava.version>19.0</guava.version>
-        <commons-io.version>2.4</commons-io.version>
+        <commons-io.version>2.12.0</commons-io.version>
         <biojava-core.version>5.0.0</biojava-core.version>
         <ga4gh.version>0.6.0a5</ga4gh.version>
         <SnpEff.version>4.3.1</SnpEff.version>
@@ -230,11 +231,6 @@
                 <version>${commons-lang.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-mapper-asl</artifactId>
-                <version>${jackson-mapper.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.avro</groupId>
                 <artifactId>avro</artifactId>
                 <version>${avro.version}</version>
@@ -408,6 +404,9 @@
                             <ignoredUnusedDeclaredDependencies>
                                 <ignoredUnusedDeclaredDependency>*</ignoredUnusedDeclaredDependency>
                             </ignoredUnusedDeclaredDependencies>
+                            <ignoredNonTestScopedDependencies>
+                                <ignoredNonTestScopedDependency>*</ignoredNonTestScopedDependency>
+                            </ignoredNonTestScopedDependencies>
                         </configuration>
                     </execution>
                 </executions>
