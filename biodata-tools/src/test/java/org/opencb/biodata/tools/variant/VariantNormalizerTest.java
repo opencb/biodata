@@ -785,6 +785,14 @@ public class VariantNormalizerTest extends VariantNormalizerGenericTest {
     }
 
     @Test
+    public void testNormalizeWithInsSeq() throws NonStandardCompliantSampleField {
+        Variant variant = new Variant("1:799984<800001<800022:-:ACCACACCCACACAACACACA...TGTGGTGTGTGTGGTGTG");
+        Variant normVar = new VariantNormalizer().normalize(Collections.singletonList(variant), false).get(0);
+        assertEquals(variant, normVar);
+        assertEquals(variant.toString(), normVar.toString());
+    }
+
+    @Test
     public void testNormalizeBND() throws NonStandardCompliantSampleField {
         normalizeBnd(newVariant(101, 100, "", ".[9:10["),  newVariant(100, 99, "A", "A[chr9:10["));
         normalizeBnd(newVariant(100, 99, "", "[22:10[."),  newVariant(100, 99, "A", "[chr22:10[A"));
