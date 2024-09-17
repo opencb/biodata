@@ -19,6 +19,11 @@
 
 package org.opencb.biodata.models.clinical.qc;
 
+import org.opencb.biodata.models.common.Image;
+import org.opencb.biodata.models.constants.FieldConstants;
+import org.opencb.commons.annotations.DataField;
+import org.opencb.commons.datastore.core.ObjectMap;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -27,12 +32,20 @@ import java.util.Map;
 // M E N D E L I A N     E R R O R S     R E P O R T
 //-------------------------------------------------------------------------
 
-public class MendelianErrorReport {
+public class MendelianError {
 
-    // Number total of errors for that family
+    @DataField(id = "numErrors", description = FieldConstants.MENDELIAN_ERROR_NUM_ERRORS_DESCRIPTION)
     private int numErrors;
 
+    @DataField(id = "sampleAggregation", description = FieldConstants.MENDELIAN_ERROR_SAMPLE_AGGREGATION_DESCRIPTION)
     private List<SampleAggregation> sampleAggregation;
+
+    @DataField(id = "images", description = FieldConstants.MENDELIAN_ERROR_IMAGES_DESCRIPTION)
+    private List<Image> images;
+
+    @DataField(id = "attributes", description = FieldConstants.MENDELIAN_ERROR_ATTRIBUTES_DESCRIPTION)
+    private ObjectMap attributes;
+
 
     //-------------------------------------------------------------------------
     // S A M P L E     A G G R E G A T I O N
@@ -153,21 +166,33 @@ public class MendelianErrorReport {
         }
     }
 
-    public MendelianErrorReport() {
-        this.numErrors = 0;
-        this.sampleAggregation = new ArrayList<>();
+    public MendelianError() {
+        this(0, new ArrayList<>(), new ArrayList<>(), new ObjectMap());
     }
 
-    public MendelianErrorReport(int numErrors, List<SampleAggregation> sampleAggregation) {
+    public MendelianError(int numErrors, List<SampleAggregation> sampleAggregation, List<Image> images, ObjectMap attributes) {
         this.numErrors = numErrors;
         this.sampleAggregation = sampleAggregation;
+        this.images = images;
+        this.attributes = attributes;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("MendelianError{");
+        sb.append("numErrors=").append(numErrors);
+        sb.append(", sampleAggregation=").append(sampleAggregation);
+        sb.append(", images=").append(images);
+        sb.append(", attributes=").append(attributes);
+        sb.append('}');
+        return sb.toString();
     }
 
     public int getNumErrors() {
         return numErrors;
     }
 
-    public MendelianErrorReport setNumErrors(int numErrors) {
+    public MendelianError setNumErrors(int numErrors) {
         this.numErrors = numErrors;
         return this;
     }
@@ -176,8 +201,26 @@ public class MendelianErrorReport {
         return sampleAggregation;
     }
 
-    public MendelianErrorReport setSampleAggregation(List<SampleAggregation> sampleAggregation) {
+    public MendelianError setSampleAggregation(List<SampleAggregation> sampleAggregation) {
         this.sampleAggregation = sampleAggregation;
+        return this;
+    }
+
+    public List<Image> getImages() {
+        return images;
+    }
+
+    public MendelianError setImages(List<Image> images) {
+        this.images = images;
+        return this;
+    }
+
+    public ObjectMap getAttributes() {
+        return attributes;
+    }
+
+    public MendelianError setAttributes(ObjectMap attributes) {
+        this.attributes = attributes;
         return this;
     }
 }

@@ -22,6 +22,7 @@ package org.opencb.biodata.models.clinical.interpretation;
 import org.opencb.biodata.models.constants.FieldConstants;
 import org.opencb.commons.annotations.DataField;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class Software {
@@ -51,15 +52,7 @@ public class Software {
     private Map<String, String> params;
 
     public Software() {
-    }
-
-    @Deprecated
-    public Software(String name, String version, String commit, String website, Map<String, String> params) {
-        this.name = name;
-        this.version = version;
-        this.commit = commit;
-        this.website = website;
-        this.params = params;
+        this("", "", "", "", "", new HashMap<>());
     }
 
     public Software(String name, String version, String repository, String commit, String website, Map<String, String> params) {

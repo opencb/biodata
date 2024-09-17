@@ -26,6 +26,7 @@ public class Image {
     private String description;
 
     public Image() {
+        this("", "", "");
     }
 
     public Image(String name, String base64, String description) {

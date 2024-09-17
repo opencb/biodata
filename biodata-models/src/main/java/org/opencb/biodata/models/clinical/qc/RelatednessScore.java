@@ -1,9 +1,9 @@
 package org.opencb.biodata.models.clinical.qc;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import org.opencb.commons.datastore.core.ObjectMap;
 
 public class RelatednessScore {
+
     // Pair of samples
     private String sampleId1;
     private String sampleId2;
@@ -18,19 +18,14 @@ public class RelatednessScore {
     private String validation;
 
     // Scores depending on the relatedness method
-    private Map<String, Object> values;
+    private ObjectMap values;
 
     public RelatednessScore() {
-        this("", "", "", "", "", new LinkedHashMap<>());
-    }
-
-    @Deprecated
-    public RelatednessScore(String sampleId1, String sampleId2, String inferredRelationship, Map<String, Object> values) {
-        this(sampleId1, sampleId2, "", inferredRelationship, "", values);
+        this("", "", "", "", "", new ObjectMap());
     }
 
     public RelatednessScore(String sampleId1, String sampleId2, String reportedRelationship, String inferredRelationship, String validation,
-                            Map<String, Object> values) {
+                            ObjectMap values) {
         this.sampleId1 = sampleId1;
         this.sampleId2 = sampleId2;
         this.reportedRelationship = reportedRelationship;
@@ -97,11 +92,11 @@ public class RelatednessScore {
         return this;
     }
 
-    public Map<String, Object> getValues() {
+    public ObjectMap getValues() {
         return values;
     }
 
-    public RelatednessScore setValues(Map<String, Object> values) {
+    public RelatednessScore setValues(ObjectMap values) {
         this.values = values;
         return this;
     }

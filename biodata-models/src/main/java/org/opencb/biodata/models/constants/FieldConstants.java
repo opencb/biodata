@@ -50,14 +50,31 @@ public class FieldConstants {
     public static final String CLINICAL_COMMENT_MESSAGE_DESCRIPTION = "Clinical comment message";
     public static final String CLINICAL_COMMENT_TAGS_DESCRIPTION = "List of tags for the clinical comment";
     public static final String CLINICAL_COMMENT_DATE_DESCRIPTION = "Date of the clinical comment";
-    public static final String RELATEDNESS_REPORT_METHOD_DESCRIPTION = "Method of the relatedness report";
     public static final String CLINICAL_CONFIDENCE_AUTHOR_DESCRIPTION = "Clinical confidence author";
     public static final String CLINICAL_CONFIDENCE_DATE_DESCRIPTION = "Date of the clinical confidence";
     public static final String CLINICAL_CONFIDENCE_VALUE_DESCRIPTION = "Date of the clinical confidence";
 
-    public static final String RELATEDNESS_REPORT_MAF_DESCRIPTION = "Minor allele frequency to filter variants, e.g.: 1kg_phase3:CEU>0.35, cohort:ALL>0.05";
-    public static final String RELATEDNESS_REPORT_SCORES_DESCRIPTION = "Relatedness scores for pair of samples";
-    public static final String RELATEDNESS_REPORT_FILES_DESCRIPTION = "List of files of Relatedness Report";
+    // Relatedness
+    public static final String RELATEDNESS_METHOD_DESCRIPTION = "Method of the relatedness analysis";
+    public static final String RELATEDNESS_SOFTWARE_DESCRIPTION = "Software based-on to perform the relatedness analysis";
+    public static final String RELATEDNESS_SCORES_DESCRIPTION = "Relatedness scores for pairs of samples";
+    public static final String RELATEDNESS_IMAGES_DESCRIPTION = "List of images related to the relatedness analysis";
+    public static final String RELATEDNESS_ATTRIBUTES_DESCRIPTION = "Relatedness attributes, e.g.: query, cli, files,...";
+
+    // Inferred sex
+    public static final String INFERRED_SEX_METHOD_DESCRIPTION = "Method of the inferred sex analysis";
+    public static final String INFERRED_SEX_SAMPLE_DESCRIPTION = "Sample ID";
+    public static final String INFERRED_SEX_SOFTWARE_DESCRIPTION = "Software based-on to perform the inferred sex analysis";
+    public static final String INFERRED_SEX_INFERRED_KARYOTYPIC_SEX_DESCRIPTION = "Inferred karyotypic sex";
+    public static final String INFERRED_SEX_VALUES_DESCRIPTION = "Inferred sex values";
+    public static final String INFERRED_SEX_IMAGES_DESCRIPTION = "List of images related to the inferred sex analysis";
+    public static final String INFERRED_SEX_ATTRIBUTES_DESCRIPTION = "Inferred sex attributes, e.g.: query, cli, files,...";
+
+    // Inferred sex
+    public static final String MENDELIAN_ERROR_NUM_ERRORS_DESCRIPTION = "Total number of errors";
+    public static final String MENDELIAN_ERROR_SAMPLE_AGGREGATION_DESCRIPTION = "Number of errors per sample (i.e., error aggregation)";
+    public static final String MENDELIAN_ERROR_IMAGES_DESCRIPTION = "List of images related to the mendelian error analysis";
+    public static final String MENDELIAN_ERROR_ATTRIBUTES_DESCRIPTION = "Mendelian error attributes, e.g.: query, cli, files,...";
 
     public static final String CLINICAL_ANALYST_ROLE_DESCRIPTION = "Analyst role";
     public static final String CLINICAL_ANALYST_ATTRIBUTES_DESCRIPTION = "Analyst attributes";
