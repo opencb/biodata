@@ -230,7 +230,7 @@ public class VariantNormalizerGenericTest extends GenericTest {
         return newVariant(position, position, ref, Arrays.asList(altsCsv.split(",")), "2");
     }
 
-    protected Variant newVariant(int start, int end, String ref, String altsCsv) {
+    protected Variant newVariant(int start, Integer end, String ref, String altsCsv) {
         return newVariant(start, end, ref, Arrays.asList(altsCsv.split(",")), "2");
     }
 
@@ -238,12 +238,16 @@ public class VariantNormalizerGenericTest extends GenericTest {
         return newVariant(position, position, ref, altsList, studyId);
     }
 
-    protected Variant newVariant(int start, int end, String ref, List<String> altsList, String studyId) {
+    protected Variant newVariant(int start, Integer end, String ref, List<String> altsList, String studyId) {
         return newVariantBuilder(start, end, ref, altsList, studyId).build();
     }
 
-    protected VariantBuilder newVariantBuilder(int position, int end, String ref, List<String> altsList, String studyId) {
-        return Variant.newBuilder("1", position, end, ref, String.join(",", altsList))
+    protected VariantBuilder newVariantBuilder(int position, Integer end, String ref, List<String> altsList, String studyId) {
+        return newVariantBuilder(position, end, ref, String.join(",", altsList), studyId);
+    }
+
+    protected VariantBuilder newVariantBuilder(int position, Integer end, String ref, String alts, String studyId) {
+        return Variant.newBuilder("1", position, end, ref, alts)
                 .setStudyId(studyId)
                 .setSampleDataKeys("GT")
                 .setSamples(new ArrayList<>())
