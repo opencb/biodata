@@ -39,7 +39,6 @@
     <properties>
         <!-- All dependency versions must be defined here -->
         <java-common-libs.version>6.0.0-SNAPSHOT</java-common-libs.version>
-
         <jackson.version>2.14.3</jackson.version>
         <collections.version>4.4</collections.version>
         <avro.version>1.7.7</avro.version>
@@ -199,6 +198,12 @@
                 <groupId>com.databricks</groupId>
                 <artifactId>SnpEff</artifactId>
                 <version>${SnpEff.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>distlib</groupId>
+                        <artifactId>distlib</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
