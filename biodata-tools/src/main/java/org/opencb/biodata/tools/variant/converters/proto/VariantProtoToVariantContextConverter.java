@@ -60,6 +60,7 @@ public class VariantProtoToVariantContextConverter extends VariantContextConvert
         int start = adjustedStartEndPositions.getLeft();
         int end = adjustedStartEndPositions.getRight();
         List<String> alleleList = buildAlleles(variant, adjustedStartEndPositions, referenceAlleles);
+        Set<String> duplicatedAlleles = getDuplicatedAlleles(chromosome, start, alleleList);
         boolean isNoVariation = type.equals(VariantProto.VariantType.NO_VARIATION);
 
         // ID
@@ -96,9 +97,9 @@ public class VariantProtoToVariantContextConverter extends VariantContextConvert
         // SAMPLES
         BiFunction<String, String, String> getSampleData = (sampleName, id) -> getSampleData(studyEntry, formatPositions, sampleName, id);
 
-        List<Genotype> genotypes = getGenotypes(alleleList, studyEntry.getSampleDataKeysList(), getSampleData);
+        List<Genotype> genotypes = getGenotypes(alleleList, studyEntry.getSampleDataKeysList(), getSampleData, duplicatedAlleles);
 
-        return makeVariantContext(chromosome, start, end, idForVcf, alleleList, isNoVariation, filters, qual, attributes, genotypes);
+        return makeVariantContext(chromosome, start, end, idForVcf, alleleList, isNoVariation, filters, qual, attributes, genotypes, duplicatedAlleles);
     }
 
     public String getSampleData(VariantProto.StudyEntry studyEntry, Map<String, Integer> formatPositions, String sampleName, String field) {

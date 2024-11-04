@@ -63,6 +63,7 @@ public class VariantAvroToVariantContextConverter extends VariantContextConverte
         int start = adjustedStartEndPositions.getLeft();
         int end = adjustedStartEndPositions.getRight();
         List<String> alleleList = buildAlleles(variant, adjustedStartEndPositions, referenceAlleles);
+        Set<String> duplicatedAlleles = getDuplicatedAlleles(chromosome, start, alleleList);
         boolean isNoVariation = type.equals(VariantType.NO_VARIATION);
 
         // ID
@@ -102,9 +103,9 @@ public class VariantAvroToVariantContextConverter extends VariantContextConverte
         }
 
         // SAMPLES
-        List<Genotype> genotypes = getGenotypes(alleleList, studyEntry.getSampleDataKeys(), getSampleData);
+        List<Genotype> genotypes = getGenotypes(alleleList, studyEntry.getSampleDataKeys(), getSampleData, duplicatedAlleles);
 
-        return makeVariantContext(chromosome, start, end, idForVcf, alleleList, isNoVariation, filters, qual, attributes, genotypes);
+        return makeVariantContext(chromosome, start, end, idForVcf, alleleList, isNoVariation, filters, qual, attributes, genotypes, duplicatedAlleles);
     }
 
     /**

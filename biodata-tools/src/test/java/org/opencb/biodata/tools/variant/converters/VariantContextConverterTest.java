@@ -1,23 +1,27 @@
 package org.opencb.biodata.tools.variant.converters;
 
-import org.apache.commons.lang3.StringUtils;
+import htsjdk.variant.variantcontext.VariantContext;
+import htsjdk.variant.variantcontext.writer.Options;
+import htsjdk.variant.variantcontext.writer.VariantContextWriter;
+import htsjdk.variant.vcf.VCFHeader;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
+import org.opencb.biodata.formats.variant.vcf4.VcfUtils;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
-import org.opencb.biodata.models.variant.avro.FileEntry;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.biodata.tools.variant.VariantNormalizer;
 import org.opencb.biodata.tools.variant.converters.avro.VariantAvroToVariantContextConverter;
+import org.opencb.biodata.tools.variant.merge.VariantMerger;
 
+import java.io.ByteArrayOutputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * Created on 29/11/17.
@@ -25,6 +29,51 @@ import static org.junit.Assert.assertNotNull;
  * @author Jacobo Coll &lt;jacobo167@gmail.com&gt;
  */
 public class VariantContextConverterTest {
+
+    @Test
+    public void testDuplicatedAllele() throws NonStandardCompliantSampleField {
+        String studyId = "s";
+        Variant variant = Variant.newBuilder("1", 1000, null, "AGTATATTGT", "A")
+                .setStudyId(studyId)
+                .setSampleDataKeys("GT", "AD")
+                .addSample("s1", "1/1", "10,10")
+                .addSample("s2", "0/1", "0,10")
+                .build();
+        Variant variant2 = Variant.newBuilder("1", 1002, null, "TATATTGTGT", "TT,T")
+                .setStudyId(studyId)
+                .setSampleDataKeys("GT", "AD")
+                .addSample("s3", "0/2", "1,1,10")
+                .addSample("s4", "1/1", "1,10,1")
+                .build();
+
+
+        Variant normalized = new VariantNormalizer().normalize(Collections.singletonList(variant), false).get(0);
+        Variant normalized2 = new VariantNormalizer().normalize(Collections.singletonList(variant2), false).get(0);
+
+        Variant merged = new VariantMerger().merge(normalized, normalized2);
+
+//        System.out.println("merged = " + merged.toJson());
+
+        // Convert to VariantContext
+        List<String> sampleNames = merged.getSampleNames(studyId);
+        VariantAvroToVariantContextConverter converter = new VariantAvroToVariantContextConverter(studyId, sampleNames, Collections.emptyList());
+        VariantContext context = converter.convert(merged);
+
+//        System.out.println("context = " + context);
+
+        // Print as VCF
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        VariantContextWriter writer = VcfUtils.createVariantContextWriter(os, null, Options.ALLOW_MISSING_FIELDS_IN_HEADER);
+        writer.setHeader(new VCFHeader(Collections.emptySet(), sampleNames));
+        writer.add(context);
+        writer.close();
+        System.out.println(os);
+        assertArrayEquals(new String[]{"1", "1000", ".", "AGTATATTGTG", "AG,AGT", ".", ".", ".", "GT:AD",
+                "1/1:10,10,0",
+                "0/1:0,10,0",
+                "0/1:1,10,1",
+                "2/2:1,1,10"}, os.toString().trim().split("\t"));
+    }
 
     @Test
     public void adjustedVariantStart() throws Exception {

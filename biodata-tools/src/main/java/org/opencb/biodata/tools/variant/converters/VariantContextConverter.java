@@ -27,7 +27,10 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.tools.commons.Converter;
+import org.opencb.biodata.tools.variant.converters.avro.VariantAvroToVariantContextConverter;
 import org.opencb.commons.datastore.core.ObjectMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.DecimalFormat;
 import java.util.*;
@@ -38,6 +41,7 @@ import java.util.stream.Collectors;
  * Created by jtarraga on 07/02/17.
  */
 public abstract class VariantContextConverter<T> implements Converter<T, VariantContext> {
+    private final Logger logger = LoggerFactory.getLogger(VariantAvroToVariantContextConverter.class);
 
     public static final DecimalFormat DECIMAL_FORMAT_7 = new DecimalFormat("#.#######");
     public static final DecimalFormat DECIMAL_FORMAT_3 = new DecimalFormat("#.###");
@@ -246,7 +250,7 @@ public abstract class VariantContextConverter<T> implements Converter<T, Variant
                         }
                     } catch (NumberFormatException e) {
                         // Nothing to do
-                        e.getMessage();
+                        logger.warn("Invalid QUAL value found: " + attrs.get(StudyEntry.QUAL));
                     }
                 }
             }
@@ -254,9 +258,10 @@ public abstract class VariantContextConverter<T> implements Converter<T, Variant
         return (qual == Double.MAX_VALUE ? VariantContext.NO_LOG10_PERROR : (-0.1 * qual));
     }
 
-    protected List<Genotype> getGenotypes(List<String> alleleList, List<String> sampleDataKeys, BiFunction<String, String, String> getSampleData) {
+    protected List<Genotype> getGenotypes(List<String> alleleList, List<String> sampleDataKeys, BiFunction<String, String, String> getSampleData, Set<String> duplicatedAlleles) {
         String refAllele = alleleList.get(0);
         Set<Integer> noCallAlleles = getNoCallAlleleIdx(alleleList);
+        Map<String, Integer> finalAlleleMap = getDedupAlleleMap(alleleList);
 
         List<Genotype> genotypes = new ArrayList<>();
         if (this.sampleNames != null) {
@@ -289,6 +294,14 @@ public abstract class VariantContextConverter<T> implements Converter<T, Variant
                         case "AD":
                             if (StringUtils.isNotEmpty(value) && !value.equals(".")) {
                                 int[] ad = getInts(value);
+                                if (!duplicatedAlleles.isEmpty() && ad.length == alleleList.size()) {
+                                    int[] finalAD = new int[finalAlleleMap.size()];
+                                    for (int i = 0; i < ad.length; i++) {
+                                        finalAD[finalAlleleMap.get(alleleList.get(i))] += ad[i];
+                                    }
+                                    genotypeBuilder.AD(finalAD);
+                                    ad = finalAD;
+                                }
                                 genotypeBuilder.AD(ad);
                             } else {
                                 genotypeBuilder.noAD();
@@ -341,7 +354,7 @@ public abstract class VariantContextConverter<T> implements Converter<T, Variant
         return ints;
     }
 
-    protected VariantContext makeVariantContext(String chromosome, int start, int end, String idForVcf, List<String> alleleList, boolean isNoVariation, Set<String> filters, double qual, ObjectMap attributes, List<Genotype> genotypes) {
+    protected VariantContext makeVariantContext(String chromosome, int start, int end, String idForVcf, List<String> alleleList, boolean isNoVariation, Set<String> filters, double qual, ObjectMap attributes, List<Genotype> genotypes, Set<String> duplicatedAlleles) {
         String refAllele = alleleList.get(0);
         VariantContextBuilder variantContextBuilder = new VariantContextBuilder()
                 .chr(chromosome)
@@ -355,7 +368,12 @@ public abstract class VariantContextConverter<T> implements Converter<T, Variant
         if (isNoVariation && alleleList.get(1).isEmpty()) {
             variantContextBuilder.alleles(refAllele);
         } else {
-            variantContextBuilder.alleles(alleleList.stream().filter(a -> !a.equals(NO_CALL_ALLELE)).collect(Collectors.toList()));
+            List<String> finalAlleles = alleleList.stream()
+                    .filter(a -> !a.equals(NO_CALL_ALLELE))
+                    .collect(Collectors.toList());
+            // Remove first occurrence of duplicated allele
+            duplicatedAlleles.forEach(finalAlleles::remove);
+            variantContextBuilder.alleles(finalAlleles);
         }
 
         if (genotypes.isEmpty()) {
@@ -370,6 +388,34 @@ public abstract class VariantContextConverter<T> implements Converter<T, Variant
         variantContextBuilder.id(idForVcf);
 
         return variantContextBuilder.make();
+    }
+
+    protected Map<String, Integer> getDedupAlleleMap(List<String> alleleList) {
+        Map<String, Integer> finalAlleleIdxMap = new HashMap<>();
+        for (String allele : alleleList) {
+            // Assign an index to each unique allele
+            finalAlleleIdxMap.putIfAbsent(allele, finalAlleleIdxMap.size());
+        }
+        return finalAlleleIdxMap;
+    }
+
+    protected Set<String> getDuplicatedAlleles(String chromosome, int start, List<String> alleleList) {
+        Set<String> duplicatedAlleles;
+        if (alleleList.size() > 2 && new HashSet<>(alleleList).size() != alleleList.size()) {
+            Set<String> allelesSet = new HashSet<>();
+
+            duplicatedAlleles = new HashSet<>();
+            for (String allele : alleleList) {
+                if (!allelesSet.add(allele)) {
+                    duplicatedAlleles.add(allele);
+                }
+            }
+            logger.warn("Duplicated alleles found in variant " + chromosome + ":" + start + " : Denormalized alleles" + alleleList
+                    + " , duplicated alleles: " + duplicatedAlleles);
+        } else {
+            duplicatedAlleles = Collections.emptySet();
+        }
+        return duplicatedAlleles;
     }
 
     protected abstract Object getStudy(T variant);
