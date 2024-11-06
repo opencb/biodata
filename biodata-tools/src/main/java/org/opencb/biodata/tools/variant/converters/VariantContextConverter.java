@@ -27,7 +27,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.tools.commons.Converter;
-import org.opencb.biodata.tools.variant.converters.avro.VariantAvroToVariantContextConverter;
 import org.opencb.commons.datastore.core.ObjectMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +40,7 @@ import java.util.stream.Collectors;
  * Created by jtarraga on 07/02/17.
  */
 public abstract class VariantContextConverter<T> implements Converter<T, VariantContext> {
-    private final Logger logger = LoggerFactory.getLogger(VariantAvroToVariantContextConverter.class);
+    private final Logger logger = LoggerFactory.getLogger(VariantContextConverter.class);
 
     public static final DecimalFormat DECIMAL_FORMAT_7 = new DecimalFormat("#.#######");
     public static final DecimalFormat DECIMAL_FORMAT_3 = new DecimalFormat("#.###");
@@ -152,8 +151,7 @@ public abstract class VariantContextConverter<T> implements Converter<T, Variant
     protected static String getReferenceBase(String chromosome, int from, int to, Map<Integer, Character> referenceAlleles) {
         int length = to - from;
         if (length < 0) {
-            throw new IllegalStateException(
-                    "Sequence length is negative: chromosome " + chromosome + " from " + from + " to " + to);
+            return "";
         }
         StringBuilder sb = new StringBuilder(length);
         for (int i = from; i < to; i++) {
@@ -258,10 +256,9 @@ public abstract class VariantContextConverter<T> implements Converter<T, Variant
         return (qual == Double.MAX_VALUE ? VariantContext.NO_LOG10_PERROR : (-0.1 * qual));
     }
 
-    protected List<Genotype> getGenotypes(List<String> alleleList, List<String> sampleDataKeys, BiFunction<String, String, String> getSampleData, Set<String> duplicatedAlleles) {
+    protected List<Genotype> getGenotypes(List<String> alleleList, List<String> sampleDataKeys, BiFunction<String, String, String> getSampleData, Set<Integer> discardedAlleles) {
         String refAllele = alleleList.get(0);
         Set<Integer> noCallAlleles = getNoCallAlleleIdx(alleleList);
-        Map<String, Integer> finalAlleleMap = getDedupAlleleMap(alleleList);
 
         List<Genotype> genotypes = new ArrayList<>();
         if (this.sampleNames != null) {
@@ -270,7 +267,7 @@ public abstract class VariantContextConverter<T> implements Converter<T, Variant
                 sampleDataKeys = this.sampleFormats;
             }
 
-            for (String sampleName : this.sampleNames) {
+            samplesLoop: for (String sampleName : this.sampleNames) {
                 GenotypeBuilder genotypeBuilder = new GenotypeBuilder().name(sampleName);
                 for (String key : sampleDataKeys) {
                     String value = getSampleData.apply(sampleName, key);
@@ -284,7 +281,20 @@ public abstract class VariantContextConverter<T> implements Converter<T, Variant
                             List<Allele> alleles = new ArrayList<>();
                             for (int gtIdx : genotype.getAllelesIdx()) {
                                 if (gtIdx < alleleList.size() && gtIdx >= 0 && !noCallAlleles.contains(gtIdx)) { // .. AND NOT a nocall allele
-                                    alleles.add(Allele.create(alleleList.get(gtIdx), gtIdx == 0)); // allele is ref. if the alleleIndex is 0
+                                    String alternate = alleleList.get(gtIdx);
+                                    if (discardedAlleles.contains(gtIdx)) {
+                                        // If this genotype contains a duplicated allele, and it is not the first occurrence, skip it
+                                        logger.warn("Skipping allele '" + alleleToString(alternate) + "' for sample '" + sampleName + "'");
+                                        genotypes.add(new GenotypeBuilder().name(sampleName)
+                                                .alleles(Arrays.asList(
+                                                        Allele.create(NO_CALL_ALLELE, false),
+                                                        Allele.create(NO_CALL_ALLELE, false)
+                                                )).make()
+                                        );
+                                        // skip the rest of the sample data
+                                        continue samplesLoop;
+                                    }
+                                    alleles.add(Allele.create(alternate, gtIdx == 0)); // allele is ref. if the alleleIndex is 0
                                 } else {
                                     alleles.add(Allele.create(NO_CALL_ALLELE, false)); // genotype of a secondary alternate, or an actual missing
                                 }
@@ -294,14 +304,6 @@ public abstract class VariantContextConverter<T> implements Converter<T, Variant
                         case "AD":
                             if (StringUtils.isNotEmpty(value) && !value.equals(".")) {
                                 int[] ad = getInts(value);
-                                if (!duplicatedAlleles.isEmpty() && ad.length == alleleList.size()) {
-                                    int[] finalAD = new int[finalAlleleMap.size()];
-                                    for (int i = 0; i < ad.length; i++) {
-                                        finalAD[finalAlleleMap.get(alleleList.get(i))] += ad[i];
-                                    }
-                                    genotypeBuilder.AD(finalAD);
-                                    ad = finalAD;
-                                }
                                 genotypeBuilder.AD(ad);
                             } else {
                                 genotypeBuilder.noAD();
@@ -354,7 +356,9 @@ public abstract class VariantContextConverter<T> implements Converter<T, Variant
         return ints;
     }
 
-    protected VariantContext makeVariantContext(String chromosome, int start, int end, String idForVcf, List<String> alleleList, boolean isNoVariation, Set<String> filters, double qual, ObjectMap attributes, List<Genotype> genotypes, Set<String> duplicatedAlleles) {
+    protected VariantContext makeVariantContext(String chromosome, int start, int end, String idForVcf, List<String> alleleList,
+                                                boolean isNoVariation, Set<String> filters, double qual, ObjectMap attributes,
+                                                List<Genotype> genotypes, Set<Integer> discardedAlleles) {
         String refAllele = alleleList.get(0);
         VariantContextBuilder variantContextBuilder = new VariantContextBuilder()
                 .chr(chromosome)
@@ -368,11 +372,14 @@ public abstract class VariantContextConverter<T> implements Converter<T, Variant
         if (isNoVariation && alleleList.get(1).isEmpty()) {
             variantContextBuilder.alleles(refAllele);
         } else {
-            List<String> finalAlleles = alleleList.stream()
+            List<String> finalAlleles = new ArrayList<>(alleleList);
+            for (Integer i : discardedAlleles) {
+                finalAlleles.set(i, null);
+            }
+            finalAlleles = finalAlleles.stream()
+                    .filter(Objects::nonNull)
                     .filter(a -> !a.equals(NO_CALL_ALLELE))
                     .collect(Collectors.toList());
-            // Remove first occurrence of duplicated allele
-            duplicatedAlleles.forEach(finalAlleles::remove);
             variantContextBuilder.alleles(finalAlleles);
         }
 
@@ -382,24 +389,35 @@ public abstract class VariantContextConverter<T> implements Converter<T, Variant
             variantContextBuilder.genotypes(genotypes);
         }
 
-
+        if (isSymbolic(alleleList.get(1))) {
+            attributes.append(VCFConstants.END_KEY, end);
+        }
         variantContextBuilder.attributes(attributes);
 
         variantContextBuilder.id(idForVcf);
 
-        return variantContextBuilder.make();
-    }
-
-    protected Map<String, Integer> getDedupAlleleMap(List<String> alleleList) {
-        Map<String, Integer> finalAlleleIdxMap = new HashMap<>();
-        for (String allele : alleleList) {
-            // Assign an index to each unique allele
-            finalAlleleIdxMap.putIfAbsent(allele, finalAlleleIdxMap.size());
+        try {
+            return variantContextBuilder.make();
+        } catch (RuntimeException e) {
+            throw new IllegalArgumentException(
+                    "Error creating VariantContext: " + chromosome + ":" + start + "-" + end + ":" + alleleList, e);
         }
-        return finalAlleleIdxMap;
     }
 
-    protected Set<String> getDuplicatedAlleles(String chromosome, int start, List<String> alleleList) {
+    /**
+     * Check if the allele is a symbolic allele other than <NON_REF> or <*>
+     * @param allele   Allele
+     * @return True if the allele is a symbolic allele
+     */
+    protected static boolean isSymbolic(String allele) {
+        return allele.startsWith("<") && allele.endsWith(">") && !isNonRef(allele);
+    }
+
+    protected static boolean isNonRef(String allele) {
+        return allele.equals(Allele.NON_REF_STRING) || allele.equals(Allele.UNSPECIFIED_ALTERNATE_ALLELE_STRING);
+    }
+
+    protected Set<String> getDuplicatedAlleles(List<String> alleleList) {
         Set<String> duplicatedAlleles;
         if (alleleList.size() > 2 && new HashSet<>(alleleList).size() != alleleList.size()) {
             Set<String> allelesSet = new HashSet<>();
@@ -410,8 +428,6 @@ public abstract class VariantContextConverter<T> implements Converter<T, Variant
                     duplicatedAlleles.add(allele);
                 }
             }
-            logger.warn("Duplicated alleles found in variant " + chromosome + ":" + start + " : Denormalized alleles" + alleleList
-                    + " , duplicated alleles: " + duplicatedAlleles);
         } else {
             duplicatedAlleles = Collections.emptySet();
         }
@@ -421,4 +437,15 @@ public abstract class VariantContextConverter<T> implements Converter<T, Variant
     protected abstract Object getStudy(T variant);
 
     protected abstract Iterator<String> getStudiesId(T variant);
+
+    protected static String allelesToString(Collection<String> alleles) {
+        return alleles.stream()
+                .map(VariantContextConverter::alleleToString)
+                .collect(Collectors.joining(","));
+    }
+
+    private static String alleleToString(String a) {
+        return a.length() > 10 ? (a.substring(0, 10) + "...[" + a.length() + "]") : a;
+    }
+
 }

@@ -4,6 +4,7 @@ import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.variantcontext.writer.Options;
 import htsjdk.variant.variantcontext.writer.VariantContextWriter;
 import htsjdk.variant.vcf.VCFHeader;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
 import org.opencb.biodata.formats.variant.vcf4.VcfUtils;
@@ -46,33 +47,101 @@ public class VariantContextConverterTest {
                 .addSample("s4", "1/1", "1,10,1")
                 .build();
 
+        checkVcf("1 1000 . AGTATATTGT A,AGT . . . GT:AD  1/1:10,10,0,0 0/1:0,10,0,0   ./.:.        2/2:1,0,1,10", merge(norm(variant), norm(variant2)));
+        checkVcf("1 1001 . GTATATTGTG G,GT  . . . GT:AD  ./.:.         ./.:.          0/1:1,10,1,0 2/2:1,1,10,0", merge(norm(variant2), norm(variant)));
+        checkVcf("1 1000 . AGTATATTGT A,AGT . . . GT:AD  1/1:10,10,0,0 0/1:0,10,0,0   ./.:.        2/2:1,0,1,10", merge(norm(variant), norm(variant2, 1)));
+    }
 
-        Variant normalized = new VariantNormalizer().normalize(Collections.singletonList(variant), false).get(0);
-        Variant normalized2 = new VariantNormalizer().normalize(Collections.singletonList(variant2), false).get(0);
+    @Test
+    public void testDuplicatedAlleleSV() throws NonStandardCompliantSampleField {
+        Variant variant1 = Variant.newBuilder("1", 1000, 1020, "A", "<DEL>")
+                .setStudyId("s")
+                .setSampleDataKeys("GT", "AD")
+                .addSample("s1", "1/1", "10,10")
+                .addSample("s2", "0/1", "0,10")
+                .build();
+        Variant variant2 = Variant.newBuilder("1", 1002, 1022, "T", "<DEL>")
+                .setStudyId("s")
+                .setSampleDataKeys("GT", "AD")
+                .addSample("s3", "0/1", "1,10")
+                .addSample("s4", "1/1", "10,1")
+                .build();
+        Variant variantDup = Variant.newBuilder("1", 1002, 1022, "T", "<DUP>")
+                .setStudyId("s")
+                .setSampleDataKeys("GT", "AD")
+                .addSample("s3", "0/1", "1,10")
+                .addSample("s4", "1/1", "10,1")
+                .build();
+        Variant variantDupMatch = Variant.newBuilder("1", 1000, 1020, "T", "<DUP>")
+                .setStudyId("s")
+                .setSampleDataKeys("GT", "AD")
+                .addSample("s3", "0/1", "1,10")
+                .addSample("s4", "1/1", "10,1")
+                .build();
+        Variant variant3 = Variant.newBuilder("1", 1002, null, "TATATTGTGT", "TT,T")
+                .setStudyId("s")
+                .setSampleDataKeys("GT", "AD")
+                .addSample("s5", "0/2", "1,1,10")
+                .addSample("s6", "1/1", "1,10,1")
+                .build();
 
-        Variant merged = new VariantMerger().merge(normalized, normalized2);
+        checkVcf("1 1000 . A <DEL> . . END=1020 GT:AD 1/1:10,10 0/1:0,10", variant1);
+        checkVcf("1 1002 . T <DEL> . . END=1022 GT:AD 0/1:1,10 1/1:10,1", variant2);
+        checkVcf("1 1002 . TATATTGTGT TT,T . . . GT:AD 0/2:1,1,10 1/1:1,10,1", variant3);
+        checkVcf("1 1002 . T <DUP> . . END=1022 GT:AD 0/1:1,10 1/1:10,1", variantDup);
+        checkVcf("1 1000 . T <DUP> . . END=1020 GT:AD 0/1:1,10 1/1:10,1", variantDupMatch);
+        checkVcf("variant1 + variant2",       "1 1000 . A <DEL> . . END=1020 GT:AD 1/1:10,10,0 0/1:0,10,0 ./.:. ./.:.", merge(norm(variant1), norm(variant2)));
+        checkVcf("variant2 + variant1",       "1 1002 . T <DEL> . . END=1022 GT:AD ./.:. ./.:. 0/1:1,10,0 1/1:10,1,0", merge(norm(variant2), norm(variant1)));
+        checkVcf("variant2 + variant3",       "1 1002 . T <DEL> . . END=1022 GT:AD 0/1:1,10,0,0 1/1:10,1,0,0 ./.:. ./.:.", merge(norm(variant2), norm(variant3)));
+        checkVcf("variant3 + variant2",       "1 1002 . TATATTGTGT T,TT  . . . GT:AD ./.:. ./.:. 0/1:1,10,1,0 2/2:1,1,10,0", merge(norm(variant3), norm(variant2)));
+        checkVcf("variant1 + variantDup",     "1 1000 . A <DEL> . . END=1020 GT:AD 1/1:10,10,0 0/1:0,10,0 ./.:. ./.:.", merge(norm(variant1), norm(variantDup)));
+        checkVcf("variant1 + variantDupMatch","1 1000 . A <DEL>,<DUP> . . END=1020 GT:AD 1/1:10,10,0 0/1:0,10,0 0/2:1,0,10 2/2:10,0,1", merge(norm(variant1), norm(variantDupMatch)));
+    }
 
-//        System.out.println("merged = " + merged.toJson());
+    public void checkVcf(String expectedVcf, Variant variant) {
+        checkVcf(null, expectedVcf, variant);
+    }
+    public void checkVcf(String message, String expectedVcf, Variant variant) {
+        if (message == null) {
+            message = variant.toString();
+        }
+        String vcf = toVcf(variant).replace("\n", "");
+//        System.out.println(message + " = " + vcf.replace("\t", " "));
+        expectedVcf = expectedVcf.replaceAll(" +", " ");
+        assertEquals(message, expectedVcf.replace(" ", "\t"), vcf);
+    }
 
-        // Convert to VariantContext
-        List<String> sampleNames = merged.getSampleNames(studyId);
+    private static Variant merge(Variant variant, Variant variant2) {
+        return new VariantMerger().merge(variant, variant2);
+    }
+
+    private static VariantContext toContext(Variant variant) {
+        String studyId = variant.getStudies().get(0).getStudyId();
+        List<String> sampleNames = variant.getSampleNames(studyId);
         VariantAvroToVariantContextConverter converter = new VariantAvroToVariantContextConverter(studyId, sampleNames, Collections.emptyList());
-        VariantContext context = converter.convert(merged);
+        VariantContext context = converter.convert(variant);
+        return context;
+    }
 
-//        System.out.println("context = " + context);
+    private static String toVcf(Variant variant) {
+        return toVcf(toContext(variant));
+    }
 
-        // Print as VCF
+    private static String toVcf(VariantContext context) {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         VariantContextWriter writer = VcfUtils.createVariantContextWriter(os, null, Options.ALLOW_MISSING_FIELDS_IN_HEADER);
-        writer.setHeader(new VCFHeader(Collections.emptySet(), sampleNames));
+        writer.setHeader(new VCFHeader(Collections.emptySet(), context.getSampleNamesOrderedByName()));
         writer.add(context);
         writer.close();
-        System.out.println(os);
-        assertArrayEquals(new String[]{"1", "1000", ".", "AGTATATTGTG", "AG,AGT", ".", ".", ".", "GT:AD",
-                "1/1:10,10,0",
-                "0/1:0,10,0",
-                "0/1:1,10,1",
-                "2/2:1,1,10"}, os.toString().trim().split("\t"));
+        return os.toString();
+    }
+
+    private static Variant norm(Variant variant) throws NonStandardCompliantSampleField {
+        return norm(variant, 0);
+    }
+
+    private static Variant norm(Variant variant, int idx) throws NonStandardCompliantSampleField {
+        return new VariantNormalizer().normalize(Collections.singletonList(variant), false).get(idx);
     }
 
     @Test
@@ -128,7 +197,7 @@ public class VariantContextConverterTest {
                         .map(entry -> entry.getCall() == null ? null : entry.getCall().getVariantId())
                         .iterator());
 
-        Pair<Integer, Integer> adjustedRange = VariantAvroToVariantContextConverter.adjustedVariantStart(v, v.getStudy("S"), referenceMap);
+        Pair<Integer, Integer> adjustedRange = VariantAvroToVariantContextConverter.adjustedVariantStart(v, v.getStudy("S"), referenceMap, Collections.emptySet());
         System.out.println("");
         System.out.println(varStr + " -> " + v + " ( " + normalized.stream().map(Object::toString).collect(Collectors.joining(" , ")) + " )");
         System.out.println(adjustedRange);
