@@ -161,7 +161,6 @@ public class VariantAvroToVariantContextConverter extends VariantContextConverte
         for (AlternateCoordinate alternateCoordinate : study.getSecondaryAlternates()) {
             if (discardedAlleles.contains(alleleIdx)) {
                 // Do not adjust start/end based on discarded alleles
-                continue;
             } else {
                 int alternateStart = alternateCoordinate.getStart() == null ? variant.getStart() : alternateCoordinate.getStart().intValue();
                 int alternateEnd = alternateCoordinate.getEnd() == null ? variant.getEnd() : alternateCoordinate.getEnd().intValue();

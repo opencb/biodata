@@ -6,10 +6,12 @@ import htsjdk.variant.variantcontext.writer.VariantContextWriter;
 import htsjdk.variant.vcf.VCFHeader;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
 import org.opencb.biodata.formats.variant.vcf4.VcfUtils;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.AlternateCoordinate;
+import org.opencb.biodata.models.variant.avro.VariantAvro;
 import org.opencb.biodata.models.variant.avro.VariantType;
 import org.opencb.biodata.models.variant.exceptions.NonStandardCompliantSampleField;
 import org.opencb.biodata.tools.variant.VariantNormalizer;
@@ -17,7 +19,9 @@ import org.opencb.biodata.tools.variant.converters.avro.VariantAvroToVariantCont
 import org.opencb.biodata.tools.variant.merge.VariantMerger;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -53,7 +57,7 @@ public class VariantContextConverterTest {
     }
 
     @Test
-    public void testDuplicatedAlleleSV() throws NonStandardCompliantSampleField {
+    public void testDuplicatedAlleleSV() throws NonStandardCompliantSampleField, IOException {
         Variant variant1 = Variant.newBuilder("1", 1000, 1020, "A", "<DEL>")
                 .setStudyId("s")
                 .setSampleDataKeys("GT", "AD")
@@ -96,6 +100,37 @@ public class VariantContextConverterTest {
         checkVcf("variant3 + variant2",       "1 1002 . TATATTGTGT T,TT  . . . GT:AD ./.:. ./.:. 0/1:1,10,1,0 2/2:1,1,10,0", merge(norm(variant3), norm(variant2)));
         checkVcf("variant1 + variantDup",     "1 1000 . A <DEL> . . END=1020 GT:AD 1/1:10,10,0 0/1:0,10,0 ./.:. ./.:.", merge(norm(variant1), norm(variantDup)));
         checkVcf("variant1 + variantDupMatch","1 1000 . A <DEL>,<DUP> . . END=1020 GT:AD 1/1:10,10,0 0/1:0,10,0 0/2:1,0,10 2/2:10,0,1", merge(norm(variant1), norm(variantDupMatch)));
+    }
+
+    @Test
+    public void testNonNullAllele() throws IOException {
+
+        String jsonVariant = "{\"id\": \"11:555177:G:A\", \"names\": [], \"chromosome\": \"11\", \"start\": 555177, \"end\": 555177," +
+                " \"reference\": \"G\", \"alternate\": \"A\", \"strand\": \"+\", \"sv\": null, \"length\": 1, \"type\": \"SNV\", " +
+                "\"studies\": [{\"studyId\": \"test@HG38:SJD-hg38\", " +
+                "\"files\": [" +
+                "{\"fileId\": \"f1.vcf.gz\", \"call\": null, \"data\": {\"FILTER\": \"PASS\", \"QUAL\": \"30.0\"}}, " +
+                "{\"fileId\": \"f2.vcf.gz\", \"call\": {\"variantId\": \"11:555177:GA:-\", \"alleleIndex\": 0}, \"data\": {}}, " +
+//                    "{\"fileId\": \"f2.vcf.gz\", \"call\": {\"variantId\": \"11:555176:GGA:G\", \"alleleIndex\": 0}, \"data\": {}}, " +
+                "{\"fileId\": \"f3.vcf.gz\", \"call\": {\"variantId\": \"11:554942-556408:-:<DEL>\", \"alleleIndex\": 0}, \"data\": {}}]," +
+                " \"secondaryAlternates\": [" +
+                "{\"chromosome\": \"11\", \"start\": 554942, \"end\": 556408, \"reference\": \"\", \"alternate\": \"<DEL>\", \"type\": \"DELETION\"}, " +
+                "{\"chromosome\": \"11\", \"start\": 555177, \"end\": 555178, \"reference\": \"GA\", \"alternate\": \"\", \"type\": \"INDEL\"}]," +
+                " \"sampleDataKeys\": [\"GT\"], " +
+                "\"samples\": [" +
+                "{\"sampleId\": null, \"fileIndex\": 0, \"data\": [\"0/1\"]}, " +
+                "{\"sampleId\": null, \"fileIndex\": null, \"data\": [\"0/2\"]}, " +
+                "{\"sampleId\": null, \"fileIndex\": null, \"data\": [\"3/3\"]}], " +
+                "\"issues\": [], \"stats\": [], \"scores\": []}], \"annotation\": null}";
+        Variant variant4 = new Variant(new ObjectMapper().readValue(jsonVariant, VariantAvro.class));
+
+        HashMap<String, Integer> samplesPosition = new HashMap<>();
+        samplesPosition.put("s1", 0);
+        samplesPosition.put("s2", 1);
+        samplesPosition.put("s3", 2);
+        variant4.getStudies().get(0).setSamplesPosition(samplesPosition);
+
+        checkVcf("11   555176  .  NGA  NAA,N  30  PASS  .  GT  0/1  ./.  2/2", variant4);
     }
 
     public void checkVcf(String expectedVcf, Variant variant) {
