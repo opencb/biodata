@@ -37,6 +37,11 @@ public class VariantContextConverterTest {
 
     @Test
     public void testDuplicatedAllele() throws NonStandardCompliantSampleField {
+        // REF :                         AGTATATTGTGT      AGTATATTGTG
+        // V1  :  1000:AGTATATTGT/A      A---------GT  ->  A---------G  ->  AG
+        // V2  :  1002:TATATTGTGT/TT     AGT--------T  ->  AGT--------  ->  AGT
+        // V3  :  1002:TATATTGTGT/T      AG---------T  ->  AG---------  ->  AG
+
         String studyId = "s";
         Variant variant = Variant.newBuilder("1", 1000, null, "AGTATATTGT", "A")
                 .setStudyId(studyId)
@@ -51,9 +56,9 @@ public class VariantContextConverterTest {
                 .addSample("s4", "1/1", "1,10,1")
                 .build();
 
-        checkVcf("1 1000 . AGTATATTGT A,AGT . . . GT:AD  1/1:10,10,0,0 0/1:0,10,0,0   ./.:.        2/2:1,0,1,10", merge(norm(variant), norm(variant2)));
-        checkVcf("1 1001 . GTATATTGTG G,GT  . . . GT:AD  ./.:.         ./.:.          0/1:1,10,1,0 2/2:1,1,10,0", merge(norm(variant2), norm(variant)));
-        checkVcf("1 1000 . AGTATATTGT A,AGT . . . GT:AD  1/1:10,10,0,0 0/1:0,10,0,0   ./.:.        2/2:1,0,1,10", merge(norm(variant), norm(variant2, 1)));
+        checkVcf("1 1000 . AGTATATTGTG  AG,AGT . . . GT:AD  1/1:10,10,0,0 0/1:0,10,0,0   ./.:.        2/2:1,0,1,10", merge(norm(variant), norm(variant2)));
+        checkVcf("1 1001 . GTATATTGTG   G,GT   . . . GT:AD  ./.:.         ./.:.          0/1:1,10,1,0 2/2:1,1,10,0", merge(norm(variant2), norm(variant)));
+        checkVcf("1 1000 . AGTATATTGTG  AG,AGT . . . GT:AD  1/1:10,10,0,0 0/1:0,10,0,0   ./.:.        2/2:1,0,1,10", merge(norm(variant), norm(variant2, 1)));
     }
 
     @Test

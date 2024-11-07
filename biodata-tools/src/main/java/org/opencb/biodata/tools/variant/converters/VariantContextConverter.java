@@ -445,7 +445,7 @@ public abstract class VariantContextConverter<T> implements Converter<T, Variant
     }
 
     private static String alleleToString(String a) {
-        return a.length() > 10 ? (a.substring(0, 10) + "...[" + a.length() + "]") : a;
+        return a.length() > 20 ? (a.substring(0, 10) + "...[" + a.length() + "]") : a;
     }
 
 }
