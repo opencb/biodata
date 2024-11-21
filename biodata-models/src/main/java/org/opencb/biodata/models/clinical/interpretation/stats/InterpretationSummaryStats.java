@@ -24,14 +24,14 @@ import java.util.Map;
 
 public class InterpretationSummaryStats {
 
-    private Map<String, Integer> evidenceTranscriptCounts;
-    private Map<String, Integer> evidenceGeneNameCounts;
-    private Map<String, Integer> evidenceModeOfInheritanceCounts;
-    private Map<String, Integer> evidencePanelCounts;
-    private Map<String, Integer> evidenceReviewTierCounts;
-    private Map<String, Integer> evidenceReviewAcmgCounts;
-    private Map<String, Integer> evidenceReviewClinicalSignificanceCounts;
-    private Map<String, Integer> evidenceClassificationAcmgCounts;
+    private Map<String, Long> evidenceTranscriptCounts;
+    private Map<String, Long> evidenceGeneNameCounts;
+    private Map<String, Long> evidenceModeOfInheritanceCounts;
+    private Map<String, Long> evidencePanelCounts;
+    private Map<String, Long> evidenceReviewTierCounts;
+    private Map<String, Long> evidenceReviewAcmgCounts;
+    private Map<String, Long> evidenceReviewClinicalSignificanceCounts;
+    private Map<String, Long> evidenceClassificationAcmgCounts;
 
     public InterpretationSummaryStats() {
         this.evidenceTranscriptCounts = new HashMap<>();
@@ -44,11 +44,11 @@ public class InterpretationSummaryStats {
         this.evidenceClassificationAcmgCounts = new HashMap<>();
     }
 
-    public InterpretationSummaryStats(Map<String, Integer> evidenceTranscriptCounts, Map<String, Integer> evidenceGeneNameCounts,
-                                      Map<String, Integer> evidenceModeOfInheritanceCounts, Map<String, Integer> evidencePanelCounts,
-                                      Map<String, Integer> evidenceReviewTierCounts, Map<String, Integer> evidenceReviewAcmgCounts,
-                                      Map<String, Integer> evidenceReviewClinicalSignificanceCounts,
-                                      Map<String, Integer> evidenceClassificationAcmgCounts) {
+    public InterpretationSummaryStats(Map<String, Long> evidenceTranscriptCounts, Map<String, Long> evidenceGeneNameCounts,
+                                      Map<String, Long> evidenceModeOfInheritanceCounts, Map<String, Long> evidencePanelCounts,
+                                      Map<String, Long> evidenceReviewTierCounts, Map<String, Long> evidenceReviewAcmgCounts,
+                                      Map<String, Long> evidenceReviewClinicalSignificanceCounts,
+                                      Map<String, Long> evidenceClassificationAcmgCounts) {
         this.evidenceTranscriptCounts = evidenceTranscriptCounts;
         this.evidenceGeneNameCounts = evidenceGeneNameCounts;
         this.evidenceModeOfInheritanceCounts = evidenceModeOfInheritanceCounts;
@@ -74,74 +74,74 @@ public class InterpretationSummaryStats {
         return sb.toString();
     }
 
-    public Map<String, Integer> getEvidenceTranscriptCounts() {
+    public Map<String, Long> getEvidenceTranscriptCounts() {
         return evidenceTranscriptCounts;
     }
 
-    public InterpretationSummaryStats setEvidenceTranscriptCounts(Map<String, Integer> evidenceTranscriptCounts) {
+    public InterpretationSummaryStats setEvidenceTranscriptCounts(Map<String, Long> evidenceTranscriptCounts) {
         this.evidenceTranscriptCounts = evidenceTranscriptCounts;
         return this;
     }
 
-    public Map<String, Integer> getEvidenceGeneNameCounts() {
+    public Map<String, Long> getEvidenceGeneNameCounts() {
         return evidenceGeneNameCounts;
     }
 
-    public InterpretationSummaryStats setEvidenceGeneNameCounts(Map<String, Integer> evidenceGeneNameCounts) {
+    public InterpretationSummaryStats setEvidenceGeneNameCounts(Map<String, Long> evidenceGeneNameCounts) {
         this.evidenceGeneNameCounts = evidenceGeneNameCounts;
         return this;
     }
 
-    public Map<String, Integer> getEvidenceModeOfInheritanceCounts() {
+    public Map<String, Long> getEvidenceModeOfInheritanceCounts() {
         return evidenceModeOfInheritanceCounts;
     }
 
-    public InterpretationSummaryStats setEvidenceModeOfInheritanceCounts(Map<String, Integer> evidenceModeOfInheritanceCounts) {
+    public InterpretationSummaryStats setEvidenceModeOfInheritanceCounts(Map<String, Long> evidenceModeOfInheritanceCounts) {
         this.evidenceModeOfInheritanceCounts = evidenceModeOfInheritanceCounts;
         return this;
     }
 
-    public Map<String, Integer> getEvidencePanelCounts() {
+    public Map<String, Long> getEvidencePanelCounts() {
         return evidencePanelCounts;
     }
 
-    public InterpretationSummaryStats setEvidencePanelCounts(Map<String, Integer> evidencePanelCounts) {
+    public InterpretationSummaryStats setEvidencePanelCounts(Map<String, Long> evidencePanelCounts) {
         this.evidencePanelCounts = evidencePanelCounts;
         return this;
     }
 
-    public Map<String, Integer> getEvidenceReviewTierCounts() {
+    public Map<String, Long> getEvidenceReviewTierCounts() {
         return evidenceReviewTierCounts;
     }
 
-    public InterpretationSummaryStats setEvidenceReviewTierCounts(Map<String, Integer> evidenceReviewTierCounts) {
+    public InterpretationSummaryStats setEvidenceReviewTierCounts(Map<String, Long> evidenceReviewTierCounts) {
         this.evidenceReviewTierCounts = evidenceReviewTierCounts;
         return this;
     }
 
-    public Map<String, Integer> getEvidenceReviewAcmgCounts() {
+    public Map<String, Long> getEvidenceReviewAcmgCounts() {
         return evidenceReviewAcmgCounts;
     }
 
-    public InterpretationSummaryStats setEvidenceReviewAcmgCounts(Map<String, Integer> evidenceReviewAcmgCounts) {
+    public InterpretationSummaryStats setEvidenceReviewAcmgCounts(Map<String, Long> evidenceReviewAcmgCounts) {
         this.evidenceReviewAcmgCounts = evidenceReviewAcmgCounts;
         return this;
     }
 
-    public Map<String, Integer> getEvidenceReviewClinicalSignificanceCounts() {
+    public Map<String, Long> getEvidenceReviewClinicalSignificanceCounts() {
         return evidenceReviewClinicalSignificanceCounts;
     }
 
-    public InterpretationSummaryStats setEvidenceReviewClinicalSignificanceCounts(Map<String, Integer> evidenceReviewClinicalSignificanceCounts) {
+    public InterpretationSummaryStats setEvidenceReviewClinicalSignificanceCounts(Map<String, Long> evidenceReviewClinicalSignificanceCounts) {
         this.evidenceReviewClinicalSignificanceCounts = evidenceReviewClinicalSignificanceCounts;
         return this;
     }
 
-    public Map<String, Integer> getEvidenceClassificationAcmgCounts() {
+    public Map<String, Long> getEvidenceClassificationAcmgCounts() {
         return evidenceClassificationAcmgCounts;
     }
 
-    public InterpretationSummaryStats setEvidenceClassificationAcmgCounts(Map<String, Integer> evidenceClassificationAcmgCounts) {
+    public InterpretationSummaryStats setEvidenceClassificationAcmgCounts(Map<String, Long> evidenceClassificationAcmgCounts) {
         this.evidenceClassificationAcmgCounts = evidenceClassificationAcmgCounts;
         return this;
     }

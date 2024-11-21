@@ -24,13 +24,13 @@ import java.util.Map;
 
 public class ClinicalVariantSummaryStats {
 
-    private int numCases;
-    private Map<String, Integer> variantStatusCounts;
-    private Map<String, Integer> variantConfidenceCounts;
-    private int numPrimaryInterpretations;
-    private int numSecondaryInterpretations;
+    private long numCases;
+    private Map<String, Long> variantStatusCounts;
+    private Map<String, Long> variantConfidenceCounts;
+    private long numPrimaryInterpretations;
+    private long numSecondaryInterpretations;
     private InterpretationSummaryStats interpretationSummaryStats;
-    private Map<String, Integer> clinicalAnalysisDisorderCounts;
+    private Map<String, Long> clinicalAnalysisDisorderCounts;
 
     public ClinicalVariantSummaryStats() {
         this.numCases = 0;
@@ -42,10 +42,10 @@ public class ClinicalVariantSummaryStats {
         this.clinicalAnalysisDisorderCounts = new HashMap<>();
     }
 
-    public ClinicalVariantSummaryStats(int numCases, Map<String, Integer> variantStatusCounts, Map<String, Integer> variantConfidenceCounts,
+    public ClinicalVariantSummaryStats(int numCases, Map<String, Long> variantStatusCounts, Map<String, Long> variantConfidenceCounts,
                                        int numPrimaryInterpretations, int numSecondaryInterpretations,
                                        InterpretationSummaryStats interpretationSummaryStats,
-                                       Map<String, Integer> clinicalAnalysisDisorderCounts) {
+                                       Map<String, Long> clinicalAnalysisDisorderCounts) {
         this.numCases = numCases;
         this.variantStatusCounts = variantStatusCounts;
         this.variantConfidenceCounts = variantConfidenceCounts;
@@ -69,47 +69,47 @@ public class ClinicalVariantSummaryStats {
         return sb.toString();
     }
 
-    public int getNumCases() {
+    public long getNumCases() {
         return numCases;
     }
 
-    public ClinicalVariantSummaryStats setNumCases(int numCases) {
+    public ClinicalVariantSummaryStats setNumCases(long numCases) {
         this.numCases = numCases;
         return this;
     }
 
-    public Map<String, Integer> getVariantStatusCounts() {
+    public Map<String, Long> getVariantStatusCounts() {
         return variantStatusCounts;
     }
 
-    public ClinicalVariantSummaryStats setVariantStatusCounts(Map<String, Integer> variantStatusCounts) {
+    public ClinicalVariantSummaryStats setVariantStatusCounts(Map<String, Long> variantStatusCounts) {
         this.variantStatusCounts = variantStatusCounts;
         return this;
     }
 
-    public Map<String, Integer> getVariantConfidenceCounts() {
+    public Map<String, Long> getVariantConfidenceCounts() {
         return variantConfidenceCounts;
     }
 
-    public ClinicalVariantSummaryStats setVariantConfidenceCounts(Map<String, Integer> variantConfidenceCounts) {
+    public ClinicalVariantSummaryStats setVariantConfidenceCounts(Map<String, Long> variantConfidenceCounts) {
         this.variantConfidenceCounts = variantConfidenceCounts;
         return this;
     }
 
-    public int getNumPrimaryInterpretations() {
+    public long getNumPrimaryInterpretations() {
         return numPrimaryInterpretations;
     }
 
-    public ClinicalVariantSummaryStats setNumPrimaryInterpretations(int numPrimaryInterpretations) {
+    public ClinicalVariantSummaryStats setNumPrimaryInterpretations(long numPrimaryInterpretations) {
         this.numPrimaryInterpretations = numPrimaryInterpretations;
         return this;
     }
 
-    public int getNumSecondaryInterpretations() {
+    public long getNumSecondaryInterpretations() {
         return numSecondaryInterpretations;
     }
 
-    public ClinicalVariantSummaryStats setNumSecondaryInterpretations(int numSecondaryInterpretations) {
+    public ClinicalVariantSummaryStats setNumSecondaryInterpretations(long numSecondaryInterpretations) {
         this.numSecondaryInterpretations = numSecondaryInterpretations;
         return this;
     }
@@ -123,11 +123,11 @@ public class ClinicalVariantSummaryStats {
         return this;
     }
 
-    public Map<String, Integer> getClinicalAnalysisDisorderCounts() {
+    public Map<String, Long> getClinicalAnalysisDisorderCounts() {
         return clinicalAnalysisDisorderCounts;
     }
 
-    public ClinicalVariantSummaryStats setClinicalAnalysisDisorderCounts(Map<String, Integer> clinicalAnalysisDisorderCounts) {
+    public ClinicalVariantSummaryStats setClinicalAnalysisDisorderCounts(Map<String, Long> clinicalAnalysisDisorderCounts) {
         this.clinicalAnalysisDisorderCounts = clinicalAnalysisDisorderCounts;
         return this;
     }
