@@ -27,6 +27,11 @@ import java.util.List;
 
 public class RelatednessReport {
 
+    public static final String HAPLOID_CALL_MODE_HAPLOID_VALUE = "haploid";
+    public static final String HAPLOID_CALL_MODE_MISSING_VALUE = "missing";
+    public static final String HAPLOID_CALL_MODE_REF_VALUE = "reference";
+    public static final String HAPLOID_CALL_MODE_DEFAUT_VALUE = HAPLOID_CALL_MODE_HAPLOID_VALUE;
+
     // Method., e.g.: Plink/IBD
     @DataField(id = "method",
             description = FieldConstants.RELATEDNESS_REPORT_METHOD_DESCRIPTION)
@@ -36,6 +41,11 @@ public class RelatednessReport {
     @DataField(id = "maf",
             description = FieldConstants.RELATEDNESS_REPORT_MAF_DESCRIPTION)
     private String maf;
+
+    // Haploid call mode, i.e., the PLINK/IBD parameter: vcf-half-call
+    @DataField(id = "haploidCallMode",
+            description = FieldConstants.RELATEDNESS_REPORT_HAPLOID_CALL_MODE_DESCRIPTION)
+    private String haploidCallMode;
 
     // Relatedness scores for pair of samples
     @DataField(id = "scores", uncommentedClasses = {"RelatednessScore"},
@@ -47,12 +57,13 @@ public class RelatednessReport {
     private List<String> files;
 
     public RelatednessReport() {
-        this("PLINK/IBD", "cohort:ALL>0.05", new ArrayList<>(), new ArrayList<>());
+        this("PLINK/IBD", "cohort:ALL>0.05", HAPLOID_CALL_MODE_DEFAUT_VALUE, new ArrayList<>(), new ArrayList<>());
     }
 
-    public RelatednessReport(String method, String maf, List<RelatednessScore> scores, List<String> files) {
+    public RelatednessReport(String method, String maf, String haploidCallMode, List<RelatednessScore> scores, List<String> files) {
         this.method = method;
         this.maf = maf;
+        this.haploidCallMode = haploidCallMode;
         this.scores = scores;
         this.files = files;
     }
@@ -62,6 +73,7 @@ public class RelatednessReport {
         final StringBuilder sb = new StringBuilder("RelatednessReport{");
         sb.append("method='").append(method).append('\'');
         sb.append(", maf='").append(maf).append('\'');
+        sb.append(", haploidCallMode='").append(haploidCallMode).append('\'');
         sb.append(", scores=").append(scores);
         sb.append(", files=").append(files);
         sb.append('}');
@@ -83,6 +95,15 @@ public class RelatednessReport {
 
     public RelatednessReport setMaf(String maf) {
         this.maf = maf;
+        return this;
+    }
+
+    public String getHaploidCallMode() {
+        return haploidCallMode;
+    }
+
+    public RelatednessReport setHaploidCallMode(String haploidCallMode) {
+        this.haploidCallMode = haploidCallMode;
         return this;
     }
 
