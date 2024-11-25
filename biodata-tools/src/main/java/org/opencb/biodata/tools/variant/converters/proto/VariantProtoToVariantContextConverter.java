@@ -23,7 +23,8 @@ import static org.opencb.biodata.formats.variant.vcf4.VcfUtils.*;
 /**
  * Created by jtarraga on 07/02/17.
  */
-public class VariantProtoToVariantContextConverter extends VariantContextConverter<VariantProto.Variant> {
+@Deprecated
+public abstract class VariantProtoToVariantContextConverter extends VariantContextConverter<VariantProto.Variant> {
 
     private final Logger logger = LoggerFactory.getLogger(VariantProtoToVariantContextConverter.class);
 
@@ -60,6 +61,7 @@ public class VariantProtoToVariantContextConverter extends VariantContextConvert
         int start = adjustedStartEndPositions.getLeft();
         int end = adjustedStartEndPositions.getRight();
         List<String> alleleList = buildAlleles(variant, adjustedStartEndPositions, referenceAlleles);
+        Set<String> duplicatedAlleles = getDuplicatedAlleles(alleleList);
         boolean isNoVariation = type.equals(VariantProto.VariantType.NO_VARIATION);
 
         // ID
@@ -96,9 +98,9 @@ public class VariantProtoToVariantContextConverter extends VariantContextConvert
         // SAMPLES
         BiFunction<String, String, String> getSampleData = (sampleName, id) -> getSampleData(studyEntry, formatPositions, sampleName, id);
 
-        List<Genotype> genotypes = getGenotypes(alleleList, studyEntry.getSampleDataKeysList(), getSampleData);
+        List<Genotype> genotypes = getGenotypes(alleleList, studyEntry.getSampleDataKeysList(), getSampleData, null);
 
-        return makeVariantContext(chromosome, start, end, idForVcf, alleleList, isNoVariation, filters, qual, attributes, genotypes);
+        return makeVariantContext(chromosome, start, end, idForVcf, alleleList, isNoVariation, filters, qual, attributes, genotypes, null);
     }
 
     public String getSampleData(VariantProto.StudyEntry studyEntry, Map<String, Integer> formatPositions, String sampleName, String field) {
