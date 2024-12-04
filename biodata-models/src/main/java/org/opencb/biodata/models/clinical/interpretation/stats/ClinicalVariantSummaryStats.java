@@ -21,6 +21,8 @@ package org.opencb.biodata.models.clinical.interpretation.stats;
 
 public class ClinicalVariantSummaryStats {
 
+    private String id;
+    private String variantId;
     private long numClinicalAnalyses;
     private long numPrimaryInterpretations;
     private long numSecondaryInterpretations;
@@ -40,22 +42,12 @@ public class ClinicalVariantSummaryStats {
         this.evidence = new ClinicalVariantEvidenceStats();
     }
 
-    public ClinicalVariantSummaryStats(long numClinicalAnalyses, long numPrimaryInterpretations, long numSecondaryInterpretations,
-                                       ClinicalAnalysisStats clinicalAnalysis, InterpretationStats interpretation,
-                                       ClinicalVariantStats variant, ClinicalVariantEvidenceStats evidence) {
-        this.numClinicalAnalyses = numClinicalAnalyses;
-        this.numPrimaryInterpretations = numPrimaryInterpretations;
-        this.numSecondaryInterpretations = numSecondaryInterpretations;
-        this.clinicalAnalysis = clinicalAnalysis;
-        this.interpretation = interpretation;
-        this.variant = variant;
-        this.evidence = evidence;
-    }
-
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("ClinicalVariantSummaryStats{");
-        sb.append("numClinicalAnalyses=").append(numClinicalAnalyses);
+        sb.append("id='").append(id).append('\'');
+        sb.append(", variantId='").append(variantId).append('\'');
+        sb.append(", numClinicalAnalyses=").append(numClinicalAnalyses);
         sb.append(", numPrimaryInterpretations=").append(numPrimaryInterpretations);
         sb.append(", numSecondaryInterpretations=").append(numSecondaryInterpretations);
         sb.append(", clinicalAnalysis=").append(clinicalAnalysis);
@@ -64,6 +56,24 @@ public class ClinicalVariantSummaryStats {
         sb.append(", evidence=").append(evidence);
         sb.append('}');
         return sb.toString();
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public ClinicalVariantSummaryStats setId(String id) {
+        this.id = id;
+        return this;
+    }
+
+    public String getVariantId() {
+        return variantId;
+    }
+
+    public ClinicalVariantSummaryStats setVariantId(String variantId) {
+        this.variantId = variantId;
+        return this;
     }
 
     public long getNumClinicalAnalyses() {
