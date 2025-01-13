@@ -19,7 +19,7 @@
 
 package org.opencb.biodata.models.clinical.interpretation.stats;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class ClinicalAnalysisStats {
@@ -29,9 +29,9 @@ public class ClinicalAnalysisStats {
     private Map<String, Long> probandDisorders;
 
     public ClinicalAnalysisStats() {
-        this.disorders = new HashMap<>();
-        this.probandPhenotypes = new HashMap<>();
-        this.probandDisorders = new HashMap<>();
+        this.disorders = new LinkedHashMap<>();
+        this.probandPhenotypes = new LinkedHashMap<>();
+        this.probandDisorders = new LinkedHashMap<>();
     }
 
     public ClinicalAnalysisStats(Map<String, Long> disorders, Map<String, Long> probandPhenotypes, Map<String, Long> probandDisorders) {

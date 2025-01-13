@@ -19,7 +19,7 @@
 
 package org.opencb.biodata.models.clinical.interpretation.stats;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class ClinicalVariantEvidenceStats {
@@ -35,15 +35,15 @@ public class ClinicalVariantEvidenceStats {
     private Map<String, Long> acmgs;
 
     public ClinicalVariantEvidenceStats() {
-        this.transcripts = new HashMap<>();
-        this.genes = new HashMap<>();
-        this.soTerms = new HashMap<>();
-        this.mois = new HashMap<>();
-        this.panels = new HashMap<>();
-        this.reviewTiers = new HashMap<>();
-        this.reviewAcmgs = new HashMap<>();
-        this.reviewClinicalSignificances = new HashMap<>();
-        this.acmgs = new HashMap<>();
+        this.transcripts = new LinkedHashMap<>();
+        this.genes = new LinkedHashMap<>();
+        this.soTerms = new LinkedHashMap<>();
+        this.mois = new LinkedHashMap<>();
+        this.panels = new LinkedHashMap<>();
+        this.reviewTiers = new LinkedHashMap<>();
+        this.reviewAcmgs = new LinkedHashMap<>();
+        this.reviewClinicalSignificances = new LinkedHashMap<>();
+        this.acmgs = new LinkedHashMap<>();
     }
 
     public ClinicalVariantEvidenceStats(Map<String, Long> transcripts, Map<String, Long> genes, Map<String, Long> soTerms,
