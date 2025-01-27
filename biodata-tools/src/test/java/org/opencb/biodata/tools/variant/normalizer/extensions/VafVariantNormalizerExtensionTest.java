@@ -19,6 +19,8 @@ public class VafVariantNormalizerExtensionTest {
     private VariantFileHeader cavemanHeader;
     private VariantFileHeader pindelHeader;
     private VariantFileHeader generalHeader;
+    private VariantFileHeader generalHeaderNoDP;
+    private VariantFileHeader generalHeaderNoFommatDP;
     private List<String> singleSample;
     private List<String> multiSample;
 
@@ -50,6 +52,13 @@ public class VafVariantNormalizerExtensionTest {
         generalHeader = new VariantFileHeader("", new ArrayList<>(Arrays.asList(
                 new VariantFileHeaderComplexLine("INFO", "DP", "", "", "", Collections.emptyMap()),
                 new VariantFileHeaderComplexLine("FORMAT", "DP", "", "", "", Collections.emptyMap()),
+                new VariantFileHeaderComplexLine("FORMAT", "AD", "", "", "", Collections.emptyMap())
+        )), Collections.emptyList());
+        generalHeaderNoFommatDP = new VariantFileHeader("", new ArrayList<>(Arrays.asList(
+                new VariantFileHeaderComplexLine("INFO", "DP", "", "", "", Collections.emptyMap()),
+                new VariantFileHeaderComplexLine("FORMAT", "AD", "", "", "", Collections.emptyMap())
+        )), Collections.emptyList());
+        generalHeaderNoDP = new VariantFileHeader("", new ArrayList<>(Arrays.asList(
                 new VariantFileHeaderComplexLine("FORMAT", "AD", "", "", "", Collections.emptyMap())
         )), Collections.emptyList());
     }
@@ -105,6 +114,41 @@ public class VafVariantNormalizerExtensionTest {
 
         normalize(generalHeader, multiSample, variant);
         assertEquals("GT:AD:DP:EXT_VAF", variant.getStudies().get(0).getSampleDataKeysAsString());
+        assertEquals("0.5", variant.getStudies().get(0).getSampleData("SAMPLE_1", "EXT_VAF"));
+        assertEquals(".", variant.getStudies().get(0).getSampleData("SAMPLE_2", "EXT_VAF"));
+        assertEquals("0.9", variant.getStudies().get(0).getSampleData("SAMPLE_3", "EXT_VAF"));
+    }
+
+    @Test
+    public void testGeneralMultiSampleWithoutFormatDP() throws Exception {
+        Variant variant = Variant.newBuilder("1:10:A:C")
+                .setFileId("file")
+                .addFileData("DP", "30")
+                .setSampleDataKeys("GT", "AD")
+                .addSample("SAMPLE_1", "0/1", "5,5")
+                .addSample("SAMPLE_2", "0/0", null)
+                .addSample("SAMPLE_3", "1/1", "2,18")
+                .build();
+
+        normalize(generalHeaderNoFommatDP, multiSample, variant);
+        assertEquals("GT:AD:EXT_VAF:DP", variant.getStudies().get(0).getSampleDataKeysAsString());
+        assertEquals("0.5", variant.getStudies().get(0).getSampleData("SAMPLE_1", "EXT_VAF"));
+        assertEquals(".", variant.getStudies().get(0).getSampleData("SAMPLE_2", "EXT_VAF"));
+        assertEquals("0.9", variant.getStudies().get(0).getSampleData("SAMPLE_3", "EXT_VAF"));
+    }
+
+    @Test
+    public void testGeneralMultiSampleWithoutDP() throws Exception {
+        Variant variant = Variant.newBuilder("1:10:A:C")
+                .setFileId("file")
+                .setSampleDataKeys("GT", "AD")
+                .addSample("SAMPLE_1", "0/1", "5,5")
+                .addSample("SAMPLE_2", "0/0", null)
+                .addSample("SAMPLE_3", "1/1", "2,18")
+                .build();
+
+        normalize(generalHeaderNoDP, multiSample, variant);
+        assertEquals("GT:AD:EXT_VAF:DP", variant.getStudies().get(0).getSampleDataKeysAsString());
         assertEquals("0.5", variant.getStudies().get(0).getSampleData("SAMPLE_1", "EXT_VAF"));
         assertEquals(".", variant.getStudies().get(0).getSampleData("SAMPLE_2", "EXT_VAF"));
         assertEquals("0.9", variant.getStudies().get(0).getSampleData("SAMPLE_3", "EXT_VAF"));

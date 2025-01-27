@@ -77,12 +77,15 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
             // Parse and init internal configuration
             boolean containsFormatAD = false;
             boolean containsFormatDP = false;
-            boolean containsInfoDP = false;
+            boolean containsInfoSampleDP = false;
             boolean containsFormatExtVaf = false;
             for (VariantFileHeaderComplexLine complexLine : fileMetadata.getHeader().getComplexLines()) {
                 if (complexLine.getKey().equalsIgnoreCase("INFO")) {
                     if (complexLine.getId().equals("DP")) {
-                        containsInfoDP = true;
+                        if (fileMetadata.getSampleIds().size() == 1) {
+                            // If there is only one sample in the VCF file, DP can be in the INFO field
+                            containsInfoSampleDP = true;
+                        }
                     }
                 } else if (complexLine.getKey().equalsIgnoreCase("FORMAT")) {
                     switch (complexLine.getId()) {
@@ -99,7 +102,7 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
                 }
             }
 
-            if (containsFormatAD && (containsFormatDP || containsInfoDP)) {
+            if (containsFormatAD) {
                 calculateVaf = true;
                 if (!containsFormatDP) {
                     calculateDp = true;
@@ -150,13 +153,13 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
 
         // VAF
         study.addSampleDataKey(EXT_VAF);
-        study.addSampleData(sampleId, EXT_VAF, pair.getLeft() >= 0
+        study.addSampleData(sampleId, EXT_VAF, pair.getLeft() != null
                 ? String.valueOf(pair.getLeft())
                 : VCFConstants.MISSING_VALUE_v4);
 
         if (calculateDp) {
             study.addSampleDataKey(VCFConstants.DEPTH_KEY);
-            study.addSampleData(sampleId, VCFConstants.DEPTH_KEY, pair.getRight() >= 0
+            study.addSampleData(sampleId, VCFConstants.DEPTH_KEY, pair.getRight() != null
                     ? String.valueOf(pair.getRight())
                     : VCFConstants.MISSING_VALUE_v4);
         }
@@ -165,8 +168,8 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
     private MutablePair<Float, Integer> calculateVaf(Variant variant, StudyEntry study, FileEntry file, SampleEntry sample) {
         // If we reach this point is because canCalculateVaf is true and therefore we know we can calculate VAF
         // Init internal variables, this method calculates VAF and DEPTH and return them in a Pair tuple
-        float VAF = -1f;
-        int DP = -1;
+        Float VAF = null;
+        Integer DP = null;
         if (StringUtils.isNotEmpty(caller)) {
             List<String> formatFields;
             Integer index;
@@ -174,6 +177,7 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
                 case "CAVEMAN":
                     // DEPTH
                     formatFields = Arrays.asList("FAZ", "FCZ", "FGZ", "FTZ", "RAZ", "RCZ", "RGZ", "RTZ");
+                    DP = 0;
                     for (String formatField : formatFields) {
                         index = study.getSampleDataKeyPositions().get(formatField);
                         if (index != null && index >= 0) {
@@ -207,13 +211,14 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
             // We assume AD and DP fields exist because canCalculateVaf is true and no caller has been found
             // 1. Get AD
             int AD = 0;
+            String[] ADs = {};
             Integer adIndex = study.getSampleDataKeyPosition("AD");
             if (adIndex != null && adIndex >= 0) {
                 String adString = sample.getData().get(adIndex);
                 if (StringUtils.isNotEmpty(adString) && !adString.equals(".")) {
-                    String[] split = adString.split(",");
-                    if (split.length > 1) {
-                        AD = Integer.parseInt(split[1]);
+                    ADs = adString.split(",");
+                    if (ADs.length > 1) {
+                        AD = Integer.parseInt(ADs[1]);
                     }
                 }
             }
@@ -224,30 +229,28 @@ public class VafVariantNormalizerExtension extends VariantNormalizerExtension {
             // First, search in the FORMAT field
             if (study.getSampleDataKeyPositions().containsKey("DP")) {
                 Integer depthIndex = study.getSampleDataKeyPosition("DP");
-                if (adIndex != null && adIndex >= 0) {
+                if (depthIndex != null && depthIndex >= 0 && depthIndex < sample.getData().size()) {
                     String dpString = sample.getData().get(depthIndex);
                     if (StringUtils.isNotEmpty(dpString) && !dpString.equals(".")) {
                         DP = Integer.parseInt(dpString);
                     }
                 }
-            } else {
-                // Second, some callers store DP in the INFO field when there is ONLY one sample per VCF
+            }
+
+            // Second, some callers store DP in the INFO field when there is ONLY one sample per VCF
+            if (DP == null) {
                 if (study.getSamples().size() == 1 && file.getData().containsKey("DP")) {
                     String depthString = file.getData().getOrDefault("DP", "");
                     if (StringUtils.isNotEmpty(depthString) && !depthString.equals(".")) {
                         DP = Integer.parseInt(depthString);
                     }
-                } else {
-                    // Third, try to calculate DP from AD field
-                    if (adIndex != null && adIndex >= 0) {
-                        String adString = sample.getData().get(adIndex);
-                        if (StringUtils.isNotEmpty(adString) && !adString.equals(".")) {
-                            String[] ads = adString.split(",");
-                            for (String ad : ads) {
-                                DP += Integer.parseInt(ad);
-                            }
-                        }
-                    }
+                }
+            }
+            // Third, try to calculate DP from AD field
+            if (DP == null) {
+                DP = 0;
+                for (String ad : ADs) {
+                    DP += Integer.parseInt(ad);
                 }
             }
 
