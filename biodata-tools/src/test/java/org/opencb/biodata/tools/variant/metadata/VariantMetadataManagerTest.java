@@ -1,13 +1,13 @@
 package org.opencb.biodata.tools.variant.metadata;
 
 import org.apache.commons.collections4.map.HashedMap;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.opencb.biodata.models.metadata.Individual;
 import org.opencb.biodata.models.metadata.Sample;
 import org.opencb.biodata.models.variant.metadata.VariantMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
-import org.opencb.biodata.tools.variant.metadata.VariantMetadataManager;
 import org.opencb.commons.datastore.core.Query;
 
 import java.io.IOException;
@@ -184,4 +184,38 @@ public class VariantMetadataManagerTest {
         }
     }
 
+    @Test
+    public void testAddIndividual() {
+        try {
+            Path path = Paths.get("/tmp/ds.meta.json");
+            if (path.toFile().exists()) {
+                path.toFile().delete();
+            }
+            manager.save(path, true);
+
+            manager = new VariantMetadataManager();
+            manager.load(path);
+
+            String studyId = variantMetadata.getStudies().get(0).getId();
+            Assert.assertEquals(3, manager.getVariantStudyMetadata(studyId).getIndividuals().size());
+
+            manager.addIndividual("Person_0", "Sample_0_0", studyId);
+
+            String newIndividualId = "Person_100";
+            manager.addIndividual(newIndividualId, "Sample_100_0", studyId);
+            Assert.assertEquals(4, manager.getVariantStudyMetadata(studyId).getIndividuals().size());
+
+            manager.addIndividual(newIndividualId, "Sample_100_0", studyId);
+            Assert.assertEquals(4, manager.getVariantStudyMetadata(studyId).getIndividuals().size());
+
+            manager.removeIndividual(newIndividualId, studyId);
+            Assert.assertEquals(3, manager.getVariantStudyMetadata(studyId).getIndividuals().size());
+
+            manager.addIndividual(newIndividualId, "Sample_100_0", studyId);
+            Assert.assertEquals(4, manager.getVariantStudyMetadata(studyId).getIndividuals().size());
+        } catch (IOException e) {
+            e.printStackTrace();
+            fail();
+        }
+    }
 }
