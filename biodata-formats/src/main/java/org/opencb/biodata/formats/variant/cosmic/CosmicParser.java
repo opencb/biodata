@@ -199,7 +199,7 @@ public class CosmicParser {
                                 ignoredCosmicLines += evidenceEntries.size();
                             }
                             old = sequenceLocation;
-                            evidenceEntries.clear();
+                            evidenceEntries = new ArrayList<>();
                             evidenceEntries.add(evidenceEntry);
                         }
                     } else {
