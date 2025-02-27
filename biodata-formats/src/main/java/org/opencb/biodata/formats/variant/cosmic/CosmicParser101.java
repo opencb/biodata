@@ -446,9 +446,6 @@ public class CosmicParser101 {
         List<GenomicFeature> genomicFeatureList = getGenomicFeature(fields);
 
         List<Property> additionalProperties = new ArrayList<>();
-        if (StringUtils.isNotEmpty(fields[GENOMIC_MUTATION_ID_COL])) {
-            additionalProperties.add(new Property("GENOMIC_MUTATION_ID", "Genomic mutation ID (COSV)", fields[GENOMIC_MUTATION_ID_COL]));
-        }
         if (StringUtils.isNotEmpty(fields[LEGACY_MUTATION_ID_COL])) {
             additionalProperties.add(new Property("LEGACY_MUTATION_ID", "Legacy ID (COSM) or (COSN)", fields[LEGACY_MUTATION_ID_COL]));
         }
