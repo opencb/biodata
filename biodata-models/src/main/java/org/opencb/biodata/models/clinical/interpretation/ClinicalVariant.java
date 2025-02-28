@@ -21,6 +21,7 @@ package org.opencb.biodata.models.clinical.interpretation;
 
 import org.opencb.biodata.models.clinical.ClinicalComment;
 import org.opencb.biodata.models.clinical.ClinicalDiscussion;
+import org.opencb.biodata.models.clinical.interpretation.stats.ClinicalVariantSummaryStats;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.VariantAvro;
 
@@ -39,6 +40,8 @@ public class ClinicalVariant extends Variant {
     private ClinicalDiscussion discussion;
     private ClinicalVariantConfidence confidence;
     private List<String> tags;
+
+    private List<ClinicalVariantSummaryStats> stats;
 
     private Status status;
 
@@ -95,6 +98,7 @@ public class ClinicalVariant extends Variant {
         this.attributes = attributes;
     }
 
+    @Deprecated
     public ClinicalVariant(VariantAvro avro, List<ClinicalVariantEvidence> evidences, List<ClinicalComment> comments,
                            Map<String, Object> filters, String recommendation, List<MiniPubmed> references,
                            ClinicalDiscussion discussion, ClinicalVariantConfidence confidence, Status status,
@@ -112,6 +116,26 @@ public class ClinicalVariant extends Variant {
         this.confidence = confidence;
         this.attributes = attributes;
     }
+
+    public ClinicalVariant(VariantAvro avro, List<ClinicalVariantEvidence> evidences, List<ClinicalComment> comments,
+                           Map<String, Object> filters, String recommendation, List<MiniPubmed> references,
+                           ClinicalDiscussion discussion, ClinicalVariantConfidence confidence, List<ClinicalVariantSummaryStats> stats,
+                           Status status, List<String> tags, Map<String, Object> attributes) {
+        super(avro);
+
+        this.evidences = evidences;
+        this.comments = comments;
+        this.filters = filters;
+        this.recommendation = recommendation;
+        this.references = references;
+        this.discussion = discussion;
+        this.stats = stats;
+        this.status = status;
+        this.tags = tags;
+        this.confidence = confidence;
+        this.attributes = attributes;
+    }
+
 
     @Override
     public String toString() {
@@ -178,6 +202,15 @@ public class ClinicalVariant extends Variant {
 
     public ClinicalVariant setConfidence(ClinicalVariantConfidence confidence) {
         this.confidence = confidence;
+        return this;
+    }
+
+    public List<ClinicalVariantSummaryStats> getStats() {
+        return stats;
+    }
+
+    public ClinicalVariant setStats(List<ClinicalVariantSummaryStats> stats) {
+        this.stats = stats;
         return this;
     }
 
