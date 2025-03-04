@@ -37,6 +37,12 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * COSMIC parser, version 101 and later
+ * Two files are required:
+ *    - the COSMIC genome screens mutant file and
+ *    - the COSMIC classification file
+ */
 public class CosmicParser101 {
 
     // GenomeScreensMutant
@@ -255,10 +261,10 @@ public class CosmicParser101 {
                 }
                 totalNumberRecords++;
 
-                if (totalNumberRecords % 10000 == 0) {
+                if (totalNumberRecords % 100000 == 0) {
                     logger.info("totalNumberRecords = {}", totalNumberRecords);
                     logger.info("numberIndexedRecords = {} ({} %)", numberProcessedRecords,
-                            (numberProcessedRecords * 100 / totalNumberRecords));
+                            String.format("%.2f", (numberProcessedRecords * 100.0 / totalNumberRecords)));
                     logger.info("ignoredCosmicLines = {}", ignoredCosmicLines);
                     logger.info("buildCosmic time = {}", t1);
                     logger.info("callback time = {}", t2);
@@ -542,15 +548,36 @@ public class CosmicParser101 {
     }
 
     private static SequenceLocation parseLocation(String chrom, String strand, String start, String end, VariantType variantType) {
+        // Sanity checks
+        if (StringUtils.isEmpty(chrom)) {
+            logger.warn("Missing chromosome when building the sequence location");
+            return null;
+        }
+        int startValue;
+        int endValue;
+        try {
+            startValue = Integer.parseInt(start);
+        } catch (NumberFormatException e) {
+            logger.warn("Error parsing start value: '" + start + "'", e);
+            return null;
+        }
+        try {
+            endValue = Integer.parseInt(end);
+        } catch (NumberFormatException e) {
+            logger.warn("Error parsing end value: '" + end + "'", e);
+            return null;
+        }
+
         SequenceLocation sequenceLocation = new SequenceLocation();
         sequenceLocation.setChromosome(getCosmicChromosome(chrom));
         sequenceLocation.setStrand(strand);
+
         if (VariantType.INSERTION.equals(variantType)) {
-            sequenceLocation.setEnd(Integer.parseInt(start));
-            sequenceLocation.setStart(Integer.parseInt(end));
+            sequenceLocation.setEnd(startValue);
+            sequenceLocation.setStart(endValue);
         } else {
-            sequenceLocation.setStart(Integer.parseInt(start));
-            sequenceLocation.setEnd(Integer.parseInt(end));
+            sequenceLocation.setStart(startValue);
+            sequenceLocation.setEnd(endValue);
         }
         return sequenceLocation;
     }
