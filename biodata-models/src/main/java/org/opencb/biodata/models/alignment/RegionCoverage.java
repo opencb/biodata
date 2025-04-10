@@ -1,7 +1,7 @@
 package org.opencb.biodata.models.alignment;
 
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.ObjectWriter;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import org.opencb.biodata.models.core.Region;
 
 import java.io.IOException;

@@ -1,6 +1,7 @@
 package org.opencb.biodata.tools.variant;
 
 import htsjdk.variant.variantcontext.VariantContext;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.models.variant.Variant;
@@ -13,6 +14,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Locale;
 
 import static org.junit.Assert.assertEquals;
 
@@ -21,6 +23,11 @@ import static org.junit.Assert.assertEquals;
  */
 public class VcfManagerTest {
     String filename = "/ibs.vcf";
+
+    @BeforeClass
+    public static void setUp(){
+        Locale.setDefault(new Locale("en", "EN"));
+    }
 
     private Path index(VcfManager vcfManager) throws IOException {
         return vcfManager.createIndex();
