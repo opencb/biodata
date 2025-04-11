@@ -20,7 +20,7 @@ public class VafVariantNormalizerExtensionTest {
     private VariantFileHeader pindelHeader;
     private VariantFileHeader generalHeader;
     private VariantFileHeader generalHeaderNoDP;
-    private VariantFileHeader generalHeaderNoFommatDP;
+    private VariantFileHeader generalHeaderNoFormatDP;
     private List<String> singleSample;
     private List<String> multiSample;
 
@@ -54,7 +54,7 @@ public class VafVariantNormalizerExtensionTest {
                 new VariantFileHeaderComplexLine("FORMAT", "DP", "", "", "", Collections.emptyMap()),
                 new VariantFileHeaderComplexLine("FORMAT", "AD", "", "", "", Collections.emptyMap())
         )), Collections.emptyList());
-        generalHeaderNoFommatDP = new VariantFileHeader("", new ArrayList<>(Arrays.asList(
+        generalHeaderNoFormatDP = new VariantFileHeader("", new ArrayList<>(Arrays.asList(
                 new VariantFileHeaderComplexLine("INFO", "DP", "", "", "", Collections.emptyMap()),
                 new VariantFileHeaderComplexLine("FORMAT", "AD", "", "", "", Collections.emptyMap())
         )), Collections.emptyList());
@@ -130,7 +130,7 @@ public class VafVariantNormalizerExtensionTest {
                 .addSample("SAMPLE_3", "1/1", "2,18")
                 .build();
 
-        normalize(generalHeaderNoFommatDP, multiSample, variant);
+        normalize(generalHeaderNoFormatDP, multiSample, variant);
         assertEquals("GT:AD:EXT_VAF:DP", variant.getStudies().get(0).getSampleDataKeysAsString());
         assertEquals("0.5", variant.getStudies().get(0).getSampleData("SAMPLE_1", "EXT_VAF"));
         assertEquals(".", variant.getStudies().get(0).getSampleData("SAMPLE_2", "EXT_VAF"));
