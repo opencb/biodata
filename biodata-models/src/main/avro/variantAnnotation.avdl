@@ -135,6 +135,7 @@ protocol VariantAnnotations {
         union { null, array<ExonOverlap> } exonOverlap;
 
         union { null, array<SpliceScores> } spliceScores;
+        union { null, array<string> } acmg;
 
         // DEPRECATED: replaced by transcriptFlags
         //@javaAnnotation("Deprecated")
