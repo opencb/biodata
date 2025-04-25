@@ -298,12 +298,20 @@ protocol VariantAnnotations {
         map<string> attribute;
     }
 
+    record GenomicSequenceContext {
+        union { null, int } start;
+        union { null, int } end;
+        union { null, string } sequence;
+     }
+
     record VariantAnnotation {
         union { null, string } chromosome;
         union { null, int } start;
         union { null, int } end;
         union { null, string } reference;
         union { null, string } alternate;
+
+        union { null, GenomicSequenceContext } genomicSequenceContext;
 
         // DEPRECATED: to be removed next release
         @javaAnnotation("Deprecated")
