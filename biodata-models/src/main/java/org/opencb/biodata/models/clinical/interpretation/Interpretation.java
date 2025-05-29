@@ -28,29 +28,29 @@ import java.util.Map;
 
 public class Interpretation {
 
-    private String id;
-    private String uuid;
-    private String description;
-    private String clinicalAnalysisId;
+    protected String id;
+    protected String uuid;
+    protected String name;
+    protected String description;
+    protected String clinicalAnalysisId;
 
     /**
      * Interpretation algorithm tool used to generate this interpretation.
      */
-    private ClinicalAnalyst analyst;
-    private InterpretationMethod method;
+    protected ClinicalAnalyst analyst;
+    protected InterpretationMethod method;
 
-    private List<ClinicalVariant> primaryFindings;
-    private List<ClinicalVariant> secondaryFindings;
+    protected List<ClinicalVariant> primaryFindings;
+    protected List<ClinicalVariant> secondaryFindings;
 
-    private List<ClinicalComment> comments;
+    protected List<ClinicalComment> comments;
 
-    private InterpretationStats stats;
+    protected InterpretationStats stats;
 
-    private boolean locked;
-    private Status status;
-    private String creationDate;
-    private String modificationDate;
-    private int version;
+    protected boolean locked;
+    protected String creationDate;
+    protected String modificationDate;
+    protected int version;
 
     /**
      * Users can add custom information in this field.
@@ -61,12 +61,23 @@ public class Interpretation {
     public Interpretation() {
     }
 
+    @Deprecated
     public Interpretation(String id, String uuid, String description, String clinicalAnalysisId, ClinicalAnalyst analyst,
                           InterpretationMethod method, List<ClinicalVariant> primaryFindings, List<ClinicalVariant> secondaryFindings,
                           List<ClinicalComment> comments, InterpretationStats stats, Status status, String creationDate,
                           String modificationDate, boolean locked, int version, Map<String, Object> attributes) {
+        this(id, uuid, id, description, clinicalAnalysisId, analyst, method, primaryFindings, secondaryFindings,
+                comments, stats, locked, creationDate, modificationDate, version, attributes);
+    }
+
+    public Interpretation(String id, String uuid, String name, String description, String clinicalAnalysisId,
+                          ClinicalAnalyst analyst, InterpretationMethod method, List<ClinicalVariant> primaryFindings,
+                          List<ClinicalVariant> secondaryFindings, List<ClinicalComment> comments,
+                          InterpretationStats stats, boolean locked, String creationDate, String modificationDate,
+                          int version, Map<String, Object> attributes) {
         this.id = id;
         this.uuid = uuid;
+        this.name = name;
         this.description = description;
         this.clinicalAnalysisId = clinicalAnalysisId;
         this.analyst = analyst;
@@ -75,10 +86,9 @@ public class Interpretation {
         this.secondaryFindings = secondaryFindings;
         this.comments = comments;
         this.stats = stats;
-        this.status = status;
+        this.locked = locked;
         this.creationDate = creationDate;
         this.modificationDate = modificationDate;
-        this.locked = locked;
         this.version = version;
         this.attributes = attributes;
     }
@@ -88,6 +98,7 @@ public class Interpretation {
         final StringBuilder sb = new StringBuilder("Interpretation{");
         sb.append("id='").append(id).append('\'');
         sb.append(", uuid='").append(uuid).append('\'');
+        sb.append(", name='").append(name).append('\'');
         sb.append(", description='").append(description).append('\'');
         sb.append(", clinicalAnalysisId='").append(clinicalAnalysisId).append('\'');
         sb.append(", analyst=").append(analyst);
@@ -96,7 +107,6 @@ public class Interpretation {
         sb.append(", secondaryFindings=").append(secondaryFindings);
         sb.append(", comments=").append(comments);
         sb.append(", stats=").append(stats);
-        sb.append(", status=").append(status);
         sb.append(", creationDate='").append(creationDate).append('\'');
         sb.append(", modificationDate='").append(modificationDate).append('\'');
         sb.append(", locked='").append(locked).append('\'');
@@ -121,6 +131,15 @@ public class Interpretation {
 
     public Interpretation setUuid(String uuid) {
         this.uuid = uuid;
+        return this;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Interpretation setName(String name) {
+        this.name = name;
         return this;
     }
 
@@ -193,15 +212,6 @@ public class Interpretation {
 
     public Interpretation setStats(InterpretationStats stats) {
         this.stats = stats;
-        return this;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public Interpretation setStatus(Status status) {
-        this.status = status;
         return this;
     }
 
