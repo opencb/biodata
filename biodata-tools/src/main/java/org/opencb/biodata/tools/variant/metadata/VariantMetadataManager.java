@@ -35,7 +35,6 @@ import org.opencb.biodata.models.pedigree.Multiples;
 import org.opencb.biodata.models.variant.metadata.VariantFileMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantMetadata;
 import org.opencb.biodata.models.variant.metadata.VariantStudyMetadata;
-import org.opencb.biodata.tools.variant.converters.avro.VCFHeaderToVariantFileHeaderConverter;
 import org.opencb.biodata.tools.variant.converters.avro.VCFHeaderToVariantFileMetadataConverter;
 import org.opencb.commons.datastore.core.Query;
 import org.opencb.commons.utils.FileUtils;
@@ -59,6 +58,7 @@ import java.util.regex.Pattern;
 public class VariantMetadataManager {
 
     private VariantMetadata variantMetadata;
+    private Set<String> individualSet = new HashSet<>();
 
     private ObjectMapper mapper;
     private Logger logger;
@@ -109,6 +109,7 @@ public class VariantMetadataManager {
         for (VariantStudyMetadata variantStudyMetadata: variantMetadata.getStudies()) {
             if (variantStudyMetadata.getIndividuals() != null) {
                 for (Individual individual : variantStudyMetadata.getIndividuals()) {
+                    individualSet.add(individual.getId());
                     for (Sample sample : individual.getSamples()) {
                         sample.getAnnotations().put(INDIVIDUAL_ID, individual.getId());
                         sample.getAnnotations().put(INDIVIDUAL_FAMILY, individual.getFamily());
@@ -272,6 +273,7 @@ public class VariantMetadataManager {
             individual.setSamples(samples);
 
             variantStudyMetadata.getIndividuals().add(individual);
+            individualSet.add(individual.getId());
         }
 
 
@@ -383,14 +385,12 @@ public class VariantMetadataManager {
         if (variantStudyMetadata.getIndividuals() == null) {
             variantStudyMetadata.setIndividuals(new ArrayList<>());
         }
-        for (Individual indi: variantStudyMetadata.getIndividuals()) {
-            if (indi.getId() != null && indi.getId().equals(individual.getId())) {
-                logger.error("Individual with id '{}' already exists in study '{}'", individual.getId(),
-                        studyId);
-                return;
-            }
+        if (individualSet.contains(individual.getId())) {
+            logger.error("Individual with id '{}' already exists in study '{}'", individual.getId(), studyId);
+            return;
         }
         variantStudyMetadata.getIndividuals().add(individual);
+        individualSet.add(individual.getId());
     }
 
     /**
@@ -430,6 +430,7 @@ public class VariantMetadataManager {
             for (int i = 0; i < variantStudyMetadata.getIndividuals().size(); i++) {
                 if (individualId.equals(variantStudyMetadata.getIndividuals().get(i).getId())) {
                     variantStudyMetadata.getIndividuals().remove(i);
+                    individualSet.remove(individualId);
                     return;
                 }
             }
