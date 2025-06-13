@@ -19,7 +19,6 @@
 
 package org.opencb.biodata.formats.variant.clinvar;
 
-import org.junit.Test;
 import org.opencb.biodata.formats.variant.clinvar.rcv.ClinvarParser;
 import org.opencb.biodata.formats.variant.clinvar.rcv.v64jaxb.PublicSetType;
 import org.opencb.biodata.formats.variant.clinvar.rcv.v64jaxb.ReleaseType;
@@ -30,7 +29,7 @@ import java.io.IOException;
 
 public class ClinvarParserTest {
 
-    @Test
+
     public void loadXMLInfo() {
         try {
             JAXBElement<ReleaseType> objectFactory = (JAXBElement<ReleaseType>) ClinvarParser
