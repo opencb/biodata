@@ -45,6 +45,20 @@ public class VariantAvroToVariantContextConverter extends VariantContextConverte
 
     @Override
     public VariantContext convert(Variant variant) {
+        try {
+            return createContext(variant);
+        } catch (RuntimeException e) {
+            try {
+                logger.warn("Error creating VariantContext for variant " + variant);
+                logger.warn("JSON : " + variant.toJson());
+            } catch (RuntimeException e2) {
+                e.addSuppressed(e2);
+            }
+            throw e;
+        }
+    }
+
+    protected VariantContext createContext(Variant variant) {
         init(variant);
 
         StudyEntry studyEntry = getStudy(variant);
@@ -59,10 +73,32 @@ public class VariantAvroToVariantContextConverter extends VariantContextConverte
                 .stream()
                 .map(entry -> entry.getCall() == null ? null : entry.getCall().getVariantId())
                 .iterator());
-        Pair<Integer, Integer> adjustedStartEndPositions = adjustedVariantStart(variant, studyEntry, referenceAlleles);
+        Pair<Integer, Integer> adjustedStartEndPositions = adjustedVariantStart(variant, studyEntry, referenceAlleles, Collections.emptySet());
         int start = adjustedStartEndPositions.getLeft();
         int end = adjustedStartEndPositions.getRight();
         List<String> alleleList = buildAlleles(variant, adjustedStartEndPositions, referenceAlleles);
+        Set<Integer> discardedAlleleIdx = getDiscardedAlleles(variant, alleleList);
+        if (!discardedAlleleIdx.isEmpty()) {
+            Set<String> duplicatedAlleles = getDuplicatedAlleles(alleleList);
+            List<String> otherDiscardedAlleles = new ArrayList<>(discardedAlleleIdx.size());
+            for (Integer alleleIdx: discardedAlleleIdx) {
+                String allele = alleleList.get(alleleIdx);
+                if (!duplicatedAlleles.contains(allele)) {
+                    otherDiscardedAlleles.add(allele);
+                }
+            }
+            // If there are duplicated alleles, we need to re-adjust the start/end positions and the alleles
+            adjustedStartEndPositions = adjustedVariantStart(variant, studyEntry, referenceAlleles, discardedAlleleIdx);
+            start = adjustedStartEndPositions.getLeft();
+            end = adjustedStartEndPositions.getRight();
+            alleleList = buildAlleles(variant, adjustedStartEndPositions, referenceAlleles);
+
+            logger.warn("Discard alleles from variant " + chromosome + ":" + start + "-" + end + " , "
+                    + "Alleles : " + allelesToString(alleleList) + " , "
+                    + "discarded allele indexes : " + discardedAlleleIdx + ", "
+                    + "duplicated alleles: " + allelesToString(duplicatedAlleles) + ", "
+                    + "other discarded alleles: " + allelesToString(otherDiscardedAlleles));
+        }
         boolean isNoVariation = type.equals(VariantType.NO_VARIATION);
 
         // ID
@@ -102,31 +138,39 @@ public class VariantAvroToVariantContextConverter extends VariantContextConverte
         }
 
         // SAMPLES
-        List<Genotype> genotypes = getGenotypes(alleleList, studyEntry.getSampleDataKeys(), getSampleData);
-
-        return makeVariantContext(chromosome, start, end, idForVcf, alleleList, isNoVariation, filters, qual, attributes, genotypes);
+        List<Genotype> genotypes = getGenotypes(alleleList, studyEntry.getSampleDataKeys(), getSampleData, discardedAlleleIdx);
+        return makeVariantContext(chromosome, start, end, idForVcf, alleleList, isNoVariation, filters, qual, attributes, genotypes, discardedAlleleIdx);
     }
 
     /**
      * Adjust start/end if a reference base is required due to an empty allele. All variants are checked due to SecAlts.
-     * @param variant {@link Variant} object.
-     * @param study Study
+     *
+     * @param variant          {@link Variant} object.
+     * @param study            Study
+     * @param discardedAlleles Set of alleles that are going to be discarded
      * @return Pair<Integer, Integer> The adjusted (or same) start/end position e.g. SV and MNV as SecAlt, INDEL, etc.
      */
-    public static Pair<Integer, Integer> adjustedVariantStart(Variant variant, StudyEntry study, Map<Integer, Character> referenceAlleles) {
+    public static Pair<Integer, Integer> adjustedVariantStart(Variant variant, StudyEntry study, Map<Integer, Character> referenceAlleles,
+                                                              Set<Integer> discardedAlleles) {
         if (variant.getType().equals(VariantType.NO_VARIATION)) {
             return new ImmutablePair<>(variant.getStart(), variant.getEnd());
         }
         MutablePair<Integer, Integer> pos = adjustedVariantStart(variant.getStart(), variant.getEnd(), variant.getReference(), variant.getAlternate(), referenceAlleles, null);
 
+        int alleleIdx = 2;
         for (AlternateCoordinate alternateCoordinate : study.getSecondaryAlternates()) {
-            int alternateStart = alternateCoordinate.getStart() == null ? variant.getStart() : alternateCoordinate.getStart().intValue();
-            int alternateEnd = alternateCoordinate.getEnd() == null ? variant.getEnd() : alternateCoordinate.getEnd().intValue();
+            if (discardedAlleles.contains(alleleIdx)) {
+                // Do not adjust start/end based on discarded alleles
+            } else {
+                int alternateStart = alternateCoordinate.getStart() == null ? variant.getStart() : alternateCoordinate.getStart().intValue();
+                int alternateEnd = alternateCoordinate.getEnd() == null ? variant.getEnd() : alternateCoordinate.getEnd().intValue();
 
-            String reference = alternateCoordinate.getReference() == null ? variant.getReference() : alternateCoordinate.getReference();
-            String alternate = alternateCoordinate.getAlternate() == null ? variant.getAlternate() : alternateCoordinate.getAlternate();
+                String reference = alternateCoordinate.getReference() == null ? variant.getReference() : alternateCoordinate.getReference();
+                String alternate = alternateCoordinate.getAlternate() == null ? variant.getAlternate() : alternateCoordinate.getAlternate();
 
-            adjustedVariantStart(alternateStart, alternateEnd, reference, alternate, referenceAlleles, pos);
+                adjustedVariantStart(alternateStart, alternateEnd, reference, alternate, referenceAlleles, pos);
+            }
+            alleleIdx++;
         }
         return pos;
     }
@@ -163,31 +207,40 @@ public class VariantAvroToVariantContextConverter extends VariantContextConverte
         return alleles;
     }
 
-/*
-    // this function was moved to the parent class: VariantContextConverter
-    public String buildAllele(String chromosome, Integer start, Integer end, String allele, Pair<Integer, Integer> adjustedRange) {
-        if (start.equals(adjustedRange.getLeft()) && end.equals(adjustedRange.getRight())) {
-            return allele; // same start / end
+    protected Set<Integer> getDiscardedAlleles(Variant variant, List<String> alleleList) {
+        if (alleleList.size() <= 2) {
+            return Collections.emptySet();
         }
-        if (StringUtils.startsWith(allele, "*")) {
-            return allele; // no need
-        }
-        return getReferenceBase(chromosome, adjustedRange.getLeft(), start) + allele
-                + getReferenceBase(chromosome, end, adjustedRange.getRight());
-    }
-*/
 
-    /*
-    // this function was moved to the parent class: VariantContextConverter
-    private String getReferenceBase(String chromosome, Integer from, Integer to) {
-        int length = to - from;
-        if (length < 0) {
-            throw new IllegalStateException(
-                    "Sequence length is negative: chromosome " + chromosome + " from " + from + " to " + to);
+        String mainAlternate = alleleList.get(1);
+        Set<String> allelesSet = new HashSet<>();
+        allelesSet.add(alleleList.get(0));
+        allelesSet.add(mainAlternate);
+
+        boolean symbolicMainAlt = isSymbolic(mainAlternate);
+        Set<Integer> discardedAlleles = new HashSet<>();
+        for (int i = 2; i < alleleList.size(); i++) {
+            String allele = alleleList.get(i);
+            if (!allelesSet.add(allele)) {
+                // Remove duplicated
+                discardedAlleles.add(i);
+            } else if (symbolicMainAlt != isSymbolic(allele) && !isNonRef(allele)) {
+                // If the main alternate is symbolic, all other alleles must be symbolic
+                // If the main alternate is not symbolic, all other alleles must not be symbolic
+                // Do not discard <NON_REF> or <*>
+                discardedAlleles.add(i);
+            } else if (symbolicMainAlt && isSymbolic(allele)) {
+                // If the main alternate is symbolic, and the allele is symbolic, check if they have the same coordinates
+                AlternateCoordinate alternateCoordinate = variant.getStudies().get(0).getSecondaryAlternates().get(i - 2);
+                if ((alternateCoordinate.getStart() != null && !alternateCoordinate.getStart().equals(variant.getStart()))
+                        || (alternateCoordinate.getEnd() != null && !alternateCoordinate.getEnd().equals(variant.getEnd()))) {
+                    discardedAlleles.add(i);
+                }
+            }
         }
-        return StringUtils.repeat('N', length); // current return default base TODO load reference sequence
+
+        return discardedAlleles;
     }
-*/
 
     private void addCohortStatsMultiInfoField(StudyEntry studyEntry, Map<String, Object> attributes) {
         if (studyEntry.getStats() == null || studyEntry.getStats().size() == 0) {
