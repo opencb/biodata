@@ -25,21 +25,21 @@ import org.opencb.biodata.models.clinical.interpretation.stats.ClinicalVariantSu
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.VariantAvro;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ClinicalVariant extends Variant {
 
     private List<ClinicalVariantEvidence> evidences;
     private List<ClinicalComment> comments;
+    @Deprecated
     private Map<String, Object> filters;
+    private ClinicalVariantFilter filter;
     private String recommendation;
     private List<MiniPubmed> references;
     private ClinicalDiscussion discussion;
     private ClinicalVariantConfidence confidence;
     private List<String> tags;
+    private List<String> images;
 
     private List<ClinicalVariantSummaryStats> stats;
 
@@ -62,76 +62,27 @@ public class ClinicalVariant extends Variant {
     }
 
     public ClinicalVariant(VariantAvro avro) {
-        this(avro, new ArrayList<>(), new ArrayList<>(), new HashMap<>(), new ClinicalDiscussion(), null,
-                Status.NOT_REVIEWED, new ArrayList<>(), new HashMap<>());
-    }
-
-    @Deprecated
-    public ClinicalVariant(VariantAvro avro, List<ClinicalVariantEvidence> evidences, List<ClinicalComment> comments,
-                           Map<String, Object> filters, ClinicalDiscussion discussion, Status status, List<String> tags,
-                           Map<String, Object> attributes) {
-        super(avro);
-
-        this.evidences = evidences;
-        this.comments = comments;
-        this.filters = filters;
-        this.discussion = discussion;
-        this.status = status;
-        this.tags = tags;
-        this.attributes = attributes;
-    }
-
-    @Deprecated
-    public ClinicalVariant(VariantAvro avro, List<ClinicalVariantEvidence> evidences, List<ClinicalComment> comments,
-                           Map<String, Object> filters, ClinicalDiscussion discussion,
-                           ClinicalVariantConfidence confidence, Status status, List<String> tags,
-                           Map<String, Object> attributes) {
-        super(avro);
-
-        this.evidences = evidences;
-        this.comments = comments;
-        this.filters = filters;
-        this.discussion = discussion;
-        this.status = status;
-        this.tags = tags;
-        this.confidence = confidence;
-        this.attributes = attributes;
-    }
-
-    @Deprecated
-    public ClinicalVariant(VariantAvro avro, List<ClinicalVariantEvidence> evidences, List<ClinicalComment> comments,
-                           Map<String, Object> filters, String recommendation, List<MiniPubmed> references,
-                           ClinicalDiscussion discussion, ClinicalVariantConfidence confidence, Status status,
-                           List<String> tags, Map<String, Object> attributes) {
-        super(avro);
-
-        this.evidences = evidences;
-        this.comments = comments;
-        this.filters = filters;
-        this.recommendation = recommendation;
-        this.references = references;
-        this.discussion = discussion;
-        this.status = status;
-        this.tags = tags;
-        this.confidence = confidence;
-        this.attributes = attributes;
+        this(avro, new ArrayList<>(), new ArrayList<>(), new ClinicalVariantFilter(), "", Collections.emptyList(), new ClinicalDiscussion(),
+                new ClinicalVariantConfidence(), Collections.emptyList(), Status.NOT_REVIEWED, Collections.emptyList(),
+                Collections.emptyList(), new HashMap<>());
     }
 
     public ClinicalVariant(VariantAvro avro, List<ClinicalVariantEvidence> evidences, List<ClinicalComment> comments,
-                           Map<String, Object> filters, String recommendation, List<MiniPubmed> references,
+                           ClinicalVariantFilter filter, String recommendation, List<MiniPubmed> references,
                            ClinicalDiscussion discussion, ClinicalVariantConfidence confidence, List<ClinicalVariantSummaryStats> stats,
-                           Status status, List<String> tags, Map<String, Object> attributes) {
+                           Status status, List<String> tags, List<String> images, Map<String, Object> attributes) {
         super(avro);
 
         this.evidences = evidences;
         this.comments = comments;
-        this.filters = filters;
+        this.filter = filter;
         this.recommendation = recommendation;
         this.references = references;
         this.discussion = discussion;
         this.stats = stats;
         this.status = status;
         this.tags = tags;
+        this.images = images;
         this.confidence = confidence;
         this.attributes = attributes;
     }
@@ -160,12 +111,30 @@ public class ClinicalVariant extends Variant {
         return this;
     }
 
+    @Deprecated
     public Map<String, Object> getFilters() {
-        return filters;
+        if (this.filter != null) {
+            return this.filter.getQuery();
+        }
+        return null;
     }
 
+    @Deprecated
     public ClinicalVariant setFilters(Map<String, Object> filters) {
-        this.filters = filters;
+        if (this.filter != null) {
+            this.filter.setQuery(filters);
+        } else {
+            this.filter = new ClinicalVariantFilter(filters, "", "");
+        }
+        return this;
+    }
+
+    public ClinicalVariantFilter getFilter() {
+        return filter;
+    }
+
+    public ClinicalVariant setFilter(ClinicalVariantFilter filter) {
+        this.filter = filter;
         return this;
     }
 
@@ -229,6 +198,15 @@ public class ClinicalVariant extends Variant {
 
     public ClinicalVariant setTags(List<String> tags) {
         this.tags = tags;
+        return this;
+    }
+
+    public List<String> getImages() {
+        return images;
+    }
+
+    public ClinicalVariant setImages(List<String> images) {
+        this.images = images;
         return this;
     }
 
