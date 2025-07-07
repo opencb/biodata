@@ -49,6 +49,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -62,7 +63,7 @@ public class BamManager implements AutoCloseable {
 
     public static final int DEFAULT_WINDOW_SIZE = 1;
     public static final int MAX_NUM_RECORDS = 50000;
-    public static final int MAX_REGION_COVERAGE = 100000;
+    public static final int MAX_REGION_COVERAGE = 500000;
     public static final String COVERAGE_BIGWIG_EXTENSION = ".bw";
 
     private Logger logger;
@@ -191,7 +192,10 @@ public class BamManager implements AutoCloseable {
         return bigWigPath;
     }
 
-
+    /**
+     * @deprecated (since getFileHeader().getTextHeader() is deprecated !)
+     */
+    @Deprecated
     public String header() {
         return samReader.getFileHeader().getTextHeader();
     }
@@ -338,7 +342,7 @@ public class BamManager implements AutoCloseable {
             BAMIndex index = samReader.indexing().getIndex();
             return index.getSpanOverlapping(sequenceIndex, start, end).getChunks();
         }
-        return null;
+        return Collections.emptyList();
     }
 
     public List<String> getBreakpoints(Region region) throws IOException {
@@ -378,7 +382,7 @@ public class BamManager implements AutoCloseable {
                 }
             }
         }
-        return null;
+        return Collections.emptyList();
     }
 
     /**
@@ -445,7 +449,7 @@ public class BamManager implements AutoCloseable {
         return calculateGlobalStats(iterator(region, filters, options));
     }
 
-    private AlignmentGlobalStats calculateGlobalStats(BamIterator<SAMRecord> iterator) throws IOException {
+    private AlignmentGlobalStats calculateGlobalStats(BamIterator<SAMRecord> iterator) {
         AlignmentGlobalStats alignmentGlobalStats = new AlignmentGlobalStats();
         SamRecordAlignmentGlobalStatsCalculator calculator = new SamRecordAlignmentGlobalStatsCalculator();
         while (iterator.hasNext()) {

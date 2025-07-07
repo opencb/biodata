@@ -498,7 +498,8 @@ public class VariantMergerTest {
         Variant v1 = VariantTestUtils.generateVariantWithFormat("1:328:CTT:C",
                 VCFConstants.GENOTYPE_KEY + "," + VCFConstants.GENOTYPE_FILTER_KEY,
                 "S1", "1/2","PASS");
-        v1.getStudies().get(0).getSecondaryAlternates().add(new AlternateCoordinate(null,null,331,"CTT", "CTTTC", VariantType.INDEL));
+
+        v1.getStudies().get(0).getSecondaryAlternates().add(new AlternateCoordinate(null, null, 330, "CTT", "CTTTC", VariantType.INDEL));
 
         Variant v2 = VariantTestUtils.generateVariantWithFormat("1:331:T:TCT",
                 VCFConstants.GENOTYPE_KEY + "," + VCFConstants.GENOTYPE_FILTER_KEY,
