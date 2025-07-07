@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uniprot xmlns="https://uniprot.org/uniprot"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://uniprot.org/uniprot http://www.uniprot.org/docs/uniprot.xsd">
+<entry dataset="Swiss-Prot" created="2009-05-05" modified="2025-02-05" version="84" xmlns="https://uniprot.org/uniprot">
+    <accession>Q49VE6</accession>
+    <name>Y2119_STAS1</name>
+    <protein>
+        <recommendedName>
+            <fullName evidence="1">UPF0741 protein SSP2119</fullName>
+        </recommendedName>
+    </protein>
+    <gene>
+        <name type="ordered locus">SSP2119</name>
+    </gene>
+    <organism>
+        <name type="scientific">Staphylococcus saprophyticus subsp. saprophyticus (strain ATCC 15305 / DSM 20229 / NCIMB 8711 / NCTC 7292 / S-41)</name>
+        <dbReference type="NCBI Taxonomy" id="342451"/>
+        <lineage>
+            <taxon>Bacteria</taxon>
+            <taxon>Bacillati</taxon>
+            <taxon>Bacillota</taxon>
+            <taxon>Bacilli</taxon>
+            <taxon>Bacillales</taxon>
+            <taxon>Staphylococcaceae</taxon>
+            <taxon>Staphylococcus</taxon>
+        </lineage>
+    </organism>
+    <reference key="1">
+        <citation type="journal article" date="2005" name="Proc. Natl. Acad. Sci. U.S.A." volume="102" first="13272" last="13277">
+            <title>Whole genome sequence of Staphylococcus saprophyticus reveals the pathogenesis of uncomplicated urinary tract infection.</title>
+            <authorList>
+                <person name="Kuroda M."/>
+                <person name="Yamashita A."/>
+                <person name="Hirakawa H."/>
+                <person name="Kumano M."/>
+                <person name="Morikawa K."/>
+                <person name="Higashide M."/>
+                <person name="Maruyama A."/>
+                <person name="Inose Y."/>
+                <person name="Matoba K."/>
+                <person name="Toh H."/>
+                <person name="Kuhara S."/>
+                <person name="Hattori M."/>
+                <person name="Ohta T."/>
+            </authorList>
+            <dbReference type="PubMed" id="16135568"/>
+            <dbReference type="DOI" id="10.1073/pnas.0502950102"/>
+        </citation>
+        <scope>NUCLEOTIDE SEQUENCE [LARGE SCALE GENOMIC DNA]</scope>
+        <source>
+            <strain>ATCC 15305 / DSM 20229 / NCIMB 8711 / NCTC 7292 / S-41</strain>
+        </source>
+    </reference>
+    <comment type="similarity">
+        <text evidence="1">Belongs to the UPF0741 family.</text>
+    </comment>
+    <dbReference type="EMBL" id="AP008934">
+        <property type="protein sequence ID" value="BAE19264.1"/>
+        <property type="molecule type" value="Genomic_DNA"/>
+    </dbReference>
+    <dbReference type="RefSeq" id="WP_011303757.1">
+        <property type="nucleotide sequence ID" value="NZ_MTGA01000039.1"/>
+    </dbReference>
+    <dbReference type="AlphaFoldDB" id="Q49VE6"/>
+    <dbReference type="SMR" id="Q49VE6"/>
+    <dbReference type="GeneID" id="3616327"/>
+    <dbReference type="KEGG" id="ssp:SSP2119"/>
+    <dbReference type="PATRIC" id="fig|342451.11.peg.2112"/>
+    <dbReference type="eggNOG" id="COG4844">
+        <property type="taxonomic scope" value="Bacteria"/>
+    </dbReference>
+    <dbReference type="HOGENOM" id="CLU_2156795_0_0_9"/>
+    <dbReference type="OrthoDB" id="1645211at2"/>
+    <dbReference type="Proteomes" id="UP000006371">
+        <property type="component" value="Chromosome"/>
+    </dbReference>
+    <dbReference type="HAMAP" id="MF_01863">
+        <property type="entry name" value="UPF0741"/>
+        <property type="match status" value="1"/>
+    </dbReference>
+    <dbReference type="InterPro" id="IPR020880">
+        <property type="entry name" value="UPF0741"/>
+    </dbReference>
+    <proteinExistence type="inferred from homology"/>
+    <keyword id="KW-0175">Coiled coil</keyword>
+    <keyword id="KW-1185">Reference proteome</keyword>
+    <feature type="chain" id="PRO_0000372762" description="UPF0741 protein SSP2119">
+        <location>
+            <begin position="1"/>
+            <end position="112"/>
+        </location>
+    </feature>
+    <feature type="region of interest" description="Disordered" evidence="2">
+        <location>
+            <begin position="68"/>
+            <end position="112"/>
+        </location>
+    </feature>
+    <feature type="coiled-coil region" evidence="1">
+        <location>
+            <begin position="75"/>
+            <end position="112"/>
+        </location>
+    </feature>
+    <evidence type="ECO:0000255" key="1">
+        <source>
+            <dbReference type="HAMAP-Rule" id="MF_01863"/>
+        </source>
+    </evidence>
+    <evidence type="ECO:0000256" key="2">
+        <source>
+            <dbReference type="SAM" id="MobiDB-lite"/>
+        </source>
+    </evidence>
+    <sequence length="112" mass="13412" checksum="62064830D18B41B9" modified="2005-09-13" version="1">MQNKFLICDDCQGVNCKSLEKKLTKLDPEAEIEIGCQSYCGPGRRKTFAFVNNRPLAALTEDELMEKVEKQLQKPRDHEEEERLRKRNEERKRRKEEQDRKLKEKLAQRKHK</sequence>
+</entry>
+</uniprot>
