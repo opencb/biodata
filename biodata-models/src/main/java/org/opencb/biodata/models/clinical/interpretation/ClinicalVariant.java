@@ -21,6 +21,7 @@ package org.opencb.biodata.models.clinical.interpretation;
 
 import org.opencb.biodata.models.clinical.ClinicalComment;
 import org.opencb.biodata.models.clinical.ClinicalDiscussion;
+import org.opencb.biodata.models.clinical.ClinicalProperty;
 import org.opencb.biodata.models.clinical.interpretation.stats.ClinicalVariantSummaryStats;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.VariantAvro;
@@ -34,6 +35,7 @@ public class ClinicalVariant extends Variant {
     @Deprecated
     private Map<String, Object> filters;
     private ClinicalVariantFilter filter;
+    private List<ClinicalProperty.ModeOfInheritance> modesOfInheritance; // all compatible MoIs
     private String recommendation;
     private List<MiniPubmed> references;
     private ClinicalDiscussion discussion;
@@ -52,6 +54,8 @@ public class ClinicalVariant extends Variant {
         NOT_REVIEWED,
         REVIEW_REQUESTED,
         REVIEWED,
+        VALIDATION_REQUESTED,
+        VALIDATED,
         DISCARDED,
         REPORTED,
         ARTIFACT
@@ -62,13 +66,14 @@ public class ClinicalVariant extends Variant {
     }
 
     public ClinicalVariant(VariantAvro avro) {
-        this(avro, new ArrayList<>(), new ArrayList<>(), new ClinicalVariantFilter(), "", Collections.emptyList(), new ClinicalDiscussion(),
-                new ClinicalVariantConfidence(), Collections.emptyList(), Status.NOT_REVIEWED, Collections.emptyList(),
-                Collections.emptyList(), new HashMap<>());
+        this(avro, new ArrayList<>(), new ArrayList<>(), new ClinicalVariantFilter(), Collections.emptyList(), "", Collections.emptyList(),
+                new ClinicalDiscussion(), new ClinicalVariantConfidence(), Collections.emptyList(), Status.NOT_REVIEWED,
+                Collections.emptyList(), Collections.emptyList(), new HashMap<>());
     }
 
     public ClinicalVariant(VariantAvro avro, List<ClinicalVariantEvidence> evidences, List<ClinicalComment> comments,
-                           ClinicalVariantFilter filter, String recommendation, List<MiniPubmed> references,
+                           ClinicalVariantFilter filter, List<ClinicalProperty.ModeOfInheritance> modesOfInheritance, String recommendation,
+                           List<MiniPubmed> references,
                            ClinicalDiscussion discussion, ClinicalVariantConfidence confidence, List<ClinicalVariantSummaryStats> stats,
                            Status status, List<String> tags, List<String> images, Map<String, Object> attributes) {
         super(avro);
@@ -76,6 +81,7 @@ public class ClinicalVariant extends Variant {
         this.evidences = evidences;
         this.comments = comments;
         this.filter = filter;
+        this.modesOfInheritance = modesOfInheritance;
         this.recommendation = recommendation;
         this.references = references;
         this.discussion = discussion;
@@ -135,6 +141,15 @@ public class ClinicalVariant extends Variant {
 
     public ClinicalVariant setFilter(ClinicalVariantFilter filter) {
         this.filter = filter;
+        return this;
+    }
+
+    public List<ClinicalProperty.ModeOfInheritance> getModesOfInheritance() {
+        return modesOfInheritance;
+    }
+
+    public ClinicalVariant setModesOfInheritance(List<ClinicalProperty.ModeOfInheritance> modesOfInheritance) {
+        this.modesOfInheritance = modesOfInheritance;
         return this;
     }
 

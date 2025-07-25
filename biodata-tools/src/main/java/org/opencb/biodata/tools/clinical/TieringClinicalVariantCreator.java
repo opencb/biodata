@@ -272,8 +272,9 @@ public class TieringClinicalVariantCreator extends ClinicalVariantCreator {
             if (CollectionUtils.isNotEmpty(clinicalVariantEvidences)) {
                 logger.debug(variant.toStringSimple() + ": reported, num. evidences: " + clinicalVariantEvidences.size());
                 ClinicalVariant clinicalVariant = new ClinicalVariant(variant.getImpl(), Collections.emptyList(), Collections.emptyList(),
-                        new ClinicalVariantFilter(), "", Collections.emptyList(), new ClinicalDiscussion(), null, Collections.emptyList(),
-                        ClinicalVariant.Status.NOT_REVIEWED, Collections.emptyList(), Collections.emptyList(), Collections.emptyMap());
+                        new ClinicalVariantFilter(), Collections.emptyList(), "", Collections.emptyList(), new ClinicalDiscussion(), null,
+                        Collections.emptyList(), ClinicalVariant.Status.NOT_REVIEWED, Collections.emptyList(), Collections.emptyList(),
+                        Collections.emptyMap());
                 clinicalVariant.setEvidences(clinicalVariantEvidences);
 
                 // Add variant to the list
