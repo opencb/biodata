@@ -17,17 +17,10 @@
  *
  */
 
-package org.opencb.biodata.formats.feature.chemirdb;
+package org.opencb.biodata.formats.feature.chimerdb;
 
-import org.opencb.biodata.models.core.MiRnaGene;
-import org.opencb.commons.utils.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.opencb.biodata.models.clinical.genefusion.GeneFusion;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.file.Path;
-
-public interface ChemirDbParserCallback {
-    boolean processChemirDbItem(Object object);
+public interface GeneFusionParserCallback {
+    boolean processGeneFusion(GeneFusion geneFusion);
 }
