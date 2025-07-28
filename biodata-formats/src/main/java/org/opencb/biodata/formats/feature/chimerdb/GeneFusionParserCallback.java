@@ -19,7 +19,7 @@
 
 package org.opencb.biodata.formats.feature.chimerdb;
 
-import org.opencb.biodata.models.clinical.genefusion.GeneFusion;
+import org.opencb.biodata.models.core.genefusion.GeneFusion;
 
 public interface GeneFusionParserCallback {
     boolean processGeneFusion(GeneFusion geneFusion);

@@ -25,8 +25,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.opencb.biodata.models.clinical.genefusion.GeneFusion;
-import org.opencb.biodata.models.clinical.genefusion.GeneFusionBreakpoint;
+import org.opencb.biodata.models.core.genefusion.GeneFusion;
+import org.opencb.biodata.models.core.genefusion.GeneFusionBreakpoint;
 import org.opencb.commons.utils.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -166,6 +166,9 @@ public class ChimerDbParser {
                 if (row.getCell(16) != null && row.getCell(16).getNumericCellValue() == 1) {
                     geneFusion.getAttributes().put("exomic_breakpoint", true);
                 }
+                if (row.getCell(23) != null && StringUtils.isNotEmpty(row.getCell(23).getStringCellValue())) {
+                    geneFusion.getAttributes().put("chr_info", row.getCell(23).getStringCellValue());
+                }
                 if (row.getCell(24) != null && StringUtils.isNotEmpty(row.getCell(24).getStringCellValue())) {
                     geneFusion.getAttributes().put("kinase", true);
                 }
@@ -181,7 +184,6 @@ public class ChimerDbParser {
                 if (row.getCell(28) != null && StringUtils.isNotEmpty(row.getCell(28).getStringCellValue())) {
                     geneFusion.getAttributes().put("transcriptor_factor", true);
                 }
-
 
                 // Callback to process the gene fusion
                 callback.processGeneFusion(geneFusion);

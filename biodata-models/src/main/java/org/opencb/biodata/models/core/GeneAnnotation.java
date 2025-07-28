@@ -19,7 +19,7 @@
 
 package org.opencb.biodata.models.core;
 
-import org.opencb.biodata.models.clinical.genefusion.GeneFusion;
+import org.opencb.biodata.models.core.genefusion.GeneFusion;
 import org.opencb.biodata.models.variant.avro.Constraint;
 import org.opencb.biodata.models.variant.avro.Expression;
 import org.opencb.biodata.models.variant.avro.GeneDrugInteraction;

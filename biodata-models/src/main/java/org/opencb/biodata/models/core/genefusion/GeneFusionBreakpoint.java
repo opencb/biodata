@@ -1,4 +1,4 @@
-package org.opencb.biodata.models.clinical.genefusion;
+package org.opencb.biodata.models.core.genefusion;
 
 public class GeneFusionBreakpoint {
 

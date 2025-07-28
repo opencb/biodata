@@ -2,8 +2,7 @@ package org.opencb.biodata.formats.feature.chimerdb;
 
 
 import org.junit.Assert;
-import org.junit.Test;
-import org.opencb.biodata.models.clinical.genefusion.GeneFusion;
+import org.opencb.biodata.models.core.genefusion.GeneFusion;
 
 import java.io.IOException;
 import java.nio.file.Path;
