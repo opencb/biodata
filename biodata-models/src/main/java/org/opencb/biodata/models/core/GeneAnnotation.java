@@ -19,11 +19,7 @@
 
 package org.opencb.biodata.models.core;
 
-import org.opencb.biodata.models.core.genefusion.GeneFusion;
-import org.opencb.biodata.models.variant.avro.Constraint;
-import org.opencb.biodata.models.variant.avro.Expression;
-import org.opencb.biodata.models.variant.avro.GeneDrugInteraction;
-import org.opencb.biodata.models.variant.avro.GeneTraitAssociation;
+import org.opencb.biodata.models.variant.avro.*;
 
 import java.util.ArrayList;
 import java.util.List;
