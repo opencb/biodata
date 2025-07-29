@@ -19,6 +19,7 @@
 
 package org.opencb.biodata.formats.feature.chimerdb;
 
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
@@ -35,7 +36,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 public class ChimerDbParser {
 
@@ -61,6 +64,7 @@ public class ChimerDbParser {
                 }
 
                 GeneFusion geneFusion = new GeneFusion();
+                Map<String, String> attributes = new HashMap<>();
 
                 // 0    1               2       3           4           5               6               7       8       9          10
                 // id	ChimerDB_Type	Source	webSource	Fusion_pair	5Gene_Junction	3Gene_Junction	H_gene	H_chr	H_position	H_strand
@@ -161,28 +165,31 @@ public class ChimerDbParser {
 
                 // Attributes
                 if (row.getCell(15) != null && row.getCell(15).getNumericCellValue() == 1) {
-                    geneFusion.getAttributes().put("genomic_breakpoint", String.valueOf(true));
+                    attributes.put("genomic_breakpoint", String.valueOf(true));
                 }
                 if (row.getCell(16) != null && row.getCell(16).getNumericCellValue() == 1) {
-                    geneFusion.getAttributes().put("exomic_breakpoint", String.valueOf(true));
+                    attributes.put("exomic_breakpoint", String.valueOf(true));
                 }
                 if (row.getCell(23) != null && StringUtils.isNotEmpty(row.getCell(23).getStringCellValue())) {
-                    geneFusion.getAttributes().put("chr_info", row.getCell(23).getStringCellValue());
+                    attributes.put("chr_info", row.getCell(23).getStringCellValue());
                 }
                 if (row.getCell(24) != null && StringUtils.isNotEmpty(row.getCell(24).getStringCellValue())) {
-                    geneFusion.getAttributes().put("kinase", String.valueOf(true));
+                    attributes.put("kinase", String.valueOf(true));
                 }
                 if (row.getCell(25) != null && StringUtils.isNotEmpty(row.getCell(25).getStringCellValue())) {
-                    geneFusion.getAttributes().put("oncogene", String.valueOf(true));
+                    attributes.put("oncogene", String.valueOf(true));
                 }
                 if (row.getCell(26) != null && StringUtils.isNotEmpty(row.getCell(26).getStringCellValue())) {
-                    geneFusion.getAttributes().put("tumor_supressor", String.valueOf(true));
+                    attributes.put("tumor_supressor", String.valueOf(true));
                 }
                 if (row.getCell(27) != null && StringUtils.isNotEmpty(row.getCell(27).getStringCellValue())) {
-                    geneFusion.getAttributes().put("receptor", String.valueOf(true));
+                    attributes.put("receptor", String.valueOf(true));
                 }
                 if (row.getCell(28) != null && StringUtils.isNotEmpty(row.getCell(28).getStringCellValue())) {
-                    geneFusion.getAttributes().put("transcriptor_factor", String.valueOf(true));
+                    attributes.put("transcriptor_factor", String.valueOf(true));
+                }
+                if (MapUtils.isNotEmpty(attributes)) {
+                    geneFusion.setAttributes(attributes);
                 }
 
                 // Callback to process the gene fusion
