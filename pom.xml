@@ -131,6 +131,14 @@
 
     <repositories>
         <repository>
+            <id>ossrh</id>
+            <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </snapshots>
+        </repository>
+        <repository>
             <id>github</id>
             <url>https://maven.pkg.github.com/opencb</url>
             <snapshots>
