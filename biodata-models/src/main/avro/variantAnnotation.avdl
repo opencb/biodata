@@ -70,14 +70,14 @@ protocol VariantAnnotations {
     	string strand;
     }
 
-    record GeneFusion {
+    record GeneFusionSummary {
     	string id;
     	string pair;
     	string source;
     	string gene5PrimeJunction;
     	string gene3PrimeJunction;
-    	union { null, GeneFusionBreakpoint } headGene;
-    	union { null, GeneFusionBreakpoint } tailGene;
+    	//union { null, GeneFusionBreakpoint } headGene;
+    	//union { null, GeneFusionBreakpoint } tailGene;
     	union { null, array<string> } diseases;
     	union { null, array<string> } publications;
     	union { null, array<string> } validations;
@@ -391,7 +391,7 @@ protocol VariantAnnotations {
         union { null, array<Repeat> } repeat;
         union { null, array<Drug> } drugs;
         union { null, array<ImprintedGene> } imprintedGenes;
-        union { null, array<GeneFusion> } geneFusions;
+        union { null, array<GeneFusionSummary> } geneFusionSummaries;
         union { null, map<AdditionalAttribute> } additionalAttributes = null;
     }
 

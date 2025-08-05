@@ -20,8 +20,6 @@
 package org.opencb.biodata.formats.feature.chimerdb;
 
 
-import org.opencb.biodata.models.variant.avro.GeneFusion;
-
-public interface GeneFusionParserCallback {
-    boolean processGeneFusion(GeneFusion geneFusion);
+public interface ChimerDbParserCallback<T> {
+    boolean processChimerDbObject(T object);
 }

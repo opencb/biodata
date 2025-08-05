@@ -2,53 +2,45 @@ package org.opencb.biodata.formats.feature.chimerdb;
 
 
 import org.junit.Assert;
-import org.opencb.biodata.models.variant.avro.GeneFusion;
+import org.junit.Test;
+import org.opencb.biodata.models.core.GeneFusion;
+import org.opencb.biodata.models.core.chimerdb.ChimerKb;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ChimerDbParserTest {
 
-    
     public void testParse() throws IOException {
         Path xlsxPath = Paths.get(getClass().getResource("/ChimerKB4.small.xlsx").getPath());
 
         ChimerDbParserTest.MyCallback callback = new ChimerDbParserTest.MyCallback(">>> Testing message");
 
-        ChimerDbParser.parse(xlsxPath, callback);
-        Assert.assertEquals(50, callback.getCounter());
-
-//        MiRnaGene mi0000060 = callback.getMiRnaGene("MI0000060");
+        ChimerKbParser.parse(xlsxPath, callback);
+        Assert.assertEquals(50, callback.getGeneFusions().getChimerKb().size());
     }
 
-
     // Implementation of the MirBaseParserCallback function
-    public class MyCallback implements GeneFusionParserCallback {
+    public class MyCallback implements ChimerDbParserCallback<ChimerKb> {
         private String msg;
-        private List<GeneFusion> geneFusionList;
+        private GeneFusion geneFusions;
 
         public MyCallback(String msg) {
             this.msg = msg;
-            this.geneFusionList = new ArrayList<>();
+            this.geneFusions = new GeneFusion();
         }
 
         @Override
-        public boolean processGeneFusion(GeneFusion geneFusion) {
+        public boolean processChimerDbObject(ChimerKb chimerKb) {
             System.out.println(msg);
-            System.out.println(geneFusion.toString());
-            geneFusionList.add(geneFusion);
+            System.out.println(chimerKb.toString());
+            geneFusions.getChimerKb().add(chimerKb);
             return true;
         }
 
-        public List<GeneFusion> getGeneFusionList() {
-            return geneFusionList;
-        }
-
-        public int getCounter() {
-            return geneFusionList.size();
+        public GeneFusion getGeneFusions() {
+            return geneFusions;
         }
     }
 

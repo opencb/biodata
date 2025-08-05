@@ -35,7 +35,7 @@ public class GeneAnnotation {
     private List<GeneCancerAssociation> cancerAssociations;
     private List<CancerHotspot> cancerHotspots;
     private List<ImprintedGene> imprinted;
-    private List<GeneFusion> fusions;
+    private GeneFusion fusions;
 
     public GeneAnnotation() {
         this.expression = new ArrayList<>();
@@ -46,21 +46,21 @@ public class GeneAnnotation {
         this.cancerAssociations = new ArrayList<>();
         this.cancerHotspots = new ArrayList<>();
         this.imprinted = new ArrayList<>();
-        this.fusions = new ArrayList<>();
+        this.fusions = new GeneFusion();
     }
 
     @Deprecated
     public GeneAnnotation(List<Expression> expression, List<GeneTraitAssociation> diseases,
                           List<GeneDrugInteraction> drugs, List<Constraint> constraints, List<MirnaTarget> mirnaTargets) {
         this(expression, diseases, drugs, constraints, mirnaTargets, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
-                new ArrayList<>());
+                new GeneFusion());
     }
 
     @Deprecated
     public GeneAnnotation(List<Expression> expression, List<GeneTraitAssociation> diseases, List<GeneDrugInteraction> drugs,
                           List<Constraint> constraints, List<MirnaTarget> mirnaTargets, List<GeneCancerAssociation> cancerAssociations) {
         this(expression, diseases, drugs, constraints, mirnaTargets, cancerAssociations, new ArrayList<>(), new ArrayList<>(),
-                new ArrayList<>());
+                new GeneFusion());
     }
 
     @Deprecated
@@ -68,12 +68,12 @@ public class GeneAnnotation {
                           List<Constraint> constraints, List<MirnaTarget> mirnaTargets, List<GeneCancerAssociation> cancerAssociations,
                           List<CancerHotspot> cancerHotspots) {
         this(expression, diseases, drugs, constraints, mirnaTargets, cancerAssociations, cancerHotspots, new ArrayList<>(),
-                new ArrayList<>());
+                new GeneFusion());
     }
 
     public GeneAnnotation(List<Expression> expression, List<GeneTraitAssociation> diseases, List<GeneDrugInteraction> drugs,
                           List<Constraint> constraints, List<MirnaTarget> mirnaTargets, List<GeneCancerAssociation> cancerAssociations,
-                          List<CancerHotspot> cancerHotspots, List<ImprintedGene> imprinted, List<GeneFusion> fusions) {
+                          List<CancerHotspot> cancerHotspots, List<ImprintedGene> imprinted, GeneFusion fusions) {
         this.expression = expression;
         this.diseases = diseases;
         this.drugs = drugs;
@@ -173,11 +173,11 @@ public class GeneAnnotation {
         return this;
     }
 
-    public List<GeneFusion> getFusions() {
+    public GeneFusion getFusions() {
         return fusions;
     }
 
-    public GeneAnnotation setFusions(List<GeneFusion> fusions) {
+    public GeneAnnotation setFusions(GeneFusion fusions) {
         this.fusions = fusions;
         return this;
     }
