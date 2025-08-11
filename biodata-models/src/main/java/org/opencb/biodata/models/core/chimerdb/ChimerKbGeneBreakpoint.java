@@ -19,12 +19,9 @@
 
 package org.opencb.biodata.models.core.chimerdb;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class ChimerKbGeneBreakpoint {
 
-    protected String gene;
+    protected String geneName;
     protected String chromosome;
     protected int position;
     protected String strand;
@@ -32,8 +29,8 @@ public class ChimerKbGeneBreakpoint {
     public ChimerKbGeneBreakpoint() {
     }
 
-    public ChimerKbGeneBreakpoint(String gene, String chromosome, int position, String strand) {
-        this.gene = gene;
+    public ChimerKbGeneBreakpoint(String geneName, String chromosome, int position, String strand) {
+        this.geneName = geneName;
         this.chromosome = chromosome;
         this.position = position;
         this.strand = strand;
@@ -42,7 +39,7 @@ public class ChimerKbGeneBreakpoint {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("ChimerKbGeneBreakpoint{");
-        sb.append("gene='").append(gene).append('\'');
+        sb.append("geneName='").append(geneName).append('\'');
         sb.append(", chromosome='").append(chromosome).append('\'');
         sb.append(", position=").append(position);
         sb.append(", strand='").append(strand).append('\'');
@@ -50,12 +47,12 @@ public class ChimerKbGeneBreakpoint {
         return sb.toString();
     }
 
-    public String getGene() {
-        return gene;
+    public String getGeneName() {
+        return geneName;
     }
 
-    public ChimerKbGeneBreakpoint setGene(String gene) {
-        this.gene = gene;
+    public ChimerKbGeneBreakpoint setGeneName(String geneName) {
+        this.geneName = geneName;
         return this;
     }
 

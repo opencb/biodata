@@ -32,9 +32,9 @@ public class ChimerSeqGeneBreakpoint extends ChimerKbGeneBreakpoint {
         super();
     }
 
-    public ChimerSeqGeneBreakpoint(String gene, String chromosome, int position, String strand, String locus, boolean kinase,
+    public ChimerSeqGeneBreakpoint(String geneName, String chromosome, int position, String strand, String locus, boolean kinase,
                                    boolean oncogene, boolean tumorSuppressor, boolean receptor, boolean transcriptionFactor) {
-        super(gene, chromosome, position, strand);
+        super(geneName, chromosome, position, strand);
         this.locus = locus;
         this.kinase = kinase;
         this.oncogene = oncogene;
@@ -52,7 +52,7 @@ public class ChimerSeqGeneBreakpoint extends ChimerKbGeneBreakpoint {
         sb.append(", tumorSuppressor=").append(tumorSuppressor);
         sb.append(", receptor=").append(receptor);
         sb.append(", transcriptionFactor=").append(transcriptionFactor);
-        sb.append(", gene='").append(gene).append('\'');
+        sb.append(", geneName='").append(geneName).append('\'');
         sb.append(", chromosome='").append(chromosome).append('\'');
         sb.append(", position=").append(position);
         sb.append(", strand='").append(strand).append('\'');

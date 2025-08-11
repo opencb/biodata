@@ -117,7 +117,7 @@ public class ChimerKbParser {
                 ChimerKbGeneBreakpoint head = new ChimerKbGeneBreakpoint();
                 strValue = getStringCellValue(row, 7);
                 if (strValue != null) {
-                    head.setGene(strValue);
+                    head.setGeneName(strValue);
                 }
                 strValue = getStringCellValue(row, 8);
                 if (strValue != null) {
@@ -141,7 +141,7 @@ public class ChimerKbParser {
                 ChimerKbGeneBreakpoint tail = new ChimerKbGeneBreakpoint();
                 strValue = getStringCellValue(row, 11);
                 if (strValue != null) {
-                    tail.setGene(strValue);
+                    tail.setGeneName(strValue);
                 }
                 strValue = getStringCellValue(row, 12);
                 if (strValue != null) {

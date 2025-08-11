@@ -93,7 +93,7 @@ public class ChimerPubParser {
                 ChimerPubGeneBreakpoint head = new ChimerPubGeneBreakpoint();
                 strValue = getStringCellValue(row, 3);
                 if (strValue != null) {
-                    head.setGene(strValue);
+                    head.setGeneName(strValue);
                 }
                 strValue = getStringCellValue(row, 18);
                 if (strValue != null) {
@@ -105,7 +105,7 @@ public class ChimerPubParser {
                 ChimerPubGeneBreakpoint tail = new ChimerPubGeneBreakpoint();
                 strValue = getStringCellValue(row, 4);
                 if (strValue != null) {
-                    tail.setGene(strValue);
+                    tail.setGeneName(strValue);
                 }
                 strValue = getStringCellValue(row, 19);
                 if (strValue != null) {

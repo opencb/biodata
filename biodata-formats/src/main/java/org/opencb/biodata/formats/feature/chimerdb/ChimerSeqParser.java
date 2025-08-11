@@ -107,7 +107,7 @@ public class ChimerSeqParser {
                 ChimerSeqGeneBreakpoint head = new ChimerSeqGeneBreakpoint();
                 strValue = getStringCellValue(row, 5);
                 if (strValue != null) {
-                    head.setGene(strValue);
+                    head.setGeneName(strValue);
                 }
                 strValue = getStringCellValue(row, 6);
                 if (strValue != null) {
@@ -155,7 +155,7 @@ public class ChimerSeqParser {
                 ChimerSeqGeneBreakpoint tail = new ChimerSeqGeneBreakpoint();
                 strValue = getStringCellValue(row, 9);
                 if (strValue != null) {
-                    tail.setGene(strValue);
+                    tail.setGeneName(strValue);
                 }
                 strValue = getStringCellValue(row, 10);
                 if (strValue != null) {

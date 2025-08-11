@@ -21,32 +21,32 @@ package org.opencb.biodata.models.core.chimerdb;
 
 public class ChimerPubGeneBreakpoint {
 
-    private String gene;
+    private String geneName;
     private String highlight;
 
     public ChimerPubGeneBreakpoint() {
     }
 
-    public ChimerPubGeneBreakpoint(String gene, String highlight) {
-        this.gene = gene;
+    public ChimerPubGeneBreakpoint(String geneName, String highlight) {
+        this.geneName = geneName;
         this.highlight = highlight;
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("ChimerPubGeneBreakpoint{");
-        sb.append("gene='").append(gene).append('\'');
+        sb.append("geneName='").append(geneName).append('\'');
         sb.append(", highlight='").append(highlight).append('\'');
         sb.append('}');
         return sb.toString();
     }
 
-    public String getGene() {
-        return gene;
+    public String getGeneName() {
+        return geneName;
     }
 
-    public ChimerPubGeneBreakpoint setGene(String gene) {
-        this.gene = gene;
+    public ChimerPubGeneBreakpoint setGeneName(String geneName) {
+        this.geneName = geneName;
         return this;
     }
 
