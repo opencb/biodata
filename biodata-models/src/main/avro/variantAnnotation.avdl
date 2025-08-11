@@ -55,7 +55,7 @@ protocol VariantAnnotations {
         string source;
     }
 
-    record ImprintedGene {
+    record GeneImprinting {
     	string geneName;
     	string status;
     	string expressedAllele;
@@ -71,17 +71,17 @@ protocol VariantAnnotations {
     }
 
     record GeneFusionSummary {
-    	string id;
     	string pair;
     	string source;
-    	string gene5PrimeJunction;
-    	string gene3PrimeJunction;
-    	//union { null, GeneFusionBreakpoint } headGene;
-    	//union { null, GeneFusionBreakpoint } tailGene;
+    	union { null, GeneFusionBreakpoint } headGene;
+    	union { null, GeneFusionBreakpoint } tailGene;
+    	union { null, array<string> } pmid;
     	union { null, array<string> } diseases;
-    	union { null, array<string> } publications;
-    	union { null, array<string> } validations;
-    	union { null, map<string> } attributes;
+    	union { null, boolean } kinase;
+    	union { null, boolean } oncogene;
+    	union { null, boolean } tumorSuppresor;
+    	union { null, boolean } receptor;
+    	union { null, boolean } transcriptionFactor;
     }
 
     record PopulationFrequency {
@@ -390,8 +390,8 @@ protocol VariantAnnotations {
         union { null, array<Cytoband> } cytoband;
         union { null, array<Repeat> } repeat;
         union { null, array<Drug> } drugs;
-        union { null, array<ImprintedGene> } imprintedGenes;
-        union { null, array<GeneFusionSummary> } geneFusionSummaries;
+        union { null, array<GeneImprinting> } geneImprinting;
+        union { null, array<GeneFusionSummary> } geneFusions;
         union { null, map<AdditionalAttribute> } additionalAttributes = null;
     }
 

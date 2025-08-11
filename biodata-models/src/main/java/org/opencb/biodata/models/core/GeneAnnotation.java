@@ -34,8 +34,8 @@ public class GeneAnnotation {
     private List<MirnaTarget> mirnaTargets;
     private List<GeneCancerAssociation> cancerAssociations;
     private List<CancerHotspot> cancerHotspots;
-    private List<ImprintedGene> imprinted;
-    private GeneFusion fusions;
+    private List<GeneImprinting> geneImprinting;
+    private GeneFusion geneFusions;
 
     public GeneAnnotation() {
         this.expression = new ArrayList<>();
@@ -45,8 +45,8 @@ public class GeneAnnotation {
         this.mirnaTargets = new ArrayList<>();
         this.cancerAssociations = new ArrayList<>();
         this.cancerHotspots = new ArrayList<>();
-        this.imprinted = new ArrayList<>();
-        this.fusions = new GeneFusion();
+        this.geneImprinting = new ArrayList<>();
+        this.geneFusions = new GeneFusion();
     }
 
     @Deprecated
@@ -73,7 +73,7 @@ public class GeneAnnotation {
 
     public GeneAnnotation(List<Expression> expression, List<GeneTraitAssociation> diseases, List<GeneDrugInteraction> drugs,
                           List<Constraint> constraints, List<MirnaTarget> mirnaTargets, List<GeneCancerAssociation> cancerAssociations,
-                          List<CancerHotspot> cancerHotspots, List<ImprintedGene> imprinted, GeneFusion fusions) {
+                          List<CancerHotspot> cancerHotspots, List<GeneImprinting> geneImprinting, GeneFusion geneFusions) {
         this.expression = expression;
         this.diseases = diseases;
         this.drugs = drugs;
@@ -81,8 +81,8 @@ public class GeneAnnotation {
         this.mirnaTargets = mirnaTargets;
         this.cancerAssociations = cancerAssociations;
         this.cancerHotspots = cancerHotspots;
-        this.imprinted = imprinted;
-        this.fusions = fusions;
+        this.geneImprinting = geneImprinting;
+        this.geneFusions = geneFusions;
     }
 
     @Override
@@ -95,8 +95,8 @@ public class GeneAnnotation {
         sb.append(", mirnaTargets=").append(mirnaTargets);
         sb.append(", cancerAssociations=").append(cancerAssociations);
         sb.append(", cancerHotspots=").append(cancerHotspots);
-        sb.append(", imprinted=").append(imprinted);
-        sb.append(", fusions=").append(fusions);
+        sb.append(", geneImprinting=").append(geneImprinting);
+        sb.append(", geneFusions=").append(geneFusions);
         sb.append('}');
         return sb.toString();
     }
@@ -164,21 +164,21 @@ public class GeneAnnotation {
         return this;
     }
 
-    public List<ImprintedGene> getImprinted() {
-        return imprinted;
+    public List<GeneImprinting> getGeneImprinting() {
+        return geneImprinting;
     }
 
-    public GeneAnnotation setImprinted(List<ImprintedGene> imprinted) {
-        this.imprinted = imprinted;
+    public GeneAnnotation setGeneImprinting(List<GeneImprinting> geneImprinting) {
+        this.geneImprinting = geneImprinting;
         return this;
     }
 
-    public GeneFusion getFusions() {
-        return fusions;
+    public GeneFusion getGeneFusions() {
+        return geneFusions;
     }
 
-    public GeneAnnotation setFusions(GeneFusion fusions) {
-        this.fusions = fusions;
+    public GeneAnnotation setGeneFusions(GeneFusion geneFusions) {
+        this.geneFusions = geneFusions;
         return this;
     }
 }
