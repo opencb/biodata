@@ -40,8 +40,8 @@ public class ChimerPub {
     private ChimerPubGeneBreakpoint tailGene;
     private List<String> pmid;
     private double score;
-    private List<String> disease;
-    private List<String> validation;
+    private List<String> diseases;
+    private List<String> validations;
     private boolean kinase;
     private boolean oncogene;
     private boolean tumorSuppressor;
@@ -60,14 +60,14 @@ public class ChimerPub {
         this.headGene = new ChimerPubGeneBreakpoint();
         this.tailGene = new ChimerPubGeneBreakpoint();
         this.pmid = new ArrayList<>();
-        this.disease = new ArrayList<>();
-        this.validation = new ArrayList<>();
+        this.diseases = new ArrayList<>();
+        this.validations = new ArrayList<>();
 
         this.source = SOURCE;
     }
 
     public ChimerPub(String id, String fusionPair, String translocation, ChimerPubGeneBreakpoint headGene, ChimerPubGeneBreakpoint tailGene,
-                     List<String> pmid, double score, List<String> disease, List<String> validation, boolean kinase, boolean oncogene,
+                     List<String> pmid, double score, List<String> diseases, List<String> validations, boolean kinase, boolean oncogene,
                      boolean tumorSuppressor, boolean receptor, boolean transcriptionFactor, boolean chimerKb, boolean chimerSeq,
                      boolean chimerSeqPlus, String senteceHighlight, String diseaseHighlight, String validationHighlight, String source) {
         this.id = id;
@@ -77,8 +77,8 @@ public class ChimerPub {
         this.tailGene = tailGene;
         this.pmid = pmid;
         this.score = score;
-        this.disease = disease;
-        this.validation = validation;
+        this.diseases = diseases;
+        this.validations = validations;
         this.kinase = kinase;
         this.oncogene = oncogene;
         this.tumorSuppressor = tumorSuppressor;
@@ -103,8 +103,8 @@ public class ChimerPub {
         sb.append(", tailGene=").append(tailGene);
         sb.append(", pmid=").append(pmid);
         sb.append(", score=").append(score);
-        sb.append(", disease=").append(disease);
-        sb.append(", validation=").append(validation);
+        sb.append(", diseases=").append(diseases);
+        sb.append(", validations=").append(validations);
         sb.append(", kinase=").append(kinase);
         sb.append(", oncogene=").append(oncogene);
         sb.append(", tumorSuppressor=").append(tumorSuppressor);
@@ -184,21 +184,21 @@ public class ChimerPub {
         return this;
     }
 
-    public List<String> getDisease() {
-        return disease;
+    public List<String> getDiseases() {
+        return diseases;
     }
 
-    public ChimerPub setDisease(List<String> disease) {
-        this.disease = disease;
+    public ChimerPub setDiseases(List<String> diseases) {
+        this.diseases = diseases;
         return this;
     }
 
-    public List<String> getValidation() {
-        return validation;
+    public List<String> getValidations() {
+        return validations;
     }
 
-    public ChimerPub setValidation(List<String> validation) {
-        this.validation = validation;
+    public ChimerPub setValidations(List<String> validations) {
+        this.validations = validations;
         return this;
     }
 

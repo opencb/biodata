@@ -199,13 +199,13 @@ public class ChimerKbParser {
                 // Diseases
                 strValue = getStringCellValue(row, 20);
                 if (strValue != null) {
-                    chimerKb.setDisease(Arrays.stream(strValue.split(",")).map(String::trim).collect(Collectors.toList()));
+                    chimerKb.setDiseases(Arrays.stream(strValue.split(",")).map(String::trim).collect(Collectors.toList()));
                 }
 
                 // Validations
                 strValue = getStringCellValue(row, 21);
                 if (strValue != null) {
-                    chimerKb.setValidation(Arrays.stream(strValue.split(",")).map(String::trim).collect(Collectors.toList()));
+                    chimerKb.setValidations(Arrays.stream(strValue.split(",")).map(String::trim).collect(Collectors.toList()));
                 }
 
                 // Frame

@@ -133,13 +133,13 @@ public class ChimerPubParser {
                 // Diseases
                 strValue = getStringCellValue(row, 7);
                 if (strValue != null) {
-                    chimerPub.setDisease(Arrays.stream(strValue.split(",")).map(String::trim).collect(Collectors.toList()));
+                    chimerPub.setDiseases(Arrays.stream(strValue.split(",")).map(String::trim).collect(Collectors.toList()));
                 }
 
                 // Validations
                 strValue = getStringCellValue(row, 8);
                 if (strValue != null) {
-                    chimerPub.setValidation(Arrays.stream(strValue.split(",")).map(String::trim).collect(Collectors.toList()));
+                    chimerPub.setValidations(Arrays.stream(strValue.split(",")).map(String::trim).collect(Collectors.toList()));
                 }
 
                 // Kinase

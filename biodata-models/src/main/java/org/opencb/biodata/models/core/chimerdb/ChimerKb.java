@@ -49,8 +49,8 @@ public class ChimerKb {
     private String breakpointType;
     private String genomeBuildVersion;
     private List<String> pmid;
-    private List<String> disease;
-    private List<String> validation;
+    private List<String> diseases;
+    private List<String> validations;
     private String frame;
     private String chrInfo;
     private boolean kinase;
@@ -66,16 +66,16 @@ public class ChimerKb {
 
     public ChimerKb() {
         this.pmid = new ArrayList<>();
-        this.disease = new ArrayList<>();
-        this.validation = new ArrayList<>();
+        this.diseases = new ArrayList<>();
+        this.validations = new ArrayList<>();
 
         this.source = SOURCE;
     }
 
     public ChimerKb(String id, String chimerDbType, String chimerSource, String webSource, String fusionPair, String fiveGeneJunction,
                     String threeGeneJunction, ChimerKbGeneBreakpoint headGene, ChimerKbGeneBreakpoint tailGene, boolean genomicBreakpoint,
-                    boolean exonicBreakpoint, String breakpointType, String genomeBuildVersion, List<String> pmid, List<String> disease,
-                    List<String> validation, String frame, String chrInfo, boolean kinase, boolean oncogene, boolean tumorSuppressor,
+                    boolean exonicBreakpoint, String breakpointType, String genomeBuildVersion, List<String> pmid, List<String> diseases,
+                    List<String> validations, String frame, String chrInfo, boolean kinase, boolean oncogene, boolean tumorSuppressor,
                     boolean receptor, boolean transcriptionFactor, boolean chimerPub, boolean chimerSeq, boolean chimerSeqPlus,
                     String source) {
         this.id = id;
@@ -92,8 +92,8 @@ public class ChimerKb {
         this.breakpointType = breakpointType;
         this.genomeBuildVersion = genomeBuildVersion;
         this.pmid = pmid;
-        this.disease = disease;
-        this.validation = validation;
+        this.diseases = diseases;
+        this.validations = validations;
         this.frame = frame;
         this.chrInfo = chrInfo;
         this.kinase = kinase;
@@ -124,8 +124,8 @@ public class ChimerKb {
         sb.append(", breakpointType='").append(breakpointType).append('\'');
         sb.append(", genomeBuildVersion='").append(genomeBuildVersion).append('\'');
         sb.append(", pmid=").append(pmid);
-        sb.append(", disease=").append(disease);
-        sb.append(", validation=").append(validation);
+        sb.append(", diseases=").append(diseases);
+        sb.append(", validations=").append(validations);
         sb.append(", frame='").append(frame).append('\'');
         sb.append(", chrInfo='").append(chrInfo).append('\'');
         sb.append(", kinase=").append(kinase);
@@ -267,21 +267,21 @@ public class ChimerKb {
         return this;
     }
 
-    public List<String> getDisease() {
-        return disease;
+    public List<String> getDiseases() {
+        return diseases;
     }
 
-    public ChimerKb setDisease(List<String> disease) {
-        this.disease = disease;
+    public ChimerKb setDiseases(List<String> diseases) {
+        this.diseases = diseases;
         return this;
     }
 
-    public List<String> getValidation() {
-        return validation;
+    public List<String> getValidations() {
+        return validations;
     }
 
-    public ChimerKb setValidation(List<String> validation) {
-        this.validation = validation;
+    public ChimerKb setValidations(List<String> validations) {
+        this.validations = validations;
         return this;
     }
 

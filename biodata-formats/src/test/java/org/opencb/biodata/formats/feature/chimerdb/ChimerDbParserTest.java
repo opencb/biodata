@@ -2,7 +2,6 @@ package org.opencb.biodata.formats.feature.chimerdb;
 
 
 import org.junit.Assert;
-import org.junit.Test;
 import org.opencb.biodata.models.core.GeneFusion;
 import org.opencb.biodata.models.core.chimerdb.ChimerKb;
 
