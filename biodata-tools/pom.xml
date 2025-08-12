@@ -29,6 +29,10 @@
     <artifactId>biodata-tools</artifactId>
     <packaging>jar</packaging>
 
+    <name>Biodata-tools</name>
+    <description>Biological entities and their equivalents in different file formats typically used in bioinformatics</description>
+    <url>https://github.com/opencb/biodata/wiki</url>
+
     <dependencies>
         <dependency>
             <groupId>org.opencb.biodata</groupId>
