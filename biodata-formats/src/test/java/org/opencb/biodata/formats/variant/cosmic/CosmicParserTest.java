@@ -84,7 +84,7 @@ public class CosmicParserTest {
         CosmicParser101.parse(genomeScreensMutantFile, classificationFile, version, name, assembly, callback);
         Map<String, List<EvidenceEntry>> results = callback.getResults();
 
-        Assert.assertEquals(6, results.size());
+        Assert.assertEquals(7, results.size());
 
         for (Map.Entry<String, List<EvidenceEntry>> entry : results.entrySet()) {
             System.out.println(entry.getKey() + " --> size = " + entry.getValue().size());

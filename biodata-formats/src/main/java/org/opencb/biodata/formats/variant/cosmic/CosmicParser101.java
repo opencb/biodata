@@ -101,7 +101,8 @@ public class CosmicParser101 {
     private static final String VARIANT_STRING_PATTERN = "[ACGT]*";
 
     private static final Pattern mutationGRCh37GenomePositionPattern = Pattern.compile("(?<" + CHROMOSOME + ">\\S+):(?<" + START + ">\\d+)-(?<" + END + ">\\d+)");
-    private static final Pattern snvPattern = Pattern.compile("c\\.\\d+((\\+|\\-|_)\\d+)?(?<" + REF + ">([ACTG])+)>(?<" + ALT + ">([ACTG])+)");
+//    private static final Pattern snvPattern = Pattern.compile("c\\.\\d+((\\+|\\-|_)\\d+)?(?<" + REF + ">([ACTG])+)>(?<" + ALT + ">([ACTG])+)");
+    private static final Pattern snvPattern = Pattern.compile("c\\.(-?\\d+)((\\+|\\-|_)(-?\\d+))?(?<" + REF + ">([ACTG])+)>(?<" + ALT + ">([ACTG])+)");
 
     private static Logger logger = LoggerFactory.getLogger(CosmicParser101.class);
 
