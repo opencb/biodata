@@ -392,6 +392,11 @@ public class CosmicParser101 {
             validVariant = false;
         }
 
+        // Log if the variant is not valid
+        if (!validVariant) {
+            logger.warn("Could not parse INSERTION: mutation CDS = {}, sequenceLocation = {}", mutationCds, sequenceLocation);
+        }
+
         return validVariant;
     }
 
@@ -409,6 +414,11 @@ public class CosmicParser101 {
         } else {
             sequenceLocation.setReference(getPositiveStrandString(mutationCDSArray[1], sequenceLocation.getStrand()));
             sequenceLocation.setAlternate("");
+        }
+
+        // Log if the variant is not valid
+        if (!validVariant) {
+            logger.warn("Could not parse DELETION: mutation CDS = {}, sequenceLocation = {}", mutationCds, sequenceLocation);
         }
 
         return validVariant;
@@ -429,6 +439,11 @@ public class CosmicParser101 {
             }
         } else {
             validVariant = false;
+        }
+
+        // Log if the variant is not valid
+        if (!validVariant) {
+            logger.warn("Could not parse SNV: mutation CDS = {}, sequenceLocation = {}", mutationCds, sequenceLocation);
         }
 
         return validVariant;
