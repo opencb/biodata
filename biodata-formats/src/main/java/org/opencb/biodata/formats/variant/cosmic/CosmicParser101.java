@@ -101,7 +101,8 @@ public class CosmicParser101 {
     private static final String VARIANT_STRING_PATTERN = "[ACGT]*";
 
     private static final Pattern mutationGRCh37GenomePositionPattern = Pattern.compile("(?<" + CHROMOSOME + ">\\S+):(?<" + START + ">\\d+)-(?<" + END + ">\\d+)");
-    private static final Pattern snvPattern = Pattern.compile("c\\.\\d+((\\+|\\-|_)\\d+)?(?<" + REF + ">([ACTG])+)>(?<" + ALT + ">([ACTG])+)");
+//    private static final Pattern snvPattern = Pattern.compile("c\\.\\d+((\\+|\\-|_)\\d+)?(?<" + REF + ">([ACTG])+)>(?<" + ALT + ">([ACTG])+)");
+    private static final Pattern snvPattern = Pattern.compile("c\\.(-?\\d+)((\\+|\\-|_)(-?\\d+))?(?<" + REF + ">([ACTG])+)>(?<" + ALT + ">([ACTG])+)");
 
     private static Logger logger = LoggerFactory.getLogger(CosmicParser101.class);
 
@@ -391,6 +392,11 @@ public class CosmicParser101 {
             validVariant = false;
         }
 
+        // Log if the variant is not valid
+        if (!validVariant) {
+            logger.warn("Could not parse INSERTION: mutation CDS = {}, sequenceLocation = {}", mutationCds, sequenceLocation);
+        }
+
         return validVariant;
     }
 
@@ -408,6 +414,11 @@ public class CosmicParser101 {
         } else {
             sequenceLocation.setReference(getPositiveStrandString(mutationCDSArray[1], sequenceLocation.getStrand()));
             sequenceLocation.setAlternate("");
+        }
+
+        // Log if the variant is not valid
+        if (!validVariant) {
+            logger.warn("Could not parse DELETION: mutation CDS = {}, sequenceLocation = {}", mutationCds, sequenceLocation);
         }
 
         return validVariant;
@@ -428,6 +439,11 @@ public class CosmicParser101 {
             }
         } else {
             validVariant = false;
+        }
+
+        // Log if the variant is not valid
+        if (!validVariant) {
+            logger.warn("Could not parse SNV: mutation CDS = {}, sequenceLocation = {}", mutationCds, sequenceLocation);
         }
 
         return validVariant;
