@@ -20,6 +20,8 @@
 package org.opencb.biodata.formats.variant.civic;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.opencb.biodata.formats.io.FileFormatException;
 import org.opencb.biodata.models.core.civic.*;
 import org.opencb.commons.utils.FileUtils;
@@ -34,43 +36,60 @@ import java.util.*;
 
 public class CivicParser {
 
+    private Path variantSummariesFile;
+    private Path featureSummariesFile;
+    private Path molecularProfileSummariesFile;
+    private Path assertionSummariesFile;
+    private Path clinicalEvidenceSummariesFile;
+    private String version;
+    private String assembly;
+    private CivicParserCallback callback;
+
+    Map<String, CivicFeature> featuresMap;
+    Map<String, CivicClinicalEvidence> evidencesMap;
+    Map<String, CivicAssertion> assertionsMap;
+    Map<String, CivicMolecularProfile> profilesMap;
+
+    Map<String, Set<String>> variantToProfilesMap;
+
     private static final Logger logger = LoggerFactory.getLogger(CivicParser.class);
 
-    private CivicParser() {
-        throw new IllegalStateException("Utility class");
+    public CivicParser(Path variantSummariesFile, Path featureSummariesFile, Path molecularProfileSummariesFile,
+                       Path assertionSummariesFile, Path clinicalEvidenceSummariesFile, String version, String assembly,
+                       CivicParserCallback callback) {
+        this.variantSummariesFile = variantSummariesFile;
+        this.featureSummariesFile = featureSummariesFile;
+        this.molecularProfileSummariesFile = molecularProfileSummariesFile;
+        this.assertionSummariesFile = assertionSummariesFile;
+        this.clinicalEvidenceSummariesFile = clinicalEvidenceSummariesFile;
+        this.version = version;
+        this.assembly = assembly;
+        this.callback = callback;
+
+        this.variantToProfilesMap = new HashMap<>();
     }
 
-    public static void parse(Path variantSummariesFile, Path featureSummariesFile, Path molecularProfileSummariesFile,
-                             Path assertionSummariesFile, Path clinicalEvidenceSummariesFile, String version,
-                             CivicParserCallback callback) throws IOException, FileFormatException {
-
-        logger.info("Starting CIViC parsing with version: {}", version);
+    public void parse() throws IOException, FileFormatException {
+        logger.info("Starting CIViC parsing with version {} for assembly {}", version, assembly);
 
         // Step 1: Parse features first
-        Map<String, CivicFeature> featuresMap = parseFeaturesFile(featureSummariesFile);
-        logger.info("Parsed {} features", featuresMap.size());
+        parseFeaturesFile();
 
         // Step 2: Parse clinical evidence and link to molecular profiles
-        Map<String, CivicClinicalEvidence> evidencesMap = parseClinicalEvidencesFile(clinicalEvidenceSummariesFile);
-        logger.info("Parsed {} evidences", evidencesMap.size());
+        parseClinicalEvidencesFile();
 
         // Step 3: Parse assertions and complete them with evidences
-        Map<String, CivicAssertion> assertionsMap = parseAssertionsFile(assertionSummariesFile, evidencesMap);
-        logger.info("Parsed {} assertions and complete with evidences", assertionsMap.size());
+        parseAssertionsFile();
 
         // Step 4: Parse molecular profiles and complete them with assertions and evidences
-        Map<String, CivicMolecularProfile> profilesMap = parseMolecularProfilesFile(molecularProfileSummariesFile, assertionsMap,
-                evidencesMap);
-        logger.info("Parsed {} molecular profiles and complete with assertions and evidences", profilesMap.size());
-
+        parseMolecularProfilesFile();
 
         // Step 5: Parse variants and build complete objects
-        int numVariants = parseVariantsFile(variantSummariesFile, profilesMap, featuresMap, callback);
-        logger.info("Completed CIViC parsing: {} variants processed", numVariants);
+        parseVariantsFile();
     }
 
-    private static Map<String, CivicFeature> parseFeaturesFile(Path featureSummariesFile) throws IOException, FileFormatException {
-        Map<String, CivicFeature> featuresMap = new HashMap<>();
+    private void parseFeaturesFile() throws IOException {
+        featuresMap = new HashMap<>();
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(FileUtils.newInputStream(featureSummariesFile)))) {
             String line = reader.readLine(); // Skip header
@@ -84,10 +103,10 @@ public class CivicParser {
             }
         }
 
-        return featuresMap;
+        logger.info("Parsed {} features", featuresMap.size());
     }
 
-    private static CivicFeature parseFeatureFields(String[] fields) {
+    private CivicFeature parseFeatureFields(String[] fields) {
         return new CivicFeature()
                 .setFeatureId(getField(fields, 0))
                 .setFeatureCivicUrl(getField(fields, 1))
@@ -109,9 +128,8 @@ public class CivicParser {
                 .setThreePrimeGeneEntrezId(getField(fields, 17));
     }
 
-    private static Map<String, CivicClinicalEvidence> parseClinicalEvidencesFile(Path clinicalEvidenceSummariesFile) throws IOException {
-
-        Map<String, CivicClinicalEvidence> evidencesMap = new HashMap<>();
+    private void parseClinicalEvidencesFile() throws IOException {
+        evidencesMap = new HashMap<>();
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(FileUtils.newInputStream(clinicalEvidenceSummariesFile)))) {
             String line = reader.readLine(); // Skip header
@@ -125,10 +143,18 @@ public class CivicParser {
             }
         }
 
-        return evidencesMap;
+        logger.info("Parsed {} evidences", evidencesMap.size());
     }
 
-    private static CivicClinicalEvidence parseClinicalEvidenceFields(String[] fields) {
+    private CivicClinicalEvidence parseClinicalEvidenceFields(String[] fields) {
+        // 0                    1                       2       3       4           5           6                           7
+        // molecular_profile	molecular_profile_id	disease	doid	phenotypes	therapies	therapy_interaction_type	evidence_type
+        // 8                    9                10             11                  12          13          14                  15
+        // evidence_direction	evidence_level	significance	evidence_statement	citation_id	source_type	asco_abstract_id	citation
+        // 16       17      18              19          20              21                  22                  23
+        // nct_ids	rating	evidence_status	evidence_id	variant_origin	last_review_date	evidence_civic_url	molecular_profile_civic_url
+        // 24
+        // is_flagged
         return new CivicClinicalEvidence()
                 .setDisease(getField(fields, 2))
                 .setDoid(getField(fields, 3))
@@ -154,10 +180,8 @@ public class CivicParser {
                 .setFlagged(parseBoolean(getField(fields, 24)));
     }
 
-    private static  Map<String, CivicAssertion> parseAssertionsFile(Path assertionSummariesFile, Map<String,
-            CivicClinicalEvidence> evidenceMap) throws IOException {
-
-        Map<String, CivicAssertion> assertionsMap = new HashMap<>();
+    private void parseAssertionsFile() throws IOException {
+        assertionsMap = new HashMap<>();
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(FileUtils.newInputStream(assertionSummariesFile)))) {
             String line = reader.readLine(); // Skip header
@@ -170,8 +194,8 @@ public class CivicParser {
                     // Set evidences from evidence map using the evidence IDs in the assertion
                     List<String> evidenceIds = parseStringList(getField(fields, 18));
                     for (String evidenceId : evidenceIds) {
-                        if (evidenceMap.containsKey(evidenceId)) {
-                            assertion.getEvidences().add(evidenceMap.get(evidenceId));
+                        if (evidencesMap.containsKey(evidenceId)) {
+                            assertion.getEvidences().add(evidencesMap.get(evidenceId));
                         }
                     }
 
@@ -180,10 +204,10 @@ public class CivicParser {
             }
         }
 
-        return assertionsMap;
+        logger.info("Parsed {} assertions and complete with evidences", assertionsMap.size());
     }
 
-    private static CivicAssertion parseAssertionFields(String[] fields) {
+    private CivicAssertion parseAssertionFields(String[] fields) {
         return new CivicAssertion()
                 .setDisease(getField(fields, 2))
                 .setDoid(getField(fields, 3))
@@ -206,12 +230,8 @@ public class CivicParser {
                 .setFlagged(parseBoolean(getField(fields, 23)));
     }
 
-    private static Map<String, CivicMolecularProfile> parseMolecularProfilesFile(Path molecularProfileSummariesFile,
-                                                                                 Map<String, CivicAssertion> assertionsMap,
-                                                                                 Map<String, CivicClinicalEvidence> evidencesMap)
-            throws IOException {
-
-        Map<String, CivicMolecularProfile> profilesMap = new HashMap<>();
+    private void parseMolecularProfilesFile() throws IOException {
+        profilesMap = new HashMap<>();
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(FileUtils.newInputStream(molecularProfileSummariesFile)))) {
             String line = reader.readLine(); // Skip header
@@ -238,14 +258,29 @@ public class CivicParser {
                     }
 
                     profilesMap.put(profile.getMolecularProfileId(), profile);
+
+                    // Add to the variant to profiles map
+                    // This is necessary because there are situations that a given profile is not include in the VariantSummaries.tsv file
+                    // but in the MolecularProfilesSummarie.tsv file (usually when the profile includes multiple variants)
+                    List<String> variantIds = parseStringList(getField(fields, 3));
+                    for (String variantId : variantIds) {
+                        if (!variantToProfilesMap.containsKey(variantId)) {
+                            variantToProfilesMap.put(variantId, new HashSet<>());
+                        }
+                        variantToProfilesMap.get(variantId).add(profile.getMolecularProfileId());
+                    }
                 }
             }
         }
 
-        return profilesMap;
+        logger.info("Parsed {} molecular profiles and complete with assertions and evidences", profilesMap.size());
     }
 
-    private static CivicMolecularProfile parseMolecularProfileFields(String[] fields) {
+    private CivicMolecularProfile parseMolecularProfileFields(String[] fields) {
+        // 0    1                       2       3           4                   5               6                   7
+        // name	molecular_profile_id	summary	variant_ids	variants_civic_url	evidence_score	evidence_item_ids	evidence_items_civic_url
+        // 8                9                       10       11                 12
+        // assertion_ids	assertions_civic_url	aliases	last_review_date	is_flagged
         return new CivicMolecularProfile()
                 .setName(getField(fields, 0))
                 .setMolecularProfileId(getField(fields, 1))
@@ -256,16 +291,35 @@ public class CivicParser {
                 .setFlagged(parseBoolean(getField(fields, 12)));
     }
 
-    private static int parseVariantsFile(Path variantSummariesFile, Map<String, CivicMolecularProfile> profilesMap,
-                                         Map<String, CivicFeature> featuresMap, CivicParserCallback callback) throws IOException {
-
+    private void parseVariantsFile() throws IOException {
+        int totalVariants = 0;
         int numVariants = 0;
+        int numVariantsSkippedByAssemblyEmpty = 0;
+        int numVariantsSkippedByAssemblyMismatch = 0;
+
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(FileUtils.newInputStream(variantSummariesFile)))) {
             String line = reader.readLine(); // Skip header
 
             while ((line = reader.readLine()) != null) {
                 if (StringUtils.isNotBlank(line)) {
+                    totalVariants++;
+
                     String[] fields = line.split("\t", -1);
+
+                    // Filter by assembly
+                    String variantAssembly = getField(fields, 22);
+                    if (StringUtils.isEmpty(variantAssembly)) {
+                        numVariantsSkippedByAssemblyEmpty++;
+                        logger.warn("Skipping variant ID {} due to assembly is empty", getField(fields, 0));
+                        continue;
+                    }
+                    if (!assembly.equalsIgnoreCase(variantAssembly)) {
+                        numVariantsSkippedByAssemblyMismatch++;
+                        logger.warn("Skipping variant ID {} due to assembly mismatch: expected {}, found {}", getField(fields, 0),
+                                assembly, variantAssembly);
+                        continue;
+                    }
+
                     CivicVariant variant = parseVariantFields(fields);
 
                     // Link feature and enhance with transcript/exon info
@@ -287,23 +341,35 @@ public class CivicParser {
 
                     // Link molecular profiles from profiles map using the single variant molecular profile ID
                     String singleVariantMolecularProfileId = getField(fields, 11);
-                    if (StringUtils.isNotBlank(singleVariantMolecularProfileId)
-                            && profilesMap.containsKey(singleVariantMolecularProfileId)) {
-                        variant.setMolecularProfile(profilesMap.get(singleVariantMolecularProfileId));
+                    if (StringUtils.isNotEmpty(singleVariantMolecularProfileId)) {
+                        if (!variantToProfilesMap.containsKey(variant.getVariantId())) {
+                            variantToProfilesMap.put(variant.getVariantId(), new HashSet<>());
+                        }
+                        variantToProfilesMap.get(variant.getVariantId()).add(singleVariantMolecularProfileId);
+                    }
+
+                    // Iterate the list of molecular profile IDs associated to the variant and link the profilesfrom the profiles map
+                    List<String> profileIds = new ArrayList<>(variantToProfilesMap.get(variant.getVariantId()));
+                    for (String profileId : profileIds) {
+                        if (profilesMap.containsKey(profileId)) {
+                            variant.getMolecularProfiles().add(profilesMap.get(profileId));
+                        }
                     }
 
                     // Process variant through callback
-                    if (!callback.processCivicVariant(variant)) {
-                        // Stop parsing if callback returns false
-                        logger.warn("CIViC parsing stopped by callback request.");
-                        break;
+                    if (callback.processCivicVariant(variant)) {
+                        numVariants++;
+                    } else {
+                        // Add warning to log and continue the parsing
+                        logger.warn("CIViC parsing callback returned false for variant ID: {}", variant.getVariantId());
                     }
-                    numVariants++;
                 }
             }
         }
 
-        return numVariants;
+        logger.info("Parsed {} variants, {} passed the callback filter", totalVariants, numVariants);
+        logger.info("Skipped {} variants due to empty assembly", numVariantsSkippedByAssemblyEmpty);
+        logger.info("Skipped {} variants due to assembly mismatch", numVariantsSkippedByAssemblyMismatch);
     }
 
     private static CivicVariant parseVariantFields(String[] fields) {

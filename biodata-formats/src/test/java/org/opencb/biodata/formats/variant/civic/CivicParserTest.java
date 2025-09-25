@@ -1,5 +1,6 @@
 package org.opencb.biodata.formats.variant.civic;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Test;
@@ -43,6 +44,7 @@ public class CivicParserTest {
         Path civicPath = Paths.get("/opt/civic-data/");
         Assume.assumeTrue(Files.exists(civicPath));
 
+        String assembly = "grch38";
         String version = "v1";
         Path variantSummariesFile = civicPath.resolve("01-Sep-2025-VariantSummaries.tsv");
         Path featureSummariesFile = civicPath.resolve("01-Sep-2025-FeatureSummaries.tsv");
@@ -52,10 +54,16 @@ public class CivicParserTest {
 
         MyCallback callback = new MyCallback(">>> Testing message");
 
-        CivicParser.parse(variantSummariesFile, featureSummariesFile, molecularProfileSummariesFile, assertionSummariesFile,
-                clinicalEvidenceSummariesFile, version, callback);
+        CivicParser parser = new CivicParser(variantSummariesFile, featureSummariesFile, molecularProfileSummariesFile,
+                assertionSummariesFile, clinicalEvidenceSummariesFile, version, assembly, callback);
+
+        parser.parse();
         List<CivicVariant> civicVariants = callback.getCivicVariants();
 
-        Assert.assertEquals(1811, civicVariants.size());
+        // Only 2 variants are GRCh38
+        Assert.assertEquals(2, civicVariants.size());
+        for (CivicVariant civicVariant : civicVariants) {
+            System.out.println(new ObjectMapper().writerFor(CivicVariant.class).writeValueAsString(civicVariant));
+        }
     }
 }

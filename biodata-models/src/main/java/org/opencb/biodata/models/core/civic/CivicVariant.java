@@ -32,7 +32,7 @@ public class CivicVariant {
 
     // Associated data
     private CivicFeature feature;
-    private CivicMolecularProfile molecularProfile;
+    private List<CivicMolecularProfile> molecularProfiles;
 
     public CivicVariant() {
         this.variantAliases = new ArrayList<>();
@@ -42,7 +42,7 @@ public class CivicVariant {
         this.clinvarIds = new ArrayList<>();
 
         this.feature = new CivicFeature();
-        this.molecularProfile = new CivicMolecularProfile();
+        this.molecularProfiles = new ArrayList<>();
     }
 
     @Override
@@ -72,7 +72,7 @@ public class CivicVariant {
         sb.append(", ncitId='").append(ncitId).append('\'');
         sb.append(", viccCompliantName='").append(viccCompliantName).append('\'');
         sb.append(", feature=").append(feature);
-        sb.append(", molecularProfile=").append(molecularProfile);
+        sb.append(", molecularProfiles=").append(molecularProfiles);
         sb.append('}');
         return sb.toString();
     }
@@ -293,12 +293,12 @@ public class CivicVariant {
         return this;
     }
 
-    public CivicMolecularProfile getMolecularProfile() {
-        return molecularProfile;
+    public List<CivicMolecularProfile> getMolecularProfiles() {
+        return molecularProfiles;
     }
 
-    public CivicVariant setMolecularProfile(CivicMolecularProfile molecularProfile) {
-        this.molecularProfile = molecularProfile;
+    public CivicVariant setMolecularProfiles(List<CivicMolecularProfile> molecularProfiles) {
+        this.molecularProfiles = molecularProfiles;
         return this;
     }
 }
