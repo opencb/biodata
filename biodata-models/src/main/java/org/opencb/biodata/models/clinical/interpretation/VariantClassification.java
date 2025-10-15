@@ -208,9 +208,11 @@ public class VariantClassification {
                     if (populationFrequency.getAltAlleleFreq() != 0) {
                         hasPopFreq = true;
                     }
-                    if ("EXAC".equals(populationFrequency.getStudy())
-                            || "1kG_phase3".equals(populationFrequency.getStudy())
-                            || "GNOMAD_EXOMES".equals(populationFrequency.getStudy())) {
+                    if ("EXAC".equalsIgnoreCase(populationFrequency.getStudy())
+                            || "1kG_phase3".equalsIgnoreCase(populationFrequency.getStudy())
+                            || "1000G".equalsIgnoreCase(populationFrequency.getStudy())
+                            || "GNOMAD_EXOMES".equalsIgnoreCase(populationFrequency.getStudy())
+                            || "GNOMAD_GENOMES".equalsIgnoreCase(populationFrequency.getStudy())) {
                         if (populationFrequency.getAltAlleleFreq() > 0.05) {
                             above5 = true;
                         }
@@ -348,9 +350,11 @@ public class VariantClassification {
                 if (populationFrequency.getAltAlleleFreq() != 0) {
                     hasPopFreq = true;
                 }
-                if ("EXAC".equals(populationFrequency.getStudy())
-                        || "1kG_phase3".equals(populationFrequency.getStudy())
-                        || "GNOMAD_EXOMES".equals(populationFrequency.getStudy())) {
+                if ("EXAC".equalsIgnoreCase(populationFrequency.getStudy())
+                        || "1kG_phase3".equalsIgnoreCase(populationFrequency.getStudy())
+                        || "1000G".equalsIgnoreCase(populationFrequency.getStudy())
+                        || "GNOMAD_EXOMES".equalsIgnoreCase(populationFrequency.getStudy())
+                        || "GNOMAD_GENOMES".equalsIgnoreCase(populationFrequency.getStudy())) {
                     if (populationFrequency.getAltAlleleFreq() > 0.05) {
                         above5 = true;
                     }
