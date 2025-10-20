@@ -156,8 +156,8 @@ public class VariantClassification {
         //  PP3, BP4
         if (consequenceType != null) {
             // PP3 and BP4 based on multiple scores (at leat two scores needed)
-            boolean pp3 = false;
-            Set<String> scoresSet = new HashSet<>();
+            Set<String> pp3Evidences = new HashSet<>();
+            Set<String> bp4Evidences = new HashSet<>();
             if (consequenceType.getProteinVariantAnnotation() != null
                     && CollectionUtils.isNotEmpty(consequenceType.getProteinVariantAnnotation().getSubstitutionScores())) {
                 // SIFT, POLYPHEN, REVEL
@@ -167,23 +167,26 @@ public class VariantClassification {
                     }
                     switch (score.getSource().toLowerCase()) {
                         case "sift": {
-                            if (score.getScore() < 0.05) {
-                                pp3 = true;
-                                scoresSet.add(score.getSource());
+                            if (score.getScore() <= 0.05) {
+                                pp3Evidences.add(score.getSource());
+                            } else if (score.getScore() > 0.05) {
+                                bp4Evidences.add(score.getSource());
                             }
                             break;
                         }
                         case "polyphen": {
-                            if (score.getScore() > 0.91) {
-                                pp3 = true;
-                                scoresSet.add(score.getSource());
+                            if (score.getScore() > 0.9) {
+                                pp3Evidences.add(score.getSource());
+                            } else if (score.getScore() <= 0.1) {
+                                bp4Evidences.add(score.getSource());
                             }
                             break;
                         }
                         case "revel": {
                             if (score.getScore() >= 0.75) {
-                                pp3 = true;
-                                scoresSet.add(score.getSource());
+                                pp3Evidences.add(score.getSource());
+                            } else if (score.getScore() <= 0.15) {
+                                bp4Evidences.add(score.getSource());
                             }
                             break;
                         }
@@ -204,8 +207,9 @@ public class VariantClassification {
                         switch (score.getSource().toLowerCase()) {
                             case "cadd_scaled": {
                                 if (score.getScore() > 15.0) {
-                                    pp3 = true;
-                                    scoresSet.add(score.getSource());
+                                    pp3Evidences.add(score.getSource());
+                                } else if (score.getScore() <= 15.0) {
+                                    bp4Evidences.add(score.getSource());
                                 }
                                 break;
                             }
@@ -226,22 +230,25 @@ public class VariantClassification {
                         switch (score.getSource().toLowerCase()) {
                             case "gerp": {
                                 if (score.getScore() > 2.0) {
-                                    pp3 = true;
-                                    scoresSet.add(score.getSource());
+                                    pp3Evidences.add(score.getSource());
+                                } else if (score.getScore() <= 2.0) {
+                                    bp4Evidences.add(score.getSource());
                                 }
                                 break;
                             }
                             case "phastCons": {
                                 if (score.getScore() >= 0.9) {
-                                    pp3 = true;
-                                    scoresSet.add(score.getSource());
+                                    pp3Evidences.add(score.getSource());
+                                } else if (score.getScore() <= 0.1) {
+                                    bp4Evidences.add(score.getSource());
                                 }
                                 break;
                             }
                             case "phylop": {
                                 if (score.getScore() >= 2.0) {
-                                    pp3 = true;
-                                    scoresSet.add(score.getSource());
+                                    pp3Evidences.add(score.getSource());
+                                } else if (score.getScore() <= 0.0) {
+                                    bp4Evidences.add(score.getSource());
                                 }
                                 break;
                             }
@@ -255,12 +262,11 @@ public class VariantClassification {
             }
 
             // At least two scores (sift, polyphen, revel, cadd_scaled, gerp, phastCons or phylop) are needed to apply PP3/BP4
-            if (scoresSet.size() > 1) {
-                if (pp3) {
-                    acmg.add("PP3");
-                } else {
-                    acmg.add("BP4");
-                }
+            if (pp3Evidences.size() > 1) {
+                acmg.add("PP3");
+            }
+            if (bp4Evidences.size() > 1) {
+                acmg.add("BP4");
             }
         }
 
