@@ -19,35 +19,19 @@
 
 package org.opencb.biodata.tools.variant.converters.proto;
 
-import com.google.protobuf.Descriptors;
-import com.google.protobuf.DynamicMessage;
-import com.google.protobuf.Message;
-import org.apache.avro.Schema;
-import org.apache.avro.generic.GenericRecord;
-import org.opencb.biodata.models.variant.StudyEntry;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.VariantBuilder;
-import org.opencb.biodata.models.variant.avro.FileEntry;
-import org.opencb.biodata.models.variant.avro.SampleEntry;
+import org.opencb.biodata.models.variant.avro.*;
 import org.opencb.biodata.models.variant.protobuf.VariantAnnotationProto;
 import org.opencb.biodata.models.variant.protobuf.VariantProto;
-import org.opencb.biodata.models.variant.stats.VariantStats;
 import org.opencb.biodata.tools.commons.Converter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 /**
  * Created on 10/01/17.
  *
  * @author Jacobo Coll &lt;jacobo167@gmail.com&gt;
  */
-public class VariantAvroToVariantProtoConverter implements Converter<Variant, VariantProto.Variant> {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+public class VariantAvroToVariantProtoConverter extends AvroToProtoConverter implements Converter<Variant, VariantProto.Variant> {
 
     @Override
     public VariantProto.Variant convert(Variant variant) {
@@ -61,30 +45,33 @@ public class VariantAvroToVariantProtoConverter implements Converter<Variant, Va
         set(variant::getLength, builder::setLength);
         set(variant::getReference, builder::setReference);
         set(variant::getAlternate, builder::setAlternate);
+        set(variant::getStrand, builder::setStrand);
         set(variant::getType, t -> builder.setType(VariantBuilder.getProtoVariantType(t)));
+        set(variant::getSv, builder::setSv, sv -> toProto(sv, VariantProto.StructuralVariation.newBuilder(), "variant.sv"));
 
         if (variant.getStudies() != null) {
-            for (StudyEntry study : variant.getStudies()) {
-                VariantProto.StudyEntry.Builder studyBuilder = toProto(study);
+            for (org.opencb.biodata.models.variant.avro.StudyEntry studyEntry : variant.getImpl().getStudies()) {
+                VariantProto.StudyEntry.Builder studyBuilder = toProto(studyEntry);
                 builder.addStudies(studyBuilder);
             }
         }
         if (variant.getAnnotation() != null) {
-            builder.setAnnotation(toProto(variant.getAnnotation(), VariantAnnotationProto.VariantAnnotation.newBuilder()));
+            builder.setAnnotation(toProto(variant.getAnnotation(), VariantAnnotationProto.VariantAnnotation.newBuilder(), "variant.annotation"));
         }
         return builder.build();
     }
 
-    private VariantProto.StudyEntry.Builder toProto(StudyEntry study) {
+    private VariantProto.StudyEntry.Builder toProto(org.opencb.biodata.models.variant.avro.StudyEntry study) {
         VariantProto.StudyEntry.Builder studyBuilder = VariantProto.StudyEntry.newBuilder();
         studyBuilder.setStudyId(study.getStudyId());
         set(study::getStudyId, studyBuilder::setStudyId);
         set(study::getSampleDataKeys, studyBuilder::addAllSampleDataKeys);
         for (SampleEntry sampleEntry : study.getSamples()) {
-            studyBuilder.addSamples(VariantProto.SampleEntry.newBuilder().addAllData(sampleEntry.getData()));
+            studyBuilder.addSamples(toProto(sampleEntry)
+            );
         }
 
-        for (VariantStats stats : study.getStats()) {
+        for (org.opencb.biodata.models.variant.avro.VariantStats stats : study.getStats()) {
             VariantProto.VariantStats.Builder variantStats = toProto(stats);
             studyBuilder.addStats(variantStats.build());
         }
@@ -92,7 +79,48 @@ public class VariantAvroToVariantProtoConverter implements Converter<Variant, Va
             VariantProto.FileEntry.Builder fileBuilder = toProto(fileEntry);
             studyBuilder.addFiles(fileBuilder);
         }
+        if (study.getSecondaryAlternates() != null) {
+            for (AlternateCoordinate secondaryAlternate : study.getSecondaryAlternates()) {
+                VariantProto.AlternateCoordinate.Builder altBuilder = VariantProto.AlternateCoordinate.newBuilder();
+                set(secondaryAlternate::getChromosome, altBuilder::setChromosome);
+                set(secondaryAlternate::getStart, altBuilder::setStart);
+                set(secondaryAlternate::getEnd, altBuilder::setEnd);
+                set(secondaryAlternate::getReference, altBuilder::setReference);
+                set(secondaryAlternate::getAlternate, altBuilder::setAlternate);
+                set(secondaryAlternate::getType, t -> altBuilder.setType(VariantBuilder.getProtoVariantType(t)));
+                studyBuilder.addSecondaryAlternates(altBuilder);
+            }
+        }
+        if (study.getScores() != null) {
+            for (VariantScore score : study.getScores()) {
+                VariantProto.VariantScore.Builder scoreBuilder = VariantProto.VariantScore.newBuilder();
+                set(score::getId, scoreBuilder::setId);
+                set(score::getScore, scoreBuilder::setScore);
+                set(score::getPValue, scoreBuilder::setPValue);
+                set(score::getCohort1, scoreBuilder::setCohort1);
+                set(score::getCohort2, scoreBuilder::setCohort2);
+                studyBuilder.addScores(scoreBuilder);
+            }
+        }
+        if (study.getIssues() != null) {
+            for (IssueEntry issue : study.getIssues()) {
+                VariantProto.IssueEntry.Builder issueBuilder = VariantProto.IssueEntry.newBuilder();
+                set(issue::getType, issueType -> issueBuilder.setType(VariantProto.IssueEntry.IssueType.valueOf(issueType.name())));
+                set(issue::getData, issueBuilder::putAllData);
+                set(issue::getSample, sample -> issueBuilder.setSample(toProto(sample)));
+
+                studyBuilder.addIssues(issueBuilder);
+            }
+        }
         return studyBuilder;
+    }
+
+    private static VariantProto.SampleEntry toProto(SampleEntry sampleEntry) {
+        return VariantProto.SampleEntry.newBuilder()
+                .setSampleId(sampleEntry.getSampleId())
+                .addAllData(sampleEntry.getData())
+                .setFileIndex(sampleEntry.getFileIndex())
+                .build();
     }
 
     private VariantProto.FileEntry.Builder toProto(FileEntry fileEntry) {
@@ -107,7 +135,7 @@ public class VariantAvroToVariantProtoConverter implements Converter<Variant, Va
         return fileBuilder;
     }
 
-    private VariantProto.VariantStats.Builder toProto(VariantStats stats) {
+    private VariantProto.VariantStats.Builder toProto(org.opencb.biodata.models.variant.avro.VariantStats stats) {
         VariantProto.VariantStats.Builder statsBuilder = VariantProto.VariantStats.newBuilder();
         set(stats::getAlleleCount, statsBuilder::setAlleleCount);
         set(stats::getRefAlleleCount, statsBuilder::setRefAlleleCount);
@@ -122,88 +150,13 @@ public class VariantAvroToVariantProtoConverter implements Converter<Variant, Va
         set(stats::getMgf, statsBuilder::setMgf);
         set(stats::getMafAllele, statsBuilder::setMafAllele);
         set(stats::getMgfGenotype, statsBuilder::setMgfGenotype);
+        set(stats::getFilterCount, map -> map.forEach(statsBuilder::putFilterCount));
+        set(stats::getFilterFreq, map -> map.forEach(statsBuilder::putFilterFreq));
+        set(stats::getQualityAvg, statsBuilder::setQualityAvg);
+        set(stats::getCohortId, statsBuilder::setCohortId);
+        set(stats::getSampleCount, statsBuilder::setSampleCount);
+        set(stats::getFileCount, statsBuilder::setFileCount);
+        set(stats::getQualityCount, statsBuilder::setQualityCount);
         return statsBuilder;
-    }
-
-    private Object toProto(Object o, Descriptors.FieldDescriptor fieldDescriptor) {
-        if (o instanceof GenericRecord) {
-            return toProto((GenericRecord) o, fieldDescriptor).build();
-        } else if (o instanceof Collection) {
-            return ((Collection<Object>) o).stream().map(o1 -> toProto(o1, fieldDescriptor)).collect(Collectors.toList());
-        } else if (o instanceof Map) {
-            Map<Object, Object> map = new HashMap<>();
-            ((Map<Object, Object>) o).forEach((k, v) -> map.put(k.toString(), toProto(v, fieldDescriptor)));
-            return map;
-        } else {
-            return o;
-        }
-    }
-
-    private Message.Builder toProto(GenericRecord record, Descriptors.FieldDescriptor fieldDescriptor) {
-        Descriptors.Descriptor messageType = fieldDescriptor.getMessageType();
-        DynamicMessage.Builder builder = DynamicMessage.newBuilder(messageType);
-        return toProto(record, builder);
-    }
-
-    private <Builder extends Message.Builder> Builder toProto(GenericRecord record, Builder builder) {
-
-        Descriptors.Descriptor descriptor = builder.getDescriptorForType();
-        Map<String, Descriptors.FieldDescriptor> map = new HashMap<>();
-        for (Descriptors.FieldDescriptor fieldDescriptor : descriptor.getFields()) {
-            map.put(fieldDescriptor.getName(), fieldDescriptor);
-            map.put(fieldDescriptor.getJsonName(), fieldDescriptor);
-        }
-
-        for (Schema.Field field : record.getSchema().getFields()) {
-//            Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName(field.name());
-            Descriptors.FieldDescriptor fieldDescriptor = map.get(field.name());
-            Object o = record.get(field.pos());
-            if (fieldDescriptor == null) {
-//                logger.warn("Field " + field.name() + " not found! ");
-                continue;
-            }
-            if (fieldDescriptor.getJavaType() == Descriptors.FieldDescriptor.JavaType.MESSAGE) {
-                o = toProto(o, fieldDescriptor);
-            }
-            if (o != null) {
-                try {
-                    if (fieldDescriptor.isRepeated()) {
-                        Collection c = o instanceof Collection ? ((Collection) o) : Collections.singletonList(o);
-                        for (Object o1 : c) {
-                            if (fieldDescriptor.getJavaType() == Descriptors.FieldDescriptor.JavaType.ENUM) {
-                                o1 = fieldDescriptor.getEnumType().findValueByName(String.valueOf(o1));
-                            }
-                            builder.addRepeatedField(fieldDescriptor, o1);
-                        }
-                    } else {
-                        if (fieldDescriptor.getJavaType() == Descriptors.FieldDescriptor.JavaType.ENUM) {
-                            o = fieldDescriptor.getEnumType().findValueByName(String.valueOf(o));
-                        }
-                        builder.setField(fieldDescriptor, o);
-                    }
-                } catch (RuntimeException e) {
-                    Descriptors.GenericDescriptor d;
-                    if (fieldDescriptor.getJavaType() == Descriptors.FieldDescriptor.JavaType.MESSAGE) {
-                        d = fieldDescriptor.getMessageType();
-                    } else if (fieldDescriptor.getJavaType() == Descriptors.FieldDescriptor.JavaType.ENUM ) {
-                        d = fieldDescriptor.getEnumType();
-                    } else {
-                        logger.warn("Type = " + fieldDescriptor.getJavaType());
-                        d = descriptor;
-                    }
-                    logger.warn("Error adding field '" + fieldDescriptor.getName() + "' type: " + d.toProto() + " value: " + o);
-                //    throw e;
-                }
-            }
-        }
-
-        return builder;
-    }
-
-    private <T> void set(Supplier<T> source, Consumer<T> target) {
-        T t = source.get();
-        if (Objects.nonNull(t)) {
-            target.accept(t);
-        }
     }
 }
