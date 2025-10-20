@@ -18,7 +18,7 @@ public class VariantAvroToVariantProtoConverterTest extends TestCase {
 
     public void testConvert() throws Exception {
         for (int r = 0; r < 100; r++) {
-            VariantAvro record = getRandomValue(VariantAvro.getClassSchema());
+            VariantAvro record = (VariantAvro) getRandomValue(VariantAvro.getClassSchema());
 
             AvroToProtoConverter plainConverter = new VariantAvroToVariantProtoConverter();
             VariantAvroToVariantProtoConverter converter = new VariantAvroToVariantProtoConverter();
@@ -36,40 +36,29 @@ public class VariantAvroToVariantProtoConverterTest extends TestCase {
         }
     }
 
-    private static <T extends GenericRecord> T getRandomValue(Schema schema) throws Exception {
-        GenericRecord record = (GenericRecord) Class.forName(schema.getFullName()).newInstance();
-
-        for (Schema.Field subField : schema.getFields()) {
-            Object value = getRandomValue(subField);
-            record.put(subField.pos(), value);
-        }
-        return (T) record;
-    }
-
-    private static Object getRandomValue(Schema.Field field) throws Exception {
-        switch (field.schema().getType()) {
+    private static Object getRandomValue(Schema schema) throws Exception {
+        switch (schema.getType()) {
             case RECORD:
-                Schema schema = field.schema();
                 GenericRecord record = (GenericRecord) Class.forName(schema.getFullName()).newInstance();
 
                 for (Schema.Field subField : schema.getFields()) {
-                    Object value = getRandomValue(subField);
+                    Object value = getRandomValue(subField.schema());
                     record.put(subField.pos(), value);
                 }
                 return record;
             case ARRAY:
                 List<Object> list = new ArrayList<>(3);
                 for (int i = 0; i < 3; i++) {
-                    list.add(getRandomValue(field.schema().getElementType()));
+                    list.add(getRandomValue(schema.getElementType()));
                 }
                 return list;
             case MAP:
                 Map<String, Object> map = new LinkedHashMap<>();
-                map.put("v1", getRandomValue(field.schema().getValueType()));
-                map.put("v2", getRandomValue(field.schema().getValueType()));
+                map.put("v1", getRandomValue(schema.getValueType()));
+                map.put("v2", getRandomValue(schema.getValueType()));
                 return map;
             case UNION:
-                for (Schema s : field.schema().getTypes()) {
+                for (Schema s : schema.getTypes()) {
                     if (s.getType() != Schema.Type.NULL) {
                         return getRandomValue(s);
                     }
@@ -90,11 +79,11 @@ public class VariantAvroToVariantProtoConverterTest extends TestCase {
             case NULL:
                 return null;
             case ENUM:
-                Class<? extends Enum> aClass = (Class<? extends Enum>) Class.forName(field.schema().getFullName());
+                Class<? extends Enum> aClass = (Class<? extends Enum>) Class.forName(schema.getFullName());
                 Object[] constants = aClass.getEnumConstants();
                 return constants[RandomUtils.nextInt(0, constants.length)];
             default:
-                throw new IllegalArgumentException("Unsupported type " + field.schema().getType());
+                throw new IllegalArgumentException("Unsupported type " + schema.getType());
         }
     }
 }
