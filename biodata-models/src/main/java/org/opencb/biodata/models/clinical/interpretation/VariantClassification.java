@@ -165,6 +165,7 @@ public class VariantClassification {
                     if (StringUtils.isEmpty(score.getSource())) {
                         continue;
                     }
+                    // Be careful with the source names!, use lowercase to avoid problems
                     switch (score.getSource().toLowerCase()) {
                         case "sift": {
                             if (score.getScore() <= 0.05) {
@@ -204,6 +205,7 @@ public class VariantClassification {
                         if (StringUtils.isEmpty(score.getSource())) {
                             continue;
                         }
+                        // Be careful with the source names!, use lowercase to avoid problems
                         switch (score.getSource().toLowerCase()) {
                             case "cadd_scaled": {
                                 if (score.getScore() > 15.0) {
@@ -227,6 +229,7 @@ public class VariantClassification {
                         if (StringUtils.isEmpty(score.getSource())) {
                             continue;
                         }
+                        // Be careful with the source names!, use lowercase to avoid problems
                         switch (score.getSource().toLowerCase()) {
                             case "gerp": {
                                 if (score.getScore() > 2.0) {
@@ -236,7 +239,8 @@ public class VariantClassification {
                                 }
                                 break;
                             }
-                            case "phastCons": {
+                            // phastCons, make lowercase to phastcons
+                            case "phastcons": {
                                 if (score.getScore() >= 0.9) {
                                     pp3Evidences.add(score.getSource());
                                 } else if (score.getScore() <= 0.1) {
