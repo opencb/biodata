@@ -1,19 +1,20 @@
 package org.opencb.biodata.tools.clinical.tiering;
 
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.Map;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TieringConfiguration {
-
-    private List<String> panels;
+    private String penetrance;
     private Map<String, Object> queries;
     private Map<String, Map<String, Object>> tiers;
 
     public TieringConfiguration() {
     }
 
-    public TieringConfiguration(List<String> panels, Map<String, Object> queries, Map<String, Map<String, Object>> tiers) {
-        this.panels = panels;
+    public TieringConfiguration(String penetrance, Map<String, Object> queries, Map<String, Map<String, Object>> tiers) {
+        this.penetrance = penetrance;
         this.queries = queries;
         this.tiers = tiers;
     }
@@ -21,19 +22,19 @@ public class TieringConfiguration {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("TieringConfiguration{");
-        sb.append("panels=").append(panels);
+        sb.append("penetrance='").append(penetrance).append('\'');
         sb.append(", queries=").append(queries);
         sb.append(", tiers=").append(tiers);
         sb.append('}');
         return sb.toString();
     }
 
-    public List<String> getPanels() {
-        return panels;
+    public String getPenetrance() {
+        return penetrance;
     }
 
-    public TieringConfiguration setPanels(List<String> panels) {
-        this.panels = panels;
+    public TieringConfiguration setPenetrance(String penetrance) {
+        this.penetrance = penetrance;
         return this;
     }
 
