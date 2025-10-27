@@ -18,4 +18,6 @@ jobs:
   deploy-maven:
     uses: opencb/java-common-libs/.github/workflows/deploy-maven-repository-workflow.yml@develop
     needs: test
+    with:
+      maven_opts: -U -DskipTests
     secrets: inherit
