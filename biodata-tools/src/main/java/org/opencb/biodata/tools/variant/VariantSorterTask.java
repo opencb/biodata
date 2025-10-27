@@ -1,5 +1,9 @@
 package org.opencb.biodata.tools.variant;
 
+import org.opencb.biodata.models.variant.Variant;
+
+import java.util.Comparator;
+
 /**
  * Variant sorter task.
  * Perform a minimal sorting on variants.
@@ -12,5 +16,9 @@ public class VariantSorterTask extends VariantDeduplicationTask {
 
     public VariantSorterTask(int bufferSize) {
         super(variants -> variants, bufferSize);
+    }
+
+    public VariantSorterTask(int bufferSize, Comparator<Variant> variantComparator) {
+        super(variants -> variants, bufferSize, variantComparator);
     }
 }
