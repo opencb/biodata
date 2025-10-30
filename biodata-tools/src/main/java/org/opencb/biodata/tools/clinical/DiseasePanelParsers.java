@@ -208,6 +208,10 @@ public class DiseasePanelParsers {
 
         Map<String, Object> panelInfo = objectMapper.readValue(panelAppJsonFile.toFile(), Map.class);
 
+        return parsePanelApp(panelInfo);
+    }
+
+    public static DiseasePanel parsePanelApp(Map<String, Object> panelInfo) {
         List<DiseasePanel.PanelCategory> categories = new ArrayList<>(2);
         categories.add(new DiseasePanel.PanelCategory(String.valueOf(panelInfo.get("disease_group")), 1));
         categories.add(new DiseasePanel.PanelCategory(String.valueOf(panelInfo.get("disease_sub_group")), 2));
