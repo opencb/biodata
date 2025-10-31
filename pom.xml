@@ -37,7 +37,6 @@
     </modules>
 
     <properties>
-        <!-- All dependency versions must be defined here -->
         <java-common-libs.version>7.0.0-SNAPSHOT</java-common-libs.version>
 
         <jackson.version>2.14.3</jackson.version>
