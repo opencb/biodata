@@ -1,6 +1,10 @@
 name: Build and test the project
 on:
   workflow_call:
+    outputs:
+      cache_key:
+        description: "Cache key used for Maven repository"
+        value: ${{ jobs.build.outputs.cache_key }}
     secrets:
       SONAR_TOKEN:
         required: true
