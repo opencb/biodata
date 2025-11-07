@@ -18,6 +18,8 @@ jobs:
     uses: opencb/java-common-libs/.github/workflows/deploy-maven-repository-workflow.yml@develop
     needs: build
     secrets: inherit
+    with:
+      cache_key: ${{ needs.build.outputs.cache_key }}
 
   release:
     uses: opencb/java-common-libs/.github/workflows/release-github-workflow.yml@develop
