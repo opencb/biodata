@@ -8,5 +8,4 @@ on:
 jobs:
   test:
     uses: ./.github/workflows/test-analysis.yml
-    needs: build
     secrets: inherit
