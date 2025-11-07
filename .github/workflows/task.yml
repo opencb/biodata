@@ -6,9 +6,6 @@ on:
       - TASK-*
 
 jobs:
-  build:
-    uses: opencb/java-common-libs/.github/workflows/build-java-app-workflow.yml@develop
-
   test:
     uses: ./.github/workflows/test-analysis.yml
     needs: build

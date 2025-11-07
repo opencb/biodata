@@ -9,6 +9,12 @@ on:
 jobs:
   build:
     uses: opencb/java-common-libs/.github/workflows/build-java-app-workflow.yml@develop
+    with:
+      maven_opts: -U -DskipTests
+      upload_artifacts: false
+      needs_hadoop_preparation: false
+    secrets: inherit
+
 
   test:
     uses: ./.github/workflows/test-analysis.yml

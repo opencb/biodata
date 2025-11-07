@@ -8,6 +8,11 @@ on:
 jobs:
   build:
     uses: opencb/java-common-libs/.github/workflows/build-java-app-workflow.yml@develop
+    with:
+      maven_opts: -U -DskipTests
+      upload_artifacts: false
+      needs_hadoop_preparation: false
+    secrets: inherit
 
   deploy-maven:
     uses: opencb/java-common-libs/.github/workflows/deploy-maven-repository-workflow.yml@develop

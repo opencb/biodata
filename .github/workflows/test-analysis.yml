@@ -6,8 +6,18 @@ on:
         required: true
 
 jobs:
+
+  build:
+    uses: opencb/java-common-libs/.github/workflows/build-java-app-workflow.yml@develop
+    with:
+      needs_hadoop_preparation: false
+      upload-artifact: false
+    secrets: inherit
+
+
   test:
     name: Test and push Sonar analysis
+    needs: build
     runs-on: ${{ vars.UBUNTU_VERSION }}
     steps:
       - uses: actions/checkout@v4
@@ -19,16 +29,15 @@ jobs:
           distribution: 'temurin'
           java-version: '11'
           cache: 'maven'
+      - name: Cache local Maven repository
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ needs.build.outputs.cache-key }}
+          ## Force cache hit to avoid analyzing with incomplete dependencies
+          fail-on-cache-miss: true
       - name: Install Samtools
         run: sudo apt-get install samtools
-      - name: Install dependencies branches
-        run: |
-          if [ -f "./.github/workflows/scripts/get_same_branch.sh" ]; then
-            chmod +x ./.github/workflows/scripts/get_same_branch.sh
-            ./.github/workflows/scripts/get_same_branch.sh ${{ github.ref_name }}
-          else
-             echo "./.github/workflows/scripts/get_same_branch.sh does not exist."
-          fi
       - name: Test and Analyze
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
