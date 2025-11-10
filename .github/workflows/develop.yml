@@ -7,12 +7,8 @@ on:
       - release-*
 
 jobs:
-  build:
-    uses: opencb/java-common-libs/.github/workflows/build-java-app-workflow.yml@develop
-
   test:
     uses: ./.github/workflows/test-analysis.yml
-    needs: build
     secrets: inherit
 
   deploy-maven:
@@ -20,4 +16,5 @@ jobs:
     needs: test
     with:
       maven_opts: -U -DskipTests
+      cache_key: ${{ needs.test.outputs.cache_key }}
     secrets: inherit
