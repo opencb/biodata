@@ -96,7 +96,7 @@ public class VariantStatsPopulationFrequencyExporter implements DataWriter<Varia
                 PopulationFrequency populationFrequency = converter.convert(studyId,
                         variantStats, variant.getReference(), variant.getAlternate());
                 // Write only frequencies non zero
-                if (populationFrequency.getAltAlleleFreq() > 0 && !populationFrequency.getAltAlleleFreq().isNaN()) {
+                if (populationFrequency.getAltAlleleFreq() > 0 && !Float.isNaN(populationFrequency.getAltAlleleFreq())) {
                     frequencies.add(populationFrequency);
                 }
             }
