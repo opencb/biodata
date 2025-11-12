@@ -12,6 +12,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class AvroToProtoConverter {
     private final Map<String, Message.Builder> builders = new HashMap<>();
@@ -46,6 +47,10 @@ public class AvroToProtoConverter {
             logger.warn("Number of fields mismatch at " + context + ": Avro fields="
                     + record.getSchema().getFields().size() + ", Proto fields=" + descriptor.getFields().size()
                     + ", missing avro fields: " + missingInAvro + ", missing proto fields: " + missingInProto);
+            logger.warn("Proto fields: "
+                    + descriptor.getFields().stream().map(Descriptors.FieldDescriptor::getJsonName).sorted().collect(Collectors.toList()));
+            logger.warn("Avro fields: "
+                    + record.getSchema().getFields().stream().map(Schema.Field::name).sorted().collect(Collectors.toList()));
             throw new IllegalArgumentException("Number of fields mismatch at " + context + ": Avro fields="
                     + record.getSchema().getFields().size() + ", Proto fields=" + descriptor.getFields().size());
         }

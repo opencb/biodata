@@ -93,6 +93,7 @@ message ConsequenceType {
     repeated SpliceScores spliceScores = 16;
     repeated string transcriptFlags = 17;
     string source = 18;
+    repeated string acmg = 19;
 }
 
 message Repeat {
@@ -248,6 +249,12 @@ message CancerHotspotVariantAnnotation {
     string source = 10;
 }
 
+message GenomicSequenceContext {
+    int32 start = 1;
+    int32 end = 2;
+    string sequence = 3;
+}
+
 message VariantAnnotation {
     string chromosome = 1;
     int32 start = 2;
@@ -284,6 +291,8 @@ message VariantAnnotation {
     repeated Pharmacogenomics pharmacogenomics = 29;
     repeated GwasAssociation gwas = 30;
     repeated CancerHotspotVariantAnnotation cancer_hotspots = 31;
+
+    GenomicSequenceContext genomic_sequence_context = 32;
 
     message AdditionalAttribute {
         map<string, string> attribute = 1;
