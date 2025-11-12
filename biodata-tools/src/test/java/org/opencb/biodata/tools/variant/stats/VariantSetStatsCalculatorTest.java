@@ -132,10 +132,10 @@ public class VariantSetStatsCalculatorTest {
 
         System.out.println("stats = " + stats);
 
-        assertEquals(variants, stats.getVariantCount().intValue());
+        assertEquals(variants, stats.getVariantCount());
         assertEquals(((int) (files * variants * passVariants)), stats.getFilterCount().get("PASS").intValue());
-        assertEquals(files, stats.getFilesCount().intValue());
-        assertEquals(files * samplesPerFile, stats.getSampleCount().intValue());
+        assertEquals(files, stats.getFilesCount());
+        assertEquals(files * samplesPerFile, stats.getSampleCount());
         assertEquals(files * samplesPerFile * variants, stats.getGenotypeCount().values().stream().reduce(Long::sum).orElse(0L).intValue());
     }
 
@@ -154,10 +154,10 @@ public class VariantSetStatsCalculatorTest {
         }
         stDev = Math.sqrt(stDev / quals.length);
 
-        assertEquals(variants, stats.getVariantCount().intValue());
+        assertEquals(variants, stats.getVariantCount());
         assertEquals(((int) (variants * passVariants)), stats.getFilterCount().get("PASS").intValue());
-        assertEquals(1, stats.getFilesCount().intValue());
-        assertEquals(samplesPerFile, stats.getSampleCount().intValue());
+        assertEquals(1, stats.getFilesCount());
+        assertEquals(samplesPerFile, stats.getSampleCount());
         assertEquals(samplesPerFile * variants, stats.getGenotypeCount().values().stream().reduce(Long::sum).orElse(0L).intValue());
 
         assertEquals(mean, stats.getQualityAvg(), 0.000001);

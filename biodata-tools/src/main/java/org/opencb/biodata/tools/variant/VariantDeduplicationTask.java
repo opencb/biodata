@@ -15,7 +15,7 @@ public class VariantDeduplicationTask implements Task<Variant, Variant> {
     private final DuplicatedVariantsResolver resolver;
     private final CircularSortedArrayQueue<Variant> queue;
 
-    private static final Comparator<Variant> VARIANT_COMPARATOR = Comparator
+    public static final Comparator<Variant> VARIANT_COMPARATOR = Comparator
             .comparing(Variant::getChromosome, (chr1, chr2) -> chr1.equals(chr2) ? 0 : -1)
             .thenComparing(Variant::getStart)
             .thenComparing(Variant::getEnd)
@@ -44,8 +44,13 @@ public class VariantDeduplicationTask implements Task<Variant, Variant> {
     }
 
     public VariantDeduplicationTask(DuplicatedVariantsResolver duplicatedVariantsResolver, int bufferSize) {
+        this(duplicatedVariantsResolver, bufferSize, VARIANT_COMPARATOR);
+    }
+
+    public VariantDeduplicationTask(DuplicatedVariantsResolver duplicatedVariantsResolver, int bufferSize,
+                                    Comparator<Variant> variantComparator) {
         resolver = duplicatedVariantsResolver;
-        queue = new CircularSortedArrayQueue<>(bufferSize, VARIANT_COMPARATOR);
+        queue = new CircularSortedArrayQueue<>(bufferSize, variantComparator);
     }
 
     @FunctionalInterface

@@ -117,18 +117,18 @@ public class SampleVariantStatsCalculatorTest {
         for (SampleVariantStats sampleStat : sampleStats) {
             Assert.assertFalse(Float.isNaN(sampleStat.getQualityAvg()));
             Assert.assertFalse(Float.isInfinite(sampleStat.getQualityAvg()));
-            Assert.assertEquals(0, sampleStat.getDepthCount().getNa().intValue());
+            Assert.assertEquals(0, sampleStat.getDepthCount().getNa());
             int dp = Integer.parseInt(sampleStat.getId().substring(1)) * 10;
             if (dp < 5) {
-                Assert.assertNotEquals(0, sampleStat.getDepthCount().getLt5().intValue());
+                Assert.assertNotEquals(0, sampleStat.getDepthCount().getLt5());
             } else if (dp < 10) {
-                Assert.assertNotEquals(0, sampleStat.getDepthCount().getLt10().intValue());
+                Assert.assertNotEquals(0, sampleStat.getDepthCount().getLt10());
             } else if (dp < 15) {
-                Assert.assertNotEquals(0, sampleStat.getDepthCount().getLt15().intValue());
+                Assert.assertNotEquals(0, sampleStat.getDepthCount().getLt15());
             } else if (dp < 20) {
-                Assert.assertNotEquals(0, sampleStat.getDepthCount().getLt20().intValue());
+                Assert.assertNotEquals(0, sampleStat.getDepthCount().getLt20());
             } else {
-                Assert.assertNotEquals(0, sampleStat.getDepthCount().getGte20().intValue());
+                Assert.assertNotEquals(0, sampleStat.getDepthCount().getGte20());
             }
         }
     }
