@@ -30,4 +30,7 @@ message GeneDrugInteraction {
     string source = 3;
     string study_type = 4;
     string type = 5;
+    string interaction_type = 6;
+    string chembl_id = 7;
+    repeated string publications = 8;
 }
