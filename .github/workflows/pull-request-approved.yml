@@ -16,6 +16,8 @@ jobs:
       - name: Clone java-common-libs
         uses: actions/checkout@v4
         with:
+          repository: opencb/java-common-libs
+          ref: develop
           fetch-depth: '10'
           ## This is important to avoid the error in the next step: "fatal: repository 'https://github.com/zetta-genomics/opencga-enterprise.git/' not found"
           persist-credentials: false
