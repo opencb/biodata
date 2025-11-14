@@ -226,7 +226,7 @@ public class VariantContextToVariantProtoConverter implements Converter<VariantC
         consequenceType.setEnsemblTranscriptId(null);
         consequenceType.setStrand(null);
         consequenceType.setBiotype(null);
-        consequenceType.setCDnaPosition(0);
+        consequenceType.setCdnaPosition(0);
         consequenceType.setCdsPosition(0);
         consequenceType.setCodon(null);
 
@@ -329,14 +329,6 @@ public class VariantContextToVariantProtoConverter implements Converter<VariantC
          */
         variantAnnotation.setChromosome(null);
 
-        /*
-         * set Clinical map type parameter
-         */
-        VariantAnnotationProto.VariantTraitAssociation.Builder variantTraitAssociation = VariantAnnotationProto.VariantTraitAssociation.newBuilder();
-        variantTraitAssociation.addAllClinvar(Arrays.asList());
-        variantTraitAssociation.addAllCosmic(Arrays.asList());
-        variantTraitAssociation.addAllGwas(Arrays.asList());
-        variantAnnotation.setVariantTraitAssociation(variantTraitAssociation);
 
         /*
          * set ConsequenceTypes list type parameter

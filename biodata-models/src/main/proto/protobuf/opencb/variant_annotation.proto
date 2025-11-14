@@ -11,54 +11,6 @@ import "protobuf/opencb/common.proto";
 import "protobuf/opencb/gene.proto";
 import "protobuf/opencb/evidence.proto";
 
-// enum ExpressionCall in common.proto
-
-message ClinVar {
-    string accession = 1;
-    string clinical_significance = 2;
-    repeated string traits = 3;
-    repeated string geneNames = 4;
-    string review_status = 5;
-}
-
-message Gwas {
-    string snpIdCurrent = 1;
-    repeated string traits = 2;
-    double risk_allele_frequency = 3;
-    string reported_genes = 4;
-}
-
-message Cosmic {
-    string mutation_id = 1;
-    string primary_site = 2;
-    string site_subtype = 3;
-    string primary_histology = 4;
-    string histology_subtype = 5;
-    string sample_source = 6;
-    string tumour_origin = 7;
-    string gene_name = 8;
-    string mutation_somatic_status = 9;
-}
-
-message VariantTraitAssociation {
-    repeated ClinVar clinvar = 1;
-    repeated Gwas gwas = 2;
-    repeated Cosmic cosmic = 3;
-}
-
-// message GeneDrugInteraction in common.proto
-// message Expression in common.proto
-
-//message GeneTraitAssociation {
-//    string id = 1;
-//    string name = 2;
-//    string hpo = 3;
-//    float score = 4;
-//    int32 number_of_pubmeds = 5;
-//    repeated string association_types = 6;
-//    repeated string sources = 7;
-//    string source = 8;
-//}
 
 message PopulationFrequency {
     string study = 1;
@@ -70,6 +22,12 @@ message PopulationFrequency {
     float ref_hom_genotype_freq = 7;
     float het_genotype_freq = 8;
     float alt_hom_genotype_freq = 9;
+
+    int32 ref_allele_count = 10;
+    int32 alt_allele_count = 11;
+    int32 ref_hom_genotype_count = 12;
+    int32 het_genotype_count = 13;
+    int32 alt_hom_genotype_count = 14;
 }
 
 message SequenceOntologyTerm {
@@ -95,7 +53,7 @@ message ProteinVariantAnnotation {
     string uniprot_accession = 1;
     string uniprot_name = 2;
     int32 position = 3;
-    //string aaChange = 4;
+    string proteinId = 4;  // Ensembl or RefSeq protein ID
     string reference = 5;
     string alternate = 6;
     string uniprot_variant_id = 7;
@@ -110,6 +68,12 @@ message ExonOverlap {
     float percentage = 2;
 }
 
+
+message SpliceScores {
+    string source = 1;
+    map<string, double> scores = 2;
+}
+
 message ConsequenceType {
     string gene_name = 1;
     string ensembl_gene_id = 2;
@@ -117,12 +81,19 @@ message ConsequenceType {
     string strand = 4;
     string biotype = 5;
     repeated ExonOverlap exon_overlap = 6;
-    repeated string transcript_annotation_flags = 7;
-    int32 c_dna_position = 8;
+    int32 cdna_position = 8;
     int32 cds_position = 9;
     string codon = 10;
     ProteinVariantAnnotation protein_variant_annotation = 11;
     repeated SequenceOntologyTerm sequence_ontology_terms = 12;
+
+    string gene_id = 13;
+    string transcript_id = 14;
+    repeated string hgvs = 15;
+    repeated SpliceScores spliceScores = 16;
+    repeated string transcriptFlags = 17;
+    string source = 18;
+    repeated string acmg = 19;
 }
 
 message Repeat {
@@ -157,6 +128,133 @@ message Drug {
     repeated string bibliography = 7;
 }
 
+message Constraint {
+    string source = 1;
+    string method = 2;
+    string name = 3;
+    double value = 4;
+}
+
+message GeneMirnaTarget {
+    string id = 1;
+    string name = 2;
+    string biotype = 3;
+}
+
+message GeneCancerAssociation {
+    string id = 1;
+    string source = 2;
+    string tier = 3;
+    bool somatic = 4;
+    bool germline = 5;
+    repeated string somaticTumourTypes = 6;
+    repeated string germlineTumourTypes = 7;
+    repeated string syndromes = 8;
+    repeated string tissues = 9;
+    repeated string modeOfInheritance = 10;
+    repeated string roleInCancer = 11;
+    repeated string mutationTypes = 12;
+    repeated string translocationPartners = 13;
+}
+
+message PharmacogenomicsAlleles {
+  string allele = 1;
+  string annotation = 2;
+  string description = 3;
+}
+
+message PharmacogenomicsClinicalAnnotation {
+    string variantId = 1;
+    repeated string geneNames = 2;
+    repeated string phenotypes = 3;
+    repeated string phenotypeTypes = 4;
+    string confidence = 5;
+    string score = 6;
+    string url = 7;
+    string summary = 8;
+    repeated string pubmed = 9;
+    repeated PharmacogenomicsAlleles alleles = 10;
+}
+
+message Pharmacogenomics {
+    string id = 1;
+    string name = 2;
+    string source = 3;
+    repeated string types = 4;
+    string smiles = 5;
+    string inChI = 6;
+    repeated PharmacogenomicsClinicalAnnotation annotations = 7;
+}
+
+message GwasAssociationStudyTraitScores {
+    double pValue = 1;
+    double pValueMlog = 2;
+    string pValueText = 3;
+    double orBeta = 4;
+    string percentCI = 5;
+}
+
+message OntologyTermAnnotation {
+    string id = 1;
+    string name = 2;
+    string description = 3;
+    string source = 4;
+    string url = 5;
+    map<string, string> attributes = 6;
+}
+
+message GwasAssociationStudyTrait {
+    string diseaseTrait = 1;
+    repeated string strongestSnpRiskAllele = 2;
+    repeated OntologyTermAnnotation ontologies = 3;
+    repeated GwasAssociationStudyTraitScores scores = 4;
+}
+
+message GwasAssociationStudy {
+    string pubmedid = 1;
+    string study = 2;
+    string studyAccession = 3;
+    string initialSampleSizeDescription = 4;
+    int32 initialSampleSize = 5;
+    string platform = 6;
+    string genotypingTechnology = 7;
+    repeated GwasAssociationStudyTrait traits = 8;
+}
+
+message GwasAssociation {
+    string source = 1;
+    string region = 2;
+    string snpId = 3;
+    string riskAllele = 4;
+    double riskAlleleFrequency = 5;
+    repeated GwasAssociationStudy studies = 6;
+}
+
+message CancerHotspotAlternateAnnotation {
+  string aminoacidAlternate = 1;
+  int32 count = 2;
+  map<string, int32> sampleCount = 3;
+}
+
+message CancerHotspotVariantAnnotation {
+    string geneName = 1;
+    string proteinId = 2;
+    int32 aminoacidPosition = 3;
+    string aminoacidReference = 4;
+    string cancerType = 5;
+    map<string, double> scores = 6;
+    map<string, int32> cancerTypeCount = 7;
+    map<string, int32> organCount = 8;
+    repeated CancerHotspotAlternateAnnotation variants = 9;
+    string source = 10;
+}
+
+message GenomicSequenceContext {
+    int32 start = 1;
+    int32 end = 2;
+    string sequence = 3;
+}
+
 message VariantAnnotation {
     string chromosome = 1;
     int32 start = 2;
@@ -181,12 +279,20 @@ message VariantAnnotation {
     repeated Expression gene_expression = 16;
     repeated GeneTraitAssociation gene_trait_association = 17;
     repeated GeneDrugInteraction gene_drug_interaction = 18;
-    VariantTraitAssociation variant_trait_association = 19;
+    repeated Constraint gene_constraints = 26;
     repeated EvidenceEntry trait_association = 24;
     repeated Score functional_score = 20;
     repeated Repeat repeat = 21;
     repeated Cytoband cytoband = 22;
     repeated Drug drugs = 25;
+
+    repeated GeneMirnaTarget gene_mirna_targets = 27;
+    repeated GeneCancerAssociation gene_cancer_associations = 28;
+    repeated Pharmacogenomics pharmacogenomics = 29;
+    repeated GwasAssociation gwas = 30;
+    repeated CancerHotspotVariantAnnotation cancer_hotspots = 31;
+
+    GenomicSequenceContext genomic_sequence_context = 32;
 
     message AdditionalAttribute {
         map<string, string> attribute = 1;
