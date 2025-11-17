@@ -207,6 +207,47 @@ message SampleEntry {
     repeated string data = 3;
 }
 
+message IssueEntry {
+
+    enum IssueType {
+      DUPLICATION = 0;
+      DISCREPANCY = 1;
+      MENDELIAN_ERROR = 2;
+      DE_NOVO = 3;
+      COMPOUND_HETEROZYGOUS = 4;
+    }
+
+    IssueType type = 1;
+
+    SampleEntry sample = 2;
+
+    map<string, string> data = 3;
+}
+
+message VariantScore {
+
+/**
+ * Variant score ID.
+ */
+    string id = 1;
+/**
+ * Main cohort used for calculating the score.
+ */
+    string cohort1 = 2;
+/**
+ * Optional secondary cohort used for calculating the score.
+ */
+    string cohort2 = 3;
+/**
+ * Score value
+ */
+    float score = 4;
+/**
+ * Score p value
+ */
+    float pValue = 5;
+}
+
 message StudyEntry {
     string studyId = 1;
     repeated FileEntry files = 2;
@@ -217,22 +258,11 @@ message StudyEntry {
     repeated string sampleDataKeys = 4;
     repeated SampleEntry samples = 5;
     repeated VariantStats stats = 6;
+    repeated IssueEntry issues = 7;
+    repeated VariantScore scores = 8;
 }
 
-///**
-// * Type of structural variation
-// * <ul>
-// * <li>COPY_NUMBER_GAIN for CNVs</li>
-// * <li>COPY_NUMBER_LOSS for CNVs</li>
-// * <li>TANDEM_DUPLICATION for DUP</li>
-// * </ul>
-// */
-//enum StructuralVariantType {
-//    unused   = 0;            // SO:0001742
-////    COPY_NUMBER_GAIN   = 0;            // SO:0001742
-////    COPY_NUMBER_LOSS   = 1;            // SO:0001743
-////    TANDEM_DUPLICATION = 2;            // SO:1000173
-//}
+
 
 
 /*
@@ -263,6 +293,21 @@ message Breakend {
 
 
 message StructuralVariation {
+    /**
+     * Type of structural variation
+     * <ul>
+     * <li>COPY_NUMBER_GAIN for CNVs</li>
+     * <li>COPY_NUMBER_LOSS for CNVs</li>
+     * <li>TANDEM_DUPLICATION for DUP</li>
+     * </ul>
+     */
+    enum StructuralVariantType {
+//        unused   = 0;            // SO:0001742
+        COPY_NUMBER_GAIN   = 0;            // SO:0001742
+        COPY_NUMBER_LOSS   = 1;            // SO:0001743
+        TANDEM_DUPLICATION = 2;            // SO:1000173
+    }
+
     int32 ciStartLeft = 1;
     int32 ciStartRight = 2;
     int32 ciEndLeft = 3;
@@ -283,7 +328,7 @@ message StructuralVariation {
     /**
     * Structural variation type: COPY_NUMBER_GAIN, COPY_NUMBER_LOSS, TANDEM_DUPLICATION, ...
     */
-//    StructuralVariantType type = 8;
+    StructuralVariantType type = 8;
 
     Breakend breakend = 9;
 }
