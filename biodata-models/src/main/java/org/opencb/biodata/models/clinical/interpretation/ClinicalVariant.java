@@ -52,7 +52,8 @@ public class ClinicalVariant extends Variant {
 
     public enum Status {
         NOT_REVIEWED,
-        REVIEW_REQUESTED,
+        UNDER_CONSIDERATION,
+        CANDIDATE,
         REVIEWED,
         VALIDATION_REQUESTED,
         VALIDATED,
