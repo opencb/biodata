@@ -46,6 +46,7 @@ public class ClinicalVariant extends Variant {
     private List<ClinicalVariantSummaryStats> stats;
 
     private Status status;
+    private int version;
 
     // TODO maybe this parameter should be in Variant
     private Map<String, Object> attributes;
@@ -72,11 +73,21 @@ public class ClinicalVariant extends Variant {
                 Collections.emptyList(), Collections.emptyList(), new HashMap<>());
     }
 
+    @Deprecated
     public ClinicalVariant(VariantAvro avro, List<ClinicalVariantEvidence> evidences, List<ClinicalComment> comments,
                            ClinicalVariantFilter filter, List<ClinicalProperty.ModeOfInheritance> modesOfInheritance, String recommendation,
                            List<MiniPubmed> references,
                            ClinicalDiscussion discussion, ClinicalVariantConfidence confidence, List<ClinicalVariantSummaryStats> stats,
                            Status status, List<String> tags, List<String> images, Map<String, Object> attributes) {
+        this(avro, evidences, comments, filter, modesOfInheritance, recommendation, references, discussion, confidence, stats,
+                status, tags, images, 1, attributes);
+    }
+
+    public ClinicalVariant(VariantAvro avro, List<ClinicalVariantEvidence> evidences, List<ClinicalComment> comments,
+                           ClinicalVariantFilter filter, List<ClinicalProperty.ModeOfInheritance> modesOfInheritance, String recommendation,
+                           List<MiniPubmed> references,
+                           ClinicalDiscussion discussion, ClinicalVariantConfidence confidence, List<ClinicalVariantSummaryStats> stats,
+                           Status status, List<String> tags, List<String> images, int version, Map<String, Object> attributes) {
         super(avro);
 
         this.evidences = evidences;
@@ -91,9 +102,9 @@ public class ClinicalVariant extends Variant {
         this.tags = tags;
         this.images = images;
         this.confidence = confidence;
+        this.version = version;
         this.attributes = attributes;
     }
-
 
     @Override
     public String toString() {
@@ -223,6 +234,15 @@ public class ClinicalVariant extends Variant {
 
     public ClinicalVariant setImages(List<String> images) {
         this.images = images;
+        return this;
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
+    public ClinicalVariant setVersion(int version) {
+        this.version = version;
         return this;
     }
 
