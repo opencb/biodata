@@ -7,8 +7,6 @@ on:
 
 jobs:
 
-
-
   build:
     uses: opencb/ci-core/.github/workflows/build.yml@main
     with:
