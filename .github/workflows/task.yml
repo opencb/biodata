@@ -6,6 +6,18 @@ on:
       - TASK-*
 
 jobs:
+  build:
+    uses: opencb/ci-core/.github/workflows/build.yml@main
+    with:
+      needs_hadoop_preparation: false
+      upload_artifact: false
+      dependency_repos: "java-common-libs"
+    secrets: inherit
+
   test:
-    uses: ./.github/workflows/test-analysis.yml
+    name: Test and push Sonar analysis
+    needs: build
+    uses: opencb/ci-core/.github/workflows/test.yml@main
+    with:
+      cache_key: true
     secrets: inherit
