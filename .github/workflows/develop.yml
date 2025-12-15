@@ -13,6 +13,7 @@ jobs:
       needs_hadoop_preparation: false
       upload_artifact: false
       dependency_repos: "java-common-libs"
+      deploy_maven: true
     secrets: inherit
 
   test:
@@ -23,10 +24,3 @@ jobs:
       cache_key: true
     secrets: inherit
 
-  deploy-maven:
-    uses: opencb/java-common-libs/.github/workflows/deploy-maven-repository-workflow.yml@develop
-    needs: test
-    with:
-      maven_opts: -U -DskipTests
-      cache_key: ${{ needs.test.outputs.cache_key }}
-    secrets: inherit

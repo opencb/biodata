@@ -7,20 +7,13 @@ on:
 
 jobs:
   build:
-    uses: opencb/java-common-libs/.github/workflows/build-java-app-workflow.yml@develop
+    uses: opencb/ci-core/.github/workflows/build.yml@main
     with:
-      maven_opts: --update-snapshots -DskipTests
-      upload_artifacts: false
       needs_hadoop_preparation: false
+      upload_artifact: false
       dependency_repos: "java-common-libs"
+      deploy_maven: true
     secrets: inherit
-
-  deploy-maven:
-    uses: opencb/java-common-libs/.github/workflows/deploy-maven-repository-workflow.yml@develop
-    needs: build
-    secrets: inherit
-    with:
-      cache_key: ${{ needs.build.outputs.cache_key }}
 
   release:
     uses: opencb/java-common-libs/.github/workflows/release-github-workflow.yml@develop

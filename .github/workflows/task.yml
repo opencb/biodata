@@ -11,6 +11,7 @@ jobs:
     with:
       upload_artifact: false
       dependency_repos: "java-common-libs"
+      deploy_maven: true
     secrets: inherit
 
   test:
