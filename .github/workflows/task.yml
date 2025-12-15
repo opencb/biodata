@@ -6,12 +6,15 @@ on:
       - TASK-*
 
 jobs:
+
+
+
   build:
     uses: opencb/ci-core/.github/workflows/build.yml@main
     with:
       upload_artifact: false
       dependency_repos: "java-common-libs"
-      deploy_maven: true
+      deploy_maven: false
     secrets: inherit
 
   test:
@@ -20,4 +23,11 @@ jobs:
     uses: opencb/ci-core/.github/workflows/test.yml@main
     with:
       cache_key: true
+    secrets: inherit
+
+  test-xetabase:
+    uses: opencb/ci-core/.github/workflows/pull-request-approve.yml@main
+    with:
+      target_branch: develop
+      head_ref: TASK-8067
     secrets: inherit
