@@ -5,8 +5,6 @@ import java.util.List;
 public class MiniPubmed {
 
     private String id;
-    @Deprecated
-    private String name;
     private String title;
     private String journal;
     private String summary;
