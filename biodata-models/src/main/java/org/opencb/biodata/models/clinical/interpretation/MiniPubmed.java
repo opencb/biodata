@@ -41,7 +41,7 @@ public class MiniPubmed {
     public String toString() {
         final StringBuilder sb = new StringBuilder("MiniPubmed{");
         sb.append("id='").append(id).append('\'');
-        sb.append(", name='").append(name).append('\'');
+
         sb.append(", title='").append(title).append('\'');
         sb.append(", journal='").append(journal).append('\'');
         sb.append(", summary='").append(summary).append('\'');

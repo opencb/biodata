@@ -19,6 +19,8 @@
 
 package org.opencb.biodata.models.clinical.interpretation;
 
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.opencb.biodata.models.clinical.ClinicalComment;
 import org.opencb.biodata.models.clinical.ClinicalDiscussion;
 import org.opencb.biodata.models.clinical.ClinicalProperty;
@@ -32,8 +34,6 @@ public class ClinicalVariant extends Variant {
 
     private List<ClinicalVariantEvidence> evidences;
     private List<ClinicalComment> comments;
-    @Deprecated
-    private Map<String, Object> filters;
     private ClinicalVariantFilter filter;
     private List<ClinicalProperty.ModeOfInheritance> modesOfInheritance; // all compatible MoIs
     private String recommendation;
@@ -140,7 +140,11 @@ public class ClinicalVariant extends Variant {
     @Deprecated
     public ClinicalVariant setFilters(Map<String, Object> filters) {
         if (this.filter != null) {
-            this.filter.setQuery(filters);
+            if (MapUtils.isEmpty(this.filter.getQuery())) {
+                this.filter.setQuery(filters);
+            } else {
+                throw new IllegalStateException("Cannot set filters map when ClinicalVariantFilter is already set");
+            }
         } else {
             this.filter = new ClinicalVariantFilter(filters, "", "");
         }
