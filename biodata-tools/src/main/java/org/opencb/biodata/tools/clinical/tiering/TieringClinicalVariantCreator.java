@@ -17,7 +17,7 @@
  *
  */
 
-package org.opencb.biodata.tools.clinical;
+package org.opencb.biodata.tools.clinical.tiering;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -35,6 +35,7 @@ import org.opencb.biodata.models.core.Region;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.ConsequenceType;
 import org.opencb.biodata.models.variant.avro.SequenceOntologyTerm;
+import org.opencb.biodata.tools.clinical.ClinicalVariantCreator;
 
 import java.util.*;
 import java.util.stream.Collectors;
