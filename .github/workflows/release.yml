@@ -16,5 +16,5 @@ jobs:
     secrets: inherit
 
   release:
-    uses: opencb/java-common-libs/.github/workflows/release-github-workflow.yml@develop
-    needs: deploy-maven
+    uses: opencb/ci-core/.github/workflows/release.yml@main
+    needs: build

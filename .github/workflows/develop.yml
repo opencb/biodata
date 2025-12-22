@@ -1,19 +1,20 @@
 name: Push biodata develop
+run-name: 'Push on ${{ github.ref_name }} by @${{ github.actor }}'
 
 on:
   push:
     branches:
       - develop
       - release-*
+      - TASK-*
 
 jobs:
   build:
     uses: opencb/ci-core/.github/workflows/build.yml@main
     with:
-      needs_hadoop_preparation: false
       upload_artifact: false
       dependency_repos: "java-common-libs"
-      deploy_maven: true
+      deploy_maven: ${{ !startsWith(github.ref_name, 'TASK-') }}
     secrets: inherit
 
   test:
