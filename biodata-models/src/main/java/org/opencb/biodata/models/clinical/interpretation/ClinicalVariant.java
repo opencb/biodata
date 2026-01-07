@@ -139,6 +139,9 @@ public class ClinicalVariant extends Variant {
 
     @Deprecated
     public ClinicalVariant setFilters(Map<String, Object> filters) {
+        if (MapUtils.isEmpty(filters)) {
+            return this;
+        }
         if (this.filter != null) {
             if (MapUtils.isEmpty(this.filter.getQuery())) {
                 this.filter.setQuery(filters);
