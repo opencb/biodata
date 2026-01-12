@@ -129,31 +129,6 @@ public class ClinicalVariant extends Variant {
         return this;
     }
 
-    @Deprecated
-    public Map<String, Object> getFilters() {
-        if (this.filter != null) {
-            return this.filter.getQuery();
-        }
-        return null;
-    }
-
-    @Deprecated
-    public ClinicalVariant setFilters(Map<String, Object> filters) {
-        if (MapUtils.isEmpty(filters)) {
-            return this;
-        }
-        if (this.filter != null) {
-            if (MapUtils.isEmpty(this.filter.getQuery())) {
-                this.filter.setQuery(filters);
-            } else {
-                throw new IllegalStateException("Cannot set filters map when ClinicalVariantFilter is already set");
-            }
-        } else {
-            this.filter = new ClinicalVariantFilter(filters, "", "");
-        }
-        return this;
-    }
-
     public ClinicalVariantFilter getFilter() {
         return filter;
     }
