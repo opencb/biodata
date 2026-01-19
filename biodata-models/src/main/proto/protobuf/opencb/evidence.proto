@@ -185,15 +185,26 @@ Pharmacogenomics drug response variant classification
 * `efficacy` : a variant that affects the efficacy of the treatment
 */
 enum DrugResponseClassification {
-    responsive = 0;
-    resistant = 1;
-    toxicity = 2;
-    indication = 3;
-    contraindication = 4;
-    dosing = 5;
-    increased_monitoring = 6;
-    efficacy = 7;
-}
+    responsive = 0; // DEPRECATED: kept just for retrocompatibility purposes
+    altered_sensitivity = 1;
+    reduced_sensitivity = 2;
+    increased_sensitivity = 3;
+    altered_resistance = 4;
+    increased_resistance = 5;
+    reduced_resistance = 6;
+    increased_risk_of_toxicity = 7;
+    reduced_risk_of_toxicity = 8;
+    altered_toxicity = 9;
+    adverse_drug_reaction = 10;
+    indication = 11;
+    contraindication = 12;
+    dosing_alteration = 13;
+    increased_dose = 14;
+    reduced_dose = 15;
+    increased_monitoring = 16;
+    increased_efficacy = 17;
+    reduced_efficacy = 18;
+    altered_efficacy = 19;}
 
 /**
 Association of variants to a given trait.

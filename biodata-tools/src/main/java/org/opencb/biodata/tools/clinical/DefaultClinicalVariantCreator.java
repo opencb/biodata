@@ -28,6 +28,7 @@ import org.opencb.biodata.models.clinical.ClinicalProperty.Penetrance;
 import org.opencb.biodata.models.clinical.Disorder;
 import org.opencb.biodata.models.clinical.interpretation.ClinicalVariant;
 import org.opencb.biodata.models.clinical.interpretation.ClinicalVariantEvidence;
+import org.opencb.biodata.models.clinical.interpretation.ClinicalVariantFilter;
 import org.opencb.biodata.models.clinical.interpretation.DiseasePanel;
 import org.opencb.biodata.models.variant.Variant;
 import org.opencb.biodata.models.variant.avro.ConsequenceType;
@@ -134,8 +135,9 @@ public class DefaultClinicalVariantCreator extends ClinicalVariantCreator {
             // Create a clinical variant only if we have evidences
             if (CollectionUtils.isNotEmpty(clinicalVariantEvidences)) {
                 ClinicalVariant clinicalVariant = new ClinicalVariant(variant.getImpl(), Collections.emptyList(), Collections.emptyList(),
-                        Collections.emptyMap(), new ClinicalDiscussion(), null, ClinicalVariant.Status.NOT_REVIEWED,
-                        Collections.emptyList(), Collections.emptyMap());
+                        new ClinicalVariantFilter(), Collections.emptyList(), "", Collections.emptyList(), new ClinicalDiscussion(), null,
+                        Collections.emptyList(), ClinicalVariant.Status.NOT_REVIEWED, Collections.emptyList(), Collections.emptyList(),
+                        Collections.emptyMap());
                 clinicalVariant.setEvidences(clinicalVariantEvidences);
 
                 // Add variant to the list
